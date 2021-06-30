@@ -8,15 +8,16 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import pytest ; pytest
+from __future__ import annotations # isort:skip
 
+import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # External imports
-from mock import patch
+from mock import MagicMock, patch
 
 # Module under test
 import bokeh.document.events as bde # isort:skip
@@ -29,7 +30,7 @@ class FakeEmptyDispatcher:
     pass
 
 class FakeFullDispatcher:
-    def __init__(self):
+    def __init__(self) -> None:
         self.called = []
 
     def _document_changed(self, event):         self.called.append('_document_changed')
@@ -201,7 +202,7 @@ class TestModelChangedEvent:
         assert e.callback_invoker == "invoker2"
 
     @patch("bokeh.document.events.ColumnsStreamedEvent.combine")
-    def test_combine_with_hint_defers(self, mock_combine) -> None:
+    def test_combine_with_hint_defers(self, mock_combine: MagicMock) -> None:
         mock_combine.return_value = False
         m = FakeModel()
         h = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "setter", "invoker")
@@ -227,7 +228,7 @@ class TestColumnDataChangedEvent:
         assert e.callback_invoker == "invoker"
 
     @patch("bokeh.util.serialization.transform_column_source_data")
-    def test_generate(self, mock_tcds) -> None:
+    def test_generate(self, mock_tcds: MagicMock) -> None:
         mock_tcds.return_value = "new"
         m = FakeModel()
         e = bde.ColumnDataChangedEvent("doc", m, [1,2], "setter", "invoker")

@@ -508,7 +508,7 @@ class CustomAction(ActionTool):
 
     '''
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         action_tooltip = kwargs.pop("action_tooltip", None)
         if action_tooltip is not None:
             deprecated((2, 3, 0), "CustomAction.action_tooltip", "CustomAction.description")
@@ -1217,7 +1217,7 @@ class HelpTool(ActionTool):
 
     '''
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         help_tooltip = kwargs.pop("help_tooltip", None)
         if help_tooltip is not None:
             deprecated((2, 3, 0), "HelpTool.help_tooltip", "HelpTool.description")
@@ -1265,7 +1265,7 @@ class EditTool(GestureTool):
 
     '''
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         custom_tooltip = kwargs.pop("custom_tooltip", None)
         if custom_tooltip is not None:
             deprecated((2, 3, 0), "EditTool.custom_tooltip", "EditTool.description")

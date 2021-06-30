@@ -20,6 +20,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
+# External imports
+from typing_extensions import TypedDict
+
 # Bokeh imports
 from ... import colors
 from ...util.deprecation import deprecated
@@ -47,6 +53,11 @@ from .visual import (
     HatchPatternType,
     MarkerType,
 )
+
+if TYPE_CHECKING:
+    from ...core.types import Unknown
+    from ...models.expressions import Expression
+    from ...models.transforms import Transform
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -172,7 +183,7 @@ class DataSpec(Either):
             color = ColorSpec(help="docs for color") # defaults to None
 
     """
-    def __init__(self, key_type, value_type, default, help=None):
+    def __init__(self, key_type, value_type, default, help=None) -> None:
         super().__init__(
             String,
             Dict(
@@ -223,7 +234,7 @@ class DataSpec(Either):
         return dict(val)
 
 class IntSpec(DataSpec):
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
         super().__init__(key_type, Int, default=default, help=help)
 
 class NumberSpec(DataSpec):
@@ -246,7 +257,7 @@ class NumberSpec(DataSpec):
         m.location = "foo" # field
 
     """
-    def __init__(self, default=Undefined, help=None, key_type=_ExprFieldValueTransform, accept_datetime=True, accept_timedelta=True):
+    def __init__(self, default=Undefined, help=None, key_type=_ExprFieldValueTransform, accept_datetime=True, accept_timedelta=True) -> None:
         super().__init__(key_type, Float, default=default, help=help)
         if accept_timedelta:
             self.accepts(TimeDelta, convert_timedelta_type)
@@ -259,12 +270,12 @@ class AlphaSpec(NumberSpec):
     Acceptable values are numbers in 0..1 range (transparent..opaque).
     """
 
-    def __init__(self, default=1.0, help=None):
+    def __init__(self, default=1.0, help=None) -> None:
         help = f"{help or ''}\n{self._default_help}"
         super().__init__(default=default, help=help, key_type=_ExprFieldValueTransform, accept_datetime=False, accept_timedelta=False)
 
 class NullStringSpec(DataSpec):
-    def __init__(self, default=None, help=None, key_type=_ExprFieldValueTransform):
+    def __init__(self, default=None, help=None, key_type=_ExprFieldValueTransform) -> None:
         super().__init__(key_type, Nullable(List(String)), default=default, help=help)
 
 class StringSpec(DataSpec):
@@ -282,7 +293,7 @@ class StringSpec(DataSpec):
         m.title = "foo"        # field
 
     """
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
         super().__init__(key_type, List(String), default=default, help=help)
 
     def prepare_value(self, cls, name, value):
@@ -313,7 +324,7 @@ class FontSizeSpec(DataSpec):
 
     """
 
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
         super().__init__(key_type, FontSize, default=default, help=help)
 
     def validate(self, value, detail=True):
@@ -327,27 +338,27 @@ class FontSizeSpec(DataSpec):
                 raise ValueError(msg)
 
 class FontStyleSpec(DataSpec):
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
         super().__init__(key_type, Enum(enums.FontStyle), default=default, help=help)
 
 class TextAlignSpec(DataSpec):
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
         super().__init__(key_type, Enum(enums.TextAlign), default=default, help=help)
 
 class TextBaselineSpec(DataSpec):
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
         super().__init__(key_type, Enum(enums.TextBaseline), default=default, help=help)
 
 class LineJoinSpec(DataSpec):
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
         super().__init__(key_type, Enum(enums.LineJoin), default=default, help=help)
 
 class LineCapSpec(DataSpec):
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
         super().__init__(key_type, Enum(enums.LineCap), default=default, help=help)
 
 class DashPatternSpec(DataSpec):
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
         super().__init__(key_type, DashPattern, default=default, help=help)
 
 class HatchPatternSpec(DataSpec):
@@ -367,7 +378,7 @@ class HatchPatternSpec(DataSpec):
 
     """
 
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
         super().__init__(key_type, Nullable(HatchPatternType), default=default, help=help)
 
 class MarkerSpec(DataSpec):
@@ -387,7 +398,7 @@ class MarkerSpec(DataSpec):
 
     """
 
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
         super().__init__(key_type, MarkerType, default=default, help=help)
 
 class UnitsSpec(NumberSpec):
@@ -396,14 +407,14 @@ class UnitsSpec(NumberSpec):
 
     """
 
-    def __init__(self, default, units_enum, units_default, help=None):
+    def __init__(self, default, units_enum, units_default, help=None) -> None:
         super().__init__(default=default, help=help, key_type=_ExprFieldValueTransformUnits)
         units_type = Enum(units_enum, default=units_default, serialized=False, help=f"""
         Units to use for the associated property: {nice_join(units_enum)}
         """)
         self._units_type = self._validate_type_param(units_type, help_allowed=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         units_default = self._units_type._default
         return f"{self.__class__.__name__}(units_default={units_default!r})"
 
@@ -453,7 +464,7 @@ class AngleSpec(PropertyUnitsSpec):
     Acceptable values for units are ``"deg"``, ``"rad"``, ``"grad"`` and ``"turn"``.
 
     """
-    def __init__(self, default=Undefined, units_default="rad", help=None):
+    def __init__(self, default=Undefined, units_default="rad", help=None) -> None:
         super().__init__(default=default, units_enum=enums.AngleUnits, units_default=units_default, help=help)
 
 class DistanceSpec(PropertyUnitsSpec):
@@ -463,7 +474,7 @@ class DistanceSpec(PropertyUnitsSpec):
     Acceptable values for units are ``"screen"`` and ``"data"``.
 
     """
-    def __init__(self, default=Undefined, units_default="data", help=None):
+    def __init__(self, default=Undefined, units_default="data", help=None) -> None:
         super().__init__(default=default, units_enum=enums.SpatialUnits, units_default=units_default, help=help)
 
     def prepare_value(self, cls, name, value):
@@ -476,7 +487,7 @@ class DistanceSpec(PropertyUnitsSpec):
 
 class NullDistanceSpec(DistanceSpec):
 
-    def __init__(self, default=None, units_default="data", help=None):
+    def __init__(self, default=None, units_default="data", help=None) -> None:
         super().__init__(default=default, units_default=units_default, help=help)
         self._type = Nullable(self._type)
         self._type_params = [Null()] + self._type_params
@@ -541,7 +552,7 @@ class ColorSpec(DataSpec):
 
     """
 
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
         help = f"{help or ''}\n{self._default_help}"
         super().__init__(key_type, Nullable(Color), default=default, help=help)
 
@@ -617,7 +628,19 @@ class ColorSpec(DataSpec):
 
 # DataSpec helpers ------------------------------------------------------------
 
-def expr(expression, transform=None):
+class Expr(TypedDict, total=False):
+    expr: Expression
+    transform: Transform | None
+
+class Field(TypedDict, total=False):
+    field: str
+    transform: Transform | None
+
+class Value(TypedDict, total=False):
+    value: Unknown
+    transform: Transform | None
+
+def expr(expression: Expression, transform: Transform | None = None) -> Expr:
     """ Convenience function to explicitly return an "expr" specification for
     a Bokeh |DataSpec| property.
 
@@ -636,11 +659,10 @@ def expr(expression, transform=None):
 
     """
     if transform:
-        return dict(expr=expression, transform=transform)
-    return dict(expr=expression)
+        return Expr(expr=expression, transform=transform)
+    return Expr(expr=expression)
 
-
-def field(name, transform=None):
+def field(name: str, transform: Transform | None = None) -> Field:
     """ Convenience function to explicitly return a "field" specification for
     a Bokeh |DataSpec| property.
 
@@ -659,10 +681,10 @@ def field(name, transform=None):
 
     """
     if transform:
-        return dict(field=name, transform=transform)
-    return dict(field=name)
+        return Field(field=name, transform=transform)
+    return Field(field=name)
 
-def value(val, transform=None):
+def value(val: Unknown, transform: Transform | None = None) -> Value:
     """ Convenience function to explicitly return a "value" specification for
     a Bokeh |DataSpec| property.
 
@@ -690,8 +712,8 @@ def value(val, transform=None):
 
     """
     if transform:
-        return dict(value=val, transform=transform)
-    return dict(value=val)
+        return Value(value=val, transform=transform)
+    return Value(value=val)
 
 #-----------------------------------------------------------------------------
 # Dev API

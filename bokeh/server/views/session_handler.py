@@ -20,7 +20,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
 # External imports
+from tornado.httputil import HTTPServerRequest
 from tornado.web import HTTPError, RequestHandler, authenticated
 
 # Bokeh imports
@@ -33,6 +37,12 @@ from bokeh.util.token import (
 
 # Bokeh imports
 from .auth_mixin import AuthMixin
+
+if TYPE_CHECKING:
+    from ...core.types import ID
+    from ..contexts import ApplicationContext
+    from ..session import ServerSession
+    from ..tornado import BokehTornado
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -54,7 +64,14 @@ class SessionHandler(AuthMixin, RequestHandler):
     ''' Implements a custom Tornado handler for document display page
 
     '''
-    def __init__(self, tornado_app, *args, **kw):
+
+    application: BokehTornado
+    request: HTTPServerRequest
+
+    application_context: ApplicationContext
+    bokeh_websocket_path: str
+
+    def __init__(self, tornado_app: BokehTornado, *args, **kw) -> None:
         self.application_context = kw['application_context']
         self.bokeh_websocket_path = kw['bokeh_websocket_path']
         # Note: tornado_app is stored as self.application
@@ -64,10 +81,10 @@ class SessionHandler(AuthMixin, RequestHandler):
         pass
 
     @authenticated
-    async def get_session(self):
+    async def get_session(self) -> ServerSession::
         app = self.application
         token = self.get_argument("bokeh-token", default=None)
-        session_id = self.get_argument("bokeh-session-id", default=None)
+        session_id: ID | None = self.get_argument("bokeh-session-id", default=None)
         if 'Bokeh-Session-Id' in self.request.headers:
             if session_id is not None:
                 log.debug("Server received session ID in request argument and header, expected only one")

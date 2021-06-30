@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -19,7 +21,7 @@ import json
 import os
 
 # External imports
-from mock import patch
+from mock import MagicMock, patch
 
 # Module under test
 import bokeh.util.compiler as buc # isort:skip
@@ -112,7 +114,7 @@ def test_Less() -> None:
     assert obj.lang == "less"
 
 @patch("builtins.open")
-def test_FromFile(mock_open) -> None:
+def test_FromFile(mock_open: MagicMock) -> None:
     obj = buc.FromFile("path.ts")
     assert obj.lang == "typescript"
 

@@ -20,12 +20,25 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING, Any
+
+# External imports
+from typing_extensions import TypeGuard
+
 # Bokeh imports
 from ..models.layouts import LayoutDOM
 from ..util.browser import NEW_PARAM, get_browser_controller
 from .notebook import run_notebook_hook
 from .saving import save
 from .state import curstate
+
+if TYPE_CHECKING:
+    from ..application.application import Application
+    from ..application.handlers.function import ModifyDoc
+    from ..util.browser import BrowserLike, BrowserTarget
+    from .notebook import CommsHandle
+    from .state import State
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -39,7 +52,8 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888", **kw):
+def show(obj: LayoutDOM | Application | ModifyDoc, browser: str | None = None, new: BrowserTarget = "tab",
+        notebook_handle: bool = False, notebook_url: str = "localhost:8888", **kwargs: Any) -> CommsHandle | None:
     ''' Immediately display a Bokeh object or application.
 
         :func:`show` may be called multiple times in a single Jupyter notebook
@@ -125,19 +139,19 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
     '''
     state = curstate()
 
-    is_application = getattr(obj, '_is_a_bokeh_application_class', False)
+    if isinstance(obj, LayoutDOM):
+        return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
 
-    if not (isinstance(obj, LayoutDOM) or is_application or callable(obj)):
-        raise ValueError(_BAD_SHOW_MSG)
+    def is_application(obj: Any) -> TypeGuard[Application]:
+        return getattr(obj, '_is_a_bokeh_application_class', False)
 
-    # TODO (bev) check callable signature more thoroughly
+    if is_application(obj) or callable(obj): # TODO (bev) check callable signature more thoroughly
+        # This ugliness is to prevent importing bokeh.application (which would bring
+        # in Tornado) just in order to show a non-server object
+        assert state.notebook_type is not None
+        return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, **kwargs)
 
-    # This ugliness is to prevent importing bokeh.application (which would bring
-    # in Tornado) just in order to show a non-server object
-    if is_application or callable(obj):
-        return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, **kw)
-
-    return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
+    raise ValueError(_BAD_SHOW_MSG)
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -154,14 +168,15 @@ _BAD_SHOW_MSG = """Invalid object to show. The object to passed to show must be 
 * a callable suitable to an application FunctionHandler
 """
 
-def _show_file_with_state(obj, state, new, controller):
+def _show_file_with_state(obj: LayoutDOM, state: State, new: BrowserTarget, controller: BrowserLike) -> None:
     '''
 
     '''
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=NEW_PARAM[new])
 
-def _show_with_state(obj, state, browser, new, notebook_handle=False):
+def _show_with_state(obj: LayoutDOM, state: State, browser: str | None,
+        new: BrowserTarget, notebook_handle: bool = False) -> CommsHandle | None:
     '''
 
     '''
@@ -171,6 +186,7 @@ def _show_with_state(obj, state, browser, new, notebook_handle=False):
     shown = False
 
     if state.notebook:
+        assert state.notebook_type is not None
         comms_handle = run_notebook_hook(state.notebook_type, 'doc', obj, state, notebook_handle)
         shown = True
 

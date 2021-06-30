@@ -23,9 +23,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import contextlib
 from typing import (
+    Iterable,
     Iterator,
     List,
-    Sequence,
     Set,
 )
 
@@ -101,7 +101,7 @@ def silence(warning: Warning, silence: bool = True) -> Set[Warning]:
         set()
 
     '''
-    if not isinstance(warning, Warning): # type: ignore
+    if not isinstance(warning, Warning):
         raise ValueError(f"Input to silence should be a warning object - not of type {type(warning)}")
     if silence:
         __silencers__.add(warning)
@@ -129,7 +129,7 @@ def silenced(warning: Warning) -> Iterator[None]:
     finally:
         silence(warning, False)
 
-def check_integrity(models: Sequence[Model]) -> ValidationIssues:
+def check_integrity(models: Iterable[Model]) -> ValidationIssues:
     ''' Collect all warnings associated with a collection of Bokeh models.
 
     Args:

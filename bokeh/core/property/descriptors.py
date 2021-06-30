@@ -90,11 +90,24 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from copy import copy
-from typing import Any
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Generic,
+    Type,
+    TypeVar,
+)
 
 # Bokeh imports
 from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
+
+if TYPE_CHECKING:
+    from ...document.events import DocumentPatchedEvent
+    from ..has_props import HasProps, Setter
+    from ..types import ID, Unknown
+    from .bases import Property
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -117,42 +130,51 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
+T = TypeVar("T")
+
 class UnsetValueError(ValueError):
     """ Represents state in which descriptor without value was accessed. """
 
-class AliasPropertyDescriptor:
+class AliasPropertyDescriptor(Generic[T]):
     """
 
     """
 
-    serialized = False
+    serialized: bool = False
 
-    def __init__(self, name, aliased_name, property):
+    def __init__(self, name: str, aliased_name: str, property: Property[T]) -> None:
         self.name = name
         self.aliased_name = aliased_name
         self.property = property
         self.__doc__ = f"This is a compatibility alias for the ``{aliased_name}`` property"
 
-    def __get__(self, obj, owner):
+    def __get__(self, obj: HasProps | None, owner: Type[HasProps] | None) -> T:
         if obj is not None:
             return getattr(obj, self.aliased_name)
         elif owner is not None:
             return self
 
-    def __set__(self, obj, value):
-        return setattr(obj, self.aliased_name, value)
+        # This should really never happen. If it does, __get__ was called in a bad way.
+        raise ValueError("both 'obj' and 'owner' are None, don't know what to do")
+
+    def __set__(self, obj: HasProps | None, value: T) -> None:
+        setattr(obj, self.aliased_name, value)
 
     @property
-    def readonly(self):
+    def readonly(self) -> bool:
         return self.property.readonly
 
-class PropertyDescriptor:
+class PropertyDescriptor(Generic[T]):
     """ A base class for Bokeh properties with simple get/set and serialization
     behavior.
 
     """
 
-    def __init__(self, name, property):
+    name: str
+    #property: Property[T]
+    __doc__: str | None
+
+    def __init__(self, name: str, property: Property[T]) -> None:
         """ Create a PropertyDescriptor for basic Bokeh properties.
 
         Args:
@@ -164,7 +186,7 @@ class PropertyDescriptor:
         self.property = property
         self.__doc__ = self.property.__doc__
 
-    def __str__(self):
+    def __str__(self) -> str:
         """ Basic string representation of ``PropertyDescriptor``.
 
         Delegates to ``self.property.__str__``
@@ -172,7 +194,7 @@ class PropertyDescriptor:
         """
         return f"{self.property}"
 
-    def __get__(self, obj, owner):
+    def __get__(self, obj: HasProps | None, owner: Type[HasProps] | None) -> T:
         """ Implement the getter for the Python `descriptor protocol`_.
 
         For instance attribute access, we delegate to the |Property|. For
@@ -218,7 +240,7 @@ class PropertyDescriptor:
         # This should really never happen. If it does, __get__ was called in a bad way.
         raise ValueError("both 'obj' and 'owner' are None, don't know what to do")
 
-    def __set__(self, obj, value, *, setter=None):
+    def __set__(self, obj: HasProps, value: T, *, setter: Setter | None = None) -> None:
         """ Implement the setter for the Python `descriptor protocol`_.
 
         .. note::
@@ -262,7 +284,7 @@ class PropertyDescriptor:
         old = self._get(obj)
         self._set(obj, old, value, setter=setter)
 
-    def __delete__(self, obj):
+    def __delete__(self, obj: HasProps) -> None:
         """ Implement the deleter for the Python `descriptor protocol`_.
 
         Args:
@@ -292,7 +314,7 @@ class PropertyDescriptor:
         """
         return self.property.themed_default(cls, self.name, None)
 
-    def instance_default(self, obj):
+    def instance_default(self, obj: HasProps) -> T:
         """ Get the default value that will be used for a specific instance.
 
         Args:
@@ -304,7 +326,7 @@ class PropertyDescriptor:
         """
         return self.property.themed_default(obj.__class__, self.name, obj.themed_values())
 
-    def serializable_value(self, obj):
+    def serializable_value(self, obj: HasProps) -> Any:
         """ Produce the value as it should be serialized.
 
         Sometimes it is desirable for the serialized value to differ from
@@ -321,7 +343,8 @@ class PropertyDescriptor:
         value = self.__get__(obj, obj.__class__)
         return self.property.serialize_value(value)
 
-    def set_from_json(self, obj, json, *, models=None, setter=None):
+    def set_from_json(self, obj: HasProps, json: Any, *,
+            models: Dict[ID, HasProps] | None = None, setter: Setter | None = None):
         """Sets the value of this property from a JSON value.
 
         Args:
@@ -354,7 +377,7 @@ class PropertyDescriptor:
         old = self._get(obj)
         self._set(obj, old, value, setter=setter)
 
-    def trigger_if_changed(self, obj, old):
+    def trigger_if_changed(self, obj: HasProps, old: Unknown) -> None:
         """ Send a change event notification if the property is set to a
         value is not equal to ``old``.
 
@@ -374,7 +397,7 @@ class PropertyDescriptor:
             self._trigger(obj, old, new_value)
 
     @property
-    def has_ref(self):
+    def has_ref(self) -> bool:
         """ Whether the property can refer to another ``HasProps`` instance.
 
         For basic properties, delegate to the ``has_ref`` attribute on the
@@ -384,7 +407,7 @@ class PropertyDescriptor:
         return self.property.has_ref
 
     @property
-    def readonly(self):
+    def readonly(self) -> bool:
         """ Whether this property is read-only.
 
         Read-only properties may only be modified by the client (i.e., by BokehJS
@@ -394,7 +417,7 @@ class PropertyDescriptor:
         return self.property.readonly
 
     @property
-    def serialized(self):
+    def serialized(self) -> bool:
         """ Whether the property should be serialized when serializing an
         object.
 
@@ -405,7 +428,7 @@ class PropertyDescriptor:
         """
         return self.property.serialized
 
-    def _get(self, obj):
+    def _get(self, obj: HasProps) -> T:
         """ Internal implementation of instance attribute access for the
         ``PropertyDescriptor`` getter.
 
@@ -433,7 +456,7 @@ class PropertyDescriptor:
         else:
             return obj._property_values[self.name]
 
-    def _get_default(self, obj):
+    def _get_default(self, obj: HasProps) -> T:
         """ Internal implementation of instance attribute access for default
         values.
 
@@ -444,7 +467,8 @@ class PropertyDescriptor:
             # this shouldn't happen because we should have checked before _get_default()
             raise RuntimeError("Bokeh internal error, does not handle the case of self.name already in _property_values")
 
-        is_themed = obj.themed_values() is not None and self.name in obj.themed_values()
+        themed_values = obj.themed_values()
+        is_themed = themed_values is not None and self.name in themed_values
 
         default = self.instance_default(obj)
 
@@ -460,7 +484,7 @@ class PropertyDescriptor:
 
         return default
 
-    def _set_value(self, obj, value: Any) -> None:
+    def _set_value(self, obj: HasProps, value: Unknown) -> None:
         """ Actual descriptor value assignment. """
         if isinstance(value, PropertyValueContainer):
             value._register_owner(obj, self)
@@ -473,7 +497,8 @@ class PropertyDescriptor:
 
         obj._property_values[self.name] = value
 
-    def _set(self, obj, old, value, *, hint=None, setter=None):
+    def _set(self, obj: HasProps, old: Unknown, value: Unknown, *,
+            hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
         """ Internal implementation helper to set property values.
 
         This function handles bookkeeping around noting whether values have
@@ -535,7 +560,7 @@ class PropertyDescriptor:
 
     # called when a container is mutated "behind our back" and
     # we detect it with our collection wrappers.
-    def _notify_mutated(self, obj, old, hint=None):
+    def _notify_mutated(self, obj: HasProps, old: Unknown, hint: DocumentPatchedEvent | None = None) -> None:
         """ A method to call when a container is mutated "behind our back"
         and we detect it with our |PropertyContainer| wrappers.
 
@@ -570,7 +595,8 @@ class PropertyDescriptor:
 
         self._set(obj, old, value, hint=hint)
 
-    def _trigger(self, obj, old, value, *, hint=None, setter=None):
+    def _trigger(self, obj: HasProps, old: Unknown, value: Unknown, *,
+            hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
         """ Unconditionally send a change event notification for the property.
 
         Args:
@@ -741,7 +767,7 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
 
     """
 
-    def __init__(self, name, property, units_property):
+    def __init__(self, name, property, units_property) -> None:
         """
 
         Args:

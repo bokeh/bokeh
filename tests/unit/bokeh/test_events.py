@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -32,7 +34,7 @@ point_events = {v for v in globals().values() if isinstance(v, type) and issubcl
 #-----------------------------------------------------------------------------
 
 class EventCallback:
-    def __init__(self, attributes=[]):
+    def __init__(self, attributes=[]) -> None:
         self.event_name = None
         self.attributes = attributes
         self.payload = {}

@@ -1,0 +1,6 @@
+from typing import Any, Dict, Sequence
+
+class Comm:
+    def __init__(self, target_name: str = ..., data: Any = ..., metadata: Dict[str, Any] | None = ..., buffers: Sequence[bytes] | None = ...) -> None: ...
+
+    def send(self, data: Any = ..., metadata: Dict[str, Any] | None = ..., buffers: Sequence[bytes] | None = ...) -> None: ...

@@ -25,7 +25,6 @@ from typing import (
     Any,
     Callable,
     List,
-    Optional,
     Type,
     Union,
     cast,
@@ -48,7 +47,7 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-ValidationFunction = Callable[..., Optional[str]]
+ValidationFunction = Callable[..., Union[str, None]]
 ValidationDecorator = Callable[[ValidationFunction], Validator]
 
 def _validator(code_or_name: Union[int, str, Issue], validator_type: ValidatorType) -> ValidationDecorator:

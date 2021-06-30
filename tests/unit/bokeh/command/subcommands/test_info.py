@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -18,6 +20,7 @@ import pytest ; pytest
 from os.path import join
 
 # Bokeh imports
+from bokeh._testing.util.types import Capture
 from bokeh.command.bootstrap import main
 from bokeh.command.subcommand import Argument
 
@@ -58,7 +61,7 @@ def test_args() -> None:
         )),
     )
 
-def test_run(capsys) -> None:
+def test_run(capsys: Capture) -> None:
     main(["bokeh", "info"])
     out, err = capsys.readouterr()
     lines = out.split("\n")
@@ -73,7 +76,7 @@ def test_run(capsys) -> None:
     assert lines[7] == ""
     assert err == ""
 
-def test_run_static(capsys) -> None:
+def test_run_static(capsys: Capture) -> None:
     main(["bokeh", "info", "--static"])
     out, err = capsys.readouterr()
     assert err == ""

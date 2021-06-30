@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -23,7 +25,7 @@ import os
 import random
 
 # External imports
-from mock import Mock, patch
+from mock import MagicMock, Mock, patch
 
 # Bokeh imports
 from bokeh.util.token import (
@@ -213,7 +215,7 @@ class Test__get_sysrandom:
         assert using_sysrandom == expected
 
     @patch('random.SystemRandom', new_callable=_nie)
-    def test_missing_sysrandom_no_secret_key(self, _mock_sysrandom) -> None:
+    def test_missing_sysrandom_no_secret_key(self, _mock_sysrandom: MagicMock) -> None:
         with pytest.warns(UserWarning) as warns:
             random, using_sysrandom = _get_sysrandom()
             assert not using_sysrandom
@@ -227,7 +229,7 @@ class Test__get_sysrandom:
             )
 
     @patch('random.SystemRandom', new_callable=_nie)
-    def test_missing_sysrandom_with_secret_key(self, _mock_sysrandom) -> None:
+    def test_missing_sysrandom_with_secret_key(self, _mock_sysrandom: MagicMock) -> None:
         os.environ["BOKEH_SECRET_KEY"] = "foo"
         with pytest.warns(UserWarning) as warns:
             random, using_sysrandom = _get_sysrandom()

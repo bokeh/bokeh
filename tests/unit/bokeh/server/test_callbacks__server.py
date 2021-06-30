@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -51,7 +53,7 @@ def run(loop):
         print("Keyboard interrupt")
 
 class LoopAndGroup:
-    def __init__(self, quit_after=None):
+    def __init__(self, quit_after=None) -> None:
         self.io_loop = IOLoop()
         self.io_loop.make_current()
         self.group = _CallbackGroup(self.io_loop)

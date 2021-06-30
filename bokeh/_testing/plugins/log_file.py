@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import IO, Iterator
+
 # External imports
 import pytest
 
@@ -35,8 +38,8 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-@pytest.yield_fixture(scope="session")
-def log_file(request):
+@pytest.fixture(scope="session")
+def log_file(request: pytest.FixtureRequest) -> Iterator[IO[str]]:
     with open(request.config.option.log_file, 'w') as f:
         # Clean-out any existing log-file
         f.write("")

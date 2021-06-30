@@ -8,7 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-
 from __future__ import annotations
 
 import logging # isort:skip
@@ -101,7 +100,7 @@ class RoutingConfiguration:
     _http_urlpatterns: List[str] = []
     _websocket_urlpatterns: List[str] = []
 
-    def __init__(self, routings: List[Routing]):
+    def __init__(self, routings: List[Routing]) -> None:
         for routing in routings:
             self._add_new_routing(routing)
 

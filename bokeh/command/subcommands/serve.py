@@ -771,14 +771,14 @@ class Serve(Subcommand):
         # even if Tornado is not installed
         from bokeh.server.server import Server
 
-        files = []
+        files: List[str] = []
         for f in args.files:
             if args.glob:
                 files.extend(glob(f))
             else:
                 files.append(f)
 
-        argvs = { f : args.args for f in files}
+        argvs = {f: args.args for f in files}
         applications = build_single_handler_applications(files, argvs)
 
         if len(applications) == 0:
@@ -865,7 +865,7 @@ class Serve(Subcommand):
             if not os.path.isdir(path):
                 return
 
-            for path, subdirs, files in os.walk(path):
+            for path, _, files in os.walk(path):
                 for name in files:
                     if (fnmatch(name, '*.html') or
                         fnmatch(name, '*.css') or
@@ -928,10 +928,9 @@ class Serve(Subcommand):
 # Code
 #-----------------------------------------------------------------------------
 
-# XXX fails mypy typechecking with "error: Incompatible types in assignment (expression has type "Optional[str]", variable has type "str")"
-__doc__ = format_docstring(__doc__, # type: ignore
+__doc__ = format_docstring(__doc__,
     DEFAULT_PORT=DEFAULT_SERVER_PORT,
     LOGLEVELS=nice_join(LOGLEVELS),
     SESSION_ID_MODES=nice_join(SESSION_ID_MODES),
-    DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT
+    DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT,
 )

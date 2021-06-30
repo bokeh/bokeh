@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -68,7 +70,7 @@ class TestRangeSlider:
         with pytest.raises(ValueError):
             mws.RangeSlider(start=start, end=end)
 
-    def test_rangeslider_equal_start_end_validation(self, caplog) -> None:
+    def test_rangeslider_equal_start_end_validation(self, caplog: pytest.LogCaptureFixture) -> None:
         start = 0
         end = 10
         s = mws.RangeSlider(start=start, end=end)

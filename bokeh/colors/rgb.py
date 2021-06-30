@@ -23,9 +23,13 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import colorsys
 from math import sqrt
+from typing import TYPE_CHECKING
 
 # Bokeh imports
 from .color import Color
+
+if TYPE_CHECKING:
+    from .hsl import HSL
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -47,7 +51,7 @@ class RGB(Color):
 
     '''
 
-    def __init__(self, r, g, b, a=1.0):
+    def __init__(self, r: int, g: int, b: int, a: float = 1.0) -> None:
         '''
 
         Args:
@@ -69,7 +73,7 @@ class RGB(Color):
         self.b = b
         self.a = a
 
-    def copy(self):
+    def copy(self) -> RGB:
         ''' Return a copy of this color value.
 
         Returns:
@@ -79,7 +83,7 @@ class RGB(Color):
         return RGB(self.r, self.g, self.b, self.a)
 
     @classmethod
-    def from_hsl(self, value):
+    def from_hsl(cls, value: HSL) -> RGB:
         ''' Create an RGB color from an HSL color value.
 
         Args:
@@ -93,7 +97,7 @@ class RGB(Color):
         return value.to_rgb()
 
     @classmethod
-    def from_rgb(self, value):
+    def from_rgb(cls, value: RGB) -> RGB:
         ''' Copy an RGB color from another RGB color value.
 
         Args:
@@ -106,7 +110,7 @@ class RGB(Color):
         '''
         return value.copy()
 
-    def to_css(self):
+    def to_css(self) -> str:
         ''' Generate the CSS representation of this RGB color.
 
         Returns:
@@ -114,11 +118,11 @@ class RGB(Color):
 
         '''
         if self.a == 1.0:
-            return "rgb(%d, %d, %d)" % (self.r, self.g, self.b)
+            return f"rgb({self.r}, {self.g}, {self.b})"
         else:
-            return "rgba(%d, %d, %d, %s)" % (self.r, self.g, self.b, self.a)
+            return f"rgba({self.r}, {self.g}, {self.b}, {self.a})"
 
-    def to_hex(self):
+    def to_hex(self) -> str:
         ''' Return a hex color string for this RGB color.
 
         Any alpha value on this color is discarded, only hex color strings for
@@ -130,7 +134,7 @@ class RGB(Color):
         '''
         return "#%02X%02X%02X" % (self.r, self.g, self.b)
 
-    def to_hsl(self):
+    def to_hsl(self) -> HSL:
         ''' Return a corresponding HSL color for this RGB color.
 
         Returns:
@@ -141,7 +145,7 @@ class RGB(Color):
         h, l, s = colorsys.rgb_to_hls(float(self.r)/255, float(self.g)/255, float(self.b)/255)
         return HSL(round(h*360), s, l, self.a)
 
-    def to_rgb(self):
+    def to_rgb(self) -> RGB:
         ''' Return a RGB copy for this RGB color.
 
         Returns:

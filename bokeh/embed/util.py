@@ -22,14 +22,29 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections import OrderedDict
-from collections.abc import Sequence
 from contextlib import contextmanager
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterator,
+    List,
+    Sequence,
+    Tuple,
+    Type,
+)
+from weakref import WeakKeyDictionary
 
 # Bokeh imports
+from ..core.types import ID
 from ..document.document import Document
 from ..model import Model, collect_models
 from ..settings import settings
+from ..themes.theme import Theme
 from ..util.serialization import make_globally_unique_id
+
+if TYPE_CHECKING:
+    from ..document.document import DocJson
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -62,7 +77,8 @@ class FromCurdoc:
     pass
 
 @contextmanager
-def OutputDocumentFor(objs, apply_theme=None, always_new=False):
+def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | Type[FromCurdoc] | None = None,
+        always_new: bool = False) -> Iterator[Document]:
     ''' Find or create a (possibly temporary) Document to use for serializing
     Bokeh content.
 
@@ -119,16 +135,15 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
     if not isinstance(objs, Sequence) or len(objs) == 0 or not all(isinstance(x, Model) for x in objs):
         raise ValueError("OutputDocumentFor expects a sequence of Models")
 
-    def finish(): pass
+    def finish() -> None:
+        pass
 
-    docs = {x.document for x in objs}
-    docs.discard(None)
+    docs = {obj.document for obj in objs if obj.document is not None}
 
     if always_new:
-        def finish(): # NOQA
+        def finish() -> None: # NOQA
             _dispose_temp_doc(objs)
         doc = _create_temp_doc(objs)
-
     else:
         if len(docs) == 0:
             doc = Document()
@@ -141,7 +156,7 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
 
             # we are not using all the roots, make a quick clone for outputting purposes
             if set(objs) != set(doc.roots):
-                def finish(): # NOQA
+                def finish() -> None: # NOQA
                     _dispose_temp_doc(objs)
                 doc = _create_temp_doc(objs)
 
@@ -158,16 +173,16 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
         doc.validate()
 
     _set_temp_theme(doc, apply_theme)
-
     yield doc
-
     _unset_temp_theme(doc)
 
     finish()
 
 
 class RenderItem:
-    def __init__(self, docid=None, token=None, elementid=None, roots=None, use_for_title=None):
+    def __init__(self, docid: ID | None = None, token: str | None = None, elementid: ID | None = None,
+            roots: List[Model] | Dict[Model, ID] | None = None, use_for_title: bool | None = None):
+
         if (docid is None and token is None) or (docid is not None and token is not None):
             raise ValueError("either docid or sessionid must be provided")
 
@@ -182,8 +197,8 @@ class RenderItem:
         self.roots = RenderRoots(roots)
         self.use_for_title = use_for_title
 
-    def to_json(self):
-        json = {}
+    def to_json(self) -> Dict[str, Any]:
+        json: Dict[str, Any] = {}
 
         if self.docid is not None:
             json["docid"] = self.docid
@@ -202,7 +217,7 @@ class RenderItem:
 
         return json
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
             return False
         else:
@@ -210,13 +225,13 @@ class RenderItem:
 
 
 class RenderRoot:
-    def __init__(self, elementid, id, name=None, tags=None):
+    def __init__(self, elementid: ID, id: ID, name: str | None = None, tags: List[Any] | None = None) -> None:
         self.elementid = elementid
         self.id = id
         self.name = name or ""
         self.tags = tags or []
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
             return False
         else:
@@ -224,13 +239,17 @@ class RenderRoot:
 
 
 class RenderRoots:
-    def __init__(self, roots):
+    def __init__(self, roots: Dict[Model, ID]) -> None:
         self._roots = roots
+
+    def __iter__(self) -> Iterator[RenderRoot]:
+        for i in range(0, len(self)):
+            yield self[i]
 
     def __len__(self):
         return len(self._roots.items())
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: int | str) -> RenderRoot:
         if isinstance(key, int):
             (root, elementid) = list(self._roots.items())[key]
         else:
@@ -242,20 +261,21 @@ class RenderRoots:
 
         return RenderRoot(elementid, root.id, root.name, root.tags)
 
-    def __getattr__(self, key):
+    def __getattr__(self, key: str) -> RenderRoot:
         return self.__getitem__(key)
 
-    def to_json(self):
+    def to_json(self) -> Dict[ID, ID]:
         return OrderedDict([ (root.id, elementid) for root, elementid in self._roots.items() ])
 
-def standalone_docs_json(models):
+def standalone_docs_json(models: Sequence[Model | Document]) -> Dict[ID, DocJson]:
     '''
 
     '''
-    docs_json, render_items = standalone_docs_json_and_render_items(models)
+    docs_json, _ = standalone_docs_json_and_render_items(models)
     return docs_json
 
-def standalone_docs_json_and_render_items(models, suppress_callback_warning=False):
+def standalone_docs_json_and_render_items(models: Model | Document | Sequence[Model | Document],
+        suppress_callback_warning: bool = False) -> Tuple[Dict[ID, DocJson], List[RenderItem]]:
     '''
 
     '''
@@ -268,7 +288,7 @@ def standalone_docs_json_and_render_items(models, suppress_callback_warning=Fals
     if submodel_has_python_callbacks(models) and not suppress_callback_warning:
         log.warning(_CALLBACKS_WARNING)
 
-    docs = {}
+    docs: Dict[Document, Tuple[ID, Dict[Model, ID]]] = {}
     for model_or_doc in models:
         if isinstance(model_or_doc, Document):
             model = None
@@ -291,17 +311,17 @@ def standalone_docs_json_and_render_items(models, suppress_callback_warning=Fals
             for model in doc.roots:
                 roots[model] = make_globally_unique_id()
 
-    docs_json = {}
+    docs_json: Dict[ID, DocJson] = {}
     for doc, (docid, _) in docs.items():
         docs_json[docid] = doc.to_json()
 
-    render_items = []
+    render_items: List[RenderItem] = []
     for _, (docid, roots) in docs.items():
         render_items.append(RenderItem(docid, roots=roots))
 
     return (docs_json, render_items)
 
-def submodel_has_python_callbacks(models):
+def submodel_has_python_callbacks(models: Sequence[Model | Document]) -> bool:
     ''' Traverses submodels to check for Python (event) callbacks
 
     '''
@@ -332,7 +352,7 @@ be used. For more information on building and running Bokeh applications, see:
     https://docs.bokeh.org/en/latest/docs/user_guide/server.html
 """
 
-def _create_temp_doc(models):
+def _create_temp_doc(models: Sequence[Model]) -> Document:
     doc = Document()
     for m in models:
         doc._all_models[m.id] = m
@@ -340,28 +360,30 @@ def _create_temp_doc(models):
         for ref in m.references():
             doc._all_models[ref.id] = ref
             ref._temp_document = doc
-    doc._roots = models
+    doc._roots = list(models)
     return doc
 
-def _dispose_temp_doc(models):
+def _dispose_temp_doc(models: Sequence[Model]) -> None:
     for m in models:
         m._temp_document = None
         for ref in m.references():
             ref._temp_document = None
 
-def _set_temp_theme(doc, apply_theme):
-    doc._old_theme = doc.theme
+_themes: WeakKeyDictionary[Document, Theme] = WeakKeyDictionary()
+
+def _set_temp_theme(doc: Document, apply_theme: Theme | Type[FromCurdoc] | None) -> None:
+    _themes[doc] = doc.theme
     if apply_theme is FromCurdoc:
         from ..io import curdoc; curdoc
         doc.theme = curdoc().theme
-    elif apply_theme is not None:
+    elif isinstance(apply_theme, Theme):
         doc.theme = apply_theme
 
-def _unset_temp_theme(doc):
-    if not hasattr(doc, "_old_theme"):
+def _unset_temp_theme(doc: Document) -> None:
+    if doc not in _themes:
         return
-    doc.theme = doc._old_theme
-    del doc._old_theme
+    doc.theme = _themes[doc]
+    del _themes[doc]
 
 #-----------------------------------------------------------------------------
 # Code

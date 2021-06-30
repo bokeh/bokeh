@@ -19,6 +19,24 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import warnings
+from typing import (
+    TYPE_CHECKING,
+    Any as TAny,
+    Dict as TDict,
+    List as TList,
+    Sequence,
+    Set,
+    Tuple,
+    Union,
+    overload,
+)
+
+## External imports
+if TYPE_CHECKING:
+    import pandas as pd
+else:
+    from ..util.dependencies import import_optional
+    pd = import_optional("pandas")
 
 # Bokeh imports
 from ..core.has_props import abstract
@@ -41,14 +59,15 @@ from ..core.properties import (
     String,
 )
 from ..model import Model
-from ..util.dependencies import import_optional
 from ..util.serialization import convert_datetime_array
 from ..util.warnings import BokehUserWarning
 from .callbacks import CustomJS
 from .filters import Filter
 from .selections import Selection, SelectionPolicy, UnionRenderers
 
-pd = import_optional('pandas')
+if TYPE_CHECKING:
+    from ..core.has_props import Setter
+    from ..core.types import Unknown
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -69,6 +88,13 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+if TYPE_CHECKING:
+    DataDict = TDict[str, Sequence[Unknown]]
+
+    Index = Union[int, slice, Tuple[Union[int, slice], ...]]
+
+    Patches = TDict[str, TList[Tuple[Index, Unknown]]]
 
 @abstract
 class DataSource(Model):
@@ -164,7 +190,7 @@ class ColumnDataSource(ColumnarDataSource):
 
     '''
 
-    data = ColumnData(String, Seq(Any), help="""
+    data: DataDict = ColumnData(String, Seq(Any), help="""
     Mapping of column names to sequences of data. The columns can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
 
@@ -180,16 +206,21 @@ class ColumnDataSource(ColumnarDataSource):
                     "ColumnDataSource's columns must be of the same length. " +
                     "Current lengths: %s" % ", ".join(sorted(str((k, len(v))) for k, v in data.items())), BokehUserWarning))
 
-    def __init__(self, *args, **kw):
+    @overload
+    def __init__(self, data: DataDict | pd.DataFrame | pd.core.groupby.GroupBy, **kwargs: TAny) -> None: ...
+    @overload
+    def __init__(self, **kwargs: TAny) -> None: ...
+
+    def __init__(self, *args: TAny, **kwargs: TAny) -> None:
         ''' If called with a single argument that is a dict or
         ``pandas.DataFrame``, treat that implicitly as the "data" attribute.
 
         '''
-        if len(args) == 1 and "data" not in kw:
-            kw["data"] = args[0]
+        if len(args) == 1 and "data" not in kwargs:
+            kwargs["data"] = args[0]
 
         # TODO (bev) invalid to pass args and "data", check and raise exception
-        raw_data = kw.pop("data", {})
+        raw_data: DataDict = kwargs.pop("data", {})
 
         if not isinstance(raw_data, dict):
             if pd and isinstance(raw_data, pd.DataFrame):
@@ -197,19 +228,19 @@ class ColumnDataSource(ColumnarDataSource):
             elif pd and isinstance(raw_data, pd.core.groupby.GroupBy):
                 raw_data = self._data_from_groupby(raw_data)
             else:
-                raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
-        super().__init__(**kw)
+                raise ValueError(f"expected a dict or pandas.DataFrame, got {raw_data}")
+        super().__init__(**kwargs)
         self.data.update(raw_data)
 
     @property
-    def column_names(self):
+    def column_names(self) -> TList[str]:
         ''' A list of the column names in this data source.
 
         '''
         return list(self.data)
 
     @staticmethod
-    def _data_from_df(df):
+    def _data_from_df(df: pd.DataFrame) -> DataDict:
         ''' Create a ``dict`` of columns from a Pandas ``DataFrame``,
         suitable for creating a ColumnDataSource.
 
@@ -242,14 +273,14 @@ class ColumnDataSource(ColumnarDataSource):
 
         tmp_data = {c: v.values for c, v in _df.items()}
 
-        new_data = {}
+        new_data: DataDict = {}
         for k, v in tmp_data.items():
             new_data[k] = v
 
         return new_data
 
     @staticmethod
-    def _data_from_groupby(group):
+    def _data_from_groupby(group: pd.core.groupby.GroupBy) -> DataDict:
         ''' Create a ``dict`` of columns from a Pandas ``GroupBy``,
         suitable for creating a ``ColumnDataSource``.
 
@@ -266,7 +297,7 @@ class ColumnDataSource(ColumnarDataSource):
         return ColumnDataSource._data_from_df(group.describe())
 
     @staticmethod
-    def _df_index_name(df):
+    def _df_index_name(df: pd.DataFrame) -> str:
         ''' Return the Bokeh-appropriate column name for a ``DataFrame`` index
 
         If there is no named index, then `"index" is returned.
@@ -296,9 +327,8 @@ class ColumnDataSource(ColumnarDataSource):
         else:
             return "index"
 
-
     @classmethod
-    def from_df(cls, data):
+    def from_df(cls, data: pd.DataFrame) -> DataDict:
         ''' Create a ``dict`` of columns from a Pandas ``DataFrame``,
         suitable for creating a ``ColumnDataSource``.
 
@@ -312,7 +342,7 @@ class ColumnDataSource(ColumnarDataSource):
         return cls._data_from_df(data)
 
     @classmethod
-    def from_groupby(cls, data):
+    def from_groupby(cls, data: pd.core.groupby.GroupBy) -> DataDict:
         ''' Create a ``dict`` of columns from a Pandas ``GroupBy``,
         suitable for creating a ``ColumnDataSource``.
 
@@ -328,7 +358,7 @@ class ColumnDataSource(ColumnarDataSource):
         '''
         return cls._data_from_df(data.describe())
 
-    def to_df(self):
+    def to_df(self) -> pd.DataFrame:
         ''' Convert this data source to pandas ``DataFrame``.
 
         Returns:
@@ -339,7 +369,7 @@ class ColumnDataSource(ColumnarDataSource):
             raise RuntimeError('Pandas must be installed to convert to a Pandas Dataframe')
         return pd.DataFrame(self.data)
 
-    def add(self, data, name=None):
+    def add(self, data: Sequence[Unknown], name: str | None = None) -> str:
         ''' Appends a new column of data to the data source.
 
         Args:
@@ -353,14 +383,13 @@ class ColumnDataSource(ColumnarDataSource):
         '''
         if name is None:
             n = len(self.data)
-            while "Series %d"%n in self.data:
+            while f"Series {n}" in self.data:
                 n += 1
-            name = "Series %d"%n
+            name = f"Series {n}"
         self.data[name] = data
         return name
 
-
-    def remove(self, name):
+    def remove(self, name: str) -> None:
         ''' Remove a column of data.
 
         Args:
@@ -378,7 +407,7 @@ class ColumnDataSource(ColumnarDataSource):
         except (ValueError, KeyError):
             warnings.warn("Unable to find column '%s' in data source" % name)
 
-    def stream(self, new_data, rollover=None):
+    def stream(self, new_data: DataDict, rollover: int | None = None) -> None:
         ''' Efficiently update data source columns with new append-only data.
 
         In cases where it is necessary to update data columns in, this method
@@ -420,7 +449,8 @@ class ColumnDataSource(ColumnarDataSource):
         # calls internal implementation
         self._stream(new_data, rollover)
 
-    def _stream(self, new_data, rollover=None, setter=None):
+    def _stream(self, new_data: DataDict | pd.Series | pd.DataFrame,
+            rollover: int | None = None, setter: Setter | None = None) -> None:
         ''' Internal implementation to efficiently update data source columns
         with new append-only data. The internal implementation adds the setter
         attribute.  [https://github.com/bokeh/bokeh/issues/6577]
@@ -473,10 +503,10 @@ class ColumnDataSource(ColumnarDataSource):
         '''
         needs_length_check = True
 
-        if pd and isinstance(new_data, pd.Series):
-            new_data = new_data.to_frame().T
+        if pd and isinstance(new_data, (pd.Series, pd.DataFrame)):
+            if isinstance(new_data, pd.Series):
+                new_data = new_data.to_frame().T
 
-        if pd and isinstance(new_data, pd.DataFrame):
             needs_length_check = False # DataFrame lengths equal by definition
             _df = new_data
             newkeys = set(_df.columns)
@@ -503,9 +533,9 @@ class ColumnDataSource(ColumnarDataSource):
 
         import numpy as np
         if needs_length_check:
-            lengths = set()
+            lengths: Set[int] = set()
             arr_types = (np.ndarray, pd.Series) if pd else np.ndarray
-            for k, x in new_data.items():
+            for _, x in new_data.items():
                 if isinstance(x, arr_types):
                     if len(x.shape) != 1:
                         raise ValueError("stream(...) only supports 1d sequences, got ndarray with size %r" % (x.shape,))
@@ -532,7 +562,7 @@ class ColumnDataSource(ColumnarDataSource):
 
         self.data._stream(self.document, self, new_data, rollover, setter)
 
-    def patch(self, patches, setter=None):
+    def patch(self, patches: Patches, setter: Setter | None = None) -> None:
         ''' Efficiently update data source columns at specific locations
 
         If it is only necessary to update a small subset of data in a
@@ -639,7 +669,7 @@ class ColumnDataSource(ColumnarDataSource):
 
             col_len = len(self.data[name])
 
-            for ind, value in patch:
+            for ind, _ in patch:
 
                 # integer index, patch single value of 1d column
                 if isinstance(ind, int):
@@ -660,21 +690,22 @@ class ColumnDataSource(ColumnarDataSource):
                     if len(ind) == 1:
                         raise ValueError("Patch multi-index must contain more than one subindex")
 
-                    if not isinstance(ind[0], int):
-                        raise ValueError("Initial patch sub-index may only be integer, got: %s" % ind[0])
+                    ind_0 = ind[0]
+                    if not isinstance(ind_0, int):
+                        raise ValueError("Initial patch sub-index may only be integer, got: %s" % ind_0)
 
-                    if ind[0] > col_len or ind[0] < 0:
+                    if ind_0 > col_len or ind_0 < 0:
                         raise ValueError("Out-of bounds initial sub-index (%d) in patch for column: %s" % (ind, name))
 
-                    if not isinstance(self.data[name][ind[0]], np.ndarray):
+                    if not isinstance(self.data[name][ind_0], np.ndarray):
                         raise ValueError("Can only sub-patch into columns with NumPy array items")
 
-                    if len(self.data[name][ind[0]].shape) != (len(ind)-1):
+                    if len(self.data[name][ind_0].shape) != (len(ind)-1):
                         raise ValueError("Shape mismatch between patch slice and sliced data")
 
-                    elif isinstance(ind[0], slice):
-                        _check_slice(ind[0])
-                        if ind[0].stop is not None and ind[0].stop > col_len:
+                    elif isinstance(ind_0, slice):
+                        _check_slice(ind_0)
+                        if ind_0.stop is not None and ind_0.stop > col_len:
                             raise ValueError("Out-of bounds initial slice sub-index stop (%d) in patch for column: %s" % (ind.stop, name))
 
                     # Note: bounds of sub-indices after the first are not checked!
@@ -827,7 +858,7 @@ class AjaxDataSource(WebDataSource):
 # Private API
 #-----------------------------------------------------------------------------
 
-def _check_slice(s):
+def _check_slice(s: slice) -> None:
     if (s.start is not None and s.stop is not None and s.start > s.stop):
         raise ValueError("Patch slices must have start < end, got %s" % s)
     if (s.start is not None and s.start < 0) or \

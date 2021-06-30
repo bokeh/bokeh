@@ -37,7 +37,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def server_url_for_websocket_url(url):
+def server_url_for_websocket_url(url: str) -> str:
     ''' Convert an ``ws(s)`` URL for a Bokeh server into the appropriate
     ``http(s)`` URL for the websocket endpoint.
 
@@ -64,7 +64,7 @@ def server_url_for_websocket_url(url):
         raise ValueError("websocket URL does not end in /ws")
     return reprotocoled[:-2]
 
-def websocket_url_for_server_url(url):
+def websocket_url_for_server_url(url: str) -> str:
     ''' Convert an ``http(s)`` URL for a Bokeh server websocket endpoint into
     the appropriate ``ws(s)`` URL
 

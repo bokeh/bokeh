@@ -20,15 +20,32 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    List,
+    Sequence,
+    Set,
+)
+
 # External imports
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import WebDriverWait
+
+if TYPE_CHECKING:
+    from selenium.webdriver.common.keys import _KeySeq
+    from selenium.webdriver.remote.webdriver import WebDriver
+    from selenium.webdriver.remote.webelement import WebElement
 
 # Bokeh imports
 from bokeh.models import Button
 from bokeh.util.serialization import make_id
+
+if TYPE_CHECKING:
+    from bokeh.models.callbacks import Callback
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -71,12 +88,12 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def COUNT(key):
+def COUNT(key: str) -> str:
     return 'Bokeh._testing.count(%r);' % key
 
 INIT = 'Bokeh._testing.init();'
 
-def RECORD(key, value, *, final=True):
+def RECORD(key: str, value: Any, *, final: bool = True) -> str:
     if final:
         return 'Bokeh._testing.record(%r, %s);' % (key, value)
     else:
@@ -84,14 +101,14 @@ def RECORD(key, value, *, final=True):
 
 RESULTS = 'return Bokeh._testing.results'
 
-def SCROLL(amt):
+def SCROLL(amt: float) -> str:
     return """
     const elt = document.getElementsByClassName("bk-canvas-events")[0];
     const event = new WheelEvent('wheel', { deltaY: %f, clientX: 100, clientY: 100} );
     elt.dispatchEvent(event);
     """ % amt
 
-def alt_click(driver, element):
+def alt_click(driver: WebDriver, element: WebElement) -> None:
     actions = ActionChains(driver)
     actions.key_down(Keys.META)
     actions.click(element)
@@ -100,12 +117,12 @@ def alt_click(driver, element):
 
 
 class ButtonWrapper:
-    def __init__(self, label, callback):
+    def __init__(self, label: str, callback: Callback) -> None:
         self.ref = "button-" + make_id()
         self.obj = Button(label=label, css_classes=[self.ref])
         self.obj.js_on_event('button_click', callback)
 
-    def click(self, driver):
+    def click(self, driver: WebDriver) -> None:
         button = driver.find_element_by_css_selector(".%s .bk-btn" % self.ref)
         button.click()
 
@@ -113,11 +130,11 @@ class element_to_start_resizing:
     ''' An expectation for checking if an element has started resizing
     '''
 
-    def __init__(self, element):
+    def __init__(self, element: WebElement) -> None:
         self.element = element
         self.previous_width = self.element.size['width']
 
-    def __call__(self, driver):
+    def __call__(self, driver: WebDriver) -> bool:
         current_width = self.element.size['width']
         if self.previous_width != current_width:
             return True
@@ -130,11 +147,11 @@ class element_to_finish_resizing:
 
     '''
 
-    def __init__(self, element):
+    def __init__(self, element: WebElement) -> None:
         self.element = element
         self.previous_width = self.element.size['width']
 
-    def __call__(self, driver):
+    def __call__(self, driver: WebDriver) -> bool:
         current_width = self.element.size['width']
         if self.previous_width == current_width:
             return True
@@ -142,7 +159,7 @@ class element_to_finish_resizing:
             self.previous_width = current_width
             return False
 
-def select_element_and_press_key(driver, element, key, press_number=1):
+def select_element_and_press_key(driver: WebDriver, element: WebElement, key: _KeySeq, press_number: int = 1) -> None:
     actions = ActionChains(driver)
     actions.move_to_element(element)
     actions.click()
@@ -151,11 +168,12 @@ def select_element_and_press_key(driver, element, key, press_number=1):
         actions.send_keys_to_element(element, key)
         actions.perform()
 
-def hover_element(driver, element):
+def hover_element(driver: WebDriver, element: WebElement) -> None:
     hover = ActionChains(driver).move_to_element(element)
     hover.perform()
 
-def enter_text_in_element(driver, element, text, click=1, enter=True, mod=None):
+def enter_text_in_element(driver: WebDriver, element: WebElement, text: str,
+        click: int = 1, enter: bool = True, mod: _KeySeq | None = None) -> None:
     actions = ActionChains(driver)
     actions.move_to_element(element)
     if click == 1: actions.click()
@@ -169,7 +187,7 @@ def enter_text_in_element(driver, element, text, click=1, enter=True, mod=None):
         actions.key_up(mod)
     actions.perform()
 
-def enter_text_in_cell(driver, cell, text):
+def enter_text_in_cell(driver: WebDriver, cell: WebElement, text: str) -> None:
     actions = ActionChains(driver)
     actions.move_to_element(cell)
     actions.double_click() # start editing a cell
@@ -178,14 +196,14 @@ def enter_text_in_cell(driver, cell, text):
     actions.send_keys(text + Keys.ENTER)
     actions.perform()
 
-def enter_text_in_cell_with_click_enter(driver, cell, text):
+def enter_text_in_cell_with_click_enter(driver: WebDriver, cell: WebElement, text: str) -> None:
     actions = ActionChains(driver)
     actions.move_to_element(cell)
     actions.click()
     actions.send_keys(Keys.ENTER + text + Keys.ENTER)
     actions.perform()
 
-def copy_table_rows(driver, rows):
+def copy_table_rows(driver: WebDriver, rows: Sequence[int]) -> None:
     actions = ActionChains(driver)
     row = get_table_row(driver, rows[0])
     actions.move_to_element(row)
@@ -202,7 +220,7 @@ def copy_table_rows(driver, rows):
     # actions.send_keys(Keys.CONTROL, 'c')
     actions.perform()
 
-def paste_values(driver, el=None):
+def paste_values(driver: WebDriver, el: WebElement | None = None) -> None:
     actions = ActionChains(driver)
     if el:
         actions.move_to_element(el)
@@ -212,19 +230,19 @@ def paste_values(driver, el=None):
     # actions.send_keys(Keys.CONTROL, 'v')
     actions.perform()
 
-def get_table_column_cells(driver, col):
+def get_table_column_cells(driver: WebDriver, col: int) -> List[str]:
     result = []
     grid = driver.find_element_by_css_selector('.grid-canvas')
     rows = grid.find_elements_by_css_selector(".slick-row")
-    for i, row in enumerate(rows):
+    for row in rows:
         elt = row.find_element_by_css_selector('.slick-cell.l%d.r%d' % (col, col))
         result.append(elt.text)
     return result
 
-def get_table_row(driver, row):
+def get_table_row(driver: WebDriver, row: int) -> WebElement:
     return driver.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(%d)' % row)
 
-def get_table_selected_rows(driver):
+def get_table_selected_rows(driver: WebDriver) -> Set[int]:
     result = set()
     grid = driver.find_element_by_css_selector('.grid-canvas')
     rows = grid.find_elements_by_css_selector(".slick-row")
@@ -234,28 +252,28 @@ def get_table_selected_rows(driver):
             result.add(i)
     return result
 
-def get_table_cell(driver, row, col):
+def get_table_cell(driver: WebDriver, row: int, col: int) -> WebElement:
     return driver.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(%d) .r%d' % (row, col))
 
-def get_table_header(driver, col):
+def get_table_header(driver: WebDriver, col: int) -> WebElement:
     return driver.find_element_by_css_selector('.slick-header-columns .slick-header-column:nth-child(%d)' % col)
 
-def get_page_element(driver, element_selector):
+def get_page_element(driver: WebDriver, element_selector: str) -> WebElement:
     return driver.find_element_by_css_selector(element_selector)
 
-def shift_click(driver, element):
+def shift_click(driver: WebDriver, element: WebElement) -> None:
     actions = ActionChains(driver)
     actions.key_down(Keys.SHIFT)
     actions.click(element)
     actions.key_up(Keys.SHIFT)
     actions.perform()
 
-def sort_table_column(driver, col, double=False):
+def sort_table_column(driver: WebDriver, col: int, double: bool = False) -> None:
     elt = driver.find_element_by_css_selector('.slick-header-columns .slick-header-column:nth-child(%d)' % col)
     elt.click()
     if double: elt.click()
 
-def wait_for_canvas_resize(canvas, test_driver):
+def wait_for_canvas_resize(canvas: WebElement, test_driver: WebDriver) -> None:
     '''
 
     '''
@@ -269,7 +287,7 @@ def wait_for_canvas_resize(canvas, test_driver):
         # try and process.
         pass
 
-def drag_slider(driver, css_class, distance, release=True):
+def drag_slider(driver: WebDriver, css_class: str, distance: float, release: bool = True) -> None:
     el = driver.find_element_by_css_selector(css_class)
     handle = el.find_element_by_css_selector('.noUi-handle')
     actions = ActionChains(driver)
@@ -280,7 +298,7 @@ def drag_slider(driver, css_class, distance, release=True):
         actions.release()
     actions.perform()
 
-def drag_range_slider(driver, css_class, location, distance):
+def drag_range_slider(driver: WebDriver, css_class: str, location: str, distance: float) -> None:
     el = driver.find_element_by_css_selector(css_class)
     handle = el.find_element_by_css_selector('.noUi-handle-' + location)
     actions = ActionChains(driver)
@@ -290,15 +308,15 @@ def drag_range_slider(driver, css_class, location, distance):
     actions.release()
     actions.perform()
 
-def get_slider_title_text(driver, css_class):
+def get_slider_title_text(driver: WebDriver, css_class: str) -> str:
     el = driver.find_element_by_css_selector(css_class)
     return el.find_element_by_css_selector('div.bk-input-group > div.bk-slider-title').text
 
-def get_slider_title_value(driver, css_class):
+def get_slider_title_value(driver: WebDriver, css_class: str) -> str:
     el = driver.find_element_by_css_selector(css_class)
     return el.find_element_by_css_selector('div.bk-input-group > div > span.bk-slider-value').text
 
-def get_slider_bar_color(driver, css_class):
+def get_slider_bar_color(driver: WebDriver, css_class: str) -> str:
     el = driver.find_element_by_css_selector(css_class)
     bar = el.find_element_by_css_selector('.noUi-connect')
     return bar.value_of_css_property('background-color')

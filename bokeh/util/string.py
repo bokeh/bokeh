@@ -26,8 +26,8 @@ import re
 from typing import (
     Any,
     Dict,
-    Optional,
-    Sequence,
+    Iterable,
+    overload,
 )
 from urllib.parse import quote_plus
 
@@ -65,7 +65,7 @@ def indent(text: str, n: int = 2, ch: str = " ") -> str:
     return "\n".join(padding + line for line in text.split("\n"))
 
 
-def nice_join(seq: Sequence[str], sep: str = ", ", conjuction: str = "or") -> str:
+def nice_join(seq: Iterable[str], sep: str = ", ", conjuction: str = "or") -> str:
     ''' Join together sequences of strings into English-friendly phrases using
     the conjunction ``or`` when appropriate.
 
@@ -97,7 +97,7 @@ def snakify(name: str, sep: str = "_") -> str:
     name = re.sub("([a-z\\d])([A-Z])", r"\1%s\2" % sep, name)
     return name.lower()
 
-def append_docstring(docstring: Optional[str], extra: str) -> Optional[str]:
+def append_docstring(docstring: str | None, extra: str) -> str | None:
     ''' Safely append to docstrings.
 
     When Python is executed with the ``-OO`` option, doc strings are removed and
@@ -114,7 +114,12 @@ def append_docstring(docstring: Optional[str], extra: str) -> Optional[str]:
     '''
     return None if docstring is None else docstring + extra
 
-def format_docstring(docstring: Optional[str], *args: Any, **kwargs: Any) -> Optional[str]:
+@overload
+def format_docstring(docstring: None, *args: Any, **kwargs: Any) -> None: ...
+@overload
+def format_docstring(docstring: str, *args: Any, **kwargs: Any) -> str: ...
+
+def format_docstring(docstring: str | None, *args: Any, **kwargs: Any) -> str | None:
     ''' Safely format docstrings.
 
     When Python is executed with the ``-OO`` option, doc strings are removed and
@@ -133,7 +138,7 @@ def format_docstring(docstring: Optional[str], *args: Any, **kwargs: Any) -> Opt
     return None if docstring is None else docstring.format(*args, **kwargs)
 
 
-def format_url_query_arguments(url: str, arguments: Optional[Dict[str, str]] = None) -> str:
+def format_url_query_arguments(url: str, arguments: Dict[str, str] | None = None) -> str:
     ''' Format a base URL with optional query arguments
 
     Args:

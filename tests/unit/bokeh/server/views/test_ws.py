@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -38,7 +40,7 @@ basicConfig()
 # General API
 #-----------------------------------------------------------------------------
 
-async def test_send_message_raises(caplog) -> None:
+async def test_send_message_raises(caplog: pytest.LogCaptureFixture) -> None:
     class ExcMessage:
         def send(self, handler):
             raise WebSocketClosedError()

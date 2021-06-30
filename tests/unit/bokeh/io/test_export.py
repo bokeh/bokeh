@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -15,10 +17,13 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Tuple
+from typing import TYPE_CHECKING, Tuple
 
 # External imports
 from flaky import flaky
+
+if TYPE_CHECKING:
+    from selenium.webdriver.remote.webdriver import WebDriver
 
 # Bokeh imports
 from bokeh.core.validation import silenced
@@ -42,7 +47,7 @@ import bokeh.io.export as bie # isort:skip
 #-----------------------------------------------------------------------------
 
 @pytest.fixture(scope="module", params=["chromium", "firefox"])
-def webdriver(request):
+def webdriver(request: pytest.FixtureRequest):
     driver = webdriver_control.create(request.param)
     try:
         yield driver
@@ -60,7 +65,7 @@ def webdriver(request):
 @flaky(max_runs=10)
 @pytest.mark.selenium
 @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
-def test_get_screenshot_as_png(webdriver, dimensions: Tuple[int, int]) -> None:
+def test_get_screenshot_as_png(webdriver: WebDriver, dimensions: Tuple[int, int]) -> None:
     width, height = dimensions
     border = 5
 
@@ -85,7 +90,7 @@ def test_get_screenshot_as_png(webdriver, dimensions: Tuple[int, int]) -> None:
 @flaky(max_runs=10)
 @pytest.mark.selenium
 @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
-def test_get_screenshot_as_png_with_glyph(webdriver, dimensions: Tuple[int, int]) -> None:
+def test_get_screenshot_as_png_with_glyph(webdriver: WebDriver, dimensions: Tuple[int, int]) -> None:
     width, height = dimensions
     border = 5
 
@@ -118,7 +123,7 @@ def test_get_screenshot_as_png_with_glyph(webdriver, dimensions: Tuple[int, int]
 
 @flaky(max_runs=10)
 @pytest.mark.selenium
-def test_get_screenshot_as_png_with_unicode_minified(webdriver) -> None:
+def test_get_screenshot_as_png_with_unicode_minified(webdriver: WebDriver) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
     with silenced(MISSING_RENDERERS):
@@ -128,7 +133,7 @@ def test_get_screenshot_as_png_with_unicode_minified(webdriver) -> None:
 
 @flaky(max_runs=10)
 @pytest.mark.selenium
-def test_get_screenshot_as_png_with_unicode_unminified(webdriver) -> None:
+def test_get_screenshot_as_png_with_unicode_unminified(webdriver: WebDriver) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
     with silenced(MISSING_RENDERERS):
@@ -156,7 +161,7 @@ def test_get_svg_no_svg_present() -> None:
 
 @flaky(max_runs=10)
 @pytest.mark.selenium
-def test_get_svg_with_svg_present(webdriver) -> None:
+def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:
     plot = lambda color: Plot(
         x_range=Range1d(), y_range=Range1d(),
         height=20, width=20, toolbar_location=None,
@@ -195,7 +200,7 @@ def test_get_svgs_no_svg_present() -> None:
 
 @flaky(max_runs=10)
 @pytest.mark.selenium
-def test_get_svgs_with_svg_present(webdriver) -> None:
+def test_get_svgs_with_svg_present(webdriver: WebDriver) -> None:
     plot = lambda color: Plot(
         x_range=Range1d(), y_range=Range1d(),
         height=20, width=20, toolbar_location=None,

@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -16,10 +18,11 @@ import pytest ; pytest
 
 # External imports
 import numpy as np
-from mock import patch
+from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
+from bokeh._testing.util.types import Capture
 from bokeh.core.has_props import HasProps
 
 # Module under test
@@ -43,7 +46,7 @@ ALL = (
 
 class TestProperty:
     @patch('bokeh.core.property.bases.Property.validate')
-    def test_is_valid_supresses_validation_detail(self, mock_validate) -> None:
+    def test_is_valid_supresses_validation_detail(self, mock_validate: MagicMock) -> None:
         p = bcpb.Property()
         p.is_valid(None)
         assert mock_validate.called
@@ -104,7 +107,7 @@ class TestProperty:
                 p.prepare_value(hp, "foo", 10)
                 assert str(e) == "bad True name, 10"
 
-    def test_matches_basic_types(self, capsys) -> None:
+    def test_matches_basic_types(self, capsys: Capture) -> None:
         p = bcpb.Property()
         for x in [1, 1.2, "a", np.arange(4), None, False, True, {}, []]:
                 assert p.matches(x, x) is True
@@ -112,7 +115,7 @@ class TestProperty:
         out, err = capsys.readouterr()
         assert err == ""
 
-    def test_matches_compatible_arrays(self, capsys) -> None:
+    def test_matches_compatible_arrays(self, capsys: Capture) -> None:
         p = bcpb.Property()
         a = np.arange(5)
         b = np.arange(5)
@@ -124,7 +127,7 @@ class TestProperty:
         out, err = capsys.readouterr()
         assert err == ""
 
-    def test_matches_incompatible_arrays(self, capsys) -> None:
+    def test_matches_incompatible_arrays(self, capsys: Capture) -> None:
         p = bcpb.Property()
         a = np.arange(5)
         b = np.arange(5).astype(str)
@@ -133,7 +136,7 @@ class TestProperty:
         # no way to suppress FutureWarning in this case
         # assert err == ""
 
-    def test_matches_dicts_with_array_values(self, capsys) -> None:
+    def test_matches_dicts_with_array_values(self, capsys: Capture) -> None:
         p = bcpb.Property()
         d1 = dict(foo=np.arange(10))
         d2 = dict(foo=np.arange(10))
@@ -150,7 +153,7 @@ class TestProperty:
         out, err = capsys.readouterr()
         assert err == ""
 
-    def test_matches_non_dict_containers_with_array_false(self, capsys) -> None:
+    def test_matches_non_dict_containers_with_array_false(self, capsys: Capture) -> None:
         p = bcpb.Property()
         d1 = [np.arange(10)]
         d2 = [np.arange(10)]
@@ -165,7 +168,7 @@ class TestProperty:
         out, err = capsys.readouterr()
         assert err == ""
 
-    def test_matches_dicts_with_series_values(self, capsys, pd) -> None:
+    def test_matches_dicts_with_series_values(self, capsys: Capture, pd) -> None:
         p = bcpb.Property()
         d1 = pd.DataFrame(dict(foo=np.arange(10)))
         d2 = pd.DataFrame(dict(foo=np.arange(10)))
@@ -182,7 +185,7 @@ class TestProperty:
         out, err = capsys.readouterr()
         assert err == ""
 
-    def test_matches_dicts_with_index_values(self, capsys, pd) -> None:
+    def test_matches_dicts_with_index_values(self, capsys: Capture, pd) -> None:
         p = bcpb.Property()
         d1 = pd.DataFrame(dict(foo=np.arange(10)))
         d2 = pd.DataFrame(dict(foo=np.arange(10)))

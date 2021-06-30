@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -15,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-from mock import patch
+from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.properties import (
@@ -255,7 +257,7 @@ def test_HasProps_update_from_json() -> None:
     assert c.lst2 == [1,2]
 
 @patch('bokeh.core.has_props.HasProps.set_from_json')
-def test_HasProps_update_from_json_passes_models_and_setter(mock_set) -> None:
+def test_HasProps_update_from_json_passes_models_and_setter(mock_set: MagicMock) -> None:
     c = Child()
     c.update_from_json(dict(lst1=[1,2]), models="foo", setter="bar")
     assert mock_set.called

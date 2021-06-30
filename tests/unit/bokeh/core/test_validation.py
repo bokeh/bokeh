@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -18,7 +20,7 @@ import pytest ; pytest
 from typing import Any, cast
 
 # External imports
-from mock import Mock, patch
+from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.properties import Int
@@ -122,7 +124,7 @@ def test_check_integrity_warning() -> None:
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_check_pass(mock_warn: Mock, mock_error: Mock) -> None:
+def test_check_pass(mock_warn: MagicMock, mock_error: MagicMock) -> None:
     m = Mod()
 
     issues = v.check_integrity([m])
@@ -132,7 +134,7 @@ def test_check_pass(mock_warn: Mock, mock_error: Mock) -> None:
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_check_error(mock_warn: Mock, mock_error: Mock) -> None:
+def test_check_error(mock_warn: MagicMock, mock_error: MagicMock) -> None:
     m = Mod(foo=10)
     issues = v.check_integrity([m])
     v.process_validation_issues(issues)
@@ -141,7 +143,7 @@ def test_check_error(mock_warn: Mock, mock_error: Mock) -> None:
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_check_warn(mock_warn: Mock, mock_error: Mock) -> None:
+def test_check_warn(mock_warn: MagicMock, mock_error: MagicMock) -> None:
     m = Mod(foo=-10)
     issues = v.check_integrity([m])
     v.process_validation_issues(issues)
@@ -150,7 +152,7 @@ def test_check_warn(mock_warn: Mock, mock_error: Mock) -> None:
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_silence_and_check_warn(mock_warn: Mock, mock_error: Mock) -> None:
+def test_silence_and_check_warn(mock_warn: MagicMock, mock_error: MagicMock) -> None:
     from bokeh.core.validation.warnings import EXT
     m = Mod(foo=-10)
     try:
@@ -168,7 +170,7 @@ def test_silence_and_check_warn(mock_warn: Mock, mock_error: Mock) -> None:
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_silence_with_bad_input_and_check_warn(mock_warn: Mock, mock_error: Mock) -> None:
+def test_silence_with_bad_input_and_check_warn(mock_warn: MagicMock, mock_error: MagicMock) -> None:
     m = Mod(foo=-10)
     with pytest.raises(ValueError, match="Input to silence should be a warning object"):
         v.silence(cast(Any, "EXT:W"))
@@ -179,7 +181,7 @@ def test_silence_with_bad_input_and_check_warn(mock_warn: Mock, mock_error: Mock
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_silence_warning_already_in_silencers_is_ok(mock_warn: Mock, mock_error: Mock) -> None:
+def test_silence_warning_already_in_silencers_is_ok(mock_warn: MagicMock, mock_error: MagicMock) -> None:
     from bokeh.core.validation.warnings import EXT
     m = Mod(foo=-10)
     try:
@@ -201,7 +203,7 @@ def test_silence_warning_already_in_silencers_is_ok(mock_warn: Mock, mock_error:
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_silence_remove_warning_that_is_not_in_silencers_is_ok(mock_warn: Mock, mock_error: Mock) -> None:
+def test_silence_remove_warning_that_is_not_in_silencers_is_ok(mock_warn: MagicMock, mock_error: MagicMock) -> None:
     from bokeh.core.validation.warnings import EXT
     m = Mod(foo=-10)
 
@@ -220,7 +222,7 @@ def test_silence_remove_warning_that_is_not_in_silencers_is_ok(mock_warn: Mock, 
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_process_validation_issues_pass(mock_warn: Mock, mock_error: Mock) -> None:
+def test_process_validation_issues_pass(mock_warn: MagicMock, mock_error: MagicMock) -> None:
     issues = ValidationIssues(error=[], warning=[])
     v.process_validation_issues(issues)
     assert not mock_error.called
@@ -228,7 +230,7 @@ def test_process_validation_issues_pass(mock_warn: Mock, mock_error: Mock) -> No
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_process_validation_issues_warn(mock_warn: Mock, mock_error: Mock) -> None:
+def test_process_validation_issues_warn(mock_warn: MagicMock, mock_error: MagicMock) -> None:
     issues = ValidationIssues(
         error=[ValidationIssue(9999, "EXT:E", "Custom extension reports error", "err")],
         warning=[],
@@ -239,7 +241,7 @@ def test_process_validation_issues_warn(mock_warn: Mock, mock_error: Mock) -> No
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_process_validation_issues_error(mock_warn: Mock, mock_error: Mock) -> None:
+def test_process_validation_issues_error(mock_warn: MagicMock, mock_error: MagicMock) -> None:
     issues = ValidationIssues(
         error=[],
         warning=[ValidationIssue(9999, "EXT:W", "Custom extension reports warning", "wrn")],

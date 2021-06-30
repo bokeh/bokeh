@@ -24,9 +24,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Optional
-
 # Bokeh imports
 from .bases import Property
 from .descriptors import AliasPropertyDescriptor
@@ -65,14 +62,14 @@ class Alias(Property): # lgtm [py/missing-call-to-init]
     """
 
     name: str
-    help: Optional[str]
+    help: str | None
 
     # Alias is somewhat a quasi-property
     readonly = False
     serialized = False
     _default = None
 
-    def __init__(self, aliased_name: str, *, help: Optional[str] = None):
+    def __init__(self, aliased_name: str, *, help: str | None = None) -> None:
         self.aliased_name = aliased_name
         self.help = help
 

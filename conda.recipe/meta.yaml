@@ -64,7 +64,8 @@ test:
     - ipython
     - isort >=4.3.21
     - mock
-    - mypy
+    - mypy >=0.900
+    - pandas-stubs
     - nbconvert >=5.4
     - networkx
     - nodejs >=14

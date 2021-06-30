@@ -36,7 +36,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import sys
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 # Bokeh imports
 from ..settings import settings
@@ -49,7 +49,7 @@ __all__ = (
   'basicConfig',
 )
 
-default_handler: Optional[logging.Handler] = None
+default_handler: logging.Handler | None = None
 
 #-----------------------------------------------------------------------------
 # General API

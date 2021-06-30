@@ -22,13 +22,23 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os  # lgtm [py/unused-import]
-from typing import Any, Union
+from typing import (
+    Any,
+    NewType,
+    Sequence,
+    Union,
+)
+
+# External imports
+from typing_extensions import Literal, TypedDict
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    "ID",
+    "JSON",
     "PathLike",
     "Unknown",
 )
@@ -41,9 +51,59 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
+ID = NewType("ID", str)
+
+JSON = Any
+
 PathLike = Union[str, "os.PathLike[str]"]
 
 Unknown = Any
+
+# TODO: move this to types/geometry.py
+class PointGeometry(TypedDict):
+    type: Literal["point"]
+    sx: float
+    sy: float
+
+class SpanGeometry(TypedDict):
+    type: Literal["span"]
+    direction: Literal["h", "v"]
+    sx: float
+    sy: float
+
+class RectGeometry(TypedDict):
+    type: Literal["rect"]
+    sx0: float
+    sx1: float
+    sy0: float
+    sy1: float
+
+class PolyGeometry(TypedDict):
+    type: Literal["poly"]
+    sx: Sequence[float]
+    sy: Sequence[float]
+
+Geometry = Union[PointGeometry, SpanGeometry, RectGeometry, PolyGeometry]
+
+class PointGeometryData(PointGeometry):
+    x: float
+    y: float
+
+class SpanGeometryData(SpanGeometry):
+    x: float
+    y: float
+
+class RectGeometryData(RectGeometry):
+    x0: float
+    x1: float
+    y0: float
+    y1: float
+
+class PolyGeometryData(PolyGeometry):
+    x: Sequence[float]
+    y: Sequence[float]
+
+GeometryData = Union[PointGeometryData, SpanGeometryData, RectGeometryData, PolyGeometryData]
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -42,7 +42,7 @@ __all__ = (
 class Nullable(SingleParameterizedProperty):
     """ A property accepting ``None`` or a value of some other type. """
 
-    def __init__(self, type_param, *, default=None, help=None, serialized=None, readonly=False):
+    def __init__(self, type_param, *, default=None, help=None, serialized=None, readonly=False) -> None:
         super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
 
     def from_json(self, json, *, models=None):
@@ -71,7 +71,7 @@ class Nullable(SingleParameterizedProperty):
 class NonNullable(SingleParameterizedProperty):
     """ A property accepting a value of some other type while having undefined default. """
 
-    def __init__(self, type_param, *, default=Undefined, help=None, serialized=None, readonly=False):
+    def __init__(self, type_param, *, default=Undefined, help=None, serialized=None, readonly=False) -> None:
         super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
 
 #-----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 import createRegl from "regl"
-import {Regl, DrawConfig, AttributeConfig, BoundingBox, Buffer, BufferOptions, Elements} from "regl"
+import {Regl, DrawConfig, BoundingBox, Buffer, BufferOptions, Elements} from "regl"
 import * as t from "./types"
 import {DashCache, DashReturn} from "./dash_cache"
 import line_vertex_shader from "./regl_line.vert"
@@ -172,31 +172,16 @@ function regl_solid_line(regl: Regl, line_geometry: Buffer, line_triangles: Elem
         divisor: 0,
       },
       a_point_prev(_, props) {
-        return {
-          buffer: props.points,
-          divisor: 1,
-        }
+        return props.points.to_attribute_config()
       },
       a_point_start(_, props) {
-        return {
-          buffer: props.points,
-          divisor: 1,
-          offset: Float32Array.BYTES_PER_ELEMENT * 2,
-        }
+        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*2)
       },
       a_point_end(_, props) {
-        return {
-          buffer: props.points,
-          divisor: 1,
-          offset: Float32Array.BYTES_PER_ELEMENT * 4,
-        }
+        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*4)
       },
       a_point_next(_, props) {
-        return {
-          buffer: props.points,
-          divisor: 1,
-          offset: Float32Array.BYTES_PER_ELEMENT * 6,
-        }
+        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*6)
       },
     },
 
@@ -250,37 +235,19 @@ function regl_dashed_line(regl: Regl, line_geometry: Buffer, line_triangles: Ele
         divisor: 0,
       },
       a_point_prev(_, props) {
-        return {
-          buffer: props.points,
-          divisor: 1,
-        }
+        return props.points.to_attribute_config()
       },
       a_point_start(_, props) {
-        return {
-          buffer: props.points,
-          divisor: 1,
-          offset: Float32Array.BYTES_PER_ELEMENT * 2,
-        }
+        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*2)
       },
       a_point_end(_, props) {
-        return {
-          buffer: props.points,
-          divisor: 1,
-          offset: Float32Array.BYTES_PER_ELEMENT * 4,
-        }
+        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*4)
       },
       a_point_next(_, props) {
-        return {
-          buffer: props.points,
-          divisor: 1,
-          offset: Float32Array.BYTES_PER_ELEMENT * 6,
-        }
+        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*6)
       },
       a_length_so_far(_, props) {
-        return {
-          buffer: props.length_so_far,
-          divisor: 1,
-        }
+        return props.length_so_far.to_attribute_config()
       },
     },
 
@@ -323,22 +290,6 @@ function regl_dashed_line(regl: Regl, line_geometry: Buffer, line_triangles: Ele
   return regl<Uniforms, Attributes, Props>(config)
 }
 
-// Return a ReGL AttributeConfig that corresponds to one value for
-// each marker or the same value for all markers.  Instanced rendering supports
-// the former using 'divisor = 1', but does not support the latter directly.
-// We have to either repeat the attribute once for each marker, which is
-// wasteful for a large number of markers, or the solution used here which is to
-// repeat the value 4 times, once for each of the instanced vertices (using
-// 'divisor = 0').
-function one_each_or_constant(regl: Regl, prop: Float32Array | Uint8Array | number[], nitems: number, norm: boolean, nmarkers: number): AttributeConfig {
-  const divisor = prop.length == nitems && nmarkers > 1 ? 0 : 1
-  return {
-    buffer: regl.buffer(divisor == 1 ? prop : [prop, prop, prop, prop]),
-    divisor,
-    normalized: norm,
-  }
-}
-
 function regl_marker(regl: Regl, marker_type: MarkerType): ReglRenderFunction {
   type Props = t.MarkerGlyphProps
   type Uniforms = t.CommonUniforms
@@ -354,32 +305,25 @@ function regl_marker(regl: Regl, marker_type: MarkerType): ReglRenderFunction {
         divisor: 0,
       },
       a_center(_, props) {
-        return {
-          buffer: regl.buffer(props.center),
-          divisor: 1,
-        }
+        return props.center.to_attribute_config()
       },
       a_size(_, props) {
-        return one_each_or_constant(regl, props.size, 1, false, props.nmarkers)
+        return props.size.to_attribute_config()
       },
       a_angle(_, props) {
-        return one_each_or_constant(regl, props.angle, 1, false, props.nmarkers)
+        return props.angle.to_attribute_config()
       },
       a_linewidth(_, props) {
-        return one_each_or_constant(regl, props.linewidth, 1, false, props.nmarkers)
+        return props.linewidth.to_attribute_config()
       },
       a_line_color(_, props) {
-        return one_each_or_constant(regl, props.line_color, 4, true, props.nmarkers)
+        return props.line_color.to_attribute_config()
       },
       a_fill_color(_, props) {
-        return one_each_or_constant(regl, props.fill_color, 4, true, props.nmarkers)
+        return props.fill_color.to_attribute_config()
       },
       a_show(_, props) {
-        return {
-          buffer: regl.buffer(props.show),
-          normalized: true,
-          divisor: 1,
-        }
+        return props.show.to_attribute_config()
       },
     },
 
@@ -428,38 +372,31 @@ function regl_rect_no_hatch(regl: Regl): ReglRenderFunction {
         divisor: 0,
       },
       a_center(_, props) {
-        return {
-          buffer: regl.buffer(props.center),
-          divisor: 1,
-        }
+        return props.center.to_attribute_config()
       },
       a_width(_, props) {
-        return one_each_or_constant(regl, props.width, 1, false, props.nmarkers)
+        return props.width.to_attribute_config()
       },
       a_height(_, props) {
-        return one_each_or_constant(regl, props.height, 1, false, props.nmarkers)
+        return props.height.to_attribute_config()
       },
       a_angle(_, props) {
-        return one_each_or_constant(regl, props.angle, 1, false, props.nmarkers)
+        return props.angle.to_attribute_config()
       },
       a_linewidth(_, props) {
-        return one_each_or_constant(regl, props.linewidth, 1, false, props.nmarkers)
+        return props.linewidth.to_attribute_config()
       },
       a_line_color(_, props) {
-        return one_each_or_constant(regl, props.line_color, 4, true, props.nmarkers)
+        return props.line_color.to_attribute_config()
       },
       a_fill_color(_, props) {
-        return one_each_or_constant(regl, props.fill_color, 4, true, props.nmarkers)
+        return props.fill_color.to_attribute_config()
       },
       a_line_join(_, props) {
-        return one_each_or_constant(regl, props.line_join, 1, false, props.nmarkers)
+        return props.line_join.to_attribute_config()
       },
       a_show(_, props) {
-        return {
-          buffer: regl.buffer(props.show),
-          normalized: true,
-          divisor: 1,
-        }
+        return props.show.to_attribute_config()
       },
     },
 
@@ -508,50 +445,43 @@ function regl_rect_hatch(regl: Regl): ReglRenderFunction {
         divisor: 0,
       },
       a_center(_, props) {
-        return {
-          buffer: regl.buffer(props.center),
-          divisor: 1,
-        }
+        return props.center.to_attribute_config()
       },
       a_width(_, props) {
-        return one_each_or_constant(regl, props.width, 1, false, props.nmarkers)
+        return props.width.to_attribute_config()
       },
       a_height(_, props) {
-        return one_each_or_constant(regl, props.height, 1, false, props.nmarkers)
+        return props.height.to_attribute_config()
       },
       a_angle(_, props) {
-        return one_each_or_constant(regl, props.angle, 1, false, props.nmarkers)
+        return props.angle.to_attribute_config()
       },
       a_linewidth(_, props) {
-        return one_each_or_constant(regl, props.linewidth, 1, false, props.nmarkers)
+        return props.linewidth.to_attribute_config()
       },
       a_line_color(_, props) {
-        return one_each_or_constant(regl, props.line_color, 4, true, props.nmarkers)
+        return props.line_color.to_attribute_config()
       },
       a_fill_color(_, props) {
-        return one_each_or_constant(regl, props.fill_color, 4, true, props.nmarkers)
+        return props.fill_color.to_attribute_config()
       },
       a_line_join(_, props) {
-        return one_each_or_constant(regl, props.line_join, 1, false, props.nmarkers)
+        return props.line_join.to_attribute_config()
       },
       a_show(_, props) {
-        return {
-          buffer: regl.buffer(props.show),
-          normalized: true,
-          divisor: 1,
-        }
+        return props.show.to_attribute_config()
       },
       a_hatch_pattern(_, props) {
-        return one_each_or_constant(regl, props.hatch_pattern, 1, false, props.nmarkers)
+        return props.hatch_pattern.to_attribute_config()
       },
       a_hatch_scale(_, props) {
-        return one_each_or_constant(regl, props.hatch_scale, 1, false, props.nmarkers)
+        return props.hatch_scale.to_attribute_config()
       },
       a_hatch_weight(_, props) {
-        return one_each_or_constant(regl, props.hatch_weight, 1, false, props.nmarkers)
+        return props.hatch_weight.to_attribute_config()
       },
       a_hatch_color(_, props) {
-        return one_each_or_constant(regl, props.hatch_color, 4, true, props.nmarkers)
+        return props.hatch_color.to_attribute_config()
       },
     },
 

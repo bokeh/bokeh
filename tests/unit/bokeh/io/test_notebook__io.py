@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -16,6 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 import json
+from typing import Any, Set
 
 # External imports
 from mock import MagicMock, PropertyMock, patch
@@ -50,9 +53,9 @@ def test_install_notebook_hook() -> None:
 @patch('bokeh.io.notebook.get_comms')
 @patch('bokeh.io.notebook.publish_display_data')
 @patch('bokeh.embed.notebook.notebook_content')
-def test_show_doc_no_server(mock_notebook_content,
-                            mock__publish_display_data,
-                            mock_get_comms):
+def test_show_doc_no_server(mock_notebook_content: MagicMock,
+                            mock__publish_display_data: MagicMock,
+                            mock_get_comms: MagicMock) -> None:
     mock_get_comms.return_value = "comms"
     s = State()
     d = Document()
@@ -60,7 +63,8 @@ def test_show_doc_no_server(mock_notebook_content,
 
     class Obj:
         id = None
-        def references(self): return []
+        def references(self) -> Set[Any]:
+            return set()
 
     assert mock__publish_display_data.call_count == 0
     binb.show_doc(Obj(), s, True)
@@ -76,7 +80,7 @@ def test_show_doc_no_server(mock_notebook_content,
 
 class Test_push_notebook:
     @patch('bokeh.io.notebook.CommsHandle.comms', new_callable=PropertyMock)
-    def test_no_events(self, mock_comms) -> None:
+    def test_no_events(self, mock_comms: PropertyMock) -> None:
         mock_comms.return_value = MagicMock()
 
         d = Document()
@@ -86,7 +90,7 @@ class Test_push_notebook:
         assert mock_comms.call_count == 0
 
     @patch('bokeh.io.notebook.CommsHandle.comms', new_callable=PropertyMock)
-    def test_with_events(self, mock_comms) -> None:
+    def test_with_events(self, mock_comms: PropertyMock) -> None:
         mock_comm = MagicMock()
         mock_send = MagicMock(return_value="junk")
         mock_comm.send = mock_send

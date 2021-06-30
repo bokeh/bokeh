@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -15,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-from mock import patch
+from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
@@ -70,7 +72,7 @@ class Test_PropertyDescriptor:
 
     @patch('bokeh.core.property.descriptors.PropertyDescriptor._get')
     @patch('bokeh.core.property.descriptors.PropertyDescriptor._set')
-    def test_set_from_json(self, mock_get, mock_set) -> None:
+    def test_set_from_json(self, mock_get: MagicMock, mock_set: MagicMock) -> None:
         f = Foo()
         d = bcpd.PropertyDescriptor("foo", f)
         d.set_from_json(f, "bar", models=10)
@@ -205,7 +207,7 @@ class Test_PropertyDescriptor:
         assert d.has_ref == "stuff"
 
     @patch('bokeh.core.property.descriptors.PropertyDescriptor._trigger')
-    def test__trigger(self, mock_trigger) -> None:
+    def test__trigger(self, mock_trigger: MagicMock) -> None:
         class Foo:
             _property_values = dict(foo=10, bar=20)
 

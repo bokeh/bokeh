@@ -72,7 +72,7 @@ class GMap(GMapPlot, GlyphAPI):
     __subtype__ = "GMap"
     __view_model__ = "GMapPlot"
 
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         opts = GMapFigureOptions(kw)
 
         title = kw.get("title", None)

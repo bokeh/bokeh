@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -50,12 +52,9 @@ class TestCodeRunner:
     def test_syntax_error_init(self) -> None:
         cr = bahc.CodeRunner("This is a syntax error", "path", [])
         assert cr.failed is True
-        assert "Invalid syntax in" in cr.error
+        assert cr.error is not None
         assert cr.error_detail is not None
-
-    def test_package_error_init(self) -> None:
-        with pytest.raises(ValueError):
-            bahc.CodeRunner("This is a syntax error", "/foo/__init__.py", [], "package")
+        assert "Invalid syntax in" in cr.error
 
     def test_new_module_success(self) -> None:
         cr = bahc.CodeRunner("# test", "path", [])
@@ -136,14 +135,14 @@ class TestCodeRunner:
         assert result == dict(ran=True)
 
     def test_run_fixups_argv(self) -> None:
-        cr = bahc.CodeRunner("import sys; argv = list(sys.argv)", "path", ["foo", 10])
+        cr = bahc.CodeRunner("import sys; argv = list(sys.argv)", "path", ["foo", "10"])
         assert not cr.ran
         m = cr.new_module()
         cr.run(m, lambda: None)
-        assert m.__dict__['argv'] == ["path", "foo", 10]
+        assert m.__dict__['argv'] == ["path", "foo", "10"]
 
     def test_run_fixups_path(self) -> None:
-        cr = bahc.CodeRunner("import sys; path = list(sys.path)", "/dir/to/path", ["foo", 10])
+        cr = bahc.CodeRunner("import sys; path = list(sys.path)", "/dir/to/path", ["foo", "10"])
         assert not cr.ran
         m = cr.new_module()
         cr.run(m, lambda: None)
@@ -152,7 +151,7 @@ class TestCodeRunner:
 
     def test_run_restores_cwd(self) -> None:
         old_cwd = os.getcwd()
-        cr = bahc.CodeRunner("import os; os.chdir('/')", "path", ["foo", 10])
+        cr = bahc.CodeRunner("import os; os.chdir('/')", "path", ["foo", "10"])
         assert not cr.ran
         m = cr.new_module()
         cr.run(m, lambda: None)
@@ -160,7 +159,7 @@ class TestCodeRunner:
 
     def test_run_restores_argv(self) -> None:
         old_argv = list(sys.argv)
-        cr = bahc.CodeRunner("# test", "path", ["foo", 10])
+        cr = bahc.CodeRunner("# test", "path", ["foo", "10"])
         assert not cr.ran
         m = cr.new_module()
         cr.run(m, lambda: None)
@@ -168,7 +167,7 @@ class TestCodeRunner:
 
     def test_run_restores_path(self) -> None:
         old_path = list(sys.path)
-        cr = bahc.CodeRunner("# test", "path", ["foo", 10])
+        cr = bahc.CodeRunner("# test", "path", ["foo", "10"])
         assert not cr.ran
         m = cr.new_module()
         cr.run(m, lambda: None)

@@ -20,8 +20,23 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+)
+
 # External imports
 from tornado import gen
+
+if TYPE_CHECKING:
+    from tornado.httputil import HTTPServerRequest
+    from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from ..application.application import ServerContext, SessionContext
@@ -30,6 +45,12 @@ from ..protocol.exceptions import ProtocolError
 from ..util.token import get_token_payload
 from ..util.tornado import _CallbackGroup
 from .session import ServerSession
+
+if TYPE_CHECKING:
+    from ..application.application import Application
+    from ..core.types import ID
+    from ..util.token import TokenPayload
+    from ..util.tornado import Callback
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -54,40 +75,46 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class BokehServerContext(ServerContext):
-    def __init__(self, application_context):
+    def __init__(self, application_context: ApplicationContext) -> None:
         self.application_context = application_context
         self._callbacks = _CallbackGroup(self.application_context.io_loop)
 
-    def _remove_all_callbacks(self):
+    def _remove_all_callbacks(self) -> None:
         self._callbacks.remove_all_callbacks()
 
     @property
-    def sessions(self):
-        result = []
+    def sessions(self) -> List[ServerSession]:
+        result: List[ServerSession] = []
         for session in self.application_context.sessions:
             result.append(session)
         return result
 
-    def add_next_tick_callback(self, callback):
+    def add_next_tick_callback(self, callback: Callback) -> ID:
         return self._callbacks.add_next_tick_callback(callback)
 
-    def remove_next_tick_callback(self, callback_id):
+    def remove_next_tick_callback(self, callback_id: ID) -> None:
         self._callbacks.remove_next_tick_callback(callback_id)
 
-    def add_timeout_callback(self, callback, timeout_milliseconds):
+    def add_timeout_callback(self, callback: Callback, timeout_milliseconds: int) -> ID:
         return self._callbacks.add_timeout_callback(callback, timeout_milliseconds)
 
-    def remove_timeout_callback(self, callback_id):
+    def remove_timeout_callback(self, callback_id: ID) -> None:
         self._callbacks.remove_timeout_callback(callback_id)
 
-    def add_periodic_callback(self, callback, period_milliseconds):
+    def add_periodic_callback(self, callback: Callback, period_milliseconds: int) -> ID:
         return self._callbacks.add_periodic_callback(callback, period_milliseconds)
 
-    def remove_periodic_callback(self, callback_id):
+    def remove_periodic_callback(self, callback_id: ID) -> None:
         self._callbacks.remove_periodic_callback(callback_id)
 
 class BokehSessionContext(SessionContext):
-    def __init__(self, session_id, server_context, document, logout_url=None):
+
+    _session: ServerSession | None
+    _request: _RequestProxy | None
+    _token: str | None
+
+    def __init__(self, session_id: ID, server_context: ServerContext,
+            document: Document, logout_url: str | None = None) -> None:
         self._document = document
         self._session = None
         self._logout_url = logout_url
@@ -96,10 +123,10 @@ class BokehSessionContext(SessionContext):
         self._request = None
         self._token = None
 
-    def _set_session(self, session):
+    def _set_session(self, session: ServerSession) -> None:
         self._session = session
 
-    async def with_locked_document(self, func):
+    async def with_locked_document(self, func: Callable[[Document], Awaitable[None]]) -> None:
         if self._session is None:
             # this means we are in on_session_created, so no locking yet,
             # we have exclusive access
@@ -108,7 +135,7 @@ class BokehSessionContext(SessionContext):
             await self._session.with_document_locked(func, self._document)
 
     @property
-    def destroyed(self):
+    def destroyed(self) -> bool:
         if self._session is None:
             # this means we are in on_session_created
             return False
@@ -116,19 +143,20 @@ class BokehSessionContext(SessionContext):
             return self._session.destroyed
 
     @property
-    def logout_url(self):
+    def logout_url(self) -> str | None:
         return self._logout_url
 
     @property
-    def request(self):
+    def request(self) -> _RequestProxy | None:
         return self._request
 
     @property
-    def token_payload(self):
+    def token_payload(self) -> TokenPayload:
+        assert self._token is not None
         return get_token_payload(self._token)
 
     @property
-    def session(self):
+    def session(self) -> ServerSession | None:
         return self._session
 
 
@@ -141,53 +169,60 @@ class ApplicationContext:
 
     '''
 
-    def __init__(self, application, io_loop=None, url=None, logout_url=None):
+    _sessions: Dict[ID, ServerSession]
+    _pending_sessions: Dict[ID, gen.Future[ServerSession]]
+    _session_contexts: Dict[ID, SessionContext]
+    _server_context: BokehServerContext | None
+
+    def __init__(self, application: Application, io_loop: IOLoop | None = None,
+            url: str | None = None, logout_url: str | None = None):
         self._application = application
         self._loop = io_loop
-        self._sessions = dict()
-        self._pending_sessions = dict()
-        self._session_contexts = dict()
+        self._sessions = {}
+        self._pending_sessions = {}
+        self._session_contexts = {}
         self._server_context = None
         self._url = url
         self._logout_url = logout_url
 
     @property
-    def io_loop(self):
+    def io_loop(self) -> IOLoop | None:
         return self._loop
 
     @property
-    def application(self):
+    def application(self) -> Application:
         return self._application
 
     @property
-    def url(self):
+    def url(self) -> str | None:
         return self._url
 
     @property
-    def server_context(self):
+    def server_context(self) -> BokehServerContext:
         if self._server_context is None:
             self._server_context = BokehServerContext(self)
         return self._server_context
 
     @property
-    def sessions(self):
+    def sessions(self) -> Iterable[ServerSession]:
         return self._sessions.values()
 
-    def run_load_hook(self):
+    def run_load_hook(self) -> None:
         try:
             self._application.on_server_loaded(self.server_context)
         except Exception as e:
-            log.error("Error in server loaded hook %r", e, exc_info=True)
+            log.error(f"Error in server loaded hook {e!r}", exc_info=True)
 
-    def run_unload_hook(self):
+    def run_unload_hook(self) -> None:
         try:
             self._application.on_server_unloaded(self.server_context)
         except Exception as e:
-            log.error("Error in server unloaded hook %r", e, exc_info=True)
+            log.error(f"Error in server unloaded hook {e!r}", exc_info=True)
 
         self.server_context._remove_all_callbacks()
 
-    async def create_session_if_needed(self, session_id, request=None, token=None):
+    async def create_session_if_needed(self, session_id: ID, request: HTTPServerRequest | None = None,
+            token: str | None = None) -> ServerSession:
         # this is because empty session_ids would be "falsey" and
         # potentially open up a way for clients to confuse us
         if len(session_id) == 0:
@@ -246,14 +281,14 @@ class ApplicationContext:
 
         return session
 
-    def get_session(self, session_id):
+    def get_session(self, session_id: ID) -> ServerSession:
         if session_id in self._sessions:
             session = self._sessions[session_id]
             return session
         else:
             raise ProtocolError("No such session " + session_id)
 
-    async def _discard_session(self, session, should_discard):
+    async def _discard_session(self, session: ServerSession, should_discard: Callable[[ServerSession], bool]) -> None:
         if session.connection_count > 0:
             raise RuntimeError("Should not be discarding a session with open connections")
         log.debug("Discarding session %r last in use %r milliseconds ago", session.id, session.milliseconds_since_last_unsubscribe)
@@ -262,7 +297,7 @@ class ApplicationContext:
 
         # session.destroy() wants the document lock so it can shut down the document
         # callbacks.
-        def do_discard():
+        def do_discard() -> None:
             # while we awaited for the document lock, the discard-worthiness of the
             # session may have changed.
             # However, since we have the document lock, our own lock will cause the
@@ -272,9 +307,9 @@ class ApplicationContext:
                 session.destroy()
                 del self._sessions[session.id]
                 del self._session_contexts[session.id]
-                log.trace("Session %r was successfully discarded", session.id)
+                log.trace(f"Session {session.id!r} was successfully discarded")
             else:
-                log.warning("Session %r was scheduled to discard but came back to life", session.id)
+                log.warning(f"Session {session.id!r} was scheduled to discard but came back to life")
         await session.with_document_locked(do_discard)
 
         # session lifecycle hooks are supposed to be called outside the document lock,
@@ -287,13 +322,13 @@ class ApplicationContext:
 
         return None
 
-    async def _cleanup_sessions(self, unused_session_linger_milliseconds):
-        def should_discard_ignoring_block(session):
+    async def _cleanup_sessions(self, unused_session_linger_milliseconds: int) -> None:
+        def should_discard_ignoring_block(session: ServerSession) -> bool:
             return session.connection_count == 0 and \
                 (session.milliseconds_since_last_unsubscribe > unused_session_linger_milliseconds or \
                  session.expiration_requested)
         # build a temp list to avoid trouble from self._sessions changes
-        to_discard = []
+        to_discard: List[ServerSession] = []
         for session in self._sessions.values():
             if should_discard_ignoring_block(session) and not session.expiration_blocked:
                 to_discard.append(session)
@@ -312,18 +347,24 @@ class ApplicationContext:
 #-----------------------------------------------------------------------------
 
 class _RequestProxy:
-    def __init__(self, request, cookies=None, headers=None):
+
+    _arguments: Dict[str, List[bytes]]
+    _cookies: Dict[str, str]
+    _headers: Dict[str, str | List[str]]
+
+    def __init__(self, request: HTTPServerRequest, cookies: Dict[str, str] | None = None,
+            headers: Dict[str, str | List[str]] | None = None) -> None:
         self._request = request
 
         arguments = dict(request.arguments)
-        if 'bokeh-session-id' in arguments: del arguments['bokeh-session-id']
+        if 'bokeh-session-id' in arguments:
+            del arguments['bokeh-session-id']
         self._arguments = arguments
         if cookies is not None:
             self._cookies = cookies
         elif hasattr(request, 'cookies'):
             # Django cookies are plain strings, tornado cookies are objects with a value
-            self._cookies = {k: v if isinstance(v, str) else v.value
-                             for k, v in request.cookies.items()}
+            self._cookies = {k: v if isinstance(v, str) else v.value for k, v in request.cookies.items()}
         else:
             self._cookies = {}
 
@@ -335,18 +376,18 @@ class _RequestProxy:
             self._headers = {}
 
     @property
-    def arguments(self):
+    def arguments(self) -> Dict[str, List[bytes]]:
         return self._arguments
 
     @property
-    def cookies(self):
+    def cookies(self) -> Dict[str, str]:
         return self._cookies
 
     @property
-    def headers(self):
+    def headers(self) -> Dict[str, str | List[str]]:
         return self._headers
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         if not name.startswith("_"):
             val = getattr(self._request, name, None)
             if val is not None:

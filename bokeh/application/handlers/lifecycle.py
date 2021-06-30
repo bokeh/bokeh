@@ -21,7 +21,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any, Callable
+
 # Bokeh imports
+from ...document import Document
+from ..application import ServerContext, SessionContext
 from .handler import Handler
 
 #-----------------------------------------------------------------------------
@@ -43,17 +48,25 @@ class LifecycleHandler(Handler):
 
     '''
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    _on_server_loaded: Callable[[ServerContext], None]
+    _on_server_unloaded: Callable[[ServerContext], None]
+    _on_session_created: Callable[[SessionContext], None]
+    _on_session_destroyed: Callable[[SessionContext], None]
+
+    def __init__(self) -> None:
+        super().__init__()
         self._on_server_loaded = _do_nothing
         self._on_server_unloaded = _do_nothing
         self._on_session_created = _do_nothing
         self._on_session_destroyed = _do_nothing
-        self.safe_to_fork = True
+
+    @property
+    def safe_to_fork(self) -> bool:
+        return True
 
     # Public methods ----------------------------------------------------------
 
-    def modify_document(self, doc):
+    def modify_document(self, doc: Document) -> None:
         ''' This handler does not make any modifications to the Document.
 
         Args:
@@ -68,7 +81,7 @@ class LifecycleHandler(Handler):
         # we could support a modify_document function, might be weird though.
         pass
 
-    def on_server_loaded(self, server_context):
+    def on_server_loaded(self, server_context: ServerContext) -> None:
         ''' Execute `on_server_unloaded`` from the configured module (if
         it is defined) when the server is first started.
 
@@ -78,7 +91,7 @@ class LifecycleHandler(Handler):
         '''
         return self._on_server_loaded(server_context)
 
-    def on_server_unloaded(self, server_context):
+    def on_server_unloaded(self, server_context: ServerContext) -> None:
         ''' Execute ``on_server_unloaded`` from the configured module (if
         it is defined) when the server cleanly exits. (Before stopping the
         server's ``IOLoop``.)
@@ -93,7 +106,7 @@ class LifecycleHandler(Handler):
         '''
         return self._on_server_unloaded(server_context)
 
-    async def on_session_created(self, session_context):
+    async def on_session_created(self, session_context: SessionContext) -> None:
         ''' Execute ``on_session_created`` from the configured module (if
         it is defined) when a new session is created.
 
@@ -103,7 +116,7 @@ class LifecycleHandler(Handler):
         '''
         return self._on_session_created(session_context)
 
-    async def on_session_destroyed(self, session_context):
+    async def on_session_destroyed(self, session_context: SessionContext) -> None:
         ''' Execute ``on_session_destroyed`` from the configured module (if
         it is defined) when a new session is destroyed.
 
@@ -121,7 +134,7 @@ class LifecycleHandler(Handler):
 # Private API
 #-----------------------------------------------------------------------------
 
-def _do_nothing(ignored):
+def _do_nothing(ignored: Any) -> None:
     pass
 
 #-----------------------------------------------------------------------------

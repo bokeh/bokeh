@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -15,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-from mock import patch
+from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.validation import check_integrity, process_validation_issues
@@ -49,7 +51,7 @@ class Test_CategoricalColorMapper:
 
     @patch("bokeh.core.validation.check.log.error")
     @patch("bokeh.core.validation.check.log.warning")
-    def test_warning_with_short_palette(self, mock_warn, mock_error) -> None:
+    def test_warning_with_short_palette(self, mock_warn: MagicMock, mock_error: MagicMock) -> None:
         m = bmm.CategoricalColorMapper(factors=["a", "b", "c"], palette=["red", "green"])
         issues = check_integrity([m])
         process_validation_issues(issues)
@@ -58,7 +60,7 @@ class Test_CategoricalColorMapper:
 
     @patch("bokeh.core.validation.check.log.error")
     @patch("bokeh.core.validation.check.log.warning")
-    def test_no_warning_with_long_palette(self, mock_warn, mock_error) -> None:
+    def test_no_warning_with_long_palette(self, mock_warn: MagicMock, mock_error: MagicMock) -> None:
         m = bmm.CategoricalColorMapper(factors=["a", "b", "c"], palette=["red", "green", "orange", "blue"])
         issues = check_integrity([m])
         process_validation_issues(issues)

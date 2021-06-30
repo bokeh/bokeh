@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -30,32 +32,6 @@ import bokeh.colors.color as bcc # isort:skip
 
 
 class Test_Color:
-    def test_init(self) -> None:
-        c = bcc.Color()
-        assert c
-
-    def test_abstract(self) -> None:
-        c = bcc.Color()
-
-        with pytest.raises(NotImplementedError):
-            c.copy()
-
-        with pytest.raises(NotImplementedError):
-            c.from_hsl("foo")
-        with pytest.raises(NotImplementedError):
-            c.from_rgb("foo")
-
-        with pytest.raises(NotImplementedError):
-            c.to_css()
-        with pytest.raises(NotImplementedError):
-            c.to_hsl()
-        with pytest.raises(NotImplementedError):
-            c.to_rgb()
-
-    def test_repr(self) -> None:
-        c = bcc.Color()
-        with pytest.raises(NotImplementedError):
-            repr(c)
 
     def test_clamp(self) -> None:
         assert bcc.Color.clamp(10) == 10

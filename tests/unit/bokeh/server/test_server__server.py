@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -37,10 +39,12 @@ from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop, PeriodicCallback
 
 # Bokeh imports
+from bokeh._testing.plugins.managed_server_loop import MSL
 from bokeh.application import Application
 from bokeh.application.handlers import Handler
 from bokeh.client import pull_session
 from bokeh.core.properties import List, String
+from bokeh.core.types import ID
 from bokeh.model import Model
 from bokeh.server.server import BaseServer, Server
 from bokeh.server.tornado import BokehTornado
@@ -68,7 +72,7 @@ class HookListModel(Model):
     hooks = List(String)
 
 class HookTestHandler(Handler):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.load_count = 0
         self.unload_count = 0
@@ -169,7 +173,7 @@ class HookTestHandler(Handler):
 # General API
 #-----------------------------------------------------------------------------
 
-def test_prefix(ManagedServerLoop) -> None:
+def test_prefix(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         assert server.prefix == ""
@@ -177,7 +181,7 @@ def test_prefix(ManagedServerLoop) -> None:
     with ManagedServerLoop(application, prefix="foo") as server:
         assert server.prefix == "/foo"
 
-def test_index(ManagedServerLoop) -> None:
+def test_index(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         assert server.index is None
@@ -185,7 +189,7 @@ def test_index(ManagedServerLoop) -> None:
     with ManagedServerLoop(application, index="foo") as server:
         assert server.index == "foo"
 
-async def test_get_sessions(ManagedServerLoop) -> None:
+async def test_get_sessions(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         server_sessions = server.get_sessions('/')
@@ -269,12 +273,12 @@ def resource_files_requested(response, requested=True):
         else:
             assert file not in response
 
-def test_use_xheaders(ManagedServerLoop) -> None:
+def test_use_xheaders(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, use_xheaders=True) as server:
         assert server._http.xheaders == True
 
-def test_ssl_args_plumbing(ManagedServerLoop) -> None:
+def test_ssl_args_plumbing(ManagedServerLoop: MSL) -> None:
     with mock.patch.object(ssl, 'SSLContext'):
         with ManagedServerLoop({}, ssl_certfile="foo") as server:
             assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
@@ -310,7 +314,7 @@ def test_base_server() -> None:
     server.stop()
     server.io_loop.close()
 
-async def test_server_applications_callable_arg(ManagedServerLoop) -> None:
+async def test_server_applications_callable_arg(ManagedServerLoop: MSL) -> None:
     def modify_doc(doc):
         doc.title = "Hello, world!"
 
@@ -324,7 +328,7 @@ async def test_server_applications_callable_arg(ManagedServerLoop) -> None:
         session = server.get_sessions('/foo')[0]
         assert session.document.title == "Hello, world!"
 
-async def test__include_headers(ManagedServerLoop) -> None:
+async def test__include_headers(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, include_headers=['Custom']) as server:
         sessions = server.get_sessions('/')
@@ -337,7 +341,7 @@ async def test__include_headers(ManagedServerLoop) -> None:
         assert 'headers' in payload
         assert payload['headers'] == {'Custom': 'Test'}
 
-async def test__exclude_headers(ManagedServerLoop) -> None:
+async def test__exclude_headers(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, exclude_headers=['Connection', 'Host']) as server:
         sessions = server.get_sessions('/')
@@ -350,7 +354,7 @@ async def test__exclude_headers(ManagedServerLoop) -> None:
         assert 'headers' in payload
         assert payload["headers"].get("Accept-Encoding") == "gzip"
 
-async def test__include_cookies(ManagedServerLoop) -> None:
+async def test__include_cookies(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, include_cookies=['custom']) as server:
         sessions = server.get_sessions('/')
@@ -363,7 +367,7 @@ async def test__include_cookies(ManagedServerLoop) -> None:
         assert 'cookies' in payload
         assert payload['cookies'] == {'custom': 'test'}
 
-async def test__exclude_cookies(ManagedServerLoop) -> None:
+async def test__exclude_cookies(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, exclude_cookies=['custom']) as server:
         sessions = server.get_sessions('/')
@@ -387,7 +391,7 @@ async def test__exclude_cookies(ManagedServerLoop) -> None:
 @pytest.mark.skipif(sys.platform == "win32",
                     reason="Lifecycle hooks order different on Windows (TODO open issue)")
 @flaky(max_runs=10)
-def test__lifecycle_hooks(ManagedServerLoop) -> None:
+def test__lifecycle_hooks(ManagedServerLoop: MSL) -> None:
     application = Application()
     handler = HookTestHandler()
     application.add(handler)
@@ -403,7 +407,7 @@ def test__lifecycle_hooks(ManagedServerLoop) -> None:
         server_load_checker.stop()
 
         # now we create a session
-        client_session = pull_session(session_id='test__lifecycle_hooks',
+        client_session = pull_session(session_id=ID("test__lifecycle_hooks"),
                                       url=url(server),
                                       io_loop=server.io_loop)
         client_doc = client_session.document
@@ -454,7 +458,7 @@ def test__lifecycle_hooks(ManagedServerLoop) -> None:
     assert client_hook_list.hooks == ["session_created", "modify"]
     assert server_hook_list.hooks == ["session_created", "modify"]
 
-async def test__request_in_session_context(ManagedServerLoop) -> None:
+async def test__request_in_session_context(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         response = await http_get(server.io_loop, url(server) + "?foo=10")
@@ -468,7 +472,7 @@ async def test__request_in_session_context(ManagedServerLoop) -> None:
         # do we have a request
         assert session_context.request is not None
 
-async def test__request_in_session_context_has_arguments(ManagedServerLoop) -> None:
+async def test__request_in_session_context_has_arguments(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         response = await http_get(server.io_loop, url(server) + "?foo=10")
@@ -482,7 +486,7 @@ async def test__request_in_session_context_has_arguments(ManagedServerLoop) -> N
         # test if we can get the argument from the request
         assert session_context.request.arguments['foo'] == [b'10']
 
-async def test__no_request_arguments_in_session_context(ManagedServerLoop) -> None:
+async def test__no_request_arguments_in_session_context(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         response = await http_get(server.io_loop, url(server))
@@ -504,7 +508,7 @@ async def test__no_request_arguments_in_session_context(ManagedServerLoop) -> No
     ("&resources=none", False),
 ])
 
-async def test__resource_files_requested(querystring, requested, ManagedServerLoop) -> None:
+async def test__resource_files_requested(querystring, requested, ManagedServerLoop: MSL) -> None:
     """
     Checks if the loading of resource files is requested by the autoload.js
     response based on the value of the "resources" parameter.
@@ -514,7 +518,7 @@ async def test__resource_files_requested(querystring, requested, ManagedServerLo
         response = await http_get(server.io_loop, autoload_url(server) + querystring)
         resource_files_requested(response.body, requested=requested)
 
-async def test__autocreate_session_autoload(ManagedServerLoop) -> None:
+async def test__autocreate_session_autoload(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         sessions = server.get_sessions('/')
@@ -529,7 +533,7 @@ async def test__autocreate_session_autoload(ManagedServerLoop) -> None:
         assert 1 == len(sessions)
         assert sessionid == sessions[0].id
 
-async def test__no_set_title_autoload(ManagedServerLoop) -> None:
+async def test__no_set_title_autoload(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         sessions = server.get_sessions('/')
@@ -540,7 +544,7 @@ async def test__no_set_title_autoload(ManagedServerLoop) -> None:
         use_for_title = extract_use_for_title_from_json(js)
         assert use_for_title == "false"
 
-async def test__autocreate_session_doc(ManagedServerLoop) -> None:
+async def test__autocreate_session_doc(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         sessions = server.get_sessions('/')
@@ -555,7 +559,7 @@ async def test__autocreate_session_doc(ManagedServerLoop) -> None:
         assert 1 == len(sessions)
         assert sessionid == sessions[0].id
 
-async def test__no_autocreate_session_websocket(ManagedServerLoop) -> None:
+async def test__no_autocreate_session_websocket(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         sessions = server.get_sessions('/')
@@ -567,7 +571,7 @@ async def test__no_autocreate_session_websocket(ManagedServerLoop) -> None:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-async def test__use_provided_session_autoload(ManagedServerLoop) -> None:
+async def test__use_provided_session_autoload(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         sessions = server.get_sessions('/')
@@ -584,7 +588,7 @@ async def test__use_provided_session_autoload(ManagedServerLoop) -> None:
         assert 1 == len(sessions)
         assert expected == sessions[0].id
 
-async def test__use_provided_session_header_autoload(ManagedServerLoop) -> None:
+async def test__use_provided_session_header_autoload(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         sessions = server.get_sessions('/')
@@ -601,7 +605,7 @@ async def test__use_provided_session_header_autoload(ManagedServerLoop) -> None:
         assert 1 == len(sessions)
         assert expected == sessions[0].id
 
-async def test__use_provided_session_autoload_token(ManagedServerLoop) -> None:
+async def test__use_provided_session_autoload_token(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         sessions = server.get_sessions('/')
@@ -620,7 +624,7 @@ async def test__use_provided_session_autoload_token(ManagedServerLoop) -> None:
         assert 1 == len(sessions)
         assert expected == sessions[0].id
 
-async def test__use_provided_session_doc(ManagedServerLoop) -> None:
+async def test__use_provided_session_doc(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         sessions = server.get_sessions('/')
@@ -637,7 +641,7 @@ async def test__use_provided_session_doc(ManagedServerLoop) -> None:
         assert 1 == len(sessions)
         assert expected == sessions[0].id
 
-async def test__use_provided_session_websocket(ManagedServerLoop) -> None:
+async def test__use_provided_session_websocket(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         sessions = server.get_sessions('/')
@@ -651,7 +655,7 @@ async def test__use_provided_session_websocket(ManagedServerLoop) -> None:
         assert 1 == len(sessions)
         assert expected == sessions[0].id
 
-async def test__autocreate_signed_session_autoload(ManagedServerLoop) -> None:
+async def test__autocreate_signed_session_autoload(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='foo') as server:
         sessions = server.get_sessions('/')
@@ -668,7 +672,7 @@ async def test__autocreate_signed_session_autoload(ManagedServerLoop) -> None:
 
         assert check_token_signature(token, signed=True, secret_key='foo')
 
-async def test__autocreate_signed_session_doc(ManagedServerLoop) -> None:
+async def test__autocreate_signed_session_doc(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='foo') as server:
         sessions = server.get_sessions('/')
@@ -686,7 +690,7 @@ async def test__autocreate_signed_session_doc(ManagedServerLoop) -> None:
         assert check_token_signature(token, signed=True, secret_key='foo')
 
 @flaky(max_runs=10)
-async def test__accept_session_websocket(ManagedServerLoop) -> None:
+async def test__accept_session_websocket(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, session_token_expiration=1) as server:
         sessions = server.get_sessions('/')
@@ -701,7 +705,7 @@ async def test__accept_session_websocket(ManagedServerLoop) -> None:
         assert isinstance(msg, str)
         assert 'ACK' in msg
 
-async def test__reject_expired_session_websocket(ManagedServerLoop) -> None:
+async def test__reject_expired_session_websocket(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, session_token_expiration=1) as server:
         sessions = server.get_sessions('/')
@@ -716,7 +720,7 @@ async def test__reject_expired_session_websocket(ManagedServerLoop) -> None:
         ws = await websocket_open(server.io_loop, ws_url(server), subprotocols=["bokeh", token])
         assert await ws.read_queue.get() is None
 
-async def test__reject_wrong_subprotocol_websocket(ManagedServerLoop) -> None:
+async def test__reject_wrong_subprotocol_websocket(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         sessions = server.get_sessions('/')
@@ -732,7 +736,7 @@ async def test__reject_wrong_subprotocol_websocket(ManagedServerLoop) -> None:
         ws = await websocket_open(server.io_loop, ws_url(server), subprotocols=["foo", token])
         assert await ws.read_queue.get() is None
 
-async def test__reject_no_token_websocket(ManagedServerLoop) -> None:
+async def test__reject_no_token_websocket(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         sessions = server.get_sessions('/')
@@ -746,7 +750,7 @@ async def test__reject_no_token_websocket(ManagedServerLoop) -> None:
         ws = await websocket_open(server.io_loop, ws_url(server), subprotocols=["foo"])
         assert await ws.read_queue.get() is None
 
-async def test__reject_unsigned_session_autoload(ManagedServerLoop) -> None:
+async def test__reject_unsigned_session_autoload(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
         sessions = server.get_sessions('/')
@@ -760,7 +764,7 @@ async def test__reject_unsigned_session_autoload(ManagedServerLoop) -> None:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-async def test__reject_unsigned_token_autoload(ManagedServerLoop) -> None:
+async def test__reject_unsigned_token_autoload(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
         sessions = server.get_sessions('/')
@@ -775,7 +779,7 @@ async def test__reject_unsigned_token_autoload(ManagedServerLoop) -> None:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-async def test__reject_unsigned_session_doc(ManagedServerLoop) -> None:
+async def test__reject_unsigned_session_doc(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
         sessions = server.get_sessions('/')
@@ -789,7 +793,7 @@ async def test__reject_unsigned_session_doc(ManagedServerLoop) -> None:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-async def test__reject_unsigned_session_header_doc(ManagedServerLoop) -> None:
+async def test__reject_unsigned_session_header_doc(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
         sessions = server.get_sessions('/')
@@ -803,7 +807,7 @@ async def test__reject_unsigned_session_header_doc(ManagedServerLoop) -> None:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-async def test__reject_unsigned_session_websocket(ManagedServerLoop) -> None:
+async def test__reject_unsigned_session_websocket(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
         sessions = server.get_sessions('/')
@@ -816,7 +820,7 @@ async def test__reject_unsigned_session_websocket(ManagedServerLoop) -> None:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-async def test__no_generate_session_autoload(ManagedServerLoop) -> None:
+async def test__no_generate_session_autoload(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, generate_session_ids=False) as server:
         sessions = server.get_sessions('/')
@@ -829,7 +833,7 @@ async def test__no_generate_session_autoload(ManagedServerLoop) -> None:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-async def test__no_generate_session_doc(ManagedServerLoop) -> None:
+async def test__no_generate_session_doc(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, generate_session_ids=False) as server:
         sessions = server.get_sessions('/')
@@ -861,7 +865,7 @@ def test__existing_ioloop_with_multiple_processes_exception(ManagedServerLoop, e
         with ManagedServerLoop(application, io_loop=loop, num_procs=3):
             pass
 
-async def test__actual_port_number(ManagedServerLoop) -> None:
+async def test__actual_port_number(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, port=0) as server:
         port = server.port

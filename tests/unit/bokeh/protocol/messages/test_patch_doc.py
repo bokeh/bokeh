@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -186,7 +188,7 @@ class TestPatchDocument:
         assert buf[1] == np.array([11., 1., 2., 3]).tobytes()
 
 class _Event:
-    def __init__(self, refs, bufs):
+    def __init__(self, refs, bufs) -> None:
         self.refs=refs
         self.bufs=bufs
     def generate(self, refs, bufs):

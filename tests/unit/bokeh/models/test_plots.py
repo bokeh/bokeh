@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -16,7 +18,7 @@ import pytest ; pytest
 
 # External imports
 import mock
-from mock import patch
+from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.validation import check_integrity, process_validation_issues
@@ -79,26 +81,26 @@ class TestPlotSelect:
         self._plot.circle([1,2,3], [3,2,1], name='foo')
 
     @patch('bokeh.models.plots.find')
-    def test_string_arg(self, mock_find) -> None:
+    def test_string_arg(self, mock_find: MagicMock) -> None:
         self._plot.select('foo')
         assert mock_find.called
         assert mock_find.call_args[0][1] == dict(name='foo')
 
     @patch('bokeh.models.plots.find')
-    def test_type_arg(self, mock_find) -> None:
+    def test_type_arg(self, mock_find: MagicMock) -> None:
         self._plot.select(PanTool)
         assert mock_find.called
         assert mock_find.call_args[0][1] == dict(type=PanTool)
 
     @patch('bokeh.models.plots.find')
-    def test_kwargs(self, mock_find) -> None:
+    def test_kwargs(self, mock_find: MagicMock) -> None:
         kw = dict(name='foo', type=GlyphRenderer)
         self._plot.select(**kw)
         assert mock_find.called
         assert mock_find.call_args[0][1] == kw
 
     @patch('bokeh.models.plots.find')
-    def test_single_selector_kwarg(self, mock_find) -> None:
+    def test_single_selector_kwarg(self, mock_find: MagicMock) -> None:
         kw = dict(name='foo', type=GlyphRenderer)
         self._plot.select(selector=kw)
         assert mock_find.called

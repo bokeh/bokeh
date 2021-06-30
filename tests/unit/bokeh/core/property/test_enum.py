@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -41,10 +43,10 @@ class Test_Enum:
         with pytest.raises(TypeError):
             bcpe.Enum()
 
-        with pytest.raises(TypeError):
+        with pytest.raises(ValueError):
             bcpe.Enum("red", "green", 1)
 
-        with pytest.raises(TypeError):
+        with pytest.raises(ValueError):
             bcpe.Enum("red", "green", "red")
 
     def test_from_values_valid(self) -> None:
