@@ -41,14 +41,11 @@ export type ItemSizeHint = {
   size_hint: SizeHint
 }
 
-export type GridSize = {
+export type GridSizeHint = {
   size: Size
+  size_hints: Container<ItemSizeHint>
   row_heights: number[]
   col_widths: number[]
-}
-
-export type GridSizeHint = GridSize & {
-  size_hints: Container<ItemSizeHint>
 }
 
 type TrackAlign = "auto" | Align
@@ -353,7 +350,7 @@ export class Grid extends Layoutable {
     return {size, row_heights, col_widths, size_hints}
   }
 
-  protected _measure_grid(viewport: Size): GridSize {
+  protected _measure_grid(viewport: Size): GridSizeHint {
     const {nrows, ncols, rows, cols, rspacing, cspacing} = this._state
 
     const preferred = this._measure_cells((y, x) => {
@@ -465,10 +462,15 @@ export class Grid extends Layoutable {
       }
     }
 
-    const {row_heights, col_widths} = preferred
-    const size = this._measure_totals(row_heights, col_widths)
+    const {row_heights, col_widths, size_hints} = this._measure_cells((y, x) => {
+      return {
+        width: preferred.col_widths[x],
+        height: preferred.row_heights[y],
+      }
+    })
 
-    return {size, row_heights, col_widths}
+    const size = this._measure_totals(row_heights, col_widths)
+    return {size, row_heights, col_widths, size_hints}
   }
 
   protected _measure(viewport: Size): SizeHint {
@@ -481,13 +483,7 @@ export class Grid extends Layoutable {
 
     const {nrows, ncols, rspacing, cspacing} = this._state
 
-    const {row_heights, col_widths} = this._measure_grid(outer)
-    const {size_hints} = this._measure_cells((y, x) => {
-      return {
-        width: col_widths[x],
-        height: row_heights[y],
-      }
-    })
+    const {row_heights, col_widths, size_hints} = this._measure_grid(outer)
 
     const rows = this._state.rows.map((row, r): RowSpec & {top: number, height: number, bottom: number} => {
       return {...row, top: 0, height: row_heights[r], get bottom() { return this.top + this.height }}

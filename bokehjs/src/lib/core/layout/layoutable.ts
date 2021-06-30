@@ -146,11 +146,11 @@ export abstract class Layoutable {
     if (!this.sizing.visible)
       return {width: 0, height: 0}
 
-    const exact_width = (vw: number) => {
-      return vw == Infinity && this.sizing.width_policy == "fixed" && this.sizing.width != null ? this.sizing.width : vw
+    const exact_width = (width: number) => {
+      return this.sizing.width_policy == "fixed" && this.sizing.width != null ? this.sizing.width : width
     }
-    const exact_height = (vh: number) => {
-      return vh == Infinity && this.sizing.height_policy == "fixed" && this.sizing.height != null ? this.sizing.height : vh
+    const exact_height = (height: number) => {
+      return this.sizing.height_policy == "fixed" && this.sizing.height != null ? this.sizing.height : height
     }
 
     const viewport = new Sizeable(viewport_size)
@@ -160,16 +160,18 @@ export abstract class Layoutable {
     const computed = this._measure(viewport)
     const clipped = this.clip_size(computed, viewport)
 
-    const size = this.apply_aspect(viewport, clipped)
+    const width = exact_width(clipped.width)
+    const height = exact_height(clipped.height)
+
+    const size = this.apply_aspect(viewport, {width, height})
     return {...computed, ...size}
   }
 
   compute(viewport: Partial<Size> = {}): void {
-    const _viewport = {
+    const size_hint = this.measure({
       width: viewport.width != null && this.is_width_expanding() ? viewport.width : Infinity,
       height: viewport.height != null && this.is_height_expanding() ? viewport.height : Infinity,
-    }
-    const size_hint = this.measure(_viewport)
+    })
 
     const {width, height} = size_hint
     const outer = new BBox({left: 0, top: 0, width, height})
