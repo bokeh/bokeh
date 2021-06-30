@@ -1,4 +1,5 @@
 import {display} from "./_util"
+import {tex2svg} from "../third-party/tex2svg"
 
 import {
   LinearAxis, LogAxis, CategoricalAxis, LinearScale, LogScale, CategoricalScale, Range1d, FactorRange,
@@ -7,7 +8,6 @@ import {
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 import {Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
-import {tex2svg} from '../third-party/tex2svg'
 
 declare namespace MathJax {
   function tex2svg(input: string): HTMLElement
