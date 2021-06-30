@@ -27,6 +27,7 @@ from mock import Mock, patch
 
 # Bokeh imports
 from bokeh.util.token import (
+    _TOKEN_ZLIB_KEY,
     _base64_decode,
     _base64_encode,
     _get_sysrandom,
@@ -54,6 +55,9 @@ def _nie():
 
 _MERSENNE_MSG = 'A secure pseudo-random number generator is not available on your system. Falling back to Mersenne Twister.'
 
+def _b64_to_utf8(encoded):
+    return codecs.decode(_base64_decode(encoded), "utf-8")
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -63,7 +67,7 @@ class TestSessionId:
         for s in [ "", "a", "ab", "abc", "abcd", "abcde", "abcdef", "abcdefg",
                    "abcdefgh", "abcdefghi",
                    "abcdefghijklmnopqrstuvwxyz" ]:
-            assert s == _base64_decode(_base64_encode(s), encoding='utf-8')
+            assert s == _b64_to_utf8(_base64_encode(s))
 
     def test_reseed_if_needed(self) -> None:
         # we have to set a seed in order to be able to get state
@@ -93,19 +97,29 @@ class TestSessionId:
         token = generate_jwt_token(generate_session_id(), signed=False)
         assert '.' not in token
         assert 123 == len(token)
-        assert "session_id" in json.loads(_base64_decode(token, encoding='utf-8'))
+        assert "session_id" in json.loads(_b64_to_utf8(token))
 
         another_token = generate_jwt_token(generate_session_id(), signed=False)
         assert '.' not in another_token
         assert 123 == len(another_token)
-        assert "session_id" in json.loads(_base64_decode(another_token, encoding='utf-8'))
+        assert "session_id" in json.loads(_b64_to_utf8(another_token))
         assert token != another_token
 
     def test_payload_unsigned(self):
         token = generate_jwt_token(generate_session_id(), signed=False, extra_payload=dict(foo=10))
         assert '.' not in token
-        payload = json.loads(_base64_decode(token, encoding='utf-8'))
+        assert _TOKEN_ZLIB_KEY in json.loads(_b64_to_utf8(token))
+        payload = get_token_payload(token)
+        assert _TOKEN_ZLIB_KEY not in payload
         assert payload['foo'] == 10
+
+    def test_payload_with_zlib_key(self):
+        token = generate_jwt_token(generate_session_id(), signed=False, extra_payload=dict([(_TOKEN_ZLIB_KEY, 10)]))
+        assert '.' not in token
+        assert _TOKEN_ZLIB_KEY in json.loads(_b64_to_utf8(token))
+        payload = get_token_payload(token)
+        assert _TOKEN_ZLIB_KEY in payload
+        assert payload[_TOKEN_ZLIB_KEY] == 10
 
     def test_payload_error_unsigned(self):
         session_id = generate_session_id()
@@ -116,7 +130,7 @@ class TestSessionId:
         session_id = generate_session_id(signed=True, secret_key="abc")
         token = generate_jwt_token(session_id, signed=True, secret_key="abc")
         assert '.' in token
-        decoded = json.loads(_base64_decode(token.split('.')[0], encoding='utf-8'))
+        decoded = json.loads(_b64_to_utf8(token.split('.')[0]))
         assert "session_id" in decoded
         assert decoded['session_id'] == session_id
         assert check_token_signature(token, secret_key="abc", signed=True)
@@ -126,12 +140,15 @@ class TestSessionId:
         session_id = generate_session_id(signed=True, secret_key="abc")
         token = generate_jwt_token(session_id, signed=True, secret_key="abc", extra_payload=dict(foo=10))
         assert '.' in token
-        decoded = json.loads(_base64_decode(token.split('.')[0], encoding='utf-8'))
+        decoded = json.loads(_b64_to_utf8(token.split('.')[0]))
+        assert _TOKEN_ZLIB_KEY in decoded
         assert 'session_id' in decoded
         session_id = get_session_id(token)
         assert check_token_signature(token, secret_key="abc", signed=True)
         assert not check_token_signature(token, secret_key="qrs", signed=True)
-        assert decoded['foo'] == 10
+        payload = get_token_payload(token)
+        assert _TOKEN_ZLIB_KEY not in payload
+        assert payload['foo'] == 10
 
     def test_payload_error(self):
         session_id = generate_session_id()
