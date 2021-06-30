@@ -9,6 +9,10 @@ import {Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
 import {tex2svg} from '../third-party/tex2svg'
 
+declare namespace MathJax {
+  function tex2svg(input: string): HTMLElement
+}
+
 (() => {
   type PlotFn = (attrs: Partial<LinearAxis.Attrs>, options?: {minor_size?: number, num_ticks?: number}) => Promise<void>
 
@@ -128,20 +132,7 @@ import {tex2svg} from '../third-party/tex2svg'
       await plot({minor_tick_out: 10})
     })
 
-    // function load_math_jax_script(): Promise<void> {
     function load_math_jax_script(): void {
-      // return new Promise(async (resolve, _) => {
-      //   if (!document.getElementById("bokeh_mathjax_script")) {
-      //     const script = document.createElement("script")
-      //     script.id = "bokeh_mathjax_script"
-      //     script.src = "/third-party/tex-svg.js"
-      //     script.onload = () => resolve()
-      //     document.head.appendChild(script)
-      //   } else {
-      //     resolve()
-      //   }
-      // })
-      // @ts-ignore
       MathJax = {tex2svg}
     }
 
