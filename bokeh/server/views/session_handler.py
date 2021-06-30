@@ -81,7 +81,7 @@ class SessionHandler(AuthMixin, RequestHandler):
         pass
 
     @authenticated
-    async def get_session(self) -> ServerSession::
+    async def get_session(self) -> ServerSession:
         app = self.application
         token = self.get_argument("bokeh-token", default=None)
         session_id: ID | None = self.get_argument("bokeh-session-id", default=None)
