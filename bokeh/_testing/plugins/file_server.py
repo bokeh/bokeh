@@ -65,7 +65,7 @@ class HtmlOnlyHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
-                self.wfile.write(f.read().encode("utf-8"))
+                self.wfile.write(f.read().decode("utf-8"))
         except OSError:
             self.send_error(404, f"File Not Found: {path}")
 
