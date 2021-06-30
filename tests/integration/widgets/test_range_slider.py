@@ -89,12 +89,8 @@ class Test_RangeSlider:
         el = page.driver.find_element_by_css_selector('.foo')
         assert len(el.find_elements_by_css_selector('div.bk-input-group > div')) == 2
 
-        # XXX: WebElement.text returns undecoded UTF-8 byte strings as str (!) (not bytes)
-        def decode(s: str) -> str:
-            return bytes(map(ord, s)).decode("utf-8")
-
-        t0 = decode(get_slider_title_text(page.driver, ".foo"))
-        t1 = decode(get_slider_title_value(page.driver, ".foo"))
+        t0 = get_slider_title_text(page.driver, ".foo")
+        t1 = get_slider_title_value(page.driver, ".foo")
 
         assert t0 == "bar: 1.00e\u22126 .. 8.00e\u22126"
         assert t1 == "1.00e\u22126 .. 8.00e\u22126"
