@@ -9,10 +9,6 @@ import {Factor} from "@bokehjs/models/ranges/factor_range"
 import {Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
 
-declare namespace MathJax {
-  function tex2svg(input: string): HTMLElement
-}
-
 (() => {
   type PlotFn = (attrs: Partial<LinearAxis.Attrs>, options?: {minor_size?: number, num_ticks?: number}) => Promise<void>
 
@@ -133,6 +129,7 @@ declare namespace MathJax {
     })
 
     function load_math_jax_script(): void {
+      // @ts-ignore
       MathJax = {tex2svg}
     }
 
