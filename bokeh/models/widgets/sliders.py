@@ -78,6 +78,10 @@ class AbstractSlider(Widget):
 
         super().__init__(**kwargs)
 
+    orientation = Enum("horizontal", "vertical", help="""
+    Orient the slider either horizontally (default) or vertically.
+    """)
+
     title = Nullable(String, default="", help="""
     Slider's label.
     """)

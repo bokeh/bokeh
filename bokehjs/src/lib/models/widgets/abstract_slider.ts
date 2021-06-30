@@ -6,7 +6,7 @@ import {div, span, empty} from "core/dom"
 import {repeat} from "core/util/array"
 import {color2css} from "core/util/color"
 
-import {Control, ControlView} from "./control"
+import {OrientedControl, OrientedControlView} from "./oriented_control"
 import {TickFormatter} from "../formatters/tick_formatter"
 
 import sliders_css, * as sliders from "styles/widgets/sliders.css"
@@ -20,7 +20,7 @@ export interface SliderSpec {
   step: number
 }
 
-abstract class AbstractBaseSliderView extends ControlView {
+abstract class AbstractBaseSliderView extends OrientedControlView {
   override model: AbstractSlider
 
   protected group_el: HTMLElement
@@ -201,7 +201,7 @@ export abstract class AbstractRangeSliderView extends AbstractBaseSliderView {
 export namespace AbstractSlider {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Control.Props & {
+  export type Props = OrientedControl.Props & {
     title: p.Property<string | null>
     show_value: p.Property<boolean>
     start: p.Property<any> // XXX
@@ -218,7 +218,7 @@ export namespace AbstractSlider {
 
 export interface AbstractSlider extends AbstractSlider.Attrs {}
 
-export abstract class AbstractSlider extends Control {
+export abstract class AbstractSlider extends OrientedControl {
   override properties: AbstractSlider.Props
   // TODO: __view_type__: AbstractSliderView
 
