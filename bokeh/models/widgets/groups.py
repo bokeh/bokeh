@@ -27,6 +27,7 @@ from typing import TYPE_CHECKING, Callable, List as TList
 from ...core.has_props import abstract
 from ...core.properties import (
     Bool,
+    Enum,
     Int,
     List,
     Nullable,
@@ -88,6 +89,10 @@ class ButtonGroup(AbstractGroup, ButtonLike):
     ''' Abstract base class for groups with items rendered as buttons.
 
     '''
+
+    orientation = Enum("horizontal", "vertical", help="""
+    Orient the button group either horizontally (default) or vertically.
+    """)
 
 @abstract
 class Group(AbstractGroup):

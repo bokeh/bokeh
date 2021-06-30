@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Enum, Int, Override
+from ...core.properties import Int, Override
 from ..layouts import LayoutDOM
 
 #-----------------------------------------------------------------------------
@@ -51,12 +51,6 @@ class Widget(LayoutDOM):
     ''' A base class for all interactive widget types.
 
     '''
-
-    orientation = Enum("horizontal", "vertical", help="""
-    Orient the widget either horizontally (default) or vertically.
-
-    Note that not all widgets support vertical orientation.
-    """)
 
     default_size = Int(default=300, help="""
     The default size (width or height) in the dominating dimension.
