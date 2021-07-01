@@ -14,7 +14,7 @@ plot = Plot(min_border=80)
 circle = Circle(x="x", y="y", fill_color="red", size=5, line_color="black")
 
 plot.add_glyph(source, circle)
-plot.add_layout(LinearAxis(axis_label=MathText(r"-2\pi \rightarrow 2\pi")), 'below')
-plot.add_layout(LinearAxis(axis_label=MathText(r"\sin(x)")), 'left')
+plot.add_layout(LinearAxis(axis_label=MathText(text=r"-2\pi \rightarrow 2\pi")), 'below')
+plot.add_layout(LinearAxis(axis_label=MathText(text=r"\sin(x)")), 'left')
 
 show(plot)
