@@ -1,35 +1,17 @@
 import {expect} from "assertions"
-
+import {compare_on_dom} from "../../../framework"
 import {SVGRenderingContext2D} from "@bokehjs/core/util/svg"
-
-function stringToHTML(str: string) {
-  const parser = new DOMParser()
-  const doc = parser.parseFromString(str, "text/html")
-  return doc.body
-}
-
-function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void, svg: string, {width, height}: {width: number, height: number}) {
-  const canvas = document.createElement("canvas")
-  canvas.height = height
-  canvas.width = width
-
-  document.body.appendChild(canvas)
-
-  const ctx = canvas.getContext("2d") as CanvasRenderingContext2D
-
-  fn(ctx)
-  document.body.appendChild(stringToHTML(svg))
-}
 
 describe("SVGRenderingContext2d", () => {
   it("should fill text correctly", () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      ctx.font = "normal 16px Times"
+      ctx.fillText("TEST", 0, 16)
+    }
+
     const size = {width: 50, height: 50}
     const ctx = new SVGRenderingContext2D(size)
 
-    const test = (_ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
-      _ctx.font = "normal 16px Times"
-      _ctx.fillText("TEST", 0, 16)
-    }
     test(ctx)
 
     const svg = ctx.get_serialized_svg()
@@ -40,13 +22,14 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("should stroke text correctly", () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      ctx.font = "16px serif"
+      ctx.strokeText("TEST", 0, 16)
+    }
+
     const size = {width: 50, height: 50}
     const ctx = new SVGRenderingContext2D(size)
 
-    const test = (_ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
-      _ctx.font = "16px serif"
-      _ctx.strokeText("TEST", 0, 16)
-    }
     test(ctx)
 
     const svg = ctx.get_serialized_svg()
@@ -56,14 +39,11 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("should draw arcs correctly", () => {
-    const size = {width: 150, height: 200}
-    const ctx = new SVGRenderingContext2D(size)
-
-    const test = (_ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
       // Draw shapes
       for (let i = 0; i <= 3; i++) {
         for (let j = 0; j <= 2; j++) {
-          _ctx.beginPath()
+          ctx.beginPath()
           const x             = 25 + j * 50                 // x coordinate
           const y             = 25 + i * 50                 // y coordinate
           const radius        = 20                          // Arc radius
@@ -71,16 +51,19 @@ describe("SVGRenderingContext2d", () => {
           const endAngle      = Math.PI + (Math.PI * j) / 2 // End point on circle
           const counterclockwise = i % 2 == 1               // Draw counterclockwise
 
-          _ctx.arc(x, y, radius, startAngle, endAngle, counterclockwise)
+          ctx.arc(x, y, radius, startAngle, endAngle, counterclockwise)
 
           if (i > 1) {
-            _ctx.fill()
+            ctx.fill()
           } else {
-            _ctx.stroke()
+            ctx.stroke()
           }
         }
       }
     }
+
+    const size = {width: 150, height: 200}
+    const ctx = new SVGRenderingContext2D(size)
 
     test(ctx)
     const svg = ctx.get_serialized_svg()
@@ -91,13 +74,13 @@ describe("SVGRenderingContext2d", () => {
 
 
   it("should fill a red rectangle correctly", () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      ctx.fillStyle="red"
+      ctx.fillRect(10, 10, 10, 10)
+    }
+
     const size = {width: 50, height: 50}
     const ctx = new SVGRenderingContext2D(size)
-
-    const test = (_ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
-      _ctx.fillStyle="red"
-      _ctx.fillRect(10, 10, 10, 10)
-    }
 
     test(ctx)
     const svg = ctx.get_serialized_svg()
