@@ -293,6 +293,25 @@ export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, n
   return {view, el: vp}
 }
 
+function string_to_html(str: string): HTMLElement {
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(str, "text/html")
+  return doc.body
+}
+
+export function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void, svg: string, {width, height}: {width: number, height: number}): void {
+  const canvas = document.createElement("canvas")
+  canvas.height = height
+  canvas.width = width
+
+  document.body.appendChild(canvas)
+
+  const ctx = canvas.getContext("2d")!
+
+  fn(ctx)
+  document.body.appendChild(string_to_html(svg))
+}
+
 import {sum} from "@bokehjs/core/util/array"
 import {Size} from "@bokehjs/core/layout"
 import {Row, Column, GridBox} from "@bokehjs/models/layouts"
