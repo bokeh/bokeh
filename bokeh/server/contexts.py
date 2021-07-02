@@ -240,6 +240,12 @@ class ApplicationContext:
                                                   logout_url=self._logout_url)
             if request is not None:
                 payload = get_token_payload(token) if token else {}
+                if ('cookies' in payload and 'headers' in payload
+                    and not 'Cookie' in payload['headers']):
+                    # Restore Cookie header from cookies dictionary
+                    payload['headers']['Cookie'] = '; '.join([
+                        f'{k}={v}' for k, v in payload['cookies'].items()
+                    ])
                 # using private attr so users only have access to a read-only property
                 session_context._request = _RequestProxy(request,
                                                          cookies=payload.get('cookies'),

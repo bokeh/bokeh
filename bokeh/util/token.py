@@ -33,6 +33,7 @@ import hashlib
 import hmac
 import json
 import time
+import zlib
 from typing import (
     Any,
     Dict,
@@ -57,6 +58,8 @@ __all__ = (
     'get_session_id',
     'get_token_payload',
 )
+
+_TOKEN_ZLIB_KEY = "__bk__zlib_"
 
 #-----------------------------------------------------------------------------
 # General API
@@ -118,7 +121,9 @@ def generate_jwt_token(session_id: ID,
     if extra_payload:
         if "session_id" in extra_payload:
             raise RuntimeError("extra_payload for session tokens may not contain 'session_id'")
-        payload.update(extra_payload)
+        extra_payload_str = json.dumps(extra_payload).encode('utf-8')
+        compressed = zlib.compress(extra_payload_str, level=9)
+        payload[_TOKEN_ZLIB_KEY] = _base64_encode(compressed)
     token = _base64_encode(json.dumps(payload))
     secret_key = _ensure_bytes(secret_key)
     if not signed:
@@ -149,6 +154,10 @@ def get_token_payload(token: str) -> TokenPayload:
         dict
     """
     decoded = json.loads(_base64_decode(token.split('.')[0]))
+    if _TOKEN_ZLIB_KEY in decoded:
+        decompressed = zlib.decompress(_base64_decode(decoded[_TOKEN_ZLIB_KEY]))
+        del decoded[_TOKEN_ZLIB_KEY]
+        decoded.update(json.loads(decompressed))
     del decoded['session_id']
     return decoded
 
@@ -277,7 +286,7 @@ def _base64_encode(decoded: Union[bytes, str]) -> str:
     return str(encoded.rstrip('='))
 
 
-def _base64_decode(encoded: Union[bytes, str], encoding: str | None = None) -> Union[bytes, str]:
+def _base64_decode(encoded: Union[bytes, str]) -> bytes:
     # base64 lib both takes and returns bytes, we want to work with strings
     encoded_as_bytes = codecs.encode(encoded, 'ascii') if isinstance(encoded, str) else encoded
     # put the padding back
@@ -285,10 +294,7 @@ def _base64_decode(encoded: Union[bytes, str], encoding: str | None = None) -> U
     if mod != 0:
         encoded_as_bytes = encoded_as_bytes + (b"=" * (4 - mod))
     assert (len(encoded_as_bytes) % 4) == 0
-    result = base64.urlsafe_b64decode(encoded_as_bytes)
-    if encoding:
-        return codecs.decode(result, 'utf-8')
-    return result
+    return base64.urlsafe_b64decode(encoded_as_bytes)
 
 def _signature(base_id: str, secret_key: bytes | None) -> str:
     secret_key = _ensure_bytes(secret_key)
