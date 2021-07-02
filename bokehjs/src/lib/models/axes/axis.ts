@@ -143,8 +143,9 @@ export class AxisView extends GuideRendererView {
       return 0
 
     const axis_label = new TextBox({text})
-    axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
     axis_label.visuals = this.visuals.axis_label_text
+    axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
+    axis_label.base_font_size = this.plot_view.base_font_size
 
     const size = axis_label.size()
     const extent = this.dimension == 0 ? size.height : size.width
@@ -160,8 +161,9 @@ export class AxisView extends GuideRendererView {
       return
 
     const axis_label = new TextBox({text})
-    axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
     axis_label.visuals = this.visuals.axis_label_text
+    axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
+    axis_label.base_font_size = this.plot_view.base_font_size
 
     const [sx, sy] = (() => {
       const {bbox} = this.layout
@@ -238,6 +240,7 @@ export class AxisView extends GuideRendererView {
 
     labels.visuals = visuals
     labels.angle = angle
+    labels.base_font_size = this.plot_view.base_font_size
 
     for (let i = 0; i < labels.length; i++) {
       const label = labels.items[i]
@@ -353,6 +356,7 @@ export class AxisView extends GuideRendererView {
     const angle = this.panel.get_label_angle_heuristic(orient)
     labels.visuals = visuals
     labels.angle = angle
+    labels.base_font_size = this.plot_view.base_font_size
 
     const size = labels.max_size()
     const extent = this.dimension == 0 ? size.height : size.width

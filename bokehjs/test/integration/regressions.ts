@@ -976,4 +976,21 @@ describe("Bug", () => {
       await display(p)
     })
   })
+
+  describe("in issue #11110", () => {
+    function plot(axis: "linear" | "log") {
+      const x = [1, 2, 3, 4, 5]
+      const y = [6e-2, 7e-4, 6e-6, 4e-8, 5e-10]
+
+      const p = fig([200, 200], {y_axis_type: axis})
+      p.yaxis.map((axis) => axis.major_label_text_font_size = "1.5em")
+      p.line({x, y})
+
+      return p
+    }
+
+    it("doesn't correctly measure fonts if font size is provided in relative units", async () => {
+      await display(row([plot("linear"), plot("log")]))
+    })
+  })
 })
