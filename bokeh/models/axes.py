@@ -36,6 +36,7 @@ from ..core.properties import (
     Instance,
     Int,
     Null,
+    Nullable,
     Override,
     Seq,
     String,
@@ -123,7 +124,7 @@ class Axis(GuideRenderer):
     of ticks.
     """)
 
-    axis_label = Either(Null, String, Instance(MathText), default="", help="""
+    axis_label = Nullable(Either(String, Instance(MathText)), default="", help="""
     A text or LaTeX notation label for the axis, displayed parallel to the axis rule.
     """)
 
