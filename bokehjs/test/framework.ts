@@ -293,23 +293,28 @@ export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, n
   return {view, el: vp}
 }
 
-function string_to_html(str: string): HTMLElement {
+function string_to_html(str: string): HTMLCollection {
   const parser = new DOMParser()
   const doc = parser.parseFromString(str, "text/html")
-  return doc.body
+  return doc.body.children
 }
 
-export function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void, svg: string, {width, height}: {width: number, height: number}): void {
+export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void, svg: string, {width, height}: {width: number, height: number}): Promise<void> {
   const canvas = document.createElement("canvas")
   canvas.height = height
   canvas.width = width
 
-  document.body.appendChild(canvas)
+  container.appendChild(canvas)
 
   const ctx = canvas.getContext("2d")!
 
   fn(ctx)
-  document.body.appendChild(string_to_html(svg))
+
+  for (const child of string_to_html(svg)) {
+    container.appendChild(child)
+  }
+
+  await defer()
 }
 
 import {sum} from "@bokehjs/core/util/array"
