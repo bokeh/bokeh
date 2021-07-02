@@ -257,8 +257,12 @@ export abstract class GlyphView extends View {
       visual.update()
     }
 
+    this._set_visuals()
+
     this.glglyph?.set_visuals_changed()
   }
+
+  protected _set_visuals(): void {}
 
   set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): void {
     const {x_source, y_source} = this.renderer.coordinates

@@ -22,6 +22,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import importlib
+from types import ModuleType
+from typing import Sequence
 
 # External imports
 import pytest
@@ -38,26 +40,32 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def verify_all(module, ALL):
+def verify_all(module: str | ModuleType, ALL: Sequence[str]) -> type:
     '''
 
     '''
     class Test___all__:
-        def test___all__(self):
-            if isinstance(module, str):
-                mod = importlib.import_module(module)
-            else:
-                mod = module
-            assert hasattr(mod, "__all__")
-            assert mod.__all__ == ALL, "for module %s, expected: %r, actual: %r" % (mod.__name__, set(ALL)-set(mod.__all__), set(mod.__all__)-set(ALL))
+        _module: ModuleType | None = None
+
+        @property
+        def module(self) -> ModuleType:
+            if self._module is None:
+                if isinstance(module, str):
+                    self._module = importlib.import_module(module)
+                else:
+                    self._module = module
+            return self._module
+
+        def test___all__(self) -> None:
+            __all__: Sequence[str] | None = getattr(self.module, "__all__", None)
+
+            assert __all__ is not None, f"module {self.module.__name__} doesn't define __all__"
+            assert __all__ == ALL, f"for module {self.module.__name__}, expected: {set(ALL) - set(__all__)!r}, actual: {set(__all__) - set(ALL)!r}"
 
         @pytest.mark.parametrize('name', ALL)
-        def test_contents(self, name):
-            if isinstance(module, str):
-                mod = importlib.import_module(module)
-            else:
-                mod = module
-            assert hasattr(mod, name)
+        def test_contents(self, name: str) -> None:
+            assert hasattr(self.module, name)
+
     return Test___all__
 
 #-----------------------------------------------------------------------------

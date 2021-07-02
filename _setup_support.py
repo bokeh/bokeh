@@ -49,7 +49,7 @@ INSTALL_REQUIRES = [
     'pillow >=7.1.0',
     'PyYAML >=3.10',
     'tornado >=5.1',
-    'typing_extensions >=3.7.4',
+    'typing_extensions >=3.10.0',
 ]
 
 # -----------------------------------------------------------------------------

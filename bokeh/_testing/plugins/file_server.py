@@ -27,6 +27,7 @@ log = logging.getLogger(__name__)
 import os
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from typing import Any
 from urllib.request import URLopener
 
 # External imports
@@ -56,67 +57,66 @@ __all__ = (
 
 class HtmlOnlyHandler(BaseHTTPRequestHandler):
     """Http handler."""
-    def do_GET(self):
+    def do_GET(self) -> None:
         """GET method handler."""
+        path = self.path[1:].split("?")[0]
         try:
-            path = self.path[1:].split("?")[0]
-            with open(os.path.join(HTML_ROOT, path), encoding="latin-1") as f:
+            with open(os.path.join(HTML_ROOT, path), mode="rb") as f:  # lgtm [py/path-injection]
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
-                self.wfile.write(f.read().encode("utf-8"))
+                self.wfile.write(f.read())
         except OSError:
-            self.send_error(404, 'File Not Found: %s' % path)
+            self.send_error(404, f"File Not Found: {path}")
 
-    def log_message(self, format, *args):
+    def log_message(self, format: str, *args: Any) -> None:
         """Override default to avoid trashing stderr"""
         pass
 
 
 class SimpleWebServer:
     """A very basic web server."""
-    def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT) -> None:
+    def __init__(self, host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:
         self.stop_serving = False
         while True:
             try:
-                self.server = HTTPServer(
-                    (host, port), HtmlOnlyHandler)
+                self.server = HTTPServer((host, port), HtmlOnlyHandler)
                 self.host = host
                 self.port = port
                 break
             except OSError:
-                log.debug("port %d is in use, trying to next one" % port)
+                log.debug(f"port {port} is in use, trying to next one")
                 port += 1
 
         self.thread = threading.Thread(target=self._run_web_server)
 
-    def _run_web_server(self):
+    def _run_web_server(self) -> None:
         """Runs the server loop."""
         log.debug("web server started")
         while not self.stop_serving:
             self.server.handle_request()
         self.server.server_close()
 
-    def start(self):
+    def start(self) -> None:
         """Starts the server."""
         self.thread.start()
 
-    def stop(self):
+    def stop(self) -> None:
         """Stops the server."""
         self.stop_serving = True
         try:
             # This is to force stop the server loop
-            URLopener().open("http://%s:%d" % (self.host, self.port))
+            URLopener().open(f"http://{self.host}:{self.port}")
         except OSError:
             pass
         log.info("Shutting down the webserver")
         self.thread.join()
 
-    def where_is(self, path):
-        return "http://%s:%d/%s" % (self.host, self.port, path)
+    def where_is(self, path: str) -> str:
+        return f"http://{self.host}:{self.port}/{path}"
 
 @pytest.fixture(scope='session')
-def file_server(request):
+def file_server(request: pytest.FixtureRequest) -> SimpleWebServer:
     server = SimpleWebServer()
     server.start()
     request.addfinalizer(server.stop)

@@ -19,11 +19,11 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import warnings
-from typing import TYPE_CHECKING
-from typing import Any as TAny
-from typing import Dict as TDict
-from typing import List as TList
 from typing import (
+    TYPE_CHECKING,
+    Any as TAny,
+    Dict as TDict,
+    List as TList,
     Sequence,
     Set,
     Tuple,

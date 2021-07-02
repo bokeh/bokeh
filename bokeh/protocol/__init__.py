@@ -22,7 +22,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    List,
+    overload,
+)
 
 # External imports
 from tornado.escape import json_decode
@@ -42,6 +47,9 @@ from .messages.server_info_reply import server_info_reply
 from .messages.server_info_req import server_info_req
 
 if TYPE_CHECKING:
+    from ..core.types import ID
+    from ..document.document import Document
+    from ..document.events import DocumentPatchedEvent
     from .receiver import Fragment
 
 #-----------------------------------------------------------------------------
@@ -94,6 +102,25 @@ class Protocol:
 
     def __repr__(self) -> str:
         return "Protocol()"
+
+    @overload
+    def create(self, msgtype: Literal["ACK"], **metadata: Any) -> ack: ...
+    @overload
+    def create(self, msgtype: Literal["ERROR"], request_id: ID, text: str, **metadata: Any) -> error: ...
+    @overload
+    def create(self, msgtype: Literal["OK"], request_id: ID, **metadata: Any) -> ok: ...
+    @overload
+    def create(self, msgtype: Literal["PATCH-DOC"], events: List[DocumentPatchedEvent], use_buffers: bool = ..., **metadata: Any) -> patch_doc: ...
+    @overload
+    def create(self, msgtype: Literal["PULL-DOC-REPLY"], request_id: ID, document: Document, **metadata: Any) -> pull_doc_reply: ...
+    @overload
+    def create(self, msgtype: Literal["PULL-DOC-REQ"], **metadata: Any) -> pull_doc_req: ...
+    @overload
+    def create(self, msgtype: Literal["PUSH-DOC"], document: Document, **metadata: Any) -> push_doc: ...
+    @overload
+    def create(self, msgtype: Literal["SERVER-INFO-REPLY"], request_id: ID, **metadata: Any) -> server_info_reply: ...
+    @overload
+    def create(self, msgtype: Literal["SERVER-INFO-REQ"], **metadata: Any) -> server_info_req: ...
 
     def create(self, msgtype: MessageType, *args: Any, **kwargs: Any) -> Message[Any]:
         ''' Create a new Message instance for the given type.

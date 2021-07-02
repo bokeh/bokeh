@@ -20,7 +20,7 @@ import pytest ; pytest
 from pathlib import Path
 
 # External imports
-from mock import Mock, patch
+from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.templates import FILE
@@ -77,7 +77,7 @@ def test__get_save_args_default_resources() -> None:
     assert resources == INLINE
 
 @patch('bokeh.io.saving.warn')
-def test__get_save_args_missing_resources(mock_warn: Mock) -> None:
+def test__get_save_args_missing_resources(mock_warn: MagicMock) -> None:
     curstate().reset()
     _, resources, _ = bis._get_save_args(curstate(), "filename", None, "title")
     assert resources.mode == "cdn"
@@ -101,7 +101,7 @@ def test__get_save_args_default_title() -> None:
     assert title == "title"
 
 @patch('bokeh.io.saving.warn')
-def test__get_save_args_missing_title(mock_warn: Mock) -> None:
+def test__get_save_args_missing_title(mock_warn: MagicMock) -> None:
     curstate().reset()
     _, _, title = bis._get_save_args(curstate(), "filename", "inline", None)
     assert title == "Bokeh Plot"
@@ -114,7 +114,7 @@ def test__get_save_args_missing_title(mock_warn: Mock) -> None:
 
 @patch("builtins.open")
 @patch("bokeh.embed.file_html")
-def test__save_helper(mock_file_html: Mock, mock_open: Mock) -> None:
+def test__save_helper(mock_file_html: MagicMock, mock_open: MagicMock) -> None:
     obj = Plot()
     filename, resources, title = bis._get_save_args(curstate(), "filename", "inline", "title")
 

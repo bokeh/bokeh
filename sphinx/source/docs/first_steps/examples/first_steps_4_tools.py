@@ -1,4 +1,4 @@
-from bokeh.models.tools import BoxZoomTool, ResetTool
+from bokeh.models import BoxZoomTool, ResetTool
 from bokeh.plotting import figure, show
 
 # prepare some data

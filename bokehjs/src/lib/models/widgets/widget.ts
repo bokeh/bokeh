@@ -6,22 +6,30 @@ import * as p from "core/properties"
 export abstract class WidgetView extends HTMLBoxView {
   override model: Widget
 
+  protected get orientation(): Orientation {
+    return "horizontal"
+  }
+
+  protected get default_size(): number | undefined {
+    return this.model.default_size
+  }
+
   protected override _width_policy(): SizingPolicy {
-    return this.model.orientation == "horizontal" ? super._width_policy() : "fixed"
+    return this.orientation == "horizontal" ? super._width_policy() : "fixed"
   }
 
   protected override _height_policy(): SizingPolicy {
-    return this.model.orientation == "horizontal" ? "fixed" : super._height_policy()
+    return this.orientation == "horizontal" ? "fixed" : super._height_policy()
   }
 
   override box_sizing(): Partial<BoxSizing> {
     const sizing = super.box_sizing()
-    if (this.model.orientation == "horizontal") {
+    if (this.orientation == "horizontal") {
       if (sizing.width == null)
-        sizing.width = this.model.default_size
+        sizing.width = this.default_size
     } else {
       if (sizing.height == null)
-        sizing.height = this.model.default_size
+        sizing.height = this.default_size
     }
     return sizing
   }
@@ -31,7 +39,6 @@ export namespace Widget {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = HTMLBox.Props & {
-    orientation: p.Property<Orientation>
     default_size: p.Property<number>
   }
 }
@@ -48,8 +55,7 @@ export abstract class Widget extends HTMLBox {
 
   static init_Widget(): void {
     this.define<Widget.Props>(({Number}) => ({
-      orientation:  [ Orientation, "horizontal" ],
-      default_size: [ Number,      300          ],
+      default_size: [ Number, 300 ],
     }))
 
     this.override<Widget.Props>({

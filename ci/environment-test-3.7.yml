@@ -12,7 +12,7 @@ dependencies:
   - python-dateutil >=2.1
   - pyyaml >=3.10
   - tornado >=5
-  - typing_extensions >=3.7.4
+  - typing_extensions >=3.10.0
 
   # tests
   - beautifulsoup4
@@ -29,6 +29,7 @@ dependencies:
   - isort 5.8
   - mock
   - mypy >=0.900
+  - pandas-stubs
   - nbconvert >=5.4
   - networkx
   - nodejs 14.*
@@ -37,7 +38,7 @@ dependencies:
   - psutil
   - pydot
   - pygments
-  - pytest
+  - pytest 6.2*
   - pytest-asyncio
   - pytest-cov >=1.8.1
   - pytest-html
@@ -54,7 +55,12 @@ dependencies:
     - sphinxext-opengraph
     - sphinx-reredirects
     - types-boto
+    - types-colorama
+    - types-mock
+    - types-pillow
     - types-pyyaml
+    - types-requests
+    - flake8-pyi
 
   # examples
   - flask >=1.0

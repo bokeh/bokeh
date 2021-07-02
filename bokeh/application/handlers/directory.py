@@ -59,6 +59,7 @@ from types import ModuleType
 from typing import (
     TYPE_CHECKING,
     Any,
+    Coroutine,
     Dict,
     List,
 )
@@ -168,6 +169,7 @@ class DirectoryHandler(Handler):
             self._lifecycle_handler = Handler() # no-op handler
 
         if exists(app_hooks):
+            assert hooks is not None
             self._request_handler = ServerRequestHandler(filename=hooks, argv=argv, package=self._package)
         else:
             self._request_handler = Handler() # no-op handler
@@ -191,14 +193,14 @@ class DirectoryHandler(Handler):
     # Properties --------------------------------------------------------------
 
     @property
-    def error(self):
+    def error(self) -> str | None:
         ''' If the handler fails, may contain a related error message.
 
         '''
         return self._main_handler.error or self._lifecycle_handler.error
 
     @property
-    def error_detail(self):
+    def error_detail(self) -> str | None:
         ''' If the handler fails, may contain a traceback or other details.
 
         '''
@@ -245,7 +247,7 @@ class DirectoryHandler(Handler):
         # This internal handler should never add a template
         self._main_handler.modify_document(doc)
 
-    def on_server_loaded(self, server_context: ServerContext):
+    def on_server_loaded(self, server_context: ServerContext) -> None:
         ''' Execute `on_server_unloaded`` from ``server_lifecycle.py`` (if
         it is defined) when the server is first started.
 
@@ -258,7 +260,7 @@ class DirectoryHandler(Handler):
             self._package_runner.run(self._package)
         return self._lifecycle_handler.on_server_loaded(server_context)
 
-    def on_server_unloaded(self, server_context: ServerContext):
+    def on_server_unloaded(self, server_context: ServerContext) -> None:
         ''' Execute ``on_server_unloaded`` from ``server_lifecycle.py`` (if
         it is defined) when the server cleanly exits. (Before stopping the
         server's ``IOLoop``.)
@@ -274,7 +276,7 @@ class DirectoryHandler(Handler):
         '''
         return self._lifecycle_handler.on_server_unloaded(server_context)
 
-    def on_session_created(self, session_context: SessionContext):
+    def on_session_created(self, session_context: SessionContext) -> Coroutine[Any, Any, None]:
         ''' Execute ``on_session_created`` from ``server_lifecycle.py`` (if
         it is defined) when a new session is created.
 
@@ -284,7 +286,7 @@ class DirectoryHandler(Handler):
         '''
         return self._lifecycle_handler.on_session_created(session_context)
 
-    def on_session_destroyed(self, session_context: SessionContext):
+    def on_session_destroyed(self, session_context: SessionContext) -> Coroutine[Any, Any, None]:
         ''' Execute ``on_session_destroyed`` from ``server_lifecycle.py`` (if
         it is defined) when a session is destroyed.
 
@@ -307,7 +309,7 @@ class DirectoryHandler(Handler):
         '''
         return self._request_handler.process_request(request)
 
-    def url_path(self):
+    def url_path(self) -> str | None:
         ''' The last path component for the basename of the path to the
         configured directory.
 

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 # Standard library imports
 import sys
-from typing import Callable, Optional, Sequence
+from typing import Callable, Sequence
 
 __all__ = (
     "banner",
@@ -80,18 +80,18 @@ def banner(color: ColorFunction, msg: str) -> str:
     return f"\n{section}\n{header}\n{section}\n"
 
 
-def _format_details(details: Optional[Sequence[str]] = None) -> str:
+def _format_details(details: Sequence[str] | None = None) -> str:
     if details:
         return "\n" + "\n".join(f"    {line}" for line in details)
     return ""
 
 
-def failed(msg: str, details: Optional[Sequence[str]] = None) -> str:
+def failed(msg: str, details: Sequence[str] | None = None) -> str:
     """"""
     return f"{red('[FAIL]')} {msg}" + _format_details(details)
 
 
-def passed(msg: str, details: Optional[Sequence[str]] = None) -> str:
+def passed(msg: str, details: Sequence[str] | None = None) -> str:
     """"""
     return f"{dim(green('[PASS]'))} {msg}" + _format_details(details)
 
@@ -100,7 +100,7 @@ def shell(cmd: str) -> str:
     return dim(white(f"+{cmd}"))
 
 
-def skipped(msg: str, _details: Optional[Sequence[str]] = None) -> str:
+def skipped(msg: str, _details: Sequence[str] | None = None) -> str:
     """"""
     return f"{blue('[SKIP]')} {msg}"
 

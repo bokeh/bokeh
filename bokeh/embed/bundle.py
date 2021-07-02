@@ -37,7 +37,6 @@ from typing import (
     Dict,
     Iterator,
     List,
-    Optional,
     Sequence,
     Set,
     Tuple,
@@ -152,7 +151,7 @@ class Bundle:
             self.css_raw.append(artifact.content)
 
 def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
-        resources: BaseResources | Tuple[BaseResources, BaseResources] | None) -> Bundle:
+        resources: BaseResources | Tuple[BaseResources | None, BaseResources | None] | None) -> Bundle:
     ''' Generate rendered CSS and JS resources suitable for the given
     collection of Bokeh objects
 
@@ -181,7 +180,7 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
         if css_resources and not js_resources:
             warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
     else:
-        raise ValueError("expected Resources or a pair of optional Resources, got %r" % resources)
+        raise ValueError(f"expected Resources or a pair of optional Resources, got {resources!r}")
 
     from copy import deepcopy
 
@@ -262,7 +261,7 @@ _default_cdn_host = "https://unpkg.com"
 class ExtensionEmbed:
     artifact_path: str
     server_url: str
-    cdn_url: Optional[str] = None
+    cdn_url: str | None = None
 
 class Pkg(TypedDict, total=False):
     name: str
@@ -309,7 +308,7 @@ def _bundle_extensions(objs: Sequence[Model | Document], resources: Resources) -
 
         artifact_path: str
         server_url: str
-        cdn_url: Optional[str] = None
+        cdn_url: str | None = None
 
         if pkg is not None:
             pkg_name: str | None = pkg.get("name", None)
@@ -318,7 +317,7 @@ def _bundle_extensions(objs: Sequence[Model | Document], resources: Resources) -
             pkg_version = pkg.get("version", "latest")
             pkg_main = pkg.get("module", pkg.get("main", None))
             if pkg_main is not None:
-                cdn_url = f"{_default_cdn_host}/{pkg_name}@^{pkg_version}/{pkg_main}"
+                cdn_url = f"{_default_cdn_host}/{pkg_name}@{pkg_version}/{pkg_main}"
             else:
                 pkg_main = join(dist_dir, f"{name}.js")
             artifact_path = join(base_dir, normpath(pkg_main))

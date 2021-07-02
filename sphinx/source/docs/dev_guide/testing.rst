@@ -125,9 +125,6 @@ In addition, the examples tests generate a log file, examples.log which you
 can view at ``examples.log`` in the same directory that you the tests
 were run from.
 
-Integration Tests
-~~~~~~~~~~~~~~~~~
-
 Writing Tests
 -------------
 
@@ -157,14 +154,6 @@ pytest
     parameterized testing, etc. New tests should *not* use the ``unittest``
     module of the Python standard library.
 
-JavaScript Unit Tests
-~~~~~~~~~~~~~~~~~~~~~
-
-These tests maintain the functionality of the BokehJS portion of the Bokeh
-project. The BokehJS tests are located in :bokeh-tree:`bokehjs/test`. They
-are written using Chai "expect" style. If new test files are added, an
-appropriate entry in the directory ``index`` file should be added.
-
 Integration Tests
 ~~~~~~~~~~~~~~~~~
 
@@ -183,6 +172,20 @@ a new base image, add ``--set-new-base-screenshot`` to your standard
 ``base__<name_of_your_test>.png`` in the appropriate directory. Use ``git``
 to check this image into the repository. All future screenshot tests will then
 be compared against this base image.
+
+JavaScript Tests (BokehJS)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To maintain the functionality of all :term:`BokehJS` components, Bokeh includes
+various tests written in TypeScript. The BokehJS tests are located in
+:bokeh-tree:`bokehjs/test`.
+
+.. seealso::
+    For more information on tests related to BokehJS, see
+    :ref:`devguide_bokehjs_development_testing` in the
+    :ref:`BokehJS section <devguide_bokehjs>` of this guide.
+
+    .. _devguide_testing_ci:
 
 Continuous Integration
 ----------------------

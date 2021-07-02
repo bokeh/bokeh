@@ -106,28 +106,53 @@
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
-    flex-direction: row;
+
+    &:not(.bk-vertical), &.bk-horizontal { // XXX: propagate the definition
+      flex-direction: row;
+    }
+
+    &.bk-vertical {
+      flex-direction: column;
+    }
 
     & > .bk-btn {
       flex-grow: 1;
     }
 
-    & > .bk-btn + .bk-btn {
+    &:not(.bk-vertical) > .bk-btn + .bk-btn {
       margin-left: -1px;
     }
 
-    & > .bk-btn:first-child:not(:last-child) {
+    &.bk-vertical > .bk-btn + .bk-btn {
+      margin-top: -1px;
+    }
+
+    &:not(.bk-vertical) > .bk-btn:first-child:not(:last-child) {
       border-bottom-right-radius: 0;
       border-top-right-radius: 0;
     }
 
-    & > .bk-btn:not(:first-child):last-child {
+    &.bk-vertical > .bk-btn:first-child:not(:last-child) {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    &:not(.bk-vertical) > .bk-btn:not(:first-child):last-child {
       border-bottom-left-radius: 0;
       border-top-left-radius: 0;
     }
 
+    &.bk-vertical > .bk-btn:not(:first-child):last-child {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+
     & > .bk-btn:not(:first-child):not(:last-child) {
       border-radius: 0;
+    }
+
+    &.bk-vertical > .bk-btn {
+      width: 100%;
     }
 
     .bk-dropdown-toggle {

@@ -19,6 +19,7 @@ import pytest ; pytest
 
 # Standard library imports
 import json
+from typing import List
 
 from . import TOP_PATH
 
@@ -37,7 +38,7 @@ def test_json() -> None:
     ''' Assures that JSON files are properly formatted
 
     '''
-    bad = []
+    bad: List[str] = []
 
     for path in paths:
         f = open(TOP_PATH/path)
