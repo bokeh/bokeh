@@ -692,7 +692,7 @@ async def test__autocreate_signed_session_doc(ManagedServerLoop: MSL) -> None:
 @flaky(max_runs=10)
 async def test__accept_session_websocket(ManagedServerLoop: MSL) -> None:
     application = Application()
-    with ManagedServerLoop(application, session_token_expiration=1) as server:
+    with ManagedServerLoop(application, session_token_expiration=10) as server:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
