@@ -1,7 +1,7 @@
 from numpy import arange, pi, sin
 
 from bokeh.models import MathText
-from bokeh.plotting import show, figure
+from bokeh.plotting import figure, show
 
 x = arange(-2*pi, 2*pi, 0.1)
 y = sin(x)
