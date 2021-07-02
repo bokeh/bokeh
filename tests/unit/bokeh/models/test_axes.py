@@ -41,7 +41,7 @@ def test_ticker_accepts_number_sequences() -> None:
     assert a.ticker.ticks == [-10, 0, 10, 20.7]
 
 def test_axis_label_accepts_math_text() -> None:
-    a = bma.Axis(axis_label=MathText(r"\sin(x)"))
+    a = bma.Axis(axis_label=MathText(text=r"\sin(x)"))
     assert isinstance(a.axis_label, MathText)
     assert a.axis_label.text == r"\sin(x)"
 
