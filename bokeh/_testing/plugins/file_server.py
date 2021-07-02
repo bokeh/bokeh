@@ -61,11 +61,11 @@ class HtmlOnlyHandler(BaseHTTPRequestHandler):
         """GET method handler."""
         path = self.path[1:].split("?")[0]
         try:
-            with open(os.path.join(HTML_ROOT, path), encoding="latin-1") as f:
+            with open(os.path.join(HTML_ROOT, path), mode="rb") as f:  # lgtm [py/path-injection]
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
-                self.wfile.write(f.read().encode("utf-8"))
+                self.wfile.write(f.read())
         except OSError:
             self.send_error(404, f"File Not Found: {path}")
 
