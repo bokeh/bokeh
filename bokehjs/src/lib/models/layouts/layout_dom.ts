@@ -5,6 +5,7 @@ import {empty, position, classes, extents, undisplayed} from "core/dom"
 import {logger} from "core/logging"
 import {isNumber, isArray} from "core/util/types"
 import {color2css} from "core/util/color"
+import {parse_css_font_size} from "core/util/text"
 import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
@@ -36,6 +37,19 @@ export abstract class LayoutDOMView extends DOMView {
 
   get is_layout_root(): boolean {
     return this.is_root || !(this.parent instanceof LayoutDOMView)
+  }
+
+  get base_font_size(): number | null {
+    const font_size = getComputedStyle(this.el).fontSize
+    const result = parse_css_font_size(font_size)
+
+    if (result != null) {
+      const {value, unit} = result
+      if (unit == "px")
+        return value
+    }
+
+    return null
   }
 
   override initialize(): void {

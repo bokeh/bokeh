@@ -1,7 +1,7 @@
 import {Size} from "./types"
 import {BBox} from "./util/bbox"
 import {Context2d} from "./util/canvas"
-import {font_metrics, /*glyph_metrics,*/ FontMetrics} from "./util/text"
+import {font_metrics, /*glyph_metrics,*/ FontMetrics, parse_css_font_size} from "./util/text"
 import {max, max_by, sum} from "./util/array"
 import {isNumber} from "./util/types"
 import {Rect, AffineTransform} from "./util/affine"
@@ -42,6 +42,17 @@ export abstract class GraphicsBox {
   padding?: Padding
   font_size_scale: number = 1.0
   text_height_metric?: TextHeightMetric
+
+  _base_font_size: number = 13 // the same as .bk-root's font-size (13px)
+
+  set base_font_size(v: number | null | undefined) {
+    if (v != null)
+      this._base_font_size = v
+  }
+
+  get base_font_size(): number {
+    return this._base_font_size
+  }
 
   set position(p: Position) {
     this._position = p
@@ -151,15 +162,16 @@ export class TextBox extends GraphicsBox {
     let size = v.text_font_size.get_value()
     const face = v.text_font.get_value()
 
-    const {font_size_scale} = this
-    if (font_size_scale != 1.0) {
-      const match = size.match(/^\s*(\d+(\.\d+)?)(\w+)\s*$/)
-      if (match != null) {
-        const [, value,, unit] = match
-        const number = Number(value)
-        if (!isNaN(number))
-          size = `${number*font_size_scale}${unit}`
+    const {font_size_scale, base_font_size} = this
+    const res = parse_css_font_size(size)
+    if (res != null) {
+      let {value, unit} = res
+      value *= font_size_scale
+      if (unit == "em" && base_font_size) {
+        value *= base_font_size
+        unit = "px"
       }
+      size = `${value}${unit}`
     }
 
     const font = `${style} ${size} ${face}`
@@ -456,6 +468,12 @@ export class BaseExpo extends GraphicsBox {
     return [this.base, this.expo]
   }
 
+  override set base_font_size(v: number) {
+    super.base_font_size = v
+    this.base.base_font_size = v
+    this.expo.base_font_size = v
+  }
+
   override set position(p: Position) {
     this._position = p
 
@@ -582,6 +600,12 @@ export class BaseExpo extends GraphicsBox {
 
 export class GraphicsBoxes {
   constructor(readonly items: GraphicsBox[]) {}
+
+  set base_font_size(v: number | null | undefined) {
+    for (const item of this.items) {
+      item.base_font_size = v
+    }
+  }
 
   get length(): number {
     return this.items.length
