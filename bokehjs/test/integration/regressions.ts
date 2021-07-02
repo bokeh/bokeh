@@ -27,7 +27,7 @@ import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
 import {defer} from "@bokehjs/core/util/defer"
-import {Figure, MarkerArgs} from "@bokehjs/api/plotting"
+import {Figure, MarkerArgs, show} from "@bokehjs/api/plotting"
 import {Spectral11, turbo} from "@bokehjs/api/palettes"
 import {div} from "@bokehjs/core/dom"
 
@@ -753,6 +753,30 @@ describe("Bug", () => {
 
       const layout = column([choices, button, table])
       const {view} = await display(layout, [350, 250])
+
+      const choices_view = view.child_views[0] as MultiChoice["__view_type__"]
+      (choices_view as any /*protected*/).choice_el.showDropdown()
+      await defer()
+    })
+  })
+
+  describe("in issue #11365", () => {
+    it.allowing(16)("prevents showing MultiChoice's dropdown menu over subsequent roots", async () => {
+      const columns = ["Apple", "Pear", "Banana"]
+
+      const choices = new MultiChoice({options: columns})
+      const button = new Button({label: "A button"})
+
+      const layout = column([choices, button])
+      const {view, el} = await display(layout, [350, 200])
+
+      // XXX: note that this plot is not going to show up in the baseline (blf) nor will
+      // be considered a part of the test by any means by the testing framework (e.g. no
+      // cleanup will be made). This needs proper support for multi-root display, which
+      // will be increasing more useful in future testing.
+      const plot = fig([300, 100])
+      plot.circle([1, 2, 3], [1, 2, 3])
+      await show(plot, el)
 
       const choices_view = view.child_views[0] as MultiChoice["__view_type__"]
       (choices_view as any /*protected*/).choice_el.showDropdown()
