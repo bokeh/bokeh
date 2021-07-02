@@ -1230,12 +1230,15 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
 
   setTransform(a: number, b: number, c: number, d: number, e: number, f: number): void;
   setTransform(transform?: DOMMatrix2DInit): void;
+  setTransform(matrix: DOMMatrix): void;
 
-  setTransform(...args: [DOMMatrix2DInit?] | [number, number, number, number, number, number]): void {
+  setTransform(...args: [DOMMatrix2DInit?] | [DOMMatrix] | [number, number, number, number, number, number]): void {
     let matrix: DOMMatrix;
 
     if (isNumber(args[0]))
       matrix = new DOMMatrix(args as number[])
+    else if (args[0] instanceof DOMMatrix)
+      matrix = args[0]
     else
       matrix = new DOMMatrix(Object.values(!args[0]))
 
