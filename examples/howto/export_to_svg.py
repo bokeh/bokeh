@@ -1,5 +1,4 @@
 from bokeh.io.export import export_svg
-from bokeh.io import output_file, show
 from bokeh.palettes import Spectral5
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg import autompg_clean as df
