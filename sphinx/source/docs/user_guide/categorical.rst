@@ -3,15 +3,47 @@
 Handling categorical data
 =========================
 
-.. note::
-    To help with presentation, several examples in this chapter
-    use `pandas`_, a common tool for data manipulation. However,
-    you don't need ``pandas`` to create anything shown here.
+In addition to plotting numercial data on continuous ranges, Bokeh can also
+plot categorical data on categorical ranges. Basic categorical ranges are
+represented in Bokeh as sequences of strings, for example, the list of seasons:
+
+.. code-block:: python
+
+    seasons = ["Winter", "Spring", "Summer", "Fall"]
+
+Bokeh can also handle hierarchical categories, for example, the individual
+months within each yearly quarter. These are represented as nested sequences
+of  strings:
+
+.. code-block:: python
+
+    months_by_quarter = [
+        ("Q1", "Jan"), ("Q1", "Feb"), ("Q1", "Mar"),
+        ("Q2", "Apr"), ("Q2", "May"), ("Q2", "Jun"),
+        ("Q3", "Jul"), ("Q3", "Aug"), ("Q3", "Sep"),
+        ("Q4", "Oct"), ("Q4", "Nov"), ("Q4", "Dec"),
+    ]
+
+Depending on the structure of the data, different kinds of charts are possible:
+bar charts, categorical heatmaps, jitter plots, and others. This chapter will
+present several kinds of common categorical plots.
+
 
 .. _userguide_categorical_bars:
 
 Bars
 ----
+
+One of the most common ways to handle categorical data is to present it in a
+bar chart. Bar charts have one categorical axis and one continuous axis, and
+are useful when there is one value to plot for each category. The values
+associated with each category are represented by drawing a bar for that
+category, whose length along the continuous axis corresponds to the value for
+that category.
+
+Bar charts may also be stacked or grouped together according to hierarchical
+sub-categories. This section will demonstrate how to draw a variety of
+different categorical bar charts.
 
 .. _userguide_categorical_bars_basic:
 
@@ -257,14 +289,13 @@ to ``Q4``.
 Using pandas
 ~~~~~~~~~~~~
 
-`pandas`_ is a powerful and popular tool for analyzing tabular and time
-series data in Python. While you don't have to use it, it makes working
-with Bokeh easier.
+`pandas`_ is a powerful and popular tool for analyzing tabular and time series
+data in Python. While not necessary, it can make working with Bokeh easier.
 
 For example, you can use the ``GroupBy`` objects offered by pandas to
-initialize a ``ColumnDataSource`` and automatically create columns for
-many statistical parameters, such as group mean and count. You can also
-pass these ``GroupBy`` objects as a ``range`` argument to ``figure``.
+initialize a ``ColumnDataSource`` and automatically create columns for many
+statistical parameters, such as group mean and count. You can also pass these
+``GroupBy`` objects as a ``range`` argument to ``figure``.
 
 Here's how you can leverage `pandas`_ to your advantage:
 
@@ -289,8 +320,9 @@ joining the names of the grouped columns.
 Intervals
 ---------
 
-Bars can be used for more than just bar charts with a common baseline.
-You can also use them to represent intervals across a range.
+Bars can be used for more than just bar charts with a common baseline. when
+each category has a both a starting and ending value associated, you can also
+use bars to represent intervals across a range for each category.
 
 The example below supplies the ``hbar`` function with both ``left`` and
 ``right`` properties to show the spread in times between gold and bronze
@@ -304,6 +336,10 @@ medalists in Olympic sprinting over many years.
 Scatters
 --------
 
+Sometimes there are many values associated with each category, for example a
+series of measurements on different days of the week. In this case the data
+can be presented as a categorical scatter plot.
+
 .. .. bokeh-plot:: docs/user_guide/examples/categorical_scatter.py
 ..     :source-position: above
 
@@ -312,23 +348,31 @@ Scatters
 Adding jitter
 ~~~~~~~~~~~~~
 
-To avoid overlap between numerous scatter points in a single category, use
+To avoid overlap between numerous scatter points for a single category, use
 the :func:`~bokeh.transform.jitter` function to give each point a random
 offset.
 
-The example below shows a scatter plot of every commit time for a GitHub
-user between 2012 and 2016. It groups commits by day of the week. By
-default, this plot would show thousands of points overlapping in a narrow
-line for each day. The ``jitter`` function lets you differentiate the
-points to produce a useful plot:
+The example below shows a scatter plot of every commit time for a GitHub user
+between 2012 and 2016. It groups commits by day of the week. By default, this
+plot would show thousands of points overlapping in a narrow line for each day.
+The ``jitter`` function lets you differentiate the points to produce a useful
+plot:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_scatter_jitter.py
     :source-position: above
 
+Series
+------
+
+There may also be ordered series of data associated with each category. In such
+cases the series can be represented as a line or area plotted for each category.
+To accomplish this Bokeh has a concept of categorical offsets that can afford
+explicit control over positioning "within" a category.
+
 .. _userguide_categorical_offsets:
 
 Categorical offsets
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 Outside of the ``dodge`` and ``jitter`` functions, you can also supply an
 offset to a categorical location explicitly. To do so, add a numeric value
@@ -369,20 +413,19 @@ category.
 Heatmaps
 --------
 
-If you apply different shades to rectangles that represent a pair
-of categories, you get a *categorical heatmap*. This is a plot
-with two categorical axes.
+It is possible to have values associated with *pairs* of categories. In this
+situation, applying different color shades to rectangles that represent a pair
+of categories, will produce a *categorical heatmap*. Such a plot has two
+categorical axes.
 
-The following plot lists years from 1948 to 2016 on its x-axis
-and months of the year on the y-axis. Each rectangle of the plot
-corresponds to a ``(year, month)`` pair. The color of the rectangle
-indicates the rate of unemployment in a given month of a given
-year.
+The following plot lists years from 1948 to 2016 on its x-axis and months of
+the year on the y-axis. Each rectangle of the plot corresponds to a
+``(year, month)`` pair. The color of the rectangle indicates the rate of
+unemployment in a given month of a given year.
 
-This example uses the ``LinearColorMapper`` to map the colors of
-the plot because the unemployment rate is a continuous variable.
-This mapper is also passed to the color bar to provide a visual
-legend on the right:
+This example uses the ``LinearColorMapper`` to map the colors of the plot
+because the unemployment rate is a continuous variable. This mapper is also
+passed to the color bar to provide a visual legend on the right:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_heatmap_unemployment.py
     :source-position: below
