@@ -46,11 +46,11 @@ describe("SVGRenderingContext2d", () => {
           const x             = 25 + j * 50                 // x coordinate
           const y             = 25 + i * 50                 // y coordinate
           const radius        = 20                          // Arc radius
-          const startAngle    = 0                           // Starting point on circle
-          const endAngle      = Math.PI + (Math.PI * j) / 2 // End point on circle
+          const start_angle    = 0                           // Starting point on circle
+          const end_angle      = Math.PI + (Math.PI * j) / 2 // End point on circle
           const counterclockwise = i % 2 == 1               // Draw counterclockwise
 
-          ctx.arc(x, y, radius, startAngle, endAngle, counterclockwise)
+          ctx.arc(x, y, radius, start_angle, end_angle, counterclockwise)
 
           if (i > 1) {
             ctx.fill()
