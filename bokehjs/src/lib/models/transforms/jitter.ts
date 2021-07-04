@@ -1,7 +1,8 @@
 import {RangeTransform} from "./range_transform"
-import {Factor} from "../ranges/factor_range"
+import {Factor, FactorRange} from "../ranges/factor_range"
 import {Distribution} from "core/enums"
-import {Arrayable} from "core/types"
+import {Arrayable, infer_type} from "core/types"
+import {isNumber, isArrayableOf} from "core/util/types"
 import * as p from "core/properties"
 import * as bokeh_math from "core/util/math"
 
@@ -20,7 +21,7 @@ export interface Jitter extends Jitter.Attrs {}
 export class Jitter extends RangeTransform {
   override properties: Jitter.Props
 
-  previous_values: Arrayable<number>
+  previous_offsets: Arrayable<number>
 
   constructor(attrs?: Partial<Jitter.Attrs>) {
     super(attrs)
@@ -35,10 +36,28 @@ export class Jitter extends RangeTransform {
   }
 
   override v_compute(xs0: Arrayable<number | Factor>): Arrayable<number> {
-    if (this.previous_values != null && this.previous_values.length == xs0.length)
-      return this.previous_values
-    this.previous_values = super.v_compute(xs0)
-    return this.previous_values
+    let xs: Arrayable<number>
+    if (super.range instanceof FactorRange)
+      xs = super.range.v_synthetic(xs0)
+    else if (isArrayableOf(xs0, isNumber))
+      xs = xs0
+    else
+      throw new Error("unexpected")
+
+    if (this.previous_offsets != null && this.previous_offsets.length == xs.length) {
+      const result = new (infer_type(xs))(xs.length)
+      for (let i = 0; i < xs.length; i++) {
+        result[i] = this.previous_offsets[i] + xs[i]
+      }
+      return result
+    }
+
+    const computed_values = super.v_compute(xs)
+    this.previous_offsets = new (infer_type(xs))(xs.length)
+    for (let i = 0; i < xs.length; i++) {
+      this.previous_offsets[i] = computed_values[i] - xs[i]
+    }
+    return this.previous_offsets
   }
 
   protected _compute(x: number): number {
