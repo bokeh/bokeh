@@ -351,10 +351,66 @@ export class ColorBarView extends AnnotationView {
           return {left, right: margin, top: margin, bottom}
         }
       } else {
-        if (isString(location))
+        /**
+         * XXX: alignment is broken in Grid, which is used to govern positioning of a ColorBar
+         * in side panels. Earlier attempts at fixing this failed and resulted in a multitude
+         * or regressions in various places in the layout. So instead of this, let's assume that
+         * the positioning is always at "start" regardless of configuration, and fix this here
+         * by manually computing "center" and "end" alignment.
+         */
+        if (isString(location)) {
+          layout.fixup_geometry = (outer, inner) => {
+            const origin = outer
+
+            if (orientation == "horizontal") {
+              const {top, width, height} = outer
+              if (halign == "end") {
+                const {right} = this.layout.bbox
+                outer = new BBox({right, top, width, height})
+              } else if (halign == "center") {
+                const {hcenter} = this.layout.bbox
+                outer = new BBox({hcenter: Math.round(hcenter), top, width, height})
+              }
+            } else {
+              const {left, width, height} = outer
+              if (valign == "end") {
+                const {bottom} = this.layout.bbox
+                outer = new BBox({left, bottom, width, height})
+              } else if (valign == "center") {
+                const {vcenter} = this.layout.bbox
+                outer = new BBox({left, vcenter: Math.round(vcenter), width, height})
+              }
+            }
+
+            if (inner != null) {
+              const dh = outer.left - origin.left
+              const dv = outer.top - origin.top
+              const {left, top, width, height} = inner
+              inner = new BBox({left: left + dh, top: top + dv, width, height})
+            }
+
+            return [outer, inner]
+          }
           return undefined
-        else {
+        } else {
           const [left, bottom] = location
+          layout.fixup_geometry = (outer, inner) => {
+            const origin = outer
+
+            const grid = this.layout.bbox
+            const {width, height} = outer
+            outer = new BBox({left: grid.left + left, bottom: grid.bottom - bottom, width, height})
+
+            if (inner != null) {
+              const dh = outer.left - origin.left
+              const dv = outer.top - origin.top
+              const {left, top, width, height} = inner
+              inner = new BBox({left: left + dh, top: top + dv, width, height})
+            }
+
+            return [outer, inner]
+          }
+
           return {left, right: 0, top: 0, bottom}
         }
       }
