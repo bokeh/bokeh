@@ -347,7 +347,7 @@ class TestResources:
             assert "integrity" not in script.attrs
 
     @pytest.mark.parametrize('v', ["1.8.0rc1", "1.8.0dev6"])
-    def test_render_js_cdn_dev_release(self, v, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_render_js_cdn_dev_release(self, v: str, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", v)
         monkeypatch.setattr(resources, "__version__", v)
         out = resources.CDN.render_js()

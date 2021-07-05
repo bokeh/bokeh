@@ -50,6 +50,7 @@ from ..document import Document
 from ..settings import settings
 
 if TYPE_CHECKING:
+    from ..server.session import ServerSession
     from .handlers.handler import Handler
 
 #-----------------------------------------------------------------------------
@@ -279,7 +280,7 @@ class ServerContext(metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def sessions(self) -> List[SessionContext]:
+    def sessions(self) -> List[ServerSession]:
         ''' ``SessionContext`` instances belonging to this application.
 
         *Subclasses must implement this method.*
@@ -438,7 +439,7 @@ class SessionContext(metaclass=ABCMeta):
     # Public methods ----------------------------------------------------------
 
     @abstractmethod
-    def with_locked_document(self, func: Callable[[Document], Awaitable[None] | None]) -> Awaitable[None]:
+    def with_locked_document(self, func: Callable[[Document], Awaitable[None]]) -> Awaitable[None]:
         ''' Runs a function with the document lock held, passing the
         document to the function.
 

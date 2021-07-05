@@ -1,3 +1,5 @@
+/*eslint quotes: ["error", "double", {"avoidEscape": true, "allowTemplateLiterals": true}]*/
+
 import {expect} from "assertions"
 import {compare_on_dom} from "../../../framework"
 import {SVGRenderingContext2D} from "@bokehjs/core/util/svg"
@@ -13,9 +15,7 @@ describe("SVGRenderingContext2d", () => {
     const ctx = new SVGRenderingContext2D(size)
 
     test(ctx)
-
     const svg = ctx.get_serialized_svg()
-
     await compare_on_dom(test, svg, size)
 
     expect(svg).to.be.equal(`<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50" height="50"><defs/><text fill="#000000" stroke="none" font-family="Times" font-size="16px" font-style="normal" font-weight="normal" text-decoration="normal" x="0" y="16" text-anchor="start" dominant-baseline="alphabetic">TEST</text></svg>`)
@@ -31,7 +31,6 @@ describe("SVGRenderingContext2d", () => {
     const ctx = new SVGRenderingContext2D(size)
 
     test(ctx)
-
     const svg = ctx.get_serialized_svg()
     await compare_on_dom(test, svg, size)
 

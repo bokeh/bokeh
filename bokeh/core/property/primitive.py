@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import numbers
-from typing import Optional
 
 # Bokeh imports
 from .bases import Init, PrimitiveProperty
@@ -61,8 +60,8 @@ class Null(PrimitiveProperty[None]):
 
     _underlying_type = (type(None),)
 
-    def __init__(self, default: Init[None] = None, *, help: Optional[str] = None,
-            serialized: Optional[bool] = None, readonly: bool = False):
+    def __init__(self, default: Init[None] = None, *, help: str | None = None,
+            serialized: bool | None = None, readonly: bool = False):
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
 class Bool(PrimitiveProperty[bool]):
@@ -105,8 +104,8 @@ class Bool(PrimitiveProperty[bool]):
 
     _underlying_type = bokeh_bool_types
 
-    def __init__(self, default: Init[bool] = False, *, help: Optional[str] = None,
-            serialized: Optional[bool] = None, readonly: bool = False):
+    def __init__(self, default: Init[bool] = False, *, help: str | None = None,
+            serialized: bool | None = None, readonly: bool = False):
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
 class Complex(PrimitiveProperty[complex]):
@@ -133,8 +132,8 @@ class Complex(PrimitiveProperty[complex]):
 
     _underlying_type = (numbers.Complex,)
 
-    def __init__(self, default: Init[complex] = 0j, *, help: Optional[str] = None,
-            serialized: Optional[bool] = None, readonly: bool = False):
+    def __init__(self, default: Init[complex] = 0j, *, help: str | None = None,
+            serialized: bool | None = None, readonly: bool = False):
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
 class Int(PrimitiveProperty[int]):
@@ -177,8 +176,8 @@ class Int(PrimitiveProperty[int]):
 
     _underlying_type = bokeh_integer_types
 
-    def __init__(self, default: Init[int] = 0, *, help: Optional[str] = None,
-            serialized: Optional[bool] = None, readonly: bool = False):
+    def __init__(self, default: Init[int] = 0, *, help: str | None = None,
+            serialized: bool | None = None, readonly: bool = False):
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
 class Float(PrimitiveProperty[float]):
@@ -222,8 +221,8 @@ class Float(PrimitiveProperty[float]):
 
     _underlying_type = (numbers.Real,)
 
-    def __init__(self, default: Init[float] = 0.0, *, help: Optional[str] = None,
-            serialized: Optional[bool] = None, readonly: bool = False):
+    def __init__(self, default: Init[float] = 0.0, *, help: str | None = None,
+            serialized: bool | None = None, readonly: bool = False):
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
 class String(PrimitiveProperty[str]):
@@ -266,8 +265,8 @@ class String(PrimitiveProperty[str]):
 
     _underlying_type = (str,)
 
-    def __init__(self, default: Init[str] = "", *, help: Optional[str] = None,
-            serialized: Optional[bool] = None, readonly: bool = False):
+    def __init__(self, default: Init[str] = "", *, help: str | None = None,
+            serialized: bool | None = None, readonly: bool = False):
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
 #-----------------------------------------------------------------------------

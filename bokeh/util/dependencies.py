@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from importlib import import_module
 from types import ModuleType
-from typing import Optional
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -38,7 +37,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def import_optional(mod_name: str) -> Optional[ModuleType]:
+def import_optional(mod_name: str) -> ModuleType | None:
     ''' Attempt to import an optional dependency.
 
     Silently returns None if the requested module is not available.

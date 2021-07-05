@@ -1,4 +1,4 @@
-from bokeh.models.tools import HoverTool
+from bokeh.models import HoverTool
 from bokeh.plotting import figure, show
 
 # prepare some data

@@ -1177,7 +1177,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   /**
     * Generates a pattern tag
     */
-  createPattern(image: CanvasImageSource, _repetition: string): CanvasPattern {
+  createPattern(image: CanvasImageSource, _repetition: string | null): CanvasPattern | null {
     const pattern = this.__document.createElementNS("http://www.w3.org/2000/svg", "pattern")
     const id = randomString(this.__ids)
     pattern.setAttribute("id", id)
@@ -1228,7 +1228,20 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     return this._transform.to_DOMMatrix()
   }
 
-  setTransform(matrix: DOMMatrix): void {
+  setTransform(a: number, b: number, c: number, d: number, e: number, f: number): void
+  setTransform(transform?: DOMMatrix2DInit): void
+  setTransform(matrix: DOMMatrix): void
+
+  setTransform(...args: [DOMMatrix2DInit?] | [DOMMatrix] | [number, number, number, number, number, number]): void {
+    let matrix: DOMMatrix
+
+    if (isNumber(args[0]))
+      matrix = new DOMMatrix(args as number[])
+    else if (args[0] instanceof DOMMatrix)
+      matrix = args[0]
+    else
+      matrix = new DOMMatrix(Object.values(!args[0]))
+
     this._transform = AffineTransform.from_DOMMatrix(matrix)
   }
 

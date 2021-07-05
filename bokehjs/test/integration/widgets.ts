@@ -65,9 +65,19 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
+  it.allowing(9)("should allow CheckboxButtonGroup in vertical orientation", async () => {
+    const obj = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], orientation: "vertical"})
+    await display(obj, [100, 150])
+  })
+
   it.allowing(9)("should allow RadioButtonGroup", async () => {
     const obj = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0})
     await display(obj, [500, 100])
+  })
+
+  it.allowing(9)("should allow RadioButtonGroup in vertical orientation", async () => {
+    const obj = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0, orientation: "vertical"})
+    await display(obj, [100, 150])
   })
 
   it.allowing(8)("should allow TextInput", async () => {

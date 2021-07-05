@@ -5,8 +5,7 @@ import numpy as np
 
 from bokeh.colors.named import colors
 from bokeh.io import show
-from bokeh.models import ColumnDataSource, Plot
-from bokeh.models.expressions import PolarTransform
+from bokeh.models import ColumnDataSource, Plot, PolarTransform
 from bokeh.plotting import figure, gridplot
 
 dark_colors = iter(color for color in colors if color.brightness < 0.6)

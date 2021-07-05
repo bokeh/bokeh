@@ -117,7 +117,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import codecs
 import os
 from os.path import abspath, expanduser, join
 from typing import (
@@ -127,7 +126,6 @@ from typing import (
     Dict,
     Generic,
     List,
-    Optional,
     Sequence,
     Type,
     TypeVar,
@@ -333,11 +331,11 @@ class PrioritizedSetting(Generic[T]):
     to ``logging`` module values.
     '''
 
-    _parent: Optional[Settings]
+    _parent: Settings | None
     _user_value: Unset[Union[str, T]]
 
-    def __init__(self, name: str, env_var: Optional[str] = None, default: Unset[T] = _Unset,
-            dev_default: Unset[T] = _Unset, convert: Optional[Callable[[Union[T, str]], T]] = None, help: str = ""):
+    def __init__(self, name: str, env_var: str | None = None, default: Unset[T] = _Unset,
+            dev_default: Unset[T] = _Unset, convert: Callable[[Union[T, str]], T] | None = None, help: str = "") -> None:
         self._convert = convert if convert else convert_str
         self._default = default
         self._dev_default = dev_default
@@ -347,7 +345,7 @@ class PrioritizedSetting(Generic[T]):
         self._parent = None
         self._user_value = _Unset
 
-    def __call__(self, value: Optional[Union[T, str]] = None, default: Unset[T] = _Unset) -> T:
+    def __call__(self, value: Union[T, str] | None = None, default: Unset[T] = _Unset) -> T:
         '''Return the setting value according to the standard precedence.
 
         Args:
@@ -429,39 +427,45 @@ class PrioritizedSetting(Generic[T]):
         # instance of a Settings object.
         self._user_value = value  # lgtm [py/mutable-descriptor]
 
-    def unset_value(self):
+    def unset_value(self) -> None:
         ''' Unset the previous user value such that the priority is reset.
 
         '''
         self._user_value = _Unset
 
     @property
-    def env_var(self):
+    def env_var(self) -> str | None:
         return self._env_var
 
     @property
-    def default(self):
+    def default(self) -> Unset[T]:
         return self._default
 
     @property
-    def dev_default(self):
+    def dev_default(self) -> Unset[T]:
         return self._dev_default
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @property
-    def help(self):
+    def help(self) -> str:
         return self._help
 
     @property
-    def convert_type(self):
-        if self._convert is convert_str: return "String"
-        if self._convert is convert_bool: return "Bool"
-        if self._convert is convert_logging: return "Log Level"
-        if self._convert is convert_str_seq: return "List[String]"
-        if self._convert is convert_validation: return "Validation Level"
+    def convert_type(self) -> str:
+        if self._convert is convert_str:
+            return "String"
+        if self._convert is convert_bool:
+            return "Bool"
+        if self._convert is convert_logging:
+            return "Log Level"
+        if self._convert is convert_str_seq:
+            return "List[String]"
+        if self._convert is convert_validation:
+            return "Validation Level"
+        raise RuntimeError("unreachable")
 
 _config_user_locations: Sequence[str] = (
     join(expanduser("~"), ".bokeh", "bokeh.yaml"),
@@ -505,7 +509,7 @@ class Settings:
     A comma-separated list of allowed websocket origins for Bokeh server applications.
     """)
 
-    auth_module: PrioritizedSetting[Optional[str]] = PrioritizedSetting("auth_module", "BOKEH_AUTH_MODULE", default=None, help="""
+    auth_module: PrioritizedSetting[str | None] = PrioritizedSetting("auth_module", "BOKEH_AUTH_MODULE", default=None, help="""
     A path to a Python modules that implements user authentication functions for
     the Bokeh server.
 
@@ -514,7 +518,7 @@ class Settings:
 
     """)
 
-    browser: PrioritizedSetting[Optional[str]] = PrioritizedSetting("browser", "BOKEH_BROWSER", default=None, dev_default="none", help="""
+    browser: PrioritizedSetting[str | None] = PrioritizedSetting("browser", "BOKEH_BROWSER", default=None, dev_default="none", help="""
     The default browser that Bokeh should use to show documents with.
 
     Valid values are any of the predefined browser names understood by the
@@ -522,24 +526,24 @@ class Settings:
     module.
     """)
 
-    cdn_version: PrioritizedSetting[Optional[str]] = PrioritizedSetting("version", "BOKEH_CDN_VERSION", default=None, help="""
+    cdn_version: PrioritizedSetting[str | None] = PrioritizedSetting("version", "BOKEH_CDN_VERSION", default=None, help="""
     What version of BokehJS to use with CDN resources.
 
     See the :class:`~bokeh.resources.Resources` class reference for full details.
     """)
 
-    cookie_secret: PrioritizedSetting[Optional[str]] = PrioritizedSetting("cookie_secret", "BOKEH_COOKIE_SECRET", default=None, help="""
+    cookie_secret: PrioritizedSetting[str | None] = PrioritizedSetting("cookie_secret", "BOKEH_COOKIE_SECRET", default=None, help="""
     Configure the ``cookie_secret`` setting in Tornado. This value is required
     if you use ``get_secure_cookie`` or ``set_secure_cookie``.  It should be a
     long, random sequence of bytes
     """)
 
-    docs_alert: PrioritizedSetting[Optional[str]] = PrioritizedSetting("docs_alert", "BOKEH_DOCS_ALERT", default=None, help="""
+    docs_alert: PrioritizedSetting[str | None] = PrioritizedSetting("docs_alert", "BOKEH_DOCS_ALERT", default=None, help="""
     Text for an alert banner to display when building the docs locally (for
     testing the alert banner capability).
     """)
 
-    docs_cdn: PrioritizedSetting[Optional[str]] = PrioritizedSetting("docs_cdn", "BOKEH_DOCS_CDN", default=None, help="""
+    docs_cdn: PrioritizedSetting[str | None] = PrioritizedSetting("docs_cdn", "BOKEH_DOCS_CDN", default=None, help="""
     The version of BokehJS that should be use for loading CDN resources when
     building the docs.
 
@@ -562,7 +566,7 @@ class Settings:
     will build docs that use BokehJS version ``1.4.0rc1`` from CDN.
     """)
 
-    docs_version: PrioritizedSetting[Optional[str]] = PrioritizedSetting("docs_version", "BOKEH_DOCS_VERSION", default=None, help="""
+    docs_version: PrioritizedSetting[str | None] = PrioritizedSetting("docs_version", "BOKEH_DOCS_VERSION", default=None, help="""
     The Bokeh version to stipulate when building the docs.
 
     This setting is necessary to re-deploy existing versions of docs with new
@@ -595,7 +599,7 @@ class Settings:
     Whether Bokeh should use legacy (IE and phantomjs compatible) BokehJS resources.
     """)
 
-    nodejs_path: PrioritizedSetting[Optional[str]] = PrioritizedSetting("nodejs_path", "BOKEH_NODEJS_PATH", default=None, help="""
+    nodejs_path: PrioritizedSetting[str | None] = PrioritizedSetting("nodejs_path", "BOKEH_NODEJS_PATH", default=None, help="""
     Path to the Node executable.
 
     NodeJS is an optional dependency that is required for PNG and SVG export,
@@ -635,13 +639,13 @@ class Settings:
     See the :class:`~bokeh.resources.Resources` class reference for full details.
     """)
 
-    rootdir: PrioritizedSetting[Optional[PathLike]] = PrioritizedSetting("rootdir", "BOKEH_ROOTDIR", default=None, help="""
+    rootdir: PrioritizedSetting[PathLike | None] = PrioritizedSetting("rootdir", "BOKEH_ROOTDIR", default=None, help="""
     Root directory to use with ``relative`` resources
 
     See the :class:`~bokeh.resources.Resources` class reference for full details.
     """)
 
-    secret_key: PrioritizedSetting[Optional[str]] = PrioritizedSetting("secret_key", "BOKEH_SECRET_KEY", default=None, help="""
+    secret_key: PrioritizedSetting[str | None] = PrioritizedSetting("secret_key", "BOKEH_SECRET_KEY", default=None, help="""
     A long, cryptographically-random secret unique to a Bokeh deployment.
     """)
 
@@ -658,15 +662,15 @@ class Settings:
     e.g., if multiple processes are contributing to a single Bokeh Document.
     """)
 
-    ssl_certfile: PrioritizedSetting[Optional[str]] = PrioritizedSetting("ssl_certfile", "BOKEH_SSL_CERTFILE", default=None, help="""
+    ssl_certfile: PrioritizedSetting[str | None] = PrioritizedSetting("ssl_certfile", "BOKEH_SSL_CERTFILE", default=None, help="""
     The path to a certificate file for SSL termination.
     """)
 
-    ssl_keyfile: PrioritizedSetting[Optional[str]] = PrioritizedSetting("ssl_keyfile", "BOKEH_SSL_KEYFILE", default=None, help="""
+    ssl_keyfile: PrioritizedSetting[str | None] = PrioritizedSetting("ssl_keyfile", "BOKEH_SSL_KEYFILE", default=None, help="""
     The path to a private key file for SSL termination.
     """)
 
-    ssl_password: PrioritizedSetting[Optional[str]] = PrioritizedSetting("ssl_password", "BOKEH_SSL_PASSWORD", default=None, help="""
+    ssl_password: PrioritizedSetting[str | None] = PrioritizedSetting("ssl_password", "BOKEH_SSL_PASSWORD", default=None, help="""
     A password to decrypt the SSL keyfile, if necessary.
     """)
 
@@ -733,7 +737,7 @@ class Settings:
         except Exception:
             raise RuntimeError(f"Could not load Bokeh config file: {location}")
 
-    def secret_key_bytes(self) -> Optional[bytes]:
+    def secret_key_bytes(self) -> bytes | None:
         ''' Return the secret_key, converted to bytes and cached.
 
         '''
@@ -742,7 +746,7 @@ class Settings:
             if key is None:
                 self._secret_key_bytes = None
             else:
-                self._secret_key_bytes = codecs.encode(key, "utf-8")
+                self._secret_key_bytes = key.encode("utf-8")
         return self._secret_key_bytes
 
     def _try_load_config(self, locations: Sequence[str]) -> Dict[str, Any]:
