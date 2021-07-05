@@ -27,7 +27,7 @@ import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
 import {defer} from "@bokehjs/core/util/defer"
-import {Figure, MarkerArgs} from "@bokehjs/api/plotting"
+import {Figure, MarkerArgs, show} from "@bokehjs/api/plotting"
 import {Spectral11, turbo} from "@bokehjs/api/palettes"
 import {div} from "@bokehjs/core/dom"
 
@@ -760,6 +760,30 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #11365", () => {
+    it.allowing(16)("prevents showing MultiChoice's dropdown menu over subsequent roots", async () => {
+      const columns = ["Apple", "Pear", "Banana"]
+
+      const choices = new MultiChoice({options: columns})
+      const button = new Button({label: "A button"})
+
+      const layout = column([choices, button])
+      const {view, el} = await display(layout, [350, 200])
+
+      // XXX: note that this plot is not going to show up in the baseline (blf) nor will
+      // be considered a part of the test by any means by the testing framework (e.g. no
+      // cleanup will be made). This needs proper support for multi-root display, which
+      // will be increasing more useful in future testing.
+      const plot = fig([300, 100])
+      plot.circle([1, 2, 3], [1, 2, 3])
+      await show(plot, el)
+
+      const choices_view = view.child_views[0] as MultiChoice["__view_type__"]
+      (choices_view as any /*protected*/).choice_el.showDropdown()
+      await defer()
+    })
+  })
+
   describe("in issue #10488", () => {
     it("disallows correct placement of Rect glyph with datetime values", async () => {
       const t0 = 1600755745624.793
@@ -953,6 +977,44 @@ describe("Bug", () => {
       p.height = 300
 
       await view.ready
+    })
+  })
+
+  describe("in issue #11367", () => {
+    it("doesn't allow to render legend for ellipse glyph", async () => {
+      const p = fig([200, 100], {x_axis_type: null, y_axis_type: null})
+      p.circle({x: [0, 1], y: [0, 1], radius: 0.1, legend: "circles"})
+      p.ellipse({x: [0, 1], y: [1, 0], width: 0.2, height: 0.1, legend: "ellipses"})
+      p.legend.location = "center"
+      await display(p)
+    })
+  })
+
+  describe("in issue #11378", () => {
+    it("doesn't allow to correctly compute bounds when using MultiLine Glyph with a log axis", async () => {
+      const xs = [[0, 1], [0, 1], [0, 1]]
+      const ys = [[2, 1], [100, 200], [10, 20]]
+
+      const p = fig([200, 200], {y_axis_type: "log"})
+      p.multi_line({xs, ys})
+      await display(p)
+    })
+  })
+
+  describe("in issue #11110", () => {
+    function plot(axis: "linear" | "log") {
+      const x = [1, 2, 3, 4, 5]
+      const y = [6e-2, 7e-4, 6e-6, 4e-8, 5e-10]
+
+      const p = fig([200, 200], {y_axis_type: axis})
+      p.yaxis.map((axis) => axis.major_label_text_font_size = "1.5em")
+      p.line({x, y})
+
+      return p
+    }
+
+    it("doesn't correctly measure fonts if font size is provided in relative units", async () => {
+      await display(row([plot("linear"), plot("log")]))
     })
   })
 })

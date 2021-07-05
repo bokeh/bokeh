@@ -51,6 +51,8 @@ dependencies:
   - pip:
     - sphinxext-opengraph
     - sphinx-reredirects
+    - types-boto
+    - types-pyyaml
 
   # examples
   - flask >=1.0
