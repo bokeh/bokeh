@@ -76,11 +76,17 @@ export abstract class Layoutable {
   }
 
   set_geometry(outer: BBox, inner?: BBox): void {
+    const {fixup_geometry} = this
+    if (fixup_geometry != null) {
+      [outer, inner] = fixup_geometry(outer, inner)
+    }
     this._set_geometry(outer, inner ?? outer)
     for (const handler of this._handlers) {
       handler(this._bbox, this._inner_bbox)
     }
   }
+
+  fixup_geometry?(outer: BBox, inner?: BBox): [BBox, BBox?]
 
   private _handlers: ((outer: BBox, inner: BBox) => void)[] = []
 
