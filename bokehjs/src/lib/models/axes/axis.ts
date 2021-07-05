@@ -17,6 +17,7 @@ import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
+import {unreachable} from "core/util/assert"
 
 const {abs} = Math
 
@@ -513,7 +514,7 @@ export class AxisView extends GuideRendererView {
       if (cross_range instanceof FactorRange)
         return cross_range.synthetic(fixed_location)
 
-      throw new Error("unexpected")
+      unreachable()
     }
 
     const [, cross_range] = this.ranges

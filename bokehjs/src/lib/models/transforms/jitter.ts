@@ -51,7 +51,7 @@ export class Jitter extends RangeTransform {
       return map(xs, (xs, i) => cache_offsets[i] + xs)
     }
 
-    const computed_values = super.v_compute(xs)
+    const computed_values = map(xs, (xs) => this._compute(xs))
     this.previous_offsets = map(xs, (xs, i) => computed_values[i] - xs)
     return computed_values
   }
