@@ -10,7 +10,7 @@ import {Size} from "core/types"
 import {View} from "core/view"
 import {RendererView} from "models/renderers/renderer"
 import {text_width} from "core/graphics"
-import {font_metrics} from "core/util/text"
+import {font_metrics, parse_css_font_size} from "core/util/text"
 
 type Position = {
   sx: number
@@ -34,6 +34,13 @@ export class MathTextView extends View {
   // http://docs.mathjax.org/en/latest/input/tex/macros/index.html?highlight=align
   align: "left" | "center" | "right" | "justify" = "left"
 
+  private _base_font_size: number = 13 // the same as .bk-root's font-size (13px)
+
+  set base_font_size(v: number | null | undefined) {
+    if (v != null)
+      this._base_font_size = v
+  }
+
   private font_size_scale: number = 1.0
   private font: string
   private color: string
@@ -56,15 +63,16 @@ export class MathTextView extends View {
     let size = v.text_font_size.get_value()
     const face = v.text_font.get_value()
 
-    const {font_size_scale} = this
-    if (font_size_scale != 1.0) {
-      const match = size.match(/^\s*(\d+(\.\d+)?)(\w+)\s*$/)
-      if (match != null) {
-        const [, value,, unit] = match
-        const number = Number(value)
-        if (!isNaN(number))
-          size = `${number*font_size_scale}${unit}`
+    const {font_size_scale, _base_font_size} = this
+    const res = parse_css_font_size(size)
+    if (res != null) {
+      let {value, unit} = res
+      value *= font_size_scale
+      if (unit == "em" && _base_font_size) {
+        value *= _base_font_size
+        unit = "px"
       }
+      size = `${value}${unit}`
     }
 
     const font = `${style} ${size} ${face}`
