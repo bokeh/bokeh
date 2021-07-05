@@ -42,7 +42,7 @@ dependencies:
   - ipython
   - isort <5.0
   - mock
-  - mypy <=0.782
+  - mypy
   - nbconvert >=5.4
   - networkx
   - nodejs >=14
@@ -58,6 +58,10 @@ dependencies:
   - requests >=1.2.3
   - selenium >=3.8
   - scipy
+  - pip
+  - pip:
+    - types-boto
+    - types-pyyaml
 
   # examples
   - flask >=1.0
