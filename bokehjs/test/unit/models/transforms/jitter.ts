@@ -43,7 +43,7 @@ describe("Jitter transform module", () => {
       const rets = transform.v_compute(vals)
 
       const thesum = sum(rets)
-      const thediff = thesum/N
+      const thediff = thesum/N - 5
       // We can set this deterministically because we've stubbed random
       expect(thediff).to.be.equal(0)
     })
@@ -66,7 +66,6 @@ describe("Jitter transform module", () => {
       }
       expect(diff1).to.be.equal(diff2)
     })
-
   })
 
   describe("Jitter with normal", () => {
@@ -80,7 +79,7 @@ describe("Jitter transform module", () => {
       const rets = transform.v_compute(vals)
 
       const thesum = sum(rets)
-      const thediff = (thesum/N)
+      const thediff = (thesum/N) - 5
       // We can set this deterministically because we've stubbed rnorm
       expect(thediff).to.be.equal(0)
     })
@@ -117,7 +116,7 @@ describe("Jitter transform module", () => {
       const rets = transform.v_compute(vals)
 
       const thesum = sum(rets)
-      const thediff = thesum/N // relies on standard synthetic mapping
+      const thediff = thesum/N - 1.5 // relies on standard synthetic mapping
       // We can set this deterministically because we've stubbed random
       expect(thediff).to.be.equal(0)
     })
