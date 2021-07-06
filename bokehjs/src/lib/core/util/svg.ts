@@ -1012,44 +1012,51 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     return this.__ctx.measureText(text)
   }
 
-  arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterClockwise: boolean = false): void {
-    if (!isFinite(x + y + radius + startAngle + endAngle))
+  arc(x: number, y: number, radius: number, start_angle: number, end_angle: number, counterclockwise: boolean = false): void {
+    this.ellipse(x, y, radius, radius, 0, start_angle, end_angle, counterclockwise)
+  }
+
+  ellipse(x: number, y: number, radius_x: number, radius_y: number, rotation: number, start_angle: number, end_angle: number, counterclockwise: boolean = false): void {
+    if (!isFinite(x + y + radius_x + radius_y + rotation + start_angle + end_angle) || isNaN(x + y + radius_x + radius_y + rotation + start_angle + end_angle))
       return
-    // in canvas no circle is drawn if no angle is provided.
-    if (startAngle === endAngle) {
-      return
-    }
-    startAngle = startAngle % (2*Math.PI)
-    endAngle = endAngle % (2*Math.PI)
-    if (startAngle === endAngle) {
+
+    if (radius_x < 0 || radius_y < 0)
+      throw new DOMException("IndexSizeError, radius can't be negative")
+
+    start_angle = start_angle % (2*Math.PI)
+    end_angle = end_angle % (2*Math.PI)
+
+    if (start_angle === end_angle) {
       // circle time! subtract some of the angle so svg is happy (svg elliptical arc can't draw a full circle)
-      endAngle = ((endAngle + (2*Math.PI)) - 0.001 * (counterClockwise ? -1 : 1)) % (2*Math.PI)
+      end_angle = ((end_angle + (2*Math.PI)) - 0.001 * (counterclockwise ? -1 : 1)) % (2*Math.PI)
     }
-    const endX = x+radius*Math.cos(endAngle)
-    const endY = y+radius*Math.sin(endAngle)
-    const startX = x+radius*Math.cos(startAngle)
-    const startY = y+radius*Math.sin(startAngle)
-    const sweepFlag = counterClockwise ? 0 : 1
-    let largeArcFlag = 0
-    let diff = endAngle - startAngle
+    const end_x = x+radius_x*Math.cos(end_angle)
+    const end_y = y+radius_y*Math.sin(end_angle)
+    const start_x = x+radius_x*Math.cos(start_angle)
+    const start_y = y+radius_y*Math.sin(start_angle)
+
+    const sweep_flag = counterclockwise ? 0 : 1
+    let large_arc_flag = 0
+    let diff = end_angle - start_angle
 
     // https://github.com/gliffy/canvas2svg/issues/4
     if (diff < 0) {
       diff += 2*Math.PI
     }
 
-    if (counterClockwise) {
-      largeArcFlag = diff > Math.PI ? 0 : 1
+    if (counterclockwise) {
+      large_arc_flag = diff > Math.PI ? 0 : 1
     } else {
-      largeArcFlag = diff > Math.PI ? 1 : 0
+      large_arc_flag = diff > Math.PI ? 1 : 0
     }
 
-    this.lineTo(startX, startY)
-    const rx = radius
-    const ry = radius
-    const xAxisRotation = 0
-    const [tendX, tendY] = this._transform.apply(endX, endY)
-    this.__addPathCommand(tendX, tendY, `A ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${tendX} ${tendY}`)
+    this.lineTo(start_x, start_y)
+    const [tend_x, tend_y] = this._transform.apply(end_x, end_y)
+
+    // Canvas ellipse defines rotation in radians and SVG elliptical arc is defined in degrees
+    const rotation_in_degrees = rotation * 180 / Math.PI
+
+    this.__addPathCommand(tend_x, tend_y, `A ${radius_x} ${radius_y} ${rotation_in_degrees} ${large_arc_flag} ${sweep_flag} ${tend_x} ${tend_y}`)
   }
 
   private _clip_path: Path | null = null
