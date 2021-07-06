@@ -1017,23 +1017,24 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   }
 
   ellipse(x: number, y: number, radius_x: number, radius_y: number, rotation: number, start_angle: number, end_angle: number, counterclockwise: boolean = false): void {
-    if (!isFinite(x + y + radius_x + radius_y + rotation + start_angle + end_angle) || isNaN(x + y + radius_x + radius_y + rotation + start_angle + end_angle))
+    if (!isFinite(x + y + radius_x + radius_y + rotation + start_angle + end_angle))
       return
 
     if (radius_x < 0 || radius_y < 0)
       throw new DOMException("IndexSizeError, radius can't be negative")
 
-    start_angle = start_angle % (2*Math.PI)
-    end_angle = end_angle % (2*Math.PI)
+    start_angle = start_angle % (2 * Math.PI)
+    end_angle = end_angle % (2 * Math.PI)
 
     if (start_angle === end_angle) {
       // circle time! subtract some of the angle so svg is happy (svg elliptical arc can't draw a full circle)
-      end_angle = ((end_angle + (2*Math.PI)) - 0.001 * (counterclockwise ? -1 : 1)) % (2*Math.PI)
+      end_angle = ((end_angle + (2 * Math.PI)) - 0.001 * (counterclockwise ? -1 : 1)) % (2*Math.PI)
     }
-    const end_x = x+radius_x*Math.cos(end_angle)
-    const end_y = y+radius_y*Math.sin(end_angle)
-    const start_x = x+radius_x*Math.cos(start_angle)
-    const start_y = y+radius_y*Math.sin(start_angle)
+
+    const end_x = x + radius_x * Math.cos(end_angle)
+    const end_y = y + radius_y * Math.sin(end_angle)
+    const start_x = x + radius_x * Math.cos(start_angle)
+    const start_y = y + radius_y * Math.sin(start_angle)
 
     const sweep_flag = counterclockwise ? 0 : 1
     let large_arc_flag = 0
@@ -1041,7 +1042,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
 
     // https://github.com/gliffy/canvas2svg/issues/4
     if (diff < 0) {
-      diff += 2*Math.PI
+      diff += 2 * Math.PI
     }
 
     if (counterclockwise) {
