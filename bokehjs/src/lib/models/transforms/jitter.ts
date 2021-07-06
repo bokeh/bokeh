@@ -49,20 +49,20 @@ export class Jitter extends RangeTransform {
     const xs_length = xs.length
 
     if (this.previous_offsets?.length != xs_length) {
-      this.previous_offsets = this._compute_offsets(xs_length)
+      this.previous_offsets = new Array<number>(xs_length)
+      this.previous_offsets = map(this.previous_offsets, () => this._compute())
     }
 
     const offsets = this.previous_offsets
     return map(xs, (xs, i) => offsets[i] + xs)
   }
 
-  protected _compute_offsets(xs_length: number): Arrayable<number> {
-    const offsets = new Array<number>(xs_length)
+  protected _compute(): number {
     switch (this.distribution) {
       case "uniform":
-        return map(offsets, () => this.mean + (bokeh_math.random() - 0.5)*this.width)
+        return this.mean + (bokeh_math.random() - 0.5)*this.width
       case "normal":
-        return map(offsets, () => bokeh_math.rnorm(this.mean, this.width))
+        return bokeh_math.rnorm(this.mean, this.width)
     }
   }
 }
