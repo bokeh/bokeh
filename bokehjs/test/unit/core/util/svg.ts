@@ -85,4 +85,100 @@ describe("SVGRenderingContext2d", () => {
 
     expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50" height="50"><defs/><path fill="red" stroke="none" paint-order="stroke" d="M 10 10 L 20 10 L 20 20 L 10 20 L 10 10"/></svg>')
   })
+
+  it("should stroke ellipse correctly", async () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      ctx.beginPath()
+      const x = 100,
+            y =  100,
+            radius_x =  50,
+            radius_y =  75,
+            rotation =  0,
+            start_angle =  0,
+            end_angle =  2 * Math.PI,
+            counterclockwise = false
+
+      ctx.ellipse(x,
+                  y,
+                  radius_x,
+                  radius_y,
+                  rotation,
+                  start_angle,
+                  end_angle,
+                  counterclockwise)
+
+      ctx.stroke()
+    }
+
+    const size = {width: 200, height: 200}
+    const ctx = new SVGRenderingContext2D(size)
+
+    test(ctx)
+    const svg = ctx.get_serialized_svg()
+    await compare_on_dom(test, svg, size)
+
+    expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50" height="50"><defs/><path fill="red" stroke="none" paint-order="stroke" d="M 10 10 L 20 10 L 20 20 L 10 20 L 10 10"/></svg>')
+  })
+
+  it("should demonstrate ellipse's limitation on rotation correctly", async () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      ctx.beginPath()
+      const x = 100,
+            y =  100,
+            radius_x =  50,
+            radius_y =  75,
+            rotation =  Math.PI / 4,
+            start_angle =  0,
+            end_angle =  2 * Math.PI,
+            counterclockwise = false
+
+      ctx.ellipse(x,
+                  y,
+                  radius_x,
+                  radius_y,
+                  rotation,
+                  start_angle,
+                  end_angle,
+                  counterclockwise)
+
+      ctx.stroke()
+    }
+
+    const size = {width: 200, height: 200}
+    const ctx = new SVGRenderingContext2D(size)
+
+    test(ctx)
+    const svg = ctx.get_serialized_svg()
+    await compare_on_dom(test, svg, size)
+
+    expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50" height="50"><defs/><path fill="red" stroke="none" paint-order="stroke" d="M 10 10 L 20 10 L 20 20 L 10 20 L 10 10"/></svg>')
+  })
+
+  it("should demonstrate ellipse's limitations on start and end angles correctly", async () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      ctx.fillStyle = 'red';
+      ctx.beginPath();
+      ctx.ellipse(60, 75, 50, 30, Math.PI * .25, 0, Math.PI * 1.5);
+      ctx.fill();
+
+      ctx.fillStyle = 'blue';
+      ctx.beginPath();
+      ctx.ellipse(150, 75, 50, 30, Math.PI * .25, 0, Math.PI);
+      ctx.fill();
+
+      ctx.fillStyle = 'green';
+      ctx.beginPath();
+      ctx.ellipse(240, 75, 50, 30, Math.PI * .25, 0, Math.PI, true);
+      ctx.fill();
+    }
+
+    const size = {width: 320, height: 200}
+    const ctx = new SVGRenderingContext2D(size)
+
+    test(ctx)
+    const svg = ctx.get_serialized_svg()
+    await compare_on_dom(test, svg, size)
+
+    expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50" height="50"><defs/><path fill="red" stroke="none" paint-order="stroke" d="M 10 10 L 20 10 L 20 20 L 10 20 L 10 10"/></svg>')
+  })
 })
