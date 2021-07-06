@@ -272,7 +272,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_serialized_svg()
     await compare_on_dom(test, svg, size)
 
-    expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50" height="50"><defs/><path fill="red" stroke="none" paint-order="stroke" d="M 10 10 L 20 10 L 20 20 L 10 20 L 10 10"/></svg>')
+    expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><defs/><path fill="none" stroke="#000000" paint-order="fill" d="M 150 100 A 50 75 0 1 1 149.99997500000208 99.92500001249995" stroke-miterlimit="10" stroke-dasharray=""/></svg>')
   })
 
   it("should demonstrate ellipse's limitation on rotation correctly", async () => {
@@ -292,7 +292,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_serialized_svg()
     await compare_on_dom(test, svg, size)
 
-    expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50" height="50"><defs/><path fill="red" stroke="none" paint-order="stroke" d="M 10 10 L 20 10 L 20 20 L 10 20 L 10 10"/></svg>')
+    expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><defs/><path fill="none" stroke="#000000" paint-order="fill" d="M 150 100 A 50 75 2578.3100780887044 1 1 149.99997500000208 99.92500001249995" stroke-miterlimit="10" stroke-dasharray=""/></svg>')
   })
 
   it("should demonstrate ellipse's limitations on start and end angles correctly", async () => {
@@ -320,6 +320,6 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_serialized_svg()
     await compare_on_dom(test, svg, size)
 
-    expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50" height="50"><defs/><path fill="red" stroke="none" paint-order="stroke" d="M 10 10 L 20 10 L 20 20 L 10 20 L 10 10"/></svg>')
+    expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="320" height="200"><defs/><path fill="red" stroke="none" paint-order="stroke" d="M 110 75 A 50 30 45 1 1 59.99999999999999 45"/><path fill="blue" stroke="none" paint-order="stroke" d="M 200 75 A 50 30 45 0 1 100 75"/><path fill="green" stroke="none" paint-order="stroke" d="M 290 75 A 50 30 45 1 0 190 75"/></svg>')
   })
 })
