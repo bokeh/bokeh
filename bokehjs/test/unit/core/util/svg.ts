@@ -258,23 +258,9 @@ describe("SVGRenderingContext2d", () => {
   it("should stroke ellipse correctly", async () => {
     const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
       ctx.beginPath()
-      const x = 100,
-            y =  100,
-            radius_x =  50,
-            radius_y =  75,
-            rotation =  0,
-            start_angle =  0,
-            end_angle =  2 * Math.PI,
-            counterclockwise = false
+      const x = 100, y = 100, radius_x = 50, radius_y = 75, rotation = 0, start_angle = 0, end_angle = 2 * Math.PI, counterclockwise = false
 
-      ctx.ellipse(x,
-                  y,
-                  radius_x,
-                  radius_y,
-                  rotation,
-                  start_angle,
-                  end_angle,
-                  counterclockwise)
+      ctx.ellipse(x, y, radius_x, radius_y, rotation, start_angle, end_angle, counterclockwise)
 
       ctx.stroke()
     }
@@ -292,23 +278,9 @@ describe("SVGRenderingContext2d", () => {
   it("should demonstrate ellipse's limitation on rotation correctly", async () => {
     const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
       ctx.beginPath()
-      const x = 100,
-            y =  100,
-            radius_x =  50,
-            radius_y =  75,
-            rotation =  Math.PI / 4,
-            start_angle =  0,
-            end_angle =  2 * Math.PI,
-            counterclockwise = false
+      const x = 100, y = 100, radius_x = 50, radius_y = 75, rotation = 45, start_angle = 0, end_angle = 2 * Math.PI, counterclockwise = false
 
-      ctx.ellipse(x,
-                  y,
-                  radius_x,
-                  radius_y,
-                  rotation,
-                  start_angle,
-                  end_angle,
-                  counterclockwise)
+      ctx.ellipse(x, y, radius_x, radius_y, rotation, start_angle, end_angle, counterclockwise)
 
       ctx.stroke()
     }
@@ -325,20 +297,20 @@ describe("SVGRenderingContext2d", () => {
 
   it("should demonstrate ellipse's limitations on start and end angles correctly", async () => {
     const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
-      ctx.fillStyle = 'red';
-      ctx.beginPath();
-      ctx.ellipse(60, 75, 50, 30, Math.PI * .25, 0, Math.PI * 1.5);
-      ctx.fill();
+      ctx.fillStyle = "red"
+      ctx.beginPath()
+      ctx.ellipse(60, 75, 50, 30, Math.PI * 0.25, 0, Math.PI * 1.5)
+      ctx.fill()
 
-      ctx.fillStyle = 'blue';
-      ctx.beginPath();
-      ctx.ellipse(150, 75, 50, 30, Math.PI * .25, 0, Math.PI);
-      ctx.fill();
+      ctx.fillStyle = "blue"
+      ctx.beginPath()
+      ctx.ellipse(150, 75, 50, 30, Math.PI * 0.25, 0, Math.PI)
+      ctx.fill()
 
-      ctx.fillStyle = 'green';
-      ctx.beginPath();
-      ctx.ellipse(240, 75, 50, 30, Math.PI * .25, 0, Math.PI, true);
-      ctx.fill();
+      ctx.fillStyle = "green"
+      ctx.beginPath()
+      ctx.ellipse(240, 75, 50, 30, Math.PI * 0.25, 0, Math.PI, true)
+      ctx.fill()
     }
 
     const size = {width: 320, height: 200}
