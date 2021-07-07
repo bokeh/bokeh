@@ -7,7 +7,7 @@ In addition to plotting numerical data on continuous ranges, you can also use
 Bokeh to plot categorical data on categorical ranges.
 
 Basic categorical ranges are represented in Bokeh as sequences of strings. For
-example, the list of seasons:
+example, a list of the four seasons:
 
 .. code-block:: python
 
@@ -80,7 +80,7 @@ This form is useful when you want to customize the
 ``FactorRange``, for example, by changing the range
 or category padding.
 
-Next, call :func:`~bokeh.plotting.Figure.vbar` with the list of fruit names as
+Next, call |vbar| with the list of fruit names as
 the ``x`` coordinate and the bar height as the ``top``
 coordinate. You can also specify ``width`` or other
 optional properties.
