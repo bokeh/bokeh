@@ -3,17 +3,19 @@
 Handling categorical data
 =========================
 
-In addition to plotting numercial data on continuous ranges, Bokeh can also
-plot categorical data on categorical ranges. Basic categorical ranges are
-represented in Bokeh as sequences of strings, for example, the list of seasons:
+In addition to plotting numerical data on continuous ranges, you can also use
+Bokeh to plot categorical data on categorical ranges.
+
+Basic categorical ranges are represented in Bokeh as sequences of strings. For
+example, the list of seasons:
 
 .. code-block:: python
 
     seasons = ["Winter", "Spring", "Summer", "Fall"]
 
-Bokeh can also handle hierarchical categories, for example, the individual
-months within each yearly quarter. These are represented as nested sequences
-of  strings:
+Bokeh can also handle hierarchical categories. For example, you can use nested
+sequences of strings to represent the individual months within each yearly
+quarter:
 
 .. code-block:: python
 
@@ -24,9 +26,9 @@ of  strings:
         ("Q4", "Oct"), ("Q4", "Nov"), ("Q4", "Dec"),
     ]
 
-Depending on the structure of the data, different kinds of charts are possible:
+Depending on the structure of your data, you can use different kinds of charts:
 bar charts, categorical heatmaps, jitter plots, and others. This chapter will
-present several kinds of common categorical plots.
+present several kinds of common plot types for categorical data.
 
 
 .. _userguide_categorical_bars:
@@ -35,11 +37,12 @@ Bars
 ----
 
 One of the most common ways to handle categorical data is to present it in a
-bar chart. Bar charts have one categorical axis and one continuous axis, and
-are useful when there is one value to plot for each category. The values
-associated with each category are represented by drawing a bar for that
-category, whose length along the continuous axis corresponds to the value for
-that category.
+bar chart. Bar charts have one categorical axis and one continuous axis. Bar
+charts are useful when there is one value to plot for each category.
+
+The values associated with each category are represented by drawing a bar for
+that category. The length of this bar along the continuous axis corresponds to
+the value for that category.
 
 Bar charts may also be stacked or grouped together according to hierarchical
 sub-categories. This section will demonstrate how to draw a variety of
@@ -50,10 +53,9 @@ different categorical bar charts.
 Basic
 ~~~~~
 
-To create a basic bar chart, simply use the
-:func:`~bokeh.plotting.Figure.hbar` or
-:func:`~bokeh.plotting.Figure.vbar` glyph methods. The
-example below shows a sequence of simple 1-level categories.
+To create a basic bar chart, use the |hbar| (horizontal bars) or |vbar|
+(vertical bars) glyph methods. The example below shows a sequence of simple
+1-level categories.
 
 .. code-block:: python
 
@@ -78,7 +80,7 @@ This form is useful when you want to customize the
 ``FactorRange``, for example, by changing the range
 or category padding.
 
-Next, call ``vbar`` with the list of fruit names as
+Next, call :func:`~bokeh.plotting.Figure.vbar` with the list of fruit names as
 the ``x`` coordinate and the bar height as the ``top``
 coordinate. You can also specify ``width`` or other
 optional properties.
@@ -92,8 +94,8 @@ Combining the above produces the following output:
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_basic.py
     :source-position: above
 
-You can also assign the data to a ``ColumnDataSource``
-and supply it as the ``source`` parameter to ``vbar``
+You can also assign the data to a |ColumnDataSource|
+and supply it as the ``source`` parameter to |vbar|
 instead of passing the data directly as parameters.
 You will see this in later examples.
 
@@ -102,7 +104,7 @@ You will see this in later examples.
 Sorting
 ~~~~~~~
 
-To order the bars of a given plot, simply sort the categories by
+To order the bars of a given plot, sort the categories by
 value.
 
 The example below sorts the fruit categories in ascending order
@@ -124,28 +126,31 @@ Colors
 You can color the bars in several ways:
 
 * Supply all the colors along with the rest of the data to
-  a ``ColumnDataSource`` and assign the name of the color column
-  to the ``color`` argument of ``vbar``.
+  a |ColumnDataSource| and assign the name of the color column
+  to the ``color`` argument of |vbar|.
 
   .. bokeh-plot:: docs/user_guide/examples/categorical_bar_colors.py
     :source-position: above
 
   You can also use the color column with the ``line_color`` and
-  ``fill_color`` arguments to change outline and fill colors
+  ``fill_color`` arguments to change outline and fill colors,
   respectively.
 
 * Use the ``CategoricalColorMapper`` model to map bar colors in a browser.
-  You can do this with the :func:`~bokeh.transform.factor_cmap` function.
+  You can do this with the |factor_cmap| function.
 
   .. code-block:: python
 
       factor_cmap('fruits', palette=Spectral6, factors=fruits)
 
-  You can then pass this to the ``color`` argument of ``vbar`` to achieve
-  the same result.
+  You can then pass the result of this function to the ``color`` argument of
+  |vbar| to achieve the same result:
 
-.. bokeh-plot:: docs/user_guide/examples/categorical_bar_colormapped.py
+  .. bokeh-plot:: docs/user_guide/examples/categorical_bar_colormapped.py
     :source-position: above
+
+  See :ref:`userguide_styling_using_mappers` for more information on using
+  Bokeh’s color mappers.
 
 .. _userguide_categorical_bars_stacked:
 
@@ -153,14 +158,14 @@ Stacking
 ~~~~~~~~
 
 To stack vertical bars, use the :func:`~bokeh.plotting.Figure.vbar_stack`
-function. The example below uses three sets of fruit data, each
-corresponding to a year. It produces a bar chart for each set and
-overlaps them over one another.
+function. The example below uses three sets of fruit data. Each set
+corresponds to a year. This example produces a bar chart for each set and
+stacks each fruit's bar elements on top of each other.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked.py
     :source-position: above
 
-You can also stack bars that represent positive and negative values.
+You can also stack bars that represent positive and negative values:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked_split.py
     :source-position: above
@@ -205,29 +210,29 @@ customize the tooltips for each layer.
 Grouping
 ~~~~~~~~
 
-Instead of stacking, you may wish to group the bars. Depending on your
-use case, you can achieve this in two ways:
+Instead of stacking, you also have the option to group the bars. Depending on
+your use case, you can achieve this in two ways:
 
-* With nested categories
-* With visual offsets
+* :ref:`With nested categories <userguide_categorical_bars_grouped_nested>`
+* :ref:`With visual offsets <userguide_categorical_bars_grouped_dodged>`
 
 .. _userguide_categorical_bars_grouped_nested:
 
 Nested categories
 '''''''''''''''''
 
-With several subsets of data, Bokeh automatically groups the bars into
+If you provide several subsets of data, Bokeh automatically groups the bars into
 labeled categories, tags each bar with the name of the subset it
 represents, and adds a separator between the categories.
 
 The example below creates a sequence of fruit-year pairs (tuples) and
-groups the bars by fruit name with a single call to ``vbar``.
+groups the bars by fruit name with a single call to |vbar|.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_nested.py
     :source-position: above
 
-To apply different colors to the bars, use ``factor_cmap`` for
-``fill_color`` in the ``vbar`` function call as follows:
+To apply different colors to the bars, use |factor_cmap| for
+``fill_color`` in the |vbar| function call as follows:
 
 .. code-block:: python
 
@@ -237,7 +242,7 @@ To apply different colors to the bars, use ``factor_cmap`` for
            fill_color=factor_cmap('x', palette=palette, factors=years, start=1, end=2))
 
 
-The ``start=1`` and ``end=2`` in the call to ``factor_cmap`` use the
+The ``start=1`` and ``end=2`` in the call to |factor_cmap| use the
 year in the ``(fruit, year)`` pair for color mapping.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_nested_colormapped.py
@@ -250,10 +255,10 @@ Visual offset
 
 Take a scenario with separate sequences of ``(fruit, year)`` pairs
 instead of a single data table. You can plot the sequences with
-separate calls to ``vbar``. However, since every bar in each group
+separate calls to |vbar|. However, since every bar in each group
 belongs to the same ``fruit`` category, the bars will overlap. To
 avoid this behavior, use the :func:`~bokeh.transform.dodge` function
-to provide an offset for each call to ``vbar``.
+to provide an offset for each call to |vbar|.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_dodged.py
     :source-position: above
@@ -297,14 +302,12 @@ initialize a ``ColumnDataSource`` and automatically create columns for many
 statistical parameters, such as group mean and count. You can also pass these
 ``GroupBy`` objects as a ``range`` argument to ``figure``.
 
-Here's how you can leverage `pandas`_ to your advantage:
-
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_pandas_groupby_colormapped.py
     :source-position: above
 
 The example above groups data by the column ``'cyl'``, which is why the
 ``ColumnDataSource`` includes this column. It also adds associated columns
-to non-grouped categories such as ``'mpg'`` providing, for instance, a mean
+to non-grouped categories such as ``'mpg'``, providing, for instance, a mean
 number of miles per gallon in the ``'mpg_mean'`` column.
 
 This also works with multi-level groups. The example below groups the same
@@ -320,11 +323,11 @@ joining the names of the grouped columns.
 Intervals
 ---------
 
-Bars can be used for more than just bar charts with a common baseline. when
-each category has a both a starting and ending value associated, you can also
+You can use bars for more than just bar charts with a common baseline. In case
+each category has both a starting and ending value associated, you can also
 use bars to represent intervals across a range for each category.
 
-The example below supplies the ``hbar`` function with both ``left`` and
+The example below supplies the |hbar| function with both ``left`` and
 ``right`` properties to show the spread in times between gold and bronze
 medalists in Olympic sprinting over many years.
 
@@ -336,9 +339,9 @@ medalists in Olympic sprinting over many years.
 Scatters
 --------
 
-Sometimes there are many values associated with each category, for example a
-series of measurements on different days of the week. In this case the data
-can be presented as a categorical scatter plot.
+Sometimes there are many values associated with each category. For example, a
+series of measurements on different days of the week. In this case, you can
+visualize your data using a categorical scatter plot.
 
 .. .. bokeh-plot:: docs/user_guide/examples/categorical_scatter.py
 ..     :source-position: above
@@ -365,8 +368,9 @@ Series
 ------
 
 There may also be ordered series of data associated with each category. In such
-cases the series can be represented as a line or area plotted for each category.
-To accomplish this Bokeh has a concept of categorical offsets that can afford
+cases, the series can be represented as a line or area plotted for each
+category.
+To accomplish this, Bokeh has a concept of categorical offsets that can afford
 explicit control over positioning "within" a category.
 
 .. _userguide_categorical_offsets:
@@ -415,7 +419,7 @@ Heatmaps
 
 It is possible to have values associated with *pairs* of categories. In this
 situation, applying different color shades to rectangles that represent a pair
-of categories, will produce a *categorical heatmap*. Such a plot has two
+of categories will produce a *categorical heatmap*. Such a plot has two
 categorical axes.
 
 The following plot lists years from 1948 to 2016 on its x-axis and months of
