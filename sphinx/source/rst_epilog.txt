@@ -16,11 +16,14 @@
 .. |user guide|         replace:: :ref:`user guide <userguide>`
 
 .. |add layout|         replace:: :py:func:`~bokeh.models.plots.Plot.add_layout`
+.. |factor_cmap|        replace:: :py:func:`~bokeh.transform.factor_cmap`
 .. |field|              replace:: :py:func:`~bokeh.core.properties.field`
 .. |figure|             replace:: :py:func:`~bokeh.plotting.figure`
+.. |hbar|               replace:: :py:func:`~bokeh.plotting.Figure.hbar`
 .. |save|               replace:: :py:func:`~bokeh.io.save`
 .. |show|               replace:: :py:func:`~bokeh.io.show`
 .. |value|              replace:: :py:func:`~bokeh.core.properties.value`
+.. |vbar|               replace:: :py:func:`~bokeh.plotting.Figure.vbar`
 
 .. |BoxAnnotation|      replace:: :py:class:`~bokeh.models.annotations.BoxAnnotation`
 .. |Color|              replace:: :py:class:`~bokeh.core.properties.Color`

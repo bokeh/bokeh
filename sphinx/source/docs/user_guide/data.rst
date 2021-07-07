@@ -331,7 +331,7 @@ In addition to :func:`~bokeh.transform.linear_cmap`, there are two similar
 functions:
 
 * :func:`~bokeh.transform.log_cmap` for color mapping on a log scale
-* :func:`~bokeh.transform.factor_cmap` for color mapping categorical data (see
+* |factor_cmap| for color mapping categorical data (see
   the example below).
 
 Mapping marker types
@@ -344,7 +344,7 @@ function to assign different markers to different categories automatically:
 .. bokeh-plot:: docs/user_guide/examples/data_transforming_markers.py
     :source-position: above
 
-This example also uses :func:`~bokeh.transform.factor_cmap` to color map those
+This example also uses |factor_cmap| to color map those
 same categories.
 
 .. note::
