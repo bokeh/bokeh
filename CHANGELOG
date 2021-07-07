@@ -1,3 +1,21 @@
+2021-07-07    2.3.3:
+--------------------
+  * bugfixes:
+    - #11083 [component: bokehjs] [BUG] column ignores css class scrollable from version 2.3.0
+    - #11110 [component: bokehjs] [BUG] Bad formatting of y axis labels with theme different from standard
+    - #11161 [component: bokehjs] [BUG] Div model layout differences between bokeh 2.2.3 and 2.3.1
+    - #11188 [component: bokehjs] [BUG] Layout regression in panel introduced by PR #11123
+    - #11284 [component: bokehjs] Active tab should be in view on render 
+    - #11344 [component: bokehjs] [BUG] plot's height can not go below 600px with sizing_mode = 'stretch_both'
+    - #11365 [component: bokehjs] [BUG] dropdown menu is hidden in multi choice, others are not
+    - #11380 [component: bokehjs] [BUG] Extensions with package.json should fetch exact version from CDN 
+    - #11384 [component: server] [BUG] app_index.html is missing quotes in href attribute
+
+  * tasks:
+    - #11242 [component: docs] Simplify instructions for GOOGLE_API_KEY
+    - #11377 Backport changes from 2.4 to 2.3.3
+    - #11406 [component: docs] Bryanv/2 3 3 release notes
+
 2021-05-10    2.3.2:
 --------------------
   * bugfixes:
