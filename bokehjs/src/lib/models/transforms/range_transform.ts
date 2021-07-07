@@ -4,6 +4,7 @@ import {Factor, FactorRange} from "../ranges/factor_range"
 import * as p from "core/properties"
 import {Arrayable, infer_type} from "core/types"
 import {isNumber, isArrayableOf} from "core/util/types"
+import {unreachable} from "core/util/assert"
 
 export namespace RangeTransform {
   export type Attrs = p.AttrsOf<Props>
@@ -35,7 +36,7 @@ export abstract class RangeTransform extends Transform {
     else if (isArrayableOf(xs0, isNumber))
       xs = xs0
     else
-      throw new Error("unexpected")
+      unreachable()
 
     const result = new (infer_type(xs))(xs.length)
     for (let i = 0; i < xs.length; i++) {
@@ -51,7 +52,7 @@ export abstract class RangeTransform extends Transform {
     else if (isNumber(x))
       return this._compute(x)
     else
-      throw new Error("unexpected")
+      unreachable()
   }
 
   protected abstract _compute(x: number): number
