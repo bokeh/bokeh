@@ -203,10 +203,6 @@ class LegendItem(Model):
     If set to a number, Bokeh will use that number as the index in all cases.
     """)
 
-    visible = Bool(default=True, help="""
-    Whether the legend item should be displayed.
-    """)
-
     @error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
     def _check_data_sources_on_renderers(self):
         if self.label and 'field' in self.label:
