@@ -37,7 +37,7 @@
   <td>
     <a href="https://docs.bokeh.org/en/latest/docs/installation.html">
     <img src="https://pepy.tech/badge/bokeh/month"
-         alt="PyPI downloads per month" /> 
+         alt="PyPI downloads per month" />
     </a>
   </td>
 </tr>
@@ -313,7 +313,7 @@ The Bokeh project is grateful for [individual contributions](https://numfocus.or
          alt="Quansight Logo" width="200"/>
     </a>
   </td>
- </tr>  
+ </tr>
 <tr>
   <td colspan="2">
     <a href="https://www.blackstone.com/the-firm/">
