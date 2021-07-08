@@ -36,8 +36,8 @@ p.background_fill_color = "lightgrey"
 
 legend = Legend(location="top_right")
 legend.items = [
-    LegendItem(label=value("%s" % expr), renderers=[line_f]),
-    LegendItem(label=value("taylor(%s)" % expr), renderers=[line_t]),
+    LegendItem(label=value(f"{expr}"), renderers=[line_f]),
+    LegendItem(label=value(f"taylor({expr})"), renderers=[line_t]),
 ]
 p.add_layout(legend)
 
@@ -51,8 +51,8 @@ def update():
     x, fy, ty = taylor(expr, xs, slider.value, (-2*sy.pi, 2*sy.pi), 200)
 
     p.title.text = "Taylor (n=%d) expansion comparison for: %s" % (slider.value, expr)
-    legend.items[0].label = value("%s" % expr)
-    legend.items[1].label = value("taylor(%s)" % expr)
+    legend.items[0].label = value(f"{expr}")
+    legend.items[1].label = value(f"taylor({expr})")
     source.data = dict(x=x, fy=fy, ty=ty)
 
 slider = Slider(start=1, end=20, value=1, step=1, title="Order")
