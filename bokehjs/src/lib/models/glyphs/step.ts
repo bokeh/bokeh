@@ -6,6 +6,7 @@ import * as p from "core/properties"
 import {Rect} from "core/types"
 import {StepMode} from "core/enums"
 import {Context2d} from "core/util/canvas"
+import {unreachable} from "core/util/assert"
 
 export type StepData = XYGlyphData
 
@@ -51,7 +52,7 @@ export class StepView extends XYGlyphView {
           break
         }
         default:
-          throw new Error("unexpected")
+          unreachable()
       }
 
       if (drawing) {

@@ -610,7 +610,6 @@ adding new glyph methods as well as when adding new axis objects with the
 .. |ellipse|           replace:: :func:`~bokeh.plotting.Figure.ellipse`
 .. |harea|             replace:: :func:`~bokeh.plotting.Figure.harea`
 .. |harea_stack|       replace:: :func:`~bokeh.plotting.Figure.harea_stack`
-.. |hbar|              replace:: :func:`~bokeh.plotting.Figure.hbar`
 .. |hbar_stack|        replace:: :func:`~bokeh.plotting.Figure.hbar_stack`
 .. |hex|               replace:: :func:`~bokeh.plotting.Figure.hex`
 .. |hex_dot|           replace:: :func:`~bokeh.plotting.Figure.hex_dot`
@@ -643,7 +642,6 @@ adding new glyph methods as well as when adding new axis objects with the
 .. |triangle_pin|      replace:: :func:`~bokeh.plotting.Figure.triangle_pin`
 .. |varea|             replace:: :func:`~bokeh.plotting.Figure.varea`
 .. |varea_stack|       replace:: :func:`~bokeh.plotting.Figure.varea_stack`
-.. |vbar|              replace:: :func:`~bokeh.plotting.Figure.vbar`
 .. |vbar_stack|        replace:: :func:`~bokeh.plotting.Figure.vbar_stack`
 .. |vline_stack|       replace:: :func:`~bokeh.plotting.Figure.vline_stack`
 .. |wedge|             replace:: :func:`~bokeh.plotting.Figure.wedge`

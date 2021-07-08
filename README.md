@@ -63,35 +63,44 @@
 <tr>
   <td>Build Status</td>
   <td>
+    <div>
     <a href="https://github.com/bokeh/bokeh/actions">
     <img src="https://github.com/bokeh/bokeh/workflows/Bokeh-CI/badge.svg?branch=master"
          alt="Current github actions build status" />
     </a>
+    </div>
+    <div>
     <a href="https://github.com/bokeh/bokeh/actions">
     <img src="https://github.com/bokeh/bokeh/workflows/BokehJS-CI/badge.svg?branch=master"
          alt="Current github actions build status" />
     </a>
+    </div>
+  </td>
+  <td>Static Analysis</td>
+  <td>
+    <div>
+      <a href="https://lgtm.com/projects/g/bokeh/bokeh/context:python">
+      <img alt="Language grade: Python" src="https://img.shields.io/lgtm/grade/python/g/bokeh/bokeh.svg?"/>
+      </a>
+    </div>
+    <div>
+      <a href="https://lgtm.com/projects/g/bokeh/bokeh/context:javascript">
+      <img alt="Language grade: JavaScript" src="https://img.shields.io/lgtm/grade/javascript/g/bokeh/bokeh.svg"/>
+      </a>
+    </div>
   </td>
 
-  <td>Support</td>
+</tr>
+
+<tr>
+    <td>Support</td>
   <td>
     <a href="https://discourse.bokeh.org">
     <img src="https://img.shields.io/discourse/https/discourse.bokeh.org/posts.svg"
          alt="Community Support on discourse.bokeh.org" />
     </a>
   </td>
-</tr>
 
-<tr>
-  <td>Static Analysis</td>
-  <td>
-    <a href="https://lgtm.com/projects/g/bokeh/bokeh/context:python">
-    <img alt="Language grade: Python" src="https://img.shields.io/lgtm/grade/python/g/bokeh/bokeh.svg?"/>
-    </a>
-    <a href="https://lgtm.com/projects/g/bokeh/bokeh/context:javascript">
-    <img alt="Language grade: JavaScript" src="https://img.shields.io/lgtm/grade/javascript/g/bokeh/bokeh.svg"/>
-    </a>
-  </td>
 
   <td>Twitter</td>
   <td>
@@ -99,6 +108,7 @@
     <img src="https://img.shields.io/twitter/follow/bokeh.svg?style=social&label=Follow"
          alt="Follow Bokeh on Twitter" />
     </a>
+
   </td>
 </tr>
 
@@ -277,11 +287,11 @@ If you would like to contribute to Bokeh, please review the [Developer Guide](ht
 
 Follow us on Twitter [@bokeh](https://twitter.com/bokeh)
 
-## Sponsors
+## Support
 
-### Fiscal Sponsors
+### Fiscal Support
 
-The Bokeh project is grateful for [individual contributions](https://numfocus.org/donate-to-bokeh) as well as sponsorship by the organizations and companies below:
+The Bokeh project is grateful for [individual contributions](https://numfocus.org/donate-to-bokeh) sponsorship as well as support by the organizations and companies below:
 
 <table align="center">
 <tr>
@@ -291,10 +301,30 @@ The Bokeh project is grateful for [individual contributions](https://numfocus.or
          alt="NumFocus Logo" width="200"/>
     </a>
   </td>
+  <td>
+    <a href="https://chanzuckerberg.com/">
+    <img src="https://static.bokeh.org/sponsor/czi.svg"
+         alt="CZI Logo" width="200"/>
+    </a>
+  </td>
+  <td>
+    <a href="https://www.quansight.com">
+    <img src="https://static.bokeh.org/sponsor/quansight.png"
+         alt="Quansight Logo" width="200"/>
+    </a>
+  </td>
+ </tr>
+<tr>
   <td colspan="2">
     <a href="https://www.blackstone.com/the-firm/">
     <img src="https://static.bokeh.org/sponsor/blackstone.png"
          alt="Blackstone Logo" width="400"/>
+    </a>
+  </td>
+  <td>
+    <a href="https://tidelift.com/">
+    <img src="https://static.bokeh.org/sponsor/tidelift.svg"
+         alt="TideLift Logo" width="200"/>
     </a>
   </td>
  </tr>
@@ -320,36 +350,13 @@ The Bokeh project is grateful for [individual contributions](https://numfocus.or
 </tr>
 </table>
 
-<table align="center">
-<tr>
-  <td>
-    <a href="https://www.quansight.com">
-    <img src="https://static.bokeh.org/sponsor/quansight.png"
-         alt="Quansight Logo" width="100"/>
-    </a>
-  </td>
-  <td>
-    <a href="https://www.rexhomes.com/">
-    <img src="https://static.bokeh.org/sponsor/rex.jpg"
-         alt="Rex Logo" width="100"/>
-    </a>
-  </td>
-  <td>
-    <a href="https://nomnomdata.com/">
-    <img src="https://files.nomitall.nomnomdata.com/images/logo-small.svg"
-         alt="Nom Nom Data Logo" width="100"/>
-    </a>
-  </td>
-</tr>
-</table>
-
 If your company uses Bokeh and is able to sponsor the project, please contact <a href="info@bokeh.org">info@bokeh.org</a>
 
 *Bokeh is a Sponsored Project of NumFOCUS, a 501(c)(3) nonprofit charity in the United States. NumFOCUS provides Bokeh with fiscal, legal, and administrative support to help ensure the health and sustainability of the project. Visit [numfocus.org](https://numfocus.org) for more information.*
 
 *Donations to Bokeh are managed by NumFOCUS. For donors in the United States, your gift is tax-deductible to the extent provided by law. As with any donation, you should consult with your tax adviser about your particular tax situation.*
 
-### In-kind Sponsors
+### In-kind Support
 
 The Bokeh project is also grateful for the donation of services from the following companies:
 
