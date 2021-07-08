@@ -14,7 +14,6 @@ export namespace LegendItem {
     label: p.DataSpec<string | null> // TODO: spec!
     renderers: p.Property<GlyphRenderer[]>
     index: p.Property<number | null>
-    visible: p.Property<boolean>
   }
 }
 
@@ -30,11 +29,10 @@ export class LegendItem extends Model {
   }
 
   static init_LegendItem(): void {
-    this.define<LegendItem.Props>(({Boolean, Int, Array, Ref, Nullable}) => ({
+    this.define<LegendItem.Props>(({Int, Array, Ref, Nullable}) => ({
       label:     [ p.NullStringSpec, null ],
       renderers: [ Array(Ref(GlyphRenderer)), [] ],
       index:     [ Nullable(Int), null ],
-      visible:   [ Boolean, true ],
     }))
   }
 
@@ -92,9 +90,7 @@ export class LegendItem extends Model {
   }
 
   get_labels_list_from_label_prop(): string[] {
-    if (!this.visible)
-      return []
-
+    // Always return a list of the labels
     if (isValue<string | null>(this.label)) {
       const {value} = this.label
       return value != null ? [value] : []

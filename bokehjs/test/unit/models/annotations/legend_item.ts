@@ -121,18 +121,6 @@ describe("LegendItem", () => {
 
   describe("get_labels_list_from_label_prop", () => {
 
-    it("should return empty labels if visible is false", () => {
-      const source = new ColumnDataSource({
-        data: {
-          label: ["foo", "bar", "foo", "bar"],
-        },
-      })
-      const gr = new GlyphRenderer({data_source: source})
-      const legend_item = new LegendItem({label: {field: "label"}, renderers: [gr], visible: false})
-      const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.equal([])
-    })
-
     it("should return labels if field is valid", () => {
       const source = new ColumnDataSource({
         data: {
