@@ -9,7 +9,7 @@ import {Size} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
 import {font_metrics} from "core/util/text"
 import {BBox} from "core/util/bbox"
-import {max, every} from "core/util/array"
+import {max, every, some} from "core/util/array"
 import {isString, isArray} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
@@ -215,6 +215,9 @@ export class LegendView extends AnnotationView {
     if (this.model.items.length == 0)
       return
 
+    if (!some(this.model.items, item => item.visible))
+      return
+
     // set a backref on render so that items can later signal item_change upates
     // on the model to trigger a re-render
     for (const item of this.model.items) {
@@ -249,6 +252,8 @@ export class LegendView extends AnnotationView {
     const vertical = this.model.orientation == "vertical"
 
     for (const item of this.model.items) {
+      if (!item.visible)
+        continue
       const labels = item.get_labels_list_from_label_prop()
       const field = item.get_field_from_label_prop()
 
