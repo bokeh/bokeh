@@ -52,6 +52,7 @@ from .formatters import (
     TickFormatter,
 )
 from .labeling import AllLabels, LabelingPolicy
+from .math_text import MathText
 from .renderers import GuideRenderer
 from .tickers import (
     BasicTicker,
@@ -123,13 +124,8 @@ class Axis(GuideRenderer):
     of ticks.
     """)
 
-    axis_label = Nullable(String, default="", help="""
-    A text label for the axis, displayed parallel to the axis rule.
-
-    .. note::
-        LaTeX notation is not currently supported; please see
-        :bokeh-issue:`647` to track progress or contribute.
-
+    axis_label = Nullable(Either(String, Instance(MathText)), default="", help="""
+    A text or LaTeX notation label for the axis, displayed parallel to the axis rule.
     """)
 
     axis_label_standoff = Int(default=5, help="""

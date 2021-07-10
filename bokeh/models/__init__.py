@@ -48,6 +48,7 @@ from .layouts import *
 from .map_plots import *
 from .mappers import *
 from .markers import *
+from .math_text import *
 from .plots import *
 from .ranges import *
 from .renderers import *

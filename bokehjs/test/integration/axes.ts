@@ -1,8 +1,9 @@
 import {display} from "./_util"
+import {tex2svg} from "../third-party/tex2svg"
 
 import {
   LinearAxis, LogAxis, CategoricalAxis, LinearScale, LogScale, CategoricalScale, Range1d, FactorRange,
-  Plot, AllLabels, NoOverlap,
+  Plot, AllLabels, NoOverlap, MathText,
 } from "@bokehjs/models"
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 import {Side} from "@bokehjs/core/enums"
@@ -27,9 +28,12 @@ import {radians} from "@bokehjs/core/util/math"
         title: null,
         toolbar_location: null,
       })
+
       const axis = axis_type == "linear" ? new LinearAxis(attrs) : new LogAxis(attrs)
+
       if (options?.num_ticks != null)
         axis.ticker.desired_num_ticks = options.num_ticks
+
       p.add_layout(axis, side)
       await display(p)
     }
@@ -122,6 +126,33 @@ import {radians} from "@bokehjs/core/util/math"
 
     it("should support minor_tick_out=10", async () => {
       await plot({minor_tick_out: 10})
+    })
+
+    function load_math_jax_script(): void {
+      // @ts-ignore
+      MathJax = {tex2svg}
+    }
+
+    function remove_mathjax_script(): void {
+      const mathjax_script = document.getElementById("bokeh_mathjax_script")
+      if (mathjax_script) mathjax_script.remove()
+
+      // @ts-ignore
+      if (typeof MathJax !== "undefined") MathJax = undefined
+    }
+
+    it("should support LaTeX notation on axis_label with MathText", async () => {
+      await load_math_jax_script()
+      await plot({axis_label: new MathText({text: "\\sin(x)"})}, {minor_size: 100})
+      remove_mathjax_script()
+    })
+
+    it("should support LaTeX notation on axis_label with MathText and fallback to text if MathJax has errors", async () => {
+      await load_math_jax_script()
+      // @ts-ignore
+      MathJax = undefined
+      await plot({axis_label: new MathText({text: "\\sin(x)"})}, {minor_size: 100})
+      remove_mathjax_script()
     })
 
     it("should support single line axis_label", async () => {
