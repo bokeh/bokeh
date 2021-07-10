@@ -3,7 +3,6 @@ import {Ticker} from "../tickers/ticker"
 import {TickFormatter} from "../formatters/tick_formatter"
 import {LabelingPolicy, AllLabels, DistanceMeasure} from "../policies/labeling"
 import {Range} from "../ranges/range"
-
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
@@ -17,7 +16,10 @@ import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
+import {MathText, MathTextView} from "models/math_text"
+import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
+
 
 const {abs} = Math
 
@@ -41,6 +43,22 @@ export class AxisView extends GuideRendererView {
 
   panel: Panel
   layout: Layoutable
+
+  axis_label_math_text_view: MathTextView
+
+  /**
+   * Lazy initialize is called when views are instantiated,
+   * working like an async constructor
+   */
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {axis_label} = this.model
+
+    // Build math_text_view if axis_label is a MathText instance
+    if (axis_label != null && axis_label instanceof MathText)
+      this.axis_label_math_text_view = await build_view(axis_label, {parent: this})
+  }
 
   update_layout(): void {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
@@ -143,28 +161,29 @@ export class AxisView extends GuideRendererView {
     if (!text)
       return 0
 
-    const axis_label = new TextBox({text})
+    const axis_label = text instanceof MathText
+      ? this.axis_label_math_text_view
+      : new TextBox({text})
+
+    const padding = 3
+
+    axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
     axis_label.visuals = this.visuals.axis_label_text
     axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
     axis_label.base_font_size = this.plot_view.base_font_size
 
     const size = axis_label.size()
     const extent = this.dimension == 0 ? size.height : size.width
-
     const standoff = this.model.axis_label_standoff
-    const padding = 3
+
     return extent > 0 ? standoff + extent + padding : 0
   }
 
   protected _draw_axis_label(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
     const text = this.model.axis_label
+
     if (!text || this.model.fixed_location != null)
       return
-
-    const axis_label = new TextBox({text})
-    axis_label.visuals = this.visuals.axis_label_text
-    axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
-    axis_label.base_font_size = this.plot_view.base_font_size
 
     const [sx, sy] = (() => {
       const {bbox} = this.layout
@@ -182,16 +201,24 @@ export class AxisView extends GuideRendererView {
 
     const [nx, ny] = this.normals
     const standoff = extents.tick + extents.tick_label + this.model.axis_label_standoff
-
     const {vertical_align, align} = this.panel.get_label_text_heuristics("parallel")
-    axis_label.position = {
+
+    const position = {
       sx: sx + nx*standoff,
       sy: sy + ny*standoff,
       x_anchor: align,
       y_anchor: vertical_align,
     }
-    axis_label.align = align
 
+    const axis_label = text instanceof MathText
+      ? this.axis_label_math_text_view
+      : new TextBox({text})
+
+    axis_label.visuals = this.visuals.axis_label_text
+    axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
+    axis_label.base_font_size = this.plot_view.base_font_size
+    axis_label.position = position
+    axis_label.align = align
     axis_label.paint(ctx)
   }
 
@@ -540,6 +567,25 @@ export class AxisView extends GuideRendererView {
       bbox: this.layout.bbox.box,
     }
   }
+
+  override remove(): void {
+    if (this.axis_label_math_text_view)
+      this.axis_label_math_text_view.remove()
+
+    super.remove()
+  }
+
+  override has_finished(): boolean {
+    if (!super.has_finished())
+      return false
+
+    if (this.axis_label_math_text_view) {
+      if (!this.axis_label_math_text_view.has_finished())
+        return false
+    }
+
+    return true
+  }
 }
 
 export namespace Axis {
@@ -549,7 +595,7 @@ export namespace Axis {
     bounds: p.Property<[number, number] | "auto">
     ticker: p.Property<Ticker>
     formatter: p.Property<TickFormatter>
-    axis_label: p.Property<string | null>
+    axis_label: p.Property<string | MathText | null>
     axis_label_standoff: p.Property<number>
     major_label_standoff: p.Property<number>
     major_label_orientation: p.Property<TickLabelOrientation | number>
@@ -603,7 +649,7 @@ export class Axis extends GuideRenderer {
       bounds:                  [ Or(Tuple(Number, Number), Auto), "auto" ],
       ticker:                  [ Ref(Ticker) ],
       formatter:               [ Ref(TickFormatter) ],
-      axis_label:              [ Nullable(String), "" ],
+      axis_label:              [ Nullable(Or(String, Ref(MathText))), "" ],
       axis_label_standoff:     [ Int, 5 ],
       major_label_standoff:    [ Int, 5 ],
       major_label_orientation: [ Or(TickLabelOrientation, Number), "horizontal" ],
