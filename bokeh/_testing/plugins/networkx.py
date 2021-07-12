@@ -4,42 +4,53 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+''' Provide a Pytest plugin for handling tests when networkx may be missing.
+
+'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
+from __future__ import annotations
 
-import pytest ; pytest
+import logging # isort:skip
+log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Module under test
-from bokeh.models.graphs import StaticLayoutProvider, from_networkx # isort:skip
+# Standard library imports
+from types import ModuleType
+
+# External imports
+import pytest
+
+# Bokeh imports
+from bokeh.util.dependencies import import_optional
 
 #-----------------------------------------------------------------------------
-# Setup
+# Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = (
+    'nx',
+)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def test_staticlayoutprovider_init_props() -> None:
-    provider = StaticLayoutProvider()
-    assert provider.graph_layout == {}
+@pytest.fixture
+def nx() -> ModuleType | None: # XXX: should be networkx | None, but not supported
+    ''' A PyTest fixture that will automatically skip a test if networkx is
+    not installed.
 
-# TODO (bev) deprecation: 3.0
-def test_from_networkx_deprecated(nx) -> None:
-    G=nx.Graph()
-    G.add_nodes_from([0,1,2,3])
-    G.add_edges_from([[0,1], [0,2], [2,3]])
-
-    from bokeh.util.deprecation import BokehDeprecationWarning
-    with pytest.warns(BokehDeprecationWarning):
-        from_networkx(G, nx.circular_layout)
+    '''
+    nx = import_optional('networkx')
+    if nx is None:
+        pytest.skip('networkx is not installed')
+    return nx
 
 #-----------------------------------------------------------------------------
 # Dev API

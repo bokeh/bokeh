@@ -64,7 +64,7 @@ describe("Legend annotation", () => {
       type: "circle" | "line"
       options: Partial<CircleArgs | LineArgs>
     }[]
-    legend_items?: {label: string, renderers: number[]}[]
+    legend_items?: {label: string, renderers: number[], visible?: boolean}[]
     legends: Partial<Legend.Attrs>[]
   }) => Promise<void>
 
@@ -118,7 +118,7 @@ describe("Legend annotation", () => {
       }
 
       const items = legend_items.map(
-        ({label, renderers}) => new LegendItem({label, renderers: renderers.map(r => gls[r])})
+        ({label, renderers, visible}) => new LegendItem({label, renderers: renderers.map(r => gls[r]), visible})
       )
 
 
@@ -209,6 +209,24 @@ describe("Legend annotation", () => {
         title: "title",
         spacing: 20,
       }]})
+    })
+
+    it("should hide one non-visible item correctly", async () => {
+      const legend_items = [
+        {label: "#0", renderers: [0]},
+        {label: "#1", renderers: [1, 2], visible: false},
+        {label: "#2", renderers: [3]},
+      ]
+      await plot({legend_items, legends: [{title: "title"}]})
+    })
+
+    it("should hide entire legend with no visible items", async () => {
+      const legend_items = [
+        {label: "#0", renderers: [0], visible: false},
+        {label: "#1", renderers: [1, 2], visible: false},
+        {label: "#2", renderers: [3], visible: false},
+      ]
+      await plot({legend_items, legends: [{title: "title"}]})
     })
   }
 

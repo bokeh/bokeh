@@ -117,6 +117,13 @@ def test_Legend() -> None:
         prefix('inactive_', FILL),
     )
 
+def test_LegendItem() -> None:
+    item = LegendItem()
+    assert item.index== None
+    assert item.label == None
+    assert item.name is None
+    assert item.renderers == []
+    assert item.visible == True
 
 def test_ColorBar() -> None:
     color_mapper = LinearColorMapper()
