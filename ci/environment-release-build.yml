@@ -38,8 +38,11 @@ dependencies:
   - scipy
   - sphinx >=3.5
   - sphinx-panels
+
+  # pip dependencies
   - pip
   - pip:
+    # docs
     - autoclasstoc
     - pydata_sphinx_theme
     - sphinxext-opengraph
