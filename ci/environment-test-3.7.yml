@@ -48,19 +48,6 @@ dependencies:
   - scipy
   - sphinx >=3.5
   - sphinx-panels
-  - pip
-  - pip:
-    - autoclasstoc
-    - pydata_sphinx_theme
-    - sphinxext-opengraph
-    - sphinx-reredirects
-    - types-boto
-    - types-colorama
-    - types-mock
-    - types-pillow
-    - types-pyyaml
-    - types-requests
-    - flake8-pyi
 
   # examples
   - flask >=1.0
@@ -73,3 +60,20 @@ dependencies:
   - pyshp
   - scikit-learn
   - sympy
+
+  # pip dependencies
+  - pip
+  - pip:
+    # docs
+    - autoclasstoc
+    - pydata_sphinx_theme
+    - sphinxext-opengraph
+    - sphinx-reredirects
+    # tests
+    - types-boto
+    - types-colorama
+    - types-mock
+    - types-pillow
+    - types-pyyaml
+    - types-requests
+    - flake8-pyi
