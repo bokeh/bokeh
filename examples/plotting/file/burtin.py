@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from io import StringIO
 from math import log, sqrt
 
@@ -27,13 +26,13 @@ Streptococcus viridans,          0.005,      10,           40,       positive
 Diplococcus pneumoniae,          0.005,      11,           10,       positive
 """
 
-drug_color = OrderedDict([
+drug_color = dict([
     ("Penicillin",   "#0d3362"),
     ("Streptomycin", "#c64737"),
     ("Neomycin",     "black"  ),
 ])
 
-gram_color = OrderedDict([
+gram_color = dict([
     ("negative", "#e69584"),
     ("positive", "#aeaeb8"),
 ])

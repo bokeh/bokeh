@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from jinja2 import Template
 
 from bokeh.embed import components
@@ -38,7 +36,7 @@ p3 = figure(x_range=xr2, y_range=yr2, tools=TOOLS, width=300, height=300)
 p3.scatter(x3, y3, size=12, color="green", alpha=0.5)
 
 # plots can be a single Bokeh model, a list/tuple, or even a dictionary
-plots = OrderedDict([('Red', p1), ('Blue', p2), ('Green', p3)])
+plots = dict(Red=p1, Blue=p2, Green=p3)
 
 script, div = components(plots)
 
