@@ -29,7 +29,7 @@ throughout Bokeh's documentation:
         :term:`widgets<Widget>` in the browser. In most cases, Bokeh handles all
         interactions with BokehJS automatically ("We write the JavaScript, so you
         don't have to"). For more details, see the :ref:`devguide_bokehjs`
-        chapter of the :ref:`developers guide<devguide>`.
+        chapter of the |contributors guide|.
 
     Document
         An organizing data structure for Bokeh
