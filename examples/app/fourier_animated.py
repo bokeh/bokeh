@@ -1,4 +1,4 @@
-''' Show a streaming, updating representation of Fourier Series.
+""" Show a streaming, animated representation of Fourier Series.
 
 The example was inspired by `this video`_.
 
@@ -6,195 +6,95 @@ Use the ``bokeh serve`` command to run the example by executing:
 
     bokeh serve fourier_animated.py
 
-at your command prompt. Then navigate to the URL
+at your command prompt. Then navigate your browser to the URL
 
     http://localhost:5006/fourier_animated
 
-in your browser.
-
 .. _this video: https://www.youtube.com/watch?v=LznjC4Lo7lE
 
-'''
-from collections import OrderedDict
-
-import numpy as np
+"""
+from numpy import array, cos, cumsum, hstack, linspace, pi, roll, sin
 
 from bokeh.driving import repeat
 from bokeh.io import curdoc
 from bokeh.layouts import column
-from bokeh.models import ColumnDataSource
+from bokeh.models import CDSView, ColumnDataSource, IndexFilter
 from bokeh.plotting import figure
 
-pi = np.pi
+palette = ("#08519c", "#3182bd", "#6baed6", "#bdd7e7")
+dashing = ("dotted", "solid", "solid", "solid")
+
 N = 100
-newx = x = np.linspace(0, 2*pi, N)
-shift = 2.2
-base_x = x + shift
+x = linspace(0, 2*pi, N, endpoint=False)
+xoff = 2.5
+xend = xoff + 2*pi*(N-1)/N
+A = 4/pi * array([1, 1/3, 1/5, 1/7])
+w = array([1, 3, 5, 7])
 
-period = pi/2
-palette = ['#08519c', '#3182bd', '#6baed6', '#bdd7e7']
+lines_source = ColumnDataSource({f"y{i}": A[i] * sin(w[i]*x) for i in range(len(A))})
+lines_source.data["y"] = sum(lines_source.data.values())
+lines_source.data["x"] = x + xoff
 
-def new_source():
-    return dict(
-        curve=ColumnDataSource(dict(x=[], base_x=[], y=[])),
-        lines=ColumnDataSource(dict(line_x=[], line_y=[], radius_x=[], radius_y=[])),
-        circle_point=ColumnDataSource(dict(x=[], y=[], r=[])),
-        circleds=ColumnDataSource(dict(x=[], y=[]))
-    )
+def update_term_data(i):
+    x, y = A * cos(2*pi*w*i/N), A * sin(2*pi*w*i/N)
+    xsum, ysum = hstack([[0], cumsum(x)]), hstack([[0], cumsum(y)])
+    return { "xterm-dot": x,
+             "yterm-dot": y,
+             "xterm-line": [[0, xx, 2.5] for xx in x],
+             "yterm-line": [[0, yy, yy] for yy in y],
+             "xsum-dot": xsum[1:],
+             "ysum-dot": ysum[1:],
+             "xsum-circle": xsum[:-1],
+             "ysum-circle": ysum[:-1] }
 
-def create_circle_glyphs(p, color, sources):
-    p.circle('x', 'y', size=1., line_color=color, color=None, source=sources['circleds'])
-    p.circle('x', 'y', size=5, line_color=color, color=color, source=sources['circle_point'])
-    p.line('radius_x', 'radius_y', line_color=color, color=color, alpha=0.5, source=sources['lines'])
+items_source = ColumnDataSource({"r": A, "color": palette, "dashing": dashing})
+items_source.data.update(update_term_data(0))
 
-def create_plot(foos, title='', r = 1, y_range=None, period = pi/2, cfoos=None):
-    if y_range is None:
-        y_range=[-2, 2]
+terms_plot = figure(title="First four square-wave harmonics, individually",
+                    height=400, width=820, x_range=(-2.5, xend), y_range=(-2.5, 2.5),
+                    tools="", toolbar_location=None)
 
-    # create new figure
-    p = figure(title=title, width=800, height=300, x_range=[-2, 9], y_range=y_range)
-    p.xgrid.bounds = (-2, 2)
-    p.xaxis.bounds = (-2, 2)
+terms_plot.circle(0, 0, radius=A, color=palette, line_width=2, line_dash=dashing, fill_color=None)
 
-    _sources = []
-    cx, cy = 0, 0
-    for i, foo in enumerate(foos):
-        sources = new_source()
-        get_new_sources(x, foo, sources, cfoos[i], cx, cy, i==0)
-        cp = sources['circle_point'].data
-        cx, cy = cp['x'][0], cp['y'][0]
+for i in range(4):
+    legend_label = f"4sin({i*2+1}x)/{i*2+1}pi" if i else "4sin(x)/pi"
+    terms_plot.line("x", f"y{i}", color=palette[i], line_width=2,
+                    source=lines_source, legend_label=legend_label)
 
-        if i==0:
-            # compute the full fourier eq
-            full_y = sum(foo(x) for foo in foos)
-            # replace the foo curve with the full fourier eq
-            sources['curve'] = ColumnDataSource(dict(x=x, base_x=base_x, y=full_y))
-            # draw the line
-            p.line('base_x','y', color="orange", line_width=2, source=sources['curve'])
+terms_plot.circle("xterm-dot", "yterm-dot", size=5, color="color", source=items_source)
 
-        if i==len(foos)-1:
-            # if it's the last foo let's draw a circle on the head of the curve
-            sources['floating_point'] = ColumnDataSource({'x':[shift], 'y': [cy]})
-            p.line('line_x', 'line_y', color=palette[i], line_width=2, source=sources['lines'])
-            p.circle('x', 'y', size=10, line_color=palette[i], color=palette[i], source=sources['floating_point'])
+terms_plot.multi_line("xterm-line", "yterm-line", color="color", source=items_source)
 
-        # draw the circle, radius and circle point related to foo domain
-        create_circle_glyphs(p, palette[i], sources)
-        _sources.append(sources)
+terms_plot.xgrid.bounds = terms_plot.xaxis.bounds = (-2.5, 2.5)
+terms_plot.axis.ticker.desired_num_ticks = 8
+terms_plot.legend.location = "top_right"
+terms_plot.legend.orientation = "horizontal"
 
-    return p, _sources
+sum_plot = figure(title="First four square-wave harmonics, summed",
+                  height=400, width=820, x_range=(-2.5, xend), y_range=(-2.5, 2.5),
+                  tools="", toolbar_location=None)
 
+sum_plot.line("x", "y", color="orange", line_width=2, source=lines_source)
 
-def get_new_sources(xs, foo, sources, cfoo, cx=0, cy=0, compute_curve = True):
-    if compute_curve:
-        ys = foo(xs)
-        sources['curve'].data = dict(x=xs, base_x=base_x, y=ys)
+sum_plot.circle("xsum-circle", "ysum-circle", radius="r",
+                line_color="color", line_width=2, line_dash="dashing",
+                fill_color=None, source=items_source)
 
-    r = foo(period)
-    y = foo(xs[0]) + cy
-    x = cfoo(xs[0]) + cx
+sum_plot.circle("xsum-dot", "ysum-dot", size=5, color="color", source=items_source)
 
-    sources['lines'].data = {
-        'line_x': [x, shift], 'line_y': [y, y],
-        'radius_x': [0, x], 'radius_y': [0, y]
-    }
-    sources['circle_point'].data = {'x': [x], 'y': [y], 'r': [r]}
-    sources['circleds'].data=dict(
-        x = cx + np.cos(np.linspace(0, 2*pi, N)) * r,
-        y = cy + np.sin(np.linspace(0, 2*pi, N)) * r,
-    )
+segment_view =CDSView(source=items_source, filters=[IndexFilter([3])])
+sum_plot.segment(x0="xsum-dot", y0="ysum-dot", x1=2.5, y1="ysum-dot",
+                 color="orange", source=items_source, view=segment_view)
 
-def update_sources(sources, foos, newx, ind, cfoos):
-    cx, cy = 0, 0
-
-    for i, foo in enumerate(foos):
-        get_new_sources(newx, foo, sources[i], cfoos[i], cx, cy,
-                        compute_curve = i != 0)
-
-        if i == 0:
-            full_y = sum(foo(newx) for foo in foos)
-            sources[i]['curve'].data = dict(x=newx, base_x=base_x, y=full_y)
-
-        cp = sources[i]['circle_point'].data
-        cx, cy = cp['x'][0], cp['y'][0]
-
-        if i == len(foos)-1:
-            sources[i]['floating_point'].data['x'] = [shift]
-            sources[i]['floating_point'].data['y'] = [cy]
-
-def update_centric_sources(sources, foos, newx, ind, cfoos):
-    for i, foo in enumerate(foos):
-        get_new_sources(newx, foo, sources[i], cfoos[i])
-
-def create_centric_plot(foos, title='', r = 1, y_range=(-2, 2), period = pi/2, cfoos=None):
-    p = figure(title=title, width=800, height=300, x_range=[-2, 9], y_range=y_range)
-    p.xgrid.bounds = (-2, 2)
-    p.xaxis.bounds = (-2, 2)
-
-    _sources = []
-    for i, foo in enumerate(foos):
-        sources = new_source()
-        get_new_sources(x, foo, sources, cfoos[i])
-        _sources.append(sources)
-
-        if i:
-            legend_label = "4sin(%(c)sx)/%(c)spi" % {'c': i*2+1}
-        else:
-            legend_label = "4sin(x)/pi"
-
-        p.line('base_x','y', color=palette[i], line_width=2, source=sources['curve'])
-        p.line('line_x', 'line_y', color=palette[i], line_width=2,
-                source=sources['lines'], legend_label=legend_label)
-
-        create_circle_glyphs(p, palette[i], sources)
-
-    p.legend.location = "top_right"
-    p.legend.orientation = "horizontal"
-    p.legend.padding = 6
-    p.legend.margin = 6
-    p.legend.spacing = 6
-
-    return p, _sources
-
-# create the series partials
-f1 = lambda x: (4*np.sin(x))/pi
-f2 = lambda x: (4*np.sin(3*x))/(3*pi)
-f3 = lambda x: (4*np.sin(5*x))/(5*pi)
-f4 = lambda x: (4*np.sin(7*x))/(7*pi)
-cf1 = lambda x: (4*np.cos(x))/pi
-cf2 = lambda x: (4*np.cos(3*x))/(3*pi)
-cf3 = lambda x: (4*np.cos(5*x))/(5*pi)
-cf4 = lambda x: (4*np.cos(7*x))/(7*pi)
-fourier = OrderedDict(
-    fourier_4 = {
-        'f': lambda x: f1(x) + f2(x) + f3(x) + f4(x),
-        'fs': [f1, f2, f3, f4],
-        'cfs': [cf1, cf2, cf3, cf4]
-    },
-)
-
-for k, p in fourier.items():
-    p['plot'], p['sources'] = create_plot(
-        p['fs'], 'Fourier (Sum of the first 4 Harmonic Circles)', r = p['f'](period), cfoos = p['cfs']
-    )
-
-for k, p in fourier.items():
-    p['cplot'], p['csources'] = create_centric_plot(
-        p['fs'], 'Fourier First 4 Harmonics & Harmonic Circles', r = p['f'](period), cfoos = p['cfs']
-    )
-
-layout = column(*[f['plot'] for f in fourier.values()] + [f['cplot'] for f in fourier.values()])
+sum_plot.xgrid.bounds = sum_plot.xaxis.bounds = (-2.5, 2.5)
+sum_plot.axis.ticker.desired_num_ticks = 8
 
 @repeat(range(N))
-def cb(gind):
-    global newx
-    oldx = np.delete(newx, 0)
-    newx = np.hstack([oldx, [oldx[-1] + 2*pi/N]])
+def update(ind):
+    ykeys = (k for k in lines_source.data.keys() if k.startswith("y"))
+    lines_source.data.update({y: roll(lines_source.data[y], -1) for y in ykeys})
+    items_source.data.update(update_term_data(ind))
 
-    for k, p in fourier.items():
-        update_sources(p['sources'], p['fs'], newx, gind, p['cfs'])
-        update_centric_sources(p['csources'], p['fs'], newx, gind, p['cfs'])
-
-curdoc().add_periodic_callback(cb, 100)
-curdoc().add_root(layout)
+curdoc().add_periodic_callback(update, 100)
 curdoc().title = "Fourier Animated"
+curdoc().add_root(column(terms_plot, sum_plot))
