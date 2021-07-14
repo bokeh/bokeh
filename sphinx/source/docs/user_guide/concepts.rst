@@ -311,7 +311,7 @@ For more information on Bokeh models, see |bokeh.models| in the |reference guide
 
    The Python library allows for binding with other languages that can produce
    appropriate JSON output. For more details and available bindings, see
-   :ref:`devguide_bindings`.
+   :ref:`contributors_guide_bindings`.
 
 
 .. _Matlab: http://www.mathworks.com/products/matlab/
