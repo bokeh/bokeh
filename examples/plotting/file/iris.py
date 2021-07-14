@@ -1,3 +1,5 @@
+''' Example docstring for iris.py. '''
+
 from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.iris import flowers
 

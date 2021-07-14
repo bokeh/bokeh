@@ -92,7 +92,7 @@ from uuid import uuid4
 
 # External imports
 from docutils import nodes
-from docutils.parsers.rst import Directive
+#from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives import choice, flag
 from sphinx.errors import SphinxError
 from sphinx.util import copyfile, ensuredir, status_iterator
@@ -103,6 +103,7 @@ from bokeh.document import Document
 from bokeh.embed import autoload_static
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
+from .bokeh_directive import BokehDirective
 
 # Bokeh imports
 from .example_handler import ExampleHandler
@@ -122,7 +123,7 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-class BokehPlotDirective(Directive):
+class BokehPlotDirective(BokehDirective):
 
     has_content = True
     optional_arguments = 2
@@ -160,7 +161,7 @@ class BokehPlotDirective(Directive):
         js_name = f"bokeh-plot-{uuid4().hex}-external-{docname}.js"
 
         try:
-            (script, js, js_path, source) = _process_script(source, path, env, js_name)
+            (script, js, js_path, source, doc) = _process_script(source, path, env, js_name)
         except Exception as e:
             raise RuntimeError(f"Sphinx bokeh-plot exception: \n\n{e}\n\n Failed on:\n\n {source}")
         env.bokeh_plot_files[js_name] = (script, js, js_path, source, dirname(env.docname))
@@ -169,6 +170,10 @@ class BokehPlotDirective(Directive):
         target_id = f"{env.docname}.{basename(js_path)}"
         target = nodes.target("", "", ids=[target_id])
         result = [target]
+
+        if doc:
+            docstring = self._parse(doc, '<bokeh-plot>')
+            result += [docstring[0]]
 
         linenos = self.options.get("linenos", False)
         code = nodes.literal_block(source, source, language="python", linenos=linenos, classes=[])
@@ -185,6 +190,7 @@ class BokehPlotDirective(Directive):
             result += [code]
 
         return result
+
 
 
 # -----------------------------------------------------------------------------
@@ -271,7 +277,7 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
     with open(js_path, "w") as f:
         f.write(js)
 
-    return (script, js, js_path, source)
+    return (script, js, js_path, source, c.doc)
 
 
 # -----------------------------------------------------------------------------
