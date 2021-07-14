@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from collections import OrderedDict
 from contextlib import contextmanager
 from typing import (
     TYPE_CHECKING,
@@ -187,9 +186,9 @@ class RenderItem:
             raise ValueError("either docid or sessionid must be provided")
 
         if roots is None:
-            roots = OrderedDict()
+            roots = dict()
         elif isinstance(roots, list):
-            roots = OrderedDict([ (root, make_globally_unique_id()) for root in roots ])
+            roots = {root: make_globally_unique_id() for root in roots}
 
         self.docid = docid
         self.token = token
@@ -265,7 +264,7 @@ class RenderRoots:
         return self.__getitem__(key)
 
     def to_json(self) -> Dict[ID, ID]:
-        return OrderedDict([ (root.id, elementid) for root, elementid in self._roots.items() ])
+        return {root.id: elementid for root, elementid in self._roots.items()}
 
 def standalone_docs_json(models: Sequence[Model | Document]) -> Dict[ID, DocJson]:
     '''
@@ -301,7 +300,7 @@ def standalone_docs_json_and_render_items(models: Model | Document | Sequence[Mo
                 raise ValueError("A Bokeh Model must be part of a Document to render as standalone content")
 
         if doc not in docs:
-            docs[doc] = (make_globally_unique_id(), OrderedDict())
+            docs[doc] = (make_globally_unique_id(), dict())
 
         (docid, roots) = docs[doc]
 
