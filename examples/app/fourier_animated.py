@@ -1,4 +1,4 @@
-''' Show a streaming, animated representation of Fourier Series.
+""" Show a streaming, animated representation of Fourier Series.
 
 The example was inspired by `this video`_.
 
@@ -12,7 +12,7 @@ at your command prompt. Then navigate your browser to the URL
 
 .. _this video: https://www.youtube.com/watch?v=LznjC4Lo7lE
 
-'''
+"""
 from numpy import array, cos, cumsum, hstack, linspace, pi, roll, sin
 
 from bokeh.driving import repeat
@@ -21,7 +21,7 @@ from bokeh.layouts import column
 from bokeh.models import CDSView, ColumnDataSource, IndexFilter
 from bokeh.plotting import figure
 
-palette = ('#08519c', '#3182bd', '#6baed6', '#bdd7e7')
+palette = ("#08519c", "#3182bd", "#6baed6", "#bdd7e7")
 dashing = ("dotted", "solid", "solid", "solid")
 
 N = 100
