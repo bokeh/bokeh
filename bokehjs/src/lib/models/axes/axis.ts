@@ -44,7 +44,8 @@ export class AxisView extends GuideRendererView {
   panel: Panel
   layout: Layoutable
 
-  axis_label_math_text_view: MathTextView
+  private axis_label_math_text_view: MathTextView
+  private major_label_math_text_views: {[key: string]: MathTextView} = {}
 
   /**
    * Lazy initialize is called when views are instantiated,
@@ -58,6 +59,18 @@ export class AxisView extends GuideRendererView {
     // Build math_text_view if axis_label is a MathText instance
     if (axis_label != null && axis_label instanceof MathText)
       this.axis_label_math_text_view = await build_view(axis_label, {parent: this})
+
+    const {major_label_overrides} = this.model
+
+    if (major_label_overrides) {
+      for (const label in major_label_overrides) {
+        const label_text = major_label_overrides[label]
+
+        if (label_text instanceof MathText) {
+          this.major_label_math_text_views[label] = await build_view(label_text, {parent: this})
+        }
+      }
+    }
   }
 
   update_layout(): void {
@@ -170,7 +183,9 @@ export class AxisView extends GuideRendererView {
     axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
     axis_label.visuals = this.visuals.axis_label_text
     axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
-    axis_label.base_font_size = this.plot_view.base_font_size
+
+    if (isNumber(this.plot_view.base_font_size))
+      axis_label.base_font_size = this.plot_view.base_font_size
 
     const size = axis_label.size()
     const extent = this.dimension == 0 ? size.height : size.width
@@ -216,7 +231,10 @@ export class AxisView extends GuideRendererView {
 
     axis_label.visuals = this.visuals.axis_label_text
     axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
-    axis_label.base_font_size = this.plot_view.base_font_size
+
+    if (this.plot_view.base_font_size)
+      axis_label.base_font_size = this.plot_view.base_font_size
+
     axis_label.position = position
     axis_label.align = align
     axis_label.paint(ctx)
@@ -407,7 +425,9 @@ export class AxisView extends GuideRendererView {
     for (let i = 0; i < ticks.length; i++) {
       const override = major_label_overrides[ticks[i]]
       if (override != null)
-        labels[i] = new TextBox({text: override})
+        labels[i] = override instanceof MathText
+          ? this.major_label_math_text_views[ticks[i]]
+          : new TextBox({text: override})
     }
     return new GraphicsBoxes(labels)
   }
@@ -599,7 +619,7 @@ export namespace Axis {
     axis_label_standoff: p.Property<number>
     major_label_standoff: p.Property<number>
     major_label_orientation: p.Property<TickLabelOrientation | number>
-    major_label_overrides: p.Property<{[key: string]: string}>
+    major_label_overrides: p.Property<{[key: string]: string | MathText}>
     major_label_policy: p.Property<LabelingPolicy>
     major_tick_in: p.Property<number>
     major_tick_out: p.Property<number>
@@ -653,7 +673,7 @@ export class Axis extends GuideRenderer {
       axis_label_standoff:     [ Int, 5 ],
       major_label_standoff:    [ Int, 5 ],
       major_label_orientation: [ Or(TickLabelOrientation, Number), "horizontal" ],
-      major_label_overrides:   [ Dict(String), {} ],
+      major_label_overrides:   [ Dict(Or(String, Ref(MathText))), {} ],
       major_label_policy:      [ Ref(LabelingPolicy), () => new AllLabels() ],
       major_tick_in:           [ Number, 2 ],
       major_tick_out:          [ Number, 6 ],

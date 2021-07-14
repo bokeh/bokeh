@@ -10,6 +10,8 @@ import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {build_view} from "@bokehjs/core/build_views"
 import {TextBox} from "@bokehjs/core/graphics"
+import { display } from "../../../framework"
+import { MathText } from "@bokehjs/api"
 
 describe("Axis", () => {
 
@@ -31,6 +33,27 @@ describe("Axis", () => {
 
     const labels = axis_view.compute_labels([0, 2, 4.0, 6, 8, 10])
     expect(labels.items.map((l) => (l as TextBox).text)).to.be.equal(["zero", "2", "four", "6", "8", "ten"])
+  })
+
+  it("should compute labels with math text on overrides", async () => {
+    const plot = new Plot({
+      x_range: new Range1d({start: 0, end: 10}),
+      y_range: new Range1d({start: 0, end: 10}),
+    })
+    const ticker = new BasicTicker()
+    const formatter = new BasicTickFormatter()
+    const axis = new Axis({
+      ticker,
+      formatter,
+      major_label_overrides: {0: "zero", 4: new MathText({text: "\\pi"}), 10: "ten"},
+    })
+    plot.add_layout(axis, "below")
+    const plot_view = (await build_view(plot)).build()
+    const axis_view = plot_view.renderer_view(axis)!
+
+    const labels = axis_view.compute_labels([0, 2, 4, 6, 8, 10])
+    await display(plot)
+    expect(labels.items.map((l) => (l as TextBox).text)).to.be.equal(["zero", "2", "\\pi", "6", "8", "ten"])
   })
 
   it("loc should return numeric fixed_location", async () => {

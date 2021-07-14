@@ -32,7 +32,7 @@ type Position = {
 type Val = number | {value: number, unit: "px" | "%"}
 type Extents = {left: Val, right: Val, top: Val, bottom: Val}
 type Padding = Val | [v: Val, h: Val] | [top: Val, right: Val, bottom: Val, left: Val] | Extents
-type TextHeightMetric = "x" | "cap" | "ascent" | "x_descent" | "cap_descent" | "ascent_descent"
+export type TextHeightMetric = "x" | "cap" | "ascent" | "x_descent" | "cap_descent" | "ascent_descent"
 
 export abstract class GraphicsBox {
   _position: Position = {sx: 0, sy: 0}

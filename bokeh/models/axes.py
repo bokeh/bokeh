@@ -151,7 +151,7 @@ class Axis(GuideRenderer):
     number is supplied, the angle of the text is measured from horizontal.
     """)
 
-    major_label_overrides = Dict(Either(Float, String), String, default={}, help="""
+    major_label_overrides = Dict(Either(Float, String), Either(MathText, String), default={}, help="""
     Provide explicit tick label values for specific tick locations that
     override normal formatting.
     """)

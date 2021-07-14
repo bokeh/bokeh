@@ -82,6 +82,7 @@ from ..util.serialization import convert_datetime_type
 from .formatters import TickFormatter
 from .labeling import LabelingPolicy, NoOverlap
 from .mappers import ColorMapper
+from .math_text import MathText
 from .renderers import GlyphRenderer, Renderer
 from .sources import ColumnDataSource, DataSource
 from .tickers import Ticker
@@ -414,7 +415,7 @@ class ColorBar(Annotation):
     A ``TickFormatter`` to use for formatting the visual appearance of ticks.
     """)
 
-    major_label_overrides = Dict(Either(Float, String), String, default={}, help="""
+    major_label_overrides = Dict(Either(Float, String), Either(MathText, String), default={}, help="""
     Provide explicit tick label values for specific tick locations that
     override normal formatting.
     """)
