@@ -13,7 +13,6 @@ Contribute
     dev_guide/documentation
     dev_guide/models
     dev_guide/server
-    dev_guide/bindings
     dev_guide/bokehjs
 
 Bokeh is an open source project and only exists because of contributors like
