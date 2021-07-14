@@ -92,7 +92,6 @@ from uuid import uuid4
 
 # External imports
 from docutils import nodes
-#from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives import choice, flag
 from sphinx.errors import SphinxError
 from sphinx.util import copyfile, ensuredir, status_iterator
@@ -171,9 +170,10 @@ class BokehPlotDirective(BokehDirective):
         target = nodes.target("", "", ids=[target_id])
         result = [target]
 
-        if doc:
+        # if this is NOT an inline example and a docstring exists, add it
+        if not self.content and doc:
             docstring = self._parse(doc, '<bokeh-plot>')
-            result += [docstring[0]]
+            result += [elem for elem in docstring]
 
         linenos = self.options.get("linenos", False)
         code = nodes.literal_block(source, source, language="python", linenos=linenos, classes=[])
