@@ -3,19 +3,17 @@ import {tex2svg} from "../third-party/tex2svg"
 
 import {
   LinearAxis, LogAxis, CategoricalAxis, LinearScale, LogScale, CategoricalScale, Range1d, FactorRange,
-  Plot, AllLabels, NoOverlap, MathText, BasicTicker, BasicTickFormatter,
+  Plot, AllLabels, NoOverlap, MathText,
 } from "@bokehjs/models"
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 import {Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
 
 (() => {
-  type PlotFn = (attrs: Partial<LinearAxis.Attrs>, options?: {minor_size?: number, num_ticks?: number, plot_attrs?: Partial<Plot.Attrs>}) => Promise<void>
+  type PlotFn = (attrs: Partial<LinearAxis.Attrs>, options?: {minor_size?: number, num_ticks?: number}) => Promise<void>
 
   function hplot(side: Side, axis_type: "linear" | "log"): PlotFn {
     return async (attrs, options) => {
-      const {plot_attrs} = options
-
       const p = new Plot({
         width: 300,
         height: options?.minor_size ?? 50,
@@ -29,7 +27,6 @@ import {radians} from "@bokehjs/core/util/math"
         min_border_right: 20,
         title: null,
         toolbar_location: null,
-        ...plot_attrs
       })
 
       const axis = axis_type == "linear" ? new LinearAxis(attrs) : new LogAxis(attrs)
@@ -161,25 +158,15 @@ import {radians} from "@bokehjs/core/util/math"
     it("should display tick labels with math text on overrides", async () => {
       await load_math_jax_script()
 
-      const ticker = new BasicTicker()
-      const formatter = new BasicTickFormatter()
-
       await plot({
-        ticker,
-        formatter,
         major_label_overrides: {
-          0: "zero",
-          4: new MathText({text: "2^2"}),
-          10: "ten"
+          120: "zero",
+          140: new MathText({text: "280 \\div 2"}),
+          180: "ten",
+          1: "one",
+          10000: new MathText({text: "10 \\ast 1000"}),
         },
-      },
-      {
-        minor_size: 100,
-        plot_attrs: {
-          x_range: new Range1d({start: 0, end: 10}),
-          y_range: new Range1d({start: 0, end: 10}),
-        }
-      })
+      }, {minor_size: 100})
 
       remove_mathjax_script()
     })

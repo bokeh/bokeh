@@ -28,7 +28,7 @@ import {build_view} from "core/build_views"
 import {BBox} from "core/util/bbox"
 import {isString} from "core/util/types"
 import {SerializableState} from "core/view"
-import { MathText } from "api"
+import {MathText} from "api"
 
 const MINOR_DIM = 25
 const MAJOR_DIM_MIN_SCALAR = 0.3
