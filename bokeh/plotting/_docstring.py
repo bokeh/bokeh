@@ -51,12 +51,11 @@ Keyword args:
 {_docstring_other()}
 
 It is also possible to set the color and alpha parameters of extra glyphs for
-selection, nonselection, hover, or muted. To do so, add the relevane prefix to
+selection, nonselection, hover, or muted. To do so, add the relevant prefix to
 any visual parameter. For example, pass ``nonselection_alpha`` to set the line
 and fill alpha for nonselect, or ``hover_fill_alpha`` to set the fill alpha for
-hover. See the `Glyphs`_ section od the User's Guide for full details.
-
-.. _Glyphs: https://docs.bokeh.org/en/latest/docs/user_guide/styling.html#glyphs
+hover. See the :ref:`userguide_styling_glyphs` section of the user guide for
+full details.
 
 Returns:
     :class:`~bokeh.models.renderers.GlyphRenderer`
@@ -121,18 +120,17 @@ Other Parameters:
     color (Color, optional) :
         An alias to set all color keyword arguments at once. (default: None)
 
-        Acceptable values for colors are described in the `Specifying Colors`_
-        section of the User's Guide.
+        See :ref:`userguide_styling_colors` in the user guide for different
+        options to define colors.
 
         Any explicitly set values for ``line_color``, etc. will override this
         setting.
 
-        .. _Specifying Colors: https://docs.bokeh.org/en/latest/docs/user_guide/styling.html#specifying-colors
-
     legend_field (str, optional) :
-        Specify that the glyph should produce multiple legend entried by
-        `Grouping in the Browser`_. The value of this parameter is the name of a
-        column in the data source that should be used or the grouping.
+        Specify that the glyph should produce multiple legend entries by
+        :ref:`grouping them in the browser <userguide_plotting_legends_legend_field>`.
+        The value of this parameter is the name of a column in the data source
+        that should be used or the grouping.
 
         The grouping is performed *in JavaScript*, at the time time the Bokeh
         content is rendered in the browser. If the data is subsequently updated,
@@ -142,12 +140,11 @@ Other Parameters:
             Only one of ``legend_field``, ``legend_group``, or ``legend_label``
             should be supplied
 
-        .. _Grouping in the Browser: https://docs.bokeh.org/en/latest/docs/user_guide/annotations.html#automatic-grouping-browser
-
     legend_group (str, optional) :
-        Specify that the glyph should produce multiple legend entried by
-        `Grouping in Python`_. The value of this parameter is the name of a
-        column in the data source that should be used or the grouping.
+        Specify that the glyph should produce multiple legend entries by
+        :ref:`grouping them in Python <userguide_plotting_legends_legend_group>`.
+        The value of this parameter is the name of a column in the data source
+        that should be used or the grouping.
 
         The grouping is performed in Python, before the Bokeh output is sent to
         a browser. If the date is subsequently updated, the legend will *not*
@@ -157,18 +154,15 @@ Other Parameters:
             Only one of ``legend_field``, ``legend_group``, or ``legend_label``
             should be supplied
 
-        .. _Grouping in Python: https://docs.bokeh.org/en/latest/docs/user_guide/annotations.html#automatic-grouping-python
-
     legend_label (str, optional) :
-        Specify that the glyph should produce a single `Basic Legend Label`_ in
-        the legend. The legend entry is labeled with exactly the text supplied
+        Specify that the glyph should produce a single
+        :ref:`basic legend label <userguide_plotting_legends_legend_label>` in
+        the legend. The legend entry is labeled with the exact text supplied
         here.
 
         .. note::
             Only one of ``legend_field``, ``legend_group``, or ``legend_label``
-            should be supplied
-
-        .. _Basic Legend Label: https://docs.bokeh.org/en/latest/docs/user_guide/annotations.html#basic-legend-label
+            should be supplied.
 
     muted (bool, optionall) :
         Whether the glyph should be rendered as muted (default: False)
@@ -194,7 +188,7 @@ Other Parameters:
         If supplied, Bokeh will use the supplied data source to drive the glyph.
         In this case, literal list or arrays may not be used for coordinates or
         other arguments. Only singular fixed valued (e.g. ``x=10``) or column
-        names in the data souce (e.g. ``x="time"``) are permitted.
+        names in the data source (e.g. ``x="time"``) are permitted.
 
     view (CDSView, optional) :
         A view for filtering the data source. (default: None)

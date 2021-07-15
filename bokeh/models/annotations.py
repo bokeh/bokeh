@@ -204,7 +204,8 @@ class LegendItem(Model):
     """)
 
     visible = Bool(default=True, help="""
-    Whether the legend item should be displayed.
+    Whether the legend item should be displayed. See
+    :ref:`userguide_plotting_legends_item_visibility` in the user guide.
     """)
 
     @error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
