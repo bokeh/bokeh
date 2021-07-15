@@ -10,8 +10,8 @@ import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {build_view} from "@bokehjs/core/build_views"
 import {TextBox} from "@bokehjs/core/graphics"
-import { display } from "../../../framework"
-import { MathText } from "@bokehjs/api"
+import {MathText} from "@bokehjs/api"
+import {display} from "../../../framework"
 
 describe("Axis", () => {
 

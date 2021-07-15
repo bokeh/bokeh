@@ -415,7 +415,7 @@ class ColorBar(Annotation):
     A ``TickFormatter`` to use for formatting the visual appearance of ticks.
     """)
 
-    major_label_overrides = Dict(Either(Float, String), Either(MathText, String), default={}, help="""
+    major_label_overrides = Dict(Either(Float, String), Either(Instance(MathText), String), default={}, help="""
     Provide explicit tick label values for specific tick locations that
     override normal formatting.
     """)
