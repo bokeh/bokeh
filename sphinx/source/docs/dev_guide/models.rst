@@ -1,7 +1,9 @@
 .. _devguide_models:
 
-Bokeh Models
-=============
+Working with Bokeh models
+=========================
+
+[TBD: edit and update this chapter]
 
 Low-Level Interface
 -------------------
