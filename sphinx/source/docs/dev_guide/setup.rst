@@ -47,7 +47,7 @@ Windows, OSX, or Linux. To install Git on any platform, refer to the
 If you have never used Git before, you can find links to several beginner
 tutorials and resources in the `Git documentation`_.
 
-Install or update Conda
+Install or update conda
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Working on the Bokeh codebase requires installing several software packages that
@@ -95,7 +95,7 @@ for the remainder of this document.
 
 .. _devguide_setup_creating_conda_env:
 
-3. Create a Conda environment
+3. Create a conda environment
 -----------------------------
 
 The Bokeh repository you just cloned to your local hard drive contains an
@@ -317,7 +317,7 @@ first steps guides for more details.
 
 .. _devguide_setup_environment_variables:
 
-1. Set environment variables
+8. Set environment variables
 ----------------------------
 
 Bokeh uses environment variables to control several aspects of how the different
@@ -406,7 +406,8 @@ Next, run some of the standalone examples included with Bokeh.
 
 Make sure the :ref:`environment variable <devguide_setup_environment_variables>`
 ``BOKEH_RESOURCES`` is set to ``absolute-dev`` in order to use your local
-version of BokehJS.
+version of BokehJS. In the *source checkout* directory, run the following
+command:
 
 .. code-block:: sh
 
@@ -422,16 +423,16 @@ browser, it should display this visualization:
 Run Bokeh Server
 ~~~~~~~~~~~~~~~~
 
-Another way to use Bokeh is as a :term:`server <Server>`.
-
-Set the :ref:`environment variable <devguide_setup_environment_variables>`
-``BOKEH_DEV=false`` and run the ``bokeh serve`` command:
+Another way to use Bokeh is as a :term:`server <Server>`. Set the
+:ref:`environment variable <devguide_setup_environment_variables>`
+``BOKEH_DEV=false`` and run the ``bokeh serve`` command in the *source
+checkout* directory:
 
 .. code-block:: sh
 
     BOKEH_DEV=false python -m bokeh serve --show examples/app/sliders.py
 
-This will open up a browser with an interactive figure:
+This should open up a browser with an interactive figure:
 
 .. image:: /_images/bokeh_app_sliders.png
     :scale: 50 %
@@ -442,13 +443,15 @@ redrawing the line with the new parameters. The ``--show`` option opens a
 web browser, the default URL for the Bokeh server is ``localhost:5006``.
 
 .. note ::
-    If you have any problems with the steps here, please ask at the
-    `Bokeh Discourse`_ or join the `Bokeh developers Slack <Slack>`_.
+    If you have any problems with the steps here, check the
+    :ref:`additional ressources available to contributors <contributors_guide_resources>`.
+    Please feel free to ask at the `Bokeh Discourse`_ or `Bokeh's contributor
+    Slack`_.
 
 .. _Node.js: https://nodejs.org/en/
 .. _Selenium: https://www.selenium.dev/
 .. _Anaconda: https://www.anaconda.com/distribution/
-.. _Slack: https://slack-invite.bokeh.org/
+.. _Bokeh's contributor Slack: https://slack-invite.bokeh.org/
 .. _conda package manager: https://docs.conda.io/projects/conda/en/latest/
 .. _Installation: https://conda.io/projects/conda/en/latest/user-guide/install/index.html
 .. _Bokeh Discourse: https://discourse.bokeh.org/

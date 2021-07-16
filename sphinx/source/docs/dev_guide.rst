@@ -8,8 +8,8 @@ Contribute
     :hidden:
 
     dev_guide/setup
-    dev_guide/testing
     dev_guide/documentation
+    dev_guide/testing
     dev_guide/models
     dev_guide/server
     dev_guide/bokehjs
@@ -99,7 +99,7 @@ many more resources available to help you get started quickly:
 Bokeh Slack
     A workspace for all contributors and the best way to get a quick response
     from experienced contributors and maintainers. Please
-    `request an invitation <Slack>`_!
+    `request an invitation`_!
 
 GitHub wiki and BEPs
     The `wiki on Bokeh's GitHub repository <wiki>`_ contains the Bokeh
@@ -232,7 +232,7 @@ accounts when you talk about anything that you made with Bokeh!
 
 
 .. _Code of Conduct: https://github.com/bokeh/bokeh/blob/master/CODE_OF_CONDUCT.md
-.. _Slack: https://slack-invite.bokeh.org/
+.. _request an invitation: https://slack-invite.bokeh.org/
 .. _ wiki: https://github.com/bokeh/bokeh/wiki
 .. _Bokeh Enhancement Proposals: https://github.com/bokeh/bokeh/wiki
 .. _BEP 1 (Issues and PRs management): https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management
@@ -241,6 +241,7 @@ accounts when you talk about anything that you made with Bokeh!
 .. _Bokeh roadmap: https://bokeh.org/roadmap/
 .. _CONTRIBUTING.md: https://github.com/bokeh/bokeh/blob/main/.github/CONTRIBUTING.md
 .. _issue tracker: https://github.com/bokeh/bokeh/issues
+.. _Slack: https://slack-invite.bokeh.org/
 .. _donation to Bokeh: https://numfocus.org/donate-to-bokeh
 .. _numfocus.org: https://numfocus.org/
 .. _Support: https://github.com/bokeh/bokeh#support
