@@ -1,7 +1,7 @@
 .. _devguide_documentation:
 
-Documentation
-=============
+Contributing to the documentation
+=================================
 
 The Bokeh documentation is an important resource for the entire Bokeh
 community. It helps guide new users, and it is the definitive reference for
@@ -15,12 +15,6 @@ helping with the documentation is one of the most valuable ways to contribute
 to Bokeh. It's also a good way to get started and introduce yourself as a new
 contributor.
 
-An easy way to get started is to submit pull requests for any typos or other
-small errors you might find in Bokeh's documentation. *This is always
-appreciated!* In addition to quick fixes, check the list of `Open Docs
-Issues`_ on GitHub. This list contains several projects as a starting
-point.
-
 This section describes Bokeh's
 :ref:`documentation style guidelines <devguide_documentation_style_guidelines>`
 for contributing to the documentation. This section also includes details on how
@@ -28,7 +22,19 @@ to :ref:`build <devguide_documentation_build>` and
 :ref:`edit <devguide_documentation_edit>` the documentation in your local
 development environment.
 
-.. _`devguide_documentation_style_guidelines`:
+.. _devguide_documentation_get_started:
+
+Where to get started
+--------------------
+
+An easy way to start contributing to Bokeh's docs is to submit pull requests for
+any typos or other small errors you might find in Bokeh's documentation. *This
+is always appreciated!*
+
+In addition to quick fixes, check the list of `Open Docs Issues`_ on GitHub.
+This list contains several projects as a starting point.
+
+.. _devguide_documentation_style_guidelines:
 
 Documentation style guidelines
 ------------------------------
@@ -91,7 +97,7 @@ For definitions and concepts used throughout Bokeh's documentation, see the
 In general, see the `word list of the Google developer documentation style
 guide`_ for reference.
 
-.. _`devguide_documentation_build`:
+.. _devguide_documentation_build:
 
 Setting up and building Bokeh's documentation
 ---------------------------------------------
@@ -103,14 +109,26 @@ HTML is the only output format supported by Bokeh's documentation. Many pages
 use dynamic content and rely heavily on JavaScript. Bokeh's documentation also
 uses several :ref:`custom Sphinx extensions <bokeh.sphinxext>`.
 
-Preparing your environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+1. Prepare your environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To build the documentation, follow the instructions in :ref:`devguide_setup`
-and make sure you have activated the ``bkdev`` environment.
+and make sure you have activated the ``bkdev`` environment in your console:
 
-Some of the examples in the documentation require additional sample
-data. Use this command on a console to automatically download and install the
+.. code-block:: sh
+
+    conda activate bkdev
+
+Unless you have just installed or updated your conda environment, you should
+make sure that all the packages are up to date. Run this command from the
+root level of your *source checkout* directory to update ``bkdev``:
+
+.. code-block:: sh
+
+    conda env update --file environment.yml --prune
+
+Some of the examples in the documentation require additional sample data. Use
+this command to automatically download and install the
 necessary data:
 
 .. code-block:: sh
@@ -119,6 +137,9 @@ necessary data:
 
 See :ref:`install_sampledata` for alternative instructions on how to
 download the sample data.
+
+2. Set environment variable
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In order to build the documentation, you must set the environment variable
 ``GOOGLE_API_KEY``. The documentation includes some plots with maps, and a valid
@@ -131,26 +152,28 @@ options:
 * Use a placeholder value like ``some_value`` instead of a valid API key. If
   you use a placeholder, some map plots in Bokeh's documentation might not be
   rendered correctly, but the documentation should otherwise be built correctly.
+  This will only affect your local environment and should have no effect on any
+  changes you might commit to the Bokeh repository.
 
-On Linux or macOS, use the following command to set the environment variable:
+After activating your conda environment, use the following command to set the
+environment variable:
 
 .. code-block:: sh
 
-    GOOGLE_API_KEY=some_value
+    conda env config vars set GOOGLE_API_KEY=some_value
 
-With the Windows PowerShell, use this command:
+Next, you have to reactivate your environment:
 
-.. code-block:: PowerShell
+.. code-block:: sh
 
-    $env:GOOGLE_API_KEY="some_value"
+  conda deactivate
+  conda activate bkdev
 
-In a Windows terminal, use this command:
+Using ``conda env config vars set`` makes this environment variable part of your
+``bkdev`` environment. When you activate your ``bkdev`` environment, conda will
+from now on set this environment variable for you.
 
-.. code-block:: doscon
-
-    set GOOGLE_API_KEY=some_value
-
-Building Bokeh's documentation
+3. Build Bokeh's documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can find all source files for Bokeh's documentation in the ``sphinx``
@@ -191,13 +214,14 @@ For example:
 Documents that you build yourself in your local environment load the most
 recent version of BokehJS from Bokeh's Content Delivery Network (CDN) by
 default. If you would like to use your local version of BokehJS instead, set
-the environment variable ``BOKEH_DOCS_CDN`` to ``local`` before calling ``make``:
+the :ref:`environment variable <devguide_setup_environment_variables>`
+``BOKEH_DOCS_CDN`` to ``local`` before calling ``make``:
 
 .. code-block:: sh
 
-    BOKEH_DOCS_CDN=local
+    BOKEH_DOCS_CDN=local make clean html serve
 
-.. _`devguide_documentation_edit`:
+.. _devguide_documentation_edit:
 
 Writing Bokeh's documentation
 -----------------------------
@@ -207,12 +231,12 @@ elements:
 * **Docstrings and Model help text within the Python source code of Bokeh**:
   detailed explanations of all Bokeh modules and their properties. These texts
   are available from the Python interpreter and within most Python development
-  environments. Sphinx also uses those texts to generate the `API Reference`_
-  within Bokeh's documentation.
+  environments. Sphinx also uses those texts to generate the
+  :ref:`reference guide <refguide>` section of Bokeh's documentation.
 
 * **Narrative documentation**: tutorial-like descriptions and instructions for
-  Bokeh. This includes sections like the `User guide`_, `Developer guide`_ or
-  Gallery_.
+  Bokeh. This includes the :ref:`userguide` and
+  :ref:`contributors guide <contributors_guide>`.
 
 In the file :bokeh-tree:`sphinx/source/rst_epilog.txt`, you can find many common
 substitutions used across the narrative documentation as well as docstrings and
@@ -221,10 +245,12 @@ model help texts. This file is loaded as the
 
 Contributing to Bokeh's source code documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-All functions and methods in Bokeh use docstrings_. In addition, Bokeh uses its
-own system to provide `detailed information on individual properties`_.
+All functions and methods in Bokeh use
+:ref:`docstrings <devguide_documentation_edit_docstrings>`. In addition, Bokeh
+uses its own system to provide
+:ref:`detailed information on individual properties <devguide_documentation_edit_properties_help>`.
 
-.. _docstrings:
+.. _devguide_documentation_edit_docstrings:
 
 Writing docstrings
 ''''''''''''''''''
@@ -260,7 +286,7 @@ For example:
             Foo
         '''
 
-.. _`detailed information on individual properties`:
+.. _devguide_documentation_edit_properties_help:
 
 Writing models and properties help
 ''''''''''''''''''''''''''''''''''
@@ -298,9 +324,9 @@ Writing for Bokeh's narrative documentation
 Bokeh's narrative documentation consists of these for elements:
 
 * :ref:`first_steps`: first steps guides and installation instructions
-* `User guide`_: descriptions and instructions for using Bokeh
-* Gallery_: interactive examples with source code
-* `Developer guide`_: instructions for contributing to Bokeh
+* :ref:`userguide`: descriptions and instructions for using Bokeh
+* :ref:`gallery`: interactive examples with source code
+* :ref:`Contributors guide <contributors_guide>`: instructions for contributing to Bokeh
 
 Sphinx generates each of those elements from reStructuredText (.rst) files. To
 edit any of those elements, open the corresponding ReST source file in the
@@ -334,10 +360,6 @@ Sphinx build will automatically add this content to the list of all releases.
 .. _reStructuredText: https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html
 .. _docs.bokeh.org: https://docs.bokeh.org/en/latest/
 .. _Google developers website: https://developers.google.com/maps/documentation/javascript/get-api-key
-.. _`API Reference`: https://docs.bokeh.org/en/latest/docs/reference.html
-.. _`User guide`: https://docs.bokeh.org/en/latest/docs/user_guide.html
-.. _`Developer guide`: https://docs.bokeh.org/en/latest/docs/dev_guide.html
-.. _Gallery: https://docs.bokeh.org/en/latest/docs/gallery.html
 .. _Napoleon: http://sphinxcontrib-napoleon.readthedocs.org/en/latest/index.html
 .. _`Napoleon's Google style`: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html#example-google
 .. _`Google Python Style Guide`: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
