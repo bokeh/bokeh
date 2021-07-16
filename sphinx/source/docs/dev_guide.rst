@@ -10,6 +10,7 @@ Contribute
     dev_guide/setup
     dev_guide/documentation
     dev_guide/testing
+    dev_guide/writing_tests
     dev_guide/models
     dev_guide/server
     dev_guide/bokehjs
