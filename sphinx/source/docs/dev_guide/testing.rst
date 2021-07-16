@@ -3,6 +3,8 @@
 Running tests
 =============
 
+[TBD: edit and update this chapter]
+
 Bokeh is a large, multi-language project, and relies on varied and extensive
 tests and testing tools in order to maintain capability and prevent
 regressions. This chapter describes how to run various tests locally in
@@ -34,7 +36,7 @@ level of the repository:
     pytest tests/unit
 
 Note that this includes unit tests that require Selenium as well as appropriate
-web drivers (e.g. chromedriver and geckodriver) to be installed. To exclude
+`web drivers`_ (such as chromedriver and geckodriver) to be installed. To exclude
 those unit tests, you can run the command:
 
 .. code-block:: sh
@@ -126,4 +128,4 @@ were run from.
 
 .. _custom markers: http://pytest.org/latest/example/markers.html#working-with-custom-markers
 .. _pytest: https://docs.pytest.org
-.. _selenium webdriver: http://docs.seleniumhq.org/docs/03_webdriver.jsp
+.. _web drivers: http://docs.seleniumhq.org/docs/03_webdriver.jsp

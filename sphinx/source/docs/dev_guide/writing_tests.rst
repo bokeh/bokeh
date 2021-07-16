@@ -3,6 +3,8 @@
 Writing tests
 =============
 
+[TBD: edit and update this chapter]
+
 In order to help keep Bokeh maintainable, all Pull Requests that touch code
 should normally be accompanied by relevant tests. While exceptions may be
 made for specific circumstances, the default assumption should be that a

@@ -1,7 +1,9 @@
 .. _devguide_bokehjs:
 
-BokehJS
-=======
+Contributing to BokehJS
+=======================
+
+[TBD: edit and update this chapter]
 
 BokehJS is the in-browser client-side runtime library that users of Bokeh
 ultimately interact with. This library is written primarily in TypeScript
