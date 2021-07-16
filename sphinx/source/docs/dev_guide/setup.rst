@@ -11,25 +11,25 @@ Therefore, you need to set up two environments to contribute to Bokeh: A Python
 environment and a TypeScript environment. This chapter walks you through all the
 necessary steps to set up a full development environment:
 
-:ref:`devguide_preliminaries`
+:ref:`devguide_setup_preliminaries`
 
-:ref:`devguide_cloning`
+:ref:`devguide_setup_cloning`
 
-:ref:`devguide_creating_conda_env`
+:ref:`devguide_setup_creating_conda_env`
 
-:ref:`devguide_installing_node_packages`
+:ref:`devguide_setup_installing_node_packages`
 
-:ref:`devguide_configuring_git`
+:ref:`devguide_setup_configuring_git`
 
-:ref:`devguide_install_locally`
+:ref:`devguide_setup_install_locally`
 
-:ref:`devguide_sample_data`
+:ref:`devguide_setup_sample_data`
 
-:ref:`devguide_environment_variables`
+:ref:`devguide_setup_environment_variables`
 
-:ref:`devguide_test_setup`
+:ref:`devguide_setup_test_setup`
 
-.. _devguide_preliminaries:
+.. _devguide_setup_preliminaries:
 
 1. Check basic requirements
 ---------------------------
@@ -51,14 +51,14 @@ Install or update Conda
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Working on the Bokeh codebase requires installing several software packages that
-are not Python packages. For example, `Node.js`_ for TypeScript development, or
+are not Python packages. For example, `Node.js`_ for TypeScript development or
 `Selenium`_ for testing and exporting.
 
 To be able to manage Python and non-Python dependencies in one place, Bokeh uses
 the `conda package manager`_. ``conda`` is part of the free `Anaconda`_ Python
 distribution available for Windows, macOS, and Linux. Conda creates and manages
 virtual environments for you. Therefore, you don't need tools like ``venv``,
-``virtualenv```or ``pipenv``. While it is technically possible to install all
+``virtualenv``, or ``pipenv``. While it is technically possible to install all
 dependencies manually without ``conda``, this guide will assume that you have
 ``conda`` installed.
 
@@ -73,7 +73,7 @@ documentation`_.
 
         conda update -n base -c defaults conda
 
-.. _devguide_cloning:
+.. _devguide_setup_cloning:
 
 2. Fork and clone the repository
 --------------------------------
@@ -93,15 +93,15 @@ Cloning the repository creates a ``bokeh`` directory at your file system
 location. This local ``bokeh`` directory is referred to as the *source checkout*
 for the remainder of this document.
 
-.. _devguide_creating_conda_env:
+.. _devguide_setup_creating_conda_env:
 
 3. Create a Conda environment
 -----------------------------
 
 The Bokeh repository you just cloned to your local hard drive contains an
-:bokeh-tree:`environment.yml` file. In this file is all necessary information to
-automatically create a basic development environment. The name of this virtual
-environment will be ``bkdev``.
+:bokeh-tree:`environment.yml` file. In this file is all the necessary
+information to automatically create a basic development environment. The name of
+this virtual environment will be ``bkdev``.
 
 Use ``conda env create`` at the root level of your *source checkout* directory
 to set up the environment and install all necessary packages:
@@ -126,19 +126,19 @@ Then, activate the environment:
 To learn more about creating and managing conda environments, see `Managing
 environments`_ in the `Conda documentation`_.
 
-.. _devguide_installing_node_packages:
+.. _devguide_setup_installing_node_packages:
 
 4. Install Node packages
 ------------------------
 
 Building BokehJS also requires installing JavaScript dependencies using
 the `Node Package Manager (npm) <npm>`_. If you have followed the
-:ref:`instructions above <devguide_creating_conda_env>`,
+:ref:`instructions above <devguide_setup_creating_conda_env>`,
 ``conda`` has already installed the necessary ``npm`` and ``node.js``
 packages to your system.
 
 Bokeh usually requires the latest major revision of ``npm``. To install the
-latest version globally, start from the top level of the *source checkout*
+newest version globally, start from the top level of the *source checkout*
 directory, and run the following commands:
 
 .. code-block:: sh
@@ -165,28 +165,28 @@ subdirectory.
     environment. However, if dependencies are added or changed, you need to
     repeat these steps to install and update the respective packages.
 
-.. _devguide_configuring_git:
+.. _devguide_setup_configuring_git:
 
 5. Configure Git
 ----------------
 
-Use the following, optional configurations for Git to make working with the
+Use the following optional configurations for Git to make working with the
 repository safer and easier.
 
 .. note::
     The optional instructions in this section are specific to **OSX** and
     **Linux**.
 
-.. _devguide_suggested_git_hooks:
+.. _devguide_setup_suggested_git_hooks:
 
 Git Hooks
 ~~~~~~~~~
 
 The following `Git hooks`_ can help you prevent some common mistakes. To
-use those scripts, save them to the ``.git/hooks``directory in the top level of
+use those scripts, save them to the ``.git/hooks`` directory in the top level of
 your *source checkout* directory and mark them executable with ``chmod +x``.
 
-``pre-commit``
+pre-commit Git hook
 
     This Git hook runs all the codebase tests before allowing a commit to
     proceed. Note that all the standard testing dependencies must be installed
@@ -199,7 +199,7 @@ your *source checkout* directory and mark them executable with ``chmod +x``.
         pytest tests/codebase
         exit $?
 
-``pre-push``
+pre-push Git hook
 
     This Git hook prevents accidental pushes to the ``main`` branch on GitHub.
 
@@ -223,7 +223,7 @@ your *source checkout* directory and mark them executable with ``chmod +x``.
             exit 0 # push will execute
         fi
 
-.. _devguide_suggested_git_aliases:
+.. _devguide_setup_suggested_git_aliases:
 
 Git Aliases
 ~~~~~~~~~~~
@@ -241,7 +241,7 @@ open up your editor to resolve any merge conflicts.
 
 You can replace ``vim`` with whatever your favorite editor command is.
 
-.. _devguide_install_locally:
+.. _devguide_setup_install_locally:
 
 6. Build and install locally
 ----------------------------
@@ -278,7 +278,7 @@ example:
 
     Choice?
 
-Unless you know what you are doing, you should chose option 1 here. At the very
+Unless you know what you are doing, you should choose option 1 here. At the very
 least, you need to build BokehJS the first time you set up your local
 development environment.
 
@@ -295,17 +295,17 @@ to ``setup.py``. For example:
 
     Occasionally, the list of JavaScript dependencies also changes. If this
     happens, you will need to re-run the instructions in the
-    :ref:`devguide_installing_node_packages` section above before rebuilding
-    BokehJS.
+    :ref:`devguide_setup_installing_node_packages` section above before
+    rebuilding BokehJS.
 
-.. _devguide_sample_data:
+.. _devguide_setup_sample_data:
 
 7. Download sample data
 -----------------------
 
 Several tests and examples require Bokeh's sample data to be available on your
-hard drive. After :ref:`installing <devguide_install_locally>` Bokeh, use the
-following command to download and install the data:
+hard drive. After :ref:`installing <devguide_setup_install_locally>` Bokeh, use
+the following command to download and install the data:
 
 .. code-block:: sh
 
@@ -315,9 +315,9 @@ You also have the opportunity to configure the download location or to start the
 download programmatically. See the :ref:`install_sampledata` section of the
 first steps guides for more details.
 
-.. _devguide_environment_variables:
+.. _devguide_setup_environment_variables:
 
-8. Set environment variables
+1. Set environment variables
 ----------------------------
 
 Bokeh uses environment variables to control several aspects of how the different
@@ -326,8 +326,8 @@ parts of the library operate and interact.
 To learn about all environment variables available in Bokeh, see
 :ref:`bokeh.settings` in the reference guide.
 
-BOKEH_RESOURCES
-~~~~~~~~~~~~~~~
+``BOKEH_RESOURCES``
+~~~~~~~~~~~~~~~~~~~
 
 When working on Bokeh's codebase, the most important environment variable to be
 aware of is ``BOKEH_RESOURCES``. This variable controls which version of
@@ -337,8 +337,8 @@ By default, Bokeh downloads any necessary JavaScript code for BokehJS from a
 Content Delivery Network (CDN). If you want Bokeh to use your local BokehJS
 version instead, you should set ``BOKEH_RESOURCES=absolute-dev``.
 
-BOKEH_DEV
-~~~~~~~~~
+``BOKEH_DEV``
+~~~~~~~~~~~~~
 
 There are several other environment variables that are helpful when working on
 Bokeh's codebase. The most common settings for local development are combined in
@@ -356,7 +356,8 @@ variables individually:
 
 This way, Bokeh will use local and unminified BokehJS resources, the default log
 levels are increased, the generated HTML and JSON code will be more
-human-readable and Bokeh will not open a browser window each time it is run.
+human-readable, and Bokeh will not open a new browser window each time |show| is
+called.
 
 .. note::
     Setting ``BOKEH_DEV=true`` and therefore enabling
@@ -368,7 +369,7 @@ human-readable and Bokeh will not open a browser window each time it is run.
     * Set ``BOKEH_RESOURCES`` to ``server`` for server
     * Set ``BOKEH_RESOURCES`` to ``inline`` for notebooks
 
-.. _devguide_test_setup:
+.. _devguide_setup_test_setup:
 
 9. Test your local setup
 ------------------------
@@ -403,7 +404,7 @@ Run examples
 
 Next, run some of the standalone examples included with Bokeh.
 
-Make sure the :ref:`environment variable <devguide_environment_variables>`
+Make sure the :ref:`environment variable <devguide_setup_environment_variables>`
 ``BOKEH_RESOURCES`` is set to ``absolute-dev`` in order to use your local
 version of BokehJS.
 
@@ -423,7 +424,7 @@ Run Bokeh Server
 
 Another way to use Bokeh is as a :term:`server <Server>`.
 
-Set the :ref:`environment variable <devguide_environment_variables>`
+Set the :ref:`environment variable <devguide_setup_environment_variables>`
 ``BOKEH_DEV=false`` and run the ``bokeh serve`` command:
 
 .. code-block:: sh
