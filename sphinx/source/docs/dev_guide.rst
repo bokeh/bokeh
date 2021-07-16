@@ -8,7 +8,6 @@ Contribute
     :hidden:
 
     dev_guide/setup
-    dev_guide/env_vars
     dev_guide/testing
     dev_guide/documentation
     dev_guide/models
@@ -176,8 +175,9 @@ Add examples
 
 If you or your organization are using Bokeh and are willing to share some
 examples of what you are working on, consider adding them to the
-`Bokeh Showcase`_. You can also add new examples to Bokeh's gallery with a
-pull request.
+`Bokeh Showcase`_. You can also add new examples to
+:ref:`Bokeh's gallery <gallery>` with a pull request to the
+:bokeh-tree:`examples` folder.
 
 .. _contributors_guide_community_support:
 
