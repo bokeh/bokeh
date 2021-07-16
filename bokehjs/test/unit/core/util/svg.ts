@@ -91,21 +91,21 @@ describe("SVGRenderingContext2d", () => {
   it("should rotate a shape", async () => {
     const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
       // Point of transform origin
-      ctx.arc(0, 0, 5, 0, 2 * Math.PI);
-      ctx.fillStyle = 'blue';
-      ctx.fill();
+      ctx.arc(0, 0, 5, 0, 2 * Math.PI)
+      ctx.fillStyle = "blue"
+      ctx.fill()
 
       // Non-rotated rectangle
-      ctx.fillStyle = 'gray';
-      ctx.fillRect(100, 0, 80, 20);
+      ctx.fillStyle = "gray"
+      ctx.fillRect(100, 0, 80, 20)
 
       // Rotated rectangle
-      ctx.rotate(45 * Math.PI / 180);
-      ctx.fillStyle = 'red';
-      ctx.fillRect(100, 0, 80, 20);
+      ctx.rotate(45 * Math.PI / 180)
+      ctx.fillStyle = "red"
+      ctx.fillRect(100, 0, 80, 20)
 
       // Reset transformation matrix to the identity matrix
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
     }
 
     const size = {width: 300, height: 150}
