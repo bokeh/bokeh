@@ -26,7 +26,6 @@ import json
 import os
 import re
 import sys
-from collections import OrderedDict
 from os.path import (
     abspath,
     dirname,
@@ -464,7 +463,7 @@ _CACHING_IMPLEMENTATION = _model_cache_no_op
 
 def _get_custom_models(models: Sequence[Type[Model]] | None) -> Dict[str, CustomModel] | None:
     """Returns CustomModels for models with a custom `__implementation__`"""
-    custom_models: Dict[str, CustomModel] = OrderedDict()
+    custom_models: Dict[str, CustomModel] = dict()
 
     for cls in models or Model.model_class_reverse_map.values():
         impl = getattr(cls, "__implementation__", None)
