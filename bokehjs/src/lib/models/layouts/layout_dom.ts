@@ -5,6 +5,7 @@ import {empty, position, classes, extents, undisplayed} from "core/dom"
 import {logger} from "core/logging"
 import {isNumber, isArray} from "core/util/types"
 import {color2css} from "core/util/color"
+import {parse_css_font_size} from "core/util/text"
 import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
@@ -36,6 +37,19 @@ export abstract class LayoutDOMView extends DOMView {
 
   get is_layout_root(): boolean {
     return this.is_root || !(this.parent instanceof LayoutDOMView)
+  }
+
+  get base_font_size(): number | null {
+    const font_size = getComputedStyle(this.el).fontSize
+    const result = parse_css_font_size(font_size)
+
+    if (result != null) {
+      const {value, unit} = result
+      if (unit == "px")
+        return value
+    }
+
+    return null
   }
 
   override initialize(): void {
@@ -336,16 +350,8 @@ export abstract class LayoutDOMView extends DOMView {
         const {padding: {left, right, top, bottom}} = extents(measuring)
         const {width, height} = measuring.getBoundingClientRect()
 
-        // height-wise we are looking for empty space to fit into
-        let children_height = 0
-        for (const child of measuring.children) {
-          const {height} = child.getBoundingClientRect()
-          const {margin: {top, bottom}} = extents(child as HTMLElement)
-          children_height += height + top + bottom
-        }
-
         const inner_width = Math.ceil(width - left - right)
-        const inner_height = Math.ceil(height - top - bottom - children_height)
+        const inner_height = Math.ceil(height - top - bottom)
 
         if (inner_width > 0 || inner_height > 0)
           return {

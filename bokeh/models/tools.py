@@ -1129,8 +1129,7 @@ class HoverTool(InspectTool):
 
     .. note::
         The tooltips attribute can also be configured with a mapping type,
-        e.g. ``dict`` or ``OrderedDict``. However, if a ``dict`` is used,
-        the visual presentation order is unspecified.
+        e.g. ``dict`` or ``OrderedDict``.
 
     """).accepts(Dict(String, String), lambda d: list(d.items()))
 

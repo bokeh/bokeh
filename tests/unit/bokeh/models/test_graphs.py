@@ -16,9 +16,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-import networkx as nx
-
 # Module under test
 from bokeh.models.graphs import StaticLayoutProvider, from_networkx # isort:skip
 
@@ -35,7 +32,7 @@ def test_staticlayoutprovider_init_props() -> None:
     assert provider.graph_layout == {}
 
 # TODO (bev) deprecation: 3.0
-def test_from_networkx_deprecated() -> None:
+def test_from_networkx_deprecated(nx) -> None:
     G=nx.Graph()
     G.add_nodes_from([0,1,2,3])
     G.add_edges_from([[0,1], [0,2], [2,3]])

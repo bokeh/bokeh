@@ -140,9 +140,9 @@ that are based on the values in that sequence. You can then set a marker
 object's ``color`` attribute to your color mapper. Bokeh includes several types
 of mappers to encode colors:
 
-* ``bokeh.transform.factor_cmap``: Maps colors to specific categorical elements.
+* |factor_cmap|: Maps colors to specific categorical elements.
   See :ref:`userguide_categorical` for more detail.
-* ``bokeh.transform.linear_cmap``: Maps a range of numeric values across the
+* :func:`~bokeh.transform.linear_cmap`: Maps a range of numeric values across the
   available colors from high to low. For example, a range of `[0,99]` given the
   colors `['red', 'green', 'blue']` would be mapped as follows::
 
@@ -152,7 +152,7 @@ of mappers to encode colors:
     66 >= x < 99 : 'blue'
     99 >= x      : 'blue'    # values > high are clamped
 
-* ``bokeh.transform.log_cmap``: Similar to ``linear_cmap`` but uses a natural
+* :func:`~bokeh.transform.log_cmap`: Similar to ``linear_cmap`` but uses a natural
   log scale to map the colors.
 
 These mapper functions return a ``DataSpec`` property. Pass this property to
@@ -1105,6 +1105,29 @@ the render level ``"image"`` to the ``level`` argument when calling your
 
 You can see a complete example with output in the section
 :ref:`userguide_plotting_images_colormapped`.
+
+.. _userguide_styling_latex:
+
+Adding mathematical notations with LaTeX
+----------------------------------------
+
+Bokeh supports mathematical notations expressed in the LaTeX_ markup language
+with a growing number of plot elements. Currently, you can use LaTeX notations
+only with :ref:`axis labels <userguide_styling_axes_labels>`. Supporting LaTeX
+notations in more elements is planned for future releases.
+
+Bokeh uses the MathJax_ library to handle LaTeX markup. To use LaTeX markup
+instead of plain text, use a :class:`~bokeh.models.math_text.MathText` object:
+
+.. bokeh-plot:: docs/user_guide/examples/styling_axis_labels_math_text.py
+    :source-position: above
+
+.. note::
+    The ``text`` attribute of ``MathText`` only accepts LaTeX notations. You do
+    not need to include any delimiters such as ``$$`` or ``$``.
+
+.. _LaTeX: https://www.latex-project.org/
+.. _MathJax: https://www.mathjax.org
 
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
 .. |Title| replace:: :class:`~bokeh.models.annotations.Title`

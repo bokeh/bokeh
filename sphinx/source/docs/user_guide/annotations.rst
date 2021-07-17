@@ -144,6 +144,25 @@ grouping happens in the browser.
 .. bokeh-plot:: docs/user_guide/examples/plotting_legend_field.py
     :source-position: above
 
+.. _userguide_plotting_legends_item_visibility:
+
+Hiding legend items
+~~~~~~~~~~~~~~~~~~~
+
+To manually control the visibility of individual legend items, set the
+``visible`` property of a :class:`~bokeh.models.annotations.LegendItem` to
+either ``True`` or ``False``.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_legends_item_visibility.py
+    :source-position: above
+
+.. note::
+    If all items in a legend are invisible, the entire legend will be hidden.
+    Also, if you use
+    :ref:`automatic grouping on the browser side <userguide_plotting_legends_legend_field>`
+    and set the visibility of a ``legend_field`` item to ``False``, the entire
+    group will be invisible.
+
 .. _userguide_plotting_legends_manual:
 
 Manual legends
@@ -158,7 +177,7 @@ Explicit index
 ~~~~~~~~~~~~~~
 
 To explicitly specify which index into a |ColumnDataSource| to use in a legend,
-set the ``index`` property of a ``LegendItem``.
+set the ``index`` property of a :class:`~bokeh.models.annotations.LegendItem`.
 
 This is useful for displaying multiple entries in a legend when you use glyphs
 that are rendered in several parts, such as

@@ -1,6 +1,7 @@
 import {LayoutDOM, Row, Column, GridBox, ToolbarBox, ProxyToolbar, Plot, Tool, Toolbar} from "./models"
 import {SizingMode, Location} from "../core/enums"
 import {Matrix} from "../core/util/matrix"
+import {unreachable} from "core/util/assert"
 
 export type GridPlotOpts = {
   toolbar_location?: Location | null
@@ -78,6 +79,6 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
     case "right":
       return new Row({children: [grid, toolbar], sizing_mode})
     default:
-      throw new Error("unexpected")
+      unreachable()
   }
 }
