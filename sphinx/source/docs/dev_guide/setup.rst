@@ -167,8 +167,8 @@ subdirectory.
 
 .. _devguide_setup_configuring_git:
 
-5. Configure Git
-----------------
+5. Configure Git (optional)
+---------------------------
 
 Use the following optional configurations for Git to make working with the
 repository safer and easier.
@@ -443,8 +443,14 @@ redrawing the line with the new parameters. The ``--show`` option opens a
 web browser, the default URL for the Bokeh server is ``localhost:5006``.
 
 .. note ::
-    If you have any problems with the steps here, check the
-    :ref:`additional ressources available to contributors <contributors_guide_resources>`.
+    Updating an existing development environment does not always work as
+    expected. If you get errors after updating an older environment, you should
+    use ``conda remove --name bkdev --all``, delete your local ``bokeh```folder,
+    and start afresh, following the steps in this guide from
+    :ref:`the beginning <devguide_setup_preliminaries>`.
+
+    If you have any problems with the steps described here, check the
+    :ref:`additional resources available to contributors <contributors_guide_resources>`.
     Please feel free to ask at the `Bokeh Discourse`_ or `Bokeh's contributor
     Slack`_.
 
