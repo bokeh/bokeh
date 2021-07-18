@@ -22,6 +22,9 @@ dependencies:
   # docs
   - colorcet
   - pygments
+  - sphinx >=3.5
+  - sphinx-panels
+  - sphinx-tabs
 
   # tests
   - beautifulsoup4

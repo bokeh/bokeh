@@ -64,6 +64,8 @@ code {
 
 /* Customize theme font colors */
 :root {
+    --pst-color-borders: 206, 212, 218;
+
     --pst-color-primary: 33, 37, 41;
     --pst-color-success: 165, 205, 57;
     --pst-color-info: 0, 170, 174;
@@ -120,7 +122,7 @@ code {
 
 /* Customize search box */
 #search-input {
-    border: 1px solid rgb(206, 212, 218);
+    border: 1px solid rgba(var(--pst-color-borders),1);
     border-radius: 1.5px;
 }
 
@@ -226,6 +228,31 @@ using sphinx_panels */
 }
 
 .copyright p {color: #eee;}
+
+/* Settings for sphinx-tabs */
+.sphinx-tabs {
+    padding: 0px;
+}
+
+.sphinx-tabs [role="tablist"] {
+    border-bottom: 1px solid rgba(var(--pst-color-borders),1);
+}
+
+.sphinx-tabs-tab {
+    padding: 0.5rem 1rem;
+    color: rgba(var(--pst-color-h4),1);;
+}
+
+.sphinx-tabs-tab[aria-selected="true"] {
+    border: 1px solid rgba(var(--pst-color-borders),1);
+    border-bottom: 1px solid white;
+}
+
+.sphinx-tabs-panel {
+    border-bottom: 1px solid rgba(var(--pst-color-borders),1);
+    border-right: 1px solid rgba(var(--pst-color-borders),1);
+    border-left: 1px solid rgba(var(--pst-color-borders),1);
+}
 
 /* Pandas dataframe css */
  /* Taken from: https://github.com/spatialaudio/nbsphinx/blob/fb3ba670fc1ba5f54d4c487573dbc1b4ecf7e9ff/src/nbsphinx.py#L587-L619 */

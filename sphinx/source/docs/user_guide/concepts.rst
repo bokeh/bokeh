@@ -131,7 +131,7 @@ standalone Bokeh documents to serve from backend web applications.
 Another way to generate various kinds of output is by using Bokeh's powerful
 :ref:`command line tool <userguide_cli>`.
 
-.. _userguide_interfaces:
+.. _userguide_settings:
 
 Bokeh settings
 --------------
@@ -151,9 +151,19 @@ Some of most useful settings are:
     For example: ``chromium-browser`` or ``windows-default``. You can also set
     this variable to the full path of your browser. For example:
 
-    .. code-block:: PowerShell
+.. tabs::
 
-        $env:BOKEH_BROWSER="C:/Program\ Files/Google/Chrome/Application/chrome.exe %s &"
+    .. code-tab:: sh Linux/macOS
+
+        export BOKEH_BROWSER=/usr/bin/chromium-browser
+
+    .. code-tab:: PowerShell Windows (PS)
+
+        $Env:BOKEH_BROWSER="C:/Program\ Files/Google/Chrome/Application/chrome.exe %s &"
+
+    .. code-tab:: doscon Windows (CMD)
+
+        set BOKEH_BROWSER="C:/Program\ Files/Google/Chrome/Application/chrome.exe %s &"
 
 ``legacy`` (environment variable ``BOKEH_LEGACY``)
     Set this configuration value to ``True`` to enable support for legacy
@@ -173,6 +183,9 @@ Some of most useful settings are:
     You can combine some of the values for this variable with other
     configuration values, such as ``cdn_version`` (``BOKEH_CDN_VERSION``) and
     ``rootdir`` (``BOKEH_ROOTDIR``). See :ref:`bokeh.settings` for details.
+
+
+.. _userguide_interfaces:
 
 Interfaces
 ----------

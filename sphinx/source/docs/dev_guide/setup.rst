@@ -320,8 +320,8 @@ first steps guides for more details.
 8. Set environment variables
 ----------------------------
 
-Bokeh uses environment variables to control several aspects of how the different
-parts of the library operate and interact.
+Bokeh uses :ref:`environment variables <userguide_settings>` to control several
+aspects of how the different parts of the library operate and interact.
 
 To learn about all environment variables available in Bokeh, see
 :ref:`bokeh.settings` in the reference guide.
@@ -335,7 +335,21 @@ aware of is ``BOKEH_RESOURCES``. This variable controls which version of
 
 By default, Bokeh downloads any necessary JavaScript code for BokehJS from a
 Content Delivery Network (CDN). If you want Bokeh to use your local BokehJS
-version instead, you should set ``BOKEH_RESOURCES=absolute-dev``.
+version instead, you should set ``BOKEH_RESOURCES`` to ``absolute-dev``:
+
+.. tabs::
+
+    .. code-tab:: sh Linux/macOS
+
+        export BOKEH_RESOURCES=absolute-dev
+
+    .. code-tab:: PowerShell Windows (PS)
+
+        $Env:BOKEH_RESOURCES = "absolute-dev"
+
+    .. code-tab:: doscon Windows (CMD)
+
+        set BOKEH_RESOURCES=absolute-dev
 
 ``BOKEH_DEV``
 ~~~~~~~~~~~~~
@@ -344,7 +358,23 @@ There are several other environment variables that are helpful when working on
 Bokeh's codebase. The most common settings for local development are combined in
 the variable ``BOKEH_DEV``.
 
-Setting ``BOKEH_DEV=true`` is equivalent to setting all of the following
+To enable development settings, set ``BOKEH_DEV`` to ``true``:
+
+.. tabs::
+
+    .. code-tab:: sh Linux/macOS
+
+        export BOKEH_DEV=true
+
+    .. code-tab:: PowerShell Windows (PS)
+
+        $Env:BOKEH_DEV = "true"
+
+    .. code-tab:: doscon Windows (CMD)
+
+        set BOKEH_DEV=true
+
+Setting ``BOKEH_DEV`` to ``true`` is equivalent to setting all of the following
 variables individually:
 
 - ``BOKEH_BROWSER=none``
@@ -371,7 +401,7 @@ called.
 
 .. _devguide_setup_test_setup:
 
-9. Test your local setup
+1. Test your local setup
 ------------------------
 
 Run the following tests to check that everything is installed and set up
@@ -407,14 +437,26 @@ Next, run some of the standalone examples included with Bokeh.
 Make sure the :ref:`environment variable <devguide_setup_environment_variables>`
 ``BOKEH_RESOURCES`` is set to ``absolute-dev`` in order to use your local
 version of BokehJS. In the *source checkout* directory, run the following
-command:
+command(s):
 
-.. code-block:: sh
+.. tabs::
 
-    BOKEH_RESOURCES=absolute-dev python examples/plotting/file/iris.py
+    .. code-tab:: sh Linux/macOS
 
-This creates a file ``iris.html`` locally. If you open this file in a web
-browser, it should display this visualization:
+        BOKEH_RESOURCES=absolute-dev python examples/plotting/file/iris.py
+
+    .. code-tab:: PowerShell Windows (PS)
+
+        $Env:BOKEH_RESOURCES = "absolute-dev"
+        python .\examples\plotting\file\iris.py
+
+    .. code-tab:: doscon Windows (CMD)
+
+        set BOKEH_RESOURCES=absolute-dev
+        python examples\plotting\file\iris.py
+
+This creates a file ``iris.html`` locally. Opened in a web browser, it should
+display this visualization:
 
 .. image:: /_images/bokeh_iris_html.png
     :scale: 50 %
@@ -428,9 +470,21 @@ Another way to use Bokeh is as a :term:`server <Server>`. Set the
 ``BOKEH_DEV=false`` and run the ``bokeh serve`` command in the *source
 checkout* directory:
 
-.. code-block:: sh
+.. tabs::
 
-    BOKEH_DEV=false python -m bokeh serve --show examples/app/sliders.py
+    .. code-tab:: sh Linux/macOS
+
+        BOKEH_DEV=false python -m bokeh serve --show examples/app/sliders.py
+
+    .. code-tab:: PowerShell Windows (PS)
+
+        $Env:BOKEH_DEV = "False"
+        python -m bokeh serve --show .\examples\app\sliders.py
+
+    .. code-tab:: doscon Windows (CMD)
+
+        set BOKEH_DEV=false
+        python -m bokeh serve --show \examples\app\sliders.py
 
 This should open up a browser with an interactive figure:
 
@@ -445,7 +499,7 @@ web browser, the default URL for the Bokeh server is ``localhost:5006``.
 .. note ::
     Updating an existing development environment does not always work as
     expected. If you get errors after updating an older environment, you should
-    use ``conda remove --name bkdev --all``, delete your local ``bokeh```folder,
+    use ``conda remove --name bkdev --all``, delete your local ``bokeh`` folder,
     and start afresh, following the steps in this guide from
     :ref:`the beginning <devguide_setup_preliminaries>`.
 

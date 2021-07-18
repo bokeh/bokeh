@@ -141,10 +141,10 @@ download the sample data.
 2. Set environment variable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to build the documentation, you must set the environment variable
-``GOOGLE_API_KEY``. The documentation includes some plots with maps, and a valid
-Google API key is required to build those plots correctly. You have two
-options:
+In order to build the documentation, you must set the
+:ref:`environment variable <userguide_settings>` ``GOOGLE_API_KEY``. The
+documentation includes some plots with maps, and a valid Google API key is
+required to build those plots correctly. You have two options:
 
 * Follow the instructions on the `Google developers website`_ to generate a new
   API key.
@@ -198,14 +198,24 @@ When building Bokeh's documentation, the most common options for ``make`` are:
   docs. Starting a server is necessary because large portions of the
   documentation require JavaScript files in the background.
 
-For example, to clean the docs build directory, run the following command:
+For example, to build the docs, run the following command:
 
-.. code-block:: sh
+.. tabs::
 
-    make clean
+  .. code-tab:: sh Linux/macOS
 
-You can combine multiple targets in one command (not supported by make.bat).
-For example:
+      make html
+
+  .. code-tab:: PowerShell Windows (PS)
+
+      make.bat html
+
+  .. code-tab:: doscon Windows (CMD)
+
+      make.bat html
+
+**Linux/macOS only:** You can combine multiple targets in one command (not
+supported by make.bat). For example:
 
 .. code-block:: sh
 
@@ -217,9 +227,23 @@ default. If you would like to use your local version of BokehJS instead, set
 the :ref:`environment variable <devguide_setup_environment_variables>`
 ``BOKEH_DOCS_CDN`` to ``local`` before calling ``make``:
 
-.. code-block:: sh
+.. tabs::
 
-    BOKEH_DOCS_CDN=local make clean html serve
+  .. code-tab:: sh Linux/macOS
+
+      BOKEH_DOCS_CDN=local make clean html serve
+
+  .. code-tab:: PowerShell Windows (PS)
+
+      $Env:BOKEH_DOCS_CDN = "local"
+      make.bat html
+      make.bat serve
+
+  .. code-tab:: doscon Windows (CMD)
+
+      set BOKEH_DOCS_CDN=local
+      make.bat html
+      make.bat serve
 
 .. _devguide_documentation_edit:
 

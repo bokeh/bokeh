@@ -36,6 +36,9 @@ dependencies:
   - pydot
   - pygments
   - scipy
+  - sphinx >=3.5
+  - sphinx-panels
+  - sphinx-tabs
 
   # pip dependencies
   - pip

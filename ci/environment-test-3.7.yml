@@ -46,6 +46,9 @@ dependencies:
   - requests >=1.2.3
   - selenium >=3.8
   - scipy
+  - sphinx >=3.5
+  - sphinx-panels
+  - sphinx-tabs
 
   # examples
   - flask >=1.0
