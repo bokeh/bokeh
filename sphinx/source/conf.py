@@ -35,6 +35,7 @@ extensions = [
     'sphinxext.opengraph',
     'sphinx_panels',
 #    'sphinx_reredirects',
+    'sphinx_tabs.tabs',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.ifconfig',
@@ -100,6 +101,8 @@ ogp_custom_meta_tags = [
 ]
 
 panels_add_bootstrap_css = False
+
+sphinx_tabs_disable_tab_closing = True
 
 pygments_style = 'sphinx'
 
