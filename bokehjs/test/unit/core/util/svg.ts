@@ -135,13 +135,13 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, ctx.get_serialized_svg(), size)
 
     const svg = ctx.get_svg()
-    const firstGroup = svg.querySelectorAll('path')[0]
+    const firstGroup = svg.querySelectorAll("path")[0]
     expect(firstGroup.getAttribute("d")?.startsWith("M 0 20")).to.be.true
 
-    const secondGroup = svg.querySelectorAll('path')[1]
+    const secondGroup = svg.querySelectorAll("path")[1]
     expect(secondGroup.getAttribute("d")?.startsWith("M 10 40")).to.be.true
 
-    const thirdGroup = svg.querySelectorAll('path')[2]
+    const thirdGroup = svg.querySelectorAll("path")[2]
     expect(thirdGroup.getAttribute("d")?.startsWith("M 30 60")).to.be.true
   })
 
@@ -166,13 +166,13 @@ describe("SVGRenderingContext2d", () => {
     test(ctx)
 
     const svg = ctx.get_svg()
-    const firstGroup = svg.querySelectorAll('path')[0]
+    const firstGroup = svg.querySelectorAll("path")[0]
     expect(firstGroup.getAttribute("d")?.startsWith("M 0 10")).to.be.true
 
-    const secondGroup = svg.querySelectorAll('path')[1]
+    const secondGroup = svg.querySelectorAll("path")[1]
     expect(secondGroup.getAttribute("d")?.startsWith("M 40 50")).to.be.true
 
-    const thirdGroup = svg.querySelectorAll('path')[2]
+    const thirdGroup = svg.querySelectorAll("path")[2]
     expect(thirdGroup.getAttribute("d")?.startsWith("M 0 20")).to.be.true
   })
 
