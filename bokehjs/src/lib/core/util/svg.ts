@@ -820,7 +820,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   rect(x: number, y: number, width: number, height: number): void {
     if (!isFinite(x + y + width + height))
       return
-    if (this.__currentElement.nodeName !== "path") {
+    if (!this.__currentElement || this.__currentElement.nodeName !== "path") {
       this.beginPath()
     }
     this.moveTo(x, y)
