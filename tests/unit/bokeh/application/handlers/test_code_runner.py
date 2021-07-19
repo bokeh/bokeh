@@ -174,6 +174,11 @@ class TestCodeRunner:
         cr.run(m, lambda: None)
         assert sys.path == old_path
 
+    def test_doc(self) -> None:
+        cr = bahc.CodeRunner("'''some docstring\n\nfoo bar'''", "path", [])
+        assert cr.failed is False
+        assert cr.doc == "some docstring\n\nfoo bar"
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
