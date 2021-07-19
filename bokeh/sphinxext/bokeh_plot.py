@@ -164,7 +164,7 @@ class BokehPlotDirective(BokehDirective):
             (script, js, js_path, source, doc) = _process_script(source, path, env, js_name)
         except Exception as e:
             raise RuntimeError(f"Sphinx bokeh-plot exception: \n\n{e}\n\n Failed on:\n\n {source}")
-        env.bokeh_plot_files[js_name] = (script, js, js_path, source, dirname(env.docname))
+        env.bokeh_plot_files[js_name] = (js_path, dirname(env.docname))
 
         # use the source file name to construct a friendly target_id
         target_id = f"{env.docname}.{basename(js_path)}"
@@ -172,11 +172,12 @@ class BokehPlotDirective(BokehDirective):
         result = [target]
 
         # if this is NOT an inline example and a docstring exists, add it
-        if not self.content and doc:
+        if doc:
             docstring = self._parse(doc, '<bokeh-plot>')
             result += [elem for elem in docstring]
             # take docstring out of source so it doesn't show up twice
             source = re.sub(rf'(\'\'\'|\"\"\")\s*{re.escape(doc)}\s*(\'\'\'|\"\"\")', "", source)
+            source = re.sub(r'^\s*', "", source)
 
         linenos = self.options.get("linenos", False)
         code = nodes.literal_block(source, source, language="python", linenos=linenos, classes=[])
@@ -196,7 +197,6 @@ class BokehPlotDirective(BokehDirective):
         return result
 
 
-
 # -----------------------------------------------------------------------------
 # Dev API
 # -----------------------------------------------------------------------------
@@ -213,7 +213,7 @@ def builder_inited(app):
 def build_finished(app, exception):
     files = set()
 
-    for (script, js, js_path, source, docpath) in app.env.bokeh_plot_files.values():
+    for (js_path, docpath) in app.env.bokeh_plot_files.values():
         files.add((js_path, docpath))
 
     files_iter = status_iterator(sorted(files), "copying bokeh-plot files... ", "brown", len(files), app.verbosity, stringify_func=lambda x: basename(x[0]))
