@@ -115,4 +115,98 @@ describe("SVGRenderingContext2d", () => {
 
     expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="150"><defs/><path fill="blue" stroke="none" paint-order="stroke" d="M 5 0 A 5 5 0 1 1 4.999997500000209 -0.004999999166669603"/><path fill="gray" stroke="none" paint-order="stroke" d="M 100 0 L 180 0 L 180 20 L 100 20 L 100 0"/><path fill="red" stroke="none" paint-order="stroke" d="M 70.71067811865476 70.71067811865474 L 127.27922061357856 127.27922061357854 L 113.13708498984761 141.4213562373095 L 56.568542494923804 84.85281374238569 L 70.71067811865476 70.71067811865474"/></svg>')
   })
+
+  it("support multiple transforms", async () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      ctx.translate(0, 20)
+      ctx.fillRect(0, 0, 10, 10)
+
+      ctx.translate(10, 20)
+      ctx.fillRect(0, 0, 10, 10)
+
+      ctx.translate(20, 20)
+      ctx.fillRect(0, 0, 10, 10)
+    }
+
+    const size = {width: 50, height: 75}
+    const ctx = new SVGRenderingContext2D(size)
+
+    test(ctx)
+    await compare_on_dom(test, ctx.get_serialized_svg(), size)
+
+    const svg = ctx.get_svg()
+    const firstGroup = svg.querySelectorAll('path')[0]
+    expect(firstGroup.getAttribute("d")?.startsWith("M 0 20")).to.be.true
+
+    const secondGroup = svg.querySelectorAll('path')[1]
+    expect(secondGroup.getAttribute("d")?.startsWith("M 10 40")).to.be.true
+
+    const thirdGroup = svg.querySelectorAll('path')[2]
+    expect(thirdGroup.getAttribute("d")?.startsWith("M 30 60")).to.be.true
+  })
+
+  it("save and restore to work", async () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      ctx.translate(0, 10)
+      ctx.fillRect(0, 0, 10, 10)
+
+      ctx.save()
+      ctx.translate(40, 40)
+      ctx.fillRect(0, 0, 10, 10)
+
+      ctx.restore()
+
+      ctx.translate(0, 10)
+      ctx.fillRect(0, 0, 10, 10)
+    }
+
+    const size = {width: 300, height: 150}
+    const ctx = new SVGRenderingContext2D(size)
+
+    test(ctx)
+
+    const svg = ctx.get_svg()
+    const firstGroup = svg.querySelectorAll('path')[0]
+    expect(firstGroup.getAttribute("d")?.startsWith("M 0 10")).to.be.true
+
+    const secondGroup = svg.querySelectorAll('path')[1]
+    expect(secondGroup.getAttribute("d")?.startsWith("M 40 50")).to.be.true
+
+    const thirdGroup = svg.querySelectorAll('path')[2]
+    expect(thirdGroup.getAttribute("d")?.startsWith("M 0 20")).to.be.true
+  })
+
+  it("support clip", async () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      ctx.rect(200, 200, 400, 400)
+      ctx.clip()
+      ctx.fillStyle = "#000000"
+      ctx.rect(100, 100, 300, 300)
+    }
+
+    const size = {width: 300, height: 150}
+    const ctx = new SVGRenderingContext2D(size)
+
+    test(ctx)
+
+    const svg = ctx.get_svg()
+    expect(svg.querySelector("clipPath > path")!.getAttribute("d")).to.be.equal("M 200 200 L 600 200 L 600 600 L 200 600 L 200 200")
+  })
+
+  it("generate ids", async () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      ctx.createRadialGradient(6E1, 6E1, 0.0, 6E1, 6E1, 5E1)
+    }
+
+    const size = {width: 300, height: 150}
+    const ctx = new SVGRenderingContext2D(size)
+
+    test(ctx)
+
+    const svg = ctx.get_svg()
+
+    const id = svg.children[0].children[0].id
+    const regex_test = /^[A-Za-z]/.test(id)
+    expect(regex_test).to.be.true
+  })
 })
