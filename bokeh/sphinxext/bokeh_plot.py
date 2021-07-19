@@ -85,8 +85,8 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Standard library imports
-import warnings
 import re
+import warnings
 from os import getenv
 from os.path import basename, dirname, join
 from uuid import uuid4
@@ -103,9 +103,9 @@ from bokeh.document import Document
 from bokeh.embed import autoload_static
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
-from .bokeh_directive import BokehDirective
 
 # Bokeh imports
+from .bokeh_directive import BokehDirective
 from .example_handler import ExampleHandler
 from .util import get_sphinx_resources
 
