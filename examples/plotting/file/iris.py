@@ -1,7 +1,6 @@
 ''' A scatter plot using Fisher's *Iris* dataset to illustrate colormapping and basic plot elements.
 
 '''
-
 from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.iris import flowers
 

@@ -86,6 +86,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import warnings
+import re
 from os import getenv
 from os.path import basename, dirname, join
 from uuid import uuid4
@@ -174,9 +175,12 @@ class BokehPlotDirective(BokehDirective):
         if not self.content and doc:
             docstring = self._parse(doc, '<bokeh-plot>')
             result += [elem for elem in docstring]
+            # take docstring out of source so it doesn't show up twice
+            source = re.sub(rf'(\'\'\'|\"\"\")\s*{re.escape(doc)}\s*(\'\'\'|\"\"\")', "", source)
 
         linenos = self.options.get("linenos", False)
         code = nodes.literal_block(source, source, language="python", linenos=linenos, classes=[])
+
         set_source_info(self, code)
 
         source_position = self.options.get("source-position", "below")
