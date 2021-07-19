@@ -416,4 +416,134 @@ describe("SVGRenderingContext2d", () => {
     const regex_test = /^[A-Za-z]/.test(id)
     expect(regex_test).to.be.true
   })
+
+  it("moveTo may be called without beginPath", async () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      ctx.moveTo(0, 0)
+      ctx.lineTo(100, 100)
+      ctx.stroke()
+    }
+
+    const size = {width: 110, height: 110}
+    const ctx = new SVGRenderingContext2D(size)
+
+    test(ctx)
+    const svg = ctx.get_serialized_svg()
+    await compare_on_dom(test, svg, size)
+
+    expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="110" height="110"><defs/><path fill="none" stroke="#000000" paint-order="fill" d="M 0 0 L 100 100" stroke-miterlimit="10" stroke-dasharray=""/></svg>')
+  })
+
+  it("correctly implement bezierCurveTo", async () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      // Define the points as {x, y}
+      const start = {x: 50, y: 20}
+      const cp1 = {x: 230, y: 30}
+      const cp2 = {x: 150, y: 80}
+      const end = {x: 250, y: 100}
+
+      // Cubic Bézier curve
+      ctx.beginPath()
+      ctx.moveTo(start.x, start.y)
+      ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y)
+      ctx.stroke()
+
+      // Start and end points
+      ctx.fillStyle = "blue"
+      ctx.beginPath()
+      ctx.arc(start.x, start.y, 5, 0, 2 * Math.PI)
+      ctx.arc(end.x, end.y, 5, 0, 2 * Math.PI)
+      ctx.fill()
+
+      // Control points
+      ctx.fillStyle = "red"
+      ctx.beginPath()
+      ctx.arc(cp1.x, cp1.y, 5, 0, 2 * Math.PI)
+      ctx.arc(cp2.x, cp2.y, 5, 0, 2 * Math.PI)
+      ctx.fill()
+    }
+
+    const size = {width: 300, height: 150}
+    const ctx = new SVGRenderingContext2D(size)
+
+    test(ctx)
+    const svg = ctx.get_serialized_svg()
+    await compare_on_dom(test, svg, size)
+
+    expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="150"><defs/><path fill="none" stroke="#000000" paint-order="fill" d="M 50 20 C 230 30 150 80 250 100" stroke-miterlimit="10" stroke-dasharray=""/><path fill="blue" stroke="none" paint-order="stroke" d="M 55 20 A 5 5 0 1 1 54.999997500000205 19.99500000083333 L 255 100 A 5 5 0 1 1 254.9999975000002 99.99500000083333"/><path fill="red" stroke="none" paint-order="stroke" d="M 235 30 A 5 5 0 1 1 234.9999975000002 29.99500000083333 L 155 80 A 5 5 0 1 1 154.9999975000002 79.99500000083333"/></svg>')
+  })
+
+  it("quadraticCurveTo may be called without beginPath", async () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      // Quadratic Bézier curve
+      ctx.beginPath()
+      ctx.moveTo(50, 20)
+      ctx.quadraticCurveTo(230, 30, 50, 100)
+      ctx.stroke()
+
+      // Start and end points
+      ctx.fillStyle = "blue"
+      ctx.beginPath()
+      ctx.arc(50, 20, 5, 0, 2 * Math.PI)
+      ctx.arc(50, 100, 5, 0, 2 * Math.PI)
+      ctx.fill()
+
+      // Control point
+      ctx.fillStyle = "red"
+      ctx.beginPath()
+      ctx.arc(230, 30, 5, 0, 2 * Math.PI)
+      ctx.fill()
+    }
+
+    const size = {width: 300, height: 150}
+    const ctx = new SVGRenderingContext2D(size)
+
+    test(ctx)
+    const svg = ctx.get_serialized_svg()
+    await compare_on_dom(test, svg, size)
+
+    expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="150"><defs/><path fill="none" stroke="#000000" paint-order="fill" d="M 50 20 Q 230 30 50 100" stroke-miterlimit="10" stroke-dasharray=""/><path fill="blue" stroke="none" paint-order="stroke" d="M 55 20 A 5 5 0 1 1 54.999997500000205 19.99500000083333 L 55 100 A 5 5 0 1 1 54.999997500000205 99.99500000083333"/><path fill="red" stroke="none" paint-order="stroke" d="M 235 30 A 5 5 0 1 1 234.9999975000002 29.99500000083333"/></svg>')
+  })
+
+  it("arcTo may be called without beginPath", async () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      // Tangential lines
+      ctx.beginPath()
+      ctx.strokeStyle = "gray"
+      ctx.moveTo(200, 20)
+      ctx.lineTo(200, 130)
+      ctx.lineTo(50, 20)
+      ctx.stroke()
+
+      // Arc
+      ctx.beginPath()
+      ctx.strokeStyle = "black"
+      ctx.lineWidth = 5
+      ctx.moveTo(200, 20)
+      ctx.arcTo(200, 130, 50, 20, 40)
+      ctx.stroke()
+
+      // Start point
+      ctx.beginPath()
+      ctx.fillStyle = "blue"
+      ctx.arc(200, 20, 5, 0, 2 * Math.PI)
+      ctx.fill()
+
+      // Control points
+      ctx.beginPath()
+      ctx.fillStyle = "red"
+      ctx.arc(200, 130, 5, 0, 2 * Math.PI)
+      ctx.arc(50, 20, 5, 0, 2 * Math.PI)
+      ctx.fill()
+    }
+
+    const size = {width: 300, height: 150}
+    const ctx = new SVGRenderingContext2D(size)
+
+    test(ctx)
+    const svg = ctx.get_serialized_svg()
+    await compare_on_dom(test, svg, size)
+
+    expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="150"><defs/><path fill="none" stroke="gray" paint-order="fill" d="M 200 20 L 200 130 L 50 20" stroke-miterlimit="10" stroke-dasharray=""/><path fill="none" stroke="black" paint-order="fill" d="M 200 20 L 200 51.063799366031276 L 200 51.063799366031276 A 40 40 0 0 1 136.3454534548993 83.3199992002595" stroke-miterlimit="10" stroke-width="5" stroke-dasharray=""/><path fill="blue" stroke="none" paint-order="stroke" d="M 205 20 A 5 5 0 1 1 204.9999975000002 19.99500000083333"/><path fill="red" stroke="none" paint-order="stroke" d="M 205 130 A 5 5 0 1 1 204.9999975000002 129.99500000083333 L 55 20 A 5 5 0 1 1 54.999997500000205 19.99500000083333"/></svg>')
+  })
 })
