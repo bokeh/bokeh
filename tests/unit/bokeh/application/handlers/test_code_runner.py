@@ -43,6 +43,7 @@ class TestCodeRunner:
     def test_init(self) -> None:
         cr = bahc.CodeRunner("# test", "path", [])
         assert cr.failed is False
+        assert cr.doc is None
         assert cr.error is None
         assert cr.error_detail is None
         assert cr.ran is False

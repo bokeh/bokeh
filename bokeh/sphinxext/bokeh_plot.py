@@ -175,9 +175,8 @@ class BokehPlotDirective(BokehDirective):
         if doc:
             docstring = self._parse(doc, '<bokeh-plot>')
             result += [elem for elem in docstring]
-            # take docstring out of source so it doesn't show up twice
-            source = re.sub(rf'(\'\'\'|\"\"\")\s*{re.escape(doc)}\s*(\'\'\'|\"\"\")', "", source)
-            source = re.sub(r'^\s*', "", source)
+            source = _remove_module_docstring(source, doc)
+
 
         linenos = self.options.get("linenos", False)
         code = nodes.literal_block(source, source, language="python", linenos=linenos, classes=[])
@@ -283,6 +282,12 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
 
     return (script, js, js_path, source, c.doc)
 
+
+def _remove_module_docstring(source, doc):
+    # take docstring out of source so it doesn't show up twice
+    source = re.sub(rf'(\'\'\'|\"\"\")\s*{re.escape(doc)}\s*(\'\'\'|\"\"\")', "", source)
+    # ...and strip leading whitespace
+    return re.sub(r'^\s*', "", source)
 
 # -----------------------------------------------------------------------------
 # Code
