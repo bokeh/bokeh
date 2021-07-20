@@ -30,15 +30,8 @@ abbrev_to_country = {
     "EUA": "United Team of Germany",
 }
 
-gold_fill   = "#efcf6d"
-gold_line   = "#c8a850"
-silver_fill = "#cccccc"
-silver_line = "#b0b0b1"
-bronze_fill = "#c59e8a"
-bronze_line = "#98715d"
-
-fill_color = { "gold": gold_fill, "silver": silver_fill, "bronze": bronze_fill }
-line_color = { "gold": gold_line, "silver": silver_line, "bronze": bronze_line }
+fill_color = { "gold": "#efcf6d", "silver": "#cccccc", "bronze": "#c59e8a" }
+line_color = { "gold": "#c8a850", "silver": "#b0b0b1", "bronze": "#98715d" }
 
 
 def selected_name(name, medal, year):
@@ -58,14 +51,13 @@ sprint["SelectedName"] = sprint[["Name", "Medal", "Year"]].apply(tuple, axis=1).
 
 source = ColumnDataSource(sprint)
 
-xdr = Range1d(start=sprint.MetersBack.max()+2, end=0)      # XXX: +2 is poor-man's padding (otherwise misses last tick)
-ydr = DataRange1d(range_padding=4, range_padding_units="absolute")
-
 plot = figure(
-    x_range=xdr, y_range=ydr,
+    x_range=(sprint.MetersBack.max()+2, 0), # y_range=ydr,
     width=1000, height=600,
     toolbar_location=None,
     outline_line_color=None, y_axis_type=None)
+plot.y_range.range_padding = 4
+plot.y_range.range_padding_units = "absolute"
 
 plot.title.text = "Usain Bolt vs. 116 years of Olympic sprinters"
 plot.title.text_font_size = "19px"
@@ -78,6 +70,10 @@ plot.xgrid.grid_line_dash = "dashed"
 yticker = FixedTicker(ticks=[1900, 1912, 1924, 1936, 1952, 1964, 1976, 1988, 2000, 2012])
 yaxis = LinearAxis(ticker=yticker, major_tick_in=-5, major_tick_out=10)
 plot.add_layout(yaxis, "right")
+
+# plot.yaxis.ticker = [1900, 1912, 1924, 1936, 1952, 1964, 1976, 1988, 2000, 2012]
+# plot.yaxis.major_tick_in = -5
+# plot.yaxis.major_tick_out = 10
 
 medal_circle = plot.circle(x="MetersBack", y="Year", radius=dict(value=5, units="screen"),
                            fill_color="MedalFill", line_color="MedalLine", fill_alpha=0.5,
