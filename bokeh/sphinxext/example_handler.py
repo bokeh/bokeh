@@ -145,6 +145,10 @@ class ExampleHandler(Handler):
     def error_detail(self) -> str | None:
         return self._runner.error_detail
 
+    @property
+    def doc(self) -> str | None:
+        return self._runner.doc
+
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------

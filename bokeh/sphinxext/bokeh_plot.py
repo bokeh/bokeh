@@ -42,6 +42,10 @@ used in docstrings.
 
 The ``bokeh-plot`` directive accepts the following options:
 
+process-docstring (bool):
+    Whether to display the docstring in a formatted block
+    separate from the source.
+
 source-position (enum('above', 'below', 'none')):
     Where to locate the the block of formatted source
     code (if anywhere).
@@ -85,6 +89,7 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Standard library imports
+import re
 import warnings
 from os import getenv
 from os.path import basename, dirname, join
@@ -92,7 +97,6 @@ from uuid import uuid4
 
 # External imports
 from docutils import nodes
-from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives import choice, flag
 from sphinx.errors import SphinxError
 from sphinx.util import copyfile, ensuredir, status_iterator
@@ -105,6 +109,7 @@ from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
+from .bokeh_directive import BokehDirective
 from .example_handler import ExampleHandler
 from .util import get_sphinx_resources
 
@@ -122,12 +127,13 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-class BokehPlotDirective(Directive):
+class BokehPlotDirective(BokehDirective):
 
     has_content = True
     optional_arguments = 2
 
     option_spec = {
+        "process-docstring": lambda x: True if flag(x) is None else False,
         "source-position": lambda x: choice(x, ("below", "above", "none")),
         "linenos": lambda x: True if flag(x) is None else False,
     }
@@ -160,18 +166,28 @@ class BokehPlotDirective(Directive):
         js_name = f"bokeh-plot-{uuid4().hex}-external-{docname}.js"
 
         try:
-            (script, js, js_path, source) = _process_script(source, path, env, js_name)
+            (script, js, js_path, source, doc) = _process_script(source, path, env, js_name)
         except Exception as e:
             raise RuntimeError(f"Sphinx bokeh-plot exception: \n\n{e}\n\n Failed on:\n\n {source}")
-        env.bokeh_plot_files[js_name] = (script, js, js_path, source, dirname(env.docname))
+        env.bokeh_plot_files[js_name] = (js_path, dirname(env.docname))
 
         # use the source file name to construct a friendly target_id
         target_id = f"{env.docname}.{basename(js_path)}"
         target = nodes.target("", "", ids=[target_id])
         result = [target]
 
+        process_docstring = self.options.get("process-docstring", False)
+        if doc and process_docstring:
+            docstring = self._parse(doc, '<bokeh-plot>')
+            result += [elem for elem in docstring]
+            source = _remove_module_docstring(source, doc)
+
+        # strip leading/trailing whitespace from source code
+        source = source.strip()
+
         linenos = self.options.get("linenos", False)
         code = nodes.literal_block(source, source, language="python", linenos=linenos, classes=[])
+
         set_source_info(self, code)
 
         source_position = self.options.get("source-position", "below")
@@ -203,7 +219,7 @@ def builder_inited(app):
 def build_finished(app, exception):
     files = set()
 
-    for (script, js, js_path, source, docpath) in app.env.bokeh_plot_files.values():
+    for (js_path, docpath) in app.env.bokeh_plot_files.values():
         files.add((js_path, docpath))
 
     files_iter = status_iterator(sorted(files), "copying bokeh-plot files... ", "brown", len(files), app.verbosity, stringify_func=lambda x: basename(x[0]))
@@ -271,8 +287,12 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
     with open(js_path, "w") as f:
         f.write(js)
 
-    return (script, js, js_path, source)
+    return (script, js, js_path, source, c.doc.strip() if c.doc else None)
 
+
+def _remove_module_docstring(source, doc):
+    # take docstring out of source so it doesn't show up twice
+    return re.sub(rf'(\'\'\'|\"\"\")\s*{re.escape(doc)}\s*(\'\'\'|\"\"\")', "", source)
 
 # -----------------------------------------------------------------------------
 # Code
