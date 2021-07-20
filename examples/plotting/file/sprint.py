@@ -79,9 +79,9 @@ yticker = FixedTicker(ticks=[1900, 1912, 1924, 1936, 1952, 1964, 1976, 1988, 200
 yaxis = LinearAxis(ticker=yticker, major_tick_in=-5, major_tick_out=10)
 plot.add_layout(yaxis, "right")
 
-medal = plot.circle(x="MetersBack", y="Year", radius=dict(value=5, units="screen"),
-                    fill_color="MedalFill", line_color="MedalLine", fill_alpha=0.5,
-                    source=source, level="overlay")
+medal_circle = plot.circle(x="MetersBack", y="Year", radius=dict(value=5, units="screen"),
+                           fill_color="MedalFill", line_color="MedalLine", fill_alpha=0.5,
+                           source=source, level="overlay")
 
 plot.text(x="MetersBack", y="Year", x_offset=10, y_offset=-5, text="SelectedName",
           text_align="left", text_baseline="middle", text_font_size="12px", source=source)
@@ -94,8 +94,8 @@ no_olympics_label = Label(
 plot.add_layout(no_olympics_label)
 
 x = sprint[sprint.Year == 1900].MetersBack.min() - 0.5
-arrow = Arrow(x_start=x, x_end=5, y_start=1900, y_end=1900,
-              start=NormalHead(fill_color="black", size=6), end=None, line_width=1.5)
+arrow = Arrow(x_start=x, x_end=5, y_start=1900, y_end=1900, start=NormalHead(fill_color="black", size=6),
+              end=None, line_width=1.5)
 plot.add_layout(arrow)
 
 meters_back = Label(
@@ -123,7 +123,7 @@ tooltips = """
 <div style="font-size: 11px; color: #666;">@{MetersBack}{0.00} meters behind</div>
 """
 
-plot.add_tools(HoverTool(tooltips=tooltips, renderers=[medal]))
+plot.add_tools(HoverTool(tooltips=tooltips, renderers=[medal_circle]))
 
 open_url = CustomJS(args=dict(source=source), code="""
 source.inspected.indices.forEach(function(index) {
@@ -133,7 +133,7 @@ source.inspected.indices.forEach(function(index) {
 });
 """)
 
-plot.add_tools(TapTool(callback=open_url, renderers=[medal], behavior="inspect"))
+plot.add_tools(TapTool(callback=open_url, renderers=[medal_circle], behavior="inspect"))
 
 output_file("sprint.html", plot.title.text)
 show(plot)
