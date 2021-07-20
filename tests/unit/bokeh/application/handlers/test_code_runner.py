@@ -43,6 +43,7 @@ class TestCodeRunner:
     def test_init(self) -> None:
         cr = bahc.CodeRunner("# test", "path", [])
         assert cr.failed is False
+        assert cr.doc is None
         assert cr.error is None
         assert cr.error_detail is None
         assert cr.ran is False
@@ -172,6 +173,11 @@ class TestCodeRunner:
         m = cr.new_module()
         cr.run(m, lambda: None)
         assert sys.path == old_path
+
+    def test_doc(self) -> None:
+        cr = bahc.CodeRunner("'''some docstring\n\nfoo bar'''", "path", [])
+        assert cr.failed is False
+        assert cr.doc == "some docstring\n\nfoo bar"
 
 #-----------------------------------------------------------------------------
 # Private API

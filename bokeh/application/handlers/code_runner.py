@@ -58,6 +58,7 @@ class CodeRunner:
     '''
 
     _code: CodeType | None
+    _doc: str | None
     _permanent_error: str | None
     _permanent_error_detail: str | None
     _path: PathLike
@@ -104,6 +105,9 @@ class CodeRunner:
         try:
             nodes = ast.parse(source, os.fspath(path))
             self._code = compile(nodes, filename=path, mode='exec', dont_inherit=True)
+            # use a zip to associate code names with values, to then find the contents of the docstring
+            d = dict(zip(self._code.co_names, self._code.co_consts))
+            self._doc = d.get('__doc__', None)
         except SyntaxError as e:
             self._code = None
             filename = os.path.basename(e.filename) if e.filename is not None else "???"
@@ -117,6 +121,13 @@ class CodeRunner:
         self.ran = False
 
     # Properties --------------------------------------------------------------
+
+    @property
+    def doc(self) -> str | None:
+        ''' Contents of docstring, if code contains one.
+
+        '''
+        return self._doc
 
     @property
     def error(self) -> str | None:
