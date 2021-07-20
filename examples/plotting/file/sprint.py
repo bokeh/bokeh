@@ -1,4 +1,6 @@
-# Based on http://www.nytimes.com/interactive/2012/08/05/sports/olympics/the-100-meter-dash-one-race-every-medalist-ever.html
+"""Based on http://www.nytimes.com/interactive/2012/08/05/sports/olympics/the-100-meter-dash-one-race-every-medalist-ever.html
+
+"""
 
 from bokeh.models import (Arrow, ColumnDataSource, CustomJS, DataRange1d,
                           FixedTicker, HoverTool, Label, LinearAxis, NormalHead,
@@ -38,8 +40,10 @@ bronze_line = "#98715d"
 fill_color = { "gold": gold_fill, "silver": silver_fill, "bronze": bronze_fill }
 line_color = { "gold": gold_line, "silver": silver_line, "bronze": bronze_line }
 
+
 def selected_name(name, medal, year):
     return name if medal == "gold" and year in [1988, 1968, 1936, 1896] else ""
+
 
 t0 = sprint.Time[0]
 
@@ -54,7 +58,7 @@ sprint["SelectedName"] = sprint[["Name", "Medal", "Year"]].apply(tuple, axis=1).
 
 source = ColumnDataSource(sprint)
 
-xdr = Range1d(start=sprint.MetersBack.max()+2, end=0)               # XXX: +2 is poor-man's padding (otherwise misses last tick)
+xdr = Range1d(start=sprint.MetersBack.max()+2, end=0)      # XXX: +2 is poor-man's padding (otherwise misses last tick)
 ydr = DataRange1d(range_padding=4, range_padding_units="absolute")
 
 plot = figure(
@@ -76,20 +80,22 @@ yaxis = LinearAxis(ticker=yticker, major_tick_in=-5, major_tick_out=10)
 plot.add_layout(yaxis, "right")
 
 medal = plot.circle(x="MetersBack", y="Year", radius=dict(value=5, units="screen"),
-    fill_color="MedalFill", line_color="MedalLine", fill_alpha=0.5, source=source, level="overlay")
+                    fill_color="MedalFill", line_color="MedalLine", fill_alpha=0.5,
+                    source=source, level="overlay")
 
 plot.text(x="MetersBack", y="Year", x_offset=10, y_offset=-5, text="SelectedName",
-    text_align="left", text_baseline="middle", text_font_size="12px", source=source)
+          text_align="left", text_baseline="middle", text_font_size="12px", source=source)
 
 no_olympics_label = Label(
     x=7.5, y=1942,
     text="No Olympics in 1940 or 1944",
     text_align="center", text_baseline="middle",
     text_font_size="12px", text_font_style="italic", text_color="silver")
-no_olympics = plot.add_layout(no_olympics_label)
+plot.add_layout(no_olympics_label)
 
 x = sprint[sprint.Year == 1900].MetersBack.min() - 0.5
-arrow = Arrow(x_start=x, x_end=5, y_start=1900, y_end=1900, start=NormalHead(fill_color="black", size=6), end=None, line_width=1.5)
+arrow = Arrow(x_start=x, x_end=5, y_start=1900, y_end=1900,
+              start=NormalHead(fill_color="black", size=6), end=None, line_width=1.5)
 plot.add_layout(arrow)
 
 meters_back = Label(
@@ -120,7 +126,7 @@ tooltips = """
 plot.add_tools(HoverTool(tooltips=tooltips, renderers=[medal]))
 
 open_url = CustomJS(args=dict(source=source), code="""
-source.inspected._1d.indices.forEach(function(index) {
+source.inspected.indices.forEach(function(index) {
     const name = source.data["Name"][index];
     const url = "http://en.wikipedia.org/wiki/" + encodeURIComponent(name);
     window.open(url);
