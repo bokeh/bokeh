@@ -167,7 +167,9 @@ import {radians} from "@bokehjs/core/util/math"
           180: new MathText({text: "1\\sigma"}),
           200: new MathText({text: "2\\sigma"}),
           1: "one",
+          0.01: new MathText({text: "\\frac{0.133}{\\mu+2\\sigma^2}"}),
           10000: new MathText({text: "10 \\ast 1000"}),
+          1000000: new MathText({text: "\\sigma^2"}),
         },
       }, {minor_size: 100})
 
