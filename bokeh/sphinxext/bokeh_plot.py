@@ -42,6 +42,10 @@ used in docstrings.
 
 The ``bokeh-plot`` directive accepts the following options:
 
+process-docstring (bool):
+    Whether to display the docstring in a formatted block
+    separate from the source.
+
 source-position (enum('above', 'below', 'none')):
     Where to locate the the block of formatted source
     code (if anywhere).
@@ -129,6 +133,7 @@ class BokehPlotDirective(BokehDirective):
     optional_arguments = 2
 
     option_spec = {
+        "process-docstring": lambda x: True if flag(x) is None else False,
         "source-position": lambda x: choice(x, ("below", "above", "none")),
         "linenos": lambda x: True if flag(x) is None else False,
     }
@@ -171,8 +176,8 @@ class BokehPlotDirective(BokehDirective):
         target = nodes.target("", "", ids=[target_id])
         result = [target]
 
-        # if a docstring exists, add it
-        if doc:
+        process_docstring = self.options.get("process-docstring", False)
+        if doc and process_docstring:
             docstring = self._parse(doc, '<bokeh-plot>')
             result += [elem for elem in docstring]
             source = _remove_module_docstring(source, doc)
@@ -282,7 +287,7 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
     with open(js_path, "w") as f:
         f.write(js)
 
-    return (script, js, js_path, source, c.doc.strip())
+    return (script, js, js_path, source, c.doc.strip() if c.doc else None)
 
 
 def _remove_module_docstring(source, doc):
