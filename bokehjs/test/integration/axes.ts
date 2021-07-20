@@ -129,6 +129,10 @@ import {radians} from "@bokehjs/core/util/math"
     })
 
     function load_math_jax_script(): void {
+      const script = document.createElement("script")
+      script.id = "bokeh_mathjax_script"
+      document.head.appendChild(script)
+
       // @ts-ignore
       MathJax = {tex2svg}
     }
