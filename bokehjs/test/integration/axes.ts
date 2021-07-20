@@ -160,9 +160,12 @@ import {radians} from "@bokehjs/core/util/math"
 
       await plot({
         major_label_overrides: {
-          120: "zero",
-          140: new MathText({text: "280 \\div 2"}),
-          180: "ten",
+          100: new MathText({text: "-3\\sigma"}),
+          120: new MathText({text: "-2\\sigma"}),
+          140: new MathText({text: "-1\\sigma"}),
+          160: new MathText({text: "\\mu"}),
+          180: new MathText({text: "1\\sigma"}),
+          200: new MathText({text: "2\\sigma"}),
           1: "one",
           10000: new MathText({text: "10 \\ast 1000"}),
         },
