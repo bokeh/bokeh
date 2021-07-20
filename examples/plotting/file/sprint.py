@@ -2,9 +2,8 @@
 
 """
 
-from bokeh.models import (Arrow, ColumnDataSource, CustomJS,
-                          FixedTicker, HoverTool, Label, LinearAxis, NormalHead,
-                          SingleIntervalTicker, TapTool)
+from bokeh.models import (Arrow, ColumnDataSource, CustomJS, FixedTicker, HoverTool,
+                          Label, LinearAxis, NormalHead, SingleIntervalTicker, TapTool)
 from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.sprint import sprint
 
