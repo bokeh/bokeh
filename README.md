@@ -10,17 +10,29 @@
 <tr>
   <td>Latest Release</td>
   <td>
+    <div>
     <img src="https://badge.fury.io/py/bokeh.svg" alt="pypi version" />
+    </div>
+    <div>
     <img src="https://badge.fury.io/js/%40bokeh%2Fbokehjs.svg" alt="npm version">
+    </div>
     </a>
   </td>
 
-  <td>Conda</td>
+  <td>Downloads</td>
   <td>
+    <div>
     <a href="https://docs.bokeh.org/en/latest/docs/installation.html">
     <img src="https://pyviz.org/_static/cache/bokeh_conda_downloads_badge.svg"
          alt="Conda downloads per month" />
     </a>
+    </div>
+    <div>
+    <a href="https://docs.bokeh.org/en/latest/docs/installation.html">
+    <img src="https://img.shields.io/pypi/dm/bokeh?label=PyPI"
+         alt="PyPI downloads per month" />
+    </a>
+    </div>
   </td>
 </tr>
 
@@ -33,12 +45,10 @@
     </a>
   </td>
 
-  <td>PyPI</td>
+  <td>People</td>
   <td>
-    <a href="https://docs.bokeh.org/en/latest/docs/installation.html">
-    <img src="https://img.shields.io/pypi/dm/bokeh?label=PyPI"
-         alt="PyPI downloads per month" />
-    </a>
+    <img src="https://img.shields.io/github/contributors/bokeh/bokeh"
+         alt="GitHub contributors" />
   </td>
 </tr>
 
