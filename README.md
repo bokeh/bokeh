@@ -18,7 +18,7 @@
   <td>Conda</td>
   <td>
     <a href="https://docs.bokeh.org/en/latest/docs/installation.html">
-    <img src="https://img.shields.io/conda/dn/conda-forge/bokeh"
+    <img src="https://pyviz.org/_static/cache/bokeh_conda_downloads_badge.svg"
          alt="Conda downloads per month" />
     </a>
   </td>
