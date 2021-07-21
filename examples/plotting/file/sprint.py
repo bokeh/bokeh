@@ -2,8 +2,7 @@
 
 """
 
-from bokeh.models import (Arrow, ColumnDataSource, CustomJS, FixedTicker, HoverTool,
-                          Label, LinearAxis, NormalHead, SingleIntervalTicker, TapTool)
+from bokeh.models import (Arrow, ColumnDataSource, CustomJS, Label, NormalHead, SingleIntervalTicker, TapTool)
 from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.sprint import sprint
 
@@ -50,11 +49,25 @@ sprint["SelectedName"] = sprint[["Name", "Medal", "Year"]].apply(tuple, axis=1).
 
 source = ColumnDataSource(sprint)
 
+tooltips = """
+<div>
+    <span style="font-size: 15px;">@Name</span>&nbsp;
+    <span style="font-size: 10px; color: #666;">(@Abbrev)</span>
+</div>
+<div>
+    <span style="font-size: 17px; font-weight: bold;">@Time{0.00}</span>&nbsp;
+    <span style="font-size: 10px; color: #666;">@Year</span>
+</div>
+<div style="font-size: 11px; color: #666;">@{MetersBack}{0.00} meters behind</div>
+"""
+
 plot = figure(
-    x_range=(sprint.MetersBack.max()+2, 0), # y_range=ydr,
+    x_range=(sprint.MetersBack.max()+2, 0),
     width=1000, height=600,
     toolbar_location=None,
-    outline_line_color=None, y_axis_type=None)
+    outline_line_color=None,
+    y_axis_location="right",
+    tooltips=tooltips)
 plot.y_range.range_padding = 4
 plot.y_range.range_padding_units = "absolute"
 
@@ -66,17 +79,15 @@ plot.xaxis.axis_line_color = None
 plot.xaxis.major_tick_line_color = None
 plot.xgrid.grid_line_dash = "dashed"
 
-yticker = FixedTicker(ticks=[1900, 1912, 1924, 1936, 1952, 1964, 1976, 1988, 2000, 2012])
-yaxis = LinearAxis(ticker=yticker, major_tick_in=-5, major_tick_out=10)
-plot.add_layout(yaxis, "right")
-
-# plot.yaxis.ticker = [1900, 1912, 1924, 1936, 1952, 1964, 1976, 1988, 2000, 2012]
-# plot.yaxis.major_tick_in = -5
-# plot.yaxis.major_tick_out = 10
+plot.yaxis.ticker = [1900, 1912, 1924, 1936, 1952, 1964, 1976, 1988, 2000, 2012]
+plot.yaxis.major_tick_in = -5
+plot.yaxis.major_tick_out = 10
+plot.ygrid.grid_line_color = None
 
 medal_circle = plot.circle(x="MetersBack", y="Year", radius=dict(value=5, units="screen"),
                            fill_color="MedalFill", line_color="MedalLine", fill_alpha=0.5,
                            source=source, level="overlay")
+plot.hover.renderers = [medal_circle]
 
 plot.text(x="MetersBack", y="Year", x_offset=10, y_offset=-5, text="SelectedName",
           text_align="left", text_baseline="middle", text_font_size="12px", source=source)
@@ -105,20 +116,6 @@ disclaimer = Label(
     text="This chart includes medals for the United States and Australia in the \"Intermediary\" Games of 1906, which the I.O.C. does not formally recognize.",
     text_font_size="11px", text_color="silver")
 plot.add_layout(disclaimer, "below")
-
-tooltips = """
-<div>
-    <span style="font-size: 15px;">@Name</span>&nbsp;
-    <span style="font-size: 10px; color: #666;">(@Abbrev)</span>
-</div>
-<div>
-    <span style="font-size: 17px; font-weight: bold;">@Time{0.00}</span>&nbsp;
-    <span style="font-size: 10px; color: #666;">@Year</span>
-</div>
-<div style="font-size: 11px; color: #666;">@{MetersBack}{0.00} meters behind</div>
-"""
-
-plot.add_tools(HoverTool(tooltips=tooltips, renderers=[medal_circle]))
 
 open_url = CustomJS(args=dict(source=source), code="""
 source.inspected.indices.forEach(function(index) {
