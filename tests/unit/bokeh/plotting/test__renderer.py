@@ -84,13 +84,12 @@ class Test__pop_visuals:
         assert ca["fill_color"] == "white"
         assert set(ca) == { "fill_color", "hatch_color", "line_color", "fill_alpha", "hatch_alpha", "line_alpha" }
 
-class Test__make_glyph:
+class Test_make_glyph:
     def test_null_visuals(self) -> None:
         kwargs = dict(fill_alpha=0.7, line_alpha=0.8, line_color="red")
         hover_visuals = None
         ca = bpr.make_glyph(Circle, kwargs, hover_visuals)
         assert ca is None
-    
     def test_default_mute_glyph_basic_prop(self) -> None:
         kwargs = dict(fill_alpha=0.7, line_alpha=0.8, line_color="red")
         glyph_visuals = bpr.pop_visuals(Circle, kwargs)
