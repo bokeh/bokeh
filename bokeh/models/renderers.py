@@ -242,7 +242,7 @@ class GlyphRenderer(DataRenderer):
     being hovered over by a ``HoverTool``.
     """)
 
-    muted_glyph = Nullable(Instance(Glyph), help="""
+    muted_glyph = Either(Auto, Instance(Glyph), Null, default="auto", help="""
     """)
 
     muted = Bool(False, help="""

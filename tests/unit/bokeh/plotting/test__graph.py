@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.models import ColumnDataSource, Scatter
+from bokeh.models import ColumnDataSource, Scatter, Circle, MultiLine
 
 # Module under test
 import bokeh.plotting._graph as bpg # isort:skip
@@ -108,6 +108,21 @@ class Test_get_graph_kwargs:
         assert r.nonselection_glyph.line_width == 23
         assert r.hover_glyph.line_width == 23
         assert r.muted_glyph.line_width == 23
+
+    def test_default_muted_glyph(self) -> None:
+        kwargs = dict(edge_line_color="purple", edge_line_alpha=0.7,
+                        node_fill_color="red", node_fill_alpha=0.8, node_line_color="blue")
+        kw = bpg.get_graph_kwargs({}, {}, **kwargs)
+
+        r = kw['edge_renderer']
+        assert isinstance(r.muted_glyph, MultiLine)
+        assert r.muted_glyph.line_color == "purple"
+        assert r.muted_glyph.line_alpha == 0.2
+        r = kw['node_renderer']
+        assert isinstance(r.muted_glyph, Circle)
+        assert r.muted_glyph.fill_color == "red"
+        assert r.muted_glyph.line_alpha == 0.2
+        assert r.muted_glyph.line_color == "blue"
 
 #-----------------------------------------------------------------------------
 # Private API

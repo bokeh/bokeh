@@ -38,6 +38,11 @@ const nonselection_defaults: Defaults = {
   line: {},
 }
 
+const muted_defaults: Defaults = {
+  fill: {fill_alpha: 0.2},
+  line: {},
+}
+
 export class GlyphRendererView extends DataRendererView {
   override model: GlyphRenderer
 
@@ -45,7 +50,7 @@ export class GlyphRendererView extends DataRendererView {
   selection_glyph: GlyphView
   nonselection_glyph: GlyphView
   hover_glyph?: GlyphView
-  muted_glyph?: GlyphView
+  muted_glyph: GlyphView
   decimated_glyph: GlyphView
 
   get glyph_view(): GlyphView {
@@ -94,9 +99,12 @@ export class GlyphRendererView extends DataRendererView {
     if (hover_glyph != null)
       this.hover_glyph = await this.build_glyph_view(hover_glyph)
 
-    const {muted_glyph} = this.model
-    if (muted_glyph != null)
-      this.muted_glyph = await this.build_glyph_view(muted_glyph)
+    let {muted_glyph} = this.model
+    if (muted_glyph == null)
+      muted_glyph = mk_glyph({fill: {}, line: {}})
+    else if (muted_glyph == "auto")
+      muted_glyph = mk_glyph(muted_defaults)
+    this.muted_glyph = await this.build_glyph_view(muted_glyph)
 
     const decimated_glyph = mk_glyph(decimated_defaults)
     this.decimated_glyph = await this.build_glyph_view(decimated_glyph)
@@ -104,7 +112,7 @@ export class GlyphRendererView extends DataRendererView {
     this.selection_glyph.set_base(this.glyph)
     this.nonselection_glyph.set_base(this.glyph)
     this.hover_glyph?.set_base(this.glyph)
-    this.muted_glyph?.set_base(this.glyph)
+    this.muted_glyph.set_base(this.glyph)
     this.decimated_glyph.set_base(this.glyph)
 
     this.set_data()
@@ -119,7 +127,7 @@ export class GlyphRendererView extends DataRendererView {
     this.selection_glyph.remove()
     this.nonselection_glyph.remove()
     this.hover_glyph?.remove()
-    this.muted_glyph?.remove()
+    this.muted_glyph.remove()
     this.decimated_glyph.remove()
     super.remove()
   }
@@ -137,8 +145,7 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.nonselection_glyph.model.change, update)
     if (this.hover_glyph != null)
       this.connect(this.hover_glyph.model.change, update)
-    if (this.muted_glyph != null)
-      this.connect(this.muted_glyph.model.change, update)
+    this.connect(this.muted_glyph.model.change, update)
     this.connect(this.decimated_glyph.model.change, update)
 
     this.connect(this.model.data_source.change, update)
@@ -379,7 +386,7 @@ export namespace GlyphRenderer {
     hover_glyph: p.Property<Glyph | null>
     nonselection_glyph: p.Property<Glyph | "auto" | null>
     selection_glyph: p.Property<Glyph | "auto" | null>
-    muted_glyph: p.Property<Glyph | null>
+    muted_glyph: p.Property<Glyph | "auto" | null>
     muted: p.Property<boolean>
   }
 }
@@ -404,7 +411,7 @@ export class GlyphRenderer extends DataRenderer {
       hover_glyph:        [ Nullable(Ref(Glyph)), null ],
       nonselection_glyph: [ Or(Ref(Glyph), Auto, Null), "auto" ],
       selection_glyph:    [ Or(Ref(Glyph), Auto, Null), "auto" ],
-      muted_glyph:        [ Nullable(Ref(Glyph)), null ],
+      muted_glyph:        [ Or(Ref(Glyph), Auto, Null), "auto" ],
       muted:              [ Boolean, false ],
     }))
   }
