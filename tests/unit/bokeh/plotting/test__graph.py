@@ -17,7 +17,12 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.models import ColumnDataSource, Scatter, Circle, MultiLine
+from bokeh.models import (
+    Circle,
+    ColumnDataSource,
+    MultiLine,
+    Scatter,
+)
 
 # Module under test
 import bokeh.plotting._graph as bpg # isort:skip
