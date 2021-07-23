@@ -34,8 +34,8 @@ also automatically opens a web browser to display the HTML file.
 If you want Bokeh to only generate the file but not open it in a web browser,
 use the |save| function instead.
 
-You need to import the ``save()`` and  ``output_file()`` functions before using,
-just like you did for ``show()``.
+You need to import the |save| and |output_file| functions before using,
+just like you did for |show|.
 
 .. literalinclude:: examples/first_steps_7_export_html.py
    :language: python
