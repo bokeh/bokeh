@@ -64,9 +64,9 @@ def show(obj: LayoutDOM | Application | ModifyDoc, browser: str | None = None, n
             A Bokeh object to display.
 
             Bokeh plots, widgets, layouts (i.e. rows and columns) may be
-            passed to ``show`` in order to display them. When ``output_file``
+            passed to ``show`` in order to display them. If |output_file|
             has been called, the output will be to an HTML file, which is also
-            opened in a new browser window or tab. When ``output_notebook``
+            opened in a new browser window or tab. If |output_notebook|
             has been called in a Jupyter notebook, the output will be inline
             in the associated notebook output cell.
 
@@ -118,12 +118,13 @@ def show(obj: LayoutDOM | Application | ModifyDoc, browser: str | None = None, n
 
     Some parameters are only useful when certain output modes are active:
 
-    * The ``browser`` and ``new`` parameters only apply when ``output_file``
+    * The ``browser`` and ``new`` parameters only apply when |output_file|
       is active.
 
-    * The ``notebook_handle`` parameter only applies when ``output_notebook``
-      is active, and non-Application objects are being shown. It is only supported to Jupyter notebook,
-      raise exception for other notebook types when it is True.
+    * The ``notebook_handle`` parameter only applies when |output_notebook|
+      is active, and non-Application objects are being shown. It is only
+      supported in Jupyter notebook and raises an exception for other notebook
+      types when it is True.
 
     * The ``notebook_url`` parameter only applies when showing Bokeh
       Applications in a Jupyter notebook.
@@ -132,7 +133,7 @@ def show(obj: LayoutDOM | Application | ModifyDoc, browser: str | None = None, n
       showing a Bokeh app (added in version 1.1)
 
     Returns:
-        When in a Jupyter notebook (with ``output_notebook`` enabled)
+        When in a Jupyter notebook (with |output_notebook| enabled)
         and ``notebook_handle=True``, returns a handle that can be used by
         ``push_notebook``, None otherwise.
 
