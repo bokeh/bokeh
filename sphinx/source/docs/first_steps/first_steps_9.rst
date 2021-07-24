@@ -45,8 +45,6 @@ Follow these steps to recreate the example from above:
         x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         y = [4, 5, 5, 7, 2, 6, 4, 9, 1, 3]
 
-        output_file("first_steps.html")
-
         p = figure(x_range=(1,9), width=500, height=250)
         points = p.circle(x=x, y=y, size=30, fill_color="#21a7df")
 

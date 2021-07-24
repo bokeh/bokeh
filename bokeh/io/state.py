@@ -8,9 +8,9 @@
 
 .. note::
     While ``State`` objects can also be manipulated explicitly, they are
-    automatically configured when the functions :func:`~bokeh.io.output_file`,
-    etc. from :ref:`bokeh.io` are used, so this is not necessary under
-    typical usage.
+    automatically configured when the output functions like |output_file|
+    from :ref:`bokeh.io` are used. Therefore, manipulating ``State`` objects is
+    usually not necessary.
 
 Generating output for Bokeh plots requires coordinating several things:
 
@@ -150,8 +150,8 @@ class State:
             mode: ResourcesMode | None = None, root_dir: PathLike | None = None) -> None:
         ''' Configure output to a standalone HTML file.
 
-        Calling ``output_file`` not clear the effects of any other calls to
-        ``output_notebook``, etc. It adds an additional output destination
+        Calling ``output_file`` does not clear the effects of any other calls to
+        |output_notebook|, etc. It adds an additional output destination
         (publishing to HTML files). Any other active output modes continue
         to be active.
 
@@ -188,8 +188,8 @@ class State:
     def output_notebook(self, notebook_type: NotebookType = "jupyter") -> None:
         ''' Generate output in notebook cells.
 
-        Calling ``output_notebook`` not clear the effects of any other calls
-        to ``output_file``, etc. It adds an additional output destination
+        Calling ``output_notebook`` does not clear the effects of any other
+        calls to |output_file|, etc. It adds an additional output destination
         (publishing to notebook output cells). Any other active output modes
         continue to be active.
 

@@ -101,10 +101,10 @@ Output methods
 Bokeh offers a variety of ways to produce interactive output. The following
 two functions are the most common:
 
-:func:`~bokeh.io.output_file`
+|output_file|
     Generate simple standalone HTML documents for Bokeh visualizations.
 
-:func:`~bokeh.io.output_notebook`
+|output_notebook|
     Display Bokeh visualizations in Jupyter/Zeppelin notebooks.
 
 These output functions are usually used together with |show| or |save|. Here's
@@ -320,8 +320,5 @@ For more information on Bokeh models, see |bokeh.models| in the |reference guide
 .. |bokeh.io|       replace:: :ref:`bokeh.io <bokeh.io>`
 
 .. |Rect| replace:: :class:`~bokeh.models.glyphs.Rect`
-
-.. |output_file|     replace:: :func:`~bokeh.io.output_file`
-.. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
 
 .. |Figure.circle|   replace:: :func:`Figure.circle <bokeh.plotting.Figure.circle>`

@@ -266,7 +266,7 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
 
         state (State, optional) :
             A :class:`State` object. If None, then the current default
-            state (set by ``output_file``, etc.) is used. (default: None)
+            state (set by |output_file|, etc.) is used. (default: None)
 
     Returns:
         None
