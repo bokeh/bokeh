@@ -62,3 +62,5 @@
 /.mypy_cache/
 /.images-list
 /examples-report.html
+
+*.envrc
