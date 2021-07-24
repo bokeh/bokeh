@@ -152,47 +152,19 @@ Git Hooks
 ~~~~~~~~~
 
 In order to help prevent some accidental errors, here are some git hooks
-that may be useful. The scripts below should be placed in the ``.git/hooks``
-subdirectory in the top level of the *source checkout* directory and be
-marked executable with e.g. ``chmod +x pre-commit``. For more information
-on git hooks, see `this tutorial`_.
+that may be useful:
 
-``pre-commit``
+- Run codebase tests
+  This git hook runs all the codebase tests before allowing a push to the remote
+  repository to proceed. Note that all the standard testing dependencies must be installed
+  in order for this hook to function.
+- ``main`` branch protection
+  This git hook prevents accidental pushes to the ``main`` branch on GitHub.
 
-    This git hook runs all the codebase tests before allowing a commit to
-    proceed. Note that all the standard testing dependencies must be installed
-    in order for this hook to function.
-
-    .. code-block:: sh
-
-        #!/bin/bash
-
-        pytest tests/codebase
-        exit $?
-
-``pre-push``
-
-    This git hook prevents accidental pushes to ``main`` on GitHub.
+To install them, just run:
 
     .. code-block:: sh
-
-        #!/bin/bash
-
-        protected_branch='main'
-        current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
-
-        if [ $protected_branch = $current_branch ]
-        then
-            read -p "You're about to push main, is that what you intended? [y|n] " -n 1 -r < /dev/tty
-            echo
-            if echo $REPLY | grep -E '^[Yy]$' > /dev/null
-            then
-                exit 0 # push will execute
-            fi
-            exit 1 # push will not execute
-        else
-            exit 0 # push will execute
-        fi
+        pre-commit install --hook-type pre-push
 
 .. _devguide_suggested_git_aliases:
 
