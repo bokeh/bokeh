@@ -11,3 +11,4 @@ repos:
         language: conda
         # Mandatory otherwise `pre-commit` passes the names of all files to be commited
         pass_filenames: false
+        stages: [push]
