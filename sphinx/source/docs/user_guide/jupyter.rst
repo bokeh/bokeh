@@ -272,8 +272,6 @@ notebook below:
 
 .. |bokeh.io| replace:: :ref:`bokeh.io <bokeh.io>`
 
-.. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
-.. |output_file| replace:: :func:`~bokeh.io.output_file`
 .. |push_notebook| replace:: :func:`~bokeh.io.push_notebook`
 
 .. _interactors: http://ipywidgets.readthedocs.io/en/latest/examples/Using%20Interact.html

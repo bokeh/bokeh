@@ -78,7 +78,7 @@ def output_file(filename: PathLike, title: str = "Bokeh Plot",
 
     .. warning::
         This output file will be overwritten on every save, e.g., each time
-        show() or save() is invoked.
+        |show| or |save| is invoked.
 
     '''
     curstate().output_file(
@@ -91,7 +91,7 @@ def output_file(filename: PathLike, title: str = "Bokeh Plot",
 def output_notebook(resources: Resources | None = None, verbose: bool = False,
         hide_banner: bool = False, load_timeout: int = 5000, notebook_type: NotebookType = "jupyter") -> None:
     ''' Configure the default output state to generate output in notebook cells
-    when :func:`show` is called. Note that, :func:`show` may be called multiple
+    when |show| is called. Note that |show| may be called multiple
     times in a single cell to display multiple objects in the output cell. The
     objects will be displayed in order.
 

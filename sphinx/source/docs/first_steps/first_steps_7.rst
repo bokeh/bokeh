@@ -3,7 +3,7 @@
 First steps 7: Displaying and exporting
 =======================================
 
-In the :ref:`previous first steps guides <first_steps_6>`, you created and
+In the :ref:`previous first steps guides <first_steps_6>`, you created,
 customized, and combined visualizations.
 
 In this section, you will use various methods to display and export your
@@ -14,13 +14,17 @@ visualizations.
 Creating a standalone HTML file
 -------------------------------
 
-All examples so far have used the :func:`~bokeh.io.output_file` function to
-save your visualization to an HTML file. This HTML file contains all the
-necessary information to display your plot.
+All examples so far have used the |show| function to save your visualization to
+an HTML file. This HTML file contains all the necessary information to display
+your plot.
 
-``output_file()`` accepts various arguments. For example:
+To customize the file Bokeh creates for your visualization, import and call the
+|output_file| function. ``output_file()`` accepts various file-related
+arguments. For example:
 
-* ``filename``: the filename for the HTML file
+* ``filename``: the filename for the HTML file. If you don't supply a file name,
+  Bokeh will use the file name of your python file as a filename for the HTML
+  file it creates.
 * ``title``: the title for you document (to be used in the HTML's ``<title>``
   tag)
 
@@ -28,8 +32,10 @@ Bokeh creates the HTML file when you call the |show| function. This function
 also automatically opens a web browser to display the HTML file.
 
 If you want Bokeh to only generate the file but not open it in a web browser,
-use the |save| function instead. You need to import the ``save()`` function
-before using it, just like you did for ``show()``.
+use the |save| function instead.
+
+You need to import the |save| and |output_file| functions before using,
+just like you did for |show|.
 
 .. literalinclude:: examples/first_steps_7_export_html.py
    :language: python
@@ -43,19 +49,17 @@ before using it, just like you did for ``show()``.
     By default, Bokeh-generated HTML files include a standard version of BokehJS
     that is automatically downloaded from Bokeh's servers. Use the argument
     ``mode`` with the function ``output_file()`` to change this behavior. For
-    more information, see :class:`~bokeh.io.output_file` and
-    :class:`~bokeh.resources.Resources` in the reference guide.
+    more information, see |output_file| and :class:`~bokeh.resources.Resources`
+    in the reference guide.
 
 .. _first_steps_7_jupyter_notebook:
 
 Displaying in a Jupyter notebook
 --------------------------------
 
-If you use Jupyter notebooks, switch out Bokeh's :func:`~bokeh.io.output_file`
-for :func:`~bokeh.io.output_notebook`.
-
-Use the |show| function to display your visualization right inside your
-notebook:
+If you use Jupyter notebooks, call Bokeh's |output_notebook| function in your
+code. Then, use the |show| function to display your visualization right inside
+your notebook:
 
 .. image:: /_images/notebook_inline.png
     :scale: 50 %
