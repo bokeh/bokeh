@@ -47,15 +47,14 @@ def publish_conda_package(config: Config, system: System) -> ActionReturn:
 
 
 def publish_documentation(config: Config, system: System) -> ActionReturn:
-    version = config.version
+    version, release_level = config.version, config.release_level
     path = f"deployment-{version}/sphinx/build/html"
     flags = "--acl bucket-owner-full-control --cache-control max-age=31536000,public"
     try:
         if config.prerelease:
-            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/dev/ {flags}")
-            system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/dev*"')
+            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/dev-{release_level}/ {flags}")
+            system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/dev-{release_level}*"')
         else:
-            version = config.version
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/latest/ {flags}")
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/{version}/ {flags}")
             system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/latest*" "/en/{version}*"')
