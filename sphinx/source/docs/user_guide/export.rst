@@ -3,27 +3,29 @@
 Exporting plots
 ===============
 
+.. _userguide_export_dependencies:
+
 Additional dependencies
 -----------------------
 
 You will need the following additional dependencies to use the |export|
 functions:
 
-* Selenium
-* And either of the following:
+* `Selenium`_
+* Either one of the following `web drivers`_:
 
-  * GeckoDriver for Firefox, OR
+  * GeckoDriver for Firefox
   * ChromeDriver for Chrome / Chromium
 
 You can install these dependencies from `Conda`_ as follows:
 
-* For Selenium with GeckoDriver:
+* For Selenium with GeckoDriver (requires Firefox):
 
   .. code-block:: sh
 
     conda install selenium geckodriver -c conda-forge
 
-* For Selenium with ChromeDriver:
+* For Selenium with ChromeDriver (requires Chrome):
 
   .. code-block:: sh
 
@@ -146,5 +148,7 @@ You can export an SVG plot in several ways:
 .. |export_svg|      replace:: :func:`~bokeh.io.export_svg`
 .. |export_svgs|     replace:: :func:`~bokeh.io.export_svgs`
 
+.. _Selenium: https://www.selenium.dev/documentation/en/
+.. _web drivers: https://www.selenium.dev/documentation/en/webdriver/
 .. _Conda: https://docs.bokeh.org/en/latest/docs/dev_guide/setup.html?highlight=conda#id4
 .. _SVG-Crowbar: http://nytimes.github.io/svg-crowbar/

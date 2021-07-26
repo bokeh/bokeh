@@ -62,42 +62,5 @@ various tests written in TypeScript. The BokehJS tests are located in
     :ref:`devguide_bokehjs_development_testing` in the
     :ref:`BokehJS section <devguide_bokehjs>` of this guide.
 
-    .. _devguide_testing_ci:
-
-Continuous Integration
-----------------------
-
-Every push to the ``main`` branch or any Pull Request branch on GitHub
-automatically triggers a full test build on the `GithubCI`_ continuous
-integration service.
-
-You can see the list of all current and previous builds at this URL:
-https://github.com/bokeh/bokeh/actions
-
-Configuration
-~~~~~~~~~~~~~
-
-There are a number of files that affect the build configuration:
-
-* :bokeh-tree:`conda.recipe/meta.yaml`
-    Instructions for building a conda noarch package for Bokeh. This
-    file is the single source of truth for build and test (but not
-    runtime) dependencies.
-
-* :bokeh-tree:`setup.py`
-    Used to build sdist packages and "dev" installs. This file is also
-    the single source of truth for runtime dependencies.
-
-* :bokeh-tree:`setup.cfg`
-    Contains some global configuration for build and test tools such as
-    ``versioneer`` and ``pytest``.
-
-Etiquette
-~~~~~~~~~
-
-CI services provide finite free build workers to Open Source projects. Grouping commits into meaningful
-chunks of work before pushing into GitHub (i.e. not pushing on every commit)
-will help you be considerate of others needing these limited resources.
-
 .. _GithubCI: https://github.com/bokeh/bokeh/actions
 .. _pytest: https://docs.pytest.org
