@@ -62,15 +62,12 @@ export class AxisView extends GuideRendererView {
 
     const {major_label_overrides} = this.model
 
-    if (major_label_overrides) {
+    for (const label in major_label_overrides) {
+      if (major_label_overrides.hasOwnProperty(label)){
+        const label_text = major_label_overrides[label]
 
-      for (const label in major_label_overrides) {
-        if (major_label_overrides.hasOwnProperty(label)){
-          const label_text = major_label_overrides[label]
-
-          if (label_text instanceof MathText) {
-            this.major_label_math_text_views[label] = await build_view(label_text, {parent: this})
-          }
+        if (label_text instanceof MathText) {
+          this.major_label_math_text_views[label] = await build_view(label_text, {parent: this})
         }
       }
     }
