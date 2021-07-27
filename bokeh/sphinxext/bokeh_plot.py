@@ -262,35 +262,15 @@ def setup(app):
 
 
 def _process_script(source, filename, env, js_name):
-    # Explicitly make sure old extensions are not included until a better
-    # automatic mechanism is available
+    # Explicitly make sure any previous extensions are not included
     Model._clear_extensions()
 
-    run_source = _check_google_api_key(source)
-
-    c = ExampleHandler(source=run_source, filename=filename)
-    d = Document()
-
-    # We may need to instantiate deprecated objects as part of documenting
-    # them in the reference guide. Suppress any warnings here to keep the
-    # docs build clean just for this case
-    with warnings.catch_warnings():
-        if "reference" in env.docname:
-            warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
-        c.modify_document(d)
-
-    if c.error:
-        raise RuntimeError(f"bokeh-plot:: directive encountered error:\n\n{c.error_detail}")
-
-    if len(d.roots) != 1:
-        raise RuntimeError(f"bokeh-plot:: directive expects a single Document root, got {len(d.roots)}")
-    root = d.roots[0]
+    root, docstring = _evaluate_source(source, filename, env)
 
     height_hint = None
     if isinstance(root, Plot):
-        plot = d.roots[0]
-        if plot.sizing_mode in ("stretch_width", "fixed", None):
-            height_hint = plot.height
+        if root.sizing_mode in ("stretch_width", "fixed", None):
+            height_hint = root.height
 
     js_path = join(env.bokeh_plot_auxdir, js_name)
     js, script = autoload_static(root, RESOURCES, js_name)
@@ -298,7 +278,7 @@ def _process_script(source, filename, env, js_name):
     with open(js_path, "w") as f:
         f.write(js)
 
-    return (script, js, js_path, source, c.doc.strip() if c.doc else None, height_hint)
+    return (script, js, js_path, source, docstring, height_hint)
 
 
 # quick and dirty way to inject Google API key
@@ -315,6 +295,29 @@ def _check_google_api_key(source: str) -> str:
         )
 
     return source.replace("GOOGLE_API_KEY", GOOGLE_API_KEY)
+
+
+def _evaluate_source(source: str, filename: str, env):
+    source = _check_google_api_key(source)
+
+    c = ExampleHandler(source=source, filename=filename)
+    d = Document()
+
+    # We may need to instantiate deprecated objects as part of documenting
+    # them in the reference guide. Suppress any warnings here to keep the
+    # docs build clean just for this case
+    with warnings.catch_warnings():
+        if "reference" in env.docname:
+            warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
+        c.modify_document(d)
+
+    if c.error:
+        raise RuntimeError(f"bokeh-plot:: directive encountered error:\n\n{c.error_detail}")
+
+    if len(d.roots) != 1:
+        raise RuntimeError(f"bokeh-plot:: directive expects a single Document root, got {len(d.roots)}")
+
+    return d.roots[0], c.doc.strip() if c.doc else None
 
 
 def _remove_module_docstring(source, doc):
