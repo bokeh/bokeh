@@ -106,6 +106,7 @@ from sphinx.util.nodes import set_source_info
 from bokeh.document import Document
 from bokeh.embed import autoload_static
 from bokeh.model import Model
+from bokeh.models import Plot
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
@@ -113,7 +114,7 @@ from .bokeh_directive import BokehDirective
 from .example_handler import ExampleHandler
 from .util import get_sphinx_resources
 
-# -----------------------------------------------------------------------------
+# -------------------------`----------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
 
@@ -166,7 +167,7 @@ class BokehPlotDirective(BokehDirective):
         js_name = f"bokeh-plot-{uuid4().hex}-external-{docname}.js"
 
         try:
-            (script, js, js_path, source, doc) = _process_script(source, path, env, js_name)
+            (script, js, js_path, source, doc, height_hint) = _process_script(source, path, env, js_name)
         except Exception as e:
             raise RuntimeError(f"Sphinx bokeh-plot exception: \n\n{e}\n\n Failed on:\n\n {source}")
         env.bokeh_plot_files[js_name] = (js_path, dirname(env.docname))
@@ -195,7 +196,8 @@ class BokehPlotDirective(BokehDirective):
         if source_position == "above":
             result += [code]
 
-        result += [nodes.raw("", script, format="html")]
+        element = f'<div style="height:{height_hint}px;">{script}</div>' if height_hint else script
+        result += [nodes.raw("", element, format="html")]
 
         if source_position == "below":
             result += [code]
@@ -280,6 +282,12 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
     if c.error:
         raise RuntimeError(c.error_detail)
 
+    height_hint = None
+    if len(d.roots) == 1 and isinstance(d.roots[0], Plot):
+        plot = d.roots[0]
+        if plot.sizing_mode in ("stretch_width", "fixed", None):
+            height_hint = plot.height
+
     resources = get_sphinx_resources()
     js_path = join(env.bokeh_plot_auxdir, js_name)
     js, script = autoload_static(d.roots[0], resources, js_name)
@@ -287,7 +295,7 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
     with open(js_path, "w") as f:
         f.write(js)
 
-    return (script, js, js_path, source, c.doc.strip() if c.doc else None)
+    return (script, js, js_path, source, c.doc.strip() if c.doc else None, height_hint)
 
 
 def _remove_module_docstring(source, doc):
