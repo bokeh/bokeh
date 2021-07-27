@@ -248,7 +248,7 @@ def setup(app):
 # -----------------------------------------------------------------------------
 
 
-def _process_script(source, filename, env, js_name, use_relative_paths=False):
+def _process_script(source, filename, env, js_name):
     # Explicitly make sure old extensions are not included until a better
     # automatic mechanism is available
     Model._clear_extensions()
