@@ -118,6 +118,7 @@ from .util import get_sphinx_resources
 # -----------------------------------------------------------------------------
 
 __all__ = (
+    "autoload_script",
     "BokehPlotDirective",
     "setup",
 )
@@ -129,6 +130,24 @@ RESOURCES = get_sphinx_resources()
 # -----------------------------------------------------------------------------
 # General API
 # -----------------------------------------------------------------------------
+
+class autoload_script(nodes.General, nodes.Element):
+
+    @staticmethod
+    def visit_html(visitor, node):
+        script = node["script"]
+        height_hint = node["height_hint"]
+        if height_hint:
+            visitor.body.append(f'<div style="height:{height_hint}px;">')
+        visitor.body.append(script)
+
+    @staticmethod
+    def depart_html(visitor, node):
+        height_hint = node["height_hint"]
+        if height_hint:
+            visitor.body.append("</div>")
+
+    html = visit_html.__func__, depart_html.__func__
 
 
 class BokehPlotDirective(BokehDirective):
@@ -168,10 +187,9 @@ class BokehPlotDirective(BokehDirective):
 
         above, below = self.process_code_block(source)
 
-        wrapped_script = f'<div style="height:{height_hint}px;">{script}</div>' if height_hint else script
-        element = [nodes.raw("", wrapped_script, format="html")]
+        autoload = [autoload_script(height_hint=height_hint, script=script)]
 
-        return target + intro + above + element + below
+        return target + intro + above + autoload + below
 
     def process_code_block(self, source: str):
         source_position = self.options.get("source-position", "below")
@@ -246,6 +264,7 @@ def build_finished(app, exception):
 def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_directive("bokeh-plot", BokehPlotDirective)
+    app.add_node(autoload_script, html=autoload_script.html)
     app.add_config_value("bokeh_missing_google_api_key_ok", True, "html")
     app.connect("builder-inited", builder_inited)
     app.connect("build-finished", build_finished)
