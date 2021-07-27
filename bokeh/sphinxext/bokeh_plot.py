@@ -173,7 +173,7 @@ class BokehPlotDirective(BokehDirective):
         try:
             (script, js, js_path, source, doc, height_hint) = _process_script(source, path, env, js_name)
         except Exception as e:
-            raise RuntimeError(f"Sphinx bokeh-plot exception: \n\n{e}\n\n Failed on:\n\n {source}")
+            raise SphinxError(f"Sphinx bokeh-plot exception: \n\n{e}\n\n Failed on:\n\n {source}")
         env.bokeh_plot_files[js_name] = (js_path, dirname(env.docname))
 
         # use the source file name to construct a friendly target_id
@@ -187,27 +187,36 @@ class BokehPlotDirective(BokehDirective):
             result += [elem for elem in docstring]
             source = _remove_module_docstring(source, doc)
 
-        # strip leading/trailing whitespace from source code
-        source = source.strip()
+        above, below = self.process_code_block(source)
 
-        linenos = self.options.get("linenos", False)
-        code = nodes.literal_block(source, source, language="python", linenos=linenos, classes=[])
-
-        set_source_info(self, code)
-
-        source_position = self.options.get("source-position", "below")
-
-        if source_position == "above":
-            result += [code]
+        result += above
 
         element = f'<div style="height:{height_hint}px;">{script}</div>' if height_hint else script
         result += [nodes.raw("", element, format="html")]
 
-        if source_position == "below":
-            result += [code]
+        result += below
 
         return result
 
+    def process_code_block(self, source: str):
+        source_position = self.options.get("source-position", "below")
+        if source_position == "none":
+            return [], []
+
+        source = source.strip()
+
+        linenos = self.options.get("linenos", False)
+
+        code_block = nodes.literal_block(source, source, language="python", linenos=linenos, classes=[])
+        set_source_info(self, code_block)
+
+        if source_position == "above":
+            return [code_block], []
+
+        if source_position == "below":
+            return [], [code_block]
+
+        raise SphinxError(f"Unrecognized source-position for bokeh-plot:: directive: {source_position!r}")
 
 # -----------------------------------------------------------------------------
 # Dev API
@@ -271,10 +280,10 @@ def _process_script(source, filename, env, js_name):
         c.modify_document(d)
 
     if c.error:
-        raise RuntimeError(c.error_detail)
+        raise RuntimeError(f"bokeh-plot:: directive encountered error:\n\n{c.error_detail}")
 
     if len(d.roots) != 1:
-        raise RuntimeError(f"bokeh-plot directive expects a single Document root, got {len(d.roots)}")
+        raise RuntimeError(f"bokeh-plot:: directive expects a single Document root, got {len(d.roots)}")
     root = d.roots[0]
 
     height_hint = None
