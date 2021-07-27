@@ -212,6 +212,19 @@ class CanvasGradient {
    * Adds a color stop to the gradient root
    */
   addColorStop(offset: number, color: string): void {
+    if (
+      this.__root.nodeName === "linearGradient" &&
+      this.__root.getAttribute("x1") === this.__root.getAttribute("x2") &&
+      this.__root.getAttribute("y1") === this.__root.getAttribute("y2")
+    ) return
+
+    if (
+      this.__root.nodeName === "radialGradient" &&
+      this.__root.getAttribute("cx") === this.__root.getAttribute("fx") &&
+      this.__root.getAttribute("cy") === this.__root.getAttribute("fy") &&
+      this.__root.getAttribute("r") === this.__root.getAttribute("r0")
+    ) return
+
     const stop = this.__ctx.__createElement("stop")
     stop.setAttribute("offset", `${offset}`)
     if (color.indexOf("rgba") !== -1) {
@@ -908,8 +921,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * Adds a radial gradient to a defs tag.
     * Returns a canvas gradient object that has a reference to it's parent def
     */
-  createRadialGradient(x0: number, y0: number, _r0: number, x1: number, y1: number, r1: number): CanvasGradient {
-    if (!isFinite(x0 + y0 + _r0 + x1 + y1 + r1))
+  createRadialGradient(x0: number, y0: number, r0: number, x1: number, y1: number, r1: number): CanvasGradient {
+    if (!isFinite(x0 + y0 + r0 + x1 + y1 + r1))
       throw new Error("The provided double value is non-finite")
     const [tx0, ty0] = this._transform.apply(x0, y0)
     const [tx1, ty1] = this._transform.apply(x1, y1)
@@ -918,6 +931,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       cx: `${tx1}px`,
       cy: `${ty1}px`,
       r: `${r1}px`,
+      r0: `${r0}px`,
       fx: `${tx0}px`,
       fy: `${ty0}px`,
       gradientUnits: "userSpaceOnUse",
