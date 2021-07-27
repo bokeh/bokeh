@@ -106,7 +106,6 @@ from sphinx.util.nodes import set_source_info
 from bokeh.document import Document
 from bokeh.embed import autoload_static
 from bokeh.model import Model
-from bokeh.models import Plot
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
@@ -263,10 +262,7 @@ def _process_script(source, filename, env, js_name):
 
     root, docstring = _evaluate_source(source, filename, env)
 
-    height_hint = None
-    if isinstance(root, Plot):
-        if root.sizing_mode in ("stretch_width", "fixed", None):
-            height_hint = root.height
+    height_hint = root._sphinx_height_hint()
 
     js_path = join(env.bokeh_plot_auxdir, js_name)
     js, script = autoload_static(root, RESOURCES, js_name)
