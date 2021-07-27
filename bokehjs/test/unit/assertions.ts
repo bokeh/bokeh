@@ -13,6 +13,14 @@ type ToVal<T> = {
   to: Be<T>
 }
 
+type ToElement = {
+  to: Have
+}
+
+type Have = {
+  have: ElementAssertions
+}
+
 type Throw = {
   throw(error_type?: Class<Error>, pattern?: RegExp | string): void
 }
@@ -119,6 +127,14 @@ class Asserts implements Assertions<unknown> {
     if (!Object.is(this.value, expected) == !this.negated) {
       const be = this.negated ? "not be" : "be"
       throw new ExpectationError(`expected ${to_string(value)} to ${be} identical to ${to_string(expected)}`)
+    }
+  }
+
+  equal_attributes(expected: unknown): void {
+    const {value} = this
+    if (!is_equal(this.value, expected) == !this.negated) {
+      const be = this.negated ? "not be" : "be"
+      throw new ExpectationError(`expected ${to_string(value)} to ${be} equal to ${to_string(expected)}`)
     }
   }
 
@@ -283,5 +299,13 @@ export function expect<T>(fn_or_val: (() => T) | T): ToFn<T> | ToVal<T> {
         not: {be: new Asserts(val, true)},
       },
     }
+  }
+}
+
+export function expect_element(element: Element): ToElement {
+  return {
+    to: {
+      have: new ElementAsserts(element),
+    },
   }
 }
