@@ -135,11 +135,11 @@ class autoload_script(nodes.General, nodes.Element):
 
     @staticmethod
     def visit_html(visitor, node):
-        script = node["script"]
+        script_tag = node["script_tag"]
         height_hint = node["height_hint"]
         if height_hint:
             visitor.body.append(f'<div style="height:{height_hint}px;">')
-        visitor.body.append(script)
+        visitor.body.append(script_tag)
 
     @staticmethod
     def depart_html(visitor, node):
@@ -162,42 +162,38 @@ class BokehPlotDirective(BokehDirective):
     }
 
     def run(self):
-        dashed_docname = self.env.docname.replace("/", "-")
-
         source, path = self.process_args_or_content()
 
-        js_name = f"bokeh-plot-{uuid4().hex}-external-{dashed_docname}.js"
+        dashed_docname = self.env.docname.replace("/", "-")
+
+        js_filename = f"bokeh-content-{uuid4().hex}-{dashed_docname}.js"
 
         try:
-            (script, js_path, source, doc, height_hint) = _process_script(source, path, self.env, js_name)
+            (script_tag, js_path, source, docstring, height_hint) = self.process_source(source, path, js_filename)
         except Exception as e:
-            raise SphinxError(f"Sphinx bokeh-plot exception: \n\n{e}\n\n Failed on:\n\n {source}")
-        self.env.bokeh_plot_files[js_name] = (js_path, dirname(self.env.docname))
+            raise SphinxError(f"Error generating {js_filename}: \n\n{e}")
+        self.env.bokeh_plot_files.add((js_path, dirname(self.env.docname)))
 
         # use the source file name to construct a friendly target_id
         target_id = f"{dashed_docname}.{basename(js_path)}"
         target = [nodes.target("", "", ids=[target_id])]
 
         process_docstring = self.options.get("process-docstring", False)
-        if doc and process_docstring:
-            source = _remove_module_docstring(source, doc)
-            intro = list(self._parse(doc, '<bokeh-plot>'))
-        else:
-            intro = []
+        intro = self._parse(docstring, '<bokeh-content>') if docstring and process_docstring else []
 
-        above, below = self.process_code_block(source)
+        above, below = self.process_code_block(source, docstring)
 
-        autoload = [autoload_script(height_hint=height_hint, script=script)]
+        autoload = [autoload_script(height_hint=height_hint, script_tag=script_tag)]
 
         return target + intro + above + autoload + below
 
-    def process_code_block(self, source: str):
+    def process_code_block(self, source: str, docstring: str|None):
         source_position = self.options.get("source-position", "below")
 
         if source_position == "none":
             return [], []
 
-        source = source.strip()
+        source = _remove_module_docstring(source, docstring).strip()
 
         linenos = self.options.get("linenos", False)
         code_block = nodes.literal_block(source, source, language="python", linenos=linenos, classes=[])
@@ -208,8 +204,6 @@ class BokehPlotDirective(BokehDirective):
 
         if source_position == "below":
             return [], [code_block]
-
-        raise SphinxError(f"Unrecognized source-position for bokeh-plot:: directive: {source_position!r}")
 
     def process_args_or_content(self):
         # filename *or* python code content, but not both
@@ -231,6 +225,21 @@ class BokehPlotDirective(BokehDirective):
         except Exception as e:
             raise SphinxError(f"bokeh-plot:: error reading source for {self.env.docname!r}: {e!r}")
 
+    def process_source(self, source, path, js_filename):
+        Model._clear_extensions()
+
+        root, docstring = _evaluate_source(source, path, self.env)
+
+        height_hint = root._sphinx_height_hint()
+
+        js_path = join(self.env.bokeh_plot_auxdir, js_filename)
+        js, script_tag = autoload_static(root, RESOURCES, js_filename)
+
+        with open(js_path, "w") as f:
+            f.write(js)
+
+        return (script_tag, js_path, source, docstring, height_hint)
+
 # -----------------------------------------------------------------------------
 # Dev API
 # -----------------------------------------------------------------------------
@@ -238,19 +247,15 @@ class BokehPlotDirective(BokehDirective):
 
 def builder_inited(app):
     app.env.bokeh_plot_auxdir = join(app.env.doctreedir, "bokeh_plot")
-    ensuredir(app.env.bokeh_plot_auxdir)  # sphinx/_build/doctrees/bokeh_plot
+    ensuredir(app.env.bokeh_plot_auxdir)  # sphinx/build/doctrees/bokeh_plot
 
     if not hasattr(app.env, "bokeh_plot_files"):
-        app.env.bokeh_plot_files = {}
+        app.env.bokeh_plot_files = set()
 
 
 def build_finished(app, exception):
-    files = set()
-
-    for (js_path, docpath) in app.env.bokeh_plot_files.values():
-        files.add((js_path, docpath))
-
-    files_iter = status_iterator(sorted(files), "copying bokeh-plot files... ", "brown", len(files), app.verbosity, stringify_func=lambda x: basename(x[0]))
+    files = sorted(app.env.bokeh_plot_files)
+    files_iter = status_iterator(files, "copying bokeh-plot files... ", "brown", len(files), app.verbosity, stringify_func=lambda x: basename(x[0]))
 
     for (file, docpath) in files_iter:
         target = join(app.builder.outdir, docpath, basename(file))
@@ -273,23 +278,6 @@ def setup(app):
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
-
-
-def _process_script(source, filename, env, js_name):
-    # Explicitly make sure any previous extensions are not included
-    Model._clear_extensions()
-
-    root, docstring = _evaluate_source(source, filename, env)
-
-    height_hint = root._sphinx_height_hint()
-
-    js_path = join(env.bokeh_plot_auxdir, js_name)
-    js, script = autoload_static(root, RESOURCES, js_name)
-
-    with open(js_path, "w") as f:
-        f.write(js)
-
-    return (script, js_path, source, docstring, height_hint)
 
 
 # quick and dirty way to inject Google API key
@@ -323,7 +311,7 @@ def _evaluate_source(source: str, filename: str, env):
         c.modify_document(d)
 
     if c.error:
-        raise RuntimeError(f"bokeh-plot:: directive encountered error:\n\n{c.error_detail}")
+        raise RuntimeError(f"bokeh-plot:: error:\n\n{c.error_detail}\n\nevaluating source:\n\n{source}")
 
     if len(d.roots) != 1:
         raise RuntimeError(f"bokeh-plot:: directive expects a single Document root, got {len(d.roots)}")
@@ -331,8 +319,10 @@ def _evaluate_source(source: str, filename: str, env):
     return d.roots[0], c.doc.strip() if c.doc else None
 
 
-def _remove_module_docstring(source, doc):
-    return re.sub(rf'(\'\'\'|\"\"\")\s*{re.escape(doc)}\s*(\'\'\'|\"\"\")', "", source)
+def _remove_module_docstring(source, docstring):
+    if docstring is None:
+        return source
+    return re.sub(rf'(\'\'\'|\"\"\")\s*{re.escape(docstring)}\s*(\'\'\'|\"\"\")', "", source)
 
 # -----------------------------------------------------------------------------
 # Code
