@@ -26,8 +26,8 @@ import re
 
 # External imports
 from docutils import nodes
-from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import nested_parse_with_titles
 
 # -----------------------------------------------------------------------------
@@ -59,7 +59,7 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-class BokehDirective(Directive):
+class BokehDirective(SphinxDirective):
     def _parse(self, rst_text, annotation):
         result = ViewList()
         for line in rst_text.split("\n"):

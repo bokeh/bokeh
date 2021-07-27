@@ -138,25 +138,23 @@ class BokehPlotDirective(BokehDirective):
     optional_arguments = 2
 
     option_spec = {
-        "process-docstring": lambda x: True if flag(x) is None else False,
+        "process-docstring": lambda x: flag(x) is None,
         "source-position": lambda x: choice(x, ("below", "above", "none")),
-        "linenos": lambda x: True if flag(x) is None else False,
+        "linenos": lambda x: flag(x) is None,
     }
 
     def run(self):
-        env = self.state.document.settings.env
-
-        dashed_docname = env.docname.replace("/", "-")
+        dashed_docname = self.env.docname.replace("/", "-")
 
         source, path = self.process_args_or_content()
 
         js_name = f"bokeh-plot-{uuid4().hex}-external-{dashed_docname}.js"
 
         try:
-            (script, js_path, source, doc, height_hint) = _process_script(source, path, env, js_name)
+            (script, js_path, source, doc, height_hint) = _process_script(source, path, self.env, js_name)
         except Exception as e:
             raise SphinxError(f"Sphinx bokeh-plot exception: \n\n{e}\n\n Failed on:\n\n {source}")
-        env.bokeh_plot_files[js_name] = (js_path, dirname(env.docname))
+        self.env.bokeh_plot_files[js_name] = (js_path, dirname(self.env.docname))
 
         # use the source file name to construct a friendly target_id
         target_id = f"{dashed_docname}.{basename(js_path)}"
@@ -197,26 +195,24 @@ class BokehPlotDirective(BokehDirective):
         raise SphinxError(f"Unrecognized source-position for bokeh-plot:: directive: {source_position!r}")
 
     def process_args_or_content(self):
-        env = self.state.document.settings.env
-
         # filename *or* python code content, but not both
         if self.arguments and self.content:
             raise SphinxError("bokeh-plot:: directive can't have both args and content")
 
         if self.content:
-            log.debug(f"[bokeh-plot] handling inline content in {env.docname!r}")
-            path = env.bokeh_plot_auxdir  # code runner just needs any real path
+            log.debug(f"[bokeh-plot] handling inline content in {self.env.docname!r}")
+            path = self.env.bokeh_plot_auxdir  # code runner just needs any real path
             return "\n".join(self.content), path
 
         path = self.arguments[0]
-        log.debug(f"[bokeh-plot] handling external content in {env.docname!r}: {path}")
+        log.debug(f"[bokeh-plot] handling external content in {self.env.docname!r}: {path}")
         if not path.startswith("/"):
-            path = join(env.app.srcdir, path)
+            path = join(self.env.app.srcdir, path)
         try:
             with open(path) as f:
                 return f.read(), path
         except Exception as e:
-            raise SphinxError(f"bokeh-plot:: error reading source for {env.docname!r}: {e!r}")
+            raise SphinxError(f"bokeh-plot:: error reading source for {self.env.docname!r}: {e!r}")
 
 # -----------------------------------------------------------------------------
 # Dev API
