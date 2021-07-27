@@ -269,15 +269,19 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
     if c.error:
         raise RuntimeError(c.error_detail)
 
+    if len(d.roots) != 1:
+        raise RuntimeError(f"bokeh-plot directive expects a single Document root, got {len(d.roots)}")
+    root = d.roots[0]
+
     height_hint = None
-    if len(d.roots) == 1 and isinstance(d.roots[0], Plot):
+    if isinstance(root, Plot):
         plot = d.roots[0]
         if plot.sizing_mode in ("stretch_width", "fixed", None):
             height_hint = plot.height
 
     resources = get_sphinx_resources()
     js_path = join(env.bokeh_plot_auxdir, js_name)
-    js, script = autoload_static(d.roots[0], resources, js_name)
+    js, script = autoload_static(root, resources, js_name)
 
     with open(js_path, "w") as f:
         f.write(js)
