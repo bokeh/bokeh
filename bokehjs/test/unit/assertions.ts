@@ -62,7 +62,19 @@ function compare_attributes(actual: Element, expected: Element, ignored_attribut
     throw new ExpectationError(`expected <${actual.nodeName} /> to be equal <${expected.nodeName} />`)
 
   for (const attr of expected.attributes) {
+    const attr_val = actual.getAttribute(attr.name)
+    let error = false
+
+    if (!attr.value || attr.value === 'none' || attr.value === 'null')
+      if (!attr_val || attr_val === 'none' || attr_val === 'null')
+        continue
+      else
+        error = true
+
     if (actual.getAttribute(attr.name) !== attr.value && !ignored_attributes.includes(attr.name))
+      error = true
+
+    if (error)
       throw new ExpectationError(`expected ${attr.name}="${attr.value}" to be equal ${attr.name}="${actual.getAttribute(attr.name)}"`)
   }
 }
