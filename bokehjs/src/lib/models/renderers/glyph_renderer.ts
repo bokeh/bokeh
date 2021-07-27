@@ -100,7 +100,7 @@ export class GlyphRendererView extends DataRendererView {
     selection_glyph = glyph_from_mode(selection_defaults, selection_glyph)
     this.selection_glyph = await this.build_glyph_view(selection_glyph)
 
-    nonselection_glyph = glyph_from_mode(nonselection_defaults, selection_glyph)
+    nonselection_glyph = glyph_from_mode(nonselection_defaults, nonselection_glyph)
     this.nonselection_glyph = await this.build_glyph_view(nonselection_glyph)
 
     hover_glyph = glyph_from_mode(hover_defaults, hover_glyph)
