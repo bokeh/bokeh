@@ -221,14 +221,14 @@ class GlyphRenderer(DataRenderer):
     and ranges.
     """)
 
-    selection_glyph = Nullable(Either(Auto, Instance(Glyph), Null, default="auto"), help=""""
+    selection_glyph = Nullable(Either(Auto, Instance(Glyph)), default="auto", help=""""
     An optional glyph used for selected points.
 
     If set to "auto" then the standard glyph will be used for selected
     points.
     """)
 
-    nonselection_glyph = Nullable(Either(Auto, Instance(Glyph), Null, default="auto"), help="""
+    nonselection_glyph = Nullable(Either(Auto, Instance(Glyph)), default="auto", help=""""
     An optional glyph used for explicitly non-selected points
     (i.e., non-selected when there are other points that are selected,
     but not when no points at all are selected.)
@@ -242,7 +242,7 @@ class GlyphRenderer(DataRenderer):
     being hovered over by a ``HoverTool``.
     """)
 
-    muted_glyph = Nullable(Either(Auto, Instance(Glyph), Null, default="auto"), help="""
+    muted_glyph = Nullable(Either(Auto, Instance(Glyph)), default="auto", help=""""
     """)
 
     muted = Bool(False, help="""
