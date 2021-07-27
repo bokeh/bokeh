@@ -101,10 +101,8 @@ def get_graph_kwargs(node_source, edge_source, **kwargs):
     else:
         hnode_visuals = None
 
-    #Always set muted glyph
     mnode_visuals = pop_visuals(marker_type, kwargs, prefix="node_muted_", defaults=node_visuals, override_defaults={'alpha':0.2})
 
-    #Always set nonselection glyph
     nsnode_visuals = pop_visuals(marker_type, kwargs, prefix="node_nonselection_", defaults=node_visuals)
 
     ## edge stuff
@@ -120,10 +118,8 @@ def get_graph_kwargs(node_source, edge_source, **kwargs):
     else:
         hedge_visuals = None
 
-    #Always set muted glyph
     medge_visuals = pop_visuals(MultiLine, kwargs, prefix="edge_muted_", defaults=edge_visuals, override_defaults={'alpha':0.2})
 
-    #Always set nonselection glyph
     nsedge_visuals = pop_visuals(MultiLine, kwargs, prefix="edge_nonselection_", defaults=edge_visuals)
 
     ## node stuff
