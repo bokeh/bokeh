@@ -129,7 +129,7 @@ class BokehOptionsDirective(BokehDirective):
 
         rst_text = OPTIONS_DETAIL.render(opts=opts)
 
-        return self._parse(rst_text, "<bokeh-options>")
+        return self.parse(rst_text, "<bokeh-options>")
 
 
 def setup(app):

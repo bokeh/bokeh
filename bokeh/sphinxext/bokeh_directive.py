@@ -60,7 +60,8 @@ __all__ = (
 
 
 class BokehDirective(SphinxDirective):
-    def _parse(self, rst_text, annotation):
+
+    def parse(self, rst_text, annotation):
         result = ViewList()
         for line in rst_text.split("\n"):
             result.append(line, annotation)

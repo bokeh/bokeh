@@ -179,7 +179,7 @@ class BokehPlotDirective(BokehDirective):
         target = [nodes.target("", "", ids=[target_id])]
 
         process_docstring = self.options.get("process-docstring", False)
-        intro = self._parse(docstring, '<bokeh-content>') if docstring and process_docstring else []
+        intro = self.parse(docstring, '<bokeh-content>') if docstring and process_docstring else []
 
         above, below = self.process_code_block(source, docstring)
 

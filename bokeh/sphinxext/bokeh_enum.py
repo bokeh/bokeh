@@ -121,7 +121,7 @@ class BokehEnumDirective(BokehDirective):
             fullrepr=fullrepr,
         )
 
-        return self._parse(rst_text, "<bokeh-enum>")
+        return self.parse(rst_text, "<bokeh-enum>")
 
 
 def setup(app):
