@@ -160,34 +160,31 @@ class BokehPlotDirective(BokehDirective):
 
         # use the source file name to construct a friendly target_id
         target_id = f"{dashed_docname}.{basename(js_path)}"
-        result = [nodes.target("", "", ids=[target_id])]
+        target = [nodes.target("", "", ids=[target_id])]
 
         process_docstring = self.options.get("process-docstring", False)
         if doc and process_docstring:
-            docstring = self._parse(doc, '<bokeh-plot>')
-            result += [elem for elem in docstring]
             source = _remove_module_docstring(source, doc)
+            intro = list(self._parse(doc, '<bokeh-plot>'))
+        else:
+            intro = []
 
         above, below = self.process_code_block(source)
 
-        result += above
+        wrapped_script = f'<div style="height:{height_hint}px;">{script}</div>' if height_hint else script
+        element = [nodes.raw("", wrapped_script, format="html")]
 
-        element = f'<div style="height:{height_hint}px;">{script}</div>' if height_hint else script
-        result += [nodes.raw("", element, format="html")]
-
-        result += below
-
-        return result
+        return target + intro + above + element + below
 
     def process_code_block(self, source: str):
         source_position = self.options.get("source-position", "below")
+
         if source_position == "none":
             return [], []
 
         source = source.strip()
 
         linenos = self.options.get("linenos", False)
-
         code_block = nodes.literal_block(source, source, language="python", linenos=linenos, classes=[])
         set_source_info(self, code_block)
 
@@ -285,7 +282,7 @@ def _process_script(source, filename, env, js_name):
 
 
 # quick and dirty way to inject Google API key
-def _check_google_api_key(source: str) -> str:
+def _check_google_api_key(source: str, env) -> str:
     if "GOOGLE_API_KEY" not in source:
         return source
 
@@ -301,7 +298,7 @@ def _check_google_api_key(source: str) -> str:
 
 
 def _evaluate_source(source: str, filename: str, env):
-    source = _check_google_api_key(source)
+    source = _check_google_api_key(source, env)
 
     c = ExampleHandler(source=source, filename=filename)
     d = Document()
