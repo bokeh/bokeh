@@ -123,6 +123,10 @@ __all__ = (
     "setup",
 )
 
+GOOGLE_API_KEY = getenv("GOOGLE_API_KEY")
+
+RESOURCES = get_sphinx_resources()
+
 # -----------------------------------------------------------------------------
 # General API
 # -----------------------------------------------------------------------------
@@ -279,9 +283,8 @@ def _process_script(source, filename, env, js_name):
         if plot.sizing_mode in ("stretch_width", "fixed", None):
             height_hint = plot.height
 
-    resources = get_sphinx_resources()
     js_path = join(env.bokeh_plot_auxdir, js_name)
-    js, script = autoload_static(root, resources, js_name)
+    js, script = autoload_static(root, RESOURCES, js_name)
 
     with open(js_path, "w") as f:
         f.write(js)
@@ -294,15 +297,14 @@ def _check_google_api_key(source: str) -> str:
     if "GOOGLE_API_KEY" not in source:
         return source
 
-    GOOGLE_API_KEY = getenv("GOOGLE_API_KEY")
     if GOOGLE_API_KEY is None:
         if env.config.bokeh_missing_google_api_key_ok:
-            GOOGLE_API_KEY = "MISSING_API_KEY"
-        else:
-            raise SphinxError(
-                "The GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
-                "or set bokeh_missing_google_api_key_ok=True in conf.py to build anyway (with broken GMaps)"
-            )
+            return source.replace("GOOGLE_API_KEY", "MISSING_API_KEY")
+        raise SphinxError(
+            "The GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
+            "or set bokeh_missing_google_api_key_ok=True in conf.py to build anyway (with broken GMaps)"
+        )
+
     return source.replace("GOOGLE_API_KEY", GOOGLE_API_KEY)
 
 
