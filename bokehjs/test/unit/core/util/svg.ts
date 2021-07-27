@@ -916,7 +916,7 @@ describe("SVGRenderingContext2d", () => {
           d="M 0 0 L 200 0 L 200 200 L 0 200 L 0 0"
         />
       </svg>
-    `), ["id", "fill"])
+    `), ["id", "fill", "xlink:href"])
   })
 
   it("Create a pattern from an image", async () => {
