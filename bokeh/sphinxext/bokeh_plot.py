@@ -253,20 +253,7 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
     # automatic mechanism is available
     Model._clear_extensions()
 
-    # quick and dirty way to inject Google API key
-    if "GOOGLE_API_KEY" in source:
-        GOOGLE_API_KEY = getenv("GOOGLE_API_KEY")
-        if GOOGLE_API_KEY is None:
-            if env.config.bokeh_missing_google_api_key_ok:
-                GOOGLE_API_KEY = "MISSING_API_KEY"
-            else:
-                raise SphinxError(
-                    "The GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
-                    "or set bokeh_missing_google_api_key_ok=True in conf.py to build anyway (with broken GMaps)"
-                )
-        run_source = source.replace("GOOGLE_API_KEY", GOOGLE_API_KEY)
-    else:
-        run_source = source
+    run_source = _check_google_api_key(source)
 
     c = ExampleHandler(source=run_source, filename=filename)
     d = Document()
@@ -298,8 +285,24 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
     return (script, js, js_path, source, c.doc.strip() if c.doc else None, height_hint)
 
 
+# quick and dirty way to inject Google API key
+def _check_google_api_key(source: str) -> str:
+    if "GOOGLE_API_KEY" not in source:
+        return source
+
+    GOOGLE_API_KEY = getenv("GOOGLE_API_KEY")
+    if GOOGLE_API_KEY is None:
+        if env.config.bokeh_missing_google_api_key_ok:
+            GOOGLE_API_KEY = "MISSING_API_KEY"
+        else:
+            raise SphinxError(
+                "The GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
+                "or set bokeh_missing_google_api_key_ok=True in conf.py to build anyway (with broken GMaps)"
+            )
+    return source.replace("GOOGLE_API_KEY", GOOGLE_API_KEY)
+
+
 def _remove_module_docstring(source, doc):
-    # take docstring out of source so it doesn't show up twice
     return re.sub(rf'(\'\'\'|\"\"\")\s*{re.escape(doc)}\s*(\'\'\'|\"\"\")', "", source)
 
 # -----------------------------------------------------------------------------
