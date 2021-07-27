@@ -269,7 +269,7 @@ using sphinx_panels */
      line-height: normal;
  }
 
-.collapsible {
+.bk-collapsible {
   background-color: #eee;
   color: #444;
   cursor: pointer;
@@ -282,12 +282,12 @@ using sphinx_panels */
 }
 
 /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
-.active, .collapsible:hover {
+.active.bk-collapsible:hover {
   background-color: #ccc;
 }
 
 /* Style the collapsible content. Note: hidden by default */
-.content {
+.bk-collapsible-content {
   padding: 0 18px;
   display: none;
   overflow: hidden;

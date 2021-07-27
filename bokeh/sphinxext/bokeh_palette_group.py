@@ -59,7 +59,6 @@ from .templates import PALETTE_GROUP_DETAIL
 __all__ = (
     "bokeh_palette_group",
     "BokehPaletteGroupDirective",
-    "html_visit_bokeh_palette_group",
     "setup",
 )
 
@@ -73,7 +72,29 @@ __all__ = (
 
 
 class bokeh_palette_group(nodes.General, nodes.Element):
-    pass
+
+    @staticmethod
+    def visit_html(visitor, node):
+        visitor.body.append('<div class="container-fluid"><div class="row">')
+        group = getattr(bp, node["group"], None)
+        if not isinstance(group, dict):
+            group_name = node["group"]
+            raise SphinxError(f"invalid palette group name {group_name}")
+        names = sorted(group)
+        for name in names:
+            palettes = group[name]
+            # arbitrary cutoff here, idea is to not show large (e.g 256 length) palettes
+            numbers = [x for x in sorted(palettes) if x < 30]
+            html = PALETTE_GROUP_DETAIL.render(name=name, numbers=numbers, palettes=palettes)
+            visitor.body.append(html)
+        visitor.body.append("</div></div>")
+        raise nodes.SkipNode
+
+    @staticmethod
+    def depart_html(_visitor, _node):
+        pass
+
+    html = visit_html.__func__, depart_html.__func__
 
 
 class BokehPaletteGroupDirective(Directive):
@@ -87,28 +108,9 @@ class BokehPaletteGroupDirective(Directive):
         return [node]
 
 
-# NOTE: This extension now *assumes* both Bootstrap and JQuery are present
-# (which is now the case for the Bokeh docs theme).
-def html_visit_bokeh_palette_group(self, node):
-    self.body.append('<div class="container-fluid"><div class="row">')
-    group = getattr(bp, node["group"], None)
-    if not isinstance(group, dict):
-        group_name = node["group"]
-        raise SphinxError(f"invalid palette group name {group_name}")
-    names = sorted(group)
-    for name in names:
-        palettes = group[name]
-        # arbitrary cutoff here, idea is to not show large (e.g 256 length) palettes
-        numbers = [x for x in sorted(palettes) if x < 30]
-        html = PALETTE_GROUP_DETAIL.render(name=name, numbers=numbers, palettes=palettes)
-        self.body.append(html)
-    self.body.append("</div></div>")
-    raise nodes.SkipNode
-
-
 def setup(app):
     """ Required Sphinx extension setup function. """
-    app.add_node(bokeh_palette_group, html=(html_visit_bokeh_palette_group, None))
+    app.add_node(bokeh_palette_group, html=bokeh_palette_group.html)
     app.add_directive("bokeh-palette-group", BokehPaletteGroupDirective)
 
 

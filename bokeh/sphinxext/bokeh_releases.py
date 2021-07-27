@@ -73,8 +73,8 @@ class sri_table(nodes.General, nodes.Element):
     def visit_html(visitor, node):
         version = node["version"]
         table = node["table"]
-        visitor.body.append(f'<button type="button" class="collapsible">Table of SRI Hashes for version {version}</button>')
-        visitor.body.append('<div class="content">')
+        visitor.body.append(f'<button type="button" class="bk-collapsible">Table of SRI Hashes for version {version}</button>')
+        visitor.body.append('<div class="bk-collapsible-content">')
         visitor.body.append(SRI_TABLE.render(table=table))
         visitor.body.append("</div>")
 

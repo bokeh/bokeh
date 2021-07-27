@@ -281,7 +281,7 @@ def setup(app):
 
 
 # quick and dirty way to inject Google API key
-def _check_google_api_key(source: str, env) -> str:
+def _replace_google_api_key(source: str, env) -> str:
     if "GOOGLE_API_KEY" not in source:
         return source
 
@@ -297,14 +297,13 @@ def _check_google_api_key(source: str, env) -> str:
 
 
 def _evaluate_source(source: str, filename: str, env):
-    source = _check_google_api_key(source, env)
+    source = _replace_google_api_key(source, env)
 
     c = ExampleHandler(source=source, filename=filename)
     d = Document()
 
-    # We may need to instantiate deprecated objects as part of documenting
-    # them in the reference guide. Suppress any warnings here to keep the
-    # docs build clean just for this case
+    # We may need to instantiate deprecated objects as part of documenting them
+    # in the reference guide. Suppress warnings here to keep the build clean
     with warnings.catch_warnings():
         if "reference" in env.docname:
             warnings.filterwarnings("ignore", category=BokehDeprecationWarning)

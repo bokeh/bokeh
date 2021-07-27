@@ -95,8 +95,6 @@ if False:
 __all__ = (
     "bokehjs_content",
     "BokehJSContent",
-    "html_depart_bokehjs_content",
-    "html_visit_bokehjs_content",
     "setup",
 )
 
@@ -110,7 +108,21 @@ __all__ = (
 
 
 class bokehjs_content(nodes.General, nodes.Element):
-    pass
+
+    @staticmethod
+    def visit_html(visitor, node):
+        if node["include_bjs_header"]:
+            # we only want to inject the CODEPEN_INIT on one bokehjs-content block per page
+            resources = get_sphinx_resources(include_bokehjs_api=True)
+            visitor.body.append(BJS_CODEPEN_INIT.render(css_files=resources.css_files, js_files=resources.js_files))
+
+        visitor.body.append(BJS_PROLOGUE.render(id=node["target_id"], title=node["title"]))
+
+    @staticmethod
+    def depart_html(visitor, node):
+        visitor.body.append(BJS_EPILOGUE.render(title=node["title"], enable_codepen=not node["disable_codepen"], js_source=node["js_source"]))
+
+    html = visit_html.__func__, depart_html.__func__
 
 
 class BokehJSContent(CodeBlock):
@@ -244,28 +256,9 @@ class BokehJSContent(CodeBlock):
         return [target_node, node]
 
 
-def html_visit_bokehjs_content(self, node):
-    if node["include_bjs_header"]:
-        # we only want to inject the CODEPEN_INIT on one
-        # bokehjs-content block per page
-        resources = get_sphinx_resources(include_bokehjs_api=True)
-        self.body.append(BJS_CODEPEN_INIT.render(css_files=resources.css_files, js_files=resources.js_files))
-
-    self.body.append(
-        BJS_PROLOGUE.render(
-            id=node["target_id"],
-            title=node["title"],
-        )
-    )
-
-
-def html_depart_bokehjs_content(self, node):
-    self.body.append(BJS_EPILOGUE.render(title=node["title"], enable_codepen=not node["disable_codepen"], js_source=node["js_source"]))
-
-
 def setup(app):
     """ Required Sphinx extension setup function. """
-    app.add_node(bokehjs_content, html=(html_visit_bokehjs_content, html_depart_bokehjs_content))
+    app.add_node(bokehjs_content, html=bokehjs_content.html)
     app.add_directive("bokehjs-content", BokehJSContent)
 
 
