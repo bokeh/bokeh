@@ -38,6 +38,11 @@ const nonselection_defaults: Defaults = {
   line: {},
 }
 
+const hover_defaults: Defaults = {
+  fill: {},
+  line: {},
+}
+
 const muted_defaults: Defaults = {
   fill: {fill_alpha: 0.2},
   line: {},
@@ -81,32 +86,30 @@ export class GlyphRendererView extends DataRendererView {
       return new (base_glyph.constructor as any)(attrs)
     }
 
-    let {selection_glyph} = this.model
-    if (selection_glyph == null)
-      selection_glyph = mk_glyph({fill: {}, line: {}})
-    else if (selection_glyph == "auto")
-      selection_glyph = mk_glyph(selection_defaults)
+    function glyph_from_mode(defaults: Defaults, glyph?: Glyph | "auto" | null): typeof base_glyph {
+      if (glyph instanceof Glyph){
+        return glyph
+      } else if (glyph == "auto"){
+        return mk_glyph(defaults)
+      }
+      return mk_glyph({fill: {}, line: {}})
+    }
+
+    let {selection_glyph, nonselection_glyph, hover_glyph, muted_glyph} = this.model
+    
+    selection_glyph = glyph_from_mode(selection_defaults, selection_glyph)
     this.selection_glyph = await this.build_glyph_view(selection_glyph)
 
-    let {nonselection_glyph} = this.model
-    if (nonselection_glyph == null)
-      nonselection_glyph = mk_glyph({fill: {}, line: {}})
-    else if (nonselection_glyph == "auto")
-      nonselection_glyph = mk_glyph(nonselection_defaults)
+    nonselection_glyph = glyph_from_mode(nonselection_defaults, selection_glyph)
     this.nonselection_glyph = await this.build_glyph_view(nonselection_glyph)
 
-    const {hover_glyph} = this.model
-    if (hover_glyph != null)
-      this.hover_glyph = await this.build_glyph_view(hover_glyph)
+    hover_glyph = glyph_from_mode(hover_defaults, hover_glyph)
+    this.hover_glyph = await this.build_glyph_view(hover_glyph)
 
-    let {muted_glyph} = this.model
-    if (muted_glyph == null)
-      muted_glyph = mk_glyph({fill: {}, line: {}})
-    else if (muted_glyph == "auto")
-      muted_glyph = mk_glyph(muted_defaults)
+    muted_glyph = glyph_from_mode(muted_defaults, muted_glyph)
     this.muted_glyph = await this.build_glyph_view(muted_glyph)
 
-    const decimated_glyph = mk_glyph(decimated_defaults)
+    const decimated_glyph = glyph_from_mode(decimated_defaults, "auto")
     this.decimated_glyph = await this.build_glyph_view(decimated_glyph)
 
     this.selection_glyph.set_base(this.glyph)
