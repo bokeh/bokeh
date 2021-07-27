@@ -223,6 +223,21 @@ function _clear_test(test: Test): void {
 }
 
 async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
+  function add_test_description_to_error(error: Error | unknown): Error {
+    if (error instanceof Error)
+      error.message = `
+● ${description(suites, test, " ⇒ ")}
+
+${error.message}`
+    else
+      error = new Error(`
+● ${description(suites, test, " ⇒ ")}
+
+${error}`)
+
+    return error as Error
+  }
+
   const {fn} = test
   const start = Date.now()
   let error: Error | null = null
@@ -240,7 +255,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
     await fn()
     await defer()
   } catch (err: unknown) {
-    error = err instanceof Error ? err : new Error(`${err}`)
+    error = add_test_description_to_error(err)
   } finally {
     current_test = null
 
@@ -265,7 +280,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
       const state = test.view.serializable_state()
       return {error, time, state, bbox}
     } catch (err: unknown) {
-      error = err instanceof Error ? err : new Error(`${err}`)
+      error = add_test_description_to_error(err)
     }
   }
   return {error, time}
@@ -293,13 +308,18 @@ export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, n
   return {view, el: vp}
 }
 
-function string_to_html(str: string): HTMLCollection {
+export function string_to_html(str: string): Element {
   const parser = new DOMParser()
   const doc = parser.parseFromString(str, "text/html")
-  return doc.body.children
+
+  for (const child of doc.body.children) {
+    return child
+  }
+
+  return new Element()
 }
 
-export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void, svg: string, {width, height}: {width: number, height: number}): Promise<void> {
+export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void, svg: SVGSVGElement, {width, height}: {width: number, height: number}): Promise<void> {
   const canvas = document.createElement("canvas")
   canvas.height = height
   canvas.width = width
@@ -310,9 +330,7 @@ export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void
 
   fn(ctx)
 
-  for (const child of string_to_html(svg)) {
-    container.appendChild(child)
-  }
+  container.appendChild(svg)
 
   await defer()
 }
