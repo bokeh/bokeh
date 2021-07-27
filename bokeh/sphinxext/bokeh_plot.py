@@ -113,7 +113,7 @@ from .bokeh_directive import BokehDirective
 from .example_handler import ExampleHandler
 from .util import get_sphinx_resources
 
-# -------------------------`----------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
 
