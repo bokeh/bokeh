@@ -65,8 +65,8 @@ function compare_attributes(actual: Element, expected: Element, ignored_attribut
     const attr_val = actual.getAttribute(attr.name)
     let error = false
 
-    if (!attr.value || attr.value === 'none' || attr.value === 'null')
-      if (!attr_val || attr_val === 'none' || attr_val === 'null')
+    if (!attr.value || attr.value === "none" || attr.value === "null")
+      if (!attr_val || attr_val === "none" || attr_val === "null")
         continue
       else
         error = true
