@@ -21,6 +21,7 @@ import pytest ; pytest
 from os import chdir
 from os.path import join
 from subprocess import run
+import sys
 
 from . import TOP_PATH
 
@@ -28,6 +29,7 @@ from . import TOP_PATH
 # Tests
 #-----------------------------------------------------------------------------
 
+@pytest.mark.skipif(sys.platform == "win32", reason="skip license tests on Windows")
 def test_license_set() -> None:
     ''' Ensure the top-level repo LICENSES.txt always matches the copy in
     the Python package folder (needed there when generating packages).
