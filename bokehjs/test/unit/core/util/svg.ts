@@ -546,4 +546,53 @@ describe("SVGRenderingContext2d", () => {
 
     expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="150"><defs/><path fill="none" stroke="gray" paint-order="fill" d="M 200 20 L 200 130 L 50 20" stroke-miterlimit="10" stroke-dasharray=""/><path fill="none" stroke="black" paint-order="fill" d="M 200 20 L 200 51.063799366031276 L 200 51.063799366031276 A 40 40 0 0 1 136.3454534548993 83.3199992002595" stroke-miterlimit="10" stroke-width="5" stroke-dasharray=""/><path fill="blue" stroke="none" paint-order="stroke" d="M 205 20 A 5 5 0 1 1 204.9999975000002 19.99500000083333"/><path fill="red" stroke="none" paint-order="stroke" d="M 205 130 A 5 5 0 1 1 204.9999975000002 129.99500000083333 L 55 20 A 5 5 0 1 1 54.999997500000205 19.99500000083333"/></svg>')
   })
+
+it("Support drawImage with HTMLImageElement", async () => {
+    const test = async (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      return new Promise<void>((resolve, _reject) => {
+        const img = new Image()
+        img.src = "/images/canvas_createpattern.png"
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0)
+          ctx.drawImage(img, 0, 0, 200, 200)
+          ctx.drawImage(img, 0, 0, 50, 50, 0, 0, 200, 200)
+          resolve()
+        }
+      })
+    }
+
+    const size = {width: 200, height: 200}
+    const ctx = new SVGRenderingContext2D(size)
+
+    await test(ctx)
+    const svg = ctx.get_svg()
+    await compare_on_dom(test, svg, size)
+
+    expect_element(svg).to.have.equal_attributes(string_to_html(`
+      <svg
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="200"
+        height="200"
+      >
+        <defs>
+          <pattern
+            id="NAcKBOHKdlrU"
+            width="86"
+            height="117"
+            patternUnits="userSpaceOnUse"
+          >
+            <image xlink:href="/images/canvas_createpattern.png" />
+          </pattern>
+        </defs>
+        <path
+          fill="url(#NAcKBOHKdlrU)"
+          stroke="none"
+          paint-order="stroke"
+          d="M 0 0 L 300 0 L 300 300 L 0 300 L 0 0"
+        />
+      </svg>
+    `), ["id", "fill"])
+  })
 })
