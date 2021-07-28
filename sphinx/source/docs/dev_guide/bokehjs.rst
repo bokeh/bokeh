@@ -181,6 +181,7 @@ Run tests from a JavaScript console
   This loads BokehJS and the tests. To run the tests, issue ``Tests.run_all()`` in your
   browser's JavaScript console. This allows you to set breakpoints before running code.
   You can filter out tests by providing a keyword or a regular expression.
+  [only works with Chrome? or also firefox? Also: opens http://stuff.com/baz.html and others??!]
 
 Trigger tests with endpoint
   Initiate test runs by accessing one of the following endpoints with your browser:
@@ -188,6 +189,8 @@ Trigger tests with endpoint
   * ``/unit/run``
   * ``/defaults/run``
   * ``/integration/run``
+
+TBD: screenshot of browser?
 
   To only run or view specific tests, append ``?k=some%20text`` to the URL. This will
   filter tests by keyword.
