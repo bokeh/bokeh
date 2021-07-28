@@ -41,11 +41,12 @@ sampledata on your system, you have the option to
 :ref:`disable those specific tests <devguide_testing_local_python_select>`.
 
 Several tests also require `Selenium`_ and a corresponding `web driver`_ to be
-available on your system. See :ref:`userguide_export_dependencies` for
-installation instructions and more information. In case selenium is not
+available on your system. While it is possible to use other web drivers for most
+tests, the recommended setup is to use Selenium with `ChromeDriver`_ and either
+`Chrome`_ or `Chromium`_. See :ref:`userguide_export_dependencies` for
+installation instructions and more information. In case Selenium is not
 available on your system, you have the option to
 :ref:`disable those specific tests <devguide_testing_local_python_select>`.
-[TBD: must use chromedriver?]
 
 On some Unix platforms, you may also need to increase the "maximum
 number of open file descriptors". Some tests open many files when testing the
@@ -72,24 +73,26 @@ Codebase tests
         pytest tests/codebase
 
 Unit tests
-    To run all basic Python unit tests, run the following command at the top
+    To run Bokeh's Python unit tests, use the following command at the top
     level of the repository:
-
-    .. code-block:: sh
-
-        pytest tests/unit
-
-    Note that this includes unit tests that require `Selenium`_ and an
-    appropriate `web driver`_ to be installed. Use the following command to
-    exclude any unit tests that require Selenium:
 
     .. code-block:: sh
 
         pytest -m "not selenium" tests/unit
 
+    .. note::
+        This command will exclude unit tests that require `Selenium`_. Because
+        Selenium can be difficult to set up and because some unit tests require
+        both `geckodriver`_ and `ChromeDriver`_ to be available on your system,
+        using ``-m "not selenium"`` is the recommended way to run unit tests
+        locally. Once you create a PR, :ref:`Bokeh's CI <devguide_testing_ci>`
+        will run all tests, including Selenium-based unit tests. If Selenium
+        with both geckodriver and ChromeDriver is available on your system, you
+        can run all unit tests with ``pytest tests/unit``.
+
 Integration tests
-    To run Bokeh's Python-focused integration tests, run this command from the top level
-    of the repository:
+    To run Bokeh's Python-focused integration tests, use this command from the
+    top level of the repository:
 
     .. code-block:: sh
 
@@ -130,8 +133,9 @@ Examples tests
         inspect the test report manually.
 
     To run the examples tests, you first need to start a customized headless
-    version of Chrome in the background from the ``bokehjs`` folder. Use the
-    following commands from the top level of your *source checkout* directory:
+    version of Chrome in the background. This headless browser needs to be
+    started from the ``bokehjs`` folder. Use the following commands from the top
+    level of your *source checkout* directory:
 
     .. code-block:: sh
 
@@ -338,8 +342,8 @@ To only run or view tests for a specific plattform, append either
 
 .. _devguide_testing_ci:
 
-Continuous Integration
-----------------------
+Continuous Integration (CI)
+---------------------------
 
 **[This section TBD]**
 
@@ -386,6 +390,10 @@ requiring these limited resources.
 .. _flake8: https://gitlab.com/pycqa/flake8
 .. _Selenium: https://www.selenium.dev/documentation/en/
 .. _web driver: https://www.selenium.dev/documentation/en/webdriver/
+.. _ChromeDriver: https://chromedriver.chromium.org/
+.. _Chrome: https://www.google.com/chrome/
+.. _Chromium: https://www.chromium.org/Home
+.. _geckodriver: https://firefox-source-docs.mozilla.org/testing/geckodriver/Usage.html
 .. _pytest-cov: https://github.com/pytest-dev/pytest-cov
 .. _Specifying which tests to run: https://docs.pytest.org/en/latest/how-to/usage.html#specifying-which-tests-to-run
 .. _documentation for pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
