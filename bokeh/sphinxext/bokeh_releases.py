@@ -77,12 +77,9 @@ class sri_table(nodes.General, nodes.Element):
         visitor.body.append('<div class="bk-collapsible-content">')
         visitor.body.append(SRI_TABLE.render(table=table))
         visitor.body.append("</div>")
+        raise nodes.SkipNode
 
-    @staticmethod
-    def depart_html(_visitor, _node):
-        pass
-
-    html = visit_html.__func__, depart_html.__func__
+    html = visit_html.__func__, None
 
 
 class BokehReleases(BokehDirective):

@@ -140,14 +140,11 @@ class autoload_script(nodes.General, nodes.Element):
         if height_hint:
             visitor.body.append(f'<div style="height:{height_hint}px;">')
         visitor.body.append(script_tag)
-
-    @staticmethod
-    def depart_html(visitor, node):
-        height_hint = node["height_hint"]
         if height_hint:
             visitor.body.append("</div>")
+        raise nodes.SkipNode
 
-    html = visit_html.__func__, depart_html.__func__
+    html = visit_html.__func__, None
 
 
 class BokehPlotDirective(BokehDirective):

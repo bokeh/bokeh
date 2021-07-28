@@ -90,11 +90,7 @@ class bokeh_palette_group(nodes.General, nodes.Element):
         visitor.body.append("</div></div>")
         raise nodes.SkipNode
 
-    @staticmethod
-    def depart_html(_visitor, _node):
-        pass
-
-    html = visit_html.__func__, depart_html.__func__
+    html = visit_html.__func__, None
 
 
 class BokehPaletteGroupDirective(Directive):
