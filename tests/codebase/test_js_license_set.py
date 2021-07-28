@@ -19,8 +19,8 @@ import pytest ; pytest
 
 # Standard library imports
 import os
-from subprocess import run
 import sys
+from subprocess import run
 
 #-----------------------------------------------------------------------------
 # Tests

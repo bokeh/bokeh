@@ -18,10 +18,10 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import sys
 from os import chdir
 from os.path import join
 from subprocess import run
-import sys
 
 from . import TOP_PATH
 
