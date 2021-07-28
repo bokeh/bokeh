@@ -96,7 +96,7 @@ export class GlyphRendererView extends DataRendererView {
     }
 
     let {selection_glyph, nonselection_glyph, hover_glyph, muted_glyph} = this.model
-    
+
     selection_glyph = glyph_from_mode(selection_defaults, selection_glyph)
     this.selection_glyph = await this.build_glyph_view(selection_glyph)
 

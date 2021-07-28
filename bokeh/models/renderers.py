@@ -33,7 +33,6 @@ from ..core.properties import (
     Enum,
     Float,
     Instance,
-    Null,
     Nullable,
     Override,
     String,
