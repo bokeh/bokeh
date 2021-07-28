@@ -1077,6 +1077,9 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     this._clip_path = `url(#${id})`
   }
 
+  drawImage(image: CanvasImageSource, dx: number, dy: number): void
+  drawImage(image: CanvasImageSource, dx: number, dy: number, dw: number, dh: number): void
+  drawImage(image: CanvasImageSource, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void
   /**
     * Draws a canvas, image or mock context to this canvas.
     * Note that all svg dom manipulation uses node.childNodes rather than node.children for IE support.
