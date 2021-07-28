@@ -34,5 +34,7 @@ def test_license_set() -> None:
 
     '''
     chdir(TOP_PATH)
-    proc = run(["diff", "LICENSE.txt", join("bokeh", "LICENSE.txt")], capture_output=True)
-    assert proc.returncode == 0, f"LICENSE.txt mismatch:\n{proc.stdout.decode('utf-8')}"
+    # Explicitly call git for Windows users
+    proc = run(["git", "diff", "LICENSE.txt", join("bokeh", "LICENSE.txt")], capture_output=True)
+    diff = proc.stdout.decode('utf-8')
+    assert diff == '', f"LICENSE.txt mismatch:\n{diff}"

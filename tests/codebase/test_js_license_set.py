@@ -45,5 +45,5 @@ def test_js_license_set() -> None:
     '''
     os.chdir('bokehjs')
     cmd = ["npx", "license-checker", "--production", "--summary", "--onlyAllow", ";".join(LICENSES)]
-    proc = run(cmd)
+    proc = run(cmd, shell=True)
     assert proc.returncode == 0, "New BokehJS licenses detected"
