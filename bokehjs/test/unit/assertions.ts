@@ -45,6 +45,56 @@ type Assertions<T> = {
   above(expected: number): void
 }
 
+type ElementAssertions = {
+  equal_attributes(expected: Element, ignored_attributes?: string[]): void
+}
+
+function compare_attributes(actual: Element, expected: Element, ignored_attributes: string[] = []) {
+  if (actual.nodeName !== expected.nodeName)
+    throw new ExpectationError(`expected <${actual.nodeName} /> to be equal <${expected.nodeName} />`)
+
+  for (const attr of expected.attributes) {
+    const attr_val = actual.getAttribute(attr.name)
+    let error = false
+
+    if (!attr.value || attr.value === "none" || attr.value === "null")
+      if (!attr_val || attr_val === "none" || attr_val === "null")
+        continue
+      else
+        error = true
+
+    if (actual.getAttribute(attr.name) !== attr.value && !ignored_attributes.includes(attr.name))
+      error = true
+
+    if (error)
+      throw new ExpectationError(`expected ${attr.name}="${attr.value}" to be equal ${attr.name}="${actual.getAttribute(attr.name)}"`)
+  }
+}
+
+function compare_element_attributes(actual: Element, expected: Element, ignored_attributes?: string[]) {
+  compare_attributes(actual, expected, ignored_attributes)
+
+  if (actual.childElementCount != expected.childElementCount)
+    throw new ExpectationError("elements differ on child count")
+
+  for (let i = 0; i < expected.childElementCount; i++) {
+    compare_element_attributes(actual.children[i], expected.children[i], ignored_attributes)
+  }
+}
+
+class ElementAsserts implements ElementAssertions {
+  constructor(readonly value: Element) {}
+
+  equal_attributes(expected: Element, ignored_attributes?: string[]): void {
+    try {
+      compare_element_attributes(this.value, expected, ignored_attributes)
+    } catch (err) {
+      throw new ExpectationError(`expected ${this.value.outerHTML} to be equal to ${expected.outerHTML}
+${err.message}`)
+    }
+  }
+}
+
 class Asserts implements Assertions<unknown> {
   constructor(readonly value: unknown, readonly negated: boolean = false) {}
 
