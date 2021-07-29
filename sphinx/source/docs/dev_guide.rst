@@ -50,10 +50,10 @@ You can then contribute to Bokeh's codebase in many ways:
     If you would like to help with Bokeh's Python code:
 
     * [TBD: link to models]
-    * [TBD: link to running tests]
+    * :ref:`devguide_testing`
     * [TBD: link to making Python tests]
     * [TBD: link to issues]
-    * [TBD: link to PRs]
+    * :ref:`devguide_pull_requests`
 
     ---
     :header: bg-bokeh-two
@@ -63,10 +63,10 @@ You can then contribute to Bokeh's codebase in many ways:
     If you would like to help with anything related to :term:`BokehJS`:
 
     * [TBD: link to BokehJS]
-    * [TBD: link to running tests]
+    * :ref:`devguide_testing`
     * [TBD: link to making JS tests]
     * [TBD: link to issues]
-    * [TBD: link to PRs]
+    * :ref:`devguide_pull_requests`
     ---
     :header: bg-bokeh-three
 
@@ -75,10 +75,10 @@ You can then contribute to Bokeh's codebase in many ways:
     If you would like to help with the :term:`Server` component of Bokeh:
 
     * [TBD: link to Bokeh Server]
-    * [TBD: link to running tests]
+    * :ref:`devguide_testing`
     * [TBD: link to making Python tests]
     * [TBD: link to issues]
-    * [TBD: link to PRs]
+    * :ref:`devguide_pull_requests`
     ---
     :header: bg-bokeh-four
 
@@ -86,9 +86,9 @@ You can then contribute to Bokeh's codebase in many ways:
     ^^^^^^^^^^^^^^^^^^^
     If you would like to help improving :ref:`Bokeh's documentation <about>`:
 
-    * [TBD: link to docs]
+    * :ref:`devguide_documentation`
     * [TBD: link to issues]
-    * [TBD: link to PRs]
+    * :ref:`devguide_pull_requests`
 
 
 .. _contributors_guide_resources:
