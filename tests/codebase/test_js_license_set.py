@@ -19,6 +19,7 @@ import pytest ; pytest
 
 # Standard library imports
 import os
+import sys
 from subprocess import run
 
 #-----------------------------------------------------------------------------
@@ -38,6 +39,7 @@ LICENSES = [
     'WTFPL',
 ]
 
+@pytest.mark.skipif(sys.platform == "win32", reason="skip license tests on Windows")
 def test_js_license_set() -> None:
     ''' If the current set of JS licenses changes, they should be noted in
     the bokehjs/LICENSE file.
