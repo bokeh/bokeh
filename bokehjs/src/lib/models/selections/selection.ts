@@ -2,7 +2,7 @@ import {Model} from "../../model"
 import * as p from "core/properties"
 import {SelectionMode} from "core/enums"
 import {union, intersection, difference} from "core/util/array"
-import {merge} from "core/util/object"
+import {merge, entries, to_object} from "core/util/object"
 import type {Glyph, GlyphView} from "../glyphs/glyph"
 
 export type OpaqueIndices = number[]
@@ -22,10 +22,10 @@ export namespace Selection {
   export type Props = Model.Props & {
     indices: p.Property<OpaqueIndices>
     line_indices: p.Property<OpaqueIndices>
-    selected_glyphs: p.Property<Glyph[]>
-    view: p.Property<GlyphView | null>
     multiline_indices: p.Property<MultiIndices>
     image_indices: p.Property<ImageIndex[]>
+    view: p.Property<GlyphView | null>
+    selected_glyphs: p.Property<Glyph[]>
   }
 }
 
@@ -70,10 +70,10 @@ export class Selection extends Model {
       case "replace": {
         this.indices = selection.indices
         this.line_indices = selection.line_indices
-        this.selected_glyphs = selection.selected_glyphs
-        this.view = selection.view
         this.multiline_indices = selection.multiline_indices
         this.image_indices = selection.image_indices
+        this.view = selection.view
+        this.selected_glyphs = selection.selected_glyphs
         break
       }
       case "append": {
@@ -95,8 +95,19 @@ export class Selection extends Model {
     this.indices = []
     this.line_indices = []
     this.multiline_indices = {}
+    this.image_indices = []
     this.view = null
     this.selected_glyphs = []
+  }
+
+  map(mapper: (index: number) => number): Selection {
+    return new Selection({
+      ...this.attributes,
+      indices: this.indices.map(mapper),
+      // NOTE: line_indices don't support subset indexing
+      multiline_indices: to_object(entries(this.multiline_indices).map(([index, line_indices]) => [mapper(Number(index)), line_indices])),
+      image_indices: this.image_indices.map((ndx) => ({...ndx, index: mapper(ndx.index)})),
+    })
   }
 
   is_empty(): boolean {
