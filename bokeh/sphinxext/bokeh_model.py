@@ -93,7 +93,10 @@ class BokehModelDirective(BokehDirective):
     has_content = True
     required_arguments = 1
     optional_arguments = 1
-    option_spec = {"module": unchanged}
+    option_spec = {
+        "module": unchanged,
+        "canonical": unchanged,
+    }
 
     def run(self):
         sig = " ".join(self.arguments)
