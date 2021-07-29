@@ -544,18 +544,156 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_serialized_svg()
     await compare_on_dom(test, svg, size)
 
-    expect(svg).to.be.equal('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="150"><defs/><path fill="none" stroke="gray" paint-order="fill" d="M 200 20 L 200 130 L 50 20" stroke-miterlimit="10" stroke-dasharray=""/><path fill="none" stroke="black" paint-order="fill" d="M 200 20 L 200 51.063799366031276 L 200 51.063799366031276 A 40 40 0 0 1 136.3454534548993 83.3199992002595" stroke-miterlimit="10" stroke-width="5" stroke-dasharray=""/><path fill="blue" stroke="none" paint-order="stroke" d="M 205 20 A 5 5 0 1 1 204.9999975000002 19.99500000083333"/><path fill="red" stroke="none" paint-order="stroke" d="M 205 130 A 5 5 0 1 1 204.9999975000002 129.99500000083333 L 55 20 A 5 5 0 1 1 54.999997500000205 19.99500000083333"/></svg>')
+    expect_element(svg).to.have.equal_attributes(string_to_html(`
+      <svg
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="200"
+        height="200"
+      >
+        <defs>
+          <radialGradient
+            id="pkvhSUZsmurV"
+            cx="100px"
+            cy="100px"
+            r="70px"
+            r0="30px"
+            fx="110px"
+            fy="90px"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop offset="0" stop-color="pink" />
+            <stop offset="0.9" stop-color="white" />
+            <stop offset="1" stop-color="green" />
+          </radialGradient>
+        </defs>
+        <path
+          fill="url(#pkvhSUZsmurV)"
+          stroke="none"
+          paint-order="stroke"
+          d="M 20 20 L 180 20 L 180 180 L 20 180 L 20 20"
+        />
+      </svg>
+  `), ["id", "fill"])
   })
 
-it("Support drawImage with HTMLImageElement", async () => {
+  it("Radial gradient shouldn't paint if x0=x1, y0=y1 and r0=r1", async () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      const gradient = ctx.createRadialGradient(110, 90, 30, 110, 90, 30)
+
+      // Add three color stops
+      gradient.addColorStop(0, "pink")
+      gradient.addColorStop(0.9, "white")
+      gradient.addColorStop(1, "green")
+
+      // Set the fill style and draw a rectangle
+      ctx.fillStyle = gradient
+      ctx.fillRect(20, 20, 160, 160)
+    }
+
+    const size = {width: 200, height: 200}
+    const ctx = new SVGRenderingContext2D(size)
+
+    test(ctx)
+    const svg = ctx.get_svg()
+    await compare_on_dom(test, svg, size)
+
+    expect_element(svg).to.have.equal_attributes(string_to_html(`
+      <svg
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="200"
+        height="200"
+      >
+        <defs>
+          <radialGradient
+            id="nRLUFKGrscMi"
+            cx="110px"
+            cy="90px"
+            r="30px"
+            r0="30px"
+            fx="110px"
+            fy="90px"
+            gradientUnits="userSpaceOnUse"
+          />
+        </defs>
+        <path
+          fill="url(#nRLUFKGrscMi)"
+          stroke="none"
+          paint-order="stroke"
+          d="M 20 20 L 180 20 L 180 180 L 20 180 L 20 20"
+        />
+      </svg>
+    `), ["id", "fill"])
+  })
+
+  it("Create a pattern from a canvas", async () => {
+    const size = {width: 200, height: 200}
+
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      const patternCanvas = document.createElement("canvas")
+      const patternContext = patternCanvas.getContext("2d")!
+
+      // Give the pattern a width and height of 50
+      patternCanvas.width = 50
+      patternCanvas.height = 50
+
+      // Give the pattern a background color and draw an arc
+      patternContext.fillStyle = "#fec"
+      patternContext.fillRect(0, 0, patternCanvas.width, patternCanvas.height)
+      patternContext.arc(0, 0, 50, 0, 0.5 * Math.PI)
+      patternContext.stroke()
+
+      const pattern = ctx.createPattern(patternCanvas, "repeat")!
+      ctx.fillStyle = pattern
+      ctx.fillRect(0, 0, size.width, size.height)
+    }
+
+    const ctx = new SVGRenderingContext2D(size)
+
+    test(ctx)
+    const svg = ctx.get_svg()
+    await compare_on_dom(test, svg, size)
+
+    expect_element(svg).to.have.equal_attributes(string_to_html(`
+      <svg
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="200"
+        height="200"
+      >
+        <defs>
+          <pattern
+            id="IXCyUTcJcgLy"
+            width="50"
+            height="50"
+            patternUnits="userSpaceOnUse"
+          >
+            <image />
+          </pattern>
+        </defs>
+        <path
+          fill="url(#IXCyUTcJcgLy)"
+          stroke="none"
+          paint-order="stroke"
+          d="M 0 0 L 200 0 L 200 200 L 0 200 L 0 0"
+        />
+      </svg>
+    `), ["id", "fill", "xlink:href"])
+  })
+
+  it("Create a pattern from an image", async () => {
     const test = async (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
       return new Promise<void>((resolve, _reject) => {
         const img = new Image()
         img.src = "/images/canvas_createpattern.png"
         img.onload = () => {
-          ctx.drawImage(img, 0, 0)
-          ctx.drawImage(img, 0, 0, 200, 200)
-          ctx.drawImage(img, 0, 0, 50, 50, 0, 0, 200, 200)
+          const pattern = ctx.createPattern(img, "repeat")!
+          ctx.fillStyle = pattern
+          ctx.fillRect(0, 0, 300, 300)
           resolve()
         }
       })
@@ -594,5 +732,165 @@ it("Support drawImage with HTMLImageElement", async () => {
         />
       </svg>
     `), ["id", "fill"])
+  })
+
+  it("Support dashed lines", async () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      // Dashed line
+      ctx.beginPath()
+      ctx.setLineDash([5, 15])
+      ctx.moveTo(0, 10)
+      ctx.lineTo(150, 10)
+      ctx.stroke()
+
+      // Solid line
+      ctx.beginPath()
+      ctx.setLineDash([])
+      ctx.moveTo(0, 20)
+      ctx.lineTo(150, 20)
+      ctx.stroke()
+    }
+
+    const size = {width: 150, height: 30}
+    const ctx = new SVGRenderingContext2D(size)
+
+    test(ctx)
+    const svg = ctx.get_svg()
+    await compare_on_dom(test, svg, size)
+
+    expect_element(svg).to.have.equal_attributes(string_to_html(`
+      <svg
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="150"
+        height="30"
+      >
+        <defs />
+        <path
+          fill="none"
+          stroke="#000000"
+          paint-order="fill"
+          d="M 0 10 L 150 10"
+          stroke-miterlimit="10"
+          stroke-dasharray="5,15"
+        />
+        <path
+          fill="none"
+          stroke="#000000"
+          paint-order="fill"
+          d="M 0 20 L 150 20"
+          stroke-miterlimit="10"
+        />
+      </svg>
+    `))
+  })
+
+  it("Support drawImage with HTMLImageElement", async () => {
+    const test = async (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      return new Promise<void>((resolve, _reject) => {
+        const img = new Image()
+        img.src = "/images/canvas_createpattern.png"
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0)
+          ctx.drawImage(img, 0, 50, 200, 200)
+          ctx.drawImage(img, 0, 0, 25, 25, 0, 250, 200, 200)
+          resolve()
+        }
+      })
+    }
+
+    const size = {width: 200, height: 450}
+    const ctx = new SVGRenderingContext2D(size)
+
+    await test(ctx)
+    const svg = ctx.get_svg()
+    await compare_on_dom(test, svg, size)
+
+    expect_element(svg).to.have.equal_attributes(string_to_html(`
+      <svg
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="200"
+        height="450"
+      >
+        <defs></defs>
+        <image
+          width="86"
+          height="117"
+          preserveAspectRatio="none"
+          xlink:href="/images/canvas_createpattern.png"
+        ></image>
+        <image
+          width="200"
+          height="200"
+          preserveAspectRatio="none"
+          transform="matrix(1, 0, 0, 1, 0, 50)"
+          xlink:href="/images/canvas_createpattern.png"
+        ></image>
+        <image
+          width="200"
+          height="200"
+          preserveAspectRatio="none"
+          transform="matrix(1, 0, 0, 1, 0, 250)"
+        ></image>
+      </svg>
+    `), ["id", "xlink:href"])
+  })
+
+  it("Support drawImage with Canvas", async () => {
+    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+      const patternCanvas = document.createElement("canvas")
+      const patternContext = patternCanvas.getContext("2d")!
+
+      patternCanvas.width = 50
+      patternCanvas.height = 50
+
+      patternContext.fillStyle = "#fec"
+      patternContext.fillRect(0, 0, patternCanvas.width, patternCanvas.height)
+      patternContext.arc(0, 0, 50, 0, 0.5 * Math.PI)
+      patternContext.stroke()
+
+      ctx.drawImage(patternCanvas, 0, 0)
+      ctx.drawImage(patternCanvas, 0, 50, 200, 200)
+      ctx.drawImage(patternCanvas, 25, 0, 25, 25, 0, 250, 200, 200)
+    }
+
+    const size = {width: 200, height: 450}
+    const ctx = new SVGRenderingContext2D(size)
+
+    test(ctx)
+    const svg = ctx.get_svg()
+    await compare_on_dom(test, svg, size)
+
+    expect_element(svg).to.have.equal_attributes(string_to_html(`
+      <svg
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="200"
+        height="450"
+      >
+        <defs></defs>
+        <image
+          width="50"
+          height="50"
+          preserveAspectRatio="none"
+        ></image>
+        <image
+          width="200"
+          height="200"
+          preserveAspectRatio="none"
+          transform="matrix(1, 0, 0, 1, 0, 50)"
+        ></image>
+        <image
+          width="200"
+          height="200"
+          preserveAspectRatio="none"
+          transform="matrix(1, 0, 0, 1, 0, 250)"
+        ></image>
+      </svg>
+    `), ["id", "xlink:href"])
   })
 })
