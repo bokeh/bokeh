@@ -77,6 +77,7 @@ __all__ = (
 
 
 class collapsible_code_block(nodes.General, nodes.Element):
+
     @staticmethod
     def visit_html(visitor, node):
         heading = node["heading"]
@@ -95,25 +96,20 @@ class CollapsibleCodeBlock(CodeBlock):
     option_spec.update(heading=unchanged)
 
     def run(self):
-        env = self.state.document.settings.env
-
         rst_source = self.state_machine.node.document["source"]
         rst_filename = basename(rst_source)
 
-        serial_no = env.new_serialno("ccb")
-        target_id = f"{rst_filename}.ccb-{serial_no}"
-        target_id = target_id.replace(".", "-")
-        target_node = nodes.target("", "", ids=[target_id])
+        serial_no = self.env.new_serialno("ccb")
+        target_id = f"{rst_filename}.ccb-{serial_no}".replace(".", "-")
+        target = nodes.target("", "", ids=[target_id])
 
-        node = collapsible_code_block()
-        node["target_id"] = target_id
-        node["heading"] = self.options.get("heading", "Code")
+        block = collapsible_code_block(target_id=target_id, heading=self.options.get("heading", "Code"))
 
         cb = CodeBlock.run(self)
-        node.setup_child(cb[0])
-        node.children.append(cb[0])
+        block.setup_child(cb[0])
+        block.children.append(cb[0])
 
-        return [target_node, node]
+        return [target, block]
 
 
 def setup(app):

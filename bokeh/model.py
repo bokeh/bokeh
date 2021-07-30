@@ -857,6 +857,10 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
         return html
 
+    def _sphinx_height_hint(self) -> int|None:
+        return None
+
+
 @abstract
 class DataModel(Model):
     __data_model__ = True

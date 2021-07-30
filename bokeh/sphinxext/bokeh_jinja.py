@@ -89,10 +89,7 @@ class BokehJinjaDirective(BokehDirective):
 
         template_text = open(template.filename).read()
         m = _DOCPAT.match(template_text)
-        if m:
-            doc = m.group(1)
-        else:
-            doc = None
+        doc = m.group(1) if m else None
 
         filename = basename(template.filename)
         rst_text = JINJA_DETAIL.render(
@@ -105,7 +102,7 @@ class BokehJinjaDirective(BokehDirective):
             template_text=_DOCPAT.sub("", template_text),
         )
 
-        return self._parse(rst_text, "<bokeh-jinja>")
+        return self.parse(rst_text, "<bokeh-jinja>")
 
 
 def setup(app):

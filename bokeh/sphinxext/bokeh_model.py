@@ -132,7 +132,7 @@ class BokehModelDirective(BokehDirective):
             model_json=model_json,
         )
 
-        return self._parse(rst_text, "<bokeh-model>")
+        return self.parse(rst_text, "<bokeh-model>")
 
 
 def setup(app):

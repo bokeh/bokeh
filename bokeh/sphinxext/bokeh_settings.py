@@ -106,7 +106,7 @@ class BokehSettingsDirective(BokehDirective):
             settings.append(setting)
 
         rst_text = SETTINGS_DETAIL.render(name=obj_name, module_name=module_name, settings=settings)
-        return self._parse(rst_text, "<bokeh-settings>")
+        return self.parse(rst_text, "<bokeh-settings>")
 
 
 def setup(app):
