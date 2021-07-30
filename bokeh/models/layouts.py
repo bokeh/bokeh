@@ -301,6 +301,11 @@ class LayoutDOM(Model):
         if not (min_height <= height <= max_height):
             return str(self)
 
+    def _sphinx_height_hint(self) -> int|None:
+        if self.sizing_mode in ("stretch_width", "fixed", None):
+            return self.height
+        return None
+
 @abstract
 class HTMLBox(LayoutDOM):
     ''' A component which size is determined by its HTML content.
@@ -432,6 +437,11 @@ class Row(Box):
 
     """)
 
+    def _sphinx_height_hint(self) -> int|None:
+        if any(x._sphinx_height_hint() is None for x in self.children):
+            return None
+        return max(x._sphinx_height_hint() for x in self.children)
+
 class Column(Box):
     ''' Lay out child components in a single vertical row.
 
@@ -447,6 +457,11 @@ class Column(Box):
         own discretion.
 
     """)
+
+    def _sphinx_height_hint(self) -> int|None:
+        if any(x._sphinx_height_hint() is None for x in self.children):
+            return None
+        return sum(x._sphinx_height_hint() for x in self.children)
 
 class Panel(Model):
     ''' A single-widget container with title bar and controls.

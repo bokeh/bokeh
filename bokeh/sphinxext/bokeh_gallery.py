@@ -66,9 +66,7 @@ class BokehGalleryDirective(BokehDirective):
     required_arguments = 1
 
     def run(self):
-        env = self.state.document.settings.env
-
-        docdir = dirname(env.doc2path(env.docname))
+        docdir = dirname(self.env.doc2path(self.env.docname))
 
         gallery_file = join(docdir, self.arguments[0])
 
@@ -81,7 +79,7 @@ class BokehGalleryDirective(BokehDirective):
 
         rst_text = GALLERY_PAGE.render(names=names)
 
-        return self._parse(rst_text, "<bokeh-gallery>")
+        return self.parse(rst_text, "<bokeh-gallery>")
 
 
 def config_inited_handler(app, config):

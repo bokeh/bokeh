@@ -130,7 +130,7 @@ class BokehPropDirective(BokehDirective):
             doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__),
         )
 
-        return self._parse(rst_text, "<bokeh-prop>")
+        return self.parse(rst_text, "<bokeh-prop>")
 
 
 def setup(app):
