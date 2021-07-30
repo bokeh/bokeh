@@ -12,8 +12,7 @@ callback = CustomJS(args=dict(para=para, file_input=file_input), code="""
 """)
 
 # Attach callback to FileInput widget
-file_input.js_on_change('change', callback)
-
+file_input.js_on_change('filename', callback)
 
 output_file("file_input.html")
 
