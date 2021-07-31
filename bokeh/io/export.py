@@ -472,9 +472,15 @@ class _TempFile:
     path: str
 
     def __init__(self, *, prefix: str = "tmp", suffix: str = "") -> None:
-        self.fd, self.path = mkstemp(prefix=prefix, suffix=suffix)
+        # XXX: selenium has issues with /tmp directory (or equivalent), so try using the
+        # current directory first, if writable, and otherwise fall back to the system
+        # default tmp directory.
+        try:
+            self.fd, self.path = mkstemp(prefix=prefix, suffix=suffix, dir=os.getcwd())
+        except (OSError, IOError):
+            self.fd, self.path = mkstemp(prefix=prefix, suffix=suffix)
 
-    def __enter__(self) -> "_TempFile":
+    def __enter__(self) -> _TempFile:
         return self
 
     def __exit__(self, exc: Any, value: Any, tb: Any) -> None:
