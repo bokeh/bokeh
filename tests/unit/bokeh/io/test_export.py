@@ -143,11 +143,11 @@ def test_get_screenshot_as_png_with_unicode_unminified(webdriver: WebDriver) -> 
 
 @pytest.mark.skip(reason="unknown diff in xlink:href")
 @pytest.mark.selenium
-def test_get_svg_no_svg_present() -> None:
+def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
     layout = Plot(x_range=Range1d(), y_range=Range1d(), height=20, width=20, toolbar_location=None)
 
     with silenced(MISSING_RENDERERS):
-        svgs = bie.get_svg(layout)
+        svgs = bie.get_svg(layout, driver=webdriver)
 
     assert svgs == [
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20">'
