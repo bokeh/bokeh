@@ -12,3 +12,12 @@ repos:
         # Mandatory otherwise `pre-commit` passes the names of all files to be commited
         pass_filenames: false
         stages: [push]
+
+      - id: protect-master-branch
+        name: Protect the master branch
+        description: This hook asks the user to confirm before pushing to the master branch.
+        entry: python scripts/protect_branch_git_hook.py
+        language: conda
+        # Mandatory otherwise `pre-commit` passes the names of all files to be commited
+        pass_filenames: false
+        stages: [push]
