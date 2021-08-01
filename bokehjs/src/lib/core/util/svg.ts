@@ -625,7 +625,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     /*
      * If there is no current element or this is the first element or
      * current element is no a path
-    */
+     */
     if (!this.__currentElement || this.__currentElement.nodeName !== "path") {
       this.beginPath()
     }
