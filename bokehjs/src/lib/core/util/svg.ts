@@ -286,7 +286,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   __currentDefaultPath: string
   __currentPosition: {x: number, y: number} | null = null
   //__currentElementsToStyle: {element: SVGElement, children: SVGElement[]} | null = null
-  __fontUnderline?: string
 
   get canvas(): this {
     // XXX: point back to this instance
@@ -937,11 +936,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       family: fontPart[6] ?? "sans-serif",
       weight: fontPart[3] ?? "normal",
       decoration: fontPart[2] ?? "normal",
-    }
-
-    // canvas doesn't support underline natively, but we can pass this attribute
-    if (this.__fontUnderline === "underline") {
-      data.decoration = "underline"
     }
 
     return data
