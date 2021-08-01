@@ -14,7 +14,6 @@ type FontData = {
   family: string
   weight: string
   decoration: string
-  href?: string
 }
 
 // helper function that generates a random string
@@ -288,7 +287,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   __currentPosition: {x: number, y: number} | null = null
   //__currentElementsToStyle: {element: SVGElement, children: SVGElement[]} | null = null
   __fontUnderline?: string
-  __fontHref?: string
 
   get canvas(): this {
     // XXX: point back to this instance
@@ -351,7 +349,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     this.__root = this.__document.createElementNS("http://www.w3.org/2000/svg", "svg")
     this.__root.setAttribute("version", "1.1")
     this.__root.setAttribute("xmlns", "http://www.w3.org/2000/svg")
-    this.__root.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink")
 
     this.width = options?.width ?? 500
     this.height = options?.height ?? 500
@@ -492,12 +489,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     */
   get_serialized_svg(fixNamedEntities: boolean = false): string {
     let serialized = new XMLSerializer().serializeToString(this.__root)
-
-    // IE search for a duplicate xmnls because they didn't implement setAttributeNS correctly
-    const xmlns = /xmlns="http:\/\/www\.w3\.org\/2000\/svg".+xmlns="http:\/\/www\.w3\.org\/2000\/svg/gi
-    if (xmlns.test(serialized)) {
-      serialized = serialized.replace('xmlns="http://www.w3.org/2000/svg', 'xmlns:xlink="http://www.w3.org/1999/xlink')
-    }
 
     if (fixNamedEntities) {
       // loop over each named entity and replace with the proper equivalent.
@@ -953,25 +944,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       data.decoration = "underline"
     }
 
-    // canvas also doesn't support linking, but we can pass this as well
-    if (this.__fontHref != null) {
-      data.href = this.__fontHref
-    }
-
     return data
-  }
-
-  /**
-    * Helper to link text fragments
-    */
-  __wrapTextLink(font: FontData, element: SVGElement): Element {
-    if (font.href) {
-      const a = this.__createElement("a")
-      a.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", font.href)
-      a.appendChild(element)
-      return a
-    }
-    return element
   }
 
   /**
@@ -995,7 +968,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     this._apply_transform(textElement)
     this.__currentElement = textElement
     this.__applyStyleToCurrentElement(action)
-    this.__root.appendChild(this.__wrapTextLink(font, textElement))
+    this.__root.appendChild(textElement)
   }
 
   /**
@@ -1174,7 +1147,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       }
       this._apply_transform(svgImage, transform)
       const url = image instanceof HTMLCanvasElement ? image.toDataURL() : image.getAttribute("src")!
-      svgImage.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", url)
+      svgImage.setAttribute("href", url)
       parent.appendChild(svgImage)
     } else if (image instanceof HTMLCanvasElement) {
       const svgImage = this.__createElement("image")
@@ -1192,7 +1165,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       image = canvas
 
       this._apply_transform(svgImage, transform)
-      svgImage.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", image.toDataURL())
+      svgImage.setAttribute("href", image.toDataURL())
       parent.appendChild(svgImage)
     }
   }
@@ -1210,7 +1183,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     if (image instanceof HTMLCanvasElement || image instanceof HTMLImageElement || image instanceof SVGImageElement) {
       const img = this.__document.createElementNS("http://www.w3.org/2000/svg", "image")
       const url = image instanceof HTMLCanvasElement ? image.toDataURL() : image.getAttribute("src")!
-      img.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", url)
+      img.setAttribute("href", url)
       pattern.appendChild(img)
       this.__defs.appendChild(pattern)
     } else if (image instanceof SVGRenderingContext2D) {

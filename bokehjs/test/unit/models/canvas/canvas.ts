@@ -52,7 +52,7 @@ describe("Canvas", () => {
       // TODO: expose SVG canvas/context type information
       const primary_svg = (canvas_view.primary.ctx as any).get_serialized_svg(true)
       expect(primary_svg).to.be.equal("\
-<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"600\" height=\"600\">\
+<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" width=\"600\" height=\"600\">\
 <defs/>\
 <path fill=\"blue\" stroke=\"none\" paint-order=\"stroke\" d=\"M 100.5 200.5 L 400.5 200.5 L 400.5 600.5 L 100.5 600.5 L 100.5 200.5\"/>\
 </svg>\
@@ -60,7 +60,7 @@ describe("Canvas", () => {
 
       const overlays_svg = (canvas_view.overlays.ctx as any).get_serialized_svg(true)
       expect(overlays_svg).to.be.equal("\
-<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"600\" height=\"600\">\
+<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" width=\"600\" height=\"600\">\
 <defs/>\
 <path fill=\"green\" stroke=\"none\" paint-order=\"stroke\" d=\"M 300.5 400.5 L 500.5 400.5 L 500.5 500.5 L 300.5 500.5 L 300.5 400.5\"/>\
 </svg>\
@@ -69,7 +69,7 @@ describe("Canvas", () => {
       const composite_layer = canvas_view.compose()
       const composite_svg = (composite_layer.ctx as any).get_serialized_svg(true)
       expect(composite_svg).to.be.equal("\
-<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"600\" height=\"600\">\
+<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" width=\"600\" height=\"600\">\
 <defs/>\
 <path fill=\"blue\" stroke=\"none\" paint-order=\"stroke\" d=\"M 100.5 200.5 L 400.5 200.5 L 400.5 600.5 L 100.5 600.5 L 100.5 200.5\"/>\
 <path fill=\"green\" stroke=\"none\" paint-order=\"stroke\" d=\"M 300.5 400.5 L 500.5 400.5 L 500.5 500.5 L 300.5 500.5 L 300.5 400.5\"/>\

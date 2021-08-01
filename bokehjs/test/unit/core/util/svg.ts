@@ -20,7 +20,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="50"
         height="50"
       >
@@ -61,7 +60,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="50"
         height="50"
       >
@@ -122,7 +120,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="150"
         height="200"
       >
@@ -233,7 +230,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="50"
         height="50"
       >
@@ -279,7 +275,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="300"
         height="150"
       >
@@ -419,7 +414,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="110"
         height="110"
       >
@@ -476,7 +470,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="300"
         height="150"
       >
@@ -538,7 +531,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="300"
         height="150"
       >
@@ -610,7 +602,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="300"
         height="150"
       >
@@ -675,7 +666,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="300"
         height="150"
       >
@@ -728,7 +718,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="300"
         height="150"
       >
@@ -781,7 +770,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="200"
         height="200"
       >
@@ -836,7 +824,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="200"
         height="200"
       >
@@ -894,7 +881,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="200"
         height="200"
       >
@@ -905,9 +891,7 @@ describe("SVGRenderingContext2d", () => {
             height="50"
             patternUnits="userSpaceOnUse"
           >
-            <image
-              xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAADV0lEQVRoQ92ZaUjTYRzHv3uV0EUHRQZlKGaHmi6vFM1MJsFcaGTmwbRjBUqtTFHxIrU0PHKpGKaJNU0nZRrzGColpWRgWBbZSWKaeWQlUeriWWSZx6bO+X/2vP2/eT7/3/d3fR+WvLdJDspPTMJlsLQBJDw2QztAhGHJ2gHiFxCjHSBcT6F2gLAdvbUDZKWBE/0gff0D0Dfj0Q9S39CM4Kg0+kHSs4vR0tpGPwgpvTbbjekH2WS1DwXZ8XSDtHd8BHunF7peVNMNclVchoqaByikPSIe/qFwcbKBn5crvREZkcuxaK0d3jTfxupVK+gFKbpVjVxxGaRFaYptitp9xM0nCFwXe4WsqAVp7+gCKbvdbTLo6CygFyQ64TJ6evshSggeXdKplNYaIw6kxSJsMzakFyQ9uwi195ogyUscY5lQFxF9cx5yLkXBYYc5vSCpmWKQsf3/aFBVtb5+G4SeKVeRGxZmm8c5cdRISxiWhKGhYYgS/1aqf2moACFycvc9g2eNEixftnRCX5QKEGtnPgR8t9EuPhEJ40GIHfrqbbtiVJ/qMBrkTlU9BMI4PKq9pphwqQQh25+Fkw+yUsLh6mKv9L2AsRHZxTsGJwdLhJ/yVwrB2D6iMKVZLOSIIlWCYCQIMdtaWl9CWvx7YVL1MEpa5OWpsqYBFRIRlixeqCoDs/YRAlFeVY/yghSlFYqxfYTIiXTvm/kXZgTBiBwhid3Z1YMbOeemLSdGzFqkT/gej4TeOt1pVafJEmdekp107MMnziLgiIfKfUJZ5mschMxOeQVlyEgKValjKwP4811jICSZgyJSobdeFxfjT884qedNWmSzi4jLhFhSgfNRgVOO4qr+fY2XX7JjxyZdgacbBzGhgkmXotkAzKm0iGWTnHEdZsYbEXKSP+GOrY7Lz0n5JTZmdn4psnJLYGtlikDBgXGWjbovrzYQYu1LSmUoLKlEdV0j+Ae5OOS9d4wDOJeXnxUIaWSyukZIZfdRVnEXDnZs7Ofthqc7Z9RQ1tTlVQYhj/FPn7/G4ydtaGpuRcPDFvT2fYajvQU4jtbY42yr9jI605/Aig45Kv/xcwiDg9/RP/AFn3r60dHZjXfvP2BkeARGhhtgssUA5iZGsGRvnRfZqAL3C7yBzrDJQGgLAAAAAElFTkSuQmCC"
-            />
+            <image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAADV0lEQVRoQ92ZaUjTYRzHv3uV0EUHRQZlKGaHmi6vFM1MJsFcaGTmwbRjBUqtTFHxIrU0PHKpGKaJNU0nZRrzGColpWRgWBbZSWKaeWQlUeriWWSZx6bO+X/2vP2/eT7/3/d3fR+WvLdJDspPTMJlsLQBJDw2QztAhGHJ2gHiFxCjHSBcT6F2gLAdvbUDZKWBE/0gff0D0Dfj0Q9S39CM4Kg0+kHSs4vR0tpGPwgpvTbbjekH2WS1DwXZ8XSDtHd8BHunF7peVNMNclVchoqaByikPSIe/qFwcbKBn5crvREZkcuxaK0d3jTfxupVK+gFKbpVjVxxGaRFaYptitp9xM0nCFwXe4WsqAVp7+gCKbvdbTLo6CygFyQ64TJ6evshSggeXdKplNYaIw6kxSJsMzakFyQ9uwi195ogyUscY5lQFxF9cx5yLkXBYYc5vSCpmWKQsf3/aFBVtb5+G4SeKVeRGxZmm8c5cdRISxiWhKGhYYgS/1aqf2moACFycvc9g2eNEixftnRCX5QKEGtnPgR8t9EuPhEJ40GIHfrqbbtiVJ/qMBrkTlU9BMI4PKq9pphwqQQh25+Fkw+yUsLh6mKv9L2AsRHZxTsGJwdLhJ/yVwrB2D6iMKVZLOSIIlWCYCQIMdtaWl9CWvx7YVL1MEpa5OWpsqYBFRIRlixeqCoDs/YRAlFeVY/yghSlFYqxfYTIiXTvm/kXZgTBiBwhid3Z1YMbOeemLSdGzFqkT/gej4TeOt1pVafJEmdekp107MMnziLgiIfKfUJZ5mschMxOeQVlyEgKValjKwP4811jICSZgyJSobdeFxfjT884qedNWmSzi4jLhFhSgfNRgVOO4qr+fY2XX7JjxyZdgacbBzGhgkmXotkAzKm0iGWTnHEdZsYbEXKSP+GOrY7Lz0n5JTZmdn4psnJLYGtlikDBgXGWjbovrzYQYu1LSmUoLKlEdV0j+Ae5OOS9d4wDOJeXnxUIaWSyukZIZfdRVnEXDnZs7Ofthqc7Z9RQ1tTlVQYhj/FPn7/G4ydtaGpuRcPDFvT2fYajvQU4jtbY42yr9jI605/Aig45Kv/xcwiDg9/RP/AFn3r60dHZjXfvP2BkeARGhhtgssUA5iZGsGRvnRfZqAL3C7yBzrDJQGgLAAAAAElFTkSuQmCC"/>
           </pattern>
         </defs>
         <path
@@ -917,7 +901,7 @@ describe("SVGRenderingContext2d", () => {
           d="M 0 0 L 200 0 L 200 200 L 0 200 L 0 0"
         />
       </svg>
-    `), ["id", "fill", "xlink:href"])
+    `), ["id", "fill", "href"])
   })
 
   it("Create a pattern from an image", async () => {
@@ -945,7 +929,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="200"
         height="200"
       >
@@ -956,7 +939,7 @@ describe("SVGRenderingContext2d", () => {
             height="117"
             patternUnits="userSpaceOnUse"
           >
-            <image xlink:href="/images/canvas_createpattern.png" />
+            <image href="/images/canvas_createpattern.png" />
           </pattern>
         </defs>
         <path
@@ -997,7 +980,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="150"
         height="30"
       >
@@ -1046,7 +1028,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="200"
         height="450"
       >
@@ -1055,14 +1036,14 @@ describe("SVGRenderingContext2d", () => {
           width="86"
           height="117"
           preserveAspectRatio="none"
-          xlink:href="/images/canvas_createpattern.png"
+          href="/images/canvas_createpattern.png"
         ></image>
         <image
           width="200"
           height="200"
           preserveAspectRatio="none"
           transform="matrix(1, 0, 0, 1, 0, 50)"
-          xlink:href="/images/canvas_createpattern.png"
+          href="/images/canvas_createpattern.png"
         ></image>
         <image
           width="200"
@@ -1071,7 +1052,7 @@ describe("SVGRenderingContext2d", () => {
           transform="matrix(1, 0, 0, 1, 0, 250)"
         ></image>
       </svg>
-    `), ["id", "xlink:href"])
+    `), ["id", "href"])
   })
 
   it("Support drawImage with Canvas", async () => {
@@ -1103,7 +1084,6 @@ describe("SVGRenderingContext2d", () => {
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
         width="200"
         height="450"
       >
@@ -1126,6 +1106,6 @@ describe("SVGRenderingContext2d", () => {
           transform="matrix(1, 0, 0, 1, 0, 250)"
         ></image>
       </svg>
-    `), ["id", "xlink:href"])
+    `), ["id", "href"])
   })
 })
