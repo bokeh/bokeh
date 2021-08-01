@@ -251,21 +251,21 @@ describe("SVGRenderingContext2d", () => {
   it("should rotate a shape", async () => {
     const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
       // Point of transform origin
-      ctx.arc(0, 0, 5, 0, 2 * Math.PI);
-      ctx.fillStyle = 'blue';
-      ctx.fill();
+      ctx.arc(0, 0, 5, 0, 2 * Math.PI)
+      ctx.fillStyle = "blue"
+      ctx.fill()
 
       // Non-rotated rectangle
-      ctx.fillStyle = 'gray';
-      ctx.fillRect(100, 0, 80, 20);
+      ctx.fillStyle = "gray"
+      ctx.fillRect(100, 0, 80, 20)
 
       // Rotated rectangle
-      ctx.rotate(45 * Math.PI / 180);
-      ctx.fillStyle = 'red';
-      ctx.fillRect(100, 0, 80, 20);
+      ctx.rotate(45 * Math.PI / 180)
+      ctx.fillStyle = "red"
+      ctx.fillRect(100, 0, 80, 20)
 
       // Reset transformation matrix to the identity matrix
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
     }
 
     const size = {width: 300, height: 150}
@@ -328,10 +328,10 @@ describe("SVGRenderingContext2d", () => {
     const firstGroup = svg.querySelectorAll("path")[0]
     expect(firstGroup.getAttribute("d")?.startsWith("M 0 20")).to.be.true
 
-    const secondGroup = svg.querySelectorAll('path')[1]
+    const secondGroup = svg.querySelectorAll("path")[1]
     expect(secondGroup.getAttribute("d")?.startsWith("M 10 40")).to.be.true
 
-    const thirdGroup = svg.querySelectorAll('path')[2]
+    const thirdGroup = svg.querySelectorAll("path")[2]
     expect(thirdGroup.getAttribute("d")?.startsWith("M 30 60")).to.be.true
   })
 
@@ -356,13 +356,13 @@ describe("SVGRenderingContext2d", () => {
     test(ctx)
 
     const svg = ctx.get_svg()
-    const firstGroup = svg.querySelectorAll('path')[0]
+    const firstGroup = svg.querySelectorAll("path")[0]
     expect(firstGroup.getAttribute("d")?.startsWith("M 0 10")).to.be.true
 
-    const secondGroup = svg.querySelectorAll('path')[1]
+    const secondGroup = svg.querySelectorAll("path")[1]
     expect(secondGroup.getAttribute("d")?.startsWith("M 40 50")).to.be.true
 
-    const thirdGroup = svg.querySelectorAll('path')[2]
+    const thirdGroup = svg.querySelectorAll("path")[2]
     expect(thirdGroup.getAttribute("d")?.startsWith("M 0 20")).to.be.true
   })
 
