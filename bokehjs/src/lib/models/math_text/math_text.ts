@@ -9,8 +9,10 @@ import {color2css} from "core/util/color"
 import {Size} from "core/types"
 import {View} from "core/view"
 import {RendererView} from "models/renderers/renderer"
-import {text_width} from "core/graphics"
+import {GraphicsBox, TextHeightMetric, text_width} from "core/graphics"
 import {font_metrics, parse_css_font_size} from "core/util/text"
+import {AffineTransform, Rect} from "core/util/affine"
+import {BBox} from "core/util/bbox"
 
 type Position = {
   sx: number
@@ -22,30 +24,59 @@ type Position = {
 /**
  * Helper class to rendering MathText into Canvas
  */
-export class MathTextView extends View {
+export class MathTextView extends View implements GraphicsBox {
   override model: MathText
   override parent: RendererView
 
   angle?: number
-  position: Position = {sx: 0, sy: 0}
+  _position: Position = {sx: 0, sy: 0}
   has_image_loaded = false
   // Align does nothing, needed to maintain compatibility with TextBox,
   // to align you need to use TeX Macros.
   // http://docs.mathjax.org/en/latest/input/tex/macros/index.html?highlight=align
   align: "left" | "center" | "right" | "justify" = "left"
+  // Same for infer_text_height
+  infer_text_height(): TextHeightMetric {
+    return "ascent_descent"
+  }
 
-  private _base_font_size: number = 13 // the same as .bk-root's font-size (13px)
+  _base_font_size: number = 13 // the same as .bk-root's font-size (13px)
 
   set base_font_size(v: number | null | undefined) {
     if (v != null)
       this._base_font_size = v
   }
 
-  private font_size_scale: number = 1.0
+  get base_font_size(): number {
+    return this._base_font_size
+  }
+
+  font_size_scale: number = 1.0
   private font: string
   private color: string
   private svg_image: CanvasImage
   private svg_element: SVGElement
+
+  _rect(): Rect {
+    const {width, height} = this._size()
+    const {x, y} = this._computed_position()
+
+    const bbox = new BBox({x, y, width, height})
+
+    return bbox.rect
+  }
+
+  set position(p: Position) {
+    this._position = p
+  }
+
+  get position(): Position {
+    return this._position
+  }
+
+  get text(): string {
+    return this.model.text
+  }
 
   override async lazy_initialize() {
     await super.lazy_initialize()
@@ -85,7 +116,7 @@ export class MathTextView extends View {
    * anchor and dimensions
    */
   protected _computed_position(): {x: number, y: number} {
-    const {width, height} = this.get_dimensions()
+    const {width, height} = this._size()
     const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
 
     const x = sx - (() => {
@@ -120,7 +151,7 @@ export class MathTextView extends View {
    * Uses the width, height and given angle to calculate the size
   */
   size(): Size {
-    const {width, height} = this.get_dimensions()
+    const {width, height} = this._size()
     const {angle} = this
 
     if (!angle)
@@ -162,10 +193,68 @@ export class MathTextView extends View {
     }
   }
 
-  private get_dimensions(): Size {
+  _size(): Size {
     return this.has_image_loaded
       ? this.get_image_dimensions()
       : this.get_text_dimensions()
+  }
+
+  bbox(): BBox {
+    const {p0, p1, p2, p3} = this.rect()
+
+    const left = Math.min(p0.x, p1.x, p2.x, p3.x)
+    const top = Math.min(p0.y, p1.y, p2.y, p3.y)
+    const right = Math.max(p0.x, p1.x, p2.x, p3.x)
+    const bottom = Math.max(p0.y, p1.y, p2.y, p3.y)
+
+    return new BBox({left, right, top, bottom})
+  }
+
+  rect(): Rect {
+    const rect = this._rect()
+    const {angle} = this
+    if (!angle)
+      return rect
+    else {
+      const {sx, sy} = this.position
+      const tr = new AffineTransform()
+      tr.translate(sx, sy)
+      tr.rotate(angle)
+      tr.translate(-sx, -sy)
+      return tr.apply_rect(rect)
+    }
+  }
+
+  paint_rect(ctx: Context2d): void {
+    const {p0, p1, p2, p3} = this.rect()
+    ctx.save()
+    ctx.strokeStyle = "red"
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    const {round} = Math
+    ctx.moveTo(round(p0.x), round(p0.y))
+    ctx.lineTo(round(p1.x), round(p1.y))
+    ctx.lineTo(round(p2.x), round(p2.y))
+    ctx.lineTo(round(p3.x), round(p3.y))
+    ctx.closePath()
+    ctx.stroke()
+    ctx.restore()
+  }
+
+  paint_bbox(ctx: Context2d): void {
+    const {x, y, width, height} = this.bbox()
+    ctx.save()
+    ctx.strokeStyle = "blue"
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    const {round} = Math
+    ctx.moveTo(round(x), round(y))
+    ctx.lineTo(round(x), round(y + height))
+    ctx.lineTo(round(x + width), round(y + height))
+    ctx.lineTo(round(x + width), round(y))
+    ctx.closePath()
+    ctx.stroke()
+    ctx.restore()
   }
 
   private load_math_jax_script(): void {
