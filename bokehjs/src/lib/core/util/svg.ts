@@ -4,6 +4,7 @@
 
 import {AffineTransform} from "./affine"
 import {isString, isNumber} from "./types"
+import {random} from "./random"
 import {empty} from "../dom"
 
 type KV<T> = {[key: string]: T}
@@ -14,22 +15,6 @@ type FontData = {
   family: string
   weight: string
   decoration: string
-}
-
-// helper function that generates a random string
-function randomString(holder: KV<string>): string {
-  if (!holder) {
-    throw new Error("cannot create a random attribute name for an undefined object")
-  }
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz"
-  let randomstring = ""
-  do {
-    randomstring = ""
-    for (let i = 0; i < 12; i++) {
-      randomstring += chars[Math.floor(Math.random() * chars.length)]
-    }
-  } while (holder[randomstring])
-  return randomstring
 }
 
 // helper function to map named to numbered entities
@@ -278,7 +263,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   __ctx: CanvasRenderingContext2D
 
   __root: SVGSVGElement
-  __ids: KV<string>
+  __ids: Set<string>
   __defs: SVGElement
   __stack: CanvasState[]
   __document: Document
@@ -353,11 +338,21 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     this.height = options?.height ?? 500
 
     // make sure we don't generate the same ids in defs
-    this.__ids = {}
+    this.__ids = new Set()
 
     // defs tag
     this.__defs = this.__document.createElementNS("http://www.w3.org/2000/svg", "defs")
     this.__root.appendChild(this.__defs)
+  }
+
+  // helper function that generates a random string
+  protected _random_string(): string {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz"
+    let str: string
+    do {
+      str = random.choices(12, chars).join("")
+    } while (this.__ids.has(str))
+    return str
   }
 
   /**
@@ -440,7 +435,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
           for (const def of [...value.__ctx.__defs.childNodes]) {
             if (def instanceof Element) {
               const id = def.getAttribute("id")!
-              this.__ids[id] = id
+              this.__ids.add(id)
               this.__defs.appendChild(def)
             }
           }
@@ -890,7 +885,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     const [tx1, ty1] = this._transform.apply(x1, y1)
     const [tx2, ty2] = this._transform.apply(x2, y2)
     const grad = this.__createElement("linearGradient", {
-      id: randomString(this.__ids),
+      id: this._random_string(),
       x1: `${tx1}px`,
       x2: `${tx2}px`,
       y1: `${ty1}px`,
@@ -911,7 +906,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     const [tx0, ty0] = this._transform.apply(x0, y0)
     const [tx1, ty1] = this._transform.apply(x1, y1)
     const grad = this.__createElement("radialGradient", {
-      id: randomString(this.__ids),
+      id: this._random_string(),
       cx: `${tx1}px`,
       cy: `${ty1}px`,
       r: `${r1}px`,
@@ -1046,7 +1041,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     */
   clip(): void {
     const clip_path = this.__createElement("clipPath")
-    const id = randomString(this.__ids)
+    const id = this._random_string()
 
     this.__applyCurrentDefaultPath()
     clip_path.setAttribute("id", id)
@@ -1116,7 +1111,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
           for (const def of [...child.childNodes]) {
             if (def instanceof Element) {
               const id = def.getAttribute("id")!
-              this.__ids[id] = id
+              this.__ids.add(id)
               this.__defs.appendChild(def.cloneNode(true))
             }
           }
@@ -1169,7 +1164,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     */
   createPattern(image: CanvasImageSource, _repetition: string | null): CanvasPattern | null {
     const pattern = this.__document.createElementNS("http://www.w3.org/2000/svg", "pattern")
-    const id = randomString(this.__ids)
+    const id = this._random_string()
     pattern.setAttribute("id", id)
     pattern.setAttribute("width", `${this._to_number(image.width)}`)
     pattern.setAttribute("height", `${this._to_number(image.height)}`)
