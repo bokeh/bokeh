@@ -635,7 +635,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     if (!isFinite(x + y))
       return
 
-    if (!this.__currentElement || this.__currentElement.nodeName !== "path") {
+    const el = this.__currentElement
+    if (!el || el.nodeName !== "path") {
       this.beginPath()
     }
 
@@ -829,13 +830,10 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   rect(x: number, y: number, width: number, height: number): void {
     if (!isFinite(x + y + width + height))
       return
-    if (this.__currentElement.nodeName !== "path") {
-      this.beginPath()
-    }
     this.moveTo(x, y)
-    this.lineTo(x+width, y)
-    this.lineTo(x+width, y+height)
-    this.lineTo(x, y+height)
+    this.lineTo(x + width, y)
+    this.lineTo(x + width, y + height)
+    this.lineTo(x, y + height)
     this.lineTo(x, y)
   }
 
