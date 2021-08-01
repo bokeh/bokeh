@@ -129,6 +129,10 @@ import {radians} from "@bokehjs/core/util/math"
     })
 
     function load_math_jax_script(): void {
+      const script = document.createElement("script")
+      script.id = "bokeh_mathjax_script"
+      document.head.appendChild(script)
+
       // @ts-ignore
       MathJax = {tex2svg}
     }
@@ -152,6 +156,27 @@ import {radians} from "@bokehjs/core/util/math"
       // @ts-ignore
       MathJax = undefined
       await plot({axis_label: new MathText({text: "\\sin(x)"})}, {minor_size: 100})
+      remove_mathjax_script()
+    })
+
+    it("should display tick labels with math text on overrides", async () => {
+      await load_math_jax_script()
+
+      await plot({
+        major_label_overrides: {
+          100: new MathText({text: "-3\\sigma"}),
+          120: new MathText({text: "-2\\sigma"}),
+          140: new MathText({text: "-1\\sigma"}),
+          160: new MathText({text: "\\mu"}),
+          180: new MathText({text: "1\\sigma"}),
+          200: new MathText({text: "2\\sigma"}),
+          1: "one",
+          0.01: new MathText({text: "\\frac{0.133}{\\mu+2\\sigma^2}"}),
+          10000: new MathText({text: "10 \\ast 1000"}),
+          1000000: new MathText({text: "\\sigma^2"}),
+        },
+      }, {minor_size: 100})
+
       remove_mathjax_script()
     })
 

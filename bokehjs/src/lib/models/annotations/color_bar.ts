@@ -12,6 +12,7 @@ import {ContinuousColorMapper} from "../mappers/continuous_color_mapper"
 import {LinearColorMapper, LogColorMapper, ScanningColorMapper, CategoricalColorMapper} from "../mappers"
 import {Scale, LinearScale, LogScale, LinearInterpolationScale, CategoricalScale} from "../scales"
 import {Range, Range1d, FactorRange} from "../ranges"
+import {MathText} from "../math_text"
 
 import {Anchor, Orientation} from "core/enums"
 import * as visuals from "core/visuals"
@@ -596,7 +597,7 @@ export namespace ColorBar {
     scale_alpha: p.Property<number>
     ticker: p.Property<Ticker | "auto">
     formatter: p.Property<TickFormatter | "auto">
-    major_label_overrides: p.Property<{[key: string]: string}>
+    major_label_overrides: p.Property<{[key: string]: string | MathText}>
     major_label_policy: p.Property<LabelingPolicy>
     color_mapper: p.Property<ColorMapper>
     label_standoff: p.Property<number>
