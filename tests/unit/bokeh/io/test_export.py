@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING, List, Tuple
 
 # External imports
 from flaky import flaky
@@ -141,23 +141,39 @@ def test_get_screenshot_as_png_with_unicode_unminified(webdriver: WebDriver) -> 
 
     assert len(png.tobytes()) > 0
 
-@pytest.mark.skip(reason="unknown diff in xlink:href")
+@flaky(max_runs=10)
 @pytest.mark.selenium
-def test_get_svg_no_svg_present() -> None:
-    layout = Plot(x_range=Range1d(), y_range=Range1d(), height=20, width=20, toolbar_location=None)
+def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
+    layout = Plot(
+        x_range=Range1d(), y_range=Range1d(),
+        height=20, width=20, toolbar_location=None,
+        outline_line_color=None, border_fill_color=None,
+        background_fill_color="red", output_backend="canvas",
+    )
 
     with silenced(MISSING_RENDERERS):
-        svgs = bie.get_svg(layout)
+        svgs = bie.get_svg(layout, driver=webdriver)
 
-    assert svgs == [
-        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20">'
-            '<defs/>'
-            '<image width="20" height="20" preserveAspectRatio="none" xlink:href="'
-            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAbElEQVQ4T2P8//+/AwMDAwhTBTD+//+/gYGBoZ4'
-            'qpjEwMIwaCAnJN2/eMPz69YtgsLKxsTGIiIigqMMahs+ePWOQkpIiaCA2daMGQoJtNAxxJp+BSzbE5hRmZuYL4uLiBsheGC1tCJYHBBUAAA7h'
-            'kkaBfwzpAAAAAElFTkSuQmCC"/>'
-        '</svg>',
-    ]
+    def output(data: str) -> List[str]:
+        return [
+            '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20">'
+                '<defs/>'
+                f'<image width="20" height="20" preserveAspectRatio="none" xlink:href="data:image/png;base64,{data}"/>'
+            '</svg>'
+        ]
+
+    chrome_data = (
+        "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAFNJ"
+        "REFUOE9jZKAyYKSyeQyjBkJC9D8DgwMDBBMCBxgZGA4gK8Iahv8ZGBoYGBjqCZnGwMDQ"
+        "yAhRCwejBsIjZTQMcSaggUs21M0pROQQnEpGYPEFALJrIRXAq4rZAAAAAElFTkSuQmCC"
+    )
+    firefox_data = (
+        "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAMUlEQVQ4jWNgGAVDA/xnY"
+        "HD4z8DQQAR2INbAhv8MDP+JwA2jBo4aOJQMpG5OGQUkAQCAKdw3str/WgAAAABJRU5ErkJggg=="
+    )
+
+    name = webdriver.name
+    assert name == "chrome" and svgs == output(chrome_data) or name == "firefox" and svgs == output(firefox_data)
 
 @flaky(max_runs=10)
 @pytest.mark.selenium
