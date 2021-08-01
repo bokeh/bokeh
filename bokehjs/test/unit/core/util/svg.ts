@@ -325,14 +325,14 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    const firstGroup = svg.querySelectorAll("path")[0]
-    expect(firstGroup.getAttribute("d")?.startsWith("M 0 20")).to.be.true
+    const first_group = svg.querySelectorAll("path")[0]
+    expect(first_group.getAttribute("d")?.startsWith("M 0 20")).to.be.true
 
-    const secondGroup = svg.querySelectorAll("path")[1]
-    expect(secondGroup.getAttribute("d")?.startsWith("M 10 40")).to.be.true
+    const second_group = svg.querySelectorAll("path")[1]
+    expect(second_group.getAttribute("d")?.startsWith("M 10 40")).to.be.true
 
-    const thirdGroup = svg.querySelectorAll("path")[2]
-    expect(thirdGroup.getAttribute("d")?.startsWith("M 30 60")).to.be.true
+    const third_group = svg.querySelectorAll("path")[2]
+    expect(third_group.getAttribute("d")?.startsWith("M 30 60")).to.be.true
   })
 
   it("save and restore to work", async () => {
@@ -356,14 +356,14 @@ describe("SVGRenderingContext2d", () => {
     test(ctx)
 
     const svg = ctx.get_svg()
-    const firstGroup = svg.querySelectorAll("path")[0]
-    expect(firstGroup.getAttribute("d")?.startsWith("M 0 10")).to.be.true
+    const first_group = svg.querySelectorAll("path")[0]
+    expect(first_group.getAttribute("d")?.startsWith("M 0 10")).to.be.true
 
-    const secondGroup = svg.querySelectorAll("path")[1]
-    expect(secondGroup.getAttribute("d")?.startsWith("M 40 50")).to.be.true
+    const second_group = svg.querySelectorAll("path")[1]
+    expect(second_group.getAttribute("d")?.startsWith("M 40 50")).to.be.true
 
-    const thirdGroup = svg.querySelectorAll("path")[2]
-    expect(thirdGroup.getAttribute("d")?.startsWith("M 0 20")).to.be.true
+    const third_group = svg.querySelectorAll("path")[2]
+    expect(third_group.getAttribute("d")?.startsWith("M 0 20")).to.be.true
   })
 
   it("support clip", async () => {
