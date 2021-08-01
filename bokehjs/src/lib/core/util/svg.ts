@@ -212,6 +212,19 @@ class CanvasGradient {
    * Adds a color stop to the gradient root
    */
   addColorStop(offset: number, color: string): void {
+    if (
+      this.__root.nodeName === "linearGradient" &&
+      this.__root.getAttribute("x1") === this.__root.getAttribute("x2") &&
+      this.__root.getAttribute("y1") === this.__root.getAttribute("y2")
+    ) return
+
+    if (
+      this.__root.nodeName === "radialGradient" &&
+      this.__root.getAttribute("cx") === this.__root.getAttribute("fx") &&
+      this.__root.getAttribute("cy") === this.__root.getAttribute("fy") &&
+      this.__root.getAttribute("r") === this.__root.getAttribute("r0")
+    ) return
+
     const stop = this.__ctx.__createElement("stop")
     stop.setAttribute("offset", `${offset}`)
     if (color.indexOf("rgba") !== -1) {
@@ -622,7 +635,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     if (!isFinite(x + y))
       return
 
-    if (this.__currentElement.nodeName !== "path") {
+    const el = this.__currentElement
+    if (!el || el.nodeName !== "path") {
       this.beginPath()
     }
 
@@ -816,13 +830,10 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   rect(x: number, y: number, width: number, height: number): void {
     if (!isFinite(x + y + width + height))
       return
-    if (this.__currentElement.nodeName !== "path") {
-      this.beginPath()
-    }
     this.moveTo(x, y)
-    this.lineTo(x+width, y)
-    this.lineTo(x+width, y+height)
-    this.lineTo(x, y+height)
+    this.lineTo(x + width, y)
+    this.lineTo(x + width, y + height)
+    this.lineTo(x, y + height)
     this.lineTo(x, y)
   }
 
@@ -904,8 +915,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * Adds a radial gradient to a defs tag.
     * Returns a canvas gradient object that has a reference to it's parent def
     */
-  createRadialGradient(x0: number, y0: number, _r0: number, x1: number, y1: number, r1: number): CanvasGradient {
-    if (!isFinite(x0 + y0 + _r0 + x1 + y1 + r1))
+  createRadialGradient(x0: number, y0: number, r0: number, x1: number, y1: number, r1: number): CanvasGradient {
+    if (!isFinite(x0 + y0 + r0 + x1 + y1 + r1))
       throw new Error("The provided double value is non-finite")
     const [tx0, ty0] = this._transform.apply(x0, y0)
     const [tx1, ty1] = this._transform.apply(x1, y1)
@@ -914,6 +925,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       cx: `${tx1}px`,
       cy: `${ty1}px`,
       r: `${r1}px`,
+      r0: `${r0}px`,
       fx: `${tx0}px`,
       fy: `${ty0}px`,
       gradientUnits: "userSpaceOnUse",
@@ -987,7 +999,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   }
 
   /**
-    * Creates a text element
+    * Creates a text element, in position x,y
     */
   fillText(text: string, x: number, y: number): void {
     if (text == null || !isFinite(x + y))
@@ -1012,44 +1024,52 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     return this.__ctx.measureText(text)
   }
 
-  arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterClockwise: boolean = false): void {
-    if (!isFinite(x + y + radius + startAngle + endAngle))
+  arc(x: number, y: number, radius: number, start_angle: number, end_angle: number, counterclockwise: boolean = false): void {
+    this.ellipse(x, y, radius, radius, 0, start_angle, end_angle, counterclockwise)
+  }
+
+  ellipse(x: number, y: number, radius_x: number, radius_y: number, rotation: number, start_angle: number, end_angle: number, counterclockwise: boolean = false): void {
+    if (!isFinite(x + y + radius_x + radius_y + rotation + start_angle + end_angle))
       return
-    // in canvas no circle is drawn if no angle is provided.
-    if (startAngle === endAngle) {
-      return
-    }
-    startAngle = startAngle % (2*Math.PI)
-    endAngle = endAngle % (2*Math.PI)
-    if (startAngle === endAngle) {
+
+    if (radius_x < 0 || radius_y < 0)
+      throw new DOMException("IndexSizeError, radius can't be negative")
+
+    start_angle = start_angle % (2 * Math.PI)
+    end_angle = end_angle % (2 * Math.PI)
+
+    if (start_angle === end_angle) {
       // circle time! subtract some of the angle so svg is happy (svg elliptical arc can't draw a full circle)
-      endAngle = ((endAngle + (2*Math.PI)) - 0.001 * (counterClockwise ? -1 : 1)) % (2*Math.PI)
+      end_angle = ((end_angle + (2 * Math.PI)) - 0.001 * (counterclockwise ? -1 : 1)) % (2*Math.PI)
     }
-    const endX = x+radius*Math.cos(endAngle)
-    const endY = y+radius*Math.sin(endAngle)
-    const startX = x+radius*Math.cos(startAngle)
-    const startY = y+radius*Math.sin(startAngle)
-    const sweepFlag = counterClockwise ? 0 : 1
-    let largeArcFlag = 0
-    let diff = endAngle - startAngle
+
+    const end_x = x + radius_x * Math.cos(end_angle)
+    const end_y = y + radius_y * Math.sin(end_angle)
+    const start_x = x + radius_x * Math.cos(start_angle)
+    const start_y = y + radius_y * Math.sin(start_angle)
+
+    const sweep_flag = counterclockwise ? 0 : 1
+    let large_arc_flag = 0
+    let diff = end_angle - start_angle
 
     // https://github.com/gliffy/canvas2svg/issues/4
     if (diff < 0) {
-      diff += 2*Math.PI
+      diff += 2 * Math.PI
     }
 
-    if (counterClockwise) {
-      largeArcFlag = diff > Math.PI ? 0 : 1
+    if (counterclockwise) {
+      large_arc_flag = diff > Math.PI ? 0 : 1
     } else {
-      largeArcFlag = diff > Math.PI ? 1 : 0
+      large_arc_flag = diff > Math.PI ? 1 : 0
     }
 
-    this.lineTo(startX, startY)
-    const rx = radius
-    const ry = radius
-    const xAxisRotation = 0
-    const [tendX, tendY] = this._transform.apply(endX, endY)
-    this.__addPathCommand(tendX, tendY, `A ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${tendX} ${tendY}`)
+    this.lineTo(start_x, start_y)
+    const [tend_x, tend_y] = this._transform.apply(end_x, end_y)
+
+    // Canvas ellipse defines rotation in radians and SVG elliptical arc is defined in degrees
+    const rotation_in_degrees = rotation * 180 / Math.PI
+
+    this.__addPathCommand(tend_x, tend_y, `A ${radius_x} ${radius_y} ${rotation_in_degrees} ${large_arc_flag} ${sweep_flag} ${tend_x} ${tend_y}`)
   }
 
   private _clip_path: Path | null = null
@@ -1069,6 +1089,9 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     this._clip_path = `url(#${id})`
   }
 
+  drawImage(image: CanvasImageSource, dx: number, dy: number): void
+  drawImage(image: CanvasImageSource, dx: number, dy: number, dw: number, dh: number): void
+  drawImage(image: CanvasImageSource, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void
   /**
     * Draws a canvas, image or mock context to this canvas.
     * Note that all svg dom manipulation uses node.childNodes rather than node.children for IE support.
@@ -1177,7 +1200,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   /**
     * Generates a pattern tag
     */
-  createPattern(image: CanvasImageSource, _repetition: string): CanvasPattern {
+  createPattern(image: CanvasImageSource, _repetition: string | null): CanvasPattern | null {
     const pattern = this.__document.createElementNS("http://www.w3.org/2000/svg", "pattern")
     const id = randomString(this.__ids)
     pattern.setAttribute("id", id)
@@ -1228,7 +1251,20 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     return this._transform.to_DOMMatrix()
   }
 
-  setTransform(matrix: DOMMatrix): void {
+  setTransform(a: number, b: number, c: number, d: number, e: number, f: number): void
+  setTransform(transform?: DOMMatrix2DInit): void
+  setTransform(matrix: DOMMatrix): void
+
+  setTransform(...args: [DOMMatrix2DInit?] | [DOMMatrix] | [number, number, number, number, number, number]): void {
+    let matrix: DOMMatrix
+
+    if (isNumber(args[0]))
+      matrix = new DOMMatrix(args as number[])
+    else if (args[0] instanceof DOMMatrix)
+      matrix = args[0]
+    else
+      matrix = new DOMMatrix(Object.values(!args[0]))
+
     this._transform = AffineTransform.from_DOMMatrix(matrix)
   }
 
