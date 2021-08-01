@@ -223,21 +223,6 @@ function _clear_test(test: Test): void {
 }
 
 async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
-  function add_test_description_to_error(error: Error | unknown): Error {
-    if (error instanceof Error)
-      error.message = `
-● ${description(suites, test, " ⇒ ")}
-
-${error.message}`
-    else
-      error = new Error(`
-● ${description(suites, test, " ⇒ ")}
-
-${error}`)
-
-    return error as Error
-  }
-
   const {fn} = test
   const start = Date.now()
   let error: Error | null = null
@@ -255,7 +240,7 @@ ${error}`)
     await fn()
     await defer()
   } catch (err: unknown) {
-    error = add_test_description_to_error(err)
+    error = err instanceof Error ? err : new Error(`${err}`)
   } finally {
     current_test = null
 
@@ -280,7 +265,7 @@ ${error}`)
       const state = test.view.serializable_state()
       return {error, time, state, bbox}
     } catch (err: unknown) {
-      error = add_test_description_to_error(err)
+      error = err instanceof Error ? err : new Error(`${err}`)
     }
   }
   return {error, time}

@@ -97,8 +97,7 @@ class ElementAsserts implements ElementAssertions {
     try {
       compare_element_attributes(this.value, expected, ignored_attributes)
     } catch (err) {
-      throw new ExpectationError(`expected ${this.value.outerHTML} to be equal to ${expected.outerHTML}
-${err.message}`)
+      throw new ExpectationError(`expected ${this.value.outerHTML} to be equal to ${expected.outerHTML} ${err.message}`)
     }
   }
 }
