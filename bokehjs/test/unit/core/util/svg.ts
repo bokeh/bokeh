@@ -370,7 +370,7 @@ describe("SVGRenderingContext2d", () => {
     const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
       ctx.rect(200, 200, 400, 400)
       ctx.clip()
-      ctx.fillStyle = "#000000"
+      ctx.fillStyle = "red"
       ctx.rect(100, 100, 300, 300)
     }
 
@@ -378,8 +378,9 @@ describe("SVGRenderingContext2d", () => {
     const ctx = new SVGRenderingContext2D(size)
 
     test(ctx)
-
     const svg = ctx.get_svg()
+    await compare_on_dom(test, svg, size)
+
     expect(svg.querySelector("clipPath > path")!.getAttribute("d")).to.be.equal("M 200 200 L 600 200 L 600 600 L 200 600 L 200 200")
   })
 
