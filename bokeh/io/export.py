@@ -235,7 +235,7 @@ def get_screenshot_as_png(obj: LayoutDOM | Document, *, driver: WebDriver | None
 
         web_driver = driver if driver is not None else webdriver_control.get()
         web_driver.maximize_window()
-        web_driver.get("file:///" + tmp.path)
+        web_driver.get(f"file://{tmp.path}")
         wait_until_render_complete(web_driver, timeout)
         [width, height, dpr] = _maximize_viewport(web_driver)
         png = web_driver.get_screenshot_as_png()
@@ -255,7 +255,7 @@ def get_svg(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, timeo
             file.write(html)
 
         web_driver = driver if driver is not None else webdriver_control.get()
-        web_driver.get("file:///" + tmp.path)
+        web_driver.get(f"file://{tmp.path}")
         wait_until_render_complete(web_driver, timeout)
         svgs = cast(List[str], web_driver.execute_script(_SVG_SCRIPT))
 
@@ -271,7 +271,7 @@ def get_svgs(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, time
             file.write(html)
 
         web_driver = driver if driver is not None else webdriver_control.get()
-        web_driver.get("file:///" + tmp.path)
+        web_driver.get(f"file://{tmp.path}")
         wait_until_render_complete(web_driver, timeout)
         svgs = cast(List[str], web_driver.execute_script(_SVGS_SCRIPT))
 
@@ -472,9 +472,15 @@ class _TempFile:
     path: str
 
     def __init__(self, *, prefix: str = "tmp", suffix: str = "") -> None:
-        self.fd, self.path = mkstemp(prefix=prefix, suffix=suffix)
+        # XXX: selenium has issues with /tmp directory (or equivalent), so try using the
+        # current directory first, if writable, and otherwise fall back to the system
+        # default tmp directory.
+        try:
+            self.fd, self.path = mkstemp(prefix=prefix, suffix=suffix, dir=os.getcwd())
+        except (OSError, IOError):
+            self.fd, self.path = mkstemp(prefix=prefix, suffix=suffix)
 
-    def __enter__(self) -> "_TempFile":
+    def __enter__(self) -> _TempFile:
         return self
 
     def __exit__(self, exc: Any, value: Any, tb: Any) -> None:
