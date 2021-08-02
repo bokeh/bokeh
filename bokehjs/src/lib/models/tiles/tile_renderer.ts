@@ -52,6 +52,12 @@ export class TileRendererView extends RendererView {
     this.connect(this.model.tile_source.change, () => this.request_render())
   }
 
+  override remove(): void {
+    if (this.attribution_el != null)
+      removeElement(this.attribution_el)
+    super.remove()
+  }
+
   override styles(): string[] {
     return [...super.styles(), tiles_css]
   }
