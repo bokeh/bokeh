@@ -8,6 +8,7 @@ Reference
     :hidden:
     :glob:
 
+    reference/bokeh
     reference/*
 
 This section provides the complete public API reference for Bokeh,

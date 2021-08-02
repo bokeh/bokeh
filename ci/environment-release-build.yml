@@ -36,8 +36,6 @@ dependencies:
   - pydot
   - pygments
   - scipy
-  - sphinx >=3.5
-  - sphinx-panels
 
   # pip dependencies
   - pip
@@ -45,5 +43,7 @@ dependencies:
     # docs
     - autoclasstoc
     - pydata_sphinx_theme
+    - sphinx >=4.1
     - sphinxext-opengraph
+    - sphinx-panels
     - sphinx-reredirects

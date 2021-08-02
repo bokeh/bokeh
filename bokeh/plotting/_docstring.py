@@ -117,7 +117,7 @@ Other Parameters:
         Any explicitly set values for ``line_alpha``, etc. will override this
         setting.
 
-    color (Color, optional) :
+    color (color, optional) :
         An alias to set all color keyword arguments at once. (default: None)
 
         See :ref:`userguide_styling_colors` in the user guide for different
