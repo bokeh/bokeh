@@ -61,7 +61,7 @@ extensions = [
     'bokeh.sphinxext.collapsible_code_block',
 ]
 
-needs_sphinx = '3.5'
+needs_sphinx = '4.1'
 
 rst_epilog = open("rst_epilog.txt").read()
 

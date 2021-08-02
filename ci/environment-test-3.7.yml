@@ -46,8 +46,6 @@ dependencies:
   - requests >=1.2.3
   - selenium >=3.8
   - scipy
-  - sphinx >=3.5
-  - sphinx-panels
 
   # examples
   - flask >=1.0
@@ -67,7 +65,9 @@ dependencies:
     # docs
     - autoclasstoc
     - pydata_sphinx_theme
+    - sphinx >=4.1
     - sphinxext-opengraph
+    - sphinx-panels
     - sphinx-reredirects
     # tests
     - types-boto
