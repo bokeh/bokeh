@@ -49,9 +49,25 @@ class MathText(Model):
         here: https://docs.mathjax.org/en/latest/input/tex/differences.html
     """
 
-    text = NonNullable(String, help="""
+    def __init__(self, text: String, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.text = text
+
+    _text = NonNullable(String, help="""
     The text value to render as mathematical notation.
     """)
+
+    @property
+    def text(self) -> String:
+        return self._text
+
+    @text.setter
+    def text(self, value: String) -> None:
+        if(value.startswith("$") and value.endswith("$")):
+            self._text = value.lstrip("$").rstrip("$")
+        else:
+            self._text = value
+
 
 #-----------------------------------------------------------------------------
 # Dev API

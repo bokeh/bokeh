@@ -124,9 +124,21 @@ class Axis(GuideRenderer):
     of ticks.
     """)
 
-    axis_label = Nullable(Either(String, Instance(MathText)), default="", help="""
+    _axis_label = Nullable(Either(String, Instance(MathText)), default="", help="""
     A text or LaTeX notation label for the axis, displayed parallel to the axis rule.
     """)
+
+    @property
+    def axis_label(self) -> Nullable(Either(String, Instance(MathText))):
+        return self._axis_label
+
+    @axis_label.setter
+    def axis_label(self, value: Either(String, Instance(MathText))) -> None:
+        if (isinstance(value, str)):
+            if(value.startswith("$") and value.endswith("$")):
+                self._axis_label = MathText(text=value)
+        else:
+            self._axis_label = value
 
     axis_label_standoff = Int(default=5, help="""
     The distance in pixels that the axis labels should be offset

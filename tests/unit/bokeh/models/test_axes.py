@@ -40,10 +40,32 @@ def test_ticker_accepts_number_sequences() -> None:
     assert isinstance(a.ticker, FixedTicker)
     assert a.ticker.ticks == [-10, 0, 10, 20.7]
 
-def test_axis_label_accepts_math_text() -> None:
+def test_axis_label_accepts_math_text_with_dollar_signs_and_no_declaration() -> None:
+    a = bma.Axis(axis_label=r"$\sin(x)$")
+    assert isinstance(a.axis_label, MathText)
+    assert a.axis_label.text == r"\sin(x)"
+
+def test_axis_label_accepts_math_text_with_declaration() -> None:
     a = bma.Axis(axis_label=MathText(text=r"\sin(x)"))
     assert isinstance(a.axis_label, MathText)
     assert a.axis_label.text == r"\sin(x)"
+
+def test_axis_label_accepts_math_text_with_declaration_and_dollar_signs() -> None:
+    a = bma.Axis(axis_label=MathText(text=r"$\sin(x)$"))
+    assert isinstance(a.axis_label, MathText)
+    assert a.axis_label.text == r"\sin(x)"
+
+def test_axis_label_accepts_math_text_with_constructor_arg() -> None:
+    a = bma.Axis(axis_label=MathText(r"\sin(x)"))
+    assert isinstance(a.axis_label, MathText)
+    assert a.axis_label.text == r"\sin(x)"
+
+def test_axis_label_accepts_math_text_with_constructor_arg_and_dollar_signs() -> None:
+    a = bma.Axis(axis_label=MathText(r"$\sin(x)$"))
+    assert isinstance(a.axis_label, MathText)
+    assert a.axis_label.text == r"\sin(x)"
+
+
 
 #-----------------------------------------------------------------------------
 # Dev API
