@@ -22,9 +22,6 @@ dependencies:
   # docs
   - colorcet
   - pygments
-  - sphinx >=3.5
-  - sphinx-panels
-  - sphinx-tabs
 
   # tests
   - beautifulsoup4
@@ -82,6 +79,7 @@ dependencies:
     - sphinxext-opengraph
     - sphinx-reredirects
     - sphinx-panels
+    - sphinx-tabs
     # tests
     - types-boto
     - types-colorama
