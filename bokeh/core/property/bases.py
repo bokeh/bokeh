@@ -60,6 +60,7 @@ from .singletons import (
 )
 
 if TYPE_CHECKING:
+    from ...document.events import DocumentPatchedEvent
     from ..types import ID
 
 #-----------------------------------------------------------------------------
@@ -334,16 +335,21 @@ class Property(PropertyDescriptorFactory[T]):
         """
         return value
 
-    def prepare_value(self, owner: HasProps | Type[HasProps], name: str, value: Any) -> T:
+    def _hinted_value(self, value: Any, hint: DocumentPatchedEvent | None) -> Any:
+        return value
+
+    def prepare_value(self, owner: HasProps | Type[HasProps], name: str, value: Any, *, hint: DocumentPatchedEvent | None = None) -> T:
         if value is Intrinsic:
             value = self._raw_default()
         if value is Undefined:
             return value
 
+
         error = None
         try:
             if validation_on():
-                self.validate(value)
+                hinted_value = self._hinted_value(value, hint)
+                self.validate(hinted_value)
         except ValueError as e:
             for tp, converter in self.alternatives:
                 if tp.is_valid(value):
