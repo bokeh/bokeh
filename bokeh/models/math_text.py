@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.properties import NonNullable, String
+from ..core.properties import MathString, NonNullable, String
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -49,25 +49,16 @@ class MathText(Model):
         here: https://docs.mathjax.org/en/latest/input/tex/differences.html
     """
 
-    def __init__(self, text: String, **kwargs) -> None:
+    def __init__(self, text: String | MathString, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.text = text
-
-    _text = NonNullable(String, help="""
-    The text value to render as mathematical notation.
-    """)
-
-    @property
-    def text(self) -> String:
-        return self._text
-
-    @text.setter
-    def text(self, value: String) -> None:
-        if(value.startswith("$") and value.endswith("$")):
-            self._text = value.lstrip("$").rstrip("$")
+        if text[0] == text[-1] == "$":
+            self.text = text[1:-1]
         else:
-            self._text = value
+            self.text = text
 
+    text = NonNullable(String, help="""
+    The text value to render as mathematical notation.
+    """).accepts(MathString, lambda val: val[1:-1])
 
 #-----------------------------------------------------------------------------
 # Dev API

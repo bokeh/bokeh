@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh.core.property.primitive import String
 from bokeh.models import FixedTicker, MathText
 
 # Module under test
@@ -41,30 +42,34 @@ def test_ticker_accepts_number_sequences() -> None:
     assert a.ticker.ticks == [-10, 0, 10, 20.7]
 
 def test_axis_label_accepts_math_text_with_dollar_signs_and_no_declaration() -> None:
-    a = bma.Axis(axis_label=r"$\sin(x)$")
+    a = bma.Axis(axis_label=r"$\sin(x+1)$")
     assert isinstance(a.axis_label, MathText)
-    assert a.axis_label.text == r"\sin(x)"
+    assert a.axis_label.text == r"\sin(x+1)"
 
 def test_axis_label_accepts_math_text_with_declaration() -> None:
-    a = bma.Axis(axis_label=MathText(text=r"\sin(x)"))
+    a = bma.Axis(axis_label=MathText(text=r"\sin(x+2)"))
     assert isinstance(a.axis_label, MathText)
-    assert a.axis_label.text == r"\sin(x)"
+    assert a.axis_label.text == r"\sin(x+2)"
 
 def test_axis_label_accepts_math_text_with_declaration_and_dollar_signs() -> None:
-    a = bma.Axis(axis_label=MathText(text=r"$\sin(x)$"))
+    a = bma.Axis(axis_label=MathText(text=r"$\sin(x+3)$"))
     assert isinstance(a.axis_label, MathText)
-    assert a.axis_label.text == r"\sin(x)"
+    assert a.axis_label.text == r"\sin(x+3)"
 
 def test_axis_label_accepts_math_text_with_constructor_arg() -> None:
-    a = bma.Axis(axis_label=MathText(r"\sin(x)"))
+    a = bma.Axis(axis_label=MathText(r"\sin(x+4)"))
     assert isinstance(a.axis_label, MathText)
-    assert a.axis_label.text == r"\sin(x)"
+    assert a.axis_label.text == r"\sin(x+4)"
 
 def test_axis_label_accepts_math_text_with_constructor_arg_and_dollar_signs() -> None:
-    a = bma.Axis(axis_label=MathText(r"$\sin(x)$"))
+    a = bma.Axis(axis_label=MathText(r"$\sin(x+5)$"))
     assert isinstance(a.axis_label, MathText)
-    assert a.axis_label.text == r"\sin(x)"
+    assert a.axis_label.text == r"\sin(x+5)"
 
+def test_axis_label_accepts_string_with_dollar_signs() -> None:
+    a = bma.Axis(axis_label=String("$\sin(x+6)$"))
+    assert isinstance(a.axis_label, String)
+    assert a.axis_label == r"$\sin(x+6)$"
 
 
 #-----------------------------------------------------------------------------

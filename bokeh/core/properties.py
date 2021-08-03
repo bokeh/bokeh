@@ -225,6 +225,7 @@ __all__ = (
     'List',
     'MarkerSpec',
     'MarkerType',
+    'MathString',
     'MinMaxBounds',
     'NonNegativeInt',
     'NonNullable',
@@ -353,6 +354,7 @@ from .property.primitive import String; String
 from .property.readonly import Readonly; Readonly
 
 from .property.string import Base64String; Base64String
+from .property.string import MathString; MathString
 from .property.string import Regex; Regex
 
 from .property.struct import Struct; Struct

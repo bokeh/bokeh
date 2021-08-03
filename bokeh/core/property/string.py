@@ -37,6 +37,7 @@ from .singletons import Undefined
 __all__ = (
     'Regex',
     'Base64String',
+    'MathString'
 )
 
 #-----------------------------------------------------------------------------
@@ -112,6 +113,17 @@ class Base64String(String):
         if isinstance(value, str):
             value = base64.b64encode(value.encode("utf-8")).decode("utf-8")
         return value
+
+class MathString(String):
+
+    def validate(self, value, detail=True):
+        super().validate(value, detail)
+
+        if  len(value) >= 2 and value[0] == value[-1] == "$":
+            return
+
+        msg = "" if not detail else f"expected a math string"
+        raise ValueError(msg)
 
 #-----------------------------------------------------------------------------
 # Dev API
