@@ -354,7 +354,8 @@ Initiate test runs
         [ToDo: only works with Chrome? or also firefox? Also: opens http://stuff.com/baz.html and others??!]
 
     * Use endpoint to run tests
-        Initiate test runs by accessing one of the following endpoints with your browser:
+        Initiate test runs by accessing one of the following endpoints with your
+        browser:
 
         * ``/unit/run``
         * ``/defaults/run``
@@ -376,30 +377,36 @@ To only run or view tests for a specific plattform, append either
 Continuous Integration (CI)
 ---------------------------
 
-**[This section TBD]**
+Every time you start a :ref:`Pull Request <devguide_pull_requests>` or add new
+commits to an existing Pull Request branch on Bokeh's GitHub repository,
+`Bokeh's Continuous Integration (CI) <GithubCI>`_ will run all available tests
+on your branch.
 
-Every push to the ``main`` branch or any Pull Request branch on GitHub
-automatically triggers a full test build on the `GithubCI`_ continuous
-integration service.
-
-You can see the list of all current and previous builds at this URL:
+You can see the list of all current and previous CI runs at this URL:
 https://github.com/bokeh/bokeh/actions
+
+.. _devguide_testing_ci_environments:
 
 Environment files
 ~~~~~~~~~~~~~~~~~
 
-if you add or update dependencies in environment.yml, you will most likely also
-need to update those
-ymls
+Bokeh's CI runs tests on Linux, macOS, and Windows. It also runs tests with
+different versions of Python. The various testing environments are defined
+in their respective YAML files in the :bokeh-tree:`ci`. In case you add or
+change dependencies, you also need to update these files, in addition to
+:bokeh-tree:`environment.yml` in the *source checkout* directory.
 
-Configuration
-~~~~~~~~~~~~~
+Additional configuration
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to testing, Bokeh's CI is also used to build new Bokeh
+`releases <Release Management>`_.
 
 There are a number of files that affect the build configuration:
 
 * :bokeh-tree:`conda.recipe/meta.yaml`
     Instructions for building a conda noarch package for Bokeh. This
-    file is the single source of truth for build and test (but not
+    file is the single source of truth for build (but not
     runtime) dependencies.
 
 * :bokeh-tree:`setup.py`
@@ -413,10 +420,10 @@ There are a number of files that affect the build configuration:
 Etiquette
 ~~~~~~~~~
 
-CI services provide finite free build workers to Open Source projects. Grouping
-commits into meaningful chunks of work before pushing to GitHub instead of
-pushing every commit individually will help you be considerate of others
-requiring these limited resources.
+CI services provide finite free build workers to Open Source projects. Pleas
+groupe your commits into meaningful chunks of work before pushing to GitHub
+instead of pushing every commit individually. This will help you be considerate
+of others who require access to these limited resources.
 
 .. _pytest: https://pytest.org/
 .. _pytest-xdist: https://github.com/pytest-dev/pytest-xdist
@@ -433,3 +440,4 @@ requiring these limited resources.
 .. _GithubCI: https://github.com/bokeh/bokeh/actions
 .. _Working with custom markers: http://pytest.org/latest/example/markers.html#working-with-custom-markers
 .. _pytest documentation: https://docs.pytest.org
+.. _Release Management: https://github.com/bokeh/bokeh/wiki/BEP-2:-Release-Management
