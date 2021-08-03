@@ -41,22 +41,7 @@ requirements:
     - {{ dep.lower() }}
     {% endfor %}
 
-    # examples
-    - flask >=1.0
-    - django
-    - h5py
-    - icalendar
-    - networkx
-    - notebook
-    - opencv
-    - pyshp
-    - scikit-learn
-    - sympy
-    #- ipywidgets_bokeh >=1.0.0
-    #- ipywidgets >=7.5.0
-    #- ipyvolume
-    #- ipyleaflet
-
+test:
   commands:
     - bokeh -h
 
