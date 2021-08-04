@@ -1,5 +1,4 @@
 import {expect} from "assertions"
-
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {Circle} from "@bokehjs/models/glyphs"
@@ -55,6 +54,7 @@ describe("GlyphRendererView", async () => {
     glyph_renderer,
     {parent: await build_view(new Plot())},
   )
+
   const {glyph, selection_glyph, nonselection_glyph, hover_glyph, muted_glyph, decimated_glyph} = view
 
   it("should have default selection_glyph equal to main glyph", () => {
@@ -62,7 +62,7 @@ describe("GlyphRendererView", async () => {
   })
 
   it("should have default nonselection_glyph with 0.2 alpha", () => {
-    expect(nonselection_glyph.model.attributes.fill_alpha).to.be.equal({value: 0.2})
+    expect((nonselection_glyph.model as Circle).fill_alpha).to.be.equal({value: 0.2})
   })
 
   it("should have default hover_glyph model equal to main glyph model", () => {
@@ -70,12 +70,12 @@ describe("GlyphRendererView", async () => {
   })
 
   it("should have default muted_glyph with 0.2 alpha", () => {
-    expect(muted_glyph.model.attributes.fill_alpha).to.be.equal({value: 0.2})
+    expect((muted_glyph.model as Circle).fill_alpha).to.be.equal({value: 0.2})
   })
 
   it("should have default decimated_glyph with 0.3 line alpha and color grey", () => {
-    expect(decimated_glyph.model.attributes.line_alpha).to.be.equal({value: 0.3})
-    expect(decimated_glyph.model.attributes.line_color).to.be.equal({value: "grey"})
+    expect((decimated_glyph.model as Circle).line_alpha).to.be.equal({value: 0.3})
+    expect((decimated_glyph.model as Circle).line_color).to.be.equal({value: "grey"})
   })
 
 })
