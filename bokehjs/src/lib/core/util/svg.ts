@@ -4,7 +4,7 @@
 
 import {AffineTransform} from "./affine"
 import {isString, isNumber} from "./types"
-import {random} from "./random"
+import {random, Random} from "./random"
 import {empty} from "../dom"
 
 type KV<T> = {[key: string]: T}
@@ -272,6 +272,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   __currentPosition: {x: number, y: number} | null = null
   //__currentElementsToStyle: {element: SVGElement, children: SVGElement[]} | null = null
 
+  static __random: Random = random
+
   get canvas(): this {
     // XXX: point back to this instance
     return this
@@ -350,7 +352,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz"
     let str: string
     do {
-      str = random.choices(12, chars).join("")
+      str = SVGRenderingContext2D.__random.choices(12, chars).join("")
     } while (this.__ids.has(str))
     return str
   }

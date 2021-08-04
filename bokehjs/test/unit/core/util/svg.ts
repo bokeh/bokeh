@@ -1,8 +1,13 @@
 import {expect, expect_element} from "assertions"
 import {compare_on_dom, string_to_html} from "../../../framework"
 import {SVGRenderingContext2D} from "@bokehjs/core/util/svg"
+import {Random} from "@bokehjs/core/util/random"
 
 describe("SVGRenderingContext2d", () => {
+  before_each(() => {
+    SVGRenderingContext2D.__random = new Random(1)
+  })
+
   it("should fill text correctly", async () => {
     const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
       ctx.font = "normal 16px Times"
@@ -671,7 +676,7 @@ describe("SVGRenderingContext2d", () => {
       >
         <defs>
           <linearGradient
-            id="IKDEcuCTVCXZ"
+            id="ZoSvZRFIOOma"
             x1="20px"
             x2="220px"
             y1="0px"
@@ -684,13 +689,13 @@ describe("SVGRenderingContext2d", () => {
           </linearGradient>
         </defs>
         <path
-          fill="url(#IKDEcuCTVCXZ)"
+          fill="url(#ZoSvZRFIOOma)"
           stroke="none"
           paint-order="stroke"
           d="M 20 20 L 220 20 L 220 120 L 20 120 L 20 20"
         />
       </svg>
-    `), ["id", "fill"])
+    `))
   })
 
   it("Linear gradient shouldn't paint if x0=x1 and y0=y1", async () => {
@@ -725,7 +730,7 @@ describe("SVGRenderingContext2d", () => {
           <linearGradient
             fill="none"
             stroke="none"
-            id="EkyBrcUTohia"
+            id="ZoSvZRFIOOma"
             x1="20px"
             x2="20px"
             y1="0px"
@@ -734,13 +739,13 @@ describe("SVGRenderingContext2d", () => {
           />
         </defs>
         <path
-          fill="url(#EkyBrcUTohia)"
+          fill="url(#ZoSvZRFIOOma)"
           stroke="none"
           paint-order="stroke"
           d="M 20 20 L 220 20 L 220 120 L 20 120 L 20 20"
         />
       </svg>
-  `), ["id", "fill"])
+  `))
   })
 
   it("Create a radial gradient", async () => {
@@ -775,7 +780,7 @@ describe("SVGRenderingContext2d", () => {
       >
         <defs>
           <radialGradient
-            id="pkvhSUZsmurV"
+            id="ZoSvZRFIOOma"
             cx="100px"
             cy="100px"
             r="70px"
@@ -790,13 +795,13 @@ describe("SVGRenderingContext2d", () => {
           </radialGradient>
         </defs>
         <path
-          fill="url(#pkvhSUZsmurV)"
+          fill="url(#ZoSvZRFIOOma)"
           stroke="none"
           paint-order="stroke"
           d="M 20 20 L 180 20 L 180 180 L 20 180 L 20 20"
         />
       </svg>
-  `), ["id", "fill"])
+  `))
   })
 
   it("Radial gradient shouldn't paint if x0=x1, y0=y1 and r0=r1", async () => {
@@ -829,7 +834,7 @@ describe("SVGRenderingContext2d", () => {
       >
         <defs>
           <radialGradient
-            id="nRLUFKGrscMi"
+            id="ZoSvZRFIOOma"
             cx="110px"
             cy="90px"
             r="30px"
@@ -840,13 +845,13 @@ describe("SVGRenderingContext2d", () => {
           />
         </defs>
         <path
-          fill="url(#nRLUFKGrscMi)"
+          fill="url(#ZoSvZRFIOOma)"
           stroke="none"
           paint-order="stroke"
           d="M 20 20 L 180 20 L 180 180 L 20 180 L 20 20"
         />
       </svg>
-    `), ["id", "fill"])
+    `))
   })
 
   it("Create a pattern from a canvas", async () => {
@@ -886,22 +891,22 @@ describe("SVGRenderingContext2d", () => {
       >
         <defs>
           <pattern
-            id="IXCyUTcJcgLy"
+            id="ZoSvZRFIOOma"
             width="50"
             height="50"
             patternUnits="userSpaceOnUse"
           >
-            <image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAADV0lEQVRoQ92ZaUjTYRzHv3uV0EUHRQZlKGaHmi6vFM1MJsFcaGTmwbRjBUqtTFHxIrU0PHKpGKaJNU0nZRrzGColpWRgWBbZSWKaeWQlUeriWWSZx6bO+X/2vP2/eT7/3/d3fR+WvLdJDspPTMJlsLQBJDw2QztAhGHJ2gHiFxCjHSBcT6F2gLAdvbUDZKWBE/0gff0D0Dfj0Q9S39CM4Kg0+kHSs4vR0tpGPwgpvTbbjekH2WS1DwXZ8XSDtHd8BHunF7peVNMNclVchoqaByikPSIe/qFwcbKBn5crvREZkcuxaK0d3jTfxupVK+gFKbpVjVxxGaRFaYptitp9xM0nCFwXe4WsqAVp7+gCKbvdbTLo6CygFyQ64TJ6evshSggeXdKplNYaIw6kxSJsMzakFyQ9uwi195ogyUscY5lQFxF9cx5yLkXBYYc5vSCpmWKQsf3/aFBVtb5+G4SeKVeRGxZmm8c5cdRISxiWhKGhYYgS/1aqf2moACFycvc9g2eNEixftnRCX5QKEGtnPgR8t9EuPhEJ40GIHfrqbbtiVJ/qMBrkTlU9BMI4PKq9pphwqQQh25+Fkw+yUsLh6mKv9L2AsRHZxTsGJwdLhJ/yVwrB2D6iMKVZLOSIIlWCYCQIMdtaWl9CWvx7YVL1MEpa5OWpsqYBFRIRlixeqCoDs/YRAlFeVY/yghSlFYqxfYTIiXTvm/kXZgTBiBwhid3Z1YMbOeemLSdGzFqkT/gej4TeOt1pVafJEmdekp107MMnziLgiIfKfUJZ5mschMxOeQVlyEgKValjKwP4811jICSZgyJSobdeFxfjT884qedNWmSzi4jLhFhSgfNRgVOO4qr+fY2XX7JjxyZdgacbBzGhgkmXotkAzKm0iGWTnHEdZsYbEXKSP+GOrY7Lz0n5JTZmdn4psnJLYGtlikDBgXGWjbovrzYQYu1LSmUoLKlEdV0j+Ae5OOS9d4wDOJeXnxUIaWSyukZIZfdRVnEXDnZs7Ofthqc7Z9RQ1tTlVQYhj/FPn7/G4ydtaGpuRcPDFvT2fYajvQU4jtbY42yr9jI605/Aig45Kv/xcwiDg9/RP/AFn3r60dHZjXfvP2BkeARGhhtgssUA5iZGsGRvnRfZqAL3C7yBzrDJQGgLAAAAAElFTkSuQmCC"/>
+            <image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAytJREFUaEPdmm1IU1EYx/+2sK9F860+2IeFWvnWFy2riWU6DQUtp/nSWDa1+QJmauiWScyXD1JoGRUKZtDMQK2lKA58SyLDRFESMU1LBQvSmZofjDNxlDq31ab37ML5dC+X/+8+55znef7nWix/71oG5Vea5A4szAEkUpRtHiA+wfHmAeLked48QHYf8KYfZH5+AXs5p+kHGR4Zh2+ImH6QjrcfkJFTTD9IdW0z5DWN9IOUVdZiePQr/SAhMdcRHRZAP8hOKw8sTr6hG+R1UwfuPa6CQn6XbpD4VBncXRwQJwilG2TfIX+8V1bCzpZNL0hXdz8S0vLxrrlC3YRQW8ZLZKXYZWmJ7LTLdIO4nozAkwe5cDl8kF6Q0bEJcM+JMNLzUtPbUjm18orKwWLtQHrKJXpB5ubmYeN4Fqqxtr+cBuoikpRRCAeOPRKv8OkFGf8yhWN+Qoz1Kdb5PlRFJCpOAt6Z44i8wKMXpG9gCBGxWejtkG/owlETkUB+CsSxYQjw9aIXpK2zG1m376NV8UirJ0pFRPjCG0gW8eHl6UYvyNqaShsJoyNSVdOEF3VKyMvydNrsjAUZ+PgJoYJ09Hc+1wnB6DJ+tRdnsVj0grhzI1FeIoWbs4NeEIyMSEyCFL7eHojmB+oNwTgQqawUC4tLKLyVbBAEo0AIhBV7D5JE4QZDMAaETCdba/Y/RWKVetu3X7KwU69eNHhNrA3btoGQPOF8IhxdygqDdidGZXaSsXMKHqK3/Rn0zRO6Fs6WR4TUToNDn/UqO3SJ//P+loGQUpwYzkecOBpTzRChup41OQjp7MjR2KzqJ/Ik4k1LcV1iN7tvMhBiFGTmlqCnbxAFOclaO7v/EW/SqUV8p8zcYtQoWpB/M3FDo8BY4k0CQmzMp9UNkBWVIV+auM53MoV4o4EQa7+2vgV19a34MaNCgjAUGSkCU2ve8P0GrxFy3FVHxDe0Yr+dNYJ5XATxTmlc8W2h0HY+Qn6LmJiaXhmT3zAzq8Krxnb1l/fz8VQLD/Lnqk+KmHJZXBNHLWtEq4VP49fSEuxs2CvDlg1Hjj2OujqpAYyViY39AX4DXR+42EzS/N8AAAAASUVORK5CYII="/>
           </pattern>
         </defs>
         <path
-          fill="url(#IXCyUTcJcgLy)"
+          fill="url(#ZoSvZRFIOOma)"
           stroke="none"
           paint-order="stroke"
           d="M 0 0 L 200 0 L 200 200 L 0 200 L 0 0"
         />
       </svg>
-    `), ["id", "fill", "href"])
+    `))
   })
 
   it("Create a pattern from an image", async () => {
@@ -934,7 +939,7 @@ describe("SVGRenderingContext2d", () => {
       >
         <defs>
           <pattern
-            id="NAcKBOHKdlrU"
+            id="ZoSvZRFIOOma"
             width="86"
             height="117"
             patternUnits="userSpaceOnUse"
@@ -943,13 +948,13 @@ describe("SVGRenderingContext2d", () => {
           </pattern>
         </defs>
         <path
-          fill="url(#NAcKBOHKdlrU)"
+          fill="url(#ZoSvZRFIOOma)"
           stroke="none"
           paint-order="stroke"
           d="M 0 0 L 300 0 L 300 300 L 0 300 L 0 0"
         />
       </svg>
-    `), ["id", "fill"])
+    `))
   })
 
   it("Support dashed lines", async () => {
@@ -1052,7 +1057,7 @@ describe("SVGRenderingContext2d", () => {
           transform="matrix(1, 0, 0, 1, 0, 250)"
         ></image>
       </svg>
-    `), ["id", "href"])
+    `))
   })
 
   it("Support drawImage with Canvas", async () => {
@@ -1106,6 +1111,6 @@ describe("SVGRenderingContext2d", () => {
           transform="matrix(1, 0, 0, 1, 0, 250)"
         ></image>
       </svg>
-    `), ["id", "href"])
+    `))
   })
 })
