@@ -41,13 +41,6 @@ requirements:
     - {{ dep.lower() }}
     {% endfor %}
 
-test:
-  commands:
-    - bokeh -h
-
-  imports:
-    - bokeh
-
 about:
   home: https://www.bokeh.org
   license: {{ data['license'] }}
