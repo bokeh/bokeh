@@ -148,7 +148,7 @@ class ServerSession:
         self._expiration_requested = False
         self._expiration_blocked_count = 0
 
-        wrapped_callbacks = self._wrap_session_callbacks(self._document.session_callbacks)
+        wrapped_callbacks = [self._wrap_session_callback(cb) for cb in self._document.session_callbacks]
         self._callbacks.add_session_callbacks(wrapped_callbacks)
 
     @property
@@ -235,12 +235,6 @@ class ServerSession:
     def _wrap_session_callback(self, callback: SessionCallback) -> SessionCallback:
         wrapped = self._wrap_document_callback(callback.callback)
         return callback._copy_with_changed_callback(wrapped)
-
-    def _wrap_session_callbacks(self, callbacks: List[SessionCallback]) -> List[SessionCallback]:
-        wrapped: List[SessionCallback] = []
-        for cb in callbacks:
-            wrapped.append(self._wrap_session_callback(cb))
-        return wrapped
 
     def _document_patched(self, event: DocumentPatchedEvent) -> None:
         may_suppress = event.setter is self
