@@ -127,6 +127,7 @@ DEPLOY_CHECKS: StepListType = (
     check_git_present,
     check_npm_present,
     check_twine_present,
+    check_checkout_on_base_branch,
     verify_anaconda_credentials,
     verify_aws_credentials,
     verify_npm_credentials,
