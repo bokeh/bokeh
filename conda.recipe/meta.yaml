@@ -49,6 +49,14 @@ test:
     - bokeh
 
 about:
-  home: {{ data['url'] }}
+  home: https://www.bokeh.org
   license: {{ data['license'] }}
   summary: {{ data['description'] }}
+  description: |
+    Bokeh is a Python library for creating interactive visualizations
+    for modern web browsers. It helps you build beautiful graphics,
+    ranging from simple plots to complex dashboards with streaming
+    datasets. With Bokeh, you can create JavaScript-powered visualizations
+    without writing any JavaScript yourself.
+  doc_url: https://docs.bokeh.org
+  dev_url: {{ data['url'] }}
