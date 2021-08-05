@@ -1,5 +1,6 @@
 import * as p from "core/properties"
 import * as visuals from "core/visuals"
+import {Signal0} from "core/signaling"
 import {isNumber} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {ImageLoader} from "core/util/image"
@@ -20,6 +21,8 @@ type Position = {
   x_anchor?: number | "left" | "center" | "right"
   y_anchor?: number | "top"  | "center" | "baseline" | "bottom"
 }
+
+const mathjax_ready = new Signal0({}, "mathjax_ready")
 
 /**
  * Helper class to rendering MathText into Canvas
@@ -81,9 +84,14 @@ export class MathTextView extends View implements GraphicsBox {
   override async lazy_initialize() {
     await super.lazy_initialize()
 
-    if (!this.get_math_jax())
+    if (!this.get_math_jax()) {
       this.load_math_jax_script()
-    else
+
+      mathjax_ready.connect(async () => {
+        await this.load_image()
+        this.parent.request_paint()
+      })
+    } else
       await this.load_image()
   }
 
@@ -263,12 +271,7 @@ export class MathTextView extends View implements GraphicsBox {
       const script = document.createElement("script")
       script.id = "bokeh_mathjax_script"
       script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
-
-      script.onload = async () => {
-        await this.load_image()
-        this.parent.request_paint()
-      }
-
+      script.onload = () => mathjax_ready.emit()
       document.head.appendChild(script)
     }
   }
