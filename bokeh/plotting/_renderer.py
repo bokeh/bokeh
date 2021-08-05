@@ -110,11 +110,8 @@ def create_renderer(glyphclass, plot, **kwargs):
     else:
         hover_visuals = None
 
-    # handle the mute glyph, if any properties were given
-    if any(x.startswith('muted_') for x in kwargs):
-        muted_visuals = pop_visuals(glyphclass, kwargs, prefix='muted_', defaults=glyph_visuals)
-    else:
-        muted_visuals = None
+    # handle the mute glyph, we always set one
+    muted_visuals = pop_visuals(glyphclass, kwargs, prefix='muted_', defaults=glyph_visuals, override_defaults={'alpha':0.2})
 
     glyph = make_glyph(glyphclass, kwargs, glyph_visuals)
     nonselection_glyph = make_glyph(glyphclass, kwargs, nonselection_visuals)
@@ -127,7 +124,7 @@ def create_renderer(glyphclass, plot, **kwargs):
         nonselection_glyph=nonselection_glyph or "auto",
         selection_glyph=selection_glyph or "auto",
         hover_glyph=hover_glyph,
-        muted_glyph=muted_glyph,
+        muted_glyph=muted_glyph or "auto",
         **renderer_kws)
 
     plot.renderers.append(glyph_renderer)

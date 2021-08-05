@@ -906,7 +906,7 @@ export class Figure extends Plot {
     const nglyph_ca = this._pop_visuals(cls, attrs, "nonselection_", glyph_ca, {alpha: 0.1})
     const sglyph_ca = this._pop_visuals(cls, attrs, "selection_", glyph_ca)
     const hglyph_ca = this._pop_visuals(cls, attrs, "hover_", glyph_ca)
-    const mglyph_ca = this._pop_visuals(cls, attrs, "muted_", glyph_ca)
+    const mglyph_ca = this._pop_visuals(cls, attrs, "muted_", glyph_ca, {alpha: 0.2})
 
     this._fixup_values(cls, data,  glyph_ca)
     this._fixup_values(cls, data, nglyph_ca)
@@ -926,7 +926,7 @@ export class Figure extends Plot {
     const nglyph = !is_empty(nglyph_ca) ? _make_glyph(cls, attrs, nglyph_ca) : "auto"
     const sglyph = !is_empty(sglyph_ca) ? _make_glyph(cls, attrs, sglyph_ca) : "auto"
     const hglyph = !is_empty(hglyph_ca) ? _make_glyph(cls, attrs, hglyph_ca) : undefined
-    const mglyph = !is_empty(mglyph_ca) ? _make_glyph(cls, attrs, mglyph_ca) : undefined
+    const mglyph = !is_empty(mglyph_ca) ? _make_glyph(cls, attrs, mglyph_ca) : "auto"
 
     const glyph_renderer = new GlyphRenderer({
       data_source:        source,

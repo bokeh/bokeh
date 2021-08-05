@@ -101,10 +101,7 @@ def get_graph_kwargs(node_source, edge_source, **kwargs):
     else:
         hnode_visuals = None
 
-    if any(x.startswith('node_muted_') for x in kwargs):
-        mnode_visuals = pop_visuals(marker_type, kwargs, prefix="node_muted_", defaults=node_visuals)
-    else:
-        mnode_visuals = None
+    mnode_visuals = pop_visuals(marker_type, kwargs, prefix="node_muted_", defaults=node_visuals, override_defaults={'alpha':0.2})
 
     nsnode_visuals = pop_visuals(marker_type, kwargs, prefix="node_nonselection_", defaults=node_visuals)
 
@@ -121,10 +118,7 @@ def get_graph_kwargs(node_source, edge_source, **kwargs):
     else:
         hedge_visuals = None
 
-    if any(x.startswith('edge_muted_') for x in kwargs):
-        medge_visuals = pop_visuals(MultiLine, kwargs, prefix="edge_muted_", defaults=edge_visuals)
-    else:
-        medge_visuals = None
+    medge_visuals = pop_visuals(MultiLine, kwargs, prefix="edge_muted_", defaults=edge_visuals, override_defaults={'alpha':0.2})
 
     nsedge_visuals = pop_visuals(MultiLine, kwargs, prefix="edge_nonselection_", defaults=edge_visuals)
 
@@ -143,7 +137,7 @@ def get_graph_kwargs(node_source, edge_source, **kwargs):
         selection_glyph=snode_glyph or "auto",
         nonselection_glyph=nsnode_glyph or "auto",
         hover_glyph=hnode_glyph,
-        muted_glyph=mnode_glyph,
+        muted_glyph=mnode_glyph or "auto",
     )
 
     ## edge stuff
@@ -161,7 +155,7 @@ def get_graph_kwargs(node_source, edge_source, **kwargs):
         selection_glyph=sedge_glyph or "auto",
         nonselection_glyph=nsedge_glyph or "auto",
         hover_glyph=hedge_glyph,
-        muted_glyph=medge_glyph,
+        muted_glyph=medge_glyph or "auto",
     )
 
     renderer_kwargs = {attr: kwargs.pop(attr) for attr in RENDERER_ARGS if attr in kwargs}
