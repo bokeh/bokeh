@@ -212,6 +212,19 @@ class TestProperty:
         bcpb.Property._should_validate = True
         assert bcpb.validation_on()
 
+    def test__hinted_value_is_identity(self) -> None:
+        p = bcpb.Property()
+        assert p._hinted_value(10, "hint") == 10
+        assert p._hinted_value(10, None) == 10
+
+    @patch('bokeh.core.property.bases.Property._hinted_value')
+    def test_prepare_value_uses__hinted_value(self, mock_hv: MagicMock) -> None:
+        hp = HasProps()
+        p = bcpb.Property()
+
+        p.prepare_value(hp, "foo", 10)
+        assert mock_hv.called
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
