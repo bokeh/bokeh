@@ -591,7 +591,7 @@ class PropertyDescriptor(Generic[T]):
 
         # re-validate because the contents of 'old' have changed,
         # in some cases this could give us a new object for the value
-        value = self.property.prepare_value(obj, self.name, value)
+        value = self.property.prepare_value(obj, self.name, value, hint=hint)
 
         self._set(obj, old, value, hint=hint)
 

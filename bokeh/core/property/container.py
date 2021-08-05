@@ -28,6 +28,7 @@ from collections.abc import (
     Sequence,
     Sized,
 )
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ...util.serialization import decode_base64_dict, transform_column_source_data
@@ -38,6 +39,9 @@ from .enum import Enum
 from .numeric import Int
 from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
+
+if TYPE_CHECKING:
+    from ...document.events import DocumentPatchedEvent
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -250,6 +254,14 @@ class ColumnData(Dict):
             else:
                 new_data[key] = self.values_type.from_json(value, models=models)
         return new_data
+
+    def _hinted_value(self, value: Any, hint: DocumentPatchedEvent | None) -> Any:
+        from ...document.events import ColumnDataChangedEvent, ColumnsStreamedEvent
+        if isinstance(hint, ColumnDataChangedEvent):
+            return { col: hint.column_source.data[col] for col in hint.cols }
+        if isinstance(hint, ColumnsStreamedEvent):
+            return hint.data
+        return value
 
     def serialize_value(self, value):
         return transform_column_source_data(value)
