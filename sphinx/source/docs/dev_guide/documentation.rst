@@ -232,7 +232,7 @@ the docs in a web browser:
       make.bat serve
 
 **Linux/macOS only:** You can combine multiple targets in one command (not
-supported by make.bat). For example:
+supported by ``make.bat``). For example:
 
 .. code-block:: sh
 

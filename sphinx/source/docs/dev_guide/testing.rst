@@ -114,6 +114,8 @@ Unit tests
         ChromeDriver is available on your system, you can run all unit tests
         with ``pytest tests/unit``.
 
+.. _devguide_testing_local_python_integration:
+
 Integration tests
     To run Bokeh's Python-focused integration tests, use this command from the
     top level of the repository:
@@ -123,7 +125,8 @@ Integration tests
         pytest tests/integration
 
     These tests mostly simulate UI interactions. Therefore, they require
-    `Selenium`_ and a working `web driver`_.
+    `Chrome`_ or `Chromium`_ and `Selenium`_ with the `ChromeDriver`_ web
+    driver.
 
 Code coverage
     To create a coverage report, use ``pytest`` with the command line options
