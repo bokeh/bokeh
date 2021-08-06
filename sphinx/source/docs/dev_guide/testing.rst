@@ -74,7 +74,7 @@ when working with Bokeh tests:
 * ``-m``: Select or deselect specific test based on markers. See
   :ref:`Select specific tests <devguide_testing_local_python_select>`.
 * ``-n``: Distribute testing over several CPUs/cores. Provide a number to define
-  the number of cores to use. Set to ``auto `` to use all available cores. For
+  the number of cores to use. Set to ``auto`` to use all available cores. For
   example: ``pytest -n 4 tests/codebase``. See `pytest-xdist`_.
 * ``-v``: Run test with more verbose output.
 * ``--driver``: Use a specific web driver for Selenium-based tests
@@ -176,7 +176,7 @@ Examples tests
         cd bokehjs
         node make test:spawn:headless
 
-    [TBD: displays errors, but works anyways in Linux, does not work with Windows]
+    [TBD not working on Win10?]
 
     Next, return to the top level directory and run the tests:
 
@@ -188,7 +188,16 @@ Examples tests
     [TBD: pytest --report-path=examples.html parameter not recognized?]
 
     After the tests have run, the results are available in
-    ``examples-report.html``.
+    ``examples-report.html``. This file is located in the same directory that
+    you ran the tests from:
+
+    .. image:: /_images/examples_test_report.png
+        :class: image-border
+        :alt: Screenshot of a browser window displaying an examples test report
+            consisting of various plots.
+
+    In addition, the examples tests generate a log file called ``examples.log``
+    in the same directory.
 
     The examples tests can run slowly. To speed them up, you can parallelize
     them with the command line option `-n`. The number you supply to `-n` is
@@ -198,9 +207,9 @@ Examples tests
 
         pytest -n 5 test_examples.py
 
-    In addition, the examples tests generate a log file called examples.log.
-    This file is located in the same directory that you ran the tests
-    from. [TBD: File seems to be empty, even after a successful run?]
+    [TBD: Running with ``n`` leads to several test now failing ("Cannot start
+    Bokeh server, port 5006 is already in use") - does the headless browser need
+    a multi-thread argument when spawned to allow multiple connections?]
 
 Run all available tests
     You can run all available tests (Python and TypeScript unit tests, examples,
@@ -333,6 +342,7 @@ Inspecting visual test results
     different from the baseline file. For example:
 
     .. image:: /_images/bokehjs_devtools_report.png
+        :class: image-border
         :alt: Screenshot of devtool displaying a locally rendered image, an
             image diff and a baseline image.
 
@@ -367,6 +377,7 @@ Initiate test runs
         * ``/integration/run``
 
         .. image:: /_images/bokehjs_devtools_test_run.png
+            :class: image-border
             :alt: Screenshot of devtool displaying various plots as a result of
                 running integration tests.
 
