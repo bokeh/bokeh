@@ -3,7 +3,7 @@
 Writing tests
 =============
 
-In order to help keep Bokeh maintainable, all
+To help keep Bokeh maintainable, all
 :ref:`Pull Requests <devguide_pull_requests>` that add or update code should
 include added or updated tests. While exceptions are possible, a Pull Request
 without adequate tests will generally not be considered ready to merge.
@@ -26,12 +26,13 @@ These tests are located in :bokeh-tree:`bokehjs/test`. See
 Information on contributing to Bokeh's Python code and models is available in
 :ref:`devguide_models`.
 
-Unit tests
-~~~~~~~~~~
+Python unit tests
+~~~~~~~~~~~~~~~~~
 Python unit tests help maintain the basic functionality of the Python portion of
-the Bokeh library. They are located in :bokeh-tree:`tests/unit/bokeh` the folder
-structure resembles the structure of :ref:`Bokeh's Python models <refguide>`.
-The name of each test file begins with ``test_``, followed by the module's name.
+the Bokeh library. They are located in :bokeh-tree:`tests/unit/bokeh`. The
+folder structure resembles the structure of
+:ref:`Bokeh's Python models <refguide>`. The name of each test file begins with
+``test_``, followed by the module's name.
 
 Follow these general guidelines when writing Python unit tests:
 
@@ -49,14 +50,14 @@ Use ``pytest`` (not ``unittest``)
     aspects, such as test running, fixtures, or parameterized testing. Please
     do *not* use the ``unittest`` module of the Python standard library.
 
-Integration tests
-~~~~~~~~~~~~~~~~~
+Python integration tests
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Bokeh's Python-focused integration tests help make sure that Bokeh's Python code
-works as intended with the TypeScript code of :term:BokehJS. These integration
+works as intended with the TypeScript code of :term:`BokehJS`. These integration
 tests create screenshots of their output and compare those screenshots to
 pre-defined baseline images. They are located in
-:bokeh-tree:`tests/integration`, the folder structure resembles the structure
+:bokeh-tree:`tests/integration`. The folder structure resembles the structure
 of Bokeh's Python models.
 
 To add or update screenshot integration tests, first make sure that the
@@ -82,7 +83,8 @@ standard ``pytest`` command you use to run the test. For each test, this will
 generate an image with the name ``base__<name_of_your_test>.png`` in the
 appropriate directory. Use ``git`` to check this image into the repository. All
 future screenshot tests will then be compared against this base image.
-[Is this really how this works? I just get  ``pytest: error: unrecognized arguments: --set-new-base-screenshot``]
+
+[TBD: Is this really how this works? I just get  ``pytest: error: unrecognized arguments: --set-new-base-screenshot``]
 
 .. _devguide_writing_tests_bokehjs:
 
@@ -91,20 +93,16 @@ Writing JavaScript Tests (BokehJS)
 
 To maintain the functionality of all :term:`BokehJS` components, Bokeh includes
 various tests written in TypeScript. These tests use a custom-made testing
-framework which **requires Google Chrome or Chromium**. You need a recent
+framework that **requires Google Chrome or Chromium**. You need a recent
 version of one of these browsers available on your system to work with these
 tests.
 
 [TBD:]
-
 * is Chrome only required for visual tests or also for unit tests? And not for codebase/defaults?
-* "Most tests for BokehJS use describe() and it() functions." This seems to be true for unit and integration tests?
-* "They are written using Chai “expect” style" Is this a good ressource to link to: https://www.chaijs.com/guide/styles/)?
-  also: is this only true for unit tests? `layouts.ts` seems to be the only integration test to use `expect()`. If yes, what is a good resource to link to
-  for integration test writing?
-* "If new test files are added, an appropriate entry in the directory index file
-  should be added" What is the index file, and what needs to be added to it - and
-  when is it OK not to add to it?.
+
+Like several other testing frameworks such as `Mocha`_ or `Jasmine`_, the
+BokehJS testing framework uses ``describe()`` and ``it()`` functions to set up
+tests.
 
 The BokehJS tests are located in :bokeh-tree:`bokehjs/test`. See
 :ref:`devguide_testing_local_typescript` for information on how to run them.
@@ -114,25 +112,85 @@ Information on contributing to BokehJS is available in
 
 .. _devguide_writing_tests_bokehjs_unit:
 
-Unit tests
-~~~~~~~~~~
+BokehJS unit tests
+~~~~~~~~~~~~~~~~~~
 
-[TBD: Do we need info on how to write JS unit tests?]
+The :term:`BokehJS` unit tests help make sure that the individual sections of
+BokehJS function as expected. The unit tests for BokehJS are located in the
+:bokeh-tree:`bokehjs/test/unit/` folder and sub-folders.
+
+Use `Chai "expect" assertion style <Chai>`_ when writing unit tests for the
+BokehJS testing framework. See the `API documentation of the Chai Assertion
+Library <Chai documentation>`_ for more details on this style.
+
+Use ``expect()`` together with the following elements to create assertions for
+the BokehJS testing framework:
+
+* ``to`` and ``be``: tokens to improve readability of assertions and connect
+  elements
+* ``not``: negates the following assertions
+* ``throw``: asserts that an error is thrown. Accepts the following optional
+  parameters: ``error_type`` (filter by ``Error``) and ``pattern`` (filter by
+  regular expression or string).
+* ``equal``: asserts strict equality (``===``). Expects an operand to compare
+  to.
+* ``similar``: asserts similarity within a defined tolerance. Expects an operand
+  to compare to as well as an optional ``number`` as ``tolerance``.
+* ``identical``: asserts same-value equality. Expects an operand to compare
+  to.
+* ``instanceof``: asserts that the tested element is an instance of the given
+  constructor. Expects a ``Constructor`` to test against.
+* ``undefined``: asserts strict equality (``===``) to ``undefined``
+* ``null``: asserts strict equality (``===``) to ``null``
+* ``true``: asserts strict equality (``===``) to ``true``
+* ``false``: asserts strict equality (``===``) to ``false``
+* ``NaN``: asserts that the tested element is ``NaN``
+* ``empty``: asserts a length of ``0`` (for example, an empty string or an
+  iterable that does not contain any retrievable values)
+* ``below``: asserts that the tested element is below (``<``) a value. Expects a
+  ``number`` to compare to.
+* ``above``: asserts that the tested element is below (``>``) a value. Expects a
+  ``number`` to compare to.
+
+Some examples:
+
+.. code-block:: TypeScript
+
+    expect(m.name).to.be.null
+    expect(grid0).to.be.instanceof(Column)
+    expect(h.msgid).to.not.be.equal(h2.msgid)
+
+In addition to ``expect()``, the BokehJS testing framework also uses an
+``expect_element()`` function. You can use this function in combination with
+``have`` and ``equal_attributes`` to test whether an element has certain
+attributes. ``equal_attributes`` accepts an array of strings as an optional
+``ignored_attributes`` parameter.
+
+For example:
+
+.. code-block:: TypeScript
+
+    expect_element(svg).to.have.equal_attributes(string_to_html(`<p>test</p>`))
+
+If you add new test files, you should add an entry in the directory index file.
+
+[TBD: What is the index file, and what does "an appropriate entry" mean? What
+needs to be added to it - and when is it OK not to add to it?]
 
 .. _devguide_writing_tests_bokehjs_visual:
 
-Visual tests
-~~~~~~~~~~~~
+BokehJS visual tests
+~~~~~~~~~~~~~~~~~~~~
 
-:term:`BokehJS` uses a series of visual baseline comparison tests. These tests
-help make sure that Bokeh's visual output is consistent with the output expected
-by design. Any BokehJS-related pull requests that result in changes to the
-visual output generated by BokehJS should include visual baseline comparison
-tests.
+:term:`BokehJS` uses visual regression tests as integration tests. These
+baseline comparison tests help make sure that Bokeh's visual output is
+consistent with the output expected by design. Any BokehJS-related pull requests
+that result in changes to the visual output generated by BokehJS should include
+visual baseline comparison tests.
 
 In the background, BokehJS' testing framework runs a headless browser and takes
 screenshots of the browser's output. The testing framework then compares the
-visual output to each test's dedicated baseline files.
+visual output to each test's individual baseline files.
 
 Each test in ``test:integration`` consists of two types of baseline comparisons:
 
@@ -210,7 +268,7 @@ Follow these steps to write new visual tests or update existing tests:
     Run ``node make tests`` to test your changes on your system. To only run
     integration tests, use ``node make test:integration``.
 
-    If you want to only run a specific test, use the ``-k`` argument and supply
+    If you want to run a specific test only, use the ``-k`` argument and supply
     a search string. The search string is case-sensitive. The BokehJS testing
     framework tries to match your search string to the strings defined in the
     code's ``describe()`` and ``it()`` functions. For example:
@@ -265,15 +323,19 @@ Follow these steps to write new visual tests or update existing tests:
        time.
 
 .. note::
-    Make sure to only push baseline files to the CI that were created by the CI
-    for your specific pull request. Do not include any locally created baseline
+    Make sure to only push baseline files to the CI that the CI created for
+    your specific pull request. Do not include any locally created baseline
     files in your pull request.
 
     After downloading and unpacking the baseline files from the CI, check your
     local :bokeh-tree:`bokehjs/test/baselines` directory for any modified files
     that are not part of your changes. Make sure only to commit baseline files
     that are necessary for your pull request. Reset the ``baselines`` directory
-    after every failed test run (``git checkout`` and/or ``git clean``).
+    after every failed test run with ``git clean`` or ``git clean -f``.
 
+.. _`Mocha`: https://mochajs.org/
+.. _`Jasmine`: https://jasmine.github.io/
+.. _Chai: https://www.chaijs.com/guide/styles/#expect
+.. _Chai documentation: https://www.chaijs.com/api/bdd/
 .. _GithubCI: https://github.com/bokeh/bokeh/actions
 .. _pytest: https://docs.pytest.org
