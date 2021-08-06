@@ -20,8 +20,15 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from contextlib import contextmanager
+from typing import TYPE_CHECKING, List
+
 # Bokeh imports
-from ..document import Document
+from .state import curstate
+
+if TYPE_CHECKING:
+    from ..document import Document
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -43,7 +50,8 @@ def curdoc() -> Document:
         Document : the current default document object.
 
     '''
-    from .state import curstate
+    if len(_PATCHED_CURDOCS) > 0:
+        return _PATCHED_CURDOCS[-1]
     return curstate().document
 
 #-----------------------------------------------------------------------------
@@ -51,10 +59,10 @@ def curdoc() -> Document:
 #-----------------------------------------------------------------------------
 
 def set_curdoc(doc: Document) -> None:
-    '''Configure the current document (returned by curdoc()).
+    ''' Configure the current document (returned by curdoc()).
 
     Args:
-        doc (Document) : Document we will output.
+        doc (Document) : new Document to use for curdoc()
 
     Returns:
         None
@@ -63,12 +71,26 @@ def set_curdoc(doc: Document) -> None:
         Calling this function will replace any existing document.
 
     '''
-    from .state import curstate
     curstate().document = doc
+
+@contextmanager
+def patch_curdoc(doc: Document) -> None:
+    '''
+
+    Args:
+        doc (Document) : new Document
+
+    '''
+    global _PATCHED_CURDOCS
+    _PATCHED_CURDOCS.append(doc)
+    yield
+    _PATCHED_CURDOCS.pop()
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+_PATCHED_CURDOCS: List[Document] = []
 
 #-----------------------------------------------------------------------------
 # Code

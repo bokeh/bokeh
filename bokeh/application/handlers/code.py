@@ -50,7 +50,7 @@ from typing import (
 # Bokeh imports
 from ...core.types import PathLike
 from ...document import Document
-from ...io.doc import curdoc, set_curdoc
+from ...io.doc import curdoc, patch_curdoc
 from .code_runner import CodeRunner
 from .handler import Handler
 
@@ -161,20 +161,17 @@ class CodeHandler(Handler):
         sys.modules[module.__name__] = module
         doc._modules.append(module)
 
-        old_doc = curdoc()
-        set_curdoc(doc)
         old_io = self._monkeypatch_io()
 
-        try:
-            def post_check() -> None:
-                newdoc = curdoc()
-                # script is supposed to edit the doc not replace it
-                if newdoc is not doc:
-                    raise RuntimeError("%s at '%s' replaced the output document" % (self._origin, self._runner.path))
-            self._runner.run(module, post_check)
-        finally:
-            self._unmonkeypatch_io(old_io)
-            set_curdoc(old_doc)
+        with patch_curdoc(doc):
+            try:
+                def post_check() -> None:
+                    # script is supposed to edit the doc not replace it
+                    if curdoc() is not doc:
+                        raise RuntimeError(f"{self._origin} at {self._runner.path!r} replaced the output document")
+                self._runner.run(module, post_check)
+            finally:
+                self._unmonkeypatch_io(old_io)
 
     def url_path(self) -> str | None:
         ''' The last path component for the basename of the configured filename.
