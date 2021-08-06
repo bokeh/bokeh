@@ -21,7 +21,7 @@ from functools import partial
 
 # Bokeh imports
 from bokeh.document import Document
-from bokeh.model import HasDocumentRef
+from bokeh.model.util import HasDocumentRef
 
 # Module under test
 import bokeh.util.callback_manager as cbm # isort:skip
@@ -29,7 +29,6 @@ import bokeh.util.callback_manager as cbm # isort:skip
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
 
 class _GoodPropertyCallback:
     def __init__(self) -> None:
