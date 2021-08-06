@@ -36,6 +36,10 @@ a ``SizeSpec``. Custom extensions using these should use ``SizeSpec`` instead.
 ``PropertyUnitsSpec`` is deprecated. Use ``UnitsSpec`` instead (this is unlikely
 to impact any typical usage).
 
+``bokeh.core.query`` functions no longer accept callables and/or context in
+queries. This feature added unnecessary complication and was not used inside
+the Bokeh codebase (or ever demonstrated in docs or examples).
+
 Units Properties
 ~~~~~~~~~~~~~~~~
 

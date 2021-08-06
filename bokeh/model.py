@@ -590,15 +590,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             self.js_property_callbacks[event].append(callback)
         self.trigger('js_property_callbacks', old, self.js_property_callbacks)
 
-    def layout(self, side, plot):
-        '''
-
-        '''
-        try:
-            return self in getattr(plot, side)
-        except Exception:
-            return []
-
     def on_change(self, attr: str, *callbacks: PropertyCallback) -> None:
         ''' Add a callback on this object to trigger when ``attr`` changes.
 
