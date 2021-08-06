@@ -176,7 +176,8 @@ Examples tests
         cd bokehjs
         node make test:spawn:headless
 
-    [TBD: displays errors but works anyways in Linux, does not work with Windows]
+    [TBD: displays errors, but works anyways in Linux, does not work with Windows]
+
     Next, return to the top level directory and run the tests:
 
     .. code-block:: sh
@@ -238,8 +239,8 @@ Select specific tests
     `Specifying which tests to run`_.
 
 .. seealso::
-    See the `pytest documentation`_ for more information on ``pytest`` and its
-    options.
+    For more information on adding and updating Python tests, see
+    :ref:`devguide_writing_tests_python`.
 
 .. _devguide_testing_local_typescript:
 
@@ -247,9 +248,9 @@ Run TypeScript tests
 ~~~~~~~~~~~~~~~~~~~~
 
 Most of the TypeScript-based tests for :term:`BokehJS` use a custom-made testing
-framework. This framework requires a headless version of Google Chrome or
-Chromium. You need to have at least version 88 of one of these browsers
-available on your system to run those tests locally.
+framework. This framework **requires Google Chrome or Chromium**. You need a
+recent version of one of these browsers available on your system to run those
+tests locally.
 
 Run all BokehJS tests
 '''''''''''''''''''''
@@ -277,7 +278,8 @@ Select specific BokehJS tests
 '''''''''''''''''''''''''''''
 
 You also have the option to run these test suites individually, using
-``node make test:suite_name``:
+``node make test:suite_name`` in the `bokehjs` subdirectory of the source
+checkout:
 
 * ``node make test:codebase``: Codebase tests checking file size limits
 * ``node make test:defaults``: Tests checking whether the defaults in Bokeh’s
@@ -354,7 +356,7 @@ Initiate test runs
 
             Tests.run_all(query=RegExp("[Ll]egend", 'g'));
 
-        [ToDo: only works with Chrome? or also firefox? Also: opens http://stuff.com/baz.html and others??!]
+        [TBD: only works with Chrome? or also firefox? Also: opens http://stuff.com/baz.html and others??!]
 
     * Use endpoint to run tests
         Initiate test runs by accessing one of the following endpoints with your
@@ -374,6 +376,9 @@ will filter tests by keyword.
 To only run or view tests for a specific plattform, append either
 ``platform=linux`` ``platform=macos``, or ``platform=windows`` to the URL.
 
+.. seealso::
+    For more information on adding and updating BokehJS tests, see
+    :ref:`devguide_writing_tests_bokehjs`.
 
 .. _devguide_testing_ci:
 
