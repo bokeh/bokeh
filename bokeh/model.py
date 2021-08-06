@@ -230,8 +230,31 @@ def _qualified_model(cls: Type[Model]) -> str:
             return model
     return f"{module}.{model}"
 
+class HasDocumentRef:
+
+    _document: Document | None
+    _temp_document: Document | None
+
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+        self._document = None
+        self._temp_document = None
+
+    @property
+    def document(self) -> Document | None:
+        ''' The |Document| this model is attached to (can be ``None``)
+
+        '''
+        if self._temp_document is not None:
+            return self._temp_document
+        return self._document
+
+    @document.setter
+    def document(self, doc: Document) -> None:
+        self._document = doc
+
 @abstract
-class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
+class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackManager):
     ''' Base class for all objects stored in Bokeh  |Document| instances.
 
     '''
@@ -261,14 +284,10 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         _process_example(cls)
 
     _id: ID
-    _document: Document | None
-    _temp_document: Document | None
 
     def __new__(cls, *args, **kwargs): # XXX: type annotations mess up bokeh-model directive
         obj =  super().__new__(cls)
         obj._id = kwargs.pop("id", make_id())
-        obj._document = None
-        obj._temp_document = None
         return obj
 
     def __init__(self, **kwargs: Any) -> None:
@@ -393,15 +412,6 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
     """)
 
     # Properties --------------------------------------------------------------
-
-    @property
-    def document(self) -> Document | None:
-        ''' The |Document| this model is attached to (can be ``None``)
-
-        '''
-        if self._temp_document is not None:
-            return self._temp_document
-        return self._document
 
     @property
     def ref(self) -> Ref:
@@ -736,7 +746,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
                 _visit_value_and_its_immediate_references(new, mark_dirty)
                 _visit_value_and_its_immediate_references(old, mark_dirty)
                 if dirty_count > 0:
-                    self._document._invalidate_all_models()
+                    self.document._invalidate_all_models()
         # chain up to invoke callbacks
         descriptor = self.lookup(attr)
         super().trigger(descriptor.name, old, new, hint=hint, setter=setter)
@@ -748,10 +758,14 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         implementation to set the private ._document field properly
 
         '''
-        if self._document is not None and self._document is not doc:
-            raise RuntimeError("Models must be owned by only a single document, %r is already in a doc" % (self))
+        if self.document is doc:  # nothing to do
+            return
+
+        if self.document is not None:
+            raise RuntimeError(f"Models must be owned by only a single document, {self!r} is already in a doc")
+
         doc.theme.apply_to_model(self)
-        self._document = doc
+        self.document = doc
         self._update_event_callbacks()
 
     @classmethod
@@ -770,7 +784,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         implementation to unset the private ._document field properly
 
         '''
-        self._document = None
+        self.document = None
         default_theme.apply_to_model(self)
 
     def _to_json_like(self, include_defaults: bool):
