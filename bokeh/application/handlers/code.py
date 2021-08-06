@@ -36,9 +36,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
 import sys
 from contextlib import contextmanager
+from os.path import basename, splitext
 from types import ModuleType
 from typing import (
     Any,
@@ -174,9 +174,9 @@ class CodeHandler(Handler):
         '''
         if self.failed:
             return None
-        else:
-            # TODO should fix invalid URL characters
-            return '/' + os.path.splitext(os.path.basename(self._runner.path))[0]
+
+        # TODO should fix invalid URL characters
+        return '/' + splitext(basename(self._runner.path))[0]
 
     # Private methods ---------------------------------------------------------
 
