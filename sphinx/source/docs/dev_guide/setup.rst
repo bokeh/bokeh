@@ -448,7 +448,7 @@ command(s):
     .. code-tab:: PowerShell Windows (PS)
 
         $Env:BOKEH_RESOURCES = "absolute-dev"
-        python .\examples\plotting\file\iris.py
+        python.exe .\examples\plotting\file\iris.py
 
     .. code-tab:: doscon Windows (CMD)
 
@@ -479,7 +479,7 @@ checkout* directory:
     .. code-tab:: PowerShell Windows (PS)
 
         $Env:BOKEH_DEV = "False"
-        python -m bokeh serve --show .\examples\app\sliders.py
+        python.exe -m bokeh serve --show .\examples\app\sliders.py
 
     .. code-tab:: doscon Windows (CMD)
 
