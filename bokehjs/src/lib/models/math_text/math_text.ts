@@ -310,13 +310,14 @@ export class MathTextView extends View implements GraphicsBox {
     const blob = new Blob([outer_HTML], {type: "image/svg+xml"})
     const url = URL.createObjectURL(blob)
 
-    const image = await load_image(url)
-    URL.revokeObjectURL(url)
+    try {
+      this.svg_image = await load_image(url)
+    } finally {
+      URL.revokeObjectURL(url)
+    }
 
-    this.svg_image = image
-    this.parent.request_paint()
-
-    return image
+    this.parent.request_paint() // XXX: request layout (?)
+    return this.svg_image
   }
 
   /**
