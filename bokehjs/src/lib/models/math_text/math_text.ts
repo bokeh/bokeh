@@ -14,6 +14,7 @@ import {GraphicsBox, TextHeightMetric, text_width} from "core/graphics"
 import {font_metrics, parse_css_font_size} from "core/util/text"
 import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
+import {defer} from "core/util/defer"
 
 type Position = {
   sx: number
@@ -348,9 +349,14 @@ export class MathTextView extends View implements GraphicsBox {
     }
     ctx.restore()
 
-    if (mathjax_status == "failed" || this.has_image_loaded) {
+    if (!this._has_finished && (mathjax_status == "failed" || this.has_image_loaded)) {
       this._has_finished = true
-      this.notify_finished()
+      ;(async () => {
+        // XXX: idle notification will arrive before this rendering iteration finishes.
+        // This is a limitation in the notify_finished() process. When fixed remove this.
+        await defer()
+        this.notify_finished()
+      })()
     }
   }
 }
