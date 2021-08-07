@@ -36,6 +36,7 @@ if TYPE_CHECKING:
 
 __all__ = (
     'curdoc',
+    'patch_curdoc',
     'set_curdoc',
 )
 

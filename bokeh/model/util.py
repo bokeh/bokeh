@@ -209,7 +209,10 @@ def visit_immediate_value_references(value: Unknown, visitor: Callable[[Model], 
 
 
 def visit_value_and_its_immediate_references(obj: Unknown, visitor: Callable[[Model], None]) -> None:
-    ''' Recurse down Models, HasProps, and Python containers
+    ''' Visit Models, HasProps, and Python containers.
+
+    Recurses down HasProps references and Python containers (does not recurse
+    down Model subclasses).
 
     The ordering in this function is to optimize performance.  We check the
     most comomn types (int, float, str) first so that we can quickly return in
