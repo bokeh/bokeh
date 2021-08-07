@@ -342,9 +342,6 @@ export class MathTextView extends View implements GraphicsBox {
     }
     ctx.restore()
 
-    if (mathjax_status == "loaded" && !this.has_image_loaded)
-      this.load_image()
-
     if (mathjax_status == "failed" || this.has_image_loaded) {
       this._has_finished = true
       this.notify_finished()
