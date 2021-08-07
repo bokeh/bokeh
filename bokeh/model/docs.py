@@ -25,6 +25,7 @@ from operator import itemgetter
 from typing import TYPE_CHECKING, Any, Type
 
 # Bokeh imports
+from ..util.serialization import make_id
 from ..util.string import append_docstring
 
 if TYPE_CHECKING:

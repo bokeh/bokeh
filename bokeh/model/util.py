@@ -25,6 +25,7 @@ from typing import (
     TYPE_CHECKING,
     Callable,
     List,
+    Set,
     Type,
 )
 
@@ -32,6 +33,7 @@ from typing import (
 from ..core.has_props import HasProps, abstract
 
 if TYPE_CHECKING:
+    from ..core.types import ID, Unknown
     from ..document import Document
     from .model import Model
 
