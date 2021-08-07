@@ -3,7 +3,7 @@ import * as visuals from "core/visuals"
 import {Signal0} from "core/signaling"
 import {isNumber} from "core/util/types"
 import {Context2d} from "core/util/canvas"
-import {ImageLoader} from "core/util/image"
+import {load_image} from "core/util/image"
 import {CanvasImage} from "models/glyphs/image_url"
 import {Model} from "../../model"
 import {color2css} from "core/util/color"
@@ -35,7 +35,6 @@ export class MathTextView extends View implements GraphicsBox {
 
   angle?: number
   _position: Position = {sx: 0, sy: 0}
-  has_image_loaded = false
   // Align does nothing, needed to maintain compatibility with TextBox,
   // to align you need to use TeX Macros.
   // http://docs.mathjax.org/en/latest/input/tex/macros/index.html?highlight=align
@@ -59,8 +58,12 @@ export class MathTextView extends View implements GraphicsBox {
   font_size_scale: number = 1.0
   private font: string
   private color: string
-  private svg_image: CanvasImage
+  private svg_image: CanvasImage | null = null
   private svg_element: SVGElement
+
+  get has_image_loaded(): boolean {
+    return this.svg_image != null
+  }
 
   _rect(): Rect {
     const {width, height} = this._size()
@@ -90,10 +93,7 @@ export class MathTextView extends View implements GraphicsBox {
       this.load_math_jax_script()
 
     if (mathjax_status == "not_started" || mathjax_status == "loading") {
-      mathjax_ready.connect(async () => {
-        await this.load_image()
-        this.parent.request_paint()
-      })
+      mathjax_ready.connect(() => this.load_image())
     }
 
     if (mathjax_status == "loaded")
@@ -207,9 +207,7 @@ export class MathTextView extends View implements GraphicsBox {
   }
 
   _size(): Size {
-    return this.has_image_loaded
-      ? this.get_image_dimensions()
-      : this.get_text_dimensions()
+    return this.has_image_loaded ? this.get_image_dimensions() : this.get_text_dimensions()
   }
 
   bbox(): BBox {
@@ -307,18 +305,13 @@ export class MathTextView extends View implements GraphicsBox {
     const blob = new Blob([outer_HTML], {type: "image/svg+xml"})
     const url = URL.createObjectURL(blob)
 
-    const image_loader = new ImageLoader(url, {
-      loaded: (image) => {
-        this.svg_image = image
-        this.has_image_loaded = true
+    const image = await load_image(url)
+    URL.revokeObjectURL(url)
 
-        URL.revokeObjectURL(url)
+    this.svg_image = image
+    this.parent.request_paint()
 
-        this.parent.request_paint()
-      },
-    })
-
-    return image_loader.promise
+    return image
   }
 
   /**
@@ -337,7 +330,7 @@ export class MathTextView extends View implements GraphicsBox {
 
     const {x, y} = this._computed_position()
 
-    if (this.has_image_loaded) {
+    if (this.svg_image != null) {
       const {width, height} = this.get_image_dimensions()
       ctx.drawImage(this.svg_image, x, y, width, height)
     } else {
