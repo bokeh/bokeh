@@ -24,6 +24,8 @@ type Position = {
 
 const mathjax_ready = new Signal0({}, "mathjax_ready")
 
+let mathjax_status: "not_started" | "loaded" | "loading" | "failed" = "not_started"
+
 /**
  * Helper class to rendering MathText into Canvas
  */
@@ -84,14 +86,17 @@ export class MathTextView extends View implements GraphicsBox {
   override async lazy_initialize() {
     await super.lazy_initialize()
 
-    if (!this.get_math_jax()) {
+    if (mathjax_status == "not_started")
       this.load_math_jax_script()
 
+    if (mathjax_status == "not_started" || mathjax_status == "loading") {
       mathjax_ready.connect(async () => {
         await this.load_image()
         this.parent.request_paint()
       })
-    } else
+    }
+
+    if (mathjax_status == "loaded")
       await this.load_image()
   }
 
@@ -266,14 +271,17 @@ export class MathTextView extends View implements GraphicsBox {
   }
 
   private load_math_jax_script(): void {
-    // Check for a script with the id set below
-    if (!document.getElementById("bokeh_mathjax_script")) {
-      const script = document.createElement("script")
-      script.id = "bokeh_mathjax_script"
-      script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
-      script.onload = () => mathjax_ready.emit()
-      document.head.appendChild(script)
+    const script = document.createElement("script")
+    script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+    script.onload = () => {
+      mathjax_status = "loaded"
+      mathjax_ready.emit()
     }
+    script.onerror = () => {
+      mathjax_status = "failed"
+    }
+    mathjax_status = "loading"
+    document.head.appendChild(script)
   }
 
   private get_math_jax(): typeof MathJax | null {
@@ -283,7 +291,11 @@ export class MathTextView extends View implements GraphicsBox {
   /**
    * Render text into a SVG with MathJax and load it into memory.
    */
-  private load_image(): Promise<HTMLImageElement> {
+  private async load_image(): Promise<HTMLImageElement | null> {
+    const MathJax = this.get_math_jax()
+    if (MathJax == null)
+      return null
+
     const mathjax_element = MathJax.tex2svg(this.model.text)
     const svg_element = mathjax_element.children[0] as SVGElement
     svg_element.setAttribute("font", this.font)
@@ -337,10 +349,10 @@ export class MathTextView extends View implements GraphicsBox {
     }
     ctx.restore()
 
-    if (this.get_math_jax() && !this.has_image_loaded)
+    if (mathjax_status == "loaded" && !this.has_image_loaded)
       this.load_image()
 
-    if (!this.get_math_jax() || this.has_image_loaded) {
+    if (mathjax_status == "failed" || this.has_image_loaded) {
       this._has_finished = true
       this.notify_finished()
     }
