@@ -100,6 +100,11 @@ export class MathTextView extends View implements GraphicsBox {
       await this.load_image()
   }
 
+  override connect_signals(): void {
+    super.connect_signals()
+    this.on_change(this.model.properties.text, () => this.load_image())
+  }
+
   set visuals(v: visuals.Text) {
     const color = v.text_color.get_value()
     const alpha = v.text_alpha.get_value()
