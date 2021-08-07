@@ -10,22 +10,57 @@ import {color2css} from "core/util/color"
 import {Size} from "core/types"
 import {View} from "core/view"
 import {RendererView} from "models/renderers/renderer"
-import {GraphicsBox, TextHeightMetric, text_width} from "core/graphics"
+import {GraphicsBox, TextHeightMetric, text_width, Position} from "core/graphics"
 import {font_metrics, parse_css_font_size} from "core/util/text"
 import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
 import {defer} from "core/util/defer"
 
-type Position = {
-  sx: number
-  sy: number
-  x_anchor?: number | "left" | "center" | "right"
-  y_anchor?: number | "top"  | "center" | "baseline" | "bottom"
+type MathJaxStatus = "not_started" | "loaded" | "loading" | "failed"
+
+export abstract class MathJaxProvider {
+  readonly ready = new Signal0(this, "ready")
+
+  status: MathJaxStatus = "not_started"
+
+  abstract get MathJax(): typeof MathJax | null
+
+  abstract fetch(): void
 }
 
-const mathjax_ready = new Signal0({}, "mathjax_ready")
+export class NoProvider extends MathJaxProvider {
+  get MathJax(): null {
+    return null
+  }
 
-let mathjax_status: "not_started" | "loaded" | "loading" | "failed" = "not_started"
+  fetch(): void {
+    this.status = "failed"
+  }
+}
+
+export class CDNProvider extends MathJaxProvider  {
+  get MathJax(): typeof MathJax | null {
+    return typeof MathJax !== "undefined" ? MathJax : null
+  }
+
+  fetch(): void {
+    const script = document.createElement("script")
+    script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+    script.onload = () => {
+      this.status = "loaded"
+      this.ready.emit()
+    }
+    script.onerror = () => {
+      this.status = "failed"
+    }
+    this.status = "loading"
+    document.head.appendChild(script)
+  }
+}
+
+// TODO: module/bundle provider
+
+const default_provider: MathJaxProvider = new CDNProvider()
 
 /**
  * Helper class to rendering MathText into Canvas
@@ -87,17 +122,20 @@ export class MathTextView extends View implements GraphicsBox {
     return this.model.text
   }
 
+  get provider(): MathJaxProvider {
+    return default_provider
+  }
+
   override async lazy_initialize() {
     await super.lazy_initialize()
 
-    if (mathjax_status == "not_started")
-      this.load_math_jax_script()
+    if (this.provider.status == "not_started")
+      this.provider.fetch()
 
-    if (mathjax_status == "not_started" || mathjax_status == "loading") {
-      mathjax_ready.connect(() => this.load_image())
-    }
+    if (this.provider.status == "not_started" || this.provider.status == "loading")
+      this.provider.ready.connect(() => this.load_image())
 
-    if (mathjax_status == "loaded")
+    if (this.provider.status == "loaded")
       await this.load_image()
   }
 
@@ -274,38 +312,20 @@ export class MathTextView extends View implements GraphicsBox {
     ctx.restore()
   }
 
-  private load_math_jax_script(): void {
-    const script = document.createElement("script")
-    script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
-    script.onload = () => {
-      mathjax_status = "loaded"
-      mathjax_ready.emit()
-    }
-    script.onerror = () => {
-      mathjax_status = "failed"
-    }
-    mathjax_status = "loading"
-    document.head.appendChild(script)
-  }
-
-  private get_math_jax(): typeof MathJax | null {
-    return typeof MathJax === "undefined" ? null : MathJax
-  }
-
   /**
    * Render text into a SVG with MathJax and load it into memory.
    */
   private async load_image(): Promise<HTMLImageElement | null> {
-    const MathJax = this.get_math_jax()
+    const {MathJax} = this.provider
     if (MathJax == null)
       return null
 
     const mathjax_element = MathJax.tex2svg(this.model.text)
     const svg_element = mathjax_element.children[0] as SVGElement
+    this.svg_element = svg_element
+
     svg_element.setAttribute("font", this.font)
     svg_element.setAttribute("stroke", this.color)
-
-    this.svg_element = svg_element
 
     const outer_HTML = svg_element.outerHTML
     const blob = new Blob([outer_HTML], {type: "image/svg+xml"})
@@ -349,7 +369,7 @@ export class MathTextView extends View implements GraphicsBox {
     }
     ctx.restore()
 
-    if (!this._has_finished && (mathjax_status == "failed" || this.has_image_loaded)) {
+    if (!this._has_finished && (this.provider.status == "failed" || this.has_image_loaded)) {
       this._has_finished = true
       ;(async () => {
         // XXX: idle notification will arrive before this rendering iteration finishes.
