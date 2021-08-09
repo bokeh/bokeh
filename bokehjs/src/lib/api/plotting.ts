@@ -174,8 +174,8 @@ export namespace Figure {
     y_axis_type: AxisType
     x_axis_location: Location
     y_axis_location: Location
-    x_axis_label: string
-    y_axis_label: string
+    x_axis_label: Axis["axis_label"]
+    y_axis_label: Axis["axis_label"]
     x_minor_ticks: number | "auto"
     y_minor_ticks: number | "auto"
     tools: (Tool | ToolName)[] | string
@@ -992,8 +992,8 @@ export class Figure extends Plot {
     throw new Error(`unable to determine proper scale for: '${range_input}'`)
   }
 
-  _process_axis_and_grid(axis_type: AxisType, axis_location: Location,
-                         minor_ticks: number | "auto" | undefined, axis_label: string, rng: Range, dim: 0 | 1): void {
+  _process_axis_and_grid(axis_type: AxisType, axis_location: Location, minor_ticks: number | "auto" | undefined,
+      axis_label: Axis["axis_label"], rng: Range, dim: 0 | 1): void {
     const axis = this._get_axis(axis_type, rng, dim)
     if (axis != null) {
       if (axis instanceof LogAxis) {
@@ -1007,9 +1007,8 @@ export class Figure extends Plot {
       if (axis.ticker instanceof ContinuousTicker) {
         axis.ticker.num_minor_ticks = this._get_num_minor_ticks(axis, minor_ticks)
       }
-      if (axis_label.length !== 0) {
-        axis.axis_label = axis_label
-      }
+
+      axis.axis_label = axis_label
 
       const grid = new Grid({dimension: dim, ticker: axis.ticker})
 

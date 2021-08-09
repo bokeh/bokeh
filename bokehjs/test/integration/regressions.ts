@@ -1,3 +1,5 @@
+import sinon from "sinon"
+
 import {display, fig, row, column, grid} from "./_util"
 
 import {
@@ -11,6 +13,7 @@ import {
   StaticLayoutProvider,
   LinearColorMapper,
   Plot,
+  MathText,
 } from "@bokehjs/models"
 
 import {Button, Select, MultiSelect, MultiChoice, RadioGroup} from "@bokehjs/models/widgets"
@@ -30,6 +33,9 @@ import {defer} from "@bokehjs/core/util/defer"
 import {Figure, MarkerArgs, show} from "@bokehjs/api/plotting"
 import {Spectral11, turbo} from "@bokehjs/api/palettes"
 import {div} from "@bokehjs/core/dom"
+
+import {DelayedInternalProvider} from "./axes"
+import {MathTextView} from "@bokehjs/models/math_text/math_text"
 
 const n_marker_types = [...MarkerType].length
 
@@ -1082,6 +1088,26 @@ describe("Bug", () => {
 
     it("doesn't correctly measure fonts if font size is provided in relative units", async () => {
       await display(row([plot("linear"), plot("log")]))
+    })
+  })
+
+  describe("in issue #11479", () => {
+    it("doesn't allow to render math text in multiple plots", async () => {
+      const stub = sinon.stub(MathTextView.prototype, "provider")
+      stub.value(new DelayedInternalProvider())
+      try {
+        const p0 = fig([200, 150], {
+          x_axis_label: new MathText({text: "\\theta\\cdot\\left(\\frac{\\sin(x) + 1}{\\Gamma}\\right)"}),
+        })
+        p0.circle([1, 2, 3], [1, 2, 3])
+        const p1 = fig([200, 150], {
+          x_axis_label: new MathText({text: "\\theta\\cdot\\left(\\frac{\\cos(x) + 1}{\\Omega}\\right)"}),
+        })
+        p1.circle([1, 2, 3], [1, 2, 3])
+        await display(row([p0, p1]))
+      } finally {
+        stub.restore()
+      }
     })
   })
 })

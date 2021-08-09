@@ -22,3 +22,7 @@ export function defer(): Promise<void> {
     channel.port2.postMessage(handle)
   })
 }
+
+export function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}

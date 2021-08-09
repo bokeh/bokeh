@@ -22,7 +22,7 @@ export const text_width: (text: string, font: string) => number = (() => {
   }
 })()
 
-type Position = {
+export type Position = {
   sx: number
   sy: number
   x_anchor?: number | "left" | "center" | "right"
