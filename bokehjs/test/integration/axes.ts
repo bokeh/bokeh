@@ -12,7 +12,7 @@ import {MathTextView, NoProvider, MathJaxProvider} from "@bokehjs/models/math_te
 import {Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
 
-class InternalProvider extends MathJaxProvider {
+export class InternalProvider extends MathJaxProvider {
   get MathJax() {
     return {tex2svg}
   }
