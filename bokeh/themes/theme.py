@@ -153,11 +153,11 @@ class Theme:
     _json: Dict[str, Any]
 
     @overload
-    def __init__(self, *, filename: PathLike) -> None: ...
+    def __init__(self, filename: PathLike) -> None: ...
     @overload
-    def __init__(self, *, json: Dict[str, Any]) -> None: ...
+    def __init__(self, json: Dict[str, Any]) -> None: ...
 
-    def __init__(self, *, filename: PathLike | None = None, json: Dict[str, Any] | None = None) -> None:
+    def __init__(self, filename: PathLike | None = None, json: Dict[str, Any] | None = None) -> None:
         if (filename is not None) and (json is not None):
             raise ValueError("Theme should be constructed from a file or from json not both")
 
