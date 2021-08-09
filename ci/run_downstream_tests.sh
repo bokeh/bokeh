@@ -8,7 +8,7 @@ pushd `python -c "import site; print(site.getsitepackages()[0])"`
 pytest dask/diagnostics
 pytest distributed/dashboard
 pytest panel/tests
-pytest holoviews/tests/plotting/bokeh
+nosetests holoviews/tests/plotting/bokeh
 popd
 
 pytest Pandas-Bokeh/Tests/test_PandasBokeh.py
