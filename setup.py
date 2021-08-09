@@ -95,7 +95,7 @@ setup(
     license='BSD-3-Clause',
     author='Bokeh Team',
     author_email='info@bokeh.org',
-    url='http://github.com/bokeh/bokeh',
+    url='https://github.com/bokeh/bokeh',
     classifiers=open("classifiers.txt").read().strip().split('\n'),
 
     # details needed by setup
