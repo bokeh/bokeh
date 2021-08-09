@@ -315,7 +315,7 @@ class Document:
 
         '''
         from ..server.callbacks import NextTickCallback
-        cb = NextTickCallback(self, None)
+        cb = NextTickCallback(None)
         return self._add_session_callback(cb, callback, one_shot=True, originator=self.add_next_tick_callback)
 
     def add_periodic_callback(self, callback: Callback, period_milliseconds: int) -> PeriodicCallback:
@@ -338,7 +338,7 @@ class Document:
 
         '''
         from ..server.callbacks import PeriodicCallback
-        cb = PeriodicCallback(self, None, period_milliseconds)
+        cb = PeriodicCallback(None, period_milliseconds)
         return self._add_session_callback(cb, callback, one_shot=False, originator=self.add_periodic_callback)
 
     def add_root(self, model: Model, setter: Setter | None = None) -> None:
@@ -397,7 +397,7 @@ class Document:
 
         '''
         from ..server.callbacks import TimeoutCallback
-        cb = TimeoutCallback(self, None, timeout_milliseconds)
+        cb = TimeoutCallback(None, timeout_milliseconds)
         return self._add_session_callback(cb, callback, one_shot=True, originator=self.add_timeout_callback)
 
     def apply_json_event(self, json: EventJson) -> None:
