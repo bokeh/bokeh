@@ -41,76 +41,15 @@ requirements:
     - {{ dep.lower() }}
     {% endfor %}
 
-test:
-  requires:
-    # jinja2 installed by bokeh
-    # packaging installed by bokeh
-    # pyyaml installed by bokeh
-
-    # docs
-    - colorcet
-    - pygments
-    - sphinx >=1.8
-
-    # tests
-    - beautifulsoup4
-    - colorama
-    - channels
-    - coverage
-    - firefox
-    - flake8
-    - flaky
-    - geckodriver
-    - ipython
-    - isort >=4.3.21
-    - mock
-    - mypy >=0.900
-    - pandas-stubs
-    - nbconvert >=5.4
-    - networkx
-    - nodejs >=14
-    - numba
-    - pandas
-    - psutil
-    - pytest
-    - pytest-asyncio
-    - pytest-cov >=1.8.1
-    - pytest-html
-    - pytest-xdist
-    - requests >=1.2.3
-    - selenium >=3.8
-    - scipy
-
-    # examples
-    - flask >=1.0
-    - django
-    - h5py
-    - icalendar
-    - networkx
-    - notebook
-    - opencv
-    - pyshp
-    - scikit-learn
-    - sympy
-    #- ipywidgets_bokeh >=1.0.0
-    #- ipywidgets >=7.5.0
-    #- ipyvolume
-    #- ipyleaflet
-
-  commands:
-    - bokeh -h
-
-  imports:
-    - bokeh
-
 about:
-  home: {{ data['url'] }}
+  home: https://www.bokeh.org
   license: {{ data['license'] }}
   summary: {{ data['description'] }}
-
-extra:
-  deploy:
-    - anaconda-client
-    - boto
-    - setuptools >=0.39
-    - twine >=1.11
+  description: |
+    Bokeh is a Python library for creating interactive visualizations
+    for modern web browsers. It helps you build beautiful graphics,
+    ranging from simple plots to complex dashboards with streaming
+    datasets. With Bokeh, you can create JavaScript-powered visualizations
+    without writing any JavaScript yourself.
+  doc_url: https://docs.bokeh.org
+  dev_url: {{ data['url'] }}
