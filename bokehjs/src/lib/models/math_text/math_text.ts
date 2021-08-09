@@ -1,25 +1,65 @@
 import * as p from "core/properties"
 import * as visuals from "core/visuals"
+import {Signal0} from "core/signaling"
 import {isNumber} from "core/util/types"
 import {Context2d} from "core/util/canvas"
-import {ImageLoader} from "core/util/image"
+import {load_image} from "core/util/image"
 import {CanvasImage} from "models/glyphs/image_url"
 import {Model} from "../../model"
 import {color2css} from "core/util/color"
 import {Size} from "core/types"
 import {View} from "core/view"
 import {RendererView} from "models/renderers/renderer"
-import {GraphicsBox, TextHeightMetric, text_width} from "core/graphics"
+import {GraphicsBox, TextHeightMetric, text_width, Position} from "core/graphics"
 import {font_metrics, parse_css_font_size} from "core/util/text"
 import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
 
-type Position = {
-  sx: number
-  sy: number
-  x_anchor?: number | "left" | "center" | "right"
-  y_anchor?: number | "top"  | "center" | "baseline" | "bottom"
+type MathJaxStatus = "not_started" | "loaded" | "loading" | "failed"
+
+export abstract class MathJaxProvider {
+  readonly ready = new Signal0(this, "ready")
+
+  status: MathJaxStatus = "not_started"
+
+  abstract get MathJax(): typeof MathJax | null
+
+  abstract fetch(): Promise<void>
 }
+
+export class NoProvider extends MathJaxProvider {
+  get MathJax(): null {
+    return null
+  }
+
+  async fetch(): Promise<void> {
+    this.status = "failed"
+  }
+}
+
+export class CDNProvider extends MathJaxProvider  {
+  get MathJax(): typeof MathJax | null {
+    return typeof MathJax !== "undefined" ? MathJax : null
+  }
+
+  async fetch(): Promise<void> {
+    const script = document.createElement("script")
+    script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+    script.onload = () => {
+      this.status = "loaded"
+      this.ready.emit()
+    }
+    script.onerror = () => {
+      this.status = "failed"
+    }
+    this.status = "loading"
+    document.head.appendChild(script)
+  }
+}
+
+// TODO: module/bundle provider
+
+const default_provider: MathJaxProvider = new CDNProvider()
 
 /**
  * Helper class to rendering MathText into Canvas
@@ -30,7 +70,6 @@ export class MathTextView extends View implements GraphicsBox {
 
   angle?: number
   _position: Position = {sx: 0, sy: 0}
-  has_image_loaded = false
   // Align does nothing, needed to maintain compatibility with TextBox,
   // to align you need to use TeX Macros.
   // http://docs.mathjax.org/en/latest/input/tex/macros/index.html?highlight=align
@@ -54,8 +93,12 @@ export class MathTextView extends View implements GraphicsBox {
   font_size_scale: number = 1.0
   private font: string
   private color: string
-  private svg_image: CanvasImage
+  private svg_image: CanvasImage | null = null
   private svg_element: SVGElement
+
+  get has_image_loaded(): boolean {
+    return this.svg_image != null
+  }
 
   _rect(): Rect {
     const {width, height} = this._size()
@@ -78,13 +121,26 @@ export class MathTextView extends View implements GraphicsBox {
     return this.model.text
   }
 
+  get provider(): MathJaxProvider {
+    return default_provider
+  }
+
   override async lazy_initialize() {
     await super.lazy_initialize()
 
-    if (!this.get_math_jax())
-      this.load_math_jax_script()
-    else
+    if (this.provider.status == "not_started")
+      await this.provider.fetch()
+
+    if (this.provider.status == "not_started" || this.provider.status == "loading")
+      this.provider.ready.connect(() => this.load_image())
+
+    if (this.provider.status == "loaded")
       await this.load_image()
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    this.on_change(this.model.properties.text, () => this.load_image())
   }
 
   set visuals(v: visuals.Text) {
@@ -194,9 +250,7 @@ export class MathTextView extends View implements GraphicsBox {
   }
 
   _size(): Size {
-    return this.has_image_loaded
-      ? this.get_image_dimensions()
-      : this.get_text_dimensions()
+    return this.has_image_loaded ? this.get_image_dimensions() : this.get_text_dimensions()
   }
 
   bbox(): BBox {
@@ -257,53 +311,33 @@ export class MathTextView extends View implements GraphicsBox {
     ctx.restore()
   }
 
-  private load_math_jax_script(): void {
-    // Check for a script with the id set below
-    if (!document.getElementById("bokeh_mathjax_script")) {
-      const script = document.createElement("script")
-      script.id = "bokeh_mathjax_script"
-      script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
-
-      script.onload = async () => {
-        await this.load_image()
-        this.parent.request_paint()
-      }
-
-      document.head.appendChild(script)
-    }
-  }
-
-  private get_math_jax(): typeof MathJax | null {
-    return typeof MathJax === "undefined" ? null : MathJax
-  }
-
   /**
    * Render text into a SVG with MathJax and load it into memory.
    */
-  private load_image(): Promise<HTMLImageElement> {
+  private async load_image(): Promise<HTMLImageElement | null> {
+    const {MathJax} = this.provider
+    if (MathJax == null)
+      return null
+
     const mathjax_element = MathJax.tex2svg(this.model.text)
     const svg_element = mathjax_element.children[0] as SVGElement
+    this.svg_element = svg_element
+
     svg_element.setAttribute("font", this.font)
     svg_element.setAttribute("stroke", this.color)
-
-    this.svg_element = svg_element
 
     const outer_HTML = svg_element.outerHTML
     const blob = new Blob([outer_HTML], {type: "image/svg+xml"})
     const url = URL.createObjectURL(blob)
 
-    const image_loader = new ImageLoader(url, {
-      loaded: (image) => {
-        this.svg_image = image
-        this.has_image_loaded = true
+    try {
+      this.svg_image = await load_image(url)
+    } finally {
+      URL.revokeObjectURL(url)
+    }
 
-        URL.revokeObjectURL(url)
-
-        this.parent.request_paint()
-      },
-    })
-
-    return image_loader.promise
+    this.parent.request_paint() // XXX: request layout (?)
+    return this.svg_image
   }
 
   /**
@@ -322,7 +356,7 @@ export class MathTextView extends View implements GraphicsBox {
 
     const {x, y} = this._computed_position()
 
-    if (this.has_image_loaded) {
+    if (this.svg_image != null) {
       const {width, height} = this.get_image_dimensions()
       ctx.drawImage(this.svg_image, x, y, width, height)
     } else {
@@ -334,12 +368,9 @@ export class MathTextView extends View implements GraphicsBox {
     }
     ctx.restore()
 
-    if (this.get_math_jax() && !this.has_image_loaded)
-      this.load_image()
-
-    if (!this.get_math_jax() || this.has_image_loaded) {
+    if (!this._has_finished && (this.provider.status == "failed" || this.has_image_loaded)) {
       this._has_finished = true
-      this.notify_finished()
+      this.parent.notify_finished_after_paint()
     }
   }
 }

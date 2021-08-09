@@ -108,6 +108,10 @@ export abstract class RendererView extends View implements visuals.Renderable {
     this.plot_view.notify_finished()
   }
 
+  notify_finished_after_paint(): void {
+    this.plot_view.notify_finished_after_paint()
+  }
+
   interactive_hit?(sx: number, sy: number): boolean
 
   get needs_clip(): boolean {
