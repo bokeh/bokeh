@@ -11,12 +11,24 @@ import {Factor} from "@bokehjs/models/ranges/factor_range"
 import {MathTextView, NoProvider, MathJaxProvider} from "@bokehjs/models/math_text/math_text"
 import {Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
+import {wait} from "@bokehjs/core/util/defer"
 
 export class InternalProvider extends MathJaxProvider {
   get MathJax() {
-    return {tex2svg}
+    return this.status == "loaded" ? {tex2svg} : null
   }
-  fetch() {
+  async fetch() {
+    this.status = "loaded"
+  }
+}
+
+export class DelayedInternalProvider extends MathJaxProvider {
+  get MathJax() {
+    return this.status == "loaded" ? {tex2svg} : null
+  }
+  async fetch() {
+    this.status = "loading"
+    await wait(50)
     this.status = "loaded"
   }
 }
@@ -143,6 +155,16 @@ export class InternalProvider extends MathJaxProvider {
     it("should support LaTeX notation on axis_label with MathText", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new InternalProvider())
+      try {
+        await plot({axis_label: new MathText({text: "\\sin(x)"})}, {minor_size: 100})
+      } finally {
+        stub.restore()
+      }
+    })
+
+    it("should support LaTeX notation on axis_label with MathText and a delay in loading", async () => {
+      const stub = sinon.stub(MathTextView.prototype, "provider")
+      stub.value(new DelayedInternalProvider())
       try {
         await plot({axis_label: new MathText({text: "\\sin(x)"})}, {minor_size: 100})
       } finally {

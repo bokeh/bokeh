@@ -14,7 +14,6 @@ import {GraphicsBox, TextHeightMetric, text_width, Position} from "core/graphics
 import {font_metrics, parse_css_font_size} from "core/util/text"
 import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
-import {defer} from "core/util/defer"
 
 type MathJaxStatus = "not_started" | "loaded" | "loading" | "failed"
 
@@ -25,7 +24,7 @@ export abstract class MathJaxProvider {
 
   abstract get MathJax(): typeof MathJax | null
 
-  abstract fetch(): void
+  abstract fetch(): Promise<void>
 }
 
 export class NoProvider extends MathJaxProvider {
@@ -33,7 +32,7 @@ export class NoProvider extends MathJaxProvider {
     return null
   }
 
-  fetch(): void {
+  async fetch(): Promise<void> {
     this.status = "failed"
   }
 }
@@ -43,7 +42,7 @@ export class CDNProvider extends MathJaxProvider  {
     return typeof MathJax !== "undefined" ? MathJax : null
   }
 
-  fetch(): void {
+  async fetch(): Promise<void> {
     const script = document.createElement("script")
     script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
     script.onload = () => {
@@ -130,7 +129,7 @@ export class MathTextView extends View implements GraphicsBox {
     await super.lazy_initialize()
 
     if (this.provider.status == "not_started")
-      this.provider.fetch()
+      await this.provider.fetch()
 
     if (this.provider.status == "not_started" || this.provider.status == "loading")
       this.provider.ready.connect(() => this.load_image())
@@ -371,12 +370,7 @@ export class MathTextView extends View implements GraphicsBox {
 
     if (!this._has_finished && (this.provider.status == "failed" || this.has_image_loaded)) {
       this._has_finished = true
-      ;(async () => {
-        // XXX: idle notification will arrive before this rendering iteration finishes.
-        // This is a limitation in the notify_finished() process. When fixed remove this.
-        await defer()
-        this.notify_finished()
-      })()
+      this.parent.notify_finished_after_paint()
     }
   }
 }

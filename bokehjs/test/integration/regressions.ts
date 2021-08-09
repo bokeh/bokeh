@@ -34,7 +34,7 @@ import {Figure, MarkerArgs, show} from "@bokehjs/api/plotting"
 import {Spectral11, turbo} from "@bokehjs/api/palettes"
 import {div} from "@bokehjs/core/dom"
 
-import {InternalProvider} from "./axes"
+import {DelayedInternalProvider} from "./axes"
 import {MathTextView} from "@bokehjs/models/math_text/math_text"
 
 const n_marker_types = [...MarkerType].length
@@ -1094,7 +1094,7 @@ describe("Bug", () => {
   describe("in issue #11479", () => {
     it("doesn't allow to render math text in multiple plots", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
-      stub.value(new InternalProvider())
+      stub.value(new DelayedInternalProvider())
       try {
         const p0 = fig([200, 150], {
           x_axis_label: new MathText({text: "\\theta\\cdot\\left(\\frac{\\sin(x) + 1}{\\Gamma}\\right)"}),
