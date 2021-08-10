@@ -43,9 +43,9 @@ sampledata on your system, you have the option to
 :ref:`disable those specific tests <devguide_testing_local_python_select>`.
 
 Several tests also require `Selenium`_ and a corresponding `web driver`_ to be
-available on your system. While it is possible to use other web drivers for most
+available on your system. While it is possible to use other web drivers for some
 tests, the recommended setup is to use Selenium with `ChromeDriver`_ and either
-`Chrome`_ or `Chromium`_. See :ref:`userguide_export_dependencies` for
+`Chrome`_. See :ref:`userguide_export_dependencies` for
 installation instructions and more information. In case Selenium is not
 available on your system, you have the option to
 :ref:`disable those specific tests <devguide_testing_local_python_select>`.
@@ -176,16 +176,12 @@ Examples tests
         cd bokehjs
         node make test:spawn:headless
 
-    [TBD not working on Win10?]
-
     Next, return to the top level directory and run the tests:
 
     .. code-block:: sh
 
         cd ..
         pytest tests/test_examples.py
-
-    [TBD: pytest --report-path=examples.html parameter not recognized?]
 
     After the tests have run, the results are available in
     ``examples-report.html``. This file is located in the same directory that
@@ -198,18 +194,6 @@ Examples tests
 
     In addition, the examples tests generate a log file called ``examples.log``
     in the same directory.
-
-    The examples tests can run slowly. To speed them up, you can parallelize
-    them with the command line option `-n`. The number you supply to `-n` is
-    the number of cores you want to use. For example:
-
-    .. code-block:: sh
-
-        pytest -n 5 test_examples.py
-
-    [TBD: Running with ``n`` leads to several test now failing ("Cannot start
-    Bokeh server, port 5006 is already in use") - does the headless browser need
-    a multi-thread argument when spawned to allow multiple connections?]
 
 Run all available tests
     You can run all available tests (Python and TypeScript unit tests, examples,
@@ -322,10 +306,12 @@ Testing with devtools server
 ''''''''''''''''''''''''''''
 
 In addition to running BokehJS tests from the command line, you can also use
-BokehJS's devtools server. Use this system to run tests and review the visual
-tests' output.
+the BokehJS devtools server. This system requires the Chrome web browser to be
+available on your system. Use the BokehJS devtools server to run tests and
+review the visual tests' output.
 
-First, start the devtools server with the following command:
+First, start the devtools server from the `bokehjs` subdirectory with the
+following command:
 
 .. code-block:: sh
 
@@ -337,9 +323,9 @@ You can now use the devtools server for the following operations:
 Inspecting visual test results
     After running integration tests, you can use the devtools server to
     compare your local results with the baseline images. Open the displayed
-    server URL in a web browser and append ``/integration/report``. This will
-    open a comparison view of any tests where your locally rendered plot is
-    different from the baseline file. For example:
+    server URL (usually ``127.0.0.1:5777``) in the Chrome web browser and append
+    ``/integration/report``. This will open a comparison view of any tests where
+    your locally rendered plot is different from the baseline file. For example:
 
     .. image:: /_images/bokehjs_devtools_report.png
         :class: image-border
@@ -347,7 +333,8 @@ Inspecting visual test results
             image diff and a baseline image.
 
 Initiate test runs
-    You can also use the devtools server to initiate test runs. You have two options:
+    You can also use the devtools server to initiate test runs. You have two
+    options:
 
     * Run tests from a JavaScript console
         Open one of these three endpoints in your web browser:
@@ -357,7 +344,7 @@ Initiate test runs
         * ``/integration``
 
         This loads BokehJS and the tests. To run the tests, issue
-        ``Tests.run_all()`` in your browser's JavaScript console. This allows
+        ``Tests.run_all()`` in Chrome's JavaScript console. This allows
         you to set breakpoints before running code. You can also pass a
         search string, list of strings, or regular expression as the function's
         ``query`` parameter to only run specific tests. For example:
@@ -365,8 +352,6 @@ Initiate test runs
         .. code-block:: TypeScript
 
             Tests.run_all(query=RegExp("[Ll]egend", 'g'));
-
-        [TBD: only works with Chrome? or also firefox? Also: opens http://stuff.com/baz.html and others??!]
 
     * Use endpoint to run tests
         Initiate test runs by accessing one of the following endpoints with your
