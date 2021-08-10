@@ -2,6 +2,7 @@ import {expect, expect_element} from "assertions"
 import {compare_on_dom} from "../../../framework"
 import {SVGRenderingContext2D} from "@bokehjs/core/util/svg"
 import {Random} from "@bokehjs/core/util/random"
+import {load_image} from "@bokehjs/core/util/image"
 import * as DOM from "@bokehjs/core/dom"
 
 declare global {
@@ -858,16 +859,10 @@ describe("SVGRenderingContext2d", () => {
 
   it("Create a pattern from an image", async () => {
     const test = async (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
-      return new Promise<void>((resolve, _reject) => {
-        const img = new Image()
-        img.src = "/images/canvas_createpattern.png"
-        img.onload = () => {
-          const pattern = ctx.createPattern(img, "repeat")!
-          ctx.fillStyle = pattern
-          ctx.fillRect(0, 0, 300, 300)
-          resolve()
-        }
-      })
+      const img = await load_image("/images/canvas_createpattern.png")
+      const pattern = ctx.createPattern(img, "repeat")!
+      ctx.fillStyle = pattern
+      ctx.fillRect(0, 0, 300, 300)
     }
 
     const size = {width: 200, height: 200}
@@ -947,16 +942,10 @@ describe("SVGRenderingContext2d", () => {
 
   it("Support drawImage with HTMLImageElement", async () => {
     const test = async (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
-      return new Promise<void>((resolve, _reject) => {
-        const img = new Image()
-        img.src = "/images/canvas_createpattern.png"
-        img.onload = () => {
-          ctx.drawImage(img, 0, 0)
-          ctx.drawImage(img, 0, 50, 200, 200)
-          ctx.drawImage(img, 0, 0, 25, 25, 0, 250, 200, 200)
-          resolve()
-        }
-      })
+      const img = await load_image("/images/canvas_createpattern.png")
+      ctx.drawImage(img, 0, 0)
+      ctx.drawImage(img, 0, 50, 200, 200)
+      ctx.drawImage(img, 0, 0, 25, 25, 0, 250, 200, 200)
     }
 
     const size = {width: 200, height: 450}
