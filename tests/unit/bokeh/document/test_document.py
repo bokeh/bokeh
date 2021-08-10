@@ -135,53 +135,6 @@ class TestDocumentHold:
         assert mock_trigger.call_args[0] == (3,)
         assert mock_trigger.call_args[1] == {}
 
-extra = []
-
-
-class Test_Document_delete_modules:
-    def test_basic(self) -> None:
-        d = document.Document()
-        assert not d.roots
-        class FakeMod:
-            __name__ = 'junkjunkjunk'
-        mod = FakeMod()
-        import sys
-        assert 'junkjunkjunk' not in sys.modules
-        sys.modules['junkjunkjunk'] = mod
-        d._modules.append(mod)
-        assert 'junkjunkjunk' in sys.modules
-        d.delete_modules()
-        assert 'junkjunkjunk' not in sys.modules
-        assert d._modules == []
-
-    def test_extra_referrer_error(self, caplog: pytest.LogCaptureFixture) -> None:
-        d = document.Document()
-        assert not d.roots
-        class FakeMod:
-            __name__ = 'junkjunkjunk'
-        mod = FakeMod()
-        import sys
-        assert 'junkjunkjunk' not in sys.modules
-        sys.modules['junkjunkjunk'] = mod
-        d._modules.append(mod)
-        assert 'junkjunkjunk' in sys.modules
-
-        # add an extra referrer for delete_modules to complain about
-        extra.append(mod)
-        import gc
-
-        # get_referrers behavior changed in Python 3.7, see https://github.com/bokeh/bokeh/issues/8221
-        assert len(gc.get_referrers(mod)) in (3,4)
-
-        with caplog.at_level(logging.ERROR):
-            d.delete_modules()
-            assert "Module %r has extra unexpected referrers! This could indicate a serious memory leak. Extra referrers:" % mod in caplog.text
-            assert len(caplog.records) == 1
-
-        assert 'junkjunkjunk' not in sys.modules
-        assert d._modules == []
-
-
 class TestDocument:
     def test_empty(self) -> None:
         d = document.Document()
