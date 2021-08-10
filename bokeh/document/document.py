@@ -146,7 +146,7 @@ class Document:
     _all_models: Dict[ID, Model]
     _all_models_by_name: MultiValuedDict[str, Model]
     _all_former_model_ids: Set[ID] = set()
-    _callbacks: Dict[Any, DocumentChangeCallback]
+    _change_callbacks: Dict[Any, DocumentChangeCallback]
     _event_callbacks: Dict[str, List[EventCallback]]
     _message_callbacks: Dict[str, List[MessageCallback]]
     _session_destroyed_callbacks: Set[SessionDestroyedCallback]
@@ -168,7 +168,7 @@ class Document:
         self._all_models = {}
         self._all_models_by_name = MultiValuedDict()
         self._all_former_model_ids = set()
-        self._callbacks = {}
+        self._change_callbacks = {}
         self._event_callbacks = {}
         self._message_callbacks = {}
         self._session_destroyed_callbacks = set()
@@ -760,15 +760,15 @@ class Document:
 
         '''
         for callback in callbacks:
-            if callback in self._callbacks:
+            if callback in self._change_callbacks:
                 continue
 
             _check_callback(callback, ('event',))
-            self._callbacks[callback] = callback
+            self._change_callbacks[callback] = callback
 
     def on_change_dispatch_to(self, receiver: Any) -> None:
-        if not receiver in self._callbacks:
-            self._callbacks[receiver] = lambda event: event.dispatch(receiver)
+        if not receiver in self._change_callbacks:
+            self._change_callbacks[receiver] = lambda event: event.dispatch(receiver)
 
     def on_session_destroyed(self, *callbacks: SessionDestroyedCallback) -> None:
         ''' Provide callbacks to invoke when the session serving the Document
@@ -802,7 +802,7 @@ class Document:
 
         '''
         for callback in callbacks:
-            del self._callbacks[callback]
+            del self._change_callbacks[callback]
 
     def remove_periodic_callback(self, callback_obj: PeriodicCallback) -> None:
         ''' Remove a callback added earlier with ``add_periodic_callback``
@@ -1192,7 +1192,7 @@ class Document:
             self._with_self_as_curdoc(event.callback_invoker)
 
         def invoke_callbacks():
-            for cb in self._callbacks.values():
+            for cb in self._change_callbacks.values():
                 cb(event)
         self._with_self_as_curdoc(invoke_callbacks)
 
