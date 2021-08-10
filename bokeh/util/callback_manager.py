@@ -38,7 +38,6 @@ from ..util.functions import get_param_info
 
 if TYPE_CHECKING:
     from ..core.has_props import Setter
-    from ..document import Document
     from ..document.events import DocumentPatchedEvent
 
 #-----------------------------------------------------------------------------
@@ -64,7 +63,6 @@ class EventCallbackManager:
     '''
 
     _event_callbacks: Dict[str, List[EventCallback]]
-    _document: Document | None
 
     def __init__(self, *args, **kw) -> None:
         super().__init__(*args, **kw)
@@ -109,8 +107,8 @@ class EventCallbackManager:
         # events only run from client to server. Would like to see if some of the
         # internal eventing can be reduced or simplified in general before
         # plugging more into it. For now, just handle the curdoc bits here.
-        if hasattr(self, '_document') and self._document is not None:
-            self._document._with_self_as_curdoc(invoke)
+        if self.document is not None:
+            self.document._with_self_as_curdoc(invoke)
         else:
             invoke()
 
@@ -129,7 +127,6 @@ class PropertyCallbackManager:
     '''
 
     _callbacks: Dict[str, List[PropertyCallback]]
-    _document: Document | None
 
     def __init__(self, *args, **kw) -> None:
         super().__init__(*args, **kw)
@@ -183,8 +180,8 @@ class PropertyCallbackManager:
             if callbacks:
                 for callback in callbacks:
                     callback(attr, old, new)
-        if hasattr(self, '_document') and self._document is not None:
-            self._document._notify_change(self, attr, old, new, hint, setter, invoke)
+        if self.document is not None:
+            self.document._notify_change(self, attr, old, new, hint, setter, invoke)
         else:
             invoke()
 
