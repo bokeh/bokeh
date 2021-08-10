@@ -25,17 +25,13 @@ log = logging.getLogger(__name__)
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Callable, Sequence
 
-## External imports
-if TYPE_CHECKING:
-    from tornado.ioloop import IOLoop
-
 # Bokeh imports
 from ..core.types import ID
 from ..util.serialization import make_id
 from ..util.tornado import _CallbackGroup
 
 if TYPE_CHECKING:
-    from ..document import Document
+    from tornado.ioloop import IOLoop
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -62,19 +58,16 @@ class SessionCallback(metaclass=ABCMeta):
 
     _id: ID
 
-    def __init__(self, document: Document, callback: Callback, id: ID | None = None) -> None:
+    def __init__(self, callback: Callback, id: ID | None = None) -> None:
         '''
 
          Args:
-            document (Document) :
-
             callback (callable) :
 
             id (str, optional) :
 
         '''
         self._id = make_id() if id is None else id
-        self._document = document
         self._callback = callback
 
     @property
@@ -103,34 +96,30 @@ class NextTickCallback(SessionCallback):
     ''' Represent a callback to execute on the next ``IOLoop`` "tick".
 
     '''
-    def __init__(self, document: Document, callback: Callback, id: ID | None = None) -> None:
+    def __init__(self, callback: Callback, id: ID | None = None) -> None:
         '''
 
          Args:
-            document (Document) :
-
             callback (callable) :
 
             id (str, optional) :
 
         '''
-        super().__init__(document, callback, id)
+        super().__init__(callback, id)
 
     def _copy_with_changed_callback(self, new_callback: Callback) -> NextTickCallback:
         ''' Dev API used to wrap the callback with decorators. '''
-        return NextTickCallback(self._document, new_callback, self._id)
+        return NextTickCallback(new_callback, self._id)
 
 class PeriodicCallback(SessionCallback):
     ''' Represent a callback to execute periodically on the ``IOLoop`` at a
     specified periodic time interval.
 
     '''
-    def __init__(self, document: Document, callback: Callback, period: int, id: ID | None = None) -> None:
+    def __init__(self, callback: Callback, period: int, id: ID | None = None) -> None:
         '''
 
         Args:
-            document (Document) :
-
             callback (callable) :
 
             period (int) :
@@ -138,7 +127,7 @@ class PeriodicCallback(SessionCallback):
             id (str, optional) :
 
         '''
-        super().__init__(document, callback, id)
+        super().__init__(callback, id)
         self._period = period
 
     @property
@@ -151,19 +140,17 @@ class PeriodicCallback(SessionCallback):
 
     def _copy_with_changed_callback(self, new_callback: Callback) -> PeriodicCallback:
         ''' Dev API used to wrap the callback with decorators. '''
-        return PeriodicCallback(self._document, new_callback, self._period, self._id)
+        return PeriodicCallback(new_callback, self._period, self._id)
 
 class TimeoutCallback(SessionCallback):
     ''' Represent a callback to execute once on the ``IOLoop`` after a specified
     time interval passes.
 
     '''
-    def __init__(self, document: Document, callback: Callback, timeout: int, id: ID | None = None) -> None:
+    def __init__(self, callback: Callback, timeout: int, id: ID | None = None) -> None:
         '''
 
         Args:
-            document (Document) :
-
             callback (callable) :
 
             timeout (int) :
@@ -171,7 +158,7 @@ class TimeoutCallback(SessionCallback):
             id (str, optional) :
 
         '''
-        super().__init__(document, callback, id)
+        super().__init__(callback, id)
         self._timeout = timeout
 
     @property
@@ -183,7 +170,7 @@ class TimeoutCallback(SessionCallback):
 
     def _copy_with_changed_callback(self, new_callback: Callback) -> TimeoutCallback:
         ''' Dev API used to wrap the callback with decorators. '''
-        return TimeoutCallback(self._document, new_callback, self._timeout, self._id)
+        return TimeoutCallback(new_callback, self._timeout, self._id)
 
 #-----------------------------------------------------------------------------
 # Dev API
