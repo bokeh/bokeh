@@ -51,22 +51,19 @@ __all__ = (
     'OR',
 )
 
-ContextType = Union[Dict[str, Any], None]
-
 SelectorType = Dict[Union[str, Type["_Operator"]], Any]
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def find(objs: Iterable[Model], selector: SelectorType, context: ContextType = None) -> Iterable[Model]:
+def find(objs: Iterable[Model], selector: SelectorType) -> Iterable[Model]:
     ''' Query a collection of Bokeh models and yield any that match the
     a selector.
 
     Args:
         obj (Model) : object to test
         selector (JSON-like) : query selector
-        context (dict) : kwargs to supply callable query attributes
 
     Yields:
         Model : objects that match the query
@@ -89,20 +86,15 @@ def find(objs: Iterable[Model], selector: SelectorType, context: ContextType = N
             # same query, using IN operator
             find(p.references(), {'type': {IN: [Grid, Axis]}})
 
-            # find all plot objects on the 'left' layout of the Plot
-            # here layout is a method that takes a plot as context
-            find(p.references(), {'layout': 'left'}, {'plot': p})
-
     '''
-    return (obj for obj in objs if match(obj, selector, context))
+    return (obj for obj in objs if match(obj, selector))
 
-def match(obj: Model, selector: SelectorType, context: ContextType = None) -> bool:
+def match(obj: Model, selector: SelectorType) -> bool:
     ''' Test whether a given Bokeh model matches a given selector.
 
     Args:
         obj (Model) : object to test
         selector (JSON-like) : query selector
-        context (dict) : kwargs to supply callable query attributes
 
     Returns:
         bool : True if the object matches, False otherwise
@@ -165,7 +157,6 @@ def match(obj: Model, selector: SelectorType, context: ContextType = None) -> bo
         False
 
     '''
-    context = context or {}
     for key, val in selector.items():
 
         # test attributes
@@ -195,14 +186,8 @@ def match(obj: Model, selector: SelectorType, context: ContextType = None) -> bo
             # if the value to check is a dict, recurse
             else:
                 attr = getattr(obj, key)
-                if callable(attr):
-                    try:
-                        if not attr(val, **context): return False
-                    except Exception:
-                        return False
-
-                elif isinstance(val, dict):
-                    if not match(attr, val, context): return False
+                if isinstance(val, dict):
+                    if not match(attr, val): return False
 
                 else:
                     if attr != val: return False

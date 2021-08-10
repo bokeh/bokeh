@@ -170,7 +170,7 @@ class Plot(LayoutDOM):
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
-        return _list_attr_splat(find(self.references(), selector, {'plot': self}))
+        return _list_attr_splat(find(self.references(), selector))
 
     def row(self, row, gridplot):
         ''' Return whether this plot is in a given row of a GridPlot.

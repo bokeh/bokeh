@@ -272,17 +272,6 @@ def test_malformed_exception() -> None:
     with pytest.raises(ValueError):
         q.match(plot, {11: {q.EQ: 5}})
 
-def test_with_context() -> None:
-    res = list(
-        q.find(plot.references(), {'layout': 'below'}, {'plot': plot})
-    )
-    assert len(res) == 1
-
-    res = list(
-        q.find(plot.references(), {'select': 'below'}, {'plot': plot})
-    )
-    assert len(res) == 0
-
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

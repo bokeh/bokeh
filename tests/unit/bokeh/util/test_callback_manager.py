@@ -21,6 +21,7 @@ from functools import partial
 
 # Bokeh imports
 from bokeh.document import Document
+from bokeh.model.util import HasDocumentRef
 
 # Module under test
 import bokeh.util.callback_manager as cbm # isort:skip
@@ -28,7 +29,6 @@ import bokeh.util.callback_manager as cbm # isort:skip
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
 
 class _GoodPropertyCallback:
     def __init__(self) -> None:
@@ -245,7 +245,8 @@ class TestPropertyCallbackManager:
         assert m1._callbacks['bar'] == [good2]
 
     def test_trigger(self) -> None:
-        m = cbm.PropertyCallbackManager()
+        class Modelish(HasDocumentRef, cbm.PropertyCallbackManager): pass
+        m = Modelish()
         good = _GoodPropertyCallback()
         m.on_change('foo', good.method)
         m.trigger('foo', 42, 43)
@@ -254,7 +255,8 @@ class TestPropertyCallbackManager:
         assert good.last_new == 43
 
     def test_trigger_with_two_callbacks(self) -> None:
-        m = cbm.PropertyCallbackManager()
+        class Modelish(HasDocumentRef, cbm.PropertyCallbackManager): pass
+        m = Modelish()
         good1 = _GoodPropertyCallback()
         good2 = _GoodPropertyCallback()
         m.on_change('foo', good1.method)
@@ -408,7 +410,8 @@ class TestEventCallbackManager:
         out = {}
         def cb():
             out['curdoc'] = curdoc()
-        m = cbm.EventCallbackManager()
+        class Modelish(HasDocumentRef, cbm.EventCallbackManager): pass
+        m = Modelish()
         m.subscribed_events = []
         m.on_event('foo', cb)
         m.id = 10

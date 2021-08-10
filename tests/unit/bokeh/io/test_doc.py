@@ -43,6 +43,20 @@ def test_set_curdoc_sets_curstate() -> None:
     bid.set_curdoc(d)
     assert curstate().document is d
 
+def test_patch_curdoc() -> None:
+    d1 = Document()
+    d2 = Document()
+    orig_doc =  bid.curdoc()
+
+    assert bid._PATCHED_CURDOCS == []
+
+    with bid.patch_curdoc(d1):
+        assert bid.curdoc() is d1
+        with bid.patch_curdoc(d2):
+            assert bid.curdoc() is d2
+        assert bid.curdoc() is d1
+    assert bid.curdoc() is orig_doc
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

@@ -1190,9 +1190,6 @@ class Document:
             self._trigger_on_change(SessionCallbackRemoved(self, callback_obj))
 
     def _set_title(self, title: str, setter: Setter | None = None) -> None:
-        '''
-
-        '''
         if title is None:
             raise ValueError("Document title may not be None")
         if self._title != title:
@@ -1200,9 +1197,6 @@ class Document:
             self._trigger_on_change(TitleChangedEvent(self, title, setter))
 
     def _trigger_on_change(self, event: DocumentChangedEvent) -> None:
-        '''
-
-        '''
         if self._hold == "collect":
             self._held_events.append(event)
             return
@@ -1219,31 +1213,20 @@ class Document:
         self._with_self_as_curdoc(invoke_callbacks)
 
     def _with_self_as_curdoc(self, f: Callable[[], None]) -> None:
-        '''
+        from ..io.doc import patch_curdoc
 
-        '''
-        from bokeh.io.doc import curdoc, set_curdoc
-        old_doc = curdoc()
-        try:
-            if getattr(f, "nolock", False):
-                set_curdoc(UnlockedDocumentProxy(self))
-            else:
-                set_curdoc(self)
+        doc = UnlockedDocumentProxy(self) if getattr(f, "nolock", False) else self
+
+        with patch_curdoc(doc):
             return f()
-        finally:
-            set_curdoc(old_doc)
 
     def _wrap_with_self_as_curdoc(self, f: F) -> F:
-        '''
-
-        '''
-        doc = self
         @wraps(f)
         def wrapper(*args, **kwargs):
             @wraps(f)
             def invoke() -> None:
                 return f(*args, **kwargs)
-            return doc._with_self_as_curdoc(invoke)
+            return self._with_self_as_curdoc(invoke)
         return wrapper
 
 

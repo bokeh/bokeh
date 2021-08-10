@@ -148,7 +148,7 @@ class ServerSession:
         self._expiration_requested = False
         self._expiration_blocked_count = 0
 
-        wrapped_callbacks = self._wrap_session_callbacks(self._document.session_callbacks)
+        wrapped_callbacks = [self._wrap_session_callback(cb) for cb in self._document.session_callbacks]
         self._callbacks.add_session_callbacks(wrapped_callbacks)
 
     @property
@@ -236,12 +236,6 @@ class ServerSession:
         wrapped = self._wrap_document_callback(callback.callback)
         return callback._copy_with_changed_callback(wrapped)
 
-    def _wrap_session_callbacks(self, callbacks: List[SessionCallback]) -> List[SessionCallback]:
-        wrapped: List[SessionCallback] = []
-        for cb in callbacks:
-            wrapped.append(self._wrap_session_callback(cb))
-        return wrapped
-
     def _document_patched(self, event: DocumentPatchedEvent) -> None:
         may_suppress = event.setter is self
 
@@ -253,9 +247,8 @@ class ServerSession:
         # up with the state of the other and their final states will differ.
         for connection in self._subscribed_connections:
             if may_suppress and connection is self._current_patch_connection:
-                log.trace("Not sending notification back to client %r for a change it requested", connection)
-            else:
-                self._pending_writes.append(connection.send_patch_document(event))
+                continue
+            self._pending_writes.append(connection.send_patch_document(event))
 
     @_needs_document_lock
     def _handle_pull(self, message: msg.pull_doc_req, connection: ServerConnection) -> msg.pull_doc_reply:
