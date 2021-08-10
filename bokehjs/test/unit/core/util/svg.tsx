@@ -22,13 +22,8 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="50"
-        height="50"
-      >
-        <defs />
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="50" height="50">
+        <defs/>
         <text
           fill="#000000"
           stroke="none"
@@ -62,13 +57,8 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="50"
-        height="50"
-      >
-        <defs />
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="50" height="50">
+        <defs/>
         <text
           fill="none"
           stroke="#000000"
@@ -122,13 +112,8 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="150"
-        height="200"
-      >
-        <defs />
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="150" height="200">
+        <defs/>
         <path
           fill="none"
           stroke="#000000"
@@ -232,13 +217,8 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="50"
-        height="50"
-      >
-        <defs />
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="50" height="50">
+        <defs/>
         <path
           fill="red"
           stroke="none"
@@ -277,13 +257,8 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="300"
-        height="150"
-      >
-        <defs />
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="300" height="150">
+        <defs/>
         <path
           fill="blue"
           stroke="none"
@@ -416,13 +391,8 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="110"
-        height="110"
-      >
-        <defs />
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="110" height="110">
+        <defs/>
         <path
           fill="none"
           stroke="#000000"
@@ -472,13 +442,8 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="300"
-        height="150"
-      >
-        <defs />
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="300" height="150">
+        <defs/>
         <path
           fill="none"
           stroke="#000000"
@@ -533,13 +498,8 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="300"
-        height="150"
-      >
-        <defs />
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="300" height="150">
+        <defs/>
         <path
           fill="none"
           stroke="#000000"
@@ -604,13 +564,8 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="300"
-        height="150"
-      >
-        <defs />
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="300" height="150">
+        <defs/>
         <path
           fill="none"
           stroke="gray"
@@ -668,12 +623,7 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="300"
-        height="150"
-      >
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="300" height="150">
         <defs>
           <linearGradient
             id="ZoSvZRFIOOma"
@@ -720,12 +670,7 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="300"
-        height="150"
-      >
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="300" height="150">
         <defs>
           <linearGradient
             fill="none"
@@ -772,12 +717,7 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="200"
-        height="200"
-      >
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
         <defs>
           <radialGradient
             id="ZoSvZRFIOOma"
@@ -826,12 +766,7 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="200"
-        height="200"
-      >
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
         <defs>
           <radialGradient
             id="ZoSvZRFIOOma"
@@ -883,12 +818,7 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="200"
-        height="200"
-      >
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
         <defs>
           <pattern
             id="ZoSvZRFIOOma"
@@ -931,12 +861,7 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="200"
-        height="200"
-      >
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
         <defs>
           <pattern
             id="ZoSvZRFIOOma"
@@ -982,13 +907,8 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="150"
-        height="30"
-      >
-        <defs />
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="150" height="30">
+        <defs/>
         <path
           fill="none"
           stroke="#000000"
@@ -1030,13 +950,8 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="200"
-        height="450"
-      >
-        <defs></defs>
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="450">
+        <defs/>
         <image
           width="86"
           height="117"
@@ -1086,13 +1001,8 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(string_to_html(`
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="200"
-        height="450"
-      >
-        <defs></defs>
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="450">
+        <defs/>
         <image
           width="50"
           height="50"
