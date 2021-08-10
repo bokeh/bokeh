@@ -6,9 +6,9 @@ export type HTMLAttrs = {[name: string]: unknown}
 export type HTMLItem = string | Node | NodeList | HTMLCollection | null | undefined
 export type HTMLChild = HTMLItem | HTMLItem[]
 
-const _createElement = <T extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap>(tag: T) => {
-  return (attrs: HTMLAttrs | HTMLChild = {}, ...children: HTMLChild[]): (HTMLElementTagNameMap & SVGElementTagNameMap)[T] => {
-    const element = document.createElement(tag) as any // XXX: NS vs return type issue
+const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
+  return (attrs: HTMLAttrs | HTMLChild = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
+    const element = document.createElement(tag)
     element.classList.add("bk")
 
     if (!isPlainObject(attrs)) {
@@ -75,8 +75,8 @@ const _createElement = <T extends keyof HTMLElementTagNameMap | keyof SVGElement
   }
 }
 
-export function createElement<T extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap>(
-    tag: T, attrs: HTMLAttrs | null, ...children: HTMLChild[]): (HTMLElementTagNameMap & SVGElementTagNameMap)[T] {
+export function createElement<T extends keyof HTMLElementTagNameMap>(
+    tag: T, attrs: HTMLAttrs | null, ...children: HTMLChild[]): HTMLElementTagNameMap[T] {
   return _createElement(tag)(attrs, ...children)
 }
 
@@ -97,6 +97,40 @@ export const
   option   = _createElement("option"),
   optgroup = _createElement("optgroup"),
   textarea = _createElement("textarea")
+
+export function createSVGElement<T extends keyof SVGElementTagNameMap>(
+    tag: T, attrs: {[key: string]: string | false | null | undefined}, ...children: HTMLChild[]): SVGElementTagNameMap[T] {
+  const element = document.createElementNS("http://www.w3.org/2000/svg", tag)
+
+  for (const [attr, value] of entries(attrs ?? {})) {
+    if (value == null || isBoolean(value) && !value)
+      continue
+    element.setAttribute(attr, value as string)
+  }
+
+  function append(child: HTMLItem): void {
+    if (isString(child))
+      element.appendChild(document.createTextNode(child))
+    else if (child instanceof Node)
+      element.appendChild(child)
+    else if (child instanceof NodeList || child instanceof HTMLCollection) {
+      for (const el of child) {
+        element.appendChild(el)
+      }
+    } else if (child != null && child !== false)
+      throw new Error(`expected a DOM element, string, false or null, got ${JSON.stringify(child)}`)
+  }
+
+  for (const child of children) {
+    if (isArray(child)) {
+      for (const _child of child)
+        append(_child)
+    } else
+      append(child)
+  }
+
+  return element
+}
 
 export function nbsp(): Text {
   return document.createTextNode("\u00a0")

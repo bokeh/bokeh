@@ -19,7 +19,7 @@
     "importHelpers": true,
     "experimentalDecorators": true,
     "jsx": "react",
-    "jsxFactory": "DOM.createElement",
+    "jsxFactory": "DOM.createSVGElement",
     "module": "ES2020",
     "moduleResolution": "node",
     "resolveJsonModule": true,
