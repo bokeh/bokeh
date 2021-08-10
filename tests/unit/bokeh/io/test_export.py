@@ -156,9 +156,9 @@ def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
 
     def output(data: str) -> List[str]:
         return [
-            '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20">'
+            '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">'
                 '<defs/>'
-                f'<image width="20" height="20" preserveAspectRatio="none" xlink:href="data:image/png;base64,{data}"/>'
+                f'<image width="20" height="20" preserveAspectRatio="none" href="data:image/png;base64,{data}"/>'
             '</svg>'
         ]
 
@@ -192,7 +192,7 @@ def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:
         svgs1 = bie.get_svg(layout, driver=webdriver)
 
     svgs2 = [
-        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="40" height="20">'
+        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="40" height="20">'
             '<defs/>'
             '<path fill="rgb(255,0,0)" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5" fill-opacity="1"/>'
             '<g transform="matrix(1, 0, 0, 1, 20, 0)">'
@@ -231,11 +231,11 @@ def test_get_svgs_with_svg_present(webdriver: WebDriver) -> None:
         svgs1 = bie.get_svgs(layout, driver=webdriver)
 
     svgs2 = [
-        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20">'
+        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">'
             '<defs/>'
             '<path fill="rgb(255,0,0)" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5" fill-opacity="1"/>'
         '</svg>',
-        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20">'
+        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">'
             '<defs/>'
             '<path fill="rgb(0,0,255)" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5" fill-opacity="1"/>'
         '</svg>',

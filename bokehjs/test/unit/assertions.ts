@@ -54,10 +54,10 @@ type Assertions<T> = {
 }
 
 type ElementAssertions = {
-  equal_attributes(expected: Element, ignored_attributes?: string[]): void
+  equal_attributes(expected: Element): void
 }
 
-function compare_attributes(actual: Element, expected: Element, ignored_attributes: string[] = []) {
+function compare_attributes(actual: Element, expected: Element) {
   if (actual.nodeName !== expected.nodeName)
     throw new ExpectationError(`expected <${actual.nodeName} /> to be equal <${expected.nodeName} />`)
 
@@ -71,7 +71,7 @@ function compare_attributes(actual: Element, expected: Element, ignored_attribut
       else
         error = true
 
-    if (actual.getAttribute(attr.name) !== attr.value && !ignored_attributes.includes(attr.name))
+    if (actual.getAttribute(attr.name) !== attr.value)
       error = true
 
     if (error)
@@ -79,23 +79,23 @@ function compare_attributes(actual: Element, expected: Element, ignored_attribut
   }
 }
 
-function compare_element_attributes(actual: Element, expected: Element, ignored_attributes?: string[]) {
-  compare_attributes(actual, expected, ignored_attributes)
+function compare_element_attributes(actual: Element, expected: Element) {
+  compare_attributes(actual, expected)
 
   if (actual.childElementCount != expected.childElementCount)
     throw new ExpectationError("elements differ on child count")
 
   for (let i = 0; i < expected.childElementCount; i++) {
-    compare_element_attributes(actual.children[i], expected.children[i], ignored_attributes)
+    compare_element_attributes(actual.children[i], expected.children[i])
   }
 }
 
 class ElementAsserts implements ElementAssertions {
   constructor(readonly value: Element) {}
 
-  equal_attributes(expected: Element, ignored_attributes?: string[]): void {
+  equal_attributes(expected: Element): void {
     try {
-      compare_element_attributes(this.value, expected, ignored_attributes)
+      compare_element_attributes(this.value, expected)
     } catch (err) {
       throw new ExpectationError(`expected ${this.value.outerHTML} to be equal to ${expected.outerHTML} ${err.message}`)
     }
