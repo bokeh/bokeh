@@ -10,13 +10,11 @@ with categories.
 |
 
 '''
-from bokeh.io import output_file, show
+from bokeh.io import show
 from bokeh.models import ColumnDataSource
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
 from bokeh.transform import factor_cmap
-
-output_file("bar_colormapped.html")
 
 fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 counts = [5, 3, 4, 2, 4, 6]
