@@ -7,6 +7,7 @@ set +e
 pushd `python -c "import site; print(site.getsitepackages()[0])"`
 pytest dask/diagnostics
 pytest distributed/dashboard
+pytest panel/tests
 nosetests holoviews/tests/plotting/bokeh
 popd
 
