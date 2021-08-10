@@ -405,6 +405,63 @@ class Document:
         for cb in self._event_callbacks.get(event.event_name, []):
             cb(event)
 
+    def _handle_MessageSent(self, event_json, references, setter) -> None:
+        message_callbacks = self._message_callbacks.get(event_json["msg_type"], None)
+        if message_callbacks is not None:
+            for cb in message_callbacks:
+                cb(event_json["msg_data"])
+
+    def _handle_ModelChanged(self, event_json, references, setter) -> None:
+        patched_id = event_json['model']['id']
+        if patched_id not in self._all_models:
+            if patched_id not in self._all_former_model_ids:
+                raise RuntimeError(f"Cannot apply patch to {patched_id} which is not in the document")
+            else:
+                log.debug(f"Cannot apply patch to {patched_id} which is not in the document anymore. This is usually harmless")
+                return
+        patched_obj = self._all_models[patched_id]
+        attr = event_json['attr']
+        value = event_json['new']
+        patched_obj.set_from_json(attr, value, models=references, setter=setter)
+
+    def _handle_ColumnDataChanged(self, event_json, references, setter) -> None:
+        source_id = event_json['column_source']['id']
+        if source_id not in self._all_models:
+            raise RuntimeError(f"Cannot apply patch to {source_id} which is not in the document")
+        source = self._all_models[source_id]
+        value = event_json['new']
+        source.set_from_json('data', value, models=references, setter=setter)
+
+    def _handle_ColumnsStreamed(self, event_json, references, setter) -> None:
+        source_id = event_json['column_source']['id']
+        if source_id not in self._all_models:
+            raise RuntimeError(f"Cannot stream to {source_id} which is not in the document")
+        source = self._all_models[source_id]
+        data = event_json['data']
+        rollover = event_json.get('rollover', None)
+        source._stream(data, rollover, setter)
+
+    def _handle_ColumnsPatched(self, event_json, references, setter) -> None:
+        source_id = event_json['column_source']['id']
+        if source_id not in self._all_models:
+            raise RuntimeError(f"Cannot apply patch to {source_id} which is not in the document")
+        source = self._all_models[source_id]
+        patches = event_json['patches']
+        source.patch(patches, setter)
+
+    def _handle_RootAdded(self, event_json, references, setter) -> None:
+        root_id = event_json['model']['id']
+        root_obj = references[root_id]
+        self.add_root(root_obj, setter)
+
+    def _handle_RootRemoved(self, event_json, references, setter) -> None:
+        root_id = event_json['model']['id']
+        root_obj = references[root_id]
+        self.remove_root(root_obj, setter)
+
+    def _handle_TitleChanged(self, event_json, references, setter) -> None:
+        self._set_title(event_json['title'], setter)
+
     def apply_json_patch(self, patch: PatchJson, setter: Setter | None = None) -> None:
         ''' Apply a JSON patch object and process any resulting events.
 
@@ -441,62 +498,11 @@ class Document:
         initialize_references_json(references_json, references, setter)
 
         for event_json in events_json:
-            if event_json['kind'] == 'MessageSent':
-                self._trigger_on_message(event_json["msg_type"], event_json["msg_data"])
-
-            elif event_json['kind'] == 'ModelChanged':
-                patched_id = event_json['model']['id']
-                if patched_id not in self._all_models:
-                    if patched_id not in self._all_former_model_ids:
-                        raise RuntimeError(f"Cannot apply patch to {patched_id} which is not in the document")
-                    else:
-                        log.debug(f"Cannot apply patch to {patched_id} which is not in the document anymore. This is usually harmless")
-                        break
-                patched_obj = self._all_models[patched_id]
-                attr = event_json['attr']
-                value = event_json['new']
-                patched_obj.set_from_json(attr, value, models=references, setter=setter)
-
-            elif event_json['kind'] == 'ColumnDataChanged':
-                source_id = event_json['column_source']['id']
-                if source_id not in self._all_models:
-                    raise RuntimeError(f"Cannot apply patch to {source_id} which is not in the document")
-                source = self._all_models[source_id]
-                value = event_json['new']
-                source.set_from_json('data', value, models=references, setter=setter)
-
-            elif event_json['kind'] == 'ColumnsStreamed':
-                source_id = event_json['column_source']['id']
-                if source_id not in self._all_models:
-                    raise RuntimeError(f"Cannot stream to {source_id} which is not in the document")
-                source = self._all_models[source_id]
-                data = event_json['data']
-                rollover = event_json.get('rollover', None)
-                source._stream(data, rollover, setter)
-
-            elif event_json['kind'] == 'ColumnsPatched':
-                source_id = event_json['column_source']['id']
-                if source_id not in self._all_models:
-                    raise RuntimeError(f"Cannot apply patch to {source_id} which is not in the document")
-                source = self._all_models[source_id]
-                patches = event_json['patches']
-                source.patch(patches, setter)
-
-            elif event_json['kind'] == 'RootAdded':
-                root_id = event_json['model']['id']
-                root_obj = references[root_id]
-                self.add_root(root_obj, setter)
-
-            elif event_json['kind'] == 'RootRemoved':
-                root_id = event_json['model']['id']
-                root_obj = references[root_id]
-                self.remove_root(root_obj, setter)
-
-            elif event_json['kind'] == 'TitleChanged':
-                self._set_title(event_json['title'], setter)
-
-            else:
+            event_kind = event_json['kind']
+            handler = getattr(self, f"_handle_{event_kind}", None)
+            if handler is None:
                 raise RuntimeError(f"Unknown patch event {event_json!r}")
+            handler(event_json, references, setter)
 
     def apply_json_patch_string(self, patch: str) -> None:
         ''' Apply a JSON patch provided as a string.
@@ -727,12 +733,6 @@ class Document:
         message_callbacks = self._message_callbacks.get(msg_type, None)
         if message_callbacks is not None and callback in message_callbacks:
             message_callbacks.remove(callback)
-
-    def _trigger_on_message(self, msg_type: str, msg_data: Any) -> None:
-        message_callbacks = self._message_callbacks.get(msg_type, None)
-        if message_callbacks is not None:
-            for cb in message_callbacks:
-                cb(msg_data)
 
     def on_event(self, event: str | Type[Event], *callbacks: EventCallback) -> None:
         ''' Provide callbacks to invoke if a bokeh event is received.
