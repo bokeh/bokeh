@@ -1,3 +1,15 @@
+''' A categorical bar chart illustrating the use of `factor_cmap <factor_cmap>`_ to associate colors from a palette
+with categories.
+
+.. rubric:: Details
+
+:bokeh APIs: :func:`~bokeh.plotting.Figure.vbar`, :func:`~bokeh.transform.factor_cmap`
+:references: :ref:`userguide_categorical_bars`
+:keywords: bar, vbar, legend, factor_cmap, palette
+
+|
+
+'''
 from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource
 from bokeh.palettes import Spectral6
