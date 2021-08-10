@@ -27,7 +27,7 @@ export class Random {
     return result
   }
 
-  choices<T>(n: number, items: T[]): T[] {
+  choices<T>(n: number, items: ArrayLike<T>): T[] {
     const k = items.length
 
     const result: T[] = new Array(n)

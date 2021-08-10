@@ -1,7 +1,7 @@
 import {spawn, ChildProcess} from "child_process"
 import {Socket} from "net"
 import {argv} from "yargs"
-import {join, delimiter, basename, dirname} from "path"
+import {join, delimiter, basename, extname, dirname} from "path"
 import os from "os"
 import assert from "assert"
 import chalk from "chalk"
@@ -311,8 +311,9 @@ function compile(name: string, options?: {auto_index?: boolean}) {
       const imports = ['export * from "../framework"']
 
       for (const file of files) {
-        if (file.startsWith(base_dir) && file.endsWith(".ts")) {
-          const name = basename(file, ".ts")
+        if (file.startsWith(base_dir) && (file.endsWith(".ts") || file.endsWith(".tsx"))) {
+          const ext = extname(file)
+          const name = basename(file, ext)
           if (!name.startsWith("_") && !name.endsWith(".d")) {
             const dir = dirname(file).replace(base_dir, "").replace(/^\//, "")
             const module = dir == "" ? `./${name}` : [".", ...dir.split("/"), name].join("/")
