@@ -183,7 +183,7 @@ const STYLES: StyleState = {
   },
 }
 
-class CanvasGradient {
+class CanvasGradient implements globalThis.CanvasGradient {
   __root: SVGElement
   __ctx: SVGRenderingContext2D
 
@@ -225,13 +225,17 @@ class CanvasGradient {
   }
 }
 
-class CanvasPattern {
+class CanvasPattern implements globalThis.CanvasPattern {
   __root: SVGPatternElement
   __ctx: SVGRenderingContext2D
 
   constructor(pattern: SVGPatternElement, ctx: SVGRenderingContext2D) {
     this.__root = pattern
     this.__ctx = ctx
+  }
+
+  setTransform(_transform?: DOMMatrix2DInit): void {
+    throw new Error("not implemented")
   }
 }
 
@@ -244,7 +248,7 @@ type Options = {
 
 type Path = string
 
-type CanvasState = {
+type SVGCanvasState = {
   transform: AffineTransform
   clip_path: Path | null
   attributes: StyleState
@@ -258,14 +262,33 @@ type CanvasState = {
  * height - height of your canvas (defaults to 500)
  * document - the document object (defaults to the current document)
  */
-export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
+
+type BaseCanvasRenderingContext2D =
+  CanvasCompositing &
+  CanvasDrawImage &
+  CanvasDrawPath &
+  CanvasFillStrokeStyles &
+  CanvasFilters &
+  CanvasImageData &
+  CanvasImageSmoothing &
+  CanvasPath &
+  CanvasPathDrawingStyles &
+  CanvasRect &
+  CanvasShadowStyles &
+  CanvasState &
+  CanvasText &
+  CanvasTextDrawingStyles &
+  CanvasTransform &
+  CanvasUserInterface
+
+export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
   __canvas: HTMLCanvasElement
   __ctx: CanvasRenderingContext2D
 
   __root: SVGSVGElement
   __ids: Set<string>
   __defs: SVGElement
-  __stack: CanvasState[]
+  __stack: SVGCanvasState[]
   __document: Document
   __currentElement: SVGElement // null?
   __currentDefaultPath: string
@@ -274,7 +297,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
 
   static __random: Random = random
 
-  get canvas(): this {
+  get canvas(): SVGRenderingContext2D {
     // XXX: point back to this instance
     return this
   }
@@ -286,7 +309,9 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   miterLimit: number
   lineWidth: number
   globalAlpha: number
+  globalCompositeOperation: string // XXX: really a string? // TODO: implement
   font: string
+  direction: CanvasDirection // TODO: implement
   shadowColor: string
   shadowOffsetX: number
   shadowOffsetY: number
@@ -295,6 +320,9 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   textBaseline: CanvasTextBaseline
   lineDash: string | number[] | null
   lineDashOffset: number
+  filter: string // TODO: implement
+  imageSmoothingEnabled: boolean // TODO: implement
+  imageSmoothingQuality: ImageSmoothingQuality // TODO: implement
 
   private _width: number
   private _height: number
@@ -793,7 +821,21 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   /**
     * Sets fill properties on the current element
     */
-  fill(fill_rule?: CanvasFillRule): void {
+  fill(fill_rule?: CanvasFillRule): void
+  fill(path: Path2D, fill_rule?: CanvasFillRule): void
+
+  fill(path_or_fill_rule?: Path2D | CanvasFillRule, fill_rule?: CanvasFillRule): void {
+    let path: Path2D | null = null
+    if (path_or_fill_rule instanceof Path2D)
+      path = path_or_fill_rule
+    else if ((path_or_fill_rule == "evenodd" || path_or_fill_rule == "nonzero" || path_or_fill_rule == null) && fill_rule == null)
+      fill_rule = path_or_fill_rule
+    else
+      throw new Error("invalid arguments")
+
+    if (path != null)
+      throw new Error("not implemented")
+
     // XXX: hack (?) to allow fill and hatch visuals on same canvas path
     if (this.__currentElement.getAttribute("fill") != "none") {
       this.__init_element()
@@ -1199,12 +1241,21 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     return new CanvasPattern(pattern, this)
   }
 
-  setLineDash(dashArray: number[]): void {
-    if (dashArray && dashArray.length > 0) {
-      this.lineDash = dashArray.join(",")
-    } else {
+  getLineDash(): number[] {
+    const {lineDash} = this
+    if (isString(lineDash))
+      return lineDash.split(",").map((v) => parseInt(v))
+    else if (lineDash == null)
+      return []
+    else
+      return lineDash
+  }
+
+  setLineDash(segments: number[]): void {
+    if (segments && segments.length > 0)
+      this.lineDash = segments.join(",")
+    else
       this.lineDash = null
-    }
   }
 
   private _to_number(val: number | SVGAnimatedLength): number {
@@ -1234,5 +1285,51 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
 
   resetTransform(): void {
     this._transform = new AffineTransform()
+  }
+
+  isPointInPath(x: number, y: number, fill_rule?: CanvasFillRule): boolean
+  isPointInPath(path: Path2D, x: number, y: number, fill_rule?: CanvasFillRule): boolean
+
+  isPointInPath(..._args: any[]): boolean {
+    throw new Error("not implemented")
+  }
+
+  isPointInStroke(x: number, y: number): boolean
+  isPointInStroke(path: Path2D, x: number, y: number): boolean
+
+  isPointInStroke(..._args: any[]): boolean {
+    throw new Error("not implemented")
+  }
+
+  createImageData(sw: number, sh: number): ImageData
+  createImageData(imagedata: ImageData): ImageData
+
+  createImageData(..._args: any[]): ImageData {
+    throw new Error("not implemented")
+  }
+
+  getImageData(_sx: number, _sy: number, _sw: number, _sh: number): ImageData {
+    throw new Error("not implemented")
+  }
+
+  putImageData(imagedata: ImageData, dx: number, dy: number): void
+  putImageData(imagedata: ImageData, dx: number, dy: number, dirtyX: number, dirtyY: number, dirtyWidth: number, dirtyHeight: number): void
+
+  putImageData(..._args: any[]): void {
+    throw new Error("not implemented")
+  }
+
+  drawFocusIfNeeded(element: Element): void
+  drawFocusIfNeeded(path: Path2D, element: Element): void
+
+  drawFocusIfNeeded(..._args: any[]): void {
+    throw new Error("not implemented")
+  }
+
+  scrollPathIntoView(): void
+  scrollPathIntoView(path: Path2D): void
+
+  scrollPathIntoView(..._args: any[]): void {
+    throw new Error("not implemented")
   }
 }
