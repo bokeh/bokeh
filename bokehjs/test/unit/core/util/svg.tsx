@@ -2,6 +2,23 @@ import {expect, expect_element} from "assertions"
 import {compare_on_dom, string_to_html} from "../../../framework"
 import {SVGRenderingContext2D} from "@bokehjs/core/util/svg"
 import {Random} from "@bokehjs/core/util/random"
+import * as DOM from "@bokehjs/core/dom"
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      svg: {version?: string, xmlns?: string, width?: string, height?: string, children?: SVGElement | SVGElement[]} // SVGSVGElement
+      defs: any // SVGDefsElement
+      text: any // SVGTextElement
+      path: any // SVGPathElement
+      image: any // SVGImageElement
+      pattern: any // SVGPatternElement
+      linearGradient: any // SVGLinearGradientElement
+      radialGradient: any // SVGRadialGradientElement
+      stop: any // SVGStopElement
+    }
+  }
+}
 
 describe("SVGRenderingContext2d", () => {
   before_each(() => {
@@ -21,14 +38,14 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="50" height="50">
         <defs/>
         <text
           fill="#000000"
           stroke="none"
           font-family="Times"
-          font-size="16px"
+          font-size="17px"
           font-style="normal"
           font-weight="normal"
           text-decoration="normal"
@@ -40,7 +57,7 @@ describe("SVGRenderingContext2d", () => {
           TEST
         </text>
       </svg>
-    `))
+    )
   })
 
   it("should stroke text correctly", async () => {

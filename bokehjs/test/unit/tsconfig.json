@@ -18,6 +18,8 @@
     "declarationMap": true,
     "importHelpers": true,
     "experimentalDecorators": true,
+    "jsx": "react",
+    "jsxFactory": "DOM.createElement",
     "module": "ES2020",
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -35,6 +37,7 @@
   "include": [
     "../framework.ts",
     "../*.d.ts",
-    "./**/*.ts"
+    "./**/*.ts",
+    "./**/*.tsx"
   ]
 }

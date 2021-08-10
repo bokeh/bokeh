@@ -6,9 +6,9 @@ export type HTMLAttrs = {[name: string]: unknown}
 export type HTMLItem = string | Node | NodeList | HTMLCollection | null | undefined
 export type HTMLChild = HTMLItem | HTMLItem[]
 
-const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
-  return (attrs: HTMLAttrs | HTMLChild = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
-    const element = document.createElement(tag)
+const _createElement = <T extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap>(tag: T) => {
+  return (attrs: HTMLAttrs | HTMLChild = {}, ...children: HTMLChild[]): (HTMLElementTagNameMap & SVGElementTagNameMap)[T] => {
+    const element = document.createElement(tag) as any // XXX: NS vs return type issue
     element.classList.add("bk")
 
     if (!isPlainObject(attrs)) {
@@ -75,8 +75,8 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
   }
 }
 
-export function createElement<T extends keyof HTMLElementTagNameMap>(
-    tag: T, attrs: HTMLAttrs, ...children: HTMLChild[]): HTMLElementTagNameMap[T] {
+export function createElement<T extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap>(
+    tag: T, attrs: HTMLAttrs | null, ...children: HTMLChild[]): (HTMLElementTagNameMap & SVGElementTagNameMap)[T] {
   return _createElement(tag)(attrs, ...children)
 }
 
