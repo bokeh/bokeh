@@ -1,5 +1,5 @@
 import {expect, expect_element} from "assertions"
-import {compare_on_dom, string_to_html} from "../../../framework"
+import {compare_on_dom} from "../../../framework"
 import {SVGRenderingContext2D} from "@bokehjs/core/util/svg"
 import {Random} from "@bokehjs/core/util/random"
 import * as DOM from "@bokehjs/core/dom"
@@ -73,7 +73,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="50" height="50">
         <defs/>
         <text
@@ -94,7 +94,7 @@ describe("SVGRenderingContext2d", () => {
           TEST
         </text>
       </svg>
-    `))
+    )
   })
 
   it("should draw arcs correctly", async () => {
@@ -128,7 +128,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="150" height="200">
         <defs/>
         <path
@@ -216,7 +216,7 @@ describe("SVGRenderingContext2d", () => {
           d="M 145 175 A 20 20 0 1 0 144.99999000000082 175.01999999666668"
         />
       </svg>
-    `))
+    )
   })
 
 
@@ -233,7 +233,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="50" height="50">
         <defs/>
         <path
@@ -243,7 +243,7 @@ describe("SVGRenderingContext2d", () => {
           d="M 10 10 L 20 10 L 20 20 L 10 20 L 10 10"
         />
       </svg>
-    `))
+    )
   })
 
   it("should rotate a shape", async () => {
@@ -273,7 +273,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="300" height="150">
         <defs/>
         <path
@@ -295,7 +295,7 @@ describe("SVGRenderingContext2d", () => {
           d="M 70.71067811865476 70.71067811865474 L 127.27922061357856 127.27922061357854 L 113.13708498984761 141.4213562373095 L 56.568542494923804 84.85281374238569 L 70.71067811865476 70.71067811865474"
         />
       </svg>
-    `))
+    )
   })
 
   it("support multiple transforms", async () => {
@@ -407,7 +407,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="110" height="110">
         <defs/>
         <path
@@ -419,7 +419,7 @@ describe("SVGRenderingContext2d", () => {
           stroke-dasharray=""
         />
       </svg>
-    `))
+    )
   })
 
   it("correctly implement bezierCurveTo", async () => {
@@ -458,7 +458,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="300" height="150">
         <defs/>
         <path
@@ -482,7 +482,7 @@ describe("SVGRenderingContext2d", () => {
           d="M 235 30 A 5 5 0 1 1 234.9999975000002 29.99500000083333 L 155 80 A 5 5 0 1 1 154.9999975000002 79.99500000083333"
         />
       </svg>
-    `))
+    )
   })
 
   it("quadraticCurveTo may be called without beginPath", async () => {
@@ -514,7 +514,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="300" height="150">
         <defs/>
         <path
@@ -538,7 +538,7 @@ describe("SVGRenderingContext2d", () => {
           d="M 235 30 A 5 5 0 1 1 234.9999975000002 29.99500000083333"
         />
       </svg>
-    `))
+    )
   })
 
   it("arcTo may be called without beginPath", async () => {
@@ -580,7 +580,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="300" height="150">
         <defs/>
         <path
@@ -613,7 +613,7 @@ describe("SVGRenderingContext2d", () => {
           d="M 205 130 A 5 5 0 1 1 204.9999975000002 129.99500000083333 L 55 20 A 5 5 0 1 1 54.999997500000205 19.99500000083333"
         />
       </svg>
-    `))
+    )
   })
 
   it("Create a linear gradient", async () => {
@@ -639,7 +639,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="300" height="150">
         <defs>
           <linearGradient
@@ -662,7 +662,7 @@ describe("SVGRenderingContext2d", () => {
           d="M 20 20 L 220 20 L 220 120 L 20 120 L 20 20"
         />
       </svg>
-    `))
+    )
   })
 
   it("Linear gradient shouldn't paint if x0=x1 and y0=y1", async () => {
@@ -686,7 +686,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="300" height="150">
         <defs>
           <linearGradient
@@ -707,7 +707,7 @@ describe("SVGRenderingContext2d", () => {
           d="M 20 20 L 220 20 L 220 120 L 20 120 L 20 20"
         />
       </svg>
-  `))
+    )
   })
 
   it("Create a radial gradient", async () => {
@@ -733,7 +733,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
         <defs>
           <radialGradient
@@ -758,7 +758,7 @@ describe("SVGRenderingContext2d", () => {
           d="M 20 20 L 180 20 L 180 180 L 20 180 L 20 20"
         />
       </svg>
-  `))
+    )
   })
 
   it("Radial gradient shouldn't paint if x0=x1, y0=y1 and r0=r1", async () => {
@@ -782,7 +782,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
         <defs>
           <radialGradient
@@ -803,7 +803,7 @@ describe("SVGRenderingContext2d", () => {
           d="M 20 20 L 180 20 L 180 180 L 20 180 L 20 20"
         />
       </svg>
-    `))
+    )
   })
 
   it("Create a pattern from a canvas", async () => {
@@ -834,7 +834,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
         <defs>
           <pattern
@@ -853,7 +853,7 @@ describe("SVGRenderingContext2d", () => {
           d="M 0 0 L 200 0 L 200 200 L 0 200 L 0 0"
         />
       </svg>
-    `))
+    )
   })
 
   it("Create a pattern from an image", async () => {
@@ -877,7 +877,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
         <defs>
           <pattern
@@ -896,7 +896,7 @@ describe("SVGRenderingContext2d", () => {
           d="M 0 0 L 300 0 L 300 300 L 0 300 L 0 0"
         />
       </svg>
-    `))
+    )
   })
 
   it("Support dashed lines", async () => {
@@ -923,7 +923,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="150" height="30">
         <defs/>
         <path
@@ -942,7 +942,7 @@ describe("SVGRenderingContext2d", () => {
           stroke-miterlimit="10"
         />
       </svg>
-    `))
+    )
   })
 
   it("Support drawImage with HTMLImageElement", async () => {
@@ -966,7 +966,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="450">
         <defs/>
         <image
@@ -989,7 +989,7 @@ describe("SVGRenderingContext2d", () => {
           transform="matrix(1, 0, 0, 1, 0, 250)"
         ></image>
       </svg>
-    `))
+    )
   })
 
   it("Support drawImage with Canvas", async () => {
@@ -1017,7 +1017,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect_element(svg).to.have.equal_attributes(string_to_html(`
+    expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="450">
         <defs/>
         <image
@@ -1038,6 +1038,6 @@ describe("SVGRenderingContext2d", () => {
           transform="matrix(1, 0, 0, 1, 0, 250)"
         ></image>
       </svg>
-    `))
+    )
   })
 })

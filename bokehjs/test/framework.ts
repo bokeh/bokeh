@@ -293,17 +293,6 @@ export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, n
   return {view, el: vp}
 }
 
-export function string_to_html(str: string): Element {
-  const parser = new DOMParser()
-  const doc = parser.parseFromString(str, "text/html")
-
-  for (const child of doc.body.children) {
-    return child
-  }
-
-  return new Element()
-}
-
 export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void, svg: SVGSVGElement, {width, height}: {width: number, height: number}): Promise<void> {
   const canvas = document.createElement("canvas")
   canvas.height = height
