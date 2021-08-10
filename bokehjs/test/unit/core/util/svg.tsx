@@ -21,13 +21,15 @@ declare global {
   }
 }
 
+type AnyContext2D = SVGRenderingContext2D | CanvasRenderingContext2D
+
 describe("SVGRenderingContext2d", () => {
   before_each(() => {
     SVGRenderingContext2D.__random = new Random(1)
   })
 
   it("should fill text correctly", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       ctx.font = "normal 16px Times"
       ctx.fillText("TEST", 0, 16)
     }
@@ -62,7 +64,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("should stroke text correctly", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       ctx.font = "16px serif"
       ctx.strokeText("TEST", 0, 16)
     }
@@ -99,7 +101,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("should draw arcs correctly", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       // Draw shapes
       for (let i = 0; i <= 3; i++) {
         for (let j = 0; j <= 2; j++) {
@@ -222,7 +224,7 @@ describe("SVGRenderingContext2d", () => {
 
 
   it("should fill a red rectangle correctly", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       ctx.fillStyle="red"
       ctx.fillRect(10, 10, 10, 10)
     }
@@ -248,7 +250,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("should rotate a shape", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       // Point of transform origin
       ctx.arc(0, 0, 5, 0, 2 * Math.PI)
       ctx.fillStyle = "blue"
@@ -300,7 +302,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("support multiple transforms", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       ctx.translate(0, 20)
       ctx.fillRect(0, 0, 10, 10)
 
@@ -329,7 +331,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("save and restore to work", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       ctx.translate(0, 10)
       ctx.fillRect(0, 0, 10, 10)
 
@@ -360,7 +362,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("support clip", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       ctx.rect(200, 200, 400, 400)
       ctx.clip()
       ctx.fillStyle = "red"
@@ -378,7 +380,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("generate ids", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       ctx.createRadialGradient(6E1, 6E1, 0.0, 6E1, 6E1, 5E1)
     }
 
@@ -395,7 +397,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("moveTo may be called without beginPath", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       ctx.moveTo(0, 0)
       ctx.lineTo(100, 100)
       ctx.stroke()
@@ -424,7 +426,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("correctly implement bezierCurveTo", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       // Define the points as {x, y}
       const start = {x: 50, y: 20}
       const cp1 = {x: 230, y: 30}
@@ -487,7 +489,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("quadraticCurveTo may be called without beginPath", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       // Quadratic Bézier curve
       ctx.beginPath()
       ctx.moveTo(50, 20)
@@ -543,7 +545,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("arcTo may be called without beginPath", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       // Tangential lines
       ctx.beginPath()
       ctx.strokeStyle = "gray"
@@ -618,7 +620,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("Create a linear gradient", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       // The start gradient point is at x=20, y=0
       // The end gradient point is at x=220, y=0
       const gradient = ctx.createLinearGradient(20, 0, 220, 0)
@@ -667,7 +669,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("Linear gradient shouldn't paint if x0=x1 and y0=y1", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       const gradient = ctx.createLinearGradient(20, 0, 20, 0)
 
       // Add three color stops
@@ -712,7 +714,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("Create a radial gradient", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       // The inner circle is at x=110, y=90, with radius=30
       // The outer circle is at x=100, y=100, with radius=70
       const gradient = ctx.createRadialGradient(110, 90, 30, 100, 100, 70)
@@ -763,7 +765,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("Radial gradient shouldn't paint if x0=x1, y0=y1 and r0=r1", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       const gradient = ctx.createRadialGradient(110, 90, 30, 110, 90, 30)
 
       // Add three color stops
@@ -810,7 +812,7 @@ describe("SVGRenderingContext2d", () => {
   it("Create a pattern from a canvas", async () => {
     const size = {width: 200, height: 200}
 
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       const patternCanvas = document.createElement("canvas")
       const patternContext = patternCanvas.getContext("2d")!
 
@@ -858,7 +860,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("Create a pattern from an image", async () => {
-    const test = async (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = async (ctx: AnyContext2D) => {
       const img = await load_image("/images/canvas_createpattern.png")
       const pattern = ctx.createPattern(img, "repeat")!
       ctx.fillStyle = pattern
@@ -895,7 +897,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("Support dashed lines", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       // Dashed line
       ctx.beginPath()
       ctx.setLineDash([5, 15])
@@ -941,7 +943,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("Support drawImage with HTMLImageElement", async () => {
-    const test = async (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = async (ctx: AnyContext2D) => {
       const img = await load_image("/images/canvas_createpattern.png")
       ctx.drawImage(img, 0, 0)
       ctx.drawImage(img, 0, 50, 200, 200)
@@ -982,7 +984,7 @@ describe("SVGRenderingContext2d", () => {
   })
 
   it("Support drawImage with Canvas", async () => {
-    const test = (ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
+    const test = (ctx: AnyContext2D) => {
       const patternCanvas = document.createElement("canvas")
       const patternContext = patternCanvas.getContext("2d")!
 
