@@ -46,7 +46,7 @@
     "@types/source-map-support": "^0.5.4",
     "@types/sprintf-js": "^1.1.2",
     "@types/which": "^2.0.1",
-    "@types/yargs": "^17.0.2",
+    "@types/yargs": "^16.0.0",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
     "@typescript-eslint/parser": "^4.29.1",
     "acorn": "^8.4.1",
