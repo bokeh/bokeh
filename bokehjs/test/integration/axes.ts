@@ -26,10 +26,13 @@ export class DelayedInternalProvider extends MathJaxProvider {
   get MathJax() {
     return this.status == "loaded" ? {tex2svg} : null
   }
+
   async fetch() {
     this.status = "loading"
-    await wait(50)
-    this.status = "loaded"
+    wait(50).then(() => {
+      this.status = "loaded"
+      this.ready.emit()
+    })
   }
 }
 
