@@ -272,6 +272,12 @@ def test_malformed_exception() -> None:
     with pytest.raises(ValueError):
         q.match(plot, {11: {q.EQ: 5}})
 
+def test_is_single_string_selector() -> None:
+    assert q.is_single_string_selector(dict(foo="c"), "foo")
+    assert not q.is_single_string_selector(dict(foo="c", bar="d"), "foo")
+    assert not q.is_single_string_selector(dict(foo=42), "foo")
+
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

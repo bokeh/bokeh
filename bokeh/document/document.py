@@ -56,7 +56,7 @@ from jinja2 import Template
 from ..core.enums import HoldPolicy, HoldPolicyType
 from ..core.has_props import is_DataModel
 from ..core.json_encoder import serialize_json
-from ..core.query import find
+from ..core.query import find, is_single_string_selector
 from ..core.templates import FILE
 from ..core.types import ID, Unknown
 from ..core.validation import check_integrity, process_validation_issues
@@ -834,7 +834,7 @@ class Document:
             seq[Model]
 
         '''
-        if self._is_single_string_selector(selector, 'name'):
+        if is_single_string_selector(selector, 'name'):
             # special-case optimization for by-name query
             return self.models.get_all_by_name(selector['name'])
 
@@ -1016,17 +1016,6 @@ class Document:
             dest_doc.add_root(r)
 
         dest_doc.title = self.title
-
-    def _is_single_string_selector(self, selector: SelectorType, field: str) -> bool:
-        '''
-
-        '''
-
-        if len(selector) != 1:
-            return False
-        if field not in selector:
-            return False
-        return isinstance(selector[field], str)
 
     def _notify_change(self, model: Model, attr: str, old: Unknown, new: Unknown,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None) -> None:
