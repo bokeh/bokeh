@@ -174,13 +174,13 @@ Examples tests
     .. code-block:: sh
 
         cd bokehjs
-        node make test:spawn:headless
+        node make test:run:headless
 
-    Next, return to the top level directory and run the tests:
+    This starts a headless Chrome tool. Next, open a second terminal and run the
+    tests from the top level directory:
 
     .. code-block:: sh
 
-        cd ..
         pytest tests/test_examples.py
 
     After the tests have run, the results are available in
