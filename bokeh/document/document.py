@@ -67,6 +67,7 @@ from ..util.callback_manager import _check_callback
 from ..util.deprecation import deprecated
 from ..util.version import __version__
 from .events import (
+    DocumentPatchedEvent,
     ModelChangedEvent,
     RootAddedEvent,
     RootRemovedEvent,
@@ -91,12 +92,7 @@ if TYPE_CHECKING:
         SessionCallback,
         TimeoutCallback,
     )
-    from .events import (
-        DocumentChangeCallback,
-        DocumentChangedEvent,
-        DocumentPatchedEvent,
-        Invoker,
-    )
+    from .events import DocumentChangeCallback, DocumentChangedEvent, Invoker
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -283,7 +279,7 @@ class Document:
 
     @title.setter
     def title(self, title: str) -> None:
-        self._set_title(title)
+        self.set_title(title)
 
     # Public methods ----------------------------------------------------------
 
@@ -396,62 +392,6 @@ class Document:
         for cb in self._event_callbacks.get(event.event_name, []):
             cb(event)
 
-    def _handle_MessageSent(self, event_json, references, setter) -> None:
-        message_callbacks = self._message_callbacks.get(event_json["msg_type"], None)
-        if message_callbacks is not None:
-            for cb in message_callbacks:
-                cb(event_json["msg_data"])
-
-    def _handle_ModelChanged(self, event_json, references, setter) -> None:
-        patched_id = event_json['model']['id']
-        if patched_id not in self.models:
-            if self.models.seen(patched_id):
-                log.trace(f"Cannot apply patch to {patched_id} which is not in the document anymore. This is usually harmless")
-                return
-            raise RuntimeError(f"Cannot apply patch to {patched_id} which is not in the document")
-        patched_obj = self.models[patched_id]
-        attr = event_json['attr']
-        value = event_json['new']
-        patched_obj.set_from_json(attr, value, models=references, setter=setter)
-
-    def _handle_ColumnDataChanged(self, event_json, references, setter) -> None:
-        source_id = event_json['column_source']['id']
-        if source_id not in self.models:
-            raise RuntimeError(f"Cannot apply patch to {source_id} which is not in the document")
-        source = self.models[source_id]
-        value = event_json['new']
-        source.set_from_json('data', value, models=references, setter=setter)
-
-    def _handle_ColumnsStreamed(self, event_json, references, setter) -> None:
-        source_id = event_json['column_source']['id']
-        if source_id not in self.models:
-            raise RuntimeError(f"Cannot stream to {source_id} which is not in the document")
-        source = self.models[source_id]
-        data = event_json['data']
-        rollover = event_json.get('rollover', None)
-        source._stream(data, rollover, setter)
-
-    def _handle_ColumnsPatched(self, event_json, references, setter) -> None:
-        source_id = event_json['column_source']['id']
-        if source_id not in self.models:
-            raise RuntimeError(f"Cannot apply patch to {source_id} which is not in the document")
-        source = self.models[source_id]
-        patches = event_json['patches']
-        source.patch(patches, setter)
-
-    def _handle_RootAdded(self, event_json, references, setter) -> None:
-        root_id = event_json['model']['id']
-        root_obj = references[root_id]
-        self.add_root(root_obj, setter)
-
-    def _handle_RootRemoved(self, event_json, references, setter) -> None:
-        root_id = event_json['model']['id']
-        root_obj = references[root_id]
-        self.remove_root(root_obj, setter)
-
-    def _handle_TitleChanged(self, event_json, references, setter) -> None:
-        self._set_title(event_json['title'], setter)
-
     def apply_json_patch(self, patch: PatchJson, setter: Setter | None = None) -> None:
         ''' Apply a JSON patch object and process any resulting events.
 
@@ -488,11 +428,7 @@ class Document:
         initialize_references_json(references_json, references, setter)
 
         for event_json in events_json:
-            event_kind = event_json['kind']
-            handler = getattr(self, f"_handle_{event_kind}", None)
-            if handler is None:
-                raise RuntimeError(f"Unknown patch event {event_json!r}")
-            handler(event_json, references, setter)
+            DocumentPatchedEvent.handle_json(self, event_json, references, setter)
 
     def apply_json_patch_string(self, patch: str) -> None:
         ''' Apply a JSON patch provided as a string.
@@ -1054,7 +990,10 @@ class Document:
         for callback_obj in callback_objs:
             self._trigger_on_change(SessionCallbackRemoved(self, callback_obj))
 
-    def _set_title(self, title: str, setter: Setter | None = None) -> None:
+    def set_title(self, title: str, setter: Setter | None = None) -> None:
+        '''
+
+        '''
         if title is None:
             raise ValueError("Document title may not be None")
         if self._title != title:

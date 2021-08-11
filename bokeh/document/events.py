@@ -10,6 +10,37 @@ These events are used internally to signal changes to Documents. For
 information about user-facing (e.g. UI or tool) events, see the reference
 for :ref:`bokeh.events`.
 
+These events are employed for incoming and outgoing websocket messages and
+internally for triggering callbacks. For example, the sequence of events that
+happens when a user calls a Document API or sets a property resulting in a
+"patch event" to the Document:
+
+.. code-block::
+
+    user invokes Document API
+        -> Document API triggers event objects
+        -> registered callbacks are executed
+        -> Sesssion callback generates JSON message from event object
+        -> Session sends JSON message over websocket
+
+But events may also be triggered from the client, and arrive as JSON messages
+over the transport layer, which is why the JSON handling and Document API must
+be separated. Consider the alternative sequence of events:
+
+.. code-block::
+
+    Session recieves JSON message over websocket
+        -> Document calls event.handle_json
+        -> handle_json invokes appropriate Document API
+        -> Document API triggers event objects
+        -> registered callbacks are executed
+        -> Session callback suppresses outgoing event
+
+As a final note, message "ping-pong" is avoided by recording a "setter" when
+events objects are created. If the session callback notes the event setter is
+itself, then no further action (e.g. sending an outgoing change event identical
+to the incoming event it just processed) is taken.
+
 '''
 
 #-----------------------------------------------------------------------------
@@ -64,7 +95,7 @@ if TYPE_CHECKING:
     from ..protocol.message import BufferRef
     from ..server.callbacks import SessionCallback
     from .document import Document
-    from .json import Patches
+    from .json import Patches, ReferenceJson
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -176,6 +207,11 @@ class DocumentPatchedEvent(DocumentChangedEvent):
 
     '''
 
+    _handlers = {}
+
+    def __init_subclass__(cls):
+        cls._handlers[cls.kind] = cls._handle_json
+
     def dispatch(self, receiver: Any) -> None:
         ''' Dispatch handling of this event to a receiver.
 
@@ -210,8 +246,24 @@ class DocumentPatchedEvent(DocumentChangedEvent):
         '''
         raise NotImplementedError()
 
+
+    @staticmethod
+    def handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
+        '''
+
+        '''
+        event_kind = event_json['kind']
+        handler = DocumentPatchedEvent._handlers.get(event_kind, None)
+        if handler is None:
+            raise RuntimeError(f"Unknown patch event {event_json!r}")
+        handler(doc, event_json, references, setter)
+
 class MessageSentEvent(DocumentPatchedEvent):
-    """ """
+    '''
+
+    '''
+
+    kind = "MessageSent"
 
     def __init__(self, document: Document, msg_type: str, msg_data: Union[Any, bytes],
             setter: Setter | None = None, callback_invoker: Invoker | None = None):
@@ -226,7 +278,7 @@ class MessageSentEvent(DocumentPatchedEvent):
 
     def generate(self, references: Set[Model], buffers: Buffers) -> MessageSent:
         msg = MessageSent(
-            kind="MessageSent",
+            kind=self.kind,
             msg_type=self.msg_type,
             msg_data=None,
         )
@@ -241,6 +293,13 @@ class MessageSentEvent(DocumentPatchedEvent):
 
         return msg
 
+    @staticmethod
+    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
+        message_callbacks = doc._message_callbacks.get(event_json["msg_type"], None)
+        if message_callbacks is not None:
+            for cb in message_callbacks:
+                cb(event_json["msg_data"])
+
 class ModelChangedEvent(DocumentPatchedEvent):
     ''' A concrete event representing updating an attribute and value of a
     specific Bokeh Model.
@@ -250,6 +309,8 @@ class ModelChangedEvent(DocumentPatchedEvent):
     ``hint`` may be supplied that overrides normal mechanisms.
 
     '''
+
+    kind = "ModelChanged"
 
     def __init__(self, document: Document, model: Model, attr: str, old: Unknown, new: Unknown,
             serializable_new: Unknown | None, hint: DocumentPatchedEvent | None = None,
@@ -368,17 +429,14 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
         value = self.serializable_new
 
-        # the new value is an object that may have
-        # not-yet-in-the-remote-doc references, and may also
-        # itself not be in the remote doc yet.  the remote may
-        # already have some of the references, but
-        # unfortunately we don't have an easy way to know
-        # unless we were to check BEFORE the attr gets changed
-        # (we need the old _all_models before setting the
-        # property). So we have to send all the references the
-        # remote could need, even though it could be inefficient.
-        # If it turns out we need to fix this we could probably
-        # do it by adding some complexity.
+        # the new value is an object that may have not-yet-in-the-remote-doc
+        # references, and may also itself not be in the remote doc yet. The
+        # remote may already have some of the references, but unfortunately
+        # we don't have an easy way to know unless we were to check BEFORE the
+        # attr gets changed (we need the old _all_models before setting the
+        # property). So we have to send all the references the remote could
+        # need, even though it could be inefficient. If it turns out we need to
+        # fix this we could probably do it by adding some complexity.
         value_refs = set(collect_models(value))
 
         # we know we don't want a whole new copy of the obj we're patching
@@ -389,18 +447,33 @@ class ModelChangedEvent(DocumentPatchedEvent):
         references.update(value_refs)
 
         return ModelChanged(
-            kind  = "ModelChanged",
+            kind  = self.kind,
             model = self.model.ref,
             attr  = self.attr,
             new   = value,
             hint  = None,
         )
 
+    @staticmethod
+    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
+        patched_id = event_json['model']['id']
+        if patched_id not in doc.models:
+            if doc.models.seen(patched_id):
+                log.trace(f"Cannot apply patch to {patched_id} which is not in the document anymore. This is usually harmless")
+                return
+            raise RuntimeError(f"Cannot apply patch to {patched_id} which is not in the document")
+        patched_obj = doc.models[patched_id]
+        attr = event_json['attr']
+        value = event_json['new']
+        patched_obj.set_from_json(attr, value, models=references, setter=setter)
+
 class ColumnDataChangedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently replacing *all*
     existing data for a :class:`~bokeh.models.sources.ColumnDataSource`
 
     '''
+
+    kind = "ColumnDataChanged"
 
     def __init__(self, document: Document, column_source: ColumnarDataSource,
             cols: List[str] | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None):
@@ -479,17 +552,28 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
         data_dict = transform_column_source_data(self.column_source.data, buffers=buffers, cols=self.cols)
 
         return ColumnDataChanged(
-            kind          = "ColumnDataChanged",
+            kind          = self.kind,
             column_source = self.column_source.ref,
             new           = data_dict,
             cols          = self.cols,
         )
+
+    @staticmethod
+    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
+        source_id = event_json['column_source']['id']
+        if source_id not in doc.models:
+            raise RuntimeError(f"Cannot apply patch to {source_id} which is not in the document")
+        source = doc.models[source_id]
+        value = event_json['new']
+        source.set_from_json('data', value, models=references, setter=setter)
 
 class ColumnsStreamedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently streaming new data
     to a :class:`~bokeh.models.sources.ColumnDataSource`
 
     '''
+
+    kind = "ColumnsStreamed"
 
     data: DataDict
 
@@ -576,17 +660,29 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
         '''
         return ColumnsStreamed(
-            kind          = "ColumnsStreamed",
+            kind          = self.kind,
             column_source = self.column_source.ref,
             data          = self.data,
             rollover      = self.rollover,
         )
+
+    @staticmethod
+    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
+        source_id = event_json['column_source']['id']
+        if source_id not in doc.models:
+            raise RuntimeError(f"Cannot stream to {source_id} which is not in the document")
+        source = doc.models[source_id]
+        data = event_json['data']
+        rollover = event_json.get('rollover', None)
+        source._stream(data, rollover, setter)
 
 class ColumnsPatchedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently applying data patches
     to a :class:`~bokeh.models.sources.ColumnDataSource`
 
     '''
+
+    kind = "ColumnsPatched"
 
     def __init__(self, document: Document, column_source: ColumnarDataSource, patches: Patches,
             setter: Setter | None = None, callback_invoker: Invoker | None = None):
@@ -657,16 +753,27 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
 
         '''
         return ColumnsPatched(
-            kind          = "ColumnsPatched",
+            kind          = self.kind,
             column_source = self.column_source.ref,
             patches       = self.patches,
         )
+
+    @staticmethod
+    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
+        source_id = event_json['column_source']['id']
+        if source_id not in doc.models:
+            raise RuntimeError(f"Cannot apply patch to {source_id} which is not in the document")
+        source = doc.models[source_id]
+        patches = event_json['patches']
+        source.patch(patches, setter)
 
 class TitleChangedEvent(DocumentPatchedEvent):
     ''' A concrete event representing a change to the title of a Bokeh
     Document.
 
     '''
+
+    kind = "TitleChanged"
 
     def __init__(self, document: Document, title: str,
             setter: Setter | None = None, callback_invoker: Invoker | None = None):
@@ -742,15 +849,21 @@ class TitleChangedEvent(DocumentPatchedEvent):
 
         '''
         return TitleChanged(
-            kind  = "TitleChanged",
+            kind  = self.kind,
             title = self.title,
         )
+
+    @staticmethod
+    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
+        doc.set_title(event_json['title'], setter)
 
 class RootAddedEvent(DocumentPatchedEvent):
     ''' A concrete event representing a change to add a new Model to a
     Document's collection of "root" models.
 
     '''
+
+    kind = "RootAdded"
 
     def __init__(self, document: Document, model: Model, setter: Setter | None = None, callback_invoker: Invoker | None = None) -> None:
         '''
@@ -807,15 +920,23 @@ class RootAddedEvent(DocumentPatchedEvent):
         '''
         references.update(self.model.references())
         return RootAdded(
-            kind  = "RootAdded",
+            kind  = self.kind,
             model = self.model.ref,
         )
+
+    @staticmethod
+    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
+        root_id = event_json['model']['id']
+        root_obj = references[root_id]
+        doc.add_root(root_obj, setter)
 
 class RootRemovedEvent(DocumentPatchedEvent):
     ''' A concrete event representing a change to remove an existing Model
     from a Document's collection of "root" models.
 
     '''
+
+    kind = "RootRemoved"
 
     def __init__(self, document: Document, model: Model, setter: Setter | None = None, callback_invoker: Invoker | None = None) -> None:
         '''
@@ -872,9 +993,15 @@ class RootRemovedEvent(DocumentPatchedEvent):
 
         '''
         return RootRemoved(
-            kind  = "RootRemoved",
+            kind  = self.kind,
             model = self.model.ref,
         )
+
+    @staticmethod
+    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
+        root_id = event_json['model']['id']
+        root_obj = references[root_id]
+        doc.remove_root(root_obj, setter)
 
 class SessionCallbackAdded(DocumentChangedEvent):
     ''' A concrete event representing a change to add a new callback (e.g.
