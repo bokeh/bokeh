@@ -1,1 +1,0 @@
-ERROR    bokeh.document.modules:modules.py:82 Module <test_modules.FakeMod object at 0x1146727c0> has extra unexpected referrers! This could indicate a serious memory leak. Extra referrers: [[<test_modules.FakeMod object at 0x1146727c0>]]
