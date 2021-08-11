@@ -336,7 +336,7 @@ export class MathTextView extends View implements GraphicsBox {
       URL.revokeObjectURL(url)
     }
 
-    this.parent.request_paint() // XXX: request layout (?)
+    this.parent.request_layout()
     return this.svg_image
   }
 
