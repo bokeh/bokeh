@@ -472,7 +472,7 @@ class JSResources(BaseResources):
 
     """
 
-    _js_components = ["bokeh", "bokeh-widgets", "bokeh-tables"]
+    _js_components = ["bokeh", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax"]
 
     # Properties --------------------------------------------------------------
 
