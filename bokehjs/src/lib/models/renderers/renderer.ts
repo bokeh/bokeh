@@ -104,6 +104,10 @@ export abstract class RendererView extends View implements visuals.Renderable {
     this.plot_view.request_paint(this)
   }
 
+  request_layout(): void {
+    this.plot_view.request_layout()
+  }
+
   override notify_finished(): void {
     this.plot_view.notify_finished()
   }
