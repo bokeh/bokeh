@@ -13,4 +13,5 @@ Other locations where we work with GL, or prepare for GL-rendering:
 
 export {get_regl} from "./regl_wrap"
 export * from "./line_gl"
+export * from "./rect"
 export * from "./markers"
