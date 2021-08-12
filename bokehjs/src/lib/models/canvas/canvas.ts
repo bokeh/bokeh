@@ -81,7 +81,7 @@ export class CanvasView extends DOMView {
 
   bbox: BBox = new BBox()
 
-  webgl: WebGLState | null
+  webgl: WebGLState | null = null
 
   underlays_el: HTMLElement
   primary: CanvasLayer

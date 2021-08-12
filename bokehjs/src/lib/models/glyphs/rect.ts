@@ -28,12 +28,9 @@ export class RectView extends CenterRotatableView {
     await super.lazy_initialize()
 
     const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl != null) {
-      const {regl_wrapper} = webgl
-      if (regl_wrapper.has_webgl) {
-        const {RectGL} = await import("./webgl/rect")
-        this.glglyph = new RectGL(regl_wrapper, this)
-      }
+    if (webgl?.regl_wrapper.has_webgl) {
+      const {RectGL} = await import("./webgl/rect")
+      this.glglyph = new RectGL(webgl.regl_wrapper, this)
     }
   }
 

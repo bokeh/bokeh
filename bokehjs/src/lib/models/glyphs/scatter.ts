@@ -22,12 +22,9 @@ export class ScatterView extends MarkerView {
     await super.lazy_initialize()
 
     const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl != null) {
-      const {regl_wrapper} = webgl
-      if (regl_wrapper.has_webgl) {
-        const {MarkerGL} = await import("./webgl/markers")
-        this.glcls = MarkerGL
-      }
+    if (webgl?.regl_wrapper.has_webgl) {
+      const {MarkerGL} = await import("./webgl/markers")
+      this.glcls = MarkerGL
     }
   }
 
