@@ -553,7 +553,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
                 visit_value_and_its_immediate_references(new, mark_dirty)
                 visit_value_and_its_immediate_references(old, mark_dirty)
                 if dirty_count > 0:
-                    self.document._invalidate_all_models()
+                    self.document.models.invalidate()
         # chain up to invoke callbacks
         descriptor = self.lookup(attr)
         super().trigger(descriptor.name, old, new, hint=hint, setter=setter)
