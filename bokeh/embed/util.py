@@ -354,10 +354,10 @@ be used. For more information on building and running Bokeh applications, see:
 def _create_temp_doc(models: Sequence[Model]) -> Document:
     doc = Document()
     for m in models:
-        doc._all_models[m.id] = m
+        doc.models[m.id] = m
         m._temp_document = doc
         for ref in m.references():
-            doc._all_models[ref.id] = ref
+            doc.models[ref.id] = ref
             ref._temp_document = doc
     doc._roots = list(models)
     return doc

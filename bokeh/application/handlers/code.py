@@ -36,7 +36,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import sys
 from contextlib import contextmanager
 from os.path import basename, splitext
 from types import ModuleType
@@ -161,8 +160,7 @@ class CodeHandler(Handler):
         # before the document is. A symptom of a gc'd module is that its globals
         # become None. Additionally stored modules are used to provide correct
         # paths to custom models resolver.
-        sys.modules[module.__name__] = module
-        doc._modules.append(module)
+        doc.modules.add(module)
 
         with _monkeypatch_io(self._loggers):
             with patch_curdoc(doc):

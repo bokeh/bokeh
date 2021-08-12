@@ -46,9 +46,11 @@ __all__ = (
     'IN',
     'LEQ',
     'LT',
-    'match',
     'NEQ',
     'OR',
+    'find',
+    'match',
+    'is_single_string_selector',
 )
 
 SelectorType = Dict[Union[str, Type["_Operator"]], Any]
@@ -88,6 +90,20 @@ def find(objs: Iterable[Model], selector: SelectorType) -> Iterable[Model]:
 
     '''
     return (obj for obj in objs if match(obj, selector))
+
+
+def is_single_string_selector(selector: SelectorType, field: str) -> bool:
+    ''' Whether a selector is a simple single field, e.g. ``{name: "foo"}``
+
+    Args:
+        selector (JSON-like) : query selector
+        field (str) : field name to check for
+
+    Returns
+        bool
+
+    '''
+    return  len(selector) == 1 and field in selector and isinstance(selector[field], str)
 
 def match(obj: Model, selector: SelectorType) -> bool:
     ''' Test whether a given Bokeh model matches a given selector.

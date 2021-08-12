@@ -40,6 +40,9 @@ to impact any typical usage).
 queries. This feature added unnecessary complication and was not used inside
 the Bokeh codebase (or ever demonstrated in docs or examples).
 
+``Document.delete_modules`` was deprecated and will be removed in the future.
+Use ``Document.models.destroy`` instead.
+
 Units Properties
 ~~~~~~~~~~~~~~~~
 

@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Standard library imports
-import sys
 from typing import TYPE_CHECKING
 
 # Bokeh imports
@@ -69,8 +68,7 @@ class ExampleHandler(Handler):
 
         module = self._runner.new_module()
 
-        sys.modules[module.__name__] = module
-        doc._modules.append(module)
+        doc.modules.add(module)
 
         orig_curdoc = curdoc()
         set_curdoc(doc)

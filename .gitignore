@@ -20,6 +20,7 @@
 # tests/examples
 /tests/examples/report.html
 /examples.log
+/tests/**/examples.log
 /examples/custom/font-awesome/package-lock.json
 
 # conda build

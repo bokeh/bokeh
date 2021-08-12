@@ -145,7 +145,7 @@ class CommsHandle:
     # internal doc with the event so that it is collected (until a
     # call to push_notebook processes and clear colleted events)
     def _document_model_changed(self, event: ModelChangedEvent) -> None:
-        if event.model.id in self.doc._all_models:
+        if event.model.id in self.doc.models:
             self.doc._trigger_on_change(event)
 
 class Load(Protocol):

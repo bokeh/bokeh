@@ -58,7 +58,7 @@ def test_subscribe() -> None:
 def test_destroy_calls() -> None:
     d = Document()
     s = bss.ServerSession('some-id', d, 'ioloop')
-    with mock.patch('bokeh.document.Document.delete_modules') as docdm:
+    with mock.patch('bokeh.document.modules.DocumentModuleManager.destroy') as docdm:
         with mock.patch('bokeh.document.Document.remove_on_change') as docroc:
             s.destroy()
             assert s.destroyed
