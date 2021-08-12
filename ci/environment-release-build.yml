@@ -46,4 +46,5 @@ dependencies:
     - sphinx >=4.1
     - sphinxext-opengraph
     - sphinx-panels
+    - sphinx-tabs
     - sphinx-reredirects
