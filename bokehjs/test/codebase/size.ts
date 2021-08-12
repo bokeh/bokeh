@@ -6,17 +6,17 @@ const build_dir = normalize(`${__dirname}/../..`) // build/test/codebase -> buil
 
 const LIMITS = new Map([
   // es2017
-  ["js/bokeh.min.js",                 990],
+  ["js/bokeh.min.js",                 800],
   ["js/bokeh-widgets.min.js",         300],
   ["js/bokeh-tables.min.js",          350],
   ["js/bokeh-api.min.js",             100],
-  ["js/bokeh-gl.min.js",                0],
+  ["js/bokeh-gl.min.js",              200],
   // legacy (es5)
-  ["js/bokeh.legacy.min.js",         1250],
+  ["js/bokeh.legacy.min.js",         1050],
   ["js/bokeh-widgets.legacy.min.js",  350],
   ["js/bokeh-tables.legacy.min.js",   350],
   ["js/bokeh-api.legacy.min.js",      110],
-  ["js/bokeh-gl.legacy.min.js",         0],
+  ["js/bokeh-gl.legacy.min.js",       200],
 ])
 
 const n = Math.max(...[...LIMITS.keys()].map((l) => l.length))
