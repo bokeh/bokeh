@@ -174,6 +174,7 @@ def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: 
         <script src="https://cdn.bokeh.org/bokeh/release/bokeh-x.y.z.min.js"></script>
         <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
         <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
+        <script src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-x.y.z.min.js"></script>
 
     Note that in Jupyter Notebooks, it is not possible to use components and show in
     the same notebook cell.
