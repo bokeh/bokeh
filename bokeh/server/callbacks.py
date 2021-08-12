@@ -26,7 +26,6 @@ from typing import TYPE_CHECKING, Callable, Sequence
 
 # Bokeh imports
 from ..core.types import ID
-from ..util.serialization import make_id
 from ..util.tornado import _CallbackGroup
 
 if TYPE_CHECKING:
@@ -58,16 +57,16 @@ class SessionCallback:
     _id: ID
     _callback: Callback
 
-    def __init__(self, callback: Callback, id: ID | None = None) -> None:
+    def __init__(self, callback: Callback, *, callback_id: ID) -> None:
         '''
 
          Args:
             callback (callable) :
 
-            id (str, optional) :
+            id (ID) :
 
         '''
-        self._id = make_id() if id is None else id
+        self._id = id
         self._callback = callback
 
     @property
@@ -92,23 +91,23 @@ class NextTickCallback(SessionCallback):
     ''' Represent a callback to execute on the next ``IOLoop`` "tick".
 
     '''
-    def __init__(self, callback: Callback, id: ID | None = None) -> None:
+    def __init__(self, callback: Callback, *, callback_id: ID) -> None:
         '''
 
          Args:
             callback (callable) :
 
-            id (str, optional) :
+            id (ID) :
 
         '''
-        super().__init__(callback, id)
+        super().__init__(callback=callback, callback_id=callback_id)
 
 class PeriodicCallback(SessionCallback):
     ''' Represent a callback to execute periodically on the ``IOLoop`` at a
     specified periodic time interval.
 
     '''
-    def __init__(self, callback: Callback, period: int, id: ID | None = None) -> None:
+    def __init__(self, callback: Callback, period: int, *, callback_id: ID) -> None:
         '''
 
         Args:
@@ -116,10 +115,10 @@ class PeriodicCallback(SessionCallback):
 
             period (int) :
 
-            id (str, optional) :
+            id (ID) :
 
         '''
-        super().__init__(callback, id)
+        super().__init__(callback=callback, callback_id=callback_id)
         self._period = period
 
     @property
@@ -135,7 +134,7 @@ class TimeoutCallback(SessionCallback):
     time interval passes.
 
     '''
-    def __init__(self, callback: Callback, timeout: int, id: ID | None = None) -> None:
+    def __init__(self, callback: Callback, timeout: int, *, callback_id: ID) -> None:
         '''
 
         Args:
@@ -143,10 +142,10 @@ class TimeoutCallback(SessionCallback):
 
             timeout (int) :
 
-            id (str, optional) :
+            id (ID) :
 
         '''
-        super().__init__(callback, id)
+        super().__init__(callback=callback, callback_id=callback_id)
         self._timeout = timeout
 
     @property
