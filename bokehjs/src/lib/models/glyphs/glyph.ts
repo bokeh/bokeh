@@ -20,8 +20,6 @@ import {Selection} from "../selections/selection"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
-import type {BaseGLGlyph} from "./webgl/base"
-
 const {abs, ceil} = Math
 
 export type GlyphData = {}
@@ -39,7 +37,7 @@ export abstract class GlyphView extends View {
   }
 
   /** @internal */
-  glglyph?: BaseGLGlyph
+  glglyph?: import("./webgl/base").BaseGLGlyph
 
   get has_webgl(): boolean {
     return this.glglyph != null
