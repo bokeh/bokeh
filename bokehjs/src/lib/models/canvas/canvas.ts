@@ -7,6 +7,7 @@ import {OutputBackend} from "core/enums"
 import {extend} from "core/util/object"
 import {UIEventBus} from "core/ui_events"
 import {BBox} from "core/util/bbox"
+import {load_module} from "core/util/modules"
 import {Context2d, CanvasLayer} from "core/util/canvas"
 import {PlotView} from "../plots/plot"
 import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
@@ -29,17 +30,6 @@ export type WebGLState = {
   readonly regl_wrapper: ReglWrapper
 }
 
-async function load_webgl(): Promise<typeof import("../glyphs/webgl") | null> {
-  try {
-    return await import("../glyphs/webgl")
-  } catch (e) {
-    if (e.code === "MODULE_NOT_FOUND") // XXX: this exposes the underyling module system
-      return null
-    else
-      throw e
-  }
-}
-
 async function init_webgl(): Promise<WebGLState | null> {
   // We use a global invisible canvas and gl context. By having a global context,
   // we avoid the limitation of max 16 contexts that most browsers have.
@@ -49,7 +39,7 @@ async function init_webgl(): Promise<WebGLState | null> {
   // If WebGL is available, we store a reference to the ReGL wrapper on
   // the ctx object, because that's what gets passed everywhere.
   if (gl != null) {
-    const webgl = await load_webgl()
+    const webgl = await load_module(import("../glyphs/webgl"))
     if (webgl != null) {
       const regl_wrapper = webgl.get_regl(gl)
       if (regl_wrapper.has_webgl) {
