@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Callable, Sequence
 
 # Bokeh imports
@@ -50,13 +49,14 @@ __all__ = (
 
 Callback = Callable[[], None]
 
-class SessionCallback(metaclass=ABCMeta):
+class SessionCallback:
     ''' A base class for callback objects associated with Bokeh Documents
     and Sessions.
 
     '''
 
     _id: ID
+    _callback: Callback
 
     def __init__(self, callback: Callback, id: ID | None = None) -> None:
         '''
@@ -84,10 +84,6 @@ class SessionCallback(metaclass=ABCMeta):
         '''
         return self._callback
 
-    @abstractmethod
-    def _copy_with_changed_callback(self, new_callback: Callback) -> SessionCallback:
-        ''' Dev API used to wrap the callback with decorators. '''
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -106,10 +102,6 @@ class NextTickCallback(SessionCallback):
 
         '''
         super().__init__(callback, id)
-
-    def _copy_with_changed_callback(self, new_callback: Callback) -> NextTickCallback:
-        ''' Dev API used to wrap the callback with decorators. '''
-        return NextTickCallback(new_callback, self._id)
 
 class PeriodicCallback(SessionCallback):
     ''' Represent a callback to execute periodically on the ``IOLoop`` at a
@@ -138,10 +130,6 @@ class PeriodicCallback(SessionCallback):
         '''
         return self._period
 
-    def _copy_with_changed_callback(self, new_callback: Callback) -> PeriodicCallback:
-        ''' Dev API used to wrap the callback with decorators. '''
-        return PeriodicCallback(new_callback, self._period, self._id)
-
 class TimeoutCallback(SessionCallback):
     ''' Represent a callback to execute once on the ``IOLoop`` after a specified
     time interval passes.
@@ -167,10 +155,6 @@ class TimeoutCallback(SessionCallback):
 
         '''
         return self._timeout
-
-    def _copy_with_changed_callback(self, new_callback: Callback) -> TimeoutCallback:
-        ''' Dev API used to wrap the callback with decorators. '''
-        return TimeoutCallback(new_callback, self._timeout, self._id)
 
 #-----------------------------------------------------------------------------
 # Dev API
