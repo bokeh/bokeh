@@ -1,8 +1,8 @@
 .. |bokeh.models|       replace:: :ref:`bokeh.models`
 .. |bokeh.plotting|     replace:: :ref:`bokeh.plotting`
 .. |ColumnDataSource|   replace:: :ref:`ColumnDataSource <userguide_data_cds>`
+.. |contributors guide| replace:: :ref:`contributors guide <contributors_guide>`
 .. |data units|         replace:: :ref:`data units <userguide_styling_units>`
-.. |developers guide|   replace:: :ref:`developers guide <devguide>`
 .. |fill properties|    replace:: :ref:`fill properties <userguide_styling_fill_properties>`
 .. |hatch properties|   replace:: :ref:`hatch properties <userguide_styling_hatch_properties>`
 .. |interactive legends| replace:: :ref:`interactive legends <userguide_interaction_legends>`

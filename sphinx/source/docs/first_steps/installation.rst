@@ -89,7 +89,7 @@ Installing for development
 
 If you want to install a development version of Bokeh to contribute to the
 project, please see the :ref:`devguide_setup` instructions in the
-|developers guide|.
+|contributors guide|.
 
 .. _install_required:
 

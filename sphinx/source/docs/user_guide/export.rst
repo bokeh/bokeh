@@ -3,31 +3,94 @@
 Exporting plots
 ===============
 
+.. _userguide_export_dependencies:
+
 Additional dependencies
 -----------------------
 
-You will need the following additional dependencies to use the |export|
+You will need the following additional dependencies to use the export
 functions:
 
-* Selenium
-* And either of the following:
+* `Selenium`_
+* Either one of the following `web drivers`_:
 
-  * GeckoDriver for Firefox, OR
+  * geckodriver for Firefox
   * ChromeDriver for Chrome / Chromium
 
-You can install these dependencies from `Conda`_ as follows:
+You can install these dependencies in various ways. The recommended way is to
+use ``conda`` and install Selenium together with geckodriver.
 
-* For Selenium with GeckoDriver:
+.. tabs::
 
-  .. code-block:: sh
+  .. tab:: Install with ``conda``
 
-    conda install selenium geckodriver -c conda-forge
+    .. tabs::
 
-* For Selenium with ChromeDriver:
+      .. tab:: Selenium and geckodriver (Firefox):
 
-  .. code-block:: sh
+        .. code-block:: sh
 
-    conda install selenium python-chromedriver-binary -c conda-forge
+          conda install selenium geckodriver -c conda-forge
+
+        You can also install Firefox from conda-forge:
+
+        .. code-block:: sh
+
+          conda install firefox -c conda-forge
+
+        Installing Firefox with ``conda`` is helpful to make sure that you are
+        running compatible versions of geckodriver and Firefox.
+
+      .. tab:: Selenium and ChromeDriver (Chrome):
+
+        .. code-block:: sh
+
+          conda install selenium python-chromedriver-binary -c conda-forge
+
+        After downloading and installing with ``conda``, make sure that the
+        executable ``chromedriver`` (``chromedriver.exe`` on Windows) is
+        available in your PATH. See the `chromedriver-binary documentation`_ for
+        more information.
+
+        ChromeDriver requires a compatible version of Google Chrome or Chromium
+        to be available on your system. See the `ChromeDriver documentation`_
+        for details about which version of ChromeDriver works with which
+        version of Chrome or Chromium.
+
+  .. tab:: install with ``pip``
+
+    .. tabs::
+
+      .. tab:: Selenium and geckodriver (Firefox):
+
+        .. code-block:: sh
+
+          pip install selenium
+
+        After installing Selenium, you need to download and install the
+        geckodriver binary from the `geckodriver repository on GitHub`_. Make
+        sure that geckodriver is available in your PATH. See the
+        `geckodriver documentation`_ for more information.
+
+        In order for geckodriver to work, you also need to have Firefox
+        available on your system. See `Supported platforms`_ in the geckodriver
+        documentation to make sure your version of Firefox is compatible.
+
+      .. tab:: Selenium and ChromeDriver (Chrome):
+
+        .. code-block:: sh
+
+          pip install selenium chromedriver-binary
+
+        After downloading and installing with ``conda``, make sure that the
+        executable ``chromedriver`` (``chromedriver.exe`` on Windows) is
+        available in your PATH. See the `chromedriver-binary documentation`_ for
+        more information.
+
+        ChromeDriver requires a compatible version of Google Chrome or Chromium
+        to be available on your system. See the `ChromeDriver documentation`_
+        for details about which version of ChromeDriver works with which
+        version of Chrome or Chromium.
 
 .. _userguide_export_png:
 
@@ -146,5 +209,12 @@ You can export an SVG plot in several ways:
 .. |export_svg|      replace:: :func:`~bokeh.io.export_svg`
 .. |export_svgs|     replace:: :func:`~bokeh.io.export_svgs`
 
+.. _Selenium: https://www.selenium.dev/documentation/en/
+.. _web drivers: https://www.selenium.dev/documentation/en/webdriver/
 .. _Conda: https://docs.bokeh.org/en/latest/docs/dev_guide/setup.html?highlight=conda#id4
+.. _ChromeDriver documentation: https://chromedriver.chromium.org/
+.. _geckodriver repository on GitHub: https://github.com/mozilla/geckodriver/releases
+.. _geckodriver documentation: https://firefox-source-docs.mozilla.org/testing/geckodriver/Usage.html
+.. _chromedriver-binary documentation: https://github.com/danielkaiser/python-chromedriver-binary#usage
+.. _Supported platforms: https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html
 .. _SVG-Crowbar: http://nytimes.github.io/svg-crowbar/

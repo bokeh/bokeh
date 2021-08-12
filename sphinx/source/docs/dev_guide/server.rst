@@ -1,7 +1,9 @@
 .. _devguide_server:
 
-Server architecture
-===================
+Understanding Bokeh server
+==========================
+
+[TBD: edit and update this chapter]
 
 This chapter is a "deep dive" into Bokeh server's internals. It assumes you're
 already familiar with the information on Bokeh server in :ref:`userguide_server`.
