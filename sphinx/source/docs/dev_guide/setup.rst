@@ -298,6 +298,10 @@ to ``setup.py``. For example:
     :ref:`devguide_setup_installing_node_packages` section above before
     rebuilding BokehJS.
 
+    In case you update from a development environment based on Bokeh 2.3 or
+    older, you most likely also need to delete the ``bokehjs/build`` folder in
+    your local environment before building and installing a fresh BokehJS.
+
 .. _devguide_setup_sample_data:
 
 7. Download sample data
