@@ -183,6 +183,30 @@ class Test__any:
         assert beb._any([d], lambda x: isinstance(x, Button)) is False
 
 
+class Test__use_gl:
+    def test_without_gl(self, test_plot, test_glplot, test_table, test_widget) -> None:
+        assert beb._use_gl([test_plot]) is False
+        assert beb._use_gl([test_plot, test_table]) is False
+        assert beb._use_gl([test_plot, test_widget]) is False
+        d = Document()
+        d.add_root(test_plot)
+        d.add_root(test_table)
+        d.add_root(test_widget)
+        assert beb._use_gl([d]) is False
+
+    def test_with_gl(self, test_plot, test_glplot, test_table, test_widget) -> None:
+        assert beb._use_gl([test_glplot]) is True
+        assert beb._use_gl([test_plot, test_glplot]) is True
+        assert beb._use_gl([test_plot, test_widget, test_glplot]) is True
+        assert beb._use_gl([test_plot, test_widget, test_table, test_glplot]) is True
+        d = Document()
+        d.add_root(test_plot)
+        d.add_root(test_table)
+        d.add_root(test_widget)
+        d.add_root(test_glplot)
+        assert beb._use_gl([d]) is True
+
+
 class Test__use_tables:
     def test_without_tables(self, test_plot, test_glplot, test_table, test_widget) -> None:
         assert beb._use_tables([test_plot]) is False

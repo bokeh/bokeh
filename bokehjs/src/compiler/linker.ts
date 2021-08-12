@@ -474,7 +474,10 @@ export class Linker {
 
     for (const {module} of this.cache.values()) {
       for (const [dep, file] of module.dependency_paths) {
-        module.dependencies.set(dep, this.cache.get(file)!.module)
+        const file_entry = this.cache.get(file)
+        if (file_entry == null)
+          throw new Error(`${file} not in cache`)
+        module.dependencies.set(dep, file_entry.module)
       }
     }
   }
