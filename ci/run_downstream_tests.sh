@@ -3,7 +3,7 @@
 banner() {
   echo
   echo "+------------------------------------------------------------------------------------+"
-  printf "| %-80s |\n" "$@"
+  printf "| %-80s   |\n" "$@"
   echo "+------------------------------------------------------------------------------------+"
   echo
 }
@@ -30,7 +30,6 @@ banner "Dask -- distributed/dashboard" 2> /dev/null
 pytest distributed/dashboard
 
 banner "Panel" 2> /dev/null
-python -c "import bokeh; print(bokeh.__version__)"
 pytest panel/tests
 
 banner "Holoviews" 2> /dev/null
