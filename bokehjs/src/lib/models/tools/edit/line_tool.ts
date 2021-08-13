@@ -51,7 +51,7 @@ export abstract class LineTool extends EditTool {
   override properties: LineTool.Props
   override __view_type__: LineToolView
 
-  renderers: (GlyphRenderer & HasLineGlyph)[]
+  override renderers: (GlyphRenderer & HasLineGlyph)[]
 
   constructor(attrs?: Partial<LineTool.Attrs>) {
     super(attrs)

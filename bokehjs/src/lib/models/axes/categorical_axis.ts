@@ -183,8 +183,8 @@ export class CategoricalAxis extends Axis {
   override properties: CategoricalAxis.Props
   override __view_type__: CategoricalAxisView
 
-  ticker: CategoricalTicker
-  formatter: CategoricalTickFormatter
+  override ticker: CategoricalTicker
+  override formatter: CategoricalTickFormatter
 
   constructor(attrs?: Partial<CategoricalAxis.Attrs>) {
     super(attrs)

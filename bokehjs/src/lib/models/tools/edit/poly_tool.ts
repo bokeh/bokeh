@@ -73,7 +73,7 @@ export abstract class PolyTool extends EditTool {
   override properties: PolyTool.Props
   override __view_type__: PolyToolView
 
-  renderers: (GlyphRenderer & HasPolyGlyph)[]
+  override renderers: (GlyphRenderer & HasPolyGlyph)[]
 
   constructor(attrs?: Partial<PolyTool.Attrs>) {
     super(attrs)
