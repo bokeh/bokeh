@@ -29,7 +29,7 @@ class SubclassWithNumberSpec extends DataAnnotation {
     super(attrs)
   }
 
-  static init_SubclassWithNumberSpec() {
+  static {
     this.prototype.default_view = SubclassWithNumberSpecView
 
     this.define<SubclassWithNumberSpec.Props>(({Boolean}) => ({
@@ -61,7 +61,7 @@ class SubclassWithDistanceSpec extends DataAnnotation {
     super(attrs)
   }
 
-  static init_SubclassWithDistanceSpec() {
+  static {
     this.prototype.default_view = SubclassWithDistanceSpecView
 
     this.define<SubclassWithDistanceSpec.Props>(({Boolean}) => ({

@@ -39,7 +39,7 @@ export class Area extends Glyph {
     super(attrs)
   }
 
-  static init_Area(): void {
+  static {
     this.mixins<Area.Mixins>([mixins.FillScalar, mixins.HatchScalar])
   }
 }

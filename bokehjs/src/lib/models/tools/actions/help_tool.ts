@@ -28,7 +28,7 @@ export class HelpTool extends ActionTool {
     super(attrs)
   }
 
-  static init_HelpTool(): void {
+  static {
     this.prototype.default_view = HelpToolView
 
     this.define<HelpTool.Props>(({String}) => ({

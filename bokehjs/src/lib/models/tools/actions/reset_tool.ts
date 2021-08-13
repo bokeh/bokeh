@@ -27,7 +27,7 @@ export class ResetTool extends ActionTool {
     super(attrs)
   }
 
-  static init_ResetTool(): void {
+  static {
     this.prototype.default_view = ResetToolView
 
     this.register_alias("reset", () => new ResetTool())

@@ -29,7 +29,7 @@ export class DatetimeTicker extends CompositeTicker {
     super(attrs)
   }
 
-  static init_DatetimeTicker(): void {
+  static {
     this.override<DatetimeTicker.Props>({
       num_minor_ticks: 0,
       tickers: () => [

@@ -404,7 +404,7 @@ module looks like this:
         super(attrs)
       }
 
-      static init_SomeModel(): void {
+      static {
         this.prototype.default_view = SomeModelView
 
         this.define<SomeModel.Props>(({Number}) => ({

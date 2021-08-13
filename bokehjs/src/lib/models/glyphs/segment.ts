@@ -174,7 +174,7 @@ export class Segment extends Glyph {
     super(attrs)
   }
 
-  static init_Segment(): void {
+  static {
     this.prototype.default_view = SegmentView
 
     this.define<Segment.Props>(({}) => ({

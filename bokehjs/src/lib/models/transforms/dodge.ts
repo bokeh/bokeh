@@ -18,7 +18,7 @@ export class Dodge extends RangeTransform {
     super(attrs)
   }
 
-  static init_Dodge(): void {
+  static {
     this.define<Dodge.Props>(({Number}) => ({
       value: [ Number, 0 ],
     }))

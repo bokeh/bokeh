@@ -41,7 +41,7 @@ export class RadioButtonGroup extends ButtonGroup {
     super(attrs)
   }
 
-  static init_RadioButtonGroup(): void {
+  static {
     this.prototype.default_view = RadioButtonGroupView
 
     this.define<RadioButtonGroup.Props>(({Int, Nullable}) => ({

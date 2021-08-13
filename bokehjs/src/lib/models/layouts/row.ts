@@ -32,7 +32,7 @@ export class Row extends Box {
     super(attrs)
   }
 
-  static init_Row(): void {
+  static {
     this.prototype.default_view = RowView
 
     this.define<Row.Props>(({Any}) => ({

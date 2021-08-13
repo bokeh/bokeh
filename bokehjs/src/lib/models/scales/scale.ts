@@ -22,7 +22,7 @@ export abstract class Scale<T = number> extends Transform<T, number> {
     super(attrs)
   }
 
-  static init_Scale(): void {
+  static {
     this.internal<Scale.Props>(({Ref}) => ({
       source_range: [ Ref(Range) ],
       target_range: [ Ref(Range1d) ],

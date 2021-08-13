@@ -190,7 +190,7 @@ export abstract class Marker extends XYGlyph {
     super(attrs)
   }
 
-  static init_Marker(): void {
+  static {
     this.mixins<Marker.Mixins>([LineVector, FillVector, HatchVector])
     this.define<Marker.Props>(({Number}) => ({
       size:  [ p.ScreenSizeSpec, {value: 4} ],

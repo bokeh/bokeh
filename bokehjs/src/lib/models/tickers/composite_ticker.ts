@@ -23,7 +23,7 @@ export class CompositeTicker extends ContinuousTicker {
     super(attrs)
   }
 
-  static init_CompositeTicker(): void {
+  static {
     this.define<CompositeTicker.Props>(({Array, Ref}) => ({
       tickers: [ Array(Ref(ContinuousTicker)), [] ],
     }))

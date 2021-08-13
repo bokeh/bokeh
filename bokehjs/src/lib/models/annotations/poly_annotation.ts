@@ -81,7 +81,7 @@ export class PolyAnnotation extends Annotation {
     super(attrs)
   }
 
-  static init_PolyAnnotation(): void {
+  static {
     this.prototype.default_view = PolyAnnotationView
 
     this.mixins<PolyAnnotation.Mixins>([mixins.Line, mixins.Fill, mixins.Hatch])

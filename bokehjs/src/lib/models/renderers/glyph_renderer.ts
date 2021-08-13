@@ -404,7 +404,7 @@ export class GlyphRenderer extends DataRenderer {
     super(attrs)
   }
 
-  static init_GlyphRenderer(): void {
+  static {
     this.prototype.default_view = GlyphRendererView
 
     this.define<GlyphRenderer.Props>(({Boolean, Auto, Or, Ref, Null, Nullable}) => ({

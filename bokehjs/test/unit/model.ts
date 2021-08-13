@@ -19,7 +19,7 @@ class SomeModel extends Model {
   constructor(attrs?: Partial<SomeModel.Attrs>) {
     super(attrs)
   }
-  static init_SomeModel() {
+  static {
     this.define<SomeModel.Props>(({Boolean, Number, String}) => ({
       foo: [ Boolean, false ],
       bar: [ String ],

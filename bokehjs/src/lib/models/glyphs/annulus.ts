@@ -156,7 +156,7 @@ export class Annulus extends XYGlyph {
     super(attrs)
   }
 
-  static init_Annulus(): void {
+  static {
     this.prototype.default_view = AnnulusView
 
     this.mixins<Annulus.Mixins>([LineVector, FillVector, HatchVector])

@@ -21,7 +21,7 @@ export class Panel extends Model {
     super(attrs)
   }
 
-  static init_Panel(): void {
+  static {
     this.define<Panel.Props>(({Boolean, String, Ref}) => ({
       title:    [ String, "" ],
       child:    [ Ref(LayoutDOM) ],

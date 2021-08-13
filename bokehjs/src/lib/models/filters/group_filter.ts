@@ -22,7 +22,7 @@ export class GroupFilter extends Filter {
     super(attrs)
   }
 
-  static init_GroupFilter(): void {
+  static {
     this.define<GroupFilter.Props>(({String}) => ({
       column_name: [ String ],
       group:       [ String ],
