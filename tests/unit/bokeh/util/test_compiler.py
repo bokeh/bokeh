@@ -66,11 +66,13 @@ exports.MyModel = MyModel;
 
     assert buc.nodejs_compile("""function f(a, b) { eturn a + b; };""", "javascript", "some.js") == \
         dict(error=
-            '\x1b[96msome.js\x1b[0m:\x1b[93m1\x1b[0m:\x1b[93m26\x1b[0m - '
-            "\x1b[91merror\x1b[0m\x1b[90m TS1005: \x1b[0m';' expected.\n"
+            '\x1b[96msome.js\x1b[0m:\x1b[93m1\x1b[0m:\x1b[93m20\x1b[0m - '
+            '\x1b[91merror\x1b[0m\x1b[90m TS1435: \x1b[0mUnknown keyword or '
+            "identifier. Did you mean 'return'?\n"
             '\n'
             '\x1b[7m1\x1b[0m function f(a, b) { eturn a + b; };\n'
-            '\x1b[7m \x1b[0m \x1b[91m                         ~\x1b[0m\n')
+            '\x1b[7m \x1b[0m \x1b[91m                   ~~~~~\x1b[0m\n'
+        )
 
 def test_nodejs_compile_less() -> None:
     assert buc.nodejs_compile(""".bk-some-style { color: mix(#ff0000, #0000ff, 50%); }""", "less", "some.less") == \
