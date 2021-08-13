@@ -243,7 +243,7 @@ export class RangeTool extends GestureTool {
     super(attrs)
   }
 
-  static init_RangeTool(): void {
+  static {
     this.prototype.default_view = RangeToolView
 
     this.define<RangeTool.Props>(({Boolean, Ref, Nullable}) => ({

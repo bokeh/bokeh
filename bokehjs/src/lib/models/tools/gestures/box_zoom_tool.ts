@@ -189,7 +189,7 @@ export class BoxZoomTool extends GestureTool {
     super(attrs)
   }
 
-  static init_BoxZoomTool(): void {
+  static {
     this.prototype.default_view = BoxZoomToolView
 
     this.define<BoxZoomTool.Props>(({Boolean, Ref}) => ({

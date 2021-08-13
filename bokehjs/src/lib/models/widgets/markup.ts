@@ -57,7 +57,7 @@ export abstract class Markup extends Widget {
     super(attrs)
   }
 
-  static init_Markup(): void {
+  static {
     this.define<Markup.Props>(({String, Dict}) => ({
       text:  [ String, "" ],
       style: [ Dict(String), {} ],

@@ -185,7 +185,7 @@ export abstract class EditTool extends GestureTool {
     super(attrs)
   }
 
-  static init_EditTool(): void {
+  static {
     this.define<EditTool.Props>(({Unknown, String, Array, Ref, Nullable}) => ({
       custom_icon: [ Nullable(String), null ],
       empty_value: [ Unknown ],

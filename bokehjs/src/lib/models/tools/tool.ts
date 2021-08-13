@@ -138,7 +138,7 @@ export abstract class Tool extends Model {
     super(attrs)
   }
 
-  static init_Tool(): void {
+  static {
     this.prototype._known_aliases = new Map()
 
     this.define<Tool.Props>(({String, Nullable}) => ({

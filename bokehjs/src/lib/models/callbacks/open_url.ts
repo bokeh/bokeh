@@ -22,7 +22,7 @@ export class OpenURL extends Callback {
     super(attrs)
   }
 
-  static init_OpenURL(): void {
+  static {
     this.define<OpenURL.Props>(({Boolean, String}) => ({
       url: [ String, "http://" ],
       same_tab: [ Boolean, false ],

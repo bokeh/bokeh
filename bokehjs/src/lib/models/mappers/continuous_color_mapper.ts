@@ -27,7 +27,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     super(attrs)
   }
 
-  static init_ContinuousColorMapper(): void {
+  static {
     this.define<ContinuousColorMapper.Props>(({Number, String, Ref, Color, Or, Tuple, Array, Nullable}) => {
       return {
         high:       [ Nullable(Number), null ],

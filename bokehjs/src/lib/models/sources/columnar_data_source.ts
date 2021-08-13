@@ -56,7 +56,7 @@ export abstract class ColumnarDataSource extends DataSource {
     super(attrs)
   }
 
-  static init_ColumnarDataSource(): void {
+  static {
     this.define<ColumnarDataSource.Props>(({Ref}) => ({
       selection_policy: [ Ref(SelectionPolicy), () => new UnionRenderers() ],
     }))

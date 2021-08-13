@@ -96,7 +96,7 @@ export class FreehandDrawTool extends EditTool {
     super(attrs)
   }
 
-  static init_FreehandDrawTool(): void {
+  static {
     this.prototype.default_view = FreehandDrawToolView
 
     this.define<FreehandDrawTool.Props>(({Int}) => ({

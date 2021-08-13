@@ -393,7 +393,7 @@ export class MathText extends Model {
     super(attrs)
   }
 
-  static init_MathText(): void {
+  static {
     this.prototype.default_view = MathTextView
 
     this.define<MathText.Props>(({String}) => ({

@@ -29,7 +29,7 @@ class AnotherModel extends Model {
     super(attrs)
   }
 
-  static init_AnotherModel(): void {
+  static {
     this.define<AnotherModel.Props>(({Number}) => ({
       bar: [ Number, 1 ],
     }))
@@ -55,7 +55,7 @@ class SomeModel extends Model {
     super(attrs)
   }
 
-  static init_SomeModel(): void {
+  static {
     this.define<SomeModel.Props>(({Number, Ref, Nullable}) => ({
       foo:   [ Number, 2 ],
       child: [ Nullable(Ref(Model)), null ],
@@ -81,7 +81,7 @@ class SomeModelWithChildren extends Model {
     super(attrs)
   }
 
-  static init_SomeModelWithChildren(): void {
+  static {
     this.define<SomeModelWithChildren.Props>(({Array, Ref}) => ({
       children: [ Array(Ref(Model)), [] ],
     }))
@@ -113,7 +113,7 @@ class ModelWithConstructTimeChanges extends Model {
     this.child = new AnotherModel()
   }
 
-  static init_ModelWithConstructTimeChanges(): void {
+  static {
     this.define<ModelWithConstructTimeChanges.Props>(({Number, Ref, Nullable}) => ({
       foo:   [ Number, 2 ],
       child: [ Nullable(Ref(Model)), null ],
@@ -150,7 +150,7 @@ class ComplicatedModelWithConstructTimeChanges extends Model {
     this.dict_of_list_prop = {foo: [new AnotherModel()]}
   }
 
-  static init_ComplicatedModelWithConstructTimeChanges(): void {
+  static {
     this.define<ComplicatedModelWithConstructTimeChanges.Props>(({Array, Dict, Ref}) => ({
       list_prop:         [ Array(Ref(AnotherModel)) ],
       dict_prop:         [ Dict(Ref(AnotherModel)) ],

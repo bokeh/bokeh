@@ -206,7 +206,7 @@ export class Grid extends GuideRenderer {
     super(attrs)
   }
 
-  static init_Grid(): void {
+  static {
     this.prototype.default_view = GridView
 
     this.mixins<Grid.Mixins>([

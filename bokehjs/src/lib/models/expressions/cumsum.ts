@@ -21,7 +21,7 @@ export class CumSum extends Expression {
     super(attrs)
   }
 
-  static init_CumSum(): void {
+  static {
     this.define<CumSum.Props>(({Boolean, String}) => ({
       field:        [ String         ],
       include_zero: [ Boolean, false ],

@@ -85,7 +85,7 @@ export class VBar extends Box {
     super(attrs)
   }
 
-  static init_VBar(): void {
+  static {
     this.prototype.default_view = VBarView
 
     this.define<VBar.Props>(({}) => ({

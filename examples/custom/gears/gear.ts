@@ -179,7 +179,7 @@ export class Gear extends XYGlyph {
 
   static override __module__ = "gears"
 
-  static init_Gear(): void {
+  static {
     this.prototype.default_view = GearView
 
     this.mixins<Gear.Mixins>([LineVector, FillVector, HatchVector])

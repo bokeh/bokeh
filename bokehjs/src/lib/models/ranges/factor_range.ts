@@ -132,7 +132,7 @@ export class FactorRange extends Range {
     super(attrs)
   }
 
-  static init_FactorRange(): void {
+  static {
     this.define<FactorRange.Props>(({Number}) => ({
       factors:             [ FactorSeq, [] ],
       factor_padding:      [ Number, 0 ],

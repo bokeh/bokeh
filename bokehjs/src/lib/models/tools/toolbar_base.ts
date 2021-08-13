@@ -42,7 +42,7 @@ export class ToolbarViewModel extends Model {
     super(attrs)
   }
 
-  static init_ToolbarViewModel(): void {
+  static {
     this.define<ToolbarViewModel.Props>(({Boolean}) => ({
       autohide: [ Boolean, false ],
     }))
@@ -272,7 +272,7 @@ export class ToolbarBase extends Model {
     super(attrs)
   }
 
-  static init_ToolbarBase(): void {
+  static {
     this.prototype.default_view = ToolbarBaseView
 
     this.define<ToolbarBase.Props>(({Boolean, Array, Ref, Nullable}) => ({

@@ -35,7 +35,7 @@ export class Model extends HasProps {
     super(attrs)
   }
 
-  static init_Model(): void {
+  static {
     this.define<Model.Props>(({Any, Unknown, Boolean, String, Array, Dict, Nullable}) => ({
       tags:                  [ Array(Unknown), [] ],
       name:                  [ Nullable(String), null ],

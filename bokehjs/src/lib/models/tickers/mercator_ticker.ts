@@ -21,7 +21,7 @@ export class MercatorTicker extends BasicTicker {
     super(attrs)
   }
 
-  static init_MercatorTicker(): void {
+  static {
     this.define<MercatorTicker.Props>(({Nullable}) => ({
       dimension: [ Nullable(LatLon), null ],
     }))

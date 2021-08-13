@@ -31,7 +31,7 @@ export class Div extends Markup {
     super(attrs)
   }
 
-  static init_Div(): void {
+  static {
     this.prototype.default_view = DivView
 
     this.define<Div.Props>(({Boolean}) => ({

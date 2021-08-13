@@ -66,7 +66,7 @@ export abstract class CenterRotatable extends XYGlyph {
     super(attrs)
   }
 
-  static init_CenterRotatable(): void {
+  static {
     this.mixins<CenterRotatable.Mixins>([LineVector, FillVector, HatchVector])
 
     this.define<CenterRotatable.Props>(({}) => ({

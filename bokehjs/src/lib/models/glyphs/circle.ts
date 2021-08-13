@@ -286,7 +286,7 @@ export class Circle extends XYGlyph {
     super(attrs)
   }
 
-  static init_Circle(): void {
+  static {
     this.prototype.default_view = CircleView
 
     this.mixins<Circle.Mixins>([LineVector, FillVector, HatchVector])

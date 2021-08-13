@@ -66,7 +66,7 @@ export abstract class Annotation extends Renderer {
     super(attrs)
   }
 
-  static init_Annotation(): void {
+  static {
     this.override<Annotation.Props>({
       level: "annotation",
     })

@@ -29,7 +29,7 @@ export class LegendItem extends Model {
     super(attrs)
   }
 
-  static init_LegendItem(): void {
+  static {
     this.define<LegendItem.Props>(({Boolean, Int, Array, Ref, Nullable}) => ({
       label:     [ p.NullStringSpec, null ],
       renderers: [ Array(Ref(GlyphRenderer)), [] ],

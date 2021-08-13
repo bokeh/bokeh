@@ -21,7 +21,7 @@ export class WidgetBox extends Column {
     super(attrs)
   }
 
-  static init_WidgetBox(): void {
+  static {
     this.prototype.default_view = WidgetBoxView
   }
 }

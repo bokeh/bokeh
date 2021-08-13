@@ -89,7 +89,7 @@ export class Span extends Annotation {
     super(attrs)
   }
 
-  static init_Span(): void {
+  static {
     this.prototype.default_view = SpanView
 
     this.mixins<Span.Mixins>(mixins.Line)

@@ -22,7 +22,7 @@ export class PolarTransform extends CoordinateTransform {
     super(attrs)
   }
 
-  static init_PolarTransform(): void {
+  static {
     this.define<PolarTransform.Props>(({}) => ({
       radius: [ p.DistanceSpec, {field: "radius"} ],
       angle: [ p.AngleSpec, {field: "angle"} ],

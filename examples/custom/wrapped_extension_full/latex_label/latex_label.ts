@@ -58,7 +58,7 @@ export class LatexLabel extends Label {
 
   static override __module__ = "latex_label"
 
-  static init_LatexLabel(): void {
+  static {
     this.prototype.default_view = LatexLabelView
 
     this.override<LatexLabel.Props>({

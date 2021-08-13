@@ -135,7 +135,7 @@ export class NumericInput extends InputWidget {
     super(attrs)
   }
 
-  static init_NumericInput(): void {
+  static {
     this.prototype.default_view = NumericInputView
 
     this.define<NumericInput.Props>(({Number, String, Enum, Ref, Or, Nullable}) => ({

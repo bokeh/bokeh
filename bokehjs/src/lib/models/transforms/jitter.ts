@@ -29,7 +29,7 @@ export class Jitter extends RangeTransform {
     super(attrs)
   }
 
-  static init_Jitter(): void {
+  static {
     this.define<Jitter.Props>(({Number}) => ({
       mean:         [ Number, 0 ],
       width:        [ Number, 1 ],

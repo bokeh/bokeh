@@ -124,7 +124,7 @@ export abstract class ButtonTool extends Tool {
     super(attrs)
   }
 
-  static init_ButtonTool(): void {
+  static {
     this.internal<ButtonTool.Props>(({Boolean}) => ({
       disabled: [ Boolean, false ],
     }))

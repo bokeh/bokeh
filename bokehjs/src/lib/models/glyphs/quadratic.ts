@@ -138,7 +138,7 @@ export class Quadratic extends Glyph {
     super(attrs)
   }
 
-  static init_Quadratic(): void {
+  static {
     this.prototype.default_view = QuadraticView
 
     this.define<Quadratic.Props>(({}) => ({

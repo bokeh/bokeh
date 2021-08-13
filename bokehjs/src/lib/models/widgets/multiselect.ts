@@ -97,7 +97,7 @@ export class MultiSelect extends InputWidget {
     super(attrs)
   }
 
-  static init_MultiSelect(): void {
+  static {
     this.prototype.default_view = MultiSelectView
 
     this.define<MultiSelect.Props>(({Int, String, Array, Tuple, Or}) => ({

@@ -177,7 +177,7 @@ export class Text extends XYGlyph {
     super(attrs)
   }
 
-  static init_Text(): void {
+  static {
     this.prototype.default_view = TextView
 
     this.mixins<Text.Mixins>(TextVector)

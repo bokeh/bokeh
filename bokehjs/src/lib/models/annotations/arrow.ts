@@ -172,7 +172,7 @@ export class Arrow extends DataAnnotation {
     super(attrs)
   }
 
-  static init_Arrow(): void {
+  static {
     this.prototype.default_view = ArrowView
 
     this.mixins<Arrow.Mixins>(LineVector)

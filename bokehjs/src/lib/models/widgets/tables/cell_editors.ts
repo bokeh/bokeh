@@ -184,7 +184,7 @@ export interface StringEditor extends StringEditor.Attrs {}
 export class StringEditor extends CellEditor {
   override properties: StringEditor.Props
 
-  static init_StringEditor(): void {
+  static {
     this.prototype.default_view = StringEditorView
     this.define<StringEditor.Props>(({String, Array}) => ({
       completions: [ Array(String), [] ],
@@ -218,7 +218,7 @@ export interface TextEditor extends TextEditor.Attrs {}
 export class TextEditor extends CellEditor {
   override properties: TextEditor.Props
 
-  static init_TextEditor(): void {
+  static {
     this.prototype.default_view = TextEditorView
   }
 }
@@ -253,7 +253,7 @@ export interface SelectEditor extends SelectEditor.Attrs {}
 export class SelectEditor extends CellEditor {
   override properties: SelectEditor.Props
 
-  static init_SelectEditor(): void {
+  static {
     this.prototype.default_view = SelectEditorView
     this.define<SelectEditor.Props>(({String, Array}) => ({
       options: [ Array(String), [] ],
@@ -282,7 +282,7 @@ export interface PercentEditor extends PercentEditor.Attrs {}
 export class PercentEditor extends CellEditor {
   override properties: PercentEditor.Props
 
-  static init_PercentEditor(): void {
+  static {
     this.prototype.default_view = PercentEditorView
   }
 }
@@ -321,7 +321,7 @@ export interface CheckboxEditor extends CheckboxEditor.Attrs {}
 export class CheckboxEditor extends CellEditor {
   override properties: CheckboxEditor.Props
 
-  static init_CheckboxEditor(): void {
+  static {
     this.prototype.default_view = CheckboxEditorView
   }
 }
@@ -377,7 +377,7 @@ export interface IntEditor extends IntEditor.Attrs {}
 export class IntEditor extends CellEditor {
   override properties: IntEditor.Props
 
-  static init_IntEditor(): void {
+  static {
     this.prototype.default_view = IntEditorView
     this.define<IntEditor.Props>(({Int}) => ({
       step: [ Int, 1 ],
@@ -436,7 +436,7 @@ export interface NumberEditor extends NumberEditor.Attrs {}
 export class NumberEditor extends CellEditor {
   override properties: NumberEditor.Props
 
-  static init_NumberEditor(): void {
+  static {
     this.prototype.default_view = NumberEditorView
     this.define<NumberEditor.Props>(({Number}) => ({
       step: [ Number, 0.01 ],
@@ -465,7 +465,7 @@ export interface TimeEditor extends TimeEditor.Attrs {}
 export class TimeEditor extends CellEditor {
   override properties: TimeEditor.Props
 
-  static init_TimeEditor(): void {
+  static {
     this.prototype.default_view = TimeEditorView
   }
 }
@@ -543,7 +543,7 @@ export interface DateEditor extends DateEditor.Attrs {}
 export class DateEditor extends CellEditor {
   override properties: DateEditor.Props
 
-  static init_DateEditor(): void {
+  static {
     this.prototype.default_view = DateEditorView
   }
 }

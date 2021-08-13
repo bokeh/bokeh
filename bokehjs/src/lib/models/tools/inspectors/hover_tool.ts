@@ -563,7 +563,7 @@ export class HoverTool extends InspectTool {
     super(attrs)
   }
 
-  static init_HoverTool(): void {
+  static {
     this.prototype.default_view = HoverToolView
 
     this.define<HoverTool.Props>(({Any, Boolean, String, Array, Tuple, Dict, Or, Ref, Function, Auto, Nullable}) => ({

@@ -49,7 +49,7 @@ async function main() {
       const bokeh_version = argv.bokehVersion as string
       const result = await build(base_dir, bokehjs_dir, {rebuild, bokeh_version})
       process.exit(result ? 0 : 1)
-    } catch (error: unknown) {
+    } catch (error) {
       const msg = error instanceof Error && error.stack ? error.stack : `${error}`
       console.log(msg)
       process.exit(1)
@@ -63,7 +63,7 @@ async function main() {
       const bokeh_version = argv.bokehVersion as string
       const result = await init(base_dir, bokehjs_dir, {interactive, bokehjs_version, bokeh_version})
       process.exit(result ? 0 : 1)
-    } catch (error: unknown) {
+    } catch (error) {
       const msg = error instanceof Error && error.stack ? error.stack : `${error}`
       console.log(msg)
       process.exit(1)
@@ -71,7 +71,7 @@ async function main() {
   } else {
     try {
       reply(await compile())
-    } catch (error: unknown) {
+    } catch (error) {
       const msg = error instanceof Error && error.stack ? error.stack : `${error}`
       reply({error: msg})
     }

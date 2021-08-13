@@ -147,7 +147,7 @@ async function run_tests(): Promise<boolean> {
       async function with_timeout<T>(promise: Promise<T>, wait: number): Promise<T | Timeout> {
         try {
           return await Promise.race([promise, timeout(wait)]) as T
-        } catch (err: unknown) {
+        } catch (err) {
           if (err instanceof TimeoutError) {
             return new Timeout()
           } else {
@@ -569,7 +569,7 @@ async function run_tests(): Promise<boolean> {
     } finally {
       await Runtime.discardConsoleEntries()
     }
-  } catch (error: unknown) {
+  } catch (error) {
     failure = true
     if (!(error instanceof Exit)) {
       const msg = error instanceof Error && error.stack ? error.stack : error
@@ -614,7 +614,7 @@ async function run(): Promise<void> {
 async function main(): Promise<void> {
   try {
     await run()
-  } catch (e: unknown) {
+  } catch (e) {
     console.log(`CRITICAL ERROR: ${e}`)
     process.exit(1)
   }

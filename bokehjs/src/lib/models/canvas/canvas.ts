@@ -243,7 +243,7 @@ export class Canvas extends HasProps {
     super(attrs)
   }
 
-  static init_Canvas(): void {
+  static {
     this.prototype.default_view = CanvasView
 
     this.internal<Canvas.Props>(({Boolean}) => ({

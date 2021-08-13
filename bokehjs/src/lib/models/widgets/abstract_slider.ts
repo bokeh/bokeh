@@ -226,7 +226,7 @@ export abstract class AbstractSlider extends OrientedControl {
     super(attrs)
   }
 
-  static init_AbstractSlider(): void {
+  static {
     this.define<AbstractSlider.Props>(({Any, Boolean, Number, String, Color, Or, Enum, Ref, Nullable}) => {
       return {
         title:           [ Nullable(String), "" ],

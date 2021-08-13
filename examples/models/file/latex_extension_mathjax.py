@@ -89,7 +89,7 @@ export class LatexLabel extends Label {
   properties: LatexLabel.Props
   __view_type__: LatexLabelView
 
-  static init_LatexLabel(): void {
+  static {
     this.prototype.default_view = LatexLabelView
   }
 }

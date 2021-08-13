@@ -21,7 +21,7 @@ export class TableWidget extends Widget {
     super(attrs)
   }
 
-  static init_TableWidget(): void {
+  static {
     this.define<TableWidget.Props>(({Ref}) => ({
       source: [ Ref(ColumnDataSource), () => new ColumnDataSource() ],
       view:   [ Ref(CDSView), () => new CDSView() ],

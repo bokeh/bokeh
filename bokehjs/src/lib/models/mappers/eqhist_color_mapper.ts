@@ -22,7 +22,7 @@ export class EqHistColorMapper extends ScanningColorMapper {
     super(attrs)
   }
 
-  static init_EqHistColorMapper(): void {
+  static {
     this.define<EqHistColorMapper.Props>(({Int}) => ({
       bins: [ Int, 256*256 ],
     }))

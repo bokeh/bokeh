@@ -156,7 +156,7 @@ export abstract class Box extends Glyph {
     super(attrs)
   }
 
-  static init_Box(): void {
+  static {
     this.mixins<Box.Mixins>([LineVector, FillVector, HatchVector])
   }
 }

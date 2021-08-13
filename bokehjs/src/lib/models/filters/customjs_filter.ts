@@ -24,7 +24,7 @@ export class CustomJSFilter extends Filter {
     super(attrs)
   }
 
-  static init_CustomJSFilter(): void {
+  static {
     this.define<CustomJSFilter.Props>(({Unknown, String, Dict}) => ({
       args: [ Dict(Unknown), {} ],
       code: [ String, "" ],

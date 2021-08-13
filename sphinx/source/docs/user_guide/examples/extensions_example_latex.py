@@ -68,7 +68,7 @@ export class LatexLabel extends Label {
     super(attrs)
   }
 
-  static init_LatexLabel() {
+  static {
     this.prototype.default_view = LatexLabelView
   }
 }

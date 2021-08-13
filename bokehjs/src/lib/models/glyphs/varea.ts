@@ -109,7 +109,7 @@ export class VArea extends Area {
     super(attrs)
   }
 
-  static init_VArea(): void {
+  static {
     this.prototype.default_view = VAreaView
 
     this.define<VArea.Props>(({}) => ({

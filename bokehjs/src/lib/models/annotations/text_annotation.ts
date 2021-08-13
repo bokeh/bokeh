@@ -176,7 +176,7 @@ export abstract class TextAnnotation extends Annotation {
     super(attrs)
   }
 
-  static init_TextAnnotation(): void {
+  static {
     this.define<TextAnnotation.Props>(() => ({
       render_mode: [ RenderMode, "canvas" ],
     }))

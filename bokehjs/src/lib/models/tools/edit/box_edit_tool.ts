@@ -153,13 +153,13 @@ export class BoxEditTool extends EditTool {
   override properties: BoxEditTool.Props
   override __view_type__: BoxEditToolView
 
-  renderers: (GlyphRenderer & HasRectCDS)[]
+  override renderers: (GlyphRenderer & HasRectCDS)[]
 
   constructor(attrs?: Partial<BoxEditTool.Attrs>) {
     super(attrs)
   }
 
-  static init_BoxEditTool(): void {
+  static {
     this.prototype.default_view = BoxEditToolView
 
     this.define<BoxEditTool.Props>(({Int}) => ({

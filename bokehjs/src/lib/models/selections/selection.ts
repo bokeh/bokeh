@@ -42,7 +42,7 @@ export class Selection extends Model {
     return this.view
   }
 
-  static init_Selection(): void {
+  static {
     this.define<Selection.Props>(({Int, Array, Dict}) => ({
       indices:           [ Array(Int), [] ],
       line_indices:      [ Array(Int), [] ],

@@ -24,7 +24,7 @@ export class CategoricalMarkerMapper extends Mapper<string> {
     super(attrs)
   }
 
-  static init_CategoricalMarkerMapper(): void {
+  static {
     this.define<CategoricalMarkerMapper.Props>(({Number, Array, Nullable}) => ({
       factors:       [ FactorSeq ],
       markers:       [ Array(MarkerType) ],

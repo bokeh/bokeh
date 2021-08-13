@@ -259,7 +259,7 @@ export class PolyDrawTool extends PolyTool {
     super(attrs)
   }
 
-  static init_PolyDrawTool(): void {
+  static {
     this.prototype.default_view = PolyDrawToolView
 
     this.define<PolyDrawTool.Props>(({Boolean, Int}) => ({

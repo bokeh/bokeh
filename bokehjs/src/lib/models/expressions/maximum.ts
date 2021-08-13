@@ -21,7 +21,7 @@ export class Maximum extends ScalarExpression<number> {
     super(attrs)
   }
 
-  static init_Maximum(): void {
+  static {
     this.define<Maximum.Props>(({Number, String, Nullable}) => ({
       field:   [ String ],
       initial: [ Nullable(Number), null ], // TODO: -Infinity

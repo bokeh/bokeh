@@ -422,7 +422,7 @@ export class DataTable extends TableWidget {
     super(attrs)
   }
 
-  static init_DataTable(): void {
+  static {
     this.prototype.default_view = DataTableView
 
     this.define<DataTable.Props>(({Array, Boolean, Int, Ref, String, Enum, Or, Nullable}) => ({

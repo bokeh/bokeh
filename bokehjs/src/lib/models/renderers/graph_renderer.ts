@@ -146,7 +146,7 @@ export class GraphRenderer extends DataRenderer {
     super(attrs)
   }
 
-  static init_GraphRenderer(): void {
+  static {
     this.prototype.default_view = GraphRendererView
 
     this.define<GraphRenderer.Props>(({Ref}) => ({

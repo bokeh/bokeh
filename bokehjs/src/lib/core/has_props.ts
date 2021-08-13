@@ -72,7 +72,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return this.__name__
   }
 
-  static init_HasProps(): void {
+  static {
     this.prototype._props = {}
     this.prototype._mixins = []
   }

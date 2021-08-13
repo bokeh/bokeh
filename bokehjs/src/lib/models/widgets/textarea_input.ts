@@ -45,7 +45,7 @@ export class TextAreaInput extends TextLikeInput {
     super(attrs)
   }
 
-  static init_TextAreaInput(): void {
+  static {
     this.prototype.default_view = TextAreaInputView
 
     this.define<TextAreaInput.Props>(({Int}) => ({

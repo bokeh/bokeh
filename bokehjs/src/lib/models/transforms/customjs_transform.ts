@@ -23,7 +23,7 @@ export class CustomJSTransform extends Transform {
     super(attrs)
   }
 
-  static init_CustomJSTransform(): void {
+  static {
     this.define<CustomJSTransform.Props>(({Unknown, String, Dict}) => ({
       args:   [ Dict(Unknown), {} ],
       func:   [ String, "" ],

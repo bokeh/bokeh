@@ -21,7 +21,7 @@ export class Minimum extends ScalarExpression<number> {
     super(attrs)
   }
 
-  static init_Minimum(): void {
+  static {
     this.define<Minimum.Props>(({Number, String, Nullable}) => ({
       field:   [ String ],
       initial: [ Nullable(Number), null ], // TODO: Infinity

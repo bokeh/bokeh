@@ -54,7 +54,7 @@ export class ColorPicker extends InputWidget {
     super(attrs)
   }
 
-  static init_ColorPicker(): void {
+  static {
     this.prototype.default_view = ColorPickerView
 
     this.define<ColorPicker.Props>(({Color}) => ({

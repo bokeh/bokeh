@@ -19,7 +19,7 @@ export class CategoricalScale extends Scale<FactorLike> {
     super(attrs)
   }
 
-  source_range: FactorRange
+  override source_range: FactorRange
 
   get s_compute(): (x: FactorLike) => number {
     const [factor, offset] = _linear_compute_state.call(this)

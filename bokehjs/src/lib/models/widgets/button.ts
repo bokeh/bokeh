@@ -28,7 +28,7 @@ export class Button extends AbstractButton {
     super(attrs)
   }
 
-  static init_Button(): void {
+  static {
     this.prototype.default_view = ButtonView
 
     this.override<Button.Props>({

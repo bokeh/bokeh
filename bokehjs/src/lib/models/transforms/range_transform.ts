@@ -23,7 +23,7 @@ export abstract class RangeTransform extends Transform {
     super(attrs)
   }
 
-  static init_RangeTransform(): void {
+  static {
     this.define<RangeTransform.Props>(({Ref, Nullable}) => ({
       range: [ Nullable(Ref(Range)), null ],
     }))

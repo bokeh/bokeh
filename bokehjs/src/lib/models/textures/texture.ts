@@ -21,7 +21,7 @@ export abstract class Texture extends Model {
     super(attrs)
   }
 
-  static init_Texture(): void {
+  static {
     this.define<Texture.Props>(() => ({
       repetition: [ TextureRepetition, "repeat" ],
     }))

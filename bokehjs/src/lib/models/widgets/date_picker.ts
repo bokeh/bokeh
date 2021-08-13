@@ -102,7 +102,7 @@ export class DatePicker extends InputWidget {
     super(attrs)
   }
 
-  static init_DatePicker(): void {
+  static {
     this.prototype.default_view = DatePickerView
 
     this.define<DatePicker.Props>(({Boolean, String, Array, Tuple, Or, Nullable}) => {

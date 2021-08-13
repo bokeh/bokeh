@@ -30,7 +30,7 @@ export class TableColumn extends Model {
     super(attrs)
   }
 
-  static init_TableColumn(): void {
+  static {
     this.define<TableColumn.Props>(({Boolean, Number, String, Nullable, Ref}) => ({
       field:        [ String ],
       title:        [ Nullable(String), null ],

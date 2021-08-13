@@ -18,7 +18,7 @@ export class LogTicker extends AdaptiveTicker {
     super(attrs)
   }
 
-  static init_LogTicker(): void {
+  static {
     this.override<LogTicker.Props>({
       mantissas: [1, 5],
     })

@@ -74,7 +74,7 @@ class Some extends HasProps {
     super(attrs)
   }
 
-  static init_Some(): void {
+  static {
     this.define<Some.Props>((kinds) => ({
       anchor: [ enums.Anchor ],
       any: [ kinds.Any ],

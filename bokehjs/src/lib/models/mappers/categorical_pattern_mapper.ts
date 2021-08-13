@@ -24,7 +24,7 @@ export class CategoricalPatternMapper extends Mapper<string> {
     super(attrs)
   }
 
-  static init_CategoricalPatternMapper(): void {
+  static {
     this.define<CategoricalPatternMapper.Props>(({Number, Array, Nullable}) => ({
       factors:       [ FactorSeq ],
       patterns:      [ Array(HatchPatternType) ],

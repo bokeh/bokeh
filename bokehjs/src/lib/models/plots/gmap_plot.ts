@@ -25,7 +25,7 @@ export class MapOptions extends Model {
     super(attrs)
   }
 
-  static init_MapOptions(): void {
+  static {
     this.define<MapOptions.Props>(({Int, Number}) => ({
       lat:  [ Number ],
       lng:  [ Number ],
@@ -54,7 +54,7 @@ export class GMapOptions extends MapOptions {
     super(attrs)
   }
 
-  static init_GMapOptions(): void {
+  static {
     this.define<GMapOptions.Props>(({Boolean, Int, String}) => ({
       map_type:      [ String,  "roadmap" ],
       scale_control: [ Boolean, false     ],
@@ -85,7 +85,7 @@ export class GMapPlot extends Plot {
     super(attrs)
   }
 
-  static init_GMapPlot(): void {
+  static {
     this.prototype.default_view = GMapPlotView
 
     // This seems to be necessary so that everything can initialize.

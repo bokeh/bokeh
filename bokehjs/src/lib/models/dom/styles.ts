@@ -331,7 +331,7 @@ export class Styles extends Model {
     super(attrs)
   }
 
-  static init_Styles(): void {
+  static {
     this.define<Styles.Props>(({String, Nullable}) => ({
       align_content: [ Nullable(String), null ],
       align_items: [ Nullable(String), null ],

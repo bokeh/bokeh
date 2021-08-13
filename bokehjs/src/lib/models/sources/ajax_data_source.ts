@@ -25,7 +25,7 @@ export class AjaxDataSource extends WebDataSource {
     super(attrs)
   }
 
-  static init_AjaxDataSource(): void {
+  static {
     this.define<AjaxDataSource.Props>(({Boolean, Int, String, Dict, Nullable}) => ({
       polling_interval: [ Nullable(Int), null ],
       content_type:     [ String, "application/json" ],

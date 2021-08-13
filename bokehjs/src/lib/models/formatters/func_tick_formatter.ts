@@ -21,7 +21,7 @@ export class FuncTickFormatter extends TickFormatter {
     super(attrs)
   }
 
-  static init_FuncTickFormatter(): void {
+  static {
     this.define<FuncTickFormatter.Props>(({Unknown, String, Dict}) => ({
       args: [ Dict(Unknown), {} ],
       code: [ String, "" ],

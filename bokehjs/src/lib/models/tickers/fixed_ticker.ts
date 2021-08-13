@@ -20,7 +20,7 @@ export class FixedTicker extends ContinuousTicker {
     super(attrs)
   }
 
-  static init_FixedTicker(): void {
+  static {
     this.define<FixedTicker.Props>(({Number, Array}) => ({
       ticks: [ Array(Number), [] ],
       minor_ticks: [ Array(Number), [] ],

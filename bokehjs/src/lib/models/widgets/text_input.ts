@@ -31,7 +31,7 @@ export class TextInput extends TextLikeInput {
     super(attrs)
   }
 
-  static init_TextInput(): void {
+  static {
     this.prototype.default_view = TextInputView
   }
 }

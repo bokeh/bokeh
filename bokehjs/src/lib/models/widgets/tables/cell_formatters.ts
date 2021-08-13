@@ -53,7 +53,7 @@ export class StringFormatter extends CellFormatter {
     super(attrs)
   }
 
-  static init_StringFormatter(): void {
+  static {
     this.define<StringFormatter.Props>(({Color, Nullable}) => ({
       font_style: [ FontStyle, "normal" ],
       text_align: [ TextAlign, "left"   ],
@@ -103,7 +103,7 @@ export class ScientificFormatter extends StringFormatter {
     super(attrs)
   }
 
-  static init_ScientificFormatter(): void {
+  static {
     this.define<ScientificFormatter.Props>(({Number, String, Nullable}) => ({
       nan_format:       [ Nullable(String), null ],
       precision:        [ Number, 10 ],
@@ -163,7 +163,7 @@ export class NumberFormatter extends StringFormatter {
     super(attrs)
   }
 
-  static init_NumberFormatter(): void {
+  static {
     this.define<NumberFormatter.Props>(({String, Nullable}) => ({
       format:     [ String,           "0,0"   ],
       language:   [ String,           "en"    ],
@@ -206,7 +206,7 @@ export class BooleanFormatter extends CellFormatter {
     super(attrs)
   }
 
-  static init_BooleanFormatter(): void {
+  static {
     this.define<BooleanFormatter.Props>(({String}) => ({
       icon: [ String, "check" ],
     }))
@@ -235,7 +235,7 @@ export class DateFormatter extends StringFormatter {
     super(attrs)
   }
 
-  static init_DateFormatter(): void {
+  static {
     this.define<DateFormatter.Props>(({String, Nullable}) => ({
       format:     [ String,           "ISO-8601" ],
       nan_format: [ Nullable(String), null       ],
@@ -299,7 +299,7 @@ export class HTMLTemplateFormatter extends CellFormatter {
     super(attrs)
   }
 
-  static init_HTMLTemplateFormatter(): void {
+  static {
     this.define<HTMLTemplateFormatter.Props>(({String}) => ({
       template: [ String, "<%= value %>" ],
     }))

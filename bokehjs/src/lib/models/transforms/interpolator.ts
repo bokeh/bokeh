@@ -25,7 +25,7 @@ export abstract class Interpolator extends Transform {
     super(attrs)
   }
 
-  static init_Interpolator(): void {
+  static {
     this.define<Interpolator.Props>(({Boolean, Number, String, Ref, Array, Or, Nullable}) => ({
       x:    [ Or(String, Array(Number)) ],
       y:    [ Or(String, Array(Number)) ],

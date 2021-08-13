@@ -124,7 +124,7 @@ export class Dropdown extends AbstractButton {
     super(attrs)
   }
 
-  static init_Dropdown(): void {
+  static {
     this.prototype.default_view = DropdownView
 
     this.define<Dropdown.Props>(({Null, Boolean, String, Array, Tuple, Or}) => ({

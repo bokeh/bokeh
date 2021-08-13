@@ -32,7 +32,7 @@ export class Column extends Box {
     super(attrs)
   }
 
-  static init_Column(): void {
+  static {
     this.prototype.default_view = ColumnView
 
     this.define<Column.Props>(({Any}) => ({

@@ -213,7 +213,7 @@ export class Patches extends Glyph {
     super(attrs)
   }
 
-  static init_Patches(): void {
+  static {
     this.prototype.default_view = PatchesView
 
     this.define<Patches.Props>(({}) => ({

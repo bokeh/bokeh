@@ -21,7 +21,7 @@ export class CustomJS extends Callback {
     super(attrs)
   }
 
-  static init_CustomJS(): void {
+  static {
     this.define<CustomJS.Props>(({Unknown, String, Dict}) => ({
       args: [ Dict(Unknown), {} ],
       code: [ String, "" ],

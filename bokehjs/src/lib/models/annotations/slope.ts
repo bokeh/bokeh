@@ -79,7 +79,7 @@ export class Slope extends Annotation {
     super(attrs)
   }
 
-  static init_Slope(): void {
+  static {
     this.prototype.default_view = SlopeView
 
     this.mixins<Slope.Mixins>(mixins.Line)

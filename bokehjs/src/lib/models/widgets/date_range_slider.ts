@@ -25,7 +25,7 @@ export class DateRangeSlider extends AbstractSlider {
     super(attrs)
   }
 
-  static init_DateRangeSlider(): void {
+  static {
     this.prototype.default_view = DateRangeSliderView
 
     this.override<DateRangeSlider.Props>({

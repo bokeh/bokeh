@@ -97,7 +97,7 @@ export class UpperLower extends DataAnnotation {
     super(attrs)
   }
 
-  static init_UpperLower(): void {
+  static {
     this.define<UpperLower.Props>(() => ({
       dimension: [ Dimension, "height" ],
       lower:     [ XOrYCoordinateSpec, {field: "lower"} ],

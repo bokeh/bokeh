@@ -52,7 +52,7 @@ export class GridBox extends LayoutDOM {
     super(attrs)
   }
 
-  static init_GridBox(): void {
+  static {
     this.prototype.default_view = GridBoxView
 
     this.define<GridBox.Props>(({Any, Int, Number, Tuple, Array, Ref, Or, Opt}) => ({

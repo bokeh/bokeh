@@ -20,7 +20,7 @@ async function main(): Promise<void> {
         show_failure(result)
         process.exit(1)
       }
-    } catch (error: unknown) {
+    } catch (error) {
       show_error(error)
       process.exit(1)
     }

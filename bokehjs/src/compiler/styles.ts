@@ -16,7 +16,7 @@ export async function compile_styles(styles_dir: string, css_dir: string): Promi
       const {css} = await lesscss.render(style, {filename: src})
       const dst = rename(src, {base: styles_dir, dir: css_dir, ext: ".css"})
       write(dst, css)
-    } catch (error: unknown) {
+    } catch (error) {
       success = false
       console.log(`${chalk.red("\u2717")} failed to compile ${chalk.magenta(src)}:`)
       console.log(`${error}`)

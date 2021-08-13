@@ -75,7 +75,7 @@ export class ClientConnection {
         this.socket!.onclose = (event) => this._on_close(event, reject)
         this.socket!.onerror = () => this._on_error(reject)
       })
-    } catch (error: unknown) {
+    } catch (error) {
       logger.error(`websocket creation failed to url: ${this.url}`)
       logger.error(` - ${error}`)
       throw error
@@ -175,7 +175,7 @@ export class ClientConnection {
         logger.debug("Updated existing session with new pulled doc")
         // Since the session already exists, we don't need to call `resolve` again.
       }
-    } catch (error: unknown) {
+    } catch (error) {
       console.trace?.(error)
       logger.error(`Failed to repull session ${error}`)
       reject(error instanceof Error ? error : `${error}`)
@@ -195,7 +195,7 @@ export class ClientConnection {
 
     try {
       this._receiver.consume(event.data)
-    } catch (e: unknown) {
+    } catch (e) {
       this._close_bad_protocol(`${e}`)
     }
 

@@ -143,7 +143,7 @@ export class Tooltip extends Annotation {
     super(attrs)
   }
 
-  static init_Tooltip(): void {
+  static {
     this.prototype.default_view = TooltipView
 
     this.define<Tooltip.Props>(({Boolean}) => ({

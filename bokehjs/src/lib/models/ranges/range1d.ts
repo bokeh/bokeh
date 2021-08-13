@@ -21,7 +21,7 @@ export class Range1d extends Range {
     super(attrs)
   }
 
-  static init_Range1d(): void {
+  static {
     this.define<Range1d.Props>(({Number, Nullable}) => ({
       start:       [ Number, 0 ],
       end:         [ Number, 1 ],

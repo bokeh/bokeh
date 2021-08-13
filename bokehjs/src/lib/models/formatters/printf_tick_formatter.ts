@@ -19,7 +19,7 @@ export class PrintfTickFormatter extends TickFormatter {
     super(attrs)
   }
 
-  static init_PrintfTickFormatter(): void {
+  static {
     this.define<PrintfTickFormatter.Props>(({String}) => ({
       format: [ String, "%s" ],
     }))

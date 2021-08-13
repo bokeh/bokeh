@@ -70,7 +70,7 @@ export abstract class WebDataSource extends ColumnDataSource {
     }
   }
 
-  static init_WebDataSource(): void {
+  static {
     this.define<WebDataSource.Props>(({Any, Int, String, Nullable}) => ({
       max_size: [ Nullable(Int), null ],
       mode:     [ UpdateMode, "replace" ],

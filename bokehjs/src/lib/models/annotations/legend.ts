@@ -376,7 +376,7 @@ export class Legend extends Annotation {
     this.item_change = new Signal0(this, "item_change")
   }
 
-  static init_Legend(): void {
+  static {
     this.prototype.default_view = LegendView
 
     this.mixins<Legend.Mixins>([

@@ -93,7 +93,7 @@ export class TapTool extends SelectTool {
     super(attrs)
   }
 
-  static init_TapTool(): void {
+  static {
     this.prototype.default_view = TapToolView
 
     this.define<TapTool.Props>(({Any, Enum, Nullable}) => ({

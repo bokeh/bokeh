@@ -135,7 +135,7 @@ export class PanTool extends GestureTool {
     super(attrs)
   }
 
-  static init_PanTool(): void {
+  static {
     this.prototype.default_view = PanToolView
 
     this.define<PanTool.Props>(() => ({

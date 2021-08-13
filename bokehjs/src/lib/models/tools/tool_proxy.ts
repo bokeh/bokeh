@@ -27,7 +27,7 @@ export class ToolProxy extends Model {
     super(attrs)
   }
 
-  static init_ToolProxy(): void {
+  static {
     this.define<ToolProxy.Props>(({Boolean, Array, Ref}) => ({
       tools:    [ Array(Ref(ButtonTool)), [] ],
       active:   [ Boolean, false ],

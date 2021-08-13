@@ -24,7 +24,7 @@ export class RendererGroup extends Model {
     super(attrs)
   }
 
-  static init_RendererGroup(): void {
+  static {
     this.define<RendererGroup.Props>(({Boolean}) => ({
       visible: [ Boolean, true ],
     }))
@@ -172,7 +172,7 @@ export abstract class Renderer extends Model {
     super(attrs)
   }
 
-  static init_Renderer(): void {
+  static {
     this.define<Renderer.Props>(({Boolean, String, Ref, Nullable}) => ({
       group:        [ Nullable(Ref(RendererGroup)), null ],
       level:        [ RenderLevel, "image" ],

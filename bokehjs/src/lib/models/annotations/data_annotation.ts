@@ -84,7 +84,7 @@ export abstract class DataAnnotation extends Annotation {
     super(attrs)
   }
 
-  static init_DataAnnotation(): void {
+  static {
     this.define<DataAnnotation.Props>(({Ref}) => ({
       source: [ Ref(ColumnarDataSource), () => new ColumnDataSource() ],
     }))

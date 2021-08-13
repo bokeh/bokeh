@@ -63,7 +63,7 @@ export abstract class ArrowHead extends Model {
     super(attrs)
   }
 
-  static init_ArrowHead(): void {
+  static {
     this.define<ArrowHead.Props>(() => ({
       size: [ p.NumberSpec, 25 ],
     }))
@@ -118,7 +118,7 @@ export class OpenHead extends ArrowHead {
     super(attrs)
   }
 
-  static init_OpenHead(): void {
+  static {
     this.prototype.default_view = OpenHeadView
 
     this.mixins<OpenHead.Mixins>(LineVector)
@@ -183,7 +183,7 @@ export class NormalHead extends ArrowHead {
     super(attrs)
   }
 
-  static init_NormalHead(): void {
+  static {
     this.prototype.default_view = NormalHeadView
 
     this.mixins<NormalHead.Mixins>([LineVector, FillVector])
@@ -254,7 +254,7 @@ export class VeeHead extends ArrowHead {
     super(attrs)
   }
 
-  static init_VeeHead(): void {
+  static {
     this.prototype.default_view = VeeHeadView
 
     this.mixins<VeeHead.Mixins>([LineVector, FillVector])
@@ -303,7 +303,7 @@ export class TeeHead extends ArrowHead {
     super(attrs)
   }
 
-  static init_TeeHead(): void {
+  static {
     this.prototype.default_view = TeeHeadView
 
     this.mixins<TeeHead.Mixins>(LineVector)

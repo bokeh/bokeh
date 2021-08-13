@@ -60,7 +60,7 @@ export abstract class InputWidget extends Control {
     super(attrs)
   }
 
-  static init_InputWidget(): void {
+  static {
     this.define<InputWidget.Props>(({String}) => ({
       title: [ String, "" ],
     }))

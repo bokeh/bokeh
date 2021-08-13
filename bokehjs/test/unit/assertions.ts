@@ -97,7 +97,7 @@ class ElementAsserts implements ElementAssertions {
     try {
       compare_element_attributes(this.value, expected)
     } catch (err) {
-      throw new ExpectationError(`expected ${this.value.outerHTML} to be equal to ${expected.outerHTML} ${err.message}`)
+      throw new ExpectationError(`expected ${this.value.outerHTML} to be equal to ${expected.outerHTML} ${to_string(err)}`)
     }
   }
 }
@@ -222,7 +222,7 @@ function Throws(fn: () => unknown) {
   return function(error_type?: Class<Error>, pattern?: RegExp | string) {
     try {
       fn()
-    } catch (error: unknown) {
+    } catch (error) {
       if (!(error instanceof Error)) {
         throw new ExpectationError(`expected ${to_string(fn)} to throw a proper exception, got ${to_string(error)}`)
       }
@@ -252,7 +252,7 @@ function NotThrows(fn: () => unknown) {
   return function(error_type?: Class<Error>, pattern?: RegExp | string) {
     try {
       fn()
-    } catch (error: unknown) {
+    } catch (error) {
       if (error_type == null && pattern == null) {
         throw new ExpectationError(`expected ${to_string(fn)} to not throw, got ${to_string(error)}`)
       } else {

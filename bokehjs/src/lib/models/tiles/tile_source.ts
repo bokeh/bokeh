@@ -32,7 +32,7 @@ export abstract class TileSource extends Model {
     super(attrs)
   }
 
-  static init_TileSource(): void {
+  static {
     this.define<TileSource.Props>(({Number, String, Dict, Nullable}) => ({
       url:                [ String, "" ],
       tile_size:          [ Number, 256 ],

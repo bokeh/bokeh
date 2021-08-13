@@ -194,7 +194,7 @@ export class Bezier extends Glyph {
     super(attrs)
   }
 
-  static init_Bezier(): void {
+  static {
     this.prototype.default_view = BezierView
 
     this.define<Bezier.Props>(({}) => ({

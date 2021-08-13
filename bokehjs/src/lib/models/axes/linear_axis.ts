@@ -23,14 +23,14 @@ export class LinearAxis extends ContinuousAxis {
   override properties: LinearAxis.Props
   override __view_type__: LinearAxisView
 
-  ticker: ContinuousTicker
-  formatters: BasicTickFormatter
+  override ticker: ContinuousTicker
+  formatters: BasicTickFormatter    // XXX: no override, a TS bug?
 
   constructor(attrs?: Partial<LinearAxis.Attrs>) {
     super(attrs)
   }
 
-  static init_LinearAxis(): void {
+  static {
     this.prototype.default_view = LinearAxisView
 
     this.override<LinearAxis.Props>({

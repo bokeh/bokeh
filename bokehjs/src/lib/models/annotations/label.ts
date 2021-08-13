@@ -71,7 +71,7 @@ export class Label extends TextAnnotation {
     super(attrs)
   }
 
-  static init_Label(): void {
+  static {
     this.prototype.default_view = LabelView
 
     this.mixins<Label.Mixins>([

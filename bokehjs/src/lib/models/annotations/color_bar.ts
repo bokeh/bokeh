@@ -639,7 +639,7 @@ export class ColorBar extends Annotation {
     super(attrs)
   }
 
-  static init_ColorBar(): void {
+  static {
     this.prototype.default_view = ColorBarView
 
     this.mixins<ColorBar.Mixins>([

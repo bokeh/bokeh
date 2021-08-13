@@ -96,7 +96,7 @@ export class FileInput extends Widget {
     super(attrs)
   }
 
-  static init_FileInput(): void {
+  static {
     this.prototype.default_view = FileInputView
 
     this.define<FileInput.Props>(({Boolean, String, Array, Or}) => ({

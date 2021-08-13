@@ -99,7 +99,7 @@ export class Select extends InputWidget {
     super(attrs)
   }
 
-  static init_Select(): void {
+  static {
     this.prototype.default_view = SelectView
 
     this.define<Select.Props>(({String, Array, Tuple, Dict, Or}) => {

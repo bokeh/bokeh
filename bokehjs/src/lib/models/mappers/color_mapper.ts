@@ -48,7 +48,7 @@ export abstract class ColorMapper extends Mapper<Color> {
     this.metrics_change = new Signal0(this, "metrics_change")
   }
 
-  static init_ColorMapper(): void {
+  static {
     this.define<ColorMapper.Props>(({Color, Array}) => ({
       palette:   [ Array(Color) ],
       nan_color: [ Color, "gray" ],

@@ -45,7 +45,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     super(attrs)
   }
 
-  static init_GeoJSONDataSource(): void {
+  static {
     this.define<GeoJSONDataSource.Props>(({String}) => ({
       geojson: [ String ],
     }))

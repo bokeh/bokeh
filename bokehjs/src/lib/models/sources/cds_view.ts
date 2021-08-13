@@ -26,7 +26,7 @@ export class CDSView extends Model {
     super(attrs)
   }
 
-  static init_CDSView(): void {
+  static {
     this.define<CDSView.Props>(({Array, Ref}) => ({
       filters: [ Array(Ref(Filter)), [] ],
       source:  [ Ref(ColumnarDataSource) ],

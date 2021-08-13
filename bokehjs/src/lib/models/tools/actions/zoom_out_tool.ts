@@ -24,7 +24,7 @@ export class ZoomOutTool extends ZoomBaseTool {
     super(attrs)
   }
 
-  static init_ZoomOutTool(): void {
+  static {
     this.prototype.default_view = ZoomOutToolView
 
     this.define<ZoomOutTool.Props>(({Boolean}) => ({

@@ -20,7 +20,7 @@ class SubclassWithProps extends HasProps {
   constructor(attrs?: Partial<SubclassWithProps.Attrs>) {
     super(attrs)
   }
-  static init_SubclassWithProps() {
+  static {
     this.define<SubclassWithProps.Props>(({Boolean, Number}) => ({
       foo: [ Number, 0 ],
       bar: [ Boolean, true ],
@@ -40,7 +40,7 @@ class SubSubclassWithProps extends SubclassWithProps {
   constructor(attrs?: Partial<SubSubclassWithProps.Attrs>) {
     super(attrs)
   }
-  static init_SubSubclassWithProps() {
+  static {
     this.define<SubSubclassWithProps.Props>(({String}) => ({
       baz: [ String, "" ],
     }))

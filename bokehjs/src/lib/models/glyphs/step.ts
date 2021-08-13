@@ -113,7 +113,7 @@ export class Step extends XYGlyph {
     super(attrs)
   }
 
-  static init_Step(): void {
+  static {
     this.prototype.default_view = StepView
 
     this.mixins<Step.Mixins>(mixins.LineScalar)

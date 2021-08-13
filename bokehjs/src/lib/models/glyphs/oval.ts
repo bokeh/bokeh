@@ -34,7 +34,7 @@ export class Oval extends EllipseOval {
     super(attrs)
   }
 
-  static init_Oval(): void {
+  static {
     this.prototype.default_view = OvalView
   }
 }

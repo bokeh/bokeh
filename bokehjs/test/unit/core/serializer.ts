@@ -34,7 +34,7 @@ class SomeModel extends HasProps {
     super(attrs)
   }
 
-  static init_SomeModel(): void {
+  static {
     this.define<SomeModel.Props>(({Number, Array, Dict, Ref, Nullable}) => ({
       value: [ Number, 1 ],
       array: [ Array(Number), [] ],

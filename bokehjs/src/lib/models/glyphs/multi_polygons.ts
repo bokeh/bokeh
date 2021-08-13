@@ -317,7 +317,7 @@ export class MultiPolygons extends Glyph {
     super(attrs)
   }
 
-  static init_MultiPolygons(): void {
+  static {
     this.prototype.default_view = MultiPolygonsView
 
     this.define<MultiPolygons.Props>(({}) => ({

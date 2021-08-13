@@ -22,14 +22,14 @@ export class LogAxis extends ContinuousAxis {
   override properties: LogAxis.Props
   override __view_type__: LogAxisView
 
-  ticker:    LogTicker
-  formatter: LogTickFormatter
+  override ticker:    LogTicker
+  override formatter: LogTickFormatter
 
   constructor(attrs?: Partial<LogAxis.Attrs>) {
     super(attrs)
   }
 
-  static init_LogAxis(): void {
+  static {
     this.prototype.default_view = LogAxisView
 
     this.override<LogAxis.Props>({

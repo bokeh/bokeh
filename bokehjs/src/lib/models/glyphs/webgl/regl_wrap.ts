@@ -67,7 +67,7 @@ export class ReglWrapper {
         primitive: "triangles",
         data: [[0, 1, 5], [1, 2, 5], [5, 2, 4], [2, 3, 4]],
       })
-    } catch (err: unknown) {
+    } catch (err) {
       this._regl_available = false
     }
   }

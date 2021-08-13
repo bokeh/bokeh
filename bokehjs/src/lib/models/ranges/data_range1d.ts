@@ -40,7 +40,7 @@ export class DataRange1d extends DataRange {
     super(attrs)
   }
 
-  static init_DataRange1d(): void {
+  static {
     this.define<DataRange1d.Props>(({Boolean, Number, Nullable}) => ({
       start:               [ Number ],
       end:                 [ Number ],

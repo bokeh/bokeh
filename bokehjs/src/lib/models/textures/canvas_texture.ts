@@ -21,7 +21,7 @@ export abstract class CanvasTexture extends Texture {
     super(attrs)
   }
 
-  static init_CanvasTexture(): void {
+  static {
     this.define<CanvasTexture.Props>(({String}) => ({
       code: [ String ],
     }))
