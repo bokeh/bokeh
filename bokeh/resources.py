@@ -684,7 +684,7 @@ def _cdn_base_url() -> str:
 def _get_cdn_urls(version: str | None = None, minified: bool = True, legacy: bool = False) -> Urls:
     if version is None:
         docs_cdn = settings.docs_cdn()
-        version = docs_cdn if docs_cdn else __version__.split("-")[0]
+        version = docs_cdn if docs_cdn else __version__.split("+")[0]
 
     # check if we want minified js and css
     _minified = ".min" if minified else ""
@@ -705,7 +705,7 @@ def _get_cdn_urls(version: str | None = None, minified: bool = True, legacy: boo
 
     result = Urls(urls=lambda components, kind: [mk_url(component, kind) for component in components])
 
-    if len(__version__.split("-")) > 1:
+    if len(__version__.split("+")) > 1:
         result.messages.append(RuntimeMessage(
             type="warn",
             text=(
