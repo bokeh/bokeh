@@ -36,7 +36,7 @@ from _util_server import (
 from flaky import flaky
 from tornado.httpclient import HTTPError
 from tornado.httpserver import HTTPServer
-from tornado.ioloop import IOLoop, PeriodicCallback
+from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from bokeh._testing.plugins.managed_server_loop import MSL
@@ -78,30 +78,24 @@ class HookTestHandler(Handler):
         self.unload_count = 0
         self.session_creation_async_value = 0
         self.hooks = []
-        self.server_periodic_remover = None
-        self.session_periodic_remover = None
+        self.periodic_remover = None
 
     def modify_document(self, doc):
-        # this checks that the session created hook has run
-        # and session destroyed has not.
+        # checks that session created hook has run, and session destroyed has not.
         assert self.session_creation_async_value == 3
         doc.title = "Modified"
         doc.roots[0].hooks.append("modify")
         self.hooks.append("modify")
 
+        doc.add_next_tick_callback(self.on_next_tick)
+        doc.add_timeout_callback(self.on_timeout, 2)
+        periodic_cb = doc.add_periodic_callback(self.on_periodic, 3)
+        self.periodic_remover = lambda: doc.remove_periodic_callback(periodic_cb)
+
     def on_server_loaded(self, server_context):
         assert len(server_context.sessions) == 0
         self.load_count += 1
         self.hooks.append("server_loaded")
-
-        server_context.add_next_tick_callback(self.on_next_tick_server)
-        server_context.add_timeout_callback(self.on_timeout_server, 2)
-        periodic_cb_id = server_context.add_periodic_callback(self.on_periodic_server, 3)
-
-        def remover():
-            server_context.remove_periodic_callback(periodic_cb_id)
-
-        self.server_periodic_remover = remover
 
     def on_server_unloaded(self, server_context):
         self.unload_count += 1
@@ -110,8 +104,7 @@ class HookTestHandler(Handler):
     # important to test that this can be async
     async def on_session_created(self, session_context):
         async def setup_document(doc):
-            # session creation hook is allowed to init the document
-            # before any modify_document() handlers kick in
+            # session creation hook is allowed to init the document before modify_document
             from bokeh.document import DEFAULT_TITLE
             hook_list = HookListModel()
             assert doc.title == DEFAULT_TITLE
@@ -124,16 +117,6 @@ class HookTestHandler(Handler):
             self.session_creation_async_value = await async_value(3)
 
         await session_context.with_locked_document(setup_document)
-
-        server_context = session_context.server_context
-        server_context.add_next_tick_callback(self.on_next_tick_session)
-        server_context.add_timeout_callback(self.on_timeout_session, 2)
-        periodic_cb_id = server_context.add_periodic_callback(self.on_periodic_session, 3)
-
-        def remover():
-            server_context.remove_periodic_callback(periodic_cb_id)
-
-        self.session_periodic_remover = remover
 
         self.hooks.append("session_created")
 
@@ -149,25 +132,15 @@ class HookTestHandler(Handler):
 
         self.hooks.append("session_destroyed")
 
-    def on_next_tick_server(self):
-        self.hooks.append("next_tick_server")
+    def on_next_tick(self):
+        self.hooks.append("next_tick")
 
-    def on_timeout_server(self):
-        self.hooks.append("timeout_server")
+    def on_timeout(self):
+        self.hooks.append("timeout")
 
-    def on_periodic_server(self):
-        self.hooks.append("periodic_server")
-        self.server_periodic_remover()
-
-    def on_next_tick_session(self):
-        self.hooks.append("next_tick_session")
-
-    def on_timeout_session(self):
-        self.hooks.append("timeout_session")
-
-    def on_periodic_session(self):
-        self.hooks.append("periodic_session")
-        self.session_periodic_remover()
+    def on_periodic(self):
+        self.hooks.append("periodic")
+        self.periodic_remover()
 
 #-----------------------------------------------------------------------------
 # General API
@@ -235,9 +208,6 @@ async def test_get_sessions(ManagedServerLoop: MSL) -> None:
         server_sessions = server.get_sessions()
         assert len(server_sessions) == 3
 
-# examples:
-# "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"
-# 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
 token_in_json = re.compile("""["']token["'] *: *["']([^"]+)["']""")
 def extract_token_from_json(html):
     if not isinstance(html, str):
@@ -246,9 +216,6 @@ def extract_token_from_json(html):
     match = token_in_json.search(html)
     return match.group(1)
 
-# examples:
-# "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"
-# 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
 use_for_title_in_json = re.compile("""["']use_for_title["'] *: *(false|true)""")
 def extract_use_for_title_from_json(html):
     if not isinstance(html, str):
@@ -294,8 +261,6 @@ def test_ssl_args_plumbing(ManagedServerLoop: MSL) -> None:
             assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
             assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile="baz", password="bar")
 
-# This test just maintains basic creation and setup, detailed functionality
-# is exercised by Server tests above
 def test_base_server() -> None:
     app = BokehTornado(Application())
     httpserver = HTTPServer(app)
@@ -396,17 +361,6 @@ def test__lifecycle_hooks(ManagedServerLoop: MSL) -> None:
     handler = HookTestHandler()
     application.add(handler)
     with ManagedServerLoop(application, check_unused_sessions_milliseconds=30) as server:
-        # wait for server callbacks to run before we mix in the
-        # session, this keeps the test deterministic
-        def check_done():
-            if len(handler.hooks) == 4:
-                server.io_loop.stop()
-        server_load_checker = PeriodicCallback(check_done, 1)
-        server_load_checker.start()
-        server.io_loop.start()
-        server_load_checker.stop()
-
-        # now we create a session
         client_session = pull_session(session_id=ID("test__lifecycle_hooks"),
                                       url=url(server),
                                       io_loop=server.io_loop)
@@ -417,44 +371,39 @@ def test__lifecycle_hooks(ManagedServerLoop: MSL) -> None:
         server_doc = server_session.document
         assert len(server_doc.roots) == 1
 
-        # we have to capture these here for examination later, since after
-        # the session is closed, doc.roots will be emptied
+        # save for later, since doc.roots will be emptied after the session is closed
         client_hook_list = client_doc.roots[0]
         server_hook_list = server_doc.roots[0]
 
         client_session.close()
-        # expire the session quickly rather than after the
-        # usual timeout
+
+        # expire the session quickly rather than after the usual timeout
         server_session.request_expiration()
 
-        def on_done():
-            server.io_loop.stop()
-
-        server.io_loop.call_later(0.1, on_done)
+        server.io_loop.call_later(0.1, lambda: server.io_loop.stop())
 
         server.io_loop.start()
 
-    assert handler.hooks == ["server_loaded",
-                             "next_tick_server",
-                             "timeout_server",
-                             "periodic_server",
-                             "session_created",
-                             "modify",
-                             "next_tick_session",
-                             "timeout_session",
-                             "periodic_session",
-                             "session_destroyed",
-                             "server_unloaded"]
+    assert handler.hooks == [
+        "server_loaded",
+        "session_created",
+        "modify",
+        "next_tick",
+        "timeout",
+        "periodic",
+        "session_destroyed",
+        "server_unloaded",
+    ]
 
     assert handler.load_count == 1
     assert handler.unload_count == 1
-    # this is 3 instead of 6 because locked callbacks on destroyed sessions
-    # are turned into no-ops
+
+    # 3 instead of 6, because locked callbacks on destroyed sessions become no-ops
     assert handler.session_creation_async_value == 3
     assert client_doc.title == "Modified"
     assert server_doc.title == "Modified"
-    # only the handler sees the event that adds "session_destroyed" since
-    # the session is shut down at that point.
+
+    # only the handler sees "session_destroyed" since the session is shut down at that point.
     assert client_hook_list.hooks == ["session_created", "modify"]
     assert server_hook_list.hooks == ["session_created", "modify"]
 
