@@ -126,7 +126,7 @@ class TestJSResources:
         min_hashes = {v for k, v in hashes.items() if k.endswith(".min.js") and "api" not in k}
         assert set(r.hashes.values()) == min_hashes
 
-    @pytest.mark.parametrize('v', ["1.4.0dev6", "1.4.0rc1", "1.4.0dev6-50-foo"])
+    @pytest.mark.parametrize('v', ["1.4.0dev6", "1.4.0rc1", "1.4.0dev6+50.foo"])
     def test_js_resources_hashes_mock_non_full(self, v: str, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", v)
         monkeypatch.setattr(resources, "__version__", v)
@@ -196,11 +196,11 @@ class TestResources:
         assert r.css_raw == []
         assert r.messages == []
 
-        resources.__version__ = "1.0-1-abc"
+        resources.__version__ = "1.0+1.abc"
         r = resources.Resources(mode="cdn", version="1.0")
         assert r.messages == [
             RuntimeMessage(
-                text="Requesting CDN BokehJS version '1.0' from Bokeh development version '1.0-1-abc'. This configuration is unsupported and may not work!",
+                text="Requesting CDN BokehJS version '1.0' from Bokeh development version '1.0+1.abc'. This configuration is unsupported and may not work!",
                 type="warn",
             )
         ]
@@ -362,8 +362,8 @@ class TestResources:
             assert "integrity" not in script.attrs
 
     def test_render_js_cdn_dev_local(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setattr(buv, "__version__", "2.0.0-foo")
-        monkeypatch.setattr(resources, "__version__", "2.0.0-foo")
+        monkeypatch.setattr(buv, "__version__", "2.0.0+foo")
+        monkeypatch.setattr(resources, "__version__", "2.0.0+foo")
         out = resources.CDN.render_js()
         html = bs4.BeautifulSoup(out, "html.parser")
         scripts = html.findAll(name='script')
@@ -373,7 +373,7 @@ class TestResources:
             assert "crossorigin" not in script.attrs
             assert "integrity" not in script.attrs
 
-    @pytest.mark.parametrize('v', ["2.0.0", "2.0.0-foo", "1.8.0rc1", "1.8.0dev6"])
+    @pytest.mark.parametrize('v', ["2.0.0", "2.0.0+foo", "1.8.0rc1", "1.8.0dev6"])
     def test_render_js_inline(self, v, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", v)
         monkeypatch.setattr(resources, "__version__", v)
