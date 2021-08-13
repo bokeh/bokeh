@@ -4,12 +4,10 @@ iris species.
 
 .. rubric:: Details
 
-:sampledata: :ref:`sampledata_iris`
-:bokeh APIs: :func:`~bokeh.plotting.Figure.circle`
-:references: :ref:`userguide_plotting_scatter_markers`
-:keywords: scatter, alpha
-
-|
+:Sampledata: :ref:`sampledata_iris`
+:Bokeh APIs: :func:`~bokeh.plotting.Figure.circle`
+:More info: :ref:`userguide_plotting_scatter_markers`
+:Keywords: scatter, alpha
 
 '''
 from bokeh.plotting import figure, show

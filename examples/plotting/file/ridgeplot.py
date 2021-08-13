@@ -2,12 +2,10 @@
 
 .. rubric:: Details
 
-:sampledata: :ref:`sampledata_perceptions`
-:bokeh APIs: :func:`~bokeh.plotting.Figure.patch`
-:references: :ref:`userguide_categorical_offsets`
-:keywords: ridgeline, patch, palette, alpha
-
-|
+:Sampledata: :ref:`sampledata_perceptions`
+:Bokeh APIs: :func:`~bokeh.plotting.Figure.patch`
+:More info: :ref:`userguide_categorical_offsets`
+:Keywords: ridgeline, patch, palette, alpha
 
 '''
 import colorcet as cc

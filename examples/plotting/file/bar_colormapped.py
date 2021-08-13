@@ -3,11 +3,9 @@ with categories.
 
 .. rubric:: Details
 
-:bokeh APIs: :func:`~bokeh.plotting.Figure.vbar`, :func:`~bokeh.transform.factor_cmap`
-:references: :ref:`userguide_categorical_bars`
-:keywords: bar, vbar, legend, factor_cmap, palette
-
-|
+:Bokeh APIs: :func:`~bokeh.plotting.Figure.vbar`, :func:`~bokeh.transform.factor_cmap`
+:More info: :ref:`userguide_categorical_bars`
+:Keywords: bar, vbar, legend, factor_cmap, palette
 
 '''
 from bokeh.io import show

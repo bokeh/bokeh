@@ -2,11 +2,9 @@
 
 .. rubric:: Details
 
-:bokeh APIs: :func:`~bokeh.plotting.Figure.wedge`
-:references: :ref:`userguide_plotting_wedges_arcs`
-:keywords: pie, wedge, pandas
-
-|
+:Bokeh APIs: :func:`~bokeh.plotting.Figure.wedge`
+:More info: :ref:`userguide_plotting_wedges_arcs`
+:Keywords: pie, wedge, pandas
 
 '''
 from math import pi

@@ -2,11 +2,9 @@
 
 .. rubric:: Details
 
-:bokeh APIs: :func:`~bokeh.plotting.Figure.hexbin`
-:references: :ref:`userguide_plotting_hex`
-:keywords: hex, hover, tooltip, bin
-
-|
+:Bokeh APIs: :func:`~bokeh.plotting.Figure.hexbin`
+:More info: :ref:`userguide_plotting_hex`
+:Keywords: hex, hover, tooltip, bin
 
 '''
 import numpy as np
