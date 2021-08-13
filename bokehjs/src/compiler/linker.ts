@@ -886,7 +886,7 @@ export async function minify(module: ModuleInfo, source: string, ecma: terser.EC
       min_source: code ?? "",
       min_map: typeof map === "string" ? map : undefined,
     }
-  } catch (error: unknown) {
+  } catch (error) {
     throw new BuildError("linker", `${error}`)
   }
 }
