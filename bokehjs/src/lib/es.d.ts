@@ -42,12 +42,6 @@ interface Document {
   }
 }
 
-// TS 4.3 regression
-interface TextMetrics {
-  readonly fontBoundingBoxAscent: number
-  readonly fontBoundingBoxDescent: number
-}
-
 declare interface OffscreenCanvas extends EventTarget {
   height: number
   width: number
