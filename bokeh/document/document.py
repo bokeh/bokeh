@@ -65,6 +65,7 @@ from ..model import Model
 from ..themes import Theme, built_in_themes, default as default_theme
 from ..util.callback_manager import _check_callback
 from ..util.deprecation import deprecated
+from ..util.serialization import make_id
 from ..util.version import __version__
 from .events import (
     DocumentPatchedEvent,
@@ -300,7 +301,7 @@ class Document:
 
         '''
         from ..server.callbacks import NextTickCallback
-        cb = NextTickCallback(None)
+        cb = NextTickCallback(callback=None, callback_id=make_id())
         return self._add_session_callback(cb, callback, one_shot=True)
 
     def add_periodic_callback(self, callback: Callback, period_milliseconds: int) -> PeriodicCallback:
@@ -323,7 +324,7 @@ class Document:
 
         '''
         from ..server.callbacks import PeriodicCallback
-        cb = PeriodicCallback(None, period_milliseconds)
+        cb = PeriodicCallback(callback=None, period=period_milliseconds, callback_id=make_id())
         return self._add_session_callback(cb, callback, one_shot=False)
 
     def add_root(self, model: Model, setter: Setter | None = None) -> None:
@@ -377,7 +378,7 @@ class Document:
 
         '''
         from ..server.callbacks import TimeoutCallback
-        cb = TimeoutCallback(None, timeout_milliseconds)
+        cb = TimeoutCallback(callback=None, timeout=timeout_milliseconds, callback_id=make_id())
         return self._add_session_callback(cb, callback, one_shot=True)
 
     def apply_json_event(self, json: EventJson) -> None:

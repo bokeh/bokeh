@@ -113,7 +113,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     _id: ID
 
-    def __new__(cls, *args, **kwargs): # XXX: type annotations mess up bokeh-model directive
+    def __new__(cls, *args, **kwargs) -> Model:
         obj =  super().__new__(cls)
         obj._id = kwargs.pop("id", make_id())
         return obj

@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import inspect
 import time
+from copy import copy
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -233,8 +234,9 @@ class ServerSession:
         return wrapped_callback
 
     def _wrap_session_callback(self, callback: SessionCallback) -> SessionCallback:
-        wrapped = self._wrap_document_callback(callback.callback)
-        return callback._copy_with_changed_callback(wrapped)
+        wrapped = copy(callback)
+        wrapped._callback = self._wrap_document_callback(callback.callback)
+        return wrapped
 
     def _document_patched(self, event: DocumentPatchedEvent) -> None:
         may_suppress = event.setter is self

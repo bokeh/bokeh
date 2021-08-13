@@ -43,14 +43,12 @@ from ..application.application import ServerContext, SessionContext
 from ..document import Document
 from ..protocol.exceptions import ProtocolError
 from ..util.token import get_token_payload
-from ..util.tornado import _CallbackGroup
 from .session import ServerSession
 
 if TYPE_CHECKING:
     from ..application.application import Application
     from ..core.types import ID
     from ..util.token import TokenPayload
-    from ..util.tornado import Callback
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -77,10 +75,6 @@ __all__ = (
 class BokehServerContext(ServerContext):
     def __init__(self, application_context: ApplicationContext) -> None:
         self.application_context = application_context
-        self._callbacks = _CallbackGroup(self.application_context.io_loop)
-
-    def _remove_all_callbacks(self) -> None:
-        self._callbacks.remove_all_callbacks()
 
     @property
     def sessions(self) -> List[ServerSession]:
@@ -88,24 +82,6 @@ class BokehServerContext(ServerContext):
         for session in self.application_context.sessions:
             result.append(session)
         return result
-
-    def add_next_tick_callback(self, callback: Callback) -> ID:
-        return self._callbacks.add_next_tick_callback(callback)
-
-    def remove_next_tick_callback(self, callback_id: ID) -> None:
-        self._callbacks.remove_next_tick_callback(callback_id)
-
-    def add_timeout_callback(self, callback: Callback, timeout_milliseconds: int) -> ID:
-        return self._callbacks.add_timeout_callback(callback, timeout_milliseconds)
-
-    def remove_timeout_callback(self, callback_id: ID) -> None:
-        self._callbacks.remove_timeout_callback(callback_id)
-
-    def add_periodic_callback(self, callback: Callback, period_milliseconds: int) -> ID:
-        return self._callbacks.add_periodic_callback(callback, period_milliseconds)
-
-    def remove_periodic_callback(self, callback_id: ID) -> None:
-        self._callbacks.remove_periodic_callback(callback_id)
 
 class BokehSessionContext(SessionContext):
 
@@ -218,8 +194,6 @@ class ApplicationContext:
             self._application.on_server_unloaded(self.server_context)
         except Exception as e:
             log.error(f"Error in server unloaded hook {e!r}", exc_info=True)
-
-        self.server_context._remove_all_callbacks()
 
     async def create_session_if_needed(self, session_id: ID, request: HTTPServerRequest | None = None,
             token: str | None = None) -> ServerSession:
