@@ -36,6 +36,7 @@ from typing import (
     Dict,
     Iterable,
     List,
+    Mapping,
     NoReturn,
     Set,
     Tuple,
@@ -412,7 +413,7 @@ class HasProps(metaclass=MetaHasProps):
             setattr(self, k, v)
 
     def update_from_json(self, json_attributes: Dict[str, JSON], *,
-            models: Dict[ID, HasProps] | None = None, setter: Setter | None = None) -> None:
+            models: Mapping[ID, HasProps] | None = None, setter: Setter | None = None) -> None:
         ''' Updates the object's properties from a JSON attributes dictionary.
 
         Args:

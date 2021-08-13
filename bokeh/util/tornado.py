@@ -27,9 +27,12 @@ from collections import defaultdict
 from traceback import format_exception
 from typing import (
     Any,
+    Awaitable,
     Callable,
     Dict,
+    List,
     Set,
+    Union,
 )
 
 # External imports
@@ -66,7 +69,11 @@ def fixup_windows_event_loop_policy() -> None:
 # Private API
 #-----------------------------------------------------------------------------
 
-Callback = Callable[[], None]
+CallbackSync = Callable[[], None]
+CallbackAsync = Callable[[], Awaitable[None]]
+Callback = Union[CallbackSync, CallbackAsync]
+
+InvokeResult = Union[Awaitable[None], Awaitable[List[Any]], Awaitable[Dict[Any, Any]]]
 
 Remover = Callable[[], None]
 
@@ -84,14 +91,15 @@ class _AsyncPeriodic:
 
     '''
 
-    _func: Callback
     _loop: IOLoop
     _period: int
     _started: bool
     _stopped: bool
 
     def __init__(self, func: Callback, period: int, io_loop: IOLoop) -> None:
-        self._func = func
+        # specify type here until this is released: https://github.com/python/mypy/pull/10548
+        self._func: Callback = func
+
         self._loop = io_loop
         self._period = period
         self._started = False
@@ -108,7 +116,7 @@ class _AsyncPeriodic:
             raise RuntimeError("called start() twice on _AsyncPeriodic")
         self._started = True
 
-        def invoke():
+        def invoke() -> InvokeResult:
             # important to start the sleep before starting callback so any initial
             # time spent in callback "counts against" the period.
             sleep_future = self.sleep()
@@ -120,9 +128,10 @@ class _AsyncPeriodic:
             callback_future = gen.convert_yielded(result)
             return gen.multi([sleep_future, callback_future])
 
-        def on_done(future):
+        def on_done(future: gen.Future[None]) -> None:
             if not self._stopped:
-                self._loop.add_future(invoke(), on_done)
+                # mypy can't infer type of invoker for some reason
+                self._loop.add_future(invoke(), on_done)  # type: ignore
             ex = future.exception()
             if ex is not None:
                 log.error("Error thrown from periodic callback:")
@@ -163,7 +172,7 @@ class _CallbackGroup:
         self._timeout_removers_by_callable = defaultdict(set)
         self._periodic_removers_by_callable = defaultdict(set)
 
-    def remove_all_callbacks(self):
+    def remove_all_callbacks(self) -> None:
         ''' Removes all registered callbacks.
 
         '''
@@ -213,21 +222,21 @@ class _CallbackGroup:
         The passed-in ID can be used with remove_next_tick_callback.
 
         '''
-        def wrapper(*args, **kwargs):
-            # this 'removed' flag is a hack because Tornado has no way
-            # to remove a "next tick" callback added with
-            # IOLoop.add_callback. So instead we make our wrapper skip
-            # invoking the callback.
-            if not wrapper.removed:
-                self.remove_next_tick_callback(callback_id)
-                return callback(*args, **kwargs)
-            else:
+        def wrapper() -> None | Awaitable[None]:
+            # this 'removed' flag is a hack because Tornado has no way to remove
+            # a "next tick" callback added with IOLoop.add_callback. So instead
+            # we make our wrapper skip invoking the callback.
+            #
+            # also: mypy cannot handle attrs on callables: https://github.com/python/mypy/issues/2087
+            if wrapper.removed:  # type: ignore
                 return None
+            self.remove_next_tick_callback(callback_id)
+            return callback()
 
-        wrapper.removed = False
+        wrapper.removed = False  # type: ignore
 
-        def remover():
-            wrapper.removed = True
+        def remover() -> None:
+            wrapper.removed = True   # type: ignore
 
         self._assign_remover(callback, callback_id, self._next_tick_callback_removers, remover)
         self._loop.add_callback(wrapper)
@@ -239,19 +248,19 @@ class _CallbackGroup:
         '''
         self._execute_remover(callback_id, self._next_tick_callback_removers)
 
-    def add_timeout_callback(self, callback: Callback, timeout_milliseconds: int, callback_id: ID) -> ID:
+    def add_timeout_callback(self, callback: CallbackSync, timeout_milliseconds: int, callback_id: ID) -> ID:
         ''' Adds a callback to be run once after timeout_milliseconds.
 
         The passed-in ID can be used with remove_timeout_callback.
 
         '''
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
+        def wrapper() -> None:
             self.remove_timeout_callback(callback_id)
-            return callback(*args, **kwargs)
+            return callback()
 
         handle: object | None = None
 
-        def remover():
+        def remover() -> None:
             if handle is not None:
                 self._loop.remove_timeout(handle)
 

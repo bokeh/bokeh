@@ -55,7 +55,6 @@ class SessionCallback:
     '''
 
     _id: ID
-    _callback: Callback
 
     def __init__(self, callback: Callback, *, callback_id: ID) -> None:
         '''
@@ -66,8 +65,10 @@ class SessionCallback:
             id (ID) :
 
         '''
-        self._id = id
-        self._callback = callback
+        self._id = callback_id
+
+        # specify type here until this is released: https://github.com/python/mypy/pull/10548
+        self._callback: Callback = callback
 
     @property
     def id(self) -> ID:
@@ -107,6 +108,9 @@ class PeriodicCallback(SessionCallback):
     specified periodic time interval.
 
     '''
+
+    _period: int
+
     def __init__(self, callback: Callback, period: int, *, callback_id: ID) -> None:
         '''
 
@@ -134,6 +138,9 @@ class TimeoutCallback(SessionCallback):
     time interval passes.
 
     '''
+
+    _timeout: int
+
     def __init__(self, callback: Callback, timeout: int, *, callback_id: ID) -> None:
         '''
 
@@ -163,7 +170,7 @@ class DocumentCallbackGroup:
     '''
 
     '''
-    def __init__(self, io_loop: IOLoop | None = None) -> None:
+    def __init__(self, io_loop: IOLoop) -> None:
         '''
 
         '''
