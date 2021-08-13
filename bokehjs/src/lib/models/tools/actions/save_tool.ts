@@ -8,7 +8,7 @@ export class SaveToolView extends ActionToolView {
 
   async copy(): Promise<void> {
     const blob = await this.plot_view.to_blob()
-    const item = new ClipboardItem({[blob.type]: blob})
+    const item = new ClipboardItem({[blob.type]: Promise.resolve(blob)})
     await navigator.clipboard.write([item])
   }
 
