@@ -140,7 +140,7 @@ export class Line extends XYGlyph {
     super(attrs)
   }
 
-  static init_Line(): void {
+  static {
     this.prototype.default_view = LineView
 
     this.mixins<Line.Mixins>(mixins.LineScalar)

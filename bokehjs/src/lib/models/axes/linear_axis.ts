@@ -30,7 +30,7 @@ export class LinearAxis extends ContinuousAxis {
     super(attrs)
   }
 
-  static init_LinearAxis(): void {
+  static {
     this.prototype.default_view = LinearAxisView
 
     this.override<LinearAxis.Props>({

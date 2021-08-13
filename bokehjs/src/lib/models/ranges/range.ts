@@ -22,7 +22,7 @@ export abstract class Range extends Model {
     super(attrs)
   }
 
-  static init_Range(): void {
+  static {
     this.define<Range.Props>(({Number, Tuple, Or, Auto, Nullable}) => ({
       bounds:       [ Nullable(Or(Tuple(Nullable(Number), Nullable(Number)), Auto)), null ],
       min_interval: [ Nullable(Number), null ],

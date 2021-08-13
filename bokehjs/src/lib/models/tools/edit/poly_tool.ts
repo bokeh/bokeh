@@ -79,7 +79,7 @@ export abstract class PolyTool extends EditTool {
     super(attrs)
   }
 
-  static init_PolyTool(): void {
+  static {
     this.define<PolyTool.Props>(({AnyRef}) => ({
       vertex_renderer: [ AnyRef<GlyphRenderer & HasXYGlyph>() ],
     }))

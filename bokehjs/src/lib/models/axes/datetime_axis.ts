@@ -29,7 +29,7 @@ export class DatetimeAxis extends LinearAxis {
   override ticker: DatetimeTicker
   override formatter: DatetimeTickFormatter
 
-  static init_DatetimeAxis(): void {
+  static {
     this.prototype.default_view = DatetimeAxisView
 
     this.override<DatetimeAxis.Props>({

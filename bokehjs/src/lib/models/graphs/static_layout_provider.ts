@@ -20,7 +20,7 @@ export class StaticLayoutProvider extends LayoutProvider {
     super(attrs)
   }
 
-  static init_StaticLayoutProvider(): void {
+  static {
     this.define<StaticLayoutProvider.Props>(({Number, Tuple, Dict}) => ({
       graph_layout: [ Dict(Tuple(Number, Number)), {} ],
     }))

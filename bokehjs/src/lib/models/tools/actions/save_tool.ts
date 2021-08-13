@@ -49,7 +49,7 @@ export class SaveTool extends ActionTool {
     super(attrs)
   }
 
-  static init_SaveTool(): void {
+  static {
     this.prototype.default_view = SaveToolView
 
     this.register_alias("save", () => new SaveTool())

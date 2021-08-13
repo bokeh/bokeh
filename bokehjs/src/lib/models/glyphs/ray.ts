@@ -92,7 +92,7 @@ export class Ray extends XYGlyph {
     super(attrs)
   }
 
-  static init_Ray(): void {
+  static {
     this.prototype.default_view = RayView
 
     this.mixins<Ray.Mixins>(LineVector)

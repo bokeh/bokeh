@@ -57,7 +57,7 @@ export abstract class LineTool extends EditTool {
     super(attrs)
   }
 
-  static init_LineTool(): void {
+  static {
     this.define<LineTool.Props>(({AnyRef}) => ({
       intersection_renderer: [ AnyRef<GlyphRenderer & HasLineGlyph>() ],
     }))

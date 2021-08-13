@@ -23,7 +23,7 @@ export abstract class RowAggregator extends Model {
     super(attrs)
   }
 
-  static init_RowAggregator(): void {
+  static {
     this.define<RowAggregator.Props>(({String}) => ({
       field_: [ String, "" ],
     }))

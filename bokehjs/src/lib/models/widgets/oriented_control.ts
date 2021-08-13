@@ -28,7 +28,7 @@ export abstract class OrientedControl extends Control {
     super(attrs)
   }
 
-  static init_OrientedControl(): void {
+  static {
     this.define<OrientedControl.Props>(() => ({
       orientation: [ Orientation, "horizontal" ],
     }))

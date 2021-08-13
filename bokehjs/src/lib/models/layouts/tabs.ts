@@ -251,7 +251,7 @@ export class Tabs extends LayoutDOM {
     super(attrs)
   }
 
-  static init_Tabs(): void {
+  static {
     this.prototype.default_view = TabsView
 
     this.define<Tabs.Props>(({Int, Array, Ref}) => ({

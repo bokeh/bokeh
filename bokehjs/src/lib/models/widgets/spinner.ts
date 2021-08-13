@@ -228,7 +228,7 @@ export class Spinner extends NumericInput {
     super(attrs)
   }
 
-  static init_Spinner(): void {
+  static {
     this.prototype.default_view = SpinnerView
 
     this.define<Spinner.Props>(({Number, Nullable}) => ({

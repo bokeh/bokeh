@@ -93,7 +93,7 @@ export class PointDrawTool extends EditTool {
     super(attrs)
   }
 
-  static init_PointDrawTool(): void {
+  static {
     this.prototype.default_view = PointDrawToolView
 
     this.define<PointDrawTool.Props>(({Boolean, Int}) => ({

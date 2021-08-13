@@ -25,7 +25,7 @@ export class RangeSlider extends AbstractSlider {
     super(attrs)
   }
 
-  static init_RangeSlider(): void {
+  static {
     this.prototype.default_view = RangeSliderView
 
     this.override<RangeSlider.Props>({

@@ -423,7 +423,7 @@ export abstract class LayoutDOM extends Model {
     super(attrs)
   }
 
-  static init_LayoutDOM(): void {
+  static {
     this.define<LayoutDOM.Props>((types) => {
       const {Boolean, Number, String, Auto, Color, Array, Tuple, Or, Null, Nullable} = types
       const Number2 = Tuple(Number, Number)

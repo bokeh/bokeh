@@ -396,7 +396,7 @@ export class TileRenderer extends Renderer {
     super(attrs)
   }
 
-  static init_TileRenderer(): void {
+  static {
     this.prototype.default_view = TileRendererView
 
     this.define<TileRenderer.Props>(({Boolean, Number, Ref}) => ({

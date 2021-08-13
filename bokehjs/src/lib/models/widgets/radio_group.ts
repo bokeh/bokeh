@@ -59,7 +59,7 @@ export class RadioGroup extends InputGroup {
     super(attrs)
   }
 
-  static init_RadioGroup(): void {
+  static {
     this.prototype.default_view = RadioGroupView
 
     this.define<RadioGroup.Props>(({Boolean, Int, String, Array, Nullable}) => ({

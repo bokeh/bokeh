@@ -38,11 +38,10 @@ describe("glyph module", () => {
       }
 
       class SomeGlyph extends Glyph {
-        static init_SomeGlyph(): void {
+        static {
           this.prototype.default_view = SomeGlyphView
         }
       }
-      SomeGlyph.init_SomeGlyph()
 
       const glyph = new SomeGlyph()
       const data = {}

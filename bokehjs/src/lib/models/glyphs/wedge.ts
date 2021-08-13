@@ -145,7 +145,7 @@ export class Wedge extends XYGlyph {
     super(attrs)
   }
 
-  static init_Wedge(): void {
+  static {
     this.prototype.default_view = WedgeView
 
     this.mixins<Wedge.Mixins>([LineVector, FillVector, HatchVector])

@@ -50,7 +50,7 @@ export class SomeModel extends Model {
     super(attrs)
   }
 
-  static init_SomeModel(): void {
+  static {
     this.prototype.default_view = SomeModelView
     this.mixins<SomeModel.Mixins>([mixins.Text, mixins.Line, mixins.Fill, mixins.Hatch])
   }

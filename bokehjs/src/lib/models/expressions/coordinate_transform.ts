@@ -17,8 +17,6 @@ export abstract class CoordinateTransform extends Expression<{x: Float64Array, y
     super(attrs)
   }
 
-  static init_CoordinateTransform(): void {}
-
   get x(): XComponent {
     return new XComponent({transform: this})
   }
@@ -45,7 +43,7 @@ export abstract class XYComponent extends Expression {
     super(attrs)
   }
 
-  static init_XYComponent(): void {
+  static {
     this.define<XYComponent.Props>(({Ref}) => ({
       transform: [ Ref(CoordinateTransform) ],
     }))

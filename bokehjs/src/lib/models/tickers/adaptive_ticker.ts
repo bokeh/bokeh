@@ -27,7 +27,7 @@ export class AdaptiveTicker extends ContinuousTicker {
     super(attrs)
   }
 
-  static init_AdaptiveTicker(): void {
+  static {
     this.define<AdaptiveTicker.Props>(({Number, Array, Nullable}) => ({
       base:         [ Number, 10.0 ],
       mantissas:    [ Array(Number), [1, 2, 5] ],

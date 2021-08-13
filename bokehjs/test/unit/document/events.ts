@@ -22,7 +22,7 @@ class TestModel extends HasProps {}
 class TestModelWithRefs extends HasProps {
   foo: number[]
 
-  static init_TestModelWithRefs(): void {
+  static {
     this.define<any>(({Number, Array}) => ({
       foo: [ Array(Number), [] ],
     }))

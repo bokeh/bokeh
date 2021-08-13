@@ -29,7 +29,7 @@ export class LogAxis extends ContinuousAxis {
     super(attrs)
   }
 
-  static init_LogAxis(): void {
+  static {
     this.prototype.default_view = LogAxisView
 
     this.override<LogAxis.Props>({
