@@ -198,6 +198,8 @@ class _TileProvidersModule(types.ModuleType):
         if selected_provider == "OSM":
             selected_provider = "OPENSTREETMAP_MAPNIK"
 
+        return selected_provider
+
     # Properties --------------------------------------------------------------
 
     CARTODBPOSITRON = Vendors.CARTODBPOSITRON
