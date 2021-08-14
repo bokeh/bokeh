@@ -23,12 +23,16 @@ class _FlatBush extends FlatBush {
   protected _indices: Uint16Array | Uint32Array
   protected _levelBounds: number[]
 
+  get boxes(): Float64Array { // TODO: readonly
+    return this._boxes
+  }
+
   search_indices(minX: number, minY: number, maxX: number, maxY: number): Indices {
     if (this._pos !== this._boxes.length) {
       throw new Error("Data not yet indexed - call index.finish().")
     }
 
-    let nodeIndex = this._boxes.length - 4
+    let nodeIndex: number | undefined = this._boxes.length - 4
     const queue = []
     const results = new Indices(this.numItems)
 
@@ -37,14 +41,19 @@ class _FlatBush extends FlatBush {
       const end = Math.min(nodeIndex + this.nodeSize * 4, upperBound(nodeIndex, this._levelBounds))
 
       // search through child nodes
-      for (let pos = nodeIndex; pos < end; pos += 4) {
+      for (let pos: number = nodeIndex; pos < end; pos += 4) {
         const index = this._indices[pos >> 2] | 0
 
         // check if node bbox intersects with query bbox
-        if (maxX < this._boxes[pos + 0]) continue // maxX < nodeMinX
-        if (maxY < this._boxes[pos + 1]) continue // maxY < nodeMinY
-        if (minX > this._boxes[pos + 2]) continue // minX > nodeMaxX
-        if (minY > this._boxes[pos + 3]) continue // minY > nodeMaxY
+        const nodeMinX = this._boxes[pos + 0]
+        const nodeMinY = this._boxes[pos + 1]
+        const nodeMaxX = this._boxes[pos + 2]
+        const nodeMaxY = this._boxes[pos + 3]
+
+        if (maxX < nodeMinX) continue
+        if (maxY < nodeMinY) continue
+        if (minX > nodeMaxX) continue
+        if (minY > nodeMaxY) continue
 
         if (nodeIndex < this.numItems * 4) {
           results.set(index) // leaf item
@@ -53,7 +62,7 @@ class _FlatBush extends FlatBush {
         }
       }
 
-      nodeIndex = queue.pop()!
+      nodeIndex = queue.pop()
     }
 
     return results
@@ -120,20 +129,22 @@ export class SpatialIndex {
 
   bounds(rect: Rect): Rect {
     const bounds = empty()
+    if (this.index == null)
+      return bounds
 
+    const {boxes} = this.index
     for (const i of this.indices(rect)) {
-      const boxes = (this.index as any)._boxes as Float64Array
       const x0 = boxes[4*i + 0]
       const y0 = boxes[4*i + 1]
       const x1 = boxes[4*i + 2]
       const y1 = boxes[4*i + 3]
-      if (x0 < bounds.x0)
+      if (x0 >= rect.x0 && x0 < bounds.x0)
         bounds.x0 = x0
-      if (x1 > bounds.x1)
+      if (x1 <= rect.x1 && x1 > bounds.x1)
         bounds.x1 = x1
-      if (y0 < bounds.y0)
+      if (y0 >= rect.y0 && y0 < bounds.y0)
         bounds.y0 = y0
-      if (y1 > bounds.y1)
+      if (y1 <= rect.y1 && y1 > bounds.y1)
         bounds.y1 = y1
     }
 
