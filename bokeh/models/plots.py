@@ -364,9 +364,8 @@ class Plot(LayoutDOM):
             TileRenderer : TileRenderer
 
         '''
-        if isinstance(tile_source, TileSource):
-            tile_source = tile_source
-        else:
+        if not isinstance(tile_source, TileSource):
+            
             if isinstance(tile_source, xyzservices.TileProvider):
                 selected_provider = tile_source
 
