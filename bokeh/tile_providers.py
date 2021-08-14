@@ -158,6 +158,8 @@ import types
 
 # Bokeh imports
 from bokeh.core.enums import enumeration
+
+# Bokeh imports
 from .util.dependencies import import_optional
 
 #-----------------------------------------------------------------------------
