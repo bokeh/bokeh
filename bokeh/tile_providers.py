@@ -241,14 +241,13 @@ class _TileProvidersModule(types.ModuleType):
             # This allows `get_provider(CARTODBPOSITRON)` to work
             return WMTSTileSource(url=provider_name.url, attribution=provider_name.attribution)
 
-        if xyzservices:
-            if isinstance(provider_name, xyzservices.TileProvider):
-                return WMTSTileSource(
-                    url=provider_name.build_url(scale_factor="@2x"),
-                    attribution=provider_name.html_attribution,
-                    min_zoom=provider_name.get("min_zoom", 0),
-                    max_zoom=provider_name.get("max_zoom", 30),
-                )
+        if xyzservices and isinstance(provider_name, xyzservices.TileProvider):
+            return WMTSTileSource(
+                url=provider_name.build_url(scale_factor="@2x"),
+                attribution=provider_name.html_attribution,
+                min_zoom=provider_name.get("min_zoom", 0),
+                max_zoom=provider_name.get("max_zoom", 30),
+            )
 
         selected_provider = provider_name.upper()
 
