@@ -123,8 +123,18 @@ Use ``node make help`` to list all available commands.
 You can use ``tsc`` directly for error checking (e.g. in an IDE). However, don't use
 it for code emit, because we rely on AST transforms to produce viable library code.
 
-[TBD: Link to running JS tests :ref:`devguide_testing_local_typescript`]
-[TBD: Link to writing JS tests :ref:`devguide_writing_tests_bokehjs`]
+Testing
+~~~~~~~
+
+The Bokeh repository contains several test suites. These tests help to make sure
+that BokehJS functions consistently as its own library as well as in combination
+with all other components of Bokeh.
+
+To learn more about running tests for BokehJS locally, see
+:ref:`devguide_testing_local_typescript`.
+
+To learn more about adding and updating tests for BokehJS, see
+:ref:`devguide_writing_tests_bokehjs`.
 
 Debugging in Headless Chrome
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
