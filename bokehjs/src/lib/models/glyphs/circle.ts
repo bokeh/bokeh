@@ -7,7 +7,7 @@ import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {range} from "core/util/array"
-import {map} from "core/util/arrayable"
+import {map, max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Range1d} from "../ranges/range1d"
@@ -47,6 +47,21 @@ export class CircleView extends XYGlyphView {
     return !(this.radius.is_Scalar() && isNaN(this.radius.value))
   }
 
+  protected override _set_data(indices: number[] | null): void {
+    super._set_data(indices)
+
+    const max_size = (() => {
+      if (this.use_radius)
+        return 2*this.max_radius
+      else {
+        const {size} = this
+        return size.is_Scalar() ? size.value : max((size as p.UniformVector<number>).array)
+      }
+    })()
+
+    this._configure("max_size", {value: max_size})
+  }
+
   protected override _map_data(): void {
     // XXX: Order is important here: size is always present (at least
     // a default), but radius is only present if a user specifies it.
@@ -74,10 +89,8 @@ export class CircleView extends XYGlyphView {
             break
           }
         }
-      } else {
+      } else
         this.sradius = to_screen(this.radius)
-        this._configure("max_size", {value: 2*this.max_radius})
-      }
     } else {
       const ssize = new ScreenArray(this.size)
       this.sradius = map(ssize, (s) => s/2)
