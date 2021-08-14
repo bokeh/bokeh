@@ -222,6 +222,15 @@ class Test_GetProvider:
         with pytest.raises(ValueError):
             bt.get_provider("This is not a valid tile vendor")
 
+    def test_xyzservices(self) -> None:
+        xyzservices = pytest.importorskip("xyzservices")
+        provider_data = xyzservices.providers.CartoDB.Positron
+        provider = bt.get_provider(provider_data)
+        assert isinstance(provider, WMTSTileSource)
+        assert provider.url == provider_data.build_url(scale_factor="@2x")
+        assert provider.attribution == provider_data.html_attribution
+        assert provider.min_zoom == provider_data.get("min_zoom", 0)
+        assert provider.max_zoom == provider_data.get("max_zoom", 30)
 
 #-----------------------------------------------------------------------------
 # Dev API
