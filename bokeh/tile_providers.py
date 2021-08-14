@@ -173,51 +173,9 @@ from bokeh.core.enums import enumeration
 #-----------------------------------------------------------------------------
 
 class _TileProvidersModule(types.ModuleType):
-    _CARTO_ATTRIBUTION = (
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,'
-        '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
-    )
 
-    _STAMEN_ATTRIBUTION = (
-        'Map tiles by <a href="https://stamen.com">Stamen Design</a>, '
-        'under <a href="https://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. '
-        'Data by <a href="https://openstreetmap.org">OpenStreetMap</a>, '
-        'under %s.'
-    )
-
-    _OSM_ATTRIBTION = (
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    )
-
-    _WIKIMEDIA_ATTRIBUTION = (
-        '&copy; <a href="https://foundation.wikimedia.org/wiki/Maps_Terms_of_Use">Wikimedia Maps</a> contributors'
-    )
-
-    _ESRI_IMAGERY_ATTRIBUTION = (
-        '&copy; <a href="http://downloads.esri.com/ArcGISOnline/docs/tou_summary.pdf">Esri</a>, '
-        'Earthstar Geographics'
-    )
-
-    _SERVICE_URLS = dict(
-        CARTODBPOSITRON='https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-        CARTODBPOSITRON_RETINA='https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-        STAMEN_TERRAIN='https://stamen-tiles.a.ssl.fastly.net/terrain/{Z}/{X}/{Y}.png',
-        STAMEN_TERRAIN_RETINA='https://stamen-tiles.a.ssl.fastly.net/terrain/{Z}/{X}/{Y}@2x.png',
-        STAMEN_TONER='https://stamen-tiles.a.ssl.fastly.net/toner/{Z}/{X}/{Y}.png',
-        STAMEN_TONER_BACKGROUND='https://stamen-tiles.a.ssl.fastly.net/toner-background/{Z}/{X}/{Y}.png',
-        STAMEN_TONER_LABELS='https://stamen-tiles.a.ssl.fastly.net/toner-labels/{Z}/{X}/{Y}.png',
-        OSM='https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png',
-        WIKIMEDIA='https://maps.wikimedia.org/osm-intl/{Z}/{X}/{Y}@2x.png',
-        ESRI_IMAGERY='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg'
-    )
-
-    _STAMEN_ATTRIBUTION_URLS = dict(
-        STAMEN_TERRAIN='<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>',
-        STAMEN_TERRAIN_RETINA='<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>',
-        STAMEN_TONER='<a href="https://www.openstreetmap.org/copyright">ODbL</a>',
-        STAMEN_TONER_BACKGROUND='<a href="https://www.openstreetmap.org/copyright">ODbL</a>',
-        STAMEN_TONER_LABELS='<a href="https://www.openstreetmap.org/copyright">ODbL</a>',
-    )
+    # This whole module should be deprecated. The implementation below should retain
+    # backwards compatibility until it is removed.
 
     Vendors = enumeration('CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA',
                           'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER',
@@ -234,24 +192,11 @@ class _TileProvidersModule(types.ModuleType):
 
         selected_provider = provider_name.upper()
 
-        if selected_provider not in self.Vendors:
-            raise ValueError('Unknown tile provider %s' % provider_name)
-
-        url = self._SERVICE_URLS[selected_provider]
-        if selected_provider.startswith('CARTO'):
-            attribution = self._CARTO_ATTRIBUTION
-        elif selected_provider.startswith('STAMEN'):
-            attribution = self._STAMEN_ATTRIBUTION % self._STAMEN_ATTRIBUTION_URLS[selected_provider]
-        elif selected_provider.startswith('OSM'):
-            attribution = self._OSM_ATTRIBTION
-        elif selected_provider.startswith('WIKIMEDIA'):
-            attribution = self._WIKIMEDIA_ATTRIBUTION
-        elif selected_provider.startswith('ESRI_IMAGERY'):
-            attribution = self._ESRI_IMAGERY_ATTRIBUTION
-        else:
-
-            raise RuntimeError('Can not retrieve attribution for %s' % selected_provider)
-        return WMTSTileSource(url=url, attribution=attribution)
+        # Mapping of custom keys to those used in xyzservices
+        if selected_provider == "ESRI_IMAGERY":
+            selected_provider = "ESRI_WORLDIMAGERY"
+        if selected_provider == "OSM":
+            selected_provider = "OPENSTREETMAP_MAPNIK"
 
     # Properties --------------------------------------------------------------
 
