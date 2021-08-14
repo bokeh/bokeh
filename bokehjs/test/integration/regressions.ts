@@ -14,6 +14,7 @@ import {
   LinearColorMapper,
   Plot,
   MathText,
+  HoverTool,
 } from "@bokehjs/models"
 
 import {Button, Select, MultiSelect, MultiChoice, RadioGroup} from "@bokehjs/models/widgets"
@@ -32,7 +33,7 @@ import {Matrix} from "@bokehjs/core/util/matrix"
 import {defer} from "@bokehjs/core/util/defer"
 import {Figure, MarkerArgs, show} from "@bokehjs/api/plotting"
 import {Spectral11, turbo} from "@bokehjs/api/palettes"
-import {div} from "@bokehjs/core/dom"
+import {div, offset} from "@bokehjs/core/dom"
 
 import {DelayedInternalProvider} from "./axes"
 import {MathTextView} from "@bokehjs/models/math_text/math_text"
@@ -1139,6 +1140,28 @@ describe("Bug", () => {
       const p = fig([200, 200], {y_axis_type: "log"})
       p.line(x, y, {line_width: 2})
       await display(p)
+    })
+  })
+
+  describe("in issue #11446", () => {
+    it("doesn't allow to correctly compute inspection indices in vline or hline mode", async () => {
+      const p = fig([200, 200])
+      const cr = p.circle([1, 2, 3, 4], [1, 2, 3, 4], {
+        size: 20, fill_color: "steelblue", hover_fill_color: "red", hover_alpha: 0.1,
+      })
+      p.add_tools(new HoverTool({tooltips: null, renderers: [cr], mode: "vline"}))
+      const {view} = await display(p)
+
+      const crv = view.renderer_views.get(cr)!
+      const [[sx], [sy]] = crv.coordinates.map_to_screen([2], [1.5])
+
+      const ui = view.canvas_view.ui_event_bus
+      const {left, top} = offset(ui.hit_area)
+
+      const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
+      ui._mouse_move(ev)
+
+      await view.ready
     })
   })
 })
