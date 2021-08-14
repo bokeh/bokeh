@@ -354,8 +354,11 @@ class Plot(LayoutDOM):
         ''' Adds new ``TileRenderer`` into ``Plot.renderers``
 
         Args:
-            tile_source (TileSource, xyzservices.TileProvider, str) : a tile source instance which contain tileset configuration
-            retina (bool) : use retina version of tiles (where available)
+            tile_source (TileSource, xyzservices.TileProvider, str) : 
+                A tile source instance which contain tileset configuration
+            
+            retina (bool) : 
+                Whether to use retina version of tiles (if available)
 
         Keyword Arguments:
             Additional keyword arguments are passed on as-is to the tile renderer
@@ -380,14 +383,11 @@ class Plot(LayoutDOM):
                     selected_provider = selected_provider.replace("retina", "")
                     retina = True
                 if selected_provider not in all_providers.keys():
-                    raise ValueError('Unknown tile provider %s' % tile_source)
+                    raise ValueError(f'Unknown tile provider {tile_source}')
                 else:
                     selected_provider = all_providers[selected_provider]
 
-            if retina:
-                scale_factor = "@2x"
-            else:
-                scale_factor = None
+            scale_factor = "@2x" if retina else None
 
             tile_source = WMTSTileSource(
                     url=selected_provider.build_url(scale_factor=scale_factor),
