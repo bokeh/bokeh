@@ -84,8 +84,6 @@ generate an image with the name ``base__<name_of_your_test>.png`` in the
 appropriate directory. Use ``git`` to check this image into the repository. All
 future screenshot tests will then be compared against this base image.
 
-[TBD: Is this really how this works? I just get  ``pytest: error: unrecognized arguments: --set-new-base-screenshot``]
-
 .. _devguide_writing_tests_bokehjs:
 
 Writing JavaScript tests (BokehJS)
@@ -169,9 +167,6 @@ For example:
     expect_element(svg).to.have.equal_attributes(string_to_html(`<p>test</p>`))
 
 If you add new test files, you should add an entry in the directory index file.
-
-[TBD: What is the index file, and what does "an appropriate entry" mean? What
-needs to be added to it - and when is it OK not to add to it?]
 
 .. _devguide_writing_tests_bokehjs_visual:
 
