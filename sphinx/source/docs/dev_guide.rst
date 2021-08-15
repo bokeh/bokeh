@@ -8,11 +8,11 @@ Contribute
     :hidden:
 
     dev_guide/setup
+    dev_guide/creating_issues
+    dev_guide/creating_pull_requests
     dev_guide/documentation
     dev_guide/testing
     dev_guide/writing_tests
-    dev_guide/creating_issues
-    dev_guide/creating_pull_requests
     dev_guide/models
     dev_guide/server
     dev_guide/bokehjs
