@@ -5,7 +5,7 @@ Writing tests
 
 To help keep Bokeh maintainable, all
 :ref:`Pull Requests <devguide_pull_requests>` that add or update code should
-include added or updated tests. While exceptions are possible, a Pull Request
+include new or updated tests. While exceptions are possible, a Pull Request
 without adequate tests will generally not be considered ready to merge.
 
 Before writing any tests, you should make sure to go through the relevant

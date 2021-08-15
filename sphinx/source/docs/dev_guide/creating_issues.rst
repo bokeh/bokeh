@@ -20,6 +20,9 @@ It is also possible that the issue you want to report has already been resolved
 in a newer version of Bokeh. Update Bokeh to the most recent stable version
 available with `conda`_ or `pip`_ and try to reproduce the issue.
 
+You can format any text you enter when filing an issue. To learn more about
+your formatting options, see `Writing on GitHub`_ in the `GitHub documentation`.
+
 .. _devguide_issues_kinds:
 
 Kinds of issues
@@ -128,6 +131,8 @@ information about labels and the issue management process.
 .. _Bokeh Discourse: https://discourse.bokeh.org/
 .. _conda: https://anaconda.org/conda-forge/bokeh
 .. _pip: https://pypi.org/project/bokeh/
+.. _Writing on GitHub: https://docs.github.com/en/github/writing-on-github
+.. _GitHub documentation: https://docs.github.com/en/get-started
 .. _definition of a minimal, reproducible example at stackoverflow.com: https://stackoverflow.com/help/minimal-reproducible-example
 .. _Craft Minimal Bug Reports at matthewrocklin.com: https://matthewrocklin.com/blog/work/2018/02/28/minimal-bug-reports
 .. _create a new issue: https://github.com/bokeh/bokeh/issues/new/choose
