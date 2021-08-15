@@ -38,7 +38,7 @@ Bug report
 
 Feature request
     Please use this kind of issue to propose a new feature or anything else that
-    expands Bokeh's current features.
+    expands Bokeh's current capabilities.
 
 When you `create a new issue`_, you can choose between creating these two types
 of issues. When creating either type of issue, GitHub will present you with a
@@ -71,7 +71,7 @@ Software version info
 
     Additionally, you should also provide information about your web browser's
     version, the version of your operating system, and the version of any
-    other relevant packages.
+    other packages relevant to the bug you are reporting.
 
 Description of expected behavior and the observed behavior
     Describe the behavior you would have expected and the behavior you observed
@@ -83,8 +83,8 @@ Complete, minimal, self-contained example code that reproduces the issue
     For more details, see `Craft Minimal Bug Reports at matthewrocklin.com`_.
 
 Stack traceback and/or browser JavaScript console output
-    Add any error messages or logs that might be helpful in reproducing and identifying
-    the bug.
+    Add any error messages or logs that might be helpful in reproducing and
+    identifying the bug.
 
 Screenshots or screencasts of the bug in action
     If possible, add additional information that might help understand what

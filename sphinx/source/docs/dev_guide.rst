@@ -29,7 +29,7 @@ growing team of Bokeh contributors. This includes information on how to
 or :ref:`support Bokeh with a donation <contributors_guide_donate>`.
 
 .. note::
-    Everyone interacting in the Bokeh project's codebases, issue trackers, and
+    Everyone active in the Bokeh project's codebases, issue trackers, and
     discussion forums is expected to follow the `Code of Conduct`_.
 
 .. _contributors_guide_start:
@@ -96,12 +96,12 @@ You can then contribute to Bokeh's codebase in many ways:
 Additional resources
 --------------------
 
-In addition to this :ref:`contributors guide <contributors_guide_start>`, there are
-many more resources available to help you get started quickly:
+In addition to this :ref:`contributors guide <contributors_guide_start>`, there
+are many more resources available to help you get started quickly:
 
 Bokeh Slack
-    A workspace for all contributors and the best way to get a quick response
-    from experienced contributors and maintainers. Please
+    The Bokeh Slack is a workspace for all contributors and the best way to get
+    a quick response from experienced contributors and maintainers. Please
     `request an invitation`_!
 
 GitHub wiki and BEPs
@@ -116,15 +116,15 @@ GitHub Discussions
     place to    talk about details of implementations as well as proposed
     features and ideas for Bokeh.
 
-Bokeh Roadmap
+Bokeh roadmap
     The `Bokeh roadmap`_ contains goals for Bokeh as a tool and as a
     community.
 
-Contributing.md on GitHub
+CONTRIBUTING.md on GitHub
     The file `CONTRIBUTING.md`_ provides a quick overview of the processes used
     in Bokeh's GitHub repository.
 
-Github Repository
+Github repository
     The source code for Bokeh, the bokeh.org website, and many other aspects of
     Bokeh are hosted on https://github.com/bokeh. A good way to get started is
     to look through open issues in our `issue tracker`_.
@@ -179,8 +179,8 @@ Add examples
 If you or your organization are using Bokeh and are willing to share some
 examples of what you are working on, consider adding them to the
 `Bokeh Showcase`_. You can also add new examples to
-:ref:`Bokeh's gallery <gallery>` with a pull request to the
-:bokeh-tree:`examples` folder.
+:ref:`Bokeh's gallery <gallery>` with a :ref:`pull request
+<devguide_pull_requests>` to the :bokeh-tree:`examples` folder.
 
 .. _contributors_guide_community_support:
 

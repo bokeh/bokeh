@@ -14,7 +14,7 @@ know how to run and analyze the tests you are working on.
 
 .. _devguide_writing_tests_python:
 
-Writing Python Tests
+Writing Python tests
 --------------------
 
 If all or parts of your changes affect Bokeh's Python code, you should add or
@@ -88,17 +88,13 @@ future screenshot tests will then be compared against this base image.
 
 .. _devguide_writing_tests_bokehjs:
 
-Writing JavaScript Tests (BokehJS)
+Writing JavaScript tests (BokehJS)
 ----------------------------------
 
 To maintain the functionality of all :term:`BokehJS` components, Bokeh includes
-various tests written in TypeScript. These tests use a custom-made testing
-framework that **requires Google Chrome or Chromium**. You need a recent
-version of one of these browsers available on your system to work with these
-tests.
-
-[TBD:]
-* is Chrome only required for visual tests or also for unit tests? And not for codebase/defaults?
+various tests written in TypeScript. These tests use a custom testing framework
+that **requires Google Chrome or Chromium**. You need a recent version of one of
+these browsers available on your system to work with these tests.
 
 Like several other testing frameworks such as `Mocha`_ or `Jasmine`_, the
 BokehJS testing framework uses ``describe()`` and ``it()`` functions to set up
@@ -225,14 +221,15 @@ Follow these steps to write new visual tests or update existing tests:
         import {display, fig} from "./_util"
 
     When writing tests, replace BokehJS' standard ``show()`` function with the
-    ``display()`` function in ``_util``. ``display()`` accepts the same
-    arguments as ``show()`` but also captures the visual output for comparison.
+    ``display()`` function in ``_util``. The ``display()`` function accepts the
+    same arguments as ``show()`` but also captures the visual output for
+    comparison.
 
     Similarly, replace BokehJS' standard ``figure()`` with the ``fig()``
-    function in ``_util``. ``fig()`` expects an array of ``[width, height]`` as
-    the first argument, followed by the same arguments as ``figure()``. To keep
-    visual tests as efficient as possible, you should only use ``width`` and
-    ``height``.
+    function in ``_util``. The ``fig()`` function expects an array of
+    ``[width, height]`` as the first argument, followed by the same arguments as
+    ``figure()``. However, to keep visual tests as efficient as possible, you should only
+    use ``width`` and ``height`` if possible.
 
     Keep the width and height of your testing plot as small as possible while
     still being able to see the details you want to test with the naked eye. Try
@@ -278,7 +275,7 @@ Follow these steps to write new visual tests or update existing tests:
         $ node make test:integration -k 'Legend annotation'
 
     The first time you run a new or updated visual test, the BokehJS testing
-    framework will notify you that baseline files are missing our outdated. At
+    framework will notify you that baseline files are missing or outdated. At
     this point, it will also generate all missing or outdated baseline files for
     your operating system. The baseline files will be in a subfolder of
     :bokeh-tree:`bokehjs/test/baselines/`.

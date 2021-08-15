@@ -24,14 +24,15 @@ Pull request workflow
 
 1. Find an issue to reference
     Every pull request to the Bokeh repository begins with an issue. See
-    `"Pull Requests" in the Bokeh wiki <wiki pull requests>`_ for more information on exceptions.
+    `"Pull Requests" in the Bokeh wiki <wiki pull requests>`_ for more
+    information on exceptions.
 
     First, pick an issue from Bokeh's `issue tracker`_. Issues that are
     relatively easy to get started on are labeled `good first issue`_.
 
-    Next, post a comment in the issue's
-    discussion to indicate that you are working on this issue. If there is no
-    issue yet, you should first :ref:`create one <devguide_issues>`.
+    Next, post a comment in the issue's discussion to indicate that you are
+    working on this issue. If there is no issue yet, you should first
+    :ref:`create one <devguide_issues>`.
 
 2. Create a branch
     Before writing any code, you need to create a new `branch`_ on
@@ -58,7 +59,7 @@ Pull request workflow
 
 4. Open a new pull request
     After publishing your branch and adding a first commit, go to the
-    __Bokeh repository`_ on GitHub. GitHub should have detected your recent
+    `Bokeh repository`_ on GitHub. GitHub should have detected your recent
     updates to your branch. In this case, GitHub will suggest opening a pull
     request for you. If not, switch to the tab "Pull request" in the top menu
     and use the button "New pull request".
@@ -112,22 +113,23 @@ please reach out on the `Bokeh's contributor Slack`_ or the `Bokeh Discourse`_.
 Also, check the :ref:`additional resources available to contributors
 <contributors_guide_resources>`.
 
-Do's and don'ts to keep in mind when working on a pull request:
+Things to keep in mind when working on a pull request:
 
 * When writing code, try to match the existing coding style.
-* Try to work in smaller commits for smaller chunks of your work and add commits
-  more frequently.
-* Include new tests when adding new features.
-* Include regression tests when fixing bugs.
+* Try to divide your work into smaller chunks and push small, incremental
+  commits.
+* Include :ref:`new tests <devguide_writing_tests>` when adding new features.
+* Include :ref:`tests <devguide_writing_tests>` to check for regressions when
+  fixing bugs.
 * Keep the discussions focused. When a new or related topic comes up, it's
   often better to create a new issue than to sidetrack the discussion.
 * Don't submit a big pull request unannounced. Instead, file an issue and
   start a discussion about what direction to take before investing a large
   amount of time.
-* Never commit code that you didn't write or don't have the necessary rights to.
-  If you find code that is compatible with `Bokeh's BSD license`_ and that you
-  think would be useful to add to this project, file an issue and start a
-  discussion first.
+* Never commit code or documentation that you didn't write (or don't have the
+  necessary rights to). If you find code or text that is compatible with
+  `Bokeh's BSD license`_ and that you think would be useful to add to Bokeh,
+  :ref:`file an issue <devguide_issues>` and start a discussion first.
 
 See the `"Pull Requests" section in BEP 1: Issues and PRs management <wiki pull
 requests>`_ for more information about labels and the pull request management

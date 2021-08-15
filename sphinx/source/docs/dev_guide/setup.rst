@@ -82,7 +82,7 @@ The source code for the Bokeh project is hosted on GitHub_, at
 https://github.com/bokeh/bokeh.
 
 Unless you are a `@bokeh/dev team member`_, you first need to create a fork of
-Bokeh's main repository. For more information on creating a fork, refer to
+Bokeh's main repository. For more information on creating a fork, see
 `Fork a repo`_ in `GitHub Help`_.
 
 Next, clone the version of the Bokeh repository you want to work on to a local
@@ -405,7 +405,7 @@ called.
 
 .. _devguide_setup_test_setup:
 
-1. Test your local setup
+9. Test your local setup
 ------------------------
 
 Run the following tests to check that everything is installed and set up
@@ -459,8 +459,8 @@ command(s):
         set BOKEH_RESOURCES=absolute-dev
         python examples\plotting\file\iris.py
 
-This creates a file ``iris.html`` locally. Opened in a web browser, it should
-display this visualization:
+This creates a file ``iris.html`` locally. When you open this file in a web
+browser, it should display this visualization:
 
 .. image:: /_images/bokeh_iris_html.png
     :scale: 50 %

@@ -273,7 +273,7 @@ elements:
 
 :ref:`Narrative documentation <devguide_documentation_edit_narrative>`
   This part of the documentation consists of tutorial-like descriptions and
-  instructions for Bokeh. This includes the :ref:`userguide` and
+  instructions for Bokeh. This includes the :ref:`user guide <userguide>` and
   :ref:`contributors guide <contributors_guide>`.
 
 :ref:`Docstrings and Model help text within the Python source code of Bokeh <devguide_documentation_edit_source>`
