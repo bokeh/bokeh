@@ -765,6 +765,13 @@ class Line(ConnectedXYGlyph, LineGlyph):
     The ``Line`` glyph is different from most other glyphs in that the vector
     of values only produces one glyph on the Plot.
 
+    .. note::
+        Due to limitations in the underlying HTML canvas, it is possible that a
+        line is not drawn when one or more of its coordinates are far outside
+        the viewport. This behavior is different for different browsers. See
+        `issue #1149 <https://github.com/bokeh/bokeh/issues/11498>`_ for more
+        information.
+
     '''
     _args = ('x', 'y')
 
