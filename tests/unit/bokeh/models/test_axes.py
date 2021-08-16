@@ -17,8 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.core.property.primitive import String
-from bokeh.models import FixedTicker, MathText
+from bokeh.models import FixedTicker, MathText, PlainText
 
 # Module under test
 import bokeh.models.axes as bma # isort:skip

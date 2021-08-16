@@ -75,6 +75,7 @@ class MathString(String):
 
     def transform(self, value):
         value = super().transform(value)
+        print(value)
 
         if isinstance(value, str) and len(value) >= 2 and value[0] == value[-1] == "$":
             return MathText(text=value[1:-1])

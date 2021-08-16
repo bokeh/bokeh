@@ -705,11 +705,11 @@ class BaseFigureOptions(Options):
 
     x_axis_label = Nullable(Either(MathString, Instance(PlainText), Instance(MathText)), default="", help="""
     A label for the x-axis.
-    """)
+    """).accepts(Instance(PlainText), lambda val: val.text)
 
     y_axis_label = Nullable(Either(MathString, Instance(PlainText), Instance(MathText)), default="", help="""
     A label for the y-axis.
-    """)
+    """).accepts(Instance(PlainText), lambda val: val.text)
 
     active_drag = Either(Null, Auto, String, Instance(Drag), default="auto", help="""
     Which drag tool should initially be active.
