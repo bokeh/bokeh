@@ -113,9 +113,9 @@ The :term:`BokehJS` unit tests help make sure that the individual sections of
 BokehJS function as expected. The unit tests for BokehJS are located in the
 :bokeh-tree:`bokehjs/test/unit/` folder and sub-folders.
 
-Use `Chai "expect" assertion style <Chai>`_ when writing unit tests for the
+Use `Chai "expect" assertion style <Chai_>`_ when writing unit tests for the
 BokehJS testing framework. See the `API documentation of the Chai Assertion
-Library <Chai documentation>`_ for more details on this style.
+Library <Chai documentation_>`_ for more details on this style.
 
 Use ``expect()`` together with the following elements to create assertions for
 the BokehJS testing framework:

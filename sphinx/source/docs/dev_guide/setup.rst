@@ -120,8 +120,8 @@ Then, activate the environment:
     To update your local environment, use
     ``conda env update -f environment.yml``. Updating your local environment
     is necessary whenever the dependencies in ``environment.yml`` change. This
-    can happen when the file is updated in the main Bokeh repository or when you
-    switch branches to work on different issues, for example.
+    can happen when the environment file is updated in the main Bokeh repository
+    or when you switch branches to work on different issues, for example.
 
 To learn more about creating and managing conda environments, see `Managing
 environments`_ in the `Conda documentation`_.
@@ -132,7 +132,7 @@ environments`_ in the `Conda documentation`_.
 ------------------------
 
 Building BokehJS also requires installing JavaScript dependencies using
-the `Node Package Manager (npm) <npm>`_. If you have followed the
+the `Node Package Manager (npm) <npm_>`_. If you have followed the
 :ref:`instructions above <devguide_setup_creating_conda_env>`,
 ``conda`` has already installed the necessary ``npm`` and ``node.js``
 packages to your system.

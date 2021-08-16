@@ -24,7 +24,7 @@ Pull request workflow
 
 1. Find an issue to reference
     Every pull request to the Bokeh repository begins with an issue. See
-    `"Pull Requests" in the Bokeh wiki <wiki pull requests>`_ for more
+    `Pull Requests in the Bokeh wiki <wiki pull requests_>`_ for more
     information on exceptions.
 
     First, pick an issue from Bokeh's `issue tracker`_. Issues that are
@@ -43,8 +43,7 @@ Pull request workflow
 
     Use this pattern to name your branch:
 
-    ``[issue number]_[Python/BokehJS model you are working on, if applicable]_
-    [optional: model property or short description]``
+    ``[issue number]_[Python/BokehJS model you are working on, if applicable]_[optional: model property or short description]``
 
     For example:
 
@@ -88,9 +87,9 @@ Pull request workflow
 6. Add more commits to your pull request
     Once you have created a pull request, keep adding commits. A member of the
     `Bokeh core team`_ will review your pull request and help you along the way.
-    The team member will also update any `labels in your pull request <wiki pull
-    requests>`_. Reviewing pull requests can be time-consuming, so be aware that
-    it might take a while to receive feedback.
+    The team member will also update any `labels in your pull request <wiki pull requests_>`_.
+    Reviewing pull requests can be time-consuming, so be aware that it might
+    take a while to receive feedback.
 
     Once you and a member of the `Bokeh core team`_ agree that your pull request
     is ready to be merged, the team member will update the labels on your pull
@@ -131,14 +130,14 @@ Things to keep in mind when working on a pull request:
   `Bokeh's BSD license`_ and that you think would be useful to add to Bokeh,
   :ref:`file an issue <devguide_issues>` and start a discussion first.
 
-See the `"Pull Requests" section in BEP 1: Issues and PRs management <wiki pull
-requests>`_ for more information about labels and the pull request management
-process.
+See the `"Pull Requests" section in BEP 1: Issues and PRs management <wiki pull requests_>`_
+for more information about labels and the pull request management process.
 
 .. _pull requests: https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests
 .. _GitHub documentation: https://docs.github.com/en/get-started
 .. _issue tracker: https://github.com/bokeh/bokeh/issues
 .. _Writing on GitHub: https://docs.github.com/en/github/writing-on-github
+.. _wiki3: https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management#pull-requests
 .. _wiki pull requests: https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management#pull-requests
 .. _good first issue: https://github.com/bokeh/bokeh/labels/good%20first%20issue
 .. _branch: https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches

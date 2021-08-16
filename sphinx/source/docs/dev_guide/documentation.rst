@@ -31,8 +31,8 @@ An easy way to start contributing to Bokeh's docs is to submit pull requests for
 any typos or other small errors you might find in Bokeh's documentation. *This
 is always appreciated!*
 
-In addition to quick fixes, check the list of `Open Docs Issues`_ on GitHub.
-This list contains several projects as a starting point.
+In addition to quick fixes, check the list of `open documentatio issues`_ on
+GitHub. This list contains several projects as a starting point.
 
 .. _devguide_documentation_style_guidelines:
 
@@ -397,7 +397,7 @@ For example:
   ``<version>.rst``, for example ``sphinx/source/docs/releases/0.12.7.rst``.The
   Sphinx build will automatically add this content to the list of all releases.
 
-.. _Open Docs Issues: https://github.com/bokeh/bokeh/issues?q=is%3Aopen+is%3Aissue+label%3A%22tag%3A+component%3A+docs%22
+.. _open documentatio issues: https://github.com/bokeh/bokeh/issues?q=is%3Aopen+is%3Aissue+label%3A%22tag%3A+component%3A+docs%22
 .. _Google developer documentation style guide: https://developers.google.com/style
 .. _technical writing courses: https://developers.google.com/tech-writing
 .. _pandas: https://pandas.pydata.org/about/citing.html
