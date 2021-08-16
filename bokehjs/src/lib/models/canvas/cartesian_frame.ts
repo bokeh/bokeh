@@ -11,6 +11,7 @@ import {entries, to_object} from "core/util/object"
 import {assert} from "core/util/assert"
 
 type Ranges = {[key: string]: Range}
+type Scales = {[key: string]: Scale}
 
 export class CartesianFrame {
 
@@ -24,7 +25,9 @@ export class CartesianFrame {
               readonly x_range: Range,
               readonly y_range: Range,
               private readonly extra_x_ranges: Ranges = {},
-              private readonly extra_y_ranges: Ranges = {}) {
+              private readonly extra_y_ranges: Ranges = {},
+              private readonly extra_x_scales: Scales = {},
+              private readonly extra_y_scales: Scales = {}) {
     assert(in_x_scale.source_range == null && in_x_scale.target_range == null)
     assert(in_y_scale.source_range == null && in_y_scale.target_range == null)
     this._configure_scales()
@@ -43,7 +46,8 @@ export class CartesianFrame {
     return new Map(entries({...extra_ranges, default: range}))
   }
 
-  /*protected*/ _get_scales(scale: Scale, ranges: Map<string, Range>, frame_range: Range): Map<string, Scale> {
+  /*protected*/ _get_scales(scale: Scale, extra_scales: Scales, ranges: Map<string, Range>, frame_range: Range): Map<string, Scale> {
+    const in_scales = new Map(entries({...extra_scales, default: scale}))
     const scales: Map<string, Scale> = new Map()
 
     for (const [name, range] of ranges) {
@@ -57,7 +61,7 @@ export class CartesianFrame {
       if (scale instanceof LogScale && range instanceof DataRange1d)
         range.scale_hint = "log"
 
-      const derived_scale = scale.clone()
+      const derived_scale = (in_scales.get(name) ?? scale).clone()
       derived_scale.setv({source_range: range, target_range: frame_range})
       scales.set(name, derived_scale)
     }
@@ -78,8 +82,8 @@ export class CartesianFrame {
     this._x_ranges = this._get_ranges(this.x_range, this.extra_x_ranges)
     this._y_ranges = this._get_ranges(this.y_range, this.extra_y_ranges)
 
-    this._x_scales = this._get_scales(this.in_x_scale, this._x_ranges, this._x_target)
-    this._y_scales = this._get_scales(this.in_y_scale, this._y_ranges, this._y_target)
+    this._x_scales = this._get_scales(this.in_x_scale, this.extra_x_scales, this._x_ranges, this._x_target)
+    this._y_scales = this._get_scales(this.in_y_scale, this.extra_y_scales, this._y_ranges, this._y_target)
   }
 
   protected _update_scales(): void {

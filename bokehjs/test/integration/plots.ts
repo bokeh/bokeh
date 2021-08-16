@@ -2,6 +2,7 @@ import {display, fig, row} from "./_util"
 
 import {figure} from "@bokehjs/api/plotting"
 import {Location} from "@bokehjs/core/enums"
+import {Range1d, LinearScale, LinearAxis, ColumnDataSource} from "@bokehjs/models"
 
 describe("Plot", () => {
   const f = (location: Location | null, title?: string) => {
@@ -190,5 +191,42 @@ describe("Plot", () => {
     el.style.height = "300px"
     view.resize_layout() // TODO: ResizeObserver
     await view.ready
+  })
+
+  describe("in issue #7217", () => {
+    it("should support axes with different scales", async () => {
+      // TODO:
+      // const t = Symbol("t")
+      // const v = Symbol("v")
+
+      const source = new ColumnDataSource({
+        data: {
+          t: [0,  1,   2,    3,     4],
+          v: [1, 10, 100, 1000, 10000],
+        },
+      })
+
+      const f = fig([400, 200], {y_axis_type: "log"})
+
+      f.yaxis.map((ax) => ax.axis_label = "Log")
+      f.yaxis.map((ax) => ax.axis_label_text_color = "blue")
+
+      f.extra_y_ranges = {linear: new Range1d({start: -1000, end: 20000})}
+      f.extra_y_scales = {linear: new LinearScale()}
+
+      const ax = new LinearAxis({y_range_name: "linear", axis_label: "Linear", axis_label_text_color: "red"})
+      f.add_layout(ax, "left")
+
+      const t = {field: "t"}
+      const v = {field: "v"}
+
+      f.line(t, v, {line_width: 2, source, color: "blue"})
+      f.circle(t, v, {size: 5, line_width: 2, source, color: "blue"})
+
+      f.line({x: t, y: v, line_width: 2, source, y_range_name: "linear", color: "red"})
+      f.circle({x: t, y: v, size: 5, line_width: 2, source, y_range_name: "linear", color: "red"})
+
+      await display(f)
+    })
   })
 })
