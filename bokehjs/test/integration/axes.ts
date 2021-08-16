@@ -1,7 +1,6 @@
 import sinon from "sinon"
 
 import {display} from "./_util"
-import {tex2svg} from "../third-party/tex2svg"
 
 import {
   LinearAxis, LogAxis, CategoricalAxis, LinearScale, LogScale, CategoricalScale, Range1d, FactorRange,
@@ -12,6 +11,7 @@ import {MathTextView, NoProvider, MathJaxProvider} from "@bokehjs/models/math_te
 import {Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
 import {wait} from "@bokehjs/core/util/defer"
+import {tex2svg} from "@bokehjs/models/math_text/tex2svg"
 
 export class InternalProvider extends MathJaxProvider {
   get MathJax() {
