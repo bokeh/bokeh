@@ -67,8 +67,8 @@ def test_axis_label_accepts_math_text_with_constructor_arg_and_dollar_signs() ->
     assert a.axis_label.text == r"\sin(x+5)"
 
 def test_axis_label_accepts_string_with_dollar_signs() -> None:
-    a = bma.Axis(axis_label=String("$\sin(x+6)$"))
-    assert isinstance(a.axis_label, String)
+    a = bma.Axis(axis_label=PlainText(r"$\sin(x+6)$"))
+    assert isinstance(a.axis_label, str)
     assert a.axis_label == r"$\sin(x+6)$"
 
 
