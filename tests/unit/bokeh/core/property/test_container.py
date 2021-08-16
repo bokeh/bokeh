@@ -22,11 +22,14 @@ import numpy as np
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
 from bokeh.core.properties import (
+    Any,
     Float,
     Instance,
     Int,
+    Seq,
     String,
 )
+from bokeh.models import ColumnDataSource
 
 from _util_property import _TestHasProps, _TestModel
 
@@ -52,8 +55,45 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-# TODO (bev) class Test_ColumnData
 # TODO (bev) class Test_RelativeDelta
+
+class Test_ColumnData:
+
+    def test_init(self) -> None:
+        with pytest.raises(TypeError):
+            bcpc.ColumnData()
+
+        assert issubclass(bcpc.ColumnData, bcpc.Dict)
+
+    def test_has_ref(self) -> None:
+        prop = bcpc.ColumnData(String, Seq(Any))
+        assert not prop.has_ref
+
+    def test_str(self) -> None:
+        prop = bcpc.ColumnData(String, Seq(Any))
+        assert str(prop) == "ColumnData(String, Seq(Any))"
+
+    def test__hinted_value_with_hint_ColumnDataChanged(self) -> None:
+        from bokeh.document.events import ColumnDataChangedEvent
+
+        prop = bcpc.ColumnData(String, Seq(Any))
+        source = ColumnDataSource(data=dict(foo=[10], bar=[20], baz=[30]))
+        hint = ColumnDataChangedEvent("doc", source, ["foo"])
+        assert prop._hinted_value(source.data, hint) == dict(foo=[10])
+
+    def test__hinted_value_with_hint_ColumnsStreamed(self) -> None:
+        from bokeh.document.events import ColumnsStreamedEvent
+
+        prop = bcpc.ColumnData(String, Seq(Any))
+        source = ColumnDataSource(data=dict(foo=[10], bar=[20], baz=[30]))
+        new_data = dict(foo=[11], bar=[21], baz=[31])
+        hint = ColumnsStreamedEvent("doc", source, new_data, rollover=10)
+        assert prop._hinted_value(source.data, hint) == new_data
+
+    def test__hinted_value_without_hint(self) -> None:
+        prop = bcpc.ColumnData(String, Seq(Any))
+        source = ColumnDataSource(data=dict(foo=[10], bar=[20], baz=[30]))
+        assert prop._hinted_value(source.data, None) == source.data
 
 
 class Test_Array:

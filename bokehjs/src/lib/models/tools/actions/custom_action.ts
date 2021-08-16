@@ -37,7 +37,7 @@ export class CustomAction extends ActionTool {
     super(attrs)
   }
 
-  static init_CustomAction(): void {
+  static {
     this.prototype.default_view = CustomActionView
 
     this.define<CustomAction.Props>(({Any, String, Nullable}) => ({

@@ -32,7 +32,7 @@ export class ProxyToolbar extends ToolbarBase {
     super(attrs)
   }
 
-  static init_ProxyToolbar(): void {
+  static {
     this.define<ProxyToolbar.Props>(({Array, Ref}) => ({
       toolbars: [ Array(Ref(Toolbar)), [] ],
     }))
@@ -203,7 +203,7 @@ export class ToolbarBox extends LayoutDOM {
     super(attrs)
   }
 
-  static init_ToolbarBox(): void {
+  static {
     this.prototype.default_view = ToolbarBoxView
 
     this.define<ToolbarBox.Props>(({Ref}) => ({

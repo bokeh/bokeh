@@ -1,5 +1,4 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {MarkerGL} from "./webgl/markers"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
@@ -8,7 +7,7 @@ import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {range} from "core/util/array"
-import {map} from "core/util/arrayable"
+import {map, max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Range1d} from "../ranges/range1d"
@@ -32,22 +31,35 @@ export class CircleView extends XYGlyphView {
   override visuals: Circle.Visuals
 
   /** @internal */
-  override glglyph?: MarkerGL
+  override glglyph?: import("./webgl/markers").MarkerGL
 
-  override initialize(): void {
-    super.initialize()
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
 
     const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl != null) {
-      const {regl_wrapper} = webgl
-      if (regl_wrapper.has_webgl) {
-        this.glglyph = new MarkerGL(regl_wrapper, this, "circle")
-      }
+    if (webgl?.regl_wrapper.has_webgl) {
+      const {MarkerGL} = await import("./webgl/markers")
+      this.glglyph = new MarkerGL(webgl.regl_wrapper, this, "circle")
     }
   }
 
   get use_radius(): boolean {
     return !(this.radius.is_Scalar() && isNaN(this.radius.value))
+  }
+
+  protected override _set_data(indices: number[] | null): void {
+    super._set_data(indices)
+
+    const max_size = (() => {
+      if (this.use_radius)
+        return 2*this.max_radius
+      else {
+        const {size} = this
+        return size.is_Scalar() ? size.value : max((size as p.UniformVector<number>).array)
+      }
+    })()
+
+    this._configure("max_size", {value: max_size})
   }
 
   protected override _map_data(): void {
@@ -77,10 +89,8 @@ export class CircleView extends XYGlyphView {
             break
           }
         }
-      } else {
+      } else
         this.sradius = to_screen(this.radius)
-        this._configure("max_size", {value: 2*this.max_radius})
-      }
     } else {
       const ssize = new ScreenArray(this.size)
       this.sradius = map(ssize, (s) => s/2)
@@ -289,7 +299,7 @@ export class Circle extends XYGlyph {
     super(attrs)
   }
 
-  static init_Circle(): void {
+  static {
     this.prototype.default_view = CircleView
 
     this.mixins<Circle.Mixins>([LineVector, FillVector, HatchVector])

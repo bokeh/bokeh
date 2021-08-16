@@ -27,6 +27,8 @@ from typing import (
     Dict,
     Iterable,
     List,
+    Mapping,
+    Type,
 )
 
 # Bokeh imports
@@ -35,8 +37,8 @@ from ..model import get_class
 
 if TYPE_CHECKING:
     from ..core.has_props import Setter
-    from ..core.types import ID
-    from ..model import Model, ReferenceJson
+    from ..core.types import ID, ReferenceJson
+    from ..model import Model
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -57,7 +59,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def initialize_references_json(references_json: List[ReferenceJson],
-        references: Dict[ID, Model], setter: Setter | None = None) -> None:
+        references: Mapping[ID, Model], setter: Setter | None = None) -> None:
     ''' Given a JSON representation of the models in a graph, and new model
     objects, set the properties on the models from the JSON
 
@@ -122,7 +124,7 @@ def instantiate_references_json(references_json: List[ReferenceJson], existing_i
         if obj_id in existing_instances:
             references[obj_id] = existing_instances[obj_id]
         else:
-            cls = get_class(obj_type)
+            cls: Type[Model] = get_class(obj_type)
             instance = cls.__new__(cls, id=obj_id)
             if instance is None:
                 raise RuntimeError(f"Error loading model from JSON (type: {obj_type}, id: {obj_id})")

@@ -85,7 +85,7 @@ export class HBar extends Box {
     super(attrs)
   }
 
-  static init_HBar(): void {
+  static {
     this.prototype.default_view = HBarView
 
     this.define<HBar.Props>(({}) => ({

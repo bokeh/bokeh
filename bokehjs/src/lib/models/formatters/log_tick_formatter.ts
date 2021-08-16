@@ -24,7 +24,7 @@ export class LogTickFormatter extends TickFormatter {
     super(attrs)
   }
 
-  static init_LogTickFormatter(): void {
+  static {
     this.define<LogTickFormatter.Props>(({Int, Ref, Nullable}) => ({
       ticker: [ Nullable(Ref(LogTicker)), null ],
       min_exponent: [ Int, 0 ],

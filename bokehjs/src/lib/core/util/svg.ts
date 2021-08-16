@@ -4,6 +4,7 @@
 
 import {AffineTransform} from "./affine"
 import {isString, isNumber} from "./types"
+import {random, Random} from "./random"
 import {empty} from "../dom"
 
 type KV<T> = {[key: string]: T}
@@ -14,23 +15,6 @@ type FontData = {
   family: string
   weight: string
   decoration: string
-  href?: string
-}
-
-// helper function that generates a random string
-function randomString(holder: KV<string>): string {
-  if (!holder) {
-    throw new Error("cannot create a random attribute name for an undefined object")
-  }
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz"
-  let randomstring = ""
-  do {
-    randomstring = ""
-    for (let i = 0; i < 12; i++) {
-      randomstring += chars[Math.floor(Math.random() * chars.length)]
-    }
-  } while (holder[randomstring])
-  return randomstring
 }
 
 // helper function to map named to numbered entities
@@ -199,7 +183,7 @@ const STYLES: StyleState = {
   },
 }
 
-class CanvasGradient {
+class CanvasGradient implements globalThis.CanvasGradient {
   __root: SVGElement
   __ctx: SVGRenderingContext2D
 
@@ -241,13 +225,17 @@ class CanvasGradient {
   }
 }
 
-class CanvasPattern {
+class CanvasPattern implements globalThis.CanvasPattern {
   __root: SVGPatternElement
   __ctx: SVGRenderingContext2D
 
   constructor(pattern: SVGPatternElement, ctx: SVGRenderingContext2D) {
     this.__root = pattern
     this.__ctx = ctx
+  }
+
+  setTransform(_transform?: DOMMatrix2DInit): void {
+    throw new Error("not implemented")
   }
 }
 
@@ -260,7 +248,7 @@ type Options = {
 
 type Path = string
 
-type CanvasState = {
+type SVGCanvasState = {
   transform: AffineTransform
   clip_path: Path | null
   attributes: StyleState
@@ -274,23 +262,42 @@ type CanvasState = {
  * height - height of your canvas (defaults to 500)
  * document - the document object (defaults to the current document)
  */
-export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
+
+type BaseCanvasRenderingContext2D =
+  CanvasCompositing &
+  CanvasDrawImage &
+  CanvasDrawPath &
+  CanvasFillStrokeStyles &
+  CanvasFilters &
+  CanvasImageData &
+  CanvasImageSmoothing &
+  CanvasPath &
+  CanvasPathDrawingStyles &
+  CanvasRect &
+  CanvasShadowStyles &
+  CanvasState &
+  CanvasText &
+  CanvasTextDrawingStyles &
+  CanvasTransform &
+  CanvasUserInterface
+
+export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
   __canvas: HTMLCanvasElement
   __ctx: CanvasRenderingContext2D
 
   __root: SVGSVGElement
-  __ids: KV<string>
+  __ids: Set<string>
   __defs: SVGElement
-  __stack: CanvasState[]
+  __stack: SVGCanvasState[]
   __document: Document
   __currentElement: SVGElement // null?
   __currentDefaultPath: string
   __currentPosition: {x: number, y: number} | null = null
   //__currentElementsToStyle: {element: SVGElement, children: SVGElement[]} | null = null
-  __fontUnderline?: string
-  __fontHref?: string
 
-  get canvas(): this {
+  static __random: Random = random
+
+  get canvas(): SVGRenderingContext2D {
     // XXX: point back to this instance
     return this
   }
@@ -302,7 +309,9 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   miterLimit: number
   lineWidth: number
   globalAlpha: number
+  globalCompositeOperation: string // XXX: really a string? // TODO: implement
   font: string
+  direction: CanvasDirection // TODO: implement
   shadowColor: string
   shadowOffsetX: number
   shadowOffsetY: number
@@ -311,6 +320,9 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   textBaseline: CanvasTextBaseline
   lineDash: string | number[] | null
   lineDashOffset: number
+  filter: string // TODO: implement
+  imageSmoothingEnabled: boolean // TODO: implement
+  imageSmoothingQuality: ImageSmoothingQuality // TODO: implement
 
   private _width: number
   private _height: number
@@ -351,17 +363,26 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     this.__root = this.__document.createElementNS("http://www.w3.org/2000/svg", "svg")
     this.__root.setAttribute("version", "1.1")
     this.__root.setAttribute("xmlns", "http://www.w3.org/2000/svg")
-    this.__root.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink")
 
     this.width = options?.width ?? 500
     this.height = options?.height ?? 500
 
     // make sure we don't generate the same ids in defs
-    this.__ids = {}
+    this.__ids = new Set()
 
     // defs tag
     this.__defs = this.__document.createElementNS("http://www.w3.org/2000/svg", "defs")
     this.__root.appendChild(this.__defs)
+  }
+
+  // helper function that generates a random string
+  protected _random_string(): string {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz"
+    let str: string
+    do {
+      str = SVGRenderingContext2D.__random.choices(12, chars).join("")
+    } while (this.__ids.has(str))
+    return str
   }
 
   /**
@@ -444,7 +465,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
           for (const def of [...value.__ctx.__defs.childNodes]) {
             if (def instanceof Element) {
               const id = def.getAttribute("id")!
-              this.__ids[id] = id
+              this.__ids.add(id)
               this.__defs.appendChild(def)
             }
           }
@@ -492,12 +513,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     */
   get_serialized_svg(fixNamedEntities: boolean = false): string {
     let serialized = new XMLSerializer().serializeToString(this.__root)
-
-    // IE search for a duplicate xmnls because they didn't implement setAttributeNS correctly
-    const xmlns = /xmlns="http:\/\/www\.w3\.org\/2000\/svg".+xmlns="http:\/\/www\.w3\.org\/2000\/svg/gi
-    if (xmlns.test(serialized)) {
-      serialized = serialized.replace('xmlns="http://www.w3.org/2000/svg', 'xmlns:xlink="http://www.w3.org/1999/xlink')
-    }
 
     if (fixNamedEntities) {
       // loop over each named entity and replace with the proper equivalent.
@@ -806,7 +821,21 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   /**
     * Sets fill properties on the current element
     */
-  fill(fill_rule?: CanvasFillRule): void {
+  fill(fill_rule?: CanvasFillRule): void
+  fill(path: Path2D, fill_rule?: CanvasFillRule): void
+
+  fill(path_or_fill_rule?: Path2D | CanvasFillRule, fill_rule?: CanvasFillRule): void {
+    let path: Path2D | null = null
+    if (path_or_fill_rule instanceof Path2D)
+      path = path_or_fill_rule
+    else if ((path_or_fill_rule == "evenodd" || path_or_fill_rule == "nonzero" || path_or_fill_rule == null) && fill_rule == null)
+      fill_rule = path_or_fill_rule
+    else
+      throw new Error("invalid arguments")
+
+    if (path != null)
+      throw new Error("not implemented")
+
     // XXX: hack (?) to allow fill and hatch visuals on same canvas path
     if (this.__currentElement.getAttribute("fill") != "none") {
       this.__init_element()
@@ -900,7 +929,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     const [tx1, ty1] = this._transform.apply(x1, y1)
     const [tx2, ty2] = this._transform.apply(x2, y2)
     const grad = this.__createElement("linearGradient", {
-      id: randomString(this.__ids),
+      id: this._random_string(),
       x1: `${tx1}px`,
       x2: `${tx2}px`,
       y1: `${ty1}px`,
@@ -921,7 +950,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     const [tx0, ty0] = this._transform.apply(x0, y0)
     const [tx1, ty1] = this._transform.apply(x1, y1)
     const grad = this.__createElement("radialGradient", {
-      id: randomString(this.__ids),
+      id: this._random_string(),
       cx: `${tx1}px`,
       cy: `${ty1}px`,
       r: `${r1}px`,
@@ -948,30 +977,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       decoration: fontPart[2] ?? "normal",
     }
 
-    // canvas doesn't support underline natively, but we can pass this attribute
-    if (this.__fontUnderline === "underline") {
-      data.decoration = "underline"
-    }
-
-    // canvas also doesn't support linking, but we can pass this as well
-    if (this.__fontHref != null) {
-      data.href = this.__fontHref
-    }
-
     return data
-  }
-
-  /**
-    * Helper to link text fragments
-    */
-  __wrapTextLink(font: FontData, element: SVGElement): Element {
-    if (font.href) {
-      const a = this.__createElement("a")
-      a.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", font.href)
-      a.appendChild(element)
-      return a
-    }
-    return element
   }
 
   /**
@@ -995,7 +1001,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     this._apply_transform(textElement)
     this.__currentElement = textElement
     this.__applyStyleToCurrentElement(action)
-    this.__root.appendChild(this.__wrapTextLink(font, textElement))
+    this.__root.appendChild(textElement)
   }
 
   /**
@@ -1079,7 +1085,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     */
   clip(): void {
     const clip_path = this.__createElement("clipPath")
-    const id = randomString(this.__ids)
+    const id = this._random_string()
 
     this.__applyCurrentDefaultPath()
     clip_path.setAttribute("id", id)
@@ -1149,7 +1155,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
           for (const def of [...child.childNodes]) {
             if (def instanceof Element) {
               const id = def.getAttribute("id")!
-              this.__ids[id] = id
+              this.__ids.add(id)
               this.__defs.appendChild(def.cloneNode(true))
             }
           }
@@ -1174,7 +1180,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       }
       this._apply_transform(svgImage, transform)
       const url = image instanceof HTMLCanvasElement ? image.toDataURL() : image.getAttribute("src")!
-      svgImage.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", url)
+      svgImage.setAttribute("href", url)
       parent.appendChild(svgImage)
     } else if (image instanceof HTMLCanvasElement) {
       const svgImage = this.__createElement("image")
@@ -1192,7 +1198,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       image = canvas
 
       this._apply_transform(svgImage, transform)
-      svgImage.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", image.toDataURL())
+      svgImage.setAttribute("href", image.toDataURL())
       parent.appendChild(svgImage)
     }
   }
@@ -1202,7 +1208,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     */
   createPattern(image: CanvasImageSource, _repetition: string | null): CanvasPattern | null {
     const pattern = this.__document.createElementNS("http://www.w3.org/2000/svg", "pattern")
-    const id = randomString(this.__ids)
+    const id = this._random_string()
     pattern.setAttribute("id", id)
     pattern.setAttribute("width", `${this._to_number(image.width)}`)
     pattern.setAttribute("height", `${this._to_number(image.height)}`)
@@ -1210,7 +1216,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     if (image instanceof HTMLCanvasElement || image instanceof HTMLImageElement || image instanceof SVGImageElement) {
       const img = this.__document.createElementNS("http://www.w3.org/2000/svg", "image")
       const url = image instanceof HTMLCanvasElement ? image.toDataURL() : image.getAttribute("src")!
-      img.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", url)
+      img.setAttribute("href", url)
       pattern.appendChild(img)
       this.__defs.appendChild(pattern)
     } else if (image instanceof SVGRenderingContext2D) {
@@ -1235,12 +1241,21 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     return new CanvasPattern(pattern, this)
   }
 
-  setLineDash(dashArray: number[]): void {
-    if (dashArray && dashArray.length > 0) {
-      this.lineDash = dashArray.join(",")
-    } else {
+  getLineDash(): number[] {
+    const {lineDash} = this
+    if (isString(lineDash))
+      return lineDash.split(",").map((v) => parseInt(v))
+    else if (lineDash == null)
+      return []
+    else
+      return lineDash
+  }
+
+  setLineDash(segments: number[]): void {
+    if (segments && segments.length > 0)
+      this.lineDash = segments.join(",")
+    else
       this.lineDash = null
-    }
   }
 
   private _to_number(val: number | SVGAnimatedLength): number {
@@ -1270,5 +1285,51 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
 
   resetTransform(): void {
     this._transform = new AffineTransform()
+  }
+
+  isPointInPath(x: number, y: number, fill_rule?: CanvasFillRule): boolean
+  isPointInPath(path: Path2D, x: number, y: number, fill_rule?: CanvasFillRule): boolean
+
+  isPointInPath(..._args: any[]): boolean {
+    throw new Error("not implemented")
+  }
+
+  isPointInStroke(x: number, y: number): boolean
+  isPointInStroke(path: Path2D, x: number, y: number): boolean
+
+  isPointInStroke(..._args: any[]): boolean {
+    throw new Error("not implemented")
+  }
+
+  createImageData(sw: number, sh: number): ImageData
+  createImageData(imagedata: ImageData): ImageData
+
+  createImageData(..._args: any[]): ImageData {
+    throw new Error("not implemented")
+  }
+
+  getImageData(_sx: number, _sy: number, _sw: number, _sh: number): ImageData {
+    throw new Error("not implemented")
+  }
+
+  putImageData(imagedata: ImageData, dx: number, dy: number): void
+  putImageData(imagedata: ImageData, dx: number, dy: number, dirtyX: number, dirtyY: number, dirtyWidth: number, dirtyHeight: number): void
+
+  putImageData(..._args: any[]): void {
+    throw new Error("not implemented")
+  }
+
+  drawFocusIfNeeded(element: Element): void
+  drawFocusIfNeeded(path: Path2D, element: Element): void
+
+  drawFocusIfNeeded(..._args: any[]): void {
+    throw new Error("not implemented")
+  }
+
+  scrollPathIntoView(): void
+  scrollPathIntoView(path: Path2D): void
+
+  scrollPathIntoView(..._args: any[]): void {
+    throw new Error("not implemented")
   }
 }

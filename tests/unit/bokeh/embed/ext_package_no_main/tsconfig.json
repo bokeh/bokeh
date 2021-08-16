@@ -10,6 +10,7 @@
     "strictBindCallApply": false,
     "strictFunctionTypes": false,
     "strictPropertyInitialization": false,
+    "useUnknownInCatchVariables": true,
     "alwaysStrict": true,
     "noErrorTruncation": true,
     "noEmitOnError": false,

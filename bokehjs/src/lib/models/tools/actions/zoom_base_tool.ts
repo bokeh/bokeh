@@ -44,7 +44,7 @@ export abstract class ZoomBaseTool extends ActionTool {
     super(attrs)
   }
 
-  static init_ZoomBaseTool(): void {
+  static {
     this.define<ZoomBaseTool.Props>(({Percent}) => ({
       factor:     [ Percent,    0.1    ],
       dimensions: [ Dimensions, "both" ],

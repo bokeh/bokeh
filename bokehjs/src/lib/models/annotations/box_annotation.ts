@@ -133,7 +133,7 @@ export class BoxAnnotation extends Annotation {
     super(attrs)
   }
 
-  static init_BoxAnnotation(): void {
+  static {
     this.prototype.default_view = BoxAnnotationView
 
     this.mixins<BoxAnnotation.Mixins>([mixins.Line, mixins.Fill, mixins.Hatch])

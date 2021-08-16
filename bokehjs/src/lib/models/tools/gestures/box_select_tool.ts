@@ -101,7 +101,7 @@ export class BoxSelectTool extends SelectTool {
     super(attrs)
   }
 
-  static init_BoxSelectTool(): void {
+  static {
     this.prototype.default_view = BoxSelectToolView
 
     this.define<BoxSelectTool.Props>(({Boolean, Ref}) => ({

@@ -40,7 +40,7 @@ export class ImageRGBA extends ImageBase {
     super(attrs)
   }
 
-  static init_ImageRGBA(): void {
+  static {
     this.prototype.default_view = ImageRGBAView
   }
 }

@@ -21,7 +21,7 @@ export abstract class DataRange extends Range {
     super(attrs)
   }
 
-  static init_DataRange(): void {
+  static {
     this.define<DataRange.Props>(({String, Array, AnyRef}) => ({
       names:     [ Array(String), [] ],
       renderers: [ Array(AnyRef(/*DataRenderer*/)), [] ], // TODO: [] -> "auto"

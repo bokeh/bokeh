@@ -64,7 +64,7 @@ export class Band extends UpperLower {
     super(attrs)
   }
 
-  static init_Band(): void {
+  static {
     this.prototype.default_view = BandView
 
     this.mixins<Band.Mixins>([mixins.Line, mixins.Fill])

@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 import os  # lgtm [py/unused-import]
 from typing import (
     Any,
+    Dict,
     NewType,
     Sequence,
     Union,
@@ -40,6 +41,8 @@ __all__ = (
     "ID",
     "JSON",
     "PathLike",
+    "Ref",
+    "ReferenceJson",
     "Unknown",
 )
 
@@ -58,6 +61,18 @@ JSON = Any
 PathLike = Union[str, "os.PathLike[str]"]
 
 Unknown = Any
+
+# TODO: move this to types/model.py
+class Ref(TypedDict):
+    id: ID
+
+class _ReferenceJson(TypedDict):
+    id: ID
+    type: str
+    attributes: Dict[str, Unknown]
+
+class ReferenceJson(_ReferenceJson, total=False):
+    subtype: str | None
 
 # TODO: move this to types/geometry.py
 class PointGeometry(TypedDict):

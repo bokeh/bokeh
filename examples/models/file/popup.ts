@@ -21,7 +21,7 @@ export class Popup extends Model {
     super(attrs)
   }
 
-  static init_Popup(): void {
+  static {
     this.define<Popup.Props>(({String}) => ({
       message: [ String, "" ]
     }))

@@ -58,7 +58,7 @@ export abstract class XYGlyph extends Glyph {
     super(attrs)
   }
 
-  static init_XYGlyph(): void {
+  static {
     this.define<XYGlyph.Props>(({}) => ({
       x: [ p.XCoordinateSpec, {field: "x"} ],
       y: [ p.YCoordinateSpec, {field: "y"} ],

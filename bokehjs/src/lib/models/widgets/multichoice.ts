@@ -135,7 +135,7 @@ export class MultiChoice extends InputWidget {
     super(attrs)
   }
 
-  static init_MultiChoice(): void {
+  static {
     this.prototype.default_view = MultiChoiceView
 
     this.define<MultiChoice.Props>(({Boolean, Int, String, Array, Tuple, Or, Nullable}) => ({

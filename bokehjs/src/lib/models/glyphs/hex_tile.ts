@@ -233,7 +233,7 @@ export class HexTile extends Glyph {
     super(attrs)
   }
 
-  static init_HexTile(): void {
+  static {
     this.prototype.default_view = HexTileView
 
     this.mixins<HexTile.Mixins>([LineVector, FillVector, HatchVector])

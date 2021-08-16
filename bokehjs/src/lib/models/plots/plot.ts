@@ -115,7 +115,7 @@ export class Plot extends LayoutDOM {
     super(attrs)
   }
 
-  static init_Plot(): void {
+  static {
     this.prototype.default_view = PlotView
 
     this.mixins<Plot.Mixins>([

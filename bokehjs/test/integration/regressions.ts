@@ -1,3 +1,5 @@
+import sinon from "sinon"
+
 import {display, fig, row, column, grid} from "./_util"
 
 import {
@@ -11,6 +13,8 @@ import {
   StaticLayoutProvider,
   LinearColorMapper,
   Plot,
+  MathText,
+  HoverTool,
 } from "@bokehjs/models"
 
 import {Button, Select, MultiSelect, MultiChoice, RadioGroup} from "@bokehjs/models/widgets"
@@ -29,7 +33,10 @@ import {Matrix} from "@bokehjs/core/util/matrix"
 import {defer} from "@bokehjs/core/util/defer"
 import {Figure, MarkerArgs, show} from "@bokehjs/api/plotting"
 import {Spectral11, turbo} from "@bokehjs/api/palettes"
-import {div} from "@bokehjs/core/dom"
+import {div, offset} from "@bokehjs/core/dom"
+
+import {DelayedInternalProvider} from "./axes"
+import {MathTextView} from "@bokehjs/models/math_text/math_text"
 
 const n_marker_types = [...MarkerType].length
 
@@ -1082,6 +1089,79 @@ describe("Bug", () => {
 
     it("doesn't correctly measure fonts if font size is provided in relative units", async () => {
       await display(row([plot("linear"), plot("log")]))
+    })
+  })
+
+  describe("in issue #11479", () => {
+    it("doesn't allow to render math text in multiple plots", async () => {
+      const stub = sinon.stub(MathTextView.prototype, "provider")
+      stub.value(new DelayedInternalProvider())
+      try {
+        const p0 = fig([200, 150], {
+          x_axis_label: new MathText({text: "\\theta\\cdot\\left(\\frac{\\sin(x) + 1}{\\Gamma}\\right)"}),
+        })
+        p0.circle([1, 2, 3], [1, 2, 3])
+        const p1 = fig([200, 150], {
+          x_axis_label: new MathText({text: "\\theta\\cdot\\left(\\frac{\\cos(x) + 1}{\\Omega}\\right)"}),
+        })
+        p1.circle([1, 2, 3], [1, 2, 3])
+        await display(row([p0, p1]))
+      } finally {
+        stub.restore()
+      }
+    })
+  })
+
+  describe("in issue #11508", () => {
+    it("doesn't allow to correctly compute log bounds for data ranging", async () => {
+      const y = [
+        0.000000000000000000e+00,
+        8.164452529434230836e+22,
+        0.000000000000000000e+00,
+        0.000000000000000000e+00,
+        7.314143412752266717e+22,
+        0.000000000000000000e+00,
+        6.232344689415452361e+22,
+        0.000000000000000000e+00,
+        0.000000000000000000e+00,
+        0.000000000000000000e+00,
+        0.000000000000000000e+00,
+        1.661581512390552584e+21,
+        1.005171116507131360e+17,
+        8.466177779596089600e+16,
+        7.311184945273668800e+16,
+        6.434035489362382400e+16,
+        5.745531645071752000e+16,
+        0.000000000000000000e+00,
+        4.731234037419803200e+16,
+      ]
+      const x = range(y.length)
+
+      const p = fig([200, 200], {y_axis_type: "log"})
+      p.line(x, y, {line_width: 2})
+      await display(p)
+    })
+  })
+
+  describe("in issue #11446", () => {
+    it("doesn't allow to correctly compute inspection indices in vline or hline mode", async () => {
+      const p = fig([200, 200])
+      const cr = p.circle([1, 2, 3, 4], [1, 2, 3, 4], {
+        size: 20, fill_color: "steelblue", hover_fill_color: "red", hover_alpha: 0.1,
+      })
+      p.add_tools(new HoverTool({tooltips: null, renderers: [cr], mode: "vline"}))
+      const {view} = await display(p)
+
+      const crv = view.renderer_views.get(cr)!
+      const [[sx], [sy]] = crv.coordinates.map_to_screen([2], [1.5])
+
+      const ui = view.canvas_view.ui_event_bus
+      const {left, top} = offset(ui.hit_area)
+
+      const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
+      ui._mouse_move(ev)
+
+      await view.ready
     })
   })
 })

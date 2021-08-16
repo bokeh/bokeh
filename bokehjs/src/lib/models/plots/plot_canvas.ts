@@ -117,6 +117,11 @@ export class PlotView extends LayoutDOMView implements Renderable {
       this.request_paint("everything")
   }
 
+  private _needs_notify: boolean = false
+  notify_finished_after_paint(): void {
+    this._needs_notify = true
+  }
+
   // TODO: this needs to be removed
   request_render(): void {
     this.request_paint("everything")
@@ -585,11 +590,21 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   paint(): void {
-    if (this.is_paused || !this.model.visible)
+    if (this.is_paused)
       return
 
-    logger.trace(`PlotView.paint() for ${this.model.id}`)
+    if (this.model.visible) {
+      logger.trace(`${this.toString()}.paint()`)
+      this._actual_paint()
+    }
 
+    if (this._needs_notify) {
+      this._needs_notify = false
+      this.notify_finished()
+    }
+  }
+
+  protected _actual_paint(): void {
     const {document} = this.model
     if (document != null) {
       const interactive_duration = document.interactive_duration()

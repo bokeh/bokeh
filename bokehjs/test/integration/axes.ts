@@ -1,3 +1,5 @@
+import sinon from "sinon"
+
 import {display} from "./_util"
 import {tex2svg} from "../third-party/tex2svg"
 
@@ -6,8 +8,33 @@ import {
   Plot, AllLabels, NoOverlap, MathText,
 } from "@bokehjs/models"
 import {Factor} from "@bokehjs/models/ranges/factor_range"
+import {MathTextView, NoProvider, MathJaxProvider} from "@bokehjs/models/math_text/math_text"
 import {Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
+import {wait} from "@bokehjs/core/util/defer"
+
+export class InternalProvider extends MathJaxProvider {
+  get MathJax() {
+    return this.status == "loaded" ? {tex2svg} : null
+  }
+  async fetch() {
+    this.status = "loaded"
+  }
+}
+
+export class DelayedInternalProvider extends MathJaxProvider {
+  get MathJax() {
+    return this.status == "loaded" ? {tex2svg} : null
+  }
+
+  async fetch() {
+    this.status = "loading"
+    wait(50).then(() => {
+      this.status = "loaded"
+      this.ready.emit()
+    })
+  }
+}
 
 (() => {
   type PlotFn = (attrs: Partial<LinearAxis.Attrs>, options?: {minor_size?: number, num_ticks?: number}) => Promise<void>
@@ -128,56 +155,57 @@ import {radians} from "@bokehjs/core/util/math"
       await plot({minor_tick_out: 10})
     })
 
-    function load_math_jax_script(): void {
-      const script = document.createElement("script")
-      script.id = "bokeh_mathjax_script"
-      document.head.appendChild(script)
-
-      // @ts-ignore
-      MathJax = {tex2svg}
-    }
-
-    function remove_mathjax_script(): void {
-      const mathjax_script = document.getElementById("bokeh_mathjax_script")
-      if (mathjax_script) mathjax_script.remove()
-
-      // @ts-ignore
-      if (typeof MathJax !== "undefined") MathJax = undefined
-    }
-
     it("should support LaTeX notation on axis_label with MathText", async () => {
-      await load_math_jax_script()
-      await plot({axis_label: new MathText({text: "\\sin(x)"})}, {minor_size: 100})
-      remove_mathjax_script()
+      const stub = sinon.stub(MathTextView.prototype, "provider")
+      stub.value(new InternalProvider())
+      try {
+        await plot({axis_label: new MathText({text: "\\sin(x)"})}, {minor_size: 100})
+      } finally {
+        stub.restore()
+      }
+    })
+
+    it("should support LaTeX notation on axis_label with MathText and a delay in loading", async () => {
+      const stub = sinon.stub(MathTextView.prototype, "provider")
+      stub.value(new DelayedInternalProvider())
+      try {
+        await plot({axis_label: new MathText({text: "\\sin(x)"})}, {minor_size: 100})
+      } finally {
+        stub.restore()
+      }
     })
 
     it("should support LaTeX notation on axis_label with MathText and fallback to text if MathJax has errors", async () => {
-      await load_math_jax_script()
-      // @ts-ignore
-      MathJax = undefined
-      await plot({axis_label: new MathText({text: "\\sin(x)"})}, {minor_size: 100})
-      remove_mathjax_script()
+      const stub = sinon.stub(MathTextView.prototype, "provider")
+      stub.value(new NoProvider())
+      try {
+        await plot({axis_label: new MathText({text: "\\sin(x)"})}, {minor_size: 100})
+      } finally {
+        stub.restore()
+      }
     })
 
     it("should display tick labels with math text on overrides", async () => {
-      await load_math_jax_script()
-
-      await plot({
-        major_label_overrides: {
-          100: new MathText({text: "-3\\sigma"}),
-          120: new MathText({text: "-2\\sigma"}),
-          140: new MathText({text: "-1\\sigma"}),
-          160: new MathText({text: "\\mu"}),
-          180: new MathText({text: "1\\sigma"}),
-          200: new MathText({text: "2\\sigma"}),
-          1: "one",
-          0.01: new MathText({text: "\\frac{0.133}{\\mu+2\\sigma^2}"}),
-          10000: new MathText({text: "10 \\ast 1000"}),
-          1000000: new MathText({text: "\\sigma^2"}),
-        },
-      }, {minor_size: 100})
-
-      remove_mathjax_script()
+      const stub = sinon.stub(MathTextView.prototype, "provider")
+      stub.value(new InternalProvider())
+      try {
+        await plot({
+          major_label_overrides: {
+            100: new MathText({text: "-3\\sigma"}),
+            120: new MathText({text: "-2\\sigma"}),
+            140: new MathText({text: "-1\\sigma"}),
+            160: new MathText({text: "\\mu"}),
+            180: new MathText({text: "1\\sigma"}),
+            200: new MathText({text: "2\\sigma"}),
+            1: "one",
+            0.01: new MathText({text: "\\frac{0.133}{\\mu+2\\sigma^2}"}),
+            10000: new MathText({text: "10 \\ast 1000"}),
+            1000000: new MathText({text: "\\sigma^2"}),
+          },
+        }, {minor_size: 100})
+      } finally {
+        stub.restore()
+      }
     })
 
     it("should support single line axis_label", async () => {

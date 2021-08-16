@@ -2,7 +2,7 @@ import {BaseGLGlyph, Transform} from "./base"
 import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import {RectGlyphProps, RectHatchGlyphProps} from "./types"
-import {RectView} from "../rect"
+import type {RectView} from "../rect"
 
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
 // have reduced floating point precision.  So here using a large-ish negative

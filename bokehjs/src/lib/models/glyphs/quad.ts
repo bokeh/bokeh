@@ -58,7 +58,7 @@ export class Quad extends Box {
     super(attrs)
   }
 
-  static init_Quad(): void {
+  static {
     this.prototype.default_view = QuadView
 
     this.define<Quad.Props>(({}) => ({

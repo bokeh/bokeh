@@ -193,7 +193,7 @@ export class LabelSet extends TextAnnotation {
     super(attrs)
   }
 
-  static init_LabelSet(): void {
+  static {
     this.prototype.default_view = LabelSetView
 
     this.mixins<LabelSet.Mixins>([

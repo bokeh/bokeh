@@ -167,7 +167,7 @@ export class AnnularWedge extends XYGlyph {
     super(attrs)
   }
 
-  static init_AnnularWedge(): void {
+  static {
     this.prototype.default_view = AnnularWedgeView
 
     this.mixins<AnnularWedge.Mixins>([LineVector, FillVector, HatchVector])

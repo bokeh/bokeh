@@ -654,7 +654,7 @@ export class Axis extends GuideRenderer {
     super(attrs)
   }
 
-  static init_Axis(): void {
+  static {
     this.prototype.default_view = AxisView
 
     this.mixins<Axis.Mixins>([

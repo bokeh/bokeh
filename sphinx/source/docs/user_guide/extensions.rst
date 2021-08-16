@@ -127,7 +127,7 @@ the final BokehJS scripts.
       // serialization/deserialization of the model.
       static __name__ = "Surface3d"
 
-      static init_Custom(): void {
+      static {
         // If there is an associated view, this is typically boilerplate.
         this.prototype.default_view = CustomView
 

@@ -20,7 +20,7 @@ export class StepInterpolator extends Interpolator {
     super(attrs)
   }
 
-  static init_StepInterpolator(): void {
+  static {
     this.define<StepInterpolator.Props>(() => ({
       mode: [ StepMode, "after" ],
     }))

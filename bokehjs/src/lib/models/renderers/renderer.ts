@@ -24,7 +24,7 @@ export class RendererGroup extends Model {
     super(attrs)
   }
 
-  static init_RendererGroup(): void {
+  static {
     this.define<RendererGroup.Props>(({Boolean}) => ({
       visible: [ Boolean, true ],
     }))
@@ -104,8 +104,16 @@ export abstract class RendererView extends View implements visuals.Renderable {
     this.plot_view.request_paint(this)
   }
 
+  request_layout(): void {
+    this.plot_view.request_layout()
+  }
+
   override notify_finished(): void {
     this.plot_view.notify_finished()
+  }
+
+  notify_finished_after_paint(): void {
+    this.plot_view.notify_finished_after_paint()
   }
 
   interactive_hit?(sx: number, sy: number): boolean
@@ -164,7 +172,7 @@ export abstract class Renderer extends Model {
     super(attrs)
   }
 
-  static init_Renderer(): void {
+  static {
     this.define<Renderer.Props>(({Boolean, String, Ref, Nullable}) => ({
       group:        [ Nullable(Ref(RendererGroup)), null ],
       level:        [ RenderLevel, "image" ],

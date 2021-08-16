@@ -132,6 +132,9 @@ class TestModelChangedEvent:
         assert e.hint == None
         assert e.callback_invoker == None
 
+    def test_kind(self) -> None:
+        assert bde.ModelChangedEvent.kind == "ModelChanged"
+
     def test_init_ignores_hint_with_setter(self) -> None:
         e = bde.ModelChangedEvent("doc", "model", "attr", "old", "new", "snew", setter="setter", hint="hint", callback_invoker="invoker")
         assert e.document == "doc"
@@ -227,6 +230,9 @@ class TestColumnDataChangedEvent:
         assert e.setter == "setter"
         assert e.callback_invoker == "invoker"
 
+    def test_kind(self) -> None:
+        assert bde.ColumnDataChangedEvent.kind == "ColumnDataChanged"
+
     @patch("bokeh.util.serialization.transform_column_source_data")
     def test_generate(self, mock_tcds: MagicMock) -> None:
         mock_tcds.return_value = "new"
@@ -235,7 +241,7 @@ class TestColumnDataChangedEvent:
         refs = dict(foo=10)
         bufs = set()
         r = e.generate(refs, bufs)
-        assert r == dict(kind="ColumnDataChanged", column_source="ref", new="new", cols=[1,2])
+        assert r == dict(kind=e.kind, column_source="ref", new="new", cols=[1,2])
         assert refs == dict(foo=10)
         assert bufs == set()
 
@@ -268,13 +274,16 @@ class TestColumnsStreamedEvent:
         assert e.setter == "setter"
         assert e.callback_invoker == "invoker"
 
+    def test_kind(self) -> None:
+        assert bde.ColumnsStreamedEvent.kind == "ColumnsStreamed"
+
     def test_generate(self) -> None:
         m = FakeModel()
         e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "setter", "invoker")
         refs = dict(foo=10)
         bufs = set()
         r = e.generate(refs, bufs)
-        assert r == dict(kind="ColumnsStreamed", column_source="ref", data=dict(foo=1), rollover=200)
+        assert r == dict(kind=e.kind, column_source="ref", data=dict(foo=1), rollover=200)
         assert refs == dict(foo=10)
         assert bufs == set()
 
@@ -315,13 +324,16 @@ class TestColumnsPatchedEvent:
         assert e.setter == "setter"
         assert e.callback_invoker == "invoker"
 
+    def test_kind(self) -> None:
+        assert bde.ColumnsPatchedEvent.kind == "ColumnsPatched"
+
     def test_generate(self) -> None:
         m = FakeModel()
         e = bde.ColumnsPatchedEvent("doc", m, [1, 2], "setter", "invoker")
         refs = dict(foo=10)
         bufs = set()
         r = e.generate(refs, bufs)
-        assert r == dict(kind="ColumnsPatched", column_source="ref", patches=[1,2])
+        assert r == dict(kind=e.kind, column_source="ref", patches=[1,2])
         assert refs == dict(foo=10)
         assert bufs == set()
 
@@ -351,12 +363,15 @@ class TestTitleChangedEvent:
         assert e.setter == "setter"
         assert e.callback_invoker == "invoker"
 
+    def test_kind(self) -> None:
+        assert bde.TitleChangedEvent.kind == "TitleChanged"
+
     def test_generate(self) -> None:
         e = bde.TitleChangedEvent("doc", "title", "setter", "invoker")
         refs = dict(foo=10)
         bufs = set()
         r = e.generate(refs, bufs)
-        assert r == dict(kind="TitleChanged", title="title")
+        assert r == dict(kind=e.kind, title="title")
         assert refs == dict(foo=10)
         assert bufs == set()
 
@@ -407,13 +422,16 @@ class TestRootAddedEvent:
         assert e.setter == "setter"
         assert e.callback_invoker == "invoker"
 
+    def test_kind(self) -> None:
+        assert bde.RootAddedEvent.kind == "RootAdded"
+
     def test_generate(self) -> None:
         m = FakeModel()
         e = bde.RootAddedEvent("doc", m, "setter", "invoker")
         refs = dict(foo=10)
         bufs = set()
         r = e.generate(refs, bufs)
-        assert r == dict(kind="RootAdded", model="ref")
+        assert r == dict(kind=e.kind, model="ref")
         assert refs == dict(foo=10, ref1=1, ref2=2)
         assert bufs == set()
 
@@ -437,13 +455,16 @@ class TestRootRemovedEvent:
         assert e.setter == "setter"
         assert e.callback_invoker == "invoker"
 
+    def test_kind(self) -> None:
+        assert bde.RootRemovedEvent.kind == "RootRemoved"
+
     def test_generate(self) -> None:
         m = FakeModel()
         e = bde.RootRemovedEvent("doc", m, "setter", "invoker")
         refs = dict(foo=10)
         bufs = set()
         r = e.generate(refs, bufs)
-        assert r == dict(kind="RootRemoved", model="ref")
+        assert r == dict(kind=e.kind, model="ref")
         assert refs == dict(foo=10)
         assert bufs == set()
 

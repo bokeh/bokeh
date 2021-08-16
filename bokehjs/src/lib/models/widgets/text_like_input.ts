@@ -74,7 +74,7 @@ export class TextLikeInput extends InputWidget {
     super(attrs)
   }
 
-  static init_TextLikeInput(): void {
+  static {
     this.define<TextLikeInput.Props>(({Int, String, Nullable}) => ({
       value:       [ String, "" ],
       value_input: [ String, "" ],

@@ -218,17 +218,15 @@ def match_host(host: str, pattern: str) -> bool:
         False
 
     '''
+    host_port: str | None = None
     if ':' in host:
         host, host_port = host.rsplit(':', 1)
-    else:
-        host_port = None
 
+    pattern_port: str | None = None
     if ':' in pattern:
         pattern, pattern_port = pattern.rsplit(':', 1)
         if pattern_port == '*':
             pattern_port = None
-    else:
-        pattern_port = None
 
     if pattern_port is not None and host_port != pattern_port:
         return False

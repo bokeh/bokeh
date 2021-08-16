@@ -272,16 +272,11 @@ def test_malformed_exception() -> None:
     with pytest.raises(ValueError):
         q.match(plot, {11: {q.EQ: 5}})
 
-def test_with_context() -> None:
-    res = list(
-        q.find(plot.references(), {'layout': 'below'}, {'plot': plot})
-    )
-    assert len(res) == 1
+def test_is_single_string_selector() -> None:
+    assert q.is_single_string_selector(dict(foo="c"), "foo")
+    assert not q.is_single_string_selector(dict(foo="c", bar="d"), "foo")
+    assert not q.is_single_string_selector(dict(foo=42), "foo")
 
-    res = list(
-        q.find(plot.references(), {'select': 'below'}, {'plot': plot})
-    )
-    assert len(res) == 0
 
 #-----------------------------------------------------------------------------
 # Private API

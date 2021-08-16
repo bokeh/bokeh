@@ -24,13 +24,13 @@ export class MercatorAxis extends LinearAxis {
   override __view_type__: MercatorAxisView
 
   override ticker: MercatorTicker
-  formatter: MercatorTickFormatter
+  override formatter: MercatorTickFormatter
 
   constructor(attrs?: Partial<MercatorAxis.Attrs>) {
     super(attrs)
   }
 
-  static init_MercatorAxis(): void {
+  static {
     this.prototype.default_view = MercatorAxisView
 
     this.override<MercatorAxis.Props>({

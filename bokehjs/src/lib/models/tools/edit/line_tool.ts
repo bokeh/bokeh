@@ -51,13 +51,13 @@ export abstract class LineTool extends EditTool {
   override properties: LineTool.Props
   override __view_type__: LineToolView
 
-  renderers: (GlyphRenderer & HasLineGlyph)[]
+  override renderers: (GlyphRenderer & HasLineGlyph)[]
 
   constructor(attrs?: Partial<LineTool.Attrs>) {
     super(attrs)
   }
 
-  static init_LineTool(): void {
+  static {
     this.define<LineTool.Props>(({AnyRef}) => ({
       intersection_renderer: [ AnyRef<GlyphRenderer & HasLineGlyph>() ],
     }))

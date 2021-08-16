@@ -74,7 +74,7 @@ export abstract class ButtonGroup extends OrientedControl {
     super(attrs)
   }
 
-  static init_ButtonGroup(): void {
+  static {
     this.define<ButtonGroup.Props>(({String, Array}) => ({
       labels:      [ Array(String), [] ],
       button_type: [ ButtonType, "default" ],
