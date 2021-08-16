@@ -1,8 +1,7 @@
-from bokeh.plotting import figure, output_file, show
-from bokeh.tile_providers import get_provider
 import xyzservices.providers as xyz
 
-output_file("xyzservices.html")
+from bokeh.plotting import figure, show
+from bokeh.tile_providers import get_provider
 
 tile_provider = get_provider(xyz.OpenStreetMap.Mapnik)
 
