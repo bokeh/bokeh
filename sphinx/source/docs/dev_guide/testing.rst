@@ -116,6 +116,31 @@ Unit tests
 
 .. _devguide_testing_local_python_integration:
 
+Code coverage (Python unit tests)
+    To create a coverage report for Python unit tests, use ``pytest`` with the
+    command line options ``--cov=bokeh`` and ``--cov-config=tests/.coveragerc``:
+
+    .. code-block:: sh
+
+        pytest --cov=bokeh --cov-config=tests/.coveragerc
+
+    Coverage with Bokeh's Python unit tests should be around 90%. Coverage
+    reports are only relevant for Python unit tests, there are no coverage
+    reports for other Python tests or for any of the TypeScript code of BokehJS.
+
+    You also have the option to add
+    ``--cov=bokeh --cov-config=tests/.coveragerc`` when running a specific
+    subset of Python unit tests. This adds a coverage report to the test
+    results. For example:
+
+    .. code-block:: sh
+
+        pytest --cov=bokeh --cov-config=tests/.coveragerc -m "not selenium" tests/unit/bokeh/test_objects.py
+
+    .. seealso::
+        Coverage reports use the pytest plugin `pytest-cov`_. For more
+        information, see the `documentation for pytest-cov`_.
+
 Integration tests
     To run Bokeh's Python-focused integration tests, use this command from the
     top level of the repository:
@@ -127,27 +152,6 @@ Integration tests
     These tests mostly simulate UI interactions. Therefore, they require
     `Chrome`_ or `Chromium`_ and `Selenium`_ with the `ChromeDriver`_ web
     driver.
-
-Code coverage
-    To create a coverage report, use ``pytest`` with the command line options
-    ``--cov=bokeh`` and ``--cov-config=tests/.coveragerc``:
-
-    .. code-block:: sh
-
-        pytest --cov=bokeh --cov-config=tests/.coveragerc
-
-    You also have the option to add
-    ``--cov=bokeh --cov-config=tests/.coveragerc`` when running a specific
-    subset of tests. This adds a coverage report to the test results. For
-    example:
-
-    .. code-block:: sh
-
-        pytest --cov=bokeh --cov-config=tests/.coveragerc tests/codebase
-
-    .. seealso::
-        Coverage reports use the pytest plugin `pytest-cov`_. For more
-        information, see the `documentation for pytest-cov`_.
 
 Examples tests
     The ``examples`` tests run a selection of the examples in the Bokeh
@@ -383,7 +387,7 @@ Continuous Integration (CI)
 
 Every time you start a :ref:`Pull Request <devguide_pull_requests>` or add new
 commits to an existing Pull Request branch on Bokeh's GitHub repository,
-`Bokeh's Continuous Integration (CI) <GithubCI>`_ will run all available tests
+`Bokeh's Continuous Integration (CI) <GithubCI_>`_ will run all available tests
 on your branch.
 
 You can see the list of all current and previous CI runs at this URL:
@@ -404,7 +408,7 @@ Additional configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 In addition to testing, Bokeh's CI is also used to build new Bokeh
-`releases <Release Management>`_.
+`releases <Release Management_>`_.
 
 There are a number of files that affect the build configuration:
 
