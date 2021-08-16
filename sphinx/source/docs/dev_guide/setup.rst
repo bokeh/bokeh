@@ -289,17 +289,17 @@ to ``setup.py``. For example:
 * ``python setup.py develop --install-js``
 
 .. note::
-    You need to rebuild BokehJS each time the BokehJS source code changes. This
-    can become necessary because you made changes yourself or because you pulled
-    updated code from GitHub.
+    You need to **rebuild BokehJS each time the BokehJS source code changes**.
+    This can become necessary because you made changes yourself or because you
+    pulled updated code from GitHub.
 
-    Occasionally, the list of JavaScript dependencies also changes. If this
+    Occasionally, the **list of JavaScript dependencies also changes**. If this
     happens, you will need to re-run the instructions in the
     :ref:`devguide_setup_installing_node_packages` section above before
     rebuilding BokehJS.
 
-    In case you update from a development environment based on Bokeh 2.3 or
-    older, you most likely also need to delete the ``bokehjs/build`` folder in
+    In case you **update from a development environment based on Bokeh 2.3 or
+    older**, you most likely also need to delete the ``bokehjs/build`` folder in
     your local environment before building and installing a fresh BokehJS.
 
 .. _devguide_setup_sample_data:
@@ -338,22 +338,95 @@ aware of is ``BOKEH_RESOURCES``. This variable controls which version of
 :term:`BokehJS` to use.
 
 By default, Bokeh downloads any necessary JavaScript code for BokehJS from a
-Content Delivery Network (CDN). If you want Bokeh to use your local BokehJS
-version instead, you should set ``BOKEH_RESOURCES`` to ``absolute-dev``:
+Content Delivery Network (CDN). If you have modified any BokehJS code and built
+BokehJS locally, you need to change how Bokeh loads those JavaScript resources.
+You will not see any effects of your local changes to BokehJS unless you
+configure Bokeh to use your local version of BokehJS instead of the default
+version from the CDN.
 
-.. tabs::
+You have the following three options to use your local version of BokehJS:
 
-    .. code-tab:: sh Linux/macOS
+Use ``absolute-dev``
+    Set ``BOKEH_RESOURCES`` to ``absolute-dev`` to load JavaScript resources
+    from the static directory of your locally installed Bokeh library. This way,
+    Bokeh will also use unminified BokehJS resources for improved readability.
 
-        export BOKEH_RESOURCES=absolute-dev
+    .. tabs::
 
-    .. code-tab:: PowerShell Windows (PS)
+        .. code-tab:: sh Linux/macOS
 
-        $Env:BOKEH_RESOURCES = "absolute-dev"
+            export BOKEH_RESOURCES=absolute-dev
 
-    .. code-tab:: doscon Windows (CMD)
+        .. code-tab:: PowerShell Windows (PS)
 
-        set BOKEH_RESOURCES=absolute-dev
+            $Env:BOKEH_RESOURCES = "absolute-dev"
+
+        .. code-tab:: doscon Windows (CMD)
+
+            set BOKEH_RESOURCES=absolute-dev
+
+Use ``inline``
+    Set ``BOKEH_RESOURCES`` to ``inline`` to include all necessary local
+    JavaScript resources directly inside the generated HTML file.
+
+    .. tabs::
+
+        .. code-tab:: sh Linux/macOS
+
+            export BOKEH_RESOURCES=inline
+
+        .. code-tab:: PowerShell Windows (PS)
+
+            $Env:BOKEH_RESOURCES = "inline"
+
+        .. code-tab:: doscon Windows (CMD)
+
+            set BOKEH_RESOURCES=inline
+
+Use ``server-dev``
+    Set ``BOKEH_RESOURCES`` to ``server-dev`` to load your local BokehJS through
+    a Bokeh server.
+
+    First, start a local server.
+
+    .. tabs::
+
+        .. code-tab:: sh Linux/macOS
+
+            BOKEH_DEV=true bokeh static
+
+        .. code-tab:: PowerShell Windows (PS)
+
+            $Env:BOKEH_DEV = "true"
+            bokeh static
+
+        .. code-tab:: doscon Windows (CMD)
+
+            set BOKEH_DEV=true
+            bokeh static
+
+    Next, open a new terminal window and set ``BOKEH_RESOURCES`` to
+    ``server-dev``.
+
+    .. tabs::
+
+        .. code-tab:: sh Linux/macOS
+
+            export BOKEH_RESOURCES=server-dev
+
+        .. code-tab:: PowerShell Windows (PS)
+
+            $Env:BOKEH_RESOURCES = "server-dev"
+
+        .. code-tab:: doscon Windows (CMD)
+
+            set BOKEH_RESOURCES=server-dev
+
+    This way, you have access to more development functions, such as
+    `source maps` to help debugging the original TypeScript instead of the
+    compiled JavaScript.
+
+See :class:`~bokeh.resources.Resources` for more details.
 
 ``BOKEH_DEV``
 ~~~~~~~~~~~~~
@@ -447,16 +520,16 @@ command(s):
 
     .. code-tab:: sh Linux/macOS
 
-        BOKEH_RESOURCES=absolute-dev python examples/plotting/file/iris.py
+        BOKEH_RESOURCES=inline python examples/plotting/file/iris.py
 
     .. code-tab:: PowerShell Windows (PS)
 
-        $Env:BOKEH_RESOURCES = "absolute-dev"
+        $Env:BOKEH_RESOURCES = "inline"
         python.exe .\examples\plotting\file\iris.py
 
     .. code-tab:: doscon Windows (CMD)
 
-        set BOKEH_RESOURCES=absolute-dev
+        set BOKEH_RESOURCES=inline
         python examples\plotting\file\iris.py
 
 This creates a file ``iris.html`` locally. When you open this file in a web
@@ -500,10 +573,10 @@ All the sliders allow interactive control of the sine wave, with each update
 redrawing the line with the new parameters. The ``--show`` option opens a
 web browser, the default URL for the Bokeh server is ``localhost:5006``.
 
-.. note ::
+.. note::
     Updating an existing development environment does not always work as
-    expected. If you get errors after updating an older environment, you should
-    use ``conda remove --name bkdev --all``, delete your local ``bokeh`` folder,
+    expected. If you get errors after updating an older environment, use
+    ``conda remove --name bkdev --all``, delete your local ``bokeh`` folder,
     and start afresh, following the steps in this guide from
     :ref:`the beginning <devguide_setup_preliminaries>`.
 
@@ -533,3 +606,4 @@ web browser, the default URL for the Bokeh server is ``localhost:5006``.
 .. _npm: https://www.npmjs.com/
 .. _Git hooks: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
 .. _Git aliases: https://git-scm.com/book/en/v2/Git-Basics-Git-Aliases
+.. _source maps: https://developer.mozilla.org/en-US/docs/Tools/Debugger/How_to/Use_a_source_map
