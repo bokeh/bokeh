@@ -369,7 +369,7 @@ jobs:
 
       - name: Remove extra packages
         shell: bash -l {0}
-        run: conda remove --yes --quiet --no-pin pandas pandas-stubs scipy notebook scikit-learn sympy flask networkx
+        run: conda remove --yes --quiet --no-pin pandas pandas-stubs scipy notebook scikit-learn sympy flask networkx xyzservices
 
       - name: Run tests
         shell: bash -l {0}

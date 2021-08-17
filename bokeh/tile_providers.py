@@ -10,11 +10,12 @@ get_provider
     Use this function to retrieve an instance of a predefined tile provider.
 
     Args:
-        provider_name (Union[str, Vendors])
+        provider_name (Union[str, Vendors, xyzservices.TileProvider])
             Name of the tile provider to supply.
 
             Use a ``tile_providers.Vendors`` enumeration value, or the string
-            name of one of the known providers.
+            name of one of the known providers. Use
+            :class:`xyzservices.TileProvider` to pass custom tile providers.
 
     Returns:
         WMTSTileProviderSource: The desired tile provider instance
@@ -30,6 +31,10 @@ get_provider
                 >>> get_provider(Vendors.CARTODBPOSITRON)
                 <class 'bokeh.models.tiles.WMTSTileSource'>
                 >>> get_provider('CARTODBPOSITRON')
+                <class 'bokeh.models.tiles.WMTSTileSource'>
+
+                >>> import xyzservices.providers as xyz
+                >>> get_provider(xyz.CartoDB.Positron)
                 <class 'bokeh.models.tiles.WMTSTileSource'>
 
 The available built-in tile providers are listed in the ``Vendors`` enum:
@@ -145,11 +150,15 @@ import types
 # Bokeh imports
 from bokeh.core.enums import enumeration
 
+# Bokeh imports
+from .util.dependencies import import_optional
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 # __all__ defined at the bottom on the class module
+xyzservices = import_optional('xyzservices')
 
 #-----------------------------------------------------------------------------
 # General API
@@ -222,6 +231,14 @@ class _TileProvidersModule(types.ModuleType):
         if isinstance(provider_name, WMTSTileSource):
             # This allows `get_provider(CARTODBPOSITRON)` to work
             return WMTSTileSource(url=provider_name.url, attribution=provider_name.attribution)
+
+        if xyzservices and isinstance(provider_name, xyzservices.TileProvider):
+            return WMTSTileSource(
+                url=provider_name.build_url(scale_factor="@2x"),
+                attribution=provider_name.html_attribution,
+                min_zoom=provider_name.get("min_zoom", 0),
+                max_zoom=provider_name.get("max_zoom", 30),
+            )
 
         selected_provider = provider_name.upper()
 
