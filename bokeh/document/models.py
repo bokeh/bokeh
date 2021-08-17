@@ -27,6 +27,7 @@ import weakref
 from typing import (
     TYPE_CHECKING,
     Dict,
+    Generator,
     Iterator,
     List,
     Set,
@@ -111,7 +112,7 @@ class DocumentModelManager:
         del self._models_by_name
 
     @contextlib.contextmanager
-    def freeze(self) -> None:
+    def freeze(self) -> Generator[None, None, None]:
         ''' Defer expensive model recompuation until intermediate updates are
         complete.
 

@@ -28,7 +28,7 @@ dependencies:
   - ipython
   - isort 5.8
   - mock
-  - mypy >=0.900
+  - mypy >=0.910
   - pandas-stubs
   - nbconvert >=5.4
   - networkx

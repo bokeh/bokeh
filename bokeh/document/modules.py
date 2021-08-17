@@ -65,7 +65,7 @@ class DocumentModuleManager:
     def __len__(self) -> int:
         return len(self._modules)
 
-    def add(self, module: ModuleType):
+    def add(self, module: ModuleType) -> None:
         ''' Add a module associated with a Document.
 
         .. note::

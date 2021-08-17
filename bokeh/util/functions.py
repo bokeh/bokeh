@@ -20,6 +20,17 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    List,
+    Tuple,
+)
+
+if TYPE_CHECKING:
+    from inspect import Signature
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -44,7 +55,7 @@ __all__ = (
 # Code
 #-----------------------------------------------------------------------------
 
-def get_param_info(sig):
+def get_param_info(sig: Signature) -> Tuple[List[str], List[Any]]:
     ''' Find parameters with defaults and return them.
 
     Arguments:
@@ -58,4 +69,4 @@ def get_param_info(sig):
     for param in sig.parameters.values():
         if param.default is not param.empty:
             defaults.append(param.default)
-    return list(sig.parameters), defaults
+    return [name for name in sig.parameters], defaults
