@@ -89,7 +89,7 @@ class AuthProvider:
         return endpoints
 
     @property
-    def get_login_url(self) -> Callable[[HTTPServerRequest], str] | str | None:
+    def get_login_url(self) -> Callable[[HTTPServerRequest], str] | None:
         ''' A function that computes a URL to redirect unathenticated users
         to for login.
 
@@ -103,7 +103,7 @@ class AuthProvider:
         pass
 
     @property
-    def get_user(self) -> Callable[[HTTPServerRequest], User] | User | None:
+    def get_user(self) -> Callable[[HTTPServerRequest], User] | None:
         ''' A function to get the current authenticated user.
 
         This property may return None, if a ``get_user_async`` function is
@@ -116,7 +116,7 @@ class AuthProvider:
         pass
 
     @property
-    def get_user_async(self) -> Callable[[HTTPServerRequest], Awaitable[User]] | Awaitable[User] | None:
+    def get_user_async(self) -> Callable[[HTTPServerRequest], Awaitable[User]] | None:
         ''' An async function to get the current authenticated user.
 
         This property may return None, if a ``get_user`` function is supplied

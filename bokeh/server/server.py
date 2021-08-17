@@ -38,7 +38,15 @@ import signal
 import socket
 import sys
 from types import FrameType
-from typing import TYPE_CHECKING, List, Mapping
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Coroutine,
+    Dict,
+    Generator,
+    List,
+    Mapping,
+)
 
 # External imports
 from tornado import version as tornado_version
@@ -169,7 +177,7 @@ class BaseServer:
         self._tornado.stop(wait)
         self._http.stop()
 
-    def unlisten(self) -> None:
+    def unlisten(self) -> Generator[Coroutine[Any, Any, None], None, None]:
         ''' Stop listening on ports. The server will no longer be usable after
         calling this function.
 
@@ -271,7 +279,7 @@ class BaseServer:
         address_string = 'localhost'
         if self.address is not None and self.address != '':
             address_string = self.address
-        url = "http://%s:%d%s%s" % (address_string, self.port, self.prefix, app_path)
+        url = f"http://{address_string}:{self.port}{self.prefix}{app_path}"
 
         from bokeh.util.browser import view
         view(url, browser=browser, new=new)
@@ -302,7 +310,7 @@ class BaseServer:
         return sock.getsockname()[1]
 
     @property
-    def address(self) -> str:
+    def address(self) -> str | None:
         ''' The configured address that the server listens on for HTTP requests
         '''
         sock = next(
@@ -348,7 +356,7 @@ class Server(BaseServer):
     '''
 
     def __init__(self, applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
-            io_loop: IOLoop | None = None, http_server_kwargs=None, **kwargs) -> None:
+            io_loop: IOLoop | None = None, http_server_kwargs: Dict[str, Any] | None = None, **kwargs: Any) -> None:
         ''' Create a ``Server`` instance.
 
         Args:
@@ -471,7 +479,7 @@ class Server(BaseServer):
 # documentation elsewhere)
 class _ServerOpts(Options):
 
-    num_procs = Int(default=1, help="""
+    num_procs: int = Int(default=1, help="""
     The number of worker processes to start for the HTTP server. If an explicit
     ``io_loop`` is also configured, then ``num_procs=1`` is the only compatible
     value. Use ``BaseServer`` to coordinate an explicit ``IOLoop`` with a
@@ -482,54 +490,54 @@ class _ServerOpts(Options):
     Note that due to limitations inherent in Tornado, Windows does not support
     ``num_procs`` values greater than one! In this case consider running
     multiple Bokeh server instances behind a load balancer.
-    """)
+    """)  # type: ignore
 
-    address = Nullable(String, help="""
+    address : str | None = Nullable(String, help="""
     The address the server should listen on for HTTP requests.
-    """)
+    """)  # type: ignore
 
-    port = Int(default=DEFAULT_SERVER_PORT, help="""
+    port: int = Int(default=DEFAULT_SERVER_PORT, help="""
     The port number the server should listen on for HTTP requests.
-    """)
+    """)  # type: ignore
 
-    prefix = String(default="", help="""
+    prefix: str = String(default="", help="""
     A URL prefix to use for all Bokeh server paths.
-    """)
+    """)  # type: ignore
 
-    index = Nullable(String, help="""
+    index: str | None = Nullable(String, help="""
     A path to a Jinja2 template to use for the index "/"
-    """)
+    """)  # type: ignore
 
-    allow_websocket_origin = Nullable(p.List(String), help="""
+    allow_websocket_origin: List[str] | None = Nullable(p.List(String), help="""
     A list of hosts that can connect to the websocket.
 
     This is typically required when embedding a Bokeh server app in an external
     web site using :func:`~bokeh.embed.server_document` or similar.
 
     If None, "localhost" is used.
-    """)
+    """)  # type: ignore
 
-    use_xheaders = Bool(default=False, help="""
+    use_xheaders: bool = Bool(default=False, help="""
     Whether to have the Bokeh server override the remote IP and URI scheme
     and protocol for all requests with ``X-Real-Ip``, ``X-Forwarded-For``,
     ``X-Scheme``, ``X-Forwarded-Proto`` headers (if they are provided).
-    """)
+    """)  # type: ignore
 
-    ssl_certfile = Nullable(String, help="""
+    ssl_certfile: str | None = Nullable(String, help="""
     The path to a certificate file for SSL termination.
-    """)
+    """)  # type: ignore
 
-    ssl_keyfile = Nullable(String, help="""
+    ssl_keyfile: str | None = Nullable(String, help="""
     The path to a private key file for SSL termination.
-    """)
+    """)  # type: ignore
 
-    ssl_password = Nullable(String, help="""
+    ssl_password: str | None = Nullable(String, help="""
     A password to decrypt the SSL keyfile, if necessary.
-    """)
+    """)  # type: ignore
 
-    websocket_max_message_size = Int(default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, help="""
+    websocket_max_message_size: int = Int(default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, help="""
     Set the Tornado ``websocket_max_message_size`` value.
-    """)
+    """)  # type: ignore
 
 #-----------------------------------------------------------------------------
 # Code

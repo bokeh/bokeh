@@ -35,8 +35,12 @@ from typing_extensions import Literal, TypedDict
 ## Bokeh imports
 if TYPE_CHECKING:
     from ..core.has_props import ModelDef
-    from ..core.types import ID, Unknown
-    from ..model import Ref, ReferenceJson
+    from ..core.types import (
+        ID,
+        Ref,
+        ReferenceJson,
+        Unknown,
+    )
     from ..models.sources import DataDict
 
 #-----------------------------------------------------------------------------
@@ -62,7 +66,9 @@ class ModelChanged(TypedDict):
     model: Ref
     attr: str
     new: Unknown
-    hint: DocumentPatched | None
+
+    # mypy does not support recursive types https://github.com/python/mypy/issues/731
+    hint: DocumentPatched | None  # type: ignore
 
 class MessageSent(TypedDict):
     kind: Literal["MessageSent"]
@@ -98,7 +104,8 @@ class ColumnsPatched(TypedDict):
     column_source: Ref
     patches: Patches
 
-DocumentPatched = Union[
+# mypy does not support recursive types https://github.com/python/mypy/issues/731
+DocumentPatched = Union[  # type: ignore
     MessageSent,
     ModelChanged,
     ColumnDataChanged,
@@ -109,7 +116,8 @@ DocumentPatched = Union[
     RootRemoved,
 ]
 
-DocumentChanged = DocumentPatched
+# mypy does not support recursive types https://github.com/python/mypy/issues/731
+DocumentChanged = DocumentPatched  # type: ignore
 
 class RootsJson(TypedDict):
     root_ids: List[ID]
