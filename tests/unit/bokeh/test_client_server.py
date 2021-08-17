@@ -107,7 +107,7 @@ class TestClientServer:
             session.connect()
             assert session.connected
             # send a bogus message using private fields
-            server.io_loop.spawn_callback(session._connection._socket.write_message, b"xx", binary=True)
+            server.io_loop.add_callback(session._connection._socket.write_message, b"xx", binary=True)
             # connection should now close on the server side
             # and the client loop should end
             session._loop_until_closed()
@@ -454,7 +454,7 @@ class TestClientServer:
 
             def do_add_server_root():
                 server_session.document.add_root(server_root)
-            server.io_loop.spawn_callback(server_session.with_document_locked, do_add_server_root)
+            server.io_loop.add_callback(server_session.with_document_locked, do_add_server_root)
 
             def client_has_root():
                 return len(doc.roots) > 0
@@ -467,7 +467,7 @@ class TestClientServer:
             # Now try setting title on server side
             def do_set_server_title():
                 server_session.document.title = "Server Title"
-            server.io_loop.spawn_callback(server_session.with_document_locked, do_set_server_title)
+            server.io_loop.add_callback(server_session.with_document_locked, do_set_server_title)
 
             def client_title_set():
                 return client_session.document.title != document.DEFAULT_TITLE
@@ -478,7 +478,7 @@ class TestClientServer:
             # Now modify a model within the server document
             def do_set_property_on_server():
                 server_root.foo = 57
-            server.io_loop.spawn_callback(server_session.with_document_locked, do_set_property_on_server)
+            server.io_loop.add_callback(server_session.with_document_locked, do_set_property_on_server)
 
             # there is no great way to block until the server
             # has applied changes, since patches are sent
@@ -490,7 +490,7 @@ class TestClientServer:
 
             def do_remove_server_root():
                 server_session.document.remove_root(server_root)
-            server.io_loop.spawn_callback(server_session.with_document_locked, do_remove_server_root)
+            server.io_loop.add_callback(server_session.with_document_locked, do_remove_server_root)
 
             def client_lacks_root():
                 return len(doc.roots) == 0
@@ -964,7 +964,7 @@ def test_server_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Manage
         # Now modify the server document
         def do_set_foo_property():
             server_root.foo = 57
-        server.io_loop.spawn_callback(server_session.with_document_locked, do_set_foo_property)
+        server.io_loop.add_callback(server_session.with_document_locked, do_set_foo_property)
 
         # there is no great way to block until the server
         # has applied changes, since patches are sent
