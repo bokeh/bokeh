@@ -123,15 +123,6 @@ Tile Source for Stamen Toner Service which includes only labels
 
     <img src="https://stamen-tiles.a.ssl.fastly.net/toner-labels/14/2627/6331.png" />
 
-WIKIMEDIA
----------
-
-Tile Source for Wikimedia tile service.
-
-.. raw:: html
-
-    <img src="https://maps.wikimedia.org/osm-intl/14/2627/6331@2x.png" />
-
 '''
 
 #-----------------------------------------------------------------------------
