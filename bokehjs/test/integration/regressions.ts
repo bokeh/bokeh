@@ -15,6 +15,7 @@ import {
   Plot,
   MathText,
   HoverTool,
+  TileRenderer, WMTSTileSource,
 } from "@bokehjs/models"
 
 import {Button, Select, MultiSelect, MultiChoice, RadioGroup} from "@bokehjs/models/widgets"
@@ -1162,6 +1163,50 @@ describe("Bug", () => {
       ui._mouse_move(ev)
 
       await view.ready
+    })
+  })
+
+  describe("in issue #11413", () => {
+    const osm_source = new WMTSTileSource({
+      // url: "https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
+      url: "/tiles/osm/{Z}_{X}_{Y}.png",
+      attribution: "&copy; (0) OSM source attribution",
+    })
+
+    const esri_source = new WMTSTileSource({
+      // url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg",
+      url: "/tiles/esri/{Z}_{Y}_{X}.jpg",
+      attribution: "&copy; (1) Esri source attribution",
+    })
+
+    it("doesn't allow to remove an annotation element associated with a tile renderer", async () => {
+      const osm = new TileRenderer({tile_source: osm_source})
+      const esri = new TileRenderer({tile_source: esri_source})
+
+      const p0 = fig([300, 200], {
+        x_range: [-2000000, 6000000],
+        y_range: [-1000000, 7000000],
+        x_axis_type: "mercator",
+        y_axis_type: "mercator",
+        renderers: [osm],
+      })
+
+      const p1 = fig([300, 200], {
+        x_range: [-2000000, 6000000],
+        y_range: [-1000000, 7000000],
+        x_axis_type: "mercator",
+        y_axis_type: "mercator",
+        renderers: [esri],
+      })
+
+      const {view} = await display(row([p0, p1]))
+
+      // TODO: allow `await view.ready` to await readiness of its children
+      p0.renderers = [esri]
+      await view.child_views[0].ready
+
+      p1.renderers = [osm]
+      await view.child_views[1].ready
     })
   })
 })
