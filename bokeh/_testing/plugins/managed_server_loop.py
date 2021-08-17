@@ -63,12 +63,10 @@ def ManagedServerLoop(unused_tcp_port: int) -> MSL:
         if port is None:
             port = unused_tcp_port
         server = Server(application, port=port, **server_kwargs)
-        try:
-            server.start()
-            yield server
-        finally:
-            server.unlisten()
-            server.stop()
+        server.start()
+        yield server
+        server.unlisten()
+        server.stop()
     return msl
 
 #-----------------------------------------------------------------------------

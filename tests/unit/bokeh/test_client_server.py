@@ -1037,9 +1037,9 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Man
         change_to({ 'value' : 59, 'units' : 'screen' }, { 'value' : 30, 'units' : 'deg' })
 
         client_session.close()
+        server.unlisten() # clean up so next test can run
         client_session._loop_until_closed()
         assert not client_session.connected
-        server.unlisten() # clean up so next test can run
 
 @patch('bokeh.client.session.show_session')
 def test_session_show_adds_obj_to_curdoc_if_necessary(m: MagicMock) -> None:
