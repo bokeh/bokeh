@@ -16,6 +16,7 @@ import {
   MathText,
   HoverTool,
   TileRenderer, WMTSTileSource,
+  Renderer,
 } from "@bokehjs/models"
 
 import {Button, Select, MultiSelect, MultiChoice, RadioGroup} from "@bokehjs/models/widgets"
@@ -38,6 +39,7 @@ import {div, offset} from "@bokehjs/core/dom"
 
 import {DelayedInternalProvider} from "./axes"
 import {MathTextView} from "@bokehjs/models/math_text/math_text"
+import {PlotView} from "@bokehjs/models/plots/plot"
 
 const n_marker_types = [...MarkerType].length
 
@@ -1163,6 +1165,68 @@ describe("Bug", () => {
       ui._mouse_move(ev)
 
       await view.ready
+    })
+  })
+
+  describe("in issue #11437", () => {
+    it("doesn't allow to use correct subset indices with image glyph during inspection", async () => {
+      function plot(indices: number[]) {
+        const p = fig([200, 200])
+        const source = new ColumnDataSource({
+          data: {
+            x: [0, 10],
+            image: [
+              ndarray([0, 0, 1, 1], {shape: [2, 2]}),
+              ndarray([5, 5, 6, 6], {shape: [2, 2]}),
+            ],
+          },
+        })
+        const color_mapper = new LinearColorMapper({low: 0, high: 6, palette: Spectral11})
+        const cds_view = new CDSView({source, filters: [new IndexFilter({indices})]})
+        const ir = p.image({
+          image: {field: "image"},
+          x: {field: "x"},
+          y: 0,
+          dw: 10,
+          dh: 20,
+          color_mapper,
+          source,
+          view: cds_view,
+        })
+        p.add_tools(new HoverTool({
+          renderers: [ir],
+          tooltips: [
+            ["index", "$index"],
+            ["value", "@image"],
+          ],
+        }))
+        return [p, ir] as const
+      }
+
+      const [p0, r0] = plot([0])
+      const [p1, r1] = plot([1])
+      const [p2, r2] = plot([0, 1])
+
+      const {view} = await display(row([p0, p1, p2]))
+
+      function hover_at(plot_view: PlotView, r: Renderer, x: number, y: number) {
+        const crv = plot_view.renderer_views.get(r)!
+        const [[sx], [sy]] = crv.coordinates.map_to_screen([x], [y])
+
+        const ui = plot_view.canvas_view.ui_event_bus
+        const {left, top} = offset(ui.hit_area)
+
+        const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
+        ui._mouse_move(ev)
+
+        return view.ready
+      }
+
+      const [pv0, pv1, pv2] = view.child_views as PlotView[]
+
+      await hover_at(pv0, r0,  2, 5)
+      await hover_at(pv1, r1, 12, 5)
+      await hover_at(pv2, r2,  2, 5)
     })
   })
 
