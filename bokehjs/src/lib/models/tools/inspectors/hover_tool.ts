@@ -221,10 +221,10 @@ export class HoverToolView extends InspectToolView {
 
     const selection_manager = renderer.get_selection_manager()
 
-    let indices = selection_manager.inspectors.get(renderer)!
-    indices = renderer.view.convert_selection_to_subset(indices)
+    const fullset_indices = selection_manager.inspectors.get(renderer)!
+    const subset_indices = renderer.view.convert_selection_to_subset(fullset_indices)
 
-    if (indices.is_empty()) {
+    if (fullset_indices.is_empty()) {
       tooltip.clear()
       return
     }
@@ -245,7 +245,7 @@ export class HoverToolView extends InspectToolView {
     const tooltips: [number, number, HTMLElement | null][] = []
 
     if (glyph instanceof LineView) {
-      for (const i of indices.line_indices) {
+      for (const i of subset_indices.line_indices) {
         let data_x = glyph._x[i+1]
         let data_y = glyph._y[i+1]
         let ii = i
@@ -281,14 +281,14 @@ export class HoverToolView extends InspectToolView {
         const vars = {
           index: ii,
           x, y, sx, sy, data_x, data_y, rx, ry,
-          indices: indices.line_indices,
+          indices: subset_indices.line_indices,
           name: renderer.name,
         }
         tooltips.push([rx, ry, this._render_tooltips(ds, ii, vars)])
       }
     }
 
-    for (const struct of indices.image_indices) {
+    for (const struct of fullset_indices.image_indices) {
       const vars = {
         index: struct.index,
         x, y, sx, sy,
@@ -298,10 +298,10 @@ export class HoverToolView extends InspectToolView {
       tooltips.push([sx, sy, rendered])
     }
 
-    for (const i of indices.indices) {
+    for (const i of subset_indices.indices) {
       // multiglyphs set additional indices, e.g. multiline_indices for different tooltips
-      if (glyph instanceof MultiLineView && !isEmpty(indices.multiline_indices)) {
-        for (const j of indices.multiline_indices[i.toString()]) { // TODO: indices.multiline_indices.get(i)
+      if (glyph instanceof MultiLineView && !isEmpty(subset_indices.multiline_indices)) {
+        for (const j of subset_indices.multiline_indices[i.toString()]) { // TODO: subset_indices.multiline_indices.get(i)
           let data_x = glyph._xs.get(i)[j]
           let data_y = glyph._ys.get(i)[j]
           let jj = j
@@ -342,7 +342,7 @@ export class HoverToolView extends InspectToolView {
           const vars = {
             index, x, y, sx, sy, data_x, data_y,
             segment_index: jj,
-            indices: indices.multiline_indices,
+            indices: subset_indices.multiline_indices,
             name: renderer.name,
           }
           tooltips.push([rx, ry, this._render_tooltips(ds, index, vars)])
@@ -377,7 +377,7 @@ export class HoverToolView extends InspectToolView {
 
         const vars = {
           index, x, y, sx, sy, data_x, data_y,
-          indices: indices.indices,
+          indices: subset_indices.indices,
           name: renderer.name,
         }
         tooltips.push([rx, ry, this._render_tooltips(ds, index, vars)])
