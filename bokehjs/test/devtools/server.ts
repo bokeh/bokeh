@@ -18,6 +18,7 @@ nunjucks.configure(".", {
 app.use("/static", express.static("build/"))
 app.use("/fonts", express.static("test/fonts/"))
 app.use("/images", express.static("test/images/"))
+app.use("/tiles", express.static("test/tiles/"))
 
 const js_path = (name: string, legacy: boolean = false): string => {
   const legacy_suffix = legacy ? ".legacy" : ""
