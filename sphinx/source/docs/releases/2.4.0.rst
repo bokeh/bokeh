@@ -27,6 +27,13 @@ Runtime dependencies
 
 Bokeh no longer requires the package ``python-dateutil``.
 
+Wikimedia Tile Provider
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Wikimedia has restricted their tile service to only function with Wikimedia
+domains, and no longer be publicly usable. Accordingly, the WIKIMEDIA tile
+provider has been removed. Use any of the other tile providers instead.
+
 Deprecations
 ~~~~~~~~~~~~
 

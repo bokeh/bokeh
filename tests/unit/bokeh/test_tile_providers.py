@@ -37,7 +37,6 @@ ALL = (
     'STAMEN_TONER_BACKGROUND',
     'STAMEN_TONER_LABELS',
     'OSM',
-    'WIKIMEDIA',
     'ESRI_IMAGERY',
     'get_provider',
     'Vendors'
@@ -66,10 +65,6 @@ _STAMEN_LIC = {
 
 _OSM_URLS = {
     'OSM':                     'https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png'
-}
-
-_WIKIMEDIA_URLS = {
-    'WIKIMEDIA':               'https://maps.wikimedia.org/osm-intl/{Z}/{X}/{Y}@2x.png'
 }
 
 _ESRI_URLS = {
@@ -151,27 +146,6 @@ class Test_OsmProvider:
         p2 = bt.get_provider(getattr(bt, name))
         assert p1 is not p2
 
-@pytest.mark.parametrize('name', ['WIKIMEDIA'])
-class Test_WikimediaProvider:
-    def test_type(self, name) -> None:
-        p = getattr(bt, name)
-        assert isinstance(p, str)
-
-    def test_url(self, name) -> None:
-        p = bt.get_provider(getattr(bt, name))
-        assert p.url == _WIKIMEDIA_URLS[name]
-
-    def test_attribution(self, name) -> None:
-        p = bt.get_provider(getattr(bt, name))
-        assert p.attribution == (
-            '&copy; <a href="https://foundation.wikimedia.org/wiki/Maps_Terms_of_Use">Wikimedia Maps</a> contributors'
-        )
-
-    def test_copies(self, name) -> None:
-        p1 = bt.get_provider(getattr(bt, name))
-        p2 = bt.get_provider(getattr(bt, name))
-        assert p1 is not p2
-
 @pytest.mark.parametrize('name', ['ESRI_IMAGERY'])
 class Test_EsriProvider:
     def test_type(self, name) -> None:
@@ -197,7 +171,7 @@ class Test_EsriProvider:
 class Test_GetProvider:
     @pytest.mark.parametrize('name', ['CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA', 'STAMEN_TERRAIN',
                                       'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND',
-                                      'STAMEN_TONER_LABELS', 'OSM', 'WIKIMEDIA', 'ESRI_IMAGERY', ])
+                                      'STAMEN_TONER_LABELS', 'OSM', 'ESRI_IMAGERY', ])
     def test_get_provider(self, name) -> None:
         assert name in bt.Vendors
         enum_member = getattr(bt.Vendors, name)
