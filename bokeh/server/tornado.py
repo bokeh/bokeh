@@ -609,7 +609,7 @@ class BokehTornado(TornadoApplication):
             self._ping_job.start()
 
         for context in self._applications.values():
-            self._loop.spawn_callback(context.run_load_hook)
+            self._loop.add_callback(context.run_load_hook)
 
     def stop(self, wait: bool = True) -> None:
         ''' Stop the Bokeh Server application.

@@ -83,5 +83,5 @@ def _base_version_helper(version: str) -> str:
 # Code
 #-----------------------------------------------------------------------------
 
-__version__: str = get_versions()['version']
+__version__ = get_versions()['version']
 del get_versions

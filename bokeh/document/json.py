@@ -35,8 +35,12 @@ from typing_extensions import Literal, TypedDict
 ## Bokeh imports
 if TYPE_CHECKING:
     from ..core.has_props import ModelDef
-    from ..core.types import ID, Unknown
-    from ..model import Ref, ReferenceJson
+    from ..core.types import (
+        ID,
+        Ref,
+        ReferenceJson,
+        Unknown,
+    )
     from ..models.sources import DataDict
 
 #-----------------------------------------------------------------------------
@@ -62,7 +66,7 @@ class ModelChanged(TypedDict):
     model: Ref
     attr: str
     new: Unknown
-    hint: DocumentPatched | None
+    hint: DocumentPatched | None  # type: ignore[misc] # https://github.com/python/mypy/issues/731
 
 class MessageSent(TypedDict):
     kind: Literal["MessageSent"]
@@ -98,7 +102,7 @@ class ColumnsPatched(TypedDict):
     column_source: Ref
     patches: Patches
 
-DocumentPatched = Union[
+DocumentPatched = Union[ # type: ignore[misc] # https://github.com/python/mypy/issues/731
     MessageSent,
     ModelChanged,
     ColumnDataChanged,
@@ -109,7 +113,7 @@ DocumentPatched = Union[
     RootRemoved,
 ]
 
-DocumentChanged = DocumentPatched
+DocumentChanged = DocumentPatched  # type: ignore[misc] # https://github.com/python/mypy/issues/731
 
 class RootsJson(TypedDict):
     root_ids: List[ID]

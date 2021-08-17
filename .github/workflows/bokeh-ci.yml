@@ -62,7 +62,7 @@ jobs:
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
-          environment-file: ci/environment-test-3.7.yml
+          environment-file: ci/environment-test-3.9.yml
 
       - name: Cache node modules
         uses: actions/cache@v1
