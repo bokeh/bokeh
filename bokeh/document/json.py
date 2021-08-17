@@ -66,7 +66,6 @@ class ModelChanged(TypedDict):
     model: Ref
     attr: str
     new: Unknown
-
     hint: DocumentPatched | None  # type: ignore[misc] # https://github.com/python/mypy/issues/731
 
 class MessageSent(TypedDict):
