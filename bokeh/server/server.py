@@ -41,9 +41,7 @@ from types import FrameType
 from typing import (
     TYPE_CHECKING,
     Any,
-    Coroutine,
     Dict,
-    Generator,
     List,
     Mapping,
 )
@@ -177,16 +175,19 @@ class BaseServer:
         self._tornado.stop(wait)
         self._http.stop()
 
-    def unlisten(self) -> Generator[Coroutine[Any, Any, None], None, None]:
+    def unlisten(self) -> None:
         ''' Stop listening on ports. The server will no longer be usable after
         calling this function.
+
+        .. note::
+            This function is mostly useful for tests
 
         Returns:
             None
 
         '''
-        yield self._http.close_all_connections()
         self._http.stop()
+        self.io_loop.add_callback(self._http.close_all_connections)
 
     def run_until_shutdown(self) -> None:
         ''' Run the Bokeh Server until shutdown is requested by the user,
@@ -490,23 +491,23 @@ class _ServerOpts(Options):
     Note that due to limitations inherent in Tornado, Windows does not support
     ``num_procs`` values greater than one! In this case consider running
     multiple Bokeh server instances behind a load balancer.
-    """)  # type: ignore
+    """)  # type: ignore[assignment]
 
     address : str | None = Nullable(String, help="""
     The address the server should listen on for HTTP requests.
-    """)  # type: ignore
+    """)  # type: ignore[assignment]
 
     port: int = Int(default=DEFAULT_SERVER_PORT, help="""
     The port number the server should listen on for HTTP requests.
-    """)  # type: ignore
+    """)  # type: ignore[assignment]
 
     prefix: str = String(default="", help="""
     A URL prefix to use for all Bokeh server paths.
-    """)  # type: ignore
+    """)  # type: ignore[assignment]
 
     index: str | None = Nullable(String, help="""
     A path to a Jinja2 template to use for the index "/"
-    """)  # type: ignore
+    """)  # type: ignore[assignment]
 
     allow_websocket_origin: List[str] | None = Nullable(p.List(String), help="""
     A list of hosts that can connect to the websocket.
@@ -515,29 +516,29 @@ class _ServerOpts(Options):
     web site using :func:`~bokeh.embed.server_document` or similar.
 
     If None, "localhost" is used.
-    """)  # type: ignore
+    """)  # type: ignore[assignment]
 
     use_xheaders: bool = Bool(default=False, help="""
     Whether to have the Bokeh server override the remote IP and URI scheme
     and protocol for all requests with ``X-Real-Ip``, ``X-Forwarded-For``,
     ``X-Scheme``, ``X-Forwarded-Proto`` headers (if they are provided).
-    """)  # type: ignore
+    """)  # type: ignore[assignment]
 
     ssl_certfile: str | None = Nullable(String, help="""
     The path to a certificate file for SSL termination.
-    """)  # type: ignore
+    """)  # type: ignore[assignment]
 
     ssl_keyfile: str | None = Nullable(String, help="""
     The path to a private key file for SSL termination.
-    """)  # type: ignore
+    """)  # type: ignore[assignment]
 
     ssl_password: str | None = Nullable(String, help="""
     A password to decrypt the SSL keyfile, if necessary.
-    """)  # type: ignore
+    """)  # type: ignore[assignment]
 
     websocket_max_message_size: int = Int(default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, help="""
     Set the Tornado ``websocket_max_message_size`` value.
-    """)  # type: ignore
+    """)  # type: ignore[assignment]
 
 #-----------------------------------------------------------------------------
 # Code

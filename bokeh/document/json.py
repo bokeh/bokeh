@@ -67,8 +67,7 @@ class ModelChanged(TypedDict):
     attr: str
     new: Unknown
 
-    # mypy does not support recursive types https://github.com/python/mypy/issues/731
-    hint: DocumentPatched | None  # type: ignore
+    hint: DocumentPatched | None  # type: ignore[misc] # https://github.com/python/mypy/issues/731
 
 class MessageSent(TypedDict):
     kind: Literal["MessageSent"]
@@ -104,8 +103,7 @@ class ColumnsPatched(TypedDict):
     column_source: Ref
     patches: Patches
 
-# mypy does not support recursive types https://github.com/python/mypy/issues/731
-DocumentPatched = Union[  # type: ignore
+DocumentPatched = Union[ # type: ignore[misc] # https://github.com/python/mypy/issues/731
     MessageSent,
     ModelChanged,
     ColumnDataChanged,
@@ -116,8 +114,7 @@ DocumentPatched = Union[  # type: ignore
     RootRemoved,
 ]
 
-# mypy does not support recursive types https://github.com/python/mypy/issues/731
-DocumentChanged = DocumentPatched  # type: ignore
+DocumentChanged = DocumentPatched  # type: ignore[misc] # https://github.com/python/mypy/issues/731
 
 class RootsJson(TypedDict):
     root_ids: List[ID]
