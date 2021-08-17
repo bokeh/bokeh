@@ -84,8 +84,8 @@ def without_document_lock(func: F) -> NoLockCallback[F]:
 
     '''
     @wraps(func)
-    def _wrapper(*args: Any, **kw: Any) -> Any:
-        return func(*args, **kw)
+    def _wrapper(*args: Any, **kw: Any) -> None:
+        func(*args, **kw)
     wrapper = cast(NoLockCallback[F], _wrapper)
     wrapper.nolock = True
     return wrapper
