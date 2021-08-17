@@ -769,8 +769,7 @@ class Line(ConnectedXYGlyph, LineGlyph):
         Due to limitations in the underlying HTML canvas, it is possible that a
         line is not drawn when one or more of its coordinates is very far outside
         the viewport. This behavior is different for different browsers. See
-        `issue #1149 <https://github.com/bokeh/bokeh/issues/11498>`_ for more
-        information.
+        :bokeh-issue:`11498` for more information.
 
     '''
     _args = ('x', 'y')
