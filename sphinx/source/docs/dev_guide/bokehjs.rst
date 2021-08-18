@@ -129,7 +129,7 @@ that BokehJS functions consistently as its own library as well as in combination
 with all other components of Bokeh.
 
 To learn more about running tests for BokehJS locally, see
-:ref:`devguide_testing_local_typescript`.
+:ref:`devguide_testing_local_javascript`.
 
 To learn more about adding and updating tests for BokehJS, see
 :ref:`devguide_writing_tests_bokehjs`.

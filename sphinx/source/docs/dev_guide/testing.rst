@@ -22,12 +22,27 @@ will run in :ref:`Bokeh's CI <devguide_testing_ci>` when you
 :ref:`create a Pull Request <devguide_pull_requests>` on Bokeh's GitHub
 repository. **You don't need to set up and run all tests locally**.
 
-For reference, this section provides an overview of the available tests and how
+Folow those general guidelines to decide which tests to run locally:
+
+Whenever you change anything in Bokeh's codebase
+    Run Bokeh's :ref:`codebase tests <devguide_testing_local_codebase>`
+
+When you edit Bokeh's Python code
+    Run Bokeh's :ref:`Python unit tests <devguide_testing_local_python_unit>`
+
+When your work involves UI elements
+    Run Bokeh's :ref:`Python integration tests <devguide_testing_local_python_unit>`
+
+When your change anything related to BokehJS:
+    Run Bokeh's :ref:`JavaScript tests <devguide_testing_local_javascript_all>`
+
+
+For reference, this section provides an overview of all available tests and how
 to run them locally on most systems. Generally, it makes most sense to **only
 run specific tests related to what you are working on**. See
 :ref:`Select specific tests <devguide_testing_local_python_select>` for
 instructions on how to select and deselect specific Python tests. See
-:ref:`Select specific BokehJS tests <devguide_testing_local_typescript_selecting>`
+:ref:`Select specific BokehJS tests <devguide_testing_local_javascript_selecting>`
 for instructions on how to select and deselect specific :term:`BokehJS` tests.
 
 Check basic requirements
@@ -58,16 +73,41 @@ server, so this number should be at least 1024.
 
     ulimit -n 1024
 
+.. _devguide_testing_local_codebase:
+
+Run codebase tests
+~~~~~~~~~~~~~~~~~~
+
+The most basic set of tests are Bokeh's codebase tests. This includes
+checking Python code with `flake8`_, checking JavaScript code with `ESLint`_,
+and various other tests for issues such as unused imports and extra white
+spaces.
+
+Any edits you make to Bokeh's Python or JavaScript codebase should pass this
+test.
+
+Run this command from the top level of the repository:
+
+.. code-block:: sh
+
+    pytest tests/codebase
+
 .. _devguide_testing_local_python:
 
 Run Python tests
 ~~~~~~~~~~~~~~~~
 
 Bokeh includes a number of tests that are focused on Bokeh's Python code.
-These tests use `pytest`_ and are located in :bokeh-tree:`tests`.
+These tests use `pytest`_ and are located in the :bokeh-tree:`tests` folder.
+
+Whenever you work with Bokeh's Python code, you should run Bokeh's
+:ref:`codebase <devguide_testing_local_codebase>` and
+:ref:`Python unit tests <devguide_testing_local_python_unit>`. In case your
+work also included changes to user interface elements, you should also run
+Bokeh's :ref:`Python integration tests <devguide_testing_local_python_integration>`.
 
 These are some command line arguments for ``pytest`` that are helpful to know
-when working with Bokeh tests:
+when working with Bokeh's pytest-based tests:
 
 * ``-k``: Provide a search string to filter for specific tests. See
   :ref:`Select specific tests <devguide_testing_local_python_select>`.
@@ -84,16 +124,7 @@ when working with Bokeh tests:
 
 See the `pytest documentation`_ for more options.
 
-Codebase tests
-    The most basic set of tests are Bokeh's codebase tests. This includes
-    linting with `flake8` and other tests for issues such as unused imports and
-    extra white spaces.
-
-    Run this command from the top level of the repository:
-
-    .. code-block:: sh
-
-        pytest tests/codebase
+.. _devguide_testing_local_python_unit:
 
 Unit tests
     To run Bokeh's Python unit tests, use the following command at the top
@@ -114,7 +145,7 @@ Unit tests
         ChromeDriver is available on your system, you can run all unit tests
         with ``pytest tests/unit``.
 
-.. _devguide_testing_local_python_integration:
+.. _devguide_testing_local_python_coverage:
 
 Code coverage (Python unit tests)
     To create a coverage report for Python unit tests, use ``pytest`` with the
@@ -126,7 +157,7 @@ Code coverage (Python unit tests)
 
     Coverage with Bokeh's Python unit tests should be around 90%. Coverage
     reports are only relevant for Python unit tests, there are no coverage
-    reports for other Python tests or for any of the TypeScript code of BokehJS.
+    reports for other Python tests or for any of the JavaScript code of BokehJS.
 
     You also have the option to add
     ``--cov=bokeh --cov-config=tests/.coveragerc`` when running a specific
@@ -141,6 +172,8 @@ Code coverage (Python unit tests)
         Coverage reports use the pytest plugin `pytest-cov`_. For more
         information, see the `documentation for pytest-cov`_.
 
+.. _devguide_testing_local_python_integration:
+
 Integration tests
     To run Bokeh's Python-focused integration tests, use this command from the
     top level of the repository:
@@ -153,54 +186,8 @@ Integration tests
     `Chrome`_ or `Chromium`_ and `Selenium`_ with the `ChromeDriver`_ web
     driver.
 
-Examples tests
-    The ``examples`` tests run a selection of the examples in the Bokeh
-    repository and generate images to compare against images generated by
-    previous releases.
-
-    The examples tests use a specialized testing framework, including a custom
-    configuration of Chrome. Therefore, it is **recommended to not run those
-    tests locally**. Instead, :ref:`Bokeh's CI <devguide_testing_ci>` runs all
-    examples tests once you :ref:`create a Pull Request <devguide_pull_requests>`.
-
-    Running these tests also generates a report that displays
-    the current and previous images, as well as any image difference.
-
-    .. note::
-        The tests currently don't fail if the images are different. You need to
-        inspect the test report manually.
-
-    To run the examples tests, you first need to start a customized headless
-    version of Chrome in the background. This headless browser needs to be
-    started from the ``bokehjs`` folder. Use the following commands from the top
-    level of your *source checkout* directory:
-
-    .. code-block:: sh
-
-        cd bokehjs
-        node make test:run:headless
-
-    This starts a headless Chrome tool. Next, open a second terminal and run the
-    tests from the top level directory:
-
-    .. code-block:: sh
-
-        pytest tests/test_examples.py
-
-    After the tests have run, the results are available in
-    ``examples-report.html``. This file is located in the same directory that
-    you ran the tests from:
-
-    .. image:: /_images/examples_test_report.png
-        :class: image-border
-        :alt: Screenshot of a browser window displaying an examples test report
-            consisting of various plots.
-
-    In addition, the examples tests generate a log file called ``examples.log``
-    in the same directory.
-
 Run all available tests
-    You can run all available tests (Python and TypeScript unit tests, examples,
+    You can run all available tests (Python and JavaScript unit tests, examples,
     and integration tests) by running the following command from the top-level
     directory:
 
@@ -239,15 +226,17 @@ Select specific tests
     For more information on adding and updating Python tests, see
     :ref:`devguide_writing_tests_python`.
 
-.. _devguide_testing_local_typescript:
+.. _devguide_testing_local_javascript:
 
-Run TypeScript tests
+Run JavaScript tests
 ~~~~~~~~~~~~~~~~~~~~
 
-Most of the TypeScript-based tests for :term:`BokehJS` use a custom-made testing
+Most of the JavaScript-based tests for :term:`BokehJS` use a custom-made testing
 framework. This framework **requires Google Chrome or Chromium**. You need a
 recent version of one of these browsers available on your system to run those
 tests locally.
+
+.. _devguide_testing_local_javascript_all:
 
 Run all BokehJS tests
 '''''''''''''''''''''
@@ -269,7 +258,7 @@ of the source checkout:
 This runs a combination of codebase, defaults, unit, and integration test
 suites.
 
-.. _devguide_testing_local_typescript_selecting:
+.. _devguide_testing_local_javascript_selecting:
 
 Select specific BokehJS tests
 '''''''''''''''''''''''''''''
@@ -280,7 +269,7 @@ checkout:
 
 * ``node make test:codebase``: Codebase tests checking file size limits
 * ``node make test:defaults``: Tests checking whether the defaults in Bokeh’s
-  Python models match those of Bokeh’s TypeScript models
+  Python models match those of Bokeh’s JavaScript models
 * ``node make test:unit``: Unit tests for BokehJS
 * ``node make test:integration``: Visual integration tests comparing locally
   generated plots against a set of baseline files
@@ -304,7 +293,7 @@ This will only run integration tests that contain the string "Legend".
     The BokehJS testing framework starts the browser automatically with the
     right settings to guarantee consistent test results.
 
-.. _devguide_testing_local_typescript_devtools:
+.. _devguide_testing_local_javascript_devtools:
 
 Testing with devtools server
 ''''''''''''''''''''''''''''
@@ -380,6 +369,57 @@ To only run or view tests for a specific platform, append either
     For more information on adding and updating BokehJS tests, see
     :ref:`devguide_writing_tests_bokehjs`.
 
+.. _devguide_testing_local_examples:
+
+Run examples tests
+~~~~~~~~~~~~~~~~~~
+
+In addition to Bokeh's Python- and JavaScript-focused tests, Bokeh uses a suite
+of examples tests. This suite runs a selection of the examples in the Bokeh
+repository and generate images to compare against images generated by
+previous releases.
+
+The examples tests use a specialized testing framework, including a custom
+configuration of Chrome. Therefore, it is **recommended to not run those
+tests locally**. Instead, :ref:`Bokeh's CI <devguide_testing_ci>` runs all
+examples tests once you :ref:`create a Pull Request <devguide_pull_requests>`.
+
+Running these tests generates a report that displays the current and previous
+images, as well as any image difference.
+
+.. note::
+    The tests currently don't fail if the images are different. You need to
+    inspect the test report manually.
+
+To run the examples tests locally, you first need to start a customized headless
+version of Chrome in the background. This headless browser needs to be
+started from the ``bokehjs`` folder. Use the following commands from the top
+level of your *source checkout* directory:
+
+.. code-block:: sh
+
+    cd bokehjs
+    node make test:run:headless
+
+This starts a headless Chrome tool. Next, open a second terminal and run the
+tests from the top level of your *source checkout* directory:
+
+.. code-block:: sh
+
+    pytest tests/test_examples.py
+
+After the tests have run, the results are available in
+``examples-report.html``. This file is located in the same directory that
+you ran the tests from:
+
+.. image:: /_images/examples_test_report.png
+    :class: image-border
+    :alt: Screenshot of a browser window displaying an examples test report
+        consisting of various plots.
+
+In addition, the examples tests generate a log file called ``examples.log``
+in the same directory.
+
 .. _devguide_testing_ci:
 
 Continuous Integration (CI)
@@ -400,30 +440,9 @@ Environment files
 
 Bokeh's CI runs tests on Linux, macOS, and Windows. It also runs tests with
 different versions of Python. The various testing environments are defined
-in their respective YAML files in the :bokeh-tree:`ci`. In case you add or
-change dependencies, you also need to update these files, in addition to
+in their respective YAML files in the :bokeh-tree:`ci` folder. In case you add
+or change dependencies, you need to update these files, in addition to
 :bokeh-tree:`environment.yml` in the *source checkout* directory.
-
-Additional configuration
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-In addition to testing, Bokeh's CI is also used to build new Bokeh
-`releases <Release Management_>`_.
-
-There are a number of files that affect the build configuration:
-
-* :bokeh-tree:`conda.recipe/meta.yaml`
-    Instructions for building a conda noarch package for Bokeh. This
-    file is the single source of truth for build (but not
-    runtime) dependencies.
-
-* :bokeh-tree:`setup.py`
-    Used to build sdist packages and "dev" installs. This file is also
-    the single source of truth for runtime dependencies.
-
-* :bokeh-tree:`setup.cfg`
-    Contains global configuration for build and test tools such as
-    ``versioneer`` and ``pytest``.
 
 Etiquette
 ~~~~~~~~~
@@ -433,9 +452,10 @@ group your commits into meaningful chunks of work before pushing to GitHub
 instead of pushing every commit individually. This will help you be considerate
 of others who require access to these limited resources.
 
+.. _ESLint: https://eslint.org/
+.. _flake8: https://gitlab.com/pycqa/flake8
 .. _pytest: https://pytest.org/
 .. _pytest-xdist: https://github.com/pytest-dev/pytest-xdist
-.. _flake8: https://gitlab.com/pycqa/flake8
 .. _Selenium: https://www.selenium.dev/documentation/en/
 .. _web driver: https://www.selenium.dev/documentation/en/webdriver/
 .. _ChromeDriver: https://chromedriver.chromium.org/

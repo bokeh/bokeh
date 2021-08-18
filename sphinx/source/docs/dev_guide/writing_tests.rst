@@ -18,51 +18,65 @@ Writing Python tests
 --------------------
 
 If all or parts of your changes affect Bokeh's Python code, you should add or
-update the relevant unit or integration tests.
+update the relevant unit and integration tests.
 
-These tests are located in :bokeh-tree:`bokehjs/test`. See
+These tests are located in the :bokeh-tree:`tests` folder. See
 :ref:`devguide_testing_local_python` for information on how to run them.
 
 Information on contributing to Bokeh's Python code and models is available in
 :ref:`devguide_models`.
 
+.. _devguide_writing_tests_python_unit:
+
 Python unit tests
 ~~~~~~~~~~~~~~~~~
 Python unit tests help maintain the basic functionality of the Python portion of
-the Bokeh library. They are located in :bokeh-tree:`tests/unit/bokeh`. The
-folder structure resembles the structure of
-:ref:`Bokeh's Python models <refguide>`. The name of each test file begins with
-``test_``, followed by the module's name.
+Bokeh. They are located in :bokeh-tree:`tests/unit/bokeh`. The folder structure
+resembles the structure of :ref:`Bokeh's Python models <refguide>`. The name of
+each test file begins with ``test_``, followed by the module's name.
 
 Follow these general guidelines when writing Python unit tests:
 
+Import the model under test with ``as``
+    Always import the specific model you are testing using the ``import as``
+    syntax. Use the model's initals to name your import. For example:
+
+    .. code-block:: Python
+
+      import bokeh.plotting.graph as bpg
+
 Use absolute imports
     Bokeh's unit tests should be as relocatable and unambiguous as possible.
-    Therefore, you should use absolute imports in test files whenever possible.
-    You should also try to import and use the entire module in your tests:
-
-    * **GOOD**: ``import bokeh.models.transforms as bmt``
-    * **GOOD**: ``from bokeh.embed import components``
-    * **BAD**: ``from ..document import Document``
+    Therefore, you should use absolute imports (``from bokeh.embed import
+    components``) in test files whenever possible. Don't use relative imports
+    (``from ..document import Document``).
 
 Use ``pytest`` (not ``unittest``)
     All new tests should use and assume `pytest`_ for all testing-related
     aspects, such as test running, fixtures, or parameterized testing. Please
     do *not* use the ``unittest`` module of the Python standard library.
 
+.. _devguide_writing_tests_integration:
+
 Python integration tests
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Bokeh's Python-focused integration tests help make sure that Bokeh's Python code
 works as intended with the TypeScript code of :term:`BokehJS`. These integration
-tests create screenshots of their output and compare those screenshots to
-pre-defined baseline images. They are located in
-:bokeh-tree:`tests/integration`. The folder structure resembles the structure
+tests use `Selenium`_ with the `ChromeDriver`_ to create screenshots and compare
+those screenshots to pre-defined baseline images. The test scripts are located
+in :bokeh-tree:`tests/integration`. The folder structure resembles the structure
 of Bokeh's Python models.
 
 To add or update screenshot integration tests, first make sure that the
 :ref:`existing Python integration tests <devguide_testing_local_python_integration>`
 pass.
+
+Python integration tests use pytest fixtures to handle the webdriver
+configuration and interaction with Selenium. Depending on which context you
+want to test an object in, choose from ``bokeh_model_page``,
+``single_plot_page``, or ``bokeh_server_page``. See
+:bokeh-tree:`bokeh/_testing/plugins/project.py` for more details.
 
 Follow these guidelines when adding or updating Python integration tests:
 
@@ -76,13 +90,6 @@ Use the |bokeh.models| API whenever possible
     :ref:`low-level bokeh.models interface <userguide_interfaces_models>` instead of
     the more high-level
     :ref:`bokeh.plotting interface <userguide_interfaces_plotting>`.
-
-After adding or updating an integration test, you need to create a new baseline
-image. To create a new base image, add ``--set-new-base-screenshot`` to the
-standard ``pytest`` command you use to run the test. For each test, this will
-generate an image with the name ``base__<name_of_your_test>.png`` in the
-appropriate directory. Use ``git`` to check this image into the repository. All
-future screenshot tests will then be compared against this base image.
 
 .. _devguide_writing_tests_bokehjs:
 
@@ -99,7 +106,7 @@ BokehJS testing framework uses ``describe()`` and ``it()`` functions to set up
 tests.
 
 The BokehJS tests are located in :bokeh-tree:`bokehjs/test`. See
-:ref:`devguide_testing_local_typescript` for information on how to run them.
+:ref:`devguide_testing_local_javascript` for information on how to run them.
 
 Information on contributing to BokehJS is available in
 :ref:`devguide_bokehjs`.
@@ -275,7 +282,7 @@ Follow these steps to write new visual tests or update existing tests:
     your operating system. The baseline files will be in a subfolder of
     :bokeh-tree:`bokehjs/test/baselines/`.
 
-    Use the BokehJS :ref:`devtools server <devguide_testing_local_typescript_devtools>`
+    Use the BokehJS :ref:`devtools server <devguide_testing_local_javascript_devtools>`
     to review your local test results. Optionally, you can use any PNG viewer to
     inspect the generated PNG files. Adjust your testing code until the test's
     visual output matches your expectations.
@@ -289,6 +296,9 @@ Follow these steps to write new visual tests or update existing tests:
     reliably if you upload baseline files that were created by the CI, not
     locally created files.
 
+    Before generating new baseline images with Bokeh's CI, `rebase`_ your branch
+    to make sure all tests are up to date.
+
     Follow these steps to generate the necessary baseline files and upload them
     to Bokeh's CI:
 
@@ -301,7 +311,7 @@ Follow these steps to write new visual tests or update existing tests:
        ``bokehjs-report`` artifact.
     4. Unzip the downloaded artifact file into the root folder of your local
        Bokeh repository.
-    5. Use the :ref:`devtools server <devguide_testing_local_typescript_devtools>`
+    5. Use the :ref:`devtools server <devguide_testing_local_javascript_devtools>`
        to review the baseline files the CI has created for each platform: first,
        go to ``/integration/report?platform=linux``, then to
        ``/integration/report?platform=macos``, and finally to
@@ -325,9 +335,34 @@ Follow these steps to write new visual tests or update existing tests:
     that are necessary for your pull request. Reset the ``baselines`` directory
     after every failed test run with ``git clean`` or ``git clean -f``.
 
+    If you encounter any problems with the steps described here, feel free to
+    get in touch at the `Bokeh Discourse`_ or `Bokeh's contributor
+    Slack`_.
+
+.. _devguide_writing_tests_examples:
+
+Working with examples tests
+---------------------------
+
+Bokeh's example tests are based on examples found in the :bokeh-tree:`examples`
+and :bokeh-tree:`sphinx/source/docs/user_guide/examples` folders.
+
+When you add a new example to one of these folders, they are usually
+incldued in the examples tests automatically. Edit
+:bokeh-tree:`tests/examples.yaml` to explicitly include or exclude specific
+examples.
+
+See :ref:`devguide_testing_local_examples` for more information on running the
+examples tests.
+
 .. _`Mocha`: https://mochajs.org/
 .. _`Jasmine`: https://jasmine.github.io/
 .. _Chai: https://www.chaijs.com/guide/styles/#expect
 .. _Chai documentation: https://www.chaijs.com/api/bdd/
+.. _rebase: https://docs.github.com/en/get-started/using-git/about-git-rebase
 .. _GithubCI: https://github.com/bokeh/bokeh/actions
 .. _pytest: https://docs.pytest.org
+.. _Bokeh Discourse: https://discourse.bokeh.org/
+.. _Bokeh's contributor Slack: https://slack-invite.bokeh.org/
+.. _Selenium: https://www.selenium.dev/documentation/en/
+.. _ChromeDriver: https://chromedriver.chromium.org/
