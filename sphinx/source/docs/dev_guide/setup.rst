@@ -467,9 +467,8 @@ human-readable, and Bokeh will not open a new browser window each time |show| is
 called.
 
 .. note::
-    Setting ``BOKEH_DEV=true`` and therefore enabling
-    ``BOKEH_RESOURCES=absolute-dev`` causes rendering problems when used
-    with :term:`Bokeh server <Server>` or in
+    Setting ``BOKEH_DEV=true`` enables ``BOKEH_RESOURCES=absolute-dev`` which
+    causes rendering problems when used with :term:`Bokeh server <Server>` or in
     :ref:`Jupyter notebooks <userguide_jupyter>`. To avoid those problems,
     use the following settings instead:
 
@@ -501,7 +500,7 @@ You should see output similar to:
     Python version      :  3.9.6 | packaged by conda-forge | (default, Jul 11 2021, 03:39:48)
     IPython version     :  7.25.0
     Tornado version     :  6.1
-    Bokeh version       :  2.4.0dev1-42-g9c3ee2f7e-dirty
+    Bokeh version       :  2.4.0dev1+42.g9c3ee2f7e.dirty
     BokehJS static path :  /home/user/bokeh/bokeh/server/static
     node.js version     :  v15.14.0
     npm version         :  7.19.1
@@ -573,17 +572,24 @@ All the sliders allow interactive control of the sine wave, with each update
 redrawing the line with the new parameters. The ``--show`` option opens a
 web browser, the default URL for the Bokeh server is ``localhost:5006``.
 
-.. note::
-    Updating an existing development environment does not always work as
-    expected. If you get errors after updating an older environment, use
-    ``conda remove --name bkdev --all``, delete your local ``bokeh`` folder,
-    and start afresh, following the steps in this guide from
-    :ref:`the beginning <devguide_setup_preliminaries>`.
+Troubleshooting
+---------------
 
-    If you have any problems with the steps described here, check the
-    :ref:`additional resources available to contributors <contributors_guide_resources>`.
-    Please feel free to ask at the `Bokeh Discourse`_ or `Bokeh's contributor
-    Slack`_.
+Updating an existing development environment does not always work as
+expected. Make sure your
+:ref:`conda environment <devguide_setup_creating_conda_env>`,
+:ref:`Node packages <devguide_setup_installing_node_packages>`, and
+:ref:`local build <devguide_setup_install_locally>` are up to date.
+
+If you keep geting errors after updating an older environment, use
+``conda remove --name bkdev --all``, delete your local ``bokeh`` folder,
+and start afresh, following the steps in this guide from
+:ref:`the beginning <devguide_setup_preliminaries>`.
+
+For more information on running and installign Bokeh, check the
+:ref:`additional resources available to contributors <contributors_guide_resources>`.
+Please feel free to ask at the `Bokeh Discourse`_ or `Bokeh's contributor
+Slack`_.
 
 .. _Node.js: https://nodejs.org/en/
 .. _Selenium: https://www.selenium.dev/

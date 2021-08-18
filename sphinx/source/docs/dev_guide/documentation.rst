@@ -1,7 +1,7 @@
 .. _devguide_documentation:
 
-Contributing to the documentation
-=================================
+Writing documentation
+=====================
 
 The Bokeh documentation is an important resource for the entire Bokeh
 community. It helps guide new users, and it is the definitive reference for
@@ -333,8 +333,8 @@ Python Style Guide`_.
 
 Docstrings for functions and methods generally include these three elements:
 
-* A short description of what the function does, starting with a
-  verb. For example: "Creates and returns a new Foo."
+* A short description of what the function does, starting with a verb. For
+  example: "Create and return a new Foo."
 * Args: list all parameters, if any.
 * Returns: describe the return values of the function, even if the
   function returns ``None``.
