@@ -55,7 +55,7 @@ describe("FileInputView", () => {
 	
     await view.load_files(files)
 
-    expect(model.value).to.be.equal(["foo","bar","baz"])
+    expect(model.value).to.be.equal([btoa("foo"),btoa("bar"),btoa("baz")])
     expect(model.filename).to.be.equal(["foo.txt","bar.txt","baz.txt"])
     expect(model.mime_type).to.be.equal(["text/plain","text/plain","text/plain"])
   })
