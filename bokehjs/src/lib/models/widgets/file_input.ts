@@ -49,7 +49,7 @@ export class FileInputView extends WidgetView {
     }
 
     if (this.model.multiple)
-	    this.model.setv({value: values, filename: filenames, mime_type: mime_types})
+      this.model.setv({value: values, filename: filenames, mime_type: mime_types})
     else
       this.model.setv({value: values[0], filename: filenames[0], mime_type: mime_types[0]})
   }
