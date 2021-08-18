@@ -36,6 +36,7 @@ dependencies:
   - pydot
   - pygments
   - scipy
+  - xyzservices
 
   # pip dependencies
   - pip
