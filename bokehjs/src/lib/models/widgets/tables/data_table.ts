@@ -136,6 +136,13 @@ export class DataTableView extends WidgetView {
 
     this.connect(this.model.source.selected.change, () => this.updateSelection())
     this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
+
+    for (const column of this.model.columns) {
+      this.connect(column.change, () => {
+        this.invalidate_layout()
+        this.render()
+      })
+    }
   }
 
   override remove(): void {
@@ -254,7 +261,7 @@ export class DataTableView extends WidgetView {
   }
 
   override render(): void {
-    const columns: ColumnType[] = this.model.columns.map((column) => {
+    const columns: ColumnType[] = this.model.columns.filter((column) => column.visible).map((column) => {
       return {...column.toColumn(), parent: this}
     })
 
