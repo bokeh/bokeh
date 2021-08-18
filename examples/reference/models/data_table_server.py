@@ -23,7 +23,6 @@ data_table = DataTable(
     source=source,
     columns=columns,
     index_position=None,
-    # width=80,
     autosize_mode="fit_columns",
     editable=True,
 )
