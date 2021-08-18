@@ -44,11 +44,11 @@ describe("FileInputView", () => {
     const view = (await build_view(model)).build()
 
     const getFileList = () => {
-	    const dt = new DataTransfer()
-	    dt.items.add(new File(["foo"], "foo.txt", {type: "text/plain"}))
-	    dt.items.add(new File(["bar"], "bar.txt", {type: "text/plain"}))
-	    dt.items.add(new File(["baz"], "baz.txt", {type: "text/plain"}))
-	    return dt.files
+      const dt = new DataTransfer()
+      dt.items.add(new File(["foo"], "foo.txt", {type: "text/plain"}))
+      dt.items.add(new File(["bar"], "bar.txt", {type: "text/plain"}))
+      dt.items.add(new File(["baz"], "baz.txt", {type: "text/plain"}))
+      return dt.files
     }
 
     const files = getFileList()
