@@ -1,7 +1,7 @@
 .. _devguide_pull_requests:
 
-Creating a successful pull request
-==================================
+Making a successful pull request
+================================
 
 All changes to Bokeh's codebase and documentation are managed through
 `pull requests`_.
@@ -43,18 +43,19 @@ Pull request workflow
 
     Use this pattern to name your branch:
 
-    ``[issue number]_[Python/BokehJS model you are working on, if applicable]_[optional: model property or short description]``
+    ``[issue number]_[short_description]``
 
     For example:
 
-    ``11423_table_column_visible``
+    ``11423_table_column_add_visible``
 
     See `BEP 6: Branching Strategy`_ for more information on the different
     branches in the Bokeh repository.
 
-3. Publish your branch and push a first commit
-    Before you can open a pull request, you first need to publish your branch.
-    At this time, you should also include a first commit.
+3. Push your local branch to your fork on GitHub
+    Before you can open a pull request, you first need to `push your branch`_
+    from your local clone to your fork on GitHub. At this time, you should also
+    include a first commit.
 
 4. Open a new pull request
     After publishing your branch and adding a first commit, go to the
@@ -85,24 +86,25 @@ Pull request workflow
     :ref:`documentation <devguide_documentation>`, if applicable.
 
 6. Add more commits to your pull request
-    Once you have created a pull request, keep adding commits. A member of the
-    `Bokeh core team`_ will review your pull request and help you along the way.
-    The team member will also update any `labels in your pull request <wiki pull requests_>`_.
-    Reviewing pull requests can be time-consuming, so be aware that it might
-    take a while to receive feedback.
-
-    Once you and a member of the `Bokeh core team`_ agree that your pull request
-    is ready to be merged, the team member will update the labels on your pull
-    request and merge your changes into the repository.
+    Once you have created a pull request, a member of the `Bokeh core team`_
+    will begin `reviewing your pull request`_ and may request changes or
+    additions. If so, they will help you along the way with any questions you
+    may have. You can make new changes in your existing local branch, and push
+    them to Github. The PR will update automatically, there is no need to open a
+    new PR. The team member will also update any
+    `labels in your pull request <wiki pull requests_>`_. Reviewing pull
+    requests can be time-consuming, so be aware that it might take a while to
+    receive feedback.
 
 7. Look for the next issue to work on
     With your first pull request merged, you should take another look at Bokeh's
     `issue tracker`_ to find the next issue to work on.
 
     Once your successfully complete two substantive pull requests, you are
-    eligible to become a member of the `Bokeh development team`_. See
-    `BEP 4: Project Roles`_ for more information about all roles in the Bokeh
-    project.
+    eligible to become a member of the `Bokeh development team`_. This means
+    you will have direct access to the Bokeh repository and won't need to use
+    a fork, for example. See `BEP 4: Project Roles`_ for more information about
+    all roles in the Bokeh project.
 
 Tips
 ----
@@ -129,6 +131,10 @@ Things to keep in mind when working on a pull request:
   necessary rights to). If you find code or text that is compatible with
   `Bokeh's BSD license`_ and that you think would be useful to add to Bokeh,
   :ref:`file an issue <devguide_issues>` and start a discussion first.
+* In case your pull request includes additional or updated dependencies, you
+  not only need to update :bokeh-tree:`environment.yml` but also the
+  :ref:`environment files Bokeh's CI <devguide_testing_ci_environments>` in the
+  :bokeh-tree:`ci` folder.
 
 See the `"Pull Requests" section in BEP 1: Issues and PRs management <wiki pull requests_>`_
 for more information about labels and the pull request management process.
@@ -137,14 +143,14 @@ for more information about labels and the pull request management process.
 .. _GitHub documentation: https://docs.github.com/en/get-started
 .. _issue tracker: https://github.com/bokeh/bokeh/issues
 .. _Writing on GitHub: https://docs.github.com/en/github/writing-on-github
-.. _wiki3: https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management#pull-requests
 .. _wiki pull requests: https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management#pull-requests
 .. _good first issue: https://github.com/bokeh/bokeh/labels/good%20first%20issue
 .. _branch: https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches
 .. _`BEP 6: Branching Strategy`: https://github.com/bokeh/bokeh/wiki/BEP-6:-Branching-Strategy
+.. _push your branch: https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository
+.. _reviewing your pull request: https://docs.github.com/en/github/collaborating-with-pull-requests/reviewing-changes-in-pull-requests
 .. _Bokeh Discourse: https://discourse.bokeh.org/
 .. _Bokeh's contributor Slack: https://slack-invite.bokeh.org/
-.. _draft pull request: https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests
 .. _Bokeh repository: https://github.com/bokeh/bokeh/
 .. _Linking a pull request to an issue using a keyword: https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword
 .. _Bokeh core team: https://github.com/bokeh/bokeh/wiki/BEP-4:-Project-Roles#core-team

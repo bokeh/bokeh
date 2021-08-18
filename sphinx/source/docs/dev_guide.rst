@@ -9,7 +9,7 @@ Contribute
 
     dev_guide/setup
     dev_guide/creating_issues
-    dev_guide/creating_pull_requests
+    dev_guide/pull_requests
     dev_guide/documentation
     dev_guide/testing
     dev_guide/writing_tests
@@ -120,10 +120,6 @@ Bokeh roadmap
     The `Bokeh roadmap`_ contains goals for Bokeh as a tool and as a
     community.
 
-CONTRIBUTING.md on GitHub
-    The file `CONTRIBUTING.md`_ provides a quick overview of the processes used
-    in Bokeh's GitHub repository.
-
 Github repository
     The source code for Bokeh, the bokeh.org website, and many other aspects of
     Bokeh are hosted on https://github.com/bokeh. A good way to get started is
@@ -217,6 +213,14 @@ Therefore, the best, most authoritative source of information for anyone
 writing bindings for Bokeh are the reference guide sections for the
 :ref:`bokeh.core.properties` and |bokeh.models|.
 
+Another ressource for working on bindings is Bokeh's
+:bokeh-tree:`scripts/spec.py` script. This Python script generates a JSON
+description of every model and property in Bokeh,
+including types, defaults, and
+:ref:`help strings <devguide_documentation_edit_properties_help>` for each. You
+can use this information as a basis for creating new low-level bindings or
+checking existing bindings for completeness, for example.
+
 If you would like to start working on a new binding or have a new binding added
 to this list, please contact the Bokeh core team through `Slack`_.
 
@@ -225,9 +229,9 @@ to this list, please contact the Bokeh core team through `Slack`_.
 Spread the word
 ^^^^^^^^^^^^^^^
 
-Finally, as an open source project, Bokeh relies on word-of-mouth advertising.
-If you enjoy using Bokeh or are already contributing to Bokeh, please tell your
-friends and the people you work with about Bokeh.
+Finally, as an open source project, Bokeh relies on word-of-mouth to reach new
+users. If you enjoy using Bokeh or are already contributing to Bokeh, please
+tell your friends and the people you work with about Bokeh.
 
 Bokeh is also on `Twitter`_ and `LinkedIn`_. Please follow those accounts for
 updates and news about Bokeh. And we always appreciate it if you tag Bokeh's
@@ -242,7 +246,6 @@ accounts when you talk about anything that you made with Bokeh!
 .. _BEP 6 (Branching and Milestones): https://github.com/bokeh/bokeh/wiki/BEP-6:-Branching-and-Milestones
 .. _discussions: https://github.com/bokeh/bokeh/discussions
 .. _Bokeh roadmap: https://bokeh.org/roadmap/
-.. _CONTRIBUTING.md: https://github.com/bokeh/bokeh/blob/main/.github/CONTRIBUTING.md
 .. _issue tracker: https://github.com/bokeh/bokeh/issues
 .. _Slack: https://slack-invite.bokeh.org/
 .. _donation to Bokeh: https://numfocus.org/donate-to-bokeh

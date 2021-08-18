@@ -14,7 +14,10 @@ Before opening an issue
 
 As a first step, you should always check
 `Bokeh's GitHub issue tracker <issue tracker_>`_ and the
-`Bokeh Discourse`_ for similar or identical issues.
+`Bokeh Discourse`_ for similar or identical issues. There are lots of issues,
+and it's possible to miss duplicates even after searching. If a team member
+closes your issue as a duplicate, you can always add your input and thoughts to
+the linked issue.
 
 It is also possible that the issue you want to report has already been resolved
 in a newer version of Bokeh. Update Bokeh to the most recent stable version
