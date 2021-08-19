@@ -10,7 +10,7 @@ without adequate tests will generally not be considered ready to merge.
 
 Before writing any tests, you should make sure to go through the relevant
 passages in :ref:`devguide_testing`. This chapter on writing tests assumes you
-know how to run and analyze the tests you are working on.
+know how to run the tests you are working on.
 
 .. _devguide_writing_tests_python:
 
@@ -62,15 +62,11 @@ Python integration tests
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Bokeh's Python-focused integration tests help make sure that Bokeh's Python code
-works as intended with the TypeScript code of :term:`BokehJS`. These integration
-tests use `Selenium`_ with the `ChromeDriver`_ to create screenshots and compare
-those screenshots to pre-defined baseline images. The test scripts are located
-in :bokeh-tree:`tests/integration`. The folder structure resembles the structure
-of Bokeh's Python models.
+works as intended with the TypeScript code of :term:`BokehJS`.
 
-To add or update screenshot integration tests, first make sure that the
-:ref:`existing Python integration tests <devguide_testing_local_python_integration>`
-pass.
+The Python integration tests use `Selenium`_ with `ChromeDriver`_. The test
+scripts are located in :bokeh-tree:`tests/integration`. The folder structure
+resembles the structure of Bokeh's Python models.
 
 Python integration tests use pytest fixtures to handle the webdriver
 configuration and interaction with Selenium. Depending on which context you
@@ -97,9 +93,12 @@ Writing JavaScript tests (BokehJS)
 ----------------------------------
 
 To maintain the functionality of all :term:`BokehJS` components, Bokeh includes
-various tests written in TypeScript. These tests use a custom testing framework
-that **requires Google Chrome or Chromium**. You need a recent version of one of
-these browsers available on your system to work with these tests.
+various tests written in TypeScript. If all or parts of your changes affect
+BokehJS' JavaScript code, you should add or update the relevant BokehJS tests.
+
+Bokeh's JavaScript tests use a custom testing framework that **requires Google
+Chrome or Chromium**. You need a recent version of one of these browsers
+available on your system to work with these tests.
 
 Like several other testing frameworks such as `Mocha`_ or `Jasmine`_, the
 BokehJS testing framework uses ``describe()`` and ``it()`` functions to set up
