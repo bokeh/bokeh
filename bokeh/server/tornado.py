@@ -717,6 +717,7 @@ class BokehTornado(TornadoApplication):
             return
 
         import gc
+        from types import ModuleType
 
         from ..document import Document
         from ..model import Model
@@ -724,6 +725,21 @@ class BokehTornado(TornadoApplication):
         for name, typ in [('Documents', Document), ('Sessions', ServerSession), ('Models', Model)]:
             objs = [x for x in gc.get_objects() if isinstance(x, typ)]
             log.debug("  uncollected %s: %d", name, len(objs))
+
+            # uncomment for potentially voluminous referrers output
+            # if name == 'Models' and len(objs):
+            #     import pprint
+            #     pprint.pprint(gc.get_referents(*objs))
+
+        objs = [x for x in gc.get_objects() if isinstance(x, ModuleType) and "bokeh_app_" in str(x)]
+        log.debug(f"  uncollected modules: {len(objs)}")
+
+        # uncomment (and install pympler) for mem usage by type report
+        # from operator import itemgetter
+        # import pprint
+        # from pympler import tracker
+        # mem = tracker.SummaryTracker()
+        # pprint.pprint(sorted(mem.create_summary(), reverse=True, key=itemgetter(2))[:30])
 
     def _keep_alive(self) -> None:
         log.trace("Running keep alive job")
