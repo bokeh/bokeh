@@ -120,6 +120,10 @@ class DocumentModuleManager:
             if module.__name__ in sys.modules:
                 del sys.modules[module.__name__]
 
+            # explicitly clear the module contents and the module here itself
+            module.__dict__.clear()
+            del module
+
         # remove the references from self._modules
         self._modules = []
 
