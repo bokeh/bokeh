@@ -78,12 +78,15 @@ class Glyph(Model):
             default = descriptor.class_default(cls)
             if default is None:
                 no_more_defaults = True
+
             param = Parameter(
                 name=arg,
                 kind=Parameter.POSITIONAL_OR_KEYWORD,
                 # For positional arg properties, default=None means no default.
-                default=Parameter.empty if no_more_defaults else default
+                default=Parameter.empty if no_more_defaults else _ModelRepr(default)
             )
+            if default:
+                del default
             typ = type_link(descriptor.property)
             arg_params.insert(0, (param, typ, descriptor.__doc__))
 
@@ -95,11 +98,13 @@ class Glyph(Model):
         kws = set(cls.properties()) - set(cls._args) - omissions
         for kw in kws:
             descriptor = cls.lookup(kw)
+            default=descriptor.class_default(cls)
             param = Parameter(
                 name=kw,
                 kind=Parameter.KEYWORD_ONLY,
-                default=descriptor.class_default(cls)
+                default=_ModelRepr(default)
             )
+            del default
             typ = type_link(descriptor.property)
             kwarg_params.append((param, typ, descriptor.__doc__))
 
@@ -154,6 +159,15 @@ class HatchGlyph(Glyph):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+class _ModelRepr:
+    ''' This proxy is for storing reprs of Bokeh models that are property
+    defaults, so that holding references to those Models may be avoided.
+    '''
+    def __init__(self, model: Model) -> None:
+        self. _repr = repr(model)
+    def __repr__(self) -> str:
+        return self._repr
 
 #-----------------------------------------------------------------------------
 # Code
