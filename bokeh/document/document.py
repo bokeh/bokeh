@@ -465,6 +465,13 @@ class Document:
         self.models.destroy()
         self.modules.destroy()
 
+        # XXX (bev) quick fix to ensure ref cycle between the bound method
+        # Document.apply_json_event and the callback dict on the Document
+        # itself gets cleaned up
+        del self._change_callbacks
+        del self._event_callbacks
+        del self._message_callbacks
+
         import gc
         gc.collect()
 
