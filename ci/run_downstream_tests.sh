@@ -24,10 +24,14 @@ set +e
 pushd "$(python -c 'import site; print(site.getsitepackages()[0])')" || exit
 
 banner "Dask -- dask/diagnostics" 2> /dev/null
+cd dask
 pytest dask/diagnostics
+cd ..
 
 banner "Dask -- distributed/dashboard" 2> /dev/null
+cd distributed
 pytest distributed/dashboard
+cd ..
 
 banner "Panel" 2> /dev/null
 pytest panel/tests
