@@ -34,6 +34,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import weakref
 from collections import defaultdict
 from functools import wraps
 from json import loads
@@ -167,7 +168,7 @@ class Document:
         self._message_callbacks = {}
         self._session_destroyed_callbacks = set()
         self._session_callbacks = set()
-        self._session_context = None
+        self._session_context: weakref.ReferenceType[SessionContext] | None
         self._template_variables = {}
         self._hold = None
         self._held_events = []
@@ -208,7 +209,8 @@ class Document:
         ''' The ``SessionContext`` for this document.
 
         '''
-        return self._session_context
+        if self._session_context is not None:
+            return self._session_context()
 
     @property
     def template(self) -> Template:
