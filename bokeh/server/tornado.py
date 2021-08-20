@@ -21,8 +21,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import gc
 import os
 from pprint import pformat
+from types import ModuleType
 from typing import (
     TYPE_CHECKING,
     List,
@@ -41,6 +43,8 @@ if TYPE_CHECKING:
 
 # Bokeh imports
 from ..application import Application
+from ..document import Document
+from ..model import Model
 from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
@@ -49,6 +53,7 @@ from ..util.tornado import fixup_windows_event_loop_policy
 from .auth_provider import NullAuth
 from .connection import ServerConnection
 from .contexts import ApplicationContext
+from .session import ServerSession
 from .urls import per_app_patterns, toplevel_patterns
 from .views.root_handler import RootHandler
 from .views.static_handler import StaticHandler
@@ -59,7 +64,6 @@ if TYPE_CHECKING:
     from ..core.types import ID
     from ..protocol import Protocol
     from .auth_provider import AuthProvider
-    from .session import ServerSession
     from .urls import RouteContext, URLRoutes
 
 #-----------------------------------------------------------------------------
@@ -77,6 +81,14 @@ DEFAULT_SESSION_TOKEN_EXPIRATION         = 300
 __all__ = (
     'BokehTornado',
 )
+
+pd = import_optional("pandas")
+psutil = import_optional("psutil")
+
+GB = 2**20
+PID = os.getpid()
+if psutil:
+    PROC = psutil.Process(PID)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -322,7 +334,7 @@ class BokehTornado(TornadoApplication):
             # 0 means "disable"
             raise ValueError("mem_log_frequency_milliseconds must be >= 0")
         elif mem_log_frequency_milliseconds > 0:
-            if import_optional('psutil') is None:
+            if psutil is None:
                 log.warning("Memory logging requested, but is disabled. Optional dependency 'psutil' is missing. "
                          "Try 'pip install psutil' or 'conda install psutil'")
                 mem_log_frequency_milliseconds = 0
@@ -695,7 +707,7 @@ class BokehTornado(TornadoApplication):
             # avoid the work below if we aren't going to log anything
             return
 
-        log.debug("[pid %d] %d clients connected", os.getpid(), len(self._clients))
+        log.debug("[pid %d] %d clients connected", PID, len(self._clients))
         for app_path, app in self._applications.items():
             sessions = list(app.sessions)
             unused_count = 0
@@ -703,28 +715,28 @@ class BokehTornado(TornadoApplication):
                 if s.connection_count == 0:
                     unused_count += 1
             log.debug("[pid %d]   %s has %d sessions with %d unused",
-                      os.getpid(), app_path, len(sessions), unused_count)
+                      PID, app_path, len(sessions), unused_count)
 
     def _log_mem(self) -> None:
-        import psutil
+        # we should be able to assume PROC is define, if psutil is not installed
+        # then the _log_mem callback is not started at all
+        mem = PROC.memory_info()
+        log.info("[pid %d] Memory usage: %0.2f MB (RSS), %0.2f MB (VMS)", PID, mem.rss/GB, mem.vms/GB)
+        del mem
 
-        process = psutil.Process(os.getpid())
-        mem = process.memory_info()
-        log.info("[pid %d] Memory usage: %0.2f MB (RSS), %0.2f MB (VMS)", os.getpid(), mem.rss//2**20, mem.vms//2**20)
-
+        # skip the rest if we would not log it anyway
         if log.getEffectiveLevel() > logging.DEBUG:
-            # avoid the work below if we aren't going to log anything else
             return
 
-        import gc
-        from types import ModuleType
+        #from collections import Counter
+        # pprint.pprint(Counter([str(type(x)) for x in gc.get_objects() if "DataFrame" in str(type(x))]).most_common(30))
 
-        from ..document import Document
-        from ..model import Model
-        from .session import ServerSession
+        all_objs = gc.get_objects()
+
         for name, typ in [('Documents', Document), ('Sessions', ServerSession), ('Models', Model)]:
-            objs = [x for x in gc.get_objects() if isinstance(x, typ)]
-            log.debug("  uncollected %s: %d", name, len(objs))
+            objs = [x for x in all_objs if isinstance(x, typ)]
+            log.debug(f"  uncollected {name}: {len(objs)}")
+            del objs
 
             # uncomment for potentially voluminous referrers output
             # if name == 'Models' and len(objs):
@@ -733,6 +745,18 @@ class BokehTornado(TornadoApplication):
 
         objs = [x for x in gc.get_objects() if isinstance(x, ModuleType) and "bokeh_app_" in str(x)]
         log.debug(f"  uncollected modules: {len(objs)}")
+        del objs
+
+        objs = [x for x in gc.get_objects() if isinstance(x, ModuleType) and "bokeh_app_" in str(x)]
+        log.debug(f"  uncollected modules: {len(objs)}")
+
+        if pd:
+            objs = [x for x in all_objs if isinstance(x, pd.DataFrame)]
+            log.debug("  uncollected DataFrames: %d", len(objs))
+            del objs
+
+        del all_objs
+        gc.collect()
 
         # uncomment (and install pympler) for mem usage by type report
         # from operator import itemgetter
