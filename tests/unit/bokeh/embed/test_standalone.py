@@ -114,7 +114,7 @@ class Test_autoload_static:
         driver.get(url)
 
         scripts = driver.find_elements_by_css_selector('head script')
-        assert len(scripts) == 4
+        assert len(scripts) == 5
         for script in scripts:
             assert script.get_attribute("crossorigin") == None
             assert script.get_attribute("integrity") == ""
@@ -137,7 +137,7 @@ class Test_autoload_static:
         scripts = driver.find_elements_by_css_selector('head script')
         for x in scripts:
             print(x.get_attribute("src"))
-        assert len(scripts) == 4
+        assert len(scripts) == 5
         for script in scripts:
             assert script.get_attribute("crossorigin") == None
             assert script.get_attribute("integrity") == ""
@@ -160,7 +160,7 @@ class Test_autoload_static:
         scripts = driver.find_elements_by_css_selector('head script')
         for x in scripts:
             print(x.get_attribute("src"))
-        assert len(scripts) == 4
+        assert len(scripts) == 5
         for script in scripts:
             assert script.get_attribute("crossorigin") == None
             assert script.get_attribute("integrity") == ""
@@ -181,7 +181,7 @@ class Test_autoload_static:
         driver.get(url)
 
         scripts = driver.find_elements_by_css_selector('head script')
-        assert len(scripts) == 4
+        assert len(scripts) == 5
         for script in scripts:
             assert script.get_attribute("crossorigin") == None
             assert script.get_attribute("integrity") == ""
