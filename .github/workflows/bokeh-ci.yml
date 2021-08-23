@@ -439,7 +439,7 @@ jobs:
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
-          environment-file: ci/environment-test-3.7.yml
+          environment-file: ci/environment-test-downstream.yml
 
       - name: Install downstream packages
         shell: bash -l {0}
