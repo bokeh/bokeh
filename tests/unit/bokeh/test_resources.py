@@ -452,6 +452,7 @@ def test_legacy_resources():
         "bokeh-gl.legacy.min.js",
         "bokeh-widgets.legacy.min.js",
         "bokeh-tables.legacy.min.js",
+        "bokeh-mathjax.legacy.min.js",
     ]
 
     r = resources.Resources(minified=True, legacy=False)
@@ -460,6 +461,7 @@ def test_legacy_resources():
         "bokeh-gl.min.js",
         "bokeh-widgets.min.js",
         "bokeh-tables.min.js",
+        "bokeh-mathjax.min.js",
     ]
 
     r = resources.Resources(minified=False, legacy=True)
@@ -468,6 +470,7 @@ def test_legacy_resources():
         "bokeh-gl.legacy.js",
         "bokeh-widgets.legacy.js",
         "bokeh-tables.legacy.js",
+        "bokeh-mathjax.legacy.js",
     ]
 
     r = resources.Resources(minified=False, legacy=False)
@@ -476,6 +479,7 @@ def test_legacy_resources():
         "bokeh-gl.js",
         "bokeh-widgets.js",
         "bokeh-tables.js",
+        "bokeh-mathjax.js",
     ]
 
 # -----------------------------------------------------------------------------
