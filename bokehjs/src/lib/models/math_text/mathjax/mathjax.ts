@@ -17,10 +17,10 @@ export function tex2svg(formula: string): HTMLElement {
     display: true,
     em: 16,
     ex: 8,
-    containerWidth: 80 * 16
+    containerWidth: 80 * 16,
   })
 }
 
 export default {
-  tex2svg
+  tex2svg,
 }
