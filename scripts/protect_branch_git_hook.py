@@ -1,28 +1,30 @@
+import re
 import subprocess
 import sys
 
 
-def ProtectMasterBranch():
+def ProtectBranches() -> None:
     hookid = "protect-master-branch"
-    protected_branch = b"master"
+    protected_branches = [r"main", r"branch-\d+\.\d+"]
     current_branch = (
-        subprocess.run(["git", "symbolic-ref", "HEAD"], capture_output=True)
-        .stdout.split(b"/")[-1]
-        .replace(b"\n", b"")
+        subprocess.run(["git", "branch", "--show-current"], capture_output=True)
+        .stdout.decode(sys.stdout.encoding)
+        .replace("\n", "")
     )
+    for branch in protected_branches:
+        regex = re.compile(branch)
+        if regex.match(current_branch):
+            # Not portable to get user input, see:
+            # https://stackoverflow.com/questions/65844278/any-way-to-get-user-input-from-a-hook
+            print(
+                f"You were about to push to `{current_branch}`, if that's what you intended, "
+                "you should run the following command:\n"
+                f"SKIP={hookid} git push"
+            )
+            sys.exit(1)  # push will not execute
 
-    if protected_branch == current_branch:
-        # Not portable to get user input, see:
-        # https://stackoverflow.com/questions/65844278/any-way-to-get-user-input-from-a-hook
-        print(
-            f"You were about to push to {protected_branch}, if that's what you intended, "
-            "you should run the following command:\n"
-            f"SKIP={hookid} git push"
-        )
-        sys.exit(1)  # push will not execute
-    else:
-        sys.exit(0)  # push will execute
+    sys.exit(0)  # push will execute
 
 
 if __name__ == "__main__":
-    ProtectMasterBranch()
+    ProtectBranches()
