@@ -20,3 +20,7 @@ export function tex2svg(formula: string): HTMLElement {
     containerWidth: 80 * 16
   })
 }
+
+export default {
+  tex2svg
+}

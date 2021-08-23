@@ -112,7 +112,7 @@ class TestJSResources:
         assert r.mode == "inline"
         assert r.dev is False
 
-        assert len(r.js_raw) == 5
+        assert len(r.js_raw) == 6
         assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
         assert hasattr(r, "css_raw") is False
         assert r.messages == []
@@ -175,7 +175,7 @@ class TestResources:
         assert r.mode == "inline"
         assert r.dev == False
 
-        assert len(r.js_raw) == 5
+        assert len(r.js_raw) == 6
         assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
         assert len(r.css_raw) == 0
         assert r.messages == []
@@ -219,6 +219,7 @@ class TestResources:
             "http://localhost:5006/static/js/bokeh-gl.min.js",
             "http://localhost:5006/static/js/bokeh-widgets.min.js",
             "http://localhost:5006/static/js/bokeh-tables.min.js",
+            "http://localhost:5006/static/js/bokeh-mathjax.min.js",
         ]
 
     def test_server_root_url(self) -> None:
@@ -233,6 +234,7 @@ class TestResources:
             "http://foo/static/js/bokeh-gl.min.js",
             "http://foo/static/js/bokeh-widgets.min.js",
             "http://foo/static/js/bokeh-tables.min.js",
+            "http://foo/static/js/bokeh-mathjax.min.js",
         ]
 
     def test_server_root_url_empty(self) -> None:
@@ -247,6 +249,7 @@ class TestResources:
             "static/js/bokeh-gl.min.js",
             "static/js/bokeh-widgets.min.js",
             "static/js/bokeh-tables.min.js",
+            "static/js/bokeh-mathjax.min.js",
         ]
 
     def test_server_with_versioner(self) -> None:
@@ -260,6 +263,7 @@ class TestResources:
             "http://foo/static/js/bokeh-gl.min.js?v=VERSIONED",
             "http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED",
             "http://foo/static/js/bokeh-tables.min.js?v=VERSIONED",
+            "http://foo/static/js/bokeh-mathjax.min.js?v=VERSIONED",
         ]
 
     def test_server_dev(self) -> None:

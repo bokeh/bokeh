@@ -14,6 +14,7 @@ import {GraphicsBox, TextHeightMetric, text_width, Position} from "core/graphics
 import {font_metrics, parse_css_font_size} from "core/util/text"
 import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
+import {load_module} from "core/util/modules"
 
 type MathJaxStatus = "not_started" | "loaded" | "loading" | "failed"
 
@@ -57,7 +58,27 @@ export class CDNProvider extends MathJaxProvider  {
   }
 }
 
-// TODO: module/bundle provider
+export class BundleProvider extends MathJaxProvider  {
+  _mathjax: typeof MathJax | null
+
+  get MathJax(): typeof MathJax | null {
+    return this._mathjax
+  }
+
+  async fetch(): Promise<void> {
+    this.status = "loading"
+
+    try {
+      const mathjax = await load_module(import("./mathjax"))
+      this._mathjax = mathjax
+
+      this.status = "loaded"
+      this.ready.emit()
+    } catch (error) {
+      this.status = "failed"
+    }
+  }
+}
 
 const default_provider: MathJaxProvider = new CDNProvider()
 
