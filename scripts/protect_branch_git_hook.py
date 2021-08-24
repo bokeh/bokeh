@@ -4,7 +4,7 @@ import sys
 
 
 def ProtectBranches() -> None:
-    hookid = "protect-master-branch"
+    hookid = "protect-branches"
     protected_branches = [r"main", r"branch-\d+\.\d+"]
     current_branch = (
         subprocess.run(["git", "branch", "--show-current"], capture_output=True)
