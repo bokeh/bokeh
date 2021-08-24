@@ -17,11 +17,11 @@ import pytest  # noqa isort:skip
 # -----------------------------------------------------------------------------
 
 # Standard library imports
-import copy
 import os
 import re
 import subprocess
 import sys
+from copy import deepcopy
 from os.path import basename
 from typing import List
 
@@ -121,7 +121,7 @@ class TestJSResources:
     def test_js_resources_hashes_mock_full(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", "1.4.0")
         monkeypatch.setattr(resources, "__version__", "1.4.0")
-        r = copy.deepcopy(resources.JSResources())
+        r = deepcopy(resources.JSResources())
         # Skip bokeh-mathjax for older versions
         r.js_components.remove("bokeh-mathjax")
         assert r.mode == "cdn"
@@ -348,7 +348,7 @@ class TestResources:
     def test_render_js_cdn_release(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0")
         monkeypatch.setattr(resources, "__version__", "2.0.0")
-        r = copy.deepcopy(resources.CDN)
+        r = deepcopy(resources.CDN)
         # Skip bokeh-mathjax for older versions
         r.js_components.remove("bokeh-mathjax")
         out = r.render_js()
@@ -374,7 +374,7 @@ class TestResources:
     def test_render_js_cdn_dev_local(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0+foo")
         monkeypatch.setattr(resources, "__version__", "2.0.0+foo")
-        r = copy.deepcopy(resources.CDN)
+        r = deepcopy(resources.CDN)
         # Skip bokeh-mathjax for older versions
         r.js_components.remove("bokeh-mathjax")
         out = r.render_js()
