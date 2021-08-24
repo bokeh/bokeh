@@ -165,7 +165,7 @@ To install them, just run:
 
     .. code-block:: sh
 
-        pre-commit install --hook-type pre-push
+        python scripts/install-hooks.py
 
 .. _devguide_suggested_git_aliases:
 
