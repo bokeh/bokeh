@@ -57,6 +57,7 @@ module = [
     "bokeh.core.query",
     "bokeh.core.types",
     "bokeh.core.validation.*",
+    "bokeh.document.callbacks",
     "bokeh.document.json",
     "bokeh.document.locking",
     "bokeh.document.models",
@@ -100,6 +101,7 @@ module = [
     "tests.codebase.*",
     "tests.test_bokehjs",
     "tests.test_examples",
+    "tests.unit.bokeh.document.test_callbacks__document",
     "tests.unit.bokeh.embed.test_standalone",
 ]
 ignore_errors = false

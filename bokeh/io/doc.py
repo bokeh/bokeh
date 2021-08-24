@@ -30,6 +30,7 @@ from .state import curstate
 
 if TYPE_CHECKING:
     from ..document import Document
+    from ..document.locking import UnlockedDocumentProxy
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -42,13 +43,13 @@ __all__ = (
 )
 
 # annotated global must come first in py 3.7
-_PATCHED_CURDOCS: List[weakref.ReferenceType[Document]] = []
+_PATCHED_CURDOCS: List[weakref.ReferenceType[Document|UnlockedDocumentProxy]] = []
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def curdoc() -> Document:
+def curdoc() -> Document | UnlockedDocumentProxy:
     ''' Return the document for the current default state.
 
     Returns:
@@ -67,7 +68,7 @@ def curdoc() -> Document:
 #-----------------------------------------------------------------------------
 
 @contextmanager
-def patch_curdoc(doc: Document) -> Iterator[None]:
+def patch_curdoc(doc: Document|UnlockedDocumentProxy) -> Iterator[None]:
     ''' Temporarily override the value of ``curdoc()`` and then return it to
     its original state.
 

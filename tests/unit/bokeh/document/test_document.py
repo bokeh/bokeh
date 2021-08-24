@@ -16,11 +16,8 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-import logging
-
 # External imports
-from mock import MagicMock, patch
+from mock import patch
 
 # Bokeh imports
 from bokeh.core.enums import HoldPolicy
@@ -78,70 +75,26 @@ class DerivedDataModel(SomeDataModel):
 # General API
 #-----------------------------------------------------------------------------
 
-@pytest.mark.skip
 class TestDocumentHold:
     @pytest.mark.parametrize('policy', HoldPolicy)
-    def test_hold(self, policy) -> None:
+    @patch("bokeh.document.callbacks.DocumentCallbackManager.hold")
+    def test_hold(self, mock_hold, policy) -> None:
         d = document.Document()
-        assert d._hold == None
-        assert d._held_events == []
-
         d.hold(policy)
-        assert d._hold == policy
+        assert mock_hold.called
+        assert mock_hold.call_args[0] == (policy,)
+        assert mock_hold.call_args[1] == {}
 
-    def test_hold_bad_policy(self) -> None:
+    @patch("bokeh.document.callbacks.DocumentCallbackManager.unhold")
+    def test_unhold(self, mock_unhold) -> None:
         d = document.Document()
-        with pytest.raises(ValueError):
-            d.hold("junk")
-
-    @pytest.mark.parametrize('first,second', [('combine', 'collect'), ('collect', 'combine')])
-    def test_rehold(self, first, second, caplog: pytest.LogCaptureFixture) -> None:
-        d = document.Document()
-        with caplog.at_level(logging.WARN):
-            d.hold(first)
-            assert caplog.text == ""
-            assert len(caplog.records) == 0
-
-            d.hold(first)
-            assert caplog.text == ""
-            assert len(caplog.records) == 0
-
-            d.hold(second)
-            assert caplog.text.strip().endswith("hold already active with '%s', ignoring '%s'" % (first, second))
-            assert len(caplog.records) == 1
-
-            d.unhold()
-
-            d.hold(second)
-            assert len(caplog.records) == 1
-
-    @pytest.mark.parametrize('policy', HoldPolicy)
-    def test_unhold(self, policy) -> None:
-        d = document.Document()
-        assert d._hold == None
-        assert d._held_events == []
-
-        d.hold(policy)
-        assert d._hold == policy
         d.unhold()
-        assert d._hold == None
-
-    @patch("bokeh.document.document.Document.callbacks.trigger_on_change")
-    def test_unhold_triggers_events(self, mock_trigger: MagicMock) -> None:
-        d = document.Document()
-        d.hold('collect')
-        d._held_events = [1,2,3]
-        d.unhold()
-        assert mock_trigger.call_count == 3
-        assert mock_trigger.call_args[0] == (3,)
-        assert mock_trigger.call_args[1] == {}
+        assert mock_unhold.called
+        assert mock_unhold.call_args[0] == ()
+        assert mock_unhold.call_args[1] == {}
 
 class TestDocument:
-    def test_empty(self) -> None:
-        d = document.Document()
-        assert not d.roots
-
-    def test_default_template_vars(self) -> None:
+    def test_basic(self) -> None:
         d = document.Document()
         assert not d.roots
         assert d.template_variables == {}
@@ -170,7 +123,7 @@ class TestDocument:
         assert next(roots_iter) is roots[1]
         assert next(roots_iter) is roots[2]
 
-    def test_set_title(self) -> None:
+    def test_title(self) -> None:
         d = document.Document()
         assert d.title == document.DEFAULT_TITLE
         d.title = "Foo"

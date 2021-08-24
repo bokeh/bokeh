@@ -33,13 +33,17 @@ from typing import (
     List,
     Set,
     Type,
-    TypeVar,
 )
 
 # Bokeh imports
 from ..core.enums import HoldPolicy, HoldPolicyType
 from ..core.types import Unknown
-from ..events import _CONCRETE_EVENT_CLASSES, DocumentEvent, Event
+from ..events import (
+    _CONCRETE_EVENT_CLASSES,
+    DocumentEvent,
+    Event,
+    ModelEvent,
+)
 from ..model import Model
 from ..util.callback_manager import _check_callback
 from .events import (  # RootAddedEvent,; RootRemovedEvent,; TitleChangedEvent,
@@ -53,15 +57,10 @@ from .locking import UnlockedDocumentProxy
 if TYPE_CHECKING:
     from ..application.application import SessionDestroyedCallback
     from ..core.has_props import Setter
-    from ..events import ModelEvent
+    from ..events import EventJson
     from ..server.callbacks import SessionCallback
     from .document import Document
-    from .events import (
-        DocumentChangeCallback,
-        DocumentChangedEvent,
-        EventJson,
-        Invoker,
-    )
+    from .events import DocumentChangeCallback, DocumentChangedEvent, Invoker
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -100,8 +99,10 @@ class DocumentCallbackManager:
     _session_destroyed_callbacks: Set[SessionDestroyedCallback]
     _session_callbacks: Set[SessionCallback]
 
-    _subscribed_models: Dict[str, Set[Model]]
+    _subscribed_models: Dict[str, Set[weakref.ReferenceType[Model]]]
 
+    _hold: HoldPolicyType | None = None
+    _held_events: List[DocumentChangedEvent]
 
     def __init__(self, document: Document):
         '''
@@ -118,6 +119,7 @@ class DocumentCallbackManager:
         self._message_callbacks = defaultdict(list)
         self._session_destroyed_callbacks = set()
         self._session_callbacks = set()
+
         self._subscribed_models = defaultdict(set)
 
         self._hold = None
@@ -167,14 +169,14 @@ class DocumentCallbackManager:
         '''
         doc = self._document()
         if doc is None:
-            return
+            raise RuntimeError("Attempting to add session callback to already-destroyed Document")
 
         if one_shot:
             @wraps(callback)
-            def remove_then_invoke(*args, **kwargs):
+            def remove_then_invoke() -> None:
                 if callback_obj in self._session_callbacks:
                     self.remove_session_callback(callback_obj)
-                return callback(*args, **kwargs)
+                return callback()
             actual_callback = remove_then_invoke
         else:
             actual_callback = callback
@@ -263,6 +265,9 @@ class DocumentCallbackManager:
         if not isinstance(event, str) and issubclass(event, Event):
             event = event.event_name
 
+        if event not in _CONCRETE_EVENT_CLASSES:
+            raise ValueError(f"Unknown event {event}")
+
         if not issubclass(_CONCRETE_EVENT_CLASSES[event], DocumentEvent):
             raise ValueError("Document.on_event may only be used to subscribe "
                              "to events of type DocumentEvent. To subscribe "
@@ -320,18 +325,25 @@ class DocumentCallbackManager:
         except KeyError:
             raise ValueError("callback already ran or was already removed, cannot be removed again")
 
+        doc = self._document()
+        if doc is None:
+            return
+
         # emit event so the session is notified and can remove the callback
         for callback_obj in callback_objs:
-            self.trigger_on_change(SessionCallbackRemoved(self, callback_obj))
+            self.trigger_on_change(SessionCallbackRemoved(doc, callback_obj))
 
     def subscribe(self, key: str, model: Model) -> None:
         self._subscribed_models[key].add(weakref.ref(model))
 
     def trigger_json_event(self, json: EventJson) -> None:
-        event = Event.decode_json(json)
-        if not isinstance(event, Event):
+        try:
+            event = Event.decode_json(json)
+        except ValueError:
             log.warning('Could not decode event json: %s' % json)
-        else:
+
+        # This is fairly gorpy, we are not being careful with model vs doc events, etc.
+        if isinstance(event, ModelEvent):
             subscribed = self._subscribed_models[event.event_name].copy()
             for model_ref in subscribed:
                 model = model_ref()
@@ -356,7 +368,7 @@ class DocumentCallbackManager:
         if event.callback_invoker is not None:
             invoke_with_curdoc(doc, event.callback_invoker)
 
-        def invoke_callbacks():
+        def invoke_callbacks() -> None:
             for cb in self._change_callbacks.values():
                 cb(event)
         invoke_with_curdoc(doc, invoke_callbacks)
@@ -377,18 +389,18 @@ class DocumentCallbackManager:
         self._held_events = []
 
         for event in events:
-            self.callbacks.trigger_on_change(event)
+            self.trigger_on_change(event)
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
 
-def invoke_with_curdoc(doc, f: Callable[[], None]) -> None:
+def invoke_with_curdoc(doc: Document, f: Callable[[], None]) -> None:
     from ..io.doc import patch_curdoc
 
-    doc = UnlockedDocumentProxy(doc) if getattr(f, "nolock", False) else doc # XXX weakref
+    curdoc: Document|UnlockedDocumentProxy = UnlockedDocumentProxy(doc) if getattr(f, "nolock", False) else doc
 
-    with patch_curdoc(doc):
+    with patch_curdoc(curdoc):
         return f()
 
 
@@ -425,13 +437,11 @@ def _combine_document_events(new_event: DocumentChangedEvent, old_events: List[D
     # no combination was possible
     old_events.append(new_event)
 
-F = TypeVar("F", bound=Callable[..., Any])
-
-def _wrap_with_curdoc(doc, f: F) -> F:
+def _wrap_with_curdoc(doc: Document, f: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> None:
         @wraps(f)
-        def invoke() -> None:
+        def invoke() -> Any:
             return f(*args, **kwargs)
         return invoke_with_curdoc(doc, invoke)
     return wrapper
