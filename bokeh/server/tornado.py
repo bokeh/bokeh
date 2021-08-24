@@ -736,16 +736,12 @@ class BokehTornado(TornadoApplication):
         for name, typ in [('Documents', Document), ('Sessions', ServerSession), ('Models', Model)]:
             objs = [x for x in all_objs if isinstance(x, typ)]
             log.debug(f"  uncollected {name}: {len(objs)}")
-            # del objs
 
             # uncomment for potentially voluminous referrers output
             # if name == 'Models' and len(objs):
             #     import pprint
             #     for i in range(10):
             #         print(i, objs[i], gc.get_referents(objs[i]))
-
-        objs = [x for x in gc.get_objects() if isinstance(x, ModuleType) and "bokeh_app_" in str(x)]
-        log.debug(f"  uncollected modules: {len(objs)}")
 
         objs = [x for x in gc.get_objects() if isinstance(x, ModuleType) and "bokeh_app_" in str(x)]
         log.debug(f"  uncollected modules: {len(objs)}")
