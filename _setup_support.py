@@ -300,8 +300,8 @@ def build_js():
         print("  - bokeh-gl.js           : %6.1f KB" % size("js", "bokeh-gl.js"))
         print("  - bokeh-gl.min.js       : %6.1f KB" % size("js", "bokeh-gl.min.js"))
 
-        print("  - bokeh-mathjax.js           : %6.1f KB" % size("js", "bokeh-mathjax.js"))
-        print("  - bokeh-mathjax.min.js       : %6.1f KB" % size("js", "bokeh-mathjax.min.js"))
+        print("  - bokeh-mathjax.js      : %6.1f KB" % size("js", "bokeh-mathjax.js"))
+        print("  - bokeh-mathjax.min.js  : %6.1f KB" % size("js", "bokeh-mathjax.min.js"))
     except Exception as e:
         print(BUILD_SIZE_FAIL_MSG % e)
         sys.exit(1)
