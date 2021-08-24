@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import weakref
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Iterator, List
 
 # Bokeh imports
 from .state import curstate
@@ -42,7 +42,7 @@ __all__ = (
 )
 
 # annotated global must come first in py 3.7
-_PATCHED_CURDOCS: List[Document] = []
+_PATCHED_CURDOCS: List[weakref.ReferenceType[Document]] = []
 
 #-----------------------------------------------------------------------------
 # General API
@@ -58,7 +58,7 @@ def curdoc() -> Document:
     if len(_PATCHED_CURDOCS) > 0:
         doc = _PATCHED_CURDOCS[-1]()
         if doc is None:
-            raise RuntimeError("Document for this callback has been previously destroyed")
+            raise RuntimeError("Patched curdoc has been previously destroyed")
         return doc
     return curstate().document
 
@@ -67,15 +67,20 @@ def curdoc() -> Document:
 #-----------------------------------------------------------------------------
 
 @contextmanager
-def patch_curdoc(doc: Document) -> None:
-    '''
+def patch_curdoc(doc: Document) -> Iterator[None]:
+    ''' Temporarily override the value of ``curdoc()`` and then return it to
+    its original state.
+
+    This context manager is useful for controlling the value of ``curdoc()``
+    while invoking functions (e.g. callbacks). The cont
 
     Args:
-        doc (Document) : new Document
+        doc (Document) : new Document to use for ``curdoc()``
 
     '''
     global _PATCHED_CURDOCS
     _PATCHED_CURDOCS.append(weakref.ref(doc))
+    del doc
     yield
     _PATCHED_CURDOCS.pop()
 
