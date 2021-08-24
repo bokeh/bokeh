@@ -873,7 +873,7 @@ export async function minify(module: ModuleInfo, source: string, ecma: terser.EC
     ecma,
     format: {
       comments: /^!|copyright|license|\(c\)/i,
-      ascii_only: true
+      ascii_only: true,
     },
     sourceMap: {
       filename: basename(min_js),
