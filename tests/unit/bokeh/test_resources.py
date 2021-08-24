@@ -17,6 +17,7 @@ import pytest  # noqa isort:skip
 # -----------------------------------------------------------------------------
 
 # Standard library imports
+import copy
 import os
 import re
 import subprocess
@@ -120,7 +121,9 @@ class TestJSResources:
     def test_js_resources_hashes_mock_full(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", "1.4.0")
         monkeypatch.setattr(resources, "__version__", "1.4.0")
-        r = resources.JSResources()
+        r = copy.deepcopy(resources.JSResources())
+        # Skip bokeh-mathjax for older versions
+        r.js_components.remove("bokeh-mathjax")
         assert r.mode == "cdn"
         hashes = resources.get_sri_hashes_for_version("1.4.0")
         min_hashes = {v for k, v in hashes.items() if k.endswith(".min.js") and "api" not in k}
@@ -345,7 +348,10 @@ class TestResources:
     def test_render_js_cdn_release(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0")
         monkeypatch.setattr(resources, "__version__", "2.0.0")
-        out = resources.CDN.render_js()
+        r = copy.deepcopy(resources.CDN)
+        # Skip bokeh-mathjax for older versions
+        r.js_components.remove("bokeh-mathjax")
+        out = r.render_js()
         html = bs4.BeautifulSoup(out, "html.parser")
         scripts = html.findAll(name='script')
         for script in scripts:
@@ -368,7 +374,10 @@ class TestResources:
     def test_render_js_cdn_dev_local(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0+foo")
         monkeypatch.setattr(resources, "__version__", "2.0.0+foo")
-        out = resources.CDN.render_js()
+        r = copy.deepcopy(resources.CDN)
+        # Skip bokeh-mathjax for older versions
+        r.js_components.remove("bokeh-mathjax")
+        out = r.render_js()
         html = bs4.BeautifulSoup(out, "html.parser")
         scripts = html.findAll(name='script')
         for script in scripts:
