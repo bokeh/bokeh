@@ -1,9 +1,10 @@
 import re
 import subprocess
 import sys
+from typing import NoReturn
 
 
-def ProtectBranches() -> None:
+def ProtectBranches() -> NoReturn:
     hookid = "protect-branches"
     protected_branches = [r"main", r"branch-\d+\.\d+"]
     current_branch = (
