@@ -736,12 +736,13 @@ class BokehTornado(TornadoApplication):
         for name, typ in [('Documents', Document), ('Sessions', ServerSession), ('Models', Model)]:
             objs = [x for x in all_objs if isinstance(x, typ)]
             log.debug(f"  uncollected {name}: {len(objs)}")
-            del objs
+            # del objs
 
             # uncomment for potentially voluminous referrers output
             # if name == 'Models' and len(objs):
             #     import pprint
-            #     pprint.pprint(gc.get_referents(*objs))
+            #     for i in range(10):
+            #         print(i, objs[i], gc.get_referents(objs[i]))
 
         objs = [x for x in gc.get_objects() if isinstance(x, ModuleType) and "bokeh_app_" in str(x)]
         log.debug(f"  uncollected modules: {len(objs)}")
@@ -754,9 +755,6 @@ class BokehTornado(TornadoApplication):
             objs = [x for x in all_objs if isinstance(x, pd.DataFrame)]
             log.debug("  uncollected DataFrames: %d", len(objs))
             del objs
-
-        del all_objs
-        gc.collect()
 
         # uncomment (and install pympler) for mem usage by type report
         # from operator import itemgetter

@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import weakref
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, List
 
@@ -55,12 +56,28 @@ def curdoc() -> Document:
 
     '''
     if len(_PATCHED_CURDOCS) > 0:
-        return _PATCHED_CURDOCS[-1]
+        doc = _PATCHED_CURDOCS[-1]()
+        if doc is None:
+            raise RuntimeError("Document for this callback has been previously destroyed")
+        return doc
     return curstate().document
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+@contextmanager
+def patch_curdoc(doc: Document) -> None:
+    '''
+
+    Args:
+        doc (Document) : new Document
+
+    '''
+    global _PATCHED_CURDOCS
+    _PATCHED_CURDOCS.append(weakref.ref(doc))
+    yield
+    _PATCHED_CURDOCS.pop()
 
 def set_curdoc(doc: Document) -> None:
     ''' Configure the current document (returned by curdoc()).
@@ -76,19 +93,6 @@ def set_curdoc(doc: Document) -> None:
 
     '''
     curstate().document = doc
-
-@contextmanager
-def patch_curdoc(doc: Document) -> None:
-    '''
-
-    Args:
-        doc (Document) : new Document
-
-    '''
-    global _PATCHED_CURDOCS
-    _PATCHED_CURDOCS.append(doc)
-    yield
-    _PATCHED_CURDOCS.pop()
 
 #-----------------------------------------------------------------------------
 # Private API
