@@ -159,8 +159,10 @@ that may be useful:
   This git hook runs all the codebase tests before allowing a push to the remote
   repository to proceed. Note that all the standard testing dependencies must be installed
   in order for this hook to function.
-- ``main`` branch protection
-  This git hook prevents accidental pushes to the ``main`` branch on GitHub.
+- Protect special branches
+
+  This git hook prevents accidental pushes to the ``main`` and ``branch-x.y`` 
+  developement branches on GitHub.
 
 To install them, just run:
 
