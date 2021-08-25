@@ -328,6 +328,54 @@ describe("Tabs", () => {
     obj.active = 3
     await display(obj, [200, 150])
   })
+
+  it("should allow tabs header location above with disabled=true", async () => {
+    const obj = tabs("above", ["red", "green", "blue"])
+    obj.disabled = true
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location below with disabled=true", async () => {
+    const obj = tabs("below", ["red", "green", "blue"])
+    obj.disabled = true
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location left with disabled=true", async () => {
+    const obj = tabs("left", ["red", "green", "blue"])
+    obj.disabled = true
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location right with disabled=true", async () => {
+    const obj = tabs("right", ["red", "green", "blue"])
+    obj.disabled = true
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location above with second tab disabled", async () => {
+    const obj = tabs("above", ["red", "green", "blue"])
+    obj.tabs[1].disabled = true
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location below with second tab disabled", async () => {
+    const obj = tabs("below", ["red", "green", "blue"])
+    obj.tabs[1].disabled = true
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location left with second tab disabled", async () => {
+    const obj = tabs("left", ["red", "green", "blue"])
+    obj.tabs[1].disabled = true
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location right with second tab disabled", async () => {
+    const obj = tabs("right", ["red", "green", "blue"])
+    obj.tabs[1].disabled = true
+    await display(obj, [200, 150])
+  })
 })
 
 describe("gridplot()", () => {
