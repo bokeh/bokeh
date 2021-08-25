@@ -2,14 +2,14 @@
 colormapping and basic plot elements. The chart shows correlation between petal width and length for three different
 iris species.
 
-.. rubric:: Details
-
-:Sampledata: :ref:`sampledata_iris`
-:Bokeh APIs: :func:`~bokeh.plotting.Figure.circle`
-:More info: :ref:`userguide_plotting_scatter_markers`
-:Keywords: scatter, alpha
+.. bokeh-example-metadata::
+    :sampledata: :ref:`sampledata_iris`
+    :apis: :func:`~bokeh.plotting.Figure.circle`
+    :refs: :ref:`userguide_plotting_scatter_markers`
+    :keywords: scatter, alpha
 
 '''
+
 from bokeh.plotting import figure, show
 from bokeh.sampledata.iris import flowers
 
