@@ -482,6 +482,10 @@ class Panel(Model):
     Closing a panel is equivalent to removing it from its parent container (e.g. tabs).
     """)
 
+    disabled = Bool(False, help="""
+    Whether the widget is responsive to UI events.
+    """)
+
 class Tabs(LayoutDOM):
     ''' A panel widget with navigation tabs.
 
