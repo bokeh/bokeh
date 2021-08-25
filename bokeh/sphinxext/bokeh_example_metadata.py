@@ -31,19 +31,8 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
-import re
-import warnings
-from os import getenv
-from os.path import basename, dirname, join
-from uuid import uuid4
-
 # External imports
-from docutils import nodes
-from docutils.parsers.rst.directives import choice, flag
 from sphinx.errors import SphinxError
-from sphinx.util import copyfile, ensuredir, status_iterator
-from sphinx.util.nodes import set_source_info
 from docutils.parsers.rst.directives import unchanged
 
 # Bokeh imports
