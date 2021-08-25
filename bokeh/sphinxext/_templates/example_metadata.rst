@@ -4,4 +4,3 @@
 :Bokeh APIs: {{ apis }}
 :More info: {{ refs }}
 :Keywords: {{ keywords }}
-
