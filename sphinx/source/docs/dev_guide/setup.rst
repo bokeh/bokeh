@@ -155,6 +155,7 @@ In order to help prevent some accidental errors, here are some git hooks
 that may be useful:
 
 - Run codebase tests
+
   This git hook runs all the codebase tests before allowing a push to the remote
   repository to proceed. Note that all the standard testing dependencies must be installed
   in order for this hook to function.
