@@ -161,8 +161,8 @@ that may be useful:
   in order for this hook to function.
 - Protect special branches
 
-  This git hook prevents accidental pushes to the ``main`` and ``branch-x.y`` 
-  developement branches on GitHub.
+  This git hook prevents accidental pushes to the ``main`` and ``branch-x.y``
+  development branches on GitHub.
 
 To install them, just run:
 
