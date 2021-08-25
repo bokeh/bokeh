@@ -406,14 +406,13 @@ class BokehTornado(TornadoApplication):
 
             all_patterns.extend(app_patterns)
 
-            # add a per-app static path if requested by the application
+            # if the app requests a custom static path, use that, otherwise add Bokeh's standard static handler
+            route = self._prefix
+            route += "/static/(.*)" if key == "/" else  key + "/static/(.*)"
             if app.static_path is not None:
-                if key == "/":
-                    route = "/static/(.*)"
-                else:
-                    route = key + "/static/(.*)"
-                route = self._prefix + route
                 all_patterns.append((route, StaticFileHandler, {"path" : app.static_path}))
+            else:
+                all_patterns.append((route, StaticHandler, {}))
 
         for p in extra_patterns + toplevel_patterns:
             if p[1] == RootHandler:
