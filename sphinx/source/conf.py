@@ -45,6 +45,7 @@ extensions = [
     'bokeh.sphinxext.bokeh_dataframe',
     'bokeh.sphinxext.bokeh_color',
     'bokeh.sphinxext.bokeh_enum',
+    'bokeh.sphinxext.bokeh_example_metadata',
     'bokeh.sphinxext.bokeh_gallery',
     'bokeh.sphinxext.bokeh_jinja',
     'bokeh.sphinxext.bokeh_model',

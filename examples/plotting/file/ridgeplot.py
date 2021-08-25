@@ -1,3 +1,13 @@
+''' A ridgeline plot backed by the `Perceptions of Probability <https://github.com/zonination/perceptions>`_ dataset.
+
+.. rubric:: Details
+
+:Sampledata: :ref:`sampledata_perceptions`
+:Bokeh APIs: :func:`~bokeh.plotting.Figure.patch`
+:More info: :ref:`userguide_categorical_offsets`
+:Keywords: ridgeline, patch, palette, alpha
+
+'''
 import colorcet as cc
 from numpy import linspace
 from scipy.stats.kde import gaussian_kde
@@ -9,8 +19,10 @@ from bokeh.sampledata.perceptions import probly
 
 output_file("ridgeplot.html")
 
+
 def ridge(category, data, scale=20):
     return list(zip([category]*len(data), scale*data))
+
 
 cats = list(reversed(probly.keys()))
 

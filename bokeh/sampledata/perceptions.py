@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide provides access to ``probly.csv`` and ``numberly.csv``.
+''' Provides access to ``probly.csv`` and ``numberly.csv``.
 
 Sourced from: https://github.com/zonination/perceptions
 

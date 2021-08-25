@@ -1,10 +1,18 @@
-from bokeh.io import output_file, show
+''' A categorical bar chart illustrating the use of `factor_cmap <factor_cmap>`_ to associate colors from a palette
+with categories.
+
+.. rubric:: Details
+
+:Bokeh APIs: :func:`~bokeh.plotting.Figure.vbar`, :func:`~bokeh.transform.factor_cmap`
+:More info: :ref:`userguide_categorical_bars`
+:Keywords: bar, vbar, legend, factor_cmap, palette
+
+'''
+from bokeh.io import show
 from bokeh.models import ColumnDataSource
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
 from bokeh.transform import factor_cmap
-
-output_file("bar_colormapped.html")
 
 fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 counts = [5, 3, 4, 2, 4, 6]

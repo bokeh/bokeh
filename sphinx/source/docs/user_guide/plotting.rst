@@ -196,7 +196,7 @@ To draw arbitrary rectangles by specifying center coordinates, ``width``,
 .. bokeh-plot:: docs/user_guide/examples/plotting_rectangles_rotated.py
     :source-position: above
 
-.. userguide_plotting_hex
+.. _userguide_plotting_hex:
 
 Hex tiles
 ~~~~~~~~~
