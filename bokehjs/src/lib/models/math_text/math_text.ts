@@ -80,7 +80,7 @@ export class BundleProvider extends MathJaxProvider  {
   }
 }
 
-const default_provider: MathJaxProvider = new CDNProvider()
+const default_provider: MathJaxProvider = new BundleProvider()
 
 /**
  * Helper class to rendering MathText into Canvas
