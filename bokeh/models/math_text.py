@@ -51,10 +51,7 @@ class MathText(Model):
     """
 
     def __init__(self, text: str, **kwargs) -> None:
-        if text[0] == text[-1] == "$":
-            text = text[1:-1]
-        else:
-            text = text
+        text = text
 
         super().__init__(**kwargs, text=text)
 
