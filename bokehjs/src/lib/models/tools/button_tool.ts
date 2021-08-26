@@ -3,7 +3,7 @@ import Hammer, {Manager} from "hammerjs"
 import {Class} from "core/class"
 import {DOMView} from "core/dom_view"
 import {Tool, ToolView} from "./tool"
-import {empty} from "core/dom"
+import {empty, Keys} from "core/dom"
 import {Dimensions} from "core/enums"
 import * as p from "core/properties"
 import {startsWith} from "core/util/string"
@@ -55,6 +55,11 @@ export abstract class ButtonToolButtonView extends DOMView {
       }
     })
     this._hammer.on("press", () => this._pressed())
+    this.el.addEventListener("keydown", (event) => {
+      if (event.keyCode == Keys.Enter) {
+        this._clicked()
+      }
+    })
   }
 
   override remove(): void {
@@ -81,6 +86,7 @@ export abstract class ButtonToolButtonView extends DOMView {
         this.el.classList.add(icon)
     }
     this.el.title = this.model.tooltip
+    this.el.tabIndex = 0
 
     if (this._menu != null) {
       this.root.el.appendChild(this._menu.el)
