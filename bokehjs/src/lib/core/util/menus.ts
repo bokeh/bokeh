@@ -145,8 +145,15 @@ export class ContextMenu {
       } else {
         const icon = item.icon != null ? div({class: ["bk-menu-icon", item.icon]}) : null
         const classes = [item.active?.() ? "bk-active": null, item.class]
-        el = div({class: classes, title: item.tooltip}, icon, item.label, item.content)
-        el.addEventListener("click", () => this._item_click(item))
+        el = div({class: classes, title: item.tooltip, tabIndex: 0}, icon, item.label, item.content)
+        el.addEventListener("click", () => {
+          this._item_click(item)
+        })
+        el.addEventListener("keydown", (event) => {
+          if (event.keyCode == Keys.Enter) {
+            this._item_click(item)
+          }
+        })
       }
 
       this.el.appendChild(el)
