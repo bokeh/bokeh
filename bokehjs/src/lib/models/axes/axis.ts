@@ -16,12 +16,11 @@ import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
-import {MathText, MathTextView} from "models/text/math_text"
-import {PlainText} from "models/text/plain_text"
+import {MathText, MathTextView} from "../text/math_text"
+import {PlainText} from "../text/plain_text"
 import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
 import {isString} from "core/util/types"
-
 
 const {abs} = Math
 
@@ -184,7 +183,6 @@ export class AxisView extends GuideRendererView {
 
     const padding = 3
 
-    axis_label_graphics.angle = this.panel.get_label_angle_heuristic("parallel")
     axis_label_graphics.visuals = this.visuals.axis_label_text
     axis_label_graphics.angle = this.panel.get_label_angle_heuristic("parallel")
 

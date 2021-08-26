@@ -20,8 +20,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.property.nullable import NonNullable
-from ..core.property.primitive import String
+from ..core.has_props import abstract
+from ..core.properties import NonNullable, String
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -29,15 +29,44 @@ from ..model import Model
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'PlainText',
-    'MathText',
+    "Ascii",
+    "MathML",
+    "MathText",
+    "PlainText",
+    "TeX",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
+@abstract
 class MathText(Model):
+    """
+    Base class for renderers of mathematical content.
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        if len(args) == 1 and "text" not in kwargs:
+            kwargs["text"] = args[0]
+
+        super().__init__(**kwargs)
+
+    text = NonNullable(String, help="""
+    The text value to render as mathematical notation.
+    """)
+
+class Ascii(MathText):
+    """
+    Render mathematical content using `AsciiMath <http://asciimath.org/>` notation.
+    """
+
+class MathML(MathText):
+    """
+    Render mathematical content using `MathML <https://www.w3.org/Math/>` notation.
+    """
+
+class TeX(MathText):
     """
     Render mathematical content using `LaTeX <https://www.latex-project.org/>`_
     notation.
@@ -51,16 +80,6 @@ class MathText(Model):
         here: https://docs.mathjax.org/en/latest/input/tex/differences.html
     """
 
-    def __init__(self, *args, **kwargs) -> None:
-        if len(args) == 1 and "text" not in kwargs:
-            kwargs["text"] = args[0]
-
-        super().__init__(**kwargs)
-
-    text = NonNullable(String, help="""
-    The text value to render as mathematical notation.
-    """)
-
 class PlainText(Model):
     ''' Used to ignore possible string transforms.
 
@@ -73,7 +92,6 @@ class PlainText(Model):
         super().__init__(**kwargs)
 
     text = NonNullable(String)
-
 
 #-----------------------------------------------------------------------------
 # Dev API

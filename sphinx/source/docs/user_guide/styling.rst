@@ -1117,13 +1117,13 @@ only with :ref:`axis labels <userguide_styling_axes_labels>`. Supporting LaTeX
 notations in more elements is planned for future releases.
 
 Bokeh uses the MathJax_ library to handle LaTeX markup. To use LaTeX markup
-instead of plain text, use a :class:`~bokeh.models.text.MathText` object:
+instead of plain text, use a :class:`~bokeh.models.text.TeX` object:
 
 .. bokeh-plot:: docs/user_guide/examples/styling_axis_labels_math_text.py
     :source-position: above
 
 .. note::
-    The ``text`` attribute of ``MathText`` only accepts LaTeX notations. You do
+    The ``text`` attribute of ``TeX`` only accepts LaTeX notations. You do
     not need to include any delimiters such as ``$$`` or ``$``.
 
 .. _LaTeX: https://www.latex-project.org/

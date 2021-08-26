@@ -85,7 +85,7 @@ const default_provider: MathJaxProvider = new BundleProvider()
 /**
  * Helper class to rendering MathText into Canvas
  */
-export class MathTextView extends View implements GraphicsBox {
+export abstract class MathTextView extends View implements GraphicsBox {
   override model: MathText
   override parent: RendererView
 
@@ -332,15 +332,13 @@ export class MathTextView extends View implements GraphicsBox {
     ctx.restore()
   }
 
-  /**
-   * Render text into a SVG with MathJax and load it into memory.
-   */
+  protected abstract _process_text(text: string): HTMLElement | undefined
+
   private async load_image(): Promise<HTMLImageElement | null> {
-    const {MathJax} = this.provider
-    if (MathJax == null)
+    const mathjax_element = this._process_text(this.model.text)
+    if (mathjax_element == null)
       return null
 
-    const mathjax_element = MathJax.tex2svg(this.model.text)
     const svg_element = mathjax_element.children[0] as SVGElement
     this.svg_element = svg_element
 
@@ -415,10 +413,92 @@ export class MathText extends Model {
   }
 
   static {
-    this.prototype.default_view = MathTextView
-
     this.define<MathText.Props>(({String}) => ({
       text: [ String ],
     }))
+  }
+}
+
+export class AsciiView extends MathTextView {
+  override model: Ascii
+
+  protected _process_text(_text: string): HTMLElement | undefined {
+    return undefined // TODO: this.provider.MathJax?.ascii2svg(text)
+  }
+}
+
+export namespace Ascii {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = MathText.Props
+}
+
+export interface Ascii extends Ascii.Attrs {}
+
+export class Ascii extends MathText {
+  override properties: Ascii.Props
+  override __view_type__: AsciiView
+
+  constructor(attrs?: Partial<Ascii.Attrs>) {
+    super(attrs)
+  }
+
+  static {
+    this.prototype.default_view = AsciiView
+  }
+}
+
+export class MathMLView extends MathTextView {
+  override model: MathML
+
+  protected _process_text(text: string): HTMLElement | undefined {
+    return this.provider.MathJax?.mathml2svg(text.trim())
+  }
+}
+
+export namespace MathML {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = MathText.Props
+}
+
+export interface MathML extends MathML.Attrs {}
+
+export class MathML extends MathText {
+  override properties: MathML.Props
+  override __view_type__: MathMLView
+
+  constructor(attrs?: Partial<MathML.Attrs>) {
+    super(attrs)
+  }
+
+  static {
+    this.prototype.default_view = MathMLView
+  }
+}
+
+export class TeXView extends MathTextView {
+  override model: TeX
+
+  protected _process_text(text: string): HTMLElement | undefined {
+    return this.provider.MathJax?.tex2svg(text)
+  }
+}
+
+export namespace TeX {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = MathText.Props
+}
+
+export interface TeX extends TeX.Attrs {}
+
+export class TeX extends MathText {
+  override properties: TeX.Props
+  override __view_type__: TeXView
+
+  constructor(attrs?: Partial<TeX.Attrs>) {
+    super(attrs)
+  }
+
+  static {
+    this.prototype.default_view = TeXView
   }
 }

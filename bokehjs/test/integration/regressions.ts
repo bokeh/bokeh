@@ -13,7 +13,7 @@ import {
   StaticLayoutProvider,
   LinearColorMapper,
   Plot,
-  MathText,
+  TeX,
   HoverTool,
   TileRenderer, WMTSTileSource,
   Renderer,
@@ -1101,11 +1101,11 @@ describe("Bug", () => {
       stub.value(new DelayedInternalProvider())
       try {
         const p0 = fig([200, 150], {
-          x_axis_label: new MathText({text: "\\theta\\cdot\\left(\\frac{\\sin(x) + 1}{\\Gamma}\\right)"}),
+          x_axis_label: new TeX({text: "\\theta\\cdot\\left(\\frac{\\sin(x) + 1}{\\Gamma}\\right)"}),
         })
         p0.circle([1, 2, 3], [1, 2, 3])
         const p1 = fig([200, 150], {
-          x_axis_label: new MathText({text: "\\theta\\cdot\\left(\\frac{\\cos(x) + 1}{\\Omega}\\right)"}),
+          x_axis_label: new TeX({text: "\\theta\\cdot\\left(\\frac{\\cos(x) + 1}{\\Omega}\\right)"}),
         })
         p1.circle([1, 2, 3], [1, 2, 3])
         await display(row([p0, p1]))
