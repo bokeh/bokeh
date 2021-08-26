@@ -742,6 +742,13 @@ class Serve(Subcommand):
         )),
     )
 
+    def customize_applications(self, args: argparse.Namespace, applications: Dict[str, Any]) -> Dict[str, Any]:
+        '''Allows subclasses to customize ``applications``.
+
+        Should modify and return a copy of the ``applications`` dictionary.
+        '''
+        return dict(applications)
+
     def customize_kwargs(self, args: argparse.Namespace, server_kwargs: Dict[str, Any]) -> Dict[str, Any]:
         '''Allows subclasses to customize ``server_kwargs``.
 
@@ -891,6 +898,7 @@ class Serve(Subcommand):
             find_autoreload_targets(args.files[0])
             add_optional_autoreload_files(args.dev)
 
+        applications = self.customize_applications(args, applications)
         server_kwargs = self.customize_kwargs(args, server_kwargs)
 
         with report_server_init_errors(**server_kwargs):
