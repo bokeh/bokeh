@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 from collections import OrderedDict
+from copy import deepcopy
 from typing import (
     Any,
     Dict,
@@ -114,7 +115,7 @@ class Test_autoload_static:
         driver.get(url)
 
         scripts = driver.find_elements_by_css_selector('head script')
-        assert len(scripts) == 4
+        assert len(scripts) == 5
         for script in scripts:
             assert script.get_attribute("crossorigin") == None
             assert script.get_attribute("integrity") == ""
@@ -124,7 +125,10 @@ class Test_autoload_static:
             test_file_path_and_url: Tuple[str, str], test_plot: Figure) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0")
         monkeypatch.setattr(resources, "__version__", "2.0.0")
-        js, tag = bes.autoload_static(test_plot, CDN, "some/path")
+        r = deepcopy(CDN)
+        # Skip bokeh-mathjax for older versions
+        r.js_components.remove("bokeh-mathjax")
+        js, tag = bes.autoload_static(test_plot, r, "some/path")
 
         page = PAGE.render(js=js, tag=tag)
 
@@ -160,7 +164,7 @@ class Test_autoload_static:
         scripts = driver.find_elements_by_css_selector('head script')
         for x in scripts:
             print(x.get_attribute("src"))
-        assert len(scripts) == 4
+        assert len(scripts) == 5
         for script in scripts:
             assert script.get_attribute("crossorigin") == None
             assert script.get_attribute("integrity") == ""
@@ -181,7 +185,7 @@ class Test_autoload_static:
         driver.get(url)
 
         scripts = driver.find_elements_by_css_selector('head script')
-        assert len(scripts) == 4
+        assert len(scripts) == 5
         for script in scripts:
             assert script.get_attribute("crossorigin") == None
             assert script.get_attribute("integrity") == ""

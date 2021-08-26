@@ -55,7 +55,7 @@ PAGE = Template("""
 
 @pytest.mark.selenium
 class Test_json_item:
-    def test_bkroot_added_to_target(self, driver, test_file_path_and_url) -> None:
+    def test_bkroot_added_to_target(self, driver, test_file_path_and_url, has_no_console_errors) -> None:
         p = Plot()
         html = PAGE.render(item=json.dumps(json_item(p)), resources=INLINE.render())
 
@@ -66,4 +66,5 @@ class Test_json_item:
         driver.get(url)
 
         div = driver.find_elements_by_class_name("bk-root")
+        assert has_no_console_errors(driver)
         assert len(div) == 1
