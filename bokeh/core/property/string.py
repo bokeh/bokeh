@@ -116,7 +116,7 @@ class Base64String(String):
 
 class MathString(String):
     """ transforms a string that starts and ends with $ in MathText model,
-    if no $ is found return returns PlainText.
+    if no $ is found returns PlainText.
 
     Args:
         value : a string to be converted
