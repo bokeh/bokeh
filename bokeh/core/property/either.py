@@ -109,6 +109,11 @@ class Either(ParameterizedProperty):
         msg = "" if not detail else f"expected an element of either {nice_join(self.type_params)}, got {value!r}"
         raise ValueError(msg)
 
+    def wrap(self, value):
+        for tp in self.type_params:
+            value = tp.wrap(value)
+        return value
+
     # TODO (bev) implement this
     # def _may_have_unstable_default(self):
     #     return any(tp._may_have_unstable_default() for tp in self.type_params)

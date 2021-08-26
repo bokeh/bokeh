@@ -1,7 +1,16 @@
-''' A scatter plot using Fisher's *Iris* dataset to illustrate colormapping and basic plot elements.
+''' A scatter plot using `Fisher's Iris dataset <https://en.wikipedia.org/wiki/Iris_flower_data_set>`_ to illustrate
+colormapping and basic plot elements. The chart shows correlation between petal width and length for three different
+iris species.
+
+.. bokeh-example-metadata::
+    :sampledata: :ref:`sampledata_iris`
+    :apis: :func:`~bokeh.plotting.Figure.circle`
+    :refs: :ref:`userguide_plotting_scatter_markers`
+    :keywords: scatter, alpha
 
 '''
-from bokeh.plotting import figure, output_file, show
+
+from bokeh.plotting import figure, show
 from bokeh.sampledata.iris import flowers
 
 colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
@@ -13,7 +22,5 @@ p.yaxis.axis_label = 'Petal Width'
 
 p.circle(flowers["petal_length"], flowers["petal_width"],
          color=colors, fill_alpha=0.2, size=10)
-
-output_file("iris.html", title="iris.py example")
 
 show(p)

@@ -52,6 +52,12 @@ export class TileRendererView extends RendererView {
     this.connect(this.model.tile_source.change, () => this.request_render())
   }
 
+  override remove(): void {
+    if (this.attribution_el != null)
+      removeElement(this.attribution_el)
+    super.remove()
+  }
+
   override styles(): string[] {
     return [...super.styles(), tiles_css]
   }
@@ -141,14 +147,21 @@ export class TileRendererView extends RendererView {
   }
 
   protected _create_tile(x: number, y: number, z: number, bounds: Bounds, cache_only: boolean = false): void {
+    const quadkey = this.model.tile_source.tile_xyz_to_quadkey(x, y, z)
+    const cache_key = this.model.tile_source.tile_xyz_to_key(x, y, z)
+
+    if (this.model.tile_source.tiles.has(cache_key))
+      return
+
     const [nx, ny, nz] = this.model.tile_source.normalize_xyz(x, y, z)
+    const src = this.model.tile_source.get_image_url(nx, ny, nz)
 
     const tile: TileData = {
       img: undefined,
       tile_coords: [x, y, z],
       normalized_coords: [nx, ny, nz],
-      quadkey: this.model.tile_source.tile_xyz_to_quadkey(x, y, z),
-      cache_key: this.model.tile_source.tile_xyz_to_key(x, y, z),
+      quadkey,
+      cache_key,
       bounds,
       loaded: false,
       finished: false,
@@ -156,7 +169,9 @@ export class TileRendererView extends RendererView {
       y_coord: bounds[3],
     }
 
-    const src = this.model.tile_source.get_image_url(nx, ny, nz)
+    this.model.tile_source.tiles.set(cache_key, tile)
+    this._tiles.push(tile)
+
     new ImageLoader(src, {
       loaded: (img: Image) => {
         Object.assign(tile, {img, loaded: true})
@@ -171,9 +186,6 @@ export class TileRendererView extends RendererView {
         tile.finished = true
       },
     })
-
-    this.model.tile_source.tiles.set(tile.cache_key, tile)
-    this._tiles.push(tile)
   }
 
   protected _enforce_aspect_ratio(): void {
@@ -191,18 +203,15 @@ export class TileRendererView extends RendererView {
   }
 
   override has_finished(): boolean {
-    if (!super.has_finished()) {
+    if (!super.has_finished())
       return false
-    }
 
-    if (this._tiles.length === 0) {
+    if (this._tiles.length == 0)
       return false
-    }
 
     for (const tile of this._tiles) {
-      if (!tile.finished) {
+      if (!tile.finished)
         return false
-      }
     }
 
     return true

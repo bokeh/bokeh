@@ -1,3 +1,12 @@
+''' A hexbin plot demonstrating binning of 500 randomly selected points in a normal distribution.
+
+.. rubric:: Details
+
+:Bokeh APIs: :func:`~bokeh.plotting.Figure.hexbin`
+:More info: :ref:`userguide_plotting_hex`
+:Keywords: hex, hover, tooltip, bin
+
+'''
 import numpy as np
 
 from bokeh.io import output_file, show

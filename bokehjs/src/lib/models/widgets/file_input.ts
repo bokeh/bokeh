@@ -48,15 +48,10 @@ export class FileInputView extends WidgetView {
       mime_types.push(mime_type)
     }
 
-    if (this.model.multiple) {
-      this.model.value = values
-      this.model.filename = filenames
-      this.model.mime_type = mime_types
-    } else {
-      this.model.value = values[0]
-      this.model.filename = filenames[0]
-      this.model.mime_type = mime_types[0]
-    }
+    if (this.model.multiple)
+      this.model.setv({value: values, filename: filenames, mime_type: mime_types})
+    else
+      this.model.setv({value: values[0], filename: filenames[0], mime_type: mime_types[0]})
   }
 
   protected _read_file(file: File): Promise<string> {

@@ -45,6 +45,7 @@ extensions = [
     'bokeh.sphinxext.bokeh_dataframe',
     'bokeh.sphinxext.bokeh_color',
     'bokeh.sphinxext.bokeh_enum',
+    'bokeh.sphinxext.bokeh_example_metadata',
     'bokeh.sphinxext.bokeh_gallery',
     'bokeh.sphinxext.bokeh_jinja',
     'bokeh.sphinxext.bokeh_model',
@@ -86,7 +87,8 @@ bokeh_plot_pyfile_include_dirs = ['docs']
 intersphinx_mapping = {
     'python' : ('https://docs.python.org/3/', None),
     'pandas' : ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'numpy'  : ('https://numpy.org/doc/stable/', None)
+    'numpy'  : ('https://numpy.org/doc/stable/', None),
+    'xyzservices' : ('https://xyzservices.readthedocs.io/en/stable/', None),
 }
 
 napoleon_include_init_with_doc = True

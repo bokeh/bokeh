@@ -75,6 +75,8 @@ COLOR_DETAIL = _env.get_template("color_detail.html")
 
 ENUM_DETAIL = _env.get_template("enum_detail.rst")
 
+EXAMPLE_METADATA = _env.get_template("example_metadata.rst")
+
 GALLERY_PAGE = _env.get_template("gallery_page.rst")
 GALLERY_DETAIL = _env.get_template("gallery_detail.rst")
 
