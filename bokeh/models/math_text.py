@@ -50,10 +50,11 @@ class MathText(Model):
         here: https://docs.mathjax.org/en/latest/input/tex/differences.html
     """
 
-    def __init__(self, text: str, **kwargs) -> None:
-        text = text
+    def __init__(self, *args, **kwargs) -> None:
+        if len(args) == 1 and "text" not in kwargs:
+            kwargs["text"] = args[0]
 
-        super().__init__(**kwargs, text=text)
+        super().__init__(**kwargs)
 
     text = NonNullable(String, help="""
     The text value to render as mathematical notation.

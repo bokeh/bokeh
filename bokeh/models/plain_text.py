@@ -42,8 +42,11 @@ class PlainText(Model):
     Used to ignore possible string convertions
     """
 
-    def __init__(self, text: str, **kwargs) -> None:
-        super().__init__(**kwargs, text=text)
+    def __init__(self, *args, **kwargs) -> None:
+        if len(args) == 1 and "text" not in kwargs:
+            kwargs["text"] = args[0]
+
+        super().__init__(**kwargs)
 
     text = NonNullable(String)
 
