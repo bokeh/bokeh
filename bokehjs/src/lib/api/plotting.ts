@@ -36,6 +36,7 @@ import {LayoutDOM} from "../models/layouts/layout_dom"
 import {Legend} from "../models/annotations/legend"
 import {LegendItem} from "../models/annotations/legend_item"
 import {ToolAliases} from "../models/tools/tool"
+import {PlainText} from "../models/plain_text"
 
 export {gridplot} from "./gridplot"
 export {color2css as color} from "../core/util/color"
@@ -240,8 +241,8 @@ export class Figure extends Plot {
     delete attrs.x_axis_location
     delete attrs.y_axis_location
 
-    const x_axis_label = attrs.x_axis_label != null ? attrs.x_axis_label : ""
-    const y_axis_label = attrs.y_axis_label != null ? attrs.y_axis_label : ""
+    const x_axis_label = attrs.x_axis_label != null ? attrs.x_axis_label : new PlainText({text: ""})
+    const y_axis_label = attrs.y_axis_label != null ? attrs.y_axis_label : new PlainText({text: ""})
     delete attrs.x_axis_label
     delete attrs.y_axis_label
 
