@@ -20,7 +20,7 @@ import {MathText, MathTextView} from "models/math_text"
 import {PlainText} from "models/plain_text"
 import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
-import {convert_text_like} from "models/util"
+import {isString} from "core/util/types"
 
 
 const {abs} = Math
@@ -176,9 +176,11 @@ export class AxisView extends GuideRendererView {
     if (!axis_label)
       return 0
 
+    const text = isString(axis_label) ? axis_label : axis_label.text
+
     const axis_label_graphics = axis_label instanceof MathText
       ? this.axis_label_math_text_view
-      : new TextBox(axis_label)
+      : new TextBox({text})
 
     const padding = 3
 
@@ -227,9 +229,11 @@ export class AxisView extends GuideRendererView {
       y_anchor: vertical_align,
     }
 
+    const text = isString(axis_label) ? axis_label : axis_label.text
+
     const axis_label_graphics = axis_label instanceof MathText
       ? this.axis_label_math_text_view
-      : new TextBox(axis_label)
+      : new TextBox({text})
 
     axis_label_graphics.visuals = this.visuals.axis_label_text
     axis_label_graphics.angle = this.panel.get_label_angle_heuristic("parallel")
@@ -426,10 +430,13 @@ export class AxisView extends GuideRendererView {
     const {major_label_overrides} = this.model
     for (let i = 0; i < ticks.length; i++) {
       const override = major_label_overrides[ticks[i]]
-      if (override != null)
+      if (override != null)  {
+        const text = isString(override) ? override : override.text
+
         labels[i] = override instanceof MathText
           ? this.major_label_math_text_views[ticks[i]]
-          : new TextBox(override)
+          : new TextBox({text})
+      }
     }
     return new GraphicsBoxes(labels)
   }
@@ -617,13 +624,11 @@ export namespace Axis {
     bounds: p.Property<[number, number] | "auto">
     ticker: p.Property<Ticker>
     formatter: p.Property<TickFormatter>
-    axis_label: p.Property<PlainText | MathText | null>
-    _axis_label: p.Property<TextLike | null>
+    axis_label: p.Property<TextLike | null>
     axis_label_standoff: p.Property<number>
     major_label_standoff: p.Property<number>
     major_label_orientation: p.Property<TickLabelOrientation | number>
-    major_label_overrides: p.Property<{[key: string]: PlainText | MathText}>
-    _major_label_overrides: p.Property<{[key: string]: TextLike}>
+    major_label_overrides: p.Property<{[key: string]: TextLike}>
     major_label_policy: p.Property<LabelingPolicy>
     major_tick_in: p.Property<number>
     major_tick_out: p.Property<number>
@@ -658,35 +663,6 @@ export class Axis extends GuideRenderer {
     super(attrs)
   }
 
-  get axis_label(): MathText | PlainText | null {
-    const {_axis_label} = this
-
-    if (_axis_label) {
-      return convert_text_like(_axis_label)
-    }
-
-    return null
-  }
-
-  set axis_label(text: TextLike | null) {
-    this._axis_label = text
-  }
-
-  get major_label_overrides(): {[key: string]: PlainText | MathText} {
-    const {_major_label_overrides} = this
-
-    const converted: {[key: string]: PlainText | MathText} = {}
-
-    Object.keys(_major_label_overrides)
-      .map(key => converted[key] = convert_text_like(_major_label_overrides[key]))
-
-    return converted
-  }
-
-  set major_label_overrides(obj: {[key: string]: TextLike}) {
-    this._major_label_overrides = obj
-  }
-
   static {
     this.prototype.default_view = AxisView
 
@@ -698,15 +674,15 @@ export class Axis extends GuideRenderer {
       ["axis_label_",  mixins.Text],
     ])
 
-    this.define<Axis.Props>(({Any, Int, Number, Ref, Dict, Tuple, Or, Nullable, Auto}) => ({
+    this.define<Axis.Props>(({Any, Int, Number, String, Ref, Dict, Tuple, Or, Nullable, Auto}) => ({
       bounds:                  [ Or(Tuple(Number, Number), Auto), "auto" ],
       ticker:                  [ Ref(Ticker) ],
       formatter:               [ Ref(TickFormatter) ],
-      _axis_label:             [ Nullable(Or(Ref(PlainText), Ref(MathText))) ],
+      axis_label:              [ Nullable(Or(String, Ref(PlainText), Ref(MathText))) ],
       axis_label_standoff:     [ Int, 5 ],
       major_label_standoff:    [ Int, 5 ],
       major_label_orientation: [ Or(TickLabelOrientation, Number), "horizontal" ],
-      major_label_overrides:   [ Dict(Or(Ref(PlainText), Ref(MathText))), {} ],
+      major_label_overrides:   [ Dict(Or(String, Ref(PlainText), Ref(MathText))), {} ],
       major_label_policy:      [ Ref(LabelingPolicy), () => new AllLabels() ],
       major_tick_in:           [ Number, 2 ],
       major_tick_out:          [ Number, 6 ],

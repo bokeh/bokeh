@@ -29,9 +29,8 @@ import {build_view} from "core/build_views"
 import {BBox} from "core/util/bbox"
 import {isString} from "core/util/types"
 import {SerializableState} from "core/view"
-import { PlainText } from "models/plain_text"
-import { TextLike } from "core/types"
-import { convert_text_like } from "models/util"
+import {PlainText} from "models/plain_text"
+import {TextLike} from "core/types"
 
 const MINOR_DIM = 25
 const MAJOR_DIM_MIN_SCALAR = 0.3
@@ -600,8 +599,7 @@ export namespace ColorBar {
     scale_alpha: p.Property<number>
     ticker: p.Property<Ticker | "auto">
     formatter: p.Property<TickFormatter | "auto">
-    major_label_overrides: p.Property<{[key: string]: PlainText | MathText}>
-    _major_label_overrides: p.Property<{[key: string]: TextLike}>
+    major_label_overrides: p.Property<{[key: string]: TextLike}>
     major_label_policy: p.Property<LabelingPolicy>
     color_mapper: p.Property<ColorMapper>
     label_standoff: p.Property<number>
@@ -643,21 +641,6 @@ export class ColorBar extends Annotation {
     super(attrs)
   }
 
-  get major_label_overrides(): {[key: string]: PlainText | MathText} {
-    const {_major_label_overrides} = this
-
-    const converted: {[key: string]: PlainText | MathText} = {}
-
-    Object.keys(_major_label_overrides)
-      .map(key => converted[key] = convert_text_like(_major_label_overrides[key]))
-
-    return converted
-  }
-
-  set major_label_overrides(obj: {[key: string]: TextLike}) {
-    this._major_label_overrides = obj
-  }
-
   static {
     this.prototype.default_view = ColorBarView
 
@@ -681,7 +664,7 @@ export class ColorBar extends Annotation {
       scale_alpha:           [ Alpha, 1.0 ],
       ticker:                [ Or(Ref(Ticker), Auto), "auto" ],
       formatter:             [ Or(Ref(TickFormatter), Auto), "auto" ],
-      major_label_overrides: [ Dict(Or(Ref(PlainText), Ref(MathText))), {} ],
+      major_label_overrides: [ Dict(Or(String, Ref(PlainText), Ref(MathText))), {} ],
       major_label_policy:    [ Ref(LabelingPolicy), () => new NoOverlap() ],
       color_mapper:          [ Ref(ColorMapper) ],
       label_standoff:        [ Number, 5 ],

@@ -1,5 +1,5 @@
 import * as p from "core/properties"
-import { Model } from "../../model"
+import {Model} from "../../model"
 
 export namespace PlainText {
   export type Attrs = p.AttrsOf<Props>
