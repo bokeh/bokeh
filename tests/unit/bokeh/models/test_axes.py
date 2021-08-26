@@ -53,13 +53,17 @@ def test_axis_label_accepts_math_text_with_declaration() -> None:
 def test_axis_label_accepts_math_text_with_declaration_and_dollar_signs() -> None:
     a = bma.Axis(axis_label=MathText(text=r"$\sin(x+3)$"))
     assert isinstance(a.axis_label, MathText)
-    assert a.axis_label.text == r"\sin(x+3)"
+    assert a.axis_label.text == r"$\sin(x+3)$"
 
 def test_axis_label_accepts_math_text_with_constructor_arg() -> None:
     a = bma.Axis(axis_label=MathText(r"\sin(x+4)"))
     assert isinstance(a.axis_label, MathText)
     assert a.axis_label.text == r"\sin(x+4)"
 
+def test_axis_label_accepts_math_text_with_constructor_arg_and_dollar_signs() -> None:
+    a = bma.Axis(axis_label=MathText(r"$\sin(x+4)$"))
+    assert isinstance(a.axis_label, MathText)
+    assert a.axis_label.text == r"$\sin(x+4)$"
 
 def test_axis_label_accepts_string_with_dollar_signs() -> None:
     a = bma.Axis(axis_label=PlainText(r"$\sin(x+6)$"))
