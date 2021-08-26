@@ -62,6 +62,7 @@ from ..core.properties import (
     Seq,
     String,
     StringSpec,
+    TextLike,
     Tuple,
     field,
     value,
@@ -82,8 +83,6 @@ from ..util.serialization import convert_datetime_type
 from .formatters import TickFormatter
 from .labeling import LabelingPolicy, NoOverlap
 from .mappers import ColorMapper
-from .math_text import MathText, MathString
-from .plain_text import PlainText
 from .renderers import GlyphRenderer, Renderer
 from .sources import ColumnDataSource, DataSource
 from .tickers import Ticker
@@ -417,7 +416,7 @@ class ColorBar(Annotation):
     A ``TickFormatter`` to use for formatting the visual appearance of ticks.
     """)
 
-    major_label_overrides = Dict(Either(Float, String), Either(Instance(MathText), MathString).accepts(Instance(PlainText), lambda val: val.text), default={}, help="""
+    major_label_overrides = Dict(Either(Float, String), TextLike, default={}, help="""
     Provide explicit tick label values for specific tick locations that
     override normal formatting.
     """)

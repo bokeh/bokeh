@@ -40,6 +40,7 @@ from ..core.properties import (
     Override,
     Seq,
     String,
+    TextLike,
     Tuple,
 )
 from ..core.property_mixins import ScalarLineProps, ScalarTextProps
@@ -52,8 +53,6 @@ from .formatters import (
     TickFormatter,
 )
 from .labeling import AllLabels, LabelingPolicy
-from .math_text import MathText, MathString
-from .plain_text import PlainText
 from .renderers import GuideRenderer
 from .tickers import (
     BasicTicker,
@@ -125,9 +124,9 @@ class Axis(GuideRenderer):
     of ticks.
     """)
 
-    axis_label = Nullable(Either(MathString, Instance(MathText)), default="", help="""
+    axis_label = Nullable(TextLike, default="", help="""
     A text or LaTeX notation label for the axis, displayed parallel to the axis rule.
-    """).accepts(Instance(PlainText), lambda val: val.text)
+    """)
 
     axis_label_standoff = Int(default=5, help="""
     The distance in pixels that the axis labels should be offset
@@ -152,7 +151,7 @@ class Axis(GuideRenderer):
     number is supplied, the angle of the text is measured from horizontal.
     """)
 
-    major_label_overrides = Dict(Either(Float, String), Either(Instance(MathText), MathString).accepts(Instance(PlainText), lambda val: val.text), default={}, help="""
+    major_label_overrides = Dict(Either(Float, String), TextLike, default={}, help="""
     Provide explicit tick label values for specific tick locations that
     override normal formatting.
     """)

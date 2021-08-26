@@ -20,7 +20,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.properties import NonNullable, String
+from ..core.property.nullable import NonNullable
+from ..core.property.primitive import String
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -62,25 +63,6 @@ class MathText(Model):
     """)
 
 
-class MathString(String):
-    """ transforms a string that starts and ends with $ in MathText model
-
-    Args:
-        value : a string to be converted
-
-    Returns:
-        MathText model
-
-    """
-
-    def transform(self, value):
-        value = super().transform(value)
-        print(value)
-
-        if isinstance(value, str) and len(value) >= 2 and value[0] == value[-1] == "$":
-            return MathText(text=value[1:-1])
-        else:
-            return value
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

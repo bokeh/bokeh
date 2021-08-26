@@ -225,6 +225,7 @@ __all__ = (
     'List',
     'MarkerSpec',
     'MarkerType',
+    'MathString',
     'MinMaxBounds',
     'NonNegativeInt',
     'NonNullable',
@@ -250,6 +251,7 @@ __all__ = (
     'StringSpec',
     'Struct',
     'TimeDelta',
+    'TextLike',
     'Tuple',
     'expr',
     'field',
@@ -353,9 +355,12 @@ from .property.primitive import String; String
 from .property.readonly import Readonly; Readonly
 
 from .property.string import Base64String; Base64String
+from .property.string import MathString; MathString
 from .property.string import Regex; Regex
 
 from .property.struct import Struct; Struct
+
+from .property.text_like import TextLike; TextLike
 
 from .property.visual import DashPattern; DashPattern
 from .property.visual import FontSize; FontSize

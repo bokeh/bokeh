@@ -4,8 +4,12 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Ignore string conversions
-'''
+""" TextLike is a shortcut for properties that accepts strings that can be interpreted to models.
+    e.g.:
+    :class:`~bokeh.models.math_text.MathText`.
+    :class:`~bokeh.models.plain_text.PlainText`.
+
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -20,33 +24,23 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.property.nullable import NonNullable
-from ..core.property.primitive import String
-from ..model import Model
+from .either import Either
+from .instance import Instance
+from .string import MathString
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'PlainText',
+    'TextLike',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-
-class PlainText(Model):
-    """
-    Used to ignore possible string convertions
-    """
-
-    def __init__(self, text: str, **kwargs) -> None:
-        super().__init__(**kwargs, text=text)
-
-    text = NonNullable(String)
-
+TextLike = Either(MathString, Instance("bokeh.models.math_text.MathText"), Instance("bokeh.models.plain_text.PlainText"))
 
 #-----------------------------------------------------------------------------
 # Dev API

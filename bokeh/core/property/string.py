@@ -36,6 +36,7 @@ from .singletons import Undefined
 
 __all__ = (
     'Regex',
+    'MathString',
     'Base64String',
 )
 
@@ -113,6 +114,30 @@ class Base64String(String):
             value = base64.b64encode(value.encode("utf-8")).decode("utf-8")
         return value
 
+class MathString(String):
+    """ transforms a string that starts and ends with $ in MathText model,
+    if no $ is found return returns PlainText.
+
+    Args:
+        value : a string to be converted
+
+    Returns:
+        MathText model | PlainText model
+
+    """
+
+    def transform(self, value):
+        value = super().transform(value)
+        print(value)
+
+        if isinstance(value, str) and len(value) >= 2 and value[0] == value[-1] == "$":
+            from ...models.math_text import MathText
+
+            return MathText(text=value[1:-1])
+        else:
+            from ...models.plain_text import PlainText
+
+            return PlainText(value)
 
 #-----------------------------------------------------------------------------
 # Dev API

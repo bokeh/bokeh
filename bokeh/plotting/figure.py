@@ -9,7 +9,6 @@
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import annotations
-from bokeh.models.plain_text import PlainText
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -35,15 +34,13 @@ from ..core.properties import (
     Nullable,
     Seq,
     String,
+    TextLike,
     Tuple,
 )
 from ..models import (
     ColumnDataSource,
     CoordinateMapping,
     GraphRenderer,
-    MathText,
-    MathString,
-    PlainText,
     Plot,
     Range,
     Scale,
@@ -703,13 +700,13 @@ class BaseFigureOptions(Options):
     Where the y-axis should be located.
     """)
 
-    x_axis_label = Nullable(Either(MathString, Instance(PlainText), Instance(MathText)), default="", help="""
+    x_axis_label = Nullable(TextLike, default="", help="""
     A label for the x-axis.
-    """).accepts(Instance(PlainText), lambda val: val.text)
+    """)
 
-    y_axis_label = Nullable(Either(MathString, Instance(PlainText), Instance(MathText)), default="", help="""
+    y_axis_label = Nullable(TextLike, default="", help="""
     A label for the y-axis.
-    """).accepts(Instance(PlainText), lambda val: val.text)
+    """)
 
     active_drag = Either(Null, Auto, String, Instance(Drag), default="auto", help="""
     Which drag tool should initially be active.
