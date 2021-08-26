@@ -4,18 +4,18 @@ import {display} from "./_util"
 
 import {
   LinearAxis, LogAxis, CategoricalAxis, LinearScale, LogScale, CategoricalScale, Range1d, FactorRange,
-  Plot, AllLabels, NoOverlap, TeX,
+  Plot, AllLabels, NoOverlap, TeX, Ascii, MathML,
 } from "@bokehjs/models"
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 import {MathTextView, NoProvider, MathJaxProvider} from "@bokehjs/models/text/math_text"
 import {Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
 import {wait} from "@bokehjs/core/util/defer"
-import {tex2svg} from "@bokehjs/models/text/mathjax"
+import {tex2svg, mathml2svg} from "@bokehjs/models/text/mathjax"
 
 export class InternalProvider extends MathJaxProvider {
   get MathJax() {
-    return this.status == "loaded" ? {tex2svg} : null
+    return this.status == "loaded" ? {tex2svg, mathml2svg} : null
   }
   async fetch() {
     this.status = "loaded"
@@ -24,7 +24,7 @@ export class InternalProvider extends MathJaxProvider {
 
 export class DelayedInternalProvider extends MathJaxProvider {
   get MathJax() {
-    return this.status == "loaded" ? {tex2svg} : null
+    return this.status == "loaded" ? {tex2svg, mathml2svg} : null
   }
 
   async fetch() {
@@ -155,11 +155,74 @@ export class DelayedInternalProvider extends MathJaxProvider {
       await plot({minor_tick_out: 10})
     })
 
+    const tex = "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"
+
+    const ascii = "x = (-b +- sqrt(b^2 - 4ac)) / (2a)"
+
+    const mathml = `
+    <math>
+        <mrow>
+            <mi>x</mi>
+            <mo>=</mo>
+            <mfrac>
+                <mrow>
+                <mrow>
+                    <mo>-</mo>
+                    <mi>b</mi>
+                </mrow>
+                <mo>&#xB1;<!--PLUS-MINUS SIGN--></mo>
+                <msqrt>
+                    <mrow>
+                    <msup>
+                        <mi>b</mi>
+                        <mn>2</mn>
+                    </msup>
+                    <mo>-</mo>
+                    <mrow>
+                        <mn>4</mn>
+                        <mo>&#x2062;</mo>
+                        <mi>a</mi>
+                        <mo>&#x2062;</mo>
+                        <mi>c</mi>
+                    </mrow>
+                    </mrow>
+                </msqrt>
+                </mrow>
+                <mrow>
+                <mn>2</mn>
+                <mo>&#x2062;<!--INVISIBLE TIMES--></mo>
+                <mi>a</mi>
+                </mrow>
+            </mfrac>
+        </mrow>
+    </math>
+    `
+
     it("should support LaTeX notation on axis_label with MathText", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
-        await plot({axis_label: new TeX({text: "\\sin(x)"})}, {minor_size: 100})
+        await plot({axis_label: new TeX({text: tex})}, {minor_size: 100})
+      } finally {
+        stub.restore()
+      }
+    })
+
+    it("should support Ascii notation on axis_label with MathText", async () => {
+      const stub = sinon.stub(MathTextView.prototype, "provider")
+      stub.value(new InternalProvider())
+      try {
+        await plot({axis_label: new Ascii({text: ascii})}, {minor_size: 100})
+      } finally {
+        stub.restore()
+      }
+    })
+
+    it("should support MathML notation on axis_label with MathText", async () => {
+      const stub = sinon.stub(MathTextView.prototype, "provider")
+      stub.value(new InternalProvider())
+      try {
+        await plot({axis_label: new MathML({text: mathml})}, {minor_size: 100})
       } finally {
         stub.restore()
       }
@@ -169,7 +232,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new DelayedInternalProvider())
       try {
-        await plot({axis_label: new TeX({text: "\\sin(x)"})}, {minor_size: 100})
+        await plot({axis_label: new TeX({text: tex})}, {minor_size: 100})
       } finally {
         stub.restore()
       }
@@ -179,7 +242,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new NoProvider())
       try {
-        await plot({axis_label: new TeX({text: "\\sin(x)"})}, {minor_size: 100})
+        await plot({axis_label: new TeX({text: tex})}, {minor_size: 100})
       } finally {
         stub.restore()
       }

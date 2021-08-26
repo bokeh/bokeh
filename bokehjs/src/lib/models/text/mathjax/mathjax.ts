@@ -38,9 +38,3 @@ export function tex2svg(formula: string): HTMLElement {
 export function mathml2svg(formula: string): HTMLElement {
   return mathml_to_svg.convert(formula, options)
 }
-
-export default {
-  tex2svg,
-  // ascii2svg,
-  mathml2svg,
-}
