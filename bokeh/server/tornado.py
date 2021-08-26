@@ -25,10 +25,13 @@ import os
 from pprint import pformat
 from typing import (
     TYPE_CHECKING,
+    Any,
+    Dict,
     List,
     Mapping,
     Sequence,
     Set,
+    Tuple,
 )
 from urllib.parse import urljoin
 
@@ -406,14 +409,8 @@ class BokehTornado(TornadoApplication):
 
             all_patterns.extend(app_patterns)
 
-            # add a per-app static path if requested by the application
-            if app.static_path is not None:
-                if key == "/":
-                    route = "/static/(.*)"
-                else:
-                    route = key + "/static/(.*)"
-                route = self._prefix + route
-                all_patterns.append((route, StaticFileHandler, {"path" : app.static_path}))
+            # if the app requests a custom static path, use that, otherwise add Bokeh's standard static handler
+            all_patterns.append(create_static_handler(self._prefix, key, app))
 
         for p in extra_patterns + toplevel_patterns:
             if p[1] == RootHandler:
@@ -733,6 +730,13 @@ class BokehTornado(TornadoApplication):
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def create_static_handler(prefix: str, key: str, app: Application) -> Tuple[str, StaticFileHandler|StaticHandler, Dict[str, Any]]:
+    route = prefix
+    route += "/static/(.*)" if key == "/" else key + "/static/(.*)"
+    if app.static_path is not None:
+        return (route, StaticFileHandler, {"path" : app.static_path})
+    return (route, StaticHandler, {})
 
 #-----------------------------------------------------------------------------
 # Private API

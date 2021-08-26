@@ -25,6 +25,7 @@ from subprocess import run
 
 # External imports
 from _util_server import http_get, url
+from tornado.web import StaticFileHandler
 
 # Bokeh imports
 from bokeh._testing.plugins.managed_server_loop import MSL
@@ -36,7 +37,7 @@ from bokeh.server.views.static_handler import StaticHandler
 from bokeh.server.views.ws import WSHandler
 
 # Module under test
-import bokeh.server.tornado as tornado # isort:skip
+import bokeh.server.tornado as bst # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -126,30 +127,30 @@ def test_prefix(ManagedServerLoop: MSL) -> None:
             assert server._tornado.prefix == "/foo"
 
 def test_xsrf_cookies() -> None:
-    bt = tornado.BokehTornado(applications={})
+    bt = bst.BokehTornado(applications={})
     assert not bt.settings['xsrf_cookies']
 
-    bt = tornado.BokehTornado(applications={}, xsrf_cookies=True)
+    bt = bst.BokehTornado(applications={}, xsrf_cookies=True)
     assert bt.settings['xsrf_cookies']
 
 def test_auth_provider() -> None:
-    bt = tornado.BokehTornado(applications={})
+    bt = bst.BokehTornado(applications={})
     assert isinstance(bt.auth_provider, NullAuth)
 
     class FakeAuth:
         get_user = "get_user"
         endpoints = []
-    bt = tornado.BokehTornado(applications={}, auth_provider=FakeAuth)
+    bt = bst.BokehTornado(applications={}, auth_provider=FakeAuth)
     assert bt.auth_provider is FakeAuth
 
 def test_websocket_max_message_size_bytes() -> None:
     app = Application()
-    t = tornado.BokehTornado({"/": app}, websocket_max_message_size_bytes=12345)
+    t = bst.BokehTornado({"/": app}, websocket_max_message_size_bytes=12345)
     assert t.settings['websocket_max_message_size'] == 12345
 
 def test_websocket_compression_level() -> None:
     app = Application()
-    t = tornado.BokehTornado({"/": app}, websocket_compression_level=2,
+    t = bst.BokehTornado({"/": app}, websocket_compression_level=2,
                              websocket_compression_mem_level=3)
     ws_rules = [rule for rule in t.wildcard_router.rules if issubclass(rule.target, WSHandler)]
     assert len(ws_rules) == 1
@@ -176,13 +177,13 @@ def test_websocket_origins(ManagedServerLoop, unused_tcp_port) -> None:
 
 def test_default_app_paths() -> None:
     app = Application()
-    t = tornado.BokehTornado({}, "", [])
+    t = bst.BokehTornado({}, "", [])
     assert t.app_paths == set()
 
-    t = tornado.BokehTornado({"/": app}, "", [])
+    t = bst.BokehTornado({"/": app}, "", [])
     assert t.app_paths == { "/" }
 
-    t = tornado.BokehTornado({"/": app, "/foo": app}, "", [])
+    t = bst.BokehTornado({"/": app, "/foo": app}, "", [])
     assert t.app_paths == { "/", "/foo"}
 
 # tried to use capsys to test what's actually logged and it wasn't
@@ -225,6 +226,40 @@ async def test_metadata(ManagedServerLoop: MSL) -> None:
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+class Test_create_static_handler:
+
+    def test_app_static_path(self):
+        app = Application()
+        app._static_path = "foo"
+
+        result = bst.create_static_handler("/prefix", "/key", app)
+        assert len(result) == 3
+        assert result[0] == "/prefix/key/static/(.*)"
+        assert result[1] == StaticFileHandler
+        assert result[2] == {"path" : app.static_path}
+
+        result = bst.create_static_handler("/prefix", "/", app)
+        assert len(result) == 3
+        assert result[0] == "/prefix/static/(.*)"
+        assert result[1] == StaticFileHandler
+        assert result[2] == {"path" : app.static_path}
+
+    def test_no_app_static_path(self):
+        app = Application()
+        app._static_path = None
+
+        result = bst.create_static_handler("/prefix", "/key", app)
+        assert len(result) == 3
+        assert result[0] == "/prefix/key/static/(.*)"
+        assert result[1] == StaticHandler
+        assert result[2] == {}
+
+        result = bst.create_static_handler("/prefix", "/", app)
+        assert len(result) == 3
+        assert result[0] == "/prefix/static/(.*)"
+        assert result[1] == StaticHandler
+        assert result[2] == {}
 
 #-----------------------------------------------------------------------------
 # Private API
