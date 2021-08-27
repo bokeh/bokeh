@@ -122,7 +122,7 @@ class MathString(String):
         value : a string to be converted
 
     Returns:
-        :class:`~bokeh.models.math_text.MathText`. | :class:`~bokeh.models.plain_text.PlainText`.
+        :class:`~bokeh.models.math_text.MathText` | :class:`~bokeh.models.plain_text.PlainText`
 
     """
 
