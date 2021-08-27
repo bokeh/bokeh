@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import weakref
+
 # External imports
 from mock import patch
 
@@ -42,6 +45,7 @@ from bokeh.io.doc import curdoc
 from bokeh.model import DataModel
 from bokeh.models import ColumnDataSource
 from bokeh.protocol.messages.patch_doc import process_document_events
+from bokeh.server.contexts import BokehSessionContext
 from bokeh.util.logconfig import basicConfig
 
 from _util_document import (
@@ -98,6 +102,15 @@ class TestDocument:
         d = document.Document()
         assert not d.roots
         assert d.template_variables == {}
+        assert d.session_context is None
+
+    def test_session_context(self) -> None:
+        d = document.Document()
+        assert d.session_context is None
+
+        sc = BokehSessionContext(None, None, d)
+        d._session_context = weakref.ref(sc)
+        assert d.session_context is sc
 
     def test_add_roots(self) -> None:
         d = document.Document()
