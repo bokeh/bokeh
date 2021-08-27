@@ -73,7 +73,7 @@ class Test_DocumentLifecycleHandler:
         session_context = MockSessionContext(doc)
         await handler.on_session_destroyed(session_context)
         assert session_context.status == 'Destroyed'
-        assert session_context._document.session_destroyed_callbacks == set()
+        assert set(session_context._document.session_destroyed_callbacks) == set()
 
     async def test_document_on_session_destroyed_calls_multiple(self) -> None:
         doc = Document()

@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 import asyncio
+import gc
 
 # External imports
 from tornado.ioloop import IOLoop
@@ -42,6 +43,7 @@ class TestBokehServerContext:
         ac = bsc.ApplicationContext("app", io_loop="ioloop")
         c = bsc.BokehServerContext(ac)
         assert c.application_context == ac
+        assert len(gc.get_referrers(ac)) == 0
 
     def test_sessions(self) -> None:
         ac = bsc.ApplicationContext("app", io_loop="ioloop")

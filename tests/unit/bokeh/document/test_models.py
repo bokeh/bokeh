@@ -45,7 +45,7 @@ class TestDocumentModelManager:
         assert len(dm) == 0
 
         # module manager should only hold a weak ref
-        assert len(gc.get_referrers(d)) == 1
+        assert len(gc.get_referrers(d)) == 0
 
     def test_len(self) -> None:
         d = Document()
