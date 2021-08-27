@@ -52,7 +52,7 @@ class MathText(Model):
     """
 
     def __init__(self, *args, **kwargs) -> None:
-        if len(args) == 1 and "text" not in kwargs and isinstance(args[0], str):
+        if len(args) == 1 and "text" not in kwargs:
             kwargs["text"] = args[0]
 
         super().__init__(**kwargs)
@@ -67,7 +67,7 @@ class PlainText(Model):
     '''
 
     def __init__(self, *args, **kwargs) -> None:
-        if len(args) == 1 and "text" not in kwargs and isinstance(args[0], str):
+        if len(args) == 1 and "text" not in kwargs:
             kwargs["text"] = args[0]
 
         super().__init__(**kwargs)

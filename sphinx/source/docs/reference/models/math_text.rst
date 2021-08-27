@@ -1,8 +1,8 @@
-.. _bokeh.models.math_text:
+.. _bokeh.models.text:
 
-bokeh.models.math_text
+bokeh.models.text
 ----------------------
 
-.. automodule:: bokeh.models.math_text
+.. automodule:: bokeh.models.text
    :members:
    :undoc-members:

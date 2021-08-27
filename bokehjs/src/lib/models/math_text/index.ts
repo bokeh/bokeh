@@ -1,1 +1,5 @@
-export * from "./math_text"
+export {MathText} from "./math_text"
+export {MathJaxProvider} from "./math_text"
+export {MathTextView} from "./math_text"
+export {NoProvider} from "./math_text"
+export {CDNProvider} from "./math_text"

@@ -1,1 +1,1 @@
-export * from "./plain_text"
+export {PlainText} from "./plain_text"
