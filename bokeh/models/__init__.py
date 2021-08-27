@@ -48,14 +48,13 @@ from .layouts import *
 from .map_plots import *
 from .mappers import *
 from .markers import *
-from .math_text import *
-from .plain_text import *
 from .plots import *
 from .ranges import *
 from .renderers import *
 from .scales import *
 from .selections import *
 from .sources import *
+from .text import *
 from .textures import *
 from .tickers import *
 from .tiles import *

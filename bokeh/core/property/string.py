@@ -122,22 +122,21 @@ class MathString(String):
         value : a string to be converted
 
     Returns:
-        :class:`~bokeh.models.math_text.MathText` | :class:`~bokeh.models.plain_text.PlainText`
+        :class:`~bokeh.models.text.MathText` | :class:`~bokeh.models.text.PlainText`
 
     """
 
     def transform(self, value):
+        from ...models.text import MathText, PlainText
         value = super().transform(value)
 
         if not isinstance(value, str):
             return value
 
         if len(value) >= 2 and value[0] == value[-1] == "$":
-            from ...models.math_text import MathText
 
             return MathText(text=value[1:-1])
         else:
-            from ...models.plain_text import PlainText
 
             return PlainText(value)
 

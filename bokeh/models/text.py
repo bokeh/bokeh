@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Display a mathematics notation from a string value.
+''' Text related models
 '''
 
 #-----------------------------------------------------------------------------
@@ -29,6 +29,7 @@ from ..model import Model
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'PlainText',
     'MathText',
 )
 
@@ -59,6 +60,19 @@ class MathText(Model):
     text = NonNullable(String, help="""
     The text value to render as mathematical notation.
     """)
+
+class PlainText(Model):
+    ''' Used to ignore possible string transforms.
+
+    '''
+
+    def __init__(self, *args, **kwargs) -> None:
+        if len(args) == 1 and "text" not in kwargs and isinstance(args[0], str):
+            kwargs["text"] = args[0]
+
+        super().__init__(**kwargs)
+
+    text = NonNullable(String)
 
 
 #-----------------------------------------------------------------------------

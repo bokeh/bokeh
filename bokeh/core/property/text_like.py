@@ -6,8 +6,8 @@
 #-----------------------------------------------------------------------------
 ''' TextLike is a shortcut for properties that accepts strings that can be interpreted to models.
     e.g.:
-    :class:`~bokeh.models.math_text.MathText`.
-    :class:`~bokeh.models.plain_text.PlainText`.
+    :class:`~bokeh.models.text.MathText`
+    :class:`~bokeh.models.text.PlainText`
 
 '''
 
@@ -40,7 +40,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-TextLike = Either(MathString, Instance("bokeh.models.math_text.MathText"), Instance("bokeh.models.plain_text.PlainText"))
+TextLike = Either(MathString, Instance("bokeh.models.text.MathText"), Instance("bokeh.models.text.PlainText"))
 
 #-----------------------------------------------------------------------------
 # Dev API
