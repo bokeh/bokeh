@@ -124,7 +124,7 @@ class Axis(GuideRenderer):
     of ticks.
     """)
 
-    axis_label = Nullable(TextLike, default="", help="""
+    axis_label = Nullable(TextLike, help="""
     A text or LaTeX notation label for the axis, displayed parallel to the axis rule.
     """)
 
