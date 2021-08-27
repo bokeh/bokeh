@@ -4,12 +4,12 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" TextLike is a shortcut for properties that accepts strings that can be interpreted to models.
+''' TextLike is a shortcut for properties that accepts strings that can be interpreted to models.
     e.g.:
     :class:`~bokeh.models.math_text.MathText`.
     :class:`~bokeh.models.plain_text.PlainText`.
 
-"""
+'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
