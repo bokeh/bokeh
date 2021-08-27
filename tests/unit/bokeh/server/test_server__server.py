@@ -372,8 +372,8 @@ def test__lifecycle_hooks(ManagedServerLoop: MSL) -> None:
         assert len(server_doc.roots) == 1
 
         # save for later, since doc.roots will be emptied after the session is closed
-        client_hook_list = client_doc.roots[0]
-        server_hook_list = server_doc.roots[0]
+        client_hook_list = list(client_doc.roots[0].hooks)
+        server_hook_list = list(server_doc.roots[0].hooks)
 
         client_session.close()
 
@@ -404,8 +404,8 @@ def test__lifecycle_hooks(ManagedServerLoop: MSL) -> None:
     assert server_doc.title == "Modified"
 
     # only the handler sees "session_destroyed" since the session is shut down at that point.
-    assert client_hook_list.hooks == ["session_created", "modify"]
-    assert server_hook_list.hooks == ["session_created", "modify"]
+    assert client_hook_list == ["session_created", "modify"]
+    assert server_hook_list == ["session_created", "modify"]
 
 async def test__request_in_session_context(ManagedServerLoop: MSL) -> None:
     application = Application()

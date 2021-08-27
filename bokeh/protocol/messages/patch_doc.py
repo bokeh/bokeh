@@ -29,6 +29,7 @@ from typing import (
 
 # Bokeh imports
 from ...core.json_encoder import serialize_json
+from ...document.callbacks import invoke_with_curdoc
 from ...document.json import PatchJson
 from ...document.util import references_json
 from ..message import Message
@@ -95,7 +96,7 @@ class patch_doc(Message[PatchJson]):
         if len(docs) != 1:
             raise ValueError("PATCH-DOC message configured with events for more than one document")
 
-        # this roundtrip is fortunate, but is needed because there are type conversions
+        # this roundtrip is unfortunate, but is needed because there are type conversions
         # in BokehJSONEncoder which keep us from easily generating non-string JSON
         patch_json, buffers = process_document_events(events, use_buffers)
         content = loads(patch_json)
@@ -111,7 +112,7 @@ class patch_doc(Message[PatchJson]):
         '''
 
         '''
-        doc._with_self_as_curdoc(lambda: doc.apply_json_patch(self.content, setter))
+        invoke_with_curdoc(doc, lambda: doc.apply_json_patch(self.content, setter))
 
 def process_document_events(events: List[DocumentPatchedEvent], use_buffers: bool = True) -> Tuple[str, List[BufferRef]]:
     ''' Create a JSON string describing a patch to be applied as well as

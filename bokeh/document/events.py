@@ -295,10 +295,9 @@ class MessageSentEvent(DocumentPatchedEvent):
 
     @staticmethod
     def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        message_callbacks = doc._message_callbacks.get(event_json["msg_type"], None)
-        if message_callbacks is not None:
-            for cb in message_callbacks:
-                cb(event_json["msg_data"])
+        message_callbacks = doc.callbacks._message_callbacks.get(event_json["msg_type"], [])
+        for cb in message_callbacks:
+            cb(event_json["msg_data"])
 
 class ModelChangedEvent(DocumentPatchedEvent):
     ''' A concrete event representing updating an attribute and value of a
