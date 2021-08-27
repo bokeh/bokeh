@@ -210,6 +210,10 @@ class DocumentCallbackManager:
             raise ValueError(f"Unknown hold policy {policy}")
         self._hold = policy
 
+    @property
+    def hold_value(self) -> HoldPolicyType | None:
+        return self._hold
+
     def notify_change(self, model: Model, attr: str, old: Unknown, new: Unknown,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None) -> None:
         ''' Called by Model when it changes
