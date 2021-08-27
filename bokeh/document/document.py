@@ -152,6 +152,20 @@ class Document:
 
     # Properties --------------------------------------------------------------
 
+    # XXX temporary due to Panel's use of private API
+    @property
+    def _hold(self) -> Any:
+        return self.callbacks.hold_value
+    @_hold.setter
+    def _hold(self, value: Any) -> None:
+        self.callbacks._hold = value
+    @property
+    def _held_events(self) -> List[Any]:
+        return self.callbacks._held_events
+    @_held_events.setter
+    def _held_events(self, value: List[Any]) -> None:
+        self.callbacks._held_events = value
+
     @property
     def roots(self) -> List[Model]:
         ''' A list of all the root models in this Document.
