@@ -134,7 +134,7 @@ class Document:
     _theme: Theme
     _title: str
     _template: Template
-    _session_context: SessionContext | None
+    _session_context: weakref.ReferenceType[SessionContext] | None
     _template_variables: Dict[str, Unknown]
 
     def __init__(self, *, theme: Theme = default_theme, title: str = DEFAULT_TITLE) -> None:
@@ -148,7 +148,7 @@ class Document:
         self._theme = theme
         self._title = title # avoid triggering title event
 
-        self._session_context: weakref.ReferenceType[SessionContext] | None
+        self._session_context = None
 
     # Properties --------------------------------------------------------------
 

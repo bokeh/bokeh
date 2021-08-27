@@ -122,11 +122,11 @@ class TestDocumentCallbackManager:
     def test_hold(self, policy: HoldPolicyType) -> None:
         d = Document()
         cm = bdc.DocumentCallbackManager(d)
-        assert cm._hold == None
+        assert cm.hold_value == None
         assert cm._held_events == []
 
         cm.hold(policy)
-        assert cm._hold == policy
+        assert cm.hold_value == policy
 
     def test_hold_bad_policy(self) -> None:
         d = Document()
@@ -310,13 +310,13 @@ class TestDocumentCallbackManager:
     def test_unhold(self, policy: HoldPolicyType) -> None:
         d = Document()
         cm = bdc.DocumentCallbackManager(d)
-        assert cm._hold == None
+        assert cm.hold_value == None
         assert cm._held_events == []
 
         cm.hold(policy)
-        assert cm._hold == policy
+        assert cm.hold_value == policy
         cm.unhold()
-        assert cm._hold == None
+        assert cm.hold_value == None
 
     @patch("bokeh.document.callbacks.DocumentCallbackManager.trigger_on_change")
     def test_unhold_triggers_events(self, mock_trigger: MagicMock) -> None:
