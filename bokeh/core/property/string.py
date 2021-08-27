@@ -128,9 +128,11 @@ class MathString(String):
 
     def transform(self, value):
         value = super().transform(value)
-        print(value)
 
-        if isinstance(value, str) and len(value) >= 2 and value[0] == value[-1] == "$":
+        if not isinstance(value, str):
+            return value
+
+        if len(value) >= 2 and value[0] == value[-1] == "$":
             from ...models.math_text import MathText
 
             return MathText(text=value[1:-1])
