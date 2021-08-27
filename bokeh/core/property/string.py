@@ -116,29 +116,27 @@ class Base64String(String):
 
 class MathString(String):
     """ transforms a string that starts and ends with $ in MathText model,
-    if no $ is found returns PlainText.
+    otherwise returns string.
 
     Args:
         value : a string to be converted
 
     Returns:
-        :class:`~bokeh.models.text.MathText` | :class:`~bokeh.models.text.PlainText`
+        :class:`~bokeh.models.text.MathText` | string
 
     """
 
     def transform(self, value):
-        from ...models.text import MathText, PlainText
+        from ...models.text import MathText
         value = super().transform(value)
 
         if not isinstance(value, str):
             return value
 
         if len(value) >= 2 and value[0] == value[-1] == "$":
-
             return MathText(text=value[1:-1])
-        else:
 
-            return PlainText(value)
+        return value
 
 #-----------------------------------------------------------------------------
 # Dev API
