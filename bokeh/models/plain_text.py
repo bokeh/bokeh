@@ -38,9 +38,9 @@ __all__ = (
 
 
 class PlainText(Model):
-    """
-    Used to ignore possible string convertions
-    """
+    ''' Used to ignore possible string conventions.
+    
+    '''
 
     def __init__(self, *args, **kwargs) -> None:
         if len(args) == 1 and "text" not in kwargs and isinstance(args[0], str):
