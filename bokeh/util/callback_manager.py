@@ -114,16 +114,9 @@ class EventCallbackManager:
                     else:
                         cast(EventCallbackWithEvent, callback)(event)
 
-        # TODO: here we might mirror the property callbacks and have something
-        # like Document._notify_event which creates an *internal* Bokeh event
-        # (for the user event, confusing!) that then dispatches in the document
-        # and applies curdoc wrapper there. However, most of that machinery is
-        # to support the bi-directionality of property changes. Currently (user)
-        # events only run from client to server. Would like to see if some of the
-        # internal eventing can be reduced or simplified in general before
-        # plugging more into it. For now, just handle the curdoc bits here.
         if self.document is not None:
-            self.document._with_self_as_curdoc(invoke)
+            from ..model import Model
+            self.document.callbacks.notify_event(cast(Model, self), event, invoke)
         else:
             invoke()
 
@@ -133,8 +126,7 @@ class EventCallbackManager:
 
         for key in self._event_callbacks:
             from ..model import Model
-            self.document._subscribed_models[key].add(cast(Model, self))
-
+            self.document.callbacks.subscribe(key, cast(Model, self))
 
 class PropertyCallbackManager:
     ''' A mixin class to provide an interface for registering and
@@ -199,7 +191,7 @@ class PropertyCallbackManager:
                     callback(attr, old, new)
         if self.document is not None:
             from ..model import Model
-            self.document._notify_change(cast(Model, self), attr, old, new, hint, setter, invoke)
+            self.document.callbacks.notify_change(cast(Model, self), attr, old, new, hint, setter, invoke)
         else:
             invoke()
 

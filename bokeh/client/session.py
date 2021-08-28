@@ -505,7 +505,7 @@ class ClientSession:
 
     def _attach_document(self, document: Document) -> None:
         self._document = document
-        self._document.on_change_dispatch_to(self)
+        self._document.callbacks.on_change_dispatch_to(self)
 
         self._callbacks.add_session_callbacks(self._document.session_callbacks)
 
