@@ -56,7 +56,7 @@ export class SaveTool extends ActionTool {
   }
 
   override tool_name = "Save"
-  override icon = tool_icon_save
+  override tool_icon = tool_icon_save
 
   override get menu(): MenuItem[] | null {
     return [

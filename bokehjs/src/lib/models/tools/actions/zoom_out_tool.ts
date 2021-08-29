@@ -38,5 +38,5 @@ export class ZoomOutTool extends ZoomBaseTool {
 
   override sign = -1 as -1
   override tool_name = "Zoom Out"
-  override icon = tool_icon_zoom_out
+  override tool_icon = tool_icon_zoom_out
 }

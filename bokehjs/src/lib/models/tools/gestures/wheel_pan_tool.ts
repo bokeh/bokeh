@@ -103,7 +103,7 @@ export class WheelPanTool extends GestureTool {
   }
 
   override tool_name = "Wheel Pan"
-  override icon = tool_icon_wheel_pan
+  override tool_icon = tool_icon_wheel_pan
   override event_type = "scroll" as "scroll"
   override default_order = 12
 

@@ -43,5 +43,5 @@ export class HelpTool extends ActionTool {
   }
 
   override tool_name = "Help"
-  override icon = tool_icon_help
+  override tool_icon = tool_icon_help
 }

@@ -186,6 +186,16 @@ export namespace Kinds {
     }
   }
 
+  export class Regex extends String {
+    constructor(readonly regex: RegExp) {
+      super()
+    }
+
+    override valid(value: unknown): value is string {
+      return super.valid(value) && this.regex.test(value)
+    }
+  }
+
   export class Enum<T extends string | number> extends Kind<T> {
     readonly values: Set<T>
 
@@ -263,6 +273,7 @@ export const Boolean = new Kinds.Boolean()
 export const Number = new Kinds.Number()
 export const Int = new Kinds.Int()
 export const String = new Kinds.String()
+export const Regex = (regex: RegExp) => new Kinds.Regex(regex)
 export const Null = new Kinds.Null()
 export const Nullable = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Nullable(base_type)
 export const Opt = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Opt(base_type)

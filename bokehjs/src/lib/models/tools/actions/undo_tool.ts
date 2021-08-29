@@ -46,5 +46,5 @@ export class UndoTool extends ActionTool {
   }
 
   override tool_name = "Undo"
-  override icon = tool_icon_undo
+  override tool_icon = tool_icon_undo
 }

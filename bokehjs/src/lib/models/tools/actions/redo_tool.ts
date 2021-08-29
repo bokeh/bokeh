@@ -46,5 +46,5 @@ export class RedoTool extends ActionTool {
   }
 
   override tool_name = "Redo"
-  override icon = tool_icon_redo
+  override tool_icon = tool_icon_redo
 }
