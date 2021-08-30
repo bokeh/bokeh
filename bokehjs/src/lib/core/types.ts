@@ -1,6 +1,3 @@
-import {MathText} from "models/math_text"
-import {PlainText} from "models/plain_text"
-
 export const GeneratorFunction: GeneratorFunctionConstructor = Object.getPrototypeOf(function*() {}).constructor
 
 export type uint8  = number
@@ -107,5 +104,3 @@ export type Interval = {
 
 export {BitSet as Indices} from "./util/bitset"
 export type {RaggedArray} from "./util/ragged_array"
-
-export type TextLike = MathText | PlainText | string

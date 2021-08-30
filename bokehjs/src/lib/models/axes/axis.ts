@@ -9,15 +9,15 @@ import * as p from "core/properties"
 import {SerializableState} from "core/view"
 import {Side, TickLabelOrientation} from "core/enums"
 import {Size, Layoutable} from "core/layout"
-import {Indices, TextLike} from "core/types"
+import {Indices} from "core/types"
 import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
-import {MathText, MathTextView} from "models/math_text"
-import {PlainText} from "models/plain_text"
+import {MathText, MathTextView} from "models/text/math_text"
+import {PlainText} from "models/text/plain_text"
 import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
 import {isString} from "core/util/types"
@@ -624,11 +624,11 @@ export namespace Axis {
     bounds: p.Property<[number, number] | "auto">
     ticker: p.Property<Ticker>
     formatter: p.Property<TickFormatter>
-    axis_label: p.Property<TextLike | null>
+    axis_label: p.Property<MathText | PlainText | string | null>
     axis_label_standoff: p.Property<number>
     major_label_standoff: p.Property<number>
     major_label_orientation: p.Property<TickLabelOrientation | number>
-    major_label_overrides: p.Property<{[key: string]: TextLike}>
+    major_label_overrides: p.Property<{[key: string]: MathText | PlainText | string}>
     major_label_policy: p.Property<LabelingPolicy>
     major_tick_in: p.Property<number>
     major_tick_out: p.Property<number>
