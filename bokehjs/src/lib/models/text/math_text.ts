@@ -83,7 +83,7 @@ export class BundleProvider extends MathJaxProvider  {
 const default_provider: MathJaxProvider = new BundleProvider()
 
 /**
- * Helper class to rendering MathText into Canvas
+ * Helper class for rendering MathText into Canvas
  */
 export class MathTextView extends View implements GraphicsBox {
   override model: MathText
