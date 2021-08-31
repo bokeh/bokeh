@@ -3,7 +3,7 @@ colormapping of nested categorical factors.
 
 .. bokeh-example-metadata::
     :apis: :func:`~bokeh.plotting.Figure.vbar`, :func:`~bokeh.transform.factor_cmap`
-    :refs: :ref:`userguide_categorical_bars_filled_colors`
+    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_filled` > :ref:`userguide_categorical_bars_filled_colors` # noqa: E501
     :keywords: bar, colormap, vbar
 
 '''

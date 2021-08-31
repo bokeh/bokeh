@@ -82,10 +82,11 @@ class BokehExampleMetadataDirective(BokehDirective):
             raise SphinxError(f"bokeh-example-metadata unknown options given: {extra}.")
 
         rst_text = EXAMPLE_METADATA.render(
-            sampledata=self.options.get('sampledata', None),
-            apis=self.options.get('apis', None),
-            refs=self.options.get('refs', None),
-            keywords=self.options.get('keywords', None)
+            # options lines might need a flake8 noqa comment for line length
+            sampledata=self.options.get("sampledata", "").split("#")[0],
+            apis=self.options.get("apis", "").split("#")[0],
+            refs=self.options.get("refs", "").split("#")[0],
+            keywords=self.options.get("keywords", "").split("#")[0],
         )
 
         return self.parse(rst_text, "<bokeh-example-metadata>")
@@ -98,7 +99,6 @@ def setup(app):
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
-
 
 # -----------------------------------------------------------------------------
 # Code

@@ -3,7 +3,7 @@
 .. bokeh-example-metadata::
     :sampledata: :ref:`sampledata_sprint`
     :apis: :func:`~bokeh.plotting.Figure.hbar`
-    :refs: :ref:`userguide_categorical_bars_intervals`
+    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_intervals`
     :keywords: bar, hbar
 
 '''
