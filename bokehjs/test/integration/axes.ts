@@ -7,11 +7,12 @@ import {
   Plot, AllLabels, NoOverlap, TeX, Ascii, MathML,
 } from "@bokehjs/models"
 import {Factor} from "@bokehjs/models/ranges/factor_range"
-import {MathTextView, NoProvider, MathJaxProvider} from "@bokehjs/models/text/math_text"
 import {Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
-import {wait} from "@bokehjs/core/util/defer"
+import {MathTextView} from "@bokehjs/models/text/math_text"
+import {NoProvider, MathJaxProvider} from "@bokehjs/models/text/providers"
 import {tex2svg, mathml2svg} from "@bokehjs/models/text/mathjax"
+import {wait} from "@bokehjs/core/util/defer"
 
 export class InternalProvider extends MathJaxProvider {
   get MathJax() {
