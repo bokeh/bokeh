@@ -26,10 +26,12 @@ from bokeh.models import (
     BoxZoomTool,
     Circle,
     ColumnDataSource,
+    FixedTicker,
     LassoSelectTool,
     Legend,
     LinearAxis,
     LogScale,
+    MathText,
     PanTool,
     ResetTool,
     Scatter,
@@ -114,6 +116,25 @@ class TestFigure:
 
         p.below.append(LinearAxis())
         assert set(p.yaxis) == expected
+
+    def test_mathtext_axis(self) -> None:
+        p = bpf.figure()
+
+        p.xaxis.axis_label = "Resistance"
+        p.yaxis.axis_label = "$Current at 1 V$"
+        assert isinstance(p.yaxis.axis_label, MathText)
+
+        p.xaxis.ticker = FixedTicker(ticks=[1,2,3,4])
+        p.xaxis.major_label_overrides = {
+            1: r"$1\Omega$",
+            2: r"$2\Omega$",
+            3: r"$3\Omega$",
+            4: r"$4\Omega$",
+        }
+        assert isinstance(p.xaxis.major_label_overrides[1], MathText)
+        assert isinstance(p.xaxis.major_label_overrides[2], MathText)
+        assert isinstance(p.xaxis.major_label_overrides[3], MathText)
+        assert isinstance(p.xaxis.major_label_overrides[4], MathText)
 
     def test_axis(self) -> None:
         p = bpf.figure()

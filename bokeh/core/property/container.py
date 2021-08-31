@@ -186,8 +186,13 @@ class Dict(ContainerProperty):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
+        if isinstance(value, dict):
+          for key, val in value.items():
+            value[key] = self.values_type.transform(val)
+
         key_is_valid = self.keys_type.is_valid
         value_is_valid = self.values_type.is_valid
+
         if isinstance(value, dict) and all(key_is_valid(key) and value_is_valid(val) for key, val in value.items()):
             return
 
