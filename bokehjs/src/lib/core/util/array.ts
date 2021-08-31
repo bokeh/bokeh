@@ -15,11 +15,11 @@ export function head<T>(array: T[]): T {
   return array[0]
 }
 
-export function tail<T>(array: T[]): T {
+export function tail<T>(array: ArrayLike<T>): T {
   return array[array.length-1]
 }
 
-export function last<T>(array: T[]): T {
+export function last<T>(array: ArrayLike<T>): T {
   return array[array.length-1]
 }
 

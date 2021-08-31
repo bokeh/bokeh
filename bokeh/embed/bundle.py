@@ -413,7 +413,7 @@ def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
     Returns:
         bool
     '''
-    from ..models.math_text import MathText
+    from ..models.text import MathText
     return _any(objs, lambda obj: isinstance(obj, MathText))
 
 def _use_gl(objs: Sequence[Model | Document]) -> bool:

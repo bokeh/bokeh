@@ -50,7 +50,7 @@ export const lib = {
     output: join(build_dir.js, "bokeh-tables.js"),
   },
   mathjax: {
-    main: join(build_dir.lib, "models/math_text/mathjax/main.js"),
+    main: join(build_dir.lib, "models/text/mathjax/main.js"),
     output: join(build_dir.js, "bokeh-mathjax.js"),
   },
 }
@@ -77,7 +77,7 @@ export const lib_legacy = {
     output: join(build_dir.js, "bokeh-tables.legacy.js"),
   },
   mathjax: {
-    main: join(build_dir.lib, "models/math_text/mathjax/main.js"),
+    main: join(build_dir.lib, "models/text/mathjax/main.js"),
     output: join(build_dir.js, "bokeh-mathjax.legacy.js"),
   },
 }

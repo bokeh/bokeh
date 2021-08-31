@@ -34,13 +34,13 @@ from ..core.properties import (
     Nullable,
     Seq,
     String,
+    TextLike,
     Tuple,
 )
 from ..models import (
     ColumnDataSource,
     CoordinateMapping,
     GraphRenderer,
-    MathText,
     Plot,
     Range,
     Scale,
@@ -700,11 +700,11 @@ class BaseFigureOptions(Options):
     Where the y-axis should be located.
     """)
 
-    x_axis_label = Nullable(Either(String, Instance(MathText)), default="", help="""
+    x_axis_label = Nullable(TextLike, default="", help="""
     A label for the x-axis.
     """)
 
-    y_axis_label = Nullable(Either(String, Instance(MathText)), default="", help="""
+    y_axis_label = Nullable(TextLike, default="", help="""
     A label for the y-axis.
     """)
 
