@@ -32,9 +32,11 @@ from threading import Thread
 import requests
 
 # Bokeh imports
-import bokeh.command.subcommands.serve as scserve
 from bokeh.command.subcommand import Argument
 from bokeh.resources import DEFAULT_SERVER_PORT
+
+# Module under test
+import bokeh.command.subcommands.serve as bcss  # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -48,27 +50,39 @@ from bokeh.resources import DEFAULT_SERVER_PORT
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_create() -> None:
-    import argparse
+class TestServe:
+    def test_create(self) -> None:
+        from bokeh.command.subcommand import Subcommand
+        obj = bcss.Serve(parser=argparse.ArgumentParser())
+        assert isinstance(obj, Subcommand)
 
-    from bokeh.command.subcommand import Subcommand
+    def test_default_customize_applications_is_identity(self):
+        obj = bcss.Serve(parser=argparse.ArgumentParser())
+        apps = {}
+        result = obj.customize_applications(argparse.Namespace(), apps)
+        assert result == apps
+        assert result is not apps
 
-    obj = scserve.Serve(parser=argparse.ArgumentParser())
-    assert isinstance(obj, Subcommand)
+    def test_default_customize_kwargs_is_identity(self):
+        obj = bcss.Serve(parser=argparse.ArgumentParser())
+        kws = {}
+        result = obj.customize_kwargs(argparse.Namespace(), kws)
+        assert result == kws
+        assert result is not kws
 
 def test_loglevels() -> None:
-    assert scserve.LOGLEVELS == ('trace', 'debug', 'info', 'warning', 'error', 'critical')
+    assert bcss.LOGLEVELS == ('trace', 'debug', 'info', 'warning', 'error', 'critical')
 
 def test_name() -> None:
-    assert scserve.Serve.name == "serve"
+    assert bcss.Serve.name == "serve"
 
 def test_help() -> None:
-    assert scserve.Serve.help == "Run a Bokeh server hosting one or more applications"
+    assert bcss.Serve.help == "Run a Bokeh server hosting one or more applications"
 
 def test_args() -> None:
     from bokeh.util.string import nice_join
 
-    assert scserve.Serve.args == (
+    assert bcss.Serve.args == (
         ('--port', Argument(
             metavar = 'PORT',
             type    = int,
@@ -87,15 +101,15 @@ def test_args() -> None:
             metavar = 'LOG-LEVEL',
             action  = 'store',
             default = None,
-            choices = scserve.LOGLEVELS + ("None", ),
-            help    = "One of: %s" % nice_join(scserve.LOGLEVELS),
+            choices = bcss.LOGLEVELS + ("None", ),
+            help    = f"One of: {nice_join(bcss.LOGLEVELS)}",
         )),
 
         ('--log-format', Argument(
             metavar ='LOG-FORMAT',
             action  = 'store',
-            default = scserve.DEFAULT_LOG_FORMAT,
-            help    = "A standard Python logging format string (default: %r)" % scserve.DEFAULT_LOG_FORMAT.replace("%", "%%"),
+            default = bcss.DEFAULT_LOG_FORMAT,
+            help    = f"A standard Python logging format string (default: {bcss.DEFAULT_LOG_FORMAT!r})".replace("%", "%%"),
         )),
 
         ('--log-file', Argument(
@@ -223,8 +237,8 @@ def test_args() -> None:
             metavar = 'MODE',
             action  = 'store',
             default = None,
-            choices = scserve.SESSION_ID_MODES,
-            help    = "One of: %s" % nice_join(scserve.SESSION_ID_MODES),
+            choices = bcss.SESSION_ID_MODES,
+            help    = f"One of: {nice_join(bcss.SESSION_ID_MODES)}",
         )),
 
         ('--auth-module', Argument(
@@ -379,13 +393,13 @@ def check_error(args):
         assert e.returncode == 1
         out = e.output.decode()
     else:
-        pytest.fail("command %s unexpected successful" % (cmd,))
+        pytest.fail(f"command {cmd} unexpected successful")
     return out
 
 def test_host_not_available() -> None:
     host = "8.8.8.8"
     out = check_error(["--address", host])
-    expected = "Cannot start Bokeh server, address %r not available" % host
+    expected = f"Cannot start Bokeh server, address {host!r} not available"
     assert expected in out
 
 def test_port_not_available() -> None:
@@ -394,7 +408,7 @@ def test_port_not_available() -> None:
         sock.bind(('0.0.0.0', 0))
         port = sock.getsockname()[1]
         out = check_error(["--port", str(port)])
-        expected = "Cannot start Bokeh server, port %d is already in use" % port
+        expected = f"Cannot start Bokeh server, port {port} is already in use"
         assert expected in out
     finally:
         sock.close()
@@ -469,7 +483,7 @@ def test_glob_flag_on_filename_if_wildcard_in_quotes() -> None:
             pytest.fail("no matching log line in process output")
         port = int(m.group(1))
         assert port > 0
-        r = requests.get("http://localhost:%d/apply_theme" % (port,))
+        r = requests.get(f"http://localhost:{port}/apply_theme")
         assert r.status_code == 200
 
 def test_actual_port_printed_out() -> None:
@@ -489,7 +503,7 @@ def test_actual_port_printed_out() -> None:
             pytest.fail("no matching log line in process output")
         port = int(m.group(1))
         assert port > 0
-        r = requests.get("http://localhost:%d/" % (port,))
+        r = requests.get(f"http://localhost:{port}/")
         assert r.status_code == 200
 
 def test_websocket_max_message_size_printed_out() -> None:
