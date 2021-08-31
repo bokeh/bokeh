@@ -26,7 +26,6 @@ from bokeh.models import (
     BoxZoomTool,
     Circle,
     ColumnDataSource,
-    FixedTicker,
     LassoSelectTool,
     Legend,
     LinearAxis,
@@ -124,7 +123,7 @@ class TestFigure:
         p.yaxis.axis_label = "$Current at 1 V$"
         assert isinstance(p.yaxis.axis_label, MathText)
 
-        p.xaxis.ticker = FixedTicker(ticks=[1,2,3,4])
+        p.xaxis.ticker = [1,2,3,4]
         p.xaxis.major_label_overrides = {
             1: r"$1\Omega$",
             2: r"$2\Omega$",
