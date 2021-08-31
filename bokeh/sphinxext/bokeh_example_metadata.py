@@ -73,18 +73,19 @@ class BokehExampleMetadataDirective(BokehDirective):
     }
 
     def run(self):
-        defined_key = False
-        for key in self.option_spec:
-            if key in self.options:
-                defined_key = True
-        if not defined_key:
-            raise SphinxError("No fields have been defined for example metadata.")
+        present = self.option_spec.keys() & self.options.keys()
+        if not present:
+            raise SphinxError("bokeh-example-metadata requires at least one option to be present.")
+
+        extra = self.options.keys() - self.option_spec.keys()
+        if extra:
+            raise SphinxError(f"bokeh-example-metadata unknown options given: {extra}.")
 
         rst_text = EXAMPLE_METADATA.render(
-            sampledata=self.options['sampledata'],
-            apis=self.options['apis'],
-            refs=self.options['refs'],
-            keywords=self.options['keywords']
+            sampledata=self.options.get('sampledata', None),
+            apis=self.options.get('apis', None),
+            refs=self.options.get('refs', None),
+            keywords=self.options.get('keywords', None)
         )
 
         return self.parse(rst_text, "<bokeh-example-metadata>")
