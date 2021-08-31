@@ -187,8 +187,8 @@ class Dict(ContainerProperty):
         super().validate(value, detail)
 
         if isinstance(value, dict):
-          for key, val in value.items():
-            value[key] = self.values_type.transform(val)
+            for key, val in value.items():
+                value[key] = self.values_type.transform(val)
 
         key_is_valid = self.keys_type.is_valid
         value_is_valid = self.values_type.is_valid
