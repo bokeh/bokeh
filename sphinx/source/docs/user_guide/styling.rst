@@ -1119,37 +1119,34 @@ LaTeX notations for more elements is planned for future releases.
 
 Bokeh uses the MathJax_ library to handle LaTeX markup. To use LaTeX markup
 instead of plain text, put your LaTeX code in a raw string literal that begins
-and ends with `$`. For example: `r"$\sin(x)$"`.
+and ends with ``$``. For example: ``r"$\sin(x)$"``.
 
 LaTeX and axis labels
     To use LaTeX notation as an axis label, pass a raw string literal with
     LaTeX notation to the :class:`~bokeh.models.axes.Axis.axis_label` property
-    of an axis or axes. For example:
+    of an axis. For example:
 
     .. bokeh-plot:: docs/user_guide/examples/styling_math_text_axis_labels.py
         :source-position: above
 
 LaTeX and tick labels
     To add LaTeX notations to your tick labels, use the
-    :func:`~bokeh.models.axes.Axis.major_label_overrides` function with an
-    axis or axes.
+    :func:`~bokeh.models.axes.Axis.major_label_overrides` function with an axis.
 
     This function is used to replace values for existing tick labels with custom
     text. It accepts a dictionary with the tick label's original value as the
     key and your custom value as the dict's value.
 
-    Use this function to replace any standard text tick labels with LaTeX
-    notation:
+    Use this function to replace any plain text tick labels with LaTeX notation:
 
     .. bokeh-plot:: docs/user_guide/examples/styling_math_text_tick_labels.py
         :source-position: above
 
 .. note::
-    When you pass a raw string literal that begins and ends with `$` to a
-    compatible element, Bokeh creates a :class:`~bokeh.models.text.MathText`
-    object and assigns your string to the object's `text` property. See
-    :class:`~bokeh.models.text.MathText` in the |reference guide| for more
-    information.
+    When you pass a raw string literal that begins and ends with ``$``, Bokeh
+    creates a :class:`~bokeh.models.text.MathText` object and passes your string
+    to the object's ``text`` property. See :class:`~bokeh.models.text.MathText`
+    in the |reference guide| for more information.
 
 .. _LaTeX: https://www.latex-project.org/
 .. _MathJax: https://www.mathjax.org
