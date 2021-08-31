@@ -8,6 +8,13 @@ bokeh.sampledata
 
 ----
 
+.. _sampledata_antibiotics:
+
+antibiotics
+-----------
+
+.. automodule:: bokeh.sampledata.antibiotics
+
 .. _sampledata_airport_routes:
 
 airport_routes

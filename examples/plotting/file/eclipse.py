@@ -1,4 +1,17 @@
-# Based on https://www.reddit.com/r/dataisbeautiful/comments/6qnkg0/google_search_interest_follows_the_path_of_the/
+''' A map plot using `Google search interest data` to follow the path of an
+eclipse across the United States demonatrates using a ``LinearColorMapper``
+and a color bar.
+
+.. bokeh-example-metadata::
+    :sampledata: :ref:`sampledata_us_states`
+    :apis: :func:`~bokeh.plotting.Figure.patches`, :class:`~bokeh.models.sources.ColumnDataSource`, :class:`~bokeh.models.mappers.LinearColorMapper`, :class:`~bokeh.models.annotations.ColorBar` # noqa: E501
+    :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_color_bars`
+    :keywords: colorbar, label, map, patches
+
+.. _Google search interest data: https://www.reddit.com/r/dataisbeautiful/comments/6qnkg0/google_search_interest_follows_the_path_of_the/
+
+'''
+from os.path import dirname, join, realpath
 
 import pandas as pd
 import shapefile as shp
@@ -8,17 +21,19 @@ from bokeh.palettes import YlOrRd5
 from bokeh.plotting import figure, show
 from bokeh.sampledata.us_states import data
 
+ROOT = dirname(realpath(__file__))
+
 states = pd.DataFrame.from_dict(data, orient="index")
 states.drop(["AK", "HI"], inplace=True)
 
-trends = pd.read_csv("eclipse_data/trends.csv")
+trends = pd.read_csv(join(ROOT, "eclipse_data/trends.csv"))
 
 states.set_index("name", inplace=True)
 trends.set_index("Region", inplace=True)
 
 states["trend"] = trends["solar eclipse"]
 
-upath17 = shp.Reader("eclipse_data/upath17")
+upath17 = shp.Reader(join(ROOT, "eclipse_data/upath17"))
 (totality_path,) = upath17.shapes()
 
 p = figure(width=1000, height=600, background_fill_color="#333344",

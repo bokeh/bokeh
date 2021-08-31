@@ -1,30 +1,25 @@
-from io import StringIO
+''' A reproduction of `Will Burtin's historical visualization`_ of antibiotic
+efficacies.
+
+.. note::
+    This chart is reproduced as a demonstration of Bokeh's versatile graphics
+    capabilities, but there are better, simpler ways to present this data.
+
+.. bokeh-example-metadata::
+    :sampledata: :ref:`sampledata_antibiotics`
+    :apis: :func:`~bokeh.plotting.Figure.annular_wedge`, :func:`~bokeh.plotting.Figure.circle`, :func:`~bokeh.plotting.Figure.text`
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_wedges_arcs`, :ref:`userguide_styling` > :ref:`userguide_styling_visual_properties`
+    :keywords: text, wedges
+
+.. _Will Burtin's historical visualization: https://mbostock.github.io/protovis/ex/antibiotics-burtin.html
+
+'''
 from math import log, sqrt
 
 import numpy as np
-import pandas as pd
 
-from bokeh.plotting import figure, output_file, show
-
-antibiotics = """
-bacteria,                        penicillin, streptomycin, neomycin, gram
-Mycobacterium tuberculosis,      800,        5,            2,        negative
-Salmonella schottmuelleri,       10,         0.8,          0.09,     negative
-Proteus vulgaris,                3,          0.1,          0.1,      negative
-Klebsiella pneumoniae,           850,        1.2,          1,        negative
-Brucella abortus,                1,          2,            0.02,     negative
-Pseudomonas aeruginosa,          850,        2,            0.4,      negative
-Escherichia coli,                100,        0.4,          0.1,      negative
-Salmonella (Eberthella) typhosa, 1,          0.4,          0.008,    negative
-Aerobacter aerogenes,            870,        1,            1.6,      negative
-Brucella antracis,               0.001,      0.01,         0.007,    positive
-Streptococcus fecalis,           1,          1,            0.1,      positive
-Staphylococcus aureus,           0.03,       0.03,         0.001,    positive
-Staphylococcus albus,            0.007,      0.1,          0.001,    positive
-Streptococcus hemolyticus,       0.001,      14,           10,       positive
-Streptococcus viridans,          0.005,      10,           40,       positive
-Diplococcus pneumoniae,          0.005,      11,           10,       positive
-"""
+from bokeh.plotting import figure, show
+from bokeh.sampledata.antibiotics import data as df
 
 drug_color = dict([
     ("Penicillin",   "#0d3362"),
@@ -36,11 +31,6 @@ gram_color = dict([
     ("negative", "#e69584"),
     ("positive", "#aeaeb8"),
 ])
-
-df = pd.read_csv(StringIO(antibiotics),
-                 skiprows=1,
-                 skipinitialspace=True,
-                 engine='python')
 
 width = 800
 height = 800
@@ -113,7 +103,5 @@ p.rect([-40, -40, -40], [18, 0, -18], width=30, height=13,
        color=list(drug_color.values()))
 p.text([-15, -15, -15], [18, 0, -18], text=list(drug_color),
        text_font_size="12px", text_align="left", text_baseline="middle")
-
-output_file("burtin.html", title="burtin.py example")
 
 show(p)

@@ -46,6 +46,7 @@
         { "path": "examples/plotting/file/stacked_area.py",                    "name": "stacked_area"                   },
         { "path": "examples/plotting/file/elements.py",                        "name": "elements"                       },
         { "path": "examples/plotting/file/boxplot.py",                         "name": "boxplot"                        },
-        { "path": "examples/plotting/file/logplot.py",                         "name": "logaxis"                        }
+        { "path": "examples/plotting/file/logplot.py",                         "name": "logaxis"                        },
+        { "path": "examples/plotting/file/eclipse.py",                         "name": "eclipse"                        }
     ]
 }
