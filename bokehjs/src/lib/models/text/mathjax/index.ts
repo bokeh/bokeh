@@ -10,15 +10,7 @@ import {AllPackages} from "mathjax-full/js/input/tex/AllPackages.js"
 const adaptor = browserAdaptor()
 RegisterHTMLHandler(adaptor)
 
-const tex = new TeX({packages: AllPackages})
-// const ascii = new AsciiMath({})
-const mathml = new MathML({})
-
 const svg = new SVG({fontCache: "local"})
-
-const tex_to_svg = mathjax.document("", {InputJax: tex, OutputJax: svg})
-// const ascii_to_svg = mathjax.document("", {InputJax: ascii, OutputJax: svg})
-const mathml_to_svg = mathjax.document("", {InputJax: mathml, OutputJax: svg})
 
 const options = {
   display: true,
@@ -27,15 +19,24 @@ const options = {
   containerWidth: 80*16,
 }
 
-export function tex2svg(formula: string): HTMLElement {
+type TeXMacros = {[key: string]: string | [string, number]}
+
+export function tex2svg(formula: string, macros: TeXMacros = {}): HTMLElement {
+  const tex = new TeX({packages: AllPackages, macros})
+  const tex_to_svg = mathjax.document("", {InputJax: tex, OutputJax: svg})
   return tex_to_svg.convert(formula, options)
 }
 
 export function ascii2svg(_formula: string): HTMLElement {
-  // TODO: return ascii_to_svg.convert(formula, options)
+  // TODO:
+  // const ascii = new AsciiMath({})
+  // const ascii_to_svg = mathjax.document("", {InputJax: ascii, OutputJax: svg})
+  // return ascii_to_svg.convert(formula, options)
   throw new Error("not implemented")
 }
 
 export function mathml2svg(formula: string): HTMLElement {
+  const mathml = new MathML({})
+  const mathml_to_svg = mathjax.document("", {InputJax: mathml, OutputJax: svg})
   return mathml_to_svg.convert(formula, options)
 }

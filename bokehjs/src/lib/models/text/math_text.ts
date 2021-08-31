@@ -413,13 +413,17 @@ export class TeXView extends MathTextView {
   override model: TeX
 
   protected _process_text(text: string): HTMLElement | undefined {
-    return this.provider.MathJax?.tex2svg(text)
+    // TODO: allow plot/document level configuration of macros
+    return this.provider.MathJax?.tex2svg(text, this.model.macros)
   }
 }
 
 export namespace TeX {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = MathText.Props
+
+  export type Props = MathText.Props & {
+    macros: p.Property<{[key: string]: string | [string, number]}>
+  }
 }
 
 export interface TeX extends TeX.Attrs {}
@@ -434,5 +438,9 @@ export class TeX extends MathText {
 
   static {
     this.prototype.default_view = TeXView
+
+    this.define<TeX.Props>(({Number, String, Dict, Tuple, Or}) => ({
+      macros: [ Dict(Or(String, Tuple(String, Number))), {} ],
+    }))
   }
 }

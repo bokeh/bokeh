@@ -21,7 +21,14 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import NonNullable, String
+from ..core.properties import (
+    Dict,
+    Either,
+    Int,
+    NonNullable,
+    String,
+    Tuple,
+)
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -85,6 +92,21 @@ class TeX(MathText):
         can see more about differences between standard TeX/LaTeX and MathJax
         here: https://docs.mathjax.org/en/latest/input/tex/differences.html
     """
+
+    macros = Dict(String, Either(String, Tuple(String, Int)), help="""
+    User defined TeX macros.
+
+    This is a mapping from control sequence names (without leading backslash) to
+    either replacement strings or tuples of a replacement string and a number
+    of arguments.
+
+    Example:
+
+    .. code-block:: python
+
+        TeX(text=r"\\R \\rightarrow \\R^2", macros={"RR": r"{\\bf R}"})
+
+    """)
 
 class PlainText(BaseText):
     """
