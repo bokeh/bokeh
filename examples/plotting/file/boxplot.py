@@ -1,7 +1,18 @@
+''' A `Box Plot`_ demonstrates combining multiple basic glyphs to create a
+more complicated chart.
+
+.. bokeh-example-metadata::
+    :apis: :func:`~bokeh.plotting.Figure.vbar`, :func:`~bokeh.plotting.Figure.rect`, :func:`~bokeh.plotting.Figure.segment`
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_segments_rays`, :ref:`userguide_plotting_bars_rects`
+    :keywords: bars, boxplot, categorical, pandas
+
+.. _Box Plot: https://en.wikipedia.org/wiki/Box_plot
+
+'''
 import numpy as np
 import pandas as pd
 
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 # generate some synthetic time series for six different categories
 cats = list("abcdef")
@@ -59,7 +70,5 @@ p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = "white"
 p.grid.grid_line_width = 2
 p.xaxis.major_label_text_font_size="16px"
-
-output_file("boxplot.html", title="boxplot.py example")
 
 show(p)

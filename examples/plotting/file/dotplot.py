@@ -1,3 +1,11 @@
+''' A categorical dot plot based on simple Python lists of data.
+
+.. bokeh-example-metadata::
+    :apis: :func:`~bokeh.plotting.Figure.circle`, :func:`~bokeh.plotting.Figure.segment`
+    :refs: :ref:`userguide_categorical`
+    :keywords: circle, dotplot, segments
+
+'''
 from bokeh.plotting import figure, show
 
 factors = ["a", "b", "c", "d", "e", "f", "g", "h"]

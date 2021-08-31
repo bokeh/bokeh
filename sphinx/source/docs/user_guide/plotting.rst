@@ -142,12 +142,12 @@ and |hline_stack| convenience methods.
 .. bokeh-plot:: docs/user_guide/examples/plotting_vline_stack.py
     :source-position: above
 
-.. _userguide_plotting_bars_rects:
-
 .. note::
-    These and other convenience methods in this chapter rely on
-    ``ColumnDataSource`` for data structuring. For information on how to work
-    with this data structure, see :ref:`userguide_data`.
+    This and other examples in this chapter rely on ```ColumnDataSource`` for
+    data structuring. For information on how to work with this data structure,
+    see :ref:`userguide_data`.
+
+.. _userguide_plotting_bars_rects:
 
 Bars and rectangles
 ~~~~~~~~~~~~~~~~~~~
