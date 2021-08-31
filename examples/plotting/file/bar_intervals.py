@@ -1,9 +1,15 @@
-from bokeh.io import output_file, show
-from bokeh.models import ColumnDataSource
-from bokeh.plotting import figure
-from bokeh.sampledata.sprint import sprint
+''' An interval chart showing Olympic sprint time data as intervals.
 
-output_file("bar_intervals.html")
+.. bokeh-example-metadata::
+    :sampledata: :ref:`sampledata_sprint`
+    :apis: :func:`~bokeh.plotting.Figure.hbar`
+    :refs: :ref:`userguide_categorical_bars_intervals`
+    :keywords: bar, hbar
+
+'''
+from bokeh.models import ColumnDataSource
+from bokeh.plotting import figure, show
+from bokeh.sampledata.sprint import sprint
 
 sprint.Year = sprint.Year.astype(str)
 group = sprint.groupby('Year')

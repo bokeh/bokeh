@@ -1,11 +1,10 @@
-''' A categorical bar chart illustrating the use of `factor_cmap <factor_cmap>`_ to associate colors from a palette
-with categories.
+''' A bar chart based on simple Python lists of data demonstrates automatic
+colormapping.
 
-.. rubric:: Details
-
-:Bokeh APIs: :func:`~bokeh.plotting.Figure.vbar`, :func:`~bokeh.transform.factor_cmap`
-:More info: :ref:`userguide_categorical_bars`
-:Keywords: bar, vbar, legend, factor_cmap, palette
+.. bokeh-example-metadata::
+    :apis: :func:`~bokeh.plotting.Figure.vbar`, :func:`~bokeh.transform.factor_cmap`
+    :refs: :ref:`userguide_categorical_bars_filled_colors`
+    :keywords: bar, colormap, legend, palette, vbar
 
 '''
 from bokeh.io import show
