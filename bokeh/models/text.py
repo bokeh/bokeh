@@ -41,9 +41,9 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class MathText(Model):
+class BaseText(Model):
     """
-    Base class for renderers of mathematical content.
+    Base class for renderers of text content of various kinds.
     """
 
     def __init__(self, *args, **kwargs) -> None:
@@ -53,8 +53,14 @@ class MathText(Model):
         super().__init__(**kwargs)
 
     text = NonNullable(String, help="""
-    The text value to render as mathematical notation.
+    The text value to render.
     """)
+
+@abstract
+class MathText(BaseText):
+    """
+    Base class for renderers of mathematical content.
+    """
 
 class Ascii(MathText):
     """
@@ -80,18 +86,10 @@ class TeX(MathText):
         here: https://docs.mathjax.org/en/latest/input/tex/differences.html
     """
 
-class PlainText(Model):
-    ''' Used to ignore possible string transforms.
-
-    '''
-
-    def __init__(self, *args, **kwargs) -> None:
-        if len(args) == 1 and "text" not in kwargs:
-            kwargs["text"] = args[0]
-
-        super().__init__(**kwargs)
-
-    text = NonNullable(String)
+class PlainText(BaseText):
+    """
+    Represents plain text in contexts where text parsing is allowed.
+    """
 
 #-----------------------------------------------------------------------------
 # Dev API

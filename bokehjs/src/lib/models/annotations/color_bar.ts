@@ -12,8 +12,7 @@ import {ContinuousColorMapper} from "../mappers/continuous_color_mapper"
 import {LinearColorMapper, LogColorMapper, ScanningColorMapper, CategoricalColorMapper} from "../mappers"
 import {Scale, LinearScale, LogScale, LinearInterpolationScale, CategoricalScale} from "../scales"
 import {Range, Range1d, FactorRange} from "../ranges"
-import {PlainText} from "../text/plain_text"
-import {MathText} from "../text/math_text"
+import {BaseText} from "../text/base_text"
 
 import {Anchor, Orientation} from "core/enums"
 import * as visuals from "core/visuals"
@@ -598,7 +597,7 @@ export namespace ColorBar {
     scale_alpha: p.Property<number>
     ticker: p.Property<Ticker | "auto">
     formatter: p.Property<TickFormatter | "auto">
-    major_label_overrides: p.Property<{[key: string]: MathText | PlainText | string}>
+    major_label_overrides: p.Property<{[key: string]: string | BaseText}>
     major_label_policy: p.Property<LabelingPolicy>
     color_mapper: p.Property<ColorMapper>
     label_standoff: p.Property<number>
@@ -663,7 +662,7 @@ export class ColorBar extends Annotation {
       scale_alpha:           [ Alpha, 1.0 ],
       ticker:                [ Or(Ref(Ticker), Auto), "auto" ],
       formatter:             [ Or(Ref(TickFormatter), Auto), "auto" ],
-      major_label_overrides: [ Dict(Or(String, Ref(PlainText), Ref(MathText))), {} ],
+      major_label_overrides: [ Dict(Or(String, Ref(BaseText))), {} ],
       major_label_policy:    [ Ref(LabelingPolicy), () => new NoOverlap() ],
       color_mapper:          [ Ref(ColorMapper) ],
       label_standoff:        [ Number, 5 ],

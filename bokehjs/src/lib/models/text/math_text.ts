@@ -5,7 +5,6 @@ import {isNumber} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {load_image} from "core/util/image"
 import {CanvasImage} from "models/glyphs/image_url"
-import {Model} from "../../model"
 import {color2css} from "core/util/color"
 import {Size} from "core/types"
 import {View} from "core/view"
@@ -15,6 +14,7 @@ import {font_metrics, parse_css_font_size} from "core/util/text"
 import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
 import {load_module} from "core/util/modules"
+import {BaseText} from "./base_text"
 
 type MathJaxStatus = "not_started" | "loaded" | "loading" | "failed"
 
@@ -402,25 +402,19 @@ export abstract class MathTextView extends View implements GraphicsBox {
 export namespace MathText {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {
+  export type Props = BaseText.Props & {
     text: p.Property<string>
   }
 }
 
 export interface MathText extends MathText.Attrs {}
 
-export class MathText extends Model {
+export class MathText extends BaseText {
   override properties: MathText.Props
   override __view_type__: MathTextView
 
   constructor(attrs?: Partial<MathText.Attrs>) {
     super(attrs)
-  }
-
-  static {
-    this.define<MathText.Props>(({String}) => ({
-      text: [ String ],
-    }))
   }
 }
 
