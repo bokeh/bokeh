@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Display a mathematics notation from a string value.
+''' Text related models
 '''
 
 #-----------------------------------------------------------------------------
@@ -20,7 +20,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.properties import NonNullable, String
+from ..core.property.nullable import NonNullable
+from ..core.property.primitive import String
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -28,6 +29,7 @@ from ..model import Model
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'PlainText',
     'MathText',
 )
 
@@ -49,9 +51,29 @@ class MathText(Model):
         here: https://docs.mathjax.org/en/latest/input/tex/differences.html
     """
 
+    def __init__(self, *args, **kwargs) -> None:
+        if len(args) == 1 and "text" not in kwargs:
+            kwargs["text"] = args[0]
+
+        super().__init__(**kwargs)
+
     text = NonNullable(String, help="""
     The text value to render as mathematical notation.
     """)
+
+class PlainText(Model):
+    ''' Used to ignore possible string transforms.
+
+    '''
+
+    def __init__(self, *args, **kwargs) -> None:
+        if len(args) == 1 and "text" not in kwargs:
+            kwargs["text"] = args[0]
+
+        super().__init__(**kwargs)
+
+    text = NonNullable(String)
+
 
 #-----------------------------------------------------------------------------
 # Dev API
