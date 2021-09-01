@@ -14,6 +14,8 @@ export type ImageURLData = XYGlyphData & {
   readonly angle: p.Uniform<number>
   readonly w: p.Uniform<number>
   readonly h: p.Uniform<number>
+  readonly global_alpha: p.Uniform<number>
+
   _bounds_rect: Rect
 
   sw: ScreenArray
@@ -168,7 +170,7 @@ export class ImageURLView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: ImageURLData): void {
-    const {image, sx, sy, sw, sh, angle} = data ?? this
+    const {image, sx, sy, sw, sh, angle, global_alpha} = data ?? this
 
     // TODO (bev): take actual border width into account when clipping
     const {frame} = this.renderer.plot_view
@@ -182,7 +184,7 @@ export class ImageURLView extends XYGlyphView {
     let finished = true
 
     for (const i of indices) {
-      if (!isFinite(sx[i] + sy[i] + angle.get(i)))
+      if (!isFinite(sx[i] + sy[i] + angle.get(i) + global_alpha.get(i)))
         continue
 
       const img = image[i]
@@ -192,7 +194,7 @@ export class ImageURLView extends XYGlyphView {
         continue
       }
 
-      this._render_image(ctx, i, img, sx, sy, sw, sh, angle)
+      this._render_image(ctx, i, img, sx, sy, sw, sh, angle, global_alpha)
     }
 
     if (finished && !this._images_rendered) {
@@ -223,7 +225,7 @@ export class ImageURLView extends XYGlyphView {
   protected _render_image(ctx: Context2d, i: number, image: CanvasImage,
                           sx: Arrayable<number>, sy: Arrayable<number>,
                           sw: Arrayable<number>, sh: Arrayable<number>,
-                          angle: p.Uniform<number>): void {
+                          angle: p.Uniform<number>, alpha: p.Uniform<number>): void {
     if (!isFinite(sw[i])) sw[i] = image.width
     if (!isFinite(sh[i])) sh[i] = image.height
 
@@ -234,9 +236,10 @@ export class ImageURLView extends XYGlyphView {
     const [sx_i, sy_i] = this._final_sx_sy(anchor, sx[i], sy[i], sw_i, sh_i)
 
     const angle_i = angle.get(i)
+    const alpha_i = alpha.get(i)
 
     ctx.save()
-    ctx.globalAlpha = this.model.global_alpha
+    ctx.globalAlpha = alpha_i
     const sw2 = sw_i/2
     const sh2 = sh_i/2
 
@@ -272,7 +275,7 @@ export namespace ImageURL {
   export type Props = XYGlyph.Props & {
     url: p.StringSpec
     anchor: p.Property<Anchor>
-    global_alpha: p.Property<number>
+    global_alpha: p.NumberSpec
     angle: p.AngleSpec
     w: p.NullDistanceSpec
     h: p.NullDistanceSpec
@@ -297,10 +300,10 @@ export class ImageURL extends XYGlyph {
   static {
     this.prototype.default_view = ImageURLView
 
-    this.define<ImageURL.Props>(({Boolean, Int, Alpha}) => ({
+    this.define<ImageURL.Props>(({Boolean, Int}) => ({
       url:            [ p.StringSpec, {field: "url"} ],
       anchor:         [ Anchor, "top_left" ],
-      global_alpha:   [ Alpha, 1.0 ],
+      global_alpha:   [ p.NumberSpec, {value: 1.0} ],
       angle:          [ p.AngleSpec, 0 ],
       w:              [ p.NullDistanceSpec, null ],
       h:              [ p.NullDistanceSpec, null ],
