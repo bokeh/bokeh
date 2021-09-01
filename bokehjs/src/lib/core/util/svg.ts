@@ -1143,11 +1143,14 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       const svg_node = image instanceof SVGSVGElement ? image : image.get_svg()
       const svg = svg_node.cloneNode(true) as SVGElement
       let scope: SVGElement
-      if (transform.is_identity)
+      if (transform.is_identity && this.globalAlpha == 1.0)
         scope = parent
       else {
         scope = this.__createElement("g")
-        this._apply_transform(scope, transform)
+        if (!transform.is_identity)
+          this._apply_transform(scope, transform)
+        if (this.globalAlpha != 1.0)
+          scope.setAttribute("opacity", `${this.globalAlpha}`)
         parent.appendChild(scope)
       }
       for (const child of [...svg.childNodes]) {
@@ -1168,6 +1171,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       svgImage.setAttribute("width", `${dw}`)
       svgImage.setAttribute("height", `${dh}`)
       svgImage.setAttribute("preserveAspectRatio", "none")
+      if (this.globalAlpha != 1.0) {
+        svgImage.setAttribute("opacity", `${this.globalAlpha}`)
+      }
 
       if (sx || sy || sw !== image.width || sh !== image.height) {
         // crop the image using a temporary canvas
@@ -1187,6 +1193,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       svgImage.setAttribute("width", `${dw}`)
       svgImage.setAttribute("height", `${dh}`)
       svgImage.setAttribute("preserveAspectRatio", "none")
+      if (this.globalAlpha != 1.0) {
+        svgImage.setAttribute("opacity", `${this.globalAlpha}`)
+      }
 
       // draw canvas onto temporary canvas so that smoothing can be handled
       const canvas = this.__document.createElement("canvas")

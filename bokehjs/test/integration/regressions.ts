@@ -33,6 +33,7 @@ import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
 import {defer} from "@bokehjs/core/util/defer"
+import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, MarkerArgs, show} from "@bokehjs/api/plotting"
 import {Spectral11, turbo} from "@bokehjs/api/palettes"
 import {div, offset} from "@bokehjs/core/dom"
@@ -1271,6 +1272,92 @@ describe("Bug", () => {
 
       p1.renderers = [osm]
       await view.child_views[1].ready
+    })
+  })
+
+  describe("in issue #11548", () => {
+    const global_alpha = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
+
+    const x = [0, 11, 22, 0, 11, 22, 0, 11, 22]
+    const y = [0, 0, 0, 11, 11, 11, 22, 22, 22]
+
+    it("doesn't allow vectorized global alpha in Image glyph", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const image = (() => {
+          const N = 100
+          const x = linspace(0, 10, N)
+          const y = linspace(0, 10, N)
+          const d = new Float64Array(N*N)
+          const {sin, cos} = Math
+          for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+              d[i*N + j] = sin(x[i])*cos(y[j])
+            }
+          }
+          return ndarray(d, {shape: [N, N]})
+        })()
+
+        const color_mapper = new LinearColorMapper({palette: Spectral11})
+
+        const p = fig([200, 200], {output_backend, title: output_backend})
+        p.image({image: {value: image}, x, y, dw: 10, dh: 10, global_alpha, color_mapper})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]))
+    })
+
+    it("doesn't allow vectorized global alpha in ImageRGBA glyph", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const image = (() => {
+          const N = 20
+          const d = new Uint32Array(N*N) // TODO: doesn't allow Uint8Array[N, N, 4]
+          const dv = new DataView(d.buffer)
+
+          const {trunc} = Math
+          for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+              const r = trunc(i/N*255)
+              const g = 158
+              const b = trunc(j/N*255)
+              const a = 255
+              dv.setUint32(4*(i*N + j), encode_rgba([r, g, b, a]))
+            }
+          }
+          return ndarray(d, {shape: [N, N]})
+        })()
+
+        const p = fig([200, 200], {output_backend, title: output_backend})
+        p.image_rgba({image: {value: image}, x, y, dw: 10, dh: 10, global_alpha})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]))
+    })
+
+    it("doesn't allow vectorized global alpha in ImageURL glyph", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const image = svg_image(`\
+<svg version="1.1" viewBox="0 0 2 2" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="1" cy="1" r="1" fill="blue" />
+</svg>
+`)
+
+        const p = fig([200, 200], {output_backend, title: output_backend})
+        p.image_url({url: {value: image}, x, y, w: 10, h: 10, global_alpha, anchor: "bottom_left"})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]))
     })
   })
 })
