@@ -44,8 +44,47 @@ import {PlotView} from "@bokehjs/models/plots/plot"
 
 const n_marker_types = [...MarkerType].length
 
-function svg_image(svg: string): string {
+function svg_data_url(svg: string): string {
   return `data:image/svg+xml;utf-8,${svg}`
+}
+
+function scalar_image(N: number = 100) {
+  const x = linspace(0, 10, N)
+  const y = linspace(0, 10, N)
+  const d = new Float64Array(N*N)
+  const {sin, cos} = Math
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      d[i*N + j] = sin(x[i])*cos(y[j])
+    }
+  }
+  return ndarray(d, {shape: [N, N]})
+}
+
+function rgba_image() {
+  const N = 20
+  const d = new Uint32Array(N*N) // TODO: doesn't allow Uint8Array[N, N, 4]
+  const dv = new DataView(d.buffer)
+
+  const {trunc} = Math
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      const r = trunc(i/N*255)
+      const g = 158
+      const b = trunc(j/N*255)
+      const a = 255
+      dv.setUint32(4*(i*N + j), encode_rgba([r, g, b, a]))
+    }
+  }
+  return ndarray(d, {shape: [N, N]})
+}
+
+function svg_image() {
+  return svg_data_url(`\
+<svg version="1.1" viewBox="0 0 2 2" xmlns="http://www.w3.org/2000/svg">
+<circle cx="1" cy="1" r="1" fill="blue" />
+</svg>
+`)
 }
 
 describe("Bug", () => {
@@ -88,12 +127,11 @@ describe("Bug", () => {
     it.allowing(8)("disallows ImageURL glyph to set anchor and angle at the same time", async () => {
       const p = fig([300, 300], {x_range: [-1, 10], y_range: [-1, 10]})
 
-      const svg = `\
+      const img = svg_data_url(`\
 <svg version="1.1" viewBox="0 0 2 2" xmlns="http://www.w3.org/2000/svg">
   <path d="M 0,0 2,0 1,2 Z" fill="green" />
 </svg>
-`
-      const img = svg_image(svg)
+`)
 
       let y = 0
       const w = 1, h = 1
@@ -409,18 +447,7 @@ describe("Bug", () => {
   describe("in issue #10725", () => {
     it("renders image glyphs in wrong orientation using SVG backend", async () => {
       function make_plot(output_backend: OutputBackend) {
-        const N = 500
-        const x = linspace(0, 10, N)
-        const y = linspace(0, 10, N)
-        const d = new Float64Array(N*N)
-        const {sin, cos} = Math
-        for (let i = 0; i < N; i++) {
-          for (let j = 0; j < N; j++) {
-            d[i*N + j] = sin(x[i])*cos(y[j])
-          }
-        }
-
-        const image = ndarray(d, {shape: [N, N]})
+        const image = scalar_image(500)
         const color_mapper = new LinearColorMapper({palette: Spectral11})
 
         const p = fig([200, 200], {output_backend})
@@ -447,13 +474,7 @@ describe("Bug", () => {
 
   describe("in issue #10369", () => {
     it("disallows ImageURL glyph to compute correct bounds with different anchors", async () => {
-      const svg = `\
-<svg version="1.1" viewBox="0 0 2 2" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="1" cy="1" r="1" fill="blue" />
-</svg>
-`
-      const img = svg_image(svg)
-
+      const img = svg_image()
       const plots = []
       for (const anchor of [...Anchor].slice(0, 9)) {
         const x_range = new DataRange1d()
@@ -1283,24 +1304,10 @@ describe("Bug", () => {
 
     it("doesn't allow vectorized global alpha in Image glyph", async () => {
       function make_plot(output_backend: OutputBackend) {
-        const image = (() => {
-          const N = 100
-          const x = linspace(0, 10, N)
-          const y = linspace(0, 10, N)
-          const d = new Float64Array(N*N)
-          const {sin, cos} = Math
-          for (let i = 0; i < N; i++) {
-            for (let j = 0; j < N; j++) {
-              d[i*N + j] = sin(x[i])*cos(y[j])
-            }
-          }
-          return ndarray(d, {shape: [N, N]})
-        })()
-
         const color_mapper = new LinearColorMapper({palette: Spectral11})
 
         const p = fig([200, 200], {output_backend, title: output_backend})
-        p.image({image: {value: image}, x, y, dw: 10, dh: 10, global_alpha, color_mapper})
+        p.image({image: {value: scalar_image()}, x, y, dw: 10, dh: 10, global_alpha, color_mapper})
         return p
       }
 
@@ -1312,26 +1319,8 @@ describe("Bug", () => {
 
     it("doesn't allow vectorized global alpha in ImageRGBA glyph", async () => {
       function make_plot(output_backend: OutputBackend) {
-        const image = (() => {
-          const N = 20
-          const d = new Uint32Array(N*N) // TODO: doesn't allow Uint8Array[N, N, 4]
-          const dv = new DataView(d.buffer)
-
-          const {trunc} = Math
-          for (let i = 0; i < N; i++) {
-            for (let j = 0; j < N; j++) {
-              const r = trunc(i/N*255)
-              const g = 158
-              const b = trunc(j/N*255)
-              const a = 255
-              dv.setUint32(4*(i*N + j), encode_rgba([r, g, b, a]))
-            }
-          }
-          return ndarray(d, {shape: [N, N]})
-        })()
-
         const p = fig([200, 200], {output_backend, title: output_backend})
-        p.image_rgba({image: {value: image}, x, y, dw: 10, dh: 10, global_alpha})
+        p.image_rgba({image: {value: rgba_image()}, x, y, dw: 10, dh: 10, global_alpha})
         return p
       }
 
@@ -1343,14 +1332,8 @@ describe("Bug", () => {
 
     it("doesn't allow vectorized global alpha in ImageURL glyph", async () => {
       function make_plot(output_backend: OutputBackend) {
-        const image = svg_image(`\
-<svg version="1.1" viewBox="0 0 2 2" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="1" cy="1" r="1" fill="blue" />
-</svg>
-`)
-
         const p = fig([200, 200], {output_backend, title: output_backend})
-        p.image_url({url: {value: image}, x, y, w: 10, h: 10, global_alpha, anchor: "bottom_left"})
+        p.image_url({url: {value: svg_image()}, x, y, w: 10, h: 10, global_alpha, anchor: "bottom_left"})
         return p
       }
 
@@ -1358,6 +1341,24 @@ describe("Bug", () => {
       const p1 = make_plot("svg")
 
       await display(row([p0, p1]))
+    })
+  })
+
+  describe("in issue #11551", () => {
+    it("doesn't allow SVG backend to respect clip paths when painting images", async () => {
+      const color_mapper = new LinearColorMapper({palette: Spectral11})
+
+      const x_range: [number, number] = [0, 10]
+      const y_range: [number, number] = [0, 10]
+
+      const p0 = fig([100, 100], {output_backend: "svg", x_range, y_range})
+      p0.image({image: {value: scalar_image()}, x: -2, y: -2, dw: 10, dh: 10, color_mapper})
+      const p1 = fig([100, 100], {output_backend: "svg", x_range, y_range})
+      p1.image_rgba({image: {value: rgba_image()}, x: -2, y: -2, dw: 10, dh: 10})
+      const p2 = fig([100, 100], {output_backend: "svg", x_range, y_range})
+      p2.image_url({url: {value: svg_image()}, x: -2, y: -2, w: 10, h: 10, anchor: "bottom_left"})
+
+      await display(row([p0, p1, p2]))
     })
   })
 })
