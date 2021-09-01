@@ -1284,7 +1284,7 @@ describe("Bug", () => {
     it("doesn't allow vectorized global alpha in Image glyph", async () => {
       function make_plot(output_backend: OutputBackend) {
         const image = (() => {
-          const N = 500
+          const N = 100
           const x = linspace(0, 10, N)
           const y = linspace(0, 10, N)
           const d = new Float64Array(N*N)
