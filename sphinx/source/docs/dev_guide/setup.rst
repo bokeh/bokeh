@@ -168,7 +168,13 @@ To install them, just run:
 
     .. code-block:: sh
 
-        python scripts/install-hooks.py
+        python scripts/hooks/install.py
+
+In case you want to uninstall the Git hooks, you can run:
+
+    .. code-block:: sh
+
+        python scripts/hooks/uninstall.py
 
 .. _devguide_suggested_git_aliases:
 
