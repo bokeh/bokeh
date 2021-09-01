@@ -1,10 +1,18 @@
+'''  A categorical heatmap using unemployment data demonstrates adding a
+``ColorBar`` to a plot.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.rect, bokeh.models.annotations.ColorBar
+    :refs: :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_color_bars`
+    :keywords: categorical, colorbar, heatmap, hover, tooltip
+
+'''
 from math import pi
 
 import pandas as pd
 
-from bokeh.io import show
 from bokeh.models import BasicTicker, ColorBar, LinearColorMapper, PrintfTickFormatter
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.sampledata.unemployment1948 import data
 
 data['Year'] = data['Year'].astype(str)
@@ -48,4 +56,4 @@ color_bar = ColorBar(color_mapper=mapper, major_label_text_font_size="7px",
                      label_standoff=6, border_line_color=None)
 p.add_layout(color_bar, 'right')
 
-show(p)      # show the plot
+show(p)

@@ -1,6 +1,13 @@
+''' A plot demonstrates rendering images from bare RGBA array data.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.image_rgba
+    :refs: :ref:`userguide_plotting`, :ref:`userguide_plotting_images`
+    :keywords: image, rgba
+'''
 import numpy as np
 
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 N = 20
 img = np.empty((N,N), dtype=np.uint32)
@@ -18,6 +25,4 @@ p.x_range.range_padding = p.y_range.range_padding = 0
 # must give a vector of images
 p.image_rgba(image=[img], x=0, y=0, dw=10, dh=10)
 
-output_file("image_rgba.html", title="image_rgba.py example")
-
-show(p)  # open a browser
+show(p)
