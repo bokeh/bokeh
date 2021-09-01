@@ -3,7 +3,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.rect, bokeh.models.annotations.ColorBar
-    :refs: :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_color_bars`
+    :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_color_bars`
     :keywords: categorical, colorbar, heatmap, hover, tooltip
 
 '''

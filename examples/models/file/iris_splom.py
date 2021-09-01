@@ -1,3 +1,20 @@
+''' A scatter plot matrix (SPLOT) chart using `Fisher's Iris dataset`_
+illustrates sharing ranged between plots to acheive linked panning.
+
+.. note::
+    This example is maintained for historical compatibility. Please consider
+    `alternatives to Iris`_.
+
+.. bokeh-example-metadata::
+    :sampledata: iris
+    :apis: bokeh.models.glyphs.Circle, bokeh.models.sources.ColumnDataSource, bokeh.models.plots.Plot, bokeh.models.axes.LinearAxis, bokeh.models.plots.Plot, bokeh.models.ranges.DataRange1d # noqa: E501
+    :refs: :ref:`userguide_interaction_linked` > :ref:`userguide_interaction_linked_panning`
+    :keywords: models, scatter, splom
+
+.. _Fisher's Iris dataset: https://en.wikipedia.org/wiki/Iris_flower_data_set
+.. _alternatives to Iris: https://www.meganstodel.com/posts/no-to-iris/
+
+'''
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.layouts import gridplot

@@ -2,8 +2,9 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.image_rgba
-    :refs: :ref:`userguide_plotting`, :ref:`userguide_plotting_images`
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_images`
     :keywords: image, rgba
+
 '''
 import numpy as np
 

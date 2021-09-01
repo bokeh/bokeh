@@ -4,7 +4,7 @@ to a gridplot, and configuring grid bands on an axis.
 .. bokeh-example-metadata::
     :sampledata: stocks
     :apis: bokeh.plotting.Figure.line, bokeh.plotting.Figure.scatter, bokeh.layouts.gridplot
-    :refs: :ref:`userguide_layout`, :ref:`userguide_layout_gridplot`
+    :refs: :ref:`userguide_layout` > :ref:`userguide_layout_gridplot`
     :keywords: bands, gridplot, line, timeseries, stocks
 
 '''

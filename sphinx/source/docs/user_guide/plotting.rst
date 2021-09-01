@@ -106,6 +106,8 @@ glyph method.
 Adjust the ``mode`` parameter to draw step levels with the x-coordinates
 before, after, or in the middle of each step.
 
+.. _userguide_plotting_line_glyphs_multi:
+
 Multiple lines
 ''''''''''''''
 
