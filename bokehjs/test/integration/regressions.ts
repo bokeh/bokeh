@@ -1343,4 +1343,22 @@ describe("Bug", () => {
       await display(row([p0, p1]))
     })
   })
+
+  describe("in issue #11551", () => {
+    it("doesn't allow SVG backend to respect clip paths when painting images", async () => {
+      const color_mapper = new LinearColorMapper({palette: Spectral11})
+
+      const x_range: [number, number] = [0, 10]
+      const y_range: [number, number] = [0, 10]
+
+      const p0 = fig([100, 100], {output_backend: "svg", x_range, y_range})
+      p0.image({image: {value: scalar_image()}, x: -2, y: -2, dw: 10, dh: 10, color_mapper})
+      const p1 = fig([100, 100], {output_backend: "svg", x_range, y_range})
+      p1.image_rgba({image: {value: rgba_image()}, x: -2, y: -2, dw: 10, dh: 10})
+      const p2 = fig([100, 100], {output_backend: "svg", x_range, y_range})
+      p2.image_url({url: {value: svg_image()}, x: -2, y: -2, w: 10, h: 10, anchor: "bottom_left"})
+
+      await display(row([p0, p1, p2]))
+    })
+  })
 })
