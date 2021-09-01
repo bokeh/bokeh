@@ -232,7 +232,7 @@ using sphinx_panels */
 
  .dataframe {
     max-width: 100%;
-    display: block !important;
+    display: block;
     overflow-x: auto;
     white-space: nowrap;
   }
