@@ -27,9 +27,26 @@ export class GraphRendererView extends DataRendererView {
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
+    this.apply_coordinates()
+    const {parent} = this
+    const {edge_renderer, node_renderer} = this.model
+    this.edge_view = await build_view(edge_renderer, {parent})
+    this.node_view = await build_view(node_renderer, {parent})
+  }
 
+  override connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.layout_provider.change, () => {
+      this.apply_coordinates()
+      this.edge_view.set_data()
+      this.node_view.set_data()
+      this.request_render()
+    })
+  }
+
+  protected apply_coordinates(): void {
     const graph = this.model
-
+    
     // TODO: replace this with bi-variate transforms
     let xs_ys: [Arrayable<number>[], Arrayable<number>[]] | null = null
     let x_y: [Arrayable<number>, Arrayable<number>] | null = null
@@ -49,7 +66,6 @@ export class GraphRendererView extends DataRendererView {
         return ys
       }
     }
-
     const x_expr = new class extends Expression {
       _v_compute(source: ColumnarDataSource) {
         assert(x_y == null)
@@ -67,7 +83,6 @@ export class GraphRendererView extends DataRendererView {
     }
 
     const {edge_renderer, node_renderer} = this.model
-
     // TODO: XsYsGlyph or something
     if (!(edge_renderer.glyph instanceof MultiLine || edge_renderer.glyph instanceof Patches)) {
       throw new Error(`${this}.edge_renderer.glyph must be a MultiLine glyph`)
@@ -88,18 +103,8 @@ export class GraphRendererView extends DataRendererView {
     node_renderer.glyph.x = {expr: x_expr}
     node_renderer.glyph.y = {expr: y_expr}
 
-    const {parent} = this
-    this.edge_view = await build_view(edge_renderer, {parent})
-    this.node_view = await build_view(node_renderer, {parent})
-  }
-
-  override connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.layout_provider.change, () => {
-      this.edge_view.set_data()
-      this.node_view.set_data()
-      this.request_render()
-    })
+    this.model.edge_renderer = edge_renderer
+    this.model.node_renderer = node_renderer
   }
 
   override remove(): void {
