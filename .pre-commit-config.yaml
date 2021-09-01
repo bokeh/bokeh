@@ -16,7 +16,7 @@ repos:
       - id: protect-branches
         name: Protect Git branches
         description: This hook avoid pushing to the protected Git branches.
-        entry: python scripts/protect_branch_git_hook.py
+        entry: python scripts/hooks/protect_branch_git_hook.py
         language: conda
         # Mandatory otherwise `pre-commit` passes the names of all files to be commited
         pass_filenames: false
