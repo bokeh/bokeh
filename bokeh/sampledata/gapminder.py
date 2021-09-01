@@ -25,7 +25,7 @@ This module contains four pandas Dataframes: ``fertility``, ``life_expectancy``,
 
 :bokeh-dataframe:`bokeh.sampledata.gapminder.population`
 
-.. rubric:: ``life_expectancy``
+.. rubric:: ``regions``
 
 :bokeh-dataframe:`bokeh.sampledata.gapminder.regions`
 
