@@ -63,8 +63,8 @@ def test_widget() -> None:
 
 @pytest.fixture
 def test_mathtext() -> None:
-    from bokeh.models import MathText
-    test_mathtext = MathText()
+    from bokeh.models import TeX
+    test_mathtext = TeX()
     return test_mathtext
 
 #-----------------------------------------------------------------------------
