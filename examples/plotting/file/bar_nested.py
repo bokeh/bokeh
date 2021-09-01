@@ -1,8 +1,14 @@
-from bokeh.io import output_file, show
-from bokeh.models import ColumnDataSource, FactorRange
-from bokeh.plotting import figure
+''' A grouped bar chart using plain Python lists demonstrates creating a
+``FactorRange`` with nested categories.
 
-output_file("bar_nested.html")
+.. bokeh-example-metadata::
+    :apis: :func:`~bokeh.plotting.Figure.vbar`, :class:`~bokeh.models.sources.ColumnDataSource`, :class:`~bokeh.models.ranges.FactorRange`
+    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_grouped`
+    :keywords: bars, categorical, stacked
+
+'''
+from bokeh.models import ColumnDataSource, FactorRange
+from bokeh.plotting import figure, show
 
 fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 years = ['2015', '2016', '2017']

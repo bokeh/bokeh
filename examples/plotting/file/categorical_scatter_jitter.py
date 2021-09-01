@@ -1,10 +1,17 @@
-from bokeh.io import output_file, show
+''' A categorical scatter plot based on GitHub commit history demonstrates
+using a jitter transform.
+
+.. bokeh-example-metadata::
+    :sampledata: :ref:`sampledata_commits`
+    :apis: :func:`~bokeh.plotting.Figure.scatter`
+    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_scatters` > > :ref:`userguide_categorical_scatters_jitter`
+    :keywords: jitter, scatter
+
+'''
 from bokeh.models import ColumnDataSource
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.sampledata.commits import data
 from bokeh.transform import jitter
-
-output_file("categorical_scatter_jitter.html")
 
 DAYS = ['Sun', 'Sat', 'Fri', 'Thu', 'Wed', 'Tue', 'Mon']
 
@@ -13,7 +20,7 @@ source = ColumnDataSource(data)
 p = figure(width=800, height=300, y_range=DAYS, x_axis_type='datetime',
            title="Commits by Time of Day (US/Central) 2012-2016")
 
-p.circle(x='time', y=jitter('day', width=0.6, range=p.y_range),  source=source, alpha=0.3)
+p.scatter(x='time', y=jitter('day', width=0.6, range=p.y_range),  source=source, alpha=0.3)
 
 p.xaxis.formatter.days = ['%Hh']
 p.x_range.range_padding = 0

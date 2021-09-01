@@ -1,8 +1,20 @@
+''' A `Candlestick chart`_ based on stock price data demonstrates combining
+multiple glyphs.
+
+.. bokeh-example-metadata::
+    :sampledata: :ref:`sampledata_stocks`
+    :apis: :func:`~bokeh.plotting.Figure.segment`, :func:`~bokeh.plotting.Figure.vbar`
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_multiple_glyphs`
+    :keywords: candlestick
+
+.. _Candlestick chart: https://en.wikipedia.org/wiki/Candlestick_chart
+
+'''
 from math import pi
 
 import pandas as pd
 
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 from bokeh.sampledata.stocks import MSFT
 
 df = pd.DataFrame(MSFT)[:50]
@@ -22,6 +34,4 @@ p.segment(df.date, df.high, df.date, df.low, color="black")
 p.vbar(df.date[inc], w, df.open[inc], df.close[inc], fill_color="#D5E1DD", line_color="black")
 p.vbar(df.date[dec], w, df.open[dec], df.close[dec], fill_color="#F2583E", line_color="black")
 
-output_file("candlestick.html", title="candlestick.py example")
-
-show(p)  # open a browser
+show(p)

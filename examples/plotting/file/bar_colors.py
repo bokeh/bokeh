@@ -1,9 +1,15 @@
-from bokeh.io import output_file, show
+''' A simple bar chart using plain Python lists demonstrates setting bar
+colors from a ``ColumnDataSource``.
+
+.. bokeh-example-metadata::
+    :apis: :func:`~bokeh.plotting.Figure.vbar`, :class:`~bokeh.models.sources.ColumnDataSource`
+    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_filled_colors`
+    :keywords: bars, categorical
+
+'''
 from bokeh.models import ColumnDataSource
 from bokeh.palettes import Spectral6
-from bokeh.plotting import figure
-
-output_file("bar_colors.html")
+from bokeh.plotting import figure, show
 
 fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 counts = [5, 3, 4, 2, 4, 6]

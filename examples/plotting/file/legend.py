@@ -1,7 +1,15 @@
+''' Line and marker plots that demonstrate automatic legends.
+
+.. bokeh-example-metadata::
+    :apis: :func:`~bokeh.layouts.gridplot`, :func:`~bokeh.plotting.Figure.circle`, :func:`~bokeh.plotting.Figure.line`, :func:`~bokeh.plotting.Figure.square`
+    :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_legends`
+    :keywords: gridplot
+
+'''
 import numpy as np
 
 from bokeh.layouts import gridplot
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 x = np.linspace(0, 4*np.pi, 100)
 y = np.sin(x)
@@ -25,7 +33,5 @@ p2.line(x, 2*y, legend_label="2*sin(x)", line_dash=(4, 4), line_color="orange", 
 
 p2.square(x, 3*y, legend_label="3*sin(x)", fill_color=None, line_color="green")
 p2.line(x, 3*y, legend_label="3*sin(x)", line_color="green")
-
-output_file("legend.html", title="legend.py example")
 
 show(gridplot([p1, p2], ncols=2, width=400, height=400))  # open a browser
