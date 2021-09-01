@@ -27,7 +27,7 @@ from ..core.has_props import abstract
 from ..core.properties import (
     Auto,
     Datetime,
-    Dict,
+    DictWithTextLikeValues,
     Either,
     Enum,
     Factor,
@@ -151,7 +151,7 @@ class Axis(GuideRenderer):
     number is supplied, the angle of the text is measured from horizontal.
     """)
 
-    major_label_overrides = Dict(Either(Float, String), TextLike, default={}, help="""
+    major_label_overrides = DictWithTextLikeValues(Either(Float, String), TextLike, default={}, help="""
     Provide explicit tick label values for specific tick locations that
     override normal formatting.
     """)

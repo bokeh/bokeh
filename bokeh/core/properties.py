@@ -206,6 +206,7 @@ __all__ = (
     'Date',
     'Datetime',
     'Dict',
+    'DictWithTextLikeValues',
     'DistanceSpec',
     'Either',
     'Enum',
@@ -361,6 +362,7 @@ from .property.string import Regex; Regex
 from .property.struct import Struct; Struct
 
 from .property.text_like import TextLike; TextLike
+from .property.text_like import DictWithTextLikeValues; DictWithTextLikeValues
 
 from .property.visual import DashPattern; DashPattern
 from .property.visual import FontSize; FontSize

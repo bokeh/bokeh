@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from .container import Dict
 from .either import Either
 from .instance import Instance
 from .string import MathString
@@ -34,6 +35,7 @@ from .string import MathString
 
 __all__ = (
     'TextLike',
+    'DictWithTextLikeValues'
 )
 
 #-----------------------------------------------------------------------------
@@ -41,6 +43,29 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 TextLike = Either(MathString, Instance("bokeh.models.text.MathText"), Instance("bokeh.models.text.PlainText"))
+
+class DictWithTextLikeValues(Dict):
+    """ Accept a Python dict with any keys and only TextLike values.
+    e.g.: Dict(key: Any, value: TextLike)
+    """
+    def validate(self, value, detail = False):
+        super().validate(value, detail=detail)
+
+        if isinstance(value, dict) and all(TextLike.is_valid(val) for _, val in value.items()):
+            return
+
+        msg = "" if not detail else f"expected an element of {self}, got {value!r}"
+        raise ValueError(msg)
+
+    def transform(self, value):
+        value = super().transform(value)
+
+        if isinstance(value, dict):
+            for key, val in value.items():
+                value[key] = self.values_type.transform(val)
+
+        return value
+
 
 #-----------------------------------------------------------------------------
 # Dev API
