@@ -3,8 +3,8 @@ eclipse across the United States demonatrates using a ``LinearColorMapper``
 and a color bar.
 
 .. bokeh-example-metadata::
-    :sampledata: :ref:`sampledata_us_states`
-    :apis: :func:`~bokeh.plotting.Figure.patches`, :class:`~bokeh.models.sources.ColumnDataSource`, :class:`~bokeh.models.mappers.LinearColorMapper`, :class:`~bokeh.models.annotations.ColorBar` # noqa: E501
+    :sampledata: us_states
+    :apis: bokeh.plotting.Figure.patches, bokeh.models.sources.ColumnDataSource, bokeh.models.mappers.LinearColorMapper, bokeh.models.annotations.ColorBar
     :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_color_bars`
     :keywords: colorbar, label, map, patches
 

@@ -2,8 +2,8 @@
 API that also includes HTML content in a ``Div``.
 
 .. bokeh-example-metadata::
-    :sampledata: :ref:`sampledata_anscombe`
-    :apis: :func:`~bokeh.layouts.column`, :func:`~bokeh.layouts.gridplot`, :class:`~bokeh.models.plots.Plot`, :class:`~bokeh.models.axes.LinearAxis`
+    :sampledata: anscombe
+    :apis: bokeh.layouts.column, bokeh.layouts.gridplot, bokeh.models.plots.Plot, bokeh.models.axes.LinearAxis
     :refs: :ref:`userguide_layout` > :ref:`userguide_layout_gridplot`
     :keywords: gridplot
 

@@ -2,8 +2,8 @@
 using a jitter transform.
 
 .. bokeh-example-metadata::
-    :sampledata: :ref:`sampledata_commits`
-    :apis: :func:`~bokeh.plotting.Figure.scatter`
+    :sampledata: commits
+    :apis: bokeh.plotting.Figure.scatter
     :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_scatters` > :ref:`userguide_categorical_scatters_jitter`
     :keywords: jitter, scatter
 

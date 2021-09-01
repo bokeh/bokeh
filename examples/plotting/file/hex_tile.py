@@ -4,7 +4,7 @@ using the ``hexbin`` utility function. The tiles are colormapped linearly
 according to their bin counts.
 
 .. bokeh-example-metadata::
-    :apis: :func:`~bokeh.plotting.Figure.hex_tile`, :func:`~bokeh.transform.linear_cmap`, :func:`~bokeh.util.hex.hexbin`
+    :apis: bokeh.plotting.Figure.hex_tile, bokeh.transform.linear_cmap, bokeh.util.hex.hexbin
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_hex`
     :keywords: hex, hex_tile, colormap
 

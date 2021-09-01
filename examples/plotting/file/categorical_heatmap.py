@@ -1,7 +1,7 @@
 ''' A categorical heatmap based on simple Python lists of data.
 
 .. bokeh-example-metadata::
-    :apis: :func:`~bokeh.plotting.Figure.rect`
+    :apis: bokeh.plotting.Figure.rect
     :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_heatmaps`
     :keywords: rect, heatmap
 

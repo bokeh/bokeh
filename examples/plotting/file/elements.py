@@ -2,8 +2,8 @@
 basic hover tooltips and adding labels for individual points.
 
 .. bokeh-example-metadata::
-    :sampledata: :ref:`sampledata_periodic_table`
-    :apis: :func:`~bokeh.plotting.Figure.scatter`, :class:`~bokeh.models.sources.ColumnDataSource`, :class:`~bokeh.models.annotations.LabelSet`
+    :sampledata: periodic_table
+    :apis: bokeh.plotting.Figure.scatter, bokeh.models.sources.ColumnDataSource, bokeh.models.annotations.LabelSet
     :refs: :ref:`userguide_tools` > :ref:`userguide_tools_hover_tool`
     :keywords: hover, labels, scatter
 

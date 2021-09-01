@@ -2,7 +2,7 @@
 more complicated chart.
 
 .. bokeh-example-metadata::
-    :apis: :func:`~bokeh.plotting.Figure.vbar`, :func:`~bokeh.plotting.Figure.rect`, :func:`~bokeh.plotting.Figure.segment`
+    :apis: bokeh.plotting.Figure.vbar, bokeh.plotting.Figure.rect, bokeh.plotting.Figure.segment
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_segments_rays`, :ref:`userguide_plotting_bars_rects`
     :keywords: bars, boxplot, categorical, pandas
 

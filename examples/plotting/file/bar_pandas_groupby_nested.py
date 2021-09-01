@@ -4,8 +4,8 @@ nested factors with ``factor_cmap``. A hover tooltip displays information for
 each bar.
 
 .. bokeh-example-metadata::
-    :sampledata: :ref:`sampledata_autompg`
-    :apis: :func:`~bokeh.plotting.Figure.vbar`, :func:`~bokeh.transform.factor_cmap`
+    :sampledata: autompg
+    :apis: bokeh.plotting.Figure.vbar, bokeh.transform.factor_cmap
     :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_pandas`
     :keywords: bars, categorical, colormap, groupby, pandas
 

@@ -4,8 +4,8 @@ explicitly. This chart visualizes the distributrion of responses to the
 prompt *What probability would you assign to the phrase "Highly likely"*.
 
 .. bokeh-example-metadata::
-    :sampledata: :ref:`sampledata_perceptions`
-    :apis: :func:`~bokeh.plotting.Figure.patch`
+    :sampledata: perceptions
+    :apis: bokeh.plotting.Figure.patch, bokeh.models.sources.ColumnDataSource
     :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_offsets`
     :keywords: patch, alpha, categorical, palette, patch, ridgeline
 

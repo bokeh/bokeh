@@ -6,8 +6,8 @@ efficacies.
     capabilities, but there are better, simpler ways to present this data.
 
 .. bokeh-example-metadata::
-    :sampledata: :ref:`sampledata_antibiotics`
-    :apis: :func:`~bokeh.plotting.Figure.annular_wedge`, :func:`~bokeh.plotting.Figure.circle`, :func:`~bokeh.plotting.Figure.text`
+    :sampledata: antibiotics
+    :apis: bokeh.plotting.Figure.annular_wedge, bokeh.plotting.Figure.circle, bokeh.plotting.Figure.text
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_wedges_arcs`, :ref:`userguide_styling` > :ref:`userguide_styling_visual_properties`
     :keywords: text, wedges
 

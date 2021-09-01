@@ -2,7 +2,7 @@
 colormapping.
 
 .. bokeh-example-metadata::
-    :apis: :func:`~bokeh.plotting.Figure.vbar`, :func:`~bokeh.transform.factor_cmap`
+    :apis: bokeh.plotting.Figure.vbar, bokeh.transform.factor_cmap
     :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_filled` > :ref:`userguide_categorical_bars_filled_colors` # noqa: E501
     :keywords: bar, colormap, legend, palette, vbar
 

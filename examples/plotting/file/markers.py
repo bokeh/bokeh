@@ -1,7 +1,7 @@
 ''' A scatter plot demonstrating every marker type.
 
 .. bokeh-example-metadata::
-    :apis: :func:`~bokeh.plotting.Figure.scatter`, :func:`~bokeh.plotting.Figure.text`
+    :apis: bokeh.plotting.Figure.scatter, bokeh.plotting.Figure.text
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter_markers`
     :keywords: scatter, markers
 

@@ -1,7 +1,7 @@
 ''' A simple bar chart using plain Python lists.
 
 .. bokeh-example-metadata::
-    :apis: :func:`~bokeh.plotting.Figure.vbar`
+    :apis: bokeh.plotting.Figure.vbar
     :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars`
     :keywords: bars, categorical
 

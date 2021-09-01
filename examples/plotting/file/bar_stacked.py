@@ -1,7 +1,7 @@
 ''' A stacked bar chart using plain Python lists.
 
 .. bokeh-example-metadata::
-    :apis: :func:`~bokeh.plotting.Figure.vbar_stack`
+    :apis: bokeh.plotting.Figure.vbar_stack
     :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_stacked`
     :keywords: bars, categorical, stacked
 

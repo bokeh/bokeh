@@ -82,9 +82,8 @@ class BokehExampleMetadataDirective(BokehDirective):
             raise SphinxError(f"bokeh-example-metadata unknown options given: {extra}.")
 
         rst_text = EXAMPLE_METADATA.render(
-            # options lines might need a flake8 noqa comment for line length
-            sampledata=self.options.get("sampledata", "").split("#")[0],
-            apis=self.options.get("apis", "").split("#")[0],
+            sampledata=_sampledata(self.options.get("sampledata", None)),
+            apis=_apis(self.options.get("apis", None)),
             refs=self.options.get("refs", "").split("#")[0],
             keywords=self.options.get("keywords", "").split("#")[0],
         )
@@ -99,6 +98,43 @@ def setup(app):
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
+
+def _sampledata(mods: str | None) -> str | None:
+    if mods is None:
+        return
+
+    # options lines might need a flake8 noqa comment for line length, etc
+    mods = mods.split("#")[0].strip()
+
+    mods = (mod.strip() for mod in mods.split(","))
+
+    return ", ".join(f":ref:`bokeh.sampledata.{mod} <sampledata_{mod}>`" for mod in mods)
+
+def _apis(apis: str | None) -> str | None:
+    if apis is None:
+        return
+
+    # options lines might need a flake8 noqa comment for line length, etc
+    apis = apis.split("#")[0].strip()
+
+    results = []
+
+    for api in (api.strip() for api in apis.split(",")):
+        last = api.split(".")[-1]
+
+        # handle a few special cases more carefully
+        if api.startswith("bokeh.models"):
+            results.append(f":class:`bokeh.models.{last} <{api}>`")
+        elif "Figure." in api:
+            results.append(f":meth:`Figure.{last} <{api}>`")
+        elif "GMap." in api:
+            results.append(f":meth:`GMap.{last} <{api}>`")
+
+        # just use class role as-is for anything else
+        else:
+            results.append(f":class:`{api}`")
+
+    return ", ".join(results)
 
 # -----------------------------------------------------------------------------
 # Code

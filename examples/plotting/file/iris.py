@@ -7,8 +7,8 @@ width and length for three different iris species.
     `alternatives to Iris`_.
 
 .. bokeh-example-metadata::
-    :sampledata: :ref:`sampledata_iris`
-    :apis: :func:`~bokeh.plotting.Figure.scatter`
+    :sampledata: iris
+    :apis: bokeh.plotting.Figure.scatter
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter_markers`
     :keywords: alpha, colormap, scatter
 

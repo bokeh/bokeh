@@ -3,8 +3,8 @@ controlling the range of another plot. The highlighted range area on the lower
 plot may be dragged to update the range on the top plot.
 
 .. bokeh-example-metadata::
-    :sampledata: :ref:`sampledata_stocks`
-    :apis: :func:`~bokeh.plotting.Figure.line`, :class:`~bokeh.models.tools.RangeTool`
+    :sampledata: stocks
+    :apis: bokeh.plotting.Figure.line, bokeh.models.tools.RangeTool
     :refs: :ref:`userguide_tools`
     :keywords: line, timeseries, stocks
 

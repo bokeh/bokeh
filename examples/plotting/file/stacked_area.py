@@ -1,7 +1,7 @@
 ''' A stacked area plot using data from a pandas DataFrame.
 
 .. bokeh-example-metadata::
-    :apis: :func:`~bokeh.plotting.Figure.varea_stack`
+    :apis: bokeh.plotting.Figure.varea_stack
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_directed_areas`
     :keywords: area, pandas, stacked
 

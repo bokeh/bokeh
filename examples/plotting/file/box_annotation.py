@@ -2,8 +2,8 @@
 annotations.
 
 .. bokeh-example-metadata::
-    :sampledata: :ref:`sampledata_glucose`
-    :apis: :func:`~bokeh.plotting.Figure.line`, :func:`~bokeh.plotting.Figure.scatter`, :class:`~bokeh.models.annotations.BoxAnnotation`
+    :sampledata: glucose
+    :apis: bokeh.plotting.Figure.line, bokeh.plotting.Figure.scatter, bokeh.models.annotations.BoxAnnotation
     :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_box_annotations`
     :keywords: box annotation, time series
 

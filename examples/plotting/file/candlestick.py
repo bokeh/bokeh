@@ -2,8 +2,8 @@
 multiple glyphs.
 
 .. bokeh-example-metadata::
-    :sampledata: :ref:`sampledata_stocks`
-    :apis: :func:`~bokeh.plotting.Figure.segment`, :func:`~bokeh.plotting.Figure.vbar`
+    :sampledata: stocks
+    :apis: bokeh.plotting.Figure.segment, bokeh.plotting.Figure.vbar
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_multiple_glyphs`
     :keywords: candlestick
 
