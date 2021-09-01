@@ -4,10 +4,11 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' TextLike is a shortcut for properties that accepts strings that can be interpreted to models.
-    e.g.:
-    :class:`~bokeh.models.text.MathText`
-    :class:`~bokeh.models.text.PlainText`
+''' ``TextLike`` is a shortcut for properties that accepts strings, parsed
+strings, and text-like objects, e.g.:
+
+* :class:`~bokeh.models.text.MathText`
+* :class:`~bokeh.models.text.PlainText`
 
 '''
 
@@ -33,14 +34,14 @@ from .string import MathString
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'TextLike',
+    "TextLike",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-TextLike = Either(MathString, Instance("bokeh.models.text.MathText"), Instance("bokeh.models.text.PlainText"))
+TextLike = Either(MathString, Instance("bokeh.models.text.BaseText"))
 
 #-----------------------------------------------------------------------------
 # Dev API

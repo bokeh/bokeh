@@ -1,11 +1,9 @@
 import * as p from "core/properties"
 import * as visuals from "core/visuals"
-import {Signal0} from "core/signaling"
 import {isNumber} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {load_image} from "core/util/image"
 import {CanvasImage} from "models/glyphs/image_url"
-import {Model} from "../../model"
 import {color2css} from "core/util/color"
 import {Size} from "core/types"
 import {View} from "core/view"
@@ -14,78 +12,15 @@ import {GraphicsBox, TextHeightMetric, text_width, Position} from "core/graphics
 import {font_metrics, parse_css_font_size} from "core/util/text"
 import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
-import {load_module} from "core/util/modules"
-
-type MathJaxStatus = "not_started" | "loaded" | "loading" | "failed"
-
-export abstract class MathJaxProvider {
-  readonly ready = new Signal0(this, "ready")
-
-  status: MathJaxStatus = "not_started"
-
-  abstract get MathJax(): typeof MathJax | null
-
-  abstract fetch(): Promise<void>
-}
-
-export class NoProvider extends MathJaxProvider {
-  get MathJax(): null {
-    return null
-  }
-
-  async fetch(): Promise<void> {
-    this.status = "failed"
-  }
-}
-
-export class CDNProvider extends MathJaxProvider  {
-  get MathJax(): typeof MathJax | null {
-    return typeof MathJax !== "undefined" ? MathJax : null
-  }
-
-  async fetch(): Promise<void> {
-    const script = document.createElement("script")
-    script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
-    script.onload = () => {
-      this.status = "loaded"
-      this.ready.emit()
-    }
-    script.onerror = () => {
-      this.status = "failed"
-    }
-    this.status = "loading"
-    document.head.appendChild(script)
-  }
-}
-
-export class BundleProvider extends MathJaxProvider  {
-  _mathjax: typeof MathJax | null
-
-  get MathJax(): typeof MathJax | null {
-    return this._mathjax
-  }
-
-  async fetch(): Promise<void> {
-    this.status = "loading"
-
-    try {
-      const mathjax = await load_module(import("./mathjax"))
-      this._mathjax = mathjax
-
-      this.status = "loaded"
-      this.ready.emit()
-    } catch (error) {
-      this.status = "failed"
-    }
-  }
-}
+import {BaseText} from "./base_text"
+import {MathJaxProvider, BundleProvider} from "./providers"
 
 const default_provider: MathJaxProvider = new BundleProvider()
 
 /**
  * Helper class to rendering MathText into Canvas
  */
-export class MathTextView extends View implements GraphicsBox {
+export abstract class MathTextView extends View implements GraphicsBox {
   override model: MathText
   override parent: RendererView
 
@@ -332,15 +267,18 @@ export class MathTextView extends View implements GraphicsBox {
     ctx.restore()
   }
 
-  /**
-   * Render text into a SVG with MathJax and load it into memory.
-   */
+  protected abstract _process_text(text: string): HTMLElement | undefined
+
   private async load_image(): Promise<HTMLImageElement | null> {
-    const {MathJax} = this.provider
-    if (MathJax == null)
+    if (this.provider.MathJax == null)
       return null
 
-    const mathjax_element = MathJax.tex2svg(this.model.text)
+    const mathjax_element = this._process_text(this.model.text)
+    if (mathjax_element == null) {
+      this._has_finished = true
+      return null
+    }
+
     const svg_element = mathjax_element.children[0] as SVGElement
     this.svg_element = svg_element
 
@@ -399,26 +337,110 @@ export class MathTextView extends View implements GraphicsBox {
 export namespace MathText {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {
+  export type Props = BaseText.Props & {
     text: p.Property<string>
   }
 }
 
 export interface MathText extends MathText.Attrs {}
 
-export class MathText extends Model {
+export class MathText extends BaseText {
   override properties: MathText.Props
   override __view_type__: MathTextView
 
   constructor(attrs?: Partial<MathText.Attrs>) {
     super(attrs)
   }
+}
+
+export class AsciiView extends MathTextView {
+  override model: Ascii
+
+  protected _process_text(_text: string): HTMLElement | undefined {
+    return undefined // TODO: this.provider.MathJax?.ascii2svg(text)
+  }
+}
+
+export namespace Ascii {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = MathText.Props
+}
+
+export interface Ascii extends Ascii.Attrs {}
+
+export class Ascii extends MathText {
+  override properties: Ascii.Props
+  override __view_type__: AsciiView
+
+  constructor(attrs?: Partial<Ascii.Attrs>) {
+    super(attrs)
+  }
 
   static {
-    this.prototype.default_view = MathTextView
+    this.prototype.default_view = AsciiView
+  }
+}
 
-    this.define<MathText.Props>(({String}) => ({
-      text: [ String ],
+export class MathMLView extends MathTextView {
+  override model: MathML
+
+  protected _process_text(text: string): HTMLElement | undefined {
+    return this.provider.MathJax?.mathml2svg(text.trim())
+  }
+}
+
+export namespace MathML {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = MathText.Props
+}
+
+export interface MathML extends MathML.Attrs {}
+
+export class MathML extends MathText {
+  override properties: MathML.Props
+  override __view_type__: MathMLView
+
+  constructor(attrs?: Partial<MathML.Attrs>) {
+    super(attrs)
+  }
+
+  static {
+    this.prototype.default_view = MathMLView
+  }
+}
+
+export class TeXView extends MathTextView {
+  override model: TeX
+
+  protected _process_text(text: string): HTMLElement | undefined {
+    // TODO: allow plot/document level configuration of macros
+    return this.provider.MathJax?.tex2svg(text, this.model.macros)
+  }
+}
+
+export namespace TeX {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = MathText.Props & {
+    macros: p.Property<{[key: string]: string | [string, number]}>
+  }
+}
+
+export interface TeX extends TeX.Attrs {}
+
+export class TeX extends MathText {
+  override properties: TeX.Props
+  override __view_type__: TeXView
+
+  constructor(attrs?: Partial<TeX.Attrs>) {
+    super(attrs)
+  }
+
+  static {
+    this.prototype.default_view = TeXView
+
+    this.define<TeX.Props>(({Number, String, Dict, Tuple, Or}) => ({
+      macros: [ Dict(Or(String, Tuple(String, Number))), {} ],
     }))
   }
 }

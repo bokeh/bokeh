@@ -16,12 +16,11 @@ import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
-import {MathText, MathTextView} from "models/text/math_text"
-import {PlainText} from "models/text/plain_text"
+import {MathText, MathTextView} from "../text/math_text"
+import {BaseText} from "../text/base_text"
 import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
 import {isString} from "core/util/types"
-
 
 const {abs} = Math
 
@@ -184,7 +183,6 @@ export class AxisView extends GuideRendererView {
 
     const padding = 3
 
-    axis_label_graphics.angle = this.panel.get_label_angle_heuristic("parallel")
     axis_label_graphics.visuals = this.visuals.axis_label_text
     axis_label_graphics.angle = this.panel.get_label_angle_heuristic("parallel")
 
@@ -624,11 +622,11 @@ export namespace Axis {
     bounds: p.Property<[number, number] | "auto">
     ticker: p.Property<Ticker>
     formatter: p.Property<TickFormatter>
-    axis_label: p.Property<MathText | PlainText | string | null>
+    axis_label: p.Property<string | BaseText | null>
     axis_label_standoff: p.Property<number>
     major_label_standoff: p.Property<number>
     major_label_orientation: p.Property<TickLabelOrientation | number>
-    major_label_overrides: p.Property<{[key: string]: MathText | PlainText | string}>
+    major_label_overrides: p.Property<{[key: string]: string | BaseText}>
     major_label_policy: p.Property<LabelingPolicy>
     major_tick_in: p.Property<number>
     major_tick_out: p.Property<number>
@@ -678,11 +676,11 @@ export class Axis extends GuideRenderer {
       bounds:                  [ Or(Tuple(Number, Number), Auto), "auto" ],
       ticker:                  [ Ref(Ticker) ],
       formatter:               [ Ref(TickFormatter) ],
-      axis_label:              [ Nullable(Or(String, Ref(PlainText), Ref(MathText))), null],
+      axis_label:              [ Nullable(Or(String, Ref(BaseText))), null],
       axis_label_standoff:     [ Int, 5 ],
       major_label_standoff:    [ Int, 5 ],
       major_label_orientation: [ Or(TickLabelOrientation, Number), "horizontal" ],
-      major_label_overrides:   [ Dict(Or(String, Ref(PlainText), Ref(MathText))), {} ],
+      major_label_overrides:   [ Dict(Or(String, Ref(BaseText))), {} ],
       major_label_policy:      [ Ref(LabelingPolicy), () => new AllLabels() ],
       major_tick_in:           [ Number, 2 ],
       major_tick_out:          [ Number, 6 ],
