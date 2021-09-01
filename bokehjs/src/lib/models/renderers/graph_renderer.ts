@@ -46,7 +46,7 @@ export class GraphRendererView extends DataRendererView {
 
   protected apply_coordinates(): void {
     const graph = this.model
-    
+
     // TODO: replace this with bi-variate transforms
     let xs_ys: [Arrayable<number>[], Arrayable<number>[]] | null = null
     let x_y: [Arrayable<number>, Arrayable<number>] | null = null
