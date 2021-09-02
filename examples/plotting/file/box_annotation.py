@@ -1,23 +1,30 @@
-from bokeh.models import BoxAnnotation
-from bokeh.plotting import figure, output_file, show
-from bokeh.sampledata.glucose import data
+''' A timeseries plot of glucose data readings. This example demonstrates
+adding box annotations.
 
-TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
+.. bokeh-example-metadata::
+    :sampledata: glucose
+    :apis: bokeh.plotting.Figure.line, bokeh.plotting.Figure.scatter, bokeh.models.annotations.BoxAnnotation
+    :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_box_annotations`
+    :keywords: box annotation, time series
+
+'''
+from bokeh.models import BoxAnnotation
+from bokeh.plotting import figure, show
+from bokeh.sampledata.glucose import data
 
 data = data.loc['2010-10-04':'2010-10-04']
 
-p = figure(x_axis_type="datetime", tools=TOOLS, title="Glocose Readings, Oct 4th (Red = Outside Range)")
+p = figure(title="Glocose Readings, Oct 4th (Red = Outside Range)",
+           x_axis_type="datetime", tools="pan,wheel_zoom,box_zoom,reset,save")
 p.background_fill_color = "#efefef"
 p.xgrid.grid_line_color=None
 p.xaxis.axis_label = 'Time'
 p.yaxis.axis_label = 'Value'
 
 p.line(data.index, data.glucose, line_color='grey')
-p.circle(data.index, data.glucose, color='grey', size=1)
+p.scatter(data.index, data.glucose, color='grey', size=1)
 
 p.add_layout(BoxAnnotation(top=80, fill_alpha=0.1, fill_color='red', line_color='red'))
 p.add_layout(BoxAnnotation(bottom=180, fill_alpha=0.1, fill_color='red', line_color='red'))
-
-output_file("box_annotation.html", title="box_annotation.py example")
 
 show(p)

@@ -1,19 +1,18 @@
-''' A pie chart populated by a simple dict of values.
+''' A pie chart populated by a simple dict of values. This example demonstrates
+a cumulative sum transform for computing positions for the wedges.
 
-.. rubric:: Details
-
-:Bokeh APIs: :func:`~bokeh.plotting.Figure.wedge`
-:More info: :ref:`userguide_plotting_wedges_arcs`
-:Keywords: pie, wedge, pandas
+.. bokeh-example-metadata::
+    :apis: bokeh.transform.cumsum, bokeh.plotting.Figure.wedge
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_wedges_arcs`
+    :keywords: cumsum, pandas, pie, wedge
 
 '''
 from math import pi
 
 import pandas as pd
 
-from bokeh.io import show
 from bokeh.palettes import Category20c
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.transform import cumsum
 
 x = {

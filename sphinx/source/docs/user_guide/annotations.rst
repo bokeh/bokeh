@@ -6,7 +6,7 @@ Adding annotations
 Bokeh includes several different types of :term:`annotations <Annotation>` you
 can use to add supplemental information to your visualizations.
 
-.. _userguide_plotting_titles:
+.. _userguide_annotations_titles:
 
 Titles
 ------
@@ -61,22 +61,22 @@ If the plot size is large enough, this can result in a more compact plot.
 However, if the plot size is not large enough, the title and toolbar may
 visually overlap.
 
-.. _userguide_plotting_legends:
+.. _userguide_annotations_legends:
 
 Legends
 -------
 
 The easiest way to add a legend to your plot is to include any of the
-:ref:`legend_label <userguide_plotting_legends_legend_label>`,
-:ref:`legend_group <userguide_plotting_legends_legend_group>`,
-or :ref:`legend_field <userguide_plotting_legends_legend_field>` properties
+:ref:`legend_label <userguide_annotations_legends_legend_label>`,
+:ref:`legend_group <userguide_annotations_legends_legend_group>`,
+or :ref:`legend_field <userguide_annotations_legends_legend_field>` properties
 when calling glyph methods. Bokeh then creates a |Legend| object for you
 automatically.
 
 For more advanced control over a plot's legend, access the |Legend| object
-:ref:`directly <userguide_plotting_legends_manual>`.
+:ref:`directly <userguide_annotations_legends_manual>`.
 
-.. _userguide_plotting_legends_legend_label:
+.. _userguide_annotations_legends_legend_label:
 
 Basic legend label
 ~~~~~~~~~~~~~~~~~~
@@ -94,7 +94,7 @@ combined into a single legend item with that label.
 .. bokeh-plot:: docs/user_guide/examples/plotting_legend_label.py
     :source-position: above
 
-.. _userguide_plotting_legends_legend_group:
+.. _userguide_annotations_legends_legend_group:
 
 Automatic grouping (Python-side)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -123,7 +123,7 @@ Therefore, any subsequent Python code will be able to see the individual legend
 items in the ``Legend.items`` property. This way, you can re-arrange or modify
 the legend at any time.
 
-.. _userguide_plotting_legends_legend_field:
+.. _userguide_annotations_legends_legend_field:
 
 Automatic grouping (browser-side)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -144,7 +144,7 @@ grouping happens in the browser.
 .. bokeh-plot:: docs/user_guide/examples/plotting_legend_field.py
     :source-position: above
 
-.. _userguide_plotting_legends_item_visibility:
+.. _userguide_annotations_legends_item_visibility:
 
 Hiding legend items
 ~~~~~~~~~~~~~~~~~~~
@@ -159,11 +159,11 @@ either ``True`` or ``False``.
 .. note::
     If all items in a legend are invisible, the entire legend will be hidden.
     Also, if you use
-    :ref:`automatic grouping on the browser side <userguide_plotting_legends_legend_field>`
+    :ref:`automatic grouping on the browser side <userguide_annotations_legends_legend_field>`
     and set the visibility of a ``legend_field`` item to ``False``, the entire
     group will be invisible.
 
-.. _userguide_plotting_legends_manual:
+.. _userguide_annotations_legends_manual:
 
 Manual legends
 ~~~~~~~~~~~~~~
@@ -199,11 +199,11 @@ See |interactive legends| in the user guide for more information and examples.
 
 .. note::
     The features of |interactive legends| currently only work on the basic
-    legend labels described :ref:`above <userguide_plotting_legends_legend_label>`.
+    legend labels described :ref:`above <userguide_annotations_legends_legend_label>`.
     Legends that are created by specifying a column to automatically group do
     not yet support interactive features.
 
-.. _userguide_plotting_color_bars:
+.. _userguide_annotations_color_bars:
 
 Color bars
 ----------
@@ -218,7 +218,7 @@ the plot using the |add layout| method.
 .. bokeh-plot:: docs/user_guide/examples/plotting_color_bars.py
     :source-position: above
 
-.. _userguide_plotting_arrows:
+.. _userguide_annotations_arrows:
 
 Arrows
 ------
@@ -261,7 +261,7 @@ same as :ref:`userguide_plotting_twin_axes`.
 .. bokeh-plot:: docs/user_guide/examples/plotting_arrow.py
     :source-position: above
 
-.. _userguide_plotting_bands:
+.. _userguide_annotations_bands:
 
 Bands
 -----
@@ -275,7 +275,7 @@ To define a band, use either |screen units| or |data units|.
 .. bokeh-plot:: docs/user_guide/examples/plotting_band.py
     :source-position: above
 
-.. _userguide_plotting_box_annotations:
+.. _userguide_annotations_box_annotations:
 
 Box annotations
 ---------------
@@ -292,7 +292,7 @@ plot area for the dimension you did not specify.
 .. bokeh-plot:: docs/user_guide/examples/plotting_box_annotation.py
     :source-position: above
 
-.. _userguide_plotting_polygon_annotations:
+.. _userguide_annotations_polygon_annotations:
 
 Polygon annotations
 -------------------
@@ -307,7 +307,7 @@ to the first to create a closed shape.
 .. bokeh-plot:: docs/user_guide/examples/plotting_polygon_annotation.py
     :source-position: above
 
-.. _userguide_plotting_labels:
+.. _userguide_annotations_labels:
 
 Labels
 ------
@@ -348,7 +348,7 @@ The following example illustrates the use of |Label| and |LabelSet|:
 .. bokeh-plot:: docs/user_guide/examples/plotting_label.py
     :source-position: above
 
-.. _userguide_plotting_slope:
+.. _userguide_annotations_slope:
 
 Slopes
 ------
@@ -365,7 +365,7 @@ These are the most commonly used properties for this annotation:
 .. bokeh-plot:: docs/user_guide/examples/plotting_slope.py
     :source-position: above
 
-.. _userguide_plotting_spans:
+.. _userguide_annotations_spans:
 
 Spans
 -----
@@ -389,7 +389,7 @@ These are the most commonly used properties for this annotation:
 .. bokeh-plot:: docs/user_guide/examples/plotting_span.py
     :source-position: above
 
-.. _userguide_plotting_whiskers:
+.. _userguide_annotations_whiskers:
 
 Whiskers
 --------

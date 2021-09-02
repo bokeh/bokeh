@@ -230,6 +230,13 @@ using sphinx_panels */
 /* Pandas dataframe css */
  /* Taken from: https://github.com/spatialaudio/nbsphinx/blob/fb3ba670fc1ba5f54d4c487573dbc1b4ecf7e9ff/src/nbsphinx.py#L587-L619 */
 
+ .dataframe {
+    max-width: 100%;
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
  table.dataframe {
    border: none !important;
    border-collapse: collapse;

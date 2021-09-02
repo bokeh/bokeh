@@ -1,9 +1,19 @@
+''' A timeseries plot using stock price data. This example demonstrates a range
+tool controlling the range of another plot. The highlighted range area on the
+lower plot may be dragged to update the range on the top plot.
+
+.. bokeh-example-metadata::
+    :sampledata: stocks
+    :apis: bokeh.plotting.Figure.line, bokeh.models.tools.RangeTool
+    :refs: :ref:`userguide_tools`
+    :keywords: line, timeseries, stocks
+
+'''
 import numpy as np
 
-from bokeh.io import show
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, RangeTool
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.sampledata.stocks import AAPL
 
 dates = np.array(AAPL['date'], dtype=np.datetime64)

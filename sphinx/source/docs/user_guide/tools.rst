@@ -415,6 +415,8 @@ The crosshair tool draws a crosshair annotation over the plot, centered on
 the current mouse position. You can configure the crosshair tool dimensions
 by setting the ``dimensions`` property to ``width``, ``height``, or ``both``.
 
+.. _userguide_tools_hover_tool:
+
 HoverTool
 ~~~~~~~~~
 

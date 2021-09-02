@@ -1,7 +1,17 @@
+''' A timeseries plot using stock price data. This example demonstrates adding
+multiple plots to a gridplot, and configuring grid bands on an axis.
+
+.. bokeh-example-metadata::
+    :sampledata: stocks
+    :apis: bokeh.plotting.Figure.line, bokeh.plotting.Figure.scatter, bokeh.layouts.gridplot
+    :refs: :ref:`userguide_layout` > :ref:`userguide_layout_gridplot`
+    :keywords: bands, gridplot, line, timeseries, stocks
+
+'''
 import numpy as np
 
 from bokeh.layouts import gridplot
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 from bokeh.sampledata.stocks import AAPL, GOOG, IBM, MSFT
 
 
@@ -33,12 +43,10 @@ p2.yaxis.axis_label = 'Price'
 p2.ygrid.band_fill_color = "olive"
 p2.ygrid.band_fill_alpha = 0.1
 
-p2.circle(aapl_dates, aapl, size=4, legend_label='close',
-          color='darkgrey', alpha=0.2)
+p2.scatter(aapl_dates, aapl, size=4, legend_label='close',
+           color='darkgrey', alpha=0.2)
 
 p2.line(aapl_dates, aapl_avg, legend_label='avg', color='navy')
 p2.legend.location = "top_left"
-
-output_file("stocks.html", title="stocks.py example")
 
 show(gridplot([[p1,p2]], width=400, height=400))  # open a browser

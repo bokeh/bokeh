@@ -1,7 +1,12 @@
-from bokeh.io import output_file, show
-from bokeh.plotting import figure
+''' A simple bar chart using plain Python lists.
 
-output_file("bar_basic.html")
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.vbar
+    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars`
+    :keywords: bars, categorical
+
+'''
+from bokeh.plotting import figure, show
 
 fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 counts = [5, 3, 4, 2, 4, 6]

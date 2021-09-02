@@ -1,9 +1,14 @@
-from bokeh.io import output_file, show
+''' A split, horizontal stacked bar chart using plain Python lists.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.hbar_stack
+    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_stacked`
+    :keywords: bars, categorical, stacked
+
+'''
 from bokeh.models import ColumnDataSource
 from bokeh.palettes import GnBu3, OrRd3
-from bokeh.plotting import figure
-
-output_file("bar_stacked_split.html")
+from bokeh.plotting import figure, show
 
 fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 years = ["2015", "2016", "2017"]
