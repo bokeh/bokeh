@@ -1,4 +1,3 @@
----
 name: bk-test
 channels:
   - conda-forge
