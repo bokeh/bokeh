@@ -1,5 +1,5 @@
-''' A `Candlestick chart`_ based on stock price data demonstrates combining
-multiple glyphs.
+''' A `Candlestick chart`_ based on stock price data. This example demonstrates
+combining multiple glyphs.
 
 .. bokeh-example-metadata::
     :sampledata: stocks

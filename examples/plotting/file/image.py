@@ -1,4 +1,4 @@
-''' A plot demonstrates rendering images by colormapping scalar arrays.
+''' A plot that demonstrates rendering images by colormapping scalar arrays.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.image

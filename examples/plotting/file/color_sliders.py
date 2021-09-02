@@ -1,5 +1,5 @@
-''' An interactive plot of colors demonstrates adding widgets and ``CustomJS``
-callbacks that can update a plot.
+''' An interactive plot of colors. This example demonstrates adding widgets and
+``CustomJS`` callbacks that can update a plot.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.rect, bokeh.plotting.Figure.text, bokeh.layouts.column, bokeh.layouts.row, bokeh.models.sources.ColumnDataSource, bokeh.models.callbacks.CustomJS, bokeh.models.widgets.sliders.Slider, bokeh.themes.Theme # noqa: E501

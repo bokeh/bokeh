@@ -1,5 +1,5 @@
-''' A timeseries plot of glucose data readings demonstrates adding box
-annotations.
+''' A timeseries plot of glucose data readings. This example demonstrates
+adding box annotations.
 
 .. bokeh-example-metadata::
     :sampledata: glucose

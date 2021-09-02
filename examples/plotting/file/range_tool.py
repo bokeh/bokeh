@@ -1,6 +1,6 @@
-''' A timeseries plot using stock price data demonatrates a range tool
-controlling the range of another plot. The highlighted range area on the lower
-plot may be dragged to update the range on the top plot.
+''' A timeseries plot using stock price data. This example demonstrates a range
+tool controlling the range of another plot. The highlighted range area on the
+lower plot may be dragged to update the range on the top plot.
 
 .. bokeh-example-metadata::
     :sampledata: stocks

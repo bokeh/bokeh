@@ -1,5 +1,5 @@
-''' A bar chart based on plain Python lists demonstrates creating a using a
-``dodge`` transform to "group" the bars.
+''' A bar chart based on plain Python lists. This example demonstrates creating
+a using a ``dodge`` transform to "group" the bars.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.vbar, bokeh.transform.dodge, bokeh.models.ColumnDataSource

@@ -1,5 +1,5 @@
-''' A bar chart based on simple Python lists of data demonstrates automatic
-colormapping.
+''' A bar chart based on simple Python lists of data. This example demonstrates
+automatic colormapping.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.vbar, bokeh.transform.factor_cmap

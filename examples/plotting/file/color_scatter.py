@@ -1,5 +1,5 @@
-''' A scatter plot demonstrates manual colormapping and many different plot
-tools.
+''' A basic scatter. This example plot demonstrates manual colormapping and
+many different plot tools.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.scatter

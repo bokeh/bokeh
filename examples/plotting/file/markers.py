@@ -1,4 +1,4 @@
-''' A scatter plot demonstrating every marker type.
+''' A scatter plot showing every marker type.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.scatter, bokeh.plotting.Figure.text

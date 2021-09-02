@@ -1,5 +1,5 @@
-''' A reproduction of Mike Bostock's `Les Misérables Co-occurrence`_ example
-demonostrates a basic hover tooltip.
+''' A reproduction of Mike Bostock's `Les Misérables Co-occurrence`_ chart.
+This example example demonostrates a basic hover tooltip.
 
 .. bokeh-example-metadata::
     :sampledata: les_mis

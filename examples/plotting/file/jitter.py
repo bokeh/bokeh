@@ -1,5 +1,5 @@
-''' Two scatter plots demonstrate the application of a jitter transform to
-data.
+''' Two scatter plots in a grid. This example demonstrate the application of a
+``jitter`` transform to data.
 
 .. bokeh-example-metadata::
     :sampledata: autompg

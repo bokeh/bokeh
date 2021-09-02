@@ -1,5 +1,5 @@
-''' A plot of the `Lorenz attractor`_ demonstrates using ``multi_line`` to
-display many lines with a single vectorized glyph.
+''' A plot of the `Lorenz attractor`_. This example demonstrates using
+``multi_line`` to display many lines with a single vectorized glyph.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.multi_line

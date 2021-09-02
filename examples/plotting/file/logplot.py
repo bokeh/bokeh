@@ -1,6 +1,6 @@
-''' A log plot using functions with different growth rates demonstrates using
-a log axis on a Bokeh plot. Various line styles and glyph combinations are
-automatically added to a legend.
+''' A log plot using functions with different growth rates. This example
+demonstrates using a log axis on a Bokeh plot. Various line styles and glyph
+combinations are automatically added to a legend.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.circle, bokeh.plotting.Figure.line

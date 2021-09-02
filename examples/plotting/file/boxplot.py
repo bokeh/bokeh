@@ -1,5 +1,5 @@
-''' A `Box Plot`_ demonstrates combining multiple basic glyphs to create a
-more complicated chart.
+''' A `Box Plot`_ of synthetic data. This example demonstrates combining
+multiple basic glyphs to create a more complicated chart.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.vbar, bokeh.plotting.Figure.rect, bokeh.plotting.Figure.segment

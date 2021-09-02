@@ -1,7 +1,7 @@
-''' A `ridgeline plot`_ using the `Perceptions of Probability`_ dataset
-demonstrates the uses of categorical offsets to position categorica values
-explicitly. This chart visualizes the distributrion of responses to the
-prompt *What probability would you assign to the phrase "Highly likely"*.
+''' A `ridgeline plot`_ using the `Perceptions of Probability`_ dataset.
+This example demonstrates the uses of categorical offsets to position
+categorical values explicitly. This chart shows the distributrion of responses
+to the prompt *What probability would you assign to the phrase "Highly likely"*.
 
 .. bokeh-example-metadata::
     :sampledata: perceptions

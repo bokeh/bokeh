@@ -1,5 +1,6 @@
-''' A bar chart using the `Auto MPG dataset`_ demonstrates automatic handing
-of Pandas GroupBy objects and colormapping with ``factor_cmap``.
+''' A bar chart using the `Auto MPG dataset`_. This example demonstrates
+automatic handing of Pandas GroupBy objects and colormapping with
+``factor_cmap``.
 
 .. bokeh-example-metadata::
     :sampledata: autompg

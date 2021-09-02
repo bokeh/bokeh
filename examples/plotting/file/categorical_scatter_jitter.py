@@ -1,5 +1,5 @@
-''' A categorical scatter plot based on GitHub commit history demonstrates
-using a jitter transform.
+''' A categorical scatter plot based on GitHub commit history. This example
+demonstrates using a ``jitter`` transform.
 
 .. bokeh-example-metadata::
     :sampledata: commits

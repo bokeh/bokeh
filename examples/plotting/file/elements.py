@@ -1,5 +1,6 @@
-''' A scatter plot using data from the `Periodic Table`_ demonstrates using
-basic hover tooltips and adding labels for individual points.
+''' A scatter plot using data from the `Periodic Table`_. This example
+demonstrates using basic hover tooltips and adding labels for individual
+points.
 
 .. bokeh-example-metadata::
     :sampledata: periodic_table

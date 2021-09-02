@@ -1,5 +1,5 @@
-''' A timeseries plot using stock price data demonatrates adding multiple plots
-to a gridplot, and configuring grid bands on an axis.
+''' A timeseries plot using stock price data. This example demonstrates adding
+multiple plots to a gridplot, and configuring grid bands on an axis.
 
 .. bokeh-example-metadata::
     :sampledata: stocks

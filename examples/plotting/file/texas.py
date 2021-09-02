@@ -1,5 +1,5 @@
-''' A color-mapped map plot based on unemployment rate data demonatrates
-using a ``LogColorMapper`` and hover tool.
+''' A color-mapped map plot based on unemployment rate data. This example
+demonstrates using a ``LogColorMapper`` and hover tool.
 
 .. bokeh-example-metadata::
     :sampledata: unemployment, us_counties

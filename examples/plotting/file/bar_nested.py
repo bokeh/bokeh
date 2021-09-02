@@ -1,5 +1,5 @@
-''' A grouped bar chart using plain Python lists demonstrates creating a
-``FactorRange`` with nested categories.
+''' A grouped bar chart using plain Python lists. This example demonstrates
+creating a ``FactorRange`` with nested categories.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.vbar, bokeh.models.sources.ColumnDataSource, bokeh.models.ranges.FactorRange

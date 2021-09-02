@@ -1,6 +1,6 @@
 ''' A map plot using `Google search interest data` to follow the path of an
-eclipse across the United States demonatrates using a ``LinearColorMapper``
-and a color bar.
+eclipse across the United States. This example demonstrates using a
+``LinearColorMapper`` and a color bar.
 
 .. bokeh-example-metadata::
     :sampledata: us_states

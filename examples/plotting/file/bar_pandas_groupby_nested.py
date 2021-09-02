@@ -1,7 +1,7 @@
-''' A grouped bar chart using a cleaned up version of the `Auto MPG dataset`_
-demonstrates automatic handing of Pandas GroupBy objects and colormapping
-nested factors with ``factor_cmap``. A hover tooltip displays information for
-each bar.
+''' A grouped bar chart using a cleaned up version of the `Auto MPG dataset`_.
+This examples demonstrates automatic handing of Pandas GroupBy objects and
+colormapping nested factors with ``factor_cmap``. A hover tooltip displays
+information for each bar.
 
 .. bokeh-example-metadata::
     :sampledata: autompg

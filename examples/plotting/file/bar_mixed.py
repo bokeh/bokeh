@@ -1,5 +1,6 @@
-''' A combined bar and line chart using simple Python lists demonstrates mixing
-nested categorical factors with top-level categorical factors.
+''' A combined bar and line chart using simple Python lists. This example
+demonstrates mixing nested categorical factors with top-level categorical
+factors.
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.ranges.FactorRange, bokeh.plotting.Figure.line, bokeh.plotting.Figure.vbar

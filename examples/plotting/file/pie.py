@@ -1,5 +1,5 @@
-''' A pie chart populated by a simple dict of values demonstrates a cumulative
-sum transform for computing positions for the wedges.
+''' A pie chart populated by a simple dict of values. This example demonstrates
+a cumulative sum transform for computing positions for the wedges.
 
 .. bokeh-example-metadata::
     :apis: bokeh.transform.cumsum, bokeh.plotting.Figure.wedge

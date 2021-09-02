@@ -1,6 +1,6 @@
-''' A scatter plot using `Fisher's Iris dataset`_ illustrates manual color
-mapping with basic plot elements. The chart shows correlation between petal
-width and length for three different iris species.
+''' A scatter plot using `Fisher's Iris dataset`_. This example demonstrates
+manual color mapping with basic plot elements. The chart shows correlation
+between petal width and length for three different iris species.
 
 .. note::
     This example is maintained for historical compatibility. Please consider

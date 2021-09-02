@@ -4,8 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' A table of `Will Burtin's historical data`_ regarding antibiotic
-efficacies.
+''' The four data series that comprise `Anscombe's Quartet`_.
 
 This module contains one pandas Dataframe: ``data``.
 
@@ -13,7 +12,7 @@ This module contains one pandas Dataframe: ``data``.
 
 :bokeh-dataframe:`bokeh.sampledata.anscombe.data`
 
-.. _Will Burtin's historical data: https://medium.com/@harshdev_41068/burtins-legendary-data-on-antibiotics-9b32ecd5943f
+.. _Anscombe's Quartet: https://en.wikipedia.org/wiki/Anscombe%27s_quartet
 
 '''
 

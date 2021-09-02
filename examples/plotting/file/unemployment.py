@@ -1,5 +1,5 @@
-'''  A categorical heatmap using unemployment data demonstrates adding a
-``ColorBar`` to a plot.
+'''  A categorical heatmap using unemployment data. This example demonstrates
+adding a ``ColorBar`` to a plot.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.rect, bokeh.models.annotations.ColorBar

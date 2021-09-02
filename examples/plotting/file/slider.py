@@ -1,5 +1,5 @@
-''' An interactive plot of the ``sin`` function demonstrates adding widgets and
-``CustomJS`` callbacks that can update a plot.
+''' An interactive plot of the ``sin`` function. This example demonstrates
+adding widgets and ``CustomJS`` callbacks that can update a plot.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.line, bokeh.layouts.column, bokeh.layouts.row, bokeh.models.callbacks.CustomJS, bokeh.models.widgets.sliders.Slider

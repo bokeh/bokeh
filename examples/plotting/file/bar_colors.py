@@ -1,5 +1,5 @@
-''' A simple bar chart using plain Python lists demonstrates setting bar
-colors from a ``ColumnDataSource``.
+''' A simple bar chart using plain Python lists. This example demonstrates
+setting bar colors from a ``ColumnDataSource``.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.vbar, bokeh.models.sources.ColumnDataSource

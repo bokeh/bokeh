@@ -1,5 +1,5 @@
-''' A bar chart based on simple Python lists of data demonstrates automatic
-colormapping of nested categorical factors.
+''' A bar chart based on simple Python lists of data. This example demonstrates
+automatic colormapping of nested categorical factors.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.vbar, bokeh.transform.factor_cmap
