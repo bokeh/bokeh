@@ -7,11 +7,7 @@ from typing import NoReturn
 def ProtectBranches() -> NoReturn:
     hookid = "protect-branches"
     protected_branches = [r"main", r"branch-\d+\.\d+"]
-    current_branch = (
-        run(["git", "branch", "--show-current"], capture_output=True)
-        .stdout.decode(sys.stdout.encoding)
-        .replace("\n", "")
-    )
+    current_branch = run(["git", "branch", "--show-current"], capture_output=True).stdout.decode(sys.stdout.encoding).replace("\n", "")
     for branch in protected_branches:
         regex = re.compile(branch)
         if regex.match(current_branch):
