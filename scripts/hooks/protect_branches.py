@@ -1,6 +1,6 @@
 import re
-from subprocess import run
 import sys
+from subprocess import run
 from typing import NoReturn
 
 
