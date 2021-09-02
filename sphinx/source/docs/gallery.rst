@@ -124,9 +124,7 @@ Notebook Examples
 =================
 
 The best place to immediately experiment with Bokeh in notebooks is in the
-`live tutorial notebooks`_ hosted online by MyBinder. Static versions of these
-may also be viewed online (or downloaded and executed locally) at the
-`Bokeh NBViewer Gallery`_.
+`live tutorial notebooks`_ hosted online by MyBinder.
 
 
 .. _gallery_static_examples:
@@ -147,5 +145,4 @@ plot.
 
 .. bokeh-gallery:: gallery.json
 
-.. _Bokeh NBViewer Gallery: http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb
-.. _live Tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
+.. _live tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb

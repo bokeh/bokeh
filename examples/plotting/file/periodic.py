@@ -1,9 +1,19 @@
-from bokeh.io import output_file, show
-from bokeh.plotting import figure
+''' A rendering of the `Periodic table`_. This example demonstrates combining
+several glyphs in a single plot. A hover tooltip displays detailed information
+for each element.
+
+.. bokeh-example-metadata::
+    :sampledata: periodic_table
+    :apis: bokeh.plotting.Figure.rect, bokeh.plotting.Figure.text, bokeh.transform.dodge, bokeh.transform.factor_cmap
+    :refs: :ref:`userguide_tools` > :ref:`userguide_tools_hover_tool`
+    :keywords: hover, tooltip
+
+.. _Periodic Table: https://en.wikipedia.org/wiki/Periodic_table
+
+'''
+from bokeh.plotting import figure, show
 from bokeh.sampledata.periodic_table import elements
 from bokeh.transform import dodge, factor_cmap
-
-output_file("periodic.html")
 
 periods = ["I", "II", "III", "IV", "V", "VI", "VII"]
 groups = [str(x) for x in range(1, 19)]

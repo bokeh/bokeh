@@ -307,7 +307,7 @@ Objects in Bokeh that support both screen units and data-space units usually
 have a dedicated property to choose which unit to use. This unit-setting
 property is the name of the property with an added ``_units``. For
 example: A :class:`~bokeh.models.annotations.Whisker`
-:ref:`annotation <userguide_plotting_whiskers>` has the property ``upper``. To
+:ref:`annotation <userguide_annotations_whiskers>` has the property ``upper``. To
 define which unit to use, set the ``upper_units`` property to either
 ``'screen'`` or ``'data'``.
 

@@ -1,10 +1,20 @@
-from bokeh.io import output_file, show
+''' A bar chart using the `Auto MPG dataset`_. This example demonstrates
+automatic handing of Pandas GroupBy objects and colormapping with
+``factor_cmap``.
+
+.. bokeh-example-metadata::
+    :sampledata: autompg
+    :apis: bokeh.plotting.Figure.vbar, bokeh.transform.factor_cmap
+    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_pandas`
+    :keywords: bars, categorical, colormap, groupby, pandas
+
+.. _Auto MPG dataset: https://archive.ics.uci.edu/ml/datasets/auto+mpg
+
+'''
 from bokeh.palettes import Spectral5
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.sampledata.autompg import autompg as df
 from bokeh.transform import factor_cmap
-
-output_file("bar_pandas_groupby_colormapped.html")
 
 df.cyl = df.cyl.astype(str)
 group = df.groupby('cyl')

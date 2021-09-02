@@ -1,15 +1,21 @@
-from bokeh.io import output_file, show
-from bokeh.models import FactorRange
-from bokeh.plotting import figure
+''' A combined bar and line chart using simple Python lists. This example
+demonstrates mixing nested categorical factors with top-level categorical
+factors.
 
-output_file("bar_mixed.html")
+.. bokeh-example-metadata::
+    :apis: bokeh.models.ranges.FactorRange, bokeh.plotting.Figure.line, bokeh.plotting.Figure.vbar
+    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_mixed`
+    :keywords: bar, line, vbar
+
+'''
+from bokeh.models import FactorRange
+from bokeh.plotting import figure, show
 
 factors = [
     ("Q1", "jan"), ("Q1", "feb"), ("Q1", "mar"),
     ("Q2", "apr"), ("Q2", "may"), ("Q2", "jun"),
     ("Q3", "jul"), ("Q3", "aug"), ("Q3", "sep"),
     ("Q4", "oct"), ("Q4", "nov"), ("Q4", "dec"),
-
 ]
 
 p = figure(x_range=FactorRange(*factors), height=350,

@@ -1,6 +1,6 @@
 .. rubric:: Details
 
-:Sampledata: {{ sampledata }}
-:Bokeh APIs: {{ apis }}
-:More info: {{ refs }}
-:Keywords: {{ keywords }}
+{% if sampledata %}:Sampledata: {{ sampledata }}{% endif %}
+{% if apis %}:Bokeh APIs: {{ apis }}{% endif %}
+{% if refs %}:More info: {{ refs }}{% endif %}
+{% if keywords %}:Keywords: {{ keywords }}{% endif %}

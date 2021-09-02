@@ -1,6 +1,15 @@
+''' A basic scatter. This example plot demonstrates manual colormapping and
+many different plot tools.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.scatter
+    :refs: :ref:`userguide_tools`
+    :keywords: scatter, tools
+
+'''
 import numpy as np
 
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 N = 4000
 x = np.random.random(size=N) * 100
@@ -16,6 +25,4 @@ p.scatter(x, y, radius=radii,
           fill_color=colors, fill_alpha=0.6,
           line_color=None)
 
-output_file("color_scatter.html", title="color_scatter.py example")
-
-show(p)  # open a browser
+show(p)

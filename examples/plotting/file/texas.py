@@ -1,3 +1,13 @@
+''' A color-mapped map plot based on unemployment rate data. This example
+demonstrates using a ``LogColorMapper`` and hover tool.
+
+.. bokeh-example-metadata::
+    :sampledata: unemployment, us_counties
+    :apis: bokeh.plotting.Figure.patches, bokeh.models.mappers.LogColorMapper
+    :refs: :ref:`userguide_tools` > :ref:`userguide_tools_hover_tool`
+    :keywords: colormap, map, patches
+
+'''
 from bokeh.io import show
 from bokeh.models import LogColorMapper
 from bokeh.palettes import Viridis6 as palette
