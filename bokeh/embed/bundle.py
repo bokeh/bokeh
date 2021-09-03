@@ -188,6 +188,7 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
     use_widgets = _use_widgets(objs) if objs else True
     use_tables  = _use_tables(objs)  if objs else True
     use_gl      = _use_gl(objs)      if objs else True
+    use_mathjax = _use_mathjax(objs) if objs else True
 
     js_files: List[str] = []
     js_raw: List[str] = []
@@ -202,6 +203,8 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
             js_resources.js_components.remove("bokeh-tables")
         if not use_gl and "bokeh-gl" in js_resources.js_components:
             js_resources.js_components.remove("bokeh-gl")
+        if not use_mathjax and "bokeh-mathjax" in js_resources.js_components:
+            js_resources.js_components.remove("bokeh-mathjax")
 
         js_files.extend(js_resources.js_files)
         js_raw.extend(js_resources.js_raw)
@@ -402,6 +405,16 @@ def _use_widgets(objs: Sequence[Model | Document]) -> bool:
     '''
     from ..models.widgets import Widget
     return _any(objs, lambda obj: isinstance(obj, Widget)) or _ext_use_widgets(objs)
+
+def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
+    ''' Whether a collection of Bokeh objects contains a model requesting MathJax
+    Args:
+        objs (seq[Model or Document]) :
+    Returns:
+        bool
+    '''
+    from ..models.text import MathText
+    return _any(objs, lambda obj: isinstance(obj, MathText))
 
 def _use_gl(objs: Sequence[Model | Document]) -> bool:
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL

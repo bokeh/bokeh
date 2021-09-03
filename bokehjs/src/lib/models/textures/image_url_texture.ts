@@ -21,7 +21,7 @@ export abstract class ImageURLTexture extends Texture {
     super(attrs)
   }
 
-  static init_ImageURLTexture(): void {
+  static {
     this.define<ImageURLTexture.Props>(({String}) => ({
       url: [ String ],
     }))

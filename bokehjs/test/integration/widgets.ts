@@ -195,6 +195,18 @@ describe("Widgets", () => {
     const table = new DataTable({source, columns, autosize_mode: "none"})
     await display(table, [600, 400])
   })
+
+  it("should allow DataTable to toggle column visibility", async () => {
+    const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], foo: [10, 20, 30, 40], bar: [3.4, 1.2, 0, -10]}})
+    const index_col = new TableColumn({field: "index", title: "Index", width: 200})
+    const foo_col = new TableColumn({field: "foo", title: "Foo", width: 350})
+    const bar_col = new TableColumn({field: "bar", title: "Bar", width: 350})
+    const columns = [index_col, foo_col, bar_col]
+    const table = new DataTable({source, columns, autosize_mode: "none"})
+    const {view} = await display(table, [600, 400])
+    foo_col.visible = false
+    await view.ready
+  })
 })
 
 describe("Rows of widgets", () => {

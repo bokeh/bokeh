@@ -14,6 +14,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          # fetch full history to get proper version on build
+          fetch-depth: 0
       - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: 'latest'
@@ -59,7 +62,7 @@ jobs:
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
-          environment-file: ci/environment-test-3.7.yml
+          environment-file: ci/environment-test-3.9.yml
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -366,7 +369,7 @@ jobs:
 
       - name: Remove extra packages
         shell: bash -l {0}
-        run: conda remove --yes --quiet --no-pin pandas pandas-stubs scipy notebook scikit-learn sympy flask networkx
+        run: conda remove --yes --quiet --no-pin pandas pandas-stubs scipy notebook scikit-learn sympy flask networkx xyzservices
 
       - name: Run tests
         shell: bash -l {0}
@@ -436,7 +439,7 @@ jobs:
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
-          environment-file: ci/environment-test-3.7.yml
+          environment-file: ci/environment-test-downstream.yml
 
       - name: Install downstream packages
         shell: bash -l {0}

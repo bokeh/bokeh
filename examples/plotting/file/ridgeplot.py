@@ -1,13 +1,26 @@
+''' A `ridgeline plot`_ using the `Perceptions of Probability`_ dataset.
+This example demonstrates the uses of categorical offsets to position
+categorical values explicitly. This chart shows the distributrion of responses
+to the prompt *What probability would you assign to the phrase "Highly likely"*.
+
+.. bokeh-example-metadata::
+    :sampledata: perceptions
+    :apis: bokeh.plotting.Figure.patch, bokeh.models.sources.ColumnDataSource
+    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_offsets`
+    :keywords: patch, alpha, categorical, palette, patch, ridgeline
+
+.. _ridgeline plot: https://www.data-to-viz.com/graph/ridgeline.html
+.. _Perceptions of Probability: https://github.com/zonination/perceptions
+
+'''
 import colorcet as cc
 from numpy import linspace
 from scipy.stats.kde import gaussian_kde
 
-from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, FixedTicker, PrintfTickFormatter
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.sampledata.perceptions import probly
 
-output_file("ridgeplot.html")
 
 def ridge(category, data, scale=20):
     return list(zip([category]*len(data), scale*data))

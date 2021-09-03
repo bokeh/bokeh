@@ -166,7 +166,7 @@ export abstract class SelectTool extends GestureTool {
     this.clear = new Signal0(this, "clear")
   }
 
-  static init_SelectTool(): void {
+  static {
     this.define<SelectTool.Props>(({String, Array, Ref, Or, Auto}) => ({
       renderers: [ Or(Array(Ref(DataRenderer)), Auto), "auto" ],
       names:     [ Array(String), [] ],

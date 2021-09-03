@@ -15,7 +15,7 @@ export class ZoomInTool extends ZoomBaseTool {
     super(attrs)
   }
 
-  static init_ZoomInTool(): void {
+  static {
     this.prototype.default_view = ZoomInToolView
 
     this.register_alias("zoom_in", () => new ZoomInTool({dimensions: "both"}))

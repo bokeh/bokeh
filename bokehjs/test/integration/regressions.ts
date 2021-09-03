@@ -13,7 +13,10 @@ import {
   StaticLayoutProvider,
   LinearColorMapper,
   Plot,
-  MathText,
+  TeX,
+  HoverTool,
+  TileRenderer, WMTSTileSource,
+  Renderer,
 } from "@bokehjs/models"
 
 import {Button, Select, MultiSelect, MultiChoice, RadioGroup} from "@bokehjs/models/widgets"
@@ -30,17 +33,58 @@ import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
 import {defer} from "@bokehjs/core/util/defer"
+import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, MarkerArgs, show} from "@bokehjs/api/plotting"
 import {Spectral11, turbo} from "@bokehjs/api/palettes"
-import {div} from "@bokehjs/core/dom"
+import {div, offset} from "@bokehjs/core/dom"
 
 import {DelayedInternalProvider} from "./axes"
-import {MathTextView} from "@bokehjs/models/math_text/math_text"
+import {MathTextView} from "@bokehjs/models/text/math_text"
+import {PlotView} from "@bokehjs/models/plots/plot"
 
 const n_marker_types = [...MarkerType].length
 
-function svg_image(svg: string): string {
+function svg_data_url(svg: string): string {
   return `data:image/svg+xml;utf-8,${svg}`
+}
+
+function scalar_image(N: number = 100) {
+  const x = linspace(0, 10, N)
+  const y = linspace(0, 10, N)
+  const d = new Float64Array(N*N)
+  const {sin, cos} = Math
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      d[i*N + j] = sin(x[i])*cos(y[j])
+    }
+  }
+  return ndarray(d, {shape: [N, N]})
+}
+
+function rgba_image() {
+  const N = 20
+  const d = new Uint32Array(N*N) // TODO: doesn't allow Uint8Array[N, N, 4]
+  const dv = new DataView(d.buffer)
+
+  const {trunc} = Math
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      const r = trunc(i/N*255)
+      const g = 158
+      const b = trunc(j/N*255)
+      const a = 255
+      dv.setUint32(4*(i*N + j), encode_rgba([r, g, b, a]))
+    }
+  }
+  return ndarray(d, {shape: [N, N]})
+}
+
+function svg_image() {
+  return svg_data_url(`\
+<svg version="1.1" viewBox="0 0 2 2" xmlns="http://www.w3.org/2000/svg">
+<circle cx="1" cy="1" r="1" fill="blue" />
+</svg>
+`)
 }
 
 describe("Bug", () => {
@@ -83,12 +127,11 @@ describe("Bug", () => {
     it.allowing(8)("disallows ImageURL glyph to set anchor and angle at the same time", async () => {
       const p = fig([300, 300], {x_range: [-1, 10], y_range: [-1, 10]})
 
-      const svg = `\
+      const img = svg_data_url(`\
 <svg version="1.1" viewBox="0 0 2 2" xmlns="http://www.w3.org/2000/svg">
   <path d="M 0,0 2,0 1,2 Z" fill="green" />
 </svg>
-`
-      const img = svg_image(svg)
+`)
 
       let y = 0
       const w = 1, h = 1
@@ -404,18 +447,7 @@ describe("Bug", () => {
   describe("in issue #10725", () => {
     it("renders image glyphs in wrong orientation using SVG backend", async () => {
       function make_plot(output_backend: OutputBackend) {
-        const N = 500
-        const x = linspace(0, 10, N)
-        const y = linspace(0, 10, N)
-        const d = new Float64Array(N*N)
-        const {sin, cos} = Math
-        for (let i = 0; i < N; i++) {
-          for (let j = 0; j < N; j++) {
-            d[i*N + j] = sin(x[i])*cos(y[j])
-          }
-        }
-
-        const image = ndarray(d, {shape: [N, N]})
+        const image = scalar_image(500)
         const color_mapper = new LinearColorMapper({palette: Spectral11})
 
         const p = fig([200, 200], {output_backend})
@@ -442,13 +474,7 @@ describe("Bug", () => {
 
   describe("in issue #10369", () => {
     it("disallows ImageURL glyph to compute correct bounds with different anchors", async () => {
-      const svg = `\
-<svg version="1.1" viewBox="0 0 2 2" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="1" cy="1" r="1" fill="blue" />
-</svg>
-`
-      const img = svg_image(svg)
-
+      const img = svg_image()
       const plots = []
       for (const anchor of [...Anchor].slice(0, 9)) {
         const x_range = new DataRange1d()
@@ -1097,17 +1123,242 @@ describe("Bug", () => {
       stub.value(new DelayedInternalProvider())
       try {
         const p0 = fig([200, 150], {
-          x_axis_label: new MathText({text: "\\theta\\cdot\\left(\\frac{\\sin(x) + 1}{\\Gamma}\\right)"}),
+          x_axis_label: new TeX({text: "\\theta\\cdot\\left(\\frac{\\sin(x) + 1}{\\Gamma}\\right)"}),
         })
         p0.circle([1, 2, 3], [1, 2, 3])
         const p1 = fig([200, 150], {
-          x_axis_label: new MathText({text: "\\theta\\cdot\\left(\\frac{\\cos(x) + 1}{\\Omega}\\right)"}),
+          x_axis_label: new TeX({text: "\\theta\\cdot\\left(\\frac{\\cos(x) + 1}{\\Omega}\\right)"}),
         })
         p1.circle([1, 2, 3], [1, 2, 3])
         await display(row([p0, p1]))
       } finally {
         stub.restore()
       }
+    })
+  })
+
+  describe("in issue #11508", () => {
+    it("doesn't allow to correctly compute log bounds for data ranging", async () => {
+      const y = [
+        0.000000000000000000e+00,
+        8.164452529434230836e+22,
+        0.000000000000000000e+00,
+        0.000000000000000000e+00,
+        7.314143412752266717e+22,
+        0.000000000000000000e+00,
+        6.232344689415452361e+22,
+        0.000000000000000000e+00,
+        0.000000000000000000e+00,
+        0.000000000000000000e+00,
+        0.000000000000000000e+00,
+        1.661581512390552584e+21,
+        1.005171116507131360e+17,
+        8.466177779596089600e+16,
+        7.311184945273668800e+16,
+        6.434035489362382400e+16,
+        5.745531645071752000e+16,
+        0.000000000000000000e+00,
+        4.731234037419803200e+16,
+      ]
+      const x = range(y.length)
+
+      const p = fig([200, 200], {y_axis_type: "log"})
+      p.line(x, y, {line_width: 2})
+      await display(p)
+    })
+  })
+
+  describe("in issue #11446", () => {
+    it("doesn't allow to correctly compute inspection indices in vline or hline mode", async () => {
+      const p = fig([200, 200])
+      const cr = p.circle([1, 2, 3, 4], [1, 2, 3, 4], {
+        size: 20, fill_color: "steelblue", hover_fill_color: "red", hover_alpha: 0.1,
+      })
+      p.add_tools(new HoverTool({tooltips: null, renderers: [cr], mode: "vline"}))
+      const {view} = await display(p)
+
+      const crv = view.renderer_views.get(cr)!
+      const [[sx], [sy]] = crv.coordinates.map_to_screen([2], [1.5])
+
+      const ui = view.canvas_view.ui_event_bus
+      const {left, top} = offset(ui.hit_area)
+
+      const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
+      ui._mouse_move(ev)
+
+      await view.ready
+    })
+  })
+
+  describe("in issue #11437", () => {
+    it("doesn't allow to use correct subset indices with image glyph during inspection", async () => {
+      function plot(indices: number[]) {
+        const p = fig([200, 200])
+        const source = new ColumnDataSource({
+          data: {
+            x: [0, 10],
+            image: [
+              ndarray([0, 0, 1, 1], {shape: [2, 2]}),
+              ndarray([5, 5, 6, 6], {shape: [2, 2]}),
+            ],
+          },
+        })
+        const color_mapper = new LinearColorMapper({low: 0, high: 6, palette: Spectral11})
+        const cds_view = new CDSView({source, filters: [new IndexFilter({indices})]})
+        const ir = p.image({
+          image: {field: "image"},
+          x: {field: "x"},
+          y: 0,
+          dw: 10,
+          dh: 20,
+          color_mapper,
+          source,
+          view: cds_view,
+        })
+        p.add_tools(new HoverTool({
+          renderers: [ir],
+          tooltips: [
+            ["index", "$index"],
+            ["value", "@image"],
+          ],
+        }))
+        return [p, ir] as const
+      }
+
+      const [p0, r0] = plot([0])
+      const [p1, r1] = plot([1])
+      const [p2, r2] = plot([0, 1])
+
+      const {view} = await display(row([p0, p1, p2]))
+
+      function hover_at(plot_view: PlotView, r: Renderer, x: number, y: number) {
+        const crv = plot_view.renderer_views.get(r)!
+        const [[sx], [sy]] = crv.coordinates.map_to_screen([x], [y])
+
+        const ui = plot_view.canvas_view.ui_event_bus
+        const {left, top} = offset(ui.hit_area)
+
+        const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
+        ui._mouse_move(ev)
+
+        return view.ready
+      }
+
+      const [pv0, pv1, pv2] = view.child_views as PlotView[]
+
+      await hover_at(pv0, r0,  2, 5)
+      await hover_at(pv1, r1, 12, 5)
+      await hover_at(pv2, r2,  2, 5)
+    })
+  })
+
+  describe("in issue #11413", () => {
+    const osm_source = new WMTSTileSource({
+      // url: "https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
+      url: "/tiles/osm/{Z}_{X}_{Y}.png",
+      attribution: "&copy; (0) OSM source attribution",
+    })
+
+    const esri_source = new WMTSTileSource({
+      // url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg",
+      url: "/tiles/esri/{Z}_{Y}_{X}.jpg",
+      attribution: "&copy; (1) Esri source attribution",
+    })
+
+    it("doesn't allow to remove an annotation element associated with a tile renderer", async () => {
+      const osm = new TileRenderer({tile_source: osm_source})
+      const esri = new TileRenderer({tile_source: esri_source})
+
+      const p0 = fig([300, 200], {
+        x_range: [-2000000, 6000000],
+        y_range: [-1000000, 7000000],
+        x_axis_type: "mercator",
+        y_axis_type: "mercator",
+        renderers: [osm],
+      })
+
+      const p1 = fig([300, 200], {
+        x_range: [-2000000, 6000000],
+        y_range: [-1000000, 7000000],
+        x_axis_type: "mercator",
+        y_axis_type: "mercator",
+        renderers: [esri],
+      })
+
+      const {view} = await display(row([p0, p1]))
+
+      // TODO: allow `await view.ready` to await readiness of its children
+      p0.renderers = [esri]
+      await view.child_views[0].ready
+
+      p1.renderers = [osm]
+      await view.child_views[1].ready
+    })
+  })
+
+  describe("in issue #11548", () => {
+    const global_alpha = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
+
+    const x = [0, 11, 22, 0, 11, 22, 0, 11, 22]
+    const y = [0, 0, 0, 11, 11, 11, 22, 22, 22]
+
+    it("doesn't allow vectorized global alpha in Image glyph", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const color_mapper = new LinearColorMapper({palette: Spectral11})
+
+        const p = fig([200, 200], {output_backend, title: output_backend})
+        p.image({image: {value: scalar_image()}, x, y, dw: 10, dh: 10, global_alpha, color_mapper})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]))
+    })
+
+    it("doesn't allow vectorized global alpha in ImageRGBA glyph", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([200, 200], {output_backend, title: output_backend})
+        p.image_rgba({image: {value: rgba_image()}, x, y, dw: 10, dh: 10, global_alpha})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]))
+    })
+
+    it("doesn't allow vectorized global alpha in ImageURL glyph", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([200, 200], {output_backend, title: output_backend})
+        p.image_url({url: {value: svg_image()}, x, y, w: 10, h: 10, global_alpha, anchor: "bottom_left"})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]))
+    })
+  })
+
+  describe("in issue #11551", () => {
+    it("doesn't allow SVG backend to respect clip paths when painting images", async () => {
+      const color_mapper = new LinearColorMapper({palette: Spectral11})
+
+      const x_range: [number, number] = [0, 10]
+      const y_range: [number, number] = [0, 10]
+
+      const p0 = fig([100, 100], {output_backend: "svg", x_range, y_range})
+      p0.image({image: {value: scalar_image()}, x: -2, y: -2, dw: 10, dh: 10, color_mapper})
+      const p1 = fig([100, 100], {output_backend: "svg", x_range, y_range})
+      p1.image_rgba({image: {value: rgba_image()}, x: -2, y: -2, dw: 10, dh: 10})
+      const p2 = fig([100, 100], {output_backend: "svg", x_range, y_range})
+      p2.image_url({url: {value: svg_image()}, x: -2, y: -2, w: 10, h: 10, anchor: "bottom_left"})
+
+      await display(row([p0, p1, p2]))
     })
   })
 })

@@ -57,12 +57,16 @@ export namespace Plot {
     renderers: p.Property<Renderer[]>
 
     x_range: p.Property<Range>
-    extra_x_ranges: p.Property<{[key: string]: Range}>
     y_range: p.Property<Range>
-    extra_y_ranges: p.Property<{[key: string]: Range}>
 
     x_scale: p.Property<Scale>
     y_scale: p.Property<Scale>
+
+    extra_x_ranges: p.Property<{[key: string]: Range}>
+    extra_y_ranges: p.Property<{[key: string]: Range}>
+
+    extra_x_scales: p.Property<{[key: string]: Scale}>
+    extra_y_scales: p.Property<{[key: string]: Scale}>
 
     lod_factor: p.Property<number>
     lod_interval: p.Property<number>
@@ -115,7 +119,7 @@ export class Plot extends LayoutDOM {
     super(attrs)
   }
 
-  static init_Plot(): void {
+  static {
     this.prototype.default_view = PlotView
 
     this.mixins<Plot.Mixins>([
@@ -150,12 +154,16 @@ export class Plot extends LayoutDOM {
       renderers:         [ Array(Ref(Renderer)), [] ],
 
       x_range:           [ Ref(Range), () => new DataRange1d() ],
-      extra_x_ranges:    [ Dict(Ref(Range)), {} ],
       y_range:           [ Ref(Range), () => new DataRange1d() ],
-      extra_y_ranges:    [ Dict(Ref(Range)), {} ],
 
       x_scale:           [ Ref(Scale), () => new LinearScale() ],
       y_scale:           [ Ref(Scale), () => new LinearScale() ],
+
+      extra_x_ranges:    [ Dict(Ref(Range)), {} ],
+      extra_y_ranges:    [ Dict(Ref(Range)), {} ],
+
+      extra_x_scales:    [ Dict(Ref(Scale)), {} ],
+      extra_y_scales:    [ Dict(Ref(Scale)), {} ],
 
       lod_factor:        [ Number, 10 ],
       lod_interval:      [ Number, 300 ],

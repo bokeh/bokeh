@@ -135,6 +135,8 @@ export class TabsView extends LayoutDOMView {
     const headers = this.model.tabs.map((tab, i) => {
       const el = div({class: [tabs.tab, i == active ? tabs.active : null]}, tab.title)
       el.addEventListener("click", (event) => {
+        if (this.model.disabled)
+          return
         if (event.target == event.currentTarget)
           this.change_active(i)
       })
@@ -150,6 +152,9 @@ export class TabsView extends LayoutDOMView {
           }
         })
         el.appendChild(close_el)
+      }
+      if (this.model.disabled || tab.disabled) {
+        el.classList.add(tabs.disabled)
       }
       return el
     })
@@ -251,7 +256,7 @@ export class Tabs extends LayoutDOM {
     super(attrs)
   }
 
-  static init_Tabs(): void {
+  static {
     this.prototype.default_view = TabsView
 
     this.define<Tabs.Props>(({Int, Array, Ref}) => ({

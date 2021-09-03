@@ -20,7 +20,7 @@ export class MercatorTickFormatter extends BasicTickFormatter {
     super(attrs)
   }
 
-  static init_MercatorTickFormatter(): void {
+  static {
     this.define<MercatorTickFormatter.Props>(({Nullable}) => ({
       dimension: [ Nullable(LatLon), null ],
     }))

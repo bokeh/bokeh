@@ -15,6 +15,7 @@ export type ImageDataBase = XYGlyphData & {
   readonly image: p.Uniform<NDArray | number[][]>
   readonly dw: p.Uniform<number>
   readonly dh: p.Uniform<number>
+  readonly global_alpha: p.Uniform<number>
 
   sw: ScreenArray
   sh: ScreenArray
@@ -35,12 +36,14 @@ export abstract class ImageBaseView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: ImageDataBase): void {
-    const {image_data, sx, sy, sw, sh} = data ?? this
+    const {image_data, sx, sy, sw, sh, global_alpha} = data ?? this
 
     const old_smoothing = ctx.getImageSmoothingEnabled()
     ctx.setImageSmoothingEnabled(false)
 
-    ctx.globalAlpha = this.model.global_alpha
+    const scalar_alpha = global_alpha.is_Scalar()
+    if (scalar_alpha)
+      ctx.globalAlpha = global_alpha.value
 
     for (const i of indices) {
       const image_data_i = image_data[i]
@@ -48,9 +51,13 @@ export abstract class ImageBaseView extends XYGlyphView {
       const sy_i = sy[i]
       const sw_i = sw[i]
       const sh_i = sh[i]
+      const alpha_i = this.global_alpha.get(i)
 
-      if (image_data_i == null || !isFinite(sx_i + sy_i + sw_i + sh_i))
+      if (image_data_i == null || !isFinite(sx_i + sy_i + sw_i + sh_i + alpha_i))
         continue
+
+      if (!scalar_alpha)
+        ctx.globalAlpha = alpha_i
 
       const y_offset = sy_i
 
@@ -204,7 +211,7 @@ export namespace ImageBase {
     image: p.NDArraySpec
     dw: p.DistanceSpec
     dh: p.DistanceSpec
-    global_alpha: p.Property<number>
+    global_alpha: p.NumberSpec
     dilate: p.Property<boolean>
   }
 
@@ -221,13 +228,13 @@ export abstract class ImageBase extends XYGlyph {
     super(attrs)
   }
 
-  static init_ImageBase(): void {
-    this.define<ImageBase.Props>(({Boolean, Alpha}) => ({
+  static {
+    this.define<ImageBase.Props>(({Boolean}) => ({
       image:        [ p.NDArraySpec, {field: "image"} ],
       dw:           [ p.DistanceSpec, {field: "dw"} ],
       dh:           [ p.DistanceSpec, {field: "dh"} ],
+      global_alpha: [ p.NumberSpec, {value: 1.0} ],
       dilate:       [ Boolean, false ],
-      global_alpha: [ Alpha, 1.0 ],
     }))
   }
 }

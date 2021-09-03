@@ -201,6 +201,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
       this.model.y_range,
       this.model.extra_x_ranges,
       this.model.extra_y_ranges,
+      this.model.extra_x_scales,
+      this.model.extra_y_scales,
     )
 
     this._range_manager = new RangeManager(this)

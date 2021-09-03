@@ -129,7 +129,7 @@ export class Title extends TextAnnotation {
     super(attrs)
   }
 
-  static init_Title(): void {
+  static {
     this.prototype.default_view = TitleView
 
     this.mixins<Title.Mixins>([

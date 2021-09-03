@@ -479,6 +479,22 @@ class Plot(LayoutDOM):
     This is useful for adding additional axes.
     """)
 
+    extra_x_scales = Dict(String, Instance(Scale), help="""
+    Additional named scales to make available for mapping x-coordinates.
+
+    This is useful for adding additional axes.
+
+    .. note:: This feature is experimental and may change in the short term.
+    """)
+
+    extra_y_scales = Dict(String, Instance(Scale), help="""
+    Additional named scales to make available for mapping y-coordinates.
+
+    This is useful for adding additional axes.
+
+    .. note:: This feature is experimental and may change in the short term.
+    """)
+
     hidpi = Bool(default=True, help="""
     Whether to use HiDPI mode when available.
     """)

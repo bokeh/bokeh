@@ -27,6 +27,13 @@ Runtime dependencies
 
 Bokeh no longer requires the package ``python-dateutil``.
 
+Wikimedia Tile Provider
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Wikimedia has restricted their tile service to only function with Wikimedia
+domains, and no longer be publicly usable. Accordingly, the WIKIMEDIA tile
+provider has been removed. Use any of the other tile providers instead.
+
 Deprecations
 ~~~~~~~~~~~~
 
@@ -72,3 +79,10 @@ Use ``width`` or ``height`` respectively instead.
 
 Previously it was a `dict`-based ad-hoc data structure. Replace key indexing
 with attribute access.
+
+``static init_ModelName(): void {}`` was deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use new TypeScript 4.4 static blocks ``static {}`` instead. Support for static
+``init_`` methods will be removed in bokeh 3.0. This change only affects model
+providing extensions.

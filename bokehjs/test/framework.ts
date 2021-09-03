@@ -239,7 +239,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   try {
     await fn()
     await defer()
-  } catch (err: unknown) {
+  } catch (err) {
     error = err instanceof Error ? err : new Error(`${err}`)
   } finally {
     current_test = null
@@ -264,7 +264,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
       const bbox = {x: left, y: top, width: rect.width, height: rect.height}
       const state = test.view.serializable_state()
       return {error, time, state, bbox}
-    } catch (err: unknown) {
+    } catch (err) {
       error = err instanceof Error ? err : new Error(`${err}`)
     }
   }

@@ -147,7 +147,7 @@ export class LineEditTool extends LineTool {
     super(attrs)
   }
 
-  static init_LineEditTool(): void {
+  static {
     this.prototype.default_view = LineEditToolView
     this.define<LineEditTool.Props>(() => ({
       dimensions: [ Dimensions, "both" ],

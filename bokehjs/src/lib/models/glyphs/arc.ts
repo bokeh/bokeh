@@ -83,7 +83,7 @@ export class Arc extends XYGlyph {
     super(attrs)
   }
 
-  static init_Arc(): void {
+  static {
     this.prototype.default_view = ArcView
 
     this.mixins<Arc.Mixins>(LineVector)

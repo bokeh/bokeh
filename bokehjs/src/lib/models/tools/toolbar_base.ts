@@ -1,5 +1,5 @@
 import {logger} from "core/logging"
-import {classes, empty, div, a} from "core/dom"
+import {classes, empty, div, a, Keys} from "core/dom"
 import {build_views, remove_views} from "core/build_views"
 import * as p from "core/properties"
 import {DOMView} from "core/dom_view"
@@ -42,7 +42,7 @@ export class ToolbarViewModel extends Model {
     super(attrs)
   }
 
-  static init_ToolbarViewModel(): void {
+  static {
     this.define<ToolbarViewModel.Props>(({Boolean}) => ({
       autohide: [ Boolean, false ],
     }))
@@ -167,8 +167,8 @@ export class ToolbarBaseView extends DOMView {
     let overflowed = false
     const overflow_size = 15
     this.root.el.appendChild(this._overflow_menu.el)
-    const overflow_button = div({class: toolbars.tool_overflow}, horizontal ? "⋮" : "⋯")
-    overflow_button.addEventListener("click", () => {
+    const overflow_button = div({class: toolbars.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
+    const toggle_menu = () => {
       const at = (() => {
         switch (this.model.toolbar_location) {
           case "right": return {left_of:  overflow_button}
@@ -178,6 +178,14 @@ export class ToolbarBaseView extends DOMView {
         }
       })()
       this._overflow_menu.toggle(at)
+    }
+    overflow_button.addEventListener("click", () => {
+      toggle_menu()
+    })
+    overflow_button.addEventListener("keydown", (event) => {
+      if (event.keyCode == Keys.Enter) {
+        toggle_menu()
+      }
     })
 
     for (const el of join<HTMLElement>(non_empty, divider)) {
@@ -272,7 +280,7 @@ export class ToolbarBase extends Model {
     super(attrs)
   }
 
-  static init_ToolbarBase(): void {
+  static {
     this.prototype.default_view = ToolbarBaseView
 
     this.define<ToolbarBase.Props>(({Boolean, Array, Ref, Nullable}) => ({

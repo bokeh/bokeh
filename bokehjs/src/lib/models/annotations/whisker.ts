@@ -88,7 +88,7 @@ export class Whisker extends UpperLower {
     super(attrs)
   }
 
-  static init_Whisker(): void {
+  static {
     this.prototype.default_view = WhiskerView
 
     this.mixins<Whisker.Mixins>(LineVector)

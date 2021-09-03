@@ -20,7 +20,7 @@ export class Stack extends Expression {
     super(attrs)
   }
 
-  static init_Stack(): void {
+  static {
     this.define<Stack.Props>(({String, Array}) => ({
       fields: [ Array(String), [] ],
     }))

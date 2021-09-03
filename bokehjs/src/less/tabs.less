@@ -73,6 +73,12 @@
       .bk-close {
         margin-left: 10px;
       }
+
+      &.bk-disabled { // TODO: same as elsewhere, so use a mixin
+        cursor: not-allowed;
+        pointer-events: none;
+        opacity: 0.65;
+      }
     }
 
     &.bk-above .bk-tab {

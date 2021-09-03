@@ -34,7 +34,7 @@ export abstract class ContinuousTicker extends Ticker {
     super(attrs)
   }
 
-  static init_ContinuousTicker(): void {
+  static {
     this.define<ContinuousTicker.Props>(({Int}) => ({
       num_minor_ticks:   [ Int, 5 ],
       desired_num_ticks: [ Int, 6 ],

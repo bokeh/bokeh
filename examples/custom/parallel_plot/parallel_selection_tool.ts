@@ -364,7 +364,7 @@ export class ParallelSelectionTool extends BoxSelectTool {
   override properties: ParallelSelectionTool.Props
   override __view_type__: ParallelSelectionView
 
-  static init_ParallelSelectionTool(): void {
+  static {
     this.prototype.default_view = ParallelSelectionView
 
     this.define<ParallelSelectionTool.Props>(({Number, AnyRef}) => ({

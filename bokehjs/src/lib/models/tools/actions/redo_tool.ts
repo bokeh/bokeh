@@ -35,7 +35,7 @@ export class RedoTool extends ActionTool {
     super(attrs)
   }
 
-  static init_RedoTool(): void {
+  static {
     this.prototype.default_view = RedoToolView
 
     this.override<RedoTool.Props>({

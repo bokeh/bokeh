@@ -1,8 +1,16 @@
+'''  A grid plot shows histograms for four different probability distributions.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.line, bokeh.plotting.Figure.quad
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_bars_rects`
+    :keywords: histogram
+
+'''
 import numpy as np
 import scipy.special
 
 from bokeh.layouts import gridplot
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 
 def make_plot(title, hist, edges, x, pdf, cdf):
@@ -70,7 +78,5 @@ pdf = (k/lam)*(x/lam)**(k-1) * np.exp(-(x/lam)**k)
 cdf = 1 - np.exp(-(x/lam)**k)
 
 p4 = make_plot("Weibull Distribution (λ=1, k=1.25)", hist, edges, x, pdf, cdf)
-
-output_file('histogram.html', title="histogram.py example")
 
 show(gridplot([p1,p2,p3,p4], ncols=2, width=400, height=400, toolbar_location=None))

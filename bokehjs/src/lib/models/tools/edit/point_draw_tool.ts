@@ -87,13 +87,13 @@ export class PointDrawTool extends EditTool {
   override properties: PointDrawTool.Props
   override __view_type__: PointDrawToolView
 
-  renderers: (GlyphRenderer & HasXYGlyph)[]
+  override renderers: (GlyphRenderer & HasXYGlyph)[]
 
   constructor(attrs?: Partial<PointDrawTool.Attrs>) {
     super(attrs)
   }
 
-  static init_PointDrawTool(): void {
+  static {
     this.prototype.default_view = PointDrawToolView
 
     this.define<PointDrawTool.Props>(({Boolean, Int}) => ({

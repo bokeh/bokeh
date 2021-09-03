@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import weakref
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -43,14 +44,12 @@ from ..application.application import ServerContext, SessionContext
 from ..document import Document
 from ..protocol.exceptions import ProtocolError
 from ..util.token import get_token_payload
-from ..util.tornado import _CallbackGroup
 from .session import ServerSession
 
 if TYPE_CHECKING:
     from ..application.application import Application
     from ..core.types import ID
     from ..util.token import TokenPayload
-    from ..util.tornado import Callback
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -76,36 +75,20 @@ __all__ = (
 
 class BokehServerContext(ServerContext):
     def __init__(self, application_context: ApplicationContext) -> None:
-        self.application_context = application_context
-        self._callbacks = _CallbackGroup(self.application_context.io_loop)
+        self._application_context = weakref.ref(application_context)
 
-    def _remove_all_callbacks(self) -> None:
-        self._callbacks.remove_all_callbacks()
+    @property
+    def application_context(self) -> ApplicationContext | None:
+        return self._application_context()
 
     @property
     def sessions(self) -> List[ServerSession]:
         result: List[ServerSession] = []
-        for session in self.application_context.sessions:
-            result.append(session)
+        context = self.application_context
+        if context:
+            for session in context.sessions:
+                result.append(session)
         return result
-
-    def add_next_tick_callback(self, callback: Callback) -> ID:
-        return self._callbacks.add_next_tick_callback(callback)
-
-    def remove_next_tick_callback(self, callback_id: ID) -> None:
-        self._callbacks.remove_next_tick_callback(callback_id)
-
-    def add_timeout_callback(self, callback: Callback, timeout_milliseconds: int) -> ID:
-        return self._callbacks.add_timeout_callback(callback, timeout_milliseconds)
-
-    def remove_timeout_callback(self, callback_id: ID) -> None:
-        self._callbacks.remove_timeout_callback(callback_id)
-
-    def add_periodic_callback(self, callback: Callback, period_milliseconds: int) -> ID:
-        return self._callbacks.add_periodic_callback(callback, period_milliseconds)
-
-    def remove_periodic_callback(self, callback_id: ID) -> None:
-        self._callbacks.remove_periodic_callback(callback_id)
 
 class BokehSessionContext(SessionContext):
 
@@ -172,7 +155,7 @@ class ApplicationContext:
     _sessions: Dict[ID, ServerSession]
     _pending_sessions: Dict[ID, gen.Future[ServerSession]]
     _session_contexts: Dict[ID, SessionContext]
-    _server_context: BokehServerContext | None
+    _server_context: BokehServerContext
 
     def __init__(self, application: Application, io_loop: IOLoop | None = None,
             url: str | None = None, logout_url: str | None = None):
@@ -181,7 +164,7 @@ class ApplicationContext:
         self._sessions = {}
         self._pending_sessions = {}
         self._session_contexts = {}
-        self._server_context = None
+        self._server_context = BokehServerContext(self)
         self._url = url
         self._logout_url = logout_url
 
@@ -199,8 +182,6 @@ class ApplicationContext:
 
     @property
     def server_context(self) -> BokehServerContext:
-        if self._server_context is None:
-            self._server_context = BokehServerContext(self)
         return self._server_context
 
     @property
@@ -218,8 +199,6 @@ class ApplicationContext:
             self._application.on_server_unloaded(self.server_context)
         except Exception as e:
             log.error(f"Error in server unloaded hook {e!r}", exc_info=True)
-
-        self.server_context._remove_all_callbacks()
 
     async def create_session_if_needed(self, session_id: ID, request: HTTPServerRequest | None = None,
             token: str | None = None) -> ServerSession:
@@ -254,7 +233,7 @@ class ApplicationContext:
 
             # expose the session context to the document
             # use the _attribute to set the public property .session_context
-            doc._session_context = session_context
+            doc._session_context = weakref.ref(session_context)
 
             try:
                 await self._application.on_session_created(session_context)

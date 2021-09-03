@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import weakref
+
 # Bokeh imports
 from bokeh.document import Document
 from bokeh.io.state import curstate
@@ -51,11 +54,29 @@ def test_patch_curdoc() -> None:
     assert bid._PATCHED_CURDOCS == []
 
     with bid.patch_curdoc(d1):
+        assert len(bid._PATCHED_CURDOCS) == 1
+        assert isinstance(bid._PATCHED_CURDOCS[0], weakref.ReferenceType)
         assert bid.curdoc() is d1
+
         with bid.patch_curdoc(d2):
+            assert len(bid._PATCHED_CURDOCS) == 2
+            assert isinstance(bid._PATCHED_CURDOCS[1], weakref.ReferenceType)
             assert bid.curdoc() is d2
+
+        assert len(bid._PATCHED_CURDOCS) == 1
+        assert isinstance(bid._PATCHED_CURDOCS[0], weakref.ReferenceType)
         assert bid.curdoc() is d1
+
     assert bid.curdoc() is orig_doc
+
+def _doc():
+    return Document()
+
+def test_patch_curdoc_weakref_raises() -> None:
+    with bid.patch_curdoc(_doc()):
+        with pytest.raises(RuntimeError) as e:
+            bid.curdoc()
+            assert str(e) == "Patched curdoc has been previously destroyed"
 
 #-----------------------------------------------------------------------------
 # Private API

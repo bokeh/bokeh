@@ -21,6 +21,7 @@ import os
 import re
 import subprocess
 import sys
+from copy import deepcopy
 from os.path import basename
 from typing import List
 
@@ -83,7 +84,7 @@ class TestSRIHashes:
     # TODO: (bev) conda build on CI is generating bogus versions like "0+untagged.1.g19dd2c8"
     @pytest.mark.skip
     def test_get_all_hashes_no_future_keys(self) -> None:
-        current = V(__version__.split("-", 1)[0])  # remove git hash, "-dirty", etc
+        current = V(__version__.split("+", 1)[0])  # remove git hash, "-dirty", etc
         all_hashes = resources.get_all_sri_hashes()
         for key in all_hashes:
             assert (
@@ -112,7 +113,7 @@ class TestJSResources:
         assert r.mode == "inline"
         assert r.dev is False
 
-        assert len(r.js_raw) == 5
+        assert len(r.js_raw) == 6
         assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
         assert hasattr(r, "css_raw") is False
         assert r.messages == []
@@ -120,13 +121,15 @@ class TestJSResources:
     def test_js_resources_hashes_mock_full(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", "1.4.0")
         monkeypatch.setattr(resources, "__version__", "1.4.0")
-        r = resources.JSResources()
+        r = deepcopy(resources.JSResources())
+        # Skip bokeh-mathjax for older versions
+        r.js_components.remove("bokeh-mathjax")
         assert r.mode == "cdn"
         hashes = resources.get_sri_hashes_for_version("1.4.0")
         min_hashes = {v for k, v in hashes.items() if k.endswith(".min.js") and "api" not in k}
         assert set(r.hashes.values()) == min_hashes
 
-    @pytest.mark.parametrize('v', ["1.4.0dev6", "1.4.0rc1", "1.4.0dev6-50-foo"])
+    @pytest.mark.parametrize('v', ["1.4.0dev6", "1.4.0rc1", "1.4.0dev6+50.foo"])
     def test_js_resources_hashes_mock_non_full(self, v: str, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", v)
         monkeypatch.setattr(resources, "__version__", v)
@@ -175,7 +178,7 @@ class TestResources:
         assert r.mode == "inline"
         assert r.dev == False
 
-        assert len(r.js_raw) == 5
+        assert len(r.js_raw) == 6
         assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
         assert len(r.css_raw) == 0
         assert r.messages == []
@@ -196,11 +199,11 @@ class TestResources:
         assert r.css_raw == []
         assert r.messages == []
 
-        resources.__version__ = "1.0-1-abc"
+        resources.__version__ = "1.0+1.abc"
         r = resources.Resources(mode="cdn", version="1.0")
         assert r.messages == [
             RuntimeMessage(
-                text="Requesting CDN BokehJS version '1.0' from Bokeh development version '1.0-1-abc'. This configuration is unsupported and may not work!",
+                text="Requesting CDN BokehJS version '1.0' from Bokeh development version '1.0+1.abc'. This configuration is unsupported and may not work!",
                 type="warn",
             )
         ]
@@ -219,6 +222,7 @@ class TestResources:
             "http://localhost:5006/static/js/bokeh-gl.min.js",
             "http://localhost:5006/static/js/bokeh-widgets.min.js",
             "http://localhost:5006/static/js/bokeh-tables.min.js",
+            "http://localhost:5006/static/js/bokeh-mathjax.min.js",
         ]
 
     def test_server_root_url(self) -> None:
@@ -233,6 +237,7 @@ class TestResources:
             "http://foo/static/js/bokeh-gl.min.js",
             "http://foo/static/js/bokeh-widgets.min.js",
             "http://foo/static/js/bokeh-tables.min.js",
+            "http://foo/static/js/bokeh-mathjax.min.js",
         ]
 
     def test_server_root_url_empty(self) -> None:
@@ -247,6 +252,7 @@ class TestResources:
             "static/js/bokeh-gl.min.js",
             "static/js/bokeh-widgets.min.js",
             "static/js/bokeh-tables.min.js",
+            "static/js/bokeh-mathjax.min.js",
         ]
 
     def test_server_with_versioner(self) -> None:
@@ -260,6 +266,7 @@ class TestResources:
             "http://foo/static/js/bokeh-gl.min.js?v=VERSIONED",
             "http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED",
             "http://foo/static/js/bokeh-tables.min.js?v=VERSIONED",
+            "http://foo/static/js/bokeh-mathjax.min.js?v=VERSIONED",
         ]
 
     def test_server_dev(self) -> None:
@@ -341,7 +348,10 @@ class TestResources:
     def test_render_js_cdn_release(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0")
         monkeypatch.setattr(resources, "__version__", "2.0.0")
-        out = resources.CDN.render_js()
+        r = deepcopy(resources.CDN)
+        # Skip bokeh-mathjax for older versions
+        r.js_components.remove("bokeh-mathjax")
+        out = r.render_js()
         html = bs4.BeautifulSoup(out, "html.parser")
         scripts = html.findAll(name='script')
         for script in scripts:
@@ -362,9 +372,12 @@ class TestResources:
             assert "integrity" not in script.attrs
 
     def test_render_js_cdn_dev_local(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setattr(buv, "__version__", "2.0.0-foo")
-        monkeypatch.setattr(resources, "__version__", "2.0.0-foo")
-        out = resources.CDN.render_js()
+        monkeypatch.setattr(buv, "__version__", "2.0.0+foo")
+        monkeypatch.setattr(resources, "__version__", "2.0.0+foo")
+        r = deepcopy(resources.CDN)
+        # Skip bokeh-mathjax for older versions
+        r.js_components.remove("bokeh-mathjax")
+        out = r.render_js()
         html = bs4.BeautifulSoup(out, "html.parser")
         scripts = html.findAll(name='script')
         for script in scripts:
@@ -373,7 +386,7 @@ class TestResources:
             assert "crossorigin" not in script.attrs
             assert "integrity" not in script.attrs
 
-    @pytest.mark.parametrize('v', ["2.0.0", "2.0.0-foo", "1.8.0rc1", "1.8.0dev6"])
+    @pytest.mark.parametrize('v', ["2.0.0", "2.0.0+foo", "1.8.0rc1", "1.8.0dev6"])
     def test_render_js_inline(self, v, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", v)
         monkeypatch.setattr(resources, "__version__", v)
@@ -448,6 +461,7 @@ def test_legacy_resources():
         "bokeh-gl.legacy.min.js",
         "bokeh-widgets.legacy.min.js",
         "bokeh-tables.legacy.min.js",
+        "bokeh-mathjax.legacy.min.js",
     ]
 
     r = resources.Resources(minified=True, legacy=False)
@@ -456,6 +470,7 @@ def test_legacy_resources():
         "bokeh-gl.min.js",
         "bokeh-widgets.min.js",
         "bokeh-tables.min.js",
+        "bokeh-mathjax.min.js",
     ]
 
     r = resources.Resources(minified=False, legacy=True)
@@ -464,6 +479,7 @@ def test_legacy_resources():
         "bokeh-gl.legacy.js",
         "bokeh-widgets.legacy.js",
         "bokeh-tables.legacy.js",
+        "bokeh-mathjax.legacy.js",
     ]
 
     r = resources.Resources(minified=False, legacy=False)
@@ -472,6 +488,7 @@ def test_legacy_resources():
         "bokeh-gl.js",
         "bokeh-widgets.js",
         "bokeh-tables.js",
+        "bokeh-mathjax.js",
     ]
 
 # -----------------------------------------------------------------------------

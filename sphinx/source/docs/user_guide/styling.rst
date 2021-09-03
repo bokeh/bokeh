@@ -307,7 +307,7 @@ Objects in Bokeh that support both screen units and data-space units usually
 have a dedicated property to choose which unit to use. This unit-setting
 property is the name of the property with an added ``_units``. For
 example: A :class:`~bokeh.models.annotations.Whisker`
-:ref:`annotation <userguide_plotting_whiskers>` has the property ``upper``. To
+:ref:`annotation <userguide_annotations_whiskers>` has the property ``upper``. To
 define which unit to use, set the ``upper_units`` property to either
 ``'screen'`` or ``'data'``.
 
@@ -1117,13 +1117,13 @@ only with :ref:`axis labels <userguide_styling_axes_labels>`. Supporting LaTeX
 notations in more elements is planned for future releases.
 
 Bokeh uses the MathJax_ library to handle LaTeX markup. To use LaTeX markup
-instead of plain text, use a :class:`~bokeh.models.math_text.MathText` object:
+instead of plain text, use a :class:`~bokeh.models.text.TeX` object:
 
 .. bokeh-plot:: docs/user_guide/examples/styling_axis_labels_math_text.py
     :source-position: above
 
 .. note::
-    The ``text`` attribute of ``MathText`` only accepts LaTeX notations. You do
+    The ``text`` attribute of ``TeX`` only accepts LaTeX notations. You do
     not need to include any delimiters such as ``$$`` or ``$``.
 
 .. _LaTeX: https://www.latex-project.org/

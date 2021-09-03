@@ -50,7 +50,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def bind_sockets(address: str, port: int) -> Tuple[List[socket], int]:
+def bind_sockets(address: str | None, port: int) -> Tuple[List[socket], int]:
     ''' Bind a socket to a port on an address.
 
     Args:
@@ -105,7 +105,7 @@ def check_allowlist(host: str, allowlist: Sequence[str]) -> bool:
 
     return any(match_host(host, pattern) for pattern in allowlist)
 
-def create_hosts_allowlist(host_list: Sequence[str], port: int) -> List[str]:
+def create_hosts_allowlist(host_list: Sequence[str] | None, port: int) -> List[str]:
     '''
 
     This allowlist can be used to restrict websocket or other connections to
@@ -218,17 +218,15 @@ def match_host(host: str, pattern: str) -> bool:
         False
 
     '''
+    host_port: str | None = None
     if ':' in host:
         host, host_port = host.rsplit(':', 1)
-    else:
-        host_port = None
 
+    pattern_port: str | None = None
     if ':' in pattern:
         pattern, pattern_port = pattern.rsplit(':', 1)
         if pattern_port == '*':
             pattern_port = None
-    else:
-        pattern_port = None
 
     if pattern_port is not None and host_port != pattern_port:
         return False

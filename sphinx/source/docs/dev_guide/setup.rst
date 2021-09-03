@@ -182,46 +182,30 @@ repository safer and easier.
 Git Hooks
 ~~~~~~~~~
 
-The following `Git hooks`_ can help you prevent some common mistakes. To
-use those scripts, save them to the ``.git/hooks`` directory in the top level of
-your *source checkout* directory and mark them executable with ``chmod +x``.
+In order to help prevent some accidental errors, here are some git hooks
+that may be useful:
 
-pre-commit Git hook
+- Run codebase tests
 
-    This Git hook runs all the codebase tests before allowing a commit to
-    proceed. Note that all the standard testing dependencies must be installed
-    in order for this hook to work.
+  This git hook runs all the codebase tests before allowing a push to the remote
+  repository to proceed. Note that all the standard testing dependencies must be installed
+  in order for this hook to function.
+- Protect special branches
 
-    .. code-block:: sh
+  This git hook prevents accidental pushes to the ``main`` and ``branch-x.y``
+  development branches on GitHub.
 
-        #!/bin/bash
-
-        pytest tests/codebase
-        exit $?
-
-pre-push Git hook
-
-    This Git hook prevents accidental pushes to the ``main`` branch on GitHub.
+To install them, just run:
 
     .. code-block:: sh
 
-        #!/bin/bash
+        python scripts/hooks/install.py
 
-        protected_branch='main'
-        current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+In case you want to uninstall the Git hooks, you can run:
 
-        if [ $protected_branch = $current_branch ]
-        then
-            read -p "You're about to push main, is that what you intended? [y|n] " -n 1 -r < /dev/tty
-            echo
-            if echo $REPLY | grep -E '^[Yy]$' > /dev/null
-            then
-                exit 0 # push will execute
-            fi
-            exit 1 # push will not execute
-        else
-            exit 0 # push will execute
-        fi
+    .. code-block:: sh
+
+        python scripts/hooks/uninstall.py
 
 .. _devguide_setup_suggested_git_aliases:
 

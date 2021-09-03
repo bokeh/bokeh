@@ -30,15 +30,15 @@ export class NumericInputView extends InputWidgetView {
       const {value, low, high} = this.model
       if (low != null && high != null)
         assert(low <= high, "Invalid bounds, low must be inferior to high")
-      if (value != null && low != null)
-        this.model.value = Math.max(value, low)
+      if (value != null && low != null && value < low)
+        this.model.value = low
     })
     this.connect(this.model.properties.high.change, () => {
       const {value, low, high} = this.model
       if (low != null && high != null)
         assert(high >= low, "Invalid bounds, high must be superior to low")
-      if (value != null && high != null)
-        this.model.value = Math.min(value, high)
+      if (value != null && high != null && value > high)
+        this.model.value = high
     })
     this.connect(this.model.properties.high.change, () => this.input_el.placeholder = this.model.placeholder)
     this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
@@ -135,7 +135,7 @@ export class NumericInput extends InputWidget {
     super(attrs)
   }
 
-  static init_NumericInput(): void {
+  static {
     this.prototype.default_view = NumericInputView
 
     this.define<NumericInput.Props>(({Number, String, Enum, Ref, Or, Nullable}) => ({

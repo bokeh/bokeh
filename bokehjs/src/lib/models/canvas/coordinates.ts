@@ -65,7 +65,7 @@ export abstract class CoordinateMapping extends Model {
     super(attrs)
   }
 
-  static init_CoordinateMapping(): void {
+  static {
     this.define<CoordinateMapping.Props>(({Ref}) => ({
       x_source: [ Ref(Range), () => new DataRange1d() ],
       y_source: [ Ref(Range), () => new DataRange1d() ],
@@ -138,7 +138,7 @@ export class CompositeScale extends Scale {
     super(attrs)
   }
 
-  static init_CompositeScale(): void {
+  static {
     this.internal<CompositeScale.Props>(({Ref}) => ({
       source_scale: [ Ref(Scale) ],
       target_scale: [ Ref(Scale) ],

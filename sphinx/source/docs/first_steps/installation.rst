@@ -189,6 +189,7 @@ scheme::
     https://cdn.bokeh.org/bokeh/release/bokeh-tables-x.y.z.min.js
     https://cdn.bokeh.org/bokeh/release/bokeh-api-x.y.z.min.js
     https://cdn.bokeh.org/bokeh/release/bokeh-gl-x.y.z.min.js
+    https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-x.y.z.min.js
 
 There are additional components to BokehJS that are necessary only for specific
 use cases:
@@ -207,6 +208,7 @@ For example, the links for version ``2.0.1`` are:
 * https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.0.1.min.js
 * https://cdn.bokeh.org/bokeh/release/bokeh-api-2.0.1.min.js
 * https://cdn.bokeh.org/bokeh/release/bokeh-gl-2.0.1.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-2.0.1.min.js
 
 .. note::
     You should always set ``crossorigin="anonymous"`` on script tags that load

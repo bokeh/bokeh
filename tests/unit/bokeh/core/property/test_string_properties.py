@@ -30,6 +30,7 @@ import bokeh.core.property.string as bcpr # isort:skip
 
 ALL = (
     'Regex',
+    'MathString',
     'Base64String',
 )
 

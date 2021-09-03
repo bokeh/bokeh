@@ -20,7 +20,7 @@ export class BooleanFilter extends Filter {
     super(attrs)
   }
 
-  static init_BooleanFilter(): void {
+  static {
     this.define<BooleanFilter.Props>(({Boolean, Array, Nullable}) => ({
       booleans: [ Nullable(Array(Boolean)), null ],
     }))

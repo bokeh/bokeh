@@ -10,7 +10,7 @@ import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {build_view} from "@bokehjs/core/build_views"
 import {TextBox} from "@bokehjs/core/graphics"
-import {MathText} from "@bokehjs/models/math_text"
+import {TeX} from "@bokehjs/models/text"
 import {display} from "../../../framework"
 
 describe("Axis", () => {
@@ -45,7 +45,7 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      major_label_overrides: {0: "zero", 4: new MathText({text: "\\pi"}), 10: "ten"},
+      major_label_overrides: {0: "zero", 4: new TeX({text: "\\pi"}), 10: "ten"},
     })
     plot.add_layout(axis, "below")
     const plot_view = (await build_view(plot)).build()

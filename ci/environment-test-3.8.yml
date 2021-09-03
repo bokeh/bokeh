@@ -28,7 +28,7 @@ dependencies:
   - ipython
   - isort 5.8
   - mock
-  - mypy >=0.900
+  - mypy >=0.910
   - pandas-stubs
   - nbconvert >=5.4
   - networkx
@@ -46,6 +46,8 @@ dependencies:
   - requests >=1.2.3
   - selenium >=3.8
   - scipy
+  - xyzservices
+  - pre-commit
 
   # examples
   - flask >=1.0

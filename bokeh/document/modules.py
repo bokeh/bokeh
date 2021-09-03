@@ -65,7 +65,7 @@ class DocumentModuleManager:
     def __len__(self) -> int:
         return len(self._modules)
 
-    def add(self, module: ModuleType):
+    def add(self, module: ModuleType) -> None:
         ''' Add a module associated with a Document.
 
         .. note::
@@ -119,6 +119,10 @@ class DocumentModuleManager:
             # remove the reference from sys.modules
             if module.__name__ in sys.modules:
                 del sys.modules[module.__name__]
+
+            # explicitly clear the module contents and the module here itself
+            module.__dict__.clear()
+            del module
 
         # remove the references from self._modules
         self._modules = []

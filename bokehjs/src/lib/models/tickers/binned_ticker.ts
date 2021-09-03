@@ -22,7 +22,7 @@ export class BinnedTicker extends Ticker {
     super(attrs)
   }
 
-  static init_BinnedTicker(): void {
+  static {
     this.define<BinnedTicker.Props>(({Number, Ref, Or, Auto}) => ({
       mapper: [ Ref(ScanningColorMapper) ],
       num_major_ticks: [ Or(Number, Auto), 8 ],

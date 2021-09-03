@@ -311,7 +311,7 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
         warn("Cannot find a last shown plot to update. Call output_notebook() and show(..., notebook_handle=True) before push_notebook()")
         return
 
-    events = list(handle.doc._held_events)
+    events = list(handle.doc.callbacks._held_events)
 
     # This is to avoid having an exception raised for attempting to create a
     # PATCH-DOC with no events. In the notebook, we just want to silently
@@ -581,7 +581,7 @@ def show_doc(obj: Model, state: State, notebook_handle: CommsHandle | None = Non
     # they were copied from
     if comms_target:
         handle = CommsHandle(get_comms(comms_target), cell_doc)
-        state.document.on_change_dispatch_to(handle)
+        state.document.callbacks.on_change_dispatch_to(handle)
         state.last_comms_handle = handle
         return handle
 

@@ -20,7 +20,7 @@ export class IndexFilter extends Filter {
     super(attrs)
   }
 
-  static init_IndexFilter(): void {
+  static {
     this.define<IndexFilter.Props>(({Int, Array, Nullable}) => ({
       indices: [ Nullable(Array(Int)), null ],
     }))

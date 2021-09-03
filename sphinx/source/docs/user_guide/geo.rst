@@ -21,6 +21,13 @@ Notice that passing ``x_axis_type="mercator"`` and ``y_axis_type="mercator"``
 to ``figure`` generates axes with latitude and longitude labels, instead of raw Web
 Mercator coordinates.
 
+Alternatively, you can use any :class:`xyzservices.TileProvider`, either pre-defined in
+``xyzservices`` or a custom one.
+
+.. bokeh-plot:: docs/user_guide/examples/geo_xyzservices.py
+    :source-position: below
+
+
 .. _userguide_geo_google_maps:
 
 Google Maps

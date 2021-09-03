@@ -62,6 +62,7 @@ from ..core.properties import (
     Seq,
     String,
     StringSpec,
+    TextLike,
     Tuple,
     field,
     value,
@@ -82,7 +83,6 @@ from ..util.serialization import convert_datetime_type
 from .formatters import TickFormatter
 from .labeling import LabelingPolicy, NoOverlap
 from .mappers import ColorMapper
-from .math_text import MathText
 from .renderers import GlyphRenderer, Renderer
 from .sources import ColumnDataSource, DataSource
 from .tickers import Ticker
@@ -206,7 +206,7 @@ class LegendItem(Model):
 
     visible = Bool(default=True, help="""
     Whether the legend item should be displayed. See
-    :ref:`userguide_plotting_legends_item_visibility` in the user guide.
+    :ref:`userguide_annotations_legends_item_visibility` in the user guide.
     """)
 
     @error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
@@ -227,7 +227,7 @@ class LegendItem(Model):
 class Legend(Annotation):
     ''' Render informational legends for a plot.
 
-    See :ref:`userguide_plotting_legends` for information on plotting legends.
+    See :ref:`userguide_annotations_legends` for information on plotting legends.
 
     '''
 
@@ -361,7 +361,7 @@ class Legend(Annotation):
 class ColorBar(Annotation):
     ''' Render a color bar based on a color mapper.
 
-    See :ref:`userguide_plotting_color_bars` for information on plotting color bars.
+    See :ref:`userguide_annotations_color_bars` for information on plotting color bars.
 
     '''
 
@@ -416,7 +416,7 @@ class ColorBar(Annotation):
     A ``TickFormatter`` to use for formatting the visual appearance of ticks.
     """)
 
-    major_label_overrides = Dict(Either(Float, String), Either(Instance(MathText), String), default={}, help="""
+    major_label_overrides = Dict(Either(Float, String), TextLike, default={}, help="""
     Provide explicit tick label values for specific tick locations that
     override normal formatting.
     """)
@@ -509,7 +509,7 @@ class ColorBar(Annotation):
 class Arrow(DataAnnotation):
     ''' Render arrows as an annotation.
 
-    See :ref:`userguide_plotting_arrows` for information on plotting arrows.
+    See :ref:`userguide_annotations_arrows` for information on plotting arrows.
 
     '''
 
@@ -554,7 +554,7 @@ class Arrow(DataAnnotation):
 class BoxAnnotation(Annotation):
     ''' Render a shaded rectangular region as an annotation.
 
-    See :ref:`userguide_plotting_box_annotations` for information on plotting box annotations.
+    See :ref:`userguide_annotations_box_annotations` for information on plotting box annotations.
 
     '''
 
@@ -642,7 +642,7 @@ class BoxAnnotation(Annotation):
 class Band(DataAnnotation):
     ''' Render a filled area band along a dimension.
 
-    See :ref:`userguide_plotting_bands` for information on plotting bands.
+    See :ref:`userguide_annotations_bands` for information on plotting bands.
 
     '''
     lower = PropertyUnitsSpec(default=field("lower"), units_enum=SpatialUnits, units_default="data", help="""
@@ -694,7 +694,7 @@ class Label(TextAnnotation):
     appearance of the text, its background, as well as the rectangular bounding
     box border.
 
-    See :ref:`userguide_plotting_labels` for information on plotting labels.
+    See :ref:`userguide_annotations_labels` for information on plotting labels.
 
     '''
 
@@ -864,7 +864,7 @@ class LabelSet(TextAnnotation): # TODO: DataAnnotation
 class PolyAnnotation(Annotation):
     ''' Render a shaded polygonal region as an annotation.
 
-    See :ref:`userguide_plotting_polygon_annotations` for information on
+    See :ref:`userguide_annotations_polygon_annotations` for information on
     plotting polygon annotations.
 
     '''
@@ -910,7 +910,7 @@ class PolyAnnotation(Annotation):
 class Slope(Annotation):
     """ Render a sloped line as an annotation.
 
-    See :ref:`userguide_plotting_slope` for information on plotting slopes.
+    See :ref:`userguide_annotations_slope` for information on plotting slopes.
 
     """
 
@@ -929,7 +929,7 @@ class Slope(Annotation):
 class Span(Annotation):
     """ Render a horizontal or vertical line span.
 
-    See :ref:`userguide_plotting_spans` for information on plotting spans.
+    See :ref:`userguide_annotations_spans` for information on plotting spans.
 
     """
 
@@ -970,7 +970,7 @@ class Span(Annotation):
 class Title(TextAnnotation):
     ''' Render a single title box as an annotation.
 
-    See :ref:`userguide_plotting_titles` for information on plotting titles.
+    See :ref:`userguide_annotations_titles` for information on plotting titles.
 
     '''
 
@@ -1076,7 +1076,7 @@ class Tooltip(Annotation):
 class Whisker(DataAnnotation):
     ''' Render a whisker along a dimension.
 
-    See :ref:`userguide_plotting_whiskers` for information on plotting whiskers.
+    See :ref:`userguide_annotations_whiskers` for information on plotting whiskers.
 
     '''
 

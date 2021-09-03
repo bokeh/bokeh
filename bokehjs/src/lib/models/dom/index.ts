@@ -34,8 +34,6 @@ export abstract class DOMNode extends Model {
   constructor(attrs?: Partial<DOMNode.Attrs>) {
     super(attrs)
   }
-
-  static init_DOMNode(): void {}
 }
 
 export class TextView extends DOMNodeView {
@@ -69,7 +67,7 @@ export class Text extends DOMNode {
     super(attrs)
   }
 
-  static init_Text(): void {
+  static {
     this.prototype.default_view = TextView
     this.define<Text.Props>(({String}) => ({
       content: [ String, "" ],
@@ -99,7 +97,7 @@ export abstract class Placeholder extends DOMNode {
     super(attrs)
   }
 
-  static init_Placeholder(): void {
+  static {
     this.define<Placeholder.Props>(({}) => ({}))
   }
 }
@@ -127,7 +125,7 @@ export class Index extends Placeholder {
     super(attrs)
   }
 
-  static init_Index(): void {
+  static {
     this.prototype.default_view = IndexView
     this.define<Index.Props>(({}) => ({}))
   }
@@ -160,7 +158,7 @@ export class ValueRef extends Placeholder {
     super(attrs)
   }
 
-  static init_ValueRef(): void {
+  static {
     this.prototype.default_view = ValueRefView
     this.define<ValueRef.Props>(({String}) => ({
       field: [ String ],
@@ -209,7 +207,7 @@ export class ColorRef extends ValueRef {
     super(attrs)
   }
 
-  static init_ColorRef(): void {
+  static {
     this.prototype.default_view = ColorRefView
     this.define<ColorRef.Props>(({Boolean}) => ({
       hex: [ Boolean, true ],
@@ -292,7 +290,7 @@ export abstract class DOMElement extends DOMNode {
     super(attrs)
   }
 
-  static init_DOMElement(): void {
+  static {
     this.define<DOMElement.Props>(({String, Array, Dict, Or, Nullable, Ref}) => ({
       style: [ Nullable(Or(Ref(Styles), Dict(String))), null ],
       children: [ Array(Or(String, Ref(DOMNode), Ref(LayoutDOM))), [] ],
@@ -322,7 +320,7 @@ export abstract class Action extends Model {
     super(attrs)
   }
 
-  static init_Action(): void {
+  static {
     this.define<Action.Props>(({}) => ({}))
   }
 }
@@ -375,7 +373,7 @@ export class Template extends DOMElement {
   override properties: Template.Props
   override __view_type__: TemplateView
 
-  static init_Template(): void {
+  static {
     this.prototype.default_view = TemplateView
     this.define<Template.Props>(({Array, Ref}) => ({
       actions: [ Array(Ref(Action)), [] ],
@@ -389,7 +387,7 @@ export class SpanView extends DOMElementView {
 }
 export class Span extends DOMElement {
   override __view_type__: SpanView
-  static init_Span(): void {
+  static {
     this.prototype.default_view = SpanView
   }
 }
@@ -400,7 +398,7 @@ export class DivView extends DOMElementView {
 }
 export class Div extends DOMElement {
   override __view_type__: DivView
-  static init_Div(): void {
+  static {
     this.prototype.default_view = DivView
   }
 }
@@ -411,7 +409,7 @@ export class TableView extends DOMElementView {
 }
 export class Table extends DOMElement {
   override __view_type__: TableView
-  static init_Table(): void {
+  static {
     this.prototype.default_view = TableView
   }
 }
@@ -422,7 +420,7 @@ export class TableRowView extends DOMElementView {
 }
 export class TableRow extends DOMElement {
   override __view_type__: TableRowView
-  static init_TableRow(): void {
+  static {
     this.prototype.default_view = TableRowView
   }
 }
@@ -459,7 +457,7 @@ export class ToggleGroup extends Action {
     super(attrs)
   }
 
-  static init_ToggleGroup(): void {
+  static {
     this.prototype.default_view = ToggleGroupView
     this.define<ToggleGroup.Props>(({Array, Ref}) => ({
       groups: [ Array(Ref(RendererGroup)), [] ],
@@ -483,7 +481,7 @@ export class X extends Y {
     super(attrs)
   }
 
-  static init_X(): void {
+  static {
     this.define<X.Props>(({}) => ({
     }))
   }

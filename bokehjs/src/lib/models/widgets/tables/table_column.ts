@@ -18,6 +18,7 @@ export namespace TableColumn {
     editor: p.Property<CellEditor>
     sortable: p.Property<boolean>
     default_sort: p.Property<Sort>
+    visible: p.Property<boolean>
   }
 }
 
@@ -30,7 +31,7 @@ export class TableColumn extends Model {
     super(attrs)
   }
 
-  static init_TableColumn(): void {
+  static {
     this.define<TableColumn.Props>(({Boolean, Number, String, Nullable, Ref}) => ({
       field:        [ String ],
       title:        [ Nullable(String), null ],
@@ -39,6 +40,7 @@ export class TableColumn extends Model {
       editor:       [ Ref(StringEditor), () => new StringEditor() ],
       sortable:     [ Boolean, true ],
       default_sort: [ Sort, "ascending" ],
+      visible:      [ Boolean, true ],
     }))
   }
 

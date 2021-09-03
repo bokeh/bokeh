@@ -61,6 +61,12 @@ def test_widget() -> None:
     test_widget = Button()
     return test_widget
 
+@pytest.fixture
+def test_mathtext() -> None:
+    from bokeh.models import TeX
+    test_mathtext = TeX()
+    return test_mathtext
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -252,6 +258,32 @@ class Test__use_widgets:
         d.add_root(test_widget)
         d.add_root(test_glplot)
         assert beb._use_widgets([d]) is True
+
+
+class Test__use_mathjax:
+    def test_without_mathjax(self, test_plot, test_glplot, test_table, test_widget, test_mathtext) -> None:
+        assert beb._use_mathjax([test_plot]) is False
+        assert beb._use_mathjax([test_plot, test_glplot]) is False
+        assert beb._use_mathjax([test_plot, test_table]) is False
+        assert beb._use_mathjax([test_plot, test_widget]) is False
+        d = Document()
+        d.add_root(test_plot)
+        d.add_root(test_table)
+        d.add_root(test_widget)
+        assert beb._use_mathjax([d]) is False
+
+    def test_with_mathjax(self, test_plot, test_glplot, test_table, test_widget, test_mathtext) -> None:
+        assert beb._use_mathjax([test_mathtext]) is True
+        assert beb._use_mathjax([test_plot, test_mathtext]) is True
+        assert beb._use_mathjax([test_plot, test_glplot, test_mathtext]) is True
+        assert beb._use_mathjax([test_plot, test_widget, test_mathtext]) is True
+        assert beb._use_mathjax([test_plot, test_widget, test_table, test_mathtext]) is True
+        d = Document()
+        d.add_root(test_plot)
+        d.add_root(test_table)
+        d.add_root(test_widget)
+        d.add_root(test_mathtext)
+        assert beb._use_mathjax([d]) is True
 
 #-----------------------------------------------------------------------------
 # Code

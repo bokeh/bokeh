@@ -80,7 +80,7 @@ export class Spline extends XYGlyph {
     super(attrs)
   }
 
-  static init_Spline(): void {
+  static {
     this.prototype.default_view = SplineView
 
     this.mixins<Spline.Mixins>(mixins.LineScalar)

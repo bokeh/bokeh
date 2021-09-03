@@ -618,6 +618,10 @@ class TableColumn(Model):
     The default sorting order. By default ``ascending`` order is used.
     """)
 
+    visible = Bool(True, help="""
+    Whether this column shold be displayed or not.
+    """)
+
 @abstract
 class TableWidget(Widget):
     ''' Abstract base class for data table (data grid) widgets.

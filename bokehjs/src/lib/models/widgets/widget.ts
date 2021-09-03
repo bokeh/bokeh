@@ -53,7 +53,7 @@ export abstract class Widget extends HTMLBox {
     super(attrs)
   }
 
-  static init_Widget(): void {
+  static {
     this.define<Widget.Props>(({Number}) => ({
       default_size: [ Number, 300 ],
     }))

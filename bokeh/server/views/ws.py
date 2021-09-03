@@ -155,7 +155,7 @@ class WSHandler(AuthMixin, WebSocketHandler):
             raise ProtocolError("Invalid token signature")
 
         try:
-            self.application.io_loop.spawn_callback(self._async_open, self._token)
+            self.application.io_loop.add_callback(self._async_open, self._token)
         except Exception as e:
             # this isn't really an error (unless we have a
             # bug), it just means a client disconnected

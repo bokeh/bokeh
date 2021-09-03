@@ -27,6 +27,7 @@ import weakref
 from typing import (
     TYPE_CHECKING,
     Dict,
+    Generator,
     Iterator,
     List,
     Set,
@@ -104,14 +105,13 @@ class DocumentModelManager:
         # probably better to implement a destroy protocol on models to
         # untangle everything, then the collect below might not be needed
         for m in self._models.values():
-            m._document = None
-            del m
+            m.destroy()
 
         del self._models
         del self._models_by_name
 
     @contextlib.contextmanager
-    def freeze(self) -> None:
+    def freeze(self) -> Generator[None, None, None]:
         ''' Defer expensive model recompuation until intermediate updates are
         complete.
 
