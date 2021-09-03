@@ -4,7 +4,7 @@ import {display} from "./_util"
 
 import {
   LinearAxis, LogAxis, CategoricalAxis, LinearScale, LogScale, CategoricalScale, Range1d, FactorRange,
-  Plot, AllLabels, NoOverlap, TeX, Ascii, MathML, PlainText
+  Plot, AllLabels, NoOverlap, TeX, Ascii, MathML, PlainText,
 } from "@bokehjs/models"
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 import {Side} from "@bokehjs/core/enums"
