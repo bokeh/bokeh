@@ -61,8 +61,10 @@ export class AxisView extends GuideRendererView {
     if (axis_label != null) {
       const math_text = MathText.from_text_like(axis_label)
 
-      if (math_text)
+      if (math_text) {
+        this.model.axis_label = math_text
         this.axis_label_math_text_view = await build_view(math_text, {parent: this})
+      }
     }
 
     const {major_label_overrides} = this.model
@@ -72,6 +74,7 @@ export class AxisView extends GuideRendererView {
         const math_text = MathText.from_text_like(major_label_overrides[label])
 
         if (math_text) {
+          this.model.major_label_overrides[label] = math_text
           this.major_label_math_text_views[label] = await build_view(math_text, {parent: this})
         }
       }

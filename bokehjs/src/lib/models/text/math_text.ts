@@ -358,7 +358,8 @@ export class MathText extends BaseText {
 
   // TODO: divide into container components
   static from_text_like(text: string | BaseText): MathText | null {
-    let math_text = new MathText()
+    // TODO: how to support other math models?
+    let math_text: MathText = new TeX()
 
     if (text instanceof MathText)
       math_text = text

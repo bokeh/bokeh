@@ -11,6 +11,7 @@ import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {build_view} from "@bokehjs/core/build_views"
 import {TextBox} from "@bokehjs/core/graphics"
 import {TeX} from "@bokehjs/models/text"
+import {MathTextView} from "@bokehjs/models/text/math_text"
 import {display} from "../../../framework"
 
 describe("Axis", () => {
@@ -35,7 +36,7 @@ describe("Axis", () => {
     expect(labels.items.map((l) => (l as TextBox).text)).to.be.equal(["zero", "2", "four", "6", "8", "ten"])
   })
 
-  it("should compute labels with math text on overrides", async () => {
+  it("should compute labels with MathText on overrides", async () => {
     const plot = new Plot({
       x_range: new Range1d({start: 0, end: 10}),
       y_range: new Range1d({start: 0, end: 10}),
@@ -45,7 +46,7 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      major_label_overrides: {0: "zero", 4: new TeX({text: "\\pi"}), 10: "ten"},
+      major_label_overrides: {0: "$zero$", 4: new TeX({text: "\\pi"}), 10: "ten"},
     })
     plot.add_layout(axis, "below")
     const plot_view = (await build_view(plot)).build()
@@ -53,6 +54,8 @@ describe("Axis", () => {
 
     const labels = axis_view.compute_labels([0, 2, 4, 6, 8, 10])
     await display(plot)
+
+    expect(labels.items[0]).to.be.instanceof(MathTextView)
     expect(labels.items.map((l) => (l as TextBox).text)).to.be.equal(["zero", "2", "\\pi", "6", "8", "ten"])
   })
 
