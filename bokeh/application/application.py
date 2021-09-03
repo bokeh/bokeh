@@ -188,13 +188,13 @@ class Application:
         ''' Fills in a new document using the Application's handlers.
 
         '''
-        for h in self._handlers:
+        for z in self._handlers:
             # TODO (havocp) we need to check the 'failed' flag on each handler
             # and build a composite error display. In develop mode, we want to
             # somehow get these errors to the client.
-            h.modify_document(doc)
-            if h.failed:
-                log.error("Error running application handler %r: %s %s ", h, h.error, h.error_detail)
+            z.modify_document(doc)
+            if z.failed:
+                log.error("Error running application handler %r: %s %s ", z, z.error, z.error_detail)
 
         if settings.perform_document_validation():
             doc.validate()
@@ -206,8 +206,8 @@ class Application:
         with the server context passed as the only argument.
 
         '''
-        for h in self._handlers:
-            h.on_server_loaded(server_context)
+        for z in self._handlers:
+            z.on_server_loaded(server_context)
 
     def on_server_unloaded(self, server_context: ServerContext) -> None:
         ''' Invoked to execute code when the server cleanly exits. (Before
