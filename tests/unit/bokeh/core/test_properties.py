@@ -86,7 +86,6 @@ ALL = (
     'List',
     'MarkerSpec',
     'MarkerType',
-    'MathString',
     'MinMaxBounds',
     'NonNegativeInt',
     'NonNullable',

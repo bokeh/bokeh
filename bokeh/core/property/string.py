@@ -36,7 +36,6 @@ from .singletons import Undefined
 
 __all__ = (
     'Regex',
-    'MathString',
     'Base64String',
 )
 
@@ -112,30 +111,6 @@ class Base64String(String):
         """
         if isinstance(value, str):
             value = base64.b64encode(value.encode("utf-8")).decode("utf-8")
-        return value
-
-class MathString(String):
-    """ transforms a string that starts and ends with $ in MathText model,
-    otherwise returns string.
-
-    Args:
-        value : a string to be converted
-
-    Returns:
-        :class:`~bokeh.models.text.MathText` | string
-
-    """
-
-    def transform(self, value):
-        from ...models.text import MathText
-        value = super().transform(value)
-
-        if not isinstance(value, str):
-            return value
-
-        if len(value) >= 2 and value[0] == value[-1] == "$":
-            return MathText(text=value[1:-1])
-
         return value
 
 #-----------------------------------------------------------------------------
