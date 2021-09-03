@@ -1,7 +1,7 @@
 .. _bokeh.models.layouts:
 
-bokeh.models.layouts
---------------------
+layouts
+-------
 
 .. automodule:: bokeh.models.layouts
    :members:

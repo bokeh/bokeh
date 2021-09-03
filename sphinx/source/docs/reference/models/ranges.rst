@@ -1,7 +1,7 @@
 .. _bokeh.models.ranges:
 
-bokeh.models.ranges
--------------------
+ranges
+------
 
 .. automodule:: bokeh.models.ranges
    :members:

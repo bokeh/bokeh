@@ -131,7 +131,7 @@ class BokehModelDirective(BokehDirective):
 
         rst_text = MODEL_DETAIL.render(
             name=model_name,
-            module_name=module_name,
+            module_name="bokeh.models" if module_name.startswith("bokeh.models") else module_name,
             model_json=model_json,
         )
 
