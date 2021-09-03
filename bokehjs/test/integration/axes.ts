@@ -4,7 +4,7 @@ import {display} from "./_util"
 
 import {
   LinearAxis, LogAxis, CategoricalAxis, LinearScale, LogScale, CategoricalScale, Range1d, FactorRange,
-  Plot, AllLabels, NoOverlap, TeX, Ascii, MathML,
+  Plot, AllLabels, NoOverlap, TeX, Ascii, MathML, PlainText
 } from "@bokehjs/models"
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 import {Side} from "@bokehjs/core/enums"
@@ -199,6 +199,26 @@ export class DelayedInternalProvider extends MathJaxProvider {
     </math>
     `
 
+    it("should support LaTeX notation on axis_label with string and $ signs", async () => {
+      const stub = sinon.stub(MathTextView.prototype, "provider")
+      stub.value(new InternalProvider())
+      try {
+        await plot({axis_label: `$${tex}$`}, {minor_size: 100})
+      } finally {
+        stub.restore()
+      }
+    })
+
+    it("should ignore LaTeX notation on axis_label with string and $ signs using PlainText", async () => {
+      const stub = sinon.stub(MathTextView.prototype, "provider")
+      stub.value(new InternalProvider())
+      try {
+        await plot({axis_label: new PlainText({text: `$${tex}$`})}, {minor_size: 100})
+      } finally {
+        stub.restore()
+      }
+    })
+
     it("should support LaTeX notation on axis_label with MathText", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new InternalProvider())
@@ -249,7 +269,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
       }
     })
 
-    it("should display tick labels with math text on overrides", async () => {
+    it("should display tick labels with MathText on overrides", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new InternalProvider())
       try {

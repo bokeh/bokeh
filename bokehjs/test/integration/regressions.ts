@@ -1118,7 +1118,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #11479", () => {
-    it("doesn't allow to render math text in multiple plots", async () => {
+    it("doesn't allow to render MathText in multiple plots", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new DelayedInternalProvider())
       try {
