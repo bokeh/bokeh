@@ -26,8 +26,8 @@ export class StaticLayoutProvider extends LayoutProvider {
     }))
   }
 
-  get_node_coordinates(node_source: ColumnarDataSource): [Arrayable<number>, Arrayable<number>] {
-    const index = node_source.data.index ?? []
+  get_node_coordinates(graph_source: ColumnarDataSource): [Arrayable<number>, Arrayable<number>] {
+    const index = graph_source.data.index ?? []
     const n = index.length
     const xs = new Float64Array(n)
     const ys = new Float64Array(n)
@@ -40,18 +40,18 @@ export class StaticLayoutProvider extends LayoutProvider {
     return [xs, ys]
   }
 
-  get_edge_coordinates(edge_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]] {
-    const starts = edge_source.data.start ?? []
-    const ends = edge_source.data.end ?? []
+  get_edge_coordinates(graph_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]] {
+    const starts = graph_source.data.start ?? []
+    const ends = graph_source.data.end ?? []
     const n = Math.min(starts.length, ends.length)
     const xs: number[][] = []
     const ys: number[][] = []
-    const has_paths = edge_source.data.xs != null && edge_source.data.ys != null
+    const has_paths = graph_source.data.xs != null && graph_source.data.ys != null
     for (let i = 0; i < n; i++) {
       const in_layout = this.graph_layout[starts[i]] != null && this.graph_layout[ends[i]] != null
       if (has_paths && in_layout) {
-        xs.push(edge_source.data.xs[i])
-        ys.push(edge_source.data.ys[i])
+        xs.push(graph_source.data.xs[i])
+        ys.push(graph_source.data.ys[i])
       } else {
         let start, end
         if (in_layout) {
