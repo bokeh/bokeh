@@ -44,7 +44,6 @@ export class GraphRendererView extends DataRendererView {
   }
 
   protected apply_coordinates(): void {
-
     const {edge_renderer, node_renderer} = this.model
     // TODO: XsYsGlyph or something
     if (!(edge_renderer.glyph instanceof MultiLine || edge_renderer.glyph instanceof Patches)) {
@@ -54,8 +53,8 @@ export class GraphRendererView extends DataRendererView {
       throw new Error(`${this}.node_renderer.glyph must be a XYGlyph glyph`)
     }
 
-    const edge_coords = new EdgeCoordinates({graph: this.model})
-    const node_coords = new NodeCoordinates({graph: this.model})
+    const edge_coords = this.model.edge_coordinates
+    const node_coords = this.model.node_coordinates
 
     edge_renderer.glyph.properties.xs.internal = true
     edge_renderer.glyph.properties.ys.internal = true
@@ -129,6 +128,14 @@ export class GraphRenderer extends DataRenderer {
 
   get_selection_manager(): SelectionManager {
     return this.node_renderer.data_source.selection_manager
+  }
+
+  get edge_coordinates(): EdgeCoordinates {
+    return new EdgeCoordinates({graph: this})
+  }
+
+  get node_coordinates(): NodeCoordinates {
+    return new NodeCoordinates({graph: this})
   }
 }
 

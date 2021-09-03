@@ -9,54 +9,65 @@ import {Plot} from "@bokehjs/models/plots"
 import {Document} from "@bokehjs/document"
 import {build_view} from "@bokehjs/core/build_views"
 import {SerializationError} from "@bokehjs/core/serializer"
-import {XYGlyph} from "@bokehjs/models/glyphs/xy_glyph"
-import {Expression} from "@bokehjs/models"
 
-const layout_provider = new StaticLayoutProvider({
-  graph_layout: {
-    4: [2, 1],
-    5: [2, 2],
-    6: [3, 1],
-    7: [3, 2],
-  },
-})
+type GraphComponents = {
+  test_graph: GraphRenderer
+  test_layout_provider: StaticLayoutProvider
+  test_document: Document
+}
 
-const node_renderer = new GlyphRenderer({
-  glyph: new Circle({size: 10, fill_color: "red"}),
-  data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
-})
-const edge_renderer = new GlyphRenderer({
-  glyph: new MultiLine({line_width: 2, line_color: "gray"}),
-  data_source: new ColumnDataSource({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
-})
+async function create_graph_document(): Promise<GraphComponents> {
+  const layout_provider = new StaticLayoutProvider({
+    graph_layout: {
+      4: [2, 1],
+      5: [2, 2],
+      6: [3, 1],
+      7: [3, 2],
+    },
+  })
 
-const graph = new GraphRenderer({layout_provider, node_renderer, edge_renderer})
+  const node_renderer = new GlyphRenderer({
+    glyph: new Circle({size: 10, fill_color: "red"}),
+    data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
+  })
+  const edge_renderer = new GlyphRenderer({
+    glyph: new MultiLine({line_width: 2, line_color: "gray"}),
+    data_source: new ColumnDataSource({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
+  })
+
+  const graph = new GraphRenderer({layout_provider, node_renderer, edge_renderer})
+  const plot = new Plot({renderers: [graph]})
+  const doc = new Document()
+  doc.add_root(plot)
+  const plot_view = await build_view(plot)
+  plot_view.build()
+
+  return {
+    test_graph: graph,
+    test_layout_provider: layout_provider,
+    test_document: doc,
+  }
+}
 
 describe("GraphRendererView", () => {
   it("should have node_renderer and edge_renderer glyphs serializable after initialization", async () => {
-    const plot = new Plot({renderers: [graph]})
-    const doc = new Document()
-    doc.add_root(plot)
-    ;(await build_view(plot)).build()
-    expect(() => doc.to_json(true)).to.not.throw(SerializationError)
+    const {test_document} = await create_graph_document()
+    expect(() => test_document.to_json(true)).to.not.throw(SerializationError)
   })
 
-  it("should have new x and y coordinates after graph layout is changed", () => {
-    layout_provider.graph_layout = {
+  it("should have new x and y coordinates after graph_layout is changed", async () => {
+    const {test_graph, test_layout_provider} = await create_graph_document()
+
+    test_layout_provider.graph_layout = {
       4: [3, 0],
       5: [4, 1],
       6: [5, 2],
       7: [6, 3],
     }
+    test_graph.layout_provider = test_layout_provider
 
-    graph.layout_provider = layout_provider
-
-    const node_glyph = graph.node_renderer.glyph as XYGlyph
-    const x = node_glyph.x as any
-    const y = node_glyph.y as any
-    const express_x = x.expr as Expression
-    const express_y = y.expr as Expression
-    expect(express_x.v_compute(graph.node_renderer.data_source)).to.be.equal(new Float64Array([3, 4, 5, 6]))
-    expect(express_y.v_compute(graph.node_renderer.data_source)).to.be.equal(new Float64Array([0, 1, 2, 3]))
+    const {x, y} = test_graph.node_coordinates.v_compute(test_graph.node_renderer.data_source)
+    expect(x).to.be.equal(new Float64Array([3, 4, 5, 6]))
+    expect(y).to.be.equal(new Float64Array([0, 1, 2, 3]))
   })
 })
