@@ -9,7 +9,8 @@ repos:
         description: This hook checks for codebase tests.
         entry: pytest tests/codebase
         language: conda
-        # Mandatory otherwise `pre-commit` passes the names of all files to be commited
+        # Mandatory - otherwise `pre-commit` passes the names of all files to be
+        # committed:
         pass_filenames: false
         stages: [push]
 
@@ -18,6 +19,7 @@ repos:
         description: This hook avoid pushing to the protected Git branches.
         entry: python scripts/hooks/protect_branches.py
         language: conda
-        # Mandatory otherwise `pre-commit` passes the names of all files to be commited
+        # Mandatory - otherwise `pre-commit` passes the names of all files to be
+        # committed:
         pass_filenames: false
         stages: [push]

@@ -19,7 +19,7 @@ necessary steps to set up a full development environment:
 
 :ref:`devguide_setup_installing_node_packages`
 
-:ref:`devguide_setup_configuring_git`
+:ref:`devguide_setup_pre-commit`
 
 :ref:`devguide_setup_install_locally`
 
@@ -165,69 +165,42 @@ subdirectory.
     environment. However, if dependencies are added or changed, you need to
     repeat these steps to install and update the respective packages.
 
-.. _devguide_setup_configuring_git:
+.. _devguide_setup_pre-commit:
 
-5. Configure Git (optional)
----------------------------
+5. Set up pre-commit
+--------------------
 
-Use the following optional configurations for Git to make working with the
-repository safer and easier.
+To help prevent some accidental errors, Bokeh uses `pre-commit`_.
 
-.. note::
-    The optional instructions in this section are specific to **OSX** and
-    **Linux**.
+To set up pre-commit locally, run the following command from the top level of
+your *source checkout* directory:
 
-.. _devguide_setup_suggested_git_hooks:
+.. code-block:: sh
 
-Git Hooks
-~~~~~~~~~
+    python scripts/hooks/install.py
 
-In order to help prevent some accidental errors, here are some git hooks
-that may be useful:
+This configures pre-commit to use two `Git hooks`_ that will check your code
+whenever you add a commit to your branch:
 
-- Run codebase tests
+1. codebase tests: git-commit will run Bokeh's
+   :ref:`codebase tests <devguide_testing_local_codebase>` to check for
+   codebase quality issues such as whitespaces and imports. This includes
+   testing with `flake8`_, `eslint`_, and `isort`_.
 
-  This git hook runs all the codebase tests before allowing a push to the remote
-  repository to proceed. Note that all the standard testing dependencies must be installed
-  in order for this hook to function.
-- Protect special branches
+2. protected branches: git-commit will make sure you don't accidentally push a
+   commit to `Bokeh's protected branches`_ ``main`` and ``branch-x.y`` on
+   GitHub.
 
-  This git hook prevents accidental pushes to the ``main`` and ``branch-x.y``
-  development branches on GitHub.
-
-To install them, just run:
-
-    .. code-block:: sh
-
-        python scripts/hooks/install.py
-
-In case you want to uninstall the Git hooks, you can run:
+To uninstall the Git hooks, run the following command from the top level of your
+*source checkout* directory:
 
     .. code-block:: sh
 
         python scripts/hooks/uninstall.py
 
-.. _devguide_setup_suggested_git_aliases:
-
-Git Aliases
-~~~~~~~~~~~
-
-There are also some useful `Git aliases`_ you can add to the ``.gitconfig``
-file located in your home directory.
-
-The following alias adds a ``git resolve`` command that will automatically
-open up your editor to resolve any merge conflicts.
-
-.. code-block:: sh
-
-    [alias]
-        resolve = !sh -c 'vim -p $(git status -s | grep "^UU" | cut -c4-)'
-
-You can replace ``vim`` with whatever your favorite editor command is.
-
 .. _devguide_setup_install_locally:
 
-6. Build and install locally
+1. Build and install locally
 ----------------------------
 
 Once you have all the required dependencies installed, the simplest way to
@@ -594,6 +567,11 @@ Slack`_.
 .. _Managing environments: https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
 .. _Conda documentation: https://conda.io/projects/conda/en/latest/index.html
 .. _npm: https://www.npmjs.com/
+.. _pre-commit: https://pre-commit.com/
 .. _Git hooks: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
-.. _Git aliases: https://git-scm.com/book/en/v2/Git-Basics-Git-Aliases
+.. _flake8: https://flake8.pycqa.org/
+.. _eslint: https://eslint.org/
+.. _isort: https://pycqa.github.io/isort/
+.. _Bokeh's protected branches: https://github.com/bokeh/bokeh/wiki/BEP-6:-Branching-Strategy
+.. _merge conflicts: https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging#_basic_merge_conflicts
 .. _source maps: https://developer.mozilla.org/en-US/docs/Tools/Debugger/How_to/Use_a_source_map
