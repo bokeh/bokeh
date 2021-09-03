@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from .either import Either
 from .instance import Instance
-from .string import MathString
+from .primitive import String
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -41,7 +41,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-TextLike = Either(MathString, Instance("bokeh.models.text.BaseText"))
+TextLike = Either(String, Instance("bokeh.models.text.BaseText"))
 
 #-----------------------------------------------------------------------------
 # Dev API

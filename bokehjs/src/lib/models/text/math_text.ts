@@ -1,6 +1,6 @@
 import * as p from "core/properties"
 import * as visuals from "core/visuals"
-import {isNumber} from "core/util/types"
+import {isNumber, isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {load_image} from "core/util/image"
 import {CanvasImage} from "models/glyphs/image_url"
@@ -350,6 +350,24 @@ export class MathText extends BaseText {
 
   constructor(attrs?: Partial<MathText.Attrs>) {
     super(attrs)
+  }
+
+  static is_math_text_string(text: unknown): text is string {
+    return isString(text) && text.startsWith("$") && text.endsWith("$")
+  }
+
+  // TODO: divide into container components
+  static from_text_like(text: string | BaseText): MathText | null {
+    let math_text = new MathText()
+
+    if (text instanceof MathText)
+      math_text = text
+    else if (MathText.is_math_text_string(text))
+      math_text.text = text.slice(0, -1).slice(1)
+    else
+      return null
+
+    return math_text
   }
 }
 
