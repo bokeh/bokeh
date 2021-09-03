@@ -132,6 +132,10 @@ def setup(app):
     app.connect("config-inited", config_inited_handler)
     app.add_directive("bokeh-gallery", BokehGalleryDirective)
 
+    return {
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
+    }
 
 # -----------------------------------------------------------------------------
 # Private API

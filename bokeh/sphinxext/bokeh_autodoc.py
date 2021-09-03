@@ -115,6 +115,11 @@ def setup(app):
     app.add_autodocumenter(PropDocumenter)
     app.add_autodocumenter(ModelDocumenter)
 
+    return {
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
+    }
+
 
 # -----------------------------------------------------------------------------
 # Private API

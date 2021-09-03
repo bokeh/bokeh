@@ -136,6 +136,10 @@ def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_directive_to_domain("py", "bokeh-options", BokehOptionsDirective)
 
+    return {
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
+    }
 
 # -----------------------------------------------------------------------------
 # Private API

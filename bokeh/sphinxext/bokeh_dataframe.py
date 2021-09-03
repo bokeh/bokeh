@@ -93,6 +93,10 @@ def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_role("bokeh-dataframe", bokeh_dataframe)
 
+    return {
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
+    }
 
 # -----------------------------------------------------------------------------
 # Private API

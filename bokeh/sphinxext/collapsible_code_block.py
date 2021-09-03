@@ -117,6 +117,10 @@ def setup(app):
     app.add_node(collapsible_code_block, html=collapsible_code_block.html)
     app.add_directive("collapsible-code-block", CollapsibleCodeBlock)
 
+    return {
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
+    }
 
 # -----------------------------------------------------------------------------
 # Private API

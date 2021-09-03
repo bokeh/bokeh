@@ -261,6 +261,10 @@ def setup(app):
     app.add_node(bokehjs_content, html=bokehjs_content.html)
     app.add_directive("bokehjs-content", BokehJSContent)
 
+    return {
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
+    }
 
 # -----------------------------------------------------------------------------
 # Private API

@@ -107,6 +107,10 @@ def setup(app):
     app.add_directive("bokeh-releases", BokehReleases)
     app.add_node(sri_table, html=sri_table.html)
 
+    return {
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
+    }
 
 # -----------------------------------------------------------------------------
 # Private API

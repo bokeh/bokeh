@@ -262,6 +262,8 @@ def build_finished(app, exception):
         except OSError as e:
             raise SphinxError(f"cannot copy local file {file!r}, reason: {e}")
 
+def env_merge_info(app, env, docnames, other):
+    env.bokeh_plot_files |= other.bokeh_plot_files
 
 def setup(app):
     """ Required Sphinx extension setup function. """
@@ -270,7 +272,12 @@ def setup(app):
     app.add_config_value("bokeh_missing_google_api_key_ok", True, "html")
     app.connect("builder-inited", builder_inited)
     app.connect("build-finished", build_finished)
+    app.connect("env-merge-info", env_merge_info)
 
+    return {
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
+    }
 
 # -----------------------------------------------------------------------------
 # Private API

@@ -217,6 +217,10 @@ def setup(app):
     app.add_role("bokeh-requires", bokeh_requires)
     app.add_role("bokeh-tree", bokeh_tree)
 
+    return {
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
+    }
 
 # -----------------------------------------------------------------------------
 # Private API

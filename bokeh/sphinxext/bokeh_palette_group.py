@@ -109,6 +109,10 @@ def setup(app):
     app.add_node(bokeh_palette_group, html=bokeh_palette_group.html)
     app.add_directive("bokeh-palette-group", BokehPaletteGroupDirective)
 
+    return {
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
+    }
 
 # -----------------------------------------------------------------------------
 # Private API

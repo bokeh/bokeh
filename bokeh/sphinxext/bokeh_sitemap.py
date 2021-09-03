@@ -85,6 +85,10 @@ def setup(app):
     app.connect("build-finished", build_finished)
     app.sitemap_links = set()
 
+    return {
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
+    }
 
 # -----------------------------------------------------------------------------
 # Private API
