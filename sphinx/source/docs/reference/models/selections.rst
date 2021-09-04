@@ -1,7 +1,7 @@
 .. _bokeh.models.selections:
 
-bokeh.models.selections
------------------------
+selections
+----------
 
 .. automodule:: bokeh.models.selections
    :members:

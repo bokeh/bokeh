@@ -39,6 +39,7 @@ from sphinx.errors import SphinxError
 from sphinx.util import ensuredir, status_iterator
 
 # Bokeh imports
+from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective
 from .templates import GALLERY_DETAIL, GALLERY_PAGE
 
@@ -132,6 +133,7 @@ def setup(app):
     app.connect("config-inited", config_inited_handler)
     app.add_directive("bokeh-gallery", BokehGalleryDirective)
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

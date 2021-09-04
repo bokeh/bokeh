@@ -1,7 +1,7 @@
 .. _bokeh.models.tools:
 
-bokeh.models.tools
-------------------
+tools
+-----
 
 .. automodule:: bokeh.models.tools
    :members:

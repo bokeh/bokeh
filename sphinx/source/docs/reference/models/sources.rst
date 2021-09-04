@@ -1,7 +1,7 @@
 .. _bokeh.models.sources:
 
-bokeh.models.sources
---------------------
+sources
+-------
 
 .. automodule:: bokeh.models.sources
    :members:
