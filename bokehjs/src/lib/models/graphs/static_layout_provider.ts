@@ -1,7 +1,6 @@
 import {LayoutProvider} from "./layout_provider"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Arrayable} from "core/types"
-import {CoordinateTransform} from "models/expressions/coordinate_transform"
 import * as p from "core/properties"
 
 export namespace StaticLayoutProvider {
@@ -67,70 +66,5 @@ export class StaticLayoutProvider extends LayoutProvider {
       }
     }
     return [xs, ys]
-  }
-
-  get node_coordinates(): NodeCoordinates {
-    return new NodeCoordinates({layout: this})
-  }
-
-  get edge_coordinates(): EdgeCoordinates {
-    return new EdgeCoordinates({layout: this})
-  }
-}
-
-export namespace NodeCoordinates {
-  export type Attrs = p.AttrsOf<Props>
-  export type Props = CoordinateTransform.Props & {
-    layout: p.Property<StaticLayoutProvider>
-  }
-}
-
-export interface NodeCoordinates extends NodeCoordinates.Attrs {}
-
-export class NodeCoordinates extends CoordinateTransform {
-  override properties: NodeCoordinates.Props
-
-  constructor(attrs?: Partial<NodeCoordinates.Attrs>){
-    super(attrs)
-  }
-
-  static {
-    this.define<NodeCoordinates.Props>(({Ref}) => ({
-      layout: [ Ref(StaticLayoutProvider)]
-    }))
-  }
-
-  _v_compute(source: ColumnarDataSource): {x: Arrayable<number>, y: Arrayable<number>}{
-    const [x, y] = this.layout.get_node_coordinates(source)
-    return {x: x, y: y}
-  }
-}
-
-
-export namespace EdgeCoordinates {
-  export type Attrs = p.AttrsOf<Props>
-  export type Props = CoordinateTransform.Props & {
-    layout: p.Property<StaticLayoutProvider>
-  }
-}
-
-export interface EdgeCoordinates extends EdgeCoordinates.Attrs {}
-
-export class EdgeCoordinates extends CoordinateTransform {
-  override properties: EdgeCoordinates.Props
-
-  constructor(attrs?: Partial<EdgeCoordinates.Attrs>){
-    super(attrs)
-  }
-
-  static {
-    this.define<EdgeCoordinates.Props>(({Ref}) => ({
-      layout: [ Ref(StaticLayoutProvider)]
-    }))
-  }
-
-  _v_compute(source: ColumnarDataSource): {x: Arrayable<number>[], y: Arrayable<number>[]}{
-    const [x, y] = this.layout.get_edge_coordinates(source)
-    return {x: x, y: y}
   }
 }

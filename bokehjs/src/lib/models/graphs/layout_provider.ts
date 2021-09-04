@@ -23,7 +23,67 @@ export abstract class LayoutProvider extends Model {
 
   abstract get_edge_coordinates(graph_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]]
 
-  abstract node_coordinates: CoordinateTransform
+  get node_coordinates(): NodeCoordinates {
+    return new NodeCoordinates({layout: this})
+  }
 
-  abstract edge_coordinates: CoordinateTransform
+  get edge_coordinates(): EdgeCoordinates {
+    return new EdgeCoordinates({layout: this})
+  }
+}
+
+export namespace NodeCoordinates {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = CoordinateTransform.Props & {
+    layout: p.Property<LayoutProvider>
+  }
+}
+
+export interface NodeCoordinates extends NodeCoordinates.Attrs {}
+
+export class NodeCoordinates extends CoordinateTransform {
+  override properties: NodeCoordinates.Props
+
+  constructor(attrs?: Partial<NodeCoordinates.Attrs>){
+    super(attrs)
+  }
+
+  static {
+    this.define<NodeCoordinates.Props>(({Ref}) => ({
+      layout: [ Ref(LayoutProvider)]
+    }))
+  }
+
+  _v_compute(source: ColumnarDataSource): {x: Arrayable<number>, y: Arrayable<number>}{
+    const [x, y] = this.layout.get_node_coordinates(source)
+    return {x: x, y: y}
+  }
+}
+
+export namespace EdgeCoordinates {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = CoordinateTransform.Props & {
+    layout: p.Property<LayoutProvider>
+  }
+}
+
+export interface EdgeCoordinates extends EdgeCoordinates.Attrs {}
+
+export class EdgeCoordinates extends CoordinateTransform {
+  override properties: EdgeCoordinates.Props
+
+  constructor(attrs?: Partial<EdgeCoordinates.Attrs>){
+    super(attrs)
+  }
+
+  static {
+    this.define<EdgeCoordinates.Props>(({Ref}) => ({
+      layout: [ Ref(LayoutProvider)]
+    }))
+  }
+
+  _v_compute(source: ColumnarDataSource): {x: Arrayable<number>[], y: Arrayable<number>[]}{
+    const [x, y] = this.layout.get_edge_coordinates(source)
+    return {x: x, y: y}
+  }
 }
