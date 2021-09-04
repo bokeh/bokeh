@@ -67,6 +67,7 @@ from bokeh.core.property._sphinx import type_link
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
+from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective
 from .templates import PROP_DETAIL
 
@@ -137,10 +138,7 @@ def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_directive_to_domain("py", "bokeh-prop", BokehPropDirective)
 
-    return {
-        "parallel_read_safe": True,
-        "parallel_write_safe": True,
-    }
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

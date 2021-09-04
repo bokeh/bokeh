@@ -109,6 +109,7 @@ from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
+from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective
 from .example_handler import ExampleHandler
 from .util import get_sphinx_resources
@@ -274,10 +275,7 @@ def setup(app):
     app.connect("build-finished", build_finished)
     app.connect("env-merge-info", env_merge_info)
 
-    return {
-        "parallel_read_safe": True,
-        "parallel_write_safe": True,
-    }
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

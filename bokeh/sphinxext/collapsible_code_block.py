@@ -57,6 +57,9 @@ from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
 from sphinx.directives.code import CodeBlock
 
+# Bokeh imports
+from . import PARALLEL_SAFE
+
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
@@ -117,10 +120,7 @@ def setup(app):
     app.add_node(collapsible_code_block, html=collapsible_code_block.html)
     app.add_directive("collapsible-code-block", CollapsibleCodeBlock)
 
-    return {
-        "parallel_read_safe": True,
-        "parallel_write_safe": True,
-    }
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

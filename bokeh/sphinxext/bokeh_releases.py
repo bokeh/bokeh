@@ -50,6 +50,7 @@ from bokeh import __version__
 from bokeh.resources import get_sri_hashes_for_version
 
 # Bokeh imports
+from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective
 from .templates import SRI_TABLE
 
@@ -107,10 +108,7 @@ def setup(app):
     app.add_directive("bokeh-releases", BokehReleases)
     app.add_node(sri_table, html=sri_table.html)
 
-    return {
-        "parallel_read_safe": True,
-        "parallel_write_safe": True,
-    }
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

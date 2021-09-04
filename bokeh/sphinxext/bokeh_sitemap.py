@@ -37,6 +37,9 @@ from os.path import join
 from sphinx.errors import SphinxError
 from sphinx.util import status_iterator
 
+# Bokeh imports
+from . import PARALLEL_SAFE
+
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
@@ -85,10 +88,7 @@ def setup(app):
     app.connect("build-finished", build_finished)
     app.sitemap_links = set()
 
-    return {
-        "parallel_read_safe": True,
-        "parallel_write_safe": True,
-    }
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API
