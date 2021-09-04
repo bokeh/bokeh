@@ -102,8 +102,9 @@ guide`_ for reference.
 Setting up and building Bokeh's documentation
 ---------------------------------------------
 
-Bokeh uses Sphinx_ to generate the HTML files displayed at docs.bokeh.org_. The
-documentation is written in reStructuredText_ (ReST).
+Bokeh uses :doc:`Sphinx <sphinx:contents>` to generate the HTML files displayed
+at docs.bokeh.org_. The documentation is written in
+:doc:`reStructuredText (ReST) <sphinx:usage/restructuredtext/index>`.
 
 HTML is the only output format supported by Bokeh's documentation. Many pages
 use dynamic content and rely heavily on JavaScript. Bokeh's documentation also
@@ -264,6 +265,19 @@ supported by ``make.bat``). For example:
           make.bat html
           make.bat serve
 
+To speed up the build of your local documentation, you have the option to use
+an experimental Sphinx feature that distributes the build process over
+several CPUs. This only works on Linux and macOS (not on Windows). On macOS,
+this feature only works on Python 3.7. To use this experimental feature, add
+the option``SPHINXOPTS="-j auto"`` to your build command:
+
+.. code-block:: sh
+
+    make clean html serve SPHINXOPTS="-j auto"
+
+To learn more about options for the Sphinx build process, see
+:doc:`sphinx:man/sphinx-build` in the Sphinx documentation.
+
 .. _devguide_documentation_edit:
 
 Writing Bokeh's documentation
@@ -286,7 +300,7 @@ elements:
 In the file :bokeh-tree:`sphinx/source/rst_epilog.txt`, you can find many common
 substitutions used across the narrative documentation as well as docstrings and
 model help texts. This file is loaded as the
-`epilog.rst environment variable`_ for Bokeh's Sphinx configuration.
+confval:`epilog.rst environment variable <sphinx:rst_epilog>` for Bokeh's Sphinx configuration.
 
 .. _devguide_documentation_edit_narrative:
 
@@ -305,8 +319,8 @@ edit any of those elements, open the corresponding ReST source file in the
 ``sphinx/source/docs`` folder of the Bokeh source tree.
 
 For information on how to format text using reStructuredText, see the
-`reStructuredText primer on the Sphinx website`_ or the `official
-reStructuredText website`_.
+:doc:`reStructuredText primer on the Sphinx website <sphinx:usage/restructuredtext/basics>`
+or the `official reStructuredText website`_.
 
 For information on writing style, see Bokeh's
 :ref:`documentation style guidelines <devguide_documentation_style_guidelines>`
@@ -331,7 +345,7 @@ called `Napoleon`_ with `Napoleon's Google style`_. For Napoleon to work
 correctly, all docstrings you write need to follow the rules in the `Google
 Python Style Guide`_.
 
-Docstrings for functions and methods generally include these three elements:
+Docstrings generally include these three elements:
 
 * A short description of what the function does, starting with a verb. For
   example: "Create and return a new Foo."
@@ -367,7 +381,7 @@ properties directly in the source code. You can add this kind of text to any
 property type by including a ``help`` argument.
 
 Any string passed as a ``help`` argument can be formatted using
-reStructuredText_ (ReST).
+:doc:`reStructuredText (ReST) <sphinx:usage/restructuredtext/index>`.
 
 For example:
 
@@ -405,15 +419,11 @@ For example:
 .. _inclusive: https://developers.google.com/style/inclusive-documentation
 .. _accessible: https://developers.google.com/style/accessibility
 .. _`word list of the Google developer documentation style guide`: https://developers.google.com/style/word-list
-.. _Sphinx: http://sphinx-doc.org
-.. _reStructuredText: https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html
 .. _docs.bokeh.org: https://docs.bokeh.org/en/latest/
 .. _Google developers website: https://developers.google.com/maps/documentation/javascript/get-api-key
 .. _Napoleon: http://sphinxcontrib-napoleon.readthedocs.org/en/latest/index.html
 .. _`Napoleon's Google style`: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html#example-google
 .. _`Google Python Style Guide`: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
-.. _`reStructuredText primer on the Sphinx website`: https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 .. _`official reStructuredText website`: https://docutils.sourceforge.io/rst.html
-.. _epilog.rst environment variable: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-rst_epilog
 .. _`Release Notes`: https://docs.bokeh.org/en/latest/docs/releases.html
 .. _`release management`: https://github.com/bokeh/bokeh/wiki/BEP-2:-Release-Management
