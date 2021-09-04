@@ -23,8 +23,8 @@ update the relevant unit and integration tests.
 These tests are located in the :bokeh-tree:`tests` folder. See
 :ref:`devguide_testing_local_python` for information on how to run them.
 
-Information on contributing to Bokeh's Python code and models is available in
-:ref:`devguide_models`.
+General information on contributing to Bokeh's Python code and models is
+available in :ref:`devguide_models`.
 
 .. _devguide_writing_tests_python_unit:
 
@@ -43,7 +43,7 @@ Import the model under test with ``as``
 
     .. code-block:: Python
 
-      import bokeh.plotting.graph as bpg
+        import bokeh.plotting.graph as bpg
 
 Use absolute imports
     Bokeh's unit tests should be as relocatable and unambiguous as possible.
@@ -107,7 +107,7 @@ tests.
 The BokehJS tests are located in :bokeh-tree:`bokehjs/test`. See
 :ref:`devguide_testing_local_javascript` for information on how to run them.
 
-Information on contributing to BokehJS is available in
+General information on contributing to BokehJS is available in
 :ref:`devguide_bokehjs`.
 
 .. _devguide_writing_tests_bokehjs_unit:
@@ -132,12 +132,12 @@ the BokehJS testing framework:
 * ``throw``: asserts that an error is thrown. Accepts the following optional
   parameters: ``error_type`` (filter by ``Error``) and ``pattern`` (filter by
   regular expression or string).
-* ``equal``: asserts strict equality (``===``). Expects an operand to compare
-  to.
-* ``similar``: asserts similarity within a defined tolerance. Expects an operand
-  to compare to as well as an optional ``number`` as ``tolerance``.
-* ``identical``: asserts same-value equality. Expects an operand to compare
-  to.
+* ``equal``: asserts (deep) value equality. Expects an operand to compare to.
+* ``similar``: asserts similarity within a defined tolerance, based on the same
+  value equality as ``equal``. Expects an operand to compare to as well as an
+  optional ``number`` as ``tolerance``.
+* ``identical``: asserts strict equality (``===``). Expects an operand to
+  compare to.
 * ``instanceof``: asserts that the tested element is an instance of the given
   constructor. Expects a ``Constructor`` to test against.
 * ``undefined``: asserts strict equality (``===``) to ``undefined``
@@ -241,13 +241,13 @@ Follow these steps to write new visual tests or update existing tests:
     .. code-block:: TypeScript
 
         describe("Your Object", () => {
-        it("should show certain behavior", async () => {
+          it("should show certain behavior", async () => {
             const p = fig([width, height], {figure_attrs})
 
             ...
 
             await display(p)
-        })
+          })
         })
 
     To change the sensitivity of a visual test, you have the option to set a
@@ -258,7 +258,7 @@ Follow these steps to write new visual tests or update existing tests:
     .. code-block:: TypeScript
 
         describe("Your Object", () => {
-        it.allowing(16)("should show certain behavior", async () => {
+          it.allowing(16)("should show certain behavior", async () => {
 
     Always run ``node make lint`` before committing TypeScript files.
 
@@ -337,6 +337,39 @@ Follow these steps to write new visual tests or update existing tests:
     If you encounter any problems with the steps described here, feel free to
     get in touch at the `Bokeh Discourse`_ or `Bokeh's contributor
     Slack`_.
+
+
+.. _devguide_writing_tests_bokehjs_regression:
+
+BokehJS regression tests
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Additionally, :term:`BokehJS` uses regression tests with its unit and
+integration tests. Regression tests are located in
+:bokeh-tree:`bokehjs/test/unit/regressions.ts` and
+:bokeh-tree:`bokehjs/test/integration/regressions.ts`.
+
+You should add a regression test whenever you fix a bug related to BokehJS.
+Write your regression test so that it fails in case the bug you fixed occurs
+again.
+
+Add your testing function to the outermost ``describe()`` function that has
+``"Bug"`` passed to it as its ``description`` argument. Add the bug's issue
+number to your test's ``describe()`` function and provide a short description of
+the fixed bug in your ``it()`` function.
+
+For example:
+
+.. code-block:: TypeScript
+
+      describe("in issue #9522", () => {
+        it("disallows arrow to be positioned correctly in stacked layouts", async () => {
+
+          ...
+
+          await display(row([p1, p2]))
+        })
+      })
 
 .. _devguide_writing_tests_examples:
 

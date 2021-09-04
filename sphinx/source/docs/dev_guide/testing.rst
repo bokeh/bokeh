@@ -22,7 +22,7 @@ will run in :ref:`Bokeh's CI <devguide_testing_ci>` when you
 :ref:`create a Pull Request <devguide_pull_requests>` on Bokeh's GitHub
 repository. **You don't need to set up and run all tests locally**.
 
-Folow those general guidelines to decide which tests to run locally:
+Follow those general guidelines to decide which tests to run locally:
 
 Whenever you change anything in Bokeh's codebase
     Run Bokeh's :ref:`codebase tests <devguide_testing_local_codebase>`
@@ -37,8 +37,8 @@ When your change anything related to BokehJS
     Run Bokeh's :ref:`JavaScript tests <devguide_testing_local_javascript_all>`
 
 For reference, this section provides an overview of all available tests and how
-to run them locally on most systems. Generally, it makes most sense to **only
-run specific tests related to what you are working on**. See
+to run them locally on most systems. Generally, it makes the most sense to
+**only run specific tests related to what you are working on**. See
 :ref:`Select specific tests <devguide_testing_local_python_select>` for
 instructions on how to select and deselect specific Python tests. See
 :ref:`Select specific BokehJS tests <devguide_testing_local_javascript_selecting>`
@@ -155,7 +155,7 @@ Code coverage (Python unit tests)
         pytest --cov=bokeh --cov-config=tests/.coveragerc
 
     Coverage with Bokeh's Python unit tests should be around 90%. Coverage
-    reports are only relevant for Python unit tests, there are no coverage
+    reports are only relevant for Python unit tests. There are no coverage
     reports for other Python tests or for any of the JavaScript code of BokehJS.
 
     You also have the option to add
