@@ -1,7 +1,7 @@
 .. _bokeh.models.scales:
 
-bokeh.models.scales
---------------------
+scales
+------
 
 .. automodule:: bokeh.models.scales
    :members:

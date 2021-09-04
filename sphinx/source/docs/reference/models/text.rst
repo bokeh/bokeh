@@ -1,7 +1,7 @@
 .. _bokeh.models.text:
 
-bokeh.models.text
-----------------------
+text
+----
 
 .. automodule:: bokeh.models.text
    :members:

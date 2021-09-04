@@ -1,7 +1,7 @@
 .. _bokeh.models.tiles:
 
-bokeh.models.tiles
-------------------
+tiles
+-----
 
 .. automodule:: bokeh.models.tiles
    :members:

@@ -1,7 +1,7 @@
 .. _bokeh.models.widgets.groups:
 
-bokeh.models.widgets.groups
----------------------------
+groups
+------
 
 .. automodule:: bokeh.models.widgets.groups
    :members:

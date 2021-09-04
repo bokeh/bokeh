@@ -38,23 +38,23 @@ from typing import (
 
 # Bokeh imports
 from .core.enums import Location, LocationType, SizingModeType
-from .models.layouts import (
+from .models import (
     Box,
     Column,
     GridBox,
     LayoutDOM,
+    Plot,
+    ProxyToolbar,
     Row,
     Spacer,
+    ToolbarBox,
     WidgetBox,
 )
-from .models.plots import Plot
-from .models.tools import ProxyToolbar, ToolbarBox
 from .util.dataclasses import dataclass
 from .util.deprecation import deprecated
 
 if TYPE_CHECKING:
-    from .models.tools import Toolbar
-    from .models.widgets import Widget
+    from .models import Toolbar, Widget
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -85,19 +85,19 @@ def row(*children: LayoutDOM | List[LayoutDOM], sizing_mode: SizingModeType | No
     have the same sizing_mode, which is required for complex layouts to work.
 
     Args:
-        children (list of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of instances for
+        children (list of :class:`~bokeh.models.LayoutDOM` ): A list of instances for
             the row. Can be any of the following - |Plot|,
-            :class:`~bokeh.models.widgets.widget.Widget`,
-            :class:`~bokeh.models.layouts.Row`,
-            :class:`~bokeh.models.layouts.Column`,
-            :class:`~bokeh.models.tools.ToolbarBox`,
-            :class:`~bokeh.models.layouts.Spacer`.
+            :class:`~bokeh.models.Widget`,
+            :class:`~bokeh.models.Row`,
+            :class:`~bokeh.models.Column`,
+            :class:`~bokeh.models.ToolbarBox`,
+            :class:`~bokeh.models.Spacer`.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
-            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
-            description on :class:`~bokeh.models.layouts.LayoutDOM`.
+            modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.LayoutDOM`.
 
     Returns:
         Row: A row of LayoutDOM objects all with the same sizing_mode.
@@ -121,19 +121,19 @@ def column(*children: LayoutDOM | List[LayoutDOM], sizing_mode: SizingModeType |
     have the same sizing_mode, which is required for complex layouts to work.
 
     Args:
-        children (list of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of instances for
+        children (list of :class:`~bokeh.models.LayoutDOM` ): A list of instances for
             the column. Can be any of the following - |Plot|,
-            :class:`~bokeh.models.widgets.widget.Widget`,
-            :class:`~bokeh.models.layouts.Row`,
-            :class:`~bokeh.models.layouts.Column`,
-            :class:`~bokeh.models.tools.ToolbarBox`,
-            :class:`~bokeh.models.layouts.Spacer`.
+            :class:`~bokeh.models.Widget`,
+            :class:`~bokeh.models.Row`,
+            :class:`~bokeh.models.Column`,
+            :class:`~bokeh.models.ToolbarBox`,
+            :class:`~bokeh.models.Spacer`.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
-            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
-            description on :class:`~bokeh.models.layouts.LayoutDOM`.
+            modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.LayoutDOM`.
 
     Returns:
         Column: A column of LayoutDOM objects all with the same sizing_mode.
@@ -152,13 +152,13 @@ def widgetbox(*args: Widget, children: List[Widget] | None = None, sizing_mode: 
     """ Create a column of bokeh widgets with predefined styling.
 
     Args:
-        children (list of :class:`~bokeh.models.widgets.widget.Widget`): A list of widgets.
+        children (list of :class:`~bokeh.models.Widget`): A list of widgets.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
-            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
-            description on :class:`~bokeh.models.layouts.LayoutDOM`.
+            modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.LayoutDOM`.
 
     Returns:
         WidgetBox: A column layout of widget instances all with the same ``sizing_mode``.
@@ -178,19 +178,19 @@ def layout(*args: LayoutDOM, children: List[LayoutDOM] | None = None, sizing_mod
     """ Create a grid-based arrangement of Bokeh Layout objects.
 
     Args:
-        children (list of lists of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of lists of instances
+        children (list of lists of :class:`~bokeh.models.LayoutDOM` ): A list of lists of instances
             for a grid layout. Can be any of the following - |Plot|,
-            :class:`~bokeh.models.widgets.widget.Widget`,
-            :class:`~bokeh.models.layouts.Row`,
-            :class:`~bokeh.models.layouts.Column`,
-            :class:`~bokeh.models.tools.ToolbarBox`,
-            :class:`~bokeh.models.layouts.Spacer`.
+            :class:`~bokeh.models.Widget`,
+            :class:`~bokeh.models.Row`,
+            :class:`~bokeh.models.Column`,
+            :class:`~bokeh.models.ToolbarBox`,
+            :class:`~bokeh.models.Spacer`.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
-            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
-            description on :class:`~bokeh.models.layouts.LayoutDOM`.
+            modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.LayoutDOM`.
 
     Returns:
         Column: A column of ``Row`` layouts of the children, all with the same sizing_mode.
@@ -237,8 +237,8 @@ def gridplot(
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
-            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
-            description on :class:`~bokeh.models.layouts.LayoutDOM`.
+            modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.LayoutDOM`.
 
         toolbar_location (``above``, ``below``, ``left``, ``right`` ): Where the
             toolbar will be located, with respect to the grid. Default is
@@ -254,7 +254,7 @@ def gridplot(
 
         toolbar_options (dict, optional) : A dictionary of options that will be
             used to construct the grid's toolbar (an instance of
-            :class:`~bokeh.models.tools.ToolbarBox`). If none is supplied,
+            :class:`~bokeh.models.ToolbarBox`). If none is supplied,
             ToolbarBox's defaults will be used.
 
         merge_tools (``True``, ``False``): Combine tools from all child plots into

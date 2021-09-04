@@ -1,7 +1,7 @@
 .. _bokeh.models.annotations:
 
-bokeh.models.annotations
-------------------------
+annotations
+-----------
 
 .. automodule:: bokeh.models.annotations
    :members:

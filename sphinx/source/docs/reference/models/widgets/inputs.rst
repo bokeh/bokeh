@@ -1,7 +1,7 @@
 .. _bokeh.models.widgets.inputs:
 
-bokeh.models.widgets.inputs
----------------------------
+inputs
+------
 
 .. automodule:: bokeh.models.widgets.inputs
    :members:

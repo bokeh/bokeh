@@ -1,7 +1,7 @@
 .. _bokeh.models.markers:
 
-bokeh.models.markers
---------------------
+markers
+-------
 
 .. automodule:: bokeh.models.markers
 

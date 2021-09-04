@@ -67,6 +67,7 @@ from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
+from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective, py_sig_re
 from .templates import MODEL_DETAIL
 
@@ -131,7 +132,7 @@ class BokehModelDirective(BokehDirective):
 
         rst_text = MODEL_DETAIL.render(
             name=model_name,
-            module_name=module_name,
+            module_name="bokeh.models" if module_name.startswith("bokeh.models") else module_name,
             model_json=model_json,
         )
 
@@ -142,6 +143,7 @@ def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_directive_to_domain("py", "bokeh-model", BokehModelDirective)
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

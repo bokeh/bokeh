@@ -1,7 +1,7 @@
 .. _bokeh.models.renderers:
 
-bokeh.models.renderers
-----------------------
+renderers
+---------
 
 .. automodule:: bokeh.models.renderers
    :members:

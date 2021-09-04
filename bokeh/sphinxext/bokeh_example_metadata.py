@@ -36,6 +36,7 @@ from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
 # Bokeh imports
+from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective
 from .templates import EXAMPLE_METADATA
 from .util import get_sphinx_resources
@@ -94,6 +95,8 @@ class BokehExampleMetadataDirective(BokehDirective):
 def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_directive("bokeh-example-metadata", BokehExampleMetadataDirective)
+
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

@@ -1,7 +1,7 @@
 .. _bokeh.models.widgets.icons:
 
-bokeh.models.widgets.icons
---------------------------
+icons
+-----
 
 .. automodule:: bokeh.models.widgets.icons
    :members:

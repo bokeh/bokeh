@@ -18,11 +18,6 @@ can be associated with data columns from
     their respective replacements using the
     :class:`~bokeh.models.glyphs.Scatter` glyph.
 
-The full list of markers accessible through this module:
-
-.. toctree::
-   :maxdepth: 2
-
 By definition, all markers accept the following set of properties:
 
 * ``x``, ``y`` position

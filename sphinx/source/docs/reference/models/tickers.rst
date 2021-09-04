@@ -1,7 +1,7 @@
 .. _bokeh.models.tickers:
 
-bokeh.models.tickers
---------------------
+tickers
+-------
 
 .. automodule:: bokeh.models.tickers
    :members:
