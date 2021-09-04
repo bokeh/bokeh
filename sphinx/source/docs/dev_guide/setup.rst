@@ -170,7 +170,8 @@ subdirectory.
 5. Set up pre-commit
 --------------------
 
-To help prevent some accidental errors, Bokeh uses `pre-commit`_.
+Bokeh uses `pre-commit`_ to help you prevent some common mistakes in your
+commits.
 
 To set up pre-commit locally, run the following command from the top level of
 your *source checkout* directory:
@@ -180,16 +181,23 @@ your *source checkout* directory:
     python scripts/hooks/install.py
 
 This configures pre-commit to use two `Git hooks`_ that will check your code
-whenever you add a commit to your branch:
+whenever you push a commit to Bokeh's GitHub repository:
 
-1. codebase tests: git-commit will run Bokeh's
-   :ref:`codebase tests <devguide_testing_local_codebase>` to check for
-   codebase quality issues such as whitespaces and imports. This includes
-   testing with `flake8`_, `eslint`_, and `isort`_.
+Codebase tests
+    git-commit will run Bokeh's
+    :ref:`codebase tests <devguide_testing_local_codebase>` to check for
+    codebase quality issues such as whitespaces and imports. This includes
+    testing with `flake8`_, `eslint`_, and `isort`_.
 
-2. protected branches: git-commit will make sure you don't accidentally push a
-   commit to `Bokeh's protected branches`_ ``main`` and ``branch-x.y`` on
-   GitHub.
+Protected branches
+    git-commit will make sure you don't accidentally push a commit to `Bokeh's
+    protected branches`_ ``main`` and ``branch-x.y`` on GitHub.
+
+.. note::
+    Depending on your system, running those tests may take several dozen
+    seconds. If any of the tests fail, check the output of your console. In most
+    cases, this is where you will find the necessary information about what you
+    need to change to pass the tests.
 
 To uninstall the Git hooks, run the following command from the top level of your
 *source checkout* directory:
@@ -200,7 +208,7 @@ To uninstall the Git hooks, run the following command from the top level of your
 
 .. _devguide_setup_install_locally:
 
-1. Build and install locally
+6. Build and install locally
 ----------------------------
 
 Once you have all the required dependencies installed, the simplest way to
