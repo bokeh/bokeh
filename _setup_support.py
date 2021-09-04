@@ -359,7 +359,7 @@ ERROR: Cannot install BokehJS: files missing in `./bokehjs/build`.
 
 
 Please build BokehJS by running setup.py with the `--build-js` option.
-  Dev Guide: https://docs.bokeh.org/en/latest/docs/dev_guide/setup.html.
+  Contributor Guide: https://docs.bokeh.org/en/latest/docs/dev_guide/setup.html.
 """
 
 BUILD_EXEC_FAIL_MSG = bright(red("Failed.")) + """
@@ -369,7 +369,7 @@ ERROR: subprocess.Popen(%r) failed to execute:
     %s
 
 Have you run `npm ci` from the bokehjs subdirectory?
-For more information, see the Dev Guide:
+For more information, see the Contributor Guide:
 
     https://docs.bokeh.org/en/latest/docs/dev_guide.html
 """

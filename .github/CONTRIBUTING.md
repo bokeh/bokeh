@@ -6,7 +6,7 @@ should be made. Please read these guidelines in order to avoid surprises down th
 ## Getting Set Up
 
 For information about setting up a development environment, building from source, etc.,
-see the [Developer Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html)
+see the [Contributor Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html)
 
 ## Choosing something to work on
 
