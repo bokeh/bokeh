@@ -8,7 +8,7 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Circle} from "@bokehjs/models/glyphs/circle"
 import {MultiLine} from "@bokehjs/models/glyphs/multi_line"
 import {EdgesOnly, NodesOnly, NodesAndLinkedEdges, EdgesAndLinkedNodes} from "@bokehjs/models/graphs/graph_hit_test_policy"
-import {LayoutProvider} from "@bokehjs/models/graphs/layout_provider"
+import {StaticLayoutProvider} from "@bokehjs/models/graphs/static_layout_provider"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {GraphRenderer, GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
 import {ColumnarDataSource} from "@bokehjs/models/sources/columnar_data_source"
@@ -17,19 +17,20 @@ import {Document} from "@bokehjs/document"
 import {build_view} from "@bokehjs/core/build_views"
 import {repeat} from "@bokehjs/core/util/array"
 
-class TrivialLayoutProvider extends LayoutProvider {
+class TrivialLayoutProvider extends StaticLayoutProvider {
 
-  get_node_coordinates(graph_source: ColumnarDataSource): [Float64Array, Float64Array] {
+  override get_node_coordinates(graph_source: ColumnarDataSource): [Float64Array, Float64Array] {
     const n = graph_source.get_length() ?? 1
     const x = new Float64Array(n)
     const y = new Float64Array(n)
     return [x, y]
   }
 
-  get_edge_coordinates(graph_source: ColumnarDataSource): [number[][], number[][]] {
+  override get_edge_coordinates(graph_source: ColumnarDataSource): [number[][], number[][]] {
     const n = graph_source.get_length() ?? 1
     return [repeat([], n), repeat([], n)]
   }
+
 }
 
 describe("GraphHitTestPolicy", () => {

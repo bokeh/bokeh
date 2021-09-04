@@ -66,7 +66,7 @@ describe("GraphRendererView", () => {
     }
     test_graph.layout_provider = test_layout_provider
 
-    const {x, y} = test_graph.node_coordinates.v_compute(test_graph.node_renderer.data_source)
+    const {x, y} = test_graph.layout_provider.node_coordinates.v_compute(test_graph.node_renderer.data_source)
     expect(x).to.be.equal(new Float64Array([3, 4, 5, 6]))
     expect(y).to.be.equal(new Float64Array([0, 1, 2, 3]))
   })

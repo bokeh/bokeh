@@ -10,9 +10,6 @@ import {SelectionManager} from "core/selection_manager"
 import {XYGlyph} from "../glyphs/xy_glyph"
 import {MultiLine} from "../glyphs/multi_line"
 import {Patches} from "../glyphs/patches"
-import {CoordinateTransform} from "../expressions/coordinate_transform"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Arrayable} from "core/types"
 
 export class GraphRendererView extends DataRendererView {
   override model: GraphRenderer
@@ -53,8 +50,8 @@ export class GraphRendererView extends DataRendererView {
       throw new Error(`${this}.node_renderer.glyph must be a XYGlyph glyph`)
     }
 
-    const edge_coords = this.model.edge_coordinates
-    const node_coords = this.model.node_coordinates
+    const edge_coords = this.model.layout_provider.edge_coordinates
+    const node_coords = this.model.layout_provider.node_coordinates
 
     edge_renderer.glyph.properties.xs.internal = true
     edge_renderer.glyph.properties.ys.internal = true
@@ -128,71 +125,5 @@ export class GraphRenderer extends DataRenderer {
 
   get_selection_manager(): SelectionManager {
     return this.node_renderer.data_source.selection_manager
-  }
-
-  get edge_coordinates(): EdgeCoordinates {
-    return new EdgeCoordinates({graph: this})
-  }
-
-  get node_coordinates(): NodeCoordinates {
-    return new NodeCoordinates({graph: this})
-  }
-}
-
-
-export namespace NodeCoordinates {
-  export type Attrs = p.AttrsOf<Props>
-  export type Props = CoordinateTransform.Props & {
-    graph: p.Property<GraphRenderer>
-  }
-}
-
-export interface NodeCoordinates extends NodeCoordinates.Attrs {}
-
-export class NodeCoordinates extends CoordinateTransform {
-  override properties: NodeCoordinates.Props
-
-  constructor(attrs?: Partial<NodeCoordinates.Attrs>){
-    super(attrs)
-  }
-
-  static {
-    this.define<NodeCoordinates.Props>(({Ref}) => ({
-      graph: [ Ref(GraphRenderer)]
-    }))
-  }
-
-  _v_compute(source: ColumnarDataSource): {x: Arrayable<number>, y: Arrayable<number>}{
-    const [x, y] = this.graph.layout_provider.get_node_coordinates(source)
-    return {x: x, y: y}
-  }
-}
-
-
-export namespace EdgeCoordinates {
-  export type Attrs = p.AttrsOf<Props>
-  export type Props = CoordinateTransform.Props & {
-    graph: p.Property<GraphRenderer>
-  }
-}
-
-export interface EdgeCoordinates extends EdgeCoordinates.Attrs {}
-
-export class EdgeCoordinates extends CoordinateTransform {
-  override properties: EdgeCoordinates.Props
-
-  constructor(attrs?: Partial<EdgeCoordinates.Attrs>){
-    super(attrs)
-  }
-
-  static {
-    this.define<EdgeCoordinates.Props>(({Ref}) => ({
-      graph: [ Ref(GraphRenderer)]
-    }))
-  }
-
-  _v_compute(source: ColumnarDataSource): {x: Arrayable<number>[], y: Arrayable<number>[]}{
-    const [x, y] = this.graph.layout_provider.get_edge_coordinates(source)
-    return {x: x, y: y}
   }
 }

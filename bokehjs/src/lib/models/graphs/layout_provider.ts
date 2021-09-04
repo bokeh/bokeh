@@ -1,5 +1,6 @@
 import {Model} from "../../model"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
+import {CoordinateTransform} from "models/expressions/coordinate_transform"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
@@ -21,4 +22,8 @@ export abstract class LayoutProvider extends Model {
   abstract get_node_coordinates(graph_source: ColumnarDataSource): [Arrayable<number>, Arrayable<number>]
 
   abstract get_edge_coordinates(graph_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]]
+
+  abstract node_coordinates: CoordinateTransform
+
+  abstract edge_coordinates: CoordinateTransform
 }
