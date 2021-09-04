@@ -414,7 +414,18 @@ def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
         bool
     '''
     from ..models.text import MathText
-    return _any(objs, lambda obj: isinstance(obj, MathText))
+
+    def model_has_mathstring(model: Model) -> bool:
+        ''' Whether any of the properties of the given model accepts a `MathText` object and has given a mathstring.
+        This is needed because we convert mathstrings to `MathText` on BokehJS views.
+        '''
+        properties = model.properties(_with_props = True)
+
+        for key, value in model.properties_with_values().items():
+            if properties[key].is_valid(MathText()) and MathText.is_math_text_string(value):
+                return True
+
+    return _any(objs, lambda obj: isinstance(obj, MathText)) or _ext_use_mathjax(objs) or _any(objs, model_has_mathstring)
 
 def _use_gl(objs: Sequence[Model | Document]) -> bool:
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
@@ -436,6 +447,10 @@ def _ext_use_tables(objs: Sequence[Model | Document]) -> bool:
 def _ext_use_widgets(objs: Sequence[Model | Document]) -> bool:
     from ..models.widgets import Widget
     return _query_extensions(objs, lambda cls: issubclass(cls, Widget))
+
+def _ext_use_mathjax(objs: Sequence[Model | Document]) -> bool:
+    from ..models.text import MathText
+    return _query_extensions(objs, lambda cls: issubclass(cls, MathText))
 
 #-----------------------------------------------------------------------------
 # Code
