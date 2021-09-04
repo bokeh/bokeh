@@ -15,26 +15,20 @@ import {ColumnarDataSource} from "@bokehjs/models/sources/columnar_data_source"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {Document} from "@bokehjs/document"
 import {build_view} from "@bokehjs/core/build_views"
+import {Arrayable} from "@bokehjs/core/types"
 import {repeat} from "@bokehjs/core/util/array"
 
 class TrivialLayoutProvider extends LayoutProvider {
 
-  constructor(attrs?: Partial<LayoutProvider.Attrs>) {
-    super(attrs)
-  }
-
-  get_node_coordinates(graph_source: ColumnarDataSource): [Float64Array, Float64Array] {
+  get_node_coordinates(graph_source: ColumnarDataSource): [Arrayable<number>, Arrayable<number>] {
     const n = graph_source.get_length() ?? 1
-    const x = new Float64Array(n)
-    const y = new Float64Array(n)
-    return [x, y]
+    return [new Float64Array(n), new Float64Array(n)]
   }
 
-  get_edge_coordinates(graph_source: ColumnarDataSource): [number[][], number[][]] {
+  get_edge_coordinates(graph_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]] {
     const n = graph_source.get_length() ?? 1
     return [repeat([], n), repeat([], n)]
   }
-
 }
 
 describe("GraphHitTestPolicy", () => {

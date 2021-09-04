@@ -50,13 +50,13 @@ export class NodeCoordinates extends CoordinateTransform {
 
   static {
     this.define<NodeCoordinates.Props>(({Ref}) => ({
-      layout: [ Ref(LayoutProvider)]
+      layout: [ Ref(LayoutProvider)],
     }))
   }
 
   _v_compute(source: ColumnarDataSource): {x: Arrayable<number>, y: Arrayable<number>}{
     const [x, y] = this.layout.get_node_coordinates(source)
-    return {x: x, y: y}
+    return {x, y}
   }
 }
 
@@ -78,12 +78,12 @@ export class EdgeCoordinates extends CoordinateTransform {
 
   static {
     this.define<EdgeCoordinates.Props>(({Ref}) => ({
-      layout: [ Ref(LayoutProvider)]
+      layout: [ Ref(LayoutProvider)],
     }))
   }
 
   _v_compute(source: ColumnarDataSource): {x: Arrayable<number>[], y: Arrayable<number>[]}{
     const [x, y] = this.layout.get_edge_coordinates(source)
-    return {x: x, y: y}
+    return {x, y}
   }
 }
