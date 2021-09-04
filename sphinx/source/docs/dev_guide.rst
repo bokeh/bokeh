@@ -1,4 +1,4 @@
-.. _contributors_guide:
+.. _contributor_guide:
 
 Contribute
 ##########
@@ -24,21 +24,21 @@ help us make Bokeh a better tool for everyone!
 
 In this contributors guide, you will find all information you need to join the
 growing team of Bokeh contributors. This includes information on how to
-:ref:`contribute to Bokeh's code and documentation <contributors_guide_start>`,
-:ref:`help out with community support <contributors_guide_community_support>`,
-or :ref:`support Bokeh with a donation <contributors_guide_donate>`.
+:ref:`contribute to Bokeh's code and documentation <contributor_guide_start>`,
+:ref:`help out with community support <contributor_guide_community_support>`,
+or :ref:`support Bokeh with a donation <contributor_guide_donate>`.
 
 .. note::
     Everyone active in the Bokeh project's codebases, issue trackers, and
     discussion forums is expected to follow the `Code of Conduct`_.
 
-.. _contributors_guide_start:
+.. _contributor_guide_start:
 
 Where to start
 --------------
 
 To work with Bokeh's code and documentation, you first need to
-:ref:`set up a development environment <devguide_setup>`.
+:ref:`set up a development environment <contributor_guide_setup>`.
 
 You can then contribute to Bokeh's codebase in many ways:
 
@@ -49,11 +49,11 @@ You can then contribute to Bokeh's codebase in many ways:
     ^^^^^^^^^^^^^^^^^^^^^^^
     If you would like to help with Bokeh's Python code:
 
-    * :ref:`devguide_models`
-    * :ref:`devguide_testing`
-    * :ref:`devguide_writing_tests`
-    * :ref:`devguide_issues`
-    * :ref:`devguide_pull_requests`
+    * :ref:`contributor_guide_models`
+    * :ref:`contributor_guide_testing`
+    * :ref:`contributor_guide_writing_tests`
+    * :ref:`contributor_guide_issues`
+    * :ref:`contributor_guide_pull_requests`
 
     ---
     :header: bg-bokeh-two
@@ -62,11 +62,11 @@ You can then contribute to Bokeh's codebase in many ways:
     ^^^^^^^^^^^^^^^^^^^^
     If you would like to help with anything related to :term:`BokehJS`:
 
-    * :ref:`devguide_bokehjs`
-    * :ref:`devguide_testing`
-    * :ref:`devguide_writing_tests`
-    * :ref:`devguide_issues`
-    * :ref:`devguide_pull_requests`
+    * :ref:`contributor_guide_bokehjs`
+    * :ref:`contributor_guide_testing`
+    * :ref:`contributor_guide_writing_tests`
+    * :ref:`contributor_guide_issues`
+    * :ref:`contributor_guide_pull_requests`
     ---
     :header: bg-bokeh-three
 
@@ -74,11 +74,11 @@ You can then contribute to Bokeh's codebase in many ways:
     ^^^^^^^^^^^^
     If you would like to help with the :term:`Server` component of Bokeh:
 
-    * :ref:`devguide_server`
-    * :ref:`devguide_testing`
-    * :ref:`devguide_writing_tests`
-    * :ref:`devguide_issues`
-    * :ref:`devguide_pull_requests`
+    * :ref:`contributor_guide_server`
+    * :ref:`contributor_guide_testing`
+    * :ref:`contributor_guide_writing_tests`
+    * :ref:`contributor_guide_issues`
+    * :ref:`contributor_guide_pull_requests`
     ---
     :header: bg-bokeh-four
 
@@ -86,17 +86,17 @@ You can then contribute to Bokeh's codebase in many ways:
     ^^^^^^^^^^^^^^^^^^^
     If you would like to help improving :ref:`Bokeh's documentation <about>`:
 
-    * :ref:`devguide_documentation`
-    * :ref:`devguide_issues`
-    * :ref:`devguide_pull_requests`
+    * :ref:`contributor_guide_documentation`
+    * :ref:`contributor_guide_issues`
+    * :ref:`contributor_guide_pull_requests`
 
 
-.. _contributors_guide_resources:
+.. _contributor_guide_resources:
 
 Additional resources
 --------------------
 
-In addition to this :ref:`contributors guide <contributors_guide_start>`, there
+In addition to this :ref:`contributors guide <contributor_guide_start>`, there
 are many more resources available to help you get started quickly:
 
 Bokeh Slack
@@ -135,7 +135,7 @@ Bokeh's Discourse
     `the community section of Bokeh's website <community>`_ for more information
     on Bokeh's community resources.
 
-.. _contributors_guide_more_ways:
+.. _contributor_guide_more_ways:
 
 More ways to contribute
 ------------------------
@@ -143,7 +143,7 @@ More ways to contribute
 In addition to improving Bokeh's codebase and documentation, there are many
 other ways to contribute to Bokeh:
 
-.. _contributors_guide_donate:
+.. _contributor_guide_donate:
 
 Donate to Bokeh
 ^^^^^^^^^^^^^^^
@@ -167,7 +167,7 @@ through in-kind support, please get in touch with us at info@bokeh.org.
 For more information on fiscal and in-kind donations, see the `Support`_ section
 in Bokeh's `GitHub repository`_.
 
-.. _contributors_guide_examples:
+.. _contributor_guide_examples:
 
 Add examples
 ^^^^^^^^^^^^
@@ -176,9 +176,9 @@ If you or your organization are using Bokeh and are willing to share some
 examples of what you are working on, consider adding them to the
 `Bokeh Showcase`_. You can also add new examples to
 :ref:`Bokeh's gallery <gallery>` with a :ref:`pull request
-<devguide_pull_requests>` to the :bokeh-tree:`examples` folder.
+<contributor_guide_pull_requests>` to the :bokeh-tree:`examples` folder.
 
-.. _contributors_guide_community_support:
+.. _contributor_guide_community_support:
 
 Help with community support
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -189,7 +189,7 @@ for all user support questions is the `Bokeh Discourse server`_. Feel free to
 answer user questions that you can help with. All interactions on Bokeh's
 Discourse must follow Bokeh's `Code of Conduct`_.
 
-.. _contributors_guide_bindings:
+.. _contributor_guide_bindings:
 
 Contribute to language bindings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -217,14 +217,14 @@ Another ressource for working on bindings is Bokeh's
 :bokeh-tree:`scripts/spec.py` script. This Python script generates a JSON
 description of every model and property in Bokeh,
 including types, defaults, and
-:ref:`help strings <devguide_documentation_edit_properties_help>` for each. You
+:ref:`help strings <contributor_guide_documentation_edit_properties_help>` for each. You
 can use this information as a basis for creating new low-level bindings or
 checking existing bindings for completeness, for example.
 
 If you would like to start working on a new binding or have a new binding added
 to this list, please contact the Bokeh core team through `Slack`_.
 
-.. _contributors_guide_spread_the_word:
+.. _contributor_guide_spread_the_word:
 
 Spread the word
 ^^^^^^^^^^^^^^^

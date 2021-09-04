@@ -1,4 +1,4 @@
-.. _devguide_testing:
+.. _contributor_guide_testing:
 
 Running tests
 =============
@@ -8,53 +8,53 @@ comprehensive tests and testing tools to help ensure consistency and
 prevent regressions.
 
 This chapter describes how to run various tests in a
-:ref:`local development environment <devguide_testing_local>` and in
-:ref:`Bokeh's continuous integration (CI) system on GitHub <devguide_testing_ci>`.
+:ref:`local development environment <contributor_guide_testing_local>` and in
+:ref:`Bokeh's continuous integration (CI) system on GitHub <contributor_guide_testing_ci>`.
 
-.. _devguide_testing_local:
+.. _contributor_guide_testing_local:
 
 Local testing
 -------------
 
 Almost all of Bokeh's tests can be run locally. However, some of the tests can
 be complex to set up and run correctly on a local system. Therefore, all tests
-will run in :ref:`Bokeh's CI <devguide_testing_ci>` when you
-:ref:`create a Pull Request <devguide_pull_requests>` on Bokeh's GitHub
+will run in :ref:`Bokeh's CI <contributor_guide_testing_ci>` when you
+:ref:`create a Pull Request <contributor_guide_pull_requests>` on Bokeh's GitHub
 repository. **You don't need to set up and run all tests locally**.
 
 Follow those general guidelines to decide which tests to run locally:
 
 Whenever you change anything in Bokeh's codebase
-    Run Bokeh's :ref:`codebase tests <devguide_testing_local_codebase>`
+    Run Bokeh's :ref:`codebase tests <contributor_guide_testing_local_codebase>`
 
 When you edit Bokeh's Python code
-    Run Bokeh's :ref:`Python unit tests <devguide_testing_local_python_unit>`
+    Run Bokeh's :ref:`Python unit tests <contributor_guide_testing_local_python_unit>`
 
 When your work involves UI elements
-    Run Bokeh's :ref:`Python integration tests <devguide_testing_local_python_unit>`
+    Run Bokeh's :ref:`Python integration tests <contributor_guide_testing_local_python_unit>`
 
 When your change anything related to BokehJS
-    Run Bokeh's :ref:`JavaScript tests <devguide_testing_local_javascript_all>`
+    Run Bokeh's :ref:`JavaScript tests <contributor_guide_testing_local_javascript_all>`
 
 For reference, this section provides an overview of all available tests and how
 to run them locally on most systems. Generally, it makes the most sense to
 **only run specific tests related to what you are working on**. See
-:ref:`Select specific tests <devguide_testing_local_python_select>` for
+:ref:`Select specific tests <contributor_guide_testing_local_python_select>` for
 instructions on how to select and deselect specific Python tests. See
-:ref:`Select specific BokehJS tests <devguide_testing_local_javascript_selecting>`
+:ref:`Select specific BokehJS tests <contributor_guide_testing_local_javascript_selecting>`
 for instructions on how to select and deselect specific :term:`BokehJS` tests.
 
 Check basic requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Before attempting to run Bokeh tests locally, make sure you have successfully
-completed all of the steps in the :ref:`devguide_setup` section of this
+completed all of the steps in the :ref:`contributor_guide_setup` section of this
 contributors guide.
 
 Check that :ref:`Bokeh's sampledata <install_sampledata>` is installed and up to
 date by running ``bokeh sampledata``. In case you are not able to install the
 sampledata on your system, you have the option to
-:ref:`disable those specific tests <devguide_testing_local_python_select>`.
+:ref:`disable those specific tests <contributor_guide_testing_local_python_select>`.
 
 Several tests also require `Selenium`_ and a corresponding `web driver`_ to be
 available on your system. While it is possible to use other web drivers for some
@@ -62,7 +62,7 @@ tests, the recommended setup is to use Selenium with `ChromeDriver`_ and
 `Chrome`_. See :ref:`userguide_export_dependencies` for
 installation instructions and more information. In case Selenium is not
 available on your system, you have the option to
-:ref:`disable those specific tests <devguide_testing_local_python_select>`.
+:ref:`disable those specific tests <contributor_guide_testing_local_python_select>`.
 
 On some Unix platforms, you may also need to increase the "maximum
 number of open file descriptors". Some tests open many files when testing the
@@ -72,7 +72,7 @@ server, so this number should be at least 1024.
 
     ulimit -n 1024
 
-.. _devguide_testing_local_codebase:
+.. _contributor_guide_testing_local_codebase:
 
 Run codebase tests
 ~~~~~~~~~~~~~~~~~~
@@ -91,7 +91,7 @@ Run this command from the top level of the repository:
 
     pytest tests/codebase
 
-.. _devguide_testing_local_python:
+.. _contributor_guide_testing_local_python:
 
 Run Python tests
 ~~~~~~~~~~~~~~~~
@@ -100,18 +100,18 @@ Bokeh includes a number of tests that are focused on Bokeh's Python code.
 These tests use `pytest`_ and are located in the :bokeh-tree:`tests` folder.
 
 Whenever you work with Bokeh's Python code, you should run Bokeh's
-:ref:`codebase <devguide_testing_local_codebase>` and
-:ref:`Python unit tests <devguide_testing_local_python_unit>`. In case your
+:ref:`codebase <contributor_guide_testing_local_codebase>` and
+:ref:`Python unit tests <contributor_guide_testing_local_python_unit>`. In case your
 work also included changes to user interface elements, you should also run
-Bokeh's :ref:`Python integration tests <devguide_testing_local_python_integration>`.
+Bokeh's :ref:`Python integration tests <contributor_guide_testing_local_python_integration>`.
 
 These are some command line arguments for ``pytest`` that are helpful to know
 when working with Bokeh's pytest-based tests:
 
 * ``-k``: Provide a search string to filter for specific tests. See
-  :ref:`Select specific tests <devguide_testing_local_python_select>`.
+  :ref:`Select specific tests <contributor_guide_testing_local_python_select>`.
 * ``-m``: Select or deselect specific test based on markers. See
-  :ref:`Select specific tests <devguide_testing_local_python_select>`.
+  :ref:`Select specific tests <contributor_guide_testing_local_python_select>`.
 * ``-n``: Distribute testing over several CPUs or cores. Provide a number to
   define the number of cores to use. Set to ``auto`` to use all available cores.
   For example: ``pytest -n 4 tests/codebase``. See `pytest-xdist`_.
@@ -123,7 +123,7 @@ when working with Bokeh's pytest-based tests:
 
 See the `pytest documentation`_ for more options.
 
-.. _devguide_testing_local_python_unit:
+.. _contributor_guide_testing_local_python_unit:
 
 Unit tests
     To run Bokeh's Python unit tests, use the following command at the top
@@ -138,13 +138,13 @@ Unit tests
         Selenium can be difficult to set up and because some unit tests require
         both `geckodriver`_ and `ChromeDriver`_ to be available on your system,
         using ``-m "not selenium"`` is the recommended way to run unit tests
-        locally. Once you :ref:`create a Pull Request <devguide_pull_requests>`,
-        :ref:`Bokeh's CI <devguide_testing_ci>` will run all tests, including
+        locally. Once you :ref:`create a Pull Request <contributor_guide_pull_requests>`,
+        :ref:`Bokeh's CI <contributor_guide_testing_ci>` will run all tests, including
         Selenium-based unit tests. In case Selenium with both geckodriver and
         ChromeDriver is available on your system, you can run all unit tests
         with ``pytest tests/unit``.
 
-.. _devguide_testing_local_python_coverage:
+.. _contributor_guide_testing_local_python_coverage:
 
 Code coverage (Python unit tests)
     To create a coverage report for Python unit tests, use ``pytest`` with the
@@ -171,7 +171,7 @@ Code coverage (Python unit tests)
         Coverage reports use the pytest plugin `pytest-cov`_. For more
         information, see the `documentation for pytest-cov`_.
 
-.. _devguide_testing_local_python_integration:
+.. _contributor_guide_testing_local_python_integration:
 
 Integration tests
     To run Bokeh's Python-focused integration tests, use this command from the
@@ -194,7 +194,7 @@ Run all available tests
 
         pytest
 
-.. _devguide_testing_local_python_select:
+.. _contributor_guide_testing_local_python_select:
 
 Select specific tests
     To test a subset of the Bokeh package, pass a path to ``pytest``:
@@ -223,9 +223,9 @@ Select specific tests
 
 .. seealso::
     For information on adding and updating Python tests, see
-    :ref:`devguide_writing_tests_python`.
+    :ref:`contributor_guide_writing_tests_python`.
 
-.. _devguide_testing_local_javascript:
+.. _contributor_guide_testing_local_javascript:
 
 Run JavaScript tests
 ~~~~~~~~~~~~~~~~~~~~
@@ -235,7 +235,7 @@ framework. This framework **requires Google Chrome or Chromium**. You need a
 recent version of one of these browsers available on your system to run those
 tests locally.
 
-.. _devguide_testing_local_javascript_all:
+.. _contributor_guide_testing_local_javascript_all:
 
 Run all BokehJS tests
 '''''''''''''''''''''
@@ -257,7 +257,7 @@ of the source checkout:
 This runs a combination of codebase, defaults, unit, and integration test
 suites.
 
-.. _devguide_testing_local_javascript_selecting:
+.. _contributor_guide_testing_local_javascript_selecting:
 
 Select specific BokehJS tests
 '''''''''''''''''''''''''''''
@@ -292,7 +292,7 @@ This will only run integration tests that contain the string "Legend".
     Chromium. The BokehJS testing framework starts the browser automatically
     with the right settings to produce consistent test results.
 
-.. _devguide_testing_local_javascript_devtools:
+.. _contributor_guide_testing_local_javascript_devtools:
 
 Testing with devtools server
 ''''''''''''''''''''''''''''
@@ -366,9 +366,9 @@ To only run or view tests for a specific platform, append either
 
 .. seealso::
     For information on adding and updating BokehJS tests, see
-    :ref:`devguide_writing_tests_bokehjs`.
+    :ref:`contributor_guide_writing_tests_bokehjs`.
 
-.. _devguide_testing_local_examples:
+.. _contributor_guide_testing_local_examples:
 
 Run examples tests
 ~~~~~~~~~~~~~~~~~~
@@ -381,8 +381,8 @@ plots.
 
 The examples tests use a specialized testing framework, including a custom
 configuration of Chrome. Therefore, it is **recommended to not run those
-tests locally**. Instead, :ref:`Bokeh's CI <devguide_testing_ci>` runs all
-examples tests once you :ref:`create a Pull Request <devguide_pull_requests>`.
+tests locally**. Instead, :ref:`Bokeh's CI <contributor_guide_testing_ci>` runs all
+examples tests once you :ref:`create a Pull Request <contributor_guide_pull_requests>`.
 
 To run the examples tests locally, you first need to start a customized headless
 version of Chrome in the background. This headless browser needs to be
@@ -419,12 +419,12 @@ ran the tests from:
 In addition, the examples tests generate a log file called ``examples.log``
 in the same directory.
 
-.. _devguide_testing_ci:
+.. _contributor_guide_testing_ci:
 
 Continuous Integration (CI)
 ---------------------------
 
-Every time you start a :ref:`Pull Request <devguide_pull_requests>` or add new
+Every time you start a :ref:`Pull Request <contributor_guide_pull_requests>` or add new
 commits to an existing Pull Request branch on Bokeh's GitHub repository,
 `Bokeh's Continuous Integration (CI) <GithubCI_>`_ will run all available tests
 on your branch.
@@ -432,7 +432,7 @@ on your branch.
 You can see the list of all current and previous CI runs at this URL:
 https://github.com/bokeh/bokeh/actions
 
-.. _devguide_testing_ci_environments:
+.. _contributor_guide_testing_ci_environments:
 
 Environment files
 ~~~~~~~~~~~~~~~~~

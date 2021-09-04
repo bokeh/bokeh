@@ -5,4 +5,4 @@
 Environment variables (moved)
 =============================
 
-Content moved to :ref:`devguide_setup_environment_variables`
+Content moved to :ref:`contributor_guide_setup_environment_variables`

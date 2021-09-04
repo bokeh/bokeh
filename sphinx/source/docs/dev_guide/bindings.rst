@@ -5,4 +5,4 @@
 Bindings (moved)
 ================
 
-Content moved to :ref:`contributors_guide_bindings`
+Content moved to :ref:`contributor_guide_bindings`

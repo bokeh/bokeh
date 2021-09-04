@@ -1,4 +1,4 @@
-.. _devguide_server:
+.. _contributor_guide_server:
 
 Understanding Bokeh server
 ==========================

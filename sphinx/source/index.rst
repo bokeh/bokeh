@@ -58,7 +58,7 @@ Bokeh's documentation consists of several components:
 
     * :ref:`Reference guide <refguide>`: detailed information about all of Bokeh's components.
 
-    * :ref:`Contributors guide <contributors_guide>`: information on the various ways you can contribute to the Bokeh project.
+    * :ref:`Contributors guide <contributor_guide>`: information on the various ways you can contribute to the Bokeh project.
 
 Connecting with the Bokeh community
 -----------------------------------

@@ -28,8 +28,8 @@ throughout Bokeh's documentation:
         handles the UI interactions for Bokeh :term:`plots<Plot>` and
         :term:`widgets<Widget>` in the browser. In most cases, Bokeh handles all
         interactions with BokehJS automatically ("We write the JavaScript, so you
-        don't have to"). For more details, see the :ref:`devguide_bokehjs`
-        chapter of the |contributors guide|.
+        don't have to"). For more details, see the :ref:`contributor_guide_bokehjs`
+        chapter of the |contributor guide|.
 
     Document
         An organizing data structure for Bokeh
@@ -323,7 +323,7 @@ For more information on Bokeh models, see |bokeh.models| in the |reference guide
 
    The Python library allows for binding with other languages that can produce
    appropriate JSON output. For more details and available bindings, see
-   :ref:`contributors_guide_bindings`.
+   :ref:`contributor_guide_bindings`.
 
 
 .. _Matlab: http://www.mathworks.com/products/matlab/

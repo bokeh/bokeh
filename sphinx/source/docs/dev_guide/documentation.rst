@@ -1,4 +1,4 @@
-.. _devguide_documentation:
+.. _contributor_guide_documentation:
 
 Writing documentation
 =====================
@@ -16,13 +16,13 @@ to Bokeh. It's also a good way to get started and introduce yourself as a new
 contributor.
 
 This section describes Bokeh's
-:ref:`documentation style guidelines <devguide_documentation_style_guidelines>`
+:ref:`documentation style guidelines <contributor_guide_documentation_style_guidelines>`
 for contributing to the documentation. This section also includes details on how
-to :ref:`build <devguide_documentation_build>` and
-:ref:`edit <devguide_documentation_edit>` the documentation in your local
+to :ref:`build <contributor_guide_documentation_build>` and
+:ref:`edit <contributor_guide_documentation_edit>` the documentation in your local
 development environment.
 
-.. _devguide_documentation_get_started:
+.. _contributor_guide_documentation_get_started:
 
 Where to get started
 --------------------
@@ -34,7 +34,7 @@ is always appreciated!*
 In addition to quick fixes, check the list of `open documentatio issues`_ on
 GitHub. This list contains several projects as a starting point.
 
-.. _devguide_documentation_style_guidelines:
+.. _contributor_guide_documentation_style_guidelines:
 
 Documentation style guidelines
 ------------------------------
@@ -97,7 +97,7 @@ For definitions and concepts used throughout Bokeh's documentation, see the
 In general, see the `word list of the Google developer documentation style
 guide`_ for reference.
 
-.. _devguide_documentation_build:
+.. _contributor_guide_documentation_build:
 
 Setting up and building Bokeh's documentation
 ---------------------------------------------
@@ -113,7 +113,7 @@ uses several :ref:`custom Sphinx extensions <bokeh.sphinxext>`.
 1. Prepare your environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To build the documentation, follow the instructions in :ref:`devguide_setup`
+To build the documentation, follow the instructions in :ref:`contributor_guide_setup`
 and make sure you have activated the ``bkdev`` environment in your console:
 
 .. code-block:: sh
@@ -244,7 +244,7 @@ supported by ``make.bat``). For example:
     recent version of :term:`BokehJS` from Bokeh's Content Delivery Network
     (CDN) by default. If you would like to use your local version of BokehJS
     instead, set the
-    :ref:`environment variable <devguide_setup_environment_variables>`
+    :ref:`environment variable <contributor_guide_setup_environment_variables>`
     ``BOKEH_DOCS_CDN`` to ``local`` before calling ``make``:
 
     .. tabs::
@@ -278,19 +278,19 @@ the option``SPHINXOPTS="-j auto"`` to your build command:
 To learn more about options for the Sphinx build process, see
 :doc:`sphinx:man/sphinx-build` in the Sphinx documentation.
 
-.. _devguide_documentation_edit:
+.. _contributor_guide_documentation_edit:
 
 Writing Bokeh's documentation
 -----------------------------
 The documentation available at docs.bokeh.org_ mainly consists of those two
 elements:
 
-:ref:`Narrative documentation <devguide_documentation_edit_narrative>`
+:ref:`Narrative documentation <contributor_guide_documentation_edit_narrative>`
   This part of the documentation consists of tutorial-like descriptions and
   instructions for Bokeh. This includes the :ref:`user guide <userguide>` and
-  :ref:`contributors guide <contributors_guide>`.
+  :ref:`contributors guide <contributor_guide>`.
 
-:ref:`Docstrings and Model help text within the Python source code of Bokeh <devguide_documentation_edit_source>`
+:ref:`Docstrings and Model help text within the Python source code of Bokeh <contributor_guide_documentation_edit_source>`
   This part of the documentation consists of detailed explanations of all Bokeh
   modules and their properties. These texts are available from the Python
   interpreter and within most Python development environments. Sphinx also uses
@@ -302,7 +302,7 @@ substitutions used across the narrative documentation as well as docstrings and
 model help texts. This file is loaded as the
 confval:`epilog.rst environment variable <sphinx:rst_epilog>` for Bokeh's Sphinx configuration.
 
-.. _devguide_documentation_edit_narrative:
+.. _contributor_guide_documentation_edit_narrative:
 
 Writing for Bokeh's narrative documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -312,7 +312,7 @@ Bokeh's narrative documentation consists of these four elements:
 * :ref:`first_steps`: first steps guides and installation instructions
 * :ref:`userguide`: descriptions and instructions for using Bokeh
 * :ref:`gallery`: interactive examples with source code
-* :ref:`Contributors guide <contributors_guide>`: instructions for contributing to Bokeh
+* :ref:`Contributors guide <contributor_guide>`: instructions for contributing to Bokeh
 
 Sphinx generates each of those elements from reStructuredText (.rst) files. To
 edit any of those elements, open the corresponding ReST source file in the
@@ -323,19 +323,19 @@ For information on how to format text using reStructuredText, see the
 or the `official reStructuredText website`_.
 
 For information on writing style, see Bokeh's
-:ref:`documentation style guidelines <devguide_documentation_style_guidelines>`
+:ref:`documentation style guidelines <contributor_guide_documentation_style_guidelines>`
 and the `Google developer documentation style guide`_.
 
-.. _devguide_documentation_edit_source:
+.. _contributor_guide_documentation_edit_source:
 
 Contributing to Bokeh's source code documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 All functions and methods in Bokeh use
-:ref:`docstrings <devguide_documentation_edit_docstrings>`. In addition, Bokeh
+:ref:`docstrings <contributor_guide_documentation_edit_docstrings>`. In addition, Bokeh
 uses its own system to provide
-:ref:`detailed information on individual properties <devguide_documentation_edit_properties_help>`.
+:ref:`detailed information on individual properties <contributor_guide_documentation_edit_properties_help>`.
 
-.. _devguide_documentation_edit_docstrings:
+.. _contributor_guide_documentation_edit_docstrings:
 
 Writing docstrings
 ''''''''''''''''''
@@ -371,7 +371,7 @@ For example:
             Foo
         '''
 
-.. _devguide_documentation_edit_properties_help:
+.. _contributor_guide_documentation_edit_properties_help:
 
 Writing models and properties help
 ''''''''''''''''''''''''''''''''''

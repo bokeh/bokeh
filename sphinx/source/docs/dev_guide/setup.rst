@@ -1,4 +1,4 @@
-.. _devguide_setup:
+.. _contributor_guide_setup:
 
 Setting up a development environment
 ====================================
@@ -11,25 +11,25 @@ Therefore, you need to set up two environments to contribute to Bokeh: A Python
 environment and a TypeScript environment. This chapter walks you through all the
 necessary steps to set up a full development environment:
 
-:ref:`devguide_setup_preliminaries`
+:ref:`contributor_guide_setup_preliminaries`
 
-:ref:`devguide_setup_cloning`
+:ref:`contributor_guide_setup_cloning`
 
-:ref:`devguide_setup_creating_conda_env`
+:ref:`contributor_guide_setup_creating_conda_env`
 
-:ref:`devguide_setup_installing_node_packages`
+:ref:`contributor_guide_setup_installing_node_packages`
 
-:ref:`devguide_setup_pre-commit`
+:ref:`contributor_guide_setup_pre-commit`
 
-:ref:`devguide_setup_install_locally`
+:ref:`contributor_guide_setup_install_locally`
 
-:ref:`devguide_setup_sample_data`
+:ref:`contributor_guide_setup_sample_data`
 
-:ref:`devguide_setup_environment_variables`
+:ref:`contributor_guide_setup_environment_variables`
 
-:ref:`devguide_setup_test_setup`
+:ref:`contributor_guide_setup_test_setup`
 
-.. _devguide_setup_preliminaries:
+.. _contributor_guide_setup_preliminaries:
 
 1. Check basic requirements
 ---------------------------
@@ -73,7 +73,7 @@ documentation`_.
 
         conda update -n base -c defaults conda
 
-.. _devguide_setup_cloning:
+.. _contributor_guide_setup_cloning:
 
 2. Fork and clone the repository
 --------------------------------
@@ -93,7 +93,7 @@ Cloning the repository creates a ``bokeh`` directory at your file system
 location. This local ``bokeh`` directory is referred to as the *source checkout*
 for the remainder of this document.
 
-.. _devguide_setup_creating_conda_env:
+.. _contributor_guide_setup_creating_conda_env:
 
 3. Create a conda environment
 -----------------------------
@@ -126,14 +126,14 @@ Then, activate the environment:
 To learn more about creating and managing conda environments, see `Managing
 environments`_ in the `Conda documentation`_.
 
-.. _devguide_setup_installing_node_packages:
+.. _contributor_guide_setup_installing_node_packages:
 
 4. Install Node packages
 ------------------------
 
 Building BokehJS also requires installing JavaScript dependencies using
 the `Node Package Manager (npm) <npm_>`_. If you have followed the
-:ref:`instructions above <devguide_setup_creating_conda_env>`,
+:ref:`instructions above <contributor_guide_setup_creating_conda_env>`,
 ``conda`` has already installed the necessary ``npm`` and ``node.js``
 packages to your system.
 
@@ -165,7 +165,7 @@ subdirectory.
     environment. However, if dependencies are added or changed, you need to
     repeat these steps to install and update the respective packages.
 
-.. _devguide_setup_pre-commit:
+.. _contributor_guide_setup_pre-commit:
 
 5. Set up pre-commit
 --------------------
@@ -185,7 +185,7 @@ whenever you push a commit to Bokeh's GitHub repository:
 
 Codebase tests
     git-commit will run Bokeh's
-    :ref:`codebase tests <devguide_testing_local_codebase>` to check for
+    :ref:`codebase tests <contributor_guide_testing_local_codebase>` to check for
     codebase quality issues such as whitespaces and imports. This includes
     testing with `flake8`_, `eslint`_, and `isort`_.
 
@@ -206,7 +206,7 @@ To uninstall the Git hooks, run the following command from the top level of your
 
         python scripts/hooks/uninstall.py
 
-.. _devguide_setup_install_locally:
+.. _contributor_guide_setup_install_locally:
 
 6. Build and install locally
 ----------------------------
@@ -260,20 +260,20 @@ to ``setup.py``. For example:
 
     Occasionally, the **list of JavaScript dependencies also changes**. If this
     happens, you will need to re-run the instructions in the
-    :ref:`devguide_setup_installing_node_packages` section above before
+    :ref:`contributor_guide_setup_installing_node_packages` section above before
     rebuilding BokehJS.
 
     In case you **update from a development environment based on Bokeh 2.3 or
     older**, you most likely also need to delete the ``bokehjs/build`` folder in
     your local environment before building and installing a fresh BokehJS.
 
-.. _devguide_setup_sample_data:
+.. _contributor_guide_setup_sample_data:
 
 7. Download sample data
 -----------------------
 
 Several tests and examples require Bokeh's sample data to be available on your
-hard drive. After :ref:`installing <devguide_setup_install_locally>` Bokeh, use
+hard drive. After :ref:`installing <contributor_guide_setup_install_locally>` Bokeh, use
 the following command to download and install the data:
 
 .. code-block:: sh
@@ -284,7 +284,7 @@ You also have the opportunity to configure the download location or to start the
 download programmatically. See the :ref:`install_sampledata` section of the
 first steps guides for more details.
 
-.. _devguide_setup_environment_variables:
+.. _contributor_guide_setup_environment_variables:
 
 8. Set environment variables
 ----------------------------
@@ -440,7 +440,7 @@ called.
     * Set ``BOKEH_RESOURCES`` to ``server`` for server
     * Set ``BOKEH_RESOURCES`` to ``inline`` for notebooks
 
-.. _devguide_setup_test_setup:
+.. _contributor_guide_setup_test_setup:
 
 9. Test your local setup
 ------------------------
@@ -475,7 +475,7 @@ Run examples
 
 Next, run some of the standalone examples included with Bokeh.
 
-Make sure the :ref:`environment variable <devguide_setup_environment_variables>`
+Make sure the :ref:`environment variable <contributor_guide_setup_environment_variables>`
 ``BOKEH_RESOURCES`` is set to ``absolute-dev`` in order to use your local
 version of BokehJS. In the *source checkout* directory, run the following
 command(s):
@@ -507,7 +507,7 @@ Run Bokeh Server
 ~~~~~~~~~~~~~~~~
 
 Another way to use Bokeh is as a :term:`server <Server>`. Set the
-:ref:`environment variable <devguide_setup_environment_variables>`
+:ref:`environment variable <contributor_guide_setup_environment_variables>`
 ``BOKEH_DEV=false`` and run the ``bokeh serve`` command in the *source
 checkout* directory:
 
@@ -542,17 +542,17 @@ Troubleshooting
 
 Updating an existing development environment does not always work as
 expected. Make sure your
-:ref:`conda environment <devguide_setup_creating_conda_env>`,
-:ref:`Node packages <devguide_setup_installing_node_packages>`, and
-:ref:`local build <devguide_setup_install_locally>` are up to date.
+:ref:`conda environment <contributor_guide_setup_creating_conda_env>`,
+:ref:`Node packages <contributor_guide_setup_installing_node_packages>`, and
+:ref:`local build <contributor_guide_setup_install_locally>` are up to date.
 
 If you keep geting errors after updating an older environment, use
 ``conda remove --name bkdev --all``, delete your local ``bokeh`` folder,
 and start afresh, following the steps in this guide from
-:ref:`the beginning <devguide_setup_preliminaries>`.
+:ref:`the beginning <contributor_guide_setup_preliminaries>`.
 
 For more information on running and installign Bokeh, check the
-:ref:`additional resources available to contributors <contributors_guide_resources>`.
+:ref:`additional resources available to contributors <contributor_guide_resources>`.
 Please feel free to ask at the `Bokeh Discourse`_ or `Bokeh's contributor
 Slack`_.
 

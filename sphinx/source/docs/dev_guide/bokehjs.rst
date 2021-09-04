@@ -1,4 +1,4 @@
-.. _devguide_bokehjs:
+.. _contributor_guide_bokehjs:
 
 Contributing to BokehJS
 =======================
@@ -7,7 +7,7 @@ BokehJS is the in-browser client-side runtime library that users of Bokeh
 ultimately interact with. This library is written primarily in TypeScript
 and is one of the unique things about the Bokeh plotting system.
 
-.. _devguide_bokehjs_motivations:
+.. _contributor_guide_bokehjs_motivations:
 
 BokehJS Motivations
 -------------------
@@ -26,7 +26,7 @@ This, in turn, has caused the developers of Python plotting libraries to
 only treat the browser as a "backend target" environment, for which they
 will generate static images or a bunch of JavaScript.
 
-.. _devguide_bokehjs_goals:
+.. _contributor_guide_bokehjs_goals:
 
 Goals
 -----
@@ -35,7 +35,7 @@ BokehJS is intended to be a standalone, first-class JavaScript plotting
 library and *interaction runtime* for dynamic, highly-customizable
 information visualization.
 
-.. _devguide_bokehjs_interface:
+.. _contributor_guide_bokehjs_interface:
 
 Interface
 ---------
@@ -56,7 +56,7 @@ that is compiled from several separate ``.less`` files in the BokehJS source
 tree. All CSS classes specifically for Bokeh DOM elements are prefixed with
 the string ``bk-``. For instance some examples are: ``.bk-plot``, ``.bk-toolbar-button``, etc.
 
-.. _devguide_bokehjs_development:
+.. _contributor_guide_bokehjs_development:
 
 Development
 -----------
@@ -129,10 +129,10 @@ that BokehJS functions consistently as its own library as well as in combination
 with all other components of Bokeh.
 
 To learn more about running tests for BokehJS locally, see
-:ref:`devguide_testing_local_javascript`.
+:ref:`contributor_guide_testing_local_javascript`.
 
 To learn more about adding and updating tests for BokehJS, see
-:ref:`devguide_writing_tests_bokehjs`.
+:ref:`contributor_guide_writing_tests_bokehjs`.
 
 Debugging in Headless Chrome
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

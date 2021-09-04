@@ -1,18 +1,18 @@
-.. _devguide_writing_tests:
+.. _contributor_guide_writing_tests:
 
 Writing tests
 =============
 
 To help keep Bokeh maintainable, all
-:ref:`Pull Requests <devguide_pull_requests>` that add or update code should
+:ref:`Pull Requests <contributor_guide_pull_requests>` that add or update code should
 include new or updated tests. While exceptions are possible, a Pull Request
 without adequate tests will generally not be considered ready to merge.
 
 Before writing any tests, you should make sure to go through the relevant
-passages in :ref:`devguide_testing`. This chapter on writing tests assumes you
+passages in :ref:`contributor_guide_testing`. This chapter on writing tests assumes you
 know how to run the tests you are working on.
 
-.. _devguide_writing_tests_python:
+.. _contributor_guide_writing_tests_python:
 
 Writing Python tests
 --------------------
@@ -21,12 +21,12 @@ If all or parts of your changes affect Bokeh's Python code, you should add or
 update the relevant unit and integration tests.
 
 These tests are located in the :bokeh-tree:`tests` folder. See
-:ref:`devguide_testing_local_python` for information on how to run them.
+:ref:`contributor_guide_testing_local_python` for information on how to run them.
 
 General information on contributing to Bokeh's Python code and models is
-available in :ref:`devguide_models`.
+available in :ref:`contributor_guide_models`.
 
-.. _devguide_writing_tests_python_unit:
+.. _contributor_guide_writing_tests_python_unit:
 
 Python unit tests
 ~~~~~~~~~~~~~~~~~
@@ -56,7 +56,7 @@ Use ``pytest`` (not ``unittest``)
     aspects, such as test running, fixtures, or parameterized testing. Please
     do *not* use the ``unittest`` module of the Python standard library.
 
-.. _devguide_writing_tests_integration:
+.. _contributor_guide_writing_tests_integration:
 
 Python integration tests
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -87,7 +87,7 @@ Use the |bokeh.models| API whenever possible
     the more high-level
     :ref:`bokeh.plotting interface <userguide_interfaces_plotting>`.
 
-.. _devguide_writing_tests_bokehjs:
+.. _contributor_guide_writing_tests_bokehjs:
 
 Writing JavaScript tests (BokehJS)
 ----------------------------------
@@ -105,12 +105,12 @@ BokehJS testing framework uses ``describe()`` and ``it()`` functions to set up
 tests.
 
 The BokehJS tests are located in :bokeh-tree:`bokehjs/test`. See
-:ref:`devguide_testing_local_javascript` for information on how to run them.
+:ref:`contributor_guide_testing_local_javascript` for information on how to run them.
 
 General information on contributing to BokehJS is available in
-:ref:`devguide_bokehjs`.
+:ref:`contributor_guide_bokehjs`.
 
-.. _devguide_writing_tests_bokehjs_unit:
+.. _contributor_guide_writing_tests_bokehjs_unit:
 
 BokehJS unit tests
 ~~~~~~~~~~~~~~~~~~
@@ -174,7 +174,7 @@ For example:
 
 If you add new test files, you should add an entry in the directory index file.
 
-.. _devguide_writing_tests_bokehjs_visual:
+.. _contributor_guide_writing_tests_bokehjs_visual:
 
 BokehJS visual tests
 ~~~~~~~~~~~~~~~~~~~~
@@ -206,7 +206,7 @@ Visual baseline comparison
 
 The visual baseline comparison tests are located in the
 :bokeh-tree:`bokehjs/test/integration/` folder and sub-folders.
-:ref:`Bokeh's CI <devguide_testing_ci>` runs these tests on Linux, macOS, and
+:ref:`Bokeh's CI <contributor_guide_testing_ci>` runs these tests on Linux, macOS, and
 Windows environments. The baseline files for each environment are located in the
 :bokeh-tree:`bokehjs/test/baselines/` folder.
 
@@ -281,7 +281,7 @@ Follow these steps to write new visual tests or update existing tests:
     your operating system. The baseline files will be in a subfolder of
     :bokeh-tree:`bokehjs/test/baselines/`.
 
-    Use the BokehJS :ref:`devtools server <devguide_testing_local_javascript_devtools>`
+    Use the BokehJS :ref:`devtools server <contributor_guide_testing_local_javascript_devtools>`
     to review your local test results. Optionally, you can use any PNG viewer to
     inspect the generated PNG files. Adjust your testing code until the test's
     visual output matches your expectations.
@@ -289,7 +289,7 @@ Follow these steps to write new visual tests or update existing tests:
 3. Generate CI baselines and commit test:
     As a final step before pushing your visual tests to Bokeh's GitHub
     repository, you need to generate and commit the baseline files using
-    :ref:`Bokeh's CI <devguide_testing_ci>`.
+    :ref:`Bokeh's CI <contributor_guide_testing_ci>`.
 
     The baseline files are platform-dependent. This is why the CI will only work
     reliably if you upload baseline files that were created by the CI, not
@@ -310,7 +310,7 @@ Follow these steps to write new visual tests or update existing tests:
        ``bokehjs-report`` artifact.
     4. Unzip the downloaded artifact file into the root folder of your local
        Bokeh repository.
-    5. Use the :ref:`devtools server <devguide_testing_local_javascript_devtools>`
+    5. Use the :ref:`devtools server <contributor_guide_testing_local_javascript_devtools>`
        to review the baseline files the CI has created for each platform: first,
        go to ``/integration/report?platform=linux``, then to
        ``/integration/report?platform=macos``, and finally to
@@ -339,7 +339,7 @@ Follow these steps to write new visual tests or update existing tests:
     Slack`_.
 
 
-.. _devguide_writing_tests_bokehjs_regression:
+.. _contributor_guide_writing_tests_bokehjs_regression:
 
 BokehJS regression tests
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -371,7 +371,7 @@ For example:
         })
       })
 
-.. _devguide_writing_tests_examples:
+.. _contributor_guide_writing_tests_examples:
 
 Working with examples tests
 ---------------------------
@@ -384,7 +384,7 @@ incldued in the examples tests automatically. Edit
 :bokeh-tree:`tests/examples.yaml` to explicitly include or exclude specific
 examples.
 
-See :ref:`devguide_testing_local_examples` for more information on running the
+See :ref:`contributor_guide_testing_local_examples` for more information on running the
 examples tests.
 
 .. _`Mocha`: https://mochajs.org/

@@ -1,4 +1,4 @@
-.. _devguide_pull_requests:
+.. _contributor_guide_pull_requests:
 
 Making a successful pull request
 ================================
@@ -13,7 +13,7 @@ Creating a pull request requires some basic knowledge of GitHub. See the
 `GitHub documentation`_ for general information about GitHub and pull requests.
 
 To create a pull request, you need a development environment as described in
-:ref:`devguide_setup`.
+:ref:`contributor_guide_setup`.
 
 You can format any text you enter when working with pull requests. To learn more
 about your formatting options, see `Writing on GitHub`_ in the
@@ -32,11 +32,11 @@ Pull request workflow
 
     Next, post a comment in the issue's discussion to indicate that you are
     working on this issue. If there is no issue yet, you should first
-    :ref:`create one <devguide_issues>`.
+    :ref:`create one <contributor_guide_issues>`.
 
 2. Create a branch
     Before writing any code, you need to create a new `branch`_ on
-    :ref:`your fork <devguide_setup_cloning>` of the Bokeh repository. In most
+    :ref:`your fork <contributor_guide_setup_cloning>` of the Bokeh repository. In most
     cases, you should base your new branch on Bokeh's ``default`` branch. The
     default branch is usually a branch that represents the next version of
     Bokeh, for example ``branch-2.4``.
@@ -82,8 +82,8 @@ Pull request workflow
     "fixes," followed by the number of the issue. For example "Fixes #11479".
     See `Linking a pull request to an issue using a keyword`_ in the
     `GitHub documentation`_ for more information. Your description should also
-    include information about :ref:`tests <devguide_writing_tests>` and
-    :ref:`documentation <devguide_documentation>`, if applicable.
+    include information about :ref:`tests <contributor_guide_writing_tests>` and
+    :ref:`documentation <contributor_guide_documentation>`, if applicable.
 
 6. Add more commits to your pull request
     Once you have created a pull request, a member of the `Bokeh core team`_
@@ -112,15 +112,15 @@ Tips
 If you have any questions or encounter any problems with your pull request,
 please reach out on the `Bokeh's contributor Slack`_ or the `Bokeh Discourse`_.
 Also, check the :ref:`additional resources available to contributors
-<contributors_guide_resources>`.
+<contributor_guide_resources>`.
 
 Things to keep in mind when working on a pull request:
 
 * When writing code, try to match the existing coding style.
 * Try to divide your work into smaller chunks and push small, incremental
   commits.
-* Include :ref:`new tests <devguide_writing_tests>` when adding new features.
-* Include :ref:`tests <devguide_writing_tests>` to check for regressions when
+* Include :ref:`new tests <contributor_guide_writing_tests>` when adding new features.
+* Include :ref:`tests <contributor_guide_writing_tests>` to check for regressions when
   fixing bugs.
 * Keep the discussions focused. When a new or related topic comes up, it's
   often better to create a new issue than to sidetrack the discussion.
@@ -130,10 +130,10 @@ Things to keep in mind when working on a pull request:
 * Never commit code or documentation that you didn't write (or don't have the
   necessary rights to). If you find code or text that is compatible with
   `Bokeh's BSD license`_ and that you think would be useful to add to Bokeh,
-  :ref:`file an issue <devguide_issues>` and start a discussion first.
+  :ref:`file an issue <contributor_guide_issues>` and start a discussion first.
 * In case your pull request includes additional or updated dependencies, you
   not only need to update :bokeh-tree:`environment.yml` but also the
-  :ref:`environment files Bokeh's CI <devguide_testing_ci_environments>` in the
+  :ref:`environment files Bokeh's CI <contributor_guide_testing_ci_environments>` in the
   :bokeh-tree:`ci` folder.
 
 See the `"Pull Requests" section in BEP 1: Issues and PRs management <wiki pull requests_>`_

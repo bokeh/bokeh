@@ -1,4 +1,4 @@
-.. _devguide_models:
+.. _contributor_guide_models:
 
 Working with Bokeh models
 =========================

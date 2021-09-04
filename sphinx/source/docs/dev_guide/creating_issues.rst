@@ -1,4 +1,4 @@
-.. _devguide_issues:
+.. _contributor_guide_issues:
 
 Creating issues
 ===============
@@ -7,7 +7,7 @@ Bug reports and feature requests in Bokeh's issue tracker are the foundation of
 almost all improvements implemented in Bokeh. Bokeh's issue tracker is part of
 the GitHub repository at `<https://github.com/bokeh/bokeh/issues>`_.
 
-.. _devguide_issues_before:
+.. _contributor_guide_issues_before:
 
 Before opening an issue
 -----------------------
@@ -26,7 +26,7 @@ available with `conda`_ or `pip`_ and try to reproduce the issue.
 You can format any text you enter when filing an issue. To learn more about
 your formatting options, see `Writing on GitHub`_ in the `GitHub documentation`.
 
-.. _devguide_issues_kinds:
+.. _contributor_guide_issues_kinds:
 
 Kinds of issues
 ---------------
@@ -53,7 +53,7 @@ all necessary information.
     technical assistance, visit the `Bokeh Discourse`_. When you are unsure,
     post a question to the Discourse first before opening an issue.
 
-.. _devguide_issues_kinds_bugs:
+.. _contributor_guide_issues_kinds_bugs:
 
 Reporting bugs
 ~~~~~~~~~~~~~~
@@ -94,7 +94,7 @@ Screenshots or screencasts of the bug in action
     your bug report is about. This can be screenshots or `screencasts`_ that
     illustrate the behavior you are filing an issues about, for example.
 
-.. _devguide_issues_kinds_feature:
+.. _contributor_guide_issues_kinds_feature:
 
 Feature requests
 ~~~~~~~~~~~~~~~~
@@ -115,7 +115,7 @@ Additional context
     screenshots or `screencasts`_ that illustrate the functionality you would
     like to see in Bokeh, for example.
 
-.. _devguide_issues_next:
+.. _contributor_guide_issues_next:
 
 Next steps
 ----------
