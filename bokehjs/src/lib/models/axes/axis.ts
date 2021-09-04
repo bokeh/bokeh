@@ -300,7 +300,7 @@ export class AxisView extends GuideRendererView {
         x_anchor: align,
         y_anchor: vertical_align,
       }
-      if (label instanceof TextBox)
+      if (label instanceof TextBox || label instanceof MathTextView)
         label.align = align
     }
 

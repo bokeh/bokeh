@@ -4,7 +4,7 @@ import {isNumber} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {load_image} from "core/util/image"
 import {CanvasImage} from "models/glyphs/image_url"
-import {color2css} from "core/util/color"
+import {color2css, color2rgba, RGB} from "core/util/color"
 import {Size} from "core/types"
 import {View} from "core/view"
 import {RendererView} from "models/renderers/renderer"
@@ -47,8 +47,10 @@ export abstract class MathTextView extends View implements GraphicsBox {
   }
 
   font_size_scale: number = 1.0
-  private font: string
-  private color: string
+  protected font: string
+  protected font_size: number
+  protected line_height: number
+  protected color: string
   private svg_image: CanvasImage | null = null
   private svg_element: SVGElement
 
@@ -86,12 +88,6 @@ export abstract class MathTextView extends View implements GraphicsBox {
 
     if (this.provider.status == "not_started")
       await this.provider.fetch()
-
-    if (this.provider.status == "not_started" || this.provider.status == "loading")
-      this.provider.ready.connect(() => this.load_image())
-
-    if (this.provider.status == "loaded")
-      await this.load_image()
   }
 
   override connect_signals(): void {
@@ -104,23 +100,25 @@ export abstract class MathTextView extends View implements GraphicsBox {
     const alpha = v.text_alpha.get_value()
     const style = v.text_font_style.get_value()
     let size = v.text_font_size.get_value()
-    const face = v.text_font.get_value()
 
-    const {font_size_scale, _base_font_size} = this
+    const {font_size_scale, base_font_size} = this
     const res = parse_css_font_size(size)
     if (res != null) {
       let {value, unit} = res
       value *= font_size_scale
-      if (unit == "em" && _base_font_size) {
-        value *= _base_font_size
+      if (unit == "em" && base_font_size) {
+        value *= base_font_size
         unit = "px"
       }
+      this.font_size = value
       size = `${value}${unit}`
     }
 
-    const font = `${style} ${size} ${face}`
+    // MathJax's only available font.
+    const font = `${style} ${size} Stix`
     this.font = font
     this.color = color2css(color, alpha)
+    this.line_height = v.text_line_height.get_value()
   }
 
   /**
@@ -267,16 +265,34 @@ export abstract class MathTextView extends View implements GraphicsBox {
     ctx.restore()
   }
 
-  protected abstract _process_text(text: string): HTMLElement | undefined
+  protected abstract _process_text(text: string, color: RGB, metrics: Partial<MathJax.MathJaxOptions>): HTMLElement | undefined
 
-  private async load_image(): Promise<HTMLImageElement | null> {
+  private get_mathjax_metrics() {
+    return {
+      convert: {
+        em: this.font_size,
+        ex: font_metrics(this.font).x_height,
+      },
+      svg: {
+        scale: this.font_size_scale,
+        mtextFont: this.font,
+      },
+    }
+  }
+
+  private get_mathjax_color(): RGB {
+    const [r, g, b] = color2rgba(this.color)
+    return [r, g, b]
+  }
+
+  private async load_image(): Promise<void> {
     if (this.provider.MathJax == null)
-      return null
+      return
 
-    const mathjax_element = this._process_text(this.model.text)
+    const mathjax_element = this._process_text(this.model.text, this.get_mathjax_color(), this.get_mathjax_metrics())
     if (mathjax_element == null) {
       this._has_finished = true
-      return null
+      return
     }
 
     const svg_element = mathjax_element.children[0] as SVGElement
@@ -296,7 +312,6 @@ export abstract class MathTextView extends View implements GraphicsBox {
     }
 
     this.parent.request_layout()
-    return this.svg_image
   }
 
   /**
@@ -304,6 +319,14 @@ export abstract class MathTextView extends View implements GraphicsBox {
    * been loaded draws the image in it otherwise draws the model's text.
   */
   paint(ctx: Context2d): void {
+    if (!this.svg_image) {
+      if (this.provider.status == "not_started" || this.provider.status == "loading")
+        this.provider.ready.connect(() => this.load_image())
+
+      if (this.provider.status == "loaded")
+        this.load_image()
+    }
+
     ctx.save()
     const {sx, sy} = this.position
 
@@ -315,9 +338,15 @@ export abstract class MathTextView extends View implements GraphicsBox {
 
     const {x, y} = this._computed_position()
 
-    if (this.svg_image != null) {
+    if (this.svg_image) {
       const {width, height} = this.get_image_dimensions()
-      ctx.drawImage(this.svg_image, x, y, width, height)
+      const fmetrics = font_metrics(this.font)
+
+      // for symbols shorter than text distance from alphabetical baseline to top of the line
+      const considerated_text_height = height < fmetrics.ascent ? fmetrics.ascent - height : 0
+      const distance_to_alphabetical_baseline = considerated_text_height + ((this.line_height * fmetrics.height) - fmetrics.height)
+
+      ctx.drawImage(this.svg_image, x, y + distance_to_alphabetical_baseline, width, height)
     } else {
       ctx.fillStyle = this.color
       ctx.font = this.font
@@ -356,7 +385,7 @@ export class MathText extends BaseText {
 export class AsciiView extends MathTextView {
   override model: Ascii
 
-  protected _process_text(_text: string): HTMLElement | undefined {
+  protected _process_text(_text: string, _color: RGB, _metrics: Partial<MathJax.MathJaxOptions>): HTMLElement | undefined {
     return undefined // TODO: this.provider.MathJax?.ascii2svg(text)
   }
 }
@@ -384,8 +413,8 @@ export class Ascii extends MathText {
 export class MathMLView extends MathTextView {
   override model: MathML
 
-  protected _process_text(text: string): HTMLElement | undefined {
-    return this.provider.MathJax?.mathml2svg(text.trim())
+  protected _process_text(text: string, color: RGB, metrics: Partial<MathJax.MathJaxOptions>): HTMLElement | undefined {
+    return this.provider.MathJax?.mathml2svg(text.trim(), color, metrics)
   }
 }
 
@@ -412,9 +441,9 @@ export class MathML extends MathText {
 export class TeXView extends MathTextView {
   override model: TeX
 
-  protected _process_text(text: string): HTMLElement | undefined {
+  protected _process_text(text: string, color: RGB, metrics: Partial<MathJax.MathJaxOptions>): HTMLElement | undefined {
     // TODO: allow plot/document level configuration of macros
-    return this.provider.MathJax?.tex2svg(text, this.model.macros)
+    return this.provider.MathJax?.tex2svg(text, color, metrics)
   }
 }
 

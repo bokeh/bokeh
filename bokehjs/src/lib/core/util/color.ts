@@ -10,6 +10,8 @@ function byte(v: number): uint8 {
 
 export type RGBA = [R: uint8, G: uint8, B: uint8, A: uint8]
 
+export type RGB = [R: uint8, G: uint8, B: uint8]
+
 export function transparent(): RGBA {
   return [0, 0, 0, 0]
 }

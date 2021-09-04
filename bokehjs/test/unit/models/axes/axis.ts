@@ -37,6 +37,8 @@ describe("Axis", () => {
 
   it("should compute labels with math text on overrides", async () => {
     const plot = new Plot({
+      : 200,
+      height: 100,
       x_range: new Range1d({start: 0, end: 10}),
       y_range: new Range1d({start: 0, end: 10}),
     })
@@ -45,7 +47,7 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      major_label_overrides: {0: "zero", 4: new TeX({text: "\\pi"}), 10: "ten"},
+      major_label_overrides: {0: "zero", 2: new TeX({text: "zero"}), 4: new TeX({text: "\\pi"}), 6: new TeX({text: "0"}), 8: new TeX({text: "Ten"}), 10: "Ten"},
     })
     plot.add_layout(axis, "below")
     const plot_view = (await build_view(plot)).build()
@@ -53,7 +55,7 @@ describe("Axis", () => {
 
     const labels = axis_view.compute_labels([0, 2, 4, 6, 8, 10])
     await display(plot)
-    expect(labels.items.map((l) => (l as TextBox).text)).to.be.equal(["zero", "2", "\\pi", "6", "8", "ten"])
+    expect(labels.items.map((l) => (l as TextBox).text)).to.be.equal(["zero", "zero", "\\pi", "0", "Ten", "Ten"])
   })
 
   it("loc should return numeric fixed_location", async () => {
