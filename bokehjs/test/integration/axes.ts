@@ -290,7 +290,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
             10000: new TeX({text: "10 \\ast 1000"}),
             1000000: new TeX({text: "\\sigma^2"}),
           },
-        }, {minor_size: 100})
+        }, {minor_size: 160})
       } finally {
         stub.restore()
       }
