@@ -11,13 +11,16 @@ Request without adequate tests will generally not be considered ready to merge.
 Follow those general guidelines to decide which kinds of tests to update or add:
 
 When you edit Bokeh's Python code
-    Check whether you should update or add :ref:`Python tests <contributor_guide_writing_tests_python>`
+    Check whether you should update or add
+    :ref:`Python tests <contributor_guide_writing_tests_python>`
 
 When your change anything related to BokehJS
-    Check whether you should update or add :ref:`JavaScript tests <contributor_guide_writing_tests_bokehjs>`
+    Check whether you should update or add
+    :ref:`JavaScript tests <contributor_guide_writing_tests_bokehjs>`
 
 When you fix a bug from Bokeh's issue tracker:
-    Check whether you should add a :ref:`regression test <contributor_guide_writing_tests_bokehjs_regression>`
+    Check whether you should add a
+    :ref:`regression test <contributor_guide_writing_tests_bokehjs_regression>`
 
 Before writing any tests, you should make sure to go through the relevant
 passages in :ref:`contributor_guide_testing`. This chapter on writing tests
@@ -32,7 +35,8 @@ If all or parts of your changes affect Bokeh's Python code, you should add or
 update the relevant unit and integration tests.
 
 These tests are located in the :bokeh-tree:`tests` folder. See
-:ref:`contributor_guide_testing_local_python` for information on how to run them.
+:ref:`contributor_guide_testing_local_python` for information on how to run
+them.
 
 General information on contributing to Bokeh's Python code and models is
 available in :ref:`contributor_guide_models`.
@@ -113,7 +117,8 @@ available on your system to work with these tests.
 
 Like several other testing frameworks such as `Mocha`_ or `Jasmine`_, the
 BokehJS testing framework uses ``describe()`` and ``it()`` functions to set up
-tests.
+tests. Assertions are made with ``expect()`` and ``assert()``. Use ``assert()``
+when you need to narrow types.
 
 The BokehJS tests are located in :bokeh-tree:`bokehjs/test`. See
 :ref:`contributor_guide_testing_local_javascript` for information on how to run
