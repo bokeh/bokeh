@@ -169,11 +169,17 @@ export abstract class MathTextView extends View implements GraphicsBox {
         ?.replace(/\-?[A-z\: ;]/g, "") ?? "0"
     ) * fmetrics.x_height
 
+    let padtop = 0
+    let padbottom = 0
+
+    if (height < fmetrics.height) {
+      padtop = fmetrics.ascent - (height + v_align)
+      padbottom = -v_align
+    }
+
     switch (y_anchor) {
-      case "top": return height > fmetrics.height
-        ? 0
-        : fmetrics.ascent - (height + v_align)
-      case "bottom": return -v_align
+      case "top": return padtop
+      case "bottom": return padbottom
       default:
         return 0
     }
@@ -433,8 +439,8 @@ export class Ascii extends MathText {
 export class MathMLView extends MathTextView {
   override model: MathML
 
-  protected _process_text(text: string, color: RGB, metrics: Partial<MathJax.MathJaxOptions>): HTMLElement | undefined {
-    return this.provider.MathJax?.mathml2svg(text.trim(), color, metrics)
+  protected _process_text(text: string, _color: RGB, metrics: Partial<MathJax.MathJaxOptions>): HTMLElement | undefined {
+    return this.provider.MathJax?.mathml2svg(text.trim(), undefined, metrics)
   }
 }
 
