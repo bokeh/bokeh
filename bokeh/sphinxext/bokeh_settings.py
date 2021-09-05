@@ -43,6 +43,7 @@ from sphinx.errors import SphinxError
 from bokeh.settings import PrioritizedSetting, _Unset
 
 # Bokeh imports
+from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective, py_sig_re
 from .templates import SETTINGS_DETAIL
 
@@ -113,6 +114,7 @@ def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_directive_to_domain("py", "bokeh-settings", BokehSettingsDirective)
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

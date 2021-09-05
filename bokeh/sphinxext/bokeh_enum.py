@@ -63,6 +63,7 @@ from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
 # Bokeh imports
+from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective
 from .templates import ENUM_DETAIL
 
@@ -128,6 +129,7 @@ def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_directive_to_domain("py", "bokeh-enum", BokehEnumDirective)
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API
