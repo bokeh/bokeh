@@ -157,6 +157,29 @@ export abstract class MathTextView extends View implements GraphicsBox {
     return {x, y}
   }
 
+  private _computed_v_align(): number {
+    const fmetrics = font_metrics(this.font)
+
+    const v_align = parseFloat(
+      this.svg_element
+        .getAttribute("style")
+        ?.replace(/\-?[A-z\: ;]/g, "") ?? "0"
+    ) * fmetrics.x_height
+
+    const {y_anchor="center"} = this.position
+
+    if (isNumber(y_anchor))
+      return 0
+    else {
+      switch (y_anchor) {
+        case "top": return Math.abs(v_align)
+        case "center": return 0
+        case "bottom":
+        case "baseline": return v_align
+      }
+    }
+  }
+
   /**
    * Uses the width, height and given angle to calculate the size
   */
@@ -200,7 +223,7 @@ export abstract class MathTextView extends View implements GraphicsBox {
 
     return {
       width: fmetrics.x_height * widthEx,
-      height:  fmetrics.x_height * heightEx
+      height:  fmetrics.x_height * heightEx,
     }
   }
 
@@ -341,19 +364,13 @@ export abstract class MathTextView extends View implements GraphicsBox {
     const fmetrics = font_metrics(this.font)
 
     if (this.svg_image) {
-      let {width, height} = this.get_image_dimensions()
+      const {width, height} = this.get_image_dimensions()
+      const line_spacing = (this.line_height * this.font_size) - fmetrics.height
+      const v_align = this._computed_v_align()
 
-      // for symbols shorter than text distance from alphabetical baseline to top of the line
-      let considerated_text_height = 0
+      const padding_top = (fmetrics.ascent - (height - v_align)) + line_spacing
 
-      if (height < fmetrics.ascent)
-        considerated_text_height = fmetrics.ascent - height;
-      else if (height < fmetrics.height)
-        considerated_text_height = fmetrics.height - height;
-
-      // const distance_to_alphabetical_baseline = considerated_text_height + ((this.line_height * fmetrics.height) - fmetrics.height)
-
-      ctx.drawImage(this.svg_image, x, y + considerated_text_height, width, height)
+      ctx.drawImage(this.svg_image, x, y + padding_top, width, height)
     } else {
       ctx.fillStyle = this.color
       ctx.font = this.font

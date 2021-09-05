@@ -47,7 +47,7 @@ const _native_font_metrics = (() => {
 
     const cap_metrics = ctx.measureText("M")
     const x_metrics = ctx.measureText("x")
-    const metrics = ctx.measureText("ÅŚg|")
+    const metrics = ctx.measureText("ÅŚg|(")
 
     const font_ascent = metrics.fontBoundingBoxAscent
     const font_descent = metrics.fontBoundingBoxDescent

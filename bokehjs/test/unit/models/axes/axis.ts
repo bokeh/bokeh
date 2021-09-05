@@ -15,6 +15,75 @@ import {display} from "../../../framework"
 
 describe("Axis", () => {
 
+  it("should compute axis labels with MathText above", async () => {
+    const plot = new Plot({
+      x_range: new Range1d({start: 0, end: 10}),
+      y_range: new Range1d({start: 0, end: 10}),
+    })
+    const ticker = new BasicTicker()
+    const formatter = new BasicTickFormatter()
+    const axis = new Axis({
+      ticker,
+      formatter,
+      axis_label: new TeX({text: "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"})
+    })
+    plot.add_layout(axis, "above")
+    await display(plot)
+
+    expect(plot).to.be.instanceof(TeX)
+  })
+  it("should compute axis labels with MathText right", async () => {
+    const plot = new Plot({
+      x_range: new Range1d({start: 0, end: 10}),
+      y_range: new Range1d({start: 0, end: 10}),
+    })
+    const ticker = new BasicTicker()
+    const formatter = new BasicTickFormatter()
+    const axis = new Axis({
+      ticker,
+      formatter,
+      axis_label: new TeX({text: "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"})
+    })
+    plot.add_layout(axis, "right")
+    await display(plot)
+
+    expect(plot).to.be.instanceof(TeX)
+  })
+  it("should compute axis labels with MathText below", async () => {
+    const plot = new Plot({
+      x_range: new Range1d({start: 0, end: 10}),
+      y_range: new Range1d({start: 0, end: 10}),
+    })
+    const ticker = new BasicTicker()
+    const formatter = new BasicTickFormatter()
+    const axis = new Axis({
+      ticker,
+      formatter,
+      axis_label: new TeX({text: "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"})
+    })
+    plot.add_layout(axis, "below")
+    await display(plot)
+
+    expect(plot).to.be.instanceof(TeX)
+  })
+  it("should compute axis labels with MathText left", async () => {
+    const plot = new Plot({
+      x_range: new Range1d({start: 0, end: 10}),
+      y_range: new Range1d({start: 0, end: 10}),
+    })
+    const ticker = new BasicTicker()
+    const formatter = new BasicTickFormatter()
+    const axis = new Axis({
+      ticker,
+      formatter,
+      axis_label: new TeX({text: "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"})
+    })
+    plot.add_layout(axis, "left")
+    await display(plot)
+
+    expect(plot).to.be.instanceof(TeX)
+  })
+
   it("should compute labels with overrides", async () => {
     const plot = new Plot({
       x_range: new Range1d({start: 0, end: 10}),
@@ -47,7 +116,14 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      major_label_overrides: {0: "zero", 2: new TeX({text: "zero"}), 4: new TeX({text: "Ten()"}), 6: new TeX({text: "0"}), 8: new TeX({text: "Ten"}), 10: "Ten"},
+      major_label_overrides: {
+        0: new TeX({text: "\\frac{0}{0}"}),
+        2: new TeX({text: "zero"}),
+        4: new TeX({text: "Ten()"}),
+        6: new TeX({text: "0"}),
+        8: new TeX({text: "Ten"}),
+        10: "Ten",
+      },
     })
     plot.add_layout(axis, "below")
     const plot_view = (await build_view(plot)).build()
