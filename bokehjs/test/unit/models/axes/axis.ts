@@ -37,7 +37,7 @@ describe("Axis", () => {
 
   it("should compute labels with math text on overrides", async () => {
     const plot = new Plot({
-      : 200,
+      width: 200,
       height: 100,
       x_range: new Range1d({start: 0, end: 10}),
       y_range: new Range1d({start: 0, end: 10}),
