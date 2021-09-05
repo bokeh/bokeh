@@ -141,6 +141,7 @@ export abstract class MathTextView extends View implements GraphicsBox {
       }
     })()
 
+
     const y = sy - (() => {
       if (isNumber(y_anchor))
         return y_anchor*height
@@ -157,26 +158,24 @@ export abstract class MathTextView extends View implements GraphicsBox {
     return {x, y}
   }
 
-  private _computed_v_align(): number {
+  private get_v_align(): number {
     const fmetrics = font_metrics(this.font)
+    const {y_anchor = "center"} = this.position
+    const {height} = this.get_image_dimensions()
 
     const v_align = parseFloat(
       this.svg_element
-        .getAttribute("style")
+        ?.getAttribute("style")
         ?.replace(/\-?[A-z\: ;]/g, "") ?? "0"
     ) * fmetrics.x_height
 
-    const {y_anchor="center"} = this.position
-
-    if (isNumber(y_anchor))
-      return 0
-    else {
-      switch (y_anchor) {
-        case "top": return Math.abs(v_align)
-        case "center": return 0
-        case "bottom":
-        case "baseline": return v_align
-      }
+    switch (y_anchor) {
+      case "top": return height > fmetrics.height
+        ? 0
+        : fmetrics.ascent - (height + v_align)
+      case "bottom": return -v_align
+      default:
+        return 0
     }
   }
 
@@ -365,12 +364,9 @@ export abstract class MathTextView extends View implements GraphicsBox {
 
     if (this.svg_image) {
       const {width, height} = this.get_image_dimensions()
-      const line_spacing = (this.line_height * this.font_size) - fmetrics.height
-      const v_align = this._computed_v_align()
+      const v_align = this.get_v_align()
 
-      const padding_top = (fmetrics.ascent - (height - v_align)) + line_spacing
-
-      ctx.drawImage(this.svg_image, x, y + padding_top, width, height)
+      ctx.drawImage(this.svg_image, x, y + v_align, width, height)
     } else {
       ctx.fillStyle = this.color
       ctx.font = this.font

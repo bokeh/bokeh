@@ -65,9 +65,24 @@
        url("/fonts/stix/otf/STIXTwoMath-Regular.otf") format("opentype");
 }
 
+/** MathJax */
 @font-face {
   font-family: MathJax;
   font-style: normal;
   font-weight: normal;
   src: url("/fonts/mathjax/woff2/MathJax_Math-Regular.woff") format("woff2")
+}
+
+@font-face {
+  font-family: MathJax;
+  font-style: italic;
+  font-weight: normal;
+  src: url("/fonts/mathjax/woff2/MathJax_Math-Italic.woff") format("woff2")
+}
+
+@font-face {
+  font-family: MathJax;
+  font-style: italic;
+  font-weight: bold;
+  src: url("/fonts/mathjax/woff2/MathJax_Math-BoldItalic.woff") format("woff2")
 }
