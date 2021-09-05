@@ -64,3 +64,10 @@
   src: url("/fonts/stix/woff2/STIXTwoMath-Regular.woff2") format("woff2"),
        url("/fonts/stix/otf/STIXTwoMath-Regular.otf") format("opentype");
 }
+
+@font-face {
+  font-family: MathJax;
+  font-style: normal;
+  font-weight: normal;
+  src: url("/fonts/mathjax/woff2/MathJax_Math-Regular.woff") format("woff2")
+}

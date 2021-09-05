@@ -115,7 +115,7 @@ export abstract class MathTextView extends View implements GraphicsBox {
     }
 
     // MathJax's only available font.
-    const font = `${style} ${size} Stix`
+    const font = `${style} ${size} MathJax`
     this.font = font
     this.color = color2css(color, alpha)
     this.line_height = v.text_line_height.get_value()
@@ -196,10 +196,11 @@ export abstract class MathTextView extends View implements GraphicsBox {
         .getAttribute("width")
         ?.replace(/([A-z])/g, "") ?? "0"
     )
+    const fmetrics = font_metrics(this.font)
 
     return {
-      width: font_metrics(this.font).x_height * widthEx,
-      height: font_metrics(this.font).x_height * heightEx,
+      width: fmetrics.x_height * widthEx,
+      height:  fmetrics.x_height * heightEx
     }
   }
 
@@ -337,22 +338,28 @@ export abstract class MathTextView extends View implements GraphicsBox {
     }
 
     const {x, y} = this._computed_position()
+    const fmetrics = font_metrics(this.font)
 
     if (this.svg_image) {
-      const {width, height} = this.get_image_dimensions()
-      const fmetrics = font_metrics(this.font)
+      let {width, height} = this.get_image_dimensions()
 
       // for symbols shorter than text distance from alphabetical baseline to top of the line
-      const considerated_text_height = height < fmetrics.ascent ? fmetrics.ascent - height : 0
-      const distance_to_alphabetical_baseline = considerated_text_height + ((this.line_height * fmetrics.height) - fmetrics.height)
+      let considerated_text_height = 0
 
-      ctx.drawImage(this.svg_image, x, y + distance_to_alphabetical_baseline, width, height)
+      if (height < fmetrics.ascent)
+        considerated_text_height = fmetrics.ascent - height;
+      else if (height < fmetrics.height)
+        considerated_text_height = fmetrics.height - height;
+
+      // const distance_to_alphabetical_baseline = considerated_text_height + ((this.line_height * fmetrics.height) - fmetrics.height)
+
+      ctx.drawImage(this.svg_image, x, y + considerated_text_height, width, height)
     } else {
       ctx.fillStyle = this.color
       ctx.font = this.font
       ctx.textAlign = "left"
       ctx.textBaseline = "alphabetic"
-      ctx.fillText(this.model.text, x, y + font_metrics(this.font).ascent)
+      ctx.fillText(this.model.text, x, y + fmetrics.ascent)
     }
     ctx.restore()
 

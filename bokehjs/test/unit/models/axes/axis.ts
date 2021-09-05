@@ -47,7 +47,7 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      major_label_overrides: {0: "zero", 2: new TeX({text: "zero"}), 4: new TeX({text: "\\pi"}), 6: new TeX({text: "0"}), 8: new TeX({text: "Ten"}), 10: "Ten"},
+      major_label_overrides: {0: "zero", 2: new TeX({text: "zero"}), 4: new TeX({text: "Ten()"}), 6: new TeX({text: "0"}), 8: new TeX({text: "Ten"}), 10: "Ten"},
     })
     plot.add_layout(axis, "below")
     const plot_view = (await build_view(plot)).build()
