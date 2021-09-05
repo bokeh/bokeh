@@ -3,24 +3,9 @@
 bokeh.plotting
 ==============
 
-.. autofunction:: bokeh.plotting.figure
+.. toctree::
+    :maxdepth: 3
+    :hidden:
+    :glob:
 
-.. autoclass:: bokeh.plotting.Figure
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
-
-    .. autoclasstoc::
-
-.. autofunction:: bokeh.plotting.gmap
-
-.. autoclass:: bokeh.plotting.GMap
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
-
-    .. autoclasstoc::
-
-.. autofunction:: bokeh.plotting.graph.from_networkx
+    plotting/*

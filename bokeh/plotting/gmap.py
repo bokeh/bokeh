@@ -113,8 +113,8 @@ class GMap(GMapPlot, GlyphAPI):
     def coordinates(self):
         return None
 
-def gmap(google_api_key, map_options, **kwargs):
-    ''' Create a new :class:`~bokeh.plotting.gmap.GMap` for plotting.
+def gmap(google_api_key, map_options, **kwargs) -> GMap:
+    ''' Create a new :class:`~bokeh.plotting.GMap` for plotting.
 
     Args:
         google_api_key (str):
@@ -122,20 +122,16 @@ def gmap(google_api_key, map_options, **kwargs):
 
             https://developers.google.com/maps/documentation/javascript/get-api-key
 
-            The Google API key will be stored in the Bokeh Document JSON.
+            The Google API key will be stored as a base64-encoded string in
+            the Bokeh Document JSON.
 
         map_options: (:class:`~bokeh.models.map_plots.GMapOptions`)
             Configuration specific to a Google Map
 
-    In addition to the standard :class:`~bokeh.plotting.gmap.GMap` keyword
-    arguments (e.g. ``width`` or ``sizing_mode``), the following
-    additional options can be passed as well:
-
-    .. bokeh-options:: GMapFigureOptions
-        :module: bokeh.plotting.gmap
+    All other keyword arguments are passed to :class:`~bokeh.plotting.GMap`.
 
     Returns:
-       GMap
+       :class:`~bokeh.plotting.GMap`
 
     '''
     return GMap(api_key=google_api_key, map_options=map_options, **kwargs)

@@ -67,6 +67,7 @@ from .glyph_api import _MARKER_SHORTCUTS, GlyphAPI
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+#: A default set of tools configured if no configuration is provided
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 
 __all__ = (
@@ -659,8 +660,15 @@ class Figure(Plot, GlyphAPI):
         return graph_renderer
 
 def figure(**kwargs: TAny) -> Figure:
+    ''' Create a new :class:`~bokeh.plotting.Figure` for plotting.
+
+    All other keyword arguments are passed to :class:`~bokeh.plotting.Figure`.
+
+    Returns:
+       :class:`~bokeh.plotting.Figure`
+
+    '''
     return Figure(**kwargs)
-figure.__doc__ = Figure.__doc__
 
 def markers():
     ''' Prints a list of valid marker types for scatter()
