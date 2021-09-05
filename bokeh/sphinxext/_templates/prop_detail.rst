@@ -1,8 +1,9 @@
 .. attribute:: {{ name }}
     :module: {{ module }}
+    :annotation: = {{ default }}
 
-    :property type: {{ type_info }}
+    :Type: {{ type_info }}
+    {% if doc %}
 
-    :default value: ``{{ default }}``
-
-    {% if doc %}{{ doc|indent(4) }}{% endif %}
+    {{ doc|indent(4) }}
+    {% endif %}
