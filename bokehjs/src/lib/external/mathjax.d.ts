@@ -63,6 +63,6 @@ declare namespace MathJax {
   type RGB = [R: number, G: number, B: number]
 
   function tex2svg(input: string, color: RGB, options?: MathJaxOptions, macros?: TeXMacros): HTMLElement
-  function ascii2svg(input: string, color: RGB, options?: MathJaxOptions): HTMLElement
-  function mathml2svg(input: string, color: RGB, options?: MathJaxOptions): HTMLElement
+  function ascii2svg(input: string, _color?: RGB, options?: MathJaxOptions): HTMLElement
+  function mathml2svg(input: string, _color?: RGB, options?: MathJaxOptions): HTMLElement
 }

@@ -80,7 +80,7 @@ export function tex2svg(formula: string, color: RGB, mathjax_options: MathJaxOpt
   return tex_to_svg.convert(`{\\color[RGB]{${color.join(", ")}} ${formula}}`, mathjax_options.convert)
 }
 
-export function ascii2svg(_formula: string, _color: RGB, _mathjax_options: MathJaxOptions = {}): HTMLElement {
+export function ascii2svg(_formula: string, _color?: RGB, _mathjax_options: MathJaxOptions = {}): HTMLElement {
   // TODO:
   // const ascii = new AsciiMath({})
   // const ascii_to_svg = mathjax.document("", {InputJax: ascii, OutputJax: svg})
@@ -88,9 +88,9 @@ export function ascii2svg(_formula: string, _color: RGB, _mathjax_options: MathJ
   throw new Error("not implemented")
 }
 
-export function mathml2svg(formula: string, color: RGB, mathjax_options: MathJaxOptions = {}): HTMLElement {
+export function mathml2svg(formula: string, _color?: RGB, mathjax_options: MathJaxOptions = {}): HTMLElement {
   const mathml = new MathML({})
   const svg = new SVG({fontCache: "local", ...mathjax_options.svg})
   const mathml_to_svg = mathjax.document("", {InputJax: mathml, OutputJax: svg})
-  return mathml_to_svg.convert(`{\\color[RGB]{${color.join(", ")}} ${formula}}`, mathjax_options.convert)
+  return mathml_to_svg.convert(formula, mathjax_options.convert)
 }

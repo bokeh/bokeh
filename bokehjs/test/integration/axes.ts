@@ -199,6 +199,30 @@ export class DelayedInternalProvider extends MathJaxProvider {
     </math>
     `
 
+    it("should support LaTeX notation on axis_label and tick labels with MathText", async () => {
+      const stub = sinon.stub(MathTextView.prototype, "provider")
+      stub.value(new InternalProvider())
+      try {
+        await plot({
+          axis_label: new TeX({text: tex}),
+          major_label_overrides: {
+            100: new TeX({text: "-3\\sigma"}),
+            120: new TeX({text: "-2\\sigma"}),
+            140: new TeX({text: "-1\\sigma"}),
+            160: new TeX({text: "\\mu"}),
+            180: new TeX({text: "1\\sigma"}),
+            200: new TeX({text: "2\\sigma"}),
+            1: "one",
+            0.01: new TeX({text: "\\frac{0.133}{\\mu+2\\sigma^2}"}),
+            10000: new TeX({text: "10 \\ast 1000"}),
+            1000000: new TeX({text: "\\sigma^2"}),
+          },
+        },{minor_size: 100})
+      } finally {
+        stub.restore()
+      }
+    })
+
     it("should support LaTeX notation on axis_label with MathText", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new InternalProvider())
@@ -249,7 +273,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
       }
     })
 
-    it("should display tick labels with math text on overrides", async () => {
+    it("should display tick labels with MathText on overrides", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
