@@ -76,7 +76,7 @@ autoclasstoc_sections = [
 autodoc_member_order = 'groupwise'
 
 autodoc_default_options = {
-    'exclude-members': '__weakref__,__subtype__,__view_model__,__properties__,__overridden_defaults__,__view_module__,__qualified_model__,__annotations__',
+    'exclude-members': '__weakref__', '__subtype__', '__view_model__', '__properties__', '__overridden_defaults__', '__view_module__', '__qualified_model__', '__annotations__',
 }
 
 bokeh_missing_google_api_key_ok = False
