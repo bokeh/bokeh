@@ -36,10 +36,10 @@ Pull request workflow
 
 2. Create a branch
     Before writing any code, you need to create a new `branch`_ on
-    :ref:`your fork <contributor_guide_setup_cloning>` of the Bokeh repository. In most
-    cases, you should base your new branch on Bokeh's ``default`` branch. The
-    default branch is usually a branch that represents the next version of
-    Bokeh, for example ``branch-2.4``.
+    :ref:`your fork <contributor_guide_setup_cloning>` of the Bokeh repository.
+    In most cases, you should base your new branch on Bokeh's ``default``
+    branch. The default branch is usually a branch that represents the next
+    version of Bokeh, for example ``branch-2.4``.
 
     Use this pattern to name your branch:
 
@@ -119,9 +119,10 @@ Things to keep in mind when working on a pull request:
 * When writing code, try to match the existing coding style.
 * Try to divide your work into smaller chunks and push small, incremental
   commits.
-* Include :ref:`new tests <contributor_guide_writing_tests>` when adding new features.
-* Include :ref:`tests <contributor_guide_writing_tests>` to check for regressions when
-  fixing bugs.
+* Include :ref:`new tests <contributor_guide_writing_tests>` when adding new
+  features.
+* Include :ref:`tests <contributor_guide_writing_tests>` to check for
+  regressions when fixing bugs.
 * Keep the discussions focused. When a new or related topic comes up, it's
   often better to create a new issue than to sidetrack the discussion.
 * Don't submit a big pull request unannounced. Instead, file an issue and
@@ -133,8 +134,8 @@ Things to keep in mind when working on a pull request:
   :ref:`file an issue <contributor_guide_issues>` and start a discussion first.
 * In case your pull request includes additional or updated dependencies, you
   not only need to update :bokeh-tree:`environment.yml` but also the
-  :ref:`environment files Bokeh's CI <contributor_guide_testing_ci_environments>` in the
-  :bokeh-tree:`ci` folder.
+  :ref:`environment files Bokeh's CI <contributor_guide_testing_ci_environments>`
+  in the :bokeh-tree:`ci` folder.
 
 See the `"Pull Requests" section in BEP 1: Issues and PRs management <wiki pull requests_>`_
 for more information about labels and the pull request management process.

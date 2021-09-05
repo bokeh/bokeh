@@ -150,3 +150,6 @@ html_sidebars = {
 html_title = f"{project} {version} Documentation"
 
 templates_path = ['_templates']
+
+def setup(app):
+    app.add_object_type('confval', 'confval', objname='configuration value', indextemplate='pair: %s; configuration value')

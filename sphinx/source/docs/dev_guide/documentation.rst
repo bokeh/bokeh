@@ -300,7 +300,8 @@ elements:
 In the file :bokeh-tree:`sphinx/source/rst_epilog.txt`, you can find many common
 substitutions used across the narrative documentation as well as docstrings and
 model help texts. This file is loaded as the
-confval:`epilog.rst environment variable <sphinx:rst_epilog>` for Bokeh's Sphinx configuration.
+:confval:`epilog.rst environment variable <sphinx:rst_epilog>` for Bokeh's
+Sphinx configuration.
 
 .. _contributor_guide_documentation_edit_narrative:
 
@@ -312,7 +313,8 @@ Bokeh's narrative documentation consists of these four elements:
 * :ref:`first_steps`: first steps guides and installation instructions
 * :ref:`userguide`: descriptions and instructions for using Bokeh
 * :ref:`gallery`: interactive examples with source code
-* :ref:`Contributors guide <contributor_guide>`: instructions for contributing to Bokeh
+* :ref:`Contributors guide <contributor_guide>`: instructions for contributing
+  to Bokeh
 
 Sphinx generates each of those elements from reStructuredText (.rst) files. To
 edit any of those elements, open the corresponding ReST source file in the
@@ -331,8 +333,8 @@ and the `Google developer documentation style guide`_.
 Contributing to Bokeh's source code documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 All functions and methods in Bokeh use
-:ref:`docstrings <contributor_guide_documentation_edit_docstrings>`. In addition, Bokeh
-uses its own system to provide
+:ref:`docstrings <contributor_guide_documentation_edit_docstrings>`. In
+addition, Bokeh uses its own system to provide
 :ref:`detailed information on individual properties <contributor_guide_documentation_edit_properties_help>`.
 
 .. _contributor_guide_documentation_edit_docstrings:

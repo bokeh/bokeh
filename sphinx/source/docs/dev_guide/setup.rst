@@ -185,8 +185,8 @@ whenever you push a commit to Bokeh's GitHub repository:
 
 Codebase tests
     git-commit will run Bokeh's
-    :ref:`codebase tests <contributor_guide_testing_local_codebase>` to check for
-    codebase quality issues such as whitespaces and imports. This includes
+    :ref:`codebase tests <contributor_guide_testing_local_codebase>` to check
+    for codebase quality issues such as whitespaces and imports. This includes
     testing with `flake8`_, `eslint`_, and `isort`_.
 
 Protected branches
@@ -273,8 +273,8 @@ to ``setup.py``. For example:
 -----------------------
 
 Several tests and examples require Bokeh's sample data to be available on your
-hard drive. After :ref:`installing <contributor_guide_setup_install_locally>` Bokeh, use
-the following command to download and install the data:
+hard drive. After :ref:`installing <contributor_guide_setup_install_locally>`
+Bokeh, use the following command to download and install the data:
 
 .. code-block:: sh
 

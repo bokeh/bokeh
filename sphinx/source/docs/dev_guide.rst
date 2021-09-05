@@ -217,9 +217,9 @@ Another ressource for working on bindings is Bokeh's
 :bokeh-tree:`scripts/spec.py` script. This Python script generates a JSON
 description of every model and property in Bokeh,
 including types, defaults, and
-:ref:`help strings <contributor_guide_documentation_edit_properties_help>` for each. You
-can use this information as a basis for creating new low-level bindings or
-checking existing bindings for completeness, for example.
+:ref:`help strings <contributor_guide_documentation_edit_properties_help>` for
+each. You can use this information as a basis for creating new low-level
+bindings or checking existing bindings for completeness, for example.
 
 If you would like to start working on a new binding or have a new binding added
 to this list, please contact the Bokeh core team through `Slack`_.

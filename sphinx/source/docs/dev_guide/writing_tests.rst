@@ -4,13 +4,24 @@ Writing tests
 =============
 
 To help keep Bokeh maintainable, all
-:ref:`Pull Requests <contributor_guide_pull_requests>` that add or update code should
-include new or updated tests. While exceptions are possible, a Pull Request
-without adequate tests will generally not be considered ready to merge.
+:ref:`Pull Requests <contributor_guide_pull_requests>` that add or update code
+should include new or updated tests. While exceptions are possible, a Pull
+Request without adequate tests will generally not be considered ready to merge.
+
+Follow those general guidelines to decide which kinds of tests to update or add:
+
+When you edit Bokeh's Python code
+    Check whether you should update or add :ref:`Python tests <contributor_guide_writing_tests_python>`
+
+When your change anything related to BokehJS
+    Check whether you should update or add :ref:`JavaScript tests <contributor_guide_writing_tests_bokehjs>`
+
+When you fix a bug from Bokeh's issue tracker:
+    Check whether you should add a :ref:`regression test <contributor_guide_writing_tests_bokehjs_regression>`
 
 Before writing any tests, you should make sure to go through the relevant
-passages in :ref:`contributor_guide_testing`. This chapter on writing tests assumes you
-know how to run the tests you are working on.
+passages in :ref:`contributor_guide_testing`. This chapter on writing tests
+assumes you know how to run the tests you are working on.
 
 .. _contributor_guide_writing_tests_python:
 
@@ -39,7 +50,7 @@ Follow these general guidelines when writing Python unit tests:
 
 Import the model under test with ``as``
     Always import the specific model you are testing using the ``import as``
-    syntax. Use the model's initals to name your import. For example:
+    syntax. Use the model's initials to name your import. For example:
 
     .. code-block:: Python
 
@@ -83,8 +94,8 @@ Keep your code as simple as possible
 
 Use the |bokeh.models| API whenever possible
     Try to use Bokeh's
-    :ref:`low-level bokeh.models interface <userguide_interfaces_models>` instead of
-    the more high-level
+    :ref:`low-level bokeh.models interface <userguide_interfaces_models>`
+    instead of the more high-level
     :ref:`bokeh.plotting interface <userguide_interfaces_plotting>`.
 
 .. _contributor_guide_writing_tests_bokehjs:
@@ -105,7 +116,8 @@ BokehJS testing framework uses ``describe()`` and ``it()`` functions to set up
 tests.
 
 The BokehJS tests are located in :bokeh-tree:`bokehjs/test`. See
-:ref:`contributor_guide_testing_local_javascript` for information on how to run them.
+:ref:`contributor_guide_testing_local_javascript` for information on how to run
+them.
 
 General information on contributing to BokehJS is available in
 :ref:`contributor_guide_bokehjs`.
@@ -206,9 +218,9 @@ Visual baseline comparison
 
 The visual baseline comparison tests are located in the
 :bokeh-tree:`bokehjs/test/integration/` folder and sub-folders.
-:ref:`Bokeh's CI <contributor_guide_testing_ci>` runs these tests on Linux, macOS, and
-Windows environments. The baseline files for each environment are located in the
-:bokeh-tree:`bokehjs/test/baselines/` folder.
+:ref:`Bokeh's CI <contributor_guide_testing_ci>` runs these tests on Linux,
+macOS, and Windows environments. The baseline files for each environment are
+located in the :bokeh-tree:`bokehjs/test/baselines/` folder.
 
 Follow these steps to write new visual tests or update existing tests:
 
@@ -229,8 +241,8 @@ Follow these steps to write new visual tests or update existing tests:
     Similarly, replace BokehJS' standard ``figure()`` with the ``fig()``
     function in ``_util``. The ``fig()`` function expects an array of
     ``[width, height]`` as the first argument, followed by the same arguments as
-    ``figure()``. However, to keep visual tests as efficient as possible, you should only
-    use ``width`` and ``height`` if possible.
+    ``figure()``. However, to keep visual tests as efficient as possible, you
+    should only use ``width`` and ``height`` wherever you can.
 
     Keep the width and height of your testing plot as small as possible while
     still being able to see the details you want to test with the naked eye. Try
@@ -384,8 +396,8 @@ incldued in the examples tests automatically. Edit
 :bokeh-tree:`tests/examples.yaml` to explicitly include or exclude specific
 examples.
 
-See :ref:`contributor_guide_testing_local_examples` for more information on running the
-examples tests.
+See :ref:`contributor_guide_testing_local_examples` for more information on
+running the examples tests.
 
 .. _`Mocha`: https://mochajs.org/
 .. _`Jasmine`: https://jasmine.github.io/

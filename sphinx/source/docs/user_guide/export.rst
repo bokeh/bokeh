@@ -82,7 +82,7 @@ use ``conda`` and install Selenium together with geckodriver.
 
           pip install selenium chromedriver-binary
 
-        After downloading and installing with ``conda``, make sure that the
+        After downloading and installing with ``pip``, make sure that the
         executable ``chromedriver`` (``chromedriver.exe`` on Windows) is
         available in your PATH. See the `chromedriver-binary documentation`_ for
         more information.
