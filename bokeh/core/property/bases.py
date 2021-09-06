@@ -122,11 +122,13 @@ class Property(PropertyDescriptorFactory[T]):
 
     _readonly: bool
 
+    convertibles: List[Tuple[Property[Any], Callable[[Property[Any]], T]]]
     alternatives: List[Tuple[Property[Any], Callable[[Property[Any]], T]]]
     assertions: List[Tuple[Callable[[HasProps, T], bool], str | Callable[[HasProps, str, T], None]]]
 
     def __init__(self, default: Init[T] = Intrinsic, help: str | None = None,
-            serialized: bool | None = None, readonly: bool = False):
+            serialized: bool | None = None, readonly: bool = False,
+            converts: Tuple[Property[Any], Callable[[Property[Any]], T]] = None):
         default = default if default is not Intrinsic else Undefined
 
         if serialized is None:
@@ -141,6 +143,10 @@ class Property(PropertyDescriptorFactory[T]):
 
         self.alternatives = []
         self.assertions = []
+
+        self.convertibles = []
+        if converts is not None:
+            self.converts(*converts)
 
     def __str__(self) -> str:
         return self.__class__.__name__
@@ -344,6 +350,15 @@ class Property(PropertyDescriptorFactory[T]):
         if value is Undefined:
             return value
 
+        if isinstance(value, str) and value.startswith('$'):
+            print(self.__class__.__name__, owner, value)
+
+        if self.convertibles:
+            print(self.__class__, value)
+        for tp, converter in self.convertibles:
+            if tp.is_valid(value):
+                value = converter(value)
+                break
 
         error = None
         try:
@@ -361,6 +376,8 @@ class Property(PropertyDescriptorFactory[T]):
         if error is None:
             value = self.transform(value)
         else:
+            print(self.__class__.__name__)
+            print(value)
             obj_repr = owner if isinstance(owner, HasProps) else owner.__name__
             raise ValueError(f"failed to validate {obj_repr}.{name}: {error}")
 
@@ -406,6 +423,27 @@ class Property(PropertyDescriptorFactory[T]):
 
         tp = ParameterizedProperty._validate_type_param(tp)
         self.alternatives.append((tp, converter))
+        return self
+
+    def converts(self, tp: TypeOrInst[Property[Any]], converter: Callable[[Property[Any]], T]) -> Property[T]:
+        """ Declare types that may be converted to this property type.
+        This happens before validation.
+
+        Args:
+            tp (Property) :
+                A type that may be converted.
+
+            converter (callable) :
+                A function accepting ``value`` to perform conversion of the value.
+
+        Returns:
+            self
+
+        """
+
+        print(self.__class__.__name__)
+        tp = ParameterizedProperty._validate_type_param(tp)
+        self.convertibles.append((tp, converter))
         return self
 
     def asserts(self, fn: Callable[[HasProps, T], bool], msg_or_fn: str | Callable[[HasProps, str, T], None]) -> Property[T]:

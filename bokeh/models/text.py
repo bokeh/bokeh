@@ -70,11 +70,6 @@ class MathText(BaseText):
     Base class for renderers of mathematical content.
     """
 
-    @staticmethod
-    def is_math_text_string(text: Unknown) -> bool:
-        return isinstance(text, str) and text.startswith("$") and text.endswith("$")
-
-
 class Ascii(MathText):
     """
     Render mathematical content using `AsciiMath <http://asciimath.org/>` notation.
