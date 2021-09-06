@@ -420,8 +420,7 @@ def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
         '''
         properties = model._property_values
 
-        if "enable_mathtext" in properties and properties["enable_mathtext"]:
-            return True
+        return properties.get('enable_mathtext', False)
 
     return _any(objs, lambda obj: isinstance(obj, MathText) or model_require_mathjax(obj))
 
