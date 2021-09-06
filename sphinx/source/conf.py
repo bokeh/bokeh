@@ -75,10 +75,6 @@ autoclasstoc_sections = [
 
 autodoc_member_order = 'groupwise'
 
-autodoc_default_options = {
-    'exclude-members': '__weakref__', '__subtype__', '__view_model__', '__properties__', '__overridden_defaults__', '__view_module__', '__qualified_model__', '__annotations__',
-}
-
 bokeh_missing_google_api_key_ok = False
 
 if not bokeh_missing_google_api_key_ok:
@@ -89,9 +85,9 @@ if not bokeh_missing_google_api_key_ok:
 bokeh_plot_pyfile_include_dirs = ['docs']
 
 intersphinx_mapping = {
-    'python' : ('https://docs.python.org/3/', None),
-    'pandas' : ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'numpy'  : ('https://numpy.org/doc/stable/', None),
+    'python'      : ('https://docs.python.org/3/', None),
+    'pandas'      : ('https://pandas.pydata.org/pandas-docs/stable/', None),
+    'numpy'       : ('https://numpy.org/doc/stable/', None),
     'xyzservices' : ('https://xyzservices.readthedocs.io/en/stable/', None),
 }
 
