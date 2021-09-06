@@ -421,7 +421,7 @@ def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
         '''
         properties = model.properties(_with_props = True)
 
-        for key, value in model.properties_with_values().items():
+        for key, value in model._property_values.items():
             if properties[key].is_valid(MathText()) and MathText.is_math_text_string(value):
                 return True
 
