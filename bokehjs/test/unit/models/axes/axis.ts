@@ -60,7 +60,7 @@ describe("Axis", () => {
 
     const labels = axis_view.compute_labels([0, 2, 4, 6, 8, 10])
 
-    expect(labels.items.map((l) => (l as TextBox).text)).to.be.equal(["\frac{0}{0}", "zero", "Ten()", "0", "Ten", "Ten"])
+    expect(labels.items.map((l) => (l as TextBox).text)).to.be.equal(["\\frac{0}{0}", "zero", "Ten()", "0", "Ten", "Ten"])
   })
 
   it("loc should return numeric fixed_location", async () => {
