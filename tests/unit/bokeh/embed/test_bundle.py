@@ -62,6 +62,18 @@ def test_widget() -> None:
     return test_widget
 
 @pytest.fixture
+def test_widget_with_mathtext() -> None:
+    from bokeh.models import Div
+    test_widget_with_mathtext = Div(render_as_mathtext = True)
+    return test_widget_with_mathtext
+
+@pytest.fixture
+def test_widget_without_mathtext() -> None:
+    from bokeh.models import Div
+    test_widget_with_mathtext = Div(render_as_mathtext = False)
+    return test_widget_with_mathtext
+
+@pytest.fixture
 def test_mathtext() -> None:
     from bokeh.models import TeX
     test_mathtext = TeX()
@@ -261,23 +273,25 @@ class Test__use_widgets:
 
 
 class Test__use_mathjax:
-    def test_without_mathjax(self, test_plot, test_glplot, test_table, test_widget, test_mathtext) -> None:
+    def test_without_mathjax(self, test_plot, test_glplot, test_table, test_widget, test_widget_without_mathtext) -> None:
         assert beb._use_mathjax([test_plot]) is False
         assert beb._use_mathjax([test_plot, test_glplot]) is False
         assert beb._use_mathjax([test_plot, test_table]) is False
         assert beb._use_mathjax([test_plot, test_widget]) is False
+        assert beb._use_mathjax([test_plot, test_widget_without_mathtext]) is False
         d = Document()
         d.add_root(test_plot)
         d.add_root(test_table)
         d.add_root(test_widget)
         assert beb._use_mathjax([d]) is False
 
-    def test_with_mathjax(self, test_plot, test_glplot, test_table, test_widget, test_mathtext) -> None:
+    def test_with_mathjax(self, test_plot, test_glplot, test_table, test_widget, test_mathtext, test_widget_with_mathtext) -> None:
         assert beb._use_mathjax([test_mathtext]) is True
         assert beb._use_mathjax([test_plot, test_mathtext]) is True
         assert beb._use_mathjax([test_plot, test_glplot, test_mathtext]) is True
         assert beb._use_mathjax([test_plot, test_widget, test_mathtext]) is True
         assert beb._use_mathjax([test_plot, test_widget, test_table, test_mathtext]) is True
+        assert beb._use_mathjax([test_plot, test_widget_with_mathtext]) is True
         d = Document()
         d.add_root(test_plot)
         d.add_root(test_table)

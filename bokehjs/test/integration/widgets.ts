@@ -150,6 +150,16 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
+  it("should allow Div with MathText", async () => {
+    const obj = new Div({
+      text: `When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\) and they are
+        $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$`,
+      render_as_mathtext: true,
+    })
+
+    await display(obj, [250, 100])
+  })
+
   it("should allow Paragraph", async () => {
     const obj = new Paragraph({text: "some text"})
     await display(obj, [500, 100])

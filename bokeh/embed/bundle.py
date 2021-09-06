@@ -414,7 +414,16 @@ def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
         bool
     '''
     from ..models.text import MathText
-    return _any(objs, lambda obj: isinstance(obj, MathText))
+
+    def model_require_mathjax(model: Model) -> bool:
+        ''' If any model explicit require MathJax with render_as_mathtext option set to true
+        '''
+
+        for key, value in model.properties_with_values().items():
+            if key == "render_as_mathtext" and value:
+                return True
+
+    return _any(objs, lambda obj: isinstance(obj, MathText) or model_require_mathjax(obj))
 
 def _use_gl(objs: Sequence[Model | Document]) -> bool:
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
