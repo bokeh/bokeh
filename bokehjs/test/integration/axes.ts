@@ -199,7 +199,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
     </math>
     `
 
-    it("should support LaTeX notation on axis_label and tick labels with MathText", async () => {
+    it.allowing(5)("should support LaTeX notation on axis_label and tick labels with MathText", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
@@ -223,7 +223,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
       }
     })
 
-    it("should support LaTeX notation on axis_label with MathText", async () => {
+    it.allowing(5)("should support LaTeX notation on axis_label with MathText", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
@@ -233,7 +233,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
       }
     })
 
-    it("should support Ascii notation on axis_label with MathText", async () => {
+    it.allowing(5)("should support Ascii notation on axis_label with MathText", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
@@ -243,7 +243,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
       }
     })
 
-    it("should support MathML notation on axis_label with MathText", async () => {
+    it.allowing(5)("should support MathML notation on axis_label with MathText", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
@@ -253,7 +253,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
       }
     })
 
-    it("should support LaTeX notation on axis_label with MathText and a delay in loading", async () => {
+    it.allowing(5)("should support LaTeX notation on axis_label with MathText and a delay in loading", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new DelayedInternalProvider())
       try {
@@ -263,7 +263,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
       }
     })
 
-    it("should support LaTeX notation on axis_label with MathText and fallback to text if MathJax has errors", async () => {
+    it.allowing(5)("should support LaTeX notation on axis_label with MathText and fallback to text if MathJax has errors", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new NoProvider())
       try {
@@ -273,7 +273,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
       }
     })
 
-    it("should display tick labels with MathText on overrides", async () => {
+    it.allowing(5)("should display tick labels with MathText on overrides", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
