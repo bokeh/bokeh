@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 import numbers
 
 # Bokeh imports
+from ._sphinx import property_link, register_type_link
 from .bases import Init, PrimitiveProperty
 
 #-----------------------------------------------------------------------------
@@ -280,3 +281,7 @@ class String(PrimitiveProperty[str]):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+@register_type_link(Null)
+def _sphinx_type(obj):
+    return f"{property_link(obj)}"

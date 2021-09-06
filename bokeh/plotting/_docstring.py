@@ -78,8 +78,8 @@ def _add_arglines(arglines, param, typ, doc):
         arglines += [f"    {x}" for x in doc.rstrip().strip("\n").split("\n")]
 
     # if there is a default, add it last
-    if default is not None:
-        arglines.append(f"\n        (default: {default})")
+    if arglines and default is not None:
+        arglines[-1] += f" (default: {default!r})"
 
     # blank line between args
     arglines.append("")
