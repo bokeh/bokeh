@@ -419,7 +419,7 @@ def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
         ''' If any model explicit require MathJax with render_as_mathtext option set to true
         '''
 
-        for key, value in model.properties_with_values().items():
+        for key, value in model._property_values.items():
             if key == "render_as_mathtext" and value:
                 return True
 
