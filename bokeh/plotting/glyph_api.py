@@ -69,8 +69,7 @@ class GlyphAPI:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -91,8 +90,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -116,8 +114,7 @@ Examples:
 
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -133,8 +130,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -151,8 +147,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -169,8 +164,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -187,8 +181,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -205,8 +198,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -223,8 +215,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -241,8 +232,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -259,8 +249,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -277,8 +266,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -295,8 +283,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -312,8 +299,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -330,8 +316,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -347,8 +332,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -365,8 +349,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -382,8 +365,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -400,8 +382,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -440,8 +421,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -457,8 +437,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -478,8 +457,7 @@ Examples:
 
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -500,8 +478,7 @@ Examples:
 
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -518,8 +495,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -536,8 +512,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -557,8 +532,7 @@ Examples:
 
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -575,8 +549,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -592,8 +565,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -614,8 +586,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -632,8 +603,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -650,8 +620,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -667,8 +636,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -686,8 +654,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -703,8 +670,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -721,8 +687,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -739,8 +704,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -757,8 +721,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -775,8 +738,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -793,8 +755,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -820,8 +781,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -838,8 +798,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -856,8 +815,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -874,8 +832,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -892,8 +849,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -909,8 +865,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -927,8 +882,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 
@@ -944,8 +898,7 @@ Examples:
         """
 Examples:
 
-    .. bokeh-plot::
-        :source-position: above
+    .. code-block:: python
 
         from bokeh.plotting import figure, output_file, show
 

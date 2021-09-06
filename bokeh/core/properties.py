@@ -95,6 +95,7 @@ Basic Properties
 .. autoclass:: MarkerType
 .. autoclass:: MinMaxBounds
 .. autoclass:: NonNegativeInt
+.. autoclass:: Null
 .. autoclass:: Percent
 .. autoclass:: PositiveInt
 .. autoclass:: RGB

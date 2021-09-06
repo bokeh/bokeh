@@ -49,7 +49,7 @@ __all__ = (
 
 def output_file(filename: PathLike, title: str = "Bokeh Plot",
         mode: ResourcesMode | None = None, root_dir: PathLike | None = None):
-    '''Configure the default output state to generate output saved
+    ''' Configure the default output state to generate output saved
     to a file when :func:`show` is called.
 
     Does not change the current ``Document`` from ``curdoc()``. File and notebook

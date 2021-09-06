@@ -4,7 +4,20 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+''' Provide the ``Document`` class, which is a container for Bokeh Models to
+be reflected to the client side BokehJS library.
+
+As a concrete example, consider a column layout with ``Slider`` and ``Select``
+widgets, and a plot with some tools, an axis and grid, and a glyph renderer
+for circles. A simplified representation of this document might look like the
+figure below:
+
+.. figure:: /_images/document.svg
+    :align: center
+    :width: 65%
+
+    A Bokeh Document is a collection of Bokeh Models (e.g. plots, tools,
+    glyphs, etc.) that can be serialized as a single collection.
 
 '''
 
