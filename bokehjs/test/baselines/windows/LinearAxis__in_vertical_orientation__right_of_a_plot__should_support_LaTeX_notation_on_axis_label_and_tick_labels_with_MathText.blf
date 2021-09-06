@@ -1,2 +1,2 @@
-Plot bbox=[0, 0, 100, 300]
-  LinearAxis bbox=[25, 20, 75, 260]
+Plot bbox=[0, 0, 200, 300]
+  LinearAxis bbox=[125, 20, 75, 260]
