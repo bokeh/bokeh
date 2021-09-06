@@ -49,7 +49,7 @@ Check basic requirements
 
 Before attempting to run Bokeh tests locally, make sure you have successfully
 completed all of the steps in the :ref:`contributor_guide_setup` section of this
-contributors guide.
+contributor guide.
 
 Check that :ref:`Bokeh's sampledata <install_sampledata>` is installed and up to
 date by running ``bokeh sampledata``. In case you are not able to install the

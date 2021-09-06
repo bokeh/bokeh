@@ -22,7 +22,7 @@ you. Bokeh is made possible by a diverse group of software developers, testers,
 writers, outreach experts, and much more. And we always love having new people
 help us make Bokeh a better tool for everyone!
 
-In this contributors guide, you will find all information you need to join the
+In this contributor guide, you will find all information you need to join the
 growing team of Bokeh contributors. This includes information on how to
 :ref:`contribute to Bokeh's code and documentation <contributor_guide_start>`,
 :ref:`help out with community support <contributor_guide_community_support>`,
@@ -96,7 +96,7 @@ You can then contribute to Bokeh's codebase in many ways:
 Additional resources
 --------------------
 
-In addition to this :ref:`contributors guide <contributor_guide_start>`, there
+In addition to this :ref:`contributor guide <contributor_guide_start>`, there
 are many more resources available to help you get started quickly:
 
 Bokeh Slack

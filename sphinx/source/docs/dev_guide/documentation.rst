@@ -288,7 +288,7 @@ elements:
 :ref:`Narrative documentation <contributor_guide_documentation_edit_narrative>`
   This part of the documentation consists of tutorial-like descriptions and
   instructions for Bokeh. This includes the :ref:`user guide <userguide>` and
-  :ref:`contributors guide <contributor_guide>`.
+  :ref:`contributor guide <contributor_guide>`.
 
 :ref:`Docstrings and Model help text within the Python source code of Bokeh <contributor_guide_documentation_edit_source>`
   This part of the documentation consists of detailed explanations of all Bokeh
@@ -313,7 +313,7 @@ Bokeh's narrative documentation consists of these four elements:
 * :ref:`first_steps`: first steps guides and installation instructions
 * :ref:`userguide`: descriptions and instructions for using Bokeh
 * :ref:`gallery`: interactive examples with source code
-* :ref:`Contributors guide <contributor_guide>`: instructions for contributing
+* :ref:`Contributor guide <contributor_guide>`: instructions for contributing
   to Bokeh
 
 Sphinx generates each of those elements from reStructuredText (.rst) files. To
