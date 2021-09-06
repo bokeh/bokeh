@@ -416,12 +416,12 @@ def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
     from ..models.text import MathText
 
     def model_require_mathjax(model: Model) -> bool:
-        ''' If any model explicit require MathJax with render_as_mathtext option set to true
+        ''' If any model explicit require MathJax with enable_mathtext option set to true
         '''
+        properties = model._property_values
 
-        for key, value in model._property_values.items():
-            if key == "render_as_mathtext" and value:
-                return True
+        if "enable_mathtext" in properties and properties["enable_mathtext"]:
+            return True
 
     return _any(objs, lambda obj: isinstance(obj, MathText) or model_require_mathjax(obj))
 
