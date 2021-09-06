@@ -157,7 +157,7 @@ describe("Widgets", () => {
       render_as_mathtext: true,
     })
 
-    await display(obj, [250, 100])
+    await display(obj, [320, 120])
   })
 
   it("should allow Paragraph", async () => {
