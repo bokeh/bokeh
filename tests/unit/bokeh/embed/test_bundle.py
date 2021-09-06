@@ -64,13 +64,13 @@ def test_widget() -> None:
 @pytest.fixture
 def test_widget_with_mathtext() -> None:
     from bokeh.models import Div
-    test_widget_with_mathtext = Div(render_as_mathtext = True)
+    test_widget_with_mathtext = Div(enable_mathtext = True)
     return test_widget_with_mathtext
 
 @pytest.fixture
 def test_widget_without_mathtext() -> None:
     from bokeh.models import Div
-    test_widget_with_mathtext = Div(render_as_mathtext = False)
+    test_widget_with_mathtext = Div(enable_mathtext = False)
     return test_widget_with_mathtext
 
 @pytest.fixture

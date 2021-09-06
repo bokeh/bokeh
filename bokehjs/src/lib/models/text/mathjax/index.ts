@@ -31,6 +31,7 @@ export function tex2svg(formula: string, macros: TeXMacros = {}): HTMLElement {
 // respects http://docs.mathjax.org/en/latest/input/tex/delimiters.html
 export function htmltex2chtml(html: string, macros: TeXMacros = {}): string {
   const tex = new TeX({packages: AllPackages, macros})
+  // TODO: add fonts to bokehjs bundle
   const chtml = new CHTML({fontURL: "/fonts/mathjax/tex-woff-v2"})
   const math_document = mathjax.document(html, {InputJax: tex, OutputJax: chtml})
   math_document.render()

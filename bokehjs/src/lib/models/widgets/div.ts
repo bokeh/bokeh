@@ -23,7 +23,7 @@ export class DivView extends MarkupView {
 
     if (this.model.render_as_text) {
       this.markup_el.textContent = this.model.text
-    } else if (this.model.render_as_mathtext) {
+    } else if (this.model.enable_mathtext) {
       const chtml = this.provider?.MathJax?.htmltex2chtml(this.model.text)
       this.markup_el.innerHTML = chtml ?? this.model.text
     } else {
@@ -37,7 +37,7 @@ export namespace Div {
 
   export type Props = Markup.Props & {
     render_as_text: p.Property<boolean>
-    render_as_mathtext: p.Property<boolean>
+    enable_mathtext: p.Property<boolean>
   }
 }
 
@@ -56,7 +56,7 @@ export class Div extends Markup {
 
     this.define<Div.Props>(({Boolean}) => ({
       render_as_text: [ Boolean, false ],
-      render_as_mathtext: [ Boolean, false ],
+      enable_mathtext: [ Boolean, false ],
     }))
   }
 }

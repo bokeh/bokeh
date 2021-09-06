@@ -96,7 +96,7 @@ class Div(Markup):
 
     Content can be interpreted as \
     `TeX and LaTeX input <https://docs.mathjax.org/en/latest/basic/mathematics.html#tex-and-latex-input/>` \
-    setting render_as_mathtext to ``True``
+    setting enable_mathtext to ``True``
 
     '''
 
@@ -107,10 +107,9 @@ class Div(Markup):
     The default value is ``False``, meaning contents are rendered as HTML.
     """)
 
-    render_as_mathtext = Bool(False, help="""
-    Whether the contents should be rendered as TeX/LaTeX input.
-    The default value is ``False``, meaning contents are rendered as HTML.
-    Is overwritten by ``render_as_text``.
+    enable_mathtext = Bool(False, help="""
+    Whether the contents should be rendered including TeX/LaTeX input.
+    The default value is ``False``, and only applies when rendering as HTML (that is, when render_as_text is ``False``)
     """)
 
 class PreText(Paragraph):
