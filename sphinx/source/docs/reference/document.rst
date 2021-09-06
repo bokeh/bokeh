@@ -3,10 +3,8 @@
 bokeh.document
 ==============
 
-.. automodule:: bokeh.document.document
+.. automodule:: bokeh.document
     :members:
-
-Navigate the tree on the left for information about each subcommand.
 
 .. toctree::
     :maxdepth: 3
