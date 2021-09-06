@@ -414,7 +414,22 @@ def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
         bool
     '''
     from ..models.text import MathText
-    return _any(objs, lambda obj: isinstance(obj, MathText)) or _ext_use_mathjax(objs)
+
+    def model_requires_mathjax(model: Model) -> bool:
+        from ..models.axes import Axis
+
+        if isinstance(model, Axis):
+            # TODO: implement check for $$...$$ and \[...\] for displayed mathematics, and \(...\)
+            if isinstance(model.axis_label, str) and "$" in model.axis_label:
+                return True
+
+            for val in model.major_label_overrides.values():
+                if isinstance(val, str) and "$" in val:
+                    return True
+
+        return False
+
+    return _any(objs, lambda obj: isinstance(obj, MathText) or model_requires_mathjax(obj)) or _ext_use_mathjax(objs)
 
 def _use_gl(objs: Sequence[Model | Document]) -> bool:
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL

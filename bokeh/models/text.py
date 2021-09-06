@@ -29,7 +29,6 @@ from ..core.properties import (
     String,
     Tuple,
 )
-from ..core.types import Unknown
 from ..model import Model
 
 #-----------------------------------------------------------------------------

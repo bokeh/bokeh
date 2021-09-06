@@ -127,8 +127,7 @@ class Property(PropertyDescriptorFactory[T]):
     assertions: List[Tuple[Callable[[HasProps, T], bool], str | Callable[[HasProps, str, T], None]]]
 
     def __init__(self, default: Init[T] = Intrinsic, help: str | None = None,
-            serialized: bool | None = None, readonly: bool = False,
-            converts: Tuple[Property[Any], Callable[[Property[Any]], T]] = None):
+            serialized: bool | None = None, readonly: bool = False):
         default = default if default is not Intrinsic else Undefined
 
         if serialized is None:
@@ -143,10 +142,7 @@ class Property(PropertyDescriptorFactory[T]):
 
         self.alternatives = []
         self.assertions = []
-
         self.convertibles = []
-        if converts is not None:
-            self.converts(*converts)
 
     def __str__(self) -> str:
         return self.__class__.__name__
@@ -294,8 +290,28 @@ class Property(PropertyDescriptorFactory[T]):
         """
         return value
 
+    def convert(self, value: Any) -> T:
+        """ Change the value into the canonical format for this property.
+        Similar to ``transform`` but happens before validation.
+
+        Args:
+            value (obj) : the value to apply transformation to.
+
+        Returns:
+            obj: transformed value
+
+        """
+        for tp, converter in self.convertibles:
+            if tp.is_valid(value):
+                value = converter(value)
+                break
+
+        return value
+
     def validate(self, value: Any, detail: bool = True) -> None:
         """ Determine whether we can set this property from this value.
+
+        Validation happens after converts()
 
         Validation happens before transform()
 
@@ -350,19 +366,10 @@ class Property(PropertyDescriptorFactory[T]):
         if value is Undefined:
             return value
 
-        if isinstance(value, str) and value.startswith('$'):
-            print(self.__class__.__name__, owner, value)
-
-        if self.convertibles:
-            print(self.__class__, value)
-        for tp, converter in self.convertibles:
-            if tp.is_valid(value):
-                value = converter(value)
-                break
-
         error = None
         try:
             if validation_on():
+                value = self.convert(value)
                 hinted_value = self._hinted_value(value, hint)
                 self.validate(hinted_value)
         except ValueError as e:
@@ -526,6 +533,9 @@ class SingleParameterizedProperty(ParameterizedProperty[T]):
 
     def transform(self, value: T) -> T:
         return self.type_param.transform(value)
+
+    def convert(self, value: Any) -> T:
+        return self.type_param.convert(value)
 
     def wrap(self, value: T) -> T:
         return self.type_param.wrap(value)

@@ -142,6 +142,12 @@ class List(Seq):
     def _is_seq(cls, value):
         return isinstance(value, list)
 
+    def convert(self, value: list | set):
+        if isinstance(value, list):
+            return list(self.item_type.convert(val) for val in value)
+        if isinstance(value, set):
+            return set(self.item_type.convert(val) for val in value)
+
 class Array(Seq):
     """ Accept NumPy array values.
 
@@ -205,6 +211,16 @@ class Dict(ContainerProperty):
                 return PropertyValueDict(value)
         else:
             return value
+
+    def convert(self, value: dict):
+        key_convert = self.keys_type.convert
+        val_convert = self.values_type.convert
+
+        for key, val in value.items():
+            key = key_convert(key)
+            val = val_convert(val)
+
+        return value
 
 class ColumnData(Dict):
     """ Accept a Python dictionary suitable as the ``data`` attribute of a
@@ -315,6 +331,9 @@ class Tuple(ContainerProperty):
 
         """
         return tuple(typ.transform(x) for (typ, x) in zip(self.type_params, value))
+
+    def convert(self, value):
+        return tuple(typ.convert(x) for (typ, x) in zip(self.type_params, value))
 
     def serialize_value(self, value):
         """ Change the value into a JSON serializable format.
