@@ -122,7 +122,6 @@ class Property(PropertyDescriptorFactory[T]):
 
     _readonly: bool
 
-    convertibles: List[Tuple[Property[Any], Callable[[Property[Any]], T]]]
     alternatives: List[Tuple[Property[Any], Callable[[Property[Any]], T]]]
     assertions: List[Tuple[Callable[[HasProps, T], bool], str | Callable[[HasProps, str, T], None]]]
 
@@ -142,7 +141,6 @@ class Property(PropertyDescriptorFactory[T]):
 
         self.alternatives = []
         self.assertions = []
-        self.convertibles = []
 
     def __str__(self) -> str:
         return self.__class__.__name__
@@ -290,28 +288,8 @@ class Property(PropertyDescriptorFactory[T]):
         """
         return value
 
-    def convert(self, value: Any) -> T:
-        """ Change the value into the canonical format for this property.
-        Similar to ``transform`` but happens before validation.
-
-        Args:
-            value (obj) : the value to apply transformation to.
-
-        Returns:
-            obj: transformed value
-
-        """
-        for tp, converter in self.convertibles:
-            if tp.is_valid(value):
-                value = converter(value)
-                break
-
-        return value
-
     def validate(self, value: Any, detail: bool = True) -> None:
         """ Determine whether we can set this property from this value.
-
-        Validation happens after converts()
 
         Validation happens before transform()
 
@@ -369,7 +347,6 @@ class Property(PropertyDescriptorFactory[T]):
         error = None
         try:
             if validation_on():
-                value = self.convert(value)
                 hinted_value = self._hinted_value(value, hint)
                 self.validate(hinted_value)
         except ValueError as e:
@@ -383,8 +360,6 @@ class Property(PropertyDescriptorFactory[T]):
         if error is None:
             value = self.transform(value)
         else:
-            print(self.__class__.__name__)
-            print(value)
             obj_repr = owner if isinstance(owner, HasProps) else owner.__name__
             raise ValueError(f"failed to validate {obj_repr}.{name}: {error}")
 
@@ -430,27 +405,6 @@ class Property(PropertyDescriptorFactory[T]):
 
         tp = ParameterizedProperty._validate_type_param(tp)
         self.alternatives.append((tp, converter))
-        return self
-
-    def converts(self, tp: TypeOrInst[Property[Any]], converter: Callable[[Property[Any]], T]) -> Property[T]:
-        """ Declare types that may be converted to this property type.
-        This happens before validation.
-
-        Args:
-            tp (Property) :
-                A type that may be converted.
-
-            converter (callable) :
-                A function accepting ``value`` to perform conversion of the value.
-
-        Returns:
-            self
-
-        """
-
-        print(self.__class__.__name__)
-        tp = ParameterizedProperty._validate_type_param(tp)
-        self.convertibles.append((tp, converter))
         return self
 
     def asserts(self, fn: Callable[[HasProps, T], bool], msg_or_fn: str | Callable[[HasProps, str, T], None]) -> Property[T]:
@@ -533,9 +487,6 @@ class SingleParameterizedProperty(ParameterizedProperty[T]):
 
     def transform(self, value: T) -> T:
         return self.type_param.transform(value)
-
-    def convert(self, value: Any) -> T:
-        return self.type_param.convert(value)
 
     def wrap(self, value: T) -> T:
         return self.type_param.wrap(value)

@@ -41,18 +41,10 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def converter(value: str):
-    print("textlikeconverter value:", value)
-    if len(value) >= 2 and value[0] == value[-1] == "$":
-        print('here')
-        from ...models.text import TeX
-        return TeX(text=value[1:-1])
-    return value
-
 TextLike = Either(
     String,
     Instance("bokeh.models.text.BaseText"),
-).converts(String, converter)
+)
 
 #-----------------------------------------------------------------------------
 # Dev API
