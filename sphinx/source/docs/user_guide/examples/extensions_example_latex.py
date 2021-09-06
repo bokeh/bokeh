@@ -49,6 +49,8 @@ export class LatexLabelView extends LabelView {
     // ``katex`` is loaded into the global window at runtime
     // katex.renderToString returns a html ``span`` element
     katex.render(this.model.text, this.el, {displayMode: true})
+    this._has_finished = true
+    this.parent.notify_finished_after_paint()
   }
 }
 
