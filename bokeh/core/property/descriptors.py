@@ -281,7 +281,6 @@ class PropertyDescriptor(Generic[T]):
             raise RuntimeError(f"{class_name}.{self.name} is a readonly property")
 
         value = self.property.prepare_value(obj, self.name, value)
-
         old = self._get(obj)
         self._set(obj, old, value, setter=setter)
 
