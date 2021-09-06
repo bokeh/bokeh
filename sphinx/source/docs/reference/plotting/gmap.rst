@@ -3,6 +3,9 @@
 gmap
 ====
 
+The ``gmap`` function is similar to |figure|, but configures a plot that also
+has a Google Maps underlay.
+
 gmap
 ----
 

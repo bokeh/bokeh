@@ -3,6 +3,12 @@
 figure
 ======
 
+The ``figure`` function is at the core of the ``bokeh.plotting`` interface.
+This function creates a |Figure| model that includes methods for adding
+different kinds of glyphs to a plot. This function also takes care of composing
+the various elements of your visualization, such as axes, grids, and default
+tools.
+
 figure
 ------
 

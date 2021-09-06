@@ -3,6 +3,9 @@
 helpers
 =======
 
+Besides |figure| and |gmap| the ``bokeh.plotting`` module also contains
+additional functions and attributes liste in this section.
+
 The following functions and classes are imported transitively and made
 available from ``bokeh.plotting`` as a convenience:
 
@@ -18,13 +21,6 @@ available from ``bokeh.plotting`` as a convenience:
 * :class:`bokeh.layouts.row`
 * :class:`bokeh.models.ColumnDataSource`
 
-DEFAULT_TOOLS
--------------
-
-.. autodata:: bokeh.plotting.DEFAULT_TOOLS
-
-    A default set of tools configured if no configuration is provided.
-
 from_networkx
 -------------
 
@@ -34,3 +30,10 @@ markers
 -------
 
 .. autofunction:: bokeh.plotting.markers
+
+DEFAULT_TOOLS
+-------------
+
+.. autodata:: bokeh.plotting.DEFAULT_TOOLS
+
+    A default set of tools configured if no configuration is provided.
