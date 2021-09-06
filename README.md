@@ -375,6 +375,7 @@ The Bokeh project is also grateful for the donation of services from the followi
 * [GitHub](https://github.com/)
 * [Pingdom](https://www.pingdom.com/website-monitoring)
 * [Slack](https://slack.com)
+* [QuestionScout](https://www.questionscout.com/)
 * [1Password](https://1password.com/)
 
 ## Security
