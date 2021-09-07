@@ -266,10 +266,10 @@ supported by ``make.bat``). For example:
           make.bat serve
 
 To speed up the build of your local documentation, you have the option to use
-an experimental Sphinx feature that distributes the build process over
-several CPUs. This only works on Linux and macOS (not on Windows). On macOS,
-this feature only works on Python 3.7. To use this experimental feature, add
-the option ``SPHINXOPTS="-j auto"`` to your build command:
+an `experimental Sphinx feature`_ that distributes the build process over
+several CPUs and cores. This only works on Linux and macOS (not on Windows). On
+macOS, this feature only works on Python 3.7. To use this experimental feature,
+add the option ``SPHINXOPTS="-j auto"`` to your build command:
 
 .. code-block:: sh
 
@@ -413,19 +413,20 @@ For example:
   ``<version>.rst``, for example ``sphinx/source/docs/releases/0.12.7.rst``.The
   Sphinx build will automatically add this content to the list of all releases.
 
-.. _open documentatio issues: https://github.com/bokeh/bokeh/issues?q=is%3Aopen+is%3Aissue+label%3A%22tag%3A+component%3A+docs%22
+.. _open documentation issues: https://github.com/bokeh/bokeh/issues?q=is%3Aopen+is%3Aissue+label%3A%22tag%3A+component%3A+docs%22
 .. _Google developer documentation style guide: https://developers.google.com/style
 .. _technical writing courses: https://developers.google.com/tech-writing
 .. _pandas: https://pandas.pydata.org/about/citing.html
 .. _Merriam-Webster: https://www.merriam-webster.com/
 .. _inclusive: https://developers.google.com/style/inclusive-documentation
 .. _accessible: https://developers.google.com/style/accessibility
-.. _`word list of the Google developer documentation style guide`: https://developers.google.com/style/word-list
+.. _word list of the Google developer documentation style guide: https://developers.google.com/style/word-list
 .. _docs.bokeh.org: https://docs.bokeh.org/en/latest/
 .. _Google developers website: https://developers.google.com/maps/documentation/javascript/get-api-key
 .. _Napoleon: http://sphinxcontrib-napoleon.readthedocs.org/en/latest/index.html
-.. _`Napoleon's Google style`: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html#example-google
-.. _`Google Python Style Guide`: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
-.. _`official reStructuredText website`: https://docutils.sourceforge.io/rst.html
-.. _`Release Notes`: https://docs.bokeh.org/en/latest/docs/releases.html
-.. _`release management`: https://github.com/bokeh/bokeh/wiki/BEP-2:-Release-Management
+.. _Napoleon's Google style: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html#example-google
+.. _Google Python Style Guide: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
+.. _official reStructuredText website: https://docutils.sourceforge.io/rst.html
+.. _experimental Sphinx feature: https://github.com/sphinx-doc/sphinx/issues/6881
+.. _Release Notes: https://docs.bokeh.org/en/latest/docs/releases.html
+.. _release management: https://github.com/bokeh/bokeh/wiki/BEP-2:-Release-Management

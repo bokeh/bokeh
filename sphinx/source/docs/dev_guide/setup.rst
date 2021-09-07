@@ -9,25 +9,7 @@ TypeScript.
 
 Therefore, you need to set up two environments to contribute to Bokeh: A Python
 environment and a TypeScript environment. This chapter walks you through all the
-necessary steps to set up a full development environment:
-
-:ref:`contributor_guide_setup_preliminaries`
-
-:ref:`contributor_guide_setup_cloning`
-
-:ref:`contributor_guide_setup_creating_conda_env`
-
-:ref:`contributor_guide_setup_installing_node_packages`
-
-:ref:`contributor_guide_setup_pre-commit`
-
-:ref:`contributor_guide_setup_install_locally`
-
-:ref:`contributor_guide_setup_sample_data`
-
-:ref:`contributor_guide_setup_environment_variables`
-
-:ref:`contributor_guide_setup_test_setup`
+necessary steps to set up a full development environment.
 
 .. _contributor_guide_setup_preliminaries:
 
