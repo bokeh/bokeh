@@ -136,9 +136,10 @@ The :term:`BokehJS` unit tests help make sure that the individual sections of
 BokehJS function as expected. The unit tests for BokehJS are located in the
 :bokeh-tree:`bokehjs/test/unit/` folder and sub-folders.
 
-Use `Chai "expect" assertion style <Chai_>`_ when writing unit tests for the
-BokehJS testing framework. See the `API documentation of the Chai Assertion
-Library <Chai documentation_>`_ for more details on this style.
+The basic structure for writing tests for Bokeh's testing framework is in parts
+inspired by the `Chai "expect" assertion style <Chai_>`_. See the `API
+documentation of the Chai Assertion Library <Chai documentation_>`_ for some
+general ideas.
 
 Use ``expect()`` together with the following elements to create assertions for
 the BokehJS testing framework:
@@ -169,27 +170,13 @@ the BokehJS testing framework:
 * ``above``: asserts that the tested element is below (``>``) a value. Expects a
   ``number`` to compare to.
 
-Some examples:
+For example:
 
 .. code-block:: TypeScript
 
     expect(m.name).to.be.null
     expect(grid0).to.be.instanceof(Column)
     expect(h.msgid).to.not.be.equal(h2.msgid)
-
-In addition to ``expect()``, the BokehJS testing framework also uses an
-``expect_element()`` function. You can use this function in combination with
-``have`` and ``equal_attributes`` to test whether an element has certain
-attributes. ``equal_attributes`` accepts an array of strings as an optional
-``ignored_attributes`` parameter.
-
-For example:
-
-.. code-block:: TypeScript
-
-    expect_element(svg).to.have.equal_attributes(string_to_html(`<p>test</p>`))
-
-If you add new test files, you should add an entry in the directory index file.
 
 .. _contributor_guide_writing_tests_bokehjs_visual:
 
