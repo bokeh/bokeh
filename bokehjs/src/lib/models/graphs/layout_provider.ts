@@ -32,26 +32,41 @@ export abstract class LayoutProvider extends Model {
   }
 }
 
-export namespace NodeCoordinates {
+export namespace GraphCoordinates {
   export type Attrs = p.AttrsOf<Props>
   export type Props = CoordinateTransform.Props & {
     layout: p.Property<LayoutProvider>
   }
 }
 
-export interface NodeCoordinates extends NodeCoordinates.Attrs {}
+export interface GraphCoordinates extends GraphCoordinates.Attrs {}
 
-export class NodeCoordinates extends CoordinateTransform {
-  override properties: NodeCoordinates.Props
+export abstract class GraphCoordinates extends CoordinateTransform {
+  override properties: GraphCoordinates.Props
 
-  constructor(attrs?: Partial<NodeCoordinates.Attrs>){
+  constructor(attrs?: Partial<GraphCoordinates.Attrs>){
     super(attrs)
   }
 
   static {
-    this.define<NodeCoordinates.Props>(({Ref}) => ({
+    this.define<GraphCoordinates.Props>(({Ref}) => ({
       layout: [ Ref(LayoutProvider)],
     }))
+  }
+}
+
+export namespace NodeCoordinates {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = GraphCoordinates.Props
+}
+
+export interface NodeCoordinates extends NodeCoordinates.Attrs {}
+
+export class NodeCoordinates extends GraphCoordinates {
+  override properties: NodeCoordinates.Props
+
+  constructor(attrs?: Partial<NodeCoordinates.Attrs>){
+    super(attrs)
   }
 
   _v_compute(source: ColumnarDataSource): {x: Arrayable<number>, y: Arrayable<number>}{
@@ -62,27 +77,19 @@ export class NodeCoordinates extends CoordinateTransform {
 
 export namespace EdgeCoordinates {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = CoordinateTransform.Props & {
-    layout: p.Property<LayoutProvider>
-  }
+  export type Props = GraphCoordinates.Props
 }
 
 export interface EdgeCoordinates extends EdgeCoordinates.Attrs {}
 
-export class EdgeCoordinates extends CoordinateTransform {
+export class EdgeCoordinates extends GraphCoordinates {
   override properties: EdgeCoordinates.Props
 
   constructor(attrs?: Partial<EdgeCoordinates.Attrs>){
     super(attrs)
   }
 
-  static {
-    this.define<EdgeCoordinates.Props>(({Ref}) => ({
-      layout: [ Ref(LayoutProvider)],
-    }))
-  }
-
-  _v_compute(source: ColumnarDataSource): {x: Arrayable<number>[], y: Arrayable<number>[]}{
+  _v_compute(source: ColumnarDataSource): {x: Arrayable<number>[], y: Arrayable<number>[]} {
     const [x, y] = this.layout.get_edge_coordinates(source)
     return {x, y}
   }

@@ -23,11 +23,13 @@ from ..core.properties import (
     Any,
     Dict,
     Either,
+    Instance,
     Int,
     Seq,
     String,
 )
 from ..model import Model
+from .expressions import CoordinateTransform
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -35,9 +37,12 @@ from ..model import Model
 
 __all__ = (
     'EdgesAndLinkedNodes',
+    'EdgeCoordinates',
     'EdgesOnly',
+    'GraphCoordinates',
     'GraphHitTestPolicy',
     'LayoutProvider',
+    'NodeCoordinates',
     'NodesAndLinkedEdges',
     'NodesOnly',
     'StaticLayoutProvider',
@@ -57,7 +62,13 @@ class LayoutProvider(Model):
 
     '''
 
-    pass
+    @property
+    def node_coordinates(self):
+        return NodeCoordinates(layout= self)
+
+    @property
+    def edge_coordinates(self):
+        return EdgeCoordinates(layout= self)
 
 class StaticLayoutProvider(LayoutProvider):
     '''
@@ -77,6 +88,30 @@ class StaticLayoutProvider(LayoutProvider):
             2 : [0.86, 1],
         }
     """)
+
+@abstract
+class GraphCoordinates(CoordinateTransform):
+    '''
+    Abstract class for coordinate transform expression obtained from `LayoutProvider`
+
+    '''
+    layout = Instance(LayoutProvider)
+
+class NodeCoordinates(GraphCoordinates):
+    '''
+    Node coordinate expression obtained from `LayoutProvider`
+
+    '''
+
+    pass
+
+class EdgeCoordinates(GraphCoordinates):
+    '''
+    Node coordinate expression obtained from `LayoutProvider`
+
+    '''
+
+    pass
 
 @abstract
 class GraphHitTestPolicy(Model):
