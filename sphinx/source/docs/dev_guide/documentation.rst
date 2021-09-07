@@ -31,7 +31,7 @@ An easy way to start contributing to Bokeh's docs is to submit pull requests for
 any typos or other small errors you might find in Bokeh's documentation. *This
 is always appreciated!*
 
-In addition to quick fixes, check the list of `open documentatio issues`_ on
+In addition to quick fixes, check the list of `open documentation issues`_ on
 GitHub. This list contains several projects as a starting point.
 
 .. _contributor_guide_documentation_style_guidelines:
@@ -144,7 +144,7 @@ download the sample data.
 
 In order to build the documentation, you must set the
 :ref:`environment variable <userguide_settings>` ``GOOGLE_API_KEY``. The
-documentation includes some plots with maps and a valid Google API key is
+documentation includes some plots with maps, and a valid Google API key is
 required to build those plots correctly. You have two options:
 
 * Follow the instructions on the `Google developers website`_ to generate a new
@@ -171,8 +171,8 @@ Next, you have to reactivate your environment:
   conda activate bkdev
 
 Using ``conda env config vars set`` makes this environment variable part of your
-``bkdev`` environment. When you activate your ``bkdev`` environment, conda will
-from now on set this environment variable for you.
+``bkdev`` environment. Whenever you activate your ``bkdev`` environment, conda
+will now set this environment variable for you.
 
 3. Build Bokeh's documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -269,7 +269,7 @@ To speed up the build of your local documentation, you have the option to use
 an experimental Sphinx feature that distributes the build process over
 several CPUs. This only works on Linux and macOS (not on Windows). On macOS,
 this feature only works on Python 3.7. To use this experimental feature, add
-the option``SPHINXOPTS="-j auto"`` to your build command:
+the option ``SPHINXOPTS="-j auto"`` to your build command:
 
 .. code-block:: sh
 

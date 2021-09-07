@@ -65,8 +65,8 @@ Pull request workflow
     and use the button "New pull request".
 
     To create a pull request, make sure to select the default branch you used
-    when creating your branch as ``base`` (eg. ``branch-2.4``). Select your
-    branch as ``compare``.
+    when creating your branch as ``base`` (for example, ``branch-2.4``). Select
+    your branch as ``compare``.
 
 5. Write your pull request
     After creating your pull request, GitHub will compare your branch to the

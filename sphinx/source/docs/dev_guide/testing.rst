@@ -105,7 +105,7 @@ Whenever you work with Bokeh's Python code, you should run Bokeh's
 work also included changes to user interface elements, you should also run
 Bokeh's :ref:`Python integration tests <contributor_guide_testing_local_python_integration>`.
 
-These are some command line arguments for ``pytest`` that are helpful to know
+These are some command-line arguments for ``pytest`` that are helpful to know
 when working with Bokeh's pytest-based tests:
 
 * ``-k``: Provide a search string to filter for specific tests. See
@@ -148,7 +148,7 @@ Unit tests
 
 Code coverage (Python unit tests)
     To create a coverage report for Python unit tests, use ``pytest`` with the
-    command line options ``--cov=bokeh`` and ``--cov-config=tests/.coveragerc``:
+    command-line options ``--cov=bokeh`` and ``--cov-config=tests/.coveragerc``:
 
     .. code-block:: sh
 
@@ -297,7 +297,7 @@ This will only run integration tests that contain the string "Legend".
 Testing with devtools server
 ''''''''''''''''''''''''''''
 
-In addition to running BokehJS tests from the command line, you can also use
+In addition to running BokehJS tests from the command-line, you can also use
 the BokehJS devtools server. This system requires the Chrome web browser to be
 available on your system. Use the BokehJS devtools server to run tests and
 review the visual tests' output.
@@ -375,12 +375,12 @@ Run examples tests
 
 In addition to Bokeh's Python- and JavaScript-focused tests, Bokeh uses a suite
 of examples tests. This suite runs a selection of the examples in the Bokeh
-repository to check wether each of the examples builds without generating
+repository to check whether each of the examples builds without generating
 errors. Running these tests also generates a report with screenshots of those
 plots.
 
 The examples tests use a specialized testing framework, including a custom
-configuration of Chrome. Therefore, it is **recommended to not run those
+configuration of Chrome. Therefore, it is **recommended not to run those
 tests locally**. Instead, :ref:`Bokeh's CI <contributor_guide_testing_ci>` runs all
 examples tests once you :ref:`create a Pull Request <contributor_guide_pull_requests>`.
 

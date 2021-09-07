@@ -151,7 +151,7 @@ case, you need to adjust all subsequent ``npm`` commands to use the local
 version installed under ``bokehjs/node_modules``.
 
 Next, still in the ``bokehjs`` subdirectory, run the following command
-to install all of BokehJS' JavaScript dependencies:
+to install all the JavaScript dependencies for BokehJS:
 
 .. code-block:: sh
 
@@ -247,7 +247,7 @@ Unless you know what you are doing, you should choose option 1 here. At the very
 least, you need to build BokehJS the first time you set up your local
 development environment.
 
-You can skip this prompt by supplying the appropriate command line option
+You can skip this prompt by supplying the appropriate command-line option
 to ``setup.py``. For example:
 
 * ``python setup.py develop --build-js``
@@ -388,7 +388,7 @@ Use ``server-dev``
             set BOKEH_RESOURCES=server-dev
 
     This way, you have access to more development functions, such as
-    `source maps` to help debugging the original TypeScript instead of the
+    `source maps` to help to debug the original TypeScript instead of the
     compiled JavaScript.
 
 See :class:`~bokeh.resources.Resources` for more details.
@@ -432,7 +432,7 @@ human-readable, and Bokeh will not open a new browser window each time |show| is
 called.
 
 .. note::
-    Setting ``BOKEH_DEV=true`` enables ``BOKEH_RESOURCES=absolute-dev`` which
+    Setting ``BOKEH_DEV=true`` enables ``BOKEH_RESOURCES=absolute-dev``, which
     causes rendering problems when used with :term:`Bokeh server <Server>` or in
     :ref:`Jupyter notebooks <userguide_jupyter>`. To avoid those problems,
     use the following settings instead:
@@ -546,12 +546,12 @@ expected. Make sure your
 :ref:`Node packages <contributor_guide_setup_installing_node_packages>`, and
 :ref:`local build <contributor_guide_setup_install_locally>` are up to date.
 
-If you keep geting errors after updating an older environment, use
+If you keep getting errors after updating an older environment, use
 ``conda remove --name bkdev --all``, delete your local ``bokeh`` folder,
-and start afresh, following the steps in this guide from
-:ref:`the beginning <contributor_guide_setup_preliminaries>`.
+and reinstall your development environment, following the steps in this guide
+from :ref:`the beginning <contributor_guide_setup_preliminaries>`.
 
-For more information on running and installign Bokeh, check the
+For more information on running and installing Bokeh, check the
 :ref:`additional resources available to contributors <contributor_guide_resources>`.
 Please feel free to ask at the `Bokeh Discourse`_ or `Bokeh's contributor
 Slack`_.

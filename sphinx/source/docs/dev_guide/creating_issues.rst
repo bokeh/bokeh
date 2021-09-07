@@ -92,7 +92,7 @@ Stack traceback and/or browser JavaScript console output
 Screenshots or screencasts of the bug in action
     If possible, add additional information that might help understand what
     your bug report is about. This can be screenshots or `screencasts`_ that
-    illustrate the behavior you are filing an issues about, for example.
+    demonstrate the behavior you are filing an issues about, for example.
 
 .. _contributor_guide_issues_kinds_feature:
 

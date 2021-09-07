@@ -213,7 +213,7 @@ Therefore, the best, most authoritative source of information for anyone
 writing bindings for Bokeh are the reference guide sections for the
 :ref:`bokeh.core.properties` and |bokeh.models|.
 
-Another ressource for working on bindings is Bokeh's
+Another resource for working on bindings is Bokeh's
 :bokeh-tree:`scripts/spec.py` script. This Python script generates a JSON
 description of every model and property in Bokeh,
 including types, defaults, and
