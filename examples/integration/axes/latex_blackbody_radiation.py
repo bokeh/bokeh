@@ -1,8 +1,9 @@
+import numpy as np
+
 from bokeh.io import curdoc
 from bokeh.models import TeX
 from bokeh.palettes import Spectral
 from bokeh.plotting import figure, show
-import numpy as np
 
 fig = figure(
     width=700, height=500, toolbar_location=None,

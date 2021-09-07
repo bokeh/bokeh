@@ -1,6 +1,7 @@
+import numpy as np
+
 from bokeh.models import FixedTicker, TeX
 from bokeh.plotting import figure, show
-import numpy as np
 
 fig = figure(width=650, height=400, toolbar_location=None, title="Normal (Gaussian) Distribution")
 fig.min_border_bottom = 50
