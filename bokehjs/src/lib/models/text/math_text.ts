@@ -8,8 +8,8 @@ import {color2css} from "core/util/color"
 import {Size} from "core/types"
 import {View} from "core/view"
 import {RendererView} from "models/renderers/renderer"
-import {GraphicsBox, TextHeightMetric, text_width, Position} from "core/graphics"
-import {font_metrics, parse_css_font_size} from "core/util/text"
+import {TextBox, TextHeightMetric, text_width, Position, Padding, TextAlign} from "core/graphics"
+import {font_metrics, parse_css_font_size, FontMetrics} from "core/util/text"
 import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
 import {BaseText} from "./base_text"
@@ -18,20 +18,69 @@ import {MathJaxProvider, BundleProvider} from "./providers"
 
 const default_provider: MathJaxProvider = new BundleProvider()
 
+// export class MathJaxBox extends TextBox {
+
+// }
 /**
  * Helper class to rendering MathText into Canvas
  */
-export abstract class MathTextView extends View implements GraphicsBox {
+export abstract class MathTextView extends View implements TextBox {
   override model: MathText
   override parent: RendererView
 
-  angle?: number
+  _align: TextAlign = "left"
+
+  set_text_visuals(v: visuals.Text): void {
+    const color = v.text_color.get_value()
+    const alpha = v.text_alpha.get_value()
+    const style = v.text_font_style.get_value()
+    let size = v.text_font_size.get_value()
+    const face = v.text_font.get_value()
+
+    const {font_size_scale, base_font_size} = this
+    const res = parse_css_font_size(size)
+    if (res != null) {
+      let {value, unit} = res
+      value *= font_size_scale
+      if (unit == "em" && base_font_size) {
+        value *= base_font_size
+        unit = "px"
+      }
+      size = `${value}${unit}`
+    }
+
+    const font = `${style} ${size} ${face}`
+    this.font = font
+    this.color = color2css(color, alpha)
+    this.line_height = v.text_line_height.get_value()
+  }
+
+  get_baseline_anchor(): number {
+    const {height} = this.dimensions()
+    return 0.5*height
+  }
+
+  _angle?: number | undefined
+
+  line_height: number
+  _text_line(_fmetrics: FontMetrics): { height: number; ascent: number; descent: number } {
+    throw new Error("Method not implemented.")
+  }
+  get nlines(): number {
+    throw new Error("Method not implemented.")
+  }
+  padding?: Padding
+  text_height_metric?: TextHeightMetric | undefined
+
+  angle: number
+  width?: {value: number, unit: "%"}
+  height?: {value: number, unit: "%"}
+
   _position: Position = {sx: 0, sy: 0}
-  // Align does nothing, needed to maintain compatibility with TextBox,
-  // to align you need to use TeX Macros.
+  // TODO: implement align macro
   // http://docs.mathjax.org/en/latest/input/tex/macros/index.html?highlight=align
   align: "left" | "center" | "right" | "justify" = "left"
-  // Same for infer_text_height
+  // Just to be compatible with textbox
   infer_text_height(): TextHeightMetric {
     return "ascent_descent"
   }
@@ -48,8 +97,8 @@ export abstract class MathTextView extends View implements GraphicsBox {
   }
 
   font_size_scale: number = 1.0
-  private font: string
-  private color: string
+  color: string
+  font: string
   private svg_image: CanvasImage | null = null
   private svg_element: SVGElement
 
@@ -58,7 +107,7 @@ export abstract class MathTextView extends View implements GraphicsBox {
   }
 
   _rect(): Rect {
-    const {width, height} = this._size()
+    const {width, height} = this.dimensions()
     const {x, y} = this._computed_position()
 
     const bbox = new BBox({x, y, width, height})
@@ -87,12 +136,6 @@ export abstract class MathTextView extends View implements GraphicsBox {
 
     if (this.provider.status == "not_started")
       await this.provider.fetch()
-
-    if (this.provider.status == "not_started" || this.provider.status == "loading")
-      this.provider.ready.connect(() => this.load_image())
-
-    if (this.provider.status == "loaded")
-      await this.load_image()
   }
 
   override connect_signals(): void {
@@ -101,36 +144,33 @@ export abstract class MathTextView extends View implements GraphicsBox {
   }
 
   set visuals(v: visuals.Text) {
-    const color = v.text_color.get_value()
-    const alpha = v.text_alpha.get_value()
-    const style = v.text_font_style.get_value()
-    let size = v.text_font_size.get_value()
-    const face = v.text_font.get_value()
-
-    const {font_size_scale, _base_font_size} = this
-    const res = parse_css_font_size(size)
-    if (res != null) {
-      let {value, unit} = res
-      value *= font_size_scale
-      if (unit == "em" && _base_font_size) {
-        value *= _base_font_size
-        unit = "px"
-      }
-      size = `${value}${unit}`
-    }
-
-    const font = `${style} ${size} ${face}`
-    this.font = font
-    this.color = color2css(color, alpha)
+    this.set_text_visuals(v)
   }
 
   /**
    * Calculates position of element after considering
    * anchor and dimensions
    */
-  protected _computed_position(): {x: number, y: number} {
-    const {width, height} = this._size()
+  _computed_position(): {x: number, y: number} {
+    const {width, height} = this.dimensions()
     const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
+
+    if (this.has_image_loaded) {
+      return {x:sx, y: this.get_v_align() + sy}
+    }
+
+    let y = sy - (() => {
+      if (isNumber(y_anchor))
+        return y_anchor*height
+      else {
+        switch (y_anchor) {
+          case "top": return 0
+          case "center": return 0.5*height
+          case "bottom": return height
+          case "baseline": return 0.5*height
+        }
+      }
+    })()
 
     const x = sx - (() => {
       if (isNumber(x_anchor))
@@ -144,19 +184,6 @@ export abstract class MathTextView extends View implements GraphicsBox {
       }
     })()
 
-    const y = sy - (() => {
-      if (isNumber(y_anchor))
-        return y_anchor*height
-      else {
-        switch (y_anchor) {
-          case "top": return 0
-          case "center": return 0.5*height
-          case "bottom": return height
-          case "baseline": return 0.5*height
-        }
-      }
-    })()
-
     return {x, y}
   }
 
@@ -164,7 +191,7 @@ export abstract class MathTextView extends View implements GraphicsBox {
    * Uses the width, height and given angle to calculate the size
   */
   size(): Size {
-    const {width, height} = this._size()
+    const {width, height} = this.dimensions()
     const {angle} = this
 
     if (!angle)
@@ -180,14 +207,14 @@ export abstract class MathTextView extends View implements GraphicsBox {
     }
   }
 
-  private get_text_dimensions(): Size {
+  private get_text_dimensions(fmetrics: FontMetrics): Size {
     return {
       width: text_width(this.model.text, this.font),
-      height: font_metrics(this.font).height,
+      height: fmetrics.height,
     }
   }
 
-  private get_image_dimensions(): Size {
+  private get_image_dimensions(fmetrics: FontMetrics): Size {
     const heightEx = parseFloat(
       this.svg_element
         .getAttribute("height")
@@ -201,13 +228,18 @@ export abstract class MathTextView extends View implements GraphicsBox {
     )
 
     return {
-      width: font_metrics(this.font).x_height * widthEx,
-      height: font_metrics(this.font).x_height * heightEx,
+      width: fmetrics.x_height * widthEx,
+      height: fmetrics.x_height * heightEx,
     }
   }
 
-  _size(): Size {
-    return this.has_image_loaded ? this.get_image_dimensions() : this.get_text_dimensions()
+  dimensions(): Size & {metrics: FontMetrics} {
+    const fmetrics = font_metrics(this.font)
+    const {width, height} = this.has_image_loaded ? this.get_image_dimensions(fmetrics) : this.get_text_dimensions(fmetrics)
+    const w_scale = this.width?.unit == "%" ? this.width.value : 1
+    const h_scale = this.height?.unit == "%" ? this.height.value : 1
+
+    return {width: width*w_scale, height: height*h_scale, metrics: fmetrics}
   }
 
   bbox(): BBox {
@@ -305,6 +337,14 @@ export abstract class MathTextView extends View implements GraphicsBox {
    * been loaded draws the image in it otherwise draws the model's text.
   */
   paint(ctx: Context2d): void {
+    if (!this.svg_image) {
+      if (this.provider.status == "not_started" || this.provider.status == "loading")
+        this.provider.ready.connect(() => this.load_image())
+
+      if (this.provider.status == "loaded")
+        this.load_image()
+    }
+
     ctx.save()
     const {sx, sy} = this.position
 
@@ -315,22 +355,49 @@ export abstract class MathTextView extends View implements GraphicsBox {
     }
 
     const {x, y} = this._computed_position()
+    const {width, height, metrics} = this.dimensions()
 
-    if (this.svg_image != null) {
-      const {width, height} = this.get_image_dimensions()
+    if (this.svg_image) {
       ctx.drawImage(this.svg_image, x, y, width, height)
     } else {
       ctx.fillStyle = this.color
       ctx.font = this.font
       ctx.textAlign = "left"
       ctx.textBaseline = "alphabetic"
-      ctx.fillText(this.model.text, x, y + font_metrics(this.font).ascent)
+      ctx.fillText(this.model.text, x, y + metrics.ascent)
     }
     ctx.restore()
 
     if (!this._has_finished && (this.provider.status == "failed" || this.has_image_loaded)) {
       this._has_finished = true
       this.parent.notify_finished_after_paint()
+    }
+  }
+
+  private get_v_align(): number {
+    const fmetrics = font_metrics(this.font)
+    const {y_anchor = "center"} = this.position
+    const {height} = this.get_image_dimensions(fmetrics)
+
+    const v_align = parseFloat(
+      this.svg_element
+        ?.getAttribute("style")
+        ?.replace(/\-?[A-z\: ;]/g, "") ?? "0"
+    ) * fmetrics.x_height
+
+    let padtop = 0
+    let padbottom = 0
+
+    if (height < fmetrics.height) {
+      padtop = fmetrics.ascent - (height + v_align)
+      padbottom = -v_align
+    }
+
+    switch (y_anchor) {
+      case "top": return padtop
+      case "bottom": return padbottom
+      default:
+        return 0
     }
   }
 }

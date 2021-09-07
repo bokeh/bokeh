@@ -31,12 +31,13 @@ export type Position = {
 
 type Val = number | {value: number, unit: "px" | "%"}
 type Extents = {left: Val, right: Val, top: Val, bottom: Val}
-type Padding = Val | [v: Val, h: Val] | [top: Val, right: Val, bottom: Val, left: Val] | Extents
+export type Padding = Val | [v: Val, h: Val] | [top: Val, right: Val, bottom: Val, left: Val] | Extents
 export type TextHeightMetric = "x" | "cap" | "ascent" | "x_descent" | "cap_descent" | "ascent_descent"
+type Align = "left" | "center" | "right"
 
 export abstract class GraphicsBox {
   _position: Position = {sx: 0, sy: 0}
-  angle?: number
+  _angle?: number
   width?: {value: number, unit: "%"}
   height?: {value: number, unit: "%"}
   padding?: Padding
@@ -62,10 +63,18 @@ export abstract class GraphicsBox {
     return this._position
   }
 
+  set angle(a: number) {
+    this._angle = a
+  }
+
+  get angle(): number {
+    return this._angle || 0
+  }
+
   abstract set visuals(v: visuals.Text | visuals.Line | visuals.Fill)
 
   abstract _rect(): Rect
-  abstract _size(): Size
+  abstract dimensions(): Size
   abstract paint(ctx: Context2d): void
 
   infer_text_height(): TextHeightMetric {
@@ -84,7 +93,7 @@ export abstract class GraphicsBox {
   }
 
   size(): Size {
-    const {width, height} = this._size()
+    const {width, height} = this.dimensions()
     const {angle} = this
     if (!angle)
       return {width, height}
@@ -147,15 +156,24 @@ export abstract class GraphicsBox {
   }
 }
 
+export type TextAlign = Align | "justify"
 export class TextBox extends GraphicsBox {
   text: string
   color: string
   font: string
   line_height: number
-  align: "left" | "center" | "right" | "justify" = "left"
+  _align: TextAlign = "left"
   //padding: Padding
 
-  set visuals(v: visuals.Text) {
+  set align(a: TextAlign) {
+    this._align = a
+  }
+
+  get align() {
+    return this._align
+  }
+
+  set_text_visuals(v: visuals.Text) {
     const color = v.text_color.get_value()
     const alpha = v.text_alpha.get_value()
     const style = v.text_font_style.get_value()
@@ -180,12 +198,16 @@ export class TextBox extends GraphicsBox {
     this.line_height = v.text_line_height.get_value()
   }
 
+  set visuals(v: visuals.Text) {
+    this.set_text_visuals(v)
+  }
+
   constructor({text}: {text: string}) {
     super()
     this.text = text
   }
 
-  override infer_text_height() {
+  override infer_text_height(): TextHeightMetric {
     if (this.text.includes("\n"))
       return "ascent_descent"
     else {
@@ -277,7 +299,7 @@ export class TextBox extends GraphicsBox {
     return lines.length
   }
 
-  _size(): Size & {metrics: FontMetrics} {
+  dimensions(): Size {
     const {font} = this
 
     const fmetrics = font_metrics(font)
@@ -313,12 +335,12 @@ export class TextBox extends GraphicsBox {
     const width = max(widths)*w_scale
     const height = empty ? 0 : (text_height + line_spacing*(nlines - 1))*h_scale
 
-    return {width, height, metrics: fmetrics}
+    return {width, height}
   }
 
-  _computed_position(size: Size, metrics: FontMetrics, nlines: number): {x: number, y: number} {
-    const {width, height} = size
-    const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
+  _computed_position(): {x: number, y: number} {
+    const {width, height} = this.dimensions()
+    const {sx, sy, x_anchor="left", y_anchor="center"} = this._position
 
     const x = sx - (() => {
       if (isNumber(x_anchor))
@@ -340,23 +362,7 @@ export class TextBox extends GraphicsBox {
           case "top": return 0
           case "center": return 0.5*height
           case "bottom": return height
-          case "baseline": {
-            if (nlines == 1) {
-              const metric = this.text_height_metric ?? this.infer_text_height()
-              switch (metric) {
-                case "x":
-                case "x_descent":
-                  return metrics.x_height
-                case "cap":
-                case "cap_descent":
-                  return metrics.cap_height
-                case "ascent":
-                case "ascent_descent":
-                  return metrics.ascent
-              }
-            } else
-              return 0.5*height
-          }
+          case "baseline": return this.get_baseline_anchor()
         }
       }
     })()
@@ -364,12 +370,32 @@ export class TextBox extends GraphicsBox {
     return {x, y}
   }
 
-  _rect(): Rect {
-    const {width, height, metrics} = this._size()
+  get_baseline_anchor() {
+    const {height} = this.dimensions()
     const nlines = this.text.split("\n").length
-    const {x, y} = this._computed_position({width, height}, metrics, nlines)
+    const fmetrics = font_metrics(this.font)
 
+    if (nlines == 1) {
+      const metric = this.text_height_metric ?? this.infer_text_height()
+      switch (metric) {
+        case "x":
+        case "x_descent":
+          return fmetrics.x_height
+        case "cap":
+        case "cap_descent":
+          return fmetrics.cap_height
+        case "ascent":
+        case "ascent_descent":
+          return fmetrics.ascent
+      }
+    } else return 0.5*height
+  }
+
+  _rect(): Rect {
+    const {width, height} = this.dimensions()
+    const {x, y} = this._computed_position()
     const bbox = new BBox({x, y, width, height})
+
     return bbox.rect
   }
 
@@ -384,28 +410,6 @@ export class TextBox extends GraphicsBox {
 
     const widths = lines.map((line) => text_width(line, font))
     const text_line = this._text_line(fmetrics)
-    const text_height = text_line.height*nlines
-
-    /*
-    const heights: number[] = []
-    const ascents: number[] = []
-    const descents: number[] = []
-
-    for (const line of lines) {
-      const metrics = [...line].map((c) => glyph_metrics(c, font))
-      const max_ascent = Math.max(max(metrics.map((m) => m.ascent)), fmetrics.cap_height)
-      const max_descent = max(metrics.map((m) => m.descent))
-      ascents.push(max_ascent)
-      descents.push(max_descent)
-      heights.push(max_ascent + max_descent)
-    }
-    */
-
-    const w_scale = this.width?.unit == "%" ? this.width.value : 1
-    const h_scale = this.height?.unit == "%" ? this.height.value : 1
-
-    const width = max(widths)*w_scale
-    const height = (text_height + line_spacing*(nlines - 1))*h_scale
 
     ctx.save()
     ctx.fillStyle = this.color
@@ -423,7 +427,8 @@ export class TextBox extends GraphicsBox {
       ctx.translate(-sx, -sy)
     }
 
-    let {x, y} = this._computed_position({width, height}, fmetrics, nlines)
+    const {width} = this.dimensions()
+    let {x, y} = this._computed_position()
 
     if (align == "justify") {
       for (let i = 0; i < nlines; i++) {
@@ -526,7 +531,7 @@ export class BaseExpo extends GraphicsBox {
     return bbox.translate(x, y).rect
   }
 
-  _size(): Size {
+  dimensions(): Size {
     const bs = this.base.size()
     const es = this.expo.size()
 
@@ -566,7 +571,7 @@ export class BaseExpo extends GraphicsBox {
   }
 
   _computed_position(): {x: number, y: number} {
-    const {width, height} = this._size()
+    const {width, height} = this.dimensions()
     const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
 
     const x = sx - (() => {
@@ -639,5 +644,144 @@ export class GraphicsBoxes {
       height = Math.max(height, size.height)
     }
     return {width, height}
+  }
+}
+
+/** Just like the GraphicsBoxes but can be displayed in order */
+export class GraphicsContainer extends TextBox implements GraphicsBoxes {
+  items: TextBox[]
+
+  constructor(items: TextBox[]) {
+    super({text: items.map(item => item.text).join("")})
+    this.items = items
+  }
+
+  override set base_font_size(v: number | null | undefined) {
+    if (v != null)
+      this._base_font_size = v
+
+    for (const item of this.items) {
+      item.base_font_size = v
+    }
+  }
+
+  override get base_font_size(): number {
+    return this._base_font_size
+  }
+
+  get length(): number {
+    return this.items.length
+  }
+
+  override set visuals(v: visuals.Text) {
+    this.set_text_visuals(v)
+
+    for (const item of this.items) {
+      item.visuals = v
+    }
+
+    const metric_map = {x: 0, cap: 1, ascent: 2, x_descent: 3, cap_descent: 4, ascent_descent: 5}
+    const common = max_by(this.items.map((item) => item.infer_text_height()), (metric) => metric_map[metric])
+
+    for (const item of this.items) {
+      item.text_height_metric = common
+    }
+  }
+
+  override set angle(a: number) {
+    this._angle = a
+
+    for (const item of this.items) {
+      item.angle = a
+    }
+  }
+
+  max_size(): Size {
+    let width = 0
+    let height = 0
+    for (const item of this.items) {
+      const size = item.size()
+      width = Math.max(width, size.width)
+      height = Math.max(height, size.height)
+    }
+    return {width, height}
+  }
+
+  override infer_text_height(): TextHeightMetric {
+    for (const item of this.items)
+      if (item instanceof TextBox)
+        return item.infer_text_height()
+
+    return "ascent_descent"
+  }
+
+  override dimensions(): Size {
+    let width = 0
+    for (const item of this.items) {
+      const size = item.dimensions()
+      width += size.width
+    }
+    return {width, height: this.max_size().height}
+  }
+
+  override set position(pos: Position) {
+    this._position = {...pos}
+    const {x} = this._computed_position()
+    this.compute_items_positions({...pos, sx: x})
+  }
+
+  private compute_items_positions(pos: Position, n?: number): void {
+    if (typeof n === "undefined")
+      n = 0
+
+    const in_bounds = (i: number) => i < this.items.length && i >= 0
+    const previous_index = n-1
+    const next_index = n+1
+    const {sx, sy, y_anchor="center"} = pos
+    const {height: container_height} = this.max_size()
+    const {height} = this.items[n].dimensions()
+
+    const item_sy = sy + (() => {
+      if (isNumber(y_anchor))
+        return -y_anchor*height
+      else {
+        switch (y_anchor) {
+          case "top": return 0
+          case "center": return 0.5*(container_height - height)
+          case "bottom": return container_height - height
+          case "baseline": return 0.5*(container_height - height)
+        }
+      }
+    })()
+
+    // first item
+    if (!in_bounds(previous_index)) {
+      this.items[n].position = {...pos, sy: item_sy, x_anchor: "left", y_anchor: "top"}
+      return this.compute_items_positions({...pos}, next_index)
+    }
+
+    const {width} = this.items[previous_index].dimensions()
+    pos.sx = sx + width
+
+    this.items[n].position = {...pos, sy: item_sy, x_anchor: "left", y_anchor: "top"}
+    if (!in_bounds(next_index)) return
+    this.compute_items_positions({...pos}, next_index)
+  }
+
+  override set align(a: Align) {
+    this._align = a
+
+    // for (const item of this.items)
+    //   if (item instanceof TextBox)
+    //     item.align = a
+  }
+
+  override paint(ctx: Context2d): void {
+    this.items.forEach(item => item.paint(ctx))
+  }
+
+  override get_baseline_anchor(): number {
+    const {height} = this.dimensions()
+    return 0.5*height
   }
 }

@@ -14,7 +14,7 @@ import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
-import {GraphicsBoxes, TextBox} from "core/graphics"
+import {GraphicsBoxes, GraphicsContainer, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
 import {MathText, MathTextView, TeX} from "../text/math_text"
 import {BaseText} from "../text/base_text"
@@ -45,8 +45,9 @@ export class AxisView extends GuideRendererView {
   panel: Panel
   layout: Layoutable
 
-  private axis_label_math_text_view: MathTextView
+  // private axis_label_math_text_view: MathTextView
   private major_label_math_text_views: {[key: string]: MathTextView} = {}
+  private axis_label_graphics: GraphicsContainer
 
   /**
    * Lazy initialize is called when views are instantiated,
@@ -59,11 +60,23 @@ export class AxisView extends GuideRendererView {
 
 
     if (axis_label != null) {
-      const math_text = TeX.from_text_like(axis_label)
+      if (TeX.includes_math(axis_label)) {
+        const parts = TeX.find_math_parts(axis_label)
+        const graphics: TextBox[] = []
 
-      if (math_text) {
-        this.model.axis_label = math_text
-        this.axis_label_math_text_view = await build_view(math_text, {parent: this})
+        for (let i = 0; i < parts.length; i++) {
+          const part = parts[i];
+          graphics.push(part instanceof MathText
+            ? await build_view(part, {parent: this})
+            : new TextBox(part)
+          )
+        }
+
+        this.axis_label_graphics = new GraphicsContainer(graphics)
+      } else if (axis_label instanceof MathText) {
+        this.axis_label_graphics = new GraphicsContainer([await build_view(axis_label, {parent: this})])
+      } else {
+        this.axis_label_graphics = new GraphicsContainer([new TextBox(isString(axis_label) ? {text: axis_label} : axis_label)])
       }
     }
 
@@ -182,19 +195,13 @@ export class AxisView extends GuideRendererView {
     if (!axis_label)
       return 0
 
-    const text = isString(axis_label) ? axis_label : axis_label.text
-
-    const axis_label_graphics = axis_label instanceof MathText
-      ? this.axis_label_math_text_view
-      : new TextBox({text})
+    const {axis_label_graphics} = this
 
     const padding = 3
 
     axis_label_graphics.visuals = this.visuals.axis_label_text
     axis_label_graphics.angle = this.panel.get_label_angle_heuristic("parallel")
-
-    if (isNumber(this.plot_view.base_font_size))
-      axis_label_graphics.base_font_size = this.plot_view.base_font_size
+    axis_label_graphics.base_font_size = this.plot_view.base_font_size
 
     const size = axis_label_graphics.size()
     const extent = this.dimension == 0 ? size.height : size.width
@@ -234,18 +241,11 @@ export class AxisView extends GuideRendererView {
       y_anchor: vertical_align,
     }
 
-    const text = isString(axis_label) ? axis_label : axis_label.text
-
-    const axis_label_graphics = axis_label instanceof MathText
-      ? this.axis_label_math_text_view
-      : new TextBox({text})
+    const {axis_label_graphics} = this
 
     axis_label_graphics.visuals = this.visuals.axis_label_text
     axis_label_graphics.angle = this.panel.get_label_angle_heuristic("parallel")
-
-    if (this.plot_view.base_font_size)
-      axis_label_graphics.base_font_size = this.plot_view.base_font_size
-
+    axis_label_graphics.base_font_size = this.plot_view.base_font_size
     axis_label_graphics.position = position
     axis_label_graphics.align = align
     axis_label_graphics.paint(ctx)
@@ -593,7 +593,6 @@ export class AxisView extends GuideRendererView {
         return cross_range.end
     }
   }
-  // }}}
 
   override serializable_state(): SerializableState {
     return {
@@ -603,8 +602,12 @@ export class AxisView extends GuideRendererView {
   }
 
   override remove(): void {
-    if (this.axis_label_math_text_view)
-      this.axis_label_math_text_view.remove()
+    for(const item of this.axis_label_graphics.items)
+      if (item instanceof MathTextView)
+        item.remove()
+
+    for(const key in this.major_label_math_text_views)
+      this.major_label_math_text_views[key].remove()
 
     super.remove()
   }
@@ -613,10 +616,14 @@ export class AxisView extends GuideRendererView {
     if (!super.has_finished())
       return false
 
-    if (this.axis_label_math_text_view) {
-      if (!this.axis_label_math_text_view.has_finished())
+    for(const item of this.axis_label_graphics.items)
+      if (item instanceof MathTextView)
+        if (!item.has_finished())
+          return false
+
+    for(const key in this.major_label_math_text_views)
+      if (!this.major_label_math_text_views[key].has_finished())
         return false
-    }
 
     return true
   }
