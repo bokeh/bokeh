@@ -21,19 +21,18 @@ nu = np.linspace(0, 1e15, 500)  # Frequency (1/s)
 
 for i, T in enumerate(Ts):
     B_nu = spectral_radiance(nu, T)
-    fig.line(nu, B_nu, line_width=2, legend_label=f"T = {T} K", line_color=palette[i])
+    fig.line(nu/1e15, B_nu/1e-9, line_width=2, legend_label=f"T = {T} K", line_color=palette[i])
 
 # Peak radiance line.
 Ts = np.linspace(1900, 6101, 50)
 peak_freqs = Ts*5.879e10
 peak_radiance = spectral_radiance(peak_freqs, Ts)
-fig.line(peak_freqs, peak_radiance, line_color="silver", line_dash="dashed", line_width=2, legend_label="Peak radiance")
+fig.line(peak_freqs/1e15, peak_radiance/1e-9, line_color="silver", line_dash="dashed", line_width=2, legend_label="Peak radiance")
 
 curdoc().theme = 'dark_minimal'
-fig.xaxis.axis_label = TeX(text=r"\color{white} \nu \:(s^{-1})")
+fig.y_range.start = 0
+fig.xaxis.axis_label = TeX(text=r"\color{white} \nu \:(10^{15} s^{-1})")
 fig.yaxis.axis_label = TeX(
-    text=r"\color{white} B_\nu(\nu, T) = \frac{2h\nu^3}{c^2} \frac{1}{\exp(h\nu/kT)-1} \quad(J s m^{-3})")
-fig.xaxis.formatter.precision = 0
-fig.yaxis.formatter.precision = 0
+    text=r"\color{white} B_\nu(\nu, T) = \frac{2h\nu^3}{c^2} \frac{1}{\exp(h\nu/kT)-1} \quad(10^{-9} J s m^{-3})")
 
 show(fig)

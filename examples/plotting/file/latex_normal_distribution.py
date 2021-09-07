@@ -3,8 +3,7 @@ import numpy as np
 from bokeh.models import FixedTicker, TeX
 from bokeh.plotting import figure, show
 
-fig = figure(width=650, height=400, toolbar_location=None, title="Normal (Gaussian) Distribution")
-fig.min_border_bottom = 50
+fig = figure(width=670, height=400, toolbar_location=None, title="Normal (Gaussian) Distribution")
 
 n = 1000
 rng = np.random.default_rng(825914)
@@ -25,6 +24,8 @@ fig.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
 x = np.linspace(-3.0, 3.0, 100)
 pdf = np.exp(-0.5*x**2) / np.sqrt(2.0*np.pi)
 fig.line(x, pdf, line_width=2, line_color="navy", legend_label="Probability Density Function")
+
+fig.y_range.start = 0
 
 fig.xaxis.axis_label = TeX(text=r"x")
 fig.yaxis.axis_label = TeX(
