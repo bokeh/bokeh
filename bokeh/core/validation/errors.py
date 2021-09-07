@@ -201,7 +201,7 @@ DUPLICATE_FACTORS = Error(
 BAD_EXTRA_RANGE_NAME = Error(
     1020,
     "BAD_EXTRA_RANGE_NAME",
-    "An extra range name is configued with a name that does not correspond to any range")
+    "An extra range name is configured with a name that does not correspond to any range")
 EQUAL_SLIDER_START_END = Error(
     1021,
     "EQUAL_SLIDER_START_END",
