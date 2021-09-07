@@ -418,13 +418,30 @@ def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
     def model_requires_mathjax(model: Model) -> bool:
         from ..models.axes import Axis
 
+        def includes_math(text: str) -> bool:
+            if "$$" in text:
+                index = text.find("$$")
+                if "$$" in text[index + 2:]:
+                    return True
+
+            if "\\[" in text:
+                index = text.find("\\[")
+                if "\\]" in text[index + 2:]:
+                    return True
+
+            if "\\(" in text:
+                index = text.find("\\(")
+                if "\\)" in text[index + 2:]:
+                    return True
+
+            return False
+
         if isinstance(model, Axis):
-            # TODO: implement check for $$...$$ and \[...\] for displayed mathematics, and \(...\)
-            if isinstance(model.axis_label, str) and "$" in model.axis_label:
+            if isinstance(model.axis_label, str) and includes_math(model.axis_label):
                 return True
 
             for val in model.major_label_overrides.values():
-                if isinstance(val, str) and "$" in val:
+                if isinstance(val, str) and includes_math(val):
                     return True
 
         return False
