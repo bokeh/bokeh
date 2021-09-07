@@ -68,15 +68,21 @@ def test_mathtext() -> None:
     return test_mathtext
 
 @pytest.fixture
-def test_mathstring() -> None:
+def test_mathstring_axis_label() -> None:
     from bokeh.models import LinearAxis
-    test_mathstring = LinearAxis(axis_label = "$sin(x)$")
+    test_mathstring = LinearAxis(axis_label = "$$sin(x)$$")
+    return test_mathstring
+
+@pytest.fixture
+def test_mathstring_major_label_overrides() -> None:
+    from bokeh.models import LinearAxis
+    test_mathstring = LinearAxis(major_label_overrides = {0: "$$sin(x)$$"})
     return test_mathstring
 
 @pytest.fixture
 def test_plaintext() -> None:
     from bokeh.models import PlainText
-    test_plaintext = PlainText("$sin(x)$")
+    test_plaintext = PlainText("$$sin(x)$$")
     return test_plaintext
 
 #-----------------------------------------------------------------------------
@@ -299,18 +305,19 @@ class Test__use_mathjax:
         d.add_root(test_mathtext)
         assert beb._use_mathjax([d]) is True
 
-    def test_with_mathstring(self, test_plot, test_glplot, test_table, test_widget, test_mathtext, test_mathstring) -> None:
-        assert beb._use_mathjax([test_mathstring]) is True
-        assert beb._use_mathjax([test_plot, test_mathstring]) is True
-        assert beb._use_mathjax([test_plot, test_glplot, test_mathstring]) is True
-        assert beb._use_mathjax([test_plot, test_widget, test_mathstring]) is True
-        assert beb._use_mathjax([test_plot, test_widget, test_table, test_mathstring]) is True
-        assert beb._use_mathjax([test_plot, test_mathtext, test_mathstring]) is True
+    def test_with_mathstring(self, test_plot, test_glplot, test_table, test_widget, test_mathtext, test_mathstring_axis_label, test_mathstring_major_label_overrides) -> None:
+        assert beb._use_mathjax([test_mathstring_axis_label]) is True
+        assert beb._use_mathjax([test_plot, test_mathstring_axis_label]) is True
+        assert beb._use_mathjax([test_plot, test_glplot, test_mathstring_axis_label]) is True
+        assert beb._use_mathjax([test_plot, test_widget, test_mathstring_axis_label]) is True
+        assert beb._use_mathjax([test_plot, test_widget, test_table, test_mathstring_axis_label]) is True
+        assert beb._use_mathjax([test_plot, test_mathtext, test_mathstring_axis_label]) is True
+        assert beb._use_mathjax([test_plot, test_mathstring_major_label_overrides]) is True
         d = Document()
         d.add_root(test_plot)
         d.add_root(test_table)
         d.add_root(test_widget)
-        d.add_root(test_mathstring)
+        d.add_root(test_mathstring_axis_label)
         assert beb._use_mathjax([d]) is True
 
     def test_with_plaintext(self, test_plot, test_glplot, test_table, test_widget, test_mathtext, test_plaintext) -> None:

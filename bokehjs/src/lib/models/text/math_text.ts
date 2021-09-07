@@ -13,6 +13,7 @@ import {font_metrics, parse_css_font_size} from "core/util/text"
 import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
 import {BaseText} from "./base_text"
+import {PlainText} from "./plain_text"
 import {MathJaxProvider, BundleProvider} from "./providers"
 
 const default_provider: MathJaxProvider = new BundleProvider()
@@ -351,25 +352,6 @@ export class MathText extends BaseText {
   constructor(attrs?: Partial<MathText.Attrs>) {
     super(attrs)
   }
-
-  static is_math_text_string(text: unknown): text is string {
-    return isString(text) && text.startsWith("$") && text.endsWith("$")
-  }
-
-  // TODO: divide into container components
-  static from_text_like(text: string | BaseText): MathText | null {
-    // TODO: how to support other math models?
-    let math_text: MathText = new TeX()
-
-    if (text instanceof MathText)
-      math_text = text
-    else if (MathText.is_math_text_string(text))
-      math_text.text = text.slice(0, -1).slice(1)
-    else
-      return null
-
-    return math_text
-  }
 }
 
 export class AsciiView extends MathTextView {
@@ -433,7 +415,7 @@ export class TeXView extends MathTextView {
 
   protected _process_text(text: string): HTMLElement | undefined {
     // TODO: allow plot/document level configuration of macros
-    return this.provider.MathJax?.tex2svg(text, this.model.macros)
+    return this.provider.MathJax?.tex2svg(text, undefined, this.model.macros)
   }
 }
 
@@ -442,6 +424,7 @@ export namespace TeX {
 
   export type Props = MathText.Props & {
     macros: p.Property<{[key: string]: string | [string, number]}>
+    inline: p.Property<boolean>
   }
 }
 
@@ -458,8 +441,97 @@ export class TeX extends MathText {
   static {
     this.prototype.default_view = TeXView
 
-    this.define<TeX.Props>(({Number, String, Dict, Tuple, Or}) => ({
+    this.define<TeX.Props>(({Number, String, Dict, Tuple, Or, Boolean}) => ({
       macros: [ Dict(Or(String, Tuple(String, Number))), {} ],
+      inline: [ Boolean, false ],
     }))
+  }
+
+  static find_math_parts(text: string): (PlainText | TeX)[] {
+    type Delimiter = {
+      start: string
+      end: string
+      inline: boolean
+      nextIndex?: number
+    }
+
+    const delimiters: Delimiter[] = [
+      {start: "$$", end: "$$", inline: false},
+      {start: "\\[", end: "\\]", inline: false},
+      {start: "\\(", end: "\\)", inline: true},
+    ]
+
+    const result: (PlainText | TeX)[] = []
+    let remaining_text = text
+
+    const find_end = (delimiter?: Delimiter) => {
+      if (!delimiter) {
+        result.push(new PlainText({text: remaining_text}))
+        remaining_text = ""
+        return
+      }
+
+      if (remaining_text.includes(delimiter.start)) {
+        const index = remaining_text.indexOf(delimiter.start)
+
+        if (remaining_text.slice(index + 2).includes(delimiter.end)) {
+          result.push(new PlainText({text: remaining_text.slice(0, index)}))
+          remaining_text = remaining_text.slice(index + 2)
+
+          const closing_index = remaining_text.indexOf(delimiter.end)
+          result.push(new TeX({text: remaining_text.slice(0, closing_index), inline: delimiter.inline}))
+          remaining_text = remaining_text.slice(closing_index + 2)
+        }
+      }
+    }
+
+    const find_next_delimiter = () => delimiters
+      .map(delimiter => ({...delimiter, nextIndex: remaining_text.indexOf(delimiter.start)}))
+      .sort((a, b) => a.nextIndex - b.nextIndex)
+      .filter(delimiter => delimiter.nextIndex >= 0)[0]
+
+    while (remaining_text) {
+      find_end(find_next_delimiter())
+    }
+
+    return result.filter(Boolean)
+  }
+
+  static includes_math(text: unknown): text is string {
+    if (!isString(text)) return false
+
+    if (text.includes("$$")) {
+      const index = text.indexOf("$$")
+      if (text.slice(index + 2).includes("$$"))
+        return true
+    }
+
+    if (text.includes("\\[")) {
+      const index = text.indexOf("\\[")
+      if (text.slice(index + 2).includes("\\]"))
+        return true
+    }
+
+    if (text.includes("\\(")) {
+      const index = text.indexOf("\\(")
+      if (text.slice(index + 2).includes("\\)"))
+        return true
+    }
+
+    return false
+  };
+
+  // TODO: divide into container components
+  static from_text_like(text: string | BaseText): TeX | null {
+    let math_text: TeX = new TeX()
+
+    if (text instanceof TeX)
+      math_text = text
+    else if (TeX.includes_math(text))
+      math_text.text = text
+    else
+      return null
+
+    return math_text
   }
 }

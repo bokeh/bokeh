@@ -16,7 +16,7 @@ import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
-import {MathText, MathTextView} from "../text/math_text"
+import {MathText, MathTextView, TeX} from "../text/math_text"
 import {BaseText} from "../text/base_text"
 import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
@@ -59,7 +59,7 @@ export class AxisView extends GuideRendererView {
 
 
     if (axis_label != null) {
-      const math_text = MathText.from_text_like(axis_label)
+      const math_text = TeX.from_text_like(axis_label)
 
       if (math_text) {
         this.model.axis_label = math_text
@@ -71,7 +71,7 @@ export class AxisView extends GuideRendererView {
 
     for (const label in major_label_overrides) {
       if (major_label_overrides.hasOwnProperty(label)){
-        const math_text = MathText.from_text_like(major_label_overrides[label])
+        const math_text = TeX.from_text_like(major_label_overrides[label])
 
         if (math_text) {
           this.model.major_label_overrides[label] = math_text
