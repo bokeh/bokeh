@@ -917,8 +917,14 @@ class Serve(Subcommand):
             if server.address is not None and server.address != '':
                 address_string = server.address
 
+            if server_kwargs['ssl_certfile'] and (
+                    server_kwargs['ssl_certfile'].endswith('.pem') or server_kwargs['ssl_keyfile']):
+                protocol = 'https'
+            else:
+                protocol = 'http'
+
             for route in sorted(applications.keys()):
-                url = "http://%s:%d%s%s" % (address_string, server.port, server.prefix, route)
+                url = "%s://%s:%d%s%s" % (protocol, address_string, server.port, server.prefix, route)
                 log.info("Bokeh app running at: %s" % url)
 
             log.info("Starting Bokeh server with process id: %d" % os.getpid())
