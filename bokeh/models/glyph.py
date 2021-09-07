@@ -79,11 +79,19 @@ class Glyph(Model):
             if default is None:
                 no_more_defaults = True
 
+            # simplify field(x) defaults to just present the column name
+            if isinstance(default, dict) and set(default) == {"field"}:
+                default = default["field"]
+
+            # make sure we don't hold on to references to actual Models
+            if isinstance(default, Model):
+                default = _ModelRepr(default)
+
             param = Parameter(
                 name=arg,
                 kind=Parameter.POSITIONAL_OR_KEYWORD,
                 # For positional arg properties, default=None means no default.
-                default=Parameter.empty if no_more_defaults else _ModelRepr(default)
+                default=Parameter.empty if no_more_defaults else default
             )
             if default:
                 del default
@@ -99,10 +107,19 @@ class Glyph(Model):
         for kw in kws:
             descriptor = cls.lookup(kw)
             default=descriptor.class_default(cls)
+
+            # simplify field(x) defaults to just present the column name
+            if isinstance(default, dict) and set(default) == {"field"}:
+                default = default["field"]
+
+            # make sure we don't hold on to references to actual Models
+            if isinstance(default, Model):
+                default = _ModelRepr(default)
+
             param = Parameter(
                 name=kw,
                 kind=Parameter.KEYWORD_ONLY,
-                default=_ModelRepr(default)
+                default=default
             )
             del default
             typ = type_link(descriptor.property)

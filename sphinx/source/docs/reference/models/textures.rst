@@ -1,7 +1,7 @@
 .. _bokeh.models.textures:
 
-bokeh.models.textures
----------------------
+textures
+--------
 
 .. automodule:: bokeh.models.textures
    :members:

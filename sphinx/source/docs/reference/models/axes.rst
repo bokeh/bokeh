@@ -1,7 +1,7 @@
 .. _bokeh.models.axes:
 
-bokeh.models.axes
------------------
+axes
+----
 
 .. automodule:: bokeh.models.axes
    :members:

@@ -39,6 +39,9 @@ from bokeh.core.enums import Enumeration
 from bokeh.core.property.descriptors import PropertyDescriptor
 from bokeh.model import Model
 
+# Bokeh imports
+from . import PARALLEL_SAFE
+
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
@@ -115,6 +118,7 @@ def setup(app):
     app.add_autodocumenter(PropDocumenter)
     app.add_autodocumenter(ModelDocumenter)
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

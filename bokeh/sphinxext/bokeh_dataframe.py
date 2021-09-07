@@ -42,6 +42,9 @@ import pandas as pd
 from docutils import nodes
 from sphinx.errors import SphinxError
 
+# Bokeh imports
+from . import PARALLEL_SAFE
+
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
@@ -93,6 +96,7 @@ def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_role("bokeh-dataframe", bokeh_dataframe)
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

@@ -36,6 +36,7 @@ ALL = (
     'push_notebook',
     'output_file',
     'output_notebook',
+    'reset_output',
     'save',
     'show',
 )
