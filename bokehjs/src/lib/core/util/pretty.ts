@@ -1,4 +1,4 @@
-import {isBoolean, isNumber, isString, isArray, isIterable, isObject, isPlainObject} from "./types"
+import {isBoolean, isNumber, isString, isSymbol, isArray, isIterable, isObject, isPlainObject} from "./types"
 import {PlainObject} from "../types"
 import {entries} from "./object"
 
@@ -46,6 +46,8 @@ export class Printer {
       return this.iterable(obj)
     else if (isPlainObject(obj))
       return this.object(obj)
+    else if (isSymbol(obj))
+      return this.symbol(obj)
     else
       return `${obj}`
   }
@@ -67,6 +69,10 @@ export class Printer {
 
   string(val: string): string {
     return `"${val.replace(/'/g, "\\'")}"`  // lgtm [js/incomplete-sanitization]
+  }
+
+  symbol(val: symbol): string {
+    return val.toString()
   }
 
   array(obj: Iterable<unknown>): string {
