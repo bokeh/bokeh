@@ -19,7 +19,7 @@ front-end UI events to running Python code.
 Bokeh creates high-level Python models, such as plots, ranges, axes, and
 glyphs, and then converts these objects to JSON to pass them to its client
 library, BokehJS. For more information on the latter, see
-:ref:`devguide_bokehjs`.
+:ref:`contributor_guide_bokehjs`.
 
 This flexible and decoupled design offers some advantages. For instance, it is
 easy to have other languages, such as R or Scala, drive Bokeh plots and
@@ -1456,7 +1456,7 @@ Further reading
 Now that you are familiar with the concepts of
 :ref:`running a Bokeh server<userguide_server>`,
 you may be interested in learning more about the internals of the Bokeh server
-in :ref:`devguide_server`.
+in :ref:`contributor_guide_server`.
 
 .. _Authentication and security: https://www.tornadoweb.org/en/stable/guide/security.html
 .. _demo.bokeh.org: https://demo.bokeh.org

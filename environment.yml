@@ -81,6 +81,7 @@ dependencies:
     - sphinxext-opengraph
     - sphinx-reredirects
     - sphinx-panels
+    - sphinx-tabs
     # tests
     - types-boto
     - types-colorama

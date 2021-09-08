@@ -13,7 +13,7 @@ Building
 --------
 
 Please refer to the [BokehJS section](https://docs.bokeh.org/en/latest/docs/dev_guide/bokehjs.html)
-of the [Bokeh Developer Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html)
+of the [Bokeh Contributor Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html)
 for information about building, testing and demoing BokehJS.
 
 Contributing

@@ -289,7 +289,7 @@ Visit the [full documentation site](https://docs.bokeh.org) to view the [User's 
 
 Community support is available on the [Project Discourse](https://discourse.bokeh.org).
 
-If you would like to contribute to Bokeh, please review the [Developer Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and [request an invitation to the Bokeh Dev Slack workspace](https://slack-invite.bokeh.org/).
+If you would like to contribute to Bokeh, please review the [Contributor Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and [request an invitation to the Bokeh Dev Slack workspace](https://slack-invite.bokeh.org/).
 
 *Note: Everyone interacting in the Bokeh project's codebases, issue trackers and discussion forums is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/master/CODE_OF_CONDUCT.md).*
 
