@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import hashlib
 import json
 from dataclasses import dataclass
 from os.path import (
@@ -329,7 +330,10 @@ def _bundle_extensions(objs: Sequence[Model | Document], resources: Resources) -
             artifact_path = join(base_dir, normpath(pkg_main))
             artifacts_dir = dirname(artifact_path)
             artifact_name = basename(artifact_path)
-            server_path = f"{name}/{artifact_name}"
+            sha = hashlib.sha256()
+            sha.update(pkg_version.encode())
+            vstring = sha.hexdigest()
+            server_path = f"{name}/{artifact_name}?v={vstring}"
         else:
             for ext in extensions:
                 artifact_path = join(dist_dir, f"{name}{ext}")
