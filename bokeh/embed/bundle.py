@@ -330,10 +330,12 @@ def _bundle_extensions(objs: Sequence[Model | Document], resources: Resources) -
             artifact_path = join(base_dir, normpath(pkg_main))
             artifacts_dir = dirname(artifact_path)
             artifact_name = basename(artifact_path)
-            sha = hashlib.sha256()
-            sha.update(pkg_version.encode())
-            vstring = sha.hexdigest()
-            server_path = f"{name}/{artifact_name}?v={vstring}"
+            server_path = f"{name}/{artifact_name}"
+            if not settings.dev:
+                sha = hashlib.sha256()
+                sha.update(pkg_version.encode())
+                vstring = sha.hexdigest()
+                server_path = f"{server_path}?v={vstring}"
         else:
             for ext in extensions:
                 artifact_path = join(dist_dir, f"{name}{ext}")
