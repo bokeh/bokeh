@@ -245,7 +245,7 @@ export namespace Kinds {
   }
 
   export class Color extends Kind<types.Color> {
-    valid(value: unknown): value is types.Color{
+    valid(value: unknown): value is types.Color {
       return is_Color(value)
     }
   }

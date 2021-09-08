@@ -99,7 +99,7 @@ export class CDSView extends Model {
 
   indices_map_to_subset(): void {
     this.indices_map = {}
-    for (let i = 0; i < this._indices.length; i++){
+    for (let i = 0; i < this._indices.length; i++) {
       this.indices_map[this._indices[i]] = i
     }
   }
