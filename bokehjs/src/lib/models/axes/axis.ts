@@ -640,9 +640,9 @@ export class AxisView extends GuideRendererView {
           if (!item.has_finished())
             return false
 
-    for (const key in this.major_label_math_text_views)
-      if (!this.major_label_math_text_views[key].has_finished())
-        return false
+    // for (const key in this.major_label_math_text_views)
+    //   if (!this.major_label_math_text_views[key].has_finished())
+    //     return false
 
     return true
   }

@@ -224,7 +224,7 @@ export abstract class MathTextView extends View implements TextBox {
    * anchor and dimensions
    */
   _computed_position(): {x: number, y: number} {
-    const {width, height} = this.size()
+    const {width, height, metrics} = this.dimensions()
     const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
 
     let y = sy - (() => {
@@ -252,14 +252,8 @@ export abstract class MathTextView extends View implements TextBox {
       }
     })()
 
-    // if (this.padding) {
-    //   switch (y_anchor) {
-    //     case "top": y = sy + this.compute_padding().y; break
-    //     case "bottom": y = sy - height + this.compute_padding().y; break
-    //   }
-
-    //   return {x, y}
-    // }
+    if (height < metrics.height && y_anchor == "bottom")
+      return {x, y: y - metrics.descent}
 
     return {x, y}
   }
@@ -317,11 +311,9 @@ export abstract class MathTextView extends View implements TextBox {
     const width = fmetrics.x_height * widthEx
     let height = fmetrics.x_height * heightEx
 
-    // if (height < fmetrics.height) {
-    //   height = fmetrics.height
-
-    //   v_align -=  fmetrics.height - height
-    // }
+    if (height < fmetrics.height) {
+      v_align -=  fmetrics.height - height
+    }
 
     this.padding = {
       top: 0,
@@ -329,7 +321,6 @@ export abstract class MathTextView extends View implements TextBox {
       bottom: font_metrics(this.font).descent + v_align,
       left: 0
     }
-
 
     return {width, height}
   }
@@ -672,7 +663,6 @@ export class TeX extends MathText {
     return false
   };
 
-  // TODO: divide into container components
   static from_text_like(text: string | BaseText): TeX | null {
     let math_text: TeX = new TeX()
 
