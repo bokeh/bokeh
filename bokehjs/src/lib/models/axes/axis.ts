@@ -21,6 +21,7 @@ import {BaseText} from "../text/base_text"
 import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
 import {isString} from "core/util/types"
+// import { BBox } from "core/util/bbox"
 
 const {abs} = Math
 
@@ -331,7 +332,6 @@ export class AxisView extends GuideRendererView {
     const ids = [...selected.ones()]
     if (ids.length != 0) {
       const cbox = this.parent.canvas_view.bbox
-
       const correct_x = (k: number) => {
         const bbox = bboxes[k]
 
@@ -372,9 +372,27 @@ export class AxisView extends GuideRendererView {
       }
     }
 
+    // function paint_bbox(ctx: Context2d, bbox: BBox): void {
+    //   const {x, y, width, height} = bbox
+    //   ctx.save()
+    //   ctx.strokeStyle = "blue"
+    //   ctx.lineWidth = 1
+    //   ctx.beginPath()
+    //   const {round} = Math
+    //   ctx.moveTo(round(x), round(y))
+    //   ctx.lineTo(round(x), round(y + height))
+    //   ctx.lineTo(round(x + width), round(y + height))
+    //   ctx.lineTo(round(x + width), round(y))
+    //   ctx.closePath()
+    //   ctx.stroke()
+    //   ctx.restore()
+    // }
+    // paint_bbox(ctx, this.layout.bbox)
+
     for (const i of selected) {
       const label = items[i]
       label.paint(ctx)
+      // label.paint_bbox(ctx)
     }
   }
 
@@ -601,9 +619,10 @@ export class AxisView extends GuideRendererView {
   }
 
   override remove(): void {
-    for (const item of this.axis_label_graphics.items)
-      if (item instanceof MathTextView)
-        item.remove()
+    if (this.axis_label_graphics)
+      for (const item of this.axis_label_graphics.items)
+        if (item instanceof MathTextView)
+          item.remove()
 
     Object.getOwnPropertyNames(this.major_label_math_text_views)
       .map(key => this.major_label_math_text_views[key].remove())
@@ -615,10 +634,11 @@ export class AxisView extends GuideRendererView {
     if (!super.has_finished())
       return false
 
-    for (const item of this.axis_label_graphics.items)
-      if (item instanceof MathTextView)
-        if (!item.has_finished())
-          return false
+    if (this.axis_label_graphics)
+      for (const item of this.axis_label_graphics.items)
+        if (item instanceof MathTextView)
+          if (!item.has_finished())
+            return false
 
     for (const key in this.major_label_math_text_views)
       if (!this.major_label_math_text_views[key].has_finished())

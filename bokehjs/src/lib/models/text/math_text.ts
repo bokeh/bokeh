@@ -1,6 +1,6 @@
 import * as p from "core/properties"
 import * as visuals from "core/visuals"
-import {isNumber, isString} from "core/util/types"
+import {isNumber, isString, isArray} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {load_image} from "core/util/image"
 import {CanvasImage} from "models/glyphs/image_url"
@@ -8,7 +8,7 @@ import {color2css, color2rgba} from "core/util/color"
 import {Size} from "core/types"
 import {View} from "core/view"
 import {RendererView} from "models/renderers/renderer"
-import {TextBox, TextHeightMetric, text_width, Position, Padding, TextAlign} from "core/graphics"
+import {TextBox, TextHeightMetric, text_width, Position, Padding, TextAlign, isGraphicsExtents} from "core/graphics"
 import {font_metrics, parse_css_font_size, FontMetrics} from "core/util/text"
 import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
@@ -18,15 +18,87 @@ import {MathJaxProvider, BundleProvider} from "./providers"
 
 const default_provider: MathJaxProvider = new BundleProvider()
 
-// export class MathJaxBox extends TextBox {
-
-// }
+// TODO: MathTextView should have a property of MathTextBox that
+// extends TextBox this got too big trying to implement it
 /**
  * Helper class to rendering MathText into Canvas
  */
 export abstract class MathTextView extends View implements TextBox {
   override model: MathText
   override parent: RendererView
+
+  calc_padding([top, right, bottom, left]: [number, number, number, number]) : {x: number, y: number} {
+    return {x: left - right, y: top - bottom}
+  }
+
+  compute_padding(): {x: number, y: number} {
+    if (!this.padding) return {x:0, y:0}
+    const {padding} = this
+
+    if (isNumber(padding)) return {x: 0, y: 0}
+
+    if (isArray(padding)) {
+      if (padding.length === 2)
+        return {x: 0, y: 0}
+      if (padding.length === 4) {
+        let top = 0, right = 0, bottom = 0, left = 0
+
+        if (isNumber(padding[0])) top = padding[0]
+        else {
+          if (padding[0].unit === "px") top = padding[0].value
+          else top = padding[0].value * this.dimensions().height
+        }
+        if (isNumber(padding[2])) bottom = padding[2]
+        else {
+          if (padding[2].unit === "px") bottom = padding[2].value
+          else bottom = padding[2].value * this.dimensions().height
+        }
+
+        if (isNumber(padding[1])) right = padding[1]
+        else {
+          if (padding[1].unit === "px") right = padding[1].value
+          else right = padding[1].value * this.dimensions().width
+        }
+        if (isNumber(padding[2])) left = padding[2]
+        else {
+          if (padding[2].unit === "px") left = padding[2].value
+          else left = padding[2].value * this.dimensions().width
+        }
+
+        return this.calc_padding([top, right, bottom, left])
+      }
+    }
+
+    if (isGraphicsExtents(padding)) {
+      let top=0, right=0, bottom=0, left=0
+
+      if (isNumber(padding.top)) top = padding.top
+      else {
+        if (padding.top.unit === "px") top = padding.top.value
+        else top = padding.top.value * this.dimensions().height
+      }
+      if (isNumber(padding.bottom)) bottom = padding.bottom
+      else {
+        if (padding.bottom.unit === "px") bottom = padding.bottom.value
+        else bottom = padding.bottom.value * this.dimensions().height
+      }
+
+      if (isNumber(padding.right)) right = padding.right
+      else {
+        if (padding.right.unit === "px") right = padding.right.value
+        else right = padding.right.value * this.dimensions().width
+      }
+      if (isNumber(padding.left)) left = padding.left
+      else {
+        if (padding.left.unit === "px") left = padding.left.value
+        else left = padding.left.value * this.dimensions().width
+      }
+
+      return this.calc_padding([top, right, bottom, left])
+    } else {
+      return {x:0, y:0}
+    }
+  }
 
   _align: TextAlign = "left"
 
@@ -152,18 +224,10 @@ export abstract class MathTextView extends View implements TextBox {
    * anchor and dimensions
    */
   _computed_position(): {x: number, y: number} {
-    const {width, height} = this.dimensions()
+    const {width, height} = this.size()
     const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
 
-    if (this.has_image_loaded) {
-      const v_align = this.get_v_align()
-
-      const image_y = sy + v_align
-
-      return {x: sx, y: image_y}
-    }
-
-    const y = sy - (() => {
+    let y = sy - (() => {
       if (isNumber(y_anchor))
         return y_anchor*height
       else {
@@ -188,6 +252,15 @@ export abstract class MathTextView extends View implements TextBox {
       }
     })()
 
+    // if (this.padding) {
+    //   switch (y_anchor) {
+    //     case "top": y = sy + this.compute_padding().y; break
+    //     case "bottom": y = sy - height + this.compute_padding().y; break
+    //   }
+
+    //   return {x, y}
+    // }
+
     return {x, y}
   }
 
@@ -195,11 +268,12 @@ export abstract class MathTextView extends View implements TextBox {
    * Uses the width, height and given angle to calculate the size
   */
   size(): Size {
-    let {width, height} = this.dimensions()
+    let {width, height, metrics} = this.dimensions()
     const {angle} = this
 
-    if (this.has_image_loaded)
-      height = height + font_metrics(this.font).descent
+    if (height < metrics.height) {
+      height = metrics.height
+    }
 
     if (!angle)
       return {width, height}
@@ -234,10 +308,30 @@ export abstract class MathTextView extends View implements TextBox {
         ?.replace(/([A-z])/g, "") ?? "0"
     )
 
-    return {
-      width: fmetrics.x_height * widthEx,
-      height: fmetrics.x_height * heightEx,
+    let v_align = parseFloat(
+      this.svg_element
+        ?.getAttribute("style")
+        ?.replace(/\-?[A-z\: ;]/g, "") ?? "0"
+    ) * fmetrics.x_height
+
+    const width = fmetrics.x_height * widthEx
+    let height = fmetrics.x_height * heightEx
+
+    // if (height < fmetrics.height) {
+    //   height = fmetrics.height
+
+    //   v_align -=  fmetrics.height - height
+    // }
+
+    this.padding = {
+      top: 0,
+      right: 0,
+      bottom: font_metrics(this.font).descent + v_align,
+      left: 0
     }
+
+
+    return {width, height}
   }
 
   dimensions(): Size & {metrics: FontMetrics} {
@@ -379,21 +473,6 @@ export abstract class MathTextView extends View implements TextBox {
       this._has_finished = true
       this.parent.notify_finished_after_paint()
     }
-  }
-
-  get_v_align(): number {
-    if (!this.has_image_loaded)
-      return 0
-
-    const fmetrics = font_metrics(this.font)
-
-    const v_align = parseFloat(
-      this.svg_element
-        ?.getAttribute("style")
-        ?.replace(/\-?[A-z\: ;]/g, "") ?? "0"
-    ) * fmetrics.x_height
-
-    return Math.abs(v_align)
   }
 }
 

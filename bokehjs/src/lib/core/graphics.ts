@@ -3,7 +3,7 @@ import {BBox} from "./util/bbox"
 import {Context2d} from "./util/canvas"
 import {font_metrics, /*glyph_metrics,*/ FontMetrics, parse_css_font_size} from "./util/text"
 import {max, max_by, sum} from "./util/array"
-import {isNumber} from "./util/types"
+import {isNumber, isArray, isObject} from "./util/types"
 import {Rect, AffineTransform} from "./util/affine"
 import {color2css} from "./util/color"
 import * as visuals from "./visuals"
@@ -30,8 +30,11 @@ export type Position = {
 }
 
 type Val = number | {value: number, unit: "px" | "%"}
-type Extents = {left: Val, right: Val, top: Val, bottom: Val}
-export type Padding = Val | [v: Val, h: Val] | [top: Val, right: Val, bottom: Val, left: Val] | Extents
+type GraphicsExtents = {left: Val, right: Val, top: Val, bottom: Val}
+export function isGraphicsExtents(val: unknown): val is GraphicsExtents {
+  return isObject(val) && "left" in val && "right" in val && "top" in val && "bottom" in val
+}
+export type Padding = Val | [v: Val, h: Val] | [top: Val, right: Val, bottom: Val, left: Val] | GraphicsExtents
 export type TextHeightMetric = "x" | "cap" | "ascent" | "x_descent" | "cap_descent" | "ascent_descent"
 type Align = "left" | "center" | "right"
 
@@ -43,6 +46,79 @@ export abstract class GraphicsBox {
   padding?: Padding
   font_size_scale: number = 1.0
   text_height_metric?: TextHeightMetric
+
+  calc_padding([top, right, bottom, left]: [number, number, number, number]) : {x: number, y: number} {
+    return {x: left - right, y: top - bottom}
+  }
+
+  compute_padding(): {x: number, y: number} {
+    if (!this.padding) return {x:0, y:0}
+    const {padding} = this
+
+    if (isNumber(padding)) return {x: 0, y: 0}
+
+    if (isArray(padding)) {
+      if (padding.length === 2)
+        return {x: 0, y: 0}
+      if (padding.length === 4) {
+        let top = 0, right = 0, bottom = 0, left = 0
+
+        if (isNumber(padding[0])) top = padding[0]
+        else {
+          if (padding[0].unit === "px") top = padding[0].value
+          else top = padding[0].value * this.dimensions().height
+        }
+        if (isNumber(padding[2])) bottom = padding[2]
+        else {
+          if (padding[2].unit === "px") bottom = padding[2].value
+          else bottom = padding[2].value * this.dimensions().height
+        }
+
+        if (isNumber(padding[1])) right = padding[1]
+        else {
+          if (padding[1].unit === "px") right = padding[1].value
+          else right = padding[1].value * this.dimensions().width
+        }
+        if (isNumber(padding[2])) left = padding[2]
+        else {
+          if (padding[2].unit === "px") left = padding[2].value
+          else left = padding[2].value * this.dimensions().width
+        }
+
+        return this.calc_padding([top, right, bottom, left])
+      }
+    }
+
+    if (isGraphicsExtents(padding)) {
+      let top=0, right=0, bottom=0, left=0
+
+      if (isNumber(padding.top)) top = padding.top
+      else {
+        if (padding.top.unit === "px") top = padding.top.value
+        else top = padding.top.value * this.dimensions().height
+      }
+      if (isNumber(padding.bottom)) bottom = padding.bottom
+      else {
+        if (padding.bottom.unit === "px") bottom = padding.bottom.value
+        else bottom = padding.bottom.value * this.dimensions().height
+      }
+
+      if (isNumber(padding.right)) right = padding.right
+      else {
+        if (padding.right.unit === "px") right = padding.right.value
+        else right = padding.right.value * this.dimensions().width
+      }
+      if (isNumber(padding.left)) left = padding.left
+      else {
+        if (padding.left.unit === "px") left = padding.left.value
+        else left = padding.left.value * this.dimensions().width
+      }
+
+      return this.calc_padding([top, right, bottom, left])
+    } else {
+      return {x:0, y:0}
+    }
+  }
 
   _base_font_size: number = 13 // the same as .bk-root's font-size (13px)
 
@@ -163,11 +239,6 @@ export class TextBox extends GraphicsBox {
   font: string
   line_height: number
   _align: TextAlign = "left"
-  //padding: Padding
-
-  get_v_align(): number {
-    return 0
-  }
 
   set align(a: TextAlign) {
     this._align = a
@@ -303,7 +374,7 @@ export class TextBox extends GraphicsBox {
     return lines.length
   }
 
-  dimensions(): Size {
+  dimensions(): Size & {metrics: FontMetrics} {
     const {font} = this
 
     const fmetrics = font_metrics(font)
@@ -339,7 +410,7 @@ export class TextBox extends GraphicsBox {
     const width = max(widths)*w_scale
     const height = empty ? 0 : (text_height + line_spacing*(nlines - 1))*h_scale
 
-    return {width, height}
+    return {width, height, metrics: fmetrics}
   }
 
   _computed_position(): {x: number, y: number} {
@@ -711,9 +782,9 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
     return {width, height}
   }
 
-  max_v_align(): number {
+  max_y_padding(): number {
     return this.items.reduce((max, item) => {
-      return Math.max(max, Math.abs(item.get_v_align()))
+      return Math.max(max, item.compute_padding().y)
     }, 0)
   }
 
@@ -729,13 +800,13 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
     return "ascent_descent"
   }
 
-  override dimensions(): Size {
+  override dimensions(): Size & {metrics: FontMetrics} {
     let width = 0
     for (const item of this.items) {
       const size = item.dimensions()
       width += size.width
     }
-    return {width, height: this.max_size().height}
+    return {width, height: this.max_size().height, metrics: font_metrics(this.font)}
   }
 
   override set position(pos: Position) {
@@ -754,7 +825,7 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
     const {sx, sy, y_anchor="center"} = pos
     const {height: container_height} = this.max_size()
     const {height} = this.items[n].size()
-    const v_align = this.max_v_align()
+    const y_padding = this.max_y_padding()
 
     let item_sy = sy - (() => {
       if (isNumber(y_anchor))
@@ -769,15 +840,16 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
       }
     })()
 
-    if (v_align) {
+    if (y_padding) {
+      const item_padding = this.items[n].compute_padding().y
       item_sy -= (() => {
         if (isNumber(y_anchor))
           return 0
         else {
           switch (y_anchor) {
-            case "top": return v_align
-            case "center": return 0
-            case "bottom": return v_align - font_metrics(this.font).descent
+            case "top":
+            case "bottom": return y_padding - item_padding
+            case "center":
             case "baseline": return 0
           }
         }
@@ -787,7 +859,8 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
     // first item
     if (!in_bounds(previous_index)) {
       this.items[n].position = {...pos, sy: item_sy, x_anchor: "left", y_anchor: "top"}
-      return this.compute_items_positions({...pos}, next_index)
+      if (in_bounds(next_index)) return this.compute_items_positions({...pos}, next_index)
+      return
     }
 
     const {width} = this.items[previous_index].dimensions()
@@ -807,8 +880,10 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
   }
 
   override paint(ctx: Context2d): void {
+    // this.paint_bbox(ctx)
     this.items.forEach(item => {
       item.paint(ctx)
+      // item.paint_bbox(ctx)
     })
   }
 
