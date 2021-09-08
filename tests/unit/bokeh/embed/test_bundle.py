@@ -133,8 +133,10 @@ class Test_bundle_custom_extensions:
         plot = Plot()
         plot.add_layout(LatexLabel())
         bundle = beb.bundle_for_objs_and_resources([plot], "server")
+        version_hash = "6b13789e43e5485634533de16a65d8ba9d34c4c9758588b665805435f80eb115"
         assert len(bundle.js_files) == 2
-        assert bundle.js_files[1] == "http://localhost:5006/static/extensions/latex_label/latex_label.js?v=6b13789e43e5485634533de16a65d8ba9d34c4c9758588b665805435f80eb115"
+        assert (bundle.js_files[1] ==
+                f"http://localhost:5006/static/extensions/latex_label/latex_label.js?v={version_hash}")
 
     def test_with_Server_resources_dev(self) -> None:
         from latex_label import LatexLabel
