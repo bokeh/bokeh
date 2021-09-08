@@ -64,7 +64,7 @@ export class AxisView extends GuideRendererView {
         const graphics: TextBox[] = []
 
         for (let i = 0; i < parts.length; i++) {
-          const part = parts[i];
+          const part = parts[i]
           graphics.push(part instanceof MathText
             ? await build_view(part, {parent: this})
             : new TextBox(part)
@@ -601,12 +601,12 @@ export class AxisView extends GuideRendererView {
   }
 
   override remove(): void {
-    for(const item of this.axis_label_graphics.items)
+    for (const item of this.axis_label_graphics.items)
       if (item instanceof MathTextView)
         item.remove()
 
-    for(const key in this.major_label_math_text_views)
-      this.major_label_math_text_views[key].remove()
+    Object.getOwnPropertyNames(this.major_label_math_text_views)
+      .map(key => this.major_label_math_text_views[key].remove())
 
     super.remove()
   }
@@ -615,12 +615,12 @@ export class AxisView extends GuideRendererView {
     if (!super.has_finished())
       return false
 
-    for(const item of this.axis_label_graphics.items)
+    for (const item of this.axis_label_graphics.items)
       if (item instanceof MathTextView)
         if (!item.has_finished())
           return false
 
-    for(const key in this.major_label_math_text_views)
+    for (const key in this.major_label_math_text_views)
       if (!this.major_label_math_text_views[key].has_finished())
         return false
 

@@ -63,7 +63,7 @@ export abstract class MathTextView extends View implements TextBox {
   _angle?: number | undefined
 
   line_height: number
-  _text_line(_fmetrics: FontMetrics): { height: number; ascent: number; descent: number } {
+  _text_line(_fmetrics: FontMetrics): { height: number, ascent: number, descent: number } {
     throw new Error("Method not implemented.")
   }
   get nlines(): number {
@@ -160,10 +160,10 @@ export abstract class MathTextView extends View implements TextBox {
 
       const image_y = sy + v_align
 
-      return {x:sx, y: image_y }
+      return {x: sx, y: image_y}
     }
 
-    let y = sy - (() => {
+    const y = sy - (() => {
       if (isNumber(y_anchor))
         return y_anchor*height
       else {
@@ -202,7 +202,7 @@ export abstract class MathTextView extends View implements TextBox {
       height = height + font_metrics(this.font).descent
 
     if (!angle)
-      return {width, height: height}
+      return {width, height}
     else {
       const c = Math.cos(Math.abs(angle))
       const s = Math.sin(Math.abs(angle))
@@ -484,7 +484,7 @@ export class TeXView extends MathTextView {
       {
         display: !this.model.inline,
         em: this.base_font_size,
-        ex: fmetrics.x_height
+        ex: fmetrics.x_height,
       },
       this.model.macros
     )
