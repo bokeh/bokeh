@@ -134,7 +134,19 @@ class Test_bundle_custom_extensions:
         plot.add_layout(LatexLabel())
         bundle = beb.bundle_for_objs_and_resources([plot], "server")
         assert len(bundle.js_files) == 2
-        assert bundle.js_files[1] == "http://localhost:5006/static/extensions/latex_label/latex_label.js"
+        assert bundle.js_files[1] == "http://localhost:5006/static/extensions/latex_label/latex_label.js?v=6b13789e43e5485634533de16a65d8ba9d34c4c9758588b665805435f80eb115"
+
+    def test_with_Server_resources_dev(self) -> None:
+        from latex_label import LatexLabel
+        plot = Plot()
+        plot.add_layout(LatexLabel())
+        try:
+            os.environ['BOKEH_DEV'] = 'True'
+            bundle = beb.bundle_for_objs_and_resources([plot], "server")
+        finally:
+            del os.environ['BOKEH_DEV']
+        assert len(bundle.js_files) == 2
+        assert bundle.js_files[1].endswith("latex_label.js")
 
 class Test_bundle_ext_package_no_main:
 
