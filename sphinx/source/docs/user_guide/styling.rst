@@ -1114,31 +1114,28 @@ Adding mathematical notations
 Bokeh supports mathematical notations expressed in the LaTeX_ and MathML_ markup
 languages with a growing number of plot elements. Currently, you can use LaTeX
 and MathML notations with :ref:`axis labels <userguide_styling_axes_labels>` and
-tick labels using :func:`~bokeh.models.axes.Axis.major_label_overrides`.
+tick labels using :func:`~bokeh.models.Axis.major_label_overrides`.
 
-Bokeh uses the MathJax_ library to handle LaTeX and MathML. To use LaTeX and
-MathML instead of plain text, use Bokeh's :class:`~bokeh.models.text.TeX` and
-:class:`~bokeh.models.text.MathML`. Both models have a ``text`` property that
-accept a raw string literal containing mathematical notation.
+Bokeh uses the MathJax_ library to handle LaTeX and MathML. See the official
+`MathJax documentation`_ for more information on MathJax.
 
-TBD: Example
-
-For LaTeX, you can also pass a string directly. This string needs to begin and
-end with one of the `Mathjax default delimiters`_. These delimiters are
-``$$...$$`` and ``\[...\]`` for displayed mathematics, and ``\(...\)`` for
-in-line mathematics. For example: ``r"$$\sin(x)$$"``.
+For LaTeX, you can pass a string directly. This string needs to begin and end
+with one of the `MathJax default delimiters`_. These delimiters are ``$$...$$``
+and ``\[...\]`` for displayed mathematics, and ``\(...\)`` for in-line
+mathematics. For example: ``r"$$\sin(x)$$"``.
 
 LaTeX and axis labels
-    To use LaTeX notation as an axis label, pass a raw string literal with
-    LaTeX notation to the :class:`~bokeh.models.axes.Axis.axis_label` property
-    of an axis. For example:
+    To use LaTeX notation as an axis label, pass a raw string literal beginning
+    and ending with `MathJax default delimiters`_ and containing LaTeX notation
+    to the :class:`~bokeh.models.Axis.axis_label` property of an axis. For
+    example:
 
     .. bokeh-plot:: docs/user_guide/examples/styling_math_text_axis_labels.py
         :source-position: above
 
 LaTeX and tick labels
     To add LaTeX notations to your tick labels, use the
-    :func:`~bokeh.models.axes.Axis.major_label_overrides` function with an axis.
+    :func:`~bokeh.models.Axis.major_label_overrides` function with an axis.
 
     This function is used to replace values for existing tick labels with custom
     text. It accepts a dictionary with the tick label's original value as the
@@ -1149,15 +1146,24 @@ LaTeX and tick labels
     .. bokeh-plot:: docs/user_guide/examples/styling_math_text_tick_labels.py
         :source-position: above
 
+You also have the option to use
+
+To use MathML, you need to use Bokeh's :class:`~bokeh.models.text.MathML` model.
+This model has a ``text`` property that accept a raw string literal containing
+mathematical notation.
+
+TBD: Example with MathML
+
 .. note::
-    When you pass a raw string literal that begins and ends with ``$``, Bokeh
-    creates a :class:`~bokeh.models.text.Tex` or object and passes your string
-    to the object's ``text`` property. See :class:`~bokeh.models.text`
-    in the |reference guide| for more information.
+    There are limitations to how much of LaTeX MathJax supports. See the
+    `Differences from Actual TeX in the MathJax documentation` for more details.
 
 .. _LaTeX: https://www.latex-project.org/
 .. _MathML: https://www.w3.org/Math/
 .. _MathJax: https://www.mathjax.org
+.. _MathJax documentation: http://docs.mathjax.org/en/latest/
+.. _MathJax default delimiters: http://docs.mathjax.org/en/latest/basic/mathematics.html#tex-and-latex-input
+.. _Differences from Actual TeX in the MathJax documentation: https://docs.mathjax.org/en/latest/input/tex/differences.html
 
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
 .. |Title| replace:: :class:`~bokeh.models.annotations.Title`
