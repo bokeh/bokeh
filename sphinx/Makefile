@@ -18,10 +18,11 @@ clean:
 	-rm -rf source/docs/gallery/*
 
 html:
-	sphinx-build -b html -d $(BUILDDIR)/doctrees $(SPHINXOPTS) source -W $(BUILDDIR)/html
-	cp -r ../bokeh/server/static $(BUILDDIR)/html/
-	@echo
-	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+	@start=$$(date +%s) \
+	; sphinx-build -b html -d $(BUILDDIR)/doctrees $(SPHINXOPTS) source -W $(BUILDDIR)/html \
+	&& cp -r ../bokeh/server/static $(BUILDDIR)/html/ \
+	&& echo \
+	&& echo "Build finished in $$(($$(date +%s)-start)) seconds. The HTML pages are in $(BUILDDIR)/html."
 
 serve:
 	python docserver.py

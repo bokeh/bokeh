@@ -1,7 +1,20 @@
+''' A scatter plot using data from the `Periodic Table`_. This example
+demonstrates using basic hover tooltips and adding labels for individual
+points.
+
+.. bokeh-example-metadata::
+    :sampledata: periodic_table
+    :apis: bokeh.plotting.Figure.scatter, bokeh.models.sources.ColumnDataSource, bokeh.models.annotations.LabelSet
+    :refs: :ref:`userguide_tools` > :ref:`userguide_tools_hover_tool`
+    :keywords: hover, labels, scatter
+
+.. _Periodic Table: https://en.wikipedia.org/wiki/Periodic_table
+
+'''
 import pandas as pd
 
 from bokeh.models import ColumnDataSource, LabelSet
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 from bokeh.sampledata.periodic_table import elements
 
 elements = elements.copy()
@@ -38,14 +51,12 @@ p.hover.tooltips = [
 
 source = ColumnDataSource(elements)
 
-p.circle("atomic mass", "density", size=12, source=source,
-         color='melting_colors', line_color="black", fill_alpha=0.8)
+p.scatter("atomic mass", "density", size=12, source=source,
+          color='melting_colors', line_color="black", fill_alpha=0.8)
 
 labels = LabelSet(x="atomic mass", y="density", text="symbol", y_offset=8,
                   text_font_size="11px", text_color="#555555",
                   source=source, text_align='center')
 p.add_layout(labels)
-
-output_file("elements.html", title="elements.py example")
 
 show(p)

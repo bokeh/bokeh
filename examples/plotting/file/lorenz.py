@@ -1,7 +1,18 @@
+''' A plot of the `Lorenz attractor`_. This example demonstrates using
+``multi_line`` to display many lines with a single vectorized glyph.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.multi_line
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_line_glyphs` > :ref:`userguide_plotting_line_glyphs_multi`
+    :keywords: fractal, lorenz, scipy
+
+.. _Lorenz attractor: https://en.wikipedia.org/wiki/Lorenz_system
+
+'''
 import numpy as np
 from scipy.integrate import odeint
 
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 sigma = 10
 rho = 28
@@ -31,7 +42,5 @@ p = figure(title="Lorenz attractor example", background_fill_color="#fafafa")
 
 p.multi_line(np.array_split(xprime, 7), np.array_split(z, 7),
              line_color=colors, line_alpha=0.8, line_width=1.5)
-
-output_file("lorenz.html", title="lorenz.py example")
 
 show(p)

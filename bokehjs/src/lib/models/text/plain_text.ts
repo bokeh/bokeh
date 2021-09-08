@@ -1,26 +1,20 @@
+import {BaseText} from "./base_text"
 import * as p from "core/properties"
-import {Model} from "../../model"
 
 export namespace PlainText {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {
+  export type Props = BaseText.Props & {
     text: p.Property<string>
   }
 }
 
 export interface PlainText extends PlainText.Attrs {}
 
-export class PlainText extends Model {
+export class PlainText extends BaseText {
   override properties: PlainText.Props
 
   constructor(attrs?: Partial<PlainText.Attrs>) {
     super(attrs)
-  }
-
-  static {
-    this.define<PlainText.Props>(({String}) => ({
-      text: [ String ],
-    }))
   }
 }

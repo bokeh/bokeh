@@ -153,4 +153,4 @@ class Instance(Property[T]):
 @register_type_link(Instance)
 def _sphinx_type_link(obj):
     fullname = f"{obj.instance_type.__module__}.{obj.instance_type.__name__}"
-    return f"{property_link(obj)}({model_link(fullname)}"
+    return f"{property_link(obj)}({model_link(fullname)})"

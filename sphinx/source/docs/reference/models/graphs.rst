@@ -1,7 +1,7 @@
 .. _bokeh.models.graphs:
 
-bokeh.models.graphs
--------------------
+graphs
+------
 
 .. automodule:: bokeh.models.graphs
    :members:

@@ -53,6 +53,7 @@ dependencies:
   - selenium >=3.8
   - scipy
   - xyzservices
+  - pre-commit
 
   # examples
   - flask >=1.0
@@ -80,6 +81,7 @@ dependencies:
     - sphinxext-opengraph
     - sphinx-reredirects
     - sphinx-panels
+    - sphinx-tabs
     # tests
     - types-boto
     - types-colorama

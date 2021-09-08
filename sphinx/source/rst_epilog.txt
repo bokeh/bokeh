@@ -1,8 +1,8 @@
 .. |bokeh.models|       replace:: :ref:`bokeh.models`
 .. |bokeh.plotting|     replace:: :ref:`bokeh.plotting`
 .. |ColumnDataSource|   replace:: :ref:`ColumnDataSource <userguide_data_cds>`
+.. |contributor guide| replace:: :ref:`contributor guide <contributor_guide>`
 .. |data units|         replace:: :ref:`data units <userguide_styling_units>`
-.. |developers guide|   replace:: :ref:`developers guide <devguide>`
 .. |fill properties|    replace:: :ref:`fill properties <userguide_styling_fill_properties>`
 .. |hatch properties|   replace:: :ref:`hatch properties <userguide_styling_hatch_properties>`
 .. |interactive legends| replace:: :ref:`interactive legends <userguide_interaction_legends>`
@@ -19,6 +19,7 @@
 .. |factor_cmap|        replace:: :py:func:`~bokeh.transform.factor_cmap`
 .. |field|              replace:: :py:func:`~bokeh.core.properties.field`
 .. |figure|             replace:: :py:func:`~bokeh.plotting.figure`
+.. |gmap|               replace:: :py:func:`~bokeh.plotting.gmap`
 .. |hbar|               replace:: :py:func:`~bokeh.plotting.Figure.hbar`
 .. |output_file|        replace:: :py:func:`~bokeh.io.output_file`
 .. |output_notebook|    replace:: :py:func:`~bokeh.io.output_notebook`
@@ -30,7 +31,7 @@
 .. |BoxAnnotation|      replace:: :py:class:`~bokeh.models.annotations.BoxAnnotation`
 .. |Color|              replace:: :py:class:`~bokeh.core.properties.Color`
 .. |DataSpec|           replace:: :py:class:`~bokeh.core.properties.DataSpec`
-.. |Document|           replace:: :py:class:`~bokeh.document.document.Document`
+.. |Document|           replace:: :py:class:`~bokeh.document.Document`
 .. |Figure|             replace:: :py:class:`~bokeh.plotting.Figure`
 .. |HasProps|           replace:: :py:class:`~bokeh.core.has_props.HasProps`
 .. |Legend|             replace:: :py:class:`~bokeh.models.annotations.Legend`

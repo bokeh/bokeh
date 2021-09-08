@@ -67,6 +67,7 @@ from sphinx.util import logging, parselinenos
 from sphinx.util.nodes import set_source_info
 
 # Bokeh imports
+from . import PARALLEL_SAFE
 from .templates import (
     BJS_CODEPEN_INIT,
     BJS_EPILOGUE,
@@ -261,6 +262,7 @@ def setup(app):
     app.add_node(bokehjs_content, html=bokehjs_content.html)
     app.add_directive("bokehjs-content", BokehJSContent)
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

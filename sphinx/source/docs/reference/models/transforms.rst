@@ -1,7 +1,7 @@
 .. _bokeh.models.transforms:
 
-bokeh.models.transforms
------------------------
+transforms
+----------
 
 .. automodule:: bokeh.models.transforms
    :members:
