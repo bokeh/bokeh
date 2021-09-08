@@ -27,12 +27,12 @@ export abstract class MathTextView extends View implements TextBox {
   override model: MathText
   override parent: RendererView
 
-  calc_padding([top, right, bottom, left]: [number, number, number, number]) : {x: number, y: number} {
+  calc_padding([top, right, bottom, left]: [number, number, number, number]): {x: number, y: number} {
     return {x: left - right, y: top - bottom}
   }
 
   compute_padding(): {x: number, y: number} {
-    if (!this.padding) return {x:0, y:0}
+    if (!this.padding) return {x: 0, y: 0}
     const {padding} = this
 
     if (isNumber(padding)) return {x: 0, y: 0}
@@ -96,7 +96,7 @@ export abstract class MathTextView extends View implements TextBox {
 
       return this.calc_padding([top, right, bottom, left])
     } else {
-      return {x:0, y:0}
+      return {x: 0, y: 0}
     }
   }
 
@@ -174,6 +174,10 @@ export abstract class MathTextView extends View implements TextBox {
   private svg_image: CanvasImage | null = null
   private svg_element: SVGElement
 
+  get has_loaded(): boolean {
+    return this.has_image_loaded
+  }
+
   get has_image_loaded(): boolean {
     return this.svg_image != null
   }
@@ -227,7 +231,7 @@ export abstract class MathTextView extends View implements TextBox {
     const {width, height, metrics} = this.dimensions()
     const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
 
-    let y = sy - (() => {
+    const y = sy - (() => {
       if (isNumber(y_anchor))
         return y_anchor*height
       else {
@@ -309,7 +313,7 @@ export abstract class MathTextView extends View implements TextBox {
     ) * fmetrics.x_height
 
     const width = fmetrics.x_height * widthEx
-    let height = fmetrics.x_height * heightEx
+    const height = fmetrics.x_height * heightEx
 
     if (height < fmetrics.height) {
       v_align -=  fmetrics.height - height
@@ -319,7 +323,7 @@ export abstract class MathTextView extends View implements TextBox {
       top: 0,
       right: 0,
       bottom: font_metrics(this.font).descent + v_align,
-      left: 0
+      left: 0,
     }
 
     return {width, height}

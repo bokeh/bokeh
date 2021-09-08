@@ -47,12 +47,12 @@ export abstract class GraphicsBox {
   font_size_scale: number = 1.0
   text_height_metric?: TextHeightMetric
 
-  calc_padding([top, right, bottom, left]: [number, number, number, number]) : {x: number, y: number} {
+  calc_padding([top, right, bottom, left]: [number, number, number, number]): {x: number, y: number} {
     return {x: left - right, y: top - bottom}
   }
 
   compute_padding(): {x: number, y: number} {
-    if (!this.padding) return {x:0, y:0}
+    if (!this.padding) return {x: 0, y: 0}
     const {padding} = this
 
     if (isNumber(padding)) return {x: 0, y: 0}
@@ -116,7 +116,7 @@ export abstract class GraphicsBox {
 
       return this.calc_padding([top, right, bottom, left])
     } else {
-      return {x:0, y:0}
+      return {x: 0, y: 0}
     }
   }
 
@@ -230,6 +230,16 @@ export abstract class GraphicsBox {
     ctx.stroke()
     ctx.restore()
   }
+
+  get has_loaded(): boolean {
+    return true
+  }
+
+  has_finished(): boolean {
+    return true
+  }
+
+  remove(): void {}
 }
 
 export type TextAlign = Align | "justify"
@@ -890,5 +900,24 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
   override get_baseline_anchor(): number {
     const {height} = this.dimensions()
     return 0.5*height
+  }
+
+  override get has_loaded(): boolean {
+    for (const item of this.items)
+      if (!item.has_loaded) return false
+
+    return true
+  }
+
+  override has_finished(): boolean {
+    for (const item of this.items)
+      if (!item.has_finished()) return false
+
+    return true
+  }
+
+  override remove(): void {
+    for (const item of this.items)
+      item.remove()
   }
 }

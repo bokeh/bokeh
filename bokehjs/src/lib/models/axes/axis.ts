@@ -46,8 +46,7 @@ export class AxisView extends GuideRendererView {
   panel: Panel
   layout: Layoutable
 
-  // private axis_label_math_text_view: MathTextView
-  private major_label_math_text_views: {[key: string]: MathTextView} = {}
+  private major_label_overrides_graphics: {[key: string]: GraphicsContainer} = {}
   private axis_label_graphics: GraphicsContainer
 
   /**
@@ -79,18 +78,32 @@ export class AxisView extends GuideRendererView {
         this.axis_label_graphics = new GraphicsContainer([new TextBox(isString(axis_label) ? {text: axis_label} : axis_label)])
       }
     }
+  }
 
-    const {major_label_overrides} = this.model
+  private initialize_major_label_overrides(label: string | BaseText) {
+    if (TeX.includes_math(label)) {
+      const parts = TeX.find_math_parts(label)
+      const graphics: TextBox[] = []
 
-    for (const label in major_label_overrides) {
-      if (major_label_overrides.hasOwnProperty(label)){
-        const math_text = TeX.from_text_like(major_label_overrides[label])
+      for (let i = 0; i < parts.length; i++) {
+        const part = parts[i]
 
-        if (math_text) {
-          this.model.major_label_overrides[label] = math_text
-          this.major_label_math_text_views[label] = await build_view(math_text, {parent: this})
-        }
+        if (part instanceof MathText)
+          build_view(part, {parent: this}).then(view => {
+            graphics[i] = view
+          })
+        else
+          graphics[i] = new TextBox(part)
       }
+
+      this.major_label_overrides_graphics[label] = new GraphicsContainer(graphics)
+    } else if (label instanceof MathText) {
+      build_view(label, {parent: this}).then(view => {
+        this.major_label_overrides_graphics[label.text] = new GraphicsContainer([view])
+      })
+    } else {
+      const text = isString(label) ? {text: label} : label
+      this.major_label_overrides_graphics[label.text] = new GraphicsContainer([new TextBox(text)])
     }
   }
 
@@ -454,12 +467,17 @@ export class AxisView extends GuideRendererView {
       const override = major_label_overrides[ticks[i]]
       if (override != null)  {
         const text = isString(override) ? override : override.text
+        if (!this.major_label_overrides_graphics[text])
+          this.initialize_major_label_overrides(override)
 
-        labels[i] = override instanceof MathText
-          ? this.major_label_math_text_views[ticks[i]]
-          : new TextBox({text})
+        const label_graphics = this.major_label_overrides_graphics[text]
+        if (label_graphics.has_loaded)
+          labels[i] = label_graphics
+        else
+          labels[i] = new TextBox({text})
       }
     }
+
     return new GraphicsBoxes(labels)
   }
 
@@ -620,12 +638,11 @@ export class AxisView extends GuideRendererView {
 
   override remove(): void {
     if (this.axis_label_graphics)
-      for (const item of this.axis_label_graphics.items)
-        if (item instanceof MathTextView)
-          item.remove()
+      this.axis_label_graphics.remove()
 
-    Object.getOwnPropertyNames(this.major_label_math_text_views)
-      .map(key => this.major_label_math_text_views[key].remove())
+    for (const key in this.major_label_overrides_graphics)
+      if (this.major_label_overrides_graphics[key])
+        this.major_label_overrides_graphics[key].remove()
 
     super.remove()
   }
@@ -634,15 +651,12 @@ export class AxisView extends GuideRendererView {
     if (!super.has_finished())
       return false
 
-    if (this.axis_label_graphics)
-      for (const item of this.axis_label_graphics.items)
-        if (item instanceof MathTextView)
-          if (!item.has_finished())
-            return false
+    if (!this.axis_label_graphics?.has_finished())
+      return false
 
-    // for (const key in this.major_label_math_text_views)
-    //   if (!this.major_label_math_text_views[key].has_finished())
-    //     return false
+    for (const key in this.major_label_overrides_graphics)
+      if (this.major_label_overrides_graphics[key]?.has_finished())
+        return false
 
     return true
   }
