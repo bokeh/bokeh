@@ -1108,18 +1108,25 @@ You can see a complete example with output in the section
 
 .. _userguide_styling_latex:
 
-Adding mathematical notations with LaTeX
-----------------------------------------
+Adding mathematical notations
+-----------------------------
 
-Bokeh supports mathematical notations expressed in the LaTeX_ markup language
-with a growing number of plot elements. Currently, you can use LaTeX notations
-with :ref:`axis labels <userguide_styling_axes_labels>` and with tick
-labels using :func:`~bokeh.models.axes.Axis.major_label_overrides`. Support for
-LaTeX notations for more elements is planned for future releases.
+Bokeh supports mathematical notations expressed in the LaTeX_ and MathML_ markup
+languages with a growing number of plot elements. Currently, you can use LaTeX
+and MathML notations with :ref:`axis labels <userguide_styling_axes_labels>` and
+tick labels using :func:`~bokeh.models.axes.Axis.major_label_overrides`.
 
-Bokeh uses the MathJax_ library to handle LaTeX markup. To use LaTeX markup
-instead of plain text, put your LaTeX code in a raw string literal that begins
-and ends with ``$``. For example: ``r"$\sin(x)$"``.
+Bokeh uses the MathJax_ library to handle LaTeX and MathML. To use LaTeX and
+MathML instead of plain text, use Bokeh's :class:`~bokeh.models.text.TeX` and
+:class:`~bokeh.models.text.MathML`. Both models have a ``text`` property that
+accept a raw string literal containing mathematical notation.
+
+TBD: Example
+
+For LaTeX, you can also pass a string directly. This string needs to begin and
+end with one of the `Mathjax default delimiters`_. These delimiters are
+``$$...$$`` and ``\[...\]`` for displayed mathematics, and ``\(...\)`` for
+in-line mathematics. For example: ``r"$$\sin(x)$$"``.
 
 LaTeX and axis labels
     To use LaTeX notation as an axis label, pass a raw string literal with
@@ -1144,11 +1151,12 @@ LaTeX and tick labels
 
 .. note::
     When you pass a raw string literal that begins and ends with ``$``, Bokeh
-    creates a :class:`~bokeh.models.text.MathText` object and passes your string
-    to the object's ``text`` property. See :class:`~bokeh.models.text.MathText`
+    creates a :class:`~bokeh.models.text.Tex` or object and passes your string
+    to the object's ``text`` property. See :class:`~bokeh.models.text`
     in the |reference guide| for more information.
 
 .. _LaTeX: https://www.latex-project.org/
+.. _MathML: https://www.w3.org/Math/
 .. _MathJax: https://www.mathjax.org
 
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
