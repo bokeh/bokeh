@@ -1,7 +1,7 @@
-.. _devguide_models:
+.. _contributor_guide_models:
 
-Bokeh Models
-=============
+Working with Bokeh models
+=========================
 
 Low-Level Interface
 -------------------
