@@ -77,7 +77,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
 
 async function plot(attrs: Partial<LinearAxis.Attrs>, side: Side, options?: {minor_size?: number}) {
   const p = new Plot({
-    width: 300,
+    width: 600,
     height: options?.minor_size ?? 50,
     x_scale: new LinearScale(),
     y_scale: new LinearScale(),
@@ -102,7 +102,16 @@ describe("models with MathText", () => {
     const stub = sinon.stub(MathTextView.prototype, "provider")
     stub.value(new InternalProvider())
     try {
-      await plot({axis_label: mathjax_example}, "above", {minor_size: 300})
+      await plot({axis_label: mathjax_example}, "above", {minor_size: 100})
+    } finally {
+      stub.restore()
+    }
+  })
+  it("should divide mathstring into tex/plaintext parts be", async () => {
+    const stub = sinon.stub(MathTextView.prototype, "provider")
+    stub.value(new InternalProvider())
+    try {
+      await plot({axis_label: mathjax_example}, "below", {minor_size: 100})
     } finally {
       stub.restore()
     }

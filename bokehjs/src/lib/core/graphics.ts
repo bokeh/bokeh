@@ -165,6 +165,10 @@ export class TextBox extends GraphicsBox {
   _align: TextAlign = "left"
   //padding: Padding
 
+  get_v_align(): number {
+    return 0
+  }
+
   set align(a: TextAlign) {
     this._align = a
   }
@@ -707,6 +711,16 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
     return {width, height}
   }
 
+  max_v_align(): number {
+    return this.items.reduce((max, item) => {
+      return Math.max(max, Math.abs(item.get_v_align()))
+    }, 0)
+  }
+
+  override size(): Size {
+    return this.max_size()
+  }
+
   override infer_text_height(): TextHeightMetric {
     for (const item of this.items)
       if (item instanceof TextBox)
@@ -739,20 +753,36 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
     const next_index = n+1
     const {sx, sy, y_anchor="center"} = pos
     const {height: container_height} = this.max_size()
-    const {height} = this.items[n].dimensions()
+    const {height} = this.items[n].size()
+    const v_align = this.max_v_align()
 
-    const item_sy = sy + (() => {
+    let item_sy = sy - (() => {
       if (isNumber(y_anchor))
-        return -y_anchor*height
+        return y_anchor*height
       else {
         switch (y_anchor) {
-          case "top": return 0
-          case "center": return 0.5*(container_height - height)
-          case "bottom": return container_height - height
-          case "baseline": return 0.5*(container_height - height)
+          case "top": return height-container_height
+          case "center": return (0.5*container_height) + (0.5*height)
+          case "bottom": return height
+          case "baseline": return (0.5*container_height) + (0.5*height)
         }
       }
     })()
+
+    if (v_align) {
+      item_sy -= (() => {
+        if (isNumber(y_anchor))
+          return 0
+        else {
+          switch (y_anchor) {
+            case "top": return v_align
+            case "center": return 0
+            case "bottom": return v_align - font_metrics(this.font).descent
+            case "baseline": return 0
+          }
+        }
+      })()
+    }
 
     // first item
     if (!in_bounds(previous_index)) {
@@ -777,7 +807,9 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
   }
 
   override paint(ctx: Context2d): void {
-    this.items.forEach(item => item.paint(ctx))
+    this.items.forEach(item => {
+      item.paint(ctx)
+    })
   }
 
   override get_baseline_anchor(): number {

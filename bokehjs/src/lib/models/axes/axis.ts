@@ -58,7 +58,6 @@ export class AxisView extends GuideRendererView {
 
     const {axis_label} = this.model
 
-
     if (axis_label != null) {
       if (TeX.includes_math(axis_label)) {
         const parts = TeX.find_math_parts(axis_label)
@@ -203,7 +202,7 @@ export class AxisView extends GuideRendererView {
     axis_label_graphics.angle = this.panel.get_label_angle_heuristic("parallel")
     axis_label_graphics.base_font_size = this.plot_view.base_font_size
 
-    const size = axis_label_graphics.size()
+    const size = axis_label_graphics.max_size()
     const extent = this.dimension == 0 ? size.height : size.width
     const standoff = this.model.axis_label_standoff
 

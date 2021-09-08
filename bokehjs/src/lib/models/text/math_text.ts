@@ -4,7 +4,7 @@ import {isNumber, isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {load_image} from "core/util/image"
 import {CanvasImage} from "models/glyphs/image_url"
-import {color2css} from "core/util/color"
+import {color2css, color2rgba} from "core/util/color"
 import {Size} from "core/types"
 import {View} from "core/view"
 import {RendererView} from "models/renderers/renderer"
@@ -156,7 +156,11 @@ export abstract class MathTextView extends View implements TextBox {
     const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
 
     if (this.has_image_loaded) {
-      return {x:sx, y: this.get_v_align() + sy}
+      const v_align = this.get_v_align()
+
+      const image_y = sy + v_align
+
+      return {x:sx, y: image_y }
     }
 
     let y = sy - (() => {
@@ -191,11 +195,14 @@ export abstract class MathTextView extends View implements TextBox {
    * Uses the width, height and given angle to calculate the size
   */
   size(): Size {
-    const {width, height} = this.dimensions()
+    let {width, height} = this.dimensions()
     const {angle} = this
 
+    if (this.has_image_loaded)
+      height = height + font_metrics(this.font).descent
+
     if (!angle)
-      return {width, height}
+      return {width, height: height}
     else {
       const c = Math.cos(Math.abs(angle))
       const s = Math.sin(Math.abs(angle))
@@ -374,10 +381,11 @@ export abstract class MathTextView extends View implements TextBox {
     }
   }
 
-  private get_v_align(): number {
+  get_v_align(): number {
+    if (!this.has_image_loaded)
+      return 0
+
     const fmetrics = font_metrics(this.font)
-    const {y_anchor = "center"} = this.position
-    const {height} = this.get_image_dimensions(fmetrics)
 
     const v_align = parseFloat(
       this.svg_element
@@ -385,20 +393,7 @@ export abstract class MathTextView extends View implements TextBox {
         ?.replace(/\-?[A-z\: ;]/g, "") ?? "0"
     ) * fmetrics.x_height
 
-    let padtop = 0
-    let padbottom = 0
-
-    if (height < fmetrics.height) {
-      padtop = fmetrics.ascent - (height + v_align)
-      padbottom = -v_align
-    }
-
-    switch (y_anchor) {
-      case "top": return padtop
-      case "bottom": return padbottom
-      default:
-        return 0
-    }
+    return Math.abs(v_align)
   }
 }
 
@@ -481,8 +476,18 @@ export class TeXView extends MathTextView {
   override model: TeX
 
   protected _process_text(text: string): HTMLElement | undefined {
+    const fmetrics = font_metrics(this.font)
+    const [r, g, b] = color2rgba(this.color)
     // TODO: allow plot/document level configuration of macros
-    return this.provider.MathJax?.tex2svg(text, undefined, this.model.macros)
+    return this.provider.MathJax?.tex2svg(
+      `\\color[RGB]{${r}, ${g}, ${b}} ${text}`,
+      {
+        display: !this.model.inline,
+        em: this.base_font_size,
+        ex: fmetrics.x_height
+      },
+      this.model.macros
+    )
   }
 }
 
