@@ -49,7 +49,7 @@ export const ScreenArray = Float32Array
 
 export function to_screen(array: Iterable<number>): ScreenArray {
   if (!(array instanceof Float32Array))
-    return new Float32Array(array)
+    return Float32Array.from(array)
   else
     return array
 }

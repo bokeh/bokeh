@@ -19,6 +19,11 @@ describe("core/util/pretty module", () => {
       expect(to_string("a'b'c")).to.be.equal('"a\\\'b\\\'c"')
     })
 
+    it("that supports symbol type", () => {
+      expect(to_string(Symbol())).to.be.equal("Symbol()")
+      expect(to_string(Symbol("a"))).to.be.equal("Symbol(a)")
+    })
+
     it("that supports T[]", () => {
       expect(to_string([])).to.be.equal("[]")
       expect(to_string([1, 2, 3])).to.be.equal("[1, 2, 3]")
