@@ -24,7 +24,6 @@ from ..models import (
     MercatorTicker,
     MercatorTickFormatter,
     Range1d,
-    Title,
 )
 from ._plot import _get_num_minor_ticks
 from ._tools import process_active_tools, process_tools_arg
@@ -74,11 +73,6 @@ class GMap(GMapPlot, GlyphAPI):
 
     def __init__(self, **kw) -> None:
         opts = GMapFigureOptions(kw)
-
-        title = kw.get("title", None)
-        if isinstance(title, str):
-            kw['title'] = Title(text=title)
-
         super().__init__(x_range=Range1d(), y_range=Range1d(), **kw)
 
         if opts.x_axis_location is not None:

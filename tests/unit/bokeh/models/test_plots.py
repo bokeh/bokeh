@@ -35,6 +35,7 @@ from bokeh.models import (
     PanTool,
     Plot,
     Range1d,
+    Title,
 )
 from bokeh.plotting import figure
 
@@ -259,6 +260,15 @@ class TestLinearTwinAxis(BaseTwinAxis):
 def test_plot_with_no_title_specified_creates_an_empty_title() -> None:
     plot = Plot()
     assert plot.title.text == ""
+
+
+def test_plot_if_title_is_converted_from_string_to_Title() -> None:
+    plot = Plot()
+    plot.title = "A title"
+    plot.title.text_color = "olive"
+    assert isinstance(plot.title, Title)
+    assert plot.title.text == "A title"
+    assert plot.title.text_color == "olive"
 
 
 def test_plot__scale_classmethod() -> None:
