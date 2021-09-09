@@ -499,9 +499,9 @@ class Plot(LayoutDOM):
     Whether to use HiDPI mode when available.
     """)
 
-    title = Either(Null, String, Instance(Title), default=lambda: Title(text=""), help="""
+    title = Either(Null, Instance(Title), default=lambda: Title(text=""), help="""
     A title for the plot. Can be a text string or a Title annotation.
-    """)
+    """).accepts(String, lambda text: Title(text=text))
 
     title_location = Nullable(Enum(Location), default="above", help="""
     Where the title will be located. Titles on the left or right side
