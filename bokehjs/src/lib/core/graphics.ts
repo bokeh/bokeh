@@ -736,8 +736,9 @@ export class GraphicsBoxes {
 export class GraphicsContainer extends TextBox implements GraphicsBoxes {
   items: TextBox[]
 
-  constructor(items: TextBox[]) {
+  constructor(items: TextBox[], options: {is_loading: boolean} = {is_loading: false}) {
     super({text: items.map(item => item.text).join("")})
+    this.is_loading = options.is_loading
     this.items = items
   }
 
@@ -817,6 +818,10 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
       width += size.width
     }
     return {width, height: this.max_size().height, metrics: font_metrics(this.font)}
+  }
+
+  override get position(): Position {
+    return this._position
   }
 
   override set position(pos: Position) {
@@ -902,7 +907,13 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
     return 0.5*height
   }
 
+  is_loading = false
+
+  // not being used
   override get has_loaded(): boolean {
+    if (this.is_loading)
+      return false
+
     for (const item of this.items)
       if (!item.has_loaded) return false
 
@@ -910,6 +921,9 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
   }
 
   override has_finished(): boolean {
+    if (this.is_loading)
+      return false
+
     for (const item of this.items)
       if (!item.has_finished()) return false
 
@@ -919,11 +933,5 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
   override remove(): void {
     for (const item of this.items)
       item.remove()
-  }
-}
-
-export class LoadingGraphics extends GraphicsContainer {
-  override get has_loaded(): boolean {
-    return false
   }
 }

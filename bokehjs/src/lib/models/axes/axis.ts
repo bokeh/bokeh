@@ -14,7 +14,7 @@ import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
-import {GraphicsBoxes, GraphicsContainer, LoadingGraphics, TextBox} from "core/graphics"
+import {GraphicsBoxes, GraphicsContainer, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
 import {MathText, TeX} from "../text/math_text"
 import {BaseText} from "../text/base_text"
@@ -77,10 +77,14 @@ export class AxisView extends GuideRendererView {
       }
     }
   }
+  is_loading = false
   // private tick_graphics: {[key: string]: TextBox[]} = {}
-  private initialize_major_label_overrides(label: string | BaseText, tick: number) {
+  private initialize_major_label_overrides(label: string | BaseText, tick: number): GraphicsContainer {
+    if (this.major_label_overrides_graphics[tick])
+      return this.major_label_overrides_graphics[tick]
+
     if (TeX.includes_math(label)) {
-      this.major_label_overrides_graphics[tick] = new GraphicsContainer([new TextBox({text: label})])
+      return this.major_label_overrides_graphics[tick] = new GraphicsContainer([new TextBox({text: label})])
       // const parts = TeX.find_math_parts(label)
 
       // for (let i = 0; i < parts.length; i++) {
@@ -95,18 +99,16 @@ export class AxisView extends GuideRendererView {
       //     this.tick_graphics[tick][i] = new TextBox(part)
       // }
 
-      // this.major_label_overrides_graphics[tick] = new GraphicsContainer(this.tick_graphics[tick])
+      // return this.major_label_overrides_graphics[tick] = new GraphicsContainer(this.tick_graphics[tick])
     } else if (label instanceof MathText) {
-      this.major_label_overrides_graphics[tick] = new GraphicsContainer([new TextBox(label)])
-
       build_view(label, {parent: this}).then(view => {
-        console.log({label, tick}, this.major_label_overrides_graphics)
         this.major_label_overrides_graphics[tick] = new GraphicsContainer([view])
-        this.parent.request_layout()
+        this.plot_view.request_layout()
       })
-    } else {
-      this.major_label_overrides_graphics[tick] = new GraphicsContainer([new TextBox(label)])
+
+      return this.major_label_overrides_graphics[tick] = new GraphicsContainer([new TextBox(label)], {is_loading: true})
     }
+    return this.major_label_overrides_graphics[tick] = new GraphicsContainer([new TextBox(label)])
   }
 
   update_layout(): void {
@@ -449,14 +451,9 @@ export class AxisView extends GuideRendererView {
     const {major_label_overrides} = this.model
     for (let i = 0; i < ticks.length; i++) {
       const override = major_label_overrides[ticks[i]]
-      const override_graphics = this.major_label_overrides_graphics[ticks[i]]
 
-      if (override != null)  {
-        if (!override_graphics)
-          this.initialize_major_label_overrides(override, ticks[i])
-
-          labels[i] = override_graphics
-      }
+      if (override != null)
+        labels[i] = this.initialize_major_label_overrides(override, ticks[i])
     }
 
     return new GraphicsBoxes(labels)
@@ -622,8 +619,9 @@ export class AxisView extends GuideRendererView {
       this.axis_label_graphics.remove()
 
     for (const key in this.major_label_overrides_graphics)
-      if (this.major_label_overrides_graphics[key])
-        this.major_label_overrides_graphics[key].remove()
+      if (this.major_label_overrides_graphics.hasOwnProperty(key))
+        if (this.major_label_overrides_graphics[key])
+          this.major_label_overrides_graphics[key].remove()
 
     super.remove()
   }
@@ -632,12 +630,13 @@ export class AxisView extends GuideRendererView {
     if (!super.has_finished())
       return false
 
-    if (!this.axis_label_graphics?.has_finished())
+    if (this.axis_label_graphics && !this.axis_label_graphics.has_finished())
       return false
 
     for (const key in this.major_label_overrides_graphics)
-      if (this.major_label_overrides_graphics[key]?.has_finished())
-        return false
+      if (this.major_label_overrides_graphics.hasOwnProperty(key))
+        if (!this.major_label_overrides_graphics[key] ||  !this.major_label_overrides_graphics[key].has_finished())
+          return false
 
     return true
   }
