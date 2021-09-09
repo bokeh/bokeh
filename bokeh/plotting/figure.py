@@ -44,7 +44,6 @@ from ..models import (
     Plot,
     Range,
     Scale,
-    Title,
     Tool,
 )
 from ..models.dom import Template
@@ -174,11 +173,6 @@ class Figure(Plot, GlyphAPI):
 
     def __init__(self, *arg, **kw) -> None:
         opts = FigureOptions(kw)
-
-        title = kw.get("title", None)
-        if isinstance(title, str):
-            kw['title'] = Title(text=title)
-
         super().__init__(*arg, **kw)
 
         self.x_range = get_range(opts.x_range)
