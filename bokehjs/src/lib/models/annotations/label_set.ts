@@ -3,7 +3,7 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {SpatialUnits, RenderMode} from "core/enums"
-import {div, display} from "core/dom"
+import {div, display, remove} from "core/dom"
 import {TextBox} from "core/graphics"
 import * as p from "core/properties"
 import {FloatArray, ScreenArray} from "core/types"
@@ -26,11 +26,20 @@ export class LabelSetView extends DataAnnotationView {
 
   override set_data(source: ColumnarDataSource): void {
     super.set_data(source)
+    this.els?.forEach((el) => remove(el))
 
-    if (this.model.render_mode == "css")
-      this.els = [...this.text].map(() => div({style: {display: "none"}}))
-    else
+    if (this.model.render_mode == "css") {
+      const els = this.els = [...this.text].map(() => div({style: {display: "none"}}))
+      for (const el of els) {
+        this.plot_view.canvas_view.add_overlay(el)
+      }
+    } else
       delete this.els
+  }
+
+  override remove(): void {
+    this.els?.forEach((el) => remove(el))
+    super.remove()
   }
 
   protected override _rerender(): void {
