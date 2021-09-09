@@ -14,14 +14,12 @@ import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
-import {GraphicsBoxes, GraphicsContainer, TextBox} from "core/graphics"
+import {GraphicsBoxes, GraphicsContainer, LoadingGraphics, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
-import {MathText, MathTextView, TeX} from "../text/math_text"
+import {MathText, TeX} from "../text/math_text"
 import {BaseText} from "../text/base_text"
 import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
-import {isString} from "core/util/types"
-// import { BBox } from "core/util/bbox"
 
 const {abs} = Math
 
@@ -75,35 +73,39 @@ export class AxisView extends GuideRendererView {
       } else if (axis_label instanceof MathText) {
         this.axis_label_graphics = new GraphicsContainer([await build_view(axis_label, {parent: this})])
       } else {
-        this.axis_label_graphics = new GraphicsContainer([new TextBox(isString(axis_label) ? {text: axis_label} : axis_label)])
+        this.axis_label_graphics = new GraphicsContainer([new TextBox(axis_label)])
       }
     }
   }
-
-  private initialize_major_label_overrides(label: string | BaseText) {
+  // private tick_graphics: {[key: string]: TextBox[]} = {}
+  private initialize_major_label_overrides(label: string | BaseText, tick: number) {
     if (TeX.includes_math(label)) {
-      const parts = TeX.find_math_parts(label)
-      const graphics: TextBox[] = []
+      this.major_label_overrides_graphics[tick] = new GraphicsContainer([new TextBox({text: label})])
+      // const parts = TeX.find_math_parts(label)
 
-      for (let i = 0; i < parts.length; i++) {
-        const part = parts[i]
+      // for (let i = 0; i < parts.length; i++) {
+      //   const part = parts[i]
 
-        if (part instanceof MathText)
-          build_view(part, {parent: this}).then(view => {
-            graphics[i] = view
-          })
-        else
-          graphics[i] = new TextBox(part)
-      }
+      //   if (part instanceof MathText)
+      //     build_view(part, {parent: this}).then(view => {
+      //       this.tick_graphics[tick][i] = view
+      //       console.log({label}, this.tick_graphics, this.major_label_overrides_graphics)
+      //     })
+      //   else
+      //     this.tick_graphics[tick][i] = new TextBox(part)
+      // }
 
-      this.major_label_overrides_graphics[label] = new GraphicsContainer(graphics)
+      // this.major_label_overrides_graphics[tick] = new GraphicsContainer(this.tick_graphics[tick])
     } else if (label instanceof MathText) {
+      this.major_label_overrides_graphics[tick] = new GraphicsContainer([new TextBox(label)])
+
       build_view(label, {parent: this}).then(view => {
-        this.major_label_overrides_graphics[label.text] = new GraphicsContainer([view])
+        console.log({label, tick}, this.major_label_overrides_graphics)
+        this.major_label_overrides_graphics[tick] = new GraphicsContainer([view])
+        this.parent.request_layout()
       })
     } else {
-      const text = isString(label) ? {text: label} : label
-      this.major_label_overrides_graphics[label.text] = new GraphicsContainer([new TextBox(text)])
+      this.major_label_overrides_graphics[tick] = new GraphicsContainer([new TextBox(label)])
     }
   }
 
@@ -385,27 +387,9 @@ export class AxisView extends GuideRendererView {
       }
     }
 
-    // function paint_bbox(ctx: Context2d, bbox: BBox): void {
-    //   const {x, y, width, height} = bbox
-    //   ctx.save()
-    //   ctx.strokeStyle = "blue"
-    //   ctx.lineWidth = 1
-    //   ctx.beginPath()
-    //   const {round} = Math
-    //   ctx.moveTo(round(x), round(y))
-    //   ctx.lineTo(round(x), round(y + height))
-    //   ctx.lineTo(round(x + width), round(y + height))
-    //   ctx.lineTo(round(x + width), round(y))
-    //   ctx.closePath()
-    //   ctx.stroke()
-    //   ctx.restore()
-    // }
-    // paint_bbox(ctx, this.layout.bbox)
-
     for (const i of selected) {
       const label = items[i]
       label.paint(ctx)
-      // label.paint_bbox(ctx)
     }
   }
 
@@ -465,16 +449,13 @@ export class AxisView extends GuideRendererView {
     const {major_label_overrides} = this.model
     for (let i = 0; i < ticks.length; i++) {
       const override = major_label_overrides[ticks[i]]
-      if (override != null)  {
-        const text = isString(override) ? override : override.text
-        if (!this.major_label_overrides_graphics[text])
-          this.initialize_major_label_overrides(override)
+      const override_graphics = this.major_label_overrides_graphics[ticks[i]]
 
-        const label_graphics = this.major_label_overrides_graphics[text]
-        if (label_graphics.has_loaded)
-          labels[i] = label_graphics
-        else
-          labels[i] = new TextBox({text})
+      if (override != null)  {
+        if (!override_graphics)
+          this.initialize_major_label_overrides(override, ticks[i])
+
+          labels[i] = override_graphics
       }
     }
 

@@ -97,6 +97,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
         min_border_right: 0,
         title: null,
         toolbar_location: null,
+        ...options?.plot_attrs,
       })
       const axis =
         axis_type == "linear" ? new LinearAxis(attrs) : new LogAxis(attrs)

@@ -175,7 +175,7 @@ export abstract class MathTextView extends View implements TextBox {
   private svg_element: SVGElement
 
   get has_loaded(): boolean {
-    return this.has_image_loaded
+    return this.has_image_loaded || this._has_finished
   }
 
   get has_image_loaded(): boolean {

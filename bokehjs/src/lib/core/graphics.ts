@@ -3,7 +3,7 @@ import {BBox} from "./util/bbox"
 import {Context2d} from "./util/canvas"
 import {font_metrics, /*glyph_metrics,*/ FontMetrics, parse_css_font_size} from "./util/text"
 import {max, max_by, sum} from "./util/array"
-import {isNumber, isArray, isObject} from "./util/types"
+import {isString, isNumber, isArray, isObject} from "./util/types"
 import {Rect, AffineTransform} from "./util/affine"
 import {color2css} from "./util/color"
 import * as visuals from "./visuals"
@@ -287,9 +287,9 @@ export class TextBox extends GraphicsBox {
     this.set_text_visuals(v)
   }
 
-  constructor({text}: {text: string}) {
+  constructor(text: string | {text: string}) {
     super()
-    this.text = text
+    this.text = isString(text) ? text : text.text
   }
 
   override infer_text_height(): TextHeightMetric {
@@ -919,5 +919,11 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
   override remove(): void {
     for (const item of this.items)
       item.remove()
+  }
+}
+
+export class LoadingGraphics extends GraphicsContainer {
+  override get has_loaded(): boolean {
+    return false
   }
 }

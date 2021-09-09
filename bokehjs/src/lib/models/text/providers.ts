@@ -23,25 +23,26 @@ export class NoProvider extends MathJaxProvider {
   }
 }
 
-export class CDNProvider extends MathJaxProvider  {
-  get MathJax(): typeof MathJax | null {
-    return typeof MathJax !== "undefined" ? MathJax : null
-  }
+// No longer supported
+// export class CDNProvider extends MathJaxProvider  {
+//   get MathJax(): typeof MathJax | null {
+//     return typeof MathJax !== "undefined" ? MathJax : null
+//   }
 
-  async fetch(): Promise<void> {
-    const script = document.createElement("script")
-    script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
-    script.onload = () => {
-      this.status = "loaded"
-      this.ready.emit()
-    }
-    script.onerror = () => {
-      this.status = "failed"
-    }
-    this.status = "loading"
-    document.head.appendChild(script)
-  }
-}
+//   async fetch(): Promise<void> {
+//     const script = document.createElement("script")
+//     script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+//     script.onload = () => {
+//       this.status = "loaded"
+//       this.ready.emit()
+//     }
+//     script.onerror = () => {
+//       this.status = "failed"
+//     }
+//     this.status = "loading"
+//     document.head.appendChild(script)
+//   }
+// }
 
 export class BundleProvider extends MathJaxProvider  {
   _mathjax: typeof MathJax | null
