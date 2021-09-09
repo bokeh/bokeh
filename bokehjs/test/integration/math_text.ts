@@ -110,7 +110,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
 
   describe("models with MathText", () => {
     const mathjax_example =
-      "When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\) and they are $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$"
+      "When \\(a \\ne 0\\), there are two solutions \\(ax + bx + c = 0\\) to \\(ax^2 + bx + c = 0\\) and they are $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$"
     const tex = "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"
 
     const ascii = "x = (-b +- sqrt(b^2 - 4ac)) / (2a)"
@@ -225,13 +225,13 @@ export class DelayedInternalProvider extends MathJaxProvider {
     })
 
     describe("on axis labels", () => {
-      it("should divide mathstring into tex/plaintext parts", async () => {
+      it("should divide mathstring into tex/plaintext parts above", async () => {
         const stub = sinon.stub(MathTextView.prototype, "provider")
         stub.value(new InternalProvider())
         try {
           await hplot("above", "linear")(
             {axis_label: mathjax_example},
-            {major_size: 600, minor_size: 100}
+            {major_size: 700, minor_size: 100}
           )
         } finally {
           stub.restore()

@@ -258,10 +258,19 @@ export abstract class MathTextView extends View implements TextBox {
 
     if (height < metrics.height) {
       if (y_anchor == "bottom")
-        return {x, y}
-      if (y_anchor == "top")
         return {x, y: y + this.compute_padding().y}
+      if (y_anchor == "top")
+        if (this.v_align < (-1*metrics.descent))
+          {this.svg_image && console.log('short top descent', this.text)
+          return {x, y: sy + metrics.height - height}}
+        else
+          {this.svg_image && console.log('short top else', this.text)
+            // return {x, y: sy - (this.size().height - height)}
+            // return {x, y: sy + metrics.ascent - height}
+            return {x, y}
+          }
     }
+    this.svg_image && console.log('big', y_anchor, this.text)
 
     return {x, y}
   }
@@ -319,19 +328,21 @@ export abstract class MathTextView extends View implements TextBox {
     const width = fmetrics.x_height * widthEx
     const height = fmetrics.x_height * heightEx
 
-    if (height < fmetrics.height) {
-      v_align -=  fmetrics.height - height
+    let pbottom = fmetrics.descent
+    if (v_align > (-1*fmetrics.descent)) {
+      pbottom = fmetrics.descent
     }
-
+    this.v_align = v_align
     this.padding = {
-      top: 0,
+      top: -v_align,
       right: 0,
-      bottom: font_metrics(this.font).descent + v_align,
+      bottom: pbottom,
       left: 0,
     }
 
     return {width, height}
   }
+  private v_align = 0
 
   dimensions(): Size & {metrics: FontMetrics} {
     const fmetrics = font_metrics(this.font)
@@ -458,6 +469,7 @@ export abstract class MathTextView extends View implements TextBox {
     const {width, height, metrics} = this.dimensions()
 
     if (this.svg_image) {
+      console.log(this.text, this.padding)
       ctx.drawImage(this.svg_image, x, y, width, height)
     } else {
       ctx.fillStyle = this.color

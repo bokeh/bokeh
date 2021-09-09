@@ -30,7 +30,7 @@ export type Position = {
 }
 
 type Val = number | {value: number, unit: "px" | "%"}
-type GraphicsExtents = {left: Val, right: Val, top: Val, bottom: Val}
+export type GraphicsExtents = {left: Val, right: Val, top: Val, bottom: Val}
 export function isGraphicsExtents(val: unknown): val is GraphicsExtents {
   return isObject(val) && "left" in val && "right" in val && "top" in val && "bottom" in val
 }
@@ -849,15 +849,15 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
     const next_index = n+1
     const {sx, sy, y_anchor="center"} = pos
     const {height: container_height} = this.max_size()
-    const {height} = this.items[n].size()
+    const {height: item_height} = this.items[n].size()
     const y_padding = this.max_y_padding()
 
     let item_sy = sy - (() => {
       if (isNumber(y_anchor))
-        return y_anchor*height
+        return y_anchor*item_height
       else {
         switch (y_anchor) {
-          case "top": return height-container_height
+          case "top": return item_height-container_height
           case "center": return 0
           case "bottom": return 0
           case "baseline": return -font_metrics(this.font).descent
@@ -867,13 +867,18 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
 
     if (y_padding) {
       const item_padding = this.items[n].compute_padding().y
-      console.log({item_padding, y_padding, pos})
+
+      console.log(this.items[n].text, this.items[n].dimensions(), { item_padding, y_padding, pos})
       item_sy -= (() => {
         if (isNumber(y_anchor))
           return 0
         else {
           switch (y_anchor) {
             case "top":
+              if (item_padding < 0)
+                return y_padding - item_padding + this.items[n].dimensions().height - item_height
+
+              return y_padding - item_padding
             case "bottom": return y_padding - item_padding
             case "center":
             case "baseline": return 0
