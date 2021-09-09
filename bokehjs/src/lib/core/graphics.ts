@@ -867,18 +867,12 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
 
     if (y_padding) {
       const item_padding = this.items[n].compute_padding().y
-
-      console.log(this.items[n].text, this.items[n].dimensions(), { item_padding, y_padding, pos})
       item_sy -= (() => {
         if (isNumber(y_anchor))
           return 0
         else {
           switch (y_anchor) {
             case "top":
-              if (item_padding < 0)
-                return y_padding - item_padding + this.items[n].dimensions().height - item_height
-
-              return y_padding - item_padding
             case "bottom": return y_padding - item_padding
             case "center":
             case "baseline": return 0

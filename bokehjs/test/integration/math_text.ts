@@ -162,16 +162,16 @@ export class DelayedInternalProvider extends MathJaxProvider {
           stub.value(new InternalProvider())
           const major_label_overrides = {
             major_label_overrides: {
-              0: new TeX({text: "\\frac{0}{0}"}),
+              0: new TeX({text: "\\frac{A^2}{y}"}),
               2: new TeX({text: "zero"}),
               4: new TeX({text: "Ten()"}),
-              6: new TeX({text: "0"}),
+              6: new TeX({text: "y"}),
               8: new TeX({text: "Ten"}),
               10: "Ten",
             },
           }
           const options = {
-            minor_size: 70,
+            minor_size: 80,
             plot_attrs: {
               x_range: new Range1d({start: 0, end: 10}),
               y_range: new Range1d({start: 0, end: 10}),
@@ -244,7 +244,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
         try {
           await hplot("below", "linear")(
             {axis_label: mathjax_example},
-            {major_size: 600, minor_size: 100}
+            {major_size: 700, minor_size: 100}
           )
         } finally {
           stub.restore()

@@ -230,13 +230,19 @@ export abstract class MathTextView extends View implements TextBox {
   _computed_position(): {x: number, y: number} {
     const {width, height, metrics} = this.dimensions()
     const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
+    const pad = this.compute_padding()
 
     const y = sy - (() => {
       if (isNumber(y_anchor))
         return y_anchor*height
       else {
         switch (y_anchor) {
-          case "top": return 0
+          case "top": {
+            if (metrics.height > height)
+              return (height - pad.y - metrics.height)
+            else
+              return 0
+          }
           case "center": return 0.5*height
           case "bottom": return height
           case "baseline": return 0
@@ -256,21 +262,23 @@ export abstract class MathTextView extends View implements TextBox {
       }
     })()
 
-    if (height < metrics.height) {
-      if (y_anchor == "bottom")
-        return {x, y: y + this.compute_padding().y}
-      if (y_anchor == "top")
-        if (this.v_align < (-1*metrics.descent))
-          {this.svg_image && console.log('short top descent', this.text)
-          return {x, y: sy + metrics.height - height}}
-        else
-          {this.svg_image && console.log('short top else', this.text)
-            // return {x, y: sy - (this.size().height - height)}
-            // return {x, y: sy + metrics.ascent - height}
-            return {x, y}
-          }
-    }
-    this.svg_image && console.log('big', y_anchor, this.text)
+    // if (height < metrics.height) {
+    //   if (y_anchor == "bottom")
+    //     return {x, y: y + this.compute_padding().y}
+    //   if (y_anchor == "top")
+    //   {this.svg_image && console.log('short top descent', this.text)
+    //     return {x, y: sy + metrics.height - height}}
+    //     // if (this.v_align < (-1*metrics.descent))
+    //     // else
+    //     //   {this.svg_image && console.log('short top else', this.text)
+
+    //     //     this.dimensions().height - this.size().height
+    //     //     // return {x, y: sy - (this.size().height - height)}
+    //     //     // return {x, y: sy + metrics.ascent - height}
+    //     //     return {x, y}
+    //     //   }
+    // }
+    // this.svg_image && console.log('big', y_anchor, this.text)
 
     return {x, y}
   }
@@ -332,7 +340,7 @@ export abstract class MathTextView extends View implements TextBox {
     if (v_align > (-1*fmetrics.descent)) {
       pbottom = fmetrics.descent
     }
-    this.v_align = v_align
+    // this.v_align = v_align
     this.padding = {
       top: -v_align,
       right: 0,
@@ -342,7 +350,7 @@ export abstract class MathTextView extends View implements TextBox {
 
     return {width, height}
   }
-  private v_align = 0
+  // private v_align = 0
 
   dimensions(): Size & {metrics: FontMetrics} {
     const fmetrics = font_metrics(this.font)
@@ -538,7 +546,12 @@ export class MathMLView extends MathTextView {
   override model: MathML
 
   protected _process_text(text: string): HTMLElement | undefined {
-    return this.provider.MathJax?.mathml2svg(text.trim())
+    const fmetrics = font_metrics(this.font)
+
+    return this.provider.MathJax?.mathml2svg(text.trim(), {
+      em: this.base_font_size,
+      ex: fmetrics.x_height,
+    })
   }
 }
 
