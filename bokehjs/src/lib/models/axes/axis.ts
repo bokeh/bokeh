@@ -198,7 +198,7 @@ export class AxisView extends GuideRendererView {
 
     const padding = 3
 
-    axis_label_graphics.visuals = this.visuals.axis_label_text
+    axis_label_graphics.visuals = this.visuals.axis_label_text.values()
     axis_label_graphics.angle = this.panel.get_label_angle_heuristic("parallel")
 
     if (isNumber(this.plot_view.base_font_size))
@@ -248,7 +248,7 @@ export class AxisView extends GuideRendererView {
       ? this.axis_label_math_text_view
       : new TextBox({text})
 
-    axis_label_graphics.visuals = this.visuals.axis_label_text
+    axis_label_graphics.visuals = this.visuals.axis_label_text.values()
     axis_label_graphics.angle = this.panel.get_label_angle_heuristic("parallel")
 
     if (this.plot_view.base_font_size)
@@ -303,7 +303,7 @@ export class AxisView extends GuideRendererView {
     const {vertical_align, align} = this.panel.get_label_text_heuristics(orient)
     const angle = this.panel.get_label_angle_heuristic(orient)
 
-    labels.visuals = visuals
+    labels.visuals = visuals.values()
     labels.angle = angle
     labels.base_font_size = this.plot_view.base_font_size
 
@@ -419,7 +419,7 @@ export class AxisView extends GuideRendererView {
       return 0
 
     const angle = this.panel.get_label_angle_heuristic(orient)
-    labels.visuals = visuals
+    labels.visuals = visuals.values()
     labels.angle = angle
     labels.base_font_size = this.plot_view.base_font_size
 

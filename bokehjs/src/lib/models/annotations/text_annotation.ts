@@ -58,7 +58,7 @@ export abstract class TextAnnotationView extends AnnotationView {
     const graphics = new TextBox({text})
     graphics.angle = angle
     graphics.position = {sx, sy}
-    graphics.visuals = this.visuals.text
+    graphics.visuals = this.visuals.text.values()
 
     const {background_fill, border_line} = this.visuals
     if (background_fill.doit || border_line.doit) {

@@ -67,7 +67,7 @@ export class LabelSetView extends DataAnnotationView {
     const graphics = new TextBox({text})
     graphics.angle = angle
     graphics.position = {sx, sy}
-    graphics.visuals = this.visuals.text // i
+    graphics.visuals = this.visuals.text.values(i)
 
     const {background_fill, border_line} = this.visuals
     if (background_fill.doit || border_line.doit) {

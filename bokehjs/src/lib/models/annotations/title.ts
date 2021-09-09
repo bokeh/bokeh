@@ -88,7 +88,7 @@ export class TitleView extends TextAnnotationView {
       return {width: 0, height: 0}
     else {
       const graphics = new TextBox({text})
-      graphics.visuals = this.visuals.text
+      graphics.visuals = this.visuals.text.values()
       const {width, height} = graphics.size()
       return {width, height}
 

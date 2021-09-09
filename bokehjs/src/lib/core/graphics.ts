@@ -65,7 +65,7 @@ export abstract class GraphicsBox {
     return this._position
   }
 
-  abstract set visuals(v: visuals.Text | visuals.Line | visuals.Fill)
+  abstract set visuals(v: visuals.Text["Values"] | visuals.Line["Values"] | visuals.Fill["Values"])
 
   abstract _rect(): Rect
   abstract _size(): Size
@@ -158,12 +158,12 @@ export class TextBox extends GraphicsBox {
   align: "left" | "center" | "right" | "justify" = "left"
   //padding: Padding
 
-  set visuals(v: visuals.Text) {
-    const color = v.text_color.get_value()
-    const alpha = v.text_alpha.get_value()
-    const style = v.text_font_style.get_value()
-    let size = v.text_font_size.get_value()
-    const face = v.text_font.get_value()
+  set visuals(v: visuals.Text["Values"]) {
+    const color = v.color
+    const alpha = v.alpha
+    const style = v.font_style
+    let size = v.font_size
+    const face = v.font
 
     const {font_size_scale, base_font_size} = this
     const res = parse_css_font_size(size)
@@ -180,12 +180,12 @@ export class TextBox extends GraphicsBox {
     const font = `${style} ${size} ${face}`
     this.font = font
     this.color = color2css(color, alpha)
-    this.line_height = v.text_line_height.get_value()
+    this.line_height = v.line_height
 
-    const align = v.text_align.get_value()
+    const align = v.align
     this._x_anchor = align
 
-    const baseline = v.text_baseline.get_value()
+    const baseline = v.baseline
     this._y_anchor = (() => {
       switch (baseline) {
         case "top": return "top"
@@ -514,7 +514,7 @@ export class BaseExpo extends GraphicsBox {
     return this._position
   }
 
-  set visuals(v: visuals.Text | visuals.Line | visuals.Fill) {
+  set visuals(v: visuals.Text["Values"] | visuals.Line["Values"] | visuals.Fill["Values"]) {
     this.expo.font_size_scale = 0.7
     this.base.visuals = v
     this.expo.visuals = v
@@ -627,7 +627,7 @@ export class GraphicsBoxes {
     return this.items.length
   }
 
-  set visuals(v: visuals.Text | visuals.Line | visuals.Fill) {
+  set visuals(v: visuals.Text["Values"] | visuals.Line["Values"] | visuals.Fill["Values"]) {
     for (const item of this.items) {
       item.visuals = v
     }
