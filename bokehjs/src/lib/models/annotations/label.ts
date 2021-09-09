@@ -1,8 +1,9 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {resolve_angle} from "core/util/math"
-import {font_metrics} from "core/util/text"
 import {SpatialUnits, AngleUnits} from "core/enums"
+import {TextBox} from "core/graphics"
 import {Size} from "core/layout"
+import {SideLayout} from "core/layout/side_panel"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 
@@ -10,11 +11,21 @@ export class LabelView extends TextAnnotationView {
   override model: Label
   override visuals: Label.Visuals
 
+  override update_layout(): void {
+    const {panel} = this
+    if (panel != null)
+      this.layout = new SideLayout(panel, () => this.get_size(), false)
+    else
+      this.layout = undefined
+  }
+
   protected override _get_size(): Size {
-    const {ctx} = this.layer
-    this.visuals.text.set_value(ctx)
-    const {width} = ctx.measureText(this.model.text)
-    const {height} = font_metrics(ctx.font)
+    const {text} = this.model
+    const graphics = new TextBox({text})
+    const {angle, angle_units} = this.model
+    graphics.angle = resolve_angle(angle, angle_units)
+    graphics.visuals = this.visuals.text.values()
+    const {width, height} = graphics.size()
     return {width, height}
   }
 
