@@ -155,66 +155,51 @@ export class DelayedInternalProvider extends MathJaxProvider {
     `
 
     describe("on tick labels", () => {
-      const major_label_overrides = {
-        major_label_overrides: {
-          0: new TeX({text: "\\frac{0}{0}"}),
-          2: new TeX({text: "zero"}),
-          4: new TeX({text: "Ten()"}),
-          6: new TeX({text: "0"}),
-          8: new TeX({text: "Ten"}),
-          10: "Ten",
-        },
+
+      async function plot_tick_labels(plot_fn: PlotFn) {
+        // it("on linear scale ticks above a plot", async () => {
+          const stub = sinon.stub(MathTextView.prototype, "provider")
+          stub.value(new InternalProvider())
+          const major_label_overrides = {
+            major_label_overrides: {
+              0: new TeX({text: "\\frac{0}{0}"}),
+              2: new TeX({text: "zero"}),
+              4: new TeX({text: "Ten()"}),
+              6: new TeX({text: "0"}),
+              8: new TeX({text: "Ten"}),
+              10: "Ten",
+            },
+          }
+          const options = {
+            minor_size: 70,
+            plot_attrs: {
+              x_range: new Range1d({start: 0, end: 10}),
+              y_range: new Range1d({start: 0, end: 10}),
+            },
+          }
+          try {
+            await plot_fn(major_label_overrides, options)
+          } finally {
+            stub.restore()
+          }
+        // })
       }
-      const options = {
-        minor_size: 50,
-        plot_attrs: {
-          x_range: new Range1d({start: 0, end: 10}),
-          y_range: new Range1d({start: 0, end: 10}),
-        },
-      }
+
       it("on linear scale ticks above a plot", async () => {
         const plot_fn = hplot("above", "linear")
-        const stub = sinon.stub(MathTextView.prototype, "provider")
-        stub.value(new InternalProvider())
-
-        try {
-          await plot_fn(major_label_overrides, options)
-        } finally {
-          stub.restore()
-        }
+        await plot_tick_labels(plot_fn)
       })
       it("in horizontal orientation below a plot", async () => {
         const plot_fn = hplot("below", "linear")
-        const stub = sinon.stub(MathTextView.prototype, "provider")
-        stub.value(new InternalProvider())
-
-        try {
-          await plot_fn(major_label_overrides, options)
-        } finally {
-          stub.restore()
-        }
+        await plot_tick_labels(plot_fn)
       })
       it("on linear scale ticks left of a plot", async () => {
         const plot_fn = vplot("left", "linear")
-        const stub = sinon.stub(MathTextView.prototype, "provider")
-        stub.value(new InternalProvider())
-
-        try {
-          await plot_fn(major_label_overrides, options)
-        } finally {
-          stub.restore()
-        }
+        await plot_tick_labels(plot_fn)
       })
       it("in vertical orientation right of a plot", async () => {
         const plot_fn = vplot("right", "linear")
-        const stub = sinon.stub(MathTextView.prototype, "provider")
-        stub.value(new InternalProvider())
-
-        try {
-          await plot_fn(major_label_overrides, options)
-        } finally {
-          stub.restore()
-        }
+        await plot_tick_labels(plot_fn)
       })
 
       it("on log scale ticks", async () => {

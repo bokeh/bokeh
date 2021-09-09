@@ -239,7 +239,7 @@ export abstract class MathTextView extends View implements TextBox {
           case "top": return 0
           case "center": return 0.5*height
           case "bottom": return height
-          case "baseline": return 0.5*height
+          case "baseline": return 0
         }
       }
     })()
@@ -258,7 +258,7 @@ export abstract class MathTextView extends View implements TextBox {
 
     if (height < metrics.height) {
       if (y_anchor == "bottom")
-        return {x, y: y - metrics.descent}
+        return {x, y}
       if (y_anchor == "top")
         return {x, y: y + this.compute_padding().y}
     }

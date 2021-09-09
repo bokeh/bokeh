@@ -858,9 +858,9 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
       else {
         switch (y_anchor) {
           case "top": return height-container_height
-          case "center": return (0.5*container_height) + (0.5*height)
-          case "bottom": return height
-          case "baseline": return (0.5*container_height) + (0.5*height)
+          case "center": return 0
+          case "bottom": return 0
+          case "baseline": return -font_metrics(this.font).descent
         }
       }
     })()
@@ -884,7 +884,7 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
 
     // first item
     if (!in_bounds(previous_index)) {
-      this.items[n].position = {...pos, sy: item_sy, x_anchor: "left", y_anchor: "top"}
+      this.items[n].position = {...pos, sy: item_sy, x_anchor: "left", y_anchor: y_anchor == "baseline" ? "bottom" : y_anchor}
       if (in_bounds(next_index)) return this.compute_items_positions({...pos}, next_index)
       return
     }
@@ -892,7 +892,7 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
     const {width} = this.items[previous_index].dimensions()
     pos.sx = sx + width
 
-    this.items[n].position = {...pos, sy: item_sy, x_anchor: "left", y_anchor: "top"}
+    this.items[n].position = {...pos, sy: item_sy, x_anchor: "left", y_anchor: y_anchor == "baseline" ? "bottom" : y_anchor}
     if (!in_bounds(next_index)) return
     this.compute_items_positions({...pos}, next_index)
   }
