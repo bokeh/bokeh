@@ -84,26 +84,12 @@ export class TitleView extends TextAnnotationView {
 
   protected override _get_size(): Size {
     const {text} = this.model
-    if (text == null || text.length == 0)
-      return {width: 0, height: 0}
-    else {
-      const graphics = new TextBox({text})
-      graphics.visuals = this.visuals.text.values()
-      const {width, height} = graphics.size()
-      return {width, height}
-
-      /*
-      const {ctx} = this.layer
-      this.visuals.text.set_value(ctx)
-
-      const {width} = this.layer.ctx.measureText(text)
-      const {height} = font_metrics(ctx.font)
-
-      // XXX: The magic 2px is for backwards compatibility. This will be removed at
-      // some point, but currently there is no point breaking half of visual tests.
-      return {width, height: 2 + height*this.model.text_line_height + this.model.standoff}
-      */
-    }
+    const graphics = new TextBox({text})
+    graphics.visuals = this.visuals.text.values()
+    const {width, height} = graphics.size()
+    // XXX: The magic 2px is for backwards compatibility. This will be removed at
+    // some point, but currently there is no point breaking half of visual tests.
+    return {width, height: height == 0 ? 0 : 2 + height + this.model.standoff}
   }
 }
 
