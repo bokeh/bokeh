@@ -2,6 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import * as visuals from "core/visuals"
 import {div, display, undisplay, remove} from "core/dom"
 import {RenderMode} from "core/enums"
+import {TextBox} from "core/graphics"
 import * as p from "core/properties"
 import {SideLayout} from "core/layout/side_panel"
 import {font_metrics} from "core/util/text"
@@ -89,28 +90,27 @@ export abstract class TextAnnotationView extends AnnotationView {
   }
 
   protected _canvas_text(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
-    this.visuals.text.set_value(ctx)
-    const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text)
+    const graphics = new TextBox({text})
+    graphics.angle = angle
+    graphics.position = {sx, sy}
+    graphics.visuals = this.visuals.text
 
-    ctx.save()
+    const {background_fill, border_line} = this.visuals
+    if (background_fill.doit || border_line.doit) {
+      const {p0, p1, p2, p3} = graphics.rect()
+      ctx.beginPath()
+      ctx.moveTo(p0.x, p0.y)
+      ctx.lineTo(p1.x, p1.y)
+      ctx.lineTo(p2.x, p2.y)
+      ctx.lineTo(p3.x, p3.y)
+      ctx.closePath()
 
-    ctx.beginPath()
-    ctx.translate(sx, sy)
-
-    if (angle)
-      ctx.rotate(angle)
-
-    ctx.rect(bbox_dims[0], bbox_dims[1], bbox_dims[2], bbox_dims[3])
-
-    this.visuals.background_fill.apply(ctx)
-    this.visuals.border_line.apply(ctx)
-
-    if (this.visuals.text.doit) {
-      this.visuals.text.set_value(ctx)
-      ctx.fillText(text, 0, 0)
+      this.visuals.background_fill.apply(ctx)
+      this.visuals.border_line.apply(ctx)
     }
 
-    ctx.restore()
+    if (this.visuals.text.doit)
+      graphics.paint(ctx)
   }
 
   protected _css_text(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
@@ -156,6 +156,7 @@ export namespace TextAnnotation {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
+    /** @deprecated */
     render_mode: p.Property<RenderMode>
   }
 
@@ -178,6 +179,7 @@ export abstract class TextAnnotation extends Annotation {
 
   static {
     this.define<TextAnnotation.Props>(() => ({
+    /** @deprecated */
       render_mode: [ RenderMode, "canvas" ],
     }))
   }

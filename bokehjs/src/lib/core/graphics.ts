@@ -45,6 +45,9 @@ export abstract class GraphicsBox {
 
   _base_font_size: number = 13 // the same as .bk-root's font-size (13px)
 
+  _x_anchor: "left" | "center" | "right" = "left"
+  _y_anchor: "top"  | "center" | "baseline" | "bottom" = "center"
+
   set base_font_size(v: number | null | undefined) {
     if (v != null)
       this._base_font_size = v
@@ -178,6 +181,21 @@ export class TextBox extends GraphicsBox {
     this.font = font
     this.color = color2css(color, alpha)
     this.line_height = v.text_line_height.get_value()
+
+    const align = v.text_align.get_value()
+    this._x_anchor = align
+
+    const baseline = v.text_baseline.get_value()
+    this._y_anchor = (() => {
+      switch (baseline) {
+        case "top": return "top"
+        case "middle": return "center"
+        case "bottom": return "bottom"
+        case "alphabetic":
+        case "hanging":
+        case "ideographic": return "baseline"
+      }
+    })()
   }
 
   constructor({text}: {text: string}) {
@@ -318,7 +336,7 @@ export class TextBox extends GraphicsBox {
 
   _computed_position(size: Size, metrics: FontMetrics, nlines: number): {x: number, y: number} {
     const {width, height} = size
-    const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
+    const {sx, sy, x_anchor=this._x_anchor, y_anchor=this._y_anchor} = this.position
 
     const x = sx - (() => {
       if (isNumber(x_anchor))
@@ -567,7 +585,7 @@ export class BaseExpo extends GraphicsBox {
 
   _computed_position(): {x: number, y: number} {
     const {width, height} = this._size()
-    const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
+    const {sx, sy, x_anchor=this._x_anchor, y_anchor=this._y_anchor} = this.position
 
     const x = sx - (() => {
       if (isNumber(x_anchor))

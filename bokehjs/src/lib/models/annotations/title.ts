@@ -1,8 +1,8 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {VerticalAlign, TextAlign} from "core/enums"
+import {TextBox} from "core/graphics"
 import {Size, Layoutable} from "core/layout"
 import {Panel} from "core/layout/side_panel"
-import {font_metrics} from "core/util/text"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 
@@ -87,6 +87,12 @@ export class TitleView extends TextAnnotationView {
     if (text == null || text.length == 0)
       return {width: 0, height: 0}
     else {
+      const graphics = new TextBox({text})
+      graphics.visuals = this.visuals.text
+      const {width, height} = graphics.size()
+      return {width, height}
+
+      /*
       const {ctx} = this.layer
       this.visuals.text.set_value(ctx)
 
@@ -96,6 +102,7 @@ export class TitleView extends TextAnnotationView {
       // XXX: The magic 2px is for backwards compatibility. This will be removed at
       // some point, but currently there is no point breaking half of visual tests.
       return {width, height: 2 + height*this.model.text_line_height + this.model.standoff}
+      */
     }
   }
 }

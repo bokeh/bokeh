@@ -35,6 +35,9 @@ export abstract class MathTextView extends View implements GraphicsBox {
     return "ascent_descent"
   }
 
+  _x_anchor: "left" | "center" | "right" = "left"
+  _y_anchor: "top"  | "center" | "baseline" | "bottom" = "center"
+
   _base_font_size: number = 13 // the same as .bk-root's font-size (13px)
 
   set base_font_size(v: number | null | undefined) {
@@ -129,7 +132,7 @@ export abstract class MathTextView extends View implements GraphicsBox {
    */
   protected _computed_position(): {x: number, y: number} {
     const {width, height} = this._size()
-    const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
+    const {sx, sy, x_anchor=this._x_anchor, y_anchor=this._y_anchor} = this.position
 
     const x = sx - (() => {
       if (isNumber(x_anchor))

@@ -55,7 +55,7 @@ export namespace Label {
 
   export type Mixins =
     mixins.Text &
-    mixins.BorderLine     &
+    mixins.BorderLine &
     mixins.BackgroundFill
 
   export type Visuals = TextAnnotation.Visuals
