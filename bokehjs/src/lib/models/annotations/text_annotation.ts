@@ -5,9 +5,8 @@ import {RenderMode} from "core/enums"
 import {TextBox} from "core/graphics"
 import * as p from "core/properties"
 import {SideLayout} from "core/layout/side_panel"
-import {font_metrics} from "core/util/text"
 import {Context2d} from "core/util/canvas"
-import {assert, unreachable} from "core/util/assert"
+import {assert} from "core/util/assert"
 
 export abstract class TextAnnotationView extends AnnotationView {
   override model: TextAnnotation
@@ -55,40 +54,6 @@ export abstract class TextAnnotationView extends AnnotationView {
     super.render()
   }
 
-  protected _calculate_text_dimensions(ctx: Context2d, text: string): [number, number] {
-    const {width} = ctx.measureText(text)
-    const {height} = font_metrics(this.visuals.text.font_value())
-    return [width, height]
-  }
-
-  protected _calculate_bounding_box_dimensions(ctx: Context2d, text: string): [number, number, number, number] {
-    const [width, height] = this._calculate_text_dimensions(ctx, text)
-
-    let x_offset: number
-    switch (ctx.textAlign) {
-      case "left":   x_offset = 0;          break
-      case "center": x_offset = -width / 2; break
-      case "right":  x_offset = -width;     break
-      default:
-        unreachable()
-    }
-
-    // guestimated from https://www.w3.org/TR/2dcontext/#dom-context-2d-textbaseline
-    let y_offset: number
-    switch (ctx.textBaseline) {
-      case "top":         y_offset =  0.0;           break
-      case "middle":      y_offset = -0.5  * height; break
-      case "bottom":      y_offset = -1.0  * height; break
-      case "alphabetic":  y_offset = -0.8  * height; break
-      case "hanging":     y_offset = -0.17 * height; break
-      case "ideographic": y_offset = -0.83 * height; break
-      default:
-        unreachable()
-    }
-
-    return [x_offset, y_offset, width, height]
-  }
-
   protected _canvas_text(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
     const graphics = new TextBox({text})
     graphics.angle = angle
@@ -119,6 +84,7 @@ export abstract class TextAnnotationView extends AnnotationView {
 
     undisplay(el)
 
+    el.textContent = text
     this.visuals.text.set_value(ctx)
 
     el.style.position = "absolute"
@@ -173,7 +139,6 @@ export abstract class TextAnnotationView extends AnnotationView {
       el.style.borderColor = ctx.strokeStyle as string
     }
 
-    el.textContent = text
     display(el)
   }
 }
@@ -205,7 +170,7 @@ export abstract class TextAnnotation extends Annotation {
 
   static {
     this.define<TextAnnotation.Props>(() => ({
-    /** @deprecated */
+      /** @deprecated */
       render_mode: [ RenderMode, "canvas" ],
     }))
   }
