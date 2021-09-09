@@ -191,9 +191,7 @@ export class TextBox extends GraphicsBox {
         case "top": return "top"
         case "middle": return "center"
         case "bottom": return "bottom"
-        case "alphabetic":
-        case "hanging":
-        case "ideographic": return "baseline"
+        default: return "baseline"
       }
     })()
   }

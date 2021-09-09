@@ -120,17 +120,43 @@ export abstract class TextAnnotationView extends AnnotationView {
     undisplay(el)
 
     this.visuals.text.set_value(ctx)
-    const [x, y] = this._calculate_bounding_box_dimensions(ctx, text)
 
     el.style.position = "absolute"
-    el.style.left = `${sx + x}px`
-    el.style.top = `${sy + y}px`
+    el.style.left = `${sx}px`
+    el.style.top = `${sy}px`
     el.style.color = ctx.fillStyle as string
     el.style.font = ctx.font
     el.style.lineHeight = "normal" // needed to prevent ipynb css override
+    el.style.whiteSpace = "pre"
 
+    const [x_anchor, x_t] = (() => {
+      switch (this.visuals.text.text_align.get_value()) {
+        case "left": return ["left", "0%"]
+        case "center": return ["center", "-50%"]
+        case "right": return ["right", "-100%"]
+      }
+    })()
+    const [y_anchor, y_t] = (() => {
+      switch (this.visuals.text.text_baseline.get_value()) {
+        case "top": return ["top", "0%"]
+        case "middle": return ["center", "-50%"]
+        case "bottom": return ["bottom", "-100%"]
+        default: return ["center", "-50%"] // "baseline"
+      }
+    })()
+
+    let transform = `translate(${x_t}, ${y_t})`
     if (angle) {
-      el.style.transform = `rotate(${angle}rad)`
+      transform += `rotate(${angle}rad)`
+    }
+
+    el.style.transformOrigin = `${x_anchor} ${y_anchor}`
+    el.style.transform = transform
+
+    if (this.layout == null) {
+      // const {bbox} = this.plot_view.frame
+      // const {left, right, top, bottom} = bbox
+      // el.style.clipPath = ???
     }
 
     if (this.visuals.background_fill.doit) {
