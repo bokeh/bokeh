@@ -64,6 +64,16 @@ describe("Label annotation", () => {
       render_mode,
     })
 
+    const label6 = new Label({
+      x: 4, y: 4,
+      angle: -15, angle_units: "deg",
+      text: "A long label\nspread across\nmultiple lines of text",
+      text_font_size: "16px", text_baseline: "top", text_align: "left",
+      background_fill_color: "orange",
+      border_line_color: "blue", border_line_width: 1, border_line_dash: [10, 2, 8, 2, 4, 2],
+      render_mode,
+    })
+
     const label_above_0 = new Label({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
@@ -154,6 +164,7 @@ describe("Label annotation", () => {
     plot.add_layout(label3)
     plot.add_layout(label4)
     plot.add_layout(label5)
+    plot.add_layout(label6)
     plot.add_layout(label_above_0, "above")
     plot.add_layout(label_above_1, "above")
     plot.add_layout(label_below_0, "below")
