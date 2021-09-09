@@ -794,9 +794,19 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
   }
 
   max_y_padding(): number {
-    return this.items.reduce((max, item) => {
-      return Math.max(max, item.compute_padding().y)
+    let max_py = 0
+
+    const pys = this.items.map(item => item.compute_padding().y)
+
+    pys.map(Math.abs).reduce((max, py, index) => {
+      if (py > max) {
+        max_py = pys[index]
+        return py
+      }
+      return max
     }, 0)
+
+    return max_py
   }
 
   override size(): Size {
@@ -857,6 +867,7 @@ export class GraphicsContainer extends TextBox implements GraphicsBoxes {
 
     if (y_padding) {
       const item_padding = this.items[n].compute_padding().y
+      console.log({item_padding, y_padding, pos})
       item_sy -= (() => {
         if (isNumber(y_anchor))
           return 0

@@ -256,8 +256,12 @@ export abstract class MathTextView extends View implements TextBox {
       }
     })()
 
-    if (height < metrics.height && y_anchor == "bottom")
-      return {x, y: y - metrics.descent}
+    if (height < metrics.height) {
+      if (y_anchor == "bottom")
+        return {x, y: y - metrics.descent}
+      if (y_anchor == "top")
+        return {x, y: y + this.compute_padding().y}
+    }
 
     return {x, y}
   }
