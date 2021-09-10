@@ -1119,10 +1119,14 @@ tick labels using :func:`~bokeh.models.Axis.major_label_overrides`.
 Bokeh uses the MathJax_ library to handle LaTeX and MathML. See the official
 `MathJax documentation`_ for more information on MathJax.
 
-For LaTeX, you can pass a string directly. This string needs to begin and end
-with one of the `MathJax default delimiters`_. These delimiters are ``$$...$$``
-and ``\[...\]`` for displayed mathematics, and ``\(...\)`` for in-line
-mathematics. For example: ``r"$$\sin(x)$$"``.
+LaTeX
+~~~~~
+
+To use LaTeX notation, you can pass a string directly to any supported element.
+This string needs to begin and end with one of the
+`MathJax default delimiters`_. These delimiters are ``$$...$$`` and ``\[...\]``
+for displayed mathematics, and ``\(...\)`` for in-line mathematics. For example:
+``r"$$\sin(x)$$"``.
 
 LaTeX and axis labels
     To use LaTeX notation as an axis label, pass a raw string literal beginning
@@ -1146,10 +1150,16 @@ LaTeX and tick labels
     .. bokeh-plot:: docs/user_guide/examples/styling_math_text_latex_tick_labels.py
         :source-position: above
 
+You also have the option to use the `LaTeX extensions included in MathJax`_.
+For example, use the `color extension`_ to change the color of the rendered
+LaTeX notation: ``\color{white} \sin(x)``.
+
 .. note::
-    You also have the option to use the `LaTeX extensions included in MathJax`_.
-    For example, use the `color extension`_ to change the color of the rendered
-    LaTeX notation: ``\color{white} \sin(x)``.
+    There are limitations to how much of LaTeX MathJax supports. See
+    `Differences from Actual TeX`_ in the MathJax documentation for more details.
+
+MathML
+~~~~~~
 
 To add mathematical notations written in MathML, use Bokeh's
 :class:`~bokeh.models.text.MathML` model directly. This model has a ``text``
@@ -1160,10 +1170,6 @@ property that accepts a string containing MathML. For example:
 
 For more information, see :class:`~bokeh.models.text.MathML` in the
 |reference guide|.
-
-.. note::
-    There are limitations to how much of LaTeX MathJax supports. See the
-    `Differences from Actual TeX`_ in the MathJax documentation for more details.
 
 .. _LaTeX: https://www.latex-project.org/
 .. _MathML: https://www.w3.org/Math/
