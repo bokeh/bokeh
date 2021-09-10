@@ -1,6 +1,6 @@
 {
     "details": [
-        { "path": "examples/plotting/file/iris.py",                            "name": "iris"                           },
+        { "path": "examples/plotting/file/marker_map.py",                      "name": "marker_map"                     },
         { "path": "examples/plotting/file/ridgeplot.py",                       "name": "ridgeplot"                      },
         { "path": "examples/plotting/file/hexbin.py",                          "name": "hexbin"                         },
         { "path": "examples/plotting/file/hex_tile.py",                        "name": "hex_tile"                       },
@@ -45,6 +45,7 @@
         { "path": "examples/plotting/file/elements.py",                        "name": "elements"                       },
         { "path": "examples/plotting/file/boxplot.py",                         "name": "boxplot"                        },
         { "path": "examples/plotting/file/logplot.py",                         "name": "logaxis"                        },
-        { "path": "examples/plotting/file/eclipse.py",                         "name": "eclipse"                        }
+        { "path": "examples/plotting/file/eclipse.py",                         "name": "eclipse"                        },
+        { "path": "examples/plotting/file/iris.py",                            "name": "iris"                           }
     ]
 }
