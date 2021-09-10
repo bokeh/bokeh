@@ -1130,7 +1130,7 @@ LaTeX and axis labels
     to the :class:`~bokeh.models.Axis.axis_label` property of an axis. For
     example:
 
-    .. bokeh-plot:: docs/user_guide/examples/styling_math_text_axis_labels.py
+    .. bokeh-plot:: docs/user_guide/examples/styling_math_text_latex_axis_labels.py
         :source-position: above
 
 LaTeX and tick labels
@@ -1143,28 +1143,34 @@ LaTeX and tick labels
 
     Use this function to replace any plain text tick labels with LaTeX notation:
 
-    .. bokeh-plot:: docs/user_guide/examples/styling_math_text_tick_labels.py
+    .. bokeh-plot:: docs/user_guide/examples/styling_math_text_latex_tick_labels.py
         :source-position: above
 
-You also have the option to use the `LaTeX extensions included in MathJax`_.
-For example, use the `color extension`_ to change the color of the rendered
-LaTeX notation: ``\color{white} \sin(x)``.
+.. note::
+    You also have the option to use the `LaTeX extensions included in MathJax`_.
+    For example, use the `color extension`_ to change the color of the rendered
+    LaTeX notation: ``\color{white} \sin(x)``.
 
 To add mathematical notations written in MathML, use Bokeh's
 :class:`~bokeh.models.text.MathML` model directly. This model has a ``text``
-property that accepts a string containing MathML. For more information, see
-:class:`~bokeh.models.text.MathML` in the |reference guide|.
+property that accepts a string containing MathML. For example:
+
+.. bokeh-plot:: docs/user_guide/examples/styling_math_text_mathml_axis_labels.py
+    :source-position: above
+
+For more information, see :class:`~bokeh.models.text.MathML` in the
+|reference guide|.
 
 .. note::
     There are limitations to how much of LaTeX MathJax supports. See the
-    `Differences from Actual TeX in the MathJax documentation` for more details.
+    `Differences from Actual TeX`_ in the MathJax documentation for more details.
 
 .. _LaTeX: https://www.latex-project.org/
 .. _MathML: https://www.w3.org/Math/
 .. _MathJax: https://www.mathjax.org
 .. _MathJax documentation: http://docs.mathjax.org/en/latest/
 .. _MathJax default delimiters: http://docs.mathjax.org/en/latest/basic/mathematics.html#tex-and-latex-input
-.. _Differences from Actual TeX in the MathJax documentation: https://docs.mathjax.org/en/latest/input/tex/differences.html
+.. _Differences from Actual TeX: https://docs.mathjax.org/en/latest/input/tex/differences.html
 .. _LaTeX extensions included in MathJax: http://docs.mathjax.org/en/latest/input/tex/extensions/index.html
 .. _color extension: http://docs.mathjax.org/en/latest/input/tex/extensions/color.html
 
