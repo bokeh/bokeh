@@ -4,23 +4,20 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provides access to ``probly.csv`` and ``numberly.csv``.
+''' Provide data from the `Palmer Archipelago (Antarctica) penguin dataset`_.
 
-Sourced from: https://github.com/zonination/perceptions
+Derived from https://github.com/mwaskom/seaborn-data/blob/master/penguins.csv
 
-Data distributed under the `MIT license`_.
+Data distributed under the `CC-0`_ license.
 
-This module contains two pandas Dataframes: ``probly`` and ``numberly``.
+This module contains one pandas Dataframe: ``data``.
 
-.. rubric:: ``probly``
+.. rubric:: ``data``
 
-:bokeh-dataframe:`bokeh.sampledata.perceptions.probly`
+:bokeh-dataframe:`bokeh.sampledata.penguins.data`
 
-.. rubric:: ``numberly``
-
-:bokeh-dataframe:`bokeh.sampledata.perceptions.numberly`
-
-.. _MIT license: https://opensource.org/licenses/MIT
+.. _CC-0: https://creativecommons.org/share-your-work/public-domain/cc0/
+.. _Palmer Archipelago (Antarctica) penguin dataset: https://github.com/allisonhorst/palmerpenguins
 
 '''
 
@@ -44,8 +41,7 @@ from ..util.sampledata import package_csv
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'numberly',
-    'probly',
+    'data',
 )
 
 #-----------------------------------------------------------------------------
@@ -64,5 +60,4 @@ __all__ = (
 # Code
 #-----------------------------------------------------------------------------
 
-numberly = package_csv('perceptions', 'numberly.csv')
-probly   = package_csv('perceptions', 'probly.csv')
+data = package_csv('penguins', 'penguins.csv')
