@@ -12,19 +12,26 @@ RegisterHTMLHandler(adaptor)
 
 const svg = new SVG({fontCache: "local"})
 
-const options = {
-  display: true,
-  em: 16,
-  ex: 8,
-  containerWidth: 80*16,
+type ConvertOptions = {
+  display?: boolean
+  em?: number
+  ex?: number
+  containerWidth?: number
 }
 
 type TeXMacros = {[key: string]: string | [string, number]}
 
-export function tex2svg(formula: string, macros: TeXMacros = {}): HTMLElement {
+export function tex2svg(formula: string, options?: ConvertOptions, macros: TeXMacros = {}): HTMLElement {
+  const convert_options: ConvertOptions = {
+    display: true,
+    em: 16,
+    ex: 8,
+    containerWidth: 80*16,
+    ...options,
+  }
   const tex = new TeX({packages: AllPackages, macros})
   const tex_to_svg = mathjax.document("", {InputJax: tex, OutputJax: svg})
-  return tex_to_svg.convert(formula, options)
+  return tex_to_svg.convert(formula, convert_options)
 }
 
 export function ascii2svg(_formula: string): HTMLElement {
@@ -38,5 +45,5 @@ export function ascii2svg(_formula: string): HTMLElement {
 export function mathml2svg(formula: string): HTMLElement {
   const mathml = new MathML({})
   const mathml_to_svg = mathjax.document("", {InputJax: mathml, OutputJax: svg})
-  return mathml_to_svg.convert(formula, options)
+  return mathml_to_svg.convert(formula)
 }

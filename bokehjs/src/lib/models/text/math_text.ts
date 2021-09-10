@@ -414,7 +414,7 @@ export class TeXView extends MathTextView {
 
   protected _process_text(text: string): HTMLElement | undefined {
     // TODO: allow plot/document level configuration of macros
-    return this.provider.MathJax?.tex2svg(text, this.model.macros)
+    return this.provider.MathJax?.tex2svg(text, undefined, this.model.macros)
   }
 }
 
@@ -423,6 +423,7 @@ export namespace TeX {
 
   export type Props = MathText.Props & {
     macros: p.Property<{[key: string]: string | [string, number]}>
+    inline: p.Property<boolean>
   }
 }
 
@@ -439,8 +440,9 @@ export class TeX extends MathText {
   static {
     this.prototype.default_view = TeXView
 
-    this.define<TeX.Props>(({Number, String, Dict, Tuple, Or}) => ({
+    this.define<TeX.Props>(({Boolean, Number, String, Dict, Tuple, Or}) => ({
       macros: [ Dict(Or(String, Tuple(String, Number))), {} ],
+      inline: [ Boolean, false ],
     }))
   }
 }
