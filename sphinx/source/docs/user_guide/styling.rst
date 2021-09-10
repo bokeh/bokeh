@@ -1114,7 +1114,8 @@ Adding mathematical notations
 Bokeh supports mathematical notations expressed in the LaTeX_ and MathML_ markup
 languages with a growing number of plot elements. Currently, you can use LaTeX
 and MathML notations with :ref:`axis labels <userguide_styling_axes_labels>` and
-tick labels using :func:`~bokeh.models.Axis.major_label_overrides`.
+tick labels using :func:`~bokeh.models.Axis.major_label_overrides`. You can
+also use LaTeX with :class:`div widgets <bokeh.models.Div>`.
 
 Bokeh uses the MathJax_ library to handle LaTeX and MathML. See the official
 `MathJax documentation`_ for more information on MathJax.
@@ -1148,6 +1149,16 @@ LaTeX and tick labels
     Use this function to replace any plain text tick labels with LaTeX notation:
 
     .. bokeh-plot:: docs/user_guide/examples/styling_math_text_latex_tick_labels.py
+        :source-position: above
+
+LaTeX and div widgets
+    To include LaTeX notation in the text of a
+    :class:`div widget <bokeh.models.Div>`, use the standard
+    `MathJax default delimiters`_ anywhere within your string. To enable LaTeX
+    on div widgets, you need to set the Div object's ``enable_tex`` property to
+    true:
+
+    .. bokeh-plot:: docs/user_guide/examples/styling_math_text_latex_div_widget.py
         :source-position: above
 
 You also have the option to use the `LaTeX extensions included in MathJax`_.
