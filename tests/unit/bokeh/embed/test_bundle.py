@@ -326,7 +326,8 @@ class Test__use_mathjax:
         d.add_root(test_mathtext)
         assert beb._use_mathjax([d]) is True
 
-    def test_with_mathstring(self, test_plot, test_glplot, test_table, test_widget, test_mathtext, test_mathstring_axis_label, test_mathstring_major_label_overrides) -> None:
+    def test_with_mathstring(self, test_plot, test_glplot, test_table, test_widget, test_mathtext,
+            test_mathstring_axis_label, test_mathstring_major_label_overrides) -> None:
         assert beb._use_mathjax([test_mathstring_axis_label]) is True
         assert beb._use_mathjax([test_plot, test_mathstring_axis_label]) is True
         assert beb._use_mathjax([test_plot, test_glplot, test_mathstring_axis_label]) is True
