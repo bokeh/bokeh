@@ -4,13 +4,20 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide Fisher's Iris flower data set.
+''' Provide `Fisher's Iris dataset`_.
 
 This module contains one pandas Dataframe: ``flowers``.
+
+.. note::
+    This sampledata is maintained for historical compatibility. Please consider
+    `alternatives to Iris`_ such as :ref:`sampledata_penguins`.
 
 .. rubric:: ``flowers``
 
 :bokeh-dataframe:`bokeh.sampledata.iris.flowers`
+
+.. _Fisher's Iris dataset: https://en.wikipedia.org/wiki/Iris_flower_data_se
+.. _alternatives to Iris: https://www.meganstodel.com/posts/no-to-iris/
 
 '''
 
