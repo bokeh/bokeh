@@ -237,6 +237,34 @@ export class DelayedInternalProvider extends MathJaxProvider {
           stub.restore()
         }
       })
+      it("should support math strings on both axes", async () => {
+        const stub = sinon.stub(MathTextView.prototype, "provider")
+        stub.value(new InternalProvider())
+        try {
+          const p = new Plot({
+            height: 200,
+            x_scale: new LinearScale(),
+            y_scale: new LinearScale(),
+            x_range: new Range1d({start: 100, end: 200}),
+            y_range: new Range1d({start: 0, end: 1}),
+            min_border_top: 20,
+            min_border_bottom: 20,
+            min_border_left: 20,
+            min_border_right: 20,
+            title: null,
+            toolbar_location: null,
+          })
+
+          p.add_layout(new LinearAxis({axis_label: "\\[\\frac{\\sin(x)}{\\cos(x)}\\]"}), "below")
+          p.add_layout(new LinearAxis({axis_label: "\\[\\frac{\\sin(x)}{\\cos(x)}\\]"}), "left")
+          p.add_layout(new LinearAxis({axis_label: "\\[\\frac{\\sin(x)}{\\cos(x)}\\]"}), "right")
+          p.add_layout(new LinearAxis({axis_label: "\\[\\frac{\\sin(x)}{\\cos(x)}\\]"}), "above")
+
+          await display(p)
+        } finally {
+          stub.restore()
+        }
+      })
 
       it("should divide mathstring into tex/plaintext parts below", async () => {
         const stub = sinon.stub(MathTextView.prototype, "provider")
