@@ -16,11 +16,12 @@ import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
-import {MathText, MathTextView} from "../text/math_text"
+import {MathText, MathTextView, TeX} from "../text/math_text"
 import {BaseText} from "../text/base_text"
 import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
 import {isString} from "core/util/types"
+import {tex_from_text_like, is_tex_string} from "models/text/utils"
 
 const {abs} = Math
 
@@ -57,9 +58,17 @@ export class AxisView extends GuideRendererView {
 
     const {axis_label} = this.model
 
-    // Build math_text_view if axis_label is a MathText instance
-    if (axis_label != null && axis_label instanceof MathText)
-      this.axis_label_math_text_view = await build_view(axis_label, {parent: this})
+    if (axis_label != null) {
+      if (axis_label instanceof MathText) {
+        this.axis_label_math_text_view = await build_view(axis_label, {parent: this})
+      } else if (is_tex_string(axis_label)) {
+        const math_text = tex_from_text_like(axis_label)
+        if (math_text instanceof TeX) {
+          this.model.axis_label = math_text
+          this.axis_label_math_text_view = await build_view(math_text, {parent: this})
+        }
+      }
+    }
 
     const {major_label_overrides} = this.model
 
@@ -69,6 +78,12 @@ export class AxisView extends GuideRendererView {
 
         if (label_text instanceof MathText) {
           this.major_label_math_text_views[label] = await build_view(label_text, {parent: this})
+        } else if (is_tex_string(label_text)) {
+          const math_text = tex_from_text_like(label_text)
+          if (math_text) {
+            this.model.major_label_overrides[label] = math_text
+            this.major_label_math_text_views[label] = await build_view(math_text, {parent: this})
+          }
         }
       }
     }
@@ -599,6 +614,11 @@ export class AxisView extends GuideRendererView {
     if (this.axis_label_math_text_view)
       this.axis_label_math_text_view.remove()
 
+    const {major_label_math_text_views} = this
+    for (const label in major_label_math_text_views)
+      if (major_label_math_text_views.hasOwnProperty(label))
+        major_label_math_text_views[label].remove()
+
     super.remove()
   }
 
@@ -610,6 +630,13 @@ export class AxisView extends GuideRendererView {
       if (!this.axis_label_math_text_view.has_finished())
         return false
     }
+    // TODO: IF TICK LABEL IS NOT COMPUTED, IT WILL NEVER FINISH
+    const {major_label_math_text_views} = this
+
+    for (const label in major_label_math_text_views)
+      if (major_label_math_text_views.hasOwnProperty(label))
+        if (!major_label_math_text_views[label].has_finished())
+          return false
 
     return true
   }

@@ -67,6 +67,30 @@ def test_mathtext() -> None:
     test_mathtext = TeX()
     return test_mathtext
 
+@pytest.fixture
+def test_mathstring_axis_label() -> None:
+    from bokeh.models import LinearAxis
+    test_mathstring = LinearAxis(axis_label = "$$sin(x)$$")
+    return test_mathstring
+
+@pytest.fixture
+def test_mathstring_axis_label_with_parenthesis() -> None:
+    from bokeh.models import LinearAxis
+    test_mathstring = LinearAxis(axis_label = r"\(sin(x)\)")
+    return test_mathstring
+
+@pytest.fixture
+def test_mathstring_major_label_overrides() -> None:
+    from bokeh.models import LinearAxis
+    test_mathstring = LinearAxis(major_label_overrides = {0: r"\[sin(x)\]"})
+    return test_mathstring
+
+@pytest.fixture
+def test_plaintext() -> None:
+    from bokeh.models import PlainText
+    test_plaintext = PlainText("$$sin(x)$$")
+    return test_plaintext
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -288,12 +312,13 @@ class Test__use_mathjax:
         d.add_root(test_widget)
         assert beb._use_mathjax([d]) is False
 
-    def test_with_mathjax(self, test_plot, test_glplot, test_table, test_widget, test_mathtext) -> None:
+    def test_with_mathjax(self, test_plot, test_glplot, test_table, test_widget, test_mathtext, test_plaintext) -> None:
         assert beb._use_mathjax([test_mathtext]) is True
         assert beb._use_mathjax([test_plot, test_mathtext]) is True
         assert beb._use_mathjax([test_plot, test_glplot, test_mathtext]) is True
         assert beb._use_mathjax([test_plot, test_widget, test_mathtext]) is True
         assert beb._use_mathjax([test_plot, test_widget, test_table, test_mathtext]) is True
+        assert beb._use_mathjax([test_plot, test_plaintext, test_mathtext]) is True
         d = Document()
         d.add_root(test_plot)
         d.add_root(test_table)
@@ -301,6 +326,34 @@ class Test__use_mathjax:
         d.add_root(test_mathtext)
         assert beb._use_mathjax([d]) is True
 
+    def test_with_mathstring(self, test_plot, test_glplot, test_table, test_widget, test_mathtext, test_mathstring_axis_label, test_mathstring_major_label_overrides) -> None:
+        assert beb._use_mathjax([test_mathstring_axis_label]) is True
+        assert beb._use_mathjax([test_plot, test_mathstring_axis_label]) is True
+        assert beb._use_mathjax([test_plot, test_glplot, test_mathstring_axis_label]) is True
+        assert beb._use_mathjax([test_plot, test_widget, test_mathstring_axis_label]) is True
+        assert beb._use_mathjax([test_plot, test_widget, test_table, test_mathstring_axis_label]) is True
+        assert beb._use_mathjax([test_plot, test_mathtext, test_mathstring_axis_label]) is True
+        assert beb._use_mathjax([test_plot, test_mathstring_major_label_overrides]) is True
+        d = Document()
+        d.add_root(test_plot)
+        d.add_root(test_table)
+        d.add_root(test_widget)
+        d.add_root(test_mathstring_axis_label)
+        assert beb._use_mathjax([d]) is True
+
+    def test_with_plaintext(self, test_plot, test_glplot, test_table, test_widget, test_mathtext, test_plaintext) -> None:
+        assert beb._use_mathjax([test_plaintext]) is False
+        assert beb._use_mathjax([test_plot, test_plaintext]) is False
+        assert beb._use_mathjax([test_plot, test_glplot, test_plaintext]) is False
+        assert beb._use_mathjax([test_plot, test_widget, test_plaintext]) is False
+        assert beb._use_mathjax([test_plot, test_widget, test_table, test_plaintext]) is False
+        assert beb._use_mathjax([test_plot, test_mathtext, test_plaintext]) is True
+        d = Document()
+        d.add_root(test_plot)
+        d.add_root(test_table)
+        d.add_root(test_widget)
+        d.add_root(test_plaintext)
+        assert beb._use_mathjax([d]) is False
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------

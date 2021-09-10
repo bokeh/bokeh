@@ -420,7 +420,33 @@ def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
         bool
     '''
     from ..models.text import MathText
-    return _any(objs, lambda obj: isinstance(obj, MathText))
+
+    def model_requires_mathjax(model: Model) -> bool:
+        from ..models.axes import Axis
+
+        def is_tex_string(text: str) -> bool:
+            if text.startswith("$$") and text.endswith("$$"):
+                return True
+
+            elif text.startswith("\\[") and text.endswith("\\]"):
+                return True
+
+            elif text.startswith("\\(") and text.endswith("\\)"):
+                return True
+
+            return False
+
+        if isinstance(model, Axis):
+            if isinstance(model.axis_label, str) and is_tex_string(model.axis_label):
+                return True
+
+            for val in model.major_label_overrides.values():
+                if isinstance(val, str) and is_tex_string(val):
+                    return True
+
+        return False
+
+    return _any(objs, lambda obj: isinstance(obj, MathText) or model_requires_mathjax(obj)) or _ext_use_mathjax(objs)
 
 def _use_gl(objs: Sequence[Model | Document]) -> bool:
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
@@ -443,6 +469,9 @@ def _ext_use_widgets(objs: Sequence[Model | Document]) -> bool:
     from ..models.widgets import Widget
     return _query_extensions(objs, lambda cls: issubclass(cls, Widget))
 
+def _ext_use_mathjax(objs: Sequence[Model | Document]) -> bool:
+    from ..models.text import MathText
+    return _query_extensions(objs, lambda cls: issubclass(cls, MathText))
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
