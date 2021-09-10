@@ -370,8 +370,8 @@ Use ``server-dev``
             set BOKEH_RESOURCES=server-dev
 
     This way, you have access to more development functions, such as
-    `source maps` to help to debug the original TypeScript instead of the
-    compiled JavaScript.
+    `source maps` to help debug the original TypeScript instead of the compiled
+    JavaScript.
 
 See :class:`~bokeh.resources.Resources` for more details.
 
@@ -458,31 +458,31 @@ Run examples
 Next, run some of the standalone examples included with Bokeh.
 
 Make sure the :ref:`environment variable <contributor_guide_setup_environment_variables>`
-``BOKEH_RESOURCES`` is set to ``absolute-dev`` in order to use your local
-version of BokehJS. In the *source checkout* directory, run the following
-command(s):
+``BOKEH_RESOURCES`` is set to ``absolute-dev`` or ``inline`` in order to use
+your local version of BokehJS. In the *source checkout* directory, run the
+following command(s):
 
 .. tabs::
 
     .. code-tab:: sh Linux/macOS
 
-        BOKEH_RESOURCES=inline python examples/plotting/file/iris.py
+        BOKEH_RESOURCES=inline python examples/plotting/file/elements.py
 
     .. code-tab:: PowerShell Windows (PS)
 
         $Env:BOKEH_RESOURCES = "inline"
-        python.exe .\examples\plotting\file\iris.py
+        python.exe .\examples\plotting\file\elements.py
 
     .. code-tab:: doscon Windows (CMD)
 
         set BOKEH_RESOURCES=inline
-        python examples\plotting\file\iris.py
+        python examples\plotting\file\elements.py
 
-This creates a file ``iris.html`` locally. When you open this file in a web
+This creates a file ``elements.html`` locally. When you open this file in a web
 browser, it should display this visualization:
 
-.. image:: /_images/bokeh_iris_html.png
-    :scale: 50 %
+.. image:: /_images/bokeh_elements_html.png
+    :class: image-border
     :align: center
 
 Run Bokeh Server
@@ -512,12 +512,12 @@ checkout* directory:
 This should open up a browser with an interactive figure:
 
 .. image:: /_images/bokeh_app_sliders.png
-    :scale: 50 %
+    :class: image-border
     :align: center
 
 All the sliders allow interactive control of the sine wave, with each update
 redrawing the line with the new parameters. The ``--show`` option opens a
-web browser, the default URL for the Bokeh server is ``localhost:5006``.
+web browser. The default URL for the Bokeh server is ``localhost:5006``.
 
 Troubleshooting
 ---------------
