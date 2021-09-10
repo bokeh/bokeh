@@ -1106,7 +1106,7 @@ the render level ``"image"`` to the ``level`` argument when calling your
 You can see a complete example with output in the section
 :ref:`userguide_plotting_images_colormapped`.
 
-.. _userguide_styling_latex:
+.. _userguide_styling_math:
 
 Adding mathematical notations
 -----------------------------
@@ -1146,13 +1146,14 @@ LaTeX and tick labels
     .. bokeh-plot:: docs/user_guide/examples/styling_math_text_tick_labels.py
         :source-position: above
 
-You also have the option to use
+You also have the option to use the `LaTeX extensions included in MathJax`_.
+For example, use the `color extension`_ to change the color of the rendered
+LaTeX notation: ``\color{white} \sin(x)``.
 
-To use MathML, you need to use Bokeh's :class:`~bokeh.models.text.MathML` model.
-This model has a ``text`` property that accept a raw string literal containing
-mathematical notation.
-
-TBD: Example with MathML
+To add mathematical notations written in MathML, use Bokeh's
+:class:`~bokeh.models.text.MathML` model directly. This model has a ``text``
+property that accepts a string containing MathML. For more information, see
+:class:`~bokeh.models.text.MathML` in the |reference guide|.
 
 .. note::
     There are limitations to how much of LaTeX MathJax supports. See the
@@ -1164,6 +1165,8 @@ TBD: Example with MathML
 .. _MathJax documentation: http://docs.mathjax.org/en/latest/
 .. _MathJax default delimiters: http://docs.mathjax.org/en/latest/basic/mathematics.html#tex-and-latex-input
 .. _Differences from Actual TeX in the MathJax documentation: https://docs.mathjax.org/en/latest/input/tex/differences.html
+.. _LaTeX extensions included in MathJax: http://docs.mathjax.org/en/latest/input/tex/extensions/index.html
+.. _color extension: http://docs.mathjax.org/en/latest/input/tex/extensions/color.html
 
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
 .. |Title| replace:: :class:`~bokeh.models.annotations.Title`
