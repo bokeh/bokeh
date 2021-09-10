@@ -134,6 +134,13 @@ olympics2014
 
 .. automodule:: bokeh.sampledata.olympics2014
 
+.. _sampledata_penguins:
+
+penguins
+--------
+
+.. automodule:: bokeh.sampledata.penguins
+
 .. _sampledata_perceptions:
 
 perceptions

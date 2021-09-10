@@ -3,7 +3,7 @@ example demonstrates sharing ranged between plots to acheive linked panning.
 
 .. note::
     This example is maintained for historical compatibility. Please consider
-    `alternatives to Iris`_.
+    `alternatives to Iris`_, such as :ref:`sampledata_penguins`.
 
 .. bokeh-example-metadata::
     :sampledata: iris
