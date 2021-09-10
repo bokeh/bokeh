@@ -5,6 +5,7 @@
 
 import {randomIn} from "./math"
 import {assert} from "./assert"
+import {Arrayable} from "../types"
 
 import {map, reduce, min, min_by, max, max_by, sum, cumsum, every, some, find, find_last, find_index, find_last_index, sorted_index, is_empty} from "./arrayable"
 export {map, reduce, min, min_by, max, max_by, sum, cumsum, every, some, find, find_last, find_index, find_last_index, sorted_index, is_empty}
@@ -154,7 +155,7 @@ export function sort_by<T>(array: T[], key: (item: T) => number): T[] {
   return tmp.map((item) => item.value)
 }
 
-export function uniq<T>(array: T[]): T[] {
+export function uniq<T>(array: Arrayable<T>): T[] {
   const result = new Set<T>()
   for (const value of array) {
     result.add(value)
