@@ -45,10 +45,10 @@ def test_ticker_accepts_number_sequences() -> None:
     assert isinstance(a.ticker, FixedTicker)
     assert a.ticker.ticks == [-10, 0, 10, 20.7]
 
-def test_axis_label_accepts_math_text_with_dollar_signs_and_no_declaration() -> None:
+def test_axis_label_with_delimiters_do_not_convert_to_math_text_model() -> None:
     a = bma.Axis(axis_label=r"$\sin(x+1)$")
-    assert isinstance(a.axis_label, MathText)
-    assert a.axis_label.text == r"\sin(x+1)"
+    assert isinstance(a.axis_label, str)
+    assert a.axis_label == r"\sin(x+1)"
 
 def test_axis_label_accepts_math_text_with_declaration() -> None:
     a = bma.Axis(axis_label=TeX(text=r"\sin(x+2)"))

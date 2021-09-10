@@ -45,7 +45,7 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      major_label_overrides: {0: "zero", 4: new TeX({text: "\\pi"}), 10: "ten"},
+      major_label_overrides: {0: "zero", 4: new TeX({text: "\\pi"}), 10: "$ten$"},
     })
     plot.add_layout(axis, "below")
     const plot_view = (await build_view(plot)).build()
@@ -54,6 +54,24 @@ describe("Axis", () => {
     const labels = axis_view.compute_labels([0, 2, 4, 6, 8, 10])
     await display(plot)
     expect(labels.items.map((l) => (l as TextBox).text)).to.be.equal(["zero", "2", "\\pi", "6", "8", "ten"])
+    expect(labels.items.filter(l => l instanceof TeX).length).to.be.equal(2)
+  })
+
+  it("should convert mathstrings on axis labels to TeX", async () => {
+    const plot = new Plot({
+      x_range: new Range1d({start: 0, end: 10}),
+      y_range: new Range1d({start: 0, end: 10}),
+    })
+    const ticker = new BasicTicker()
+    const formatter = new BasicTickFormatter()
+    const axis = new Axis({
+      ticker,
+      formatter,
+      axis_label: "$$\\sin(x)$$"
+    })
+    plot.add_layout(axis, "below")
+    const plot_view = (await build_view(plot)).build()
+    expect(plot_view.axis_views.some(axis_view => axis_view.model.axis_label instanceof TeX)).to.be.true
   })
 
   it("loc should return numeric fixed_location", async () => {
