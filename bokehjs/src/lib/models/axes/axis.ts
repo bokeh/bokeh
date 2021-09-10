@@ -443,7 +443,7 @@ export class AxisView extends GuideRendererView {
     const {major_label_overrides} = this.model
     for (let i = 0; i < ticks.length; i++) {
       const override = major_label_overrides[ticks[i]]
-      if (override != null)  {
+      if (override != null) {
         const text = isString(override) ? override : override.text
 
         labels[i] = override instanceof MathText
@@ -451,6 +451,14 @@ export class AxisView extends GuideRendererView {
           : new TextBox({text})
       }
     }
+
+    Object.keys(this.major_label_math_text_views).forEach(key => {
+      if (!ticks.map(tick => tick.toString()).includes(key)) {
+        this.major_label_math_text_views[key].remove()
+        delete this.major_label_math_text_views[key]
+      }
+    })
+
     return new GraphicsBoxes(labels)
   }
 
