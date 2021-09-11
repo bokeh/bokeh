@@ -115,28 +115,12 @@ class Base64String(String):
         return value
 
 class MathString(String):
-    """ transforms a string that starts and ends with $ in MathText model,
-    otherwise returns string.
+    """ A string with math TeX/LaTeX delimiters.
 
     Args:
-        value : a string to be converted
-
-    Returns:
-        :class:`~bokeh.models.text.MathText` | string
+        value : a string that contains math
 
     """
-
-    def transform(self, value):
-        from ...models.text import MathText
-        value = super().transform(value)
-
-        if not isinstance(value, str):
-            return value
-
-        if len(value) >= 2 and value[0] == value[-1] == "$":
-            return MathText(text=value[1:-1])
-
-        return value
 
 #-----------------------------------------------------------------------------
 # Dev API

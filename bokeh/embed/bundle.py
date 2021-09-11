@@ -55,6 +55,7 @@ from ..model import Model
 from ..resources import BaseResources, Resources
 from ..settings import settings
 from ..util.compiler import bundle_models
+from .util import contains_tex_string, is_tex_string
 
 if TYPE_CHECKING:
     from ..resources import Hashes
@@ -412,24 +413,6 @@ def _use_widgets(objs: Sequence[Model | Document]) -> bool:
     from ..models.widgets import Widget
     return _any(objs, lambda obj: isinstance(obj, Widget)) or _ext_use_widgets(objs)
 
-def _contains_tex_string(text: str) -> bool:
-    """Whether a string contains any pair of MathJax default delimiters
-    Args:
-        text (str): String to check
-    Returns:
-        bool: True if string contains delimiters, False if not
-    """
-    if "$$" in text:
-        if "$$" in text[text.index("$$") + 2:]:
-            return True
-    if "\\[" in text:
-        if "\\]" in text[text.index("\\[") + 2:]:
-            return True
-    if "\\(" in text:
-        if "\\)" in text[text.index("\\(") + 2:]:
-            return True
-    return False
-
 def _model_requires_mathjax(model: Model) -> bool:
     """Whether a model requires MathJax to be loaded
     Args:
@@ -437,14 +420,23 @@ def _model_requires_mathjax(model: Model) -> bool:
     Returns:
         bool: True if MathJax required, False if not
     """
+    from ..models.axes import Axis
     from ..models.widgets.markups import Div, P
 
+    if isinstance(model, Axis):
+        if isinstance(model.axis_label, str) and is_tex_string(model.axis_label):
+            return True
+
+        for val in model.major_label_overrides.values():
+            if isinstance(val, str) and is_tex_string(val):
+                return True
+
     if isinstance(model, Div) and not model.disable_math and not model.render_as_text:
-        if _contains_tex_string(model.text):
+        if contains_tex_string(model.text):
             return True
 
     if isinstance(model, P) and not model.disable_math:
-        if _contains_tex_string(model.text):
+        if contains_tex_string(model.text):
             return True
 
     return False
@@ -458,7 +450,7 @@ def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
     '''
     from ..models.text import MathText
 
-    return _any(objs, lambda obj: isinstance(obj, MathText) or _model_requires_mathjax(obj))
+    return _any(objs, lambda obj: isinstance(obj, MathText) or _model_requires_mathjax(obj)) or _ext_use_mathjax(objs)
 
 def _use_gl(objs: Sequence[Model | Document]) -> bool:
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
@@ -481,6 +473,9 @@ def _ext_use_widgets(objs: Sequence[Model | Document]) -> bool:
     from ..models.widgets import Widget
     return _query_extensions(objs, lambda cls: issubclass(cls, Widget))
 
+def _ext_use_mathjax(objs: Sequence[Model | Document]) -> bool:
+    from ..models.text import MathText
+    return _query_extensions(objs, lambda cls: issubclass(cls, MathText))
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------

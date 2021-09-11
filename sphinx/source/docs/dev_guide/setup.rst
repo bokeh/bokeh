@@ -169,7 +169,7 @@ Codebase tests
     git-commit will run Bokeh's
     :ref:`codebase tests <contributor_guide_testing_local_codebase>` to check
     for codebase quality issues such as whitespaces and imports. This includes
-    testing with `flake8`_, `eslint`_, and `isort`_.
+    testing with `Flake8`_, `ESLint`_, and `isort`_.
 
 Protected branches
     git-commit will make sure you don't accidentally push a commit to `Bokeh's
@@ -370,8 +370,8 @@ Use ``server-dev``
             set BOKEH_RESOURCES=server-dev
 
     This way, you have access to more development functions, such as
-    `source maps` to help to debug the original TypeScript instead of the
-    compiled JavaScript.
+    `source maps` to help debug the original TypeScript instead of the compiled
+    JavaScript.
 
 See :class:`~bokeh.resources.Resources` for more details.
 
@@ -458,30 +458,31 @@ Run examples
 Next, run some of the standalone examples included with Bokeh.
 
 Make sure the :ref:`environment variable <contributor_guide_setup_environment_variables>`
-``BOKEH_RESOURCES`` is set to ``absolute-dev`` in order to use your local
-version of BokehJS. In the *source checkout* directory, run the following
-command(s):
+``BOKEH_RESOURCES`` is set to ``absolute-dev`` or ``inline`` in order to use
+your local version of BokehJS. In the *source checkout* directory, run the
+following command(s):
 
 .. tabs::
 
     .. code-tab:: sh Linux/macOS
 
-        BOKEH_RESOURCES=inline python examples/plotting/file/iris.py
+        BOKEH_RESOURCES=inline python examples/plotting/file/marker_map.py
 
     .. code-tab:: PowerShell Windows (PS)
 
         $Env:BOKEH_RESOURCES = "inline"
-        python.exe .\examples\plotting\file\iris.py
+        python.exe .\examples\plotting\file\marker_map.py
 
     .. code-tab:: doscon Windows (CMD)
 
         set BOKEH_RESOURCES=inline
-        python examples\plotting\file\iris.py
+        python examples\plotting\file\marker_map.py
 
-This creates a file ``iris.html`` locally. When you open this file in a web
+This creates a file ``marker_map.html`` locally. When you open this file in a web
 browser, it should display this visualization:
 
-.. image:: /_images/bokeh_iris_html.png
+.. image:: /_images/bokeh_marker_map_html.png
+    :class: image-border
     :scale: 50 %
     :align: center
 
@@ -512,12 +513,12 @@ checkout* directory:
 This should open up a browser with an interactive figure:
 
 .. image:: /_images/bokeh_app_sliders.png
-    :scale: 50 %
+    :class: image-border
     :align: center
 
 All the sliders allow interactive control of the sine wave, with each update
 redrawing the line with the new parameters. The ``--show`` option opens a
-web browser, the default URL for the Bokeh server is ``localhost:5006``.
+web browser. The default URL for the Bokeh server is ``localhost:5006``.
 
 Troubleshooting
 ---------------
@@ -559,8 +560,8 @@ Slack`_.
 .. _npm: https://www.npmjs.com/
 .. _pre-commit: https://pre-commit.com/
 .. _Git hooks: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
-.. _flake8: https://flake8.pycqa.org/
-.. _eslint: https://eslint.org/
+.. _Flake8: https://flake8.pycqa.org/
+.. _ESLint: https://eslint.org/
 .. _isort: https://pycqa.github.io/isort/
 .. _Bokeh's protected branches: https://github.com/bokeh/bokeh/wiki/BEP-6:-Branching-Strategy
 .. _merge conflicts: https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging#_basic_merge_conflicts

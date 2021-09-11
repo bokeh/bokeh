@@ -50,7 +50,9 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'contains_tex_string',
     'FromCurdoc',
+    'is_tex_string',
     'OutputDocumentFor',
     'RenderItem',
     'RenderRoot',
@@ -332,6 +334,41 @@ def submodel_has_python_callbacks(models: Sequence[Model | Document]) -> bool:
 
     return has_python_callback
 
+def is_tex_string(text: str) -> bool:
+    """Whether a string begins and ends with MathJax default delimiters
+
+    Args:
+        text (str): String to check
+
+    Returns:
+        bool: True if string begins and ends with delimiters, False if not
+    """
+    if text.startswith("$$") and text.endswith("$$"):
+        return True
+    elif text.startswith("\\[") and text.endswith("\\]"):
+        return True
+    elif text.startswith("\\(") and text.endswith("\\)"):
+        return True
+    else:
+        return False
+
+def contains_tex_string(text: str) -> bool:
+    """Whether a string contains any pair of MathJax default delimiters
+    Args:
+        text (str): String to check
+    Returns:
+        bool: True if string contains delimiters, False if not
+    """
+    if "$$" in text:
+        if "$$" in text[text.index("$$") + 2:]:
+            return True
+    if "\\[" in text:
+        if "\\]" in text[text.index("\\[") + 2:]:
+            return True
+    if "\\(" in text:
+        if "\\)" in text[text.index("\\(") + 2:]:
+            return True
+    return False
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
