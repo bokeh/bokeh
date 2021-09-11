@@ -1356,4 +1356,19 @@ describe("Bug", () => {
       await display(row([p0, p1, p2]))
     })
   })
+
+  describe("in issue #11587", () => {
+    it("doesn't allow SVG backend to respect clip paths when painting text", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([300, 200], {output_backend, title: output_backend, x_range: [0.5, 2.5], y_range: [0.5, 2.5]})
+        p.text({x: [0, 1, 2], y: [0, 1, 2], text: ["Some 0", "Some 1", "Some 2"], text_font_size: "60px"})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]))
+    })
+  })
 })
