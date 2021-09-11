@@ -1,6 +1,5 @@
 import {Signal0} from "core/signaling"
 import {load_module} from "core/util/modules"
-import MathJax from "./mathjax"
 
 type MathJaxStatus = "not_started" | "loaded" | "loading" | "failed"
 

@@ -10,20 +10,6 @@ import {AllPackages} from "mathjax-full/js/input/tex/AllPackages.js"
 const adaptor = browserAdaptor()
 RegisterHTMLHandler(adaptor)
 
-declare namespace MathJax {
-  type ConvertOptions = {
-    display?: boolean
-    em?: number
-    ex?: number
-    containerWidth?: number
-  }
-  type TeXMacros = {[key: string]: string | [string, number]}
-
-  function tex2svg(formula: string, options?: ConvertOptions, macros?: TeXMacros): HTMLElement
-  function ascii2svg(_formula: string): HTMLElement
-  function mathml2svg(formula: string): HTMLElement
-}
-
 const svg = new SVG({fontCache: "local"})
 
 const defaults: MathJax.ConvertOptions = {
@@ -52,5 +38,3 @@ export function mathml2svg(formula: string): HTMLElement {
   const mathml_to_svg = mathjax.document("", {InputJax: mathml, OutputJax: svg})
   return mathml_to_svg.convert(formula, defaults)
 }
-
-export default MathJax
