@@ -110,7 +110,7 @@ class TeX(MathText):
     """)
 
     inline = Bool(default=False, help="""
-    A boolean specifying whether the math is in display-mode or not (for TeX input). Default is false.
+    Whether the math text is inline display or not (for TeX input). Default is False.
     """)
 
 class PlainText(BaseText):
