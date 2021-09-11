@@ -10,8 +10,7 @@ import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {build_view} from "@bokehjs/core/build_views"
 import {TextBox} from "@bokehjs/core/graphics"
-import {TeX} from "@bokehjs/models/text"
-import {display} from "../../../framework"
+import {TeXView, TeX} from "@bokehjs/models/text/math_text"
 
 describe("Axis", () => {
 
@@ -45,15 +44,37 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      major_label_overrides: {0: "zero", 4: new TeX({text: "\\pi"}), 10: "ten"},
+      major_label_overrides: {0: "zero", 4: new TeX({text: "\\pi"}), 10: "$$ten$$"},
     })
     plot.add_layout(axis, "below")
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_view(axis)!
 
     const labels = axis_view.compute_labels([0, 2, 4, 6, 8, 10])
-    await display(plot)
+
     expect(labels.items.map((l) => (l as TextBox).text)).to.be.equal(["zero", "2", "\\pi", "6", "8", "ten"])
+    expect(labels.items.filter(l => l instanceof TeXView).length).to.be.equal(2)
+  })
+
+  it("should convert mathstrings on axis labels to TeX", async () => {
+    const ticker = new BasicTicker()
+    const formatter = new BasicTickFormatter()
+    const axis = new Axis({
+      ticker,
+      formatter,
+      axis_label: "$$\\sin(x)$$",
+    })
+
+    const plot = new Plot({
+      x_range: new Range1d({start: 0, end: 10}),
+      y_range: new Range1d({start: 0, end: 10}),
+    })
+    plot.add_layout(axis, "below")
+
+    const plot_view = (await build_view(plot)).build()
+    const axis_view = plot_view.renderer_view(axis)!
+
+    expect(axis_view.model.axis_label instanceof TeX).to.be.true
   })
 
   it("loc should return numeric fixed_location", async () => {
