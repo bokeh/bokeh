@@ -286,10 +286,11 @@ Follow these steps to write new visual tests or update existing tests:
     your operating system. The baseline files will be in a subfolder of
     :bokeh-tree:`bokehjs/test/baselines/`.
 
-    Use the BokehJS :ref:`devtools server <contributor_guide_testing_local_javascript_devtools>`
-    to review your local test results. Optionally, you can use any PNG viewer to
-    inspect the generated PNG files. Adjust your testing code until the test's
-    visual output matches your expectations.
+    Use the BokehJS :ref:`devtools server
+    <contributor_guide_testing_local_javascript_devtools>` to review your local
+    test results. Optionally, you can use any PNG viewer to inspect the
+    generated PNG files. Adjust your testing code until the test's visual output
+    matches your expectations.
 
 3. Generate CI baselines and commit test:
     As a final step before pushing your visual tests to Bokeh's GitHub
@@ -315,9 +316,10 @@ Follow these steps to write new visual tests or update existing tests:
        ``bokehjs-report`` artifact.
     4. Unzip the downloaded artifact file into the root folder of your local
        Bokeh repository.
-    5. Use the :ref:`devtools server <contributor_guide_testing_local_javascript_devtools>`
-       to review the baseline files the CI has created for each platform: first,
-       go to ``/integration/report?platform=linux``, then to
+    5. Use the :ref:`devtools server
+       <contributor_guide_testing_local_javascript_devtools>` to review the
+       baseline files the CI has created for each platform: first, go to
+       ``/integration/report?platform=linux``, then to
        ``/integration/report?platform=macos``, and finally to
        ``/integration/report?platform=windows``.
     6. If you did not detect any unintentional differences, commit all new or

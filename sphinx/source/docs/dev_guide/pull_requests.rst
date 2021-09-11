@@ -17,7 +17,7 @@ To create a pull request, you need a development environment as described in
 
 You can format any text you enter when working with pull requests. To learn more
 about your formatting options, see `Writing on GitHub`_ in the
-`GitHub documentation`.
+`GitHub documentation`_.
 
 Pull request workflow
 ---------------------
@@ -89,7 +89,7 @@ Pull request workflow
     Once you have created a pull request, a member of the `Bokeh core team`_
     will begin `reviewing your pull request`_ and may request changes or
     additions. If so, they will help you along the way with any questions you
-    may have. You can make new changes in your existing local branch, and push
+    may have. You can make new changes in your existing local branch and push
     them to Github. The PR will update automatically, there is no need to open a
     new PR. The team member will also update any
     `labels in your pull request <wiki pull requests_>`_. Reviewing pull
