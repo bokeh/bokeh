@@ -424,8 +424,7 @@ def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
     def model_require_mathjax(model: Model) -> bool:
         ''' If any model explicit require MathJax with enable_tex option set to true
         '''
-        properties = model._property_values
-        return properties.get('enable_tex', False)
+        return "enable_tex" in model.properties() and model.enable_tex
 
     return _any(objs, lambda obj: isinstance(obj, MathText) or model_require_mathjax(obj))
 
