@@ -421,7 +421,7 @@ def _model_requires_mathjax(model: Model) -> bool:
         bool: True if MathJax required, False if not
     """
     from ..models.axes import Axis
-    from ..models.widgets.markups import Div, P
+    from ..models.widgets.markups import Div, Paragraph
 
     if isinstance(model, Axis):
         if isinstance(model.axis_label, str) and is_tex_string(model.axis_label):
@@ -435,7 +435,7 @@ def _model_requires_mathjax(model: Model) -> bool:
         if contains_tex_string(model.text):
             return True
 
-    if isinstance(model, P) and not model.disable_math:
+    if isinstance(model, Paragraph) and not model.disable_math:
         if contains_tex_string(model.text):
             return True
 
