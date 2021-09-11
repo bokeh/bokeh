@@ -4,7 +4,7 @@ import {display, fig, row, column, grid} from "./_util"
 
 import {
   Arrow, ArrowHead, NormalHead, OpenHead,
-  BoxAnnotation, LabelSet, ColorBar, Legend, LegendItem, Slope, Whisker,
+  BoxAnnotation, LabelSet, ColorBar, Slope, Whisker,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
@@ -508,14 +508,9 @@ describe("Bug", () => {
     it("disallows correct rendering of legends with SVG backend", async () => {
       function make_plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
-        const cross = p.diamond({x: 1, y: 1, color: "red", size: 30})
-        const square = p.square({x: 2, y: 1, size: 30})
-        const items = [
-          new LegendItem({label: "circle", renderers: [cross]}),
-          new LegendItem({label: "square", renderers: [square]}),
-        ]
-        const legend = new Legend({items, location: "top_center"})
-        p.add_layout(legend)
+        p.diamond({x: 1, y: 1, color: "red", size: 30, legend_label: "diamond"})
+        p.square({x: 2, y: 1, size: 30, legend_label: "square"})
+        p.legend.location = "top_center"
         return p
       }
 
@@ -532,14 +527,14 @@ describe("Bug", () => {
       const y = [5, 6, 2, 3, 4, 10]
 
       const p = fig([300, 300])
-      const r = p.line(x, y, {legend: "foo"}) // TODO: legend_item
+      const r = p.line(x, y, {legend_label: "foo"})
 
       const {view} = await display(p)
 
-      p.circle(x, y, {legend: "foo"}) // TODO: legend_item
+      p.circle(x, y, {legend_label: "foo"})
       r.glyph.line_dash = "dotted"
       r.glyph.line_color = "black"
-      p.line([1, 4, 8], [2, 12, 6], {line_color: "red", legend: "bar"}) // TODO: legend_item
+      p.line([1, 4, 8], [2, 12, 6], {line_color: "red", legend_label: "bar"})
       p.legend.background_fill_color = "blue"
       p.legend.background_fill_alpha = 0.2
 
@@ -1082,8 +1077,8 @@ describe("Bug", () => {
   describe("in issue #11367", () => {
     it("doesn't allow to render legend for ellipse glyph", async () => {
       const p = fig([200, 100], {x_axis_type: null, y_axis_type: null})
-      p.circle({x: [0, 1], y: [0, 1], radius: 0.1, legend: "circles"})
-      p.ellipse({x: [0, 1], y: [1, 0], width: 0.2, height: 0.1, legend: "ellipses"})
+      p.circle({x: [0, 1], y: [0, 1], radius: 0.1, legend_label: "circles"})
+      p.ellipse({x: [0, 1], y: [1, 0], width: 0.2, height: 0.1, legend_label: "ellipses"})
       p.legend.location = "center"
       await display(p)
     })

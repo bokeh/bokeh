@@ -91,7 +91,7 @@ describe("Bug", () => {
       const plot = fig([200, 200])
       const filter = new BooleanFilter({booleans: [false, false]})
       const view = new CDSView({filters: [filter]})
-      plot.square([1, 2], [3, 4], {fill_color: ["red", "green"], view, legend: "square"})
+      plot.square([1, 2], [3, 4], {fill_color: ["red", "green"], view, legend_label: "square"})
       await display(plot)
     })
 
