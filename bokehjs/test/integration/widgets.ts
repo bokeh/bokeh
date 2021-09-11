@@ -145,17 +145,17 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
-  it("should allow Div", async () => {
+  it.allowing(8)("should allow Div", async () => {
     const obj = new Div({text: "some <b>text</b>"})
     await display(obj, [500, 100])
   })
 
-  it("should allow Paragraph", async () => {
+  it.allowing(8)("should allow Paragraph", async () => {
     const obj = new Paragraph({text: "some text"})
     await display(obj, [500, 100])
   })
 
-  it("should allow PreText", async () => {
+  it.allowing(8)("should allow PreText", async () => {
     const obj = new PreText({text: "some text"})
     await display(obj, [500, 100])
   })
