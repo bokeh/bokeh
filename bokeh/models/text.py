@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.properties import (
-    Bool,
     Dict,
     Either,
     Int,
@@ -72,12 +71,12 @@ class MathText(BaseText):
 
 class Ascii(MathText):
     """
-    Render mathematical content using `AsciiMath <http://asciimath.org/>` notation.
+    Render mathematical content using `AsciiMath <http://asciimath.org/>`_ notation.
     """
 
 class MathML(MathText):
     """
-    Render mathematical content using `MathML <https://www.w3.org/Math/>` notation.
+    Render mathematical content using `MathML <https://www.w3.org/Math/>`_ notation.
     """
 
 class TeX(MathText):
