@@ -40,11 +40,12 @@ log = logging.getLogger(__name__)
 from ..core.enums import (
     Anchor,
     Direction,
+    ImageOrigin,
     Palette,
     StepMode,
     enumeration,
 )
-from ..core.has_props import abstract
+from ..core.has_props import HasProps, abstract
 from ..core.properties import (
     AngleSpec,
     Bool,
@@ -639,7 +640,13 @@ class HexTile(LineGlyph, FillGlyph, HatchGlyph):
     The {prop} values for the hex tiles.
     """)
 
-class Image(XYGlyph):
+class _ImageCommon(HasProps):
+
+    origin = Enum(ImageOrigin, default="bottom_left", help="""
+    Defines the coordinate space of an image.
+    """)
+
+class Image(XYGlyph, _ImageCommon):
     ''' Render images given as scalar data together with a color mapper.
 
     In addition to the defined model properties, ``Image`` also can accept
@@ -727,7 +734,7 @@ class Image(XYGlyph):
         The color mapping step happens on the client.
     """).accepts(Enum(Palette), lambda pal: LinearColorMapper(palette=pal))
 
-class ImageRGBA(XYGlyph):
+class ImageRGBA(XYGlyph, _ImageCommon):
     ''' Render images given as RGBA data.
 
     '''

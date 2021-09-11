@@ -1,5 +1,6 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {Arrayable, ScreenArray, to_screen} from "core/types"
+import {ImageOrigin} from "core/enums"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 import {Selection, ImageIndex} from "../selections/selection"
@@ -44,6 +45,15 @@ export abstract class ImageBaseView extends XYGlyphView {
     if (scalar_alpha)
       ctx.globalAlpha = global_alpha.value
 
+    const [x_scale, y_scale] = (() => {
+      switch (this.model.origin) {
+        case "bottom_left":  return [ 1, -1]
+        case "top_left":     return [ 1,  1]
+        case "bottom_right": return [-1, -1]
+        case "top_right":    return [-1,  1]
+      }
+    })()
+
     for (const i of indices) {
       const image_data_i = image_data[i]
       const sx_i = sx[i]
@@ -58,15 +68,21 @@ export abstract class ImageBaseView extends XYGlyphView {
       if (!scalar_alpha)
         ctx.globalAlpha = alpha_i
 
-      const y_offset = sy_i
+      const [x_offset, y_offset] = (() => {
+        switch (this.model.origin) {
+          case "bottom_left":  return [0, sy_i]
+          case "top_left":     return [0, 0]
+          case "bottom_right": return [sx_i, sy_i]
+          case "top_right":    return [sx_i, 0]
+        }
+      })()
 
-      ctx.translate(0, y_offset)
-      ctx.scale(1, -1)
-      ctx.translate(0, -y_offset)
+      ctx.save()
+      ctx.translate(x_offset, y_offset)
+      ctx.scale(x_scale, y_scale)
+      ctx.translate(-x_offset, -y_offset)
       ctx.drawImage(image_data_i, sx_i|0, sy_i|0, sw_i, sh_i)
-      ctx.translate(0, y_offset)
-      ctx.scale(1, -1)
-      ctx.translate(0, -y_offset)
+      ctx.restore()
     }
 
     ctx.setImageSmoothingEnabled(old_smoothing)
@@ -204,6 +220,7 @@ export namespace ImageBase {
     dh: p.DistanceSpec
     global_alpha: p.NumberSpec
     dilate: p.Property<boolean>
+    origin: p.Property<ImageOrigin>
   }
 
   export type Visuals = XYGlyph.Visuals
@@ -226,6 +243,7 @@ export abstract class ImageBase extends XYGlyph {
       dh:           [ p.DistanceSpec, {field: "dh"} ],
       global_alpha: [ p.NumberSpec, {value: 1.0} ],
       dilate:       [ Boolean, false ],
+      origin:       [ ImageOrigin, "bottom_left" ]
     }))
   }
 }

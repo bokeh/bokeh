@@ -48,6 +48,7 @@ ALL  = (
     'HatchPatternAbbreviation',
     'HoldPolicy',
     'HorizontalLocation',
+    'ImageOrigin',
     'JitterRandomDistribution',
     'LatLon',
     'LegendClickPolicy',
@@ -194,6 +195,9 @@ class Test_bce:
     def test_HorizontalLocation(self) -> None:
         assert tuple(bce.HorizontalLocation) == ("left", "right")
 
+    def test_ImageOrigin(self) -> None:
+        assert tuple(bce.ImageOrigin) == ("bottom_left", "top_left", "bottom_right", "top_right")
+
     def test_JitterRandomDistribution(self) -> None:
         assert tuple(bce.JitterRandomDistribution) == ("uniform", "normal")
 
@@ -332,6 +336,7 @@ def test_enums_contents() -> None:
         'HatchPatternAbbreviation',
         'HoldPolicy',
         'HorizontalLocation',
+        'ImageOrigin',
         'JitterRandomDistribution',
         'LatLon',
         'LegendClickPolicy',
