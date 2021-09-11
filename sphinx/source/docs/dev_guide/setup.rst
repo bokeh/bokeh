@@ -466,23 +466,24 @@ following command(s):
 
     .. code-tab:: sh Linux/macOS
 
-        BOKEH_RESOURCES=inline python examples/plotting/file/elements.py
+        BOKEH_RESOURCES=inline python examples/plotting/file/marker_map.py
 
     .. code-tab:: PowerShell Windows (PS)
 
         $Env:BOKEH_RESOURCES = "inline"
-        python.exe .\examples\plotting\file\elements.py
+        python.exe .\examples\plotting\file\marker_map.py
 
     .. code-tab:: doscon Windows (CMD)
 
         set BOKEH_RESOURCES=inline
-        python examples\plotting\file\elements.py
+        python examples\plotting\file\marker_map.py
 
-This creates a file ``elements.html`` locally. When you open this file in a web
+This creates a file ``marker_map.html`` locally. When you open this file in a web
 browser, it should display this visualization:
 
-.. image:: /_images/bokeh_elements_html.png
+.. image:: /_images/bokeh_marker_map_html.png
     :class: image-border
+    :scale: 50 %
     :align: center
 
 Run Bokeh Server
