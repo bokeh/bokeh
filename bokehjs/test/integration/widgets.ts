@@ -226,7 +226,7 @@ describe("Widgets", () => {
   })
   it("should not allow TeX on PreText with mathstrings", async () => {
     const obj = new PreText({
-      text: `When \\(a \\ne 0\\)`,
+      text: "When \\(a \\ne 0\\)",
     })
 
     await display(obj, [525, 75])
