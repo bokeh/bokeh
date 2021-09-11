@@ -1,36 +1,19 @@
 import {Markup, MarkupView} from "./markup"
 import * as p from "core/properties"
-import {default_provider, MathJaxProvider} from "models/text/providers"
-import {find_math_parts} from "models/text/utils"
-import {TeX} from "models/text/math_text"
 
 export class DivView extends MarkupView {
   override model: Div
-
-  get provider(): MathJaxProvider {
-    return default_provider
-  }
-
-  override async lazy_initialize() {
-    await super.lazy_initialize()
-
-    if (this.provider.status == "not_started")
-      await this.provider.fetch()
-  }
 
   override render(): void {
     super.render()
     if (this.model.render_as_text)
       this.markup_el.textContent = this.model.text
-    else if (!this.model.disable_math) {
-      const html_with_svgs = find_math_parts(this.model.text).map(el => {
-        if (el instanceof TeX) return this.provider.MathJax?.tex2svg(el.text, {display: !el.inline}).outerHTML
-        else return el.text
-      }).join("")
+    else
+      this.markup_el.innerHTML = this.has_math_disabled() ? this.model.text : this.process_tex()
+  }
 
-      this.markup_el.innerHTML = html_with_svgs
-    } else
-      this.markup_el.innerHTML = this.model.text
+  override has_math_disabled() {
+    return this.model.disable_math || this.model.render_as_text
   }
 }
 
@@ -39,7 +22,6 @@ export namespace Div {
 
   export type Props = Markup.Props & {
     render_as_text: p.Property<boolean>
-    disable_math: p.Property<boolean>
   }
 }
 
@@ -58,7 +40,6 @@ export class Div extends Markup {
 
     this.define<Div.Props>(({Boolean}) => ({
       render_as_text: [ Boolean, false ],
-      disable_math: [ Boolean, false ],
     }))
   }
 }

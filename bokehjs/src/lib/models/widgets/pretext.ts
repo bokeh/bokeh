@@ -7,7 +7,13 @@ export class PreTextView extends MarkupView {
 
   override render(): void {
     super.render()
-    const content = pre({style: {overflow: "auto"}}, this.model.text)
+    const content = pre({style: {overflow: "auto"}})
+
+    if (this.has_math_disabled())
+      content.textContent = this.model.text
+    else
+      content.innerHTML = this.process_tex()
+
     this.markup_el.appendChild(content)
   }
 }

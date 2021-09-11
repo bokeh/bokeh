@@ -1,7 +1,9 @@
 import {CachedVariadicBox} from "core/layout/html"
 import {div} from "core/dom"
 import * as p from "core/properties"
-
+import {default_provider, MathJaxProvider} from "models/text/providers"
+import {find_math_parts} from "models/text/utils"
+import {TeX} from "models/text/math_text"
 import {Widget, WidgetView} from "./widget"
 
 import clearfix_css, {clearfix} from "styles/clearfix.css"
@@ -11,6 +13,17 @@ export abstract class MarkupView extends WidgetView {
   override layout: CachedVariadicBox
 
   protected markup_el: HTMLElement
+
+  get provider(): MathJaxProvider {
+    return default_provider
+  }
+
+  override async lazy_initialize() {
+    await super.lazy_initialize()
+
+    if (this.provider.status == "not_started")
+      await this.provider.fetch()
+  }
 
   override connect_signals(): void {
     super.connect_signals()
@@ -36,6 +49,17 @@ export abstract class MarkupView extends WidgetView {
     this.markup_el = div({class: clearfix, style})
     this.el.appendChild(this.markup_el)
   }
+
+  process_tex(): string {
+    return find_math_parts(this.model.text).map(part => {
+      if (part instanceof TeX) return this.provider.MathJax?.tex2svg(part.text, {display: !part.inline}).outerHTML
+      else return part.text
+    }).join("")
+  }
+
+  has_math_disabled() {
+    return this.model.disable_math
+  }
 }
 
 export namespace Markup {
@@ -44,6 +68,7 @@ export namespace Markup {
   export type Props = Widget.Props & {
     text: p.Property<string>
     style: p.Property<{[key: string]: string}>
+    disable_math: p.Property<boolean>
   }
 }
 
@@ -58,9 +83,10 @@ export abstract class Markup extends Widget {
   }
 
   static {
-    this.define<Markup.Props>(({String, Dict}) => ({
+    this.define<Markup.Props>(({Boolean, String, Dict}) => ({
       text:  [ String, "" ],
       style: [ Dict(String), {} ],
+      disable_math: [ Boolean, false ],
     }))
   }
 }

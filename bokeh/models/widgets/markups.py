@@ -57,6 +57,10 @@ class Markup(Widget):
 
     Markups include e.g., ``<div>``, ``<p>``, and ``<pre>``.
 
+    Content can be interpreted as `TeX and LaTeX input`_ when rendering as HTML.
+    TeX/LaTeX processing can be disabled by setting ``disable_math`` to True.
+
+    .. _`TeX and LaTeX input`: https://docs.mathjax.org/en/latest/basic/mathematics.html#tex-and-latex-input
     '''
 
     text = String(default="", help="""
@@ -76,6 +80,11 @@ class Markup(Widget):
     Raw CSS style declaration. Note this may be web browser dependent.
     """)
 
+    disable_math = Bool(False, help="""
+    Whether the contents should not be processed as TeX/LaTeX input.
+    The default value is ``False``.
+    """)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -93,12 +102,6 @@ class Div(Markup):
     ''' A block (div) of text.
 
     This Bokeh model corresponds to an HTML ``<div>`` element.
-
-    Content can be interpreted as `TeX and LaTeX input`_ when rendering as HTML
-    (that is, when ``render_as_text`` is False). TeX/LaTeX processing can be disabled
-    by setting ``disable_math`` to True.
-
-    .. _`TeX and LaTeX input`: https://docs.mathjax.org/en/latest/basic/mathematics.html#tex-and-latex-input
     '''
 
     __example__ = "sphinx/source/docs/user_guide/examples/interaction_div.py"
@@ -106,11 +109,6 @@ class Div(Markup):
     render_as_text = Bool(False, help="""
     Whether the contents should be rendered as raw text or as interpreted HTML.
     The default value is ``False``, meaning contents are rendered as HTML.
-    """)
-
-    disable_math = Bool(False, help="""
-    Whether the contents should not be processed as TeX/LaTeX input.
-    The default value is ``False``.
     """)
 
 class PreText(Paragraph):
