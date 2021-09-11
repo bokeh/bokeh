@@ -94,9 +94,11 @@ class Div(Markup):
 
     This Bokeh model corresponds to an HTML ``<div>`` element.
 
-    Content can be interpreted as \
-    `TeX and LaTeX input <https://docs.mathjax.org/en/latest/basic/mathematics.html#tex-and-latex-input/>` \
-    setting enable_tex to ``True``
+    Content can be interpreted as `TeX and LaTeX input`_ when rendering as HTML
+    (that is, when ``render_as_text`` is False). TeX/LaTeX processing can be disabled
+    by setting ``disable_math`` to True.
+
+    .. _`TeX and LaTeX input`: https://docs.mathjax.org/en/latest/basic/mathematics.html#tex-and-latex-input
     '''
 
     __example__ = "sphinx/source/docs/user_guide/examples/interaction_div.py"
@@ -106,9 +108,9 @@ class Div(Markup):
     The default value is ``False``, meaning contents are rendered as HTML.
     """)
 
-    enable_tex = Bool(False, help="""
-    Whether the contents should be rendered including TeX/LaTeX input.
-    The default value is ``False``, and only applies when rendering as HTML (that is, when render_as_text is ``False``)
+    disable_math = Bool(False, help="""
+    Whether the contents should not be processed as TeX/LaTeX input.
+    The default value is ``False``.
     """)
 
 class PreText(Paragraph):

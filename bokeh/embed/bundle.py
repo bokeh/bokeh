@@ -412,6 +412,37 @@ def _use_widgets(objs: Sequence[Model | Document]) -> bool:
     from ..models.widgets import Widget
     return _any(objs, lambda obj: isinstance(obj, Widget)) or _ext_use_widgets(objs)
 
+def _is_tex_string(text: str) -> bool:
+    """Whether a string begins and ends with MathJax default delimiters
+    Args:
+        text (str): String to check
+    Returns:
+        bool: True if string begins and ends with delimiters, False if not
+    """
+    if text.startswith("$$") and text.endswith("$$"):
+        return True
+    elif text.startswith("\\[") and text.endswith("\\]"):
+        return True
+    elif text.startswith("\\(") and text.endswith("\\)"):
+        return True
+    else:
+        return False
+
+def _model_requires_mathjax(model: Model) -> bool:
+    """Whether a model requires MathJax to be loaded
+    Args:
+        model (Model): Model to check
+    Returns:
+        bool: True if MathJax required, False if not
+    """
+    from ..models.widgets.markups import Div
+
+    if isinstance(model, Div) and not model.render_as_text and not model.disable_math:
+        if _is_tex_string(model.text):
+          return True
+
+    return False
+
 def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
     ''' Whether a collection of Bokeh objects contains a model requesting MathJax
     Args:
@@ -421,12 +452,7 @@ def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
     '''
     from ..models.text import MathText
 
-    def model_require_mathjax(model: Model) -> bool:
-        ''' If any model explicit require MathJax with enable_tex option set to true
-        '''
-        return "enable_tex" in model.properties() and model.enable_tex
-
-    return _any(objs, lambda obj: isinstance(obj, MathText) or model_require_mathjax(obj))
+    return _any(objs, lambda obj: isinstance(obj, MathText) or _model_requires_mathjax(obj))
 
 def _use_gl(objs: Sequence[Model | Document]) -> bool:
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL

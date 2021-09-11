@@ -208,11 +208,20 @@ describe("Widgets", () => {
     await view.ready
   })
 
-  it("should allow TeX on Divs with mathstrings and enable_tex = true", async () => {
+  it("should allow TeX on Divs with mathstrings", async () => {
     const obj = new Div({
       text: `When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\) and they are
         $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$`,
-      enable_tex: true,
+    })
+
+    await display(obj, [320, 120])
+  })
+
+  it("should not process TeX on Divs with mathstrings and disable_math=true", async () => {
+    const obj = new Div({
+      text: `When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\) and they are
+        $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$`,
+      disable_math: true,
     })
 
     await display(obj, [320, 120])

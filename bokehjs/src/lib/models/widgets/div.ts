@@ -22,7 +22,7 @@ export class DivView extends MarkupView {
     super.render()
     if (this.model.render_as_text)
       this.markup_el.textContent = this.model.text
-    else if (this.model.enable_tex) {
+    else if (!this.model.disable_math) {
       const html_with_svgs = find_math_parts(this.model.text).map(el => {
         if (el instanceof TeX) return this.provider.MathJax?.tex2svg(el.text, {display: !el.inline}).outerHTML
         else return el.text
@@ -39,7 +39,7 @@ export namespace Div {
 
   export type Props = Markup.Props & {
     render_as_text: p.Property<boolean>
-    enable_tex: p.Property<boolean>
+    disable_math: p.Property<boolean>
   }
 }
 
@@ -58,7 +58,7 @@ export class Div extends Markup {
 
     this.define<Div.Props>(({Boolean}) => ({
       render_as_text: [ Boolean, false ],
-      enable_tex: [ Boolean, false ],
+      disable_math: [ Boolean, false ],
     }))
   }
 }
