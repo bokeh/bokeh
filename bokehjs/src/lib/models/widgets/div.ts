@@ -2,7 +2,7 @@ import {Markup, MarkupView} from "./markup"
 import * as p from "core/properties"
 import {default_provider, MathJaxProvider} from "models/text/providers"
 import {find_math_parts} from "models/text/utils"
-import {TeX} from "models"
+import {TeX} from "models/text/math_text"
 
 export class DivView extends MarkupView {
   override model: Div
