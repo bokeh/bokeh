@@ -412,21 +412,23 @@ def _use_widgets(objs: Sequence[Model | Document]) -> bool:
     from ..models.widgets import Widget
     return _any(objs, lambda obj: isinstance(obj, Widget)) or _ext_use_widgets(objs)
 
-def _is_tex_string(text: str) -> bool:
-    """Whether a string begins and ends with MathJax default delimiters
+def _contains_tex_string(text: str) -> bool:
+    """Whether a string contains any pair of MathJax default delimiters
     Args:
         text (str): String to check
     Returns:
-        bool: True if string begins and ends with delimiters, False if not
+        bool: True if string contains delimiters, False if not
     """
-    if text.startswith("$$") and text.endswith("$$"):
-        return True
-    elif text.startswith("\\[") and text.endswith("\\]"):
-        return True
-    elif text.startswith("\\(") and text.endswith("\\)"):
-        return True
-    else:
-        return False
+    if "$$" in text:
+        if "$$" in text[text.index("$$") + 2:]:
+            return True
+    if "\\[" in text:
+        if "\\]" in text[text.index("\\[") + 2:]:
+            return True
+    if "\\(" in text:
+        if "\\)" in text[text.index("\\(") + 2:]:
+            return True
+    return False
 
 def _model_requires_mathjax(model: Model) -> bool:
     """Whether a model requires MathJax to be loaded
@@ -440,7 +442,7 @@ def _model_requires_mathjax(model: Model) -> bool:
     if isinstance(model, Markup) and not model.disable_math:
         if isinstance(model, Div) and model.render_as_text:
             return False
-        if _is_tex_string(model.text):
+        if _contains_tex_string(model.text):
             return True
 
     return False

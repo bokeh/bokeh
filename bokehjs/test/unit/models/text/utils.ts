@@ -2,7 +2,7 @@ import {expect} from "assertions"
 
 import {TeX} from "@bokehjs/models/text/math_text"
 import {PlainText} from "@bokehjs/models/text/plain_text"
-import {find_math_parts} from "@bokehjs/models/text/utils"
+import {find_math_parts, contains_tex_string} from "@bokehjs/models/text/utils"
 
 describe("text utils", () => {
   describe("find_math_parts find tex elements on strings", () => {
@@ -121,7 +121,9 @@ describe("text utils", () => {
       expect(parts[2].text).to.be.equal(", there are two solutions to ")
       expect(parts[3].text).to.be.equal("ax^2 + bx + c = 0")
       expect(parts[4].text).to.be.equal(" and they are ")
-      expect(parts[5].text).to.be.equal("x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.")
+      expect(parts[5].text).to.be.equal(
+        "x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}."
+      )
     })
     it("have many open delimiter but only first closes", () => {
       const parts = find_math_parts("part0$$part1\\[part2\\(part3$$")
@@ -152,6 +154,72 @@ describe("text utils", () => {
       expect((parts[1] as TeX).inline).to.be.true
       expect(parts[0].text).to.be.equal("part0$$part1\\[part2")
       expect(parts[1].text).to.be.equal("part3")
+    })
+  })
+
+  describe("contains_tex_string", () => {
+    it("resolve to textbox when delimiters are only on end", () => {
+      const result = contains_tex_string("test$$")
+      expect(result).to.be.false
+    })
+    it("resolve to textbox when delimiters are only on start", () => {
+      const result = contains_tex_string("$$test")
+      expect(result).to.be.false
+    })
+    it("find block tex elements with delimiters $$ and $$", () => {
+      const result = contains_tex_string("$$test$$")
+      expect(result).to.be.true
+    })
+    it("find block tex elements with delimiters \\[ and \\]", () => {
+      const result = contains_tex_string("\\[test\\]")
+      expect(result).to.be.true
+    })
+    it("find inline tex elements with delimiters \\( and \\)", () => {
+      const result = contains_tex_string("\\(test\\)")
+      expect(result).to.be.true
+    })
+    it("starts with one delimiter and with other", () => {
+      const result = contains_tex_string("$$test\\]")
+      expect(result).to.be.false
+    })
+    it("starts with open delimiter and has an pair later", () => {
+      const result = contains_tex_string("$$test $$ end $$")
+      expect(result).to.be.true
+    })
+    it("starts with open delimiter and has an different pair later", () => {
+      const result = contains_tex_string("\\[test $$end$$")
+      expect(result).to.be.true
+    })
+    it("starts with text then open delimiter and has an different pair later", () => {
+      const result = contains_tex_string("text \\[text $$latex$$")
+      expect(result).to.be.true
+    })
+    it("ignore nested different delimiters", () => {
+      const result = contains_tex_string("$$ tex [ tex ] tex $$")
+      expect(result).to.be.true
+    })
+    it("ends on first end delimiter even if there is more after", () => {
+      const result = contains_tex_string("$$tex$$text$$tex$$")
+      expect(result).to.be.true
+    })
+    it("have many open delimiter but only first closes", () => {
+      const result = contains_tex_string("part0$$part1\\[part2\\(part3$$")
+      expect(result).to.be.true
+    })
+    it("have many open delimiter but only middle closes", () => {
+      const result = contains_tex_string("part0$$part1\\[part2\\(part3\\]")
+      expect(result).to.be.true
+    })
+    it("have many open delimiter but only last closes", () => {
+      const result = contains_tex_string("part0$$part1\\[part2\\(part3\\)")
+      expect(result).to.be.true
+    })
+
+    it("multiple pairs", () => {
+      const result =  contains_tex_string(
+        "When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\) and they are $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$"
+      )
+      expect(result).to.be.true
     })
   })
 })

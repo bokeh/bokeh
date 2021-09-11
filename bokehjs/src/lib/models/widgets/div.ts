@@ -11,10 +11,6 @@ export class DivView extends MarkupView {
     else
       this.markup_el.innerHTML = this.has_math_disabled() ? this.model.text : this.process_tex()
   }
-
-  override has_math_disabled() {
-    return this.model.disable_math || this.model.render_as_text
-  }
 }
 
 export namespace Div {

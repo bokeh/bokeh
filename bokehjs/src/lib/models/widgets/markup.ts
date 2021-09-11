@@ -2,7 +2,7 @@ import {CachedVariadicBox} from "core/layout/html"
 import {div} from "core/dom"
 import * as p from "core/properties"
 import {default_provider, MathJaxProvider} from "models/text/providers"
-import {find_math_parts} from "models/text/utils"
+import {find_math_parts, contains_tex_string} from "models/text/utils"
 import {TeX} from "models/text/math_text"
 import {Widget, WidgetView} from "./widget"
 
@@ -58,7 +58,7 @@ export abstract class MarkupView extends WidgetView {
   }
 
   has_math_disabled() {
-    return this.model.disable_math
+    return this.model.disable_math || !contains_tex_string(this.model.text)
   }
 }
 

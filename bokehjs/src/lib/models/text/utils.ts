@@ -1,5 +1,6 @@
 import {PlainText} from "./plain_text"
 import {TeX} from "./math_text"
+import {isString} from "core/util/types"
 
 type Delimiter = {
   start: string
@@ -92,3 +93,21 @@ export function find_math_parts(mathstring: string): (PlainText | TeX)[] {
 
   return result.filter((el) => el.text)
 }
+
+export function contains_tex_string(text: unknown): boolean {
+  if (!isString(text)) return false
+
+  if (text.includes("$$"))
+    if (text.slice(text.indexOf("$$")+2).includes("$$"))
+      return true
+
+  if (text.includes("\\["))
+    if (text.slice(text.indexOf("\\[")+2).includes("\\]"))
+      return true
+
+  if (text.includes("\\("))
+    if (text.slice(text.indexOf("\\(")+2).includes("\\)"))
+      return true
+
+  return false
+};
