@@ -437,11 +437,13 @@ def _model_requires_mathjax(model: Model) -> bool:
     Returns:
         bool: True if MathJax required, False if not
     """
-    from ..models.widgets.markups import Div, Markup
+    from ..models.widgets.markups import Div, P
 
-    if isinstance(model, Markup) and not model.disable_math:
-        if isinstance(model, Div) and model.render_as_text:
-            return False
+    if isinstance(model, Div) and not model.disable_math and not model.render_as_text:
+        if _contains_tex_string(model.text):
+            return True
+
+    if isinstance(model, P) and not model.disable_math:
         if _contains_tex_string(model.text):
             return True
 

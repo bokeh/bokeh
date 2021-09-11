@@ -82,7 +82,7 @@ class Markup(Widget):
 
     disable_math = Bool(False, help="""
     Whether the contents should not be processed as TeX/LaTeX input.
-    The default value is ``False``.
+    The default value is False.
     """)
 
 #-----------------------------------------------------------------------------
@@ -108,7 +108,7 @@ class Div(Markup):
 
     render_as_text = Bool(False, help="""
     Whether the contents should be rendered as raw text or as interpreted HTML.
-    The default value is ``False``, meaning contents are rendered as HTML.
+    The default value is False, meaning contents are rendered as HTML.
     """)
 
 class PreText(Paragraph):
