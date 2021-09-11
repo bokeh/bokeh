@@ -985,7 +985,8 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     */
   __applyText(text: string, x: number, y: number, action: "fill" | "stroke"): void {
     const font = this.__parseFont()
-    const textElement = this.__createElement("text", {
+
+    const el = this.__createElement("text", {
       "font-family": font.family,
       "font-size": font.size,
       "font-style": font.style,
@@ -997,11 +998,14 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       "dominant-baseline": getDominantBaseline(this.textBaseline),
     }, true)
 
-    textElement.appendChild(this.__document.createTextNode(text))
-    this._apply_transform(textElement)
-    this.__currentElement = textElement
+    if (this._clip_path != null)
+      el.setAttribute("clip-path", this._clip_path)
+
+    el.appendChild(this.__document.createTextNode(text))
+    this._apply_transform(el)
+    this.__currentElement = el
     this.__applyStyleToCurrentElement(action)
-    this.__root.appendChild(textElement)
+    this.__root.appendChild(el)
   }
 
   /**
