@@ -1,19 +1,34 @@
-from bokeh.plotting import figure, output_file, show
-from bokeh.sampledata.iris import flowers
+''' A scatter plot using the `Palmer penguin dataset`_. This example
+demonstrates color and marker mapping with basic plot elements. The chart
+shows correlation between body mass and flipper length for three different
+penguin species.
+
+.. bokeh-example-metadata::
+    :sampledata: penguins
+    :apis: bokeh.plotting.Figure.scatter, bokeh.transform.linear_cmap, bokeh.transform.factor_mark
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter_markers`, :ref:`userguide_data` > :ref:`userguide_data_transforming`
+    :keywords: alpha, colormap, markermap, scatter
+
+.. _Palmer penguin dataset: https://github.com/allisonhorst/palmerpenguins
+
+'''
+from bokeh.plotting import figure, show
+from bokeh.sampledata.penguins import data
 from bokeh.transform import factor_cmap, factor_mark
 
-SPECIES = ['setosa', 'versicolor', 'virginica']
+SPECIES = sorted(data.species.unique())
 MARKERS = ['hex', 'circle_x', 'triangle']
 
-p = figure(title = "Iris Morphology", background_fill_color="#fafafa")
-p.xaxis.axis_label = 'Petal Length'
-p.yaxis.axis_label = 'Sepal Width'
+p = figure(title = "Penguin size", background_fill_color="#fafafa")
+p.xaxis.axis_label = 'Flipper Length (mm)'
+p.yaxis.axis_label = 'Body Mass (g)'
 
-p.scatter("petal_length", "sepal_width", source=flowers,
+p.scatter("flipper_length_mm", "body_mass_g", source=data,
           legend_group="species", fill_alpha=0.4, size=12,
           marker=factor_mark('species', MARKERS, SPECIES),
           color=factor_cmap('species', 'Category10_3', SPECIES))
 
-output_file("marker_map.html")
+p.legend.location = "top_left"
+p.legend.title = "Species"
 
 show(p)

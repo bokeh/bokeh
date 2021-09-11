@@ -335,11 +335,11 @@ img.image-border {
 }
 
 /* WAR for https://github.com/pydata/pydata-sphinx-theme/issues/464 */
-dl.field-list {
+dl.py dl.field-list {
     display: grid;
     grid-template-columns: unset;
 }
-dt.field-odd, dt.field-even {
+dl.py dt.field-odd, dl.py dt.field-even {
     margin-top: 10px;
     margin-bottom: 2px;
     background-color: #eee;
