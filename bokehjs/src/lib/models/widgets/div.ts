@@ -1,10 +1,9 @@
 import {Markup, MarkupView} from "./markup"
 import * as p from "core/properties"
-import {BundleProvider, MathJaxProvider} from "models/text/providers"
+import {default_provider, MathJaxProvider} from "models/text/providers"
 import {find_math_parts} from "models/text/utils"
 import {TeX} from "models"
 
-const default_provider: MathJaxProvider = new BundleProvider()
 export class DivView extends MarkupView {
   override model: Div
 

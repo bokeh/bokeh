@@ -65,3 +65,5 @@ export class BundleProvider extends MathJaxProvider  {
     }
   }
 }
+
+export const default_provider: MathJaxProvider = new BundleProvider()

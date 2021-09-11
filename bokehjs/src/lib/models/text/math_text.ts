@@ -13,9 +13,7 @@ import {font_metrics, parse_css_font_size} from "core/util/text"
 import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
 import {BaseText} from "./base_text"
-import {MathJaxProvider, BundleProvider} from "./providers"
-
-const default_provider: MathJaxProvider = new BundleProvider()
+import {MathJaxProvider, default_provider} from "./providers"
 
 /**
  * Helper class to rendering MathText into Canvas
