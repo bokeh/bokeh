@@ -1,13 +1,14 @@
 import {Document} from "../document"
 import * as embed from "../embed"
 import {HasProps} from "../core/has_props"
+import {logger} from "../core/logging"
 import {Color, Data, Attrs, Arrayable} from "../core/types"
 import {Value, Field, Vector} from "../core/vectorization"
 import {VectorSpec, ScalarSpec, ColorSpec, Property} from "../core/properties"
 import {Class} from "../core/class"
 import {Location, MarkerType, RenderLevel} from "../core/enums"
-import {is_equal} from "../core/util/eq"
-import {includes} from "../core/util/array"
+import {is_equal, Comparator} from "../core/util/eq"
+import {includes, uniq} from "../core/util/array"
 import {clone, keys, entries, is_empty} from "../core/util/object"
 import {isNumber, isString, isArray, isArrayOf} from "../core/util/types"
 import {ViewOf} from "core/view"
@@ -106,7 +107,11 @@ export type AuxText = {
 export type AuxGlyph = {
   source: ColumnarDataSource | ColumnarDataSource["data"]
   view: CDSView
+  /** @deprecated */
   legend: string
+  legend_label: string
+  legend_field: string
+  legend_group: string
   level: RenderLevel
   name: string
   visible: boolean
@@ -884,8 +889,17 @@ export class Figure extends Plot {
     const view = attrs.view != null ? attrs.view : new CDSView({source})
     delete attrs.view
 
-    const legend = this._process_legend(attrs.legend, source)
+    const legend = attrs.legend
     delete attrs.legend
+    const legend_label = attrs.legend_label
+    delete attrs.legend_label
+    const legend_field = attrs.legend_field
+    delete attrs.legend_field
+    const legend_group = attrs.legend_group
+    delete attrs.legend_group
+
+    if ([legend, legend_label, legend_field, legend_group].filter((arg) => arg != null).length > 1)
+      throw new Error("only one of legend, legend_label, legend_field, legend_group can be specified")
 
     const name = attrs.name
     delete attrs.name
@@ -944,8 +958,18 @@ export class Figure extends Plot {
     })
 
     if (legend != null) {
-      this._update_legend(legend, glyph_renderer)
+      logger.warn("Figure({legend: ...}) is deprecated and will be removed in bokeh 3.0. Use legend_label, legend_field or legend_group instead")
+      const label = this._process_legend(legend, source)
+      if (label != null)
+        this._update_legend(label, glyph_renderer)
     }
+
+    if (legend_label != null)
+      this._handle_legend_label(legend_label, this.legend, glyph_renderer)
+    if (legend_field != null)
+      this._handle_legend_field(legend_field, this.legend, glyph_renderer)
+    if (legend_group != null)
+      this._handle_legend_group(legend_group, this.legend, glyph_renderer)
 
     this.add_renderers(glyph_renderer)
     return glyph_renderer as TypedGlyphRenderer<G>
@@ -1108,6 +1132,54 @@ export class Figure extends Plot {
       const new_item = new LegendItem({label: legend_item_label, renderers: [glyph_renderer]})
       legend.items.push(new_item)
     }
+  }
+
+  protected _handle_legend_label(value: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
+    const label = {value}
+    const item = this._find_legend_item(label, legend)
+    if (item != null)
+      item.renderers.push(glyph_renderer)
+    else {
+      const new_item = new LegendItem({label, renderers: [glyph_renderer]})
+      legend.items.push(new_item)
+    }
+  }
+
+  protected _handle_legend_field(field: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
+    const label = {field}
+    const item = this._find_legend_item(label, legend)
+    if (item != null)
+      item.renderers.push(glyph_renderer)
+    else {
+      const new_item = new LegendItem({label, renderers: [glyph_renderer]})
+      legend.items.push(new_item)
+    }
+  }
+
+  protected _handle_legend_group(name: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
+    const source = glyph_renderer.data_source
+    if (source == null)
+      throw new Error("cannot use 'legend_group' on a glyph without a data source already configured")
+    if (!(name in source.data))
+      throw new Error("column to be grouped does not exist in glyph data source")
+
+    const column = [...source.data[name]]
+    const values = uniq(column).sort()
+    for (const value of values) {
+      const label = {value: `${value}`}
+      const index = column.indexOf(value)
+      const new_item = new LegendItem({label, renderers: [glyph_renderer], index})
+      legend.items.push(new_item)
+    }
+  }
+
+  protected _find_legend_item(label: Vector<string>, legend: Legend): LegendItem | null {
+    const cmp = new Comparator()
+    for (const item of legend.items) {
+      if (cmp.eq(item.label, label))
+        return item
+    }
+    return null
   }
 }
 
