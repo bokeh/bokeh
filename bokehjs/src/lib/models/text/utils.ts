@@ -53,9 +53,8 @@ export function find_math_parts(text: string): (PlainText | TeX)[] {
       .filter((delimiter) => delimiter.nextIndex >= 0)[0]
 
   while (remaining_text) {
-    console.log(find_next_delimiter())
     find_end(find_next_delimiter())
   }
 
-  return result.filter(Boolean).filter(el => el.text)
+  return result.filter(el => el.text)
 }
