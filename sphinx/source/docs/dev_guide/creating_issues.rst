@@ -4,8 +4,8 @@ Creating issues
 ===============
 
 Bug reports and feature requests in Bokeh's issue tracker are the foundation of
-almost all improvements implemented in Bokeh. Bokeh's issue tracker is part of
-the GitHub repository at `<https://github.com/bokeh/bokeh/issues>`_.
+almost all improvements implemented in Bokeh. `Bokeh's issue tracker <issue tracker_>`_
+is part of the Bokeh GitHub repository.
 
 .. _contributor_guide_issues_before:
 
@@ -24,7 +24,8 @@ in a newer version of Bokeh. Update Bokeh to the most recent stable version
 available with `conda`_ or `pip`_ and try to reproduce the issue.
 
 You can format any text you enter when filing an issue. To learn more about
-your formatting options, see `Writing on GitHub`_ in the `GitHub documentation`.
+your formatting options, see `Writing on GitHub`_ in the
+`GitHub documentation`_.
 
 .. _contributor_guide_issues_kinds:
 
@@ -103,7 +104,7 @@ To `file a new feature request`_, you should have the following information
 ready. This will help with reaching a decision on your proposed feature as
 quickly as possible:
 
-Describe alternatives you've considered
+Describe the solution you'd like
     A clear and concise description of what you want to happen.
 
 Describe alternatives you've considered

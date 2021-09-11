@@ -9,7 +9,8 @@ prevent regressions.
 
 This chapter describes how to run various tests in a
 :ref:`local development environment <contributor_guide_testing_local>` and in
-:ref:`Bokeh's continuous integration (CI) system on GitHub <contributor_guide_testing_ci>`.
+:ref:`Bokeh's continuous integration (CI) system on GitHub
+<contributor_guide_testing_ci>`.
 
 .. _contributor_guide_testing_local:
 
@@ -28,21 +29,25 @@ Whenever you change anything in Bokeh's codebase
     Run Bokeh's :ref:`codebase tests <contributor_guide_testing_local_codebase>`
 
 When you edit Bokeh's Python code
-    Run Bokeh's :ref:`Python unit tests <contributor_guide_testing_local_python_unit>`
+    Run Bokeh's :ref:`Python unit tests
+    <contributor_guide_testing_local_python_unit>`
 
 When your work involves UI elements
-    Run Bokeh's :ref:`Python integration tests <contributor_guide_testing_local_python_unit>`
+    Run Bokeh's :ref:`Python integration tests
+    <contributor_guide_testing_local_python_unit>`
 
 When your change anything related to BokehJS
-    Run Bokeh's :ref:`JavaScript tests <contributor_guide_testing_local_javascript_all>`
+    Run Bokeh's :ref:`JavaScript tests
+    <contributor_guide_testing_local_javascript_all>`
 
 For reference, this section provides an overview of all available tests and how
 to run them locally on most systems. Generally, it makes the most sense to
 **only run specific tests related to what you are working on**. See
 :ref:`Select specific tests <contributor_guide_testing_local_python_select>` for
 instructions on how to select and deselect specific Python tests. See
-:ref:`Select specific BokehJS tests <contributor_guide_testing_local_javascript_selecting>`
-for instructions on how to select and deselect specific :term:`BokehJS` tests.
+:ref:`Select specific BokehJS tests
+<contributor_guide_testing_local_javascript_selecting>` for instructions on how
+to select and deselect specific :term:`BokehJS` tests.
 
 Check basic requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,16 +106,17 @@ These tests use `pytest`_ and are located in the :bokeh-tree:`tests` folder.
 
 Whenever you work with Bokeh's Python code, you should run Bokeh's
 :ref:`codebase <contributor_guide_testing_local_codebase>` and
-:ref:`Python unit tests <contributor_guide_testing_local_python_unit>`. In case your
-work also included changes to user interface elements, you should also run
-Bokeh's :ref:`Python integration tests <contributor_guide_testing_local_python_integration>`.
+:ref:`Python unit tests <contributor_guide_testing_local_python_unit>`. In case
+your work also included changes to user interface elements, you should also run
+Bokeh's :ref:`Python integration tests
+<contributor_guide_testing_local_python_integration>`.
 
 These are some command-line arguments for ``pytest`` that are helpful to know
 when working with Bokeh's pytest-based tests:
 
 * ``-k``: Provide a search string to filter for specific tests. See
   :ref:`Select specific tests <contributor_guide_testing_local_python_select>`.
-* ``-m``: Select or deselect specific test based on markers. See
+* ``-m``: Select or deselect specific tests based on markers. See
   :ref:`Select specific tests <contributor_guide_testing_local_python_select>`.
 * ``-n``: Distribute testing over several CPUs or cores. Provide a number to
   define the number of cores to use. Set to ``auto`` to use all available cores.
@@ -138,8 +144,9 @@ Unit tests
         Selenium can be difficult to set up and because some unit tests require
         both `geckodriver`_ and `ChromeDriver`_ to be available on your system,
         using ``-m "not selenium"`` is the recommended way to run unit tests
-        locally. Once you :ref:`create a Pull Request <contributor_guide_pull_requests>`,
-        :ref:`Bokeh's CI <contributor_guide_testing_ci>` will run all tests, including
+        locally. Once you :ref:`create a Pull Request
+        <contributor_guide_pull_requests>`, :ref:`Bokeh's CI
+        <contributor_guide_testing_ci>` will run all tests, including
         Selenium-based unit tests. In case Selenium with both geckodriver and
         ChromeDriver is available on your system, you can run all unit tests
         with ``pytest tests/unit``.
@@ -381,8 +388,9 @@ plots.
 
 The examples tests use a specialized testing framework, including a custom
 configuration of Chrome. Therefore, it is **recommended not to run those
-tests locally**. Instead, :ref:`Bokeh's CI <contributor_guide_testing_ci>` runs all
-examples tests once you :ref:`create a Pull Request <contributor_guide_pull_requests>`.
+tests locally**. Instead, :ref:`Bokeh's CI <contributor_guide_testing_ci>` runs
+all examples tests once you :ref:`create a Pull Request
+<contributor_guide_pull_requests>`.
 
 To run the examples tests locally, you first need to start a customized headless
 version of Chrome in the background. This headless browser needs to be
@@ -424,8 +432,8 @@ in the same directory.
 Continuous Integration (CI)
 ---------------------------
 
-Every time you start a :ref:`Pull Request <contributor_guide_pull_requests>` or add new
-commits to an existing Pull Request branch on Bokeh's GitHub repository,
+Every time you start a :ref:`Pull Request <contributor_guide_pull_requests>` or
+add new commits to an existing Pull Request branch on Bokeh's GitHub repository,
 `Bokeh's Continuous Integration (CI) <GithubCI_>`_ will run all available tests
 on your branch.
 
