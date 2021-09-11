@@ -11,9 +11,9 @@ export class ParagraphView extends MarkupView {
     let content: HTMLParagraphElement
 
     if (this.has_math_disabled())
-      content = paragraph({style: {overflow: "auto"}}, this.model.text)
+      content = paragraph({style: {margin: 0}}, this.model.text)
     else {
-      content = paragraph({style: {overflow: "auto"}})
+      content = paragraph({style: {margin: 0}})
       content.innerHTML = this.process_tex()
     }
 
