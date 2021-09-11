@@ -6,10 +6,10 @@
 Bokeh Version ``2.4.0`` (September 2021) is a new minor-release level that
 brings many updates. Some of the new feature work includes:
 
-First support for Mathtext (axis labels, tick, labels, and Divs) over the
-course of several PRs: :bokeh-issue:`11466`, :bokeh-issue:`11525`,
-:bokeh-issue:`11584`,  :bokeh-issue:`11585`. Look for upcoming releases to
-extend support to titles, legends, and labels.
+First support for LaTeX- and MathML-based Mathtext (axis labels, tick labels,
+and Divs) over the course of several PRs: :bokeh-issue:`11466`,
+:bokeh-issue:`11525`, :bokeh-issue:`11584`,  :bokeh-issue:`11585`. Look for
+upcoming releases to extend support to titles, legends, and labels.
 
 Other work in this cycle includes:
 
@@ -21,15 +21,15 @@ Other work in this cycle includes:
 
 * WebGL fixes and improvements
     - WebGL backend rewritten using ReGL :bokeh-issue:`10861`
-    - dashed line styles fixed :bokeh-issue:`10876`
-    - hatch patterns supported :bokeh-issue:`11159`
-    - markers and rects re-use buffers efficiently :bokeh-issue:`11343`
-    - implemented all marker types :bokeh-issue:`11098`
+    - Dashed line styles fixed :bokeh-issue:`10876`
+    - Hatch patterns supported :bokeh-issue:`11159`
+    - Markers and rects re-use buffers efficiently :bokeh-issue:`11343`
+    - Implemented all marker types :bokeh-issue:`11098`
 
 * SVG fixes and improvements
-    - fix line dash offset and hatch patterns :bokeh-issue:`11058` 
-    - missing ellipse glyph added :bokeh-issue:`11404` 
-    - clipping area problem fixed :bokeh-issue:`11551`
+    - Fix line dash offset and hatch patterns :bokeh-issue:`11058`
+    - Missing ellipse glyph added :bokeh-issue:`11404`
+    - Clipping area problem fixed :bokeh-issue:`11551`
 
 * Misc fixes and improvements
     - Individual legend items and table columns can be hidden :bokeh-issue:`9261`, :bokeh-issue:`11423`
@@ -39,7 +39,7 @@ Other work in this cycle includes:
     - New consolidated RangesUpdate event :bokeh-issue:`11095`
     - Output from json_items includes Bokeh version :bokeh-issue:`11146`
 
-And several other bug fixes and docs additions. For full details see the
+And several other bug fixes and docs additions. For full details, see the
 :bokeh-tree:`CHANGELOG`.
 
 .. _release-2-4-0-migration:
@@ -59,7 +59,7 @@ Runtime dependencies
 
 Bokeh no longer requires the package ``python-dateutil``.
 
-Bokeh can optionally used the package ``xyzservices`` for managing tile
+Bokeh can optionally use the package ``xyzservices`` for managing tile
 source metadata.
 
 Wikimedia Tile Provider
