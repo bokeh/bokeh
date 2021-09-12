@@ -35,7 +35,7 @@ from ..core.enums import (
     TooltipAttachment,
     VerticalAlign,
 )
-from ..core.has_props import abstract
+from ..core.has_props import HasProps, abstract
 from ..core.properties import (
     Alpha,
     Angle,
@@ -148,18 +148,17 @@ class DataAnnotation(Annotation):
     Local data source to use when rendering annotations on the plot.
     """)
 
-@abstract
-class TextAnnotation(Annotation):
-    ''' Base class for text annotation models such as labels and titles.
-
-    '''
+class _HasRenderMode(HasProps):
 
     render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the text is rendered as a canvas element or as a
-    CSS element overlaid on the canvas. The default mode is "canvas".
+    Specifies whether the contents are rendered to a canvas or as a
+    HTML element overlaid on the canvas. The default mode is "canvas".
 
     .. note::
-        The CSS labels won't be present in the output using the "save" tool.
+        This property is deprecated and will be removed in bokeh 3.0.
+
+    .. note::
+        The HTML labels won't be present in the output using the "save" tool.
 
     .. warning::
         Not all visual styling properties are supported if the render_mode is
@@ -170,6 +169,12 @@ class TextAnnotation(Annotation):
         area isn't supported in "css" mode.
 
     """)
+
+@abstract
+class TextAnnotation(Annotation, _HasRenderMode):
+    ''' Base class for text annotation models such as labels and titles.
+
+    '''
 
 class LegendItem(Model):
     '''
@@ -551,7 +556,7 @@ class Arrow(DataAnnotation):
     The {prop} values for the arrow body.
     """)
 
-class BoxAnnotation(Annotation):
+class BoxAnnotation(Annotation, _HasRenderMode):
     ''' Render a shaded rectangular region as an annotation.
 
     See :ref:`userguide_annotations_box_annotations` for information on plotting box annotations.
@@ -625,19 +630,6 @@ class BoxAnnotation(Annotation):
     fill_alpha = Override(default=0.4)
 
     fill_color = Override(default="#fff9ba")
-
-    render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the box is rendered as a canvas element or as an
-    css element overlaid on the canvas. The default mode is "canvas".
-
-    .. note:
-        This property is deprecated and will be removed in bokeh 3.0.
-
-    .. warning::
-        The line_dash and line_dash_offset attributes aren't supported if
-        the render_mode is set to "css"
-
-    """)
 
 class Band(DataAnnotation):
     ''' Render a filled area band along a dimension.
@@ -728,12 +720,6 @@ class Label(TextAnnotation):
 
     angle = Angle(default=0, help="""
     The angle to rotate the text, as measured from the horizontal.
-
-    .. warning::
-        The center of rotation for canvas and css render_modes is different.
-        For `render_mode="canvas"` the label is rotated from the top-left
-        corner of the annotation, while for `render_mode="css"` the annotation
-        is rotated around it's center.
     """)
 
     angle_units = Enum(AngleUnits, default='rad', help="""
@@ -770,7 +756,7 @@ class Label(TextAnnotation):
 
     border_line_color = Override(default=None)
 
-class LabelSet(TextAnnotation): # TODO: DataAnnotation
+class LabelSet(DataAnnotation, _HasRenderMode):
     ''' Render multiple text labels as annotations.
 
     ``LabelSet`` will render multiple text labels at given ``x`` and ``y``
@@ -819,12 +805,6 @@ class LabelSet(TextAnnotation): # TODO: DataAnnotation
 
     angle = AngleSpec(default=0, help="""
     The angles to rotate the text, as measured from the horizontal.
-
-    .. warning::
-        The center of rotation for canvas and css render_modes is different.
-        For `render_mode="canvas"` the label is rotated from the top-left
-        corner of the annotation, while for `render_mode="css"` the annotation
-        is rotated around it's center.
     """)
 
     x_offset = NumberSpec(default=0, help="""
@@ -856,10 +836,6 @@ class LabelSet(TextAnnotation): # TODO: DataAnnotation
     """)
 
     border_line_color = Override(default=None)
-
-    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
-    Local data source to use when rendering annotations on the plot.
-    """)
 
 class PolyAnnotation(Annotation):
     ''' Render a shaded polygonal region as an annotation.
@@ -926,7 +902,7 @@ class Slope(Annotation):
     The {prop} values for the line.
     """)
 
-class Span(Annotation):
+class Span(Annotation, _HasRenderMode):
     """ Render a horizontal or vertical line span.
 
     See :ref:`userguide_annotations_spans` for information on plotting spans.
@@ -948,19 +924,6 @@ class Span(Annotation):
     dimension = Enum(Dimension, default='width', help="""
     The direction of the span can be specified by setting this property
     to "height" (``y`` direction) or "width" (``x`` direction).
-    """)
-
-    render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the span is rendered as a canvas element or as a
-    CSS element overlaid on the canvas. The default mode is "canvas".
-
-    .. note:
-        This property is deprecated and will be removed in bokeh 3.0.
-
-    .. warning::
-        The line_dash and line_dash_offset attributes aren't supported if
-        the render_mode is set to "css"
-
     """)
 
     line_props = Include(ScalarLineProps, help="""
