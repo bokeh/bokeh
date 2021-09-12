@@ -7,7 +7,7 @@ type Delimiter = {
   start: string
   end: string
   inline: boolean
-  nextIndex?: number
+  next_index?: number
 }
 
 export function find_math_parts(mathstring: string): (PlainText | TeX)[] {
@@ -25,12 +25,12 @@ export function find_math_parts(mathstring: string): (PlainText | TeX)[] {
       // get their position on text
       .map((delimiter) => ({
         ...delimiter,
-        nextIndex: text.indexOf(delimiter.start),
+        next_index: text.indexOf(delimiter.start),
       }))
       // remove delimiters not found
-      .filter((delimiter) => delimiter.nextIndex >= 0)
+      .filter((delimiter) => delimiter.next_index >= 0)
       // return the delimiter closer to start of text
-      .sort((a, b) => a.nextIndex - b.nextIndex)[0]
+      .sort((a, b) => a.next_index - b.next_index)[0]
 
   const find_end = (text: string, delimiter?: Delimiter): string => {
     // if there is no delimiter then the whole text is a plain string
