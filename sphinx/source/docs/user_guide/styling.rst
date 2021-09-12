@@ -1126,9 +1126,8 @@ LaTeX
 
 To use LaTeX notation, you can pass a string directly to any supported element.
 This string needs to begin and end with one of the
-`MathJax default delimiters`_. These delimiters are ``$$...$$`` and ``\[...\]``
-for displayed mathematics, and ``\(...\)`` for in-line mathematics. For example:
-``r"$$\sin(x)$$"``.
+`MathJax default delimiters`_. These delimiters are ``$$...$$``,  ``\[...\]``,
+and ``\(...\)``. For example: ``r"$$\sin(x)$$"``.
 
 LaTeX and axis labels
     To use LaTeX notation as an axis label, pass a raw string literal beginning
