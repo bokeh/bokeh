@@ -73,7 +73,7 @@ export class AxisView extends GuideRendererView {
     const {major_label_overrides} = this.model
 
     for (const label in major_label_overrides) {
-      if (major_label_overrides.hasOwnProperty(label)){
+      if (major_label_overrides.hasOwnProperty(label)) {
         const label_text = major_label_overrides[label]
 
         if (label_text instanceof MathText) {

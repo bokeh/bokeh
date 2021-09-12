@@ -149,7 +149,7 @@ export class NumericInput extends InputWidget {
   }
 
   protected _formatter(value: number, format: string | TickFormatter): string {
-    if (isString(format)){
+    if (isString(format)) {
       return numbro.format(value, format)
     } else {
       return format.doFormat([value], {loc: 0})[0]

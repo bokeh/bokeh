@@ -87,9 +87,9 @@ export class GlyphRendererView extends DataRendererView {
     }
 
     function glyph_from_mode(defaults: Defaults, glyph?: Glyph | "auto" | null): typeof base_glyph {
-      if (glyph instanceof Glyph){
+      if (glyph instanceof Glyph) {
         return glyph
-      } else if (glyph == "auto"){
+      } else if (glyph == "auto") {
         return mk_glyph(defaults)
       }
       return mk_glyph({fill: {}, line: {}})

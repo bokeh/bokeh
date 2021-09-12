@@ -27,7 +27,7 @@ export class Model extends HasProps {
 
   private /*readonly*/ _js_callbacks: Map<string, (() => void)[]>
 
-  override get is_syncable(): boolean{
+  override get is_syncable(): boolean {
     return this.syncable
   }
 

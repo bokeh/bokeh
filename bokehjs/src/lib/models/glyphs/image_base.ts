@@ -109,7 +109,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     }
   }
 
-  _lrtb(i: number): [number, number, number, number]{
+  _lrtb(i: number): [number, number, number, number] {
     const dw_i = this.dw.get(i)
     const dh_i = this.dh.get(i)
 
