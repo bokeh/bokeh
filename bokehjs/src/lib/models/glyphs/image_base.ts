@@ -1,6 +1,6 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {Arrayable, ScreenArray, to_screen} from "core/types"
-import {ImageOrigin} from "core/enums"
+import {Anchor, ImageOrigin} from "core/enums"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 import {Selection, ImageIndex} from "../selections/selection"
@@ -45,8 +45,10 @@ export abstract class ImageBaseView extends XYGlyphView {
     if (scalar_alpha)
       ctx.globalAlpha = global_alpha.value
 
+    const {anchor, origin} = this.model
+
     const [x_scale, y_scale] = (() => {
-      switch (this.model.origin) {
+      switch (origin) {
         case "bottom_left":  return [ 1, -1]
         case "top_left":     return [ 1,  1]
         case "bottom_right": return [-1, -1]
@@ -69,19 +71,37 @@ export abstract class ImageBaseView extends XYGlyphView {
         ctx.globalAlpha = alpha_i
 
       const [x_offset, y_offset] = (() => {
-        switch (this.model.origin) {
-          case "bottom_left":  return [0, sy_i]
+        switch (origin) {
+          case "bottom_left":  return [0, -sh_i]
           case "top_left":     return [0, 0]
-          case "bottom_right": return [sx_i, sy_i]
-          case "top_right":    return [sx_i, 0]
+          case "bottom_right": return [-sw_i, -sh_i]
+          case "top_right":    return [-sw_i, 0]
+        }
+      })()
+
+      const [tx_i, ty_i] = (() => {
+        switch (anchor) {
+          case "top_left":      return [0, 0]
+          case "top":
+          case "top_center":    return [-sw_i/2, 0]
+          case "top_right":     return [-sw_i, 0]
+          case "right":
+          case "center_right":  return [-sw_i, -sh_i/2]
+          case "bottom_right":  return [-sw_i, -sh_i]
+          case "bottom":
+          case "bottom_center": return [-sw_i/2, -sh_i]
+          case "bottom_left":   return [0, -sh_i]
+          case "left":
+          case "center_left":   return [0, -sh_i/2]
+          case "center":
+          case "center_center": return [-sw_i/2, -sh_i/2]
         }
       })()
 
       ctx.save()
-      ctx.translate(x_offset, y_offset)
+      ctx.translate(sx_i + tx_i, sy_i + ty_i)
       ctx.scale(x_scale, y_scale)
-      ctx.translate(-x_offset, -y_offset)
-      ctx.drawImage(image_data_i, sx_i|0, sy_i|0, sw_i, sh_i)
+      ctx.drawImage(image_data_i, x_offset, y_offset, sw_i, sh_i)
       ctx.restore()
     }
 
@@ -120,16 +140,67 @@ export abstract class ImageBaseView extends XYGlyphView {
     const dw_i = this.dw.get(i)
     const dh_i = this.dh.get(i)
 
+    //const x1 = x_i
+    //const x2 = xr.is_reversed ? x1 - dw_i : x1 + dw_i
+    //const y1 = this._y[i]
+    //const y2 = yr.is_reversed ? y1 - dh_i : y1 + dh_i
+
+    const {anchor} = this.model
+
     const xr = this.renderer.xscale.source_range
-    const x1 = this._x[i]
-    const x2 = xr.is_reversed ? x1 - dw_i : x1 + dw_i
+    const x_i = this._x[i]
 
     const yr = this.renderer.yscale.source_range
-    const y1 = this._y[i]
-    const y2 = yr.is_reversed ? y1 - dh_i : y1 + dh_i
+    const y_i = this._y[i]
 
-    const [l, r] = x1 < x2 ? [x1, x2] : [x2, x1]
-    const [b, t] = y1 < y2 ? [y1, y2] : [y2, y1]
+    const [x0, x1] = (() => {
+      const sign = xr.is_reversed ? -1 : 1
+      switch (anchor) {
+        case "top_left":
+        case "bottom_left":
+        case "left":
+        case "center_left":
+          return [x_i, x_i + sign*dw_i]
+        case "top":
+        case "top_center":
+        case "bottom":
+        case "bottom_center":
+        case "center":
+        case "center_center":
+          return [x_i - sign*dw_i/2, x_i + sign*dw_i/2]
+        case "top_right":
+        case "bottom_right":
+        case "right":
+        case "center_right":
+          return [x_i - sign*dw_i, x_i]
+      }
+    })()
+
+    const [y0, y1] = (() => {
+      const sign = yr.is_reversed ? -1 : 1
+      switch (anchor) {
+        case "top_left":
+        case "top":
+        case "top_center":
+        case "top_right":
+          return [y_i, y_i - sign*dh_i]
+        case "bottom_left":
+        case "bottom":
+        case "bottom_center":
+        case "bottom_right":
+          return [y_i + sign*dh_i, y_i]
+        case "left":
+        case "center_left":
+        case "center":
+        case "center_center":
+        case "right":
+        case "center_right":
+          return [y_i + sign*dh_i/2, y_i - sign*dh_i/2]
+      }
+    })()
+
+    const [l, r] = x0 < x1 ? [x0, x1] : [x1, x0]
+    const [b, t] = y0 < y1 ? [y0, y1] : [y1, y0]
     return [l, r, t, b]
   }
 
@@ -221,6 +292,7 @@ export namespace ImageBase {
     global_alpha: p.NumberSpec
     dilate: p.Property<boolean>
     origin: p.Property<ImageOrigin>
+    anchor: p.Property<Anchor>
   }
 
   export type Visuals = XYGlyph.Visuals
@@ -243,7 +315,8 @@ export abstract class ImageBase extends XYGlyph {
       dh:           [ p.DistanceSpec, {field: "dh"} ],
       global_alpha: [ p.NumberSpec, {value: 1.0} ],
       dilate:       [ Boolean, false ],
-      origin:       [ ImageOrigin, "bottom_left" ]
+      origin:       [ ImageOrigin, "bottom_left" ],
+      anchor:       [ Anchor, "bottom_left" ],
     }))
   }
 }
