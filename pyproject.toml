@@ -53,6 +53,7 @@ ignore_errors = true
 module = [
     "bokeh._testing.*",
     "bokeh.client.states",
+    "bokeh.colors.*",
     "bokeh.command.*",
     "bokeh.core.query",
     "bokeh.core.types",

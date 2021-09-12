@@ -52,8 +52,6 @@ class Test_NamedColor:
         c = bcu.NamedColor("aliceblue", 240,  248,  255)
         assert c.to_css() == "aliceblue"
 
-# _ColorGroupMeta is exercised here by testing ColorGroup, rather than a separate test
-
 class Test_ColorGroup:
     def test_len(self) -> None:
         assert len(_TestGroup) == 3
