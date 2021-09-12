@@ -45,7 +45,7 @@ from ..core.enums import (
     StepMode,
     enumeration,
 )
-from ..core.has_props import HasProps, abstract
+from ..core.has_props import abstract
 from ..core.properties import (
     AngleSpec,
     Bool,
@@ -640,7 +640,49 @@ class HexTile(LineGlyph, FillGlyph, HatchGlyph):
     The {prop} values for the hex tiles.
     """)
 
-class _ImageCommon(HasProps):
+@abstract
+class ImageBase(XYGlyph):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    x = NumberSpec(default=field("x"), help="""
+    The x-coordinates to locate the image anchors.
+    """)
+
+    y = NumberSpec(default=field("y"), help="""
+    The y-coordinates to locate the image anchors.
+    """)
+
+    dw = DistanceSpec(default=field("dw"), help="""
+    The widths of the plot regions that the images will occupy.
+
+    .. note::
+        This is not the number of pixels that an image is wide.
+        That number is fixed by the image itself.
+    """)
+
+    dh = DistanceSpec(default=field("dh"), help="""
+    The height of the plot region that the image will occupy.
+
+    .. note::
+        This is not the number of pixels that an image is tall.
+        That number is fixed by the image itself.
+    """)
+
+    global_alpha = NumberSpec(1.0, help="""
+    An overall opacity that each image is rendered with (in addition
+    to any inherent alpha values in the image itself).
+    """)
+
+    dilate = Bool(False, help="""
+    Whether to always round fractional pixel locations in such a way
+    as to make the images bigger.
+
+    This setting may be useful if pixel rounding errors are causing
+    images to have a gap between them, when they should appear flush.
+    """)
 
     origin = Enum(ImageOrigin, default="bottom_left", help="""
     Defines the coordinate space of an image.
@@ -650,7 +692,7 @@ class _ImageCommon(HasProps):
     Position of the image should be anchored at the `x`, `y` coordinates.
     """)
 
-class Image(XYGlyph, _ImageCommon):
+class Image(ImageBase):
     ''' Render images given as scalar data together with a color mapper.
 
     In addition to the defined model properties, ``Image`` also can accept
@@ -690,44 +732,7 @@ class Image(XYGlyph, _ImageCommon):
     The arrays of scalar data for the images to be colormapped.
     """)
 
-    x = NumberSpec(default=field("x"), help="""
-    The x-coordinates to locate the image anchors.
-    """)
-
-    y = NumberSpec(default=field("y"), help="""
-    The y-coordinates to locate the image anchors.
-    """)
-
-    dw = DistanceSpec(default=field("dw"), help="""
-    The widths of the plot regions that the images will occupy.
-
-    .. note::
-        This is not the number of pixels that an image is wide.
-        That number is fixed by the image itself.
-    """)
-
-    dh = DistanceSpec(default=field("dh"), help="""
-    The height of the plot region that the image will occupy.
-
-    .. note::
-        This is not the number of pixels that an image is tall.
-        That number is fixed by the image itself.
-    """)
-
-    global_alpha = NumberSpec(1.0, help="""
-    An overall opacity that each image is rendered with (in addition
-    to any alpha values applied explicitly in a color mapper).
-    """)
-
-    dilate = Bool(False, help="""
-    Whether to always round fractional pixel locations in such a way
-    as to make the images bigger.
-
-    This setting may be useful if pixel rounding errors are causing
-    images to have a gap between them, when they should appear flush.
-    """)
-
-    color_mapper = Instance(ColorMapper, default="Greys9", help="""
+    color_mapper = Instance(ColorMapper, lambda: LinearColorMapper(palette="Greys9"), help="""
     A ``ColorMapper`` to use to map the scalar data from ``image``
     into RGBA values for display.
 
@@ -738,7 +743,7 @@ class Image(XYGlyph, _ImageCommon):
         The color mapping step happens on the client.
     """).accepts(Enum(Palette), lambda pal: LinearColorMapper(palette=pal))
 
-class ImageRGBA(XYGlyph, _ImageCommon):
+class ImageRGBA(ImageBase):
     ''' Render images given as RGBA data.
 
     '''
@@ -753,42 +758,6 @@ class ImageRGBA(XYGlyph, _ImageCommon):
     The arrays of RGBA data for the images.
     """)
 
-    x = NumberSpec(default=field("x"), help="""
-    The x-coordinates to locate the image anchors.
-    """)
-
-    y = NumberSpec(default=field("y"), help="""
-    The y-coordinates to locate the image anchors.
-    """)
-
-    dw = DistanceSpec(default=field("dw"), help="""
-    The widths of the plot regions that the images will occupy.
-
-    .. note::
-        This is not the number of pixels that an image is wide.
-        That number is fixed by the image itself.
-    """)
-
-    dh = DistanceSpec(default=field("dh"), help="""
-    The height of the plot region that the image will occupy.
-
-    .. note::
-        This is not the number of pixels that an image is tall.
-        That number is fixed by the image itself.
-    """)
-
-    global_alpha = NumberSpec(1.0, help="""
-    An overall opacity that each image is rendered with (in addition
-    to any inherent alpha values in the image itself).
-    """)
-
-    dilate = Bool(False, help="""
-    Whether to always round fractional pixel locations in such a way
-    as to make the images bigger.
-
-    This setting may be useful if pixel rounding errors are causing
-    images to have a gap between them, when they should appear flush.
-    """)
 
 class ImageURL(XYGlyph):
     ''' Render images loaded from given URLs.
