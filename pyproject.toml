@@ -71,6 +71,7 @@ module = [
     "bokeh.io.*",
     "bokeh.palettes",
     "bokeh.plotting._tools",
+    "bokeh.protocol.*",
     "bokeh.sampledata",
     "bokeh.server.callbacks",
     "bokeh.server.server",
