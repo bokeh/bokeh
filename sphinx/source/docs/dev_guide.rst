@@ -105,14 +105,14 @@ Bokeh Slack
     `request an invitation`_!
 
 GitHub wiki and BEPs
-    The `wiki on Bokeh's GitHub repository <wiki>`_ contains the Bokeh
+    The `wiki on Bokeh's GitHub repository`_ contains the Bokeh
     Enhancement Proposals (BEPs). BEPs are the central governance and policy
     documents for Bokeh. This includes details about the contribution processes,
-    especially in `BEP 1 (Issues and PRs management)`_ and
-    `BEP 6 (Branching and Milestones)`_.
+    especially in `BEP 1: Issues and PRs management`_ and
+    `BEP 6: Branching Strategy`_.
 
 GitHub Discussions
-    The `discussion section of Bokeh's GitHub repository <discussions>`_ is a
+    The `discussion section of Bokeh's GitHub repository`_ is a
     place to    talk about details of implementations as well as proposed
     features and ideas for Bokeh.
 
@@ -132,8 +132,8 @@ Bokeh's documentation
 Bokeh's Discourse
     User support for Bokeh is provided by volunteers on the
     `Bokeh Discourse server`_. See
-    `the community section of Bokeh's website <community>`_ for more information
-    on Bokeh's community resources.
+    `the community section of Bokeh's website`_ for more information on Bokeh's
+    community resources.
 
 .. _contributor_guide_more_ways:
 
@@ -240,11 +240,11 @@ accounts when you talk about anything that you made with Bokeh!
 
 .. _Code of Conduct: https://github.com/bokeh/bokeh/blob/master/CODE_OF_CONDUCT.md
 .. _request an invitation: https://slack-invite.bokeh.org/
-.. _ wiki: https://github.com/bokeh/bokeh/wiki
+.. _wiki on Bokeh's GitHub repository: https://github.com/bokeh/bokeh/wiki
 .. _Bokeh Enhancement Proposals: https://github.com/bokeh/bokeh/wiki
-.. _BEP 1 (Issues and PRs management): https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management
-.. _BEP 6 (Branching and Milestones): https://github.com/bokeh/bokeh/wiki/BEP-6:-Branching-and-Milestones
-.. _discussions: https://github.com/bokeh/bokeh/discussions
+.. _`BEP 1: Issues and PRs management`: https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management
+.. _`BEP 6: Branching Strategy`: https://github.com/bokeh/bokeh/wiki/BEP-6:-Branching-Strategy
+.. _discussion section of Bokeh's GitHub repository: https://github.com/bokeh/bokeh/discussions
 .. _Bokeh roadmap: https://bokeh.org/roadmap/
 .. _issue tracker: https://github.com/bokeh/bokeh/issues
 .. _Slack: https://slack-invite.bokeh.org/
@@ -253,7 +253,7 @@ accounts when you talk about anything that you made with Bokeh!
 .. _Support: https://github.com/bokeh/bokeh#support
 .. _GitHub repository: https://github.com/bokeh/bokeh
 .. _Bokeh Discourse server: https://discourse.bokeh.org/
-.. _community: https://bokeh.org/community/
+.. _the community section of Bokeh's website: https://bokeh.org/community/
 .. _Bokeh Showcase: https://discourse.bokeh.org/c/showcase/
 .. _Bokeh's gallery: http://docs.bokeh.org/en/latest/docs/gallery.html
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/bokeh

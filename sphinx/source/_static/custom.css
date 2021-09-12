@@ -333,3 +333,14 @@ img.image-border {
   overflow: hidden;
   background-color: #f1f1f1;
 }
+
+/* WAR for https://github.com/pydata/pydata-sphinx-theme/issues/464 */
+dl.py dl.field-list {
+    display: grid;
+    grid-template-columns: unset;
+}
+dl.py dt.field-odd, dl.py dt.field-even {
+    margin-top: 10px;
+    margin-bottom: 2px;
+    background-color: #eee;
+}

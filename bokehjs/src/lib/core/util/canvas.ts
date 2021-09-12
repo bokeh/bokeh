@@ -162,7 +162,9 @@ export class CanvasLayer {
       ctx.scale(pixel_ratio, pixel_ratio)
       ctx.translate(0.5, 0.5)
     }
-    this._base_transform = ctx.getTransform()
+    if (typeof ctx.getTransform !== "undefined") { // XXX: remove this line when IE/legacy is dropped
+      this._base_transform = ctx.getTransform()
+    }
     this.clear()
   }
 

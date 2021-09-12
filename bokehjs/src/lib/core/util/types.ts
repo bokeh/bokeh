@@ -24,10 +24,14 @@ export function isString(obj: unknown): obj is string {
   return toString.call(obj) === "[object String]"
 }
 
-export type Primitive = null | boolean | number | string
+export function isSymbol(obj: unknown): obj is symbol {
+  return typeof obj === "symbol"
+}
+
+export type Primitive = null | boolean | number | string | symbol
 
 export function isPrimitive(obj: unknown): obj is Primitive {
-  return obj === null || isBoolean(obj) || isNumber(obj) || isString(obj)
+  return obj === null || isBoolean(obj) || isNumber(obj) || isString(obj) || isSymbol(obj)
 }
 
 export function isFunction(obj: unknown): obj is Function {

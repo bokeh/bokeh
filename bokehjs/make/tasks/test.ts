@@ -112,9 +112,7 @@ function sys_path(): string {
 }
 
 function chrome(): string {
-  const names = ["chrome", "google-chrome", "Google Chrome"]
-  if (os.type() == "Linux")
-    names.push("chromium-browser", "chromium")
+  const names = ["chromium", "chromium-browser", "chrome", "google-chrome", "Google Chrome"]
   const path = sys_path()
 
   for (const name of names) {

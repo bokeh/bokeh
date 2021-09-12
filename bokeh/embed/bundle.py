@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import hashlib
 import json
 from dataclasses import dataclass
 from os.path import (
@@ -330,6 +331,11 @@ def _bundle_extensions(objs: Sequence[Model | Document], resources: Resources) -
             artifacts_dir = dirname(artifact_path)
             artifact_name = basename(artifact_path)
             server_path = f"{name}/{artifact_name}"
+            if not settings.dev:
+                sha = hashlib.sha256()
+                sha.update(pkg_version.encode())
+                vstring = sha.hexdigest()
+                server_path = f"{server_path}?v={vstring}"
         else:
             for ext in extensions:
                 artifact_path = join(dist_dir, f"{name}{ext}")
@@ -406,6 +412,45 @@ def _use_widgets(objs: Sequence[Model | Document]) -> bool:
     from ..models.widgets import Widget
     return _any(objs, lambda obj: isinstance(obj, Widget)) or _ext_use_widgets(objs)
 
+def _is_tex_string(text: str) -> bool:
+    """Whether a string begins and ends with MathJax default delimiters
+
+    Args:
+        text (str): String to check
+
+    Returns:
+        bool: True if string begins and ends with delimiters, False if not
+    """
+    if text.startswith("$$") and text.endswith("$$"):
+        return True
+    elif text.startswith("\\[") and text.endswith("\\]"):
+        return True
+    elif text.startswith("\\(") and text.endswith("\\)"):
+        return True
+    else:
+        return False
+
+def _model_requires_mathjax(model: Model) -> bool:
+    """Whether a model requires MathJax to be loaded
+
+    Args:
+        model (Model): Model to check
+
+    Returns:
+        bool: True if MathJax required, False if not
+    """
+    from ..models.axes import Axis
+
+    if isinstance(model, Axis):
+        if isinstance(model.axis_label, str) and _is_tex_string(model.axis_label):
+            return True
+
+        for val in model.major_label_overrides.values():
+            if isinstance(val, str) and _is_tex_string(val):
+                return True
+
+    return False
+
 def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
     ''' Whether a collection of Bokeh objects contains a model requesting MathJax
     Args:
@@ -414,7 +459,7 @@ def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
         bool
     '''
     from ..models.text import MathText
-    return _any(objs, lambda obj: isinstance(obj, MathText))
+    return _any(objs, lambda obj: isinstance(obj, MathText) or _model_requires_mathjax(obj)) or _ext_use_mathjax(objs)
 
 def _use_gl(objs: Sequence[Model | Document]) -> bool:
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
@@ -437,6 +482,9 @@ def _ext_use_widgets(objs: Sequence[Model | Document]) -> bool:
     from ..models.widgets import Widget
     return _query_extensions(objs, lambda cls: issubclass(cls, Widget))
 
+def _ext_use_mathjax(objs: Sequence[Model | Document]) -> bool:
+    from ..models.text import MathText
+    return _query_extensions(objs, lambda cls: issubclass(cls, MathText))
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------

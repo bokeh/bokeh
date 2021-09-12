@@ -137,6 +137,12 @@ jobs:
         shell: bash -l {0}
         run: bash ci/install_bokeh_package.sh
 
+      - name: Upgrade chromium
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo snap install chromium
+
       - name: Start chrome headless
         working-directory: ./bokehjs
         shell: bash -l {0}
@@ -214,6 +220,12 @@ jobs:
       - name: Install Bokeh package
         shell: bash -l {0}
         run: bash ci/install_bokeh_package.sh
+
+      - name: Upgrade chromium
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo snap install chromium
 
       - name: Run tests
         working-directory: bokehjs

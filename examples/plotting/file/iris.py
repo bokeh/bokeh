@@ -4,7 +4,7 @@ between petal width and length for three different iris species.
 
 .. note::
     This example is maintained for historical compatibility. Please consider
-    `alternatives to Iris`_.
+    `alternatives to Iris`_, such as :ref:`sampledata_penguins`.
 
 .. bokeh-example-metadata::
     :sampledata: iris

@@ -92,7 +92,7 @@ export class CircleView extends XYGlyphView {
       } else
         this.sradius = to_screen(this.radius)
     } else {
-      const ssize = new ScreenArray(this.size)
+      const ssize = ScreenArray.from(this.size)
       this.sradius = map(ssize, (s) => s/2)
     }
   }

@@ -46,6 +46,28 @@ if (typeof Uint8Array.prototype.fill === "undefined") {
   Float64Array.prototype.fill = fill
 }
 
+import {inplace_map} from "core/util/arrayable"
+
+if (typeof Uint8Array.from === "undefined") {
+  function from(this: any, ctor: any): any {
+    const that = this
+    return function(arrayLike: Iterable<number>, mapfn?: (v: number, k: number) => number, thisArg?: any): any {
+      const arr = new ctor([...arrayLike])
+      if (mapfn != null)
+        inplace_map(arr, (v: number, k) => mapfn.call(thisArg ?? that, v, k))
+      return arr
+    }
+  }
+  Uint8Array.from = from(Uint8Array)
+  Int8Array.from = from(Int8Array)
+  Uint16Array.from = from(Uint16Array)
+  Int16Array.from = from(Int16Array)
+  Uint32Array.from = from(Uint32Array)
+  Int32Array.from = from(Int32Array)
+  Float32Array.from = from(Float32Array)
+  Float64Array.from = from(Float64Array)
+}
+
 if (typeof Array.prototype[Symbol.iterator] === "undefined") {
   function iterator(this: Array<unknown>) {
     let i = 0

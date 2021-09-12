@@ -34,6 +34,17 @@ export class Uint8NDArray extends Uint8Array implements NDArrayType {
     super(seq)
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
     this.dimension = this.shape.length
+    // TODO: remove this when IE/legacy is dropped
+    if (this[equals] == null) {
+      this[equals] = (that: this, cmp: Comparator): boolean => {
+        return Uint8NDArray.prototype[equals].call(this, that, cmp)
+      }
+    }
+    if (this[serialize] == null) {
+      this[serialize] = (serializer: Serializer): unknown => {
+        return Uint8NDArray.prototype[serialize].call(this, serializer)
+      }
+    }
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -55,6 +66,17 @@ export class Int8NDArray extends Int8Array implements NDArrayType {
     super(seq)
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
     this.dimension = this.shape.length
+    // TODO: remove this when IE/legacy is dropped
+    if (this[equals] == null) {
+      this[equals] = (that: this, cmp: Comparator): boolean => {
+        return Int8NDArray.prototype[equals].call(this, that, cmp)
+      }
+    }
+    if (this[serialize] == null) {
+      this[serialize] = (serializer: Serializer): unknown => {
+        return Int8NDArray.prototype[serialize].call(this, serializer)
+      }
+    }
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -76,6 +98,17 @@ export class Uint16NDArray extends Uint16Array implements NDArrayType {
     super(seq)
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
     this.dimension = this.shape.length
+    // TODO: remove this when IE/legacy is dropped
+    if (this[equals] == null) {
+      this[equals] = (that: this, cmp: Comparator): boolean => {
+        return Uint16NDArray.prototype[equals].call(this, that, cmp)
+      }
+    }
+    if (this[serialize] == null) {
+      this[serialize] = (serializer: Serializer): unknown => {
+        return Uint16NDArray.prototype[serialize].call(this, serializer)
+      }
+    }
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -97,6 +130,17 @@ export class Int16NDArray extends Int16Array implements NDArrayType {
     super(seq)
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
     this.dimension = this.shape.length
+    // TODO: remove this when IE/legacy is dropped
+    if (this[equals] == null) {
+      this[equals] = (that: this, cmp: Comparator): boolean => {
+        return Int16NDArray.prototype[equals].call(this, that, cmp)
+      }
+    }
+    if (this[serialize] == null) {
+      this[serialize] = (serializer: Serializer): unknown => {
+        return Int16NDArray.prototype[serialize].call(this, serializer)
+      }
+    }
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -118,6 +162,17 @@ export class Uint32NDArray extends Uint32Array implements NDArrayType {
     super(seq)
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
     this.dimension = this.shape.length
+    // TODO: remove this when IE/legacy is dropped
+    if (this[equals] == null) {
+      this[equals] = (that: this, cmp: Comparator): boolean => {
+        return Uint32NDArray.prototype[equals].call(this, that, cmp)
+      }
+    }
+    if (this[serialize] == null) {
+      this[serialize] = (serializer: Serializer): unknown => {
+        return Uint32NDArray.prototype[serialize].call(this, serializer)
+      }
+    }
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -139,6 +194,17 @@ export class Int32NDArray extends Int32Array implements NDArrayType {
     super(seq)
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
     this.dimension = this.shape.length
+    // TODO: remove this when IE/legacy is dropped
+    if (this[equals] == null) {
+      this[equals] = (that: this, cmp: Comparator): boolean => {
+        return Int32NDArray.prototype[equals].call(this, that, cmp)
+      }
+    }
+    if (this[serialize] == null) {
+      this[serialize] = (serializer: Serializer): unknown => {
+        return Int32NDArray.prototype[serialize].call(this, serializer)
+      }
+    }
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -160,6 +226,17 @@ export class Float32NDArray extends Float32Array implements NDArrayType {
     super(seq)
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
     this.dimension = this.shape.length
+    // TODO: remove this when IE/legacy is dropped
+    if (this[equals] == null) {
+      this[equals] = (that: this, cmp: Comparator): boolean => {
+        return Float32NDArray.prototype[equals].call(this, that, cmp)
+      }
+    }
+    if (this[serialize] == null) {
+      this[serialize] = (serializer: Serializer): unknown => {
+        return Float32NDArray.prototype[serialize].call(this, serializer)
+      }
+    }
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -181,6 +258,17 @@ export class Float64NDArray extends Float64Array implements NDArrayType {
     super(seq)
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
     this.dimension = this.shape.length
+    // TODO: remove this when IE/legacy is dropped
+    if (this[equals] == null) {
+      this[equals] = (that: this, cmp: Comparator): boolean => {
+        return Float64NDArray.prototype[equals].call(this, that, cmp)
+      }
+    }
+    if (this[serialize] == null) {
+      this[serialize] = (serializer: Serializer): unknown => {
+        return Float64NDArray.prototype[serialize].call(this, serializer)
+      }
+    }
   }
 
   [equals](that: this, cmp: Comparator): boolean {
