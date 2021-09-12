@@ -24,6 +24,9 @@ import webbrowser
 # External imports
 from mock import MagicMock, patch
 
+# Bokeh imports
+from bokeh._testing.util.env import envset
+
 # Module under test
 import bokeh.util.browser as bub # isort:skip
 
@@ -59,27 +62,24 @@ def test_get_browser_controller_value(mock_get: MagicMock) -> None:
 
 @patch('webbrowser.get')
 def test_get_browser_controller_dummy_with_env(mock_get: MagicMock) -> None:
-    os.environ['BOKEH_BROWSER'] = "bar"
-    bub.get_browser_controller('none')
-    del os.environ['BOKEH_BROWSER']
+    with envset(BOKEH_BROWSER="bar"):
+        bub.get_browser_controller('none')
 
 @patch('webbrowser.get')
 def test_get_browser_controller_None_with_env(mock_get: MagicMock) -> None:
-    os.environ['BOKEH_BROWSER'] = "bar"
-    bub.get_browser_controller()
-    assert mock_get.called
-    assert mock_get.call_args[0] == ("bar",)
-    assert mock_get.call_args[1] == {}
-    del os.environ['BOKEH_BROWSER']
+    with envset(BOKEH_BROWSER="bar"):
+        bub.get_browser_controller()
+        assert mock_get.called
+        assert mock_get.call_args[0] == ("bar",)
+        assert mock_get.call_args[1] == {}
 
 @patch('webbrowser.get')
 def test_get_browser_controller_value_with_env(mock_get: MagicMock) -> None:
-    os.environ['BOKEH_BROWSER'] = "bar"
-    bub.get_browser_controller('foo')
-    assert mock_get.called
-    assert mock_get.call_args[0] == ("foo",)
-    assert mock_get.call_args[1] == {}
-    del os.environ['BOKEH_BROWSER']
+    with envset(BOKEH_BROWSER="bar"):
+        bub.get_browser_controller('foo')
+        assert mock_get.called
+        assert mock_get.call_args[0] == ("foo",)
+        assert mock_get.call_args[1] == {}
 
 def test_view_bad_new() -> None:
     with pytest.raises(RuntimeError) as e:

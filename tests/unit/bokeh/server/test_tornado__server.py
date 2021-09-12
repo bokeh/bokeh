@@ -19,7 +19,6 @@ import pytest ; pytest
 # Standard library imports
 import json
 import logging
-import os
 import sys
 from subprocess import run
 
@@ -29,6 +28,7 @@ from tornado.web import StaticFileHandler
 
 # Bokeh imports
 from bokeh._testing.plugins.managed_server_loop import MSL
+from bokeh._testing.util.env import envset
 from bokeh.application import Application
 from bokeh.client import pull_session
 from bokeh.core.types import ID
@@ -93,21 +93,19 @@ def test_default_resources(ManagedServerLoop: MSL) -> None:
         assert r.path_versioner == StaticHandler.append_version
 
 def test_env_resources(ManagedServerLoop: MSL) -> None:
-    os.environ['BOKEH_RESOURCES'] = 'cdn'
-    application = Application()
-    with ManagedServerLoop(application) as server:
-        r = server._tornado.resources()
-        assert r.mode == "cdn"
-    del os.environ['BOKEH_RESOURCES']
+    with envset(BOKEH_RESOURCES="cdn"):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            r = server._tornado.resources()
+            assert r.mode == "cdn"
 
 def test_dev_resources(ManagedServerLoop: MSL) -> None:
-    os.environ['BOKEH_DEV'] = 'yes'
-    application = Application()
-    with ManagedServerLoop(application) as server:
-        r = server._tornado.resources()
-        assert r.mode == "absolute"
-        assert r.dev
-    del os.environ['BOKEH_DEV']
+    with envset(BOKEH_DEV="yes"):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            r = server._tornado.resources()
+            assert r.mode == "absolute"
+            assert r.dev
 
 def test_index(ManagedServerLoop: MSL) -> None:
     application = Application()

@@ -21,13 +21,13 @@ import calendar
 import codecs
 import datetime as dt
 import json
-import os
 import random
 
 # External imports
 from mock import MagicMock, Mock, patch
 
 # Bokeh imports
+from bokeh._testing.util.env import envset
 from bokeh.util.token import (
     _TOKEN_ZLIB_KEY,
     _base64_decode,
@@ -230,13 +230,12 @@ class Test__get_sysrandom:
 
     @patch('random.SystemRandom', new_callable=_nie)
     def test_missing_sysrandom_with_secret_key(self, _mock_sysrandom: MagicMock) -> None:
-        os.environ["BOKEH_SECRET_KEY"] = "foo"
-        with pytest.warns(UserWarning) as warns:
-            random, using_sysrandom = _get_sysrandom()
-            assert not using_sysrandom
-            assert len(warns) == 1
-            assert warns[0].message.args[0] == _MERSENNE_MSG
-        del os.environ["BOKEH_SECRET_KEY"]
+        with envset(BOKEH_SECRET_KEY="foo"):
+            with pytest.warns(UserWarning) as warns:
+                random, using_sysrandom = _get_sysrandom()
+                assert not using_sysrandom
+                assert len(warns) == 1
+                assert warns[0].message.args[0] == _MERSENNE_MSG
 
 #-----------------------------------------------------------------------------
 # Code

@@ -17,10 +17,10 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
 from os.path import dirname, join
 
 # Bokeh imports
+from bokeh._testing.util.env import envset
 from bokeh.document import Document
 from bokeh.embed.bundle import extension_dirs
 from bokeh.ext import build
@@ -108,17 +108,15 @@ class Test_bundle_for_objs_and_resources:
         # this is a cheap test that a BokehJS file is inline
         assert any(len(x) > 5000 for x in b.js_raw)
 
-        os.environ['BOKEH_RESOURCES'] = "server-dev"
-        b = beb.bundle_for_objs_and_resources([], INLINE)
-        del os.environ['BOKEH_RESOURCES']
+        with envset(BOKEH_RESOURCES="server-dev"):
+            b = beb.bundle_for_objs_and_resources([], INLINE)
         assert any('localhost' in x for x in b.js_files)
 
         # this is a cheap test that a BokehJS file is NOT inline
         assert all(len(x) < 5000 for x in b.js_raw)
 
-        os.environ['BOKEH_RESOURCES'] = "cdn"
-        b = beb.bundle_for_objs_and_resources([], INLINE)
-        del os.environ['BOKEH_RESOURCES']
+        with envset(BOKEH_RESOURCES="cdn"):
+            b = beb.bundle_for_objs_and_resources([], INLINE)
         assert any('cdn' in x for x in b.js_files)
 
         # this is a cheap test that a BokehJS file is NOT inline
@@ -166,13 +164,8 @@ class Test_bundle_custom_extensions:
         from latex_label import LatexLabel
         plot = Plot()
         plot.add_layout(LatexLabel())
-        try:
-            os.environ['BOKEH_RESOURCES'] = 'server'
-            os.environ['BOKEH_DEV'] = 'True'
+        with envset(BOKEH_RESOURCES="server", BOKEH_DEV="true"):
             bundle = beb.bundle_for_objs_and_resources([plot], "server")
-        finally:
-            del os.environ['BOKEH_DEV']
-            del os.environ['BOKEH_RESOURCES']
         assert len(bundle.js_files) == 2
         assert bundle.js_files[1] == "http://localhost:5006/static/extensions/latex_label/latex_label.js"
 
