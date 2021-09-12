@@ -19,7 +19,6 @@ import pytest ; pytest
 # Standard library imports
 import asyncio
 import logging
-import os
 import sys
 
 # External imports
@@ -30,6 +29,7 @@ from tornado.httpclient import HTTPError
 # Bokeh imports
 import bokeh.document as document
 from bokeh._testing.plugins.managed_server_loop import MSL
+from bokeh._testing.util.env import envset
 from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
 from bokeh.client import ClientSession, pull_session, push_session
@@ -186,9 +186,8 @@ class TestClientServer:
 
         # allow good origin from environment variable
         with ManagedServerLoop(application) as server:
-            os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com"
-            await self.check_http_ok_socket_ok(server, origin="http://example.com:80")
-            del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
+            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com"):
+                await self.check_http_ok_socket_ok(server, origin="http://example.com:80")
 
         # allow good origin with port
         with ManagedServerLoop(application, allow_websocket_origin=["example.com:8080"]) as server:
@@ -196,9 +195,8 @@ class TestClientServer:
 
         # allow good origin with port from environment variable
         with ManagedServerLoop(application) as server:
-            os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com:8080"
-            await self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
-            del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
+            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com:8080"):
+                await self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
 
         # allow good origin header with an implicit 80
         with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
@@ -206,9 +204,8 @@ class TestClientServer:
 
         # allow good origin header with an implicit 80
         with ManagedServerLoop(application) as server:
-            os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com"
-            await self.check_http_ok_socket_ok(server, origin="http://example.com")
-            del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
+            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com"):
+                await self.check_http_ok_socket_ok(server, origin="http://example.com")
 
         # block non-Host origins by default even if no extra origins specified
         with ManagedServerLoop(application) as server:
@@ -224,9 +221,8 @@ class TestClientServer:
 
         # block bad origin from environment variable
         with ManagedServerLoop(application) as server:
-            os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com"
-            await self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
-            del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
+            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com"):
+                await self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
 
         # block bad origin port
         with ManagedServerLoop(application, allow_websocket_origin=["example.com:8080"]) as server:
@@ -234,9 +230,8 @@ class TestClientServer:
 
         # block bad origin port from environment variable
         with ManagedServerLoop(application) as server:
-            os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com:8080"
-            await self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
-            del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
+            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com:8080"):
+                await self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
 
     def test_push_document(self, ManagedServerLoop: MSL) -> None:
         application = Application()
