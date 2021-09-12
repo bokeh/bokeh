@@ -41,13 +41,19 @@ __all__ = (
 def envset(value: Mapping[str, str]|None=None, **kw: Any) -> Iterator[None]:
     ''' Temporarily set environment variables and undo the updates on exit.
 
+    Args:
+        value (optional) :
+            A mapping of strings to strings to apply to os.environ
+
+    Any remaining keywoard args are applied to os.environ
+
     '''
     old = os.environ.copy()
     if value:
         os.environ.update(value)
     os.environ.update(**kw)
     yield
-    # take care to keept the same actual dict object
+    # take care to keep the same actual dict object
     os.environ.clear()
     os.environ.update(old)
 
