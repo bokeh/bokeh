@@ -23,7 +23,12 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 from contextlib import contextmanager
-from typing import Any, Iterator
+from typing import (
+    Any,
+    Dict,
+    Iterator,
+    Tuple,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -38,16 +43,18 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @contextmanager
-def envset(**kw: Any) -> Iterator[None]:
+def envset(value: Tuple[str, Any]|Dict[str, Any]|None=None, **kw: Any) -> Iterator[None]:
     ''' Temporarily set environment variables and undo the updates on exit.
 
     '''
     old = os.environ.copy()
+    if value:
+        os.environ.update(value)
     os.environ.update(**kw)
     yield
     # take care to keept the same actual dict object
     os.environ.clear()
-    os.environ.update(old.items())
+    os.environ.update(old)
 
 #-----------------------------------------------------------------------------
 # Dev API
