@@ -349,7 +349,7 @@ def is_tex_string(text: str) -> bool:
     parens  = r"\\\(.*?\\\)"
 
     pat = re.compile(f"{dollars}|{braces}|{parens}")
-    return pat.match(text)
+    return pat.match(text) is not None
 
 def contains_tex_string(text: str) -> bool:
     ''' Whether a string contains any pair of MathJax default delimiters
@@ -364,7 +364,7 @@ def contains_tex_string(text: str) -> bool:
     parens  = r"\\\(.*?\\\)"
 
     pat = re.compile(f"{dollars}|{braces}|{parens}", flags=re.S)
-    return pat.search(text)
+    return pat.search(text) is not None
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -740,6 +740,58 @@ class Test__unset_temp_theme:
         assert d.theme is orig
         assert d not in beu._themes
 
+class Test__tex_helpers:
+    def test_is_tex_string(self) -> None:
+        assert beu.is_tex_string("$$test$$") is True
+        assert beu.is_tex_string("\[test\]") is True
+        assert beu.is_tex_string("\(test\)") is True
+        assert beu.is_tex_string("HTML <b>text</b> $$\\sin(x) and \\[x\\cdot\\pi\\]!") is False
+        assert beu.is_tex_string("\\[test\\]") is True
+        assert beu.is_tex_string("\\(test\\)") is True
+        assert beu.is_tex_string("test$$") is False
+        assert beu.is_tex_string("$$test") is False
+        assert beu.is_tex_string("HTML <b>text</b> $$sin(x)$$ and [xcdotpi]!") is False
+        assert beu.is_tex_string("$$test\\]") is False
+        assert beu.is_tex_string("$$test $$ end $$") is True
+        assert beu.is_tex_string("$$ \\[test end\\]") is False
+        assert beu.is_tex_string("text \\[text $$latex$$") is False
+        assert beu.is_tex_string("$$ tex [ tex ] tex $$") is True
+        assert beu.is_tex_string("$$tex$$text$$tex$$") is True
+        assert beu.is_tex_string("part0$$part1\\[part2\\(part3$$") is False
+        assert beu.is_tex_string("part0$$part1\\[part2\\(part3\\]") is False
+        assert beu.is_tex_string("part0$$part1\\[part2\\(part3\\)") is False
+        assert beu.is_tex_string("""$$
+          cos(x)
+        $$""") is True
+        assert beu.is_tex_string("""$$
+          cos(x)$$
+        """) is False
+
+    def test_contains_tex_string(self) -> None:
+        assert beu.contains_tex_string("$$test$$") is True
+        assert beu.contains_tex_string("\\[test\\]") is True
+        assert beu.contains_tex_string("\\(test\\)") is True
+        assert beu.contains_tex_string("HTML <b>text</b> $$\\sin(x) and \\[x\\cdot\\pi\\]!") is True
+        assert beu.contains_tex_string("\\[test\\]") is True
+        assert beu.contains_tex_string("\\(test\\)") is True
+        assert beu.contains_tex_string("test$$") is False
+        assert beu.contains_tex_string("$$test") is False
+        assert beu.contains_tex_string("HTML <b>text</b> $$sin(x)$$ and [xcdotpi]!") is True
+        assert beu.contains_tex_string("$$test\\]") is False
+        assert beu.contains_tex_string("$$test $$ end $$") is True
+        assert beu.contains_tex_string("$$ \\[test end\\]") is True
+        assert beu.contains_tex_string("text \\[text $$latex$$") is True
+        assert beu.contains_tex_string("$$ tex [ tex ] tex $$") is True
+        assert beu.contains_tex_string("$$tex$$text$$tex$$") is True
+        assert beu.contains_tex_string("part0$$part1\\[part2\\(part3$$") is True
+        assert beu.contains_tex_string("part0$$part1\\[part2\\(part3\\]") is True
+        assert beu.contains_tex_string("part0$$part1\\[part2\\(part3\\)") is True
+        assert beu.contains_tex_string("""$$
+          cos(x)
+        $$""") is True
+        assert beu.contains_tex_string("""$$
+          cos(x)$$
+        """) is True
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
