@@ -5,7 +5,6 @@
         { "path": "examples/plotting/file/latex_normal_distribution.py",       "name": "latex_normal_distribution"      },
         { "path": "examples/plotting/file/ridgeplot.py",                       "name": "ridgeplot"                      },
         { "path": "examples/plotting/file/hexbin.py",                          "name": "hexbin"                         },
-        { "path": "examples/plotting/file/sprint.py",                          "name": "sprint"                         },
         { "path": "examples/plotting/file/hex_tile.py",                        "name": "hex_tile"                       },
         { "path": "examples/plotting/file/bar_colormapped.py",                 "name": "bar_colormapped"                },
         { "path": "examples/plotting/file/bar_intervals.py",                   "name": "bar_intervals"                  },
