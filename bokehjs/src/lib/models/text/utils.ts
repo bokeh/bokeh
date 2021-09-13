@@ -5,14 +5,11 @@ import {BaseText} from "./base_text"
 export function is_tex_string(text: unknown): boolean {
   if (!isString(text)) return false
 
-  const dollars = "^\\$\\$.*?\\$\\$$"
-  const braces  = "^\\\[.*?\\\]$"
-  const parens  = "^\\\(.*?\\\)$"
+  const dollars = /^\\$\\$.*?\\$\\$$/m
+  const braces  = /^\\\[.*?\\\]$/m
+  const parens  = /^\\\(.*?\\\)$/m
 
-  // mathjax has more defaults like \begin \end, are we going to support them?
-  const pat = new RegExp(`${dollars}|${braces}|${parens}`)
-
-  return pat.test(text)
+  return dollars.test(text) || braces.test(text) || parens.test(text)
 };
 
 export function tex_from_text_like(text: string | BaseText): TeX | null {
