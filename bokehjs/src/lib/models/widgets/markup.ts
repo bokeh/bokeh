@@ -1,9 +1,8 @@
 import {CachedVariadicBox} from "core/layout/html"
+import {isString} from "core/util/types"
 import {div} from "core/dom"
 import * as p from "core/properties"
 import {default_provider, MathJaxProvider} from "models/text/providers"
-import {find_math_parts, contains_tex_string} from "models/text/utils"
-import {TeX} from "models/text/math_text"
 import {Widget, WidgetView} from "./widget"
 
 import clearfix_css, {clearfix} from "styles/clearfix.css"
@@ -50,16 +49,35 @@ export abstract class MarkupView extends WidgetView {
     this.el.appendChild(this.markup_el)
   }
 
-  process_tex(): string {
-    return find_math_parts(this.model.text).map(part => {
-      if (part instanceof TeX) return this.provider.MathJax?.tex2svg(part.text, {display: !part.inline}).outerHTML
-      else return part.text
-    }).join("")
+  has_math_disabled() {
+    return this.model.disable_math || !this.contains_tex_string(this.model.text)
   }
 
-  has_math_disabled() {
-    return this.model.disable_math || !contains_tex_string(this.model.text)
+  process_tex(): string {
+    const tex_parts = this.provider.MathJax?.find_math(this.model.text)
+
+    return tex_parts ? this.process_tex_parts(tex_parts) : this.model.text
   }
+
+  private process_tex_parts(math_parts: MathJax.ProtoItem[]): string {
+    const {text} = this.model
+    const parts: string[] = []
+
+    math_parts.reduce((last_index = 0, math_part) => {
+      parts.push(text.slice(last_index, math_part.start.n))
+      parts.push(this.provider.MathJax?.tex2svg(math_part.math, {display: math_part.display}).outerHTML ?? math_part.math)
+
+      return math_part.end.n
+    }, 0)
+
+    return parts.join("")
+  }
+
+  private contains_tex_string(text: unknown): boolean {
+    if (!isString(text)) return false
+
+    return Boolean(this.provider.MathJax?.find_math(text))
+  };
 }
 
 export namespace Markup {
