@@ -328,9 +328,16 @@ important properties for this annotation:
 
 .. code-block:: python
 
-    Label(x=100, y=5, x_units='screen', text='Some Stuff', render_mode='css',
+    Label(x=100, y=5, x_units='screen', text='Some Stuff',
           border_line_color='black', border_line_alpha=1.0,
           background_fill_color='white', background_fill_alpha=1.0)
+
+The ``text`` may value contain newline characters which will result in a
+multi-line label.
+
+.. code-block:: python
+
+    Label(x=100, y=5, text='A very long label\nwith mutiple lines')
 
 To create several labels at once, use the |LabelSet| annotation. To configure
 the labels of a label set, use a data source that contains columns with data for
