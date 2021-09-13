@@ -1,5 +1,6 @@
-''' A plot of spectral radiance curves at various temperatures. This example
-demonstrates the use of mathtext on axes and in ``Div`` objects.
+''' A plot of spectral radiance curves for an ideal radiating blackbody at
+various temperatures. This example demonstrates the use of mathtext on axes
+and in ``Div`` objects.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.line
@@ -27,7 +28,7 @@ def spectral_radiance(nu, T):
 
 Ts = np.arange(2000, 6001, 500)  # Temperature (K)
 palette = Spectral[len(Ts)]
-nu = np.linspace(0, 1e15, 500)  # Frequency (1/s)
+nu = np.linspace(0.1, 1e15, 500)  # Frequency (1/s)
 
 for i, T in enumerate(Ts):
     B_nu = spectral_radiance(nu, T)
