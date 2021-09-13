@@ -21,5 +21,5 @@ declare namespace MathJax {
   function tex2svg(formula: string, options?: ConvertOptions, macros?: TeXMacros): HTMLElement
   function ascii2svg(_formula: string): HTMLElement
   function mathml2svg(formula: string): HTMLElement
-  function find_math(text: string): ProtoItem[]
+  function find_tex(text: string): ProtoItem[]
 }
