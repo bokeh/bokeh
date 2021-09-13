@@ -6,13 +6,13 @@ import {to_object} from "core/util/object"
 
 export type ModelRef = {
   name: string
-  module?: string
+  module?: string | null
 }
 
 export type ModelDef = ModelRef & {
-  extends?: ModelRef
-  properties?: PropertyDef[]
-  overrides?: OverrideDef[]
+  extends: ModelRef
+  properties: PropertyDef[]
+  overrides: OverrideDef[]
 }
 
 export type PrimitiveKindRef = "Any" | "Unknown" | "Boolean" | "Number" | "Int" | "String" | "Null"
@@ -109,28 +109,27 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
 
   for (const def of defs) {
     const base = (() => {
-      if (def.extends == null)
+      const name = qualified(def.extends)
+      if (name == "Model") // TODO: support base classes in general
         return Model
-      else {
-        const base = resolver.get(qualified(def.extends))
-        if (base != null)
-          return base
-        else
-          throw new Error(`base model ${qualified(def.extends)} of ${qualified(def)} is not defined`)
-      }
+      const base = resolver.get(name)
+      if (base != null)
+        return base
+      else
+        throw new Error(`base model ${qualified(def.extends)} of ${qualified(def)} is not defined`)
     })()
 
     const model = class extends base {
       static override __name__ = def.name
-      static override __module__ = def.module
+      static override __module__ = def.module ?? undefined
     }
 
-    for (const prop of def.properties ?? []) {
-      const kind = kind_of(prop.kind ?? "Unknown")
+    for (const prop of def.properties) {
+      const kind = kind_of(prop.kind)
       model.define<any>({[prop.name]: [kind, prop.default]})
     }
 
-    for (const prop of def.overrides ?? []) {
+    for (const prop of def.overrides) {
       model.override<any>({[prop.name]: prop.default})
     }
 
