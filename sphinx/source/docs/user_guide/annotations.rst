@@ -22,6 +22,13 @@ pass the text as the ``title`` parameter to |Figure|:
 
 The default title is generally located above a plot, aligned to the left.
 
+The title text may value contain newline characters which will result in a
+multi-line title.
+
+.. code-block:: python
+
+    p = figure(title="A longer title\nwith a second line underneath")
+
 To define the placement of the title in relation to the plot, use the
 ``title_location`` parameter. A title can be located above, below, left, or
 right of a plot. For example:
@@ -354,6 +361,9 @@ The following example illustrates the use of |Label| and |LabelSet|:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_label.py
     :source-position: above
+
+The ``text`` values for ``LabelSet`` may value contain newline characters which
+will result in multi-line labels.
 
 .. _userguide_annotations_slope:
 
