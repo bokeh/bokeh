@@ -207,6 +207,52 @@ describe("Widgets", () => {
     foo_col.visible = false
     await view.ready
   })
+
+  it("should allow TeX on Divs with mathstrings", async () => {
+    const obj = new Div({
+      text: `When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\) and they are
+        $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$`,
+    })
+
+    await display(obj, [320, 120])
+  })
+
+  it("should allow TeX on Paragraph with mathstrings", async () => {
+    const obj = new Paragraph({
+      text: `When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\) and they are
+        $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$`,
+    })
+
+    await display(obj, [320, 120])
+  })
+
+  it("should not allow TeX on PreText with mathstrings", async () => {
+    const obj = new PreText({
+      text: "When \\(a \\ne 0\\)",
+    })
+
+    await display(obj, [525, 75])
+  })
+
+  it("should not process TeX on Divs with mathstrings and disable_math=true", async () => {
+    const obj = new Div({
+      text: `When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\) and they are
+        $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$`,
+      disable_math: true,
+    })
+
+    await display(obj, [320, 120])
+  })
+
+  it("should not process TeX on Divs with mathstrings and render_as_text=true", async () => {
+    const obj = new Div({
+      text: `When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\) and they are
+        $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$`,
+      render_as_text: true,
+    })
+
+    await display(obj, [320, 120])
+  })
 })
 
 describe("Rows of widgets", () => {

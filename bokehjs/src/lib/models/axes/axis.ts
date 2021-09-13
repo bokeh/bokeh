@@ -638,7 +638,7 @@ export class AxisView extends GuideRendererView {
       if (!this.axis_label_math_text_view.has_finished())
         return false
     }
-    // TODO: IF TICK LABEL IS NOT COMPUTED, IT WILL NEVER FINISH
+
     const {major_label_math_text_views} = this
 
     for (const label in major_label_math_text_views)

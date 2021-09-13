@@ -55,6 +55,7 @@ from ..model import Model
 from ..resources import BaseResources, Resources
 from ..settings import settings
 from ..util.compiler import bundle_models
+from .util import contains_tex_string, is_tex_string
 
 if TYPE_CHECKING:
     from ..resources import Hashes
@@ -412,42 +413,31 @@ def _use_widgets(objs: Sequence[Model | Document]) -> bool:
     from ..models.widgets import Widget
     return _any(objs, lambda obj: isinstance(obj, Widget)) or _ext_use_widgets(objs)
 
-def _is_tex_string(text: str) -> bool:
-    """Whether a string begins and ends with MathJax default delimiters
-
-    Args:
-        text (str): String to check
-
-    Returns:
-        bool: True if string begins and ends with delimiters, False if not
-    """
-    if text.startswith("$$") and text.endswith("$$"):
-        return True
-    elif text.startswith("\\[") and text.endswith("\\]"):
-        return True
-    elif text.startswith("\\(") and text.endswith("\\)"):
-        return True
-    else:
-        return False
-
 def _model_requires_mathjax(model: Model) -> bool:
     """Whether a model requires MathJax to be loaded
-
     Args:
         model (Model): Model to check
-
     Returns:
         bool: True if MathJax required, False if not
     """
     from ..models.axes import Axis
+    from ..models.widgets.markups import Div, Paragraph
 
     if isinstance(model, Axis):
-        if isinstance(model.axis_label, str) and _is_tex_string(model.axis_label):
+        if isinstance(model.axis_label, str) and is_tex_string(model.axis_label):
             return True
 
         for val in model.major_label_overrides.values():
-            if isinstance(val, str) and _is_tex_string(val):
+            if isinstance(val, str) and is_tex_string(val):
                 return True
+
+    if isinstance(model, Div) and not model.disable_math and not model.render_as_text:
+        if contains_tex_string(model.text):
+            return True
+
+    if isinstance(model, Paragraph) and not model.disable_math:
+        if contains_tex_string(model.text):
+            return True
 
     return False
 
@@ -459,6 +449,7 @@ def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
         bool
     '''
     from ..models.text import MathText
+
     return _any(objs, lambda obj: isinstance(obj, MathText) or _model_requires_mathjax(obj)) or _ext_use_mathjax(objs)
 
 def _use_gl(objs: Sequence[Model | Document]) -> bool:
