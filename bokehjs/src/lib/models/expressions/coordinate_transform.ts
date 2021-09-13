@@ -10,7 +10,9 @@ export namespace CoordinateTransform {
 
 export interface CoordinateTransform extends CoordinateTransform.Attrs {}
 
-export abstract class CoordinateTransform extends Expression<{x: Float64Array, y: Float64Array}> {
+type CoordinateType = Arrayable<number> | Arrayable<number>[]
+
+export abstract class CoordinateTransform extends Expression<{x: CoordinateType, y: CoordinateType}> {
   override properties: CoordinateTransform.Props
 
   constructor(attrs?: Partial<CoordinateTransform.Attrs>) {
@@ -64,7 +66,7 @@ export class XComponent extends XYComponent {
     super(attrs)
   }
 
-  protected _v_compute(source: ColumnarDataSource): Arrayable<number> {
+  protected _v_compute(source: ColumnarDataSource): CoordinateType {
     return this.transform.v_compute(source).x
   }
 }
@@ -83,7 +85,7 @@ export class YComponent extends XYComponent {
     super(attrs)
   }
 
-  protected _v_compute(source: ColumnarDataSource): Arrayable<number> {
+  protected _v_compute(source: ColumnarDataSource): CoordinateType {
     return this.transform.v_compute(source).y
   }
 }
