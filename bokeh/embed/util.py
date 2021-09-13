@@ -344,9 +344,9 @@ def is_tex_string(text: str) -> bool:
     Returns:
         bool: True if string begins and ends with delimiters, False if not
     '''
-    dollars = r"^\$\$.*?\$\$$"
-    braces  = r"^\\\[.*?\\\]$"
-    parens  = r"^\\\(.*?\\\)$"
+    dollars = r"\$\$.*?\$\$"
+    braces  = r"\\\[.*?\\\]"
+    parens  = r"\\\(.*?\\\)"
 
     pat = re.compile(f"{dollars}|{braces}|{parens}")
     return pat.match(text)
@@ -363,8 +363,8 @@ def contains_tex_string(text: str) -> bool:
     braces  = r"\\\[.*?\\\]"
     parens  = r"\\\(.*?\\\)"
 
-    pat = re.compile(f"{dollars}|{braces}|{parens}")
-    return pat.match(text)
+    pat = re.compile(f"{dollars}|{braces}|{parens}", flags=re.S)
+    return pat.search(text)
 
 #-----------------------------------------------------------------------------
 # Private API

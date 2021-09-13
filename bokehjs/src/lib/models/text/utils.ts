@@ -5,9 +5,9 @@ import {BaseText} from "./base_text"
 export function is_tex_string(text: unknown): boolean {
   if (!isString(text)) return false
 
-  const dollars = /^\\$\\$.*?\\$\\$$/m
-  const braces  = /^\\\[.*?\\\]$/m
-  const parens  = /^\\\(.*?\\\)$/m
+  const dollars = /^\$\$.*?\$\$$/
+  const braces  = /^\\\[.*?\\\]$/
+  const parens  = /^\\\(.*?\\\)$/
 
   return dollars.test(text) || braces.test(text) || parens.test(text)
 };
