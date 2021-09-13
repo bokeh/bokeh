@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import re
 from contextlib import contextmanager
 from typing import (
     TYPE_CHECKING,
@@ -50,7 +51,9 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'contains_tex_string',
     'FromCurdoc',
+    'is_tex_string',
     'OutputDocumentFor',
     'RenderItem',
     'RenderRoot',
@@ -331,6 +334,37 @@ def submodel_has_python_callbacks(models: Sequence[Model | Document]) -> bool:
             break
 
     return has_python_callback
+
+def is_tex_string(text: str) -> bool:
+    ''' Whether a string begins and ends with MathJax default delimiters
+
+    Args:
+        text (str): String to check
+
+    Returns:
+        bool: True if string begins and ends with delimiters, False if not
+    '''
+    dollars = r"^\$\$.*?\$\$$"
+    braces  = r"^\\\[.*?\\\]$"
+    parens  = r"^\\\(.*?\\\)$"
+
+    pat = re.compile(f"{dollars}|{braces}|{parens}")
+    return pat.match(text)
+
+def contains_tex_string(text: str) -> bool:
+    ''' Whether a string contains any pair of MathJax default delimiters
+    Args:
+        text (str): String to check
+    Returns:
+        bool: True if string contains delimiters, False if not
+    '''
+    # these are non-greedy
+    dollars = r"\$\$.*?\$\$"
+    braces  = r"\\\[.*?\\\]"
+    parens  = r"\\\(.*?\\\)"
+
+    pat = re.compile(f"{dollars}|{braces}|{parens}")
+    return pat.match(text)
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.properties import (
+    Bool,
     Dict,
     Either,
     Int,
@@ -106,6 +107,10 @@ class TeX(MathText):
 
         TeX(text=r"\\R \\rightarrow \\R^2", macros={"RR": r"{\\bf R}"})
 
+    """)
+
+    inline = Bool(default=False, help="""
+    Whether the math text is inline display or not (for TeX input). Default is False.
     """)
 
 class PlainText(BaseText):
