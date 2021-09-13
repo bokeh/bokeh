@@ -29,6 +29,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import difflib
+import types
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -347,9 +348,18 @@ class HasProps(metaclass=MetaHasProps):
         # TODO: don't use unordered sets
         for prop_name in cls.__properties__:
             descriptor = cls.lookup(prop_name)
-            kind = None # TODO: serialize kinds
-            default = descriptor.property._default # TODO: private member
-            properties.append(PropertyDef(name=prop_name, kind=kind, default=default))
+            kind = "Any" # TODO: serialize kinds
+            default = descriptor.property._default
+
+            if default is Undefined:
+                prop_def = PropertyDef(name=prop_name, kind=kind)
+            else:
+                if isinstance(default, types.FunctionType):
+                    default = default()
+
+                prop_def = PropertyDef(name=prop_name, kind=kind, default=default)
+
+            properties.append(prop_def)
 
         for prop_name, default in getattr(cls, "__overridden_defaults__", {}).items():
             overrides.append(OverrideDef(name=prop_name, default=default))
@@ -716,10 +726,12 @@ class HasProps(metaclass=MetaHasProps):
 
 KindRef = Any # TODO
 
-class PropertyDef(TypedDict):
+class _PropertyDef(TypedDict):
     name: str
     kind: KindRef | None
-    default: Unknown | None
+
+class PropertyDef(_PropertyDef, total=False):
+    default: Unknown
 
 class OverrideDef(TypedDict):
     name: str

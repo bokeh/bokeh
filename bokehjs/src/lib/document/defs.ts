@@ -32,7 +32,7 @@ export type KindRef =
 
 export type PropertyDef = {
   name: string
-  kind?: KindRef
+  kind: KindRef
   default?: unknown
 }
 

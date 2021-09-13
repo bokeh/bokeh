@@ -71,7 +71,8 @@ class DerivedDataModel(SomeDataModel):
     prop3 = Int()
     prop4 = Int(default=112)
     prop5 = List(Int, default=[1, 2, 3, 4])
-    prop6 = Nullable(Instance(SomeDataModel))
+    prop6 = Instance(SomeDataModel)
+    prop7 = Nullable(Instance(SomeDataModel))
 
     prop2 = Override(default=119)
 
@@ -715,28 +716,32 @@ class TestDocument:
         doc.add_root(obj1)
 
         json = doc.to_json()
-        assert json["defs"] == [{
-            "extends": None,
-            "module": "test_document",
-            "name": "SomeDataModel",
-            "overrides": [],
-            "properties": [
-                {"default": 0, "kind": None, "name": "prop0"},
-                {"default": 111, "kind": None, "name": "prop1"},
-                {"default": [1, 2, 3], "kind": None, "name": "prop2"},
-            ],
-        }, {
-            "extends": {"module": "test_document", "name": "SomeDataModel"},
-            "module": "test_document",
-            "name": "DerivedDataModel",
-            "overrides": [{"default": 119, "name": "prop2"}],
-            "properties": [
-                {"default": 0, "kind": None, "name": "prop3"},
-                {"default": 112, "kind": None, "name": "prop4"},
-                {"default": [1, 2, 3, 4], "kind": None, "name": "prop5"},
-                {"default": None, "kind": None, "name": "prop6"},
-            ],
-        }]
+        assert json["defs"] == [
+            dict(
+                extends=dict(name="Model", module=None),
+                module="test_document",
+                name="SomeDataModel",
+                overrides=[],
+                properties=[
+                    dict(default=0, kind="Any", name="prop0"),
+                    dict(default=111, kind="Any", name="prop1"),
+                    dict(default=[1, 2, 3], kind="Any", name="prop2"),
+                ],
+            ),
+            dict(
+                extends=dict(module="test_document", name="SomeDataModel"),
+                module="test_document",
+                name="DerivedDataModel",
+                overrides=[dict(default=119, name="prop2")],
+                properties=[
+                    dict(default=0, kind="Any", name="prop3"),
+                    dict(default=112, kind="Any", name="prop4"),
+                    dict(default=[1, 2, 3, 4], kind="Any", name="prop5"),
+                    dict(kind="Any", name="prop6"),
+                    dict(default=None, kind="Any", name="prop7"),
+                ],
+            ),
+        ]
 
     def test_serialization_has_version(self) -> None:
         from bokeh import __version__
