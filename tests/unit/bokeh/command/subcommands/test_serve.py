@@ -19,7 +19,6 @@ import pytest ; pytest
 # Standard library imports
 import argparse
 import contextlib
-import os
 import re
 import socket
 import subprocess
@@ -32,6 +31,7 @@ from threading import Thread
 import requests
 
 # Bokeh imports
+from bokeh._testing.util.env import envset
 from bokeh.command.subcommand import Argument
 from bokeh.resources import DEFAULT_SERVER_PORT
 
@@ -540,20 +540,19 @@ def test_xsrf_printed_option() -> None:
 def test_xsrf_printed_envar() -> None:
     pat = re.compile(r'XSRF cookie protection enabled')
     m = None
-    os.environ["BOKEH_XSRF_COOKIES"] = "yes"
-    with run_bokeh_serve(["--enable-xsrf-cookies"]) as p:
-        nbsr = NBSR(p.stdout)
-        m = None
-        for i in range(20):
-            o = nbsr.readline(0.5)
-            if not o:
-                continue
-            m = pat.search(o.decode())
-            if m is not None:
-                break
-        if m is None:
-            pytest.fail("no matching log line in process output")
-    os.environ["BOKEH_XSRF_COOKIES"]
+    with envset(BOKEH_XSRF_COOKIES="yes"):
+        with run_bokeh_serve(["--enable-xsrf-cookies"]) as p:
+            nbsr = NBSR(p.stdout)
+            m = None
+            for i in range(20):
+                o = nbsr.readline(0.5)
+                if not o:
+                    continue
+                m = pat.search(o.decode())
+                if m is not None:
+                    break
+            if m is None:
+                pytest.fail("no matching log line in process output")
 
 def test_auth_module_printed() -> None:
     pat = re.compile(r'User authentication hooks provided \(no default user\)')

@@ -25,7 +25,9 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     Any,
+    Dict,
     List,
+    Type,
     overload,
 )
 
@@ -60,7 +62,19 @@ __all__ = (
     'Protocol',
 )
 
-SPEC = {
+MessageType = Literal[
+    "ACK",
+    "ERROR",
+    "OK",
+    "PATCH-DOC",
+    "PULL-DOC-REPLY",
+    "PULL-DOC-REQ",
+    "PUSH-DOC",
+    "SERVER-INFO-REPLY",
+    "SERVER-INFO-REQ",
+]
+
+SPEC: Dict[MessageType, Type[Message[Any]]] = {
     "ACK": ack,
     "ERROR": error,
     "OK": ok,
@@ -80,22 +94,11 @@ SPEC = {
 # Dev API
 #-----------------------------------------------------------------------------
 
-MessageType = Literal[
-    "ACK",
-    "ERROR",
-    "OK",
-    "PATCH-DOC",
-    "PULL-DOC-REPLY",
-    "PULL-DOC-REQ",
-    "PUSH-DOC",
-    "SERVER-INFO-REPLY",
-    "SERVER-INFO-REQ",
-]
-
 class Protocol:
     ''' Provide a message factory for the Bokeh Server message protocol.
 
     '''
+    _messages: Dict[MessageType, Type[Message[Any]]]
 
     def __init__(self) -> None:
         self._messages = SPEC
@@ -131,9 +134,9 @@ class Protocol:
         '''
         if msgtype not in self._messages:
             raise ProtocolError(f"Unknown message type {msgtype!r} for Bokeh protocol")
-        return self._messages[msgtype].create(*args, **kwargs)
+        return self._messages[msgtype].create(*args, **kwargs)  # type: ignore [attr-defined]
 
-    def assemble(self, header_json: Fragment, metadata_json: Fragment, content_json: Fragment) -> Message[Any]:
+    def assemble(self, header_json: str, metadata_json: str, content_json: str) -> Message[Any]:
         ''' Create a Message instance assembled from json fragments.
 
         Args:

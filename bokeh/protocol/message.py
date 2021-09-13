@@ -81,7 +81,6 @@ from .exceptions import MessageError, ProtocolError
 
 if TYPE_CHECKING:
     from ..client.websocket import WebSocketClientConnectionWrapper
-    from .receiver import Fragment
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -107,8 +106,9 @@ class Header(_Header, total=False):
     reqid: ID
     num_buffers: int
 
-class BufferHeader(TypedDict):
-    id: ID
+# class BufferHeader(TypedDict):
+#     id: ID
+BufferHeader = str
 
 Content = TypeVar("Content")
 
@@ -166,7 +166,7 @@ class Message(Generic[Content]):
         return f"Message {self.msgtype!r} content: {self.content!r}"
 
     @classmethod
-    def assemble(cls, header_json: Fragment, metadata_json: Fragment, content_json: Fragment) -> Message[Content]:
+    def assemble(cls, header_json: str, metadata_json: str, content_json: str) -> Message[Content]:
         ''' Creates a new message, assembled from JSON fragments.
 
         Args:

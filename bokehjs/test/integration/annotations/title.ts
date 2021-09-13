@@ -5,25 +5,25 @@ import {Title} from "@bokehjs/models"
 describe("Title annotation", () => {
   describe("should support positioning", () => {
     function plot(attrs: Partial<Title.Attrs>) {
-      const p = fig([300, 300], {
+      const p = fig([400, 400], {
         x_axis_type: null, y_axis_type: null,
         x_range: [0, 1], y_range: [0, 1],
       })
 
       p.add_layout(new Title({text: "1st Left (Ag/9)", ...attrs}), "left")
-      p.add_layout(new Title({text: "Second Left (Ag/9)", ...attrs}), "left")
+      p.add_layout(new Title({text: "Second Left (Ag/9)\nspanning two lines", ...attrs}), "left")
       p.add_layout(new Title({text: "Third Left (Ag/9)", ...attrs}), "left")
 
       p.add_layout(new Title({text: "1st Right (Ag/9)", ...attrs}), "right")
-      p.add_layout(new Title({text: "Second Right (Ag/9)", ...attrs}), "right")
+      p.add_layout(new Title({text: "Second Right (Ag/9)\nspanning two lines", ...attrs}), "right")
       p.add_layout(new Title({text: "Third Right (Ag/9)", ...attrs}), "right")
 
       p.add_layout(new Title({text: "1st Above (Ag/9)", ...attrs}), "above")
-      p.add_layout(new Title({text: "Second Above (Ag/9)", ...attrs}), "above")
+      p.add_layout(new Title({text: "Second Above (Ag/9)\nspanning two lines", ...attrs}), "above")
       p.add_layout(new Title({text: "Third Above (Ag/9)", ...attrs}), "above")
 
       p.add_layout(new Title({text: "1st Below (Ag/9)", ...attrs}), "below")
-      p.add_layout(new Title({text: "Second Below (Ag/9)", ...attrs}), "below")
+      p.add_layout(new Title({text: "Second Below (Ag/9)\nspanning two lines", ...attrs}), "below")
       p.add_layout(new Title({text: "Third Below (Ag/9)", ...attrs}), "below")
 
       return p

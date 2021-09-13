@@ -1,4 +1,4 @@
-import {VisualProperties, VisualUniforms} from "./visual"
+import {VisualProperties, VisualUniforms, ValuesOf} from "./visual"
 import {uint32} from "../types"
 import * as p from "../properties"
 import * as mixins from "../property_mixins"
@@ -42,6 +42,19 @@ export class Line extends VisualProperties {
     return doit
   }
 
+  Values: ValuesOf<mixins.Line>
+  values(): this["Values"] {
+    return {
+      color:  this.line_color.get_value(),
+      alpha:  this.line_alpha.get_value(),
+      width:  this.line_width.get_value(),
+      join:   this.line_join.get_value(),
+      cap:    this.line_cap.get_value(),
+      dash:   this.line_dash.get_value(),
+      offset: this.line_dash_offset.get_value(),
+    }
+  }
+
   set_value(ctx: Context2d): void {
     const color = this.line_color.get_value()
     const alpha = this.line_alpha.get_value()
@@ -79,6 +92,19 @@ export class LineScalar extends VisualUniforms {
       ctx.stroke()
     }
     return doit
+  }
+
+  Values: ValuesOf<mixins.Line>
+  values(): this["Values"] {
+    return {
+      color:  this.line_color.value,
+      alpha:  this.line_alpha.value,
+      width:  this.line_width.value,
+      join:   this.line_join.value,
+      cap:    this.line_cap.value,
+      dash:   this.line_dash.value,
+      offset: this.line_dash_offset.value,
+    }
   }
 
   set_value(ctx: Context2d): void {
@@ -123,6 +149,19 @@ export class LineVector extends VisualUniforms {
       ctx.stroke()
     }
     return doit
+  }
+
+  Values: ValuesOf<mixins.Line>
+  values(i: number): this["Values"] {
+    return {
+      color:  this.line_color.get(i),
+      alpha:  this.line_alpha.get(i),
+      width:  this.line_width.get(i),
+      join:   this.line_join.get(i),
+      cap:    this.line_cap.get(i),
+      dash:   this.line_dash.get(i),
+      offset: this.line_dash_offset.get(i),
+    }
   }
 
   set_vectorize(ctx: Context2d, i: number): void {

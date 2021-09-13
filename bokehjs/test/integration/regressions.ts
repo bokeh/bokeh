@@ -845,7 +845,7 @@ describe("Bug", () => {
     it("prevents Slope with gradient=0", async () => {
       const p = fig([200, 200], {x_range: [-5, 5], y_range: [-5, 5]})
 
-      for (const gradient of [1, -1, 0, 2, -0.5]){
+      for (const gradient of [1, -1, 0, 2, -0.5]) {
         const s = new Slope({gradient, y_intercept: -1})
         p.add_layout(s)
       }
@@ -1369,6 +1369,47 @@ describe("Bug", () => {
       const p1 = make_plot("svg")
 
       await display(row([p0, p1]))
+    })
+  })
+
+  describe("in issue #11547", () => {
+    it("doesn't render changes of graph layout provider", async () => {
+      const p = fig([200, 200], {
+        x_range: new DataRange1d({range_padding: 0.2}),
+        y_range: new DataRange1d({range_padding: 0.2}),
+      })
+
+      const layout_provider = new StaticLayoutProvider({
+        graph_layout: {
+          4: [2, 1],
+          5: [2, 2],
+          6: [3, 1],
+          7: [3, 2],
+        },
+      })
+
+      const node_renderer = new GlyphRenderer({
+        glyph: new Circle({size: 10, fill_color: "red"}),
+        data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
+      })
+      const edge_renderer = new GlyphRenderer({
+        glyph: new MultiLine({line_width: 2, line_color: "gray"}),
+        data_source: new ColumnDataSource({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
+      })
+
+      const graph = new GraphRenderer({layout_provider, node_renderer, edge_renderer})
+      p.add_renderers(graph)
+      const {view} = await display(p)
+
+      graph.layout_provider = new StaticLayoutProvider({
+        graph_layout: {
+          4: [1, 1],
+          5: [1, 2],
+          6: [2, 2],
+          7: [2, 1],
+        },
+      })
+      await view.ready
     })
   })
 })

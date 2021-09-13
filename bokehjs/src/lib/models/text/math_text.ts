@@ -13,9 +13,7 @@ import {font_metrics, parse_css_font_size} from "core/util/text"
 import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
 import {BaseText} from "./base_text"
-import {MathJaxProvider, BundleProvider} from "./providers"
-
-const default_provider: MathJaxProvider = new BundleProvider()
+import {MathJaxProvider, default_provider} from "./providers"
 
 /**
  * Helper class for rendering MathText into Canvas
@@ -34,6 +32,9 @@ export abstract class MathTextView extends View implements GraphicsBox {
   infer_text_height(): TextHeightMetric {
     return "ascent_descent"
   }
+
+  _x_anchor: "left" | "center" | "right" = "left"
+  _y_anchor: "top"  | "center" | "baseline" | "bottom" = "center"
 
   _base_font_size: number = 13 // the same as .bk-root's font-size (13px)
 
@@ -99,12 +100,12 @@ export abstract class MathTextView extends View implements GraphicsBox {
     this.on_change(this.model.properties.text, () => this.load_image())
   }
 
-  set visuals(v: visuals.Text) {
-    const color = v.text_color.get_value()
-    const alpha = v.text_alpha.get_value()
-    const style = v.text_font_style.get_value()
-    let size = v.text_font_size.get_value()
-    const face = v.text_font.get_value()
+  set visuals(v: visuals.Text["Values"]) {
+    const color = v.color
+    const alpha = v.alpha
+    const style = v.font_style
+    let size = v.font_size
+    const face = v.font
 
     const {font_size_scale, _base_font_size} = this
     const res = parse_css_font_size(size)
@@ -129,7 +130,7 @@ export abstract class MathTextView extends View implements GraphicsBox {
    */
   protected _computed_position(): {x: number, y: number} {
     const {width, height} = this._size()
-    const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
+    const {sx, sy, x_anchor=this._x_anchor, y_anchor=this._y_anchor} = this.position
 
     const x = sx - (() => {
       if (isNumber(x_anchor))
@@ -414,7 +415,7 @@ export class TeXView extends MathTextView {
 
   protected _process_text(text: string): HTMLElement | undefined {
     // TODO: allow plot/document level configuration of macros
-    return this.provider.MathJax?.tex2svg(text, this.model.macros)
+    return this.provider.MathJax?.tex2svg(text, undefined, this.model.macros)
   }
 }
 
@@ -423,6 +424,7 @@ export namespace TeX {
 
   export type Props = MathText.Props & {
     macros: p.Property<{[key: string]: string | [string, number]}>
+    inline: p.Property<boolean>
   }
 }
 
@@ -439,8 +441,9 @@ export class TeX extends MathText {
   static {
     this.prototype.default_view = TeXView
 
-    this.define<TeX.Props>(({Number, String, Dict, Tuple, Or}) => ({
+    this.define<TeX.Props>(({Boolean, Number, String, Dict, Tuple, Or}) => ({
       macros: [ Dict(Or(String, Tuple(String, Number))), {} ],
+      inline: [ Boolean, false ],
     }))
   }
 }

@@ -6,7 +6,7 @@ import {show} from "@bokehjs/api/plotting"
 import {div, empty} from "@bokehjs/core/dom"
 import {ViewOf} from "@bokehjs/core/view"
 import {isString, isArray} from "@bokehjs/core/util/types"
-import {unreachable} from "@bokehjs/core/util/assert"
+import {assert, unreachable} from "@bokehjs/core/util/assert"
 
 export type Func = () => void
 export type AsyncFunc = () => Promise<void>
@@ -272,6 +272,9 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
 }
 
 export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, number], el?: HTMLElement): Promise<{view: ViewOf<T>, el: HTMLElement}> {
+  const test = current_test
+  assert(test != null, "display() must be called in it(...) block")
+
   const margin = 50
   const [width, height] = (() => {
     if (viewport != null)
@@ -285,11 +288,12 @@ export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, n
       }
     }
   })()
+
   const vp = div({style: {width: `${width}px`, height: `${height}px`, overflow: "hidden"}}, el)
   container.appendChild(vp)
   const view = await show(obj, el ?? vp)
-  current_test!.view = view
-  current_test!.el = vp
+  test.view = view
+  test.el = vp
   return {view, el: vp}
 }
 

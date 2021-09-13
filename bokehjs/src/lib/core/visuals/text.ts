@@ -1,4 +1,4 @@
-import {VisualProperties, VisualUniforms} from "./visual"
+import {VisualProperties, VisualUniforms, ValuesOf} from "./visual"
 import {uint32} from "../types"
 import * as p from "../properties"
 import * as mixins from "../property_mixins"
@@ -13,6 +13,20 @@ export class Text extends VisualProperties {
     const alpha = this.text_alpha.get_value()
 
     return !(color == null || alpha == 0)
+  }
+
+  Values: ValuesOf<mixins.Text>
+  values(): this["Values"] {
+    return {
+      color:       this.text_color.get_value(),
+      alpha:       this.text_alpha.get_value(),
+      font:        this.text_font.get_value(),
+      font_size:   this.text_font_size.get_value(),
+      font_style:  this.text_font_style.get_value(),
+      align:       this.text_align.get_value(),
+      baseline:    this.text_baseline.get_value(),
+      line_height: this.text_line_height.get_value(),
+    }
   }
 
   set_value(ctx: Context2d): void {
@@ -50,6 +64,20 @@ export class TextScalar extends VisualUniforms {
     return !(color == 0 || alpha == 0)
   }
 
+  Values: ValuesOf<mixins.Text>
+  values(): this["Values"] {
+    return {
+      color:       this.text_color.value,
+      alpha:       this.text_alpha.value,
+      font:        this.text_font.value,
+      font_size:   this.text_font_size.value,
+      font_style:  this.text_font_style.value,
+      align:       this.text_align.value,
+      baseline:    this.text_baseline.value,
+      line_height: this.text_line_height.value,
+    }
+  }
+
   set_value(ctx: Context2d): void {
     const color = this.text_color.value
     const alpha = this.text_alpha.value
@@ -80,6 +108,20 @@ export class TextVector extends VisualUniforms {
   readonly text_align:       p.Uniform<TextAlign>
   readonly text_baseline:    p.Uniform<TextBaseline>
   readonly text_line_height: p.Uniform<number>
+
+  Values: ValuesOf<mixins.Text>
+  values(i: number): this["Values"] {
+    return {
+      color:       this.text_color.get(i),
+      alpha:       this.text_alpha.get(i),
+      font:        this.text_font.get(i),
+      font_size:   this.text_font_size.get(i),
+      font_style:  this.text_font_style.get(i),
+      align:       this.text_align.get(i),
+      baseline:    this.text_baseline.get(i),
+      line_height: this.text_line_height.get(i),
+    }
+  }
 
   get doit(): boolean {
     const {text_color} = this

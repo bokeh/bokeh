@@ -46,7 +46,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   readonly id: string
 
-  get is_syncable(): boolean{
+  get is_syncable(): boolean {
     return true
   }
 

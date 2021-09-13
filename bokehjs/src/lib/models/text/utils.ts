@@ -1,20 +1,18 @@
+import {TeX} from "./math_text"
 import {isString} from "core/util/types"
-import {TeX} from "models/text/index"
 import {BaseText} from "./base_text"
 
 export function is_tex_string(text: unknown): boolean {
   if (!isString(text)) return false
 
-  if (text.startsWith("$$") && text.endsWith("$$"))
-    return true
+  const dollars = "^\\$\\$.*?\\$\\$$"
+  const braces  = "^\\\[.*?\\\]$"
+  const parens  = "^\\\(.*?\\\)$"
 
-  else if (text.startsWith("\\[") && text.endsWith("\\]"))
-    return true
+  // mathjax has more defaults like \begin \end, are we going to support them?
+  const pat = new RegExp(`${dollars}|${braces}|${parens}`)
 
-  else if (text.startsWith("\\(") && text.endsWith("\\)"))
-    return true
-
-  return false
+  return pat.test(text)
 };
 
 export function tex_from_text_like(text: string | BaseText): TeX | null {
