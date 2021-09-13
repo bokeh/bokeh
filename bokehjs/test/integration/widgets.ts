@@ -217,16 +217,6 @@ describe("Widgets", () => {
     await display(obj, [320, 120])
   })
 
-  it("should allow TeX on Divs with delimiters between new lines", async () => {
-    const obj = new Div({
-      text: `$$
-        x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.
-        $$`,
-    })
-
-    await display(obj, [320, 120])
-  })
-
   it("should allow TeX on Paragraph with mathstrings", async () => {
     const obj = new Paragraph({
       text: `When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\) and they are
