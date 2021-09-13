@@ -78,8 +78,8 @@ export abstract class MarkupView extends WidgetView {
   private contains_tex_string(text: unknown): boolean {
     if (!isString(text) || this.provider.status !== "loaded") return false
 
-    const parts = this.provider.MathJax?.find_math(text)!
-    return parts.length > 0
+    const parts = this.provider.MathJax?.find_math(text)
+    return Boolean(parts && parts.length > 0)
   };
 }
 
