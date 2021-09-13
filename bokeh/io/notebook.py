@@ -449,7 +449,7 @@ def load_notebook(resources: Resources | None = None, verbose: bool = False,
         if _NOTEBOOK_LOADED and verbose:
             warnings.append('Warning: BokehJS previously loaded')
 
-        element_id: ID|None = make_id()
+        element_id: ID | None = make_id()
 
         html = NOTEBOOK_LOAD.render(
             element_id    = element_id,
