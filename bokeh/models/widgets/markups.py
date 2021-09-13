@@ -82,7 +82,6 @@ class Markup(Widget):
 
     disable_math = Bool(False, help="""
     Whether the contents should not be processed as TeX/LaTeX input.
-    The default value is False.
     """)
 
 #-----------------------------------------------------------------------------
