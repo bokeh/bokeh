@@ -80,8 +80,8 @@ no_olympics_label = Label(x=7.5, y=1942, text="No Olympics in 1940 or 1944",
                           text_color="silver")
 plot.add_layout(no_olympics_label)
 
-x19 = sprint[sprint.Year == 1900].MetersBack.min() - 0.5
-arrow = Arrow(x_start=x19, x_end=5, y_start=1900, y_end=1900, line_width=1.5,
+x = sprint[sprint.Year == 1900].MetersBack.min() - 0.5
+arrow = Arrow(x_start=x, x_end=5, y_start=1900, y_end=1900, line_width=1.5,
               start=NormalHead(fill_color="black", size=6), end=None)
 plot.add_layout(arrow)
 
