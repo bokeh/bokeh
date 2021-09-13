@@ -5,8 +5,6 @@
     :refs: :ref:`userguide_styling` > :ref:`userguide_styling_grid_bands`
     :keywords: hatching, grid band
 
-.. _New York Times interactive: http://www.nytimes.com/interactive/2012/08/05/sports/olympics/the-100-meter-dash-one-race-every-medalist-ever.html
-
 '''
 import numpy as np
 
