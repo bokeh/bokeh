@@ -48,7 +48,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def output_file(filename: PathLike, title: str = "Bokeh Plot",
-        mode: ResourcesMode | None = None, root_dir: PathLike | None = None):
+        mode: ResourcesMode | None = None, root_dir: PathLike | None = None) -> None:
     ''' Configure the default output state to generate output saved
     to a file when :func:`show` is called.
 

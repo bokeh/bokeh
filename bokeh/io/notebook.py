@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     from ipykernel.comm import Comm
 
 # Bokeh imports
-from ..core.types import ID
+from ..core.types import ID, JSON
 from ..util.serialization import make_id
 from .state import curstate
 
@@ -100,7 +100,7 @@ class CommsHandle:
     '''
 
     '''
-    _json = {}
+    _json: JSON = {}
     _cellno: int | None
     _doc: Document
 
@@ -146,7 +146,7 @@ class CommsHandle:
     # call to push_notebook processes and clear colleted events)
     def _document_model_changed(self, event: ModelChangedEvent) -> None:
         if event.model.id in self.doc.models:
-            self.doc._trigger_on_change(event)
+            self.doc.callbacks.trigger_on_change(event)
 
 class Load(Protocol):
     def __call__(self, resources: Resources, verbose: bool, hide_banner: bool, load_timeout: int) -> None: ...
@@ -163,7 +163,7 @@ class Hooks(TypedDict):
     app: ShowApp
 
 def install_notebook_hook(notebook_type: NotebookType, load: Load, show_doc: ShowDoc,
-        show_app: ShowApp, overwrite: bool = False):
+        show_app: ShowApp, overwrite: bool = False) -> None:
     ''' Install a new notebook display hook.
 
     Bokeh comes with support for Jupyter notebooks built-in. However, there are
@@ -292,7 +292,7 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
             push_notebook(handle=handle)
 
     '''
-    from ..protocol import Protocol
+    from ..protocol import Protocol as BokehProtocol
 
     if state is None:
         state = curstate()
@@ -319,8 +319,8 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
     if len(events) == 0:
         return
 
-    handle.doc._held_events = []
-    msg = Protocol().create("PATCH-DOC", cast(List["DocumentPatchedEvent"], events)) # XXX: either fix types or filter events
+    handle.doc.callbacks._held_events = []
+    msg = BokehProtocol().create("PATCH-DOC", cast(List["DocumentPatchedEvent"], events)) # XXX: either fix types or filter events
 
     handle.comms.send(msg.header_json)
     handle.comms.send(msg.metadata_json)
@@ -439,8 +439,8 @@ def load_notebook(resources: Resources | None = None, verbose: bool = False,
 
     if not hide_banner:
         if resources.mode == 'inline':
-            js_info = 'inline'
-            css_info = 'inline'
+            js_info: str | List[str] = 'inline'
+            css_info: str | List[str] = 'inline'
         else:
             js_info = resources.js_files[0] if len(resources.js_files) == 1 else resources.js_files
             css_info = resources.css_files[0] if len(resources.css_files) == 1 else resources.css_files
@@ -449,7 +449,7 @@ def load_notebook(resources: Resources | None = None, verbose: bool = False,
         if _NOTEBOOK_LOADED and verbose:
             warnings.append('Warning: BokehJS previously loaded')
 
-        element_id = make_id()
+        element_id: ID | None = make_id()
 
         html = NOTEBOOK_LOAD.render(
             element_id    = element_id,
@@ -584,6 +584,8 @@ def show_doc(obj: Model, state: State, notebook_handle: CommsHandle | None = Non
         state.document.callbacks.on_change_dispatch_to(handle)
         state.last_comms_handle = handle
         return handle
+
+    return None
 
 #-----------------------------------------------------------------------------
 # Private API
