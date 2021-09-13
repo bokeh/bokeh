@@ -9,7 +9,8 @@ export function is_tex_string(text: unknown): boolean {
   const braces  = "^\\\[.*?\\\]$"
   const parens  = "^\\\(.*?\\\)$"
 
-  const pat = new RegExp(`${dollars}|${braces}|${parens}`, "i")
+  // mathjax has more defaults like \begin \end, are we going to support them?
+  const pat = new RegExp(`${dollars}|${braces}|${parens}`)
 
   return pat.test(text)
 };
