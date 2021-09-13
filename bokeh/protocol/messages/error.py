@@ -72,9 +72,8 @@ class error(Message[Error]):
         msg = super().__repr__()
         msg += " --- "
         msg += self.content['text']
-        if "traceback" in self.content:
-            msg += "\n"
-            msg += "".join(self.content['traceback'])
+        if self.content["traceback"] is not None:
+            msg += "\n" + self.content['traceback']
         return msg
 
     @classmethod
@@ -93,10 +92,9 @@ class error(Message[Error]):
 
         '''
         header = cls.create_header(request_id=request_id)
-        content = Error(text=text)
         ex_type, ex, tb = sys.exc_info()
-        if ex_type:
-            content['traceback'] = format_exception(ex_type, ex, tb)
+        traceback = "".join(format_exception(ex_type, ex, tb)) if ex_type else None
+        content = Error(text=text, traceback=traceback)
         return cls(header, metadata, content)
 
 #-----------------------------------------------------------------------------

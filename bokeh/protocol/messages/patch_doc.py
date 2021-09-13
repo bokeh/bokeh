@@ -103,8 +103,8 @@ class patch_doc(Message[PatchJson]):
 
         msg = cls(header, metadata, content)
 
-        for (header, payload) in buffers:
-            msg.add_buffer(header, payload)
+        for (buffer_header, payload) in buffers:
+            msg.add_buffer(buffer_header, payload)
 
         return msg
 

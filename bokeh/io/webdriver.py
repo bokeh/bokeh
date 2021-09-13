@@ -81,13 +81,13 @@ def create_firefox_webdriver() -> WebDriver:
     else:
         binary_path = firefox
 
-    from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+    from selenium.webdriver.firefox.firefox_binary import FirefoxBinary  # type: ignore [import]
     binary = FirefoxBinary(binary_path)
 
     options = webdriver.firefox.options.Options()
     options.add_argument("--headless")
 
-    return webdriver.Firefox(
+    return webdriver.Firefox(  # type: ignore [attr-defined]
         options=options,
         firefox_binary=binary,
         executable_path=geckodriver,
@@ -103,7 +103,7 @@ def create_chromium_webdriver(extra_options: List[str] | None = None) -> WebDriv
     if extra_options:
         for op in extra_options:
             options.add_argument(op)
-    return webdriver.Chrome(options=options)
+    return webdriver.Chrome(options=options)  # type: ignore [attr-defined]
 
 #-----------------------------------------------------------------------------
 # Private API
