@@ -1112,7 +1112,7 @@ Adding mathematical notations
 -----------------------------
 
 Bokeh supports mathematical notations expressed in the LaTeX_ and MathML_ markup
-languages with a growing number of plot elements. Currently, you can use LaTeX
+languages with a growing number of elements. Currently, you can use LaTeX
 and MathML notations with :ref:`axis labels <userguide_styling_axes_labels>` and
 tick labels using :func:`~bokeh.models.Axis.major_label_overrides`. You can
 also use LaTeX with :class:`div <bokeh.models.Div>` or
