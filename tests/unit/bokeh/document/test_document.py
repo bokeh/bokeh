@@ -76,6 +76,18 @@ class DerivedDataModel(SomeDataModel):
 
     prop2 = Override(default=119)
 
+class CDSDerivedDataModel(ColumnDataSource, DataModel):
+    prop0 = Int()
+    prop1 = Int(default=111)
+    prop2 = List(Int, default=[1, 2, 3])
+
+    data = Override(default={"default_column": [4, 5, 6]})
+
+class CDSDerivedDerivedDataModel(CDSDerivedDataModel):
+    prop3 = Instance(SomeDataModel, default=SomeDataModel())
+
+    data = Override(default={"default_column": [7, 8, 9]})
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -708,12 +720,16 @@ class TestDocument:
         assert some_root.child.foo == 44
 
     def test_serialization_data_models(self) -> None:
-        obj0 = SomeDataModel()
-        obj1 = DerivedDataModel(prop6=obj0)
+        #obj0 = SomeDataModel()
+        #obj1 = DerivedDataModel(prop6=obj0)
+        #obj2 = CDSDerivedDataModel()
+        #obj3 = CDSDerivedDerivedDataModel()
 
         doc = document.Document()
-        doc.add_root(obj0)
-        doc.add_root(obj1)
+        #doc.add_root(obj0)
+        #doc.add_root(obj1)
+        #doc.add_root(obj2)
+        #doc.add_root(obj3)
 
         json = doc.to_json()
         assert json["defs"] == [
@@ -732,7 +748,9 @@ class TestDocument:
                 extends=dict(module="test_document", name="SomeDataModel"),
                 module="test_document",
                 name="DerivedDataModel",
-                overrides=[dict(default=119, name="prop2")],
+                overrides=[
+                    dict(default=119, name="prop2"),
+                ],
                 properties=[
                     dict(default=0, kind="Any", name="prop3"),
                     dict(default=112, kind="Any", name="prop4"),
@@ -741,7 +759,32 @@ class TestDocument:
                     dict(default=None, kind="Any", name="prop7"),
                 ],
             ),
+            dict(
+                extends=dict(name="ColumnDataSource", module=None),
+                module="test_document",
+                name="CDSDerivedDataModel",
+                overrides=[
+                    dict(default={"default_column": [4, 5, 6]}, name="data"),
+                ],
+                properties=[
+                    dict(default=0, kind="Any", name="prop0"),
+                    dict(default=111, kind="Any", name="prop1"),
+                    dict(default=[1, 2, 3], kind="Any", name="prop2"),
+                ],
+            ),
+            dict(
+                extends=dict(name="CDSDerivedDataModel", module="test_document"),
+                module="test_document",
+                name="CDSDerivedDerivedDataModel",
+                overrides=[
+                    dict(default={"default_column": [7, 8, 9]}, name="data"),
+                ],
+                properties=[
+                    dict(default=CDSDerivedDerivedDataModel.prop3.property._default.ref, kind="Any", name="prop3"),
+                ],
+            ),
         ]
+        # TODO: assert json["roots"]["references"] == ...
 
     def test_serialization_has_version(self) -> None:
         from bokeh import __version__
