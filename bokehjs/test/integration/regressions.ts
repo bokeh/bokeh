@@ -1371,7 +1371,7 @@ describe("Bug", () => {
       await display(row([p0, p1]))
     })
   })
-  
+
   describe("in issue #11547", () => {
     it("doesn't render changes of graph layout provider", async () => {
       const p = fig([200, 200], {

@@ -63,12 +63,12 @@ class LayoutProvider(Model):
     '''
 
     @property
-    def node_coordinates(self):
-        return NodeCoordinates(layout= self)
+    def node_coordinates(self) -> NodeCoordinates:
+        return NodeCoordinates(layout=self)
 
     @property
-    def edge_coordinates(self):
-        return EdgeCoordinates(layout= self)
+    def edge_coordinates(self) -> EdgeCoordinates:
+        return EdgeCoordinates(layout=self)
 
 class StaticLayoutProvider(LayoutProvider):
     '''
@@ -92,14 +92,14 @@ class StaticLayoutProvider(LayoutProvider):
 @abstract
 class GraphCoordinates(CoordinateTransform):
     '''
-    Abstract class for coordinate transform expression obtained from `LayoutProvider`
+    Abstract class for coordinate transform expression obtained from ``LayoutProvider``
 
     '''
     layout = Instance(LayoutProvider)
 
 class NodeCoordinates(GraphCoordinates):
     '''
-    Node coordinate expression obtained from `LayoutProvider`
+    Node coordinate expression obtained from ``LayoutProvider``
 
     '''
 
@@ -107,7 +107,7 @@ class NodeCoordinates(GraphCoordinates):
 
 class EdgeCoordinates(GraphCoordinates):
     '''
-    Node coordinate expression obtained from `LayoutProvider`
+    Node coordinate expression obtained from ``LayoutProvider``
 
     '''
 

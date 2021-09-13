@@ -44,7 +44,7 @@ export interface GraphCoordinates extends GraphCoordinates.Attrs {}
 export abstract class GraphCoordinates extends CoordinateTransform {
   override properties: GraphCoordinates.Props
 
-  constructor(attrs?: Partial<GraphCoordinates.Attrs>){
+  constructor(attrs?: Partial<GraphCoordinates.Attrs>) {
     super(attrs)
   }
 
@@ -65,11 +65,11 @@ export interface NodeCoordinates extends NodeCoordinates.Attrs {}
 export class NodeCoordinates extends GraphCoordinates {
   override properties: NodeCoordinates.Props
 
-  constructor(attrs?: Partial<NodeCoordinates.Attrs>){
+  constructor(attrs?: Partial<NodeCoordinates.Attrs>) {
     super(attrs)
   }
 
-  _v_compute(source: ColumnarDataSource): {x: Arrayable<number>, y: Arrayable<number>}{
+  _v_compute(source: ColumnarDataSource): {x: Arrayable<number>, y: Arrayable<number>} {
     const [x, y] = this.layout.get_node_coordinates(source)
     return {x, y}
   }
@@ -85,7 +85,7 @@ export interface EdgeCoordinates extends EdgeCoordinates.Attrs {}
 export class EdgeCoordinates extends GraphCoordinates {
   override properties: EdgeCoordinates.Props
 
-  constructor(attrs?: Partial<EdgeCoordinates.Attrs>){
+  constructor(attrs?: Partial<EdgeCoordinates.Attrs>) {
     super(attrs)
   }
 
