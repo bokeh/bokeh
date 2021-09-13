@@ -1,6 +1,8 @@
 {
     "details": [
         { "path": "examples/plotting/file/marker_map.py",                      "name": "marker_map"                     },
+        { "path": "examples/plotting/file/latex_blackbody_radiation.py",       "name": "latex_blackbody_radiation"      },
+        { "path": "examples/plotting/file/latex_normal_distribution.py",       "name": "latex_normal_distribution"      },
         { "path": "examples/plotting/file/ridgeplot.py",                       "name": "ridgeplot"                      },
         { "path": "examples/plotting/file/hexbin.py",                          "name": "hexbin"                         },
         { "path": "examples/plotting/file/sprint.py",                          "name": "sprint"                         },
