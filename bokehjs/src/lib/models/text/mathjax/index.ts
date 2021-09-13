@@ -6,6 +6,7 @@ import {SVG} from "mathjax-full/js/output/svg.js"
 import {browserAdaptor} from "mathjax-full/js/adaptors/browserAdaptor"
 import {RegisterHTMLHandler} from "mathjax-full/js/handlers/html.js"
 import {AllPackages} from "mathjax-full/js/input/tex/AllPackages.js"
+import {FindTeX} from "mathjax-full/js/input/tex/FindTeX.js"
 
 const adaptor = browserAdaptor()
 RegisterHTMLHandler(adaptor)
@@ -37,4 +38,10 @@ export function mathml2svg(formula: string): HTMLElement {
   const mathml = new MathML({})
   const mathml_to_svg = mathjax.document("", {InputJax: mathml, OutputJax: svg})
   return mathml_to_svg.convert(formula, defaults)
+}
+
+export function find_math(text: string): MathJax.ProtoItem[] {
+  const find_text = new FindTeX({})
+
+  return find_text.findMath([text])
 }

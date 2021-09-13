@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import re
 from contextlib import contextmanager
 from typing import (
     TYPE_CHECKING,
@@ -343,14 +344,12 @@ def is_tex_string(text: str) -> bool:
     Returns:
         bool: True if string begins and ends with delimiters, False if not
     '''
-    if text.startswith("$$") and text.endswith("$$"):
-        return True
-    elif text.startswith("\\[") and text.endswith("\\]"):
-        return True
-    elif text.startswith("\\(") and text.endswith("\\)"):
-        return True
-    else:
-        return False
+    dollars = r"^\$\$.*?\$\$$"
+    braces  = r"^\\\[.*?\\\]$"
+    parens  = r"^\\\(.*?\\\)$"
+
+    pat = re.compile(f"{dollars}|{braces}|{parens}")
+    return pat.match(text)
 
 def contains_tex_string(text: str) -> bool:
     ''' Whether a string contains any pair of MathJax default delimiters
@@ -359,16 +358,14 @@ def contains_tex_string(text: str) -> bool:
     Returns:
         bool: True if string contains delimiters, False if not
     '''
-    if "$$" in text:
-        if "$$" in text[text.index("$$") + 2:]:
-            return True
-    if "\\[" in text:
-        if "\\]" in text[text.index("\\[") + 2:]:
-            return True
-    if "\\(" in text:
-        if "\\)" in text[text.index("\\(") + 2:]:
-            return True
-    return False
+    # these are non-greedy
+    dollars = r"\$\$.*?\$\$"
+    braces  = r"\\\[.*?\\\]"
+    parens  = r"\\\(.*?\\\)"
+
+    pat = re.compile(f"{dollars}|{braces}|{parens}")
+    return pat.match(text)
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

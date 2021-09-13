@@ -1,131 +1,37 @@
-import {PlainText} from "./plain_text"
 import {TeX} from "./math_text"
 import {isString} from "core/util/types"
 import {BaseText} from "./base_text"
+import {find_math, tex2svg} from "./mathjax"
 
-type Delimiter = {
-  start: string
-  end: string
-  inline: boolean
-  next_index?: number
-}
+export function process_tex_parts(text: string, math_parts: MathJax.ProtoItem[]): string {
+  const parts: string[] = []
 
-export function find_math_parts(mathstring: string): (PlainText | TeX)[] {
-  const delimiters: Delimiter[] = [
-    {start: "$$", end: "$$", inline: false},
-    {start: "\\[", end: "\\]", inline: false},
-    {start: "\\(", end: "\\)", inline: true},
-  ]
+  math_parts.reduce((last_index = 0, math_part) => {
+    parts.push(text.slice(last_index, math_part.start.n))
+    parts.push(tex2svg(math_part.math, {display: math_part.display}).outerHTML)
 
-  const result: (PlainText | TeX)[] = []
+    return math_part.end.n
+  }, 0)
 
-  // for each delimiter
-  const find_next_delimiter = (text: string) =>
-    delimiters
-      // get their position on text
-      .map((delimiter) => ({
-        ...delimiter,
-        next_index: text.indexOf(delimiter.start),
-      }))
-      // remove delimiters not found
-      .filter((delimiter) => delimiter.next_index >= 0)
-      // return the delimiter closer to start of text
-      .sort((a, b) => a.next_index - b.next_index)[0]
-
-  const find_end = (text: string, delimiter?: Delimiter): string => {
-    // if there is no delimiter then the whole text is a plain string
-    if (!delimiter) {
-      result.push(new PlainText({text}))
-
-      return ""
-    }
-
-    const index = text.indexOf(delimiter.start)
-
-    // first delimiter is the end of the string
-    if (index === text.length - 2) {
-      result.push(new PlainText({text}))
-      return ""
-    }
-
-    // end delimiter found
-    if (text.slice(index + 2).includes(delimiter.end)) {
-      // string before open delimiter is plain text
-      result.push(new PlainText({text: text.slice(0, index)}))
-
-      const text_after_delimiter = text.slice(index + 2)
-      const closing_index = text_after_delimiter.indexOf(delimiter.end)
-
-      // from open delimiter to end delimiter is input
-      result.push(
-        new TeX({
-          text: text_after_delimiter.slice(0, closing_index),
-          inline: delimiter.inline,
-        })
-      )
-
-      // remove end delimiter from return
-      return text_after_delimiter.slice(closing_index + 2)
-    }
-
-    // if there is not a closing delimiter
-    // check if there are other open delimiters
-    if (find_next_delimiter(text.slice(index + 2))) {
-      while (text) {
-        text = find_end(text, find_next_delimiter(text.slice(index + 2)))
-      }
-
-      return text
-    }
-
-    // no ending delimiter was found then its a plain text
-    result.push(new PlainText({text}))
-    return ""
-  }
-
-  let remaining_text = mathstring
-
-  while (remaining_text) {
-    remaining_text = find_end(
-      remaining_text,
-      find_next_delimiter(remaining_text)
-    )
-  }
-
-  return result.filter((el) => el.text)
+  return parts.join("")
 }
 
 export function contains_tex_string(text: unknown): boolean {
   if (!isString(text)) return false
 
-  if (text.includes("$$"))
-    if (text.slice(text.indexOf("$$")+2).includes("$$"))
-      return true
-
-  if (text.includes("\\["))
-    if (text.slice(text.indexOf("\\[")+2).includes("\\]"))
-      return true
-
-  if (text.includes("\\("))
-    if (text.slice(text.indexOf("\\(")+2).includes("\\)"))
-      return true
-
-  return false
+  return Boolean(find_math(text))
 };
 
 export function is_tex_string(text: unknown): boolean {
   if (!isString(text)) return false
 
-  if (text.startsWith("$$") && text.endsWith("$$"))
-    return true
+  const dollars = "^\\$\\$.*?\\$\\$$"
+  const braces  = "^\\\[.*?\\\]$"
+  const parens  = "^\\\(.*?\\\)$"
 
-  else if (text.startsWith("\\[") && text.endsWith("\\]"))
-    return true
+  const pat = new RegExp(`${dollars}|${braces}|${parens}`, "i")
 
-  else if (text.startsWith("\\(") && text.endsWith("\\)"))
-    return true
-
-  return false
+  return pat.test(text)
 };
 
 export function tex_from_text_like(text: string | BaseText): TeX | null {
