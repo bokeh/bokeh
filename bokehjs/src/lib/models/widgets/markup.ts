@@ -54,9 +54,11 @@ export abstract class MarkupView extends WidgetView {
   }
 
   process_tex(): string {
-    const tex_parts = this.provider.MathJax?.find_math(this.model.text)
+    if (this.provider.status !== "loaded") return this.model.text
 
-    return tex_parts ? this.process_tex_parts(tex_parts) : this.model.text
+    const tex_parts = this.provider.MathJax?.find_math(this.model.text)!
+
+    return this.process_tex_parts(tex_parts)
   }
 
   private process_tex_parts(math_parts: MathJax.ProtoItem[]): string {
@@ -74,9 +76,10 @@ export abstract class MarkupView extends WidgetView {
   }
 
   private contains_tex_string(text: unknown): boolean {
-    if (!isString(text)) return false
+    if (!isString(text) || this.provider.status !== "loaded") return false
 
-    return Boolean(this.provider.MathJax?.find_math(text))
+    const parts = this.provider.MathJax?.find_math(text)!
+    return parts.length > 0
   };
 }
 
