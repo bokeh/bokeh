@@ -15,7 +15,7 @@ new browser tab for the Wikipedia entry of the sprinter.
 from bokeh.models import (Arrow, ColumnDataSource, CustomJS, Label,
                           NormalHead, SingleIntervalTicker, TapTool)
 from bokeh.plotting import figure, show
-from bokeh.sampledata.sprint import sprint as df
+from bokeh.sampledata.sprint import sprint
 
 fill_color = { "gold": "#efcf6d", "silver": "#cccccc", "bronze": "#c59e8a" }
 line_color = { "gold": "#c8a850", "silver": "#b0b0b1", "bronze": "#98715d" }
@@ -23,17 +23,17 @@ line_color = { "gold": "#c8a850", "silver": "#b0b0b1", "bronze": "#98715d" }
 def selected_name(name, medal, year):
     return name if medal == "gold" and year in [1988, 1968, 1936, 1896] else ""
 
-t0 = df.Time[0]
+t0 = sprint.Time[0]
 
-df["Abbrev"]       = df.Country
-df["Medal"]        = df.Medal.map(lambda medal: medal.lower())
-df["Speed"]        = 100.0/df.Time
-df["MetersBack"]   = 100.0*(1.0 - t0/df.Time)
-df["MedalFill"]    = df.Medal.map(lambda medal: fill_color[medal])
-df["MedalLine"]    = df.Medal.map(lambda medal: line_color[medal])
-df["SelectedName"] = df[["Name", "Medal", "Year"]].apply(tuple, axis=1).map(lambda args: selected_name(*args))
+sprint["Abbrev"]       = sprint.Country
+sprint["Medal"]        = sprint.Medal.map(lambda medal: medal.lower())
+sprint["Speed"]        = 100.0/sprint.Time
+sprint["MetersBack"]   = 100.0*(1.0 - t0/sprint.Time)
+sprint["MedalFill"]    = sprint.Medal.map(lambda medal: fill_color[medal])
+sprint["MedalLine"]    = sprint.Medal.map(lambda medal: line_color[medal])
+sprint["SelectedName"] = sprint[["Name", "Medal", "Year"]].apply(tuple, axis=1).map(lambda args: selected_name(*args))
 
-source = ColumnDataSource(df)
+source = ColumnDataSource(sprint)
 
 tooltips = """
 <div>
@@ -47,7 +47,7 @@ tooltips = """
 <div style="font-size: 11px; color: #666;">@{MetersBack}{0.00} meters behind</div>
 """
 
-plot = figure(width=1000, height=600, x_range=(df.MetersBack.max()+2, 0),
+plot = figure(width=1000, height=600, x_range=(sprint.MetersBack.max()+2, 0),
               toolbar_location=None, outline_line_color=None,
               y_axis_location="right", tooltips=tooltips)
 plot.y_range.range_padding = 4
@@ -80,8 +80,8 @@ no_olympics_label = Label(x=7.5, y=1942, text="No Olympics in 1940 or 1944",
                           text_color="silver")
 plot.add_layout(no_olympics_label)
 
-x = df[df.Year == 1900].MetersBack.min() - 0.5
-arrow = Arrow(x_start=x, x_end=5, y_start=1900, y_end=1900, line_width=1.5,
+x19 = sprint[sprint.Year == 1900].MetersBack.min() - 0.5
+arrow = Arrow(x_start=x19, x_end=5, y_start=1900, y_end=1900, line_width=1.5,
               start=NormalHead(fill_color="black", size=6), end=None)
 plot.add_layout(arrow)
 
