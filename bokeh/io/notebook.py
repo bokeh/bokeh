@@ -440,7 +440,7 @@ def load_notebook(resources: Resources | None = None, verbose: bool = False,
     if not hide_banner:
         if resources.mode == 'inline':
             js_info: str | List[str] = 'inline'
-            css_info str | List[str] = 'inline'
+            css_info: str | List[str] = 'inline'
         else:
             js_info = resources.js_files[0] if len(resources.js_files) == 1 else resources.js_files
             css_info = resources.css_files[0] if len(resources.css_files) == 1 else resources.css_files
