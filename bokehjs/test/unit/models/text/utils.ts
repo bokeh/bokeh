@@ -5,8 +5,8 @@ import {is_tex_string} from "@bokehjs/models/text/utils"
 describe("Text utils", () => {
   it("is_tex_string", async () => {
     expect(is_tex_string("$$test$$")).to.be.true
-    expect(is_tex_string("\[test\]")).to.be.true
-    expect(is_tex_string("\(test\)")).to.be.true
+    expect(is_tex_string("\\[test\\]")).to.be.true
+    expect(is_tex_string("\\(test\\)")).to.be.true
     expect(is_tex_string("HTML <b>text</b> $$\\sin(x) and \\[x\\cdot\\pi\\]!")).to.be.false
     expect(is_tex_string("\\[test\\]")).to.be.true
     expect(is_tex_string("\\(test\\)")).to.be.true
