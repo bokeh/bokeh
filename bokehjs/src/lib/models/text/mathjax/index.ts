@@ -40,8 +40,12 @@ export function mathml2svg(formula: string): HTMLElement {
   return mathml_to_svg.convert(formula, defaults)
 }
 
-export function find_math(text: string): MathJax.ProtoItem[] {
-  const find_text = new FindTeX({})
+export function find_tex(text: string): MathJax.ProtoItem[] {
+  const find_text = new FindTeX({
+    processEnvironments: false,
+    processEscapes: false,
+    processRefs: false,
+  })
 
   return find_text.findMath([text])
 }

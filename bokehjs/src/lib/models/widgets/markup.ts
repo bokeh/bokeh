@@ -1,5 +1,4 @@
 import {CachedVariadicBox} from "core/layout/html"
-import {isString} from "core/util/types"
 import {div} from "core/dom"
 import * as p from "core/properties"
 import {default_provider, MathJaxProvider} from "models/text/providers"
@@ -22,14 +21,31 @@ export abstract class MarkupView extends WidgetView {
 
     if (this.provider.status == "not_started")
       await this.provider.fetch()
+
+    if (this.provider.status == "not_started" || this.provider.status == "loading")
+      this.provider.ready.connect(() => {
+        if (this.contains_tex_string())
+          this.rerender()
+      })
+  }
+
+  override after_layout(): void {
+    super.after_layout()
+
+    if (this.provider.status === "loading")
+      this._has_finished = false
+  }
+
+  protected rerender() {
+    this.layout.invalidate_cache()
+    this.render()
+    this.root.compute_layout() // XXX: invalidate_layout?
   }
 
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => {
-      this.layout.invalidate_cache()
-      this.render()
-      this.root.compute_layout() // XXX: invalidate_layout?
+      this.rerender()
     })
   }
 
@@ -47,39 +63,39 @@ export abstract class MarkupView extends WidgetView {
     const style = {...this.model.style, display: "inline-block"}
     this.markup_el = div({class: clearfix, style})
     this.el.appendChild(this.markup_el)
+
+    if (this.provider.status == "failed" || this.provider.status == "loaded")
+      this._has_finished = true
   }
 
   has_math_disabled() {
-    return this.model.disable_math || !this.contains_tex_string(this.model.text)
+    return this.model.disable_math || !this.contains_tex_string()
   }
 
   process_tex(): string {
-    if (this.provider.status !== "loaded") return this.model.text
+    if (!this.provider.MathJax)
+      return this.model.text
 
-    const tex_parts = this.provider.MathJax?.find_math(this.model.text)!
-
-    return this.process_tex_parts(tex_parts)
-  }
-
-  private process_tex_parts(math_parts: MathJax.ProtoItem[]): string {
     const {text} = this.model
-    const parts: string[] = []
+    const tex_parts = this.provider.MathJax.find_tex(text)
+    const processed_text: string[] = []
 
-    math_parts.reduce((last_index = 0, math_part) => {
-      parts.push(text.slice(last_index, math_part.start.n))
-      parts.push(this.provider.MathJax?.tex2svg(math_part.math, {display: math_part.display}).outerHTML ?? math_part.math)
+    let last_index: number | undefined = 0
+    for (const part of tex_parts) {
+      processed_text.push(text.slice(last_index, part.start.n))
+      processed_text.push(this.provider.MathJax.tex2svg(part.math, {display: part.display}).outerHTML)
 
-      return math_part.end.n
-    }, 0)
+      last_index = part.end.n
+    }
 
-    return parts.join("")
+    return processed_text.join("")
   }
 
-  private contains_tex_string(text: unknown): boolean {
-    if (!isString(text) || this.provider.status !== "loaded") return false
+  private contains_tex_string(): boolean {
+    if (!this.provider.MathJax)
+      return false
 
-    const parts = this.provider.MathJax?.find_math(text)
-    return Boolean(parts && parts.length > 0)
+    return this.provider.MathJax.find_tex(this.model.text).length > 0
   };
 }
 
