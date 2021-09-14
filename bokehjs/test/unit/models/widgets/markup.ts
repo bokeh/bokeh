@@ -5,7 +5,7 @@ import {Div} from "@bokehjs/models/widgets/div"
 import {MathJaxProvider} from "@bokehjs/models/text/providers"
 import {find_tex} from "@bokehjs/models/text/mathjax"
 import {build_view} from "@bokehjs/core/build_views"
-import { MarkupView } from "@bokehjs/models/widgets/markup"
+import {MarkupView} from "@bokehjs/models/widgets/markup"
 
 function tex2svg(text: string, options: {display: boolean}) {
   console.log(text, options)
