@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Text related models
+''' Text-related models
 '''
 
 #-----------------------------------------------------------------------------
@@ -72,18 +72,22 @@ class MathText(BaseText):
 
 class Ascii(MathText):
     """
-    Render mathematical content using `AsciiMath <http://asciimath.org/>`_ notation.
+    Render mathematical content using `AsciiMath <http://asciimath.org/>`_
+    notation.
     """
 
 class MathML(MathText):
     """
-    Render mathematical content using `MathML <https://www.w3.org/Math/>`_ notation.
+    Render mathematical content using `MathML <https://www.w3.org/Math/>`_
+    notation. See :ref:`userguide_styling_math` in the |user guide| for more
+    information.
     """
 
 class TeX(MathText):
     """
     Render mathematical content using `LaTeX <https://www.latex-project.org/>`_
-    notation.
+    notation. See :ref:`userguide_styling_math` in the |user guide| for more
+    information.
 
     .. note::
         Bokeh uses `MathJax <https://www.mathjax.org>`_ to render text

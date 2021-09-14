@@ -16,7 +16,7 @@ import {BaseText} from "./base_text"
 import {MathJaxProvider, default_provider} from "./providers"
 
 /**
- * Helper class to rendering MathText into Canvas
+ * Helper class for rendering MathText into Canvas
  */
 export abstract class MathTextView extends View implements GraphicsBox {
   override model: MathText
