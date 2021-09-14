@@ -8,7 +8,6 @@ import {build_view} from "@bokehjs/core/build_views"
 import {MarkupView} from "@bokehjs/models/widgets/markup"
 
 function tex2svg(text: string, options: {display: boolean}) {
-  console.log(text, options)
   return {outerHTML: `<svg display="${options.display}">${text}</svg>`}
 }
 
