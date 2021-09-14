@@ -123,7 +123,7 @@ export namespace MultiChoice {
     delete_button: p.Property<boolean>
     placeholder: p.Property<string | null>
     option_limit: p.Property<number | null>
-    search_option_limit: p.Property<number | null>      
+    search_option_limit: p.Property<number | null>
     solid: p.Property<boolean>
   }
 }
@@ -148,7 +148,7 @@ export class MultiChoice extends InputWidget {
       delete_button: [ Boolean, true ],
       placeholder:   [ Nullable(String),  null ],
       option_limit:  [ Nullable(Int),  null ],
-      search_option_limit:  [ Nullable(Int),  null ],      
+      search_option_limit:  [ Nullable(Int),  null ],
       solid:         [ Boolean, true ],
     }))
   }
