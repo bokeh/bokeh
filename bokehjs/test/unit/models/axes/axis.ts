@@ -74,7 +74,7 @@ describe("Axis", () => {
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_view(axis)!
 
-    expect(axis_view.model.axis_label instanceof TeX).to.be.true
+    expect(axis_view.model.axis_label).to.be.instanceof(TeX)
   })
 
   it("should convert mathstrings with line breaks in between delimiters on axis labels to TeX", async () => {
@@ -97,7 +97,7 @@ describe("Axis", () => {
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_view(axis)!
 
-    expect(axis_view.model.axis_label instanceof TeX).to.be.true
+    expect(axis_view.model.axis_label).to.be.instanceof(TeX)
   })
 
   it("loc should return numeric fixed_location", async () => {
