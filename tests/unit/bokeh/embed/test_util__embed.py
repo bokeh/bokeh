@@ -743,6 +743,9 @@ class Test__unset_temp_theme:
 class Test__tex_helpers:
     def test_is_tex_string(self) -> None:
         assert beu.is_tex_string("$$test$$") is True
+        assert beu.is_tex_string("$$test$$  ") is False
+        assert beu.is_tex_string("  $$test$$") is False
+        assert beu.is_tex_string("  $$test$$  ") is False
         assert beu.is_tex_string("\\[test\\]") is True
         assert beu.is_tex_string("\\(test\\)") is True
         assert beu.is_tex_string("HTML <b>text</b> $$\\sin(x) and \\[x\\cdot\\pi\\]!") is False
