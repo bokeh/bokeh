@@ -219,7 +219,7 @@ To format the ticks of a ``DatetimeAxis``, use the
 
 .. seealso::
     See :ref:`userguide_styling_axes` in the user guide for more information on
-    customizing axes. The entry for :class:`~bokeh.models.axes.Axis` in the
+    customizing axes. The entry for :class:`~bokeh.models.Axis` in the
     reference guide contains a list of all available attributes you can use to
     customize the axes of your plot.
 
