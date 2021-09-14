@@ -25,17 +25,19 @@ ID is not specified, the entire document will be rendered.
 
 #}
 <script id="{{ elementid }}">
-  const xhr = new XMLHttpRequest()
-  xhr.responseType = 'blob';
-  xhr.open('GET', "{{ src_path }}", true);
-  {% for header, value in headers.items() %}
-  xhr.setRequestHeader("{{ header }}", "{{ value }}")
-  {% endfor %}
-  xhr.onload = function (event) {
-    const script = document.createElement('script');
-    const src = URL.createObjectURL(event.target.response);
-    script.src = src;
-    document.body.appendChild(script);
-  };
-xhr.send();
+  (function() {
+    const xhr = new XMLHttpRequest()
+    xhr.responseType = 'blob';
+    xhr.open('GET', "{{ src_path }}", true);
+    {% for header, value in headers.items() %}
+    xhr.setRequestHeader("{{ header }}", "{{ value }}")
+    {% endfor %}
+    xhr.onload = function (event) {
+      const script = document.createElement('script');
+      const src = URL.createObjectURL(event.target.response);
+      script.src = src;
+      document.body.appendChild(script);
+    };
+    xhr.send();
+  })();
 </script>
