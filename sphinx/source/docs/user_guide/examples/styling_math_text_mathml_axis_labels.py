@@ -8,21 +8,16 @@ y = (x * 0.5) ** 2
 
 mathml = """
 <math>
-    <mrow>
-        <msup>
-            <mfenced>
-                <mrow>
-                    <mi>x</mi>
-                    <mi>*</mi>
-                        <mfrac>
-                            <mn> 1 </mn>
-                            <mn> 2 </mn>
-                        </mfrac>
-                </mrow>
-            </mfenced>
-            <mn>2</mn>
-        </msup>
-    </mrow>
+  <mrow>
+    <mfrac>
+      <mn>1</mn>
+      <mn>4</mn>
+    </mfrac>
+    <msup>
+      <mi>x</mi>
+      <mn>2</mn>
+    </msup>
+  </mrow>
 </math>
 """
 
