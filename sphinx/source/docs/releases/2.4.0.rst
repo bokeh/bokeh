@@ -32,6 +32,7 @@ Other work in this cycle includes:
     - Clipping area problem fixed :bokeh-issue:`11551`
 
 * Misc fixes and improvements
+    - Labels can now be multi-line :bokeh-issue:`7317`
     - Individual legend items and table columns can be hidden :bokeh-issue:`9261`, :bokeh-issue:`11423`
     - Tab panels can be set to disabled :bokeh-issue:`10898`
     - Toolbar buttons respect tab ordering :bokeh-issue:`11266`

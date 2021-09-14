@@ -11,8 +11,10 @@ from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 from bokeh.sampledata.sprint import sprint
 
-sprint.Year = sprint.Year.astype(str)
-group = sprint.groupby('Year')
+df = sprint.copy()  # since we are modifying sampledata
+
+df.Year = df.Year.astype(str)
+group = df.groupby('Year')
 source = ColumnDataSource(group)
 
 p = figure(y_range=group, x_range=(9.5,12.7), width=400, height=550, toolbar_location=None,

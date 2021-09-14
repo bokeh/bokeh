@@ -21,7 +21,7 @@ p.grid.minor_grid_line_color = '#eeeeee'
 names = [f"y{i}" for i in range(N)]
 p.varea_stack(stackers=names, x='index', color=brewer['Spectral'][N], legend_label=names, source=df)
 
-# reverse the legend entries to match the stacked order
-p.legend.items.reverse()
+p.legend.orientation = "horizontal"
+p.legend.background_fill_color = "#fafafa"
 
 show(p)
