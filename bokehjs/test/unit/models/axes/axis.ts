@@ -74,7 +74,30 @@ describe("Axis", () => {
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_view(axis)!
 
-    expect(axis_view.model.axis_label instanceof TeX).to.be.true
+    expect(axis_view.model.axis_label).to.be.instanceof(TeX)
+  })
+
+  it("should convert mathstrings with line breaks in between delimiters on axis labels to TeX", async () => {
+    const ticker = new BasicTicker()
+    const formatter = new BasicTickFormatter()
+    const axis = new Axis({
+      ticker,
+      formatter,
+      axis_label: `$$
+        \\sin(x)
+      $$`,
+    })
+
+    const plot = new Plot({
+      x_range: new Range1d({start: 0, end: 10}),
+      y_range: new Range1d({start: 0, end: 10}),
+    })
+    plot.add_layout(axis, "below")
+
+    const plot_view = (await build_view(plot)).build()
+    const axis_view = plot_view.renderer_view(axis)!
+
+    expect(axis_view.model.axis_label).to.be.instanceof(TeX)
   })
 
   it("loc should return numeric fixed_location", async () => {

@@ -88,6 +88,9 @@ export abstract class MarkupView extends WidgetView {
       last_index = part.end.n
     }
 
+    if (last_index! < text.length)
+      processed_text.push(text.slice(last_index))
+
     return processed_text.join("")
   }
 
