@@ -10,7 +10,7 @@ export function is_tex_string(text: unknown): boolean {
   const parens  = /^\\\(.*?\\\)$/s
 
   return dollars.test(text) || braces.test(text) || parens.test(text)
-};
+}
 
 export function tex_from_text_like(text: string | BaseText): TeX | null {
   if (text instanceof TeX)
