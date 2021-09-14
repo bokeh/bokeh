@@ -3,8 +3,8 @@ various temperatures. This example demonstrates the use of mathtext on axes
 and in ``Div`` objects.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.line
-    :refs: :ref:`userguide_styling` >
+    :apis: bokeh.plotting.Figure.line, bokeh.models.Div
+    :refs: :ref:`userguide_styling` > :ref:`userguide_styling_math`
     :keywords: mathtext, latex
 
 '''
