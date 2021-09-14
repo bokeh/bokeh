@@ -37,7 +37,7 @@ TOOLS = "hover,pan,wheel_zoom,box_zoom,reset,save"
 
 p = figure(tools=TOOLS, toolbar_location="above", width=1200, title=TITLE)
 p.toolbar.logo = "grey"
-p.background_fill_color = "#dddddd"
+p.background_fill_color = "#efefef"
 p.xaxis.axis_label = "atomic weight (amu)"
 p.yaxis.axis_label = "density (g/cm^3)"
 p.grid.grid_line_color = "white"
@@ -52,7 +52,7 @@ p.hover.tooltips = [
 source = ColumnDataSource(elements)
 
 p.scatter("atomic mass", "density", size=12, source=source,
-          color='melting_colors', line_color="black", fill_alpha=0.8)
+          color='melting_colors', line_color="black", alpha=0.9)
 
 labels = LabelSet(x="atomic mass", y="density", text="symbol", y_offset=8,
                   text_font_size="11px", text_color="#555555",

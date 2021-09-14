@@ -2,10 +2,8 @@ from bokeh.io import show
 from bokeh.models import Div
 
 div = Div(
-    text="Foo $$\cos(x)$$ <b>bar</b>",
-    width=200,
-    height=100,
-    background="grey",
+    width=400, height=100, background="#fafafa",
+    text="The Pythagorean identity is $$\sin^2(x) + \cos^2(x) = 1$$"
 )
 
 show(div)
