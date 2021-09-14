@@ -69,7 +69,7 @@ the ideal probability density function, given by the equation:
 $$
 \qquad PDF(x) = \frac{1}{\sigma\sqrt{2\pi}} \exp\left[-\frac{1}{2}
 \left(\frac{x-\overline{x}}{\sigma}\right)^2 \right]
-$$ fdsf
+$$
 """)
 
 show(column(p, div))
