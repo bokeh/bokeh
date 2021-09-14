@@ -230,7 +230,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   [equals](that: this, cmp: Comparator): boolean {
     for (const p0 of this) {
       const p1 = that.property(p0.attr)
-      if (cmp.eq(p0.get_value(), p1.get_value()))
+      if (!cmp.eq(p0.get_value(), p1.get_value()))
         return false
     }
     return true
