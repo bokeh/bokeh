@@ -4,6 +4,7 @@ import {ModelEvent} from "./core/bokeh_events"
 import * as p from "./core/properties"
 import {isString} from "./core/util/types"
 import {isEmpty, entries} from "./core/util/object"
+import {equals, Comparator} from "core/util/eq"
 import {logger} from "./core/logging"
 import {CallbackLike0} from "./models/callbacks/callback"
 
@@ -29,6 +30,10 @@ export class Model extends HasProps {
 
   override get is_syncable(): boolean {
     return this.syncable
+  }
+
+  override [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.id, that.id) && super[equals](that, cmp)
   }
 
   constructor(attrs?: Partial<Model.Attrs>) {

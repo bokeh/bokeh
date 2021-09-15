@@ -1,23 +1,32 @@
 import {TeX} from "./math_text"
-import {isString} from "core/util/types"
 import {BaseText} from "./base_text"
+import {PlainText} from "./plain_text"
 
-export function is_tex_string(text: unknown): boolean {
-  if (!isString(text)) return false
-
-  const dollars = /^\$\$.*?\$\$$/s
-  const braces  = /^\\\[.*?\\\]$/s
-  const parens  = /^\\\(.*?\\\)$/s
-
-  return dollars.test(text) || braces.test(text) || parens.test(text)
+type Delimiter = {
+  start: string
+  end: string
+  inline: boolean
 }
 
-export function tex_from_text_like(text: string | BaseText): TeX | null {
-  if (text instanceof TeX)
-    return text
+const delimiters: Delimiter[] = [
+  {start: "$$", end: "$$", inline: false},
+  {start: "\\[", end: "\\]", inline: false},
+  {start: "\\(", end: "\\)", inline: true},
+]
 
-  if (isString(text) && is_tex_string(text))
-    return new TeX({text: text.slice(2, -2)})
+export function parse_delimited_string(text: string): BaseText {
+  for (const delim of delimiters) {
+    const n0 = text.indexOf(delim.start)
+    const m0 = n0 + delim.start.length
+    if (n0 == 0) {
+      const n1 = text.indexOf(delim.end, m0)
+      const m1 = n1
+      if (n1 == text.length - delim.end.length)
+        return new TeX({text: text.slice(m0, m1), inline: delim.inline})
+      else
+        break
+    }
+  }
 
-  return null
+  return new PlainText({text})
 }

@@ -42,6 +42,7 @@ export abstract class GraphicsBox {
   padding?: Padding
   font_size_scale: number = 1.0
   text_height_metric?: TextHeightMetric
+  align: "left" | "center" | "right" | "justify" = "left"
 
   _base_font_size: number = 13 // the same as .bk-root's font-size (13px)
 
@@ -155,7 +156,6 @@ export class TextBox extends GraphicsBox {
   color: string
   font: string
   line_height: number
-  align: "left" | "center" | "right" | "justify" = "left"
   //padding: Padding
 
   set visuals(v: visuals.Text["Values"]) {
