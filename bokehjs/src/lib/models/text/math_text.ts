@@ -6,21 +6,22 @@ import {load_image} from "core/util/image"
 import {CanvasImage} from "models/glyphs/image_url"
 import {color2css} from "core/util/color"
 import {Size} from "core/types"
-import {View} from "core/view"
-import {RendererView} from "models/renderers/renderer"
 import {GraphicsBox, TextHeightMetric, text_width, Position} from "core/graphics"
 import {font_metrics, parse_css_font_size} from "core/util/text"
 import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
-import {BaseText} from "./base_text"
+import {BaseText, BaseTextView} from "./base_text"
 import {MathJaxProvider, default_provider} from "./providers"
 
 /**
  * Helper class for rendering MathText into Canvas
  */
-export abstract class MathTextView extends View implements GraphicsBox {
+export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   override model: MathText
-  override parent: RendererView
+
+  graphics(): GraphicsBox {
+    return this
+  }
 
   angle?: number
   _position: Position = {sx: 0, sy: 0}

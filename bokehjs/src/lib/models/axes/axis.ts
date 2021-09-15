@@ -13,15 +13,16 @@ import {Indices} from "core/types"
 import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
+import {entries} from "core/util/object"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
-import {MathText, MathTextView, TeX} from "../text/math_text"
+import {BaseTextView} from "../text/base_text"
 import {BaseText} from "../text/base_text"
 import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
 import {isString} from "core/util/types"
-import {tex_from_text_like, is_tex_string} from "models/text/utils"
+import {parse_delimited_string} from "models/text/utils"
 
 const {abs} = Math
 
@@ -46,46 +47,30 @@ export class AxisView extends GuideRendererView {
   panel: Panel
   layout: Layoutable
 
-  private axis_label_math_text_view: MathTextView
-  private major_label_math_text_views: {[key: string]: MathTextView} = {}
+  /*private*/ _axis_label_view: BaseTextView | null = null
+  /*private*/ _major_label_views: Map<string, BaseTextView> = new Map()
 
-  /**
-   * Lazy initialize is called when views are instantiated,
-   * working like an async constructor
-   */
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
+    await this._init_axis_label()
+    await this._init_major_labels()
+  }
+
+  protected async _init_axis_label(): Promise<void> {
     const {axis_label} = this.model
-
     if (axis_label != null) {
-      if (axis_label instanceof MathText) {
-        this.axis_label_math_text_view = await build_view(axis_label, {parent: this})
-      } else if (is_tex_string(axis_label)) {
-        const math_text = tex_from_text_like(axis_label)
-        if (math_text instanceof TeX) {
-          this.model.axis_label = math_text
-          this.axis_label_math_text_view = await build_view(math_text, {parent: this})
-        }
-      }
-    }
+      const _axis_label = isString(axis_label) ? parse_delimited_string(axis_label) : axis_label
+      this._axis_label_view = await build_view(_axis_label, {parent: this})
+    } else
+      this._axis_label_view = null
+  }
 
+  protected async _init_major_labels(): Promise<void> {
     const {major_label_overrides} = this.model
-
-    for (const label in major_label_overrides) {
-      if (major_label_overrides.hasOwnProperty(label)) {
-        const label_text = major_label_overrides[label]
-
-        if (label_text instanceof MathText) {
-          this.major_label_math_text_views[label] = await build_view(label_text, {parent: this})
-        } else if (is_tex_string(label_text)) {
-          const math_text = tex_from_text_like(label_text)
-          if (math_text) {
-            this.model.major_label_overrides[label] = math_text
-            this.major_label_math_text_views[label] = await build_view(math_text, {parent: this})
-          }
-        }
-      }
+    for (const [label, label_text] of entries(major_label_overrides)) {
+      const _label_text = isString(label_text) ? parse_delimited_string(label_text) : label_text
+      this._major_label_views.set(label, await build_view(_label_text, {parent: this}))
     }
   }
 
@@ -130,6 +115,21 @@ export class AxisView extends GuideRendererView {
 
   override connect_signals(): void {
     super.connect_signals()
+
+    const {axis_label, major_label_overrides} = this.model.properties
+
+    this.on_change(axis_label, async () => {
+      this._axis_label_view?.remove()
+      await this._init_axis_label()
+    })
+
+    this.on_change(major_label_overrides, async () => {
+      for (const label_view of this._major_label_views.values()) {
+        label_view.remove()
+      }
+      await this._init_major_labels()
+    })
+
     this.connect(this.model.change, () => this.plot_view.request_layout())
   }
 
@@ -186,15 +186,10 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _axis_label_extent(): number {
-    const {axis_label} = this.model
-    if (!axis_label)
+    if (this._axis_label_view == null)
       return 0
 
-    const text = isString(axis_label) ? axis_label : axis_label.text
-
-    const axis_label_graphics = axis_label instanceof MathText
-      ? this.axis_label_math_text_view
-      : new TextBox({text})
+    const axis_label_graphics = this._axis_label_view.graphics()
 
     const padding = 3
 
@@ -212,9 +207,7 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _draw_axis_label(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
-    const {axis_label} = this.model
-
-    if (!axis_label || this.model.fixed_location != null)
+    if (this._axis_label_view == null || this.model.fixed_location != null)
       return
 
     const [sx, sy] = (() => {
@@ -242,11 +235,7 @@ export class AxisView extends GuideRendererView {
       y_anchor: vertical_align,
     }
 
-    const text = isString(axis_label) ? axis_label : axis_label.text
-
-    const axis_label_graphics = axis_label instanceof MathText
-      ? this.axis_label_math_text_view
-      : new TextBox({text})
+    const axis_label_graphics = this._axis_label_view.graphics()
 
     axis_label_graphics.visuals = this.visuals.axis_label_text.values()
     axis_label_graphics.angle = this.panel.get_label_angle_heuristic("parallel")
@@ -440,24 +429,23 @@ export class AxisView extends GuideRendererView {
 
   compute_labels(ticks: number[]): GraphicsBoxes {
     const labels = this.model.formatter.format_graphics(ticks, this)
-    const {major_label_overrides} = this.model
-    for (let i = 0; i < ticks.length; i++) {
-      const override = major_label_overrides[ticks[i]]
-      if (override != null) {
-        const text = isString(override) ? override : override.text
+    const {_major_label_views} = this
 
-        labels[i] = override instanceof MathText
-          ? this.major_label_math_text_views[ticks[i]]
-          : new TextBox({text})
+    const visited = new Set()
+    for (let i = 0; i < ticks.length; i++) {
+      const override = _major_label_views.get(ticks[i].toString())
+      if (override != null) {
+        visited.add(override)
+        labels[i] = override.graphics()
       }
     }
 
-    Object.keys(this.major_label_math_text_views).forEach(key => {
-      if (!ticks.map(tick => tick.toString()).includes(key)) {
-        this.major_label_math_text_views[key].remove()
-        delete this.major_label_math_text_views[key]
+    // XXX: make sure unused overrides don't prevent document idle
+    for (const label_view of this._major_label_views.values()) {
+      if (!visited.has(label_view)) {
+        (label_view as any)._has_finished = true
       }
-    })
+    }
 
     return new GraphicsBoxes(labels)
   }
@@ -619,13 +607,11 @@ export class AxisView extends GuideRendererView {
   }
 
   override remove(): void {
-    if (this.axis_label_math_text_view)
-      this.axis_label_math_text_view.remove()
+    this._axis_label_view?.remove()
 
-    const {major_label_math_text_views} = this
-    for (const label in major_label_math_text_views)
-      if (major_label_math_text_views.hasOwnProperty(label))
-        major_label_math_text_views[label].remove()
+    for (const label_view of this._major_label_views.values()) {
+      label_view.remove()
+    }
 
     super.remove()
   }
@@ -634,17 +620,15 @@ export class AxisView extends GuideRendererView {
     if (!super.has_finished())
       return false
 
-    if (this.axis_label_math_text_view) {
-      if (!this.axis_label_math_text_view.has_finished())
+    if (this._axis_label_view != null) {
+      if (!this._axis_label_view.has_finished())
         return false
     }
 
-    const {major_label_math_text_views} = this
-
-    for (const label in major_label_math_text_views)
-      if (major_label_math_text_views.hasOwnProperty(label))
-        if (!major_label_math_text_views[label].has_finished())
-          return false
+    for (const label_view of this._major_label_views.values()) {
+      if (!label_view.has_finished())
+        return false
+    }
 
     return true
   }
