@@ -108,7 +108,7 @@ class TestDocumentModuleManager:
         assert 'FakeMod' in sys.modules
         assert len(dm) == 1
 
-        # add an extra referrer for delete_modules to complain about
+        # add an extra referrer for Document.destroy to complain about
         extra.append(mod)
 
         import gc
