@@ -21,7 +21,8 @@ import pytest ; pytest
 from os import chdir
 from subprocess import run
 
-from . import TOP_PATH
+# Bokeh imports
+from bokeh._testing.util.project import TOP_PATH
 
 #-----------------------------------------------------------------------------
 # Tests

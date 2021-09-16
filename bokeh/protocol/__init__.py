@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import json
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -32,7 +33,6 @@ from typing import (
 )
 
 # External imports
-from tornado.escape import json_decode
 from typing_extensions import Literal
 
 # Bokeh imports
@@ -150,7 +150,7 @@ class Protocol:
             message
 
         '''
-        header = json_decode(header_json)
+        header = json.loads(header_json)
         if 'msgtype' not in header:
             log.error(f"Bad header with no msgtype was: {header!r}")
             raise ProtocolError("No 'msgtype' in header")

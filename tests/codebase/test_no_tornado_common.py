@@ -21,25 +21,36 @@ import pytest ; pytest
 from subprocess import run
 from sys import executable as python
 
-from . import verify_clean_imports
+# Bokeh imports
+from bokeh._testing.util.project import ls_modules, verify_clean_imports
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
-modules = [
+TORNADO_ALLOWED = (
+    "bokeh._testing",
     "bokeh.client",
-    "bokeh.embed",
-    "bokeh.io",
-    "bokeh.models",
-    "bokeh.plotting",
-]
+    "bokeh.command",
+    "bokeh.io.notebook",
+    "bokeh.server",
+    "bokeh.util.tornado",
+)
 
-def test_no_tornado_common() -> None:
+MODULES = ls_modules(skip_prefixes=TORNADO_ALLOWED)
+
+# This test takes a long time to run, but if the combined test fails then
+# uncommenting it will locate exactly what module(s) are the problem
+# @pytest.mark.parametrize('module', MODULES)
+# def test_no_tornado_common_individual(module) -> None:
+#     proc = run([python, "-c", verify_clean_imports('tornado', [module])])
+#     assert proc.returncode == 0, f"Tornado imported in common module {module}"
+
+def test_no_tornado_common_combined() -> None:
     ''' Basic usage of Bokeh should not result in any Tornado code being
     imported. This test ensures that importing basic modules does not bring in
     Tornado.
 
     '''
-    proc = run([python, "-c", verify_clean_imports('tornado', modules)])
-    assert proc.returncode == 0, "Tornado imported in common modules"
+    proc = run([python, "-c", verify_clean_imports('tornado', MODULES)])
+    assert proc.returncode == 0, "Tornado imported in collective common modules"
