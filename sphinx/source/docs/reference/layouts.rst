@@ -61,13 +61,3 @@ Spacer
 
 .. autoclass:: Spacer
     :noindex:
-
-.. _bokeh.layouts.widgetbox:
-
-widgetbox
----------
-
-.. warning::
-    ``widgetbox`` is deprecated. Use ``column`` instead.
-
-.. autofunction:: widgetbox

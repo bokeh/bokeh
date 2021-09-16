@@ -48,13 +48,12 @@ from .models import (
     Row,
     Spacer,
     ToolbarBox,
-    WidgetBox,
 )
 from .util.dataclasses import dataclass
 from .util.deprecation import deprecated
 
 if TYPE_CHECKING:
-    from .models import Toolbar, Widget
+    from .models import Toolbar
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -68,7 +67,6 @@ __all__ = (
     'layout',
     'row',
     'Spacer',
-    'widgetbox',
 )
 
 #-----------------------------------------------------------------------------
@@ -146,32 +144,6 @@ def column(*children: LayoutDOM | List[LayoutDOM], sizing_mode: SizingModeType |
     _children = _parse_children_arg(*children, children=kwargs.pop("children", None))
     _handle_child_sizing(_children, sizing_mode, widget="column")
     return Column(children=_children, sizing_mode=sizing_mode, **kwargs)
-
-
-def widgetbox(*args: Widget, children: List[Widget] | None = None, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> WidgetBox:
-    """ Create a column of bokeh widgets with predefined styling.
-
-    Args:
-        children (list of :class:`~bokeh.models.Widget`): A list of widgets.
-
-        sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
-            will the items in the layout resize to fill the available space.
-            Default is ``"fixed"``. For more information on the different
-            modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
-            description on :class:`~bokeh.models.LayoutDOM`.
-
-    Returns:
-        WidgetBox: A column layout of widget instances all with the same ``sizing_mode``.
-
-    Examples:
-
-        >>> widgetbox([button, select])
-        >>> widgetbox(children=[slider], sizing_mode='scale_width')
-    """
-    _children = _parse_children_arg(*args, children=children)
-    _handle_child_sizing(_children, sizing_mode, widget="widget box")
-
-    return WidgetBox(children=_children, sizing_mode=sizing_mode, **kwargs)
 
 
 def layout(*args: LayoutDOM, children: List[LayoutDOM] | None = None, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column:
