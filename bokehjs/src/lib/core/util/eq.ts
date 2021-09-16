@@ -220,6 +220,3 @@ export function is_similar(a: unknown, b: unknown, tolerance?: number): boolean 
   const comparator = new SimilarComparator(tolerance)
   return comparator.eq(a, b)
 }
-
-/** @deprecated */
-export const isEqual = is_equal

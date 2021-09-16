@@ -659,11 +659,6 @@ export class Document {
     replacement.destructively_move(this)
   }
 
-  /** @deprecated */
-  create_json_patch_string(events: DocumentChangedEvent[]): string {
-    return JSON.stringify(this.create_json_patch(events))
-  }
-
   create_json_patch(events: DocumentChangedEvent[]): Patch {
     for (const event of events) {
       if (event.document != this)

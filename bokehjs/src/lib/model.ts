@@ -3,7 +3,7 @@ import {Class} from "./core/class"
 import {ModelEvent} from "./core/bokeh_events"
 import * as p from "./core/properties"
 import {isString} from "./core/util/types"
-import {isEmpty, entries} from "./core/util/object"
+import {is_empty, entries} from "./core/util/object"
 import {equals, Comparator} from "core/util/eq"
 import {logger} from "./core/logging"
 import {CallbackLike0} from "./models/callbacks/callback"
@@ -111,7 +111,7 @@ export class Model extends HasProps {
   }
 
   protected override _doc_attached(): void {
-    if (!isEmpty(this.js_event_callbacks) || this.subscribed_events.length != 0)
+    if (!is_empty(this.js_event_callbacks) || this.subscribed_events.length != 0)
       this._update_event_callbacks()
   }
 
