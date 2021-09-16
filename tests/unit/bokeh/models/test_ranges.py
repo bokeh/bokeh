@@ -121,7 +121,6 @@ class Test_DataRange1d:
     def test_basic(self) -> None:
         r = DataRange1d()
         check_properties_existence(r, [
-            "names",
             "renderers",
             "range_padding",
             "range_padding_units",

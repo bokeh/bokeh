@@ -6,8 +6,6 @@ export namespace DataRange {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Range.Props & {
-    /** @deprecated */
-    names: p.Property<string[]>
     renderers: p.Property<DataRenderer[] | "auto">
   }
 }
@@ -22,8 +20,7 @@ export abstract class DataRange extends Range {
   }
 
   static {
-    this.define<DataRange.Props>(({String, Array, AnyRef}) => ({
-      names:     [ Array(String), [] ],
+    this.define<DataRange.Props>(({Array, AnyRef}) => ({
       renderers: [ Array(AnyRef(/*DataRenderer*/)), [] ], // TODO: [] -> "auto"
     }))
   }
