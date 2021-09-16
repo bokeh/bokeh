@@ -40,7 +40,7 @@
 .. |Property|           replace:: :py:class:`~bokeh.core.property.bases.Property`
 .. |PropertyContainer|  replace:: :py:class:`~bokeh.core.property.wrappers.PropertyContainer`
 .. |PropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptor.PropertyDescriptor`
-.. |PropertyUnitsSpec|  replace:: :py:class:`~bokeh.core.properties.PropertyUnitsSpec`
+.. |UnitsSpec|          replace:: :py:class:`~bokeh.core.properties.UnitsSpec`
 
 .. |named CSS colors| replace:: `named CSS colors`_
 .. _`named CSS colors`: https://www.w3.org/TR/css-color-4/#named-colors

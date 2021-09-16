@@ -128,9 +128,9 @@ DataSpec Properties
 .. autoclass:: FontSizeSpec
 .. autoclass:: MarkerSpec
 .. autoclass:: NumberSpec
-.. autoclass:: PropertyUnitsSpec
 .. autoclass:: SizeSpec
 .. autoclass:: StringSpec
+.. autoclass:: UnitsSpec
 
 Helpers
 ~~~~~~~
@@ -239,7 +239,6 @@ __all__ = (
     'PandasGroupBy',
     'Percent',
     'PositiveInt',
-    'PropertyUnitsSpec',
     'RGB',
     'Readonly',
     'Regex',
@@ -254,6 +253,7 @@ __all__ = (
     'TimeDelta',
     'TextLike',
     'Tuple',
+    'UnitsSpec',
     'expr',
     'field',
     'validate',
@@ -304,11 +304,11 @@ from .property.dataspec import MarkerSpec; MarkerSpec
 from .property.dataspec import NullDistanceSpec; NullDistanceSpec
 from .property.dataspec import NullStringSpec; NullStringSpec
 from .property.dataspec import NumberSpec; NumberSpec
-from .property.dataspec import PropertyUnitsSpec; PropertyUnitsSpec
 from .property.dataspec import SizeSpec; SizeSpec
 from .property.dataspec import StringSpec; StringSpec
 from .property.dataspec import TextAlignSpec; TextAlignSpec
 from .property.dataspec import TextBaselineSpec; TextBaselineSpec
+from .property.dataspec import UnitsSpec; UnitsSpec
 from .property.dataspec import value; value
 
 from .property.datetime import Date; Date
