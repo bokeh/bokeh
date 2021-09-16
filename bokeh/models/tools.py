@@ -1213,17 +1213,6 @@ class EditTool(GestureTool):
     the color column will be filled with the defined empty value.
     """)
 
-    custom_icon = Nullable(Image, help="""
-    An icon to display in the toolbar.
-
-    The icon can provided as a string filename for an image, a PIL ``Image``
-    object, or an RGB(A) NumPy array.
-
-    .. note:
-        This property is deprecated and will be removed in bokeh 3.0.
-
-    """)
-
     renderers = List(Instance(GlyphRenderer), help="""
     An explicit list of renderers corresponding to scatter glyphs that may
     be edited.
