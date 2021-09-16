@@ -76,7 +76,7 @@ from ..io import output_notebook; output_notebook
 from ..io import reset_output; reset_output
 from ..io import save; save
 from ..io import show; show
-from ..layouts import column, gridplot, row, GridSpec; column, gridplot, row, GridSpec
+from ..layouts import column, gridplot, row; column, gridplot, row
 
 #-----------------------------------------------------------------------------
 # Dev API

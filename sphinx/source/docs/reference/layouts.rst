@@ -32,14 +32,6 @@ gridplot
 
 .. autofunction:: gridplot
 
-.. _bokeh.layouts.GridSpec:
-
-GridSpec
---------
-
-.. autoclass:: GridSpec
-    :noindex:
-
 .. _bokeh.layouts.layout:
 
 layout
