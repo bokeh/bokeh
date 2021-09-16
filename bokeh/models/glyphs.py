@@ -72,7 +72,6 @@ from ..core.property_mixins import (
     ScalarLineProps,
     TextProps,
 )
-from ..util.deprecation import deprecated
 from .glyph import (
     ConnectedXYGlyph,
     FillGlyph,
@@ -93,6 +92,7 @@ __all__ = (
     'Annulus',
     'Arc',
     'Bezier',
+    'Circle',
     'ConnectedXYGlyph',
     'Ellipse',
     'Glyph',
@@ -106,13 +106,13 @@ __all__ = (
     'Marker',
     'MultiLine',
     'MultiPolygons',
-    'Oval',
     'Patch',
     'Patches',
     'Quad',
     'Quadratic',
     'Ray',
     'Rect',
+    'Scatter',
     'Segment',
     'Step',
     'Text',
@@ -856,55 +856,6 @@ class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
 
     hatch_props = Include(HatchProps, help="""
     The {prop} values for the multipolygons.
-    """)
-
-class Oval(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
-    ''' Render ovals.
-
-    This glyph renders ovals using Bezier curves, which are similar,
-    but not identical to ellipses. In particular, widths equal to heights
-    will not render circles. Use the ``Ellipse`` glyph for that.
-
-    '''
-
-    def __init__(self, **kwargs) -> None:
-        deprecated("'Oval' is deprecated and will be removed in Bokeh 3.0, use the Ellipse glyph instead")
-        super().__init__(**kwargs)
-
-    __example__ = "examples/reference/models/Oval.py"
-
-    _args = ('x', 'y', 'width', 'height', 'angle')
-
-    x = NumberSpec(default=field("x"), help="""
-    The x-coordinates of the centers of the ovals.
-    """)
-
-    y = NumberSpec(default=field("y"), help="""
-    The y-coordinates of the centers of the ovals.
-    """)
-
-    width = DistanceSpec(default=field("width"), help="""
-    The overall widths of each oval.
-    """)
-
-    height = DistanceSpec(default=field("height"), help="""
-    The overall height of each oval.
-    """)
-
-    angle = AngleSpec(default=0.0, help="""
-    The angle the ovals are rotated from horizontal. [rad]
-    """)
-
-    line_props = Include(LineProps, help="""
-    The {prop} values for the ovals.
-    """)
-
-    fill_props = Include(FillProps, help="""
-    The {prop} values for the ovals.
-    """)
-
-    hatch_props = Include(HatchProps, help="""
-    The {prop} values for the ovals.
     """)
 
 class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):

@@ -9,10 +9,6 @@ export type GridPlotOpts = {
   sizing_mode?: SizingMode
   width?: number
   height?: number
-  /** @deprecated */
-  plot_width?: number
-  /** @deprecated */
-  plot_height?: number
 }
 
 function or_else<T>(value: T | undefined, default_value: T): T {
@@ -41,11 +37,6 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
         toolbars.push(item.toolbar)
         item.toolbar_location = null
       }
-
-      if (options.plot_width != null)
-        item.width = options.plot_width
-      if (options.plot_height != null)
-        item.height = options.plot_height
     }
 
     if (options.width != null)

@@ -72,7 +72,6 @@ __all__ = (
     'Row',
     'Spacer',
     'Tabs',
-    'WidgetBox',
 )
 
 #-----------------------------------------------------------------------------
@@ -517,15 +516,3 @@ class Tabs(LayoutDOM):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-
-# TODO (bev) deprecation: 3.0
-class WidgetBox(Column):
-    ''' Create a column of bokeh widgets with predefined styling.
-
-    WidgetBox is DEPRECATED and will beremoved in Bokeh 3.0, use 'Column' instead.
-
-    '''
-    def __init__(self, *args, **kw) -> None:
-        super().__init__(*args, **kw)
-        from ..util.deprecation import deprecated
-        deprecated("'WidgetBox' is deprecated and will be removed in Bokeh 3.0, use 'bokeh.models.Column' instead")

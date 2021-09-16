@@ -61,7 +61,6 @@ from ..core.validation import check_integrity, process_validation_issues
 from ..events import Event
 from ..model import Model
 from ..themes import Theme, built_in_themes, default as default_theme
-from ..util.deprecation import deprecated
 from ..util.serialization import make_id
 from ..util.string import nice_join
 from ..util.version import __version__
@@ -414,10 +413,6 @@ class Document:
             while len(self._roots) > 0:
                 r = next(iter(self._roots))
                 self.remove_root(r)
-
-    def delete_modules(self):
-        deprecated((2, 4, 0), "Document.delete_modules", "Document.models.destroy")
-        self.modules.destroy()
 
     def destroy(self, session: Any) -> None:
         self.remove_on_change(session)

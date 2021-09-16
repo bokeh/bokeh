@@ -42,7 +42,6 @@ from ..core.properties import (
     Null,
     Nullable,
     Readonly,
-    String,
     TimeDelta,
 )
 from ..core.validation import error
@@ -151,16 +150,6 @@ class DataRange(Range):
     ''' A base class for all data range types.
 
     '''
-
-    names = List(String, help="""
-    A list of names to query for. If set, only renderers that
-    have a matching value for their ``name`` attribute will be used
-    for autoranging.
-
-    .. note:
-        This property is deprecated and will be removed in bokeh 3.0.
-
-    """)
 
     renderers = Either(List(Instance(Model)), Auto, help="""
     An explicit list of renderers to autorange against. If unset,

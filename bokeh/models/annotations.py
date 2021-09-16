@@ -58,12 +58,12 @@ from ..core.properties import (
     NullStringSpec,
     NumberSpec,
     Override,
-    PropertyUnitsSpec,
     Seq,
     String,
     StringSpec,
     TextLike,
     Tuple,
+    UnitsSpec,
     field,
     value,
 )
@@ -637,15 +637,15 @@ class Band(DataAnnotation):
     See :ref:`userguide_annotations_bands` for information on plotting bands.
 
     '''
-    lower = PropertyUnitsSpec(default=field("lower"), units_enum=SpatialUnits, units_default="data", help="""
+    lower = UnitsSpec(default=field("lower"), units_enum=SpatialUnits, units_default="data", help="""
     The coordinates of the lower portion of the filled area band.
     """)
 
-    upper = PropertyUnitsSpec(default=field("upper"), units_enum=SpatialUnits, units_default="data", help="""
+    upper = UnitsSpec(default=field("upper"), units_enum=SpatialUnits, units_default="data", help="""
     The coordinates of the upper portion of the filled area band.
     """)
 
-    base = PropertyUnitsSpec(default=field("base"), units_enum=SpatialUnits, units_default="data", help="""
+    base = UnitsSpec(default=field("base"), units_enum=SpatialUnits, units_default="data", help="""
     The orthogonal coordinates of the upper and lower values.
     """)
 
@@ -1043,7 +1043,7 @@ class Whisker(DataAnnotation):
 
     '''
 
-    lower = PropertyUnitsSpec(default=field("lower"), units_enum=SpatialUnits, units_default="data", help="""
+    lower = UnitsSpec(default=field("lower"), units_enum=SpatialUnits, units_default="data", help="""
     The coordinates of the lower end of the whiskers.
     """)
 
@@ -1051,7 +1051,7 @@ class Whisker(DataAnnotation):
     Instance of ``ArrowHead``.
     """)
 
-    upper = PropertyUnitsSpec(default=field("upper"), units_enum=SpatialUnits, units_default="data", help="""
+    upper = UnitsSpec(default=field("upper"), units_enum=SpatialUnits, units_default="data", help="""
     The coordinates of the upper end of the whiskers.
     """)
 
@@ -1059,7 +1059,7 @@ class Whisker(DataAnnotation):
     Instance of ``ArrowHead``.
     """)
 
-    base = PropertyUnitsSpec(default=field("base"), units_enum=SpatialUnits, units_default="data", help="""
+    base = UnitsSpec(default=field("base"), units_enum=SpatialUnits, units_default="data", help="""
     The orthogonal coordinates of the upper and lower values.
     """)
 

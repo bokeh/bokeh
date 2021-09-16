@@ -28,7 +28,6 @@ from typing_extensions import TypedDict
 
 # Bokeh imports
 from ... import colors
-from ...util.deprecation import deprecated
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from ...util.string import nice_join
 from .. import enums
@@ -425,7 +424,7 @@ class UnitsSpec(NumberSpec):
         """ Return a list of ``PropertyDescriptor`` instances to install on a
         class, in order to delegate attribute access to this property.
 
-        Unlike simpler property types, ``PropertyUnitsSpec`` returns multiple
+        Unlike simpler property types, ``UnitsSpec`` returns multiple
         descriptors to install. In particular, descriptors for the base
         property as well as the associated units property are returned.
 
@@ -453,11 +452,7 @@ class UnitsSpec(NumberSpec):
                 d = dict(**d, units=units)
         return d
 
-# Deprecated
-class PropertyUnitsSpec(UnitsSpec):
-    pass
-
-class AngleSpec(PropertyUnitsSpec):
+class AngleSpec(UnitsSpec):
     """ A |DataSpec| property that accepts numeric fixed values, and also
     provides an associated units property to store angle units.
 
@@ -467,7 +462,7 @@ class AngleSpec(PropertyUnitsSpec):
     def __init__(self, default=Undefined, units_default="rad", help=None) -> None:
         super().__init__(default=default, units_enum=enums.AngleUnits, units_default=units_default, help=help)
 
-class DistanceSpec(PropertyUnitsSpec):
+class DistanceSpec(UnitsSpec):
     """ A |DataSpec| property that accepts numeric fixed values or strings
     that refer to columns in a :class:`~bokeh.models.sources.ColumnDataSource`,
     and also provides an associated units property to store units information.
@@ -718,15 +713,6 @@ def value(val: Unknown, transform: Transform | None = None) -> Value:
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-def DataDistanceSpec(*args, **kw):
-    deprecated((2, 4, 0), "DataDistanceSpec()", "SizeSpec()")
-    return SizeSpec(*args, **kw)
-
-def ScreenDistanceSpec(*args, **kw):
-    deprecated((2, 4, 0), "DataDistanceSpec()", "SizeSpec()")
-    return SizeSpec(*args, **kw)
-
 
 #-----------------------------------------------------------------------------
 # Code

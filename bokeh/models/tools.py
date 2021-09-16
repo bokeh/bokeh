@@ -93,7 +93,6 @@ from ..core.validation.errors import (
     NO_RANGE_TOOL_RANGES,
 )
 from ..model import Model
-from ..util.deprecation import deprecated
 from ..util.string import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
@@ -115,7 +114,6 @@ from .renderers import DataRenderer, GlyphRenderer
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'Action',
     'ActionTool',
     'BoxEditTool',
     'BoxSelectTool',
@@ -128,9 +126,7 @@ __all__ = (
     'FreehandDrawTool',
     'HelpTool',
     'HoverTool',
-    'Inspection',
     'InspectTool',
-    'Gesture',
     'GestureTool',
     'LassoSelectTool',
     'LineEditTool',
@@ -200,18 +196,12 @@ class ActionTool(Tool):
     '''
     pass
 
-# TODO: deprecated, remove at bokeh 3.0
-Action = ActionTool
-
 @abstract
 class GestureTool(Tool):
     ''' A base class for tools that respond to drag events.
 
     '''
     pass
-
-# TODO: deprecated, remove at bokeh 3.0
-Gesture = GestureTool
 
 @abstract
 class Drag(GestureTool):
@@ -240,15 +230,6 @@ class SelectTool(GestureTool):
 
     '''
 
-    names = List(String, help="""
-    A list of names to query for. If set, only renderers that have a matching
-    value for their ``name`` attribute will be used.
-
-    .. note:
-        This property is deprecated and will be removed in bokeh 3.0.
-
-    """)
-
     renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
     An explicit list of renderers to hit test against. If unset, defaults to
     all renderers on a plot.
@@ -270,9 +251,6 @@ class InspectTool(GestureTool):
     inspection tool. If ``False``, the viewers of a plot will not be able to
     toggle the inspector on or off using the toolbar.
     """)
-
-# TODO: deprecated, remove at bokeh 3.0
-Inspection = InspectTool
 
 @abstract
 class ToolbarBase(Model):
@@ -507,22 +485,6 @@ class CustomAction(ActionTool):
             plot.add_tools(tool)
 
     '''
-
-    def __init__(self, *args, **kwargs) -> None:
-        action_tooltip = kwargs.pop("action_tooltip", None)
-        if action_tooltip is not None:
-            deprecated((2, 3, 0), "CustomAction.action_tooltip", "CustomAction.description")
-            kwargs["description"] = action_tooltip
-        super().__init__(*args, **kwargs)
-
-    @property
-    def action_tooltip(self):
-        deprecated((2, 3, 0), "CustomAction.action_tooltip", "CustomAction.description")
-        return self.description
-    @action_tooltip.setter
-    def action_tooltip(self, description):
-        deprecated((2, 3, 0), "CustomAction.action_tooltip", "CustomAction.description")
-        self.description = description
 
     description = Override(default="Perform a Custom Action")
 
@@ -1038,15 +1000,6 @@ class HoverTool(InspectTool):
 
     '''
 
-    names = List(String, help="""
-    A list of names to query for. If set, only renderers that have a matching
-    value for their ``name`` attribute will be used.
-
-    .. note:
-        This property is deprecated and will be removed in bokeh 3.0.
-
-    """)
-
     renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
     An explicit list of renderers to hit test against. If unset, defaults to
     all renderers on a plot.
@@ -1216,22 +1169,6 @@ class HelpTool(ActionTool):
 
     '''
 
-    def __init__(self, *args, **kwargs) -> None:
-        help_tooltip = kwargs.pop("help_tooltip", None)
-        if help_tooltip is not None:
-            deprecated((2, 3, 0), "HelpTool.help_tooltip", "HelpTool.description")
-            kwargs["description"] = help_tooltip
-        super().__init__(*args, **kwargs)
-
-    @property
-    def help_tooltip(self):
-        deprecated((2, 3, 0), "HelpTool.help_tooltip", "HelpTool.description")
-        return self.description
-    @help_tooltip.setter
-    def help_tooltip(self, description):
-        deprecated((2, 3, 0), "HelpTool.help_tooltip", "HelpTool.description")
-        self.description = description
-
     description = Override(default=DEFAULT_HELP_TIP)
 
     redirect = String(default=DEFAULT_HELP_URL, help="""
@@ -1263,22 +1200,6 @@ class EditTool(GestureTool):
     ''' A base class for all interactive draw tool types.
 
     '''
-
-    def __init__(self, *args, **kwargs) -> None:
-        custom_tooltip = kwargs.pop("custom_tooltip", None)
-        if custom_tooltip is not None:
-            deprecated((2, 3, 0), "EditTool.custom_tooltip", "EditTool.description")
-            kwargs["description"] = custom_tooltip
-        super().__init__(*args, **kwargs)
-
-    @property
-    def custom_tooltip(self):
-        deprecated((2, 3, 0), "EditTool.custom_tooltip", "EditTool.description")
-        return self.description
-    @custom_tooltip.setter
-    def custom_tooltip(self, description):
-        deprecated((2, 3, 0), "EditTool.custom_tooltip", "EditTool.description")
-        self.description = description
 
     empty_value = NonNullable(Either(Bool, Int, Float, Date, Datetime, Color, String), help="""
     Defines the value to insert on non-coordinate columns when a new
