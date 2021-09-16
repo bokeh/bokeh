@@ -42,7 +42,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def marker_method():
-    from ..models.markers import Marker, Scatter
+    from ..models import Marker, Scatter
     glyphclass = Marker
     def decorator(func):
         parameters = glyphclass.parameters()

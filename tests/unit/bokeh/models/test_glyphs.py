@@ -36,21 +36,6 @@ from bokeh.core.enums import (
     TextBaseline,
 )
 from bokeh.core.property.dataspec import field
-from bokeh.models.glyphs import (
-    Asterisk,
-    CircleCross,
-    CircleX,
-    Cross,
-    Dash,
-    Diamond,
-    DiamondCross,
-    InvertedTriangle,
-    Square,
-    SquareCross,
-    SquareX,
-    Triangle,
-    X,
-)
 
 from _util_models import (
     FILL,
@@ -78,7 +63,6 @@ from bokeh.models.glyphs import ( # isort:skip
     Line,
     MultiLine,
     MultiPolygons,
-    Oval,
     Patch, Patches,
     Quad, Quadratic, Ray,
     Rect,
@@ -334,28 +318,6 @@ def test_MultiPolygons() -> None:
     ], FILL, HATCH, LINE, GLYPH)
 
 
-def test_Oval() -> None:
-    glyph = Oval()
-    assert glyph.x == field("x")
-    assert glyph.y == field("y")
-    assert glyph.width == field("width")
-    assert glyph.height == field("height")
-    assert glyph.angle == 0
-    check_line_properties(glyph)
-    check_fill_properties(glyph)
-    check_hatch_properties(glyph)
-    check_properties_existence(glyph, [
-        "x",
-        "y",
-        "width",
-        "width_units",
-        "height",
-        "height_units",
-        "angle",
-        "angle_units",
-    ], LINE, FILL, HATCH, GLYPH)
-
-
 def test_Patch() -> None:
     glyph = Patch()
     assert glyph.x == field("x")
@@ -560,15 +522,6 @@ def test_Wedge() -> None:
     ], LINE, FILL, HATCH, GLYPH)
 
 
-def test_Asterisk() -> None:
-    marker = Asterisk()
-    check_marker_properties(marker)
-    check_line_properties(marker)
-    check_fill_properties(marker)
-    check_hatch_properties(marker)
-    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
-
-
 def test_Circle() -> None:
     marker = Circle()
     check_marker_properties(marker)
@@ -581,114 +534,6 @@ def test_Circle() -> None:
         "radius_units",
         "radius_dimension",
     ], MARKER, LINE, FILL, HATCH, GLYPH)
-
-
-def test_CircleCross() -> None:
-    marker = CircleCross()
-    check_marker_properties(marker)
-    check_line_properties(marker)
-    check_fill_properties(marker)
-    check_hatch_properties(marker)
-    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
-
-
-def test_CircleX() -> None:
-    marker = CircleX()
-    check_marker_properties(marker)
-    check_line_properties(marker)
-    check_fill_properties(marker)
-    check_hatch_properties(marker)
-    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
-
-
-def test_Cross() -> None:
-    marker = Cross()
-    check_marker_properties(marker)
-    check_line_properties(marker)
-    check_fill_properties(marker)
-    check_hatch_properties(marker)
-    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
-
-
-def test_Dash() -> None:
-    marker = Dash()
-    check_marker_properties(marker)
-    check_line_properties(marker)
-    check_fill_properties(marker)
-    check_hatch_properties(marker)
-    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
-
-
-def test_Diamond() -> None:
-    marker = Diamond()
-    check_marker_properties(marker)
-    check_line_properties(marker)
-    check_fill_properties(marker)
-    check_hatch_properties(marker)
-    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
-
-
-def test_DiamondCross() -> None:
-    marker = DiamondCross()
-    check_marker_properties(marker)
-    check_line_properties(marker)
-    check_fill_properties(marker)
-    check_hatch_properties(marker)
-    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
-
-
-def test_InvertedTriangle() -> None:
-    marker = InvertedTriangle()
-    check_marker_properties(marker)
-    check_line_properties(marker)
-    check_fill_properties(marker)
-    check_hatch_properties(marker)
-    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
-
-
-def test_Square() -> None:
-    marker = Square()
-    check_marker_properties(marker)
-    check_line_properties(marker)
-    check_fill_properties(marker)
-    check_hatch_properties(marker)
-    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
-
-
-def test_SquareCross() -> None:
-    marker = SquareCross()
-    check_marker_properties(marker)
-    check_line_properties(marker)
-    check_fill_properties(marker)
-    check_hatch_properties(marker)
-    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
-
-
-def test_SquareX() -> None:
-    marker = SquareX()
-    check_marker_properties(marker)
-    check_line_properties(marker)
-    check_fill_properties(marker)
-    check_hatch_properties(marker)
-    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
-
-
-def test_Triangle() -> None:
-    marker = Triangle()
-    check_marker_properties(marker)
-    check_line_properties(marker)
-    check_fill_properties(marker)
-    check_hatch_properties(marker)
-    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
-
-
-def test_X() -> None:
-    marker = X()
-    check_marker_properties(marker)
-    check_line_properties(marker)
-    check_fill_properties(marker)
-    check_hatch_properties(marker)
-    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -1,7 +1,6 @@
 import {Document} from "../document"
 import * as embed from "../embed"
 import {HasProps} from "../core/has_props"
-import {logger} from "../core/logging"
 import {Color, Data, Attrs, Arrayable} from "../core/types"
 import {Value, Field, Vector} from "../core/vectorization"
 import {VectorSpec, ScalarSpec, ColorSpec, Property} from "../core/properties"
@@ -28,7 +27,7 @@ import {
 import {
   AnnularWedge, Annulus, Arc, Bezier, Circle, Ellipse, HArea,
   HBar, HexTile, Image, ImageRGBA, ImageURL, Line, MultiLine,
-  MultiPolygons, Oval, Patch, Patches, Quad, Quadratic, Ray,
+  MultiPolygons, Patch, Patches, Quad, Quadratic, Ray,
   Rect, Scatter, Segment, Spline, Step, Text, VArea, VBar, Wedge,
 } from "../models/glyphs"
 
@@ -107,8 +106,6 @@ export type AuxText = {
 export type AuxGlyph = {
   source: ColumnarDataSource | ColumnarDataSource["data"]
   view: CDSView
-  /** @deprecated */
-  legend: string
   legend_label: string
   legend_field: string
   legend_group: string
@@ -145,7 +142,6 @@ export type LineArgs          = GlyphArgs<Line.Props>          & AuxLine
 export type MarkerArgs        = GlyphArgs<Marker.Props>        & AuxLine & AuxFill
 export type MultiLineArgs     = GlyphArgs<MultiLine.Props>     & AuxLine
 export type MultiPolygonsArgs = GlyphArgs<MultiPolygons.Props> & AuxLine & AuxFill
-export type OvalArgs          = GlyphArgs<Oval.Props>          & AuxLine & AuxFill
 export type PatchArgs         = GlyphArgs<Patch.Props>         & AuxLine & AuxFill
 export type PatchesArgs       = GlyphArgs<Patches.Props>       & AuxLine & AuxFill
 export type QuadArgs          = GlyphArgs<Quad.Props>          & AuxLine & AuxFill
@@ -430,17 +426,6 @@ export class Figure extends Plot {
     args?: Partial<MultiPolygonsArgs>): TypedGlyphRenderer<MultiPolygons>
   multi_polygons(...args: unknown[]): TypedGlyphRenderer<MultiPolygons> {
     return this._glyph(MultiPolygons, "xs,ys", args)
-  }
-
-  oval(args: Partial<OvalArgs>): TypedGlyphRenderer<Oval>
-  oval(
-    x: OvalArgs["x"],
-    y: OvalArgs["y"],
-    width: OvalArgs["width"],
-    height: OvalArgs["height"],
-    args?: Partial<OvalArgs>): TypedGlyphRenderer<Oval>
-  oval(...args: unknown[]): TypedGlyphRenderer<Oval> {
-    return this._glyph(Oval, "x,y,width,height", args)
   }
 
   patch(args: Partial<PatchArgs>): TypedGlyphRenderer<Patch>
@@ -957,13 +942,6 @@ export class Figure extends Plot {
       y_range_name,
     })
 
-    if (legend != null) {
-      logger.warn("Figure({legend: ...}) is deprecated and will be removed in bokeh 3.0. Use legend_label, legend_field or legend_group instead")
-      const label = this._process_legend(legend, source)
-      if (label != null)
-        this._update_legend(label, glyph_renderer)
-    }
-
     if (legend_label != null)
       this._handle_legend_label(legend_label, this.legend, glyph_renderer)
     if (legend_field != null)
@@ -1090,23 +1068,6 @@ export class Figure extends Plot {
     if (isString(tools))
       tools = tools.split(/\s*,\s*/).filter((tool) => tool.length > 0)
     return tools.map((tool) => isString(tool) ? Tool.from_string(tool) : tool)
-  }
-
-  _process_legend(legend: string | Vector<string> | undefined, source: ColumnarDataSource): Vector<string> | null {
-    let legend_item_label = null
-    if (legend != null) {
-      if (isString(legend)) {
-        legend_item_label = {value: legend}
-        if (source.columns() != null) {
-          if (includes(source.columns(), legend)) {
-            legend_item_label = {field: legend}
-          }
-        }
-      } else {
-        legend_item_label = legend
-      }
-    }
-    return legend_item_label
   }
 
   _update_legend(legend_item_label: Vector<string>, glyph_renderer: GlyphRenderer): void {

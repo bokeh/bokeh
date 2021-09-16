@@ -23,7 +23,6 @@ import numpy as np
 # Bokeh imports
 from ..core.properties import field, value
 from ..models import Legend, LegendItem
-from ..util.deprecation import deprecated
 from ..util.string import nice_join
 
 #-----------------------------------------------------------------------------
@@ -77,29 +76,6 @@ def _get_or_create_legend(plot):
         return legends[0]
     raise RuntimeError("Plot %s configured with more than one legend renderer, cannot use legend_* convenience arguments" % plot)
 
-def _handle_legend_deprecated(label, legend, glyph_renderer):
-    deprecated("'legend' keyword is deprecated, use explicit 'legend_label', 'legend_field', or 'legend_group' keywords instead")
-
-    if not isinstance(label, (str, dict)):
-        raise ValueError("Bad 'legend' parameter value: %s" % label)
-
-    if isinstance(label, dict):
-        if "field" in label and len(label) == 1:
-            label = label['field']
-            _handle_legend_field(label, legend, glyph_renderer)
-        elif "value" in label and len(label) == 1:
-            label = label['value']
-            _handle_legend_label(label, legend, glyph_renderer)
-
-        else:
-            raise ValueError("Bad 'legend' parameter value: %s" % label)
-    else:
-        source = glyph_renderer.data_source
-        if source is not None and hasattr(source, 'column_names') and label in source.column_names:
-            _handle_legend_field(label, legend, glyph_renderer)
-        else:
-            _handle_legend_label(label, legend, glyph_renderer)
-
 def _handle_legend_field(label, legend, glyph_renderer):
     if not isinstance(label, str):
         raise ValueError("legend_field value must be a string")
@@ -140,7 +116,6 @@ def _handle_legend_label(label, legend, glyph_renderer):
         legend.items.append(new_item)
 
 _LEGEND_KWARG_HANDLERS = {
-    'legend'       : _handle_legend_deprecated,
     'legend_label' : _handle_legend_label,
     'legend_field' : _handle_legend_field,
     'legend_group' : _handle_legend_group,

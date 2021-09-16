@@ -62,12 +62,8 @@ class TestFigure:
 
     def test_width_height(self) -> None:
         p = bpf.figure(width=100, height=120)
-        assert p.plot_width == p.width == 100
-        assert p.plot_height == p.height == 120
-
-        p = bpf.figure(width=100, height=120)
-        assert p.width == p.plot_width == 100
-        assert p.height == p.plot_height == 120
+        assert p.width == 100
+        assert p.height == 120
 
     def test_xaxis(self) -> None:
         p = bpf.figure()

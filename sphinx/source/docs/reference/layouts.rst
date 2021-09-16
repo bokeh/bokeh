@@ -32,14 +32,6 @@ gridplot
 
 .. autofunction:: gridplot
 
-.. _bokeh.layouts.GridSpec:
-
-GridSpec
---------
-
-.. autoclass:: GridSpec
-    :noindex:
-
 .. _bokeh.layouts.layout:
 
 layout
@@ -61,13 +53,3 @@ Spacer
 
 .. autoclass:: Spacer
     :noindex:
-
-.. _bokeh.layouts.widgetbox:
-
-widgetbox
----------
-
-.. warning::
-    ``widgetbox`` is deprecated. Use ``column`` instead.
-
-.. autofunction:: widgetbox
