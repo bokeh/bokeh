@@ -324,7 +324,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   connect_signals(): void {}
 
   disconnect_signals(): void {
-    Signal.disconnectReceiver(this)
+    Signal.disconnect_receiver(this)
   }
 
   destroy(): void {
@@ -422,11 +422,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  /** @deprecated */
-  getv(name: string): unknown {
-    return this.property(name).get_value()
-  }
-
   ref(): Ref {
     return {id: this.id}
   }
@@ -458,15 +453,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       if (prop.syncable)
         yield prop
     }
-  }
-
-  /** @deprecated */
-  serializable_attributes(): Attrs {
-    const attrs: Attrs = {}
-    for (const prop of this.syncable_properties()) {
-      attrs[prop.attr] = prop.get_value()
-    }
-    return attrs
   }
 
   // this is like _value_record_references but expects to find refs
