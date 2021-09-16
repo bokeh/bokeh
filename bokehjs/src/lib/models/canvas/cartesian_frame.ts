@@ -7,7 +7,7 @@ import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
 
 import {BBox} from "core/util/bbox"
-import {entries, to_object} from "core/util/object"
+import {entries} from "core/util/object"
 import {assert} from "core/util/assert"
 
 type Ranges = {[key: string]: Range}
@@ -133,15 +133,5 @@ export class CartesianFrame {
 
   get y_scale(): Scale {
     return this._y_scales.get("default")!
-  }
-
-  /** @deprecated */
-  get xscales(): {[key: string]: Scale} {
-    return to_object(this.x_scales)
-  }
-
-  /** @deprecated */
-  get yscales(): {[key: string]: Scale} {
-    return to_object(this.y_scales)
   }
 }

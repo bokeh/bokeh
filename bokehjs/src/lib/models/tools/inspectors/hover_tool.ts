@@ -15,7 +15,7 @@ import {div, span, display, undisplay, empty} from "core/dom"
 import * as p from "core/properties"
 import {Arrayable, Color} from "core/types"
 import {color2hex, color2css} from "core/util/color"
-import {isEmpty} from "core/util/object"
+import {is_empty} from "core/util/object"
 import {enumerate} from "core/util/iterator"
 import {isString, isFunction, isNumber} from "core/util/types"
 import {build_view, build_views, remove_views} from "core/build_views"
@@ -300,7 +300,7 @@ export class HoverToolView extends InspectToolView {
 
     for (const i of subset_indices.indices) {
       // multiglyphs set additional indices, e.g. multiline_indices for different tooltips
-      if (glyph instanceof MultiLineView && !isEmpty(subset_indices.multiline_indices)) {
+      if (glyph instanceof MultiLineView && !is_empty(subset_indices.multiline_indices)) {
         for (const j of subset_indices.multiline_indices[i.toString()]) { // TODO: subset_indices.multiline_indices.get(i)
           let data_x = glyph._xs.get(i)[j]
           let data_y = glyph._ys.get(i)[j]
