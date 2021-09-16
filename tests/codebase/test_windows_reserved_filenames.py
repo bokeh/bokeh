@@ -23,6 +23,7 @@ from os.path import join, splitext
 from typing import List
 
 # Bokeh imports
+from bokeh._testing.util.project import TOP_PATH
 from bokeh.util.string import nice_join
 
 #-----------------------------------------------------------------------------
@@ -36,7 +37,7 @@ def test_windows_reserved_filenames() -> None:
 
     '''
     bad: List[str] = []
-    for path, _, files in os.walk("."):
+    for path, _, files in os.walk(TOP_PATH):
 
         for file in files:
             if splitext(file)[0].upper() in RESERVED_NAMES:

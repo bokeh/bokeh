@@ -23,7 +23,8 @@ from os import chdir
 from os.path import join
 from subprocess import run
 
-from . import TOP_PATH
+# Bokeh imports
+from bokeh._testing.util.project import TOP_PATH
 
 #-----------------------------------------------------------------------------
 # Tests

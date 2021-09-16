@@ -4,8 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Bokeh Application Handler to look for Bokeh server request callbacks
-in a specified Python module.
+''' Provide functions for inspecting project structure and files.
 
 '''
 
@@ -22,73 +21,64 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Dict,
-)
-
-# Bokeh imports
-from .handler import Handler
-
-if TYPE_CHECKING:
-    from tornado.httputil import HTTPServerRequest
+import os
+from pathlib import Path
+from subprocess import run
+from typing import List, Sequence
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'RequestHandler',
+    'TOP_PATH',
+    'ls_files',
+    'ls_modules',
+    'verify_clean_imports',
 )
+
+TOP_PATH = Path(__file__).resolve().parent.parent.parent.parent
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
+def ls_files(*patterns: str) -> List[str]:
+    proc = run(["git", "ls-files", "--", *patterns], capture_output=True)
+    return proc.stdout.decode("utf-8").split("\n")
+
+def ls_modules(*, dir: str = "bokeh", skip_prefixes: Sequence[str] = [], skip_main: bool = True) -> List[str]:
+    modules: List[str] = []
+
+    files = ls_files(f"{dir}/**.py")
+
+    for file in files:
+        if not file:
+            continue
+
+        if file.endswith("__main__.py") and skip_main:
+            continue
+
+        module = file.replace(os.sep, ".").replace(".py", "").replace(".__init__", "")
+
+        if any(module.startswith(prefix) for prefix in skip_prefixes):
+            continue
+
+        modules.append(module)
+
+    return modules
+
+def verify_clean_imports(target: str, modules: List[str]) -> str:
+    imports =  ";".join(f"import {m}" for m in modules)
+    return f"import sys; {imports}; sys.exit(1 if any({target!r} in x for x in sys.modules.keys()) else 0)"
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
 
-class RequestHandler(Handler):
-    ''' Load a script which contains server request handler callbacks.
-
-    .. autoclasstoc::
-
-    '''
-
-    _process_request: Callable[[HTTPServerRequest], Dict[str, Any]]
-
-    def __init__(self) -> None:
-        super().__init__()
-        self._process_request = _return_empty
-
-    # Public methods ----------------------------------------------------------
-
-    def process_request(self, request: HTTPServerRequest) -> Dict[str, Any]:
-        ''' Processes incoming HTTP request returning a dictionary of
-        additional data to add to the session_context.
-
-        Args:
-            request: HTTP request
-
-        Returns:
-            A dictionary of JSON serializable data to be included on
-            the session context.
-        '''
-        return self._process_request(request)
-
-    @property
-    def safe_to_fork(self) -> bool:
-        return True
-
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-def _return_empty(request: HTTPServerRequest) -> Dict[str, Any]:
-    return {}
 
 #-----------------------------------------------------------------------------
 # Code
