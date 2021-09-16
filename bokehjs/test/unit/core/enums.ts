@@ -141,10 +141,6 @@ describe("enums module", () => {
     expect([...enums.RenderLevel]).to.be.equal(["image", "underlay", "glyph", "guide", "annotation", "overlay"])
   })
 
-  it("should have RenderMode", () => {
-    expect([...enums.RenderMode]).to.be.equal(["canvas", "css"])
-  })
-
   it("should have ResetPolicy", () => {
     expect([...enums.ResetPolicy]).to.be.equal(["standard", "event_only"])
   })

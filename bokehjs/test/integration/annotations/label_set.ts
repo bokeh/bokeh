@@ -1,7 +1,8 @@
 import {display, fig} from "../_util"
 
-import {RenderMode} from "@bokehjs/core/enums"
-import {LabelSet, ColumnDataSource} from "@bokehjs/models"
+import {LabelSet, html} from "@bokehjs/models/annotations"
+import {ColumnDataSource} from "@bokehjs/models/sources"
+import {Constructor} from "@bokehjs/core/class"
 
 function deg(value: number) {
   return {value, units: "deg"}
@@ -13,7 +14,7 @@ function turn(value: number) {
 
 describe("LabelSet annotation", () => {
 
-  function plot(render_mode: RenderMode) {
+  function plot<T extends LabelSet | html.LabelSet>(LabelSetCls: Constructor<T>) {
     const plot = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
 
     const source = new ColumnDataSource({
@@ -25,7 +26,7 @@ describe("LabelSet annotation", () => {
       },
     })
 
-    const label_set0 = new LabelSet({
+    const label_set0 = new LabelSetCls({
       x: {field: "x1"}, y: {field: "y1"},
       x_offset: -10, y_offset: 25,
       angle: deg(15),
@@ -34,10 +35,9 @@ describe("LabelSet annotation", () => {
       text_font_size: "24px", text_color: "red", text_alpha: 0.9, text_baseline: "bottom", text_align: "left",
       background_fill_color: "green", background_fill_alpha: 0.8,
       border_line_color: "blue",
-      render_mode,
     })
 
-    const label_set1 = new LabelSet({
+    const label_set1 = new LabelSetCls({
       x: {field: "x2"}, y: 1,
       x_units: "screen", y_units: "data",
       x_offset: 0, y_offset: -5,
@@ -47,7 +47,6 @@ describe("LabelSet annotation", () => {
       text_font_size: "18px", text_color: "black", text_alpha: 0.9, text_baseline: "top", text_align: "left",
       background_fill_color: "orange", background_fill_alpha: 0.8,
       border_line_color: "red", border_line_width: 3,
-      render_mode,
     })
 
     plot.add_layout(label_set0)
@@ -57,10 +56,10 @@ describe("LabelSet annotation", () => {
   }
 
   it("should support basic positioning using canvas rendering", async () => {
-    await display(plot("canvas"))
+    await display(plot(LabelSet))
   })
 
   it("should support basic positioning using CSS rendering", async () => {
-    await display(plot("css"))
+    await display(plot(html.LabelSet))
   })
 })

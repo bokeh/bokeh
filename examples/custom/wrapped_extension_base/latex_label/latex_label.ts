@@ -62,9 +62,5 @@ export class LatexLabel extends Label {
 
   static {
     this.prototype.default_view = LatexLabelView
-
-    this.override<LatexLabel.Props>({
-      render_mode: "css",
-    })
   }
 }

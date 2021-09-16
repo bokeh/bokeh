@@ -19,6 +19,7 @@ export class LabelView extends TextAnnotationView {
       this.layout = undefined
   }
 
+  // XXX: this needs to use CSS computed styles
   protected override _get_size(): Size {
     const {text} = this.model
     const graphics = new TextBox({text})

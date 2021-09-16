@@ -227,7 +227,6 @@ def test_BoxAnnotation() -> None:
     check_fill_properties(box, "", "#fff9ba", 0.4)
     check_hatch_properties(box)
     check_properties_existence(box, ANNOTATION + [
-        "render_mode",
         "left",
         "left_units",
         "right",
@@ -277,7 +276,6 @@ def test_Label() -> None:
     assert label.angle_units == 'rad'
     assert label.x_offset == 0
     assert label.y_offset == 0
-    assert label.render_mode == 'canvas'
     assert label.x_range_name == 'default'
     assert label.y_range_name == 'default'
     check_text_properties(label, scalar=True)
@@ -293,7 +291,6 @@ def test_Label() -> None:
         "angle_units",
         "x_offset",
         "y_offset",
-        "render_mode",
     ],
         TEXT,
         prefix('border_', LINE),
@@ -318,7 +315,6 @@ def test_LabelSet() -> None:
     assert label_set.angle_units == 'rad'
     assert label_set.x_offset == 0
     assert label_set.y_offset == 0
-    assert label_set.render_mode == 'canvas'
     assert label_set.x_range_name == 'default'
     assert label_set.y_range_name == 'default'
     assert isinstance(label_set.source, ColumnDataSource)
@@ -336,7 +332,6 @@ def test_LabelSet() -> None:
         "angle_units",
         "x_offset",
         "y_offset",
-        "render_mode",
         "source",
     ],
         TEXT,
@@ -386,13 +381,11 @@ def test_Span() -> None:
     assert line.x_range_name == 'default'
     assert line.y_range_name == 'default'
     assert line.level == 'annotation'
-    assert line.render_mode == 'canvas'
     check_line_properties(line, "", 'black', 1.0)
     check_properties_existence(line, ANNOTATION + [
         "location",
         "location_units",
         "dimension",
-        "render_mode"
     ], LINE)
 
 def test_Span_accepts_datetime_location() -> None:
@@ -426,7 +419,6 @@ def test_Title() -> None:
         "text_color",
         "text_alpha",
         "text_line_height",
-        "render_mode",
     ],
         prefix('border_', LINE),
         prefix('background_', FILL),

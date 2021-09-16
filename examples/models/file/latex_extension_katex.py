@@ -13,7 +13,7 @@ output_file('latex_extension.html')
 class LatexLabel(Label):
     """A subclass of `Label` with all of the same class attributes except
     canvas mode isn't supported and DOM manipulation happens in the TypeScript
-    superclass implementation that requires setting `render_mode='css'`).
+    superclass implementation that requires setting).
 
     Only the render method of LabelView is overwritten to perform the
     text -> latex (via katex) conversion
@@ -75,10 +75,6 @@ export class LatexLabel extends Label {
 
   static {
     this.prototype.default_view = LatexLabelView
-
-    this.override<LatexLabel.Props>({
-      render_mode: "css",
-    })
   }
 }
 """)
@@ -97,7 +93,7 @@ text = (r"\text{Bessel Functions of the First Kind: }" +
         r"J_\nu = \sum_{m=0}^{\infty}\frac{(-1)^m}{m!\ \Gamma(m+\nu+1)}" +
         r"\left(\frac{x}{2}\right)^{2m+\nu}")
 latex = LatexLabel(text=text,x=4.5, y=250, x_units='data', y_units='screen',
-                   render_mode='css', text_font_size='11px',
+                   text_font_size='11px',
                    background_fill_color="white", border_line_color="lightgrey")
 
 p.add_layout(latex)

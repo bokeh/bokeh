@@ -80,10 +80,7 @@ class LatexLabel(Label):
     LaTex using the KaTex typesetting library.
 
     Only the render method of LabelView is overloaded to perform the
-    text -> latex (via katex) conversion. Note: ``render_mode="canvas``
-    isn't supported and certain DOM manipulation happens in the Label
-    superclass implementation that requires explicitly setting
-    `render_mode='css'`).
+    text -> latex (via katex) conversion.
     """
     __javascript__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"]
     __css__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"]
@@ -96,14 +93,12 @@ y = np.cos(2 * 2 * np.pi * x) + 2
 p = figure(title="LaTex Demonstration", width=500, height=500)
 p.line(x, y)
 
-# Note: must set ``render_mode="css"``
 latex = LatexLabel(
     text="f = \\sum_{n=1}^\\infty\\frac{-e^{i\\pi}}{2^n}!",
     x=40,
     y=420,
     x_units="screen",
     y_units="screen",
-    render_mode="css",
     text_font_size="21px",
     background_fill_alpha=0,
 )

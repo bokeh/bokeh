@@ -2,7 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {SpatialUnits, RenderMode, Dimension} from "core/enums"
+import {SpatialUnits, Dimension} from "core/enums"
 import * as p from "core/properties"
 import {CoordinateMapper} from "core/util/bbox"
 
@@ -67,7 +67,6 @@ export namespace Span {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
-    render_mode: p.Property<RenderMode>
     location: p.Property<number | null>
     location_units: p.Property<SpatialUnits>
     dimension: p.Property<Dimension>
@@ -95,7 +94,6 @@ export class Span extends Annotation {
     this.mixins<Span.Mixins>(mixins.Line)
 
     this.define<Span.Props>(({Number, Nullable}) => ({
-      render_mode:    [ RenderMode, "canvas" ],
       location:       [ Nullable(Number), null ],
       location_units: [ SpatialUnits, "data" ],
       dimension:      [ Dimension, "width" ],

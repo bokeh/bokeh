@@ -10,7 +10,7 @@ from bokeh.util.compiler import TypeScript
 class LatexLabel(Label):
     """A subclass of `Label` with additional class attributes 'width' and 'height',
     canvas mode isn't supported and DOM manipulation happens in the TypeScript
-    superclass implementation that requires setting `render_mode='css'`).
+    superclass implementation that requires setting).
 
     Only the render method of LabelView is overwritten to perform the
     text -> latex (via MathJax) conversion
@@ -107,7 +107,7 @@ for i, n in enumerate([0, 1, 4, 7]):
 text = ("x = {-b \pm \sqrt{b^2-4ac} \over 2a}")
 
 latex = LatexLabel(text=text, x=4.5, y=250, x_units='data', y_units='screen',
-                   render_mode='css', text_font_size='11px',
+                   text_font_size='11px',
                    background_fill_color="white", border_line_color="lightgrey")
 
 p.add_layout(latex)

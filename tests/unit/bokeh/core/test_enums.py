@@ -66,7 +66,6 @@ ALL  = (
     'Palette',
     'Place',
     'RenderLevel',
-    'RenderMode',
     'ResetPolicy',
     'RoundingFunction',
     'SelectionMode',
@@ -258,9 +257,6 @@ class Test_bce:
     def test_RenderLevel(self) -> None:
         assert tuple(bce.RenderLevel) == ("image", "underlay", "glyph", "guide", "annotation", "overlay")
 
-    def test_RenderMode(self) -> None:
-        assert tuple(bce.RenderMode) == ("canvas", "css")
-
     def test_ResetPolicy(self) -> None:
         assert tuple(bce.ResetPolicy) == ("standard", "event_only")
 
@@ -354,7 +350,6 @@ def test_enums_contents() -> None:
         'Palette',
         'Place',
         'RenderLevel',
-        'RenderMode',
         'ResetPolicy',
         'RoundingFunction',
         'SelectionMode',

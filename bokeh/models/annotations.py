@@ -29,13 +29,12 @@ from ..core.enums import (
     LegendClickPolicy,
     LegendLocation,
     Orientation,
-    RenderMode,
     SpatialUnits,
     TextAlign,
     TooltipAttachment,
     VerticalAlign,
 )
-from ..core.has_props import HasProps, abstract
+from ..core.has_props import abstract
 from ..core.properties import (
     Alpha,
     Angle,
@@ -148,30 +147,8 @@ class DataAnnotation(Annotation):
     Local data source to use when rendering annotations on the plot.
     """)
 
-class _HasRenderMode(HasProps):
-
-    render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the contents are rendered to a canvas or as a
-    HTML element overlaid on the canvas. The default mode is "canvas".
-
-    .. note::
-        This property is deprecated and will be removed in bokeh 3.0.
-
-    .. note::
-        The HTML labels won't be present in the output using the "save" tool.
-
-    .. warning::
-        Not all visual styling properties are supported if the render_mode is
-        set to "css". The border_line_dash property isn't fully supported and
-        border_line_dash_offset isn't supported at all. Setting text_alpha will
-        modify the opacity of the entire background box and border in addition
-        to the text. Finally, clipping Label annotations inside of the plot
-        area isn't supported in "css" mode.
-
-    """)
-
 @abstract
-class TextAnnotation(Annotation, _HasRenderMode):
+class TextAnnotation(Annotation):
     ''' Base class for text annotation models such as labels and titles.
 
     '''
@@ -556,7 +533,7 @@ class Arrow(DataAnnotation):
     The {prop} values for the arrow body.
     """)
 
-class BoxAnnotation(Annotation, _HasRenderMode):
+class BoxAnnotation(Annotation):
     ''' Render a shaded rectangular region as an annotation.
 
     See :ref:`userguide_annotations_box_annotations` for information on plotting box annotations.
@@ -756,7 +733,7 @@ class Label(TextAnnotation):
 
     border_line_color = Override(default=None)
 
-class LabelSet(DataAnnotation, _HasRenderMode):
+class LabelSet(DataAnnotation):
     ''' Render multiple text labels as annotations.
 
     ``LabelSet`` will render multiple text labels at given ``x`` and ``y``
@@ -902,7 +879,7 @@ class Slope(Annotation):
     The {prop} values for the line.
     """)
 
-class Span(Annotation, _HasRenderMode):
+class Span(Annotation):
     """ Render a horizontal or vertical line span.
 
     See :ref:`userguide_annotations_spans` for information on plotting spans.

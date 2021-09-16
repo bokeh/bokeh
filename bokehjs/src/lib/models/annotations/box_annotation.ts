@@ -2,7 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {SpatialUnits, RenderMode} from "core/enums"
+import {SpatialUnits} from "core/enums"
 import * as p from "core/properties"
 import {BBox, CoordinateMapper} from "core/util/bbox"
 
@@ -114,8 +114,6 @@ export namespace BoxAnnotation {
     ew_cursor: p.Property<string | null>
     ns_cursor: p.Property<string | null>
     in_cursor: p.Property<string | null>
-    /** @deprecated */
-    render_mode: p.Property<RenderMode>
   } & Mixins
 
   export type Mixins = mixins.Line & mixins.Fill & mixins.Hatch
@@ -147,8 +145,6 @@ export class BoxAnnotation extends Annotation {
       left_units:   [ SpatialUnits, "data" ],
       right:        [ Nullable(Number), null ],
       right_units:  [ SpatialUnits, "data" ],
-      /** @deprecated */
-      render_mode:  [ RenderMode, "canvas" ],
     }))
 
     this.internal<BoxAnnotation.Props>(({Boolean, String, Nullable}) => ({

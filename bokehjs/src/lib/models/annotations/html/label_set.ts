@@ -1,11 +1,13 @@
-import {DataAnnotation, DataAnnotationView} from "./data_annotation"
+import {DataAnnotation, DataAnnotationView} from "../data_annotation"
+import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
-import {TextBox} from "core/graphics"
+import {div, display, remove} from "core/dom"
 import * as p from "core/properties"
 import {FloatArray, ScreenArray} from "core/types"
 import {Context2d} from "core/util/canvas"
+import {assert} from "core/util/assert"
 
 export class LabelSetView extends DataAnnotationView {
   override model: LabelSet
@@ -19,6 +21,30 @@ export class LabelSetView extends DataAnnotationView {
   protected angle: p.Uniform<number>
   protected x_offset: p.Uniform<number>
   protected y_offset: p.Uniform<number>
+  protected els: HTMLElement[] = []
+
+  override set_data(source: ColumnarDataSource): void {
+    super.set_data(source)
+
+    this.els.forEach((el) => remove(el))
+    this.els = []
+
+    for (const _ of this.text) {
+      const el = div({style: {display: "none"}})
+      this.plot_view.canvas_view.add_overlay(el)
+      this.els.push(el)
+    }
+  }
+
+  override remove(): void {
+    this.els.forEach((el) => remove(el))
+    this.els = []
+    super.remove()
+  }
+
+  protected override _rerender(): void {
+    this.render()
+  }
 
   map_data(): void {
     const {x_scale, y_scale} = this.coordinates
@@ -38,33 +64,70 @@ export class LabelSetView extends DataAnnotationView {
       const sy_i = this.sy[i] - y_offset_i
       const angle_i = this.angle.get(i)
       const text_i = this.text.get(i)
-
       this._paint(ctx, i, text_i, sx_i, sy_i, angle_i)
     }
   }
 
   protected _paint(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {
-    const graphics = new TextBox({text})
-    graphics.angle = angle
-    graphics.position = {sx, sy}
-    graphics.visuals = this.visuals.text.values(i)
+    assert(this.els != null)
+    const el = this.els[i]
 
-    const {background_fill, border_line} = this.visuals
-    if (background_fill.doit || border_line.doit) {
-      const {p0, p1, p2, p3} = graphics.rect()
-      ctx.beginPath()
-      ctx.moveTo(p0.x, p0.y)
-      ctx.lineTo(p1.x, p1.y)
-      ctx.lineTo(p2.x, p2.y)
-      ctx.lineTo(p3.x, p3.y)
-      ctx.closePath()
+    el.textContent = text
+    this.visuals.text.set_vectorize(ctx, i)
 
-      this.visuals.background_fill.apply(ctx, i)
-      this.visuals.border_line.apply(ctx, i)
+    el.style.position = "absolute"
+    el.style.left = `${sx}px`
+    el.style.top = `${sy}px`
+    el.style.color = ctx.fillStyle as string
+    el.style.font = ctx.font
+    el.style.lineHeight = "normal" // needed to prevent ipynb css override
+    el.style.whiteSpace = "pre"
+
+    const [x_anchor, x_t] = (() => {
+      switch (this.visuals.text.text_align.get(i)) {
+        case "left": return ["left", "0%"]
+        case "center": return ["center", "-50%"]
+        case "right": return ["right", "-100%"]
+      }
+    })()
+    const [y_anchor, y_t] = (() => {
+      switch (this.visuals.text.text_baseline.get(i)) {
+        case "top": return ["top", "0%"]
+        case "middle": return ["center", "-50%"]
+        case "bottom": return ["bottom", "-100%"]
+        default: return ["center", "-50%"] // "baseline"
+      }
+    })()
+
+    let transform = `translate(${x_t}, ${y_t})`
+    if (angle) {
+      transform += `rotate(${angle}rad)`
     }
 
-    if (this.visuals.text.doit)
-      graphics.paint(ctx)
+    el.style.transformOrigin = `${x_anchor} ${y_anchor}`
+    el.style.transform = transform
+
+    if (this.layout == null) {
+      // const {bbox} = this.plot_view.frame
+      // const {left, right, top, bottom} = bbox
+      // el.style.clipPath = ???
+    }
+
+    if (this.visuals.background_fill.doit) {
+      this.visuals.background_fill.set_vectorize(ctx, i)
+      el.style.backgroundColor = ctx.fillStyle as string
+    }
+
+    if (this.visuals.border_line.doit) {
+      this.visuals.border_line.set_vectorize(ctx, i)
+
+      // attempt to support vector-style ("8 4 8") line dashing for css mode
+      el.style.borderStyle = ctx.lineDash.length < 2 ? "solid" : "dashed"
+      el.style.borderWidth = `${ctx.lineWidth}px`
+      el.style.borderColor = ctx.strokeStyle as string
+    }
+
+    display(el)
   }
 }
 

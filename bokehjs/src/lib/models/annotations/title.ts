@@ -78,8 +78,7 @@ export class TitleView extends TextAnnotationView {
     const [sx, sy] = this._get_location()
     const angle = this.panel.get_label_angle_heuristic("parallel")
 
-    const draw = this.model.render_mode == "canvas" ? this._canvas_text.bind(this) : this._css_text.bind(this)
-    draw(this.layer.ctx, text, sx, sy, angle)
+    this._paint(this.layer.ctx, text, sx, sy, angle)
   }
 
   protected override _get_size(): Size {
