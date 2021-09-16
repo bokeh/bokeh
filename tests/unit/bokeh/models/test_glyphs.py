@@ -78,7 +78,6 @@ from bokeh.models.glyphs import ( # isort:skip
     Line,
     MultiLine,
     MultiPolygons,
-    Oval,
     Patch, Patches,
     Quad, Quadratic, Ray,
     Rect,
@@ -332,28 +331,6 @@ def test_MultiPolygons() -> None:
         "xs",
         "ys",
     ], FILL, HATCH, LINE, GLYPH)
-
-
-def test_Oval() -> None:
-    glyph = Oval()
-    assert glyph.x == field("x")
-    assert glyph.y == field("y")
-    assert glyph.width == field("width")
-    assert glyph.height == field("height")
-    assert glyph.angle == 0
-    check_line_properties(glyph)
-    check_fill_properties(glyph)
-    check_hatch_properties(glyph)
-    check_properties_existence(glyph, [
-        "x",
-        "y",
-        "width",
-        "width_units",
-        "height",
-        "height_units",
-        "angle",
-        "angle_units",
-    ], LINE, FILL, HATCH, GLYPH)
 
 
 def test_Patch() -> None:

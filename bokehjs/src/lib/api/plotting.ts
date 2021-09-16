@@ -27,7 +27,7 @@ import {
 import {
   AnnularWedge, Annulus, Arc, Bezier, Circle, Ellipse, HArea,
   HBar, HexTile, Image, ImageRGBA, ImageURL, Line, MultiLine,
-  MultiPolygons, Oval, Patch, Patches, Quad, Quadratic, Ray,
+  MultiPolygons, Patch, Patches, Quad, Quadratic, Ray,
   Rect, Scatter, Segment, Spline, Step, Text, VArea, VBar, Wedge,
 } from "../models/glyphs"
 
@@ -142,7 +142,6 @@ export type LineArgs          = GlyphArgs<Line.Props>          & AuxLine
 export type MarkerArgs        = GlyphArgs<Marker.Props>        & AuxLine & AuxFill
 export type MultiLineArgs     = GlyphArgs<MultiLine.Props>     & AuxLine
 export type MultiPolygonsArgs = GlyphArgs<MultiPolygons.Props> & AuxLine & AuxFill
-export type OvalArgs          = GlyphArgs<Oval.Props>          & AuxLine & AuxFill
 export type PatchArgs         = GlyphArgs<Patch.Props>         & AuxLine & AuxFill
 export type PatchesArgs       = GlyphArgs<Patches.Props>       & AuxLine & AuxFill
 export type QuadArgs          = GlyphArgs<Quad.Props>          & AuxLine & AuxFill
@@ -427,17 +426,6 @@ export class Figure extends Plot {
     args?: Partial<MultiPolygonsArgs>): TypedGlyphRenderer<MultiPolygons>
   multi_polygons(...args: unknown[]): TypedGlyphRenderer<MultiPolygons> {
     return this._glyph(MultiPolygons, "xs,ys", args)
-  }
-
-  oval(args: Partial<OvalArgs>): TypedGlyphRenderer<Oval>
-  oval(
-    x: OvalArgs["x"],
-    y: OvalArgs["y"],
-    width: OvalArgs["width"],
-    height: OvalArgs["height"],
-    args?: Partial<OvalArgs>): TypedGlyphRenderer<Oval>
-  oval(...args: unknown[]): TypedGlyphRenderer<Oval> {
-    return this._glyph(Oval, "x,y,width,height", args)
   }
 
   patch(args: Partial<PatchArgs>): TypedGlyphRenderer<Patch>
