@@ -58,7 +58,8 @@ try:
     def white(text: str) -> str:  return "%s%s%s%s" % (Fore.WHITE, Style.BRIGHT, text, Style.RESET_ALL)
     def yellow(text: str) -> str: return "%s%s%s" % (Fore.YELLOW, text, Style.RESET_ALL)
 
-    sys.platform == "win32" and colorama.init()
+    if sys.platform == "win32":
+        colorama.init()
 except ImportError:
     def bright(text: str) -> str: return text
     def dim(text: str) -> str:    return text

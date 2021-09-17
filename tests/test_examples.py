@@ -18,9 +18,9 @@ import pytest ; pytest
 
 # Standard library imports
 import os
-import platform
 import signal
 import subprocess
+import sys
 import time
 from os.path import (
     abspath,
@@ -62,8 +62,6 @@ from bokeh.util.terminal import (
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
-is_windows = platform.system() == "Windows"
 
 pytest_plugins = (
     "bokeh._testing.plugins.bokeh_server",
@@ -280,7 +278,7 @@ with open(filename, 'rb') as example:
     class Timeout(Exception):
         pass
 
-    if not is_windows:
+    if sys.platform != "win32":
         def alarm_handler(sig: int, frame: FrameType) -> NoReturn:
             raise Timeout
 
@@ -297,7 +295,7 @@ with open(filename, 'rb') as example:
         proc.kill()
         status = 'timeout'
     finally:
-        if not is_windows:
+        if sys.platform != "win32":
             signal.alarm(0)
 
     end = time.time()
