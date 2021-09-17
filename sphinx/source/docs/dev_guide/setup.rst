@@ -508,7 +508,7 @@ checkout* directory:
     .. code-tab:: doscon Windows (CMD)
 
         set BOKEH_DEV=false
-        python -m bokeh serve --show \examples\app\sliders.py
+        python -m bokeh serve --show examples\app\sliders.py
 
 This should open up a browser with an interactive figure:
 
