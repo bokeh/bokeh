@@ -1,4 +1,4 @@
-import {Label, LabelView} from "@bokehjs/models/annotations/label"
+import {Label, LabelView} from "@bokehjs/models/annotations/html/label"
 import * as p from "@bokehjs/core/properties"
 
 import css from "./styles/latex_label.css"
@@ -15,34 +15,9 @@ export class LatexLabelView extends LabelView {
   }
 
   protected override _render(): void {
-    this.el?.classList.add("label-style")
-
-    // Here because AngleSpec does units tranform and label doesn't support specs
-    let angle: number
-    switch (this.model.angle_units) {
-      case "rad": {
-        angle = -1 * this.model.angle
-        break
-      }
-      case "deg": {
-        angle = -1 * this.model.angle * Math.PI/180.0
-        break
-      }
-      default:
-        throw new Error("unreachable")
-    }
-
-    const panel = this.layout ?? this.plot_view.layout.center_panel
-
-    const {x, y} = this.model
-    let sx = this.model.x_units == "data" ? this.coordinates.x_scale.compute(x) : panel.xview.compute(x)
-    let sy = this.model.y_units == "data" ? this.coordinates.y_scale.compute(y) : panel.yview.compute(y)
-
-    sx += this.model.x_offset
-    sy -= this.model.y_offset
-
-    this._css_text(this.layer.ctx, "", sx, sy, angle)
-    katex.render(this.model.text, this.el!, {displayMode: true})
+    super._render()
+    this.el.classList.add("label-style")
+    katex.render(this.model.text, this.el, {displayMode: true})
   }
 }
 

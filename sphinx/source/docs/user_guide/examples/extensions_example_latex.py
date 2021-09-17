@@ -3,51 +3,20 @@
 
 import numpy as np
 
-from bokeh.models import Label
+from bokeh.models.annotations.html import Label
 from bokeh.plotting import figure, show
 from bokeh.util.compiler import TypeScript
 
 TS_CODE = """
 import * as p from "core/properties"
-import {Label, LabelView} from "models/annotations/label"
+import {Label, LabelView} from "models/annotations/html/label"
 declare const katex: any
 
 export class LatexLabelView extends LabelView {
   model: LatexLabel
 
-  render(): void {
-    //--- Start of copied section from ``Label.render`` implementation
-
-    // Here because AngleSpec does units tranform and label doesn't support specs
-    let angle: number
-    switch (this.model.angle_units) {
-      case "rad": {
-        angle = -this.model.angle
-        break
-      }
-      case "deg": {
-        angle = (-this.model.angle * Math.PI) / 180.0
-        break
-      }
-      default:
-        throw new Error("unreachable code")
-    }
-
-    const panel = this.layout ?? this.plot_view.layout.center_panel
-
-    let sx = this.model.x_units == "data" ? this.coordinates.x_scale.compute(this.model.x) : panel.xview.compute(this.model.x)
-    let sy = this.model.y_units == "data" ? this.coordinates.y_scale.compute(this.model.y) : panel.yview.compute(this.model.y)
-
-    sx += this.model.x_offset
-    sy -= this.model.y_offset
-
-    //--- End of copied section from ``Label.render`` implementation
-    // Must render as superpositioned div (not on canvas) so that KaTex
-    // css can properly style the text
-    this._css_text(this.layer.ctx, "", sx, sy, angle)
-
-    // ``katex`` is loaded into the global window at runtime
-    // katex.renderToString returns a html ``span`` element
+  protected override _render(): void {
+    super._render()
     katex.render(this.model.text, this.el, {displayMode: true})
   }
 }

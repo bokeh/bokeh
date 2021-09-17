@@ -16,7 +16,7 @@ p.x_range.range_padding = 0
 x = np.arange(0.0, 20.0, 0.02)
 
 for i, n in enumerate([0, 1, 4, 7]):
-    p.line(x, jv(n, x), line_width=3, color=Spectral4[i], alpha=0.8, legend_label="𝜈=%d" % n)
+    p.line(x, jv(n, x), line_width=3, color=Spectral4[i], alpha=0.8, legend_label=f"𝜈={n}")
 
 text = r"""
 \text{Bessel Functions of the First Kind: }
