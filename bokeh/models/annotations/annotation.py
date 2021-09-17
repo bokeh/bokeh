@@ -4,8 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Models for various kinds of arrow heads that can be added to
-Arrow annotations.
+'''
 
 '''
 
@@ -22,21 +21,17 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.has_props import abstract
-from ..core.properties import Include, NumberSpec, Override
-from ..core.property_mixins import FillProps, LineProps
-from ..model import Model
+from ...core.has_props import abstract
+from ...core.properties import Instance, Override
+from ..renderers import Renderer
+from ..sources import ColumnDataSource, DataSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'ArrowHead',
-    'NormalHead',
-    'OpenHead',
-    'TeeHead',
-    'VeeHead',
+    'Annotation',
 )
 
 #-----------------------------------------------------------------------------
@@ -44,63 +39,22 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class ArrowHead(Model):
-    ''' Base class for arrow heads.
+class Annotation(Renderer):
+    ''' Base class for all annotation models.
 
     '''
 
-    size = NumberSpec(default=25, help="""
-    The size, in pixels, of the arrow head.
-    """)
+    level = Override(default="annotation")
 
-class OpenHead(ArrowHead):
-    ''' Render an open-body arrow head.
-
-    '''
-
-    line_props = Include(LineProps, help="""
-
-    The {prop} values for the arrow head outline.
-    """)
-
-class NormalHead(ArrowHead):
-    ''' Render a closed-body arrow head.
+@abstract
+class DataAnnotation(Annotation):
+    ''' Base class for annotations that utilize a data source.
 
     '''
 
-    line_props = Include(LineProps, help="""
-    The {prop} values for the arrow head outline.
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    Local data source to use when rendering annotations on the plot.
     """)
-
-    fill_props = Include(FillProps, help="""
-    The {prop} values for the arrow head interior.
-    """)
-
-    fill_color = Override(default="black")
-
-class TeeHead(ArrowHead):
-    ''' Render a tee-style arrow head.
-
-    '''
-
-    line_props = Include(LineProps, help="""
-    The {prop} values for the arrow head outline.
-    """)
-
-class VeeHead(ArrowHead):
-    ''' Render a vee-style arrow head.
-
-    '''
-
-    line_props = Include(LineProps, help="""
-    The {prop} values for the arrow head outline.
-    """)
-
-    fill_props = Include(FillProps, help="""
-    The {prop} values for the arrow head interior.
-    """)
-
-    fill_color = Override(default="black")
 
 #-----------------------------------------------------------------------------
 # Dev API
