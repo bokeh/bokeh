@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
 from pathlib import Path
 from subprocess import run
 from typing import List, Sequence
@@ -59,7 +58,7 @@ def ls_modules(*, dir: str = "bokeh", skip_prefixes: Sequence[str] = [], skip_ma
         if file.endswith("__main__.py") and skip_main:
             continue
 
-        module = file.replace(os.sep, ".").replace(".py", "").replace(".__init__", "")
+        module = file.replace("/", ".").replace(".py", "").replace(".__init__", "")
 
         if any(module.startswith(prefix) for prefix in skip_prefixes):
             continue
