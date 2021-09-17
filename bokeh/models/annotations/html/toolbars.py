@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Renderers for various kinds of annotations that can be added to plots.
+'''
 
 '''
 #-----------------------------------------------------------------------------
@@ -20,22 +20,26 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from .annotation import *
-from .arrows import *
-from .geometry import *
-from .html import ToolbarPanel, Tooltip
-from .labels import *
-from .legends import *
+from ....core.properties import Instance
+from .html_annotation import HTMLAnnotation
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-# __all__ = include all explicit transitive imports above
+__all__ = (
+    "ToolbarPanel",
+)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class ToolbarPanel(HTMLAnnotation): # TODO: this shouldn't be an annotation
+
+    toolbar = Instance(".models.tools.Toolbar", help="""
+    A toolbar to display.
+    """)
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Renderers for various kinds of annotations that can be added to plots.
+''' Renderers for various kinds of HTML annotations that can be added to plots.
 
 '''
 #-----------------------------------------------------------------------------
@@ -20,12 +20,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from .annotation import *
-from .arrows import *
-from .geometry import *
-from .html import ToolbarPanel, Tooltip
+from .html_annotation import *
 from .labels import *
-from .legends import *
+from .toolbars import *
+from .tooltips import *
 
 #-----------------------------------------------------------------------------
 # Globals and constants

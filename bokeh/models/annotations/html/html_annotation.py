@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Renderers for various kinds of annotations that can be added to plots.
+'''
 
 '''
 #-----------------------------------------------------------------------------
@@ -20,22 +20,29 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from .annotation import *
-from .arrows import *
-from .geometry import *
-from .html import ToolbarPanel, Tooltip
-from .labels import *
-from .legends import *
+from ....core.has_props import abstract
+from ..annotation import Annotation
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-# __all__ = include all explicit transitive imports above
+__all__ = (
+    "HTMLAnnotation",
+)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+@abstract
+class HTMLAnnotation(Annotation):
+    ''' Base class for HTML-based annotations.
+
+    All annotations that inherit from this base class can be attached to
+    a canvas, but are not rendered to it, thus they won't appear in saved
+    plots (only export tools can preserve HTML annotations).
+    '''
 
 #-----------------------------------------------------------------------------
 # Dev API
