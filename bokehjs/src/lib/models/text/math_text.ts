@@ -7,7 +7,7 @@ import {CanvasImage} from "models/glyphs/image_url"
 import {color2css, color2hexrgb, color2rgba} from "core/util/color"
 import {Size} from "core/types"
 import {GraphicsBox, TextHeightMetric, text_width, Position} from "core/graphics"
-import {font_metrics, parse_css_font_size} from "core/util/text"
+import {font_metrics, parse_css_font_size, parse_css_length} from "core/util/text"
 import {insert_text_on_position} from "core/util/string"
 import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
@@ -23,6 +23,8 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   graphics(): GraphicsBox {
     return this
   }
+
+  valign: number
 
   angle?: number
   _position: Position = {sx: 0, sy: 0}
@@ -144,6 +146,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   protected _computed_position(): {x: number, y: number} {
     const {width, height} = this._size()
     const {sx, sy, x_anchor=this._x_anchor, y_anchor=this._y_anchor} = this.position
+    const metrics = font_metrics(this.font)
 
     const x = sx - (() => {
       if (isNumber(x_anchor))
@@ -162,9 +165,18 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
         return y_anchor*height
       else {
         switch (y_anchor) {
-          case "top": return 0
+          case "top":
+            if (metrics.height > height)
+              return (height - (-this.valign - metrics.descent) - metrics.height)
+            else
+              return 0
           case "center": return 0.5*height
-          case "bottom": return height
+          case "bottom":
+            if (metrics.height > height)
+              return (
+                height + metrics.descent + this.valign
+              )
+            else return height
           case "baseline": return 0.5*height
         }
       }
@@ -177,8 +189,13 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
    * Uses the width, height and given angle to calculate the size
   */
   size(): Size {
-    const {width, height} = this._size()
+    let {width, height} = this._size()
     const {angle} = this
+    const metrics = font_metrics(this.font)
+
+    if (height < metrics.height) {
+      height = metrics.height
+    }
 
     if (angle == null || angle == 0)
       return {width, height}
@@ -201,6 +218,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   }
 
   private get_image_dimensions(): Size {
+    const fmetrics = font_metrics(this.font)
     const heightEx = parseFloat(
       this.svg_element
         .getAttribute("height")
@@ -213,14 +231,37 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
         ?.replace(/([A-z])/g, "") ?? "0"
     )
 
+    const svg_styles = this.svg_element?.getAttribute("style")?.split(";")
+    if (svg_styles) {
+      const rulesMap = new Map()
+      svg_styles.forEach(property => {
+        const [rule, value] = property.split(":")
+        if (rule) rulesMap.set(rule.trim(), value.trim())
+      })
+      const v_align = parse_css_length(rulesMap.get("vertical-align"))
+
+      if (v_align?.unit == "ex") {
+        this.valign = v_align.value * fmetrics.x_height
+      } else if (v_align?.unit == "px") {
+        this.valign = v_align.value
+      }
+    }
+
+
     return {
-      width: font_metrics(this.font).x_height * widthEx,
-      height: font_metrics(this.font).x_height * heightEx,
+      width: fmetrics.x_height * widthEx,
+      height: fmetrics.x_height * heightEx,
     }
   }
+  width?: {value: number, unit: "%"}
+  height?: {value: number, unit: "%"}
 
   _size(): Size {
-    return this.has_image_loaded ? this.get_image_dimensions() : this.get_text_dimensions()
+    const {width, height} = this.has_image_loaded ? this.get_image_dimensions() : this.get_text_dimensions()
+    const w_scale = this.width?.unit == "%" ? this.width.value : 1
+    const h_scale = this.height?.unit == "%" ? this.height.value : 1
+
+    return {width: width*w_scale, height: height*h_scale}
   }
 
   bbox(): BBox {
