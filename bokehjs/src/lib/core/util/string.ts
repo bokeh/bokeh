@@ -64,3 +64,11 @@ export function use_strict(code: string): string {
 export function to_fixed(val: number, precision?: number): string {
   return val.toFixed(precision).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
 }
+
+export function insert_text_on_position(destination: string, position: number, text_to_be_inserted: string) {
+  const result_text = []
+  result_text.push(destination.slice(0, position))
+  result_text.push(text_to_be_inserted)
+  result_text.push(destination.slice(position))
+  return result_text.join("")
+}
