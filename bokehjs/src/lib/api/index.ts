@@ -15,3 +15,5 @@ export {Document} from "../document"
 export {sprintf} from "../core/util/templating"
 
 export * from "./models"
+
+export {Parser} from "./parser"
