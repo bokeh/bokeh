@@ -414,6 +414,8 @@ export class MathML extends MathText {
 export class TeXView extends MathTextView {
   override model: TeX
 
+  // add method to add color macro here
+
   protected _process_text(text: string): HTMLElement | undefined {
     // TODO: allow plot/document level configuration of macros
     return this.provider.MathJax?.tex2svg(text, undefined, this.model.macros)
