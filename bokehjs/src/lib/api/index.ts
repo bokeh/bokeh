@@ -10,6 +10,8 @@ export {Plotting}
 import * as Palettes from "./palettes"
 export {Palettes}
 
+export * as Themes from "./themes"
+
 export {Document} from "../document"
 
 export {sprintf} from "../core/util/templating"
