@@ -4,11 +4,10 @@ import {isNumber} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {load_image} from "core/util/image"
 import {CanvasImage} from "models/glyphs/image_url"
-import {color2css, color2hexrgb, color2rgba} from "core/util/color"
+import {color2css} from "core/util/color"
 import {Size} from "core/types"
 import {GraphicsBox, TextHeightMetric, text_width, Position} from "core/graphics"
 import {font_metrics, parse_css_font_size} from "core/util/text"
-import {insert_text_on_position} from "core/util/string"
 import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
 import {BaseText, BaseTextView} from "./base_text"
@@ -50,9 +49,8 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   }
 
   font_size_scale: number = 1.0
-  font: string
-  color: string
-
+  private font: string
+  private color: string
   private svg_image: CanvasImage | null = null
   private svg_element: SVGElement
 
@@ -81,8 +79,6 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     return this.model.text
   }
 
-  abstract get styled_text(): string
-
   get provider(): MathJaxProvider {
     return default_provider
   }
@@ -92,6 +88,12 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
     if (this.provider.status == "not_started")
       await this.provider.fetch()
+
+    if (this.provider.status == "not_started" || this.provider.status == "loading")
+      this.provider.ready.connect(() => this.load_image())
+
+    if (this.provider.status == "loaded")
+      await this.load_image()
   }
 
   override connect_signals(): void {
@@ -267,13 +269,13 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     ctx.restore()
   }
 
-  protected abstract _process_text(): HTMLElement | undefined
+  protected abstract _process_text(text: string): HTMLElement | undefined
 
   private async load_image(): Promise<HTMLImageElement | null> {
     if (this.provider.MathJax == null)
       return null
 
-    const mathjax_element = this._process_text()
+    const mathjax_element = this._process_text(this.model.text)
     if (mathjax_element == null) {
       this._has_finished = true
       return null
@@ -304,14 +306,6 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
    * been loaded draws the image in it otherwise draws the model's text.
   */
   paint(ctx: Context2d): void {
-    if (!this.svg_image) {
-      if (this.provider.status == "not_started" || this.provider.status == "loading")
-        this.provider.ready.connect(() => this.load_image())
-
-      if (this.provider.status == "loaded")
-        this.load_image()
-    }
-
     ctx.save()
     const {sx, sy} = this.position
 
@@ -364,12 +358,7 @@ export class MathText extends BaseText {
 export class AsciiView extends MathTextView {
   override model: Ascii
 
-  // TODO: Color ascii
-  override get styled_text(): string {
-    return this.text
-  }
-
-  protected _process_text(): HTMLElement | undefined {
+  protected _process_text(_text: string): HTMLElement | undefined {
     return undefined // TODO: this.provider.MathJax?.ascii2svg(text)
   }
 }
@@ -397,32 +386,8 @@ export class Ascii extends MathText {
 export class MathMLView extends MathTextView {
   override model: MathML
 
-  override get styled_text(): string {
-    let styled = this.text.trim()
-    let matchs = styled.match(/<math(.*?[^?])?>/s)
-    if (!matchs)
-      return this.text.trim()
-
-    styled = insert_text_on_position(
-      styled,
-      styled.indexOf(matchs[0]) +  matchs[0].length,
-      `<mstyle displaystyle="true" mathcolor="${color2hexrgb(this.color)}">`
-    )
-
-    matchs = styled.match(/<\/[^>]*?math.*?>/s)
-    if (!matchs)
-      return this.text.trim()
-
-    return insert_text_on_position(styled, styled.indexOf(matchs[0]), "</mstyle>")
-  }
-
-  protected _process_text(): HTMLElement | undefined {
-    const fmetrics = font_metrics(this.font)
-
-    return this.provider.MathJax?.mathml2svg(this.styled_text, {
-      em: this.base_font_size,
-      ex: fmetrics.x_height,
-    })
+  protected _process_text(text: string): HTMLElement | undefined {
+    return this.provider.MathJax?.mathml2svg(text.trim())
   }
 }
 
@@ -449,20 +414,9 @@ export class MathML extends MathText {
 export class TeXView extends MathTextView {
   override model: TeX
 
-  override get styled_text(): string {
-    const [r, g, b] = color2rgba(this.color)
-    return `\\color[RGB]{${r}, ${g}, ${b}} ${this.text}`
-  }
-
-  protected _process_text(): HTMLElement | undefined {
+  protected _process_text(text: string): HTMLElement | undefined {
     // TODO: allow plot/document level configuration of macros
-    const fmetrics = font_metrics(this.font)
-
-    return this.provider.MathJax?.tex2svg(this.styled_text, {
-      display: !this.model.inline,
-      em: this.base_font_size,
-      ex: fmetrics.x_height,
-    }, this.model.macros)
+    return this.provider.MathJax?.tex2svg(text, undefined, this.model.macros)
   }
 }
 
