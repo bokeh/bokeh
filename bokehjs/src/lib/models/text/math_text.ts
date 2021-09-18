@@ -268,6 +268,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     ctx.stroke()
     ctx.restore()
   }
+  //add method for inserting color macro into text here
 
   protected abstract _process_text(text: string): HTMLElement | undefined
 
