@@ -53,6 +53,7 @@ from ..core.enums import (
     Dimensions,
     Location,
     SelectionMode,
+    ToolIcon,
     TooltipAttachment,
     TooltipFieldFormatter,
 )
@@ -77,6 +78,7 @@ from ..core.properties import (
     Nullable,
     Override,
     Percent,
+    Regex,
     Seq,
     String,
     Tuple,
@@ -164,16 +166,25 @@ class Tool(Model):
 
     '''
 
+    icon = Nullable(Either(Enum(ToolIcon), Regex(r"^\."), Image), help="""
+    An icon to display in the toolbar.
+
+    The icon can provided as well known tool icon name, a CSS class selector,
+    a data URI with an ``image/*`` MIME, a path to an image, a PIL ``Image``
+    object, or an RGB(A) NumPy array. If ``None``, then the intrinsic icon
+    will be used (may depend on tool's configuration).
+    """)
+
     description = Nullable(String, help="""
     A string describing the purpose of this tool. If not defined, an auto-generated
     description will be used. This description will be typically presented in the
     user interface as a tooltip.
     """)
 
-    _known_aliases: tp.ClassVar[tp.Dict[str, tp.Callable[[], "Tool"]]] = {}
+    _known_aliases: tp.ClassVar[tp.Dict[str, tp.Callable[[], Tool]]] = {}
 
     @classmethod
-    def from_string(cls, name: str) -> "Tool":
+    def from_string(cls, name: str) -> Tool:
         """ Takes a string and returns a corresponding `Tool` instance. """
         constructor = cls._known_aliases.get(name)
         if constructor is not None:
@@ -186,7 +197,7 @@ class Tool(Model):
             raise ValueError(f"unexpected tool name '{name}', {text} tools are {nice_join(matches)}")
 
     @classmethod
-    def register_alias(cls, name: str, constructor: tp.Callable[[], "Tool"]) -> None:
+    def register_alias(cls, name: str, constructor: tp.Callable[[], Tool]) -> None:
         cls._known_aliases[name] = constructor
 
 @abstract
@@ -490,13 +501,6 @@ class CustomAction(ActionTool):
 
     callback = Nullable(Instance(Callback), help="""
     A Bokeh callback to execute when the custom action icon is activated.
-    """)
-
-    icon = Image(help="""
-    An icon to display in the toolbar.
-
-    The icon can provided as a string filename for an image, a PIL ``Image``
-    object, or an RGB(A) NumPy array.
     """)
 
 class SaveTool(ActionTool):
@@ -1207,13 +1211,6 @@ class EditTool(GestureTool):
     circle glyph defines 'x', 'y' and 'color' columns, adding a new
     point will add the x and y-coordinates to 'x' and 'y' columns and
     the color column will be filled with the defined empty value.
-    """)
-
-    custom_icon = Nullable(Image, help="""
-    An icon to display in the toolbar.
-
-    The icon can provided as a string filename for an image, a PIL ``Image``
-    object, or an RGB(A) NumPy array.
     """)
 
     renderers = List(Instance(GlyphRenderer), help="""

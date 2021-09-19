@@ -30,5 +30,5 @@ export class ParallelResetTool extends ActionTool {
   }
 
   tool_name = "Reset Zoom"
-  icon = "bk-tool-icon-reset"
+  tool_icon = "bk-tool-icon-reset"
 }

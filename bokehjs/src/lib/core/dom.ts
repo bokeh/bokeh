@@ -422,7 +422,7 @@ export class StyleSheet {
   private readonly style: HTMLStyleElement
   private readonly known: Set<string> = new Set()
 
-  constructor(readonly root: HTMLElement) {
+  constructor(readonly root: HTMLElement = document.head) {
     this.style = style({type: "text/css"})
     prepend(root, this.style)
   }
@@ -433,9 +433,13 @@ export class StyleSheet {
       this.known.add(css)
     }
   }
+
+  remove(): void {
+    remove(this.style)
+  }
 }
 
-export const stylesheet = new StyleSheet(document.head)
+export const stylesheet = new StyleSheet()
 
 export async function dom_ready(): Promise<void> {
   if (document.readyState == "loading") {

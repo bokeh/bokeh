@@ -82,3 +82,8 @@ Distance Specs
 
 ``ScreenDistanceSpec`` and ``DataDistanceSpec`` are removed. Use ``SizeSpec``
 instead.
+
+``EditTool.custom_icon`` was replaced with ``Tool.icon``
+........................................................
+
+Use ``Tool.icon`` property instead.

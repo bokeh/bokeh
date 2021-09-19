@@ -104,7 +104,7 @@ export class LassoSelectTool extends SelectTool {
   }
 
   override tool_name = "Lasso Select"
-  override icon = tool_icon_lasso_select
+  override tool_icon = tool_icon_lasso_select
   override event_type = "pan" as "pan"
   override default_order = 12
 }

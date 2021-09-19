@@ -25,5 +25,5 @@ export class ZoomInTool extends ZoomBaseTool {
 
   override sign = 1 as 1
   override tool_name = "Zoom In"
-  override icon = tool_icon_zoom_in
+  override tool_icon = tool_icon_zoom_in
 }

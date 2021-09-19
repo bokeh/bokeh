@@ -95,7 +95,7 @@ export class CrosshairTool extends InspectTool {
   }
 
   override tool_name = "Crosshair"
-  override icon = tool_icon_crosshair
+  override tool_icon = tool_icon_crosshair
 
   override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)

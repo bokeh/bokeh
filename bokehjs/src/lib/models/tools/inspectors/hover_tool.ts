@@ -586,5 +586,5 @@ export class HoverTool extends InspectTool {
   }
 
   override tool_name = "Hover"
-  override icon = tool_icon_hover
+  override tool_icon = tool_icon_hover
 }
