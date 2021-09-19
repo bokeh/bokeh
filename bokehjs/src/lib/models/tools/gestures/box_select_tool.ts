@@ -117,7 +117,7 @@ export class BoxSelectTool extends SelectTool {
   }
 
   override tool_name = "Box Select"
-  override icon = tool_icon_box_select
+  override tool_icon = tool_icon_box_select
   override event_type = "pan" as "pan"
   override default_order = 30
 

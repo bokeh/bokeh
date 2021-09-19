@@ -90,7 +90,7 @@ export class WheelZoomTool extends GestureTool {
   }
 
   override tool_name = "Wheel Zoom"
-  override icon = tool_icon_wheel_zoom
+  override tool_icon = tool_icon_wheel_zoom
   override event_type = is_mobile ? "pinch" as "pinch" : "scroll" as "scroll"
   override default_order = 10
 

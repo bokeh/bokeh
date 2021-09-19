@@ -23,7 +23,6 @@ export namespace CustomAction {
 
   export type Props = ActionTool.Props & {
     callback: p.Property<CallbackLike0<CustomAction> | null>
-    icon: p.Property<string>
   }
 }
 
@@ -40,9 +39,8 @@ export class CustomAction extends ActionTool {
   static {
     this.prototype.default_view = CustomActionView
 
-    this.define<CustomAction.Props>(({Any, String, Nullable}) => ({
+    this.define<CustomAction.Props>(({Any, Nullable}) => ({
       callback: [ Nullable(Any /*TODO*/) ],
-      icon:     [ String ],
     }))
 
     this.override<CustomAction.Props>({

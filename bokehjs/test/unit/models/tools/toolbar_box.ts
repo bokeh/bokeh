@@ -18,8 +18,8 @@ class MultiToolView extends SelectToolView {}
 
 class MultiTool extends SelectTool {
   override default_view = MultiToolView
-  override icon = "Multi Tool"
   override tool_name = "Multi Tool"
+  override tool_icon = "my-tool-icon"
   override event_type = ["tap" as "tap", "pan" as "pan"]
 }
 
@@ -48,7 +48,7 @@ describe("ProxyToolbar", () => {
       const toolbar = new ProxyToolbar({tools: [multi, tap, pan]})
       expect(toolbar.gestures.multi.tools.length).to.be.equal(1)
       expect(toolbar.gestures.multi.tools[0]).to.be.instanceof(ToolProxy)
-      expect(toolbar.gestures.multi.tools[0].computed_icon).to.be.equal("Multi Tool")
+      expect(toolbar.gestures.multi.tools[0].computed_icon).to.be.equal(".my-tool-icon")
       expect(((toolbar.gestures.multi.tools[0]) as any).tools.length).to.be.equal(1) // XXX
       expect(((toolbar.gestures.multi.tools[0]) as any).tools[0]).to.be.equal(multi) // XXX
     })

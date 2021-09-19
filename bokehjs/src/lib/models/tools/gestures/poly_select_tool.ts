@@ -108,7 +108,7 @@ export class PolySelectTool extends SelectTool {
   }
 
   override tool_name = "Poly Select"
-  override icon = tool_icon_polygon_select
+  override tool_icon = tool_icon_polygon_select
   override event_type = "tap" as "tap"
   override default_order = 11
 }
