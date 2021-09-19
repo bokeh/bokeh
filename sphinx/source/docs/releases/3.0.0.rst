@@ -103,3 +103,14 @@ that ``Span`` and ``BoxAnnotation`` don't have a HTML equivalent anymore.
 Explicit sub-typing support was removed both from models and the protocol.
 If you want to extend existing models without the need for providing an
 implementation, then use data models (e.g. extend from ``DataModel``).
+
+bokehjs changes
+~~~~~~~~~~~~~~~
+
+``Figure.xaxis``, etc.
+......................
+
+``xaxis``, ``yaxis``, ``axis``, ``xgrid``, ``ygrid`` and ``grid`` attributes of
+``Figure`` now return a model proxy object, which mimics the behavior of bokeh's
+plotting API. Arrays of axes/grids can be obtained using new ``xaxes``, ``yaxes``,
+``axes``, ``xgrids``, ``ygrids`` and ``grids`` attributes.
