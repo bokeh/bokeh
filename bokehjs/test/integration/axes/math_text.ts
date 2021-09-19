@@ -208,7 +208,7 @@ describe("MathText on axes", () => {
       }
     })
 
-    it("should display tick labels with math text on overrides", async () => {
+    it.allowing(4)("should display tick labels with math text on overrides", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
