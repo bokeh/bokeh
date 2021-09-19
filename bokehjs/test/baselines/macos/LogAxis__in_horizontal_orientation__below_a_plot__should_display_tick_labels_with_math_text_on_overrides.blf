@@ -1,2 +1,2 @@
-Plot bbox=[0, 0, 300, 100]
-  LogAxis bbox=[20, 56, 260, 44]
+Plot bbox=[0, 0, 300, 160]
+  LogAxis bbox=[20, 116, 260, 44]
