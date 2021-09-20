@@ -200,7 +200,7 @@ class Test_WheelPanTool:
 
         assert page.has_no_console_errors()
 
-    def test_ranges_update(self, single_plot_page) -> None:
+    def test_xpan_ranges_update(self, single_plot_page) -> None:
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
         plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))
@@ -222,9 +222,30 @@ class Test_WheelPanTool:
         page.click_custom_action()
         results = page.results
         assert results['event_name'] == "rangesupdate"
-        assert results['x0'] < 0
-        assert results['x1'] < 1
-        assert results['y0'] == 0
-        assert results['y1'] == 1
+
+        assert page.has_no_console_errors()
+
+    def test_ypan_ranges_update(self, single_plot_page) -> None:
+        source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
+        plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+        plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))
+        plot.add_tools(WheelPanTool(dimension='height'))
+        code = RECORD("event_name", "cb_obj.event_name", final=False) + \
+               RECORD("x0", "cb_obj.x0", final=False) + \
+               RECORD("x1", "cb_obj.x1", final=False) + \
+               RECORD("y0", "cb_obj.y0", final=False) + \
+               RECORD("y1", "cb_obj.y1")
+        plot.js_on_event(RangesUpdate, CustomJS(code=code))
+        plot.add_tools(CustomAction(callback=CustomJS(code="")))
+        plot.toolbar_sticky = False
+
+        page = single_plot_page(plot)
+
+        button = page.get_toolbar_button('wheel-pan')
+        button.click()
+        page.driver.execute_script(SCROLL(-200))
+        page.click_custom_action()
+        results = page.results
+        assert results['event_name'] == "rangesupdate"
 
         assert page.has_no_console_errors()
