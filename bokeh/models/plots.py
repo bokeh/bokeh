@@ -354,10 +354,10 @@ class Plot(LayoutDOM):
         ''' Adds new ``TileRenderer`` into ``Plot.renderers``
 
         Args:
-            tile_source (TileSource, xyzservices.TileProvider, str) : 
+            tile_source (TileSource, xyzservices.TileProvider, str) :
                 A tile source instance which contain tileset configuration
-            
-            retina (bool) : 
+
+            retina (bool) :
                 Whether to use retina version of tiles (if available)
 
         Keyword Arguments:
@@ -368,24 +368,17 @@ class Plot(LayoutDOM):
 
         '''
         if not isinstance(tile_source, TileSource):
-            
+
             if isinstance(tile_source, xyzservices.TileProvider):
                 selected_provider = tile_source
 
             # allow the same string input you can now pass to get_provider
             elif isinstance(tile_source, str):
 
-                flat_providers = xyzservices.providers.flatten()
-                all_providers = {k.lower().replace(".", ""): v for k,v in flat_providers.items()}
-
-                selected_provider = tile_source.lower().replace("_", "")
-                if "retina" in selected_provider:
-                    selected_provider = selected_provider.replace("retina", "")
+                if "retina" in tile_source:
+                    tile_source = tile_source.replace("retina", "")
                     retina = True
-                if selected_provider not in all_providers.keys():
-                    raise ValueError(f'Unknown tile provider {tile_source}')
-                else:
-                    selected_provider = all_providers[selected_provider]
+                selected_provider = xyzservices.providers.query_name(tile_source)
 
             scale_factor = "@2x" if retina else None
 
