@@ -728,7 +728,7 @@ KindRef = Any # TODO
 
 class _PropertyDef(TypedDict):
     name: str
-    kind: KindRef | None
+    kind: KindRef
 
 class PropertyDef(_PropertyDef, total=False):
     default: Unknown
@@ -743,8 +743,8 @@ class ModelRef(TypedDict):
 
 class ModelDef(ModelRef):
     extends: ModelRef
-    properties: List[PropertyDef] | None
-    overrides: List[OverrideDef] | None
+    properties: List[PropertyDef]
+    overrides: List[OverrideDef]
 
 #-----------------------------------------------------------------------------
 # Private API
