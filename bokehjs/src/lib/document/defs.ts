@@ -19,6 +19,7 @@ export type PrimitiveKindRef = "Any" | "Unknown" | "Boolean" | "Number" | "Int" 
 
 export type KindRef =
   PrimitiveKindRef |
+  ["Regex", string, string?] |
   ["Nullable", KindRef] |
   ["Or", ...KindRef[]] |
   ["Tuple", KindRef, ...KindRef[]] |
@@ -59,6 +60,10 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
       }
     } else {
       switch (ref[0]) {
+        case "Regex": {
+          const [, regex, flags] = ref
+          return kinds.Regex(new RegExp(regex, flags))
+        }
         case "Nullable": {
           const [, subref] = ref
           return kinds.Nullable(kind_of(subref))
