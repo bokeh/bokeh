@@ -9,6 +9,10 @@
 get_provider
     Use this function to retrieve an instance of a predefined tile provider.
 
+    .. warning::
+        get_provider is deprecated as of Bokeh 3.0.0 and will be removed in a future
+        release. Use ``add_tile`` directly instead.
+
     Args:
         provider_name (Union[str, Vendors, xyzservices.TileProvider])
             Name of the tile provider to supply.
@@ -42,6 +46,10 @@ The available built-in tile providers are listed in the ``Vendors`` enum:
 .. bokeh-enum:: Vendors
     :module: bokeh.tile_providers
     :noindex:
+
+.. warning::
+    The built-in Vendors are deprecated as of Bokeh 3.0.0 and will be removed in a future
+    release. You can pass the same strings to ``add_tile`` directly.
 
 Any of these values may be be passed to the ``get_provider`` function in order
 to obtain a tile provider to use with a Bokeh plot. Representative samples of
@@ -151,14 +159,14 @@ import types
 from bokeh.core.enums import enumeration
 
 # Bokeh imports
-from .util.dependencies import import_optional
+from .util.deprecation import deprecated
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 # __all__ defined at the bottom on the class module
-xyzservices = import_optional('xyzservices')
+import xyzservices
 
 #-----------------------------------------------------------------------------
 # General API
@@ -174,23 +182,36 @@ xyzservices = import_optional('xyzservices')
 
 class _TileProvidersModule(types.ModuleType):
 
-    # This whole module should be deprecated. The implementation below should retain
-    # backwards compatibility until it is removed.
+    def deprecated_vendors():
+        deprecated((3, 0, 0), "tile_providers module", "add_tile directly")
+        return enumeration('CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA',
+                            'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER',
+                            'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS',
+                            'OSM', 'ESRI_IMAGERY',
+                            case_sensitive=True)
 
-    Vendors = enumeration('CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA',
-                          'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER',
-                          'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS',
-                          'OSM','WIKIMEDIA','ESRI_IMAGERY',
-                          case_sensitive=True)
+    Vendors = deprecated_vendors()
 
     def get_provider(self, provider_name):
+        deprecated((3, 0, 0), "get_provider", "add_tile directly")
         from bokeh.models import WMTSTileSource
 
         if isinstance(provider_name, WMTSTileSource):
             # This allows `get_provider(CARTODBPOSITRON)` to work
             return WMTSTileSource(url=provider_name.url, attribution=provider_name.attribution)
 
-        if xyzservices and isinstance(provider_name, xyzservices.TileProvider):
+        if isinstance(provider_name, str):
+            if "retina" in provider_name.lower():
+                provider_name = provider_name.lower().replace("retina", "")
+
+            if provider_name == "ESRI_IMAGERY":
+                provider_name = "ESRI_WORLDIMAGERY"
+            if provider_name == "OSM":
+                provider_name = "OPENSTREETMAP_MAPNIK"
+
+            provider_name = xyzservices.providers.query_name(provider_name)
+
+        if isinstance(provider_name, xyzservices.TileProvider):
             return WMTSTileSource(
                 url=provider_name.build_url(scale_factor="@2x"),
                 attribution=provider_name.html_attribution,
@@ -198,15 +219,6 @@ class _TileProvidersModule(types.ModuleType):
                 max_zoom=provider_name.get("max_zoom", 30),
             )
 
-        selected_provider = provider_name.upper()
-
-        # Mapping of custom keys to those used in xyzservices
-        if selected_provider == "ESRI_IMAGERY":
-            selected_provider = "ESRI_WORLDIMAGERY"
-        if selected_provider == "OSM":
-            selected_provider = "OPENSTREETMAP_MAPNIK"
-
-        return selected_provider
 
     # Properties --------------------------------------------------------------
 
@@ -218,7 +230,6 @@ class _TileProvidersModule(types.ModuleType):
     STAMEN_TONER_BACKGROUND = Vendors.STAMEN_TONER_BACKGROUND
     STAMEN_TONER_LABELS = Vendors.STAMEN_TONER_LABELS
     OSM = Vendors.OSM
-    WIKIMEDIA = Vendors.WIKIMEDIA
     ESRI_IMAGERY = Vendors.ESRI_IMAGERY
 
 #-----------------------------------------------------------------------------
@@ -236,7 +247,6 @@ _mod.__all__ = (
     'STAMEN_TONER_BACKGROUND',
     'STAMEN_TONER_LABELS',
     'OSM',
-    'WIKIMEDIA',
     'ESRI_IMAGERY',
     'get_provider',
     'Vendors'

@@ -368,9 +368,14 @@ class Plot(LayoutDOM):
 
             # allow the same string input you can now pass to get_provider
             elif isinstance(tile_source, str):
+                # Mapping of custom keys to those used in xyzservices
+                if tile_source == "ESRI_IMAGERY":
+                    tile_source = "ESRI_WORLDIMAGERY"
+                if tile_source == "OSM":
+                    tile_source = "OPENSTREETMAP_MAPNIK"
 
-                if "retina" in tile_source:
-                    tile_source = tile_source.replace("retina", "")
+                if "retina" in tile_source.lower():
+                    tile_source = tile_source.lower().replace("retina", "")
                     retina = True
                 selected_provider = xyzservices.providers.query_name(tile_source)
 
