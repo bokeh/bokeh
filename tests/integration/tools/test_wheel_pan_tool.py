@@ -53,7 +53,7 @@ def _make_plot(dimension):
 
 
 @pytest.mark.selenium
-class Test_WheelZoomTool:
+class Test_WheelPanTool:
     def test_xwheel_deselected_by_default(self, single_plot_page) -> None:
         plot = _make_plot('width')
 
@@ -233,7 +233,6 @@ class Test_WheelZoomTool:
         page.driver.execute_script(SCROLL(-200))
         page.click_custom_action()
         results = page.results
-        print('***', page.results)
         assert results['event_name'] == "rangesupdate"
         assert results['x0'] < 0
         assert results['x1'] < 1
