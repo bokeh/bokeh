@@ -42,6 +42,9 @@ export class Visuals {
         }
       })()
 
+      if (visual instanceof VisualProperties)
+        visual.update()
+
       this._visuals.push(visual)
 
       Object.defineProperty(this, prefix + visual.type, {

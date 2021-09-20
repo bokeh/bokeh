@@ -32,7 +32,6 @@ export abstract class VisualProperties {
       self[attr] = prop
       this._props.push(prop)
     }
-    this.update()
   }
 
   abstract get doit(): boolean
