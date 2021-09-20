@@ -29,6 +29,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import difflib
+import types
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -307,25 +308,39 @@ class HasProps(metaclass=MetaHasProps):
 
     @classmethod
     def static_to_serializable(cls, serializer: StaticSerializer) -> ModelRef:
-        # TODO: resolving already visited objects should be serializer's duty
-        modelref = serializer.get_ref(cls)
-        if modelref is not None:
-            return modelref
+        from ..model import DataModel, Model
 
-        bases: List[Type[HasProps]] = [ basecls for basecls in cls.__bases__ if is_DataModel(basecls) ]
+        def model_ref(cls: Type[HasProps]) -> ModelRef:
+            if cls == Model:
+                name = "Model"
+                module = "bokeh.model"
+            else:
+                name = cls.__view_model__
+                module = cls.__view_module__
+
+            # TODO: remove this
+            if module == "__main__" or module.split(".")[0] == "bokeh":
+                module = None
+
+            return ModelRef(name=name, module=module)
+
+        # TODO: resolving already visited objects should be serializer's duty
+        ref = serializer.get_ref(cls)
+        if ref is not None:
+            return ref
+        if not is_DataModel(cls):
+            return model_ref(cls)
+
+        # TODO: consider supporting mixin models
+        bases: List[Type[HasProps]] = [ base for base in cls.__bases__ if issubclass(base, HasProps) and base != DataModel ]
         if len(bases) == 0:
-            extends = None
-        elif len(bases) == 1:
-            extends = bases[0].static_to_serializable(serializer)
+            bases = [Model]
+
+        if len(bases) == 1:
+            [base] = bases
+            extends = base.static_to_serializable(serializer)
         else:
             raise RuntimeError("multiple bases are not supported")
-
-        name = cls.__view_model__
-        module = cls.__view_module__
-
-        # TODO: remove this
-        if module == "__main__" or module.split(".")[0] == "bokeh":
-            module = None
 
         properties: List[PropertyDef] = []
         overrides: List[OverrideDef] = []
@@ -333,15 +348,24 @@ class HasProps(metaclass=MetaHasProps):
         # TODO: don't use unordered sets
         for prop_name in cls.__properties__:
             descriptor = cls.lookup(prop_name)
-            kind = None # TODO: serialize kinds
-            default = descriptor.property._default # TODO: private member
-            properties.append(PropertyDef(name=prop_name, kind=kind, default=default))
+            kind = "Any" # TODO: serialize kinds
+            default = descriptor.property._default
+
+            if default is Undefined:
+                prop_def = PropertyDef(name=prop_name, kind=kind)
+            else:
+                if isinstance(default, types.FunctionType):
+                    default = default()
+
+                prop_def = PropertyDef(name=prop_name, kind=kind, default=default)
+
+            properties.append(prop_def)
 
         for prop_name, default in getattr(cls, "__overridden_defaults__", {}).items():
             overrides.append(OverrideDef(name=prop_name, default=default))
 
-        modeldef = ModelDef(name=name, module=module, extends=extends, properties=properties, overrides=overrides)
-        modelref = ModelRef(name=name, module=module)
+        modelref = model_ref(cls)
+        modeldef = ModelDef(name=modelref["name"], module=modelref["module"], extends=extends, properties=properties, overrides=overrides)
 
         serializer.add_ref(cls, modelref, modeldef)
         return modelref
@@ -702,10 +726,12 @@ class HasProps(metaclass=MetaHasProps):
 
 KindRef = Any # TODO
 
-class PropertyDef(TypedDict):
+class _PropertyDef(TypedDict):
     name: str
-    kind: KindRef | None
-    default: Unknown | None
+    kind: KindRef
+
+class PropertyDef(_PropertyDef, total=False):
+    default: Unknown
 
 class OverrideDef(TypedDict):
     name: str
@@ -716,9 +742,9 @@ class ModelRef(TypedDict):
     module: str | None
 
 class ModelDef(ModelRef):
-    extends: ModelRef | None
-    properties: List[PropertyDef] | None
-    overrides: List[OverrideDef] | None
+    extends: ModelRef
+    properties: List[PropertyDef]
+    overrides: List[OverrideDef]
 
 #-----------------------------------------------------------------------------
 # Private API
