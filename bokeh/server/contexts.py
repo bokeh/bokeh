@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import weakref
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -74,13 +75,19 @@ __all__ = (
 
 class BokehServerContext(ServerContext):
     def __init__(self, application_context: ApplicationContext) -> None:
-        self.application_context = application_context
+        self._application_context = weakref.ref(application_context)
+
+    @property
+    def application_context(self) -> ApplicationContext | None:
+        return self._application_context()
 
     @property
     def sessions(self) -> List[ServerSession]:
         result: List[ServerSession] = []
-        for session in self.application_context.sessions:
-            result.append(session)
+        context = self.application_context
+        if context:
+            for session in context.sessions:
+                result.append(session)
         return result
 
 class BokehSessionContext(SessionContext):
@@ -148,7 +155,7 @@ class ApplicationContext:
     _sessions: Dict[ID, ServerSession]
     _pending_sessions: Dict[ID, gen.Future[ServerSession]]
     _session_contexts: Dict[ID, SessionContext]
-    _server_context: BokehServerContext | None
+    _server_context: BokehServerContext
 
     def __init__(self, application: Application, io_loop: IOLoop | None = None,
             url: str | None = None, logout_url: str | None = None):
@@ -157,7 +164,7 @@ class ApplicationContext:
         self._sessions = {}
         self._pending_sessions = {}
         self._session_contexts = {}
-        self._server_context = None
+        self._server_context = BokehServerContext(self)
         self._url = url
         self._logout_url = logout_url
 
@@ -175,8 +182,6 @@ class ApplicationContext:
 
     @property
     def server_context(self) -> BokehServerContext:
-        if self._server_context is None:
-            self._server_context = BokehServerContext(self)
         return self._server_context
 
     @property
@@ -228,7 +233,7 @@ class ApplicationContext:
 
             # expose the session context to the document
             # use the _attribute to set the public property .session_context
-            doc._session_context = session_context
+            doc._session_context = weakref.ref(session_context)
 
             try:
                 await self._application.on_session_created(session_context)

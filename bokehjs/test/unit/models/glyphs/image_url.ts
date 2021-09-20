@@ -13,7 +13,7 @@ describe("ImageURL module", () => {
       const image_url = new ImageURL()
 
       it("should have global_alpha=1.0", () => {
-        expect(image_url.global_alpha).to.be.equal(1.0)
+        expect(image_url.global_alpha).to.be.equal({value: 1.0})
       })
 
       it("should have retry_attempts=0", () => {

@@ -1,5 +1,16 @@
+''' A reproduction of `Anscombe's Quartet`_ using the low-level |bokeh.models|
+API that also includes HTML content in a ``Div``.
+
+.. bokeh-example-metadata::
+    :sampledata: anscombe
+    :apis: bokeh.layouts.column, bokeh.layouts.gridplot, bokeh.models.plots.Plot, bokeh.models.axes.LinearAxis
+    :refs: :ref:`userguide_layout` > :ref:`userguide_layout_gridplot`
+    :keywords: gridplot
+
+.. _Anscombe's Quartet: https://en.wikipedia.org/wiki/Anscombe%27s_quartet
+
+'''
 import numpy as np
-import pandas as pd
 
 from bokeh.document import Document
 from bokeh.embed import file_html
@@ -7,47 +18,20 @@ from bokeh.layouts import column, gridplot
 from bokeh.models import (Circle, ColumnDataSource, Div, Grid,
                           Line, LinearAxis, Plot, Range1d)
 from bokeh.resources import INLINE
+from bokeh.sampledata.anscombe import data as df
 from bokeh.util.browser import view
 
-raw_columns=[
-[10.0,   8.04,   10.0,   9.14,   10.0,   7.46,   8.0,    6.58],
-[8.0,    6.95,   8.0,    8.14,   8.0,    6.77,   8.0,    5.76],
-[13.0,   7.58,   13.0,   8.74,   13.0,   12.74,  8.0,    7.71],
-[9.0,    8.81,   9.0,    8.77,   9.0,    7.11,   8.0,    8.84],
-[11.0,   8.33,   11.0,   9.26,   11.0,   7.81,   8.0,    8.47],
-[14.0,   9.96,   14.0,   8.10,   14.0,   8.84,   8.0,    7.04],
-[6.0,    7.24,   6.0,    6.13,   6.0,    6.08,   8.0,    5.25],
-[4.0,    4.26,   4.0,    3.10,   4.0,    5.39,   19.0,   12.5],
-[12.0,   10.84,  12.0,   9.13,   12.0,   8.15,   8.0,    5.56],
-[7.0,    4.82,   7.0,    7.26,   7.0,    6.42,   8.0,    7.91],
-[5.0,    5.68,   5.0,    4.74,   5.0,    5.73,   8.0,    6.89]]
-
-quartet = pd.DataFrame(data=raw_columns, columns=
-                       ['Ix','Iy','IIx','IIy','IIIx','IIIy','IVx','IVy'])
-
-
-circles_source = ColumnDataSource(
-    data = dict(
-        xi   = quartet['Ix'],
-        yi   = quartet['Iy'],
-        xii  = quartet['IIx'],
-        yii  = quartet['IIy'],
-        xiii = quartet['IIIx'],
-        yiii = quartet['IIIy'],
-        xiv  = quartet['IVx'],
-        yiv  = quartet['IVy'],
-    )
-   )
+circles_source = ColumnDataSource(data=df)
 
 x = np.linspace(-0.5, 20.5, 10)
 y = 3 + 0.5 * x
 lines_source = ColumnDataSource(data=dict(x=x, y=y))
 
-xdr = Range1d(start=-0.5, end=20.5)
-ydr = Range1d(start=-0.5, end=20.5)
+xr = Range1d(start=-0.5, end=20.5)
+yr = Range1d(start=-0.5, end=20.5)
 
 def make_plot(title, xname, yname):
-    plot = Plot(x_range=xdr, y_range=ydr, width=400, height=400,
+    plot = Plot(x_range=xr, y_range=yr, width=400, height=400,
                 background_fill_color='#efefef')
     plot.title.text = title
 
@@ -72,16 +56,16 @@ def make_plot(title, xname, yname):
     return plot
 
 #where will this comment show up
-I   = make_plot('I',   'xi',   'yi')
-II  = make_plot('II',  'xii',  'yii')
-III = make_plot('III', 'xiii', 'yiii')
-IV  = make_plot('IV',  'xiv',  'yiv')
+I   = make_plot('I',   'Ix',   'Iy')
+II  = make_plot('II',  'IIx',  'IIy')
+III = make_plot('III', 'IIIx', 'IIIy')
+IV  = make_plot('IV',  'IVx',  'IVy')
 
 grid = gridplot([[I, II], [III, IV]], toolbar_location=None)
 
 div = Div(text="""
 <h1>Anscombe's Quartet</h1>
-<p>Anscombe's quartet is a collection of four small datasets that have nearly
+<p>Anscombe's df is a collection of four small datasets that have nearly
 identical simple descriptive statistics (mean, variance, correlation, and linear
 regression lines), yet appear very different when graphed.
 </p>
@@ -94,6 +78,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "anscombe.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Anscombe's Quartet"))
-    print("Wrote %s" % filename)
+        f.write(file_html(doc, INLINE, "Anscombe's df"))
+    print(f"Wrote {filename}")
     view(filename)

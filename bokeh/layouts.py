@@ -25,36 +25,32 @@ import math
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Iterable,
     Iterator,
     List,
     Sequence,
     Tuple,
     TypeVar,
-    cast,
     overload,
 )
 
 # Bokeh imports
 from .core.enums import Location, LocationType, SizingModeType
-from .models.layouts import (
+from .models import (
     Box,
     Column,
     GridBox,
     LayoutDOM,
+    Plot,
+    ProxyToolbar,
     Row,
     Spacer,
-    WidgetBox,
+    ToolbarBox,
 )
-from .models.plots import Plot
-from .models.tools import ProxyToolbar, ToolbarBox
 from .util.dataclasses import dataclass
-from .util.deprecation import deprecated
 
 if TYPE_CHECKING:
-    from .models.tools import Toolbar
-    from .models.widgets import Widget
+    from .models import Toolbar
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -64,11 +60,9 @@ __all__ = (
     'column',
     'grid',
     'gridplot',
-    'GridSpec',
     'layout',
     'row',
     'Spacer',
-    'widgetbox',
 )
 
 #-----------------------------------------------------------------------------
@@ -85,19 +79,19 @@ def row(*children: LayoutDOM | List[LayoutDOM], sizing_mode: SizingModeType | No
     have the same sizing_mode, which is required for complex layouts to work.
 
     Args:
-        children (list of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of instances for
+        children (list of :class:`~bokeh.models.LayoutDOM` ): A list of instances for
             the row. Can be any of the following - |Plot|,
-            :class:`~bokeh.models.widgets.widget.Widget`,
-            :class:`~bokeh.models.layouts.Row`,
-            :class:`~bokeh.models.layouts.Column`,
-            :class:`~bokeh.models.tools.ToolbarBox`,
-            :class:`~bokeh.models.layouts.Spacer`.
+            :class:`~bokeh.models.Widget`,
+            :class:`~bokeh.models.Row`,
+            :class:`~bokeh.models.Column`,
+            :class:`~bokeh.models.ToolbarBox`,
+            :class:`~bokeh.models.Spacer`.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
-            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
-            description on :class:`~bokeh.models.layouts.LayoutDOM`.
+            modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.LayoutDOM`.
 
     Returns:
         Row: A row of LayoutDOM objects all with the same sizing_mode.
@@ -121,19 +115,19 @@ def column(*children: LayoutDOM | List[LayoutDOM], sizing_mode: SizingModeType |
     have the same sizing_mode, which is required for complex layouts to work.
 
     Args:
-        children (list of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of instances for
+        children (list of :class:`~bokeh.models.LayoutDOM` ): A list of instances for
             the column. Can be any of the following - |Plot|,
-            :class:`~bokeh.models.widgets.widget.Widget`,
-            :class:`~bokeh.models.layouts.Row`,
-            :class:`~bokeh.models.layouts.Column`,
-            :class:`~bokeh.models.tools.ToolbarBox`,
-            :class:`~bokeh.models.layouts.Spacer`.
+            :class:`~bokeh.models.Widget`,
+            :class:`~bokeh.models.Row`,
+            :class:`~bokeh.models.Column`,
+            :class:`~bokeh.models.ToolbarBox`,
+            :class:`~bokeh.models.Spacer`.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
-            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
-            description on :class:`~bokeh.models.layouts.LayoutDOM`.
+            modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.LayoutDOM`.
 
     Returns:
         Column: A column of LayoutDOM objects all with the same sizing_mode.
@@ -148,49 +142,23 @@ def column(*children: LayoutDOM | List[LayoutDOM], sizing_mode: SizingModeType |
     return Column(children=_children, sizing_mode=sizing_mode, **kwargs)
 
 
-def widgetbox(*args: Widget, children: List[Widget] | None = None, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> WidgetBox:
-    """ Create a column of bokeh widgets with predefined styling.
-
-    Args:
-        children (list of :class:`~bokeh.models.widgets.widget.Widget`): A list of widgets.
-
-        sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
-            will the items in the layout resize to fill the available space.
-            Default is ``"fixed"``. For more information on the different
-            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
-            description on :class:`~bokeh.models.layouts.LayoutDOM`.
-
-    Returns:
-        WidgetBox: A column layout of widget instances all with the same ``sizing_mode``.
-
-    Examples:
-
-        >>> widgetbox([button, select])
-        >>> widgetbox(children=[slider], sizing_mode='scale_width')
-    """
-    _children = _parse_children_arg(*args, children=children)
-    _handle_child_sizing(_children, sizing_mode, widget="widget box")
-
-    return WidgetBox(children=_children, sizing_mode=sizing_mode, **kwargs)
-
-
 def layout(*args: LayoutDOM, children: List[LayoutDOM] | None = None, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column:
     """ Create a grid-based arrangement of Bokeh Layout objects.
 
     Args:
-        children (list of lists of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of lists of instances
+        children (list of lists of :class:`~bokeh.models.LayoutDOM` ): A list of lists of instances
             for a grid layout. Can be any of the following - |Plot|,
-            :class:`~bokeh.models.widgets.widget.Widget`,
-            :class:`~bokeh.models.layouts.Row`,
-            :class:`~bokeh.models.layouts.Column`,
-            :class:`~bokeh.models.tools.ToolbarBox`,
-            :class:`~bokeh.models.layouts.Spacer`.
+            :class:`~bokeh.models.Widget`,
+            :class:`~bokeh.models.Row`,
+            :class:`~bokeh.models.Column`,
+            :class:`~bokeh.models.ToolbarBox`,
+            :class:`~bokeh.models.Spacer`.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
-            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
-            description on :class:`~bokeh.models.layouts.LayoutDOM`.
+            modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.LayoutDOM`.
 
     Returns:
         Column: A column of ``Row`` layouts of the children, all with the same sizing_mode.
@@ -212,14 +180,12 @@ def layout(*args: LayoutDOM, children: List[LayoutDOM] | None = None, sizing_mod
     return _create_grid(_children, sizing_mode, **kwargs)
 
 def gridplot(
-        children: List[List[LayoutDOM | None]] | GridSpec, *,
+        children: List[List[LayoutDOM | None]], *,
         sizing_mode: SizingModeType | None = None,
         toolbar_location: LocationType | None = "above",
         ncols: int | None = None,
         width: int | None = None,
         height: int | None = None,
-        plot_width: int | None = None,
-        plot_height: int | None = None,
         toolbar_options: Any = None, # TODO
         merge_tools: bool = True) -> LayoutDOM:
     ''' Create a grid of plots rendered on separate canvases.
@@ -232,13 +198,13 @@ def gridplot(
         children (list of lists of |Plot|): An array of plots to display in a
             grid, given as a list of lists of Plot objects. To leave a position
             in the grid empty, pass None for that position in the children list.
-            OR list of |Plot| if called with ncols. OR an instance of GridSpec.
+            OR list of |Plot| if called with ncols.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
-            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
-            description on :class:`~bokeh.models.layouts.LayoutDOM`.
+            modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.LayoutDOM`.
 
         toolbar_location (``above``, ``below``, ``left``, ``right`` ): Where the
             toolbar will be located, with respect to the grid. Default is
@@ -254,7 +220,7 @@ def gridplot(
 
         toolbar_options (dict, optional) : A dictionary of options that will be
             used to construct the grid's toolbar (an instance of
-            :class:`~bokeh.models.tools.ToolbarBox`). If none is supplied,
+            :class:`~bokeh.models.ToolbarBox`). If none is supplied,
             ToolbarBox's defaults will be used.
 
         merge_tools (``True``, ``False``): Combine tools from all child plots into
@@ -277,9 +243,6 @@ def gridplot(
             )
 
     '''
-    if plot_width is not None or plot_height is not None:
-        deprecated((2, 4, 0), "plot_width and plot_height", "width or height")
-
     if toolbar_options is None:
         toolbar_options = {}
 
@@ -310,12 +273,6 @@ def gridplot(
                     for plot in item.select(dict(type=Plot)):
                         toolbars.append(plot.toolbar)
                         plot.toolbar_location = None
-
-                if isinstance(item, Plot):
-                    if plot_width is not None:
-                        item.width = plot_width
-                    if plot_height is not None:
-                        item.height = plot_height
 
                 if width is not None:
                     item.width = width
@@ -545,79 +502,6 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
 # Dev API
 #-----------------------------------------------------------------------------
 
-class GridSpec:
-    """ Simplifies grid layout specification. """
-
-    nrows: int
-    ncols: int
-    _arrangement: Dict[Tuple[int, int], LayoutDOM | None]
-
-    def __init__(self, nrows: int, ncols: int) -> None:
-        self.nrows = nrows
-        self.ncols = ncols
-        self._arrangement = {}
-
-        from .util.deprecation import deprecated
-        deprecated("'GridSpec' is deprecated and will be removed in Bokeh 3.0")
-
-    def __setitem__(self, key: Tuple[int | slice, int | slice], obj: LayoutDOM | List[LayoutDOM] | List[List[LayoutDOM]]) -> None:
-        k1, k2 = key
-
-        row1: int
-        row2: int | None
-        if isinstance(k1, slice):
-            row1, row2, _ = k1.indices(self.nrows)
-        else:
-            if k1 < 0:
-                k1 += self.nrows
-            if k1 >= self.nrows or k1 < 0:
-                raise IndexError("index out of range")
-            row1, row2 = k1, None
-
-        col1: int
-        col2: int | None
-        if isinstance(k2, slice):
-            col1, col2, _ = k2.indices(self.ncols)
-        else:
-            if k2 < 0:
-                k2 += self.ncols
-            if k2 >= self.ncols or k2 < 0:
-                raise IndexError("index out of range")
-            col1, col2 = k2, None
-
-        # gs[row, col]             = obj
-        # gs[row1:row2, col]       = [...]
-        # gs[row, col1:col2]       = [...]
-        # gs[row1:row2, col1:col2] = [[...], ...]
-
-        T = TypeVar("T")
-        def get(obj: List[T] | None, i: int) -> T | None:
-            return obj[i] if obj is not None and 0 <= i < len(obj) else None
-
-        if row2 is None and col2 is None:
-            assert isinstance(obj, LayoutDOM)
-            self._arrangement[row1, col1] = obj
-        elif row2 is None:
-            assert col2 is not None
-            _obj = cast(List[LayoutDOM], obj)
-            for col in range(col1, col2):
-                self._arrangement[row1, col] = get(_obj, col - col1)
-        elif col2 is None:
-            assert row2 is not None
-            _obj = cast(List[LayoutDOM], obj)
-            for row in range(row1, row2):
-                self._arrangement[row, col1] = get(_obj, row - row1)
-        else:
-            _obj =  cast(List[List[LayoutDOM]], obj)
-            for row, col in zip(range(row1, row2), range(col1, col2)):
-                self._arrangement[row, col] = get(get(_obj, row - row1), col - col1)
-
-    def __iter__(self) -> Iterator[List[LayoutDOM | None]]:
-        array: List[List[LayoutDOM | None]] = [ [None]*self.ncols for _ in range(0, self.nrows) ]
-        for (row, col), obj in self._arrangement.items():
-            array[row][col] = obj
-        return iter(array)
-
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
@@ -626,7 +510,7 @@ def _has_auto_sizing(item: LayoutDOM) -> bool:
     return item.sizing_mode is None and item.width_policy == "auto" and item.height_policy == "auto"
 
 L = TypeVar("L", bound=LayoutDOM)
-def _parse_children_arg(*args: L | List[L] | GridSpec, children: List[L] | None = None) -> List[L] | GridSpec:
+def _parse_children_arg(*args: L | List[L], children: List[L] | None = None) -> List[L]:
     # Set-up Children from args or kwargs
     if len(args) > 0 and children is not None:
         raise ValueError("'children' keyword cannot be used with positional arguments")
@@ -634,7 +518,7 @@ def _parse_children_arg(*args: L | List[L] | GridSpec, children: List[L] | None 
     if not children:
         if len(args) == 1:
             [arg] = args
-            if isinstance(arg, (GridSpec, list)):
+            if isinstance(arg, list):
                 return arg
 
         return list(args)

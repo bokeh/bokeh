@@ -9,7 +9,6 @@ import {CDSView} from "../sources/cds_view"
 import {Color, Indices} from "core/types"
 import * as p from "core/properties"
 import {filter} from "core/util/arrayable"
-import {difference} from "core/util/array"
 import {extend, clone} from "core/util/object"
 import {HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
@@ -87,9 +86,9 @@ export class GlyphRendererView extends DataRendererView {
     }
 
     function glyph_from_mode(defaults: Defaults, glyph?: Glyph | "auto" | null): typeof base_glyph {
-      if (glyph instanceof Glyph){
+      if (glyph instanceof Glyph) {
         return glyph
-      } else if (glyph == "auto"){
+      } else if (glyph == "auto") {
         return mk_glyph(defaults)
       }
       return mk_glyph({fill: {}, line: {}})
@@ -291,8 +290,14 @@ export class GlyphRendererView extends DataRendererView {
       selection_glyph = this.selection_glyph
     }
 
-    if (this.hover_glyph != null && inspected_subset_indices.length)
-      indices = difference(indices, inspected_subset_indices)
+    if (this.hover_glyph != null && inspected_subset_indices.length) {
+      // TODO: keep working on Indices instead of converting back and forth
+      const set = new Set(indices)
+      for (const i of inspected_subset_indices) {
+        set.delete(i)
+      }
+      indices = [...set]
+    }
 
     // Render with no selection
     if (!selected_full_indices.length) {

@@ -54,7 +54,12 @@ jobs:
           path: conda-bld-noarch.tgz
 
   codebase:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v2
@@ -62,7 +67,7 @@ jobs:
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
-          environment-file: ci/environment-test-3.7.yml
+          environment-file: ci/environment-test-3.9.yml
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -136,6 +141,12 @@ jobs:
       - name: Install Bokeh package
         shell: bash -l {0}
         run: bash ci/install_bokeh_package.sh
+
+      - name: Upgrade chromium
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo snap install chromium
 
       - name: Start chrome headless
         working-directory: ./bokehjs
@@ -214,6 +225,12 @@ jobs:
       - name: Install Bokeh package
         shell: bash -l {0}
         run: bash ci/install_bokeh_package.sh
+
+      - name: Upgrade chromium
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo snap install chromium
 
       - name: Run tests
         working-directory: bokehjs
@@ -369,7 +386,7 @@ jobs:
 
       - name: Remove extra packages
         shell: bash -l {0}
-        run: conda remove --yes --quiet --no-pin pandas pandas-stubs scipy notebook scikit-learn sympy flask networkx
+        run: conda remove --yes --quiet --no-pin pandas pandas-stubs scipy notebook scikit-learn sympy flask networkx xyzservices
 
       - name: Run tests
         shell: bash -l {0}
@@ -439,7 +456,7 @@ jobs:
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
-          environment-file: ci/environment-test-3.7.yml
+          environment-file: ci/environment-test-downstream.yml
 
       - name: Install downstream packages
         shell: bash -l {0}

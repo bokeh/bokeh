@@ -35,6 +35,7 @@ from bokeh.models import (
     PanTool,
     Plot,
     Range1d,
+    Title,
 )
 from bokeh.plotting import figure
 
@@ -168,7 +169,7 @@ class TestPlotValidation:
             process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith(
-            "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configued with a name that does not correspond to any range: x_range_name='junk' [LinearAxis"
+            "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configured with a name that does not correspond to any range: x_range_name='junk' [LinearAxis"
         )
 
         p = figure()
@@ -179,7 +180,7 @@ class TestPlotValidation:
             process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith(
-            "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configued with a name that does not correspond to any range: x_range_name='junk' [Grid"
+            "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configured with a name that does not correspond to any range: x_range_name='junk' [Grid"
         )
         assert mock_logger.error.call_args[0][0].count("Grid") == 2
 
@@ -259,6 +260,15 @@ class TestLinearTwinAxis(BaseTwinAxis):
 def test_plot_with_no_title_specified_creates_an_empty_title() -> None:
     plot = Plot()
     assert plot.title.text == ""
+
+
+def test_plot_if_title_is_converted_from_string_to_Title() -> None:
+    plot = Plot()
+    plot.title = "A title"
+    plot.title.text_color = "olive"
+    assert isinstance(plot.title, Title)
+    assert plot.title.text == "A title"
+    assert plot.title.text_color == "olive"
 
 
 def test_plot__scale_classmethod() -> None:

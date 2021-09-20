@@ -35,7 +35,7 @@ from ..core.enums import (
     TooltipAttachment,
     VerticalAlign,
 )
-from ..core.has_props import abstract
+from ..core.has_props import HasProps, abstract
 from ..core.properties import (
     Alpha,
     Angle,
@@ -58,11 +58,12 @@ from ..core.properties import (
     NullStringSpec,
     NumberSpec,
     Override,
-    PropertyUnitsSpec,
     Seq,
     String,
     StringSpec,
+    TextLike,
     Tuple,
+    UnitsSpec,
     field,
     value,
 )
@@ -82,7 +83,6 @@ from ..util.serialization import convert_datetime_type
 from .formatters import TickFormatter
 from .labeling import LabelingPolicy, NoOverlap
 from .mappers import ColorMapper
-from .math_text import MathText
 from .renderers import GlyphRenderer, Renderer
 from .sources import ColumnDataSource, DataSource
 from .tickers import Ticker
@@ -148,18 +148,17 @@ class DataAnnotation(Annotation):
     Local data source to use when rendering annotations on the plot.
     """)
 
-@abstract
-class TextAnnotation(Annotation):
-    ''' Base class for text annotation models such as labels and titles.
-
-    '''
+class _HasRenderMode(HasProps):
 
     render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the text is rendered as a canvas element or as a
-    CSS element overlaid on the canvas. The default mode is "canvas".
+    Specifies whether the contents are rendered to a canvas or as a
+    HTML element overlaid on the canvas. The default mode is "canvas".
 
     .. note::
-        The CSS labels won't be present in the output using the "save" tool.
+        This property is deprecated and will be removed in bokeh 3.0.
+
+    .. note::
+        The HTML labels won't be present in the output using the "save" tool.
 
     .. warning::
         Not all visual styling properties are supported if the render_mode is
@@ -170,6 +169,12 @@ class TextAnnotation(Annotation):
         area isn't supported in "css" mode.
 
     """)
+
+@abstract
+class TextAnnotation(Annotation, _HasRenderMode):
+    ''' Base class for text annotation models such as labels and titles.
+
+    '''
 
 class LegendItem(Model):
     '''
@@ -206,7 +211,7 @@ class LegendItem(Model):
 
     visible = Bool(default=True, help="""
     Whether the legend item should be displayed. See
-    :ref:`userguide_plotting_legends_item_visibility` in the user guide.
+    :ref:`userguide_annotations_legends_item_visibility` in the user guide.
     """)
 
     @error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
@@ -227,7 +232,7 @@ class LegendItem(Model):
 class Legend(Annotation):
     ''' Render informational legends for a plot.
 
-    See :ref:`userguide_plotting_legends` for information on plotting legends.
+    See :ref:`userguide_annotations_legends` for information on plotting legends.
 
     '''
 
@@ -361,7 +366,7 @@ class Legend(Annotation):
 class ColorBar(Annotation):
     ''' Render a color bar based on a color mapper.
 
-    See :ref:`userguide_plotting_color_bars` for information on plotting color bars.
+    See :ref:`userguide_annotations_color_bars` for information on plotting color bars.
 
     '''
 
@@ -416,7 +421,7 @@ class ColorBar(Annotation):
     A ``TickFormatter`` to use for formatting the visual appearance of ticks.
     """)
 
-    major_label_overrides = Dict(Either(Float, String), Either(Instance(MathText), String), default={}, help="""
+    major_label_overrides = Dict(Either(Float, String), TextLike, default={}, help="""
     Provide explicit tick label values for specific tick locations that
     override normal formatting.
     """)
@@ -509,7 +514,7 @@ class ColorBar(Annotation):
 class Arrow(DataAnnotation):
     ''' Render arrows as an annotation.
 
-    See :ref:`userguide_plotting_arrows` for information on plotting arrows.
+    See :ref:`userguide_annotations_arrows` for information on plotting arrows.
 
     '''
 
@@ -551,10 +556,10 @@ class Arrow(DataAnnotation):
     The {prop} values for the arrow body.
     """)
 
-class BoxAnnotation(Annotation):
+class BoxAnnotation(Annotation, _HasRenderMode):
     ''' Render a shaded rectangular region as an annotation.
 
-    See :ref:`userguide_plotting_box_annotations` for information on plotting box annotations.
+    See :ref:`userguide_annotations_box_annotations` for information on plotting box annotations.
 
     '''
 
@@ -626,34 +631,21 @@ class BoxAnnotation(Annotation):
 
     fill_color = Override(default="#fff9ba")
 
-    render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the box is rendered as a canvas element or as an
-    css element overlaid on the canvas. The default mode is "canvas".
-
-    .. note:
-        This property is deprecated and will be removed in bokeh 3.0.
-
-    .. warning::
-        The line_dash and line_dash_offset attributes aren't supported if
-        the render_mode is set to "css"
-
-    """)
-
 class Band(DataAnnotation):
     ''' Render a filled area band along a dimension.
 
-    See :ref:`userguide_plotting_bands` for information on plotting bands.
+    See :ref:`userguide_annotations_bands` for information on plotting bands.
 
     '''
-    lower = PropertyUnitsSpec(default=field("lower"), units_enum=SpatialUnits, units_default="data", help="""
+    lower = UnitsSpec(default=field("lower"), units_enum=SpatialUnits, units_default="data", help="""
     The coordinates of the lower portion of the filled area band.
     """)
 
-    upper = PropertyUnitsSpec(default=field("upper"), units_enum=SpatialUnits, units_default="data", help="""
+    upper = UnitsSpec(default=field("upper"), units_enum=SpatialUnits, units_default="data", help="""
     The coordinates of the upper portion of the filled area band.
     """)
 
-    base = PropertyUnitsSpec(default=field("base"), units_enum=SpatialUnits, units_default="data", help="""
+    base = UnitsSpec(default=field("base"), units_enum=SpatialUnits, units_default="data", help="""
     The orthogonal coordinates of the upper and lower values.
     """)
 
@@ -694,7 +686,7 @@ class Label(TextAnnotation):
     appearance of the text, its background, as well as the rectangular bounding
     box border.
 
-    See :ref:`userguide_plotting_labels` for information on plotting labels.
+    See :ref:`userguide_annotations_labels` for information on plotting labels.
 
     '''
 
@@ -728,12 +720,6 @@ class Label(TextAnnotation):
 
     angle = Angle(default=0, help="""
     The angle to rotate the text, as measured from the horizontal.
-
-    .. warning::
-        The center of rotation for canvas and css render_modes is different.
-        For `render_mode="canvas"` the label is rotated from the top-left
-        corner of the annotation, while for `render_mode="css"` the annotation
-        is rotated around it's center.
     """)
 
     angle_units = Enum(AngleUnits, default='rad', help="""
@@ -770,7 +756,7 @@ class Label(TextAnnotation):
 
     border_line_color = Override(default=None)
 
-class LabelSet(TextAnnotation): # TODO: DataAnnotation
+class LabelSet(DataAnnotation, _HasRenderMode):
     ''' Render multiple text labels as annotations.
 
     ``LabelSet`` will render multiple text labels at given ``x`` and ``y``
@@ -819,12 +805,6 @@ class LabelSet(TextAnnotation): # TODO: DataAnnotation
 
     angle = AngleSpec(default=0, help="""
     The angles to rotate the text, as measured from the horizontal.
-
-    .. warning::
-        The center of rotation for canvas and css render_modes is different.
-        For `render_mode="canvas"` the label is rotated from the top-left
-        corner of the annotation, while for `render_mode="css"` the annotation
-        is rotated around it's center.
     """)
 
     x_offset = NumberSpec(default=0, help="""
@@ -857,14 +837,10 @@ class LabelSet(TextAnnotation): # TODO: DataAnnotation
 
     border_line_color = Override(default=None)
 
-    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
-    Local data source to use when rendering annotations on the plot.
-    """)
-
 class PolyAnnotation(Annotation):
     ''' Render a shaded polygonal region as an annotation.
 
-    See :ref:`userguide_plotting_polygon_annotations` for information on
+    See :ref:`userguide_annotations_polygon_annotations` for information on
     plotting polygon annotations.
 
     '''
@@ -910,7 +886,7 @@ class PolyAnnotation(Annotation):
 class Slope(Annotation):
     """ Render a sloped line as an annotation.
 
-    See :ref:`userguide_plotting_slope` for information on plotting slopes.
+    See :ref:`userguide_annotations_slope` for information on plotting slopes.
 
     """
 
@@ -926,10 +902,10 @@ class Slope(Annotation):
     The {prop} values for the line.
     """)
 
-class Span(Annotation):
+class Span(Annotation, _HasRenderMode):
     """ Render a horizontal or vertical line span.
 
-    See :ref:`userguide_plotting_spans` for information on plotting spans.
+    See :ref:`userguide_annotations_spans` for information on plotting spans.
 
     """
 
@@ -950,19 +926,6 @@ class Span(Annotation):
     to "height" (``y`` direction) or "width" (``x`` direction).
     """)
 
-    render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the span is rendered as a canvas element or as a
-    CSS element overlaid on the canvas. The default mode is "canvas".
-
-    .. note:
-        This property is deprecated and will be removed in bokeh 3.0.
-
-    .. warning::
-        The line_dash and line_dash_offset attributes aren't supported if
-        the render_mode is set to "css"
-
-    """)
-
     line_props = Include(ScalarLineProps, help="""
     The {prop} values for the span.
     """)
@@ -970,7 +933,7 @@ class Span(Annotation):
 class Title(TextAnnotation):
     ''' Render a single title box as an annotation.
 
-    See :ref:`userguide_plotting_titles` for information on plotting titles.
+    See :ref:`userguide_annotations_titles` for information on plotting titles.
 
     '''
 
@@ -1076,11 +1039,11 @@ class Tooltip(Annotation):
 class Whisker(DataAnnotation):
     ''' Render a whisker along a dimension.
 
-    See :ref:`userguide_plotting_whiskers` for information on plotting whiskers.
+    See :ref:`userguide_annotations_whiskers` for information on plotting whiskers.
 
     '''
 
-    lower = PropertyUnitsSpec(default=field("lower"), units_enum=SpatialUnits, units_default="data", help="""
+    lower = UnitsSpec(default=field("lower"), units_enum=SpatialUnits, units_default="data", help="""
     The coordinates of the lower end of the whiskers.
     """)
 
@@ -1088,7 +1051,7 @@ class Whisker(DataAnnotation):
     Instance of ``ArrowHead``.
     """)
 
-    upper = PropertyUnitsSpec(default=field("upper"), units_enum=SpatialUnits, units_default="data", help="""
+    upper = UnitsSpec(default=field("upper"), units_enum=SpatialUnits, units_default="data", help="""
     The coordinates of the upper end of the whiskers.
     """)
 
@@ -1096,7 +1059,7 @@ class Whisker(DataAnnotation):
     Instance of ``ArrowHead``.
     """)
 
-    base = PropertyUnitsSpec(default=field("base"), units_enum=SpatialUnits, units_default="data", help="""
+    base = UnitsSpec(default=field("base"), units_enum=SpatialUnits, units_default="data", help="""
     The orthogonal coordinates of the upper and lower values.
     """)
 

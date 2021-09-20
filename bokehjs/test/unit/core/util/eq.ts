@@ -1,6 +1,32 @@
 import {expect} from "assertions"
 
 import {is_equal, equals, Equatable, Comparator} from "@bokehjs/core/util/eq"
+import {HasProps} from "@bokehjs/core/has_props"
+import * as p from "@bokehjs/core/properties"
+
+namespace SomeHasProps {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = HasProps.Props & {
+    prop: p.Property<number>
+  }
+}
+
+interface SomeHasProps extends SomeHasProps.Attrs {}
+
+class SomeHasProps extends HasProps {
+  override properties: SomeHasProps.Props
+
+  constructor(attrs?: Partial<SomeHasProps.Attrs>) {
+    super(attrs)
+  }
+
+  static {
+    this.define<SomeHasProps.Props>(({Number}) => ({
+      prop: [ Number, 0 ],
+    }))
+  }
+}
 
 describe("core/util/eq module", () => {
   describe("implements is_equal() function", () => {
@@ -183,6 +209,24 @@ describe("core/util/eq module", () => {
     expect(is_equal(div1, div2)).to.be.false
     expect(is_equal(div1, div1)).to.be.true
     expect(is_equal(div2, div2)).to.be.true
+  })
+
+  it("that supports HasProps instances", () => {
+    const x0 = new SomeHasProps({prop: 0})
+    const x1 = new SomeHasProps({prop: 1})
+    const x2 = new SomeHasProps({prop: 1})
+
+    expect(is_equal(x0, x0)).to.be.true
+    expect(is_equal(x1, x1)).to.be.true
+
+    expect(is_equal(x0, x1)).to.be.false
+    expect(is_equal(x1, x0)).to.be.false
+
+    expect(is_equal(x0, x2)).to.be.false
+    expect(is_equal(x2, x0)).to.be.false
+    expect(is_equal(x1, x2)).to.be.true   // no id
+    expect(is_equal(x2, x1)).to.be.true   // no id
+    expect(is_equal(x2, x2)).to.be.true
   })
 
   it("that throws on unknown types", () => {

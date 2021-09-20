@@ -36,6 +36,7 @@ from .singletons import Undefined
 
 __all__ = (
     'Regex',
+    'MathString',
     'Base64String',
 )
 
@@ -112,6 +113,14 @@ class Base64String(String):
         if isinstance(value, str):
             value = base64.b64encode(value.encode("utf-8")).decode("utf-8")
         return value
+
+class MathString(String):
+    """ A string with math TeX/LaTeX delimiters.
+
+    Args:
+        value : a string that contains math
+
+    """
 
 #-----------------------------------------------------------------------------
 # Dev API

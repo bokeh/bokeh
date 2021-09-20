@@ -13,13 +13,16 @@ import {Indices} from "core/types"
 import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
+import {entries} from "core/util/object"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
-import {MathText, MathTextView} from "models/math_text"
+import {BaseTextView} from "../text/base_text"
+import {BaseText} from "../text/base_text"
 import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
-
+import {isString} from "core/util/types"
+import {parse_delimited_string} from "models/text/utils"
 
 const {abs} = Math
 
@@ -44,32 +47,30 @@ export class AxisView extends GuideRendererView {
   panel: Panel
   layout: Layoutable
 
-  private axis_label_math_text_view: MathTextView
-  private major_label_math_text_views: {[key: string]: MathTextView} = {}
+  /*private*/ _axis_label_view: BaseTextView | null = null
+  /*private*/ _major_label_views: Map<string, BaseTextView> = new Map()
 
-  /**
-   * Lazy initialize is called when views are instantiated,
-   * working like an async constructor
-   */
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
+    await this._init_axis_label()
+    await this._init_major_labels()
+  }
+
+  protected async _init_axis_label(): Promise<void> {
     const {axis_label} = this.model
+    if (axis_label != null) {
+      const _axis_label = isString(axis_label) ? parse_delimited_string(axis_label) : axis_label
+      this._axis_label_view = await build_view(_axis_label, {parent: this})
+    } else
+      this._axis_label_view = null
+  }
 
-    // Build math_text_view if axis_label is a MathText instance
-    if (axis_label != null && axis_label instanceof MathText)
-      this.axis_label_math_text_view = await build_view(axis_label, {parent: this})
-
+  protected async _init_major_labels(): Promise<void> {
     const {major_label_overrides} = this.model
-
-    for (const label in major_label_overrides) {
-      if (major_label_overrides.hasOwnProperty(label)){
-        const label_text = major_label_overrides[label]
-
-        if (label_text instanceof MathText) {
-          this.major_label_math_text_views[label] = await build_view(label_text, {parent: this})
-        }
-      }
+    for (const [label, label_text] of entries(major_label_overrides)) {
+      const _label_text = isString(label_text) ? parse_delimited_string(label_text) : label_text
+      this._major_label_views.set(label, await build_view(_label_text, {parent: this}))
     }
   }
 
@@ -114,6 +115,21 @@ export class AxisView extends GuideRendererView {
 
   override connect_signals(): void {
     super.connect_signals()
+
+    const {axis_label, major_label_overrides} = this.model.properties
+
+    this.on_change(axis_label, async () => {
+      this._axis_label_view?.remove()
+      await this._init_axis_label()
+    })
+
+    this.on_change(major_label_overrides, async () => {
+      for (const label_view of this._major_label_views.values()) {
+        label_view.remove()
+      }
+      await this._init_major_labels()
+    })
+
     this.connect(this.model.change, () => this.plot_view.request_layout())
   }
 
@@ -170,24 +186,20 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _axis_label_extent(): number {
-    const text = this.model.axis_label
-    if (!text)
+    if (this._axis_label_view == null)
       return 0
 
-    const axis_label = text instanceof MathText
-      ? this.axis_label_math_text_view
-      : new TextBox({text})
+    const axis_label_graphics = this._axis_label_view.graphics()
 
     const padding = 3
 
-    axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
-    axis_label.visuals = this.visuals.axis_label_text
-    axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
+    axis_label_graphics.visuals = this.visuals.axis_label_text.values()
+    axis_label_graphics.angle = this.panel.get_label_angle_heuristic("parallel")
 
     if (isNumber(this.plot_view.base_font_size))
-      axis_label.base_font_size = this.plot_view.base_font_size
+      axis_label_graphics.base_font_size = this.plot_view.base_font_size
 
-    const size = axis_label.size()
+    const size = axis_label_graphics.size()
     const extent = this.dimension == 0 ? size.height : size.width
     const standoff = this.model.axis_label_standoff
 
@@ -195,9 +207,7 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _draw_axis_label(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
-    const text = this.model.axis_label
-
-    if (!text || this.model.fixed_location != null)
+    if (this._axis_label_view == null || this.model.fixed_location != null)
       return
 
     const [sx, sy] = (() => {
@@ -225,19 +235,17 @@ export class AxisView extends GuideRendererView {
       y_anchor: vertical_align,
     }
 
-    const axis_label = text instanceof MathText
-      ? this.axis_label_math_text_view
-      : new TextBox({text})
+    const axis_label_graphics = this._axis_label_view.graphics()
 
-    axis_label.visuals = this.visuals.axis_label_text
-    axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
+    axis_label_graphics.visuals = this.visuals.axis_label_text.values()
+    axis_label_graphics.angle = this.panel.get_label_angle_heuristic("parallel")
 
     if (this.plot_view.base_font_size)
-      axis_label.base_font_size = this.plot_view.base_font_size
+      axis_label_graphics.base_font_size = this.plot_view.base_font_size
 
-    axis_label.position = position
-    axis_label.align = align
-    axis_label.paint(ctx)
+    axis_label_graphics.position = position
+    axis_label_graphics.align = align
+    axis_label_graphics.paint(ctx)
   }
 
   protected _draw_ticks(ctx: Context2d, coords: Coords, tin: number, tout: number, visuals: visuals.Line): void {
@@ -284,7 +292,7 @@ export class AxisView extends GuideRendererView {
     const {vertical_align, align} = this.panel.get_label_text_heuristics(orient)
     const angle = this.panel.get_label_angle_heuristic(orient)
 
-    labels.visuals = visuals
+    labels.visuals = visuals.values()
     labels.angle = angle
     labels.base_font_size = this.plot_view.base_font_size
 
@@ -400,7 +408,7 @@ export class AxisView extends GuideRendererView {
       return 0
 
     const angle = this.panel.get_label_angle_heuristic(orient)
-    labels.visuals = visuals
+    labels.visuals = visuals.values()
     labels.angle = angle
     labels.base_font_size = this.plot_view.base_font_size
 
@@ -421,14 +429,24 @@ export class AxisView extends GuideRendererView {
 
   compute_labels(ticks: number[]): GraphicsBoxes {
     const labels = this.model.formatter.format_graphics(ticks, this)
-    const {major_label_overrides} = this.model
+    const {_major_label_views} = this
+
+    const visited = new Set()
     for (let i = 0; i < ticks.length; i++) {
-      const override = major_label_overrides[ticks[i]]
-      if (override != null)
-        labels[i] = override instanceof MathText
-          ? this.major_label_math_text_views[ticks[i]]
-          : new TextBox({text: override})
+      const override = _major_label_views.get(ticks[i].toString())
+      if (override != null) {
+        visited.add(override)
+        labels[i] = override.graphics()
+      }
     }
+
+    // XXX: make sure unused overrides don't prevent document idle
+    for (const label_view of this._major_label_views.values()) {
+      if (!visited.has(label_view)) {
+        (label_view as any)._has_finished = true
+      }
+    }
+
     return new GraphicsBoxes(labels)
   }
 
@@ -589,8 +607,11 @@ export class AxisView extends GuideRendererView {
   }
 
   override remove(): void {
-    if (this.axis_label_math_text_view)
-      this.axis_label_math_text_view.remove()
+    this._axis_label_view?.remove()
+
+    for (const label_view of this._major_label_views.values()) {
+      label_view.remove()
+    }
 
     super.remove()
   }
@@ -599,8 +620,13 @@ export class AxisView extends GuideRendererView {
     if (!super.has_finished())
       return false
 
-    if (this.axis_label_math_text_view) {
-      if (!this.axis_label_math_text_view.has_finished())
+    if (this._axis_label_view != null) {
+      if (!this._axis_label_view.has_finished())
+        return false
+    }
+
+    for (const label_view of this._major_label_views.values()) {
+      if (!label_view.has_finished())
         return false
     }
 
@@ -615,11 +641,11 @@ export namespace Axis {
     bounds: p.Property<[number, number] | "auto">
     ticker: p.Property<Ticker>
     formatter: p.Property<TickFormatter>
-    axis_label: p.Property<string | MathText | null>
+    axis_label: p.Property<string | BaseText | null>
     axis_label_standoff: p.Property<number>
     major_label_standoff: p.Property<number>
     major_label_orientation: p.Property<TickLabelOrientation | number>
-    major_label_overrides: p.Property<{[key: string]: string | MathText}>
+    major_label_overrides: p.Property<{[key: string]: string | BaseText}>
     major_label_policy: p.Property<LabelingPolicy>
     major_tick_in: p.Property<number>
     major_tick_out: p.Property<number>
@@ -669,11 +695,11 @@ export class Axis extends GuideRenderer {
       bounds:                  [ Or(Tuple(Number, Number), Auto), "auto" ],
       ticker:                  [ Ref(Ticker) ],
       formatter:               [ Ref(TickFormatter) ],
-      axis_label:              [ Nullable(Or(String, Ref(MathText))), "" ],
+      axis_label:              [ Nullable(Or(String, Ref(BaseText))), null],
       axis_label_standoff:     [ Int, 5 ],
       major_label_standoff:    [ Int, 5 ],
       major_label_orientation: [ Or(TickLabelOrientation, Number), "horizontal" ],
-      major_label_overrides:   [ Dict(Or(String, Ref(MathText))), {} ],
+      major_label_overrides:   [ Dict(Or(String, Ref(BaseText))), {} ],
       major_label_policy:      [ Ref(LabelingPolicy), () => new AllLabels() ],
       major_tick_in:           [ Number, 2 ],
       major_tick_out:          [ Number, 6 ],

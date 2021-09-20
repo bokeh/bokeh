@@ -78,8 +78,8 @@ def _add_arglines(arglines, param, typ, doc):
         arglines += [f"    {x}" for x in doc.rstrip().strip("\n").split("\n")]
 
     # if there is a default, add it last
-    if default is not None:
-        arglines.append(f"\n        (default: {default})")
+    if arglines and default is not None:
+        arglines[-1] += f" (default: {default!r})"
 
     # blank line between args
     arglines.append("")
@@ -128,7 +128,7 @@ Other Parameters:
 
     legend_field (str, optional) :
         Specify that the glyph should produce multiple legend entries by
-        :ref:`grouping them in the browser <userguide_plotting_legends_legend_field>`.
+        :ref:`grouping them in the browser <userguide_annotations_legends_legend_field>`.
         The value of this parameter is the name of a column in the data source
         that should be used or the grouping.
 
@@ -142,7 +142,7 @@ Other Parameters:
 
     legend_group (str, optional) :
         Specify that the glyph should produce multiple legend entries by
-        :ref:`grouping them in Python <userguide_plotting_legends_legend_group>`.
+        :ref:`grouping them in Python <userguide_annotations_legends_legend_group>`.
         The value of this parameter is the name of a column in the data source
         that should be used or the grouping.
 
@@ -156,7 +156,7 @@ Other Parameters:
 
     legend_label (str, optional) :
         Specify that the glyph should produce a single
-        :ref:`basic legend label <userguide_plotting_legends_legend_label>` in
+        :ref:`basic legend label <userguide_annotations_legends_legend_label>` in
         the legend. The legend entry is labeled with the exact text supplied
         here.
 

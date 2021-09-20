@@ -49,7 +49,7 @@ class TestDocumentModuleManager:
         assert len(dm) == 0
 
         # module manager should only hold a weak ref
-        assert len(gc.get_referrers(d)) == 1
+        assert len(gc.get_referrers(d)) == 0
 
     def test_add(self) -> None:
         d = Document()
@@ -108,7 +108,7 @@ class TestDocumentModuleManager:
         assert 'FakeMod' in sys.modules
         assert len(dm) == 1
 
-        # add an extra referrer for delete_modules to complain about
+        # add an extra referrer for Document.destroy to complain about
         extra.append(mod)
 
         import gc

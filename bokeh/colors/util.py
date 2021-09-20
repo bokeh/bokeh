@@ -52,8 +52,6 @@ class _ColorGroupMeta(type):
     ''' This metaclass enables ColorGroup class types to be used like simple
     enumerations.
 
-    When Python2 support is dropped, this will no longer be necessary.
-
     '''
     _colors: Tuple[str, ...]
 
@@ -80,7 +78,7 @@ class _ColorGroupMeta(type):
         from . import named
         if v != "_colors" and v in self._colors:
             return getattr(named, v.lower())
-        return super().__getattr__(v)
+        return getattr(type, v)
 
 #-----------------------------------------------------------------------------
 # Dev API

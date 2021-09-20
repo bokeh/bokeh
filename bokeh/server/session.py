@@ -142,7 +142,7 @@ class ServerSession:
         self._last_unsubscribe_time = current_time()
         self._lock = locks.Lock()
         self._current_patch_connection = None
-        self._document.on_change_dispatch_to(self)
+        self._document.callbacks.on_change_dispatch_to(self)
         self._callbacks = DocumentCallbackGroup(io_loop)
         self._pending_writes = None
         self._destroyed = False

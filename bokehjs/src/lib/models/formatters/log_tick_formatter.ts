@@ -49,7 +49,7 @@ export class LogTickFormatter extends TickFormatter {
       return this.basic_formatter.format_graphics(ticks, opts)
     else {
       return expos.map((expo) => {
-        if (abs(expo) < this.min_exponent){
+        if (abs(expo) < this.min_exponent) {
           const b = new TextBox({text: unicode_replace(`${base**expo}`)})
           const e = new TextBox({text: ""})
           return new BaseExpo(b, e)

@@ -1,8 +1,17 @@
+''' A automatic hexbin plot using randomly selected points. This chart shows
+500 points points from a normal distribution binned into hexagonal tiles. A
+hover tooltip displays information for each tile.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.hexbin
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_hex`
+    :keywords: hex, hexbin, hover, tooltip
+
+'''
 import numpy as np
 
-from bokeh.io import output_file, show
 from bokeh.models import HoverTool
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 
 n = 500
 x = 2 + 2*np.random.standard_normal(n)
@@ -20,7 +29,5 @@ p.add_tools(HoverTool(
     tooltips=[("count", "@c"), ("(q,r)", "(@q, @r)")],
     mode="mouse", point_policy="follow_mouse", renderers=[r]
 ))
-
-output_file("hexbin.html")
 
 show(p)

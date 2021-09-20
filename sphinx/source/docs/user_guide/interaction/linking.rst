@@ -1,4 +1,4 @@
-.. _userguide_interaction_linking:
+.. _userguide_interaction_linked:
 
 Linking behavior
 ----------------

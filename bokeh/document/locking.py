@@ -35,8 +35,8 @@ from typing_extensions import Literal, Protocol
 
 ## Bokeh imports
 if TYPE_CHECKING:
-    from ..server.callbacks import SessionCallback
-    from .document import Callback, Document, NextTickCallback
+    from ..server.callbacks import NextTickCallback
+    from .document import Callback, Document
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -53,7 +53,7 @@ __all__ = (
 
 F = TypeVar("F", bound=Callable[..., Any])
 
-class NoLockCallback(Protocol[F]): # type: ignore # F_co, needs F & {nolock: true}
+class NoLockCallback(Protocol[F]):
     __call__: F
     nolock: Literal[True]
 
@@ -84,8 +84,8 @@ def without_document_lock(func: F) -> NoLockCallback[F]:
 
     '''
     @wraps(func)
-    def _wrapper(*args: Any, **kw: Any):
-        return func(*args, **kw)
+    def _wrapper(*args: Any, **kw: Any) -> None:
+        func(*args, **kw)
     wrapper = cast(NoLockCallback[F], _wrapper)
     wrapper.nolock = True
     return wrapper
@@ -126,7 +126,7 @@ class UnlockedDocumentProxy:
         '''
         return self._doc.add_next_tick_callback(callback)
 
-    def remove_next_tick_callback(self, callback: SessionCallback) -> None:
+    def remove_next_tick_callback(self, callback: NextTickCallback) -> None:
         ''' Remove a "next tick" callback.
 
         Args:

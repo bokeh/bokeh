@@ -211,6 +211,8 @@ the ``x.y.z``:
             crossorigin="anonymous"></script>
     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-x.y.z.min.js"
             crossorigin="anonymous"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-x.y.z.min.js"
+            crossorigin="anonymous"></script>
 
 The ``"-widgets"`` and ``"-tables"`` files are only necessary if your document
 includes Bokeh widgets and data tables.
@@ -227,6 +229,8 @@ include the following in your HTML:
     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.2.0.min.js"
             crossorigin="anonymous"></script>
     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-2.2.0.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-2.2.0.min.js"
             crossorigin="anonymous"></script>
 
 .. note::

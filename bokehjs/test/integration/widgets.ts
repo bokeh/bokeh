@@ -195,6 +195,64 @@ describe("Widgets", () => {
     const table = new DataTable({source, columns, autosize_mode: "none"})
     await display(table, [600, 400])
   })
+
+  it("should allow DataTable to toggle column visibility", async () => {
+    const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], foo: [10, 20, 30, 40], bar: [3.4, 1.2, 0, -10]}})
+    const index_col = new TableColumn({field: "index", title: "Index", width: 200})
+    const foo_col = new TableColumn({field: "foo", title: "Foo", width: 350})
+    const bar_col = new TableColumn({field: "bar", title: "Bar", width: 350})
+    const columns = [index_col, foo_col, bar_col]
+    const table = new DataTable({source, columns, autosize_mode: "none"})
+    const {view} = await display(table, [600, 400])
+    foo_col.visible = false
+    await view.ready
+  })
+
+  it("should allow TeX on Divs with mathstrings", async () => {
+    const obj = new Div({
+      text: `When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\) and they are
+        $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$`,
+    })
+
+    await display(obj, [320, 120])
+  })
+
+  it("should allow TeX on Paragraph with mathstrings", async () => {
+    const obj = new Paragraph({
+      text: `When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\) and they are
+        $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$`,
+    })
+
+    await display(obj, [320, 120])
+  })
+
+  it("should not allow TeX on PreText with mathstrings", async () => {
+    const obj = new PreText({
+      text: "When \\(a \\ne 0\\)",
+    })
+
+    await display(obj, [525, 75])
+  })
+
+  it("should not process TeX on Divs with mathstrings and disable_math=true", async () => {
+    const obj = new Div({
+      text: `When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\) and they are
+        $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$`,
+      disable_math: true,
+    })
+
+    await display(obj, [320, 120])
+  })
+
+  it("should not process TeX on Divs with mathstrings and render_as_text=true", async () => {
+    const obj = new Div({
+      text: `When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\) and they are
+        $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$`,
+      render_as_text: true,
+    })
+
+    await display(obj, [320, 120])
+  })
 })
 
 describe("Rows of widgets", () => {

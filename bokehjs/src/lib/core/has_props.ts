@@ -46,7 +46,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   readonly id: string
 
-  get is_syncable(): boolean{
+  get is_syncable(): boolean {
     return true
   }
 
@@ -68,8 +68,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return __module__ != null ? `${__module__}.${__name__}` : __name__
   }
 
-  static get [Symbol.toStringTag](): string {
-    return this.__name__
+  get [Symbol.toStringTag](): string {
+    return this.constructor.__name__
   }
 
   static {
@@ -230,7 +230,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   [equals](that: this, cmp: Comparator): boolean {
     for (const p0 of this) {
       const p1 = that.property(p0.attr)
-      if (cmp.eq(p0.get_value(), p1.get_value()))
+      if (!cmp.eq(p0.get_value(), p1.get_value()))
         return false
     }
     return true
@@ -324,7 +324,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   connect_signals(): void {}
 
   disconnect_signals(): void {
-    Signal.disconnectReceiver(this)
+    Signal.disconnect_receiver(this)
   }
 
   destroy(): void {
@@ -422,11 +422,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  /** @deprecated */
-  getv(name: string): unknown {
-    return this.property(name).get_value()
-  }
-
   ref(): Ref {
     return {id: this.id}
   }
@@ -458,15 +453,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       if (prop.syncable)
         yield prop
     }
-  }
-
-  /** @deprecated */
-  serializable_attributes(): Attrs {
-    const attrs: Attrs = {}
-    for (const prop of this.syncable_properties()) {
-      attrs[prop.attr] = prop.get_value()
-    }
-    return attrs
   }
 
   // this is like _value_record_references but expects to find refs

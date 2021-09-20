@@ -1,10 +1,19 @@
+''' An interactive plot of colors. This example demonstrates adding widgets and
+``CustomJS`` callbacks that can update a plot.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.rect, bokeh.plotting.Figure.text, bokeh.layouts.column, bokeh.layouts.row, bokeh.models.sources.ColumnDataSource, bokeh.models.callbacks.CustomJS, bokeh.models.widgets.sliders.Slider, bokeh.themes.Theme # noqa: E501
+    :refs: :ref:`userguide_interaction_jscallbacks` > :ref:`userguide_interaction_jscallbacks_customjs`
+    :keywords: hover, javascript callback, theme, tooltip
+
+'''
 import colorsys
 
 import yaml
 
 from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, CustomJS, Slider
-from bokeh.plotting import curdoc, figure, output_file, show
+from bokeh.plotting import curdoc, figure, show
 from bokeh.themes import Theme
 
 
@@ -129,7 +138,5 @@ layout = row(
     column(red_slider, green_slider, blue_slider),
     column(p1, p2)
 )
-
-output_file("color_sliders.html", title="color_sliders.py example")
 
 show(layout)

@@ -53,11 +53,20 @@
     & > :not(.bk-divider) {
       border: 1px solid transparent;
 
+      @activeToolHighlight: #26aae1;
+
       &.bk-active {
-        border-color: #26aae1; // TODO @activeToolHighlight;
+        border-color: @activeToolHighlight;
       }
       &:hover {
         background-color: #f9f9f9;
+      }
+      &:focus, &:focus-visible {
+        outline: 1px dotted @activeToolHighlight;
+        outline-offset: -1px;
+      }
+      &::-moz-focus-inner {
+        border: 0;
       }
     }
     &.bk-horizontal > :not(.bk-divider) {

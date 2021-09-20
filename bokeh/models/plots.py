@@ -43,7 +43,6 @@ from ..core.enums import (
     ResetPolicy,
 )
 from ..core.properties import (
-    Alias,
     Bool,
     Dict,
     Either,
@@ -68,12 +67,7 @@ from ..core.validation.errors import (
     REQUIRED_RANGE,
     REQUIRED_SCALE,
 )
-from ..core.validation.warnings import (
-    FIXED_HEIGHT_POLICY,
-    FIXED_SIZING_MODE,
-    FIXED_WIDTH_POLICY,
-    MISSING_RENDERERS,
-)
+from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
 from ..util.string import nice_join
 from .annotations import Annotation, Legend, Title
@@ -505,13 +499,29 @@ class Plot(LayoutDOM):
     This is useful for adding additional axes.
     """)
 
+    extra_x_scales = Dict(String, Instance(Scale), help="""
+    Additional named scales to make available for mapping x-coordinates.
+
+    This is useful for adding additional axes.
+
+    .. note:: This feature is experimental and may change in the short term.
+    """)
+
+    extra_y_scales = Dict(String, Instance(Scale), help="""
+    Additional named scales to make available for mapping y-coordinates.
+
+    This is useful for adding additional axes.
+
+    .. note:: This feature is experimental and may change in the short term.
+    """)
+
     hidpi = Bool(default=True, help="""
     Whether to use HiDPI mode when available.
     """)
 
-    title = Either(Null, String, Instance(Title), default=lambda: Title(text=""), help="""
+    title = Either(Null, Instance(Title), default=lambda: Title(text=""), help="""
     A title for the plot. Can be a text string or a Title annotation.
-    """)
+    """).accepts(String, lambda text: Title(text=text))
 
     title_location = Nullable(Enum(Location), default="above", help="""
     Where the title will be located. Titles on the left or right side
@@ -571,14 +581,6 @@ class Plot(LayoutDOM):
     width: int | None = Override(default=600)
 
     height: int | None = Override(default=600)
-
-    plot_width: int | None = Alias("width", help="""
-    The outer width of a plot, including any axes, titles, border padding, etc.
-    """)
-
-    plot_height: int | None = Alias("height", help="""
-    The outer height of a plot, including any axes, titles, border padding, etc.
-    """)
 
     frame_width = Nullable(Int, help="""
     The width of a plot frame or the inner width of a plot, excluding any
@@ -765,19 +767,6 @@ class Plot(LayoutDOM):
     is desired, this property may be set to ``"event_only"``, which will
     suppress all of the actions except the Reset event.
     """)
-
-    # XXX: override LayoutDOM's definitions because of plot_{width,height}.
-    @error(FIXED_SIZING_MODE)
-    def _check_fixed_sizing_mode(self):
-        pass
-
-    @error(FIXED_WIDTH_POLICY)
-    def _check_fixed_width_policy(self):
-        pass
-
-    @error(FIXED_HEIGHT_POLICY)
-    def _check_fixed_height_policy(self):
-        pass
 
 #-----------------------------------------------------------------------------
 # Dev API

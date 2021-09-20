@@ -34,17 +34,16 @@ from ..core.properties import (
     Nullable,
     Seq,
     String,
+    TextLike,
     Tuple,
 )
 from ..models import (
     ColumnDataSource,
     CoordinateMapping,
     GraphRenderer,
-    MathText,
     Plot,
     Range,
     Scale,
-    Title,
     Tool,
 )
 from ..models.dom import Template
@@ -67,6 +66,7 @@ from .glyph_api import _MARKER_SHORTCUTS, GlyphAPI
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+#: A default set of tools configured if no configuration is provided
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 
 __all__ = (
@@ -173,11 +173,6 @@ class Figure(Plot, GlyphAPI):
 
     def __init__(self, *arg, **kw) -> None:
         opts = FigureOptions(kw)
-
-        title = kw.get("title", None)
-        if isinstance(title, str):
-            kw['title'] = Title(text=title)
-
         super().__init__(*arg, **kw)
 
         self.x_range = get_range(opts.x_range)
@@ -659,8 +654,15 @@ class Figure(Plot, GlyphAPI):
         return graph_renderer
 
 def figure(**kwargs: TAny) -> Figure:
+    ''' Create a new :class:`~bokeh.plotting.Figure` for plotting.
+
+    All other keyword arguments are passed to :class:`~bokeh.plotting.Figure`.
+
+    Returns:
+       :class:`~bokeh.plotting.Figure`
+
+    '''
     return Figure(**kwargs)
-figure.__doc__ = Figure.__doc__
 
 def markers():
     ''' Prints a list of valid marker types for scatter()
@@ -700,11 +702,11 @@ class BaseFigureOptions(Options):
     Where the y-axis should be located.
     """)
 
-    x_axis_label = Nullable(Either(String, Instance(MathText)), default="", help="""
+    x_axis_label = Nullable(TextLike, default="", help="""
     A label for the x-axis.
     """)
 
-    y_axis_label = Nullable(Either(String, Instance(MathText)), default="", help="""
+    y_axis_label = Nullable(TextLike, default="", help="""
     A label for the y-axis.
     """)
 

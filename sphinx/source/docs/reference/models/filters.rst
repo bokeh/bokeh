@@ -1,7 +1,7 @@
 .. _bokeh.models.filters:
 
-bokeh.models.filters
---------------------
+filters
+-------
 
 .. automodule:: bokeh.models.filters
    :members:

@@ -985,7 +985,8 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     */
   __applyText(text: string, x: number, y: number, action: "fill" | "stroke"): void {
     const font = this.__parseFont()
-    const textElement = this.__createElement("text", {
+
+    const text_el = this.__createElement("text", {
       "font-family": font.family,
       "font-size": font.size,
       "font-style": font.style,
@@ -997,11 +998,21 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       "dominant-baseline": getDominantBaseline(this.textBaseline),
     }, true)
 
-    textElement.appendChild(this.__document.createTextNode(text))
-    this._apply_transform(textElement)
-    this.__currentElement = textElement
+    text_el.appendChild(this.__document.createTextNode(text))
+    this._apply_transform(text_el)
+    this.__currentElement = text_el
     this.__applyStyleToCurrentElement(action)
-    this.__root.appendChild(textElement)
+
+    const el = (() => {
+      if (this._clip_path != null) {
+        const g = this.__createElement("g")
+        g.setAttribute("clip-path", this._clip_path)
+        g.appendChild(text_el)
+        return g
+      } else
+        return text_el
+    })()
+    this.__root.appendChild(el)
   }
 
   /**
@@ -1143,11 +1154,16 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       const svg_node = image instanceof SVGSVGElement ? image : image.get_svg()
       const svg = svg_node.cloneNode(true) as SVGElement
       let scope: SVGElement
-      if (transform.is_identity)
+      if (transform.is_identity && this.globalAlpha == 1.0 && this._clip_path == null)
         scope = parent
       else {
         scope = this.__createElement("g")
-        this._apply_transform(scope, transform)
+        if (!transform.is_identity)
+          this._apply_transform(scope, transform)
+        if (this.globalAlpha != 1.0)
+          scope.setAttribute("opacity", `${this.globalAlpha}`)
+        if (this._clip_path != null)
+          scope.setAttribute("clip-path", this._clip_path)
         parent.appendChild(scope)
       }
       for (const child of [...svg.childNodes]) {
@@ -1168,6 +1184,8 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       svgImage.setAttribute("width", `${dw}`)
       svgImage.setAttribute("height", `${dh}`)
       svgImage.setAttribute("preserveAspectRatio", "none")
+      if (this.globalAlpha != 1.0)
+        svgImage.setAttribute("opacity", `${this.globalAlpha}`)
 
       if (sx || sy || sw !== image.width || sh !== image.height) {
         // crop the image using a temporary canvas
@@ -1181,12 +1199,21 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       this._apply_transform(svgImage, transform)
       const url = image instanceof HTMLCanvasElement ? image.toDataURL() : image.getAttribute("src")!
       svgImage.setAttribute("href", url)
-      parent.appendChild(svgImage)
+
+      if (this._clip_path != null) {
+        const scope = this.__createElement("g")
+        scope.setAttribute("clip-path", this._clip_path)
+        scope.appendChild(svgImage)
+        parent.appendChild(scope)
+      } else
+        parent.appendChild(svgImage)
     } else if (image instanceof HTMLCanvasElement) {
       const svgImage = this.__createElement("image")
       svgImage.setAttribute("width", `${dw}`)
       svgImage.setAttribute("height", `${dh}`)
       svgImage.setAttribute("preserveAspectRatio", "none")
+      if (this.globalAlpha != 1.0)
+        svgImage.setAttribute("opacity", `${this.globalAlpha}`)
 
       // draw canvas onto temporary canvas so that smoothing can be handled
       const canvas = this.__document.createElement("canvas")
@@ -1199,7 +1226,14 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
 
       this._apply_transform(svgImage, transform)
       svgImage.setAttribute("href", image.toDataURL())
-      parent.appendChild(svgImage)
+
+      if (this._clip_path != null) {
+        const scope = this.__createElement("g")
+        scope.setAttribute("clip-path", this._clip_path)
+        scope.appendChild(svgImage)
+        parent.appendChild(scope)
+      } else
+        parent.appendChild(svgImage)
     }
   }
 

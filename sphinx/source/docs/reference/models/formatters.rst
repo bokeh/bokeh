@@ -1,7 +1,7 @@
 .. _bokeh.models.formatters:
 
-bokeh.models.formatters
------------------------
+formatters
+----------
 
 .. automodule:: bokeh.models.formatters
    :members:

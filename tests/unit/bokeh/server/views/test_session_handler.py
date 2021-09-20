@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.server.views.auth_mixin import AuthMixin
+from bokeh.server.views.auth_request_handler import AuthRequestHandler
 
 # Module under test
 from bokeh.server.views.session_handler import SessionHandler # isort:skip
@@ -30,8 +30,8 @@ from bokeh.server.views.session_handler import SessionHandler # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_uses_auth_mixin() -> None:
-    assert issubclass(SessionHandler, AuthMixin)
+def test_uses_auth_request_handler() -> None:
+    assert issubclass(SessionHandler, AuthRequestHandler)
 
 #-----------------------------------------------------------------------------
 # Dev API

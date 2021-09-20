@@ -63,6 +63,9 @@ from os.path import abspath, join, pardir
 from docutils import nodes, utils
 from docutils.parsers.rst.roles import set_classes
 
+# Bokeh imports
+from . import PARALLEL_SAFE
+
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
@@ -217,6 +220,7 @@ def setup(app):
     app.add_role("bokeh-requires", bokeh_requires)
     app.add_role("bokeh-tree", bokeh_tree)
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

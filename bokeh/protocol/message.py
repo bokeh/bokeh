@@ -57,6 +57,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import json
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -69,7 +70,6 @@ from typing import (
 )
 
 # External imports
-from tornado.escape import json_decode, json_encode
 from typing_extensions import TypedDict
 
 # Bokeh imports
@@ -81,7 +81,6 @@ from .exceptions import MessageError, ProtocolError
 
 if TYPE_CHECKING:
     from ..client.websocket import WebSocketClientConnectionWrapper
-    from .receiver import Fragment
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -107,8 +106,9 @@ class Header(_Header, total=False):
     reqid: ID
     num_buffers: int
 
-class BufferHeader(TypedDict):
-    id: ID
+# class BufferHeader(TypedDict):
+#     id: ID
+BufferHeader = str
 
 Content = TypeVar("Content")
 
@@ -166,7 +166,7 @@ class Message(Generic[Content]):
         return f"Message {self.msgtype!r} content: {self.content!r}"
 
     @classmethod
-    def assemble(cls, header_json: Fragment, metadata_json: Fragment, content_json: Fragment) -> Message[Content]:
+    def assemble(cls, header_json: str, metadata_json: str, content_json: str) -> Message[Content]:
         ''' Creates a new message, assembled from JSON fragments.
 
         Args:
@@ -185,17 +185,17 @@ class Message(Generic[Content]):
         '''
 
         try:
-            header = json_decode(header_json)
+            header = json.loads(header_json)
         except ValueError:
             raise MessageError("header could not be decoded")
 
         try:
-            metadata = json_decode(metadata_json)
+            metadata = json.loads(metadata_json)
         except ValueError:
             raise MessageError("metadata could not be decoded")
 
         try:
-            content = json_decode(content_json)
+            content = json.loads(content_json)
         except ValueError:
             raise MessageError("content could not be decoded")
 
@@ -356,7 +356,7 @@ class Message(Generic[Content]):
     @property
     def header_json(self) -> str:
         if not self._header_json:
-            self._header_json = json_encode(self.header)
+            self._header_json = json.dumps(self.header)
         return self._header_json
 
     # content fragment properties
@@ -373,7 +373,7 @@ class Message(Generic[Content]):
     @property
     def content_json(self) -> str:
         if not self._content_json:
-            self._content_json = json_encode(self.content)
+            self._content_json = json.dumps(self.content)
         return self._content_json
 
     # metadata fragment properties
@@ -390,7 +390,7 @@ class Message(Generic[Content]):
     @property
     def metadata_json(self) -> str:
         if not self._metadata_json:
-            self._metadata_json = json_encode(self.metadata)
+            self._metadata_json = json.dumps(self.metadata)
         return self._metadata_json
 
     # buffer properties

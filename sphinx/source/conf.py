@@ -35,6 +35,7 @@ extensions = [
     'sphinxext.opengraph',
     'sphinx_panels',
 #    'sphinx_reredirects',
+    'sphinx_tabs.tabs',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.ifconfig',
@@ -45,6 +46,7 @@ extensions = [
     'bokeh.sphinxext.bokeh_dataframe',
     'bokeh.sphinxext.bokeh_color',
     'bokeh.sphinxext.bokeh_enum',
+    'bokeh.sphinxext.bokeh_example_metadata',
     'bokeh.sphinxext.bokeh_gallery',
     'bokeh.sphinxext.bokeh_jinja',
     'bokeh.sphinxext.bokeh_model',
@@ -84,9 +86,11 @@ if not bokeh_missing_google_api_key_ok:
 bokeh_plot_pyfile_include_dirs = ['docs']
 
 intersphinx_mapping = {
-    'python' : ('https://docs.python.org/3/', None),
-    'pandas' : ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'numpy'  : ('https://numpy.org/doc/stable/', None)
+    'numpy'       : ('https://numpy.org/doc/stable/', None),
+    'pandas'      : ('https://pandas.pydata.org/pandas-docs/stable/', None),
+    'python'      : ('https://docs.python.org/3/', None),
+    'sphinx'      : ('https://www.sphinx-doc.org/en/master/', None),
+    'xyzservices' : ('https://xyzservices.readthedocs.io/en/stable/', None),
 }
 
 napoleon_include_init_with_doc = True
@@ -100,6 +104,8 @@ ogp_custom_meta_tags = [
 ]
 
 panels_add_bootstrap_css = False
+
+sphinx_tabs_disable_tab_closing = True
 
 pygments_style = 'sphinx'
 
@@ -144,3 +150,6 @@ html_sidebars = {
 html_title = f"{project} {version} Documentation"
 
 templates_path = ['_templates']
+
+def setup(app):
+    app.add_object_type('confval', 'confval', objname='configuration value', indextemplate='pair: %s; configuration value')

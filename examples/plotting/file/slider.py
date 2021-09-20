@@ -1,8 +1,17 @@
+''' An interactive plot of the ``sin`` function. This example demonstrates
+adding widgets and ``CustomJS`` callbacks that can update a plot.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.line, bokeh.layouts.column, bokeh.layouts.row, bokeh.models.callbacks.CustomJS, bokeh.models.widgets.sliders.Slider
+    :refs: :ref:`userguide_interaction_jscallbacks` > :ref:`userguide_interaction_jscallbacks_customjs`
+    :keywords: javascript callback
+
+'''
 import numpy as np
 
 from bokeh.layouts import column, row
 from bokeh.models import CustomJS, Slider
-from bokeh.plotting import ColumnDataSource, figure, output_file, show
+from bokeh.plotting import ColumnDataSource, figure, show
 
 x = np.linspace(0, 10, 500)
 y = np.sin(x)
@@ -42,7 +51,5 @@ layout = row(
     plot,
     column(amp_slider, freq_slider, phase_slider, offset_slider),
 )
-
-output_file("slider.html", title="slider.py example")
 
 show(layout)

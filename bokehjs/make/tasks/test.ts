@@ -112,9 +112,7 @@ function sys_path(): string {
 }
 
 function chrome(): string {
-  const names = ["chrome", "google-chrome", "Google Chrome"]
-  if (os.type() == "Linux")
-    names.push("chromium-browser", "chromium")
+  const names = ["chromium", "chromium-browser", "chrome", "google-chrome", "Google Chrome"]
   const path = sys_path()
 
   for (const name of names) {
@@ -213,9 +211,8 @@ function opt(name: string, value: unknown): string {
 }
 
 function devtools(devtools_port: number, server_port: number, name: string, baselines_root?: string): Promise<void> {
-  const legacy = argv.legacy === true ? "?legacy" : ""
   const args = [
-    `http://localhost:${server_port}/${name}${legacy}`,
+    `http://localhost:${server_port}/${name}`,
     opt("k", argv.k),
     opt("grep", argv.grep),
     opt("ref", argv.ref),

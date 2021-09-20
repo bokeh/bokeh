@@ -32,7 +32,7 @@ export namespace Stocks {
       if (key != "t") {
         i += 1
         plot.line({field: "t"}, {field: key}, {
-          source, legend: key, line_color: colors[i%6], line_width: 2,
+          source, legend_label: key, line_color: colors[i%6], line_width: 2,
         })
       }
     }

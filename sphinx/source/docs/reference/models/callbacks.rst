@@ -1,7 +1,7 @@
 .. _bokeh.models.callbacks:
 
-bokeh.models.callbacks
-----------------------
+callbacks
+---------
 
 .. automodule:: bokeh.models.callbacks
    :members:

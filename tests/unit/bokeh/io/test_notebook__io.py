@@ -72,7 +72,7 @@ def test_show_doc_no_server(mock_notebook_content: MagicMock,
     expected_args = ({'application/javascript': 'notebook_script', 'application/vnd.bokehjs_exec.v0+json': ''},)
     expected_kwargs = {'metadata': {'application/vnd.bokehjs_exec.v0+json': {'id': None}}}
 
-    assert d._hold is not None
+    assert d.callbacks._hold is not None
     assert mock__publish_display_data.call_count == 2 # two mime types
     assert mock__publish_display_data.call_args[0] == expected_args
     assert mock__publish_display_data.call_args[1] == expected_kwargs

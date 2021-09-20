@@ -17,12 +17,13 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import logging
+import weakref
 
 # External imports
-from mock import MagicMock, patch
+from mock import patch
 
 # Bokeh imports
+from bokeh.core.enums import HoldPolicy
 from bokeh.core.properties import (
     Instance,
     Int,
@@ -44,6 +45,7 @@ from bokeh.io.doc import curdoc
 from bokeh.model import DataModel
 from bokeh.models import ColumnDataSource
 from bokeh.protocol.messages.patch_doc import process_document_events
+from bokeh.server.contexts import BokehSessionContext
 from bokeh.util.logconfig import basicConfig
 
 from _util_document import (
@@ -69,81 +71,59 @@ class DerivedDataModel(SomeDataModel):
     prop3 = Int()
     prop4 = Int(default=112)
     prop5 = List(Int, default=[1, 2, 3, 4])
-    prop6 = Nullable(Instance(SomeDataModel))
+    prop6 = Instance(SomeDataModel)
+    prop7 = Nullable(Instance(SomeDataModel))
 
     prop2 = Override(default=119)
+
+class CDSDerivedDataModel(ColumnDataSource, DataModel):
+    prop0 = Int()
+    prop1 = Int(default=111)
+    prop2 = List(Int, default=[1, 2, 3])
+
+    data = Override(default={"default_column": [4, 5, 6]})
+
+class CDSDerivedDerivedDataModel(CDSDerivedDataModel):
+    prop3 = Instance(SomeDataModel, default=SomeDataModel())
+
+    data = Override(default={"default_column": [7, 8, 9]})
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-
 class TestDocumentHold:
-    @pytest.mark.parametrize('policy', document.HoldPolicy)
-    def test_hold(self, policy) -> None:
+    @pytest.mark.parametrize('policy', HoldPolicy)
+    @patch("bokeh.document.callbacks.DocumentCallbackManager.hold")
+    def test_hold(self, mock_hold, policy) -> None:
         d = document.Document()
-        assert d._hold == None
-        assert d._held_events == []
-
         d.hold(policy)
-        assert d._hold == policy
+        assert mock_hold.called
+        assert mock_hold.call_args[0] == (policy,)
+        assert mock_hold.call_args[1] == {}
 
-    def test_hold_bad_policy(self) -> None:
+    @patch("bokeh.document.callbacks.DocumentCallbackManager.unhold")
+    def test_unhold(self, mock_unhold) -> None:
         d = document.Document()
-        with pytest.raises(ValueError):
-            d.hold("junk")
-
-    @pytest.mark.parametrize('first,second', [('combine', 'collect'), ('collect', 'combine')])
-    def test_rehold(self, first, second, caplog: pytest.LogCaptureFixture) -> None:
-        d = document.Document()
-        with caplog.at_level(logging.WARN):
-            d.hold(first)
-            assert caplog.text == ""
-            assert len(caplog.records) == 0
-
-            d.hold(first)
-            assert caplog.text == ""
-            assert len(caplog.records) == 0
-
-            d.hold(second)
-            assert caplog.text.strip().endswith("hold already active with '%s', ignoring '%s'" % (first, second))
-            assert len(caplog.records) == 1
-
-            d.unhold()
-
-            d.hold(second)
-            assert len(caplog.records) == 1
-
-    @pytest.mark.parametrize('policy', document.HoldPolicy)
-    def test_unhold(self, policy) -> None:
-        d = document.Document()
-        assert d._hold == None
-        assert d._held_events == []
-
-        d.hold(policy)
-        assert d._hold == policy
         d.unhold()
-        assert d._hold == None
-
-    @patch("bokeh.document.document.Document._trigger_on_change")
-    def test_unhold_triggers_events(self, mock_trigger: MagicMock) -> None:
-        d = document.Document()
-        d.hold('collect')
-        d._held_events = [1,2,3]
-        d.unhold()
-        assert mock_trigger.call_count == 3
-        assert mock_trigger.call_args[0] == (3,)
-        assert mock_trigger.call_args[1] == {}
+        assert mock_unhold.called
+        assert mock_unhold.call_args[0] == ()
+        assert mock_unhold.call_args[1] == {}
 
 class TestDocument:
-    def test_empty(self) -> None:
-        d = document.Document()
-        assert not d.roots
-
-    def test_default_template_vars(self) -> None:
+    def test_basic(self) -> None:
         d = document.Document()
         assert not d.roots
         assert d.template_variables == {}
+        assert d.session_context is None
+
+    def test_session_context(self) -> None:
+        d = document.Document()
+        assert d.session_context is None
+
+        sc = BokehSessionContext(None, None, d)
+        d._session_context = weakref.ref(sc)
+        assert d.session_context is sc
 
     def test_add_roots(self) -> None:
         d = document.Document()
@@ -169,7 +149,7 @@ class TestDocument:
         assert next(roots_iter) is roots[1]
         assert next(roots_iter) is roots[2]
 
-    def test_set_title(self) -> None:
+    def test_title(self) -> None:
         d = document.Document()
         assert d.title == document.DEFAULT_TITLE
         d.title = "Foo"
@@ -740,36 +720,71 @@ class TestDocument:
         assert some_root.child.foo == 44
 
     def test_serialization_data_models(self) -> None:
-        obj0 = SomeDataModel()
-        obj1 = DerivedDataModel(prop6=obj0)
+        #obj0 = SomeDataModel()
+        #obj1 = DerivedDataModel(prop6=obj0)
+        #obj2 = CDSDerivedDataModel()
+        #obj3 = CDSDerivedDerivedDataModel()
 
         doc = document.Document()
-        doc.add_root(obj0)
-        doc.add_root(obj1)
+        #doc.add_root(obj0)
+        #doc.add_root(obj1)
+        #doc.add_root(obj2)
+        #doc.add_root(obj3)
 
         json = doc.to_json()
-        assert json["defs"] == [{
-            "extends": None,
-            "module": "test_document",
-            "name": "SomeDataModel",
-            "overrides": [],
-            "properties": [
-                {"default": 0, "kind": None, "name": "prop0"},
-                {"default": 111, "kind": None, "name": "prop1"},
-                {"default": [1, 2, 3], "kind": None, "name": "prop2"},
-            ],
-        }, {
-            "extends": {"module": "test_document", "name": "SomeDataModel"},
-            "module": "test_document",
-            "name": "DerivedDataModel",
-            "overrides": [{"default": 119, "name": "prop2"}],
-            "properties": [
-                {"default": 0, "kind": None, "name": "prop3"},
-                {"default": 112, "kind": None, "name": "prop4"},
-                {"default": [1, 2, 3, 4], "kind": None, "name": "prop5"},
-                {"default": None, "kind": None, "name": "prop6"},
-            ],
-        }]
+        assert json["defs"] == [
+            dict(
+                extends=dict(name="Model", module=None),
+                module="test_document",
+                name="SomeDataModel",
+                overrides=[],
+                properties=[
+                    dict(default=0, kind="Any", name="prop0"),
+                    dict(default=111, kind="Any", name="prop1"),
+                    dict(default=[1, 2, 3], kind="Any", name="prop2"),
+                ],
+            ),
+            dict(
+                extends=dict(module="test_document", name="SomeDataModel"),
+                module="test_document",
+                name="DerivedDataModel",
+                overrides=[
+                    dict(default=119, name="prop2"),
+                ],
+                properties=[
+                    dict(default=0, kind="Any", name="prop3"),
+                    dict(default=112, kind="Any", name="prop4"),
+                    dict(default=[1, 2, 3, 4], kind="Any", name="prop5"),
+                    dict(kind="Any", name="prop6"),
+                    dict(default=None, kind="Any", name="prop7"),
+                ],
+            ),
+            dict(
+                extends=dict(name="ColumnDataSource", module=None),
+                module="test_document",
+                name="CDSDerivedDataModel",
+                overrides=[
+                    dict(default={"default_column": [4, 5, 6]}, name="data"),
+                ],
+                properties=[
+                    dict(default=0, kind="Any", name="prop0"),
+                    dict(default=111, kind="Any", name="prop1"),
+                    dict(default=[1, 2, 3], kind="Any", name="prop2"),
+                ],
+            ),
+            dict(
+                extends=dict(name="CDSDerivedDataModel", module="test_document"),
+                module="test_document",
+                name="CDSDerivedDerivedDataModel",
+                overrides=[
+                    dict(default={"default_column": [7, 8, 9]}, name="data"),
+                ],
+                properties=[
+                    dict(default=CDSDerivedDerivedDataModel.prop3.property._default.ref, kind="Any", name="prop3"),
+                ],
+            ),
+        ]
+        # TODO: assert json["roots"]["references"] == ...
 
     def test_serialization_has_version(self) -> None:
         from bokeh import __version__
@@ -952,9 +967,9 @@ class TestDocument:
 
         event_json = {"event_name": "button_click", "event_values": {"model": {"id": button1.id}}}
         try:
-            d.apply_json_event(event_json)
+            d.callbacks.trigger_json_event(event_json)
         except RuntimeError:
-            pytest.fail("apply_json_event probably did not copy models before modifying")
+            pytest.fail("trigger_event probably did not copy models before modifying")
 
     # TODO test serialize/deserialize with list-and-dict-valued properties
 

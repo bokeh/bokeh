@@ -22,13 +22,18 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Callable, Dict
-
-# External imports
-from tornado.httputil import HTTPServerRequest
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+)
 
 # Bokeh imports
 from .handler import Handler
+
+if TYPE_CHECKING:
+    from tornado.httputil import HTTPServerRequest
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -50,6 +50,7 @@ from sphinx.errors import SphinxError
 import bokeh.palettes as bp
 
 # Bokeh imports
+from . import PARALLEL_SAFE
 from .templates import PALETTE_GROUP_DETAIL
 
 # -----------------------------------------------------------------------------
@@ -109,6 +110,7 @@ def setup(app):
     app.add_node(bokeh_palette_group, html=bokeh_palette_group.html)
     app.add_directive("bokeh-palette-group", BokehPaletteGroupDirective)
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

@@ -47,8 +47,8 @@ try:
     def yellow(text: str) -> str:
         return f"{colorama.Fore.YELLOW}{text}{colorama.Style.RESET_ALL}"
 
-    sys.platform == "win32" and colorama.init()
-
+    if sys.platform == "win32":
+        colorama.init()
 except ImportError:
 
     def bright(text: str) -> str:

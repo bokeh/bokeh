@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import hashlib
 import json
 from dataclasses import dataclass
 from os.path import (
@@ -54,6 +55,7 @@ from ..model import Model
 from ..resources import BaseResources, Resources
 from ..settings import settings
 from ..util.compiler import bundle_models
+from .util import contains_tex_string, is_tex_string
 
 if TYPE_CHECKING:
     from ..resources import Hashes
@@ -188,6 +190,7 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
     use_widgets = _use_widgets(objs) if objs else True
     use_tables  = _use_tables(objs)  if objs else True
     use_gl      = _use_gl(objs)      if objs else True
+    use_mathjax = _use_mathjax(objs) if objs else True
 
     js_files: List[str] = []
     js_raw: List[str] = []
@@ -202,6 +205,8 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
             js_resources.js_components.remove("bokeh-tables")
         if not use_gl and "bokeh-gl" in js_resources.js_components:
             js_resources.js_components.remove("bokeh-gl")
+        if not use_mathjax and "bokeh-mathjax" in js_resources.js_components:
+            js_resources.js_components.remove("bokeh-mathjax")
 
         js_files.extend(js_resources.js_files)
         js_raw.extend(js_resources.js_raw)
@@ -327,6 +332,11 @@ def _bundle_extensions(objs: Sequence[Model | Document], resources: Resources) -
             artifacts_dir = dirname(artifact_path)
             artifact_name = basename(artifact_path)
             server_path = f"{name}/{artifact_name}"
+            if not settings.dev:
+                sha = hashlib.sha256()
+                sha.update(pkg_version.encode())
+                vstring = sha.hexdigest()
+                server_path = f"{server_path}?v={vstring}"
         else:
             for ext in extensions:
                 artifact_path = join(dist_dir, f"{name}{ext}")
@@ -403,6 +413,45 @@ def _use_widgets(objs: Sequence[Model | Document]) -> bool:
     from ..models.widgets import Widget
     return _any(objs, lambda obj: isinstance(obj, Widget)) or _ext_use_widgets(objs)
 
+def _model_requires_mathjax(model: Model) -> bool:
+    """Whether a model requires MathJax to be loaded
+    Args:
+        model (Model): Model to check
+    Returns:
+        bool: True if MathJax required, False if not
+    """
+    from ..models.axes import Axis
+    from ..models.widgets.markups import Div, Paragraph
+
+    if isinstance(model, Axis):
+        if isinstance(model.axis_label, str) and is_tex_string(model.axis_label):
+            return True
+
+        for val in model.major_label_overrides.values():
+            if isinstance(val, str) and is_tex_string(val):
+                return True
+
+    if isinstance(model, Div) and not model.disable_math and not model.render_as_text:
+        if contains_tex_string(model.text):
+            return True
+
+    if isinstance(model, Paragraph) and not model.disable_math:
+        if contains_tex_string(model.text):
+            return True
+
+    return False
+
+def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
+    ''' Whether a collection of Bokeh objects contains a model requesting MathJax
+    Args:
+        objs (seq[Model or Document]) :
+    Returns:
+        bool
+    '''
+    from ..models.text import MathText
+
+    return _any(objs, lambda obj: isinstance(obj, MathText) or _model_requires_mathjax(obj)) or _ext_use_mathjax(objs)
+
 def _use_gl(objs: Sequence[Model | Document]) -> bool:
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
 
@@ -424,6 +473,9 @@ def _ext_use_widgets(objs: Sequence[Model | Document]) -> bool:
     from ..models.widgets import Widget
     return _query_extensions(objs, lambda cls: issubclass(cls, Widget))
 
+def _ext_use_mathjax(objs: Sequence[Model | Document]) -> bool:
+    from ..models.text import MathText
+    return _query_extensions(objs, lambda cls: issubclass(cls, MathText))
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------

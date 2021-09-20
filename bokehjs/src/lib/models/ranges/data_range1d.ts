@@ -94,9 +94,9 @@ export class DataRange1d extends DataRange {
 
   computed_renderers(): DataRenderer[] {
     // TODO (bev) check that renderers actually configured with this range
-    const {renderers, names} = this
+    const {renderers} = this
     const all_renderers = concat(this.plots.map((plot) => plot.data_renderers))
-    return compute_renderers(renderers.length == 0 ? "auto" : renderers, all_renderers, names)
+    return compute_renderers(renderers.length == 0 ? "auto" : renderers, all_renderers)
   }
 
   /*protected*/ _compute_plot_bounds(renderers: Renderer[], bounds: Bounds): Rect {

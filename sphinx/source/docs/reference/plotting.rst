@@ -3,24 +3,20 @@
 bokeh.plotting
 ==============
 
-.. autofunction:: bokeh.plotting.figure
+The ``bokeh.plotting`` API is Bokeh's **primary** interface, and lets you focus
+on relating glyphs to data. It automatically assembles plots with default
+elements such as axes, grids, and tools for you.
 
-.. autoclass:: bokeh.plotting.Figure
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
+Below is a basic example:
 
-    .. autoclasstoc::
+.. bokeh-plot:: docs/user_guide/examples/concepts_plotting.py
+    :source-position: above
 
-.. autofunction:: bokeh.plotting.gmap
+This reference guide chapter has a few sections split out for the different
+main components:
 
-.. autoclass:: bokeh.plotting.GMap
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
+.. toctree::
+    :maxdepth: 1
+    :glob:
 
-    .. autoclasstoc::
-
-.. autofunction:: bokeh.plotting.graph.from_networkx
+    plotting/*

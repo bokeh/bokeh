@@ -7,6 +7,9 @@
   @buttonWidth: 30px;
   @buttonColor: lightgray;
 
+  @activeToolHighlight: #26aae1;
+  @activeToolBorder: 2px solid transparent;
+
   .bk-toolbar-hidden {
     visibility: hidden;
     opacity: 0;
@@ -59,22 +62,20 @@
     background-position: center center;
   }
 
-  .bk-toobar-button, .bk-tool-overflow {
+  .bk-toolbar-button, .bk-tool-overflow {
     &:hover {
       background-color: rgba(192, 192, 192, 0.15);
     }
 
-    &:focus {
-      outline: none;
+    &:focus, &:focus-visible {
+      outline: 1px dotted @activeToolHighlight;
+      outline-offset: -1px;
     }
 
     &::-moz-focus-inner {
       border: 0;
     }
   }
-
-  @activeToolHighlight: #26aae1;
-  @activeToolBorder: 2px solid transparent;
 
   .toolbar-button-border(@side) {
     border-@{side}: @activeToolBorder;

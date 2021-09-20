@@ -55,12 +55,8 @@ export class ToolProxy extends Model {
     return this.tools[0].tool_name
   }
 
-  get icon(): string {
+  get computed_icon(): string | undefined {
     return this.tools[0].computed_icon
-  }
-
-  get computed_icon(): string {
-    return this.icon
   }
 
   get toggleable(): boolean {

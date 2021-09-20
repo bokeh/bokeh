@@ -12,7 +12,7 @@ export interface Equatable {
 }
 
 function is_Equatable<T>(obj: T): obj is T & Equatable {
-  return isObject(obj) && (obj as any)[equals] !== undefined
+  return isObject(obj) && equals in obj
 }
 
 export const wildcard: any = Symbol("wildcard")
@@ -220,6 +220,3 @@ export function is_similar(a: unknown, b: unknown, tolerance?: number): boolean 
   const comparator = new SimilarComparator(tolerance)
   return comparator.eq(a, b)
 }
-
-/** @deprecated */
-export const isEqual = is_equal

@@ -6,8 +6,8 @@ import {Value, Field, Vector} from "../core/vectorization"
 import {VectorSpec, ScalarSpec, ColorSpec, Property} from "../core/properties"
 import {Class} from "../core/class"
 import {Location, MarkerType, RenderLevel} from "../core/enums"
-import {is_equal} from "../core/util/eq"
-import {includes} from "../core/util/array"
+import {is_equal, Comparator} from "../core/util/eq"
+import {includes, uniq} from "../core/util/array"
 import {clone, keys, entries, is_empty} from "../core/util/object"
 import {isNumber, isString, isArray, isArrayOf} from "../core/util/types"
 import {ViewOf} from "core/view"
@@ -27,7 +27,7 @@ import {
 import {
   AnnularWedge, Annulus, Arc, Bezier, Circle, Ellipse, HArea,
   HBar, HexTile, Image, ImageRGBA, ImageURL, Line, MultiLine,
-  MultiPolygons, Oval, Patch, Patches, Quad, Quadratic, Ray,
+  MultiPolygons, Patch, Patches, Quad, Quadratic, Ray,
   Rect, Scatter, Segment, Spline, Step, Text, VArea, VBar, Wedge,
 } from "../models/glyphs"
 
@@ -106,7 +106,9 @@ export type AuxText = {
 export type AuxGlyph = {
   source: ColumnarDataSource | ColumnarDataSource["data"]
   view: CDSView
-  legend: string
+  legend_label: string
+  legend_field: string
+  legend_group: string
   level: RenderLevel
   name: string
   visible: boolean
@@ -140,7 +142,6 @@ export type LineArgs          = GlyphArgs<Line.Props>          & AuxLine
 export type MarkerArgs        = GlyphArgs<Marker.Props>        & AuxLine & AuxFill
 export type MultiLineArgs     = GlyphArgs<MultiLine.Props>     & AuxLine
 export type MultiPolygonsArgs = GlyphArgs<MultiPolygons.Props> & AuxLine & AuxFill
-export type OvalArgs          = GlyphArgs<Oval.Props>          & AuxLine & AuxFill
 export type PatchArgs         = GlyphArgs<Patch.Props>         & AuxLine & AuxFill
 export type PatchesArgs       = GlyphArgs<Patches.Props>       & AuxLine & AuxFill
 export type QuadArgs          = GlyphArgs<Quad.Props>          & AuxLine & AuxFill
@@ -425,17 +426,6 @@ export class Figure extends Plot {
     args?: Partial<MultiPolygonsArgs>): TypedGlyphRenderer<MultiPolygons>
   multi_polygons(...args: unknown[]): TypedGlyphRenderer<MultiPolygons> {
     return this._glyph(MultiPolygons, "xs,ys", args)
-  }
-
-  oval(args: Partial<OvalArgs>): TypedGlyphRenderer<Oval>
-  oval(
-    x: OvalArgs["x"],
-    y: OvalArgs["y"],
-    width: OvalArgs["width"],
-    height: OvalArgs["height"],
-    args?: Partial<OvalArgs>): TypedGlyphRenderer<Oval>
-  oval(...args: unknown[]): TypedGlyphRenderer<Oval> {
-    return this._glyph(Oval, "x,y,width,height", args)
   }
 
   patch(args: Partial<PatchArgs>): TypedGlyphRenderer<Patch>
@@ -884,8 +874,17 @@ export class Figure extends Plot {
     const view = attrs.view != null ? attrs.view : new CDSView({source})
     delete attrs.view
 
-    const legend = this._process_legend(attrs.legend, source)
+    const legend = attrs.legend
     delete attrs.legend
+    const legend_label = attrs.legend_label
+    delete attrs.legend_label
+    const legend_field = attrs.legend_field
+    delete attrs.legend_field
+    const legend_group = attrs.legend_group
+    delete attrs.legend_group
+
+    if ([legend, legend_label, legend_field, legend_group].filter((arg) => arg != null).length > 1)
+      throw new Error("only one of legend, legend_label, legend_field, legend_group can be specified")
 
     const name = attrs.name
     delete attrs.name
@@ -943,9 +942,12 @@ export class Figure extends Plot {
       y_range_name,
     })
 
-    if (legend != null) {
-      this._update_legend(legend, glyph_renderer)
-    }
+    if (legend_label != null)
+      this._handle_legend_label(legend_label, this.legend, glyph_renderer)
+    if (legend_field != null)
+      this._handle_legend_field(legend_field, this.legend, glyph_renderer)
+    if (legend_group != null)
+      this._handle_legend_group(legend_group, this.legend, glyph_renderer)
 
     this.add_renderers(glyph_renderer)
     return glyph_renderer as TypedGlyphRenderer<G>
@@ -1068,23 +1070,6 @@ export class Figure extends Plot {
     return tools.map((tool) => isString(tool) ? Tool.from_string(tool) : tool)
   }
 
-  _process_legend(legend: string | Vector<string> | undefined, source: ColumnarDataSource): Vector<string> | null {
-    let legend_item_label = null
-    if (legend != null) {
-      if (isString(legend)) {
-        legend_item_label = {value: legend}
-        if (source.columns() != null) {
-          if (includes(source.columns(), legend)) {
-            legend_item_label = {field: legend}
-          }
-        }
-      } else {
-        legend_item_label = legend
-      }
-    }
-    return legend_item_label
-  }
-
   _update_legend(legend_item_label: Vector<string>, glyph_renderer: GlyphRenderer): void {
     const {legend} = this
     let added = false
@@ -1108,6 +1093,54 @@ export class Figure extends Plot {
       const new_item = new LegendItem({label: legend_item_label, renderers: [glyph_renderer]})
       legend.items.push(new_item)
     }
+  }
+
+  protected _handle_legend_label(value: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
+    const label = {value}
+    const item = this._find_legend_item(label, legend)
+    if (item != null)
+      item.renderers.push(glyph_renderer)
+    else {
+      const new_item = new LegendItem({label, renderers: [glyph_renderer]})
+      legend.items.push(new_item)
+    }
+  }
+
+  protected _handle_legend_field(field: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
+    const label = {field}
+    const item = this._find_legend_item(label, legend)
+    if (item != null)
+      item.renderers.push(glyph_renderer)
+    else {
+      const new_item = new LegendItem({label, renderers: [glyph_renderer]})
+      legend.items.push(new_item)
+    }
+  }
+
+  protected _handle_legend_group(name: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
+    const source = glyph_renderer.data_source
+    if (source == null)
+      throw new Error("cannot use 'legend_group' on a glyph without a data source already configured")
+    if (!(name in source.data))
+      throw new Error("column to be grouped does not exist in glyph data source")
+
+    const column = [...source.data[name]]
+    const values = uniq(column).sort()
+    for (const value of values) {
+      const label = {value: `${value}`}
+      const index = column.indexOf(value)
+      const new_item = new LegendItem({label, renderers: [glyph_renderer], index})
+      legend.items.push(new_item)
+    }
+  }
+
+  protected _find_legend_item(label: Vector<string>, legend: Legend): LegendItem | null {
+    const cmp = new Comparator()
+    for (const item of legend.items) {
+      if (cmp.eq(item.label, label))
+        return item
+    }
+    return null
   }
 }
 

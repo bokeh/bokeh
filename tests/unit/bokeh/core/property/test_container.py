@@ -29,6 +29,7 @@ from bokeh.core.properties import (
     Seq,
     String,
 )
+from bokeh.core.property.wrappers import PropertyValueDict, PropertyValueList
 from bokeh.models import ColumnDataSource
 
 from _util_property import _TestHasProps, _TestModel
@@ -179,6 +180,11 @@ class Test_Dict:
         prop = bcpc.Dict(String, Int)
         assert str(prop) == "Dict(String, Int)"
 
+    def test_wrap(self) -> None:
+        prop = bcpc.Dict(String, Int)
+        wrapped = prop.wrap({"foo": 10})
+        assert isinstance(wrapped, PropertyValueDict)
+        assert prop.wrap(wrapped) is wrapped
 
 class Test_List:
     def test_init(self) -> None:
@@ -224,6 +230,11 @@ class Test_List:
         prop = bcpc.List(Int)
         assert str(prop) == "List(Int)"
 
+    def test_wrap(self) -> None:
+        prop = bcpc.List(Int)
+        wrapped = prop.wrap([10, 20])
+        assert isinstance(wrapped, PropertyValueList)
+        assert prop.wrap(wrapped) is wrapped
 
 class Test_Seq:
     def test_init(self) -> None:

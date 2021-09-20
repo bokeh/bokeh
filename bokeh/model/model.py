@@ -134,6 +134,14 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     __repr__ = __str__
 
+    def destroy(self) -> None:
+        ''' Clean up references to the document and property
+
+        '''
+        self._document = None
+        self._temp_document = None
+        self._property_values.clear()
+
     @property
     def id(self) -> ID:
         return self._id

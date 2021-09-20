@@ -19,7 +19,6 @@ import pytest ; pytest
 # Standard library imports
 import asyncio
 import logging
-import os
 import sys
 
 # External imports
@@ -30,6 +29,7 @@ from tornado.httpclient import HTTPError
 # Bokeh imports
 import bokeh.document as document
 from bokeh._testing.plugins.managed_server_loop import MSL
+from bokeh._testing.util.env import envset
 from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
 from bokeh.client import ClientSession, pull_session, push_session
@@ -107,7 +107,7 @@ class TestClientServer:
             session.connect()
             assert session.connected
             # send a bogus message using private fields
-            server.io_loop.spawn_callback(session._connection._socket.write_message, b"xx", binary=True)
+            server.io_loop.add_callback(session._connection._socket.write_message, b"xx", binary=True)
             # connection should now close on the server side
             # and the client loop should end
             session._loop_until_closed()
@@ -186,9 +186,8 @@ class TestClientServer:
 
         # allow good origin from environment variable
         with ManagedServerLoop(application) as server:
-            os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com"
-            await self.check_http_ok_socket_ok(server, origin="http://example.com:80")
-            del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
+            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com"):
+                await self.check_http_ok_socket_ok(server, origin="http://example.com:80")
 
         # allow good origin with port
         with ManagedServerLoop(application, allow_websocket_origin=["example.com:8080"]) as server:
@@ -196,9 +195,8 @@ class TestClientServer:
 
         # allow good origin with port from environment variable
         with ManagedServerLoop(application) as server:
-            os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com:8080"
-            await self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
-            del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
+            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com:8080"):
+                await self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
 
         # allow good origin header with an implicit 80
         with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
@@ -206,9 +204,8 @@ class TestClientServer:
 
         # allow good origin header with an implicit 80
         with ManagedServerLoop(application) as server:
-            os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com"
-            await self.check_http_ok_socket_ok(server, origin="http://example.com")
-            del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
+            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com"):
+                await self.check_http_ok_socket_ok(server, origin="http://example.com")
 
         # block non-Host origins by default even if no extra origins specified
         with ManagedServerLoop(application) as server:
@@ -224,9 +221,8 @@ class TestClientServer:
 
         # block bad origin from environment variable
         with ManagedServerLoop(application) as server:
-            os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com"
-            await self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
-            del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
+            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com"):
+                await self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
 
         # block bad origin port
         with ManagedServerLoop(application, allow_websocket_origin=["example.com:8080"]) as server:
@@ -234,9 +230,8 @@ class TestClientServer:
 
         # block bad origin port from environment variable
         with ManagedServerLoop(application) as server:
-            os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com:8080"
-            await self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
-            del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
+            with envset(BOKEH_ALLOW_WS_ORIGIN="example.com:8080"):
+                await self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
 
     def test_push_document(self, ManagedServerLoop: MSL) -> None:
         application = Application()
@@ -454,7 +449,7 @@ class TestClientServer:
 
             def do_add_server_root():
                 server_session.document.add_root(server_root)
-            server.io_loop.spawn_callback(server_session.with_document_locked, do_add_server_root)
+            server.io_loop.add_callback(server_session.with_document_locked, do_add_server_root)
 
             def client_has_root():
                 return len(doc.roots) > 0
@@ -467,7 +462,7 @@ class TestClientServer:
             # Now try setting title on server side
             def do_set_server_title():
                 server_session.document.title = "Server Title"
-            server.io_loop.spawn_callback(server_session.with_document_locked, do_set_server_title)
+            server.io_loop.add_callback(server_session.with_document_locked, do_set_server_title)
 
             def client_title_set():
                 return client_session.document.title != document.DEFAULT_TITLE
@@ -478,7 +473,7 @@ class TestClientServer:
             # Now modify a model within the server document
             def do_set_property_on_server():
                 server_root.foo = 57
-            server.io_loop.spawn_callback(server_session.with_document_locked, do_set_property_on_server)
+            server.io_loop.add_callback(server_session.with_document_locked, do_set_property_on_server)
 
             # there is no great way to block until the server
             # has applied changes, since patches are sent
@@ -490,7 +485,7 @@ class TestClientServer:
 
             def do_remove_server_root():
                 server_session.document.remove_root(server_root)
-            server.io_loop.spawn_callback(server_session.with_document_locked, do_remove_server_root)
+            server.io_loop.add_callback(server_session.with_document_locked, do_remove_server_root)
 
             def client_lacks_root():
                 return len(doc.roots) == 0
@@ -964,7 +959,7 @@ def test_server_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Manage
         # Now modify the server document
         def do_set_foo_property():
             server_root.foo = 57
-        server.io_loop.spawn_callback(server_session.with_document_locked, do_set_foo_property)
+        server.io_loop.add_callback(server_session.with_document_locked, do_set_foo_property)
 
         # there is no great way to block until the server
         # has applied changes, since patches are sent
@@ -1037,9 +1032,9 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Man
         change_to({ 'value' : 59, 'units' : 'screen' }, { 'value' : 30, 'units' : 'deg' })
 
         client_session.close()
+        server.unlisten() # clean up so next test can run
         client_session._loop_until_closed()
         assert not client_session.connected
-        server.unlisten() # clean up so next test can run
 
 @patch('bokeh.client.session.show_session')
 def test_session_show_adds_obj_to_curdoc_if_necessary(m: MagicMock) -> None:

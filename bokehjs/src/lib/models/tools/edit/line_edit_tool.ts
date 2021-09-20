@@ -155,7 +155,7 @@ export class LineEditTool extends LineTool {
   }
 
   override tool_name = "Line Edit Tool"
-  override icon = tool_icon_line_edit
+  override tool_icon = tool_icon_line_edit
   override event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   override default_order = 4
 

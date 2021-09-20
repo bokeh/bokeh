@@ -1,13 +1,19 @@
+''' A pie chart populated by a simple dict of values. This example demonstrates
+a cumulative sum transform for computing positions for the wedges.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.transform.cumsum, bokeh.plotting.Figure.wedge
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_wedges_arcs`
+    :keywords: cumsum, pandas, pie, wedge
+
+'''
 from math import pi
 
 import pandas as pd
 
-from bokeh.io import output_file, show
 from bokeh.palettes import Category20c
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.transform import cumsum
-
-output_file("pie.html")
 
 x = {
     'United States': 157,
@@ -24,7 +30,7 @@ x = {
     'Spain': 29
 }
 
-data = pd.Series(x).reset_index(name='value').rename(columns={'index':'country'})
+data = pd.Series(x).reset_index(name='value').rename(columns={'index': 'country'})
 data['angle'] = data['value']/data['value'].sum() * 2*pi
 data['color'] = Category20c[len(x)]
 
@@ -35,8 +41,8 @@ p.wedge(x=0, y=1, radius=0.4,
         start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
         line_color="white", fill_color='color', legend_field='country', source=data)
 
-p.axis.axis_label=None
-p.axis.visible=False
+p.axis.axis_label = None
+p.axis.visible = False
 p.grid.grid_line_color = None
 
 show(p)

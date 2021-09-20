@@ -324,7 +324,7 @@ class ClientConnection:
             # this runs self._next ONE time, but
             # self._next re-runs itself until
             # the predicate says to quit.
-            self._loop.spawn_callback(self._next)
+            self._loop.add_callback(self._next)
             self._loop.start()
         except KeyboardInterrupt:
             self.close("user interruption")
@@ -374,7 +374,7 @@ class ClientConnection:
         async def handle_message(message: Message[Any], send_result: List[None]) -> None:
             result = await self.send_message(message)
             send_result.append(result)
-        self._loop.spawn_callback(handle_message, message, send_result)
+        self._loop.add_callback(handle_message, message, send_result)
 
         def have_send_result_or_disconnected() -> bool:
             return len(send_result) > 0 or self._state != waiter
@@ -396,7 +396,7 @@ class ClientConnection:
         if hasattr(event, 'hint') and isinstance(event.hint, ColumnDataChangedEvent):
             event.hint.cols = None
         msg = self._protocol.create('PATCH-DOC', [event], use_buffers=False)
-        self._loop.spawn_callback(self.send_message, msg)
+        self._loop.add_callback(self.send_message, msg)
 
     def _send_request_server_info(self) -> ServerInfo:
         msg = self._protocol.create('SERVER-INFO-REQ')

@@ -15,7 +15,7 @@ import {div, span, display, undisplay, empty} from "core/dom"
 import * as p from "core/properties"
 import {Arrayable, Color} from "core/types"
 import {color2hex, color2css} from "core/util/color"
-import {isEmpty} from "core/util/object"
+import {is_empty} from "core/util/object"
 import {enumerate} from "core/util/iterator"
 import {isString, isFunction, isNumber} from "core/util/types"
 import {build_view, build_views, remove_views} from "core/build_views"
@@ -152,9 +152,9 @@ export class HoverToolView extends InspectToolView {
   }
 
   get computed_renderers(): DataRenderer[] {
-    const {renderers, names} = this.model
+    const {renderers} = this.model
     const all_renderers = this.plot_model.data_renderers
-    return compute_renderers(renderers, all_renderers, names)
+    return compute_renderers(renderers, all_renderers)
   }
 
   get ttmodels(): Map<GlyphRenderer, Tooltip> {
@@ -221,10 +221,10 @@ export class HoverToolView extends InspectToolView {
 
     const selection_manager = renderer.get_selection_manager()
 
-    let indices = selection_manager.inspectors.get(renderer)!
-    indices = renderer.view.convert_selection_to_subset(indices)
+    const fullset_indices = selection_manager.inspectors.get(renderer)!
+    const subset_indices = renderer.view.convert_selection_to_subset(fullset_indices)
 
-    if (indices.is_empty()) {
+    if (fullset_indices.is_empty()) {
       tooltip.clear()
       return
     }
@@ -245,7 +245,7 @@ export class HoverToolView extends InspectToolView {
     const tooltips: [number, number, HTMLElement | null][] = []
 
     if (glyph instanceof LineView) {
-      for (const i of indices.line_indices) {
+      for (const i of subset_indices.line_indices) {
         let data_x = glyph._x[i+1]
         let data_y = glyph._y[i+1]
         let ii = i
@@ -281,14 +281,14 @@ export class HoverToolView extends InspectToolView {
         const vars = {
           index: ii,
           x, y, sx, sy, data_x, data_y, rx, ry,
-          indices: indices.line_indices,
+          indices: subset_indices.line_indices,
           name: renderer.name,
         }
         tooltips.push([rx, ry, this._render_tooltips(ds, ii, vars)])
       }
     }
 
-    for (const struct of indices.image_indices) {
+    for (const struct of fullset_indices.image_indices) {
       const vars = {
         index: struct.index,
         x, y, sx, sy,
@@ -298,10 +298,10 @@ export class HoverToolView extends InspectToolView {
       tooltips.push([sx, sy, rendered])
     }
 
-    for (const i of indices.indices) {
+    for (const i of subset_indices.indices) {
       // multiglyphs set additional indices, e.g. multiline_indices for different tooltips
-      if (glyph instanceof MultiLineView && !isEmpty(indices.multiline_indices)) {
-        for (const j of indices.multiline_indices[i.toString()]) { // TODO: indices.multiline_indices.get(i)
+      if (glyph instanceof MultiLineView && !is_empty(subset_indices.multiline_indices)) {
+        for (const j of subset_indices.multiline_indices[i.toString()]) { // TODO: subset_indices.multiline_indices.get(i)
           let data_x = glyph._xs.get(i)[j]
           let data_y = glyph._ys.get(i)[j]
           let jj = j
@@ -342,7 +342,7 @@ export class HoverToolView extends InspectToolView {
           const vars = {
             index, x, y, sx, sy, data_x, data_y,
             segment_index: jj,
-            indices: indices.multiline_indices,
+            indices: subset_indices.multiline_indices,
             name: renderer.name,
           }
           tooltips.push([rx, ry, this._render_tooltips(ds, index, vars)])
@@ -377,7 +377,7 @@ export class HoverToolView extends InspectToolView {
 
         const vars = {
           index, x, y, sx, sy, data_x, data_y,
-          indices: indices.indices,
+          indices: subset_indices.indices,
           name: renderer.name,
         }
         tooltips.push([rx, ry, this._render_tooltips(ds, index, vars)])
@@ -540,8 +540,6 @@ export namespace HoverTool {
     tooltips: p.Property<null | Template | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<Formatters>
     renderers: p.Property<DataRenderer[] | "auto">
-    /** @deprecated */
-    names: p.Property<string[]>
     mode: p.Property<HoverMode>
     muted_policy: p.Property<MutedPolicy>
     point_policy: p.Property<PointPolicy>
@@ -574,7 +572,6 @@ export class HoverTool extends InspectTool {
       ]],
       formatters:   [ Dict(Or(Ref(CustomJSHover), FormatterType)), {} ],
       renderers:    [ Or(Array(Ref(DataRenderer)), Auto), "auto" ],
-      names:        [ Array(String), [] ],
       mode:         [ HoverMode, "mouse" ],
       muted_policy: [ MutedPolicy, "show" ],
       point_policy: [ PointPolicy, "snap_to_data" ],
@@ -589,5 +586,5 @@ export class HoverTool extends InspectTool {
   }
 
   override tool_name = "Hover"
-  override icon = tool_icon_hover
+  override tool_icon = tool_icon_hover
 }

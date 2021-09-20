@@ -36,6 +36,12 @@ jobs:
         run: |
           npm install -g npm@7
 
+      - name: Upgrade chromium
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo snap install chromium
+
       - name: Install dependencies
         working-directory: ./bokehjs
         shell: bash

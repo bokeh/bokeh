@@ -104,7 +104,7 @@ export class PointDrawTool extends EditTool {
   }
 
   override tool_name = "Point Draw Tool"
-  override icon = tool_icon_point_draw
+  override tool_icon = tool_icon_point_draw
   override event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   override default_order = 2
 }

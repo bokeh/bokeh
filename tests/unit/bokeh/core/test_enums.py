@@ -80,6 +80,7 @@ ALL  = (
     'TextBaseline',
     'TextureRepetition',
     'TickLabelOrientation',
+    'ToolIcon',
     'TooltipAttachment',
     'TooltipFieldFormatter',
     'TrackPolicy',
@@ -296,6 +297,13 @@ class Test_bce:
     def test_TickLabelOrientation(self) -> None:
         assert tuple(bce.TickLabelOrientation) == ("horizontal", "vertical", "parallel", "normal")
 
+    def test_ToolIcon(self) -> None:
+        assert tuple(bce.ToolIcon) == ("append_mode", "box_edit", "box_select", "box_zoom", "clear_selection",
+            "copy_to_clipboard", "crosshair", "freehand_draw", "help", "hover", "intersect_mode", "lasso_select",
+            "line_edit", "pan", "point_draw", "poly_draw", "poly_edit", "polygon_select", "range", "redo",
+            "replace_mode", "reset", "save", "subtract_mode", "tap_select", "undo", "wheel_pan", "wheel_zoom",
+            "xpan", "ypan", "zoom_in", "zoom_out")
+
     def test_TooltipAttachment(self) -> None:
         assert tuple(bce.TooltipAttachment) == ("horizontal", "vertical", "left", "right", "above", "below")
 
@@ -360,6 +368,7 @@ def test_enums_contents() -> None:
         'TextBaseline',
         'TextureRepetition',
         'TickLabelOrientation',
+        'ToolIcon',
         'TooltipAttachment',
         'TooltipFieldFormatter',
         'TrackPolicy',

@@ -128,15 +128,6 @@ export abstract class GlyphView extends View {
   // snapping to a patch centroid, e.g, should override these
   abstract scenterxy(i: number, sx: number, sy: number): [number, number]
 
-  /** @deprecated */
-  scenterx(i: number, sx: number, sy: number): number {
-    return this.scenterxy(i, sx, sy)[0]
-  }
-  /** @deprecated */
-  scentery(i: number, sx: number, sy: number): number {
-    return this.scenterxy(i, sx, sy)[1]
-  }
-
   sdist(scale: Scale, pts: Arrayable<number>, spans: p.Uniform<number>,
         pts_location: "center" | "edge" = "edge", dilate: boolean = false): ScreenArray {
     const n = pts.length

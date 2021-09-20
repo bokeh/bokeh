@@ -23,9 +23,9 @@ export abstract class SelectToolView extends GestureToolView {
   }
 
   get computed_renderers(): DataRenderer[] {
-    const {renderers, names} = this.model
+    const {renderers} = this.model
     const all_renderers = this.plot_model.data_renderers
-    return compute_renderers(renderers, all_renderers, names)
+    return compute_renderers(renderers, all_renderers)
   }
 
   _computed_renderers_by_data_source(): Map<DataSource, DataRenderer[]> {
@@ -143,8 +143,6 @@ export namespace SelectTool {
 
   export type Props = GestureTool.Props & {
     renderers: p.Property<DataRenderer[] | "auto">
-    /** @deprecated */
-    names: p.Property<string[]>
     mode: p.Property<SelectionMode>
   }
 }
@@ -167,9 +165,8 @@ export abstract class SelectTool extends GestureTool {
   }
 
   static {
-    this.define<SelectTool.Props>(({String, Array, Ref, Or, Auto}) => ({
+    this.define<SelectTool.Props>(({Array, Ref, Or, Auto}) => ({
       renderers: [ Or(Array(Ref(DataRenderer)), Auto), "auto" ],
-      names:     [ Array(String), [] ],
       mode:      [ SelectionMode, "replace" ],
     }))
   }

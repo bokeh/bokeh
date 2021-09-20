@@ -19,11 +19,13 @@ import pytest ; pytest
 # Standard library imports
 import base64
 import datetime
-import os
 
 # External imports
 import numpy as np
 import pytz
+
+# Bokeh imports
+from bokeh._testing.util.env import envset
 
 # Module under test
 import bokeh.util.serialization as bus # isort:skip
@@ -46,16 +48,15 @@ class Test_make_id:
 
     def test_simple_ids_yes(self) -> None:
         bus._simple_id = 999
-        os.environ["BOKEH_SIMPLE_IDS"] = "yes"
-        assert bus.make_id() == "1000"
-        assert bus.make_id() == "1001"
-        assert bus.make_id() == "1002"
+        with envset(BOKEH_SIMPLE_IDS="yes"):
+            assert bus.make_id() == "1000"
+            assert bus.make_id() == "1001"
+            assert bus.make_id() == "1002"
 
     def test_simple_ids_no(self) -> None:
-        os.environ["BOKEH_SIMPLE_IDS"] = "no"
-        assert len(bus.make_id()) == 36
-        assert isinstance(bus.make_id(), str)
-        del os.environ["BOKEH_SIMPLE_IDS"]
+        with envset(BOKEH_SIMPLE_IDS="no"):
+            assert len(bus.make_id()) == 36
+            assert isinstance(bus.make_id(), str)
 
 class Test_make_globally_unique_id:
     def test_basic(self) -> None:
@@ -332,7 +333,7 @@ def test_array_encoding_disabled_by_dtype() -> None:
     assert len(bus.BINARY_ARRAY_TYPES) > 0
 
     dt_ok = bus.BINARY_ARRAY_TYPES
-    dt_bad = {np.dtype(x) for x in set(np.typeDict.values()) - {np.void}} - dt_ok
+    dt_bad = {np.dtype(x) for x in set(np.sctypeDict.values()) - {np.void}} - dt_ok
 
     for dt in dt_ok:
         a = np.empty(shape=10, dtype=dt)

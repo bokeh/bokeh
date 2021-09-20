@@ -95,6 +95,7 @@ Basic Properties
 .. autoclass:: MarkerType
 .. autoclass:: MinMaxBounds
 .. autoclass:: NonNegativeInt
+.. autoclass:: Null
 .. autoclass:: Percent
 .. autoclass:: PositiveInt
 .. autoclass:: RGB
@@ -127,9 +128,9 @@ DataSpec Properties
 .. autoclass:: FontSizeSpec
 .. autoclass:: MarkerSpec
 .. autoclass:: NumberSpec
-.. autoclass:: PropertyUnitsSpec
 .. autoclass:: SizeSpec
 .. autoclass:: StringSpec
+.. autoclass:: UnitsSpec
 
 Helpers
 ~~~~~~~
@@ -225,6 +226,7 @@ __all__ = (
     'List',
     'MarkerSpec',
     'MarkerType',
+    'MathString',
     'MinMaxBounds',
     'NonNegativeInt',
     'NonNullable',
@@ -237,7 +239,6 @@ __all__ = (
     'PandasGroupBy',
     'Percent',
     'PositiveInt',
-    'PropertyUnitsSpec',
     'RGB',
     'Readonly',
     'Regex',
@@ -250,7 +251,9 @@ __all__ = (
     'StringSpec',
     'Struct',
     'TimeDelta',
+    'TextLike',
     'Tuple',
+    'UnitsSpec',
     'expr',
     'field',
     'validate',
@@ -301,11 +304,11 @@ from .property.dataspec import MarkerSpec; MarkerSpec
 from .property.dataspec import NullDistanceSpec; NullDistanceSpec
 from .property.dataspec import NullStringSpec; NullStringSpec
 from .property.dataspec import NumberSpec; NumberSpec
-from .property.dataspec import PropertyUnitsSpec; PropertyUnitsSpec
 from .property.dataspec import SizeSpec; SizeSpec
 from .property.dataspec import StringSpec; StringSpec
 from .property.dataspec import TextAlignSpec; TextAlignSpec
 from .property.dataspec import TextBaselineSpec; TextBaselineSpec
+from .property.dataspec import UnitsSpec; UnitsSpec
 from .property.dataspec import value; value
 
 from .property.datetime import Date; Date
@@ -353,9 +356,12 @@ from .property.primitive import String; String
 from .property.readonly import Readonly; Readonly
 
 from .property.string import Base64String; Base64String
+from .property.string import MathString; MathString
 from .property.string import Regex; Regex
 
 from .property.struct import Struct; Struct
+
+from .property.text_like import TextLike; TextLike
 
 from .property.visual import DashPattern; DashPattern
 from .property.visual import FontSize; FontSize

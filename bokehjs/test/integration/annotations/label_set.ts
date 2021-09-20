@@ -1,0 +1,66 @@
+import {display, fig} from "../_util"
+
+import {RenderMode} from "@bokehjs/core/enums"
+import {LabelSet, ColumnDataSource} from "@bokehjs/models"
+
+function deg(value: number) {
+  return {value, units: "deg"}
+}
+
+function turn(value: number) {
+  return {value, units: "turn"}
+}
+
+describe("LabelSet annotation", () => {
+
+  function plot(render_mode: RenderMode) {
+    const plot = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
+
+    const source = new ColumnDataSource({
+      data: {
+        text: ["First label", "Second label\nspanning two lines", "Third label\nspanning\nthree lines"],
+        x1: [1, 3, 7],
+        y1: [7, 5, 3],
+        x2: [30, 70, 150],
+      },
+    })
+
+    const label_set0 = new LabelSet({
+      x: {field: "x1"}, y: {field: "y1"},
+      x_offset: -10, y_offset: 25,
+      angle: deg(15),
+      text: {field: "text"},
+      source,
+      text_font_size: "24px", text_color: "red", text_alpha: 0.9, text_baseline: "bottom", text_align: "left",
+      background_fill_color: "green", background_fill_alpha: 0.8,
+      border_line_color: "blue",
+      render_mode,
+    })
+
+    const label_set1 = new LabelSet({
+      x: {field: "x2"}, y: 1,
+      x_units: "screen", y_units: "data",
+      x_offset: 0, y_offset: -5,
+      angle: turn(0.25),
+      text: {field: "text"},
+      source,
+      text_font_size: "18px", text_color: "black", text_alpha: 0.9, text_baseline: "top", text_align: "left",
+      background_fill_color: "orange", background_fill_alpha: 0.8,
+      border_line_color: "red", border_line_width: 3,
+      render_mode,
+    })
+
+    plot.add_layout(label_set0)
+    plot.add_layout(label_set1)
+
+    return plot
+  }
+
+  it("should support basic positioning using canvas rendering", async () => {
+    await display(plot("canvas"))
+  })
+
+  it("should support basic positioning using CSS rendering", async () => {
+    await display(plot("css"))
+  })
+})

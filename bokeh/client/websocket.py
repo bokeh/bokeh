@@ -22,19 +22,11 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Awaitable,
-    Callable,
-)
+from typing import Any, Awaitable, Callable
 
 # External imports
 from tornado import locks
-from tornado.websocket import WebSocketClientConnection, WebSocketError
-
-if TYPE_CHECKING:
-    from tornado.concurrent import Future
+from tornado.websocket import WebSocketClientConnection
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -68,26 +60,11 @@ class WebSocketClientConnectionWrapper:
         Bokeh Document lock.
 
         '''
-        def write_message_unlocked() -> Future[None]:
-            if self._socket.protocol is None:
-                # Tornado is maybe supposed to do this, but in fact it
-                # tries to do _socket.protocol.write_message when protocol
-                # is None and throws AttributeError or something. So avoid
-                # trying to write to the closed socket. There doesn't seem
-                # to be an obvious public function to check if the socket
-                # is closed.
-                raise WebSocketError("Connection to the server has been closed")
-
-            future = self._socket.write_message(message, binary)
-
-            # don't await this future or we're blocking on ourselves!
-            return future
-
         if locked:
             with await self.write_lock.acquire():
-                write_message_unlocked()
+                self._socket.write_message(message, binary)
         else:
-            write_message_unlocked()
+            self._socket.write_message(message, binary)
 
     def close(self, code: int | None = None, reason: str | None = None) -> None:
         ''' Close the websocket. '''

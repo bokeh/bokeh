@@ -82,31 +82,20 @@ To export PNG or SVG files, you might need to install additional dependencies.
 
 In order to create PNG and SVG files, Bokeh uses
 `Selenium <https://github.com/SeleniumHQ/selenium>`_. Selenium allows Bokeh to
-run in a browser without a graphical user interface (GUI). Bokeh uses this
+run in a browser without a graphical user interface. Bokeh uses this
 browser to render the PNG or SVG files. In order for this to work, Selenium
-needs to be able to access either a Firefox browser (through a package called
-geckodriver) or a Chromium browser (through the chromedriver package).
+needs to be able to access either a Firefox browser (through the geckodriver
+package) or a Chrome/Chromium browser (through the chromedriver package).
 
-Depending on whether you are using ``conda`` or ``pip``, run one of the
-following commands to make sure you have all the required packages installed:
+Use this command to install Selenium with geckodriver and Firefox in a conda
+environment:
 
-.. panels::
+.. code-block:: sh
 
-    Installing with ``conda``
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    conda install selenium geckodriver firefox -c conda-forge
 
-    .. code-block:: sh
-
-        conda install selenium geckodriver firefox -c conda-forge
-
-    ---
-
-    Installing with ``pip``
-    ^^^^^^^^^^^^^^^^^^^^^^^
-
-    .. code-block:: sh
-
-        pip install selenium geckodriver firefox
+See :ref:`userguide_export_dependencies` for more options to install the
+required packages.
 
 Once the requirements are installed, you can use the
 :func:`~bokeh.io.export_png` function to export your plot into a PNG file:

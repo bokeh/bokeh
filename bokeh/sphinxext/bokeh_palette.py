@@ -66,6 +66,7 @@ from docutils import nodes
 from sphinx.errors import SphinxError
 
 # Bokeh imports
+from . import PARALLEL_SAFE
 from .templates import PALETTE_DETAIL
 
 # -----------------------------------------------------------------------------
@@ -119,6 +120,7 @@ def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_role("bokeh-palette", bokeh_palette)
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

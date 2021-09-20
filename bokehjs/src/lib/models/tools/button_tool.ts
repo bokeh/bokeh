@@ -3,11 +3,10 @@ import Hammer, {Manager} from "hammerjs"
 import {Class} from "core/class"
 import {DOMView} from "core/dom_view"
 import {Tool, ToolView} from "./tool"
-import {empty} from "core/dom"
-import {Dimensions} from "core/enums"
+import {empty, Keys} from "core/dom"
+import {Dimensions, ToolIcon} from "core/enums"
 import * as p from "core/properties"
 import {startsWith} from "core/util/string"
-import {isString} from "core/util/types"
 import {reversed} from "core/util/array"
 
 import toolbar_css, * as toolbars from "styles/toolbar.css"
@@ -55,6 +54,11 @@ export abstract class ButtonToolButtonView extends DOMView {
       }
     })
     this._hammer.on("press", () => this._pressed())
+    this.el.addEventListener("keydown", (event) => {
+      if (event.keyCode == Keys.Enter) {
+        this._clicked()
+      }
+    })
   }
 
   override remove(): void {
@@ -74,13 +78,20 @@ export abstract class ButtonToolButtonView extends DOMView {
   override render(): void {
     empty(this.el)
     const icon = this.model.computed_icon
-    if (isString(icon)) {
-      if (startsWith(icon, "data:image"))
-        this.el.style.backgroundImage = `url("${icon}")`
-      else
-        this.el.classList.add(icon)
+    if (icon != null) {
+      if (startsWith(icon, "data:image")) {
+        const url = `url("${encodeURI(icon)}")`
+        this.el.style.backgroundImage = url
+      } else if (startsWith(icon, ".")) {
+        const cls = icon.substring(1)
+        this.el.classList.add(cls)
+      } else if (ToolIcon.valid(icon)) {
+        const cls = `bk-tool-icon-${icon.replace(/_/g, "-")}`
+        this.el.classList.add(cls)
+      }
     }
     this.el.title = this.model.tooltip
+    this.el.tabIndex = 0
 
     if (this._menu != null) {
       this.root.el.appendChild(this._menu.el)
@@ -130,9 +141,8 @@ export abstract class ButtonTool extends Tool {
     }))
   }
 
-  tool_name: string
-
-  icon: string
+  readonly tool_name: string
+  readonly tool_icon?: string
 
   button_view: Class<ButtonToolButtonView>
 
@@ -152,8 +162,8 @@ export abstract class ButtonTool extends Tool {
     return this.description ?? this.tool_name
   }
 
-  get computed_icon(): string {
-    return this.icon
+  get computed_icon(): string | undefined {
+    return this.icon ?? `.${this.tool_icon}`
   }
 
   get menu(): MenuItem[] | null {

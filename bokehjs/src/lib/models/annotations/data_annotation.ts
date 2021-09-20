@@ -13,12 +13,16 @@ export abstract class DataAnnotationView extends AnnotationView {
     super.connect_signals()
     const update = () => {
       this.set_data(this.model.source)
-      this.request_render()
+      this._rerender()
     }
     this.connect(this.model.change, update)
     this.connect(this.model.source.streaming, update)
     this.connect(this.model.source.patching, update)
     this.connect(this.model.source.change, update)
+  }
+
+  protected _rerender(): void {
+    this.request_render()
   }
 
   set_data(source: ColumnarDataSource): void {

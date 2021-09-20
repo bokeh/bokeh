@@ -39,9 +39,6 @@ export namespace Plot {
     toolbar_location: p.Property<Location | null>
     toolbar_sticky: p.Property<boolean>
 
-    plot_width: p.Property<number | null>
-    plot_height: p.Property<number | null>
-
     frame_width: p.Property<number | null>
     frame_height: p.Property<number | null>
 
@@ -57,12 +54,16 @@ export namespace Plot {
     renderers: p.Property<Renderer[]>
 
     x_range: p.Property<Range>
-    extra_x_ranges: p.Property<{[key: string]: Range}>
     y_range: p.Property<Range>
-    extra_y_ranges: p.Property<{[key: string]: Range}>
 
     x_scale: p.Property<Scale>
     y_scale: p.Property<Scale>
+
+    extra_x_ranges: p.Property<{[key: string]: Range}>
+    extra_y_ranges: p.Property<{[key: string]: Range}>
+
+    extra_x_scales: p.Property<{[key: string]: Scale}>
+    extra_y_scales: p.Property<{[key: string]: Scale}>
 
     lod_factor: p.Property<number>
     lod_interval: p.Property<number>
@@ -129,9 +130,6 @@ export class Plot extends LayoutDOM {
       toolbar_location:  [ Nullable(Location), "right" ],
       toolbar_sticky:    [ Boolean, true ],
 
-      plot_width:        [ p.Alias("width") ],
-      plot_height:       [ p.Alias("height") ],
-
       frame_width:       [ Nullable(Number), null ],
       frame_height:      [ Nullable(Number), null ],
 
@@ -150,12 +148,16 @@ export class Plot extends LayoutDOM {
       renderers:         [ Array(Ref(Renderer)), [] ],
 
       x_range:           [ Ref(Range), () => new DataRange1d() ],
-      extra_x_ranges:    [ Dict(Ref(Range)), {} ],
       y_range:           [ Ref(Range), () => new DataRange1d() ],
-      extra_y_ranges:    [ Dict(Ref(Range)), {} ],
 
       x_scale:           [ Ref(Scale), () => new LinearScale() ],
       y_scale:           [ Ref(Scale), () => new LinearScale() ],
+
+      extra_x_ranges:    [ Dict(Ref(Range)), {} ],
+      extra_y_ranges:    [ Dict(Ref(Range)), {} ],
+
+      extra_x_scales:    [ Dict(Ref(Scale)), {} ],
+      extra_y_scales:    [ Dict(Ref(Scale)), {} ],
 
       lod_factor:        [ Number, 10 ],
       lod_interval:      [ Number, 300 ],

@@ -25,19 +25,25 @@ log = logging.getLogger(__name__)
 from inspect import signature
 from typing import (
     TYPE_CHECKING,
+    Any,
     Callable,
     Dict,
     List,
+    Sequence,
     Type,
+    Union,
+    cast,
 )
 
 # Bokeh imports
 from ..core.types import Unknown
-from ..events import Event
+from ..events import Event, ModelEvent
 from ..util.functions import get_param_info
 
 if TYPE_CHECKING:
     from ..core.has_props import Setter
+    from ..core.types import ID
+    from ..document.document import Document
     from ..document.events import DocumentPatchedEvent
 
 #-----------------------------------------------------------------------------
@@ -53,7 +59,13 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-EventCallback = Callable[[Event], None]
+# TODO (bev) the situation with no-argument Button callbacks is a mess. We
+# should migrate to all callbacks receving the event as the param, even if that
+# means auto-magically wrapping user-supplied callbacks for awhile.
+EventCallbackWithEvent = Callable[[Event], None]
+EventCallbackWithoutEvent = Callable[[], None]
+EventCallback = Union[EventCallbackWithEvent, EventCallbackWithoutEvent]
+
 PropertyCallback = Callable[[str, Unknown, Unknown], None]
 
 class EventCallbackManager:
@@ -62,10 +74,13 @@ class EventCallbackManager:
 
     '''
 
+    document: Document | None
+    id: ID
+    subscribed_events: List[str]
     _event_callbacks: Dict[str, List[EventCallback]]
 
-    def __init__(self, *args, **kw) -> None:
-        super().__init__(*args, **kw)
+    def __init__(self, *args: Any, **kw: Any) -> None:
+        super().__init__(*args, **kw)  # type: ignore[call-arg] # https://github.com/python/mypy/issues/5887
         self._event_callbacks = {}
 
     def on_event(self, event: str | Type[Event], *callbacks: EventCallback) -> None:
@@ -90,25 +105,18 @@ class EventCallbackManager:
         if event not in self.subscribed_events:
             self.subscribed_events.append(event)
 
-    def _trigger_event(self, event: Event) -> None:
+    def _trigger_event(self, event: ModelEvent) -> None:
         def invoke() -> None:
             for callback in self._event_callbacks.get(event.event_name,[]):
                 if event._model_id is not None and self.id == event._model_id:
                     if _nargs(callback) == 0:
-                        callback()
+                        cast(EventCallbackWithoutEvent, callback)()
                     else:
-                        callback(event)
+                        cast(EventCallbackWithEvent, callback)(event)
 
-        # TODO: here we might mirror the property callbacks and have something
-        # like Document._notify_event which creates an *internal* Bokeh event
-        # (for the user event, confusing!) that then dispatches in the document
-        # and applies curdoc wrapper there. However, most of that machinery is
-        # to support the bi-directionality of property changes. Currently (user)
-        # events only run from client to server. Would like to see if some of the
-        # internal eventing can be reduced or simplified in general before
-        # plugging more into it. For now, just handle the curdoc bits here.
         if self.document is not None:
-            self.document._with_self_as_curdoc(invoke)
+            from ..model import Model
+            self.document.callbacks.notify_event(cast(Model, self), event, invoke)
         else:
             invoke()
 
@@ -117,8 +125,8 @@ class EventCallbackManager:
             return
 
         for key in self._event_callbacks:
-            self.document._subscribed_models[key].add(self)
-
+            from ..model import Model
+            self.document.callbacks.subscribe(key, cast(Model, self))
 
 class PropertyCallbackManager:
     ''' A mixin class to provide an interface for registering and
@@ -126,10 +134,11 @@ class PropertyCallbackManager:
 
     '''
 
+    document: Document | None
     _callbacks: Dict[str, List[PropertyCallback]]
 
-    def __init__(self, *args, **kw) -> None:
-        super().__init__(*args, **kw)
+    def __init__(self, *args: Any, **kw: Any) -> None:
+        super().__init__(*args, **kw)  # type: ignore[call-arg] # https://github.com/python/mypy/issues/5887
         self._callbacks = {}
 
     def on_change(self, attr: str, *callbacks: PropertyCallback) -> None:
@@ -175,13 +184,14 @@ class PropertyCallbackManager:
             None
 
         '''
-        def invoke():
+        def invoke() -> None:
             callbacks = self._callbacks.get(attr)
             if callbacks:
                 for callback in callbacks:
                     callback(attr, old, new)
         if self.document is not None:
-            self.document._notify_change(self, attr, old, new, hint, setter, invoke)
+            from ..model import Model
+            self.document.callbacks.notify_change(cast(Model, self), attr, old, new, hint, setter, invoke)
         else:
             invoke()
 
@@ -193,12 +203,12 @@ class PropertyCallbackManager:
 # Private API
 #-----------------------------------------------------------------------------
 
-def _nargs(fn):
+def _nargs(fn: Callable[..., Any]) -> int:
     sig = signature(fn)
     all_names, default_values = get_param_info(sig)
     return len(all_names) - len(default_values)
 
-def _check_callback(callback, fargs, what="Callback functions"):
+def _check_callback(callback: Callable[..., Any], fargs: Sequence[str], what: str ="Callback functions") -> None:
     '''Bokeh-internal function to check callback signature'''
     sig = signature(callback)
     formatted_args = str(sig)
