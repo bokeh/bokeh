@@ -59,7 +59,7 @@ class Test_WheelPanTool:
 
         page = single_plot_page(plot)
 
-        button = page.get_toolbar_button('xwheel-pan')
+        button = page.get_toolbar_button('wheel-pan')
         assert 'active' not in button.get_attribute('class')
 
         assert page.has_no_console_errors()
@@ -70,16 +70,16 @@ class Test_WheelPanTool:
         page = single_plot_page(plot)
 
         # Check is not active
-        button = page.get_toolbar_button('xwheel-pan')
+        button = page.get_toolbar_button('wheel-pan')
         assert 'active' not in button.get_attribute('class')
 
         # Click and check is active
-        button = page.get_toolbar_button('xwheel-pan')
+        button = page.get_toolbar_button('wheel-pan')
         button.click()
         assert 'active' in button.get_attribute('class')
 
         # Click again and check is not active
-        button = page.get_toolbar_button('xwheel-pan')
+        button = page.get_toolbar_button('wheel-pan')
         button.click()
         assert 'active' not in button.get_attribute('class')
 
@@ -90,7 +90,7 @@ class Test_WheelPanTool:
 
         page = single_plot_page(plot)
 
-        button = page.get_toolbar_button('ywheel-pan')
+        button = page.get_toolbar_button('wheel-pan')
         assert 'active' not in button.get_attribute('class')
 
         assert page.has_no_console_errors()
@@ -101,16 +101,16 @@ class Test_WheelPanTool:
         page = single_plot_page(plot)
 
         # Check is not active
-        button = page.get_toolbar_button('ywheel-pan')
+        button = page.get_toolbar_button('wheel-pan')
         assert 'active' not in button.get_attribute('class')
 
         # Click and check is active
-        button = page.get_toolbar_button('ywheel-pan')
+        button = page.get_toolbar_button('wheel-pan')
         button.click()
         assert 'active' in button.get_attribute('class')
 
         # Click again and check is not active
-        button = page.get_toolbar_button('ywheel-pan')
+        button = page.get_toolbar_button('wheel-pan')
         button.click()
         assert 'active' not in button.get_attribute('class')
 
@@ -133,7 +133,7 @@ class Test_WheelPanTool:
         assert results['yrend'] == 1
 
         # Next check that scrolling adjusts the x range after the tool is activated
-        button = page.get_toolbar_button('xwheel-pan')
+        button = page.get_toolbar_button('wheel-pan')
         button.click()
 
         page.driver.execute_script(SCROLL(-200))
@@ -159,7 +159,7 @@ class Test_WheelPanTool:
         assert page.has_no_console_errors()
 
     def test_ywheel_pan(self, single_plot_page) -> None:
-        plot = _make_plot(dimensions="height")
+        plot = _make_plot("height")
 
         page = single_plot_page(plot)
 
@@ -217,7 +217,7 @@ class Test_WheelPanTool:
 
         page = single_plot_page(plot)
 
-        button = page.get_toolbar_button('xwheel-pan')
+        button = page.get_toolbar_button('wheel-pan')
         button.click()
         page.driver.execute_script(SCROLL(-200))
         page.click_custom_action()
