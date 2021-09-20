@@ -1,5 +1,5 @@
 import {entries} from "./object"
-import {isPlainObject, isObject, isArray, isBoolean, isNumber, isString} from "./types"
+import {isPrimitive, isPlainObject, isObject, isArray} from "./types"
 
 export type CloneableType =
   | null
@@ -9,8 +9,8 @@ export type CloneableType =
   | Cloneable
   | CloneableType[]
   | {[key: string]: CloneableType}
-  //| Map<CloneableType, CloneableType>
-  //| Set<CloneableType>
+  | Map<CloneableType, CloneableType>
+  | Set<CloneableType>
 
 export const clone = Symbol("clone")
 
@@ -31,9 +31,11 @@ export class Cloner {
   clone(obj: unknown): unknown
 
   clone(obj: unknown): unknown {
-    if (is_Cloneable(obj))
+    if (is_Cloneable(obj)) {
       return obj[clone](this)
-    else if (isArray(obj)) {
+    } else if (isPrimitive(obj)) {
+      return obj
+    } else if (isArray(obj)) {
       const n = obj.length
       const result: unknown[] = new Array(n)
       for (let i = 0; i < n; i++) {
@@ -47,8 +49,10 @@ export class Cloner {
         result[key] = this.clone(value)
       }
       return result
-    } else if (obj === null || isBoolean(obj) || isNumber(obj) || isString(obj)) {
-      return obj
+    } else if (obj instanceof Map) {
+      return new Map([...obj].map(([k, v]) => [this.clone(k), this.clone(v)]))
+    } else if (obj instanceof Set) {
+      return new Set([...obj].map((v) => this.clone(v)))
     } else
       throw new CloningError(`${Object.prototype.toString.call(obj)} is not cloneable`)
   }

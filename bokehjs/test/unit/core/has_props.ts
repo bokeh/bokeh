@@ -116,4 +116,12 @@ describe("core/has_props module", () => {
       expect(struct.subtype).to.be.equal("bar")
     })
   })
+
+  it("implements HasProps[toStringTag] method", () => {
+    const obj0 = new SubclassWithProps()
+    const obj1 = new SubSubclassWithProps()
+
+    expect(Object.prototype.toString.call(obj0)).to.be.equal("[object SubclassWithProps]")
+    expect(Object.prototype.toString.call(obj1)).to.be.equal("[object SubSubclassWithProps]")
+  })
 })
