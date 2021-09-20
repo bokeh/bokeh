@@ -222,6 +222,10 @@ class Test_WheelPanTool:
         page.click_custom_action()
         results = page.results
         assert results['event_name'] == "rangesupdate"
+        assert results['x0'] < 0
+        assert results['x1'] < 1
+        assert results['y0'] == 0
+        assert results['y1'] == 1
 
         assert page.has_no_console_errors()
 
@@ -247,5 +251,9 @@ class Test_WheelPanTool:
         page.click_custom_action()
         results = page.results
         assert results['event_name'] == "rangesupdate"
+        assert results['x0'] == 0
+        assert results['x1'] == 1
+        assert results['y0'] > 0
+        assert results['y1'] > 1
 
         assert page.has_no_console_errors()
