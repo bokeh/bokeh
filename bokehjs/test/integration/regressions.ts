@@ -17,6 +17,7 @@ import {
   HoverTool,
   TileRenderer, WMTSTileSource,
   Renderer,
+  ImageURLTexture,
 } from "@bokehjs/models"
 
 import {Button, Select, MultiSelect, MultiChoice, RadioGroup} from "@bokehjs/models/widgets"
@@ -1410,6 +1411,21 @@ describe("Bug", () => {
         },
       })
       await view.ready
+    })
+  })
+
+  describe("in issue #11646", () => {
+    const url = "/images/canvas_createpattern.png"
+
+    it("disallows using image texture as grid line's band fill", async () => {
+      const p = fig([400, 200])
+
+      p.vbar({x: [0], top: [1], alpha: 0.2, hatch_pattern: "."})
+
+      p.xgrid[0].band_hatch_extra = {mycustom: new ImageURLTexture({url})}
+      p.xgrid[0].band_hatch_pattern = "mycustom"
+
+      await display(p)
     })
   })
 })
