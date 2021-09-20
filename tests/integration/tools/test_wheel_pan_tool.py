@@ -175,7 +175,7 @@ class Test_WheelPanTool:
         assert results['yrend'] == 1
 
         # Next check that scrolling adjusts the y range after the tool is activated
-        button = page.get_toolbar_button('ywheel-pan')
+        button = page.get_toolbar_button('wheel-pan')
         button.click()
 
         page.driver.execute_script(SCROLL(-200))
@@ -205,7 +205,6 @@ class Test_WheelPanTool:
         plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))
         plot.add_tools(WheelPanTool(dimension='width'))
-        plot.add_tools(WheelPanTool(dimension='height'))
         code = RECORD("event_name", "cb_obj.event_name", final=False) + \
                RECORD("x0", "cb_obj.x0", final=False) + \
                RECORD("x1", "cb_obj.x1", final=False) + \
@@ -227,16 +226,5 @@ class Test_WheelPanTool:
         assert results['x1'] < 1
         assert results['y0'] == 0
         assert results['y1'] == 1
-
-        button = page.get_toolbar_button('ywheel-pan')
-        button.click()
-        page.driver.execute_script(SCROLL(-200))
-        page.click_custom_action()
-        results = page.results
-        assert results['event_name'] == "rangesupdate"
-        assert results['x0'] < 0
-        assert results['x1'] < 1
-        assert results['y0'] > 0
-        assert results['y1'] > 1
 
         assert page.has_no_console_errors()
