@@ -45,8 +45,8 @@ p.line(peak_freqs/1e15, peak_radiance/1e-9, line_color="silver",
 
 curdoc().theme = 'dark_minimal'
 p.y_range.start = 0
-p.xaxis.axis_label = r"$$\color{white} \nu \:(10^{15} s^{-1})$$"
-p.yaxis.axis_label = r"$$\color{white} B_\nu(\nu, T) \quad(10^{-9} J s m^{-3})$$"
+p.xaxis.axis_label = r"$$\nu \:(10^{15} s^{-1})$$"
+p.yaxis.axis_label = r"$$B_\nu(\nu, T) \quad(10^{-9} J s m^{-3})$$"
 
 div = Div(text=r"""
 A plot of the spectral radiance, defined as a function of the frequency $$\nu$$, is given by the formula
