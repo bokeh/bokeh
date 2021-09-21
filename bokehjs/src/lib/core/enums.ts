@@ -128,9 +128,6 @@ export const RadiusDimension = Enum("x", "y", "max", "min")
 export type RenderLevel = "image" | "underlay" | "glyph" | "guide" | "annotation" | "overlay"
 export const RenderLevel = Enum("image", "underlay", "glyph", "guide", "annotation", "overlay")
 
-export type RenderMode = "canvas" | "css"
-export const RenderMode = Enum("canvas", "css")
-
 export type ResetPolicy = "standard" | "event_only"
 export const ResetPolicy = Enum("standard", "event_only")
 

@@ -7,9 +7,9 @@ import {SideLayout} from "core/layout/side_panel"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 
-export class LabelView extends TextAnnotationView {
-  override model: Label
-  override visuals: Label.Visuals
+export class HTMLLabelView extends TextAnnotationView {
+  override model: HTMLLabel
+  override visuals: HTMLLabel.Visuals
 
   override update_layout(): void {
     const {panel} = this
@@ -19,6 +19,7 @@ export class LabelView extends TextAnnotationView {
       this.layout = undefined
   }
 
+  // XXX: this needs to use CSS computed styles
   protected override _get_size(): Size {
     const {text} = this.model
     const graphics = new TextBox({text})
@@ -48,7 +49,7 @@ export class LabelView extends TextAnnotationView {
   }
 }
 
-export namespace Label {
+export namespace HTMLLabel {
   export type Props = TextAnnotation.Props & {
     x: p.Property<number>
     x_units: p.Property<SpatialUnits>
@@ -71,26 +72,26 @@ export namespace Label {
   export type Visuals = TextAnnotation.Visuals
 }
 
-export interface Label extends Label.Attrs {}
+export interface HTMLLabel extends HTMLLabel.Attrs {}
 
-export class Label extends TextAnnotation {
-  override properties: Label.Props
-  override __view_type__: LabelView
+export class HTMLLabel extends TextAnnotation {
+  override properties: HTMLLabel.Props
+  override __view_type__: HTMLLabelView
 
-  constructor(attrs?: Partial<Label.Attrs>) {
+  constructor(attrs?: Partial<HTMLLabel.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.prototype.default_view = LabelView
+    this.prototype.default_view = HTMLLabelView
 
-    this.mixins<Label.Mixins>([
+    this.mixins<HTMLLabel.Mixins>([
       mixins.Text,
       ["border_",     mixins.Line],
       ["background_", mixins.Fill],
     ])
 
-    this.define<Label.Props>(({Number, String, Angle}) => ({
+    this.define<HTMLLabel.Props>(({Number, String, Angle}) => ({
       x:           [ Number ],
       x_units:     [ SpatialUnits, "data" ],
       y:           [ Number ],
@@ -102,7 +103,7 @@ export class Label extends TextAnnotation {
       y_offset:    [ Number, 0 ],
     }))
 
-    this.override<Label.Props>({
+    this.override<HTMLLabel.Props>({
       background_fill_color: null,
       border_line_color: null,
     })

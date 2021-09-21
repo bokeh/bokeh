@@ -20,7 +20,7 @@ p.circle(x='xu', y='y', color='navy',      source=source, size=5, alpha=0.5)
 label_data = ColumnDataSource(data=dict(
     x=[1,2,3], y=[0, 0, 0], t=['Original', 'Normal', 'Uniform']
 ))
-label_set = LabelSet(x='x', y='y', text='t', y_offset=-4, source=label_data, render_mode='css',
+label_set = LabelSet(x='x', y='y', text='t', y_offset=-4, source=label_data,
                      text_baseline="top", text_align='center')
 p.add_layout(label_set)
 
