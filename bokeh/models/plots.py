@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import warnings
 from typing import (
-    TYPE_CHECKING,
     Any,
     List as TList,
     overload,
@@ -89,7 +88,7 @@ from .scales import (
     Scale,
 )
 from .sources import ColumnarDataSource, ColumnDataSource, DataSource
-from .tiles import WMTSTileSource, TileSource
+from .tiles import TileSource, WMTSTileSource
 from .tools import HoverTool, Tool, Toolbar
 
 #-----------------------------------------------------------------------------
