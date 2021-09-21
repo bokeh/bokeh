@@ -27,7 +27,7 @@ export class WhiskerView extends UpperLowerView {
 
   override set_data(source: ColumnarDataSource): void {
     super.set_data(source)
-    const indices = Indices.all_set(this._lower_sx.length)
+    const indices = Indices.all_set(this._lower.length)
     this.lower_head?.set_data(source, indices)
     this.upper_head?.set_data(source, indices)
   }
