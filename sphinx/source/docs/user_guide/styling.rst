@@ -1163,9 +1163,23 @@ LaTeX with div and paragraph widgets
     To disable LaTeX rendering for a div or paragraph widget, set the widget's
     ``disable_math`` property to True.
 
-You also have the option to use the `LaTeX extensions included in MathJax`_.
+You can use some of Bokeh's standard |text properties| to change the appearance
+of rendered math text. Use ``text_font_size`` to change the font size, use
+``text_color`` to change the color. For example:
+
+.. code-block:: python
+
+    p.xaxis.axis_label = r"$$\nu \:(10^{15} s^{-1})$$"
+    p.xaxis.axis_label_text_color = "green"
+    p.xaxis.axis_label_text_font_size = "50px"
+
+Text color and sizes defined in a :ref:`Bokeh theme
+<userguide_styling_using_themes>` also work.
+
+Additionally, you have the option to use the `LaTeX extensions included in MathJax`_.
 For example, use the `color extension`_ to change the color of the rendered
-LaTeX notation: ``\color{white} \sin(x)``.
+LaTeX notation: ``\color{white} \sin(x)``. Text properties set with a LaTeX
+extension override any text properties set elsewhere in your code or in a theme.
 
 .. note::
     There are limitations to how much of LaTeX MathJax supports. See
@@ -1180,6 +1194,16 @@ property that accepts a string containing MathML. For example:
 
 .. bokeh-plot:: docs/user_guide/examples/styling_math_text_mathml_axis_labels.py
     :source-position: above
+
+Similar to LaTeX, you can also use Bokeh's standard |text properties|
+``text_font_size`` and ``text_color`` to change font size and color for MathML
+notations. For example:
+
+.. code-block:: python
+
+    plot.xaxis.axis_label = MathML(text=mathml)
+    plot.xaxis.axis_label_text_color = "green"
+    plot.xaxis.axis_label_text_font_size = "50px"
 
 For more information, see :class:`~bokeh.models.text.MathML` in the
 |reference guide|.
