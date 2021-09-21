@@ -68,7 +68,15 @@ export class Printer {
   }
 
   string(val: string): string {
-    return `"${val.replace(/'/g, "\\'")}"`  // lgtm [js/incomplete-sanitization]
+    const sq = val.includes("'")
+    const dq = val.includes('"')
+
+    if (sq && dq)
+      return `\`${val.replace(/`/g, "\\`")}\``
+    else if (dq)
+      return `'${val}'`
+    else
+      return `"${val}"`
   }
 
   symbol(val: symbol): string {

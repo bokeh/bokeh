@@ -16,7 +16,12 @@ describe("core/util/pretty module", () => {
     it("that supports string type", () => {
       expect(to_string("")).to.be.equal('""')
       expect(to_string("a")).to.be.equal('"a"')
-      expect(to_string("a'b'c")).to.be.equal('"a\\\'b\\\'c"')
+      expect(to_string("a'b'c")).to.be.equal('"a\'b\'c"')
+      expect(to_string('a"b"c')).to.be.equal("'a\"b\"c'")
+      expect(to_string("a`b`c")).to.be.equal('"a`b`c"')
+      expect(to_string("a'`b`c")).to.be.equal('"a\'`b`c"')
+      expect(to_string('a"`b`c')).to.be.equal("'a\"`b`c'")
+      expect(to_string('a"`b\'`c')).to.be.equal("`a\"\\`b'\\`c`")
     })
 
     it("that supports symbol type", () => {
