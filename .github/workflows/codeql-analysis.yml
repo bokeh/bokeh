@@ -20,9 +20,6 @@ on:
     paths:
       - bokeh
       - bokehjs
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.rst'
 
 jobs:
   analyze:
