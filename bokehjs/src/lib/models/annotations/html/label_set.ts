@@ -9,9 +9,9 @@ import {FloatArray, ScreenArray} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {assert} from "core/util/assert"
 
-export class LabelSetView extends DataAnnotationView {
-  override model: LabelSet
-  override visuals: LabelSet.Visuals
+export class HTMLLabelSetView extends DataAnnotationView {
+  override model: HTMLLabelSet
+  override visuals: HTMLLabelSet.Visuals
 
   protected _x: FloatArray
   protected _y: FloatArray
@@ -131,7 +131,7 @@ export class LabelSetView extends DataAnnotationView {
   }
 }
 
-export namespace LabelSet {
+export namespace HTMLLabelSet {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = DataAnnotation.Props & {
@@ -157,26 +157,26 @@ export namespace LabelSet {
   }
 }
 
-export interface LabelSet extends LabelSet.Attrs {}
+export interface HTMLLabelSet extends HTMLLabelSet.Attrs {}
 
-export class LabelSet extends DataAnnotation {
-  override properties: LabelSet.Props
-  override __view_type__: LabelSetView
+export class HTMLLabelSet extends DataAnnotation {
+  override properties: HTMLLabelSet.Props
+  override __view_type__: HTMLLabelSetView
 
-  constructor(attrs?: Partial<LabelSet.Attrs>) {
+  constructor(attrs?: Partial<HTMLLabelSet.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.prototype.default_view = LabelSetView
+    this.prototype.default_view = HTMLLabelSetView
 
-    this.mixins<LabelSet.Mixins>([
+    this.mixins<HTMLLabelSet.Mixins>([
       mixins.TextVector,
       ["border_",     mixins.LineVector],
       ["background_", mixins.FillVector],
     ])
 
-    this.define<LabelSet.Props>(() => ({
+    this.define<HTMLLabelSet.Props>(() => ({
       x:            [ p.XCoordinateSpec, {field: "x"} ],
       y:            [ p.YCoordinateSpec, {field: "y"} ],
       x_units:      [ SpatialUnits, "data" ],
@@ -187,7 +187,7 @@ export class LabelSet extends DataAnnotation {
       y_offset:     [ p.NumberSpec, {value: 0} ],
     }))
 
-    this.override<LabelSet.Props>({
+    this.override<HTMLLabelSet.Props>({
       background_fill_color: null,
       border_line_color: null,
     })

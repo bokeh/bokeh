@@ -39,9 +39,11 @@ __all__ = (
 class HTMLAnnotation(Annotation):
     ''' Base class for HTML-based annotations.
 
-    All annotations that inherit from this base class can be attached to
-    a canvas, but are not rendered to it, thus they won't appear in saved
-    plots (only export tools can preserve HTML annotations).
+    .. note::
+        All annotations that inherit from this base class can be attached to
+        a canvas, but are not rendered to it, thus they won't appear in saved
+        plots. Only ``export_png()`` function can preserve HTML annotations.
+
     '''
 
 #-----------------------------------------------------------------------------

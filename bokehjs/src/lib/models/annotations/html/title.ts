@@ -6,9 +6,9 @@ import {Panel} from "core/layout/side_panel"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 
-export class TitleView extends TextAnnotationView {
-  override model: Title
-  override visuals: Title.Visuals
+export class HTMLTitleView extends TextAnnotationView {
+  override model: HTMLTitle
+  override visuals: HTMLTitle.Visuals
   override layout: Layoutable
   override panel: Panel
 
@@ -93,7 +93,7 @@ export class TitleView extends TextAnnotationView {
   }
 }
 
-export namespace Title {
+export namespace HTMLTitle {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TextAnnotation.Props & {
@@ -112,26 +112,26 @@ export namespace Title {
   export type Visuals = TextAnnotation.Visuals
 }
 
-export interface Title extends Title.Attrs {}
+export interface HTMLTitle extends HTMLTitle.Attrs {}
 
-export class Title extends TextAnnotation {
-  override properties: Title.Props
-  override __view_type__: TitleView
+export class HTMLTitle extends TextAnnotation {
+  override properties: HTMLTitle.Props
+  override __view_type__: HTMLTitleView
 
-  constructor(attrs?: Partial<Title.Attrs>) {
+  constructor(attrs?: Partial<HTMLTitle.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.prototype.default_view = TitleView
+    this.prototype.default_view = HTMLTitleView
 
-    this.mixins<Title.Mixins>([
+    this.mixins<HTMLTitle.Mixins>([
       mixins.Text,
       ["border_",     mixins.Line],
       ["background_", mixins.Fill],
     ])
 
-    this.define<Title.Props>(({Number, String}) => ({
+    this.define<HTMLTitle.Props>(({Number, String}) => ({
       text:             [ String, "" ],
       vertical_align:   [ VerticalAlign, "bottom" ],
       align:            [ TextAlign, "left" ],
@@ -142,7 +142,7 @@ export class Title extends TextAnnotation {
     this.prototype._props.text_align.options.internal = true
     this.prototype._props.text_baseline.options.internal = true
 
-    this.override<Title.Props>({
+    this.override<HTMLTitle.Props>({
       text_font_size: "13px",
       text_font_style: "bold",
       text_line_height: 1.0,

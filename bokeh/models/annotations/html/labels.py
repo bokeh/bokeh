@@ -52,7 +52,6 @@ from ....core.property_mixins import (
     ScalarTextProps,
     TextProps,
 )
-from ....model import Qualified
 from ....util.serialization import convert_datetime_type
 from ..annotation import DataAnnotation
 from .html_annotation import HTMLAnnotation
@@ -62,16 +61,16 @@ from .html_annotation import HTMLAnnotation
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "Label",
-    "LabelSet",
-    "Title",
+    "HTMLLabel",
+    "HTMLLabelSet",
+    "HTMLTitle",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Label(HTMLAnnotation, Qualified):
+class HTMLLabel(HTMLAnnotation):
     ''' Render a single HTML label as an annotation.
 
     ``Label`` will render a single text label at given ``x`` and ``y``
@@ -157,7 +156,7 @@ class Label(HTMLAnnotation, Qualified):
 
     border_line_color = Override(default=None)
 
-class LabelSet(HTMLAnnotation, DataAnnotation, Qualified):
+class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
     ''' Render multiple text labels as annotations.
 
     ``LabelSet`` will render multiple text labels at given ``x`` and ``y``
@@ -238,7 +237,7 @@ class LabelSet(HTMLAnnotation, DataAnnotation, Qualified):
 
     border_line_color = Override(default=None)
 
-class Title(HTMLAnnotation, Qualified):
+class HTMLTitle(HTMLAnnotation):
     ''' Render a single title box as an annotation.
 
     See :ref:`userguide_annotations_titles` for information on plotting titles.

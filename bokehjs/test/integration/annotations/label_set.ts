@@ -1,6 +1,6 @@
 import {display, fig} from "../_util"
 
-import {LabelSet, html} from "@bokehjs/models/annotations"
+import {LabelSet, HTMLLabelSet} from "@bokehjs/models/annotations"
 import {ColumnDataSource} from "@bokehjs/models/sources"
 import {Constructor} from "@bokehjs/core/class"
 
@@ -14,7 +14,7 @@ function turn(value: number) {
 
 describe("LabelSet annotation", () => {
 
-  function plot<T extends LabelSet | html.LabelSet>(LabelSetCls: Constructor<T>) {
+  function plot<T extends LabelSet | HTMLLabelSet>(LabelSetCls: Constructor<T>) {
     const plot = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
 
     const source = new ColumnDataSource({
@@ -60,6 +60,6 @@ describe("LabelSet annotation", () => {
   })
 
   it("should support basic positioning using CSS rendering", async () => {
-    await display(plot(html.LabelSet))
+    await display(plot(HTMLLabelSet))
   })
 })

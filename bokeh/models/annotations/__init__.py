@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 from .annotation import *
 from .arrows import *
 from .geometry import *
-from .html import ToolbarPanel, Tooltip
+from .html import *  # lgtm [py/polluting-import]
 from .labels import *
 from .legends import *
 

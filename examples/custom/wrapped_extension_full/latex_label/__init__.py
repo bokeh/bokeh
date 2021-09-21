@@ -1,7 +1,7 @@
-from bokeh.models.annotations.html import Label
+from bokeh.models import HTMLLabel
 
 
-class LatexLabel(Label):
+class LatexLabel(HTMLLabel):
     """A subclass of `Label` with all of the same class attributes except
     canvas mode isn't supported and DOM manipulation happens in the TypeScript
     superclass implementation that requires setting).

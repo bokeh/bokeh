@@ -3,31 +3,31 @@
 import numpy as np
 from scipy.special import jv
 
-from bokeh.models.annotations.html import Label
+from bokeh.models import HTMLLabel
 from bokeh.palettes import Spectral4
 from bokeh.plotting import figure, show
 from bokeh.util.compiler import TypeScript
 
 
-class LatexLabel(Label):
-    """A subclass of `Label` with all of the same class attributes except
+class LatexLabel(HTMLLabel):
+    """A subclass of `HTMLLabel` with all of the same class attributes except
     canvas mode isn't supported and DOM manipulation happens in the TypeScript
     superclass implementation that requires setting).
 
-    Only the render method of LabelView is overwritten to perform the
+    Only the render method of HTMLLabelView is overwritten to perform the
     text -> latex (via katex) conversion
     """
     __javascript__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.js"]
     __css__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css"]
     __implementation__ = TypeScript("""
-import {Label, LabelView} from "models/annotations/html/label"
+import {HTMLLabel, HTMLLabelView} from "models/annotations/html/label"
 import * as p from "core/properties"
 
 declare namespace katex {
   function render(expression: string, element: HTMLElement, options: {displayMode?: boolean}): void
 }
 
-export class LatexLabelView extends LabelView {
+export class LatexLabelView extends HTMLLabelView {
   model: LatexLabel
 
   protected override _render(): void {
@@ -39,12 +39,12 @@ export class LatexLabelView extends LabelView {
 export namespace LatexLabel {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Label.Props
+  export type Props = HTMLLabel.Props
 }
 
 export interface LatexLabel extends LatexLabel.Attrs {}
 
-export class LatexLabel extends Label {
+export class LatexLabel extends HTMLLabel {
   properties: LatexLabel.Props
   __view_type__: LatexLabelView
 

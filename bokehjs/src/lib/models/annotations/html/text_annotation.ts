@@ -122,8 +122,6 @@ export abstract class TextAnnotation extends Annotation {
   override properties: TextAnnotation.Props
   override __view_type__: TextAnnotationView
 
-  static override __module__ = "bokeh.models.annotations.html"
-
   constructor(attrs?: Partial<TextAnnotation.Attrs>) {
     super(attrs)
   }

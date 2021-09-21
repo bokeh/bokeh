@@ -1,11 +1,11 @@
 import {display, fig} from "../_util"
 
-import {Label, html} from "@bokehjs/models/annotations"
+import {Label, HTMLLabel} from "@bokehjs/models/annotations"
 import {Constructor} from "@bokehjs/core/class"
 
 describe("Label annotation", () => {
 
-  function plot<T extends Label | html.Label>(LabelCls: Constructor<T>) {
+  function plot<T extends Label | HTMLLabel>(LabelCls: Constructor<T>) {
     const plot = fig([600, 600], {x_range: [0, 10], y_range: [0, 10]})
 
     const label0 = new LabelCls({
@@ -167,6 +167,6 @@ describe("Label annotation", () => {
   })
 
   it("should support basic positioning using CSS rendering", async () => {
-    await display(plot(html.Label))
+    await display(plot(HTMLLabel))
   })
 })
