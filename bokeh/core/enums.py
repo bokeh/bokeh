@@ -129,7 +129,6 @@ __all__ = (
     'Palette',
     'Place',
     'RenderLevel',
-    'RenderMode',
     'ResetPolicy',
     'RoundingFunction',
     'SelectionMode',
@@ -409,9 +408,6 @@ Place = enumeration(PlaceType)
 
 #: Specify a position in the render order for a Bokeh renderer
 RenderLevel = enumeration("image", "underlay", "glyph", "guide", "annotation", "overlay")
-
-#: Specify a render mode for renderers that support both Canvas or CSS rendering
-RenderMode = enumeration("canvas", "css")
 
 #: What reset actions should occur on a Plot reset
 ResetPolicy = enumeration("standard", "event_only")

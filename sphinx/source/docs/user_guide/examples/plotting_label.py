@@ -15,10 +15,10 @@ p.xaxis[0].axis_label = 'Weight (lbs)'
 p.yaxis[0].axis_label = 'Height (in)'
 
 labels = LabelSet(x='weight', y='height', text='names',
-              x_offset=5, y_offset=5, source=source, render_mode='canvas')
+              x_offset=5, y_offset=5, source=source)
 
 citation = Label(x=70, y=70, x_units='screen', y_units='screen',
-                 text='Collected by Luke C. 2016-04-01', render_mode='css',
+                 text='Collected by Luke C. 2016-04-01',
                  border_line_color='black', border_line_alpha=1.0,
                  background_fill_color='white', background_fill_alpha=1.0)
 
