@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 from ...core.enums import SpatialUnits
 from ...core.has_props import abstract
 from ...core.properties import (
-    Bool,
     Enum,
     Include,
     Instance,
@@ -64,7 +63,7 @@ class ArrowHead(Marking):
     The size, in pixels, of the arrow head.
     """)
 
-    reversed = Bool(default=False)
+    # TODO: reversed = Bool(default=False)
 
 class OpenHead(ArrowHead):
     ''' Render an open-body arrow head.

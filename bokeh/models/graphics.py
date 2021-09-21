@@ -4,8 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Models (mostly base classes) for the various kinds of renderer
-types that Bokeh supports.
+'''
 
 '''
 #-----------------------------------------------------------------------------
@@ -29,7 +28,6 @@ from ..model import Model
 
 __all__ = (
     "Decoration",
-    "DecorationPattern",
     "Marking",
 )
 
@@ -47,10 +45,6 @@ class Decoration(Model):
 
     marking = Instance(Marking)
     node = NonNullable(Enum("start", "middle", "end"))
-
-@abstract
-class DecorationPattern(Model):
-    """ """
 
 #-----------------------------------------------------------------------------
 # Dev API

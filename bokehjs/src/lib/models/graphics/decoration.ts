@@ -49,20 +49,3 @@ export class Decoration extends Model {
     }))
   }
 }
-/*
-      if (end != null) {
-        ctx.save()
-        ctx.translate(_sx_end[i], _sy_end[i])
-        ctx.rotate(_angles[i])
-        end.render(ctx, i)
-        ctx.restore()
-      }
-
-      if (start != null) {
-        ctx.save()
-        ctx.translate(_sx_start[i], _sy_start[i])
-        ctx.rotate(_angles[i] + Math.PI)
-        start.render(ctx, i)
-        ctx.restore()
-      }
-*/
