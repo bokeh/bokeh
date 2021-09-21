@@ -95,6 +95,10 @@ describe("core/has_props module", () => {
       const props = [...keys(mixins.Line), ...keys(mixins.Text).map((key) => `bar_${key}`)]
       expect(keys(obj.properties)).to.be.equal(props)
     })
+
+    it("should fail when unknown properties are used", () => {
+      expect(() => new (SubclassWithProps as any)({whatever: true})).to.throw(Error, "unknown property SubclassWithProps.whatever")
+    })
   })
 
   describe("HasProps.struct()", () => {
