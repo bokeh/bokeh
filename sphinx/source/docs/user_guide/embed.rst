@@ -219,8 +219,8 @@ if your document includes :ref:`Bokeh widgets <userguide_interaction_widgets>`,
 :ref:`data tables <userguide_interaction_widgets_examples_datatable>`, or
 :ref:`math text <userguide_styling_math>`, respectively.
 
-For example, to use version ``2.4.0`` with support for widgets and tables,
-include the following in your HTML:
+For example, to use version ``2.4.0`` with support for widgets, tables, and
+math text, include the following in your HTML:
 
 .. code-block:: html
 
