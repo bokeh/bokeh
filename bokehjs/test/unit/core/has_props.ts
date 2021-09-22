@@ -108,16 +108,6 @@ describe("core/has_props module", () => {
       const struct = obj.struct()
       expect(struct.id).to.be.equal(obj.id)
       expect(struct.type).to.be.equal(obj.type)
-      expect(struct.subtype).to.be.undefined
-    })
-
-    it("should return a correct struct for a subtype HasProps", () => {
-      const obj = new TestModel()
-      obj._subtype = "bar"
-      const struct = obj.struct()
-      expect(struct.id).to.be.equal(obj.id)
-      expect(struct.type).to.be.equal(obj.type)
-      expect(struct.subtype).to.be.equal("bar")
     })
   })
 

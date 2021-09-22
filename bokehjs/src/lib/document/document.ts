@@ -364,8 +364,6 @@ export class Document {
       let instance = existing_models.get(obj_id)
       if (instance == null) {
         instance = Document._instantiate_object(obj_id, obj_type, obj_attrs, resolver)
-        if (obj.subtype != null)
-          instance.set_subtype(obj.subtype)
       }
       references.set(instance.id, instance)
     }

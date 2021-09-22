@@ -36,6 +36,7 @@ import {LayoutDOM} from "../models/layouts/layout_dom"
 import {Legend} from "../models/annotations/legend"
 import {LegendItem} from "../models/annotations/legend_item"
 import {ToolAliases} from "../models/tools/tool"
+import {Figure as BaseFigure} from "../models/plots/figure"
 
 export {gridplot} from "./gridplot"
 export {color2css as color} from "../core/util/color"
@@ -187,9 +188,7 @@ export namespace Figure {
   }
 }
 
-export class Figure extends Plot {
-  static override __name__ = "Plot"
-
+export class Figure extends BaseFigure {
   get xgrid(): Grid[] {
     return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 0)
   }
