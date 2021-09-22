@@ -11,8 +11,9 @@ Tile provider maps
 ------------------
 
 Bokeh is compatible with several XYZ tile services that use the Web Mercator projection.
-The module :ref:`bokeh.tile_providers` contains several pre-configured tile sources with appropriate attribution.
-To add these to a plot, use the method :func:`~bokeh.models.plots.Plot.add_tile`.
+Bokeh uses `xyzservices`_ library to take care of the tile sources and their attributions.
+To add these to a plot, use the method :func:`~bokeh.models.plots.Plot.add_tile`. You can pass
+any name xyzservices may recognize.
 
 .. bokeh-plot:: docs/user_guide/examples/geo_tile_source.py
     :source-position: below
@@ -75,3 +76,4 @@ Bokeh's ``GeoJSONDataSource`` can be used almost seamlessly in place of Bokeh's
 .. _github: https://github.com/bokeh/bokeh
 .. _Google API Key: https://developers.google.com/maps/documentation/javascript/get-api-key
 .. _Discourse: https://discourse.bokeh.org
+.. _xyzservices: https://xyzservices.readthedocs.org
