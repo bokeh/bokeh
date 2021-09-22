@@ -155,6 +155,10 @@ log = logging.getLogger(__name__)
 import sys
 import types
 
+# External imports
+# __all__ defined at the bottom on the class module
+import xyzservices
+
 # Bokeh imports
 from bokeh.core.enums import enumeration
 
@@ -165,8 +169,6 @@ from .util.deprecation import deprecated
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-# __all__ defined at the bottom on the class module
-import xyzservices
 
 #-----------------------------------------------------------------------------
 # General API
@@ -201,19 +203,27 @@ class _TileProvidersModule(types.ModuleType):
             return WMTSTileSource(url=provider_name.url, attribution=provider_name.attribution)
 
         if isinstance(provider_name, str):
-            if "retina" in provider_name.lower():
-                provider_name = provider_name.lower().replace("retina", "")
+            provider_name = provider_name.lower()
 
-            if provider_name == "ESRI_IMAGERY":
-                provider_name = "ESRI_WORLDIMAGERY"
-            if provider_name == "OSM":
-                provider_name = "OPENSTREETMAP_MAPNIK"
+            if provider_name == "esri_imagery":
+                provider_name = "esri_worldimagery"
+            if provider_name == "osm":
+                provider_name = "openstreetmap_mapnik"
+
+            if "retina" in provider_name:
+                provider_name = provider_name.replace("retina", "")
+                retina = True
+            else:
+                retina = False
+            scale_factor = "@2x" if retina else None
 
             provider_name = xyzservices.providers.query_name(provider_name)
+        else:
+            scale_factor = None
 
         if isinstance(provider_name, xyzservices.TileProvider):
             return WMTSTileSource(
-                url=provider_name.build_url(scale_factor="@2x"),
+                url=provider_name.build_url(scale_factor=scale_factor),
                 attribution=provider_name.html_attribution,
                 min_zoom=provider_name.get("min_zoom", 0),
                 max_zoom=provider_name.get("max_zoom", 30),

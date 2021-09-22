@@ -25,13 +25,13 @@ import warnings
 from typing import (
     Any,
     List as TList,
-    overload,
     Union,
+    overload,
 )
 
 # External imports
-from typing_extensions import Literal
 import xyzservices
+from typing_extensions import Literal
 
 # Bokeh imports
 from ..core.enums import (
@@ -368,13 +368,15 @@ class Plot(LayoutDOM):
             # allow the same string input you can now pass to get_provider
             elif isinstance(tile_source, str):
                 # Mapping of custom keys to those used in xyzservices
-                if tile_source == "ESRI_IMAGERY":
-                    tile_source = "ESRI_WORLDIMAGERY"
-                if tile_source == "OSM":
-                    tile_source = "OPENSTREETMAP_MAPNIK"
+                tile_source = tile_source.lower()
 
-                if "retina" in tile_source.lower():
-                    tile_source = tile_source.lower().replace("retina", "")
+                if tile_source == "esri_imagery":
+                    tile_source = "esri_worldimagery"
+                if tile_source == "osm":
+                    tile_source = "openstreetmap_mapnik"
+
+                if "retina" in tile_source:
+                    tile_source = tile_source.replace("retina", "")
                     retina = True
                 selected_provider = xyzservices.providers.query_name(tile_source)
 
