@@ -63,6 +63,7 @@ export class MultiChoiceView extends InputWidgetView {
     const options: Partial<ChoicesNS.Options> = {
       choices,
       duplicateItemsAllowed: false,
+      shouldSort: false, 
       removeItemButton: this.model.delete_button,
       classNames: {item, button} as ChoicesNS.ClassNames, // XXX: bad typings, missing Partial<>
     }
