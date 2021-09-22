@@ -4,8 +4,8 @@ const {cos, sin} = Math
 
 import {figure} from "@bokehjs/api/plotting"
 import {Spectral} from "@bokehjs/api/palettes"
-import {dark_minimal} from "@bokehjs/api/themes"
-import {Parser} from "@bokehjs/api/parser"
+// import {dark_minimal} from "@bokehjs/api/themes"
+import {f} from "@bokehjs/api/expr"
 
 import {assert} from "@bokehjs/core/util/assert"
 import {zip, min, max} from "@bokehjs/core/util/array"
@@ -26,13 +26,8 @@ import {Div} from "@bokehjs/models/widgets"
 
 const r = String.raw
 
-function tex(s: TemplateStringsArray, ...subs: unknown[]): TeX {
-  return new TeX({text: r(s, ...subs)})
-}
-
-function f(s: TemplateStringsArray, ...subs: (number | NDArray)[]): NDArray {
-  const ast = new Parser("").parse()
-  return ast.eval()
+function tex(strings: TemplateStringsArray, ...subs: unknown[]): TeX {
+  return new TeX({text: r(strings, ...subs)})
 }
 
 namespace np {
@@ -326,7 +321,6 @@ This chart includes medals for the United States and Australia in the\
       legend_label: "Peak radiance",
     })
 
-    curdoc().theme = dark_minimal
     p.y_range.start = 0
     p.xaxis.axis_label = tex`\color{white} \nu \:(10^{15} s^{-1})`
     p.yaxis.axis_label = tex`\color{white} B_\nu(\nu, T) \quad(10^{-9} J s m^{-3})`

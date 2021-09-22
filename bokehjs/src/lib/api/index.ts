@@ -18,4 +18,4 @@ export {sprintf} from "../core/util/templating"
 
 export * from "./models"
 
-export {Parser} from "./parser"
+export {f} from "./expr"

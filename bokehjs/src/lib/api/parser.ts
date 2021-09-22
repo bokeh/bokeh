@@ -34,7 +34,6 @@ export const FAILURE = Symbol("Failure")
 export type Expression = Identifier | Literal | UnaryExpression | BinaryExpression |
   CallExpression | MemberExpression | SequenceExpression | ArrayExpression | CompoundExpression
 
-//const Identifier = ({name}: {name: string}) => { return {type: IDENTIFIER, name} }
 export type Identifier = {
   type: typeof IDENT
   name: string
