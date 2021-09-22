@@ -1428,4 +1428,39 @@ describe("Bug", () => {
       await display(p)
     })
   })
+
+  describe("in issue #11661", () => {
+    it("makes line render incorrectly when painting with a subset of indices", async () => {
+      const random = new Random(1)
+
+      const x = range(0, 10)
+      const y = random.floats(x.length)
+
+      function plot(indices: number[]) {
+        const p = fig([300, 100], {
+          title: `Selected: ${indices.length == 0 ? "\u2205" : indices.join(", ")}`,
+          x_axis_type: null, y_axis_type: null,
+        })
+
+        const selected = new Selection({indices})
+        const source = new ColumnDataSource({data: {x, y}, selected})
+
+        p.line({x: {field: "x"}, y: {field: "y"}, source, line_width: 3, line_color: "#addd8e"})
+        p.circle({x: {field: "x"}, y: {field: "y"}, source, size: 3, color: "#31a354"})
+
+        return p
+      }
+
+      const plots = [
+        plot([]),
+        plot([3]),
+        plot([3, 4]),
+        plot([3, 5]),
+        plot([3, 6]),
+        plot([0, 3, 4, 9]),
+      ]
+
+      await display(column(plots))
+    })
+  })
 })
