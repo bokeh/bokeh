@@ -114,6 +114,8 @@ A widget to allow the user to specify an RGB color value.
 
 More information can be found in the Reference for |ColorPicker|.
 
+.. _userguide_interaction_widgets_examples_datatable:
+
 DataTable
 ~~~~~~~~~
 
