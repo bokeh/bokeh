@@ -33,6 +33,9 @@ export class LineView extends XYGlyphView {
   protected _render(ctx: Context2d, indices: number[], data?: LineData): void {
     const {sx, sy} = data ?? this
 
+    let last_i: number | null = null
+    const gap = (i: number) => last_i != null && i - last_i != 1
+
     let move = true
     ctx.beginPath()
 
@@ -43,12 +46,14 @@ export class LineView extends XYGlyphView {
       if (!isFinite(sx_i + sy_i))
         move = true
       else {
-        if (move) {
+        if (move || gap(i)) {
           ctx.moveTo(sx_i, sy_i)
           move = false
         } else
           ctx.lineTo(sx_i, sy_i)
       }
+
+      last_i = i
     }
 
     this.visuals.line.set_value(ctx)
