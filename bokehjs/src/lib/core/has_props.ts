@@ -190,8 +190,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return `${this.type}(${this.id})`
   }
 
-  _subtype: string | undefined = undefined
-
   document: Document | null = null
 
   readonly destroyed       = new Signal0<this>(this, "destroyed")
@@ -439,16 +437,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       id: this.id,
       attributes: {},
     }
-    if (this._subtype != null) {
-      struct.subtype = this._subtype
-    }
     return struct
-  }
-
-  // we only keep the subtype so we match Python;
-  // only Python cares about this
-  set_subtype(subtype: string): void {
-    this._subtype = subtype
   }
 
   *[Symbol.iterator](): PropertyGenerator {

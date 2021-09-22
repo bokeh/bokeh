@@ -28,7 +28,6 @@ import {Tool} from "../tools/tool"
 import {DataRange1d} from "../ranges/data_range1d"
 
 import {PlotView} from "./plot_canvas"
-
 export {PlotView}
 
 export namespace Plot {
