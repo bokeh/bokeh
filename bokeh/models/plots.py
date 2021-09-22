@@ -25,7 +25,6 @@ import warnings
 from typing import (
     Any,
     List as TList,
-    Union,
     overload,
 )
 
