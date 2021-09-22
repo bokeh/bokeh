@@ -57,7 +57,17 @@ class Glyph(Model):
 
     '''
 
-    decorations = List(Instance(Decoration), default=[])
+    decorations = List(Instance(Decoration), default=[], help="""
+    A collection of glyph decorations, e.g. arrow heads.
+
+    Use ``GlyphRenderer.add_decoration()`` for easy setup for all glyphs
+    of a glyph renderer. Use this property when finer control is needed.
+
+    .. note::
+
+        Decorations are only for aiding visual appearance of a glyph,
+        but they don't participate in hit testing, etc.
+    """)
 
     # a canonical order for positional args that can be
     # used for any functions derived from this class

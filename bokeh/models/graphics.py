@@ -4,9 +4,10 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+""" Auxiliary graphical models for aiding glyphs, guide renderers, etc.
 
-'''
+"""
+
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
@@ -37,14 +38,22 @@ __all__ = (
 
 @abstract
 class Marking(Model):
-    """ """
+    """ Base class for graphical markings, e.g. arrow heads.
 
-@abstract
+    """
+
 class Decoration(Model):
-    """ """
+    """ Indicates a positioned marker, e.g. at a node of a glyph.
 
-    marking = Instance(Marking)
-    node = NonNullable(Enum("start", "middle", "end"))
+    """
+
+    marking = Instance(Marking, help="""
+    The graphical marking associated with this decoration, e.g. an arrow head.
+    """)
+
+    node = NonNullable(Enum("start", "middle", "end"), help="""
+    The placement of the marking on the parent graphical object.
+    """)
 
 #-----------------------------------------------------------------------------
 # Dev API
