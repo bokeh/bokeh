@@ -80,8 +80,9 @@ if len(sys.argv) == 2 and sys.argv[-1] == '--install-js':
 
 # if this is just conda-build skimming information, skip all this actual work
 if not conda_rendering():
-    fixup_for_packaged()   # --build_js and --install_js not valid FROM sdist
-    check_building_dist() # must build or install BokehJS when MAKING dists
+    is_packaged = fixup_for_packaged()  # --build-js and --install-js not valid FROM sdist
+    if not is_packaged:
+        check_building_dist()  # must build or install BokehJS when MAKING dists
 
     bokehjs_action = build_or_install_bokehjs()
 

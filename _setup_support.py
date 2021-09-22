@@ -184,8 +184,8 @@ def check_building_dist():
             sys.exit(1)
 
 def fixup_for_packaged():
-    ''' If we are installing FROM an sdist, then a pre-built BokehJS is
-    already installed in the python source tree.
+    ''' If we are installing or building FROM an sdist, then a pre-built
+    BokehJS is already installed in the python source tree.
 
     The command line options ``--build-js`` or ``--install-js`` are
     removed from ``sys.argv``, with a warning.
@@ -194,7 +194,7 @@ def fixup_for_packaged():
     already packaged.
 
     Returns:
-        None
+        True if we are installing or building FROM and sdist, else False
 
     '''
     ROOT = dirname(realpath(__file__))
@@ -208,6 +208,8 @@ def fixup_for_packaged():
                 sys.argv.remove('--install-js')
         if "--existing-js" not in sys.argv:
             sys.argv.append('--existing-js')
+
+        return "--existing-js" in sys.argv
 
 # -----------------------------------------------------------------------------
 # Helpers for operation in the bokehjs dir
