@@ -16,6 +16,8 @@ import {SelectionManager} from "core/selection_manager"
 import {build_view} from "core/build_views"
 import {Context2d} from "core/util/canvas"
 import {FactorRange} from "../ranges/factor_range"
+import {Decoration} from "../graphics/decoration"
+import {Marking} from "../graphics/marking"
 
 type Defaults = {
   fill: {fill_alpha?: number, fill_color?: Color}
@@ -448,5 +450,24 @@ export class GlyphRenderer extends DataRenderer {
 
   get_selection_manager(): SelectionManager {
     return this.data_source.selection_manager
+  }
+
+  add_decoration(marking: Marking, node: "start" | "middle" | "end"): Decoration {
+    const decoration = new Decoration({marking, node})
+
+    const glyphs = [
+      this.glyph,
+      this.selection_glyph,
+      this.nonselection_glyph,
+      this.hover_glyph,
+      this.muted_glyph,
+    ]
+
+    for (const glyph of glyphs) {
+      if (glyph instanceof Glyph)
+        glyph.decorations = [...glyph.decorations, decoration]
+    }
+
+    return decoration
   }
 }

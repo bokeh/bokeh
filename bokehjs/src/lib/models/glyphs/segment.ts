@@ -7,6 +7,7 @@ import {Arrayable, Rect, FloatArray, ScreenArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
+import {atan2} from "core/util/math"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
@@ -60,6 +61,8 @@ export class SegmentView extends GlyphView {
         if (!isFinite(sx0_i + sy0_i + sx1_i + sy1_i))
           continue
 
+        this._render_decorations(ctx, i, sx0_i, sy0_i, sx1_i, sy1_i)
+
         ctx.beginPath()
         ctx.moveTo(sx0_i, sy0_i)
         ctx.lineTo(sx1_i, sy1_i)
@@ -67,6 +70,26 @@ export class SegmentView extends GlyphView {
         this.visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
       }
+    }
+  }
+
+  protected _render_decorations(ctx: Context2d, i: number, sx0: number, sy0: number, sx1: number, sy1: number): void {
+    const {PI} = Math
+    const angle = atan2([sx0, sy0], [sx1, sy1]) + PI/2
+
+    for (const decoration of this.decorations.values()) {
+      ctx.save()
+
+      if (decoration.model.node == "start") {
+        ctx.translate(sx0, sy0)
+        ctx.rotate(angle + PI)
+      } else if (decoration.model.node == "end") {
+        ctx.translate(sx1, sy1)
+        ctx.rotate(angle)
+      }
+
+      decoration.marking.render(ctx, i)
+      ctx.restore()
     }
   }
 

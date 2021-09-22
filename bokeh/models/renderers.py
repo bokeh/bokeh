@@ -23,6 +23,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from difflib import get_close_matches
 
+# External imports
+from typing_extensions import Literal
+
 # Bokeh imports
 from ..core.enums import RenderLevel
 from ..core.has_props import abstract
@@ -54,6 +57,7 @@ from .glyphs import (
     Glyph,
     MultiLine,
 )
+from .graphics import Decoration, Marking
 from .graphs import GraphHitTestPolicy, LayoutProvider, NodesOnly
 from .sources import (
     CDSView,
@@ -246,6 +250,16 @@ class GlyphRenderer(DataRenderer):
 
     muted = Bool(False, help="""
     """)
+
+    def add_decoration(self, marking: Marking, node: Literal["start", "middle", "end"]) -> Decoration:
+        glyphs = [self.glyph, self.selection_glyph, self.nonselection_glyph, self.hover_glyph, self.muted_glyph]
+        decoration = Decoration(marking=marking, node=node)
+
+        for glyph in glyphs:
+            if isinstance(glyph, Glyph):
+                glyph.decorations.append(decoration)
+
+        return decoration
 
 _DEFAULT_NODE_RENDERER = lambda: GlyphRenderer(
     glyph=Circle(), data_source=ColumnDataSource(data=dict(index=[]))

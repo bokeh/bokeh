@@ -8,7 +8,7 @@ import * as p from "./properties"
 import * as k from "./kinds"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
-import {values, entries, extend} from "./util/object"
+import {keys, values, entries, extend} from "./util/object"
 import {isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import {is_equal} from "./util/eq"
 import {serialize, Serializable, Serializer} from "./serializer"
@@ -268,6 +268,13 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   constructor(attrs: Attrs | Map<string, unknown> = {}) {
     super()
+
+    for (const attr of attrs instanceof Map ? attrs.keys() : keys(attrs)) {
+      if (attr == "id" || attr == "__deferred__")
+        continue
+      if (!(attr in this._props))
+        throw new Error(`unknown property ${this.type}.${attr}`)
+    }
 
     const get = attrs instanceof Map ? attrs.get.bind(attrs) : (name: string) => attrs[name]
 
