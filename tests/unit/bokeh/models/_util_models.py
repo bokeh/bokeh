@@ -38,7 +38,7 @@ TEXT  = ["text_font", "text_font_size", "text_font_style", "text_color", "text_a
 ANGLE = ["angle", "angle_units"]
 
 PROPS = ["name", "tags", "js_property_callbacks", "js_event_callbacks", "subscribed_events", "syncable"]
-GLYPH = []
+GLYPH = ["decorations"]
 
 MARKER = ["x", "y", "size", "angle", "angle_units", "hit_dilation"]
 

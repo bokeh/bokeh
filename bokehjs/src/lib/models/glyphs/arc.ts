@@ -44,12 +44,39 @@ export class ArcView extends XYGlyphView {
         if (!isFinite(sx_i + sy_i + sradius_i + start_angle_i + end_angle_i))
           continue
 
+        this._render_decorations(ctx, i, sx_i, sy_i, sradius_i, start_angle_i, end_angle_i, anticlock)
+
         ctx.beginPath()
         ctx.arc(sx_i, sy_i, sradius_i, start_angle_i, end_angle_i, anticlock)
 
         this.visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
       }
+    }
+  }
+
+  protected _render_decorations(ctx: Context2d, i: number, sx: number, sy: number, sradius: number,
+      start_angle: number, end_angle: number, _anticlock: boolean): void {
+
+    const {sin, cos, PI} = Math
+
+    for (const decoration of this.decorations.values()) {
+      ctx.save()
+
+      if (decoration.model.node == "start") {
+        const x = sradius*cos(start_angle) + sx
+        const y = sradius*sin(start_angle) + sy
+        ctx.translate(x, y)
+        ctx.rotate(start_angle + PI)
+      } else if (decoration.model.node == "end") {
+        const x = sradius*Math.cos(end_angle) + sx
+        const y = sradius*Math.sin(end_angle) + sy
+        ctx.translate(x, y)
+        ctx.rotate(end_angle)
+      }
+
+      decoration.marking.render(ctx, i)
+      ctx.restore()
     }
   }
 
