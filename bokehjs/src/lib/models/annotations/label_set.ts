@@ -1,14 +1,11 @@
 import {DataAnnotation, DataAnnotationView} from "./data_annotation"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {SpatialUnits, RenderMode} from "core/enums"
-import {div, display, remove} from "core/dom"
+import {SpatialUnits} from "core/enums"
 import {TextBox} from "core/graphics"
 import * as p from "core/properties"
 import {FloatArray, ScreenArray} from "core/types"
 import {Context2d} from "core/util/canvas"
-import {assert} from "core/util/assert"
 
 export class LabelSetView extends DataAnnotationView {
   override model: LabelSet
@@ -18,36 +15,10 @@ export class LabelSetView extends DataAnnotationView {
   protected _y: FloatArray
   protected sx: ScreenArray
   protected sy: ScreenArray
-  protected text: p.Uniform<string>
+  protected text: p.Uniform<string | null>
   protected angle: p.Uniform<number>
   protected x_offset: p.Uniform<number>
   protected y_offset: p.Uniform<number>
-  protected els?: HTMLElement[]
-
-  override set_data(source: ColumnarDataSource): void {
-    super.set_data(source)
-    this.els?.forEach((el) => remove(el))
-
-    if (this.model.render_mode == "css") {
-      const els = this.els = [...this.text].map(() => div({style: {display: "none"}}))
-      for (const el of els) {
-        this.plot_view.canvas_view.add_overlay(el)
-      }
-    } else
-      delete this.els
-  }
-
-  override remove(): void {
-    this.els?.forEach((el) => remove(el))
-    super.remove()
-  }
-
-  protected override _rerender(): void {
-    if (this.model.render_mode == "css")
-      this.render()
-    else
-      this.request_render()
-  }
 
   map_data(): void {
     const {x_scale, y_scale} = this.coordinates
@@ -58,7 +29,6 @@ export class LabelSetView extends DataAnnotationView {
   }
 
   paint(): void {
-    const draw = this.model.render_mode == "canvas" ? this._v_canvas_text.bind(this) : this._v_css_text.bind(this)
     const {ctx} = this.layer
 
     for (let i = 0, end = this.text.length; i < end; i++) {
@@ -68,11 +38,15 @@ export class LabelSetView extends DataAnnotationView {
       const sy_i = this.sy[i] - y_offset_i
       const angle_i = this.angle.get(i)
       const text_i = this.text.get(i)
-      draw(ctx, i, text_i, sx_i, sy_i, angle_i)
+
+      if (!isFinite(sx_i + sy_i + angle_i) || text_i == null)
+        continue
+
+      this._paint(ctx, i, text_i, sx_i, sy_i, angle_i)
     }
   }
 
-  protected _v_canvas_text(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {
+  protected _paint(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {
     const graphics = new TextBox({text})
     graphics.angle = angle
     graphics.position = {sx, sy}
@@ -95,68 +69,6 @@ export class LabelSetView extends DataAnnotationView {
     if (this.visuals.text.doit)
       graphics.paint(ctx)
   }
-
-  protected _v_css_text(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {
-    assert(this.els != null)
-    const el = this.els[i]
-
-    el.textContent = text
-    this.visuals.text.set_vectorize(ctx, i)
-
-    el.style.position = "absolute"
-    el.style.left = `${sx}px`
-    el.style.top = `${sy}px`
-    el.style.color = ctx.fillStyle as string
-    el.style.font = ctx.font
-    el.style.lineHeight = "normal" // needed to prevent ipynb css override
-    el.style.whiteSpace = "pre"
-
-    const [x_anchor, x_t] = (() => {
-      switch (this.visuals.text.text_align.get(i)) {
-        case "left": return ["left", "0%"]
-        case "center": return ["center", "-50%"]
-        case "right": return ["right", "-100%"]
-      }
-    })()
-    const [y_anchor, y_t] = (() => {
-      switch (this.visuals.text.text_baseline.get(i)) {
-        case "top": return ["top", "0%"]
-        case "middle": return ["center", "-50%"]
-        case "bottom": return ["bottom", "-100%"]
-        default: return ["center", "-50%"] // "baseline"
-      }
-    })()
-
-    let transform = `translate(${x_t}, ${y_t})`
-    if (angle) {
-      transform += `rotate(${angle}rad)`
-    }
-
-    el.style.transformOrigin = `${x_anchor} ${y_anchor}`
-    el.style.transform = transform
-
-    if (this.layout == null) {
-      // const {bbox} = this.plot_view.frame
-      // const {left, right, top, bottom} = bbox
-      // el.style.clipPath = ???
-    }
-
-    if (this.visuals.background_fill.doit) {
-      this.visuals.background_fill.set_vectorize(ctx, i)
-      el.style.backgroundColor = ctx.fillStyle as string
-    }
-
-    if (this.visuals.border_line.doit) {
-      this.visuals.border_line.set_vectorize(ctx, i)
-
-      // attempt to support vector-style ("8 4 8") line dashing for css mode
-      el.style.borderStyle = ctx.lineDash.length < 2 ? "solid" : "dashed"
-      el.style.borderWidth = `${ctx.lineWidth}px`
-      el.style.borderColor = ctx.strokeStyle as string
-    }
-
-    display(el)
-  }
 }
 
 export namespace LabelSet {
@@ -167,12 +79,10 @@ export namespace LabelSet {
     y: p.YCoordinateSpec
     x_units: p.Property<SpatialUnits>
     y_units: p.Property<SpatialUnits>
-    text: p.StringSpec
+    text: p.NullStringSpec
     angle: p.AngleSpec
     x_offset: p.NumberSpec
     y_offset: p.NumberSpec
-    /** @deprecated */
-    render_mode: p.Property<RenderMode>
   } & Mixins
 
   export type Mixins =
@@ -211,12 +121,10 @@ export class LabelSet extends DataAnnotation {
       y:            [ p.YCoordinateSpec, {field: "y"} ],
       x_units:      [ SpatialUnits, "data" ],
       y_units:      [ SpatialUnits, "data" ],
-      text:         [ p.StringSpec, {field: "text"} ],
+      text:         [ p.NullStringSpec, {field: "text"} ],
       angle:        [ p.AngleSpec, 0 ],
       x_offset:     [ p.NumberSpec, {value: 0} ],
       y_offset:     [ p.NumberSpec, {value: 0} ],
-      /** @deprecated */
-      render_mode:  [ RenderMode, "canvas" ],
     }))
 
     this.override<LabelSet.Props>({

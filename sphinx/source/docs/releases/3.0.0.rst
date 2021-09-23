@@ -87,3 +87,19 @@ instead.
 ........................................................
 
 Use ``Tool.icon`` property instead.
+
+``render_mode``
+...............
+
+``render_mode`` was removed from all annotations. Annotations were cleanly
+separated between those which render to canvas and those that use HTML and CSS.
+The default is canvas rendering. Use the new ``HTMLTitle``, ``HTMLLabel`` and
+``HTMLLabelSet`` models whenever previously ``css`` render mode was used. Note
+that ``Span`` and ``BoxAnnotation`` don't have a HTML equivalent anymore.
+
+``HasProps.__subtype__``
+........................
+
+Explicit sub-typing support was removed both from models and the protocol.
+If you want to extend existing models without the need for providing an
+implementation, then use data models (e.g. extend from ``DataModel``).

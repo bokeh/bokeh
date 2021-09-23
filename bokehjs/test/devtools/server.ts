@@ -16,9 +16,7 @@ nunjucks.configure(".", {
 })
 
 app.use("/static", express.static("build/"))
-app.use("/fonts", express.static("test/fonts/"))
-app.use("/images", express.static("test/images/"))
-app.use("/tiles", express.static("test/tiles/"))
+app.use("/assets", express.static("test/assets/"))
 
 const js_path = (name: string): string => {
   return `/static/js/${name}.js`

@@ -17,6 +17,7 @@ import {
   HoverTool,
   TileRenderer, WMTSTileSource,
   Renderer,
+  ImageURLTexture,
 } from "@bokehjs/models"
 
 import {Button, Select, MultiSelect, MultiChoice, RadioGroup} from "@bokehjs/models/widgets"
@@ -1250,13 +1251,13 @@ describe("Bug", () => {
   describe("in issue #11413", () => {
     const osm_source = new WMTSTileSource({
       // url: "https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
-      url: "/tiles/osm/{Z}_{X}_{Y}.png",
+      url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
       attribution: "&copy; (0) OSM source attribution",
     })
 
     const esri_source = new WMTSTileSource({
       // url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg",
-      url: "/tiles/esri/{Z}_{Y}_{X}.jpg",
+      url: "/assets/tiles/esri/{Z}_{Y}_{X}.jpg",
       attribution: "&copy; (1) Esri source attribution",
     })
 
@@ -1410,6 +1411,56 @@ describe("Bug", () => {
         },
       })
       await view.ready
+    })
+  })
+
+  describe("in issue #11646", () => {
+    const url = "/assets/images/pattern.png"
+
+    it("disallows using image texture as grid line's band fill", async () => {
+      const p = fig([400, 200])
+
+      p.vbar({x: [0], top: [1], alpha: 0.2, hatch_pattern: "."})
+
+      p.xgrid[0].band_hatch_extra = {mycustom: new ImageURLTexture({url})}
+      p.xgrid[0].band_hatch_pattern = "mycustom"
+
+      await display(p)
+    })
+  })
+
+  describe("in issue #11661", () => {
+    it("makes line render incorrectly when painting with a subset of indices", async () => {
+      const random = new Random(1)
+
+      const x = range(0, 10)
+      const y = random.floats(x.length)
+
+      function plot(indices: number[]) {
+        const p = fig([300, 100], {
+          title: `Selected: ${indices.length == 0 ? "\u2205" : indices.join(", ")}`,
+          x_axis_type: null, y_axis_type: null,
+        })
+
+        const selected = new Selection({indices})
+        const source = new ColumnDataSource({data: {x, y}, selected})
+
+        p.line({x: {field: "x"}, y: {field: "y"}, source, line_width: 3, line_color: "#addd8e"})
+        p.circle({x: {field: "x"}, y: {field: "y"}, source, size: 3, color: "#31a354"})
+
+        return p
+      }
+
+      const plots = [
+        plot([]),
+        plot([3]),
+        plot([3, 4]),
+        plot([3, 5]),
+        plot([3, 6]),
+        plot([0, 3, 4, 9]),
+      ]
+
+      await display(column(plots))
     })
   })
 })

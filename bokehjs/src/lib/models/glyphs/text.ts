@@ -10,7 +10,7 @@ import {assert} from "core/util/assert"
 import {Selection} from "../selections/selection"
 
 export type TextData = XYGlyphData & p.UniformsOf<Text.Mixins> & {
-  readonly text: p.Uniform<string>
+  readonly text: p.Uniform<string | null>
   readonly angle: p.Uniform<number>
   readonly x_offset: p.Uniform<number>
   readonly y_offset: p.Uniform<number>

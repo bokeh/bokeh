@@ -3,7 +3,7 @@ import * as embed from "../embed"
 import {HasProps} from "../core/has_props"
 import {Color, Data, Attrs, Arrayable} from "../core/types"
 import {Value, Field, Vector} from "../core/vectorization"
-import {VectorSpec, ScalarSpec, ColorSpec, Property} from "../core/properties"
+import {VectorSpec, ScalarSpec, ColorSpec, UnitsSpec, Property} from "../core/properties"
 import {Class} from "../core/class"
 import {Location, MarkerType, RenderLevel} from "../core/enums"
 import {is_equal, Comparator} from "../core/util/eq"
@@ -36,6 +36,7 @@ import {LayoutDOM} from "../models/layouts/layout_dom"
 import {Legend} from "../models/annotations/legend"
 import {LegendItem} from "../models/annotations/legend_item"
 import {ToolAliases} from "../models/tools/tool"
+import {Figure as BaseFigure} from "../models/plots/figure"
 
 export {gridplot} from "./gridplot"
 export {color2css as color} from "../core/util/color"
@@ -124,7 +125,11 @@ export type ArgsOf<P> = {
     (P[K] extends Property  <infer T>           ? T                    : never))))
 }
 
-export type GlyphArgs<P> = ArgsOf<P> & AuxGlyph & ColorAlpha
+export type UnitsOf<P> = {
+  [K in keyof P & string as `${K}_units`]: P[K] extends UnitsSpec<any, infer Units> ? Units : never
+}
+
+export type GlyphArgs<P> = ArgsOf<P> & UnitsOf<P> & AuxGlyph & ColorAlpha
 
 export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFill
 export type AnnulusArgs       = GlyphArgs<Annulus.Props>       & AuxLine & AuxFill
@@ -183,9 +188,7 @@ export namespace Figure {
   }
 }
 
-export class Figure extends Plot {
-  static override __name__ = "Plot"
-
+export class Figure extends BaseFigure {
   get xgrid(): Grid[] {
     return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 0)
   }
@@ -805,7 +808,9 @@ export class Figure extends Plot {
     }
   }
 
-  _fixup_values(cls: Class<HasProps>, data: Data, attrs: Attrs): void {
+  _fixup_values(cls: Class<HasProps>, data: Data, attrs: Attrs): Set<string> {
+    const unresolved_attrs = new Set<string>()
+
     for (const [name, value] of entries(attrs)) {
       const prop = cls.prototype._props[name]
 
@@ -831,9 +836,22 @@ export class Figure extends Plot {
               attrs[name] = {value}
             }
           }
+
+          if (prop.type.prototype instanceof UnitsSpec) {
+            const units_attr = `${name}_units`
+            const units = attrs[units_attr]
+            if (units !== undefined) {
+              attrs[name] = {...attrs[name] as any, units}
+              unresolved_attrs.delete(units_attr)
+              delete attrs[units_attr]
+            }
+          }
         }
-      }
+      } else
+        unresolved_attrs.add(name)
     }
+
+    return unresolved_attrs
   }
 
   _glyph<G extends Glyph>(cls: Class<G>, params_string: string, args: unknown[], overrides?: object): TypedGlyphRenderer<G> {
