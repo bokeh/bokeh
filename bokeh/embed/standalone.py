@@ -181,9 +181,6 @@ def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: 
     :ref:`data tables <userguide_interaction_widgets_examples_datatable>`, or
     :ref:`math text <userguide_styling_math>`, respectively.
 
-    Note that in Jupyter notebooks, it is not possible to use ``components`` and
-    ``show`` in the same notebook cell.
-
     Args:
         models (Model|list|dict|tuple) :
             A single Model, a list/tuple of Models, or a dictionary of keys and Models.
