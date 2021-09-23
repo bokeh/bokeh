@@ -34,7 +34,7 @@ interactively as an ``xyzservices.providers`` module.
 Representative samples of the most common tile providers are shown below.
 
 CartoDB Positron
-^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~
 
 Tile Source for CartoDB Tile Service
 
@@ -43,7 +43,7 @@ Tile Source for CartoDB Tile Service
     <img src="https://tiles.basemaps.cartocdn.com/light_all/14/2627/6331.png" />
 
 Esri World Imagery
-^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~
 
 Tile Source for ESRI public tiles.
 
@@ -52,7 +52,7 @@ Tile Source for ESRI public tiles.
     <img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6331/2627.jpg" />
 
 OSM
-^^^
+~~~
 
 Tile Source for Open Street Map Mapnik.
 
@@ -61,7 +61,7 @@ Tile Source for Open Street Map Mapnik.
     <img src="https://c.tile.openstreetmap.org/14/2627/6331.png" />
 
 Stamen Terrain
-^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~
 
 Tile Source for Stamen Terrain Service
 
@@ -70,7 +70,7 @@ Tile Source for Stamen Terrain Service
     <img src="https://stamen-tiles.a.ssl.fastly.net/terrain/14/2627/6331.png" />
 
 Stamen Toner
-^^^^^^^^^^^^
+~~~~~~~~~~~~
 
 Tile Source for Stamen Toner Service
 
@@ -79,7 +79,7 @@ Tile Source for Stamen Toner Service
     <img src="https://stamen-tiles.a.ssl.fastly.net/toner/14/2627/6331.png" />
 
 Stamen Toner Background
-^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Tile Source for Stamen Toner Background Service which does not include labels
 
@@ -88,7 +88,7 @@ Tile Source for Stamen Toner Background Service which does not include labels
     <img src="https://stamen-tiles.a.ssl.fastly.net/toner-background/14/2627/6331.png" />
 
 Stamen Toner Labels
-^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~
 
 Tile Source for Stamen Toner Service which includes only labels
 
