@@ -394,6 +394,11 @@ class MultiChoice(InputWidget):
     The number of choices that will be rendered in the dropdown.
     """)
 
+    search_option_limit = Nullable(Int, help="""
+    The number of choices that will be rendered in the dropdown
+    when search string is entered.
+    """)
+
     placeholder = Nullable(String, help="""
     A string that is displayed if not item is added.
     """)
