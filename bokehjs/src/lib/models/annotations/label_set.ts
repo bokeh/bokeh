@@ -15,7 +15,7 @@ export class LabelSetView extends DataAnnotationView {
   protected _y: FloatArray
   protected sx: ScreenArray
   protected sy: ScreenArray
-  protected text: p.Uniform<string>
+  protected text: p.Uniform<string | null>
   protected angle: p.Uniform<number>
   protected x_offset: p.Uniform<number>
   protected y_offset: p.Uniform<number>
@@ -38,6 +38,9 @@ export class LabelSetView extends DataAnnotationView {
       const sy_i = this.sy[i] - y_offset_i
       const angle_i = this.angle.get(i)
       const text_i = this.text.get(i)
+
+      if (!isFinite(sx_i + sy_i + angle_i) || text_i == null)
+        continue
 
       this._paint(ctx, i, text_i, sx_i, sy_i, angle_i)
     }
@@ -76,7 +79,7 @@ export namespace LabelSet {
     y: p.YCoordinateSpec
     x_units: p.Property<SpatialUnits>
     y_units: p.Property<SpatialUnits>
-    text: p.StringSpec
+    text: p.NullStringSpec
     angle: p.AngleSpec
     x_offset: p.NumberSpec
     y_offset: p.NumberSpec
@@ -118,7 +121,7 @@ export class LabelSet extends DataAnnotation {
       y:            [ p.YCoordinateSpec, {field: "y"} ],
       x_units:      [ SpatialUnits, "data" ],
       y_units:      [ SpatialUnits, "data" ],
-      text:         [ p.StringSpec, {field: "text"} ],
+      text:         [ p.NullStringSpec, {field: "text"} ],
       angle:        [ p.AngleSpec, 0 ],
       x_offset:     [ p.NumberSpec, {value: 0} ],
       y_offset:     [ p.NumberSpec, {value: 0} ],
