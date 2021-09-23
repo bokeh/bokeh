@@ -166,8 +166,7 @@ def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: 
 
     The returned components assume that BokehJS resources are **already loaded**.
     The html template in which they will be embedded needs to include the following
-    scripts tags. The widgets and tables resources are only necessary if the components
-    make use of widgets and tables.
+    scripts tags:
 
     .. code-block:: html
 
@@ -177,8 +176,10 @@ def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: 
         <script src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-x.y.z.min.js"></script>
         <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-x.y.z.min.js"></script>
 
-    Note that in Jupyter Notebooks, it is not possible to use components and show in
-    the same notebook cell.
+    The ``"-widgets"``, ``"-tables"``, and ``"-mathjax"`` files are only necessary
+    if your document includes :ref:`Bokeh widgets <userguide_interaction_widgets>`,
+    :ref:`data tables <userguide_interaction_widgets_examples_datatable>`, or
+    :ref:`math text <userguide_styling_math>`, respectively.
 
     Args:
         models (Model|list|dict|tuple) :
