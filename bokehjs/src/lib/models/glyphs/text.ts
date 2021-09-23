@@ -26,7 +26,11 @@ export class TextView extends XYGlyphView {
 
   protected override _set_data(indices: number[] | null): void {
     super._set_data(indices)
-    this.labels = Array.from(this.text, (text) => text != null ? new TextBox({text}) : null)
+
+    this.labels = Array.from(this.text, (value) => {
+      const text = `${value}` // TODO: guarantee correct types earlier
+      return value != null ? new TextBox({text}) : null
+    })
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: TextData): void {
