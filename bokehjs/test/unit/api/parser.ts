@@ -2,8 +2,8 @@ import {expect} from "assertions"
 
 import {
   Parser,
-  LITERAL, IDENT, MEMBER, CALL, UNARY, BINARY, FAILURE,
-  Expression, Literal, Identifier, MemberExpression, CallExpression, UnaryExpression, BinaryExpression, Failure,
+  LITERAL, IDENT, MEMBER, INDEX, CALL, UNARY, BINARY, FAILURE,
+  Expression, Literal, Identifier, MemberExpression, IndexExpression, CallExpression, UnaryExpression, BinaryExpression, Failure,
 } from "@bokehjs/api/parser"
 
 function parse(expr: string) {
@@ -21,11 +21,11 @@ function ident(name: string): Identifier {
   return {type: IDENT, name}
 }
 
-function member(object: Expression, property: Identifier): MemberExpression {
-  return {type: MEMBER, object, property, computed: false}
+function member(object: Expression, member: Identifier): MemberExpression {
+  return {type: MEMBER, object, member}
 }
-function index(object: Expression, property: Identifier): MemberExpression {
-  return {type: MEMBER, object, property, computed: true}
+function index(object: Expression, index: Expression): IndexExpression {
+  return {type: INDEX, object, index}
 }
 function call(callee: Expression, args: Expression[]): CallExpression {
   return {type: CALL, callee, args}

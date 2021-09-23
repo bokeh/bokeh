@@ -1,5 +1,7 @@
 // Based on https://ericsmekens.github.io/jsep/.
 
+type Primitive = null | boolean | string | number | symbol
+
 const TAB_CODE    =  9
 const LF_CODE     = 10
 const CR_CODE     = 13
@@ -24,6 +26,7 @@ export const COMPOUND = Symbol("Compound")
 export const LITERAL = Symbol("Literal")
 export const IDENT = Symbol("Identifier")
 export const MEMBER = Symbol("MemberExpression")
+export const INDEX = Symbol("IndexExpression")
 export const CALL = Symbol("CallExpression")
 export const UNARY = Symbol("UnaryExpression")
 export const BINARY = Symbol("BinaryExpression")
@@ -31,8 +34,8 @@ export const SEQUENCE = Symbol("SequenceExpression")
 export const ARRAY = Symbol("ArrayExpression")
 export const FAILURE = Symbol("Failure")
 
-export type Expression = Identifier | Literal | UnaryExpression | BinaryExpression |
-  CallExpression | MemberExpression | SequenceExpression | ArrayExpression | CompoundExpression
+export type Expression = Identifier | Literal | UnaryExpression | BinaryExpression | CallExpression |
+  MemberExpression | IndexExpression | SequenceExpression | ArrayExpression | CompoundExpression
 
 export type Identifier = {
   type: typeof IDENT
@@ -41,7 +44,7 @@ export type Identifier = {
 
 export type Literal = {
   type: typeof LITERAL
-  value: string | number
+  value: Primitive
 }
 
 export type UnaryExpression = {
@@ -66,9 +69,14 @@ export type CallExpression = {
 
 export type MemberExpression = {
   type: typeof MEMBER
-  computed: boolean
   object: Expression
-  property: Identifier
+  member: Identifier
+}
+
+export type IndexExpression = {
+  type: typeof INDEX
+  object: Expression
+  index: Expression
 }
 
 export type SequenceExpression = {
@@ -95,7 +103,7 @@ export type Failure = {
 // ----------
 // Use a quickly-accessible map to store all of the unary operators
 // Values are set to `1` (it really doesn't matter)
-const unary_ops = {
+const unary_ops: {[key: string]: number} = {
   "-": 1,
   "!": 1,
   "~": 1,
@@ -125,7 +133,7 @@ const additional_identifier_chars = new Set(["$", "_"])
 // Literals
 // ----------
 // Store the values to return for the various literals we may encounter
-const literals = {
+const literals: {[key: string]: Primitive} = {
   true: true,
   false: false,
   null: null,
@@ -244,7 +252,7 @@ export class Parser {
   /**
    * The main parsing function.
    */
-  gobbleExpression(): Expression | undefined {
+  gobbleExpression(): Expression | false {
     const node = this.gobbleBinaryExpression()
     this.gobbleSpaces()
     return node
@@ -256,7 +264,7 @@ export class Parser {
    * and move down from 3 to 2 to 1 character until a matching binary operation is found
    * then, return that binary operation
    */
-  gobbleBinaryOp(): string | boolean {
+  gobbleBinaryOp(): string | false {
     this.gobbleSpaces()
     let to_check = this.expr.substr(this.index, max_binop_len)
     let tc_len = to_check.length
@@ -281,7 +289,7 @@ export class Parser {
    * This function is responsible for gobbling an individual expression,
    * e.g. `1`, `1+2`, `a+(b*2)-Math.sqrt(2)`
    */
-  gobbleBinaryExpression(): BinaryExpression {
+  gobbleBinaryExpression(): Expression | false {
     // First, try to get the leftmost thing
     // Then, check to see if there's a binary operator operating on that leftmost thing
     // Don't gobbleBinaryOp without a left-hand-side
@@ -298,6 +306,7 @@ export class Parser {
 
     // Otherwise, we need to start a stack to properly place the binary operations in their
     // precedence structure
+    type BiOpInfo = {value: string, prec: number}
     let biop_info = {value: biop, prec: binary_precedence(biop)}
 
     const right = this.gobbleToken()
@@ -305,7 +314,7 @@ export class Parser {
       this.error(`Expected expression after ${biop}`)
     }
 
-    const stack = [left, biop_info, right]
+    const stack: (Expression | BiOpInfo)[] = [left, biop_info, right]
 
     // Properly deal with precedence using [recursive descent](http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm)
     let cur_biop
@@ -318,15 +327,14 @@ export class Parser {
       }
 
       biop_info = {value: biop, prec}
-
       cur_biop = biop
 
       // Reduce: make a binary expression from the three topmost entries.
-      while ((stack.length > 2) && (prec <= stack[stack.length - 2].prec)) {
-        const right = stack.pop()
-        const biop = stack.pop().value
-        const left = stack.pop()
-        const node = {
+      while ((stack.length > 2) && (prec <= (stack[stack.length - 2] as BiOpInfo).prec)) {
+        const right = stack.pop() as Expression
+        const biop = (stack.pop() as BiOpInfo).value
+        const left = stack.pop() as Expression
+        const node: Expression = {
           type: BINARY,
           operator: biop,
           left,
@@ -350,21 +358,21 @@ export class Parser {
     while (i > 1) {
       node = {
         type: BINARY,
-        operator: stack[i - 1].value,
-        left: stack[i - 2],
-        right: node,
+        operator: (stack[i - 1] as BiOpInfo).value,
+        left: stack[i - 2] as Expression,
+        right: node as Expression,
       }
       i -= 2
     }
 
-    return node
+    return node as Expression
   }
 
   /**
    * An individual part of a binary expression:
    * e.g. `foo.bar(baz)`, `1`, `"abc"`, `(a % 2)` (because it's in parenthesis)
    */
-  gobbleToken(): boolean | Expression {
+  gobbleToken(): Expression | false {
     this.gobbleSpaces()
 
     const ch = this.code
@@ -373,7 +381,7 @@ export class Parser {
       return this.gobbleNumericLiteral()
     }
 
-    let node
+    let node: Expression | false = false
     if (ch == SQUOTE_CODE || ch == DQUOTE_CODE) {
       // Single or double quotes
       node = this.gobbleStringLiteral()
@@ -445,16 +453,18 @@ export class Parser {
         this.gobbleSpaces()
         node = {
           type: MEMBER,
-          computed: false,
           object: node,
-          property: this.gobbleIdentifier(),
+          member: this.gobbleIdentifier(),
         }
       } else if (ch == OBRACK_CODE) {
+        const expr = this.gobbleExpression()
+        if (!expr) {
+          this.error("Expected an expression")
+        }
         node = {
-          type: MEMBER,
-          computed: true,
+          type: INDEX,
           object: node,
-          property: this.gobbleExpression(),
+          index: expr,
         }
         this.gobbleSpaces()
         ch = this.code
@@ -612,7 +622,7 @@ export class Parser {
    * e.g. `foo(bar, baz)`, `my_func()`, or `[bar, baz]`
    */
   gobbleArguments(termination: number): Expression[] {
-    const args = []
+    const args: Expression[] = []
     let closed = false
     let separator_count = 0
 
@@ -638,7 +648,7 @@ export class Parser {
             this.error("Unexpected token ','")
           } else if (termination == CBRACK_CODE) {
             for (let arg = args.length; arg < separator_count; arg++) {
-              args.push(null)
+              this.error("Expected an expression")
             }
           }
         }
@@ -671,7 +681,7 @@ export class Parser {
    * that the next thing it should see is the close parenthesis. If not,
    * then the expression probably doesn't have a `)`
    */
-  gobbleGroup(): boolean | Expression {
+  gobbleGroup(): Expression | false {
     this.index++
     const nodes = this.gobbleExpressions(CPAREN_CODE)
     if (this.code == CPAREN_CODE) {
