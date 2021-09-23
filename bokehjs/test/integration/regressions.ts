@@ -1251,13 +1251,13 @@ describe("Bug", () => {
   describe("in issue #11413", () => {
     const osm_source = new WMTSTileSource({
       // url: "https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
-      url: "/tiles/osm/{Z}_{X}_{Y}.png",
+      url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
       attribution: "&copy; (0) OSM source attribution",
     })
 
     const esri_source = new WMTSTileSource({
       // url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg",
-      url: "/tiles/esri/{Z}_{Y}_{X}.jpg",
+      url: "/assets/tiles/esri/{Z}_{Y}_{X}.jpg",
       attribution: "&copy; (1) Esri source attribution",
     })
 
@@ -1415,7 +1415,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #11646", () => {
-    const url = "/images/canvas_createpattern.png"
+    const url = "/assets/images/pattern.png"
 
     it("disallows using image texture as grid line's band fill", async () => {
       const p = fig([400, 200])
