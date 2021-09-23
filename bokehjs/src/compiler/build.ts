@@ -144,7 +144,7 @@ export async function init(base_dir: Path, _bokehjs_dir: Path, base_setup: InitO
     keywords: [],
     repository: {},
     dependencies: {
-      bokehjs: `^${setup.bokehjs_version}`,
+      "@bokeh/bokehjs": `^${setup.bokehjs_version}`,
     },
     devDependencies: {},
   }
