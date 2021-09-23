@@ -38,10 +38,10 @@ from ....core.properties import (
     Float,
     Include,
     NonNullable,
+    NullStringSpec,
     NumberSpec,
     Override,
     String,
-    StringSpec,
     field,
 )
 from ....core.property_mixins import (
@@ -199,7 +199,7 @@ class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
     default.
     """)
 
-    text = StringSpec(default=field("text"), help="""
+    text = NullStringSpec(default=field("text"), help="""
     The text values to render.
     """)
 

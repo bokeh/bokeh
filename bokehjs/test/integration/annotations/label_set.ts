@@ -19,10 +19,10 @@ describe("LabelSet annotation", () => {
 
     const source = new ColumnDataSource({
       data: {
-        text: ["First label", "Second label\nspanning two lines", "Third label\nspanning\nthree lines"],
-        x1: [1, 3, 7],
-        y1: [7, 5, 3],
-        x2: [30, 70, 150],
+        text: ["First label", "Second label\nspanning two lines", "Third label\nspanning\nthree lines", null, "Not shown"],
+        x1: [1, 3, 7, 9, NaN],
+        y1: [7, 5, 3, 1, NaN],
+        x2: [30, 70, 150, 200, NaN],
       },
     })
 
