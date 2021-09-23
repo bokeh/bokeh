@@ -21,8 +21,8 @@ export class MultiChoiceView extends InputWidgetView {
     super.connect_signals()
     this.connect(this.model.properties.disabled.change, () => this.set_disabled())
 
-    const {value, max_items, option_limit, delete_button, placeholder, options, name, title} = this.model.properties
-    this.on_change([value, max_items, option_limit, delete_button, placeholder, options, name, title], () => this.render())
+    const {value, max_items, option_limit, search_option_limit, delete_button, placeholder, options, name, title} = this.model.properties
+    this.on_change([value, max_items, option_limit, search_option_limit, delete_button, placeholder, options, name, title], () => this.render())
   }
 
   override styles(): string[] {
@@ -73,6 +73,8 @@ export class MultiChoiceView extends InputWidgetView {
       options.maxItemCount = this.model.max_items
     if (this.model.option_limit != null)
       options.renderChoiceLimit = this.model.option_limit
+    if (this.model.search_option_limit != null)
+      options.searchResultLimit = this.model.search_option_limit
 
     this.choice_el = new Choices(this.input_el, options)
     const height = (): number => (this.choice_el as any).containerOuter.element.getBoundingClientRect().height
@@ -122,6 +124,7 @@ export namespace MultiChoice {
     delete_button: p.Property<boolean>
     placeholder: p.Property<string | null>
     option_limit: p.Property<number | null>
+    search_option_limit: p.Property<number | null>
     solid: p.Property<boolean>
   }
 }
@@ -146,6 +149,7 @@ export class MultiChoice extends InputWidget {
       delete_button: [ Boolean, true ],
       placeholder:   [ Nullable(String),  null ],
       option_limit:  [ Nullable(Int),  null ],
+      search_option_limit:  [ Nullable(Int),  null ],
       solid:         [ Boolean, true ],
     }))
   }
