@@ -197,7 +197,7 @@ export class ColorBarView extends AnnotationView {
       minor_tick_in: this.model.minor_tick_in,
       minor_tick_out: this.model.minor_tick_out,
       major_label_overrides: this.model.major_label_overrides,
-      major_label_policy: this.model.major_label_policy
+      major_label_policy: this.model.major_label_policy,
     }
     Object.assign(this._axis, this.model.axis_mixins(), builtins)
   }
@@ -206,7 +206,7 @@ export class ColorBarView extends AnnotationView {
     if (this._title && this.model.title) {
       const builtins = {
         text: this.model.title,
-        standoff: this.model.title_standoff
+        standoff: this.model.title_standoff,
       }
       Object.assign(this._title, this.model.title_mixins(), builtins)
     }
@@ -666,8 +666,8 @@ export class ColorBar extends Annotation {
   public get axis_properties_refs(): any[] {
     const properties = this.properties as any
     const _axis_properties = []
-    const keys = ['major_tick_in', 'major_tick_out', 'minor_tick_in', 'minor_tick_out', 'label_standoff',
-    'major_label_overrides', 'major_label_policy', ...Object.keys(this.axis_mixins())]
+    const keys = ["major_tick_in", "major_tick_out", "minor_tick_in", "minor_tick_out", "label_standoff",
+                  "major_label_overrides", "major_label_policy", ...Object.keys(this.axis_mixins())]
 
     for (const key of keys) {
       if (properties.hasOwnProperty(key)) _axis_properties.push(properties[key])
@@ -678,7 +678,7 @@ export class ColorBar extends Annotation {
   public get title_properties_refs(): any[] {
     const properties = this.properties as any
 
-    const keys = ['title', 'standoff', ...Object.keys(this.title_mixins(true))]
+    const keys = ["title", "standoff", ...Object.keys(this.title_mixins(true))]
 
     const _title_properties_refs = []
     for (const key of keys) {
