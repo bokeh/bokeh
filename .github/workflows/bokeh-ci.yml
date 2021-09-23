@@ -53,6 +53,18 @@ jobs:
           name: conda-bld-noarch
           path: conda-bld-noarch.tgz
 
+      - name: Build sdist package
+        shell: bash -l {0}
+        run: python setup.py sdist --install-js
+
+      - name: Build wheel package
+        shell: bash -l {0}
+        run: python setup.py bdist_wheel --install-js
+
+      - name: Verify pip install from sdist
+        shell: bash -l {0}
+        run: bash ci/verify_pip_install_from_sdist.sh
+
   codebase:
     runs-on: ${{ matrix.os }}
 
