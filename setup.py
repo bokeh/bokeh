@@ -65,7 +65,7 @@ from setuptools import find_packages, setup
 import versioneer
 
 from _setup_support import ( # isort:skip
-    build_or_install_bokehjs, check_building_dist, check_python,
+    build_or_install_bokehjs, check_building_dist, check_packaged, check_python,
     conda_rendering, fixup_for_packaged, install_js, show_bokehjs, show_help,
     INSTALL_REQUIRES,
 )
@@ -80,10 +80,14 @@ if len(sys.argv) == 2 and sys.argv[-1] == '--install-js':
 
 # if this is just conda-build skimming information, skip all this actual work
 if not conda_rendering():
-    fixup_for_packaged()   # --build_js and --install_js not valid FROM sdist
-    check_building_dist() # must build or install BokehJS when MAKING dists
+    is_packaged = check_packaged()
 
-    bokehjs_action = build_or_install_bokehjs()
+    if is_packaged:
+        fixup_for_packaged()  # --build-js and --install-js not valid FROM sdist
+    else:
+        check_building_dist()  # must build or install BokehJS when MAKING dists
+
+    bokehjs_action = build_or_install_bokehjs(is_packaged)
 
 setup(
     # basic package metadata
