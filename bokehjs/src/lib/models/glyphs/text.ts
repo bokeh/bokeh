@@ -51,6 +51,7 @@ export class TextView extends XYGlyphView {
           sy: sy_i + y_offset_i,
         }
         label_i.angle = angle_i
+        label_i.align = "auto"
         label_i.paint(ctx)
       }
     }
