@@ -12,7 +12,6 @@ from __future__ import annotations # isort:skip
 
 import pytest ; pytest
 
-# External imports
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -20,8 +19,6 @@ import xyzservices.providers as xyz
 
 # Bokeh imports
 from bokeh.models import WMTSTileSource
-
-#from bokeh._testing.util.api import verify_all
 
 # Module under test
 import bokeh.tile_providers as bt # isort:skip
