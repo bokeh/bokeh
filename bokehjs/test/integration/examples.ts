@@ -4,7 +4,7 @@ const {cos, sin} = Math
 
 import {figure} from "@bokehjs/api/plotting"
 import {Spectral} from "@bokehjs/api/palettes"
-// import {dark_minimal} from "@bokehjs/api/themes"
+import {dark_minimal} from "@bokehjs/api/themes"
 import {f} from "@bokehjs/api/expr"
 import {np} from "@bokehjs/api/linalg"
 
@@ -13,6 +13,8 @@ import {zip, min, max} from "@bokehjs/core/util/array"
 import {NDArray} from "@bokehjs/core/util/ndarray"
 import {enumerate} from "@bokehjs/core/util/iterator"
 import {radians} from "@bokehjs/core/util/math"
+
+import {use_theme} from "@bokehjs/core/properties"
 
 import {
   Title, Label, Arrow, NormalHead, TeeHead, VeeHead,
@@ -269,6 +271,8 @@ This chart includes medals for the United States and Australia in the\
   })
 
   it("should support BlackbodyRadiation", async () => {
+    use_theme(dark_minimal)
+
     const p = figure({
       width: 700, height: 500,
       toolbar_location: null,
@@ -322,6 +326,8 @@ This chart includes medals for the United States and Australia in the\
     })
 
     await display(column([p, div]))
+
+    use_theme()
   })
 
   it("should support NormalDistribution", async () => {
