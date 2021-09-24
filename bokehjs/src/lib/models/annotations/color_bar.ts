@@ -177,6 +177,12 @@ export class ColorBarView extends AnnotationView {
       request_layout() {
         self.parent.request_layout()
       },
+      request_paint() {
+        self.parent.request_paint(self)
+      },
+      request_render() {
+        self.request_paint()
+      },
     }
 
     this._axis_view = await build_view(this._axis, {parent})
