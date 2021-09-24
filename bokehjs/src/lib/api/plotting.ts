@@ -174,8 +174,8 @@ export type AxisType = "auto" | "linear" | "datetime" | "log" | "mercator" | nul
 
 export namespace Figure {
   export type Attrs = Omit<Plot.Attrs, "x_range" | "y_range"> & {
-    x_range: Range | [number, number] | string[]
-    y_range: Range | [number, number] | string[]
+    x_range: Range | [number, number] | ArrayLike<string>
+    y_range: Range | [number, number] | ArrayLike<string>
     x_axis_type: AxisType
     y_axis_type: AxisType
     x_axis_location: Location
@@ -971,7 +971,7 @@ export class Figure extends BaseFigure {
     return glyph_renderer as TypedGlyphRenderer<G>
   }
 
-  static _get_range(range?: Range | [number, number] | string[]): Range {
+  static _get_range(range?: Range | [number, number] | ArrayLike<string>): Range {
     if (range == null) {
       return new DataRange1d()
     }
