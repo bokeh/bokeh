@@ -15,6 +15,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+
+# External imports
 import xyzservices.providers as xyz
 
 # Bokeh imports
