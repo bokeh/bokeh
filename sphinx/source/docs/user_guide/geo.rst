@@ -11,12 +11,17 @@ Tile provider maps
 ------------------
 
 Bokeh is compatible with several XYZ tile services that use the Web Mercator projection.
-Bokeh uses `xyzservices`_ library to take care of the tile sources and their attributions.
+Bokeh uses the `xyzservices`_ library to take care of the tile sources and their attributions.
 To add these to a plot, use the method :func:`~bokeh.models.plots.Plot.add_tile`. You can pass
-any name xyzservices may recognize. ``retina`` keyword can control the resolution of tiles.
+any name xyzservices may recognize. The ``retina`` keyword can control the resolution of tiles.
 
 .. bokeh-plot:: docs/user_guide/examples/geo_tile_source.py
     :source-position: below
+
+If you pass ``retina=True``, Bokeh will attempt to use the tiles in the 2x higher resolution
+than with default settings. However, this functionality needs to be supported by the tile provider.
+Otherwise, the keyword is ignored. Alternatively, you can include ``'retina'` as part of the tile
+provider name string, e.g. ``'CartoDB Positron retina'``, which will work as ``retina=True``.
 
 Notice that passing ``x_axis_type="mercator"`` and ``y_axis_type="mercator"``
 to ``figure`` generates axes with latitude and longitude labels, instead of raw Web
