@@ -34,8 +34,8 @@ function evaluate(ast: Expression, refs: unknown[]): unknown {
         const obj = resolve(ast.object)
         if (obj === np) {
           switch (ast.member.name) {
-            case "exp":
-              return np.exp
+            case "exp": return np.exp
+            case "sqrt": return np.sqrt
             default:
               throw new Error(`'np.${ast.member.name}' doesn't exist`)
           }

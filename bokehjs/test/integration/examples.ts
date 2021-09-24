@@ -6,6 +6,7 @@ import {figure} from "@bokehjs/api/plotting"
 import {Spectral} from "@bokehjs/api/palettes"
 // import {dark_minimal} from "@bokehjs/api/themes"
 import {f} from "@bokehjs/api/expr"
+import {np} from "@bokehjs/api/linalg"
 
 import {assert} from "@bokehjs/core/util/assert"
 import {zip, min, max} from "@bokehjs/core/util/array"
@@ -28,23 +29,6 @@ const r = String.raw
 
 function tex(strings: TemplateStringsArray, ...subs: unknown[]): TeX {
   return new TeX({text: r(strings, ...subs)})
-}
-
-namespace np {
-  export declare function arange(start: number, end: number, step: number): NDArray
-  export declare function linspace(start: number, end: number, step: number): NDArray
-  export declare function histogram(array: ArrayLike<number>, options?: {density: boolean, bins: number | ArrayLike<number>}): [NDArray, NDArray]
-  export declare function mean(array: ArrayLike<number>): NDArray
-  export declare function std(array: ArrayLike<number>): NDArray
-  export declare function exp<T extends number | NDArray>(x: T): T
-  export declare const pi: number
-
-  export namespace random {
-    export declare class RandomGenerator {
-      normal(loc: number/* = 0.0*/, scale: number/* = 1.0*/, size?: number): NDArray
-    }
-    export declare function default_rng(seed: number): RandomGenerator
-  }
 }
 
 describe("Examples", () => {
