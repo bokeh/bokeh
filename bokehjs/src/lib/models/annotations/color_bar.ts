@@ -148,12 +148,12 @@ export class ColorBarView extends AnnotationView {
       })
     }
 
-    this._apply_axis_formatting()
+    this._apply_axis_properties()
 
     const {title} = this.model
     if (title) {
       this._title = new Title()
-      this._apply_title_formatting()
+      this._apply_title_properties()
     }
   }
 
@@ -196,7 +196,7 @@ export class ColorBarView extends AnnotationView {
     super.remove()
   }
 
-  protected _apply_axis_formatting(): void {
+  protected _apply_axis_properties(): void {
     const builtins = {
       major_tick_in: this.model.major_tick_in,
       major_tick_out: this.model.major_tick_out,
@@ -208,7 +208,7 @@ export class ColorBarView extends AnnotationView {
     Object.assign(this._axis, this.model.axis_mixins(), builtins)
   }
 
-  protected _apply_title_formatting(): void {
+  protected _apply_title_properties(): void {
     if (this._title && this.model.title) {
       const builtins = {
         text: this.model.title,
@@ -224,10 +224,10 @@ export class ColorBarView extends AnnotationView {
     this.connect(this._ticker.change, () => this.request_render())
     this.connect(this._formatter.change, () => this.request_render())
     this.on_change(this.model.title_properties_refs, () => {
-      this._apply_title_formatting()
+      this._apply_title_properties()
     })
     this.on_change(this.model.axis_properties_refs, () => {
-      this._apply_axis_formatting()
+      this._apply_axis_properties()
     })
     this.connect(this.model.color_mapper.metrics_change, () => {
       const range = this._major_range
