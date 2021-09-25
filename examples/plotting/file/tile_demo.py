@@ -1,4 +1,4 @@
-# Demonstrate Bokeh's various map tile providers including OSM, WIKIMEDIA,
+# Demonstrate Bokeh's various map tile providers including OSM, Carto,
 # and ESRI_IMAGERY tile providers.
 #
 # All maps are connected with common pan and zoom.
@@ -12,7 +12,6 @@ from bokeh.layouts import layout
 from bokeh.models.ranges import DataRange1d
 from bokeh.models.widgets import Div
 from bokeh.plotting import figure, output_file, show
-from bokeh.tile_providers import Vendors, get_provider
 
 output_file("tile_demo.html")
 
@@ -58,17 +57,27 @@ dN = 1000 # (m) Northing plus-and-minus from map center
 x_range = DataRange1d(start=EN[0]-dE , end=EN[0]+dE) # (m) Easting  x_lo, x_hi
 y_range = DataRange1d(start=EN[1]-dN , end=EN[1]+dN) # (m) Northing y_lo, y_hi
 
-plot = [0]*len(Vendors) # initialize list to store Vendor plots
-idx = 0
-for vendor_name in Vendors:
-    print(f"cnt={idx}: Vendor={vendor_name}")
-    tile_provider = get_provider(vendor_name)
+providers = [
+    "CartoDB Positron",
+    "CartoDB Positron retina",
+    "Stamen Terrain",
+    "Stamen Terrain retina",
+    "Stamen Toner",
+    "Stamen Toner Background",
+    "Stamen Toner Labels",
+    "OpenStreetMap Mapnik",
+    "Esri World Imagery"
+]
 
+plot = [0]*len(providers) # initialize list to store Vendor plots
+idx = 0
+for vendor_name in providers:
+    print(f"cnt={idx}: Vendor={vendor_name}")
     plot[idx] = figure( x_range=x_range, y_range=y_range,
                         x_axis_type="mercator", y_axis_type="mercator",
                         height=200, width=300, title=vendor_name)
 
-    plot[idx].add_tile(tile_provider)
+    plot[idx].add_tile(vendor_name)
     idx += 1
 
 
@@ -77,7 +86,6 @@ layout = layout([
     [description],
     [plot[0], plot[1], plot[2]],
     [plot[3], plot[4], plot[5]],
-    [plot[6], plot[7], plot[8]],
-    [plot[9]                  ]])
+    [plot[6], plot[7], plot[8]]])
 
 show(layout)
