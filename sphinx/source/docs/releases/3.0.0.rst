@@ -104,6 +104,19 @@ Explicit sub-typing support was removed both from models and the protocol.
 If you want to extend existing models without the need for providing an
 implementation, then use data models (e.g. extend from ``DataModel``).
 
+Runtime dependencies
+~~~~~~~~~~~~~~~~~~~~
+
+Bokeh now requires the package ``xyzservices`` for managing tile
+source metadata.
+
+Deprecations
+~~~~~~~~~~~~
+
+``tile_providers`` module providing ``get_providers`` and ``Vendors`` is now deprecated.
+Any tile specification (e.g. as string name) can be now passed directly to ``add_tile``
+instead.
+
 bokehjs changes
 ~~~~~~~~~~~~~~~
 
