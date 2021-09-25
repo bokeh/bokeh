@@ -28,7 +28,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   // Align does nothing, needed to maintain compatibility with TextBox,
   // to align you need to use TeX Macros.
   // http://docs.mathjax.org/en/latest/input/tex/macros/index.html?highlight=align
-  align: "left" | "center" | "right" | "justify" = "left"
+  align: "auto" | "left" | "center" | "right" | "justify" = "left"
   // Same for infer_text_height
   infer_text_height(): TextHeightMetric {
     return "ascent_descent"

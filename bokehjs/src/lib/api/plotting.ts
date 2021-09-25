@@ -174,8 +174,8 @@ export type AxisType = "auto" | "linear" | "datetime" | "log" | "mercator" | nul
 
 export namespace Figure {
   export type Attrs = Omit<Plot.Attrs, "x_range" | "y_range"> & {
-    x_range: Range | [number, number] | string[]
-    y_range: Range | [number, number] | string[]
+    x_range: Range | [number, number] | ArrayLike<string>
+    y_range: Range | [number, number] | ArrayLike<string>
     x_axis_type: AxisType
     y_axis_type: AxisType
     x_axis_location: Location
@@ -188,26 +188,98 @@ export namespace Figure {
   }
 }
 
-export class Figure extends BaseFigure {
-  get xgrid(): Grid[] {
-    return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 0)
-  }
-  get ygrid(): Grid[] {
-    return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 1)
+type IModelProxy<T extends HasProps> = {
+  each(fn: (model: T, i: number) => void): void
+  [Symbol.iterator](): Generator<T, void, undefined>
+}
+
+class ModelProxy<T extends HasProps> implements IModelProxy<T> {
+  constructor(readonly models: T[]) {
+    const mapping: Map<string, Property<unknown>[]> = new Map()
+
+    for (const model of models) {
+      for (const prop of model) {
+        const {attr} = prop
+        if (!mapping.has(attr))
+          mapping.set(attr, [])
+        mapping.get(attr)!.push(prop)
+      }
+    }
+
+    for (const [name, props] of mapping) {
+      Object.defineProperty(this, name, {
+        get(this: Axis): never {
+          throw new Error("only setting values is supported")
+        },
+        set(this: Axis, value: unknown): Axis {
+          for (const prop of props) {
+            prop.obj.setv({[name]: value})
+          }
+          return this
+        },
+      })
+    }
   }
 
-  get xaxis(): Axis[] {
+  each(fn: (model: T, i: number) => void): void {
+    let i = 0
+    for (const model of this.models) {
+      fn(model, i++)
+    }
+  }
+
+  *[Symbol.iterator](): Generator<T, void, undefined> {
+    yield* this.models
+  }
+}
+
+type PropsOf<T extends HasProps> = {
+  // TODO: writeonly/setter
+  [K in keyof T["properties"]]: T["properties"][K] extends Property<infer P> ? P : never
+}
+
+type Proxied<T extends HasProps> = PropsOf<T> & IModelProxy<T>
+
+export class Figure extends BaseFigure {
+
+  get xaxes(): Axis[] {
     return [...this.below, ...this.above].filter((r): r is Axis => r instanceof Axis)
   }
-  get yaxis(): Axis[] {
+  get yaxes(): Axis[] {
     return [...this.left, ...this.right].filter((r): r is Axis => r instanceof Axis)
   }
+  get axes(): Axis[] {
+    return [...this.below, ...this.above, ...this.left, ...this.right].filter((r): r is Axis => r instanceof Axis)
+  }
 
-  get grid(): Grid[] {
+  get xaxis(): Proxied<Axis> {
+    return new ModelProxy(this.xaxes) as any as Proxied<Axis>
+  }
+  get yaxis(): Proxied<Axis> {
+    return new ModelProxy(this.yaxes) as any as Proxied<Axis>
+  }
+  get axis(): Proxied<Axis> {
+    return new ModelProxy(this.axes) as any as Proxied<Axis>
+  }
+
+  get xgrids(): Grid[] {
+    return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 0)
+  }
+  get ygrids(): Grid[] {
+    return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 1)
+  }
+  get grids(): Grid[] {
     return this.center.filter((r): r is Grid => r instanceof Grid)
   }
-  get axis(): Axis[] {
-    return [...this.below, ...this.above, ...this.left, ...this.right].filter((r): r is Axis => r instanceof Axis)
+
+  get xgrid(): Proxied<Grid> {
+    return new ModelProxy(this.xgrids) as any as Proxied<Grid>
+  }
+  get ygrid(): Proxied<Grid> {
+    return new ModelProxy(this.ygrids) as any as Proxied<Grid>
+  }
+  get grid(): Proxied<Grid> {
+    return new ModelProxy(this.grids) as any as Proxied<Grid>
   }
 
   get legend(): Legend {
@@ -971,7 +1043,7 @@ export class Figure extends BaseFigure {
     return glyph_renderer as TypedGlyphRenderer<G>
   }
 
-  static _get_range(range?: Range | [number, number] | string[]): Range {
+  static _get_range(range?: Range | [number, number] | ArrayLike<string>): Range {
     if (range == null) {
       return new DataRange1d()
     }
