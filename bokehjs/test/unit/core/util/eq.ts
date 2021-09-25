@@ -59,6 +59,20 @@ describe("core/util/eq module", () => {
       expect(is_equal("aa", "a")).to.be.false
     })
 
+    it("that supports symbol type", () => {
+      const a0 = Symbol("a")
+      const a1 = Symbol("a")
+      const b = Symbol("b")
+      expect(is_equal(a0, a0)).to.be.true
+      expect(is_equal(a1, a1)).to.be.true
+      expect(is_equal(a0, a1)).to.be.false
+      expect(is_equal(a1, a0)).to.be.false
+      expect(is_equal(a0, b)).to.be.false
+      expect(is_equal(b, a0)).to.be.false
+      expect(is_equal(a1, b)).to.be.false
+      expect(is_equal(b, a1)).to.be.false
+    })
+
     it("that supports T[]", () => {
       expect(is_equal([], [])).to.be.true
       expect(is_equal([], {})).to.be.false

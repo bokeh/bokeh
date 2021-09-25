@@ -468,7 +468,7 @@ describe("Bug", () => {
       const p = fig([200, 100])
       p.circle([0, 1, 2], [0, 1, 2], {radius: 0.25})
       const {view} = await display(p)
-      p.xaxis.map((axis) => axis.axis_label = "X-Axis Label")
+      p.xaxis.axis_label = "X-Axis Label"
       await view.ready
     })
   })
@@ -883,7 +883,7 @@ describe("Bug", () => {
         min_border_left: 20,
         min_border_right: 20,
       })
-      p.xaxis.map((axis) => axis.major_label_text_font_size = "14pt")
+      p.xaxis.major_label_text_font_size = "14pt"
       await display(p)
     })
   })
@@ -1043,10 +1043,10 @@ describe("Bug", () => {
       p.add_layout(new LinearAxis({major_label_text_color: null}), "right")
       p.add_layout(new LinearAxis({major_label_text_color: null}), "above")
 
-      p.axis.map((ax) => ax.major_tick_in = 10)
-      p.axis.map((ax) => ax.major_tick_out = 0)
-      p.axis.map((ax) => ax.minor_tick_in = 5)
-      p.axis.map((ax) => ax.minor_tick_out = 0)
+      p.axis.major_tick_in = 10
+      p.axis.major_tick_out = 0
+      p.axis.minor_tick_in = 5
+      p.axis.minor_tick_out = 0
 
       await display(p)
     })
@@ -1102,7 +1102,7 @@ describe("Bug", () => {
       const y = [6e-2, 7e-4, 6e-6, 4e-8, 5e-10]
 
       const p = fig([200, 200], {y_axis_type: axis})
-      p.yaxis.map((axis) => axis.major_label_text_font_size = "1.5em")
+      p.yaxis.major_label_text_font_size = "1.5em"
       p.line({x, y})
 
       return p
@@ -1422,8 +1422,8 @@ describe("Bug", () => {
 
       p.vbar({x: [0], top: [1], alpha: 0.2, hatch_pattern: "."})
 
-      p.xgrid[0].band_hatch_extra = {mycustom: new ImageURLTexture({url})}
-      p.xgrid[0].band_hatch_pattern = "mycustom"
+      p.xgrid.band_hatch_extra = {mycustom: new ImageURLTexture({url})}
+      p.xgrid.band_hatch_pattern = "mycustom"
 
       await display(p)
     })

@@ -1,0 +1,6 @@
+Column bbox=[0, 0, 710, 510]
+  Plot bbox=[0, 0, 670, 400]
+    LinearAxis bbox=[69, 352, 596, 48]
+    LinearAxis bbox=[0, 27, 69, 325]
+    Title bbox=[69, 0, 596, 27]
+  Div bbox=[5, 405, 700, 100]
