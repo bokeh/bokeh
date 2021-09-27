@@ -15,10 +15,10 @@ p = figure(
 # add a renderer
 p.line(x, y, line_color="green", line_width=2)
 
-# change line color of the x-grid
+# change things only on the x-grid
 p.xgrid.grid_line_color = "red"
 
-# change grid line attributes of the y-grid
+# change things only on the y-grid
 p.ygrid.grid_line_alpha = 0.8
 p.ygrid.grid_line_dash = [6, 4]
 
