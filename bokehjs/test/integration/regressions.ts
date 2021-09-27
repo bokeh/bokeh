@@ -92,8 +92,6 @@ describe("Bug", () => {
   describe("in issue #9879", () => {
     it("disallows to change FactorRange to a lower dimension with a different number of factors", async () => {
       const p = fig([200, 200], {
-        title: null,
-        toolbar_location: null,
         x_range: new FactorRange({factors: [["a", "b"], ["b", "c"]]}),
         y_range: new DataRange1d(),
       })
