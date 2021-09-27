@@ -5,7 +5,7 @@ import {wait} from "@bokehjs/core/util/defer"
 import {tex2svg, mathml2svg} from "@bokehjs/models/text/mathjax"
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {MathJaxProvider, NoProvider} from "@bokehjs/models/text/providers"
-import {LinearAxis, Plot, TeX, Ascii, MathML} from "@bokehjs/models"
+import {LinearAxis, Plot, TeX, Ascii, MathML, LinearScale, Range1d} from "@bokehjs/models"
 
 import {display} from "./_util"
 
@@ -77,7 +77,21 @@ describe("MathText model", () => {
   `
 
   function plotAxis(attrs: Partial<LinearAxis.Attrs>) {
-    const p = new Plot()
+    const p = new Plot({
+      width: 300,
+      height: 100,
+      x_scale: new LinearScale(),
+      x_range: new Range1d({start: 100, end: 200}),
+      y_scale: new LinearScale(),
+      y_range: new Range1d({start: 100, end: 200}),
+      min_border_top: 0,
+      min_border_bottom: 0,
+      min_border_left: 20,
+      min_border_right: 20,
+      title: null,
+      toolbar_location: null,
+    })
+
     const axis = new LinearAxis(attrs)
     p.add_layout(axis, "above")
     return display(p)
