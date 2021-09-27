@@ -29,11 +29,8 @@ describe("Rect glyph", () => {
     await display(row([make_plot("canvas"), make_plot("svg"), make_plot("webgl")]))
   })
 
-  it("should support adding new glyph", async() => {
-    const p = fig([200, 200], {
-      title: null,
-      toolbar_location: null,
-    })
+  it("should support adding new data point to existing glyph", async () => {
+    const p = fig([200, 200])
     const source = new ColumnDataSource({data: {x: [1], y: [2]}})
     p.rect({x: {field: "x"}, y: {field: "y"}, width: 0.1, height: 0.1, source})
     const {view} = await display(p)
