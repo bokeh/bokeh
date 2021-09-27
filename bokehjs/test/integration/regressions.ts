@@ -39,7 +39,7 @@ import {Figure, MarkerArgs, show} from "@bokehjs/api/plotting"
 import {Spectral11, turbo} from "@bokehjs/api/palettes"
 import {div, offset} from "@bokehjs/core/dom"
 
-import {DelayedInternalProvider} from "./math_text"
+import {DelayedInternalProvider} from "./axes/math_text"
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {PlotView} from "@bokehjs/models/plots/plot"
 

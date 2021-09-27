@@ -12,13 +12,9 @@ import {
   NoOverlap,
   Plot,
   Range1d,
-  TeX,
 } from "@bokehjs/models"
 import {Factor} from "@bokehjs/models/ranges/factor_range"
-import {MathTextView} from "@bokehjs/models/text/math_text"
-import {InternalProvider} from "math_text"
-import sinon from "sinon"
-import {display} from "./_util";
+import {display} from "../_util"
 
 (() => {
   type PlotFn = (
@@ -150,42 +146,8 @@ import {display} from "./_util";
       await plot({minor_tick_out: 10})
     })
 
+    // since axis labels don't change with axis type we only test it once
     if (axis_type == "log") {
-      const tex = "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"
-
-      it("should support LaTeX notation on axis_label with MathText", async () => {
-        const stub = sinon.stub(MathTextView.prototype, "provider")
-        stub.value(new InternalProvider())
-        try {
-          await plot(
-            {axis_label: new TeX({text: tex})},
-            {minor_size: 100}
-          )
-        } finally {
-          stub.restore()
-        }
-      })
-
-      it("should display tick labels with math text on overrides", async () => {
-        const stub = sinon.stub(MathTextView.prototype, "provider")
-        stub.value(new InternalProvider())
-        try {
-          await plot(
-            {
-              major_label_overrides: {
-                1: "one",
-                0.01: new TeX({text: "\\frac{0.133}{\\mu+2\\sigma^2}"}),
-                10000: new TeX({text: "10 \\ast 1000"}),
-                1000000: new TeX({text: "\\sigma^2"}),
-              },
-            },
-            {minor_size: 100}
-          )
-        } finally {
-          stub.restore()
-        }
-      })
-
       it("should support single line axis_label", async () => {
         await plot(
           {axis_label: "This is an axis label"},
