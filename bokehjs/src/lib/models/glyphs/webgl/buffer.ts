@@ -36,7 +36,7 @@ abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
   }
 
   get length(): number {
-    return this.array.length
+    return this.array != null ? this.array.length : 0
   }
 
   protected abstract new_array(len: number): ArrayType
