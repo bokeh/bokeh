@@ -232,7 +232,7 @@ different local version instead, use the ``--install-js`` flag:
 
 .. _contributor_guide_setup_sample_data:
 
-1. Download sample data
+7. Download sample data
 -----------------------
 
 Several tests and examples require Bokeh's sample data to be available on your
