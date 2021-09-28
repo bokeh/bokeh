@@ -87,10 +87,10 @@ describe("MathText on axes", () => {
   </math>
   `
 
-  function plotAxis(attrs: Partial<LinearAxis.Attrs>) {
+  function plotAxis(attrs: Partial<LinearAxis.Attrs>, width = 300, height = 100) {
     const p = new Plot({
-      width: 300,
-      height: 100,
+      width,
+      height,
       x_scale: new LinearScale(),
       x_range: new Range1d({start: 100, end: 200}),
       y_scale: new LinearScale(),
@@ -132,7 +132,7 @@ describe("MathText on axes", () => {
     const stub = sinon.stub(MathTextView.prototype, "provider")
     stub.value(new InternalProvider())
     try {
-      await plotAxis({axis_label: new MathML({text: mathml})})
+      await plotAxis({axis_label: new MathML({text: mathml})}, undefined, 712)
     } finally {
       stub.restore()
     }
@@ -177,7 +177,7 @@ describe("MathText on axes", () => {
   function vplot(side: Side): PlotFn {
     return async (attrs) => {
       const p = new Plot({
-        width: 100,
+        width: 160,
         height: 300,
         x_scale: new LinearScale(),
         y_scale: new LogScale(),

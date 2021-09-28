@@ -6,7 +6,9 @@ import {max, max_by, sum} from "./util/array"
 import {isNumber} from "./util/types"
 import {Rect, AffineTransform} from "./util/affine"
 import {color2css} from "./util/color"
+import {CanvasImage} from "models/glyphs/image_url"
 import * as visuals from "./visuals"
+
 
 export const text_width: (text: string, font: string) => number = (() => {
   const canvas = document.createElement("canvas")
@@ -34,6 +36,11 @@ type Extents = {left: Val, right: Val, top: Val, bottom: Val}
 type Padding = Val | [v: Val, h: Val] | [top: Val, right: Val, bottom: Val, left: Val] | Extents
 export type TextHeightMetric = "x" | "cap" | "ascent" | "x_descent" | "cap_descent" | "ascent_descent"
 
+export type ImageProperties = {
+  width: number
+  height: number
+  v_align: number
+}
 export abstract class GraphicsBox {
   _position: Position = {sx: 0, sy: 0}
   angle?: number
@@ -478,6 +485,118 @@ export class TextBox extends GraphicsBox {
   }
 }
 
+/**
+ * A Image display that defaults to TextBox if the image has not loaded
+ */
+export class ImageTextBox extends TextBox {
+  image: CanvasImage
+  image_properties: ImageProperties
+  load_image: () => Promise<void>
+
+  constructor({text, load_image}: {text: string, load_image:() => Promise<void>}) {
+    super({text})
+    this.load_image = load_image
+  }
+
+  override _computed_position(size: Size, metrics: FontMetrics, nlines: number): {x: number, y: number} {
+    if (!this.image) return super._computed_position(size, metrics, nlines);
+
+    const {width, height} = size
+    const {sx, sy, x_anchor=this._x_anchor, y_anchor=this._y_anchor} = this.position
+    const {v_align} = this.image_properties
+
+    const x = sx - (() => {
+      if (isNumber(x_anchor))
+        return x_anchor*width
+      else {
+        switch (x_anchor) {
+          case "left": return 0
+          case "center": return 0.5*width
+          case "right": return width
+        }
+      }
+    })()
+
+    const y = sy - (() => {
+      if (isNumber(y_anchor))
+        return y_anchor*height
+      else {
+        switch (y_anchor) {
+          case "top":
+            if (metrics.height > height)
+              return (height - (-v_align - metrics.descent) - metrics.height)
+            else
+              return 0
+          case "center": return 0.5*height
+          case "bottom":
+            if (metrics.height > height)
+              return (
+                height + metrics.descent + v_align
+              )
+            else return height
+          case "baseline": return 0.5*height
+        }
+      }
+    })()
+
+    return {x, y}
+  }
+
+  override size(): Size {
+    if (!this.image) return super.size();
+
+    let {width, height} = this._size()
+    const {angle} = this
+    const metrics = font_metrics(this.font)
+
+    if (height < metrics.height) {
+      height = metrics.height
+    }
+
+    if (!angle)
+      return {width, height}
+    else {
+      const c = Math.cos(Math.abs(angle))
+      const s = Math.sin(Math.abs(angle))
+
+      return {
+        width: Math.abs(width*c + height*s),
+        height: Math.abs(width*s + height*c),
+      }
+    }
+  }
+
+  override _size(): Size & {metrics: FontMetrics} {
+    if (!this.image) return super._size()
+
+    const {width, height} = this.image_properties
+    const w_scale = this.width?.unit == "%" ? this.width.value : 1
+    const h_scale = this.height?.unit == "%" ? this.height.value : 1
+
+    return {width: width*w_scale, height: height*h_scale, metrics: font_metrics(this.font)}
+  }
+
+  override paint(ctx: Context2d): void {
+    if (!this.image) {
+      this.load_image()
+      return super.paint(ctx);
+    }
+
+    ctx.save()
+    const {sx, sy} = this.position
+
+    if (this.angle) {
+      ctx.translate(sx, sy)
+      ctx.rotate(this.angle)
+      ctx.translate(-sx, -sy)
+    }
+
+    const {width, height} = this.image_properties
+    const {x, y} = this._computed_position({width, height}, font_metrics(this.font), 1)
+    ctx.drawImage(this.image, x, y, width, height)
+    ctx.restore()
+  }
+}
 export class BaseExpo extends GraphicsBox {
   constructor(readonly base: GraphicsBox, readonly expo: GraphicsBox) {
     super()
