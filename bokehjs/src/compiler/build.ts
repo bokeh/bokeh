@@ -15,7 +15,7 @@ import * as tsconfig_json from "./tsconfig.ext.json"
 import chalk from "chalk"
 const {cyan, magenta, red} = chalk
 
-import {CLIEngine} from "eslint"
+import {ESLint} from "eslint"
 
 import "@typescript-eslint/eslint-plugin"
 import "@typescript-eslint/parser"
@@ -36,7 +36,7 @@ export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
   return isObject(obj) && (obj.constructor == null || obj.constructor === Object)
 }
 
-function print(str: string): void {
+function print(str: any): void {
   console.log(str)
 }
 
@@ -78,25 +78,27 @@ function needs_install(base_dir: Path, metadata: Metadata): string | null {
     return null
 }
 
-function lint(config_file: Path, paths: Path[]): boolean {
-  const engine = new CLIEngine({
-    configFile: config_file,
+async function lint(config_file: Path, paths: Path[]): Promise<boolean> {
+  const eslint = new ESLint({
     extensions: [".ts", ".js"],
+    overrideConfigFile: config_file,
   })
 
-  const report = engine.executeOnFiles(paths)
-  CLIEngine.outputFixes(report)
+  try {
+    const results = await eslint.lintFiles(paths)
 
-  const ok = report.errorCount == 0
-  if (!ok) {
-    const formatter = engine.getFormatter()
-    const output = formatter(report.results)
+    if (results.some(result => result.errorCount > 0)) {
+      const formatter = await eslint.loadFormatter("stylish")
+      const resultText = formatter.format(results)
+      print(resultText)
+      return false
+    }
 
-    for (const line of output.trim().split("\n"))
-      print(line)
+    return true
+  } catch (error) {
+    console.error(error)
+    return false
   }
-
-  return ok
 }
 
 export type InitOptions = {
