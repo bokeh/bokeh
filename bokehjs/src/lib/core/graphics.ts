@@ -493,13 +493,13 @@ export class ImageTextBox extends TextBox {
   image_properties: ImageProperties
   load_image: () => Promise<void>
 
-  constructor({text, load_image}: {text: string, load_image:() => Promise<void>}) {
+  constructor({text, load_image}: {text: string, load_image: () => Promise<void>}) {
     super({text})
     this.load_image = load_image
   }
 
   override _computed_position(size: Size, metrics: FontMetrics, nlines: number): {x: number, y: number} {
-    if (!this.image) return super._computed_position(size, metrics, nlines);
+    if (!this.image) return super._computed_position(size, metrics, nlines)
 
     const {width, height} = size
     const {sx, sy, x_anchor=this._x_anchor, y_anchor=this._y_anchor} = this.position
@@ -543,7 +543,7 @@ export class ImageTextBox extends TextBox {
   }
 
   override size(): Size {
-    if (!this.image) return super.size();
+    if (!this.image) return super.size()
 
     let {width, height} = this._size()
     const {angle} = this
@@ -579,7 +579,7 @@ export class ImageTextBox extends TextBox {
   override paint(ctx: Context2d): void {
     if (!this.image) {
       this.load_image()
-      return super.paint(ctx);
+      return super.paint(ctx)
     }
 
     ctx.save()

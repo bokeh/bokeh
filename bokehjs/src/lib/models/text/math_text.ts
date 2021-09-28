@@ -1,13 +1,13 @@
-import { ImageTextBox } from "core/graphics"
+import {ImageTextBox} from "core/graphics"
 import * as p from "core/properties"
-import { Size } from "core/types"
-import { color2hexrgb, color2rgba } from "core/util/color"
-import { load_image } from "core/util/image"
-import { insert_text_on_position } from "core/util/string"
-import { font_metrics, parse_css_length } from "core/util/text"
-import { CanvasImage } from "models/glyphs/image_url"
-import { BaseText, BaseTextView } from "./base_text"
-import { default_provider, MathJaxProvider } from "./providers"
+import {Size} from "core/types"
+import {color2hexrgb, color2rgba} from "core/util/color"
+import {load_image} from "core/util/image"
+import {insert_text_on_position} from "core/util/string"
+import {font_metrics, parse_css_length} from "core/util/text"
+import {CanvasImage} from "models/glyphs/image_url"
+import {BaseText, BaseTextView} from "./base_text"
+import {default_provider, MathJaxProvider} from "./providers"
 
 /**
  * Helper class for rendering MathText into Canvas
@@ -39,7 +39,7 @@ export abstract class MathTextView extends BaseTextView {
     if (this.provider.status == "not_started")
       await this.provider.fetch()
 
-    const { text } = this
+    const {text} = this
     this.image_box = new ImageTextBox({text, load_image: () => this.load_image()})
   }
 
@@ -86,7 +86,7 @@ export abstract class MathTextView extends BaseTextView {
     return {
       width: fmetrics.x_height * widthEx,
       height: fmetrics.x_height * heightEx,
-      v_align
+      v_align,
     }
   }
 
