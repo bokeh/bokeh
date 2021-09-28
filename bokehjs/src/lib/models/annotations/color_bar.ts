@@ -657,7 +657,7 @@ export class ColorBar extends Annotation {
   override properties: ColorBar.Props
   override __view_type__: ColorBarView
 
-  public axis_mixins(withprefix: boolean = true): {[key: string]: any} {
+  axis_mixins(withprefix: boolean = true): {[key: string]: any} {
     return {
       ...mixins.attrs_of(this, "major_label_", mixins.Text, withprefix),
       ...mixins.attrs_of(this, "major_tick_", mixins.Line, withprefix),
@@ -665,11 +665,11 @@ export class ColorBar extends Annotation {
     }
   }
 
-  public title_mixins(withprefix: boolean = false): {[key: string]: any} {
+  title_mixins(withprefix: boolean = false): {[key: string]: any} {
     return mixins.attrs_of(this, "title_", mixins.Text, withprefix)
   }
 
-  public get axis_properties_refs(): any[] {
+  get axis_properties_refs(): any[] {
     const properties = this.properties as any
     const _axis_properties = []
     const keys = ["major_tick_in", "major_tick_out", "minor_tick_in", "minor_tick_out", "label_standoff",
@@ -681,7 +681,7 @@ export class ColorBar extends Annotation {
     return _axis_properties
   }
 
-  public get title_properties_refs(): any[] {
+  get title_properties_refs(): any[] {
     const properties = this.properties as any
 
     const keys = ["title", "standoff", ...Object.keys(this.title_mixins(true))]
