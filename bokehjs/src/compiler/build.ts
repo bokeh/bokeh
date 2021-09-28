@@ -36,7 +36,7 @@ export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
   return isObject(obj) && (obj.constructor == null || obj.constructor === Object)
 }
 
-function print(str: any): void {
+function print(str: string): void {
   console.log(str)
 }
 
@@ -84,21 +84,18 @@ async function lint(config_file: Path, paths: Path[]): Promise<boolean> {
     overrideConfigFile: config_file,
   })
 
-  try {
-    const results = await eslint.lintFiles(paths)
+  const results = await eslint.lintFiles(paths)
+  const ok = results.every(result => result.errorCount == 0)
 
-    if (results.some(result => result.errorCount > 0)) {
-      const formatter = await eslint.loadFormatter("stylish")
-      const resultText = formatter.format(results)
-      print(resultText)
-      return false
-    }
+  if (!ok) {
+    const formatter = await eslint.loadFormatter("stylish")
+    const output = formatter.format(results)
 
-    return true
-  } catch (error) {
-    console.error(error)
-    return false
+    for (const line of output.trim().split("\n"))
+      print(line)
   }
+
+  return ok
 }
 
 export type InitOptions = {

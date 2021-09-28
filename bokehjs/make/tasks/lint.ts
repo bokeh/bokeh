@@ -17,31 +17,25 @@ async function eslint(dir: string): Promise<void> {
     overrideConfigFile: "./eslint.json",
     fix,
   })
-  const {include} = (await import(join(dir, "tsconfig.json"))) as {
-    include: string[]
-  }
+
+  const {include} = (await import(join(dir, "tsconfig.json"))) as {include: string[]}
   const files = glob(...include.map((pat) => normalize(join(dir, pat))))
-  try {
-    const results = await eslint.lintFiles(files)
 
-    if (fix) await ESLint.outputFixes(results)
+  const results = await eslint.lintFiles(files)
+  const ok = results.every(result => result.errorCount == 0)
 
-    if (results.some(result => result.errorCount > 0)) {
-      const formatter = await eslint.loadFormatter("stylish")
-      const resultText = formatter.format(results)
+  if (fix)
+    await ESLint.outputFixes(results)
 
-      log(resultText)
-      throw new BuildError(
-        "eslint",
-        `lint failed with ${chalk.red(results.reduce((total, result) => total + result.errorCount, 0))} errors`
-      )
-    }
+  if (!ok) {
+    const formatter = await eslint.loadFormatter("stylish")
+    const output = formatter.format(results)
 
-  } catch (error) {
-    throw new BuildError(
-      "eslint",
-      `lint failed with ${error}`
-    )
+    for (const line of output.trim().split("\n"))
+      log(line)
+
+    const total = results.reduce((total, result) => total + result.errorCount, 0)
+    throw new BuildError("eslint", `lint failed with ${chalk.red(total)} errors`)
   }
 }
 
