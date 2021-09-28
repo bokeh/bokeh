@@ -205,7 +205,7 @@ export class ColorBarView extends AnnotationView {
       major_label_overrides: this.model.major_label_overrides,
       major_label_policy: this.model.major_label_policy,
     }
-    Object.assign(this._axis, this.model.axis_mixins(), builtins)
+    this._axis.setv({...this.model.axis_mixins(), ...builtins})
   }
 
   protected _apply_title_properties(): void {
@@ -214,7 +214,7 @@ export class ColorBarView extends AnnotationView {
         text: this.model.title,
         standoff: this.model.title_standoff,
       }
-      Object.assign(this._title, this.model.title_mixins(), builtins)
+      this._title.setv({...this.model.title_mixins(), ...builtins})
     }
   }
 
