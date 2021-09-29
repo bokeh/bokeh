@@ -1,5 +1,5 @@
-import {NDArray, is_NDArray} from "core/util/ndarray"
-import {isNumber, isFunction} from "core/util/types"
+import {NDArray} from "core/util/ndarray"
+import {isFunction} from "core/util/types"
 
 import {
   Parser,
@@ -7,7 +7,7 @@ import {
   COMPOUND, LITERAL, IDENT, MEMBER, INDEX, CALL, UNARY, BINARY, SEQUENCE, ARRAY, FAILURE,
 } from "./parser"
 
-import {np} from "./linalg"
+import {np, Numerical, is_Numerical} from "./linalg"
 
 function evaluate(ast: Expression, refs: unknown[]): unknown {
 
@@ -33,12 +33,11 @@ function evaluate(ast: Expression, refs: unknown[]): unknown {
       case MEMBER:
         const obj = resolve(ast.object)
         if (obj === np) {
-          switch (ast.member.name) {
-            case "exp": return np.exp
-            case "sqrt": return np.sqrt
-            default:
-              throw new Error(`'np.${ast.member.name}' doesn't exist`)
-          }
+          const {name} = ast.member
+          if (Object.prototype.hasOwnProperty.call(np, name))
+            return (np as any)[name]
+          else
+            throw new Error(`'np.${name}' doesn't exist`)
         } else
           throw new Error("not an accessable expression")
       case INDEX:
@@ -59,9 +58,10 @@ function evaluate(ast: Expression, refs: unknown[]): unknown {
           }
         })()
         const x = resolve(ast.argument)
-        if (!isNumber(x) && !is_NDArray(x))
+        if (is_Numerical(x))
+          return op(x)
+        else
           throw new Error("a number or an array was expected")
-        return op(x)
       }
       case BINARY:
         const op = (() => {
@@ -77,11 +77,10 @@ function evaluate(ast: Expression, refs: unknown[]): unknown {
         })()
         const x = resolve(ast.left)
         const y = resolve(ast.right)
-        if (!isNumber(x) && !is_NDArray(x))
+        if (is_Numerical(x) && is_Numerical(y))
+          return op(x, y)
+        else
           throw new Error("a number or an array was expected")
-        if (!isNumber(y) && !is_NDArray(y))
-          throw new Error("a number or an array was expected")
-        return op(x, y)
       case COMPOUND:
       case SEQUENCE:
       case ARRAY:
@@ -94,7 +93,7 @@ function evaluate(ast: Expression, refs: unknown[]): unknown {
 }
 
 export function f(strings: TemplateStringsArray, ...subs: number[]): number
-export function f(strings: TemplateStringsArray, ...subs: (number | NDArray)[]): NDArray
+export function f(strings: TemplateStringsArray, ...subs: Numerical[]): NDArray
 
 export function f(strings: TemplateStringsArray, ...subs: unknown[]): unknown {
   const [head, ...tail] = strings

@@ -12,8 +12,13 @@ import {range, linspace as _linspace} from "core/util/array"
 import {map, sum as _sum, bin_counts} from "core/util/arrayable"
 import {Random} from "core/util/random"
 import {is_equal} from "core/util/eq"
+import {float, Floating, is_Floating} from "core/util/math"
 
-type Numerical = number | Arrayable<number>
+export type Numerical = number | Floating | Arrayable<number>
+
+export function is_Numerical(x: unknown): x is Numerical {
+  return isNumber(x) || is_Floating(x) || is_NDArray(x)
+}
 
 export namespace np {
   export const pi: number = Math.PI
@@ -51,10 +56,32 @@ export namespace np {
     return ndarray(r.buffer, {shape: [m]})
   }
 
+  export function sin<T extends Numerical>(x: T): T
+  export function sin(x: Numerical): Numerical {
+    if (isNumber(x))
+      return Math.sin(x)
+    else if (is_Floating(x))
+      return Math.sin(x[float]())
+    else
+      return map(x, (v) => Math.sin(v))
+  }
+
+  export function cos<T extends Numerical>(x: T): T
+  export function cos(x: Numerical): Numerical {
+    if (isNumber(x))
+      return Math.cos(x)
+    else if (is_Floating(x))
+      return Math.cos(x[float]())
+    else
+      return map(x, (v) => Math.cos(v))
+  }
+
   export function exp<T extends Numerical>(x: T): T
   export function exp(x: Numerical): Numerical {
     if (isNumber(x))
       return Math.exp(x)
+    else if (is_Floating(x))
+      return Math.exp(x[float]())
     else
       return map(x, (v) => Math.exp(v))
   }
@@ -63,6 +90,8 @@ export namespace np {
   export function sqrt(x: Numerical): Numerical {
     if (isNumber(x))
       return Math.sqrt(x)
+    else if (is_Floating(x))
+      return Math.sqrt(x[float]())
     else
       return map(x, (v) => Math.sqrt(v))
   }
@@ -71,6 +100,8 @@ export namespace np {
   export function pos(x: Numerical): Numerical {
     if (isNumber(x))
       return +x
+    else if (is_Floating(x))
+      return +x[float]()
     else
       return map(x, (v) => +v)
   }
@@ -79,13 +110,18 @@ export namespace np {
   export function neg(x: Numerical): Numerical {
     if (isNumber(x))
       return -x
+    else if (is_Floating(x))
+      return -x[float]()
     else
       return map(x, (v) => -v)
   }
 
-  export function add(x: number, y: number): number
-  export function add(x: Numerical, y: Numerical): NDArray
-  export function add(x: Numerical, y: Numerical): Numerical {
+  export function add(x0: number, y0: number): number
+  export function add(x0: Numerical, y0: Numerical): NDArray
+  export function add(x0: Numerical, y0: Numerical): Numerical {
+    const x = is_Floating(x0) ? x0[float]() : x0
+    const y = is_Floating(y0) ? y0[float]() : y0
+
     const x_num = isNumber(x)
     const y_num = isNumber(y)
 
@@ -104,9 +140,12 @@ export namespace np {
       throw new Error("not implemented")
   }
 
-  export function sub(x: number, y: number): number
-  export function sub(x: Numerical, y: Numerical): NDArray
-  export function sub(x: Numerical, y: Numerical): Numerical {
+  export function sub(x0: number, y0: number): number
+  export function sub(x0: Numerical, y0: Numerical): NDArray
+  export function sub(x0: Numerical, y0: Numerical): Numerical {
+    const x = is_Floating(x0) ? x0[float]() : x0
+    const y = is_Floating(y0) ? y0[float]() : y0
+
     const x_num = isNumber(x)
     const y_num = isNumber(y)
 
@@ -125,9 +164,12 @@ export namespace np {
       throw new Error("not implemented")
   }
 
-  export function mul(x: number, y: number): number
-  export function mul(x: Numerical, y: Numerical): NDArray
-  export function mul(x: Numerical, y: Numerical): Numerical {
+  export function mul(x0: number, y0: number): number
+  export function mul(x0: Numerical, y0: Numerical): NDArray
+  export function mul(x0: Numerical, y0: Numerical): Numerical {
+    const x = is_Floating(x0) ? x0[float]() : x0
+    const y = is_Floating(y0) ? y0[float]() : y0
+
     const x_num = isNumber(x)
     const y_num = isNumber(y)
 
@@ -146,9 +188,12 @@ export namespace np {
       throw new Error("not implemented")
   }
 
-  export function div(x: number, y: number): number
-  export function div(x: Numerical, y: Numerical): NDArray
-  export function div(x: Numerical, y: Numerical): Numerical {
+  export function div(x0: number, y0: number): number
+  export function div(x0: Numerical, y0: Numerical): NDArray
+  export function div(x0: Numerical, y0: Numerical): Numerical {
+    const x = is_Floating(x0) ? x0[float]() : x0
+    const y = is_Floating(y0) ? y0[float]() : y0
+
     const x_num = isNumber(x)
     const y_num = isNumber(y)
 
@@ -167,9 +212,12 @@ export namespace np {
       throw new Error("not implemented")
   }
 
-  export function pow(x: number, y: number): number
-  export function pow(x: Numerical, y: Numerical): NDArray
-  export function pow(x: Numerical, y: Numerical): Numerical {
+  export function pow(x0: number, y0: number): number
+  export function pow(x0: Numerical, y0: Numerical): NDArray
+  export function pow(x0: Numerical, y0: Numerical): Numerical {
+    const x = is_Floating(x0) ? x0[float]() : x0
+    const y = is_Floating(y0) ? y0[float]() : y0
+
     const x_num = isNumber(x)
     const y_num = isNumber(y)
 
