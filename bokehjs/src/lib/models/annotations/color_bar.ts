@@ -669,26 +669,25 @@ export class ColorBar extends Annotation {
     return mixins.attrs_of(this, "title_", mixins.Text, withprefix)
   }
 
-  get axis_properties_refs(): any[] {
-    const properties = this.properties as any
-    const _axis_properties = []
-    const keys = ["major_tick_in", "major_tick_out", "minor_tick_in", "minor_tick_out", "label_standoff",
-                  "major_label_overrides", "major_label_policy", ...Object.keys(this.axis_mixins())]
+  get axis_properties_refs(): p.Property[] {
+    const {properties} = this
+    const _axis_properties_refs: p.Property[] = []
+    const keys: string[] = ["major_tick_in", "major_tick_out", "minor_tick_in", "minor_tick_out", "label_standoff",
+                            "major_label_overrides", "major_label_policy", ...Object.keys(this.axis_mixins())]
 
     for (const key of keys) {
-      if (properties.hasOwnProperty(key)) _axis_properties.push(properties[key])
+      if (this.has_property(key)) _axis_properties_refs.push(properties[key])
     }
-    return _axis_properties
+    return _axis_properties_refs
   }
 
-  get title_properties_refs(): any[] {
-    const properties = this.properties as any
+  get title_properties_refs(): p.Property[] {
+    const {properties} = this
+    const _title_properties_refs: p.Property[] = []
+    const keys: string[] = ["title", "standoff", ...Object.keys(this.title_mixins(true))]
 
-    const keys = ["title", "standoff", ...Object.keys(this.title_mixins(true))]
-
-    const _title_properties_refs = []
     for (const key of keys) {
-      if (properties.hasOwnProperty(key)) _title_properties_refs.push(properties[key])
+      if (this.has_property(key)) _title_properties_refs.push(properties[key])
     }
     return _title_properties_refs
   }
