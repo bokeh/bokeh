@@ -132,7 +132,7 @@ describe("MathText on axes", () => {
     const stub = sinon.stub(MathTextView.prototype, "provider")
     stub.value(new InternalProvider())
     try {
-      await plotAxis({axis_label: new MathML({text: mathml})}, undefined, 712)
+      await plotAxis({axis_label: new MathML({text: mathml})})
     } finally {
       stub.restore()
     }

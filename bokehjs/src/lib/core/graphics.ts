@@ -486,7 +486,7 @@ export class TextBox extends GraphicsBox {
 }
 
 /**
- * A Image display that defaults to TextBox if the image has not loaded
+ * A Image display that behaves like a TextBox.
  */
 export class ImageTextBox extends TextBox {
   image: CanvasImage
@@ -498,8 +498,11 @@ export class ImageTextBox extends TextBox {
     this.load_image = load_image
   }
 
-  override _computed_position(size: Size, metrics: FontMetrics, nlines: number): {x: number, y: number} {
-    if (!this.image) return super._computed_position(size, metrics, nlines)
+  override _computed_position(size: Size, metrics: FontMetrics, _nlines: number): {x: number, y: number} {
+    if (!this.image) {
+      const {sx, sy} = this.position
+      return {x: sx, y: sy}
+    }
 
     const {width, height} = size
     const {sx, sy, x_anchor=this._x_anchor, y_anchor=this._y_anchor} = this.position
@@ -543,7 +546,7 @@ export class ImageTextBox extends TextBox {
   }
 
   override size(): Size {
-    if (!this.image) return super.size()
+    if (!this.image) return {width: 0, height: 0}
 
     let {width, height} = this._size()
     const {angle} = this
@@ -567,7 +570,7 @@ export class ImageTextBox extends TextBox {
   }
 
   override _size(): Size & {metrics: FontMetrics} {
-    if (!this.image) return super._size()
+    if (!this.image) return {width: 0, height: 0, metrics: font_metrics(this.font)}
 
     const {width, height} = this.image_properties
     const w_scale = this.width?.unit == "%" ? this.width.value : 1
@@ -579,7 +582,7 @@ export class ImageTextBox extends TextBox {
   override paint(ctx: Context2d): void {
     if (!this.image) {
       this.load_image()
-      return super.paint(ctx)
+      return
     }
 
     ctx.save()
