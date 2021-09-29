@@ -205,7 +205,7 @@ export class BoxZoomTool extends GestureTool {
   }
 
   override tool_name = "Box Zoom"
-  override icon = tool_icon_box_zoom
+  override tool_icon = tool_icon_box_zoom
   override event_type = "pan" as "pan"
   override default_order = 20
 

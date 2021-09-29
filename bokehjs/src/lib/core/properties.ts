@@ -7,9 +7,9 @@ import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {mul} from "./util/arrayable"
 import {to_radians_coeff} from "./util/math"
-import {is_Color, color2rgba, encode_rgba} from "./util/color"
+import {color2rgba, encode_rgba} from "./util/color"
 import {to_big_endian} from "./util/platform"
-import {isBoolean, isNumber, isString, isArray, isTypedArray, isPlainObject} from "./util/types"
+import {isNumber, isTypedArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 import {Scalar, Vector, Dimensional, Transform, Expression, ScalarExpression, VectorExpression} from "./vectorization"
@@ -40,6 +40,16 @@ export type Spec<T> = {
   readonly field?: string
   readonly expr?: Expression<T>
   readonly transform?: Transform<unknown, T>
+}
+
+export interface Theme {
+  get(obj: HasProps | typeof HasProps, attr: string): unknown
+}
+
+let global_theme: Theme | null = null
+
+export function use_theme(theme: Theme | null = null): void {
+  global_theme = theme
 }
 
 //
@@ -135,17 +145,30 @@ export abstract class Property<T = unknown> {
       const value = this._default_override()
       if (value !== undefined)
         attr_value = value
-      else if (default_value !== undefined)
-        attr_value = default_value(obj)
       else {
-        // XXX: temporary and super sketchy, but affects only "readonly" and a few internal properties
-        // console.warn(`${this.obj}.${this.attr} has no value nor default`)
-        this.spec = {value: null as any}
-        return
+        let themed = false
+        if (global_theme != null) {
+          const value = global_theme.get(obj, attr) as T | undefined
+          if (value !== undefined) {
+            attr_value = value
+            themed = true
+          }
+        }
+
+        if (!themed) {
+          if (default_value !== undefined)
+            attr_value = default_value(obj)
+          else {
+            // XXX: temporary and super sketchy, but affects only "readonly" and a few internal properties
+            // console.warn(`${this.obj}.${this.attr} has no value nor default`)
+            this.spec = {value: null as any}
+            return
+          }
+        }
       }
     }
 
-    this._update(attr_value)
+    this._update(attr_value!)
   }
 
   //protected abstract _update(attr_value: T): void
@@ -207,168 +230,11 @@ export function Alias(attr: string) {
 export class PrimitiveProperty<T> extends Property<T> {}
 
 /** @deprecated */
-export class Any extends Property<any> {}
-
-/** @deprecated */
-export class Array extends Property<any[]> {
-  override valid(value: unknown): boolean {
-    return isArray(value) || isTypedArray(value)
-  }
-}
-
-/** @deprecated */
-export class Boolean extends Property<boolean> {
-  override valid(value: unknown): boolean {
-    return isBoolean(value)
-  }
-}
-
-/** @deprecated */
-export class Color extends Property<types.Color> {
-  override valid(value: unknown): boolean {
-    return is_Color(value)
-  }
-}
-
-/** @deprecated */
-export class Instance extends Property<any /*HasProps*/> {
-  //override valid(value: unknown): boolean { return  value.properties != null }
-}
-
-/** @deprecated */
-export class Number extends Property<number> {
-  override valid(value: unknown): boolean {
-    return isNumber(value)
-  }
-}
-
-/** @deprecated */
-export class Int extends Number {
-  override valid(value: unknown): boolean {
-    return isNumber(value) && (value | 0) == value
-  }
-}
-
-/** @deprecated */
-export class Angle extends Number {}
-
-/** @deprecated */
-export class Percent extends Number {
-  override valid(value: unknown): boolean {
-    return isNumber(value) && 0 <= value && value <= 1.0
-  }
-}
-
-/** @deprecated */
-export class String extends Property<string> {
-  override valid(value: unknown): boolean {
-    return isString(value)
-  }
-}
-
-/** @deprecated */
-export class NullString extends Property<string | null> {
-  override valid(value: unknown): boolean {
-    return value === null || isString(value)
-  }
-}
-
-/** @deprecated */
-export class FontSize extends String {}
-
-/** @deprecated */
-export class Font extends String {
+export class Font extends PrimitiveProperty<string> {
   override _default_override(): string | undefined {
     return settings.dev ? "Bokeh" : undefined
   }
 }
-
-//
-// Enum properties
-//
-
-/** @deprecated */
-export abstract class EnumProperty<T extends string> extends Property<T> {
-  abstract get enum_values(): T[]
-
-  override valid(value: unknown): boolean {
-    return isString(value) && includes(this.enum_values, value)
-  }
-}
-
-/** @deprecated */
-export function Enum<T extends string>(values: Iterable<T>): PropertyConstructor<T> {
-  return class extends EnumProperty<T> {
-    get enum_values(): T[] {
-      return [...values]
-    }
-  }
-}
-
-export class Direction extends EnumProperty<enums.Direction> {
-  get enum_values(): enums.Direction[] {
-    return [...enums.Direction]
-  }
-
-  override normalize(values: any): any {
-    const result = new Uint8Array(values.length)
-    for (let i = 0; i < values.length; i++) {
-      switch (values[i]) {
-        case "clock":     result[i] = 0; break
-        case "anticlock": result[i] = 1; break
-      }
-    }
-    return result
-  }
-}
-
-/** @deprecated */ export const Anchor = Enum(enums.Anchor)
-/** @deprecated */ export const AngleUnits = Enum(enums.AngleUnits)
-/** @deprecated */ export const BoxOrigin = Enum(enums.BoxOrigin)
-/** @deprecated */ export const ButtonType = Enum(enums.ButtonType)
-/** @deprecated */ export const CalendarPosition = Enum(enums.CalendarPosition)
-/** @deprecated */ export const Dimension = Enum(enums.Dimension)
-/** @deprecated */ export const Dimensions = Enum(enums.Dimensions)
-/** @deprecated */ export const Distribution = Enum(enums.Distribution)
-/** @deprecated */ export const FontStyle = Enum(enums.FontStyle)
-/** @deprecated */ export const HatchPatternType = Enum(enums.HatchPatternType)
-/** @deprecated */ export const HTTPMethod = Enum(enums.HTTPMethod)
-/** @deprecated */ export const HexTileOrientation = Enum(enums.HexTileOrientation)
-/** @deprecated */ export const HoverMode = Enum(enums.HoverMode)
-/** @deprecated */ export const LatLon = Enum(enums.LatLon)
-/** @deprecated */ export const LegendClickPolicy = Enum(enums.LegendClickPolicy)
-/** @deprecated */ export const LegendLocation = Enum(enums.LegendLocation)
-/** @deprecated */ export const LineCap = Enum(enums.LineCap)
-/** @deprecated */ export const LineJoin = Enum(enums.LineJoin)
-/** @deprecated */ export const LinePolicy = Enum(enums.LinePolicy)
-/** @deprecated */ export const Location = Enum(enums.Location)
-/** @deprecated */ export const Logo = Enum(enums.Logo)
-/** @deprecated */ export const MarkerType = Enum(enums.MarkerType)
-/** @deprecated */ export const MutedPolicy = Enum(enums.MutedPolicy)
-/** @deprecated */ export const Orientation = Enum(enums.Orientation)
-/** @deprecated */ export const OutputBackend = Enum(enums.OutputBackend)
-/** @deprecated */ export const PaddingUnits = Enum(enums.PaddingUnits)
-/** @deprecated */ export const Place = Enum(enums.Place)
-/** @deprecated */ export const PointPolicy = Enum(enums.PointPolicy)
-/** @deprecated */ export const RadiusDimension = Enum(enums.RadiusDimension)
-/** @deprecated */ export const RenderLevel = Enum(enums.RenderLevel)
-/** @deprecated */ export const RenderMode = Enum(enums.RenderMode)
-/** @deprecated */ export const ResetPolicy = Enum(enums.ResetPolicy)
-/** @deprecated */ export const RoundingFunction = Enum(enums.RoundingFunction)
-/** @deprecated */ export const Side = Enum(enums.Side)
-/** @deprecated */ export const SizingMode = Enum(enums.SizingMode)
-/** @deprecated */ export const Sort = Enum(enums.Sort)
-/** @deprecated */ export const SpatialUnits = Enum(enums.SpatialUnits)
-/** @deprecated */ export const StartEnd = Enum(enums.StartEnd)
-/** @deprecated */ export const StepMode = Enum(enums.StepMode)
-/** @deprecated */ export const TapBehavior = Enum(enums.TapBehavior)
-/** @deprecated */ export const TextAlign = Enum(enums.TextAlign)
-/** @deprecated */ export const TextBaseline = Enum(enums.TextBaseline)
-/** @deprecated */ export const TextureRepetition = Enum(enums.TextureRepetition)
-/** @deprecated */ export const TickLabelOrientation = Enum(enums.TickLabelOrientation)
-/** @deprecated */ export const TooltipAttachment = Enum(enums.TooltipAttachment)
-/** @deprecated */ export const UpdateMode = Enum(enums.UpdateMode)
-/** @deprecated */ export const VerticalAlign = Enum(enums.VerticalAlign)
 
 //
 // DataSpec properties

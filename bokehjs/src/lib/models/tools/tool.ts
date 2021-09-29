@@ -1,6 +1,6 @@
 import * as p from "core/properties"
 import {View} from "core/view"
-import {Dimensions} from "core/enums"
+import {Dimensions, ToolIcon} from "core/enums"
 import {min, max} from "core/util/array"
 import {Model} from "../../model"
 import {Renderer} from "../renderers/renderer"
@@ -121,6 +121,7 @@ export namespace Tool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
+    icon: p.Property<ToolIcon | string | null>
     description: p.Property<string | null>
     active: p.Property<boolean>
   }
@@ -141,7 +142,8 @@ export abstract class Tool extends Model {
   static {
     this.prototype._known_aliases = new Map()
 
-    this.define<Tool.Props>(({String, Nullable}) => ({
+    this.define<Tool.Props>(({String, Regex, Nullable, Or}) => ({
+      icon: [ Nullable(Or(ToolIcon, Regex(/^\./), Regex(/^data:image/))), null ],
       description: [ Nullable(String), null ],
     }))
 

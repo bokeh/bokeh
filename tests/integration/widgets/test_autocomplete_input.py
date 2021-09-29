@@ -380,6 +380,30 @@ class Test_AutocompleteInput:
         assert "bk-active" not in items[0].get_attribute('class')
         assert "bk-active" in items[1].get_attribute('class')
 
+    def test_unrestricted_selection_callback_count(self, bokeh_server_page) -> None:
+        class CallbackCounter:
+            def __init__(self) -> None:
+                self.count = 0
+
+            def increment(self, attr, old, new) -> None:
+                self.count += 1
+                self.new = new
+
+        counter = CallbackCounter()
+
+        def unrestricted_input(doc):
+            input_box = AutocompleteInput(css_classes=["foo"], completions = ["100001", "12344556"], restrict=False)
+            input_box.on_change('value', counter.increment)
+            plot = Plot()
+            doc.add_root(column(input_box, plot))
+
+        page = bokeh_server_page(unrestricted_input)
+
+        el = page.driver.find_element_by_css_selector('.foo input')
+        enter_text_in_element(page.driver, el, "ASDF", enter=True)
+        assert(counter.count == 1)
+        assert(counter.new == "ASDF")
+
     @flaky(max_runs=10)
     def test_server_on_change_no_round_trip_without_enter_or_click(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)

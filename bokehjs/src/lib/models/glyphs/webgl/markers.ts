@@ -107,6 +107,7 @@ export class MarkerGL extends BaseGLGlyph {
     if (this._show == null)
       this._show = new Uint8Buffer(this.regl_wrapper)
 
+    const prev_nmarkers = this._show.length
     const show_array = this._show.get_sized_array(nmarkers)
     if (indices.length < nmarkers) {
       this._show_all = false
@@ -119,7 +120,7 @@ export class MarkerGL extends BaseGLGlyph {
       for (let j = 0; j < indices.length; j++) {
         show_array[indices[j]] = 255
       }
-    } else if (!this._show_all) {
+    } else if (!this._show_all || prev_nmarkers != nmarkers) {
       this._show_all = true
       for (let i = 0; i < nmarkers; i++)
         show_array[i] = 255

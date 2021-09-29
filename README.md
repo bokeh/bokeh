@@ -377,8 +377,3 @@ The Bokeh project is also grateful for the donation of services from the followi
 * [Slack](https://slack.com)
 * [QuestionScout](https://www.questionscout.com/)
 * [1Password](https://1password.com/)
-
-## Security
-
-To report a security vulnerability, please use the [Tidelift security contact](https://tidelift.com/security).
-Tidelift will coordinate the fix and disclosure.

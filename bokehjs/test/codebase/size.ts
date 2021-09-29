@@ -9,23 +9,17 @@ const LIMITS = new Map([
   ["js/bokeh.min.js",                 800],
   ["js/bokeh-widgets.min.js",         300],
   ["js/bokeh-tables.min.js",          350],
-  ["js/bokeh-api.min.js",             100],
+  ["js/bokeh-api.min.js",             120],
   ["js/bokeh-gl.min.js",              200],
   ["js/bokeh-mathjax.min.js",        1800],
-  // legacy (es5)
-  ["js/bokeh.legacy.min.js",         1050],
-  ["js/bokeh-widgets.legacy.min.js",  350],
-  ["js/bokeh-tables.legacy.min.js",   350],
-  ["js/bokeh-api.legacy.min.js",      110],
-  ["js/bokeh-gl.legacy.min.js",       200],
-  ["js/bokeh-mathjax.legacy.min.js", 1800],
 ])
 
 const n = Math.max(...[...LIMITS.keys()].map((l) => l.length))
+const k = Math.max(...[...LIMITS.values()].map((s) => `${s}`.length))
 
 function pad(value: unknown): string {
   const str = `${value}`
-  const pre = " ".repeat(4 - str.length)
+  const pre = " ".repeat(k - str.length)
   return `${pre}${str}`
 }
 

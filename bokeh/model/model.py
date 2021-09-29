@@ -252,21 +252,12 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
                 'id'   : << unique model id >>
             }
 
-        Additionally there may be a `subtype` field if this model is a subtype.
-
         '''
         this = ReferenceJson(
             id=self.id,
             type=self.__qualified_model__,
             attributes={},
         )
-
-        if "__subtype__" in self.__class__.__dict__:
-            # XXX: remove __subtype__ and this garbage at 2.0
-            parts = this["type"].split(".")
-            parts[-1] = self.__view_model__
-            this["type"] = ".".join(parts)
-            this["subtype"] = self.__subtype__
 
         return this
 
@@ -620,21 +611,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
                 that haven't been changed from the default.
 
         '''
-        all_attrs = self.properties_with_values(include_defaults=include_defaults)
-
-        # If __subtype__ is defined, then this model may introduce properties
-        # that don't exist on __view_model__ in bokehjs. Don't serialize such
-        # properties.
-        subtype = getattr(self.__class__, "__subtype__", None)
-        if subtype is not None and subtype != self.__class__.__view_model__:
-            attrs = {}
-            for attr, value in all_attrs.items():
-                if attr in self.__class__.__dict__:
-                    continue
-                else:
-                    attrs[attr] = value
-        else:
-            attrs = all_attrs
+        attrs = self.properties_with_values(include_defaults=include_defaults)
 
         for (k, v) in attrs.items():
             # we can't serialize Infinity, we send it as None and

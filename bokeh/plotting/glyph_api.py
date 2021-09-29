@@ -490,23 +490,6 @@ Examples:
 
 """
 
-    @glyph_method(glyphs.Oval)
-    def oval(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, output_file, show
-
-        plot = figure(width=300, height=300)
-        plot.oval(x=[1, 2, 3], y=[1, 2, 3], width=0.2, height=0.4,
-                  angle=-0.7, color="#1D91C0")
-
-        show(plot)
-
-"""
-
     @glyph_method(glyphs.Patch)
     def patch(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """

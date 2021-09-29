@@ -269,7 +269,7 @@ export class PolyDrawTool extends PolyTool {
   }
 
   override tool_name = "Polygon Draw Tool"
-  override icon = tool_icon_poly_draw
+  override tool_icon = tool_icon_poly_draw
   override event_type = ["pan" as "pan", "tap" as "tap", "move" as "move"]
   override default_order = 3
 }

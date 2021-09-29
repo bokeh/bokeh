@@ -8,7 +8,7 @@ import * as p from "./properties"
 import * as k from "./kinds"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
-import {values, entries, extend} from "./util/object"
+import {keys, values, entries, extend} from "./util/object"
 import {isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import {is_equal} from "./util/eq"
 import {serialize, Serializable, Serializer} from "./serializer"
@@ -68,8 +68,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return __module__ != null ? `${__module__}.${__name__}` : __name__
   }
 
-  static get [Symbol.toStringTag](): string {
-    return this.__name__
+  get [Symbol.toStringTag](): string {
+    return this.constructor.__name__
   }
 
   static {
@@ -190,8 +190,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return `${this.type}(${this.id})`
   }
 
-  _subtype: string | undefined = undefined
-
   document: Document | null = null
 
   readonly destroyed       = new Signal0<this>(this, "destroyed")
@@ -269,6 +267,13 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   constructor(attrs: Attrs | Map<string, unknown> = {}) {
     super()
 
+    for (const attr of attrs instanceof Map ? attrs.keys() : keys(attrs)) {
+      if (attr == "id" || attr == "__deferred__")
+        continue
+      if (!(attr in this._props))
+        throw new Error(`unknown property ${this.type}.${attr}`)
+    }
+
     const get = attrs instanceof Map ? attrs.get.bind(attrs) : (name: string) => attrs[name]
 
     this.id = (get("id") as string | undefined) ?? uniqueId()
@@ -324,7 +329,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   connect_signals(): void {}
 
   disconnect_signals(): void {
-    Signal.disconnectReceiver(this)
+    Signal.disconnect_receiver(this)
   }
 
   destroy(): void {
@@ -422,11 +427,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  /** @deprecated */
-  getv(name: string): unknown {
-    return this.property(name).get_value()
-  }
-
   ref(): Ref {
     return {id: this.id}
   }
@@ -437,16 +437,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       id: this.id,
       attributes: {},
     }
-    if (this._subtype != null) {
-      struct.subtype = this._subtype
-    }
     return struct
-  }
-
-  // we only keep the subtype so we match Python;
-  // only Python cares about this
-  set_subtype(subtype: string): void {
-    this._subtype = subtype
   }
 
   *[Symbol.iterator](): PropertyGenerator {
@@ -458,15 +449,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       if (prop.syncable)
         yield prop
     }
-  }
-
-  /** @deprecated */
-  serializable_attributes(): Attrs {
-    const attrs: Attrs = {}
-    for (const prop of this.syncable_properties()) {
-      attrs[prop.attr] = prop.get_value()
-    }
-    return attrs
   }
 
   // this is like _value_record_references but expects to find refs

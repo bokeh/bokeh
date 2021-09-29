@@ -208,8 +208,8 @@ describe("Plot", () => {
 
       const f = fig([400, 200], {y_axis_type: "log"})
 
-      f.yaxis.map((ax) => ax.axis_label = "Log")
-      f.yaxis.map((ax) => ax.axis_label_text_color = "blue")
+      f.yaxis.axis_label = "Log"
+      f.yaxis.axis_label_text_color = "blue"
 
       f.extra_y_ranges = {linear: new Range1d({start: -1000, end: 20000})}
       f.extra_y_scales = {linear: new LinearScale()}

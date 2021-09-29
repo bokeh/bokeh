@@ -64,6 +64,7 @@ export class ModelResolver {
   protected _known_models: Map<string, typeof HasProps> = new Map()
 
   get(name: string): typeof HasProps
+  get<M extends typeof HasProps, T>(name: string, or_else: T): M | T
   get<T>(name: string, or_else: T): (typeof HasProps) | T
 
   get<T>(name: string, or_else?: T): (typeof HasProps) | T {

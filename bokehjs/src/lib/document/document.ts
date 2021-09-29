@@ -364,8 +364,6 @@ export class Document {
       let instance = existing_models.get(obj_id)
       if (instance == null) {
         instance = Document._instantiate_object(obj_id, obj_type, obj_attrs, resolver)
-        if (obj.subtype != null)
-          instance.set_subtype(obj.subtype)
       }
       references.set(instance.id, instance)
     }
@@ -657,11 +655,6 @@ export class Document {
   replace_with_json(json: DocJson): void {
     const replacement = Document.from_json(json)
     replacement.destructively_move(this)
-  }
-
-  /** @deprecated */
-  create_json_patch_string(events: DocumentChangedEvent[]): string {
-    return JSON.stringify(this.create_json_patch(events))
   }
 
   create_json_patch(events: DocumentChangedEvent[]): Patch {

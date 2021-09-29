@@ -22,14 +22,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import warnings
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    List as TList,
-    overload,
-)
+from typing import Any, List as TList, overload
 
 # External imports
+import xyzservices
 from typing_extensions import Literal
 
 # Bokeh imports
@@ -41,7 +37,6 @@ from ..core.enums import (
     ResetPolicy,
 )
 from ..core.properties import (
-    Alias,
     Bool,
     Dict,
     Either,
@@ -66,12 +61,7 @@ from ..core.validation.errors import (
     REQUIRED_RANGE,
     REQUIRED_SCALE,
 )
-from ..core.validation.warnings import (
-    FIXED_HEIGHT_POLICY,
-    FIXED_SIZING_MODE,
-    FIXED_WIDTH_POLICY,
-    MISSING_RENDERERS,
-)
+from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
 from ..util.string import nice_join
 from .annotations import Annotation, Legend, Title
@@ -93,10 +83,8 @@ from .scales import (
     Scale,
 )
 from .sources import ColumnarDataSource, ColumnDataSource, DataSource
+from .tiles import TileSource, WMTSTileSource
 from .tools import HoverTool, Tool, Toolbar
-
-if TYPE_CHECKING:
-    from .tiles import TileSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -350,11 +338,15 @@ class Plot(LayoutDOM):
         self.renderers.append(g)
         return g
 
-    def add_tile(self, tile_source: TileSource, **kwargs: Any) -> TileRenderer:
+    def add_tile(self, tile_source: TileSource | xyzservices.TileProvider | str, retina: bool = False, **kwargs: Any) -> TileRenderer:
         ''' Adds new ``TileRenderer`` into ``Plot.renderers``
 
         Args:
-            tile_source (TileSource) : a tile source instance which contain tileset configuration
+            tile_source (TileSource, xyzservices.TileProvider, str) :
+                A tile source instance which contain tileset configuration
+
+            retina (bool) :
+                Whether to use retina version of tiles (if available)
 
         Keyword Arguments:
             Additional keyword arguments are passed on as-is to the tile renderer
@@ -363,6 +355,35 @@ class Plot(LayoutDOM):
             TileRenderer : TileRenderer
 
         '''
+        if not isinstance(tile_source, TileSource):
+
+            if isinstance(tile_source, xyzservices.TileProvider):
+                selected_provider = tile_source
+
+            # allow the same string input you can now pass to get_provider
+            elif isinstance(tile_source, str):
+                # Mapping of custom keys to those used in xyzservices
+                tile_source = tile_source.lower()
+
+                if tile_source == "esri_imagery":
+                    tile_source = "esri_worldimagery"
+                if tile_source == "osm":
+                    tile_source = "openstreetmap_mapnik"
+
+                if "retina" in tile_source:
+                    tile_source = tile_source.replace("retina", "")
+                    retina = True
+                selected_provider = xyzservices.providers.query_name(tile_source)
+
+            scale_factor = "@2x" if retina else None
+
+            tile_source = WMTSTileSource(
+                url=selected_provider.build_url(scale_factor=scale_factor),
+                attribution=selected_provider.html_attribution,
+                min_zoom=selected_provider.get("min_zoom", 0),
+                max_zoom=selected_provider.get("max_zoom", 30),
+            )
+
         tile_renderer = TileRenderer(tile_source=tile_source, **kwargs)
         self.renderers.append(tile_renderer)
         return tile_renderer
@@ -562,14 +583,6 @@ class Plot(LayoutDOM):
 
     height: int | None = Override(default=600)
 
-    plot_width: int | None = Alias("width", help="""
-    The outer width of a plot, including any axes, titles, border padding, etc.
-    """)
-
-    plot_height: int | None = Alias("height", help="""
-    The outer height of a plot, including any axes, titles, border padding, etc.
-    """)
-
     frame_width = Nullable(Int, help="""
     The width of a plot frame or the inner width of a plot, excluding any
     axes, titles, border padding, etc.
@@ -755,19 +768,6 @@ class Plot(LayoutDOM):
     is desired, this property may be set to ``"event_only"``, which will
     suppress all of the actions except the Reset event.
     """)
-
-    # XXX: override LayoutDOM's definitions because of plot_{width,height}.
-    @error(FIXED_SIZING_MODE)
-    def _check_fixed_sizing_mode(self):
-        pass
-
-    @error(FIXED_WIDTH_POLICY)
-    def _check_fixed_width_policy(self):
-        pass
-
-    @error(FIXED_HEIGHT_POLICY)
-    def _check_fixed_height_policy(self):
-        pass
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -28,8 +28,7 @@ def rose(xy, k: Fraction, A: float = 1) -> None:
     else:
         color = color_map[k] = next(dark_colors)
 
-    r = xy.line(x=t.x, y=t.y, line_color=color, source=source)
-    return r
+    xy.line(x=t.x, y=t.y, line_color=color, source=source)
 
 N = D = 9
 h = 0.5

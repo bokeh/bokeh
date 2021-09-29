@@ -22,7 +22,6 @@ import mock
 # Bokeh imports
 from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.layouts import (
-    GridSpec,
     column,
     grid,
     gridplot,
@@ -45,12 +44,6 @@ from bokeh.plotting import figure
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-# TODO (bev) deprecation: 3.0
-def test_GridSpec_deprecated() -> None:
-    from bokeh.util.deprecation import BokehDeprecationWarning
-    with pytest.warns(BokehDeprecationWarning):
-        GridSpec(2, 2)
 
 def test_gridplot_merge_tools_flat() -> None:
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()

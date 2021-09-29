@@ -34,17 +34,6 @@ export class Uint8NDArray extends Uint8Array implements NDArrayType {
     super(seq)
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
     this.dimension = this.shape.length
-    // TODO: remove this when IE/legacy is dropped
-    if (this[equals] == null) {
-      this[equals] = (that: this, cmp: Comparator): boolean => {
-        return Uint8NDArray.prototype[equals].call(this, that, cmp)
-      }
-    }
-    if (this[serialize] == null) {
-      this[serialize] = (serializer: Serializer): unknown => {
-        return Uint8NDArray.prototype[serialize].call(this, serializer)
-      }
-    }
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -66,17 +55,6 @@ export class Int8NDArray extends Int8Array implements NDArrayType {
     super(seq)
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
     this.dimension = this.shape.length
-    // TODO: remove this when IE/legacy is dropped
-    if (this[equals] == null) {
-      this[equals] = (that: this, cmp: Comparator): boolean => {
-        return Int8NDArray.prototype[equals].call(this, that, cmp)
-      }
-    }
-    if (this[serialize] == null) {
-      this[serialize] = (serializer: Serializer): unknown => {
-        return Int8NDArray.prototype[serialize].call(this, serializer)
-      }
-    }
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -98,17 +76,6 @@ export class Uint16NDArray extends Uint16Array implements NDArrayType {
     super(seq)
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
     this.dimension = this.shape.length
-    // TODO: remove this when IE/legacy is dropped
-    if (this[equals] == null) {
-      this[equals] = (that: this, cmp: Comparator): boolean => {
-        return Uint16NDArray.prototype[equals].call(this, that, cmp)
-      }
-    }
-    if (this[serialize] == null) {
-      this[serialize] = (serializer: Serializer): unknown => {
-        return Uint16NDArray.prototype[serialize].call(this, serializer)
-      }
-    }
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -130,17 +97,6 @@ export class Int16NDArray extends Int16Array implements NDArrayType {
     super(seq)
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
     this.dimension = this.shape.length
-    // TODO: remove this when IE/legacy is dropped
-    if (this[equals] == null) {
-      this[equals] = (that: this, cmp: Comparator): boolean => {
-        return Int16NDArray.prototype[equals].call(this, that, cmp)
-      }
-    }
-    if (this[serialize] == null) {
-      this[serialize] = (serializer: Serializer): unknown => {
-        return Int16NDArray.prototype[serialize].call(this, serializer)
-      }
-    }
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -162,17 +118,6 @@ export class Uint32NDArray extends Uint32Array implements NDArrayType {
     super(seq)
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
     this.dimension = this.shape.length
-    // TODO: remove this when IE/legacy is dropped
-    if (this[equals] == null) {
-      this[equals] = (that: this, cmp: Comparator): boolean => {
-        return Uint32NDArray.prototype[equals].call(this, that, cmp)
-      }
-    }
-    if (this[serialize] == null) {
-      this[serialize] = (serializer: Serializer): unknown => {
-        return Uint32NDArray.prototype[serialize].call(this, serializer)
-      }
-    }
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -194,17 +139,6 @@ export class Int32NDArray extends Int32Array implements NDArrayType {
     super(seq)
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
     this.dimension = this.shape.length
-    // TODO: remove this when IE/legacy is dropped
-    if (this[equals] == null) {
-      this[equals] = (that: this, cmp: Comparator): boolean => {
-        return Int32NDArray.prototype[equals].call(this, that, cmp)
-      }
-    }
-    if (this[serialize] == null) {
-      this[serialize] = (serializer: Serializer): unknown => {
-        return Int32NDArray.prototype[serialize].call(this, serializer)
-      }
-    }
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -226,17 +160,6 @@ export class Float32NDArray extends Float32Array implements NDArrayType {
     super(seq)
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
     this.dimension = this.shape.length
-    // TODO: remove this when IE/legacy is dropped
-    if (this[equals] == null) {
-      this[equals] = (that: this, cmp: Comparator): boolean => {
-        return Float32NDArray.prototype[equals].call(this, that, cmp)
-      }
-    }
-    if (this[serialize] == null) {
-      this[serialize] = (serializer: Serializer): unknown => {
-        return Float32NDArray.prototype[serialize].call(this, serializer)
-      }
-    }
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -258,17 +181,6 @@ export class Float64NDArray extends Float64Array implements NDArrayType {
     super(seq)
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
     this.dimension = this.shape.length
-    // TODO: remove this when IE/legacy is dropped
-    if (this[equals] == null) {
-      this[equals] = (that: this, cmp: Comparator): boolean => {
-        return Float64NDArray.prototype[equals].call(this, that, cmp)
-      }
-    }
-    if (this[serialize] == null) {
-      this[serialize] = (serializer: Serializer): unknown => {
-        return Float64NDArray.prototype[serialize].call(this, serializer)
-      }
-    }
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -287,7 +199,7 @@ export type NDArray =
   Float32NDArray | Float64NDArray
 
 export function is_NDArray(v: unknown): v is NDArray {
-  return isObject(v) && (v as any)[__ndarray__] !== undefined
+  return isObject(v) && __ndarray__ in v
 }
 
 export type NDArrayTypes = {
@@ -301,19 +213,19 @@ export type NDArrayTypes = {
   "float64": {typed: Float64Array, ndarray: Float64NDArray}
 }
 
-export function ndarray(array: ArrayBuffer | number[], options: {dtype: "uint8", shape: [number]}): Uint8NDArray & Array1d
-export function ndarray(array: ArrayBuffer | number[], options: {dtype: "uint8", shape: [number, number]}): Uint8NDArray & Array2d
-export function ndarray(array: ArrayBuffer | number[], options: {dtype: "uint32", shape: [number]}): Uint32NDArray & Array1d
-export function ndarray(array: ArrayBuffer | number[], options: {dtype: "uint32", shape: [number, number]}): Uint32NDArray & Array2d
-export function ndarray(array: ArrayBuffer | number[], options: {dtype: "float32", shape: [number]}): Float32NDArray & Array1d
-export function ndarray(array: ArrayBuffer | number[], options: {dtype: "float32", shape: [number, number]}): Float32NDArray & Array2d
-export function ndarray(array: ArrayBuffer | number[], options: {dtype: "float64", shape: [number]}): Float64NDArray & Array1d
-export function ndarray(array: ArrayBuffer | number[], options: {dtype: "float64", shape: [number, number]}): Float64NDArray & Array2d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "uint8", shape: [number]}): Uint8NDArray & Array1d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "uint8", shape: [number, number]}): Uint8NDArray & Array2d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "uint32", shape: [number]}): Uint32NDArray & Array1d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "uint32", shape: [number, number]}): Uint32NDArray & Array2d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "float32", shape: [number]}): Float32NDArray & Array1d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "float32", shape: [number, number]}): Float32NDArray & Array2d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "float64", shape: [number]}): Float64NDArray & Array1d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "float64", shape: [number, number]}): Float64NDArray & Array2d
 
-export function ndarray<K extends DataType = "float64">(array: ArrayBuffer | number[], options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
+export function ndarray<K extends DataType = "float64">(array: ArrayBuffer | ArrayLike<number>, options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
 export function ndarray<K extends DataType>(array: NDArrayTypes[K]["typed"], options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
 
-export function ndarray(array: ArrayBuffer | TypedArray | number[], options: {dtype?: DataType, shape?: number[]} = {}): NDArray {
+export function ndarray(array: ArrayBuffer | TypedArray | ArrayLike<number>, options: {dtype?: DataType, shape?: number[]} = {}): NDArray {
   let {dtype} = options
   if (dtype == null) {
     if (array instanceof ArrayBuffer || isArray(array)) {

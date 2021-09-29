@@ -128,9 +128,6 @@ export const RadiusDimension = Enum("x", "y", "max", "min")
 export type RenderLevel = "image" | "underlay" | "glyph" | "guide" | "annotation" | "overlay"
 export const RenderLevel = Enum("image", "underlay", "glyph", "guide", "annotation", "overlay")
 
-export type RenderMode = "canvas" | "css"
-export const RenderMode = Enum("canvas", "css")
-
 export type ResetPolicy = "standard" | "event_only"
 export const ResetPolicy = Enum("standard", "event_only")
 
@@ -181,3 +178,39 @@ export const UpdateMode = Enum("replace", "append")
 
 export type VerticalAlign = "top" | "middle" | "bottom"
 export const VerticalAlign = Enum("top", "middle", "bottom")
+
+export const ToolIcon = Enum(
+  "append_mode",
+  "box_edit",
+  "box_select",
+  "box_zoom",
+  "clear_selection",
+  "copy_to_clipboard",
+  "crosshair",
+  "freehand_draw",
+  "help",
+  "hover",
+  "intersect_mode",
+  "lasso_select",
+  "line_edit",
+  "pan",
+  "point_draw",
+  "poly_draw",
+  "poly_edit",
+  "polygon_select",
+  "range",
+  "redo",
+  "replace_mode",
+  "reset",
+  "save",
+  "subtract_mode",
+  "tap_select",
+  "undo",
+  "wheel_pan",
+  "wheel_zoom",
+  "xpan",
+  "ypan",
+  "zoom_in",
+  "zoom_out",
+)
+export type ToolIcon = typeof ToolIcon["__type__"]

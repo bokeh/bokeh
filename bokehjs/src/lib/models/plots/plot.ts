@@ -28,7 +28,6 @@ import {Tool} from "../tools/tool"
 import {DataRange1d} from "../ranges/data_range1d"
 
 import {PlotView} from "./plot_canvas"
-
 export {PlotView}
 
 export namespace Plot {
@@ -38,9 +37,6 @@ export namespace Plot {
     toolbar: p.Property<Toolbar>
     toolbar_location: p.Property<Location | null>
     toolbar_sticky: p.Property<boolean>
-
-    plot_width: p.Property<number | null>
-    plot_height: p.Property<number | null>
 
     frame_width: p.Property<number | null>
     frame_height: p.Property<number | null>
@@ -132,9 +128,6 @@ export class Plot extends LayoutDOM {
       toolbar:           [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location:  [ Nullable(Location), "right" ],
       toolbar_sticky:    [ Boolean, true ],
-
-      plot_width:        [ p.Alias("width") ],
-      plot_height:       [ p.Alias("height") ],
 
       frame_width:       [ Nullable(Number), null ],
       frame_height:      [ Nullable(Number), null ],

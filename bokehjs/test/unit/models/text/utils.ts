@@ -49,7 +49,7 @@ describe("models/text/utils module", () => {
     expect(s11).to.be.equal(new PlainText({text: "$$test\\]"}))
     const s12 = parse_delimited_string("$$test $$ end $$")
     ;(s12 as any).id = wildcard
-    expect(s12).to.be.equal(new TeX({text: "$$test $$ end $$"}))
+    expect(s12).to.be.equal(new PlainText({text: "$$test $$ end $$"}))
     const s13 = parse_delimited_string("$$ \\[test end\\]")
     ;(s13 as any).id = wildcard
     expect(s13).to.be.equal(new PlainText({text: "$$ \\[test end\\]"}))
@@ -61,7 +61,7 @@ describe("models/text/utils module", () => {
     expect(s15).to.be.equal(new TeX({text: " tex [ tex ] tex "}))
     const s16 = parse_delimited_string("$$tex$$text$$tex$$")
     ;(s16 as any).id = wildcard
-    expect(s16).to.be.equal(new TeX({text: "$$tex$$text$$tex$$"}))
+    expect(s16).to.be.equal(new PlainText({text: "$$tex$$text$$tex$$"}))
     const s17 = parse_delimited_string("part0$$part1\\[part2\\(part3$$")
     ;(s17 as any).id = wildcard
     expect(s17).to.be.equal(new PlainText({text: "part0$$part1\\[part2\\(part3$$"}))

@@ -4,7 +4,6 @@
 //     Underscore may be freely distributed under the MIT license.
 
 import {Arrayable, TypedArray} from "../types"
-import {every} from "./array"
 
 const toString = Object.prototype.toString
 
@@ -42,13 +41,17 @@ export function isArray<T>(obj: unknown): obj is T[] {
   return Array.isArray(obj)
 }
 
-export function isArrayOf<T>(arr: unknown[], predicate: (item: unknown) => item is T): arr is T[] {
-  return every(arr, predicate)
+export function isArrayOf<T>(array: unknown[], predicate: (item: unknown) => item is T): array is T[] {
+  for (const item of array) {
+    if (!predicate(item))
+      return false
+  }
+  return true
 }
 
-export function isArrayableOf<T>(arr: Arrayable, predicate: (item: unknown) => item is T): arr is Arrayable<T> {
-  for (let i = 0, end = arr.length; i < end; i++) {
-    if (!predicate(arr[i]))
+export function isArrayableOf<T>(array: Arrayable, predicate: (item: unknown) => item is T): array is Arrayable<T> {
+  for (const item of array) {
+    if (!predicate(item))
       return false
   }
   return true
@@ -68,7 +71,7 @@ export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
 }
 
 export function isIterable(obj: unknown): obj is Iterable<unknown> {
-  return isObject(obj) && (obj as any)[Symbol.iterator] !== undefined
+  return isObject(obj) && Symbol.iterator in obj
 }
 
 export function isArrayable(obj: unknown): obj is Arrayable<unknown> {

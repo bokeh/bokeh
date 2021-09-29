@@ -108,7 +108,7 @@ export class TapTool extends SelectTool {
   }
 
   override tool_name = "Tap"
-  override icon = tool_icon_tap_select
+  override tool_icon = tool_icon_tap_select
   override event_type = "tap" as "tap"
   override default_order = 10
 }

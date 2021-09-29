@@ -95,6 +95,10 @@ describe("core/has_props module", () => {
       const props = [...keys(mixins.Line), ...keys(mixins.Text).map((key) => `bar_${key}`)]
       expect(keys(obj.properties)).to.be.equal(props)
     })
+
+    it("should fail when unknown properties are used", () => {
+      expect(() => new (SubclassWithProps as any)({whatever: true})).to.throw(Error, "unknown property SubclassWithProps.whatever")
+    })
   })
 
   describe("HasProps.struct()", () => {
@@ -104,16 +108,14 @@ describe("core/has_props module", () => {
       const struct = obj.struct()
       expect(struct.id).to.be.equal(obj.id)
       expect(struct.type).to.be.equal(obj.type)
-      expect(struct.subtype).to.be.undefined
     })
+  })
 
-    it("should return a correct struct for a subtype HasProps", () => {
-      const obj = new TestModel()
-      obj._subtype = "bar"
-      const struct = obj.struct()
-      expect(struct.id).to.be.equal(obj.id)
-      expect(struct.type).to.be.equal(obj.type)
-      expect(struct.subtype).to.be.equal("bar")
-    })
+  it("implements HasProps[toStringTag] method", () => {
+    const obj0 = new SubclassWithProps()
+    const obj1 = new SubSubclassWithProps()
+
+    expect(Object.prototype.toString.call(obj0)).to.be.equal("[object SubclassWithProps]")
+    expect(Object.prototype.toString.call(obj1)).to.be.equal("[object SubSubclassWithProps]")
   })
 })

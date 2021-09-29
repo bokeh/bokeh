@@ -289,7 +289,7 @@ export class RangeTool extends GestureTool {
   }
 
   override tool_name = "Range Tool"
-  override icon = tool_icon_range
+  override tool_icon = tool_icon_range
   override event_type = "pan" as "pan"
   override default_order = 1
 }

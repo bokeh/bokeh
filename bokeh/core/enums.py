@@ -129,7 +129,6 @@ __all__ = (
     'Palette',
     'Place',
     'RenderLevel',
-    'RenderMode',
     'ResetPolicy',
     'RoundingFunction',
     'SelectionMode',
@@ -143,6 +142,7 @@ __all__ = (
     'TextBaseline',
     'TextureRepetition',
     'TickLabelOrientation',
+    'ToolIcon',
     'TooltipAttachment',
     'TooltipFieldFormatter',
     'TrackPolicy',
@@ -409,9 +409,6 @@ Place = enumeration(PlaceType)
 #: Specify a position in the render order for a Bokeh renderer
 RenderLevel = enumeration("image", "underlay", "glyph", "guide", "annotation", "overlay")
 
-#: Specify a render mode for renderers that support both Canvas or CSS rendering
-RenderMode = enumeration("canvas", "css")
-
 #: What reset actions should occur on a Plot reset
 ResetPolicy = enumeration("standard", "event_only")
 
@@ -451,6 +448,42 @@ TextureRepetition = enumeration("repeat", "repeat_x", "repeat_y", "no_repeat")
 
 #: Specify how axis tick labels are oriented with respect to the axis
 TickLabelOrientation = enumeration("horizontal", "vertical", "parallel", "normal")
+
+#: Well known tool icon names
+ToolIcon = enumeration(
+  "append_mode",
+  "box_edit",
+  "box_select",
+  "box_zoom",
+  "clear_selection",
+  "copy_to_clipboard",
+  "crosshair",
+  "freehand_draw",
+  "help",
+  "hover",
+  "intersect_mode",
+  "lasso_select",
+  "line_edit",
+  "pan",
+  "point_draw",
+  "poly_draw",
+  "poly_edit",
+  "polygon_select",
+  "range",
+  "redo",
+  "replace_mode",
+  "reset",
+  "save",
+  "subtract_mode",
+  "tap_select",
+  "undo",
+  "wheel_pan",
+  "wheel_zoom",
+  "xpan",
+  "ypan",
+  "zoom_in",
+  "zoom_out",
+)
 
 #: Specify an attachment for tooltips
 TooltipAttachment = enumeration("horizontal", "vertical", "left", "right", "above", "below")

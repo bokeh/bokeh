@@ -66,7 +66,6 @@ from typing import (
 
 # External imports
 from jinja2 import Environment, FileSystemLoader, Template
-from tornado.httputil import HTTPServerRequest
 
 # Bokeh imports
 from ...core.types import PathLike
@@ -80,6 +79,8 @@ from .server_lifecycle import ServerLifecycleHandler
 from .server_request_handler import ServerRequestHandler
 
 if TYPE_CHECKING:
+    from tornado.httputil import HTTPServerRequest
+
     from ...themes import Theme
 
 #-----------------------------------------------------------------------------

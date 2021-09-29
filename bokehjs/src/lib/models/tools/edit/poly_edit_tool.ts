@@ -264,7 +264,7 @@ export class PolyEditTool extends PolyTool {
   }
 
   override tool_name = "Poly Edit Tool"
-  override icon = tool_icon_poly_edit
+  override tool_icon = tool_icon_poly_edit
   override event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   override default_order = 4
 }

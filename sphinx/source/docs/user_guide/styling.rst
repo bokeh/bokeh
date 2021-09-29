@@ -1119,7 +1119,9 @@ also use LaTeX with :class:`div <bokeh.models.Div>` or
 :class:`paragraph widgets <bokeh.models.Paragraph>`.
 
 Bokeh uses the MathJax_ library to handle LaTeX and MathML. See the official
-`MathJax documentation`_ for more information on MathJax.
+`MathJax documentation`_ for more information on MathJax. If you use the
+|components| function, make sure to include the ``bokeh-mathjax-`` resource in
+your html template.
 
 LaTeX
 ~~~~~

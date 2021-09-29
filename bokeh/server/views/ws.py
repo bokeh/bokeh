@@ -47,7 +47,7 @@ from ...protocol.message import Message
 from ...protocol.receiver import Receiver
 from ...util.dataclasses import dataclass
 from ..protocol_handler import ProtocolHandler
-from .auth_mixin import AuthMixin
+from .auth_request_handler import AuthRequestHandler
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -65,7 +65,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class WSHandler(AuthMixin, WebSocketHandler):
+class WSHandler(AuthRequestHandler, WebSocketHandler):
     ''' Implements a custom Tornado WebSocketHandler for the Bokeh Server.
 
     '''

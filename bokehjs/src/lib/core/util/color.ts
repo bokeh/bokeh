@@ -3,7 +3,8 @@ import {named_colors, is_named_color} from "./svg_colors"
 import {clamp} from "./math"
 import {isInteger, isString, isArray} from "./types"
 
-const {round} = Math
+const {round, sqrt} = Math
+
 function byte(v: number): uint8 {
   return clamp(round(v), 0, 255)
 }
@@ -95,8 +96,8 @@ export function _color2rgba(color: string | null, alpha: number = 1.0): RGBA {
 }
 */
 
-const rgb_modern = /^rgba?\(\s*([^\s,]+?)\s+([^\s,]+?)\s+([^\s,]+?)(?:\s*\/\s*([^\s,]+?))?\s*\)$/
-const rgb_legacy = /^rgba?\(\s*([^\s,]+?)\s*,\s*([^\s,]+?)\s*,\s*([^\s,]+?)(?:\s*,\s*([^\s,]+?))?\s*\)$/
+const rgb_modern = /^rgba?\(\s*(?<r>[^\s,]+?)\s+(?<g>[^\s,]+?)\s+(?<b>[^\s,]+?)(?:\s*\/\s*(?<a>[^\s,]+?))?\s*\)$/
+const rgb_legacy = /^rgba?\(\s*(?<r>[^\s,]+?)\s*,\s*(?<g>[^\s,]+?)\s*,\s*(?<b>[^\s,]+?)(?:\s*,\s*(?<a>[^\s,]+?))?\s*\)$/
 
 const css4_normalize = (() => {
   const canvas = document.createElement("canvas")
@@ -174,8 +175,9 @@ export function css4_parse(color: string): RGBA | null {
     }
   } else if (color.startsWith("rgb")) {
     const result = color.match(rgb_modern) ?? color.match(rgb_legacy)
-    if (result != null) {
-      let [, r, g, b, a="1"] = result // XXX: use groups when IE is dropped
+    if (result?.groups != null) {
+      let {r, g, b, a="1"} = result.groups
+
       const rp = r.endsWith("%")
       const gp = g.endsWith("%")
       const bp = b.endsWith("%")
@@ -231,4 +233,11 @@ export function is_Color(value: unknown): value is Color {
 export function is_dark([r, g, b]: RGBA): boolean {
   const l = 1 - (0.299*r + 0.587*g + 0.114*b)/255
   return l >= 0.6
+}
+
+export function brightness(color: Color): number {
+  // Perceived brightness of a color in [0, 1] range.
+  // http://alienryderflex.com/hsp.html
+  const [r, g, b] = color2rgba(color)
+  return sqrt(0.299*r**2 + 0.587*g**2 + 0.114*b**2)/255
 }

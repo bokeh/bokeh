@@ -34,5 +34,5 @@ export class ResetTool extends ActionTool {
   }
 
   override tool_name = "Reset"
-  override icon = tool_icon_reset
+  override tool_icon = tool_icon_reset
 }

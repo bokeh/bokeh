@@ -32,8 +32,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.property.dataspec import expr, field, value  # Legacy API
 from ..model import Model
-from .annotations import *
-from .arrow_heads import *
+from .annotations import *  # lgtm [py/polluting-import]
 from .axes import *
 from .callbacks import *
 from .canvas import *
@@ -47,7 +46,6 @@ from .labeling import *
 from .layouts import *
 from .map_plots import *
 from .mappers import *
-from .markers import *
 from .plots import *
 from .ranges import *
 from .renderers import *

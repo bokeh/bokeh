@@ -7,6 +7,7 @@ import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
 import {FloatArray, ScreenArray} from "core/types"
 import {build_view} from "core/build_views"
+import {Indices} from "core/types"
 import * as p from "core/properties"
 import {atan2} from "core/util/math"
 
@@ -41,8 +42,9 @@ export class ArrowView extends DataAnnotationView {
 
   override set_data(source: ColumnarDataSource): void {
     super.set_data(source)
-    this.start?.set_data(source)
-    this.end?.set_data(source)
+    const indices = Indices.all_set(this._x_start.length)
+    this.start?.set_data(source, indices)
+    this.end?.set_data(source, indices)
   }
 
   override remove(): void {

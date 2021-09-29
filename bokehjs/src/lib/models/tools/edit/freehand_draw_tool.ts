@@ -106,7 +106,7 @@ export class FreehandDrawTool extends EditTool {
     this.register_alias("freehand_draw", () => new FreehandDrawTool())
   }
   override tool_name = "Freehand Draw Tool"
-  override icon = tool_icon_freehand_draw
+  override tool_icon = tool_icon_freehand_draw
   override event_type = ["pan" as "pan", "tap" as "tap"]
   override default_order = 3
 }

@@ -64,7 +64,7 @@ export class WheelPanToolView extends GestureToolView {
     this.plot_view.state.push("wheel_pan", {range: pan_info})
     this.plot_view.update_range(pan_info, {scrolling: true})
 
-    this.model.document?.interactive_start(this.plot_model)
+    this.model.document?.interactive_start(this.plot_model, () =>  this.plot_view.trigger_ranges_update_event())
   }
 }
 
@@ -103,7 +103,7 @@ export class WheelPanTool extends GestureTool {
   }
 
   override tool_name = "Wheel Pan"
-  override icon = tool_icon_wheel_pan
+  override tool_icon = tool_icon_wheel_pan
   override event_type = "scroll" as "scroll"
   override default_order = 12
 

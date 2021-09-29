@@ -1,12 +1,11 @@
 import {Document} from "../document"
 import * as embed from "../embed"
 import {HasProps} from "../core/has_props"
-import {logger} from "../core/logging"
-import {Color, Data, Attrs, Arrayable} from "../core/types"
+import {Data, Attrs} from "../core/types"
 import {Value, Field, Vector} from "../core/vectorization"
-import {VectorSpec, ScalarSpec, ColorSpec, Property} from "../core/properties"
-import {Class} from "../core/class"
-import {Location, MarkerType, RenderLevel} from "../core/enums"
+import {VectorSpec, UnitsSpec, Property} from "../core/properties"
+import {Class, extend} from "../core/class"
+import {Location} from "../core/enums"
 import {is_equal, Comparator} from "../core/util/eq"
 import {includes, uniq} from "../core/util/array"
 import {clone, keys, entries, is_empty} from "../core/util/object"
@@ -23,143 +22,27 @@ import {
   LinearAxis, LogAxis, CategoricalAxis, DatetimeAxis, MercatorAxis,
   ColumnarDataSource, ColumnDataSource, CDSView,
   Plot, Tool, ContinuousTicker,
+  CoordinateMapping,
 } from "./models"
 
-import {
-  AnnularWedge, Annulus, Arc, Bezier, Circle, Ellipse, HArea,
-  HBar, HexTile, Image, ImageRGBA, ImageURL, Line, MultiLine,
-  MultiPolygons, Oval, Patch, Patches, Quad, Quadratic, Ray,
-  Rect, Scatter, Segment, Spline, Step, Text, VArea, VBar, Wedge,
-} from "../models/glyphs"
-
-import {Marker} from "../models/glyphs/marker"
 import {LayoutDOM} from "../models/layouts/layout_dom"
 import {Legend} from "../models/annotations/legend"
 import {LegendItem} from "../models/annotations/legend_item"
 import {ToolAliases} from "../models/tools/tool"
+import {Figure as BaseFigure} from "../models/plots/figure"
+
+import {TypedGlyphRenderer, NamesOf, GlyphAPI, AuxGlyph} from "./glyph_api"
 
 export {gridplot} from "./gridplot"
 export {color2css as color} from "../core/util/color"
 
 const {hasOwnProperty} = Object.prototype
 
-export type TypedGlyphRenderer<G extends Glyph> = GlyphRenderer & {glyph: G}
-
 export type ToolName = keyof ToolAliases
 
 const _default_tools: ToolName[] = ["pan", "wheel_zoom", "box_zoom", "save", "reset", "help"]
 
 // export type ExtMarkerType = MarkerType | "*" | "+" | "o" | "ox" | "o+"
-
-export type ColorNDArray = nd.Uint32Array1d | nd.Uint8Array1d | nd.Uint8Array2d | nd.FloatArray2d
-export type VectorArg<T> = T | Arrayable<T> | Vector<T>
-
-export type ColorArg = VectorArg<Color | null> | ColorNDArray
-export type AlphaArg = VectorArg<number>
-
-export type ColorAlpha = {
-  color: ColorArg
-  selection_color: ColorArg
-  nonselection_color: ColorArg
-  hover_color: ColorArg
-  muted_color: ColorArg
-
-  alpha: AlphaArg
-  selection_alpha: AlphaArg
-  nonselection_alpha: AlphaArg
-  hover_alpha: AlphaArg
-  muted_alpha: AlphaArg
-}
-
-export type AuxFill = {
-  selection_fill_color: ColorArg
-  selection_fill_alpha: AlphaArg
-  nonselection_fill_color: ColorArg
-  nonselection_fill_alpha: AlphaArg
-  hover_fill_color: ColorArg
-  hover_fill_alpha: AlphaArg
-  muted_fill_color: ColorArg
-  muted_fill_alpha: AlphaArg
-}
-
-export type AuxLine = {
-  selection_line_color: ColorArg
-  selection_line_alpha: AlphaArg
-  nonselection_line_color: ColorArg
-  nonselection_line_alpha: AlphaArg
-  hover_line_color: ColorArg
-  hover_line_alpha: AlphaArg
-  muted_line_color: ColorArg
-  muted_line_alpha: AlphaArg
-}
-
-export type AuxText = {
-  selection_text_color: ColorArg
-  selection_text_alpha: AlphaArg
-  nonselection_text_color: ColorArg
-  nonselection_text_alpha: AlphaArg
-  hover_text_color: ColorArg
-  hover_text_alpha: AlphaArg
-  muted_text_color: ColorArg
-  muted_text_alpha: AlphaArg
-}
-
-export type AuxGlyph = {
-  source: ColumnarDataSource | ColumnarDataSource["data"]
-  view: CDSView
-  /** @deprecated */
-  legend: string
-  legend_label: string
-  legend_field: string
-  legend_group: string
-  level: RenderLevel
-  name: string
-  visible: boolean
-  x_range_name: string
-  y_range_name: string
-}
-
-export type ArgsOf<P> = {
-  [K in keyof P]:
-    (P[K] extends ColorSpec                     ? ColorArg             :
-    (P[K] extends VectorSpec<infer T, infer V>  ? T | Arrayable<T> | V :
-    (P[K] extends ScalarSpec<infer T, infer S>  ? T |                S :
-    (P[K] extends Property  <infer T>           ? T                    : never))))
-}
-
-export type GlyphArgs<P> = ArgsOf<P> & AuxGlyph & ColorAlpha
-
-export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFill
-export type AnnulusArgs       = GlyphArgs<Annulus.Props>       & AuxLine & AuxFill
-export type ArcArgs           = GlyphArgs<Arc.Props>           & AuxLine
-export type BezierArgs        = GlyphArgs<Bezier.Props>        & AuxLine
-export type CircleArgs        = GlyphArgs<Circle.Props>        & AuxLine & AuxFill
-export type EllipseArgs       = GlyphArgs<Ellipse.Props>       & AuxLine & AuxFill
-export type HAreaArgs         = GlyphArgs<HArea.Props>                   & AuxFill
-export type HBarArgs          = GlyphArgs<HBar.Props>          & AuxLine & AuxFill
-export type HexTileArgs       = GlyphArgs<HexTile.Props>       & AuxLine & AuxFill
-export type ImageArgs         = GlyphArgs<Image.Props>
-export type ImageRGBAArgs     = GlyphArgs<ImageRGBA.Props>
-export type ImageURLArgs      = GlyphArgs<ImageURL.Props>
-export type LineArgs          = GlyphArgs<Line.Props>          & AuxLine
-export type MarkerArgs        = GlyphArgs<Marker.Props>        & AuxLine & AuxFill
-export type MultiLineArgs     = GlyphArgs<MultiLine.Props>     & AuxLine
-export type MultiPolygonsArgs = GlyphArgs<MultiPolygons.Props> & AuxLine & AuxFill
-export type OvalArgs          = GlyphArgs<Oval.Props>          & AuxLine & AuxFill
-export type PatchArgs         = GlyphArgs<Patch.Props>         & AuxLine & AuxFill
-export type PatchesArgs       = GlyphArgs<Patches.Props>       & AuxLine & AuxFill
-export type QuadArgs          = GlyphArgs<Quad.Props>          & AuxLine & AuxFill
-export type QuadraticArgs     = GlyphArgs<Quadratic.Props>     & AuxLine
-export type RayArgs           = GlyphArgs<Ray.Props>           & AuxLine
-export type RectArgs          = GlyphArgs<Rect.Props>          & AuxLine & AuxFill
-export type ScatterArgs       = GlyphArgs<Scatter.Props>       & AuxLine & AuxFill
-export type SegmentArgs       = GlyphArgs<Segment.Props>       & AuxLine
-export type SplineArgs        = GlyphArgs<Spline.Props>        & AuxLine
-export type StepArgs          = GlyphArgs<Step.Props>          & AuxLine
-export type TextArgs          = GlyphArgs<Text.Props>                              & AuxText
-export type VAreaArgs         = GlyphArgs<VArea.Props>                   & AuxFill
-export type VBarArgs          = GlyphArgs<VBar.Props>          & AuxLine & AuxFill
-export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill
 
 const _default_color = "#1f77b4"
 
@@ -173,8 +56,8 @@ export type AxisType = "auto" | "linear" | "datetime" | "log" | "mercator" | nul
 
 export namespace Figure {
   export type Attrs = Omit<Plot.Attrs, "x_range" | "y_range"> & {
-    x_range: Range | [number, number] | string[]
-    y_range: Range | [number, number] | string[]
+    x_range: Range | [number, number] | ArrayLike<string>
+    y_range: Range | [number, number] | ArrayLike<string>
     x_axis_type: AxisType
     y_axis_type: AxisType
     x_axis_location: Location
@@ -187,28 +70,121 @@ export namespace Figure {
   }
 }
 
-export class Figure extends Plot {
-  static override __name__ = "Plot"
+type IModelProxy<T extends HasProps> = {
+  each(fn: (model: T, i: number) => void): void
+  [Symbol.iterator](): Generator<T, void, undefined>
+}
 
-  get xgrid(): Grid[] {
-    return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 0)
-  }
-  get ygrid(): Grid[] {
-    return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 1)
+class ModelProxy<T extends HasProps> implements IModelProxy<T> {
+  constructor(readonly models: T[]) {
+    const mapping: Map<string, Property<unknown>[]> = new Map()
+
+    for (const model of models) {
+      for (const prop of model) {
+        const {attr} = prop
+        if (!mapping.has(attr))
+          mapping.set(attr, [])
+        mapping.get(attr)!.push(prop)
+      }
+    }
+
+    for (const [name, props] of mapping) {
+      Object.defineProperty(this, name, {
+        get(this: Axis): never {
+          throw new Error("only setting values is supported")
+        },
+        set(this: Axis, value: unknown): Axis {
+          for (const prop of props) {
+            prop.obj.setv({[name]: value})
+          }
+          return this
+        },
+      })
+    }
   }
 
-  get xaxis(): Axis[] {
+  each(fn: (model: T, i: number) => void): void {
+    let i = 0
+    for (const model of this.models) {
+      fn(model, i++)
+    }
+  }
+
+  *[Symbol.iterator](): Generator<T, void, undefined> {
+    yield* this.models
+  }
+}
+
+type PropsOf<T extends HasProps> = {
+  // TODO: writeonly/setter
+  [K in keyof T["properties"]]: T["properties"][K] extends Property<infer P> ? P : never
+}
+
+type Proxied<T extends HasProps> = PropsOf<T> & IModelProxy<T>
+
+// TODO: derive this from CoordinateMapping
+export type ICoordinateMapping = {
+  x_source?: Range
+  y_source?: Range
+  x_scale?: Scale
+  y_scale?: Scale
+  x_target: Range
+  y_target: Range
+}
+
+export class SubFigure extends GlyphAPI {
+
+  constructor(readonly coordinates: CoordinateMapping, readonly parent: Figure) {
+    super()
+  }
+
+  _glyph<G extends Glyph>(cls: Class<G>, positional: NamesOf<G>, args: unknown[], overrides?: object): TypedGlyphRenderer<G> {
+    const {coordinates} = this
+    return this.parent._glyph(cls, positional, args, {coordinates, ...overrides})
+  }
+}
+
+export interface Figure extends GlyphAPI {}
+export class Figure extends BaseFigure {
+
+  get xaxes(): Axis[] {
     return [...this.below, ...this.above].filter((r): r is Axis => r instanceof Axis)
   }
-  get yaxis(): Axis[] {
+  get yaxes(): Axis[] {
     return [...this.left, ...this.right].filter((r): r is Axis => r instanceof Axis)
   }
+  get axes(): Axis[] {
+    return [...this.below, ...this.above, ...this.left, ...this.right].filter((r): r is Axis => r instanceof Axis)
+  }
 
-  get grid(): Grid[] {
+  get xaxis(): Proxied<Axis> {
+    return new ModelProxy(this.xaxes) as any as Proxied<Axis>
+  }
+  get yaxis(): Proxied<Axis> {
+    return new ModelProxy(this.yaxes) as any as Proxied<Axis>
+  }
+  get axis(): Proxied<Axis> {
+    return new ModelProxy(this.axes) as any as Proxied<Axis>
+  }
+
+  get xgrids(): Grid[] {
+    return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 0)
+  }
+  get ygrids(): Grid[] {
+    return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 1)
+  }
+  get grids(): Grid[] {
     return this.center.filter((r): r is Grid => r instanceof Grid)
   }
-  get axis(): Axis[] {
-    return [...this.below, ...this.above, ...this.left, ...this.right].filter((r): r is Axis => r instanceof Axis)
+
+  get xgrid(): Proxied<Grid> {
+    return new ModelProxy(this.xgrids) as any as Proxied<Grid>
+  }
+  get ygrid(): Proxied<Grid> {
+    return new ModelProxy(this.ygrids) as any as Proxied<Grid>
+  }
+  get grid(): Proxied<Grid> {
+    return new ModelProxy(this.grids) as any as Proxied<Grid>
   }
 
   get legend(): Legend {
@@ -222,6 +198,10 @@ export class Figure extends Plot {
       const [legend] = legends
       return legend
     }
+  }
+
+  static {
+    extend(this, GlyphAPI)
   }
 
   constructor(attrs: Partial<Figure.Attrs> = {}) {
@@ -268,487 +248,13 @@ export class Figure extends Plot {
     this.add_tools(...this._process_tools(tools))
   }
 
-  annular_wedge(args: Partial<AnnularWedgeArgs>): TypedGlyphRenderer<AnnularWedge>
-  annular_wedge(
-    x: AnnularWedgeArgs["x"],
-    y: AnnularWedgeArgs["y"],
-    inner_radius: AnnularWedgeArgs["inner_radius"],
-    outer_radius: AnnularWedgeArgs["outer_radius"],
-    start_angle: AnnularWedgeArgs["start_angle"],
-    end_angle: AnnularWedgeArgs["end_angle"],
-    args?: Partial<AnnularWedgeArgs>): TypedGlyphRenderer<AnnularWedge>
-  annular_wedge(...args: unknown[]): TypedGlyphRenderer<AnnularWedge> {
-    return this._glyph(AnnularWedge, "x,y,inner_radius,outer_radius,start_angle,end_angle", args)
+  get coordinates(): CoordinateMapping | null {
+    return null
   }
 
-  annulus(args: Partial<AnnulusArgs>): TypedGlyphRenderer<Annulus>
-  annulus(
-    x: AnnulusArgs["x"],
-    y: AnnulusArgs["y"],
-    inner_radius: AnnulusArgs["inner_radius"],
-    outer_radius: AnnulusArgs["outer_radius"],
-    args?: Partial<AnnulusArgs>): TypedGlyphRenderer<Annulus>
-  annulus(...args: unknown[]): TypedGlyphRenderer<Annulus> {
-    return this._glyph(Annulus, "x,y,inner_radius,outer_radius", args)
-  }
-
-  arc(args: Partial<ArcArgs>): TypedGlyphRenderer<Arc>
-  arc(
-    x: ArcArgs["x"],
-    y: ArcArgs["y"],
-    radius: ArcArgs["radius"],
-    start_angle: ArcArgs["start_angle"],
-    end_angle: ArcArgs["end_angle"],
-    args?: Partial<ArcArgs>): TypedGlyphRenderer<Arc>
-  arc(...args: unknown[]): TypedGlyphRenderer<Arc> {
-    return this._glyph(Arc, "x,y,radius,start_angle,end_angle", args)
-  }
-
-  bezier(args: Partial<BezierArgs>): TypedGlyphRenderer<Bezier>
-  bezier(
-    x0: BezierArgs["x0"],
-    y0: BezierArgs["y0"],
-    x1: BezierArgs["x1"],
-    y1: BezierArgs["y1"],
-    cx0: BezierArgs["cx0"],
-    cy0: BezierArgs["cy0"],
-    cx1: BezierArgs["cx1"],
-    cy1: BezierArgs["cy1"],
-    args?: Partial<BezierArgs>): TypedGlyphRenderer<Bezier>
-  bezier(...args: unknown[]): TypedGlyphRenderer<Bezier> {
-    return this._glyph(Bezier, "x0,y0,x1,y1,cx0,cy0,cx1,cy1", args)
-  }
-
-  circle(args: Partial<CircleArgs>): TypedGlyphRenderer<Circle>
-  circle(
-    x: CircleArgs["x"],
-    y: CircleArgs["y"],
-    args?: Partial<CircleArgs>): TypedGlyphRenderer<Circle>
-  circle(...args: unknown[]): TypedGlyphRenderer<Circle> {
-    return this._glyph(Circle, "x,y", args)
-  }
-
-  ellipse(args: Partial<EllipseArgs>): TypedGlyphRenderer<Ellipse>
-  ellipse(
-    x: EllipseArgs["x"],
-    y: EllipseArgs["y"],
-    width: EllipseArgs["width"],
-    height: EllipseArgs["height"],
-    args?: Partial<EllipseArgs>): TypedGlyphRenderer<Ellipse>
-  ellipse(...args: unknown[]): TypedGlyphRenderer<Ellipse> {
-    return this._glyph(Ellipse, "x,y,width,height", args)
-  }
-
-  harea(args: Partial<HAreaArgs>): TypedGlyphRenderer<HArea>
-  harea(
-    x1: HAreaArgs["x1"],
-    x2: HAreaArgs["x2"],
-    y: HAreaArgs["y"],
-    args?: Partial<HAreaArgs>): TypedGlyphRenderer<HArea>
-  harea(...args: unknown[]): TypedGlyphRenderer<HArea> {
-    return this._glyph(HArea, "x1,x2,y", args)
-  }
-
-  hbar(args: Partial<HBarArgs>): TypedGlyphRenderer<HBar>
-  hbar(
-    y: HBarArgs["y"],
-    height: HBarArgs["height"],
-    right: HBarArgs["right"],
-    left: HBarArgs["left"],
-    args?: Partial<HBarArgs>): TypedGlyphRenderer<HBar>
-  hbar(...args: unknown[]): TypedGlyphRenderer<HBar> {
-    return this._glyph(HBar, "y,height,right,left", args)
-  }
-
-  hex_tile(args: Partial<HexTileArgs>): TypedGlyphRenderer<HexTile>
-  hex_tile(
-    q: HexTileArgs["q"],
-    r: HexTileArgs["r"],
-    args?: Partial<HexTileArgs>): TypedGlyphRenderer<HexTile>
-  hex_tile(...args: unknown[]): TypedGlyphRenderer<HexTile> {
-    return this._glyph(HexTile, "q,r", args)
-  }
-
-  image(args: Partial<ImageArgs>): TypedGlyphRenderer<Image>
-  image(
-    image: ImageArgs["image"],
-    x: ImageArgs["x"],
-    y: ImageArgs["y"],
-    dw: ImageArgs["dw"],
-    dh: ImageArgs["dh"],
-    args?: Partial<ImageArgs>): TypedGlyphRenderer<Image>
-  image(...args: unknown[]): TypedGlyphRenderer<Image> {
-    return this._glyph(Image, "color_mapper,image,rows,cols,x,y,dw,dh", args)
-  }
-
-  image_rgba(args: Partial<ImageRGBAArgs>): TypedGlyphRenderer<ImageRGBA>
-  image_rgba(
-    image: ImageRGBAArgs["image"],
-    x: ImageRGBAArgs["x"],
-    y: ImageRGBAArgs["y"],
-    dw: ImageRGBAArgs["dw"],
-    dh: ImageRGBAArgs["dh"],
-    args?: Partial<ImageRGBAArgs>): TypedGlyphRenderer<ImageRGBA>
-  image_rgba(...args: unknown[]): TypedGlyphRenderer<ImageRGBA> {
-    return this._glyph(ImageRGBA, "image,rows,cols,x,y,dw,dh", args)
-  }
-
-  image_url(args: Partial<ImageURLArgs>): TypedGlyphRenderer<ImageURL>
-  image_url(
-    url: ImageURLArgs["url"],
-    x: ImageURLArgs["x"],
-    y: ImageURLArgs["y"],
-    w: ImageURLArgs["w"],
-    h: ImageURLArgs["h"],
-    args?: Partial<ImageURLArgs>): TypedGlyphRenderer<ImageURL>
-  image_url(...args: unknown[]): TypedGlyphRenderer<ImageURL> {
-    return this._glyph(ImageURL, "url,x,y,w,h", args)
-  }
-
-  line(args: Partial<LineArgs>): TypedGlyphRenderer<Line>
-  line(
-    x: LineArgs["x"],
-    y: LineArgs["y"],
-    args?: Partial<LineArgs>): TypedGlyphRenderer<Line>
-  line(...args: unknown[]): TypedGlyphRenderer<Line> {
-    return this._glyph(Line, "x,y", args)
-  }
-
-  multi_line(args: Partial<MultiLineArgs>): TypedGlyphRenderer<MultiLine>
-  multi_line(
-    xs: MultiLineArgs["xs"],
-    ys: MultiLineArgs["ys"],
-    args?: Partial<MultiLineArgs>): TypedGlyphRenderer<MultiLine>
-  multi_line(...args: unknown[]): TypedGlyphRenderer<MultiLine> {
-    return this._glyph(MultiLine, "xs,ys", args)
-  }
-
-  multi_polygons(args: Partial<MultiPolygonsArgs>): TypedGlyphRenderer<MultiPolygons>
-  multi_polygons(
-    xs: MultiPolygonsArgs["xs"],
-    ys: MultiPolygonsArgs["ys"],
-    args?: Partial<MultiPolygonsArgs>): TypedGlyphRenderer<MultiPolygons>
-  multi_polygons(...args: unknown[]): TypedGlyphRenderer<MultiPolygons> {
-    return this._glyph(MultiPolygons, "xs,ys", args)
-  }
-
-  oval(args: Partial<OvalArgs>): TypedGlyphRenderer<Oval>
-  oval(
-    x: OvalArgs["x"],
-    y: OvalArgs["y"],
-    width: OvalArgs["width"],
-    height: OvalArgs["height"],
-    args?: Partial<OvalArgs>): TypedGlyphRenderer<Oval>
-  oval(...args: unknown[]): TypedGlyphRenderer<Oval> {
-    return this._glyph(Oval, "x,y,width,height", args)
-  }
-
-  patch(args: Partial<PatchArgs>): TypedGlyphRenderer<Patch>
-  patch(
-    x: PatchArgs["x"],
-    y: PatchArgs["y"],
-    args?: Partial<PatchArgs>): TypedGlyphRenderer<Patch>
-  patch(...args: unknown[]): TypedGlyphRenderer<Patch> {
-    return this._glyph(Patch, "x,y", args)
-  }
-
-  patches(args: Partial<PatchesArgs>): TypedGlyphRenderer<Patches>
-  patches(
-    xs: PatchesArgs["xs"],
-    ys: PatchesArgs["ys"],
-    args?: Partial<PatchesArgs>): TypedGlyphRenderer<Patches>
-  patches(...args: unknown[]): TypedGlyphRenderer<Patches> {
-    return this._glyph(Patches, "xs,ys", args)
-  }
-
-  quad(args: Partial<QuadArgs>): TypedGlyphRenderer<Quad>
-  quad(
-    left: QuadArgs["left"],
-    right: QuadArgs["right"],
-    bottom: QuadArgs["bottom"],
-    top: QuadArgs["top"],
-    args?: Partial<QuadArgs>): TypedGlyphRenderer<Quad>
-  quad(...args: unknown[]): TypedGlyphRenderer<Quad> {
-    return this._glyph(Quad, "left,right,bottom,top", args)
-  }
-
-  quadratic(args: Partial<QuadraticArgs>): TypedGlyphRenderer<Quadratic>
-  quadratic(
-    x0: QuadraticArgs["x0"],
-    y0: QuadraticArgs["y0"],
-    x1: QuadraticArgs["x1"],
-    y1: QuadraticArgs["y1"],
-    cx: QuadraticArgs["cx"],
-    cy: QuadraticArgs["cy"],
-    args?: Partial<QuadraticArgs>): TypedGlyphRenderer<Quadratic>
-  quadratic(...args: unknown[]): TypedGlyphRenderer<Quadratic> {
-    return this._glyph(Quadratic, "x0,y0,x1,y1,cx,cy", args)
-  }
-
-  ray(args: Partial<RayArgs>): TypedGlyphRenderer<Ray>
-  ray(
-    x: RayArgs["x"],
-    y: RayArgs["y"],
-    length: RayArgs["length"],
-    args?: Partial<RayArgs>): TypedGlyphRenderer<Ray>
-  ray(...args: unknown[]): TypedGlyphRenderer<Ray> {
-    return this._glyph(Ray, "x,y,length", args)
-  }
-
-  rect(args: Partial<RectArgs>): TypedGlyphRenderer<Rect>
-  rect(
-    x: RectArgs["x"],
-    y: RectArgs["y"],
-    width: RectArgs["width"],
-    height: RectArgs["height"],
-    args?: Partial<RectArgs>): TypedGlyphRenderer<Rect>
-  rect(...args: unknown[]): TypedGlyphRenderer<Rect> {
-    return this._glyph(Rect, "x,y,width,height", args)
-  }
-
-  segment(args: Partial<SegmentArgs>): TypedGlyphRenderer<Segment>
-  segment(
-    x0: SegmentArgs["x0"],
-    y0: SegmentArgs["y0"],
-    x1: SegmentArgs["x1"],
-    y1: SegmentArgs["y1"],
-    args?: Partial<SegmentArgs>): TypedGlyphRenderer<Segment>
-  segment(...args: unknown[]): TypedGlyphRenderer<Segment> {
-    return this._glyph(Segment, "x0,y0,x1,y1", args)
-  }
-
-  spline(args: Partial<SplineArgs>): TypedGlyphRenderer<Spline>
-  spline(
-    x: SplineArgs["x"],
-    y: SplineArgs["y"],
-    args?: Partial<SplineArgs>): TypedGlyphRenderer<Spline>
-  spline(...args: unknown[]): TypedGlyphRenderer<Spline> {
-    return this._glyph(Spline, "x,y", args)
-  }
-
-  step(args: Partial<StepArgs>): TypedGlyphRenderer<Step>
-  step(
-    x: StepArgs["x"],
-    y: StepArgs["y"],
-    mode: StepArgs["mode"],
-    args?: Partial<StepArgs>): TypedGlyphRenderer<Step>
-  step(...args: unknown[]): TypedGlyphRenderer<Step> {
-    return this._glyph(Step, "x,y,mode", args)
-  }
-
-  text(args: Partial<TextArgs>): TypedGlyphRenderer<Text>
-  text(
-    x: TextArgs["x"],
-    y: TextArgs["y"],
-    text: TextArgs["text"],
-    args?: Partial<TextArgs>): TypedGlyphRenderer<Text>
-  text(...args: unknown[]): TypedGlyphRenderer<Text> {
-    return this._glyph(Text, "x,y,text", args)
-  }
-
-  varea(args: Partial<VAreaArgs>): TypedGlyphRenderer<VArea>
-  varea(
-    x: VAreaArgs["x"],
-    y1: VAreaArgs["y1"],
-    y2: VAreaArgs["y2"],
-    args?: Partial<VAreaArgs>): TypedGlyphRenderer<VArea>
-  varea(...args: unknown[]): TypedGlyphRenderer<VArea> {
-    return this._glyph(VArea, "x,y1,y2", args)
-  }
-
-  vbar(args: Partial<VBarArgs>): TypedGlyphRenderer<VBar>
-  vbar(
-    x: VBarArgs["x"],
-    width: VBarArgs["width"],
-    top: VBarArgs["top"],
-    bottom: VBarArgs["bottom"],
-    args?: Partial<VBarArgs>): TypedGlyphRenderer<VBar>
-  vbar(...args: unknown[]): TypedGlyphRenderer<VBar> {
-    return this._glyph(VBar, "x,width,top,bottom", args)
-  }
-
-  wedge(args: Partial<WedgeArgs>): TypedGlyphRenderer<Wedge>
-  wedge(
-    x: WedgeArgs["x"],
-    y: WedgeArgs["y"],
-    radius: WedgeArgs["radius"],
-    start_angle: WedgeArgs["start_angle"],
-    end_angle: WedgeArgs["end_angle"],
-    args?: Partial<WedgeArgs>): TypedGlyphRenderer<Wedge>
-  wedge(...args: unknown[]): TypedGlyphRenderer<Wedge> {
-    return this._glyph(Wedge, "x,y,radius,start_angle,end_angle", args)
-  }
-
-  protected _scatter(args: unknown[], marker?: MarkerType): TypedGlyphRenderer<Scatter> {
-    return this._glyph(Scatter, "x,y", args, marker != null ? {marker} : undefined)
-  }
-
-  scatter(args: Partial<ScatterArgs>): TypedGlyphRenderer<Scatter>
-  scatter(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<ScatterArgs>): TypedGlyphRenderer<Scatter>
-  scatter(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args)
-  }
-
-  asterisk(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  asterisk(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  asterisk(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "asterisk")
-  }
-
-  circle_cross(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  circle_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  circle_cross(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "circle_cross")
-  }
-
-  circle_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  circle_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  circle_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "circle_dot")
-  }
-
-  circle_x(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  circle_x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  circle_x(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "circle_x")
-  }
-
-  circle_y(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  circle_y(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  circle_y(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "circle_y")
-  }
-
-  cross(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  cross(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "cross")
-  }
-
-  dash(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  dash(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  dash(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "dash")
-  }
-
-  diamond(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  diamond(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  diamond(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "diamond")
-  }
-
-  diamond_cross(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  diamond_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  diamond_cross(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "diamond_cross")
-  }
-
-  diamond_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  diamond_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  diamond_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "diamond_dot")
-  }
-
-  dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "dot")
-  }
-
-  hex(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  hex(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  hex(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "hex")
-  }
-
-  hex_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  hex_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  hex_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "hex_dot")
-  }
-
-  inverted_triangle(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  inverted_triangle(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  inverted_triangle(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "inverted_triangle")
-  }
-
-  plus(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  plus(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  plus(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "plus")
-  }
-
-  square(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "square")
-  }
-
-  square_cross(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square_cross(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "square_cross")
-  }
-
-  square_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "square_dot")
-  }
-
-  square_pin(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square_pin(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square_pin(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "square_pin")
-  }
-
-  square_x(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square_x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square_x(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "square_x")
-  }
-
-  star(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  star(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  star(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "star")
-  }
-
-  star_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  star_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  star_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "star_dot")
-  }
-
-  triangle(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  triangle(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  triangle(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "triangle")
-  }
-
-  triangle_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  triangle_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  triangle_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "triangle_dot")
-  }
-
-  triangle_pin(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  triangle_pin(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  triangle_pin(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "triangle_pin")
-  }
-
-  x(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  x(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "x")
-  }
-
-  y(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  y(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  y(...args: unknown[]): TypedGlyphRenderer<Scatter> {
-    return this._scatter(args, "y")
+  subplot(coordinates: ICoordinateMapping): SubFigure {
+    const mapping = new CoordinateMapping(coordinates)
+    return new SubFigure(mapping, this)
   }
 
   _pop_visuals(cls: Class<HasProps>, props: Attrs, prefix: string = "",
@@ -820,7 +326,9 @@ export class Figure extends Plot {
     }
   }
 
-  _fixup_values(cls: Class<HasProps>, data: Data, attrs: Attrs): void {
+  _fixup_values(cls: Class<HasProps>, data: Data, attrs: Attrs): Set<string> {
+    const unresolved_attrs = new Set<string>()
+
     for (const [name, value] of entries(attrs)) {
       const prop = cls.prototype._props[name]
 
@@ -846,33 +354,42 @@ export class Figure extends Plot {
               attrs[name] = {value}
             }
           }
+
+          if (prop.type.prototype instanceof UnitsSpec) {
+            const units_attr = `${name}_units`
+            const units = attrs[units_attr]
+            if (units !== undefined) {
+              attrs[name] = {...attrs[name] as any, units}
+              unresolved_attrs.delete(units_attr)
+              delete attrs[units_attr]
+            }
+          }
         }
-      }
+      } else
+        unresolved_attrs.add(name)
     }
+
+    return unresolved_attrs
   }
 
-  _glyph<G extends Glyph>(cls: Class<G>, params_string: string, args: unknown[], overrides?: object): TypedGlyphRenderer<G> {
-    const params = params_string.split(",")
-
+  _glyph<G extends Glyph>(cls: Class<G>, positional: NamesOf<G>, args: unknown[], overrides: object = {}): TypedGlyphRenderer<G> {
     let attrs: Attrs & Partial<AuxGlyph>
     if (args.length == 0) {
       attrs = {}
     } else if (args.length == 1) {
       attrs = {...args[0] as Attrs}
     } else {
-      if (args.length == params.length)
+      if (args.length == positional.length)
         attrs = {}
       else
         attrs = {...args[args.length - 1] as Attrs}
 
-      for (const [param, i] of enumerate(params)) {
-        attrs[param] = args[i]
+      for (const [param, i] of enumerate(positional)) {
+        attrs[param as string] = args[i]
       }
     }
 
-    if (overrides != null) {
-      attrs = {...attrs, ...overrides}
-    }
+    attrs = {...attrs, ...overrides}
 
     const source = (() => {
       const {source} = attrs
@@ -916,6 +433,9 @@ export class Figure extends Plot {
     const y_range_name = attrs.y_range_name
     delete attrs.y_range_name
 
+    const coordinates = attrs.coordinates
+    delete attrs.coordinates
+
     const glyph_ca  = this._pop_visuals(cls, attrs)
     const nglyph_ca = this._pop_visuals(cls, attrs, "nonselection_", glyph_ca, {alpha: 0.1})
     const sglyph_ca = this._pop_visuals(cls, attrs, "selection_", glyph_ca)
@@ -955,14 +475,8 @@ export class Figure extends Plot {
       visible,
       x_range_name,
       y_range_name,
+      coordinates,
     })
-
-    if (legend != null) {
-      logger.warn("Figure({legend: ...}) is deprecated and will be removed in bokeh 3.0. Use legend_label, legend_field or legend_group instead")
-      const label = this._process_legend(legend, source)
-      if (label != null)
-        this._update_legend(label, glyph_renderer)
-    }
 
     if (legend_label != null)
       this._handle_legend_label(legend_label, this.legend, glyph_renderer)
@@ -975,7 +489,7 @@ export class Figure extends Plot {
     return glyph_renderer as TypedGlyphRenderer<G>
   }
 
-  static _get_range(range?: Range | [number, number] | string[]): Range {
+  static _get_range(range?: Range | [number, number] | ArrayLike<string>): Range {
     if (range == null) {
       return new DataRange1d()
     }
@@ -1090,23 +604,6 @@ export class Figure extends Plot {
     if (isString(tools))
       tools = tools.split(/\s*,\s*/).filter((tool) => tool.length > 0)
     return tools.map((tool) => isString(tool) ? Tool.from_string(tool) : tool)
-  }
-
-  _process_legend(legend: string | Vector<string> | undefined, source: ColumnarDataSource): Vector<string> | null {
-    let legend_item_label = null
-    if (legend != null) {
-      if (isString(legend)) {
-        legend_item_label = {value: legend}
-        if (source.columns() != null) {
-          if (includes(source.columns(), legend)) {
-            legend_item_label = {field: legend}
-          }
-        }
-      } else {
-        legend_item_label = legend
-      }
-    }
-    return legend_item_label
   }
 
   _update_legend(legend_item_label: Vector<string>, glyph_renderer: GlyphRenderer): void {

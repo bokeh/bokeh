@@ -53,8 +53,25 @@ jobs:
           name: conda-bld-noarch
           path: conda-bld-noarch.tgz
 
+      - name: Build sdist package
+        shell: bash -l {0}
+        run: python setup.py sdist --install-js
+
+      - name: Build wheel package
+        shell: bash -l {0}
+        run: python setup.py bdist_wheel --install-js
+
+      - name: Verify pip install from sdist
+        shell: bash -l {0}
+        run: bash ci/verify_pip_install_from_sdist.sh
+
   codebase:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v2
@@ -381,7 +398,7 @@ jobs:
 
       - name: Remove extra packages
         shell: bash -l {0}
-        run: conda remove --yes --quiet --no-pin pandas pandas-stubs scipy notebook scikit-learn sympy flask networkx xyzservices
+        run: conda remove --yes --quiet --no-pin pandas pandas-stubs scipy notebook scikit-learn sympy flask networkx
 
       - name: Run tests
         shell: bash -l {0}

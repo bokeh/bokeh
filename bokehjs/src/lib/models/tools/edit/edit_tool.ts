@@ -169,7 +169,6 @@ export namespace EditTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = GestureTool.Props & {
-    custom_icon: p.Property<string | null>
     empty_value: p.Property<unknown>
     renderers: p.Property<GlyphRenderer[]>
   }
@@ -186,14 +185,9 @@ export abstract class EditTool extends GestureTool {
   }
 
   static {
-    this.define<EditTool.Props>(({Unknown, String, Array, Ref, Nullable}) => ({
-      custom_icon: [ Nullable(String), null ],
+    this.define<EditTool.Props>(({Unknown, Array, Ref}) => ({
       empty_value: [ Unknown ],
       renderers:   [ Array(Ref(GlyphRenderer)), [] ],
     }))
-  }
-
-  override get computed_icon(): string {
-    return this.custom_icon ?? this.icon
   }
 }

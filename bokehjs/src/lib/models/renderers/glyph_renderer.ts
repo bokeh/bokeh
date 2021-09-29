@@ -9,7 +9,6 @@ import {CDSView} from "../sources/cds_view"
 import {Color, Indices} from "core/types"
 import * as p from "core/properties"
 import {filter} from "core/util/arrayable"
-import {difference} from "core/util/array"
 import {extend, clone} from "core/util/object"
 import {HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
@@ -17,6 +16,8 @@ import {SelectionManager} from "core/selection_manager"
 import {build_view} from "core/build_views"
 import {Context2d} from "core/util/canvas"
 import {FactorRange} from "../ranges/factor_range"
+import {Decoration} from "../graphics/decoration"
+import {Marking} from "../graphics/marking"
 
 type Defaults = {
   fill: {fill_alpha?: number, fill_color?: Color}
@@ -291,8 +292,14 @@ export class GlyphRendererView extends DataRendererView {
       selection_glyph = this.selection_glyph
     }
 
-    if (this.hover_glyph != null && inspected_subset_indices.length)
-      indices = difference(indices, inspected_subset_indices)
+    if (this.hover_glyph != null && inspected_subset_indices.length) {
+      // TODO: keep working on Indices instead of converting back and forth
+      const set = new Set(indices)
+      for (const i of inspected_subset_indices) {
+        set.delete(i)
+      }
+      indices = [...set]
+    }
 
     // Render with no selection
     if (!selected_full_indices.length) {
@@ -443,5 +450,24 @@ export class GlyphRenderer extends DataRenderer {
 
   get_selection_manager(): SelectionManager {
     return this.data_source.selection_manager
+  }
+
+  add_decoration(marking: Marking, node: "start" | "middle" | "end"): Decoration {
+    const decoration = new Decoration({marking, node})
+
+    const glyphs = [
+      this.glyph,
+      this.selection_glyph,
+      this.nonselection_glyph,
+      this.hover_glyph,
+      this.muted_glyph,
+    ]
+
+    for (const glyph of glyphs) {
+      if (glyph instanceof Glyph)
+        glyph.decorations = [...glyph.decorations, decoration]
+    }
+
+    return decoration
   }
 }
