@@ -1,6 +1,8 @@
 import {AngleUnits} from "../enums"
+import {isObject} from "./types"
+import {assert} from "./assert"
 
-const {PI} = Math
+const {PI, abs, sign} = Math
 
 export function angle_norm(angle: number): number {
   if (angle == 0) {
@@ -99,4 +101,54 @@ export function clamp(val: number, min: number, max: number): number {
 
 export function log(x: number, base: number = Math.E): number {
   return Math.log(x)/Math.log(base)
+}
+
+export function gcd(a: number, b: number): number {
+  a = Math.abs(a)
+  b = Math.abs(b)
+
+  while (b != 0) {
+    [a, b] = [b, a % b]
+  }
+
+  return a
+}
+
+export function lcm(a: number, ...rest: number[]): number {
+  for (const b of rest) {
+    a = Math.floor((a*b) / gcd(a, b))
+  }
+
+  return a
+}
+
+export const float = Symbol("float")
+
+export interface Floating {
+  [float](): number
+}
+
+export function is_Floating<T>(obj: T): obj is T & Floating {
+  return isObject(obj) && float in obj
+}
+
+export class Fraction implements Floating {
+  readonly numer: number
+  readonly denom: number
+
+  constructor(numer: number, denom: number) {
+    assert(denom != 0, "Zero divisor")
+    const div = gcd(numer, denom)
+    const sgn = sign(numer)*sign(denom)
+    this.numer = sgn*abs(numer)/div
+    this.denom = abs(denom)/div
+  }
+
+  [float](): number {
+    return this.numer/this.denom
+  }
+
+  toString(): string {
+    return `${this.numer}/${this.denom}`
+  }
 }
