@@ -13,11 +13,7 @@ import {display, InternalProvider} from "../_util"
 describe("MathText on axes", () => {
   const tex = "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"
 
-  type PlotFn = (
-    attrs: Partial<LogAxis.Attrs>
-  ) => Promise<void>
-
-  function plotAxis(): PlotFn {
+  function plot_axis(): (attrs: Partial<LogAxis.Attrs>) => Promise<void> {
     return async (attrs) => {
       const p = new Plot({
         width: 300,
@@ -42,7 +38,7 @@ describe("MathText on axes", () => {
     }
   }
 
-  function test(plot: PlotFn) {
+  function test(plot: (attrs: Partial<LogAxis.Attrs>) => Promise<void>) {
     it("should support LaTeX notation on axis_label with MathText", async () => {
       const stub = sinon.stub(MathTextView.prototype, "provider")
       stub.value(new InternalProvider())
@@ -71,5 +67,5 @@ describe("MathText on axes", () => {
     })
   }
 
-  describe("MathText on each side of a plot", () => test(plotAxis()))
+  describe("MathText on each side of a plot", () => test(plot_axis()))
 })
