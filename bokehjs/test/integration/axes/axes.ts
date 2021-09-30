@@ -32,7 +32,7 @@ import {display} from "../_util"
         x_range:
           axis_type == "linear"
             ? new Range1d({start: 100, end: 200})
-            : new Range1d({start: 10 ** -2, end: 10 ** 11}),
+            : new Range1d({start: 10**-2, end: 10**11}),
         y_range: new Range1d({start: 0, end: 1}),
         min_border_top: 0,
         min_border_bottom: 0,
