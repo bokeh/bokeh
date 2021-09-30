@@ -368,6 +368,8 @@ task2("test:unit", [start, build_unit], async ([devtools_port, server_port]) => 
 
 task("test:compile:integration", async () => compile("integration", {auto_index: true}))
 const build_integration = task("test:build:integration", [passthrough("test:compile:integration")], async () => await bundle("integration"))
+task("test:compile:iury", async () => compile("iury-test-folder", {auto_index: true}))
+task("test:build:iury", [passthrough("test:compile:iury")], async () => await bundle("iury-test-folder"))
 
 task2("test:integration", [start, build_integration], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "integration", "test/baselines")

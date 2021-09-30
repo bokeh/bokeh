@@ -43,6 +43,7 @@ from ...core.properties import (
     NumberSpec,
     Override,
     String,
+    TextLike,
     field,
 )
 from ...core.property_mixins import (
@@ -76,6 +77,10 @@ class TextAnnotation(Annotation):
     ''' Base class for text annotation models such as labels and titles.
 
     '''
+
+    text = NonNullable(TextLike, default="", help="""
+    A text or LaTeX notation to render.
+    """)
 
 class Label(TextAnnotation):
     ''' Render a single text label as an annotation.
@@ -119,10 +124,6 @@ class Label(TextAnnotation):
     y_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the y attribute. Interpreted as |data units| by
     default.
-    """)
-
-    text = String(default="", help="""
-    The text value to render.
     """)
 
     angle = Angle(default=0, help="""
@@ -250,10 +251,6 @@ class Title(TextAnnotation):
     See :ref:`userguide_annotations_titles` for information on plotting titles.
 
     '''
-
-    text = String(default="", help="""
-    The text value to render.
-    """)
 
     vertical_align = Enum(VerticalAlign, default='bottom', help="""
     Alignment of the text in its enclosing space, *across* the direction of the text.

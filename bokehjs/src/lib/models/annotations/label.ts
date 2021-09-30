@@ -1,7 +1,6 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {resolve_angle} from "core/util/math"
 import {SpatialUnits, AngleUnits} from "core/enums"
-import {TextBox} from "core/graphics"
 import {Size} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
 import * as mixins from "core/property_mixins"
@@ -20,8 +19,10 @@ export class LabelView extends TextAnnotationView {
   }
 
   protected override _get_size(): Size {
-    const {text} = this.model
-    const graphics = new TextBox({text})
+    if (this._text_view == null)
+      return {width: 0, height: 0}
+
+    const graphics = this._text_view.graphics()
     const {angle, angle_units} = this.model
     graphics.angle = resolve_angle(angle, angle_units)
     graphics.visuals = this.visuals.text.values()
@@ -44,7 +45,7 @@ export class LabelView extends TextAnnotationView {
     sx += this.model.x_offset
     sy -= this.model.y_offset
 
-    this._paint(this.layer.ctx, this.model.text, sx, sy, rotation)
+    this._paint(this.layer.ctx, sx, sy, rotation)
   }
 }
 
@@ -54,7 +55,6 @@ export namespace Label {
     x_units: p.Property<SpatialUnits>
     y: p.Property<number>
     y_units: p.Property<SpatialUnits>
-    text: p.Property<string>
     angle: p.Property<number>
     angle_units: p.Property<AngleUnits>
     x_offset: p.Property<number>
@@ -90,12 +90,11 @@ export class Label extends TextAnnotation {
       ["background_", mixins.Fill],
     ])
 
-    this.define<Label.Props>(({Number, String, Angle}) => ({
+    this.define<Label.Props>(({Number, Angle}) => ({
       x:           [ Number ],
       x_units:     [ SpatialUnits, "data" ],
       y:           [ Number ],
       y_units:     [ SpatialUnits, "data" ],
-      text:        [ String, "" ],
       angle:       [ Angle, 0 ],
       angle_units: [ AngleUnits, "rad" ],
       x_offset:    [ Number, 0 ],
