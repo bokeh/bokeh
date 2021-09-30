@@ -420,11 +420,11 @@ def _model_requires_mathjax(model: Model) -> bool:
     Returns:
         bool: True if MathJax required, False if not
     """
-    from ..models.annotations import Label
+    from ..models.annotations import TextAnnotation
     from ..models.axes import Axis
     from ..models.widgets.markups import Div, Paragraph
 
-    if isinstance(model, Label):
+    if isinstance(model, TextAnnotation):
         if isinstance(model.text, str) and is_tex_string(model.text):
             return True
 
