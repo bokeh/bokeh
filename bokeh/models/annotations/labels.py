@@ -78,7 +78,7 @@ class TextAnnotation(Annotation):
 
     '''
 
-    text = NonNullable(TextLike, default="", help="""
+    text = TextLike(default="", help="""
     A text or LaTeX notation to render.
     """)
 

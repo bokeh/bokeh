@@ -41,7 +41,14 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-TextLike = Either(MathString, Instance("bokeh.models.text.BaseText"))
+class TextLike(Either):
+    """ Accept a string that may be interpreted into text models or the models themselves.
+
+    """
+
+    def __init__(self, default=None, help=None) -> None:
+        types = MathString, Instance("bokeh.models.text.BaseText")
+        super().__init__(*types, default=default, help=help)
 
 #-----------------------------------------------------------------------------
 # Dev API
