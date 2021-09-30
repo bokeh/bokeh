@@ -1462,4 +1462,28 @@ describe("Bug", () => {
       await display(column(plots))
     })
   })
+
+  describe("in issue #5046", () => {
+    it("prevents webgl rendering of streaming markers", async () => {
+      function plot(source: ColumnDataSource, output_backend: OutputBackend) {
+        const p = fig(
+          [200, 200],
+          {output_backend, title: output_backend, x_range: [-1, 1], y_range: [-1, 1]})
+        p.circle({x: {field: "x"}, y: {field: "y"}, size: 20, source})
+        return p
+      }
+
+      const radius = 0.8
+      const angles = linspace(0, 2*3.14159, 13)
+      const x = angles.map((angle) => radius*Math.cos(angle))
+      const y = angles.map((angle) => radius*Math.sin(angle))
+      const source = new ColumnDataSource({data: {x: x.slice(0, 6), y: y.slice(0, 6)}})
+
+      const plots = row([plot(source, "canvas"), plot(source, "svg"), plot(source, "webgl")])
+      const {view} = await display(plots)
+
+      source.stream({x: x.slice(6), y: y.slice(6)}, 8)
+      await view.ready
+    })
+  })
 })
