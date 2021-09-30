@@ -173,7 +173,7 @@ Then, after creating your plot with the ``figure()`` function, assign the
     p.yaxis[0].formatter = NumeralTickFormatter(format="$0.00")
 
 The :class:`~bokeh.models.formatters.NumeralTickFormatter` supports different
-formats, including ``"$0.00"`` to generate values such as ``"$7,42"``.
+formats, including ``"$0.00"`` to generate values such as ``"$7.42"``.
 
 This is what the completed code looks like:
 
