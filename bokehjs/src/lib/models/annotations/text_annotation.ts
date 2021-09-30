@@ -7,6 +7,7 @@ import {BaseText, BaseTextView} from "models/text/base_text"
 import {build_view} from "core/build_views"
 import {isString} from "core/util/types"
 import {parse_delimited_string} from "models/text/utils"
+import {Position} from "core/graphics"
 
 export abstract class TextAnnotationView extends AnnotationView {
   override model: TextAnnotation
@@ -66,13 +67,13 @@ export abstract class TextAnnotationView extends AnnotationView {
     return true
   }
 
-  protected _paint(ctx: Context2d, sx: number, sy: number, angle: number): void {
+  protected _paint(ctx: Context2d, position: Position, angle: number): void {
     if (this._text_view == null)
       return
 
     const graphics = this._text_view.graphics()
     graphics.angle = angle
-    graphics.position = {sx, sy, y_anchor: "bottom", x_anchor: "left"}
+    graphics.position = position
     graphics.visuals = this.visuals.text.values()
 
     const {background_fill, border_line} = this.visuals

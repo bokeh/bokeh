@@ -4,6 +4,7 @@ import {Size, Layoutable} from "core/layout"
 import {Panel} from "core/layout/side_panel"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
+import {Position} from "core/graphics"
 
 export class TitleView extends TextAnnotationView {
   override model: Title
@@ -11,7 +12,7 @@ export class TitleView extends TextAnnotationView {
   override layout: Layoutable
   override panel: Panel
 
-  protected _get_location(): [number, number] {
+  protected _get_position(): Position {
     const hmargin = this.model.offset
     const vmargin = this.model.standoff/2
 
@@ -63,7 +64,9 @@ export class TitleView extends TextAnnotationView {
       }
     }
 
-    return [sx, sy]
+    const y_anchor = this.model.vertical_align == "middle" ? "center" : this.model.vertical_align
+
+    return {sx, sy, x_anchor: this.model.align, y_anchor}
   }
 
   protected _render(): void {
@@ -73,10 +76,7 @@ export class TitleView extends TextAnnotationView {
     this.model.text_baseline = this.model.vertical_align
     this.model.text_align = this.model.align
 
-    const [sx, sy] = this._get_location()
-    const angle = this.panel.get_label_angle_heuristic("parallel")
-
-    this._paint(this.layer.ctx, sx, sy, angle)
+    this._paint(this.layer.ctx, this._get_position(), this.panel.get_label_angle_heuristic("parallel"))
   }
 
   protected override _get_size(): Size {

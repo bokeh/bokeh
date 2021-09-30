@@ -45,7 +45,7 @@ export class LabelView extends TextAnnotationView {
     sx += this.model.x_offset
     sy -= this.model.y_offset
 
-    this._paint(this.layer.ctx, sx, sy, rotation)
+    this._paint(this.layer.ctx, {sx, sy}, rotation)
   }
 }
 
