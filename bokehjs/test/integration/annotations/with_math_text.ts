@@ -1,9 +1,55 @@
-import {display, fig} from "../_util"
+import sinon from "sinon"
+
+import {DelayedInternalProvider, display, fig, InternalProvider} from "../_util"
 
 import {Title, Label} from "@bokehjs/models/annotations"
+import {MathTextView, TeX, Ascii, MathML} from "@bokehjs/models/text/math_text"
+import {NoProvider} from "@bokehjs/models/text/providers"
 
 describe("MathText on TextAnnotations", () => {
-  const text = "$$x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$$"
+  const tex = "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"
+  const text = `$$${tex}$$`
+
+  const ascii = "x = (-b +- sqrt(b^2 - 4ac)) / (2a)"
+
+  const mathml = `
+  <math>
+      <mrow>
+          <mi>x</mi>
+          <mo>=</mo>
+          <mfrac>
+              <mrow>
+              <mrow>
+                  <mo>-</mo>
+                  <mi>b</mi>
+              </mrow>
+              <mo>&#xB1;<!--PLUS-MINUS SIGN--></mo>
+              <msqrt>
+                  <mrow>
+                  <msup>
+                      <mi>b</mi>
+                      <mn>2</mn>
+                  </msup>
+                  <mo>-</mo>
+                  <mrow>
+                      <mn>4</mn>
+                      <mo>&#x2062;</mo>
+                      <mi>a</mi>
+                      <mo>&#x2062;</mo>
+                      <mi>c</mi>
+                  </mrow>
+                  </mrow>
+              </msqrt>
+              </mrow>
+              <mrow>
+              <mn>2</mn>
+              <mo>&#x2062;<!--INVISIBLE TIMES--></mo>
+              <mi>a</mi>
+              </mrow>
+          </mfrac>
+      </mrow>
+  </math>
+  `
 
   describe("on Titles", () => {
     function plot(attrs: Partial<Title.Attrs>) {
@@ -304,6 +350,66 @@ describe("MathText on TextAnnotations", () => {
 
     it("with basic positioning", async () => {
       await display(plot())
+    })
+
+    describe("with MathText caveats", () => {
+      function plot_label(attrs: Partial<Label.Attrs>) {
+        const plot = fig([600, 600], {x_range: [0, 10], y_range: [0, 10]})
+
+        const label0 = new Label({
+          x: 0, y: 0,
+          x_units: "screen", y_units: "screen",
+          ...attrs,
+        })
+
+        plot.add_layout(label0)
+
+        return plot
+      }
+
+      it("should support LaTeX with delay in loading", async () => {
+        const stub = sinon.stub(MathTextView.prototype, "provider")
+        stub.value(new DelayedInternalProvider())
+        try {
+          const p = plot_label({text: new TeX({text: tex})})
+          await display(p)
+        } finally {
+          stub.restore()
+        }
+      })
+
+      it("should support Ascii notation", async () => {
+        const stub = sinon.stub(MathTextView.prototype, "provider")
+        stub.value(new InternalProvider())
+        try {
+          const p = plot_label({text: new Ascii({text: ascii})})
+          await display(p)
+        } finally {
+          stub.restore()
+        }
+      })
+
+      it("should support MathML notation", async () => {
+        const stub = sinon.stub(MathTextView.prototype, "provider")
+        stub.value(new InternalProvider())
+        try {
+          const p = plot_label({text: new MathML({text: mathml})})
+          await display(p)
+        } finally {
+          stub.restore()
+        }
+      })
+
+      it("should fallback to text if MathJax has errors", async () => {
+        const stub = sinon.stub(MathTextView.prototype, "provider")
+        stub.value(new NoProvider())
+        try {
+          const p = plot_label({text: new TeX({text: tex})})
+          await display(p)
+        } finally {
+          stub.restore()
+        }
+      })
     })
   })
 })
