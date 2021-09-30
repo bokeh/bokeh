@@ -17,7 +17,9 @@ strings, and text-like objects, e.g.:
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging # isort:skip
+import logging
+
+from bokeh.core.property.singletons import Intrinsic # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -46,7 +48,7 @@ class TextLike(Either):
 
     """
 
-    def __init__(self, default=None, help=None) -> None:
+    def __init__(self, default=Intrinsic, help=None) -> None:
         types = MathString, Instance("bokeh.models.text.BaseText")
         super().__init__(*types, default=default, help=help)
 
