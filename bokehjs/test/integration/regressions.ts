@@ -44,6 +44,9 @@ import {DelayedInternalProvider} from "./axes"
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {PlotView} from "@bokehjs/models/plots/plot"
 
+import {f} from "@bokehjs/api/expr"
+import {np} from "@bokehjs/api/linalg"
+
 const n_marker_types = [...MarkerType].length
 
 function svg_data_url(svg: string): string {
@@ -1465,22 +1468,26 @@ describe("Bug", () => {
 
   describe("in issue #5046", () => {
     it("prevents webgl rendering of streaming markers", async () => {
-      function plot(source: ColumnDataSource, output_backend: OutputBackend) {
-        const p = fig(
-          [200, 200],
-          {output_backend, title: output_backend, x_range: [-1, 1], y_range: [-1, 1]})
+      const radius = 0.8
+      const angles = np.linspace(0, 2*np.pi, 13)
+      const x = f`${radius}*np.cos(${angles})`
+      const y = f`${radius}*np.sin(${angles})`
+      const source = new ColumnDataSource({data: {x: x.slice(0, 6), y: y.slice(0, 6)}})
+
+      function plot(output_backend: OutputBackend) {
+        const p = fig([200, 200], {
+          output_backend, title: output_backend,
+          x_range: [-1, 1], y_range: [-1, 1],
+        })
         p.circle({x: {field: "x"}, y: {field: "y"}, size: 20, source})
         return p
       }
 
-      const radius = 0.8
-      const angles = linspace(0, 2*3.14159, 13)
-      const x = angles.map((angle) => radius*Math.cos(angle))
-      const y = angles.map((angle) => radius*Math.sin(angle))
-      const source = new ColumnDataSource({data: {x: x.slice(0, 6), y: y.slice(0, 6)}})
+      const p0 = plot("canvas")
+      const p1 = plot("svg")
+      const p2 = plot("webgl")
 
-      const plots = row([plot(source, "canvas"), plot(source, "svg"), plot(source, "webgl")])
-      const {view} = await display(plots)
+      const {view} = await display(row([p0, p1, p2]))
 
       source.stream({x: x.slice(6), y: y.slice(6)}, 8)
       await view.ready
