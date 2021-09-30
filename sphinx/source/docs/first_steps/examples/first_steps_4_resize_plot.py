@@ -13,7 +13,7 @@ p = figure(
     y_axis_label="y",
 )
 
-# chage plot size
+# change plot size
 p.width = 450
 p.height = 150
 
