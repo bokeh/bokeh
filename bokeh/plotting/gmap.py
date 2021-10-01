@@ -68,9 +68,6 @@ class GMap(GMapPlot, GlyphAPI):
 
     '''
 
-    __subtype__ = "GMap"
-    __view_model__ = "GMapPlot"
-
     def __init__(self, **kw) -> None:
         opts = GMapFigureOptions(kw)
         super().__init__(x_range=Range1d(), y_range=Range1d(), **kw)

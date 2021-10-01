@@ -15,7 +15,7 @@ import * as tsconfig_json from "./tsconfig.ext.json"
 import chalk from "chalk"
 const {cyan, magenta, red} = chalk
 
-import {CLIEngine} from "eslint"
+import {ESLint} from "eslint"
 
 import "@typescript-eslint/eslint-plugin"
 import "@typescript-eslint/parser"
@@ -78,19 +78,18 @@ function needs_install(base_dir: Path, metadata: Metadata): string | null {
     return null
 }
 
-function lint(config_file: Path, paths: Path[]): boolean {
-  const engine = new CLIEngine({
-    configFile: config_file,
+async function lint(config_file: Path, paths: Path[]): Promise<boolean> {
+  const eslint = new ESLint({
     extensions: [".ts", ".js"],
+    overrideConfigFile: config_file,
   })
 
-  const report = engine.executeOnFiles(paths)
-  CLIEngine.outputFixes(report)
+  const results = await eslint.lintFiles(paths)
+  const ok = results.every(result => result.errorCount == 0)
 
-  const ok = report.errorCount == 0
   if (!ok) {
-    const formatter = engine.getFormatter()
-    const output = formatter(report.results)
+    const formatter = await eslint.loadFormatter("stylish")
+    const output = formatter.format(results)
 
     for (const line of output.trim().split("\n"))
       print(line)
@@ -144,7 +143,7 @@ export async function init(base_dir: Path, _bokehjs_dir: Path, base_setup: InitO
     keywords: [],
     repository: {},
     dependencies: {
-      bokehjs: `^${setup.bokehjs_version}`,
+      "@bokeh/bokehjs": `^${setup.bokehjs_version}`,
     },
     devDependencies: {},
   }

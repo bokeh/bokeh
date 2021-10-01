@@ -119,7 +119,7 @@ def instantiate_references_json(references_json: List[ReferenceJson], existing_i
     references: Dict[ID, Model] = {}
     for obj in references_json:
         obj_id = obj['id']
-        obj_type = obj.get('subtype', None) or obj['type']
+        obj_type = obj['type']
 
         if obj_id in existing_instances:
             references[obj_id] = existing_instances[obj_id]

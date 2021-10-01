@@ -13,6 +13,7 @@ dependencies:
   - pyyaml >=3.10
   - tornado >=5
   - typing_extensions >=3.10.0
+  - xyzservices>=2021.09.1
 
   # tests
   - pytest 6.2*

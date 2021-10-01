@@ -5,7 +5,6 @@ import {keys} from "./object"
 export type Struct = {
   id: string
   type: string
-  subtype?: string
   attributes: Attrs
 }
 

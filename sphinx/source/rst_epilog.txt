@@ -16,6 +16,7 @@
 .. |user guide|         replace:: :ref:`user guide <userguide>`
 
 .. |add layout|         replace:: :py:func:`~bokeh.models.plots.Plot.add_layout`
+.. |components|         replace:: :py:func:`~bokeh.embed.components`
 .. |factor_cmap|        replace:: :py:func:`~bokeh.transform.factor_cmap`
 .. |field|              replace:: :py:func:`~bokeh.core.properties.field`
 .. |figure|             replace:: :py:func:`~bokeh.plotting.figure`

@@ -66,13 +66,10 @@ Unknown = Any
 class Ref(TypedDict):
     id: ID
 
-class _ReferenceJson(TypedDict):
+class ReferenceJson(TypedDict):
     id: ID
     type: str
     attributes: Dict[str, Unknown]
-
-class ReferenceJson(_ReferenceJson, total=False):
-    subtype: str | None
 
 # TODO: move this to types/geometry.py
 class PointGeometry(TypedDict):

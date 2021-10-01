@@ -214,23 +214,25 @@ the ``x.y.z``:
     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-x.y.z.min.js"
             crossorigin="anonymous"></script>
 
-The ``"-widgets"`` and ``"-tables"`` files are only necessary if your document
-includes Bokeh widgets and data tables.
+The ``"-widgets"``, ``"-tables"``, and ``"-mathjax"`` files are only necessary
+if your document includes :ref:`Bokeh widgets <userguide_interaction_widgets>`,
+:ref:`data tables <userguide_interaction_widgets_examples_datatable>`, or
+:ref:`math text <userguide_styling_math>`, respectively.
 
-For example, to use version ``2.2.0`` with support for widgets and tables,
-include the following in your HTML:
+For example, to use version ``2.4.0`` with support for widgets, tables, and
+math text, include the following in your HTML:
 
 .. code-block:: html
 
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.2.0.min.js"
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.0.min.js"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.2.0.min.js"
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.4.0.min.js"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.2.0.min.js"
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.4.0.min.js"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-2.2.0.min.js"
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-2.4.0.min.js"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-2.2.0.min.js"
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-2.4.0.min.js"
             crossorigin="anonymous"></script>
 
 .. note::
@@ -605,7 +607,6 @@ Here's a full template with all the sections that you can override:
 
 
 .. |autoload_static| replace:: :func:`~bokeh.embed.autoload_static`
-.. |components|      replace:: :func:`~bokeh.embed.components`
 .. |file_html|       replace:: :func:`~bokeh.embed.file_html`
 .. |json_item|       replace:: :func:`~bokeh.embed.json_item`
 .. |server_document| replace:: :func:`~bokeh.embed.server_document`

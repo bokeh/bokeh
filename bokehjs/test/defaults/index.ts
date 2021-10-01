@@ -167,7 +167,7 @@ function diff<T>(a: Set<T>, b: Set<T>): Set<T> {
 
 describe("Defaults", () => {
   const internal_models = new Set([
-    "Canvas", "LinearInterpolationScale", "ScanningColorMapper",
+    "Figure", "Canvas", "LinearInterpolationScale", "ScanningColorMapper",
     "ToolProxy", "CenterRotatable", "ButtonTool", "Spline",
   ])
 
@@ -189,7 +189,7 @@ describe("Defaults", () => {
   })
 
   // TODO: add a default to GeoJSONDataSource.geojson?
-  const skipped_models = new Set(["GeoJSONDataSource", "WebDataSource"])
+  const skipped_models = new Set(["Figure", "GeoJSONDataSource", "WebDataSource"])
 
   for (const name of Models.registered_names()) {
     const fn = skipped_models.has(name) || internal_models.has(name) ? it.skip : it

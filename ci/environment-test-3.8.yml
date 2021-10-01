@@ -13,6 +13,7 @@ dependencies:
   - pyyaml >=3.10
   - tornado >=5
   - typing_extensions >=3.10.0
+  - xyzservices>=2021.09.1
 
   # tests
   - beautifulsoup4
@@ -46,7 +47,6 @@ dependencies:
   - requests >=1.2.3
   - selenium >=3.8
   - scipy
-  - xyzservices
   - pre-commit
 
   # examples
