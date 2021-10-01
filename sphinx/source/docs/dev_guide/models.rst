@@ -3,6 +3,8 @@
 Working with Bokeh models
 =========================
 
+TBD: update all information!
+
 Low-Level Interface
 -------------------
 
