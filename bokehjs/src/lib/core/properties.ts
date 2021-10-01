@@ -42,6 +42,16 @@ export type Spec<T> = {
   readonly transform?: Transform<unknown, T>
 }
 
+export interface Theme {
+  get(obj: HasProps | typeof HasProps, attr: string): unknown
+}
+
+let global_theme: Theme | null = null
+
+export function use_theme(theme: Theme | null = null): void {
+  global_theme = theme
+}
+
 //
 // Property base class
 //
@@ -135,17 +145,30 @@ export abstract class Property<T = unknown> {
       const value = this._default_override()
       if (value !== undefined)
         attr_value = value
-      else if (default_value !== undefined)
-        attr_value = default_value(obj)
       else {
-        // XXX: temporary and super sketchy, but affects only "readonly" and a few internal properties
-        // console.warn(`${this.obj}.${this.attr} has no value nor default`)
-        this.spec = {value: null as any}
-        return
+        let themed = false
+        if (global_theme != null) {
+          const value = global_theme.get(obj, attr) as T | undefined
+          if (value !== undefined) {
+            attr_value = value
+            themed = true
+          }
+        }
+
+        if (!themed) {
+          if (default_value !== undefined)
+            attr_value = default_value(obj)
+          else {
+            // XXX: temporary and super sketchy, but affects only "readonly" and a few internal properties
+            // console.warn(`${this.obj}.${this.attr} has no value nor default`)
+            this.spec = {value: null as any}
+            return
+          }
+        }
       }
     }
 
-    this._update(attr_value)
+    this._update(attr_value!)
   }
 
   //protected abstract _update(attr_value: T): void

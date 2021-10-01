@@ -9,6 +9,7 @@ import {Location} from "@bokehjs/core/enums"
 import {range} from "@bokehjs/core/util/array"
 import {Matrix} from "@bokehjs/core/util/matrix"
 import {figure, gridplot} from "@bokehjs/api/plotting"
+import {BasicTickFormatter} from "@bokehjs/models/formatters"
 
 const spacer =
   (width_policy: SizingPolicy, height_policy: SizingPolicy,
@@ -386,10 +387,10 @@ describe("gridplot()", () => {
     const figs = coeffs.map((ycoeff) => {
       return coeffs.map((xcoeff) => {
         const fig = figure({height: 200, width: 200})
-        fig.xaxis.map((axis) => (axis.formatter as any).use_scientific = false)
-        fig.yaxis.map((axis) => (axis.formatter as any).use_scientific = false)
-        fig.xaxis.map((axis) => axis.major_label_orientation = "vertical")
-        fig.yaxis.map((axis) => axis.major_label_orientation = "horizontal")
+        fig.xaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
+        fig.yaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
+        fig.xaxis.major_label_orientation = "vertical"
+        fig.yaxis.major_label_orientation = "horizontal"
         fig.circle(values(xcoeff), values(ycoeff), {size: 5})
         return fig
       })

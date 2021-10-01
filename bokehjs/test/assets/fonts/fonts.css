@@ -1,0 +1,66 @@
+/** Roboto == Bokeh */
+@font-face {
+  font-family: Bokeh;
+  font-style: normal;
+  font-weight: normal;
+  src: url("/assets/fonts/roboto/Roboto-Regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: Bokeh;
+  font-style: normal;
+  font-weight: bold;
+  src: url("/assets/fonts/roboto/Roboto-Bold.ttf") format("truetype");
+}
+@font-face {
+  font-family: Bokeh;
+  font-style: italic;
+  font-weight: normal;
+  src: url("/assets/fonts/roboto/Roboto-Italic.ttf") format("truetype");
+}
+@font-face {
+  font-family: BokehMono;
+  font-style: normal;
+  font-weight: normal;
+  src: url("/assets/fonts/roboto/RobotoMono-Regular.ttf") format("truetype");
+}
+
+/** STIX */
+@font-face {
+  font-family: Stix;
+  font-style: normal;
+  font-weight: normal;
+  src: url("/assets/fonts/stix/woff2/STIXTwoMath-Regular.woff2") format("woff2"),
+       url("/assets/fonts/stix/otf/STIXTwoMath-Regular.otf") format("opentype");
+}
+
+@font-face {
+  font-family: Stix;
+  font-style: normal;
+  font-weight: bold;
+  src: url("/assets/fonts/stix/woff2/STIXTwoText-Bold.woff2") format("woff2"),
+       url("/assets/fonts/stix/otf/STIXTwoText-Bold.otf") format("opentype");
+}
+
+@font-face {
+  font-family: Stix;
+  font-style: italic;
+  font-weight: normal;
+  src: url("/assets/fonts/stix/woff2/STIXTwoText-Italic.woff2") format("woff2"),
+       url("/assets/fonts/stix/otf/STIXTwoText-Italic.otf") format("opentype");
+}
+
+@font-face {
+  font-family: Stix;
+  font-style: italic;
+  font-weight: bold;
+  src: url("/assets/fonts/stix/woff2/STIXTwoText-BoldItalic.woff2") format("woff2"),
+       url("/assets/fonts/stix/otf/STIXTwoText-BoldItalic.otf") format("opentype");
+}
+
+@font-face {
+  font-family: StixMath;
+  font-style: normal;
+  font-weight: normal;
+  src: url("/assets/fonts/stix/woff2/STIXTwoMath-Regular.woff2") format("woff2"),
+       url("/assets/fonts/stix/otf/STIXTwoMath-Regular.otf") format("opentype");
+}

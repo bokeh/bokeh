@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # External imports
 import mock
+import xyzservices.providers as xyz
 from mock import MagicMock, patch
 
 # Bokeh imports
@@ -36,6 +37,7 @@ from bokeh.models import (
     Plot,
     Range1d,
     Title,
+    WMTSTileSource,
 )
 from bokeh.plotting import figure
 
@@ -317,6 +319,55 @@ def test__check_compatible_scale_and_ranges_incompat_factor_scale_and_numeric_ra
     plot = Plot(x_scale=CategoricalScale(), x_range=DataRange1d())
     check = plot._check_compatible_scale_and_ranges()
     assert check != []
+
+
+@pytest.mark.parametrize("test_input, provider", [
+    ("OpenStreetMap Mapnik", xyz.OpenStreetMap.Mapnik),
+    ("OSM", xyz.OpenStreetMap.Mapnik),
+    ("CARTODBPOSITRON", xyz.CartoDB.Positron),
+    ("CARTODBPOSITRON_RETINA", xyz.CartoDB.Positron),
+    ("STAMEN_TERRAIN", xyz.Stamen.Terrain),
+    ("STAMEN_TERRAIN_RETINA", xyz.Stamen.Terrain),
+    ("STAMEN_TONER", xyz.Stamen.Toner),
+    ("STAMEN_TONER_BACKGROUND", xyz.Stamen.TonerBackground),
+    ("STAMEN_TONER_LABELS", xyz.Stamen.TonerLabels),
+    ("ESRI_IMAGERY", xyz.Esri.WorldImagery),
+    (xyz.Stamen.Terrain, xyz.Stamen.Terrain),
+    ])
+def test_add_tile(test_input, provider):
+    plot = figure(x_range=(-2000000, 6000000), y_range=(-1000000, 7000000),
+            x_axis_type="mercator", y_axis_type="mercator")
+    plot.add_tile(test_input)
+    tile_source = plot.renderers[0].tile_source
+    sf = "@2x" if "RETINA" in test_input else None
+    assert tile_source.url == provider.build_url(scale_factor=sf)
+    assert tile_source.attribution == provider.html_attribution
+    if hasattr(provider, "max_zoom"):
+        assert tile_source.max_zoom == provider.max_zoom
+
+    # test retina keyword
+    if "RETINA" not in test_input and "{r}" in provider.url:
+        plot2 = figure(x_range=(-2000000, 6000000), y_range=(-1000000, 7000000),
+            x_axis_type="mercator", y_axis_type="mercator")
+        plot2.add_tile(test_input, retina=True)
+        tile_source2 = plot2.renderers[0].tile_source
+        assert tile_source2.url == provider.build_url(scale_factor="@2x")
+
+def test_add_tile_tilesource():
+    mapnik = xyz.OpenStreetMap.Mapnik
+    tilesource = WMTSTileSource(
+        url=mapnik.build_url(),
+        attribution=mapnik.html_attribution,
+        min_zoom=mapnik.get("min_zoom", 0),
+        max_zoom=mapnik.get("max_zoom", 30),
+    )
+    plot = figure(x_range=(-2000000, 6000000), y_range=(-1000000, 7000000),
+            x_axis_type="mercator", y_axis_type="mercator")
+    plot.add_tile(tilesource)
+    tile_source = plot.renderers[0].tile_source
+
+    assert tile_source.url == mapnik.build_url()
+    assert tile_source.attribution == mapnik.html_attribution
 
 #-----------------------------------------------------------------------------
 # Dev API

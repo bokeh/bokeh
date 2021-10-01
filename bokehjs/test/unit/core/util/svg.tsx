@@ -861,7 +861,7 @@ describe("SVGRenderingContext2d", () => {
 
   it("Create a pattern from an image", async () => {
     const test = async (ctx: AnyContext2D) => {
-      const img = await load_image("/images/canvas_createpattern.png")
+      const img = await load_image("/assets/images/pattern.png")
       const pattern = ctx.createPattern(img, "repeat")!
       ctx.fillStyle = pattern
       ctx.fillRect(0, 0, 300, 300)
@@ -883,7 +883,7 @@ describe("SVGRenderingContext2d", () => {
             height="117"
             patternUnits="userSpaceOnUse"
           >
-            <image href="/images/canvas_createpattern.png" />
+            <image href="/assets/images/pattern.png" />
           </pattern>
         </defs>
         <path
@@ -944,7 +944,7 @@ describe("SVGRenderingContext2d", () => {
 
   it("Support drawImage with HTMLImageElement", async () => {
     const test = async (ctx: AnyContext2D) => {
-      const img = await load_image("/images/canvas_createpattern.png")
+      const img = await load_image("/assets/images/pattern.png")
       ctx.drawImage(img, 0, 0)
       ctx.drawImage(img, 0, 50, 200, 200)
       ctx.drawImage(img, 0, 0, 25, 25, 0, 250, 200, 200)
@@ -964,14 +964,14 @@ describe("SVGRenderingContext2d", () => {
           width="86"
           height="117"
           preserveAspectRatio="none"
-          href="/images/canvas_createpattern.png"
+          href="/assets/images/pattern.png"
         ></image>
         <image
           width="200"
           height="200"
           preserveAspectRatio="none"
           transform="matrix(1, 0, 0, 1, 0, 50)"
-          href="/images/canvas_createpattern.png"
+          href="/assets/images/pattern.png"
         ></image>
         <image
           width="200"

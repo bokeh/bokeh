@@ -42,7 +42,7 @@ export abstract class GraphicsBox {
   padding?: Padding
   font_size_scale: number = 1.0
   text_height_metric?: TextHeightMetric
-  align: "left" | "center" | "right" | "justify" = "left"
+  align: "auto" | "left" | "center" | "right" | "justify" = "left"
 
   _base_font_size: number = 13 // the same as .bk-root's font-size (13px)
 
@@ -158,6 +158,8 @@ export class TextBox extends GraphicsBox {
   line_height: number
   //padding: Padding
 
+  private _visual_align: "left" | "center" | "right" = "left"
+
   set visuals(v: visuals.Text["Values"]) {
     const color = v.color
     const alpha = v.alpha
@@ -183,6 +185,7 @@ export class TextBox extends GraphicsBox {
     this.line_height = v.line_height
 
     const align = v.align
+    this._visual_align = align
     this._x_anchor = align
 
     const baseline = v.baseline
@@ -458,7 +461,7 @@ export class TextBox extends GraphicsBox {
     } else {
       for (let i = 0; i < nlines; i++) {
         const xi = x + (() => {
-          switch (align) {
+          switch (align == "auto" ? this._visual_align : align) {
             case "left": return 0
             case "center": return 0.5*(width - widths[i])
             case "right": return width - widths[i]

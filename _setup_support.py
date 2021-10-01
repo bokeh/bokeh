@@ -50,7 +50,13 @@ INSTALL_REQUIRES = [
     'PyYAML >=3.10',
     'tornado >=5.1',
     'typing_extensions >=3.10.0',
+    'xyzservices >=2021.09.1',
 ]
+
+BUILD_JS = "--build-js"
+INSTALL_JS = "--install-js"
+
+BUILDABLE_COMMANDS = ('install', 'develop', 'sdist', 'bdist_wheel', 'egg_info', 'build')
 
 # -----------------------------------------------------------------------------
 # Helpers for command line operations
@@ -72,14 +78,20 @@ def show_bokehjs(bokehjs_action, develop=False):
 
     '''
     print()
-    if develop:
-        print("Installed Bokeh for DEVELOPMENT:")
+
+    print("Installed Bokeh for DEVELOPMENT:" if develop else "Installed Bokeh:")
+
+    if bokehjs_action == "built":
+        kind = bright(yellow("NEWLY BUILT"))
+        loc = "bokehjs/build"
+    elif bokehjs_action == "installed":
+        kind = bright(yellow("PREVIOUSLY BUILT"))
+        loc = "bokehjs/build"
     else:
-        print("Installed Bokeh:")
-    if bokehjs_action in ['built', 'installed']:
-        print("  - using %s built BokehJS from bokehjs/build\n" % (bright(yellow("NEWLY")) if bokehjs_action=='built' else bright(yellow("PREVIOUSLY"))))
-    else:
-        print("  - using %s BokehJS, located in 'bokeh.server.static'\n" % bright(yellow("PACKAGED")))
+        kind = bright(yellow("PACKAGED"))
+        loc = "bokeh.server.static"
+    print(f"  - using {kind} BokehJS, from {loc}\n")
+
     print()
 
 def show_help(bokehjs_action):
@@ -94,7 +106,7 @@ def show_help(bokehjs_action):
 
     '''
     print()
-    if bokehjs_action in ['built', 'installed']:
+    if bokehjs_action in ('built', 'installed'):
         print("Bokeh-specific options available with 'install' or 'develop':")
         print()
         print("  --build-js          build and install a fresh BokehJS")
@@ -116,48 +128,35 @@ def build_or_install_bokehjs():
     If no options ``--build-js`` or ``--install-js`` are detected, the
     user is prompted for what to do.
 
-    If ``--existing-js`` is detected, then this setup.py is being run from a
-    packaged sdist, no action is taken.
-
     Note that ``-build-js`` is only compatible with the following ``setup.py``
     commands: install, develop, sdist, egg_info, build
 
     Returns:
-        str : one of 'built', 'installed', 'packaged'
-            How (or if) BokehJS was installed into the python source tree
+        str : one of 'built', 'installed'
+            How BokehJS was installed into the python source tree
 
     '''
+    if BUILD_JS not in sys.argv and INSTALL_JS not in sys.argv:
+        if any(arg in sys.argv for arg in BUILDABLE_COMMANDS):
+            sys.argv.append(BUILD_JS)
 
-    # This happens when building from inside a published, pre-packaged sdist
-    # The --existing-js option is not otherwise documented
-    if '--existing-js' in sys.argv:
-        sys.argv.remove('--existing-js')
-        return "packaged"
+    if INSTALL_JS in sys.argv:
+        sys.argv.remove(INSTALL_JS)
+        install_js()
+        return "installed"
 
-    if '--build-js' not in sys.argv and '--install-js' not in sys.argv:
-        jsbuild = jsbuild_prompt()
+    if BUILD_JS in sys.argv:
+        sys.argv.remove(BUILD_JS)
 
-    elif '--build-js' in sys.argv:
-        jsbuild = True
-        sys.argv.remove('--build-js')
+        if not any(arg in sys.argv for arg in BUILDABLE_COMMANDS):
+            print(f"Error: Option --build-js only valid with one of {BUILDABLE_COMMANDS!r}, exiting.")
+            sys.exit(1)
 
-    # must be "--install-js"
-    else:
-        jsbuild = False
-        sys.argv.remove('--install-js')
-
-    jsbuild_ok = ('install', 'develop', 'sdist', 'bdist_wheel', 'egg_info', 'build')
-    if jsbuild and not any(arg in sys.argv for arg in jsbuild_ok):
-        print("Error: Option '--build-js' only valid with 'install', 'develop', 'sdist', 'bdist_wheel', or 'build', exiting.")
-        sys.exit(1)
-
-    if jsbuild:
         build_js()
         install_js()
         return "built"
-    else:
-        install_js()
-        return "installed"
+
+    # if we are here then some non-buildable command was run
 
 def conda_rendering():
     return os.getenv("CONDA_BUILD_STATE" ,"junk") == "RENDER"
@@ -166,67 +165,16 @@ def check_python():
     if sys.version_info[:2] < MIN_PYTHON_VERSION:
         raise RuntimeError("Bokeh requires Python >= " + ".".join(str(x) for x in MIN_PYTHON_VERSION))
 
-def check_building_dist():
-    ''' Check for 'sdist' or `bdist_wheel` and ensure we always build or install
-    BokehJS when packaging.
-
-    Source distributions (sdists) and wheels do not ship with BokehJS source
-    code, but  must ship with a pre-built BokehJS library. This function checks
-    ``sys.argv`` to ensure that ``--build-js`` or ``--install-js` is present.
-
-    Returns:
-        None
-
-    '''
-    for dist in ("sdist", "bdist_wheel"):
-        if dist in sys.argv and ("--install-js" not in sys.argv and "--build-js" not in sys.argv):
-            print(f"Error: Option '--build-js' or '--install-js' must be present with {dist!r}, exiting.")
-            sys.exit(1)
-
-def fixup_for_packaged():
-    ''' If we are installing FROM an sdist, then a pre-built BokehJS is
-    already installed in the python source tree.
-
-    The command line options ``--build-js`` or ``--install-js`` are
-    removed from ``sys.argv``, with a warning.
-
-    Also adds ``--existing-js`` to ``sys.argv`` to signal that BokehJS is
-    already packaged.
-
-    Returns:
-        None
-
-    '''
+def check_packaged():
     ROOT = dirname(realpath(__file__))
-
-    if exists(join(ROOT, 'PKG-INFO')):
-        if "--build-js" in sys.argv or "--install-js" in sys.argv:
-            print(SDIST_BUILD_WARNING)
-            if "--build-js" in sys.argv:
-                sys.argv.remove('--build-js')
-            if "--install-js" in sys.argv:
-                sys.argv.remove('--install-js')
-        if "--existing-js" not in sys.argv:
-            sys.argv.append('--existing-js')
-
-# -----------------------------------------------------------------------------
-# Helpers for operation in the bokehjs dir
-# -----------------------------------------------------------------------------
-
-def jsbuild_prompt():
-    ''' Prompt users whether to build a new BokehJS or install an existing one.
-
-    Returns:
-        bool : True, if a new build is requested, False otherwise
-
-    '''
-    print(BOKEHJS_BUILD_PROMPT)
-    mapping = {"1": True, "2": False}
-    value = input("Choice? ")  # lgtm [py/use-of-input]
-    while value not in mapping:
-        print("Input '%s' not understood. Valid choices: 1, 2\n" % value)
-        value = input("Choice? ")  # lgtm [py/use-of-input]
-    return mapping[value]
+    packaged = exists(join(ROOT, 'PKG-INFO'))
+    if packaged and (BUILD_JS in sys.argv or INSTALL_JS in sys.argv):
+        print(SDIST_BUILD_WARNING)
+        if BUILD_JS in sys.argv:
+            sys.argv.remove(BUILD_JS)
+        if INSTALL_JS in sys.argv:
+            sys.argv.remove(INSTALL_JS)
+    return packaged
 
 # -----------------------------------------------------------------------------
 # Helpers for operations in the bokehjs dir
@@ -346,14 +294,6 @@ def install_js():
 # Status and error message strings
 # -----------------------------------------------------------------------------
 
-BOKEHJS_BUILD_PROMPT = """
-Bokeh includes a JavaScript library (BokehJS) that has its own
-build process. How would you like to handle BokehJS:
-
-1) build and install fresh BokehJS
-2) install last built BokehJS from bokeh/bokehjs/build
-"""
-
 BOKEHJS_INSTALL_FAIL = """
 ERROR: Cannot install BokehJS: files missing in `./bokehjs/build`.
 
@@ -368,8 +308,9 @@ ERROR: subprocess.Popen(%r) failed to execute:
 
     %s
 
-Have you run `npm ci` from the bokehjs subdirectory?
-For more information, see the Contributor Guide:
+Bokeh contains a separate BokehJS library that must be compiled from
+TypeScript. Is NodeJS installed? For more information about reauired
+toolchain for building BokehJS, see the Contributor Guide:
 
     https://docs.bokeh.org/en/latest/docs/dev_guide.html
 """

@@ -88,7 +88,7 @@ class Qualified(HasProps):
 
 def qualified_model(cls: Type[Model]) -> str:
     module = cls.__view_module__
-    model = cls.__dict__.get("__subtype__", cls.__view_model__)
+    model = cls.__view_model__
     impl = cls.__dict__.get("__implementation__", None)
 
     if not issubclass(cls, Qualified):

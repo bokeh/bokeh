@@ -35,7 +35,8 @@ import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
 import {defer} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
-import {Figure, MarkerArgs, show} from "@bokehjs/api/plotting"
+import {Figure, show} from "@bokehjs/api/plotting"
+import {MarkerArgs} from "@bokehjs/api/glyph_api"
 import {Spectral11, turbo} from "@bokehjs/api/palettes"
 import {div, offset} from "@bokehjs/core/dom"
 
@@ -92,8 +93,6 @@ describe("Bug", () => {
   describe("in issue #9879", () => {
     it("disallows to change FactorRange to a lower dimension with a different number of factors", async () => {
       const p = fig([200, 200], {
-        title: null,
-        toolbar_location: null,
         x_range: new FactorRange({factors: [["a", "b"], ["b", "c"]]}),
         y_range: new DataRange1d(),
       })
@@ -468,7 +467,7 @@ describe("Bug", () => {
       const p = fig([200, 100])
       p.circle([0, 1, 2], [0, 1, 2], {radius: 0.25})
       const {view} = await display(p)
-      p.xaxis.map((axis) => axis.axis_label = "X-Axis Label")
+      p.xaxis.axis_label = "X-Axis Label"
       await view.ready
     })
   })
@@ -883,7 +882,7 @@ describe("Bug", () => {
         min_border_left: 20,
         min_border_right: 20,
       })
-      p.xaxis.map((axis) => axis.major_label_text_font_size = "14pt")
+      p.xaxis.major_label_text_font_size = "14pt"
       await display(p)
     })
   })
@@ -1043,10 +1042,10 @@ describe("Bug", () => {
       p.add_layout(new LinearAxis({major_label_text_color: null}), "right")
       p.add_layout(new LinearAxis({major_label_text_color: null}), "above")
 
-      p.axis.map((ax) => ax.major_tick_in = 10)
-      p.axis.map((ax) => ax.major_tick_out = 0)
-      p.axis.map((ax) => ax.minor_tick_in = 5)
-      p.axis.map((ax) => ax.minor_tick_out = 0)
+      p.axis.major_tick_in = 10
+      p.axis.major_tick_out = 0
+      p.axis.minor_tick_in = 5
+      p.axis.minor_tick_out = 0
 
       await display(p)
     })
@@ -1102,7 +1101,7 @@ describe("Bug", () => {
       const y = [6e-2, 7e-4, 6e-6, 4e-8, 5e-10]
 
       const p = fig([200, 200], {y_axis_type: axis})
-      p.yaxis.map((axis) => axis.major_label_text_font_size = "1.5em")
+      p.yaxis.major_label_text_font_size = "1.5em"
       p.line({x, y})
 
       return p
@@ -1251,13 +1250,13 @@ describe("Bug", () => {
   describe("in issue #11413", () => {
     const osm_source = new WMTSTileSource({
       // url: "https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
-      url: "/tiles/osm/{Z}_{X}_{Y}.png",
+      url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
       attribution: "&copy; (0) OSM source attribution",
     })
 
     const esri_source = new WMTSTileSource({
       // url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg",
-      url: "/tiles/esri/{Z}_{Y}_{X}.jpg",
+      url: "/assets/tiles/esri/{Z}_{Y}_{X}.jpg",
       attribution: "&copy; (1) Esri source attribution",
     })
 
@@ -1415,17 +1414,52 @@ describe("Bug", () => {
   })
 
   describe("in issue #11646", () => {
-    const url = "/images/canvas_createpattern.png"
+    const url = "/assets/images/pattern.png"
 
     it("disallows using image texture as grid line's band fill", async () => {
       const p = fig([400, 200])
 
       p.vbar({x: [0], top: [1], alpha: 0.2, hatch_pattern: "."})
 
-      p.xgrid[0].band_hatch_extra = {mycustom: new ImageURLTexture({url})}
-      p.xgrid[0].band_hatch_pattern = "mycustom"
+      p.xgrid.band_hatch_extra = {mycustom: new ImageURLTexture({url})}
+      p.xgrid.band_hatch_pattern = "mycustom"
 
       await display(p)
+    })
+  })
+
+  describe("in issue #11661", () => {
+    it("makes line render incorrectly when painting with a subset of indices", async () => {
+      const random = new Random(1)
+
+      const x = range(0, 10)
+      const y = random.floats(x.length)
+
+      function plot(indices: number[]) {
+        const p = fig([300, 100], {
+          title: `Selected: ${indices.length == 0 ? "\u2205" : indices.join(", ")}`,
+          x_axis_type: null, y_axis_type: null,
+        })
+
+        const selected = new Selection({indices})
+        const source = new ColumnDataSource({data: {x, y}, selected})
+
+        p.line({x: {field: "x"}, y: {field: "y"}, source, line_width: 3, line_color: "#addd8e"})
+        p.circle({x: {field: "x"}, y: {field: "y"}, source, size: 3, color: "#31a354"})
+
+        return p
+      }
+
+      const plots = [
+        plot([]),
+        plot([3]),
+        plot([3, 4]),
+        plot([3, 5]),
+        plot([3, 6]),
+        plot([0, 3, 4, 9]),
+      ]
+
+      await display(column(plots))
     })
   })
 })

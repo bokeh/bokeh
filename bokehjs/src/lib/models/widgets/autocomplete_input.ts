@@ -39,9 +39,7 @@ export class AutocompleteInputView extends TextInputView {
       this.model.value = this.menu.children[this._hover_index].textContent!
       this.input_el.focus()
       this._hide_menu()
-    }
-
-    if (!this.model.restrict) {
+    } else if (!this.model.restrict) {
       super.change_input()
     }
   }
