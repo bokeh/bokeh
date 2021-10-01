@@ -16,10 +16,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Bokeh imports
 from bokeh.models import ColumnDataSource, Toggle
 
 # Module under test
-from bokeh.models import formatters as bmf # isort:skip
+import bokeh.models.formatters as bmf # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
