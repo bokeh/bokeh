@@ -60,7 +60,7 @@ describe("CustomJSTickFormatter", () => {
       expect(labels1).to.be.equal(["-10.00", "0.00", "10.00"])
     })
 
-    it("should handle functions that return non-string values", () => {
+    it("should handle functions that return non-numeric values", () => {
       const formatter = new CustomJSTickFormatter({
         code: `
           switch (true) {
