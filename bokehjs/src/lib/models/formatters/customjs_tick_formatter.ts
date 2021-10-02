@@ -3,7 +3,7 @@ import * as p from "core/properties"
 import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
 
-export namespace FuncTickFormatter {
+export namespace CustomJSTickFormatter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TickFormatter.Props & {
@@ -12,17 +12,17 @@ export namespace FuncTickFormatter {
   }
 }
 
-export interface FuncTickFormatter extends FuncTickFormatter.Attrs {}
+export interface CustomJSTickFormatter extends CustomJSTickFormatter.Attrs {}
 
-export class FuncTickFormatter extends TickFormatter {
-  override properties: FuncTickFormatter.Props
+export class CustomJSTickFormatter extends TickFormatter {
+  override properties: CustomJSTickFormatter.Props
 
-  constructor(attrs?: Partial<FuncTickFormatter.Attrs>) {
+  constructor(attrs?: Partial<CustomJSTickFormatter.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.define<FuncTickFormatter.Props>(({Unknown, String, Dict}) => ({
+    this.define<CustomJSTickFormatter.Props>(({Unknown, String, Dict}) => ({
       args: [ Dict(Unknown), {} ],
       code: [ String, "" ],
     }))

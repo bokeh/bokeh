@@ -1,12 +1,12 @@
 import {expect} from "assertions"
 
-import {FuncTickFormatter} from "@bokehjs/models/formatters/func_tick_formatter"
+import {CustomJSTickFormatter} from "@bokehjs/models/formatters/customjs_tick_formatter"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 
-describe("FuncTickFormatter", () => {
+describe("CustomJSTickFormatter", () => {
 
   describe("_make_func method", () => {
-    const formatter = new FuncTickFormatter({code: "return 10"})
+    const formatter = new CustomJSTickFormatter({code: "return 10"})
 
     it("should return a Function", () => {
       expect(formatter._make_func()).to.be.instanceof(Function)
@@ -27,14 +27,14 @@ describe("FuncTickFormatter", () => {
 
   describe("doFormat method", () => {
     it("should format numerical ticks appropriately", () => {
-      const formatter = new FuncTickFormatter({code: "return tick.toFixed(2)"})
+      const formatter = new CustomJSTickFormatter({code: "return tick.toFixed(2)"})
       const labels = formatter.doFormat([-10, -0.1, 0, 0.1, 10], {loc: 0})
       expect(labels).to.be.equal(["-10.00", "-0.10", "0.00", "0.10", "10.00"])
     })
 
     /* XXX: this won't compile, because doFormat doesn't accept strings
     it("should format categorical ticks appropriately", () => {
-      const formatter = new FuncTickFormatter({code: "return tick + '_lat'"})
+      const formatter = new CustomJSTickFormatter({code: "return tick + '_lat'"})
       const labels = formatter.doFormat(["a", "b", "c", "d", "e"], {loc: 0})
       expect(labels).to.be.equal(["a_lat", "b_lat", "c_lat", "d_lat", "e_lat"])
     })
@@ -42,7 +42,7 @@ describe("FuncTickFormatter", () => {
 
     it("should handle args appropriately", () => {
       const rng = new Range1d({start: 5, end: 10})
-      const formatter = new FuncTickFormatter({
+      const formatter = new CustomJSTickFormatter({
         code: "return (foo.start + foo.end + tick).toFixed(2)",
         args: {foo: rng},
       })
@@ -51,7 +51,7 @@ describe("FuncTickFormatter", () => {
     })
 
     it("should handle array of ticks", () => {
-      const formatter = new FuncTickFormatter({
+      const formatter = new CustomJSTickFormatter({
         code: "this.k = this.k || (ticks.length > 3 ? 10 : 100); return (tick * this.k).toFixed(2)",
       })
       const labels0 = formatter.doFormat([-10, -0.1, 0, 0.1, 10], {loc: 0})
@@ -60,8 +60,8 @@ describe("FuncTickFormatter", () => {
       expect(labels1).to.be.equal(["-10.00", "0.00", "10.00"])
     })
 
-    it("should handle functions that return non-string values", () => {
-      const formatter = new FuncTickFormatter({
+    it("should handle functions that return non-numeric values", () => {
+      const formatter = new CustomJSTickFormatter({
         code: `
           switch (true) {
             case tick >= 1e9: return (tick / 1e9).toFixed(1) + " G"

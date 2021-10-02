@@ -2,7 +2,8 @@ from math import pi
 
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
-from bokeh.models import ColumnDataSource, CustomJSTransform, FuncTickFormatter, Select
+from bokeh.models import (ColumnDataSource, CustomJSTickFormatter,
+                          CustomJSTransform, Select)
 from bokeh.plotting import figure
 from bokeh.sampledata.population import data as df
 from bokeh.transform import factor_cmap, transform
@@ -34,7 +35,7 @@ pyramid.hbar(y="AgeGrp", height=1, right=transform('Value', gender_transform),
              fill_color=factor_cmap('Sex', palette=["#3B8686", "#CFF09E"], factors=["Male", "Female"]))
 
 pyramid.ygrid.grid_line_color = None
-pyramid.xaxis.formatter = FuncTickFormatter(code="""
+pyramid.xaxis.formatter = CustomJSTickFormatter(code="""
     return (Math.abs(tick) / 1e6) + " M"
 """)
 
@@ -54,7 +55,7 @@ population.xgrid.grid_line_color = None
 population.legend.location = "center_right"
 population.x_range.end = 2150
 population.yaxis.minor_tick_line_color = None
-population.yaxis.formatter = FuncTickFormatter(code="""
+population.yaxis.formatter = CustomJSTickFormatter(code="""
     return (Math.abs(tick) / 1e9) + " B"
 """)
 
