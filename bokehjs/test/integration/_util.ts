@@ -8,7 +8,7 @@ import {LayoutDOM, Row, Column, GridBox} from "@bokehjs/models/layouts/index"
 
 import {wait} from "@bokehjs/core/util/defer"
 import {tex2svg, mathml2svg} from "@bokehjs/models/text/mathjax"
-import {MathJaxProvider} from "@bokehjs/models/text/providers"
+import {MathJaxProvider, NoProvider} from "@bokehjs/models/text/providers"
 import {MathTextView} from "@bokehjs/models/text/math_text"
 
 export function grid(items: Matrix<LayoutDOM> | LayoutDOM[][], opts?: Partial<GridBox.Attrs>): GridBox {
@@ -64,3 +64,5 @@ export function with_provider(provider: MathJaxProvider) {
 }
 
 export const with_internal = with_provider(new InternalProvider())
+export const with_delayed = with_provider(new DelayedInternalProvider())
+export const with_none = with_provider(new NoProvider())
