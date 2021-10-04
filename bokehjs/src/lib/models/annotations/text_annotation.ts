@@ -74,6 +74,7 @@ export abstract class TextAnnotationView extends AnnotationView {
     const graphics = this._text_view.graphics()
     graphics.angle = angle
     graphics.position = position
+    graphics.align = "auto"
     graphics.visuals = this.visuals.text.values()
 
     const {background_fill, border_line} = this.visuals
