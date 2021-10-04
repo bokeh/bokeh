@@ -17,19 +17,25 @@ strings, and text-like objects, e.g.:
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging
-
-from bokeh.core.property.singletons import Intrinsic # isort:skip
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
 # Bokeh imports
+from .bases import Init
 from .either import Either
 from .instance import Instance
+from .singletons import Intrinsic
 from .string import MathString
+
+if TYPE_CHECKING:
+    from ...models.text import BaseText
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -48,8 +54,8 @@ class TextLike(Either):
 
     """
 
-    def __init__(self, default=Intrinsic, help=None) -> None:
-        types = MathString, Instance("bokeh.models.text.BaseText")
+    def __init__(self, default: Init[str | BaseText] = Intrinsic, help: str | None = None) -> None:
+        types = (MathString, Instance("bokeh.models.text.BaseText"))
         super().__init__(*types, default=default, help=help)
 
 #-----------------------------------------------------------------------------
