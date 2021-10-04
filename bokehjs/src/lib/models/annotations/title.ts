@@ -2,7 +2,6 @@ import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {VerticalAlign, TextAlign} from "core/enums"
 import {Size, Layoutable} from "core/layout"
 import {Panel} from "core/layout/side_panel"
-import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Position} from "core/graphics"
 
@@ -100,12 +99,7 @@ export namespace Title {
     align: p.Property<TextAlign>
     offset: p.Property<number>
     standoff: p.Property<number>
-  } & Mixins
-
-  export type Mixins =
-    mixins.Text           &
-    mixins.BorderLine     &
-    mixins.BackgroundFill
+  }
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -122,12 +116,6 @@ export class Title extends TextAnnotation {
 
   static {
     this.prototype.default_view = TitleView
-
-    this.mixins<Title.Mixins>([
-      mixins.Text,
-      ["border_",     mixins.Line],
-      ["background_", mixins.Fill],
-    ])
 
     this.define<Title.Props>(({Number}) => ({
       vertical_align:   [ VerticalAlign, "bottom" ],

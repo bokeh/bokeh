@@ -8,6 +8,7 @@ import {build_view} from "core/build_views"
 import {isString} from "core/util/types"
 import {parse_delimited_string} from "models/text/utils"
 import {Position} from "core/graphics"
+import * as mixins from "core/property_mixins"
 
 export abstract class TextAnnotationView extends AnnotationView {
   override model: TextAnnotation
@@ -51,7 +52,6 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   override remove(): void {
     this._text_view?.remove()
-
     super.remove()
   }
 
@@ -99,7 +99,12 @@ export namespace TextAnnotation {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Annotation.Props & {
     text: p.Property<string | BaseText>
-  }
+  } & Mixins
+
+  export type Mixins =
+    mixins.Text &
+    mixins.BorderLine &
+    mixins.BackgroundFill
 
   export type Visuals = Annotation.Visuals & {
     text: visuals.Text
@@ -119,6 +124,12 @@ export abstract class TextAnnotation extends Annotation {
   }
 
   static {
+    this.mixins<TextAnnotation.Mixins>([
+      mixins.Text,
+      ["border_",     mixins.Line],
+      ["background_", mixins.Fill],
+    ])
+
     this.define<TextAnnotation.Props>(({String, Or, Ref}) => ({
       text: [ Or(String, Ref(BaseText)), "" ],
     }))

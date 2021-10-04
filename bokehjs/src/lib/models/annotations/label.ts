@@ -3,7 +3,6 @@ import {resolve_angle} from "core/util/math"
 import {SpatialUnits, AngleUnits} from "core/enums"
 import {Size} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
-import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 
 export class LabelView extends TextAnnotationView {
@@ -59,14 +58,9 @@ export namespace Label {
     angle_units: p.Property<AngleUnits>
     x_offset: p.Property<number>
     y_offset: p.Property<number>
-  } & Mixins
+  }
 
   export type Attrs = p.AttrsOf<Props>
-
-  export type Mixins =
-    mixins.Text &
-    mixins.BorderLine &
-    mixins.BackgroundFill
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -83,12 +77,6 @@ export class Label extends TextAnnotation {
 
   static {
     this.prototype.default_view = LabelView
-
-    this.mixins<Label.Mixins>([
-      mixins.Text,
-      ["border_",     mixins.Line],
-      ["background_", mixins.Fill],
-    ])
 
     this.define<Label.Props>(({Number, Angle}) => ({
       x:           [ Number ],
