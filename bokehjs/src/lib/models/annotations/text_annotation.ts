@@ -14,7 +14,7 @@ export abstract class TextAnnotationView extends AnnotationView {
   override model: TextAnnotation
   override visuals: TextAnnotation.Visuals
 
-  _text_view: BaseTextView | null = null
+  protected _text_view: BaseTextView
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -23,11 +23,8 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   protected async _init_text(): Promise<void> {
     const {text} = this.model
-    if (text != null) {
-      const _text = isString(text) ? parse_delimited_string(text) : text
-      this._text_view = await build_view(_text, {parent: this})
-    } else
-      this._text_view = null
+    const _text = isString(text) ? parse_delimited_string(text) : text
+    this._text_view = await build_view(_text, {parent: this})
   }
 
   override update_layout(): void {
@@ -40,10 +37,10 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   override connect_signals(): void {
     super.connect_signals()
-    const {text} = this.model.properties
 
+    const {text} = this.model.properties
     this.on_change(text, async () => {
-      this._text_view?.remove()
+      this._text_view.remove()
       await this._init_text()
     })
 
@@ -51,7 +48,7 @@ export abstract class TextAnnotationView extends AnnotationView {
   }
 
   override remove(): void {
-    this._text_view?.remove()
+    this._text_view.remove()
     super.remove()
   }
 
@@ -59,18 +56,17 @@ export abstract class TextAnnotationView extends AnnotationView {
     if (!super.has_finished())
       return false
 
-    if (this._text_view != null) {
-      if (!this._text_view.has_finished())
-        return false
-    }
+    if (!this._text_view.has_finished())
+      return false
 
     return true
   }
 
-  protected _paint(ctx: Context2d, position: Position, angle: number): void {
-    if (this._text_view == null)
-      return
+  override get displayed(): boolean {
+    return super.displayed && this._text_view.model.text != "" && this.visuals.text.doit
+  }
 
+  protected _paint(ctx: Context2d, position: Position, angle: number): void {
     const graphics = this._text_view.graphics()
     graphics.angle = angle
     graphics.position = position

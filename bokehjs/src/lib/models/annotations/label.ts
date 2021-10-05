@@ -18,7 +18,7 @@ export class LabelView extends TextAnnotationView {
   }
 
   protected override _get_size(): Size {
-    if (this._text_view == null)
+    if (!this.displayed)
       return {width: 0, height: 0}
 
     const graphics = this._text_view.graphics()

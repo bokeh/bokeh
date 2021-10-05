@@ -73,9 +73,6 @@ export class TitleView extends TextAnnotationView {
   }
 
   protected _render(): void {
-    if (this._text_view == null)
-      return
-
     const position = this._get_position()
     const angle = this.panel.get_label_angle_heuristic("parallel")
 
@@ -83,7 +80,7 @@ export class TitleView extends TextAnnotationView {
   }
 
   protected override _get_size(): Size {
-    if (this._text_view == null)
+    if (!this.displayed)
       return {width: 0, height: 0}
 
     const graphics = this._text_view.graphics()
