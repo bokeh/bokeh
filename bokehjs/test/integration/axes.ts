@@ -1,41 +1,17 @@
-import sinon from "sinon"
-
-import {display} from "./_util"
+import {display, with_internal} from "./_util"
 
 import {
-  LinearAxis, LogAxis, CategoricalAxis, LinearScale, LogScale, CategoricalScale, Range1d, FactorRange,
-  Plot, AllLabels, NoOverlap, TeX, Ascii, MathML,
+  LinearAxis, LogAxis, CategoricalAxis,
+  LinearScale, LogScale, CategoricalScale,
+  Range1d, FactorRange,
+  AllLabels, NoOverlap,
+  Plot,
+  TeX,
 } from "@bokehjs/models"
+
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 import {Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
-import {MathTextView} from "@bokehjs/models/text/math_text"
-import {NoProvider, MathJaxProvider} from "@bokehjs/models/text/providers"
-import {tex2svg, mathml2svg} from "@bokehjs/models/text/mathjax"
-import {wait} from "@bokehjs/core/util/defer"
-
-export class InternalProvider extends MathJaxProvider {
-  get MathJax() {
-    return this.status == "loaded" ? {tex2svg, mathml2svg} : null
-  }
-  async fetch() {
-    this.status = "loaded"
-  }
-}
-
-export class DelayedInternalProvider extends MathJaxProvider {
-  get MathJax() {
-    return this.status == "loaded" ? {tex2svg, mathml2svg} : null
-  }
-
-  async fetch() {
-    this.status = "loading"
-    wait(50).then(() => {
-      this.status = "loaded"
-      this.ready.emit()
-    })
-  }
-}
 
 (() => {
   type PlotFn = (attrs: Partial<LinearAxis.Attrs>, options?: {minor_size?: number, num_ticks?: number}) => Promise<void>
@@ -58,11 +34,10 @@ export class DelayedInternalProvider extends MathJaxProvider {
       })
 
       const axis = axis_type == "linear" ? new LinearAxis(attrs) : new LogAxis(attrs)
-
       if (options?.num_ticks != null)
         axis.ticker.desired_num_ticks = options.num_ticks
-
       p.add_layout(axis, side)
+
       await display(p)
     }
   }
@@ -83,10 +58,12 @@ export class DelayedInternalProvider extends MathJaxProvider {
         title: null,
         toolbar_location: null,
       })
+
       const axis = axis_type == "linear" ? new LinearAxis(attrs) : new LogAxis(attrs)
       if (options?.num_ticks != null)
         axis.ticker.desired_num_ticks = options.num_ticks
       p.add_layout(axis, side)
+
       await display(p)
     }
   }
@@ -156,122 +133,6 @@ export class DelayedInternalProvider extends MathJaxProvider {
       await plot({minor_tick_out: 10})
     })
 
-    const tex = "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"
-
-    const ascii = "x = (-b +- sqrt(b^2 - 4ac)) / (2a)"
-
-    const mathml = `
-    <math>
-        <mrow>
-            <mi>x</mi>
-            <mo>=</mo>
-            <mfrac>
-                <mrow>
-                <mrow>
-                    <mo>-</mo>
-                    <mi>b</mi>
-                </mrow>
-                <mo>&#xB1;<!--PLUS-MINUS SIGN--></mo>
-                <msqrt>
-                    <mrow>
-                    <msup>
-                        <mi>b</mi>
-                        <mn>2</mn>
-                    </msup>
-                    <mo>-</mo>
-                    <mrow>
-                        <mn>4</mn>
-                        <mo>&#x2062;</mo>
-                        <mi>a</mi>
-                        <mo>&#x2062;</mo>
-                        <mi>c</mi>
-                    </mrow>
-                    </mrow>
-                </msqrt>
-                </mrow>
-                <mrow>
-                <mn>2</mn>
-                <mo>&#x2062;<!--INVISIBLE TIMES--></mo>
-                <mi>a</mi>
-                </mrow>
-            </mfrac>
-        </mrow>
-    </math>
-    `
-
-    it("should support LaTeX notation on axis_label with MathText", async () => {
-      const stub = sinon.stub(MathTextView.prototype, "provider")
-      stub.value(new InternalProvider())
-      try {
-        await plot({axis_label: new TeX({text: tex})}, {minor_size: 100})
-      } finally {
-        stub.restore()
-      }
-    })
-
-    it("should support Ascii notation on axis_label with MathText", async () => {
-      const stub = sinon.stub(MathTextView.prototype, "provider")
-      stub.value(new InternalProvider())
-      try {
-        await plot({axis_label: new Ascii({text: ascii})}, {minor_size: 100})
-      } finally {
-        stub.restore()
-      }
-    })
-
-    it("should support MathML notation on axis_label with MathText", async () => {
-      const stub = sinon.stub(MathTextView.prototype, "provider")
-      stub.value(new InternalProvider())
-      try {
-        await plot({axis_label: new MathML({text: mathml})}, {minor_size: 100})
-      } finally {
-        stub.restore()
-      }
-    })
-
-    it("should support LaTeX notation on axis_label with MathText and a delay in loading", async () => {
-      const stub = sinon.stub(MathTextView.prototype, "provider")
-      stub.value(new DelayedInternalProvider())
-      try {
-        await plot({axis_label: new TeX({text: tex})}, {minor_size: 100})
-      } finally {
-        stub.restore()
-      }
-    })
-
-    it("should support LaTeX notation on axis_label with MathText and fallback to text if MathJax has errors", async () => {
-      const stub = sinon.stub(MathTextView.prototype, "provider")
-      stub.value(new NoProvider())
-      try {
-        await plot({axis_label: new TeX({text: tex})}, {minor_size: 100})
-      } finally {
-        stub.restore()
-      }
-    })
-
-    it("should display tick labels with math text on overrides", async () => {
-      const stub = sinon.stub(MathTextView.prototype, "provider")
-      stub.value(new InternalProvider())
-      try {
-        await plot({
-          major_label_overrides: {
-            100: new TeX({text: "-3\\sigma"}),
-            120: new TeX({text: "-2\\sigma"}),
-            140: new TeX({text: "-1\\sigma"}),
-            160: new TeX({text: "\\mu"}),
-            180: new TeX({text: "1\\sigma"}),
-            200: new TeX({text: "2\\sigma"}),
-            1: "one",
-            0.01: new TeX({text: "\\frac{0.133}{\\mu+2\\sigma^2}"}),
-            10000: new TeX({text: "10 \\ast 1000"}),
-            1000000: new TeX({text: "\\sigma^2"}),
-          },
-        }, {minor_size: 100})
-      } finally {
-        stub.restore()
-      }
-    })
-
     it("should support single line axis_label", async () => {
       await plot({axis_label: "This is an axis label"}, {minor_size: 100})
     })
@@ -328,6 +189,52 @@ export class DelayedInternalProvider extends MathJaxProvider {
     describe("in vertical orientation", () => {
       describe("left of a plot", () => test(vplot("left", "linear")))
       describe("right of a plot", () => test(vplot("right", "linear")))
+    })
+
+    describe("in both orientations", () => {
+      async function hvplot(attrs: Partial<LogAxis.Attrs>): Promise<void> {
+        const p = new Plot({
+          width: 600,
+          height: 400,
+          x_scale: new LogScale(),
+          y_scale: new LogScale(),
+          x_range: new Range1d({start: 10**-2, end: 10**11}),
+          y_range: new Range1d({start: 10**-2, end: 10**11}),
+          min_border_top: 20,
+          min_border_bottom: 20,
+          min_border_left: 0,
+          min_border_right: 0,
+          title: null,
+          toolbar_location: null,
+        })
+
+        p.add_layout(new LogAxis(attrs), "left")
+        p.add_layout(new LogAxis(attrs), "right")
+        p.add_layout(new LogAxis(attrs), "above")
+        p.add_layout(new LogAxis(attrs), "below")
+
+        await display(p)
+      }
+
+      it("should support LaTeX notation on axis labels", async () => {
+        await with_internal(async () => {
+          const text = "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"
+          await hvplot({axis_label: new TeX({text})})
+        })
+      })
+
+      it("should support LaTeX notation on tick labels when using overrides", async () => {
+        await with_internal(async () => {
+          await hvplot({
+            major_label_overrides: {
+              1: "one",
+              0.01: new TeX({text: "\\frac{0.133}{\\mu+2\\sigma^2}"}),
+              10000: new TeX({text: "10 \\ast 1000"}),
+              1000000: new TeX({text: "\\sigma^2"}),
+            },
+          })
+        })
+      })
     })
   })
 

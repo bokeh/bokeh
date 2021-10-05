@@ -1,6 +1,9 @@
 import {display, fig} from "../_util"
+import {tex} from "./_text_utils"
 
 import {Title} from "@bokehjs/models"
+
+const r = String.raw
 
 describe("Title annotation", () => {
   describe("should support positioning", () => {
@@ -12,19 +15,19 @@ describe("Title annotation", () => {
 
       p.add_layout(new Title({text: "1st Left (Ag/9)", ...attrs}), "left")
       p.add_layout(new Title({text: "Second Left (Ag/9)\nspanning two lines", ...attrs}), "left")
-      p.add_layout(new Title({text: "Third Left (Ag/9)", ...attrs}), "left")
+      p.add_layout(new Title({text: r`$$\text{Left: } ${tex}$$`, ...attrs}), "left")
 
       p.add_layout(new Title({text: "1st Right (Ag/9)", ...attrs}), "right")
       p.add_layout(new Title({text: "Second Right (Ag/9)\nspanning two lines", ...attrs}), "right")
-      p.add_layout(new Title({text: "Third Right (Ag/9)", ...attrs}), "right")
+      p.add_layout(new Title({text: r`$$\text{Right: } ${tex}$$`, ...attrs}), "right")
 
       p.add_layout(new Title({text: "1st Above (Ag/9)", ...attrs}), "above")
       p.add_layout(new Title({text: "Second Above (Ag/9)\nspanning two lines", ...attrs}), "above")
-      p.add_layout(new Title({text: "Third Above (Ag/9)", ...attrs}), "above")
+      p.add_layout(new Title({text: r`$$\text{Above: } ${tex}$$`, ...attrs}), "above")
 
       p.add_layout(new Title({text: "1st Below (Ag/9)", ...attrs}), "below")
       p.add_layout(new Title({text: "Second Below (Ag/9)\nspanning two lines", ...attrs}), "below")
-      p.add_layout(new Title({text: "Third Below (Ag/9)", ...attrs}), "below")
+      p.add_layout(new Title({text: r`$$\text{Below: } ${tex}$$`, ...attrs}), "below")
 
       return p
     }

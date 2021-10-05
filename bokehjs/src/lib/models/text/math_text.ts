@@ -123,6 +123,20 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     const font = `${style} ${size} ${face}`
     this.font = font
     this.color = color2css(color, alpha)
+
+    const align = v.align
+    //this._visual_align = align
+    this._x_anchor = align
+
+    const baseline = v.baseline
+    this._y_anchor = (() => {
+      switch (baseline) {
+        case "top": return "top"
+        case "middle": return "center"
+        case "bottom": return "bottom"
+        default: return "baseline"
+      }
+    })()
   }
 
   /**
