@@ -413,15 +413,10 @@ def test_Title() -> None:
         "align",
         "offset",
         "standoff",
-        "text_font",
-        "text_font_size",
-        "text_font_style",
-        "text_color",
-        "text_alpha",
-        "text_line_height",
     ],
-        prefix('border_', LINE),
-        prefix('background_', FILL),
+        TEXT,
+        prefix("border_", LINE),
+        prefix("background_", FILL),
     )
 
 
