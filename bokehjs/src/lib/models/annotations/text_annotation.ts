@@ -98,6 +98,7 @@ export abstract class TextAnnotationView extends AnnotationView {
 
 export namespace TextAnnotation {
   export type Attrs = p.AttrsOf<Props>
+
   export type Props = Annotation.Props & {
     text: p.Property<string | BaseText>
   } & Mixins
@@ -134,5 +135,10 @@ export abstract class TextAnnotation extends Annotation {
     this.define<TextAnnotation.Props>(({String, Or, Ref}) => ({
       text: [ Or(String, Ref(BaseText)), "" ],
     }))
+
+    this.override<TextAnnotation.Props>({
+      background_fill_color: null,
+      border_line_color: null,
+    })
   }
 }

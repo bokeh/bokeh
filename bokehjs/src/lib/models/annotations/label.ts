@@ -88,10 +88,5 @@ export class Label extends TextAnnotation {
       x_offset:    [ Number, 0 ],
       y_offset:    [ Number, 0 ],
     }))
-
-    this.override<Label.Props>({
-      background_fill_color: null,
-      border_line_color: null,
-    })
   }
 }

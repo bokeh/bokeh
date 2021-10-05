@@ -15,18 +15,21 @@ export class TitleView extends TextAnnotationView {
     const hmargin = this.model.offset
     const vmargin = this.model.standoff/2
 
+    const {align, vertical_align} = this.model
+
     let sx: number, sy: number
     const {bbox} = this.layout
+
     switch (this.panel.side) {
       case "above":
       case "below": {
-        switch (this.model.vertical_align) {
+        switch (vertical_align) {
           case "top":    sy = bbox.top     + vmargin; break
           case "middle": sy = bbox.vcenter;           break
           case "bottom": sy = bbox.bottom  - vmargin; break
         }
 
-        switch (this.model.align) {
+        switch (align) {
           case "left":   sx = bbox.left    + hmargin; break
           case "center": sx = bbox.hcenter;           break
           case "right":  sx = bbox.right   - hmargin; break
@@ -34,13 +37,13 @@ export class TitleView extends TextAnnotationView {
         break
       }
       case "left": {
-        switch (this.model.vertical_align) {
+        switch (vertical_align) {
           case "top":    sx = bbox.left    + vmargin; break
           case "middle": sx = bbox.hcenter;           break
           case "bottom": sx = bbox.right   - vmargin; break
         }
 
-        switch (this.model.align) {
+        switch (align) {
           case "left":   sy = bbox.bottom  - hmargin; break
           case "center": sy = bbox.vcenter;           break
           case "right":  sy = bbox.top     + hmargin; break
@@ -48,13 +51,13 @@ export class TitleView extends TextAnnotationView {
         break
       }
       case "right": {
-        switch (this.model.vertical_align) {
+        switch (vertical_align) {
           case "top":    sx = bbox.right   - vmargin; break
           case "middle": sx = bbox.hcenter;           break
           case "bottom": sx = bbox.left    + vmargin; break
         }
 
-        switch (this.model.align) {
+        switch (align) {
           case "left":   sy = bbox.top     + hmargin; break
           case "center": sy = bbox.vcenter;           break
           case "right":  sy = bbox.bottom  - hmargin; break
@@ -63,19 +66,20 @@ export class TitleView extends TextAnnotationView {
       }
     }
 
-    const y_anchor = this.model.vertical_align == "middle" ? "center" : this.model.vertical_align
+    const x_anchor = align
+    const y_anchor = vertical_align == "middle" ? "center" : vertical_align
 
-    return {sx, sy, x_anchor: this.model.align, y_anchor}
+    return {sx, sy, x_anchor, y_anchor}
   }
 
   protected _render(): void {
     if (this._text_view == null)
       return
 
-    this.model.text_baseline = this.model.vertical_align
-    this.model.text_align = this.model.align
+    const position = this._get_position()
+    const angle = this.panel.get_label_angle_heuristic("parallel")
 
-    this._paint(this.layer.ctx, this._get_position(), this.panel.get_label_angle_heuristic("parallel"))
+    this._paint(this.layer.ctx, position, angle)
   }
 
   protected override _get_size(): Size {
@@ -118,21 +122,16 @@ export class Title extends TextAnnotation {
     this.prototype.default_view = TitleView
 
     this.define<Title.Props>(({Number}) => ({
-      vertical_align:   [ VerticalAlign, "bottom" ],
-      align:            [ TextAlign, "left" ],
-      offset:           [ Number, 0 ],
-      standoff:         [ Number, 10 ],
+      vertical_align: [ VerticalAlign, "bottom" ],
+      align:          [ TextAlign, "left" ],
+      offset:         [ Number, 0 ],
+      standoff:       [ Number, 10 ],
     }))
-
-    this.prototype._props.text_align.options.internal = true
-    this.prototype._props.text_baseline.options.internal = true
 
     this.override<Title.Props>({
       text_font_size: "13px",
       text_font_style: "bold",
       text_line_height: 1.0,
-      background_fill_color: null,
-      border_line_color: null,
     })
   }
 }
