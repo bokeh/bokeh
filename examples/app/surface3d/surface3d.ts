@@ -25,7 +25,7 @@ declare namespace vis {
 }
 
 // This defines some default options for the Graph3d feature of vis.js
-// See: http://visjs.org/graph3d_examples.html for more details. This
+// See: https://visjs.github.io/vis-graph3d/examples/ for more details. This
 // JS object should match the Python default value.
 const OPTIONS = {
   width: '600px',

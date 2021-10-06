@@ -2,7 +2,7 @@ from bokeh.core.properties import Any, Dict, Instance, String
 from bokeh.models import ColumnDataSource, LayoutDOM
 
 # This defines some default options for the Graph3d feature of vis.js
-# See: http://visjs.org/graph3d_examples.html for more details. Note
+# See: https://visjs.github.io/vis-graph3d/examples/ for more details. Note
 # that we are fixing the size of this component, in ``options``, but
 # with additional work it could be made more responsive.
 DEFAULTS = {
