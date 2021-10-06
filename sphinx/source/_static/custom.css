@@ -271,11 +271,16 @@ img.image-border {
 
 .prev-next-area a {
     padding: 10px;
+    margin-top: 2em;
     border: 1px solid rgba(var(--pst-color-borders),1);
     border-radius: 1.5px;
     max-width: 45%;
     overflow-x: hidden;
-    color: rgba(0,0,0,.65);
+    color: rgba(var(--pst-color-paragraph),1);
+}
+
+.prev-next-area a p.prev-next-title {
+    color: rgba(var(--pst-color-paragraph),1);
 }
 
 /* Pandas dataframe css */
