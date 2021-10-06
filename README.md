@@ -29,7 +29,7 @@
     </div>
     <div>
     <a href="https://docs.bokeh.org/en/latest/docs/installation.html">
-    <img src="https://img.shields.io/pypi/dm/bokeh?label=PyPI"
+    <img src="https://img.shields.io/pypi/dm/bokeh?label=PyPI&style=flat"
          alt="PyPI downloads per month" />
     </a>
     </div>
