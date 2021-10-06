@@ -367,3 +367,8 @@ dl.py dt.field-odd, dl.py dt.field-even {
     margin-bottom: 2px;
     background-color: #eee;
 }
+
+/* If no-sidebar is present, hide the div entirely to prevent taking space */
+.no-sidebar {
+  display: none;
+}
