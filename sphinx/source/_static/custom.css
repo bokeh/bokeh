@@ -80,6 +80,7 @@ code {
     --pst-color-h5: var(--pst-color-text-base);
     --pst-color-h6: var(--pst-color-text-base);
     --pst-color-paragraph: var(--pst-color-text-base);
+    --pst-color-inline-code: var(--pst-color-text-base);
     --pst-color-link: 255, 0, 0;
     --pst-color-link-hover: 227, 46, 0;
     --pst-color-headerlink: 198, 15, 15;
