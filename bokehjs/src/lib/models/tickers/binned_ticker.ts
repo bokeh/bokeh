@@ -16,13 +16,13 @@ export namespace BinnedTicker {
 export interface BinnedTicker extends BinnedTicker.Attrs {}
 
 export class BinnedTicker extends Ticker {
-  properties: BinnedTicker.Props
+  override properties: BinnedTicker.Props
 
   constructor(attrs?: Partial<BinnedTicker.Attrs>) {
     super(attrs)
   }
 
-  static init_BinnedTicker(): void {
+  static {
     this.define<BinnedTicker.Props>(({Number, Ref, Or, Auto}) => ({
       mapper: [ Ref(ScanningColorMapper) ],
       num_major_ticks: [ Or(Number, Auto), 8 ],

@@ -14,9 +14,9 @@ export abstract class Uniform<T = number> implements Equatable {
 }
 
 export class UniformScalar<T> extends Uniform<T> {
-  readonly is_scalar = true
+  override readonly is_scalar = true
 
-  constructor(readonly value: T, readonly length: number) {
+  constructor(readonly value: T, override readonly length: number) {
     super()
   }
 
@@ -41,8 +41,8 @@ export class UniformScalar<T> extends Uniform<T> {
 }
 
 export class UniformVector<T> extends Uniform<T> {
-  readonly is_scalar = false
-  readonly length = this.array.length
+  override readonly is_scalar = false
+  override readonly length = this.array.length
 
   constructor(readonly array: Arrayable<T>) {
     super()
@@ -69,16 +69,16 @@ export class UniformVector<T> extends Uniform<T> {
 export class ColorUniformVector extends UniformVector<number> {
   private readonly _view: DataView
 
-  constructor(readonly array: Uint32Array) {
+  constructor(override readonly array: Uint32Array) {
     super(array)
     this._view = new DataView(array.buffer)
   }
 
-  get(i: number): number {
+  override get(i: number): number {
     return this._view.getUint32(4*i)
   }
 
-  *[Symbol.iterator](): Generator<number, void, undefined> {
+  override *[Symbol.iterator](): Generator<number, void, undefined> {
     const n = this.length
     for (let i = 0; i < n; i++)
       yield this.get(i)

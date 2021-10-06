@@ -1,8 +1,4 @@
 .. _bokeh.models.glyphs.Ellipse:
 
-bokeh.models.glyphs.Ellipse
----------------------------
-
-.. autoclass:: bokeh.models.glyphs.Ellipse
-    :members:
-    :inherited-members:
+.. bokeh-model:: Ellipse
+    :module: bokeh.models.glyphs

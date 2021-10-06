@@ -45,12 +45,27 @@ built-in ``HTTPServer``.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+
+# Standard library imports
+from typing import (
+    Any,
+    Dict,
+    List,
+    Tuple,
+    Type,
+    Union,
+)
+
+# External imports
+from tornado.web import RequestHandler
 
 # Bokeh imports
 from ..embed.bundle import extension_dirs
@@ -79,13 +94,22 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-toplevel_patterns = [
+RouteContext = Dict[str, Any]
+
+URLRoutes = List[
+    Union[
+        Tuple[str, Type[RequestHandler]],
+        Tuple[str, Type[RequestHandler], RouteContext],
+    ],
+]
+
+toplevel_patterns: URLRoutes = [
     (r'/?', RootHandler),
     (r'/static/extensions/(.*)', MultiRootStaticHandler, dict(root=extension_dirs)),
     (r'/static/(.*)', StaticHandler),
 ]
 
-per_app_patterns = [
+per_app_patterns: URLRoutes = [
     (r'/?', DocHandler),
     (r'/ws', WSHandler),
     (r'/metadata', MetadataHandler),

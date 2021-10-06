@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -15,9 +17,18 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from _util_property import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
-from bokeh.core.properties import Int, Interval, List, Regex
+from bokeh.core.properties import (
+    Dict,
+    Int,
+    Interval,
+    List,
+    Regex,
+    String,
+)
+from bokeh.core.property.wrappers import PropertyValueDict, PropertyValueList
+
+from _util_property import _TestHasProps, _TestModel
 
 # Module under test
 import bokeh.core.property.either as bcpe # isort:skip
@@ -83,6 +94,16 @@ class Test_Either:
     def test_str(self) -> None:
         prop = bcpe.Either(Int, Int)
         assert str(prop) == "Either(Int, Int)"
+
+    def test_wrap(self) -> None:
+        prop = bcpe.Either(List(Int), Dict(String, Int))
+        wrapped = prop.wrap([10, 20])
+        assert isinstance(wrapped, PropertyValueList)
+        assert prop.wrap(wrapped) is wrapped
+
+        wrapped = prop.wrap({"foo": 10})
+        assert isinstance(wrapped, PropertyValueDict)
+        assert prop.wrap(wrapped) is wrapped
 
 #-----------------------------------------------------------------------------
 # Dev API

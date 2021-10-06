@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -19,13 +21,32 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Dict, Optional, Sequence, Tuple, Type, Union, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+    overload,
+)
 
 # External imports
 from jinja2 import Template
+from typing_extensions import Literal, TypedDict
 
 # Bokeh imports
-from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE, MACROS, ROOT_DIV
+from .. import __version__
+from ..core.templates import (
+    AUTOLOAD_JS,
+    AUTOLOAD_TAG,
+    FILE,
+    MACROS,
+    ROOT_DIV,
+)
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
 from ..resources import CSSResources, JSResources, Resources
@@ -40,6 +61,10 @@ from .util import (
     standalone_docs_json_and_render_items,
 )
 from .wrappers import wrap_in_onload
+
+if TYPE_CHECKING:
+    from ..core.types import ID
+    from ..document.document import DocJson
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -111,7 +136,28 @@ def autoload_static(model: Union[Model, Document], resources: Resources, script_
 
     return js, tag
 
-def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool = True,
+@overload
+def components(models: Model, wrap_script: bool = ..., # type: ignore[misc] # XXX: mypy bug
+    wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> Tuple[str, str]: ...
+@overload
+def components(models: Model, wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
+    theme: ThemeLike = ...) -> Tuple[str, RenderRoot]: ...
+
+@overload
+def components(models: Sequence[Model], wrap_script: bool = ..., # type: ignore[misc] # XXX: mypy bug
+    wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> Tuple[str, Sequence[str]]: ...
+@overload
+def components(models: Sequence[Model], wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
+    theme: ThemeLike = ...) -> Tuple[str, Sequence[RenderRoot]]: ...
+
+@overload
+def components(models: Dict[str, Model], wrap_script: bool = ..., # type: ignore[misc] # XXX: mypy bug
+    wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> Tuple[str, Dict[str, str]]: ...
+@overload
+def components(models: Dict[str, Model], wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
+    theme: ThemeLike = ...) -> Tuple[str, Dict[str, RenderRoot]]: ...
+
+def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: bool = True,
                wrap_plot_info: bool = True, theme: ThemeLike = None) -> Tuple[str, Any]:
     ''' Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
@@ -120,17 +166,20 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
 
     The returned components assume that BokehJS resources are **already loaded**.
     The html template in which they will be embedded needs to include the following
-    scripts tags. The widgets and tables resources are only necessary if the components
-    make use of widgets and tables.
+    scripts tags:
 
     .. code-block:: html
 
         <script src="https://cdn.bokeh.org/bokeh/release/bokeh-x.y.z.min.js"></script>
         <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
         <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
+        <script src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-x.y.z.min.js"></script>
+        <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-x.y.z.min.js"></script>
 
-    Note that in Jupyter Notebooks, it is not possible to use components and show in
-    the same notebook cell.
+    The ``"-widgets"``, ``"-tables"``, and ``"-mathjax"`` files are only necessary
+    if your document includes :ref:`Bokeh widgets <userguide_interaction_widgets>`,
+    :ref:`data tables <userguide_interaction_widgets_examples_datatable>`, or
+    :ref:`math text <userguide_styling_math>`, respectively.
 
     Args:
         models (Model|list|dict|tuple) :
@@ -195,10 +244,14 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
 
     '''
     # 1) Convert single items and dicts into list
+    # XXX: was_single_object = isinstance(models, Model) #or isinstance(models, Document)
+    was_single_object = False
 
-    was_single_object = isinstance(models, Model) or isinstance(models, Document)
+    if isinstance(models, Model):
+        was_single_object = True
+        models = [models]
 
-    models = _check_models_or_docs(models)
+    models = _check_models_or_docs(models) # type: ignore # XXX: this API needs to be refined
 
     # now convert dict to list, saving keys in the same order
     model_keys = None
@@ -206,11 +259,8 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
     if isinstance(models, dict):
         model_keys = models.keys()
         dict_type = models.__class__
-        values = []
         # don't just use .values() to ensure we are in the same order as key list
-        for k in model_keys:
-            values.append(models[k])
-        models = values
+        models = [ models[k] for k in model_keys ]
 
     # 2) Append models to one document. Either pre-existing or new and render
     with OutputDocumentFor(models, apply_theme=theme):
@@ -224,10 +274,11 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
     def div_for_root(root: RenderRoot) -> str:
         return ROOT_DIV.render(root=root, macros=MACROS)
 
+    results: List[str] | List[RenderRoot]
     if wrap_plot_info:
         results = list(div_for_root(root) for root in render_item.roots)
     else:
-        results = render_item.roots
+        results = list(render_item.roots)
 
     # 3) convert back to the input shape
     result: Any
@@ -240,10 +291,10 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
 
     return script, result
 
-def file_html(models: Union[Model, Document, Sequence[Model]],
-              resources: Union[Resources, Tuple[JSResources, CSSResources]],
-              title: Optional[str] = None,
-              template: Union[Template, str] = FILE,
+def file_html(models: Model | Document | Sequence[Model],
+              resources: Resources | Tuple[JSResources | None, CSSResources | None] | None,
+              title: str | None = None,
+              template: Template | str = FILE,
               template_variables: Dict[str, Any] = {},
               theme: ThemeLike = None,
               suppress_callback_warning: bool = False,
@@ -307,7 +358,13 @@ def file_html(models: Union[Model, Document, Sequence[Model]],
         return html_page_for_render_items(bundle, docs_json, render_items, title=title,
                                           template=template, template_variables=template_variables)
 
-def json_item(model: Model, target: Optional[str] = None, theme: ThemeLike = None) -> Any: # TODO: TypedDict?
+class StandaloneEmbedJson(TypedDict):
+    target_id: ID | None
+    root_id: ID
+    doc: DocJson
+    version: str
+
+def json_item(model: Model, target: ID | None = None, theme: ThemeLike = None) -> StandaloneEmbedJson:
     ''' Return a JSON block that can be used to embed standalone Bokeh content.
 
     Args:
@@ -369,15 +426,15 @@ def json_item(model: Model, target: Optional[str] = None, theme: ThemeLike = Non
         doc.title = ""
         docs_json = standalone_docs_json([model])
 
-    doc = list(docs_json.values())[0]
-    root_id = doc['roots']['root_ids'][0]
+    doc_json = list(docs_json.values())[0]
+    root_id = doc_json['roots']['root_ids'][0]
 
-    return {
-        'target_id' : target,
-        'root_id'   : root_id,
-        'doc'       : doc,
-    }
-
+    return StandaloneEmbedJson(
+        target_id = target,
+        root_id   = root_id,
+        doc       = doc_json,
+        version   = __version__,
+    )
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -413,7 +470,7 @@ def _check_models_or_docs(models: Union[ModelLike, ModelLikeCollection]) -> Mode
 
     return models
 
-def _title_from_models(models: Sequence[Union[Model, Document]], title: Optional[str]) -> str:
+def _title_from_models(models: Sequence[Union[Model, Document]], title: str | None) -> str:
     # use override title
     if title is not None:
         return title

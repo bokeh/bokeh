@@ -8,16 +8,19 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+import xyzservices.providers as xyz
+
 # Bokeh imports
 from bokeh.models import WMTSTileSource
-
-#from bokeh._testing.util.api import verify_all
 
 # Module under test
 import bokeh.tile_providers as bt # isort:skip
@@ -35,43 +38,38 @@ ALL = (
     'STAMEN_TONER_BACKGROUND',
     'STAMEN_TONER_LABELS',
     'OSM',
-    'WIKIMEDIA',
     'ESRI_IMAGERY',
     'get_provider',
     'Vendors'
 )
 
 _CARTO_URLS = {
-    'CARTODBPOSITRON':        'https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-    'CARTODBPOSITRON_RETINA': 'https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+    'CARTODBPOSITRON':        xyz.CartoDB.Positron.build_url(),
+    'CARTODBPOSITRON_RETINA': xyz.CartoDB.Positron.build_url(scale_factor="@2x"),
 }
 
 _STAMEN_URLS = {
-    'STAMEN_TERRAIN':          'https://stamen-tiles.a.ssl.fastly.net/terrain/{Z}/{X}/{Y}.png',
-    'STAMEN_TERRAIN_RETINA':   'https://stamen-tiles.a.ssl.fastly.net/terrain/{Z}/{X}/{Y}@2x.png',
-    'STAMEN_TONER':            'https://stamen-tiles.a.ssl.fastly.net/toner/{Z}/{X}/{Y}.png',
-    'STAMEN_TONER_BACKGROUND': 'https://stamen-tiles.a.ssl.fastly.net/toner-background/{Z}/{X}/{Y}.png',
-    'STAMEN_TONER_LABELS':     'https://stamen-tiles.a.ssl.fastly.net/toner-labels/{Z}/{X}/{Y}.png',
+    'STAMEN_TERRAIN':          xyz.Stamen.Terrain.build_url(),
+    'STAMEN_TERRAIN_RETINA':   xyz.Stamen.Terrain.build_url(scale_factor="@2x"),
+    'STAMEN_TONER':            xyz.Stamen.Toner.build_url(),
+    'STAMEN_TONER_BACKGROUND': xyz.Stamen.TonerBackground.build_url(),
+    'STAMEN_TONER_LABELS':     xyz.Stamen.TonerLabels.build_url(),
 }
 
-_STAMEN_LIC = {
-    'STAMEN_TERRAIN':          '<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>',
-    'STAMEN_TERRAIN_RETINA':   '<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>',
-    'STAMEN_TONER':            '<a href="https://www.openstreetmap.org/copyright">ODbL</a>',
-    'STAMEN_TONER_BACKGROUND': '<a href="https://www.openstreetmap.org/copyright">ODbL</a>',
-    'STAMEN_TONER_LABELS':     '<a href="https://www.openstreetmap.org/copyright">ODbL</a>',
+_STAMEN_ATTR = {
+    'STAMEN_TERRAIN':          xyz.Stamen.Terrain.html_attribution,
+    'STAMEN_TERRAIN_RETINA':   xyz.Stamen.Terrain.html_attribution,
+    'STAMEN_TONER':            xyz.Stamen.Toner.html_attribution,
+    'STAMEN_TONER_BACKGROUND': xyz.Stamen.TonerBackground.html_attribution,
+    'STAMEN_TONER_LABELS':     xyz.Stamen.TonerLabels.html_attribution,
 }
 
 _OSM_URLS = {
-    'OSM':                     'https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png'
-}
-
-_WIKIMEDIA_URLS = {
-    'WIKIMEDIA':               'https://maps.wikimedia.org/osm-intl/{Z}/{X}/{Y}@2x.png'
+    'OSM':                     xyz.OpenStreetMap.Mapnik.build_url()
 }
 
 _ESRI_URLS = {
-    'ESRI_IMAGERY':            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg'
+    'ESRI_IMAGERY':            xyz.Esri.WorldImagery.build_url()
 }
 
 #-----------------------------------------------------------------------------
@@ -94,12 +92,7 @@ class Test_StamenProviders:
     def test_attribution(self, name) -> None:
         p = bt.get_provider(getattr(bt, name))
 
-        assert p.attribution == (
-            'Map tiles by <a href="https://stamen.com">Stamen Design</a>, '
-            'under <a href="https://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. '
-            'Data by <a href="https://openstreetmap.org">OpenStreetMap</a>, '
-            'under %s.'
-        ) % _STAMEN_LIC[name]
+        assert p.attribution == _STAMEN_ATTR[name]
 
     def test_copies(self, name) -> None:
         p1 = bt.get_provider(getattr(bt, name))
@@ -118,10 +111,7 @@ class Test_CartoProviders:
 
     def test_attribution(self, name) -> None:
         p = bt.get_provider(getattr(bt, name))
-        assert p.attribution == (
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,'
-            '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
-        )
+        assert p.attribution == xyz.CartoDB.Positron.html_attribution
 
     def test_copies(self, name) -> None:
         p1 = bt.get_provider(getattr(bt, name))
@@ -140,30 +130,7 @@ class Test_OsmProvider:
 
     def test_attribution(self, name) -> None:
         p = bt.get_provider(getattr(bt, name))
-        assert p.attribution == (
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        )
-
-    def test_copies(self, name) -> None:
-        p1 = bt.get_provider(getattr(bt, name))
-        p2 = bt.get_provider(getattr(bt, name))
-        assert p1 is not p2
-
-@pytest.mark.parametrize('name', ['WIKIMEDIA'])
-class Test_WikimediaProvider:
-    def test_type(self, name) -> None:
-        p = getattr(bt, name)
-        assert isinstance(p, str)
-
-    def test_url(self, name) -> None:
-        p = bt.get_provider(getattr(bt, name))
-        assert p.url == _WIKIMEDIA_URLS[name]
-
-    def test_attribution(self, name) -> None:
-        p = bt.get_provider(getattr(bt, name))
-        assert p.attribution == (
-            '&copy; <a href="https://foundation.wikimedia.org/wiki/Maps_Terms_of_Use">Wikimedia Maps</a> contributors'
-        )
+        assert p.attribution == xyz.OpenStreetMap.Mapnik.html_attribution
 
     def test_copies(self, name) -> None:
         p1 = bt.get_provider(getattr(bt, name))
@@ -182,10 +149,7 @@ class Test_EsriProvider:
 
     def test_attribution(self, name) -> None:
         p = bt.get_provider(getattr(bt, name))
-        assert p.attribution == (
-            '&copy; <a href="http://downloads.esri.com/ArcGISOnline/docs/tou_summary.pdf">Esri</a>, '
-            'Earthstar Geographics'
-        )
+        assert p.attribution == xyz.Esri.WorldImagery.html_attribution
     def test_copies(self, name) -> None:
         p1 = bt.get_provider(getattr(bt, name))
         p2 = bt.get_provider(getattr(bt, name))
@@ -195,7 +159,7 @@ class Test_EsriProvider:
 class Test_GetProvider:
     @pytest.mark.parametrize('name', ['CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA', 'STAMEN_TERRAIN',
                                       'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND',
-                                      'STAMEN_TONER_LABELS', 'OSM', 'WIKIMEDIA', 'ESRI_IMAGERY', ])
+                                      'STAMEN_TONER_LABELS', 'OSM', 'ESRI_IMAGERY', ])
     def test_get_provider(self, name) -> None:
         assert name in bt.Vendors
         enum_member = getattr(bt.Vendors, name)
@@ -220,6 +184,15 @@ class Test_GetProvider:
         with pytest.raises(ValueError):
             bt.get_provider("This is not a valid tile vendor")
 
+    def test_xyzservices(self) -> None:
+        xyzservices = pytest.importorskip("xyzservices")
+        provider_data = xyzservices.providers.CartoDB.Positron
+        provider = bt.get_provider(provider_data)
+        assert isinstance(provider, WMTSTileSource)
+        assert provider.url == provider_data.build_url()
+        assert provider.attribution == provider_data.html_attribution
+        assert provider.min_zoom == provider_data.get("min_zoom", 0)
+        assert provider.max_zoom == provider_data.get("max_zoom", 30)
 
 #-----------------------------------------------------------------------------
 # Dev API

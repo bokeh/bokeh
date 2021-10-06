@@ -20,6 +20,7 @@
 # tests/examples
 /tests/examples/report.html
 /examples.log
+/tests/**/examples.log
 /examples/custom/font-awesome/package-lock.json
 
 # conda build
@@ -30,9 +31,6 @@
 # pytest
 /.cache/
 /.pytest_cache/
-
-# auto-generated
-/bokeh/LICENSE.txt
 
 # dev files
 *.patch

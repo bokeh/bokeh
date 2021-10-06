@@ -33,6 +33,8 @@ To display plots or widgets horizontally, use the |row| function.
 .. bokeh-plot:: docs/user_guide/examples/layout_horizontal.py
     :source-position: above
 
+.. _userguide_layout_gridplot:
+
 Grid layout for plots
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -53,7 +55,7 @@ number of columns you want in your grid. For example:
 
     gridplot([s1, s2, s3], ncols=2)
 
-You can also pass in ``plot_width`` and ``plot_height`` arguments.
+You can also pass in ``width`` and ``height`` arguments.
 These dimensions will then apply to all your plots.
 
 By default, |gridplot| merges all child plot tools into a single

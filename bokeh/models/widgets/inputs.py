@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -160,6 +162,14 @@ class FileInput(Widget):
         A valid `IANA Media Type`_, with no parameters.
 
     .. _IANA Media Type: https://www.iana.org/assignments/media-types/media-types.xhtml
+
+    .. note::
+        A bug in some versions of Chrome on macOS Big Sur may limit
+        how you can set a file input filter for those users. In those cases,
+        it is impossible to limit the user's selection to specific file
+        extensions - instead, the browser will limit users to predefined sets of
+        file types, such as ``Text/*`` or ``Image/*``. See :bokeh-issue:`10888`
+        for more information.
     """)
 
     multiple = Bool(default=False, help="""
@@ -208,7 +218,7 @@ class Spinner(NumericInput):
 
     '''
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         if "value" in kwargs and "value_throttled" not in kwargs:
             kwargs["value_throttled"] = kwargs["value"]
 

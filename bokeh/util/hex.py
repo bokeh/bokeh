@@ -15,6 +15,8 @@ For more information on the concepts employed here, see this informative page
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -234,9 +236,9 @@ def _round_hex(q: Any, r: Any) -> Tuple[Any, Any]:
     z = r
     y = -x-z
 
-    rx = np.round(x)
-    ry = np.round(y)
-    rz = np.round(z)
+    rx = np.round(x) # type: ignore[no-untyped-call]
+    ry = np.round(y) # type: ignore[no-untyped-call]
+    rz = np.round(z) # type: ignore[no-untyped-call]
 
     dx = np.abs(rx - x)
     dy = np.abs(ry - y)

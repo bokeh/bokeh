@@ -6,11 +6,26 @@
 #-----------------------------------------------------------------------------
 ''' Provide medal counts by country for the 2014 Olympics.
 
+This module contains a single dict: ``data``.
+
+The dictionary has a key ``"data"`` that lists sub-dictionaries, one for each
+country:
+
+.. code-block:: python
+
+    {
+        'abbr': 'DEU',
+        'medals': {'total': 15, 'bronze': 4, 'gold': 8, 'silver': 3},
+        'name': 'Germany'
+    }
+
 '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

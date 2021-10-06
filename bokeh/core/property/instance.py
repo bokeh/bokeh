@@ -14,6 +14,8 @@ where one Bokeh model refers to another.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -23,10 +25,22 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from importlib import import_module
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Type,
+    TypeVar,
+)
 
 # Bokeh imports
-from .bases import DeserializationError, Property
+from ._sphinx import model_link, property_link, register_type_link
+from .bases import DeserializationError, Init, Property
 from .singletons import Undefined
+
+if TYPE_CHECKING:
+    from ..has_props import HasProps
+    from ..types import JSON
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,11 +50,13 @@ __all__ = (
     'Instance',
 )
 
+T = TypeVar("T", bound="HasProps")
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Instance(Property):
+class Instance(Property[T]):
     """ Accept values that are instances of |HasProps|.
 
     Args:
@@ -49,7 +65,10 @@ class Instance(Property):
             (default: False)
 
     """
-    def __init__(self, instance_type, default=Undefined, help=None, readonly=False, serialized=None):
+    _instance_type: Type[T] | str
+
+    def __init__(self, instance_type: Type[T] | str, default: Init[T] = Undefined,
+            help: str | None = None, readonly: bool = False, serialized: bool | None = None):
         if not isinstance(instance_type, (type, str)):
             raise ValueError(f"expected a type or string, got {instance_type}")
 
@@ -61,24 +80,24 @@ class Instance(Property):
 
         super().__init__(default=default, help=help, readonly=readonly, serialized=serialized)
 
-    def __str__(self):
+    def __str__(self) -> str:
         class_name = self.__class__.__name__
         instance_type = self.instance_type.__name__
         return f"{class_name}({instance_type})"
 
     @property
-    def has_ref(self):
+    def has_ref(self) -> bool:
         return True
 
     @property
-    def instance_type(self):
+    def instance_type(self) -> Type[HasProps]:
         if isinstance(self._instance_type, str):
             module, name = self._instance_type.rsplit(".", 1)
             self._instance_type = getattr(import_module(module, "bokeh"), name)
 
         return self._instance_type
 
-    def from_json(self, json, models=None):
+    def from_json(self, json: JSON, *, models: Dict[str, HasProps] | None = None) -> T:
         if isinstance(json, dict):
             from ...model import Model
             if issubclass(self.instance_type, Model):
@@ -96,7 +115,7 @@ class Instance(Property):
 
                 for name, value in json.items():
                     prop_descriptor = self.instance_type.lookup(name).property
-                    attrs[name] = prop_descriptor.from_json(value, models)
+                    attrs[name] = prop_descriptor.from_json(value, models=models)
 
                 # XXX: this doesn't work when Instance(Superclass) := Subclass()
                 # Serialization dict must carry type information to resolve this.
@@ -104,7 +123,7 @@ class Instance(Property):
         else:
             raise DeserializationError(f"{self} expected a dict, got {json}")
 
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         if isinstance(value, self.instance_type):
@@ -119,10 +138,6 @@ class Instance(Property):
         # because the instance value is mutable
         return True
 
-    def _sphinx_type(self):
-        fullname = f"{self.instance_type.__module__}.{self.instance_type.__name__}"
-        return f"{self._sphinx_prop_link()}({self._sphinx_model_link(fullname)})"
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -134,3 +149,8 @@ class Instance(Property):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+@register_type_link(Instance)
+def _sphinx_type_link(obj):
+    fullname = f"{obj.instance_type.__module__}.{obj.instance_type.__name__}"
+    return f"{property_link(obj)}({model_link(fullname)})"

@@ -9,6 +9,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -73,7 +75,7 @@ class Test_DataTableSource:
             data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
             source = ColumnDataSource(data)
 
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             table = DataTable(columns=[
@@ -128,7 +130,7 @@ class Test_DataTableSource:
             data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
             source = ColumnDataSource(data)
 
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             table = DataTable(columns=[
@@ -183,7 +185,7 @@ class Test_DataTableSource:
             data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
             source = ColumnDataSource(data)
 
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             table = DataTable(columns=[
@@ -238,7 +240,7 @@ class Test_DataTableSource:
             data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
             source = ColumnDataSource(data)
 
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             table = DataTable(columns=[
@@ -289,7 +291,7 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
 
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("indices", "s.selected.indices"))))
 
             table = DataTable(columns=[
@@ -340,7 +342,7 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
 
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("indices", "s.selected.indices"))))
 
             table = DataTable(columns=[
@@ -393,7 +395,7 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
 
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             table = DataTable(columns=[
@@ -451,7 +453,7 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
 
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             table = DataTable(columns=[
@@ -509,7 +511,7 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
 
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             table = DataTable(columns=[
@@ -567,7 +569,7 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
 
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             table = DataTable(columns=[
@@ -620,7 +622,7 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
 
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             table = DataTable(columns=[
@@ -664,7 +666,7 @@ class Test_DataTableSource:
         result = []
 
         def modify_doc(doc):
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
 
             table = DataTable(columns=[
                 TableColumn(field="x", title="x", sortable=True),

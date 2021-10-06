@@ -33,8 +33,9 @@ process.on("exit", () => {
   rl?.close()
 })
 
-const url = argv._[0]
+const url = argv._[0] as string
 const port = parseInt(argv.port as string | undefined ?? "9222")
+const ref = (argv.ref ?? "HEAD") as string
 
 interface CallFrame {
   name: string
@@ -86,7 +87,7 @@ async function run_tests(): Promise<boolean> {
   let handle_exceptions = true
   try {
     client = await CDP({port})
-    const {Emulation, Network, Page, Runtime, Log} = client
+    const {Emulation, Network, Page, Runtime, Log, Performance} = client
     try {
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
         return stackTrace.callFrames.map(({functionName, url, lineNumber, columnNumber}) => {
@@ -146,7 +147,7 @@ async function run_tests(): Promise<boolean> {
       async function with_timeout<T>(promise: Promise<T>, wait: number): Promise<T | Timeout> {
         try {
           return await Promise.race([promise, timeout(wait)]) as T
-        } catch (err: unknown) {
+        } catch (err) {
           if (err instanceof TimeoutError) {
             return new Timeout()
           } else {
@@ -184,6 +185,7 @@ async function run_tests(): Promise<boolean> {
 
       await Runtime.enable()
       await Log.enable()
+      await Performance.enable({timeDomain: "timeTicks"})
 
       async function override_metrics(dpr: number = 1): Promise<void> {
         await Emulation.setDeviceMetricsOverride({
@@ -330,6 +332,38 @@ async function run_tests(): Promise<boolean> {
 
       progress.start(test_suite.length, 0, state())
 
+      type MetricKeys = "JSEventListeners" | "Nodes" | "Resources" | "LayoutCount" |
+        "RecalcStyleCount" | "JSHeapUsedSize" | "JSHeapTotalSize"
+      const metrics: {[key in MetricKeys]: number[]} = {
+        JSEventListeners: [],
+        Nodes: [],
+        Resources: [],
+        LayoutCount: [],
+        RecalcStyleCount: [],
+        JSHeapUsedSize: [],
+        JSHeapTotalSize: [],
+      }
+
+      async function add_datapoint(): Promise<void> {
+        if (baselines_root == null)
+          return
+        const data = await Performance.getMetrics()
+        for (const {name, value} of data.metrics) {
+          switch (name) {
+            case "JSEventListeners":
+            case "Nodes":
+            case "Resources":
+            case "LayoutCount":
+            case "RecalcStyleCount":
+            case "JSHeapUsedSize":
+            case "JSHeapTotalSize":
+              metrics[name].push(value)
+          }
+        }
+      }
+
+      await add_datapoint()
+
       try {
         for (const [suites, test, status] of test_suite) {
           entries = []
@@ -360,6 +394,7 @@ async function run_tests(): Promise<boolean> {
                     override_metrics()
                 }
               })()
+              await add_datapoint()
               try {
                 const errors = entries.filter((entry) => entry.level == "error")
                 if (errors.length != 0) {
@@ -393,12 +428,12 @@ async function run_tests(): Promise<boolean> {
                         await fs.promises.writeFile(baseline_file, baseline)
                         status.baseline = baseline
 
-                        const existing = load_baseline(baseline_file)
+                        const existing = load_baseline(baseline_file, ref)
                         if (existing != baseline) {
                           if (existing == null) {
                             status.errors.push("missing baseline")
                           }
-                          const diff = diff_baseline(baseline_file)
+                          const diff = diff_baseline(baseline_file, ref)
                           status.failure = true
                           status.baseline_diff = diff
                           status.errors.push(diff)
@@ -414,7 +449,7 @@ async function run_tests(): Promise<boolean> {
 
                           const image_file = `${baseline_path}.png`
                           const write_image = async () => fs.promises.writeFile(image_file, current)
-                          const existing = load_baseline_image(image_file)
+                          const existing = load_baseline_image(image_file, ref)
 
                           switch (argv.screenshot) {
                             case undefined:
@@ -425,16 +460,19 @@ async function run_tests(): Promise<boolean> {
                                 await write_image()
                               } else {
                                 status.reference = existing
-                                const diff_result = diff_image(existing, current)
-                                if (diff_result != null) {
-                                  may_retry = true
-                                  const {diff, pixels, percent} = diff_result
-                                  const threshold = test.threshold ?? 0
-                                  if (pixels > threshold) {
-                                    await write_image()
-                                    status.failure = true
-                                    status.image_diff = diff
-                                    status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${i != null ? ` (i=${i})` : ""}`)
+
+                                if (!existing.equals(current)) {
+                                  const diff_result = diff_image(existing, current)
+                                  if (diff_result != null) {
+                                    may_retry = true
+                                    const {diff, pixels, percent} = diff_result
+                                    const threshold = test.threshold ?? 0
+                                    if (pixels > threshold) {
+                                      await write_image()
+                                      status.failure = true
+                                      status.image_diff = diff
+                                      status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${i != null ? ` (i=${i})` : ""}`)
+                                    }
                                   }
                                 }
                               }
@@ -500,10 +538,11 @@ async function run_tests(): Promise<boolean> {
       }
 
       if (baselines_root != null) {
-        const json = JSON.stringify(test_suite.map(([suites, test, status]) => {
+        const results = test_suite.map(([suites, test, status]) => {
           const {failure, image, image_diff, reference} = status
           return [descriptions(suites, test), {failure, image, image_diff, reference}]
-        }), (_key, value) => {
+        })
+        const json = JSON.stringify({results, metrics}, (_key, value) => {
           if (value?.type == "Buffer")
             return Buffer.from(value.data).toString("base64")
           else
@@ -530,7 +569,7 @@ async function run_tests(): Promise<boolean> {
     } finally {
       await Runtime.discardConsoleEntries()
     }
-  } catch (error: unknown) {
+  } catch (error) {
     failure = true
     if (!(error instanceof Exit)) {
       const msg = error instanceof Error && error.stack ? error.stack : error
@@ -553,14 +592,14 @@ async function get_version(): Promise<{browser: string, protocol: string}> {
   }
 }
 
-const chrome_min_version = 87
+const chromium_min_version = 94
 
 async function check_version(version: string): Promise<boolean> {
   const match = version.match(/Chrome\/(?<major>\d+)\.(\d+)\.(\d+)\.(\d+)/)
   const major = parseInt(match?.groups?.major ?? "0")
-  const ok = chrome_min_version <= major
+  const ok = chromium_min_version <= major
   if (!ok)
-    console.error(`${chalk.red("failed:")} ${version} is not supported, minimum supported version is ${chalk.magenta(chrome_min_version)}`)
+    console.error(`${chalk.red("failed:")} ${version} is not supported, minimum supported version is ${chalk.magenta(chromium_min_version)}`)
   return ok
 }
 
@@ -568,14 +607,14 @@ async function run(): Promise<void> {
   const {browser, protocol} = await get_version()
   console.log(`Running in ${chalk.cyan(browser)} using devtools protocol ${chalk.cyan(protocol)}`)
   const ok0 = await check_version(browser)
-  const ok1 = await run_tests()
+  const ok1 = !argv.info ? await run_tests() : true
   process.exit(ok0 && ok1 ? 0 : 1)
 }
 
 async function main(): Promise<void> {
   try {
     await run()
-  } catch (e: unknown) {
+  } catch (e) {
     console.log(`CRITICAL ERROR: ${e}`)
     process.exit(1)
   }

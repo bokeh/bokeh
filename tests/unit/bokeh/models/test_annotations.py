@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -21,21 +23,8 @@ from datetime import datetime
 import mock
 
 # Bokeh imports
-from _util_models import (
-    ANGLE,
-    FILL,
-    HATCH,
-    LINE,
-    TEXT,
-    check_fill_properties,
-    check_hatch_properties,
-    check_line_properties,
-    check_properties_existence,
-    check_text_properties,
-    prefix,
-)
 from bokeh.core.properties import field, value
-from bokeh.core.validation import check_integrity
+from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.models import (
     Arrow,
     ArrowHead,
@@ -56,10 +45,32 @@ from bokeh.models import (
     Whisker,
 )
 
+from _util_models import (
+    ANGLE,
+    FILL,
+    HATCH,
+    LINE,
+    TEXT,
+    check_fill_properties,
+    check_hatch_properties,
+    check_line_properties,
+    check_properties_existence,
+    check_text_properties,
+    prefix,
+)
+
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
+ANNOTATION = [
+    "visible",
+    "level",
+    "coordinates",
+    "x_range_name",
+    "y_range_name",
+    "group",
+]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -83,8 +94,7 @@ def test_Legend() -> None:
     check_line_properties(legend, "border_", "#e5e5e5", 1.0, 0.5)
     check_text_properties(legend, "label_", "13px", "middle", scalar=True)
     check_fill_properties(legend, "background_", "#ffffff", 0.95)
-    check_properties_existence(legend, [
-        "visible",
+    check_properties_existence(legend, ANNOTATION + [
         "location",
         "orientation",
         "title",
@@ -98,16 +108,22 @@ def test_Legend() -> None:
         "padding",
         "spacing",
         "items",
-        "level",
-        "x_range_name",
-        "y_range_name",
-        "click_policy"],
+        "click_policy",
+    ],
         prefix('label_', TEXT),
         prefix('title_', TEXT),
         prefix('border_', LINE),
         prefix('background_', FILL),
-        prefix('inactive_', FILL))
+        prefix('inactive_', FILL),
+    )
 
+def test_LegendItem() -> None:
+    item = LegendItem()
+    assert item.index== None
+    assert item.label == None
+    assert item.name is None
+    assert item.renderers == []
+    assert item.visible == True
 
 def test_ColorBar() -> None:
     color_mapper = LinearColorMapper()
@@ -136,9 +152,7 @@ def test_ColorBar() -> None:
     check_line_properties(color_bar, "bar_", None)
     check_line_properties(color_bar, "border_", None)
     check_fill_properties(color_bar, "background_", "#ffffff", 0.95)
-    check_properties_existence(color_bar, [
-        "level",
-        "visible",
+    check_properties_existence(color_bar, ANNOTATION + [
         "location",
         "orientation",
         "height",
@@ -151,22 +165,21 @@ def test_ColorBar() -> None:
         "color_mapper",
         "margin",
         "padding",
-        "x_range_name",
-        "y_range_name",
         "label_standoff",
         "major_tick_in",
         "major_tick_out",
         "minor_tick_in",
         "minor_tick_out",
         "major_label_overrides",
-        "major_label_policy"],
+        "major_label_policy",
+    ],
         prefix('title_', TEXT),
         prefix('major_label_', TEXT),
         prefix('major_tick_', LINE),
         prefix('minor_tick_', LINE),
         prefix('bar_', LINE),
         prefix('border_', LINE),
-        prefix('background_', FILL)
+        prefix('background_', FILL),
     )
 
 
@@ -184,9 +197,7 @@ def test_Arrow() -> None:
     assert arrow.x_range_name == "default"
     assert arrow.y_range_name == "default"
     check_line_properties(arrow)
-    check_properties_existence(arrow, [
-        "level",
-        "visible",
+    check_properties_existence(arrow, ANNOTATION + [
         "x_start",
         "y_start",
         "start_units",
@@ -196,9 +207,7 @@ def test_Arrow() -> None:
         "end_units",
         "end",
         "source",
-        "x_range_name",
-        "y_range_name"],
-        LINE)
+    ], LINE)
 
 
 def test_BoxAnnotation() -> None:
@@ -217,9 +226,7 @@ def test_BoxAnnotation() -> None:
     check_line_properties(box, "", "#cccccc", 1, 0.3)
     check_fill_properties(box, "", "#fff9ba", 0.4)
     check_hatch_properties(box)
-    check_properties_existence(box, [
-        "render_mode",
-        "visible",
+    check_properties_existence(box, ANNOTATION + [
         "left",
         "left_units",
         "right",
@@ -228,9 +235,6 @@ def test_BoxAnnotation() -> None:
         "bottom_units",
         "top",
         "top_units",
-        "x_range_name",
-        "y_range_name",
-        "level",
     ], LINE, FILL, HATCH)
 
 
@@ -248,9 +252,7 @@ def test_Band() -> None:
     assert band.y_range_name == 'default'
     check_line_properties(band, "", "#cccccc", 1.0, 0.3)
     check_fill_properties(band, "", "#fff9ba", 0.4)
-    check_properties_existence(band, [
-        "visible",
-        "level",
+    check_properties_existence(band, ANNOTATION + [
         "lower",
         "lower_units",
         "upper",
@@ -259,8 +261,6 @@ def test_Band() -> None:
         "base_units",
         "dimension",
         "source",
-        "x_range_name",
-        "y_range_name",
     ], LINE, FILL)
 
 
@@ -276,15 +276,12 @@ def test_Label() -> None:
     assert label.angle_units == 'rad'
     assert label.x_offset == 0
     assert label.y_offset == 0
-    assert label.render_mode == 'canvas'
     assert label.x_range_name == 'default'
     assert label.y_range_name == 'default'
     check_text_properties(label, scalar=True)
     check_fill_properties(label, "background_", None, 1.0)
     check_line_properties(label, "border_", None, 1.0, 1.0)
-    check_properties_existence(label, [
-        "level",
-        "visible",
+    check_properties_existence(label, ANNOTATION + [
         "x",
         "y",
         "x_units",
@@ -294,12 +291,11 @@ def test_Label() -> None:
         "angle_units",
         "x_offset",
         "y_offset",
-        "render_mode",
-        "x_range_name",
-        "y_range_name"],
+    ],
         TEXT,
         prefix('border_', LINE),
-        prefix('background_', FILL))
+        prefix('background_', FILL),
+    )
 
 def test_Label_accepts_datetime_xy() -> None:
     obj = Label(x = datetime(2018,8,7,0,0),
@@ -319,7 +315,6 @@ def test_LabelSet() -> None:
     assert label_set.angle_units == 'rad'
     assert label_set.x_offset == 0
     assert label_set.y_offset == 0
-    assert label_set.render_mode == 'canvas'
     assert label_set.x_range_name == 'default'
     assert label_set.y_range_name == 'default'
     assert isinstance(label_set.source, ColumnDataSource)
@@ -327,9 +322,7 @@ def test_LabelSet() -> None:
     check_text_properties(label_set)
     check_fill_properties(label_set, "background_", None, 1.0)
     check_line_properties(label_set, "border_", None, 1.0, 1.0)
-    check_properties_existence(label_set, [
-        "visible",
-        "level",
+    check_properties_existence(label_set, ANNOTATION + [
         "x",
         "y",
         "x_units",
@@ -339,14 +332,13 @@ def test_LabelSet() -> None:
         "angle_units",
         "x_offset",
         "y_offset",
-        "render_mode",
-        "x_range_name",
-        "y_range_name",
-        "source"],
+        "source",
+    ],
         TEXT,
         ANGLE,
         prefix('border_', LINE),
-        prefix('background_', FILL))
+        prefix('background_', FILL),
+    )
 
 def test_PolyAnnotation() -> None:
     poly = PolyAnnotation()
@@ -360,15 +352,11 @@ def test_PolyAnnotation() -> None:
     check_line_properties(poly, "", "#cccccc", 1, 0.3)
     check_fill_properties(poly, "", "#fff9ba", 0.4)
     check_hatch_properties(poly)
-    check_properties_existence(poly, [
-        "visible",
+    check_properties_existence(poly, ANNOTATION + [
         "xs",
         "xs_units",
         "ys",
         "ys_units",
-        "x_range_name",
-        "y_range_name",
-        "level",
     ], LINE, FILL, HATCH)
 
 def test_Slope() -> None:
@@ -379,13 +367,9 @@ def test_Slope() -> None:
     assert slope.y_range_name == 'default'
     assert slope.level == 'annotation'
     check_line_properties(slope, "", 'black', 1.0)
-    check_properties_existence(slope, [
-        "visible",
+    check_properties_existence(slope, ANNOTATION + [
         "gradient",
         "y_intercept",
-        "x_range_name",
-        "y_range_name",
-        "level",
     ], LINE)
 
 
@@ -397,17 +381,11 @@ def test_Span() -> None:
     assert line.x_range_name == 'default'
     assert line.y_range_name == 'default'
     assert line.level == 'annotation'
-    assert line.render_mode == 'canvas'
     check_line_properties(line, "", 'black', 1.0)
-    check_properties_existence(line, [
-        "visible",
+    check_properties_existence(line, ANNOTATION + [
         "location",
         "location_units",
         "dimension",
-        "x_range_name",
-        "y_range_name",
-        "level",
-        "render_mode"
     ], LINE)
 
 def test_Span_accepts_datetime_location() -> None:
@@ -429,25 +407,17 @@ def test_Title() -> None:
     assert title.text_line_height == 1.0
     check_fill_properties(title, "background_", None, 1.0)
     check_line_properties(title, "border_", None, 1.0, 1.0)
-    check_properties_existence(title, [
-        "visible",
-        "level",
+    check_properties_existence(title, ANNOTATION + [
         "text",
         "vertical_align",
         "align",
         "offset",
         "standoff",
-        "text_font",
-        "text_font_size",
-        "text_font_style",
-        "text_color",
-        "text_alpha",
-        "text_line_height",
-        "x_range_name",
-        "y_range_name",
-        "render_mode"],
-        prefix('border_', LINE),
-        prefix('background_', FILL))
+    ],
+        TEXT,
+        prefix("border_", LINE),
+        prefix("background_", FILL),
+    )
 
 
 def test_Whisker() -> None:
@@ -467,9 +437,7 @@ def test_Whisker() -> None:
     assert whisker.x_range_name == 'default'
     assert whisker.y_range_name == 'default'
     check_line_properties(whisker, "")
-    check_properties_existence(whisker, [
-        "visible",
-        "level",
+    check_properties_existence(whisker, ANNOTATION + [
         "lower",
         "lower_units",
         "lower_head",
@@ -480,9 +448,7 @@ def test_Whisker() -> None:
         "base_units",
         "dimension",
         "source",
-        "x_range_name",
-        "y_range_name"],
-        LINE)
+    ], LINE)
 
 def test_Whisker_and_Band_accept_negative_values() -> None:
     whisker = Whisker(base=-1., lower=-1.5, upper=-0.5)
@@ -500,7 +466,8 @@ def test_can_add_multiple_glyph_renderers_to_legend_item() -> None:
     gr_2 = GlyphRenderer(data_source=ColumnDataSource())
     legend_item.renderers = [gr_1, gr_2]
     with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-        check_integrity([legend_item])
+        issues = check_integrity([legend_item])
+        process_validation_issues(issues)
         assert mock_logger.error.call_count == 0
 
 
@@ -511,7 +478,8 @@ def test_legend_item_with_field_label_and_different_data_sources_raises_a_valida
     legend_item.label = field('label')
     legend_item.renderers = [gr_1, gr_2]
     with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-        check_integrity([legend_item])
+        issues = check_integrity([legend_item])
+        process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
 
 
@@ -522,7 +490,8 @@ def test_legend_item_with_value_label_and_different_data_sources_does_not_raise_
     legend_item.label = value('label')
     legend_item.renderers = [gr_1, gr_2]
     with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-        check_integrity([legend_item])
+        issues = check_integrity([legend_item])
+        process_validation_issues(issues)
         assert mock_logger.error.call_count == 0
 
 
@@ -532,7 +501,8 @@ def test_legend_item_with_field_label_raises_error_if_field_not_in_cds() -> None
     legend_item.label = field('label')
     legend_item.renderers = [gr_1]
     with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-        check_integrity([legend_item])
+        issues = check_integrity([legend_item])
+        process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
 
 #-----------------------------------------------------------------------------

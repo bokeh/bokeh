@@ -9,6 +9,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -18,7 +20,14 @@ import pytest ; pytest
 # Standard library imports
 import subprocess
 from os import pardir
-from os.path import abspath, basename, join, relpath, split, splitext
+from os.path import (
+    abspath,
+    basename,
+    join,
+    split,
+    splitext,
+)
+from typing import IO, List, Tuple
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -36,7 +45,7 @@ def test_code_quality() -> None:
 
     '''
     errors = collect_errors()
-    assert len(errors) == 0, "Code quality issues:\n%s" % "\n".join(errors)
+    assert len(errors) == 0, "Code quality issues:\n" + "\n".join(errors)
 
 #-----------------------------------------------------------------------------
 # Support
@@ -48,15 +57,15 @@ TOP_PATH = abspath(join(split(__file__)[0], pardir, pardir))
 
 MAX_LINE_LENGTH = 160
 
-message_space     = "File contains trailing whitespace: %s, line %s."
-message_tabs      = "File contains tabs instead of spaces: %s, line %s."
-message_carriage  = "File contains carriage returns at end of line: %s, line %s"
-message_eof       = "File does not end with a newline: %s, line %s"
-message_multi_bof = "File starts with more than 1 empty line: %s, line %s"
-message_multi_eof = "File ends with more than 1 empty line: %s, line %s"
-message_too_long  = "File contains a line with over %(n)s characters: %%s, line %%s" % dict(n=MAX_LINE_LENGTH)
+message_space     = "File contains trailing whitespace: {path}, line {line_no}."
+message_tabs      = "File contains tabs instead of spaces: {path}, line {line_no}."
+message_carriage  = "File contains carriage returns at end of line: {path}, line {line_no}"
+message_eof       = "File does not end with a newline: {path}, line {line_no}"
+message_multi_bof = "File starts with more than 1 empty line: {path}, line {line_no}"
+message_multi_eof = "File ends with more than 1 empty line: {path}, line {line_no}"
+message_too_long  = f"File contains a line with over {MAX_LINE_LENGTH} characters: {{path}}, line {{line_no}}"
 
-def tab_in_leading(s):
+def tab_in_leading(s: str) -> bool:
     """ Returns True if there are tabs in the leading whitespace of a line,
         including the whitespace of docstring code samples.
     """
@@ -68,20 +77,22 @@ def tab_in_leading(s):
         check = s[:n] + smore[:len(smore) - len(smore.lstrip())]
     return check.expandtabs() != check
 
-def use_tab_rule(fname):
+def use_tab_rule(fname: str) -> bool:
     return not (basename(fname) == 'Makefile' or splitext(fname)[1] == '.bat')
 
 exclude_paths = ("CHANGELOG",)
 
-exclude_exts = (".patch", ".png", ".jpg", ".pxm", ".ico", ".ics", ".gz", ".gif", ".enc", ".svg", ".xml", ".shp",
-                ".dbf", ".shx", "otf", ".eot", ".ttf", ".woff", ".woff2")
+exclude_exts = (
+    ".patch", ".png", ".jpg", ".pxm", ".ico", ".ics", ".gz", ".gif", ".enc", ".svg",
+    ".xml", ".shp", ".dbf", ".shx", "otf", ".eot", ".ttf", ".woff", ".woff2",
+)
 
-exclude_dirs = ("sphinx/draw.io",)
+exclude_dirs = ()
 
-def collect_errors():
-    errors = []
+def collect_errors() -> List[str]:
+    errors: List[Tuple[str, str, int]] = []
 
-    def test_this_file(fname, test_file):
+    def test_this_file(fname: str, test_file: IO[str]) -> None:
         line = None
 
         for idx, line in enumerate(test_file):
@@ -104,7 +115,7 @@ def collect_errors():
             if not line.endswith('\n'):
                 errors.append((message_eof, fname, line_no))
 
-    paths = subprocess.check_output(["git", "ls-files"]).decode('utf-8').split("\n")
+    paths = subprocess.check_output(["git", "ls-files"]).decode("utf-8").split("\n")
 
     for path in paths:
         if not path:
@@ -122,7 +133,4 @@ def collect_errors():
         with open(path, "r", encoding="utf-8") as file:
             test_this_file(path, file)
 
-    return [ msg % (relpath(fname, TOP_PATH), line_no) for (msg, fname, line_no) in errors ]
-
-def bad_files():
-    return " ".join(sorted({file for (_, file, _) in collect_errors()}))
+    return [ msg.format(path=fname, line_no=line_no) for (msg, fname, line_no) in errors ]

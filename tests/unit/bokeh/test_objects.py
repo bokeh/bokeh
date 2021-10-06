@@ -8,14 +8,27 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Set, Tuple, Type
+
 # Bokeh imports
-from bokeh.core.properties import Any, Dict, Instance, Int, List, Nullable, String
+from bokeh.core.properties import (
+    Any,
+    Dict,
+    Instance,
+    Int,
+    List,
+    Nullable,
+    String,
+)
 from bokeh.core.property.wrappers import PropertyValueDict, PropertyValueList
 from bokeh.model import Model
 
@@ -29,16 +42,28 @@ from bokeh.model import Model
 # General API
 #-----------------------------------------------------------------------------
 
-def large_plot(n):
+def large_plot(n: int) -> Tuple[Model, Set[Model]]:
     from bokeh.models import (
-        Plot, LinearAxis, Grid, GlyphRenderer,
-        ColumnDataSource, DataRange1d, PanTool, ZoomInTool, ZoomOutTool, WheelZoomTool, BoxZoomTool,
-        BoxSelectTool, SaveTool, ResetTool
+        BoxSelectTool,
+        BoxZoomTool,
+        Column,
+        ColumnDataSource,
+        DataRange1d,
+        GlyphRenderer,
+        Grid,
+        Line,
+        LinearAxis,
+        PanTool,
+        Plot,
+        ResetTool,
+        SaveTool,
+        WheelZoomTool,
+        ZoomInTool,
+        ZoomOutTool,
     )
-    from bokeh.models import Column, Line
 
     col = Column()
-    objects = {col}
+    objects: Set[Model] = {col}
 
     for i in range(n):
         source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))
@@ -128,7 +153,7 @@ class TestCollectModels:
         # in a previous implementation, about 400 would blow max
         # recursion depth, so we double that and a little bit,
         # here.
-        for i in range(900):
+        for _ in range(900):
             model = DeepModel()
             objects.add(model)
             parent.child = model
@@ -142,7 +167,9 @@ class SomeModelToJson(Model):
 
 
 class TestModel:
-    def setup_method(self):
+    pObjectClass: Type[SomeModel]
+
+    def setup_method(self) -> None:
         self.pObjectClass = SomeModel
         self.maxDiff = None
 
@@ -153,7 +180,7 @@ class TestModel:
         testObject2 = self.pObjectClass()
         assert testObject2.id is not None
 
-        assert testObject.properties() == {
+        assert set(testObject.properties()) == {
             "name",
             "tags",
             "js_property_callbacks",
@@ -175,7 +202,11 @@ class TestModel:
 
     def test_struct(self) -> None:
         testObject = self.pObjectClass(id='test_id')
-        assert {'type': 'test_objects.SomeModel', 'id': 'test_id'} == testObject.struct
+        assert testObject.struct == dict(
+            id='test_id',
+            type='test_objects.SomeModel',
+            attributes={},
+        )
 
     def test_references_by_ref_by_value(self) -> None:
         from bokeh.core.has_props import HasProps
@@ -212,7 +243,14 @@ class TestModel:
         assert x2.references() == {t1, y, t2, z2, x2}
 
     def test_references_in_containers(self) -> None:
-        from bokeh.core.properties import Int, String, Instance, List, Tuple, Dict
+        from bokeh.core.properties import (
+            Dict,
+            Instance,
+            Int,
+            List,
+            String,
+            Tuple,
+        )
 
         # XXX: can't use Y, because of:
         #
@@ -220,7 +258,7 @@ class TestModel:
         #          Previous definition: <class 'bokeh.tests.test_objects.Y'>
 
         class U(self.pObjectClass):
-            a = Int
+            a = Int()
 
         class V(self.pObjectClass):
             u1 = Instance(U)
@@ -327,15 +365,16 @@ class TestModel:
         assert dict(hello=42, world=57) == obj.value
 
     def test_func_default_with_counter(self) -> None:
-        counter = dict(value=0)
-        def next_value():
-            counter['value'] += 1
-            return counter['value']
+        counter = 0
+        def next_value() -> int:
+            nonlocal counter
+            counter += 1
+            return counter
         class HasFuncDefaultInt(Model):
             value = Int(default=next_value)
         obj1 = HasFuncDefaultInt()
         obj2 = HasFuncDefaultInt()
-        assert obj1.value+1 == obj2.value
+        assert obj1.value + 1 == obj2.value
 
         # 'value' is a default, but it gets included as a
         # non-default because it's unstable.
@@ -375,7 +414,7 @@ class TestContainerMutation:
 
 class HasListProp(Model):
     foo = List(String)
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
 class TestListMutation(TestContainerMutation):
@@ -509,12 +548,12 @@ class TestListMutation(TestContainerMutation):
 
 class HasStringDictProp(Model):
     foo = Dict(String, Any)
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
 class HasIntDictProp(Model):
     foo = Dict(Int, Any)
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
 class TestDictMutation(TestContainerMutation):

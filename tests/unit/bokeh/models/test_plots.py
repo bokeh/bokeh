@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -16,10 +18,11 @@ import pytest ; pytest
 
 # External imports
 import mock
-from mock import patch
+import xyzservices.providers as xyz
+from mock import MagicMock, patch
 
 # Bokeh imports
-from bokeh.core.validation import check_integrity
+from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.models import (
     CategoricalScale,
     CustomJS,
@@ -33,6 +36,8 @@ from bokeh.models import (
     PanTool,
     Plot,
     Range1d,
+    Title,
+    WMTSTileSource,
 )
 from bokeh.plotting import figure
 
@@ -79,26 +84,26 @@ class TestPlotSelect:
         self._plot.circle([1,2,3], [3,2,1], name='foo')
 
     @patch('bokeh.models.plots.find')
-    def test_string_arg(self, mock_find) -> None:
+    def test_string_arg(self, mock_find: MagicMock) -> None:
         self._plot.select('foo')
         assert mock_find.called
         assert mock_find.call_args[0][1] == dict(name='foo')
 
     @patch('bokeh.models.plots.find')
-    def test_type_arg(self, mock_find) -> None:
+    def test_type_arg(self, mock_find: MagicMock) -> None:
         self._plot.select(PanTool)
         assert mock_find.called
         assert mock_find.call_args[0][1] == dict(type=PanTool)
 
     @patch('bokeh.models.plots.find')
-    def test_kwargs(self, mock_find) -> None:
+    def test_kwargs(self, mock_find: MagicMock) -> None:
         kw = dict(name='foo', type=GlyphRenderer)
         self._plot.select(**kw)
         assert mock_find.called
         assert mock_find.call_args[0][1] == kw
 
     @patch('bokeh.models.plots.find')
-    def test_single_selector_kwarg(self, mock_find) -> None:
+    def test_single_selector_kwarg(self, mock_find: MagicMock) -> None:
         kw = dict(name='foo', type=GlyphRenderer)
         self._plot.select(selector=kw)
         assert mock_find.called
@@ -135,7 +140,8 @@ class TestPlotValidation:
         p = figure()
         p.renderers = []
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-            check_integrity([p])
+            issues = check_integrity([p])
+            process_validation_issues(issues)
         assert mock_logger.warning.call_count == 1
         assert mock_logger.warning.call_args[0][0].startswith("W-1000 (MISSING_RENDERERS): Plot has no renderers")
 
@@ -161,20 +167,22 @@ class TestPlotValidation:
         p = figure()
         p.xaxis.x_range_name="junk"
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-            check_integrity([p])
+            issues = check_integrity([p])
+            process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith(
-            "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configued with a name that does not correspond to any range: x_range_name='junk' [LinearAxis"
+            "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configured with a name that does not correspond to any range: x_range_name='junk' [LinearAxis"
         )
 
         p = figure()
         p.extra_x_ranges['foo'] = Range1d()
         p.grid.x_range_name="junk"
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-            check_integrity([p])
+            issues = check_integrity([p])
+            process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith(
-            "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configued with a name that does not correspond to any range: x_range_name='junk' [Grid"
+            "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configured with a name that does not correspond to any range: x_range_name='junk' [Grid"
         )
         assert mock_logger.error.call_args[0][0].count("Grid") == 2
 
@@ -186,7 +194,8 @@ class TestPlotValidation:
         dep.grid.x_range_name="foo"
         p.grid[0].js_on_change("dimension", CustomJS(code = "", args = {"toto": dep.grid[0]}))
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-            check_integrity([p])
+            issues = check_integrity([p])
+            process_validation_issues(issues)
         assert mock_logger.error.call_count == 0
 
 def test_plot_add_layout_raises_error_if_not_render() -> None:
@@ -255,6 +264,15 @@ def test_plot_with_no_title_specified_creates_an_empty_title() -> None:
     assert plot.title.text == ""
 
 
+def test_plot_if_title_is_converted_from_string_to_Title() -> None:
+    plot = Plot()
+    plot.title = "A title"
+    plot.title.text_color = "olive"
+    assert isinstance(plot.title, Title)
+    assert plot.title.text == "A title"
+    assert plot.title.text_color == "olive"
+
+
 def test_plot__scale_classmethod() -> None:
     assert isinstance(Plot._scale("auto"), LinearScale)
     assert isinstance(Plot._scale("linear"), LinearScale)
@@ -301,6 +319,55 @@ def test__check_compatible_scale_and_ranges_incompat_factor_scale_and_numeric_ra
     plot = Plot(x_scale=CategoricalScale(), x_range=DataRange1d())
     check = plot._check_compatible_scale_and_ranges()
     assert check != []
+
+
+@pytest.mark.parametrize("test_input, provider", [
+    ("OpenStreetMap Mapnik", xyz.OpenStreetMap.Mapnik),
+    ("OSM", xyz.OpenStreetMap.Mapnik),
+    ("CARTODBPOSITRON", xyz.CartoDB.Positron),
+    ("CARTODBPOSITRON_RETINA", xyz.CartoDB.Positron),
+    ("STAMEN_TERRAIN", xyz.Stamen.Terrain),
+    ("STAMEN_TERRAIN_RETINA", xyz.Stamen.Terrain),
+    ("STAMEN_TONER", xyz.Stamen.Toner),
+    ("STAMEN_TONER_BACKGROUND", xyz.Stamen.TonerBackground),
+    ("STAMEN_TONER_LABELS", xyz.Stamen.TonerLabels),
+    ("ESRI_IMAGERY", xyz.Esri.WorldImagery),
+    (xyz.Stamen.Terrain, xyz.Stamen.Terrain),
+    ])
+def test_add_tile(test_input, provider):
+    plot = figure(x_range=(-2000000, 6000000), y_range=(-1000000, 7000000),
+            x_axis_type="mercator", y_axis_type="mercator")
+    plot.add_tile(test_input)
+    tile_source = plot.renderers[0].tile_source
+    sf = "@2x" if "RETINA" in test_input else None
+    assert tile_source.url == provider.build_url(scale_factor=sf)
+    assert tile_source.attribution == provider.html_attribution
+    if hasattr(provider, "max_zoom"):
+        assert tile_source.max_zoom == provider.max_zoom
+
+    # test retina keyword
+    if "RETINA" not in test_input and "{r}" in provider.url:
+        plot2 = figure(x_range=(-2000000, 6000000), y_range=(-1000000, 7000000),
+            x_axis_type="mercator", y_axis_type="mercator")
+        plot2.add_tile(test_input, retina=True)
+        tile_source2 = plot2.renderers[0].tile_source
+        assert tile_source2.url == provider.build_url(scale_factor="@2x")
+
+def test_add_tile_tilesource():
+    mapnik = xyz.OpenStreetMap.Mapnik
+    tilesource = WMTSTileSource(
+        url=mapnik.build_url(),
+        attribution=mapnik.html_attribution,
+        min_zoom=mapnik.get("min_zoom", 0),
+        max_zoom=mapnik.get("max_zoom", 30),
+    )
+    plot = figure(x_range=(-2000000, 6000000), y_range=(-1000000, 7000000),
+            x_axis_type="mercator", y_axis_type="mercator")
+    plot.add_tile(tilesource)
+    tile_source = plot.renderers[0].tile_source
+
+    assert tile_source.url == mapnik.build_url()
+    assert tile_source.attribution == mapnik.html_attribution
 
 #-----------------------------------------------------------------------------
 # Dev API

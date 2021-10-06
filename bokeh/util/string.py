@@ -11,7 +11,10 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging # isort:skip
+from __future__ import annotations
+
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -20,7 +23,12 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import re
-from typing import Any, Dict, Optional, Sequence
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    overload,
+)
 from urllib.parse import quote_plus
 
 #-----------------------------------------------------------------------------
@@ -28,6 +36,7 @@ from urllib.parse import quote_plus
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'append_docstring',
     'format_docstring',
     'indent',
     'nice_join',
@@ -56,7 +65,7 @@ def indent(text: str, n: int = 2, ch: str = " ") -> str:
     return "\n".join(padding + line for line in text.split("\n"))
 
 
-def nice_join(seq: Sequence[str], sep: str = ", ", conjuction: str = "or") -> str:
+def nice_join(seq: Iterable[str], sep: str = ", ", conjuction: str = "or") -> str:
     ''' Join together sequences of strings into English-friendly phrases using
     the conjunction ``or`` when appropriate.
 
@@ -79,7 +88,7 @@ def nice_join(seq: Sequence[str], sep: str = ", ", conjuction: str = "or") -> st
     if len(seq) <= 1 or conjuction is None:
         return sep.join(seq)
     else:
-        return "%s %s %s" % (sep.join(seq[:-1]), conjuction, seq[-1])
+        return f"{sep.join(seq[:-1])} {conjuction} {seq[-1]}"
 
 
 def snakify(name: str, sep: str = "_") -> str:
@@ -88,8 +97,29 @@ def snakify(name: str, sep: str = "_") -> str:
     name = re.sub("([a-z\\d])([A-Z])", r"\1%s\2" % sep, name)
     return name.lower()
 
+def append_docstring(docstring: str | None, extra: str) -> str | None:
+    ''' Safely append to docstrings.
 
-def format_docstring(docstring: Optional[str], *args: Any, **kwargs: Any) -> Optional[str]:
+    When Python is executed with the ``-OO`` option, doc strings are removed and
+    replaced the value ``None``. This function guards against appending the
+    extra content in that case.
+
+    Args:
+        docstring (str or None) : The docstring to format, or None
+        extra (str): the content to append if docstring is not None
+
+    Returns:
+        str or None
+
+    '''
+    return None if docstring is None else docstring + extra
+
+@overload
+def format_docstring(docstring: None, *args: Any, **kwargs: Any) -> None: ...
+@overload
+def format_docstring(docstring: str, *args: Any, **kwargs: Any) -> str: ...
+
+def format_docstring(docstring: str | None, *args: Any, **kwargs: Any) -> str | None:
     ''' Safely format docstrings.
 
     When Python is executed with the ``-OO`` option, doc strings are removed and
@@ -108,7 +138,7 @@ def format_docstring(docstring: Optional[str], *args: Any, **kwargs: Any) -> Opt
     return None if docstring is None else docstring.format(*args, **kwargs)
 
 
-def format_url_query_arguments(url: str, arguments: Optional[Dict[str, str]] = None) -> str:
+def format_url_query_arguments(url: str, arguments: Dict[str, str] | None = None) -> str:
     ''' Format a base URL with optional query arguments
 
     Args:

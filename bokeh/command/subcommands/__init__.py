@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -22,7 +24,7 @@ log = logging.getLogger(__name__)
 from typing import List, Type
 
 # Bokeh imports
-from ..subcommand import Subcommand
+from ..subcommand import Argument, Subcommand
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -48,6 +50,7 @@ def _collect() -> List[Type[Subcommand]]:
     from importlib import import_module
     from os import listdir
     from os.path import dirname
+
     # reference type by module as fully
     results = []
 

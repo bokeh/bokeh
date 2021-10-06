@@ -10,17 +10,17 @@ import * as buttons from "styles/buttons.css"
 import menus_css, * as menus from "styles/menus.css"
 
 export class DropdownView extends AbstractButtonView {
-  model: Dropdown
+  override model: Dropdown
 
   protected _open: boolean = false
 
   protected menu: HTMLElement
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), menus_css]
   }
 
-  render(): void {
+  override render(): void {
     super.render()
 
     const caret = div({class: [menus.caret, menus.down]})
@@ -39,7 +39,7 @@ export class DropdownView extends AbstractButtonView {
         return div({class: menus.divider})
       else {
         const label = isString(item) ? item : item[0]
-        const el = div({}, label)
+        const el = div(label)
         el.addEventListener("click", () => this._item_click(i))
         return el
       }
@@ -80,7 +80,7 @@ export class DropdownView extends AbstractButtonView {
       this._show_menu()
   }
 
-  click(): void {
+  override click(): void {
     if (!this.model.is_split)
       this._toggle_menu()
     else {
@@ -117,14 +117,14 @@ export namespace Dropdown {
 export interface Dropdown extends Dropdown.Attrs {}
 
 export class Dropdown extends AbstractButton {
-  properties: Dropdown.Props
-  __view_type__: DropdownView
+  override properties: Dropdown.Props
+  override __view_type__: DropdownView
 
   constructor(attrs?: Partial<Dropdown.Attrs>) {
     super(attrs)
   }
 
-  static init_Dropdown(): void {
+  static {
     this.prototype.default_view = DropdownView
 
     this.define<Dropdown.Props>(({Null, Boolean, String, Array, Tuple, Or}) => ({

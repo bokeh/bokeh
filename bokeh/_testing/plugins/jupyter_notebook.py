@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -23,7 +25,13 @@ import os
 import subprocess
 import sys
 import time
-from os.path import dirname, exists, join, pardir
+from os.path import (
+    dirname,
+    exists,
+    join,
+    pardir,
+)
+from typing import IO, Any, Callable
 
 # External imports
 import pytest
@@ -50,7 +58,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @pytest.fixture(scope="session")
-def jupyter_notebook(request, log_file):
+def jupyter_notebook(request: pytest.FixtureRequest, log_file: IO[str]) -> str:
     """
     Starts a jupyter notebook server at the beginning of a session, and
     closes at the end of a session.
@@ -91,7 +99,7 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
         f.write(body)
 
     # Add in the clean-up code
-    def clean_up_customjs():
+    def clean_up_customjs() -> None:
         text = old_customjs if old_customjs is not None else ""
         with open(customjs, "w") as f:
             f.write(text)
@@ -110,23 +118,23 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
     notebook_dir = join(dirname(__file__), pardir, pardir)
 
     cmd = ["jupyter", "notebook"]
-    argv = ["--no-browser", "--port=%s" % notebook_port, "--notebook-dir=%s" % notebook_dir]
-    jupter_notebook_url = "http://localhost:%d" % notebook_port
+    argv = ["--no-browser", f"--port={notebook_port}", f"--notebook-dir={notebook_dir}"]
+    jupter_notebook_url = f"http://localhost:{notebook_port}"
 
     try:
         proc = subprocess.Popen(cmd + argv, env=env, stdout=log_file, stderr=log_file)
     except OSError:
-        write("Failed to run: %s" % " ".join(cmd + argv))
+        write(f"Failed to run: {' '.join(cmd + argv)}")
         sys.exit(1)
     else:
         # Add in the clean-up code
-        def stop_jupyter_notebook():
+        def stop_jupyter_notebook() -> None:
             write("Shutting down jupyter-notebook ...")
             proc.kill()
 
         request.addfinalizer(stop_jupyter_notebook)
 
-        def wait_until(func, timeout=5.0, interval=0.01):
+        def wait_until(func: Callable[[], Any], timeout: float = 5.0, interval: float = 0.01) -> bool:
             start = time.time()
 
             while True:
@@ -136,11 +144,11 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
                     return False
                 time.sleep(interval)
 
-        def wait_for_jupyter_notebook():
-            def helper():
+        def wait_for_jupyter_notebook() -> bool:
+            def helper() -> Any:
                 if proc.returncode is not None:
                     return True
-                try:
+                try: # type: ignore[unreachable] # XXX: typeshed bug, proc.returncode: int
                     return requests.get(jupter_notebook_url)
                 except ConnectionError:
                     return False
@@ -148,14 +156,14 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
             return wait_until(helper)
 
         if not wait_for_jupyter_notebook():
-            write("Timeout when running: %s" % " ".join(cmd + argv))
+            write(f"Timeout when running: {' '.join(cmd + argv)}")
             sys.exit(1)
 
         if proc.returncode is not None:
-            write("Jupyter notebook exited with code " + str(proc.returncode))
+            write(f"Jupyter notebook exited with code {proc.returncode}")
             sys.exit(1)
 
-        return jupter_notebook_url
+        return jupter_notebook_url # type: ignore[unreachable] # XXX: typeshed bug, proc.returncode: int
 
 #-----------------------------------------------------------------------------
 # Dev API

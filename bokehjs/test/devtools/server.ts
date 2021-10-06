@@ -16,19 +16,45 @@ nunjucks.configure(".", {
 })
 
 app.use("/static", express.static("build/"))
-app.use("/fonts", express.static("test/fonts/"))
+app.use("/assets", express.static("test/assets/"))
 
-const js_path = (name: string, legacy: boolean = false): string => {
-  const legacy_suffix = legacy ? ".legacy" : ""
-  return `/static/js/${name}${legacy_suffix}.js`
+const js_path = (name: string): string => {
+  return `/static/js/${name}.js`
 }
 
 const test = (main: string, title: string) => {
   return (run: boolean = false) => {
-    return (req: express.Request, res: express.Response) => {
-      const legacy = "legacy" in req.query
-      const js = (name: string) => js_path(name, legacy)
+    return (_req: express.Request, res: express.Response) => {
+      const js = (name: string) => js_path(name)
       res.render("test/devtools/test.html", {main, title, run, js})
+    }
+  }
+}
+
+type Base64 = string
+type Report = {
+  results: [string[], {failure: boolean, image?: Base64, image_diff?: Base64, reference?: Base64}][]
+  metrics: {[key: string]: number[]}
+}
+
+function using_report(fn: (report: Report, req: express.Request, res: express.Response) => void) {
+  return async (req: express.Request, res: express.Response) => {
+    const platform = typeof req.query.platform == "string" ? req.query.platform : sys.platform
+    switch (platform) {
+      case "linux":
+      case "macos":
+      case "windows": {
+        const report_path = join("test", "baselines", platform, "report.json")
+        try {
+          const json = await fs.promises.readFile(report_path, {encoding: "utf-8"})
+          fn(JSON.parse(json), req, res)
+        } catch {
+          res.status(404).send("Report unavailable")
+        }
+        break
+      }
+      default:
+        res.status(404).send("Invalid platform specifier")
     }
   }
 }
@@ -45,25 +71,13 @@ app.get("/unit/run", unit(true))
 app.get("/defaults/run", defaults(true))
 app.get("/integration/run", integration(true))
 
-app.get("/integration/report", async (req, res) => {
-  const platform = typeof req.query.platform == "string" ? req.query.platform : sys.platform
-  switch (platform) {
-    case "linux":
-    case "macos":
-    case "windows": {
-      const report_path = join("test", "baselines", platform, "report.json")
-      try {
-        const json = await fs.promises.readFile(report_path, {encoding: "utf-8"})
-        res.render("test/devtools/report.html", {title: "Integration Tests Report", tests: JSON.parse(json)})
-      } catch {
-        res.status(404).send("Report unavailable")
-      }
-      break
-    }
-    default:
-      res.status(404).send("Invalid platform specifier")
-  }
-})
+app.get("/integration/report", using_report(({results}, _, res) => {
+  res.render("test/devtools/report.html", {title: "Integration Tests Report", results})
+}))
+
+app.get("/integration/metrics", using_report(({metrics}, _, res) => {
+  res.render("test/devtools/metrics.html", {title: "Integration Tests Metrics", metrics, js: js_path})
+}))
 
 app.get("/examples", async (_req, res) => {
   const dir = await fs.promises.opendir("examples")

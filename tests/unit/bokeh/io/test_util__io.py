@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -18,7 +20,12 @@ import pytest ; pytest
 import os
 
 # External imports
-from mock import Mock, PropertyMock, patch
+from mock import (
+    MagicMock,
+    Mock,
+    PropertyMock,
+    patch,
+)
 
 # Module under test
 import bokeh.io.util as biu # isort:skip
@@ -36,10 +43,11 @@ import bokeh.io.util as biu # isort:skip
 #-----------------------------------------------------------------------------
 
 def test_detect_current_filename() -> None:
-    assert biu.detect_current_filename().endswith(("py.test", "pytest", "py.test-script.py", "pytest-script.py"))
+    filename = biu.detect_current_filename()
+    assert filename and filename.endswith(("py.test", "pytest", "py.test-script.py", "pytest-script.py"))
 
 @patch('bokeh.io.util.NamedTemporaryFile')
-def test_temp_filename(mock_tmp) -> None:
+def test_temp_filename(mock_tmp: MagicMock) -> None:
     fn = Mock()
     type(fn).name = PropertyMock(return_value="Junk.test")
     mock_tmp.return_value = fn
@@ -55,35 +63,40 @@ def test_default_filename() -> None:
     old__no_access = biu._no_access
     old__shares_exec_prefix = biu._shares_exec_prefix
 
-    biu.detect_current_filename = lambda : "/a/b/foo.py"
+    biu.detect_current_filename = lambda: "/a/b/foo.py"
 
     try:
         # .py extension
         with pytest.raises(RuntimeError):
             biu.default_filename("py")
 
+        def FALSE(_: str) -> bool:
+            return False
+        def TRUE(_: str) -> bool:
+            return True
+
         # a current file, access, and no share exec
-        biu._no_access = lambda x: False
+        biu._no_access = FALSE
         r = biu.default_filename("test")
         assert os.path.normpath(r) == os.path.normpath("/a/b/foo.test")
 
         # a current file, NO access, and no share exec
-        biu._no_access = lambda x: True
+        biu._no_access = TRUE
         r = biu.default_filename("test")
         assert os.path.normpath(r) != os.path.normpath("/a/b/foo.test")
         assert r.endswith(".test")
 
         # a current file, access, but WITH share exec
-        biu._no_access = lambda x: False
-        biu._shares_exec_prefix = lambda x: True
+        biu._no_access = FALSE
+        biu._shares_exec_prefix = TRUE
         r = biu.default_filename("test")
         assert os.path.normpath(r) != os.path.normpath("/a/b/foo.test")
         assert r.endswith(".test")
 
         # no current file
-        biu.detect_current_filename = lambda : None
-        biu._no_access = lambda x: False
-        biu._shares_exec_prefix = lambda x: False
+        biu.detect_current_filename = lambda: None
+        biu._no_access = FALSE
+        biu._shares_exec_prefix = FALSE
         r = biu.default_filename("test")
         assert os.path.normpath(r) != os.path.normpath("/a/b/foo.test")
         assert r.endswith(".test")
@@ -98,7 +111,7 @@ def test_default_filename() -> None:
 #-----------------------------------------------------------------------------
 
 @patch('os.access')
-def test__no_access(mock_access) -> None:
+def test__no_access(mock_access: MagicMock) -> None:
     biu._no_access("test")
     assert mock_access.called
     assert mock_access.call_args[0] == ("test", os.W_OK | os.X_OK)

@@ -331,7 +331,7 @@ In addition to :func:`~bokeh.transform.linear_cmap`, there are two similar
 functions:
 
 * :func:`~bokeh.transform.log_cmap` for color mapping on a log scale
-* :func:`~bokeh.transform.factor_cmap` for color mapping categorical data (see
+* |factor_cmap| for color mapping categorical data (see
   the example below).
 
 Mapping marker types
@@ -344,7 +344,7 @@ function to assign different markers to different categories automatically:
 .. bokeh-plot:: docs/user_guide/examples/data_transforming_markers.py
     :source-position: above
 
-This example also uses :func:`~bokeh.transform.factor_cmap` to color map those
+This example also uses |factor_cmap| to color map those
 same categories.
 
 .. note::
@@ -478,10 +478,10 @@ TypeScript code. Bokeh makes the ColumnDataSource available through the variable
 .. code-block:: python
 
     custom_filter = CustomJSFilter(code='''
-    var indices = [];
+    const indices = [];
 
     // iterate through rows of data source and see if each satisfies some constraint
-    for (var i = 0; i < source.get_length(); i++){
+    for (let i = 0; i < source.get_length(); i++){
         if (source.data['some_column'][i] == 'some_value'){
             indices.push(true);
         } else {
@@ -515,8 +515,7 @@ either ``"replace"`` or ``"append"``as the AjaxDataSource's ``mode`` argument to
 control this behavior.
 
 The endpoint that you are using with your ``AjaxDataSource`` needs to return a
-JSON dict that matches the standard
-:ref:`ColumnDataSource format <userguide_data_cds>`:
+JSON dict that matches the standard |ColumnDataSource| format:
 
 .. code-block:: python
 
@@ -586,12 +585,10 @@ You can also use Bokeh to render network graph data and geographical data. For
 more information about how to set up the data for these types of plots, see
 :ref:`userguide_graph` and :ref:`userguide_geo`.
 
-.. |ColumnDataSource| replace:: :class:`~bokeh.models.sources.ColumnDataSource`
 .. |CDSView| replace:: :class:`~bokeh.models.sources.CDSView`
 .. |Filter| replace:: :class:`~bokeh.models.filters.Filter`
 .. |IndexFilter| replace:: :class:`~bokeh.models.filters.IndexFilter`
 .. |BooleanFilter| replace:: :class:`~bokeh.models.filters.BooleanFilter`
 .. |GroupFilter| replace:: :class:`~bokeh.models.filters.GroupFilter`
 .. |CustomJSFilter| replace:: :class:`~bokeh.models.filters.CustomJSFilter`
-.. |Figure| replace:: :class:`~bokeh.plotting.Figure`
 .. |DataTable| replace:: :class:`~bokeh.models.widgets.tables.DataTable`

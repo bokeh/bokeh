@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -17,11 +19,27 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from json import loads
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    List,
+    Set,
+    Tuple,
+)
 
 # Bokeh imports
 from ...core.json_encoder import serialize_json
+from ...document.callbacks import invoke_with_curdoc
+from ...document.json import PatchJson
 from ...document.util import references_json
 from ..message import Message
+
+if TYPE_CHECKING:
+    from ...core.has_props import Setter
+    from ...document.document import Document
+    from ...document.events import DocumentPatched, DocumentPatchedEvent
+    from ...model import Model
+    from ..message import BufferRef
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -40,7 +58,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class patch_doc(Message):
+class patch_doc(Message[PatchJson]):
     ''' Define the ``PATCH-DOC`` message for sending Document patch events
     between remote documents.
 
@@ -55,13 +73,10 @@ class patch_doc(Message):
 
     '''
 
-    msgtype  = 'PATCH-DOC'
-
-    def __init__(self, header, metadata, content):
-        super().__init__(header, metadata, content)
+    msgtype = 'PATCH-DOC'
 
     @classmethod
-    def create(cls, events, use_buffers=True, **metadata):
+    def create(cls, events: List[DocumentPatchedEvent], use_buffers: bool = True, **metadata: Any) -> patch_doc:
         ''' Create a ``PATCH-DOC`` message
 
         Args:
@@ -81,25 +96,25 @@ class patch_doc(Message):
         if len(docs) != 1:
             raise ValueError("PATCH-DOC message configured with events for more than one document")
 
-        # this roundtrip is fortunate, but is needed because there are type conversions
+        # this roundtrip is unfortunate, but is needed because there are type conversions
         # in BokehJSONEncoder which keep us from easily generating non-string JSON
         patch_json, buffers = process_document_events(events, use_buffers)
         content = loads(patch_json)
 
         msg = cls(header, metadata, content)
 
-        for (header, payload) in buffers:
-            msg.add_buffer(header, payload)
+        for (buffer_header, payload) in buffers:
+            msg.add_buffer(buffer_header, payload)
 
         return msg
 
-    def apply_to_document(self, doc, setter=None):
+    def apply_to_document(self, doc: Document, setter: Setter | None = None) -> None:
         '''
 
         '''
-        doc._with_self_as_curdoc(lambda: doc.apply_json_patch(self.content, setter))
+        invoke_with_curdoc(doc, lambda: doc.apply_json_patch(self.content, setter))
 
-def process_document_events(events, use_buffers=True):
+def process_document_events(events: List[DocumentPatchedEvent], use_buffers: bool = True) -> Tuple[str, List[BufferRef]]:
     ''' Create a JSON string describing a patch to be applied as well as
     any optional buffers.
 
@@ -113,20 +128,20 @@ def process_document_events(events, use_buffers=True):
 
     '''
 
-    json_events = []
-    references = set()
+    json_events: List[DocumentPatched] = []
+    references: Set[Model] = set()
 
-    buffers = [] if use_buffers else None
+    buffers: List[BufferRef] | None = [] if use_buffers else None
 
     for event in events:
         json_events.append(event.generate(references, buffers))
 
-    json = {
-        'events'     : json_events,
-        'references' : references_json(references),
-    }
+    json = PatchJson(
+        events     = json_events,
+        references = references_json(references),
+    )
 
-    return serialize_json(json), buffers if use_buffers else []
+    return serialize_json(json), buffers or []
 
 #-----------------------------------------------------------------------------
 # Private API

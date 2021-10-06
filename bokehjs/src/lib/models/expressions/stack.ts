@@ -14,13 +14,13 @@ export namespace Stack {
 export interface Stack extends Stack.Attrs {}
 
 export class Stack extends Expression {
-  properties: Stack.Props
+  override properties: Stack.Props
 
   constructor(attrs?: Partial<Stack.Attrs>) {
     super(attrs)
   }
 
-  static init_Stack(): void {
+  static {
     this.define<Stack.Props>(({String, Array}) => ({
       fields: [ Array(String), [] ],
     }))
@@ -32,7 +32,8 @@ export class Stack extends Expression {
     for (const f of this.fields) {
       const column = source.data[f]
       if (column != null) {
-        for (let i = 0, k = Math.min(n, column.length); i < k; i++) {
+        const k = Math.min(n, column.length)
+        for (let i = 0; i < k; i++) {
           result[i] += column[i]
         }
       }

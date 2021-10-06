@@ -7,9 +7,9 @@ import * as p from "core/properties"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class CheckboxGroupView extends InputGroupView {
-  model: CheckboxGroup
+  override model: CheckboxGroup
 
-  render(): void {
+  override render(): void {
     super.render()
 
     const group = div({class: [inputs.input_group, this.model.inline ? inputs.inline : null]})
@@ -19,7 +19,7 @@ export class CheckboxGroupView extends InputGroupView {
 
     this._inputs = []
     for (let i = 0; i < labels.length; i++) {
-      const checkbox = input({type: `checkbox`, value: `${i}`})
+      const checkbox = input({type: "checkbox", value: `${i}`})
       checkbox.addEventListener("change", () => this.change_active(i))
       this._inputs.push(checkbox)
 
@@ -29,7 +29,7 @@ export class CheckboxGroupView extends InputGroupView {
       if (includes(active, i))
         checkbox.checked = true
 
-      const label_el = label({}, checkbox, span({}, labels[i]))
+      const label_el = label(checkbox, span(labels[i]))
       group.appendChild(label_el)
     }
   }
@@ -54,14 +54,14 @@ export namespace CheckboxGroup {
 export interface CheckboxGroup extends CheckboxGroup.Attrs {}
 
 export class CheckboxGroup extends InputGroup {
-  properties: CheckboxGroup.Props
-  __view_type__: CheckboxGroupView
+  override properties: CheckboxGroup.Props
+  override __view_type__: CheckboxGroupView
 
   constructor(attrs?: Partial<CheckboxGroup.Attrs>) {
     super(attrs)
   }
 
-  static init_CheckboxGroup(): void {
+  static {
     this.prototype.default_view = CheckboxGroupView
 
     this.define<CheckboxGroup.Props>(({Boolean, Int, String, Array}) => ({

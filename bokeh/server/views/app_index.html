@@ -88,7 +88,7 @@
       <p>The following applications are currently running on this server:</p>
       <div class="list-group list-group-flush">
         {% for item in items %}
-        <h4><a href={{ prefix }}{{ item }}>{{ item[1:] }}</a></h4>
+        <h4><a href="{{ prefix }}{{ item }}">{{ item[1:] }}</a></h4>
         {% end %}
       </div>
       <br />
@@ -107,7 +107,7 @@
               <a class="nav-link" href="https://bokeh.org/roadmap/">Roadmap</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="https://bokeh.org/team/">Team</a>
+              <a class="nav-link" href="https://github.com/bokeh/bokeh/wiki/BEP-4:-Project-Roles">Team</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="https://bokeh.org/branding/">Branding</a>
@@ -137,6 +137,9 @@
             <li class="nav-item">
               <a class="nav-link" href="https://demo.bokeh.org">Demos</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://bokeh.org/community/">Support</a>
+            </li>
           </ul>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-3 links-item">
@@ -146,7 +149,7 @@
               <a class="nav-link" href="https://github.com/bokeh/bokeh">GitHub</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="https://docs.bokeh.org/en/latest/docs/dev_guide.html">Developer Guide</a>
+              <a class="nav-link" href="https://docs.bokeh.org/en/latest/docs/dev_guide.html">Contributor Guide</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="https://bokeh.org/sponsor/">Sponsor</a>

@@ -5,7 +5,7 @@ import {Signal0} from "core/signaling"
 import {Location, OutputBackend, Place, ResetPolicy} from "core/enums"
 import {concat, remove_by} from "core/util/array"
 import {values} from "core/util/object"
-import {isArray} from "core/util/types"
+import {isArray, isString} from "core/util/types"
 
 import {LayoutDOM} from "../layouts/layout_dom"
 import {Axis} from "../axes/axis"
@@ -25,10 +25,9 @@ import {Renderer} from "../renderers/renderer"
 import {DataRenderer} from "../renderers/data_renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {Tool} from "../tools/tool"
-import {DataRange1d} from '../ranges/data_range1d'
+import {DataRange1d} from "../ranges/data_range1d"
 
 import {PlotView} from "./plot_canvas"
-
 export {PlotView}
 
 export namespace Plot {
@@ -38,9 +37,6 @@ export namespace Plot {
     toolbar: p.Property<Toolbar>
     toolbar_location: p.Property<Location | null>
     toolbar_sticky: p.Property<boolean>
-
-    plot_width: p.Property<number | null>
-    plot_height: p.Property<number | null>
 
     frame_width: p.Property<number | null>
     frame_height: p.Property<number | null>
@@ -57,12 +53,16 @@ export namespace Plot {
     renderers: p.Property<Renderer[]>
 
     x_range: p.Property<Range>
-    extra_x_ranges: p.Property<{[key: string]: Range}>
     y_range: p.Property<Range>
-    extra_y_ranges: p.Property<{[key: string]: Range}>
 
     x_scale: p.Property<Scale>
     y_scale: p.Property<Scale>
+
+    extra_x_ranges: p.Property<{[key: string]: Range}>
+    extra_y_ranges: p.Property<{[key: string]: Range}>
+
+    extra_x_scales: p.Property<{[key: string]: Scale}>
+    extra_y_scales: p.Property<{[key: string]: Scale}>
 
     lod_factor: p.Property<number>
     lod_interval: p.Property<number>
@@ -104,8 +104,8 @@ export namespace Plot {
 export interface Plot extends Plot.Attrs {}
 
 export class Plot extends LayoutDOM {
-  properties: Plot.Props
-  __view_type__: PlotView
+  override properties: Plot.Props
+  override __view_type__: PlotView
 
   readonly use_map: boolean = false
 
@@ -115,7 +115,7 @@ export class Plot extends LayoutDOM {
     super(attrs)
   }
 
-  static init_Plot(): void {
+  static {
     this.prototype.default_view = PlotView
 
     this.mixins<Plot.Mixins>([
@@ -129,13 +129,13 @@ export class Plot extends LayoutDOM {
       toolbar_location:  [ Nullable(Location), "right" ],
       toolbar_sticky:    [ Boolean, true ],
 
-      plot_width:        [ p.Alias("width") ],
-      plot_height:       [ p.Alias("height") ],
-
       frame_width:       [ Nullable(Number), null ],
       frame_height:      [ Nullable(Number), null ],
 
-      title:             [ Or(Ref(Title), String, Null), () => new Title({text: ""}) ],
+      // revise this when https://github.com/microsoft/TypeScript/pull/42425 is merged
+      title:             [ Or(Ref(Title), String, Null), "", {
+        convert: (title) => isString(title) ? new Title({text: title}) : title,
+      }],
       title_location:    [ Nullable(Location), "above" ],
 
       above:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
@@ -147,12 +147,16 @@ export class Plot extends LayoutDOM {
       renderers:         [ Array(Ref(Renderer)), [] ],
 
       x_range:           [ Ref(Range), () => new DataRange1d() ],
-      extra_x_ranges:    [ Dict(Ref(Range)), {} ],
       y_range:           [ Ref(Range), () => new DataRange1d() ],
-      extra_y_ranges:    [ Dict(Ref(Range)), {} ],
 
       x_scale:           [ Ref(Scale), () => new LinearScale() ],
       y_scale:           [ Ref(Scale), () => new LinearScale() ],
+
+      extra_x_ranges:    [ Dict(Ref(Range)), {} ],
+      extra_y_ranges:    [ Dict(Ref(Range)), {} ],
+
+      extra_x_scales:    [ Dict(Ref(Scale)), {} ],
+      extra_y_scales:    [ Dict(Ref(Scale)), {} ],
 
       lod_factor:        [ Number, 10 ],
       lod_interval:      [ Number, 300 ],
@@ -188,7 +192,7 @@ export class Plot extends LayoutDOM {
     })
   }
 
-  protected _doc_attached(): void {
+  protected override _doc_attached(): void {
     super._doc_attached()
     this._push_changes([
       [this.properties.inner_height, null, this.inner_height],
@@ -196,7 +200,7 @@ export class Plot extends LayoutDOM {
     ])
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     this.reset = new Signal0(this, "reset")

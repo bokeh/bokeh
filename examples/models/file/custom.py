@@ -2,7 +2,7 @@ from bokeh.core.properties import Color, Float, List, Override, String
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Callback, Circle, ColumnDataSource, LinearAxis,
-                          PanTool, Plot, TapTool, WheelZoomTool,)
+                          PanTool, Plot, TapTool, WheelZoomTool)
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 from bokeh.util.compiler import TypeScript
@@ -66,7 +66,7 @@ export class MyPlot extends Plot {
   properties: MyPlot.Props
   __view_type__: MyPlotView
 
-  static init_MyPlot(): void {
+  static {
     this.prototype.default_view = MyPlotView
 
     this.define<MyPlot.Props>(({Number, String, Array}) => ({

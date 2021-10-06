@@ -4,11 +4,11 @@ import {tool_icon_save} from "styles/icons.css"
 import {MenuItem} from "core/util/menus"
 
 export class SaveToolView extends ActionToolView {
-  model: SaveTool
+  override model: SaveTool
 
   async copy(): Promise<void> {
     const blob = await this.plot_view.to_blob()
-    const item = new ClipboardItem({[blob.type]: blob})
+    const item = new ClipboardItem({[blob.type]: Promise.resolve(blob)})
     await navigator.clipboard.write([item])
   }
 
@@ -42,23 +42,23 @@ export namespace SaveTool {
 export interface SaveTool extends SaveTool.Attrs {}
 
 export class SaveTool extends ActionTool {
-  properties: SaveTool.Props
-  __view_type__: SaveToolView
+  override properties: SaveTool.Props
+  override __view_type__: SaveToolView
 
   constructor(attrs?: Partial<SaveTool.Attrs>) {
     super(attrs)
   }
 
-  static init_SaveTool(): void {
+  static {
     this.prototype.default_view = SaveToolView
 
     this.register_alias("save", () => new SaveTool())
   }
 
-  tool_name = "Save"
-  icon = tool_icon_save
+  override tool_name = "Save"
+  override tool_icon = tool_icon_save
 
-  get menu(): MenuItem[] | null {
+  override get menu(): MenuItem[] | null {
     return [
       {
         icon: "bk-tool-icon-copy-to-clipboard",

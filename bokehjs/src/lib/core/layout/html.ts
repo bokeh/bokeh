@@ -37,7 +37,7 @@ export class CachedVariadicBox extends VariadicBox {
     super(el)
   }
 
-  protected _measure(viewport: Size): SizeHint {
+  protected override _measure(viewport: Size): SizeHint {
     const {width, height} = viewport
     const key = `${width},${height}`
 

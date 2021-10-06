@@ -23,7 +23,7 @@ adapter = CustomJS(code="""
 source = ServerSentDataSource(data_url='http://localhost:5050/data', max_size=100,
                               mode='append', adapter=adapter)
 
-p = figure(plot_height=800, plot_width=800, background_fill_color="lightgrey",
+p = figure(height=800, width=800, background_fill_color="lightgrey",
            title="Streaming via Server Sent Events", x_range=[-5,5], y_range=[-5,5])
 p.circle('x', 'y', source=source)
 

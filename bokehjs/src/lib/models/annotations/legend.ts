@@ -9,16 +9,16 @@ import {Size} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
 import {font_metrics} from "core/util/text"
 import {BBox} from "core/util/bbox"
-import {max, every} from "core/util/array"
+import {max, every, some} from "core/util/array"
 import {isString, isArray} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
 
 export class LegendView extends AnnotationView {
-  model: Legend
-  visuals: Legend.Visuals
+  override model: Legend
+  override visuals: Legend.Visuals
 
-  update_layout(): void {
+  override update_layout(): void {
     const {panel} = this
     if (panel != null)
       this.layout = new SideLayout(panel, () => this.get_size())
@@ -31,7 +31,7 @@ export class LegendView extends AnnotationView {
   protected title_height: number
   protected title_width: number
 
-  cursor(_sx: number, _sy: number): string | null {
+  override cursor(_sx: number, _sy: number): string | null {
     return this.model.click_policy == "none" ? null : "pointer"
   }
 
@@ -39,7 +39,7 @@ export class LegendView extends AnnotationView {
     return this.model.border_line_color != null ? this.model.padding : 0
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
     this.connect(this.model.item_change, () => this.request_render())
@@ -97,44 +97,44 @@ export class LegendView extends AnnotationView {
     let sx: number, sy: number
     if (isString(location)) {
       switch (location) {
-        case 'top_left':
+        case "top_left":
           sx = hr.start + legend_margin
           sy = vr.start + legend_margin
           break
-        case 'top':
-        case 'top_center':
+        case "top":
+        case "top_center":
           sx = (hr.end + hr.start)/2 - legend_width/2
           sy = vr.start + legend_margin
           break
-        case 'top_right':
+        case "top_right":
           sx = hr.end - legend_margin - legend_width
           sy = vr.start + legend_margin
           break
-        case 'bottom_right':
+        case "bottom_right":
           sx = hr.end - legend_margin - legend_width
           sy = vr.end - legend_margin - legend_height
           break
-        case 'bottom':
-        case 'bottom_center':
+        case "bottom":
+        case "bottom_center":
           sx = (hr.end + hr.start)/2 - legend_width/2
           sy = vr.end - legend_margin - legend_height
           break
-        case 'bottom_left':
+        case "bottom_left":
           sx = hr.start + legend_margin
           sy = vr.end - legend_margin - legend_height
           break
-        case 'left':
-        case 'center_left':
+        case "left":
+        case "center_left":
           sx = hr.start + legend_margin
           sy = (vr.end + vr.start)/2 - legend_height/2
           break
-        case 'center':
-        case 'center_center':
+        case "center":
+        case "center_center":
           sx = (hr.end + hr.start)/2 - legend_width/2
           sy = (vr.end + vr.start)/2 - legend_height/2
           break
-        case 'right':
-        case 'center_right':
+        case "right":
+        case "center_right":
           sx = hr.end - legend_margin - legend_width
           sy = (vr.end + vr.start)/2 - legend_height/2
           break
@@ -153,12 +153,12 @@ export class LegendView extends AnnotationView {
     return this.compute_legend_bbox()
   }
 
-  interactive_hit(sx: number, sy: number): boolean {
+  override interactive_hit(sx: number, sy: number): boolean {
     const bbox = this.interactive_bbox()
     return bbox.contains(sx, sy)
   }
 
-  on_hit(sx: number, sy: number): boolean {
+  override on_hit(sx: number, sy: number): boolean {
     let yoffset
     const {glyph_width} = this.model
     const {legend_padding} = this
@@ -215,6 +215,9 @@ export class LegendView extends AnnotationView {
     if (this.model.items.length == 0)
       return
 
+    if (!some(this.model.items, item => item.visible))
+      return
+
     // set a backref on render so that items can later signal item_change upates
     // on the model to trigger a re-render
     for (const item of this.model.items) {
@@ -235,12 +238,8 @@ export class LegendView extends AnnotationView {
   protected _draw_legend_box(ctx: Context2d, bbox: BBox): void {
     ctx.beginPath()
     ctx.rect(bbox.x, bbox.y, bbox.width, bbox.height)
-    this.visuals.background_fill.set_value(ctx)
-    ctx.fill()
-    if (this.visuals.border_line.doit) {
-      this.visuals.border_line.set_value(ctx)
-      ctx.stroke()
-    }
+    this.visuals.background_fill.apply(ctx)
+    this.visuals.border_line.apply(ctx)
   }
 
   protected _draw_legend_items(ctx: Context2d, bbox: BBox): void {
@@ -253,6 +252,8 @@ export class LegendView extends AnnotationView {
     const vertical = this.model.orientation == "vertical"
 
     for (const item of this.model.items) {
+      if (!item.visible)
+        continue
       const labels = item.get_labels_list_from_label_prop()
       const field = item.get_field_from_label_prop()
 
@@ -313,7 +314,7 @@ export class LegendView extends AnnotationView {
     ctx.restore()
   }
 
-  protected _get_size(): Size {
+  protected override _get_size(): Size {
     const {width, height} = this.compute_legend_bbox()
     return {
       width: width + 2*this.model.margin,
@@ -361,8 +362,8 @@ export namespace Legend {
 export interface Legend extends Legend.Attrs {}
 
 export class Legend extends Annotation {
-  properties: Legend.Props
-  __view_type__: LegendView
+  override properties: Legend.Props
+  override __view_type__: LegendView
 
   item_change: Signal0<this>
 
@@ -370,12 +371,12 @@ export class Legend extends Annotation {
     super(attrs)
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.item_change = new Signal0(this, "item_change")
   }
 
-  static init_Legend(): void {
+  static {
     this.prototype.default_view = LegendView
 
     this.mixins<Legend.Mixins>([

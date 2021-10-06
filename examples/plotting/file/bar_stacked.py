@@ -1,7 +1,12 @@
-from bokeh.io import output_file, show
-from bokeh.plotting import figure
+''' A stacked bar chart using plain Python lists.
 
-output_file("bar_stacked.html")
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.vbar_stack
+    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_stacked`
+    :keywords: bars, categorical, stacked
+
+'''
+from bokeh.plotting import figure, show
 
 fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 years = ["2015", "2016", "2017"]
@@ -12,7 +17,7 @@ data = {'fruits' : fruits,
         '2016'   : [5, 3, 4, 2, 4, 6],
         '2017'   : [3, 2, 4, 4, 5, 3]}
 
-p = figure(x_range=fruits, plot_height=250, title="Fruit Counts by Year",
+p = figure(x_range=fruits, height=250, title="Fruit Counts by Year",
            toolbar_location=None, tools="hover", tooltips="$name @fruits: @$name")
 
 p.vbar_stack(years, x='fruits', width=0.9, color=colors, source=data,

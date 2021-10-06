@@ -1,4 +1,4 @@
-import {Control, ControlView} from "./control"
+import {OrientedControl, OrientedControlView} from "./oriented_control"
 
 import {ButtonType} from "core/enums"
 import {div} from "core/dom"
@@ -6,15 +6,19 @@ import * as p from "core/properties"
 
 import buttons_css, * as buttons from "styles/buttons.css"
 
-export abstract class ButtonGroupView extends ControlView {
-  model: ButtonGroup
+export abstract class ButtonGroupView extends OrientedControlView {
+  override model: ButtonGroup
+
+  protected override get default_size(): number | undefined {
+    return this.orientation == "horizontal" ? super.default_size : undefined
+  }
 
   protected _buttons: HTMLElement[]
   *controls() {
     yield* (this._buttons as any) // TODO: HTMLButtonElement[]
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     const p = this.model.properties
@@ -23,11 +27,11 @@ export abstract class ButtonGroupView extends ControlView {
     this.on_change(p.active,      () => this._update_active())
   }
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), buttons_css]
   }
 
-  render(): void {
+  override render(): void {
     super.render()
 
     this._buttons = this.model.labels.map((label, i) => {
@@ -41,7 +45,8 @@ export abstract class ButtonGroupView extends ControlView {
 
     this._update_active()
 
-    const group = div({class: buttons.btn_group}, this._buttons)
+    const orient = this.model.orientation == "horizontal" ? buttons.horizontal : buttons.vertical
+    const group = div({class: [buttons.btn_group, orient]}, this._buttons)
     this.el.appendChild(group)
   }
 
@@ -53,7 +58,7 @@ export abstract class ButtonGroupView extends ControlView {
 export namespace ButtonGroup {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Control.Props & {
+  export type Props = OrientedControl.Props & {
     labels: p.Property<string[]>
     button_type: p.Property<ButtonType>
   }
@@ -61,15 +66,15 @@ export namespace ButtonGroup {
 
 export interface ButtonGroup extends ButtonGroup.Attrs {}
 
-export abstract class ButtonGroup extends Control {
-  properties: ButtonGroup.Props & {active: p.Property<unknown>}
-  __view_type__: ButtonGroupView
+export abstract class ButtonGroup extends OrientedControl {
+  override properties: ButtonGroup.Props & {active: p.Property<unknown>}
+  override __view_type__: ButtonGroupView
 
   constructor(attrs?: Partial<ButtonGroup.Attrs>) {
     super(attrs)
   }
 
-  static init_ButtonGroup(): void {
+  static {
     this.define<ButtonGroup.Props>(({String, Array}) => ({
       labels:      [ Array(String), [] ],
       button_type: [ ButtonType, "default" ],

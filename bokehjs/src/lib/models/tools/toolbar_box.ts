@@ -8,7 +8,7 @@ import {ButtonTool} from "./button_tool"
 import {ActionTool} from "./actions/action_tool"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
-import {ToolbarBase, GestureType} from "./toolbar_base"
+import {ToolbarBase, ToolbarBaseView, GestureType} from "./toolbar_base"
 import {Toolbar} from "./toolbar"
 import {ToolProxy} from "./tool_proxy"
 
@@ -26,21 +26,21 @@ export namespace ProxyToolbar {
 export interface ProxyToolbar extends ProxyToolbar.Attrs {}
 
 export class ProxyToolbar extends ToolbarBase {
-  properties: ProxyToolbar.Props
+  override properties: ProxyToolbar.Props
 
   constructor(attrs?: Partial<ProxyToolbar.Attrs>) {
     super(attrs)
   }
 
-  static init_ProxyToolbar(): void {
+  static {
     this.define<ProxyToolbar.Props>(({Array, Ref}) => ({
       toolbars: [ Array(Ref(Toolbar)), [] ],
     }))
   }
 
-  _proxied_tools: (Tool | ToolProxy)[]
+  override _proxied_tools: (Tool | ToolProxy)[]
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._merge_tools()
   }
@@ -106,7 +106,7 @@ export class ProxyToolbar extends ToolbarBase {
         const tools = gestures[event_type][tool_type]
 
         if (tools.length > 0) {
-          if (event_type == 'multi') {
+          if (event_type == "multi") {
             for (const tool of tools) {
               const proxy = make_proxy([tool])
               gesture.tools.push(proxy as any)
@@ -123,7 +123,7 @@ export class ProxyToolbar extends ToolbarBase {
 
     this.actions = []
     for (const [tool_type, tools] of entries(actions)) {
-      if (tool_type == 'CustomAction') {
+      if (tool_type == "CustomAction") {
         for (const tool of tools)
           this.actions.push(make_proxy([tool]) as any)
       } else if (tools.length > 0) {
@@ -143,16 +143,16 @@ export class ProxyToolbar extends ToolbarBase {
 
       gesture.tools = sort_by(gesture.tools, (tool) => tool.default_order)
 
-      if (!(et == 'pinch' || et == 'scroll' || et == 'multi'))
+      if (!(et == "pinch" || et == "scroll" || et == "multi"))
         gesture.tools[0].active = true
     }
   }
 }
 
 export class ToolbarBoxView extends LayoutDOMView {
-  model: ToolbarBox
+  override model: ToolbarBox
 
-  initialize(): void {
+  override initialize(): void {
     this.model.toolbar.toolbar_location = this.model.toolbar_location
     super.initialize()
   }
@@ -161,7 +161,7 @@ export class ToolbarBoxView extends LayoutDOMView {
     return [this.model.toolbar as any] // XXX
   }
 
-  _update_layout(): void {
+  override _update_layout(): void {
     this.layout = new ContentBox(this.child_views[0].el)
 
     const {toolbar} = this.model
@@ -175,6 +175,13 @@ export class ToolbarBoxView extends LayoutDOMView {
         width_policy: "fixed", height_policy: "fit", min_height: 100,
       })
     }
+  }
+
+  override after_layout(): void {
+    super.after_layout()
+    const toolbar_view = this.child_views[0] as any as ToolbarBaseView
+    toolbar_view.layout.bbox = this.layout.bbox
+    toolbar_view.render() // render the second time to revise overflow
   }
 }
 
@@ -190,13 +197,13 @@ export namespace ToolbarBox {
 export interface ToolbarBox extends ToolbarBox.Attrs {}
 
 export class ToolbarBox extends LayoutDOM {
-  properties: ToolbarBox.Props
+  override properties: ToolbarBox.Props
 
   constructor(attrs?: Partial<ToolbarBox.Attrs>) {
     super(attrs)
   }
 
-  static init_ToolbarBox(): void {
+  static {
     this.prototype.default_view = ToolbarBoxView
 
     this.define<ToolbarBox.Props>(({Ref}) => ({

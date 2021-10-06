@@ -1,5 +1,4 @@
 import {ContinuousScale} from "./continuous_scale"
-import {Arrayable, ScreenArray, FloatArray} from "core/types"
 import * as p from "core/properties"
 
 export namespace LogScale {
@@ -11,7 +10,7 @@ export namespace LogScale {
 export interface LogScale extends LogScale.Attrs {}
 
 export class LogScale extends ContinuousScale {
-  properties: LogScale.Props
+  override properties: LogScale.Props
 
   constructor(attrs?: Partial<LogScale.Attrs>) {
     super(attrs)
@@ -29,65 +28,17 @@ export class LogScale extends ContinuousScale {
     }
   }
 
-  compute(x: number): number {
+  get s_invert(): (x: number) => number {
     const [factor, offset, inter_factor, inter_offset] = this._compute_state()
-
-    let value: number
-    if (inter_factor == 0)
-      value = 0
-    else {
-      const _x = (Math.log(x) - inter_offset) / inter_factor
-      if (isFinite(_x))
-        value = _x*factor + offset
-      else
-        value = NaN
+    return (xprime) => {
+      const value = (xprime - offset) / factor
+      return Math.exp(inter_factor*value + inter_offset)
     }
-
-    return value
-  }
-
-  v_compute(xs: Arrayable<number>): ScreenArray {
-    const [factor, offset, inter_factor, inter_offset] = this._compute_state()
-
-    const result = new ScreenArray(xs.length)
-
-    if (inter_factor == 0) {
-      for (let i = 0; i < xs.length; i++)
-        result[i] = 0
-    } else {
-      for (let i = 0; i < xs.length; i++) {
-        const _x = (Math.log(xs[i]) - inter_offset) / inter_factor
-        let value: number
-        if (isFinite(_x))
-          value = _x*factor + offset
-        else
-          value = NaN
-        result[i] = value
-      }
-    }
-
-    return result
-  }
-
-  invert(xprime: number): number {
-    const [factor, offset, inter_factor, inter_offset] = this._compute_state()
-    const value = (xprime - offset) / factor
-    return Math.exp(inter_factor*value + inter_offset)
-  }
-
-  v_invert(xprimes: Arrayable<number>): FloatArray {
-    const [factor, offset, inter_factor, inter_offset] = this._compute_state()
-    const result = new Float64Array(xprimes.length)
-    for (let i = 0; i < xprimes.length; i++) {
-      const value = (xprimes[i] - offset) / factor
-      result[i] = Math.exp(inter_factor*value + inter_offset)
-    }
-    return result
   }
 
   protected _get_safe_factor(orig_start: number, orig_end: number): [number, number] {
     let start = orig_start < 0 ? 0 : orig_start
-    let end = orig_end < 0 ? 0 :  orig_end
+    let end = orig_end < 0 ? 0 : orig_end
 
     if (start == end) {
       if (start == 0)

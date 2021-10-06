@@ -43,15 +43,15 @@ export type FontStyle = "normal" | "italic" | "bold" | "bold italic"
 export const FontStyle = Enum("normal", "italic", "bold", "bold italic")
 
 export type HatchPatternType =
-  'blank' | 'dot' | 'ring' | 'horizontal_line' | 'vertical_line' | 'cross' | 'horizontal_dash' |
-  'vertical_dash' | 'spiral' | 'right_diagonal_line' | 'left_diagonal_line' | 'diagonal_cross' |
-  'right_diagonal_dash' | 'left_diagonal_dash' | 'horizontal_wave' | 'vertical_wave' | 'criss_cross' |
-  ' ' | '.' | 'o' | '-' | '|' | '+' | '"' | ':' | '@' | '/' | '\\' | 'x' | ',' | '`' | 'v' | '>' | '*'
+  "blank" | "dot" | "ring" | "horizontal_line" | "vertical_line" | "cross" | "horizontal_dash" |
+  "vertical_dash" | "spiral" | "right_diagonal_line" | "left_diagonal_line" | "diagonal_cross" |
+  "right_diagonal_dash" | "left_diagonal_dash" | "horizontal_wave" | "vertical_wave" | "criss_cross" |
+  " " | "." | "o" | "-" | "|" | "+" | '"' | ":" | "@" | "/" | "\\" | "x" | "," | "`" | "v" | ">" | "*"
 export const HatchPatternType = Enum(
-  'blank', 'dot', 'ring', 'horizontal_line', 'vertical_line', 'cross', 'horizontal_dash',
-  'vertical_dash', 'spiral', 'right_diagonal_line', 'left_diagonal_line', 'diagonal_cross',
-  'right_diagonal_dash', 'left_diagonal_dash', 'horizontal_wave', 'vertical_wave', 'criss_cross',
-  ' ', '.', 'o', '-', '|', '+', '"', ':', '@',  '/', '\\', 'x', ',', '`', 'v', '>', '*',
+  "blank", "dot", "ring", "horizontal_line", "vertical_line", "cross", "horizontal_dash",
+  "vertical_dash", "spiral", "right_diagonal_line", "left_diagonal_line", "diagonal_cross",
+  "right_diagonal_dash", "left_diagonal_dash", "horizontal_wave", "vertical_wave", "criss_cross",
+  " ", ".", "o", "-", "|", "+", '"', ":", "@",  "/", "\\", "x", ",", "`", "v", ">", "*",
 )
 
 export type HTTPMethod = "POST" | "GET"
@@ -128,9 +128,6 @@ export const RadiusDimension = Enum("x", "y", "max", "min")
 export type RenderLevel = "image" | "underlay" | "glyph" | "guide" | "annotation" | "overlay"
 export const RenderLevel = Enum("image", "underlay", "glyph", "guide", "annotation", "overlay")
 
-export type RenderMode = "canvas" | "css"
-export const RenderMode = Enum("canvas", "css")
-
 export type ResetPolicy = "standard" | "event_only"
 export const ResetPolicy = Enum("standard", "event_only")
 
@@ -181,3 +178,39 @@ export const UpdateMode = Enum("replace", "append")
 
 export type VerticalAlign = "top" | "middle" | "bottom"
 export const VerticalAlign = Enum("top", "middle", "bottom")
+
+export const ToolIcon = Enum(
+  "append_mode",
+  "box_edit",
+  "box_select",
+  "box_zoom",
+  "clear_selection",
+  "copy_to_clipboard",
+  "crosshair",
+  "freehand_draw",
+  "help",
+  "hover",
+  "intersect_mode",
+  "lasso_select",
+  "line_edit",
+  "pan",
+  "point_draw",
+  "poly_draw",
+  "poly_edit",
+  "polygon_select",
+  "range",
+  "redo",
+  "replace_mode",
+  "reset",
+  "save",
+  "subtract_mode",
+  "tap_select",
+  "undo",
+  "wheel_pan",
+  "wheel_zoom",
+  "xpan",
+  "ypan",
+  "zoom_in",
+  "zoom_out",
+)
+export type ToolIcon = typeof ToolIcon["__type__"]

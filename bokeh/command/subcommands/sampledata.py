@@ -22,11 +22,16 @@ Executing this command is equivalent to running the Python code
 
     bokeh.sampledata.download()
 
+See :ref:`bokeh.sampledata` for more information on the specific data sets
+included in Bokeh's sample data.
+
 '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -64,9 +69,6 @@ class Sampledata(Subcommand):
     name = "sampledata"
 
     help = "Download the bokeh sample data sets"
-
-    args = (
-    )
 
     def invoke(self, args: Namespace) -> None:
         '''

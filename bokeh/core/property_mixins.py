@@ -27,18 +27,14 @@ as shown here:
 
     class SomeGlyph(Glyph):
 
-        fill_props = Include(FillProps, use_prefix=False, help="""
-        The %s values for the annular wedges.
+        fill_props = Include(FillProps, help="""
+        The {prop} values for the annular wedges.
         """)
 
 This adds all the fill properties ``fill_color`` and ``fill_alpha`` to this
-model with one simple statement. Note that the help string contains a
-placeholder format `%s`. When docs for this class are rendered by the
-:ref:`bokeh.sphinxext.bokeh_model` Sphinx extension, the placeholder will
-be replaced with more information specific to each property. The setting
-``use_prefix`` means that the names of the properties added to ``SomeGlyph``
-are exactly ``fill_alpha`` and ``fill_color``. Some situations require a
-different usage, for more information see the docs for |Include|.
+model. The help string contains a placeholder `{prop}`. When docs for this class
+are rendered by the, the placeholder will be replaced with more information
+specific to each property.
 
 .. |Include| replace:: :class:`~bokeh.core.properties.Include`
 
@@ -65,6 +61,8 @@ different usage, for more information see the docs for |Include|.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -97,11 +95,11 @@ from .properties import (
     FontSizeSpec,
     FontStyleSpec,
     HatchPatternSpec,
+    Instance,
+    Int,
     IntSpec,
     LineCapSpec,
     LineJoinSpec,
-    Instance,
-    Int,
     Nullable,
     NumberSpec,
     Size,

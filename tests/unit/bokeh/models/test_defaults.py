@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -35,7 +37,7 @@ def all_descriptors():
         except TypeError:
             continue
 
-        for prop in model.properties(with_bases=False):
+        for prop in model.properties():
             descriptor = getattr(model, prop)
             yield (name, descriptor)
 

@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -21,15 +23,8 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import datetime
 
-# External imports
-import dateutil.parser
-
 # Bokeh imports
-from ...util.serialization import (
-    convert_date_to_datetime,
-    is_datetime_type,
-    is_timedelta_type,
-)
+from ...util.serialization import convert_date_to_datetime, is_datetime_type, is_timedelta_type
 from .bases import Property
 from .primitive import bokeh_integer_types
 from .singletons import Undefined
@@ -49,15 +44,13 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Date(Property):
-    """ Accept Date (but not DateTime) values.
+    """ Accept ISO format Date (but not DateTime) values.
 
     """
     def transform(self, value):
         value = super().transform(value)
 
-        if isinstance(value, str):
-            value = dateutil.parser.parse(value).date().isoformat()
-        elif isinstance(value, datetime.date):
+        if isinstance(value, datetime.date):
             value = value.isoformat()
 
         return value
@@ -74,24 +67,24 @@ class Date(Property):
             return
 
         try:
-            dateutil.parser.parse(value).date().isoformat()
+            datetime.datetime.fromisoformat(value)
         except Exception:
             msg = "" if not detail else f"Expected an ISO date string, got {value!r}"
             raise ValueError(msg)
 
 class Datetime(Property):
-    """ Accept Datetime values.
+    """ Accept ISO format Datetime values.
 
     """
 
-    def __init__(self, default=Undefined, help=None):
+    def __init__(self, default=Undefined, help=None) -> None:
         super().__init__(default=default, help=help)
 
     def transform(self, value):
         value = super().transform(value)
 
         if isinstance(value, str):
-            value = dateutil.parser.parse(value)
+            value = datetime.datetime.fromisoformat(value)
 
         # Handled by serialization in protocol.py for now, except for Date
         if isinstance(value, datetime.date):
@@ -113,7 +106,7 @@ class Datetime(Property):
 
         if isinstance(value, str):
             try:
-                dateutil.parser.parse(value).date()
+                datetime.datetime.fromisoformat(value).date()
                 return
             except Exception:
                 pass
@@ -138,7 +131,7 @@ class TimeDelta(Property):
 
     """
 
-    def __init__(self, default=datetime.timedelta(), help=None):
+    def __init__(self, default=datetime.timedelta(), help=None) -> None:
         super().__init__(default=default, help=help)
 
     def transform(self, value):

@@ -45,7 +45,7 @@ function _strftime(t: number, format: string | ((t: number) => string)): string 
 
 // Labels of time units, from finest to coarsest.
 const format_order = [
-  'microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years',
+  "microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years",
 ]
 
 export namespace DatetimeTickFormatter {
@@ -68,24 +68,24 @@ export namespace DatetimeTickFormatter {
 export interface DatetimeTickFormatter extends DatetimeTickFormatter.Attrs {}
 
 export class DatetimeTickFormatter extends TickFormatter {
-  properties: DatetimeTickFormatter.Props
+  override properties: DatetimeTickFormatter.Props
 
   constructor(attrs?: Partial<DatetimeTickFormatter.Attrs>) {
     super(attrs)
   }
 
-  static init_DatetimeTickFormatter(): void {
+  static {
     this.define<DatetimeTickFormatter.Props>(({String, Array}) => ({
-      microseconds: [ Array(String), ['%fus'] ],
-      milliseconds: [ Array(String), ['%3Nms', '%S.%3Ns'] ],
-      seconds:      [ Array(String), ['%Ss'] ],
-      minsec:       [ Array(String), [':%M:%S'] ],
-      minutes:      [ Array(String), [':%M', '%Mm'] ],
-      hourmin:      [ Array(String), ['%H:%M'] ],
-      hours:        [ Array(String), ['%Hh', '%H:%M'] ],
-      days:         [ Array(String), ['%m/%d', '%a%d'] ],
-      months:       [ Array(String), ['%m/%Y', '%b %Y'] ],
-      years:        [ Array(String), ['%Y'] ],
+      microseconds: [ Array(String), ["%fus"] ],
+      milliseconds: [ Array(String), ["%3Nms", "%S.%3Ns"] ],
+      seconds:      [ Array(String), ["%Ss"] ],
+      minsec:       [ Array(String), [":%M:%S"] ],
+      minutes:      [ Array(String), [":%M", "%Mm"] ],
+      hourmin:      [ Array(String), ["%H:%M"] ],
+      hours:        [ Array(String), ["%Hh", "%H:%M"] ],
+      days:         [ Array(String), ["%m/%d", "%a%d"] ],
+      months:       [ Array(String), ["%m/%Y", "%b %Y"] ],
+      years:        [ Array(String), ["%Y"] ],
     }))
   }
 
@@ -93,7 +93,7 @@ export class DatetimeTickFormatter extends TickFormatter {
   protected strip_leading_zeros = true
   protected _width_formats: {[key: string]: [number[], string[]]}
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     // TODO (bev) trigger update on format change
     this._update_width_formats()
@@ -188,7 +188,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       try {
         tm = _array(t)
         s = _strftime(t, format)
-      } catch (error: unknown) {
+      } catch (error) {
         logger.warn(`unable to format tick for timestamp value ${t}`)
         logger.warn(` - ${error}`)
         labels.push("ERR")

@@ -4,8 +4,8 @@ import {Dimension, SpatialUnits} from "core/enums"
 import * as p from "core/properties"
 
 export abstract class UpperLowerView extends DataAnnotationView {
-  model: UpperLower
-  visuals: UpperLower.Visuals
+  override model: UpperLower
+  override visuals: UpperLower.Visuals
 
   protected _lower: Arrayable<number>
   protected _upper: Arrayable<number>
@@ -47,7 +47,7 @@ export abstract class UpperLowerView extends DataAnnotationView {
     else
       _base_sx  = base_view.v_compute(this._base)
 
-    const [i, j] = dim == 'height' ? [1, 0] : [0, 1]
+    const [i, j] = dim == "height" ? [1, 0] : [0, 1]
 
     const _lower = [_lower_sx, _base_sx]
     const _upper = [_upper_sx, _base_sx]
@@ -61,9 +61,9 @@ export abstract class UpperLowerView extends DataAnnotationView {
 }
 
 export class XOrYCoordinateSpec extends p.CoordinateSpec {
-  readonly obj: UpperLower
+  override readonly obj: UpperLower
 
-  spec: p.Spec<this["__value__"]> & {units: SpatialUnits}
+  override spec: p.Spec<this["__value__"]> & {units: SpatialUnits}
 
   get dimension(): "x" | "y" {
     return this.obj.dimension == "width" ? "x" : "y"
@@ -91,13 +91,13 @@ export namespace UpperLower {
 export interface UpperLower extends UpperLower.Attrs {}
 
 export class UpperLower extends DataAnnotation {
-  properties: UpperLower.Props
+  override properties: UpperLower.Props
 
   constructor(attrs?: Partial<UpperLower.Attrs>) {
     super(attrs)
   }
 
-  static init_UpperLower(): void {
+  static {
     this.define<UpperLower.Props>(() => ({
       dimension: [ Dimension, "height" ],
       lower:     [ XOrYCoordinateSpec, {field: "lower"} ],

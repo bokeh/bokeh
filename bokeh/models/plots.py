@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,11 +22,21 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import warnings
+from typing import Any, List as TList, overload
+
+# External imports
+import xyzservices
+from typing_extensions import Literal
 
 # Bokeh imports
-from ..core.enums import Location, OutputBackend, ResetPolicy
+from ..core.enums import (
+    Location,
+    OutputBackend,
+    Place,
+    PlaceType,
+    ResetPolicy,
+)
 from ..core.properties import (
-    Alias,
     Bool,
     Dict,
     Either,
@@ -49,12 +61,7 @@ from ..core.validation.errors import (
     REQUIRED_RANGE,
     REQUIRED_SCALE,
 )
-from ..core.validation.warnings import (
-    FIXED_HEIGHT_POLICY,
-    FIXED_SIZING_MODE,
-    FIXED_WIDTH_POLICY,
-    MISSING_RENDERERS,
-)
+from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
 from ..util.string import nice_join
 from .annotations import Annotation, Legend, Title
@@ -62,10 +69,21 @@ from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
 from .layouts import LayoutDOM
-from .ranges import DataRange1d, FactorRange, Range, Range1d
+from .ranges import (
+    DataRange1d,
+    FactorRange,
+    Range,
+    Range1d,
+)
 from .renderers import GlyphRenderer, Renderer, TileRenderer
-from .scales import CategoricalScale, LinearScale, LogScale, Scale
-from .sources import ColumnDataSource, DataSource
+from .scales import (
+    CategoricalScale,
+    LinearScale,
+    LogScale,
+    Scale,
+)
+from .sources import ColumnarDataSource, ColumnDataSource, DataSource
+from .tiles import TileSource, WMTSTileSource
 from .tools import HoverTool, Tool, Toolbar
 
 #-----------------------------------------------------------------------------
@@ -75,8 +93,6 @@ from .tools import HoverTool, Tool, Toolbar
 __all__ = (
     'Plot',
 )
-
-_VALID_PLACES = ('left', 'right', 'above', 'below', 'center')
 
 #-----------------------------------------------------------------------------
 # General API
@@ -142,7 +158,7 @@ class Plot(LayoutDOM):
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
-        return _list_attr_splat(find(self.references(), selector, {'plot': self}))
+        return _list_attr_splat(find(self.references(), selector))
 
     def row(self, row, gridplot):
         ''' Return whether this plot is in a given row of a GridPlot.
@@ -200,7 +216,7 @@ class Plot(LayoutDOM):
 
     @property
     def legend(self):
-        ''' Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
+        ''' Splattable list of |Legend| objects.
 
         '''
         panels = self.above + self.below + self.left + self.right + self.center
@@ -215,7 +231,7 @@ class Plot(LayoutDOM):
         hovers = [obj for obj in self.tools if isinstance(obj, HoverTool)]
         return _list_attr_splat(hovers)
 
-    def _grid(self, dimension):
+    def _grid(self, dimension: Literal[0, 1]):
         grid = [obj for obj in self.center if isinstance(obj, Grid) and obj.dimension == dimension]
         return _list_attr_splat(grid)
 
@@ -241,14 +257,14 @@ class Plot(LayoutDOM):
         return _list_attr_splat(self.xgrid + self.ygrid)
 
     @property
-    def tools(self):
+    def tools(self) -> TList[Tool]:
         return self.toolbar.tools
 
     @tools.setter
-    def tools(self, tools):
+    def tools(self, tools: TList[Tool]):
         self.toolbar.tools = tools
 
-    def add_layout(self, obj, place='center'):
+    def add_layout(self, obj: Renderer, place: PlaceType = "center") -> None:
         ''' Adds an object to the plot in a specified place.
 
         Args:
@@ -260,14 +276,14 @@ class Plot(LayoutDOM):
             None
 
         '''
-        if place not in _VALID_PLACES:
+        if place not in Place:
             raise ValueError(
-                "Invalid place '%s' specified. Valid place values are: %s" % (place, nice_join(_VALID_PLACES))
+                f"Invalid place '{place}' specified. Valid place values are: {nice_join(Place)}"
             )
 
         getattr(self, place).append(obj)
 
-    def add_tools(self, *tools):
+    def add_tools(self, *tools: Tool) -> None:
         ''' Adds tools to the plot.
 
         Args:
@@ -283,7 +299,12 @@ class Plot(LayoutDOM):
 
             self.toolbar.tools.append(tool)
 
-    def add_glyph(self, source_or_glyph, glyph=None, **kw):
+    @overload
+    def add_glyph(self, glyph: Glyph, **kwargs: Any) -> GlyphRenderer: ...
+    @overload
+    def add_glyph(self, source: ColumnarDataSource, glyph: Glyph, **kwargs: Any) -> GlyphRenderer: ...
+
+    def add_glyph(self, source_or_glyph: Glyph | ColumnarDataSource, glyph: Glyph | None = None, **kwargs: Any) -> GlyphRenderer:
         ''' Adds a glyph to the plot with associated data sources and ranges.
 
         This function will take care of creating and configuring a Glyph object,
@@ -302,7 +323,7 @@ class Plot(LayoutDOM):
             GlyphRenderer
 
         '''
-        if glyph is not None:
+        if isinstance(source_or_glyph, ColumnarDataSource):
             source = source_or_glyph
         else:
             source, glyph = ColumnDataSource(), source_or_glyph
@@ -313,15 +334,19 @@ class Plot(LayoutDOM):
         if not isinstance(glyph, Glyph):
             raise ValueError("'glyph' argument to add_glyph() must be Glyph subclass")
 
-        g = GlyphRenderer(data_source=source, glyph=glyph, **kw)
+        g = GlyphRenderer(data_source=source, glyph=glyph, **kwargs)
         self.renderers.append(g)
         return g
 
-    def add_tile(self, tile_source, **kw):
+    def add_tile(self, tile_source: TileSource | xyzservices.TileProvider | str, retina: bool = False, **kwargs: Any) -> TileRenderer:
         ''' Adds new ``TileRenderer`` into ``Plot.renderers``
 
         Args:
-            tile_source (TileSource) : a tile source instance which contain tileset configuration
+            tile_source (TileSource, xyzservices.TileProvider, str) :
+                A tile source instance which contain tileset configuration
+
+            retina (bool) :
+                Whether to use retina version of tiles (if available)
 
         Keyword Arguments:
             Additional keyword arguments are passed on as-is to the tile renderer
@@ -330,29 +355,58 @@ class Plot(LayoutDOM):
             TileRenderer : TileRenderer
 
         '''
-        tile_renderer = TileRenderer(tile_source=tile_source, **kw)
+        if not isinstance(tile_source, TileSource):
+
+            if isinstance(tile_source, xyzservices.TileProvider):
+                selected_provider = tile_source
+
+            # allow the same string input you can now pass to get_provider
+            elif isinstance(tile_source, str):
+                # Mapping of custom keys to those used in xyzservices
+                tile_source = tile_source.lower()
+
+                if tile_source == "esri_imagery":
+                    tile_source = "esri_worldimagery"
+                if tile_source == "osm":
+                    tile_source = "openstreetmap_mapnik"
+
+                if "retina" in tile_source:
+                    tile_source = tile_source.replace("retina", "")
+                    retina = True
+                selected_provider = xyzservices.providers.query_name(tile_source)
+
+            scale_factor = "@2x" if retina else None
+
+            tile_source = WMTSTileSource(
+                url=selected_provider.build_url(scale_factor=scale_factor),
+                attribution=selected_provider.html_attribution,
+                min_zoom=selected_provider.get("min_zoom", 0),
+                max_zoom=selected_provider.get("max_zoom", 30),
+            )
+
+        tile_renderer = TileRenderer(tile_source=tile_source, **kwargs)
         self.renderers.append(tile_renderer)
         return tile_renderer
 
     @error(REQUIRED_RANGE)
-    def _check_required_range(self):
-        missing = []
+    def _check_required_range(self) -> str | None:
+        missing: TList[str] = []
         if not self.x_range: missing.append('x_range')
         if not self.y_range: missing.append('y_range')
         if missing:
             return ", ".join(missing) + " [%s]" % self
 
     @error(REQUIRED_SCALE)
-    def _check_required_scale(self):
-        missing = []
+    def _check_required_scale(self) -> str | None:
+        missing: TList[str] = []
         if not self.x_scale: missing.append('x_scale')
         if not self.y_scale: missing.append('y_scale')
         if missing:
             return ", ".join(missing) + " [%s]" % self
 
     @error(INCOMPATIBLE_SCALE_AND_RANGE)
-    def _check_compatible_scale_and_ranges(self):
-        incompatible = []
+    def _check_compatible_scale_and_ranges(self) -> str | None:
+        incompatible: TList[str] = []
         x_ranges = list(self.extra_x_ranges.values())
         if self.x_range: x_ranges.append(self.x_range)
         y_ranges = list(self.extra_y_ranges.values())
@@ -382,18 +436,18 @@ class Plot(LayoutDOM):
             return ", ".join(incompatible) + " [%s]" % self
 
     @warning(MISSING_RENDERERS)
-    def _check_missing_renderers(self):
+    def _check_missing_renderers(self) -> str | None:
         if len(self.renderers) == 0 and len([x for x in self.center if isinstance(x, Annotation)]) == 0:
             return str(self)
 
     @error(BAD_EXTRA_RANGE_NAME)
-    def _check_bad_extra_range_name(self):
-        msg   = ""
+    def _check_bad_extra_range_name(self) -> str | None:
+        msg: str = ""
         valid = {
             f'{axis}_name': {'default', *getattr(self, f"extra_{axis}s")}
             for axis in ("x_range", "y_range")
         }
-        for place in _VALID_PLACES + ('renderers',):
+        for place in list(Place) + ['renderers']:
             for ref in getattr(self, place):
                 bad = ', '.join(
                     f"{axis}='{getattr(ref, axis)}'"
@@ -414,7 +468,7 @@ class Plot(LayoutDOM):
     """)
 
     @classmethod
-    def _scale(cls, scale):
+    def _scale(cls, scale: Literal["auto", "linear", "log", "categorical"]) -> Scale:
         if scale in ["auto", "linear"]:
             return LinearScale()
         elif scale == "log":
@@ -422,7 +476,7 @@ class Plot(LayoutDOM):
         if scale == "categorical":
             return CategoricalScale()
         else:
-            raise ValueError("Unknown mapper_type: %s" % scale)
+            raise ValueError(f"Unknown mapper_type: {scale}")
 
     x_scale = Instance(Scale, default=lambda: LinearScale(), help="""
     What kind of scale to use to convert x-coordinates in data space
@@ -446,21 +500,37 @@ class Plot(LayoutDOM):
     This is useful for adding additional axes.
     """)
 
+    extra_x_scales = Dict(String, Instance(Scale), help="""
+    Additional named scales to make available for mapping x-coordinates.
+
+    This is useful for adding additional axes.
+
+    .. note:: This feature is experimental and may change in the short term.
+    """)
+
+    extra_y_scales = Dict(String, Instance(Scale), help="""
+    Additional named scales to make available for mapping y-coordinates.
+
+    This is useful for adding additional axes.
+
+    .. note:: This feature is experimental and may change in the short term.
+    """)
+
     hidpi = Bool(default=True, help="""
     Whether to use HiDPI mode when available.
     """)
 
-    title = Either(Null, String, Instance(Title), default=lambda: Title(text=""), help="""
+    title = Either(Null, Instance(Title), default=lambda: Title(text=""), help="""
     A title for the plot. Can be a text string or a Title annotation.
-    """)
+    """).accepts(String, lambda text: Title(text=text))
 
     title_location = Nullable(Enum(Location), default="above", help="""
     Where the title will be located. Titles on the left or right side
     will be rotated.
     """)
 
-    outline_props = Include(ScalarLineProps, help="""
-    The %s for the plot border outline.
+    outline_props = Include(ScalarLineProps, prefix="outline", help="""
+    The {prop} for the plot border outline.
     """)
 
     outline_line_color = Override(default="#e5e5e5")
@@ -509,17 +579,9 @@ class Plot(LayoutDOM):
     A list of renderers to occupy the center area (frame) of the plot.
     """)
 
-    width = Override(default=600)
+    width: int | None = Override(default=600)
 
-    height = Override(default=600)
-
-    plot_width: int = Alias("width", help="""
-    The outer width of a plot, including any axes, titles, border padding, etc.
-    """)
-
-    plot_height: int = Alias("height", help="""
-    The outer height of a plot, including any axes, titles, border padding, etc.
-    """)
+    height: int | None = Override(default=600)
 
     frame_width = Nullable(Int, help="""
     The width of a plot frame or the inner width of a plot, excluding any
@@ -575,14 +637,14 @@ class Plot(LayoutDOM):
 
     """)
 
-    background_props = Include(ScalarFillProps, help="""
-    The %s for the plot background style.
+    background_props = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} for the plot background style.
     """)
 
     background_fill_color = Override(default='#ffffff')
 
-    border_props = Include(ScalarFillProps, help="""
-    The %s for the plot border style.
+    border_props = Include(ScalarFillProps, prefix="border", help="""
+    The {prop} for the plot border style.
     """)
 
     border_fill_color = Override(default='#ffffff')
@@ -666,7 +728,7 @@ class Plot(LayoutDOM):
     match_aspect = Bool(default=False, help="""
     Specify the aspect ratio behavior of the plot. Aspect ratio is defined as
     the ratio of width over height. This property controls whether Bokeh should
-    attempt the match the (width/height) of *data space* to the (width/height)
+    attempt to match the (width/height) of *data space* to the (width/height)
     in pixels of *screen space*.
 
     Default is ``False`` which indicates that the *data* aspect ratio and the
@@ -683,7 +745,7 @@ class Plot(LayoutDOM):
 
     .. warning::
         This setting is incompatible with linking dataranges across multiple
-        plots. Doing so may result in undefined behaviour.
+        plots. Doing so may result in undefined behavior.
     """)
 
     aspect_scale = Float(default=1, help="""
@@ -706,19 +768,6 @@ class Plot(LayoutDOM):
     is desired, this property may be set to ``"event_only"``, which will
     suppress all of the actions except the Reset event.
     """)
-
-    # XXX: override LayoutDOM's definitions because of plot_{width,height}.
-    @error(FIXED_SIZING_MODE)
-    def _check_fixed_sizing_mode(self):
-        pass
-
-    @error(FIXED_WIDTH_POLICY)
-    def _check_fixed_width_policy(self):
-        pass
-
-    @error(FIXED_HEIGHT_POLICY)
-    def _check_fixed_height_policy(self):
-        pass
 
 #-----------------------------------------------------------------------------
 # Dev API

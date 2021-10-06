@@ -1,4 +1,4 @@
-import {Models} from "../base"
+import {ModelResolver} from "../base"
 import {version as js_version} from "../version"
 import {logger} from "../core/logging"
 import {BokehEvent, DocumentReady, ModelEvent, LODStart, LODEnd} from "core/bokeh_events"
@@ -8,6 +8,7 @@ import {ID, Attrs, Data, PlainObject} from "core/types"
 import {Signal0} from "core/signaling"
 import {Struct, is_ref} from "core/util/refs"
 import {Buffers, is_NDArray_ref, decode_NDArray} from "core/util/serialization"
+import {ndarray} from "core/util/ndarray"
 import {difference, intersection, copy, includes} from "core/util/array"
 import {values, entries} from "core/util/object"
 import * as sets from "core/util/set"
@@ -73,19 +74,22 @@ export class Document {
   readonly idle: Signal0<this>
 
   protected readonly _init_timestamp: number
+  protected readonly _resolver: ModelResolver
   protected _title: string
   protected _roots: Model[]
   /*protected*/ _all_models: Map<ID, HasProps>
   protected _all_models_freeze_count: number
   protected _callbacks: Map<((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), boolean>
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
-  private _idle_roots: WeakMap<Model, boolean>
+  private _idle_roots: WeakMap<HasProps, boolean>
   protected _interactive_timestamp: number | null
   protected _interactive_plot: Model | null
+  protected _interactive_finalize: (() => void)| null
 
-  constructor() {
+  constructor(options?: {resolver?: ModelResolver}) {
     documents.push(this)
     this._init_timestamp = Date.now()
+    this._resolver = options?.resolver ?? new ModelResolver()
     this._title = DEFAULT_TITLE
     this._roots = []
     this._all_models = new Map()
@@ -111,7 +115,7 @@ export class Document {
     return true
   }
 
-  notify_idle(model: Model): void {
+  notify_idle(model: HasProps): void {
     this._idle_roots.set(model, true)
     if (this.is_idle) {
       logger.info(`document idle at ${Date.now() - this._init_timestamp} ms`)
@@ -131,20 +135,25 @@ export class Document {
     }
   }
 
-  interactive_start(plot: Model): void {
+  interactive_start(plot: Model, finalize: (() => void)|null = null): void {
     if (this._interactive_plot == null) {
       this._interactive_plot = plot
       this._interactive_plot.trigger_event(new LODStart())
     }
+    this._interactive_finalize = finalize
     this._interactive_timestamp = Date.now()
   }
 
   interactive_stop(): void {
     if (this._interactive_plot != null) {
       this._interactive_plot.trigger_event(new LODEnd())
+      if (this._interactive_finalize != null) {
+        this._interactive_finalize()
+      }
     }
     this._interactive_plot = null
     this._interactive_timestamp = null
+    this._interactive_finalize = null
   }
 
   interactive_duration(): number {
@@ -336,15 +345,15 @@ export class Document {
     this._trigger_on_change(new ModelChangedEvent(this, model, attr, old_value, new_value, options?.setter_id, options?.hint))
   }
 
-  static _instantiate_object(obj_id: string, obj_type: string, obj_attrs: Attrs): HasProps {
+  static _instantiate_object(obj_id: string, obj_type: string, obj_attrs: Attrs, resolver: ModelResolver): HasProps {
     const full_attrs = {...obj_attrs, id: obj_id, __deferred__: true}
-    const model = Models(obj_type)
+    const model = resolver.get(obj_type)
     return new (model as any)(full_attrs)
   }
 
   // given a JSON representation of all models in a graph, return a
   // dict of new model objects
-  static _instantiate_references_json(references_json: Struct[], existing_models: RefMap): RefMap {
+  static _instantiate_references_json(references_json: Struct[], existing_models: RefMap, resolver: ModelResolver): RefMap {
     // Create all instances, but without setting their props
     const references = new Map()
     for (const obj of references_json) {
@@ -354,9 +363,7 @@ export class Document {
 
       let instance = existing_models.get(obj_id)
       if (instance == null) {
-        instance = Document._instantiate_object(obj_id, obj_type, obj_attrs)
-        if (obj.subtype != null)
-          instance.set_subtype(obj.subtype)
+        instance = Document._instantiate_object(obj_id, obj_type, obj_attrs, resolver)
       }
       references.set(instance.id, instance)
     }
@@ -368,14 +375,14 @@ export class Document {
   static _resolve_refs(value: unknown, old_references: RefMap, new_references: RefMap, buffers: Buffers): unknown {
     function resolve_ref(v: unknown): unknown {
       if (is_ref(v)) {
-        if (old_references.has(v.id))
-          return old_references.get(v.id)
-        else if (new_references.has(v.id))
-          return new_references.get(v.id)
+        const obj = old_references.get(v.id) ?? new_references.get(v.id)
+        if (obj != null)
+          return obj
         else
           throw new Error(`reference ${JSON.stringify(v)} isn't known (not in Document?)`)
       } else if (is_NDArray_ref(v)) {
-        return decode_NDArray(v, buffers)
+        const {buffer, dtype, shape} = decode_NDArray(v, buffers)
+        return ndarray(buffer, {dtype, shape})
       } else if (isArray(v))
         return resolve_array(v)
       else if (isPlainObject(v))
@@ -614,7 +621,7 @@ export class Document {
     }
 
     const py_version = json.version! // XXX!
-    const is_dev = py_version.indexOf('+') !== -1 || py_version.indexOf('-') !== -1
+    const is_dev = py_version.indexOf("+") !== -1 || py_version.indexOf("-") !== -1
     const versions_string = `Library versions: JS (${js_version}) / Python (${py_version})`
     if (!is_dev && pyify(js_version) != py_version) {
       logger.warn("JS/Python version mismatch")
@@ -622,18 +629,19 @@ export class Document {
     } else
       logger.debug(versions_string)
 
+    const resolver = new ModelResolver()
     if (json.defs != null) {
-      resolve_defs(json.defs)
+      resolve_defs(json.defs, resolver)
     }
 
     const roots_json = json.roots
     const root_ids = roots_json.root_ids
     const references_json = roots_json.references
 
-    const references = Document._instantiate_references_json(references_json, new Map())
+    const references = Document._instantiate_references_json(references_json, new Map(), resolver)
     Document._initialize_references_json(references_json, new Map(), references, new Map())
 
-    const doc = new Document()
+    const doc = new Document({resolver})
     for (const id of root_ids) {
       const root = references.get(id)
       if (root != null) {
@@ -649,10 +657,6 @@ export class Document {
     replacement.destructively_move(this)
   }
 
-  create_json_patch_string(events: DocumentChangedEvent[]): string {
-    return JSON.stringify(this.create_json_patch(events))
-  }
-
   create_json_patch(events: DocumentChangedEvent[]): Patch {
     for (const event of events) {
       if (event.document != this)
@@ -660,8 +664,17 @@ export class Document {
     }
 
     const serializer = new Serializer()
+    const events_repr = serializer.to_serializable(events)
+
+    // TODO: We need a proper differential serializer. For now just remove known
+    // definitions. We are doing this after a complete serialization, so that all
+    // new objects are recorded.
+    for (const model of this._all_models.values()) {
+      serializer.remove_def(model)
+    }
+
     return {
-      events: serializer.to_serializable(events),
+      events: events_repr,
       references: [...serializer.definitions],
     }
   }
@@ -669,7 +682,7 @@ export class Document {
   apply_json_patch(patch: Patch, buffers: Buffers | ReturnType<Buffers["entries"]> = new Map(), setter_id?: string): void {
     const references_json = patch.references
     const events_json = patch.events
-    const references = Document._instantiate_references_json(references_json, this._all_models)
+    const references = Document._instantiate_references_json(references_json, this._all_models, this._resolver)
 
     if (!(buffers instanceof Map)) {
       buffers = new Map(buffers)
@@ -695,12 +708,10 @@ export class Document {
     }
 
     // split references into old and new so we know whether to initialize or update
-    const old_references: RefMap = new Map()
+    const old_references: RefMap = new Map(this._all_models)
     const new_references: RefMap = new Map()
     for (const [id, value] of references) {
-      if (this._all_models.has(id))
-        old_references.set(id, value)
-      else
+      if (!old_references.has(id))
         new_references.set(id, value)
     }
 
@@ -708,7 +719,7 @@ export class Document {
 
     for (const event_json of events_json) {
       switch (event_json.kind) {
-        case 'MessageSent': {
+        case "MessageSent": {
           const {msg_type, msg_data} = event_json
           let data: unknown
           if (msg_data === undefined) {
@@ -725,7 +736,7 @@ export class Document {
           this._trigger_on_message(msg_type, data)
           break
         }
-        case 'ModelChanged': {
+        case "ModelChanged": {
           const patched_id = event_json.model.id
           const patched_obj = this._all_models.get(patched_id)
           if (patched_obj == null) {
@@ -736,7 +747,7 @@ export class Document {
           patched_obj.setv({[attr]: value}, {setter_id})
           break
         }
-        case 'ColumnDataChanged': {
+        case "ColumnDataChanged": {
           const column_source_id = event_json.column_source.id
           const column_source = this._all_models.get(column_source_id) as ColumnDataSource | undefined
           if (column_source == null) {
@@ -753,7 +764,7 @@ export class Document {
           column_source.setv({data}, {setter_id, check_eq: false})
           break
         }
-        case 'ColumnsStreamed': {
+        case "ColumnsStreamed": {
           const column_source_id = event_json.column_source.id
           const column_source = this._all_models.get(column_source_id)
           if (column_source == null) {
@@ -767,7 +778,7 @@ export class Document {
           column_source.stream(data, rollover, setter_id)
           break
         }
-        case 'ColumnsPatched': {
+        case "ColumnsPatched": {
           const column_source_id = event_json.column_source.id
           const column_source = this._all_models.get(column_source_id)
           if (column_source == null) {
@@ -780,24 +791,24 @@ export class Document {
           column_source.patch(patches, setter_id)
           break
         }
-        case 'RootAdded': {
+        case "RootAdded": {
           const root_id = event_json.model.id
           const root_obj = references.get(root_id)
           this.add_root(root_obj as Model, setter_id) // XXX: HasProps
           break
         }
-        case 'RootRemoved': {
+        case "RootRemoved": {
           const root_id = event_json.model.id
           const root_obj = references.get(root_id)
           this.remove_root(root_obj as Model, setter_id) // XXX: HasProps
           break
         }
-        case 'TitleChanged': {
+        case "TitleChanged": {
           this.set_title(event_json.title, setter_id)
           break
         }
         default:
-          throw new Error("Unknown patch event " + JSON.stringify(event_json))
+          throw new Error(`Unknown patch event ${JSON.stringify(event_json)}`)
       }
     }
   }

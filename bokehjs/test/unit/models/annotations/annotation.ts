@@ -8,7 +8,7 @@ import {build_view} from "@bokehjs/core/build_views"
 import * as p from "@bokehjs/core/properties"
 
 class SubclassWithNumberSpecView extends DataAnnotationView {
-  model: SubclassWithNumberSpec
+  override model: SubclassWithNumberSpec
   map_data(): void {}
   paint(): void {}
   foo: p.Uniform<number>
@@ -22,14 +22,14 @@ namespace SubclassWithNumberSpec {
 }
 interface SubclassWithNumberSpec extends SubclassWithNumberSpec.Attrs {}
 class SubclassWithNumberSpec extends DataAnnotation {
-  properties: SubclassWithNumberSpec.Props
-  __view_type__: SubclassWithNumberSpecView
+  override properties: SubclassWithNumberSpec.Props
+  override __view_type__: SubclassWithNumberSpecView
 
   constructor(attrs?: Partial<SubclassWithNumberSpec.Attrs>) {
     super(attrs)
   }
 
-  static init_SubclassWithNumberSpec() {
+  static {
     this.prototype.default_view = SubclassWithNumberSpecView
 
     this.define<SubclassWithNumberSpec.Props>(({Boolean}) => ({
@@ -40,7 +40,7 @@ class SubclassWithNumberSpec extends DataAnnotation {
 }
 
 class SubclassWithDistanceSpecView extends DataAnnotationView {
-  model: SubclassWithDistanceSpec
+  override model: SubclassWithDistanceSpec
   map_data(): void {}
   paint(): void {}
   foo: p.Uniform<number>
@@ -54,14 +54,14 @@ namespace SubclassWithDistanceSpec {
 }
 interface SubclassWithDistanceSpec extends SubclassWithDistanceSpec.Attrs {}
 class SubclassWithDistanceSpec extends DataAnnotation {
-  properties: SubclassWithDistanceSpec.Props
-  __view_type__: SubclassWithDistanceSpecView
+  override properties: SubclassWithDistanceSpec.Props
+  override __view_type__: SubclassWithDistanceSpecView
 
   constructor(attrs?: Partial<SubclassWithDistanceSpec.Attrs>) {
     super(attrs)
   }
 
-  static init_SubclassWithDistanceSpec() {
+  static {
     this.prototype.default_view = SubclassWithDistanceSpecView
 
     this.define<SubclassWithDistanceSpec.Props>(({Boolean}) => ({

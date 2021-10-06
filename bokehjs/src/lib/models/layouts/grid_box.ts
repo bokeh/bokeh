@@ -3,10 +3,10 @@ import {Grid, RowsSizing, ColsSizing} from "core/layout/grid"
 import * as p from "core/properties"
 
 export class GridBoxView extends LayoutDOMView {
-  model: GridBox
-  layout: Grid
+  override model: GridBox
+  override layout: Grid
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     const {children, rows, cols, spacing} = this.model.properties
     this.on_change([children, rows, cols, spacing], () => this.rebuild())
@@ -16,7 +16,7 @@ export class GridBoxView extends LayoutDOMView {
     return this.model.children.map(([child]) => child)
   }
 
-  _update_layout(): void {
+  override _update_layout(): void {
     this.layout = new Grid()
     this.layout.rows = this.model.rows
     this.layout.cols = this.model.cols
@@ -45,14 +45,14 @@ export namespace GridBox {
 export interface GridBox extends GridBox.Attrs {}
 
 export class GridBox extends LayoutDOM {
-  properties: GridBox.Props
-  __view_type__: GridBoxView
+  override properties: GridBox.Props
+  override __view_type__: GridBoxView
 
   constructor(attrs?: Partial<GridBox.Attrs>) {
     super(attrs)
   }
 
-  static init_GridBox(): void {
+  static {
     this.prototype.default_view = GridBoxView
 
     this.define<GridBox.Props>(({Any, Int, Number, Tuple, Array, Ref, Or, Opt}) => ({

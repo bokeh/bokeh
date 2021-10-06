@@ -4,6 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
+from __future__ import annotations
 
 # Standard library imports
 from typing import Tuple
@@ -15,6 +16,7 @@ from .build import (
     build_docs,
     build_npm_packages,
     build_sdist_packages,
+    build_wheel_packages,
     dev_install,
     install_bokehjs,
     npm_install,
@@ -51,7 +53,7 @@ from .deploy import (
     publish_conda_package,
     publish_documentation,
     publish_npm_package,
-    publish_pip_package,
+    publish_pip_packages,
     unpack_deployment_tarball,
 )
 from .git import (
@@ -65,11 +67,7 @@ from .git import (
     tag_release_version,
 )
 from .pipeline import StepType
-from .remote import (
-    download_deployment_tarball,
-    publish_bokehjs_to_cdn,
-    upload_deployment_tarball,
-)
+from .remote import download_deployment_tarball, publish_bokehjs_to_cdn, upload_deployment_tarball
 
 __all__ = (
     "BUILD_CHECKS",
@@ -112,6 +110,7 @@ BUILD_STEPS: StepListType = (
     build_npm_packages,
     build_conda_packages,
     build_sdist_packages,
+    build_wheel_packages,
     build_docs,
     pack_deployment_tarball,
     upload_deployment_tarball,
@@ -128,6 +127,7 @@ DEPLOY_CHECKS: StepListType = (
     check_git_present,
     check_npm_present,
     check_twine_present,
+    check_checkout_on_base_branch,
     verify_anaconda_credentials,
     verify_aws_credentials,
     verify_npm_credentials,
@@ -139,6 +139,6 @@ DEPLOY_STEPS: StepListType = (
     unpack_deployment_tarball,
     publish_npm_package,
     publish_conda_package,
-    publish_pip_package,
+    publish_pip_packages,
     publish_documentation,
 )

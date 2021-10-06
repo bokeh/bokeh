@@ -1,8 +1,10 @@
-import {display, fig, row, column, grid} from "./_util"
+import sinon from "sinon"
+
+import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
 
 import {
   Arrow, ArrowHead, NormalHead, OpenHead,
-  BoxAnnotation, LabelSet, Legend, LegendItem, Slope, Whisker,
+  BoxAnnotation, LabelSet, ColorBar, Slope, Whisker,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
@@ -11,9 +13,14 @@ import {
   StaticLayoutProvider,
   LinearColorMapper,
   Plot,
+  TeX,
+  HoverTool,
+  TileRenderer, WMTSTileSource,
+  Renderer,
+  ImageURLTexture,
 } from "@bokehjs/models"
 
-import {Button, Select, MultiSelect, MultiChoice} from "@bokehjs/models/widgets"
+import {Button, Select, MultiSelect, MultiChoice, RadioGroup} from "@bokehjs/models/widgets"
 import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
@@ -27,22 +34,67 @@ import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
 import {defer} from "@bokehjs/core/util/defer"
-import {Figure, MarkerArgs} from "@bokehjs/api/plotting"
-import {Spectral11} from "@bokehjs/api/palettes"
-import {div} from "@bokehjs/core/dom"
+import {encode_rgba} from "@bokehjs/core/util/color"
+import {Figure, show} from "@bokehjs/api/plotting"
+import {MarkerArgs} from "@bokehjs/api/glyph_api"
+import {Spectral11, turbo} from "@bokehjs/api/palettes"
+import {div, offset} from "@bokehjs/core/dom"
+
+import {MathTextView} from "@bokehjs/models/text/math_text"
+import {PlotView} from "@bokehjs/models/plots/plot"
+
+import {f} from "@bokehjs/api/expr"
+import {np} from "@bokehjs/api/linalg"
 
 const n_marker_types = [...MarkerType].length
 
-function svg_image(svg: string): string {
+function svg_data_url(svg: string): string {
   return `data:image/svg+xml;utf-8,${svg}`
+}
+
+function scalar_image(N: number = 100) {
+  const x = linspace(0, 10, N)
+  const y = linspace(0, 10, N)
+  const d = new Float64Array(N*N)
+  const {sin, cos} = Math
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      d[i*N + j] = sin(x[i])*cos(y[j])
+    }
+  }
+  return ndarray(d, {shape: [N, N]})
+}
+
+function rgba_image() {
+  const N = 20
+  const d = new Uint32Array(N*N) // TODO: doesn't allow Uint8Array[N, N, 4]
+  const dv = new DataView(d.buffer)
+
+  const {trunc} = Math
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      const r = trunc(i/N*255)
+      const g = 158
+      const b = trunc(j/N*255)
+      const a = 255
+      dv.setUint32(4*(i*N + j), encode_rgba([r, g, b, a]))
+    }
+  }
+  return ndarray(d, {shape: [N, N]})
+}
+
+function svg_image() {
+  return svg_data_url(`\
+<svg version="1.1" viewBox="0 0 2 2" xmlns="http://www.w3.org/2000/svg">
+<circle cx="1" cy="1" r="1" fill="blue" />
+</svg>
+`)
 }
 
 describe("Bug", () => {
   describe("in issue #9879", () => {
     it("disallows to change FactorRange to a lower dimension with a different number of factors", async () => {
       const p = fig([200, 200], {
-        title: null,
-        toolbar_location: null,
         x_range: new FactorRange({factors: [["a", "b"], ["b", "c"]]}),
         y_range: new DataRange1d(),
       })
@@ -77,12 +129,11 @@ describe("Bug", () => {
     it.allowing(8)("disallows ImageURL glyph to set anchor and angle at the same time", async () => {
       const p = fig([300, 300], {x_range: [-1, 10], y_range: [-1, 10]})
 
-      const svg = `\
+      const img = svg_data_url(`\
 <svg version="1.1" viewBox="0 0 2 2" xmlns="http://www.w3.org/2000/svg">
   <path d="M 0,0 2,0 1,2 Z" fill="green" />
 </svg>
-`
-      const img = svg_image(svg)
+`)
 
       let y = 0
       const w = 1, h = 1
@@ -226,6 +277,7 @@ describe("Bug", () => {
 
       const glyph = r.selection_glyph as Circle
       glyph.line_color = "black"
+      glyph.hatch_color = "black"
       glyph.hatch_pattern = "/"
 
       await view.ready
@@ -378,23 +430,26 @@ describe("Bug", () => {
 
       await display(row([p0, p1]))
     })
+
+    it("disallows to render multi-lines with NaNs using SVG backend", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([300, 200], {output_backend})
+        const y = [NaN, 0, 1, 4, NaN, NaN, NaN, 3, 4, NaN, NaN, 5, 6, 9, 10]
+        p.multi_line({xs: [range(y.length)], ys: [y]})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]))
+    })
   })
 
   describe("in issue #10725", () => {
     it("renders image glyphs in wrong orientation using SVG backend", async () => {
       function make_plot(output_backend: OutputBackend) {
-        const N = 500
-        const x = linspace(0, 10, N)
-        const y = linspace(0, 10, N)
-        const d = new Float64Array(N*N)
-        const {sin, cos} = Math
-        for (let i = 0; i < N; i++) {
-          for (let j = 0; j < N; j++) {
-            d[i*N + j] = sin(x[i])*cos(y[j])
-          }
-        }
-
-        const image = ndarray(d, {shape: [N, N]})
+        const image = scalar_image(500)
         const color_mapper = new LinearColorMapper({palette: Spectral11})
 
         const p = fig([200, 200], {output_backend})
@@ -414,20 +469,14 @@ describe("Bug", () => {
       const p = fig([200, 100])
       p.circle([0, 1, 2], [0, 1, 2], {radius: 0.25})
       const {view} = await display(p)
-      p.xaxis.map((axis) => axis.axis_label = "X-Axis Label")
+      p.xaxis.axis_label = "X-Axis Label"
       await view.ready
     })
   })
 
   describe("in issue #10369", () => {
     it("disallows ImageURL glyph to compute correct bounds with different anchors", async () => {
-      const svg = `\
-<svg version="1.1" viewBox="0 0 2 2" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="1" cy="1" r="1" fill="blue" />
-</svg>
-`
-      const img = svg_image(svg)
-
+      const img = svg_image()
       const plots = []
       for (const anchor of [...Anchor].slice(0, 9)) {
         const x_range = new DataRange1d()
@@ -461,14 +510,9 @@ describe("Bug", () => {
     it("disallows correct rendering of legends with SVG backend", async () => {
       function make_plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
-        const cross = p.diamond({x: 1, y: 1, color: "red", size: 30})
-        const square = p.square({x: 2, y: 1, size: 30})
-        const items = [
-          new LegendItem({label: "circle", renderers: [cross]}),
-          new LegendItem({label: "square", renderers: [square]}),
-        ]
-        const legend = new Legend({items, location: "top_center"})
-        p.add_layout(legend)
+        p.diamond({x: 1, y: 1, color: "red", size: 30, legend_label: "diamond"})
+        p.square({x: 2, y: 1, size: 30, legend_label: "square"})
+        p.legend.location = "top_center"
         return p
       }
 
@@ -485,14 +529,14 @@ describe("Bug", () => {
       const y = [5, 6, 2, 3, 4, 10]
 
       const p = fig([300, 300])
-      const r = p.line(x, y, {legend: "foo"}) // TODO: legend_item
+      const r = p.line(x, y, {legend_label: "foo"})
 
       const {view} = await display(p)
 
-      p.circle(x, y, {legend: "foo"}) // TODO: legend_item
+      p.circle(x, y, {legend_label: "foo"})
       r.glyph.line_dash = "dotted"
       r.glyph.line_color = "black"
-      p.line([1, 4, 8], [2, 12, 6], {line_color: "red", legend: "bar"}) // TODO: legend_item
+      p.line([1, 4, 8], [2, 12, 6], {line_color: "red", legend_label: "bar"})
       p.legend.background_fill_color = "blue"
       p.legend.background_fill_alpha = 0.2
 
@@ -707,7 +751,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #10507", () => {
-    it("prevents changing MultiSelect.disabled property", async () => {
+    it.allowing(22)("prevents changing MultiSelect.disabled property", async () => {
       const widget = new MultiSelect({value: ["2", "3"], options: ["1", "2", "3"], width: 200})
       const {view} = await display(widget, [250, 100])
       widget.disabled = true
@@ -716,7 +760,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #10695", () => {
-    it("prevents showing MultiChoice's dropdown menu", async () => {
+    it.allowing(16)("prevents showing MultiChoice's dropdown menu", async () => {
       const random = new Random(1)
 
       const N = 10
@@ -739,6 +783,30 @@ describe("Bug", () => {
 
       const layout = column([choices, button, table])
       const {view} = await display(layout, [350, 250])
+
+      const choices_view = view.child_views[0] as MultiChoice["__view_type__"]
+      (choices_view as any /*protected*/).choice_el.showDropdown()
+      await defer()
+    })
+  })
+
+  describe("in issue #11365", () => {
+    it.allowing(16)("prevents showing MultiChoice's dropdown menu over subsequent roots", async () => {
+      const columns = ["Apple", "Pear", "Banana"]
+
+      const choices = new MultiChoice({options: columns})
+      const button = new Button({label: "A button"})
+
+      const layout = column([choices, button])
+      const {view, el} = await display(layout, [350, 200])
+
+      // XXX: note that this plot is not going to show up in the baseline (blf) nor will
+      // be considered a part of the test by any means by the testing framework (e.g. no
+      // cleanup will be made). This needs proper support for multi-root display, which
+      // will be increasing more useful in future testing.
+      const plot = fig([300, 100])
+      plot.circle([1, 2, 3], [1, 2, 3])
+      await show(plot, el)
 
       const choices_view = view.child_views[0] as MultiChoice["__view_type__"]
       (choices_view as any /*protected*/).choice_el.showDropdown()
@@ -779,7 +847,7 @@ describe("Bug", () => {
     it("prevents Slope with gradient=0", async () => {
       const p = fig([200, 200], {x_range: [-5, 5], y_range: [-5, 5]})
 
-      for (const gradient of [1, -1, 0, 2, -0.5]){
+      for (const gradient of [1, -1, 0, 2, -0.5]) {
         const s = new Slope({gradient, y_intercept: -1})
         p.add_layout(s)
       }
@@ -804,12 +872,49 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #11006", () => {
+    it("prevents scaling of superscripts when using non-px font size units", async () => {
+      const p = fig([300, 50], {
+        x_range: new Range1d({start: 10**-2, end: 10**11}),
+        y_range: new Range1d({start: 0, end: 1}),
+        x_axis_type: "log",
+        y_axis_type: null,
+        min_border_top: 0,
+        min_border_bottom: 0,
+        min_border_left: 20,
+        min_border_right: 20,
+      })
+      p.xaxis.major_label_text_font_size = "14pt"
+      await display(p)
+    })
+  })
+
   describe("in issue #10809", () => {
     it("prevents repaint of resized layoutable renderers", async () => {
       const p = fig([100, 100])
       const {view} = await display(p)
 
       p.circle(0, 0, {radius: 1})
+      await view.ready
+    })
+  })
+
+  describe("in issue #11045", () => {
+    it("prevents correct paint of glyphs using hatch patters in SVG backend after pan", async () => {
+      const p = fig([200, 200], {x_range: [-1, 1], y_range: [-1, 1], output_backend: "svg"})
+      p.circle({x: 0, y: 0, radius: 1, fill_color: "orange", alpha: 0.6, hatch_pattern: "@"})
+      const {view} = await display(p)
+
+      const {start: x_start, end: x_end} = p.x_range
+      const {start: y_start, end: y_end} = p.y_range
+      const pan = 0.5
+
+      const xrs = new Map([["default", {start: x_start + pan, end: x_end + pan}]])
+      const yrs = new Map([["default", {start: y_start + pan, end: y_end + pan}]])
+      view.update_range({xrs, yrs}, {panning: true})
+
+      // TODO: p.pan(0.5, 0.5)
+
       await view.ready
     })
   })
@@ -836,6 +941,18 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #11154", () => {
+    it("does not allow the plotting API to consider hatch visuals", async () => {
+      const p = fig([200, 200])
+      const r = p.rect({
+        x: [0, 1, 2], y: 3, width: 0.7, height: 0.7, angle: [0.0, 0.3, 0.6],
+        hatch_pattern: "x", fill_color: "orange",
+      })
+      r.data_source.selected.indices = [1]
+      await display(p)
+    })
+  })
+
   describe("in issue #10407", () => {
     it.allowing(2)("displays incorrect value in Select widget when options change", async () => {
       const widget = new Select({options: ["1", "2", "3"], value: "2", width: 200})
@@ -848,6 +965,15 @@ describe("Bug", () => {
       const widget = new Select({options: ["1", "2", "3"], value: "3", width: 200})
       const {view} = await display(widget, [250, 100])
       widget.options = ["1", "2"]
+      await view.ready
+    })
+  })
+
+  describe("in issue #11203", () => {
+    it("doesn't allow to set RadioGroup.active = null", async () => {
+      const widget = new RadioGroup({labels: ["1", "2", "3"], active: 1, inline: true, width: 200})
+      const {view} = await display(widget, [250, 50])
+      widget.active = null
       await view.ready
     })
   })
@@ -890,6 +1016,480 @@ describe("Bug", () => {
       })
 
       await display(p)
+    })
+  })
+
+  describe("in issue #11149", () => {
+    it("makes hatch patterns rotate with glyph's rotation", async () => {
+      const p = fig([300, 300])
+
+      const x = [0, 1, 2]
+      const angle = [0.0, 0.3, 0.6]
+      const common = {x, angle, hatch_pattern: "|", fill_color: "orange"}
+
+      p.rect({y: 3, width: 0.7, height: 0.7, ...common})
+      p.square({y: 2, size: 50, ...common})
+      p.ellipse({y: 1, width: 0.8, height: 0.5, ...common})
+      p.hex({y: 0, size: 50, ...common})
+
+      await display(p)
+    })
+  })
+
+  describe("in issue #11162", () => {
+    it("makes axis allocate space for invisible tick labels", async () => {
+      const p = fig([200, 200])
+      p.line([0, 1], [0, 1])
+
+      p.add_layout(new LinearAxis({major_label_text_color: null}), "right")
+      p.add_layout(new LinearAxis({major_label_text_color: null}), "above")
+
+      p.axis.major_tick_in = 10
+      p.axis.major_tick_out = 0
+      p.axis.minor_tick_in = 5
+      p.axis.minor_tick_out = 0
+
+      await display(p)
+    })
+  })
+
+  describe("in issue #11231", () => {
+    it("doesn't allow to reposition inner axes after layout", async () => {
+      const random = new Random(1)
+      const p = fig([200, 200])
+
+      const color_mapper = new LinearColorMapper({palette: turbo(50), low: 0, high: 1})
+      const color_bar = new ColorBar({color_mapper, label_standoff: 12})
+      p.add_layout(color_bar, "right")
+
+      const dw = 10
+      const dh = 10
+      const img = ndarray(random.floats(dw*dh), {dtype: "float64", shape: [dw, dw]})
+      p.image({image: [img], x: 0, y: 0, dw, dh, color_mapper})
+
+      const {view} = await display(p, [350, 350])
+
+      p.width = 300
+      p.height = 300
+
+      await view.ready
+    })
+  })
+
+  describe("in issue #11367", () => {
+    it("doesn't allow to render legend for ellipse glyph", async () => {
+      const p = fig([200, 100], {x_axis_type: null, y_axis_type: null})
+      p.circle({x: [0, 1], y: [0, 1], radius: 0.1, legend_label: "circles"})
+      p.ellipse({x: [0, 1], y: [1, 0], width: 0.2, height: 0.1, legend_label: "ellipses"})
+      p.legend.location = "center"
+      await display(p)
+    })
+  })
+
+  describe("in issue #11378", () => {
+    it("doesn't allow to correctly compute bounds when using MultiLine Glyph with a log axis", async () => {
+      const xs = [[0, 1], [0, 1], [0, 1]]
+      const ys = [[2, 1], [100, 200], [10, 20]]
+
+      const p = fig([200, 200], {y_axis_type: "log"})
+      p.multi_line({xs, ys})
+      await display(p)
+    })
+  })
+
+  describe("in issue #11110", () => {
+    function plot(axis: "linear" | "log") {
+      const x = [1, 2, 3, 4, 5]
+      const y = [6e-2, 7e-4, 6e-6, 4e-8, 5e-10]
+
+      const p = fig([200, 200], {y_axis_type: axis})
+      p.yaxis.major_label_text_font_size = "1.5em"
+      p.line({x, y})
+
+      return p
+    }
+
+    it("doesn't correctly measure fonts if font size is provided in relative units", async () => {
+      await display(row([plot("linear"), plot("log")]))
+    })
+  })
+
+  describe("in issue #11479", () => {
+    it("doesn't allow to render math text in multiple plots", async () => {
+      const stub = sinon.stub(MathTextView.prototype, "provider")
+      stub.value(new DelayedInternalProvider())
+      try {
+        const p0 = fig([200, 150], {
+          x_axis_label: new TeX({text: "\\theta\\cdot\\left(\\frac{\\sin(x) + 1}{\\Gamma}\\right)"}),
+        })
+        p0.circle([1, 2, 3], [1, 2, 3])
+        const p1 = fig([200, 150], {
+          x_axis_label: new TeX({text: "\\theta\\cdot\\left(\\frac{\\cos(x) + 1}{\\Omega}\\right)"}),
+        })
+        p1.circle([1, 2, 3], [1, 2, 3])
+        await display(row([p0, p1]))
+      } finally {
+        stub.restore()
+      }
+    })
+  })
+
+  describe("in issue #11508", () => {
+    it("doesn't allow to correctly compute log bounds for data ranging", async () => {
+      const y = [
+        0.000000000000000000e+00,
+        8.164452529434230836e+22,
+        0.000000000000000000e+00,
+        0.000000000000000000e+00,
+        7.314143412752266717e+22,
+        0.000000000000000000e+00,
+        6.232344689415452361e+22,
+        0.000000000000000000e+00,
+        0.000000000000000000e+00,
+        0.000000000000000000e+00,
+        0.000000000000000000e+00,
+        1.661581512390552584e+21,
+        1.005171116507131360e+17,
+        8.466177779596089600e+16,
+        7.311184945273668800e+16,
+        6.434035489362382400e+16,
+        5.745531645071752000e+16,
+        0.000000000000000000e+00,
+        4.731234037419803200e+16,
+      ]
+      const x = range(y.length)
+
+      const p = fig([200, 200], {y_axis_type: "log"})
+      p.line(x, y, {line_width: 2})
+      await display(p)
+    })
+  })
+
+  describe("in issue #11446", () => {
+    it("doesn't allow to correctly compute inspection indices in vline or hline mode", async () => {
+      const p = fig([200, 200])
+      const cr = p.circle([1, 2, 3, 4], [1, 2, 3, 4], {
+        size: 20, fill_color: "steelblue", hover_fill_color: "red", hover_alpha: 0.1,
+      })
+      p.add_tools(new HoverTool({tooltips: null, renderers: [cr], mode: "vline"}))
+      const {view} = await display(p)
+
+      const crv = view.renderer_views.get(cr)!
+      const [[sx], [sy]] = crv.coordinates.map_to_screen([2], [1.5])
+
+      const ui = view.canvas_view.ui_event_bus
+      const {left, top} = offset(ui.hit_area)
+
+      const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
+      ui._mouse_move(ev)
+
+      await view.ready
+    })
+  })
+
+  describe("in issue #11437", () => {
+    it("doesn't allow to use correct subset indices with image glyph during inspection", async () => {
+      function plot(indices: number[]) {
+        const p = fig([200, 200])
+        const source = new ColumnDataSource({
+          data: {
+            x: [0, 10],
+            image: [
+              ndarray([0, 0, 1, 1], {shape: [2, 2]}),
+              ndarray([5, 5, 6, 6], {shape: [2, 2]}),
+            ],
+          },
+        })
+        const color_mapper = new LinearColorMapper({low: 0, high: 6, palette: Spectral11})
+        const cds_view = new CDSView({source, filters: [new IndexFilter({indices})]})
+        const ir = p.image({
+          image: {field: "image"},
+          x: {field: "x"},
+          y: 0,
+          dw: 10,
+          dh: 20,
+          color_mapper,
+          source,
+          view: cds_view,
+        })
+        p.add_tools(new HoverTool({
+          renderers: [ir],
+          tooltips: [
+            ["index", "$index"],
+            ["value", "@image"],
+          ],
+        }))
+        return [p, ir] as const
+      }
+
+      const [p0, r0] = plot([0])
+      const [p1, r1] = plot([1])
+      const [p2, r2] = plot([0, 1])
+
+      const {view} = await display(row([p0, p1, p2]))
+
+      function hover_at(plot_view: PlotView, r: Renderer, x: number, y: number) {
+        const crv = plot_view.renderer_views.get(r)!
+        const [[sx], [sy]] = crv.coordinates.map_to_screen([x], [y])
+
+        const ui = plot_view.canvas_view.ui_event_bus
+        const {left, top} = offset(ui.hit_area)
+
+        const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
+        ui._mouse_move(ev)
+
+        return view.ready
+      }
+
+      const [pv0, pv1, pv2] = view.child_views as PlotView[]
+
+      await hover_at(pv0, r0,  2, 5)
+      await hover_at(pv1, r1, 12, 5)
+      await hover_at(pv2, r2,  2, 5)
+    })
+  })
+
+  describe("in issue #11413", () => {
+    const osm_source = new WMTSTileSource({
+      // url: "https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
+      url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
+      attribution: "&copy; (0) OSM source attribution",
+    })
+
+    const esri_source = new WMTSTileSource({
+      // url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg",
+      url: "/assets/tiles/esri/{Z}_{Y}_{X}.jpg",
+      attribution: "&copy; (1) Esri source attribution",
+    })
+
+    it("doesn't allow to remove an annotation element associated with a tile renderer", async () => {
+      const osm = new TileRenderer({tile_source: osm_source})
+      const esri = new TileRenderer({tile_source: esri_source})
+
+      const p0 = fig([300, 200], {
+        x_range: [-2000000, 6000000],
+        y_range: [-1000000, 7000000],
+        x_axis_type: "mercator",
+        y_axis_type: "mercator",
+        renderers: [osm],
+      })
+
+      const p1 = fig([300, 200], {
+        x_range: [-2000000, 6000000],
+        y_range: [-1000000, 7000000],
+        x_axis_type: "mercator",
+        y_axis_type: "mercator",
+        renderers: [esri],
+      })
+
+      const {view} = await display(row([p0, p1]))
+
+      // TODO: allow `await view.ready` to await readiness of its children
+      p0.renderers = [esri]
+      await view.child_views[0].ready
+
+      p1.renderers = [osm]
+      await view.child_views[1].ready
+    })
+  })
+
+  describe("in issue #11548", () => {
+    const global_alpha = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
+
+    const x = [0, 11, 22, 0, 11, 22, 0, 11, 22]
+    const y = [0, 0, 0, 11, 11, 11, 22, 22, 22]
+
+    it("doesn't allow vectorized global alpha in Image glyph", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const color_mapper = new LinearColorMapper({palette: Spectral11})
+
+        const p = fig([200, 200], {output_backend, title: output_backend})
+        p.image({image: {value: scalar_image()}, x, y, dw: 10, dh: 10, global_alpha, color_mapper})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]))
+    })
+
+    it("doesn't allow vectorized global alpha in ImageRGBA glyph", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([200, 200], {output_backend, title: output_backend})
+        p.image_rgba({image: {value: rgba_image()}, x, y, dw: 10, dh: 10, global_alpha})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]))
+    })
+
+    it("doesn't allow vectorized global alpha in ImageURL glyph", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([200, 200], {output_backend, title: output_backend})
+        p.image_url({url: {value: svg_image()}, x, y, w: 10, h: 10, global_alpha, anchor: "bottom_left"})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]))
+    })
+  })
+
+  describe("in issue #11551", () => {
+    it("doesn't allow SVG backend to respect clip paths when painting images", async () => {
+      const color_mapper = new LinearColorMapper({palette: Spectral11})
+
+      const x_range: [number, number] = [0, 10]
+      const y_range: [number, number] = [0, 10]
+
+      const p0 = fig([100, 100], {output_backend: "svg", x_range, y_range})
+      p0.image({image: {value: scalar_image()}, x: -2, y: -2, dw: 10, dh: 10, color_mapper})
+      const p1 = fig([100, 100], {output_backend: "svg", x_range, y_range})
+      p1.image_rgba({image: {value: rgba_image()}, x: -2, y: -2, dw: 10, dh: 10})
+      const p2 = fig([100, 100], {output_backend: "svg", x_range, y_range})
+      p2.image_url({url: {value: svg_image()}, x: -2, y: -2, w: 10, h: 10, anchor: "bottom_left"})
+
+      await display(row([p0, p1, p2]))
+    })
+  })
+
+  describe("in issue #11587", () => {
+    it("doesn't allow SVG backend to respect clip paths when painting text", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([300, 200], {output_backend, title: output_backend, x_range: [0.5, 2.5], y_range: [0.5, 2.5]})
+        p.text({x: [0, 1, 2], y: [0, 1, 2], text: ["Some 0", "Some 1", "Some 2"], text_font_size: "60px"})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]))
+    })
+  })
+
+  describe("in issue #11547", () => {
+    it("doesn't render changes of graph layout provider", async () => {
+      const p = fig([200, 200], {
+        x_range: new DataRange1d({range_padding: 0.2}),
+        y_range: new DataRange1d({range_padding: 0.2}),
+      })
+
+      const layout_provider = new StaticLayoutProvider({
+        graph_layout: {
+          4: [2, 1],
+          5: [2, 2],
+          6: [3, 1],
+          7: [3, 2],
+        },
+      })
+
+      const node_renderer = new GlyphRenderer({
+        glyph: new Circle({size: 10, fill_color: "red"}),
+        data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
+      })
+      const edge_renderer = new GlyphRenderer({
+        glyph: new MultiLine({line_width: 2, line_color: "gray"}),
+        data_source: new ColumnDataSource({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
+      })
+
+      const graph = new GraphRenderer({layout_provider, node_renderer, edge_renderer})
+      p.add_renderers(graph)
+      const {view} = await display(p)
+
+      graph.layout_provider = new StaticLayoutProvider({
+        graph_layout: {
+          4: [1, 1],
+          5: [1, 2],
+          6: [2, 2],
+          7: [2, 1],
+        },
+      })
+      await view.ready
+    })
+  })
+
+  describe("in issue #11646", () => {
+    const url = "/assets/images/pattern.png"
+
+    it("disallows using image texture as grid line's band fill", async () => {
+      const p = fig([400, 200])
+
+      p.vbar({x: [0], top: [1], alpha: 0.2, hatch_pattern: "."})
+
+      p.xgrid.band_hatch_extra = {mycustom: new ImageURLTexture({url})}
+      p.xgrid.band_hatch_pattern = "mycustom"
+
+      await display(p)
+    })
+  })
+
+  describe("in issue #11661", () => {
+    it("makes line render incorrectly when painting with a subset of indices", async () => {
+      const random = new Random(1)
+
+      const x = range(0, 10)
+      const y = random.floats(x.length)
+
+      function plot(indices: number[]) {
+        const p = fig([300, 100], {
+          title: `Selected: ${indices.length == 0 ? "\u2205" : indices.join(", ")}`,
+          x_axis_type: null, y_axis_type: null,
+        })
+
+        const selected = new Selection({indices})
+        const source = new ColumnDataSource({data: {x, y}, selected})
+
+        p.line({x: {field: "x"}, y: {field: "y"}, source, line_width: 3, line_color: "#addd8e"})
+        p.circle({x: {field: "x"}, y: {field: "y"}, source, size: 3, color: "#31a354"})
+
+        return p
+      }
+
+      const plots = [
+        plot([]),
+        plot([3]),
+        plot([3, 4]),
+        plot([3, 5]),
+        plot([3, 6]),
+        plot([0, 3, 4, 9]),
+      ]
+
+      await display(column(plots))
+    })
+  })
+
+  describe("in issue #5046", () => {
+    it("prevents webgl rendering of streaming markers", async () => {
+      const radius = 0.8
+      const angles = np.linspace(0, 2*np.pi, 13)
+      const x = f`${radius}*np.cos(${angles})`
+      const y = f`${radius}*np.sin(${angles})`
+      const source = new ColumnDataSource({data: {x: x.slice(0, 6), y: y.slice(0, 6)}})
+
+      function plot(output_backend: OutputBackend) {
+        const p = fig([200, 200], {
+          output_backend, title: output_backend,
+          x_range: [-1, 1], y_range: [-1, 1],
+        })
+        p.circle({x: {field: "x"}, y: {field: "y"}, size: 20, source})
+        return p
+      }
+
+      const p0 = plot("canvas")
+      const p1 = plot("svg")
+      const p2 = plot("webgl")
+
+      const {view} = await display(row([p0, p1, p2]))
+
+      source.stream({x: x.slice(6), y: y.slice(6)}, 8)
+      await view.ready
     })
   })
 })

@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -34,11 +36,7 @@ from ..core.properties import (
     String,
 )
 from ..core.validation import error, warning
-from ..core.validation.errors import (
-    INCOMPATIBLE_MAP_RANGE_TYPE,
-    MISSING_GOOGLE_API_KEY,
-    REQUIRED_RANGE,
-)
+from ..core.validation.errors import INCOMPATIBLE_MAP_RANGE_TYPE, MISSING_GOOGLE_API_KEY, REQUIRED_RANGE
 from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
 from ..models.ranges import Range1d
@@ -83,7 +81,7 @@ class MapPlot(Plot):
 
     '''
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         from ..models.ranges import Range1d
         for r in ('x_range', 'y_range'):
             if r in kw and not isinstance(kw.get(r), Range1d):

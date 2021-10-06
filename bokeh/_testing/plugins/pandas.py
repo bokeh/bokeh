@@ -11,12 +11,17 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+
+# Standard library imports
+from types import ModuleType
 
 # External imports
 import pytest
@@ -37,7 +42,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @pytest.fixture
-def pd():
+def pd() -> ModuleType | None: # XXX: should be pandas | None, but not supported
     ''' A PyTest fixture that will automatically skip a test if Pandas is
     not installed.
 

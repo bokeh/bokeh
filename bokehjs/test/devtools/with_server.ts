@@ -41,13 +41,13 @@ export function with_server<T>(f: (url: string) => T): Promise<T> {
   const mark_done = () => all_done = true
   promise.then(mark_done, mark_done)
 
-  const basedir = path.normalize(process.cwd() + "/..")
+  const basedir = path.normalize(`${process.cwd()}/..`)
   const oldpath = process.env.PYTHONPATH
   const pypath = oldpath != null ? `${basedir}:${oldpath}` : basedir
   const port = next_port()
   const env = {...process.env, PYTHONPATH: pypath}
   const handle = child_process.spawn("python", ["-m", "bokeh", "serve", `--port=${port}`], {env, cwd: basedir})
-  handle.on('close', () => {
+  handle.on("close", () => {
     promise.reject(new Error("Server exited before test promise was resolved"))
   })
 
@@ -62,7 +62,7 @@ export function with_server<T>(f: (url: string) => T): Promise<T> {
       const v = f(url)
       // note that "v" can be another promise OR a final value
       promise.resolve(v)
-    } catch (e: unknown) {
+    } catch (e) {
       promise.reject(e)
     }
   }
@@ -83,14 +83,14 @@ export function with_server<T>(f: (url: string) => T): Promise<T> {
       setTimeout(checkServer, 100)
     } else {
       num_server_attempts = num_server_attempts + 1
-      client = net.connect(port, 'localhost')
-      client.on('error', () => {
+      client = net.connect(port, "localhost")
+      client.on("error", () => {
         client!.destroy()
         client = null
         if (!(all_done || server_ready))
           setTimeout(checkServer, 100)
       })
-      client.on('connect', () => {
+      client.on("connect", () => {
         client!.destroy()
         client = null
         server_ready = true

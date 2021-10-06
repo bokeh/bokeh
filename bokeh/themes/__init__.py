@@ -6,6 +6,9 @@
 #-----------------------------------------------------------------------------
 ''' Provide access to built-in themes:
 
+Built-in themes
+---------------
+
 CALIBER
 ~~~~~~~
 
@@ -20,7 +23,7 @@ CALIBER
 
     output_file("caliber.html")
     curdoc().theme = 'caliber'
-    p = figure(title='caliber', plot_width=300, plot_height=300)
+    p = figure(title='caliber', width=300, height=300)
     p.line(x, y)
     show(p)
 
@@ -38,7 +41,7 @@ DARK_MINIMAL
 
     output_file("dark_minimal.html")
     curdoc().theme = 'dark_minimal'
-    p = figure(title='dark_minimal', plot_width=300, plot_height=300)
+    p = figure(title='dark_minimal', width=300, height=300)
     p.line(x, y)
     show(p)
 
@@ -57,12 +60,12 @@ LIGHT_MINIMAL
 
     output_file("light_minimal.html")
     curdoc().theme = 'light_minimal'
-    p = figure(title='light_minimal', plot_width=300, plot_height=300)
+    p = figure(title='light_minimal', width=300, height=300)
     p.line(x, y)
     show(p)
 
 NIGHT_SKY
-~~~~~~~~~~~~~
+~~~~~~~~~
 
 .. bokeh-plot::
 
@@ -75,12 +78,12 @@ NIGHT_SKY
 
     output_file("night_sky.html")
     curdoc().theme = 'night_sky'
-    p = figure(title='night_sky', plot_width=300, plot_height=300)
+    p = figure(title='night_sky', width=300, height=300)
     p.line(x, y)
     show(p)
 
 CONTRAST
-~~~~~~~~~~~~~
+~~~~~~~~
 
 .. bokeh-plot::
 
@@ -93,11 +96,12 @@ CONTRAST
 
     output_file("contrast.html")
     curdoc().theme = 'contrast'
-    p = figure(title='contrast', plot_width=300, plot_height=300)
+    p = figure(title='contrast', width=300, height=300)
     p.line(x, y)
     show(p)
 
-as well as the ``Theme`` class that can be used to create new Themes.
+Theme
+-----
 
 .. autoclass:: Theme
 
@@ -106,6 +110,8 @@ as well as the ``Theme`` class that can be used to create new Themes.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -114,7 +120,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from . import _caliber, _contrast, _dark_minimal, _light_minimal, _night_sky
+from . import (
+    _caliber,
+    _contrast,
+    _dark_minimal,
+    _light_minimal,
+    _night_sky,
+)
 from .theme import Theme
 
 #-----------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-import {isBoolean, isNumber, isString, isArray, isIterable, isObject, isPlainObject} from "./types"
+import {isBoolean, isNumber, isString, isSymbol, isArray, isIterable, isObject, isPlainObject} from "./types"
 import {PlainObject} from "../types"
 import {entries} from "./object"
 
@@ -9,7 +9,7 @@ export interface Printable {
 }
 
 function is_Printable<T>(obj: T): obj is T & Printable {
-  return isObject(obj) && (obj as any)[pretty] !== undefined
+  return isObject(obj) && pretty in obj
 }
 
 export type PrinterOptions = {
@@ -18,12 +18,20 @@ export type PrinterOptions = {
 
 export class Printer {
   readonly precision?: number
+  protected readonly visited: Set<object> = new Set()
 
   constructor(options?: PrinterOptions) {
     this.precision = options?.precision
   }
 
   to_string(obj: unknown): string {
+    if (isObject(obj)) {
+      if (this.visited.has(obj))
+        return "<circular>"
+      else
+        this.visited.add(obj)
+    }
+
     if (is_Printable(obj))
       return obj[pretty](this)
     else if (isBoolean(obj))
@@ -38,6 +46,8 @@ export class Printer {
       return this.iterable(obj)
     else if (isPlainObject(obj))
       return this.object(obj)
+    else if (isSymbol(obj))
+      return this.symbol(obj)
     else
       return `${obj}`
   }
@@ -58,7 +68,19 @@ export class Printer {
   }
 
   string(val: string): string {
-    return `"${val.replace(/'/g, "\\'")}"`  // lgtm [js/incomplete-sanitization]
+    const sq = val.includes("'")
+    const dq = val.includes('"')
+
+    if (sq && dq)
+      return `\`${val.replace(/`/g, "\\`")}\``
+    else if (dq)
+      return `'${val}'`
+    else
+      return `"${val}"`
+  }
+
+  symbol(val: symbol): string {
+    return val.toString()
   }
 
   array(obj: Iterable<unknown>): string {

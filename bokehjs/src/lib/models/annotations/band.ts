@@ -5,8 +5,8 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
 export class BandView extends UpperLowerView {
-  model: Band
-  visuals: Band.Visuals
+  override model: Band
+  override visuals: Band.Visuals
 
   paint(ctx: Context2d): void {
     // Draw the band body
@@ -22,11 +22,7 @@ export class BandView extends UpperLowerView {
     }
 
     ctx.closePath()
-
-    if (this.visuals.fill.doit) {
-      this.visuals.fill.set_value(ctx)
-      ctx.fill()
-    }
+    this.visuals.fill.apply(ctx)
 
     // Draw the lower band edge
     ctx.beginPath()
@@ -35,10 +31,7 @@ export class BandView extends UpperLowerView {
       ctx.lineTo(this._lower_sx[i], this._lower_sy[i])
     }
 
-    if (this.visuals.line.doit) {
-      this.visuals.line.set_value(ctx)
-      ctx.stroke()
-    }
+    this.visuals.line.apply(ctx)
 
     // Draw the upper band edge
     ctx.beginPath()
@@ -47,10 +40,7 @@ export class BandView extends UpperLowerView {
       ctx.lineTo(this._upper_sx[i], this._upper_sy[i])
     }
 
-    if (this.visuals.line.doit) {
-      this.visuals.line.set_value(ctx)
-      ctx.stroke()
-    }
+    this.visuals.line.apply(ctx)
   }
 }
 
@@ -67,14 +57,14 @@ export namespace Band {
 export interface Band extends Band.Attrs {}
 
 export class Band extends UpperLower {
-  properties: Band.Props
-  __view_type__: BandView
+  override properties: Band.Props
+  override __view_type__: BandView
 
   constructor(attrs?: Partial<Band.Attrs>) {
     super(attrs)
   }
 
-  static init_Band(): void {
+  static {
     this.prototype.default_view = BandView
 
     this.mixins<Band.Mixins>([mixins.Line, mixins.Fill])

@@ -1,5 +1,5 @@
-import {PointGeometry} from 'core/geometry'
-import {Arrayable, FloatArray, ScreenArray} from "core/types"
+import {PointGeometry} from "core/geometry"
+import {FloatArray, ScreenArray} from "core/types"
 import {Area, AreaView, AreaData} from "./area"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
@@ -20,8 +20,8 @@ export type HAreaData = AreaData & {
 export interface HAreaView extends HAreaData {}
 
 export class HAreaView extends AreaView {
-  model: HArea
-  visuals: HArea.Visuals
+  override model: HArea
+  override visuals: HArea.Visuals
 
   protected _index_data(index: SpatialIndex): void {
     const {min, max} = Math
@@ -31,15 +31,13 @@ export class HAreaView extends AreaView {
       const x1 = this._x1[i]
       const x2 = this._x2[i]
       const y = this._y[i]
-
-      if (isNaN(x1 + x2 + y) || !isFinite(x1 + x2 + y))
-        index.add_empty()
-      else
-        index.add(min(x1, x2), y, max(x1, x2), y)
+      index.add_rect(min(x1, x2), y, max(x1, x2), y)
     }
   }
 
-  protected _inner(ctx: Context2d, sx1: Arrayable<number>, sx2: Arrayable<number>, sy: Arrayable<number>, func: (this: Context2d) => void): void {
+  protected _render(ctx: Context2d, _indices: number[], data?: HAreaData): void {
+    const {sx1, sx2, sy} = data ?? this
+
     ctx.beginPath()
     for (let i = 0, end = sx1.length; i < end; i++) {
       ctx.lineTo(sx1[i], sy[i])
@@ -49,24 +47,12 @@ export class HAreaView extends AreaView {
       ctx.lineTo(sx2[i], sy[i])
     }
     ctx.closePath()
-    func.call(ctx)
+
+    this.visuals.fill.apply(ctx)
+    this.visuals.hatch.apply(ctx)
   }
 
-  protected _render(ctx: Context2d, _indices: number[], data?: HAreaData): void {
-    const {sx1, sx2, sy} = data ?? this
-
-    if (this.visuals.fill.doit) {
-      this.visuals.fill.set_value(ctx)
-      this._inner(ctx, sx1, sx2, sy, ctx.fill)
-    }
-
-    if (this.visuals.hatch.doit) {
-      this.visuals.hatch.set_value(ctx)
-      this._inner(ctx, sx1, sx2, sy, ctx.fill)
-    }
-  }
-
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const L = this.sy.length
     const sx = new ScreenArray(2*L)
     const sy = new ScreenArray(2*L)
@@ -94,7 +80,7 @@ export class HAreaView extends AreaView {
     return [scx, scy]
   }
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     this.sx1 = this.renderer.xscale.v_compute(this._x1)
     this.sx2 = this.renderer.xscale.v_compute(this._x2)
     this.sy  = this.renderer.yscale.v_compute(this._y)
@@ -116,14 +102,14 @@ export namespace HArea {
 export interface HArea extends HArea.Attrs {}
 
 export class HArea extends Area {
-  properties: HArea.Props
-  __view_type__: HAreaView
+  override properties: HArea.Props
+  override __view_type__: HAreaView
 
   constructor(attrs?: Partial<HArea.Attrs>) {
     super(attrs)
   }
 
-  static init_HArea(): void {
+  static {
     this.prototype.default_view = HAreaView
 
     this.define<HArea.Props>(({}) => ({

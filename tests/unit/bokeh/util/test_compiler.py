@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -19,7 +21,7 @@ import json
 import os
 
 # External imports
-from mock import patch
+from mock import MagicMock, patch
 
 # Module under test
 import bokeh.util.compiler as buc # isort:skip
@@ -39,9 +41,9 @@ function f(a, b) { return a + b; }
 ;
 """, deps=[])
 
-    assert buc.nodejs_compile("""var some = require('some/module');""", "javascript", "some.js") == \
+    assert buc.nodejs_compile("""const some = require('some/module');""", "javascript", "some.js") == \
         dict(code="""\
-var some = require('some/module');
+const some = require('some/module');
 """, deps=["some/module"])
 
     assert buc.nodejs_compile("""
@@ -64,11 +66,13 @@ exports.MyModel = MyModel;
 
     assert buc.nodejs_compile("""function f(a, b) { eturn a + b; };""", "javascript", "some.js") == \
         dict(error=
-            '\x1b[96msome.js\x1b[0m:\x1b[93m1\x1b[0m:\x1b[93m26\x1b[0m - '
-            "\x1b[91merror\x1b[0m\x1b[90m TS1005: \x1b[0m';' expected.\n"
+            '\x1b[96msome.js\x1b[0m:\x1b[93m1\x1b[0m:\x1b[93m20\x1b[0m - '
+            '\x1b[91merror\x1b[0m\x1b[90m TS1435: \x1b[0mUnknown keyword or '
+            "identifier. Did you mean 'return'?\n"
             '\n'
             '\x1b[7m1\x1b[0m function f(a, b) { eturn a + b; };\n'
-            '\x1b[7m \x1b[0m \x1b[91m                         ~\x1b[0m\n')
+            '\x1b[7m \x1b[0m \x1b[91m                   ~~~~~\x1b[0m\n'
+        )
 
 def test_nodejs_compile_less() -> None:
     assert buc.nodejs_compile(""".bk-some-style { color: mix(#ff0000, #0000ff, 50%); }""", "less", "some.less") == \
@@ -112,7 +116,7 @@ def test_Less() -> None:
     assert obj.lang == "less"
 
 @patch("builtins.open")
-def test_FromFile(mock_open) -> None:
+def test_FromFile(mock_open: MagicMock) -> None:
     obj = buc.FromFile("path.ts")
     assert obj.lang == "typescript"
 

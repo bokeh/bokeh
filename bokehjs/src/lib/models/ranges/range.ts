@@ -16,13 +16,13 @@ export namespace Range {
 export interface Range extends Range.Attrs {}
 
 export abstract class Range extends Model {
-  properties: Range.Props
+  override properties: Range.Props
 
   constructor(attrs?: Partial<Range.Attrs>) {
     super(attrs)
   }
 
-  static init_Range(): void {
+  static {
     this.define<Range.Props>(({Number, Tuple, Or, Auto, Nullable}) => ({
       bounds:       [ Nullable(Or(Tuple(Nullable(Number), Nullable(Number)), Auto)), null ],
       min_interval: [ Nullable(Number), null ],
@@ -50,5 +50,9 @@ export abstract class Range extends Model {
 
   get is_valid(): boolean {
     return isFinite(this.min) && isFinite(this.max)
+  }
+
+  get span(): number {
+    return Math.abs(this.end - this.start)
   }
 }

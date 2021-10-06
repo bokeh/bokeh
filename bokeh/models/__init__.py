@@ -20,6 +20,8 @@ a Bokeh scene graph are called :ref:`Models <bokeh.model>`.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -30,10 +32,10 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.property.dataspec import expr, field, value  # Legacy API
 from ..model import Model
-from .annotations import *
-from .arrow_heads import *
+from .annotations import *  # lgtm [py/polluting-import]
 from .axes import *
 from .callbacks import *
+from .canvas import *
 from .expressions import *
 from .filters import *
 from .formatters import *
@@ -44,13 +46,13 @@ from .labeling import *
 from .layouts import *
 from .map_plots import *
 from .mappers import *
-from .markers import *
 from .plots import *
 from .ranges import *
 from .renderers import *
 from .scales import *
 from .selections import *
 from .sources import *
+from .text import *
 from .textures import *
 from .tickers import *
 from .tiles import *

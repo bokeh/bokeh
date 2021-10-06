@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -154,8 +156,9 @@ class TestBokehJSONEncoder:
 
 class TestSerializeJson:
     def setup_method(self, test_method):
-        from bokeh.core.json_encoder import serialize_json
         from json import loads
+
+        from bokeh.core.json_encoder import serialize_json
         self.serialize = serialize_json
         self.deserialize = loads
 

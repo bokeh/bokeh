@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>{{ title }}</title>
-    <link rel="stylesheet" type="text/css" href="/fonts/fonts.css">
+    <link rel="stylesheet" type="text/css" href="/assets/fonts/fonts.css">
     <style>
       html, body {
         box-sizing: border-box;
@@ -20,7 +20,7 @@
         background-image: none;
       }
 
-      .bk-root {
+      .bk-root, input::-webkit-file-upload-button {
         -webkit-font-smoothing: antialiased;
         font-family: Bokeh;
       }
@@ -43,9 +43,11 @@
       }
     </style>
     <script type="text/javascript" src="{{ js('bokeh') }}"></script>
+    <script type="text/javascript" src="{{ js('bokeh-gl') }}"></script>
     <script type="text/javascript" src="{{ js('bokeh-api') }}"></script>
     <script type="text/javascript" src="{{ js('bokeh-widgets') }}"></script>
     <script type="text/javascript" src="{{ js('bokeh-tables') }}"></script>
+    <script type="text/javascript" src="{{ js('bokeh-mathjax') }}"></script>
     <script type="text/javascript">
       Bokeh.settings.dev = true
     </script>

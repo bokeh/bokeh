@@ -16,11 +16,11 @@ namespace SubclassWithProps {
 }
 interface SubclassWithProps extends SubclassWithProps.Attrs {}
 class SubclassWithProps extends HasProps {
-  properties: SubclassWithProps.Props
+  override properties: SubclassWithProps.Props
   constructor(attrs?: Partial<SubclassWithProps.Attrs>) {
     super(attrs)
   }
-  static init_SubclassWithProps() {
+  static {
     this.define<SubclassWithProps.Props>(({Boolean, Number}) => ({
       foo: [ Number, 0 ],
       bar: [ Boolean, true ],
@@ -36,11 +36,11 @@ namespace SubSubclassWithProps {
 }
 interface SubSubclassWithProps extends SubSubclassWithProps.Attrs {}
 class SubSubclassWithProps extends SubclassWithProps {
-  properties: SubSubclassWithProps.Props
+  override properties: SubSubclassWithProps.Props
   constructor(attrs?: Partial<SubSubclassWithProps.Attrs>) {
     super(attrs)
   }
-  static init_SubSubclassWithProps() {
+  static {
     this.define<SubSubclassWithProps.Props>(({String}) => ({
       baz: [ String, "" ],
     }))
@@ -70,12 +70,12 @@ describe("core/has_props module", () => {
 
     it("should combine props from subclasses", () => {
       const obj = new SubclassWithProps()
-      expect(keys(obj.properties)).to.be.equal(['foo', 'bar'])
+      expect(keys(obj.properties)).to.be.equal(["foo", "bar"])
     })
 
     it("should combine props from sub-subclasses", () => {
       const obj = new SubSubclassWithProps()
-      expect(keys(obj.properties)).to.be.equal(['foo', 'bar', 'baz'])
+      expect(keys(obj.properties)).to.be.equal(["foo", "bar", "baz"])
     })
 
     it("should combine mixins from subclasses", () => {
@@ -95,6 +95,10 @@ describe("core/has_props module", () => {
       const props = [...keys(mixins.Line), ...keys(mixins.Text).map((key) => `bar_${key}`)]
       expect(keys(obj.properties)).to.be.equal(props)
     })
+
+    it("should fail when unknown properties are used", () => {
+      expect(() => new (SubclassWithProps as any)({whatever: true})).to.throw(Error, "unknown property SubclassWithProps.whatever")
+    })
   })
 
   describe("HasProps.struct()", () => {
@@ -104,16 +108,14 @@ describe("core/has_props module", () => {
       const struct = obj.struct()
       expect(struct.id).to.be.equal(obj.id)
       expect(struct.type).to.be.equal(obj.type)
-      expect(struct.subtype).to.be.undefined
     })
+  })
 
-    it("should return a correct struct for a subtype HasProps", () => {
-      const obj = new TestModel()
-      obj._subtype = "bar"
-      const struct = obj.struct()
-      expect(struct.id).to.be.equal(obj.id)
-      expect(struct.type).to.be.equal(obj.type)
-      expect(struct.subtype).to.be.equal("bar")
-    })
+  it("implements HasProps[toStringTag] method", () => {
+    const obj0 = new SubclassWithProps()
+    const obj1 = new SubSubclassWithProps()
+
+    expect(Object.prototype.toString.call(obj0)).to.be.equal("[object SubclassWithProps]")
+    expect(Object.prototype.toString.call(obj1)).to.be.equal("[object SubSubclassWithProps]")
   })
 })

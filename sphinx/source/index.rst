@@ -1,3 +1,5 @@
+:notoc:
+
 .. _about:
 
 Bokeh documentation
@@ -41,9 +43,9 @@ Bokeh's documentation consists of several components:
 
     Learn more by exploring examples:
 
-    * :ref:`gallery`: a collection of examples with source code
+    * :ref:`gallery`: a collection of examples with source code.
 
-    * `Interactive tutorial notebooks`_: a collection of interactive notebooks to experiment with all elements of Bokeh
+    * `Interactive tutorial notebooks`_: a collection of interactive notebooks to experiment with all elements of Bokeh.
 
     * :ref:`userguide`: explanations of all key functionalities of Bokeh and how to use them, including examples.
 
@@ -54,9 +56,9 @@ Bokeh's documentation consists of several components:
 
     Get to know every aspect of Bokeh:
 
-    * :ref:`refguide`: detailed information about all of Bokeh's components
+    * :ref:`Reference guide <refguide>`: detailed information about all of Bokeh's components.
 
-    * :ref:`devguide`: information on the various ways you can contribute to the Bokeh Project.
+    * :ref:`Contributor guide <contributor_guide>`: information on the various ways you can contribute to the Bokeh project.
 
 Connecting with the Bokeh community
 -----------------------------------

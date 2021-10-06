@@ -8,10 +8,10 @@ import {CoordinateMapper} from "core/util/bbox"
 import * as p from "core/properties"
 
 export class PolyAnnotationView extends AnnotationView {
-  model: PolyAnnotation
-  visuals: PolyAnnotation.Visuals
+  override model: PolyAnnotation
+  override visuals: PolyAnnotation.Visuals
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
   }
@@ -49,20 +49,9 @@ export class PolyAnnotationView extends AnnotationView {
     }
     ctx.closePath()
 
-    if (this.visuals.fill.doit) {
-      this.visuals.fill.set_value(ctx)
-      ctx.fill()
-    }
-
-    if (this.visuals.hatch.doit) {
-      this.visuals.hatch.set_value(ctx)
-      ctx.fill()
-    }
-
-    if (this.visuals.line.doit) {
-      this.visuals.line.set_value(ctx)
-      ctx.stroke()
-    }
+    this.visuals.fill.apply(ctx)
+    this.visuals.hatch.apply(ctx)
+    this.visuals.line.apply(ctx)
   }
 }
 
@@ -85,14 +74,14 @@ export namespace PolyAnnotation {
 export interface PolyAnnotation extends PolyAnnotation.Attrs {}
 
 export class PolyAnnotation extends Annotation {
-  properties: PolyAnnotation.Props
-  __view_type__: PolyAnnotationView
+  override properties: PolyAnnotation.Props
+  override __view_type__: PolyAnnotationView
 
   constructor(attrs?: Partial<PolyAnnotation.Attrs>) {
     super(attrs)
   }
 
-  static init_PolyAnnotation(): void {
+  static {
     this.prototype.default_view = PolyAnnotationView
 
     this.mixins<PolyAnnotation.Mixins>([mixins.Line, mixins.Fill, mixins.Hatch])

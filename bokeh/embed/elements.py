@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,16 +22,37 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from html import escape
-from typing import List, Optional
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Tuple,
+)
+
+## External imports
+if TYPE_CHECKING:
+    from jinja2 import Template
 
 # Bokeh imports
 from ..core.json_encoder import serialize_json
-from ..core.templates import DOC_JS, FILE, MACROS, PLOT_DIV, _env
+from ..core.templates import (
+    DOC_JS,
+    FILE,
+    MACROS,
+    PLOT_DIV,
+    _env,
+)
 from ..document.document import DEFAULT_TITLE
 from ..settings import settings
 from ..util.serialization import make_id
 from .util import RenderItem
 from .wrappers import wrap_in_onload, wrap_in_safely, wrap_in_script_tag
+
+if TYPE_CHECKING:
+    from ..core.types import ID
+    from ..document.document import DocJson
+    from .bundle import Bundle
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -62,7 +85,9 @@ def div_for_render_item(item: RenderItem) -> str:
     '''
     return PLOT_DIV.render(doc=item, macros=MACROS)
 
-def html_page_for_render_items(bundle, docs_json, render_items, title, template=None, template_variables={}):
+def html_page_for_render_items(bundle: Bundle | Tuple[str, str], docs_json: Dict[ID, DocJson],
+        render_items: List[RenderItem], title: str, template: Template | str | None = None,
+        template_variables: Dict[str, Any] = {}) -> str:
     ''' Render an HTML page from a template and Bokeh render items.
 
     Args:
@@ -126,8 +151,8 @@ def html_page_for_render_items(bundle, docs_json, render_items, title, template=
     html = template.render(context)
     return html
 
-def script_for_render_items(docs_json_or_id, render_items: List[RenderItem],
-                            app_path: Optional[str] = None, absolute_url: Optional[str] = None) -> str:
+def script_for_render_items(docs_json_or_id: ID | Dict[ID, DocJson], render_items: List[RenderItem],
+                            app_path: str | None = None, absolute_url: str | None = None) -> str:
     ''' Render an script for Bokeh render items.
     Args:
         docs_json_or_id:
@@ -144,7 +169,7 @@ def script_for_render_items(docs_json_or_id, render_items: List[RenderItem],
         str
     '''
     if isinstance(docs_json_or_id, str):
-        docs_json = "document.getElementById('%s').textContent" % docs_json_or_id
+        docs_json = f"document.getElementById('{docs_json_or_id}').textContent"
     else:
         # XXX: encodes &, <, > and ', but not ". This is because " is used a lot in JSON,
         # and encoding it would significantly increase size of generated files. Doing so

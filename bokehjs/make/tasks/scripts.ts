@@ -15,7 +15,7 @@ import pkg from "../../package.json"
 
 task("scripts:version", async () => {
   const js = `export const version = "${pkg.version}";\n`
-  const dts = `export declare const version: string;\n`
+  const dts = "export declare const version: string;\n"
 
   write(join(paths.build_dir.lib, "version.js"), js)
   write(join(paths.build_dir.types, "version.d.ts"), dts)
@@ -69,17 +69,17 @@ task("scripts:styles", ["styles:compile"], async () => {
 
     const css_out = CSS.stringify(ast, {compress: true})
     js.push(`export default \`${css_out}\``)
-    dts.push("export default \`\`")
-    dts_internal.push("  export default \`\`")
+    dts.push("export default \"\"")
+    dts_internal.push("  export default \"\"")
     dts_internal.push("}")
 
-    const js_file = join(paths.build_dir.lib, "styles", sub_path) + ".js"
-    const dts_file = join(paths.build_dir.types, "styles", sub_path) + ".d.ts"
-    const dts_internal_file = join(paths.build_dir.all, "dts", "styles", sub_path) + ".d.ts"
+    const js_file = `${join(paths.build_dir.lib, "styles", sub_path)}.js`
+    const dts_file = `${join(paths.build_dir.types, "styles", sub_path)}.d.ts`
+    const dts_internal_file = `${join(paths.build_dir.all, "dts", "styles", sub_path)}.d.ts`
 
-    write(js_file, js.join("\n") + "\n")
-    write(dts_file, dts.join("\n") + "\n")
-    write(dts_internal_file, dts_internal.join("\n") + "\n")
+    write(js_file, `${js.join("\n")}\n`)
+    write(dts_file, `${dts.join("\n")}\n`)
+    write(dts_internal_file, `${dts_internal.join("\n")}\n`)
   }
 })
 
@@ -101,8 +101,8 @@ declare const shader: string;
 export default shader;
 `
 
-    write(join(js_base, sub_path) + ".js", js)
-    write(join(dts_base, sub_path) + ".d.ts", dts)
+    write(`${join(js_base, sub_path)}.js`, js)
+    write(`${join(dts_base, sub_path)}.d.ts`, dts)
   }
 })
 
@@ -111,12 +111,12 @@ task("scripts:compile", ["scripts:styles", "scripts:glsl", "scripts:version"], a
 })
 
 function min_js(js: string): string {
-  return rename(js, {ext: '.min.js'})
+  return rename(js, {ext: ".min.js"})
 }
 
 task("scripts:bundle", [passthrough("scripts:compile")], async () => {
-  const {bokehjs, api, widgets, tables} = paths.lib
-  const packages = [bokehjs, api, widgets, tables]
+  const {bokehjs, gl, api, widgets, tables, mathjax} = paths.lib
+  const packages = [bokehjs, gl, api, widgets, tables, mathjax]
 
   const linker = new Linker({
     entries: packages.map((pkg) => pkg.main),
@@ -124,7 +124,7 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
     cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.json") : undefined,
     target: "ES2017",
     exports: ["tslib"],
-    detect_cycles: argv.detectCycles === true,
+    detect_cycles: argv.detectCycles as boolean | undefined,
   })
 
   if (!argv.rebuild) linker.load_cache()
@@ -170,53 +170,13 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
     throw new BuildError("scripts:bundle", "unable to bundle modules")
 })
 
-task("scripts:bundle-legacy", [passthrough("scripts:compile")], async () => {
-  const {bokehjs, api, widgets, tables} = paths.lib_legacy
-  const packages = [bokehjs, api, widgets, tables]
-
-  const linker = new Linker({
-    entries: packages.map((pkg) => pkg.main),
-    bases: [paths.build_dir.lib, "./node_modules"],
-    cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.legacy.json") : undefined,
-    target: "ES5",
-  })
-
-  if (!argv.rebuild) linker.load_cache()
-  const {bundles, status} = await linker.link()
-  linker.store_cache()
-
-  const outputs = packages.map((pkg) => pkg.output)
-
-  const prelude = {
-    main: preludes.prelude(),
-    plugin: preludes.plugin_prelude({version: pkg.version}),
-  }
-
-  const postlude = {
-    main: preludes.postlude(),
-    plugin: preludes.plugin_postlude(),
-  }
-
-  function bundle(minified: boolean, outputs: string[]) {
-    bundles
-      .map((bundle) => bundle.assemble({prelude, postlude, minified}))
-      .map((artifact, i) => artifact.write(outputs[i]))
-  }
-
-  bundle(false, outputs)
-  bundle(true, outputs.map(min_js))
-
-  if (!status)
-    throw new BuildError("scripts:bundle", "unable to bundle modules")
-})
-
 task("lib:build", ["scripts:bundle"])
 
-task("scripts:build", ["lib:build", "scripts:bundle-legacy"])
+task("scripts:build", ["lib:build"])
 
 task("packages:prepare", ["scripts:bundle"], async () => {
   const bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables"]
-  const suffixes = ["", ".esm", ".legacy"]
+  const suffixes = ["", ".esm"]
   const pkgs_dir = paths.build_dir.packages
 
   for (const suffix of suffixes) {

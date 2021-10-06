@@ -10,6 +10,7 @@ export type Context2d = {
   setImageSmoothingEnabled(value: boolean): void
   getImageSmoothingEnabled(): boolean
   lineDash: number[]
+  readonly layer: CanvasLayer
 } & CanvasRenderingContext2D
 
 function fixup_line_dash(ctx: any): void {
@@ -106,7 +107,7 @@ export class CanvasLayer {
       case "webgl":
       case "canvas": {
         this._el = this._canvas = canvas({style})
-        const ctx = this.canvas.getContext('2d')
+        const ctx = this.canvas.getContext("2d")
         if (ctx == null)
           throw new Error("unable to obtain 2D rendering context")
         this._ctx = ctx
@@ -124,6 +125,7 @@ export class CanvasLayer {
       }
     }
 
+    (this._ctx as any).layer = this
     fixup_ctx(this._ctx)
   }
 
@@ -135,6 +137,19 @@ export class CanvasLayer {
     target.height = height*this.pixel_ratio
   }
 
+  private _base_transform: DOMMatrix
+
+  undo_transform(fn: (ctx: Context2d) => void) {
+    const {ctx} = this
+    const current_transform = ctx.getTransform()
+    ctx.setTransform(this._base_transform)
+    try {
+      fn(ctx)
+    } finally {
+      ctx.setTransform(current_transform)
+    }
+  }
+
   prepare(): void {
     const {ctx, hidpi, pixel_ratio} = this
     ctx.save()
@@ -142,6 +157,7 @@ export class CanvasLayer {
       ctx.scale(pixel_ratio, pixel_ratio)
       ctx.translate(0.5, 0.5)
     }
+    this._base_transform = ctx.getTransform()
     this.clear()
   }
 
@@ -157,13 +173,9 @@ export class CanvasLayer {
   to_blob(): Promise<Blob> {
     const {_canvas} = this
     if (_canvas instanceof HTMLCanvasElement) {
-      if (_canvas.msToBlob != null) {
-        return Promise.resolve(_canvas.msToBlob())
-      } else {
-        return new Promise((resolve, reject) => {
-          _canvas.toBlob((blob) => blob != null ? resolve(blob) : reject(), "image/png")
-        })
-      }
+      return new Promise((resolve, reject) => {
+        _canvas.toBlob((blob) => blob != null ? resolve(blob) : reject(), "image/png")
+      })
     } else {
       const ctx = this._ctx as SVGRenderingContext2D
       const svg = ctx.get_serialized_svg(true)

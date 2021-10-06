@@ -14,13 +14,13 @@ export namespace BooleanFilter {
 export interface BooleanFilter extends BooleanFilter.Attrs {}
 
 export class BooleanFilter extends Filter {
-  properties: BooleanFilter.Props
+  override properties: BooleanFilter.Props
 
   constructor(attrs?: Partial<BooleanFilter.Attrs>) {
     super(attrs)
   }
 
-  static init_BooleanFilter(): void {
+  static {
     this.define<BooleanFilter.Props>(({Boolean, Array, Nullable}) => ({
       booleans: [ Nullable(Array(Boolean)), null ],
     }))

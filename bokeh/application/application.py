@@ -19,6 +19,8 @@ updated the Document, it is used to service the user session.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -28,10 +30,27 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from abc import ABCMeta, abstractmethod
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    ClassVar,
+    Dict,
+    List,
+    Tuple,
+)
 
 # Bokeh imports
+from ..core.types import ID
 from ..document import Document
 from ..settings import settings
+
+if TYPE_CHECKING:
+    from tornado.httputil import HTTPServerRequest
+
+    from ..server.session import ServerSession
+    from .handlers.handler import Handler
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -51,8 +70,12 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
+Callback = Callable[[], None]
+
 class Application:
     ''' An Application is a factory for Document instances.
+
+    .. autoclasstoc::
 
     '''
 
@@ -60,9 +83,13 @@ class Application:
     # Application without having to import Application directly. This module
     # depends on tornado and we have made a commitment that "basic" modules
     # will function without bringing in tornado.
-    _is_a_bokeh_application_class = True
+    _is_a_bokeh_application_class: ClassVar[bool] = True
 
-    def __init__(self, *handlers, **kwargs):
+    _static_path: str | None
+    _handlers: List[Handler]
+    _metadata: Dict[str, Any] | None
+
+    def __init__(self, *handlers: Handler, metadata: Dict[str, Any] | None = None) -> None:
         ''' Application factory.
 
         Args:
@@ -90,10 +117,6 @@ class Application:
                 ``"data"`` key in the blob.
 
         '''
-        metadata = kwargs.pop('metadata', None)
-        if kwargs:
-            raise TypeError("Invalid keyword argument: %s" %
-                list(kwargs.keys())[0])
         self._static_path = None
         self._handlers = []
         self._metadata = metadata
@@ -103,28 +126,28 @@ class Application:
     # Properties --------------------------------------------------------------
 
     @property
-    def handlers(self):
+    def handlers(self) -> Tuple[Handler, ...]:
         ''' The ordered list of handlers this Application is configured with.
 
         '''
         return tuple(self._handlers)
 
     @property
-    def metadata(self):
+    def metadata(self) -> Dict[str, Any] | None:
         ''' Arbitrary user-supplied metadata to associate with this application.
 
         '''
         return self._metadata
 
     @property
-    def safe_to_fork(self):
+    def safe_to_fork(self) -> bool:
         '''
 
         '''
         return all(handler.safe_to_fork for handler in self._handlers)
 
     @property
-    def static_path(self):
+    def static_path(self) -> str | None:
         ''' Path to any (optional) static resources specified by handlers.
 
         '''
@@ -132,7 +155,7 @@ class Application:
 
     # Public methods ----------------------------------------------------------
 
-    def add(self, handler):
+    def add(self, handler: Handler) -> None:
         ''' Add a handler to the pipeline used to initialize new documents.
 
         Args:
@@ -152,7 +175,7 @@ class Application:
         else:
             self._static_path = None
 
-    def create_document(self):
+    def create_document(self) -> Document:
         ''' Creates and initializes a document using the Application's handlers.
 
         '''
@@ -160,7 +183,7 @@ class Application:
         self.initialize_document(doc)
         return doc
 
-    def initialize_document(self, doc):
+    def initialize_document(self, doc: Document) -> None:
         ''' Fills in a new document using the Application's handlers.
 
         '''
@@ -175,7 +198,7 @@ class Application:
         if settings.perform_document_validation():
             doc.validate()
 
-    def on_server_loaded(self, server_context):
+    def on_server_loaded(self, server_context: ServerContext) -> None:
         ''' Invoked to execute code when a new session is created.
 
         This method calls ``on_server_loaded`` on each handler, in order,
@@ -185,7 +208,7 @@ class Application:
         for h in self._handlers:
             h.on_server_loaded(server_context)
 
-    def on_server_unloaded(self, server_context):
+    def on_server_unloaded(self, server_context: ServerContext) -> None:
         ''' Invoked to execute code when the server cleanly exits. (Before
         stopping the server's ``IOLoop``.)
 
@@ -200,7 +223,7 @@ class Application:
         for h in self._handlers:
             h.on_server_unloaded(server_context)
 
-    async def on_session_created(self, session_context):
+    async def on_session_created(self, session_context: SessionContext) -> None:
         ''' Invoked to execute code when a new session is created.
 
         This method calls ``on_session_created`` on each handler, in order,
@@ -214,7 +237,7 @@ class Application:
             await h.on_session_created(session_context)
         return None
 
-    async def on_session_destroyed(self, session_context):
+    async def on_session_destroyed(self, session_context: SessionContext) -> None:
         ''' Invoked to execute code when a session is destroyed.
 
         This method calls ``on_session_destroyed`` on each handler, in order,
@@ -227,7 +250,7 @@ class Application:
             await h.on_session_destroyed(session_context)
         return None
 
-    def process_request(self, request):
+    def process_request(self, request: HTTPServerRequest) -> Dict[str, Any]:
         ''' Processes incoming HTTP request returning a dictionary of
         additional data to add to the session_context.
 
@@ -238,7 +261,7 @@ class Application:
             A dictionary of JSON serializable data to be included on
             the session context.
         '''
-        request_data = {}
+        request_data: Dict[str, Any] = {}
         for h in self._handlers:
             request_data.update(h.process_request(request))
         return request_data
@@ -256,113 +279,10 @@ class ServerContext(metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def sessions(self):
+    def sessions(self) -> List[ServerSession]:
         ''' ``SessionContext`` instances belonging to this application.
 
         *Subclasses must implement this method.*
-
-        '''
-        pass
-
-    # Public methods ----------------------------------------------------------
-
-    @abstractmethod
-    def add_next_tick_callback(self, callback):
-        ''' Add a callback to be run on the next tick of the event loop.
-
-        *Subclasses must implement this method.*
-
-        Args:
-            callback (callable) : a callback to add
-
-                The callback will execute on the next tick of the event loop,
-                and should have the form ``def callback()`` (i.e. it should
-                not accept any arguments)
-
-        Returns:
-            an ID that can be used with ``remove_next_tick_callback``.
-
-        '''
-        pass
-
-    @abstractmethod
-    def add_periodic_callback(self, callback, period_milliseconds):
-        ''' Add a callback to be run periodically until it is removed.
-
-        *Subclasses must implement this method.*
-
-        Args:
-            callback (callable) : a callback to add
-
-                The callback will execute periodically on the event loop
-                as specified, and should have the form ``def callback()``
-                (i.e. it should not accept any arguments)
-
-            period_milliseconds (int) : number of milliseconds to wait
-                between executing the callback.
-
-        Returns:
-            an ID that can be used with ``remove_periodic_callback``.
-
-        '''
-        pass
-
-    @abstractmethod
-    def add_timeout_callback(self, callback, timeout_milliseconds):
-        ''' Add a callback to be run once after timeout_milliseconds.
-
-        *Subclasses must implement this method.*
-
-        Args:
-            callback (callable) : a callback to add
-
-                The callback will execute once on the event loop after the
-                timeout has passed, and should have the form ``def callback()``
-                (i.e. it should not accept any arguments)
-
-            timeout_milliseconds (int) : number of milliseconds to wait before
-                executing the callback.
-
-        Returns:
-            an ID that can be used with ``remove_timeout_callback``.
-
-        '''
-        pass
-
-    @abstractmethod
-    def remove_next_tick_callback(self, callback_id):
-        ''' Remove a callback added with ``add_next_tick_callback``, before
-        it runs.
-
-         *Subclasses must implement this method.*
-
-        Args:
-            callback_id : the ID returned from ``add_next_tick_callback``
-
-        '''
-        pass
-
-    @abstractmethod
-    def remove_periodic_callback(self, callback_id):
-        ''' Removes a callback added with ``add_periodic_callback``.
-
-        *Subclasses must implement this method.*
-
-        Args:
-            callback_id : the ID returned from ``add_periodic_callback``
-
-        '''
-        pass
-
-    @abstractmethod
-    def remove_timeout_callback(self, callback_id):
-        ''' Remove a callback added with ``add_timeout_callback``, before it
-        runs.
-
-        *Subclasses must implement this method.*
-
-        Args:
-            callback_id : the ID returned from ``add_timeout_callback``
 
         '''
         pass
@@ -375,7 +295,10 @@ class SessionContext(metaclass=ABCMeta):
 
     '''
 
-    def __init__(self, server_context, session_id):
+    _server_context: ServerContext
+    _id: ID
+
+    def __init__(self, server_context: ServerContext, session_id: ID) -> None:
         '''
 
         '''
@@ -386,7 +309,7 @@ class SessionContext(metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def destroyed(self):
+    def destroyed(self) -> bool:
         ''' If ``True``, the session has been discarded and cannot be used.
 
         A new session with the same ID could be created later but this instance
@@ -396,14 +319,14 @@ class SessionContext(metaclass=ABCMeta):
         pass
 
     @property
-    def id(self):
+    def id(self) -> ID:
         ''' The unique ID for the session associated with this context.
 
         '''
         return self._id
 
     @property
-    def server_context(self):
+    def server_context(self) -> ServerContext:
         ''' The server context for this session context
 
         '''
@@ -412,7 +335,7 @@ class SessionContext(metaclass=ABCMeta):
     # Public methods ----------------------------------------------------------
 
     @abstractmethod
-    def with_locked_document(self, func):
+    def with_locked_document(self, func: Callable[[Document], Awaitable[None]]) -> Awaitable[None]:
         ''' Runs a function with the document lock held, passing the
         document to the function.
 
@@ -427,6 +350,8 @@ class SessionContext(metaclass=ABCMeta):
 
         '''
         pass
+
+SessionDestroyedCallback = Callable[[SessionContext], None]
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -19,6 +21,7 @@ from functools import partial
 
 # Bokeh imports
 from bokeh.document import Document
+from bokeh.model.util import HasDocumentRef
 
 # Module under test
 import bokeh.util.callback_manager as cbm # isort:skip
@@ -27,9 +30,8 @@ import bokeh.util.callback_manager as cbm # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-
 class _GoodPropertyCallback:
-    def __init__(self):
+    def __init__(self) -> None:
         self.last_name = None
         self.last_old = None
         self.last_new = None
@@ -67,7 +69,7 @@ def _just_fine_property(w, x, y, z='default'):
 
 
 class _GoodEventCallback:
-    def __init__(self):
+    def __init__(self) -> None:
         self.last_name = None
         self.last_old = None
         self.last_new = None
@@ -243,7 +245,8 @@ class TestPropertyCallbackManager:
         assert m1._callbacks['bar'] == [good2]
 
     def test_trigger(self) -> None:
-        m = cbm.PropertyCallbackManager()
+        class Modelish(HasDocumentRef, cbm.PropertyCallbackManager): pass
+        m = Modelish()
         good = _GoodPropertyCallback()
         m.on_change('foo', good.method)
         m.trigger('foo', 42, 43)
@@ -252,7 +255,8 @@ class TestPropertyCallbackManager:
         assert good.last_new == 43
 
     def test_trigger_with_two_callbacks(self) -> None:
-        m = cbm.PropertyCallbackManager()
+        class Modelish(HasDocumentRef, cbm.PropertyCallbackManager): pass
+        m = Modelish()
         good1 = _GoodPropertyCallback()
         good2 = _GoodPropertyCallback()
         m.on_change('foo', good1.method)
@@ -397,8 +401,8 @@ class TestEventCallbackManager:
     def test__trigger_event_wraps_curdoc(self) -> None:
         # This test is pretty clunky by assures that callbacks triggered by
         # events use the correct value of curdoc()
-        from bokeh.io.doc import set_curdoc
         from bokeh.io import curdoc
+        from bokeh.io.doc import set_curdoc
         oldcd = curdoc()
         d1 = Document()
         d2 = Document()
@@ -406,7 +410,8 @@ class TestEventCallbackManager:
         out = {}
         def cb():
             out['curdoc'] = curdoc()
-        m = cbm.EventCallbackManager()
+        class Modelish(HasDocumentRef, cbm.EventCallbackManager): pass
+        m = Modelish()
         m.subscribed_events = []
         m.on_event('foo', cb)
         m.id = 10

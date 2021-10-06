@@ -1,8 +1,4 @@
 .. _bokeh.models.glyphs.Arc:
 
-bokeh.models.glyphs.Arc
------------------------
-
-.. autoclass:: bokeh.models.glyphs.Arc
-    :members:
-    :inherited-members:
+.. bokeh-model:: Arc
+    :module: bokeh.models.glyphs

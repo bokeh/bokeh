@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -15,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-from mock import patch
+from mock import MagicMock, patch
 
 # Module under test
 import bokeh.client.session as bcs # isort:skip
@@ -77,7 +79,7 @@ class Test_ClientSession:
         assert len(s.id) == 44
 
     @patch("bokeh.client.connection.ClientConnection.connect")
-    def test_connect(self, mock_connect) -> None:
+    def test_connect(self, mock_connect: MagicMock) -> None:
         s = bcs.ClientSession()
         s.connect()
         assert mock_connect.call_count == 1
@@ -85,7 +87,7 @@ class Test_ClientSession:
         assert mock_connect.call_args[1] == {}
 
     @patch("bokeh.client.connection.ClientConnection.close")
-    def test_close(self, mock_close) -> None:
+    def test_close(self, mock_close: MagicMock) -> None:
         s = bcs.ClientSession()
         s.close()
         assert mock_close.call_count == 1
@@ -93,7 +95,7 @@ class Test_ClientSession:
         assert mock_close.call_args[1] == {}
 
     @patch("bokeh.client.connection.ClientConnection.close")
-    def test_context_manager(self, mock_close) -> None:
+    def test_context_manager(self, mock_close: MagicMock) -> None:
         with bcs.ClientSession() as session:
             assert isinstance(session, bcs.ClientSession)
         assert mock_close.call_count == 1
@@ -101,7 +103,7 @@ class Test_ClientSession:
         assert mock_close.call_args[1] == {}
 
     @patch("bokeh.client.connection.ClientConnection.close")
-    def test_close_with_why(self, mock_close) -> None:
+    def test_close_with_why(self, mock_close: MagicMock) -> None:
         s = bcs.ClientSession()
         s.close("foo")
         assert mock_close.call_count == 1
@@ -109,7 +111,7 @@ class Test_ClientSession:
         assert mock_close.call_args[1] == {}
 
     @patch("bokeh.client.connection.ClientConnection.force_roundtrip")
-    def test_force_roundtrip(self, mock_force_roundtrip) -> None:
+    def test_force_roundtrip(self, mock_force_roundtrip: MagicMock) -> None:
         s = bcs.ClientSession()
         s.force_roundtrip()
         assert mock_force_roundtrip.call_count == 1
@@ -117,7 +119,7 @@ class Test_ClientSession:
         assert mock_force_roundtrip.call_args[1] == {}
 
     @patch("bokeh.client.connection.ClientConnection.request_server_info")
-    def test_request_server_info(self, mock_request_server_info) -> None:
+    def test_request_server_info(self, mock_request_server_info: MagicMock) -> None:
         s = bcs.ClientSession()
         s.request_server_info()
         assert mock_request_server_info.call_count == 1

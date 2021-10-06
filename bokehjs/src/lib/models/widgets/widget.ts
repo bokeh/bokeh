@@ -4,24 +4,32 @@ import {BoxSizing, SizingPolicy} from "core/layout"
 import * as p from "core/properties"
 
 export abstract class WidgetView extends HTMLBoxView {
-  model: Widget
+  override model: Widget
 
-  protected _width_policy(): SizingPolicy {
-    return this.model.orientation == "horizontal" ? super._width_policy() : "fixed"
+  protected get orientation(): Orientation {
+    return "horizontal"
   }
 
-  protected _height_policy(): SizingPolicy {
-    return this.model.orientation == "horizontal" ? "fixed" : super._height_policy()
+  protected get default_size(): number | undefined {
+    return this.model.default_size
   }
 
-  box_sizing(): Partial<BoxSizing> {
+  protected override _width_policy(): SizingPolicy {
+    return this.orientation == "horizontal" ? super._width_policy() : "fixed"
+  }
+
+  protected override _height_policy(): SizingPolicy {
+    return this.orientation == "horizontal" ? "fixed" : super._height_policy()
+  }
+
+  override box_sizing(): Partial<BoxSizing> {
     const sizing = super.box_sizing()
-    if (this.model.orientation == "horizontal") {
+    if (this.orientation == "horizontal") {
       if (sizing.width == null)
-        sizing.width = this.model.default_size
+        sizing.width = this.default_size
     } else {
       if (sizing.height == null)
-        sizing.height = this.model.default_size
+        sizing.height = this.default_size
     }
     return sizing
   }
@@ -31,7 +39,6 @@ export namespace Widget {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = HTMLBox.Props & {
-    orientation: p.Property<Orientation>
     default_size: p.Property<number>
   }
 }
@@ -39,17 +46,16 @@ export namespace Widget {
 export interface Widget extends Widget.Attrs {}
 
 export abstract class Widget extends HTMLBox {
-  properties: Widget.Props
-  __view_type__: WidgetView
+  override properties: Widget.Props
+  override __view_type__: WidgetView
 
   constructor(attrs?: Partial<Widget.Attrs>) {
     super(attrs)
   }
 
-  static init_Widget(): void {
+  static {
     this.define<Widget.Props>(({Number}) => ({
-      orientation:  [ Orientation, "horizontal" ],
-      default_size: [ Number,      300          ],
+      default_size: [ Number, 300 ],
     }))
 
     this.override<Widget.Props>({

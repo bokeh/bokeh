@@ -26,7 +26,7 @@ Standalone Bokeh content doesn't require a Bokeh server and can be embedded
 directly in classic Jupyter notebooks as well as in JupyterLab.
 
 Classic notebooks
-+++++++++++++++++
+'''''''''''''''''
 
 To display Bokeh plots inline in a classic Jupyter notebook, use the
 |output_notebook| function from |bokeh.io| instead of (or in addition to)
@@ -46,27 +46,52 @@ multiple times in the input cell. The plots will display in order.
     :align: center
 
 JupyterLab
-++++++++++
+''''''''''
 
-To embed Bokeh plots in JupyterLab, you'll need the following two JupyterLab extensions:
+To use JupyterLab with Bokeh, you should at least use version 3.0 of JupyterLab.
+Enabling Bokeh visualizations in JupyterLab also requires the
+`jupyter_bokeh`_ extension to be installed.
 
-1. First install *jupyterlab-manager* with this command:
+After installing JupyterLab, you can use either ``pip`` or ``conda`` to install
+jupyter_bokeh:
 
-   .. code::
+.. panels::
 
-    jupyter labextension install @jupyter-widgets/jupyterlab-manager
+    Installing with ``conda``
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2. Then install the *jupyter_bokeh* extension as follows:
+    Make sure you have either `Anaconda`_ or `Miniconda`_ installed. Use
+    this command to install jupyter_bokeh:
 
-   .. code::
+    .. code-block:: sh
 
-    jupyter labextension install @bokeh/jupyter_bokeh
+        conda install jupyter_bokeh
 
-The rest is the same as with classic notebooks above.
+    ---
+
+    Installing with ``pip``
+    ^^^^^^^^^^^^^^^^^^^^^^^
+
+    Use this command to install jupyter_bokeh:
+
+    .. code-block:: sh
+
+        pip install jupyter_bokeh
+
+For instructions on installing jupyter_bokeh with versions of JupyterLab
+older than 3.0, see the `README`_ in the GitHub repository of `jupyter_bokeh`_.
+
+Once you have jupyter_bokeh installed, you can use Bokeh just like you would
+with a :ref:`classic notebook <userguide_jupyter_notebook_inline_plots>`.
 
 .. image:: /_images/joyplot_jupyter_lab.png
     :scale: 25 %
     :align: center
+
+.. _jupyter_bokeh: https://github.com/bokeh/jupyter_bokeh
+.. _Anaconda: https://www.anaconda.com/products/individual#Downloads
+.. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
+.. _README: https://github.com/bokeh/jupyter_bokeh/blob/main/README.md
 
 Bokeh server applications
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -80,7 +105,7 @@ a Jupyter notebook, refer to the following notebook:
 * :bokeh-tree:`examples/howto/server_embed/notebook_embed.ipynb`
 
 JupyterHub
-++++++++++
+''''''''''
 
 When running notebooks from your own JupyterHub instance, some additional
 steps are necessary to embed Bokeh server applications and to enable network
@@ -90,11 +115,18 @@ Bokeh server is listening on. However, JupyterHub is acting as a reverse proxy
 between your browser and your JupyterLab container. Follow all the JupyterLab
 instructions above, then continue with the following steps:
 
-1. Install the ``nbserverproxy`` server extension as follows:
+1. Install the ``jupyter-server-proxy`` package and enable the server extension as follows:
 
    .. code:: sh
 
-    pip install nbserverproxy && jupyter serverextension enable --py nbserverproxy
+    pip install jupyter-server-proxy && jupyter serverextension enable --py jupyter-server-proxy
+
+   If you intend to work with JupyterLab you need to install the corresponding extension,
+   either from the GUI or with the following command:
+
+   .. code:: sh
+
+    jupyter labextension install @jupyterlab/server-proxy
 
 2. Define a function to help create the URL for the browser to connect to
    the Bokeh server.
@@ -137,8 +169,8 @@ instructions above, then continue with the following steps:
 
     show(obj, notebook_url=remote_jupyter_proxy_url)
 
-Now the Bokeh graph should load and execute Python
-callbacks defined in your JupyterLab environment.
+You may need to restart your server after this, and then Bokeh content should load and
+execute Python callbacks defined in your Jupyter environment.
 
 Trusting notebooks
 ~~~~~~~~~~~~~~~~~~
@@ -240,12 +272,7 @@ notebook below:
 
 .. |bokeh.io| replace:: :ref:`bokeh.io <bokeh.io>`
 
-.. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
-.. |output_file| replace:: :func:`~bokeh.io.output_file`
-
-.. |ColumnDataSource| replace:: :class:`~bokeh.models.sources.ColumnDataSource`
 .. |push_notebook| replace:: :func:`~bokeh.io.push_notebook`
-.. |show| replace:: :func:`~bokeh.io.show`
 
 .. _interactors: http://ipywidgets.readthedocs.io/en/latest/examples/Using%20Interact.html
 .. _Reveal.js: http://lab.hakim.se/reveal-js/#/

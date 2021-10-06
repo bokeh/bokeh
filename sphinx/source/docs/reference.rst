@@ -8,6 +8,7 @@ Reference
     :hidden:
     :glob:
 
+    reference/bokeh
     reference/*
 
 This section provides the complete public API reference for Bokeh,
@@ -25,9 +26,8 @@ be especially useful.
     information about every property of each model.
 
 :ref:`bokeh.plotting`
-    The ``bokeh.plotting`` API is centered around the
-    :func:`~bokeh.plotting.figure` command,
-    and the associated glyph functions such as
+    The |bokeh.plotting| API is centered around the |figure| command and the
+    associated glyph functions such as
     :func:`~bokeh.plotting.Figure.circle`,
     :func:`~bokeh.plotting.Figure.wedge`, etc.
     This section has detailed information on these elements.
@@ -40,8 +40,7 @@ be especially useful.
 
 :ref:`bokeh.io`
     Functions for controlling where and how Bokeh documents are saved
-    or shown, such as :func:`~bokeh.io.output_file`,
-    :func:`~bokeh.io.output_notebook`, and others  are in this module.
+    or shown, such as |output_file| and |output_notebook|, are in this module.
 
 :ref:`bokeh.palettes`
     This section provides visual representations of all the palettes

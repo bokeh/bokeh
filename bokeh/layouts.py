@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,13 +22,35 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import math
-from collections import namedtuple
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Iterable,
+    Iterator,
+    List,
+    Sequence,
+    Tuple,
+    TypeVar,
+    overload,
+)
 
 # Bokeh imports
-from .core.enums import Location
-from .models.layouts import Box, Column, GridBox, LayoutDOM, Row, Spacer, WidgetBox
-from .models.plots import Plot
-from .models.tools import ProxyToolbar, ToolbarBox
+from .core.enums import Location, LocationType, SizingModeType
+from .models import (
+    Box,
+    Column,
+    GridBox,
+    LayoutDOM,
+    Plot,
+    ProxyToolbar,
+    Row,
+    Spacer,
+    ToolbarBox,
+)
+from .util.dataclasses import dataclass
+
+if TYPE_CHECKING:
+    from .models import Toolbar
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,35 +60,38 @@ __all__ = (
     'column',
     'grid',
     'gridplot',
-    'GridSpec',
     'layout',
     'row',
     'Spacer',
-    'widgetbox',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def row(*args, **kwargs):
+@overload
+def row(children: List[LayoutDOM], *, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row: ...
+@overload
+def row(*children: LayoutDOM, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row: ...
+
+def row(*children: LayoutDOM | List[LayoutDOM], sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row:
     """ Create a row of Bokeh Layout objects. Forces all objects to
     have the same sizing_mode, which is required for complex layouts to work.
 
     Args:
-        children (list of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of instances for
-            the row. Can be any of the following - :class:`~bokeh.models.plots.Plot`,
-            :class:`~bokeh.models.widgets.widget.Widget`,
-            :class:`~bokeh.models.layouts.Row`,
-            :class:`~bokeh.models.layouts.Column`,
-            :class:`~bokeh.models.tools.ToolbarBox`,
-            :class:`~bokeh.models.layouts.Spacer`.
+        children (list of :class:`~bokeh.models.LayoutDOM` ): A list of instances for
+            the row. Can be any of the following - |Plot|,
+            :class:`~bokeh.models.Widget`,
+            :class:`~bokeh.models.Row`,
+            :class:`~bokeh.models.Column`,
+            :class:`~bokeh.models.ToolbarBox`,
+            :class:`~bokeh.models.Spacer`.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
-            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
-            description on :class:`~bokeh.models.layouts.LayoutDOM`.
+            modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.LayoutDOM`.
 
     Returns:
         Row: A row of LayoutDOM objects all with the same sizing_mode.
@@ -74,35 +101,33 @@ def row(*args, **kwargs):
         >>> row(plot1, plot2)
         >>> row(children=[widgets, plot], sizing_mode='stretch_both')
     """
+    _children = _parse_children_arg(*children, children=kwargs.pop("children", None))
+    _handle_child_sizing(_children, sizing_mode, widget="row")
+    return Row(children=_children, sizing_mode=sizing_mode, **kwargs)
 
-    sizing_mode = kwargs.pop('sizing_mode', None)
-    children = kwargs.pop('children', None)
+@overload
+def column(children: List[LayoutDOM], *, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column: ...
+@overload
+def column(*children: LayoutDOM, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column: ...
 
-    children = _parse_children_arg(*args, children=children)
-
-    _handle_child_sizing(children, sizing_mode, widget="row")
-
-    return Row(children=children, sizing_mode=sizing_mode, **kwargs)
-
-
-def column(*args, **kwargs):
+def column(*children: LayoutDOM | List[LayoutDOM], sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column:
     """ Create a column of Bokeh Layout objects. Forces all objects to
     have the same sizing_mode, which is required for complex layouts to work.
 
     Args:
-        children (list of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of instances for
-            the column. Can be any of the following - :class:`~bokeh.models.plots.Plot`,
-            :class:`~bokeh.models.widgets.widget.Widget`,
-            :class:`~bokeh.models.layouts.Row`,
-            :class:`~bokeh.models.layouts.Column`,
-            :class:`~bokeh.models.tools.ToolbarBox`,
-            :class:`~bokeh.models.layouts.Spacer`.
+        children (list of :class:`~bokeh.models.LayoutDOM` ): A list of instances for
+            the column. Can be any of the following - |Plot|,
+            :class:`~bokeh.models.Widget`,
+            :class:`~bokeh.models.Row`,
+            :class:`~bokeh.models.Column`,
+            :class:`~bokeh.models.ToolbarBox`,
+            :class:`~bokeh.models.Spacer`.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
-            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
-            description on :class:`~bokeh.models.layouts.LayoutDOM`.
+            modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.LayoutDOM`.
 
     Returns:
         Column: A column of LayoutDOM objects all with the same sizing_mode.
@@ -112,65 +137,28 @@ def column(*args, **kwargs):
         >>> column(plot1, plot2)
         >>> column(children=[widgets, plot], sizing_mode='stretch_both')
     """
-
-    sizing_mode = kwargs.pop('sizing_mode', None)
-    children = kwargs.pop('children', None)
-
-    children = _parse_children_arg(*args, children=children)
-
-    _handle_child_sizing(children, sizing_mode, widget="column")
-
-    return Column(children=children, sizing_mode=sizing_mode, **kwargs)
+    _children = _parse_children_arg(*children, children=kwargs.pop("children", None))
+    _handle_child_sizing(_children, sizing_mode, widget="column")
+    return Column(children=_children, sizing_mode=sizing_mode, **kwargs)
 
 
-def widgetbox(*args, **kwargs):
-    """ Create a column of bokeh widgets with predefined styling.
-
-    Args:
-        children (list of :class:`~bokeh.models.widgets.widget.Widget`): A list of widgets.
-
-        sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
-            will the items in the layout resize to fill the available space.
-            Default is ``"fixed"``. For more information on the different
-            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
-            description on :class:`~bokeh.models.layouts.LayoutDOM`.
-
-    Returns:
-        WidgetBox: A column layout of widget instances all with the same ``sizing_mode``.
-
-    Examples:
-
-        >>> widgetbox([button, select])
-        >>> widgetbox(children=[slider], sizing_mode='scale_width')
-    """
-
-    sizing_mode = kwargs.pop('sizing_mode', None)
-    children = kwargs.pop('children', None)
-
-    children = _parse_children_arg(*args, children=children)
-
-    _handle_child_sizing(children, sizing_mode, widget="widget box")
-
-    return WidgetBox(children=children, sizing_mode=sizing_mode, **kwargs)
-
-
-def layout(*args, **kwargs):
+def layout(*args: LayoutDOM, children: List[LayoutDOM] | None = None, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column:
     """ Create a grid-based arrangement of Bokeh Layout objects.
 
     Args:
-        children (list of lists of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of lists of instances
-            for a grid layout. Can be any of the following - :class:`~bokeh.models.plots.Plot`,
-            :class:`~bokeh.models.widgets.widget.Widget`,
-            :class:`~bokeh.models.layouts.Row`,
-            :class:`~bokeh.models.layouts.Column`,
-            :class:`~bokeh.models.tools.ToolbarBox`,
-            :class:`~bokeh.models.layouts.Spacer`.
+        children (list of lists of :class:`~bokeh.models.LayoutDOM` ): A list of lists of instances
+            for a grid layout. Can be any of the following - |Plot|,
+            :class:`~bokeh.models.Widget`,
+            :class:`~bokeh.models.Row`,
+            :class:`~bokeh.models.Column`,
+            :class:`~bokeh.models.ToolbarBox`,
+            :class:`~bokeh.models.Spacer`.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
-            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
-            description on :class:`~bokeh.models.layouts.LayoutDOM`.
+            modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.LayoutDOM`.
 
     Returns:
         Column: A column of ``Row`` layouts of the children, all with the same sizing_mode.
@@ -188,16 +176,18 @@ def layout(*args, **kwargs):
             )
 
     """
-    sizing_mode = kwargs.pop('sizing_mode', None)
-    children = kwargs.pop('children', None)
+    _children = _parse_children_arg(*args, children=children)
+    return _create_grid(_children, sizing_mode, **kwargs)
 
-    children = _parse_children_arg(*args, children=children)
-
-    # Make the grid
-    return _create_grid(children, sizing_mode, **kwargs)
-
-def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
-             plot_width=None, plot_height=None, toolbar_options=None, merge_tools=True):
+def gridplot(
+        children: List[List[LayoutDOM | None]], *,
+        sizing_mode: SizingModeType | None = None,
+        toolbar_location: LocationType | None = "above",
+        ncols: int | None = None,
+        width: int | None = None,
+        height: int | None = None,
+        toolbar_options: Any = None, # TODO
+        merge_tools: bool = True) -> LayoutDOM:
     ''' Create a grid of plots rendered on separate canvases.
 
     The ``gridplot`` function builds a single toolbar for all the plots in the
@@ -205,17 +195,16 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
     grid layout, use the :func:`~bokeh.layouts.layout` function.
 
     Args:
-        children (list of lists of :class:`~bokeh.models.plots.Plot` ): An
-            array of plots to display in a grid, given as a list of lists of Plot
-            objects. To leave a position in the grid empty, pass None for that
-            position in the children list. OR list of :class:`~bokeh.models.plots.Plot` if called with
-            ncols. OR an instance of GridSpec.
+        children (list of lists of |Plot|): An array of plots to display in a
+            grid, given as a list of lists of Plot objects. To leave a position
+            in the grid empty, pass None for that position in the children list.
+            OR list of |Plot| if called with ncols.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
-            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
-            description on :class:`~bokeh.models.layouts.LayoutDOM`.
+            modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.LayoutDOM`.
 
         toolbar_location (``above``, ``below``, ``left``, ``right`` ): Where the
             toolbar will be located, with respect to the grid. Default is
@@ -225,13 +214,13 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
             You must only pass an un-nested list of plots (as opposed to a list of lists of plots)
             when using ncols.
 
-        plot_width (int, optional): The width you would like all your plots to be
+        width (int, optional): The width you would like all your plots to be
 
-        plot_height (int, optional): The height you would like all your plots to be.
+        height (int, optional): The height you would like all your plots to be.
 
         toolbar_options (dict, optional) : A dictionary of options that will be
             used to construct the grid's toolbar (an instance of
-            :class:`~bokeh.models.tools.ToolbarBox`). If none is supplied,
+            :class:`~bokeh.models.ToolbarBox`). If none is supplied,
             ToolbarBox's defaults will be used.
 
         merge_tools (``True``, ``False``): Combine tools from all child plots into
@@ -245,7 +234,7 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
     Examples:
 
         >>> gridplot([[plot_1, plot_2], [plot_3, plot_4]])
-        >>> gridplot([plot_1, plot_2, plot_3, plot_4], ncols=2, plot_width=200, plot_height=100)
+        >>> gridplot([plot_1, plot_2, plot_3, plot_4], ncols=2, width=200, height=100)
         >>> gridplot(
                 children=[[plot_1, plot_2], [None, plot_3]],
                 toolbar_location='right'
@@ -259,7 +248,7 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
 
     if toolbar_location:
         if not hasattr(Location, toolbar_location):
-            raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
+            raise ValueError(f"Invalid value of toolbar_location: {toolbar_location}")
 
     children = _parse_children_arg(children=children)
     if ncols:
@@ -272,8 +261,8 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
         children = []
 
     # Make the grid
-    toolbars = []
-    items = []
+    toolbars: List[Toolbar] = []
+    items: List[Tuple[LayoutDOM, int, int]] = []
 
     for y, row in enumerate(children):
         for x, item in enumerate(row):
@@ -285,11 +274,10 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
                         toolbars.append(plot.toolbar)
                         plot.toolbar_location = None
 
-                if isinstance(item, Plot):
-                    if plot_width is not None:
-                        item.plot_width = plot_width
-                    if plot_height is not None:
-                        item.plot_height = plot_height
+                if width is not None:
+                    item.width = width
+                if height is not None:
+                    item.height = height
 
                 if sizing_mode is not None and _has_auto_sizing(item):
                     item.sizing_mode = sizing_mode
@@ -315,7 +303,21 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
     elif toolbar_location == 'right':
         return Row(children=[grid, toolbar], sizing_mode=sizing_mode)
 
-def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
+# XXX https://github.com/python/mypy/issues/731
+@overload
+def grid(children: List[LayoutDOM | List[LayoutDOM | List[Any]]], *, sizing_mode: SizingModeType | None = ...) -> GridBox: ...
+@overload
+def grid(children: Row | Column, *, sizing_mode: SizingModeType | None = ...) -> GridBox: ...
+@overload
+def grid(children: List[LayoutDOM | None], *, sizing_mode: SizingModeType | None = ..., nrows: int) -> GridBox: ...
+@overload
+def grid(children: List[LayoutDOM | None], *, sizing_mode: SizingModeType | None = ..., ncols: int) -> GridBox: ...
+@overload
+def grid(children: List[LayoutDOM | None], *, sizing_mode: SizingModeType | None = ..., nrows: int, ncols: int) -> GridBox: ...
+@overload
+def grid(children: str, *, sizing_mode: SizingModeType | None = ...) -> GridBox: ...
+
+def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: int | None = None, ncols: int | None = None) -> GridBox:
     """
     Conveniently create a grid of layoutable objects.
 
@@ -364,27 +366,43 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
        ])
 
     """
-    row = namedtuple("row", ["children"])
-    col = namedtuple("col", ["children"])
+    @dataclass
+    class row:
+        children: List[row | col]
+    @dataclass
+    class col:
+        children: List[row | col]
 
-    def flatten(layout):
-        Item = namedtuple("Item", ["layout", "r0", "c0", "r1", "c1"])
-        Grid = namedtuple("Grid", ["nrows", "ncols", "items"])
+    @dataclass
+    class Item:
+        layout: LayoutDOM
+        r0: int
+        c0: int
+        r1: int
+        c1: int
 
-        def gcd(a, b):
+    @dataclass
+    class Grid:
+        nrows: int
+        ncols: int
+        items: List[Item]
+
+    def flatten(layout) -> GridBox:
+        def gcd(a: int, b: int) -> int:
             a, b = abs(a), abs(b)
             while b != 0:
                 a, b = b, a % b
             return a
 
-        def lcm(a, *rest):
+        def lcm(a: int, *rest: int) -> int:
             for b in rest:
                 a = (a*b) // gcd(a, b)
             return a
 
-        nonempty = lambda child: child.nrows != 0 and child.ncols != 0
+        def nonempty(child: Grid) -> bool:
+            return child.nrows != 0 and child.ncols != 0
 
-        def _flatten(layout):
+        def _flatten(layout: row | col | LayoutDOM) -> Grid:
             if isinstance(layout, row):
                 children = list(filter(nonempty, map(_flatten, layout.children)))
                 if not children:
@@ -393,13 +411,13 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
                 nrows = lcm(*[ child.nrows for child in children ])
                 ncols = sum(child.ncols for child in children)
 
-                items = []
+                items: List[Item] = []
                 offset = 0
                 for child in children:
                     factor = nrows//child.nrows
 
-                    for (layout, r0, c0, r1, c1) in child.items:
-                        items.append((layout, factor*r0, c0 + offset, factor*r1, c1 + offset))
+                    for i in child.items:
+                        items.append(Item(i.layout, factor*i.r0, i.c0 + offset, factor*i.r1, i.c1 + offset))
 
                     offset += child.ncols
 
@@ -417,8 +435,8 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
                 for child in children:
                     factor = ncols//child.ncols
 
-                    for (layout, r0, c0, r1, c1) in child.items:
-                        items.append((layout, r0 + offset, factor*c0, r1 + offset, factor*c1))
+                    for i in child.items:
+                        items.append(Item(i.layout, i.r0 + offset, factor*i.c0, i.r1 + offset, factor*i.c1))
 
                     offset += child.nrows
 
@@ -429,12 +447,13 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
         grid = _flatten(layout)
 
         children = []
-        for (layout, r0, c0, r1, c1) in grid.items:
-            if layout is not None:
-                children.append((layout, r0, c0, r1 - r0, c1 - c0))
+        for i in grid.items:
+            if i.layout is not None:
+                children.append((i.layout, i.r0, i.c0, i.r1 - i.r0, i.c1 - i.c0))
 
         return GridBox(children=children)
 
+    layout: row | col
     if isinstance(children, list):
         if nrows is not None or ncols is not None:
             N = len(children)
@@ -442,7 +461,7 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
                 ncols = math.ceil(N/nrows)
             layout = col([ row(children[i:i+ncols]) for i in range(0, N, ncols) ])
         else:
-            def traverse(children, level=0):
+            def traverse(children: List[LayoutDOM], level: int = 0):
                 if isinstance(children, list):
                     container = col if level % 2 == 0 else row
                     return container([ traverse(child, level+1) for child in children ])
@@ -451,10 +470,10 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
 
             layout = traverse(children)
     elif isinstance(children, LayoutDOM):
-        def is_usable(child):
+        def is_usable(child: LayoutDOM) -> bool:
             return _has_auto_sizing(child) and child.spacing == 0
 
-        def traverse(item, top_level=False):
+        def traverse(item: LayoutDOM, top_level: bool = False):
             if isinstance(item, Box) and (top_level or is_usable(item)):
                 container = col if isinstance(item, Column) else row
                 return container(list(map(traverse, item.children)))
@@ -483,92 +502,30 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
 # Dev API
 #-----------------------------------------------------------------------------
 
-class GridSpec:
-    """ Simplifies grid layout specification. """
-
-    def __init__(self, nrows, ncols):
-        self.nrows = nrows
-        self.ncols = ncols
-        self._arrangement = {}
-
-        from .util.deprecation import deprecated
-        deprecated("'GridSpec' is deprecated and will be removed in Bokeh 3.0")
-
-    def __setitem__(self, key, obj):
-        k1, k2 = key
-
-        if isinstance(k1, slice):
-            row1, row2, _ = k1.indices(self.nrows)
-        else:
-            if k1 < 0:
-                k1 += self.nrows
-            if k1 >= self.nrows or k1 < 0:
-                raise IndexError("index out of range")
-            row1, row2 = k1, None
-
-        if isinstance(k2, slice):
-            col1, col2, _ = k2.indices(self.ncols)
-        else:
-            if k2 < 0:
-                k2 += self.ncols
-            if k2 >= self.ncols or k2 < 0:
-                raise IndexError("index out of range")
-            col1, col2 = k2, None
-
-        # gs[row, col]             = obj
-        # gs[row1:row2, col]       = [...]
-        # gs[row, col1:col2]       = [...]
-        # gs[row1:row2, col1:col2] = [[...], ...]
-
-        def get_or_else(fn, default):
-            try:
-                return fn()
-            except IndexError:
-                return default
-
-        if row2 is None and col2 is None:
-            self._arrangement[row1, col1] = obj
-        elif row2 is None:
-            for col in range(col1, col2):
-                self._arrangement[row1, col] = get_or_else(lambda: obj[col-col1], None) # lgtm [py/loop-variable-capture]
-        elif col2 is None:
-            for row in range(row1, row2):
-                self._arrangement[row, col1] = get_or_else(lambda: obj[row-row1], None) # lgtm [py/loop-variable-capture]
-        else:
-            for row, col in zip(range(row1, row2), range(col1, col2)):
-                self._arrangement[row, col] = get_or_else(lambda: obj[row-row1][col-col1], None) # lgtm [py/loop-variable-capture]
-
-    def __iter__(self):
-        array = [ [ None ]*self.ncols for _ in range(0, self.nrows) ]
-        for (row, col), obj in self._arrangement.items():
-            array[row][col] = obj
-        return iter(array)
-
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
-def _has_auto_sizing(item):
+def _has_auto_sizing(item: LayoutDOM) -> bool:
     return item.sizing_mode is None and item.width_policy == "auto" and item.height_policy == "auto"
 
-def _parse_children_arg(*args, **kwargs):
-    children = kwargs.get('children')
-
+L = TypeVar("L", bound=LayoutDOM)
+def _parse_children_arg(*args: L | List[L], children: List[L] | None = None) -> List[L]:
     # Set-up Children from args or kwargs
     if len(args) > 0 and children is not None:
         raise ValueError("'children' keyword cannot be used with positional arguments")
 
     if not children:
-        if len(args) == 1 and isinstance(args[0], list):
-            children = args[0]
-        elif len(args) == 1 and isinstance(args[0], GridSpec):
-            children = args[0]
-        else:
-            children = list(args)
+        if len(args) == 1:
+            [arg] = args
+            if isinstance(arg, list):
+                return arg
+
+        return list(args)
 
     return children
 
-def _handle_child_sizing(children, sizing_mode, *, widget):
+def _handle_child_sizing(children: List[LayoutDOM], sizing_mode: SizingModeType | None, *, widget: str) -> None:
     for item in children:
         if not isinstance(item, LayoutDOM):
             raise ValueError(f"Only LayoutDOM items can be inserted into a {widget}. Tried to insert: {item} of type {type(item)}")
@@ -576,12 +533,12 @@ def _handle_child_sizing(children, sizing_mode, *, widget):
             item.sizing_mode = sizing_mode
 
 
-def _create_grid(iterable, sizing_mode, layer=0, **kwargs):
+def _create_grid(iterable: Iterable[LayoutDOM | List[LayoutDOM]], sizing_mode: SizingModeType | None, layer: int = 0, **kwargs) -> Row | Column:
     """Recursively create grid from input lists."""
-    return_list = []
+    return_list: List[LayoutDOM] = []
     for item in iterable:
         if isinstance(item, list):
-            return_list.append(_create_grid(item, sizing_mode, layer+1))
+            return_list.append(_create_grid(item, sizing_mode, layer + 1))
         elif isinstance(item, LayoutDOM):
             if sizing_mode is not None and _has_auto_sizing(item):
                 item.sizing_mode = sizing_mode
@@ -593,14 +550,16 @@ def _create_grid(iterable, sizing_mode, layer=0, **kwargs):
             )
     if layer % 2 == 0:
         return column(children=return_list, sizing_mode=sizing_mode, **kwargs)
-    return row(children=return_list, sizing_mode=sizing_mode, **kwargs)
+    else:
+        return row(children=return_list, sizing_mode=sizing_mode, **kwargs)
 
+T = TypeVar("T")
 
-def _chunks(l, ncols):
+def _chunks(l: Sequence[T], ncols: int) -> Iterator[Sequence[T]]:
     """Yield successive n-sized chunks from list, l."""
     assert isinstance(ncols, int), "ncols must be an integer"
     for i in range(0, len(l), ncols):
-        yield l[i: i+ncols]
+        yield l[i: i + ncols]
 
 #-----------------------------------------------------------------------------
 # Code

@@ -12,12 +12,12 @@ import choices_css from "styles/widgets/choices.css"
 import {InputWidget, InputWidgetView} from "./input_widget"
 
 export class MultiChoiceView extends InputWidgetView {
-  model: MultiChoice
+  override model: MultiChoice
 
-  protected input_el: HTMLSelectElement
+  protected override input_el: HTMLSelectElement
   protected choice_el: Choices
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.disabled.change, () => this.set_disabled())
 
@@ -25,16 +25,16 @@ export class MultiChoiceView extends InputWidgetView {
     this.on_change([value, max_items, option_limit, delete_button, placeholder, options, name, title], () => this.render())
   }
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), choices_css]
   }
 
-  _update_layout(): void {
+  override _update_layout(): void {
     this.layout = new CachedVariadicBox(this.el)
     this.layout.set_sizing(this.box_sizing())
   }
 
-  render(): void {
+  override render(): void {
     super.render()
 
     this.input_el = select({
@@ -63,6 +63,7 @@ export class MultiChoiceView extends InputWidgetView {
     const options: Partial<ChoicesNS.Options> = {
       choices,
       duplicateItemsAllowed: false,
+      shouldSort: false,
       removeItemButton: this.model.delete_button,
       classNames: {item, button} as ChoicesNS.ClassNames, // XXX: bad typings, missing Partial<>
     }
@@ -91,7 +92,7 @@ export class MultiChoiceView extends InputWidgetView {
       this.choice_el.enable()
   }
 
-  change_input(): void {
+  override change_input(): void {
     const is_focused = this.el.querySelector("select:focus") != null
 
     const values = []
@@ -128,14 +129,14 @@ export namespace MultiChoice {
 export interface MultiChoice extends MultiChoice.Attrs {}
 
 export class MultiChoice extends InputWidget {
-  properties: MultiChoice.Props
-  __view_type__: MultiChoiceView
+  override properties: MultiChoice.Props
+  override __view_type__: MultiChoiceView
 
   constructor(attrs?: Partial<MultiChoice.Attrs>) {
     super(attrs)
   }
 
-  static init_MultiChoice(): void {
+  static {
     this.prototype.default_view = MultiChoiceView
 
     this.define<MultiChoice.Props>(({Boolean, Int, String, Array, Tuple, Or, Nullable}) => ({

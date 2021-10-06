@@ -12,6 +12,7 @@ import {ContinuousColorMapper} from "../mappers/continuous_color_mapper"
 import {LinearColorMapper, LogColorMapper, ScanningColorMapper, CategoricalColorMapper} from "../mappers"
 import {Scale, LinearScale, LogScale, LinearInterpolationScale, CategoricalScale} from "../scales"
 import {Range, Range1d, FactorRange} from "../ranges"
+import {BaseText} from "../text/base_text"
 
 import {Anchor, Orientation} from "core/enums"
 import * as visuals from "core/visuals"
@@ -34,9 +35,9 @@ const MAJOR_DIM_MIN_SCALAR = 0.3
 const MAJOR_DIM_MAX_SCALAR = 0.8
 
 export class ColorBarView extends AnnotationView {
-  model: ColorBar
-  visuals: ColorBar.Visuals
-  layout: Layoutable
+  override model: ColorBar
+  override visuals: ColorBar.Visuals
+  override layout: Layoutable
 
   protected _image: HTMLCanvasElement
 
@@ -63,7 +64,7 @@ export class ColorBarView extends AnnotationView {
     return this._orientation
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     const {ticker, formatter, color_mapper} = this.model
@@ -168,7 +169,7 @@ export class ColorBarView extends AnnotationView {
     }
   }
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
     const self = this
@@ -195,13 +196,13 @@ export class ColorBarView extends AnnotationView {
       this._title_view = await build_view(this._title, {parent})
   }
 
-  remove(): void {
+  override remove(): void {
     this._title_view?.remove()
     this._axis_view.remove()
     super.remove()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     // TODO: this.connect(this.model.change, () => this.plot_view.invalidate_layout())
     this.connect(this._ticker.change, () => this.request_render())
@@ -260,7 +261,7 @@ export class ColorBarView extends AnnotationView {
     image_ctx.putImageData(image_data, 0, 0)
   }
 
-  update_layout(): void {
+  override update_layout(): void {
     const {location, width: w, height: h, padding, margin} = this.model
 
     const [valign, halign] = (() => {
@@ -351,10 +352,66 @@ export class ColorBarView extends AnnotationView {
           return {left, right: margin, top: margin, bottom}
         }
       } else {
-        if (isString(location))
+        /**
+         * XXX: alignment is broken in Grid, which is used to govern positioning of a ColorBar
+         * in side panels. Earlier attempts at fixing this failed and resulted in a multitude
+         * or regressions in various places in the layout. So instead of this, let's assume that
+         * the positioning is always at "start" regardless of configuration, and fix this here
+         * by manually computing "center" and "end" alignment.
+         */
+        if (isString(location)) {
+          layout.fixup_geometry = (outer, inner) => {
+            const origin = outer
+
+            if (orientation == "horizontal") {
+              const {top, width, height} = outer
+              if (halign == "end") {
+                const {right} = this.layout.bbox
+                outer = new BBox({right, top, width, height})
+              } else if (halign == "center") {
+                const {hcenter} = this.layout.bbox
+                outer = new BBox({hcenter: Math.round(hcenter), top, width, height})
+              }
+            } else {
+              const {left, width, height} = outer
+              if (valign == "end") {
+                const {bottom} = this.layout.bbox
+                outer = new BBox({left, bottom, width, height})
+              } else if (valign == "center") {
+                const {vcenter} = this.layout.bbox
+                outer = new BBox({left, vcenter: Math.round(vcenter), width, height})
+              }
+            }
+
+            if (inner != null) {
+              const dh = outer.left - origin.left
+              const dv = outer.top - origin.top
+              const {left, top, width, height} = inner
+              inner = new BBox({left: left + dh, top: top + dv, width, height})
+            }
+
+            return [outer, inner]
+          }
           return undefined
-        else {
+        } else {
           const [left, bottom] = location
+          layout.fixup_geometry = (outer, inner) => {
+            const origin = outer
+
+            const grid = this.layout.bbox
+            const {width, height} = outer
+            outer = new BBox({left: grid.left + left, bottom: grid.bottom - bottom, width, height})
+
+            if (inner != null) {
+              const dh = outer.left - origin.left
+              const dv = outer.top - origin.top
+              const {left, top, width, height} = inner
+              inner = new BBox({left: left + dh, top: top + dv, width, height})
+            }
+
+            return [outer, inner]
+          }
+
           return {left, right: 0, top: 0, bottom}
         }
       }
@@ -518,7 +575,7 @@ export class ColorBarView extends AnnotationView {
     ctx.restore()
   }
 
-  serializable_state(): SerializableState {
+  override serializable_state(): SerializableState {
     const {children = [], ...state} = super.serializable_state()
     if (this._title_view != null)
       children.push(this._title_view.serializable_state())
@@ -540,7 +597,7 @@ export namespace ColorBar {
     scale_alpha: p.Property<number>
     ticker: p.Property<Ticker | "auto">
     formatter: p.Property<TickFormatter | "auto">
-    major_label_overrides: p.Property<{[key: string]: string}>
+    major_label_overrides: p.Property<{[key: string]: string | BaseText}>
     major_label_policy: p.Property<LabelingPolicy>
     color_mapper: p.Property<ColorMapper>
     label_standoff: p.Property<number>
@@ -575,14 +632,14 @@ export namespace ColorBar {
 export interface ColorBar extends ColorBar.Attrs {}
 
 export class ColorBar extends Annotation {
-  properties: ColorBar.Props
-  __view_type__: ColorBarView
+  override properties: ColorBar.Props
+  override __view_type__: ColorBarView
 
   constructor(attrs?: Partial<ColorBar.Attrs>) {
     super(attrs)
   }
 
-  static init_ColorBar(): void {
+  static {
     this.prototype.default_view = ColorBarView
 
     this.mixins<ColorBar.Mixins>([
@@ -605,7 +662,7 @@ export class ColorBar extends Annotation {
       scale_alpha:           [ Alpha, 1.0 ],
       ticker:                [ Or(Ref(Ticker), Auto), "auto" ],
       formatter:             [ Or(Ref(TickFormatter), Auto), "auto" ],
-      major_label_overrides: [ Dict(String), {} ],
+      major_label_overrides: [ Dict(Or(String, Ref(BaseText))), {} ],
       major_label_policy:    [ Ref(LabelingPolicy), () => new NoOverlap() ],
       color_mapper:          [ Ref(ColorMapper) ],
       label_standoff:        [ Number, 5 ],

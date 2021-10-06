@@ -3,7 +3,7 @@ import {expect} from "assertions"
 import {create_glyph_view} from "./_util"
 import {ImageURL} from "@bokehjs/models/glyphs/image_url"
 import {ColumnDataSource} from "@bokehjs/models/sources"
-import {ScreenArray, Indices} from '@bokehjs/core/types'
+import {ScreenArray, Indices} from "@bokehjs/core/types"
 
 describe("ImageURL module", () => {
 
@@ -13,7 +13,7 @@ describe("ImageURL module", () => {
       const image_url = new ImageURL()
 
       it("should have global_alpha=1.0", () => {
-        expect(image_url.global_alpha).to.be.equal(1.0)
+        expect(image_url.global_alpha).to.be.equal({value: 1.0})
       })
 
       it("should have retry_attempts=0", () => {

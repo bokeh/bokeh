@@ -27,7 +27,7 @@ export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loa
 }
 
 export class TileRendererView extends RendererView {
-  model: TileRenderer
+  override model: TileRenderer
 
   protected attribution_el?: HTMLElement
 
@@ -41,18 +41,24 @@ export class TileRendererView extends RendererView {
   protected render_timer?: number
   protected prefetch_timer?: number
 
-  initialize(): void {
+  override initialize(): void {
     this._tiles = []
     super.initialize()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
     this.connect(this.model.tile_source.change, () => this.request_render())
   }
 
-  styles(): string[] {
+  override remove(): void {
+    if (this.attribution_el != null)
+      removeElement(this.attribution_el)
+    super.remove()
+  }
+
+  override styles(): string[] {
     return [...super.styles(), tiles_css]
   }
 
@@ -103,14 +109,14 @@ export class TileRendererView extends RendererView {
           position: "absolute",
           right: `${offset_right}px`,
           bottom: `${offset_bottom}px`,
-          'max-width': `${max_width - 4 /*padding*/}px`,
+          "max-width": `${max_width - 4 /*padding*/}px`,
           padding: "2px",
-          'background-color': 'rgba(255,255,255,0.5)',
-          'font-size': '9px',
-          'line-height': '1.05',
-          'white-space': 'nowrap',
-          overflow: 'hidden',
-          'text-overflow': 'ellipsis',
+          "background-color": "rgba(255,255,255,0.5)",
+          "font-size": "9px",
+          "line-height": "1.05",
+          "white-space": "nowrap",
+          overflow: "hidden",
+          "text-overflow": "ellipsis",
         },
       })
 
@@ -141,14 +147,21 @@ export class TileRendererView extends RendererView {
   }
 
   protected _create_tile(x: number, y: number, z: number, bounds: Bounds, cache_only: boolean = false): void {
+    const quadkey = this.model.tile_source.tile_xyz_to_quadkey(x, y, z)
+    const cache_key = this.model.tile_source.tile_xyz_to_key(x, y, z)
+
+    if (this.model.tile_source.tiles.has(cache_key))
+      return
+
     const [nx, ny, nz] = this.model.tile_source.normalize_xyz(x, y, z)
+    const src = this.model.tile_source.get_image_url(nx, ny, nz)
 
     const tile: TileData = {
       img: undefined,
       tile_coords: [x, y, z],
       normalized_coords: [nx, ny, nz],
-      quadkey: this.model.tile_source.tile_xyz_to_quadkey(x, y, z),
-      cache_key: this.model.tile_source.tile_xyz_to_key(x, y, z),
+      quadkey,
+      cache_key,
       bounds,
       loaded: false,
       finished: false,
@@ -156,7 +169,9 @@ export class TileRendererView extends RendererView {
       y_coord: bounds[3],
     }
 
-    const src = this.model.tile_source.get_image_url(nx, ny, nz)
+    this.model.tile_source.tiles.set(cache_key, tile)
+    this._tiles.push(tile)
+
     new ImageLoader(src, {
       loaded: (img: Image) => {
         Object.assign(tile, {img, loaded: true})
@@ -171,9 +186,6 @@ export class TileRendererView extends RendererView {
         tile.finished = true
       },
     })
-
-    this.model.tile_source.tiles.set(tile.cache_key, tile)
-    this._tiles.push(tile)
   }
 
   protected _enforce_aspect_ratio(): void {
@@ -190,19 +202,16 @@ export class TileRendererView extends RendererView {
     }
   }
 
-  has_finished(): boolean {
-    if (!super.has_finished()) {
+  override has_finished(): boolean {
+    if (!super.has_finished())
       return false
-    }
 
-    if (this._tiles.length === 0) {
+    if (this._tiles.length == 0)
       return false
-    }
 
     for (const tile of this._tiles) {
-      if (!tile.finished) {
+      if (!tile.finished)
         return false
-      }
     }
 
     return true
@@ -318,7 +327,7 @@ export class TileRendererView extends RendererView {
     }
 
     if (snap_back) {
-      this.x_range.setv({x_range: {start: extent[0], end: extent[2]}})
+      this.x_range.setv({start: extent[0], end: extent[2]})
       this.y_range.setv({start: extent[1], end: extent[3]})
     }
 
@@ -389,14 +398,14 @@ export namespace TileRenderer {
 export interface TileRenderer extends TileRenderer.Attrs {}
 
 export class TileRenderer extends Renderer {
-  properties: TileRenderer.Props
-  __view_type__: TileRendererView
+  override properties: TileRenderer.Props
+  override __view_type__: TileRendererView
 
   constructor(attrs?: Partial<TileRenderer.Attrs>) {
     super(attrs)
   }
 
-  static init_TileRenderer(): void {
+  static {
     this.prototype.default_view = TileRendererView
 
     this.define<TileRenderer.Props>(({Boolean, Number, Ref}) => ({

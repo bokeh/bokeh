@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -21,7 +23,7 @@ import logging
 from tornado.websocket import WebSocketClosedError
 
 # Bokeh imports
-from bokeh.server.views.auth_mixin import AuthMixin
+from bokeh.server.views.auth_request_handler import AuthRequestHandler
 from bokeh.util.logconfig import basicConfig
 
 # Module under test
@@ -38,7 +40,7 @@ basicConfig()
 # General API
 #-----------------------------------------------------------------------------
 
-async def test_send_message_raises(caplog) -> None:
+async def test_send_message_raises(caplog: pytest.LogCaptureFixture) -> None:
     class ExcMessage:
         def send(self, handler):
             raise WebSocketClosedError()
@@ -50,8 +52,8 @@ async def test_send_message_raises(caplog) -> None:
         assert caplog.text.endswith("Failed sending message as connection was closed\n")
         assert ret is None
 
-def test_uses_auth_mixin() -> None:
-    assert issubclass(WSHandler, AuthMixin)
+def test_uses_auth_request_handler() -> None:
+    assert issubclass(WSHandler, AuthRequestHandler)
 
 #-----------------------------------------------------------------------------
 # Dev API

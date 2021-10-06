@@ -50,16 +50,14 @@ guide.
 Resizing your plot
 ------------------
 
-Bokeh's :class:`~bokeh.models.plots.Plot` objects have various attributes that
-influence the way your plot looks.
+Bokeh's |Plot| objects have various attributes that influence the way your plot
+looks.
 
 Setting width and height
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-To set the size of your plot, use the attributes
-:class:`~bokeh.models.plots.Plot.plot_height` and
-:class:`~bokeh.models.plots.Plot.plot_width` when calling the
-:func:`~bokeh.plotting.figure` function:
+To set the size of your plot, use the attributes ``width`` and ``height`` when
+calling the |figure| function:
 
 .. literalinclude:: examples/first_steps_4_plot_size.py
    :language: python
@@ -95,7 +93,7 @@ attribute :class:`~bokeh.models.plots.Plot.sizing_mode`:
 .. seealso::
     To learn more about how to control the size of plots, see
     :ref:`userguide_styling_plots` in the user guide and the entry for
-    :class:`~bokeh.models.plots.Plot` in the reference guide.
+    |Plot| in the reference guide.
 
     For more information on responsive sizing, see
     :ref:`userguide_layout_sizing_mode` in the user guide and
@@ -137,9 +135,8 @@ a y-axis that ranges from a little below 2 to a little above 17.
 
 To define the range for your axes manually, use the
 :func:`~bokeh.models.plots.Plot.y_range` function or the
-:func:`~bokeh.models.plots.Plot.y_range` properties of your
-:class:`~bokeh.models.plots.Plot` object when you call the
-:func:`~bokeh.plotting.figure` function:
+:func:`~bokeh.models.plots.Plot.y_range` properties of your |Plot| object when
+you call the |figure| function:
 
 .. literalinclude:: examples/first_steps_4_plot_axis_ranges.py
    :language: python
@@ -162,7 +159,7 @@ To display dollar amounts instead of just numbers on your y-axis, use the
 :class:`~bokeh.models.formatters.NumeralTickFormatter`:
 
 First, import the :class:`~bokeh.models.formatters.NumeralTickFormatter` from
-Bokeh's :class:`~bokeh.models` collection:
+|bokeh.models|:
 
 .. code-block:: python
 
@@ -176,7 +173,7 @@ Then, after creating your plot with the ``figure()`` function, assign the
     p.yaxis[0].formatter = NumeralTickFormatter(format="$0.00")
 
 The :class:`~bokeh.models.formatters.NumeralTickFormatter` supports different
-formats, including ``"$0.00"`` to generate values such as ``"$7,42"``.
+formats, including ``"$0.00"`` to generate values such as ``"$7.42"``.
 
 This is what the completed code looks like:
 
@@ -222,7 +219,7 @@ To format the ticks of a ``DatetimeAxis``, use the
 
 .. seealso::
     See :ref:`userguide_styling_axes` in the user guide for more information on
-    customizing axes. The entry for :class:`~bokeh.models.axes.Axis` in the
+    customizing axes. The entry for :class:`~bokeh.models.Axis` in the
     reference guide contains a list of all available attributes you can use to
     customize the axes of your plot.
 
@@ -234,8 +231,7 @@ Customizing the grid
 To change the appearance of the grid, set the various properties of the
 :func:`~bokeh.models.plots.Plot.xgrid`,
 :func:`~bokeh.models.plots.Plot.ygrid`, and
-:func:`~bokeh.models.plots.Plot.grid` methods of your
-:class:`~bokeh.models.plots.Plot` object.
+:func:`~bokeh.models.plots.Plot.grid` methods of your |Plot| object.
 
 Styling lines
 ~~~~~~~~~~~~~
@@ -280,14 +276,13 @@ Setting background colors
 You have several options to :ref:`define colors <userguide_styling_colors>` in
 Bokeh. For example:
 
-* Use one of the named CSS colors (for example, ``"firebrick"``)
+* Use one of the |named CSS colors| (for example, ``"firebrick"``)
 * Use hexadecimal values, prefaced with a ``#`` (for example ``"#00ff00"``)
 * Use a 3-tuple for RGB colors (for example, ``(100, 100, 255)``
 * Use a 4-tuple for RGBA colors (for example ``(100, 100, 255, 0.5)``)
 
 To change the appearance of the plane that Bokeh draws your plot elements on,
-use the various ``fill_color`` attributes of your
-:class:`~bokeh.models.plots.Plot` object:
+use the various ``fill_color`` attributes of your |Plot| object:
 
 .. literalinclude:: examples/first_steps_4_background.py
    :language: python
@@ -297,8 +292,8 @@ use the various ``fill_color`` attributes of your
     :source-position: none
 
 .. seealso::
-    For more information on colors in Bokeh, see the entry for
-    :class:`~bokeh.core.properties.Color` in the reference guide.
+    For more information on colors in Bokeh, see the entry for |Color| in the
+    reference guide.
 
 .. _first_steps_4_toolbar:
 
@@ -375,7 +370,7 @@ For example:
     from bokeh.models.tools import BoxZoomTool, ResetTool
 
 Next, define which tools to use when creating a new figure by passing the
-``tools`` attribute to the :func:`~bokeh.plotting.figure` function.
+``tools`` attribute to the |figure| function.
 
 The ``tools`` attribute accepts a list of tools. This example enables only the
 :class:`~bokeh.models.tools.BoxZoomTool` and
@@ -436,10 +431,10 @@ There are several ways to enable tooltips in Bokeh. This is the quickest:
    :class:`bokeh.models.tools`.
 
 2. Include ``HoverTool()`` in the list passed to the ``tools`` argument when
-   calling the :func:`~bokeh.plotting.figure` function.
+   calling the |figure| function.
 
 3. Include the :class:`~bokeh.models.tools.HoverTool.tooltips` argument when
-   calling the :func:`~bokeh.plotting.figure` function.
+   calling the |figure| function.
 
 The ``tooltips`` argument accepts a string with a special syntax. Use the "@"
 symbol to include the name of the source for the data you want Bokeh to display.
@@ -458,16 +453,3 @@ This is what the code looks like:
     create tooltips. See :ref:`userguide_tools_basic_tooltips` for more details.
     More information is also available at the entry for
     :class:`~bokeh.models.tools.HoverTool` in the reference guide.
-
-.. panels::
-    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
-
-    .. link-button:: first_steps_3.html
-        :text: Previous
-        :classes: stretched-link
-
-    ---
-    :card: + text-right
-    .. link-button:: first_steps_5.html
-        :text: Next
-        :classes: stretched-link

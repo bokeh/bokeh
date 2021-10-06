@@ -162,7 +162,7 @@ export async function run(task: Task): Promise<Result> {
       try {
         const value = await task.fn(...args)
         result = value === undefined ? success(value) : value
-      } catch (error: unknown) {
+      } catch (error) {
         result = failure(error instanceof Error ? error : new Error(`${error}`))
       }
       const end = Date.now()
@@ -214,7 +214,7 @@ export async function run(task: Task): Promise<Result> {
   }
 
   const result = await _run(task, false)
-  if (result.is_Success && failures.length != 0)
+  if (result.is_Success() && failures.length != 0)
     return fail(failures)
   else
     return result

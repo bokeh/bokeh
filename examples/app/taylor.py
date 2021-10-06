@@ -5,7 +5,7 @@ from bokeh.core.properties import value
 from bokeh.io import curdoc
 from bokeh.layouts import column
 from bokeh.models import (ColumnDataSource, Legend, LegendItem,
-                          PreText, Slider, TextInput,)
+                          PreText, Slider, TextInput)
 from bokeh.plotting import figure
 
 xs = sy.Symbol('x')
@@ -28,7 +28,7 @@ def taylor(fx, xs, order, x_range=(0, 1), n=200):
 
 source = ColumnDataSource(data=dict(x=[], fy=[], ty=[]))
 
-p = figure(x_range=(-7,7), y_range=(-100, 200), plot_width=800, plot_height=400)
+p = figure(x_range=(-7,7), y_range=(-100, 200), width=800, height=400)
 line_f = p.line(x="x", y="fy", line_color="navy", line_width=2, source=source)
 line_t = p.line(x="x", y="ty", line_color="firebrick", line_width=2, source=source)
 
@@ -36,8 +36,8 @@ p.background_fill_color = "lightgrey"
 
 legend = Legend(location="top_right")
 legend.items = [
-    LegendItem(label=value("%s" % expr), renderers=[line_f]),
-    LegendItem(label=value("taylor(%s)" % expr), renderers=[line_t]),
+    LegendItem(label=value(f"{expr}"), renderers=[line_f]),
+    LegendItem(label=value(f"taylor({expr})"), renderers=[line_t]),
 ]
 p.add_layout(legend)
 
@@ -51,8 +51,8 @@ def update():
     x, fy, ty = taylor(expr, xs, slider.value, (-2*sy.pi, 2*sy.pi), 200)
 
     p.title.text = "Taylor (n=%d) expansion comparison for: %s" % (slider.value, expr)
-    legend.items[0].label = value("%s" % expr)
-    legend.items[1].label = value("taylor(%s)" % expr)
+    legend.items[0].label = value(f"{expr}")
+    legend.items[1].label = value(f"taylor({expr})")
     source.data = dict(x=x, fy=fy, ty=ty)
 
 slider = Slider(start=1, end=20, value=1, step=1, title="Order")

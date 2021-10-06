@@ -7,18 +7,22 @@ import {inplace} from "core/util/projections"
 import * as p from "core/properties"
 
 export abstract class DataAnnotationView extends AnnotationView {
-  model: DataAnnotation
+  override model: DataAnnotation
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     const update = () => {
       this.set_data(this.model.source)
-      this.request_render()
+      this._rerender()
     }
     this.connect(this.model.change, update)
     this.connect(this.model.source.streaming, update)
     this.connect(this.model.source.patching, update)
     this.connect(this.model.source.change, update)
+  }
+
+  protected _rerender(): void {
+    this.request_render()
   }
 
   set_data(source: ColumnarDataSource): void {
@@ -77,14 +81,14 @@ export namespace DataAnnotation {
 export interface DataAnnotation extends DataAnnotation.Attrs {}
 
 export abstract class DataAnnotation extends Annotation {
-  properties: DataAnnotation.Props
-  __view_type__: DataAnnotationView
+  override properties: DataAnnotation.Props
+  override __view_type__: DataAnnotationView
 
   constructor(attrs?: Partial<DataAnnotation.Attrs>) {
     super(attrs)
   }
 
-  static init_DataAnnotation(): void {
+  static {
     this.define<DataAnnotation.Props>(({Ref}) => ({
       source: [ Ref(ColumnarDataSource), () => new ColumnDataSource() ],
     }))

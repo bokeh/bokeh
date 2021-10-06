@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -39,6 +41,7 @@ __all__ = (
     'push_notebook',
     'output_file',
     'output_notebook',
+    'reset_output',
     'save',
     'show',
 )

@@ -15,17 +15,17 @@ import {MenuItem} from "core/util/menus"
 import {unreachable} from "core/util/assert"
 
 export abstract class SelectToolView extends GestureToolView {
-  model: SelectTool
+  override model: SelectTool
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.model.clear.connect(() => this._clear())
   }
 
   get computed_renderers(): DataRenderer[] {
-    const {renderers, names} = this.model
+    const {renderers} = this.model
     const all_renderers = this.plot_model.data_renderers
-    return compute_renderers(renderers, all_renderers, names)
+    return compute_renderers(renderers, all_renderers)
   }
 
   _computed_renderers_by_data_source(): Map<DataSource, DataRenderer[]> {
@@ -62,7 +62,7 @@ export abstract class SelectToolView extends GestureToolView {
       unreachable()
   }
 
-  _keyup(ev: KeyEvent): void {
+  override _keyup(ev: KeyEvent): void {
     if (ev.keyCode == Keys.Esc) {
       this._clear()
     }
@@ -143,8 +143,6 @@ export namespace SelectTool {
 
   export type Props = GestureTool.Props & {
     renderers: p.Property<DataRenderer[] | "auto">
-    /** @deprecated */
-    names: p.Property<string[]>
     mode: p.Property<SelectionMode>
   }
 }
@@ -152,8 +150,8 @@ export namespace SelectTool {
 export interface SelectTool extends SelectTool.Attrs {}
 
 export abstract class SelectTool extends GestureTool {
-  properties: SelectTool.Props
-  __view_type__: SelectToolView
+  override properties: SelectTool.Props
+  override __view_type__: SelectToolView
 
   clear: Signal0<this>
 
@@ -161,20 +159,19 @@ export abstract class SelectTool extends GestureTool {
     super(attrs)
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.clear = new Signal0(this, "clear")
   }
 
-  static init_SelectTool(): void {
-    this.define<SelectTool.Props>(({String, Array, Ref, Or, Auto}) => ({
+  static {
+    this.define<SelectTool.Props>(({Array, Ref, Or, Auto}) => ({
       renderers: [ Or(Array(Ref(DataRenderer)), Auto), "auto" ],
-      names:     [ Array(String), [] ],
       mode:      [ SelectionMode, "replace" ],
     }))
   }
 
-  get menu(): MenuItem[] | null {
+  override get menu(): MenuItem[] | null {
     return [
       {
         icon: "bk-tool-icon-replace-mode",

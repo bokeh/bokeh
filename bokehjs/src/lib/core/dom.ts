@@ -2,14 +2,19 @@ import {isBoolean, isString, isArray, isPlainObject} from "./util/types"
 import {entries} from "./util/object"
 import {Size, Box, Extents} from "./types"
 
-export type HTMLAttrs = {[name: string]: any}
+export type HTMLAttrs = {[name: string]: unknown}
 export type HTMLItem = string | Node | NodeList | HTMLCollection | null | undefined
 export type HTMLChild = HTMLItem | HTMLItem[]
 
 const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
-  return (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
+  return (attrs: HTMLAttrs | HTMLChild = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
     const element = document.createElement(tag)
     element.classList.add("bk")
+
+    if (!isPlainObject(attrs)) {
+      children = [attrs, ...children]
+      attrs = {}
+    }
 
     for (let [attr, value] of entries(attrs)) {
       if (value == null || isBoolean(value) && !value)
@@ -20,7 +25,7 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
           value = value.split(/\s+/)
 
         if (isArray(value)) {
-          for (const cls of (value as string[])) {
+          for (const cls of value as string[]) {
             if (cls != null)
               element.classList.add(cls)
           }
@@ -42,7 +47,7 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
         continue
       }
 
-      element.setAttribute(attr, value)
+      element.setAttribute(attr, value as string)
     }
 
     function append(child: HTMLItem) {
@@ -71,7 +76,7 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
 }
 
 export function createElement<T extends keyof HTMLElementTagNameMap>(
-    tag: T, attrs: HTMLAttrs, ...children: HTMLChild[]): HTMLElementTagNameMap[T] {
+    tag: T, attrs: HTMLAttrs | null, ...children: HTMLChild[]): HTMLElementTagNameMap[T] {
   return _createElement(tag)(attrs, ...children)
 }
 
@@ -93,6 +98,40 @@ export const
   optgroup = _createElement("optgroup"),
   textarea = _createElement("textarea")
 
+export function createSVGElement<T extends keyof SVGElementTagNameMap>(
+    tag: T, attrs: {[key: string]: string | false | null | undefined}, ...children: HTMLChild[]): SVGElementTagNameMap[T] {
+  const element = document.createElementNS("http://www.w3.org/2000/svg", tag)
+
+  for (const [attr, value] of entries(attrs ?? {})) {
+    if (value == null || isBoolean(value) && !value)
+      continue
+    element.setAttribute(attr, value as string)
+  }
+
+  function append(child: HTMLItem): void {
+    if (isString(child))
+      element.appendChild(document.createTextNode(child))
+    else if (child instanceof Node)
+      element.appendChild(child)
+    else if (child instanceof NodeList || child instanceof HTMLCollection) {
+      for (const el of child) {
+        element.appendChild(el)
+      }
+    } else if (child != null && child !== false)
+      throw new Error(`expected a DOM element, string, false or null, got ${JSON.stringify(child)}`)
+  }
+
+  for (const child of children) {
+    if (isArray(child)) {
+      for (const _child of child)
+        append(_child)
+    } else
+      append(child)
+  }
+
+  return element
+}
+
 export function nbsp(): Text {
   return document.createTextNode("\u00a0")
 }
@@ -102,7 +141,7 @@ export function append(element: HTMLElement, ...children: Element[]): void {
     element.appendChild(child)
 }
 
-export function remove(element: HTMLElement): void {
+export function remove(element: Node): void {
   const parent = element.parentNode
   if (parent != null) {
     parent.removeChild(element)
@@ -383,7 +422,7 @@ export class StyleSheet {
   private readonly style: HTMLStyleElement
   private readonly known: Set<string> = new Set()
 
-  constructor(readonly root: HTMLElement) {
+  constructor(readonly root: HTMLElement = document.head) {
     this.style = style({type: "text/css"})
     prepend(root, this.style)
   }
@@ -394,9 +433,13 @@ export class StyleSheet {
       this.known.add(css)
     }
   }
+
+  remove(): void {
+    remove(this.style)
+  }
 }
 
-export const stylesheet = new StyleSheet(document.head)
+export const stylesheet = new StyleSheet()
 
 export async function dom_ready(): Promise<void> {
   if (document.readyState == "loading") {

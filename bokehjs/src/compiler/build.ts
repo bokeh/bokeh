@@ -15,7 +15,7 @@ import * as tsconfig_json from "./tsconfig.ext.json"
 import chalk from "chalk"
 const {cyan, magenta, red} = chalk
 
-import {CLIEngine} from "eslint"
+import {ESLint} from "eslint"
 
 import "@typescript-eslint/eslint-plugin"
 import "@typescript-eslint/parser"
@@ -29,7 +29,7 @@ export function isString(obj: unknown): obj is string {
 
 export function isObject(obj: unknown): obj is object {
   const tp = typeof obj
-  return tp === 'function' || tp === 'object' && !!obj
+  return tp === "function" || tp === "object" && !!obj
 }
 
 export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
@@ -69,28 +69,27 @@ function is_up_to_date(base_dir: Path, file: string, metadata: Metadata) {
 
 function needs_install(base_dir: Path, metadata: Metadata): string | null {
   if (!directory_exists(join(base_dir, "node_modules")))
-    return `New development environment.`
+    return "New development environment."
   else if (!is_up_to_date(base_dir, "package.json", metadata))
-    return `package.json has changed.`
+    return "package.json has changed."
   else if (!is_up_to_date(base_dir, "package-lock.json", metadata))
-    return `package-lock.json has changed.`
+    return "package-lock.json has changed."
   else
     return null
 }
 
-function lint(config_file: Path, paths: Path[]): boolean {
-  const engine = new CLIEngine({
-    configFile: config_file,
+async function lint(config_file: Path, paths: Path[]): Promise<boolean> {
+  const eslint = new ESLint({
     extensions: [".ts", ".js"],
+    overrideConfigFile: config_file,
   })
 
-  const report = engine.executeOnFiles(paths)
-  CLIEngine.outputFixes(report)
+  const results = await eslint.lintFiles(paths)
+  const ok = results.every(result => result.errorCount == 0)
 
-  const ok = report.errorCount == 0
   if (!ok) {
-    const formatter = engine.getFormatter()
-    const output = formatter(report.results)
+    const formatter = await eslint.loadFormatter("stylish")
+    const output = formatter.format(results)
 
     for (const line of output.trim().split("\n"))
       print(line)
@@ -144,7 +143,7 @@ export async function init(base_dir: Path, _bokehjs_dir: Path, base_setup: InitO
     keywords: [],
     repository: {},
     dependencies: {
-      bokehjs: `^${setup.bokehjs_version}`,
+      "@bokeh/bokehjs": `^${setup.bokehjs_version}`,
     },
     devDependencies: {},
   }
@@ -308,7 +307,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   const transformers = default_transformers(options)
   const host = compiler_host(new Map(), options, bokehjs_dir)
 
-  print(`Compiling TypeScript (${magenta(files.length + " files")})`)
+  print(`Compiling TypeScript (${magenta(`${files.length} files`)})`)
   const tsoutput = compile_files(files, options, transformers, host)
 
   if (is_failed(tsoutput)) {
@@ -320,7 +319,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
   const lint_config = join(base_dir, "eslint.json")
   if (file_exists(lint_config)) {
-    print(`Linting sources`)
+    print("Linting sources")
     lint(lint_config, files)
   }
 
@@ -347,7 +346,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   linker.store_cache()
   const outputs = [join(dist_dir, `${artifact}.js`)]
 
-  const min_js = (js: string) => rename(js, {ext: '.min.js'})
+  const min_js = (js: string) => rename(js, {ext: ".min.js"})
 
   const license = (() => {
     if (isPlainObject(bokeh_ext.license)) {
@@ -366,7 +365,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     return null
   })()
 
-  const license_text = license ? preludes.comment(license) + "\n" : ""
+  const license_text = license ? `${preludes.comment(license)}\n` : ""
 
   const prelude_base = `${license_text}${preludes.plugin_prelude()}`
   const prelude = {main: prelude_base, plugin: prelude_base}

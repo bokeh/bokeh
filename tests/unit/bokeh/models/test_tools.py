@@ -9,6 +9,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -17,6 +19,7 @@ import pytest ; pytest
 
 # External imports
 import mock
+from mock import MagicMock
 
 # Bokeh imports
 from bokeh.core.validation import check_integrity
@@ -105,7 +108,7 @@ def test_toolbar_box_properties() -> None:
 
 
 @mock.patch('bokeh.io.showing._show_with_state')
-def test_toolbar_box_with_no_children_does_not_raise_a_bokeh_warning(mock__show_with_state) -> None:
+def test_toolbar_box_with_no_children_does_not_raise_a_bokeh_warning(mock__show_with_state: MagicMock) -> None:
     # This is the normal way a ToolbarBox would be instantiated for example in
     # a gridplot. So we don't want to worry people with warnings. The children
     # for the ToolbarBox are created on the JS side.

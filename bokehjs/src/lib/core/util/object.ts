@@ -17,7 +17,7 @@ export function merge<T>(obj1: PlainObject<T[]>, obj2: PlainObject<T[]>): PlainO
 
   const keys = concat([Object.keys(obj1), Object.keys(obj2)])
 
-  for (const key of keys){
+  for (const key of keys) {
     const arr1 = hasOwnProperty.call(obj1, key) ? obj1[key] : []
     const arr2 = hasOwnProperty.call(obj2, key) ? obj2[key] : []
     result[key] = union(arr1, arr2)
@@ -30,7 +30,7 @@ export function size(obj: PlainObject): number {
   return Object.keys(obj).length
 }
 
-export function isEmpty(obj: PlainObject): boolean {
+export function is_empty(obj: PlainObject): boolean {
   return size(obj) == 0
 }
 

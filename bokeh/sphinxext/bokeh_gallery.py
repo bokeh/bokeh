@@ -11,6 +11,8 @@
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging  # isort:skip
 
 log = logging.getLogger(__name__)
@@ -22,13 +24,22 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import json
 import os
-from os.path import abspath, dirname, exists, getmtime, isdir, isfile, join
+from os.path import (
+    abspath,
+    dirname,
+    exists,
+    getmtime,
+    isdir,
+    isfile,
+    join,
+)
 
 # External imports
 from sphinx.errors import SphinxError
 from sphinx.util import ensuredir, status_iterator
 
 # Bokeh imports
+from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective
 from .templates import GALLERY_DETAIL, GALLERY_PAGE
 
@@ -56,9 +67,7 @@ class BokehGalleryDirective(BokehDirective):
     required_arguments = 1
 
     def run(self):
-        env = self.state.document.settings.env
-
-        docdir = dirname(env.doc2path(env.docname))
+        docdir = dirname(self.env.doc2path(self.env.docname))
 
         gallery_file = join(docdir, self.arguments[0])
 
@@ -71,7 +80,7 @@ class BokehGalleryDirective(BokehDirective):
 
         rst_text = GALLERY_PAGE.render(names=names)
 
-        return self._parse(rst_text, "<bokeh-gallery>")
+        return self.parse(rst_text, "<bokeh-gallery>")
 
 
 def config_inited_handler(app, config):
@@ -124,6 +133,7 @@ def setup(app):
     app.connect("config-inited", config_inited_handler)
     app.add_directive("bokeh-gallery", BokehGalleryDirective)
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

@@ -1,10 +1,9 @@
+import {DataType, TypedArray} from "../types"
 import {isObject, isArray} from "./types"
 import {unreachable} from "./assert"
 import {equals, Equatable, Comparator} from "./eq"
 import {serialize, Serializable, Serializer} from "../serializer"
 import {encode_NDArray} from "./serialization"
-
-export type DataType = "uint8" | "int8" | "uint16" | "int16" | "uint32" | "int32" | "float32" | "float64"
 
 const __ndarray__ = Symbol("__ndarray__")
 
@@ -193,12 +192,6 @@ export class Float64NDArray extends Float64Array implements NDArrayType {
   }
 }
 
-export type TypedArray =
-  Uint8Array   | Int8Array    |
-  Uint16Array  | Int16Array   |
-  Uint32Array  | Int32Array   |
-  Float32Array | Float64Array
-
 export type NDArray =
   Uint8NDArray   | Int8NDArray    |
   Uint16NDArray  | Int16NDArray   |
@@ -206,7 +199,7 @@ export type NDArray =
   Float32NDArray | Float64NDArray
 
 export function is_NDArray(v: unknown): v is NDArray {
-  return isObject(v) && (v as any)[__ndarray__] !== undefined
+  return isObject(v) && __ndarray__ in v
 }
 
 export type NDArrayTypes = {
@@ -220,19 +213,19 @@ export type NDArrayTypes = {
   "float64": {typed: Float64Array, ndarray: Float64NDArray}
 }
 
-export function ndarray(array: ArrayBuffer | number[], options: {dtype: "uint8", shape: [number]}): Uint8NDArray & Array1d
-export function ndarray(array: ArrayBuffer | number[], options: {dtype: "uint8", shape: [number, number]}): Uint8NDArray & Array2d
-export function ndarray(array: ArrayBuffer | number[], options: {dtype: "uint32", shape: [number]}): Uint32NDArray & Array1d
-export function ndarray(array: ArrayBuffer | number[], options: {dtype: "uint32", shape: [number, number]}): Uint32NDArray & Array2d
-export function ndarray(array: ArrayBuffer | number[], options: {dtype: "float32", shape: [number]}): Float32NDArray & Array1d
-export function ndarray(array: ArrayBuffer | number[], options: {dtype: "float32", shape: [number, number]}): Float32NDArray & Array2d
-export function ndarray(array: ArrayBuffer | number[], options: {dtype: "float64", shape: [number]}): Float64NDArray & Array1d
-export function ndarray(array: ArrayBuffer | number[], options: {dtype: "float64", shape: [number, number]}): Float64NDArray & Array2d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "uint8", shape: [number]}): Uint8NDArray & Array1d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "uint8", shape: [number, number]}): Uint8NDArray & Array2d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "uint32", shape: [number]}): Uint32NDArray & Array1d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "uint32", shape: [number, number]}): Uint32NDArray & Array2d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "float32", shape: [number]}): Float32NDArray & Array1d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "float32", shape: [number, number]}): Float32NDArray & Array2d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "float64", shape: [number]}): Float64NDArray & Array1d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "float64", shape: [number, number]}): Float64NDArray & Array2d
 
-export function ndarray<K extends DataType = "float64">(array: ArrayBuffer | number[], options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
+export function ndarray<K extends DataType = "float64">(array: ArrayBuffer | ArrayLike<number>, options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
 export function ndarray<K extends DataType>(array: NDArrayTypes[K]["typed"], options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
 
-export function ndarray(array: ArrayBuffer | TypedArray | number[], options: {dtype?: DataType, shape?: number[]} = {}): NDArray {
+export function ndarray(array: ArrayBuffer | TypedArray | ArrayLike<number>, options: {dtype?: DataType, shape?: number[]} = {}): NDArray {
   let {dtype} = options
   if (dtype == null) {
     if (array instanceof ArrayBuffer || isArray(array)) {

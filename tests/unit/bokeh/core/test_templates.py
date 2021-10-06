@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -48,7 +50,7 @@ def compute_sha256(data):
     sha256.update(data)
     return sha256.hexdigest()
 
-pinned_template_sha256 = "7ef90f10663ac0168363c95050a718ad5a0caa27a69145b2b4cdf916787a8554"
+pinned_template_sha256 = "5d26be35712286918e36cc469c9354076b3d555eb39799aa63d04473c0566c29"
 
 def test_autoload_template_has_changed() -> None:
     """This is not really a test but a reminder that if you change the

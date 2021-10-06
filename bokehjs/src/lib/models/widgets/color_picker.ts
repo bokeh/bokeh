@@ -2,21 +2,21 @@ import {InputWidget, InputWidgetView} from "models/widgets/input_widget"
 import {Color} from "core/types"
 import {input} from "core/dom"
 import * as p from "core/properties"
-import {color2css} from "core/util/color"
+import {color2hexrgb} from "core/util/color"
 
 import * as inputs from "styles/widgets/inputs.css"
 
 export class ColorPickerView extends InputWidgetView {
-  model: ColorPicker
+  override model: ColorPicker
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name ?? "")
-    this.connect(this.model.properties.color.change, () => this.input_el.value = color2css(this.model.color))
+    this.connect(this.model.properties.color.change, () => this.input_el.value = color2hexrgb(this.model.color))
     this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
   }
 
-  render(): void {
+  override render(): void {
     super.render()
 
     this.input_el = input({
@@ -30,7 +30,7 @@ export class ColorPickerView extends InputWidgetView {
     this.group_el.appendChild(this.input_el)
   }
 
-  change_input(): void {
+  override change_input(): void {
     this.model.color = this.input_el.value
     super.change_input()
   }
@@ -47,14 +47,14 @@ export namespace ColorPicker {
 export interface ColorPicker extends ColorPicker.Attrs {}
 
 export class ColorPicker extends InputWidget {
-  properties: ColorPicker.Props
-  __view_type__: ColorPickerView
+  override properties: ColorPicker.Props
+  override __view_type__: ColorPickerView
 
   constructor(attrs?: Partial<ColorPicker.Attrs>) {
     super(attrs)
   }
 
-  static init_ColorPicker(): void {
+  static {
     this.prototype.default_view = ColorPickerView
 
     this.define<ColorPicker.Props>(({Color}) => ({

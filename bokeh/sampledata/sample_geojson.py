@@ -4,18 +4,22 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide geojson of the UK NHS' England area teams.
+''' Provide geojson data for the UK NHS England area teams.
 
-The data was downloaded from https://github.com/JeniT/nhs-choices on
-November 14th, 2015. It is a geojson representation of open data available
-from NHS Choices. It was downloaded for demonstration purposes only, it is
-not kept up to date.
+Sourced from https://github.com/JeniT/nhs-choices with data licensed under the
+`Open Government Licence`_.
+
+A snapshot of data available from NHS Choices on November 14th, 2015.
+
+.. _Open Government Licence: http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/
 
 '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

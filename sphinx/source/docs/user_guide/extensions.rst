@@ -18,7 +18,12 @@ You can make and use custom extensions with standard releases and don't need to
 set up a development environment or build anything from source. This is the
 easiest way to get involved in Bokeh development. You can try new features and
 improved functionality without having to wait for the core team to implement
-them.
+them into Bokeh itself.
+
+.. note::
+   Extending Bokeh is an advanced feature. Some aspects of creating and using
+   extensions are still under active development and should be considered
+   experimental.
 
 .. _userguide_extensions_structure:
 
@@ -31,11 +36,10 @@ Python models
 ~~~~~~~~~~~~~
 
 For the most part, Python Bokeh models are completely declarative classes.
-You can create custom extensions by making a subclass from
-:class:`~bokeh.model.Model` and including special class attributes to declare
-the properties to be mirrored on the JavaScript side. For all of the available
-property types, see the :ref:`bokeh.core.properties` section of the reference
-guide.
+You can create custom extensions by making a subclass from |Model| and including
+special class attributes to declare the properties to be mirrored on the
+JavaScript side. For all of the available property types, see the
+:ref:`bokeh.core.properties` section of the |reference guide|.
 
 Here's a simple example that creates a custom readout for a slider:
 
@@ -123,7 +127,7 @@ the final BokehJS scripts.
       // serialization/deserialization of the model.
       static __name__ = "Surface3d"
 
-      static init_Custom(): void {
+      static {
         // If there is an associated view, this is typically boilerplate.
         this.prototype.default_view = CustomView
 
@@ -211,6 +215,29 @@ example:
     class Custom(Model):
 
         __implementation__ = JavaScript(" <JS code here> ")
+
+.. _userguide_extensions_specifying_default_values:
+
+Specifying default values
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If your properties have default values, you must provide the default value on
+both the Python side and on the JavaScript side. The values you provide should
+be the same on both sides. For efficiency reasons, Bokeh only transmits property
+values that a user has explicitly changed from their default values.
+
+As a concrete example, a boolean property ``flag`` with a default value of True
+should look like this on the Python side:
+
+.. code-block:: python
+
+    flag = Bool(default=True)
+
+And it should look like this on the Bokeh side:
+
+.. code-block:: typescript
+
+    flag: [ Boolean, true ]
 
 .. _userguide_extensions_supplying_external_resources:
 

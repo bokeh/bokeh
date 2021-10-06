@@ -12,6 +12,8 @@ of plots.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -22,7 +24,18 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import LatLon
 from ..core.has_props import abstract
-from ..core.properties import Auto, Either, Enum, Float, Instance, Int, NonNullable, Nullable, Override, Seq
+from ..core.properties import (
+    Auto,
+    Either,
+    Enum,
+    Float,
+    Instance,
+    Int,
+    NonNullable,
+    Nullable,
+    Override,
+    Seq,
+)
 from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model

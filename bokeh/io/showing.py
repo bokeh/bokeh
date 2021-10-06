@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -18,12 +20,25 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING, Any
+
+# External imports
+from typing_extensions import TypeGuard
+
 # Bokeh imports
 from ..models.layouts import LayoutDOM
 from ..util.browser import NEW_PARAM, get_browser_controller
 from .notebook import run_notebook_hook
 from .saving import save
 from .state import curstate
+
+if TYPE_CHECKING:
+    from ..application.application import Application
+    from ..application.handlers.function import ModifyDoc
+    from ..util.browser import BrowserLike, BrowserTarget
+    from .notebook import CommsHandle
+    from .state import State
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -37,7 +52,8 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888", **kw):
+def show(obj: LayoutDOM | Application | ModifyDoc, browser: str | None = None, new: BrowserTarget = "tab",
+        notebook_handle: bool = False, notebook_url: str = "localhost:8888", **kwargs: Any) -> CommsHandle | None:
     ''' Immediately display a Bokeh object or application.
 
         :func:`show` may be called multiple times in a single Jupyter notebook
@@ -48,9 +64,9 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
             A Bokeh object to display.
 
             Bokeh plots, widgets, layouts (i.e. rows and columns) may be
-            passed to ``show`` in order to display them. When ``output_file``
+            passed to ``show`` in order to display them. If |output_file|
             has been called, the output will be to an HTML file, which is also
-            opened in a new browser window or tab. When ``output_notebook``
+            opened in a new browser window or tab. If |output_notebook|
             has been called in a Jupyter notebook, the output will be inline
             in the associated notebook output cell.
 
@@ -65,7 +81,8 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
             For file output, the **browser** argument allows for specifying
             which browser to display in, e.g. "safari", "firefox", "opera",
             "windows-default". Not all platforms may support this option, see
-            the documentation for the standard library webbrowser_ module for
+            the documentation for the standard library
+            :doc:`webbrowser <python:library/webbrowser>` module for
             more information
 
         new (str, optional) :
@@ -101,12 +118,13 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
 
     Some parameters are only useful when certain output modes are active:
 
-    * The ``browser`` and ``new`` parameters only apply when ``output_file``
+    * The ``browser`` and ``new`` parameters only apply when |output_file|
       is active.
 
-    * The ``notebook_handle`` parameter only applies when ``output_notebook``
-      is active, and non-Application objects are being shown. It is only supported to Jupyter notebook,
-      raise exception for other notebook types when it is True.
+    * The ``notebook_handle`` parameter only applies when |output_notebook|
+      is active, and non-Application objects are being shown. It is only
+      supported in Jupyter notebook and raises an exception for other notebook
+      types when it is True.
 
     * The ``notebook_url`` parameter only applies when showing Bokeh
       Applications in a Jupyter notebook.
@@ -115,28 +133,26 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
       showing a Bokeh app (added in version 1.1)
 
     Returns:
-        When in a Jupyter notebook (with ``output_notebook`` enabled)
+        When in a Jupyter notebook (with |output_notebook| enabled)
         and ``notebook_handle=True``, returns a handle that can be used by
         ``push_notebook``, None otherwise.
-
-    .. _webbrowser: https://docs.python.org/2/library/webbrowser.html
 
     '''
     state = curstate()
 
-    is_application = getattr(obj, '_is_a_bokeh_application_class', False)
+    if isinstance(obj, LayoutDOM):
+        return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
 
-    if not (isinstance(obj, LayoutDOM) or is_application or callable(obj)):
-        raise ValueError(_BAD_SHOW_MSG)
+    def is_application(obj: Any) -> TypeGuard[Application]:
+        return getattr(obj, '_is_a_bokeh_application_class', False)
 
-    # TODO (bev) check callable signature more thoroughly
+    if is_application(obj) or callable(obj): # TODO (bev) check callable signature more thoroughly
+        # This ugliness is to prevent importing bokeh.application (which would bring
+        # in Tornado) just in order to show a non-server object
+        assert state.notebook_type is not None
+        return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, **kwargs)
 
-    # This ugliness is to prevent importing bokeh.application (which would bring
-    # in Tornado) just in order to show a non-server object
-    if is_application or callable(obj):
-        return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, **kw)
-
-    return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
+    raise ValueError(_BAD_SHOW_MSG)
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -146,21 +162,22 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
 # Private API
 #-----------------------------------------------------------------------------
 
-_BAD_SHOW_MSG = """"Invalid object to show. The object to passed to show must be one of:
+_BAD_SHOW_MSG = """Invalid object to show. The object to passed to show must be one of:
 
 * a LayoutDOM (e.g. a Plot or Widget or Layout)
 * a Bokeh Application
 * a callable suitable to an application FunctionHandler
 """
 
-def _show_file_with_state(obj, state, new, controller):
+def _show_file_with_state(obj: LayoutDOM, state: State, new: BrowserTarget, controller: BrowserLike) -> None:
     '''
 
     '''
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=NEW_PARAM[new])
 
-def _show_with_state(obj, state, browser, new, notebook_handle=False):
+def _show_with_state(obj: LayoutDOM, state: State, browser: str | None,
+        new: BrowserTarget, notebook_handle: bool = False) -> CommsHandle | None:
     '''
 
     '''
@@ -170,6 +187,7 @@ def _show_with_state(obj, state, browser, new, notebook_handle=False):
     shown = False
 
     if state.notebook:
+        assert state.notebook_type is not None
         comms_handle = run_notebook_hook(state.notebook_type, 'doc', obj, state, notebook_handle)
         shown = True
 

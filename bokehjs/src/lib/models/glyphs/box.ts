@@ -25,10 +25,10 @@ export type BoxData = GlyphData & p.UniformsOf<Box.Mixins> & {
 export interface BoxView extends BoxData {}
 
 export abstract class BoxView extends GlyphView {
-  model: Box
-  visuals: Box.Visuals
+  override model: Box
+  override visuals: Box.Visuals
 
-  get_anchor_point(anchor: Anchor, i: number, _spt: [number, number]): {x: number, y: number} | null {
+  override get_anchor_point(anchor: Anchor, i: number, _spt: [number, number]): {x: number, y: number} | null {
     const left = Math.min(this.sleft[i], this.sright[i])
     const right = Math.max(this.sright[i], this.sleft[i])
     const top = Math.min(this.stop[i], this.sbottom[i])     // screen coordinates !!!
@@ -60,10 +60,7 @@ export abstract class BoxView extends GlyphView {
 
     for (let i = 0; i < data_size; i++) {
       const [l, r, t, b] = this._lrtb(i)
-      if (isNaN(l + r + t + b) || !isFinite(l + r + t + b))
-        index.add_empty()
-      else
-        index.add(min(l, r), min(t, b), max(r, l), max(t, b))
+      index.add_rect(min(l, r), min(t, b), max(r, l), max(t, b))
     }
   }
 
@@ -76,34 +73,15 @@ export abstract class BoxView extends GlyphView {
       const sright_i = sright[i]
       const sbottom_i = sbottom[i]
 
-      if (isNaN(sleft_i + stop_i + sright_i + sbottom_i))
+      if (!isFinite(sleft_i + stop_i + sright_i + sbottom_i))
         continue
 
-      // XXX: this is needed for SVG canvas, because fill and hatch visuals
-      // share Context2d.fillStyle, which gets overriden in SVG, instead of
-      // causing overpaint (as in canvas).
-      function path() {
-        ctx.beginPath()
-        ctx.rect(sleft_i, stop_i, sright_i - sleft_i, sbottom_i - stop_i)
-      }
+      ctx.beginPath()
+      ctx.rect(sleft_i, stop_i, sright_i - sleft_i, sbottom_i - stop_i)
 
-      if (this.visuals.fill.doit) {
-        this.visuals.fill.set_vectorize(ctx, i)
-        path()
-        ctx.fill()
-      }
-
-      if (this.visuals.hatch.doit) {
-        this.visuals.hatch.set_vectorize(ctx, i)
-        path()
-        ctx.fill()
-      }
-
-      if (this.visuals.line.doit) {
-        this.visuals.line.set_vectorize(ctx, i)
-        path()
-        ctx.stroke()
-      }
+      this.visuals.fill.apply(ctx, i)
+      this.visuals.hatch.apply(ctx, i)
+      this.visuals.line.apply(ctx, i)
     }
   }
 
@@ -121,11 +99,11 @@ export abstract class BoxView extends GlyphView {
     }
   }
 
-  protected _hit_rect(geometry: RectGeometry): Selection {
+  protected override _hit_rect(geometry: RectGeometry): Selection {
     return this._hit_rect_against_index(geometry)
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
@@ -134,11 +112,11 @@ export abstract class BoxView extends GlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_span(geometry: SpanGeometry): Selection {
+  protected override _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
 
     let indices: number[]
-    if (geometry.direction == 'v') {
+    if (geometry.direction == "v") {
       const y = this.renderer.yscale.invert(sy)
       const hr = this.renderer.plot_view.frame.bbox.h_range
       const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
@@ -153,7 +131,7 @@ export abstract class BoxView extends GlyphView {
     return new Selection({indices})
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -171,14 +149,14 @@ export namespace Box {
 export interface Box extends Box.Attrs {}
 
 export abstract class Box extends Glyph {
-  properties: Box.Props
-  __view_type__: BoxView
+  override properties: Box.Props
+  override __view_type__: BoxView
 
   constructor(attrs?: Partial<Box.Attrs>) {
     super(attrs)
   }
 
-  static init_Box(): void {
+  static {
     this.mixins<Box.Mixins>([LineVector, FillVector, HatchVector])
   }
 }

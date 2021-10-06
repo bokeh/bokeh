@@ -6,7 +6,7 @@ Adding annotations
 Bokeh includes several different types of :term:`annotations <Annotation>` you
 can use to add supplemental information to your visualizations.
 
-.. _userguide_plotting_titles:
+.. _userguide_annotations_titles:
 
 Titles
 ------
@@ -14,14 +14,20 @@ Titles
 Use |Title| annotations to add descriptive text which is rendered around
 the edges of a plot.
 
-If you use the :ref:`bokeh.plotting <userguide_interfaces_plotting>` interface,
-the quickest way to add a basic title is to pass the text as the ``title``
-parameter to |Figure|:
+If you use the |plotting interface|, the quickest way to add a basic title is to
+pass the text as the ``title`` parameter to |Figure|:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_title_basic.py
     :source-position: above
 
 The default title is generally located above a plot, aligned to the left.
+
+The title text may value contain newline characters which will result in a
+multi-line title.
+
+.. code-block:: python
+
+    p = figure(title="A longer title\nwith a second line underneath")
 
 To define the placement of the title in relation to the plot, use the
 ``title_location`` parameter. A title can be located above, below, left, or
@@ -31,8 +37,8 @@ right of a plot. For example:
     :source-position: above
 
 Use your plot's ``.title`` property to customize the default |Title|. Use the
-:ref:`standard text properties <userguide_styling_text_properties>` to define
-visual properties such as font, border, and background.
+standard |text properties| to define visual properties such as font, border, and
+background.
 
 This example uses the ``.title`` property to set the font and background
 properties as well as the title text and title alignment:
@@ -46,8 +52,8 @@ the ``align`` property to ``"left"`` means your text is rendered in the lower
 left corner.
 
 To add more titles to your document, you need to create additional |Title|
-objects. Use the :func:`~bokeh.models.plots.Plot.add_layout` method of your plot
-to include those additional |Title| objects in your document:
+objects. Use the |add layout| method of your plot to include those additional
+|Title| objects in your document:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_title_additional.py
     :source-position: above
@@ -62,22 +68,22 @@ If the plot size is large enough, this can result in a more compact plot.
 However, if the plot size is not large enough, the title and toolbar may
 visually overlap.
 
-.. _userguide_plotting_legends:
+.. _userguide_annotations_legends:
 
 Legends
 -------
 
 The easiest way to add a legend to your plot is to include any of the
-:ref:`legend_label <userguide_plotting_legends_legend_label>`,
-:ref:`legend_group <userguide_plotting_legends_legend_group>`,
-or :ref:`legend_field <userguide_plotting_legends_legend_field>` properties
-when calling glyph methods. Bokeh then creates a
-|Legend| object for you automatically.
+:ref:`legend_label <userguide_annotations_legends_legend_label>`,
+:ref:`legend_group <userguide_annotations_legends_legend_group>`,
+or :ref:`legend_field <userguide_annotations_legends_legend_field>` properties
+when calling glyph methods. Bokeh then creates a |Legend| object for you
+automatically.
 
 For more advanced control over a plot's legend, access the |Legend| object
-:ref:`directly <userguide_plotting_legends_manual>`.
+:ref:`directly <userguide_annotations_legends_manual>`.
 
-.. _userguide_plotting_legends_legend_label:
+.. _userguide_annotations_legends_legend_label:
 
 Basic legend label
 ~~~~~~~~~~~~~~~~~~
@@ -95,14 +101,14 @@ combined into a single legend item with that label.
 .. bokeh-plot:: docs/user_guide/examples/plotting_legend_label.py
     :source-position: above
 
-.. _userguide_plotting_legends_legend_group:
+.. _userguide_annotations_legends_legend_group:
 
 Automatic grouping (Python-side)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If your data is in the form of a :ref:`ColumnDataSource <userguide_data_cds>`,
-Bokeh can generate legend entries from strings in one of the ColumnDataSource's
-columns. This way, you can create legend entries based on groups of glyphs.
+If your data is in the form of a |ColumnDataSource|, Bokeh can generate legend
+entries from strings in one of the ColumnDataSource's columns. This way, you can
+create legend entries based on groups of glyphs.
 
 To use data from a column of a ColumnDataSource to generate your plot's legend,
 pass the column name as the ``legend_group`` keyword argument to a glyph method:
@@ -124,7 +130,7 @@ Therefore, any subsequent Python code will be able to see the individual legend
 items in the ``Legend.items`` property. This way, you can re-arrange or modify
 the legend at any time.
 
-.. _userguide_plotting_legends_legend_field:
+.. _userguide_annotations_legends_legend_field:
 
 Automatic grouping (browser-side)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -145,23 +151,40 @@ grouping happens in the browser.
 .. bokeh-plot:: docs/user_guide/examples/plotting_legend_field.py
     :source-position: above
 
-.. _userguide_plotting_legends_manual:
+.. _userguide_annotations_legends_item_visibility:
+
+Hiding legend items
+~~~~~~~~~~~~~~~~~~~
+
+To manually control the visibility of individual legend items, set the
+``visible`` property of a :class:`~bokeh.models.annotations.LegendItem` to
+either ``True`` or ``False``.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_legends_item_visibility.py
+    :source-position: above
+
+.. note::
+    If all items in a legend are invisible, the entire legend will be hidden.
+    Also, if you use
+    :ref:`automatic grouping on the browser side <userguide_annotations_legends_legend_field>`
+    and set the visibility of a ``legend_field`` item to ``False``, the entire
+    group will be invisible.
+
+.. _userguide_annotations_legends_manual:
 
 Manual legends
 ~~~~~~~~~~~~~~
 
 To build a legend by hand, don't use any of the ``legend`` arguments and instead
-assign values to the various properties of a
-:class:`~bokeh.models.annotations.Legend` object directly.
+assign values to the various properties of a |Legend| object directly.
 
 See :bokeh-tree:`examples/models/file/legends.py` for an example.
 
 Explicit index
 ~~~~~~~~~~~~~~
 
-To explicitly specify which index into a
-:ref:`ColumnDataSource <userguide_data_cds>` to use in a legend, set the
-``index`` property of a ``LegendItem``.
+To explicitly specify which index into a |ColumnDataSource| to use in a legend,
+set the ``index`` property of a :class:`~bokeh.models.annotations.LegendItem`.
 
 This is useful for displaying multiple entries in a legend when you use glyphs
 that are rendered in several parts, such as
@@ -179,15 +202,15 @@ You can use legends as interactive elements to control some aspects of the
 appearance of your plot. Clicking or tapping on interactive legend entries
 controls the visibility of the glyphs associated with the legend entry.
 
-See :ref:`userguide_interaction_legends` in the User Guide for more
-information and examples.
+See |interactive legends| in the user guide for more information and examples.
 
 .. note::
-    :ref:`userguide_interaction_legends` features currently work on the first,
-    "per-glyph" style legends. Legends that are created by specifying a column
-    to automatically group do not yet support interactive features.
+    The features of |interactive legends| currently only work on the basic
+    legend labels described :ref:`above <userguide_annotations_legends_legend_label>`.
+    Legends that are created by specifying a column to automatically group do
+    not yet support interactive features.
 
-.. _userguide_plotting_color_bars:
+.. _userguide_annotations_color_bars:
 
 Color bars
 ----------
@@ -197,12 +220,12 @@ palette.
 
 Color bars can be located inside as well as left, right, below, or above the
 plot. Specify the location of a color bar when adding the |ColorBar| object to
-the plot using the :func:`~bokeh.models.plots.Plot.add_layout` method.
+the plot using the |add layout| method.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_color_bars.py
     :source-position: above
 
-.. _userguide_plotting_arrows:
+.. _userguide_annotations_arrows:
 
 Arrows
 ------
@@ -225,14 +248,12 @@ The available arrowheads are:
 Control the appearance of an arrowhead with these properties:
 
 * use the ``size`` property to control the size of any arrowheads
-* use the :ref:`standard line properties <userguide_styling_line_properties>`
-  such as ``line_color`` and ``line_alpha`` to control the appearance of the
-  outline of the arrowhead.
+* use the standard |line properties| such as ``line_color`` and ``line_alpha``
+  to control the appearance of the outline of the arrowhead.
 * use ``fill_color`` and ``fill_alpha`` to control the appearance of the
   arrowhead's inner surface, if applicable.
 
-|Arrow| objects themselves have the
-:ref:`standard line properties <userguide_styling_line_properties>`. Set those
+|Arrow| objects themselves have the standard |line properties|. Set those
 properties to control the color and appearance of the arrow shaft. For example:
 
 .. code-block:: python
@@ -247,7 +268,7 @@ same as :ref:`userguide_plotting_twin_axes`.
 .. bokeh-plot:: docs/user_guide/examples/plotting_arrow.py
     :source-position: above
 
-.. _userguide_plotting_bands:
+.. _userguide_annotations_bands:
 
 Bands
 -----
@@ -256,20 +277,19 @@ A |Band| annotation is a colored stripe that is dimensionally linked to the data
 in a plot. One common use for the band annotation is to indicate uncertainty
 related to a series of measurements.
 
-To define a band, use either
-:ref:`screen units or data-space units <userguide_styling_units>`.
+To define a band, use either |screen units| or |data units|.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_band.py
     :source-position: above
 
-.. _userguide_plotting_box_annotations:
+.. _userguide_annotations_box_annotations:
 
 Box annotations
 ---------------
 
-A |BoxAnnotation| is a rectangular box that you can link to either
-:ref:`data or screen coordinates <userguide_styling_units>` in order
-to highlight specific plot regions.
+A |BoxAnnotation| is a rectangular box that you can use to highlight specific
+plot regions. Use either |screen units| or |data units| to position a box
+annotation.
 
 To define the bounds of these boxes, use the ``left``/``right`` or ``top``/
 ``bottom`` properties. If you provide only one bound (for example, a ``left``
@@ -279,7 +299,22 @@ plot area for the dimension you did not specify.
 .. bokeh-plot:: docs/user_guide/examples/plotting_box_annotation.py
     :source-position: above
 
-.. _userguide_plotting_labels:
+.. _userguide_annotations_polygon_annotations:
+
+Polygon annotations
+-------------------
+
+A |PolyAnnotation| is a polygon with vertices in either |screen units| or
+|data units|.
+
+To define the polygon's vertices, supply a series of coordinates to the
+``xs`` and ``ys`` properties. Bokeh automatically connects the last vertex
+to the first to create a closed shape.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_polygon_annotation.py
+    :source-position: above
+
+.. _userguide_annotations_labels:
 
 Labels
 ------
@@ -291,19 +326,25 @@ To create a single text label, use the |Label| annotation. Those are the most
 important properties for this annotation:
 
 * A ``text`` property containing the text to display inside the label.
-* ``x`` and ``y`` properties to set the position (in screen or data
-  space units).
+* ``x`` and ``y`` properties to set the position (in |screen units| or
+  |data units|).
 * ``x_offset`` and ``y_offset`` properties to specify where to place the label
   in relation to its ``x`` and ``y`` coordinates.
-* The standard :ref:`text properties <userguide_styling_text_properties>` as
-  well as other styling parameters such as ``border_line`` and
-  ``background_fill`` properties.
+* The standard |text properties| as well as other styling parameters such as
+* ``border_line`` and ``background_fill`` properties.
 
 .. code-block:: python
 
-    Label(x=70, y=70, x_units='screen', text='Some Stuff', render_mode='css',
+    Label(x=100, y=5, x_units='screen', text='Some Stuff',
           border_line_color='black', border_line_alpha=1.0,
           background_fill_color='white', background_fill_alpha=1.0)
+
+The ``text`` may value contain newline characters which will result in a
+multi-line label.
+
+.. code-block:: python
+
+    Label(x=100, y=5, text='A very long label\nwith mutiple lines')
 
 To create several labels at once, use the |LabelSet| annotation. To configure
 the labels of a label set, use a data source that contains columns with data for
@@ -321,7 +362,10 @@ The following example illustrates the use of |Label| and |LabelSet|:
 .. bokeh-plot:: docs/user_guide/examples/plotting_label.py
     :source-position: above
 
-.. _userguide_plotting_slope:
+The ``text`` values for ``LabelSet`` may value contain newline characters which
+will result in multi-line labels.
+
+.. _userguide_annotations_slope:
 
 Slopes
 ------
@@ -331,14 +375,14 @@ another at a specific angle.
 
 These are the most commonly used properties for this annotation:
 
-* ``gradient``: The gradient of the line, in data units.
-* ``y_intercept``: The y intercept of the line, in data units.
-* The standard :ref:`line properties <userguide_styling_line_properties>`.
+* ``gradient``: The gradient of the line, in |data units|.
+* ``y_intercept``: The y intercept of the line, in |data units|.
+* The standard |line properties|.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_slope.py
     :source-position: above
 
-.. _userguide_plotting_spans:
+.. _userguide_annotations_spans:
 
 Spans
 -----
@@ -355,21 +399,20 @@ These are the most commonly used properties for this annotation:
   axis.
 * ``location``: The location of the span along the axis specified with
   ``dimension``.
-* ``location_units``: The :ref:`unit type <userguide_styling_units>` for the
-  location property. The default is to use "data space" units.
-* The standard :ref:`line properties <userguide_styling_line_properties>`.
+* ``location_units``: The |unit| type for the ``location`` property. The default
+  is to use |data units|.
+* The standard |line properties|.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_span.py
     :source-position: above
 
-.. _userguide_plotting_whiskers:
+.. _userguide_annotations_whiskers:
 
 Whiskers
 --------
 
 A |Whisker| annotation is a "stem" that is dimensionally linked to the data in
-the plot. You can define this annotation using
-:ref:`data or screen units <userguide_styling_units>`.
+the plot. You can define this annotation using |data units| or |screen units|.
 
 A common use for whisker annotations is to indicate error margins or
 uncertainty for measurements at a single point.
@@ -384,29 +427,20 @@ These are the most commonly used properties for this annotation:
   axis.
 * ``base``: The location of the whisker along the dimension specified with
   ``dimension``.
-* The standard :ref:`line properties <userguide_styling_line_properties>`.
+* The standard |line properties|.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_whisker.py
     :source-position: above
-
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-
-.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
-
-.. |Figure| replace:: :class:`~bokeh.plotting.Figure`
-
-.. |figure| replace:: :func:`~bokeh.plotting.figure`
 
 .. |ColorMapper| replace:: :class:`~bokeh.models.mappers.ColorMapper`
 
 .. |Arrow|         replace:: :class:`~bokeh.models.annotations.Arrow`
 .. |ArrowHead|     replace:: :class:`~bokeh.models.arrow_heads.ArrowHead`
 .. |Band|          replace:: :class:`~bokeh.models.annotations.Band`
-.. |BoxAnnotation| replace:: :class:`~bokeh.models.annotations.BoxAnnotation`
+.. |PolyAnnotation| replace:: :class:`~bokeh.models.annotations.PolyAnnotation`
 .. |ColorBar|      replace:: :class:`~bokeh.models.annotations.ColorBar`
 .. |Label|         replace:: :class:`~bokeh.models.annotations.Label`
 .. |LabelSet|      replace:: :class:`~bokeh.models.annotations.LabelSet`
-.. |Legend|        replace:: :class:`~bokeh.models.annotations.Legend`
 .. |Slope|         replace:: :class:`~bokeh.models.annotations.Slope`
 .. |Span|          replace:: :class:`~bokeh.models.annotations.Span`
 .. |Title|         replace:: :class:`~bokeh.models.annotations.Title`

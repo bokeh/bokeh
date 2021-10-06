@@ -15,13 +15,13 @@ export namespace Maximum {
 export interface Maximum extends Maximum.Attrs {}
 
 export class Maximum extends ScalarExpression<number> {
-  properties: Maximum.Props
+  override properties: Maximum.Props
 
   constructor(attrs?: Partial<Maximum.Attrs>) {
     super(attrs)
   }
 
-  static init_Maximum(): void {
+  static {
     this.define<Maximum.Props>(({Number, String, Nullable}) => ({
       field:   [ String ],
       initial: [ Nullable(Number), null ], // TODO: -Infinity

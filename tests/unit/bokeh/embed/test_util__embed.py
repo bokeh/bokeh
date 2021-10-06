@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -18,11 +20,16 @@ import pytest ; pytest
 import logging
 
 # External imports
-from mock import patch
+from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh import __version__
-from bokeh.core.properties import Instance, Int, List, String
+from bokeh.core.properties import (
+    Instance,
+    Int,
+    List,
+    String,
+)
 from bokeh.document.document import Document
 from bokeh.events import Tap
 from bokeh.io import curdoc
@@ -52,7 +59,7 @@ class OtherModel(Model):
 
 # Taken from test_callback_manager.py
 class _GoodPropertyCallback:
-    def __init__(self):
+    def __init__(self) -> None:
         self.last_name = None
         self.last_old = None
         self.last_new = None
@@ -73,7 +80,7 @@ class _GoodPropertyCallback:
 
 
 class _GoodEventCallback:
-    def __init__(self):
+    def __init__(self) -> None:
         self.last_name = None
         self.last_old = None
         self.last_new = None
@@ -153,7 +160,7 @@ class Test_OutputDocumentFor_general:
         assert check_integrity.called
 
     @patch('bokeh.document.document.check_integrity')
-    def test_doesnt_validate_doc_due_to_env_var(self, check_integrity, monkeypatch, test_plot) -> None:
+    def test_doesnt_validate_doc_due_to_env_var(self, check_integrity, monkeypatch: pytest.MonkeyPatch, test_plot) -> None:
         monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
         with beu.OutputDocumentFor([test_plot]):
             pass
@@ -530,7 +537,7 @@ class Test_standalone_docs_json_and_render_items:
             beu.standalone_docs_json_and_render_items([p1])
         assert str(e.value) == "A Bokeh Model must be part of a Document to render as standalone content"
 
-    def test_log_warning_if_python_property_callback(self, caplog) -> None:
+    def test_log_warning_if_python_property_callback(self, caplog: pytest.LogCaptureFixture) -> None:
         d = Document()
         m1 = EmbedTestUtilModel()
         c1 = _GoodPropertyCallback()
@@ -544,7 +551,7 @@ class Test_standalone_docs_json_and_render_items:
             assert len(caplog.records) == 1
             assert caplog.text != ''
 
-    def test_log_warning_if_python_event_callback(self, caplog) -> None:
+    def test_log_warning_if_python_event_callback(self, caplog: pytest.LogCaptureFixture) -> None:
         d = Document()
         m1 = EmbedTestUtilModel()
         c1 = _GoodEventCallback()
@@ -558,7 +565,7 @@ class Test_standalone_docs_json_and_render_items:
             assert len(caplog.records) == 1
             assert caplog.text != ''
 
-    def test_suppress_warnings(self, caplog) -> None:
+    def test_suppress_warnings(self, caplog: pytest.LogCaptureFixture) -> None:
         d = Document()
         m1 = EmbedTestUtilModel()
         c1 = _GoodPropertyCallback()
@@ -579,7 +586,7 @@ class Test_standalone_docs_json_and_render_items:
 
 class Test_standalone_docs_json:
     @patch('bokeh.embed.util.standalone_docs_json_and_render_items')
-    def test_delgation(self, mock_sdjari) -> None:
+    def test_delgation(self, mock_sdjari: MagicMock) -> None:
         p1 = SomeModel()
         p2 = SomeModel()
         d = Document()
@@ -697,7 +704,7 @@ class Test__set_temp_theme:
         d = Document()
         orig = d.theme
         beu._set_temp_theme(d, None)
-        assert d._old_theme is orig
+        assert beu._themes[d] is orig
         assert d.theme is orig
 
     def test_apply_theme(self) -> None:
@@ -705,7 +712,7 @@ class Test__set_temp_theme:
         d = Document()
         orig = d.theme
         beu._set_temp_theme(d, t)
-        assert d._old_theme is orig
+        assert beu._themes[d] is orig
         assert d.theme is t
 
     def test_apply_from_curdoc(self) -> None:
@@ -714,25 +721,80 @@ class Test__set_temp_theme:
         d = Document()
         orig = d.theme
         beu._set_temp_theme(d, beu.FromCurdoc)
-        assert d._old_theme is orig
+        assert beu._themes[d] is orig
         assert d.theme is t
 
 class Test__unset_temp_theme:
     def test_basic(self) -> None:
         t = Theme(json={})
         d = Document()
-        d._old_theme = t
+        beu._themes[d] = t
         beu._unset_temp_theme(d)
         assert d.theme is t
-        assert not hasattr(d, "_old_theme")
+        assert d not in beu._themes
 
     def test_no_old_theme(self) -> None:
         d = Document()
         orig = d.theme
         beu._unset_temp_theme(d)
         assert d.theme is orig
-        assert not hasattr(d, "_old_theme")
+        assert d not in beu._themes
 
+class Test__tex_helpers:
+    def test_is_tex_string(self) -> None:
+        assert beu.is_tex_string("$$test$$") is True
+        assert beu.is_tex_string("$$test$$  ") is False
+        assert beu.is_tex_string("  $$test$$") is False
+        assert beu.is_tex_string("  $$test$$  ") is False
+        assert beu.is_tex_string("\\[test\\]") is True
+        assert beu.is_tex_string("\\(test\\)") is True
+        assert beu.is_tex_string("HTML <b>text</b> $$\\sin(x) and \\[x\\cdot\\pi\\]!") is False
+        assert beu.is_tex_string("\\[test\\]") is True
+        assert beu.is_tex_string("\\(test\\)") is True
+        assert beu.is_tex_string("test$$") is False
+        assert beu.is_tex_string("$$test") is False
+        assert beu.is_tex_string("HTML <b>text</b> $$sin(x)$$ and [xcdotpi]!") is False
+        assert beu.is_tex_string("$$test\\]") is False
+        assert beu.is_tex_string("$$test $$ end $$") is True
+        assert beu.is_tex_string("$$ \\[test end\\]") is False
+        assert beu.is_tex_string("text \\[text $$latex$$") is False
+        assert beu.is_tex_string("$$ tex [ tex ] tex $$") is True
+        assert beu.is_tex_string("$$tex$$text$$tex$$") is True
+        assert beu.is_tex_string("part0$$part1\\[part2\\(part3$$") is False
+        assert beu.is_tex_string("part0$$part1\\[part2\\(part3\\]") is False
+        assert beu.is_tex_string("part0$$part1\\[part2\\(part3\\)") is False
+        assert beu.is_tex_string("""$$
+          cos(x)
+        $$""") is True
+        assert beu.is_tex_string("""$$
+          cos(x)$$
+        """) is False
+
+    def test_contains_tex_string(self) -> None:
+        assert beu.contains_tex_string("$$test$$") is True
+        assert beu.contains_tex_string("\\[test\\]") is True
+        assert beu.contains_tex_string("\\(test\\)") is True
+        assert beu.contains_tex_string("HTML <b>text</b> $$\\sin(x) and \\[x\\cdot\\pi\\]!") is True
+        assert beu.contains_tex_string("\\[test\\]") is True
+        assert beu.contains_tex_string("\\(test\\)") is True
+        assert beu.contains_tex_string("test$$") is False
+        assert beu.contains_tex_string("$$test") is False
+        assert beu.contains_tex_string("HTML <b>text</b> $$sin(x)$$ and [xcdotpi]!") is True
+        assert beu.contains_tex_string("$$test\\]") is False
+        assert beu.contains_tex_string("$$test $$ end $$") is True
+        assert beu.contains_tex_string("$$ \\[test end\\]") is True
+        assert beu.contains_tex_string("text \\[text $$latex$$") is True
+        assert beu.contains_tex_string("$$ tex [ tex ] tex $$") is True
+        assert beu.contains_tex_string("$$tex$$text$$tex$$") is True
+        assert beu.contains_tex_string("part0$$part1\\[part2\\(part3$$") is True
+        assert beu.contains_tex_string("part0$$part1\\[part2\\(part3\\]") is True
+        assert beu.contains_tex_string("part0$$part1\\[part2\\(part3\\)") is True
+        assert beu.contains_tex_string("""$$
+          cos(x)
+        $$""") is True
+        assert beu.contains_tex_string("""$$
+          cos(x)$$
+        """) is True
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------

@@ -11,6 +11,8 @@ types that Bokeh supports.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,6 +22,9 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from difflib import get_close_matches
+
+# External imports
+from typing_extensions import Literal
 
 # Bokeh imports
 from ..core.enums import RenderLevel
@@ -31,7 +36,6 @@ from ..core.properties import (
     Enum,
     Float,
     Instance,
-    Null,
     Nullable,
     Override,
     String,
@@ -46,9 +50,21 @@ from ..core.validation.errors import (
     NO_SOURCE_FOR_GLYPH,
 )
 from ..model import Model
-from .glyphs import Circle, ConnectedXYGlyph, Glyph, MultiLine
+from .canvas import CoordinateMapping
+from .glyphs import (
+    Circle,
+    ConnectedXYGlyph,
+    Glyph,
+    MultiLine,
+)
+from .graphics import Decoration, Marking
 from .graphs import GraphHitTestPolicy, LayoutProvider, NodesOnly
-from .sources import CDSView, ColumnDataSource, DataSource, WebDataSource
+from .sources import (
+    CDSView,
+    ColumnDataSource,
+    DataSource,
+    WebDataSource,
+)
 from .tiles import TileSource, WMTSTileSource
 
 #-----------------------------------------------------------------------------
@@ -61,6 +77,7 @@ __all__ = (
     'GraphRenderer',
     'GuideRenderer',
     'Renderer',
+    'RendererGroup',
     'TileRenderer',
 )
 
@@ -71,6 +88,15 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+class RendererGroup(Model):
+    '''A collection of renderers.
+
+    '''
+
+    visible = Bool(default=True, help="""
+    Makes all groupped renderers visible or not.
+    """)
 
 @abstract
 class Renderer(Model):
@@ -86,6 +112,8 @@ class Renderer(Model):
     Is the renderer visible.
     """)
 
+    coordinates = Nullable(Instance(CoordinateMapping))
+
     x_range_name = String('default', help="""
     A particular (named) x-range to use for computing screen locations when
     rendering glyphs on the plot. If unset, use the default x-range.
@@ -95,6 +123,8 @@ class Renderer(Model):
     A particular (named) y-range to use for computing screen locations when
     rendering glyphs on the plot. If unset, use the default y-range.
     """)
+
+    group = Nullable(Instance(RendererGroup))
 
 class TileRenderer(Renderer):
     '''
@@ -169,7 +199,7 @@ class GlyphRenderer(DataRenderer):
             missing = ['key "%s" value "%s' % (k, v) for v, k in missing_values]
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         if "view" not in kwargs and "data_source" in kwargs:
             self.view = CDSView(source=self.data_source)
@@ -194,14 +224,14 @@ class GlyphRenderer(DataRenderer):
     and ranges.
     """)
 
-    selection_glyph = Either(Auto, Instance(Glyph), Null, default="auto", help="""
+    selection_glyph = Nullable(Either(Auto, Instance(Glyph)), default="auto", help=""""
     An optional glyph used for selected points.
 
     If set to "auto" then the standard glyph will be used for selected
     points.
     """)
 
-    nonselection_glyph = Either(Auto, Instance(Glyph), Null, default="auto", help="""
+    nonselection_glyph = Nullable(Either(Auto, Instance(Glyph)), default="auto", help=""""
     An optional glyph used for explicitly non-selected points
     (i.e., non-selected when there are other points that are selected,
     but not when no points at all are selected.)
@@ -215,11 +245,21 @@ class GlyphRenderer(DataRenderer):
     being hovered over by a ``HoverTool``.
     """)
 
-    muted_glyph = Nullable(Instance(Glyph), help="""
+    muted_glyph = Nullable(Either(Auto, Instance(Glyph)), default="auto", help=""""
     """)
 
     muted = Bool(False, help="""
     """)
+
+    def add_decoration(self, marking: Marking, node: Literal["start", "middle", "end"]) -> Decoration:
+        glyphs = [self.glyph, self.selection_glyph, self.nonselection_glyph, self.hover_glyph, self.muted_glyph]
+        decoration = Decoration(marking=marking, node=node)
+
+        for glyph in glyphs:
+            if isinstance(glyph, Glyph):
+                glyph.decorations.append(decoration)
+
+        return decoration
 
 _DEFAULT_NODE_RENDERER = lambda: GlyphRenderer(
     glyph=Circle(), data_source=ColumnDataSource(data=dict(index=[]))

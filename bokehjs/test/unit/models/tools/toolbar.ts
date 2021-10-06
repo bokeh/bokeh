@@ -25,7 +25,7 @@ describe("Toolbar", () => {
     })
 
     it("should have all inspect tools active when active_inspect='auto'", () => {
-      new Toolbar({tools: [hover_1, hover_2, hover_3], active_inspect: 'auto'})
+      new Toolbar({tools: [hover_1, hover_2, hover_3], active_inspect: "auto"})
       expect(hover_1.active).to.be.true
       expect(hover_2.active).to.be.true
       expect(hover_3.active).to.be.true
@@ -57,9 +57,9 @@ describe("Toolbar", () => {
 class MultiToolView extends SelectToolView {}
 
 class MultiTool extends SelectTool {
-  default_view = MultiToolView
-  tool_name = "Multi Tool"
-  event_type = ["tap" as "tap", "pan" as "pan"]
+  override default_view = MultiToolView
+  override tool_name = "Multi Tool"
+  override event_type = ["tap" as "tap", "pan" as "pan"]
 }
 
 describe("Toolbar Multi Gesture Tool", () => {

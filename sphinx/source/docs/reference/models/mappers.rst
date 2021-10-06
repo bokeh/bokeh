@@ -1,7 +1,7 @@
 .. _bokeh.models.mappers:
 
-bokeh.models.mappers
---------------------
+mappers
+-------
 
 .. automodule:: bokeh.models.mappers
    :members:

@@ -1,6 +1,7 @@
 import {UpperLower, UpperLowerView} from "./upper_lower"
 import {ArrowHead, ArrowHeadView, TeeHead} from "./arrow_head"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
+import {Indices} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {build_view} from "core/build_views"
 import {LineVector} from "core/property_mixins"
@@ -8,13 +9,13 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
 export class WhiskerView extends UpperLowerView {
-  model: Whisker
-  visuals: Whisker.Visuals
+  override model: Whisker
+  override visuals: Whisker.Visuals
 
   protected lower_head: ArrowHeadView | null
   protected upper_head: ArrowHeadView | null
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
     const {lower_head, upper_head} = this.model
@@ -24,10 +25,11 @@ export class WhiskerView extends UpperLowerView {
       this.upper_head = await build_view(upper_head, {parent: this})
   }
 
-  set_data(source: ColumnarDataSource): void {
+  override set_data(source: ColumnarDataSource): void {
     super.set_data(source)
-    this.lower_head?.set_data(source)
-    this.upper_head?.set_data(source)
+    const indices = Indices.all_set(this._lower.length)
+    this.lower_head?.set_data(source, indices)
+    this.upper_head?.set_data(source, indices)
   }
 
   paint(ctx: Context2d): void {
@@ -81,14 +83,14 @@ export namespace Whisker {
 export interface Whisker extends Whisker.Attrs {}
 
 export class Whisker extends UpperLower {
-  properties: Whisker.Props
-  __view_type__: WhiskerView
+  override properties: Whisker.Props
+  override __view_type__: WhiskerView
 
   constructor(attrs?: Partial<Whisker.Attrs>) {
     super(attrs)
   }
 
-  static init_Whisker(): void {
+  static {
     this.prototype.default_view = WhiskerView
 
     this.mixins<Whisker.Mixins>(LineVector)

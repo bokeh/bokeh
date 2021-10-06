@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -15,9 +17,10 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from _util_property import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
 from bokeh.core.enums import LineJoin, NamedColor
+
+from _util_property import _TestHasProps, _TestModel
 
 # Module under test
 import bokeh.core.property.enum as bcpe # isort:skip
@@ -40,10 +43,10 @@ class Test_Enum:
         with pytest.raises(TypeError):
             bcpe.Enum()
 
-        with pytest.raises(TypeError):
+        with pytest.raises(ValueError):
             bcpe.Enum("red", "green", 1)
 
-        with pytest.raises(TypeError):
+        with pytest.raises(ValueError):
             bcpe.Enum("red", "green", "red")
 
     def test_from_values_valid(self) -> None:

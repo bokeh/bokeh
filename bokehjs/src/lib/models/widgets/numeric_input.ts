@@ -14,12 +14,12 @@ const int_regex = /^[-+]?\d*$/
 const float_regex = /^[-+]?\d*\.?\d*(?:(?:\d|\d.)[eE][-+]?)*\d*$/
 
 export class NumericInputView extends InputWidgetView {
-  model: NumericInput
+  override model: NumericInput
 
-  protected input_el: HTMLInputElement
+  protected override input_el: HTMLInputElement
   protected old_value: string
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name ?? "")
     this.connect(this.model.properties.value.change, () => {
@@ -30,15 +30,15 @@ export class NumericInputView extends InputWidgetView {
       const {value, low, high} = this.model
       if (low != null && high != null)
         assert(low <= high, "Invalid bounds, low must be inferior to high")
-      if (value != null && low != null)
-        this.model.value = Math.max(value, low)
+      if (value != null && low != null && value < low)
+        this.model.value = low
     })
     this.connect(this.model.properties.high.change, () => {
       const {value, low, high} = this.model
       if (low != null && high != null)
         assert(high >= low, "Invalid bounds, high must be superior to low")
-      if (value != null && high != null)
-        this.model.value = Math.min(value, high)
+      if (value != null && high != null && value > high)
+        this.model.value = high
     })
     this.connect(this.model.properties.high.change, () => this.input_el.placeholder = this.model.placeholder)
     this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
@@ -62,7 +62,7 @@ export class NumericInputView extends InputWidgetView {
     })
   }
 
-  render(): void {
+  override render(): void {
     super.render()
 
     this.input_el = input({
@@ -103,7 +103,7 @@ export class NumericInputView extends InputWidgetView {
     return value
   }
 
-  change_input(): void {
+  override change_input(): void {
     if (this.value == null)
       this.model.value = null
     else if (!Number.isNaN(this.value))
@@ -128,14 +128,14 @@ export namespace NumericInput {
 export interface NumericInput extends NumericInput.Attrs {}
 
 export class NumericInput extends InputWidget {
-  properties: NumericInput.Props
-  __view_type__: NumericInputView
+  override properties: NumericInput.Props
+  override __view_type__: NumericInputView
 
   constructor(attrs?: Partial<NumericInput.Attrs>) {
     super(attrs)
   }
 
-  static init_NumericInput(): void {
+  static {
     this.prototype.default_view = NumericInputView
 
     this.define<NumericInput.Props>(({Number, String, Enum, Ref, Or, Nullable}) => ({
@@ -149,7 +149,7 @@ export class NumericInput extends InputWidget {
   }
 
   protected _formatter(value: number, format: string | TickFormatter): string {
-    if (isString(format)){
+    if (isString(format)) {
       return numbro.format(value, format)
     } else {
       return format.doFormat([value], {loc: 0})[0]

@@ -45,9 +45,7 @@ Follow these steps to recreate the example from above:
         x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         y = [4, 5, 5, 7, 2, 6, 4, 9, 1, 3]
 
-        output_file("first_steps.html")
-
-        p = figure(x_range=(1,9), plot_width=500, plot_height=250)
+        p = figure(x_range=(1,9), width=500, height=250)
         points = p.circle(x=x, y=y, size=30, fill_color="#21a7df")
 
 3. Create a ``Div`` object and pass it some HTML code as a string:
@@ -93,7 +91,7 @@ Follow these steps to recreate the example from above:
     .. code-block:: python
 
         range_slider = RangeSlider(
-            title="Adjust x-axis range" # a title to display above the slider
+            title="Adjust x-axis range", # a title to display above the slider
             start=0,  # set the minimum value for the slider
             end=10,  # set the maximum value for the slider
             step=1,  # increments for the slider
@@ -136,8 +134,8 @@ This is what the completed example looks like:
     To learn more about Bokeh's widgets and building interactive dashboards, see
     :ref:`userguide_interaction_widgets` in the user guide.
 
-    To learn about creating interactive legends, see
-    :ref:`userguide_interaction_legends` in the user guide.
+    To learn about creating interactive legends, see |interactive legends| in
+    the user guide.
 
     See :ref:`userguide_interaction_jscallbacks` in the user guide to learn more
     about adding custom JavaScript code that you can use in combination
@@ -215,9 +213,8 @@ Next steps
 
 Congratulations, you have completed all of Bokeh's first steps guides!
 
-More information about Bokeh is available in the :ref:`user guide <userguide>`.
-For more in-depth information about all aspects of Bokeh, see the
-:ref:`reference guide <refguide>`.
+More information about Bokeh is available in the |user guide|. For more in-depth
+information about all aspects of Bokeh, see the |reference guide|.
 
 For more examples of what you can do with Bokeh, check the :ref:`gallery` and
 the :bokeh-tree:`examples` directory in Bokeh's GitHub repository.
@@ -225,12 +222,3 @@ the :bokeh-tree:`examples` directory in Bokeh's GitHub repository.
 Finally, on the `Bokeh community page <https://bokeh.org/community/>`_, you can
 find links and information about asking for help and contributing to Bokeh and
 the Bokeh community.
-
-.. panels::
-    :column: col-lg-12 col-md-12 col-sm-12 col-xs-12 p-2
-
-    ---
-    :card: + text-left
-    .. link-button:: first_steps_8.html
-        :text: Previous
-        :classes: stretched-link

@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -180,7 +182,7 @@ def test__all__() -> None:
     assert len(bcn.__all__) == 148
 
 @pytest.mark.parametrize('name,R,G,B', COLORS)
-def test_color(name, R, G, B) -> None:
+def test_color(name: str, R: int, G: int, B: int) -> None:
     assert name in bcn.__all__
     c = getattr(bcn, name)
     assert (c.r, c.g, c.b) == (R, G, B)

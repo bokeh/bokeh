@@ -16,15 +16,15 @@ export type SplineData = XYGlyphData & {
 export interface SplineView extends SplineData {}
 
 export class SplineView extends XYGlyphView {
-  model: Spline
-  visuals: Spline.Visuals
+  override model: Spline
+  override visuals: Spline.Visuals
 
-  protected _set_data(): void {
+  protected override _set_data(): void {
     const {tension, closed} = this.model
     ;[this._xt, this._yt] = catmullrom_spline(this._x, this._y, 20, tension, closed)
   }
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     const {x_scale, y_scale} = this.renderer.coordinates
     this.sxt = x_scale.v_compute(this._xt)
     this.syt = y_scale.v_compute(this._yt)
@@ -33,21 +33,26 @@ export class SplineView extends XYGlyphView {
   protected _render(ctx: Context2d, _indices: number[], data?: SplineData): void {
     const {sxt: sx, syt: sy} = data ?? this
 
-    this.visuals.line.set_value(ctx)
+    let move = true
+    ctx.beginPath()
 
     const n = sx.length
     for (let j = 0; j < n; j++) {
-      if (j == 0) {
-        ctx.beginPath()
-        ctx.moveTo(sx[j], sy[j])
-        continue
-      } else if (isNaN(sx[j]) || isNaN(sy[j])) {
-        ctx.stroke()
-        ctx.beginPath()
-        continue
-      } else
-        ctx.lineTo(sx[j], sy[j])
+      const sx_i = sx[j]
+      const sy_i = sy[j]
+
+      if (!isFinite(sx_i + sy_i))
+        move = true
+      else {
+        if (move) {
+          ctx.moveTo(sx_i, sy_i)
+          move = false
+        } else
+          ctx.lineTo(sx_i, sy_i)
+      }
     }
+
+    this.visuals.line.set_value(ctx)
     ctx.stroke()
   }
 }
@@ -68,14 +73,14 @@ export namespace Spline {
 export interface Spline extends Spline.Attrs {}
 
 export class Spline extends XYGlyph {
-  properties: Spline.Props
-  __view_type__: SplineView
+  override properties: Spline.Props
+  override __view_type__: SplineView
 
   constructor(attrs?: Partial<Spline.Attrs>) {
     super(attrs)
   }
 
-  static init_Spline(): void {
+  static {
     this.prototype.default_view = SplineView
 
     this.mixins<Spline.Mixins>(mixins.LineScalar)

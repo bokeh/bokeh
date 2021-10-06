@@ -3,7 +3,7 @@ import {Signal} from "core/signaling"
 import * as p from "core/properties"
 
 export class ActionToolButtonView extends ButtonToolButtonView {
-  model: ActionTool
+  override model: ActionTool
 
   protected _clicked(): void {
     this.model.do.emit(undefined)
@@ -11,9 +11,9 @@ export class ActionToolButtonView extends ButtonToolButtonView {
 }
 
 export abstract class ActionToolView extends ButtonToolView {
-  model: ActionTool
+  override model: ActionTool
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.do, (arg: string | undefined) => this.doit(arg))
   }
@@ -30,14 +30,14 @@ export namespace ActionTool {
 export interface ActionTool extends ActionTool.Attrs {}
 
 export abstract class ActionTool extends ButtonTool {
-  properties: ActionTool.Props
-  __view_type__: ActionToolView
+  override properties: ActionTool.Props
+  override __view_type__: ActionToolView
 
   constructor(attrs?: Partial<ActionTool.Attrs>) {
     super(attrs)
   }
 
-  button_view = ActionToolButtonView
+  override button_view = ActionToolButtonView
 
   do = new Signal<string | undefined, this>(this, "do")
 }

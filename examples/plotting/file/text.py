@@ -5,7 +5,7 @@ from bokeh.plotting import figure, output_file, show
 aligns    = ["left", "center", "right"]
 baselines = ["bottom", "middle", "top" ]
 
-p = figure(x_range=aligns, y_range=baselines, plot_width=800, plot_height=600,
+p = figure(x_range=aligns, y_range=baselines, width=800, height=600,
            title="Variations of multi-line text", toolbar_location=None)
 
 p.background_fill_color = "lightgrey"
@@ -53,8 +53,8 @@ for a in aligns:
 
 slider = Slider(title="Text Angle", start=0, end=45, step=1, value=0)
 slider.js_on_change('value', CustomJS(args=renderers, code="""
-    var rs = [r0, r1, r2 , r3, r4, r5, r6, r7, r8];
-    for (var i = 0; i < 9; i++) {
+    const rs = [r0, r1, r2 , r3, r4, r5, r6, r7, r8];
+    for (let i = 0; i < 9; i++) {
         rs[i].glyph.angle = {value: cb_obj.value, units: "deg"}
     }
 """))

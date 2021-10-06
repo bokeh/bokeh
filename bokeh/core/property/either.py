@@ -14,6 +14,8 @@ multiple possible types.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -23,6 +25,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...util.string import nice_join
+from ._sphinx import property_link, register_type_link, type_link
 from .bases import DeserializationError, ParameterizedProperty
 from .singletons import Intrinsic
 
@@ -63,7 +66,7 @@ class Either(ParameterizedProperty):
 
     """
 
-    def __init__(self, tp1, tp2, *type_params, default=Intrinsic, help=None, serialized=None, readonly=False):
+    def __init__(self, tp1, tp2, *type_params, default=Intrinsic, help=None, serialized=None, readonly=False) -> None:
         type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
         default = default if default is not Intrinsic else type_params[0]._raw_default()
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
@@ -71,11 +74,7 @@ class Either(ParameterizedProperty):
         for tp in self._type_params:
             self.alternatives.extend(tp.alternatives)
 
-    # TODO (bev) get rid of this?
-    def __or__(self, other):
-        return self.__class__(*(self.type_params + [other]), default=self._default, help=self.help)
-
-    def __str__(self):
+    def __str__(self) -> str:
         class_name = self.__class__.__name__
         item_types = ", ".join(str(x) for x in self.type_params)
         return f"{class_name}({item_types})"
@@ -84,10 +83,10 @@ class Either(ParameterizedProperty):
     def type_params(self):
         return self._type_params
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         for tp in self.type_params:
             try:
-                return tp.from_json(json, models)
+                return tp.from_json(json, models=models)
             except DeserializationError:
                 pass
         raise DeserializationError(f"{self} couldn't deserialize {json}")
@@ -110,14 +109,14 @@ class Either(ParameterizedProperty):
         msg = "" if not detail else f"expected an element of either {nice_join(self.type_params)}, got {value!r}"
         raise ValueError(msg)
 
+    def wrap(self, value):
+        for tp in self.type_params:
+            value = tp.wrap(value)
+        return value
+
     # TODO (bev) implement this
     # def _may_have_unstable_default(self):
     #     return any(tp._may_have_unstable_default() for tp in self.type_params)
-
-    def _sphinx_type(self):
-        prop_link = self._sphinx_prop_link()
-        subtypes = ", ".join(x._sphinx_type() for x in self.type_params)
-        return f"{prop_link}({subtypes})"
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -130,3 +129,8 @@ class Either(ParameterizedProperty):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+@register_type_link(Either)
+def _sphinx_type_link(obj):
+    subtypes = ", ".join(type_link(x) for x in obj.type_params)
+    return f"{property_link(obj)}({subtypes})"

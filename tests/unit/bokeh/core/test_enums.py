@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -62,8 +64,8 @@ ALL  = (
     'OutputBackend',
     'PaddingUnits',
     'Palette',
+    'Place',
     'RenderLevel',
-    'RenderMode',
     'ResetPolicy',
     'RoundingFunction',
     'SelectionMode',
@@ -77,6 +79,7 @@ ALL  = (
     'TextBaseline',
     'TextureRepetition',
     'TickLabelOrientation',
+    'ToolIcon',
     'TooltipAttachment',
     'TooltipFieldFormatter',
     'TrackPolicy',
@@ -254,9 +257,6 @@ class Test_bce:
     def test_RenderLevel(self) -> None:
         assert tuple(bce.RenderLevel) == ("image", "underlay", "glyph", "guide", "annotation", "overlay")
 
-    def test_RenderMode(self) -> None:
-        assert tuple(bce.RenderMode) == ("canvas", "css")
-
     def test_ResetPolicy(self) -> None:
         assert tuple(bce.ResetPolicy) == ("standard", "event_only")
 
@@ -293,6 +293,13 @@ class Test_bce:
     def test_TickLabelOrientation(self) -> None:
         assert tuple(bce.TickLabelOrientation) == ("horizontal", "vertical", "parallel", "normal")
 
+    def test_ToolIcon(self) -> None:
+        assert tuple(bce.ToolIcon) == ("append_mode", "box_edit", "box_select", "box_zoom", "clear_selection",
+            "copy_to_clipboard", "crosshair", "freehand_draw", "help", "hover", "intersect_mode", "lasso_select",
+            "line_edit", "pan", "point_draw", "poly_draw", "poly_edit", "polygon_select", "range", "redo",
+            "replace_mode", "reset", "save", "subtract_mode", "tap_select", "undo", "wheel_pan", "wheel_zoom",
+            "xpan", "ypan", "zoom_in", "zoom_out")
+
     def test_TooltipAttachment(self) -> None:
         assert tuple(bce.TooltipAttachment) == ("horizontal", "vertical", "left", "right", "above", "below")
 
@@ -307,7 +314,7 @@ class Test_bce:
 
 # any changes to contents of bce.py easily trackable here
 def test_enums_contents() -> None:
-    assert [x for x in dir(bce) if x[0].isupper()] == [
+    assert [ name for name in dir(bce) if isinstance(getattr(bce, name), bce.Enumeration) ] == [
         'Align',
         'Anchor',
         'AngleUnits',
@@ -320,7 +327,6 @@ def test_enums_contents() -> None:
         'Dimension',
         'Dimensions',
         'Direction',
-        'Enumeration',
         'FontStyle',
         'HatchPattern',
         'HatchPatternAbbreviation',
@@ -342,8 +348,8 @@ def test_enums_contents() -> None:
         'OutputBackend',
         'PaddingUnits',
         'Palette',
+        'Place',
         'RenderLevel',
-        'RenderMode',
         'ResetPolicy',
         'RoundingFunction',
         'SelectionMode',
@@ -357,6 +363,7 @@ def test_enums_contents() -> None:
         'TextBaseline',
         'TextureRepetition',
         'TickLabelOrientation',
+        'ToolIcon',
         'TooltipAttachment',
         'TooltipFieldFormatter',
         'TrackPolicy',

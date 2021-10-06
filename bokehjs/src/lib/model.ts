@@ -3,7 +3,8 @@ import {Class} from "./core/class"
 import {ModelEvent} from "./core/bokeh_events"
 import * as p from "./core/properties"
 import {isString} from "./core/util/types"
-import {isEmpty, entries} from "./core/util/object"
+import {is_empty, entries} from "./core/util/object"
+import {equals, Comparator} from "core/util/eq"
 import {logger} from "./core/logging"
 import {CallbackLike0} from "./models/callbacks/callback"
 
@@ -23,19 +24,23 @@ export namespace Model {
 export interface Model extends Model.Attrs {}
 
 export class Model extends HasProps {
-  properties: Model.Props
+  override properties: Model.Props
 
   private /*readonly*/ _js_callbacks: Map<string, (() => void)[]>
 
-  get is_syncable(): boolean{
+  override get is_syncable(): boolean {
     return this.syncable
+  }
+
+  override [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.id, that.id) && super[equals](that, cmp)
   }
 
   constructor(attrs?: Partial<Model.Attrs>) {
     super(attrs)
   }
 
-  static init_Model(): void {
+  static {
     this.define<Model.Props>(({Any, Unknown, Boolean, String, Array, Dict, Nullable}) => ({
       tags:                  [ Array(Unknown), [] ],
       name:                  [ Nullable(String), null ],
@@ -46,12 +51,12 @@ export class Model extends HasProps {
     }))
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._js_callbacks = new Map()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     this._update_property_callbacks()
@@ -77,7 +82,7 @@ export class Model extends HasProps {
 
   protected _update_event_callbacks(): void {
     if (this.document == null) {
-      logger.warn('WARNING: Document not defined for updating event callbacks')
+      logger.warn("WARNING: Document not defined for updating event callbacks")
       return
     }
     this.document.event_manager.subscribed_models.add(this)
@@ -105,12 +110,12 @@ export class Model extends HasProps {
     }
   }
 
-  protected _doc_attached(): void {
-    if (!isEmpty(this.js_event_callbacks) || this.subscribed_events.length != 0)
+  protected override _doc_attached(): void {
+    if (!is_empty(this.js_event_callbacks) || this.subscribed_events.length != 0)
       this._update_event_callbacks()
   }
 
-  protected _doc_detached(): void {
+  protected override _doc_detached(): void {
     this.document!.event_manager.subscribed_models.delete(this)
   }
 

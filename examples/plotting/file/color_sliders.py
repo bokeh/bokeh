@@ -1,10 +1,19 @@
+''' An interactive plot of colors. This example demonstrates adding widgets and
+``CustomJS`` callbacks that can update a plot.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.rect, bokeh.plotting.Figure.text, bokeh.layouts.column, bokeh.layouts.row, bokeh.models.sources.ColumnDataSource, bokeh.models.callbacks.CustomJS, bokeh.models.widgets.sliders.Slider, bokeh.themes.Theme # noqa: E501
+    :refs: :ref:`userguide_interaction_jscallbacks` > :ref:`userguide_interaction_jscallbacks_customjs`
+    :keywords: hover, javascript callback, theme, tooltip
+
+'''
 import colorsys
 
 import yaml
 
 from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, CustomJS, Slider
-from bokeh.plotting import curdoc, figure, output_file, show
+from bokeh.plotting import curdoc, figure, show
 from bokeh.themes import Theme
 
 
@@ -42,7 +51,7 @@ source = ColumnDataSource(data=dict(color=[hex_color], text_color=[text_color]))
 
 # create first plot, as a rect() glyph and centered text label, with fill and text color taken from source
 p1 = figure(x_range=(-8, 8), y_range=(-4, 4),
-            plot_width=600, plot_height=300,
+            width=600, height=300,
             title='move sliders to change', tools='')
 
 p1.rect(0, 0, width=18, height=10, fill_color='color',
@@ -61,7 +70,7 @@ blue_slider = Slider(title="B", start=0, end=255, value=255, step=1)
 # by Tim Down at http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
 callback = CustomJS(args=dict(source=source, red=red_slider, blue=blue_slider, green=green_slider), code="""
     function componentToHex(c) {
-        var hex = c.toString(16)
+        const hex = c.toString(16)
         return hex.length == 1 ? "0" + hex : hex
     }
     function rgbToHex(r, g, b) {
@@ -99,7 +108,7 @@ crsource = ColumnDataSource(data=dict(x=crx, y=cry, crcolor=crcolor, RGBs=crRGBs
 
 # create second plot
 p2 = figure(x_range=(0,1000), y_range=(0,10),
-            plot_width=600, plot_height=150,
+            width=600, height=150,
             tools='hover', title='hover over color')
 
 color_range1 = p2.rect(x='x', y='y', width=1, height=10,
@@ -129,7 +138,5 @@ layout = row(
     column(red_slider, green_slider, blue_slider),
     column(p1, p2)
 )
-
-output_file("color_sliders.html", title="color_sliders.py example")
 
 show(layout)

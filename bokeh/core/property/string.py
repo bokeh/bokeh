@@ -13,6 +13,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -34,6 +36,7 @@ from .singletons import Undefined
 
 __all__ = (
     'Regex',
+    'MathString',
     'Base64String',
 )
 
@@ -78,11 +81,11 @@ class Regex(String):
             >>> m.prop = [1, 2, 3]  # ValueError !!
 
     """
-    def __init__(self, regex, default=Undefined, help=None):
+    def __init__(self, regex, default=Undefined, help=None) -> None:
         self.regex = re.compile(regex)
         super().__init__(default=default, help=help)
 
-    def __str__(self):
+    def __str__(self) -> str:
         class_name = self.__class__.__name__
         return f"{class_name}({self.regex.pattern!r})"
 
@@ -110,6 +113,14 @@ class Base64String(String):
         if isinstance(value, str):
             value = base64.b64encode(value.encode("utf-8")).decode("utf-8")
         return value
+
+class MathString(String):
+    """ A string with math TeX/LaTeX delimiters.
+
+    Args:
+        value : a string that contains math
+
+    """
 
 #-----------------------------------------------------------------------------
 # Dev API

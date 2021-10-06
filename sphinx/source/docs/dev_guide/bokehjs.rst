@@ -1,13 +1,13 @@
-.. _devguide_bokehjs:
+.. _contributor_guide_bokehjs:
 
-BokehJS
-=======
+Contributing to BokehJS
+=======================
 
 BokehJS is the in-browser client-side runtime library that users of Bokeh
 ultimately interact with. This library is written primarily in TypeScript
 and is one of the unique things about the Bokeh plotting system.
 
-.. _devguide_bokehjs_motivations:
+.. _contributor_guide_bokehjs_motivations:
 
 BokehJS Motivations
 -------------------
@@ -26,7 +26,7 @@ This, in turn, has caused the developers of Python plotting libraries to
 only treat the browser as a "backend target" environment, for which they
 will generate static images or a bunch of JavaScript.
 
-.. _devguide_bokehjs_goals:
+.. _contributor_guide_bokehjs_goals:
 
 Goals
 -----
@@ -35,7 +35,7 @@ BokehJS is intended to be a standalone, first-class JavaScript plotting
 library and *interaction runtime* for dynamic, highly-customizable
 information visualization.
 
-.. _devguide_bokehjs_interface:
+.. _contributor_guide_bokehjs_interface:
 
 Interface
 ---------
@@ -56,14 +56,14 @@ that is compiled from several separate ``.less`` files in the BokehJS source
 tree. All CSS classes specifically for Bokeh DOM elements are prefixed with
 the string ``bk-``. For instance some examples are: ``.bk-plot``, ``.bk-toolbar-button``, etc.
 
-.. _devguide_bokehjs_development:
+.. _contributor_guide_bokehjs_development:
 
 Development
 -----------
 
-BokehJS's source code is located in the ``bokehjs/`` directory in Bokeh's monorepo
-repository. All further instructions and shell commands assume that ``bokehjs/``
-is the current directory.
+BokehJS's source code is located in the :bokeh-tree:`bokehjs` directory in Bokeh's
+monorepo repository. All further instructions and shell commands assume that
+``bokehjs/`` is the current directory.
 
 Some guidelines to adhere to when working on BokehJS:
 
@@ -74,9 +74,9 @@ Some guidelines to adhere to when working on BokehJS:
 Requirements
 ~~~~~~~~~~~~
 
-* node 14.*
+* node 14+
 * npm 7.4+ (most recent version)
-* chrome/chromium browser 88+ or equivalent
+* chrome/chromium browser 94+ or equivalent
 
 You can install nodejs with conda:
 
@@ -124,95 +124,30 @@ it for code emit, because we rely on AST transforms to produce viable library co
 Testing
 ~~~~~~~
 
-BokehJS testing is performed with the ``node make test`` command. You can run individual
-test suites with ``node make test:suite_name``. Known tests suites are:
+The Bokeh repository contains several test suites. These tests help to make sure
+that BokehJS functions consistently as its own library as well as in combination
+with all other components of Bokeh.
 
-* ``node make test:codebase``
-* ``node make test:defaults``
-* ``node make test:unit``
-* ``node make test:integration``
+To learn more about running tests for BokehJS locally, see
+:ref:`contributor_guide_testing_local_javascript`.
 
-The last two can be run with ``node make test:lib``. Unit and integration tests are
-run in a web browser (see requirements), which is started automatically with the
-right settings to guarantee consistent test results.
-
-To review the visual tests' output, start BokehJS's devtools server:
-
-.. code-block:: sh
-
-    $ node test/devtools server
-    listening on 127.0.0.1:5777
-
-and navigate to ``/integration/report``. Devtools server can also be used to
-manually inspect and debug tests. For that, the following endpoints are available:
-
-* ``/unit``
-* ``/defaults``
-* ``/integration``
-
-Those load BokehJS and the tests, but don't do anything. You have to issue ``Tests.run_all()``
-in a JavaScript console. This allows you to set breakpoints before running code. You
-can filter out tests by providing a string keyword or a regular expression. Alternatively,
-you can run tests immediately with these endpoints:
-
-* ``/unit/run``
-* ``/defaults/run``
-* ``/integration/run``
-
-You can use ``?k=some%20text`` to filter tests by a keyword.
-
-CI and Visual Testing
-~~~~~~~~~~~~~~~~~~~~~
-
-``test:integration`` does two types of tests and associated baseline files:
-
-* textual baseline tests: ``*.blf``
-* visual/screenshot tests: ``*.png``
-
-Textual baselines are mostly cross-platform compatible and usually can be generated
-locally (on supported platforms) or in CI. Visual testing is platform depended and
-fairly sensitive to system configuration (especially in regard to differences in
-font rendering). Visual tests can be performed locally, but given that baseline
-images for all three supported platforms have to be updated, the preferred approach
-is to generate images and compare them in CI.
-
-The full procedure for visual testing is as follows:
-
-1. Make changes to the repository and write new tests or update existing.
-2. Use ``node make tests`` to incrementally test your changes on your system.
-3. Push your changes to GitHub and wait for CI to finish.
-4. If you added new tests, CI will expectedly fail with "missing baseline
-   images" error message.
-5. If tests passed then you are done.
-6. If tests failed, go to BokehJS's GitHub_Actions_ page. Find the most recent
-   test run for your PR and download the associated ``bokehjs-report`` artifact.
-7. Unzip the artifact archive at the root of the repository.
-8. Assuming devtools server is running in the background, go to ``/integration/report?platform=name``
-   where ``name`` is either ``linux``, ``macos`` or ``windows`` and review the test output
-   for each platform. If there are no unintentional differences, then commit all
-   new or modified ``*.blf`` and ``*.png`` files under ``test/baselines/{linux,macos,windows}``.
-9. Push your changes to GitHub again and verify that tests pass this time.
-
-.. note::
-
-    Make sure to monitor the state of the ``test/baselines`` directory, so that you
-    don't commit unnecessary files. If you do so, subsequent tests will fail. Reset
-    this directory after every failed test run (``git checkout`` and/or ``git clean``).
+To learn more about adding and updating tests for BokehJS, see
+:ref:`contributor_guide_writing_tests_bokehjs`.
 
 Debugging in Headless Chrome
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Although testing in headless chrome and running tests manually in chrome should agree
-with each other most of the time, there are rare cases where headless and GUI chrome
-diverge. In this situation one has to debug bokehjs' code directly in the headless
+Although testing in headless Chrome and running tests manually in Chrome should agree
+with each other most of the time, there are rare cases where headless and GUI Chrome
+diverge. In this situation one has to debug BokehJS' code directly in the headless
 browser.
 
-Start bokehjs' devtools server in one console and run ``node make test:run:headless``
-in another. This starts chrome in headless mode preconfigured for bokehjs' testing
-setup. Then open chrome (or any other web browser), navigate to http://localhost:9222 and
+Start BokehJS' devtools server in one console and run ``node make test:run:headless``
+in another. This starts Chrome in headless mode preconfigured for bokehjs' testing
+setup. Then open Chrome (or any other web browser), navigate to http://localhost:9222 and
 click ``about:blank`` link. This opens remote devtools console. Use its navigation bar
 and navigate to e.g. http://localhost:5777/integration/run (or other URL mentioned in
-an earlier paragraph). You are now set up for debugging in headless chrome.
+an earlier paragraph). You are now set up for debugging in headless Chrome.
 
 Minimal Model/View Module
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -260,7 +195,7 @@ module looks like this:
         super(attrs)
       }
 
-      static init_SomeModel(): void {
+      static {
         this.prototype.default_view = SomeModelView
 
         this.define<SomeModel.Props>(({Number}) => ({

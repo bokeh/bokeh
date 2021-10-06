@@ -1,4 +1,4 @@
-from bokeh.models.tools import BoxZoomTool, PanTool, ResetTool
+from bokeh.models import BoxZoomTool, PanTool, ResetTool
 from bokeh.plotting import figure, show
 
 # prepare some data
@@ -11,7 +11,7 @@ p = figure(
     tools=[BoxZoomTool(), ResetTool()],
     sizing_mode="stretch_width",
     max_width=500,
-    plot_height=250,
+    height=250,
 )
 
 # add an additional pan tool

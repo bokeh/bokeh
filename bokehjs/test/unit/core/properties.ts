@@ -68,13 +68,13 @@ namespace Some {
 interface Some extends Some.Attrs {}
 
 class Some extends HasProps {
-  properties: Some.Props
+  override properties: Some.Props
 
   constructor(attrs?: Partial<Some.Attrs>) {
     super(attrs)
   }
 
-  static init_Some(): void {
+  static {
     this.define<Some.Props>((kinds) => ({
       anchor: [ enums.Anchor ],
       any: [ kinds.Any ],

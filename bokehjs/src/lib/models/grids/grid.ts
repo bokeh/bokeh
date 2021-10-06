@@ -9,8 +9,8 @@ import {Context2d} from "core/util/canvas"
 import {isArray} from "core/util/types"
 
 export class GridView extends GuideRendererView {
-  model: Grid
-  visuals: Grid.Visuals
+  override model: Grid
+  override visuals: Grid.Visuals
 
   protected _render(): void {
     const ctx = this.layer.ctx
@@ -21,7 +21,7 @@ export class GridView extends GuideRendererView {
     ctx.restore()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
   }
@@ -30,7 +30,7 @@ export class GridView extends GuideRendererView {
     if (!this.visuals.band_fill.doit && !this.visuals.band_hatch.doit)
       return
 
-    const [xs, ys] = this.grid_coords('major', false)
+    const [xs, ys] = this.grid_coords("major", false)
     for (let i = 0; i < xs.length-1; i++) {
       if (i % 2 != 1)
         continue
@@ -41,29 +41,22 @@ export class GridView extends GuideRendererView {
       ctx.beginPath()
       ctx.rect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
 
-      if (this.visuals.band_fill.doit) {
-        this.visuals.band_fill.set_value(ctx)
-        ctx.fill()
-      }
-
-      if (this.visuals.band_hatch.doit) {
-        this.visuals.band_hatch.set_value(ctx)
-        ctx.fill()
-      }
+      this.visuals.band_fill.apply(ctx)
+      this.visuals.band_hatch.apply(ctx)
     }
   }
 
   protected _draw_grids(ctx: Context2d): void {
     if (!this.visuals.grid_line.doit)
       return
-    const [xs, ys] = this.grid_coords('major')
+    const [xs, ys] = this.grid_coords("major")
     this._draw_grid_helper(ctx, this.visuals.grid_line, xs, ys)
   }
 
   protected _draw_minor_grids(ctx: Context2d): void {
     if (!this.visuals.minor_grid_line.doit)
       return
-    const [xs, ys] = this.grid_coords('minor')
+    const [xs, ys] = this.grid_coords("minor")
     this._draw_grid_helper(ctx, this.visuals.minor_grid_line, xs, ys)
   }
 
@@ -206,14 +199,14 @@ export namespace Grid {
 export interface Grid extends Grid.Attrs {}
 
 export class Grid extends GuideRenderer {
-  properties: Grid.Props
-  __view_type__: GridView
+  override properties: Grid.Props
+  override __view_type__: GridView
 
   constructor(attrs?: Partial<Grid.Attrs>) {
     super(attrs)
   }
 
-  static init_Grid(): void {
+  static {
     this.prototype.default_view = GridView
 
     this.mixins<Grid.Mixins>([
@@ -234,7 +227,7 @@ export class Grid extends GuideRenderer {
       level: "underlay",
       band_fill_color: null,
       band_fill_alpha: 0,
-      grid_line_color: '#e5e5e5',
+      grid_line_color: "#e5e5e5",
       minor_grid_line_color: null,
     })
   }

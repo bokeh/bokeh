@@ -94,14 +94,14 @@ export async function compile_and_resolve_deps(input: {code: string, lang: strin
       try {
         const {css} = await lesscss.render(code, {filename: file, compress: true})
         return {code: css}
-      } catch (error: unknown) {
+      } catch (error) {
         return {error: `${error}`}
       }
     default:
       throw new Error(`unsupported input type: ${lang}`)
   }
 
-  const source = ts.createSourceFile(file, output, ts.ScriptTarget.ES5, true, ts.ScriptKind.JS)
+  const source = ts.createSourceFile(file, output, ts.ScriptTarget.ES2015, true, ts.ScriptKind.JS)
   const deps = transforms.collect_deps(source)
 
   return {code: output, deps}

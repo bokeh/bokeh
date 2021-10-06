@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -49,8 +51,6 @@ class Test_NamedColor:
     def test_to_css(self) -> None:
         c = bcu.NamedColor("aliceblue", 240,  248,  255)
         assert c.to_css() == "aliceblue"
-
-# _ColorGroupMeta is exercised here by testing ColorGroup, rather than a separate test
 
 class Test_ColorGroup:
     def test_len(self) -> None:

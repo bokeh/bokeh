@@ -10,7 +10,7 @@ y=[7,1,3,4,1,6]
 c=['blue','blue','blue','blue','blue','blue']
 source = ColumnDataSource(data=dict(x=x, y=y,color=c))
 
-plot_figure = figure(title='Dropdown',plot_height=450, plot_width=600,
+plot_figure = figure(title='Dropdown',height=450, width=600,
               tools="save,reset", toolbar_location="below")
 
 plot_figure.scatter('x', 'y',color='color', source=source, size=10)

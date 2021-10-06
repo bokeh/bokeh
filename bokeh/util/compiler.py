@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -24,9 +26,20 @@ import json
 import os
 import re
 import sys
-from collections import OrderedDict
-from os.path import abspath, dirname, exists, isabs, join
+from os.path import (
+    abspath,
+    dirname,
+    exists,
+    isabs,
+    join,
+)
 from subprocess import PIPE, Popen
+from typing import (
+    Dict,
+    List,
+    Sequence,
+    Type,
+)
 
 # Bokeh imports
 from ..model import Model
@@ -72,7 +85,7 @@ class CompilationError(RuntimeError):
     ''' A ``RuntimeError`` subclass for reporting JS compilation errors.
 
     '''
-    def __init__(self, error):
+    def __init__(self, error) -> None:
         super().__init__()
         if isinstance(error, dict):
             self.line = error.get("line")
@@ -83,16 +96,16 @@ class CompilationError(RuntimeError):
         else:
             self.text = error
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "\n" + self.text.strip()
 
 bokehjs_dir = settings.bokehjsdir()
 nodejs_min_version = (14, 0, 0)
 
-def nodejs_version():
+def nodejs_version() -> str | None:
     return _version(_run_nodejs)
 
-def npmjs_version():
+def npmjs_version() -> str | None:
     return _version(_run_npmjs)
 
 def nodejs_compile(code, lang="javascript", file=None):
@@ -128,7 +141,7 @@ class Inline(Implementation):
             A file path to a file containing the source text (default: None)
 
     '''
-    def __init__(self, code, file=None):
+    def __init__(self, code, file=None) -> None:
         self.code = code
         self.file = file
 
@@ -178,13 +191,13 @@ class FromFile(Implementation):
             The path to the file containing the extension source code
 
     '''
-    def __init__(self, path):
+    def __init__(self, path: str) -> None:
         with open(path, encoding="utf-8") as f:
             self.code = f.read()
         self.file = path
 
     @property
-    def lang(self):
+    def lang(self) -> str | None:
         if self.file.endswith(".ts"):
             return "typescript"
         if self.file.endswith(".js"):
@@ -199,20 +212,20 @@ class CustomModel:
     ''' Represent a custom (user-defined) Bokeh model.
 
     '''
-    def __init__(self, cls):
+    def __init__(self, cls: Type[Model]) -> None:
         self.cls = cls
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.cls.__name__
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         name = self.cls.__module__ + "." + self.name
         return name.replace("__main__.", "")
 
     @property
-    def file(self):
+    def file(self) -> str | None:
         module = sys.modules[self.cls.__module__]
 
         if hasattr(module, "__file__"):
@@ -221,7 +234,7 @@ class CustomModel:
             return None
 
     @property
-    def path(self):
+    def path(self) -> str:
         path = getattr(self.cls, "__base_path__", None)
 
         if path is not None:
@@ -232,7 +245,7 @@ class CustomModel:
             return os.getcwd()
 
     @property
-    def implementation(self):
+    def implementation(self) -> Implementation:
         impl = self.cls.__implementation__
 
         if isinstance(impl, str):
@@ -266,7 +279,7 @@ def set_cache_hook(hook):
     global _CACHING_IMPLEMENTATION
     _CACHING_IMPLEMENTATION = hook
 
-def calc_cache_key(custom_models):
+def calc_cache_key(custom_models: Dict[str, CustomModel]) -> str:
     ''' Generate a key to cache a custom extension implementation with.
 
     There is no metadata other than the Model classes, so this is the only
@@ -280,9 +293,9 @@ def calc_cache_key(custom_models):
     encoded_names = ",".join(sorted(model_names)).encode('utf-8')
     return hashlib.sha256(encoded_names).hexdigest()
 
-_bundle_cache = {}
+_bundle_cache: Dict[str, str] = {}
 
-def bundle_models(models):
+def bundle_models(models: Sequence[Type[Model]] | None) -> str | None:
     """Create a bundle of selected `models`. """
     custom_models = _get_custom_models(models)
     if custom_models is None:
@@ -299,7 +312,7 @@ def bundle_models(models):
             sys.exit(1)
     return bundle
 
-def bundle_all_models():
+def bundle_all_models() -> str | None:
     """Create a bundle of all models. """
     return bundle_models(None)
 
@@ -316,7 +329,7 @@ _plugin_umd = \
 (function(root, factory) {
     factory(root["Bokeh"]);
 })(this, function(Bokeh) {
-  var define;
+  let define;
   return %(content)s;
 });
 """
@@ -338,7 +351,7 @@ _plugin_template = \
 %(prelude)s\
 ({
   "custom/main": function(require, module, exports) {
-    var models = {
+    const models = {
       %(exports)s
     };
     require("base").register_models(models);
@@ -351,10 +364,10 @@ _plugin_template = \
 _style_template = \
 """\
 (function() {
-  var head = document.getElementsByTagName('head')[0];
-  var style = document.createElement('style');
+  const head = document.getElementsByTagName('head')[0];
+  const style = document.createElement('style');
   style.type = 'text/css';
-  var css = %(css)s;
+  const css = %(css)s;
   if (style.styleSheet) {
     style.styleSheet.cssText = css;
   } else {
@@ -434,7 +447,7 @@ def _run_nodejs(argv, input=None):
 def _run_npmjs(argv, input=None):
     return _run(_npmjs_path(), argv, input)
 
-def _version(run_app):
+def _version(run_app) -> str | None:
     try:
         version = run_app(["--version"])
     except RuntimeError:
@@ -448,29 +461,25 @@ def _model_cache_no_op(model, implementation):
 
 _CACHING_IMPLEMENTATION = _model_cache_no_op
 
-def _get_custom_models(models):
+def _get_custom_models(models: Sequence[Type[Model]] | None) -> Dict[str, CustomModel] | None:
     """Returns CustomModels for models with a custom `__implementation__`"""
-    if models is None:
-        models = Model.model_class_reverse_map.values()
+    custom_models: Dict[str, CustomModel] = dict()
 
-    custom_models = OrderedDict()
-    for cls in models:
+    for cls in models or Model.model_class_reverse_map.values():
         impl = getattr(cls, "__implementation__", None)
 
         if impl is not None:
             model = CustomModel(cls)
             custom_models[model.full_name] = model
 
-    if not custom_models:
-        return None
-    return custom_models
+    return custom_models if custom_models else None
 
-def _compile_models(custom_models):
+def _compile_models(custom_models: Dict[str, CustomModel]):
     """Returns the compiled implementation of supplied `models`. """
     ordered_models = sorted(custom_models.values(), key=lambda model: model.full_name)
     custom_impls = {}
 
-    dependencies = []
+    dependencies: List[str] = []
     for model in ordered_models:
         dependencies.extend(list(model.dependencies.items()))
 
@@ -491,7 +500,7 @@ def _compile_models(custom_models):
 
     return custom_impls
 
-def _bundle_models(custom_models):
+def _bundle_models(custom_models) -> str:
     """ Create a JavaScript bundle with selected `models`. """
     exports = []
     modules = []

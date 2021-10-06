@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -18,9 +20,19 @@ import pytest ; pytest
 import numpy as np
 
 # Bokeh imports
-from _util_property import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
-from bokeh.core.properties import Float, Instance, Int, String
+from bokeh.core.properties import (
+    Any,
+    Float,
+    Instance,
+    Int,
+    Seq,
+    String,
+)
+from bokeh.core.property.wrappers import PropertyValueDict, PropertyValueList
+from bokeh.models import ColumnDataSource
+
+from _util_property import _TestHasProps, _TestModel
 
 # Module under test
 import bokeh.core.property.container as bcpc # isort:skip
@@ -44,8 +56,45 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-# TODO (bev) class Test_ColumnData
 # TODO (bev) class Test_RelativeDelta
+
+class Test_ColumnData:
+
+    def test_init(self) -> None:
+        with pytest.raises(TypeError):
+            bcpc.ColumnData()
+
+        assert issubclass(bcpc.ColumnData, bcpc.Dict)
+
+    def test_has_ref(self) -> None:
+        prop = bcpc.ColumnData(String, Seq(Any))
+        assert not prop.has_ref
+
+    def test_str(self) -> None:
+        prop = bcpc.ColumnData(String, Seq(Any))
+        assert str(prop) == "ColumnData(String, Seq(Any))"
+
+    def test__hinted_value_with_hint_ColumnDataChanged(self) -> None:
+        from bokeh.document.events import ColumnDataChangedEvent
+
+        prop = bcpc.ColumnData(String, Seq(Any))
+        source = ColumnDataSource(data=dict(foo=[10], bar=[20], baz=[30]))
+        hint = ColumnDataChangedEvent("doc", source, ["foo"])
+        assert prop._hinted_value(source.data, hint) == dict(foo=[10])
+
+    def test__hinted_value_with_hint_ColumnsStreamed(self) -> None:
+        from bokeh.document.events import ColumnsStreamedEvent
+
+        prop = bcpc.ColumnData(String, Seq(Any))
+        source = ColumnDataSource(data=dict(foo=[10], bar=[20], baz=[30]))
+        new_data = dict(foo=[11], bar=[21], baz=[31])
+        hint = ColumnsStreamedEvent("doc", source, new_data, rollover=10)
+        assert prop._hinted_value(source.data, hint) == new_data
+
+    def test__hinted_value_without_hint(self) -> None:
+        prop = bcpc.ColumnData(String, Seq(Any))
+        source = ColumnDataSource(data=dict(foo=[10], bar=[20], baz=[30]))
+        assert prop._hinted_value(source.data, None) == source.data
 
 
 class Test_Array:
@@ -131,6 +180,11 @@ class Test_Dict:
         prop = bcpc.Dict(String, Int)
         assert str(prop) == "Dict(String, Int)"
 
+    def test_wrap(self) -> None:
+        prop = bcpc.Dict(String, Int)
+        wrapped = prop.wrap({"foo": 10})
+        assert isinstance(wrapped, PropertyValueDict)
+        assert prop.wrap(wrapped) is wrapped
 
 class Test_List:
     def test_init(self) -> None:
@@ -176,6 +230,11 @@ class Test_List:
         prop = bcpc.List(Int)
         assert str(prop) == "List(Int)"
 
+    def test_wrap(self) -> None:
+        prop = bcpc.List(Int)
+        wrapped = prop.wrap([10, 20])
+        assert isinstance(wrapped, PropertyValueList)
+        assert prop.wrap(wrapped) is wrapped
 
 class Test_Seq:
     def test_init(self) -> None:

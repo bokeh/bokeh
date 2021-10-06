@@ -1,7 +1,6 @@
 import json
 import re
 import sys
-from collections import OrderedDict
 from distutils.version import StrictVersion
 from glob import glob
 from os.path import abspath, basename, dirname, join
@@ -37,7 +36,7 @@ def compute_hashes_for_paths(paths, version):
 
 def get_current_package_json():
     tmp = json.load(open(join(TOP, "bokeh", "_sri.json")))
-    results = OrderedDict(
+    results = dict(
         (key, dict(val))
         for key, val in sorted(
             tmp.items(), key=lambda item: StrictVersion(item[0]), reverse=True

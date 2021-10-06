@@ -25,14 +25,14 @@ describe("zoom module", () => {
     })
 
     it("should scale factor ranges around average center if no center is provided", () => {
-      const r = new FactorRange({factors: ['a', 'b', 'c', 'd', 'e'], range_padding: 0})
+      const r = new FactorRange({factors: ["a", "b", "c", "d", "e"], range_padding: 0})
       expect(zoom.scale_highlow(r, 0.1)).to.be.equal([0.25, 4.75])
       expect(zoom.scale_highlow(r, -0.1)).to.be.equal([-0.25, 5.25])
       expect(zoom.scale_highlow(r, 0)).to.be.equal([0.0, 5.0])
     })
 
     it("should scale factor ranges around given center if center is provided", () => {
-      const r = new FactorRange({factors: ['a', 'b', 'c', 'd', 'e'], range_padding: 0})
+      const r = new FactorRange({factors: ["a", "b", "c", "d", "e"], range_padding: 0})
       expect(zoom.scale_highlow(r, 0.1, 2)).to.be.equal([0.2, 4.7])
       expect(zoom.scale_highlow(r, -0.1, 2)).to.be.equal([-0.2, 5.3])
       expect(zoom.scale_highlow(r, 0, 2)).to.be.equal([0, 5])
@@ -43,7 +43,7 @@ describe("zoom module", () => {
 
     it("should work with categorical scales", () => {
       const cm = new CategoricalScale({
-        source_range: new FactorRange({factors: ['foo', 'bar', 'baz'], range_padding: 0}),
+        source_range: new FactorRange({factors: ["foo", "bar", "baz"], range_padding: 0}),
         target_range: new Range1d({start: 20, end: 80}),
       })
       const info0 = zoom.get_info(new Map([["foo", cm]]), [20, 80])

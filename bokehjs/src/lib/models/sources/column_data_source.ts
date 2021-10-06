@@ -149,13 +149,13 @@ export namespace ColumnDataSource {
 export interface ColumnDataSource extends ColumnDataSource.Attrs {}
 
 export class ColumnDataSource extends ColumnarDataSource {
-  properties: ColumnDataSource.Props
+  override properties: ColumnDataSource.Props
 
   constructor(attrs?: Partial<ColumnDataSource.Attrs>) {
     super(attrs)
   }
 
-  static init_ColumnDataSource(): void {
+  static {
     this.define<ColumnDataSource.Props>(({Dict, Any /*Arrayable*/}) => ({
       data: [ Dict(Any /*Arrayable*/), {} ], // TODO: resolve ndarray refs earlier
     }))
@@ -170,7 +170,7 @@ export class ColumnDataSource extends ColumnarDataSource {
     this.streaming.emit()
     if (this.document != null) {
       const hint = new ColumnsStreamedEvent(this.document, this.ref(), new_data, rollover)
-      this.document._notify_change(this, 'data', null, null, {setter_id, hint})
+      this.document._notify_change(this, "data", null, null, {setter_id, hint})
     }
   }
 
@@ -184,7 +184,7 @@ export class ColumnDataSource extends ColumnarDataSource {
     this.patching.emit([...patched])
     if (this.document != null) {
       const hint = new ColumnsPatchedEvent(this.document, this.ref(), patches)
-      this.document._notify_change(this, 'data', null, null, {setter_id, hint})
+      this.document._notify_change(this, "data", null, null, {setter_id, hint})
     }
   }
 }

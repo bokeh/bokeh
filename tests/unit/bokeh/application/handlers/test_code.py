@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -50,16 +52,6 @@ curdoc().add_root(SomeModelInTestScript())
 
 class TestCodeHandler:
     # Public methods ----------------------------------------------------------
-
-    def test_missing_source(self) -> None:
-        with pytest.raises(ValueError) as e:
-            bahc.CodeHandler()
-            assert str(e) == "Must pass source to CodeHandler"
-
-    def test_missing_filename(self) -> None:
-        with pytest.raises(ValueError) as e:
-            bahc.CodeHandler(source="# This script does nothing")
-            assert str(e) == "Must pass filename to CodeHandler"
 
     def test_empty_script(self) -> None:
         doc = Document()
@@ -113,11 +105,11 @@ class TestCodeHandler:
 
         doc = Document()
         handler = bahc.CodeHandler(source="""import sys; raise RuntimeError("argv: %r" % sys.argv)""",
-                                   filename="path/to/test_filename", argv=[10, 20, 30])
+                                   filename="path/to/test_filename", argv=["10", "20", "30"])
         handler.modify_document(doc)
 
         assert handler.error is not None
-        assert "argv: ['test_filename', 10, 20, 30]" in handler.error
+        assert "argv: ['test_filename', '10', '20', '30']" in handler.error
 
     def test_safe_to_fork(self) -> None:
         doc = Document()

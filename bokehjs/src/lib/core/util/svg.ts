@@ -4,6 +4,7 @@
 
 import {AffineTransform} from "./affine"
 import {isString, isNumber} from "./types"
+import {random, Random} from "./random"
 import {empty} from "../dom"
 
 type KV<T> = {[key: string]: T}
@@ -14,38 +15,21 @@ type FontData = {
   family: string
   weight: string
   decoration: string
-  href?: string
-}
-
-// helper function that generates a random string
-function randomString(holder: KV<string>): string {
-  if (!holder) {
-    throw new Error("cannot create a random attribute name for an undefined object")
-  }
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz"
-  let randomstring = ""
-  do {
-    randomstring = ""
-    for (let i = 0; i < 12; i++) {
-      randomstring += chars[Math.floor(Math.random() * chars.length)]
-    }
-  } while (holder[randomstring])
-  return randomstring
 }
 
 // helper function to map named to numbered entities
 function createNamedToNumberedLookup(input: string, radix: number): Map<string, string> {
   const lookup = new Map()
-  const items = input.split(',')
+  const items = input.split(",")
   radix = radix ?? 10
   // Map from named to numbered entities.
   for (let i = 0; i < items.length; i += 2) {
-    const entity = '&' + items[i + 1] + ';'
+    const entity = `&${items[i + 1]};`
     const base10 = parseInt(items[i], radix)
-    lookup.set(entity, '&#'+base10+';')
+    lookup.set(entity, `&#${base10};`)
   }
   // FF and IE need to create a regex from hex values ie &nbsp; == \xa0
-  lookup.set("\\xa0", '&#160;')
+  lookup.set("\\xa0", "&#160;")
   return lookup
 }
 
@@ -66,31 +50,31 @@ function getDominantBaseline(textBaseline: string): string {
 // Unpack entities lookup where the numbers are in radix 32 to reduce the size
 // entity mapping courtesy of tinymce
 const namedEntities = createNamedToNumberedLookup(
-  '50,nbsp,51,iexcl,52,cent,53,pound,54,curren,55,yen,56,brvbar,57,sect,58,uml,59,copy,' +
-  '5a,ordf,5b,laquo,5c,not,5d,shy,5e,reg,5f,macr,5g,deg,5h,plusmn,5i,sup2,5j,sup3,5k,acute,' +
-  '5l,micro,5m,para,5n,middot,5o,cedil,5p,sup1,5q,ordm,5r,raquo,5s,frac14,5t,frac12,5u,frac34,' +
-  '5v,iquest,60,Agrave,61,Aacute,62,Acirc,63,Atilde,64,Auml,65,Aring,66,AElig,67,Ccedil,' +
-  '68,Egrave,69,Eacute,6a,Ecirc,6b,Euml,6c,Igrave,6d,Iacute,6e,Icirc,6f,Iuml,6g,ETH,6h,Ntilde,' +
-  '6i,Ograve,6j,Oacute,6k,Ocirc,6l,Otilde,6m,Ouml,6n,times,6o,Oslash,6p,Ugrave,6q,Uacute,' +
-  '6r,Ucirc,6s,Uuml,6t,Yacute,6u,THORN,6v,szlig,70,agrave,71,aacute,72,acirc,73,atilde,74,auml,' +
-  '75,aring,76,aelig,77,ccedil,78,egrave,79,eacute,7a,ecirc,7b,euml,7c,igrave,7d,iacute,7e,icirc,' +
-  '7f,iuml,7g,eth,7h,ntilde,7i,ograve,7j,oacute,7k,ocirc,7l,otilde,7m,ouml,7n,divide,7o,oslash,' +
-  '7p,ugrave,7q,uacute,7r,ucirc,7s,uuml,7t,yacute,7u,thorn,7v,yuml,ci,fnof,sh,Alpha,si,Beta,' +
-  'sj,Gamma,sk,Delta,sl,Epsilon,sm,Zeta,sn,Eta,so,Theta,sp,Iota,sq,Kappa,sr,Lambda,ss,Mu,' +
-  'st,Nu,su,Xi,sv,Omicron,t0,Pi,t1,Rho,t3,Sigma,t4,Tau,t5,Upsilon,t6,Phi,t7,Chi,t8,Psi,' +
-  't9,Omega,th,alpha,ti,beta,tj,gamma,tk,delta,tl,epsilon,tm,zeta,tn,eta,to,theta,tp,iota,' +
-  'tq,kappa,tr,lambda,ts,mu,tt,nu,tu,xi,tv,omicron,u0,pi,u1,rho,u2,sigmaf,u3,sigma,u4,tau,' +
-  'u5,upsilon,u6,phi,u7,chi,u8,psi,u9,omega,uh,thetasym,ui,upsih,um,piv,812,bull,816,hellip,' +
-  '81i,prime,81j,Prime,81u,oline,824,frasl,88o,weierp,88h,image,88s,real,892,trade,89l,alefsym,' +
-  '8cg,larr,8ch,uarr,8ci,rarr,8cj,darr,8ck,harr,8dl,crarr,8eg,lArr,8eh,uArr,8ei,rArr,8ej,dArr,' +
-  '8ek,hArr,8g0,forall,8g2,part,8g3,exist,8g5,empty,8g7,nabla,8g8,isin,8g9,notin,8gb,ni,8gf,prod,' +
-  '8gh,sum,8gi,minus,8gn,lowast,8gq,radic,8gt,prop,8gu,infin,8h0,ang,8h7,and,8h8,or,8h9,cap,8ha,cup,' +
-  '8hb,int,8hk,there4,8hs,sim,8i5,cong,8i8,asymp,8j0,ne,8j1,equiv,8j4,le,8j5,ge,8k2,sub,8k3,sup,8k4,' +
-  'nsub,8k6,sube,8k7,supe,8kl,oplus,8kn,otimes,8l5,perp,8m5,sdot,8o8,lceil,8o9,rceil,8oa,lfloor,8ob,' +
-  'rfloor,8p9,lang,8pa,rang,9ea,loz,9j0,spades,9j3,clubs,9j5,hearts,9j6,diams,ai,OElig,aj,oelig,b0,' +
-  'Scaron,b1,scaron,bo,Yuml,m6,circ,ms,tilde,802,ensp,803,emsp,809,thinsp,80c,zwnj,80d,zwj,80e,lrm,' +
-  '80f,rlm,80j,ndash,80k,mdash,80o,lsquo,80p,rsquo,80q,sbquo,80s,ldquo,80t,rdquo,80u,bdquo,810,dagger,' +
-  '811,Dagger,81g,permil,81p,lsaquo,81q,rsaquo,85c,euro', 32)
+  "50,nbsp,51,iexcl,52,cent,53,pound,54,curren,55,yen,56,brvbar,57,sect,58,uml,59,copy," +
+  "5a,ordf,5b,laquo,5c,not,5d,shy,5e,reg,5f,macr,5g,deg,5h,plusmn,5i,sup2,5j,sup3,5k,acute," +
+  "5l,micro,5m,para,5n,middot,5o,cedil,5p,sup1,5q,ordm,5r,raquo,5s,frac14,5t,frac12,5u,frac34," +
+  "5v,iquest,60,Agrave,61,Aacute,62,Acirc,63,Atilde,64,Auml,65,Aring,66,AElig,67,Ccedil," +
+  "68,Egrave,69,Eacute,6a,Ecirc,6b,Euml,6c,Igrave,6d,Iacute,6e,Icirc,6f,Iuml,6g,ETH,6h,Ntilde," +
+  "6i,Ograve,6j,Oacute,6k,Ocirc,6l,Otilde,6m,Ouml,6n,times,6o,Oslash,6p,Ugrave,6q,Uacute," +
+  "6r,Ucirc,6s,Uuml,6t,Yacute,6u,THORN,6v,szlig,70,agrave,71,aacute,72,acirc,73,atilde,74,auml," +
+  "75,aring,76,aelig,77,ccedil,78,egrave,79,eacute,7a,ecirc,7b,euml,7c,igrave,7d,iacute,7e,icirc," +
+  "7f,iuml,7g,eth,7h,ntilde,7i,ograve,7j,oacute,7k,ocirc,7l,otilde,7m,ouml,7n,divide,7o,oslash," +
+  "7p,ugrave,7q,uacute,7r,ucirc,7s,uuml,7t,yacute,7u,thorn,7v,yuml,ci,fnof,sh,Alpha,si,Beta," +
+  "sj,Gamma,sk,Delta,sl,Epsilon,sm,Zeta,sn,Eta,so,Theta,sp,Iota,sq,Kappa,sr,Lambda,ss,Mu," +
+  "st,Nu,su,Xi,sv,Omicron,t0,Pi,t1,Rho,t3,Sigma,t4,Tau,t5,Upsilon,t6,Phi,t7,Chi,t8,Psi," +
+  "t9,Omega,th,alpha,ti,beta,tj,gamma,tk,delta,tl,epsilon,tm,zeta,tn,eta,to,theta,tp,iota," +
+  "tq,kappa,tr,lambda,ts,mu,tt,nu,tu,xi,tv,omicron,u0,pi,u1,rho,u2,sigmaf,u3,sigma,u4,tau," +
+  "u5,upsilon,u6,phi,u7,chi,u8,psi,u9,omega,uh,thetasym,ui,upsih,um,piv,812,bull,816,hellip," +
+  "81i,prime,81j,Prime,81u,oline,824,frasl,88o,weierp,88h,image,88s,real,892,trade,89l,alefsym," +
+  "8cg,larr,8ch,uarr,8ci,rarr,8cj,darr,8ck,harr,8dl,crarr,8eg,lArr,8eh,uArr,8ei,rArr,8ej,dArr," +
+  "8ek,hArr,8g0,forall,8g2,part,8g3,exist,8g5,empty,8g7,nabla,8g8,isin,8g9,notin,8gb,ni,8gf,prod," +
+  "8gh,sum,8gi,minus,8gn,lowast,8gq,radic,8gt,prop,8gu,infin,8h0,ang,8h7,and,8h8,or,8h9,cap,8ha,cup," +
+  "8hb,int,8hk,there4,8hs,sim,8i5,cong,8i8,asymp,8j0,ne,8j1,equiv,8j4,le,8j5,ge,8k2,sub,8k3,sup,8k4," +
+  "nsub,8k6,sube,8k7,supe,8kl,oplus,8kn,otimes,8l5,perp,8m5,sdot,8o8,lceil,8o9,rceil,8oa,lfloor,8ob," +
+  "rfloor,8p9,lang,8pa,rang,9ea,loz,9j0,spades,9j3,clubs,9j5,hearts,9j6,diams,ai,OElig,aj,oelig,b0," +
+  "Scaron,b1,scaron,bo,Yuml,m6,circ,ms,tilde,802,ensp,803,emsp,809,thinsp,80c,zwnj,80d,zwj,80e,lrm," +
+  "80f,rlm,80j,ndash,80k,mdash,80o,lsquo,80p,rsquo,80q,sbquo,80s,ldquo,80t,rdquo,80u,bdquo,810,dagger," +
+  "811,Dagger,81g,permil,81p,lsaquo,81q,rsaquo,85c,euro", 32)
 
 type Style = {
   svgAttr?: string
@@ -114,7 +98,8 @@ type StyleAttr =
   "shadowBlur" |
   "textAlign" |
   "textBaseline" |
-  "lineDash"
+  "lineDash" |
+  "lineDashOffset"
 
 type StyleState = {[key in StyleAttr]: Style}
 
@@ -190,9 +175,15 @@ const STYLES: StyleState = {
     svg: null,
     apply: "stroke",
   },
+  lineDashOffset: {
+    svgAttr: "stroke-dashoffset",
+    canvas: 0,
+    svg: 0,
+    apply: "stroke",
+  },
 }
 
-class CanvasGradient {
+class CanvasGradient implements globalThis.CanvasGradient {
   __root: SVGElement
   __ctx: SVGRenderingContext2D
 
@@ -205,6 +196,19 @@ class CanvasGradient {
    * Adds a color stop to the gradient root
    */
   addColorStop(offset: number, color: string): void {
+    if (
+      this.__root.nodeName === "linearGradient" &&
+      this.__root.getAttribute("x1") === this.__root.getAttribute("x2") &&
+      this.__root.getAttribute("y1") === this.__root.getAttribute("y2")
+    ) return
+
+    if (
+      this.__root.nodeName === "radialGradient" &&
+      this.__root.getAttribute("cx") === this.__root.getAttribute("fx") &&
+      this.__root.getAttribute("cy") === this.__root.getAttribute("fy") &&
+      this.__root.getAttribute("r") === this.__root.getAttribute("r0")
+    ) return
+
     const stop = this.__ctx.__createElement("stop")
     stop.setAttribute("offset", `${offset}`)
     if (color.indexOf("rgba") !== -1) {
@@ -221,13 +225,17 @@ class CanvasGradient {
   }
 }
 
-class CanvasPattern {
+class CanvasPattern implements globalThis.CanvasPattern {
   __root: SVGPatternElement
   __ctx: SVGRenderingContext2D
 
   constructor(pattern: SVGPatternElement, ctx: SVGRenderingContext2D) {
     this.__root = pattern
     this.__ctx = ctx
+  }
+
+  setTransform(_transform?: DOMMatrix2DInit): void {
+    throw new Error("not implemented")
   }
 }
 
@@ -240,7 +248,7 @@ type Options = {
 
 type Path = string
 
-type CanvasState = {
+type SVGCanvasState = {
   transform: AffineTransform
   clip_path: Path | null
   attributes: StyleState
@@ -254,23 +262,42 @@ type CanvasState = {
  * height - height of your canvas (defaults to 500)
  * document - the document object (defaults to the current document)
  */
-export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
+
+type BaseCanvasRenderingContext2D =
+  CanvasCompositing &
+  CanvasDrawImage &
+  CanvasDrawPath &
+  CanvasFillStrokeStyles &
+  CanvasFilters &
+  CanvasImageData &
+  CanvasImageSmoothing &
+  CanvasPath &
+  CanvasPathDrawingStyles &
+  CanvasRect &
+  CanvasShadowStyles &
+  CanvasState &
+  CanvasText &
+  CanvasTextDrawingStyles &
+  CanvasTransform &
+  CanvasUserInterface
+
+export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
   __canvas: HTMLCanvasElement
   __ctx: CanvasRenderingContext2D
 
   __root: SVGSVGElement
-  __ids: KV<string>
+  __ids: Set<string>
   __defs: SVGElement
-  __stack: CanvasState[]
+  __stack: SVGCanvasState[]
   __document: Document
   __currentElement: SVGElement // null?
   __currentDefaultPath: string
   __currentPosition: {x: number, y: number} | null = null
   //__currentElementsToStyle: {element: SVGElement, children: SVGElement[]} | null = null
-  __fontUnderline?: string
-  __fontHref?: string
 
-  get canvas(): this {
+  static __random: Random = random
+
+  get canvas(): SVGRenderingContext2D {
     // XXX: point back to this instance
     return this
   }
@@ -282,7 +309,9 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   miterLimit: number
   lineWidth: number
   globalAlpha: number
+  globalCompositeOperation: string // XXX: really a string? // TODO: implement
   font: string
+  direction: CanvasDirection // TODO: implement
   shadowColor: string
   shadowOffsetX: number
   shadowOffsetY: number
@@ -290,6 +319,10 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   textAlign: CanvasTextAlign
   textBaseline: CanvasTextBaseline
   lineDash: string | number[] | null
+  lineDashOffset: number
+  filter: string // TODO: implement
+  imageSmoothingEnabled: boolean // TODO: implement
+  imageSmoothingQuality: ImageSmoothingQuality // TODO: implement
 
   private _width: number
   private _height: number
@@ -330,17 +363,26 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     this.__root = this.__document.createElementNS("http://www.w3.org/2000/svg", "svg")
     this.__root.setAttribute("version", "1.1")
     this.__root.setAttribute("xmlns", "http://www.w3.org/2000/svg")
-    this.__root.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink")
 
     this.width = options?.width ?? 500
     this.height = options?.height ?? 500
 
     // make sure we don't generate the same ids in defs
-    this.__ids = {}
+    this.__ids = new Set()
 
     // defs tag
     this.__defs = this.__document.createElementNS("http://www.w3.org/2000/svg", "defs")
     this.__root.appendChild(this.__defs)
+  }
+
+  // helper function that generates a random string
+  protected _random_string(): string {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz"
+    let str: string
+    do {
+      str = SVGRenderingContext2D.__random.choices(12, chars).join("")
+    } while (this.__ids.has(str))
+    return str
   }
 
   /**
@@ -423,7 +465,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
           for (const def of [...value.__ctx.__defs.childNodes]) {
             if (def instanceof Element) {
               const id = def.getAttribute("id")!
-              this.__ids[id] = id
+              this.__ids.add(id)
               this.__defs.appendChild(def)
             }
           }
@@ -445,11 +487,11 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
             if (globalAlpha != null) {
               opacity *= globalAlpha
             }
-            currentElement.setAttribute(style.svgAttr+"-opacity", `${opacity}`)
+            currentElement.setAttribute(`${style.svgAttr}-opacity`, `${opacity}`)
           } else {
             let attr = style.svgAttr!
-            if (keys[i] === 'globalAlpha') {
-              attr = type+'-'+style.svgAttr
+            if (keys[i] === "globalAlpha") {
+              attr = `${type}-${style.svgAttr}`
               if (currentElement.getAttribute(attr)) {
                 // fill-opacity or stroke-opacity has already been set by stroke or fill.
                 continue
@@ -471,12 +513,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     */
   get_serialized_svg(fixNamedEntities: boolean = false): string {
     let serialized = new XMLSerializer().serializeToString(this.__root)
-
-    // IE search for a duplicate xmnls because they didn't implement setAttributeNS correctly
-    const xmlns = /xmlns="http:\/\/www\.w3\.org\/2000\/svg".+xmlns="http:\/\/www\.w3\.org\/2000\/svg/gi
-    if (xmlns.test(serialized)) {
-      serialized = serialized.replace('xmlns="http://www.w3.org/2000/svg', 'xmlns:xlink="http://www.w3.org/1999/xlink')
-    }
 
     if (fixNamedEntities) {
       // loop over each named entity and replace with the proper equivalent.
@@ -572,7 +608,10 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     // See also: https://html.spec.whatwg.org/multipage/scripting.html#current-default-path
     this.__currentDefaultPath = ""
     this.__currentPosition = null
+    this.__init_element()
+  }
 
+  protected __init_element(): void {
     const path = this.__createElement("path", {}, true)
     this.__root.appendChild(path)
     this.__currentElement = path
@@ -611,7 +650,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     if (!isFinite(x + y))
       return
 
-    if (this.__currentElement.nodeName !== "path") {
+    const el = this.__currentElement
+    if (!el || el.nodeName !== "path") {
       this.beginPath()
     }
 
@@ -683,7 +723,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
 
     // Negative values for radius must cause the implementation to throw an IndexSizeError exception.
     if (radius < 0) {
-      throw new Error("IndexSizeError: The radius provided (" + radius + ") is negative.")
+      throw new Error(`IndexSizeError: The radius provided (${radius}) is negative.`)
     }
 
     // If the point (x0, y0) is equal to the point (x1, y1),
@@ -781,15 +821,27 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   /**
     * Sets fill properties on the current element
     */
-  fill(fill_rule?: CanvasFillRule): void {
-    if (this.__currentElement.nodeName === "path") {
-      this.__currentElement.setAttribute("paint-order", "stroke")
-    }
+  fill(fill_rule?: CanvasFillRule): void
+  fill(path: Path2D, fill_rule?: CanvasFillRule): void
+
+  fill(path_or_fill_rule?: Path2D | CanvasFillRule, fill_rule?: CanvasFillRule): void {
+    let path: Path2D | null = null
+    if (path_or_fill_rule instanceof Path2D)
+      path = path_or_fill_rule
+    else if ((path_or_fill_rule == "evenodd" || path_or_fill_rule == "nonzero" || path_or_fill_rule == null) && fill_rule == null)
+      fill_rule = path_or_fill_rule
+    else
+      throw new Error("invalid arguments")
+
+    if (path != null)
+      throw new Error("not implemented")
+
     // XXX: hack (?) to allow fill and hatch visuals on same canvas path
     if (this.__currentElement.getAttribute("fill") != "none") {
-      const path = this.__currentElement.cloneNode(true) as SVGElement
-      this.__root.appendChild(path)
-      this.__currentElement = path
+      this.__init_element()
+    }
+    if (this.__currentElement.nodeName === "path") {
+      this.__currentElement.setAttribute("paint-order", "stroke")
     }
     this.__applyCurrentDefaultPath()
     this.__applyStyleToCurrentElement("fill")
@@ -807,13 +859,10 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   rect(x: number, y: number, width: number, height: number): void {
     if (!isFinite(x + y + width + height))
       return
-    if (this.__currentElement.nodeName !== "path") {
-      this.beginPath()
-    }
     this.moveTo(x, y)
-    this.lineTo(x+width, y)
-    this.lineTo(x+width, y+height)
-    this.lineTo(x, y+height)
+    this.lineTo(x + width, y)
+    this.lineTo(x + width, y + height)
+    this.lineTo(x, y + height)
     this.lineTo(x, y)
   }
 
@@ -880,7 +929,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     const [tx1, ty1] = this._transform.apply(x1, y1)
     const [tx2, ty2] = this._transform.apply(x2, y2)
     const grad = this.__createElement("linearGradient", {
-      id: randomString(this.__ids),
+      id: this._random_string(),
       x1: `${tx1}px`,
       x2: `${tx2}px`,
       y1: `${ty1}px`,
@@ -895,16 +944,17 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * Adds a radial gradient to a defs tag.
     * Returns a canvas gradient object that has a reference to it's parent def
     */
-  createRadialGradient(x0: number, y0: number, _r0: number, x1: number, y1: number, r1: number): CanvasGradient {
-    if (!isFinite(x0 + y0 + _r0 + x1 + y1 + r1))
+  createRadialGradient(x0: number, y0: number, r0: number, x1: number, y1: number, r1: number): CanvasGradient {
+    if (!isFinite(x0 + y0 + r0 + x1 + y1 + r1))
       throw new Error("The provided double value is non-finite")
     const [tx0, ty0] = this._transform.apply(x0, y0)
     const [tx1, ty1] = this._transform.apply(x1, y1)
     const grad = this.__createElement("radialGradient", {
-      id: randomString(this.__ids),
+      id: this._random_string(),
       cx: `${tx1}px`,
       cy: `${ty1}px`,
       r: `${r1}px`,
+      r0: `${r0}px`,
       fx: `${tx0}px`,
       fy: `${ty0}px`,
       gradientUnits: "userSpaceOnUse",
@@ -920,37 +970,14 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     const regex = /^\s*(?=(?:(?:[-a-z]+\s*){0,2}(italic|oblique))?)(?=(?:(?:[-a-z]+\s*){0,2}(small-caps))?)(?=(?:(?:[-a-z]+\s*){0,2}(bold(?:er)?|lighter|[1-9]00))?)(?:(?:normal|\1|\2|\3)\s*){0,3}((?:xx?-)?(?:small|large)|medium|smaller|larger|[.\d]+(?:\%|in|[cem]m|ex|p[ctx]))(?:\s*\/\s*(normal|[.\d]+(?:\%|in|[cem]m|ex|p[ctx])))?\s*([-,\'\"\sa-z0-9]+?)\s*$/i
     const fontPart = regex.exec(this.font)!
     const data: FontData = {
-      style: fontPart[1] ?? 'normal',
-      size: fontPart[4] ?? '10px',
-      family: fontPart[6] ?? 'sans-serif',
-      weight: fontPart[3] ?? 'normal',
-      decoration: fontPart[2] ?? 'normal',
-    }
-
-    // canvas doesn't support underline natively, but we can pass this attribute
-    if (this.__fontUnderline === "underline") {
-      data.decoration = "underline"
-    }
-
-    // canvas also doesn't support linking, but we can pass this as well
-    if (this.__fontHref != null) {
-      data.href = this.__fontHref
+      style: fontPart[1] ?? "normal",
+      size: fontPart[4] ?? "10px",
+      family: fontPart[6] ?? "sans-serif",
+      weight: fontPart[3] ?? "normal",
+      decoration: fontPart[2] ?? "normal",
     }
 
     return data
-  }
-
-  /**
-    * Helper to link text fragments
-    */
-  __wrapTextLink(font: FontData, element: SVGElement): Element {
-    if (font.href) {
-      const a = this.__createElement("a")
-      a.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", font.href)
-      a.appendChild(element)
-      return a
-    }
-    return element
   }
 
   /**
@@ -958,7 +985,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     */
   __applyText(text: string, x: number, y: number, action: "fill" | "stroke"): void {
     const font = this.__parseFont()
-    const textElement = this.__createElement("text", {
+
+    const text_el = this.__createElement("text", {
       "font-family": font.family,
       "font-size": font.size,
       "font-style": font.style,
@@ -970,15 +998,25 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       "dominant-baseline": getDominantBaseline(this.textBaseline),
     }, true)
 
-    textElement.appendChild(this.__document.createTextNode(text))
-    this._apply_transform(textElement)
-    this.__currentElement = textElement
+    text_el.appendChild(this.__document.createTextNode(text))
+    this._apply_transform(text_el)
+    this.__currentElement = text_el
     this.__applyStyleToCurrentElement(action)
-    this.__root.appendChild(this.__wrapTextLink(font, textElement))
+
+    const el = (() => {
+      if (this._clip_path != null) {
+        const g = this.__createElement("g")
+        g.setAttribute("clip-path", this._clip_path)
+        g.appendChild(text_el)
+        return g
+      } else
+        return text_el
+    })()
+    this.__root.appendChild(el)
   }
 
   /**
-    * Creates a text element
+    * Creates a text element, in position x,y
     */
   fillText(text: string, x: number, y: number): void {
     if (text == null || !isFinite(x + y))
@@ -1003,44 +1041,52 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     return this.__ctx.measureText(text)
   }
 
-  arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterClockwise: boolean = false): void {
-    if (!isFinite(x + y + radius + startAngle + endAngle))
+  arc(x: number, y: number, radius: number, start_angle: number, end_angle: number, counterclockwise: boolean = false): void {
+    this.ellipse(x, y, radius, radius, 0, start_angle, end_angle, counterclockwise)
+  }
+
+  ellipse(x: number, y: number, radius_x: number, radius_y: number, rotation: number, start_angle: number, end_angle: number, counterclockwise: boolean = false): void {
+    if (!isFinite(x + y + radius_x + radius_y + rotation + start_angle + end_angle))
       return
-    // in canvas no circle is drawn if no angle is provided.
-    if (startAngle === endAngle) {
-      return
-    }
-    startAngle = startAngle % (2*Math.PI)
-    endAngle = endAngle % (2*Math.PI)
-    if (startAngle === endAngle) {
+
+    if (radius_x < 0 || radius_y < 0)
+      throw new DOMException("IndexSizeError, radius can't be negative")
+
+    start_angle = start_angle % (2 * Math.PI)
+    end_angle = end_angle % (2 * Math.PI)
+
+    if (start_angle === end_angle) {
       // circle time! subtract some of the angle so svg is happy (svg elliptical arc can't draw a full circle)
-      endAngle = ((endAngle + (2*Math.PI)) - 0.001 * (counterClockwise ? -1 : 1)) % (2*Math.PI)
+      end_angle = ((end_angle + (2 * Math.PI)) - 0.001 * (counterclockwise ? -1 : 1)) % (2*Math.PI)
     }
-    const endX = x+radius*Math.cos(endAngle)
-    const endY = y+radius*Math.sin(endAngle)
-    const startX = x+radius*Math.cos(startAngle)
-    const startY = y+radius*Math.sin(startAngle)
-    const sweepFlag = counterClockwise ? 0 : 1
-    let largeArcFlag = 0
-    let diff = endAngle - startAngle
+
+    const end_x = x + radius_x * Math.cos(end_angle)
+    const end_y = y + radius_y * Math.sin(end_angle)
+    const start_x = x + radius_x * Math.cos(start_angle)
+    const start_y = y + radius_y * Math.sin(start_angle)
+
+    const sweep_flag = counterclockwise ? 0 : 1
+    let large_arc_flag = 0
+    let diff = end_angle - start_angle
 
     // https://github.com/gliffy/canvas2svg/issues/4
     if (diff < 0) {
-      diff += 2*Math.PI
+      diff += 2 * Math.PI
     }
 
-    if (counterClockwise) {
-      largeArcFlag = diff > Math.PI ? 0 : 1
+    if (counterclockwise) {
+      large_arc_flag = diff > Math.PI ? 0 : 1
     } else {
-      largeArcFlag = diff > Math.PI ? 1 : 0
+      large_arc_flag = diff > Math.PI ? 1 : 0
     }
 
-    this.lineTo(startX, startY)
-    const rx = radius
-    const ry = radius
-    const xAxisRotation = 0
-    const [tendX, tendY] = this._transform.apply(endX, endY)
-    this.__addPathCommand(tendX, tendY, `A ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${tendX} ${tendY}`)
+    this.lineTo(start_x, start_y)
+    const [tend_x, tend_y] = this._transform.apply(end_x, end_y)
+
+    // Canvas ellipse defines rotation in radians and SVG elliptical arc is defined in degrees
+    const rotation_in_degrees = rotation * 180 / Math.PI
+
+    this.__addPathCommand(tend_x, tend_y, `A ${radius_x} ${radius_y} ${rotation_in_degrees} ${large_arc_flag} ${sweep_flag} ${tend_x} ${tend_y}`)
   }
 
   private _clip_path: Path | null = null
@@ -1050,7 +1096,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     */
   clip(): void {
     const clip_path = this.__createElement("clipPath")
-    const id = randomString(this.__ids)
+    const id = this._random_string()
 
     this.__applyCurrentDefaultPath()
     clip_path.setAttribute("id", id)
@@ -1060,6 +1106,9 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     this._clip_path = `url(#${id})`
   }
 
+  drawImage(image: CanvasImageSource, dx: number, dy: number): void
+  drawImage(image: CanvasImageSource, dx: number, dy: number, dw: number, dh: number): void
+  drawImage(image: CanvasImageSource, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void
   /**
     * Draws a canvas, image or mock context to this canvas.
     * Note that all svg dom manipulation uses node.childNodes rather than node.children for IE support.
@@ -1105,11 +1154,16 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       const svg_node = image instanceof SVGSVGElement ? image : image.get_svg()
       const svg = svg_node.cloneNode(true) as SVGElement
       let scope: SVGElement
-      if (transform.is_identity)
+      if (transform.is_identity && this.globalAlpha == 1.0 && this._clip_path == null)
         scope = parent
       else {
         scope = this.__createElement("g")
-        this._apply_transform(scope, transform)
+        if (!transform.is_identity)
+          this._apply_transform(scope, transform)
+        if (this.globalAlpha != 1.0)
+          scope.setAttribute("opacity", `${this.globalAlpha}`)
+        if (this._clip_path != null)
+          scope.setAttribute("clip-path", this._clip_path)
         parent.appendChild(scope)
       }
       for (const child of [...svg.childNodes]) {
@@ -1117,12 +1171,12 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
           for (const def of [...child.childNodes]) {
             if (def instanceof Element) {
               const id = def.getAttribute("id")!
-              this.__ids[id] = id
-              this.__defs.appendChild(def)
+              this.__ids.add(id)
+              this.__defs.appendChild(def.cloneNode(true))
             }
           }
         } else {
-          scope.appendChild(child)
+          scope.appendChild(child.cloneNode(true))
         }
       }
     } else if (image instanceof HTMLImageElement || image instanceof SVGImageElement) {
@@ -1130,6 +1184,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       svgImage.setAttribute("width", `${dw}`)
       svgImage.setAttribute("height", `${dh}`)
       svgImage.setAttribute("preserveAspectRatio", "none")
+      if (this.globalAlpha != 1.0)
+        svgImage.setAttribute("opacity", `${this.globalAlpha}`)
 
       if (sx || sy || sw !== image.width || sh !== image.height) {
         // crop the image using a temporary canvas
@@ -1142,13 +1198,22 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       }
       this._apply_transform(svgImage, transform)
       const url = image instanceof HTMLCanvasElement ? image.toDataURL() : image.getAttribute("src")!
-      svgImage.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", url)
-      parent.appendChild(svgImage)
+      svgImage.setAttribute("href", url)
+
+      if (this._clip_path != null) {
+        const scope = this.__createElement("g")
+        scope.setAttribute("clip-path", this._clip_path)
+        scope.appendChild(svgImage)
+        parent.appendChild(scope)
+      } else
+        parent.appendChild(svgImage)
     } else if (image instanceof HTMLCanvasElement) {
       const svgImage = this.__createElement("image")
       svgImage.setAttribute("width", `${dw}`)
       svgImage.setAttribute("height", `${dh}`)
       svgImage.setAttribute("preserveAspectRatio", "none")
+      if (this.globalAlpha != 1.0)
+        svgImage.setAttribute("opacity", `${this.globalAlpha}`)
 
       // draw canvas onto temporary canvas so that smoothing can be handled
       const canvas = this.__document.createElement("canvas")
@@ -1160,17 +1225,24 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       image = canvas
 
       this._apply_transform(svgImage, transform)
-      svgImage.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", image.toDataURL())
-      parent.appendChild(svgImage)
+      svgImage.setAttribute("href", image.toDataURL())
+
+      if (this._clip_path != null) {
+        const scope = this.__createElement("g")
+        scope.setAttribute("clip-path", this._clip_path)
+        scope.appendChild(svgImage)
+        parent.appendChild(scope)
+      } else
+        parent.appendChild(svgImage)
     }
   }
 
   /**
     * Generates a pattern tag
     */
-  createPattern(image: CanvasImageSource, _repetition: string): CanvasPattern {
+  createPattern(image: CanvasImageSource, _repetition: string | null): CanvasPattern | null {
     const pattern = this.__document.createElementNS("http://www.w3.org/2000/svg", "pattern")
-    const id = randomString(this.__ids)
+    const id = this._random_string()
     pattern.setAttribute("id", id)
     pattern.setAttribute("width", `${this._to_number(image.width)}`)
     pattern.setAttribute("height", `${this._to_number(image.height)}`)
@@ -1178,13 +1250,13 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     if (image instanceof HTMLCanvasElement || image instanceof HTMLImageElement || image instanceof SVGImageElement) {
       const img = this.__document.createElementNS("http://www.w3.org/2000/svg", "image")
       const url = image instanceof HTMLCanvasElement ? image.toDataURL() : image.getAttribute("src")!
-      img.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", url)
+      img.setAttribute("href", url)
       pattern.appendChild(img)
       this.__defs.appendChild(pattern)
     } else if (image instanceof SVGRenderingContext2D) {
       for (const child of [...image.__root.childNodes]) {
         if (!(child instanceof SVGDefsElement)) {
-          pattern.appendChild(child)
+          pattern.appendChild(child.cloneNode(true))
         }
       }
       //pattern.appendChild(image.__root.childNodes[1])
@@ -1192,7 +1264,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     } else if (image instanceof SVGSVGElement) {
       for (const child of [...image.childNodes]) {
         if (!(child instanceof SVGDefsElement)) {
-          pattern.appendChild(child)
+          pattern.appendChild(child.cloneNode(true))
         }
       }
       //pattern.appendChild(image.__root.childNodes[1])
@@ -1203,15 +1275,95 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     return new CanvasPattern(pattern, this)
   }
 
-  setLineDash(dashArray: number[]): void {
-    if (dashArray && dashArray.length > 0) {
-      this.lineDash = dashArray.join(",")
-    } else {
+  getLineDash(): number[] {
+    const {lineDash} = this
+    if (isString(lineDash))
+      return lineDash.split(",").map((v) => parseInt(v))
+    else if (lineDash == null)
+      return []
+    else
+      return lineDash
+  }
+
+  setLineDash(segments: number[]): void {
+    if (segments && segments.length > 0)
+      this.lineDash = segments.join(",")
+    else
       this.lineDash = null
-    }
   }
 
   private _to_number(val: number | SVGAnimatedLength): number {
     return isNumber(val) ? val : val.baseVal.value
+  }
+
+  getTransform(): DOMMatrix {
+    return this._transform.to_DOMMatrix()
+  }
+
+  setTransform(a: number, b: number, c: number, d: number, e: number, f: number): void
+  setTransform(transform?: DOMMatrix2DInit): void
+  setTransform(matrix: DOMMatrix): void
+
+  setTransform(...args: [DOMMatrix2DInit?] | [DOMMatrix] | [number, number, number, number, number, number]): void {
+    let matrix: DOMMatrix
+
+    if (isNumber(args[0]))
+      matrix = new DOMMatrix(args as number[])
+    else if (args[0] instanceof DOMMatrix)
+      matrix = args[0]
+    else
+      matrix = new DOMMatrix(Object.values(!args[0]))
+
+    this._transform = AffineTransform.from_DOMMatrix(matrix)
+  }
+
+  resetTransform(): void {
+    this._transform = new AffineTransform()
+  }
+
+  isPointInPath(x: number, y: number, fill_rule?: CanvasFillRule): boolean
+  isPointInPath(path: Path2D, x: number, y: number, fill_rule?: CanvasFillRule): boolean
+
+  isPointInPath(..._args: any[]): boolean {
+    throw new Error("not implemented")
+  }
+
+  isPointInStroke(x: number, y: number): boolean
+  isPointInStroke(path: Path2D, x: number, y: number): boolean
+
+  isPointInStroke(..._args: any[]): boolean {
+    throw new Error("not implemented")
+  }
+
+  createImageData(sw: number, sh: number): ImageData
+  createImageData(imagedata: ImageData): ImageData
+
+  createImageData(..._args: any[]): ImageData {
+    throw new Error("not implemented")
+  }
+
+  getImageData(_sx: number, _sy: number, _sw: number, _sh: number): ImageData {
+    throw new Error("not implemented")
+  }
+
+  putImageData(imagedata: ImageData, dx: number, dy: number): void
+  putImageData(imagedata: ImageData, dx: number, dy: number, dirtyX: number, dirtyY: number, dirtyWidth: number, dirtyHeight: number): void
+
+  putImageData(..._args: any[]): void {
+    throw new Error("not implemented")
+  }
+
+  drawFocusIfNeeded(element: Element): void
+  drawFocusIfNeeded(path: Path2D, element: Element): void
+
+  drawFocusIfNeeded(..._args: any[]): void {
+    throw new Error("not implemented")
+  }
+
+  scrollPathIntoView(): void
+  scrollPathIntoView(path: Path2D): void
+
+  scrollPathIntoView(..._args: any[]): void {
+    throw new Error("not implemented")
   }
 }

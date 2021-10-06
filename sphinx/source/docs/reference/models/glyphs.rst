@@ -1,12 +1,6 @@
 .. _bokeh.models.glyphs:
 
-bokeh.models.glyphs
--------------------
+glyphs
+------
 
 .. automodule:: bokeh.models.glyphs
-
-.. toctree::
-   :maxdepth: 2
-   :glob:
-
-   glyphs/*

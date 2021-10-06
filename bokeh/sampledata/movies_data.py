@@ -4,13 +4,23 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+''' A small subset of data from the `Open Movie Database`_.
+
+Data is licensed `CC BY-NC 4.0`_.
+
+This modules has an attribute ``movie_path``. This attribute contains the path
+to a SQLite database with the data.
+
+.. _CC BY-NC 4.0: https://creativecommons.org/licenses/by-nc/4.0/
+.. _Open Movie Database: http://www.omdbapi.com
 
 '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

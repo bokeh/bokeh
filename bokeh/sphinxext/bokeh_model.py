@@ -43,6 +43,8 @@ in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging  # isort:skip
 
 log = logging.getLogger(__name__)
@@ -65,6 +67,7 @@ from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
+from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective, py_sig_re
 from .templates import MODEL_DETAIL
 
@@ -91,7 +94,10 @@ class BokehModelDirective(BokehDirective):
     has_content = True
     required_arguments = 1
     optional_arguments = 1
-    option_spec = {"module": unchanged}
+    option_spec = {
+        "module": unchanged,
+        "canonical": unchanged,
+    }
 
     def run(self):
         sig = " ".join(self.arguments)
@@ -126,17 +132,18 @@ class BokehModelDirective(BokehDirective):
 
         rst_text = MODEL_DETAIL.render(
             name=model_name,
-            module_name=module_name,
+            module_name="bokeh.models" if module_name.startswith("bokeh.models") else module_name,
             model_json=model_json,
         )
 
-        return self._parse(rst_text, "<bokeh-model>")
+        return self.parse(rst_text, "<bokeh-model>")
 
 
 def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_directive_to_domain("py", "bokeh-model", BokehModelDirective)
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

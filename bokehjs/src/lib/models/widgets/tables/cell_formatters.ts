@@ -20,7 +20,7 @@ export namespace CellFormatter {
 export interface CellFormatter extends CellFormatter.Attrs {}
 
 export abstract class CellFormatter extends Model {
-  properties: CellFormatter.Props
+  override properties: CellFormatter.Props
 
   constructor(attrs?: Partial<CellFormatter.Attrs>) {
     super(attrs)
@@ -30,7 +30,7 @@ export abstract class CellFormatter extends Model {
     if (value == null)
       return ""
     else
-      return (value + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      return `${value}`.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
   }
 }
 
@@ -47,13 +47,13 @@ export namespace StringFormatter {
 export interface StringFormatter extends StringFormatter.Attrs {}
 
 export class StringFormatter extends CellFormatter {
-  properties: StringFormatter.Props
+  override properties: StringFormatter.Props
 
   constructor(attrs?: Partial<StringFormatter.Attrs>) {
     super(attrs)
   }
 
-  static init_StringFormatter(): void {
+  static {
     this.define<StringFormatter.Props>(({Color, Nullable}) => ({
       font_style: [ FontStyle, "normal" ],
       text_align: [ TextAlign, "left"   ],
@@ -61,10 +61,10 @@ export class StringFormatter extends CellFormatter {
     }))
   }
 
-  doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
+  override doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
     const {font_style, text_align, text_color} = this
 
-    const text = div({}, value == null ? "" : `${value}`)
+    const text = div(value == null ? "" : `${value}`)
     switch (font_style) {
       case "bold":
         text.style.fontWeight = "bold"
@@ -97,13 +97,13 @@ export namespace ScientificFormatter {
 export interface ScientificFormatter extends ScientificFormatter.Attrs {}
 
 export class ScientificFormatter extends StringFormatter {
-  properties: ScientificFormatter.Props
+  override properties: ScientificFormatter.Props
 
   constructor(attrs?: Partial<ScientificFormatter.Attrs>) {
     super(attrs)
   }
 
-  static init_ScientificFormatter(): void {
+  static {
     this.define<ScientificFormatter.Props>(({Number, String, Nullable}) => ({
       nan_format:       [ Nullable(String), null ],
       precision:        [ Number, 10 ],
@@ -120,7 +120,7 @@ export class ScientificFormatter extends StringFormatter {
     return 10.0**this.power_limit_high
   }
 
-  doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
+  override doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
     const need_sci = Math.abs(value) <= this.scientific_limit_low || Math.abs(value) >= this.scientific_limit_high
     let precision = this.precision
 
@@ -157,13 +157,13 @@ export namespace NumberFormatter {
 export interface NumberFormatter extends NumberFormatter.Attrs {}
 
 export class NumberFormatter extends StringFormatter {
-  properties: NumberFormatter.Props
+  override properties: NumberFormatter.Props
 
   constructor(attrs?: Partial<NumberFormatter.Attrs>) {
     super(attrs)
   }
 
-  static init_NumberFormatter(): void {
+  static {
     this.define<NumberFormatter.Props>(({String, Nullable}) => ({
       format:     [ String,           "0,0"   ],
       language:   [ String,           "en"    ],
@@ -172,7 +172,7 @@ export class NumberFormatter extends StringFormatter {
     }))
   }
 
-  doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
+  override doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
     const {format, language, nan_format} = this
     const rounding = (() => {
       switch (this.rounding) {
@@ -200,19 +200,19 @@ export namespace BooleanFormatter {
 export interface BooleanFormatter extends BooleanFormatter.Attrs {}
 
 export class BooleanFormatter extends CellFormatter {
-  properties: BooleanFormatter.Props
+  override properties: BooleanFormatter.Props
 
   constructor(attrs?: Partial<BooleanFormatter.Attrs>) {
     super(attrs)
   }
 
-  static init_BooleanFormatter(): void {
+  static {
     this.define<BooleanFormatter.Props>(({String}) => ({
       icon: [ String, "check" ],
     }))
   }
 
-  doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
+  override doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
     return !!value ? i({class: this.icon}).outerHTML : ""
   }
 }
@@ -229,13 +229,13 @@ export namespace DateFormatter {
 export interface DateFormatter extends DateFormatter.Attrs {}
 
 export class DateFormatter extends StringFormatter {
-  properties: DateFormatter.Props
+  override properties: DateFormatter.Props
 
   constructor(attrs?: Partial<DateFormatter.Attrs>) {
     super(attrs)
   }
 
-  static init_DateFormatter(): void {
+  static {
     this.define<DateFormatter.Props>(({String, Nullable}) => ({
       format:     [ String,           "ISO-8601" ],
       nan_format: [ Nullable(String), null       ],
@@ -269,7 +269,7 @@ export class DateFormatter extends StringFormatter {
     }
   }
 
-  doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
+  override doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
     const {nan_format} = this
     value = isString(value) ? parseInt(value, 10) : value
     let date: string
@@ -277,7 +277,7 @@ export class DateFormatter extends StringFormatter {
     if ((value == null || isNaN(value) || value === -9223372036854776) && nan_format != null)
       date = nan_format
     else
-      date = value == null ? '' : tz(value, this.getFormat())
+      date = value == null ? "" : tz(value, this.getFormat())
     return super.doFormat(row, cell, date, columnDef, dataContext)
   }
 }
@@ -293,19 +293,19 @@ export namespace HTMLTemplateFormatter {
 export interface HTMLTemplateFormatter extends HTMLTemplateFormatter.Attrs {}
 
 export class HTMLTemplateFormatter extends CellFormatter {
-  properties: HTMLTemplateFormatter.Props
+  override properties: HTMLTemplateFormatter.Props
 
   constructor(attrs?: Partial<HTMLTemplateFormatter.Attrs>) {
     super(attrs)
   }
 
-  static init_HTMLTemplateFormatter(): void {
+  static {
     this.define<HTMLTemplateFormatter.Props>(({String}) => ({
-      template: [ String, '<%= value %>' ],
+      template: [ String, "<%= value %>" ],
     }))
   }
 
-  doFormat(_row: any, _cell: any, value: any, _columnDef: any, dataContext: any): string {
+  override doFormat(_row: any, _cell: any, value: any, _columnDef: any, dataContext: any): string {
     const {template} = this
     if (value == null)
       return ""

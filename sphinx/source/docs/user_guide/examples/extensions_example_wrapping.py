@@ -141,7 +141,7 @@ export class Surface3d extends LayoutDOM {
   // typos, which would prohibit serialization/deserialization of this model.
   static __name__ = "Surface3d"
 
-  static init_Surface3d() {
+  static {
     // This is usually boilerplate. In some cases there may not be a view.
     this.prototype.default_view = Surface3dView
 
@@ -186,11 +186,11 @@ class Surface3d(LayoutDOM):
     # The data will actually be stored in the ColumnDataSource, but these
     # properties let us specify the *name* of the column that should be
     # used for each field.
-    x = String
+    x = String()
 
-    y = String
+    y = String()
 
-    z = String
+    z = String()
 
 
 x = np.arange(0, 300, 10)

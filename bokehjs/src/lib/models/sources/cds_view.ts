@@ -20,13 +20,13 @@ export namespace CDSView {
 export interface CDSView extends CDSView.Attrs {}
 
 export class CDSView extends Model {
-  properties: CDSView.Props
+  override properties: CDSView.Props
 
   constructor(attrs?: Partial<CDSView.Attrs>) {
     super(attrs)
   }
 
-  static init_CDSView(): void {
+  static {
     this.define<CDSView.Props>(({Array, Ref}) => ({
       filters: [ Array(Ref(Filter)), [] ],
       source:  [ Ref(ColumnarDataSource) ],
@@ -39,12 +39,12 @@ export class CDSView extends Model {
     }))
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.compute_indices()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     this.connect(this.properties.filters.change, () => this.compute_indices())
@@ -99,19 +99,17 @@ export class CDSView extends Model {
 
   indices_map_to_subset(): void {
     this.indices_map = {}
-    for (let i = 0; i < this._indices.length; i++){
+    for (let i = 0; i < this._indices.length; i++) {
       this.indices_map[this._indices[i]] = i
     }
   }
 
   convert_selection_from_subset(selection_subset: Selection): Selection {
-    const indices = selection_subset.indices.map((i) => this._indices[i])
-    return new Selection({...selection_subset.attributes, indices})
+    return selection_subset.map((i) => this._indices[i])
   }
 
   convert_selection_to_subset(selection_full: Selection): Selection {
-    const indices = selection_full.indices.map((i) => this.indices_map[i])
-    return new Selection({...selection_full.attributes, indices})
+    return selection_full.map((i) => this.indices_map[i])
   }
 
   convert_indices_from_subset(indices: number[]): number[] {

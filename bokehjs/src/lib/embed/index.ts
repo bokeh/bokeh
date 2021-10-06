@@ -73,11 +73,11 @@ async function _embed_items(docs_json: string | DocsJson, render_items: RenderIt
       try {
         views.push(await add_document_from_session(websocket_url, item.token, element, roots, item.use_for_title))
         console.log("Bokeh items were rendered successfully")
-      } catch (error: unknown) {
+      } catch (error) {
         console.log("Error rendering Bokeh items:", error)
       }
     } else
-      throw new Error(`Error rendering Bokeh items: either 'docid' or 'token' was expected.`)
+      throw new Error("Error rendering Bokeh items: either 'docid' or 'token' was expected.")
   }
 
   return views

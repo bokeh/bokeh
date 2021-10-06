@@ -1,271 +1,197 @@
-import {Program, VertexBuffer, IndexBuffer} from "./utils"
 import {BaseGLGlyph, Transform} from "./base"
-import vertex_shader from "./markers.vert"
-import fragment_shader from "./markers.frag"
-import {ScatterView} from "../scatter"
-import {CircleView} from "../circle"
-import {map} from "core/util/arrayable"
-import {logger} from "core/logging"
+import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
+import {ReglWrapper} from "./regl_wrap"
+import {MarkerGlyphProps} from "./types"
+import type {GlyphView} from "../glyph"
+import type {ScatterView} from "../scatter"
+import type {CircleView} from "../circle"
 import {MarkerType} from "core/enums"
-import {ColorArray, RGBAArray, uint32} from "core/types"
-import {color2rgba} from "core/util/color"
-import * as visuals from "core/visuals"
-import * as p from "core/properties"
-import {unreachable} from "core/util/assert"
+
+// Avoiding use of nan or inf to represent missing data in webgl as shaders may
+// have reduced floating point precision.  So here using a large-ish negative
+// value instead.
+const missing_point = -10000
 
 type MarkerLikeView = ScatterView | CircleView
 
-function attach_float(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_name: string, n: number,
-    visual: visuals.LineVector | visuals.FillVector, prop: p.Uniform<number>): void {
-  // Attach a float attribute to the program. Use singleton value if we can,
-  // otherwise use VBO to apply array.
-  if (!visual.doit) {
-    vbo.used = false
-    prog.set_attribute(att_name, 'float', [0])
-  } else if (prop.is_Scalar()) {
-    vbo.used = false
-    prog.set_attribute(att_name, 'float', [prop.value])
-  } else if (prop.is_Vector()) {
-    vbo.used = true
-    const a = new Float32Array(prop.array) // TODO: .buffer
-    vbo.set_size(n*4)
-    vbo.set_data(0, a)
-    prog.set_attribute(att_name, 'float', vbo)
-  }
-}
-
-function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_name: string, n: number,
-    visual: visuals.LineVector | visuals.FillVector, color_prop: p.Uniform<uint32>, alpha_prop: p.Uniform<number>): void {
-  // Attach the color attribute to the program. If there's just one color,
-  // then use this single color for all vertices (no VBO). Otherwise we
-  // create an array and upload that to the VBO, which we attahce to the prog.
-  if (!visual.doit) {
-    // Don't draw (draw transparent)
-    vbo.used = false
-    prog.set_attribute(att_name, 'vec4', [0, 0, 0, 0])
-  } else if (color_prop.is_Scalar() && alpha_prop.is_Scalar()) {
-    vbo.used = false
-    const [r, g, b, a] = color2rgba(color_prop.value, alpha_prop.value)
-    prog.set_attribute(att_name, 'vec4', [r/255, g/255, b/255, a/255])
-  } else {
-    vbo.used = true
-
-    let colors: RGBAArray
-    if (color_prop.is_Vector()) {
-      // TODO: compose alpha in visuals or earlier to avoid this copy
-      const array = new ColorArray(color_prop.array)
-      colors = new RGBAArray(array.buffer)
-
-      if (!(alpha_prop.is_Scalar() && alpha_prop.value == 1.0)) {
-        for (let i = 0; i < n; i++) {
-          const k = 4*i + 3
-          const a = colors[k]
-          if (a == 255) {
-            colors[k] = alpha_prop.get(i)*255
-          }
-        }
-      }
-    } else if (color_prop.is_Scalar() && alpha_prop.is_Vector()) {
-      const array = new ColorArray(n)
-      array.fill(color_prop.value)
-      colors = new RGBAArray(array.buffer)
-
-      for (let i = 0; i < n; i++) {
-        for (let i = 0; i < n; i++) {
-          const k = 4*i + 3
-          const a = colors[k]
-          if (a == 255) {
-            colors[k] = alpha_prop.get(i)*255
-          }
-        }
-      }
-    } else
-      unreachable()
-
-    // Attach vbo
-    vbo.set_size(4*n)
-    vbo.set_data(0, colors)
-    prog.set_attribute(att_name, 'vec4_uint8', vbo, 0, 0, true)
-  }
+// XXX: this is needed to cut circular dependency between this and models/glyphs/circle
+function is_CircleView(glyph_view: GlyphView): glyph_view is CircleView {
+  return glyph_view.model.type == "Circle"
 }
 
 // Base class for markers. All markers share the same GLSL, except for one
-// function that defines the marker geometry.
+// function in the fragment shader that defines the marker geometry and is
+// enabled through a #define.
 export class MarkerGL extends BaseGLGlyph {
-  protected prog: Program
-  protected vbo_sx: VertexBuffer
-  protected vbo_sy: VertexBuffer
-  protected vbo_s: VertexBuffer
-  protected vbo_a: VertexBuffer
-  protected vbo_linewidth: VertexBuffer & {used?: boolean}
-  protected vbo_fg_color: VertexBuffer & {used?: boolean}
-  protected vbo_bg_color: VertexBuffer & {used?: boolean}
-  protected index_buffer: IndexBuffer
+  protected _marker_type: MarkerType
+  protected _antialias: number
+
+  // data properties, either all or none are set.
+  protected _centers: Float32Buffer
+  protected _sizes: Float32Buffer
+  protected _angles: Float32Buffer
+
+  // visual properties, either all or none are set.
+  protected _linewidths: Float32Buffer
+  protected _line_rgba: NormalizedUint8Buffer
+  protected _fill_rgba: NormalizedUint8Buffer
+
+  // indices properties.
+  protected _show: Uint8Buffer
+  protected _show_all: boolean
 
   static is_supported(marker_type: MarkerType): boolean {
     switch (marker_type) {
       case "asterisk":
       case "circle":
       case "circle_cross":
+      case "circle_dot":
       case "circle_x":
+      case "circle_y":
       case "cross":
+      case "dash":
       case "diamond":
       case "diamond_cross":
+      case "diamond_dot":
+      case "dot":
       case "hex":
+      case "hex_dot":
       case "inverted_triangle":
+      case "plus":
       case "square":
       case "square_cross":
+      case "square_dot":
+      case "square_pin":
       case "square_x":
       case "star":
+      case "star_dot":
       case "triangle":
+      case "triangle_dot":
+      case "triangle_pin":
       case "x":
+      case "y":
         return true
       default:
         return false
     }
   }
 
-  constructor(gl: WebGLRenderingContext, readonly glyph: MarkerLikeView, readonly marker_type: MarkerType) {
-    super(gl, glyph)
+  constructor(regl_wrapper: ReglWrapper, override readonly glyph: MarkerLikeView, readonly marker_type: MarkerType) {
+    super(regl_wrapper, glyph)
 
-    const defs = [`#define USE_${marker_type.toUpperCase()}`]
-    const vert = vertex_shader
-    const frag = `${defs.join("\n")}\n\n${fragment_shader}`
-
-    // The program
-    this.prog = new Program(gl)
-    this.prog.set_shaders(vert, frag)
-    // Real attributes
-    this.vbo_sx = new VertexBuffer(gl)
-    this.prog.set_attribute('a_sx', 'float', this.vbo_sx)
-    this.vbo_sy = new VertexBuffer(gl)
-    this.prog.set_attribute('a_sy', 'float', this.vbo_sy)
-    this.vbo_s = new VertexBuffer(gl)
-    this.prog.set_attribute('a_size', 'float', this.vbo_s)
-    this.vbo_a = new VertexBuffer(gl)
-    this.prog.set_attribute('a_angle', 'float', this.vbo_a)
-    // VBO's for attributes (they may not be used if value is singleton)
-    this.vbo_linewidth = new VertexBuffer(gl)
-    this.vbo_fg_color = new VertexBuffer(gl)
-    this.vbo_bg_color = new VertexBuffer(gl)
-    this.index_buffer = new IndexBuffer(gl)
+    this._marker_type = marker_type
+    this._antialias = 0.8
+    this._show_all = false
   }
 
-  draw(indices: number[], main_glyph: MarkerLikeView, trans: Transform): void {
-    // The main glyph has the data, *this* glyph has the visuals.
+  draw(indices: number[], main_glyph: MarkerLikeView, transform: Transform): void {
+    // The main glyph has the data, this glyph has the visuals.
     const mainGlGlyph = main_glyph.glglyph!
-    const {nvertices} = mainGlGlyph
 
-    // Upload data if we must. Only happens for main glyph.
-    if (mainGlGlyph.data_changed) {
-      mainGlGlyph._set_data(nvertices)
-      if (this.glyph instanceof CircleView && this.glyph.radius != null) {
-        // Keep screen radius up-to-date for circle glyph. Only happens when a radius is given
-        this.vbo_s.set_data(0, map(this.glyph.sradius, (s) => s*2))
-      }
+    // Temporary solution for circles to always force call to _set_data.
+    // Correct solution depends on keeping the webgl properties constant and
+    // only changing the indices, which in turn depends on the correct webgl
+    // instanced rendering.
+    if (mainGlGlyph.data_changed || is_CircleView(this.glyph)) {
+      mainGlGlyph._set_data()
       mainGlGlyph.data_changed = false
     }
 
-    // Update visuals if we must. Can happen for all glyphs.
     if (this.visuals_changed) {
-      this._set_visuals(nvertices)
+      this._set_visuals()
       this.visuals_changed = false
     }
 
-    // Handle transformation to device coordinates
-    this.prog.set_uniform('u_pixel_ratio', 'float', [trans.pixel_ratio])
-    this.prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
+    const nmarkers = mainGlGlyph._centers.length / 2
 
-    // Select buffers from main glyph
-    // (which may be this glyph but maybe not if this is a (non)selection glyph)
-    this.prog.set_attribute('a_sx', 'float', mainGlGlyph.vbo_sx)
-    this.prog.set_attribute('a_sy', 'float', mainGlGlyph.vbo_sy)
-    this.prog.set_attribute('a_size', 'float', mainGlGlyph.vbo_s)
-    this.prog.set_attribute('a_angle', 'float', mainGlGlyph.vbo_a)
+    if (this._show == null)
+      this._show = new Uint8Buffer(this.regl_wrapper)
 
-    // Draw directly or using indices. Do not handle indices if they do not
-    // fit in a uint16; WebGL 1.0 does not support uint32.
-    if (indices.length == 0)
-      return
-    else if (indices.length === nvertices)
-      this.prog.draw(this.gl.POINTS, [0, nvertices])
-    else if (nvertices < 65535) {
-      // On IE the marker size is reduced to 1 px when using an index buffer
-      // A MS Edge dev on Twitter said on 24-04-2014: "gl_PointSize > 1.0 works
-      // in DrawArrays; gl_PointSize > 1.0 in DrawElements is coming soon in the
-      // next renderer update.
-      const ua = window.navigator.userAgent
-      if ((ua.indexOf("MSIE ") + ua.indexOf("Trident/") + ua.indexOf("Edge/")) > 0) {
-        logger.warn('WebGL warning: IE is known to produce 1px sprites whith selections.')
+    const prev_nmarkers = this._show.length
+    const show_array = this._show.get_sized_array(nmarkers)
+    if (indices.length < nmarkers) {
+      this._show_all = false
+
+      // Reset all show values to zero.
+      for (let i = 0; i < nmarkers; i++)
+        show_array[i] = 0
+
+      // Set show values of markers to render to 255.
+      for (let j = 0; j < indices.length; j++) {
+        show_array[indices[j]] = 255
       }
-      this.index_buffer.set_size(indices.length*2)
-      this.index_buffer.set_data(0, new Uint16Array(indices))
-      this.prog.draw(this.gl.POINTS, this.index_buffer)
+    } else if (!this._show_all || prev_nmarkers != nmarkers) {
+      this._show_all = true
+      for (let i = 0; i < nmarkers; i++)
+        show_array[i] = 255
+    }
+    this._show.update()
+
+    const props: MarkerGlyphProps = {
+      scissor: this.regl_wrapper.scissor,
+      viewport: this.regl_wrapper.viewport,
+      canvas_size: [transform.width, transform.height],
+      pixel_ratio: transform.pixel_ratio,
+      center: mainGlGlyph._centers,
+      size: mainGlGlyph._sizes,
+      angle: mainGlGlyph._angles,
+      nmarkers,
+      antialias: this._antialias,
+      linewidth: this._linewidths,
+      line_color: this._line_rgba,
+      fill_color: this._fill_rgba,
+      show: this._show,
+    }
+    this.regl_wrapper.marker(this._marker_type)(props)
+  }
+
+  protected _set_data(): void {
+    const nmarkers = this.glyph.sx.length
+
+    if (this._centers == null) {
+      // Either all or none are set.
+      this._centers = new Float32Buffer(this.regl_wrapper)
+      this._sizes = new Float32Buffer(this.regl_wrapper)
+      this._angles = new Float32Buffer(this.regl_wrapper)
+    }
+
+    const centers_array = this._centers.get_sized_array(nmarkers*2)
+    for (let i = 0; i < nmarkers; i++) {
+      if (isFinite(this.glyph.sx[i]) && isFinite(this.glyph.sy[i])) {
+        centers_array[2*i  ] = this.glyph.sx[i]
+        centers_array[2*i+1] = this.glyph.sy[i]
+      } else {
+        centers_array[2*i  ] = missing_point
+        centers_array[2*i+1] = missing_point
+      }
+    }
+    this._centers.update()
+
+    if (is_CircleView(this.glyph) && this.glyph.radius != null) {
+      const sizes_array = this._sizes.get_sized_array(nmarkers)
+      for (let i = 0; i < nmarkers; i++)
+        sizes_array[i] = this.glyph.sradius[i]*2
+      this._sizes.update()
     } else {
-      // Work around the limit that the indexbuffer must be uint16. We draw in chunks.
-      // First collect indices in chunks
-      const chunksize = 64000  // 65536
-      const chunks: number[][] = []
-      for (let i = 0, end = Math.ceil(nvertices/chunksize); i < end; i++) {
-        chunks.push([])
-      }
-      for (let i = 0, end = indices.length; i < end; i++) {
-        const uint16_index = indices[i] % chunksize
-        const chunk = Math.floor(indices[i] / chunksize)
-        chunks[chunk].push(uint16_index)
-      }
-      // Then draw each chunk
-      for (let chunk = 0, end = chunks.length; chunk < end; chunk++) {
-        const these_indices = new Uint16Array(chunks[chunk])
-        const offset = chunk * chunksize * 4
-        if (these_indices.length === 0) {
-          continue
-        }
-        this.prog.set_attribute('a_sx', 'float', mainGlGlyph.vbo_sx, 0, offset)
-        this.prog.set_attribute('a_sy', 'float', mainGlGlyph.vbo_sy, 0, offset)
-        this.prog.set_attribute('a_size', 'float', mainGlGlyph.vbo_s, 0, offset)
-        this.prog.set_attribute('a_angle', 'float', mainGlGlyph.vbo_a, 0, offset)
-        if (this.vbo_linewidth.used) {
-          this.prog.set_attribute('a_linewidth', 'float', this.vbo_linewidth, 0, offset)
-        }
-        if (this.vbo_fg_color.used) {
-          this.prog.set_attribute('a_fg_color', 'vec4_uint8', this.vbo_fg_color, 0, offset*4, true)
-        }
-        if (this.vbo_bg_color.used) {
-          this.prog.set_attribute('a_bg_color', 'vec4_uint8', this.vbo_bg_color, 0, offset*4, true)
-        }
-        // The actual drawing
-        this.index_buffer.set_size(these_indices.length*2)
-        this.index_buffer.set_data(0, these_indices)
-        this.prog.draw(this.gl.POINTS, this.index_buffer)
-      }
+      this._sizes.set_from_prop(this.glyph.size)
     }
+
+    this._angles.set_from_prop(this.glyph.angle)
   }
 
-  protected _set_data(nvertices: number): void {
-    const n = nvertices * 4  // in bytes
-    // Set buffer size
-    this.vbo_sx.set_size(n)
-    this.vbo_sy.set_size(n)
-    this.vbo_a.set_size(n)
-    this.vbo_s.set_size(n)
-    this.vbo_sx.set_data(0, this.glyph.sx)
-    this.vbo_sy.set_data(0, this.glyph.sy)
-    if (this.glyph.angle != null) {
-      this.vbo_a.set_data(0, new Float32Array(this.glyph.angle)) // TODO: use attach_float()
-    }
-    if (this.glyph instanceof CircleView && this.glyph.radius != null)
-      this.vbo_s.set_data(0, map(this.glyph.sradius, (s) => s*2))
-    else
-      this.vbo_s.set_data(0, new Float32Array(this.glyph.size))
-  }
+  protected _set_visuals(): void {
+    const fill = this.glyph.visuals.fill
+    const line = this.glyph.visuals.line
 
-  protected _set_visuals(nvertices: number): void {
-    const {line, fill} = this.glyph.visuals
-    attach_float(this.prog, this.vbo_linewidth, 'a_linewidth', nvertices, line, line.line_width)
-    attach_color(this.prog, this.vbo_fg_color, 'a_fg_color', nvertices, line, line.line_color, line.line_alpha)
-    attach_color(this.prog, this.vbo_bg_color, 'a_bg_color', nvertices, fill, fill.fill_color, fill.fill_alpha)
-    // Static value for antialias. Smaller aa-region to obtain crisper images
-    this.prog.set_uniform('u_antialias', 'float', [0.8])
+    if (this._linewidths == null) {
+      // Either all or none are set.
+      this._linewidths = new Float32Buffer(this.regl_wrapper)
+      this._line_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
+      this._fill_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
+    }
+
+    this._linewidths.set_from_prop(line.line_width)
+    this._line_rgba.set_from_color(line.line_color, line.line_alpha)
+    this._fill_rgba.set_from_color(fill.fill_color, fill.fill_alpha)
   }
 }

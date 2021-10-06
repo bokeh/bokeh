@@ -12,7 +12,7 @@ export interface Equatable {
 }
 
 function is_Equatable<T>(obj: T): obj is T & Equatable {
-  return isObject(obj) && (obj as any)[equals] !== undefined
+  return isObject(obj) && equals in obj
 }
 
 export const wildcard: any = Symbol("wildcard")
@@ -38,13 +38,15 @@ export class Comparator {
       return false
 
     switch (class_name) {
-      case '[object Number]':
+      case "[object Number]":
         return this.numbers(a, b)
-      case '[object RegExp]':
-      case '[object String]':
+      case "[object Symbol]":
+        return a === b
+      case "[object RegExp]":
+      case "[object String]":
         return `${a}` == `${b}`
-      case '[object Date]':
-      case '[object Boolean]':
+      case "[object Date]":
+      case "[object Boolean]":
         return +a === +b
     }
 
@@ -206,7 +208,7 @@ export class SimilarComparator extends Comparator {
     super()
   }
 
-  numbers(a: number, b: number): boolean {
+  override numbers(a: number, b: number): boolean {
     return super.numbers(a, b) || abs(a - b) < this.tolerance
   }
 }
@@ -220,6 +222,3 @@ export function is_similar(a: unknown, b: unknown, tolerance?: number): boolean 
   const comparator = new SimilarComparator(tolerance)
   return comparator.eq(a, b)
 }
-
-/** @deprecated */
-export const isEqual = is_equal

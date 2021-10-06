@@ -4,8 +4,7 @@ Using the command line
 ======================
 
 You can produce a wide range of Bokeh outputs programmatically
-with functions such as :func:`~bokeh.io.output_file` and
-:func:`~bokeh.io.output_notebook`.
+with functions such as |output_file| and |output_notebook|.
 
 However, this isn't the only way to work with the library. The ``bokeh`` command
 line tool often offers better flexibility and makes iteration easier and faster.
@@ -39,5 +38,4 @@ later. This simplifies the above example as follows:
 You can now run ``bokeh html foo.py`` to generate a standalone HTML file
 or ``bokeh serve foo.py`` to start serving this document as a web application.
 
-See :ref:`bokeh.command` in the :ref:`reference guide <refguide>` for more
-information.
+See :ref:`bokeh.command` in the |reference guide| for more information.

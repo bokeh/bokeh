@@ -60,11 +60,11 @@ export class DrawTool extends GestureTool {
   }
 
   tool_name = "Drag Span"
-  icon = "bk-tool-icon-lasso-select"
+  tool_icon = "bk-tool-icon-lasso-select"
   event_type = "pan" as "pan"
   default_order = 12
 
-  static init_DrawTool(): void {
+  static {
     this.prototype.default_view = DrawToolView
 
     this.define<DrawTool.Props>(({Ref}) => ({

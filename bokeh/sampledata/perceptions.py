@@ -4,13 +4,31 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide provides access to probly.csv and numberly.csv
+''' Provides access to ``probly.csv`` and ``numberly.csv``.
+
+Sourced from: https://github.com/zonination/perceptions
+
+Data distributed under the `MIT license`_.
+
+This module contains two pandas Dataframes: ``probly`` and ``numberly``.
+
+.. rubric:: ``probly``
+
+:bokeh-dataframe:`bokeh.sampledata.perceptions.probly`
+
+.. rubric:: ``numberly``
+
+:bokeh-dataframe:`bokeh.sampledata.perceptions.numberly`
+
+.. _MIT license: https://opensource.org/licenses/MIT
 
 '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

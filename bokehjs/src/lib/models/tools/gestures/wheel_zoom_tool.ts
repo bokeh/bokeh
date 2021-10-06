@@ -7,9 +7,9 @@ import {is_mobile} from "core/util/platform"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
 
 export class WheelZoomToolView extends GestureToolView {
-  model: WheelZoomTool
+  override model: WheelZoomTool
 
-  _pinch(ev: PinchEvent): void {
+  override _pinch(ev: PinchEvent): void {
     // TODO (bev) this can probably be done much better
     const {sx, sy, scale, ctrlKey, shiftKey} = ev
 
@@ -22,7 +22,7 @@ export class WheelZoomToolView extends GestureToolView {
     this._scroll({type: "wheel", sx, sy, delta, ctrlKey, shiftKey})
   }
 
-  _scroll(ev: ScrollEvent): void {
+  override _scroll(ev: ScrollEvent): void {
     const {frame} = this.plot_view
 
     const hr = frame.bbox.h_range
@@ -33,8 +33,8 @@ export class WheelZoomToolView extends GestureToolView {
 
     // restrict to axis configured in tool's dimensions property and if
     // zoom origin is inside of frame range/domain
-    const h_axis = (dims == 'width' || dims == 'both') && hr.start < sx && sx < hr.end
-    const v_axis = (dims == 'height' || dims == 'both') && vr.start < sy && sy < vr.end
+    const h_axis = (dims == "width" || dims == "both") && hr.start < sx && sx < hr.end
+    const v_axis = (dims == "height" || dims == "both") && vr.start < sy && sy < vr.end
 
     if ((!h_axis || !v_axis) && !this.model.zoom_on_axis) {
       return
@@ -49,7 +49,7 @@ export class WheelZoomToolView extends GestureToolView {
     const {maintain_focus} = this.model
     this.plot_view.update_range(zoom_info, {scrolling: true, maintain_focus})
 
-    this.model.document?.interactive_start(this.plot_model)
+    this.model.document?.interactive_start(this.plot_model, () =>  this.plot_view.trigger_ranges_update_event())
   }
 }
 
@@ -67,14 +67,14 @@ export namespace WheelZoomTool {
 export interface WheelZoomTool extends WheelZoomTool.Attrs {}
 
 export class WheelZoomTool extends GestureTool {
-  properties: WheelZoomTool.Props
-  __view_type__: WheelZoomToolView
+  override properties: WheelZoomTool.Props
+  override __view_type__: WheelZoomToolView
 
   constructor(attrs?: Partial<WheelZoomTool.Attrs>) {
     super(attrs)
   }
 
-  static init_WheelZoomTool(): void {
+  static {
     this.prototype.default_view = WheelZoomToolView
 
     this.define<WheelZoomTool.Props>(({Boolean, Number}) => ({
@@ -84,17 +84,17 @@ export class WheelZoomTool extends GestureTool {
       speed:          [ Number, 1/600 ],
     }))
 
-    this.register_alias("wheel_zoom", () => new WheelZoomTool({dimensions: 'both'}))
-    this.register_alias("xwheel_zoom", () => new WheelZoomTool({dimensions: 'width'}))
-    this.register_alias("ywheel_zoom", () => new WheelZoomTool({dimensions: 'height'}))
+    this.register_alias("wheel_zoom", () => new WheelZoomTool({dimensions: "both"}))
+    this.register_alias("xwheel_zoom", () => new WheelZoomTool({dimensions: "width"}))
+    this.register_alias("ywheel_zoom", () => new WheelZoomTool({dimensions: "height"}))
   }
 
-  tool_name = "Wheel Zoom"
-  icon = tool_icon_wheel_zoom
-  event_type = is_mobile ? "pinch" as "pinch" : "scroll" as "scroll"
-  default_order = 10
+  override tool_name = "Wheel Zoom"
+  override tool_icon = tool_icon_wheel_zoom
+  override event_type = is_mobile ? "pinch" as "pinch" : "scroll" as "scroll"
+  override default_order = 10
 
-  get tooltip(): string {
+  override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
   }
 }

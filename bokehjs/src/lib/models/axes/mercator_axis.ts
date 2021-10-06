@@ -5,7 +5,7 @@ import {MercatorTicker} from "../tickers/mercator_ticker"
 import * as p from "core/properties"
 
 export class MercatorAxisView extends AxisView {
-  model: MercatorAxis
+  override model: MercatorAxis
 }
 
 export namespace MercatorAxis {
@@ -20,17 +20,17 @@ export namespace MercatorAxis {
 export interface MercatorAxis extends MercatorAxis.Attrs {}
 
 export class MercatorAxis extends LinearAxis {
-  properties: MercatorAxis.Props
-  __view_type__: MercatorAxisView
+  override properties: MercatorAxis.Props
+  override __view_type__: MercatorAxisView
 
-  ticker:    MercatorTicker
-  formatter: MercatorTickFormatter
+  override ticker: MercatorTicker
+  override formatter: MercatorTickFormatter
 
   constructor(attrs?: Partial<MercatorAxis.Attrs>) {
     super(attrs)
   }
 
-  static init_MercatorAxis(): void {
+  static {
     this.prototype.default_view = MercatorAxisView
 
     this.override<MercatorAxis.Props>({

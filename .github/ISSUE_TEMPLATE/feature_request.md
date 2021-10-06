@@ -24,3 +24,5 @@ A clear and concise description of any alternative solutions or features you've 
 
 **Additional context**
 Add any other context or screenshots about the feature request here.
+
+*Note: Everyone interacting in the Bokeh project's codebases, issue trackers, and discussion forums is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/master/CODE_OF_CONDUCT.md).*

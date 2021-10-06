@@ -3,6 +3,8 @@ import json
 from datetime import date
 
 # Bokeh imports
+from bokeh.core.property.bases import UndefinedType
+from bokeh.core.property.descriptors import AliasPropertyDescriptor
 from bokeh.model import Model
 
 import bokeh.models as bm; bm
@@ -23,6 +25,9 @@ for name, m in sorted(Model.model_class_reverse_map.items()):
     props = []
     for prop_name in m.properties():
         descriptor = m.lookup(prop_name)
+        if isinstance(descriptor, AliasPropertyDescriptor):
+            continue
+
         prop = descriptor.property
 
         detail = {
@@ -32,8 +37,9 @@ for name, m in sorted(Model.model_class_reverse_map.items()):
         }
 
         default = descriptor.instance_default(m())
-        if isinstance(default, date):
-            default = str(default)
+
+        if isinstance(default, UndefinedType):
+            default = "<Undefined>"
 
         if isinstance(default, Model):
             default = _proto(default)

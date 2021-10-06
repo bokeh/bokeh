@@ -57,7 +57,7 @@ colors = [
     "#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50+2*x, 30+2*y)
 ]
 
-p = figure(tools="pan,wheel_zoom,zoom_in,zoom_out,reset,tap,lasso_select,box_select")
+p = figure(tools="pan,wheel_zoom,zoom_in,zoom_out,reset,tap,lasso_select,box_select,box_zoom,undo,redo")
 
 p.scatter(x, y, radius=radii,
           fill_color=colors, fill_alpha=0.6,
@@ -94,7 +94,7 @@ p.js_on_event(events.Press,     display_event(div, attributes=point_attributes))
 p.js_on_event(events.MouseWheel, display_event(div,attributes=wheel_attributes))
 
 # Mouse move, enter and leave
-p.js_on_event(events.MouseMove,  display_event(div, attributes=point_attributes))
+# p.js_on_event(events.MouseMove,  display_event(div, attributes=point_attributes))
 p.js_on_event(events.MouseEnter, display_event(div, attributes=point_attributes))
 p.js_on_event(events.MouseLeave, display_event(div, attributes=point_attributes))
 
@@ -111,9 +111,11 @@ p.js_on_event(events.PinchEnd,   display_event(div, attributes=point_attributes)
 # Selection events
 p.js_on_event(events.SelectionGeometry, display_event(div, attributes=['geometry', 'final']))
 
+# Ranges Update events
+p.js_on_event(events.RangesUpdate, display_event(div, attributes=['x0','x1','y0','y1']))
+
 # Reset events
 p.js_on_event(events.Reset, display_event(div))
-
 
 ## Register Python event callbacks
 
@@ -134,7 +136,7 @@ p.on_event(events.Press,     print_event(attributes=point_attributes))
 p.on_event(events.MouseWheel, print_event(attributes=wheel_attributes))
 
 # Mouse move, enter and leave
-p.on_event(events.MouseMove,  print_event(attributes=point_attributes))
+# p.on_event(events.MouseMove,  print_event(attributes=point_attributes))
 p.on_event(events.MouseEnter, print_event(attributes=point_attributes))
 p.on_event(events.MouseLeave, print_event(attributes=point_attributes))
 
@@ -147,6 +149,9 @@ p.on_event(events.PanEnd,   print_event(attributes=point_attributes))
 p.on_event(events.Pinch,      print_event(attributes=pinch_attributes))
 p.on_event(events.PinchStart, print_event(attributes=point_attributes))
 p.on_event(events.PinchEnd,   print_event(attributes=point_attributes))
+
+# Ranges Update events
+p.on_event(events.RangesUpdate, print_event(attributes=['x0','x1','y0','y1']))
 
 # Selection events
 p.on_event(events.SelectionGeometry, print_event(attributes=['geometry', 'final']))

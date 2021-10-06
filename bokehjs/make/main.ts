@@ -1,4 +1,4 @@
-import yargs = require("yargs")
+import yargs from "yargs"
 
 const {argv} = yargs.help(false)
 
@@ -9,9 +9,9 @@ const {_} = argv
 
 async function main(): Promise<void> {
   if (_.length != 0 && _[0] == "help")
-    log("tasks: " + task_names().filter((name) => !name.includes(":")).join(", "))
+    log(`tasks: ${task_names().filter((name) => !name.includes(":")).join(", ")}`)
   else {
-    const tasks = _.length != 0 ? _ : ["default"]
+    const tasks = _.length != 0 ? _.map((arg) => `${arg}`) : ["default"]
     const top_level = task("top-level", tasks)
 
     try {
@@ -20,7 +20,7 @@ async function main(): Promise<void> {
         show_failure(result)
         process.exit(1)
       }
-    } catch (error: unknown) {
+    } catch (error) {
       show_error(error)
       process.exit(1)
     }

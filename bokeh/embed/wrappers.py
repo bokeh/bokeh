@@ -11,15 +11,14 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-from typing import Optional
 
 # Bokeh imports
 from ..core.templates import SCRIPT_TAG
@@ -55,7 +54,7 @@ def wrap_in_safely(code: str) -> str:
     '''
     return _SAFELY % dict(code=indent(code, 2))
 
-def wrap_in_script_tag(js: str, type: str="text/javascript", id: Optional[str]=None) -> str:
+def wrap_in_script_tag(js: str, type: str="text/javascript", id: str | None = None) -> str:
     '''
 
     '''
@@ -67,7 +66,7 @@ def wrap_in_script_tag(js: str, type: str="text/javascript", id: Optional[str]=N
 
 _ONLOAD = """\
 (function() {
-  var fn = function() {
+  const fn = function() {
 %(code)s
   };
   if (document.readyState != "loading") fn();

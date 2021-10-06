@@ -9,6 +9,7 @@ import {Location} from "@bokehjs/core/enums"
 import {range} from "@bokehjs/core/util/array"
 import {Matrix} from "@bokehjs/core/util/matrix"
 import {figure, gridplot} from "@bokehjs/api/plotting"
+import {BasicTickFormatter} from "@bokehjs/models/formatters"
 
 const spacer =
   (width_policy: SizingPolicy, height_policy: SizingPolicy,
@@ -232,33 +233,149 @@ describe("GridBox", () => {
 
 describe("Tabs", () => {
   const panel = (color: string) => {
-    const p = fig([200, 200])
-    p.circle([0, 5, 10], [0, 5, 10], {size: 10, color})
+    const p = fig([100, 100])
+    p.circle([0, 5, 10], [0, 5, 10], {size: 5, color})
     return new Panel({title: color, child: p})
   }
 
-  const tabs = (tabs_location: Location) => {
-    return new Tabs({tabs: ["red", "green", "blue"].map(panel), tabs_location})
+  const tabs = (tabs_location: Location, tabs: string[]) => {
+    return new Tabs({tabs: tabs.map(panel), tabs_location})
   }
 
   it("should allow tabs header location above", async () => {
-    const obj = tabs("above")
-    await display(obj, [300, 300])
+    const obj = tabs("above", ["red", "green", "blue"])
+    await display(obj, [200, 150])
   })
 
   it("should allow tabs header location below", async () => {
-    const obj = tabs("below")
-    await display(obj, [300, 300])
+    const obj = tabs("below", ["red", "green", "blue"])
+    await display(obj, [200, 150])
   })
 
   it("should allow tabs header location left", async () => {
-    const obj = tabs("left")
-    await display(obj, [300, 300])
+    const obj = tabs("left", ["red", "green", "blue"])
+    await display(obj, [200, 150])
   })
 
   it("should allow tabs header location right", async () => {
-    const obj = tabs("right")
-    await display(obj, [300, 300])
+    const obj = tabs("right", ["red", "green", "blue"])
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location above with active == 1", async () => {
+    const obj = tabs("above", ["red", "green", "blue"])
+    obj.active = 1
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location below with active == 1", async () => {
+    const obj = tabs("below", ["red", "green", "blue"])
+    obj.active = 1
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location left with active == 1", async () => {
+    const obj = tabs("left", ["red", "green", "blue"])
+    obj.active = 1
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location right with active == 1", async () => {
+    const obj = tabs("right", ["red", "green", "blue"])
+    obj.active = 1
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location above with overflow", async () => {
+    const obj = tabs("above", ["red", "green", "blue", "cyan", "magenta"])
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location below with overflow", async () => {
+    const obj = tabs("below", ["red", "green", "blue", "cyan", "magenta"])
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location left with overflow", async () => {
+    const obj = tabs("left", ["red", "green", "blue", "cyan", "magenta"])
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location right with overflow", async () => {
+    const obj = tabs("right", ["red", "green", "blue", "cyan", "magenta"])
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location above with overflow and active off-screen", async () => {
+    const obj = tabs("above", ["red", "green", "blue", "cyan", "magenta"])
+    obj.active = 3
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location below with overflow and active off-screen", async () => {
+    const obj = tabs("below", ["red", "green", "blue", "cyan", "magenta"])
+    obj.active = 3
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location left with overflow and active off-screen", async () => {
+    const obj = tabs("left", ["red", "green", "blue", "cyan", "magenta"])
+    obj.active = 3
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location right with overflow and active off-screen", async () => {
+    const obj = tabs("right", ["red", "green", "blue", "cyan", "magenta"])
+    obj.active = 3
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location above with disabled=true", async () => {
+    const obj = tabs("above", ["red", "green", "blue"])
+    obj.disabled = true
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location below with disabled=true", async () => {
+    const obj = tabs("below", ["red", "green", "blue"])
+    obj.disabled = true
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location left with disabled=true", async () => {
+    const obj = tabs("left", ["red", "green", "blue"])
+    obj.disabled = true
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location right with disabled=true", async () => {
+    const obj = tabs("right", ["red", "green", "blue"])
+    obj.disabled = true
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location above with second tab disabled", async () => {
+    const obj = tabs("above", ["red", "green", "blue"])
+    obj.tabs[1].disabled = true
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location below with second tab disabled", async () => {
+    const obj = tabs("below", ["red", "green", "blue"])
+    obj.tabs[1].disabled = true
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location left with second tab disabled", async () => {
+    const obj = tabs("left", ["red", "green", "blue"])
+    obj.tabs[1].disabled = true
+    await display(obj, [200, 150])
+  })
+
+  it("should allow tabs header location right with second tab disabled", async () => {
+    const obj = tabs("right", ["red", "green", "blue"])
+    obj.tabs[1].disabled = true
+    await display(obj, [200, 150])
   })
 })
 
@@ -270,10 +387,10 @@ describe("gridplot()", () => {
     const figs = coeffs.map((ycoeff) => {
       return coeffs.map((xcoeff) => {
         const fig = figure({height: 200, width: 200})
-        fig.xaxis.map((axis) => (axis.formatter as any).use_scientific = false)
-        fig.yaxis.map((axis) => (axis.formatter as any).use_scientific = false)
-        fig.xaxis.map((axis) => axis.major_label_orientation = "vertical")
-        fig.yaxis.map((axis) => axis.major_label_orientation = "horizontal")
+        fig.xaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
+        fig.yaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
+        fig.xaxis.major_label_orientation = "vertical"
+        fig.yaxis.major_label_orientation = "horizontal"
         fig.circle(values(xcoeff), values(ycoeff), {size: 5})
         return fig
       })

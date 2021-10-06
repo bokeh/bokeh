@@ -3,7 +3,7 @@
 First steps 7: Displaying and exporting
 =======================================
 
-In the :ref:`previous first steps guides <first_steps_6>`, you created and
+In the :ref:`previous first steps guides <first_steps_6>`, you created,
 customized, and combined visualizations.
 
 In this section, you will use various methods to display and export your
@@ -14,22 +14,28 @@ visualizations.
 Creating a standalone HTML file
 -------------------------------
 
-All examples so far have used the :func:`~bokeh.io.output_file` function to
-save your visualization to an HTML file. This HTML file contains all the
-necessary information to display your plot.
+All examples so far have used the |show| function to save your visualization to
+an HTML file. This HTML file contains all the necessary information to display
+your plot.
 
-``output_file()`` accepts various arguments. For example:
+To customize the file Bokeh creates for your visualization, import and call the
+|output_file| function. ``output_file()`` accepts various file-related
+arguments. For example:
 
-* ``filename``: the filename for the HTML file
+* ``filename``: the filename for the HTML file. If you don't supply a file name,
+  Bokeh will use the file name of your python file as a filename for the HTML
+  file it creates.
 * ``title``: the title for you document (to be used in the HTML's ``<title>``
   tag)
 
-Bokeh creates the HTML file when you call the :func:`~bokeh.io.show` function.
-This function also automatically opens a web browser to display the HTML file.
+Bokeh creates the HTML file when you call the |show| function. This function
+also automatically opens a web browser to display the HTML file.
 
 If you want Bokeh to only generate the file but not open it in a web browser,
-use the :func:`~bokeh.io.save` function instead. You need to import the
-``save()`` function before using it, just like you did for ``show()``.
+use the |save| function instead.
+
+You need to import the |save| and |output_file| functions before using,
+just like you did for |show|.
 
 .. literalinclude:: examples/first_steps_7_export_html.py
    :language: python
@@ -43,19 +49,17 @@ use the :func:`~bokeh.io.save` function instead. You need to import the
     By default, Bokeh-generated HTML files include a standard version of BokehJS
     that is automatically downloaded from Bokeh's servers. Use the argument
     ``mode`` with the function ``output_file()`` to change this behavior. For
-    more information, see :class:`~bokeh.io.output_file` and
-    :class:`~bokeh.resources.Resources` in the reference guide.
+    more information, see |output_file| and :class:`~bokeh.resources.Resources`
+    in the reference guide.
 
 .. _first_steps_7_jupyter_notebook:
 
 Displaying in a Jupyter notebook
 --------------------------------
 
-If you use Jupyter notebooks, switch out Bokeh's :func:`~bokeh.io.output_file`
-for :func:`~bokeh.io.output_notebook`.
-
-Use the :func:`~bokeh.io.show` function to display your visualization right
-inside your notebook:
+If you use Jupyter notebooks, call Bokeh's |output_notebook| function in your
+code. Then, use the |show| function to display your visualization right inside
+your notebook:
 
 .. image:: /_images/notebook_inline.png
     :scale: 50 %
@@ -78,31 +82,20 @@ To export PNG or SVG files, you might need to install additional dependencies.
 
 In order to create PNG and SVG files, Bokeh uses
 `Selenium <https://github.com/SeleniumHQ/selenium>`_. Selenium allows Bokeh to
-run in a browser without a graphical user interface (GUI). Bokeh uses this
+run in a browser without a graphical user interface. Bokeh uses this
 browser to render the PNG or SVG files. In order for this to work, Selenium
-needs to be able to access either a Firefox browser (through a package called
-geckodriver) or a Chromium browser (through the chromedriver package).
+needs to be able to access either a Firefox browser (through the geckodriver
+package) or a Chrome/Chromium browser (through the chromedriver package).
 
-Depending on whether you are using ``conda`` or ``pip``, run one of the
-following commands to make sure you have all the required packages installed:
+Use this command to install Selenium with geckodriver and Firefox in a conda
+environment:
 
-.. panels::
+.. code-block:: sh
 
-    Installing with ``conda``
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    conda install selenium geckodriver firefox -c conda-forge
 
-    .. code-block:: sh
-
-        conda install selenium geckodriver firefox -c conda-forge
-
-    ---
-
-    Installing with ``pip``
-    ^^^^^^^^^^^^^^^^^^^^^^^
-
-    .. code-block:: sh
-
-        pip install selenium geckodriver firefox
+See :ref:`userguide_export_dependencies` for more options to install the
+required packages.
 
 Once the requirements are installed, you can use the
 :func:`~bokeh.io.export_png` function to export your plot into a PNG file:
@@ -114,16 +107,3 @@ Once the requirements are installed, you can use the
 .. seealso::
     For information on how to export PNG and SVG files, see
     :ref:`userguide_export` in the user guide.
-
-.. panels::
-    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
-
-    .. link-button:: first_steps_6.html
-        :text: Previous
-        :classes: stretched-link
-
-    ---
-    :card: + text-right
-    .. link-button:: first_steps_8.html
-        :text: Next
-        :classes: stretched-link

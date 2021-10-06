@@ -24,10 +24,10 @@ export interface GearData extends XYGlyphData {
 export interface GearView extends GearData {}
 
 export class GearView extends XYGlyphView {
-  model: Gear
-  visuals: Gear.Visuals
+  override model: Gear
+  override visuals: Gear.Visuals
 
-  _map_data(): void {
+  override _map_data(): void {
     this.smodule = this.sdist(this.renderer.xscale, this._x, this.module, 'edge')
   }
 
@@ -78,20 +78,9 @@ export class GearView extends XYGlyphView {
         ctx.arc(0, 0, shaft_radius, 0, 2*Math.PI, true)
       }
 
-      if (this.visuals.fill.doit) {
-        this.visuals.fill.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.hatch.doit) {
-        this.visuals.hatch.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.line.doit) {
-        this.visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
-      }
+      this.visuals.fill.apply(ctx, i)
+      this.visuals.hatch.apply(ctx, i)
+      this.visuals.line.apply(ctx, i)
 
       ctx.restore()
     }
@@ -156,7 +145,7 @@ export class GearView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -181,16 +170,16 @@ export namespace Gear {
 export interface Gear extends Gear.Attrs {}
 
 export class Gear extends XYGlyph {
-  properties: Gear.Props
-  __view_type__: GearView
+  override properties: Gear.Props
+  override __view_type__: GearView
 
   constructor(attrs?: Partial<Gear.Attrs>) {
     super(attrs)
   }
 
-  static __module__ = "gears"
+  static override __module__ = "gears"
 
-  static init_Gear(): void {
+  static {
     this.prototype.default_view = GearView
 
     this.mixins<Gear.Mixins>([LineVector, FillVector, HatchVector])

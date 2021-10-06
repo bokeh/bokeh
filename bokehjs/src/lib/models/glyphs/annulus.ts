@@ -5,7 +5,6 @@ import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
-import {is_ie} from "core/util/platform"
 import {Selection} from "../selections/selection"
 
 export type AnnulusData = XYGlyphData & p.UniformsOf<Annulus.Mixins> & {
@@ -22,10 +21,10 @@ export type AnnulusData = XYGlyphData & p.UniformsOf<Annulus.Mixins> & {
 export interface AnnulusView extends AnnulusData {}
 
 export class AnnulusView extends XYGlyphView {
-  model: Annulus
-  visuals: Annulus.Visuals
+  override model: Annulus
+  override visuals: Annulus.Visuals
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     if (this.model.properties.inner_radius.units == "data")
       this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this.inner_radius)
     else
@@ -46,54 +45,21 @@ export class AnnulusView extends XYGlyphView {
       const sinner_radius_i = sinner_radius[i]
       const souter_radius_i = souter_radius[i]
 
-      if (isNaN(sx_i + sy_i + sinner_radius_i + souter_radius_i))
+      if (!isFinite(sx_i + sy_i + sinner_radius_i + souter_radius_i))
         continue
 
-      // Because this visual has a whole in it, it proved "challenging"
-      // for some browsers to render if drawn in one go --- i.e. it did not
-      // work on IE. If we render in two parts (upper and lower part),
-      // it is unambiguous what part should be filled. The line is
-      // better drawn in one go though, otherwise the part where the pieces
-      // meet will not be fully closed due to aa.
-      function fill_path() {
-        ctx.beginPath()
-        if (is_ie) {
-          // Draw two halves of the donut. Works on IE, but causes an aa line on Safari.
-          for (const clockwise of [false, true]) {
-            ctx.arc(sx_i, sy_i, sinner_radius_i, 0, Math.PI, clockwise)
-            ctx.arc(sx_i, sy_i, souter_radius_i, Math.PI, 0, !clockwise)
-          }
-        } else {
-          // Draw donut in one go. Does not work on iE.
-          ctx.arc(sx_i, sy_i, sinner_radius_i, 0, 2 * Math.PI, true)
-          ctx.arc(sx_i, sy_i, souter_radius_i, 2 * Math.PI, 0, false)
-        }
-      }
+      ctx.beginPath()
+      ctx.arc(sx_i, sy_i, sinner_radius_i, 0, 2*Math.PI, true)
+      ctx.moveTo(sx_i + souter_radius_i, sy_i)
+      ctx.arc(sx_i, sy_i, souter_radius_i, 2*Math.PI, 0, false)
 
-      if (this.visuals.fill.doit) {
-        this.visuals.fill.set_vectorize(ctx, i)
-        fill_path()
-        ctx.fill()
-      }
-
-      if (this.visuals.hatch.doit) {
-        this.visuals.hatch.set_vectorize(ctx, i)
-        fill_path()
-        ctx.fill()
-      }
-
-      if (this.visuals.line.doit) {
-        this.visuals.line.set_vectorize(ctx, i)
-        ctx.beginPath()
-        ctx.arc(sx_i, sy_i, sinner_radius_i, 0, 2*Math.PI)
-        ctx.moveTo(sx_i + souter_radius_i, sy_i)
-        ctx.arc(sx_i, sy_i, souter_radius_i, 0, 2*Math.PI)
-        ctx.stroke()
-      }
+      this.visuals.fill.apply(ctx, i)
+      this.visuals.hatch.apply(ctx, i)
+      this.visuals.line.apply(ctx, i)
     }
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
@@ -130,7 +96,7 @@ export class AnnulusView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
     const len = index + 1
 
     const sx: number[] = new Array(len)
@@ -165,14 +131,14 @@ export namespace Annulus {
 export interface Annulus extends Annulus.Attrs {}
 
 export class Annulus extends XYGlyph {
-  properties: Annulus.Props
-  __view_type__: AnnulusView
+  override properties: Annulus.Props
+  override __view_type__: AnnulusView
 
   constructor(attrs?: Partial<Annulus.Attrs>) {
     super(attrs)
   }
 
-  static init_Annulus(): void {
+  static {
     this.prototype.default_view = AnnulusView
 
     this.mixins<Annulus.Mixins>([LineVector, FillVector, HatchVector])

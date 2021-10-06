@@ -15,6 +15,8 @@ other sessions hosted by the server.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -31,10 +33,17 @@ import hashlib
 import hmac
 import json
 import time
-from typing import Any, Dict, Optional, Tuple, Union
+import zlib
+from typing import (
+    Any,
+    Dict,
+    Tuple,
+    Union,
+)
 
 # Bokeh imports
-from bokeh.settings import settings
+from ..core.types import ID
+from ..settings import settings
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -50,9 +59,13 @@ __all__ = (
     'get_token_payload',
 )
 
+_TOKEN_ZLIB_KEY = "__bk__zlib_"
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+TokenPayload = Dict[str, Any]
 
 def generate_secret_key() -> str:
     ''' Generate a new securely-generated secret key appropriate for SHA-256
@@ -62,24 +75,24 @@ def generate_secret_key() -> str:
     '''
     return _get_random_string()
 
-def generate_session_id(secret_key: Optional[bytes] = settings.secret_key_bytes(),
-                        signed: bool = settings.sign_sessions()) -> str:
+def generate_session_id(secret_key: bytes | None = settings.secret_key_bytes(),
+                        signed: bool = settings.sign_sessions()) -> ID:
     ''' Generate a random session ID.
 
     Typically, each browser tab connected to a Bokeh application has its own
-    session ID.  In production deployments of a Bokeh app, session IDs should be
+    session ID. In production deployments of a Bokeh app, session IDs should be
     random and unguessable - otherwise users of the app could interfere with one
     another.
     '''
     session_id = _get_random_string()
     if signed:
         session_id = '.'.join([session_id, _signature(session_id, secret_key)])
-    return session_id
+    return ID(session_id)
 
-def generate_jwt_token(session_id: str,
-                       secret_key: Optional[bytes] = settings.secret_key_bytes(),
+def generate_jwt_token(session_id: ID,
+                       secret_key: bytes | None = settings.secret_key_bytes(),
                        signed: bool = settings.sign_sessions(),
-                       extra_payload: Optional[Dict[str, Any]] = None,
+                       extra_payload: TokenPayload | None = None,
                        expiration: int = 300) -> str:
     """Generates a JWT token given a session_id and additional payload.
 
@@ -104,18 +117,20 @@ def generate_jwt_token(session_id: str,
         str
     """
     now = calendar.timegm(dt.datetime.utcnow().utctimetuple())
-    payload = {'session_id': session_id, 'session_expiry': now+expiration}
+    payload = {'session_id': session_id, 'session_expiry': now + expiration}
     if extra_payload:
         if "session_id" in extra_payload:
             raise RuntimeError("extra_payload for session tokens may not contain 'session_id'")
-        payload.update(extra_payload)
+        extra_payload_str = json.dumps(extra_payload).encode('utf-8')
+        compressed = zlib.compress(extra_payload_str, level=9)
+        payload[_TOKEN_ZLIB_KEY] = _base64_encode(compressed)
     token = _base64_encode(json.dumps(payload))
     secret_key = _ensure_bytes(secret_key)
     if not signed:
         return token
     return token + '.' + _signature(token, secret_key)
 
-def get_session_id(token: str) -> Any:
+def get_session_id(token: str) -> ID:
     """Extracts the session id from a JWT token.
 
     Args:
@@ -128,7 +143,7 @@ def get_session_id(token: str) -> Any:
     decoded = json.loads(_base64_decode(token.split('.')[0]))
     return decoded['session_id']
 
-def get_token_payload(token: str) -> Any:
+def get_token_payload(token: str) -> TokenPayload:
     """Extract the payload from the token.
 
     Args:
@@ -139,12 +154,16 @@ def get_token_payload(token: str) -> Any:
         dict
     """
     decoded = json.loads(_base64_decode(token.split('.')[0]))
+    if _TOKEN_ZLIB_KEY in decoded:
+        decompressed = zlib.decompress(_base64_decode(decoded[_TOKEN_ZLIB_KEY]))
+        del decoded[_TOKEN_ZLIB_KEY]
+        decoded.update(json.loads(decompressed))
     del decoded['session_id']
     return decoded
 
 def check_token_signature(token: str,
-                          secret_key: Optional[bytes] = settings.secret_key_bytes(),
-                          signed: Optional[bool] = settings.sign_sessions()) -> bool:
+                          secret_key: bytes | None = settings.secret_key_bytes(),
+                          signed: bool = settings.sign_sessions()) -> bool:
     """Check the signature of a token and the contained signature.
 
     The server uses this function to check whether a token and the
@@ -185,8 +204,8 @@ def check_token_signature(token: str,
     return True
 
 def check_session_id_signature(session_id: str,
-                               secret_key: Optional[bytes] = settings.secret_key_bytes(),
-                               signed: Optional[bool] = settings.sign_sessions()) -> bool:
+                               secret_key: bytes | None = settings.secret_key_bytes(),
+                               signed: bool | None = settings.sign_sessions()) -> bool:
     """Check the signature of a session ID, returning True if it's valid.
 
     The server uses this function to check whether a session ID was generated
@@ -234,7 +253,7 @@ def _get_sysrandom() -> Tuple[Any, bool]:
         using_sysrandom = False
         return random, using_sysrandom
 
-def _ensure_bytes(secret_key: Union[str, bytes, None]) -> Optional[bytes]:
+def _ensure_bytes(secret_key: Union[str, bytes, None]) -> bytes | None:
     if secret_key is None:
         return None
     elif isinstance(secret_key, bytes):
@@ -243,7 +262,7 @@ def _ensure_bytes(secret_key: Union[str, bytes, None]) -> Optional[bytes]:
         return codecs.encode(secret_key, 'utf-8')
 
 # this is broken out for unit testability
-def _reseed_if_needed(using_sysrandom: bool, secret_key: Optional[bytes]) -> None:
+def _reseed_if_needed(using_sysrandom: bool, secret_key: bytes | None) -> None:
     secret_key = _ensure_bytes(secret_key)
     if not using_sysrandom:
         # This is ugly, and a hack, but it makes things better than
@@ -260,14 +279,14 @@ def _base64_encode(decoded: Union[bytes, str]) -> str:
     # base64 encode both takes and returns bytes, we want to work with strings.
     # If 'decoded' isn't bytes already, assume it's utf-8
     decoded_as_bytes = _ensure_bytes(decoded)
-    # TODO: urlsafe_b64encode only accepts bytes input, not Optional[bytes].
-    # Perhaps we can change _ensure_bytes change return type from Optional[bytes] to bytes
+    # TODO: urlsafe_b64encode only accepts bytes input, not bytes | None.
+    # Perhaps we can change _ensure_bytes change return type from bytes | None to bytes
     encoded = codecs.decode(base64.urlsafe_b64encode(decoded_as_bytes), 'ascii')  # type: ignore
     # remove padding '=' chars that cause trouble
     return str(encoded.rstrip('='))
 
 
-def _base64_decode(encoded: Union[bytes, str], encoding: Optional[str] = None) -> Union[bytes, str]:
+def _base64_decode(encoded: Union[bytes, str]) -> bytes:
     # base64 lib both takes and returns bytes, we want to work with strings
     encoded_as_bytes = codecs.encode(encoded, 'ascii') if isinstance(encoded, str) else encoded
     # put the padding back
@@ -275,21 +294,19 @@ def _base64_decode(encoded: Union[bytes, str], encoding: Optional[str] = None) -
     if mod != 0:
         encoded_as_bytes = encoded_as_bytes + (b"=" * (4 - mod))
     assert (len(encoded_as_bytes) % 4) == 0
-    result = base64.urlsafe_b64decode(encoded_as_bytes)
-    if encoding:
-        return codecs.decode(result, 'utf-8')
-    return result
+    return base64.urlsafe_b64decode(encoded_as_bytes)
 
-def _signature(base_id: str, secret_key: Optional[bytes]) -> str:
+def _signature(base_id: str, secret_key: bytes | None) -> str:
     secret_key = _ensure_bytes(secret_key)
     base_id_encoded = codecs.encode(base_id, "utf-8")
-    signer = hmac.new(secret_key, base_id_encoded, hashlib.sha256)  # type: ignore
+    assert secret_key is not None
+    signer = hmac.new(secret_key, base_id_encoded, hashlib.sha256)
     return _base64_encode(signer.digest())
 
-def _get_random_string(length: int = 44,
-                       allowed_chars: str = 'abcdefghijklmnopqrstuvwxyz'
-                       'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
-                       secret_key: Optional[bytes] = settings.secret_key_bytes()) -> str:
+def _get_random_string(
+        length: int = 44,
+        allowed_chars: str = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+        secret_key: bytes | None = settings.secret_key_bytes()) -> str:
     """
     Return a securely generated random string.
     With the a-z, A-Z, 0-9 character set:

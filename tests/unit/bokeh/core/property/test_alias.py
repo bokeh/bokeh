@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -35,7 +37,7 @@ ALL = (
 class Test_Alias:
     def test_create_default(self) -> None:
         alias = bcpa.Alias("width", help="Object's width")
-        assert alias.name == "width"
+        assert alias.aliased_name == "width"
         assert alias.help == "Object's width"
 
 #-----------------------------------------------------------------------------

@@ -1,0 +1,134 @@
+.. _release-3-0-0:
+
+3.0.0
+=====
+
+Bokeh Version ``3.0.0`` () is a major milestone of Bokeh project.
+
+.. _release-3-0-0-migration:
+
+`Migration Guide`
+-----------------
+
+Removals
+~~~~~~~~
+
+``plot_width`` and ``plot_height``
+..................................
+
+These properties have been removed. Use standard ``width`` and ``height`` for
+all layout-able models.
+
+``AuthMixin``
+.............
+
+Class ``AuthMixin`` is replaced by ``AuthRequestHandler``, a sub-class of
+``RequestHandler``.
+
+``legend``
+..........
+
+The ``legend`` keyword argument to glyph methods has been removed. Use more
+specific ``legend_label``, ``legend_group``, and ``legend_field`` instead.
+
+``Oval``
+........
+
+The ``Oval``glyph is removed. Use ``Ellipse`` instead.
+
+``GridSpec``
+............
+
+This model has been removed with no replacement.q
+
+``names`` properties
+....................
+
+Some models could be configured with both a ``names`` property and a
+``renderers`` property. In all cases, ``names`` has been removed. Use the
+``renderers`` property to specify renderers.
+
+``WidgetBox``
+.............
+
+The ``WidgetBox`` model and associated convenience function ``widgetbox`` have
+been removed. Use row, column, and grid layouts instead.
+
+Markers
+.......
+
+Individual scatter markers, e.g ``Square``, ``DiamondX`` have been removed,
+along with their related glyph methods. Use ``Scatter`` and ``Figure.scatter``
+instead.
+
+``bokeh.util.session_id``
+.........................
+
+This module has been removed. Use ``bokeh.util.token`` instead.
+
+``WebSource``
+.............
+
+This model has been removed, use ``WebDataSource`` instead.
+
+``from_networkx``
+.................
+
+The ``from_networkx`` function is now only available to import from
+``bokeh.plotting``.
+
+Distance Specs
+..............
+
+``ScreenDistanceSpec`` and ``DataDistanceSpec`` are removed. Use ``SizeSpec``
+instead.
+
+``EditTool.custom_icon`` was replaced with ``Tool.icon``
+........................................................
+
+Use ``Tool.icon`` property instead.
+
+``render_mode``
+...............
+
+``render_mode`` was removed from all annotations. Annotations were cleanly
+separated between those which render to canvas and those that use HTML and CSS.
+The default is canvas rendering. Use the new ``HTMLTitle``, ``HTMLLabel`` and
+``HTMLLabelSet`` models whenever previously ``css`` render mode was used. Note
+that ``Span`` and ``BoxAnnotation`` don't have a HTML equivalent anymore.
+
+``FuncTickFormatter``
+.....................
+
+``FuncTickFormatter`` has been renamed to ``CustomJSTickFormatter``.
+
+``HasProps.__subtype__``
+........................
+
+Explicit sub-typing support was removed both from models and the protocol.
+If you want to extend existing models without the need for providing an
+implementation, then use data models (e.g. extend from ``DataModel``).
+
+Runtime dependencies
+~~~~~~~~~~~~~~~~~~~~
+
+Bokeh now requires the package ``xyzservices`` for managing tile
+source metadata.
+
+Deprecations
+~~~~~~~~~~~~
+
+``tile_providers`` module providing ``get_providers`` and ``Vendors`` is now deprecated.
+Any tile specification (e.g. as string name) can be now passed directly to ``add_tile``
+instead.
+
+bokehjs changes
+~~~~~~~~~~~~~~~
+
+``Figure.xaxis``, etc.
+......................
+
+``xaxis``, ``yaxis``, ``axis``, ``xgrid``, ``ygrid`` and ``grid`` attributes of
+``Figure`` now return a model proxy object, which mimics the behavior of bokeh's
+plotting API. Arrays of axes/grids can be obtained using new ``xaxes``, ``yaxes``,
+``axes``, ``xgrids``, ``ygrids`` and ``grids`` attributes.

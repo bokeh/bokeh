@@ -1,6 +1,6 @@
 import {DataRange} from "./data_range"
-import {Renderer} from "../renderers/renderer"
-import {DataRenderer} from "../renderers/data_renderer"
+import type {Renderer} from "../renderers/renderer"
+import type {DataRenderer} from "../renderers/data_renderer"
 import {PaddingUnits, StartEnd} from "core/enums"
 import {Rect} from "core/types"
 import {concat} from "core/util/array"
@@ -34,13 +34,13 @@ export namespace DataRange1d {
 export interface DataRange1d extends DataRange1d.Attrs {}
 
 export class DataRange1d extends DataRange {
-  properties: DataRange1d.Props
+  override properties: DataRange1d.Props
 
   constructor(attrs?: Partial<DataRange1d.Attrs>) {
     super(attrs)
   }
 
-  static init_DataRange1d(): void {
+  static {
     this.define<DataRange1d.Props>(({Boolean, Number, Nullable}) => ({
       start:               [ Number ],
       end:                 [ Number ],
@@ -68,9 +68,9 @@ export class DataRange1d extends DataRange {
 
   protected _plot_bounds: Map<Plot, Rect>
 
-  have_updated_interactively: boolean = false
+  override have_updated_interactively: boolean = false
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     this._initial_start = this.start
@@ -94,9 +94,9 @@ export class DataRange1d extends DataRange {
 
   computed_renderers(): DataRenderer[] {
     // TODO (bev) check that renderers actually configured with this range
-    const {renderers, names} = this
+    const {renderers} = this
     const all_renderers = concat(this.plots.map((plot) => plot.data_renderers))
-    return compute_renderers(renderers.length == 0 ? "auto" : renderers, all_renderers, names)
+    return compute_renderers(renderers.length == 0 ? "auto" : renderers, all_renderers)
   }
 
   /*protected*/ _compute_plot_bounds(renderers: Renderer[], bounds: Bounds): Rect {
@@ -221,9 +221,9 @@ export class DataRange1d extends DataRange {
 
     const follow_interval = this.follow_interval
     if (follow_interval != null && Math.abs(start - end) > follow_interval) {
-      if (this.follow == 'start')
+      if (this.follow == "start")
         end = start + follow_sign*follow_interval
-      else if (this.follow == 'end')
+      else if (this.follow == "end")
         start = end - follow_sign*follow_interval
     }
 

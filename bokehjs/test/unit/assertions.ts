@@ -13,6 +13,14 @@ type ToVal<T> = {
   to: Be<T>
 }
 
+type ToElement = {
+  to: Have
+}
+
+type Have = {
+  have: ElementAssertions
+}
+
 type Throw = {
   throw(error_type?: Class<Error>, pattern?: RegExp | string): void
 }
@@ -45,6 +53,55 @@ type Assertions<T> = {
   above(expected: number): void
 }
 
+type ElementAssertions = {
+  equal_attributes(expected: Element): void
+}
+
+function compare_attributes(actual: Element, expected: Element) {
+  if (actual.nodeName !== expected.nodeName)
+    throw new ExpectationError(`expected <${actual.nodeName} /> to be equal <${expected.nodeName} />`)
+
+  for (const attr of expected.attributes) {
+    const attr_val = actual.getAttribute(attr.name)
+    let error = false
+
+    if (!attr.value || attr.value === "none" || attr.value === "null")
+      if (!attr_val || attr_val === "none" || attr_val === "null")
+        continue
+      else
+        error = true
+
+    if (actual.getAttribute(attr.name) !== attr.value)
+      error = true
+
+    if (error)
+      throw new ExpectationError(`expected ${attr.name}="${attr.value}" to be equal ${attr.name}="${actual.getAttribute(attr.name)}"`)
+  }
+}
+
+function compare_element_attributes(actual: Element, expected: Element) {
+  compare_attributes(actual, expected)
+
+  if (actual.childElementCount != expected.childElementCount)
+    throw new ExpectationError("elements differ on child count")
+
+  for (let i = 0; i < expected.childElementCount; i++) {
+    compare_element_attributes(actual.children[i], expected.children[i])
+  }
+}
+
+class ElementAsserts implements ElementAssertions {
+  constructor(readonly value: Element) {}
+
+  equal_attributes(expected: Element): void {
+    try {
+      compare_element_attributes(this.value, expected)
+    } catch (err) {
+      throw new ExpectationError(`expected ${this.value.outerHTML} to be equal to ${expected.outerHTML} ${to_string(err)}`)
+    }
+  }
+}
+
 class Asserts implements Assertions<unknown> {
   constructor(readonly value: unknown, readonly negated: boolean = false) {}
 
@@ -69,6 +126,14 @@ class Asserts implements Assertions<unknown> {
     if (!Object.is(this.value, expected) == !this.negated) {
       const be = this.negated ? "not be" : "be"
       throw new ExpectationError(`expected ${to_string(value)} to ${be} identical to ${to_string(expected)}`)
+    }
+  }
+
+  equal_attributes(expected: unknown): void {
+    const {value} = this
+    if (!is_equal(this.value, expected) == !this.negated) {
+      const be = this.negated ? "not be" : "be"
+      throw new ExpectationError(`expected ${to_string(value)} to ${be} equal to ${to_string(expected)}`)
     }
   }
 
@@ -157,7 +222,7 @@ function Throws(fn: () => unknown) {
   return function(error_type?: Class<Error>, pattern?: RegExp | string) {
     try {
       fn()
-    } catch (error: unknown) {
+    } catch (error) {
       if (!(error instanceof Error)) {
         throw new ExpectationError(`expected ${to_string(fn)} to throw a proper exception, got ${to_string(error)}`)
       }
@@ -187,7 +252,7 @@ function NotThrows(fn: () => unknown) {
   return function(error_type?: Class<Error>, pattern?: RegExp | string) {
     try {
       fn()
-    } catch (error: unknown) {
+    } catch (error) {
       if (error_type == null && pattern == null) {
         throw new ExpectationError(`expected ${to_string(fn)} to not throw, got ${to_string(error)}`)
       } else {
@@ -233,5 +298,13 @@ export function expect<T>(fn_or_val: (() => T) | T): ToFn<T> | ToVal<T> {
         not: {be: new Asserts(val, true)},
       },
     }
+  }
+}
+
+export function expect_element(element: Element): ToElement {
+  return {
+    to: {
+      have: new ElementAsserts(element),
+    },
   }
 }

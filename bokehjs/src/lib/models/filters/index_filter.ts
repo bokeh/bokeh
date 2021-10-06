@@ -14,13 +14,13 @@ export namespace IndexFilter {
 export interface IndexFilter extends IndexFilter.Attrs {}
 
 export class IndexFilter extends Filter {
-  properties: IndexFilter.Props
+  override properties: IndexFilter.Props
 
   constructor(attrs?: Partial<IndexFilter.Attrs>) {
     super(attrs)
   }
 
-  static init_IndexFilter(): void {
+  static {
     this.define<IndexFilter.Props>(({Int, Array, Nullable}) => ({
       indices: [ Nullable(Array(Int)), null ],
     }))

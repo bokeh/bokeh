@@ -10,6 +10,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -23,7 +25,7 @@ import errno
 import os
 import sys
 import warnings
-from typing import Dict, Iterator, List, Optional, Sequence
+from typing import Dict, Iterator, List
 
 # Bokeh imports
 from bokeh.application import Application
@@ -33,8 +35,6 @@ from bokeh.application.handlers import (
     NotebookHandler,
     ScriptHandler,
 )
-from bokeh.document import Document
-from bokeh.models import Plot
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -45,14 +45,13 @@ __all__ = (
     'build_single_handler_applications',
     'die',
     'report_server_init_errors',
-    'set_single_plot_width_height',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def die(message: str, status: Optional[int] = 1) -> None:
+def die(message: str, status: int = 1) -> None:
     ''' Print an error message and exit.
 
     This function will call ``sys.exit`` with the given ``status`` and the
@@ -77,15 +76,15 @@ call "bokeh serve" on the directory instead. For example:
 If this is not the case, renaming main.py will suppress this warning.
 """
 
-def build_single_handler_application(path: str, argv: Optional[Sequence[str]] = None) -> Application:
+def build_single_handler_application(path: str, argv: List[str] | None = None) -> Application:
     ''' Return a Bokeh application built using a single handler for a script,
     notebook, or directory.
 
     In general a Bokeh :class:`~bokeh.application.application.Application` may
-    have any number of handlers to initialize :class:`~bokeh.document.Document`
-    objects for new client sessions. However, in many cases only a single
-    handler is needed. This function examines the ``path`` provided, and
-    returns an ``Application`` initialized with one of the following handlers:
+    have any number of handlers to initialize |Document| objects for new client
+    sessions. However, in many cases only a single handler is needed. This
+    function examines the ``path`` provided, and returns an ``Application``
+    initialized with one of the following handlers:
 
     * :class:`~bokeh.application.handlers.script.ScriptHandler` when ``path``
       is to a ``.py`` script.
@@ -142,7 +141,7 @@ def build_single_handler_application(path: str, argv: Optional[Sequence[str]] = 
 
     return application
 
-def build_single_handler_applications(paths: List[str], argvs: Optional[Dict[str, List[str]]] = None) -> Dict[str, Application]:
+def build_single_handler_applications(paths: List[str], argvs: Dict[str, List[str]] | None = None) -> Dict[str, Application]:
     ''' Return a dictionary mapping routes to Bokeh applications built using
     single handlers, for specified files or directories.
 
@@ -182,7 +181,7 @@ def build_single_handler_applications(paths: List[str], argvs: Optional[Dict[str
 
 
 @contextlib.contextmanager
-def report_server_init_errors(address: Optional[str] = None, port: Optional[int] = None, **kwargs: str) -> Iterator[None]:
+def report_server_init_errors(address: str | None = None, port: int | None = None, **kwargs: str) -> Iterator[None]:
     ''' A context manager to help print more informative error messages when a
     ``Server`` cannot be started due to a network problem.
 
@@ -214,19 +213,6 @@ def report_server_init_errors(address: Optional[str] = None, port: Optional[int]
             codename = errno.errorcode[e.errno]
             log.critical("Cannot start Bokeh server [%s]: %r", codename, e)
         sys.exit(1)
-
-def set_single_plot_width_height(doc: Document, width: Optional[int], height: Optional[int]) -> None:
-    if width is not None or height is not None:
-        layout = doc.roots
-        if len(layout) != 1 or not isinstance(layout[0], Plot):
-            warnings.warn("Width/height arguments will be ignored for this muliple layout. (Size valus only apply when exporting single plots.)")
-        else:
-            plot = layout[0]
-            # TODO - below fails mypy check
-            # unsure how to handle with typing. width is int base type and class property getter is typing.Int
-            # plot.plot_width  = width if width is not None else plot.plot_width  # doesnt solve problem
-            plot.plot_height = height or plot.plot_height
-            plot.plot_width  = width or plot.plot_width
 
 #-----------------------------------------------------------------------------
 # Dev API

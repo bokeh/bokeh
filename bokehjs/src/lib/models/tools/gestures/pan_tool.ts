@@ -16,7 +16,7 @@ export function update_ranges(scales: Map<string, Scale>, p0: number, p1: number
 }
 
 export class PanToolView extends GestureToolView {
-  model: PanTool
+  override model: PanTool
 
   protected last_dx: number
   protected last_dy: number
@@ -31,7 +31,7 @@ export class PanToolView extends GestureToolView {
     sdy: number
   }
 
-  _pan_start(ev: PanEvent): void {
+  override _pan_start(ev: PanEvent): void {
     this.last_dx = 0
     this.last_dy = 0
     const {sx, sy} = ev
@@ -48,17 +48,19 @@ export class PanToolView extends GestureToolView {
     this.model.document?.interactive_start(this.plot_model)
   }
 
-  _pan(ev: PanEvent): void {
+  override _pan(ev: PanEvent): void {
     this._update(ev.deltaX, ev.deltaY)
     this.model.document?.interactive_start(this.plot_model)
   }
 
-  _pan_end(_e: PanEvent): void {
+  override _pan_end(_e: PanEvent): void {
     this.h_axis_only = false
     this.v_axis_only = false
 
     if (this.pan_info != null)
       this.plot_view.state.push("pan", {range: this.pan_info})
+
+    this.plot_view.trigger_ranges_update_event()
   }
 
   _update(dx: number, dy: number): void {
@@ -80,7 +82,7 @@ export class PanToolView extends GestureToolView {
     let sx0: number
     let sx1: number
     let sdx: number
-    if ((dims == 'width' || dims == 'both') && !this.v_axis_only) {
+    if ((dims == "width" || dims == "both") && !this.v_axis_only) {
       sx0 = sx_low
       sx1 = sx_high
       sdx = -new_dx
@@ -93,7 +95,7 @@ export class PanToolView extends GestureToolView {
     let sy0: number
     let sy1: number
     let sdy: number
-    if ((dims == 'height' || dims == 'both') && !this.h_axis_only) {
+    if ((dims == "height" || dims == "both") && !this.h_axis_only) {
       sy0 = sy_low
       sy1 = sy_high
       sdy = -new_dy
@@ -126,44 +128,43 @@ export namespace PanTool {
 export interface PanTool extends PanTool.Attrs {}
 
 export class PanTool extends GestureTool {
-  properties: PanTool.Props
-  __view_type__: PanToolView
+  override properties: PanTool.Props
+  override __view_type__: PanToolView
 
   constructor(attrs?: Partial<PanTool.Attrs>) {
     super(attrs)
   }
 
-  static init_PanTool(): void {
+  static {
     this.prototype.default_view = PanToolView
 
     this.define<PanTool.Props>(() => ({
-      dimensions: [ Dimensions, "both", {
-        on_update(value: Dimensions, obj: PanTool) {
-          switch (value) {
-            case "both":
-              obj.icon = icons.tool_icon_pan
-              break
-            case "width":
-              obj.icon = icons.tool_icon_xpan
-              break
-            case "height":
-              obj.icon = icons.tool_icon_ypan
-              break
-          }
-        },
-      }],
+      dimensions: [ Dimensions, "both" ],
     }))
 
-    this.register_alias("pan", () => new PanTool({dimensions: 'both'}))
-    this.register_alias("xpan", () => new PanTool({dimensions: 'width'}))
-    this.register_alias("ypan", () => new PanTool({dimensions: 'height'}))
+    this.register_alias("pan", () => new PanTool({dimensions: "both"}))
+    this.register_alias("xpan", () => new PanTool({dimensions: "width"}))
+    this.register_alias("ypan", () => new PanTool({dimensions: "height"}))
   }
 
-  tool_name = "Pan"
-  event_type = "pan" as "pan"
-  default_order = 10
+  override tool_name = "Pan"
+  override event_type = "pan" as "pan"
+  override default_order = 10
 
-  get tooltip(): string {
+  override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
+  }
+
+  override get computed_icon(): string {
+    const {icon} = this
+    if (icon != null)
+      return icon
+    else {
+      switch (this.dimensions) {
+        case "both":   return `.${icons.tool_icon_pan}`
+        case "width":  return `.${icons.tool_icon_xpan}`
+        case "height": return `.${icons.tool_icon_ypan}`
+      }
+    }
   }
 }

@@ -177,4 +177,4 @@ curdoc().theme = Theme(json={
 
 output_file("glyphs.html", title="glyphs.py example")
 
-show(gridplot(children, ncols=4, plot_width=200, plot_height=200))  # open a browser
+show(gridplot(children, ncols=4, width=200, height=200))  # open a browser

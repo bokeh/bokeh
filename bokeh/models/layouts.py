@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -19,7 +21,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.enums import Align, Location, SizingMode, SizingPolicy
+from ..core.enums import (
+    Align,
+    Location,
+    SizingMode,
+    SizingPolicy,
+)
 from ..core.has_props import abstract
 from ..core.properties import (
     Auto,
@@ -41,11 +48,7 @@ from ..core.properties import (
     Tuple,
 )
 from ..core.validation import error, warning
-from ..core.validation.errors import (
-    MIN_PREFERRED_MAX_HEIGHT,
-    MIN_PREFERRED_MAX_WIDTH,
-    REPEATED_LAYOUT_CHILD,
-)
+from ..core.validation.errors import MIN_PREFERRED_MAX_HEIGHT, MIN_PREFERRED_MAX_WIDTH, REPEATED_LAYOUT_CHILD
 from ..core.validation.warnings import (
     BOTH_CHILD_AND_ROOT,
     EMPTY_LAYOUT,
@@ -69,7 +72,6 @@ __all__ = (
     'Row',
     'Spacer',
     'Tabs',
-    'WidgetBox',
 )
 
 #-----------------------------------------------------------------------------
@@ -92,13 +94,13 @@ class LayoutDOM(Model):
     Whether the component will be visible and a part of a layout.
     """)
 
-    width = Nullable(NonNegativeInt, help="""
+    width: int | None = Nullable(NonNegativeInt, help="""
     The width of the component (in pixels).
 
     This can be either fixed or preferred width, depending on width sizing policy.
     """)
 
-    height = Nullable(NonNegativeInt, help="""
+    height: int | None = Nullable(NonNegativeInt, help="""
     The height of the component (in pixels).
 
     This can be either fixed or preferred height, depending on height sizing policy.
@@ -298,6 +300,11 @@ class LayoutDOM(Model):
         if not (min_height <= height <= max_height):
             return str(self)
 
+    def _sphinx_height_hint(self) -> int|None:
+        if self.sizing_mode in ("stretch_width", "fixed", None):
+            return self.height
+        return None
+
 @abstract
 class HTMLBox(LayoutDOM):
     ''' A component which size is determined by its HTML content.
@@ -373,7 +380,7 @@ class Box(LayoutDOM):
 
     '''
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
 
         if len(args) > 0 and "children" in kwargs:
             raise ValueError("'children' keyword cannot be used with positional arguments")
@@ -429,6 +436,11 @@ class Row(Box):
 
     """)
 
+    def _sphinx_height_hint(self) -> int|None:
+        if any(x._sphinx_height_hint() is None for x in self.children):
+            return None
+        return max(x._sphinx_height_hint() for x in self.children)
+
 class Column(Box):
     ''' Lay out child components in a single vertical row.
 
@@ -444,6 +456,11 @@ class Column(Box):
         own discretion.
 
     """)
+
+    def _sphinx_height_hint(self) -> int|None:
+        if any(x._sphinx_height_hint() is None for x in self.children):
+            return None
+        return sum(x._sphinx_height_hint() for x in self.children)
 
 class Panel(Model):
     ''' A single-widget container with title bar and controls.
@@ -462,6 +479,10 @@ class Panel(Model):
     Whether this panel is closable or not. If True, an "x" button will appear.
 
     Closing a panel is equivalent to removing it from its parent container (e.g. tabs).
+    """)
+
+    disabled = Bool(False, help="""
+    Whether the widget is responsive to UI events.
     """)
 
 class Tabs(LayoutDOM):
@@ -495,15 +516,3 @@ class Tabs(LayoutDOM):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-
-# TODO (bev) deprecation: 3.0
-class WidgetBox(Column):
-    ''' Create a column of bokeh widgets with predefined styling.
-
-    WidgetBox is DEPRECATED and will beremoved in Bokeh 3.0, use 'Column' instead.
-
-    '''
-    def __init__(self, *args, **kw):
-        super().__init__(*args, **kw)
-        from ..util.deprecation import deprecated
-        deprecated("'WidgetBox' is deprecated and will be removed in Bokeh 3.0, use 'bokeh.models.Column' instead")

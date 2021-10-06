@@ -1,0 +1,25 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+---
+repos:
+  - repo: local
+    hooks:
+      - id: run-codebase-tests
+        name: Run Pytest on codebase tests
+        description: This hook checks for codebase tests.
+        entry: pytest tests/codebase
+        language: conda
+        # Mandatory - otherwise `pre-commit` passes the names of all files to be
+        # committed:
+        pass_filenames: false
+        stages: [push]
+
+      - id: protect-branches
+        name: Protect Git branches
+        description: This hook avoid pushing to the protected Git branches.
+        entry: python scripts/hooks/protect_branches.py
+        language: conda
+        # Mandatory - otherwise `pre-commit` passes the names of all files to be
+        # committed:
+        pass_filenames: false
+        stages: [push]

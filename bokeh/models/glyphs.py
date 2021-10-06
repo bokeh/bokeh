@@ -7,49 +7,28 @@
 ''' Display a variety of visual shapes whose attributes can be associated
 with data columns from ``ColumnDataSources``.
 
-The full list of glyphs built into Bokeh is given below:
 
-* :class:`~bokeh.models.glyphs.AnnularWedge`
-* :class:`~bokeh.models.glyphs.Annulus`
-* :class:`~bokeh.models.glyphs.Arc`
-* :class:`~bokeh.models.glyphs.Bezier`
-* :class:`~bokeh.models.glyphs.Circle`
-* :class:`~bokeh.models.glyphs.Ellipse`
-* :class:`~bokeh.models.glyphs.HArea`
-* :class:`~bokeh.models.glyphs.HBar`
-* :class:`~bokeh.models.glyphs.HexTile`
-* :class:`~bokeh.models.glyphs.Image`
-* :class:`~bokeh.models.glyphs.ImageRGBA`
-* :class:`~bokeh.models.glyphs.ImageURL`
-* :class:`~bokeh.models.glyphs.Line`
-* :class:`~bokeh.models.glyphs.MultiLine`
-* :class:`~bokeh.models.glyphs.MultiPolygons`
-* :class:`~bokeh.models.glyphs.Oval`
-* :class:`~bokeh.models.glyphs.Patch`
-* :class:`~bokeh.models.glyphs.Patches`
-* :class:`~bokeh.models.glyphs.Quad`
-* :class:`~bokeh.models.glyphs.Quadratic`
-* :class:`~bokeh.models.glyphs.Ray`
-* :class:`~bokeh.models.glyphs.Rect`
-* :class:`~bokeh.models.glyphs.Scatter`
-* :class:`~bokeh.models.glyphs.Segment`
-* :class:`~bokeh.models.glyphs.Step`
-* :class:`~bokeh.models.glyphs.Text`
-* :class:`~bokeh.models.glyphs.VArea`
-* :class:`~bokeh.models.glyphs.VBar`
-* :class:`~bokeh.models.glyphs.Wedge`
 
-All these glyphs share a minimal common interface through their base class
-``Glyph``:
+The full list of glyphs is below:
 
-.. autoclass:: Glyph
-    :members:
+.. toctree::
+   :maxdepth: 2
+   :glob:
+
+   glyphs/*
+
+All glyphs share a minimal common interface through the base class ``Glyph``:
+
+.. bokeh-model:: Glyph
+    :module: bokeh.models.glyphs
 
 '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -58,7 +37,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.enums import Anchor, Direction, StepMode, enumeration
+from ..core.enums import (
+    Anchor,
+    Direction,
+    StepMode,
+    enumeration,
+)
 from ..core.has_props import abstract
 from ..core.properties import (
     AngleSpec,
@@ -73,8 +57,8 @@ from ..core.properties import (
     NullDistanceSpec,
     NumberSpec,
     Override,
-    ScreenDistanceSpec,
     Size,
+    SizeSpec,
     String,
     StringSpec,
 )
@@ -88,7 +72,6 @@ from ..core.property_mixins import (
     ScalarLineProps,
     TextProps,
 )
-from ..util.deprecation import deprecated
 from .glyph import (
     ConnectedXYGlyph,
     FillGlyph,
@@ -109,6 +92,7 @@ __all__ = (
     'Annulus',
     'Arc',
     'Bezier',
+    'Circle',
     'ConnectedXYGlyph',
     'Ellipse',
     'Glyph',
@@ -122,13 +106,13 @@ __all__ = (
     'Marker',
     'MultiLine',
     'MultiPolygons',
-    'Oval',
     'Patch',
     'Patches',
     'Quad',
     'Quadratic',
     'Ray',
     'Rect',
+    'Scatter',
     'Segment',
     'Step',
     'Text',
@@ -173,7 +157,7 @@ class Marker(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     tools.
     """)
 
-    size = ScreenDistanceSpec(default=4, help="""
+    size = SizeSpec(default=4, help="""
     The size (diameter) values for the markers in screen space units.
     """)
 
@@ -181,16 +165,16 @@ class Marker(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The angles to rotate the markers.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the markers.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the markers.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the markers.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the markers.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the markers.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the markers.
     """)
 
 class AnnularWedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
@@ -230,16 +214,16 @@ class AnnularWedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     Which direction to stroke between the start and end angles.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the annular wedges.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the annular wedges.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the annular wedges.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the annular wedges.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the annular wedges.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the annular wedges.
     """)
 
 class Annulus(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
@@ -267,16 +251,16 @@ class Annulus(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The outer radii of the annuli.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the annuli.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the annuli.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the annuli.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the annuli.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the annuli.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the annuli.
     """)
 
 class Arc(XYGlyph, LineGlyph):
@@ -312,8 +296,8 @@ class Arc(XYGlyph, LineGlyph):
     Which direction to stroke between the start and end angles.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the arcs.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the arcs.
     """)
 
 class Bezier(LineGlyph):
@@ -361,8 +345,8 @@ class Bezier(LineGlyph):
     The y-coordinates of second control points.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the Bezier curves.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the Bezier curves.
     """)
 
 class Circle(Marker):
@@ -373,7 +357,7 @@ class Circle(Marker):
     _args = ('x', 'y')
 
     radius = NullDistanceSpec(help="""
-    The radius values for circle markers (in "data space" units, by default).
+    The radius values for circle markers (in |data units|, by default).
 
     .. note::
         Circle markers are slightly unusual in that they support specifying
@@ -431,16 +415,16 @@ class Ellipse(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The angle the ellipses are rotated from horizontal. [rad]
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the ellipses.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the ellipses.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the ellipses.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the ellipses.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the ellipses.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the ellipses.
     """)
 
 class HArea(LineGlyph, FillGlyph, HatchGlyph):
@@ -465,12 +449,12 @@ class HArea(LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates for the points of the area.
     """)
 
-    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the horizontal directed area.
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the horizontal directed area.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the horizontal directed area.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the horizontal directed area.
     """)
 
 class HBar(LineGlyph, FillGlyph, HatchGlyph):
@@ -499,16 +483,16 @@ class HBar(LineGlyph, FillGlyph, HatchGlyph):
     The x-coordinates of the right edges.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the horizontal bars.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the horizontal bars.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the horizontal bars.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the horizontal bars.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the horizontal bars.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the horizontal bars.
     """)
 
 class HexTile(LineGlyph, FillGlyph, HatchGlyph):
@@ -521,7 +505,7 @@ class HexTile(LineGlyph, FillGlyph, HatchGlyph):
     _args = ('q', 'r')
 
     size = Float(1.0, help="""
-    The radius (in data space units) of the hex tiling.
+    The radius (in |data units|) of the hex tiling.
 
     The radius is always measured along the cartesian y-axis for "pointy_top"
     orientation, and along the cartesian x-axis for "flat_top" orientation. If
@@ -551,18 +535,18 @@ class HexTile(LineGlyph, FillGlyph, HatchGlyph):
 
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the hex tiles.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the hex tiles.
     """)
 
     line_color = Override(default=None)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the hex tiles.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the hex tiles.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the hex tiles.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the hex tiles.
     """)
 
 class Image(XYGlyph):
@@ -580,7 +564,7 @@ class Image(XYGlyph):
 
     '''
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         if 'palette' in kwargs and 'color_mapper' in kwargs:
             raise ValueError("only one of 'palette' and 'color_mapper' may be specified")
         elif 'color_mapper' not in kwargs:
@@ -629,7 +613,7 @@ class Image(XYGlyph):
         That number is fixed by the image itself.
     """)
 
-    global_alpha = Float(1.0, help="""
+    global_alpha = NumberSpec(1.0, help="""
     An overall opacity that each image is rendered with (in addition
     to any alpha values applied explicitly in a color mapper).
     """)
@@ -688,7 +672,7 @@ class ImageRGBA(XYGlyph):
         That number is fixed by the image itself.
     """)
 
-    global_alpha = Float(1.0, help="""
+    global_alpha = NumberSpec(1.0, help="""
     An overall opacity that each image is rendered with (in addition
     to any inherent alpha values in the image itself).
     """)
@@ -747,7 +731,7 @@ class ImageURL(XYGlyph):
     The angles to rotate the images, as measured from the horizontal.
     """)
 
-    global_alpha = Float(1.0, help="""
+    global_alpha = NumberSpec(1.0, help="""
     An overall opacity that each image is rendered with (in addition
     to any inherent alpha values in the image itself).
     """)
@@ -781,6 +765,12 @@ class Line(ConnectedXYGlyph, LineGlyph):
     The ``Line`` glyph is different from most other glyphs in that the vector
     of values only produces one glyph on the Plot.
 
+    .. note::
+        Due to limitations in the underlying HTML canvas, it is possible that a
+        line is not drawn when one or more of its coordinates is very far outside
+        the viewport. This behavior is different for different browsers. See
+        :bokeh-issue:`11498` for more information.
+
     '''
     _args = ('x', 'y')
 
@@ -794,8 +784,8 @@ class Line(ConnectedXYGlyph, LineGlyph):
     The y-coordinates for the points of the line.
     """)
 
-    line_props = Include(ScalarLineProps, use_prefix=False, help="""
-    The %s values for the line.
+    line_props = Include(ScalarLineProps, help="""
+    The {prop} values for the line.
     """)
 
 class MultiLine(LineGlyph):
@@ -818,8 +808,8 @@ class MultiLine(LineGlyph):
     The y-coordinates for all the lines, given as a "list of lists".
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the lines.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the lines.
     """)
 
 class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
@@ -856,65 +846,16 @@ class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
         one exterior ring optionally followed by ``m`` interior rings (holes).
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the multipolygons.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the multipolygons.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the multipolygons.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the multipolygons.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the multipolygons.
-    """)
-
-class Oval(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
-    ''' Render ovals.
-
-    This glyph renders ovals using Bezier curves, which are similar,
-    but not identical to ellipses. In particular, widths equal to heights
-    will not render circles. Use the ``Ellipse`` glyph for that.
-
-    '''
-
-    def __init__(self, **kwargs):
-        deprecated("'Oval' is deprecated and will be removed in Bokeh 3.0, use the Ellipse glyph instead")
-        super().__init__(**kwargs)
-
-    __example__ = "examples/reference/models/Oval.py"
-
-    _args = ('x', 'y', 'width', 'height', 'angle')
-
-    x = NumberSpec(default=field("x"), help="""
-    The x-coordinates of the centers of the ovals.
-    """)
-
-    y = NumberSpec(default=field("y"), help="""
-    The y-coordinates of the centers of the ovals.
-    """)
-
-    width = DistanceSpec(default=field("width"), help="""
-    The overall widths of each oval.
-    """)
-
-    height = DistanceSpec(default=field("height"), help="""
-    The overall height of each oval.
-    """)
-
-    angle = AngleSpec(default=0.0, help="""
-    The angle the ovals are rotated from horizontal. [rad]
-    """)
-
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the ovals.
-    """)
-
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the ovals.
-    """)
-
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the ovals.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the multipolygons.
     """)
 
 class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
@@ -947,16 +888,16 @@ class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
         values in the sequence.
     """)
 
-    line_props = Include(ScalarLineProps, use_prefix=False, help="""
-    The %s values for the patch.
+    line_props = Include(ScalarLineProps, help="""
+    The {prop} values for the patch.
     """)
 
-    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the patch.
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the patch.
     """)
 
-    hatch_props = Include(ScalarHatchProps, use_prefix=False, help="""
-    The %s values for the patch.
+    hatch_props = Include(ScalarHatchProps, help="""
+    The {prop} values for the patch.
     """)
 
 class Patches(LineGlyph, FillGlyph, HatchGlyph):
@@ -992,16 +933,16 @@ class Patches(LineGlyph, FillGlyph, HatchGlyph):
         values in the sublists.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the patches.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the patches.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the patches.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the patches.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the patches.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the patches.
     """)
 
 class Quad(LineGlyph, FillGlyph, HatchGlyph):
@@ -1029,16 +970,16 @@ class Quad(LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates of the top edges.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the quads.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the quads.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the quads.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the quads.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the quads.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the quads.
     """)
 
 class Quadratic(LineGlyph):
@@ -1074,8 +1015,8 @@ class Quadratic(LineGlyph):
     The y-coordinates of the control points.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the parabolas.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the parabolas.
     """)
 
 class Ray(XYGlyph, LineGlyph):
@@ -1101,11 +1042,11 @@ class Ray(XYGlyph, LineGlyph):
 
     length = DistanceSpec(default=0, help="""
     The length to extend the ray. Note that this ``length`` defaults
-    to data units (measured in the x-direction).
+    to |data units| (measured in the x-direction).
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the rays.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the rays.
     """)
 
 class Rect(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
@@ -1146,16 +1087,16 @@ class Rect(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     flush.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the rectangles.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the rectangles.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the rectangles.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the rectangles.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the rectangles.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the rectangles.
     """)
 
 class Scatter(Marker):
@@ -1200,11 +1141,10 @@ class Scatter(Marker):
 
     .. note::
         When you draw ``circle`` markers with ``Scatter``, you can only assign a
-        size in :ref:`screen units <userguide_styling_units>` (by passing a
-        number of pixels to the ``size`` argument). In case you want to define
-        the radius of circles in :ref:`data units <userguide_styling_units>`,
-        use the :class:`~bokeh.models.glyphs.Circle` glyph instead of the
-        ``Scatter`` glyph.
+        size in |screen units| (by passing a number of pixels to the ``size``
+        property). In case you want to define the radius of circles in
+        |data units|, use the :class:`~bokeh.models.glyphs.Circle` glyph instead
+        of the ``Scatter`` glyph.
 
     '''
 
@@ -1242,8 +1182,8 @@ class Segment(LineGlyph):
     The y-coordinates of the ending points.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the segments.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the segments.
     """)
 
 class Step(XYGlyph, LineGlyph):
@@ -1269,8 +1209,8 @@ class Step(XYGlyph, LineGlyph):
     The y-coordinates for the steps.
     """)
 
-    line_props = Include(ScalarLineProps, use_prefix=False, help="""
-    The %s values for the steps.
+    line_props = Include(ScalarLineProps, help="""
+    The {prop} values for the steps.
     """)
 
     mode = Enum(StepMode, default="before", help="""
@@ -1311,18 +1251,18 @@ class Text(XYGlyph, TextGlyph):
     Offset values to apply to the x-coordinates.
 
     This is useful, for instance, if it is desired to "float" text a fixed
-    distance in screen units from a given data position.
+    distance in |screen units| from a given data position.
     """)
 
     y_offset = NumberSpec(default=0, help="""
     Offset values to apply to the y-coordinates.
 
     This is useful, for instance, if it is desired to "float" text a fixed
-    distance in screen units from a given data position.
+    distance in |screen units| from a given data position.
     """)
 
-    text_props = Include(TextProps, use_prefix=False, help="""
-    The %s values for the text.
+    text_props = Include(TextProps, help="""
+    The {prop} values for the text.
     """)
 
 class VArea(FillGlyph, HatchGlyph):
@@ -1347,12 +1287,12 @@ class VArea(FillGlyph, HatchGlyph):
     The y-coordinates for the points of the other side of the area.
     """)
 
-    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the vertical directed area.
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the vertical directed area.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the vertical directed area.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the vertical directed area.
     """)
 
 class VBar(LineGlyph, FillGlyph, HatchGlyph):
@@ -1380,16 +1320,16 @@ class VBar(LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates of the top edges.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the vertical bars.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the vertical bars.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the vertical bars.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the vertical bars.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the vertical bars.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the vertical bars.
     """)
 
 class Wedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
@@ -1425,16 +1365,16 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     Which direction to stroke between the start and end angles.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the wedges.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the wedges.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the wedges.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the wedges.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the wedges.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the wedges.
     """)
 
 #-----------------------------------------------------------------------------

@@ -4,7 +4,6 @@ from bokeh.layouts import column
 from bokeh.models import HTMLBox, Slider
 from bokeh.util.compiler import TypeScript
 
-
 CODE ="""
 import {HTMLBox, HTMLBoxView} from "models/layouts/html_box"
 import {Slider} from "models/widgets/slider"
@@ -65,7 +64,7 @@ export class Custom extends HTMLBox {
     super(attrs)
   }
 
-  static init_Custom(): void {
+  static {
     // If there is an associated view, this is typically boilerplate.
     this.prototype.default_view = CustomView
 

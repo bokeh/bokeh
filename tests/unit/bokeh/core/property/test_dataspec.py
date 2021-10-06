@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -25,7 +27,6 @@ import numpy as np
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
 from bokeh.core.has_props import HasProps
-from bokeh.core.property.descriptors import UnsetValueError
 
 # Module under test
 import bokeh.core.property.dataspec as bcpd # isort:skip
@@ -40,7 +41,6 @@ ALL = (
     'ColorSpec',
     'DashPatternSpec',
     'DataSpec',
-    'DataDistanceSpec',
     'DistanceSpec',
     'expr',
     'field',
@@ -52,11 +52,10 @@ ALL = (
     'LineJoinSpec',
     'MarkerSpec',
     'NumberSpec',
-    'ScreenDistanceSpec',
+    'SizeSpec',
     'StringSpec',
     'TextAlignSpec',
     'TextBaselineSpec',
-    'UnitsSpec',
     'value',
 )
 
@@ -65,7 +64,7 @@ ALL = (
 #-----------------------------------------------------------------------------
 
 def test_strict_dataspec_key_values() -> None:
-    for typ in (bcpd.NumberSpec, bcpd.StringSpec, bcpd.FontSizeSpec, bcpd.ColorSpec, bcpd.DataDistanceSpec, bcpd.ScreenDistanceSpec):
+    for typ in (bcpd.NumberSpec, bcpd.StringSpec, bcpd.FontSizeSpec, bcpd.ColorSpec, bcpd.SizeSpec):
         class Foo(HasProps):
             x = typ("x")
         f = Foo()
@@ -83,19 +82,6 @@ def test_dataspec_dict_to_serializable() -> None:
 
 
 class Test_AngleSpec:
-    def test_autocreate_no_parens(self) -> None:
-        class Foo(HasProps):
-            x = bcpd.AngleSpec
-
-        a = Foo()
-
-        with pytest.raises(UnsetValueError):
-            a.x
-        assert a.x_units == 'rad'
-        a.x = 14
-        assert a.x == 14
-        assert a.x_units == 'rad'
-
     def test_default_value(self) -> None:
         class Foo(HasProps):
             x = bcpd.AngleSpec(default=14)
@@ -282,31 +268,26 @@ class Test_ColorSpec:
         assert f.col == "field2"
         assert desc.serializable_value(f) == {"field": "field2"}
 
-class Test_DataDistanceSpec:
-    def test_basic(self) -> None:
-        assert issubclass(bcpd.DataDistanceSpec, bcpd.UnitsSpec)
-        class Foo(HasProps):
-            x = bcpd.DataDistanceSpec("x")
-        foo = Foo(x=dict(field='foo'))
-        props = foo.properties_with_values(include_defaults=False)
-        assert "units" not in props['x']
-        assert props['x']['field'] == 'foo'
-        assert props['x'] is not foo.x
+    def test_isconst(self) -> None:
+        assert bcpd.ColorSpec.isconst("red")
+        assert bcpd.ColorSpec.isconst("#ff1234")
+
+        assert not bcpd.ColorSpec.isconst(None)
+        assert not bcpd.ColorSpec.isconst(10)
+        assert not bcpd.ColorSpec.isconst((1, 2, 3, 0.5))
+
+    def test_is_color_tuple_shape(self) -> None:
+        assert bcpd.ColorSpec.is_color_tuple_shape((1, 2, 3, 0.5))
+        assert bcpd.ColorSpec.is_color_tuple_shape((1.0, 2, 3, 0.5))
+        assert bcpd.ColorSpec.is_color_tuple_shape((1, 2.0, 3, 0.5))
+        assert bcpd.ColorSpec.is_color_tuple_shape((1, 2, 3.0, 0.5))
+
+        assert not bcpd.ColorSpec.is_color_tuple_shape("red")
+        assert not bcpd.ColorSpec.is_color_tuple_shape("#ff1234")
+        assert not bcpd.ColorSpec.is_color_tuple_shape(None)
+        assert not bcpd.ColorSpec.is_color_tuple_shape(10)
 
 class Test_DistanceSpec:
-    def test_autocreate_no_parens(self) -> None:
-        class Foo(HasProps):
-            x = bcpd.DistanceSpec
-
-        a = Foo()
-
-        with pytest.raises(UnsetValueError):
-            a.x
-        assert a.x_units == 'data'
-        a.x = 14
-        assert a.x == 14
-        assert a.x_units == 'data'
-
     def test_default_value(self) -> None:
         class Foo(HasProps):
             x = bcpd.DistanceSpec(default=14)
@@ -528,17 +509,6 @@ class Test_NumberSpec:
         assert Foo.__dict__["x"].serializable_value(a) == {"value": 13}
         assert Foo.__dict__["x"].serializable_value(b) == {"field": "x3"}
 
-    def test_autocreate_no_parens(self) -> None:
-        class Foo(HasProps):
-            x = bcpd.NumberSpec
-
-        a = Foo()
-
-        with pytest.raises(UnsetValueError):
-            a.x
-        a.x = 14
-        assert a.x == 14
-
     def test_set_from_json_keeps_mode(self) -> None:
         class Foo(HasProps):
             x = bcpd.NumberSpec(default=-1)
@@ -569,16 +539,6 @@ class Test_NumberSpec:
 
 
 class Test_UnitSpec:
-    def test_basic(self) -> None:
-        assert issubclass(bcpd.ScreenDistanceSpec, bcpd.UnitsSpec)
-        class Foo(HasProps):
-            x = bcpd.ScreenDistanceSpec("x")
-        foo = Foo(x=dict(field='foo'))
-        props = foo.properties_with_values(include_defaults=False)
-        assert "units" not in props['x']
-        assert props['x']['field'] == 'foo'
-        assert props['x'] is not foo.x
-
     def test_strict_key_values(self) -> None:
         class FooUnits(HasProps):
             x = bcpd.DistanceSpec("x")

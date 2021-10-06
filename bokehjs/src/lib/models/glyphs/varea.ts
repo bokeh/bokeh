@@ -1,5 +1,5 @@
-import {PointGeometry} from 'core/geometry'
-import {Arrayable, FloatArray, ScreenArray} from "core/types"
+import {PointGeometry} from "core/geometry"
+import {FloatArray, ScreenArray} from "core/types"
 import {Area, AreaView, AreaData} from "./area"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
@@ -20,8 +20,8 @@ export type VAreaData = AreaData & {
 export interface VAreaView extends VAreaData {}
 
 export class VAreaView extends AreaView {
-  model: VArea
-  visuals: VArea.Visuals
+  override model: VArea
+  override visuals: VArea.Visuals
 
   protected _index_data(index: SpatialIndex): void {
     const {min, max} = Math
@@ -31,15 +31,13 @@ export class VAreaView extends AreaView {
       const x = this._x[i]
       const y1 = this._y1[i]
       const y2 = this._y2[i]
-
-      if (isNaN(x + y1 + y2) || !isFinite(x + y1 + y2))
-        index.add_empty()
-      else
-        index.add(x, min(y1, y2), x, max(y1, y2))
+      index.add_rect(x, min(y1, y2), x, max(y1, y2))
     }
   }
 
-  protected _inner(ctx: Context2d, sx: Arrayable<number>, sy1: Arrayable<number>, sy2: Arrayable<number>, func: (this: Context2d) => void): void {
+  protected _render(ctx: Context2d, _indices: number[], data?: VAreaData): void {
+    const {sx, sy1, sy2} = data ?? this
+
     ctx.beginPath()
     for (let i = 0, end = sy1.length; i < end; i++) {
       ctx.lineTo(sx[i], sy1[i])
@@ -49,21 +47,9 @@ export class VAreaView extends AreaView {
       ctx.lineTo(sx[i], sy2[i])
     }
     ctx.closePath()
-    func.call(ctx)
-  }
 
-  protected _render(ctx: Context2d, _indices: number[], data?: VAreaData): void {
-    const {sx, sy1, sy2} = data ?? this
-
-    if (this.visuals.fill.doit) {
-      this.visuals.fill.set_value(ctx)
-      this._inner(ctx, sx, sy1, sy2, ctx.fill)
-    }
-
-    if (this.visuals.hatch.doit) {
-      this.visuals.hatch.set_value(ctx)
-      this._inner(ctx, sx, sy1, sy2, ctx.fill)
-    }
+    this.visuals.fill.apply(ctx)
+    this.visuals.hatch.apply(ctx)
   }
 
   scenterxy(i: number): [number, number] {
@@ -72,7 +58,7 @@ export class VAreaView extends AreaView {
     return [scx, scy]
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const L = this.sx.length
     const sx = new ScreenArray(2*L)
     const sy = new ScreenArray(2*L)
@@ -94,7 +80,7 @@ export class VAreaView extends AreaView {
     return result
   }
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     this.sx  = this.renderer.xscale.v_compute(this._x)
     this.sy1 = this.renderer.yscale.v_compute(this._y1)
     this.sy2 = this.renderer.yscale.v_compute(this._y2)
@@ -116,14 +102,14 @@ export namespace VArea {
 export interface VArea extends VArea.Attrs {}
 
 export class VArea extends Area {
-  properties: VArea.Props
-  __view_type__: VAreaView
+  override properties: VArea.Props
+  override __view_type__: VAreaView
 
   constructor(attrs?: Partial<VArea.Attrs>) {
     super(attrs)
   }
 
-  static init_VArea(): void {
+  static {
     this.prototype.default_view = VAreaView
 
     this.define<VArea.Props>(({}) => ({

@@ -43,6 +43,8 @@ In general, functions in this module convert values in the following way:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -55,13 +57,21 @@ import collections
 import datetime as dt
 import decimal
 import json
+from typing import TYPE_CHECKING, Any
 
 # External imports
 import numpy as np
 
+if TYPE_CHECKING:
+    import dateutil.relativedelta as rd
+    import pandas as pd
+else:
+    from ..util.dependencies import import_optional
+    rd = import_optional("dateutil.relativedelta")
+    pd = import_optional("pandas")
+
 # Bokeh imports
 from ..settings import settings
-from ..util.dependencies import import_optional
 from ..util.serialization import (
     convert_datetime_type,
     convert_timedelta_type,
@@ -75,10 +85,6 @@ from ..util.serialization import (
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-rd = import_optional("dateutil.relativedelta")
-
-pd = import_optional('pandas')
-
 __all__ = (
     'BokehJSONEncoder',
     'serialize_json',
@@ -88,7 +94,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def serialize_json(obj, pretty=None, indent=None, **kwargs):
+def serialize_json(obj: Any, pretty: bool | None = None, indent: int | None = None, **kwargs: Any) -> str:
     ''' Return a serialized JSON representation of objects, suitable to
     send to BokehJS.
 
@@ -147,11 +153,10 @@ def serialize_json(obj, pretty=None, indent=None, **kwargs):
             }
 
     '''
-
     # these args to json.dumps are computed internally and should not be passed along
     for name in ['allow_nan', 'separators', 'sort_keys']:
         if name in kwargs:
-            raise ValueError("The value of %r is computed internally, overriding is not permissible." % name)
+            raise ValueError(f"The value of {name!r} is computed internally, overriding is not permissible.")
 
     pretty = settings.pretty(pretty)
 
@@ -175,7 +180,8 @@ class BokehJSONEncoder(json.JSONEncoder):
     accordance with the BokehJS protocol.
 
     '''
-    def transform_python_types(self, obj):
+
+    def transform_python_types(self, obj: Any) -> Any:
         ''' Handle special scalars such as (Python, NumPy, or Pandas)
         datetimes, or Decimal values.
 
@@ -227,7 +233,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         else:
             return super().default(obj)
 
-    def default(self, obj):
+    def default(self, obj: Any) -> Any:
         ''' The required ``default`` method for ``JSONEncoder`` subclasses.
 
         Args:
@@ -237,9 +243,8 @@ class BokehJSONEncoder(json.JSONEncoder):
                 this method is passed on to the default system JSON encoder.
 
         '''
-
-        from ..model import Model
         from ..colors import Color
+        from ..model import Model
         from .has_props import HasProps
 
         # array types -- use force_list here, only binary
@@ -249,14 +254,13 @@ class BokehJSONEncoder(json.JSONEncoder):
         elif isinstance(obj, np.ndarray):
             return transform_array(obj, force_list=True)
         elif isinstance(obj, collections.deque):
-            return list(map(self.default, obj))
+            return [ self.default(item) for item in obj ]
         elif isinstance(obj, Model):
             return obj.ref
         elif isinstance(obj, HasProps):
             return obj.properties_with_values(include_defaults=False)
         elif isinstance(obj, Color):
             return obj.to_css()
-
         else:
             return self.transform_python_types(obj)
 

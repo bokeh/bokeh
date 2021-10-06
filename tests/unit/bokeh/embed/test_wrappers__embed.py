@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -35,7 +37,7 @@ class Test_wrap_in_onload:
     def test_render(self) -> None:
         assert bew.wrap_in_onload("code\nmorecode") == """\
 (function() {
-  var fn = function() {
+  const fn = function() {
     code
     morecode
   };
@@ -71,7 +73,7 @@ class Test_wrap_in_script_tag:
 def test__ONLOAD() -> None:
     assert bew._ONLOAD == """\
 (function() {
-  var fn = function() {
+  const fn = function() {
 %(code)s
   };
   if (document.readyState != "loading") fn();

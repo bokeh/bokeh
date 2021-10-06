@@ -29,3 +29,5 @@ For defects or deficiencies, please provide *ALL OF THE FOLLOWING*:
 #### Stack traceback and/or browser JavaScript console output
 
 #### Screenshots or screencasts of the bug in action
+
+*Note: Everyone interacting in the Bokeh project's codebases, issue trackers, and discussion forums is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/master/CODE_OF_CONDUCT.md).*

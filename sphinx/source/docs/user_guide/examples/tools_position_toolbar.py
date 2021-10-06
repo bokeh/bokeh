@@ -3,7 +3,7 @@ from bokeh.plotting import figure, output_file, show
 output_file("toolbar.html")
 
 # create a new plot with the toolbar below
-p = figure(plot_width=400, plot_height=400,
+p = figure(width=400, height=400,
            title=None, toolbar_location="below",
            toolbar_sticky=False)
 

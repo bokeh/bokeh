@@ -1,6 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_scalar_legend, line_interpolation} from "./utils"
-import {LineGL} from "./webgl/line"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {Arrayable, Rect} from "core/types"
 import * as p from "core/properties"
@@ -15,63 +14,53 @@ export type LineData = XYGlyphData & p.UniformsOf<Line.Mixins>
 export interface LineView extends LineData {}
 
 export class LineView extends XYGlyphView {
-  model: Line
-  visuals: Line.Visuals
+  override model: Line
+  override visuals: Line.Visuals
 
   /** @internal */
-  glglyph?: LineGL
+  override glglyph?: import("./webgl/line_gl").LineGL
 
-  initialize(): void {
-    super.initialize()
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
 
     const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl != null) {
-      this.glglyph = new LineGL(webgl.gl, this)
+    if (webgl?.regl_wrapper.has_webgl) {
+      const {LineGL} = await import("./webgl/line_gl")
+      this.glglyph = new LineGL(webgl.regl_wrapper, this)
     }
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: LineData): void {
     const {sx, sy} = data ?? this
 
-    let drawing = false
-    let last_index: number | null = null
+    let last_i: number | null = null
+    const gap = (i: number) => last_i != null && i - last_i != 1
 
-    this.visuals.line.set_value(ctx)
+    let move = true
+    ctx.beginPath()
+
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]
 
-      if (drawing) {
-        if (!isFinite(sx_i + sy_i)) {
-          ctx.stroke()
-          ctx.beginPath()
-          drawing = false
-          last_index = i
-          continue
-        }
-
-        if (last_index != null && i - last_index > 1) {
-          ctx.stroke()
-          drawing = false
-        }
-      }
-
-      if (drawing)
-        ctx.lineTo(sx_i, sy_i)
+      if (!isFinite(sx_i + sy_i))
+        move = true
       else {
-        ctx.beginPath()
-        ctx.moveTo(sx_i, sy_i)
-        drawing = true
+        if (move || gap(i)) {
+          ctx.moveTo(sx_i, sy_i)
+          move = false
+        } else
+          ctx.lineTo(sx_i, sy_i)
       }
 
-      last_index = i
+      last_i = i
     }
 
-    if (drawing)
-      ctx.stroke()
+    this.visuals.line.set_value(ctx)
+    ctx.stroke()
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     /* Check if the point geometry hits this line glyph and return an object
     that describes the hit result:
       Args:
@@ -101,13 +90,13 @@ export class LineView extends XYGlyphView {
     return result
   }
 
-  protected _hit_span(geometry: SpanGeometry): Selection {
+  protected override _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
     const result = new Selection()
 
     let val: number
     let values: Arrayable<number>
-    if (geometry.direction == 'v') {
+    if (geometry.direction == "v") {
       val = this.renderer.yscale.invert(sy)
       values = this._y
     } else {
@@ -131,7 +120,7 @@ export class LineView extends XYGlyphView {
     return line_interpolation(this.renderer, geometry, x2, y2, x3, y3)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
     generic_line_scalar_legend(this.visuals, ctx, bbox)
   }
 }
@@ -149,14 +138,14 @@ export namespace Line {
 export interface Line extends Line.Attrs {}
 
 export class Line extends XYGlyph {
-  properties: Line.Props
-  __view_type__: LineView
+  override properties: Line.Props
+  override __view_type__: LineView
 
   constructor(attrs?: Partial<Line.Attrs>) {
     super(attrs)
   }
 
-  static init_Line(): void {
+  static {
     this.prototype.default_view = LineView
 
     this.mixins<Line.Mixins>(mixins.LineScalar)

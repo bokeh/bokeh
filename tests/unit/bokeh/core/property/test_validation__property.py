@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -29,7 +31,6 @@ from bokeh.core.properties import (
     ColumnData,
     Complex,
     DashPattern,
-    DataDistanceSpec,
     Date,
     Datetime,
     Dict,
@@ -48,9 +49,9 @@ from bokeh.core.properties import (
     NumberSpec,
     Percent,
     Regex,
-    ScreenDistanceSpec,
     Seq,
     Size,
+    SizeSpec,
     String,
     StringSpec,
     Tuple,
@@ -72,11 +73,10 @@ ALL = (
 SPECS = (
     AngleSpec,
     ColorSpec,
-    DataDistanceSpec,
     DistanceSpec,
     FontSizeSpec,
     NumberSpec,
-    ScreenDistanceSpec,
+    SizeSpec,
     StringSpec,
 )
 

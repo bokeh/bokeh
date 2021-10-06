@@ -9,6 +9,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -33,10 +35,10 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class UndefinedType(object):
+class UndefinedType:
     """ Indicates no value set, which is not the same as setting ``None``. """
 
-    def __copy__(self) -> "UndefinedType":
+    def __copy__(self) -> UndefinedType:
         return self
 
     def __str__(self) -> str:
@@ -47,10 +49,10 @@ class UndefinedType(object):
 
 Undefined = UndefinedType()
 
-class IntrinsicType(object):
+class IntrinsicType:
     """ Indicates usage of the intrinsic default value of a property. """
 
-    def __copy__(self) -> "IntrinsicType":
+    def __copy__(self) -> IntrinsicType:
         return self
 
     def __str__(self) -> str:

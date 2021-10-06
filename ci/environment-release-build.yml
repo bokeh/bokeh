@@ -12,7 +12,8 @@ dependencies:
   - python-dateutil >=2.1
   - pyyaml >=3.10
   - tornado >=5
-  - typing_extensions >=3.7.4
+  - typing_extensions >=3.10.0
+  - xyzservices>=2021.09.1
 
   # build
   - boto
@@ -29,14 +30,23 @@ dependencies:
   - colorcet
   - firefox
   - geckodriver
+  - icalendar
+  - ipython
   - networkx
   - pandas
   - pydot
   - pygments
+  - pyshp
   - scipy
-  - sphinx
-  - sphinx-panels
+
+  # pip dependencies
   - pip
   - pip:
+    # docs
+    - autoclasstoc
+    - pydata_sphinx_theme >=0.7.1
+    - sphinx >=4.1
     - sphinxext-opengraph
+    - sphinx-panels
+    - sphinx-tabs
     - sphinx-reredirects

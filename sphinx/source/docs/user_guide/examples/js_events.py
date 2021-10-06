@@ -1,5 +1,5 @@
-""" Demonstration of how to register event callbacks using an adaptation
-of the color_scatter example from the Bokeh gallery
+""" Demonstration of how to register event callbacks using an adaptation of the color_scatter example from the Bokeh gallery
+
 """
 import numpy as np
 
@@ -13,13 +13,14 @@ from bokeh.plotting import figure
 def display_event(div, attributes=[], style = 'float:left;clear:left;font_size=13px'):
     "Build a suitable CustomJS to display the current event in the div model."
     return CustomJS(args=dict(div=div), code="""
-        var attrs = %s; var args = [];
-        for (var i = 0; i<attrs.length; i++) {
+        const attrs = %s;
+        const args = [];
+        for (let i = 0; i<attrs.length; i++) {
             args.push(attrs[i] + '=' + Number(cb_obj[attrs[i]]).toFixed(2));
         }
-        var line = "<span style=%r><b>" + cb_obj.event_name + "</b>(" + args.join(", ") + ")</span>\\n";
-        var text = div.text.concat(line);
-        var lines = text.split("\\n")
+        const line = "<span style=%r><b>" + cb_obj.event_name + "</b>(" + args.join(", ") + ")</span>\\n";
+        const text = div.text.concat(line);
+        const lines = text.split("\\n")
         if (lines.length > 35)
             lines.shift();
         div.text = lines.join("\\n");
@@ -34,7 +35,7 @@ p = figure(tools="pan,wheel_zoom,zoom_in,zoom_out,reset")
 p.scatter(x, y, radius=np.random.random(size=4000) * 1.5,
           fill_color=colors, fill_alpha=0.6, line_color=None)
 
-div = Div(width=400, height=p.plot_height, height_policy="fixed")
+div = Div(width=400, height=p.height, height_policy="fixed")
 button = Button(label="Button", button_type="success")
 layout = column(button, row(p, div))
 

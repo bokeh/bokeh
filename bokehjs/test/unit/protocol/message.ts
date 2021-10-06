@@ -22,7 +22,7 @@ describe("protocol/message module", () => {
         expect(m).to.be.instanceof(Message)
         expect(m.complete()).to.be.true
 
-        expect(m.header).to.be.equal({msgid: '10', msgtype: 'FOO'})
+        expect(m.header).to.be.equal({msgid: "10", msgtype: "FOO"})
         expect(m.metadata).to.be.equal({bar: 2})
         expect(m.content).to.be.equal({baz: 3})
         expect(m.buffers).to.be.equal(new Map())
@@ -88,17 +88,17 @@ describe("protocol/message module", () => {
     describe("complete method", () => {
 
       it("should return false if header is missing", () => {
-        const m = Message.assemble('null', '{"bar":2}', '{"baz":3}')
+        const m = Message.assemble("null", '{"bar":2}', '{"baz":3}')
         expect(m.complete()).to.be.false
       })
 
       it("should return false if content is missing", () => {
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', 'null', '{"baz":3}')
+        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', "null", '{"baz":3}')
         expect(m.complete()).to.be.false
       })
 
       it("should return false if metadata is missing", () => {
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', '{"bar":2}', 'null')
+        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', '{"bar":2}', "null")
         expect(m.complete()).to.be.false
       })
 
@@ -140,7 +140,7 @@ describe("protocol/message module", () => {
     })
 
     describe("getters", () => {
-      const m = Message.assemble('{"msgid": "10", "msgtype": "FOO", "reqid": "xyz"}', '{}', '{}')
+      const m = Message.assemble('{"msgid": "10", "msgtype": "FOO", "reqid": "xyz"}', "{}", "{}")
 
       it("should have msgid", () => {
         expect(m.msgid()).to.be.equal("10")
@@ -158,17 +158,17 @@ describe("protocol/message module", () => {
     describe("problem method", () => {
 
       it("should return null on valid message", () => {
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', '{}', '{}')
+        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', "{}", "{}")
         expect(m.problem()).to.be.null
       })
 
       it("should return message for missing msgtype", () => {
-        const m = Message.assemble('{"msgid": "10"}', '{}', '{}')
+        const m = Message.assemble('{"msgid": "10"}', "{}", "{}")
         expect(m.problem()).to.be.equal("No msgtype in header")
       })
 
       it("should return message for missing msgid", () => {
-        const m = Message.assemble('{"msgtype": "FOO"}', '{}', '{}')
+        const m = Message.assemble('{"msgtype": "FOO"}', "{}", "{}")
         expect(m.problem()).to.be.equal("No msgid in header")
       })
     })

@@ -1,4 +1,4 @@
-from bokeh.models.tools import BoxZoomTool, ResetTool
+from bokeh.models import BoxZoomTool, ResetTool
 from bokeh.plotting import figure, show
 
 # prepare some data
@@ -11,7 +11,7 @@ p = figure(
     tools=[BoxZoomTool(), ResetTool()],
     sizing_mode="stretch_width",
     max_width=500,
-    plot_height=250,
+    height=250,
 )
 
 # add a renderer

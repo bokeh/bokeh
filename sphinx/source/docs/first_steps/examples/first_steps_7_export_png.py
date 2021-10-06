@@ -6,7 +6,7 @@ x = [1, 2, 3, 4, 5]
 y = [4, 5, 5, 7, 2]
 
 # create a new plot with fixed dimensions
-p = figure(plot_width=350, plot_height=250)
+p = figure(width=350, height=250)
 
 # add a circle renderer
 circle = p.circle(x, y, fill_color="red", size=15)

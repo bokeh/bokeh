@@ -1,0 +1,20 @@
+name: bk-test
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+
+  # runtime
+  - jinja2 >=2.7
+  - numpy >=1.11.3
+  - packaging >=16.8
+  - pillow >=4.0
+  - python-dateutil >=2.1
+  - pyyaml >=3.10
+  - tornado >=5
+  - typing_extensions >=3.10.0
+  - xyzservices>=2021.09.1
+
+  # tests
+  - pytest 6.2*
+  - scipy

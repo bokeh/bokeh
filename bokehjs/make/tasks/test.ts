@@ -1,9 +1,10 @@
 import {spawn, ChildProcess} from "child_process"
 import {Socket} from "net"
 import {argv} from "yargs"
-import {join, delimiter, basename, dirname} from "path"
+import {join, delimiter, basename, extname, dirname} from "path"
 import os from "os"
 import assert from "assert"
+import chalk from "chalk"
 
 import which from "which"
 
@@ -111,9 +112,7 @@ function sys_path(): string {
 }
 
 function chrome(): string {
-  const names = ["chrome", "google-chrome", "Google Chrome"]
-  if (os.type() == "Linux")
-    names.unshift("chromium-browser", "chromium")
+  const names = ["chromium", "chromium-browser", "chrome", "google-chrome", "Google Chrome"]
   const path = sys_path()
 
   for (const name of names) {
@@ -186,7 +185,7 @@ async function server(port: number): Promise<ChildProcess> {
     })
     proc.on("exit", (code, _signal) => {
       if (code !== 0) {
-        reject(new BuildError("devtools-server", `failed to start`))
+        reject(new BuildError("devtools-server", "failed to start"))
       }
     })
   })
@@ -212,17 +211,27 @@ function opt(name: string, value: unknown): string {
 }
 
 function devtools(devtools_port: number, server_port: number, name: string, baselines_root?: string): Promise<void> {
-  const legacy = argv.legacy === true ? "?legacy" : ""
+  const args = [
+    `http://localhost:${server_port}/${name}`,
+    opt("k", argv.k),
+    opt("grep", argv.grep),
+    opt("ref", argv.ref),
+    opt("baselines-root", baselines_root),
+    `--screenshot=${argv.screenshot ?? "test"}`,
+  ]
+  return _devtools(devtools_port, args)
+}
 
+function devtools_info(devtools_port: number): Promise<void> {
+  return _devtools(devtools_port, ["--info"])
+}
+
+function _devtools(devtools_port: number, user_args: string[]): Promise<void> {
   const args = [
     "--no-warnings",
     "./test/devtools",
-    `http://localhost:${server_port}/${name}${legacy}`,
     `--port=${devtools_port}`,
-    opt("k", argv.k),
-    opt("grep", argv.grep),
-    opt("baselines-root", baselines_root),
-    `--screenshot=${argv.screenshot ?? "test"}`,
+    ...user_args,
   ]
 
   if (argv.debug) {
@@ -256,12 +265,15 @@ async function keep_alive(): Promise<void> {
 
 task("test:run:headless", async () => {
   const proc = await headless(9222)
+  await devtools_info(9222)
   terminate(proc)
   await keep_alive()
 })
 
 task("test:spawn:headless", async () => {
-  await headless(9222)
+  const proc = await headless(9222)
+  await devtools_info(9222)
+  console.log(`Exec '${chalk.gray("kill")} ${chalk.magenta(`${proc.pid}`)}' to terminate the browser process`)
 })
 
 const start_headless = task("test:start:headless", async () => {
@@ -296,8 +308,9 @@ function compile(name: string, options?: {auto_index?: boolean}) {
       const imports = ['export * from "../framework"']
 
       for (const file of files) {
-        if (file.startsWith(base_dir) && file.endsWith(".ts")) {
-          const name = basename(file, ".ts")
+        if (file.startsWith(base_dir) && (file.endsWith(".ts") || file.endsWith(".tsx"))) {
+          const ext = extname(file)
+          const name = basename(file, ext)
           if (!name.startsWith("_") && !name.endsWith(".d")) {
             const dir = dirname(file).replace(base_dir, "").replace(/^\//, "")
             const module = dir == "" ? `./${name}` : [".", ...dir.split("/"), name].join("/")

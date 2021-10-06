@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -18,9 +20,18 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
 # Bokeh imports
 from .notebook import run_notebook_hook
 from .state import curstate
+
+if TYPE_CHECKING:
+    from ..core.types import PathLike
+    from ..resources import Resources, ResourcesMode
+    from .notebook import NotebookType
+    from .state import State
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,8 +47,9 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def output_file(filename, title="Bokeh Plot", mode=None, root_dir=None):
-    '''Configure the default output state to generate output saved
+def output_file(filename: PathLike, title: str = "Bokeh Plot",
+        mode: ResourcesMode | None = None, root_dir: PathLike | None = None) -> None:
+    ''' Configure the default output state to generate output saved
     to a file when :func:`show` is called.
 
     Does not change the current ``Document`` from ``curdoc()``. File and notebook
@@ -66,7 +78,7 @@ def output_file(filename, title="Bokeh Plot", mode=None, root_dir=None):
 
     .. warning::
         This output file will be overwritten on every save, e.g., each time
-        show() or save() is invoked.
+        |show| or |save| is invoked.
 
     '''
     curstate().output_file(
@@ -76,9 +88,10 @@ def output_file(filename, title="Bokeh Plot", mode=None, root_dir=None):
         root_dir=root_dir
     )
 
-def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type='jupyter'):
+def output_notebook(resources: Resources | None = None, verbose: bool = False,
+        hide_banner: bool = False, load_timeout: int = 5000, notebook_type: NotebookType = "jupyter") -> None:
     ''' Configure the default output state to generate output in notebook cells
-    when :func:`show` is called. Note that, :func:`show` may be called multiple
+    when |show| is called. Note that |show| may be called multiple
     times in a single cell to display multiple objects in the output cell. The
     objects will be displayed in order.
 
@@ -108,9 +121,9 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
     '''
     # verify notebook_type first in curstate().output_notebook
     curstate().output_notebook(notebook_type)
-    run_notebook_hook(notebook_type, 'load', resources, verbose, hide_banner, load_timeout)
+    run_notebook_hook(notebook_type, "load", resources, verbose, hide_banner, load_timeout)
 
-def reset_output(state=None):
+def reset_output(state: State | None = None) -> None:
     ''' Clear the default state of all output modes.
 
     Returns:

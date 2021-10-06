@@ -1,17 +1,24 @@
-from bokeh.io import output_file, show
+''' A bar chart based on simple Python lists of data. This example demonstrates
+automatic colormapping.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.vbar, bokeh.transform.factor_cmap
+    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_filled` > :ref:`userguide_categorical_bars_filled_colors` # noqa: E501
+    :keywords: bar, colormap, legend, palette, vbar
+
+'''
+from bokeh.io import show
 from bokeh.models import ColumnDataSource
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
 from bokeh.transform import factor_cmap
-
-output_file("bar_colormapped.html")
 
 fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 counts = [5, 3, 4, 2, 4, 6]
 
 source = ColumnDataSource(data=dict(fruits=fruits, counts=counts))
 
-p = figure(x_range=fruits, plot_height=350, toolbar_location=None, title="Fruit Counts")
+p = figure(x_range=fruits, height=350, toolbar_location=None, title="Fruit Counts")
 p.vbar(x='fruits', top='counts', width=0.9, source=source, legend_field="fruits",
        line_color='white', fill_color=factor_cmap('fruits', palette=Spectral6, factors=fruits))
 

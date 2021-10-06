@@ -38,7 +38,7 @@ describe("Arrow annotation", () => {
     {start: new VeeHead({size}), end: new VeeHead({size})},
   ]
 
-  it(`should support support horizontal arrows with all arrow heads`, async () => {
+  it("should support support horizontal arrows with all arrow heads", async () => {
     function make_plot(output_backend: OutputBackend) {
       const arrow_heads = make_arrow_heads(12)
 
@@ -68,7 +68,7 @@ describe("Arrow annotation", () => {
     await display(row([p0, p1]))
   })
 
-  it(`should support support vertical arrows with all arrow heads`, async () => {
+  it("should support support vertical arrows with all arrow heads", async () => {
     function make_plot(output_backend: OutputBackend) {
       const arrow_heads = make_arrow_heads(12)
 

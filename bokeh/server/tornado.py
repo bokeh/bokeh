@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -19,17 +21,33 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import gc
 import os
 from pprint import pformat
+from types import ModuleType
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Mapping,
+    Sequence,
+    Set,
+    Tuple,
+)
 from urllib.parse import urljoin
 
 # External imports
 from tornado.ioloop import PeriodicCallback
-from tornado.web import Application as TornadoApplication
-from tornado.web import StaticFileHandler
+from tornado.web import Application as TornadoApplication, StaticFileHandler
+
+if TYPE_CHECKING:
+    from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from ..application import Application
+from ..document import Document
+from ..model import Model
 from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
@@ -38,10 +56,18 @@ from ..util.tornado import fixup_windows_event_loop_policy
 from .auth_provider import NullAuth
 from .connection import ServerConnection
 from .contexts import ApplicationContext
+from .session import ServerSession
 from .urls import per_app_patterns, toplevel_patterns
 from .views.root_handler import RootHandler
 from .views.static_handler import StaticHandler
 from .views.ws import WSHandler
+
+if TYPE_CHECKING:
+    from ..application.handlers.function import ModifyDoc
+    from ..core.types import ID
+    from ..protocol import Protocol
+    from .auth_provider import AuthProvider
+    from .urls import RouteContext, URLRoutes
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -58,6 +84,14 @@ DEFAULT_SESSION_TOKEN_EXPIRATION         = 300
 __all__ = (
     'BokehTornado',
 )
+
+pd = import_optional("pandas")
+psutil = import_optional("psutil")
+
+GB = 2**20
+PID = os.getpid()
+if psutil:
+    PROC = psutil.Process(PID)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -167,11 +201,11 @@ class BokehTornado(TornadoApplication):
 
         websocket_compression_level (int, optional):
             Set the Tornado WebSocket ``compression_level`` documented in
-            https://docs.python.org/3.6/library/zlib.html#zlib.compressobj.
+            https://docs.python.org/3.7/library/zlib.html#zlib.compressobj.
 
         websocket_compression_mem_level (int, optional):
             Set the Tornado WebSocket compression ``mem_level`` documented in
-            https://docs.python.org/3.6/library/zlib.html#zlib.compressobj.
+            https://docs.python.org/3.7/library/zlib.html#zlib.compressobj.
 
         index (str, optional):
             Path to a Jinja2 template to use for the root URL
@@ -202,57 +236,64 @@ class BokehTornado(TornadoApplication):
             (default: {DEFAULT_SESSION_TOKEN_EXPIRATION})
 
     Any additional keyword arguments are passed to ``tornado.web.Application``.
+
+    .. autoclasstoc::
+
     '''
 
+    _loop: IOLoop
+    _applications: Mapping[str, ApplicationContext]
+    _prefix: str
+    _websocket_origins: Set[str]
+    auth_provider: AuthProvider
+
+    _clients: Set[ServerConnection]
+
     def __init__(self,
-                 applications,
-                 prefix=None,
-                 extra_websocket_origins=None,
-                 extra_patterns=None,
-                 secret_key=settings.secret_key_bytes(),
-                 sign_sessions=settings.sign_sessions(),
-                 generate_session_ids=True,
-                 keep_alive_milliseconds=DEFAULT_KEEP_ALIVE_MS,
-                 check_unused_sessions_milliseconds=DEFAULT_CHECK_UNUSED_MS,
-                 unused_session_lifetime_milliseconds=DEFAULT_UNUSED_LIFETIME_MS,
-                 stats_log_frequency_milliseconds=DEFAULT_STATS_LOG_FREQ_MS,
-                 mem_log_frequency_milliseconds=DEFAULT_MEM_LOG_FREQ_MS,
-                 use_index=True,
-                 redirect_root=True,
-                 websocket_max_message_size_bytes=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
-                 websocket_compression_level=None,
-                 websocket_compression_mem_level=None,
-                 index=None,
-                 auth_provider=NullAuth(),
-                 xsrf_cookies=False,
-                 include_headers=None,
-                 include_cookies=None,
-                 exclude_headers=None,
-                 exclude_cookies=None,
-                 session_token_expiration=DEFAULT_SESSION_TOKEN_EXPIRATION,
+                 applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
+                 prefix: str | None = None,
+                 extra_websocket_origins: Sequence[str] | None = None,
+                 extra_patterns: URLRoutes | None = None,
+                 secret_key: bytes | None = settings.secret_key_bytes(),
+                 sign_sessions: bool = settings.sign_sessions(),
+                 generate_session_ids: bool = True,
+                 keep_alive_milliseconds: int = DEFAULT_KEEP_ALIVE_MS,
+                 check_unused_sessions_milliseconds: int = DEFAULT_CHECK_UNUSED_MS,
+                 unused_session_lifetime_milliseconds: int = DEFAULT_UNUSED_LIFETIME_MS,
+                 stats_log_frequency_milliseconds: int = DEFAULT_STATS_LOG_FREQ_MS,
+                 mem_log_frequency_milliseconds: int = DEFAULT_MEM_LOG_FREQ_MS,
+                 use_index: bool = True,
+                 redirect_root: bool = True,
+                 websocket_max_message_size_bytes: int = DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+                 websocket_compression_level: int | None = None,
+                 websocket_compression_mem_level: int | None = None,
+                 index: str | None = None,
+                 auth_provider: AuthProvider = NullAuth(),
+                 xsrf_cookies: bool = False,
+                 include_headers: List[str] | None = None,
+                 include_cookies: List[str] | None = None,
+                 exclude_headers: List[str] | None = None,
+                 exclude_cookies: List[str] | None = None,
+                 session_token_expiration: int = DEFAULT_SESSION_TOKEN_EXPIRATION,
                  **kwargs):
 
         # This will be set when initialize is called
         self._loop = None
 
-        from bokeh.application.handlers.function import FunctionHandler
         from bokeh.application.handlers.document_lifecycle import DocumentLifecycleHandler
+        from bokeh.application.handlers.function import FunctionHandler
 
         if callable(applications):
             applications = Application(FunctionHandler(applications))
 
         if isinstance(applications, Application):
-            applications = { '/' : applications }
+            applications = {'/' : applications}
 
-        for k, v in list(applications.items()):
-            if callable(v):
-                applications[k] = Application(FunctionHandler(v))
-            if all(not isinstance(handler, DocumentLifecycleHandler)
-                    for handler in applications[k]._handlers):
-                applications[k].add(DocumentLifecycleHandler())
-
-        if isinstance(applications, Application):
-            applications = { '/' : applications }
+        for url, app in list(applications.items()):
+            if callable(app):
+                applications[url] = app = Application(FunctionHandler(app))
+            if all(not isinstance(handler, DocumentLifecycleHandler) for handler in app._handlers):
+                app.add(DocumentLifecycleHandler())
 
         if prefix is None:
             prefix = ""
@@ -296,7 +337,7 @@ class BokehTornado(TornadoApplication):
             # 0 means "disable"
             raise ValueError("mem_log_frequency_milliseconds must be >= 0")
         elif mem_log_frequency_milliseconds > 0:
-            if import_optional('psutil') is None:
+            if psutil is None:
                 log.warning("Memory logging requested, but is disabled. Optional dependency 'psutil' is missing. "
                          "Try 'pip install psutil' or 'conda install psutil'")
                 mem_log_frequency_milliseconds = 0
@@ -328,14 +369,12 @@ class BokehTornado(TornadoApplication):
             self._session_token_expiration = session_token_expiration
 
         if exclude_cookies and include_cookies:
-            raise ValueError("Declare either an include or an exclude list"
-                             "for the cookies, not both.")
+            raise ValueError("Declare either an include or an exclude list for the cookies, not both.")
         self._exclude_cookies = exclude_cookies
         self._include_cookies = include_cookies
 
         if exclude_headers and include_headers:
-            raise ValueError("Declare either an include or an exclude list"
-                             "for the headers, not both.")
+            raise ValueError("Declare either an include or an exclude list for the headers, not both.")
         self._exclude_headers = exclude_headers
         self._include_headers = include_headers
 
@@ -349,22 +388,22 @@ class BokehTornado(TornadoApplication):
         log.debug("These host origins can connect to the websocket: %r", list(self._websocket_origins))
 
         # Wrap applications in ApplicationContext
-        self._applications = dict()
-        for k,v in applications.items():
-            self._applications[k] = ApplicationContext(v, url=k, logout_url=self.auth_provider.logout_url)
+        self._applications = {}
+        for url, app in applications.items():
+            self._applications[url] = ApplicationContext(app, url=url, logout_url=self.auth_provider.logout_url)
 
         extra_patterns = extra_patterns or []
         extra_patterns.extend(self.auth_provider.endpoints)
 
-        all_patterns = []
+        all_patterns: URLRoutes = []
         for key, app in applications.items():
-            app_patterns = []
+            app_patterns: URLRoutes = []
             for p in per_app_patterns:
                 if key == "/":
                     route = p[0]
                 else:
                     route = key + p[0]
-                context = {"application_context": self._applications[key]}
+                context: RouteContext = {"application_context": self._applications[key]}
                 if issubclass(p[1], WSHandler):
                     context['compression_level'] = websocket_compression_level
                     context['mem_level'] = websocket_compression_mem_level
@@ -382,22 +421,18 @@ class BokehTornado(TornadoApplication):
 
             all_patterns.extend(app_patterns)
 
-            # add a per-app static path if requested by the application
-            if app.static_path is not None:
-                if key == "/":
-                    route = "/static/(.*)"
-                else:
-                    route = key + "/static/(.*)"
-                route = self._prefix + route
-                all_patterns.append((route, StaticFileHandler, { "path" : app.static_path }))
+            # if the app requests a custom static path, use that, otherwise add Bokeh's standard static handler
+            all_patterns.append(create_static_handler(self._prefix, key, app))
 
         for p in extra_patterns + toplevel_patterns:
             if p[1] == RootHandler:
                 if use_index:
-                    data = {"applications": self._applications,
-                            "prefix": self._prefix,
-                            "index": self._index,
-                            "use_redirect": redirect_root}
+                    data = {
+                        "applications": self._applications,
+                        "prefix": self._prefix,
+                        "index": self._index,
+                        "use_redirect": redirect_root,
+                    }
                     prefixed_pat = (self._prefix + p[0],) + p[1:] + (data,)
                     all_patterns.append(prefixed_pat)
             else:
@@ -409,10 +444,10 @@ class BokehTornado(TornadoApplication):
             log.debug("  " + line)
 
         super().__init__(all_patterns,
-                                           websocket_max_message_size=websocket_max_message_size_bytes,
-                                           **kwargs)
+            websocket_max_message_size=websocket_max_message_size_bytes,
+            **kwargs)
 
-    def initialize(self, io_loop):
+    def initialize(self, io_loop: IOLoop) -> None:
         ''' Start a Bokeh Server Tornado Application on a given Tornado IOLoop.
 
         '''
@@ -441,8 +476,6 @@ class BokehTornado(TornadoApplication):
         else:
             self._ping_job = None
 
-
-
     @property
     def applications(self):
         ''' The configured applications
@@ -451,7 +484,7 @@ class BokehTornado(TornadoApplication):
         return self._applications
 
     @property
-    def app_paths(self):
+    def app_paths(self) -> Set[str]:
         ''' A list of all application paths for all Bokeh applications
         configured on this Bokeh server instance.
 
@@ -459,14 +492,14 @@ class BokehTornado(TornadoApplication):
         return set(self._applications)
 
     @property
-    def index(self):
+    def index(self) -> str | None:
         ''' Path to a Jinja2 template to serve as the index "/"
 
         '''
         return self._index
 
     @property
-    def io_loop(self):
+    def io_loop(self) -> IOLoop:
         ''' The Tornado IOLoop that this  Bokeh Server Tornado Application
         is running on.
 
@@ -474,7 +507,7 @@ class BokehTornado(TornadoApplication):
         return self._loop
 
     @property
-    def prefix(self):
+    def prefix(self) -> str:
         ''' A URL prefix for this Bokeh Server Tornado Application to use
         for all paths
 
@@ -482,14 +515,14 @@ class BokehTornado(TornadoApplication):
         return self._prefix
 
     @property
-    def websocket_origins(self):
+    def websocket_origins(self) -> Set[str]:
         ''' A list of websocket origins permitted to connect to this server.
 
         '''
         return self._websocket_origins
 
     @property
-    def secret_key(self):
+    def secret_key(self) -> bytes | None:
         ''' A secret key for this Bokeh Server Tornado Application to use when
         signing session IDs, if configured.
 
@@ -497,7 +530,7 @@ class BokehTornado(TornadoApplication):
         return self._secret_key
 
     @property
-    def include_cookies(self):
+    def include_cookies(self) -> List[str] | None:
         ''' A list of request cookies to make available in the session
         context.
 
@@ -505,7 +538,7 @@ class BokehTornado(TornadoApplication):
         return self._include_cookies
 
     @property
-    def include_headers(self):
+    def include_headers(self) -> List[str] | None:
         ''' A list of request headers to make available in the session
         context.
 
@@ -513,21 +546,21 @@ class BokehTornado(TornadoApplication):
         return self._include_headers
 
     @property
-    def exclude_cookies(self):
+    def exclude_cookies(self) -> List[str] | None:
         ''' A list of request cookies to exclude in the session context.
 
         '''
         return self._exclude_cookies
 
     @property
-    def exclude_headers(self):
+    def exclude_headers(self) -> List[str] | None:
         ''' A list of request headers to exclude in the session context.
 
         '''
         return self._exclude_headers
 
     @property
-    def sign_sessions(self):
+    def sign_sessions(self) -> bool:
         ''' Whether this Bokeh Server Tornado Application has been configured
         to cryptographically sign session IDs
 
@@ -536,7 +569,7 @@ class BokehTornado(TornadoApplication):
         return self._sign_sessions
 
     @property
-    def generate_session_ids(self):
+    def generate_session_ids(self) -> bool:
         ''' Whether this Bokeh Server Tornado Application has been configured
         to automatically generate session IDs.
 
@@ -544,7 +577,7 @@ class BokehTornado(TornadoApplication):
         return self._generate_session_ids
 
     @property
-    def session_token_expiration(self):
+    def session_token_expiration(self) -> int:
         ''' Duration in seconds that a new session token is valid for
         session creation.
 
@@ -553,7 +586,7 @@ class BokehTornado(TornadoApplication):
         '''
         return self._session_token_expiration
 
-    def resources(self, absolute_url=None):
+    def resources(self, absolute_url: str | None = None) -> Resources:
         ''' Provide a :class:`~bokeh.resources.Resources` that specifies where
         Bokeh application sessions should load BokehJS resources from.
 
@@ -569,7 +602,7 @@ class BokehTornado(TornadoApplication):
             return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
         return Resources(mode=mode)
 
-    def start(self):
+    def start(self) -> None:
         ''' Start the Bokeh Server application.
 
         Starting the Bokeh Server Tornado application will run periodic
@@ -585,9 +618,9 @@ class BokehTornado(TornadoApplication):
             self._ping_job.start()
 
         for context in self._applications.values():
-            self._loop.spawn_callback(context.run_load_hook)
+            self._loop.add_callback(context.run_load_hook)
 
-    def stop(self, wait=True):
+    def stop(self, wait: bool = True) -> None:
         ''' Stop the Bokeh Server application.
 
         Args:
@@ -611,16 +644,17 @@ class BokehTornado(TornadoApplication):
 
         self._clients.clear()
 
-    def new_connection(self, protocol, socket, application_context, session):
+    def new_connection(self, protocol: Protocol, socket: WSHandler,
+            application_context: ApplicationContext, session: ServerSession) -> ServerConnection:
         connection = ServerConnection(protocol, socket, application_context, session)
         self._clients.add(connection)
         return connection
 
-    def client_lost(self, connection):
+    def client_lost(self, connection: ServerConnection) -> None:
         self._clients.discard(connection)
         connection.detach_session()
 
-    def get_session(self, app_path, session_id):
+    def get_session(self, app_path: str, session_id: ID) -> ServerSession:
         ''' Get an active a session by name application path and session ID.
 
         Args:
@@ -639,7 +673,7 @@ class BokehTornado(TornadoApplication):
             raise ValueError("Application %s does not exist on this server" % app_path)
         return self._applications[app_path].get_session(session_id)
 
-    def get_sessions(self, app_path):
+    def get_sessions(self, app_path: str) -> List[ServerSession]:
         ''' Gets all currently active sessions for an application.
 
         Args:
@@ -657,20 +691,20 @@ class BokehTornado(TornadoApplication):
 
     # Periodic Callbacks ------------------------------------------------------
 
-    async def _cleanup_sessions(self):
+    async def _cleanup_sessions(self) -> None:
         log.trace("Running session cleanup job")
         for app in self._applications.values():
             await app._cleanup_sessions(self._unused_session_lifetime_milliseconds)
         return None
 
-    def _log_stats(self):
+    def _log_stats(self) -> None:
         log.trace("Running stats log job")
 
         if log.getEffectiveLevel() > logging.DEBUG:
             # avoid the work below if we aren't going to log anything
             return
 
-        log.debug("[pid %d] %d clients connected", os.getpid(), len(self._clients))
+        log.debug("[pid %d] %d clients connected", PID, len(self._clients))
         for app_path, app in self._applications.items():
             sessions = list(app.sessions)
             unused_count = 0
@@ -678,27 +712,49 @@ class BokehTornado(TornadoApplication):
                 if s.connection_count == 0:
                     unused_count += 1
             log.debug("[pid %d]   %s has %d sessions with %d unused",
-                      os.getpid(), app_path, len(sessions), unused_count)
+                      PID, app_path, len(sessions), unused_count)
 
-    def _log_mem(self):
-        import psutil
+    def _log_mem(self) -> None:
+        # we should be able to assume PROC is define, if psutil is not installed
+        # then the _log_mem callback is not started at all
+        mem = PROC.memory_info()
+        log.info("[pid %d] Memory usage: %0.2f MB (RSS), %0.2f MB (VMS)", PID, mem.rss/GB, mem.vms/GB)
+        del mem
 
-        process = psutil.Process(os.getpid())
-        log.info("[pid %d] Memory usage: %0.2f MB (RSS), %0.2f MB (VMS)", os.getpid(), process.memory_info().rss//2**20, process.memory_info().vms//2**20)
-
+        # skip the rest if we would not log it anyway
         if log.getEffectiveLevel() > logging.DEBUG:
-            # avoid the work below if we aren't going to log anything else
             return
 
-        import gc
-        from ..document import Document
-        from ..model import Model
-        from .session import ServerSession
-        for name, typ in [('Documents', Document), ('Sessions', ServerSession), ('Models', Model)]:
-            objs = [x for x in gc.get_objects() if isinstance(x, typ)]
-            log.debug("  uncollected %s: %d", name, len(objs))
+        #from collections import Counter
+        # pprint.pprint(Counter([str(type(x)) for x in gc.get_objects() if "DataFrame" in str(type(x))]).most_common(30))
 
-    def _keep_alive(self):
+        all_objs = gc.get_objects()
+
+        for name, typ in [('Documents', Document), ('Sessions', ServerSession), ('Models', Model)]:
+            objs = [x for x in all_objs if isinstance(x, typ)]
+            log.debug(f"  uncollected {name}: {len(objs)}")
+
+            # uncomment for potentially voluminous referrers output
+            # if name == 'Models' and len(objs):
+            #     import pprint
+            #     for i in range(10):
+            #         print(i, objs[i], gc.get_referents(objs[i]))
+
+        objs = [x for x in gc.get_objects() if isinstance(x, ModuleType) and "bokeh_app_" in str(x)]
+        log.debug(f"  uncollected modules: {len(objs)}")
+
+        if pd:
+            objs = [x for x in all_objs if isinstance(x, pd.DataFrame)]
+            log.debug("  uncollected DataFrames: %d", len(objs))
+
+        # uncomment (and install pympler) for mem usage by type report
+        # from operator import itemgetter
+        # import pprint
+        # from pympler import tracker
+        # mem = tracker.SummaryTracker()
+        # pprint.pprint(sorted(mem.create_summary(), reverse=True, key=itemgetter(2))[:30])
+
+    def _keep_alive(self) -> None:
         log.trace("Running keep alive job")
         for c in self._clients:
             c.send_ping()
@@ -706,6 +762,13 @@ class BokehTornado(TornadoApplication):
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def create_static_handler(prefix: str, key: str, app: Application) -> Tuple[str, StaticFileHandler|StaticHandler, Dict[str, Any]]:
+    route = prefix
+    route += "/static/(.*)" if key == "/" else key + "/static/(.*)"
+    if app.static_path is not None:
+        return (route, StaticFileHandler, {"path" : app.static_path})
+    return (route, StaticHandler, {})
 
 #-----------------------------------------------------------------------------
 # Private API

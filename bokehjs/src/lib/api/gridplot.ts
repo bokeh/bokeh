@@ -1,13 +1,14 @@
 import {LayoutDOM, Row, Column, GridBox, ToolbarBox, ProxyToolbar, Plot, Tool, Toolbar} from "./models"
 import {SizingMode, Location} from "../core/enums"
 import {Matrix} from "../core/util/matrix"
+import {unreachable} from "core/util/assert"
 
-export interface GridPlotOpts {
+export type GridPlotOpts = {
   toolbar_location?: Location | null
   merge_tools?: boolean
   sizing_mode?: SizingMode
-  plot_width?: number
-  plot_height?: number
+  width?: number
+  height?: number
 }
 
 function or_else<T>(value: T | undefined, default_value: T): T {
@@ -17,29 +18,31 @@ function or_else<T>(value: T | undefined, default_value: T): T {
     return value
 }
 
-export function gridplot(children: (Plot | null)[][] | Matrix<Plot | null>, options: GridPlotOpts = {}): LayoutDOM {
+export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | null>, options: GridPlotOpts = {}): LayoutDOM {
   const toolbar_location = or_else(options.toolbar_location, "above")
   const merge_tools      = or_else(options.merge_tools, true)
   const sizing_mode      = or_else(options.sizing_mode, null)
 
   const matrix = Matrix.from(children)
 
-  const items: [Plot, number, number][] = []
+  const items: [LayoutDOM, number, number][] = []
   const toolbars: Toolbar[] = []
 
   for (const [item, row, col] of matrix) {
     if (item == null)
       continue
 
-    if (merge_tools) {
-      toolbars.push(item.toolbar)
-      item.toolbar_location = null
+    if (item instanceof Plot) {
+      if (merge_tools) {
+        toolbars.push(item.toolbar)
+        item.toolbar_location = null
+      }
     }
 
-    if (options.plot_width != null)
-      item.plot_width = options.plot_width
-    if (options.plot_height != null)
-      item.plot_height = options.plot_height
+    if (options.width != null)
+      item.width = options.width
+    if (options.height != null)
+      item.height = options.height
 
     items.push([item, row, col])
   }
@@ -67,6 +70,6 @@ export function gridplot(children: (Plot | null)[][] | Matrix<Plot | null>, opti
     case "right":
       return new Row({children: [grid, toolbar], sizing_mode})
     default:
-      throw new Error("unexpected")
+      unreachable()
   }
 }

@@ -48,11 +48,11 @@ class Surface3d(LayoutDOM):
     # The data will actually be stored in the ColumnDataSource, but these
     # properties let us specify the *name* of the column that should be
     # used for each field.
-    x = String
+    x = String()
 
-    y = String
+    y = String()
 
-    z = String
+    z = String()
 
     # Any of the available vis.js options for Graph3d can be set by changing
     # the contents of this dictionary.

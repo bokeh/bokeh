@@ -39,7 +39,7 @@ TOOLTIPS = """
     </div>
 """.format(mass_format=mass_format)
 
-p = figure(plot_width=900, plot_height=450, tooltips=TOOLTIPS, title='Densities by Atomic Mass')
+p = figure(width=900, height=450, tooltips=TOOLTIPS, title='Densities by Atomic Mass')
 p.background_fill_color = "#fafafa"
 
 p.circle('atomic_mass', 'density', size=12, source=data, color='type_color',

@@ -4,6 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
+from __future__ import annotations
 
 # Standard library imports
 from io import BytesIO
@@ -61,15 +62,15 @@ def publish_bokehjs_to_cdn(config: Config, system: System) -> ActionReturn:
             buckets.append(conn.get_bucket(bucket_name))
 
         content_type = "application/javascript"
-        for name in ("bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables"):
-            for suffix in ("js", "min.js", "esm.js", "esm.min.js", "legacy.js", "legacy.min.js"):
+        for name in ("bokeh", "bokeh-gl", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax"):
+            for suffix in ("js", "min.js", "esm.js", "esm.min.js"):
                 local_path = f"bokehjs/build/js/{name}.{suffix}"
                 cdn_path = f"bokeh/{subdir}/{name}-{version}.{suffix}"
                 for bucket in buckets:
                     _upload_file_to_cdn(local_path, cdn_path, content_type, bucket)
         return PASSED("Uploaded BokehJS to CDN")
     except Exception as e:
-        return FAILED("BokehJS CDN upload failed", details=e.args)
+        return FAILED(f"BokehJS CDN upload failed: {e}", details=e.args)
 
 
 def upload_deployment_tarball(config: Config, system: System) -> ActionReturn:
@@ -77,4 +78,4 @@ def upload_deployment_tarball(config: Config, system: System) -> ActionReturn:
         system.run(f"aws s3 cp deployment-{config.version}.tgz s3://bokeh-deployments/")
         return PASSED("Uploaded deployment tarball")
     except RuntimeError as e:
-        return FAILED("Could NOT upload deployment tarball", details=e.args)
+        return FAILED(f"Could NOT upload deployment tarball: {e}", details=e.args)

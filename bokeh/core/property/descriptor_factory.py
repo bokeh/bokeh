@@ -11,10 +11,9 @@ Bokeh properties work by contributing Python descriptor objects to
 to the Bokeh property class, which handles validation, serialization, and
 documentation needs.
 
-The ``PropertyDescriptorFactory`` class provides two methods ``autocreate`` and
-``make_descriptors`` that are used by the metaclass ``MetaHasProps`` during
-class creation to create and install the necessary descriptors corresponding
-to the declared properties.
+The ``PropertyDescriptorFactory`` class provides the ``make_descriptors``
+method that is used by the metaclass ``MetaHasProps`` during class creation
+to install the descriptors corresponding to the declared properties.
 
 This machinery helps to make Bokeh much more user friendly. For example,
 the DataSpec properties mediate between fixed values and references to column
@@ -48,12 +47,25 @@ details around validation, serialization, and documentation.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+
+# Standard library imports
+from typing import (
+    TYPE_CHECKING,
+    Generic,
+    List,
+    TypeVar,
+)
+
+if TYPE_CHECKING:
+    from .descriptors import PropertyDescriptor
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -71,7 +83,9 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class PropertyDescriptorFactory:
+T = TypeVar("T")
+
+class PropertyDescriptorFactory(Generic[T]):
     """ Base class for all Bokeh properties.
 
     A Bokeh property really consist of two parts: the familiar "property"
@@ -97,7 +111,7 @@ class PropertyDescriptorFactory:
 
         # The class itself has had a descriptor for 'foo' installed
         >>> getattr(SomeModel, 'foo')
-        <bokeh.core.property.descriptors.BasicPropertyDescriptor at 0x1065ffb38>
+        <bokeh.core.property.descriptors.PropertyDescriptor at 0x1065ffb38>
 
         # which is used when 'foo' is accessed on instances
         >>> m.foo
@@ -105,22 +119,7 @@ class PropertyDescriptorFactory:
 
     """
 
-    @classmethod
-    def autocreate(cls):
-        """ Called by the ``MetaHasProps`` metaclass to create a new instance
-        of this descriptor when the property is assigned using only the
-        property type. For example:
-
-        .. code-block:: python
-
-            class Foo(Model):
-
-                bar = String   # no parens used here
-
-        """
-        return cls()
-
-    def make_descriptors(self, name):
+    def make_descriptors(self, name: str) -> List[PropertyDescriptor[T]]:
         """ Return a list of ``PropertyDescriptor`` instances to install on a
         class, in order to delegate attribute access to this property.
 

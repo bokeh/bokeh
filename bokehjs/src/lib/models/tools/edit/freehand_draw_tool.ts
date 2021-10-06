@@ -6,7 +6,7 @@ import {EditTool, EditToolView} from "./edit_tool"
 import {tool_icon_freehand_draw} from "styles/icons.css"
 
 export class FreehandDrawToolView extends EditToolView {
-  model: FreehandDrawTool
+  override model: FreehandDrawTool
 
   _draw(ev: UIEvent, mode: string, emit: boolean = false): void {
     if (!this.model.active)
@@ -21,12 +21,12 @@ export class FreehandDrawToolView extends EditToolView {
     const cds = renderer.data_source
     const glyph: any = renderer.glyph
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
-    if (mode == 'new') {
+    if (mode == "new") {
       this._pop_glyphs(cds, this.model.num_objects)
       if (xkey) cds.get_array(xkey).push([x])
       if (ykey) cds.get_array(ykey).push([y])
       this._pad_empty_columns(cds, [xkey, ykey])
-    } else if (mode == 'add') {
+    } else if (mode == "add") {
       if (xkey) {
         const xidx = cds.data[xkey].length-1
         let xs = cds.get_array<number[]>(xkey)[xidx]
@@ -49,23 +49,23 @@ export class FreehandDrawToolView extends EditToolView {
     this._emit_cds_changes(cds, true, true, emit)
   }
 
-  _pan_start(ev: PanEvent): void {
-    this._draw(ev, 'new')
+  override _pan_start(ev: PanEvent): void {
+    this._draw(ev, "new")
   }
 
-  _pan(ev: PanEvent): void {
-    this._draw(ev, 'add')
+  override _pan(ev: PanEvent): void {
+    this._draw(ev, "add")
   }
 
-  _pan_end(ev: PanEvent): void {
-    this._draw(ev, 'add', true)
+  override _pan_end(ev: PanEvent): void {
+    this._draw(ev, "add", true)
   }
 
-  _tap(ev: TapEvent): void {
+  override _tap(ev: TapEvent): void {
     this._select_event(ev, this._select_mode(ev), this.model.renderers)
   }
 
-  _keyup(ev: KeyEvent): void {
+  override _keyup(ev: KeyEvent): void {
     if (!this.model.active || !this._mouse_in_frame)
       return
     for (const renderer of this.model.renderers) {
@@ -89,22 +89,24 @@ export namespace FreehandDrawTool {
 export interface FreehandDrawTool extends FreehandDrawTool.Attrs {}
 
 export class FreehandDrawTool extends EditTool {
-  properties: FreehandDrawTool.Props
-  __view_type__: FreehandDrawToolView
+  override properties: FreehandDrawTool.Props
+  override __view_type__: FreehandDrawToolView
 
   constructor(attrs?: Partial<FreehandDrawTool.Attrs>) {
     super(attrs)
   }
 
-  static init_FreehandDrawTool(): void {
+  static {
     this.prototype.default_view = FreehandDrawToolView
 
     this.define<FreehandDrawTool.Props>(({Int}) => ({
       num_objects: [ Int, 0 ],
     }))
+
+    this.register_alias("freehand_draw", () => new FreehandDrawTool())
   }
-  tool_name = "Freehand Draw Tool"
-  icon = tool_icon_freehand_draw
-  event_type = ["pan" as "pan", "tap" as "tap"]
-  default_order = 3
+  override tool_name = "Freehand Draw Tool"
+  override tool_icon = tool_icon_freehand_draw
+  override event_type = ["pan" as "pan", "tap" as "tap"]
+  override default_order = 3
 }

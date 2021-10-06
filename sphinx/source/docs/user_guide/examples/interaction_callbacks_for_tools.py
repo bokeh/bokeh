@@ -26,7 +26,7 @@ callback = CustomJS(args=dict(source=source), code="""
     source.change.emit()
 """)
 
-p = figure(plot_width=400, plot_height=400, tools="box_select",
+p = figure(width=400, height=400, tools="box_select",
            title="Select Below", x_range=(0, 1), y_range=(0, 1))
 
 rect = Rect(x='x', y='y', width='width', height='height',

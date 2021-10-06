@@ -30,6 +30,8 @@ Functions:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -56,7 +58,7 @@ __all__ = (
 def base_version() -> str:
     return _base_version_helper(__version__)
 
-def is_full_release(version: str = None) -> bool:
+def is_full_release(version: str | None = None) -> bool:
     import re
     version = version or __version__
     VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")

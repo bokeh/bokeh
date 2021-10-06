@@ -16,13 +16,13 @@ export namespace GroupFilter {
 export interface GroupFilter extends GroupFilter.Attrs {}
 
 export class GroupFilter extends Filter {
-  properties: GroupFilter.Props
+  override properties: GroupFilter.Props
 
   constructor(attrs?: Partial<GroupFilter.Attrs>) {
     super(attrs)
   }
 
-  static init_GroupFilter(): void {
+  static {
     this.define<GroupFilter.Props>(({String}) => ({
       column_name: [ String ],
       group:       [ String ],

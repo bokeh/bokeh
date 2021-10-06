@@ -24,7 +24,7 @@ jscode = """
 """
 
 p1 = figure(title='Pan and Zoom Here', x_range=(0, 100), y_range=(0, 100),
-            tools='box_zoom,wheel_zoom,pan,reset', plot_width=400, plot_height=400)
+            tools='box_zoom,wheel_zoom,pan,reset', width=400, height=400)
 p1.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
 
 xcb = CustomJS(args=dict(box=box), code=jscode % ('left', 'right'))
@@ -36,7 +36,7 @@ p1.y_range.js_on_change('start', ycb)
 p1.y_range.js_on_change('end', ycb)
 
 p2 = figure(title='See Zoom Window Here', x_range=(0, 100), y_range=(0, 100),
-            tools='', plot_width=400, plot_height=400)
+            tools='', width=400, height=400)
 p2.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
 p2.add_layout(box)
 

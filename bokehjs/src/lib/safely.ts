@@ -55,7 +55,7 @@ function _burst_into_flames(error: string): void {
 export function safely<T>(fn: () => T, silent: boolean = false): T | undefined {
   try {
     return fn()
-  } catch (error: unknown) {
+  } catch (error) {
     const text = error instanceof Error && error.stack ? error.stack : `${error}`
     _burst_into_flames(text)
     if (!silent)

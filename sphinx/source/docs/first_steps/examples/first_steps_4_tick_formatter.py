@@ -10,7 +10,7 @@ p = figure(
     title="Tick formatter example",
     sizing_mode="stretch_width",
     max_width=500,
-    plot_height=250,
+    height=250,
 )
 
 # format axes ticks

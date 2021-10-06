@@ -11,8 +11,9 @@
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
-import logging  # isort:skip
+from __future__ import annotations
 
+import logging  # isort:skip
 log = logging.getLogger(__name__)
 
 # -----------------------------------------------------------------------------
@@ -20,18 +21,24 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Standard library imports
-import sys
+from typing import TYPE_CHECKING
 
 # Bokeh imports
 from bokeh.application.handlers.code_runner import CodeRunner
 from bokeh.application.handlers.handler import Handler
+from bokeh.core.types import PathLike
 from bokeh.io.doc import curdoc, set_curdoc
+
+if TYPE_CHECKING:
+    from bokeh.document import Document
 
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = ("ExampleHandler",)
+__all__ = (
+    "ExampleHandler",
+)
 
 # -----------------------------------------------------------------------------
 # General API
@@ -51,18 +58,17 @@ class ExampleHandler(Handler):
     _output_funcs = ["output_notebook", "output_file", "reset_output"]
     _io_funcs = ["show", "save"]
 
-    def __init__(self, source, filename):
-        super().__init__(self)
+    def __init__(self, source: str, filename: PathLike) -> None:
+        super().__init__()
         self._runner = CodeRunner(source, filename, [])
 
-    def modify_document(self, doc):
+    def modify_document(self, doc: Document) -> None:
         if self.failed:
             return
 
         module = self._runner.new_module()
 
-        sys.modules[module.__name__] = module
-        doc._modules.append(module)
+        doc.modules.add(module)
 
         orig_curdoc = curdoc()
         set_curdoc(doc)
@@ -126,17 +132,20 @@ class ExampleHandler(Handler):
         d.Document = old_doc
 
     @property
-    def failed(self):
+    def failed(self) -> bool:
         return self._runner.failed
 
     @property
-    def error(self):
+    def error(self) -> str | None:
         return self._runner.error
 
     @property
-    def error_detail(self):
+    def error_detail(self) -> str | None:
         return self._runner.error_detail
 
+    @property
+    def doc(self) -> str | None:
+        return self._runner.doc
 
 # -----------------------------------------------------------------------------
 # Private API

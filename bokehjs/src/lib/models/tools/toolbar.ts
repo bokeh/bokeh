@@ -23,7 +23,7 @@ type ActiveGestureToolsProps = {
   active_drag: p.Property<Drag | "auto" | null>
   active_scroll: p.Property<Scroll | "auto" | null>
   active_tap: p.Property<Tap | "auto" | null>
-  active_multi: p.Property<GestureTool | null>
+  active_multi: p.Property<GestureTool | "auto" | null>
 }
 
 type ActiveToolsProps = ActiveGestureToolsProps & {
@@ -38,51 +38,51 @@ export namespace Toolbar {
 
 export interface Toolbar extends Toolbar.Attrs {}
 
-const _get_active_attr = (et: string): keyof ActiveGestureToolsProps | null => {
+function _get_active_attr(et: string): keyof ActiveGestureToolsProps | null {
   switch (et) {
-    case 'tap': return 'active_tap'
-    case 'pan': return 'active_drag'
-    case 'pinch':
-    case 'scroll': return 'active_scroll'
-    case 'multi': return 'active_multi'
+    case "tap": return "active_tap"
+    case "pan": return "active_drag"
+    case "pinch":
+    case "scroll": return "active_scroll"
+    case "multi": return "active_multi"
   }
   return null
 }
 
-const _supports_auto = (et: string) => {
-  return et == 'tap' || et == 'pan'
+function _supports_auto(et: string): boolean {
+  return et == "tap" || et == "pan"
 }
 
 export class Toolbar extends ToolbarBase {
-  properties: Toolbar.Props
+  override properties: Toolbar.Props
 
   constructor(attrs?: Partial<Toolbar.Attrs>) {
     super(attrs)
   }
 
-  static init_Toolbar(): void {
+  static {
     this.prototype.default_view = ToolbarBaseView
 
-    this.define<Toolbar.Props>(({Or, Ref, Auto, Null, Nullable}) => ({
-      active_drag:     [ Or(Ref(Drag), Auto, Null), "auto" ],
-      active_inspect:  [ Or(Ref(Inspection), Auto, Null), "auto" ],
-      active_scroll:   [ Or(Ref(Scroll), Auto, Null), "auto" ],
-      active_tap:      [ Or(Ref(Tap), Auto, Null), "auto" ],
-      active_multi:    [ Nullable(Ref(GestureTool)), null ],
+    this.define<Toolbar.Props>(({Or, Ref, Auto, Null}) => ({
+      active_drag:    [ Or(Ref(Drag), Auto, Null), "auto" ],
+      active_inspect: [ Or(Ref(Inspection), Auto, Null), "auto" ],
+      active_scroll:  [ Or(Ref(Scroll), Auto, Null), "auto" ],
+      active_tap:     [ Or(Ref(Tap), Auto, Null), "auto" ],
+      active_multi:   [ Or(Ref(GestureTool), Auto, Null), "auto" ],
     }))
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     const {tools, active_drag, active_inspect, active_scroll, active_tap, active_multi} = this.properties
     this.on_change([tools, active_drag, active_inspect, active_scroll, active_tap, active_multi], () => this._init_tools())
   }
 
-  protected _init_tools(): void {
+  protected override _init_tools(): void {
     super._init_tools()
 
-    if (this.active_inspect == 'auto') {
+    if (this.active_inspect == "auto") {
       // do nothing as all tools are active be default
     } else if (this.active_inspect instanceof InspectTool) {
       let found = false
@@ -129,7 +129,7 @@ export class Toolbar extends ToolbarBase {
       const active_attr = _get_active_attr(et)
       if (active_attr) {
         const active_tool = this[active_attr]
-        if (active_tool == 'auto') {
+        if (active_tool == "auto") {
           if (gesture.tools.length != 0 && _supports_auto(et)) {
             _activate_gesture(gesture.tools[0])
           }

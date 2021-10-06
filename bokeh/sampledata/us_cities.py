@@ -4,13 +4,22 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+''' Locations of US cities with more than 5000 residents.
+
+This module contains one dict: ``data``.
+
+.. code-block:: python
+
+    data['lat']  # list of float
+    data['lon']  # list of float
 
 '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

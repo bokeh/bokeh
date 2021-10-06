@@ -28,13 +28,13 @@ export namespace ContinuousTicker {
 export interface ContinuousTicker extends ContinuousTicker.Attrs {}
 
 export abstract class ContinuousTicker extends Ticker {
-  properties: ContinuousTicker.Props
+  override properties: ContinuousTicker.Props
 
   constructor(attrs?: Partial<ContinuousTicker.Attrs>) {
     super(attrs)
   }
 
-  static init_ContinuousTicker(): void {
+  static {
     this.define<ContinuousTicker.Props>(({Int}) => ({
       num_minor_ticks:   [ Int, 5 ],
       desired_num_ticks: [ Int, 6 ],

@@ -96,6 +96,42 @@ describe("core/util/cloneable module", () => {
       expect(r2.k1).to.not.be.identical(v2.k1)
     })
 
+    it("that supports native Map objects", () => {
+      const v0 = new Map([[[1], ["a"]], [[1, 2], ["a", "b"]]])
+      const r0 = copy(v0)
+
+      // TODO: distinguish between ref-value and pure-value equality
+      // expect(r0).to.be.equal(v0)
+      expect(r0).to.not.be.identical(v0)
+
+      expect([...r0.keys()][0]).to.be.equal([...v0.keys()][0])
+      expect([...r0.keys()][1]).to.be.equal([...v0.keys()][1])
+
+      expect([...r0.keys()][0]).to.not.be.identical([...v0.keys()][0])
+      expect([...r0.keys()][1]).to.not.be.identical([...v0.keys()][1])
+
+      expect([...r0.values()][0]).to.be.equal([...v0.values()][0])
+      expect([...r0.values()][1]).to.be.equal([...v0.values()][1])
+
+      expect([...r0.values()][0]).to.not.be.identical([...v0.values()][0])
+      expect([...r0.values()][1]).to.not.be.identical([...v0.values()][1])
+    })
+
+    it("that supports native Set objects", () => {
+      const v0 = new Set([[1, 2], ["a", "b"]])
+      const r0 = copy(v0)
+
+      // TODO: distinguish between ref-value and pure-value equality
+      // expect(r0).to.be.equal(v0)
+      expect(r0).to.not.be.identical(v0)
+
+      expect([...r0][0]).to.be.equal([...v0][0])
+      expect([...r0][1]).to.be.equal([...v0][1])
+
+      expect([...r0][0]).to.not.be.identical([...v0][0])
+      expect([...r0][1]).to.not.be.identical([...v0][1])
+    })
+
     it("that supports objects implementing Cloneable interface", () => {
       class Some implements Cloneable, Equatable {
         constructor(readonly value: number[]) {}

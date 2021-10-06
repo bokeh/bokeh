@@ -11,15 +11,96 @@ Tile provider maps
 ------------------
 
 Bokeh is compatible with several XYZ tile services that use the Web Mercator projection.
-The module :ref:`bokeh.tile_providers` contains several pre-configured tile sources with appropriate attribution.
-To add these to a plot, use the method :func:`~bokeh.models.plots.Plot.add_tile`.
+Bokeh uses the `xyzservices`_ library to take care of the tile sources and their attributions.
+To add these to a plot, use the method :func:`~bokeh.models.plots.Plot.add_tile`. You can pass
+any name xyzservices may recognize. The ``retina`` keyword can control the resolution of tiles.
 
 .. bokeh-plot:: docs/user_guide/examples/geo_tile_source.py
     :source-position: below
 
+If you pass ``retina=True``, Bokeh will attempt to use the tiles in the 2x higher resolution
+than with default settings. However, this functionality needs to be supported by the tile provider.
+Otherwise, the keyword is ignored. Alternatively, you can include ``'retina'` as part of the tile
+provider name string, e.g. ``'CartoDB Positron retina'``, which will work as ``retina=True``.
+
 Notice that passing ``x_axis_type="mercator"`` and ``y_axis_type="mercator"``
 to ``figure`` generates axes with latitude and longitude labels, instead of raw Web
 Mercator coordinates.
+
+Alternatively, you can use any :class:`xyzservices.TileProvider`, either pre-defined in
+``xyzservices`` or a custom one.
+
+.. bokeh-plot:: docs/user_guide/examples/geo_xyzservices.py
+    :source-position: below
+
+The available built-in tile providers are listed in the `xyzservices`_ documentation or
+interactively as an ``xyzservices.providers`` module.
+
+Representative samples of the most common tile providers are shown below.
+
+CartoDB Positron
+~~~~~~~~~~~~~~~~
+
+Tile Source for CartoDB Tile Service
+
+.. raw:: html
+
+    <img src="https://tiles.basemaps.cartocdn.com/light_all/14/2627/6331.png" />
+
+Esri World Imagery
+~~~~~~~~~~~~~~~~~~
+
+Tile Source for ESRI public tiles.
+
+.. raw:: html
+
+    <img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6331/2627.jpg" />
+
+OSM
+~~~
+
+Tile Source for Open Street Map Mapnik.
+
+.. raw:: html
+
+    <img src="https://c.tile.openstreetmap.org/14/2627/6331.png" />
+
+Stamen Terrain
+~~~~~~~~~~~~~~
+
+Tile Source for Stamen Terrain Service
+
+.. raw:: html
+
+    <img src="https://stamen-tiles.a.ssl.fastly.net/terrain/14/2627/6331.png" />
+
+Stamen Toner
+~~~~~~~~~~~~
+
+Tile Source for Stamen Toner Service
+
+.. raw:: html
+
+    <img src="https://stamen-tiles.a.ssl.fastly.net/toner/14/2627/6331.png" />
+
+Stamen Toner Background
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Tile Source for Stamen Toner Background Service which does not include labels
+
+.. raw:: html
+
+    <img src="https://stamen-tiles.a.ssl.fastly.net/toner-background/14/2627/6331.png" />
+
+Stamen Toner Labels
+~~~~~~~~~~~~~~~~~~~
+
+Tile Source for Stamen Toner Service which includes only labels
+
+.. raw:: html
+
+    <img src="https://stamen-tiles.a.ssl.fastly.net/toner-labels/14/2627/6331.png" />
+
 
 .. _userguide_geo_google_maps:
 
@@ -68,3 +149,4 @@ Bokeh's ``GeoJSONDataSource`` can be used almost seamlessly in place of Bokeh's
 .. _github: https://github.com/bokeh/bokeh
 .. _Google API Key: https://developers.google.com/maps/documentation/javascript/get-api-key
 .. _Discourse: https://discourse.bokeh.org
+.. _xyzservices: https://xyzservices.readthedocs.org

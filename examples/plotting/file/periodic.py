@@ -1,9 +1,19 @@
-from bokeh.io import output_file, show
-from bokeh.plotting import figure
+''' A rendering of the `Periodic table`_. This example demonstrates combining
+several glyphs in a single plot. A hover tooltip displays detailed information
+for each element.
+
+.. bokeh-example-metadata::
+    :sampledata: periodic_table
+    :apis: bokeh.plotting.Figure.rect, bokeh.plotting.Figure.text, bokeh.transform.dodge, bokeh.transform.factor_cmap
+    :refs: :ref:`userguide_tools` > :ref:`userguide_tools_hover_tool`
+    :keywords: hover, tooltip
+
+.. _Periodic Table: https://en.wikipedia.org/wiki/Periodic_table
+
+'''
+from bokeh.plotting import figure, show
 from bokeh.sampledata.periodic_table import elements
 from bokeh.transform import dodge, factor_cmap
-
-output_file("periodic.html")
 
 periods = ["I", "II", "III", "IV", "V", "VI", "VII"]
 groups = [str(x) for x in range(1, 19)]
@@ -36,14 +46,14 @@ TOOLTIPS = [
     ("Electronic configuration", "@{electronic configuration}"),
 ]
 
-p = figure(title="Periodic Table (omitting LA and AC Series)", plot_width=1000, plot_height=450,
+p = figure(title="Periodic Table (omitting LA and AC Series)", width=1000, height=450,
            x_range=groups, y_range=list(reversed(periods)),
            tools="hover", toolbar_location=None, tooltips=TOOLTIPS)
 
 r = p.rect("group", "period", 0.95, 0.95, source=df, fill_alpha=0.6, legend_field="metal",
            color=factor_cmap('metal', palette=list(cmap.values()), factors=list(cmap.keys())))
 
-text_props = {"source": df, "text_align": "left", "text_baseline": "middle"}
+text_props = dict(source=df, text_align="left", text_baseline="middle")
 
 x = dodge("group", -0.4, range=p.x_range)
 

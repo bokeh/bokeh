@@ -4,7 +4,7 @@ First steps 2: Adding and customizing renderers
 ===============================================
 
 In the :ref:`previous first steps guide <first_steps_1>`, you used Bokeh's
-:func:`~bokeh.plotting.figure` function to render line charts.
+|figure| function to render line charts.
 
 In this section, you will use different renderer functions to create various
 other kinds of graphs. You will also customize what your glyphs look like.
@@ -17,7 +17,7 @@ glyphs, such as lines, bars, hex tiles, or other polygons.
 
 .. seealso::
    A full list of all supported glyph methods is available in Bokeh's reference
-   guide for the :func:`~bokeh.plotting.figure` function. For detailed
+   guide for the |figure| function. For detailed
    information on Bokeh's glyphs, see :ref:`userguide_plotting` in Bokeh's user
    guide.
 
@@ -81,14 +81,13 @@ define aspects like the color or diameter of the circles:
 * ``fill_alpha``: the transparency of the fill color (any value between ``0``
   and ``1``)
 * ``line_color``: the fill color of the circles' outlines
-* ``size``: the size of the circles (in
-  :ref:`screen space or data-space units<userguide_styling_units>`)
+* ``size``: the size of the circles (in |screen units| or |data units|)
 * ``legend_label``: legend entry for the circles
 
 In Bokeh, you can :ref:`specify colors <userguide_styling_colors>` in several
 ways. For example:
 
-* Use one of the named CSS colors (for example, ``"firebrick"``)
+* Use one of the |named CSS colors| (for example, ``"firebrick"``)
 * Use hexadecimal values, prefaced with a ``#`` (for example ``"#00ff00"``)
 * Use a 3-tuple for RGB colors (for example, ``(100, 100, 255)``
 * Use a 4-tuple for RGBA colors (for example ``(100, 100, 255, 0.5)``)
@@ -154,18 +153,5 @@ outputting the plot:
     in the user guide.
 
     Each type of glyph has different properties. Refer to
-    :func:`~bokeh.plotting.figure` in the reference guide to see all available
+    |figure| in the reference guide to see all available
     properties for each glyph method.
-
-.. panels::
-    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
-
-    .. link-button:: first_steps_1.html
-        :text: Previous
-        :classes: stretched-link
-
-    ---
-    :card: + text-right
-    .. link-button:: first_steps_3.html
-        :text: Next
-        :classes: stretched-link

@@ -3,7 +3,7 @@ import pandas as pd
 from bokeh.io import curdoc
 from bokeh.layouts import layout
 from bokeh.models import (Button, CategoricalColorMapper, ColumnDataSource,
-                          HoverTool, Label, SingleIntervalTicker, Slider,)
+                          HoverTool, Label, SingleIntervalTicker, Slider)
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
 
@@ -26,7 +26,7 @@ for year in years:
 
 source = ColumnDataSource(data=data[years[0]])
 
-plot = figure(x_range=(1, 9), y_range=(20, 100), title='Gapminder Data', plot_height=300)
+plot = figure(x_range=(1, 9), y_range=(20, 100), title='Gapminder Data', height=300)
 plot.xaxis.ticker = SingleIntervalTicker(interval=1)
 plot.xaxis.axis_label = "Children per woman (total fertility)"
 plot.yaxis.ticker = SingleIntervalTicker(interval=20)

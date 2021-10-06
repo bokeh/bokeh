@@ -120,19 +120,17 @@ CDP(async function(client) {
       const right = Math.ceil(Math.max(0, ...bounds.map((bbox) => bbox.right)))
       const bottom = Math.ceil(Math.max(0, ...bounds.map((bbox) => bbox.bottom)))
 
-      return {
-        x: 0,
-        y: 0,
-        width: Math.ceil(right + parseFloat(style.marginRight)),
-        height: Math.ceil(bottom + parseFloat(style.marginBottom)),
-        scale: 1,
-      }
+      const width = Math.ceil(right + parseFloat(style.marginRight ?? 0))
+      const height = Math.ceil(bottom + parseFloat(style.marginBottom ?? 0))
+
+      return {x: 0, y: 0, width, height, scale: 1}
     } else
       return undefined
   }
 
   async function get_image() {
-    return await Page.captureScreenshot({format: "png", clip: await get_bbox()})
+    const clip = await get_bbox()
+    return await Page.captureScreenshot({format: "png", clip})
   }
 
   async function finish(timeout, success) {

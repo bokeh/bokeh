@@ -10,8 +10,8 @@ def make_figure(output_backend):
 
     p = figure(y_axis_type="log",
                y_range=(0.001, 10**22),
-               plot_width=400,
-               plot_height=400,
+               width=400,
+               height=400,
                toolbar_location=None,
                output_backend=output_backend,
                title="Backend: %s" % output_backend)

@@ -12,6 +12,8 @@ in a specified Python module.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,10 +22,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import codecs
 import os
+from types import ModuleType
+from typing import List
 
 # Bokeh imports
+from ...core.types import PathLike
 from ...util.callback_manager import _check_callback
 from .code_runner import CodeRunner
 from .request_handler import RequestHandler
@@ -47,9 +51,13 @@ __all__ = (
 class ServerRequestHandler(RequestHandler):
     ''' Load a script which contains server request handler callbacks.
 
+    .. autoclasstoc::
+
     '''
 
-    def __init__(self, *args, **kwargs):
+    _module: ModuleType
+
+    def __init__(self, *, filename: PathLike, argv: List[str] = [], package: ModuleType | None = None) -> None:
         '''
 
         Keyword Args:
@@ -59,15 +67,10 @@ class ServerRequestHandler(RequestHandler):
                 ``sys.argv`` when the callback code is executed. (default: [])
 
         '''
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
-        if 'filename' not in kwargs:
-            raise ValueError('Must pass a filename to ServerRequestHandler')
-        filename = kwargs['filename']
-        argv = kwargs.get('argv', [])
-        package = kwargs.get('package', False)
-
-        source = codecs.open(filename, 'r', 'UTF-8').read()
+        with open(filename, 'r', encoding='utf-8') as f:
+            source = f.read()
 
         self._runner = CodeRunner(source, filename, argv, package=package)
 
@@ -75,7 +78,7 @@ class ServerRequestHandler(RequestHandler):
             # unlike ScriptHandler, we only load the module one time
             self._module = self._runner.new_module()
 
-            def extract_callbacks():
+            def extract_callbacks() -> None:
                 contents = self._module.__dict__
                 if 'process_request' in contents:
                     self._process_request = contents['process_request']
@@ -87,21 +90,21 @@ class ServerRequestHandler(RequestHandler):
     # Properties --------------------------------------------------------------
 
     @property
-    def error(self):
+    def error(self) -> str | None:
         ''' If the handler fails, may contain a related error message.
 
         '''
         return self._runner.error
 
     @property
-    def error_detail(self):
+    def error_detail(self) -> str | None:
         ''' If the handler fails, may contain a traceback or other details.
 
         '''
         return self._runner.error_detail
 
     @property
-    def failed(self):
+    def failed(self) -> bool:
         ''' ``True`` if the request handler callbacks failed to execute
 
         '''
@@ -109,7 +112,7 @@ class ServerRequestHandler(RequestHandler):
 
     # Public methods ----------------------------------------------------------
 
-    def url_path(self):
+    def url_path(self) -> str | None:
         ''' The last path component for the basename of the path to the
         callback module.
 

@@ -8,6 +8,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -30,10 +31,7 @@ from django.urls.resolvers import URLPattern
 from bokeh.application import Application
 from bokeh.application.handlers.document_lifecycle import DocumentLifecycleHandler
 from bokeh.application.handlers.function import FunctionHandler
-from bokeh.command.util import (
-    build_single_handler_application,
-    build_single_handler_applications,
-)
+from bokeh.command.util import build_single_handler_application, build_single_handler_applications
 from bokeh.server.contexts import ApplicationContext
 
 # Bokeh imports
@@ -102,7 +100,7 @@ class RoutingConfiguration:
     _http_urlpatterns: List[str] = []
     _websocket_urlpatterns: List[str] = []
 
-    def __init__(self, routings: List[Routing]):
+    def __init__(self, routings: List[Routing]) -> None:
         for routing in routings:
             self._add_new_routing(routing)
 

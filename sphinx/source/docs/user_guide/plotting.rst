@@ -74,10 +74,9 @@ on the corresponding glyph method in the following list:
     * |y|
 
 All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
-:ref:`screen units <userguide_styling_units>`), and ``angle`` (in radians by
-default). The |circle| marker is an exception: this method accepts an additional
-``radius`` property that you can use with
-:ref:`data-space units <userguide_styling_units>`.
+|screen units|), and ``angle`` (in radians by default). The |circle| marker is
+an exception: this method accepts an additional ``radius`` property that you can
+use with |data units|.
 
 .. _userguide_plotting_line_glyphs:
 
@@ -106,6 +105,8 @@ glyph method.
 
 Adjust the ``mode`` parameter to draw step levels with the x-coordinates
 before, after, or in the middle of each step.
+
+.. _userguide_plotting_line_glyphs_multi:
 
 Multiple lines
 ''''''''''''''
@@ -143,12 +144,12 @@ and |hline_stack| convenience methods.
 .. bokeh-plot:: docs/user_guide/examples/plotting_vline_stack.py
     :source-position: above
 
-.. _userguide_plotting_bars_rects:
-
 .. note::
-    These and other convenience methods in this chapter rely on
-    ``ColumnDataSource`` for data structuring. For information on how to work
-    with this data structure, see :ref:`userguide_data`.
+    This and other examples in this chapter rely on ```ColumnDataSource`` for
+    data structuring. For information on how to work with this data structure,
+    see :ref:`userguide_data`.
+
+.. _userguide_plotting_bars_rects:
 
 Bars and rectangles
 ~~~~~~~~~~~~~~~~~~~
@@ -197,7 +198,7 @@ To draw arbitrary rectangles by specifying center coordinates, ``width``,
 .. bokeh-plot:: docs/user_guide/examples/plotting_rectangles_rotated.py
     :source-position: above
 
-.. userguide_plotting_hex
+.. _userguide_plotting_hex:
 
 Hex tiles
 ~~~~~~~~~
@@ -408,18 +409,17 @@ Segments and rays
 To draw multiple individual line segments use the |segment| and |ray| glyph
 methods.
 
-The |segment| method accepts start points ``x0`` and ``y0`` and end points
-``x1`` and ``y1`` and renders segments between them.
+The |segment| method accepts the starting points ``x0`` and ``y0`` and end
+points ``x1`` and ``y1``. It renders segments between those points.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_segments.py
     :source-position: above
 
-The |ray| method accepts start points ``x`` and ``y`` with a ``length``
-(in :ref:`screen units <userguide_styling_units>`) and an ``angle``. The
-``angle_units`` parameter defaults to ``"rad"`` but can you can also set it to
-``"deg"`` to have the angle measured in degrees instead of radians. To have an
-"infinite" ray that always extends to the edge of the plot, set ``length`` to
-``0``.
+The |ray| method accepts the starting points ``x`` and ``y`` with a ``length``
+(in |screen units|) and an ``angle``. The ``angle_units`` parameter defaults to
+``"rad"`` but you can also set it to ``"deg"`` to have the angle measured in
+degrees instead of radians. To have an "infinite" ray that always extends to the
+edge of the plot, set ``length`` to ``0``.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_ray.py
     :source-position: above
@@ -593,11 +593,6 @@ adding new glyph methods as well as when adding new axis objects with the
 
 .. _axial coordinates: https://www.redblobgames.com/grids/hexagons/#coordinates-axial
 
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-.. |Figure| replace:: :class:`~bokeh.plotting.Figure`
-.. |figure| replace:: :func:`~bokeh.plotting.figure`
-.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
-
 .. |annular_wedge|     replace:: :func:`~bokeh.plotting.Figure.annular_wedge`
 .. |annulus|           replace:: :func:`~bokeh.plotting.Figure.annulus`
 .. |arc|               replace:: :func:`~bokeh.plotting.Figure.arc`
@@ -617,7 +612,6 @@ adding new glyph methods as well as when adding new axis objects with the
 .. |ellipse|           replace:: :func:`~bokeh.plotting.Figure.ellipse`
 .. |harea|             replace:: :func:`~bokeh.plotting.Figure.harea`
 .. |harea_stack|       replace:: :func:`~bokeh.plotting.Figure.harea_stack`
-.. |hbar|              replace:: :func:`~bokeh.plotting.Figure.hbar`
 .. |hbar_stack|        replace:: :func:`~bokeh.plotting.Figure.hbar_stack`
 .. |hex|               replace:: :func:`~bokeh.plotting.Figure.hex`
 .. |hex_dot|           replace:: :func:`~bokeh.plotting.Figure.hex_dot`
@@ -650,7 +644,6 @@ adding new glyph methods as well as when adding new axis objects with the
 .. |triangle_pin|      replace:: :func:`~bokeh.plotting.Figure.triangle_pin`
 .. |varea|             replace:: :func:`~bokeh.plotting.Figure.varea`
 .. |varea_stack|       replace:: :func:`~bokeh.plotting.Figure.varea_stack`
-.. |vbar|              replace:: :func:`~bokeh.plotting.Figure.vbar`
 .. |vbar_stack|        replace:: :func:`~bokeh.plotting.Figure.vbar_stack`
 .. |vline_stack|       replace:: :func:`~bokeh.plotting.Figure.vline_stack`
 .. |wedge|             replace:: :func:`~bokeh.plotting.Figure.wedge`

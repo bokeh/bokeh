@@ -11,7 +11,7 @@ sizes = np.linspace(10, 20, N)
 source = ColumnDataSource(dict(x=x, y=y, sizes=sizes))
 
 plot = Plot(
-    title=None, plot_width=300, plot_height=300,
+    title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 
 glyph = Circle(x="x", y="y", size="sizes", line_color="#3288bd", fill_color="white", line_width=3)

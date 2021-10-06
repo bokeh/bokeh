@@ -20,20 +20,20 @@ export namespace CustomJSExpr {
 export interface CustomJSExpr extends CustomJSExpr.Attrs {}
 
 export class CustomJSExpr extends Expression {
-  properties: CustomJSExpr.Props
+  override properties: CustomJSExpr.Props
 
   constructor(attrs?: Partial<CustomJSExpr.Attrs>) {
     super(attrs)
   }
 
-  static init_CustomJSExpr(): void {
+  static {
     this.define<CustomJSExpr.Props>(({Unknown, String, Dict}) => ({
       args: [ Dict(Unknown), {} ],
       code: [ String, "" ],
     }))
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     for (const value of values(this.args)) {
       if (value instanceof HasProps) {

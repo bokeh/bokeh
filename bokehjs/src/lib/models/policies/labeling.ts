@@ -16,7 +16,7 @@ export namespace LabelingPolicy {
 export interface LabelingPolicy extends LabelingPolicy.Attrs {}
 
 export abstract class LabelingPolicy extends Model {
-  properties: LabelingPolicy.Props
+  override properties: LabelingPolicy.Props
 
   constructor(attrs?: Partial<LabelingPolicy.Attrs>) {
     super(attrs)
@@ -33,7 +33,7 @@ export namespace AllLabels {
 export interface AllLabels extends AllLabels.Attrs {}
 
 export class AllLabels extends LabelingPolicy {
-  properties: AllLabels.Props
+  override properties: AllLabels.Props
 
   constructor(attrs?: Partial<AllLabels.Attrs>) {
     super(attrs)
@@ -54,13 +54,13 @@ export namespace NoOverlap {
 export interface NoOverlap extends NoOverlap.Attrs {}
 
 export class NoOverlap extends LabelingPolicy {
-  properties: NoOverlap.Props
+  override properties: NoOverlap.Props
 
   constructor(attrs?: Partial<NoOverlap.Attrs>) {
     super(attrs)
   }
 
-  static init_NoOverlap(): void {
+  static {
     this.define<NoOverlap.Props>(({Number}) => ({
       min_distance: [ Number, 5 ],
     }))
@@ -91,13 +91,13 @@ export namespace CustomLabelingPolicy {
 export interface CustomLabelingPolicy extends CustomLabelingPolicy.Attrs {}
 
 export class CustomLabelingPolicy extends LabelingPolicy {
-  properties: CustomLabelingPolicy.Props
+  override properties: CustomLabelingPolicy.Props
 
   constructor(attrs?: Partial<CustomLabelingPolicy.Attrs>) {
     super(attrs)
   }
 
-  static init_CustomLabelingPolicy(): void {
+  static {
     this.define<CustomLabelingPolicy.Props>(({Unknown, String, Dict}) => ({
       args: [ Dict(Unknown), {} ],
       code: [ String, "" ],

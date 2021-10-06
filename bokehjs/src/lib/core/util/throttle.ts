@@ -21,7 +21,7 @@ export function throttle(func: () => void, wait: number): () => Promise<void> {
         try {
           func()
           resolve()
-        } catch (error: unknown) {
+        } catch (error) {
           reject(error)
         }
       }

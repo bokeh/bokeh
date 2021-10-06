@@ -13,13 +13,13 @@ export namespace DataSource {
 export interface DataSource extends DataSource.Attrs {}
 
 export abstract class DataSource extends Model {
-  properties: DataSource.Props
+  override properties: DataSource.Props
 
   constructor(attrs?: Partial<DataSource.Attrs>) {
     super(attrs)
   }
 
-  static init_DataSource(): void {
+  static {
     this.define<DataSource.Props>(({Ref}) => ({
       selected: [ Ref(Selection), () => new Selection() ],
     }))

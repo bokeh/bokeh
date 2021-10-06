@@ -20,7 +20,7 @@ calls it with the rendered model.
     return new Date();
   }
 
-  var force = {{ force|default(False)|json }};
+  const force = {{ force|default(False)|tojson }};
 
   if (typeof root._bokeh_onload_callbacks === "undefined" || force === true) {
     root._bokeh_onload_callbacks = [];
@@ -32,7 +32,7 @@ calls it with the rendered model.
 
   {% block autoload_init %}
     {%- if elementid -%}
-    var element = document.getElementById({{ elementid|json }});
+    const element = document.getElementById({{ elementid|tojson }});
     if (element == null) {
       console.warn("Bokeh: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found.")
     }
@@ -91,8 +91,6 @@ calls it with the rendered model.
       document.body.appendChild(element);
     }
 
-    const hashes = {{ bundle.hashes|json }};
-
     for (let i = 0; i < js_urls.length; i++) {
       const url = js_urls[i];
       const element = document.createElement('script');
@@ -100,10 +98,6 @@ calls it with the rendered model.
       element.onerror = on_error.bind(null, url);
       element.async = false;
       element.src = url;
-      if (url in hashes) {
-        element.crossOrigin = "anonymous";
-        element.integrity = "sha384-" + hashes[url];
-      }
       console.debug("Bokeh: injecting script tag for BokehJS library: ", url);
       document.head.appendChild(element);
     }
@@ -116,17 +110,17 @@ calls it with the rendered model.
   }
 
   {% if bundle %}
-  var js_urls = {{ bundle.js_urls|json }};
-  var css_urls = {{ bundle.css_urls|json }};
+  const js_urls = {{ bundle.js_urls|tojson }};
+  const css_urls = {{ bundle.css_urls|tojson }};
   {% else %}
-  var js_urls = {{ js_urls|json }};
-  var css_urls = {{ css_urls|json }};
+  const js_urls = {{ js_urls|tojson }};
+  const css_urls = {{ css_urls|tojson }};
   {% endif %}
 
-  var inline_js = [
+  const inline_js = [
     {%- for css in (bundle.css_raw if bundle else css_raw) %}
     function(Bokeh) {
-      inject_raw_css({{ css|json }});
+      inject_raw_css({{ css|tojson }});
     },
     {%- endfor %}
     {%- for js in (bundle.js_raw if bundle else js_raw) %}
@@ -142,7 +136,7 @@ calls it with the rendered model.
 
   function run_inline_js() {
     {% block run_inline_js %}
-    for (var i = 0; i < inline_js.length; i++) {
+    for (let i = 0; i < inline_js.length; i++) {
       inline_js[i].call(root, root.Bokeh);
     }
     {% endblock %}

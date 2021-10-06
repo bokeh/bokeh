@@ -9,6 +9,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -16,18 +18,18 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
 from subprocess import PIPE, Popen
-from sys import executable
+from sys import executable as python
+from typing import Sequence
 
 # Bokeh imports
-from . import TOP_PATH
+from bokeh._testing.util.project import ls_modules
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
-skiplist = {}
+SKIP: Sequence[str] = []
 
 def test_python_execution_with_OO() -> None:
     ''' Running python with -OO will discard docstrings (__doc__ is None)
@@ -38,35 +40,10 @@ def test_python_execution_with_OO() -> None:
     If you encounter a new problem with docstrings being formatted, try
     using format_docstring.
     '''
-    os.chdir(TOP_PATH)
+    imports = [f"import {mod}" for mod in ls_modules(skip_prefixes=SKIP)]
 
-    imports = []
-    for path, _, files in os.walk("bokeh"):
-        if "tests" in path:
-            continue
-
-        for file in files:
-            if not file.endswith(".py"):
-                continue
-            if file.endswith("__main__.py"):
-                continue
-
-            if file.endswith("__init__.py"):
-                mod = path.replace(os.sep, ".")
-            else:
-                mod = path.replace(os.sep, ".") + "." + file[:-3]
-
-            if mod in skiplist:
-                continue
-
-            imports.append("import " + mod)
-
-    test_env = os.environ.copy()
-    test_env['BOKEH_DOCS_MISSING_API_KEY_OK'] = 'yes'
-
-    proc = Popen([executable, "-OO", "-"], stdout=PIPE, stdin=PIPE, env=test_env)
+    proc = Popen([python, "-OO", "-"], stdout=PIPE, stdin=PIPE)
     proc.communicate("\n".join(imports).encode("utf-8"))
     proc.wait()
 
-    if proc.returncode != 0:
-        assert False
+    assert proc.returncode == 0, "Execution with -OO failed"

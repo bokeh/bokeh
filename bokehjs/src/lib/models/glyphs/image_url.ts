@@ -14,6 +14,8 @@ export type ImageURLData = XYGlyphData & {
   readonly angle: p.Uniform<number>
   readonly w: p.Uniform<number>
   readonly h: p.Uniform<number>
+  readonly global_alpha: p.Uniform<number>
+
   _bounds_rect: Rect
 
   sw: ScreenArray
@@ -28,17 +30,17 @@ export type ImageURLData = XYGlyphData & {
 export interface ImageURLView extends ImageURLData {}
 
 export class ImageURLView extends XYGlyphView {
-  model: ImageURL
-  visuals: ImageURL.Visuals
+  override model: ImageURL
+  override visuals: ImageURL.Visuals
 
   protected _images_rendered = false
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
   }
 
-  protected _index_data(index: SpatialIndex): void {
+  protected override _index_data(index: SpatialIndex): void {
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
@@ -49,7 +51,7 @@ export class ImageURLView extends XYGlyphView {
 
   private _set_data_iteration: number = 0
 
-  protected _set_data(): void {
+  protected override _set_data(): void {
     // TODO: cache by url, to reuse images between iterations
     this._set_data_iteration++
 
@@ -151,11 +153,11 @@ export class ImageURLView extends XYGlyphView {
     this._bounds_rect = {x0, x1, y0, y1}
   }
 
-  has_finished(): boolean {
+  override has_finished(): boolean {
     return super.has_finished() && this._images_rendered == true
   }
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     if (this.model.properties.w.units == "data")
       this.sw = this.sdist(this.renderer.xscale, this._x, this.w, "edge", this.model.dilate)
     else
@@ -168,10 +170,11 @@ export class ImageURLView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: ImageURLData): void {
-    const {image, sx, sy, sw, sh, angle} = data ?? this
+    const {image, sx, sy, sw, sh, angle, global_alpha} = data ?? this
 
     // TODO (bev): take actual border width into account when clipping
     const {frame} = this.renderer.plot_view
+    ctx.beginPath()
     ctx.rect(
       frame.bbox.left+1, frame.bbox.top+1,
       frame.bbox.width-2, frame.bbox.height-2,
@@ -181,7 +184,7 @@ export class ImageURLView extends XYGlyphView {
     let finished = true
 
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + angle.get(i)))
+      if (!isFinite(sx[i] + sy[i] + angle.get(i) + global_alpha.get(i)))
         continue
 
       const img = image[i]
@@ -191,7 +194,7 @@ export class ImageURLView extends XYGlyphView {
         continue
       }
 
-      this._render_image(ctx, i, img, sx, sy, sw, sh, angle)
+      this._render_image(ctx, i, img, sx, sy, sw, sh, angle, global_alpha)
     }
 
     if (finished && !this._images_rendered) {
@@ -202,29 +205,29 @@ export class ImageURLView extends XYGlyphView {
 
   protected _final_sx_sy(anchor: Anchor, sx: number, sy: number, sw: number, sh: number): [number, number] {
     switch (anchor) {
-      case 'top_left':      return [sx, sy         ]
-      case 'top':
-      case 'top_center':    return [sx - (sw/2), sy         ]
-      case 'top_right':     return [sx - sw, sy         ]
-      case 'right':
-      case 'center_right':  return [sx - sw, sy - (sh/2)]
-      case 'bottom_right':  return [sx - sw, sy - sh    ]
-      case 'bottom':
-      case 'bottom_center': return [sx - (sw/2), sy - sh    ]
-      case 'bottom_left':   return [sx, sy - sh    ]
-      case 'left':
-      case 'center_left':   return [sx, sy - (sh/2)]
-      case 'center':
-      case 'center_center': return [sx - (sw/2), sy - (sh/2)]
+      case "top_left":      return [sx, sy         ]
+      case "top":
+      case "top_center":    return [sx - (sw/2), sy         ]
+      case "top_right":     return [sx - sw, sy         ]
+      case "right":
+      case "center_right":  return [sx - sw, sy - (sh/2)]
+      case "bottom_right":  return [sx - sw, sy - sh    ]
+      case "bottom":
+      case "bottom_center": return [sx - (sw/2), sy - sh    ]
+      case "bottom_left":   return [sx, sy - sh    ]
+      case "left":
+      case "center_left":   return [sx, sy - (sh/2)]
+      case "center":
+      case "center_center": return [sx - (sw/2), sy - (sh/2)]
     }
   }
 
   protected _render_image(ctx: Context2d, i: number, image: CanvasImage,
                           sx: Arrayable<number>, sy: Arrayable<number>,
                           sw: Arrayable<number>, sh: Arrayable<number>,
-                          angle: p.Uniform<number>): void {
-    if (isNaN(sw[i])) sw[i] = image.width
-    if (isNaN(sh[i])) sh[i] = image.height
+                          angle: p.Uniform<number>, alpha: p.Uniform<number>): void {
+    if (!isFinite(sw[i])) sw[i] = image.width
+    if (!isFinite(sh[i])) sh[i] = image.height
 
     const sw_i = sw[i]
     const sh_i = sh[i]
@@ -233,9 +236,10 @@ export class ImageURLView extends XYGlyphView {
     const [sx_i, sy_i] = this._final_sx_sy(anchor, sx[i], sy[i], sw_i, sh_i)
 
     const angle_i = angle.get(i)
+    const alpha_i = alpha.get(i)
 
     ctx.save()
-    ctx.globalAlpha = this.model.global_alpha
+    ctx.globalAlpha = alpha_i
     const sw2 = sw_i/2
     const sh2 = sh_i/2
 
@@ -260,7 +264,7 @@ export class ImageURLView extends XYGlyphView {
     ctx.restore()
   }
 
-  bounds(): Rect {
+  override bounds(): Rect {
     return this._bounds_rect
   }
 }
@@ -271,7 +275,7 @@ export namespace ImageURL {
   export type Props = XYGlyph.Props & {
     url: p.StringSpec
     anchor: p.Property<Anchor>
-    global_alpha: p.Property<number>
+    global_alpha: p.NumberSpec
     angle: p.AngleSpec
     w: p.NullDistanceSpec
     h: p.NullDistanceSpec
@@ -286,20 +290,20 @@ export namespace ImageURL {
 export interface ImageURL extends ImageURL.Attrs {}
 
 export class ImageURL extends XYGlyph {
-  properties: ImageURL.Props
-  __view_type__: ImageURLView
+  override properties: ImageURL.Props
+  override __view_type__: ImageURLView
 
   constructor(attrs?: Partial<ImageURL.Attrs>) {
     super(attrs)
   }
 
-  static init_ImageURL(): void {
+  static {
     this.prototype.default_view = ImageURLView
 
-    this.define<ImageURL.Props>(({Boolean, Int, Alpha}) => ({
+    this.define<ImageURL.Props>(({Boolean, Int}) => ({
       url:            [ p.StringSpec, {field: "url"} ],
       anchor:         [ Anchor, "top_left" ],
-      global_alpha:   [ Alpha, 1.0 ],
+      global_alpha:   [ p.NumberSpec, {value: 1.0} ],
       angle:          [ p.AngleSpec, 0 ],
       w:              [ p.NullDistanceSpec, null ],
       h:              [ p.NullDistanceSpec, null ],

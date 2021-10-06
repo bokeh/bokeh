@@ -206,7 +206,7 @@ export class SideLayout extends ContentLayoutable {
       return new Sizeable({width: height, height: width})
   }
 
-  has_size_changed(): boolean {
+  override has_size_changed(): boolean {
     const {width, height} = this._content_size()
     if (this.panel.is_horizontal)
       return this.bbox.height != height

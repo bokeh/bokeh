@@ -22,10 +22,10 @@ export type WedgeData = XYGlyphData & p.UniformsOf<Wedge.Mixins> & {
 export interface WedgeView extends WedgeData {}
 
 export class WedgeView extends XYGlyphView {
-  model: Wedge
-  visuals: Wedge.Visuals
+  override model: Wedge
+  override visuals: Wedge.Visuals
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     if (this.model.properties.radius.units == "data")
       this.sradius = this.sdist(this.renderer.xscale, this._x, this.radius)
     else
@@ -43,7 +43,7 @@ export class WedgeView extends XYGlyphView {
       const start_angle_i = start_angle.get(i)
       const end_angle_i = end_angle.get(i)
 
-      if (isNaN(sx_i + sy_i + sradius_i + start_angle_i + end_angle_i))
+      if (!isFinite(sx_i + sy_i + sradius_i + start_angle_i + end_angle_i))
         continue
 
       ctx.beginPath()
@@ -51,24 +51,13 @@ export class WedgeView extends XYGlyphView {
       ctx.lineTo(sx_i, sy_i)
       ctx.closePath()
 
-      if (this.visuals.fill.doit) {
-        this.visuals.fill.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.hatch.doit) {
-        this.visuals.hatch.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.line.doit) {
-        this.visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
-      }
+      this.visuals.fill.apply(ctx, i)
+      this.visuals.hatch.apply(ctx, i)
+      this.visuals.line.apply(ctx, i)
     }
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     let dist, sx0, sx1, sy0, sy1, x0, x1, y0, y1
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
@@ -118,11 +107,11 @@ export class WedgeView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 
-  scenterxy(i: number): [number, number] {
+  override scenterxy(i: number): [number, number] {
     const r = this.sradius[i] / 2
     const a = (this.start_angle.get(i) + this.end_angle.get(i)) / 2
     const scx = this.sx[i] + r*Math.cos(a)
@@ -149,14 +138,14 @@ export namespace Wedge {
 export interface Wedge extends Wedge.Attrs {}
 
 export class Wedge extends XYGlyph {
-  properties: Wedge.Props
-  __view_type__: WedgeView
+  override properties: Wedge.Props
+  override __view_type__: WedgeView
 
   constructor(attrs?: Partial<Wedge.Attrs>) {
     super(attrs)
   }
 
-  static init_Wedge(): void {
+  static {
     this.prototype.default_view = WedgeView
 
     this.mixins<Wedge.Mixins>([LineVector, FillVector, HatchVector])

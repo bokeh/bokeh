@@ -7,8 +7,10 @@ import {OutputBackend} from "core/enums"
 import {extend} from "core/util/object"
 import {UIEventBus} from "core/ui_events"
 import {BBox} from "core/util/bbox"
+import {load_module} from "core/util/modules"
 import {Context2d, CanvasLayer} from "core/util/canvas"
 import {PlotView} from "../plots/plot"
+import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
 
 export type FrameBox = [number, number, number, number]
 
@@ -25,22 +27,43 @@ export type FrameBox = [number, number, number, number]
 
 export type WebGLState = {
   readonly canvas: HTMLCanvasElement
-  readonly gl: WebGLRenderingContext
+  readonly regl_wrapper: ReglWrapper
 }
 
-const global_webgl: WebGLState | undefined = (() => {
+async function init_webgl(): Promise<WebGLState | null> {
   // We use a global invisible canvas and gl context. By having a global context,
   // we avoid the limitation of max 16 contexts that most browsers have.
   const canvas = document.createElement("canvas")
   const gl = canvas.getContext("webgl", {premultipliedAlpha: true})
 
-  // If WebGL is available, we store a reference to the gl canvas on
+  // If WebGL is available, we store a reference to the ReGL wrapper on
   // the ctx object, because that's what gets passed everywhere.
-  if (gl != null)
-    return {canvas, gl}
-  else {
+  if (gl != null) {
+    const webgl = await load_module(import("../glyphs/webgl"))
+    if (webgl != null) {
+      const regl_wrapper = webgl.get_regl(gl)
+      if (regl_wrapper.has_webgl) {
+        return {canvas, regl_wrapper}
+      } else {
+        logger.trace("WebGL is supported, but not the required extensions")
+      }
+    } else {
+      logger.trace("WebGL is supported, but bokehjs(.min).js bundle is not available")
+    }
+  } else {
     logger.trace("WebGL is not supported")
-    return undefined
+  }
+
+  return null
+}
+
+const global_webgl: () => Promise<WebGLState | null> = (() => {
+  let _global_webgl: WebGLState | null | undefined
+  return async () => {
+    if (_global_webgl !== undefined)
+      return _global_webgl
+    else
+      return _global_webgl = await init_webgl()
   }
 })()
 
@@ -53,11 +76,12 @@ const style = {
 }
 
 export class CanvasView extends DOMView {
-  model: Canvas
+  override model: Canvas
+  override el: HTMLElement
 
   bbox: BBox = new BBox()
 
-  webgl?: WebGLState
+  webgl: WebGLState | null = null
 
   underlays_el: HTMLElement
   primary: CanvasLayer
@@ -67,12 +91,8 @@ export class CanvasView extends DOMView {
 
   ui_event_bus: UIEventBus
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
-
-    if (this.model.output_backend == "webgl") {
-      this.webgl = global_webgl
-    }
 
     this.underlays_el = div({style})
     this.primary = this.create_layer()
@@ -94,7 +114,15 @@ export class CanvasView extends DOMView {
     this.ui_event_bus = new UIEventBus(this)
   }
 
-  remove(): void {
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    if (this.model.output_backend == "webgl") {
+      this.webgl = await global_webgl()
+    }
+  }
+
+  override remove(): void {
     this.ui_event_bus.destroy()
     super.remove()
   }
@@ -130,18 +158,12 @@ export class CanvasView extends DOMView {
       const {width, height} = this.bbox
       webgl.canvas.width = this.pixel_ratio*width
       webgl.canvas.height = this.pixel_ratio*height
-      const {gl} = webgl
-      // Clipping
-      gl.enable(gl.SCISSOR_TEST)
       const [sx, sy, w, h] = frame_box
       const {xview, yview} = this.bbox
       const vx = xview.compute(sx)
       const vy = yview.compute(sy + h)
       const ratio = this.pixel_ratio
-      gl.scissor(ratio*vx, ratio*vy, ratio*w, ratio*h) // lower left corner, width, height
-      // Setup blending
-      gl.enable(gl.BLEND)
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)   // premultipliedAlpha == true
+      webgl.regl_wrapper.set_scissor(ratio*vx, ratio*vy, ratio*w, ratio*h)
       this._clear_webgl()
     }
   }
@@ -153,7 +175,7 @@ export class CanvasView extends DOMView {
       // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
       // to remove the hidpi transform, then blit, then restore.
       // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
-      logger.debug('Blitting WebGL canvas')
+      logger.debug("Blitting WebGL canvas")
       ctx.restore()
       ctx.drawImage(webgl.canvas, 0, 0)
       // Set back hidpi transform
@@ -171,10 +193,8 @@ export class CanvasView extends DOMView {
     const {webgl} = this
     if (webgl != null) {
       // Prepare GL for drawing
-      const {gl, canvas} = webgl
-      gl.viewport(0, 0, canvas.width, canvas.height)
-      gl.clearColor(0, 0, 0, 0)
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+      const {regl_wrapper, canvas} = webgl
+      regl_wrapper.clear(canvas.width, canvas.height)
     }
   }
 
@@ -216,14 +236,14 @@ export namespace Canvas {
 export interface Canvas extends Canvas.Attrs {}
 
 export class Canvas extends HasProps {
-  properties: Canvas.Props
-  __view_type__: CanvasView
+  override properties: Canvas.Props
+  override __view_type__: CanvasView
 
   constructor(attrs?: Partial<Canvas.Attrs>) {
     super(attrs)
   }
 
-  static init_Canvas(): void {
+  static {
     this.prototype.default_view = CanvasView
 
     this.internal<Canvas.Props>(({Boolean}) => ({

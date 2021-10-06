@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -38,7 +40,7 @@ ALL = (
 )
 
 @pytest.fixture
-def null_auth():
+def null_auth() -> bsa.NullAuth:
     return bsa.NullAuth()
 
 #-----------------------------------------------------------------------------
@@ -48,33 +50,33 @@ def null_auth():
 Test___all__ = verify_all(bsa, ALL)
 
 class TestNullAuth:
-    def test_endpoints(self, null_auth) -> None:
+    def test_endpoints(self, null_auth: bsa.NullAuth) -> None:
         assert null_auth.endpoints == []
 
-    def test_get_user(self, null_auth) -> None:
+    def test_get_user(self, null_auth: bsa.NullAuth) -> None:
         assert null_auth.get_user == None
 
-    async def test_get_user_async(self, null_auth) -> None:
+    async def test_get_user_async(self, null_auth: bsa.NullAuth) -> None:
         assert null_auth.get_user_async == None
 
-    def test_login_url(self, null_auth) -> None:
+    def test_login_url(self, null_auth: bsa.NullAuth) -> None:
         assert null_auth.login_url == None
 
-    def test_get_login_url(self, null_auth) -> None:
+    def test_get_login_url(self, null_auth: bsa.NullAuth) -> None:
         assert null_auth.get_login_url == None
 
-    def test_login_handler(self, null_auth) -> None:
+    def test_login_handler(self, null_auth: bsa.NullAuth) -> None:
         assert null_auth.login_handler == None
 
-    def test_logout_url(self, null_auth) -> None:
+    def test_logout_url(self, null_auth: bsa.NullAuth) -> None:
         assert null_auth.logout_url == None
 
-    def test_logout_handler(self, null_auth) -> None:
+    def test_logout_handler(self, null_auth: bsa.NullAuth) -> None:
         assert null_auth.logout_handler == None
 
 class TestAuthModule_properties:
     def test_no_endpoints(self) -> None:
-        def func(filename):
+        def func(filename: str):
             am = bsa.AuthModule(filename)
             assert am.endpoints == []
 
@@ -89,7 +91,7 @@ login_url = "/foo"
         """, func, suffix='.py')
 
     def test_login_url_endpoint(self) -> None:
-        def func(filename):
+        def func(filename: str):
             am = bsa.AuthModule(filename)
             assert am.endpoints[0][0] == '/foo'
             assert issubclass(am.endpoints[0][1], RequestHandler)
@@ -101,7 +103,7 @@ class LoginHandler(RequestHandler): pass
         """, func, suffix='.py')
 
     def test_logout_url_endpoint(self) -> None:
-        def func(filename):
+        def func(filename: str):
             am = bsa.AuthModule(filename)
             assert am.endpoints[0][0] == '/bar'
             assert issubclass(am.endpoints[0][1], RequestHandler)
@@ -114,7 +116,7 @@ class LogoutHandler(RequestHandler): pass
         """, func, suffix='.py')
 
     def test_login_logout_url_endpoint(self) -> None:
-        def func(filename):
+        def func(filename: str):
             am = bsa.AuthModule(filename)
             endpoints = sorted(am.endpoints)
             assert endpoints[0][0] == '/bar'
@@ -132,7 +134,7 @@ class LogoutHandler(RequestHandler): pass
         """, func, suffix='.py')
 
     def test_get_user(self) -> None:
-        def func(filename):
+        def func(filename: str):
             am = bsa.AuthModule(filename)
             assert am.get_user is not None
             assert am.get_user('handler') == 10
@@ -143,7 +145,7 @@ login_url = "/foo"
         """, func, suffix='.py')
 
     async def test_get_user_async(self) -> None:
-        async def func(filename):
+        async def func(filename: str):
             am = bsa.AuthModule(filename)
             assert am.get_user_async is not None
             assert await am.get_user_async('handler') == 10
@@ -155,7 +157,7 @@ login_url = "/foo"
 
 
     def test_login_url(self) -> None:
-        def func(filename):
+        def func(filename: str):
             am = bsa.AuthModule(filename)
             assert am.login_url == "/foo"
             assert am.get_login_url is None
@@ -169,7 +171,7 @@ login_url = "/foo"
         """, func, suffix='.py')
 
     def test_get_login_url(self) -> None:
-        def func(filename):
+        def func(filename: str):
             am = bsa.AuthModule(filename)
             assert am.login_url is None
             assert am.get_login_url('handler') == 20
@@ -183,7 +185,7 @@ def get_login_url(handler): return 20
         """, func, suffix='.py')
 
     def test_login_handler(self) -> None:
-        def func(filename):
+        def func(filename: str):
             am = bsa.AuthModule(filename)
             assert am.login_url == "/foo"
             assert am.get_login_url is None
@@ -199,7 +201,7 @@ class LoginHandler(RequestHandler): pass
         """, func, suffix='.py')
 
     def test_logout_url(self) -> None:
-        def func(filename):
+        def func(filename: str):
             am = bsa.AuthModule(filename)
             assert am.login_url == "/foo"
             assert am.get_login_url is None
@@ -214,7 +216,7 @@ logout_url = "/bar"
         """, func, suffix='.py')
 
     def test_logout_handler(self) -> None:
-        def func(filename):
+        def func(filename: str):
             am = bsa.AuthModule(filename)
             assert am.login_url == "/foo"
             assert am.get_login_url is None
@@ -238,7 +240,7 @@ class TestAuthModule_validation:
             assert str(e).startswith("no file exists at module_path:")
 
     def test_both_user(self) -> None:
-        def func(filename):
+        def func(filename: str):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
                 assert str(e) == "Only one of get_user or get_user_async should be supplied"
@@ -249,8 +251,8 @@ async def get_user_async(handler): return 20
     """, func, suffix='.py')
 
     @pytest.mark.parametrize('user_func', ['get_user', 'get_user_async'])
-    def test_no_login(self, user_func) -> None:
-        def func(filename):
+    def test_no_login(self, user_func: str) -> None:
+        def func(filename: str):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
                 assert str(e) == "When user authentication is enabled, one of login_url or get_login_url must be supplied"
@@ -260,7 +262,7 @@ def %s(handler): return 10
     """ % user_func, func, suffix='.py')
 
     def test_both_login(self) -> None:
-        def func(filename):
+        def func(filename: str):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
                 assert str(e) == "At most one of login_url or get_login_url should be supplied"
@@ -272,7 +274,7 @@ login_url = "/foo"
     """, func, suffix='.py')
 
     def test_handler_with_get_login_url(self) -> None:
-        def func(filename):
+        def func(filename: str):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
                 assert str(e) == "LoginHandler cannot be used with a get_login_url() function"
@@ -285,7 +287,7 @@ class LoginHandler(RequestHandler): pass
     """, func, suffix='.py')
 
     def test_login_handler_wrong_type(self) -> None:
-        def func(filename):
+        def func(filename: str):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
                 assert str(e) == "LoginHandler must be a Tornado RequestHandler"
@@ -297,8 +299,8 @@ class LoginHandler(object): pass
     """, func, suffix='.py')
 
     @pytest.mark.parametrize('login_url', ['http://foo.com', 'https://foo.com', '//foo.com'])
-    def test_login_handler_wrong_url(self, login_url) -> None:
-        def func(filename):
+    def test_login_handler_wrong_url(self, login_url: str) -> None:
+        def func(filename: str):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
                 assert str(e) == "LoginHandler can only be used with a relative login_url"
@@ -309,7 +311,7 @@ login_url = %r
     """ % login_url, func, suffix='.py')
 
     def test_logout_handler_wrong_type(self) -> None:
-        def func(filename):
+        def func(filename: str):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
                 assert str(e) == "LoginHandler must be a Tornado RequestHandler"
@@ -321,8 +323,8 @@ class LogoutHandler(object): pass
     """, func, suffix='.py')
 
     @pytest.mark.parametrize('logout_url', ['http://foo.com', 'https://foo.com', '//foo.com'])
-    def test_logout_handler_wrong_url(self, logout_url) -> None:
-        def func(filename):
+    def test_logout_handler_wrong_url(self, logout_url: str) -> None:
+        def func(filename: str):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
                 assert str(e) == "LoginHandler can only be used with a relative login_url"
@@ -343,7 +345,7 @@ class LoginHandler(object):
 """
 
 def test_load_auth_module() -> None:
-    def func(filename):
+    def func(filename: str):
         m =  bsa.load_auth_module(filename)
         assert isinstance(m, ModuleType)
         assert [x for x in sorted(dir(m)) if not x.startswith("__")] == ['LoginHandler', 'get_login_url', 'logout_url']

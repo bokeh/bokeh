@@ -4,13 +4,19 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+''' Provide a Haar cascade file for face recognition.
+
+This module contains an attribute ``frontalface_default_path`` . Use this
+attribute to obtain the path to a Haar cascade file for frontal face
+recognition that can be used by OpenCV.
 
 '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

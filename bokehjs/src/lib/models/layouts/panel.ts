@@ -9,23 +9,25 @@ export namespace Panel {
     title: p.Property<string>
     child: p.Property<LayoutDOM>
     closable: p.Property<boolean>
+    disabled: p.Property<boolean>
   }
 }
 
 export interface Panel extends Panel.Attrs {}
 
 export class Panel extends Model {
-  properties: Panel.Props
+  override properties: Panel.Props
 
   constructor(attrs?: Partial<Panel.Attrs>) {
     super(attrs)
   }
 
-  static init_Panel(): void {
+  static {
     this.define<Panel.Props>(({Boolean, String, Ref}) => ({
       title:    [ String, "" ],
       child:    [ Ref(LayoutDOM) ],
       closable: [ Boolean, false ],
+      disabled: [ Boolean, false ],
     }))
   }
 }

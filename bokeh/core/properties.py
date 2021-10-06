@@ -95,6 +95,7 @@ Basic Properties
 .. autoclass:: MarkerType
 .. autoclass:: MinMaxBounds
 .. autoclass:: NonNegativeInt
+.. autoclass:: Null
 .. autoclass:: Percent
 .. autoclass:: PositiveInt
 .. autoclass:: RGB
@@ -122,14 +123,12 @@ DataSpec Properties
 .. autoclass:: AlphaSpec
 .. autoclass:: AngleSpec
 .. autoclass:: ColorSpec
-.. autoclass:: DataDistanceSpec
 .. autoclass:: DataSpec
 .. autoclass:: DistanceSpec
 .. autoclass:: FontSizeSpec
 .. autoclass:: MarkerSpec
 .. autoclass:: NumberSpec
-.. autoclass:: PropertyUnitsSpec
-.. autoclass:: ScreenDistanceSpec
+.. autoclass:: SizeSpec
 .. autoclass:: StringSpec
 .. autoclass:: UnitsSpec
 
@@ -144,6 +143,8 @@ Special Properties
 ------------------
 
 .. autoclass:: Include
+.. autoclass:: Nullable
+.. autoclass:: NonNullable
 .. autoclass:: Override
 
 Validation-only Properties
@@ -170,6 +171,8 @@ to control when type validation occurs.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -200,7 +203,6 @@ __all__ = (
     'ColumnData',
     'Complex',
     'DashPattern',
-    'DataDistanceSpec',
     'DataSpec',
     'Date',
     'Datetime',
@@ -224,6 +226,7 @@ __all__ = (
     'List',
     'MarkerSpec',
     'MarkerType',
+    'MathString',
     'MinMaxBounds',
     'NonNegativeInt',
     'NonNullable',
@@ -236,19 +239,19 @@ __all__ = (
     'PandasGroupBy',
     'Percent',
     'PositiveInt',
-    'PropertyUnitsSpec',
     'RGB',
     'Readonly',
     'Regex',
     'RelativeDelta',
     'RestrictedDict',
-    'ScreenDistanceSpec',
     'Seq',
     'Size',
+    'SizeSpec',
     'String',
     'StringSpec',
     'Struct',
     'TimeDelta',
+    'TextLike',
     'Tuple',
     'UnitsSpec',
     'expr',
@@ -288,7 +291,6 @@ from .property.dataspec import AngleSpec; AngleSpec
 from .property.dataspec import ColorSpec; ColorSpec
 from .property.dataspec import DashPatternSpec; DashPatternSpec
 from .property.dataspec import DataSpec; DataSpec
-from .property.dataspec import DataDistanceSpec; DataDistanceSpec
 from .property.dataspec import DistanceSpec; DistanceSpec
 from .property.dataspec import expr; expr
 from .property.dataspec import field; field
@@ -302,8 +304,7 @@ from .property.dataspec import MarkerSpec; MarkerSpec
 from .property.dataspec import NullDistanceSpec; NullDistanceSpec
 from .property.dataspec import NullStringSpec; NullStringSpec
 from .property.dataspec import NumberSpec; NumberSpec
-from .property.dataspec import PropertyUnitsSpec; PropertyUnitsSpec
-from .property.dataspec import ScreenDistanceSpec; ScreenDistanceSpec
+from .property.dataspec import SizeSpec; SizeSpec
 from .property.dataspec import StringSpec; StringSpec
 from .property.dataspec import TextAlignSpec; TextAlignSpec
 from .property.dataspec import TextBaselineSpec; TextBaselineSpec
@@ -355,9 +356,12 @@ from .property.primitive import String; String
 from .property.readonly import Readonly; Readonly
 
 from .property.string import Base64String; Base64String
+from .property.string import MathString; MathString
 from .property.string import Regex; Regex
 
 from .property.struct import Struct; Struct
+
+from .property.text_like import TextLike; TextLike
 
 from .property.visual import DashPattern; DashPattern
 from .property.visual import FontSize; FontSize

@@ -1,5 +1,4 @@
 import {ContinuousScale} from "./continuous_scale"
-import {Arrayable, ScreenArray, FloatArray} from "core/types"
 import * as p from "core/properties"
 
 export namespace LinearScale {
@@ -11,7 +10,7 @@ export namespace LinearScale {
 export interface LinearScale extends LinearScale.Attrs {}
 
 export class LinearScale extends ContinuousScale {
-  properties: LinearScale.Props
+  override properties: LinearScale.Props
 
   constructor(attrs?: Partial<LinearScale.Attrs>) {
     super(attrs)
@@ -22,19 +21,25 @@ export class LinearScale extends ContinuousScale {
     return (x) => factor*x + offset
   }
 
-  compute(x: number): number {
-    return this._linear_compute(x)
+  get s_invert(): (sx: number) => number {
+    const [factor, offset] = this._linear_compute_state()
+    return (sx) => (sx - offset) / factor
   }
 
-  v_compute(xs: Arrayable<number>): ScreenArray {
-    return this._linear_v_compute(xs)
-  }
-
-  invert(xprime: number): number {
-    return this._linear_invert(xprime)
-  }
-
-  v_invert(xprimes: Arrayable<number>): FloatArray {
-    return this._linear_v_invert(xprimes)
+  /*protected*/ _linear_compute_state(): [number, number] {
+    //
+    //  (t1 - t0)       (t1 - t0)
+    //  --------- * x - --------- * s0 + t0
+    //  (s1 - s0)       (s1 - s0)
+    //
+    // [  factor  ]     [    offset    ]
+    //
+    const source_start = this.source_range.start
+    const source_end   = this.source_range.end
+    const target_start = this.target_range.start
+    const target_end   = this.target_range.end
+    const factor = (target_end - target_start)/(source_end - source_start)
+    const offset = -(factor * source_start) + target_start
+    return [factor, offset]
   }
 }

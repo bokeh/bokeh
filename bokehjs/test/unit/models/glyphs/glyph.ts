@@ -16,7 +16,7 @@ describe("glyph module", () => {
 
     it("GlyphView.hit_test() should warn when requested geometry is not implemented", async () => {
       class SomeGlyphView extends GlyphView {
-        model: SomeGlyph
+        override model: SomeGlyph
 
         protected _index_data(index: SpatialIndex): void {
           index.add_empty()
@@ -28,21 +28,20 @@ describe("glyph module", () => {
           return [0, 0]
         }
 
-        protected _hit_point?(_geometry: PointGeometry): Selection {
+        protected override _hit_point?(_geometry: PointGeometry): Selection {
           return new Selection()
         }
 
-        protected _hit_span?(_geometry: SpanGeometry): Selection {
+        protected override _hit_span?(_geometry: SpanGeometry): Selection {
           return new Selection()
         }
       }
 
       class SomeGlyph extends Glyph {
-        static init_SomeGlyph(): void {
+        static {
           this.prototype.default_view = SomeGlyphView
         }
       }
-      SomeGlyph.init_SomeGlyph()
 
       const glyph = new SomeGlyph()
       const data = {}

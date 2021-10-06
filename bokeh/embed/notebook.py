@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -19,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Optional, Tuple, Union
+from typing import Tuple, Union
 
 # Bokeh imports
 from ..core.json_encoder import serialize_json
@@ -48,7 +50,7 @@ __all__ = (
 
 ThemeSource = Union[Theme, FromCurdoc, None]
 
-def notebook_content(model: Model, notebook_comms_target: Optional[str] = None, theme: ThemeSource = FromCurdoc) -> Tuple[str, str, Document]:
+def notebook_content(model: Model, notebook_comms_target: str | None = None, theme: ThemeSource = FromCurdoc) -> Tuple[str, str, Document]:
     ''' Return script and div that will display a Bokeh plot in a Jupyter
     Notebook.
 

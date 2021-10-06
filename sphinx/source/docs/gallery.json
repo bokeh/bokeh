@@ -1,8 +1,12 @@
 {
     "details": [
-        { "path": "examples/plotting/file/iris.py",                            "name": "iris"                           },
-        { "path": "examples/plotting/file/ridgeplot.py",                       "name": "ridgeplot"                      },
+        { "path": "examples/plotting/file/marker_map.py",                      "name": "marker_map"                     },
+        { "path": "examples/plotting/file/latex_blackbody_radiation.py",       "name": "latex_blackbody_radiation"      },
+        { "path": "examples/plotting/file/latex_normal_distribution.py",       "name": "latex_normal_distribution"      },
+        { "path": "examples/plotting/file/network_graph.py",                   "name": "network_graph"                  },
         { "path": "examples/plotting/file/hexbin.py",                          "name": "hexbin"                         },
+        { "path": "examples/plotting/file/sprint.py",                          "name": "sprint"                         },
+        { "path": "examples/plotting/file/ridgeplot.py",                       "name": "ridgeplot"                      },
         { "path": "examples/plotting/file/hex_tile.py",                        "name": "hex_tile"                       },
         { "path": "examples/plotting/file/bar_colormapped.py",                 "name": "bar_colormapped"                },
         { "path": "examples/plotting/file/bar_intervals.py",                   "name": "bar_intervals"                  },
@@ -10,7 +14,7 @@
         { "path": "examples/plotting/file/pie.py",                             "name": "pie_chart"                      },
         { "path": "examples/plotting/file/bar_mixed.py",                       "name": "bar_mixed"                      },
         { "path": "examples/plotting/file/bar_nested_colormapped.py",          "name": "bar_nested_colormapped"         },
-        { "path": "examples/plotting/file/categorical.py",                     "name": "categorical"                    },
+        { "path": "examples/plotting/file/categorical_heatmap.py",             "name": "categorical_heatmap"            },
         { "path": "examples/plotting/file/bar_pandas_groupby_colormapped.py",  "name": "bar_pandas_groupby_colormapped" },
         { "path": "examples/plotting/file/bar_pandas_groupby_nested.py",       "name": "bar_pandas_groupby_nested"      },
         { "path": "examples/plotting/file/bar_stacked.py",                     "name": "bar_stacked"                    },
@@ -25,10 +29,9 @@
         { "path": "examples/plotting/file/bar_dodged.py",                      "name": "bar_dodged"                     },
         { "path": "examples/plotting/file/unemployment.py",                    "name": "unemployment"                   },
         { "path": "examples/plotting/file/stocks.py",                          "name": "stocks"                         },
-        { "path": "examples/plotting/file/vector.py",                          "name": "streamline"                     },
-        { "path": "examples/plotting/file/vector.py",                          "name": "quiver"                         },
+        { "path": "examples/plotting/file/hatch_grid_band.py",                 "name": "hatch_grid_band"                },
         { "path": "examples/plotting/file/image_rgba.py",                      "name": "image_rgba"                     },
-        { "path": "examples/plotting/file/categorical.py",                     "name": "dot"                            },
+        { "path": "examples/plotting/file/dotplot.py",                         "name": "dotplot"                        },
         { "path": "examples/plotting/file/periodic.py",                        "name": "periodic"                       },
         { "path": "examples/plotting/file/histogram.py",                       "name": "histogram"                      },
         { "path": "examples/plotting/file/image.py",                           "name": "image"                          },
@@ -46,6 +49,8 @@
         { "path": "examples/plotting/file/stacked_area.py",                    "name": "stacked_area"                   },
         { "path": "examples/plotting/file/elements.py",                        "name": "elements"                       },
         { "path": "examples/plotting/file/boxplot.py",                         "name": "boxplot"                        },
-        { "path": "examples/plotting/file/logplot.py",                         "name": "logaxis"                        }
+        { "path": "examples/plotting/file/logplot.py",                         "name": "logplot"                        },
+        { "path": "examples/plotting/file/eclipse.py",                         "name": "eclipse"                        },
+        { "path": "examples/plotting/file/iris.py",                            "name": "iris"                           }
     ]
 }

@@ -12,6 +12,8 @@ models for instances that match specified criteria.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,7 +22,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Callable, Dict, Iterator, Optional, Type, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Type,
+    Union,
+)
 
 # Bokeh imports
 from ..model import Model
@@ -37,12 +46,12 @@ __all__ = (
     'IN',
     'LEQ',
     'LT',
-    'match',
     'NEQ',
     'OR',
+    'find',
+    'match',
+    'is_single_string_selector',
 )
-
-ContextType = Optional[Dict[str, Any]]
 
 SelectorType = Dict[Union[str, Type["_Operator"]], Any]
 
@@ -50,14 +59,13 @@ SelectorType = Dict[Union[str, Type["_Operator"]], Any]
 # General API
 #-----------------------------------------------------------------------------
 
-def find(objs: Iterator[Model], selector: SelectorType, context: ContextType = None) -> Iterator[Model]:
+def find(objs: Iterable[Model], selector: SelectorType) -> Iterable[Model]:
     ''' Query a collection of Bokeh models and yield any that match the
     a selector.
 
     Args:
         obj (Model) : object to test
         selector (JSON-like) : query selector
-        context (dict) : kwargs to supply callable query attributes
 
     Yields:
         Model : objects that match the query
@@ -80,20 +88,29 @@ def find(objs: Iterator[Model], selector: SelectorType, context: ContextType = N
             # same query, using IN operator
             find(p.references(), {'type': {IN: [Grid, Axis]}})
 
-            # find all plot objects on the 'left' layout of the Plot
-            # here layout is a method that takes a plot as context
-            find(p.references(), {'layout': 'left'}, {'plot': p})
+    '''
+    return (obj for obj in objs if match(obj, selector))
+
+
+def is_single_string_selector(selector: SelectorType, field: str) -> bool:
+    ''' Whether a selector is a simple single field, e.g. ``{name: "foo"}``
+
+    Args:
+        selector (JSON-like) : query selector
+        field (str) : field name to check for
+
+    Returns
+        bool
 
     '''
-    return (obj for obj in objs if match(obj, selector, context))
+    return  len(selector) == 1 and field in selector and isinstance(selector[field], str)
 
-def match(obj: Model, selector: SelectorType, context: ContextType = None) -> bool:
+def match(obj: Model, selector: SelectorType) -> bool:
     ''' Test whether a given Bokeh model matches a given selector.
 
     Args:
         obj (Model) : object to test
         selector (JSON-like) : query selector
-        context (dict) : kwargs to supply callable query attributes
 
     Returns:
         bool : True if the object matches, False otherwise
@@ -113,12 +130,12 @@ def match(obj: Model, selector: SelectorType, context: ContextType = None) -> bo
     .. code-block:: python
 
         >>> from bokeh.plotting import figure
-        >>> p = figure(plot_width=400)
+        >>> p = figure(width=400)
 
-        >>> match(p, {'plot_width': {EQ: 400}})
+        >>> match(p, {'width': {EQ: 400}})
         True
 
-        >>> match(p, {'plot_width': {GT: 500}})
+        >>> match(p, {'width': {GT: 500}})
         False
 
     There are two selector keys that are handled especially. The first
@@ -156,7 +173,6 @@ def match(obj: Model, selector: SelectorType, context: ContextType = None) -> bo
         False
 
     '''
-    context = context or {}
     for key, val in selector.items():
 
         # test attributes
@@ -186,14 +202,8 @@ def match(obj: Model, selector: SelectorType, context: ContextType = None) -> bo
             # if the value to check is a dict, recurse
             else:
                 attr = getattr(obj, key)
-                if callable(attr):
-                    try:
-                        if not attr(val, **context): return False
-                    except Exception:
-                        return False
-
-                elif isinstance(val, dict):
-                    if not match(attr, val, context): return False
+                if isinstance(val, dict):
+                    if not match(attr, val): return False
 
                 else:
                     if attr != val: return False
@@ -348,7 +358,7 @@ _operators: Dict[Type["_Operator"], Callable[[Any, Any], Any]] = {
 }
 
 # realization of the OR operator
-def _or(obj: Model, selectors: Iterator[SelectorType]) -> bool:
+def _or(obj: Model, selectors: Iterable[SelectorType]) -> bool:
     return any(match(obj, selector) for selector in selectors)
 
 #-----------------------------------------------------------------------------

@@ -23,9 +23,9 @@ loads any additional JavaScript code from Bokeh's CDN (content delivery
 network).
 
 Bokeh's documentation consists of several elements, including the
-:ref:`user guide <userguide>` with detailed explanations and examples and the
-:ref:`reference guide <refguide>` that systematically describes every element of
-Bokeh. In this guide, you will find links to both those resources.
+|user guide| with detailed explanations and examples and the |reference guide|
+that systematically describes every element of Bokeh. In this guide, you will
+find links to both those resources.
 
 .. _first_steps_1_line_chart:
 
@@ -68,14 +68,11 @@ Follow these steps to recreate this simple line chart:
         x = [1, 2, 3, 4, 5]
         y = [6, 7, 2, 4, 5]
 
-3. Use the :func:`~bokeh.plotting.figure` function to create your plot. Pass the
-   following arguments:
+3. Use the |figure| function to create your plot. Pass the following arguments:
 
-   * ``title``: the title of your line chart
-   * ``x_axis_label``: which data to use to generate labels for the chart's
-     x-axis
-   * ``y_axis_label``: which data to use to generate labels for the chart's
-     y-axis
+   * ``title``: the title of your line chart (optional)
+   * ``x_axis_label``: a text label to put on the chart's x-axis (optional)
+   * ``y_axis_label``: a text label to put on the chart's y-axis (optional)
 
     .. code-block:: python
 
@@ -86,15 +83,15 @@ Follow these steps to recreate this simple line chart:
    :func:`~bokeh.plotting.Figure.line` function. Pass the following arguments:
 
    * your lists ``x`` and ``y`` containing the data
-   * ``legend_label``: a string to label the line graph with
-   * ``line_width``: define the line width (in pixels)
+   * ``legend_label``: a string to label the line graph with (optional)
+   * ``line_width``: define the line width (in pixels, optional)
 
     .. code-block:: python
 
         # add a line renderer with legend and line thickness to the plot
         p.line(x, y, legend_label="Temp.", line_width=2)
 
-5. Finally, use the :func:`~bokeh.io.show` function to generate your graph and
+5. Finally, use the |show| function to generate your graph and
    open a web browser to display the generated HTML file.
 
     .. code-block:: python
@@ -132,7 +129,7 @@ First, add more data as the basis for additional graphs:
     y3 = [4, 5, 5, 7, 2]
 
 Next, update the title for your plot by changing the string for the ``title``
-argument in the :func:`~bokeh.plotting.figure` function:
+argument in the |figure| function:
 
 .. code-block:: python
 
@@ -176,15 +173,6 @@ Bokeh's |bokeh.plotting| interface require:
     These functions either save your plot to an HTML file or display it in a
     browser.
 
-.. panels::
-    :column: col-lg-12 col-md-12 col-sm-12 col-xs-12 p-2
-
-    ---
-    :card: + text-right
-    .. link-button:: first_steps_2.html
-        :text: Next
-        :classes: stretched-link
-
 .. |pan_tool| image:: /_images/icons/Pan.png
     :alt: Icon representing the pan tool
     :height: 19px
@@ -204,10 +192,4 @@ Bokeh's |bokeh.plotting| interface require:
     :height: 19px
     :alt: Help symbol
 
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <userguide_plotting>`
 .. |Figure.line|     replace:: :func:`~bokeh.plotting.Figure.line`
-.. |figure| replace:: :func:`~bokeh.plotting.figure`
-.. |output_file|     replace:: :func:`~bokeh.io.output_file`
-.. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
-.. |save|            replace:: :func:`~bokeh.io.save`
-.. |show|            replace:: :func:`~bokeh.io.show`

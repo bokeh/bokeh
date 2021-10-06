@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -21,12 +23,14 @@ import numpy as np
 from bokeh._testing.util.api import verify_all
 from bokeh.core.has_props import HasProps
 from bokeh.core.properties import (
+    Alias,
     Dict,
     Enum,
     Float,
     Instance,
     Int,
     List,
+    Nullable,
     NumberSpec,
     Override,
     String,
@@ -59,7 +63,6 @@ ALL = (
     'ColumnData',
     'Complex',
     'DashPattern',
-    'DataDistanceSpec',
     'DataSpec',
     'Date',
     'Datetime',
@@ -83,6 +86,7 @@ ALL = (
     'List',
     'MarkerSpec',
     'MarkerType',
+    'MathString',
     'MinMaxBounds',
     'NonNegativeInt',
     'NonNullable',
@@ -95,19 +99,19 @@ ALL = (
     'PandasGroupBy',
     'Percent',
     'PositiveInt',
-    'PropertyUnitsSpec',
     'RGB',
     'Readonly',
     'Regex',
     'RelativeDelta',
     'RestrictedDict',
-    'ScreenDistanceSpec',
     'Seq',
     'Size',
+    'SizeSpec',
     'String',
     'StringSpec',
     'Struct',
     'TimeDelta',
+    'TextLike',
     'Tuple',
     'UnitsSpec',
     'expr',
@@ -124,14 +128,14 @@ ALL = (
 # TODO (bev) These tests should be moved to better places
 
 
-class Basictest:
+class TestBasic:
     def test_simple_class(self) -> None:
         class Foo(HasProps):
             x = Int(12)
             y = String("hello")
             z = List(Int, [1, 2, 3])
             zz = Dict(String, Int)
-            s = String(None)
+            s = Nullable(String(None))
 
         f = Foo()
         assert f.x == 12
@@ -215,15 +219,6 @@ class Basictest:
         with pytest.raises(ValueError):
             f.update(y="orange")
 
-    def test_no_parens(self) -> None:
-        class Foo(HasProps):
-            x = Int
-            y = Int()
-        f = Foo()
-        assert f.x == f.y
-        f.x = 13
-        assert f.x == 13
-
     def test_accurate_properties_sets(self) -> None:
         class Base(HasProps):
             num = Int(12)
@@ -241,36 +236,20 @@ class Basictest:
             sub_child = Instance(HasProps)
 
         b = Base()
-        assert {"child"} == b.properties_with_refs()
-        assert {"container"} == b.properties_containers()
+        assert {"child"} == set(b.properties_with_refs())
         assert {"num", "container", "child"} == b.properties()
-        assert {"num", "container", "child"} == b.properties(with_bases=True)
-        assert {"num", "container", "child"} == b.properties(with_bases=False)
 
         m = Mixin()
-        assert m.properties_with_refs() == {"mixin_child"}
-        assert m.properties_containers() == {"mixin_container"}
+        assert set(m.properties_with_refs()) == {"mixin_child"}
         assert m.properties() == {"mixin_num", "mixin_container", "mixin_child"}
-        assert m.properties(with_bases=True) == {"mixin_num", "mixin_container", "mixin_child"}
-        assert m.properties(with_bases=False) == {"mixin_num", "mixin_container", "mixin_child"}
 
         s = Sub()
-        assert s.properties_with_refs() == {"child", "sub_child", "mixin_child"}
-        assert s.properties_containers() == {"container", "sub_container", "mixin_container"}
-        assert s.properties() == \
-            {"num", "container", "child", "mixin_num", "mixin_container", "mixin_child", "sub_num", "sub_container", "sub_child"}
-        assert s.properties(with_bases=True) == \
-            {"num", "container", "child", "mixin_num", "mixin_container", "mixin_child", "sub_num", "sub_container", "sub_child"}
-        assert s.properties(with_bases=False) == {"sub_num", "sub_container", "sub_child"}
+        assert set(s.properties_with_refs()) == {"child", "sub_child", "mixin_child"}
+        assert s.properties() == {"num", "container", "child", "mixin_num", "mixin_container", "mixin_child", "sub_num", "sub_container", "sub_child"}
 
         # verify caching
         assert s.properties_with_refs() is s.properties_with_refs()
-        assert s.properties_containers() is s.properties_containers()
         assert s.properties() is s.properties()
-        assert s.properties(with_bases=True) is s.properties(with_bases=True)
-        # this one isn't cached because we store it as a list __properties__ and wrap it
-        # in a new set every time
-        #assert s.properties(with_bases=False) is s.properties(with_bases=False)
 
     def test_accurate_dataspecs(self) -> None:
         class Base(HasProps):
@@ -287,13 +266,9 @@ class Basictest:
         mixin = Mixin()
         sub = Sub()
 
-        assert {"num"} == base.dataspecs()
-        assert {"mixin_num"} == mixin.dataspecs()
-        assert {"num", "mixin_num", "sub_num"} == sub.dataspecs()
-
-        assert dict(num=base.lookup("num")) ==  base.dataspecs_with_props()
-        assert dict(mixin_num=mixin.lookup("mixin_num")) == mixin.dataspecs_with_props()
-        assert dict(num=sub.lookup("num"), mixin_num=sub.lookup("mixin_num"), sub_num=sub.lookup("sub_num")) == sub.dataspecs_with_props()
+        assert {"num"} == set(base.dataspecs())
+        assert {"mixin_num"} == set(mixin.dataspecs())
+        assert {"num", "mixin_num", "sub_num"} == set(sub.dataspecs())
 
     def test_not_serialized(self) -> None:
         class NotSerialized(HasProps):
@@ -327,7 +302,7 @@ class Basictest:
     def test_readonly(self) -> None:
         class Readonly(HasProps):
             x = Int(12, readonly=True)    # with default
-            y = Int(readonly=True)        # without default
+            y = Nullable(Int(), readonly=True)        # without default
             z = String("hello")
 
         o = Readonly()
@@ -340,10 +315,10 @@ class Basictest:
         assert 'y' in o.properties()
         assert 'z' in o.properties()
 
-        # but they aren't in the dict of props with values
-        assert 'x' not in o.properties_with_values(include_defaults=True)
-        assert 'y' not in o.properties_with_values(include_defaults=True)
+        assert 'x' in o.properties_with_values(include_defaults=True)
+        assert 'y' in o.properties_with_values(include_defaults=True)
         assert 'z' in o.properties_with_values(include_defaults=True)
+
         assert 'x' not in o.properties_with_values(include_defaults=False)
         assert 'y' not in o.properties_with_values(include_defaults=False)
         assert 'z' not in o.properties_with_values(include_defaults=False)
@@ -493,11 +468,28 @@ def test_HasProps_equals() -> None:
     assert v is False
 
 def test_HasProps_clone() -> None:
-    p1 = Plot(plot_width=1000)
+    p1 = Plot(width=1000)
     c1 = p1.properties_with_values(include_defaults=False)
     p2 = p1._clone()
     c2 = p2.properties_with_values(include_defaults=False)
     assert c1 == c2
+
+def test_Alias() -> None:
+    class Foo(HasProps):
+        x = Int(12)
+        ax = Alias('x')
+
+    f = Foo(x=10)
+    assert f.x == 10
+    assert f.ax == 10
+
+    f.x = 20
+    assert f.x == 20
+    assert f.ax == 20
+
+    f.ax = 30
+    assert f.x == 30
+    assert f.ax == 30
 
 #-----------------------------------------------------------------------------
 # Dev API

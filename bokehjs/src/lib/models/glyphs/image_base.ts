@@ -15,6 +15,7 @@ export type ImageDataBase = XYGlyphData & {
   readonly image: p.Uniform<NDArray | number[][]>
   readonly dw: p.Uniform<number>
   readonly dh: p.Uniform<number>
+  readonly global_alpha: p.Uniform<number>
 
   sw: ScreenArray
   sh: ScreenArray
@@ -23,24 +24,26 @@ export type ImageDataBase = XYGlyphData & {
 export interface ImageBaseView extends ImageDataBase {}
 
 export abstract class ImageBaseView extends XYGlyphView {
-  model: ImageBase
-  visuals: ImageBase.Visuals
+  override model: ImageBase
+  override visuals: ImageBase.Visuals
 
   protected _width: Uint32Array
   protected _height: Uint32Array
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: ImageDataBase): void {
-    const {image_data, sx, sy, sw, sh} = data ?? this
+    const {image_data, sx, sy, sw, sh, global_alpha} = data ?? this
 
     const old_smoothing = ctx.getImageSmoothingEnabled()
     ctx.setImageSmoothingEnabled(false)
 
-    ctx.globalAlpha = this.model.global_alpha
+    const scalar_alpha = global_alpha.is_Scalar()
+    if (scalar_alpha)
+      ctx.globalAlpha = global_alpha.value
 
     for (const i of indices) {
       const image_data_i = image_data[i]
@@ -48,9 +51,13 @@ export abstract class ImageBaseView extends XYGlyphView {
       const sy_i = sy[i]
       const sw_i = sw[i]
       const sh_i = sh[i]
+      const alpha_i = this.global_alpha.get(i)
 
-      if (image_data_i == null || isNaN(sx_i + sy_i + sw_i + sh_i))
+      if (image_data_i == null || !isFinite(sx_i + sy_i + sw_i + sh_i + alpha_i))
         continue
+
+      if (!scalar_alpha)
+        ctx.globalAlpha = alpha_i
 
       const y_offset = sy_i
 
@@ -68,7 +75,7 @@ export abstract class ImageBaseView extends XYGlyphView {
 
   protected abstract _flat_img_to_buf8(img: Arrayable<number>): Uint8ClampedArray
 
-  protected _set_data(indices: number[] | null): void {
+  protected override _set_data(indices: number[] | null): void {
     this._set_width_heigh_data()
 
     for (let i = 0, end = this.image.length; i < end; i++) {
@@ -93,19 +100,16 @@ export abstract class ImageBaseView extends XYGlyphView {
     }
   }
 
-  protected _index_data(index: SpatialIndex): void {
+  protected override _index_data(index: SpatialIndex): void {
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
       const [l, r, t, b] = this._lrtb(i)
-      if (isNaN(l + r + t + b) || !isFinite(l + r + t + b))
-        index.add_empty()
-      else
-        index.add(l, b, r, t)
+      index.add_rect(l, b, r, t)
     }
   }
 
-  _lrtb(i: number): [number, number, number, number]{
+  _lrtb(i: number): [number, number, number, number] {
     const dw_i = this.dw.get(i)
     const dh_i = this.dh.get(i)
 
@@ -139,7 +143,7 @@ export abstract class ImageBaseView extends XYGlyphView {
                                _image_data.height == this._height[i])
       return _image_data
     else {
-      const canvas = document.createElement('canvas')
+      const canvas = document.createElement("canvas")
       canvas.width = this._width[i]
       canvas.height = this._height[i]
       return canvas
@@ -148,21 +152,21 @@ export abstract class ImageBaseView extends XYGlyphView {
 
   protected _set_image_data_from_buffer(i: number, buf8: Uint8ClampedArray): void {
     const canvas = this._get_or_create_canvas(i)
-    const ctx = canvas.getContext('2d')!
+    const ctx = canvas.getContext("2d")!
     const image_data = ctx.getImageData(0, 0, this._width[i], this._height[i])
     image_data.data.set(buf8)
     ctx.putImageData(image_data, 0, 0)
     this.image_data[i] = canvas
   }
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     if (this.model.properties.dw.units == "data")
-      this.sw = this.sdist(this.renderer.xscale, this._x, this.dw, 'edge', this.model.dilate)
+      this.sw = this.sdist(this.renderer.xscale, this._x, this.dw, "edge", this.model.dilate)
     else
       this.sw = to_screen(this.dw)
 
     if (this.model.properties.dh.units == "data")
-      this.sh = this.sdist(this.renderer.yscale, this._y, this.dh, 'edge', this.model.dilate)
+      this.sh = this.sdist(this.renderer.yscale, this._y, this.dh, "edge", this.model.dilate)
     else
       this.sh = to_screen(this.dh)
   }
@@ -182,7 +186,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     return {index, dim1, dim2, flat_index: dim2*width + dim1}
   }
 
-  _hit_point(geometry: PointGeometry): Selection {
+  override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
@@ -207,7 +211,7 @@ export namespace ImageBase {
     image: p.NDArraySpec
     dw: p.DistanceSpec
     dh: p.DistanceSpec
-    global_alpha: p.Property<number>
+    global_alpha: p.NumberSpec
     dilate: p.Property<boolean>
   }
 
@@ -217,20 +221,20 @@ export namespace ImageBase {
 export interface ImageBase extends ImageBase.Attrs {}
 
 export abstract class ImageBase extends XYGlyph {
-  properties: ImageBase.Props
-  __view_type__: ImageBaseView
+  override properties: ImageBase.Props
+  override __view_type__: ImageBaseView
 
   constructor(attrs?: Partial<ImageBase.Attrs>) {
     super(attrs)
   }
 
-  static init_ImageBase(): void {
-    this.define<ImageBase.Props>(({Boolean, Alpha}) => ({
+  static {
+    this.define<ImageBase.Props>(({Boolean}) => ({
       image:        [ p.NDArraySpec, {field: "image"} ],
       dw:           [ p.DistanceSpec, {field: "dw"} ],
       dh:           [ p.DistanceSpec, {field: "dh"} ],
+      global_alpha: [ p.NumberSpec, {value: 1.0} ],
       dilate:       [ Boolean, false ],
-      global_alpha: [ Alpha, 1.0 ],
     }))
   }
 }

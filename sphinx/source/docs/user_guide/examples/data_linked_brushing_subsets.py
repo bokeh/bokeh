@@ -17,11 +17,11 @@ view = CDSView(source=source, filters=[BooleanFilter([True if y > 250 or y < 100
 TOOLS = "box_select,lasso_select,hover,help"
 
 # create a new plot and add a renderer
-left = figure(tools=TOOLS, plot_width=300, plot_height=300, title=None)
+left = figure(tools=TOOLS, width=300, height=300, title=None)
 left.circle('x', 'y0', size=10, hover_color="firebrick", source=source)
 
 # create another new plot, add a renderer that uses the view of the data source
-right = figure(tools=TOOLS, plot_width=300, plot_height=300, title=None)
+right = figure(tools=TOOLS, width=300, height=300, title=None)
 right.circle('x', 'y1', size=10, hover_color="firebrick", source=source, view=view)
 
 p = gridplot([[left, right]])

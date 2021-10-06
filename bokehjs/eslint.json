@@ -68,6 +68,7 @@
     "prefer-exponentiation-operator": "error",
     "quote-props": ["error", "as-needed"],
     "object-curly-spacing": ["error", "never"],
+    "space-before-blocks": ["error", "always"],
     "space-before-function-paren": ["error", {
       "anonymous": "never",
       "named": "never",
@@ -88,6 +89,8 @@
       "nonwords": false,
       "overrides": {}
     }],
-    "guard-for-in": ["error"]
+    "guard-for-in": ["error"],
+    "quotes": ["error", "double", {"avoidEscape": true, "allowTemplateLiterals": false}],
+    "prefer-template": ["error"]
   }
 }

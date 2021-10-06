@@ -3,7 +3,7 @@ from numpy import cos, linspace, pi, sin
 from bokeh.core.enums import LegendLocation
 from bokeh.io import output_file, show
 from bokeh.models import (Circle, ColumnDataSource, DataRange1d, Legend, Line,
-                          LinearAxis, PanTool, Plot, SaveTool, WheelZoomTool,)
+                          LinearAxis, PanTool, Plot, SaveTool, WheelZoomTool)
 
 x = linspace(-2*pi, 2*pi, 400)
 y = sin(x)
@@ -16,7 +16,7 @@ ydr = DataRange1d()
 
 plot = Plot(
     x_range=xdr, y_range=ydr,
-    plot_width=1000, plot_height=600,
+    width=1000, height=600,
     min_border=0,
     toolbar_location=None,
     background_fill_color='#F0F0F0',

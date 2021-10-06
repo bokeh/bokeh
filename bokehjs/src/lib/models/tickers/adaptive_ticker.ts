@@ -21,13 +21,13 @@ export namespace AdaptiveTicker {
 export interface AdaptiveTicker extends AdaptiveTicker.Attrs {}
 
 export class AdaptiveTicker extends ContinuousTicker {
-  properties: AdaptiveTicker.Props
+  override properties: AdaptiveTicker.Props
 
   constructor(attrs?: Partial<AdaptiveTicker.Attrs>) {
     super(attrs)
   }
 
-  static init_AdaptiveTicker(): void {
+  static {
     this.define<AdaptiveTicker.Props>(({Number, Array, Nullable}) => ({
       base:         [ Number, 10.0 ],
       mantissas:    [ Array(Number), [1, 2, 5] ],
@@ -55,7 +55,7 @@ export class AdaptiveTicker extends ContinuousTicker {
   // B is base,
   // and N is an integer;
   // and min_interval <= I <= max_interval.
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     const prefix_mantissa = nth(this.mantissas, -1) / this.base

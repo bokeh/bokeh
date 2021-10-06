@@ -11,6 +11,8 @@
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging  # isort:skip
 
 log = logging.getLogger(__name__)
@@ -24,8 +26,8 @@ import re
 
 # External imports
 from docutils import nodes
-from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import nested_parse_with_titles
 
 # -----------------------------------------------------------------------------
@@ -57,8 +59,9 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-class BokehDirective(Directive):
-    def _parse(self, rst_text, annotation):
+class BokehDirective(SphinxDirective):
+
+    def parse(self, rst_text, annotation):
         result = ViewList()
         for line in rst_text.split("\n"):
             result.append(line, annotation)

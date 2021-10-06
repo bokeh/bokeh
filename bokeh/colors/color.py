@@ -11,12 +11,23 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+
+# Standard library imports
+from abc import ABCMeta, abstractmethod
+from typing import TYPE_CHECKING, Type, TypeVar
+
+## Bokeh imports
+if TYPE_CHECKING:
+    from .hsl import HSL
+    from .rgb import RGB
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -30,16 +41,18 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Color:
+Self = TypeVar("Self", bound="Color")
+
+class Color(metaclass=ABCMeta):
     ''' A base class for representing color objects.
 
     '''
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.to_css()
 
     @staticmethod
-    def clamp(value, maximum=None):
+    def clamp(value: float, maximum: float | None = None) -> float:
         ''' Clamp numeric values to be non-negative, an optionally, less than a
         given maximum.
 
@@ -62,7 +75,8 @@ class Color:
         else:
             return value
 
-    def copy(self):
+    @abstractmethod
+    def copy(self: Self) -> Self:
         ''' Copy this color.
 
         *Subclasses must implement this method.*
@@ -70,7 +84,7 @@ class Color:
         '''
         raise NotImplementedError
 
-    def darken(self, amount):
+    def darken(self: Self, amount: float) -> Self:
         ''' Darken (reduce the luminance) of this color.
 
         Args:
@@ -85,9 +99,9 @@ class Color:
         hsl.l = self.clamp(hsl.l - amount)
         return self.from_hsl(hsl)
 
-
     @classmethod
-    def from_hsl(cls, value):
+    @abstractmethod
+    def from_hsl(cls: Type[Self], value: HSL) -> Self:
         ''' Create a new color by converting from an HSL color.
 
         *Subclasses must implement this method.*
@@ -103,7 +117,8 @@ class Color:
         raise NotImplementedError
 
     @classmethod
-    def from_rgb(cls, value):
+    @abstractmethod
+    def from_rgb(cls: Type[Self], value: RGB) -> Self:
         ''' Create a new color by converting from an RGB color.
 
         *Subclasses must implement this method.*
@@ -118,7 +133,7 @@ class Color:
         '''
         raise NotImplementedError
 
-    def lighten(self, amount):
+    def lighten(self: Self, amount: float) -> Self:
         ''' Lighten (increase the luminance) of this color.
 
         Args:
@@ -133,7 +148,8 @@ class Color:
         hsl.l = self.clamp(hsl.l + amount, 1)
         return self.from_hsl(hsl)
 
-    def to_css(self):
+    @abstractmethod
+    def to_css(self) -> str:
         ''' Return a CSS representation of this color.
 
         *Subclasses must implement this method.*
@@ -144,8 +160,8 @@ class Color:
         '''
         raise NotImplementedError
 
-
-    def to_hsl(self):
+    @abstractmethod
+    def to_hsl(self) -> HSL:
         ''' Create a new HSL color by converting from this color.
 
         *Subclasses must implement this method.*
@@ -156,7 +172,8 @@ class Color:
         '''
         raise NotImplementedError
 
-    def to_rgb(self):
+    @abstractmethod
+    def to_rgb(self) -> RGB:
         ''' Create a new HSL color by converting from this color.
 
         *Subclasses must implement this method.*

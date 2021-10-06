@@ -26,7 +26,7 @@ And several other bug fixes and docs additions. For full details see the
 Oval glyph deprecated
 ~~~~~~~~~~~~~~~~~~~~~
 
-The ``Ovall`` glyph is largely duplicative of the ellipse glyph, and will be
+The ``Oval`` glyph is largely duplicative of the ellipse glyph, and will be
 removed in version 3.0. Use ``Ellipse`` instead.
 
 ``Tooltip.inner_only`` deprecated

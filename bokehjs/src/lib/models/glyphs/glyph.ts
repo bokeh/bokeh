@@ -7,6 +7,7 @@ import {Context2d} from "core/util/canvas"
 import {View} from "core/view"
 import {Model} from "../../model"
 import {Anchor} from "core/enums"
+import {build_views} from "core/build_views"
 import {logger} from "core/logging"
 import {Arrayable, Rect, FloatArray, ScreenArray, Indices} from "core/types"
 import {isString} from "core/util/types"
@@ -19,8 +20,7 @@ import {FactorRange, Factor} from "../ranges/factor_range"
 import {Selection} from "../selections/selection"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-
-import type {BaseGLGlyph} from "./webgl/base"
+import {Decoration, DecorationView} from "../graphics/decoration"
 
 const {abs, ceil} = Math
 
@@ -29,17 +29,17 @@ export type GlyphData = {}
 export interface GlyphView extends GlyphData {}
 
 export abstract class GlyphView extends View {
-  model: Glyph
+  override model: Glyph
   visuals: Glyph.Visuals
 
-  readonly parent: GlyphRendererView
+  override readonly parent: GlyphRendererView
 
   get renderer(): GlyphRendererView {
     return this.parent
   }
 
   /** @internal */
-  glglyph?: BaseGLGlyph
+  glglyph?: import("./webgl/base").BaseGLGlyph
 
   get has_webgl(): boolean {
     return this.glglyph != null
@@ -67,9 +67,16 @@ export abstract class GlyphView extends View {
       throw new Error(`${this}.set_data() wasn't called`)
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this)
+  }
+
+  decorations: Map<Decoration, DecorationView> = new Map()
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    await build_views(this.decorations, this.model.decorations, {parent: this.parent})
   }
 
   request_render(): void {
@@ -87,17 +94,16 @@ export abstract class GlyphView extends View {
         return
     }
 
-    ctx.beginPath()
     this._render(ctx, indices, data ?? this.base)
   }
 
   protected abstract _render(ctx: Context2d, indices: number[], data?: GlyphData): void
 
-  has_finished(): boolean {
+  override has_finished(): boolean {
     return true
   }
 
-  notify_finished(): void {
+  override notify_finished(): void {
     this.renderer.notify_finished()
   }
 
@@ -130,15 +136,6 @@ export abstract class GlyphView extends View {
   // glyphs that need more sophisticated "snap to data" behaviour (like
   // snapping to a patch centroid, e.g, should override these
   abstract scenterxy(i: number, sx: number, sy: number): [number, number]
-
-  /** @deprecated */
-  scenterx(i: number, sx: number, sy: number): number {
-    return this.scenterxy(i, sx, sy)[0]
-  }
-  /** @deprecated */
-  scentery(i: number, sx: number, sy: number): number {
-    return this.scenterxy(i, sx, sy)[1]
-  }
 
   sdist(scale: Scale, pts: Arrayable<number>, spans: p.Uniform<number>,
         pts_location: "center" | "edge" = "edge", dilate: boolean = false): ScreenArray {
@@ -258,11 +255,15 @@ export abstract class GlyphView extends View {
       visual.update()
     }
 
+    this._set_visuals()
+
     this.glglyph?.set_visuals_changed()
   }
 
+  protected _set_visuals(): void {}
+
   set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): void {
-    const {x_range, y_range} = this.renderer.coordinates
+    const {x_source, y_source} = this.renderer.coordinates
     const visual_props = new Set(this._iter_visuals())
 
     this._data_size = indices.count
@@ -278,7 +279,7 @@ export abstract class GlyphView extends View {
         const base_array = prop.array(source)
         let array = indices.select(base_array)
 
-        const range = prop.dimension == "x" ? x_range : y_range
+        const range = prop.dimension == "x" ? x_source : y_source
         if (range instanceof FactorRange) {
           if (prop instanceof p.CoordinateSpec) {
             array = range.v_synthetic(array as Arrayable<number | Factor>)
@@ -313,6 +314,10 @@ export abstract class GlyphView extends View {
     }
 
     this._set_data(indices_to_update ?? null)  // TODO doesn't take subset indices into account
+
+    for (const decoration of this.decorations.values()) {
+      decoration.marking.set_data(source, indices)
+    }
 
     this.glglyph?.set_data_changed()
 
@@ -373,7 +378,9 @@ export abstract class GlyphView extends View {
 export namespace Glyph {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props
+  export type Props = Model.Props & {
+    decorations: p.Property<Decoration[]>
+  }
 
   export type Visuals = visuals.Visuals
 }
@@ -381,10 +388,16 @@ export namespace Glyph {
 export interface Glyph extends Glyph.Attrs {}
 
 export abstract class Glyph extends Model {
-  properties: Glyph.Props
-  __view_type__: GlyphView
+  override properties: Glyph.Props
+  override __view_type__: GlyphView
 
   constructor(attrs?: Partial<Glyph.Attrs>) {
     super(attrs)
+  }
+
+  static {
+    this.define<Glyph.Props>(({Array, Ref}) => ({
+      decorations: [ Array(Ref(Decoration)), [] ],
+    }))
   }
 }

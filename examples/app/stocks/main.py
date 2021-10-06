@@ -67,16 +67,16 @@ source = ColumnDataSource(data=dict(date=[], t1=[], t2=[], t1_returns=[], t2_ret
 source_static = ColumnDataSource(data=dict(date=[], t1=[], t2=[], t1_returns=[], t2_returns=[]))
 tools = 'pan,wheel_zoom,xbox_select,reset'
 
-corr = figure(plot_width=350, plot_height=350,
+corr = figure(width=350, height=350,
               tools='pan,wheel_zoom,box_select,reset')
 corr.circle('t1_returns', 't2_returns', size=2, source=source,
             selection_color="orange", alpha=0.6, nonselection_alpha=0.1, selection_alpha=0.4)
 
-ts1 = figure(plot_width=900, plot_height=200, tools=tools, x_axis_type='datetime', active_drag="xbox_select")
+ts1 = figure(width=900, height=200, tools=tools, x_axis_type='datetime', active_drag="xbox_select")
 ts1.line('date', 't1', source=source_static)
 ts1.circle('date', 't1', size=1, source=source, color=None, selection_color="orange")
 
-ts2 = figure(plot_width=900, plot_height=200, tools=tools, x_axis_type='datetime', active_drag="xbox_select")
+ts2 = figure(width=900, height=200, tools=tools, x_axis_type='datetime', active_drag="xbox_select")
 ts2.x_range = ts1.x_range
 ts2.line('date', 't2', source=source_static)
 ts2.circle('date', 't2', size=1, source=source, color=None, selection_color="orange")

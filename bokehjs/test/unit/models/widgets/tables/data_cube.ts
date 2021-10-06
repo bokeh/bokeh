@@ -25,22 +25,22 @@ describe("data_cube module", () => {
     before_each(() => {
       source = new ColumnDataSource({
         data: {
-          color: ['red', 'red', 'red', 'green', 'green', 'blue'],
-          width: ['wide', 'wide', 'narrow', 'wide', 'narrow', 'wide'],
+          color: ["red", "red", "red", "green", "green", "blue"],
+          width: ["wide", "wide", "narrow", "wide", "narrow", "wide"],
           value: [10, 20, 30, 40, 50, 60],
         },
       })
       view = new CDSView({source})
       columns = [
-        new TableColumn({field: 'color'}),
-        new TableColumn({field: 'width'}),
-        new TableColumn({field: 'value'}),
+        new TableColumn({field: "color"}),
+        new TableColumn({field: "width"}),
+        new TableColumn({field: "value"}),
       ]
 
-      const aggregators = [new SumAggregator({field_: 'value'})]
+      const aggregators = [new SumAggregator({field_: "value"})]
       grouping = [
-        new GroupingInfo({getter: 'color', aggregators, collapsed: true}),
-        new GroupingInfo({getter: 'width', aggregators, collapsed: true}),
+        new GroupingInfo({getter: "color", aggregators, collapsed: true}),
+        new GroupingInfo({getter: "width", aggregators, collapsed: true}),
       ]
     })
 

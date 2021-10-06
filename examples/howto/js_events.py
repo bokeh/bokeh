@@ -18,17 +18,17 @@ def display_event(div, attributes=[]):
     """
     style = 'float: left; clear: left; font-size: 13px'
     return CustomJS(args=dict(div=div), code="""
-        var attrs = %s;
-        var args = [];
-        for (var i = 0; i < attrs.length; i++) {
-            var val = JSON.stringify(cb_obj[attrs[i]], function(key, val) {
+        const attrs = %s;
+        const args = [];
+        for (let i = 0; i < attrs.length; i++) {
+            const val = JSON.stringify(cb_obj[attrs[i]], function(key, val) {
                 return val.toFixed ? Number(val.toFixed(2)) : val;
             })
             args.push(attrs[i] + '=' + val)
         }
-        var line = "<span style=%r><b>" + cb_obj.event_name + "</b>(" + args.join(", ") + ")</span>\\n";
-        var text = div.text.concat(line);
-        var lines = text.split("\\n")
+        const line = "<span style=%r><b>" + cb_obj.event_name + "</b>(" + args.join(", ") + ")</span>\\n";
+        const text = div.text.concat(line);
+        const lines = text.split("\\n")
         if (lines.length > 35)
             lines.shift();
         div.text = lines.join("\\n");
@@ -44,7 +44,7 @@ colors = [
     "#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50+2*x, 30+2*y)
 ]
 
-p = figure(tools="pan,wheel_zoom,zoom_in,zoom_out,reset,tap,lasso_select,box_select")
+p = figure(tools="pan,wheel_zoom,zoom_in,zoom_out,reset,tap,lasso_select,box_select,box_zoom,undo,redo")
 
 p.scatter(x, y, radius=radii,
           fill_color=colors, fill_alpha=0.6,
@@ -77,7 +77,7 @@ p.js_on_event(events.PressUp,   display_event(div, attributes=point_attributes))
 p.js_on_event(events.MouseWheel, display_event(div,attributes=point_attributes+['delta']))
 
 # Mouse move, enter and leave
-p.js_on_event(events.MouseMove,  display_event(div, attributes=point_attributes))
+# p.js_on_event(events.MouseMove,  display_event(div, attributes=point_attributes))
 p.js_on_event(events.MouseEnter, display_event(div, attributes=point_attributes))
 p.js_on_event(events.MouseLeave, display_event(div, attributes=point_attributes))
 
@@ -92,6 +92,9 @@ pinch_attributes = point_attributes + ['scale']
 p.js_on_event(events.Pinch,      display_event(div, attributes=pinch_attributes))
 p.js_on_event(events.PinchStart, display_event(div, attributes=point_attributes))
 p.js_on_event(events.PinchEnd,   display_event(div, attributes=point_attributes))
+
+# Ranges Update events
+p.js_on_event(events.RangesUpdate, display_event(div, attributes=['x0','x1','y0','y1']))
 
 # Selection events
 p.js_on_event(events.SelectionGeometry, display_event(div, attributes=['geometry', 'final']))

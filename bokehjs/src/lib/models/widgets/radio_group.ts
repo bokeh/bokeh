@@ -7,9 +7,9 @@ import {InputGroup, InputGroupView} from "./input_group"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class RadioGroupView extends InputGroupView {
-  model: RadioGroup
+  override model: RadioGroup
 
-  render(): void {
+  override render(): void {
     super.render()
 
     const group = div({class: [inputs.input_group, this.model.inline ? inputs.inline : null]})
@@ -20,7 +20,7 @@ export class RadioGroupView extends InputGroupView {
 
     this._inputs = []
     for (let i = 0; i < labels.length; i++) {
-      const radio = input({type: `radio`, name, value: `${i}`})
+      const radio = input({type: "radio", name, value: `${i}`})
       radio.addEventListener("change", () => this.change_active(i))
       this._inputs.push(radio)
 
@@ -29,7 +29,7 @@ export class RadioGroupView extends InputGroupView {
       if (i == active)
         radio.checked = true
 
-      const label_el = label({}, radio, span({}, labels[i]))
+      const label_el = label(radio, span(labels[i]))
       group.appendChild(label_el)
     }
   }
@@ -43,7 +43,7 @@ export namespace RadioGroup {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = InputGroup.Props & {
-    active: p.Property<number>
+    active: p.Property<number | null>
     labels: p.Property<string[]>
     inline: p.Property<boolean>
   }
@@ -52,18 +52,18 @@ export namespace RadioGroup {
 export interface RadioGroup extends RadioGroup.Attrs {}
 
 export class RadioGroup extends InputGroup {
-  properties: RadioGroup.Props
-  __view_type__: RadioGroupView
+  override properties: RadioGroup.Props
+  override __view_type__: RadioGroupView
 
   constructor(attrs?: Partial<RadioGroup.Attrs>) {
     super(attrs)
   }
 
-  static init_RadioGroup(): void {
+  static {
     this.prototype.default_view = RadioGroupView
 
-    this.define<RadioGroup.Props>(({Boolean, Int, String, Array}) => ({
-      active:   [ Int ],
+    this.define<RadioGroup.Props>(({Boolean, Int, String, Array, Nullable}) => ({
+      active:   [ Nullable(Int), null ],
       labels:   [ Array(String), [] ],
       inline:   [ Boolean, false ],
     }))

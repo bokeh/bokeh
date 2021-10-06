@@ -19,13 +19,13 @@ export namespace AjaxDataSource {
 export interface AjaxDataSource extends AjaxDataSource.Attrs {}
 
 export class AjaxDataSource extends WebDataSource {
-  properties: AjaxDataSource.Props
+  override properties: AjaxDataSource.Props
 
   constructor(attrs?: Partial<AjaxDataSource.Attrs>) {
     super(attrs)
   }
 
-  static init_AjaxDataSource(): void {
+  static {
     this.define<AjaxDataSource.Props>(({Boolean, Int, String, Dict, Nullable}) => ({
       polling_interval: [ Nullable(Int), null ],
       content_type:     [ String, "application/json" ],
@@ -38,7 +38,7 @@ export class AjaxDataSource extends WebDataSource {
   protected interval: number | null = null
   protected initialized: boolean = false
 
-  destroy(): void {
+  override destroy(): void {
     if (this.interval != null)
       clearInterval(this.interval)
     super.destroy()

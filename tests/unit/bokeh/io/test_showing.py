@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -15,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-from mock import Mock, patch
+from mock import MagicMock, Mock, patch
 
 # Bokeh imports
 from bokeh.application.application import Application
@@ -36,7 +38,7 @@ import bokeh.io.showing as bis # isort:skip
 #-----------------------------------------------------------------------------
 
 @patch('bokeh.io.showing._show_with_state')
-def test_show_with_default_args(mock__show_with_state) -> None:
+def test_show_with_default_args(mock__show_with_state: MagicMock) -> None:
     curstate().reset()
     default_kwargs = dict(browser=None, new="tab", notebook_handle=False)
     p = Plot()
@@ -47,7 +49,7 @@ def test_show_with_default_args(mock__show_with_state) -> None:
     assert curdoc().roots == []
 
 @patch('bokeh.io.showing._show_with_state')
-def test_show_with_explicit_args(mock__show_with_state) -> None:
+def test_show_with_explicit_args(mock__show_with_state: MagicMock) -> None:
     curstate().reset()
     kwargs = dict(browser="browser", new="new", notebook_handle=True)
     p = Plot()
@@ -58,7 +60,7 @@ def test_show_with_explicit_args(mock__show_with_state) -> None:
     assert curdoc().roots == []
 
 @patch('bokeh.io.showing.run_notebook_hook')
-def test_show_with_app(mock_run_notebook_hook, ipython) -> None:
+def test_show_with_app(mock_run_notebook_hook: MagicMock, ipython) -> None:
     curstate().reset()
     app = Application()
     output_notebook()
@@ -96,9 +98,10 @@ def test_show_with_bad_object(obj) -> None:
 @patch('bokeh.io.showing.run_notebook_hook')
 @patch('bokeh.io.showing._show_file_with_state')
 @patch('bokeh.io.showing.get_browser_controller')
-def test__show_with_state_with_notebook(mock_get_browser_controller,
-                                        mock__show_file_with_state,
-                                        mock_run_notebook_hook):
+def test__show_with_state_with_notebook(
+        mock_get_browser_controller: MagicMock,
+        mock__show_file_with_state: MagicMock,
+        mock_run_notebook_hook: MagicMock) -> None:
     mock_get_browser_controller.return_value = "controller"
     s = State()
 
@@ -130,10 +133,11 @@ def test__show_with_state_with_notebook(mock_get_browser_controller,
 @patch('bokeh.io.notebook.show_doc')
 @patch('bokeh.io.showing._show_file_with_state')
 @patch('bokeh.io.showing.get_browser_controller')
-def test__show_with_state_with_no_notebook(mock_get_browser_controller,
-                                           mock__show_file_with_state,
-                                           mock_show_doc,
-                                           mock_get_comms):
+def test__show_with_state_with_no_notebook(
+        mock_get_browser_controller: MagicMock,
+        mock__show_file_with_state: MagicMock,
+        mock_show_doc: MagicMock,
+        mock_get_comms: MagicMock):
     mock_get_browser_controller.return_value = "controller"
     mock_get_comms.return_value = "comms"
     s = State()
@@ -150,7 +154,7 @@ def test__show_with_state_with_no_notebook(mock_get_browser_controller,
 
 @patch('os.path.abspath')
 @patch('bokeh.io.showing.save')
-def test(mock_save, mock_abspath):
+def test(mock_save: MagicMock, mock_abspath: MagicMock):
     controller = Mock()
     mock_save.return_value = "savepath"
 

@@ -36,6 +36,8 @@ Documents by adding an empty plot with a title taken from ``args``.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -43,7 +45,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from types import ModuleType
+from typing import List
+
 # Bokeh imports
+from ...core.types import PathLike
 from .code import CodeHandler
 
 #-----------------------------------------------------------------------------
@@ -65,27 +72,25 @@ __all__ = (
 class ScriptHandler(CodeHandler):
     ''' Modify Bokeh documents by executing code from Python scripts.
 
+    .. autoclasstoc::
+
     '''
 
     _logger_text = "%s: call to %s() ignored when running scripts with the 'bokeh' command."
 
     _origin = "Script"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *, filename: PathLike, argv: List[str] = [], package: ModuleType | None = None) -> None:
         '''
 
         Keywords:
             filename (str) : a path to a Python source (".py") file
 
         '''
-        if 'filename' not in kwargs:
-            raise ValueError('Must pass a filename to ScriptHandler')
-        filename = kwargs['filename']
-
         with open(filename, 'r', encoding='utf-8') as f:
-            kwargs['source'] = f.read()
+            source = f.read()
 
-        super().__init__(*args, **kwargs)
+        super().__init__(source=source, filename=filename, argv=argv, package=package)
 
 #-----------------------------------------------------------------------------
 # Private API

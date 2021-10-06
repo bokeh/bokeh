@@ -15,10 +15,10 @@ export type XYGlyphData = GlyphData & {
 export interface XYGlyphView extends XYGlyphData {}
 
 export abstract class XYGlyphView extends GlyphView {
-  model: XYGlyph
-  visuals: XYGlyph.Visuals
+  override model: XYGlyph
+  override visuals: XYGlyph.Visuals
 
-  protected _project_data(): void {
+  protected override _project_data(): void {
     inplace.project_xy(this._x, this._y)
   }
 
@@ -28,11 +28,7 @@ export abstract class XYGlyphView extends GlyphView {
     for (let i = 0; i < data_size; i++) {
       const x = _x[i]
       const y = _y[i]
-
-      if (isNaN(x + y) || !isFinite(x + y))
-        index.add_empty()
-      else
-        index.add(x, y, x, y)
+      index.add_point(x, y)
     }
   }
 
@@ -55,14 +51,14 @@ export namespace XYGlyph {
 export interface XYGlyph extends XYGlyph.Attrs {}
 
 export abstract class XYGlyph extends Glyph {
-  properties: XYGlyph.Props
-  __view_type__: XYGlyphView
+  override properties: XYGlyph.Props
+  override __view_type__: XYGlyphView
 
   constructor(attrs?: Partial<XYGlyph.Attrs>) {
     super(attrs)
   }
 
-  static init_XYGlyph(): void {
+  static {
     this.define<XYGlyph.Props>(({}) => ({
       x: [ p.XCoordinateSpec, {field: "x"} ],
       y: [ p.YCoordinateSpec, {field: "y"} ],

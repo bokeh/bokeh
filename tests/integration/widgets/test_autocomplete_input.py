@@ -9,6 +9,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -42,7 +44,7 @@ pytest_plugins = (
 
 def modify_doc(doc):
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-    plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+    plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
     plot.add_glyph(source, Circle(x='x', y='y', size=20))
     plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
     input_box = AutocompleteInput(css_classes=["foo"])
@@ -377,6 +379,30 @@ class Test_AutocompleteInput:
         assert items[1].text == "12344557"
         assert "bk-active" not in items[0].get_attribute('class')
         assert "bk-active" in items[1].get_attribute('class')
+
+    def test_unrestricted_selection_callback_count(self, bokeh_server_page) -> None:
+        class CallbackCounter:
+            def __init__(self) -> None:
+                self.count = 0
+
+            def increment(self, attr, old, new) -> None:
+                self.count += 1
+                self.new = new
+
+        counter = CallbackCounter()
+
+        def unrestricted_input(doc):
+            input_box = AutocompleteInput(css_classes=["foo"], completions = ["100001", "12344556"], restrict=False)
+            input_box.on_change('value', counter.increment)
+            plot = Plot()
+            doc.add_root(column(input_box, plot))
+
+        page = bokeh_server_page(unrestricted_input)
+
+        el = page.driver.find_element_by_css_selector('.foo input')
+        enter_text_in_element(page.driver, el, "ASDF", enter=True)
+        assert(counter.count == 1)
+        assert(counter.new == "ASDF")
 
     @flaky(max_runs=10)
     def test_server_on_change_no_round_trip_without_enter_or_click(self, bokeh_server_page) -> None:

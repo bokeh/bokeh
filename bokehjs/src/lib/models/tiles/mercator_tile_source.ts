@@ -15,13 +15,13 @@ export namespace MercatorTileSource {
 export interface MercatorTileSource extends MercatorTileSource.Attrs {}
 
 export class MercatorTileSource extends TileSource {
-  properties: MercatorTileSource.Props
+  override properties: MercatorTileSource.Props
 
   constructor(attrs?: Partial<MercatorTileSource.Attrs>) {
     super(attrs)
   }
 
-  static init_MercatorTileSource(): void {
+  static {
     this.define<MercatorTileSource.Props>(({Boolean}) => ({
       snap_to_zoom: [ Boolean, false ],
       wrap_around:  [ Boolean, true ],
@@ -36,7 +36,7 @@ export class MercatorTileSource extends TileSource {
 
   protected _resolutions: number[]
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._resolutions = range(this.min_zoom, this.max_zoom+1).map((z) => this.get_resolution(z))
   }
@@ -224,15 +224,15 @@ export class MercatorTileSource extends TileSource {
       const mask = 1 << (i - 1)
 
       switch (value) {
-        case '0':
+        case "0":
           continue
-        case '1':
+        case "1":
           tileX |= mask
           break
-        case '2':
+        case "2":
           tileY |= mask
           break
-        case '3':
+        case "3":
           tileX |= mask
           tileY |= mask
           break

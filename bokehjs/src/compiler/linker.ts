@@ -216,9 +216,9 @@ export class Artifact {
   write(path: string): void {
     const dir = dirname(path)
     const name = basename(path, ".js")
-    write(path, this.full_source(name + ".js.map"))
+    write(path, this.full_source(`${name}.js.map`))
     if (this.sourcemap != null) {
-      write(join(dir, name + ".js.map"), JSON.stringify(this.sourcemap))
+      write(join(dir, `${name}.js.map`), JSON.stringify(this.sourcemap))
     }
   }
 }
@@ -231,7 +231,7 @@ export interface LinkerOpts {
   excluded?: (dep: string) => boolean
   builtins?: boolean
   cache?: Path
-  target?: "ES2020" | "ES2017" | "ES5"
+  target?: "ES2020" | "ES2017" | "ES2015"
   es_modules?: boolean
   minify?: boolean
   plugin?: boolean
@@ -250,7 +250,7 @@ export class Linker {
   readonly builtins: boolean
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
-  readonly target: "ES2020" | "ES2017" | "ES5" | null
+  readonly target: "ES2020" | "ES2017" | "ES2015" | null
   readonly es_modules: boolean
   readonly minify: boolean
   readonly plugin: boolean
@@ -296,7 +296,7 @@ export class Linker {
     this.plugin = opts.plugin ?? false
 
     this.shims = new Set(opts.shims ?? [])
-    this.detect_cycles = opts.detect_cycles ?? false
+    this.detect_cycles = opts.detect_cycles ?? true
   }
 
   is_external(dep: string): boolean {
@@ -474,7 +474,10 @@ export class Linker {
 
     for (const {module} of this.cache.values()) {
       for (const [dep, file] of module.dependency_paths) {
-        module.dependencies.set(dep, this.cache.get(file)!.module)
+        const file_entry = this.cache.get(file)
+        if (file_entry == null)
+          throw new Error(`${file} not in cache`)
+        module.dependencies.set(dep, file_entry.module)
       }
     }
   }
@@ -527,10 +530,10 @@ export class Linker {
     if (file_exists(path))
       return path
 
-    const js_file = path + ".js"
+    const js_file = `${path}.js`
     if (file_exists(js_file))
       return js_file
-    const json_file = path + ".json"
+    const json_file = `${path}.json`
     if (file_exists(json_file))
       return json_file
 
@@ -549,8 +552,8 @@ export class Linker {
     if (file_exists(path))
       return path
 
-    const js_file = path + ".js"
-    const json_file = path + ".json"
+    const js_file = `${path}.js`
+    const json_file = `${path}.json`
     const has_js_file = file_exists(js_file)
     const has_json_file = file_exists(json_file)
     const has_file = has_js_file ?? has_json_file
@@ -579,10 +582,10 @@ export class Linker {
       if (file_exists(path))
         return path
 
-      const js_file = path + ".js"
+      const js_file = `${path}.js`
       if (file_exists(js_file))
         return js_file
-      const json_file = path + ".json"
+      const json_file = `${path}.json`
       if (file_exists(json_file))
         return json_file
 
@@ -720,8 +723,8 @@ export ${export_type} css;
     if (changed) {
       let collected: string[] | null = null
       if ((this.target != null && resolution == "ESM") || type == "json") {
-        const {ES2020, ES2017, ES5} = ts.ScriptTarget
-        const target = this.target == "ES2020" ? ES2020 : (this.target == "ES2017" ? ES2017 : ES5)
+        const {ES2020, ES2017, ES2015} = ts.ScriptTarget
+        const target = this.target == "ES2020" ? ES2020 : (this.target == "ES2017" ? ES2017 : ES2015)
         const imports = new Set<string>()
         if (canonical != "tslib") {
           imports.add("tslib")
@@ -730,9 +733,6 @@ export ${export_type} css;
         const transform: {before: Transformers, after: Transformers} = {
           before: [transforms.collect_imports(imports), transforms.rename_exports(), transforms.collect_exports(exported)],
           after: [],
-        }
-        if (canonical == "core/util/ndarray" && target == ES5) {
-          transform.after.push(transforms.es5_fix_extend_builtins())
         }
 
         // XXX: .json extension will cause an internal error
@@ -863,13 +863,15 @@ export function transpile(file: Path, source: string, target: ts.ScriptTarget,
 
 export async function minify(module: ModuleInfo, source: string, ecma: terser.ECMA): Promise<{min_source: string, min_map?: string}> {
   const name = basename(module.file)
-  const min_js = rename(name, {ext: '.min.js'})
-  const min_js_map = rename(name, {ext: '.min.js.map'})
+  const min_js = rename(name, {ext: ".min.js"})
+  const min_js_map = rename(name, {ext: ".min.js.map"})
 
   const minify_opts: terser.MinifyOptions = {
     ecma,
     format: {
       comments: /^!|copyright|license|\(c\)/i,
+      // https://github.com/terser/terser/issues/410
+      ascii_only: true,
     },
     sourceMap: {
       filename: basename(min_js),
@@ -883,7 +885,7 @@ export async function minify(module: ModuleInfo, source: string, ecma: terser.EC
       min_source: code ?? "",
       min_map: typeof map === "string" ? map : undefined,
     }
-  } catch (error: unknown) {
+  } catch (error) {
     throw new BuildError("linker", `${error}`)
   }
 }

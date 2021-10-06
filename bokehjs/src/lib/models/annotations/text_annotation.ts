@@ -1,18 +1,33 @@
 import {Annotation, AnnotationView} from "./annotation"
 import * as visuals from "core/visuals"
-import {div, display, undisplay, remove} from "core/dom"
-import {RenderMode} from "core/enums"
 import * as p from "core/properties"
 import {SideLayout} from "core/layout/side_panel"
-import {font_metrics} from "core/util/text"
 import {Context2d} from "core/util/canvas"
-import {assert, unreachable} from "core/util/assert"
+import {BaseText, BaseTextView} from "models/text/base_text"
+import {build_view} from "core/build_views"
+import {isString} from "core/util/types"
+import {parse_delimited_string} from "models/text/utils"
+import {Position} from "core/graphics"
+import * as mixins from "core/property_mixins"
 
 export abstract class TextAnnotationView extends AnnotationView {
-  model: TextAnnotation
-  visuals: TextAnnotation.Visuals
+  override model: TextAnnotation
+  override visuals: TextAnnotation.Visuals
 
-  update_layout(): void {
+  protected _text_view: BaseTextView
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    await this._init_text()
+  }
+
+  protected async _init_text(): Promise<void> {
+    const {text} = this.model
+    const _text = isString(text) ? parse_delimited_string(text) : text
+    this._text_view = await build_view(_text, {parent: this})
+  }
+
+  override update_layout(): void {
     const {panel} = this
     if (panel != null)
       this.layout = new SideLayout(panel, () => this.get_size(), true)
@@ -20,142 +35,60 @@ export abstract class TextAnnotationView extends AnnotationView {
       this.layout = undefined
   }
 
-  protected el?: HTMLElement
+  override connect_signals(): void {
+    super.connect_signals()
 
-  initialize(): void {
-    super.initialize()
+    const {text} = this.model.properties
+    this.on_change(text, async () => {
+      this._text_view.remove()
+      await this._init_text()
+    })
 
-    if (this.model.render_mode == 'css') {
-      this.el = div()
-      this.plot_view.canvas_view.add_overlay(this.el)
-    }
+    this.connect(this.model.change, () => this.request_render())
   }
 
-  remove(): void {
-    if (this.el != null)
-      remove(this.el)
+  override remove(): void {
+    this._text_view.remove()
     super.remove()
   }
 
-  connect_signals(): void {
-    super.connect_signals()
-    if (this.model.render_mode == 'css') {
-      // dispatch CSS update immediately
-      this.connect(this.model.change, () => this.render())
-    } else {
-      this.connect(this.model.change, () => this.request_render())
-    }
+  override has_finished(): boolean {
+    if (!super.has_finished())
+      return false
+
+    if (!this._text_view.has_finished())
+      return false
+
+    return true
   }
 
-  render(): void {
-    if (!this.model.visible && this.model.render_mode == "css")
-      undisplay(this.el!)
-
-    super.render()
+  override get displayed(): boolean {
+    return super.displayed && this._text_view.model.text != "" && this.visuals.text.doit
   }
 
-  protected _calculate_text_dimensions(ctx: Context2d, text: string): [number, number] {
-    const {width} = ctx.measureText(text)
-    const {height} = font_metrics(this.visuals.text.font_value())
-    return [width, height]
-  }
+  protected _paint(ctx: Context2d, position: Position, angle: number): void {
+    const graphics = this._text_view.graphics()
+    graphics.angle = angle
+    graphics.position = position
+    graphics.align = "auto"
+    graphics.visuals = this.visuals.text.values()
 
-  protected _calculate_bounding_box_dimensions(ctx: Context2d, text: string): [number, number, number, number] {
-    const [width, height] = this._calculate_text_dimensions(ctx, text)
+    const {background_fill, border_line} = this.visuals
+    if (background_fill.doit || border_line.doit) {
+      const {p0, p1, p2, p3} = graphics.rect()
+      ctx.beginPath()
+      ctx.moveTo(p0.x, p0.y)
+      ctx.lineTo(p1.x, p1.y)
+      ctx.lineTo(p2.x, p2.y)
+      ctx.lineTo(p3.x, p3.y)
+      ctx.closePath()
 
-    let x_offset: number
-    switch (ctx.textAlign) {
-      case 'left':   x_offset = 0;          break
-      case 'center': x_offset = -width / 2; break
-      case 'right':  x_offset = -width;     break
-      default:
-        unreachable()
+      this.visuals.background_fill.apply(ctx)
+      this.visuals.border_line.apply(ctx)
     }
 
-    // guestimated from https://www.w3.org/TR/2dcontext/#dom-context-2d-textbaseline
-    let y_offset: number
-    switch (ctx.textBaseline) {
-      case 'top':         y_offset =  0.0;           break
-      case 'middle':      y_offset = -0.5  * height; break
-      case 'bottom':      y_offset = -1.0  * height; break
-      case 'alphabetic':  y_offset = -0.8  * height; break
-      case 'hanging':     y_offset = -0.17 * height; break
-      case 'ideographic': y_offset = -0.83 * height; break
-      default:
-        unreachable()
-    }
-
-    return [x_offset, y_offset, width, height]
-  }
-
-  protected _canvas_text(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
-    this.visuals.text.set_value(ctx)
-    const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text)
-
-    ctx.save()
-
-    ctx.beginPath()
-    ctx.translate(sx, sy)
-
-    if (angle)
-      ctx.rotate(angle)
-
-    ctx.rect(bbox_dims[0], bbox_dims[1], bbox_dims[2], bbox_dims[3])
-
-    if (this.visuals.background_fill.doit) {
-      this.visuals.background_fill.set_value(ctx)
-      ctx.fill()
-    }
-
-    if (this.visuals.border_line.doit) {
-      this.visuals.border_line.set_value(ctx)
-      ctx.stroke()
-    }
-
-    if (this.visuals.text.doit) {
-      this.visuals.text.set_value(ctx)
-      ctx.fillText(text, 0, 0)
-    }
-
-    ctx.restore()
-  }
-
-  protected _css_text(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
-    const {el} = this
-    assert(el != null)
-
-    undisplay(el)
-
-    this.visuals.text.set_value(ctx)
-    const [x, y] = this._calculate_bounding_box_dimensions(ctx, text)
-
-    el.style.position = "absolute"
-    el.style.left = `${sx + x}px`
-    el.style.top = `${sy + y}px`
-    el.style.color = ctx.fillStyle as string
-    el.style.font = ctx.font
-    el.style.lineHeight = "normal" // needed to prevent ipynb css override
-
-    if (angle) {
-      el.style.transform = `rotate(${angle}rad)`
-    }
-
-    if (this.visuals.background_fill.doit) {
-      this.visuals.background_fill.set_value(ctx)
-      el.style.backgroundColor = ctx.fillStyle as string
-    }
-
-    if (this.visuals.border_line.doit) {
-      this.visuals.border_line.set_value(ctx)
-
-      // attempt to support vector-style ("8 4 8") line dashing for css mode
-      el.style.borderStyle = ctx.lineDash.length < 2 ? "solid" : "dashed"
-      el.style.borderWidth = `${ctx.lineWidth}px`
-      el.style.borderColor = ctx.strokeStyle as string
-    }
-
-    el.textContent = text
-    display(el)
+    if (this.visuals.text.doit)
+      graphics.paint(ctx)
   }
 }
 
@@ -163,8 +96,13 @@ export namespace TextAnnotation {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
-    render_mode: p.Property<RenderMode>
-  }
+    text: p.Property<string | BaseText>
+  } & Mixins
+
+  export type Mixins =
+    mixins.Text &
+    mixins.BorderLine &
+    mixins.BackgroundFill
 
   export type Visuals = Annotation.Visuals & {
     text: visuals.Text
@@ -176,16 +114,27 @@ export namespace TextAnnotation {
 export interface TextAnnotation extends TextAnnotation.Attrs {}
 
 export abstract class TextAnnotation extends Annotation {
-  properties: TextAnnotation.Props
-  __view_type__: TextAnnotationView
+  override properties: TextAnnotation.Props
+  override __view_type__: TextAnnotationView
 
   constructor(attrs?: Partial<TextAnnotation.Attrs>) {
     super(attrs)
   }
 
-  static init_TextAnnotation(): void {
-    this.define<TextAnnotation.Props>(() => ({
-      render_mode: [ RenderMode, "canvas" ],
+  static {
+    this.mixins<TextAnnotation.Mixins>([
+      mixins.Text,
+      ["border_",     mixins.Line],
+      ["background_", mixins.Fill],
+    ])
+
+    this.define<TextAnnotation.Props>(({String, Or, Ref}) => ({
+      text: [ Or(String, Ref(BaseText)), "" ],
     }))
+
+    this.override<TextAnnotation.Props>({
+      background_fill_color: null,
+      border_line_color: null,
+    })
   }
 }

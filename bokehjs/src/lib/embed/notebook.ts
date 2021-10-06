@@ -33,7 +33,7 @@ function _handle_notebook_comms(this: Document, receiver: Receiver, comm_msg: Co
 }
 
 function _init_comms(target: string, doc: Document): void {
-  if (typeof Jupyter !== 'undefined' && Jupyter.notebook.kernel != null) {
+  if (typeof Jupyter !== "undefined" && Jupyter.notebook.kernel != null) {
     logger.info(`Registering Jupyter comms for target ${target}`)
     const comm_manager = Jupyter.notebook.kernel.comm_manager
     try {
@@ -42,7 +42,7 @@ function _init_comms(target: string, doc: Document): void {
         const r = new Receiver()
         comm.on_msg(_handle_notebook_comms.bind(doc, r))
       })
-    } catch (e: unknown) {
+    } catch (e) {
       logger.warn(`Jupyter comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
     }
   } else if (doc.roots()[0].id in kernels) {
@@ -54,10 +54,10 @@ function _init_comms(target: string, doc: Document): void {
         const r = new Receiver()
         comm.onMsg = _handle_notebook_comms.bind(doc, r)
       })
-    } catch (e: unknown) {
+    } catch (e) {
       logger.warn(`Jupyter comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
     }
-  } else if  (typeof google != 'undefined' && google.colab.kernel != null) {
+  } else if  (typeof google != "undefined" && google.colab.kernel != null) {
     logger.info(`Registering Google Colab comms for target ${target}`)
     const comm_manager = google.colab.kernel.comms
     try {
@@ -74,11 +74,11 @@ function _init_comms(target: string, doc: Document): void {
           _handle_notebook_comms.bind(doc)(r, msg)
         }
       })
-    } catch (e: unknown) {
+    } catch (e) {
       logger.warn(`Google Colab comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
     }
   } else {
-    console.warn(`Jupyter notebooks comms not available. push_notebook() will not function. If running JupyterLab ensure the latest @bokeh/jupyter_bokeh extension is installed. In an exported notebook this warning is expected.`)
+    console.warn("Jupyter notebooks comms not available. push_notebook() will not function. If running JupyterLab ensure the latest @bokeh/jupyter_bokeh extension is installed. In an exported notebook this warning is expected.")
   }
 }
 

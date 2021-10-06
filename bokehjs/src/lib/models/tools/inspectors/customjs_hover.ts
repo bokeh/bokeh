@@ -15,13 +15,13 @@ export namespace CustomJSHover {
 export interface CustomJSHover extends CustomJSHover.Attrs {}
 
 export class CustomJSHover extends Model {
-  properties: CustomJSHover.Props
+  override properties: CustomJSHover.Props
 
   constructor(attrs?: Partial<CustomJSHover.Attrs>) {
     super(attrs)
   }
 
-  static init_CustomJSHover(): void {
+  static {
     this.define<CustomJSHover.Props>(({Unknown, String, Dict}) => ({
       args: [ Dict(Unknown), {} ],
       code: [ String, "" ],

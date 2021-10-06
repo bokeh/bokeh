@@ -68,7 +68,7 @@ export class Signal<Args, Sender extends object> {
 }
 
 export class Signal0<Sender extends object> extends Signal<void, Sender> {
-  emit(): void {
+  override emit(): void {
     super.emit(undefined)
   }
 }
@@ -152,18 +152,6 @@ export namespace Signal {
       schedule_cleanup(senders)
     }
   }
-
-  /** @deprecated */
-  export const disconnectBetween = disconnect_between
-
-  /** @deprecated */
-  export const disconnectSender = disconnect_sender
-
-  /** @deprecated */
-  export const disconnectReceiver = disconnect_receiver
-
-  /** @deprecated */
-  export const disconnectAll = disconnect_all
 }
 
 export interface ISignalable {

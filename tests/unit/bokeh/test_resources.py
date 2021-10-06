@@ -8,6 +8,8 @@
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest  # noqa isort:skip
 
 # -----------------------------------------------------------------------------
@@ -19,7 +21,8 @@ import os
 import re
 import subprocess
 import sys
-from os.path import basename
+from copy import deepcopy
+from typing import List
 
 # External imports
 import bs4
@@ -29,7 +32,8 @@ from packaging.version import Version as V
 import bokeh.util.version as buv
 from bokeh import __version__
 from bokeh.models import Model
-from bokeh.resources import _get_cdn_urls
+from bokeh.resources import RuntimeMessage, _get_cdn_urls
+from bokeh.settings import LogLevel
 
 # Module under test
 import bokeh.resources as resources  # isort:skip
@@ -42,7 +46,7 @@ import bokeh.resources as resources  # isort:skip
 if os.environ.get("BOKEH_RESOURCES"):
     raise RuntimeError("Cannot run the unit tests with BOKEH_RESOURCES set")
 
-LOG_LEVELS = ["trace", "debug", "info", "warn", "error", "fatal"]
+LOG_LEVELS: List[LogLevel] = ["trace", "debug", "info", "warn", "error", "fatal"]
 
 DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
 
@@ -79,7 +83,7 @@ class TestSRIHashes:
     # TODO: (bev) conda build on CI is generating bogus versions like "0+untagged.1.g19dd2c8"
     @pytest.mark.skip
     def test_get_all_hashes_no_future_keys(self) -> None:
-        current = V(__version__.split("-", 1)[0])  # remove git hash, "-dirty", etc
+        current = V(__version__.split("+", 1)[0])  # remove git hash, "-dirty", etc
         all_hashes = resources.get_all_sri_hashes()
         for key in all_hashes:
             assert (
@@ -88,7 +92,7 @@ class TestSRIHashes:
 
     def test_get_sri_hashes_for_version(self) -> None:
         all_hashes = resources.get_all_sri_hashes()
-        for key, value in all_hashes.items():
+        for key in all_hashes:
             h = resources.get_sri_hashes_for_version(key)
             assert h == all_hashes[key]
 
@@ -108,22 +112,24 @@ class TestJSResources:
         assert r.mode == "inline"
         assert r.dev is False
 
-        assert len(r.js_raw) == 4
+        assert len(r.js_raw) == 6
         assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
         assert hasattr(r, "css_raw") is False
         assert r.messages == []
 
-    def test_js_resources_hashes_mock_full(self, monkeypatch) -> None:
+    def test_js_resources_hashes_mock_full(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", "1.4.0")
         monkeypatch.setattr(resources, "__version__", "1.4.0")
-        r = resources.JSResources()
+        r = deepcopy(resources.JSResources())
+        # Skip bokeh-mathjax for older versions
+        r.js_components.remove("bokeh-mathjax")
         assert r.mode == "cdn"
         hashes = resources.get_sri_hashes_for_version("1.4.0")
-        min_hashes = {v for k, v in hashes.items() if k.endswith(".min.js") and "api" not in k and "gl" not in k}
+        min_hashes = {v for k, v in hashes.items() if k.endswith(".min.js") and "api" not in k}
         assert set(r.hashes.values()) == min_hashes
 
-    @pytest.mark.parametrize('v', ["1.4.0dev6", "1.4.0rc1", "1.4.0dev6-50-foo"])
-    def test_js_resources_hashes_mock_non_full(self, v, monkeypatch) -> None:
+    @pytest.mark.parametrize('v', ["1.4.0dev6", "1.4.0rc1", "1.4.0dev6+50.foo"])
+    def test_js_resources_hashes_mock_non_full(self, v: str, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", v)
         monkeypatch.setattr(resources, "__version__", v)
         r = resources.JSResources()
@@ -171,7 +177,7 @@ class TestResources:
         assert r.mode == "inline"
         assert r.dev == False
 
-        assert len(r.js_raw) == 4
+        assert len(r.js_raw) == 6
         assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
         assert len(r.css_raw) == 0
         assert r.messages == []
@@ -179,10 +185,10 @@ class TestResources:
     def test_get_cdn_urls(self) -> None:
         dev_version = "0.0.1dev2"
         result = _get_cdn_urls(version=dev_version)
-        url = result["urls"](["bokeh"], "js")[0]
+        url = result.urls(["bokeh"], "js")[0]
         assert "bokeh/dev" in url
 
-    def test_cdn(self, monkeypatch) -> None:
+    def test_cdn(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(resources, "__version__", "1.0")
         r = resources.Resources(mode="cdn", version="1.0")
         assert r.mode == "cdn"
@@ -192,13 +198,13 @@ class TestResources:
         assert r.css_raw == []
         assert r.messages == []
 
-        resources.__version__ = "1.0-1-abc"
+        resources.__version__ = "1.0+1.abc"
         r = resources.Resources(mode="cdn", version="1.0")
         assert r.messages == [
-            {
-                "text": "Requesting CDN BokehJS version '1.0' from Bokeh development version '1.0-1-abc'. This configuration is unsupported and may not work!",
-                "type": "warn",
-            }
+            RuntimeMessage(
+                text="Requesting CDN BokehJS version '1.0' from Bokeh development version '1.0+1.abc'. This configuration is unsupported and may not work!",
+                type="warn",
+            )
         ]
 
     def test_server_default(self) -> None:
@@ -212,8 +218,10 @@ class TestResources:
 
         assert r.js_files == [
             "http://localhost:5006/static/js/bokeh.min.js",
+            "http://localhost:5006/static/js/bokeh-gl.min.js",
             "http://localhost:5006/static/js/bokeh-widgets.min.js",
             "http://localhost:5006/static/js/bokeh-tables.min.js",
+            "http://localhost:5006/static/js/bokeh-mathjax.min.js",
         ]
 
     def test_server_root_url(self) -> None:
@@ -225,8 +233,10 @@ class TestResources:
 
         assert r.js_files == [
             "http://foo/static/js/bokeh.min.js",
+            "http://foo/static/js/bokeh-gl.min.js",
             "http://foo/static/js/bokeh-widgets.min.js",
             "http://foo/static/js/bokeh-tables.min.js",
+            "http://foo/static/js/bokeh-mathjax.min.js",
         ]
 
     def test_server_root_url_empty(self) -> None:
@@ -238,20 +248,24 @@ class TestResources:
 
         assert r.js_files == [
             "static/js/bokeh.min.js",
+            "static/js/bokeh-gl.min.js",
             "static/js/bokeh-widgets.min.js",
             "static/js/bokeh-tables.min.js",
+            "static/js/bokeh-mathjax.min.js",
         ]
 
     def test_server_with_versioner(self) -> None:
-        def versioner(path):
+        def versioner(path: str) -> str:
             return path + "?v=VERSIONED"
 
         r = resources.Resources(mode="server", root_url="http://foo/", path_versioner=versioner)
 
         assert r.js_files == [
             "http://foo/static/js/bokeh.min.js?v=VERSIONED",
+            "http://foo/static/js/bokeh-gl.min.js?v=VERSIONED",
             "http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED",
             "http://foo/static/js/bokeh-tables.min.js?v=VERSIONED",
+            "http://foo/static/js/bokeh-mathjax.min.js?v=VERSIONED",
         ]
 
     def test_server_dev(self) -> None:
@@ -322,7 +336,7 @@ class TestResources:
                 resources.Resources(mode, root_url="foo")
 
     @pytest.mark.parametrize('env', ["BOKEH_CDN_VERSION", "BOKEH_ROOTDIR"])
-    def test_builtin_importable_with_env(self, monkeypatch, env) -> None:
+    def test_builtin_importable_with_env(self, monkeypatch: pytest.MonkeyPatch, env) -> None:
         cmd = [sys.executable, "-c", "import bokeh.resources"]
         monkeypatch.setenv(env, "foo")
         try:
@@ -330,20 +344,23 @@ class TestResources:
         except subprocess.CalledProcessError:
             pytest.fail(f"resources import failed with {env} set")
 
-    def test_render_js_cdn_release(self, monkeypatch) -> None:
+    def test_render_js_cdn_release(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0")
         monkeypatch.setattr(resources, "__version__", "2.0.0")
-        out = resources.CDN.render_js()
+        r = deepcopy(resources.CDN)
+        # Skip bokeh-mathjax for older versions
+        r.js_components.remove("bokeh-mathjax")
+        out = r.render_js()
         html = bs4.BeautifulSoup(out, "html.parser")
         scripts = html.findAll(name='script')
         for script in scripts:
             if "src" not in script.attrs:
                 continue
-            assert script.attrs['crossorigin'] == "anonymous"
-            assert script.attrs['integrity'].startswith("sha384-")
+            assert "crossorigin" not in script.attrs
+            assert "integrity" not in script.attrs
 
     @pytest.mark.parametrize('v', ["1.8.0rc1", "1.8.0dev6"])
-    def test_render_js_cdn_dev_release(self, v, monkeypatch) -> None:
+    def test_render_js_cdn_dev_release(self, v: str, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", v)
         monkeypatch.setattr(resources, "__version__", v)
         out = resources.CDN.render_js()
@@ -353,20 +370,23 @@ class TestResources:
             assert "crossorigin" not in script.attrs
             assert "integrity" not in script.attrs
 
-    def test_render_js_cdn_dev_local(self, monkeypatch) -> None:
-        monkeypatch.setattr(buv, "__version__", "2.0.0-foo")
-        monkeypatch.setattr(resources, "__version__", "2.0.0-foo")
-        out = resources.CDN.render_js()
+    def test_render_js_cdn_dev_local(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr(buv, "__version__", "2.0.0+foo")
+        monkeypatch.setattr(resources, "__version__", "2.0.0+foo")
+        r = deepcopy(resources.CDN)
+        # Skip bokeh-mathjax for older versions
+        r.js_components.remove("bokeh-mathjax")
+        out = r.render_js()
         html = bs4.BeautifulSoup(out, "html.parser")
         scripts = html.findAll(name='script')
         for script in scripts:
             if "src" not in script.attrs:
                 continue
-            assert script.attrs['crossorigin'] == "anonymous"
-            assert script.attrs['integrity'].startswith("sha384-")
+            assert "crossorigin" not in script.attrs
+            assert "integrity" not in script.attrs
 
-    @pytest.mark.parametrize('v', ["2.0.0", "2.0.0-foo", "1.8.0rc1", "1.8.0dev6"])
-    def test_render_js_inline(self, v, monkeypatch) -> None:
+    @pytest.mark.parametrize('v', ["2.0.0", "2.0.0+foo", "1.8.0rc1", "1.8.0dev6"])
+    def test_render_js_inline(self, v, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", v)
         monkeypatch.setattr(resources, "__version__", v)
         out = resources.INLINE.render_js()
@@ -431,36 +451,6 @@ def test_external_js_and_css_resource_ordering() -> None:
     # The files should be in the order defined by the lists in CustomModel2 and CustomModel3
     assert r.css_files.index("external_css_3") > r.css_files.index("external_css_2")
     assert r.js_files.index("external_js_3") > r.js_files.index("external_js_2")
-
-
-def test_legacy_resources():
-    r = resources.Resources(minified=True, legacy=True)
-    assert [ basename(f) for f in r._file_paths("js") ] == [
-        "bokeh.legacy.min.js",
-        "bokeh-widgets.legacy.min.js",
-        "bokeh-tables.legacy.min.js",
-    ]
-
-    r = resources.Resources(minified=True, legacy=False)
-    assert [ basename(f) for f in r._file_paths("js") ] == [
-        "bokeh.min.js",
-        "bokeh-widgets.min.js",
-        "bokeh-tables.min.js",
-    ]
-
-    r = resources.Resources(minified=False, legacy=True)
-    assert [ basename(f) for f in r._file_paths("js") ] == [
-        "bokeh.legacy.js",
-        "bokeh-widgets.legacy.js",
-        "bokeh-tables.legacy.js",
-    ]
-
-    r = resources.Resources(minified=False, legacy=False)
-    assert [ basename(f) for f in r._file_paths("js") ] == [
-        "bokeh.js",
-        "bokeh-widgets.js",
-        "bokeh-tables.js",
-    ]
 
 # -----------------------------------------------------------------------------
 # Dev API

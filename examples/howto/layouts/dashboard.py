@@ -25,8 +25,8 @@ def bollinger():
     p.title.text = 'Bollinger Bands'
     p.title_location = 'left'
     p.title.align = 'left'
-    p.plot_height = 600
-    p.plot_width = 800
+    p.width = 800
+    p.height = 600
     p.grid.grid_line_alpha = 0.4
     return [p]
 
@@ -56,7 +56,7 @@ def slider():
         const B = offset.value;
         const x = data['x']
         const y = data['y']
-        for (var i = 0; i < x.length; i++) {
+        for (let i = 0; i < x.length; i++) {
             y[i] = B + A*Math.sin(k*x[i]+phi);
         }
         source.change.emit();

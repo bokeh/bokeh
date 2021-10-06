@@ -25,6 +25,8 @@ generate the following output:
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging  # isort:skip
 
 log = logging.getLogger(__name__)
@@ -43,6 +45,7 @@ from os.path import basename
 from sphinx.errors import SphinxError
 
 # Bokeh imports
+from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective
 from .templates import JINJA_DETAIL
 
@@ -87,10 +90,7 @@ class BokehJinjaDirective(BokehDirective):
 
         template_text = open(template.filename).read()
         m = _DOCPAT.match(template_text)
-        if m:
-            doc = m.group(1)
-        else:
-            doc = None
+        doc = m.group(1) if m else None
 
         filename = basename(template.filename)
         rst_text = JINJA_DETAIL.render(
@@ -103,13 +103,14 @@ class BokehJinjaDirective(BokehDirective):
             template_text=_DOCPAT.sub("", template_text),
         )
 
-        return self._parse(rst_text, "<bokeh-jinja>")
+        return self.parse(rst_text, "<bokeh-jinja>")
 
 
 def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_directive_to_domain("py", "bokeh-jinja", BokehJinjaDirective)
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

@@ -2,7 +2,8 @@ from math import pi
 
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
-from bokeh.models import ColumnDataSource, CustomJSTransform, FuncTickFormatter, Select
+from bokeh.models import (ColumnDataSource, CustomJSTickFormatter,
+                          CustomJSTransform, Select)
 from bokeh.plotting import figure
 from bokeh.sampledata.population import data as df
 from bokeh.transform import factor_cmap, transform
@@ -16,8 +17,8 @@ groups = list(df.AgeGrp.unique())
 ages = ColumnDataSource(data=dict(AgeGrp=[], Sex=[], Value=[]))
 
 gender_transform = CustomJSTransform(args=dict(source=ages), func="", v_func="""
-    var val = new Float64Array(xs.length)
-    for (var i = 0; i < xs.length; i++) {
+    const val = new Float64Array(xs.length)
+    for (let i = 0; i < xs.length; i++) {
         if (source.data['Sex'][i] == 'Male')
             val[i] = -xs[i]
         else
@@ -26,7 +27,7 @@ gender_transform = CustomJSTransform(args=dict(source=ages), func="", v_func="""
     return val
 """)
 
-pyramid = figure(plot_width=600, plot_height=500, toolbar_location=None, y_range=groups,
+pyramid = figure(width=600, height=500, toolbar_location=None, y_range=groups,
                  title="Population Breakdown by Age Group and Gender",
                  x_axis_label="Population (Millions)",y_axis_label="Age Group")
 pyramid.hbar(y="AgeGrp", height=1, right=transform('Value', gender_transform),
@@ -34,7 +35,7 @@ pyramid.hbar(y="AgeGrp", height=1, right=transform('Value', gender_transform),
              fill_color=factor_cmap('Sex', palette=["#3B8686", "#CFF09E"], factors=["Male", "Female"]))
 
 pyramid.ygrid.grid_line_color = None
-pyramid.xaxis.formatter = FuncTickFormatter(code="""
+pyramid.xaxis.formatter = CustomJSTickFormatter(code="""
     return (Math.abs(tick) / 1e6) + " M"
 """)
 
@@ -43,7 +44,7 @@ pyramid.xaxis.formatter = FuncTickFormatter(code="""
 known = ColumnDataSource(data=dict(x=[], y=[]))
 predicted = ColumnDataSource(data=dict(x=[], y=[]))
 
-population = figure(plot_width=600, plot_height=180, toolbar_location=None,
+population = figure(width=600, height=180, toolbar_location=None,
                     title="Total Population by Year",
                     x_axis_label="Year",y_axis_label="Population")
 population.line("x", "y", color="violet", line_width=2, source=known, legend_label="known")
@@ -54,7 +55,7 @@ population.xgrid.grid_line_color = None
 population.legend.location = "center_right"
 population.x_range.end = 2150
 population.yaxis.minor_tick_line_color = None
-population.yaxis.formatter = FuncTickFormatter(code="""
+population.yaxis.formatter = CustomJSTickFormatter(code="""
     return (Math.abs(tick) / 1e9) + " B"
 """)
 

@@ -4,12 +4,11 @@
 //     Underscore may be freely distributed under the MIT license.
 
 import {Arrayable, TypedArray} from "../types"
-import {every} from "./array"
 
 const toString = Object.prototype.toString
 
 export function isBoolean(obj: unknown): obj is boolean {
-  return obj === true || obj === false || toString.call(obj) === '[object Boolean]'
+  return obj === true || obj === false || toString.call(obj) === "[object Boolean]"
 }
 
 export function isNumber(obj: unknown): obj is number {
@@ -24,10 +23,14 @@ export function isString(obj: unknown): obj is string {
   return toString.call(obj) === "[object String]"
 }
 
-export type Primitive = null | boolean | number | string
+export function isSymbol(obj: unknown): obj is symbol {
+  return typeof obj === "symbol"
+}
+
+export type Primitive = null | boolean | number | string | symbol
 
 export function isPrimitive(obj: unknown): obj is Primitive {
-  return obj === null || isBoolean(obj) || isNumber(obj) || isString(obj)
+  return obj === null || isBoolean(obj) || isNumber(obj) || isString(obj) || isSymbol(obj)
 }
 
 export function isFunction(obj: unknown): obj is Function {
@@ -38,13 +41,17 @@ export function isArray<T>(obj: unknown): obj is T[] {
   return Array.isArray(obj)
 }
 
-export function isArrayOf<T>(arr: unknown[], predicate: (item: unknown) => item is T): arr is T[] {
-  return every(arr, predicate)
+export function isArrayOf<T>(array: unknown[], predicate: (item: unknown) => item is T): array is T[] {
+  for (const item of array) {
+    if (!predicate(item))
+      return false
+  }
+  return true
 }
 
-export function isArrayableOf<T>(arr: Arrayable, predicate: (item: unknown) => item is T): arr is Arrayable<T> {
-  for (let i = 0, end = arr.length; i < end; i++) {
-    if (!predicate(arr[i]))
+export function isArrayableOf<T>(array: Arrayable, predicate: (item: unknown) => item is T): array is Arrayable<T> {
+  for (const item of array) {
+    if (!predicate(item))
       return false
   }
   return true
@@ -56,7 +63,7 @@ export function isTypedArray(obj: unknown): obj is TypedArray {
 
 export function isObject(obj: unknown): obj is object {
   const tp = typeof obj
-  return tp === 'function' || tp === 'object' && !!obj
+  return tp === "function" || tp === "object" && !!obj
 }
 
 export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
@@ -64,7 +71,7 @@ export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
 }
 
 export function isIterable(obj: unknown): obj is Iterable<unknown> {
-  return isObject(obj) && (obj as any)[Symbol.iterator] !== undefined
+  return isObject(obj) && Symbol.iterator in obj
 }
 
 export function isArrayable(obj: unknown): obj is Arrayable<unknown> {

@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -19,7 +21,7 @@ from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import Figure
 
 # Module under test
-from bokeh.models.layouts import Row, Column, LayoutDOM, WidgetBox # isort:skip
+from bokeh.models.layouts import Row, Column, LayoutDOM # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -93,12 +95,6 @@ def test_LayoutDOM_css_classes() -> None:
     m.css_classes = ('bar', )
     assert m.css_classes == ['bar']
 
-
-# TODO (bev) deprecation: 3.0
-def test_widgetbox_deprecated() -> None:
-    from bokeh.util.deprecation import BokehDeprecationWarning
-    with pytest.warns(BokehDeprecationWarning):
-        WidgetBox()
 
 #-----------------------------------------------------------------------------
 # Dev API

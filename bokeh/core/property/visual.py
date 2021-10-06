@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -23,11 +25,13 @@ import base64
 import datetime  # lgtm [py/import-and-import-from]
 import re
 from io import BytesIO
+from pathlib import Path
 
 # External imports
 import PIL.Image
 
 # Bokeh imports
+from ...util.deprecation import deprecated
 from ...util.serialization import convert_datetime_type
 from .. import enums
 from .auto import Auto
@@ -84,11 +88,11 @@ class DashPattern(Either):
         "dashdot": [6,4,2,4],
     }
 
-    def __init__(self, default=[], help=None):
+    def __init__(self, default=[], help=None) -> None:
         types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), Seq(Int)
         super().__init__(*types, default=default, help=help)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__class__.__name__
 
     def transform(self, value):
@@ -101,9 +105,6 @@ class DashPattern(Either):
                 return [int(x) for x in  value.split()]
         else:
             return value
-
-    def _sphinx_type(self):
-        return self._sphinx_prop_link()
 
 class FontSize(String):
 
@@ -128,21 +129,20 @@ class HatchPatternType(Either):
 
     """
 
-    def __init__(self, default=[], help=None):
+    def __init__(self, default=[], help=None) -> None:
         types = Enum(enums.HatchPattern), Enum(enums.HatchPatternAbbreviation)
         super().__init__(*types, default=default, help=help)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__class__.__name__
-
-    def _sphinx_type(self):
-        return self._sphinx_prop_link()
 
 class Image(Property):
     """ Accept image file types, e.g PNG, JPEG, TIFF, etc.
 
     This property can be configured with:
 
+    * A ``pathlib.Path`` image file path
+    * A data URL encoded image string
     * A string filename to be loaded with ``PIL.Image.open``
     * An RGB(A) NumPy array, will be converted to PNG
     * A ``PIL.Image.Image`` object
@@ -154,7 +154,7 @@ class Image(Property):
     def validate(self, value, detail=True):
         import numpy as np
 
-        if isinstance(value, (str, PIL.Image.Image)):
+        if isinstance(value, (str, Path, PIL.Image.Image)):
             return
 
         if isinstance(value, np.ndarray):
@@ -169,7 +169,14 @@ class Image(Property):
         if isinstance(value, np.ndarray):
             value = PIL.Image.fromarray(value)
 
+        if isinstance(value, str) and value.startswith("data:image/"):
+            return value
+
         if isinstance(value, str):
+            deprecated((2, 4, 0), "raw string path", "pathlib.Path")
+            value = Path(value)
+
+        if isinstance(value, Path):
             value = PIL.Image.open(value)
 
         if isinstance(value, PIL.Image.Image):
@@ -192,7 +199,7 @@ class MinMaxBounds(Either):
     want to constrain one end of the plot, you can set min or max to
     ``None`` e.g. ``DataRange1d(bounds=(None, 12))`` """
 
-    def __init__(self, accept_datetime=False, default='auto', help=None):
+    def __init__(self, accept_datetime=False, default='auto', help=None) -> None:
         types = (
             Auto,
 
@@ -233,14 +240,11 @@ class MinMaxBounds(Either):
         msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
         raise ValueError(msg)
 
-    def _sphinx_type(self):
-        return self._sphinx_prop_link()
-
 class MarkerType(Enum):
     """
 
     """
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         super().__init__(enums.MarkerType, **kw)
 
 #-----------------------------------------------------------------------------

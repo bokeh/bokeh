@@ -9,6 +9,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -17,7 +19,8 @@ import pytest ; pytest
 
 # Standard library imports
 import os
-from subprocess import PIPE, Popen
+import sys
+from subprocess import run
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -36,17 +39,13 @@ LICENSES = [
     'WTFPL',
 ]
 
+@pytest.mark.skipif(sys.platform == "win32", reason="skip license tests on Windows")
 def test_js_license_set() -> None:
     ''' If the current set of JS licenses changes, they should be noted in
     the bokehjs/LICENSE file.
 
     '''
     os.chdir('bokehjs')
-    proc = Popen([
-        "npx", "license-checker", "--production", "--summary", "--onlyAllow", "%s" % ";".join(LICENSES)
-    ],stdout=PIPE)
-    proc.communicate()
-    proc.wait()
-    os.chdir('..')
-    if proc.returncode != 0:
-        assert False
+    cmd = ["npx", "license-checker", "--production", "--summary", "--onlyAllow", ";".join(LICENSES)]
+    proc = run(cmd)
+    assert proc.returncode == 0, "New BokehJS licenses detected"

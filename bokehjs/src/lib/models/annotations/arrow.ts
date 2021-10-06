@@ -7,12 +7,13 @@ import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
 import {FloatArray, ScreenArray} from "core/types"
 import {build_view} from "core/build_views"
+import {Indices} from "core/types"
 import * as p from "core/properties"
 import {atan2} from "core/util/math"
 
 export class ArrowView extends DataAnnotationView {
-  model: Arrow
-  visuals: Arrow.Visuals
+  override model: Arrow
+  override visuals: Arrow.Visuals
 
   protected start: ArrowHeadView | null
   protected end: ArrowHeadView | null
@@ -29,7 +30,7 @@ export class ArrowView extends DataAnnotationView {
 
   protected _angles: ScreenArray
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
     const {start, end} = this.model
@@ -39,13 +40,14 @@ export class ArrowView extends DataAnnotationView {
       this.end = await build_view(end, {parent: this})
   }
 
-  set_data(source: ColumnarDataSource): void {
+  override set_data(source: ColumnarDataSource): void {
     super.set_data(source)
-    this.start?.set_data(source)
-    this.end?.set_data(source)
+    const indices = Indices.all_set(this._x_start.length)
+    this.start?.set_data(source, indices)
+    this.end?.set_data(source, indices)
   }
 
-  remove(): void {
+  override remove(): void {
     this.start?.remove()
     this.end?.remove()
     super.remove()
@@ -165,14 +167,14 @@ export namespace Arrow {
 export interface Arrow extends Arrow.Attrs {}
 
 export class Arrow extends DataAnnotation {
-  properties: Arrow.Props
-  __view_type__: ArrowView
+  override properties: Arrow.Props
+  override __view_type__: ArrowView
 
   constructor(attrs?: Partial<Arrow.Attrs>) {
     super(attrs)
   }
 
-  static init_Arrow(): void {
+  static {
     this.prototype.default_view = ArrowView
 
     this.mixins<Arrow.Mixins>(LineVector)

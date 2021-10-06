@@ -9,6 +9,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -35,7 +37,7 @@ __all__ = (
 class Readonly(SingleParameterizedProperty):
     """ A property that can't be manually modified by the user. """
 
-    def __init__(self, type_param, *, default=Intrinsic, help=None, serialized=None):
+    def __init__(self, type_param, *, default=Intrinsic, help=None, serialized=None) -> None:
         super().__init__(type_param, default=default, help=help, readonly=True, serialized=serialized)
 
 #-----------------------------------------------------------------------------

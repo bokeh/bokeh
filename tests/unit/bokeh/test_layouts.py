@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -18,9 +20,21 @@ import pytest ; pytest
 import mock
 
 # Bokeh imports
-from bokeh.core.validation import check_integrity
-from bokeh.layouts import GridSpec, column, grid, gridplot, layout, row
-from bokeh.models import Column, GridBox, LayoutDOM, Row, Spacer
+from bokeh.core.validation import check_integrity, process_validation_issues
+from bokeh.layouts import (
+    column,
+    grid,
+    gridplot,
+    layout,
+    row,
+)
+from bokeh.models import (
+    Column,
+    GridBox,
+    LayoutDOM,
+    Row,
+    Spacer,
+)
 from bokeh.plotting import figure
 
 #-----------------------------------------------------------------------------
@@ -30,12 +44,6 @@ from bokeh.plotting import figure
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-# TODO (bev) deprecation: 3.0
-def test_GridSpec_deprecated() -> None:
-    from bokeh.util.deprecation import BokehDeprecationWarning
-    with pytest.warns(BokehDeprecationWarning):
-        GridSpec(2, 2)
 
 def test_gridplot_merge_tools_flat() -> None:
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
@@ -171,7 +179,8 @@ def test_grid() -> None:
 def test_repeated_children() -> None:
     def test(layout: LayoutDOM) -> None:
         with mock.patch("bokeh.core.validation.check.log") as mock_logger:
-            check_integrity([layout])
+            issues = check_integrity([layout])
+            process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith("E-1027 (REPEATED_LAYOUT_CHILD): The same model can't be used multiple times in a layout")
 

@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -60,14 +62,11 @@ class Auto(Enum):
             >>> m.prop = [1, 2, 3]  # ValueError !!
 
     """
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("auto")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__class__.__name__
-
-    def _sphinx_type(self):
-        return self._sphinx_prop_link()
 
 #-----------------------------------------------------------------------------
 # Dev API

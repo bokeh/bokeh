@@ -15,13 +15,13 @@ export namespace CustomJS {
 export interface CustomJS extends CustomJS.Attrs {}
 
 export class CustomJS extends Callback {
-  properties: CustomJS.Props
+  override properties: CustomJS.Props
 
   constructor(attrs?: Partial<CustomJS.Attrs>) {
     super(attrs)
   }
 
-  static init_CustomJS(): void {
+  static {
     this.define<CustomJS.Props>(({Unknown, String, Dict}) => ({
       args: [ Dict(Unknown), {} ],
       code: [ String, "" ],

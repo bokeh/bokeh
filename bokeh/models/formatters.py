@@ -12,6 +12,8 @@ labels on Bokeh plot axes.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -53,7 +55,7 @@ __all__ = (
     'PrintfTickFormatter',
     'LogTickFormatter',
     'CategoricalTickFormatter',
-    'FuncTickFormatter',
+    'CustomJSTickFormatter',
     'DatetimeTickFormatter',
 )
 
@@ -61,12 +63,12 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _DATETIME_TICK_FORMATTER_HELP(field):
-    return """
-    Formats for displaying datetime values in the %s range.
+def _DATETIME_TICK_FORMATTER_HELP(field: str) -> str:
+    return f"""
+    Formats for displaying datetime values in the {field} range.
 
     See the :class:`~bokeh.models.formatters.DatetimeTickFormatter` help for a list of all supported formats.
-    """ % field
+    """
 
 #-----------------------------------------------------------------------------
 # General API
@@ -286,6 +288,12 @@ class LogTickFormatter(TickFormatter):
     base to use. If unset, the formatter will use base 10 as a default.
     """)
 
+    min_exponent = Int(0, help="""
+    Minimum exponent to format in scientific notation. If not zero
+    all ticks in range from base^-min_expont to base^min_exponent
+    are displayed without exponential notation.
+    """)
+
 class CategoricalTickFormatter(TickFormatter):
     ''' Display tick values from categorical ranges as string
     values.
@@ -293,7 +301,7 @@ class CategoricalTickFormatter(TickFormatter):
     '''
     pass
 
-class FuncTickFormatter(TickFormatter):
+class CustomJSTickFormatter(TickFormatter):
     ''' Display tick values that are formatted by a user-defined function.
 
     .. warning::

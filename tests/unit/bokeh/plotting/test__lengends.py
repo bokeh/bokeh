@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -18,7 +20,12 @@ import pytest ; pytest
 import itertools
 
 # Bokeh imports
-from bokeh.models import ColumnDataSource, GlyphRenderer, Legend, LegendItem
+from bokeh.models import (
+    ColumnDataSource,
+    GlyphRenderer,
+    Legend,
+    LegendItem,
+)
 
 # Module under test
 import bokeh.plotting._legends as bpl # isort:skip
@@ -62,54 +69,6 @@ def test__find_legend_item() -> None:
     assert bpl._find_legend_item(dict(value="baz"), legend) is None
     assert bpl._find_legend_item(dict(value="foo"), legend) is legend.items[0]
     assert bpl._find_legend_item(dict(field="bar"), legend) is legend.items[1]
-
-
-class Test__handle_legend_deprecated:
-    @pytest.mark.parametrize('arg', [1, 2.7, None, False, [], {'junk': 10}, {'label': 'foo', 'junk': 10}, {'value': 'foo', 'junk': 10}])
-    def test_bad_arg(self, arg) -> None:
-        with pytest.raises(ValueError):
-            bpl._handle_legend_deprecated(arg, "legend", "renderer")
-
-    def test_value_string(self) -> None:
-        legend = Legend(items=[LegendItem(label=dict(value="foo"))])
-        renderer = GlyphRenderer(data_source=ColumnDataSource())
-        bpl._handle_legend_deprecated("foo", legend, renderer)
-        assert len(legend.items) == 1
-        assert all("value" in item.label for item in legend.items)
-        bpl._handle_legend_deprecated("bar", legend, renderer)
-        assert len(legend.items) == 2
-        assert all("value" in item.label for item in legend.items)
-
-    def test_value_dict(self) -> None:
-        legend = Legend(items=[LegendItem(label=dict(value="foo"))])
-        renderer = GlyphRenderer(data_source=ColumnDataSource())
-        bpl._handle_legend_deprecated(dict(value="foo"), legend, renderer)
-        assert len(legend.items) == 1
-        assert all("value" in item.label for item in legend.items)
-        bpl._handle_legend_deprecated(dict(value="bar"), legend, renderer)
-        assert len(legend.items) == 2
-        assert all("value" in item.label for item in legend.items)
-
-    def test_field_string(self) -> None:
-        legend = Legend(items=[LegendItem(label=dict(field="foo"))])
-        renderer = GlyphRenderer(data_source=ColumnDataSource(data=dict(foo=[], bar=[])))
-        bpl._handle_legend_deprecated("foo", legend, renderer)
-        assert len(legend.items) == 1
-        assert all("field" in item.label for item in legend.items)
-        bpl._handle_legend_deprecated("bar", legend, renderer)
-        assert len(legend.items) == 2
-        assert all("field" in item.label for item in legend.items)
-
-    def test_field_dict(self) -> None:
-        legend = Legend(items=[LegendItem(label=dict(field="foo"))])
-        renderer = GlyphRenderer(data_source=ColumnDataSource(data=dict(foo=[], bar=[])))
-        bpl._handle_legend_deprecated(dict(field="foo"), legend, renderer)
-        assert len(legend.items) == 1
-        assert all("field" in item.label for item in legend.items)
-        bpl._handle_legend_deprecated(dict(field="bar"), legend, renderer)
-        assert len(legend.items) == 2
-        assert all("field" in item.label for item in legend.items)
-
 
 class Test__handle_legend_field:
     @pytest.mark.parametrize('arg', [1, 2.7, None, False, [], {}])

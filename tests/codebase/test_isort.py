@@ -9,6 +9,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -20,7 +22,7 @@ from os import chdir
 from subprocess import run
 
 # Bokeh imports
-from . import TOP_PATH
+from bokeh._testing.util.project import TOP_PATH
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -40,6 +42,9 @@ def test_isort_sphinx() -> None:
 
 def test_isort_tests() -> None:
     isort("tests")
+
+def test_isort_typings() -> None:
+    isort("typings")
 
 #-----------------------------------------------------------------------------
 # Support

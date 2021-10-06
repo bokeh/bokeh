@@ -70,16 +70,16 @@ describe("categorical_scale module", () => {
     })
 
     describe("factor updates", () => {
-      const new_factors = ['a', 'b', 'c', 'd']
+      const new_factors = ["a", "b", "c", "d"]
 
       it("should cause updated mapped values", () => {
         const scale = mkscale()
         scale.source_range.factors = new_factors
 
-        expect(scale.compute('a')).to.be.equal(27.5)
-        expect(scale.compute('b')).to.be.equal(42.5)
-        expect(scale.compute('c')).to.be.equal(57.5)
-        expect(scale.compute('d')).to.be.equal(72.5)
+        expect(scale.compute("a")).to.be.equal(27.5)
+        expect(scale.compute("b")).to.be.equal(42.5)
+        expect(scale.compute("c")).to.be.equal(57.5)
+        expect(scale.compute("d")).to.be.equal(72.5)
       })
 
       it("should cause updated vector mapped values", () => {
@@ -123,52 +123,52 @@ describe("categorical_scale module", () => {
     describe("categorical offsets", () => {
       it("should apply offsets to mappings", () => {
         const scale = mkscale()
-        expect(scale.compute(['foo', -0.6])).to.be.equal(18)
-        expect(scale.compute(['foo', -0.5])).to.be.equal(20)
-        expect(scale.compute(['foo', -0.2])).to.be.equal(26)
-        expect(scale.compute(['foo', -0.1])).to.be.equal(28)
-        expect(scale.compute(['foo',  0.0])).to.be.equal(30)
-        expect(scale.compute(['foo',  0.1])).to.be.equal(32)
-        expect(scale.compute(['foo',  0.2])).to.be.equal(34)
-        expect(scale.compute(['foo',  0.5])).to.be.equal(40)
-        expect(scale.compute(['foo',  0.6])).to.be.equal(42)
+        expect(scale.compute(["foo", -0.6])).to.be.equal(18)
+        expect(scale.compute(["foo", -0.5])).to.be.equal(20)
+        expect(scale.compute(["foo", -0.2])).to.be.equal(26)
+        expect(scale.compute(["foo", -0.1])).to.be.equal(28)
+        expect(scale.compute(["foo",  0.0])).to.be.equal(30)
+        expect(scale.compute(["foo",  0.1])).to.be.equal(32)
+        expect(scale.compute(["foo",  0.2])).to.be.equal(34)
+        expect(scale.compute(["foo",  0.5])).to.be.equal(40)
+        expect(scale.compute(["foo",  0.6])).to.be.equal(42)
 
-        expect(scale.compute(['bar', -0.6])).to.be.equal(38)
-        expect(scale.compute(['bar', -0.5])).to.be.equal(40)
-        expect(scale.compute(['bar', -0.2])).to.be.equal(46)
-        expect(scale.compute(['bar', -0.1])).to.be.equal(48)
-        expect(scale.compute(['bar',  0.0])).to.be.equal(50)
-        expect(scale.compute(['bar',  0.1])).to.be.equal(52)
-        expect(scale.compute(['bar',  0.2])).to.be.equal(54)
-        expect(scale.compute(['bar',  0.5])).to.be.equal(60)
-        expect(scale.compute(['bar',  0.6])).to.be.equal(62)
+        expect(scale.compute(["bar", -0.6])).to.be.equal(38)
+        expect(scale.compute(["bar", -0.5])).to.be.equal(40)
+        expect(scale.compute(["bar", -0.2])).to.be.equal(46)
+        expect(scale.compute(["bar", -0.1])).to.be.equal(48)
+        expect(scale.compute(["bar",  0.0])).to.be.equal(50)
+        expect(scale.compute(["bar",  0.1])).to.be.equal(52)
+        expect(scale.compute(["bar",  0.2])).to.be.equal(54)
+        expect(scale.compute(["bar",  0.5])).to.be.equal(60)
+        expect(scale.compute(["bar",  0.6])).to.be.equal(62)
 
-        expect(scale.compute(['baz', -0.6])).to.be.equal(58)
-        expect(scale.compute(['baz', -0.5])).to.be.equal(60)
-        expect(scale.compute(['baz', -0.2])).to.be.equal(66)
-        expect(scale.compute(['baz', -0.1])).to.be.equal(68)
-        expect(scale.compute(['baz',  0.0])).to.be.equal(70)
-        expect(scale.compute(['baz',  0.1])).to.be.equal(72)
-        expect(scale.compute(['baz',  0.2])).to.be.equal(74)
-        expect(scale.compute(['baz',  0.5])).to.be.equal(80)
-        expect(scale.compute(['baz',  0.6])).to.be.equal(82)
+        expect(scale.compute(["baz", -0.6])).to.be.equal(58)
+        expect(scale.compute(["baz", -0.5])).to.be.equal(60)
+        expect(scale.compute(["baz", -0.2])).to.be.equal(66)
+        expect(scale.compute(["baz", -0.1])).to.be.equal(68)
+        expect(scale.compute(["baz",  0.0])).to.be.equal(70)
+        expect(scale.compute(["baz",  0.1])).to.be.equal(72)
+        expect(scale.compute(["baz",  0.2])).to.be.equal(74)
+        expect(scale.compute(["baz",  0.5])).to.be.equal(80)
+        expect(scale.compute(["baz",  0.6])).to.be.equal(82)
       })
 
       it("should apply offsets to vector mappings", () => {
         const scale = mkscale()
 
         const values0 = scale.v_compute([
-          ['foo', -0.6], ['foo', -0.5], ['foo', -0.2], ['foo', -0.1], ['foo', 0.0], ['foo', 0.1], ['foo', 0.2], ['foo', 0.5], ['foo', 0.6],
+          ["foo", -0.6], ["foo", -0.5], ["foo", -0.2], ["foo", -0.1], ["foo", 0.0], ["foo", 0.1], ["foo", 0.2], ["foo", 0.5], ["foo", 0.6],
         ])
         expect(values0).to.be.equal(new Float32Array([18, 20, 26, 28, 30, 32, 34, 40, 42]))
 
         const values1 = scale.v_compute([
-          ['bar', -0.6], ['bar', -0.5], ['bar', -0.2], ['bar', -0.1], ['bar', 0.0], ['bar', 0.1], ['bar', 0.2], ['bar', 0.5], ['bar', 0.6],
+          ["bar", -0.6], ["bar", -0.5], ["bar", -0.2], ["bar", -0.1], ["bar", 0.0], ["bar", 0.1], ["bar", 0.2], ["bar", 0.5], ["bar", 0.6],
         ])
         expect(values1).to.be.equal(new Float32Array([38, 40, 46, 48, 50, 52, 54, 60, 62]))
 
         const values2 = scale.v_compute([
-          ['baz', -0.6], ['baz', -0.5], ['baz', -0.2], ['baz', -0.1], ['baz', 0.0], ['baz', 0.1], ['baz', 0.2], ['baz', 0.5], ['baz', 0.6],
+          ["baz", -0.6], ["baz", -0.5], ["baz", -0.2], ["baz", -0.1], ["baz", 0.0], ["baz", 0.1], ["baz", 0.2], ["baz", 0.5], ["baz", 0.6],
         ])
         expect(values2).to.be.equal(new Float32Array([58, 60, 66, 68, 70, 72, 74, 80, 82]))
       })

@@ -26,13 +26,13 @@ export namespace TileSource {
 export interface TileSource extends TileSource.Attrs {}
 
 export abstract class TileSource extends Model {
-  properties: TileSource.Props
+  override properties: TileSource.Props
 
   constructor(attrs?: Partial<TileSource.Attrs>) {
     super(attrs)
   }
 
-  static init_TileSource(): void {
+  static {
     this.define<TileSource.Props>(({Number, String, Dict, Nullable}) => ({
       url:                [ String, "" ],
       tile_size:          [ Number, 256 ],
@@ -48,13 +48,13 @@ export abstract class TileSource extends Model {
 
   tiles: Map<string, Tile>
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.tiles = new Map()
     this._normalize_case()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.change, () => this._clear_cache())
   }
@@ -72,14 +72,14 @@ export abstract class TileSource extends Model {
      * Note: should probably be refactored into subclasses.
      */
     const url = this.url
-      .replace('{x}', '{X}')
-      .replace('{y}', '{Y}')
-      .replace('{z}', '{Z}')
-      .replace('{q}', '{Q}')
-      .replace('{xmin}', '{XMIN}')
-      .replace('{ymin}', '{YMIN}')
-      .replace('{xmax}', '{XMAX}')
-      .replace('{ymax}', '{YMAX}')
+      .replace("{x}", "{X}")
+      .replace("{y}", "{Y}")
+      .replace("{z}", "{Z}")
+      .replace("{q}", "{Q}")
+      .replace("{xmin}", "{XMIN}")
+      .replace("{ymin}", "{YMIN}")
+      .replace("{xmax}", "{XMAX}")
+      .replace("{ymax}", "{YMAX}")
     this.url = url
   }
 
@@ -92,7 +92,7 @@ export abstract class TileSource extends Model {
   }
 
   key_to_tile_xyz(key: string): [number, number, number] {
-    const [x, y, z] = key.split(':').map((c) => parseInt(c))
+    const [x, y, z] = key.split(":").map((c) => parseInt(c))
     return [x, y, z]
   }
 
@@ -111,7 +111,7 @@ export abstract class TileSource extends Model {
     const image_url = this.string_lookup_replace(this.url, this.extra_url_vars)
     return image_url
       .replace("{X}", x.toString())
-      .replace('{Y}', y.toString())
+      .replace("{Y}", y.toString())
       .replace("{Z}", z.toString())
   }
 

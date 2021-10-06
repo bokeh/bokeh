@@ -9,6 +9,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -16,11 +18,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os.path import relpath
 from subprocess import check_output
-
-# Bokeh imports
-from . import TOP_PATH
+from typing import IO, List, Tuple
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -32,18 +31,18 @@ def test_no_request_host() -> None:
 
     '''
     errors = collect_errors()
-    assert len(errors) == 0, "request.host usage issues:\n%s" % "\n".join(errors)
+    assert len(errors) == 0, "request.host usage issues:\n" + "\n".join(errors)
 
 #-----------------------------------------------------------------------------
 # Support
 #-----------------------------------------------------------------------------
 
-message = "File contains refers to 'request.host': %s, line %s."
+message = "File contains refers to 'request.host': {path}, line {line_no}."
 
-def collect_errors():
-    errors = []
+def collect_errors() -> List[str]:
+    errors: List[Tuple[str, str, int]] = []
 
-    def test_this_file(fname, test_file):
+    def test_this_file(fname: str, test_file: IO[str]) -> None:
         for line_no, line in enumerate(test_file, 1):
             if "request.host" in line.split("#")[0]:
                 errors.append((message, fname, line_no))
@@ -63,4 +62,4 @@ def collect_errors():
         with open(path, "r", encoding="utf-8") as file:
             test_this_file(path, file)
 
-    return [ msg % (relpath(fname, TOP_PATH), line_no) for (msg, fname, line_no) in errors ]
+    return [ msg.format(path=fname, line_no=line_no) for (msg, fname, line_no) in errors ]

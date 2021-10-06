@@ -1,20 +1,31 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {resolve_angle} from "core/util/math"
-import {font_metrics} from "core/util/text"
 import {SpatialUnits, AngleUnits} from "core/enums"
 import {Size} from "core/layout"
-import * as mixins from "core/property_mixins"
+import {SideLayout} from "core/layout/side_panel"
 import * as p from "core/properties"
 
 export class LabelView extends TextAnnotationView {
-  model: Label
-  visuals: Label.Visuals
+  override model: Label
+  override visuals: Label.Visuals
 
-  protected _get_size(): Size {
-    const {ctx} = this.layer
-    this.visuals.text.set_value(ctx)
-    const {width} = ctx.measureText(this.model.text)
-    const {height} = font_metrics(ctx.font)
+  override update_layout(): void {
+    const {panel} = this
+    if (panel != null)
+      this.layout = new SideLayout(panel, () => this.get_size(), false)
+    else
+      this.layout = undefined
+  }
+
+  protected override _get_size(): Size {
+    if (!this.displayed)
+      return {width: 0, height: 0}
+
+    const graphics = this._text_view.graphics()
+    const {angle, angle_units} = this.model
+    graphics.angle = resolve_angle(angle, angle_units)
+    graphics.visuals = this.visuals.text.values()
+    const {width, height} = graphics.size()
     return {width, height}
   }
 
@@ -33,8 +44,7 @@ export class LabelView extends TextAnnotationView {
     sx += this.model.x_offset
     sy -= this.model.y_offset
 
-    const draw = this.model.render_mode == 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this)
-    draw(this.layer.ctx, this.model.text, sx, sy, rotation)
+    this._paint(this.layer.ctx, {sx, sy}, rotation)
   }
 }
 
@@ -44,19 +54,13 @@ export namespace Label {
     x_units: p.Property<SpatialUnits>
     y: p.Property<number>
     y_units: p.Property<SpatialUnits>
-    text: p.Property<string>
     angle: p.Property<number>
     angle_units: p.Property<AngleUnits>
     x_offset: p.Property<number>
     y_offset: p.Property<number>
-  } & Mixins
+  }
 
   export type Attrs = p.AttrsOf<Props>
-
-  export type Mixins =
-    mixins.Text &
-    mixins.BorderLine     &
-    mixins.BackgroundFill
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -64,37 +68,25 @@ export namespace Label {
 export interface Label extends Label.Attrs {}
 
 export class Label extends TextAnnotation {
-  properties: Label.Props
-  __view_type__: LabelView
+  override properties: Label.Props
+  override __view_type__: LabelView
 
   constructor(attrs?: Partial<Label.Attrs>) {
     super(attrs)
   }
 
-  static init_Label(): void {
+  static {
     this.prototype.default_view = LabelView
 
-    this.mixins<Label.Mixins>([
-      mixins.Text,
-      ["border_",     mixins.Line],
-      ["background_", mixins.Fill],
-    ])
-
-    this.define<Label.Props>(({Number, String, Angle}) => ({
+    this.define<Label.Props>(({Number, Angle}) => ({
       x:           [ Number ],
       x_units:     [ SpatialUnits, "data" ],
       y:           [ Number ],
       y_units:     [ SpatialUnits, "data" ],
-      text:        [ String, "" ],
       angle:       [ Angle, 0 ],
       angle_units: [ AngleUnits, "rad" ],
       x_offset:    [ Number, 0 ],
       y_offset:    [ Number, 0 ],
     }))
-
-    this.override<Label.Props>({
-      background_fill_color: null,
-      border_line_color: null,
-    })
   }
 }

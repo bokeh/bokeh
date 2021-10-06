@@ -1,3 +1,2 @@
-build
-source/docs/gallery/*
-*.html
+/build
+/source/docs/gallery/*

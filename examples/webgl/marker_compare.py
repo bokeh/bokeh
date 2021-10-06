@@ -21,7 +21,7 @@ colors = np.random.randint(0, 255, size=(N, 3), dtype="uint8")
 source = ColumnDataSource(data=dict(x=x, y=y, colors=colors))
 
 def make_plot(title, marker, backend):
-    p = figure(title=title, plot_width=350, plot_height=350, output_backend=backend)
+    p = figure(title=title, width=350, height=350, output_backend=backend)
     p.scatter("x", "y", marker=marker, color="colors", fill_alpha=0.2, size=12, source=source)
     return p
 

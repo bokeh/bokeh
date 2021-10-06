@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -67,7 +69,7 @@ class Color(Either):
     """ Accept color values in a variety of ways.
 
     * If a color is provided as a string, Bokeh determines whether this string
-      represents one of the named CSS colors (such as "red"), a CSS4 color
+      represents one of the |named CSS colors| (such as "red"), a CSS4 color
       string (such as "rgb(0, 200, 0)"), or a hex value (such as "#00FF00").
     * If a 3-tuple is provided, it is treated as RGB values (between 0 and
       255).
@@ -103,7 +105,7 @@ class Color(Either):
     _default_help = """\
     Acceptable values are:
 
-    - any of the named `CSS colors`_, e.g ``'green'``, ``'indigo'``
+    - any of the |named CSS colors|, e.g ``'green'``, ``'indigo'``
     - RGB(A) hex strings, e.g., ``'#FF0000'``, ``'#44444444'``
     - CSS4 color strings, e.g., ``'rgba(255, 0, 127, 0.6)'``,
       ``'rgb(0 127 0 / 1.0)'``, or ``'hsl(60deg 100% 50% / 1.0)'``
@@ -112,11 +114,9 @@ class Color(Either):
       and a is between 0 and 1
     - a 32-bit unsigned integer using the 0xRRGGBBAA byte order pattern
 
-    .. _CSS colors: https://www.w3.org/TR/css-color-4/#named-colors
-
     """
 
-    def __init__(self, default=Undefined, help=None):
+    def __init__(self, default=Undefined, help=None) -> None:
         types = (Enum(enums.NamedColor),
                  Regex(r"^#[0-9a-fA-F]{3}$"),
                  Regex(r"^#[0-9a-fA-F]{4}$"),
@@ -133,16 +133,13 @@ class Color(Either):
         help = f"{help or ''}\n{self._default_help}"
         super().__init__(*types, default=default, help=help)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__class__.__name__
 
     def transform(self, value):
         if isinstance(value, tuple):
             value = colors.RGB(*value).to_css()
         return value
-
-    def _sphinx_type(self):
-        return self._sphinx_prop_link()
 
 
 class ColorHex(Color):
@@ -174,7 +171,7 @@ class Alpha(Percent):
     transparent and 1 being opaque).
     """
 
-    def __init__(self, default=1.0, help=None):
+    def __init__(self, default=1.0, help=None) -> None:
         help = f"{help or ''}\n{self._default_help}"
         super().__init__(default=default, help=help)
 

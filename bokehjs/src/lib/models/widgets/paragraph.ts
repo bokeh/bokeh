@@ -3,12 +3,18 @@ import {p as paragraph} from "core/dom"
 import * as p from "core/properties"
 
 export class ParagraphView extends MarkupView {
-  model: Paragraph
+  override model: Paragraph
 
-  render(): void {
+  override render(): void {
     super.render()
     // This overrides default user-agent styling and helps layout work
-    const content = paragraph({style: {margin: 0}}, this.model.text)
+    const content = paragraph({style: {margin: 0}})
+
+    if (this.has_math_disabled())
+      content.textContent = this.model.text
+    else
+      content.innerHTML = this.process_tex()
+
     this.markup_el.appendChild(content)
   }
 }
@@ -22,14 +28,14 @@ export namespace Paragraph {
 export interface Paragraph extends Paragraph.Attrs {}
 
 export class Paragraph extends Markup {
-  properties: Paragraph.Props
-  __view_type__: ParagraphView
+  override properties: Paragraph.Props
+  override __view_type__: ParagraphView
 
   constructor(attrs?: Partial<Paragraph.Attrs>) {
     super(attrs)
   }
 
-  static init_Paragraph(): void {
+  static {
     this.prototype.default_view = ParagraphView
   }
 }

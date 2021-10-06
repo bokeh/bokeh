@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,7 +22,17 @@ import json
 import os
 import subprocess
 import sys
-from os.path import abspath, dirname, join, pardir, split
+from os.path import (
+    abspath,
+    dirname,
+    join,
+    pardir,
+    split,
+)
+from typing import List
+
+# External imports
+from typing_extensions import TypedDict
 
 # Bokeh imports
 from bokeh.util.terminal import fail, trace
@@ -39,7 +51,28 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def run_in_chrome(url, local_wait=None, global_wait=None):
+class JSImage(TypedDict):
+    data: str
+
+class JSError(TypedDict):
+    url: str | None
+    text: str
+
+class JSMessage(TypedDict):
+    level: str
+    text: str
+    url: str
+    line: int
+    col: int
+
+class JSResult(TypedDict):
+    success: bool
+    timeout: float | None
+    image: JSImage
+    errors: List[JSError]
+    messages: List[JSMessage]
+
+def run_in_chrome(url: str, local_wait: int | None = None, global_wait: int | None = None) -> JSResult:
     return _run_in_browser(_get_chrome(), url, local_wait, global_wait)
 
 #-----------------------------------------------------------------------------
@@ -50,10 +83,10 @@ def run_in_chrome(url, local_wait=None, global_wait=None):
 # Private API
 #-----------------------------------------------------------------------------
 
-def _get_chrome():
+def _get_chrome() -> List[str]:
     return ["node", join(dirname(__file__), "chrome_screenshot.js")]
 
-def _run_in_browser(engine, url, local_wait=None, global_wait=None):
+def _run_in_browser(engine: List[str], url: str, local_wait: int | None = None, global_wait: int | None = None) -> JSResult:
     """
     wait is in milliseconds
     """

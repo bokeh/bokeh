@@ -16,12 +16,22 @@ describe("core/util/pretty module", () => {
     it("that supports string type", () => {
       expect(to_string("")).to.be.equal('""')
       expect(to_string("a")).to.be.equal('"a"')
-      expect(to_string("a'b'c")).to.be.equal('"a\\\'b\\\'c"')
+      expect(to_string("a'b'c")).to.be.equal('"a\'b\'c"')
+      expect(to_string('a"b"c')).to.be.equal("'a\"b\"c'")
+      expect(to_string("a`b`c")).to.be.equal('"a`b`c"')
+      expect(to_string("a'`b`c")).to.be.equal('"a\'`b`c"')
+      expect(to_string('a"`b`c')).to.be.equal("'a\"`b`c'")
+      expect(to_string('a"`b\'`c')).to.be.equal("`a\"\\`b'\\`c`")
+    })
+
+    it("that supports symbol type", () => {
+      expect(to_string(Symbol())).to.be.equal("Symbol()")
+      expect(to_string(Symbol("a"))).to.be.equal("Symbol(a)")
     })
 
     it("that supports T[]", () => {
-      expect(to_string([])).to.be.equal('[]')
-      expect(to_string([1, 2, 3])).to.be.equal('[1, 2, 3]')
+      expect(to_string([])).to.be.equal("[]")
+      expect(to_string([1, 2, 3])).to.be.equal("[1, 2, 3]")
     })
 
     it("that supports Map<K, V>", () => {
@@ -37,6 +47,13 @@ describe("core/util/pretty module", () => {
     it("that supports {[key: string | number]: V}", () => {
       expect(to_string({})).to.be.equal("{}")
       expect(to_string(new Map([[1, true], [2, false], [3, true]]))).to.be.equal("Map([[1, true], [2, false], [3, true]])")
+    })
+
+    it("that supports circular objects", () => {
+      type X = {y: number, z?: X}
+      const x: X = {y: 1}
+      x.z = x
+      expect(to_string(x)).to.be.equal("{y: 1, z: <circular>}")
     })
   })
 })

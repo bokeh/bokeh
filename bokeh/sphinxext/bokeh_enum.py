@@ -44,6 +44,8 @@ the same output above will be generated directly from the following code:
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging  # isort:skip
 
 log = logging.getLogger(__name__)
@@ -61,6 +63,7 @@ from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
 # Bokeh imports
+from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective
 from .templates import ENUM_DETAIL
 
@@ -119,13 +122,14 @@ class BokehEnumDirective(BokehDirective):
             fullrepr=fullrepr,
         )
 
-        return self._parse(rst_text, "<bokeh-enum>")
+        return self.parse(rst_text, "<bokeh-enum>")
 
 
 def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_directive_to_domain("py", "bokeh-enum", BokehEnumDirective)
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

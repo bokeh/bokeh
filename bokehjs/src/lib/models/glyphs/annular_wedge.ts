@@ -27,10 +27,10 @@ export type AnnularWedgeData = XYGlyphData & p.UniformsOf<AnnularWedge.Mixins> &
 export interface AnnularWedgeView extends AnnularWedgeData {}
 
 export class AnnularWedgeView extends XYGlyphView {
-  model: AnnularWedge
-  visuals: AnnularWedge.Visuals
+  override model: AnnularWedge
+  override visuals: AnnularWedge.Visuals
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     if (this.model.properties.inner_radius.units == "data")
       this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this.inner_radius)
     else
@@ -54,7 +54,7 @@ export class AnnularWedgeView extends XYGlyphView {
       const start_angle_i = start_angle.get(i)
       const end_angle_i = end_angle.get(i)
 
-      if (isNaN(sx_i + sy_i + sinner_radius_i + souter_radius_i + start_angle_i + end_angle_i))
+      if (!isFinite(sx_i + sy_i + sinner_radius_i + souter_radius_i + start_angle_i + end_angle_i))
         continue
 
       const angle_i = end_angle_i - start_angle_i
@@ -73,24 +73,13 @@ export class AnnularWedgeView extends XYGlyphView {
       ctx.rotate(-angle_i - start_angle_i)
       ctx.translate(-sx_i, -sy_i)
 
-      if (this.visuals.fill.doit) {
-        this.visuals.fill.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.hatch.doit) {
-        this.visuals.hatch.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.line.doit) {
-        this.visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
-      }
+      this.visuals.fill.apply(ctx, i)
+      this.visuals.hatch.apply(ctx, i)
+      this.visuals.line.apply(ctx, i)
     }
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
@@ -139,11 +128,11 @@ export class AnnularWedgeView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 
-  scenterxy(i: number): [number, number] {
+  override scenterxy(i: number): [number, number] {
     const r = (this.sinner_radius[i] + this.souter_radius[i])/2
     const a = (this.start_angle.get(i)  + this.end_angle.get(i))   /2
     const scx = this.sx[i] + r*Math.cos(a)
@@ -171,14 +160,14 @@ export namespace AnnularWedge {
 export interface AnnularWedge extends AnnularWedge.Attrs {}
 
 export class AnnularWedge extends XYGlyph {
-  properties: AnnularWedge.Props
-  __view_type__: AnnularWedgeView
+  override properties: AnnularWedge.Props
+  override __view_type__: AnnularWedgeView
 
   constructor(attrs?: Partial<AnnularWedge.Attrs>) {
     super(attrs)
   }
 
-  static init_AnnularWedge(): void {
+  static {
     this.prototype.default_view = AnnularWedgeView
 
     this.mixins<AnnularWedge.Mixins>([LineVector, FillVector, HatchVector])

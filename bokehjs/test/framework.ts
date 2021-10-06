@@ -6,7 +6,7 @@ import {show} from "@bokehjs/api/plotting"
 import {div, empty} from "@bokehjs/core/dom"
 import {ViewOf} from "@bokehjs/core/view"
 import {isString, isArray} from "@bokehjs/core/util/types"
-import {unreachable} from "@bokehjs/core/util/assert"
+import {assert, unreachable} from "@bokehjs/core/util/assert"
 
 export type Func = () => void
 export type AsyncFunc = () => Promise<void>
@@ -239,7 +239,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   try {
     await fn()
     await defer()
-  } catch (err: unknown) {
+  } catch (err) {
     error = err instanceof Error ? err : new Error(`${err}`)
   } finally {
     current_test = null
@@ -264,7 +264,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
       const bbox = {x: left, y: top, width: rect.width, height: rect.height}
       const state = test.view.serializable_state()
       return {error, time, state, bbox}
-    } catch (err: unknown) {
+    } catch (err) {
       error = err instanceof Error ? err : new Error(`${err}`)
     }
   }
@@ -272,6 +272,9 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
 }
 
 export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, number], el?: HTMLElement): Promise<{view: ViewOf<T>, el: HTMLElement}> {
+  const test = current_test
+  assert(test != null, "display() must be called in it(...) block")
+
   const margin = 50
   const [width, height] = (() => {
     if (viewport != null)
@@ -285,12 +288,29 @@ export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, n
       }
     }
   })()
+
   const vp = div({style: {width: `${width}px`, height: `${height}px`, overflow: "hidden"}}, el)
   container.appendChild(vp)
   const view = await show(obj, el ?? vp)
-  current_test!.view = view
-  current_test!.el = vp
+  test.view = view
+  test.el = vp
   return {view, el: vp}
+}
+
+export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void, svg: SVGSVGElement, {width, height}: {width: number, height: number}): Promise<void> {
+  const canvas = document.createElement("canvas")
+  canvas.height = height
+  canvas.width = width
+
+  container.appendChild(canvas)
+
+  const ctx = canvas.getContext("2d")!
+
+  fn(ctx)
+
+  container.appendChild(svg)
+
+  await defer()
 }
 
 import {sum} from "@bokehjs/core/util/array"

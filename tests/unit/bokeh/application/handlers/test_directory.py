@@ -8,11 +8,16 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+
+# Standard library imports
+from typing import TYPE_CHECKING, Dict
 
 # External imports
 import jinja2
@@ -21,6 +26,9 @@ import jinja2
 from bokeh._testing.util.filesystem import with_directory_contents
 from bokeh.core.templates import FILE
 from bokeh.document import Document
+
+if TYPE_CHECKING:
+    from bokeh.application.handlers.handler import Handler
 
 # Module under test
 import bokeh.application.handlers.directory as bahd # isort:skip
@@ -71,7 +79,7 @@ script_has_lifecycle_and_request_handlers = script_has_lifecycle_handlers + scri
 # Dev API
 #-----------------------------------------------------------------------------
 
-def script_adds_two_roots(some_model_name, another_model_name):
+def script_adds_two_roots(some_model_name: str, another_model_name: str) -> str:
     return script_adds_two_roots_template % (another_model_name, some_model_name,
                                              another_model_name, some_model_name)
 
@@ -80,7 +88,7 @@ class Test_DirectoryHandler:
 
     def test_directory_empty_mainpy(self) -> None:
         doc = Document()
-        def load(filename):
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             handler.modify_document(doc)
             if handler.failed:
@@ -95,7 +103,7 @@ class Test_DirectoryHandler:
     def test_directory_initpy(self) -> None:
         doc = Document()
         results = {}
-        def load(filename):
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             handler.modify_document(doc)
             # this will get called by the server but we have to fake it here
@@ -117,7 +125,7 @@ class Test_DirectoryHandler:
 
     def test_directory_mainpy_adds_roots(self) -> None:
         doc = Document()
-        def load(filename):
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             handler.modify_document(doc)
             if handler.failed:
@@ -135,8 +143,8 @@ class Test_DirectoryHandler:
 
         doc = Document()
         source = nbformat.v4.new_notebook()
-        result = {}
-        def load(filename):
+        result: Dict[str, Handler] = {}
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             handler.modify_document(doc)
             result['handler'] = handler
@@ -158,8 +166,8 @@ class Test_DirectoryHandler:
         code = script_adds_two_roots('SomeModelInNbTestDirectory',
                                      'AnotherModelInNbTestDirectory')
         source.cells.append(nbformat.v4.new_code_cell(code))
-        result = {}
-        def load(filename):
+        result: Dict[str, Handler] = {}
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             handler.modify_document(doc)
             result['handler'] = handler
@@ -175,7 +183,7 @@ class Test_DirectoryHandler:
 
     def test_directory_both_mainipynb_and_mainpy(self) -> None:
         doc = Document()
-        def load(filename):
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             handler.modify_document(doc)
             if handler.failed:
@@ -194,7 +202,7 @@ class Test_DirectoryHandler:
 
     def test_directory_missing_main(self) -> None:
         doc = Document()
-        def load(filename):
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             handler.modify_document(doc)
             if handler.failed:
@@ -204,7 +212,7 @@ class Test_DirectoryHandler:
 
     def test_directory_has_theme_file(self) -> None:
         doc = Document()
-        def load(filename):
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             handler.modify_document(doc)
             if handler.failed:
@@ -244,8 +252,8 @@ some.foo = 57
 
     async def test_directory_with_server_lifecycle(self) -> None:
         doc = Document()
-        result = {}
-        def load(filename):
+        result: Dict[str, Handler] = {}
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             result['handler'] = handler
             handler.modify_document(doc)
@@ -269,8 +277,8 @@ some.foo = 57
 
     async def test_directory_with_app_hooks(self) -> None:
         doc = Document()
-        result = {}
-        def load(filename):
+        result: Dict[str, Handler] = {}
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             result['handler'] = handler
             handler.modify_document(doc)
@@ -294,7 +302,7 @@ some.foo = 57
         assert dict(foo=10) == handler.process_request(dict(headers=dict(foo=10)))
 
     async def test_directory_with_lifecycle_and_app_hooks_errors(self) -> None:
-        def load(filename):
+        def load(filename: str):
             with pytest.raises(ValueError):
                 bahd.DirectoryHandler(filename=filename)
 
@@ -307,8 +315,8 @@ some.foo = 57
 
     async def test_directory_with_request_handler(self) -> None:
         doc = Document()
-        result = {}
-        def load(filename):
+        result: Dict[str, Handler] = {}
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             result['handler'] = handler
             handler.modify_document(doc)
@@ -329,8 +337,8 @@ some.foo = 57
 
     def test_directory_with_static(self) -> None:
         doc = Document()
-        result = {}
-        def load(filename):
+        result: Dict[str, Handler] = {}
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             result['handler'] = handler
             handler.modify_document(doc)
@@ -350,8 +358,8 @@ some.foo = 57
 
     def test_directory_without_static(self) -> None:
         doc = Document()
-        result = {}
-        def load(filename):
+        result: Dict[str, Handler] = {}
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             result['handler'] = handler
             handler.modify_document(doc)
@@ -369,8 +377,8 @@ some.foo = 57
 
     def test_directory_with_template(self) -> None:
         doc = Document()
-        result = {}
-        def load(filename):
+        result: Dict[str, Handler] = {}
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             result['handler'] = handler
             handler.modify_document(doc)
@@ -388,8 +396,8 @@ some.foo = 57
 
     def test_directory_without_template(self) -> None:
         doc = Document()
-        result = {}
-        def load(filename):
+        result: Dict[str, Handler] = {}
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             result['handler'] = handler
             handler.modify_document(doc)
@@ -406,8 +414,8 @@ some.foo = 57
 
     def test_safe_to_fork(self) -> None:
         doc = Document()
-        result = {}
-        def load(filename):
+        result: Dict[str, Handler] = {}
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             assert handler.safe_to_fork
             result['handler'] = handler
@@ -420,14 +428,10 @@ some.foo = 57
             'main.py' : "# This script does nothing",
         }, load)
 
-    def test_missing_filename_raises(self) -> None:
-        with pytest.raises(ValueError):
-            bahd.DirectoryHandler()
-
     def test_url_path(self) -> None:
         doc = Document()
-        result = {}
-        def load(filename):
+        result: Dict[str, Handler] = {}
+        def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             assert handler.safe_to_fork
             result['handler'] = handler

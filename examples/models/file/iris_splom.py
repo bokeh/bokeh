@@ -1,8 +1,25 @@
+''' A scatter plot matrix (SPLOM) chart using `Fisher's Iris dataset`_. This
+example demonstrates sharing ranged between plots to acheive linked panning.
+
+.. note::
+    This example is maintained for historical compatibility. Please consider
+    `alternatives to Iris`_, such as :ref:`sampledata_penguins`.
+
+.. bokeh-example-metadata::
+    :sampledata: iris
+    :apis: bokeh.models.glyphs.Circle, bokeh.models.sources.ColumnDataSource, bokeh.models.plots.Plot, bokeh.models.axes.LinearAxis, bokeh.models.plots.Plot, bokeh.models.ranges.DataRange1d # noqa: E501
+    :refs: :ref:`userguide_interaction_linked` > :ref:`userguide_interaction_linked_panning`
+    :keywords: models, scatter, splom
+
+.. _Fisher's Iris dataset: https://en.wikipedia.org/wiki/Iris_flower_data_set
+.. _alternatives to Iris: https://www.meganstodel.com/posts/no-to-iris/
+
+'''
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.layouts import gridplot
 from bokeh.models import (BasicTicker, Circle, ColumnDataSource, DataRange1d,
-                          Grid, LinearAxis, PanTool, Plot, WheelZoomTool,)
+                          Grid, LinearAxis, PanTool, Plot, WheelZoomTool)
 from bokeh.resources import INLINE
 from bokeh.sampledata.iris import flowers
 from bokeh.util.browser import view
@@ -30,7 +47,7 @@ def make_plot(xname, yname, xax=False, yax=False):
     mbb = 40 if xax else 0
     plot = Plot(
         x_range=xdr, y_range=ydr, background_fill_color="#efe8e2",
-        border_fill_color='white', plot_width=200 + mbl, plot_height=200 + mbb,
+        border_fill_color='white', width=200 + mbl, height=200 + mbb,
         min_border_left=2+mbl, min_border_right=2, min_border_top=2, min_border_bottom=2+mbb)
 
     circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, size=4, line_color="color")

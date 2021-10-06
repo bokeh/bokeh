@@ -1,0 +1,124 @@
+.. _release-2-4-0:
+
+2.4.0
+=====
+
+Bokeh Version ``2.4.0`` (September 2021) is a new minor-release level that
+brings many updates. Some of the new feature work includes:
+
+First support for LaTeX- and MathML-based Mathtext (axis labels, tick labels,
+and Divs) over the course of several PRs: :bokeh-issue:`11466`,
+:bokeh-issue:`11525`, :bokeh-issue:`11584`,  :bokeh-issue:`11585`. Look for
+upcoming releases to extend support to titles, legends, and labels.
+
+Other work in this cycle includes:
+
+* Docs fixes and improvements
+    - Contributor's guide refreshed :bokeh-issue:`11513`
+    - ``pre-commit`` hooks added :bokeh-issue:`11442`
+    - Reference guide improvements  :bokeh-issue:`9961`, :bokeh-issue:`11445`, :bokeh-issue:`11563`
+    - Sampledata and gallery example data added :bokeh-issue:`9329`, :bokeh-issue:`11489`
+
+* WebGL fixes and improvements
+    - WebGL backend rewritten using ReGL :bokeh-issue:`10861`
+    - Dashed line styles fixed :bokeh-issue:`10876`
+    - Hatch patterns supported :bokeh-issue:`11159`
+    - Markers and rects re-use buffers efficiently :bokeh-issue:`11343`
+    - Implemented all marker types :bokeh-issue:`11098`
+
+* SVG fixes and improvements
+    - Fix line dash offset and hatch patterns :bokeh-issue:`11058`
+    - Missing ellipse glyph added :bokeh-issue:`11404`
+    - Clipping area problem fixed :bokeh-issue:`11551`
+
+* Misc fixes and improvements
+    - Labels can now be multi-line :bokeh-issue:`7317`
+    - Individual legend items and table columns can be hidden :bokeh-issue:`9261`, :bokeh-issue:`11423`
+    - Tab panels can be set to disabled :bokeh-issue:`10898`
+    - Toolbar buttons respect tab ordering :bokeh-issue:`11266`
+    - Radio button groups support vertical orientation :bokeh-issue:`11374`
+    - New consolidated RangesUpdate event :bokeh-issue:`11095`
+    - Output from json_items includes Bokeh version :bokeh-issue:`11146`
+
+And several other bug fixes and docs additions. For full details, see the
+:bokeh-tree:`CHANGELOG`.
+
+.. _release-2-4-0-migration:
+
+`Migration Guide <releases.html#release-2-4-0-migration>`__
+-----------------------------------------------------------
+
+Minimum Package Versions
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+This release raises the minimum version for some packages
+
+* Bokeh now requires Python 3.7 or higher.
+
+Runtime dependencies
+~~~~~~~~~~~~~~~~~~~~
+
+Bokeh no longer requires the package ``python-dateutil``.
+
+Bokeh can optionally use the package ``xyzservices`` for managing tile
+source metadata.
+
+Wikimedia Tile Provider
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Wikimedia has restricted their tile service to only function with Wikimedia
+domains, and no longer be publicly usable. Accordingly, the WIKIMEDIA tile
+provider has been removed. Use any of the other tile providers instead.
+
+Deprecations
+~~~~~~~~~~~~
+
+``ScreenDistanceSpec`` and ``DataDistanceSpec`` are deprecated, and now return
+a ``SizeSpec``. Custom extensions using these should use ``SizeSpec`` instead.
+
+``PropertyUnitsSpec`` is deprecated. Use ``UnitsSpec`` instead (this is unlikely
+to impact any typical usage).
+
+``bokeh.core.query`` functions no longer accept callables and/or context in
+queries. This feature added unnecessary complication and was not used inside
+the Bokeh codebase (or ever demonstrated in docs or examples).
+
+``Document.delete_modules`` was deprecated and will be removed in the future.
+Use ``Document.models.destroy`` instead.
+
+Units Properties
+~~~~~~~~~~~~~~~~
+
+Units properties must now be configured with an ``units_enum`` that is an
+``enumeration`` instead of a ``units_type`` that is an ``Enum`` property:
+
+.. code:: python
+
+    units_enum=SpatialUnits # use this
+
+    units_type=Enum(SpatialUnits) # NOT this
+
+This is only of potential interest to custom extensions.
+
+Raw string paths in ``Image`` property
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use ``pathlib.Path`` instead.
+
+``gridplot(plot_width, plot_height)`` were deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use ``width`` or ``height`` respectively instead.
+
+``curstate().file`` is now a dataclass
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously it was a `dict`-based ad-hoc data structure. Replace key indexing
+with attribute access.
+
+``static init_ModelName(): void {}`` was deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use new TypeScript 4.4 static blocks ``static {}`` instead. Support for static
+``init_`` methods will be removed in bokeh 3.0. This change only affects model
+providing extensions.

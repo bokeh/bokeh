@@ -47,10 +47,10 @@ export type QuadraticData = GlyphData & p.UniformsOf<Quadratic.Mixins> & {
 export interface QuadraticView extends QuadraticData {}
 
 export class QuadraticView extends GlyphView {
-  model: Quadratic
-  visuals: Quadratic.Visuals
+  override model: Quadratic
+  override visuals: Quadratic.Visuals
 
-  protected _project_data(): void {
+  protected override _project_data(): void {
     inplace.project_xy(this._x0, this._y0)
     inplace.project_xy(this._x1, this._y1)
   }
@@ -66,13 +66,13 @@ export class QuadraticView extends GlyphView {
       const cx_i = _cx[i]
       const cy_i = _cy[i]
 
-      if (isNaN(x0_i + x1_i + y0_i + y1_i + cx_i + cy_i))
+      if (!isFinite(x0_i + x1_i + y0_i + y1_i + cx_i + cy_i))
         index.add_empty()
       else {
         const [x0, x1] = _qbb(x0_i, cx_i, x1_i)
         const [y0, y1] = _qbb(y0_i, cy_i, y1_i)
 
-        index.add(x0, y0, x1, y1)
+        index.add_rect(x0, y0, x1, y1)
       }
     }
   }
@@ -89,7 +89,7 @@ export class QuadraticView extends GlyphView {
         const scx_i = scx[i]
         const scy_i = scy[i]
 
-        if (isNaN(sx0_i + sy0_i + sx1_i + sy1_i + scx_i + scy_i))
+        if (!isFinite(sx0_i + sy0_i + sx1_i + sy1_i + scx_i + scy_i))
           continue
 
         ctx.beginPath()
@@ -102,7 +102,7 @@ export class QuadraticView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 
@@ -131,14 +131,14 @@ export namespace Quadratic {
 export interface Quadratic extends Quadratic.Attrs {}
 
 export class Quadratic extends Glyph {
-  properties: Quadratic.Props
-  __view_type__: QuadraticView
+  override properties: Quadratic.Props
+  override __view_type__: QuadraticView
 
   constructor(attrs?: Partial<Quadratic.Attrs>) {
     super(attrs)
   }
 
-  static init_Quadratic(): void {
+  static {
     this.prototype.default_view = QuadraticView
 
     this.define<Quadratic.Props>(({}) => ({

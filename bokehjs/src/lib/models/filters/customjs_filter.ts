@@ -18,13 +18,13 @@ export namespace CustomJSFilter {
 export interface CustomJSFilter extends CustomJSFilter.Attrs {}
 
 export class CustomJSFilter extends Filter {
-  properties: CustomJSFilter.Props
+  override properties: CustomJSFilter.Props
 
   constructor(attrs?: Partial<CustomJSFilter.Attrs>) {
     super(attrs)
   }
 
-  static init_CustomJSFilter(): void {
+  static {
     this.define<CustomJSFilter.Props>(({Unknown, String, Dict}) => ({
       args: [ Dict(Unknown), {} ],
       code: [ String, "" ],

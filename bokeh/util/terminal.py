@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,7 +22,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import sys
-from typing import Optional
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -57,7 +58,8 @@ try:
     def white(text: str) -> str:  return "%s%s%s%s" % (Fore.WHITE, Style.BRIGHT, text, Style.RESET_ALL)
     def yellow(text: str) -> str: return "%s%s%s" % (Fore.YELLOW, text, Style.RESET_ALL)
 
-    sys.platform == "win32" and colorama.init()
+    if sys.platform == "win32":
+        colorama.init()
 except ImportError:
     def bright(text: str) -> str: return text
     def dim(text: str) -> str:    return text
@@ -76,22 +78,22 @@ def write(*values: str, **kwargs: str) -> None:
     print(*values, end=end)
 
 
-def fail(msg: Optional[str] = None, label: str = "FAIL") -> None:
+def fail(msg: str | None = None, label: str = "FAIL") -> None:
     text = " " + msg if msg is not None else ""
     write("%s%s" % (red("[%s]" % label), text))
 
 
-def info(msg: Optional[str] = None, label: str = "INFO") -> None:
+def info(msg: str | None = None, label: str = "INFO") -> None:
     text = " " + msg if msg is not None else ""
     write("%s%s" % (white("[%s]" % label), text))
 
 
-def ok(msg: Optional[str] = None, label: str = "OK") -> None:
+def ok(msg: str | None = None, label: str = "OK") -> None:
     text = " " + msg if msg is not None else ""
     write("%s%s" % (green("[%s]" % label), text))
 
 
-def warn(msg: Optional[str] = None, label: str = "WARN") -> None:
+def warn(msg: str | None = None, label: str = "WARN") -> None:
     text = " " + msg if msg is not None else ""
     write("%s%s" % (yellow("[%s]" % label), text))
 

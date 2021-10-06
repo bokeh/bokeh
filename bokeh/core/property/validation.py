@@ -14,6 +14,8 @@ where one Bokeh model refers to another.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -62,7 +64,7 @@ class validate:
         :func:`~bokeh.core.properties.without_property_validation`: function decorator
 
     """
-    def __init__(self, value):
+    def __init__(self, value) -> None:
         self.old = Property._should_validate
         Property._should_validate = value
 

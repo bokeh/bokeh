@@ -14,20 +14,20 @@ export namespace FixedTicker {
 export interface FixedTicker extends FixedTicker.Attrs {}
 
 export class FixedTicker extends ContinuousTicker {
-  properties: FixedTicker.Props
+  override properties: FixedTicker.Props
 
   constructor(attrs?: Partial<FixedTicker.Attrs>) {
     super(attrs)
   }
 
-  static init_FixedTicker(): void {
+  static {
     this.define<FixedTicker.Props>(({Number, Array}) => ({
       ticks: [ Array(Number), [] ],
       minor_ticks: [ Array(Number), [] ],
     }))
   }
 
-  get_ticks_no_defaults(_data_low: number, _data_high: number, _cross_loc: number, _desired_n_ticks: number): TickSpec<number> {
+  override get_ticks_no_defaults(_data_low: number, _data_high: number, _cross_loc: number, _desired_n_ticks: number): TickSpec<number> {
     return {
       major: this.ticks,
       minor: this.minor_ticks,

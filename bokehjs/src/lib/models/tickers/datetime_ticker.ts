@@ -23,13 +23,13 @@ export namespace DatetimeTicker {
 export interface DatetimeTicker extends DatetimeTicker.Attrs {}
 
 export class DatetimeTicker extends CompositeTicker {
-  properties: DatetimeTicker.Props
+  override properties: DatetimeTicker.Props
 
   constructor(attrs?: Partial<DatetimeTicker.Attrs>) {
     super(attrs)
   }
 
-  static init_DatetimeTicker(): void {
+  static {
     this.override<DatetimeTicker.Props>({
       num_minor_ticks: 0,
       tickers: () => [

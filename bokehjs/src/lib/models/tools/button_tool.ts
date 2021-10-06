@@ -3,11 +3,10 @@ import Hammer, {Manager} from "hammerjs"
 import {Class} from "core/class"
 import {DOMView} from "core/dom_view"
 import {Tool, ToolView} from "./tool"
-import {empty} from "core/dom"
-import {Dimensions} from "core/enums"
+import {empty, Keys} from "core/dom"
+import {Dimensions, ToolIcon} from "core/enums"
 import * as p from "core/properties"
 import {startsWith} from "core/util/string"
-import {isString} from "core/util/types"
 import {reversed} from "core/util/array"
 
 import toolbar_css, * as toolbars from "styles/toolbar.css"
@@ -19,13 +18,14 @@ import {ContextMenu, MenuItem} from "core/util/menus"
 import type {ToolbarBaseView} from "./toolbar_base"
 
 export abstract class ButtonToolButtonView extends DOMView {
-  model: ButtonTool
-  readonly parent: ToolbarBaseView
+  override model: ButtonTool
+  override readonly parent: ToolbarBaseView
+  override el: HTMLElement
 
   private _hammer: InstanceType<typeof Manager>
   private _menu?: ContextMenu
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     const items = this.model.menu
@@ -54,32 +54,44 @@ export abstract class ButtonToolButtonView extends DOMView {
       }
     })
     this._hammer.on("press", () => this._pressed())
+    this.el.addEventListener("keydown", (event) => {
+      if (event.keyCode == Keys.Enter) {
+        this._clicked()
+      }
+    })
   }
 
-  remove(): void {
+  override remove(): void {
     this._hammer.destroy()
     this._menu?.remove()
     super.remove()
   }
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), toolbar_css, icons_css, menus_css]
   }
 
-  css_classes(): string[] {
+  override css_classes(): string[] {
     return super.css_classes().concat(toolbars.toolbar_button)
   }
 
-  render(): void {
+  override render(): void {
     empty(this.el)
     const icon = this.model.computed_icon
-    if (isString(icon)) {
-      if (startsWith(icon, "data:image"))
-        this.el.style.backgroundImage = "url('" + icon + "')"
-      else
-        this.el.classList.add(icon)
+    if (icon != null) {
+      if (startsWith(icon, "data:image")) {
+        const url = `url("${encodeURI(icon)}")`
+        this.el.style.backgroundImage = url
+      } else if (startsWith(icon, ".")) {
+        const cls = icon.substring(1)
+        this.el.classList.add(cls)
+      } else if (ToolIcon.valid(icon)) {
+        const cls = `bk-tool-icon-${icon.replace(/_/g, "-")}`
+        this.el.classList.add(cls)
+      }
     }
     this.el.title = this.model.tooltip
+    this.el.tabIndex = 0
 
     if (this._menu != null) {
       this.root.el.appendChild(this._menu.el)
@@ -89,17 +101,12 @@ export abstract class ButtonToolButtonView extends DOMView {
   protected abstract _clicked(): void
 
   protected _pressed(): void {
-    const {left, top, right, bottom} = this.el.getBoundingClientRect()
     const at = (() => {
       switch (this.parent.model.toolbar_location) {
-        case "right":
-          return {right: left, top}
-        case "left":
-          return {left: right, top}
-        case "above":
-          return {left, top: bottom}
-        case "below":
-          return {left, bottom: top}
+        case "right": return {left_of:  this.el}
+        case "left":  return {right_of: this.el}
+        case "above": return {below: this.el}
+        case "below": return {above: this.el}
       }
     })()
     this._menu?.toggle(at)
@@ -107,7 +114,7 @@ export abstract class ButtonToolButtonView extends DOMView {
 }
 
 export abstract class ButtonToolView extends ToolView {
-  model: ButtonTool
+  override model: ButtonTool
 }
 
 export namespace ButtonTool {
@@ -121,22 +128,21 @@ export namespace ButtonTool {
 export interface ButtonTool extends ButtonTool.Attrs {}
 
 export abstract class ButtonTool extends Tool {
-  properties: ButtonTool.Props
-  __view_type__: ButtonToolView
+  override properties: ButtonTool.Props
+  override __view_type__: ButtonToolView
 
   constructor(attrs?: Partial<ButtonTool.Attrs>) {
     super(attrs)
   }
 
-  static init_ButtonTool(): void {
+  static {
     this.internal<ButtonTool.Props>(({Boolean}) => ({
       disabled: [ Boolean, false ],
     }))
   }
 
-  tool_name: string
-
-  icon: string
+  readonly tool_name: string
+  readonly tool_icon?: string
 
   button_view: Class<ButtonToolButtonView>
 
@@ -156,8 +162,8 @@ export abstract class ButtonTool extends Tool {
     return this.description ?? this.tool_name
   }
 
-  get computed_icon(): string {
-    return this.icon
+  get computed_icon(): string | undefined {
+    return this.icon ?? `.${this.tool_icon}`
   }
 
   get menu(): MenuItem[] | null {

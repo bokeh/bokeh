@@ -15,8 +15,8 @@ Using ColumnDataSource
 ----------------------
 
 The :class:`~bokeh.models.sources.ColumnDataSource` is Bokeh's own data
-structure. For details about the ``ColumnDataSource``, see
-:ref:`userguide_data_cds` in the user guide.
+structure. For details about the ``ColumnDataSource``, see |ColumnDataSource| in
+the user guide.
 
 So far, you have used data sequences like Python lists and NumPy arrays to pass
 data to Bokeh. Bokeh has automatically converted these lists into
@@ -50,7 +50,7 @@ Follow these steps to create a ``ColumnDataSource`` directly:
 
 .. seealso::
    For more information on Bokeh's ``ColumnDataSource``, see
-   :ref:`userguide_data_cds` in the user guide and
+   |ColumnDataSource| in the user guide and
    :class:`~bokeh.models.sources.ColumnDataSource` in the reference guide.
 
    For information about adding data to a ColumnDataSource, see
@@ -116,16 +116,3 @@ first, the third, and the fifth value of your original list:
    :ref:`userguide_data_filtering` in the user guide. More information is also
    available in the entries for :class:`~bokeh.models.sources.CDSView` and
    :class:`~bokeh.models.filters.Filter` in the reference guide.
-
-.. panels::
-    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
-
-    .. link-button:: first_steps_7.html
-        :text: Previous
-        :classes: stretched-link
-
-    ---
-    :card: + text-right
-    .. link-button:: first_steps_9.html
-        :text: Next
-        :classes: stretched-link

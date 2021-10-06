@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -34,9 +36,6 @@ import bokeh.client.websocket as bcw # isort:skip
 
 
 class Test_WebSocketClientConnectionWrapper:
-    def test_creation_raises_with_None(self) -> None:
-        with pytest.raises(ValueError):
-            bcw.WebSocketClientConnectionWrapper(None)
 
     def test_creation(self) -> None:
         w = bcw.WebSocketClientConnectionWrapper("socket")

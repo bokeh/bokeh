@@ -18,13 +18,13 @@ export namespace CategoricalPatternMapper {
 export interface CategoricalPatternMapper extends Mapper.Attrs, CategoricalMapper.Attrs, CategoricalPatternMapper.Attrs {}
 
 export class CategoricalPatternMapper extends Mapper<string> {
-  properties: CategoricalPatternMapper.Props
+  override properties: CategoricalPatternMapper.Props
 
   constructor(attrs?: Partial<CategoricalPatternMapper.Attrs>) {
     super(attrs)
   }
 
-  static init_CategoricalPatternMapper(): void {
+  static {
     this.define<CategoricalPatternMapper.Props>(({Number, Array, Nullable}) => ({
       factors:       [ FactorSeq ],
       patterns:      [ Array(HatchPatternType) ],

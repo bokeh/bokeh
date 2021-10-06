@@ -164,10 +164,10 @@ The returned ``<script>`` will look something like this:
 
     <script type="text/javascript">
         (function() {
-      var fn = function() {
+      const fn = function() {
         Bokeh.safely(function() {
-          var docs_json = { DOCUMENT DATA HERE };
-          var render_items = [{
+          const docs_json = { DOCUMENT DATA HERE };
+          const render_items = [{
             "docid":"6833819f-9b5b-4904-821e-3f5eec77de9b",
             "elementid":"9574d123-9332-4b5f-96cc-6323bef37f40",
             "modelid":"7b328b27-9b14-4f7b-a5d8-0138bc7b0f59"
@@ -209,20 +209,30 @@ the ``x.y.z``:
             crossorigin="anonymous"></script>
     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-x.y.z.min.js"
             crossorigin="anonymous"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-x.y.z.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-x.y.z.min.js"
+            crossorigin="anonymous"></script>
 
-The ``"-widgets"`` and ``"-tables"`` files are only necessary if your document
-includes Bokeh widgets and data tables.
+The ``"-widgets"``, ``"-tables"``, and ``"-mathjax"`` files are only necessary
+if your document includes :ref:`Bokeh widgets <userguide_interaction_widgets>`,
+:ref:`data tables <userguide_interaction_widgets_examples_datatable>`, or
+:ref:`math text <userguide_styling_math>`, respectively.
 
-For example, to use version ``2.2.0`` with support for widgets and tables,
-include the following in your HTML:
+For example, to use version ``2.4.0`` with support for widgets, tables, and
+math text, include the following in your HTML:
 
 .. code-block:: html
 
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.2.0.min.js"
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.0.min.js"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.2.0.min.js"
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.4.0.min.js"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.2.0.min.js"
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.4.0.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-2.4.0.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-2.4.0.min.js"
             crossorigin="anonymous"></script>
 
 .. note::
@@ -307,13 +317,13 @@ Here's an example of how you could use a multiple plot generator:
     yr2 = Range1d(start=0, end=30)
 
     # build the figures
-    p1 = figure(x_range=xr1, y_range=yr1, tools=TOOLS, plot_width=300, plot_height=300)
+    p1 = figure(x_range=xr1, y_range=yr1, tools=TOOLS, width=300, height=300)
     p1.scatter(x1, y1, size=12, color="red", alpha=0.5)
 
-    p2 = figure(x_range=xr1, y_range=yr1, tools=TOOLS, plot_width=300, plot_height=300)
+    p2 = figure(x_range=xr1, y_range=yr1, tools=TOOLS, width=300, height=300)
     p2.scatter(x2, y2, size=12, color="blue", alpha=0.5)
 
-    p3 = figure(x_range=xr2, y_range=yr2, tools=TOOLS, plot_width=300, plot_height=300)
+    p3 = figure(x_range=xr2, y_range=yr2, tools=TOOLS, width=300, height=300)
     p3.scatter(x3, y3, size=12, color="green", alpha=0.5)
 
     # plots can be a single Bokeh model, a list/tuple, or even a dictionary
@@ -328,8 +338,8 @@ Running ``python scatter.py`` prints out the following:
 .. code-block:: shell
 
     <script type="text/javascript">
-        var docs_json = { DOCUMENT DATA HERE }
-        var render_items = [{
+        const docs_json = { DOCUMENT DATA HERE }
+        const render_items = [{
           "docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
           "elementid":"e89297cf-a2dc-4edd-8993-e16f0ca6af04",
           "modelid":"4eff3fdb-80f4-4b4c-a592-f99911e14398"
@@ -596,16 +606,7 @@ Here's a full template with all the sections that you can override:
     </html>
 
 
-.. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-
-.. |output_file|     replace:: :func:`~bokeh.io.output_file`
-.. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
-.. |save|            replace:: :func:`~bokeh.io.save`
-.. |show|            replace:: :func:`~bokeh.io.show`
-
 .. |autoload_static| replace:: :func:`~bokeh.embed.autoload_static`
-.. |components|      replace:: :func:`~bokeh.embed.components`
 .. |file_html|       replace:: :func:`~bokeh.embed.file_html`
 .. |json_item|       replace:: :func:`~bokeh.embed.json_item`
 .. |server_document| replace:: :func:`~bokeh.embed.server_document`

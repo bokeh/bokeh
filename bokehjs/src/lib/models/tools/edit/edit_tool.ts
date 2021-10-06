@@ -15,7 +15,7 @@ export type HasXYGlyph = {
 }
 
 export abstract class EditToolView extends GestureToolView {
-  model: EditTool
+  override model: EditTool
 
   _basepoint: [number, number] | null
   _mouse_in_frame: boolean = true
@@ -35,11 +35,11 @@ export abstract class EditToolView extends GestureToolView {
       unreachable()
   }
 
-  _move_enter(_e: MoveEvent): void {
+  override _move_enter(_e: MoveEvent): void {
     this._mouse_in_frame = true
   }
 
-  _move_exit(_e: MoveEvent): void {
+  override _move_exit(_e: MoveEvent): void {
     this._mouse_in_frame = false
   }
 
@@ -147,7 +147,7 @@ export abstract class EditToolView extends GestureToolView {
     if (!frame.bbox.contains(sx, sy)) {
       return []
     }
-    const geometry: PointGeometry = {type: 'point', sx, sy}
+    const geometry: PointGeometry = {type: "point", sx, sy}
     const selected = []
     for (const renderer of renderers) {
       const sm = renderer.get_selection_manager()
@@ -169,7 +169,6 @@ export namespace EditTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = GestureTool.Props & {
-    custom_icon: p.Property<string>
     empty_value: p.Property<unknown>
     renderers: p.Property<GlyphRenderer[]>
   }
@@ -178,22 +177,17 @@ export namespace EditTool {
 export interface EditTool extends EditTool.Attrs {}
 
 export abstract class EditTool extends GestureTool {
-  properties: EditTool.Props
-  __view_type__: EditToolView
+  override properties: EditTool.Props
+  override __view_type__: EditToolView
 
   constructor(attrs?: Partial<EditTool.Attrs>) {
     super(attrs)
   }
 
-  static init_EditTool(): void {
-    this.define<EditTool.Props>(({Unknown, String, Array, Ref}) => ({
-      custom_icon: [ String ],
+  static {
+    this.define<EditTool.Props>(({Unknown, Array, Ref}) => ({
       empty_value: [ Unknown ],
       renderers:   [ Array(Ref(GlyphRenderer)), [] ],
     }))
-  }
-
-  get computed_icon(): string {
-    return this.custom_icon ?? this.icon
   }
 }

@@ -8,8 +8,7 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {CDSView} from "../sources/cds_view"
 import {Color, Indices} from "core/types"
 import * as p from "core/properties"
-import {indexOf, filter} from "core/util/arrayable"
-import {difference} from "core/util/array"
+import {filter} from "core/util/arrayable"
 import {extend, clone} from "core/util/object"
 import {HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
@@ -17,6 +16,8 @@ import {SelectionManager} from "core/selection_manager"
 import {build_view} from "core/build_views"
 import {Context2d} from "core/util/canvas"
 import {FactorRange} from "../ranges/factor_range"
+import {Decoration} from "../graphics/decoration"
+import {Marking} from "../graphics/marking"
 
 type Defaults = {
   fill: {fill_alpha?: number, fill_color?: Color}
@@ -38,14 +39,24 @@ const nonselection_defaults: Defaults = {
   line: {},
 }
 
+const hover_defaults: Defaults = {
+  fill: {},
+  line: {},
+}
+
+const muted_defaults: Defaults = {
+  fill: {fill_alpha: 0.2},
+  line: {},
+}
+
 export class GlyphRendererView extends DataRendererView {
-  model: GlyphRenderer
+  override model: GlyphRenderer
 
   glyph: GlyphView
   selection_glyph: GlyphView
   nonselection_glyph: GlyphView
   hover_glyph?: GlyphView
-  muted_glyph?: GlyphView
+  muted_glyph: GlyphView
   decimated_glyph: GlyphView
 
   get glyph_view(): GlyphView {
@@ -57,7 +68,7 @@ export class GlyphRendererView extends DataRendererView {
 
   protected last_dtrender: number
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
     const base_glyph = this.model.glyph
@@ -76,35 +87,36 @@ export class GlyphRendererView extends DataRendererView {
       return new (base_glyph.constructor as any)(attrs)
     }
 
-    let {selection_glyph} = this.model
-    if (selection_glyph == null)
-      selection_glyph = mk_glyph({fill: {}, line: {}})
-    else if (selection_glyph == "auto")
-      selection_glyph = mk_glyph(selection_defaults)
+    function glyph_from_mode(defaults: Defaults, glyph?: Glyph | "auto" | null): typeof base_glyph {
+      if (glyph instanceof Glyph) {
+        return glyph
+      } else if (glyph == "auto") {
+        return mk_glyph(defaults)
+      }
+      return mk_glyph({fill: {}, line: {}})
+    }
+
+    let {selection_glyph, nonselection_glyph, hover_glyph, muted_glyph} = this.model
+
+    selection_glyph = glyph_from_mode(selection_defaults, selection_glyph)
     this.selection_glyph = await this.build_glyph_view(selection_glyph)
 
-    let {nonselection_glyph} = this.model
-    if (nonselection_glyph == null)
-      nonselection_glyph = mk_glyph({fill: {}, line: {}})
-    else if (nonselection_glyph == "auto")
-      nonselection_glyph = mk_glyph(nonselection_defaults)
+    nonselection_glyph = glyph_from_mode(nonselection_defaults, nonselection_glyph)
     this.nonselection_glyph = await this.build_glyph_view(nonselection_glyph)
 
-    const {hover_glyph} = this.model
-    if (hover_glyph != null)
-      this.hover_glyph = await this.build_glyph_view(hover_glyph)
+    hover_glyph = glyph_from_mode(hover_defaults, hover_glyph)
+    this.hover_glyph = await this.build_glyph_view(hover_glyph)
 
-    const {muted_glyph} = this.model
-    if (muted_glyph != null)
-      this.muted_glyph = await this.build_glyph_view(muted_glyph)
+    muted_glyph = glyph_from_mode(muted_defaults, muted_glyph)
+    this.muted_glyph = await this.build_glyph_view(muted_glyph)
 
-    const decimated_glyph = mk_glyph(decimated_defaults)
+    const decimated_glyph = glyph_from_mode(decimated_defaults, "auto")
     this.decimated_glyph = await this.build_glyph_view(decimated_glyph)
 
     this.selection_glyph.set_base(this.glyph)
     this.nonselection_glyph.set_base(this.glyph)
     this.hover_glyph?.set_base(this.glyph)
-    this.muted_glyph?.set_base(this.glyph)
+    this.muted_glyph.set_base(this.glyph)
     this.decimated_glyph.set_base(this.glyph)
 
     this.set_data()
@@ -114,17 +126,17 @@ export class GlyphRendererView extends DataRendererView {
     return build_view(glyph, {parent: this}) as Promise<GlyphView>
   }
 
-  remove(): void {
+  override remove(): void {
     this.glyph.remove()
     this.selection_glyph.remove()
     this.nonselection_glyph.remove()
     this.hover_glyph?.remove()
-    this.muted_glyph?.remove()
+    this.muted_glyph.remove()
     this.decimated_glyph.remove()
     super.remove()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     const render = () => this.request_render()
@@ -137,8 +149,7 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.nonselection_glyph.model.change, update)
     if (this.hover_glyph != null)
       this.connect(this.hover_glyph.model.change, update)
-    if (this.muted_glyph != null)
-      this.connect(this.muted_glyph.model.change, update)
+    this.connect(this.muted_glyph.model.change, update)
     this.connect(this.decimated_glyph.model.change, update)
 
     this.connect(this.model.data_source.change, update)
@@ -216,7 +227,7 @@ export class GlyphRendererView extends DataRendererView {
     this.muted_glyph?.set_visuals(source, all_indices)
   }
 
-  get has_webgl(): boolean {
+  override get has_webgl(): boolean {
     return this.glyph.has_webgl
   }
 
@@ -281,8 +292,14 @@ export class GlyphRendererView extends DataRendererView {
       selection_glyph = this.selection_glyph
     }
 
-    if (this.hover_glyph != null && inspected_subset_indices.length)
-      indices = difference(indices, inspected_subset_indices)
+    if (this.hover_glyph != null && inspected_subset_indices.length) {
+      // TODO: keep working on Indices instead of converting back and forth
+      const set = new Set(indices)
+      for (const i of inspected_subset_indices) {
+        set.delete(i)
+      }
+      indices = [...set]
+    }
 
     // Render with no selection
     if (!selected_full_indices.length) {
@@ -379,7 +396,7 @@ export namespace GlyphRenderer {
     hover_glyph: p.Property<Glyph | null>
     nonselection_glyph: p.Property<Glyph | "auto" | null>
     selection_glyph: p.Property<Glyph | "auto" | null>
-    muted_glyph: p.Property<Glyph | null>
+    muted_glyph: p.Property<Glyph | "auto" | null>
     muted: p.Property<boolean>
   }
 }
@@ -387,14 +404,14 @@ export namespace GlyphRenderer {
 export interface GlyphRenderer extends GlyphRenderer.Attrs {}
 
 export class GlyphRenderer extends DataRenderer {
-  properties: GlyphRenderer.Props
-  __view_type__: GlyphRendererView
+  override properties: GlyphRenderer.Props
+  override __view_type__: GlyphRendererView
 
   constructor(attrs?: Partial<GlyphRenderer.Attrs>) {
     super(attrs)
   }
 
-  static init_GlyphRenderer(): void {
+  static {
     this.prototype.default_view = GlyphRendererView
 
     this.define<GlyphRenderer.Props>(({Boolean, Auto, Or, Ref, Null, Nullable}) => ({
@@ -404,12 +421,12 @@ export class GlyphRenderer extends DataRenderer {
       hover_glyph:        [ Nullable(Ref(Glyph)), null ],
       nonselection_glyph: [ Or(Ref(Glyph), Auto, Null), "auto" ],
       selection_glyph:    [ Or(Ref(Glyph), Auto, Null), "auto" ],
-      muted_glyph:        [ Nullable(Ref(Glyph)), null ],
+      muted_glyph:        [ Or(Ref(Glyph), Auto, Null), "auto" ],
       muted:              [ Boolean, false ],
     }))
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     if (this.view.source != this.data_source) {
@@ -419,28 +436,38 @@ export class GlyphRenderer extends DataRenderer {
   }
 
   get_reference_point(field: string | null, value?: any): number {
-    let index = 0
     if (field != null) {
       const data = this.data_source.get_column(field)
       if (data != null) {
-        if (this.view == null) {
-          const i = indexOf(data, value)
-          if (i != -1)
-            index = i
-        } else {
-          for (const [k, v] of Object.entries(this.view.indices_map)) {
-            if (data[parseInt(k)] == value) {
-              index = v
-              break
-            }
-          }
+        for (const [key, index] of Object.entries(this.view.indices_map)) {
+          if (data[parseInt(key)] == value)
+            return index
         }
       }
     }
-    return index
+    return 0
   }
 
   get_selection_manager(): SelectionManager {
     return this.data_source.selection_manager
+  }
+
+  add_decoration(marking: Marking, node: "start" | "middle" | "end"): Decoration {
+    const decoration = new Decoration({marking, node})
+
+    const glyphs = [
+      this.glyph,
+      this.selection_glyph,
+      this.nonselection_glyph,
+      this.hover_glyph,
+      this.muted_glyph,
+    ]
+
+    for (const glyph of glyphs) {
+      if (glyph instanceof Glyph)
+        glyph.decorations = [...glyph.decorations, decoration]
+    }
+
+    return decoration
   }
 }

@@ -2,7 +2,6 @@ from bokeh.layouts import column, gridplot
 from bokeh.models import Div, Range1d, WMTSTileSource
 from bokeh.plotting import figure, show
 from bokeh.sampledata.airports import data as airports
-from bokeh.tile_providers import CARTODBPOSITRON, get_provider
 
 title = "US Airports: Field Elevation > 1500m"
 
@@ -15,7 +14,7 @@ def plot(tile_source):
     # create plot and add tools
     p = figure(tools='hover,wheel_zoom,pan,reset', x_range=x_range, y_range=y_range, title=title,
                tooltips=[("Name", "@name"), ("Elevation", "@elevation (m)")],
-               plot_width=400, plot_height=400)
+               width=400, height=400)
     p.axis.visible = False
     p.add_tile(tile_source)
 
@@ -34,7 +33,7 @@ tile_options['attribution'] = """
     """
 mq_tile_source = WMTSTileSource(**tile_options)
 
-carto = plot(get_provider(CARTODBPOSITRON))
+carto = plot("CartoDB Positron")
 mq = plot(mq_tile_source)
 
 # link panning

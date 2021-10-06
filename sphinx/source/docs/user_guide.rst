@@ -115,7 +115,5 @@ usually focus on highlighting one functionality or concept each. You can copy
 and paste those examples into your own development environment. With only a
 handful of exceptions, you will need no external libraries to run the examples.
 
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-
 .. _Datashader: http://datashader.readthedocs.io
 .. _HoloViews: http://holoviews.org

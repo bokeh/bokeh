@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -15,7 +17,13 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.core.properties import DistanceSpec, Instance, Int, Nullable, String
+from bokeh.core.properties import (
+    DistanceSpec,
+    Instance,
+    Int,
+    Nullable,
+    String,
+)
 from bokeh.model import Model
 
 # Module under test

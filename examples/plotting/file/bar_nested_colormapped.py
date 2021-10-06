@@ -1,9 +1,15 @@
-from bokeh.io import output_file, show
-from bokeh.models import ColumnDataSource, FactorRange
-from bokeh.plotting import figure
-from bokeh.transform import factor_cmap
+''' A bar chart based on simple Python lists of data. This example demonstrates
+automatic colormapping of nested categorical factors.
 
-output_file("bar_nested_colormapped.html")
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.vbar, bokeh.transform.factor_cmap
+    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_filled` > :ref:`userguide_categorical_bars_filled_colors` # noqa: E501
+    :keywords: bar, colormap, vbar
+
+'''
+from bokeh.models import ColumnDataSource, FactorRange
+from bokeh.plotting import figure, show
+from bokeh.transform import factor_cmap
 
 fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 years = ['2015', '2016', '2017']
@@ -21,7 +27,7 @@ counts = sum(zip(data['2015'], data['2016'], data['2017']), ()) # like an hstack
 
 source = ColumnDataSource(data=dict(x=x, counts=counts))
 
-p = figure(x_range=FactorRange(*x), plot_height=350, title="Fruit Counts by Year",
+p = figure(x_range=FactorRange(*x), height=350, title="Fruit Counts by Year",
            toolbar_location=None, tools="")
 
 p.vbar(x='x', top='counts', width=0.9, source=source, line_color="white",

@@ -5,10 +5,12 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "noImplicitOverride": true,
     "strictNullChecks": true,
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
     "strictPropertyInitialization": true,
+    "useUnknownInCatchVariables": true,
     "alwaysStrict": true,
     "noErrorTruncation": true,
     "noEmitOnError": false,
@@ -26,7 +28,9 @@
     "lib": ["es2020", "dom", "dom.iterable"],
     "types": ["node"],
     "baseUrl": ".",
-    "outDir": "../../build/js/compiler"
+    "outDir": "../../build/js/compiler",
+    "incremental": true,
+    "tsBuildInfoFile": "../../build/js/compiler/compiler.tsbuildinfo"
   },
   "include": ["./**/*.ts"]
 }

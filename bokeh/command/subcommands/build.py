@@ -11,6 +11,10 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
+import logging # isort:skip
+log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -23,13 +27,13 @@ from argparse import Namespace
 from bokeh.ext import build
 
 # Bokeh imports
-from ..subcommand import Subcommand
+from ..subcommand import Argument, Subcommand
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-__all__ = ['Build']
+__all__ = ("Build",)
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -49,17 +53,17 @@ class Build(Subcommand):
     help = "Manage and build a bokeh extension"
 
     args = (
-        ("base_dir", dict(
+        ("base_dir", Argument(
             metavar="BASE_DIR",
             type=str,
             nargs="?",
             default=".",
         )),
-        ("--rebuild", dict(
+        ("--rebuild", Argument(
             action="store_true",
             help="Ignore all caches and perform a full rebuild",
         )),
-        ("--debug", dict(
+        ("--debug", Argument(
             action="store_true",
             help="Run nodejs in debug mode (use --inspect-brk)",
         )),

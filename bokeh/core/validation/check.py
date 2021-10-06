@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,13 +22,27 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import contextlib
-from typing import Set
+from typing import (
+    Iterable,
+    Iterator,
+    List,
+    Set,
+)
+
+# External imports
+from typing_extensions import Literal, Protocol
+
+# Bokeh imports
+from ...model import Model
+from ...settings import settings
+from ...util.dataclasses import dataclass
+from .issue import Warning
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-__silencers__: Set[int] = set()
+__silencers__: Set[Warning] = set()
 
 __all__ = (
     'check_integrity',
@@ -38,7 +54,25 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def silence(warning: int, silence: bool = True) -> Set[int]:
+@dataclass
+class ValidationIssue:
+    code: int
+    name: str
+    text: str
+    extra: str
+
+@dataclass
+class ValidationIssues:
+    error: List[ValidationIssue]
+    warning: List[ValidationIssue]
+
+ValidatorType = Literal["error", "warning"]
+
+class Validator(Protocol):
+    def __call__(self) -> List[ValidationIssue]: ...
+    validator_type: ValidatorType
+
+def silence(warning: Warning, silence: bool = True) -> Set[Warning]:
     ''' Silence a particular warning on all Bokeh models.
 
     Args:
@@ -67,67 +101,123 @@ def silence(warning: int, silence: bool = True) -> Set[int]:
         set()
 
     '''
-    if not isinstance(warning, int):
-        raise ValueError('Input to silence should be a warning object '
-                         '- not of type {}'.format(type(warning)))
+    if not isinstance(warning, Warning):
+        raise ValueError(f"Input to silence should be a warning object - not of type {type(warning)}")
     if silence:
         __silencers__.add(warning)
     elif warning in __silencers__:
         __silencers__.remove(warning)
     return __silencers__
 
+def is_silenced(warning: Warning) -> bool:
+    ''' Check if a warning has been silenced.
+
+    Args:
+        warning (Warning) : Bokeh warning to check
+
+    Returns:
+        bool
+
+    '''
+    return warning in __silencers__
+
 @contextlib.contextmanager
-def silenced(warning: int) -> None:
+def silenced(warning: Warning) -> Iterator[None]:
     silence(warning, True)
     try:
         yield
     finally:
         silence(warning, False)
 
-def check_integrity(models):
-    ''' Apply validation and integrity checks to a collection of Bokeh models.
+def check_integrity(models: Iterable[Model]) -> ValidationIssues:
+    ''' Collect all warnings associated with a collection of Bokeh models.
 
     Args:
         models (seq[Model]) : a collection of Models to test
 
     Returns:
-        None
+        ValidationIssues: A collection of all warning and error messages
 
-    This function will emit log warning and error messages for all error or
-    warning conditions that are detected. For example, layouts without any
-    children will trigger a warning:
+    This function will return an object containing all errors and/or
+    warning conditions that are detected. For example, layouts without
+    any children will add a warning to the collection:
 
     .. code-block:: python
 
-        >>> empty_row = Row
+        >>> empty_row = Row()
 
         >>> check_integrity([empty_row])
-        W-1002 (EMPTY_LAYOUT): Layout has no children: Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...)
+        ValidationIssues(
+            error=[],
+            warning=[
+                ValidationIssue(
+                    code=1002,
+                    name="EMPTY_LAYOUT",
+                    text="Layout has no children",
+                    extra="Row(id='1001', ...)",
+                ),
+            ],
+        )
 
     '''
-    messages = dict(error=[], warning=[])
+    issues = ValidationIssues(error=[], warning=[])
 
     for model in models:
-        validators = []
+        validators: List[Validator] = []
         for name in dir(model):
-            if not name.startswith("_check"): continue
+            if not name.startswith("_check"):
+                continue
             obj = getattr(model, name)
             if getattr(obj, "validator_type", None):
                 validators.append(obj)
         for func in validators:
-            messages[func.validator_type].extend(func())
+            if func.validator_type == "error":
+                issues.error.extend(func())
+            else:
+                issues.warning.extend(func())
 
-    for msg in sorted(messages['error']):
-        log.error("E-%d (%s): %s: %s" % msg)
+    return issues
 
-    for msg in sorted(messages['warning']):
-        code, name, desc, obj = msg
-        if code not in __silencers__:
-            log.warning("W-%d (%s): %s: %s" % msg)
+def process_validation_issues(issues: ValidationIssues) -> None:
+    ''' Log warning and error messages for a dictionary containing warnings and error messages.
 
-    # This will be turned on in a future release
-    # if len(messages['error']) or (len(messages['warning']) and settings.strict()):
-    #     raise RuntimeError("Errors encountered during validation (see log output)")
+    Args:
+        issues (ValidationIssue) : A collection of all warning and error messages
+
+    Returns:
+        None
+
+    This function will emit log warning and error messages for all error or
+    warning conditions in the dictionary. For example, a dictionary
+    containing a warning for empty layout will trigger a warning:
+
+    .. code-block:: python
+
+        >>> process_validation_issues(validations)
+        W-1002 (EMPTY_LAYOUT): Layout has no children: Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...)
+
+    '''
+    errors = issues.error
+    warnings = [issue for issue in issues.warning if not is_silenced(Warning.get_by_code(issue.code))]
+
+    warning_messages: List[str] = []
+    for warning in sorted(warnings, key=lambda warning: warning.code):
+        msg = f"W-{warning.code} ({warning.name}): {warning.text}: {warning.extra}"
+        warning_messages.append(msg)
+        log.warning(msg)
+
+    error_messages: List[str] = []
+    for error in sorted(errors, key=lambda error: error.code):
+        msg = f"E-{error.code} ({error.name}): {error.text}: {error.extra}"
+        error_messages.append(msg)
+        log.error(msg)
+
+    if settings.validation_level() == "errors":
+        if len(errors):
+            raise RuntimeError(f"Errors encountered during validation: {error_messages}")
+    elif settings.validation_level() == "all":
+        if len(errors) or len(warnings):
+            raise RuntimeError(f"Errors encountered during validation: {error_messages + warning_messages}")
 
 #-----------------------------------------------------------------------------
 # Dev API

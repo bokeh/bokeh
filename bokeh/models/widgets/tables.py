@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -616,6 +618,10 @@ class TableColumn(Model):
     The default sorting order. By default ``ascending`` order is used.
     """)
 
+    visible = Bool(True, help="""
+    Whether this column shold be displayed or not.
+    """)
+
 @abstract
 class TableWidget(Widget):
     ''' Abstract base class for data table (data grid) widgets.
@@ -632,7 +638,7 @@ class TableWidget(Widget):
     initialization.
     """)
 
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         super().__init__(**kw)
         if "view" not in kw:
             self.view = CDSView(source=self.source)

@@ -9,6 +9,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -18,6 +20,11 @@ import pytest ; pytest
 # Standard library imports
 import os
 from os.path import join, splitext
+from typing import List
+
+# Bokeh imports
+from bokeh._testing.util.project import TOP_PATH
+from bokeh.util.string import nice_join
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -29,14 +36,14 @@ def test_windows_reserved_filenames() -> None:
     names are not present in the codebase.
 
     '''
-    bad = []
-    for path, _, files in os.walk("."):
+    bad: List[str] = []
+    for path, _, files in os.walk(TOP_PATH):
 
         for file in files:
             if splitext(file)[0].upper() in RESERVED_NAMES:
                 bad.append(join(path, file))
 
-    assert len(bad) == 0, "Windows reserved filenames detected:\n%s" % "\n".join(bad)
+    assert len(bad) == 0, f"Windows reserved filenames detected:\n{nice_join(bad)}"
 
 #-----------------------------------------------------------------------------
 # Support

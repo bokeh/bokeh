@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -15,9 +17,17 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from _util_property import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
-from bokeh.core.properties import Instance, Int, List
+from bokeh.core.properties import (
+    Dict,
+    Instance,
+    Int,
+    List,
+    String,
+)
+from bokeh.core.property.wrappers import PropertyValueDict, PropertyValueList
+
+from _util_property import _TestHasProps, _TestModel
 
 # Module under test
 import bokeh.core.property.nullable as bcpn # isort:skip
@@ -74,6 +84,20 @@ class Test_Nullable:
     def test_str(self) -> None:
         prop = bcpn.Nullable(List(Int))
         assert str(prop) == "Nullable(List(Int))"
+
+    def test_wrap_dict(self) -> None:
+        prop = bcpn.Nullable(Dict(String, Int))
+        assert prop.wrap(None) is None
+        wrapped = prop.wrap({"foo": 10})
+        assert isinstance(wrapped, PropertyValueDict)
+        assert prop.wrap(wrapped) is wrapped
+
+    def test_wrap_list(self) -> None:
+        prop = bcpn.Nullable(List(Int))
+        assert prop.wrap(None) is None
+        wrapped = prop.wrap([10, 20])
+        assert isinstance(wrapped, PropertyValueList)
+        assert prop.wrap(wrapped) is wrapped
 
 class Test_NonNullable:
     def test_init(self) -> None:

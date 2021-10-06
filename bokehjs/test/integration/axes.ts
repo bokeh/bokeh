@@ -1,9 +1,14 @@
-import {display} from "./_util"
+import {display, with_internal} from "./_util"
 
 import {
-  LinearAxis, LogAxis, CategoricalAxis, LinearScale, LogScale, CategoricalScale, Range1d, FactorRange,
-  Plot, AllLabels, NoOverlap,
+  LinearAxis, LogAxis, CategoricalAxis,
+  LinearScale, LogScale, CategoricalScale,
+  Range1d, FactorRange,
+  AllLabels, NoOverlap,
+  Plot,
+  TeX,
 } from "@bokehjs/models"
+
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 import {Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
@@ -27,10 +32,12 @@ import {radians} from "@bokehjs/core/util/math"
         title: null,
         toolbar_location: null,
       })
+
       const axis = axis_type == "linear" ? new LinearAxis(attrs) : new LogAxis(attrs)
       if (options?.num_ticks != null)
         axis.ticker.desired_num_ticks = options.num_ticks
       p.add_layout(axis, side)
+
       await display(p)
     }
   }
@@ -51,10 +58,12 @@ import {radians} from "@bokehjs/core/util/math"
         title: null,
         toolbar_location: null,
       })
+
       const axis = axis_type == "linear" ? new LinearAxis(attrs) : new LogAxis(attrs)
       if (options?.num_ticks != null)
         axis.ticker.desired_num_ticks = options.num_ticks
       p.add_layout(axis, side)
+
       await display(p)
     }
   }
@@ -180,6 +189,52 @@ import {radians} from "@bokehjs/core/util/math"
     describe("in vertical orientation", () => {
       describe("left of a plot", () => test(vplot("left", "linear")))
       describe("right of a plot", () => test(vplot("right", "linear")))
+    })
+
+    describe("in both orientations", () => {
+      async function hvplot(attrs: Partial<LogAxis.Attrs>): Promise<void> {
+        const p = new Plot({
+          width: 600,
+          height: 400,
+          x_scale: new LogScale(),
+          y_scale: new LogScale(),
+          x_range: new Range1d({start: 10**-2, end: 10**11}),
+          y_range: new Range1d({start: 10**-2, end: 10**11}),
+          min_border_top: 20,
+          min_border_bottom: 20,
+          min_border_left: 0,
+          min_border_right: 0,
+          title: null,
+          toolbar_location: null,
+        })
+
+        p.add_layout(new LogAxis(attrs), "left")
+        p.add_layout(new LogAxis(attrs), "right")
+        p.add_layout(new LogAxis(attrs), "above")
+        p.add_layout(new LogAxis(attrs), "below")
+
+        await display(p)
+      }
+
+      it("should support LaTeX notation on axis labels", async () => {
+        await with_internal(async () => {
+          const text = "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"
+          await hvplot({axis_label: new TeX({text})})
+        })
+      })
+
+      it("should support LaTeX notation on tick labels when using overrides", async () => {
+        await with_internal(async () => {
+          await hvplot({
+            major_label_overrides: {
+              1: "one",
+              0.01: new TeX({text: "\\frac{0.133}{\\mu+2\\sigma^2}"}),
+              10000: new TeX({text: "10 \\ast 1000"}),
+              1000000: new TeX({text: "\\sigma^2"}),
+            },
+          })
+        })
+      })
     })
   })
 

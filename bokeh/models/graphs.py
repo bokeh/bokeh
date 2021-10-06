@@ -6,13 +6,30 @@
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import annotations
+
+import logging # isort:skip
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import Any, Dict, Either, Int, Seq, String
+from ..core.properties import (
+    Any,
+    Dict,
+    Either,
+    Instance,
+    Int,
+    Seq,
+    String,
+)
 from ..model import Model
+from .expressions import CoordinateTransform
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -20,9 +37,12 @@ from ..model import Model
 
 __all__ = (
     'EdgesAndLinkedNodes',
+    'EdgeCoordinates',
     'EdgesOnly',
+    'GraphCoordinates',
     'GraphHitTestPolicy',
     'LayoutProvider',
+    'NodeCoordinates',
     'NodesAndLinkedEdges',
     'NodesOnly',
     'StaticLayoutProvider',
@@ -42,7 +62,13 @@ class LayoutProvider(Model):
 
     '''
 
-    pass
+    @property
+    def node_coordinates(self) -> NodeCoordinates:
+        return NodeCoordinates(layout=self)
+
+    @property
+    def edge_coordinates(self) -> EdgeCoordinates:
+        return EdgeCoordinates(layout=self)
 
 class StaticLayoutProvider(LayoutProvider):
     '''
@@ -62,6 +88,30 @@ class StaticLayoutProvider(LayoutProvider):
             2 : [0.86, 1],
         }
     """)
+
+@abstract
+class GraphCoordinates(CoordinateTransform):
+    '''
+    Abstract class for coordinate transform expression obtained from ``LayoutProvider``
+
+    '''
+    layout = Instance(LayoutProvider)
+
+class NodeCoordinates(GraphCoordinates):
+    '''
+    Node coordinate expression obtained from ``LayoutProvider``
+
+    '''
+
+    pass
+
+class EdgeCoordinates(GraphCoordinates):
+    '''
+    Node coordinate expression obtained from ``LayoutProvider``
+
+    '''
+
+    pass
 
 @abstract
 class GraphHitTestPolicy(Model):
@@ -118,10 +168,3 @@ class EdgesAndLinkedNodes(GraphHitTestPolicy):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-
-# TODO (bev) deprecation: 3.0
-def from_networkx(graph, layout_function, **kwargs):
-    from bokeh.util.deprecation import deprecated
-    from bokeh.plotting import from_networkx as real_from_networkx
-    deprecated("Importing from_networkx from bokeh.models.graphs is deprecated and will be removed in Bokeh 3.0. Import from bokeh.plotting instead")
-    return real_from_networkx(graph, layout_function, **kwargs)

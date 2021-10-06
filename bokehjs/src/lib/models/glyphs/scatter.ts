@@ -1,6 +1,5 @@
 import {Marker, MarkerView, MarkerData} from "./marker"
 import {marker_funcs} from "./defs"
-import {MarkerGL} from "./webgl/markers"
 import {MarkerType} from "core/enums"
 import {Rect} from "core/types"
 import * as p from "core/properties"
@@ -13,23 +12,38 @@ export type ScatterData = MarkerData & {
 export interface ScatterView extends ScatterData {}
 
 export class ScatterView extends MarkerView {
-  model: Scatter
+  override model: Scatter
 
   /** @internal */
-  glglyph?: MarkerGL
+  override glglyph?: import("./webgl/markers").MarkerGL
+  private glcls?: typeof import("./webgl/markers").MarkerGL
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {webgl} = this.renderer.plot_view.canvas_view
+    if (webgl?.regl_wrapper.has_webgl) {
+      const {MarkerGL} = await import("./webgl/markers")
+      this.glcls = MarkerGL
+    }
+  }
 
   protected _init_webgl(): void {
     const {webgl} = this.renderer.plot_view.canvas_view
     if (webgl != null) {
-      const marker_types = new Set(this.marker)
-      if (marker_types.size == 1) {
-        const [marker_type] = [...marker_types]
+      const {regl_wrapper} = webgl
+      if (regl_wrapper.has_webgl) {
+        const marker_types = new Set(this.base != null ? this.base.marker : this.marker)
+        if (marker_types.size == 1) {
+          const [marker_type] = [...marker_types]
 
-        if (MarkerGL.is_supported(marker_type)) {
-          const {glglyph} = this
-          if (glglyph == null || glglyph.marker_type != marker_type) {
-            this.glglyph = new MarkerGL(webgl.gl, this, marker_type)
-            return
+          const MarkerGL = this.glcls
+          if (MarkerGL?.is_supported(marker_type)) {
+            const {glglyph} = this
+            if (glglyph == null || glglyph.marker_type != marker_type) {
+              this.glglyph = new MarkerGL(regl_wrapper, this, marker_type)
+              return
+            }
           }
         }
       }
@@ -37,12 +51,11 @@ export class ScatterView extends MarkerView {
     delete this.glglyph
   }
 
-  protected _set_data(indices: number[] | null): void {
-    super._set_data(indices)
+  protected override _set_visuals(): void {
     this._init_webgl()
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: ScatterData): void {
+  protected override _render(ctx: Context2d, indices: number[], data?: ScatterData): void {
     const {sx, sy, size, angle, marker} = data ?? this
 
     for (const i of indices) {
@@ -52,7 +65,7 @@ export class ScatterView extends MarkerView {
       const angle_i = angle.get(i)
       const marker_i = marker.get(i)
 
-      if (isNaN(sx_i + sy_i + size_i + angle_i) || marker_i == null)
+      if (!isFinite(sx_i + sy_i + size_i + angle_i) || marker_i == null)
         continue
 
       const r = size_i/2
@@ -72,7 +85,7 @@ export class ScatterView extends MarkerView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
     const n = index + 1
     const marker = this.marker.get(index)
 
@@ -96,14 +109,14 @@ export namespace Scatter {
 export interface Scatter extends Scatter.Attrs {}
 
 export class Scatter extends Marker {
-  properties: Scatter.Props
-  __view_type__: ScatterView
+  override properties: Scatter.Props
+  override __view_type__: ScatterView
 
   constructor(attrs?: Partial<Scatter.Attrs>) {
     super(attrs)
   }
 
-  static init_Scatter(): void {
+  static {
     this.prototype.default_view = ScatterView
     this.define<Scatter.Props>(() => ({
       marker: [ p.MarkerSpec, {value: "circle"} ],

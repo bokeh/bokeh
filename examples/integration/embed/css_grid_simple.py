@@ -7,7 +7,7 @@ def make_figure(axes):
     xdr = Range1d(start=-1, end=1)
     ydr = Range1d(start=-1, end=1)
 
-    plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=200, plot_height=200, toolbar_location=None)
+    plot = Plot(title=None, x_range=xdr, y_range=ydr, width=200, height=200, toolbar_location=None)
     plot.add_glyph(Circle(x=0, y=0, size=100))
 
     for place in axes:

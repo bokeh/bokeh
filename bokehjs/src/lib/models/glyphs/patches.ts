@@ -1,7 +1,7 @@
 import {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
-import {minmax, sum} from "core/util/arrayable"
+import {minmax2, sum} from "core/util/arrayable"
 import {Arrayable, Rect, RaggedArray, FloatArray, ScreenArray, Indices} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
@@ -24,10 +24,10 @@ export type PatchesData = GlyphData & p.UniformsOf<Patches.Mixins> & {
 export interface PatchesView extends PatchesData {}
 
 export class PatchesView extends GlyphView {
-  model: Patches
-  visuals: Patches.Visuals
+  override model: Patches
+  override visuals: Patches.Visuals
 
-  protected _project_data(): void {
+  protected override _project_data(): void {
     inplace.project_xy(this._xs.array, this._ys.array)
   }
 
@@ -38,41 +38,17 @@ export class PatchesView extends GlyphView {
       const xsi = this._xs.get(i)
       const ysi = this._ys.get(i)
 
-      if (xsi.length == 0)
-        index.add_empty()
-      else {
-        const [x0, x1] = minmax(xsi)
-        const [y0, y1] = minmax(ysi)
-
-        index.add(x0, y0, x1, y1)
-      }
+      const [x0, x1, y0, y1] = minmax2(xsi, ysi)
+      index.add_rect(x0, y0, x1, y1)
     }
   }
 
-  protected _mask_data(): Indices {
+  protected override _mask_data(): Indices {
     const {x_range, y_range} = this.renderer.plot_view.frame
     return this.index.indices({
       x0: x_range.min, x1: x_range.max,
       y0: y_range.min, y1: y_range.max,
     })
-  }
-
-  protected _inner_loop(ctx: Context2d, sx: Arrayable<number>, sy: Arrayable<number>, func: (this: Context2d) => void): void {
-    for (let j = 0, end = sx.length; j < end; j++) {
-      if (j == 0) {
-        ctx.beginPath()
-        ctx.moveTo(sx[j], sy[j])
-        continue
-      } else if (isNaN(sx[j] + sy[j])) {
-        ctx.closePath()
-        func.apply(ctx)
-        ctx.beginPath()
-        continue
-      } else
-        ctx.lineTo(sx[j], sy[j])
-    }
-    ctx.closePath()
-    func.call(ctx)
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: PatchesData): void {
@@ -82,24 +58,35 @@ export class PatchesView extends GlyphView {
       const sx_i = sxs.get(i)
       const sy_i = sys.get(i)
 
-      if (this.visuals.fill.doit) {
-        this.visuals.fill.set_vectorize(ctx, i)
-        this._inner_loop(ctx, sx_i, sy_i, ctx.fill)
+      let move = true
+      ctx.beginPath()
+
+      const n = Math.min(sx_i.length, sy_i.length)
+      for (let j = 0; j < n; j++) {
+        const sx_j = sx_i[j]
+        const sy_j = sy_i[j]
+
+        if (!isFinite(sx_j + sy_j)) {
+          ctx.closePath()
+          move = true
+        } else {
+          if (move) {
+            ctx.moveTo(sx_j, sy_j)
+            move = false
+          } else
+            ctx.lineTo(sx_j, sy_j)
+        }
       }
 
-      if (this.visuals.hatch.doit) {
-        this.visuals.hatch.set_vectorize(ctx, i)
-        this._inner_loop(ctx, sx_i, sy_i, ctx.fill)
-      }
+      ctx.closePath()
 
-      if (this.visuals.line.doit) {
-        this.visuals.line.set_vectorize(ctx, i)
-        this._inner_loop(ctx, sx_i, sy_i, ctx.stroke)
-      }
+      this.visuals.fill.apply(ctx, i)
+      this.visuals.hatch.apply(ctx, i)
+      this.visuals.line.apply(ctx, i)
     }
   }
 
-  protected _hit_rect(geometry: RectGeometry): Selection {
+  protected override _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
     const xs = [sx0, sx1, sx1, sx0]
     const ys = [sy0, sy0, sy1, sy1]
@@ -129,7 +116,7 @@ export class PatchesView extends GlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
 
     const x = this.renderer.xscale.invert(sx)
@@ -198,7 +185,7 @@ export class PatchesView extends GlyphView {
     unreachable()
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -219,14 +206,14 @@ export namespace Patches {
 export interface Patches extends Patches.Attrs {}
 
 export class Patches extends Glyph {
-  properties: Patches.Props
-  __view_type__: PatchesView
+  override properties: Patches.Props
+  override __view_type__: PatchesView
 
   constructor(attrs?: Partial<Patches.Attrs>) {
     super(attrs)
   }
 
-  static init_Patches(): void {
+  static {
     this.prototype.default_view = PatchesView
 
     this.define<Patches.Props>(({}) => ({

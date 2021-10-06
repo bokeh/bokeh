@@ -16,13 +16,13 @@ export namespace EqHistColorMapper {
 export interface EqHistColorMapper extends EqHistColorMapper.Attrs {}
 
 export class EqHistColorMapper extends ScanningColorMapper {
-  properties: EqHistColorMapper.Props
+  override properties: EqHistColorMapper.Props
 
   constructor(attrs?: Partial<EqHistColorMapper.Attrs>) {
     super(attrs)
   }
 
-  static init_EqHistColorMapper(): void {
+  static {
     this.define<EqHistColorMapper.Props>(({Int}) => ({
       bins: [ Int, 256*256 ],
     }))

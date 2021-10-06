@@ -8,7 +8,7 @@ import {Interval} from "core/types"
 import {tool_icon_box_zoom} from "styles/icons.css"
 
 export class BoxZoomToolView extends GestureToolView {
-  model: BoxZoomTool
+  override model: BoxZoomTool
 
   protected _base_point: [number, number] | null
 
@@ -93,7 +93,7 @@ export class BoxZoomToolView extends GestureToolView {
 
     let sx: [number, number]
     let sy: [number, number]
-    if (this.model.match_aspect && dims == 'both')
+    if (this.model.match_aspect && dims == "both")
       [sx, sy] = this._match_aspect(base_point, curpoint, frame)
     else
       [sx, sy] = this.model._get_dim_limits(base_point, curpoint, frame, dims)
@@ -101,23 +101,25 @@ export class BoxZoomToolView extends GestureToolView {
     return [sx, sy]
   }
 
-  _pan_start(ev: PanEvent): void {
+  override _pan_start(ev: PanEvent): void {
     this._base_point = [ev.sx, ev.sy]
   }
 
-  _pan(ev: PanEvent): void {
+  override _pan(ev: PanEvent): void {
     const curpoint: [number, number] = [ev.sx, ev.sy]
     const [sx, sy] = this._compute_limits(curpoint)
     this.model.overlay.update({left: sx[0], right: sx[1], top: sy[0], bottom: sy[1]})
   }
 
-  _pan_end(ev: PanEvent): void {
+  override _pan_end(ev: PanEvent): void {
     const curpoint: [number, number] = [ev.sx, ev.sy]
     const [sx, sy] = this._compute_limits(curpoint)
     this._update(sx, sy)
 
     this.model.overlay.update({left: null, right: null, top: null, bottom: null})
     this._base_point = null
+
+    this.plot_view.trigger_ranges_update_event()
   }
 
   _update([sx0, sx1]: [number, number], [sy0, sy1]: [number, number]): void {
@@ -178,16 +180,16 @@ export namespace BoxZoomTool {
 export interface BoxZoomTool extends BoxZoomTool.Attrs {}
 
 export class BoxZoomTool extends GestureTool {
-  properties: BoxZoomTool.Props
-  __view_type__: BoxZoomToolView
+  override properties: BoxZoomTool.Props
+  override __view_type__: BoxZoomToolView
 
-  /*override*/ overlay: BoxAnnotation
+  override overlay: BoxAnnotation
 
   constructor(attrs?: Partial<BoxZoomTool.Attrs>) {
     super(attrs)
   }
 
-  static init_BoxZoomTool(): void {
+  static {
     this.prototype.default_view = BoxZoomToolView
 
     this.define<BoxZoomTool.Props>(({Boolean, Ref}) => ({
@@ -197,17 +199,17 @@ export class BoxZoomTool extends GestureTool {
       origin:       [ BoxOrigin, "corner" ],
     }))
 
-    this.register_alias("box_zoom", () => new BoxZoomTool({dimensions: 'both'}))
-    this.register_alias("xbox_zoom", () => new BoxZoomTool({dimensions: 'width'}))
-    this.register_alias("ybox_zoom", () => new BoxZoomTool({dimensions: 'height'}))
+    this.register_alias("box_zoom", () => new BoxZoomTool({dimensions: "both"}))
+    this.register_alias("xbox_zoom", () => new BoxZoomTool({dimensions: "width"}))
+    this.register_alias("ybox_zoom", () => new BoxZoomTool({dimensions: "height"}))
   }
 
-  tool_name = "Box Zoom"
-  icon = tool_icon_box_zoom
-  event_type = "pan" as "pan"
-  default_order = 20
+  override tool_name = "Box Zoom"
+  override tool_icon = tool_icon_box_zoom
+  override event_type = "pan" as "pan"
+  override default_order = 20
 
-  get tooltip(): string {
+  override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
   }
 }

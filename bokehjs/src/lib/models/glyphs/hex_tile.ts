@@ -35,8 +35,8 @@ export type HexTileData = GlyphData & p.UniformsOf<HexTile.Mixins> & {
 export interface HexTileView extends HexTileData {}
 
 export class HexTileView extends GlyphView {
-  model: HexTile
-  visuals: HexTile.Visuals
+  override model: HexTile
+  override visuals: HexTile.Visuals
 
   scenterxy(i: number): [number, number] {
     const scx = this.sx[i]
@@ -44,7 +44,7 @@ export class HexTileView extends GlyphView {
     return [scx, scy]
   }
 
-  protected _set_data(): void {
+  protected override _set_data(): void {
     const {orientation, size, aspect_scale} = this.model
     const {q, r} = this
 
@@ -71,7 +71,7 @@ export class HexTileView extends GlyphView {
     }
   }
 
-  protected _project_data(): void {
+  protected override _project_data(): void {
     inplace.project_xy(this._x, this._y)
   }
 
@@ -90,17 +90,13 @@ export class HexTileView extends GlyphView {
     for (let i = 0; i < data_size; i++) {
       const x = this._x[i]
       const y = this._y[i]
-
-      if (isNaN(x + y) || !isFinite(x + y))
-        index.add_empty()
-      else
-        index.add(x - xsize, y - ysize, x + xsize, y + ysize)
+      index.add_rect(x - xsize, y - ysize, x + xsize, y + ysize)
     }
   }
 
   // overriding map_data instead of _map_data because the default automatic mappings
   // for other glyphs (with cartesian coordinates) is not useful
-  map_data(): void {
+  override map_data(): void {
     [this.sx, this.sy] = this.renderer.coordinates.map_to_screen(this._x, this._y)
     ;[this.svx, this.svy] = this._get_unscaled_vertices()
   }
@@ -144,7 +140,7 @@ export class HexTileView extends GlyphView {
       const sy_i = sy[i]
       const scale_i = scale.get(i)
 
-      if (isNaN(sx_i + sy_i + scale_i))
+      if (!isFinite(sx_i + sy_i + scale_i))
         continue
 
       ctx.translate(sx_i, sy_i)
@@ -155,24 +151,13 @@ export class HexTileView extends GlyphView {
       ctx.closePath()
       ctx.translate(-sx_i, -sy_i)
 
-      if (this.visuals.fill.doit) {
-        this.visuals.fill.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.hatch.doit) {
-        this.visuals.hatch.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.line.doit) {
-        this.visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
-      }
+      this.visuals.fill.apply(ctx, i)
+      this.visuals.hatch.apply(ctx, i)
+      this.visuals.line.apply(ctx, i)
     }
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
@@ -189,11 +174,11 @@ export class HexTileView extends GlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_span(geometry: SpanGeometry): Selection {
+  protected override _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
 
     let indices: number[]
-    if (geometry.direction == 'v') {
+    if (geometry.direction == "v") {
       const y = this.renderer.yscale.invert(sy)
       const hr = this.renderer.plot_view.frame.bbox.h_range
       const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
@@ -208,7 +193,7 @@ export class HexTileView extends GlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_rect(geometry: RectGeometry): Selection {
+  protected override _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
@@ -216,7 +201,7 @@ export class HexTileView extends GlyphView {
     return new Selection({indices})
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -241,14 +226,14 @@ export namespace HexTile {
 export interface HexTile extends HexTile.Attrs { }
 
 export class HexTile extends Glyph {
-  properties: HexTile.Props
-  __view_type__: HexTileView
+  override properties: HexTile.Props
+  override __view_type__: HexTileView
 
   constructor(attrs?: Partial<HexTile.Attrs>) {
     super(attrs)
   }
 
-  static init_HexTile(): void {
+  static {
     this.prototype.default_view = HexTileView
 
     this.mixins<HexTile.Mixins>([LineVector, FillVector, HatchVector])

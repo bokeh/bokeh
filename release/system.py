@@ -7,12 +7,12 @@
 """
 
 """
+from __future__ import annotations
 
 # Standard library imports
 import os
-from subprocess import PIPE, STDOUT
-from subprocess import run as stdlib_run
-from typing import Any, List, cast
+from subprocess import PIPE, STDOUT, run as stdlib_run
+from typing import Any, List
 
 # Bokeh imports
 from .logger import LOG
@@ -39,12 +39,12 @@ class System:
         if self.dry_run:
             return ""
 
-        result = stdlib_run(cmd, shell=True, stdout=PIPE, stderr=STDOUT, text=True, env=env)  # type: ignore
+        result = stdlib_run(cmd, shell=True, stdout=PIPE, stderr=STDOUT, text=True, env=env)
 
         if result.returncode != 0:
             raise RuntimeError(*result.stdout.strip().split("\n"))
 
-        return cast(str, result.stdout)
+        return result.stdout
 
     def abort(self) -> None:
         """"""

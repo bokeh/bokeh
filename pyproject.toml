@@ -1,0 +1,105 @@
+[tool.mypy]
+python_version = "3.7"
+mypy_path = "typings/"
+
+pretty = true
+show_error_codes = true
+show_error_context = true
+show_column_numbers = true
+
+namespace_packages = true
+ignore_missing_imports = false
+
+disallow_any_unimported = true
+disallow_any_expr = false
+disallow_any_decorated = false
+disallow_any_explicit = false
+disallow_any_generics = true
+disallow_subclassing_any = true
+
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+strict_optional = true
+
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_return_any = false
+warn_unreachable = true
+
+show_none_errors = true
+ignore_errors = false
+
+allow_untyped_globals = false
+allow_redefinition = false
+implicit_reexport = true
+strict_equality = true
+
+warn_unused_configs = true
+
+# For now enable each typed module individually.
+[[tool.mypy.overrides]]
+module = [
+    "bokeh.*",
+    "tests.*",
+]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
+    "bokeh._testing.*",
+    "bokeh.client.states",
+    "bokeh.colors.*",
+    "bokeh.command.*",
+    "bokeh.core.query",
+    "bokeh.core.types",
+    "bokeh.core.validation.*",
+    "bokeh.document.callbacks",
+    "bokeh.document.json",
+    "bokeh.document.locking",
+    "bokeh.document.models",
+    "bokeh.document.modules",
+    "bokeh.document.util",
+    "bokeh.driving",
+    "bokeh.embed.standalone",
+    "bokeh.embed.wrappers",
+    "bokeh.ext",
+    "bokeh.io.*",
+    "bokeh.palettes",
+    "bokeh.plotting._tools",
+    "bokeh.protocol.*",
+    "bokeh.sampledata",
+    "bokeh.server.callbacks",
+    "bokeh.server.server",
+    "bokeh.server.urls",
+    "bokeh.server.util",
+    "bokeh.util.browser",
+    "bokeh.util.callback_manager",
+    "bokeh.util.dataclasses",
+    "bokeh.util.datatypes",
+    "bokeh.util.dependencies",
+    "bokeh.util.deprecation",
+    "bokeh.util.functions",
+    "bokeh.util.hex",
+    "bokeh.util.logconfig",
+    "bokeh.util.options",
+    "bokeh.util.paths",
+    "bokeh.util.sampledata",
+    "bokeh.util.session_id",
+    "bokeh.util.string",
+    "bokeh.util.terminal",
+    "bokeh.util.token",
+    "bokeh.util.tornado",
+    "bokeh.util.version",
+    "bokeh.util.warnings",
+    "tests.codebase.*",
+    "tests.test_bokehjs",
+    "tests.test_examples",
+    "tests.unit.bokeh.document.test_callbacks__document",
+    "tests.unit.bokeh.embed.test_standalone",
+]
+ignore_errors = false

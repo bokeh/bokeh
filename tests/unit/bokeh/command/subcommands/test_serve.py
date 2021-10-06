@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -17,7 +19,6 @@ import pytest ; pytest
 # Standard library imports
 import argparse
 import contextlib
-import os
 import re
 import socket
 import subprocess
@@ -30,8 +31,12 @@ from threading import Thread
 import requests
 
 # Bokeh imports
-import bokeh.command.subcommands.serve as scserve
+from bokeh._testing.util.env import envset
+from bokeh.command.subcommand import Argument
 from bokeh.resources import DEFAULT_SERVER_PORT
+
+# Module under test
+import bokeh.command.subcommands.serve as bcss  # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -45,77 +50,90 @@ from bokeh.resources import DEFAULT_SERVER_PORT
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_create() -> None:
-    import argparse
-    from bokeh.command.subcommand import Subcommand
+class TestServe:
+    def test_create(self) -> None:
+        from bokeh.command.subcommand import Subcommand
+        obj = bcss.Serve(parser=argparse.ArgumentParser())
+        assert isinstance(obj, Subcommand)
 
-    obj = scserve.Serve(parser=argparse.ArgumentParser())
-    assert isinstance(obj, Subcommand)
+    def test_default_customize_applications_is_identity(self):
+        obj = bcss.Serve(parser=argparse.ArgumentParser())
+        apps = {}
+        result = obj.customize_applications(argparse.Namespace(), apps)
+        assert result == apps
+        assert result is not apps
+
+    def test_default_customize_kwargs_is_identity(self):
+        obj = bcss.Serve(parser=argparse.ArgumentParser())
+        kws = {}
+        result = obj.customize_kwargs(argparse.Namespace(), kws)
+        assert result == kws
+        assert result is not kws
 
 def test_loglevels() -> None:
-    assert scserve.LOGLEVELS == ('trace', 'debug', 'info', 'warning', 'error', 'critical')
+    assert bcss.LOGLEVELS == ('trace', 'debug', 'info', 'warning', 'error', 'critical')
 
 def test_name() -> None:
-    assert scserve.Serve.name == "serve"
+    assert bcss.Serve.name == "serve"
 
 def test_help() -> None:
-    assert scserve.Serve.help == "Run a Bokeh server hosting one or more applications"
+    assert bcss.Serve.help == "Run a Bokeh server hosting one or more applications"
 
 def test_args() -> None:
     from bokeh.util.string import nice_join
 
-    assert scserve.Serve.args == (
-        ('--port', dict(
+    assert bcss.Serve.args == (
+        ('--port', Argument(
             metavar = 'PORT',
             type    = int,
             help    = "Port to listen on",
             default = DEFAULT_SERVER_PORT
         )),
 
-        ('--address', dict(
+        ('--address', Argument(
             metavar = 'ADDRESS',
             type    = str,
             help    = "Address to listen on",
             default = None,
         )),
 
-        ('--log-level', dict(
+        ('--log-level', Argument(
             metavar = 'LOG-LEVEL',
             action  = 'store',
             default = None,
-            choices = scserve.LOGLEVELS + ("None", ),
-            help    = "One of: %s" % nice_join(scserve.LOGLEVELS),
+            choices = bcss.LOGLEVELS + ("None", ),
+            help    = f"One of: {nice_join(bcss.LOGLEVELS)}",
         )),
 
-        ('--log-format', dict(
+        ('--log-format', Argument(
             metavar ='LOG-FORMAT',
             action  = 'store',
-            default = scserve.DEFAULT_LOG_FORMAT,
-            help    = "A standard Python logging format string (default: %r)" % scserve.DEFAULT_LOG_FORMAT.replace("%", "%%"),
+            default = bcss.DEFAULT_LOG_FORMAT,
+            help    = f"A standard Python logging format string (default: {bcss.DEFAULT_LOG_FORMAT!r})".replace("%", "%%"),
         )),
 
-        ('--log-file', dict(
+        ('--log-file', Argument(
             metavar ='LOG-FILE',
             action  = 'store',
             default = None,
             help    = "A filename to write logs to, or None to write to the standard stream (default: None)",
         )),
 
-        ('--use-config', dict(
+        ('--use-config', Argument(
             metavar = 'CONFIG',
             type    = str,
             help    = "Use a YAML config file for settings",
             default = None,
         )),
 
-        ('files', dict(
+        ('files', Argument(
             metavar = 'DIRECTORY-OR-SCRIPT',
             nargs   = '*',
             help    = "The app directories or scripts to serve (serve empty document if not specified)",
             default = None,
         )),
 
-        ('--args', dict(
+        ('--args', Argument(
             metavar = 'COMMAND-LINE-ARGS',
             nargs   = argparse.REMAINDER,
             help    = "Command line arguments remaining to passed on to the application handler. "
@@ -123,7 +141,7 @@ def test_args() -> None:
                       "--show, must be placed before the directory or script. ",
         )),
 
-        ('--dev', dict(
+        ('--dev', Argument(
             metavar ='FILES-TO-WATCH',
             action  ='store',
             default = None,
@@ -142,95 +160,95 @@ def test_args() -> None:
                       "server",
         )),
 
-        ('--show', dict(
+        ('--show', Argument(
             action = 'store_true',
             help   = "Open server app(s) in a browser",
         )),
 
-        ('--allow-websocket-origin', dict(
+        ('--allow-websocket-origin', Argument(
             metavar = 'HOST[:PORT]',
             action  = 'append',
             type    = str,
             help    = "Public hostnames which may connect to the Bokeh websocket",
         )),
 
-        ('--prefix', dict(
+        ('--prefix', Argument(
             metavar = 'PREFIX',
             type    = str,
             help    = "URL prefix for Bokeh server URLs",
             default = None,
         )),
 
-        ('--keep-alive', dict(
+        ('--keep-alive', Argument(
             metavar = 'MILLISECONDS',
             type    = int,
             help    = "How often to send a keep-alive ping to clients, 0 to disable.",
             default = None,
         )),
 
-        ('--check-unused-sessions', dict(
+        ('--check-unused-sessions', Argument(
             metavar = 'MILLISECONDS',
             type    = int,
             help    = "How often to check for unused sessions",
             default = None,
         )),
 
-        ('--unused-session-lifetime', dict(
+        ('--unused-session-lifetime', Argument(
             metavar = 'MILLISECONDS',
             type    = int,
             help    = "How long unused sessions last",
             default = None,
         )),
 
-        ('--stats-log-frequency', dict(
+        ('--stats-log-frequency', Argument(
             metavar = 'MILLISECONDS',
             type    = int,
             help    = "How often to log stats",
             default = None,
         )),
 
-        ('--mem-log-frequency', dict(
+        ('--mem-log-frequency', Argument(
             metavar = 'MILLISECONDS',
             type    = int,
             help    = "How often to log memory usage information",
             default = None,
         )),
 
-        ('--use-xheaders', dict(
+        ('--use-xheaders', Argument(
             action = 'store_true',
             help   = "Prefer X-headers for IP/protocol information",
         )),
 
-        ('--ssl-certfile', dict(
+        ('--ssl-certfile', Argument(
             metavar = 'CERTFILE',
             action  = 'store',
             default = None,
             help    = 'Absolute path to a certificate file for SSL termination',
         )),
 
-        ('--ssl-keyfile', dict(
+        ('--ssl-keyfile', Argument(
             metavar = 'KEYFILE',
             action  = 'store',
             default = None,
             help    = 'Absolute path to a private key file for SSL termination',
         )),
 
-        ('--session-ids', dict(
+        ('--session-ids', Argument(
             metavar = 'MODE',
             action  = 'store',
             default = None,
-            choices = scserve.SESSION_ID_MODES,
-            help    = "One of: %s" % nice_join(scserve.SESSION_ID_MODES),
+            choices = bcss.SESSION_ID_MODES,
+            help    = f"One of: {nice_join(bcss.SESSION_ID_MODES)}",
         )),
 
-        ('--auth-module', dict(
+        ('--auth-module', Argument(
             metavar = 'AUTH_MODULE',
             action  = 'store',
             default = None,
             help    = 'Absolute path to a Python module that implements auth hooks',
         )),
 
-        ('--enable-xsrf-cookies', dict(
+        ('--enable-xsrf-cookies', Argument(
             action  = 'store_true',
             default = False,
             help    = 'Whether to enable Tornado support for XSRF cookies. All '
@@ -238,7 +256,7 @@ def test_args() -> None:
                       'when this setting is enabled.'
         )),
 
-        ('--exclude-headers', dict(
+        ('--exclude-headers', Argument(
             action  = 'store',
             default = None,
             nargs='+',
@@ -246,7 +264,7 @@ def test_args() -> None:
                       'context (by default all headers are included).'
         )),
 
-        ('--exclude-cookies', dict(
+        ('--exclude-cookies', Argument(
             action  = 'store',
             default = None,
             nargs='+',
@@ -254,7 +272,7 @@ def test_args() -> None:
                       'context (by default all cookies are included).'
         )),
 
-        ('--include-headers', dict(
+        ('--include-headers', Argument(
             action  = 'store',
             default = None,
             nargs='+',
@@ -262,7 +280,7 @@ def test_args() -> None:
                       'context (by default all headers are included).'
         )),
 
-        ('--include-cookies', dict(
+        ('--include-cookies', Argument(
             action  = 'store',
             default = None,
             nargs='+',
@@ -270,31 +288,31 @@ def test_args() -> None:
                       'context (by default all cookies are included).'
         )),
 
-        ('--cookie-secret', dict(
+        ('--cookie-secret', Argument(
             metavar = 'COOKIE_SECRET',
             action  = 'store',
             default = None,
             help    = 'Configure to enable getting/setting secure cookies',
         )),
 
-        ('--index', dict(
+        ('--index', Argument(
             metavar = 'INDEX',
             action  = 'store',
             default = None,
             help    = 'Path to a template to use for the site index',
         )),
 
-        ('--disable-index', dict(
+        ('--disable-index', Argument(
             action = 'store_true',
             help   = 'Do not use the default index on the root path',
         )),
 
-        ('--disable-index-redirect', dict(
+        ('--disable-index-redirect', Argument(
             action = 'store_true',
             help   = 'Do not redirect to running app from root path',
         )),
 
-        ('--num-procs', dict(
+        ('--num-procs', Argument(
              metavar = 'N',
              action  = 'store',
              help    = "Number of worker processes for an app. Using "
@@ -303,7 +321,7 @@ def test_args() -> None:
              type    =int,
          )),
 
-        ('--session-token-expiration', dict(
+        ('--session-token-expiration', Argument(
             metavar = 'N',
             action  = 'store',
             help    = "Duration in seconds that a new session token "
@@ -314,7 +332,7 @@ def test_args() -> None:
             type    = int,
         )),
 
-         ('--websocket-max-message-size', dict(
+         ('--websocket-max-message-size', Argument(
             metavar = 'BYTES',
             action  = 'store',
             help    = "Set the Tornado websocket_max_message_size value "
@@ -323,7 +341,7 @@ def test_args() -> None:
             type    = int,
         )),
 
-        ('--websocket-compression-level', dict(
+        ('--websocket-compression-level', Argument(
             metavar = 'LEVEL',
             action  = 'store',
             help    = "Set the Tornado WebSocket compression_level",
@@ -331,7 +349,7 @@ def test_args() -> None:
             type    = int,
         )),
 
-        ('--websocket-compression-mem-level', dict(
+        ('--websocket-compression-mem-level', Argument(
             metavar = 'LEVEL',
             action  = 'store',
             help    = "Set the Tornado WebSocket compression mem_level",
@@ -339,7 +357,7 @@ def test_args() -> None:
             type    = int,
         )),
 
-        ('--glob', dict(
+        ('--glob', Argument(
             action='store_true',
             help='Process all filename arguments as globs',
         )),
@@ -375,13 +393,13 @@ def check_error(args):
         assert e.returncode == 1
         out = e.output.decode()
     else:
-        pytest.fail("command %s unexpected successful" % (cmd,))
+        pytest.fail(f"command {cmd} unexpected successful")
     return out
 
 def test_host_not_available() -> None:
     host = "8.8.8.8"
     out = check_error(["--address", host])
-    expected = "Cannot start Bokeh server, address %r not available" % host
+    expected = f"Cannot start Bokeh server, address {host!r} not available"
     assert expected in out
 
 def test_port_not_available() -> None:
@@ -390,7 +408,7 @@ def test_port_not_available() -> None:
         sock.bind(('0.0.0.0', 0))
         port = sock.getsockname()[1]
         out = check_error(["--port", str(port)])
-        expected = "Cannot start Bokeh server, port %d is already in use" % port
+        expected = f"Cannot start Bokeh server, port {port} is already in use"
         assert expected in out
     finally:
         sock.close()
@@ -410,7 +428,7 @@ def test_no_glob_by_default_on_filename_if_wildcard_in_quotes() -> None:
 
 # http://eyalarubas.com/python-subproc-nonblock.html
 class NBSR:
-    def __init__(self, stream):
+    def __init__(self, stream) -> None:
         '''
         stream: the stream to read from.
                 Usually a process' stdout or stderr.
@@ -465,7 +483,7 @@ def test_glob_flag_on_filename_if_wildcard_in_quotes() -> None:
             pytest.fail("no matching log line in process output")
         port = int(m.group(1))
         assert port > 0
-        r = requests.get("http://localhost:%d/apply_theme" % (port,))
+        r = requests.get(f"http://localhost:{port}/apply_theme")
         assert r.status_code == 200
 
 def test_actual_port_printed_out() -> None:
@@ -485,7 +503,7 @@ def test_actual_port_printed_out() -> None:
             pytest.fail("no matching log line in process output")
         port = int(m.group(1))
         assert port > 0
-        r = requests.get("http://localhost:%d/" % (port,))
+        r = requests.get(f"http://localhost:{port}/")
         assert r.status_code == 200
 
 def test_websocket_max_message_size_printed_out() -> None:
@@ -522,20 +540,19 @@ def test_xsrf_printed_option() -> None:
 def test_xsrf_printed_envar() -> None:
     pat = re.compile(r'XSRF cookie protection enabled')
     m = None
-    os.environ["BOKEH_XSRF_COOKIES"] = "yes"
-    with run_bokeh_serve(["--enable-xsrf-cookies"]) as p:
-        nbsr = NBSR(p.stdout)
-        m = None
-        for i in range(20):
-            o = nbsr.readline(0.5)
-            if not o:
-                continue
-            m = pat.search(o.decode())
-            if m is not None:
-                break
-        if m is None:
-            pytest.fail("no matching log line in process output")
-    os.environ["BOKEH_XSRF_COOKIES"]
+    with envset(BOKEH_XSRF_COOKIES="yes"):
+        with run_bokeh_serve(["--enable-xsrf-cookies"]) as p:
+            nbsr = NBSR(p.stdout)
+            m = None
+            for i in range(20):
+                o = nbsr.readline(0.5)
+                if not o:
+                    continue
+                m = pat.search(o.decode())
+                if m is not None:
+                    break
+            if m is None:
+                pytest.fail("no matching log line in process output")
 
 def test_auth_module_printed() -> None:
     pat = re.compile(r'User authentication hooks provided \(no default user\)')

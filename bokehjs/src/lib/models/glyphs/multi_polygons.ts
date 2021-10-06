@@ -24,12 +24,12 @@ export type MultiPolygonsData = GlyphData & p.UniformsOf<MultiPolygons.Mixins> &
 export interface MultiPolygonsView extends MultiPolygonsData {}
 
 export class MultiPolygonsView extends GlyphView {
-  model: MultiPolygons
-  visuals: MultiPolygons.Visuals
+  override model: MultiPolygons
+  override visuals: MultiPolygons.Visuals
 
   protected _hole_index: SpatialIndex
 
-  protected _project_data(): void {
+  protected override _project_data(): void {
     // TODO
   }
 
@@ -65,10 +65,7 @@ export class MultiPolygonsView extends GlyphView {
         }
       }
 
-      if (!isFinite(xi0 + xi1 + yi0 + yi1))
-        index.add_empty()
-      else
-        index.add(xi0, yi0, xi1, yi1)
+      index.add_rect(xi0, yi0, xi1, yi1)
     }
 
     this._hole_index = this._index_hole_data()
@@ -110,17 +107,14 @@ export class MultiPolygonsView extends GlyphView {
         }
       }
 
-      if (!isFinite(xi0 + xi1 + yi0 + yi1))
-        index.add_empty()
-      else
-        index.add(xi0, yi0, xi1, yi1)
+      index.add_rect(xi0, yi0, xi1, yi1)
     }
 
     index.finish()
     return index
   }
 
-  protected _mask_data(): Indices {
+  protected override _mask_data(): Indices {
     const {x_range, y_range} = this.renderer.plot_view.frame
     return this.index.indices({
       x0: x_range.min, x1: x_range.max,
@@ -128,55 +122,49 @@ export class MultiPolygonsView extends GlyphView {
     })
   }
 
-  protected _inner_loop(ctx: Context2d, sx: ScreenArray[][], sy: ScreenArray[][]): void {
-    ctx.beginPath()
-    for (let j = 0, endj = sx.length; j < endj; j++) {
-      for (let k = 0, endk = sx[j].length; k < endk; k++) {
-        const _sx = sx[j][k]
-        const _sy = sy[j][k]
-
-        for (let l = 0, endl = _sx.length; l < endl; l++) {
-          if (l == 0) {
-            ctx.moveTo(_sx[l], _sy[l])
-            continue
-          } else
-            ctx.lineTo(_sx[l], _sy[l])
-        }
-        ctx.closePath()
-      }
-    }
-  }
-
   protected _render(ctx: Context2d, indices: number[], data?: MultiPolygonsData): void {
     if (this.visuals.fill.doit || this.visuals.line.doit) {
       const {sxs, sys} = data ?? this
 
       for (const i of indices) {
+        ctx.beginPath()
+
         const sx_i = sxs[i]
         const sy_i = sys[i]
 
-        if (this.visuals.fill.doit) {
-          this.visuals.fill.set_vectorize(ctx, i)
-          this._inner_loop(ctx, sx_i, sy_i)
-          ctx.fill("evenodd")
+        const nj = Math.min(sx_i.length, sy_i.length)
+        for (let j = 0; j < nj; j++) {
+          const sx_ij = sx_i[j]
+          const sy_ij = sy_i[j]
+
+          const nk = Math.min(sx_ij.length, sy_ij.length)
+          for (let k = 0; k < nk; k++) {
+            const sx_ijk = sx_ij[k]
+            const sy_ijk = sy_ij[k]
+
+            const nl = Math.min(sx_ijk.length, sy_ijk.length)
+            for (let l = 0; l < nl; l++) {
+              const sx_ijkl = sx_ijk[l]
+              const sy_ijkl = sy_ijk[l]
+
+              if (l == 0)
+                ctx.moveTo(sx_ijkl, sy_ijkl)
+              else
+                ctx.lineTo(sx_ijkl, sy_ijkl)
+            }
+
+            ctx.closePath()
+          }
         }
 
-        if (this.visuals.hatch.doit) {
-          this.visuals.hatch.set_vectorize(ctx, i)
-          this._inner_loop(ctx, sx_i, sy_i)
-          ctx.fill("evenodd")
-        }
-
-        if (this.visuals.line.doit) {
-          this.visuals.line.set_vectorize(ctx, i)
-          this._inner_loop(ctx, sx_i, sy_i)
-          ctx.stroke()
-        }
+        this.visuals.fill.apply(ctx, i, "evenodd")
+        this.visuals.hatch.apply(ctx, i, "evenodd")
+        this.visuals.line.apply(ctx, i)
       }
     }
   }
 
-  protected _hit_rect(geometry: RectGeometry): Selection {
+  protected override _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
     const xs = [sx0, sx1, sx1, sx0]
     const ys = [sy0, sy0, sy1, sy1]
@@ -209,7 +197,7 @@ export class MultiPolygonsView extends GlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
 
     const x = this.renderer.xscale.invert(sx)
@@ -280,7 +268,7 @@ export class MultiPolygonsView extends GlyphView {
     unreachable()
   }
 
-  map_data(): void {
+  override map_data(): void {
     const n_i = this._xs.length
     this.sxs = new Array(n_i)
     this.sys = new Array(n_i)
@@ -301,7 +289,7 @@ export class MultiPolygonsView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -322,14 +310,14 @@ export namespace MultiPolygons {
 export interface MultiPolygons extends MultiPolygons.Attrs {}
 
 export class MultiPolygons extends Glyph {
-  properties: MultiPolygons.Props
-  __view_type__: MultiPolygonsView
+  override properties: MultiPolygons.Props
+  override __view_type__: MultiPolygonsView
 
   constructor(attrs?: Partial<MultiPolygons.Attrs>) {
     super(attrs)
   }
 
-  static init_MultiPolygons(): void {
+  static {
     this.prototype.default_view = MultiPolygonsView
 
     this.define<MultiPolygons.Props>(({}) => ({

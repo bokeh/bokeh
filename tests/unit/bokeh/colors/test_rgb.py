@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -27,7 +29,6 @@ import bokeh.colors.rgb as bcr # isort:skip
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
 
 class Test_RGB:
     def test_init(self) -> None:
@@ -52,7 +53,7 @@ class Test_RGB:
         assert repr(c) == c.to_css()
 
     def test_copy(self) -> None:
-        c = bcr.RGB(10, 0.2, 0.3)
+        c = bcr.RGB(10, 20, 30)
         c2 = c.copy()
         assert c2 is not c
         assert c2.a == c.a
@@ -137,6 +138,12 @@ class Test_RGB:
         assert c2.r == c.r
         assert c2.g == c.g
         assert c2.b == c.b
+
+    def test_brightness(self) -> None:
+        assert round(bcr.RGB(  0,   0,   0).brightness, 2) == 0.0
+        assert round(bcr.RGB(127, 127, 127).brightness, 2) == 0.5
+        assert round(bcr.RGB(128, 128, 128).brightness, 2) == 0.5
+        assert round(bcr.RGB(255, 255, 255).brightness, 2) == 1.0
 
 #-----------------------------------------------------------------------------
 # Dev API

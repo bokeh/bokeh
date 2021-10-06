@@ -27,20 +27,20 @@ desc = Div(text=open(filename).read(),
 
 waterfall_renderer = WaterfallRenderer(palette=PALETTE, num_grams=NUM_GRAMS,
                                        gram_length=GRAM_LENGTH, tile_width=TILE_WIDTH)
-waterfall_plot = figure(plot_width=1000, plot_height=300,
+waterfall_plot = figure(width=1000, height=300,
                         x_range=[0, NUM_GRAMS], y_range=[0, MAX_FREQ_KHZ], **PLOTARGS)
 waterfall_plot.grid.grid_line_color = None
 waterfall_plot.background_fill_color = "#024768"
 waterfall_plot.renderers.append(waterfall_renderer)
 
 signal_source = ColumnDataSource(data=dict(t=[], y=[]))
-signal_plot = figure(plot_width=600, plot_height=200, title="Signal",
+signal_plot = figure(width=600, height=200, title="Signal",
                      x_range=[0, TIMESLICE], y_range=[-0.8, 0.8], **PLOTARGS)
 signal_plot.background_fill_color = "#eaeaea"
 signal_plot.line(x="t", y="y", line_color="#024768", source=signal_source)
 
 spectrum_source = ColumnDataSource(data=dict(f=[], y=[]))
-spectrum_plot = figure(plot_width=600, plot_height=200, title="Power Spectrum",
+spectrum_plot = figure(width=600, height=200, title="Power Spectrum",
                        y_range=[10**(-4), 10**3], x_range=[0, MAX_FREQ_KHZ],
                        y_axis_type="log", **PLOTARGS)
 spectrum_plot.background_fill_color = "#eaeaea"
@@ -56,7 +56,7 @@ eq_data = dict(
     alpha=np.tile(np.zeros_like(eq_range), NUM_BINS),
 )
 eq_source = ColumnDataSource(data=eq_data)
-eq = figure(plot_width=400, plot_height=400,
+eq = figure(width=400, height=400,
             x_axis_type=None, y_axis_type=None,
             x_range=[-20, 20], y_range=[-20, 20], **PLOTARGS)
 eq.background_fill_color = "#eaeaea"

@@ -52,55 +52,35 @@ the python source tree, the following command may be issued:
 This will copy BokehJS from the ``bokehjs`` source directory, into the python
 package directory, and perform no other actions.
 
-Note that source distributions (sdists) are published with a pre-built BokehJS
-included inside the python package, and do not include the ``bokehjs`` source.
-The ``--build-js`` and ``-install-js`` options are not valid when running from
-an sdist. They will be ignored, and warning printed.
+Note that source distributions (sdists) and wheels are published with a
+pre-built BokehJS included inside the python package, and do not include the
+``bokehjs`` source. The ``--build-js`` and ``-install-js`` options are not valid
+when running from an sdist. They will be ignored, and warning printed.
 
 '''
 import sys
-from shutil import copy
 
 from setuptools import find_packages, setup
 
 import versioneer
 
 from _setup_support import ( # isort:skip
-    build_or_install_bokehjs, check_building_sdist, conda_rendering,
-    fixup_for_packaged, install_js, show_bokehjs, show_help,
+    build_or_install_bokehjs, check_packaged, check_python, conda_rendering,
+    install_js, show_bokehjs, show_help, INSTALL_REQUIRES,
 )
 
-# immediately bail on unsupported Python versions
-if sys.version_info[:2] < (3, 6):
-    raise RuntimeError("Bokeh requires python >= 3.6")
-
-# we want to have the license at the top level of the GitHub repo, but setup
-# can't include it from there, so copy it to the package directory first thing
-copy("LICENSE.txt", "bokeh/")
+# bail on unsupported Python versions
+check_python()
 
 # immediately handle lightweight "python setup.py --install-js"
 if len(sys.argv) == 2 and sys.argv[-1] == '--install-js':
     install_js()
     sys.exit()
 
-# state our runtime deps here, also used by meta.yaml (so KEEP the spaces)
-REQUIRES = [
-    'PyYAML >=3.10',
-    'python-dateutil >=2.1',
-    'Jinja2 >=2.7',
-    'numpy >=1.11.3',
-    'pillow >=7.1.0',
-    'packaging >=16.8',
-    'tornado >=5.1',
-    'typing_extensions >=3.7.4',
-]
-
 # if this is just conda-build skimming information, skip all this actual work
 if not conda_rendering():
-    fixup_for_packaged()   # --build_js and --install_js not valid FROM sdist
-    check_building_sdist() # must build or install BokehJS when MAKING sdists
-
-    bokehjs_action = build_or_install_bokehjs()
+    is_packaged = check_packaged()
+    bokehjs_action = "packaged" if is_packaged else build_or_install_bokehjs()
 
 setup(
     # basic package metadata
@@ -112,12 +92,12 @@ setup(
     license='BSD-3-Clause',
     author='Bokeh Team',
     author_email='info@bokeh.org',
-    url='http://github.com/bokeh/bokeh',
+    url='https://github.com/bokeh/bokeh',
     classifiers=open("classifiers.txt").read().strip().split('\n'),
 
     # details needed by setup
-    install_requires=REQUIRES,
-    python_requires=">=3.6",
+    install_requires=INSTALL_REQUIRES,
+    python_requires=">=3.7",
     packages=find_packages(include=["bokeh", "bokeh.*"]),
     include_package_data=True,
     entry_points={'console_scripts': ['bokeh = bokeh.__main__:main']},

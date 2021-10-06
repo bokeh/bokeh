@@ -1,7 +1,7 @@
 import {Size} from "./types"
 import {BBox} from "./util/bbox"
 import {Context2d} from "./util/canvas"
-import {font_metrics, /*glyph_metrics,*/ FontMetrics} from "./util/text"
+import {font_metrics, /*glyph_metrics,*/ FontMetrics, parse_css_font_size} from "./util/text"
 import {max, max_by, sum} from "./util/array"
 import {isNumber} from "./util/types"
 import {Rect, AffineTransform} from "./util/affine"
@@ -22,7 +22,7 @@ export const text_width: (text: string, font: string) => number = (() => {
   }
 })()
 
-type Position = {
+export type Position = {
   sx: number
   sy: number
   x_anchor?: number | "left" | "center" | "right"
@@ -32,7 +32,7 @@ type Position = {
 type Val = number | {value: number, unit: "px" | "%"}
 type Extents = {left: Val, right: Val, top: Val, bottom: Val}
 type Padding = Val | [v: Val, h: Val] | [top: Val, right: Val, bottom: Val, left: Val] | Extents
-type TextHeightMetric = "x" | "cap" | "ascent" | "x_descent" | "cap_descent" | "ascent_descent"
+export type TextHeightMetric = "x" | "cap" | "ascent" | "x_descent" | "cap_descent" | "ascent_descent"
 
 export abstract class GraphicsBox {
   _position: Position = {sx: 0, sy: 0}
@@ -42,6 +42,21 @@ export abstract class GraphicsBox {
   padding?: Padding
   font_size_scale: number = 1.0
   text_height_metric?: TextHeightMetric
+  align: "auto" | "left" | "center" | "right" | "justify" = "left"
+
+  _base_font_size: number = 13 // the same as .bk-root's font-size (13px)
+
+  _x_anchor: "left" | "center" | "right" = "left"
+  _y_anchor: "top"  | "center" | "baseline" | "bottom" = "center"
+
+  set base_font_size(v: number | null | undefined) {
+    if (v != null)
+      this._base_font_size = v
+  }
+
+  get base_font_size(): number {
+    return this._base_font_size
+  }
 
   set position(p: Position) {
     this._position = p
@@ -51,7 +66,7 @@ export abstract class GraphicsBox {
     return this._position
   }
 
-  abstract set visuals(v: visuals.Text | visuals.Line | visuals.Fill)
+  abstract set visuals(v: visuals.Text["Values"] | visuals.Line["Values"] | visuals.Fill["Values"])
 
   abstract _rect(): Rect
   abstract _size(): Size
@@ -141,31 +156,47 @@ export class TextBox extends GraphicsBox {
   color: string
   font: string
   line_height: number
-  align: "left" | "center" | "right" | "justify" = "left"
   //padding: Padding
 
-  set visuals(v: visuals.Text) {
-    const color = v.text_color.get_value()
-    const alpha = v.text_alpha.get_value()
-    const style = v.text_font_style.get_value()
-    let size = v.text_font_size.get_value()
-    const face = v.text_font.get_value()
+  private _visual_align: "left" | "center" | "right" = "left"
 
-    const {font_size_scale} = this
-    if (font_size_scale != 1.0) {
-      const match = size.match(/^\s*(\d+(\.\d+)?)px\s*$/)
-      if (match != null) {
-        const [, px] = match
-        const npx = Number(px)
-        if (!isNaN(npx))
-          size = `${npx*font_size_scale}px`
+  set visuals(v: visuals.Text["Values"]) {
+    const color = v.color
+    const alpha = v.alpha
+    const style = v.font_style
+    let size = v.font_size
+    const face = v.font
+
+    const {font_size_scale, base_font_size} = this
+    const res = parse_css_font_size(size)
+    if (res != null) {
+      let {value, unit} = res
+      value *= font_size_scale
+      if (unit == "em" && base_font_size) {
+        value *= base_font_size
+        unit = "px"
       }
+      size = `${value}${unit}`
     }
 
     const font = `${style} ${size} ${face}`
     this.font = font
     this.color = color2css(color, alpha)
-    this.line_height = v.text_line_height.get_value()
+    this.line_height = v.line_height
+
+    const align = v.align
+    this._visual_align = align
+    this._x_anchor = align
+
+    const baseline = v.baseline
+    this._y_anchor = (() => {
+      switch (baseline) {
+        case "top": return "top"
+        case "middle": return "center"
+        case "bottom": return "bottom"
+        default: return "baseline"
+      }
+    })()
   }
 
   constructor({text}: {text: string}) {
@@ -173,7 +204,7 @@ export class TextBox extends GraphicsBox {
     this.text = text
   }
 
-  infer_text_height() {
+  override infer_text_height() {
     if (this.text.includes("\n"))
       return "ascent_descent"
     else {
@@ -306,7 +337,7 @@ export class TextBox extends GraphicsBox {
 
   _computed_position(size: Size, metrics: FontMetrics, nlines: number): {x: number, y: number} {
     const {width, height} = size
-    const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
+    const {sx, sy, x_anchor=this._x_anchor, y_anchor=this._y_anchor} = this.position
 
     const x = sx - (() => {
       if (isNumber(x_anchor))
@@ -430,7 +461,7 @@ export class TextBox extends GraphicsBox {
     } else {
       for (let i = 0; i < nlines; i++) {
         const xi = x + (() => {
-          switch (align) {
+          switch (align == "auto" ? this._visual_align : align) {
             case "left": return 0
             case "center": return 0.5*(width - widths[i])
             case "right": return width - widths[i]
@@ -456,7 +487,13 @@ export class BaseExpo extends GraphicsBox {
     return [this.base, this.expo]
   }
 
-  set position(p: Position) {
+  override set base_font_size(v: number) {
+    super.base_font_size = v
+    this.base.base_font_size = v
+    this.expo.base_font_size = v
+  }
+
+  override set position(p: Position) {
     this._position = p
 
     const bs = this.base.size()
@@ -476,11 +513,11 @@ export class BaseExpo extends GraphicsBox {
     }
   }
 
-  get position(): Position {
+  override get position(): Position {
     return this._position
   }
 
-  set visuals(v: visuals.Text | visuals.Line | visuals.Fill) {
+  set visuals(v: visuals.Text["Values"] | visuals.Line["Values"] | visuals.Fill["Values"]) {
     this.expo.font_size_scale = 0.7
     this.base.visuals = v
     this.expo.visuals = v
@@ -495,7 +532,7 @@ export class BaseExpo extends GraphicsBox {
     }
   }
 
-  infer_text_height() {
+  override infer_text_height() {
     return this.base.infer_text_height()
   }
 
@@ -536,7 +573,7 @@ export class BaseExpo extends GraphicsBox {
 
   // paint_rect ...
 
-  paint_bbox(ctx: Context2d): void {
+  override paint_bbox(ctx: Context2d): void {
     super.paint_bbox(ctx)
     const {x, y} = this._computed_position()
     ctx.save()
@@ -549,7 +586,7 @@ export class BaseExpo extends GraphicsBox {
 
   _computed_position(): {x: number, y: number} {
     const {width, height} = this._size()
-    const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
+    const {sx, sy, x_anchor=this._x_anchor, y_anchor=this._y_anchor} = this.position
 
     const x = sx - (() => {
       if (isNumber(x_anchor))
@@ -583,11 +620,17 @@ export class BaseExpo extends GraphicsBox {
 export class GraphicsBoxes {
   constructor(readonly items: GraphicsBox[]) {}
 
+  set base_font_size(v: number | null | undefined) {
+    for (const item of this.items) {
+      item.base_font_size = v
+    }
+  }
+
   get length(): number {
     return this.items.length
   }
 
-  set visuals(v: visuals.Text | visuals.Line | visuals.Fill) {
+  set visuals(v: visuals.Text["Values"] | visuals.Line["Values"] | visuals.Fill["Values"]) {
     for (const item of this.items) {
       item.visuals = v
     }

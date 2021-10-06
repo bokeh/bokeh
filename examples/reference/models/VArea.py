@@ -11,7 +11,7 @@ y2 = 10 - x**2
 source = ColumnDataSource(dict(x=x, y1=y1, y2=y2))
 
 plot = Plot(
-    title=None, plot_width=300, plot_height=300,
+    title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 
 glyph = VArea(x="x", y1="y1", y2="y2", fill_color="#f46d43")

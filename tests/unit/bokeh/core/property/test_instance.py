@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -15,10 +17,11 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from _util_property import _TestHasProps, _TestModel, _TestModel2
 from bokeh._testing.util.api import verify_all
 from bokeh.core.has_props import HasProps
 from bokeh.core.properties import Float, Int
+
+from _util_property import _TestHasProps, _TestModel, _TestModel2
 
 # Module under test
 import bokeh.core.property.instance as bcpi # isort:skip
@@ -72,8 +75,8 @@ class Test_Instance:
 
     def test_from_json(self) -> None:
         class MapOptions(HasProps):
-            lat = Float
-            lng = Float
+            lat = Float()
+            lng = Float()
             zoom = Int(12)
 
         v1 = bcpi.Instance(MapOptions).from_json(dict(lat=1, lng=2))

@@ -6,7 +6,7 @@ import * as visuals from "core/visuals"
 import {Rect, RaggedArray, FloatArray, ScreenArray} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import {minmax} from "core/util/arrayable"
+import {minmax2} from "core/util/arrayable"
 import {to_object} from "core/util/object"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
@@ -24,10 +24,10 @@ export type MultiLineData = GlyphData & p.UniformsOf<MultiLine.Mixins> & {
 export interface MultiLineView extends MultiLineData {}
 
 export class MultiLineView extends GlyphView {
-  model: MultiLine
-  visuals: MultiLine.Visuals
+  override model: MultiLine
+  override visuals: MultiLine.Visuals
 
-  protected _project_data(): void {
+  protected override _project_data(): void {
     inplace.project_xy(this._xs.array, this._ys.array)
   }
 
@@ -36,21 +36,10 @@ export class MultiLineView extends GlyphView {
 
     for (let i = 0; i < data_size; i++) {
       const xsi = this._xs.get(i)
-      if (xsi.length == 0) {
-        index.add_empty()
-        continue
-      }
-
       const ysi = this._ys.get(i)
-      if (ysi.length == 0) {
-        index.add_empty()
-        continue
-      }
 
-      const [x0, x1] = minmax(xsi)
-      const [y0, y1] = minmax(ysi)
-
-      index.add(x0, y0, x1, y1)
+      const [x0, x1, y0, y1] = minmax2(xsi, ysi)
+      index.add_rect(x0, y0, x1, y1)
     }
   }
 
@@ -61,27 +50,32 @@ export class MultiLineView extends GlyphView {
       const sx = sxs.get(i)
       const sy = sys.get(i)
 
-      this.visuals.line.set_vectorize(ctx, i)
-      for (let j = 0, end = sx.length; j < end; j++) {
+      const n = Math.min(sx.length, sy.length)
+
+      let move = true
+      ctx.beginPath()
+
+      for (let j = 0; j < n; j++) {
         const sx_j = sx[j]
         const sy_j = sy[j]
 
-        if (j == 0) {
-          ctx.beginPath()
-          ctx.moveTo(sx_j, sy_j)
-          continue
-        } else if (isNaN(sx_j + sy_j)) {
-          ctx.stroke()
-          ctx.beginPath()
-          continue
-        } else
-          ctx.lineTo(sx_j, sy_j)
+        if (!isFinite(sx_j + sy_j))
+          move = true
+        else {
+          if (move) {
+            ctx.moveTo(sx_j, sy_j)
+            move = false
+          } else
+            ctx.lineTo(sx_j, sy_j)
+        }
       }
+
+      this.visuals.line.set_vectorize(ctx, i)
       ctx.stroke()
     }
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const point = {x: geometry.sx, y: geometry.sy}
     let shortest = 9999
 
@@ -113,12 +107,12 @@ export class MultiLineView extends GlyphView {
     })
   }
 
-  protected _hit_span(geometry: SpanGeometry): Selection {
+  protected override _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
 
     let val: number
     let vs: RaggedArray<FloatArray>
-    if (geometry.direction == 'v') {
+    if (geometry.direction == "v") {
       val = this.renderer.yscale.invert(sy)
       vs = this._ys
     } else {
@@ -155,7 +149,7 @@ export class MultiLineView extends GlyphView {
     return line_interpolation(this.renderer, geometry, x2, y2, x3, y3)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 
@@ -180,14 +174,14 @@ export namespace MultiLine {
 export interface MultiLine extends MultiLine.Attrs {}
 
 export class MultiLine extends Glyph {
-  properties: MultiLine.Props
-  __view_type__: MultiLineView
+  override properties: MultiLine.Props
+  override __view_type__: MultiLineView
 
   constructor(attrs?: Partial<MultiLine.Attrs>) {
     super(attrs)
   }
 
-  static init_MultiLine(): void {
+  static {
     this.prototype.default_view = MultiLineView
 
     this.define<MultiLine.Props>(({}) => ({

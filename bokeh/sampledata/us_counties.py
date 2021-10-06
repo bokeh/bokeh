@@ -4,22 +4,24 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' This modules exposes geometry data for Unites States. It exposes a
-dictionary ``data``, which is indexed by the two-tuples:
+''' This modules exposes geometry data for Unites States.
 
-.. code-block:: python
+This module contains one dict: ``data``.
 
-    (state_id, county_id)
+The data is indexed by two-tuples of `` (state_id, county_id)`` that
+have the following dictionaries as values:
 
-that have the following dictionaries as the associated value:
+.. code-block:: ipython
 
-.. code-block:: python
-
-    data[(1,1)]['name']
-    data[(1,1)]['state']
-    data[(1,1)]['detailed name']
-    data[(1,1)]['lats']
-    data[(1,1)]['lons']
+    In [25]: data[(1,1)]
+    Out[25]:
+    {
+        'name': 'Autauga',
+        'detailed name': 'Autauga County, Alabama',
+        'state': 'al',
+        'lats': [32.4757, ..., 32.48112],
+        'lons': [-86.41182, ..., -86.41187]
+    }
 
 Entries for ``'name'`` can have duplicates for certain states (e.g. Virginia).
 The combination of ``'detailed name'`` and ``'state'`` will always be unique.
@@ -28,6 +30,8 @@ The combination of ``'detailed name'`` and ``'state'`` will always be unique.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

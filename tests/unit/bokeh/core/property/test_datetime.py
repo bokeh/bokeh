@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -21,9 +23,10 @@ import datetime
 import numpy as np
 
 # Bokeh imports
-from _util_property import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
 from bokeh.util.serialization import convert_date_to_datetime
+
+from _util_property import _TestHasProps, _TestModel
 
 # Module under test
 import bokeh.core.property.datetime as bcpd # isort:skip
@@ -54,6 +57,7 @@ class Test_Date:
         assert not prop.is_valid(None)
         assert not prop.is_valid(datetime.datetime(2020, 1,11))
         assert not prop.is_valid("")
+        assert not prop.is_valid("02 01 2019")
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(1.0+1.0j)
@@ -75,11 +79,14 @@ class Test_Date:
 class Test_Datetime:
     def test_valid(self, pd) -> None:
         prop = bcpd.Datetime()
+        assert prop.is_valid(-1.0)
+        assert prop.is_valid(-1)
         assert prop.is_valid(0)
         assert prop.is_valid(1)
         assert prop.is_valid(0.0)
         assert prop.is_valid(1.0)
         assert prop.is_valid("2020-01-11T13:00:00")
+        assert prop.is_valid("2020-01-11")
         assert prop.is_valid(datetime.datetime.now())
         assert prop.is_valid(datetime.time(10,12))
         assert prop.is_valid(np.datetime64("2020-01-11"))
@@ -90,6 +97,7 @@ class Test_Datetime:
         prop = bcpd.Datetime()
         assert not prop.is_valid(None)
         assert not prop.is_valid("")
+        assert not prop.is_valid("02 01 2019")
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(1.0+1.0j)

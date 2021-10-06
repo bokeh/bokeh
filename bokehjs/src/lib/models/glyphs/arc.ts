@@ -19,10 +19,10 @@ export type ArcData = XYGlyphData & p.UniformsOf<Arc.Mixins> & {
 export interface ArcView extends ArcData {}
 
 export class ArcView extends XYGlyphView {
-  model: Arc
-  visuals: Arc.Visuals
+  override model: Arc
+  override visuals: Arc.Visuals
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     if (this.model.properties.radius.units == "data")
       this.sradius = this.sdist(this.renderer.xscale, this._x, this.radius)
     else
@@ -41,8 +41,10 @@ export class ArcView extends XYGlyphView {
         const start_angle_i = start_angle.get(i)
         const end_angle_i = end_angle.get(i)
 
-        if (isNaN(sx_i + sy_i + sradius_i + start_angle_i + end_angle_i))
+        if (!isFinite(sx_i + sy_i + sradius_i + start_angle_i + end_angle_i))
           continue
+
+        this._render_decorations(ctx, i, sx_i, sy_i, sradius_i, start_angle_i, end_angle_i, anticlock)
 
         ctx.beginPath()
         ctx.arc(sx_i, sy_i, sradius_i, start_angle_i, end_angle_i, anticlock)
@@ -53,7 +55,32 @@ export class ArcView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  protected _render_decorations(ctx: Context2d, i: number, sx: number, sy: number, sradius: number,
+      start_angle: number, end_angle: number, _anticlock: boolean): void {
+
+    const {sin, cos, PI} = Math
+
+    for (const decoration of this.decorations.values()) {
+      ctx.save()
+
+      if (decoration.model.node == "start") {
+        const x = sradius*cos(start_angle) + sx
+        const y = sradius*sin(start_angle) + sy
+        ctx.translate(x, y)
+        ctx.rotate(start_angle + PI)
+      } else if (decoration.model.node == "end") {
+        const x = sradius*Math.cos(end_angle) + sx
+        const y = sradius*Math.sin(end_angle) + sy
+        ctx.translate(x, y)
+        ctx.rotate(end_angle)
+      }
+
+      decoration.marking.render(ctx, i)
+      ctx.restore()
+    }
+  }
+
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -76,14 +103,14 @@ export namespace Arc {
 export interface Arc extends Arc.Attrs {}
 
 export class Arc extends XYGlyph {
-  properties: Arc.Props
-  __view_type__: ArcView
+  override properties: Arc.Props
+  override __view_type__: ArcView
 
   constructor(attrs?: Partial<Arc.Attrs>) {
     super(attrs)
   }
 
-  static init_Arc(): void {
+  static {
     this.prototype.default_view = ArcView
 
     this.mixins<Arc.Mixins>(LineVector)

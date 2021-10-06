@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -24,7 +26,7 @@ from . import figure as _figure ; _figure
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'Column',
+    'column',
     'ColumnDataSource',
     'curdoc',
     'DEFAULT_TOOLS',
@@ -35,12 +37,11 @@ __all__ = (
     'gmap',
     'GMap',
     'gridplot',
-    'GridSpec',
     'markers',
     'output_file',
     'output_notebook',
     'reset_output',
-    'Row',
+    'row',
     'save',
     'show',
 )
@@ -75,7 +76,7 @@ from ..io import output_notebook; output_notebook
 from ..io import reset_output; reset_output
 from ..io import save; save
 from ..io import show; show
-from ..layouts import gridplot, GridSpec; gridplot, GridSpec
+from ..layouts import column, gridplot, row; column, gridplot, row
 
 #-----------------------------------------------------------------------------
 # Dev API

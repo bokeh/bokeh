@@ -7,6 +7,7 @@ import {Arrayable, Rect, FloatArray, ScreenArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
+import {atan2} from "core/util/math"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
@@ -26,10 +27,10 @@ export type SegmentData = GlyphData & p.UniformsOf<Segment.Mixins> & {
 export interface SegmentView extends SegmentData {}
 
 export class SegmentView extends GlyphView {
-  model: Segment
-  visuals: Segment.Visuals
+  override model: Segment
+  override visuals: Segment.Visuals
 
-  protected _project_data(): void {
+  protected override _project_data(): void {
     inplace.project_xy(this._x0, this._y0)
     inplace.project_xy(this._x1, this._y1)
   }
@@ -43,11 +44,7 @@ export class SegmentView extends GlyphView {
       const x1 = _x1[i]
       const y0 = _y0[i]
       const y1 = _y1[i]
-
-      if (isNaN(x0 + x1 + y0 + y1))
-        index.add_empty()
-      else
-        index.add(min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1))
+      index.add_rect(min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1))
     }
   }
 
@@ -61,8 +58,10 @@ export class SegmentView extends GlyphView {
         const sx1_i = sx1[i]
         const sy1_i = sy1[i]
 
-        if (isNaN(sx0_i + sy0_i + sx1_i + sy1_i))
+        if (!isFinite(sx0_i + sy0_i + sx1_i + sy1_i))
           continue
+
+        this._render_decorations(ctx, i, sx0_i, sy0_i, sx1_i, sy1_i)
 
         ctx.beginPath()
         ctx.moveTo(sx0_i, sy0_i)
@@ -74,7 +73,27 @@ export class SegmentView extends GlyphView {
     }
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected _render_decorations(ctx: Context2d, i: number, sx0: number, sy0: number, sx1: number, sy1: number): void {
+    const {PI} = Math
+    const angle = atan2([sx0, sy0], [sx1, sy1]) + PI/2
+
+    for (const decoration of this.decorations.values()) {
+      ctx.save()
+
+      if (decoration.model.node == "start") {
+        ctx.translate(sx0, sy0)
+        ctx.rotate(angle + PI)
+      } else if (decoration.model.node == "end") {
+        ctx.translate(sx1, sy1)
+        ctx.rotate(angle)
+      }
+
+      decoration.marking.render(ctx, i)
+      ctx.restore()
+    }
+  }
+
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const point = {x: sx, y: sy}
 
@@ -99,14 +118,14 @@ export class SegmentView extends GlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_span(geometry: SpanGeometry): Selection {
+  protected override _hit_span(geometry: SpanGeometry): Selection {
     const [hr, vr] = this.renderer.plot_view.frame.bbox.ranges
     const {sx, sy} = geometry
 
     let v0: Arrayable<number>
     let v1: Arrayable<number>
     let val: number
-    if (geometry.direction == 'v') {
+    if (geometry.direction == "v") {
       val = this.renderer.yscale.invert(sy)
       ;[v0, v1] = [this._y0, this._y1]
     } else {
@@ -127,7 +146,7 @@ export class SegmentView extends GlyphView {
       const threshold = 1.5 + (this.line_width.get(i)/2)// Maximum pixel difference to detect hit
 
       if (v0[i] == v1[i]) {
-        if (geometry.direction == 'h') {
+        if (geometry.direction == "h") {
           if (Math.abs(this.sx0[i] - sx) <= threshold) {
             indices.push(i)
           }
@@ -148,7 +167,7 @@ export class SegmentView extends GlyphView {
     return [scx, scy]
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -171,14 +190,14 @@ export namespace Segment {
 export interface Segment extends Segment.Attrs {}
 
 export class Segment extends Glyph {
-  properties: Segment.Props
-  __view_type__: SegmentView
+  override properties: Segment.Props
+  override __view_type__: SegmentView
 
   constructor(attrs?: Partial<Segment.Attrs>) {
     super(attrs)
   }
 
-  static init_Segment(): void {
+  static {
     this.prototype.default_view = SegmentView
 
     this.define<Segment.Props>(({}) => ({

@@ -1,6 +1,17 @@
+''' A reproduction of Mike Bostock's `Les Misérables Co-occurrence`_ chart.
+This example example demonostrates a basic hover tooltip.
+
+.. bokeh-example-metadata::
+    :sampledata: les_mis
+    :apis: bokeh.plotting.Figure.rect
+    :refs: :ref:`userguide_tools` > :ref:`userguide_tools_hover_tool`
+    :keywords: hover, rect, tooltip
+
+.. _Les Misérables Co-occurrence: https://bost.ocks.org/mike/miserables/
+'''
 import numpy as np
 
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 from bokeh.sampledata.les_mis import data
 
 nodes = data['nodes']
@@ -44,8 +55,8 @@ p = figure(title="Les Mis Occurrences",
            x_range=list(reversed(names)), y_range=names,
            tooltips = [('names', '@yname, @xname'), ('count', '@count')])
 
-p.plot_width = 800
-p.plot_height = 800
+p.width = 800
+p.height = 800
 p.grid.grid_line_color = None
 p.axis.axis_line_color = None
 p.axis.major_tick_line_color = None
@@ -57,6 +68,4 @@ p.rect('xname', 'yname', 0.9, 0.9, source=data,
        color='colors', alpha='alphas', line_color=None,
        hover_line_color='black', hover_color='colors')
 
-output_file("les_mis.html", title="les_mis.py example")
-
-show(p) # show the plot
+show(p)

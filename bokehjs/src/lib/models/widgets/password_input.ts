@@ -2,9 +2,9 @@ import {TextInput, TextInputView} from "./text_input"
 import * as p from "core/properties"
 
 export class PasswordInputView extends TextInputView {
-  model: PasswordInput
+  override model: PasswordInput
 
-  render(): void {
+  override render(): void {
     super.render()
     this.input_el.type = "password"
   }
@@ -19,14 +19,14 @@ export namespace PasswordInput {
 export interface PasswordInput extends PasswordInput.Attrs {}
 
 export class PasswordInput extends TextInput {
-  properties: PasswordInput.Props
-  __view_type__: PasswordInputView
+  override properties: PasswordInput.Props
+  override __view_type__: PasswordInputView
 
   constructor(attrs?: Partial<PasswordInput.Attrs>) {
     super(attrs)
   }
 
-  static init_PasswordInput(): void {
+  static {
     this.prototype.default_view = PasswordInputView
   }
 }

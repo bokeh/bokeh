@@ -6,7 +6,7 @@ import {SerializableState} from "core/view"
 import * as p from "core/properties"
 
 export abstract class AnnotationView extends RendererView {
-  model: Annotation
+  override model: Annotation
 
   layout?: Layoutable
   panel?: Panel
@@ -15,7 +15,7 @@ export abstract class AnnotationView extends RendererView {
   after_layout?(): void
 
   get_size(): Size {
-    if (this.model.visible) {
+    if (this.displayed) {
       const {width, height} = this._get_size()
       return {width: Math.round(width), height: Math.round(height)}
     } else
@@ -26,7 +26,7 @@ export abstract class AnnotationView extends RendererView {
     throw new Error("not implemented")
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     const p = this.model.properties
@@ -38,11 +38,11 @@ export abstract class AnnotationView extends RendererView {
     })
   }
 
-  get needs_clip(): boolean {
+  override get needs_clip(): boolean {
     return this.layout == null // TODO: change this, when center layout is fully implemented
   }
 
-  serializable_state(): SerializableState {
+  override serializable_state(): SerializableState {
     const state = super.serializable_state()
     return this.layout == null ? state : {...state, bbox: this.layout.bbox.box}
   }
@@ -59,16 +59,16 @@ export namespace Annotation {
 export interface Annotation extends Annotation.Attrs {}
 
 export abstract class Annotation extends Renderer {
-  properties: Annotation.Props
-  __view_type__: AnnotationView
+  override properties: Annotation.Props
+  override __view_type__: AnnotationView
 
   constructor(attrs?: Partial<Annotation.Attrs>) {
     super(attrs)
   }
 
-  static init_Annotation(): void {
+  static {
     this.override<Annotation.Props>({
-      level: 'annotation',
+      level: "annotation",
     })
   }
 }

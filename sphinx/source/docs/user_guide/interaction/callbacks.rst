@@ -39,10 +39,10 @@ browser) when some event occurs, use the ``CustomJS`` model:
 
     // JavaScript code goes here
 
-    var a = 10;
+    const a = 10;
 
     // the model that triggered the callback is cb_obj:
-    var b = cb_obj.value;
+    const b = cb_obj.value;
 
     // models passed as args are automagically available
     xr.start = a;

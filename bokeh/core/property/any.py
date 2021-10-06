@@ -14,6 +14,8 @@ any validation.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -82,14 +84,14 @@ class Any(Property):
 
     """
 
-    def __init__(self, default=None, help=None, serialized=None, readonly=False):
+    def __init__(self, default=None, help=None, serialized=None, readonly=False) -> None:
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
 class AnyRef(Any):
     """ Accept all values and force reference discovery. """
 
     @property
-    def has_ref(self):
+    def has_ref(self) -> bool:
         return True
 
 #-----------------------------------------------------------------------------

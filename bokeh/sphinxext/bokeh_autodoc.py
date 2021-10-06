@@ -20,6 +20,8 @@ configured:
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging  # isort:skip
 
 log = logging.getLogger(__name__)
@@ -29,17 +31,16 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # External imports
-from sphinx.ext.autodoc import (
-    AttributeDocumenter,
-    ClassDocumenter,
-    ModuleLevelDocumenter,
-)
+from sphinx.ext.autodoc import AttributeDocumenter, ClassDocumenter, ModuleLevelDocumenter
 
 # Bokeh imports
 from bokeh.colors.color import Color
 from bokeh.core.enums import Enumeration
 from bokeh.core.property.descriptors import PropertyDescriptor
 from bokeh.model import Model
+
+# Bokeh imports
+from . import PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -117,6 +118,7 @@ def setup(app):
     app.add_autodocumenter(PropDocumenter)
     app.add_autodocumenter(ModelDocumenter)
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

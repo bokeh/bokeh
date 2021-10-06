@@ -17,13 +17,13 @@ export namespace NumeralTickFormatter {
 export interface NumeralTickFormatter extends NumeralTickFormatter.Attrs {}
 
 export class NumeralTickFormatter extends TickFormatter {
-  properties: NumeralTickFormatter.Props
+  override properties: NumeralTickFormatter.Props
 
   constructor(attrs?: Partial<NumeralTickFormatter.Attrs>) {
     super(attrs)
   }
 
-  static init_NumeralTickFormatter(): void {
+  static {
     this.define<NumeralTickFormatter.Props>(({String}) => ({
       // TODO (bev) all of these could be tightened up
       format:   [ String,           "0,0"   ],

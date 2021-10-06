@@ -30,6 +30,8 @@ always be active regardless of what other tools are currently active.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -40,6 +42,8 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import difflib
 import typing as tp
+
+# External imports
 from typing_extensions import Literal
 
 # Bokeh imports
@@ -49,6 +53,7 @@ from ..core.enums import (
     Dimensions,
     Location,
     SelectionMode,
+    ToolIcon,
     TooltipAttachment,
     TooltipFieldFormatter,
 )
@@ -73,6 +78,7 @@ from ..core.properties import (
     Nullable,
     Override,
     Percent,
+    Regex,
     Seq,
     String,
     Tuple,
@@ -89,11 +95,18 @@ from ..core.validation.errors import (
     NO_RANGE_TOOL_RANGES,
 )
 from ..model import Model
-from ..util.deprecation import deprecated
 from ..util.string import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
-from .glyphs import Line, LineGlyph, MultiLine, Patches, Rect, XYGlyph
+from .dom import Template
+from .glyphs import (
+    Line,
+    LineGlyph,
+    MultiLine,
+    Patches,
+    Rect,
+    XYGlyph,
+)
 from .layouts import LayoutDOM
 from .ranges import Range1d
 from .renderers import DataRenderer, GlyphRenderer
@@ -103,7 +116,6 @@ from .renderers import DataRenderer, GlyphRenderer
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'Action',
     'ActionTool',
     'BoxEditTool',
     'BoxSelectTool',
@@ -116,9 +128,7 @@ __all__ = (
     'FreehandDrawTool',
     'HelpTool',
     'HoverTool',
-    'Inspection',
     'InspectTool',
-    'Gesture',
     'GestureTool',
     'LassoSelectTool',
     'LineEditTool',
@@ -156,16 +166,25 @@ class Tool(Model):
 
     '''
 
+    icon = Nullable(Either(Enum(ToolIcon), Regex(r"^\."), Image), help="""
+    An icon to display in the toolbar.
+
+    The icon can provided as well known tool icon name, a CSS class selector,
+    a data URI with an ``image/*`` MIME, a path to an image, a PIL ``Image``
+    object, or an RGB(A) NumPy array. If ``None``, then the intrinsic icon
+    will be used (may depend on tool's configuration).
+    """)
+
     description = Nullable(String, help="""
     A string describing the purpose of this tool. If not defined, an auto-generated
     description will be used. This description will be typically presented in the
     user interface as a tooltip.
     """)
 
-    _known_aliases: tp.ClassVar[tp.Dict[str, tp.Callable[[], "Tool"]]] = {}
+    _known_aliases: tp.ClassVar[tp.Dict[str, tp.Callable[[], Tool]]] = {}
 
     @classmethod
-    def from_string(cls, name: str) -> "Tool":
+    def from_string(cls, name: str) -> Tool:
         """ Takes a string and returns a corresponding `Tool` instance. """
         constructor = cls._known_aliases.get(name)
         if constructor is not None:
@@ -178,7 +197,7 @@ class Tool(Model):
             raise ValueError(f"unexpected tool name '{name}', {text} tools are {nice_join(matches)}")
 
     @classmethod
-    def register_alias(cls, name: str, constructor: tp.Callable[[], "Tool"]) -> None:
+    def register_alias(cls, name: str, constructor: tp.Callable[[], Tool]) -> None:
         cls._known_aliases[name] = constructor
 
 @abstract
@@ -188,18 +207,12 @@ class ActionTool(Tool):
     '''
     pass
 
-# TODO: deprecated, remove at bokeh 3.0
-Action = ActionTool
-
 @abstract
 class GestureTool(Tool):
     ''' A base class for tools that respond to drag events.
 
     '''
     pass
-
-# TODO: deprecated, remove at bokeh 3.0
-Gesture = GestureTool
 
 @abstract
 class Drag(GestureTool):
@@ -228,15 +241,6 @@ class SelectTool(GestureTool):
 
     '''
 
-    names = List(String, help="""
-    A list of names to query for. If set, only renderers that have a matching
-    value for their ``name`` attribute will be used.
-
-    .. note:
-        This property is deprecated and will be removed in bokeh 3.0.
-
-    """)
-
     renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
     An explicit list of renderers to hit test against. If unset, defaults to
     all renderers on a plot.
@@ -258,9 +262,6 @@ class InspectTool(GestureTool):
     inspection tool. If ``False``, the viewers of a plot will not be able to
     toggle the inspector on or off using the toolbar.
     """)
-
-# TODO: deprecated, remove at bokeh 3.0
-Inspection = InspectTool
 
 @abstract
 class ToolbarBase(Model):
@@ -305,7 +306,7 @@ class Toolbar(ToolbarBase):
     Specify a tap/click tool to be active when the plot is displayed.
     """)
 
-    active_multi: tp.Union[Literal["auto"], GestureTool, None] = Nullable(Instance(GestureTool), help="""
+    active_multi: tp.Union[Literal["auto"], GestureTool, None] = Either(Null, Auto, Instance(GestureTool), default="auto", help="""
     Specify an active multi-gesture tool, for instance an edit tool or a range
     tool.
 
@@ -465,9 +466,10 @@ class WheelZoomTool(Scroll):
     """)
 
     maintain_focus = Bool(default=True, help="""
-    Whether or not zooming tool maintains its focus position. Setting to False
-    results in a more "gliding" behavior, allowing one to zoom out more
-    smoothly, at the cost of losing the focus position.
+    If True, then hitting a range bound in any one dimension will prevent all
+    further zooming all dimensions. If False, zooming can continue
+    independently in any dimension that has not yet reached its bounds, even if
+    that causes overall focus or aspect ratio to change.
     """)
 
     zoom_on_axis = Bool(default=True, help="""
@@ -495,33 +497,10 @@ class CustomAction(ActionTool):
 
     '''
 
-    def __init__(self, *args, **kwargs):
-        action_tooltip = kwargs.pop("action_tooltip", None)
-        if action_tooltip is not None:
-            deprecated((2, 3, 0), "CustomAction.action_tooltip", "CustomAction.description")
-            kwargs["description"] = action_tooltip
-        super().__init__(*args, **kwargs)
-
-    @property
-    def action_tooltip(self):
-        deprecated((2, 3, 0), "CustomAction.action_tooltip", "CustomAction.description")
-        return self.description
-    @action_tooltip.setter
-    def action_tooltip(self, description):
-        deprecated((2, 3, 0), "CustomAction.action_tooltip", "CustomAction.description")
-        self.description = description
-
     description = Override(default="Perform a Custom Action")
 
     callback = Nullable(Instance(Callback), help="""
     A Bokeh callback to execute when the custom action icon is activated.
-    """)
-
-    icon = Image(help="""
-    An icon to display in the toolbar.
-
-    The icon can provided as a string filename for an image, a PIL ``Image``
-    object, or an RGB(A) NumPy array.
     """)
 
 class SaveTool(ActionTool):
@@ -754,6 +733,13 @@ class ZoomOutTool(ActionTool):
     Percentage to zoom for each click of the zoom-in tool.
     """)
 
+    maintain_focus = Bool(default=True, help="""
+    If True, then hitting a range bound in any one dimension will prevent all
+    further zooming all dimensions. If False, zooming can continue
+    independently in any dimension that has not yet reached its bounds, even if
+    that causes overall focus or aspect ratio to change.
+    """)
+
 class BoxSelectTool(Drag, SelectTool):
     ''' *toolbar icon*: |box_select_icon|
 
@@ -896,10 +882,10 @@ class CustomJSHover(Model):
         .. code-block:: python
 
             lat_custom = CustomJSHover(code="""
-                var projections = Bokeh.require("core/util/projections");
-                var x = special_vars.x
-                var y = special_vars.y
-                var coords = projections.wgs84_mercator.invert(x, y)
+                const projections = Bokeh.require("core/util/projections");
+                const x = special_vars.x
+                const y = special_vars.y
+                const coords = projections.wgs84_mercator.invert(x, y)
                 return "" + coords[1]
             """)
 
@@ -1018,15 +1004,6 @@ class HoverTool(InspectTool):
 
     '''
 
-    names = List(String, help="""
-    A list of names to query for. If set, only renderers that have a matching
-    value for their ``name`` attribute will be used.
-
-    .. note:
-        This property is deprecated and will be removed in bokeh 3.0.
-
-    """)
-
     renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
     An explicit list of renderers to hit test against. If unset, defaults to
     all renderers on a plot.
@@ -1041,7 +1018,7 @@ class HoverTool(InspectTool):
     :geometry: object containing the coordinates of the hover cursor
     """)
 
-    tooltips = Either(Null, String, List(Tuple(String, String)),
+    tooltips = Either(Null, Instance(Template), String, List(Tuple(String, String)),
             default=[
                 ("index","$index"),
                 ("data (x, y)","($x, $y)"),
@@ -1109,8 +1086,7 @@ class HoverTool(InspectTool):
 
     .. note::
         The tooltips attribute can also be configured with a mapping type,
-        e.g. ``dict`` or ``OrderedDict``. However, if a ``dict`` is used,
-        the visual presentation order is unspecified.
+        e.g. ``dict`` or ``OrderedDict``.
 
     """).accepts(Dict(String, String), lambda d: list(d.items()))
 
@@ -1197,22 +1173,6 @@ class HelpTool(ActionTool):
 
     '''
 
-    def __init__(self, *args, **kwargs):
-        help_tooltip = kwargs.pop("help_tooltip", None)
-        if help_tooltip is not None:
-            deprecated((2, 3, 0), "HelpTool.help_tooltip", "HelpTool.description")
-            kwargs["description"] = help_tooltip
-        super().__init__(*args, **kwargs)
-
-    @property
-    def help_tooltip(self):
-        deprecated((2, 3, 0), "HelpTool.help_tooltip", "HelpTool.description")
-        return self.description
-    @help_tooltip.setter
-    def help_tooltip(self, description):
-        deprecated((2, 3, 0), "HelpTool.help_tooltip", "HelpTool.description")
-        self.description = description
-
     description = Override(default=DEFAULT_HELP_TIP)
 
     redirect = String(default=DEFAULT_HELP_URL, help="""
@@ -1245,35 +1205,12 @@ class EditTool(GestureTool):
 
     '''
 
-    def __init__(self, *args, **kwargs):
-        custom_tooltip = kwargs.pop("custom_tooltip", None)
-        if custom_tooltip is not None:
-            deprecated((2, 3, 0), "EditTool.custom_tooltip", "EditTool.description")
-            kwargs["description"] = custom_tooltip
-        super().__init__(*args, **kwargs)
-
-    @property
-    def custom_tooltip(self):
-        deprecated((2, 3, 0), "EditTool.custom_tooltip", "EditTool.description")
-        return self.description
-    @custom_tooltip.setter
-    def custom_tooltip(self, description):
-        deprecated((2, 3, 0), "EditTool.custom_tooltip", "EditTool.description")
-        self.description = description
-
     empty_value = NonNullable(Either(Bool, Int, Float, Date, Datetime, Color, String), help="""
     Defines the value to insert on non-coordinate columns when a new
     glyph is inserted into the ``ColumnDataSource`` columns, e.g. when a
     circle glyph defines 'x', 'y' and 'color' columns, adding a new
     point will add the x and y-coordinates to 'x' and 'y' columns and
     the color column will be filled with the defined empty value.
-    """)
-
-    custom_icon = Image(help="""
-    An icon to display in the toolbar.
-
-    The icon can provided as a string filename for an image, a PIL ``Image``
-    object, or an RGB(A) NumPy array.
     """)
 
     renderers = List(Instance(GlyphRenderer), help="""
@@ -1658,6 +1595,7 @@ Tool.register_alias("line_edit", lambda: LineEditTool())
 Tool.register_alias("point_draw", lambda: PointDrawTool())
 Tool.register_alias("poly_draw", lambda: PolyDrawTool())
 Tool.register_alias("poly_edit", lambda: PolyEditTool())
+Tool.register_alias("freehand_draw", lambda: FreehandDrawTool())
 Tool.register_alias("hover", lambda: HoverTool(tooltips=[
     ("index", "$index"),
     ("data (x, y)", "($x, $y)"),

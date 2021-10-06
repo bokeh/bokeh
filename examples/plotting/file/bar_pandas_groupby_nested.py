@@ -1,10 +1,21 @@
-from bokeh.io import output_file, show
+''' A grouped bar chart using a cleaned up version of the `Auto MPG dataset`_.
+This examples demonstrates automatic handing of Pandas GroupBy objects and
+colormapping nested factors with ``factor_cmap``. A hover tooltip displays
+information for each bar.
+
+.. bokeh-example-metadata::
+    :sampledata: autompg
+    :apis: bokeh.plotting.Figure.vbar, bokeh.transform.factor_cmap
+    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_pandas`
+    :keywords: bars, categorical, colormap, groupby, pandas
+
+.. _Auto MPG dataset: https://archive.ics.uci.edu/ml/datasets/auto+mpg
+
+'''
 from bokeh.palettes import Spectral5
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.sampledata.autompg import autompg_clean as df
 from bokeh.transform import factor_cmap
-
-output_file("bar_pandas_groupby_nested.html")
 
 df.cyl = df.cyl.astype(str)
 df.yr = df.yr.astype(str)
@@ -13,7 +24,7 @@ group = df.groupby(['cyl', 'mfr'])
 
 index_cmap = factor_cmap('cyl_mfr', palette=Spectral5, factors=sorted(df.cyl.unique()), end=1)
 
-p = figure(plot_width=800, plot_height=300, title="Mean MPG by # Cylinders and Manufacturer",
+p = figure(width=800, height=300, title="Mean MPG by # Cylinders and Manufacturer",
            x_range=group, toolbar_location=None, tooltips=[("MPG", "@mpg_mean"), ("Cyl, Mfr", "@cyl_mfr")])
 
 p.vbar(x='cyl_mfr', top='mpg_mean', width=1, source=group,

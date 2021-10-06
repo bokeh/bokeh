@@ -1,6 +1,7 @@
 from bokeh.core.properties import AngleSpec, Include, NumberSpec
-from bokeh.core.property_mixins import FillProps, LineProps, HatchProps
+from bokeh.core.property_mixins import FillProps, HatchProps, LineProps
 from bokeh.models import Glyph
+
 
 class Gear(Glyph):
     """ Render gears.
@@ -55,14 +56,14 @@ class Gear(Glyph):
     Whether the gear teeth are internal. [bool]
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(LineProps, help="""
     The %s values for the gears.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
+    fill_props = Include(FillProps, help="""
     The %s values for the gears.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    hatch_props = Include(HatchProps, help="""
     The %s values for the gears.
     """)

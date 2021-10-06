@@ -12,13 +12,13 @@ export namespace Dodge {
 export interface Dodge extends Dodge.Attrs {}
 
 export class Dodge extends RangeTransform {
-  properties: Dodge.Props
+  override properties: Dodge.Props
 
   constructor(attrs?: Partial<Dodge.Attrs>) {
     super(attrs)
   }
 
-  static init_Dodge(): void {
+  static {
     this.define<Dodge.Props>(({Number}) => ({
       value: [ Number, 0 ],
     }))

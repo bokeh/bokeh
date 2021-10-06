@@ -38,6 +38,8 @@ indentation level with the ``--indent`` argument:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -50,6 +52,7 @@ from argparse import Namespace
 
 # Bokeh imports
 from ...document import Document
+from ..subcommand import Argument
 from .file_output import FileOutputSubcommand
 
 #-----------------------------------------------------------------------------
@@ -81,7 +84,7 @@ class JSON(FileOutputSubcommand):
 
         FileOutputSubcommand.files_arg("JSON"),
 
-        ('--indent', dict(
+        ('--indent', Argument(
             metavar='LEVEL',
             type=int,
             help="indentation to use when printing",

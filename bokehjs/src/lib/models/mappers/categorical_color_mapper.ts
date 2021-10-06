@@ -14,13 +14,13 @@ export namespace CategoricalColorMapper {
 export interface CategoricalColorMapper extends CategoricalColorMapper.Attrs {}
 
 export class CategoricalColorMapper extends ColorMapper {
-  properties: CategoricalColorMapper.Props
+  override properties: CategoricalColorMapper.Props
 
   constructor(attrs?: Partial<CategoricalColorMapper.Attrs>) {
     super(attrs)
   }
 
-  static init_CategoricalColorMapper(): void {
+  static {
     this.define<CategoricalColorMapper.Props>(({Number, Nullable}) => ({
       factors: [ FactorSeq ],
       start:   [ Number, 0 ],

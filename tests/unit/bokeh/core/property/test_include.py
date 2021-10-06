@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -43,12 +45,11 @@ class Test_Include:
     def test_include_with_prefix(self) -> None:
 
         class IncludesDelegateWithPrefix(HasProps):
-            z = bcpi.Include(IsDelegate, use_prefix=True)
-            z_y = Int(57) # override the Include
+            z = bcpi.Include(IsDelegate, prefix="z")
 
         o = IncludesDelegateWithPrefix()
         assert o.z_x == 12
-        assert o.z_y == 57
+        assert o.z_y == "hello"
         assert not hasattr(o, 'z')
         assert not hasattr(o, 'x')
         assert not hasattr(o, 'y')
@@ -63,12 +64,11 @@ class Test_Include:
 
     def test_include_without_prefix(self) -> None:
         class IncludesDelegateWithoutPrefix(HasProps):
-            z = bcpi.Include(IsDelegate, use_prefix=False)
-            y = Int(42) # override the Include
+            z = bcpi.Include(IsDelegate)
 
         o = IncludesDelegateWithoutPrefix()
         assert o.x == 12
-        assert o.y == 42
+        assert o.y == "hello"
         assert not hasattr(o, 'z')
 
         assert 'x' in o.properties_with_values(include_defaults=True)
@@ -79,7 +79,7 @@ class Test_Include:
 
     def test_include_without_prefix_using_override(self) -> None:
         class IncludesDelegateWithoutPrefixUsingOverride(HasProps):
-            z = bcpi.Include(IsDelegate, use_prefix=False)
+            z = bcpi.Include(IsDelegate)
             y = Override(default="world") # override the Include changing just the default
 
         o = IncludesDelegateWithoutPrefixUsingOverride()

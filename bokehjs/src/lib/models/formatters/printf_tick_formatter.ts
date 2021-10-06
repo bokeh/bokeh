@@ -13,13 +13,13 @@ export namespace PrintfTickFormatter {
 export interface PrintfTickFormatter extends PrintfTickFormatter.Attrs {}
 
 export class PrintfTickFormatter extends TickFormatter {
-  properties: PrintfTickFormatter.Props
+  override properties: PrintfTickFormatter.Props
 
   constructor(attrs?: Partial<PrintfTickFormatter.Attrs>) {
     super(attrs)
   }
 
-  static init_PrintfTickFormatter(): void {
+  static {
     this.define<PrintfTickFormatter.Props>(({String}) => ({
       format: [ String, "%s" ],
     }))

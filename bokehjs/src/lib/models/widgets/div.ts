@@ -2,14 +2,14 @@ import {Markup, MarkupView} from "./markup"
 import * as p from "core/properties"
 
 export class DivView extends MarkupView {
-  model: Div
+  override model: Div
 
-  render(): void {
+  override render(): void {
     super.render()
     if (this.model.render_as_text)
       this.markup_el.textContent = this.model.text
     else
-      this.markup_el.innerHTML = this.model.text
+      this.markup_el.innerHTML = this.has_math_disabled() ? this.model.text : this.process_tex()
   }
 }
 
@@ -24,14 +24,14 @@ export namespace Div {
 export interface Div extends Div.Attrs {}
 
 export class Div extends Markup {
-  properties: Div.Props
-  __view_type__: DivView
+  override properties: Div.Props
+  override __view_type__: DivView
 
   constructor(attrs?: Partial<Div.Attrs>) {
     super(attrs)
   }
 
-  static init_Div(): void {
+  static {
     this.prototype.default_view = DivView
 
     this.define<Div.Props>(({Boolean}) => ({

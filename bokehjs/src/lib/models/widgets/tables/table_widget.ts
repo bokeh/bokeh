@@ -15,20 +15,20 @@ export namespace TableWidget {
 export interface TableWidget extends TableWidget.Attrs {}
 
 export class TableWidget extends Widget {
-  properties: TableWidget.Props
+  override properties: TableWidget.Props
 
   constructor(attrs?: Partial<TableWidget.Attrs>) {
     super(attrs)
   }
 
-  static init_TableWidget(): void {
+  static {
     this.define<TableWidget.Props>(({Ref}) => ({
       source: [ Ref(ColumnDataSource), () => new ColumnDataSource() ],
       view:   [ Ref(CDSView), () => new CDSView() ],
     }))
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     if (this.view.source == null) {

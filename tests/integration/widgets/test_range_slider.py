@@ -9,6 +9,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -87,12 +89,8 @@ class Test_RangeSlider:
         el = page.driver.find_element_by_css_selector('.foo')
         assert len(el.find_elements_by_css_selector('div.bk-input-group > div')) == 2
 
-        # XXX: WebElement.text returns undecoded UTF-8 byte strings as str (!) (not bytes)
-        def decode(s: str) -> str:
-            return bytes(map(ord, s)).decode("utf-8")
-
-        t0 = decode(get_slider_title_text(page.driver, ".foo"))
-        t1 = decode(get_slider_title_value(page.driver, ".foo"))
+        t0 = get_slider_title_text(page.driver, ".foo")
+        t1 = get_slider_title_value(page.driver, ".foo")
 
         assert t0 == "bar: 1.00e\u22126 .. 8.00e\u22126"
         assert t1 == "1.00e\u22126 .. 8.00e\u22126"
@@ -182,7 +180,7 @@ class Test_RangeSlider:
 
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
             slider = RangeSlider(start=0, end=10, value=(1, 9), title="bar", css_classes=["foo"], width=300)
@@ -234,7 +232,7 @@ class Test_RangeSlider:
     def test_server_bar_color_updates(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             slider = RangeSlider(start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300)
 
             def cb(attr, old, new):

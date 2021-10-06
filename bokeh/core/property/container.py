@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -19,16 +21,27 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from collections.abc import Container, Iterable, Mapping, Sequence, Sized
+from collections.abc import (
+    Container,
+    Iterable,
+    Mapping,
+    Sequence,
+    Sized,
+)
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ...util.serialization import decode_base64_dict, transform_column_source_data
+from ._sphinx import property_link, register_type_link, type_link
 from .bases import ContainerProperty, DeserializationError
 from .descriptors import ColumnDataPropertyDescriptor
 from .enum import Enum
 from .numeric import Int
 from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
+
+if TYPE_CHECKING:
+    from ...document.events import DocumentPatchedEvent
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -54,20 +67,20 @@ class Seq(ContainerProperty):
 
     """
 
-    def __init__(self, item_type, default=Undefined, help=None):
+    def __init__(self, item_type, default=Undefined, help=None) -> None:
         self.item_type = self._validate_type_param(item_type)
         super().__init__(default=default, help=help)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}({self.item_type})"
 
     @property
     def type_params(self):
         return [self.item_type]
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         if isinstance(json, list):
-            return self._new_instance([ self.item_type.from_json(item, models) for item in json ])
+            return self._new_instance([ self.item_type.from_json(item, models=models) for item in json ])
         else:
             raise DeserializationError(f"{self} expected a list, got {json}")
 
@@ -102,17 +115,12 @@ class Seq(ContainerProperty):
     def _new_instance(self, value):
         return value
 
-    def _sphinx_type(self):
-        prop_link = self._sphinx_prop_link()
-        item_type = self.item_type._sphinx_type()
-        return f"{prop_link}({item_type})"
-
 class List(Seq):
     """ Accept Python list values.
 
     """
 
-    def __init__(self, item_type, default=[], help=None):
+    def __init__(self, item_type, default=[], help=None) -> None:
         # todo: refactor to not use mutable objects as default values.
         # Left in place for now because we want to allow None to express
         # optional values. Also in Dict.
@@ -157,21 +165,21 @@ class Dict(ContainerProperty):
 
     """
 
-    def __init__(self, keys_type, values_type, default={}, help=None):
+    def __init__(self, keys_type, values_type, default={}, help=None) -> None:
         self.keys_type = self._validate_type_param(keys_type)
         self.values_type = self._validate_type_param(values_type)
         super().__init__(default=default, help=help)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}({self.keys_type}, {self.values_type})"
 
     @property
     def type_params(self):
         return [self.keys_type, self.values_type]
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         if isinstance(json, dict):
-            return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in json.items() }
+            return { self.keys_type.from_json(key, models=models): self.values_type.from_json(value, models=models) for key, value in json.items() }
         else:
             raise DeserializationError(f"{self} expected a dict, got {json}")
 
@@ -197,12 +205,6 @@ class Dict(ContainerProperty):
                 return PropertyValueDict(value)
         else:
             return value
-
-    def _sphinx_type(self):
-        prop_link = self._sphinx_prop_link()
-        key_type = self.keys_type._sphinx_type()
-        value_type = self.values_type._sphinx_type()
-        return f"{prop_link}({key_type}, {value_type})"
 
 class ColumnData(Dict):
     """ Accept a Python dictionary suitable as the ``data`` attribute of a
@@ -230,14 +232,14 @@ class ColumnData(Dict):
         return [ ColumnDataPropertyDescriptor(base_name, self) ]
 
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         """ Decodes column source data encoded as lists or base64 strings.
         """
         if not isinstance(json, dict):
             raise DeserializationError(f"{self} expected a dict, got {json}")
         new_data = {}
         for key, value in json.items():
-            key = self.keys_type.from_json(key, models)
+            key = self.keys_type.from_json(key, models=models)
             if isinstance(value, dict) and '__ndarray__' in value:
                 new_data[key] = decode_base64_dict(value)
             elif isinstance(value, list) and any(isinstance(el, dict) and '__ndarray__' in el for el in value):
@@ -250,8 +252,16 @@ class ColumnData(Dict):
                     new_list.append(el)
                 new_data[key] = new_list
             else:
-                new_data[key] = self.values_type.from_json(value, models)
+                new_data[key] = self.values_type.from_json(value, models=models)
         return new_data
+
+    def _hinted_value(self, value: Any, hint: DocumentPatchedEvent | None) -> Any:
+        from ...document.events import ColumnDataChangedEvent, ColumnsStreamedEvent
+        if isinstance(hint, ColumnDataChangedEvent):
+            return { col: hint.column_source.data[col] for col in hint.cols }
+        if isinstance(hint, ColumnsStreamedEvent):
+            return hint.data
+        return value
 
     def serialize_value(self, value):
         return transform_column_source_data(value)
@@ -272,11 +282,11 @@ class Tuple(ContainerProperty):
     """ Accept Python tuple values.
 
     """
-    def __init__(self, tp1, tp2, *type_params, **kwargs):
+    def __init__(self, tp1, tp2, *type_params, **kwargs) -> None:
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
         super().__init__(default=kwargs.get("default", Undefined), help=kwargs.get("help"))
 
-    def __str__(self):
+    def __str__(self) -> str:
         item_types = ", ".join(str(x) for x in self.type_params)
         return f"{self.__class__.__name__}({item_types})"
 
@@ -284,9 +294,9 @@ class Tuple(ContainerProperty):
     def type_params(self):
         return self._type_params
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         if isinstance(json, list):
-            return tuple(type_param.from_json(item, models) for type_param, item in zip(self.type_params, json))
+            return tuple(type_param.from_json(item, models=models) for type_param, item in zip(self.type_params, json))
         else:
             raise DeserializationError(f"{self} expected a list, got {json}")
 
@@ -312,24 +322,17 @@ class Tuple(ContainerProperty):
         """
         return tuple(typ.serialize_value(x) for (typ, x) in zip(self.type_params, value))
 
-    def _sphinx_type(self):
-        prop_link = self._sphinx_prop_link()
-        item_types = ", ".join(x._sphinx_type() for x in self.type_params)
-        return f"{prop_link}({item_types})"
-
-
-
 class RelativeDelta(Dict):
     """ Accept RelativeDelta dicts for time delta values.
 
     """
 
-    def __init__(self, default={}, help=None):
+    def __init__(self, default={}, help=None) -> None:
         keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")
         values = Int
         super().__init__(keys, values, default=default, help=help)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__class__.__name__
 
 class RestrictedDict(Dict):
@@ -337,7 +340,7 @@ class RestrictedDict(Dict):
 
     """
 
-    def __init__(self, keys_type, values_type, disallow, default={}, help=None):
+    def __init__(self, keys_type, values_type, disallow, default={}, help=None) -> None:
         self._disallow = set(disallow)
         super().__init__(keys_type=keys_type, values_type=values_type, default=default, help=help)
 
@@ -361,3 +364,16 @@ class RestrictedDict(Dict):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+@register_type_link(Dict)
+def _sphinx_type_dict(obj):
+    return f"{property_link(obj)}({type_link(obj.keys_type)}, {type_link(obj.values_type)})"
+
+@register_type_link(Seq)
+def _sphinx_type_seq(obj):
+    return f"{property_link(obj)}({type_link(obj.item_type)})"
+
+@register_type_link(Tuple)
+def _sphinx_type_tuple(obj):
+    item_types = ", ".join(type_link(x) for x in obj.type_params)
+    return f"{property_link(obj)}({item_types})"

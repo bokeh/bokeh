@@ -5,12 +5,14 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 ''' Provide a ``Theme`` class for specifying new default values for Bokeh
-:class:`~bokeh.model.Model` properties.
+|Model| properties.
 
 '''
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -18,11 +20,24 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Type,
+    overload,
+)
+
 # External imports
 import yaml
 
 # Bokeh imports
 from ..core.has_props import HasProps
+from ..core.types import PathLike, Unknown
+
+if TYPE_CHECKING:
+    from ..model import Model
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -31,7 +46,7 @@ from ..core.has_props import HasProps
 # whenever we cache that there's nothing themed for a class, we
 # use this same dict instance, so we don't have a zillion empty
 # dicts in our caches.
-_empty_dict = dict()
+_empty_dict: Dict[str, Unknown] = {}
 
 __all__ = (
     'Theme',
@@ -53,8 +68,8 @@ class Theme:
     ''' Provide new default values for Bokeh models.
 
     Bokeh Model properties all have some built-in default value. If a property
-    has not been explicitly set (e.g. ``m.foo = 10``) then accessing the
-    property with return the default value. It may be useful for users to be
+    has not been explicitly set (e.g. ``m.foo = 10``), accessing the
+    property will return the default value. It may be useful for users to be
     able to specify a different set of default values than the built-in
     default. The ``Theme`` class allows collections of custom default values
     to be easily applied to Bokeh documents.
@@ -128,7 +143,21 @@ class Theme:
             }
 
     '''
-    def __init__(self, filename=None, json=None):
+
+    _by_class_cache: Dict[str, Dict[str, Unknown]]
+
+    _line_defaults: Dict[str, Unknown]
+    _fill_defaults: Dict[str, Unknown]
+    _text_defaults: Dict[str, Unknown]
+
+    _json: Dict[str, Any]
+
+    @overload
+    def __init__(self, filename: PathLike) -> None: ...
+    @overload
+    def __init__(self, json: Dict[str, Any]) -> None: ...
+
+    def __init__(self, filename: PathLike | None = None, json: Dict[str, Any] | None = None) -> None:
         if (filename is not None) and (json is not None):
             raise ValueError("Theme should be constructed from a file or from json not both")
 
@@ -148,11 +177,11 @@ class Theme:
             self._json['attrs'] = {}
 
         if not isinstance(self._json['attrs'], dict):
-            raise ValueError("theme problem: attrs field should be a dictionary of class names, not %r" % (self._json['attrs']))
+            raise ValueError(f"theme problem: attrs field should be a dictionary of class names, not {self._json['attrs']!r}")
 
         for key, value in self._json['attrs'].items():
             if not isinstance(value, dict):
-                raise ValueError("theme problem: attrs.%s should be a dictionary of properties, not %r" % (key, value))
+                raise ValueError(f"theme problem: attrs.{key} should be a dictionary of properties, not {value!r}")
 
         self._line_defaults = self._json.get('line_defaults', _empty_dict)
         self._fill_defaults = self._json.get('fill_defaults', _empty_dict)
@@ -163,7 +192,7 @@ class Theme:
         # class.
         self._by_class_cache = {}
 
-    def _add_glyph_defaults(self, cls, props):
+    def _add_glyph_defaults(self, cls: Type[HasProps], props: Dict[str, Unknown]) -> None:
         from ..models.glyphs import Glyph
         if issubclass(cls, Glyph):
             if hasattr(cls, "line_alpha"):
@@ -173,10 +202,10 @@ class Theme:
             if hasattr(cls, "text_alpha"):
                 props.update(self._text_defaults)
 
-    def _for_class(self, cls):
+    def _for_class(self, cls: Type[Model]) -> Dict[str, Unknown]:
         if cls.__name__ not in self._by_class_cache:
             attrs = self._json['attrs']
-            combined = {}
+            combined: Dict[str, Unknown] = {}
             # we go in reverse order so that subclass props override base class
             for base in cls.__mro__[-2::-1]:
                 if not issubclass(base, HasProps):
@@ -188,12 +217,12 @@ class Theme:
             self._by_class_cache[cls.__name__] = combined
         return self._by_class_cache[cls.__name__]
 
-    def apply_to_model(self, model):
+    def apply_to_model(self, model: Model) -> None:
         ''' Apply this theme to a model.
 
         .. warning::
             Typically, don't call this method directly. Instead, set the theme
-            on the :class:`~bokeh.document.Document` the model is a part of.
+            on the |Document| the model is a part of.
 
         '''
         model.apply_theme(self._for_class(model.__class__))

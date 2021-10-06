@@ -19,6 +19,8 @@ configuration file ``conf.py``.
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging  # isort:skip
 
 log = logging.getLogger(__name__)
@@ -34,6 +36,9 @@ from os.path import join
 # External imports
 from sphinx.errors import SphinxError
 from sphinx.util import status_iterator
+
+# Bokeh imports
+from . import PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -83,6 +88,7 @@ def setup(app):
     app.connect("build-finished", build_finished)
     app.sitemap_links = set()
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

@@ -5,10 +5,12 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "noImplicitOverride": true,
     "strictNullChecks": true,
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
     "strictPropertyInitialization": false,
+    "useUnknownInCatchVariables": true,
     "alwaysStrict": true,
     "noErrorTruncation": true,
     "noEmitOnError": false,
@@ -17,6 +19,8 @@
     "declarationMap": true,
     "importHelpers": true,
     "experimentalDecorators": true,
+    "jsx": "react",
+    "jsxFactory": "DOM.createSVGElement",
     "module": "ES2020",
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -34,6 +38,7 @@
   "include": [
     "../framework.ts",
     "../*.d.ts",
-    "./**/*.ts"
+    "./**/*.ts",
+    "./**/*.tsx"
   ]
 }

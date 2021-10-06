@@ -1,6 +1,6 @@
 .. _userguide_concepts:
 
-Defining Key Concepts
+Defining key concepts
 =====================
 
 .. _userguide_glossary:
@@ -16,7 +16,7 @@ throughout Bokeh's documentation:
     Annotation
         Visual aids that make reading the plot easier. This includes titles,
         legends, labels, or bands, for example. See :ref:`userguide_annotations`
-        in the :ref:`userguide` for more information and examples.
+        in the |user guide| for more information and examples.
 
     Application
         A Bokeh application is a recipe for generating Bokeh
@@ -28,8 +28,8 @@ throughout Bokeh's documentation:
         handles the UI interactions for Bokeh :term:`plots<Plot>` and
         :term:`widgets<Widget>` in the browser. In most cases, Bokeh handles all
         interactions with BokehJS automatically ("We write the JavaScript, so you
-        don't have to"). For more details, see the :ref:`devguide_bokehjs`
-        chapter of the :ref:`developers guide<devguide>`.
+        don't have to"). For more details, see the :ref:`contributor_guide_bokehjs`
+        chapter of the |contributor guide|.
 
     Document
         An organizing data structure for Bokeh
@@ -40,39 +40,37 @@ throughout Bokeh's documentation:
     Embedding
         Various methods that help with including Bokeh :term:`plots<Plot>` and
         :term:`widgets<Widget>` in web apps, web pages, or Jupyter notebooks.
-        See :ref:`userguide_embed` in the :ref:`userguide` for more details.
+        See :ref:`userguide_embed` in the |user guide| for more details.
 
     Glyph
         API objects that draw vectorized graphics to represent data. Glyphs are
         the basic visual building blocks of Bokeh :term:`plots<Plot>`. This
         includes elements such as lines, rectangles, squares, wedges, or the
-        circles of a scatter plot. The :ref:`userguide_interfaces_plotting`
-        interface provides a convenient way to create plots centered around
-        glyphs. See :ref:`userguide_plotting` in the :ref:`userguide` for more
-        information.
+        circles of a scatter plot. The |plotting interface| provides a
+        convenient way to create plots centered around glyphs. See
+        :ref:`userguide_plotting` in the |user guide| for more information.
 
     Layout
         A collection of Bokeh objects. This can be several :term:`plots<Plot>`
         and :term:`widgets<Widget>`, arranged in nested rows and columns. See
-        :ref:`userguide_layout` in the :ref:`userguide` for more information and
+        :ref:`userguide_layout` in the |user guide| for more information and
         examples.
 
     Model
         The lowest-level objects that Bokeh visualizations consist of. Bokeh's
-        models are part of the :ref:`userguide_interfaces_models` interface.
-        Most users will not use this level of interface to assemble plots
-        directly. However, ultimately all Bokeh plots consist of collections of
-        models. It is helpful to understand them enough to configure their
-        attributes and properties. See :ref:`userguide_styling` in the
-        :ref:`userguide` for more information.
+        models are part of the |models interface|. Most users will not use this
+        level of interface to assemble plots directly. However, ultimately all
+        Bokeh plots consist of collections of models. It is helpful to
+        understand them enough to configure their attributes and properties.
+        See :ref:`userguide_styling` in the |user guide| for more
+        information.
 
     Plot
         Containers that hold all the various objects (such as
         :term:`renderers<Renderer>`, :term:`glyphs<Glyph>`, or
         :term:`annotations<Annotation>`) of a visualization. The
-        :ref:`userguide_interfaces_plotting` interface provides the
-        :func:`~bokeh.plotting.figure` function to help with assembling all the
-        necessary objects.
+        |plotting interface| provides the |figure| function to help with
+        assembling all the necessary objects.
 
     Renderer
         General term for any method or function that draws elements of the plot.
@@ -84,7 +82,7 @@ throughout Bokeh's documentation:
         to share and publish Bokeh plots and apps, to handle streaming of large
         data sets, or to enable complex user interactions based on
         :term:`widgets<Widget>` and selections. See :ref:`userguide_server` in
-        the :ref:`userguide` for more information and examples.
+        the |user guide| for more information and examples.
 
     Widget
         User interface elements that are not directly part of a Bokeh
@@ -93,7 +91,7 @@ throughout Bokeh's documentation:
         use input from widgets to update you Bokeh plot itself. You can use
         widgets in standalone :term:`applications<Application>` or with the
         Bokeh :term:`server<Server>`. For examples and information, see
-        :ref:`userguide_interaction` in the :ref:`userguide`.
+        :ref:`userguide_interaction` in the |user guide|.
 
 .. _userguide_output_methods:
 
@@ -103,14 +101,14 @@ Output methods
 Bokeh offers a variety of ways to produce interactive output. The following
 two functions are the most common:
 
-:func:`~bokeh.io.output_file`
+|output_file|
     Generate simple standalone HTML documents for Bokeh visualizations.
 
-:func:`~bokeh.io.output_notebook`
+|output_notebook|
     Display Bokeh visualizations in Jupyter/Zeppelin notebooks.
 
-These output functions are usually used together with :func:`~bokeh.io.show`
-or :func:`~bokeh.io.save`. Here's an example:
+These output functions are usually used together with |show| or |save|. Here's
+an example:
 
 .. code-block:: python
 
@@ -132,6 +130,55 @@ standalone Bokeh documents to serve from backend web applications.
 
 Another way to generate various kinds of output is by using Bokeh's powerful
 :ref:`command line tool <userguide_cli>`.
+
+.. _userguide_settings:
+
+Bokeh settings
+--------------
+
+There are various global settings that influence how Bokeh operates. You can use
+several methods to change Bokeh's configuration: Directly in the Python code, in
+a YAML configuration file, or with environment variables, for example. The full
+list of all available settings and how to change them is available at
+:ref:`bokeh.settings`.
+
+Some of most useful settings are:
+
+``browser`` (environment variable ``BOKEH_BROWSER``)
+    Set this configuration value to the browser you want Bokeh to use (for
+    example when calling |show|). Valid values are any of the predefined browser
+    names of the Python :doc:`webbrowser <python:library/webbrowser>` module.
+    For example: ``chromium-browser`` or ``windows-default``. You can also set
+    this variable to the full path of your browser. For example:
+
+    .. tabs::
+
+        .. code-tab:: sh Linux/macOS
+
+            export BOKEH_BROWSER=/usr/bin/chromium-browser
+
+        .. code-tab:: PowerShell Windows (PS)
+
+            $Env:BOKEH_BROWSER="C:/Program\ Files/Google/Chrome/Application/chrome.exe %s &"
+
+        .. code-tab:: doscon Windows (CMD)
+
+            set BOKEH_BROWSER="C:/Program\ Files/Google/Chrome/Application/chrome.exe %s &"
+
+``resources`` (environment variable ``BOKEH_RESOURCES``)
+    To display interactive visualizations in a browser, Bokeh needs to load
+    :term:`BokehJS`. Set this configuration value to define where to load
+    BokehJS from. For example:
+
+    * ``cdn`` to load BokehJS from Bokeh's Content Delivery Network (CDN)
+    * ``server`` to load from a Bokeh server
+    * ``relative`` to load a local version relative to the given directory.
+
+    All available options are listed at :class:`~bokeh.resources.Resources`.
+
+    You can combine some of the values for this variable with other
+    configuration values, such as ``cdn_version`` (``BOKEH_CDN_VERSION``) and
+    ``rootdir`` (``BOKEH_ROOTDIR``). See :ref:`bokeh.settings` for details.
 
 .. _userguide_interfaces:
 
@@ -184,7 +231,7 @@ add data renderers to your plot object, call a glyph method such as
 |Figure.circle|. You don't have to worry about axes and grids (although you can
 configure them if you want to), and you only need to list the tools you want to
 add. To display your visualization in a browser, in most cases, all you need to
-do is call the output function :func:`~bokeh.io.show`.
+do is call the output function |show|.
 
 With the *bokeh.plotting* interface, you have many more possibilities to
 create an customize your visualization. For example:
@@ -194,7 +241,7 @@ create an customize your visualization. For example:
 * adding more data renderers
 * arranging multiple plots and widgets into layouts
 
-The :ref:`userguide_plotting` section of this :ref:`userguide` will walk you
+The :ref:`userguide_plotting` section of this |user guide| will walk you
 through many more examples and common use cases for the |bokeh.plotting|
 interface.
 
@@ -221,7 +268,7 @@ browser-based visualizations. Behind the scenes, Bokeh consists of two
 libraries:
 
 * BokehJS, the JavaScript library
-    BokehJS runs in the browser. This library handles rendering and user
+    :term:`BokehJS` runs in the browser. This library handles rendering and user
     interactions. It takes a collection of declarative JSON objects as its input
     and uses them as instructions on how to handle the various aspects of your
     visualization in a browser. For example:
@@ -266,31 +313,20 @@ interfaces ultimately produce collections of Bokeh models, this lets you
 style and configure plots and widgets the same way regardless of the
 interface.
 
-For more information on Bokeh models, consult the :ref:`refguide`.
+For more information on Bokeh models, see |bokeh.models| in the |reference guide|.
 
 .. note::
 
    The Python library allows for binding with other languages that can produce
    appropriate JSON output. For more details and available bindings, see
-   :ref:`devguide_bindings`.
+   :ref:`contributor_guide_bindings`.
 
 
 .. _Matlab: http://www.mathworks.com/products/matlab/
 .. _Matplotlib: http://matplotlib.org
 
-.. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 .. |bokeh.io|       replace:: :ref:`bokeh.io <bokeh.io>`
-
-.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 
 .. |Rect| replace:: :class:`~bokeh.models.glyphs.Rect`
 
-.. |output_file|     replace:: :func:`~bokeh.io.output_file`
-.. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
-.. |save|            replace:: :func:`~bokeh.io.save`
-.. |show|            replace:: :func:`~bokeh.io.show`
-
-.. |figure|          replace:: :func:`~bokeh.plotting.figure`
-.. |Figure|          replace:: :class:`~bokeh.plotting.Figure`
 .. |Figure.circle|   replace:: :func:`Figure.circle <bokeh.plotting.Figure.circle>`

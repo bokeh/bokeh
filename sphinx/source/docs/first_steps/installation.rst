@@ -11,8 +11,8 @@ Supported platforms
 -------------------
 
 Bokeh is officially supported (and continuously tested) on CPython versions
-3.6+ only. It's possible that Bokeh does work on other versions of Python, but
-no guarantees or support are provided.
+:bokeh-minpy:`cpython` and later. It's possible that Bokeh does work on other
+versions of Python, but no guarantees or support are provided.
 
 Installing with ``conda`` or ``pip``
 ------------------------------------
@@ -36,6 +36,14 @@ method. Otherwise, use ``pip``.
     .. code-block:: sh
 
         conda install bokeh
+
+    Alternatively, if you want to make sure you always have the most recent
+    version of Bokeh after each new release, install from the
+    `Bokeh channel <https://anaconda.org/bokeh/bokeh>`_ directly:
+
+    .. code-block:: sh
+
+        conda install -c bokeh bokeh
 
     ---
 
@@ -73,14 +81,15 @@ the `"bokeh" tag on Stack Overflow`_ or asking a question in the
     Once you have Bokeh installed, build your first visualization by following
     the :ref:`first steps guides <first_steps_overview>`.
 
-    Check the :ref:`user guide <userguide>` for a comprehensive overview of all
-    the things you can do with Bokeh.
+    Check the |user guide| for a comprehensive overview of all the things you
+    can do with Bokeh.
 
 Installing for development
 --------------------------
 
-If you want to install a development version of Bokeh to contribute to the project,
-please see the :ref:`devguide_setup` instructions in the :ref:`devguide`.
+If you want to install a development version of Bokeh to contribute to the
+project, please see the :ref:`contributor_guide_setup` instructions in the
+|contributor guide|.
 
 .. _install_required:
 
@@ -89,16 +98,7 @@ Installing required dependencies
 
 For basic usage, Bokeh requires the following libraries:
 
-.. code::
-
-    PyYAML>=3.10
-    python-dateutil>=2.1
-    Jinja2>=2.7
-    numpy>=1.11.3
-    pillow>=7.1.0
-    packaging>=16.8
-    tornado>=5.1
-    typing_extensions >=3.7.4
+:bokeh-requires:`cpython`
 
 All those packages are automatically installed if you use ``conda`` or
 ``pip``.
@@ -152,7 +152,8 @@ use with Bokeh. Because this sample data is rather large, it is not included in
 Bokeh's installation packages.
 
 In `Bokeh's GitHub repository`_, you can find a number of examples. Those
-examples also use this sample data.
+examples also use this sample data. See :ref:`bokeh.sampledata` for more
+information on the data sets included in Bokeh's sample data.
 
 After installing Bokeh, you can automatically download and install the
 sample data with this command:
@@ -187,6 +188,8 @@ scheme::
     https://cdn.bokeh.org/bokeh/release/bokeh-widgets-x.y.z.min.js
     https://cdn.bokeh.org/bokeh/release/bokeh-tables-x.y.z.min.js
     https://cdn.bokeh.org/bokeh/release/bokeh-api-x.y.z.min.js
+    https://cdn.bokeh.org/bokeh/release/bokeh-gl-x.y.z.min.js
+    https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-x.y.z.min.js
 
 There are additional components to BokehJS that are necessary only for specific
 use cases:
@@ -204,6 +207,8 @@ For example, the links for version ``2.0.1`` are:
 * https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.0.1.min.js
 * https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.0.1.min.js
 * https://cdn.bokeh.org/bokeh/release/bokeh-api-2.0.1.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-gl-2.0.1.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-2.0.1.min.js
 
 .. note::
     You should always set ``crossorigin="anonymous"`` on script tags that load

@@ -11,12 +11,17 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+
+# Standard library imports
+from typing import TYPE_CHECKING, Callable
 
 # Bokeh imports
 from ...core.enums import ButtonType
@@ -37,6 +42,9 @@ from ...events import ButtonClick, MenuItemClick
 from ..callbacks import Callback
 from .icons import AbstractIcon
 from .widget import Widget
+
+if TYPE_CHECKING:
+    from ...util.callback_manager import EventCallback
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -89,7 +97,7 @@ class Button(AbstractButton):
 
     label = Override(default="Button")
 
-    def on_click(self, handler):
+    def on_click(self, handler: EventCallback) -> None:
         ''' Set up a handler for button clicks.
 
         Args:
@@ -101,7 +109,7 @@ class Button(AbstractButton):
         '''
         self.on_event(ButtonClick, handler)
 
-    def js_on_click(self, handler):
+    def js_on_click(self, handler: Callback) -> None:
         ''' Set up a JavaScript handler for button clicks. '''
         self.js_on_event(ButtonClick, handler)
 
@@ -117,7 +125,7 @@ class Toggle(AbstractButton):
     handler.
     """)
 
-    def on_click(self, handler):
+    def on_click(self, handler: Callable[[bool], None]) -> None:
         """ Set up a handler for button state changes (clicks).
 
         Args:
@@ -129,7 +137,7 @@ class Toggle(AbstractButton):
         """
         self.on_change('active', lambda attr, old, new: handler(new))
 
-    def js_on_click(self, handler):
+    def js_on_click(self, handler: Callback) -> None:
         """ Set up a JavaScript handler for button state changes (clicks). """
         self.js_on_change('active', handler)
 
@@ -148,7 +156,7 @@ class Dropdown(AbstractButton):
     value name. Use ``None`` as a menu separator.
     """)
 
-    def on_click(self, handler):
+    def on_click(self, handler: EventCallback) -> None:
         ''' Set up a handler for button or menu item clicks.
 
         Args:
@@ -161,7 +169,7 @@ class Dropdown(AbstractButton):
         self.on_event(ButtonClick, handler)
         self.on_event(MenuItemClick, handler)
 
-    def js_on_click(self, handler):
+    def js_on_click(self, handler: Callback) -> None:
         ''' Set up a JavaScript handler for button or menu item clicks. '''
         self.js_on_event(ButtonClick, handler)
         self.js_on_event(MenuItemClick, handler)

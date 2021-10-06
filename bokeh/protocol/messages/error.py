@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -18,8 +20,13 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import sys
 from traceback import format_exception
+from typing import Any
+
+# External imports
+from typing_extensions import TypedDict
 
 # Bokeh imports
+from ...core.types import ID
 from ..message import Message
 
 #-----------------------------------------------------------------------------
@@ -38,7 +45,11 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class error(Message):
+class Error(TypedDict):
+    text: str
+    traceback: str | None
+
+class error(Message[Error]):
     ''' Define the ``ERROR`` message for reporting error conditions back to a
     Bokeh server.
 
@@ -55,19 +66,18 @@ class error(Message):
 
     '''
 
-    msgtype  = 'ERROR'
+    msgtype = 'ERROR'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         msg = super().__repr__()
         msg += " --- "
         msg += self.content['text']
-        if "traceback" in self.content:
-            msg += "\n"
-            msg += "".join(self.content['traceback'])
+        if self.content["traceback"] is not None:
+            msg += "\n" + self.content['traceback']
         return msg
 
     @classmethod
-    def create(cls, request_id, text, **metadata):
+    def create(cls, request_id: ID, text: str, **metadata: Any) -> error:
         ''' Create an ``ERROR`` message
 
         Args:
@@ -82,12 +92,9 @@ class error(Message):
 
         '''
         header = cls.create_header(request_id=request_id)
-        content = {
-            'text'  : text,
-        }
         ex_type, ex, tb = sys.exc_info()
-        if ex_type:
-            content['traceback'] = format_exception(ex_type, ex, tb)
+        traceback = "".join(format_exception(ex_type, ex, tb)) if ex_type else None
+        content = Error(text=text, traceback=traceback)
         return cls(header, metadata, content)
 
 #-----------------------------------------------------------------------------

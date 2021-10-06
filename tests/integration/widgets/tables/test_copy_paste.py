@@ -9,6 +9,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -29,7 +31,13 @@ from bokeh._testing.util.selenium import (
     shift_click,
 )
 from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, CustomJS, DataTable, TableColumn, TextInput
+from bokeh.models import (
+    ColumnDataSource,
+    CustomJS,
+    DataTable,
+    TableColumn,
+    TextInput,
+)
 
 #-----------------------------------------------------------------------------
 # Tests

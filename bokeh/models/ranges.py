@@ -13,6 +13,8 @@ and with options for "auto sizing".
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -40,13 +42,11 @@ from ..core.properties import (
     Null,
     Nullable,
     Readonly,
-    String,
     TimeDelta,
 )
 from ..core.validation import error
 from ..core.validation.errors import DUPLICATE_FACTORS
 from ..model import Model
-from .renderers import DataRenderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -132,7 +132,7 @@ class Range1d(Range):
     maximum visible interval. Can be a ``TimeDelta``. Note that ``bounds`` can
     impose an implicit constraint on the maximum interval as well. """)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         if args and ('start' in kwargs or 'end' in kwargs):
             raise ValueError("'start' and 'end' keywords cannot be used with positional arguments")
         if args and len(args) != 2:
@@ -151,17 +151,7 @@ class DataRange(Range):
 
     '''
 
-    names = List(String, help="""
-    A list of names to query for. If set, only renderers that
-    have a matching value for their ``name`` attribute will be used
-    for autoranging.
-
-    .. note:
-        This property is deprecated and will be removed in bokeh 3.0.
-
-    """)
-
-    renderers = Either(List(Instance(DataRenderer)), Auto, help="""
+    renderers = Either(List(Instance(Model)), Auto, help="""
     An explicit list of renderers to autorange against. If unset,
     defaults to all renderers on a plot.
     """)
@@ -271,7 +261,7 @@ class DataRange1d(DataRange):
     bounds computations.
     """)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         if kwargs.get('follow') is not None:
             kwargs['bounds'] = None
         super().__init__(**kwargs)
@@ -452,7 +442,7 @@ class FactorRange(Range):
     padding properties and whether or not factors are grouped.
     """)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         if args and "factors" in kwargs:
             raise ValueError("'factors' keyword cannot be used with positional arguments")
         elif args:

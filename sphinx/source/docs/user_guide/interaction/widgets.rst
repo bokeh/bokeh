@@ -52,7 +52,7 @@ widgets with ``.on_click``, the handler is passed the new attribute value.
 .. code-block:: python
 
     def my_radio_handler(new):
-        print 'Radio button option ' + str(new) + ' selected.'
+        print('Radio button option ' + str(new) + ' selected.')
 
     radio_group = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
     radio_group.on_click(my_radio_handler)
@@ -62,7 +62,7 @@ custom widgets, or wrap different third party widget libraries by creating
 custom extensions as described in :ref:`userguide_extensions`.
 
 For more information about the attributes to watch using ``.on_change``, see the
-:ref:`refguide`. (Information about widgets is found under :ref:`bokeh.models`.)
+|reference guide|. (Information about widgets is found under |bokeh.models|.)
 
 .. _userguide_interaction_widgets_examples:
 
@@ -113,6 +113,8 @@ A widget to allow the user to specify an RGB color value.
     :source-position: below
 
 More information can be found in the Reference for |ColorPicker|.
+
+.. _userguide_interaction_widgets_examples_datatable:
 
 DataTable
 ~~~~~~~~~

@@ -117,7 +117,7 @@ export class TableDataProvider implements DataProvider<Item> {
 }
 
 export class DataTableView extends WidgetView {
-  model: DataTable
+  override model: DataTable
 
   protected data: TableDataProvider
   protected grid: SlickGrid<Item>
@@ -125,7 +125,7 @@ export class DataTableView extends WidgetView {
   protected _in_selection_update = false
   protected _width: number | null = null
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())
 
@@ -136,28 +136,35 @@ export class DataTableView extends WidgetView {
 
     this.connect(this.model.source.selected.change, () => this.updateSelection())
     this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
+
+    for (const column of this.model.columns) {
+      this.connect(column.change, () => {
+        this.invalidate_layout()
+        this.render()
+      })
+    }
   }
 
-  remove(): void {
+  override remove(): void {
     this.grid?.destroy()
     super.remove()
   }
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), slickgrid_css, tables_css]
   }
 
-  update_position(): void {
+  override update_position(): void {
     super.update_position()
     this.grid.resizeCanvas()
   }
 
-  after_layout(): void {
+  override after_layout(): void {
     super.after_layout()
     this.updateLayout(true, false)
   }
 
-  box_sizing(): Partial<BoxSizing> {
+  override box_sizing(): Partial<BoxSizing> {
     const sizing = super.box_sizing()
     if (this.model.autosize_mode === "fit_viewport" && this._width != null)
       sizing.width = this._width
@@ -238,7 +245,7 @@ export class DataTableView extends WidgetView {
     }
   }
 
-  css_classes(): string[] {
+  override css_classes(): string[] {
     return super.css_classes().concat(tables.data_table)
   }
 
@@ -253,8 +260,8 @@ export class DataTableView extends WidgetView {
     return autosize
   }
 
-  render(): void {
-    const columns: ColumnType[] = this.model.columns.map((column) => {
+  override render(): void {
+    const columns: ColumnType[] = this.model.columns.filter((column) => column.visible).map((column) => {
       return {...column.toColumn(), parent: this}
     })
 
@@ -410,8 +417,8 @@ export namespace DataTable {
 export interface DataTable extends DataTable.Attrs {}
 
 export class DataTable extends TableWidget {
-  properties: DataTable.Props
-  __view_type__: DataTableView
+  override properties: DataTable.Props
+  override __view_type__: DataTableView
 
   private _sort_columns: {field: string, sortAsc: boolean}[] = []
   get sort_columns(): {field: string, sortAsc: boolean}[] {
@@ -422,7 +429,7 @@ export class DataTable extends TableWidget {
     super(attrs)
   }
 
-  static init_DataTable(): void {
+  static {
     this.prototype.default_view = DataTableView
 
     this.define<DataTable.Props>(({Array, Boolean, Int, Ref, String, Enum, Or, Nullable}) => ({

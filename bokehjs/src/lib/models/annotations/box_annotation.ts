@@ -2,19 +2,19 @@ import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {SpatialUnits, RenderMode} from "core/enums"
+import {SpatialUnits} from "core/enums"
 import * as p from "core/properties"
 import {BBox, CoordinateMapper} from "core/util/bbox"
 
 export const EDGE_TOLERANCE = 2.5
 
 export class BoxAnnotationView extends AnnotationView {
-  model: BoxAnnotation
-  visuals: BoxAnnotation.Visuals
+  override model: BoxAnnotation
+  override visuals: BoxAnnotation.Visuals
 
   protected bbox: BBox = new BBox()
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
   }
@@ -36,7 +36,7 @@ export class BoxAnnotationView extends AnnotationView {
         if (this.model.screen)
           sdim = dim
         else {
-          if (dim_units == 'data')
+          if (dim_units == "data")
             sdim = scale.compute(dim)
           else
             sdim = view.compute(dim)
@@ -46,7 +46,7 @@ export class BoxAnnotationView extends AnnotationView {
       return sdim
     }
 
-    this.bbox = new BBox({
+    this.bbox = BBox.from_rect({
       left:   _calc_dim(left,   this.model.left_units,   xscale, frame.bbox.xview, frame.bbox.left),
       right:  _calc_dim(right,  this.model.right_units,  xscale, frame.bbox.xview, frame.bbox.right),
       top:    _calc_dim(top,    this.model.top_units,    yscale, frame.bbox.yview, frame.bbox.top),
@@ -64,20 +64,9 @@ export class BoxAnnotationView extends AnnotationView {
     ctx.beginPath()
     ctx.rect(left, top, width, height)
 
-    if (this.visuals.fill.doit) {
-      this.visuals.fill.set_value(ctx)
-      ctx.fill()
-    }
-
-    if (this.visuals.hatch.doit) {
-      this.visuals.hatch.set_value(ctx)
-      ctx.fill()
-    }
-
-    if (this.visuals.line.doit) {
-      this.visuals.line.set_value(ctx)
-      ctx.stroke()
-    }
+    this.visuals.fill.apply(ctx)
+    this.visuals.hatch.apply(ctx)
+    this.visuals.line.apply(ctx)
 
     ctx.restore()
   }
@@ -87,14 +76,14 @@ export class BoxAnnotationView extends AnnotationView {
     return this.bbox.grow_by(tolerance)
   }
 
-  interactive_hit(sx: number, sy: number): boolean {
+  override interactive_hit(sx: number, sy: number): boolean {
     if (this.model.in_cursor == null)
       return false
     const bbox = this.interactive_bbox()
     return bbox.contains(sx, sy)
   }
 
-  cursor(sx: number, sy: number): string | null {
+  override cursor(sx: number, sy: number): string | null {
     const tol = 3
 
     const {left, right, bottom, top} = this.bbox
@@ -125,8 +114,6 @@ export namespace BoxAnnotation {
     ew_cursor: p.Property<string | null>
     ns_cursor: p.Property<string | null>
     in_cursor: p.Property<string | null>
-    /** @deprecated */
-    render_mode: p.Property<RenderMode>
   } & Mixins
 
   export type Mixins = mixins.Line & mixins.Fill & mixins.Hatch
@@ -137,14 +124,14 @@ export namespace BoxAnnotation {
 export interface BoxAnnotation extends BoxAnnotation.Attrs {}
 
 export class BoxAnnotation extends Annotation {
-  properties: BoxAnnotation.Props
-  __view_type__: BoxAnnotationView
+  override properties: BoxAnnotation.Props
+  override __view_type__: BoxAnnotationView
 
   constructor(attrs?: Partial<BoxAnnotation.Attrs>) {
     super(attrs)
   }
 
-  static init_BoxAnnotation(): void {
+  static {
     this.prototype.default_view = BoxAnnotationView
 
     this.mixins<BoxAnnotation.Mixins>([mixins.Line, mixins.Fill, mixins.Hatch])
@@ -158,8 +145,6 @@ export class BoxAnnotation extends Annotation {
       left_units:   [ SpatialUnits, "data" ],
       right:        [ Nullable(Number), null ],
       right_units:  [ SpatialUnits, "data" ],
-      /** @deprecated */
-      render_mode:  [ RenderMode, "canvas" ],
     }))
 
     this.internal<BoxAnnotation.Props>(({Boolean, String, Nullable}) => ({
@@ -170,9 +155,9 @@ export class BoxAnnotation extends Annotation {
     }))
 
     this.override<BoxAnnotation.Props>({
-      fill_color: '#fff9ba',
+      fill_color: "#fff9ba",
       fill_alpha: 0.4,
-      line_color: '#cccccc',
+      line_color: "#cccccc",
       line_alpha: 0.3,
     })
   }

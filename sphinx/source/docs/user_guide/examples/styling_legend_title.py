@@ -6,7 +6,7 @@ from bokeh.sampledata.stocks import AAPL, GOOG, IBM, MSFT
 
 output_file("styling_legend_title.html", title="styling_legend_title.py example")
 
-p = figure(plot_width=800, plot_height=250, x_axis_type="datetime")
+p = figure(width=800, height=250, x_axis_type="datetime")
 
 for data, name, color in zip([AAPL, IBM, MSFT, GOOG], ["AAPL", "IBM", "MSFT", "GOOG"], Spectral4):
     df = pd.DataFrame(data)

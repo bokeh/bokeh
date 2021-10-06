@@ -13,6 +13,8 @@ Mappers (as opposed to scales) are not presumed to be invertible.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -89,7 +91,7 @@ class ColorMapper(Mapper):
     Color to be used if data is NaN or otherwise not mappable.
     """)
 
-    def __init__(self, palette=None, **kwargs):
+    def __init__(self, palette=None, **kwargs) -> None:
         if palette is not None:
             kwargs['palette'] = palette
         super().__init__(**kwargs)
@@ -228,10 +230,10 @@ class LinearColorMapper(ContinuousColorMapper):
     ``['red', 'green', 'blue']``, the values would be mapped as follows::
 
              x < 0  : 'red'     # values < low are clamped
-        0 >= x < 33 : 'red'
-       33 >= x < 66 : 'green'
-       66 >= x < 99 : 'blue'
-       99 >= x      : 'blue'    # values > high are clamped
+        0 <= x < 33 : 'red'
+       33 <= x < 66 : 'green'
+       66 <= x < 99 : 'blue'
+       99 <= x      : 'blue'    # values > high are clamped
 
     '''
 
@@ -243,10 +245,10 @@ class LogColorMapper(ContinuousColorMapper):
     ``['red', 'green', 'blue']``, the values would be mapped as follows::
 
                 x < 0     : 'red'     # values < low are clamped
-       0     >= x < 2.72  : 'red'     # math.e ** 1
-       2.72  >= x < 7.39  : 'green'   # math.e ** 2
-       7.39  >= x < 20.09 : 'blue'    # math.e ** 3
-       20.09 >= x         : 'blue'    # values > high are clamped
+       0     <= x < 2.72  : 'red'     # math.e ** 1
+       2.72  <= x < 7.39  : 'green'   # math.e ** 2
+       7.39  <= x < 20.09 : 'blue'    # math.e ** 3
+       20.09 <= x         : 'blue'    # values > high are clamped
 
     .. warning::
         The ``LogColorMapper`` only works for images with scalar values that are

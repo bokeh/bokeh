@@ -6,7 +6,7 @@ import * as p from "core/properties"
 import * as buttons from "styles/buttons.css"
 
 export class RadioButtonGroupView extends ButtonGroupView {
-  model: RadioButtonGroup
+  override model: RadioButtonGroup
 
   change_active(i: number): void {
     if (this.model.active !== i) {
@@ -34,14 +34,14 @@ export namespace RadioButtonGroup {
 export interface RadioButtonGroup extends RadioButtonGroup.Attrs {}
 
 export class RadioButtonGroup extends ButtonGroup {
-  properties: RadioButtonGroup.Props
-  __view_type__: RadioButtonGroupView
+  override properties: RadioButtonGroup.Props
+  override __view_type__: RadioButtonGroupView
 
   constructor(attrs?: Partial<RadioButtonGroup.Attrs>) {
     super(attrs)
   }
 
-  static init_RadioButtonGroup(): void {
+  static {
     this.prototype.default_view = RadioButtonGroupView
 
     this.define<RadioButtonGroup.Props>(({Int, Nullable}) => ({

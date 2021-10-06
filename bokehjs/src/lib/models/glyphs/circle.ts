@@ -1,5 +1,4 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {MarkerGL} from "./webgl/markers"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
@@ -8,7 +7,7 @@ import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {range} from "core/util/array"
-import {map} from "core/util/arrayable"
+import {map, max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Range1d} from "../ranges/range1d"
@@ -28,18 +27,19 @@ export type CircleData = XYGlyphData & p.UniformsOf<Circle.Mixins> & {
 export interface CircleView extends CircleData {}
 
 export class CircleView extends XYGlyphView {
-  model: Circle
-  visuals: Circle.Visuals
+  override model: Circle
+  override visuals: Circle.Visuals
 
   /** @internal */
-  glglyph?: MarkerGL
+  override glglyph?: import("./webgl/markers").MarkerGL
 
-  initialize(): void {
-    super.initialize()
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
 
     const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl != null) {
-      this.glglyph = new MarkerGL(webgl.gl, this, "circle")
+    if (webgl?.regl_wrapper.has_webgl) {
+      const {MarkerGL} = await import("./webgl/markers")
+      this.glglyph = new MarkerGL(webgl.regl_wrapper, this, "circle")
     }
   }
 
@@ -47,7 +47,22 @@ export class CircleView extends XYGlyphView {
     return !(this.radius.is_Scalar() && isNaN(this.radius.value))
   }
 
-  protected _map_data(): void {
+  protected override _set_data(indices: number[] | null): void {
+    super._set_data(indices)
+
+    const max_size = (() => {
+      if (this.use_radius)
+        return 2*this.max_radius
+      else {
+        const {size} = this
+        return size.is_Scalar() ? size.value : max((size as p.UniformVector<number>).array)
+      }
+    })()
+
+    this._configure("max_size", {value: max_size})
+  }
+
+  protected override _map_data(): void {
     // XXX: Order is important here: size is always present (at least
     // a default), but radius is only present if a user specifies it.
     if (this.use_radius) {
@@ -74,17 +89,15 @@ export class CircleView extends XYGlyphView {
             break
           }
         }
-      } else {
+      } else
         this.sradius = to_screen(this.radius)
-        this._configure("max_size", {value: 2*this.max_radius})
-      }
     } else {
-      const ssize = new ScreenArray(this.size)
+      const ssize = ScreenArray.from(this.size)
       this.sradius = map(ssize, (s) => s/2)
     }
   }
 
-  protected _mask_data(): Indices {
+  protected override _mask_data(): Indices {
     const {frame} = this.renderer.plot_view
 
     const shr = frame.x_target
@@ -114,30 +127,19 @@ export class CircleView extends XYGlyphView {
       const sy_i = sy[i]
       const sradius_i = sradius[i]
 
-      if (isNaN(sx_i + sy_i + sradius_i))
+      if (!isFinite(sx_i + sy_i + sradius_i))
         continue
 
       ctx.beginPath()
       ctx.arc(sx_i, sy_i, sradius_i, 0, 2*Math.PI, false)
 
-      if (this.visuals.fill.doit) {
-        this.visuals.fill.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.hatch.doit) {
-        this.visuals.hatch.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.line.doit) {
-        this.visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
-      }
+      this.visuals.fill.apply(ctx, i)
+      this.visuals.hatch.apply(ctx, i)
+      this.visuals.line.apply(ctx, i)
     }
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
@@ -186,12 +188,12 @@ export class CircleView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_span(geometry: SpanGeometry): Selection {
+  protected override _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
     const bounds = this.bounds()
 
     let x0, x1, y0, y1
-    if (geometry.direction == 'h') {
+    if (geometry.direction == "h") {
       // use circle bounds instead of current pointer y coordinates
       let sx0, sx1
       y0 = bounds.y0
@@ -227,7 +229,7 @@ export class CircleView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_rect(geometry: RectGeometry): Selection {
+  protected override _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
@@ -235,7 +237,7 @@ export class CircleView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_poly(geometry: PolyGeometry): Selection {
+  protected override _hit_poly(geometry: PolyGeometry): Selection {
     const {sx, sy} = geometry
 
     // TODO (bev) use spatial index to pare candidate list
@@ -254,7 +256,7 @@ export class CircleView extends XYGlyphView {
 
   // circle does not inherit from marker (since it also accepts radius) so we
   // must supply a draw_legend for it  here
-  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
     // using objects like this seems a little wonky, since the keys are coerced to
     // stings, but it works
     const len = index + 1
@@ -290,21 +292,21 @@ export namespace Circle {
 export interface Circle extends Circle.Attrs {}
 
 export class Circle extends XYGlyph {
-  properties: Circle.Props
-  __view_type__: CircleView
+  override properties: Circle.Props
+  override __view_type__: CircleView
 
   constructor(attrs?: Partial<Circle.Attrs>) {
     super(attrs)
   }
 
-  static init_Circle(): void {
+  static {
     this.prototype.default_view = CircleView
 
     this.mixins<Circle.Mixins>([LineVector, FillVector, HatchVector])
 
     this.define<Circle.Props>(({Number}) => ({
       angle:            [ p.AngleSpec, 0 ],
-      size:             [ p.ScreenDistanceSpec, {value: 4} ],
+      size:             [ p.ScreenSizeSpec, {value: 4} ],
       radius:           [ p.NullDistanceSpec, null ],
       radius_dimension: [ RadiusDimension, "x" ],
       hit_dilation:     [ Number, 1.0 ],

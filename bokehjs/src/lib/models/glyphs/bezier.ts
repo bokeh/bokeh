@@ -99,10 +99,10 @@ export type BezierData = GlyphData & p.UniformsOf<Bezier.Mixins> & {
 export interface BezierView extends BezierData {}
 
 export class BezierView extends GlyphView {
-  model: Bezier
-  visuals: Bezier.Visuals
+  override model: Bezier
+  override visuals: Bezier.Visuals
 
-  protected _project_data(): void {
+  protected override _project_data(): void {
     inplace.project_xy(this._x0, this._y0)
     inplace.project_xy(this._x1, this._y1)
   }
@@ -120,11 +120,11 @@ export class BezierView extends GlyphView {
       const cx1_i = _cx1[i]
       const cy1_i = _cy1[i]
 
-      if (isNaN(x0_i + x1_i + y0_i + y1_i + cx0_i + cy0_i + cx1_i + cy1_i))
+      if (!isFinite(x0_i + x1_i + y0_i + y1_i + cx0_i + cy0_i + cx1_i + cy1_i))
         index.add_empty()
       else {
         const [x0, y0, x1, y1] = _cbb(x0_i, y0_i, x1_i, y1_i, cx0_i, cy0_i, cx1_i, cy1_i)
-        index.add(x0, y0, x1, y1)
+        index.add_rect(x0, y0, x1, y1)
       }
     }
   }
@@ -143,7 +143,7 @@ export class BezierView extends GlyphView {
         const scx1_i = scx1[i]
         const scy1_i = scy1[i]
 
-        if (isNaN(sx0_i + sy0_i + sx1_i + sy1_i + scx0_i + scy0_i + scx1_i + scy1_i))
+        if (!isFinite(sx0_i + sy0_i + sx1_i + sy1_i + scx0_i + scy0_i + scx1_i + scy1_i))
           continue
 
         ctx.beginPath()
@@ -156,7 +156,7 @@ export class BezierView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 
@@ -187,14 +187,14 @@ export namespace Bezier {
 export interface Bezier extends Bezier.Attrs {}
 
 export class Bezier extends Glyph {
-  properties: Bezier.Props
-  __view_type__: BezierView
+  override properties: Bezier.Props
+  override __view_type__: BezierView
 
   constructor(attrs?: Partial<Bezier.Attrs>) {
     super(attrs)
   }
 
-  static init_Bezier(): void {
+  static {
     this.prototype.default_view = BezierView
 
     this.define<Bezier.Props>(({}) => ({

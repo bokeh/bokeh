@@ -2,7 +2,7 @@ name: bkdev
 channels:
   - conda-forge
 dependencies:
-  - python>=3.6
+  - python>=3.7
 
   # build
   - setuptools
@@ -17,21 +17,16 @@ dependencies:
   - python-dateutil>=2.1
   - pyyaml>=3.10
   - tornado>=5
-  - typing_extensions>=3.7.4
+  - typing_extensions>=3.10.0
+  - xyzservices>=2021.09.1
+
 
   # docs
   - colorcet
   - pygments
-  - sphinx >=1.8
-  - sphinx-panels
-  - pip
-  - pip:
-    - sphinxext-opengraph
-    - sphinx-reredirects
 
   # tests
   - beautifulsoup4
-  - black
   - channels
   - click
   - colorama
@@ -41,9 +36,9 @@ dependencies:
   - flaky
   - geckodriver
   - ipython
-  - isort <5.0
+  - isort 5.8
   - mock
-  - mypy <=0.782
+  - mypy >=0.910
   - nbconvert >=5.4
   - networkx
   - nodejs >=14
@@ -51,7 +46,7 @@ dependencies:
   - pandas
   - psutil
   - pydot
-  - pytest 6.0*
+  - pytest 6.2*
   - pytest-asyncio >=0.12.0
   - pytest-cov >=1.8.1
   - pytest-html
@@ -59,6 +54,7 @@ dependencies:
   - requests >=1.2.3
   - selenium >=3.8
   - scipy
+  - pre-commit
 
   # examples
   - flask >=1.0
@@ -75,3 +71,23 @@ dependencies:
   #- ipywidgets >=7.5.0
   #- ipyvolume
   #- ipyleaflet
+
+  # pip dependencies
+  - pip
+  - pip:
+    # docs
+    - autoclasstoc
+    - pydata_sphinx_theme >= 0.7.1
+    - sphinx >=4.1
+    - sphinxext-opengraph
+    - sphinx-reredirects
+    - sphinx-panels
+    - sphinx-tabs
+    # tests
+    - types-boto
+    - types-colorama
+    - types-mock
+    - types-pillow
+    - types-pyyaml
+    - types-requests
+    - flake8-pyi

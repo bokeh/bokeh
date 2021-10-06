@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -15,17 +17,19 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import logging
+import weakref
 
 # External imports
 from mock import patch
 
 # Bokeh imports
-from _util_document import (
-    AnotherModelInTestDocument,
-    ModelThatOverridesName,
-    ModelWithSpecInTestDocument,
-    SomeModelInTestDocument,
+from bokeh.core.enums import HoldPolicy
+from bokeh.core.properties import (
+    Instance,
+    Int,
+    List,
+    Nullable,
+    Override,
 )
 from bokeh.document.events import (
     ColumnsPatchedEvent,
@@ -38,9 +42,18 @@ from bokeh.document.events import (
     TitleChangedEvent,
 )
 from bokeh.io.doc import curdoc
+from bokeh.model import DataModel
 from bokeh.models import ColumnDataSource
 from bokeh.protocol.messages.patch_doc import process_document_events
+from bokeh.server.contexts import BokehSessionContext
 from bokeh.util.logconfig import basicConfig
+
+from _util_document import (
+    AnotherModelInTestDocument,
+    ModelThatOverridesName,
+    ModelWithSpecInTestDocument,
+    SomeModelInTestDocument,
+)
 
 # Module under test
 import bokeh.document.document as document # isort:skip
@@ -49,125 +62,68 @@ import bokeh.document.document as document # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
+class SomeDataModel(DataModel):
+    prop0 = Int()
+    prop1 = Int(default=111)
+    prop2 = List(Int, default=[1, 2, 3])
+
+class DerivedDataModel(SomeDataModel):
+    prop3 = Int()
+    prop4 = Int(default=112)
+    prop5 = List(Int, default=[1, 2, 3, 4])
+    prop6 = Instance(SomeDataModel)
+    prop7 = Nullable(Instance(SomeDataModel))
+
+    prop2 = Override(default=119)
+
+class CDSDerivedDataModel(ColumnDataSource, DataModel):
+    prop0 = Int()
+    prop1 = Int(default=111)
+    prop2 = List(Int, default=[1, 2, 3])
+
+    data = Override(default={"default_column": [4, 5, 6]})
+
+class CDSDerivedDerivedDataModel(CDSDerivedDataModel):
+    prop3 = Instance(SomeDataModel, default=SomeDataModel())
+
+    data = Override(default={"default_column": [7, 8, 9]})
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-
 class TestDocumentHold:
-    @pytest.mark.parametrize('policy', document.HoldPolicy)
-    def test_hold(self, policy) -> None:
+    @pytest.mark.parametrize('policy', HoldPolicy)
+    @patch("bokeh.document.callbacks.DocumentCallbackManager.hold")
+    def test_hold(self, mock_hold, policy) -> None:
         d = document.Document()
-        assert d._hold == None
-        assert d._held_events == []
-
         d.hold(policy)
-        assert d._hold == policy
+        assert mock_hold.called
+        assert mock_hold.call_args[0] == (policy,)
+        assert mock_hold.call_args[1] == {}
 
-    def test_hold_bad_policy(self) -> None:
+    @patch("bokeh.document.callbacks.DocumentCallbackManager.unhold")
+    def test_unhold(self, mock_unhold) -> None:
         d = document.Document()
-        with pytest.raises(ValueError):
-            d.hold("junk")
-
-    @pytest.mark.parametrize('first,second', [('combine', 'collect'), ('collect', 'combine')])
-    def test_rehold(self, first, second, caplog) -> None:
-        d = document.Document()
-        with caplog.at_level(logging.WARN):
-            d.hold(first)
-            assert caplog.text == ""
-            assert len(caplog.records) == 0
-
-            d.hold(first)
-            assert caplog.text == ""
-            assert len(caplog.records) == 0
-
-            d.hold(second)
-            assert caplog.text.strip().endswith("hold already active with '%s', ignoring '%s'" % (first, second))
-            assert len(caplog.records) == 1
-
-            d.unhold()
-
-            d.hold(second)
-            assert len(caplog.records) == 1
-
-    @pytest.mark.parametrize('policy', document.HoldPolicy)
-    def test_unhold(self, policy) -> None:
-        d = document.Document()
-        assert d._hold == None
-        assert d._held_events == []
-
-        d.hold(policy)
-        assert d._hold == policy
         d.unhold()
-        assert d._hold == None
+        assert mock_unhold.called
+        assert mock_unhold.call_args[0] == ()
+        assert mock_unhold.call_args[1] == {}
 
-    @patch("bokeh.document.document.Document._trigger_on_change")
-    def test_unhold_triggers_events(self, mock_trigger) -> None:
-        d = document.Document()
-        d.hold('collect')
-        d._held_events = [1,2,3]
-        d.unhold()
-        assert mock_trigger.call_count == 3
-        assert mock_trigger.call_args[0] == (3,)
-        assert mock_trigger.call_args[1] == {}
-
-extra = []
-
-
-class Test_Document_delete_modules:
+class TestDocument:
     def test_basic(self) -> None:
         d = document.Document()
         assert not d.roots
-        class FakeMod:
-            __name__ = 'junkjunkjunk'
-        mod = FakeMod()
-        import sys
-        assert 'junkjunkjunk' not in sys.modules
-        sys.modules['junkjunkjunk'] = mod
-        d._modules.append(mod)
-        assert 'junkjunkjunk' in sys.modules
-        d.delete_modules()
-        assert 'junkjunkjunk' not in sys.modules
-        assert d._modules is None
-
-    def test_extra_referrer_error(self, caplog) -> None:
-        d = document.Document()
-        assert not d.roots
-        class FakeMod:
-            __name__ = 'junkjunkjunk'
-        mod = FakeMod()
-        import sys
-        assert 'junkjunkjunk' not in sys.modules
-        sys.modules['junkjunkjunk'] = mod
-        d._modules.append(mod)
-        assert 'junkjunkjunk' in sys.modules
-
-        # add an extra referrer for delete_modules to complain about
-        extra.append(mod)
-        import gc
-
-        # get_referrers behavior changed in Python 3.7, see https://github.com/bokeh/bokeh/issues/8221
-        assert len(gc.get_referrers(mod)) in (3,4)
-
-        with caplog.at_level(logging.ERROR):
-            d.delete_modules()
-            assert "Module %r has extra unexpected referrers! This could indicate a serious memory leak. Extra referrers:" % mod in caplog.text
-            assert len(caplog.records) == 1
-
-        assert 'junkjunkjunk' not in sys.modules
-        assert d._modules is None
-
-
-class TestDocument:
-    def test_empty(self) -> None:
-        d = document.Document()
-        assert not d.roots
-
-    def test_default_template_vars(self) -> None:
-        d = document.Document()
-        assert not d.roots
         assert d.template_variables == {}
+        assert d.session_context is None
+
+    def test_session_context(self) -> None:
+        d = document.Document()
+        assert d.session_context is None
+
+        sc = BokehSessionContext(None, None, d)
+        d._session_context = weakref.ref(sc)
+        assert d.session_context is sc
 
     def test_add_roots(self) -> None:
         d = document.Document()
@@ -193,7 +149,7 @@ class TestDocument:
         assert next(roots_iter) is roots[1]
         assert next(roots_iter) is roots[2]
 
-    def test_set_title(self) -> None:
+    def test_title(self) -> None:
         d = document.Document()
         assert d.title == document.DEFAULT_TITLE
         d.title = "Foo"
@@ -202,30 +158,30 @@ class TestDocument:
     def test_all_models(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d._all_models) == 0
+        assert len(d.models) == 0
         m = SomeModelInTestDocument()
         m2 = AnotherModelInTestDocument()
         m.child = m2
         d.add_root(m)
         assert len(d.roots) == 1
-        assert len(d._all_models) == 2
+        assert len(d.models) == 2
         m.child = None
-        assert len(d._all_models) == 1
+        assert len(d.models) == 1
         m.child = m2
-        assert len(d._all_models) == 2
+        assert len(d.models) == 2
         d.remove_root(m)
-        assert len(d._all_models) == 0
+        assert len(d.models) == 0
 
     def test_get_model_by_id(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d._all_models) == 0
+        assert len(d.models) == 0
         m = SomeModelInTestDocument()
         m2 = AnotherModelInTestDocument()
         m.child = m2
         d.add_root(m)
         assert len(d.roots) == 1
-        assert len(d._all_models) == 2
+        assert len(d.models) == 2
         assert d.get_model_by_id(m.id) == m
         assert d.get_model_by_id(m2.id) == m2
         assert d.get_model_by_id("not a valid ID") is None
@@ -233,14 +189,13 @@ class TestDocument:
     def test_get_model_by_name(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d._all_models) == 0
+        assert len(d.models) == 0
         m = SomeModelInTestDocument(name="foo")
         m2 = AnotherModelInTestDocument(name="bar")
         m.child = m2
         d.add_root(m)
         assert len(d.roots) == 1
-        assert len(d._all_models) == 2
-        assert len(d._all_models_by_name._dict) == 2
+        assert len(d.models) == 2
         assert d.get_model_by_name(m.name) == m
         assert d.get_model_by_name(m2.name) == m2
         assert d.get_model_by_name("not a valid name") is None
@@ -355,17 +310,10 @@ class TestDocument:
         d.set_select(AnotherModelInTestDocument, dict(name="B"))
         assert {root4} == set(d.select(dict(name="B")))
 
-    def test_is_single_string_selector(self) -> None:
-        d = document.Document()
-        # this is an implementation detail but just ensuring it works
-        assert d._is_single_string_selector(dict(foo="c"), "foo")
-        assert not d._is_single_string_selector(dict(foo="c", bar="d"), "foo")
-        assert not d._is_single_string_selector(dict(foo=42), "foo")
-
     def test_all_models_with_multiple_references(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d._all_models) == 0
+        assert len(d.models) == 0
         root1 = SomeModelInTestDocument()
         root2 = SomeModelInTestDocument()
         child1 = AnotherModelInTestDocument()
@@ -374,24 +322,24 @@ class TestDocument:
         d.add_root(root1)
         d.add_root(root2)
         assert len(d.roots) == 2
-        assert len(d._all_models) == 3
+        assert len(d.models) == 3
         root1.child = None
-        assert len(d._all_models) == 3
+        assert len(d.models) == 3
         root2.child = None
-        assert len(d._all_models) == 2
+        assert len(d.models) == 2
         root1.child = child1
-        assert len(d._all_models) == 3
+        assert len(d.models) == 3
         root2.child = child1
-        assert len(d._all_models) == 3
+        assert len(d.models) == 3
         d.remove_root(root1)
-        assert len(d._all_models) == 2
+        assert len(d.models) == 2
         d.remove_root(root2)
-        assert len(d._all_models) == 0
+        assert len(d.models) == 0
 
     def test_all_models_with_cycles(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d._all_models) == 0
+        assert len(d.models) == 0
         root1 = SomeModelInTestDocument()
         root2 = SomeModelInTestDocument()
         child1 = SomeModelInTestDocument()
@@ -403,23 +351,23 @@ class TestDocument:
         print("adding root2")
         d.add_root(root2)
         assert len(d.roots) == 2
-        assert len(d._all_models) == 3
+        assert len(d.models) == 3
         print("clearing child of root1")
         root1.child = None
-        assert len(d._all_models) == 3
+        assert len(d.models) == 3
         print("clearing child of root2")
         root2.child = None
-        assert len(d._all_models) == 2
+        assert len(d.models) == 2
         print("putting child1 back in root1")
         root1.child = child1
-        assert len(d._all_models) == 3
+        assert len(d.models) == 3
 
         print("Removing root1")
         d.remove_root(root1)
-        assert len(d._all_models) == 1
+        assert len(d.models) == 1
         print("Removing root2")
         d.remove_root(root2)
-        assert len(d._all_models) == 0
+        assert len(d.models) == 0
 
     def test_change_notification(self) -> None:
         d = document.Document()
@@ -728,13 +676,13 @@ class TestDocument:
         assert d.title == "Foo"
         d.clear()
         assert not d.roots
-        assert not d._all_models
+        assert len(d.models) == 0
         assert d.title == "Foo" # do not reset title
 
     def test_serialization_one_model(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d._all_models) == 0
+        assert len(d.models) == 0
         root1 = SomeModelInTestDocument()
         d.add_root(root1)
         d.title = "Foo"
@@ -748,7 +696,7 @@ class TestDocument:
     def test_serialization_more_models(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d._all_models) == 0
+        assert len(d.models) == 0
         root1 = SomeModelInTestDocument(foo=42)
         root2 = SomeModelInTestDocument(foo=43)
         child1 = SomeModelInTestDocument(foo=44)
@@ -771,6 +719,73 @@ class TestDocument:
         some_root = next(iter(copy.roots))
         assert some_root.child.foo == 44
 
+    def test_serialization_data_models(self) -> None:
+        #obj0 = SomeDataModel()
+        #obj1 = DerivedDataModel(prop6=obj0)
+        #obj2 = CDSDerivedDataModel()
+        #obj3 = CDSDerivedDerivedDataModel()
+
+        doc = document.Document()
+        #doc.add_root(obj0)
+        #doc.add_root(obj1)
+        #doc.add_root(obj2)
+        #doc.add_root(obj3)
+
+        json = doc.to_json()
+        assert json["defs"] == [
+            dict(
+                extends=dict(name="Model", module=None),
+                module="test_document",
+                name="SomeDataModel",
+                overrides=[],
+                properties=[
+                    dict(default=0, kind="Any", name="prop0"),
+                    dict(default=111, kind="Any", name="prop1"),
+                    dict(default=[1, 2, 3], kind="Any", name="prop2"),
+                ],
+            ),
+            dict(
+                extends=dict(module="test_document", name="SomeDataModel"),
+                module="test_document",
+                name="DerivedDataModel",
+                overrides=[
+                    dict(default=119, name="prop2"),
+                ],
+                properties=[
+                    dict(default=0, kind="Any", name="prop3"),
+                    dict(default=112, kind="Any", name="prop4"),
+                    dict(default=[1, 2, 3, 4], kind="Any", name="prop5"),
+                    dict(kind="Any", name="prop6"),
+                    dict(default=None, kind="Any", name="prop7"),
+                ],
+            ),
+            dict(
+                extends=dict(name="ColumnDataSource", module=None),
+                module="test_document",
+                name="CDSDerivedDataModel",
+                overrides=[
+                    dict(default={"default_column": [4, 5, 6]}, name="data"),
+                ],
+                properties=[
+                    dict(default=0, kind="Any", name="prop0"),
+                    dict(default=111, kind="Any", name="prop1"),
+                    dict(default=[1, 2, 3], kind="Any", name="prop2"),
+                ],
+            ),
+            dict(
+                extends=dict(name="CDSDerivedDataModel", module="test_document"),
+                module="test_document",
+                name="CDSDerivedDerivedDataModel",
+                overrides=[
+                    dict(default={"default_column": [7, 8, 9]}, name="data"),
+                ],
+                properties=[
+                    dict(default=CDSDerivedDerivedDataModel.prop3.property._default.ref, kind="Any", name="prop3"),
+                ],
+            ),
+        ]
+        # TODO: assert json["roots"]["references"] == ...
+
     def test_serialization_has_version(self) -> None:
         from bokeh import __version__
         d = document.Document()
@@ -780,7 +795,7 @@ class TestDocument:
     def test_patch_integer_property(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d._all_models) == 0
+        assert len(d.models) == 0
         root1 = SomeModelInTestDocument(foo=42)
         root2 = SomeModelInTestDocument(foo=43)
         child1 = SomeModelInTestDocument(foo=44)
@@ -805,7 +820,7 @@ class TestDocument:
     def test_patch_spec_property(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d._all_models) == 0
+        assert len(d.models) == 0
         root1 = ModelWithSpecInTestDocument(foo=42)
         d.add_root(root1)
         assert len(d.roots) == 1
@@ -856,7 +871,7 @@ class TestDocument:
     def test_patch_reference_property(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d._all_models) == 0
+        assert len(d.models) == 0
         root1 = SomeModelInTestDocument(foo=42)
         root2 = SomeModelInTestDocument(foo=43)
         child1 = SomeModelInTestDocument(foo=44)
@@ -868,9 +883,9 @@ class TestDocument:
         d.add_root(root2)
         assert len(d.roots) == 2
 
-        assert child1.id in d._all_models
-        assert child2.id not in d._all_models
-        assert child3.id not in d._all_models
+        assert child1.id in d.models
+        assert child2.id not in d.models
+        assert child3.id not in d.models
 
         event1 = ModelChangedEvent(d, root1, 'child', root1.child, child3, child3)
         patch1, buffers = process_document_events([event1])
@@ -878,9 +893,9 @@ class TestDocument:
 
         assert root1.child.id == child3.id
         assert root1.child.child.id == child2.id
-        assert child1.id in d._all_models
-        assert child2.id in d._all_models
-        assert child3.id in d._all_models
+        assert child1.id in d.models
+        assert child2.id in d.models
+        assert child3.id in d.models
 
         # put it back how it was before
         event2 = ModelChangedEvent(d, root1, 'child', root1.child, child1, child1)
@@ -890,14 +905,14 @@ class TestDocument:
         assert root1.child.id == child1.id
         assert root1.child.child is None
 
-        assert child1.id in d._all_models
-        assert child2.id not in d._all_models
-        assert child3.id not in d._all_models
+        assert child1.id in d.models
+        assert child2.id not in d.models
+        assert child3.id not in d.models
 
     def test_patch_two_properties_at_once(self) -> None:
         d = document.Document()
         assert not d.roots
-        assert len(d._all_models) == 0
+        assert len(d.models) == 0
         root1 = SomeModelInTestDocument(foo=42)
         child1 = SomeModelInTestDocument(foo=43)
         root1.child = child1
@@ -919,13 +934,14 @@ class TestDocument:
 
     # a more realistic set of models instead of fake models
     def test_scatter(self) -> None:
+        import numpy as np
+
         from bokeh.io.doc import set_curdoc
         from bokeh.plotting import figure
-        import numpy as np
         d = document.Document()
         set_curdoc(d)
         assert not d.roots
-        assert len(d._all_models) == 0
+        assert len(d.models) == 0
         p1 = figure(tools=[])
         N = 10
         x = np.linspace(0, 4 * np.pi, N)
@@ -951,9 +967,9 @@ class TestDocument:
 
         event_json = {"event_name": "button_click", "event_values": {"model": {"id": button1.id}}}
         try:
-            d.apply_json_event(event_json)
+            d.callbacks.trigger_json_event(event_json)
         except RuntimeError:
-            pytest.fail("apply_json_event probably did not copy models before modifying")
+            pytest.fail("trigger_event probably did not copy models before modifying")
 
     # TODO test serialize/deserialize with list-and-dict-valued properties
 

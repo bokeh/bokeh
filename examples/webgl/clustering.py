@@ -44,12 +44,12 @@ for dataset in (noisy_circles, noisy_moons, blobs1, blobs2):
     # predict cluster memberships
     algorithm.fit(X)
     if hasattr(algorithm, 'labels_'):
-        y_pred = algorithm.labels_.astype(np.int)
+        y_pred = algorithm.labels_.astype(int)
     else:
         y_pred = algorithm.predict(X)
 
     p = figure(output_backend="webgl", title=algorithm.__class__.__name__,
-               plot_width=PLOT_SIZE, plot_height=PLOT_SIZE)
+               width=PLOT_SIZE, height=PLOT_SIZE)
 
     p.circle(X[:, 0], X[:, 1], color=colors[y_pred].tolist(), alpha=0.1,)
 

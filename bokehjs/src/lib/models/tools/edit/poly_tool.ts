@@ -12,7 +12,7 @@ export interface HasPolyGlyph {
 }
 
 export abstract class PolyToolView extends EditToolView {
-  model: PolyTool
+  override model: PolyTool
 
   _set_vertices(xs: number[] | number, ys: number[] | number): void {
     const point_glyph: any = this.model.vertex_renderer.glyph
@@ -70,16 +70,16 @@ export namespace PolyTool {
 export interface PolyTool extends PolyTool.Attrs {}
 
 export abstract class PolyTool extends EditTool {
-  properties: PolyTool.Props
-  __view_type__: PolyToolView
+  override properties: PolyTool.Props
+  override __view_type__: PolyToolView
 
-  renderers: (GlyphRenderer & HasPolyGlyph)[]
+  override renderers: (GlyphRenderer & HasPolyGlyph)[]
 
   constructor(attrs?: Partial<PolyTool.Attrs>) {
     super(attrs)
   }
 
-  static init_PolyTool(): void {
+  static {
     this.define<PolyTool.Props>(({AnyRef}) => ({
       vertex_renderer: [ AnyRef<GlyphRenderer & HasXYGlyph>() ],
     }))

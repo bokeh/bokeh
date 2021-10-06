@@ -11,7 +11,7 @@ export class Hatch extends VisualProperties {
   protected _hatch_image: CanvasImageSource | null
   protected _update_iteration: number = 0
 
-  update(): void {
+  override update(): void {
     this._update_iteration++
     this._hatch_image = null
 
@@ -56,6 +56,15 @@ export class Hatch extends VisualProperties {
     const pattern = this.hatch_pattern.get_value()
 
     return !(color == null || alpha == 0 || pattern == " " || pattern == "blank" || pattern == null)
+  }
+
+  apply(ctx: Context2d, rule?: CanvasFillRule): boolean {
+    const {doit} = this
+    if (doit) {
+      this.set_value(ctx)
+      ctx.layer.undo_transform(() => ctx.fill(rule))
+    }
+    return doit
   }
 
   set_value(ctx: Context2d): void {
@@ -109,7 +118,7 @@ export class HatchScalar extends VisualUniforms {
 
   protected _update_iteration: number = 0
 
-  update(): void {
+  override update(): void {
     this._update_iteration++
 
     const n = this.hatch_color.length
@@ -153,6 +162,15 @@ export class HatchScalar extends VisualUniforms {
 
   get doit(): boolean {
     return this._static_doit
+  }
+
+  apply(ctx: Context2d, rule?: CanvasFillRule): boolean {
+    const {doit} = this
+    if (doit) {
+      this.set_value(ctx)
+      ctx.layer.undo_transform(() => ctx.fill(rule))
+    }
+    return doit
   }
 
   set_value(ctx: Context2d): void {
@@ -213,7 +231,7 @@ export class HatchVector extends VisualUniforms {
 
   protected _update_iteration: number = 0
 
-  update(): void {
+  override update(): void {
     this._update_iteration++
 
     const n = this.hatch_color.length
@@ -284,6 +302,15 @@ export class HatchVector extends VisualUniforms {
 
   get doit(): boolean {
     return this._static_doit
+  }
+
+  apply(ctx: Context2d, i: number, rule?: CanvasFillRule): boolean {
+    const {doit} = this
+    if (doit) {
+      this.set_vectorize(ctx, i)
+      ctx.layer.undo_transform(() => ctx.fill(rule))
+    }
+    return doit
   }
 
   set_vectorize(ctx: Context2d, i: number): void {

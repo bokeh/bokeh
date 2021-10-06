@@ -18,6 +18,8 @@ All these glyphs share a minimal common interface through their base class
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -30,7 +32,10 @@ from inspect import Parameter
 
 # Bokeh imports
 from ..core.has_props import abstract
+from ..core.properties import Instance, List
+from ..core.property._sphinx import type_link
 from ..model import Model
+from .graphics import Decoration
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -51,6 +56,18 @@ class Glyph(Model):
     ''' Base class for all glyph models.
 
     '''
+
+    decorations = List(Instance(Decoration), default=[], help="""
+    A collection of glyph decorations, e.g. arrow heads.
+
+    Use ``GlyphRenderer.add_decoration()`` for easy setup for all glyphs
+    of a glyph renderer. Use this property when finer control is needed.
+
+    .. note::
+
+        Decorations are only for aiding visual appearance of a glyph,
+        but they don't participate in hit testing, etc.
+    """)
 
     # a canonical order for positional args that can be
     # used for any functions derived from this class
@@ -75,13 +92,24 @@ class Glyph(Model):
             default = descriptor.class_default(cls)
             if default is None:
                 no_more_defaults = True
+
+            # simplify field(x) defaults to just present the column name
+            if isinstance(default, dict) and set(default) == {"field"}:
+                default = default["field"]
+
+            # make sure we don't hold on to references to actual Models
+            if isinstance(default, Model):
+                default = _ModelRepr(default)
+
             param = Parameter(
                 name=arg,
                 kind=Parameter.POSITIONAL_OR_KEYWORD,
                 # For positional arg properties, default=None means no default.
                 default=Parameter.empty if no_more_defaults else default
             )
-            typ = descriptor.property._sphinx_type()
+            if default:
+                del default
+            typ = type_link(descriptor.property)
             arg_params.insert(0, (param, typ, descriptor.__doc__))
 
         # these are not really useful, and should also really be private, just skip them
@@ -89,15 +117,26 @@ class Glyph(Model):
 
         kwarg_params = []
 
-        kws = cls.properties() - set(cls._args) - omissions
+        kws = set(cls.properties()) - set(cls._args) - omissions
         for kw in kws:
             descriptor = cls.lookup(kw)
+            default=descriptor.class_default(cls)
+
+            # simplify field(x) defaults to just present the column name
+            if isinstance(default, dict) and set(default) == {"field"}:
+                default = default["field"]
+
+            # make sure we don't hold on to references to actual Models
+            if isinstance(default, Model):
+                default = _ModelRepr(default)
+
             param = Parameter(
                 name=kw,
                 kind=Parameter.KEYWORD_ONLY,
-                default=descriptor.class_default(cls)
+                default=default
             )
-            typ = descriptor.property._sphinx_type()
+            del default
+            typ = type_link(descriptor.property)
             kwarg_params.append((param, typ, descriptor.__doc__))
 
         for kw, (typ, doc) in cls._extra_kws.items():
@@ -151,6 +190,15 @@ class HatchGlyph(Glyph):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+class _ModelRepr:
+    ''' This proxy is for storing reprs of Bokeh models that are property
+    defaults, so that holding references to those Models may be avoided.
+    '''
+    def __init__(self, model: Model) -> None:
+        self. _repr = repr(model)
+    def __repr__(self) -> str:
+        return self._repr
 
 #-----------------------------------------------------------------------------
 # Code

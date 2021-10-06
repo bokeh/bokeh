@@ -51,6 +51,8 @@ Will generate the output:
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging  # isort:skip
 
 log = logging.getLogger(__name__)
@@ -64,6 +66,7 @@ from docutils import nodes
 from sphinx.errors import SphinxError
 
 # Bokeh imports
+from . import PARALLEL_SAFE
 from .templates import PALETTE_DETAIL
 
 # -----------------------------------------------------------------------------
@@ -89,7 +92,7 @@ def bokeh_palette(name, rawtext, text, lineno, inliner, options=None, content=No
 
     This function evaluates the expression ``f"palette = {text}"``, in the
     context of a ``globals`` namespace that has previously imported all of
-    ``bokeh.plotting``. The resulting value for ``palette`` is used to
+    |bokeh.plotting|. The resulting value for ``palette`` is used to
     construct a sequence of HTML ``<span>`` elements for each color.
 
     If evaluating the palette expression fails or does not produce a list or
@@ -117,6 +120,7 @@ def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_role("bokeh-palette", bokeh_palette)
 
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

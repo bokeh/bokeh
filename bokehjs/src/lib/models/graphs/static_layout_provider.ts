@@ -14,13 +14,13 @@ export namespace StaticLayoutProvider {
 export interface StaticLayoutProvider extends StaticLayoutProvider.Attrs {}
 
 export class StaticLayoutProvider extends LayoutProvider {
-  properties: StaticLayoutProvider.Props
+  override properties: StaticLayoutProvider.Props
 
   constructor(attrs?: Partial<StaticLayoutProvider.Attrs>) {
     super(attrs)
   }
 
-  static init_StaticLayoutProvider(): void {
+  static {
     this.define<StaticLayoutProvider.Props>(({Number, Tuple, Dict}) => ({
       graph_layout: [ Dict(Tuple(Number, Number)), {} ],
     }))

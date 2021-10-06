@@ -8,6 +8,7 @@
 pytest_plugins = (
     "bokeh._testing.plugins.ipython",
     "bokeh._testing.plugins.managed_server_loop",
+    "bokeh._testing.plugins.networkx",
     "bokeh._testing.plugins.pandas",
 )
 

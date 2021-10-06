@@ -1,6 +1,6 @@
 import * as p from "core/properties"
 import {View} from "core/view"
-import {Dimensions} from "core/enums"
+import {Dimensions, ToolIcon} from "core/enums"
 import {min, max} from "core/util/array"
 import {Model} from "../../model"
 import {Renderer} from "../renderers/renderer"
@@ -62,9 +62,9 @@ export type ToolAliases = {
 }
 
 export abstract class ToolView extends View {
-  model: Tool
+  override model: Tool
 
-  readonly parent: PlotView
+  override readonly parent: PlotView
 
   get plot_view(): PlotView {
     return this.parent
@@ -74,7 +74,7 @@ export abstract class ToolView extends View {
     return this.parent.model
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.active.change, () => {
       if (this.model.active)
@@ -121,6 +121,7 @@ export namespace Tool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
+    icon: p.Property<ToolIcon | string | null>
     description: p.Property<string | null>
     active: p.Property<boolean>
   }
@@ -131,17 +132,18 @@ export interface Tool extends Tool.Attrs {
 }
 
 export abstract class Tool extends Model {
-  properties: Tool.Props
-  __view_type__: ToolView
+  override properties: Tool.Props
+  override __view_type__: ToolView
 
   constructor(attrs?: Partial<Tool.Attrs>) {
     super(attrs)
   }
 
-  static init_Tool(): void {
+  static {
     this.prototype._known_aliases = new Map()
 
-    this.define<Tool.Props>(({String, Nullable}) => ({
+    this.define<Tool.Props>(({String, Regex, Nullable, Or}) => ({
+      icon: [ Nullable(Or(ToolIcon, Regex(/^\./), Regex(/^data:image/))), null ],
       description: [ Nullable(String), null ],
     }))
 
@@ -163,7 +165,7 @@ export abstract class Tool extends Model {
 
     const hr = frame.bbox.h_range
     let sxlim: [number, number]
-    if (dims == 'width' || dims == 'both') {
+    if (dims == "width" || dims == "both") {
       sxlim = [min([sx0, sx1]),           max([sx0, sx1])]
       sxlim = [max([sxlim[0], hr.start]), min([sxlim[1], hr.end])]
     } else
@@ -171,7 +173,7 @@ export abstract class Tool extends Model {
 
     const vr = frame.bbox.v_range
     let sylim: [number, number]
-    if (dims == 'height' || dims == 'both') {
+    if (dims == "height" || dims == "both") {
       sylim = [min([sy0, sy1]),           max([sy0, sy1])]
       sylim = [max([sylim[0], vr.start]), min([sylim[1], vr.end])]
     } else

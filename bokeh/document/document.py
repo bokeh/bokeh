@@ -24,6 +24,8 @@ figure below:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -32,44 +34,64 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import sys
-from collections import defaultdict
-from functools import wraps
-from inspect import isclass
+import gc
+import weakref
 from json import loads
-from typing import Any, Callable, Dict, List
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterable,
+    List,
+    Set,
+    Type,
+)
 
 # External imports
-import jinja2
+from jinja2 import Template
 
 # Bokeh imports
-from ..core.enums import HoldPolicy
+from ..core.enums import HoldPolicyType
 from ..core.has_props import is_DataModel
 from ..core.json_encoder import serialize_json
-from ..core.query import find
+from ..core.query import find, is_single_string_selector
 from ..core.templates import FILE
-from ..core.validation import check_integrity
-from ..events import _CONCRETE_EVENT_CLASSES, DocumentEvent, Event
+from ..core.types import ID, Unknown
+from ..core.validation import check_integrity, process_validation_issues
+from ..events import Event
 from ..model import Model
-from ..themes import Theme, built_in_themes
-from ..themes import default as default_theme
-from ..util.callback_manager import _check_callback
-from ..util.datatypes import MultiValuedDict
+from ..themes import Theme, built_in_themes, default as default_theme
+from ..util.serialization import make_id
+from ..util.string import nice_join
 from ..util.version import __version__
+from .callbacks import (
+    Callback,
+    DocumentCallbackManager,
+    EventCallback,
+    MessageCallback,
+)
 from .events import (
-    ModelChangedEvent,
+    DocumentPatchedEvent,
     RootAddedEvent,
     RootRemovedEvent,
-    SessionCallbackAdded,
-    SessionCallbackRemoved,
     TitleChangedEvent,
 )
-from .locking import UnlockedDocumentProxy
-from .util import (
-    initialize_references_json,
-    instantiate_references_json,
-    references_json,
-)
+from .json import DocJson, PatchJson, RootsJson
+from .models import DocumentModelManager
+from .modules import DocumentModuleManager
+from .util import initialize_references_json, instantiate_references_json, references_json
+
+if TYPE_CHECKING:
+    from ..application.application import SessionContext, SessionDestroyedCallback
+    from ..core.has_props import Setter
+    from ..core.query import SelectorType
+    from ..server.callbacks import (
+        NextTickCallback,
+        PeriodicCallback,
+        SessionCallback,
+        TimeoutCallback,
+    )
+    from .events import DocumentChangeCallback
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -99,88 +121,83 @@ class Document:
     models to JSON. Accordingly,  the ``Document`` is thus the smallest unit
     of serialization for Bokeh.
 
+    .. autoclasstoc::
+
     '''
 
-    _message_callbacks: Dict[str, List[Callable[[Any], None]]]
+    callbacks: DocumentCallbackManager
+    models: DocumentModelManager
+    modules: DocumentModuleManager
 
-    def __init__(self, **kwargs):
-        self._roots = list()
-        self._theme = kwargs.pop('theme', default_theme)
-        # use _title directly because we don't need to trigger an event
-        self._title = kwargs.pop('title', DEFAULT_TITLE)
+    _roots: List[Model]
+    _theme: Theme
+    _title: str
+    _template: Template
+    _session_context: weakref.ReferenceType[SessionContext] | None
+    _template_variables: Dict[str, Unknown]
+
+    def __init__(self, *, theme: Theme = default_theme, title: str = DEFAULT_TITLE) -> None:
+        self.callbacks = DocumentCallbackManager(self)
+        self.models = DocumentModelManager(self)
+        self.modules = DocumentModuleManager(self)
+
+        self._roots = []
         self._template = FILE
-        self._all_models_freeze_count = 0
-        self._all_models = dict()
-        self._all_models_by_name = MultiValuedDict()
-        self._all_former_model_ids = set()
-        self._callbacks = {}
-        self._event_callbacks = {}
-        self._message_callbacks = {}
-        self._session_destroyed_callbacks = set()
-        self._session_callbacks = set()
-        self._session_context = None
-        self._modules = []
         self._template_variables = {}
-        self._hold = None
-        self._held_events = []
+        self._theme = theme
+        self._title = title # avoid triggering title event
 
-        # set of models subscribed to user events
-        self._subscribed_models = defaultdict(set)
-        self.on_message("bokeh_event", self.apply_json_event)
-
-        self._callback_objs_by_callable = {self.add_next_tick_callback: defaultdict(set),
-                                           self.add_periodic_callback: defaultdict(set),
-                                           self.add_timeout_callback: defaultdict(set)}
+        self._session_context = None
 
     # Properties --------------------------------------------------------------
 
     @property
-    def roots(self):
+    def roots(self) -> List[Model]:
         ''' A list of all the root models in this Document.
 
         '''
         return list(self._roots)
 
     @property
-    def session_callbacks(self):
-        ''' A list of all the session callbacks on this document.
+    def session_callbacks(self) -> List[SessionCallback]:
+        ''' A list of all the session callbacks for this document.
 
         '''
-        return list(self._session_callbacks)
+        return self.callbacks.session_callbacks
 
     @property
-    def session_destroyed_callbacks(self):
-        ''' A list of all the on_session_destroyed callbacks on this document.
+    def session_destroyed_callbacks(self) -> Set[SessionDestroyedCallback]:
+        ''' A list of all the on_session_destroyed callbacks for this document.
 
         '''
-        return self._session_destroyed_callbacks
+        return self.callbacks.session_destroyed_callbacks
 
     @session_destroyed_callbacks.setter
-    def session_destroyed_callbacks(self, callbacks):
-        self._session_destroyed_callbacks = callbacks
+    def session_destroyed_callbacks(self, callbacks: Set[SessionDestroyedCallback]) -> None:
+        self.callbacks.session_destroyed_callbacks = callbacks
 
     @property
-    def session_context(self):
+    def session_context(self) -> SessionContext | None:
         ''' The ``SessionContext`` for this document.
 
         '''
-        return self._session_context
+        return self._session_context() if self._session_context is not None else None
 
     @property
-    def template(self):
+    def template(self) -> Template:
         ''' A Jinja2 template to use for rendering this document.
 
         '''
         return self._template
 
     @template.setter
-    def template(self, template):
-        if not isinstance(template, (jinja2.Template, str)):
+    def template(self, template: Template) -> None:
+        if not isinstance(template, (Template, str)):
             raise ValueError("document template must be Jinja2 template or a string")
         self._template = template
 
     @property
-    def template_variables(self):
+    def template_variables(self) -> Dict[str, Unknown]:
         ''' A dictionary of template variables to pass when rendering
         ``self.template``.
 
@@ -188,7 +205,7 @@ class Document:
         return self._template_variables
 
     @property
-    def theme(self):
+    def theme(self) -> Theme:
         ''' The current ``Theme`` instance affecting models in this Document.
 
         Setting this to ``None`` sets the default theme. (i.e this property
@@ -201,31 +218,28 @@ class Document:
         return self._theme
 
     @theme.setter
-    def theme(self, theme):
-        if theme is None:
-            theme = default_theme
+    def theme(self, theme: Theme | str | None) -> None:
+        theme = default_theme if theme is None else theme
+
+        if isinstance(theme, str):
+            try:
+                theme = built_in_themes[theme]
+            except:
+                raise ValueError(f"{theme} is not a built-in theme; available themes are {nice_join(built_in_themes)}")
+
+        if not isinstance(theme, Theme):
+            raise ValueError("Theme must be a string or an instance of the Theme class")
 
         if self._theme is theme:
             return
 
-        if isinstance(theme, str):
-            try:
-                self._theme = built_in_themes[theme]
-            except KeyError:
-                raise ValueError(
-                    "{0} is not a built-in theme; available themes are "
-                    "{1}".format(theme, ', '.join(built_in_themes.keys()))
-                )
-        elif isinstance(theme, Theme):
-            self._theme = theme
-        else:
-            raise ValueError("Theme must be a string or an instance of the Theme class")
+        self._theme = theme
 
-        for model in self._all_models.values():
+        for model in self.models:
             self._theme.apply_to_model(model)
 
     @property
-    def title(self):
+    def title(self) -> str:
         ''' A title for this document.
 
         This title will be set on standalone HTML documents, but not e.g. when
@@ -235,12 +249,12 @@ class Document:
         return self._title
 
     @title.setter
-    def title(self, title):
-        self._set_title(title)
+    def title(self, title: str) -> None:
+        self.set_title(title)
 
     # Public methods ----------------------------------------------------------
 
-    def add_next_tick_callback(self, callback):
+    def add_next_tick_callback(self, callback: Callback) -> NextTickCallback:
         ''' Add callback to be invoked once on the next tick of the event loop.
 
         Args:
@@ -257,10 +271,10 @@ class Document:
 
         '''
         from ..server.callbacks import NextTickCallback
-        cb = NextTickCallback(self, None)
-        return self._add_session_callback(cb, callback, one_shot=True, originator=self.add_next_tick_callback)
+        cb = NextTickCallback(callback=None, callback_id=make_id())
+        return self.callbacks.add_session_callback(cb, callback, one_shot=True)
 
-    def add_periodic_callback(self, callback, period_milliseconds):
+    def add_periodic_callback(self, callback: Callback, period_milliseconds: int) -> PeriodicCallback:
         ''' Add a callback to be invoked on a session periodically.
 
         Args:
@@ -280,12 +294,10 @@ class Document:
 
         '''
         from ..server.callbacks import PeriodicCallback
-        cb = PeriodicCallback(self,
-                              None,
-                              period_milliseconds)
-        return self._add_session_callback(cb, callback, one_shot=False, originator=self.add_periodic_callback)
+        cb = PeriodicCallback(callback=None, period=period_milliseconds, callback_id=make_id())
+        return self.callbacks.add_session_callback(cb, callback, one_shot=False)
 
-    def add_root(self, model, setter=None):
+    def add_root(self, model: Model, setter: Setter | None = None) -> None:
         ''' Add a model as a root of this Document.
 
         Any changes to this model (including to other models referred to
@@ -310,18 +322,13 @@ class Document:
         '''
         if model in self._roots:
             return
-        self._push_all_models_freeze()
-        # TODO (bird) Should we do some kind of reporting of how many
-        # LayoutDOM's are in the document roots? In vanilla bokeh cases e.g.
-        # output_file more than one LayoutDOM is probably not going to go
-        # well. But in embedded cases, you may well want more than one.
-        try:
-            self._roots.append(model)
-        finally:
-            self._pop_all_models_freeze()
-        self._trigger_on_change(RootAddedEvent(self, model, setter))
 
-    def add_timeout_callback(self, callback, timeout_milliseconds):
+        with self.models.freeze():
+            self._roots.append(model)
+
+        self.callbacks.trigger_on_change(RootAddedEvent(self, model, setter))
+
+    def add_timeout_callback(self, callback: Callback, timeout_milliseconds: int) -> TimeoutCallback:
         ''' Add callback to be invoked once, after a specified timeout passes.
 
         Args:
@@ -341,24 +348,10 @@ class Document:
 
         '''
         from ..server.callbacks import TimeoutCallback
-        cb = TimeoutCallback(self,
-                             None,
-                             timeout_milliseconds)
-        return self._add_session_callback(cb, callback, one_shot=True, originator=self.add_timeout_callback)
+        cb = TimeoutCallback(callback=None, timeout=timeout_milliseconds, callback_id=make_id())
+        return self.callbacks.add_session_callback(cb, callback, one_shot=True)
 
-    def apply_json_event(self, json):
-        event = Event.decode_json(json)
-        if not isinstance(event, Event):
-            log.warning('Could not decode event json: %s' % json)
-        else:
-            subscribed = self._subscribed_models[event.event_name].copy()
-            for model in subscribed:
-                model._trigger_event(event)
-
-        for cb in self._event_callbacks.get(event.event_name, []):
-            cb(event)
-
-    def apply_json_patch(self, patch, setter=None):
+    def apply_json_patch(self, patch: PatchJson, setter: Setter | None = None) -> None:
         ''' Apply a JSON patch object and process any resulting events.
 
         Args:
@@ -382,76 +375,21 @@ class Document:
         '''
         references_json = patch['references']
         events_json = patch['events']
-        references = instantiate_references_json(references_json, self._all_models)
+        references = instantiate_references_json(references_json, self.models)
 
         # The model being changed isn't always in references so add it in
         for event_json in events_json:
             if 'model' in event_json:
                 model_id = event_json['model']['id']
-                if model_id in self._all_models:
-                    references[model_id] = self._all_models[model_id]
+                if model_id in self.models:
+                    references[model_id] = self.models[model_id]
 
         initialize_references_json(references_json, references, setter)
 
         for event_json in events_json:
-            if event_json['kind'] == 'MessageSent':
-                self._trigger_on_message(event_json["msg_type"], event_json["msg_data"])
+            DocumentPatchedEvent.handle_json(self, event_json, references, setter)
 
-            elif event_json['kind'] == 'ModelChanged':
-                patched_id = event_json['model']['id']
-                if patched_id not in self._all_models:
-                    if patched_id not in self._all_former_model_ids:
-                        raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(patched_id)))
-                    else:
-                        log.debug("Cannot apply patch to %s which is not in the document anymore. This is usually harmless" % (str(patched_id)))
-                        break
-                patched_obj = self._all_models[patched_id]
-                attr = event_json['attr']
-                value = event_json['new']
-                patched_obj.set_from_json(attr, value, models=references, setter=setter)
-
-            elif event_json['kind'] == 'ColumnDataChanged':
-                source_id = event_json['column_source']['id']
-                if source_id not in self._all_models:
-                    raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(source_id)))
-                source = self._all_models[source_id]
-                value = event_json['new']
-                source.set_from_json('data', value, models=references, setter=setter)
-
-            elif event_json['kind'] == 'ColumnsStreamed':
-                source_id = event_json['column_source']['id']
-                if source_id not in self._all_models:
-                    raise RuntimeError("Cannot stream to %s which is not in the document" % (str(source_id)))
-                source = self._all_models[source_id]
-                data = event_json['data']
-                rollover = event_json.get('rollover', None)
-                source._stream(data, rollover, setter)
-
-            elif event_json['kind'] == 'ColumnsPatched':
-                source_id = event_json['column_source']['id']
-                if source_id not in self._all_models:
-                    raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(source_id)))
-                source = self._all_models[source_id]
-                patches = event_json['patches']
-                source.patch(patches, setter)
-
-            elif event_json['kind'] == 'RootAdded':
-                root_id = event_json['model']['id']
-                root_obj = references[root_id]
-                self.add_root(root_obj, setter)
-
-            elif event_json['kind'] == 'RootRemoved':
-                root_id = event_json['model']['id']
-                root_obj = references[root_id]
-                self.remove_root(root_obj, setter)
-
-            elif event_json['kind'] == 'TitleChanged':
-                self._set_title(event_json['title'], setter)
-
-            else:
-                raise RuntimeError("Unknown patch event " + repr(event_json))
-
-    def apply_json_patch_string(self, patch):
+    def apply_json_patch_string(self, patch: str) -> None:
         ''' Apply a JSON patch provided as a string.
 
         Args:
@@ -464,82 +402,35 @@ class Document:
         json_parsed = loads(patch)
         self.apply_json_patch(json_parsed)
 
-    def clear(self):
+    def clear(self) -> None:
         ''' Remove all content from the document but do not reset title.
 
         Returns:
             None
 
         '''
-        self._push_all_models_freeze()
-        try:
+        with self.models.freeze():
             while len(self._roots) > 0:
                 r = next(iter(self._roots))
                 self.remove_root(r)
-        finally:
-            self._pop_all_models_freeze()
 
-    def destroy(self, session):
+    def destroy(self, session: Any) -> None:
         self.remove_on_change(session)
-
-        # probably better to implement a destroy protocol on models to
-        # untangle everything, then the collect below might not be needed
-        for m in self._all_models.values():
-            m._document = None
-            del m
-
-        self._roots = []
-        self._all_models = None
-        self._all_models_by_name = None
-        self._theme = None
-        self._template = None
+        del self._roots
+        del self._theme
+        del self._template
         self._session_context = None
-        self.delete_modules()
 
-        import gc
+        self.callbacks.destroy()
+        self.models.destroy()
+        self.modules.destroy()
+
+        # TODO (bev) ideally this should not be needed, but removing it will probably
+        # require converting all Model back-references to Document to be weakrefs
         gc.collect()
 
-    def delete_modules(self):
-        ''' Clean up after any modules created by this Document when its session is
-        destroyed.
-
-        '''
-        from gc import get_referrers
-        from types import FrameType
-
-        log.debug("Deleting %s modules for %s" % (len(self._modules), self))
-
-        for module in self._modules:
-
-            # Modules created for a Document should have three referrers at this point:
-            #
-            # - sys.modules
-            # - self._modules
-            # - a frame object
-            #
-            # This function will take care of removing these expected references.
-            #
-            # If there are any additional referrers, this probably means the module will be
-            # leaked. Here we perform a detailed check that the only referrers are expected
-            # ones. Otherwise issue an error log message with details.
-            referrers = get_referrers(module)
-            referrers = [x for x in referrers if x is not sys.modules]  # lgtm [py/comparison-using-is]
-            referrers = [x for x in referrers if x is not self._modules]  # lgtm [py/comparison-using-is]
-            referrers = [x for x in referrers if not isinstance(x, FrameType)]
-            if len(referrers) != 0:
-                log.error("Module %r has extra unexpected referrers! This could indicate a serious memory leak. Extra referrers: %r" % (module, referrers))
-
-            # remove the reference from sys.modules
-            if module.__name__ in sys.modules:
-                del sys.modules[module.__name__]
-
-        # remove the reference from self._modules
-        self._modules = None
-
-        # the frame reference will take care of itself
-
     @classmethod
-    def from_json(cls, json):
+    def from_json(cls, json: DocJson) -> Document:
         ''' Load a document from JSON.
 
         json (JSON-data) :
@@ -565,7 +456,7 @@ class Document:
         return doc
 
     @classmethod
-    def from_json_string(cls, json):
+    def from_json_string(cls, json: str) -> Document:
         ''' Load a document from JSON.
 
         json (str) :
@@ -579,7 +470,7 @@ class Document:
         json_parsed = loads(json)
         return cls.from_json(json_parsed)
 
-    def get_model_by_id(self, model_id):
+    def get_model_by_id(self, model_id: ID) -> Model | None:
         ''' Find the model for the given ID in this document, or ``None`` if it
         is not found.
 
@@ -590,9 +481,9 @@ class Document:
             Model or None
 
         '''
-        return self._all_models.get(model_id)
+        return self.models.get_by_id(model_id)
 
-    def get_model_by_name(self, name):
+    def get_model_by_name(self, name: str) -> Model | None:
         ''' Find the model for the given name in this document, or ``None`` if
         it is not found.
 
@@ -603,9 +494,9 @@ class Document:
             Model or None
 
         '''
-        return self._all_models_by_name.get_one(name, "Found more than one model named '%s'" % name)
+        return self.models.get_one_by_name(name)
 
-    def hold(self, policy="combine"):
+    def hold(self, policy: HoldPolicyType = "combine") -> None:
         ''' Activate a document hold.
 
         While a hold is active, no model changes will be applied, or trigger
@@ -644,95 +535,41 @@ class Document:
             ``ButtonClick``, etc.
 
         '''
-        if self._hold is not None and self._hold != policy:
-            log.warning("hold already active with '%s', ignoring '%s'" % (self._hold, policy))
-            return
-        if policy not in HoldPolicy:
-            raise ValueError("Unknown hold policy %r" % policy)
-        self._hold = policy
+        self.callbacks.hold(policy)
 
-    def unhold(self):
-        ''' Turn off any active document hold and apply any collected events.
-
-        Returns:
-            None
-
-        '''
-        # no-op if we are already no holding
-        if self._hold is None: return
-
-        self._hold = None
-        events = list(self._held_events)
-        self._held_events = []
-
-        for event in events:
-            self._trigger_on_change(event)
-
-    def on_message(self, msg_type: str, callback: Callable[[Any], None]) -> None:
-        message_callbacks = self._message_callbacks.get(msg_type, None)
-        if message_callbacks is None:
-            self._message_callbacks[msg_type] = [callback]
-        elif callback not in message_callbacks:
-            message_callbacks.append(callback)
-
-    def remove_on_message(self, msg_type: str, callback: Callable[[Any], None]) -> None:
-        message_callbacks = self._message_callbacks.get(msg_type, None)
-        if message_callbacks is not None and callback in message_callbacks:
-            message_callbacks.remove(callback)
-
-    def _trigger_on_message(self, msg_type: str, msg_data: Any) -> None:
-        message_callbacks = self._message_callbacks.get(msg_type, None)
-        if message_callbacks is not None:
-            for cb in message_callbacks:
-                cb(msg_data)
-
-    def on_event(self, event, *callbacks):
-        ''' Provide callbacks to invoke if a bokeh event is received.
-
-        '''
-        if not isinstance(event, str) and issubclass(event, Event):
-            event = event.event_name
-
-        if not issubclass(_CONCRETE_EVENT_CLASSES[event], DocumentEvent):
-            raise ValueError("Document.on_event may only be used to subscribe "
-                             "to events of type DocumentEvent. To subscribe "
-                             "to a ModelEvent use the Model.on_event method.")
-
-        for callback in callbacks:
-            _check_callback(callback, ('event',), what='Event callback')
-
-        if event not in self._event_callbacks:
-            self._event_callbacks[event] = [cb for cb in callbacks]
-        else:
-            self._event_callbacks[event].extend(callbacks)
-
-    def on_change(self, *callbacks):
+    def on_change(self, *callbacks: DocumentChangeCallback) -> None:
         ''' Provide callbacks to invoke if the document or any Model reachable
         from its roots changes.
 
         '''
-        for callback in callbacks:
+        self.callbacks.on_change(*callbacks)
 
-            if callback in self._callbacks: continue
+    def on_change_dispatch_to(self, receiver: Any) -> None:
+        '''
 
-            _check_callback(callback, ('event',))
+        '''
+        self.callbacks.on_change_dispatch_to(receiver)
 
-            self._callbacks[callback] = callback
+    def on_event(self, event: str | Type[Event], *callbacks: EventCallback) -> None:
+        ''' Provide callbacks to invoke if a bokeh event is received.
 
-    def on_change_dispatch_to(self, receiver):
-        if not receiver in self._callbacks:
-            self._callbacks[receiver] = lambda event: event.dispatch(receiver)
+        '''
+        self.callbacks.on_event(event, *callbacks)
 
-    def on_session_destroyed(self, *callbacks):
+    def on_message(self, msg_type: str, *callbacks: MessageCallback) -> None:
+        '''
+
+        '''
+        self.callbacks.on_message(msg_type, *callbacks)
+
+    def on_session_destroyed(self, *callbacks: SessionDestroyedCallback) -> None:
         ''' Provide callbacks to invoke when the session serving the Document
         is destroyed
 
         '''
-        for callback in callbacks:
-            _check_callback(callback, ('session_context',))
-            self._session_destroyed_callbacks.add(callback)
+        self.callbacks.on_session_destroyed(*callbacks)
 
-    def remove_next_tick_callback(self, callback_obj):
+    def remove_next_tick_callback(self, callback_obj: NextTickCallback) -> None:
         ''' Remove a callback added earlier with ``add_next_tick_callback``.
 
         Args:
@@ -745,19 +582,24 @@ class Document:
             ValueError, if the callback was never added or has already been run or removed
 
         '''
-        self._remove_session_callback(callback_obj, self.add_next_tick_callback)
+        self.callbacks.remove_session_callback(callback_obj)
 
-    def remove_on_change(self, *callbacks):
+    def remove_on_change(self, *callbacks: Any) -> None:
         ''' Remove a callback added earlier with ``on_change``.
 
         Raises:
             KeyError, if the callback was never added
 
         '''
-        for callback in callbacks:
-            del self._callbacks[callback]
+        self.callbacks.remove_on_change(*callbacks)
 
-    def remove_periodic_callback(self, callback_obj):
+    def remove_on_message(self, msg_type: str, callback: MessageCallback) -> None:
+        '''
+
+        '''
+        self.callbacks.remove_on_message(msg_type, callback)
+
+    def remove_periodic_callback(self, callback_obj: PeriodicCallback) -> None:
         ''' Remove a callback added earlier with ``add_periodic_callback``
 
         Args:
@@ -770,9 +612,9 @@ class Document:
             ValueError, if the callback was never added or has already been removed
 
         '''
-        self._remove_session_callback(callback_obj, self.add_periodic_callback)
+        self.callbacks.remove_session_callback(callback_obj)
 
-    def remove_root(self, model, setter=None):
+    def remove_root(self, model: Model, setter: Setter | None = None) -> None:
         ''' Remove a model as root model from this Document.
 
         Changes to this model may still trigger ``on_change`` callbacks
@@ -796,15 +638,14 @@ class Document:
 
         '''
         if model not in self._roots:
-            return # TODO (bev) ValueError?
-        self._push_all_models_freeze()
-        try:
-            self._roots.remove(model)
-        finally:
-            self._pop_all_models_freeze()
-        self._trigger_on_change(RootRemovedEvent(self, model, setter))
+            return
 
-    def remove_timeout_callback(self, callback_obj):
+        with self.models.freeze():
+            self._roots.remove(model)
+
+        self.callbacks.trigger_on_change(RootRemovedEvent(self, model, setter))
+
+    def remove_timeout_callback(self, callback_obj: TimeoutCallback) -> None:
         ''' Remove a callback added earlier with ``add_timeout_callback``.
 
         Args:
@@ -817,9 +658,9 @@ class Document:
             ValueError, if the callback was never added or has already been run or removed
 
         '''
-        self._remove_session_callback(callback_obj, self.add_timeout_callback)
+        self.callbacks.remove_session_callback(callback_obj)
 
-    def replace_with_json(self, json):
+    def replace_with_json(self, json: DocJson) -> None:
         ''' Overwrite everything in this document with the JSON-encoded
         document.
 
@@ -833,7 +674,7 @@ class Document:
         replacement = self.from_json(json)
         replacement._destructively_move(self)
 
-    def select(self, selector):
+    def select(self, selector: SelectorType) -> Iterable[Model]:
         ''' Query this document for objects that match the given selector.
 
         Args:
@@ -844,13 +685,13 @@ class Document:
             seq[Model]
 
         '''
-        if self._is_single_string_selector(selector, 'name'):
+        if is_single_string_selector(selector, 'name'):
             # special-case optimization for by-name query
-            return self._all_models_by_name.get_all(selector['name'])
-        else:
-            return find(self._all_models.values(), selector)
+            return self.models.get_all_by_name(selector['name'])
 
-    def select_one(self, selector):
+        return find(self.models, selector)
+
+    def select_one(self, selector: SelectorType) -> Model | None:
         ''' Query this document for objects that match the given selector.
         Raises an error if more than one object is found.  Returns
         single matching object, or None if nothing is found
@@ -865,12 +706,12 @@ class Document:
         '''
         result = list(self.select(selector))
         if len(result) > 1:
-            raise ValueError("Found more than one model matching %s: %r" % (selector, result))
+            raise ValueError(f"Found more than one model matching {selector}: {result!r}")
         if len(result) == 0:
             return None
         return result[0]
 
-    def set_select(self, selector, updates):
+    def set_select(self, selector: SelectorType | Type[Model], updates: Dict[str, Unknown]) -> None:
         ''' Update objects that match a given selector with the specified
         attribute/value updates.
 
@@ -883,13 +724,23 @@ class Document:
             None
 
         '''
-        if isclass(selector) and issubclass(selector, Model):
+        if isinstance(selector, type) and issubclass(selector, Model):
             selector = dict(type=selector)
         for obj in self.select(selector):
             for key, val in updates.items():
                 setattr(obj, key, val)
 
-    def to_json(self):
+    def set_title(self, title: str, setter: Setter | None = None) -> None:
+        '''
+
+        '''
+        if title is None:
+            raise ValueError("Document title may not be None")
+        if self._title != title:
+            self._title = title
+            self.callbacks.trigger_on_change(TitleChangedEvent(self, title, setter))
+
+    def to_json(self) -> DocJson:
         ''' Convert this document to a JSON object.
 
         Return:
@@ -902,7 +753,7 @@ class Document:
         doc_json = self.to_json_string()
         return loads(doc_json)
 
-    def to_json_string(self, indent=None) -> str:
+    def to_json_string(self, indent: int | None = None) -> str:
         ''' Convert the document to a JSON string.
 
         Args:
@@ -913,52 +764,36 @@ class Document:
             str
 
         '''
-        root_ids = []
-        for r in self._roots:
-            root_ids.append(r.id)
-
-        class StaticSerializer:
-
-            def __init__(self):
-                self._refs = {} # obj -> ref (dict, preferably dataclass)
-                self._defs = [] # (ref & def)[] (dict, preferably dataclass)
-
-            def serialize(self, obj):
-                pass # TODO: serialize built-ins, {to_serializable}, etc.
-
-            def get_ref(self, obj):
-                return self._refs.get(obj, None)
-
-            def add_ref(self, obj, obj_ref, obj_def):
-                if obj not in self._refs:
-                    self._refs[obj] = obj_ref
-                    self._defs.append(obj_def)
-
-            @property
-            def definitions(self):
-                return list(self._defs)
-
         serializer = StaticSerializer()
         for model in Model.model_class_reverse_map.values():
             if is_DataModel(model):
                 # TODO: serializer.serialize(model)
                 model.static_to_serializable(serializer)
 
-        root_references = self._all_models.values()
+        root_ids = [ r.id for r in self._roots ]
 
-        json = {
-            'title' : self.title,
-            'defs' : serializer.definitions,
-            'roots' : {
-                'root_ids' : root_ids,
-                'references' : references_json(root_references)
-            },
-            'version' : __version__,
-        }
+        json = DocJson(
+            title=self.title,
+            defs=serializer.definitions,
+            roots=RootsJson(
+                root_ids=root_ids,
+                references=references_json(self.models),
+            ),
+            version=__version__,
+        )
 
         return serialize_json(json, indent=indent)
 
-    def validate(self):
+    def unhold(self) -> None:
+        ''' Turn off any active document hold and apply any collected events.
+
+        Returns:
+            None
+
+        '''
+        self.callbacks.unhold()
+
+    def validate(self) -> None:
         ''' Perform integrity checks on the modes in this document.
 
         Returns:
@@ -967,52 +802,13 @@ class Document:
         '''
         for r in self.roots:
             refs = r.references()
-            check_integrity(refs)
+            issues = check_integrity(refs)
+
+            process_validation_issues(issues)
 
     # Private methods ---------------------------------------------------------
 
-    def _add_session_callback(self, callback_obj, callback, one_shot, originator):
-        ''' Internal implementation for adding session callbacks.
-
-        Args:
-            callback_obj (SessionCallback) :
-                A session callback object that wraps a callable and is
-                passed to ``trigger_on_change``.
-
-            callback (callable) :
-                A callable to execute when session events happen.
-
-            one_shot (bool) :
-                Whether the callback should immediately auto-remove itself
-                after one execution.
-
-        Returns:
-            SessionCallback : passed in as ``callback_obj``.
-
-        Raises:
-            ValueError, if the callback has been previously added
-
-        '''
-        if one_shot:
-            @wraps(callback)
-            def remove_then_invoke(*args, **kwargs):
-                if callback_obj in self._session_callbacks:
-                    self._remove_session_callback(callback_obj, originator)
-                return callback(*args, **kwargs)
-            actual_callback = remove_then_invoke
-        else:
-            actual_callback = callback
-
-        callback_obj._callback = self._wrap_with_self_as_curdoc(actual_callback)
-        self._session_callbacks.add(callback_obj)
-        self._callback_objs_by_callable[originator][callback].add(callback_obj)
-
-        # emit event so the session is notified of the new callback
-        self._trigger_on_change(SessionCallbackAdded(self, callback_obj))
-
-        return callback_obj
-
-    def _destructively_move(self, dest_doc):
+    def _destructively_move(self, dest_doc: Document) -> None:
         ''' Move all data in this doc to the dest_doc, leaving this doc empty.
 
         Args:
@@ -1031,216 +827,49 @@ class Document:
         # we have to remove ALL roots before adding any
         # to the new doc or else models referenced from multiple
         # roots could be in both docs at once, which isn't allowed.
-        roots = []
-        self._push_all_models_freeze()
-        try:
+        roots: List[Model] = []
+
+        with self.models.freeze():
             while self.roots:
                 r = next(iter(self.roots))
                 self.remove_root(r)
                 roots.append(r)
-        finally:
-            self._pop_all_models_freeze()
+
         for r in roots:
             if r.document is not None:
                 raise RuntimeError("Somehow we didn't detach %r" % (r))
-        if len(self._all_models) != 0:
-            raise RuntimeError("_all_models still had stuff in it: %r" % (self._all_models))
+
+        if len(self.models) != 0:
+            raise RuntimeError(f"_all_models still had stuff in it: {self.models!r}")
+
         for r in roots:
             dest_doc.add_root(r)
 
         dest_doc.title = self.title
 
-    def _invalidate_all_models(self):
-        '''
+class StaticSerializer:
 
-        '''
+    _refs: Dict[object, Any] = {} # obj -> ref (dict, preferably dataclass)
+    _defs: List[Any] = [] # (ref & def)[] (dict, preferably dataclass)
 
-        # if freeze count is > 0, we'll recompute on unfreeze
-        if self._all_models_freeze_count == 0:
-            self._recompute_all_models()
+    def __init__(self) -> None:
+        self._refs = {} # obj -> ref (dict, preferably dataclass)
+        self._defs = [] # (ref & def)[] (dict, preferably dataclass)
 
-    def _is_single_string_selector(self, selector, field):
-        '''
+    def serialize(self, obj: object) -> Any:
+        pass # TODO: serialize built-ins, {to_serializable}, etc.
 
-        '''
+    def get_ref(self, obj: object) -> Any:
+        return self._refs.get(obj, None)
 
-        if len(selector) != 1:
-            return False
-        if field not in selector:
-            return False
-        return isinstance(selector[field], str)
+    def add_ref(self, obj: object, obj_ref: Any, obj_def: Any) -> None:
+        if obj not in self._refs:
+            self._refs[obj] = obj_ref
+            self._defs.append(obj_def)
 
-    def _notify_change(self, model, attr, old, new, hint=None, setter=None, callback_invoker=None):
-        ''' Called by Model when it changes
-
-        '''
-        # if name changes, update by-name index
-        if attr == 'name':
-            if old is not None:
-                self._all_models_by_name.remove_value(old, model)
-            if new is not None:
-                self._all_models_by_name.add_value(new, model)
-
-        if hint is None:
-            serializable_new = model.lookup(attr).serializable_value(model)
-        else:
-            serializable_new = None
-
-        event = ModelChangedEvent(self, model, attr, old, new, serializable_new, hint, setter, callback_invoker)
-        self._trigger_on_change(event)
-
-    def _push_all_models_freeze(self):
-        '''
-
-        '''
-        self._all_models_freeze_count += 1
-
-    def _pop_all_models_freeze(self):
-        '''
-
-        '''
-        self._all_models_freeze_count -= 1
-        if self._all_models_freeze_count == 0:
-            self._recompute_all_models()
-
-    def _recompute_all_models(self):
-        '''
-
-        '''
-        new_all_models_set = set()
-        for r in self.roots:
-            new_all_models_set = new_all_models_set.union(r.references())
-        old_all_models_set = set(self._all_models.values())
-        to_detach = old_all_models_set - new_all_models_set
-        to_attach = new_all_models_set - old_all_models_set
-
-        recomputed = {}
-        recomputed_by_name = MultiValuedDict()
-        for m in new_all_models_set:
-            recomputed[m.id] = m
-            if m.name is not None:
-                recomputed_by_name.add_value(m.name, m)
-        for d in to_detach:
-            self._all_former_model_ids.add(d.id)
-            d._detach_document()
-        for a in to_attach:
-            a._attach_document(self)
-        self._all_models = recomputed
-        self._all_models_by_name = recomputed_by_name
-
-    def _remove_session_callback(self, callback_obj, originator):
-        ''' Remove a callback added earlier with ``add_periodic_callback``,
-        ``add_timeout_callback``, or ``add_next_tick_callback``.
-
-        Returns:
-            None
-
-        Raises:
-            KeyError, if the callback was never added
-
-        '''
-        try:
-            callback_objs = [callback_obj]
-            self._session_callbacks.remove(callback_obj)
-            for cb, cb_objs in list(self._callback_objs_by_callable[originator].items()):
-                try:
-                    cb_objs.remove(callback_obj)
-                    if not cb_objs:
-                        del self._callback_objs_by_callable[originator][cb]
-                except KeyError:
-                    pass
-        except KeyError:
-            raise ValueError("callback already ran or was already removed, cannot be removed again")
-        # emit event so the session is notified and can remove the callback
-        for callback_obj in callback_objs:
-            self._trigger_on_change(SessionCallbackRemoved(self, callback_obj))
-
-    def _set_title(self, title, setter=None):
-        '''
-
-        '''
-        if title is None:
-            raise ValueError("Document title may not be None")
-        if self._title != title:
-            self._title = title
-            self._trigger_on_change(TitleChangedEvent(self, title, setter))
-
-    def _trigger_on_change(self, event):
-        '''
-
-        '''
-        if self._hold == "collect":
-            self._held_events.append(event)
-            return
-        elif self._hold == "combine":
-            _combine_document_events(event, self._held_events)
-            return
-
-        if event.callback_invoker is not None:
-            self._with_self_as_curdoc(event.callback_invoker)
-
-        def invoke_callbacks():
-            for cb in self._callbacks.values():
-                cb(event)
-        self._with_self_as_curdoc(invoke_callbacks)
-
-    def _with_self_as_curdoc(self, f):
-        '''
-
-        '''
-        from bokeh.io.doc import set_curdoc, curdoc
-        old_doc = curdoc()
-        try:
-            if getattr(f, "nolock", False):
-                set_curdoc(UnlockedDocumentProxy(self))
-            else:
-                set_curdoc(self)
-            return f()
-        finally:
-            set_curdoc(old_doc)
-
-    def _wrap_with_self_as_curdoc(self, f):
-        '''
-
-        '''
-        doc = self
-        @wraps(f)
-        def wrapper(*args, **kwargs):
-            @wraps(f)
-            def invoke():
-                return f(*args, **kwargs)
-            return doc._with_self_as_curdoc(invoke)
-        return wrapper
-
-
-def _combine_document_events(new_event, old_events):
-    ''' Attempt to combine a new event with a list of previous events.
-
-    The ``old_event`` will be scanned in reverse, and ``.combine(new_event)``
-    will be called on each. If a combination can be made, the function
-    will return immediately. Otherwise, ``new_event`` will be appended to
-    ``old_events``.
-
-    Args:
-        new_event (DocumentChangedEvent) :
-            The new event to attempt to combine
-
-        old_events (list[DocumentChangedEvent])
-            A list of previous events to attempt to combine new_event with
-
-            **This is an "out" parameter**. The values it contains will be
-            modified in-place.
-
-    Returns:
-        None
-
-    '''
-    for event in reversed(old_events):
-        if event.combine(new_event):
-            return
-
-    # no combination was possible
-    old_events.append(new_event)
+    @property
+    def definitions(self) -> List[Any]:
+        return list(self._defs)
 
 #-----------------------------------------------------------------------------
 # Private API

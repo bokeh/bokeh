@@ -4,8 +4,8 @@ from bokeh.plotting import figure
 
 
 def make_figure(output_backend):
-    p = figure(plot_width=400,
-               plot_height=400,
+    p = figure(width=400,
+               height=400,
                output_backend=output_backend,
                title="Backend: %s" % output_backend)
 

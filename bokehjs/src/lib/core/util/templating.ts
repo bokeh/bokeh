@@ -78,7 +78,7 @@ function  _get_special_value(name: string, special_vars: Vars) {
     throw new Error(`Unknown special variable '\$${name}'`)
 }
 
-function  _get_column_value(name: string, data_source: ColumnarDataSource, i: Index) {
+export function _get_column_value(name: string, data_source: ColumnarDataSource, i: Index): unknown | null {
   const column = data_source.get_column(name)
 
   // missing column
@@ -143,7 +143,7 @@ export function replace_placeholders(content: string | {html: string}, data_sour
       return encode ? encode("???") : "???"
 
     // 'safe' format, return the value as-is
-    if (format == 'safe') {
+    if (format == "safe") {
       has_html = true
       return `${value}`
     }

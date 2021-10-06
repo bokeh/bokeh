@@ -2,11 +2,18 @@ import {logger} from "core/logging"
 
 export type Image = HTMLImageElement
 
-export type ImageLoaderOptions = {
+export type ImageHandlers = {
   loaded?: (image: Image) => void
   failed?: () => void
+}
+
+export type LoaderOptions = {
   attempts?: number
   timeout?: number
+}
+
+export async function load_image(url: string, options?: LoaderOptions): Promise<Image> {
+  return new ImageLoader(url, options).promise
 }
 
 export class ImageLoader {
@@ -14,8 +21,8 @@ export class ImageLoader {
 
   promise: Promise<Image>
 
-  constructor(url: string, options: ImageLoaderOptions = {}) {
-    const {attempts = 1, timeout = 1} = options
+  constructor(url: string, config: ImageHandlers & LoaderOptions = {}) {
+    const {attempts = 1, timeout = 1} = config
 
     this.promise = new Promise((resolve, _reject) => {
       this._image.crossOrigin = "anonymous"
@@ -31,8 +38,8 @@ export class ImageLoader {
             this._image.crossOrigin = null
             retries = 0
           } else {
-            if (options.failed != null)
-              options.failed()
+            if (config.failed != null)
+              config.failed()
             return // XXX reject(new Error(message))
           }
         }
@@ -41,8 +48,8 @@ export class ImageLoader {
       }
       this._image.onload = () => {
         this._finished = true
-        if (options.loaded != null)
-          options.loaded(this._image)
+        if (config.loaded != null)
+          config.loaded(this._image)
         resolve(this._image)
       }
       this._image.src = url

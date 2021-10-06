@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -20,7 +22,10 @@ import sys
 import webbrowser
 
 # External imports
-from mock import patch
+from mock import MagicMock, patch
+
+# Bokeh imports
+from bokeh._testing.util.env import envset
 
 # Module under test
 import bokeh.util.browser as bub # isort:skip
@@ -49,39 +54,36 @@ def test_get_browser_controller_None() -> None:
     assert b == webbrowser
 
 @patch('webbrowser.get')
-def test_get_browser_controller_value(mock_get) -> None:
+def test_get_browser_controller_value(mock_get: MagicMock) -> None:
     bub.get_browser_controller('foo')
     assert mock_get.called
     assert mock_get.call_args[0] == ("foo",)
     assert mock_get.call_args[1] == {}
 
 @patch('webbrowser.get')
-def test_get_browser_controller_dummy_with_env(mock_get) -> None:
-    os.environ['BOKEH_BROWSER'] = "bar"
-    bub.get_browser_controller('none')
-    del os.environ['BOKEH_BROWSER']
+def test_get_browser_controller_dummy_with_env(mock_get: MagicMock) -> None:
+    with envset(BOKEH_BROWSER="bar"):
+        bub.get_browser_controller('none')
 
 @patch('webbrowser.get')
-def test_get_browser_controller_None_with_env(mock_get) -> None:
-    os.environ['BOKEH_BROWSER'] = "bar"
-    bub.get_browser_controller()
-    assert mock_get.called
-    assert mock_get.call_args[0] == ("bar",)
-    assert mock_get.call_args[1] == {}
-    del os.environ['BOKEH_BROWSER']
+def test_get_browser_controller_None_with_env(mock_get: MagicMock) -> None:
+    with envset(BOKEH_BROWSER="bar"):
+        bub.get_browser_controller()
+        assert mock_get.called
+        assert mock_get.call_args[0] == ("bar",)
+        assert mock_get.call_args[1] == {}
 
 @patch('webbrowser.get')
-def test_get_browser_controller_value_with_env(mock_get) -> None:
-    os.environ['BOKEH_BROWSER'] = "bar"
-    bub.get_browser_controller('foo')
-    assert mock_get.called
-    assert mock_get.call_args[0] == ("foo",)
-    assert mock_get.call_args[1] == {}
-    del os.environ['BOKEH_BROWSER']
+def test_get_browser_controller_value_with_env(mock_get: MagicMock) -> None:
+    with envset(BOKEH_BROWSER="bar"):
+        bub.get_browser_controller('foo')
+        assert mock_get.called
+        assert mock_get.call_args[0] == ("foo",)
+        assert mock_get.call_args[1] == {}
 
 def test_view_bad_new() -> None:
     with pytest.raises(RuntimeError) as e:
-        bub.view("foo", new="junk")
+        bub.view("foo", new="junk") # type: ignore
         assert str(e) == "invalid 'new' value passed to view: 'junk', valid values are: 'same', 'window', or 'tab'"
 
 def test_view_args() -> None:
@@ -114,7 +116,7 @@ def test_view_args() -> None:
     bub.DummyWebBrowser = db
 
 def test_NEW_PARAM() -> None:
-    assert bub.NEW_PARAM == {'tab': 2, 'window': 1}
+    assert bub.NEW_PARAM == {"same": 0, "window": 1, "tab": 2}
 
 #-----------------------------------------------------------------------------
 # Dev API

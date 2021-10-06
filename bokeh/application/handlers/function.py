@@ -12,16 +12,13 @@ useful if users wish to embed the Bokeh server programmatically:
 
 .. code-block:: python
 
-    def make_doc(doc):
-
+    def make_doc(doc: Document):
         # do work to modify the document, add plots, widgets, etc.
-
         return doc
 
     app = Application(FunctionHandler(make_doc))
 
     server = Server({'/bkapp': app}, io_loop=IOLoop.current())
-
     server.start()
 
 For complete examples of this technique, see
@@ -32,6 +29,8 @@ For complete examples of this technique, see
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -39,7 +38,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Callable
+
 # Bokeh imports
+from ...document import Document
 from ...util.callback_manager import _check_callback
 from .handler import Handler, handle_exception
 
@@ -59,6 +62,8 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
+ModifyDoc = Callable[[Document], None]
+
 class FunctionHandler(Handler):
     ''' A Handler that accepts a plain python function to use for modifying
     Bokeh Documents.
@@ -68,8 +73,8 @@ class FunctionHandler(Handler):
 
     .. code-block:: python
 
-        def add_empty_plot(doc):
-            p = figure(x_range=(0,10), y_range=(0, 10))
+        def add_empty_plot(doc: Document):
+            p = figure(x_range=(0, 10), y_range=(0, 10))
             doc.add_root(p)
             return doc
 
@@ -78,9 +83,15 @@ class FunctionHandler(Handler):
     This handler could be configured on an Application, and the Application
     would run this function every time a new session is created.
 
+    .. autoclasstoc::
+
     '''
 
-    def __init__(self, func, *, trap_exceptions=False):
+    _func: ModifyDoc
+    _trap_exceptions: bool
+    _safe_to_fork: bool
+
+    def __init__(self, func: ModifyDoc, *, trap_exceptions: bool = False) -> None:
         '''
 
         Args:
@@ -89,7 +100,7 @@ class FunctionHandler(Handler):
 
                 .. code-block:: python
 
-                    def func(doc):
+                    def func(doc: Document):
                         # modify doc
                         return doc
 
@@ -111,7 +122,7 @@ class FunctionHandler(Handler):
     # Properties --------------------------------------------------------------
 
     @property
-    def safe_to_fork(self):
+    def safe_to_fork(self) -> bool:
         ''' Whether it is still safe for the Bokeh server to fork new workers.
 
         ``False`` if ``modify_doc`` has already been called.
@@ -121,7 +132,7 @@ class FunctionHandler(Handler):
 
     # Public methods ----------------------------------------------------------
 
-    def modify_document(self, doc):
+    def modify_document(self, doc: Document) -> None:
         ''' Execute the configured ``func`` to modify the document.
 
         After this method is first executed, ``safe_to_fork`` will return

@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -15,10 +17,9 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-from mock import patch
+from mock import MagicMock, patch
 
 # Bokeh imports
-from _util_property import _TestModel
 from bokeh._testing.util.api import verify_all
 from bokeh.core.properties import (
     Angle,
@@ -45,6 +46,8 @@ from bokeh.core.properties import (
     Tuple,
 )
 from bokeh.models import ColumnDataSource
+
+from _util_property import _TestModel
 
 # Module under test
 import bokeh.core.property.wrappers as bcpw # isort:skip
@@ -99,7 +102,7 @@ def test_PropertyValueContainer() -> None:
         pvc._saved_copy()
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
-def test_PropertyValueDict_mutators(mock_notify) -> None:
+def test_PropertyValueDict_mutators(mock_notify: MagicMock) -> None:
     pvd = bcpw.PropertyValueDict(dict(foo=10, bar=20, baz=30))
 
     mock_notify.reset_mock()
@@ -131,7 +134,7 @@ def test_PropertyValueDict_mutators(mock_notify) -> None:
     assert mock_notify.called
 
 @patch('bokeh.core.property.descriptors.ColumnDataPropertyDescriptor._notify_mutated')
-def test_PropertyValueColumnData___setitem__(mock_notify) -> None:
+def test_PropertyValueColumnData___setitem__(mock_notify: MagicMock) -> None:
     from bokeh.document.events import ColumnDataChangedEvent
 
     source = ColumnDataSource(data=dict(foo=[10], bar=[20], baz=[30]))
@@ -149,7 +152,7 @@ def test_PropertyValueColumnData___setitem__(mock_notify) -> None:
     assert mock_notify.call_args[1]['hint'].cols == ['foo']
 
 @patch('bokeh.core.property.descriptors.ColumnDataPropertyDescriptor._notify_mutated')
-def test_PropertyValueColumnData_update(mock_notify) -> None:
+def test_PropertyValueColumnData_update(mock_notify: MagicMock) -> None:
     from bokeh.document.events import ColumnDataChangedEvent
 
     source = ColumnDataSource(data=dict(foo=[10], bar=[20], baz=[30]))
@@ -167,7 +170,7 @@ def test_PropertyValueColumnData_update(mock_notify) -> None:
     assert sorted(mock_notify.call_args[1]['hint'].cols) == ['bar', 'foo']
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
-def test_PropertyValueColumnData__stream_list_to_list(mock_notify) -> None:
+def test_PropertyValueColumnData__stream_list_to_list(mock_notify: MagicMock) -> None:
     from bokeh.document.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=[10]))
@@ -183,9 +186,10 @@ def test_PropertyValueColumnData__stream_list_to_list(mock_notify) -> None:
     assert mock_notify.call_args[1]['hint'].rollover == None
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
-def test_PropertyValueColumnData__stream_list_to_array(mock_notify) -> None:
-    from bokeh.document.events import ColumnsStreamedEvent
+def test_PropertyValueColumnData__stream_list_to_array(mock_notify: MagicMock) -> None:
     import numpy as np
+
+    from bokeh.document.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=np.array([10])))
     pvcd = bcpw.PropertyValueColumnData(source.data)
@@ -201,7 +205,7 @@ def test_PropertyValueColumnData__stream_list_to_array(mock_notify) -> None:
 
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
-def test_PropertyValueColumnData__stream_list_with_rollover(mock_notify) -> None:
+def test_PropertyValueColumnData__stream_list_with_rollover(mock_notify: MagicMock) -> None:
     from bokeh.document.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=[10, 20, 30]))
@@ -217,9 +221,10 @@ def test_PropertyValueColumnData__stream_list_with_rollover(mock_notify) -> None
     assert mock_notify.call_args[1]['hint'].rollover == 3
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
-def test_PropertyValueColumnData__stream_array_to_array(mock_notify) -> None:
-    from bokeh.document.events import ColumnsStreamedEvent
+def test_PropertyValueColumnData__stream_array_to_array(mock_notify: MagicMock) -> None:
     import numpy as np
+
+    from bokeh.document.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=np.array([10])))
     pvcd = bcpw.PropertyValueColumnData(source.data)
@@ -236,7 +241,7 @@ def test_PropertyValueColumnData__stream_array_to_array(mock_notify) -> None:
     assert mock_notify.call_args[1]['hint'].rollover == None
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
-def test_PropertyValueColumnData__stream_array_to_list(mock_notify) -> None:
+def test_PropertyValueColumnData__stream_array_to_list(mock_notify: MagicMock) -> None:
     from bokeh.document.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=[10]))
@@ -254,9 +259,10 @@ def test_PropertyValueColumnData__stream_array_to_list(mock_notify) -> None:
     assert mock_notify.call_args[1]['hint'].rollover == None
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
-def test_PropertyValueColumnData__stream_array_with_rollover(mock_notify) -> None:
-    from bokeh.document.events import ColumnsStreamedEvent
+def test_PropertyValueColumnData__stream_array_with_rollover(mock_notify: MagicMock) -> None:
     import numpy as np
+
+    from bokeh.document.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=np.array([10, 20, 30])))
     pvcd = bcpw.PropertyValueColumnData(source.data)
@@ -273,7 +279,7 @@ def test_PropertyValueColumnData__stream_array_with_rollover(mock_notify) -> Non
     assert mock_notify.call_args[1]['hint'].rollover == 3
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
-def test_PropertyValueColumnData__patch_with_simple_indices(mock_notify) -> None:
+def test_PropertyValueColumnData__patch_with_simple_indices(mock_notify: MagicMock) -> None:
     from bokeh.document.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20]))
     pvcd = bcpw.PropertyValueColumnData(source.data)
@@ -288,7 +294,7 @@ def test_PropertyValueColumnData__patch_with_simple_indices(mock_notify) -> None
     assert mock_notify.call_args[1]['hint'].setter == 'setter'
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
-def test_PropertyValueColumnData__patch_with_repeated_simple_indices(mock_notify) -> None:
+def test_PropertyValueColumnData__patch_with_repeated_simple_indices(mock_notify: MagicMock) -> None:
     from bokeh.document.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20]))
     pvcd = bcpw.PropertyValueColumnData(source.data)
@@ -304,7 +310,7 @@ def test_PropertyValueColumnData__patch_with_repeated_simple_indices(mock_notify
 
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
-def test_PropertyValueColumnData__patch_with_slice_indices(mock_notify) -> None:
+def test_PropertyValueColumnData__patch_with_slice_indices(mock_notify: MagicMock) -> None:
     from bokeh.document.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20, 30, 40, 50]))
     pvcd = bcpw.PropertyValueColumnData(source.data)
@@ -319,7 +325,7 @@ def test_PropertyValueColumnData__patch_with_slice_indices(mock_notify) -> None:
     assert mock_notify.call_args[1]['hint'].setter == 'setter'
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
-def test_PropertyValueColumnData__patch_with_overlapping_slice_indices(mock_notify) -> None:
+def test_PropertyValueColumnData__patch_with_overlapping_slice_indices(mock_notify: MagicMock) -> None:
     from bokeh.document.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20, 30, 40, 50]))
     pvcd = bcpw.PropertyValueColumnData(source.data)
@@ -334,7 +340,7 @@ def test_PropertyValueColumnData__patch_with_overlapping_slice_indices(mock_noti
     assert mock_notify.call_args[1]['hint'].setter == 'setter'
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
-def test_PropertyValueList_mutators(mock_notify) -> None:
+def test_PropertyValueList_mutators(mock_notify: MagicMock) -> None:
     pvl = bcpw.PropertyValueList([10, 20, 30, 40, 50])
 
     mock_notify.reset_mock()

@@ -15,11 +15,11 @@ namespace SomeModel {
 }
 interface SomeModel extends SomeModel.Attrs {}
 class SomeModel extends Model {
-  properties: SomeModel.Props
+  override properties: SomeModel.Props
   constructor(attrs?: Partial<SomeModel.Attrs>) {
     super(attrs)
   }
-  static init_SomeModel() {
+  static {
     this.define<SomeModel.Props>(({Boolean, Number, String}) => ({
       foo: [ Boolean, false ],
       bar: [ String ],
@@ -56,12 +56,12 @@ describe("Model objects", () => {
       const cb2 = new CustomJS()
       const cb3 = new CustomJS()
 
-      const spy = sinon.spy(cb3, 'execute')
+      const spy = sinon.spy(cb3, "execute")
 
       const m = new SomeModel({
         js_property_callbacks: {
-          'change:foo': [cb1, cb2],
-          'change:bar': [cb3],
+          "change:foo": [cb1, cb2],
+          "change:bar": [cb3],
         },
       })
 

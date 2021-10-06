@@ -12,16 +12,13 @@ applications that run off scripts and notebooks.
 
 .. code-block:: python
 
-    def make_doc(doc):
-
+    def make_doc(doc: Document):
         # do work to modify the document, add plots, widgets, etc.
-
         return doc
 
     app = Application(FunctionHandler(make_doc))
 
     server = Server({'/bkapp': app}, io_loop=IOLoop.current())
-
     server.start()
 
 '''
@@ -29,6 +26,8 @@ applications that run off scripts and notebooks.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -37,11 +36,21 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
-import sys
+from contextlib import contextmanager
+from os.path import basename, splitext
+from types import ModuleType
+from typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Dict,
+    List,
+)
 
 # Bokeh imports
-from ...io.doc import curdoc, set_curdoc
+from ...core.types import PathLike
+from ...document import Document
+from ...io.doc import curdoc, patch_curdoc
 from .code_runner import CodeRunner
 from .handler import Handler
 
@@ -64,13 +73,21 @@ __all__ = (
 class CodeHandler(Handler):
     ''' Run source code which modifies a Document
 
+    .. autoclasstoc::
+
     '''
 
     # These functions, if present in the supplied code, will be monkey patched
     # to be no-ops, with a warning.
     _io_functions = ['output_notebook', 'output_file', 'show', 'save', 'reset_output']
 
-    def __init__(self, *args, **kwargs):
+    _loggers: Dict[str, Callable[..., None]]
+
+    _logger_text: ClassVar[str]
+
+    _origin: ClassVar[str]
+
+    def __init__(self, *, source: str, filename: PathLike, argv: List[str] = [], package: ModuleType | None = None) -> None:
         '''
 
         Args:
@@ -82,18 +99,7 @@ class CodeHandler(Handler):
                 available as ``sys.argv`` when the code executes
 
         '''
-        super().__init__(*args, **kwargs)
-
-        if 'source' not in kwargs:
-            raise ValueError('Must pass source to CodeHandler')
-        source = kwargs['source']
-
-        if 'filename' not in kwargs:
-            raise ValueError('Must pass a filename to CodeHandler')
-        filename = kwargs['filename']
-
-        argv = kwargs.get('argv', [])
-        package = kwargs.get('package', False)
+        super().__init__()
 
         self._runner = CodeRunner(source, filename, argv, package=package)
 
@@ -104,28 +110,28 @@ class CodeHandler(Handler):
     # Properties --------------------------------------------------------------
 
     @property
-    def error(self):
+    def error(self) -> str | None:
         ''' If the handler fails, may contain a related error message.
 
         '''
         return self._runner.error
 
     @property
-    def error_detail(self):
+    def error_detail(self) -> str | None:
         ''' If the handler fails, may contain a traceback or other details.
 
         '''
         return self._runner.error_detail
 
     @property
-    def failed(self):
+    def failed(self) -> bool:
         ''' ``True`` if the handler failed to modify the doc
 
         '''
         return self._runner.failed
 
     @property
-    def safe_to_fork(self):
+    def safe_to_fork(self) -> bool:
         ''' Whether it is still safe for the Bokeh server to fork new workers.
 
         ``False`` if the code has already been executed.
@@ -135,8 +141,11 @@ class CodeHandler(Handler):
 
     # Public methods ----------------------------------------------------------
 
-    def modify_document(self, doc):
-        '''
+    def modify_document(self, doc: Document) -> None:
+        ''' Run Bokeh application code to update a ``Document``
+
+        Args:
+            doc (Document) : a ``Document`` to update
 
         '''
 
@@ -147,67 +156,58 @@ class CodeHandler(Handler):
         if module is None:
             return
 
-        # One reason modules are stored is to prevent the module
-        # from being gc'd before the document is. A symptom of a
-        # gc'd module is that its globals become None. Additionally
-        # stored modules are used to provide correct paths to
-        # custom models resolver.
-        sys.modules[module.__name__] = module
-        doc._modules.append(module)
+        # One reason modules are stored is to prevent the module from being gc'd
+        # before the document is. A symptom of a gc'd module is that its globals
+        # become None. Additionally stored modules are used to provide correct
+        # paths to custom models resolver.
+        doc.modules.add(module)
 
-        old_doc = curdoc()
-        set_curdoc(doc)
-        old_io = self._monkeypatch_io()
+        with _monkeypatch_io(self._loggers):
+            with patch_curdoc(doc):
+                self._runner.run(module, self._make_post_doc_check(doc))
 
-        try:
-            def post_check():
-                newdoc = curdoc()
-                # script is supposed to edit the doc not replace it
-                if newdoc is not doc:
-                    raise RuntimeError("%s at '%s' replaced the output document" % (self._origin, self._runner.path))
-            self._runner.run(module, post_check)
-        finally:
-            self._unmonkeypatch_io(old_io)
-            set_curdoc(old_doc)
-
-    def url_path(self):
+    def url_path(self) -> str | None:
         ''' The last path component for the basename of the configured filename.
 
         '''
         if self.failed:
             return None
-        else:
-            # TODO should fix invalid URL characters
-            return '/' + os.path.splitext(os.path.basename(self._runner.path))[0]
+
+        # TODO should fix invalid URL characters
+        return '/' + splitext(basename(self._runner.path))[0]
 
     # Private methods ---------------------------------------------------------
 
     # subclasses must define self._logger_text
-    def _make_io_logger(self, name):
-        def logger(*args, **kwargs):
-            log.info(self._logger_text , self._runner.path, name)
+    def _make_io_logger(self, name: str) -> Callable[..., None]:
+        def logger(*args: Any, **kwargs: Any) -> None:
+            log.info(self._logger_text, self._runner.path, name)
         return logger
 
-    # monkeypatching is a little ugly, but in this case there's no reason any legitimate
-    # code should be calling these functions, and we're only making a best effort to
-    # warn people so no big deal if we fail.
-    def _monkeypatch_io(self):
-        import bokeh.io as io
-        old = {}
-        for f in CodeHandler._io_functions:
-            old[f] = getattr(io, f)
-            setattr(io, f, self._loggers[f])
-
-        return old
-
-    def _unmonkeypatch_io(self, old):
-        import bokeh.io as io
-        for f in old:
-            setattr(io, f, old[f])
+    # script is supposed to edit the doc not replace it
+    def _make_post_doc_check(self, doc: Document) -> Callable[[], None]:
+        def func() -> None:
+            if curdoc() is not doc:
+                raise RuntimeError(f"{self._origin} at {self._runner.path!r} replaced the output document")
+        return func
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+# monkeypatching is a little ugly, but in this case there's no reason any legitimate
+# code should be calling these functions, and we're only making a best effort to
+# warn people so no big deal if we fail.
+@contextmanager
+def _monkeypatch_io(loggers: Dict[str, Callable[..., None]]) -> Dict[str, Any]:
+    import bokeh.io as io
+    old: Dict[str, Any] = {}
+    for f in CodeHandler._io_functions:
+        old[f] = getattr(io, f)
+        setattr(io, f, loggers[f])
+    yield
+    for f in old:
+        setattr(io, f, old[f])
 
 #-----------------------------------------------------------------------------
 # Code
