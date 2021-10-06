@@ -75,7 +75,7 @@
   },
   "dependencies": {
     "@bokeh/numbro": "^1.6.2",
-    "@bokeh/slickgrid": "~2.4.2702",
+    "@bokeh/slickgrid": "~2.4.4101",
     "choices.js": "^9.0.1",
     "flatbush": "^3.2.1",
     "flatpickr": "4.6.6",
