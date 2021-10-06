@@ -768,7 +768,7 @@ For full details about formats, see the full |PrintfTickFormatter|
 documentation in the |reference guide|.
 
 ``CustomJSTickFormatter``
-'''''''''''''''''''''
+'''''''''''''''''''''''''
 
 To fully customize the format of axis ticks, use the |CustomJSTickFormatter| in
 combination with a JavaScript snippet as its ``code`` property.
