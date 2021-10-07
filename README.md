@@ -47,7 +47,7 @@
 
   <td>People</td>
   <td>
-    <img src="https://img.shields.io/github/contributors/bokeh/bokeh"
+    <img src="https://img.shields.io/github/contributors-anon/bokeh/bokeh"
          alt="GitHub contributors" />
   </td>
 </tr>
