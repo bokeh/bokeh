@@ -1,6 +1,6 @@
 import sinon from "sinon"
 
-import {display, fig, row, column, grid} from "./_util"
+import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
 
 import {
   Arrow, ArrowHead, NormalHead, OpenHead,
@@ -40,9 +40,11 @@ import {MarkerArgs} from "@bokehjs/api/glyph_api"
 import {Spectral11, turbo} from "@bokehjs/api/palettes"
 import {div, offset} from "@bokehjs/core/dom"
 
-import {DelayedInternalProvider} from "./axes"
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {PlotView} from "@bokehjs/models/plots/plot"
+
+import {f} from "@bokehjs/api/expr"
+import {np} from "@bokehjs/api/linalg"
 
 const n_marker_types = [...MarkerType].length
 
@@ -1460,6 +1462,34 @@ describe("Bug", () => {
       ]
 
       await display(column(plots))
+    })
+  })
+
+  describe("in issue #5046", () => {
+    it("prevents webgl rendering of streaming markers", async () => {
+      const radius = 0.8
+      const angles = np.linspace(0, 2*np.pi, 13)
+      const x = f`${radius}*np.cos(${angles})`
+      const y = f`${radius}*np.sin(${angles})`
+      const source = new ColumnDataSource({data: {x: x.slice(0, 6), y: y.slice(0, 6)}})
+
+      function plot(output_backend: OutputBackend) {
+        const p = fig([200, 200], {
+          output_backend, title: output_backend,
+          x_range: [-1, 1], y_range: [-1, 1],
+        })
+        p.circle({x: {field: "x"}, y: {field: "y"}, size: 20, source})
+        return p
+      }
+
+      const p0 = plot("canvas")
+      const p1 = plot("svg")
+      const p2 = plot("webgl")
+
+      const {view} = await display(row([p0, p1, p2]))
+
+      source.stream({x: x.slice(6), y: y.slice(6)}, 8)
+      await view.ready
     })
   })
 })

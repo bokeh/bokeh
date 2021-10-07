@@ -262,11 +262,15 @@ export namespace np {
         const array = new Float64Array(size)
 
         const [mu, sigma] = [loc, scale]
-        const c = 1/Math.sqrt(2*np.pi*sigma**2)
 
-        for (let i = 0; i < size; i++) {
-          const x = this._random.float()
-          array[i] = c*Math.exp((x - mu)**2/(2*sigma**2))
+        for (let i = 0; i < size; i += 2) {
+          // Box-Muller transform from uniform to normal distribution.
+          const u = this._random.float()
+          const v = this._random.float()
+          const common = Math.sqrt(-2.0*Math.log(u))
+          array[i] = mu + sigma*(common*Math.cos(2.0*np.pi*v))
+          if (i+1 < size)
+            array[i+1] = mu + sigma*(common*Math.sin(2.0*np.pi*v))
         }
 
         return ndarray(array.buffer, {shape: [size], dtype: "float64"})

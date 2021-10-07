@@ -133,8 +133,12 @@ export abstract class RendererView extends View implements visuals.Renderable {
   }
   */
 
+  get displayed(): boolean {
+    return this.model.visible
+  }
+
   render(): void {
-    if (this.model.visible) {
+    if (this.displayed) {
       this._render()
     }
     this._has_finished = true

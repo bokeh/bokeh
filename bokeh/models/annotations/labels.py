@@ -23,17 +23,14 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.enums import (
     AngleUnits,
-    FontStyle,
     SpatialUnits,
     TextAlign,
     VerticalAlign,
 )
 from ...core.has_props import abstract
 from ...core.properties import (
-    Alpha,
     Angle,
     AngleSpec,
-    Color,
     Datetime,
     Enum,
     Float,
@@ -42,7 +39,7 @@ from ...core.properties import (
     NullStringSpec,
     NumberSpec,
     Override,
-    String,
+    TextLike,
     field,
 )
 from ...core.property_mixins import (
@@ -76,6 +73,26 @@ class TextAnnotation(Annotation):
     ''' Base class for text annotation models such as labels and titles.
 
     '''
+
+    text = TextLike(default="", help="""
+    A text or LaTeX notation to render.
+    """)
+
+    text_props = Include(ScalarTextProps, help="""
+    The {prop} values for the text.
+    """)
+
+    background_props = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} values for the text bounding box.
+    """)
+
+    background_fill_color = Override(default=None)
+
+    border_props = Include(ScalarLineProps, prefix="border", help="""
+    The {prop} values for the text bounding box.
+    """)
+
+    border_line_color = Override(default=None)
 
 class Label(TextAnnotation):
     ''' Render a single text label as an annotation.
@@ -121,10 +138,6 @@ class Label(TextAnnotation):
     default.
     """)
 
-    text = String(default="", help="""
-    The text value to render.
-    """)
-
     angle = Angle(default=0, help="""
     The angle to rotate the text, as measured from the horizontal.
     """)
@@ -146,22 +159,6 @@ class Label(TextAnnotation):
     This is useful, for instance, if it is desired to "float" text a fixed
     distance in |screen units| from a given data position.
     """)
-
-    text_props = Include(ScalarTextProps, help="""
-    The {prop} values for the text.
-    """)
-
-    background_props = Include(ScalarFillProps, prefix="background", help="""
-    The {prop} values for the text bounding box.
-    """)
-
-    background_fill_color = Override(default=None)
-
-    border_props = Include(ScalarLineProps, prefix="border", help="""
-    The {prop} values for the text bounding box.
-    """)
-
-    border_line_color = Override(default=None)
 
 class LabelSet(DataAnnotation):
     ''' Render multiple text labels as annotations.
@@ -251,22 +248,12 @@ class Title(TextAnnotation):
 
     '''
 
-    text = String(default="", help="""
-    The text value to render.
-    """)
-
     vertical_align = Enum(VerticalAlign, default='bottom', help="""
     Alignment of the text in its enclosing space, *across* the direction of the text.
     """)
 
     align = Enum(TextAlign, default='left', help="""
     Alignment of the text in its enclosing space, *along* the direction of the text.
-    """)
-
-    text_line_height = Float(default=1.0, help="""
-    How much additional space should be allocated for the title. The value is provided
-    as a number, but should be treated as a percentage of font size. The default is
-    100%, which means no additional space will be used.
     """)
 
     offset = Float(default=0, help="""
@@ -283,44 +270,11 @@ class Title(TextAnnotation):
     standoff = Float(default=10, help="""
     """)
 
-    text_font = String(default="helvetica", help="""
-    Name of a font to use for rendering text, e.g., ``'times'``,
-    ``'helvetica'``.
+    text_font_size = Override(default="13px")
 
-    """)
+    text_font_style = Override(default="bold")
 
-    text_font_size = String(default="13px")
-
-    text_font_style = Enum(FontStyle, default="bold", help="""
-    A style to use for rendering text.
-
-    Acceptable values are:
-
-    - ``'normal'`` normal text
-    - ``'italic'`` *italic text*
-    - ``'bold'`` **bold text**
-
-    """)
-
-    text_color = Color(default="#444444", help="""
-    A color to use to fill text with.
-    """)
-
-    text_alpha = Alpha(help="""
-    An alpha value to use to fill text with.
-    """)
-
-    background_props = Include(ScalarFillProps, prefix="background", help="""
-    The {prop} values for the text bounding box.
-    """)
-
-    background_fill_color = Override(default=None)
-
-    border_props = Include(ScalarLineProps, prefix="border", help="""
-    The {prop} values for the text bounding box.
-    """)
-
-    border_line_color = Override(default=None)
+    text_line_height = Override(default=1.0)
 
 #-----------------------------------------------------------------------------
 # Dev API

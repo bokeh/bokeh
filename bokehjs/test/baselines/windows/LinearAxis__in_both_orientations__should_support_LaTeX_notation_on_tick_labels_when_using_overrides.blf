@@ -1,0 +1,5 @@
+Plot bbox=[0, 0, 600, 400]
+  LogAxis bbox=[68, 0, 464, 45]
+  LogAxis bbox=[68, 355, 464, 45]
+  LogAxis bbox=[0, 45, 68, 310]
+  LogAxis bbox=[532, 45, 68, 310]
