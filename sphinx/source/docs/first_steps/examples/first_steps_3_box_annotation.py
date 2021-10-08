@@ -11,12 +11,12 @@ y = random.sample(range(0, 100), 51)
 p = figure(title="Box annotation example")
 
 # add line renderer
-line = p.line(x, y, line_color="gray", line_width=2)
+line = p.line(x, y, line_color="#000000", line_width=2)
 
 # add box annotations
-low_box = BoxAnnotation(top=20, fill_alpha=0.1, fill_color="yellow")
-mid_box = BoxAnnotation(bottom=20, top=80, fill_alpha=0.1, fill_color="green")
-high_box = BoxAnnotation(bottom=80, fill_alpha=0.1, fill_color="yellow")
+low_box = BoxAnnotation(top=20, fill_alpha=0.2, fill_color="#F0E442")
+mid_box = BoxAnnotation(bottom=20, top=80, fill_alpha=0.2, fill_color="#009E73")
+high_box = BoxAnnotation(bottom=80, fill_alpha=0.2, fill_color="#F0E442")
 
 # add boxes to existing figure
 p.add_layout(low_box)
