@@ -240,7 +240,6 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
   _size(): Size {
     if (!this.svg_image) {
-      console.log(this.text, {width: this._base_font_size, height: this._base_font_size})
       return {width: this._base_font_size, height: this._base_font_size}
     }
 
@@ -251,7 +250,6 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     const w_scale = this.width?.unit == "%" ? this.width.value : 1
     const h_scale = this.height?.unit == "%" ? this.height.value : 1
 
-    console.log(this.text, {width: width*w_scale, height: height*h_scale})
     return {width: width*w_scale, height: height*h_scale}
   }
 
