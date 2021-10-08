@@ -85,7 +85,10 @@ export class TitleView extends TextAnnotationView {
 
     const graphics = this._text_view.graphics()
     graphics.visuals = this.visuals.text.values()
+    // graphics.angle = this.panel.get_label_angle_heuristic("parallel")
+
     const {width, height} = graphics.size()
+
     // XXX: The magic 2px is for backwards compatibility. This will be removed at
     // some point, but currently there is no point breaking half of visual tests.
     return {width, height: height == 0 ? 0 : 2 + height + this.model.standoff}

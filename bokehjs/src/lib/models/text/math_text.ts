@@ -6,7 +6,7 @@ import {load_image} from "core/util/image"
 import {CanvasImage} from "models/glyphs/image_url"
 import {color2css, color2hexrgb, color2rgba} from "core/util/color"
 import {Size} from "core/types"
-import {GraphicsBox, TextHeightMetric, text_width, Position} from "core/graphics"
+import {GraphicsBox, TextHeightMetric, Position} from "core/graphics"
 import {font_metrics, parse_css_font_size, parse_css_length} from "core/util/text"
 import {insert_text_on_position} from "core/util/string"
 import {AffineTransform, Rect} from "core/util/affine"
@@ -57,10 +57,6 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
   private svg_image: CanvasImage | null = null
   private svg_element: SVGElement
-
-  get has_image_loaded(): boolean {
-    return this.svg_image != null
-  }
 
   _rect(): Rect {
     const {width, height} = this._size()
@@ -189,15 +185,9 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
    * Uses the width, height and given angle to calculate the size
   */
   size(): Size {
-    let {width, height} = this._size()
+    const {width, height} = this._size()
     const {angle} = this
-    const metrics = font_metrics(this.font)
-
-    if (height < metrics.height) {
-      height = metrics.height
-    }
-
-    if (angle == null || angle == 0)
+    if (!angle)
       return {width, height}
     else {
       const c = Math.cos(Math.abs(angle))
@@ -207,13 +197,6 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
         width: Math.abs(width*c + height*s),
         height: Math.abs(width*s + height*c),
       }
-    }
-  }
-
-  private get_text_dimensions(): Size {
-    return {
-      width: text_width(this.model.text, this.font),
-      height: font_metrics(this.font).height,
     }
   }
 
@@ -247,17 +230,18 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
       }
     }
 
-
     return {
       width: fmetrics.x_height * widthEx,
-      height: fmetrics.x_height * heightEx,
+      height: Math.max(fmetrics.x_height * heightEx, fmetrics.height)
     }
   }
   width?: {value: number, unit: "%"}
   height?: {value: number, unit: "%"}
 
   _size(): Size {
-    const {width, height} = this.has_image_loaded ? this.get_image_dimensions() : this.get_text_dimensions()
+    if (!this.svg_image) return {width: 0, height: 0}
+
+    const {width, height} = this.get_image_dimensions()
     const w_scale = this.width?.unit == "%" ? this.width.value : 1
     const h_scale = this.height?.unit == "%" ? this.height.value : 1
 
@@ -373,19 +357,14 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
     const {x, y} = this._computed_position()
 
-    if (this.svg_image != null) {
+    if (this.svg_image) {
       const {width, height} = this.get_image_dimensions()
       ctx.drawImage(this.svg_image, x, y, width, height)
-    } else {
-      ctx.fillStyle = this.color
-      ctx.font = this.font
-      ctx.textAlign = "left"
-      ctx.textBaseline = "alphabetic"
-      ctx.fillText(this.model.text, x, y + font_metrics(this.font).ascent)
     }
+
     ctx.restore()
 
-    if (!this._has_finished && (this.provider.status == "failed" || this.has_image_loaded)) {
+    if (!this._has_finished && (this.provider.status == "failed" || this.svg_image)) {
       this._has_finished = true
       this.parent.notify_finished_after_paint()
     }
