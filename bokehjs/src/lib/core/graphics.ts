@@ -478,6 +478,129 @@ export class TextBox extends GraphicsBox {
   }
 }
 
+export type ImageProperties = {
+  width: number
+  height: number
+  v_align: number
+}
+
+/**
+ * A Image display that behaves like a TextBox.
+ */
+export class ImageTextBox extends TextBox {
+  image: HTMLImageElement
+  image_properties: ImageProperties
+  load_image: () => Promise<void>
+
+  constructor({text, load_image}: {text: string, load_image: () => Promise<void>}) {
+    super({text})
+    this.load_image = load_image
+  }
+
+  override _computed_position(size: Size, metrics: FontMetrics, _nlines: number): {x: number, y: number} {
+    if (!this.image) {
+      const {sx, sy} = this.position
+      return {x: sx, y: sy}
+    }
+
+    const {width, height} = size
+    const {sx, sy, x_anchor=this._x_anchor, y_anchor=this._y_anchor} = this.position
+    const {v_align} = this.image_properties
+
+    const x = sx - (() => {
+      if (isNumber(x_anchor))
+        return x_anchor*width
+      else {
+        switch (x_anchor) {
+          case "left": return 0
+          case "center": return 0.5*width
+          case "right": return width
+        }
+      }
+    })()
+
+    const y = sy - (() => {
+      if (isNumber(y_anchor))
+        return y_anchor*height
+      else {
+        switch (y_anchor) {
+          case "top":
+            if (metrics.height > height)
+              return (height - (-v_align - metrics.descent) - metrics.height)
+            else
+              return 0
+          case "center": return 0.5*height
+          case "bottom":
+            if (metrics.height > height)
+              return (
+                height + metrics.descent + v_align
+              )
+            else return height
+          case "baseline": return 0.5*height
+        }
+      }
+    })()
+
+    return {x, y}
+  }
+
+  override size(): Size {
+    const {width, height} = this._size()
+    const {angle} = this
+
+    if (!angle)
+      return {width, height}
+    else {
+      const c = Math.cos(Math.abs(angle))
+      const s = Math.sin(Math.abs(angle))
+
+      return {
+        width: Math.abs(width*c + height*s),
+        height: Math.abs(width*s + height*c),
+      }
+    }
+  }
+
+  override _size(): Size & {metrics: FontMetrics} {
+    const metrics = font_metrics(this.font)
+
+    if (!this.image)
+      return {width: metrics.height, height: metrics.height, metrics}
+
+    let {width, height} = this.image_properties
+
+    if (height < metrics.height) {
+      height = metrics.height
+    }
+
+    const w_scale = this.width?.unit == "%" ? this.width.value : 1
+    const h_scale = this.height?.unit == "%" ? this.height.value : 1
+
+    return {width: width*w_scale, height: height*h_scale, metrics}
+  }
+
+  override paint(ctx: Context2d): void {
+    if (!this.image) {
+      this.load_image()
+      return
+    }
+
+    ctx.save()
+    const {sx, sy} = this.position
+
+    if (this.angle) {
+      ctx.translate(sx, sy)
+      ctx.rotate(this.angle)
+      ctx.translate(-sx, -sy)
+    }
+
+    const {width, height} = this.image_properties
+    const {x, y} = this._computed_position({width, height}, font_metrics(this.font), 1)
+    ctx.drawImage(this.image, x, y, width, height)
+    ctx.restore()
+  }
+}
+
 export class BaseExpo extends GraphicsBox {
   constructor(readonly base: GraphicsBox, readonly expo: GraphicsBox) {
     super()
