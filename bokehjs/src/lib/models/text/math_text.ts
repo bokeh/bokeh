@@ -232,7 +232,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
     return {
       width: fmetrics.x_height * widthEx,
-      height: fmetrics.x_height * heightEx
+      height: fmetrics.x_height * heightEx,
     }
   }
   width?: {value: number, unit: "%"}
