@@ -10,7 +10,7 @@ output_file("span.html", title="span.py example")
 p = figure(x_axis_type="datetime", y_axis_type="datetime")
 
 p.line(daylight_warsaw_2013.Date, daylight_warsaw_2013.Sunset,
-       line_color='#0072B2', line_dash='solid', line_width=2, 
+       line_color='#0072B2', line_dash='solid', line_width=2,
        legend_label="Sunset")
 p.line(daylight_warsaw_2013.Date, daylight_warsaw_2013.Sunrise,
        line_color='#0072B2', line_dash='dotted', line_width=2,
