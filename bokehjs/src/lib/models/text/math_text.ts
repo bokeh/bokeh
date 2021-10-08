@@ -232,16 +232,21 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
     return {
       width: fmetrics.x_height * widthEx,
-      height: Math.max(fmetrics.x_height * heightEx, fmetrics.height)
+      height: fmetrics.x_height * heightEx,
     }
   }
   width?: {value: number, unit: "%"}
   height?: {value: number, unit: "%"}
 
   _size(): Size {
-    if (!this.svg_image) return {width: 0, height: 0}
+    if (!this.svg_image) {
+      return {width: this._base_font_size, height: this._base_font_size}
+    }
 
-    const {width, height} = this.get_image_dimensions()
+    const fmetrics = font_metrics(this.font)
+    let {width, height} = this.get_image_dimensions()
+    height = Math.max(height, fmetrics.height)
+
     const w_scale = this.width?.unit == "%" ? this.width.value : 1
     const h_scale = this.height?.unit == "%" ? this.height.value : 1
 
