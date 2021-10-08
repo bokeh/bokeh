@@ -8,7 +8,7 @@ const r = String.raw
 describe("Title annotation", () => {
   describe("should support positioning", () => {
     function plot(attrs: Partial<Title.Attrs>) {
-      const p = fig([400, 400], {
+      const p = fig([1000, 1000], {
         x_axis_type: null, y_axis_type: null,
         x_range: [0, 1], y_range: [0, 1],
       })
