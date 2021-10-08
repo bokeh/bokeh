@@ -98,9 +98,9 @@ edges of the plot:
 
 .. code-block:: python
 
-    low_box = BoxAnnotation(top=80, fill_alpha=0.1, fill_color='red')
-    mid_box = BoxAnnotation(bottom=80, top=180, fill_alpha=0.1, fill_color='green')
-    high_box = BoxAnnotation(bottom=180, fill_alpha=0.1, fill_color='red')
+    low_box = BoxAnnotation(top=20, fill_alpha=0.1, fill_color='yellow')
+    mid_box = BoxAnnotation(bottom=20, top=80, fill_alpha=0.1, fill_color='green')
+    high_box = BoxAnnotation(bottom=80, fill_alpha=0.1, fill_color='yellow')
 
 Finally, you need to add the |BoxAnnotation| objects to your existing figure.
 Use the |add layout| method to add your boxes:

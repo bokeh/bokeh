@@ -22,7 +22,7 @@ p.add_layout(daylight_savings_start)
 
 end_date = time.mktime(dt(2013, 10, 27, 3, 0, 0).timetuple())*1000
 daylight_savings_end = Span(location=end_date,
-                            dimension='height', line_color='red',
+                            dimension='height', line_color='#FFDF00',
                             line_dash='dashed', line_width=3)
 p.add_layout(daylight_savings_end)
 
