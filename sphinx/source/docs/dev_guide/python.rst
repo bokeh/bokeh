@@ -7,10 +7,18 @@ The Bokeh codebase combines code written in Python and :ref:`TypeScript
 <contributor_guide_bokehjs>`. This chapter provides an overview of the most
 important things to know when working on Bokeh's Python code.
 
-.. _contributor_guide_python_models:
+.. _contributor_guide_python_style:
 
-Code quality
-------------
+Code style
+----------
+
+Bokeh's Python code generally follows the `PEP8`_ standard. Some notable
+exceptions include:
+
+* for consistency, use double quotation marks for strings (``"string"``)
+* don't write lines that are longer than 165 characters
+* write `Google Python Style Guide`_ docstrings (see
+  :ref:`contributor_guide_documentation_edit_docstrings` for more information)
 
 Bokeh uses a combination of code quality tests for each :ref:`Pull Requests
 <contributor_guide_pull_requests>`. Relevant tests for Python code include
@@ -24,6 +32,8 @@ locally:
 To learn more about running those tests on your system, see
 :ref:`contributor_guide_testing_local_codebase`.
 
+.. _contributor_guide_python_tests:
+
 Tests
 -----
 
@@ -32,25 +42,27 @@ code should include new or updated tests. See :ref:`contributor_guide_testing`
 and :ref:`contributor_guide_writing_tests` for more information on testing,
 including Python-specific tests.
 
+.. _contributor_guide_python_models:
+
 Models and properties
 ---------------------
 
-A large part of Bokeh's Python code base consists of models that represent the
-various elements of a visualization. The structure of the models in
-:term:`BokehJS` resembles that of the Python models.
+A large part of Bokeh's Python codebase consists of :term:`models <Model>` that
+represent the various elements of a visualization. The structure of the models
+in :term:`BokehJS` resembles that of the Python models.
 
 Bokeh's Python models are objects that have attributes that can be automatically
 serialized in a way that lets them be reconstituted as BokehJS models.
-Technically, models are classes that inherit from the
-:class:`bokeh.core.has_props.HasProps` base class:
+All of those models inherit from the :class:`bokeh.core.has_props.HasProps` base
+class:
 
 .. code-block:: python
 
     class Whatever(HasProps):
         """ `Whatever` model. """
 
-Models contain properties, which are class attributes of the type
-:class:`~bokeh.core.properties.Property`. For example:
+Models contain properties, which are class attributes defined in
+:class:`bokeh.core.properties`. For example:
 
 .. code-block:: python
 
@@ -59,27 +71,27 @@ Models contain properties, which are class attributes of the type
         prop2 = Int(10)
 
 In this example, the `IntProps` model represents objects that have two integer
-values, ``prop1`` and ``prop2``. Those two values can be automatically
-serialized from Python and deserialized by BokehJS.
+values, ``prop1`` and ``prop2``.
 
 Bokeh uses a wide variety of property types:
 
 * Primitive types like :class:`~bokeh.core.properties.Byte`,
-    :class:`~bokeh.core.properties.Int`, :class:`~bokeh.core.properties.Float`,
-    :class:`~bokeh.core.properties.Complex`, or
-    :class:`~bokeh.core.properties.String`.
+  :class:`~bokeh.core.properties.Int`, :class:`~bokeh.core.properties.Float`,
+  :class:`~bokeh.core.properties.Complex`, or
+  :class:`~bokeh.core.properties.String`
 * Container-like properties that take other properties as parameters, such as
-  :class:`~bokeh.core.properties.List`(``List(Int)``) or
-  :class:`~bokeh.core.properties.Dict`(``Dict(String, Double)``).
+  :class:`~bokeh.core.properties.List` (``List(Int)``) or
+  :class:`~bokeh.core.properties.Dict` (``Dict(String, Double)``)
 * Specialized types like :class:`~bokeh.core.properties.Instance`
   (``Instance(Plot)``), :class:`~bokeh.core.properties.Enum`
   (``Enum("foo", "bar", "baz")``), or :class:`~bokeh.core.properties.Either`
-  (``Either(Int, String)``).
+  (``Either(Int, String)``)
 
-These property types allow Bokeh to validate data and automatically add
-basic documentation to the |reference guide|. They also help creating
-meaningful error reports, for example when you try to assign an invalid type
-or value.
+These property types have several purposes:
+
+* :ref:`type checking <contributor_guide_python_typing>` the different models
+* making sure that models remain compatible between Python and JavaScript
+* automatically generating some basic documentation for the |reference guide|
 
 An example of a more realistic model might look like this:
 
@@ -92,43 +104,32 @@ An example of a more realistic model might look like this:
         prop4 = Range(Float, 0.0, 1.0)
         prop5 = List(Instance(Range1d))
 
-See :ref:`bokeh.core.properties` for full details.
+See :ref:`bokeh.core.properties` for more details.
 
 .. warning::
     The class :class:`~bokeh.core.properties.Any` is the super-type of all other
     types and will accept any type of value. Since this circumvents all type
     validation, make sure to use it sparingly, if at all.
 
-Decorators
-----------
-
-@abstract, @property, etc
+.. _contributor_guide_python_typing:
 
 Typing
 ------
 
-Bokeh uses `PEP 484 <https://www.python.org/dev/peps/pep-0484/>`_ style hints.
-Use the Python standard `typing` and `typing_extensions` modules if necessary.
+Bokeh uses two systems for type checking Python code:
 
-:ref:`Bokeh's CI <contributor_guide_testing_ci>` uses `mypy`_ to check typings.
-To type check your code locally run ``mypy bokeh`` or ``bokeh tests``.
+* For the :ref:`system of models described above
+  <contributor_guide_python_models>`, Bokeh uses its own system of
+  properties. See :ref:`contributor_guide_python_models` for more information.
+* For any code not using models, Bokeh uses `PEP 484
+  <https://www.python.org/dev/peps/pep-0484/>`_ style hints. Use the Python
+  standard `typing` and `typing_extensions` modules if necessary.
 
+:ref:`Bokeh's CI <contributor_guide_testing_ci>` uses `mypy`_ to check types.
+To type check your code locally, run ``mypy bokeh``.
 
-File structure
---------------
-
-What does a PY file look like, boilerplate, etc?
-
-link to template in repo tree?
-
-Code style
-----------
-
-* use single quotation marks for strings (``'string'``)
-* don't write lines that are longer than 88 characters
-* include docstrings (see :ref:`contributor_guide_documentation_edit_docstrings`
-  for more information)
-
+.. _PEP8: https://www.python.org/dev/peps/pep-0008/
+.. _Google Python Style Guide: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
 .. _Flake8: https://flake8.pycqa.org/
 .. _isort: https://pycqa.github.io/isort/
 .. _mypy: https://mypy.readthedocs.io
