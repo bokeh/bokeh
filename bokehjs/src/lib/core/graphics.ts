@@ -3,7 +3,7 @@ import {BBox} from "./util/bbox"
 import {Context2d} from "./util/canvas"
 import {font_metrics, /*glyph_metrics,*/ FontMetrics, parse_css_font_size} from "./util/text"
 import {max, max_by, sum} from "./util/array"
-import {isNumber} from "./util/types"
+import {isNumber, isObject} from "./util/types"
 import {Rect, AffineTransform} from "./util/affine"
 import {color2css} from "./util/color"
 import * as visuals from "./visuals"
@@ -36,7 +36,8 @@ export type TextHeightMetric = "x" | "cap" | "ascent" | "x_descent" | "cap_desce
 
 export abstract class GraphicsBox {
   _position: Position = {sx: 0, sy: 0}
-  angle?: number
+  _angle: number
+
   width?: {value: number, unit: "%"}
   height?: {value: number, unit: "%"}
   padding?: Padding
@@ -48,6 +49,15 @@ export abstract class GraphicsBox {
 
   _x_anchor: "left" | "center" | "right" = "left"
   _y_anchor: "top"  | "center" | "baseline" | "bottom" = "center"
+
+  set angle(v: number | undefined) {
+    if (v != undefined)
+      this._angle = v
+  }
+
+  get angle(): number {
+    return this._angle
+  }
 
   set base_font_size(v: number | null | undefined) {
     if (v != null)
@@ -781,5 +791,188 @@ export class GraphicsBoxes {
       height = Math.max(height, size.height)
     }
     return {width, height}
+  }
+}
+
+export function is_image_box(item: unknown): item is ImageTextBox {
+  return isObject(item) && typeof (item as ImageTextBox).image != "undefined"
+}
+
+export class GraphicsContainer extends GraphicsBox {
+  constructor(readonly items: GraphicsBox[]) {
+    super()
+  }
+
+  override set base_font_size(v: number | null | undefined) {
+    if (v != null)
+      this._base_font_size = v
+
+    for (const item of this.items) {
+      item.base_font_size = v
+    }
+  }
+
+  override get base_font_size(): number {
+    return this._base_font_size
+  }
+
+  set visuals(v: visuals.Text["Values"] | visuals.Line["Values"] | visuals.Fill["Values"]) {
+    for (const item of this.items) {
+      item.visuals = v
+    }
+
+    const metric_map = {x: 0, cap: 1, ascent: 2, x_descent: 3, cap_descent: 4, ascent_descent: 5}
+    const common = max_by(this.items.map((item) => item.infer_text_height()), (metric) => metric_map[metric])
+
+    for (const item of this.items) {
+      item.text_height_metric = common
+    }
+  }
+
+  override set angle(a: number) {
+    this._angle = a
+    for (const item of this.items) {
+      item.angle = a
+    }
+  }
+
+  override get angle(): number {
+    return this._angle
+  }
+
+  private get max_v_align(): number {
+    let max_value = 0
+
+    const values = this.items
+      .filter(is_image_box)
+      .map(item => item.image_properties?.v_align ?? 0)
+
+    values.map(Math.abs)
+      .reduce((max, value, index) => {
+        if (value > max) {
+          max_value = values[index]
+          return value
+        }
+        return max
+      }, 0)
+
+    return max_value
+  }
+
+  get v_aligns(): number[] {
+    return this.items
+      .map(item => is_image_box(item) ? item.image_properties?.v_align ?? 0 : 0)
+  }
+
+  override _size(): Size {
+    let width = 0
+    let height = 0
+
+    for (const item of this.items) {
+      const size = item._size()
+      width += size.width
+      height = Math.max(height, size.height)
+    }
+
+    return {width, height}
+  }
+
+  _rect(): Rect {
+    const {width, height} = this._size()
+
+    const {x, y} = this._computed_position()
+
+    const bbox = new BBox({x, y, width, height})
+    return bbox.rect
+  }
+
+  override infer_text_height(): TextHeightMetric {
+    return "ascent_descent"
+  }
+
+  override get position(): Position {
+    return this._position
+  }
+
+  override set position(pos: Position) {
+    this._position = {...pos}
+    const {x} = this._computed_position()
+    this.compute_items_positions({...pos, sx: x})
+  }
+
+  _computed_position() : {x: number, y: number} {
+    const {sx, x_anchor=this._x_anchor, sy, y_anchor=this._y_anchor} = this.position
+    const {width, height} = this._size()
+
+    const x = sx - (() => {
+      if (isNumber(x_anchor))
+        return x_anchor*width
+      else {
+        switch (x_anchor) {
+          case "left": return 0
+          case "center": return 0.5*width
+          case "right": return width
+        }
+      }
+    })()
+
+    const y = sy - (() => {
+      if (isNumber(y_anchor))
+        return y_anchor*height
+      else {
+        switch (y_anchor) {
+          case "top": return 0
+          case "center": return 0.5*height
+          case "bottom": return height
+          case "baseline": return 0.5*height
+        }
+      }
+    })()
+
+    return {x, y}
+  }
+
+  private compute_items_positions(pos: Position, n?: number): void {
+    if (typeof n === "undefined")
+      n = 0
+
+    const in_bounds = (i: number) => i < this.items.length && i >= 0
+    const previous_index = n-1
+    const next_index = n+1
+    const {sx, sy, y_anchor="center"} = pos
+    const {height: container_height} = this._size()
+    const {height: item_height, width: item_width} = this.items[n]._size()
+
+    // TODO: this only works for top and bottom
+    const container_space = y_anchor == "top" ? item_height-container_height : 0
+    // const item_sy = sy - container_space + (this.max_v_align - this.v_aligns[n])
+    const item_sy = sy - container_space
+
+    // first item
+    if (!in_bounds(previous_index)) {
+      this.items[n].position = {...this.position, sx: this.position.sx - item_width}
+      this.items[n].position = {...pos, sy: item_sy, x_anchor: "left", y_anchor}
+
+      if (in_bounds(next_index)) return this.compute_items_positions({...pos}, next_index)
+      return
+    }
+
+    const {width} = this.items[previous_index]._size()
+    pos.sx = sx + width
+
+    this.items[n].position = {...pos, sy: item_sy, x_anchor: "left", y_anchor}
+    // this.items[n].position = {...this.position, sx: this.position.sx + width}
+
+    if (!in_bounds(next_index)) {
+      return
+    }
+
+    return this.compute_items_positions({...pos}, next_index)
+  }
+
+  override paint(ctx: Context2d): void {
+    for (const item of this.items) {
+      item.paint(ctx)
+    }
   }
 }
