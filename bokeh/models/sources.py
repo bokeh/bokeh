@@ -89,7 +89,10 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    DataDict = TDict[str, Sequence[Unknown]]
+    import numpy.typing as npt
+    import pandas as pd
+
+    DataDict = TDict[str, Union[Sequence[TAny], npt.NDArray[TAny], pd.Series, pd.Index]]
 
     Index = Union[int, slice, Tuple[Union[int, slice], ...]]
 
