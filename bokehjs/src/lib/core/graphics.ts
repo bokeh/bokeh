@@ -500,11 +500,11 @@ export type ImageProperties = {
 export class ImageTextBox extends TextBox {
   image: HTMLImageElement
   image_properties: ImageProperties
-  load_image: () => Promise<void>
+  image_loader: (self: ImageTextBox) => Promise<void>
 
-  constructor({text, load_image}: {text: string, load_image: () => Promise<void>}) {
+  constructor({text, image_loader}: {text: string, image_loader: (self: ImageTextBox) => Promise<void>}) {
     super({text})
-    this.load_image = load_image
+    this.image_loader = image_loader
   }
 
   override _computed_position(size: Size, metrics: FontMetrics, _nlines: number): {x: number, y: number} {
@@ -535,18 +535,11 @@ export class ImageTextBox extends TextBox {
       else {
         switch (y_anchor) {
           case "top":
-            if (metrics.height > height)
-              return (height - (-v_align - metrics.descent) - metrics.height)
-            else
-              return 0
+            return metrics.height > height ? height - metrics.height + v_align : 0
           case "center": return 0.5*height
+          case "baseline":
           case "bottom":
-            if (metrics.height > height)
-              return (
-                height + metrics.descent + v_align
-              )
-            else return height
-          case "baseline": return 0.5*height
+            return metrics.height > height ? height + v_align : height
         }
       }
     })()
@@ -591,7 +584,7 @@ export class ImageTextBox extends TextBox {
 
   override paint(ctx: Context2d): void {
     if (!this.image) {
-      this.load_image()
+      this.image_loader(this)
       return
     }
 
