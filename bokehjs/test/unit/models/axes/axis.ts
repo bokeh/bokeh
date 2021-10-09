@@ -9,7 +9,7 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {build_view} from "@bokehjs/core/build_views"
-import {TextBox} from "@bokehjs/core/graphics"
+import {TextBox, ImageTextBox} from "@bokehjs/core/graphics"
 import {TeXView, TeX} from "@bokehjs/models/text/math_text"
 
 describe("Axis", () => {
@@ -53,7 +53,7 @@ describe("Axis", () => {
     const labels = axis_view.compute_labels([0, 2, 4, 6, 8, 10])
 
     expect(labels.items.map((l) => (l as TextBox).text)).to.be.equal(["zero", "2", "\\pi", "6", "8", "ten"])
-    expect(labels.items.filter(l => l instanceof TeXView).length).to.be.equal(2)
+    expect(labels.items.filter(l => l instanceof ImageTextBox).length).to.be.equal(2)
   })
 
   it("should convert mathstrings on axis labels to TeX", async () => {
