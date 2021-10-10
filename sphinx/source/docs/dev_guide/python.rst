@@ -60,9 +60,9 @@ these JavaScript objects to render the visualization.
 .. image:: /_images/bokeh_bokehjs.svg
     :class: image-border
     :alt: Flowchart describing the flow of data from Python objects through JSON
-    to the browser-side. There, the JSON data is converted into JavaScript
-    objects which then get rendered as output. Output can be HTML Canvas, WebGL,
-    or SVG.
+          to the browser-side. There, the JSON data is converted into JavaScript
+          objects which then get rendered as output. Output can be HTML Canvas,
+          WebGL, or SVG.
     :align: center
     :width: 100%
 

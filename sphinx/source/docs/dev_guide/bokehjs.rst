@@ -3,60 +3,60 @@
 Contributing to BokehJS
 =======================
 
-TBD: Update!
-
-BokehJS is the in-browser client-side runtime library that users of Bokeh
+:term:`BokehJS` is the in-browser client-side runtime library that users of Bokeh
 ultimately interact with. This library is written primarily in TypeScript
 and is one of the unique things about the Bokeh plotting system.
 
-.. _contributor_guide_bokehjs_motivations:
+The central building blocks of all Bokeh visualizations are objects based on
+Bokeh's :term:`models <Model>`. These models are representations of
+:term:`plot <Plot>` elements, such as axes, :term:`glyphs <Glyph>`, or
+:term:`widgets <Widget>`.
 
-BokehJS Motivations
--------------------
+On the Python side, Bokeh serializes the attributes of each plot element object
+into JSON data. On the browser side, BokehJS deserializes this JSON data and
+creates JavaScript objects based on this information. BokehJS then uses these
+JavaScript objects to render the visualization.
 
-When researching the wide field of JavaScript plotting libraries, we found
-that they were all architected and designed to integrate with other JavaScript.
-If they provided any server-side wrappers, those were always "second class"
-and primarily designed to generate a simple configuration for the front-end JS.
-Of the few JS plotting libraries that offered any level of interactivity, the
-interaction was not really configurable or customizable from outside the JS
-itself. Very few JS plotting libraries took large and streaming server-side
-data into account, and providing seamless access to those facilities from
-another language like Python was not a consideration.
+.. image:: /_images/bokeh_bokehjs.svg
+    :class: image-border
+    :alt: Flowchart describing the flow of data from Python objects through JSON
+          to the browser-side. There, the JSON data is converted into JavaScript
+          objects which then get rendered as output. Output can be HTML Canvas,
+          WebGL, or SVG.
+    :align: center
+    :width: 100%
 
-This, in turn, has caused the developers of Python plotting libraries to
-only treat the browser as a "backend target" environment, for which they
-will generate static images or a bunch of JavaScript.
-
-.. _contributor_guide_bokehjs_goals:
-
-Goals
------
-
-BokehJS is intended to be a standalone, first-class JavaScript plotting
-library and *interaction runtime* for dynamic, highly-customizable
-information visualization.
+This combination of Python and JavaScript allows you to define a visualization
+in Python while taking advantage of all the interactivity offered by JavaScript
+running in a browser. Additionally, this combination allows you to do almost all
+data handling with Python and use large and streaming server-side data with an
+interactive JavaScript visualization.
 
 .. _contributor_guide_bokehjs_interface:
 
-Interface
----------
+BokehJS interface
+-----------------
 
 BokehJS is a standalone JavaScript library for dynamic and interactive
 visualization in the browser. It is built on top of HTML5 canvas, and designed
-for high-performance rendering of larger data sets. Its interface is declarative,
-in the style of Protovis_, but its implementation consists of a reactive scene
-graph (similar to Chaco_).
+for high-performance rendering of larger data sets. While BokehJS accepts
+visualizations defined in a JSON file, you can also create visualizations with
+BokehJS directly.
 
-More information is available at :ref:`userguide_bokehjs`.
+Its interface is declarative, in the style of D3.js_, but its implementation
+consists of a reactive scene graph (similar to Chaco_).
 
-CSS Class Names
+More information about creating visualizations directly in BokehJS is available
+at :ref:`userguide_bokehjs`.
+
+CSS class names
 ---------------
 
-The CSS for controlling Bokeh presentation are located in a ``bokeh.css`` file
-that is compiled from several separate ``.less`` files in the BokehJS source
-tree. All CSS classes specifically for Bokeh DOM elements are prefixed with
-the string ``bk-``. For instance some examples are: ``.bk-plot``, ``.bk-toolbar-button``, etc.
+The CSS for controlling Bokeh visualizations is located in a ``bokeh.css`` file.
+This file is compiled from several separate ``.less`` files in the
+:bokeh-tree:`bokehjs/src/less/` directory. All CSS classes for Bokeh DOM
+elements are prefixed with ``bk-``. For example: ``.bk-plot`` or
+``.bk-toolbar-button``.
 
 .. _contributor_guide_bokehjs_development:
 
@@ -218,7 +218,7 @@ BokehJS doesn't have an explicit style guide. Make your changes consistent in
 formatting. Use ``node make lint``. Follow patterns observed in the surrounding
 code and apply common sense.
 
+.. _D3.js: https://d3js.org/
 .. _Chaco: https://github.com/enthought/chaco
 .. _JSFiddle: http://jsfiddle.net/
-.. _Protovis: http://mbostock.github.io/protovis/
 .. _GitHub_Actions: https://github.com/bokeh/bokeh/actions?query=workflow%3ABokehJS-CI
