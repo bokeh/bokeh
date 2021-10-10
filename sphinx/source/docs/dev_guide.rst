@@ -50,7 +50,7 @@ You can then contribute to Bokeh's codebase in many ways:
     ^^^^^^^^^^^^^^^^^^^^^^^
     If you would like to help with Bokeh's Python code:
 
-    * :ref:`contributor_guide_models`
+    * :ref:`contributor_guide_python`
     * :ref:`contributor_guide_testing`
     * :ref:`contributor_guide_writing_tests`
     * :ref:`contributor_guide_issues`

@@ -47,14 +47,18 @@ including Python-specific tests.
 Models and properties
 ---------------------
 
-A large part of Bokeh's Python codebase consists of :term:`models <Model>` that
-represent the various elements of a visualization. The structure of the models
-in :term:`BokehJS` resembles that of the Python models.
+The central building blocks of all Bokeh visualizations are objects based on
+Bokeh's :term:`models <Model>`. These models are representations of
+:term:`plot <Plot>` elements, such as axes, :term:`glyphs <Glyph>`, or
+:term:`widgets <Widget>`.
 
-Bokeh's Python models are objects that have attributes that can be automatically
-serialized in a way that lets them be reconstituted as BokehJS models.
-All of those models inherit from the :class:`bokeh.core.has_props.HasProps` base
-class:
+On the Python side, Bokeh serializes the attributes of each plot element object
+into JSON data. On the browser side, BokehJS deserializes this JSON data and
+creates JavaScript objects based on this information. :term:`BokehJS` then uses
+these JavaScript objects to render the visualization.
+
+All of those models are subclasses of :class:`bokeh.models`. They all inherit
+from the :class:`bokeh.core.has_props.HasProps` base class:
 
 .. code-block:: python
 
