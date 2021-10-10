@@ -1,16 +1,13 @@
-import * as p from "core/properties"
 import {GraphicsContainer, ImageTextBox, is_image_box, TextBox} from "core/graphics"
 import {BaseText, BaseTextView} from "./base_text"
 import {MathTextView, MathText, TeXView, TeX} from "./math_text"
 import {build_view} from "core/build_views"
 
 export abstract class MathAndTextView extends BaseTextView {
-  override model: MathAndText
-
   protected graphics_container: GraphicsContainer
 
-  math_view: MathTextView
-  math_model: MathText
+  abstract math_view: MathTextView
+  abstract math_model: MathText
 
   graphics(): GraphicsContainer {
     return this.graphics_container
@@ -47,28 +44,11 @@ export abstract class MathAndTextView extends BaseTextView {
   }
 }
 
-export namespace MathAndText {
-  export type Attrs = p.AttrsOf<Props>
+export class TeXAndTextView extends MathAndTextView {
+  override model: TeXAndText
 
-  export type Props = BaseText.Props & {
-    text: p.Property<string>
-  }
-}
-
-export interface MathAndText extends MathAndText.Attrs {}
-
-export class MathAndText extends BaseText {
-  override properties: MathAndText.Props
-  override __view_type__: MathAndTextView
-
-  constructor(attrs?: Partial<MathAndText.Attrs>) {
-    super(attrs)
-  }
-}
-
-export class MathAndTeXView extends MathAndTextView {
   override math_view: TeXView
-  override math_model: TeX
+  override math_model: TeX = new TeX()
 
   protected parse_math_parts(): TextBox[] {
     if (!this.math_view.provider.MathJax)
@@ -96,5 +76,13 @@ export class MathAndTeXView extends MathAndTextView {
     }
 
     return parts
+  }
+}
+
+export class TeXAndText extends BaseText {
+  override __view_type__: TeXAndTextView
+
+  static {
+    this.prototype.default_view = TeXAndTextView
   }
 }

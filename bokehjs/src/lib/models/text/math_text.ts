@@ -180,10 +180,10 @@ export class MathMLView extends MathTextView {
   override model: MathML
 
   override styled_text(image_box: ImageTextBox): string {
-    let styled = this.model.text.trim()
+    let styled = image_box.text.trim()
     let matchs = styled.match(/<math(.*?[^?])?>/s)
     if (!matchs)
-      return this.model.text.trim()
+      return image_box.text.trim()
 
     styled = insert_text_on_position(
       styled,
@@ -193,7 +193,7 @@ export class MathMLView extends MathTextView {
 
     matchs = styled.match(/<\/[^>]*?math.*?>/s)
     if (!matchs)
-      return this.model.text.trim()
+      return image_box.text.trim()
 
     return insert_text_on_position(styled, styled.indexOf(matchs[0]), "</mstyle>")
   }
@@ -233,7 +233,7 @@ export class TeXView extends MathTextView {
 
   override styled_text(image_box: ImageTextBox): string {
     const [r, g, b] = color2rgba(image_box.color)
-    return `\\color[RGB]{${r}, ${g}, ${b}} ${this.model.text}`
+    return `\\color[RGB]{${r}, ${g}, ${b}} ${image_box.text}`
   }
 
   protected _process_text(image_box: ImageTextBox): HTMLElement | undefined {

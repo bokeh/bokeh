@@ -576,6 +576,8 @@ export class ImageTextBox extends TextBox {
       height = metrics.height
     }
 
+    height += metrics.descent
+
     const w_scale = this.width?.unit == "%" ? this.width.value : 1
     const h_scale = this.height?.unit == "%" ? this.height.value : 1
 
@@ -849,14 +851,10 @@ export class GraphicsContainer extends GraphicsBox {
   _rect(): Rect {
     const {width, height} = this._size()
 
-    const {x, y} = this._computed_position()
+    const {x, y} = this.top_left({width, height})
 
     const bbox = new BBox({x, y, width, height})
     return bbox.rect
-  }
-
-  override infer_text_height(): TextHeightMetric {
-    return "ascent_descent"
   }
 
   override get position(): Position {
@@ -864,18 +862,15 @@ export class GraphicsContainer extends GraphicsBox {
   }
 
   override set position(pos: Position) {
-    // TODO: y_anchor baseline
-    if (pos.y_anchor == "baseline")
-      pos.y_anchor = "bottom"
-
     this._position = {...pos}
-    const {x} = this._computed_position()
-    this.compute_items_positions({...pos, sx: x})
+
+    const {x, y} = this.top_left(this._size())
+    this.compute_items_positions({...pos, sx: x, sy: y, y_anchor: "top", x_anchor: "left"})
   }
 
-  _computed_position(): {x: number, y: number} {
+  private top_left(size: Size): {x: number, y: number} {
     const {sx, x_anchor=this._x_anchor, sy, y_anchor=this._y_anchor} = this.position
-    const {width, height} = this._size()
+    const {width, height} = size
 
     const x = sx - (() => {
       if (isNumber(x_anchor))
@@ -896,8 +891,8 @@ export class GraphicsContainer extends GraphicsBox {
         switch (y_anchor) {
           case "top": return 0
           case "center": return 0.5*height
+          case "baseline":
           case "bottom": return height
-          case "baseline": return 0.5*height
         }
       }
     })()
@@ -905,63 +900,92 @@ export class GraphicsContainer extends GraphicsBox {
     return {x, y}
   }
 
-  private compute_items_positions(pos: Position, n?: number): void {
-    if (typeof n === "undefined")
-      n = 0
+  private get max_v_align(): number {
+    let max_value = 0
 
-    const in_bounds = (i: number) => i < this.items.length && i >= 0
-    const previous_index = n-1
-    const next_index = n+1
+    const values = this.items
+      .filter(is_image_box)
+      .map(item => item.image_properties?.v_align ?? 0)
 
-    const {height: container_height} = this._size()
-    const {height: item_height} = this.items[n]._size()
+    values.map(Math.abs)
+      .reduce((max, value, index) => {
+        if (value > max) {
+          max_value = values[index]
+          return value
+        }
+        return max
+      }, 0)
 
-    pos.sy = this.position.sy
-
-    const height_diff = (item_height - container_height) / 2
-
-    if (pos.y_anchor == "top") pos.sy -= height_diff
-    if (pos.y_anchor == "bottom") pos.sy += height_diff
-
-    // first item
-    if (!in_bounds(previous_index)) {
-      this.set_item_position(n, {...pos})
-
-      if (in_bounds(next_index))
-        return this.compute_items_positions({...pos}, next_index)
-      return
-    }
-
-    const {width} = this.items[previous_index]._size()
-    pos.sx += width
-
-    this.set_item_position(n, {...pos})
-
-    if (!in_bounds(next_index)) {
-      return
-    }
-
-    return this.compute_items_positions({...pos}, next_index)
+    return max_value
   }
 
-  set_item_position(n: number, position: Position) {
-    if (this.angle) {
-      const {sx, sy} = this.position
-      const tr = new AffineTransform()
-      tr.translate(sx, sy)
-      tr.rotate(this.angle)
-      tr.translate(-sx, -sy)
-      const [p_sx, p_sy] = tr.apply(position.sx, position.sy)
-      position.sx = p_sx
-      position.sy = p_sy
-    }
+  get_v_align(item: GraphicsBox): number {
+    return is_image_box(item)
+      ? item.image_properties?.v_align ?? 0
+      : 0
+  }
 
-    this.items[n].position = {...position, x_anchor: "left"}
+  private apply_angle(position: Position): Position {
+    const angle = this.angle ?? 0
+    const {sx, sy} = this.position
+    const tr = new AffineTransform()
+    tr.translate(sx, sy)
+    tr.rotate(angle)
+    tr.translate(-sx, -sy)
+    const [p_sx, p_sy] = tr.apply(position.sx, position.sy)
+    position.sx = p_sx
+    position.sy = p_sy
+
+    return position
+  }
+
+  private compute_items_positions(pos: Position, n: number = 0): void {
+    const item = this.items[n]
+    const previous_item = this.items[n-1]
+    const next_item = this.items[n+1]
+
+    const {height: container_height} = this._size()
+    const {height: item_height} = item._size()
+
+    const height_diff = container_height - item_height
+    const v_align_diff = this.max_v_align - this.get_v_align(item)
+
+    const sy = pos.sy + height_diff + v_align_diff
+
+    console.log({
+      container: {
+        sy: pos.sy,
+        height: container_height,
+        v_align: this.max_v_align
+      },
+      item: {
+        sy,
+        height: item_height,
+        v_align: this.get_v_align(item)
+      },
+      diff: {
+        sy: pos.sy - sy,
+        height: container_height - item_height,
+        v_align: this.max_v_align - this.get_v_align(item),
+      }
+    })
+
+    if (previous_item)
+      pos.sx += previous_item._size().width
+
+    item.position = this.apply_angle({...pos, sy})
+
+    if (!next_item)
+      return
+
+    return this.compute_items_positions(pos, n+1)
   }
 
   override paint(ctx: Context2d): void {
     for (const item of this.items) {
       item.paint(ctx)
+      item.paint_rect(ctx)
+      item.paint_bbox(ctx)
     }
   }
 }

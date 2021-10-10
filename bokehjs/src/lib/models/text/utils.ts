@@ -1,4 +1,4 @@
-import {TeX} from "./math_text"
+import {TeXAndText} from "./math_and_text"
 import {BaseText} from "./base_text"
 import {PlainText} from "./plain_text"
 
@@ -21,7 +21,7 @@ export function parse_delimited_string(text: string): BaseText {
 
     if (n0 > -1)
       if (text.indexOf(delim.end, m0) > -1)
-        return new TeX({text})
+        return new TeXAndText({text})
   }
 
   return new PlainText({text})
