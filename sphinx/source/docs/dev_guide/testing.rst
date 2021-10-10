@@ -319,6 +319,8 @@ following command:
 
 You can now use the devtools server for the following operations:
 
+.. _contributor_guide_testing_local_javascript_devtools_endpoints:
+
 Inspecting visual test results
     After running integration tests, you can use the devtools server to
     compare your local results with the baseline images. Open the displayed

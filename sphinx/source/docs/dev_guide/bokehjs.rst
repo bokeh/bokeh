@@ -63,9 +63,9 @@ elements are prefixed with ``bk-``. For example: ``.bk-plot`` or
 Development
 -----------
 
-BokehJS's source code is located in the :bokeh-tree:`bokehjs` directory in Bokeh's
-monorepo repository. All further instructions and shell commands assume that
-``bokehjs/`` is the current directory.
+BokehJS's source code is located in the :bokeh-tree:`bokehjs` directory in
+Bokeh's monorepo repository. All further instructions and shell commands assume
+that ``bokehjs/`` is your current directory.
 
 Some guidelines to adhere to when working on BokehJS:
 
@@ -76,59 +76,52 @@ Some guidelines to adhere to when working on BokehJS:
 Requirements
 ~~~~~~~~~~~~
 
+To prepare your system for building and testing BokehJS locally, follow the
+instructions in :ref:`contributor_guide_setup`. This way, all required packages
+should be installed and configured on your system.
+
+Specifically, BokehJS requires the following minimum versions:
+
 * node 14+
 * npm 7.4+ (most recent version)
 * chrome/chromium browser 94+ or equivalent
 
-You can install nodejs with conda:
-
-.. code-block:: sh
-
-    $ conda install -c conda-forge nodejs
-
-or follow the official installation `instructions <https://nodejs.org/en/download/>`_.
-
-Upgrade your npm after installing or updating nodejs, or whenever asked by npm:
-
-.. code-block:: sh
-
-    $ npm install -g npm@7
-
-Officially supported platforms are as follows:
+Bokeh officially supports the following platforms for development and testing:
 
 * Linux Ubuntu 20.04+ or equivalent
 * Windows 10 (or Server 2019)
 * MacOS 10.15
 
-BokehJS can be developed on different platforms and versions of aforementioned
-software, but results may vary, especially when it comes to testing (visual
-testing in particular).
+It is possible to work on BokehJS on different platforms and versions. However,
+things might not work as intended and some tests will not work.
 
 Building
 ~~~~~~~~
 
-BokehJS's build is maintained by using an in-house tool that visually resembles
-gulp. All commands start with ``node make`` (don't confuse this with GNU make).
+For building, BokehJS relies on a custom tool similar to gulp_. All
+commands start with ``node make`` (don't confuse this with GNU make).
 
-Most common commands:
+Use ``node make help`` to list all available commands for the BokehJS build
+system. These are the most common commands:
 
 * ``node make build``
 * ``node make test``
 * ``node make lint``
 
-Use ``node make help`` to list all available commands.
+``node make`` automatically runs ``npm install`` whenever ``package.json``
+changes.
 
-``node make`` automatically runs ``npm install`` whenever ``package.json`` changes.
-
-You can use ``tsc`` directly for error checking (e.g. in an IDE). However, don't use
-it for code emit, because we rely on AST transforms to produce viable library code.
+You can use ``tsc`` directly for error checking (e.g. in an IDE). However, don't
+use it for code emit, because BokehJS requires AST transforms to produce viable
+library code.
 
 Testing
 ~~~~~~~
 
-The Bokeh repository contains several test suites. These tests help to make sure
-that BokehJS functions consistently as its own library as well as in combination
-with all other components of Bokeh.
+The Bokeh repository contains several :ref:`test suites
+<contributor_guide_testing>`. These tests help to make sure that BokehJS
+functions consistently as its own library as well as in combination with all
+other components of Bokeh.
 
 To learn more about running tests for BokehJS locally, see
 :ref:`contributor_guide_testing_local_javascript`.
@@ -136,22 +129,45 @@ To learn more about running tests for BokehJS locally, see
 To learn more about adding and updating tests for BokehJS, see
 :ref:`contributor_guide_writing_tests_bokehjs`.
 
-Debugging in Headless Chrome
+Debugging in headless Chrome
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Although testing in headless Chrome and running tests manually in Chrome should agree
-with each other most of the time, there are rare cases where headless and GUI Chrome
-diverge. In this situation one has to debug BokehJS' code directly in the headless
-browser.
+Some of :ref:`Bokeh's JavaScript tests <contributor_guide_testing_local_javascript>`
+include running fully automated tests with a headless version of Chrome. You can
+also :ref:`run these tests manually with Chrome's GUI
+<contributor_guide_testing_local_javascript_devtools>`.
 
-Start BokehJS' devtools server in one console and run ``node make test:run:headless``
-in another. This starts Chrome in headless mode preconfigured for bokehjs' testing
-setup. Then open Chrome (or any other web browser), navigate to http://localhost:9222 and
-click ``about:blank`` link. This opens remote devtools console. Use its navigation bar
-and navigate to e.g. http://localhost:5777/integration/run (or other URL mentioned in
-an earlier paragraph). You are now set up for debugging in headless Chrome.
+The results of these automated tests should be the same as running the tests
+manually. However, there are rare cases where headless and GUI Chrome generate
+different results. In this situation, you can't use the GUI - instead, you need
+to debug BokehJS' code directly in the headless browser.
 
-Minimal Model/View Module
+Follow these steps in case you need to debug directly in the headless version of
+Chrome:
+
+1. Use ``node test/devtools server`` to start a BokehJS devtools server.
+2. Open another console and run ``node make test:run:headless``. This starts
+   Chrome in headless mode preconfigured for the BokehJS testing setup.
+3. Open a Chrome or Chromium web browser and enter the URL
+   ``http://localhost:9222``
+4. Click the ``about:blank`` link at the bottom of the page. You can ignore the
+   rest of that page.
+5. Clicking this link opens a remote devtools console. Use the navigation bar
+   inside this console to use the :ref:`endpoints
+   <contributor_guide_testing_local_javascript_devtools_endpoints>` you would
+   usually use with Bokeh's devtools server in the GUI version of the browser.
+
+.. image:: /_images/chrome_headless_debugging.png
+    :class: image-border
+    :alt: Screenshot of a Chromium web browser displaying controls for Bokeh's
+          preconfigured version of headless Chrome.
+    :align: center
+    :width: 100%
+
+See :ref:`contributor_guide_testing_local_javascript_devtools` for more
+information on Bokeh's devtools server.
+
+Minimal Model/View module
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Models (and views) come in many forms and sizes. At minimum, a model is implemented.
@@ -220,5 +236,6 @@ code and apply common sense.
 
 .. _D3.js: https://d3js.org/
 .. _Chaco: https://github.com/enthought/chaco
+.. _gulp: https://gulpjs.com/
 .. _JSFiddle: http://jsfiddle.net/
 .. _GitHub_Actions: https://github.com/bokeh/bokeh/actions?query=workflow%3ABokehJS-CI
