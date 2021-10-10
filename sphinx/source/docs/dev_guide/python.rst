@@ -58,7 +58,7 @@ creates JavaScript objects based on this information. :term:`BokehJS` then uses
 these JavaScript objects to render the visualization.
 
 All of those models are subclasses of :class:`bokeh.models`. They all inherit
-from the :class:`bokeh.core.has_props.HasProps` base class:
+from the :class:`~bokeh.core.has_props.HasProps` base class:
 
 .. code-block:: python
 

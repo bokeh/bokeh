@@ -5,4 +5,4 @@
 Bindings (moved)
 ================
 
-Content moved to :ref:`_contributor_guide_python_models`
+Content moved to :ref:`contributor_guide_python_models`
