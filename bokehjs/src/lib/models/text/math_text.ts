@@ -2,7 +2,7 @@ import * as p from "core/properties"
 import {load_image} from "core/util/image"
 import {color2hexrgb, color2rgba} from "core/util/color"
 import {Size} from "core/types"
-import {GraphicsContainer, ImageTextBox, is_image_box, TextBox} from "core/graphics"
+import {ImageTextBox} from "core/graphics"
 import {FontMetrics, font_metrics, parse_css_length} from "core/util/text"
 import {insert_text_on_position} from "core/util/string"
 import {BaseText, BaseTextView} from "./base_text"
@@ -14,10 +14,10 @@ import {MathJaxProvider, default_provider} from "./providers"
 export abstract class MathTextView extends BaseTextView {
   override model: MathText
 
-  protected graphics_container: GraphicsContainer
+  protected image_box: ImageTextBox
 
-  graphics(): GraphicsContainer {
-    return this.graphics_container
+  graphics(): ImageTextBox {
+    return this.image_box
   }
 
   abstract styled_text(image_box: ImageTextBox): string
@@ -32,13 +32,13 @@ export abstract class MathTextView extends BaseTextView {
     if (this.provider.status == "not_started")
       await this.provider.fetch()
 
-    this.graphics_container = new GraphicsContainer(this.parse_math_parts())
+    this.image_box = new ImageTextBox({text: this.model.text, image_loader: (image_box: ImageTextBox) => this.load_image(image_box)})
   }
 
   override connect_signals(): void {
     super.connect_signals()
     this.on_change(this.model.properties.text, () => {
-      this.graphics_container = new GraphicsContainer(this.parse_math_parts())
+      this.image_box = new ImageTextBox({text: this.model.text, image_loader: (image_box: ImageTextBox) => this.load_image(image_box)})
     })
   }
 
@@ -81,18 +81,14 @@ export abstract class MathTextView extends BaseTextView {
 
   protected abstract _process_text(image_box: ImageTextBox): HTMLElement | undefined
 
-  private has_images_loaded() {
-    return this.graphics().items.filter(is_image_box).every(({image}) => image)
-  }
-
-  private async load_image(image_box: ImageTextBox): Promise<void> {
-    if (!this.has_images_loaded() && (this.provider.status == "not_started" || this.provider.status == "loading")) {
+  async load_image(image_box: ImageTextBox): Promise<void> {
+    if (!this.image_box.image && (this.provider.status == "not_started" || this.provider.status == "loading")) {
       this.provider.ready.connect(() => this.load_image(image_box))
       this._has_finished = false
       return
     }
 
-    if (!this._has_finished && (this.provider.status == "failed" || this.has_images_loaded())) {
+    if (!this._has_finished && (this.provider.status == "failed" || this.image_box.image)) {
       this._has_finished = true
       return this.parent.notify_finished_after_paint()
     }
@@ -121,38 +117,10 @@ export abstract class MathTextView extends BaseTextView {
 
     this.parent.request_layout()
 
-    if (this.has_images_loaded()) {
+    if (this.image_box.image) {
       this._has_finished = true
       this.parent.notify_finished_after_paint()
     }
-  }
-
-  private parse_math_parts(): TextBox[] {
-    if (!this.provider.MathJax)
-      return []
-
-    const {text} = this.model
-    // TODO: find mathml
-    const tex_parts = this.provider.MathJax.find_tex(text)
-    const parts: TextBox[] = []
-
-    let last_index: number | undefined = 0
-    for (const part of tex_parts) {
-      const _text = text.slice(last_index, part.start.n)
-      if (_text)
-        parts.push(new TextBox({text: _text}))
-
-      // TODO:  display mode
-      parts.push(new ImageTextBox({text: part.math, image_loader: (image_box: ImageTextBox) => this.load_image(image_box)}))
-
-      last_index = part.end.n
-    }
-
-    if (last_index! < text.length) {
-      parts.push(new TextBox({text: text.slice(last_index)}))
-    }
-
-    return parts
   }
 }
 
