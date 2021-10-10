@@ -57,6 +57,15 @@ into JSON data. On the browser side, BokehJS deserializes this JSON data and
 creates JavaScript objects based on this information. :term:`BokehJS` then uses
 these JavaScript objects to render the visualization.
 
+.. image:: /_images/bokeh_bokehjs.svg
+    :class: image-border
+    :alt: Flowchart describing the flow of data from Python objects through JSON
+    to the browser-side. There, the JSON data is converted into JavaScript
+    objects which then get rendered as output. Output can be HTML Canvas, WebGL,
+    or SVG.
+    :align: center
+    :width: 100%
+
 All of those models are subclasses of :class:`bokeh.models`. They all inherit
 from the :class:`~bokeh.core.has_props.HasProps` base class:
 
