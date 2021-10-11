@@ -307,7 +307,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
     try {
       this.svg_image = await load_image(url)
-    } finally {
+    } catch {
       URL.revokeObjectURL(url)
     }
 
