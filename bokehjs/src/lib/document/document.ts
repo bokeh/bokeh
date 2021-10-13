@@ -197,9 +197,6 @@ export class Document {
 
   protected _pop_all_models_freeze(): void {
     this._all_models_freeze_count -= 1
-    if (this._all_models_freeze_count === 0) {
-      this._recompute_all_models()
-    }
   }
 
   /*protected*/ _invalidate_all_models(): void {
@@ -649,6 +646,7 @@ export class Document {
       }
     }
     doc.set_title(json.title!) // XXX!
+    doc._recompute_all_models()
     return doc
   }
 
