@@ -260,7 +260,8 @@ using sphinx_panels */
 img.image-border {
     border: 1px solid rgba(var(--pst-color-borders),1);
     margin-bottom: 1.15rem;
-    box-shadow: 2px 2px 5px grey;
+    border-radius: .2rem;
+    box-shadow: 1px 1px 1px #d8d8d8;
 }
 
 /* "next" and "previous" links in page footer */
