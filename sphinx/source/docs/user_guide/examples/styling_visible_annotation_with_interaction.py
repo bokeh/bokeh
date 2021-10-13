@@ -6,10 +6,10 @@ from bokeh.plotting import figure
 output_file("styling_visible_annotation_with_interaction.html")
 
 p = figure(width=600, height=200, tools='')
-p.line([1, 2, 3], [1, 2, 1], line_color="blue")
-pink_line = p.line([1, 2, 3], [2, 1, 2], line_color="pink")
+p.line([1, 2, 3], [1, 2, 1], line_color="#0072B2")
+pink_line = p.line([1, 2, 3], [2, 1, 2], line_color="#CC79A7")
 
-green_box = BoxAnnotation(left=1.5, right=2.5, fill_color='green', fill_alpha=0.1)
+green_box = BoxAnnotation(left=1.5, right=2.5, fill_color='#009E73', fill_alpha=0.1)
 p.add_layout(green_box)
 
 # Use js_link to connect button active property to glyph visible property
