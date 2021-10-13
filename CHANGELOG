@@ -1,3 +1,32 @@
+2021-10-13    2.4.1:
+--------------------
+  * bugfixes:
+    - #11119 [component: bokehjs] [BUG] varea_stack() and vline_stack() fails to update correctly when new source data is different length
+    - #11625 [component: tests] [BUG] Codebase test failures in Windows
+    - #11627 [BUG] mypy tests fail in Windows
+    - #11629 [BUG] Hover tool takes long time to render
+    - #11633 [component: bokehjs] [BUG] RangesUpdate not emitted when using xwheel_pan
+    - #11645 [component: bokehjs] [BUG] `bokeh init` creates a `package.json` which refers to the deprecated Bokeh JS node package
+    - #11646 [component: bokehjs] [BUG] Using band_hatch_pattern with images doesn't work
+    - #11661 [component: bokehjs] [BUG] Issue with line rendering when selecting indices
+    - #11670 [component: bokehjs] [BUG] Duplicate change events for autocomplete_input
+    - #11679 [BUG] Parallel Plot example with output_backend="webgl" not working
+    - #11713 [component: docs] Documentation builds are failing in CI
+    - #11644 [component: bokehjs] Actually fix clipping in SVG `<text>` nodes
+
+  * tasks:
+    - #11617 [component: docs] Update Team link in footer
+    - #11658 [component: build] Support "pip install" from sdist
+    - #11618 [component: tests] Reduce Tornado imports
+    - #11628 [component: docs] Correct path in dev guide server instructions
+    - #11652 [component: build] Update bokehjs' dependencies
+    - #11668 [component: docs] Add information about mathjax bundle
+    - #11681 [NO SQUASH] Batch of 3.0 -> 2.4 backports
+    - #11712 [component: tests] Upgrade baselines to Chrome 94
+    - #11722 [component: tests] Update visual baselines on MacOS
+    - #11724 [NO SQUASH] More 3.0 -> 2.4 backports
+    - #11738 [component: docs] Add release notes for Bokeh 2.4.1
+
 2021-09-15      2.4:
 --------------------
   * bugfixes:
