@@ -197,6 +197,13 @@ export class Document {
 
   protected _pop_all_models_freeze(): void {
     this._all_models_freeze_count -= 1
+    if (this._all_models_freeze_count === 0) {
+      this._recompute_all_models()
+    }
+  }
+
+  protected _pop_all_models_freeze_no_recompute(): void {
+    this._all_models_freeze_count -= 1
   }
 
   /*protected*/ _invalidate_all_models(): void {
@@ -242,6 +249,20 @@ export class Document {
       this._roots.push(model)
     } finally {
       this._pop_all_models_freeze()
+    }
+    this._trigger_on_change(new RootAddedEvent(this, model, setter_id))
+  }
+
+  add_root_no_recompute(model: Model, setter_id?: string): void {
+    logger.debug(`Adding root: ${model}`)
+    if (includes(this._roots, model))
+      return
+
+    this._push_all_models_freeze()
+    try {
+      this._roots.push(model)
+    } finally {
+      this._pop_all_models_freeze_no_recompute()
     }
     this._trigger_on_change(new RootAddedEvent(this, model, setter_id))
   }
@@ -642,7 +663,7 @@ export class Document {
     for (const id of root_ids) {
       const root = references.get(id)
       if (root != null) {
-        doc.add_root(root as Model) // XXX: HasProps
+        doc.add_root_no_recompute(root as Model) // XXX: HasProps
       }
     }
     doc.set_title(json.title!) // XXX!
