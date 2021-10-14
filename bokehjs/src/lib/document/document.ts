@@ -642,16 +642,14 @@ export class Document {
     Document._initialize_references_json(references_json, new Map(), references, new Map())
 
     const doc = new Document({resolver})
+    doc._push_all_models_freeze()
     for (const id of root_ids) {
-      doc._push_all_models_freeze()
       const root = references.get(id)
       if (root != null) {
         doc.add_root(root as Model) // XXX: HasProps
       }
     }
-    for (let i = 0; i < root_ids.length; i++) {
-      doc._pop_all_models_freeze()
-    }
+    doc._pop_all_models_freeze()
     doc.set_title(json.title!) // XXX!
     return doc
   }
