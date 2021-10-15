@@ -1,8 +1,9 @@
-import {display, fig} from "../_util"
+import {display, fig, row} from "../_util"
 import {tex} from "./_text_utils"
 
 import {Label, HTMLLabel} from "@bokehjs/models/annotations"
 import {Constructor} from "@bokehjs/core/class"
+import {OutputBackend} from "@bokehjs/core/enums"
 
 const r = String.raw
 
@@ -174,8 +175,6 @@ describe("Label annotation", () => {
   })
 
   it("should support basic positioning with LaTeX notation", async () => {
-    const plot = fig([600, 600], {x_range: [0, 10], y_range: [0, 10]})
-
     const label0 = new Label({
       x: 1, y: 6,
       x_offset: 0, y_offset: 0,
@@ -311,22 +310,31 @@ describe("Label annotation", () => {
       border_line_color: "green", border_line_width: 1, border_line_dash: [8, 4],
     })
 
-    plot.add_layout(label0)
-    plot.add_layout(label1)
-    plot.add_layout(label2)
-    plot.add_layout(label3)
-    plot.add_layout(label4)
-    plot.add_layout(label5)
-    plot.add_layout(label6)
-    plot.add_layout(label_above_0, "above")
-    plot.add_layout(label_above_1, "above")
-    plot.add_layout(label_below_0, "below")
-    plot.add_layout(label_below_1, "below")
-    plot.add_layout(label_left_0, "left")
-    plot.add_layout(label_left_1, "left")
-    plot.add_layout(label_right_0, "right")
-    plot.add_layout(label_right_1, "right")
+    function make_plot(output_backend: OutputBackend) {
+      const p = fig([600, 600], {
+        output_backend, title: output_backend, x_range: [0, 10], y_range: [0, 10],
+      })
+      p.add_layout(label0)
+      p.add_layout(label1)
+      p.add_layout(label2)
+      p.add_layout(label3)
+      p.add_layout(label4)
+      p.add_layout(label5)
+      p.add_layout(label6)
+      p.add_layout(label_above_0, "above")
+      p.add_layout(label_above_1, "above")
+      p.add_layout(label_below_0, "below")
+      p.add_layout(label_below_1, "below")
+      p.add_layout(label_left_0, "left")
+      p.add_layout(label_left_1, "left")
+      p.add_layout(label_right_0, "right")
+      p.add_layout(label_right_1, "right")
+      return p
+    }
 
-    await display(plot)
+    const p0 = make_plot("canvas")
+    const p1 = make_plot("svg")
+
+    await display(row([p0, p1]))
   })
 })
