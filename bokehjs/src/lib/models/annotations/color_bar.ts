@@ -140,15 +140,9 @@ export class ColorBarView extends AnnotationView {
     })()
 
     if (this._axis == undefined) {
-      this._axis = new AxisCls({
-        ticker: this._ticker,
-        formatter: this._formatter,
-        major_label_standoff: this.model.label_standoff,
-        axis_line_color: null,
-      })
+      this._axis = new AxisCls()
+      this._apply_axis_properties()
     }
-
-    this._apply_axis_properties()
 
     const {title} = this.model
     if (title) {
@@ -198,6 +192,10 @@ export class ColorBarView extends AnnotationView {
 
   protected _apply_axis_properties(): void {
     const builtins = {
+      ticker: this._ticker,
+      formatter: this._formatter,
+      major_label_standoff: this.model.label_standoff,
+      axis_line_color: null,
       major_tick_in: this.model.major_tick_in,
       major_tick_out: this.model.major_tick_out,
       minor_tick_in: this.model.minor_tick_in,
@@ -209,7 +207,7 @@ export class ColorBarView extends AnnotationView {
   }
 
   protected _apply_title_properties(): void {
-    if (this._title && this.model.title) {
+    if (this._title) {
       const builtins = {
         text: this.model.title,
         standoff: this.model.title_standoff,
@@ -223,10 +221,10 @@ export class ColorBarView extends AnnotationView {
     // TODO: this.connect(this.model.change, () => this.plot_view.invalidate_layout())
     this.connect(this._ticker.change, () => this.request_render())
     this.connect(this._formatter.change, () => this.request_render())
-    this.on_change(this.model.title_properties_refs, () => {
+    this.on_change(this.model.title_properties, () => {
       this._apply_title_properties()
     })
-    this.on_change(this.model.axis_properties_refs, () => {
+    this.on_change(this.model.axis_properties, () => {
       this._apply_axis_properties()
     })
     this.connect(this.model.color_mapper.metrics_change, () => {
@@ -669,27 +667,25 @@ export class ColorBar extends Annotation {
     return mixins.attrs_of(this, "title_", mixins.Text, withprefix)
   }
 
-  get axis_properties_refs(): p.Property[] {
-    const {properties} = this
-    const _axis_properties_refs: p.Property[] = []
-    const keys: string[] = ["major_tick_in", "major_tick_out", "minor_tick_in", "minor_tick_out", "label_standoff",
-                            "major_label_overrides", "major_label_policy", ...Object.keys(this.axis_mixins())]
+  get axis_properties(): p.Property[] {
+    const _axis_properties: p.Property[] = []
+    const names: string[] = ["major_tick_in", "major_tick_out", "minor_tick_in", "minor_tick_out", "label_standoff",
+                             "major_label_overrides", "major_label_policy", ...Object.keys(this.axis_mixins())]
 
-    for (const key of keys) {
-      if (this.has_property(key)) _axis_properties_refs.push(properties[key])
+    for (const name of names) {
+      _axis_properties.push(this.property(name))
     }
-    return _axis_properties_refs
+    return _axis_properties
   }
 
-  get title_properties_refs(): p.Property[] {
-    const {properties} = this
-    const _title_properties_refs: p.Property[] = []
-    const keys: string[] = ["title", "standoff", ...Object.keys(this.title_mixins(true))]
+  get title_properties(): p.Property[] {
+    const _title_properties: p.Property[] = []
+    const names: string[] = ["title", "title_standoff", ...Object.keys(this.title_mixins(true))]
 
-    for (const key of keys) {
-      if (this.has_property(key)) _title_properties_refs.push(properties[key])
+    for (const name of names) {
+      _title_properties.push(this.property(name))
     }
-    return _title_properties_refs
+    return _title_properties
   }
 
   constructor(attrs?: Partial<ColorBar.Attrs>) {

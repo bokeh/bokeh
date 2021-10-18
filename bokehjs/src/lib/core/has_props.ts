@@ -583,8 +583,4 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       this.connect(property.change, fn)
     }
   }
-
-  has_property(key: string, properties: unknown = this.properties): key is keyof typeof properties {
-    return key in this.properties
-  }
 }

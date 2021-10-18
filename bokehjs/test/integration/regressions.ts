@@ -1489,7 +1489,6 @@ describe("Bug", () => {
       const {view} = await display(row([p0, p1, p2]))
 
       source.stream({x: x.slice(6), y: y.slice(6)}, 8)
-      
       await view.ready
     })
   })
