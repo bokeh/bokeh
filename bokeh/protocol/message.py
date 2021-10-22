@@ -106,9 +106,8 @@ class Header(_Header, total=False):
     reqid: ID
     num_buffers: int
 
-# class BufferHeader(TypedDict):
-#     id: ID
-BufferHeader = str
+class BufferHeader(TypedDict):
+    id: ID
 
 Content = TypeVar("Content")
 
@@ -269,7 +268,7 @@ class Message(Generic[Content]):
             raise ValueError("Cannot write_buffers to connection None")
         sent = 0
         for header, payload in self._buffers:
-            await conn.write_message(header, locked=locked)
+            await conn.write_message(json.dumps(header), locked=locked)
             await conn.write_message(payload, binary=True, locked=locked)
             sent += (len(header) + len(payload))
         return sent

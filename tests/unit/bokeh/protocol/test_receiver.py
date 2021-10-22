@@ -65,7 +65,7 @@ async def test_validation_success_with_one_buffer() -> None:
     partial = await r.consume('{"bar": 10}')
     assert partial is None
 
-    partial = await r.consume('header')
+    partial = await r.consume('{"id": "buf_header"}')
     assert partial is None
 
     partial = await r.consume(b'payload')
@@ -74,44 +74,45 @@ async def test_validation_success_with_one_buffer() -> None:
     assert partial.header == {"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}
     assert partial.content == {"bar":10}
     assert partial.metadata == {}
-    assert partial.buffers == [('header', b'payload')]
+    assert partial.buffers == [({"id": "buf_header"}, b'payload')]
 
 async def test_multiple_validation_success_with_multiple_buffers() -> None:
     r = receiver.Receiver(proto)
 
     for N in range(10):
-        partial = await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":%d}' % N)
+        partial = await r.consume(f'{{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":{N}}}')
         partial = await r.consume('{}')
         partial = await r.consume('{"bar": 10}')
 
         for i in range(N):
-            partial = await r.consume('header%d'% i )
-            partial = await r.consume(b'payload%d' % i)
+            partial = await r.consume(f'{{"id": "header{i}"}}')
+            partial = await r.consume(f'payload{i}'.encode())
 
         assert partial is not None
         assert partial.msgtype == "PATCH-DOC"
         assert partial.header == {"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers": N}
         assert partial.content == {"bar":10}
         assert partial.metadata == {}
-        assert partial.buffers == [('header%d' % i, b'payload%d' %i) for i in range(N)]
+        for i in range(N):
+            assert partial.buffers[i] == ({"id": f"header{i}"}, f'payload{i}'.encode())
 
 async def test_binary_header_raises_error() -> None:
     r = receiver.Receiver(proto)
 
     with pytest.raises(ValidationError):
-        await r.consume(b'header')
+        await r.consume(b'{"msgtype": "PATCH-DOC", "msgid": "10"}')
 
 async def test_binary_metadata_raises_error() -> None:
     r = receiver.Receiver(proto)
 
-    await r.consume('header')
+    await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10"}')
     with pytest.raises(ValidationError):
         await r.consume(b'metadata')
 
 async def test_binary_content_raises_error() -> None:
     r = receiver.Receiver(proto)
 
-    await r.consume('header')
+    await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10"}')
     await r.consume('metadata')
     with pytest.raises(ValidationError):
         await r.consume(b'content')
@@ -123,14 +124,14 @@ async def test_binary_payload_header_raises_error() -> None:
     await r.consume('{}')
     await r.consume('{}')
     with pytest.raises(ValidationError):
-        await r.consume(b'buf_header')
+        await r.consume(b'{"id": "buf_header"}')
 async def test_text_payload_buffer_raises_error() -> None:
     r = receiver.Receiver(proto)
 
     await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
     await r.consume('{}')
     await r.consume('{}')
-    await r.consume('buf_header')
+    await r.consume('{"id": "buf_header"}')
     with pytest.raises(ValidationError):
         await r.consume('buf_payload')
 
