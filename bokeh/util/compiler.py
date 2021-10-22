@@ -394,7 +394,7 @@ _module_template = \
 
 def _detect_nodejs() -> str:
     nodejs_path = settings.nodejs_path()
-    nodejs_paths: List[str] = [nodejs_path] if nodejs_path is not None else ["nodejs", "node"]
+    nodejs_paths = [nodejs_path] if nodejs_path is not None else ["nodejs", "node"]
 
     for nodejs_path in nodejs_paths:
         try:
@@ -526,7 +526,7 @@ def _bundle_models(custom_models: Dict[str, CustomModel]) -> str:
         resolved = {}
         for module in to_resolve:
             if module.startswith(("./", "../")):
-                def mkpath(module: str, ext: str ="") -> str:
+                def mkpath(module: str, ext: str = "") -> str:
                     return abspath(join(root, *module.split("/")) + ext)
 
                 if module.endswith(exts):

@@ -534,7 +534,7 @@ def transform_column_source_data(data: DataDict, buffers: Buffers | None = None,
         elif isinstance(value, (list, tuple)):
             data_copy[key] = traverse_data(value, buffers=buffers)
         else:
-            raise ValueError()
+            raise ValueError(f"Unable to transform type {type(value)!r} for a ColumnDataSource")
 
     return data_copy
 
