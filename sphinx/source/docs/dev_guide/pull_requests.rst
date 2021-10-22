@@ -39,7 +39,7 @@ Pull request workflow
     :ref:`your fork <contributor_guide_setup_cloning>` of the Bokeh repository.
     In most cases, you should base your new branch on Bokeh's ``default``
     branch. The default branch is usually a branch that represents the next
-    version of Bokeh, for example ``branch-2.4``.
+    version of Bokeh, for example ``branch-3.0``.
 
     Use this pattern to name your branch:
 
@@ -52,12 +52,31 @@ Pull request workflow
     See `BEP 6: Branching Strategy`_ for more information on the different
     branches in the Bokeh repository.
 
-3. Push your local branch to your fork on GitHub
-    Before you can open a pull request, you first need to `push your branch`_
-    from your local clone to your fork on GitHub. At this time, you should also
-    include a first commit.
+    To create this example branch and check it out:
 
-4. Open a new pull request
+    ``git checkout -b 11423_table_column_add_visible``
+
+3. Add commits to your local branch
+    Make some changes to the code and save the modified files. To view which
+    files were modified:
+
+    ``git status``
+
+    When you're satisfied with the current change, stage each modified file:
+
+    ``git add filename1 filename2 filenameN``
+
+    And then commit the change with a commit message:
+
+    ``git commit -m "one-liner describing change"``
+
+4. Push your local branch to your fork on GitHub
+    Before you can open a pull request, you first need to `push your branch`_
+    from your local clone to your fork on GitHub. In our example:
+
+    ``git push --set-upstream origin 11423_table_column_add_visible``
+
+5. Open a new pull request
     After publishing your branch and adding a first commit, go to the
     `Bokeh repository`_ on GitHub. GitHub should have detected your recent
     updates to your branch. In this case, GitHub will suggest opening a pull
@@ -65,10 +84,10 @@ Pull request workflow
     and use the button "New pull request".
 
     To create a pull request, make sure to select the default branch you used
-    when creating your branch as ``base`` (for example, ``branch-2.4``). Select
+    when creating your branch as ``base`` (for example, ``branch-3.0``). Select
     your branch as ``compare``.
 
-5. Write your pull request
+6. Write your pull request
     After creating your pull request, GitHub will compare your branch to the
     base branch and highlight all your proposed changes.
 
@@ -85,7 +104,7 @@ Pull request workflow
     include information about :ref:`tests <contributor_guide_writing_tests>` and
     :ref:`documentation <contributor_guide_documentation>`, if applicable.
 
-6. Add more commits to your pull request
+7. Add more commits to your pull request
     Once you have created a pull request, a member of the `Bokeh core team`_
     will begin `reviewing your pull request`_ and may request changes or
     additions. If so, they will help you along the way with any questions you
@@ -96,7 +115,7 @@ Pull request workflow
     requests can be time-consuming, so be aware that it might take a while to
     receive feedback.
 
-7. Look for the next issue to work on
+8. Look for the next issue to work on
     With your first pull request merged, you should take another look at Bokeh's
     `issue tracker`_ to find the next issue to work on.
 
