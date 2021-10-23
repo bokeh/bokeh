@@ -72,7 +72,7 @@ Pull request workflow
 
 4. Push your local branch to your fork on GitHub
     Before you can open a pull request, you first need to `push your branch`_
-    from your local clone to your fork on GitHub. In our example:
+    from your local clone to your fork on GitHub. For example:
 
     ``git push --set-upstream origin 11423_table_column_add_visible``
 
