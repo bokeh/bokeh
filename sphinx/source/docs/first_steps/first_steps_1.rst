@@ -141,9 +141,13 @@ Finally, add more calls to the |Figure.line| function:
 .. code-block:: python
 
     # add multiple renderers
-    p.line(x, y1, legend_label="Temp.", line_color="blue", line_width=2)
-    p.line(x, y2, legend_label="Rate", line_color="red", line_width=2)
-    p.line(x, y3, legend_label="Objects", line_color="green", line_width=2)
+    p.line(x, y1, legend_label="Temp.", color="blue", line_width=2)
+    p.line(x, y2, legend_label="Rate", color="red", line_width=2)
+    p.line(x, y3, legend_label="Objects", color="green", line_width=2)
+
+In this example, you also assign a different color to each of the lines by
+passing a different :ref:`named color <userguide_styling_colors>` to each line's
+``color`` argument.
 
 This is what the completed code for your multi-line plot should look like:
 
