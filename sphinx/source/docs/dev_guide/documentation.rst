@@ -209,7 +209,7 @@ To build the docs, run the following command:
 
   .. code-tab:: PowerShell Windows (PS)
 
-      ./make.bat html
+      .\make.bat html
 
   .. code-tab:: doscon Windows (CMD)
 
@@ -226,7 +226,7 @@ the docs in a web browser:
 
   .. code-tab:: PowerShell Windows (PS)
 
-      ./make.bat serve
+      .\make.bat serve
 
   .. code-tab:: doscon Windows (CMD)
 
@@ -256,8 +256,8 @@ supported by ``make.bat``). For example:
       .. code-tab:: PowerShell Windows (PS)
 
           $Env:BOKEH_DOCS_CDN = "local"
-          ./make.bat html
-          ./make.bat serve
+          .\make.bat html
+          .\make.bat serve
 
       .. code-tab:: doscon Windows (CMD)
 
