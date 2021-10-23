@@ -84,6 +84,12 @@ define aspects like the color or diameter of the circles:
 * ``size``: the size of the circles (in |screen units| or |data units|)
 * ``legend_label``: legend entry for the circles
 
+Note that in the previous examples, you used the ``color`` property to define
+the color of an object. ``color`` is an alias that automatically sets all
+color properties of an object to the same color. For example, passing
+``"yellow"`` to a circle's ``color`` property is the same as setting
+``fill_color`` and ``line_color`` to yellow individually.
+
 In Bokeh, you can :ref:`specify colors <userguide_styling_colors>` in several
 ways. For example:
 
