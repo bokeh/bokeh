@@ -136,7 +136,7 @@ argument in the |figure| function:
     # create a new plot with a title and axis labels
     p = figure(title="Multiple line example", x_axis_label='x', y_axis_label='y')
 
-Finally, add more calls to the |Figure.line| function.
+Finally, add more calls to the |Figure.line| function:
 
 .. code-block:: python
 
