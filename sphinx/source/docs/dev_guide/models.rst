@@ -128,7 +128,7 @@ It is possible to leave off the ``prefix`` value:
         some_props = Include(FillProps)
 
 In this case the mixin properties simply have the base property names. The above
-code is equivalen to:
+code is equivalent to:
 
 .. code-block:: python
 
