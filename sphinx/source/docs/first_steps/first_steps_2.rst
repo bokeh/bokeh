@@ -29,10 +29,10 @@ Use the :func:`~bokeh.plotting.Figure.circle` function instead of
 
 .. code-block:: python
 
-    p.circle(x, y3, legend_label="Objects", line_color="yellow", size=12)
+    p.circle(x, y3, legend_label="Objects", color="yellow", size=12)
 
-Add the :func:`~bokeh.plotting.Figure.circle` function to your previous
-visualization:
+Replace one of the ``line()`` functions in your previous visualization with
+the :func:`~bokeh.plotting.Figure.circle` function to create circles:
 
 .. literalinclude:: examples/first_steps_2_add_circles.py
    :language: python
