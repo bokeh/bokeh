@@ -2,7 +2,7 @@
 
 :orphan:
 
-Bindings (moved)
-================
+Models (moved)
+==============
 
 Content moved to :ref:`contributor_guide_python_models`
