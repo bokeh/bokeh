@@ -20,7 +20,7 @@ exceptions include:
 * write `Google Python Style Guide`_ docstrings (see
   :ref:`contributor_guide_documentation_edit_docstrings` for more information)
 
-Bokeh uses a combination of code quality tests for each :ref:`Pull Requests
+Bokeh uses a combination of code quality tests for each :ref:`Pull Request
 <contributor_guide_pull_requests>`. Relevant tests for Python code include
 `Flake8`_ and `isort`_. Use the following command to run those codebase tests
 locally:

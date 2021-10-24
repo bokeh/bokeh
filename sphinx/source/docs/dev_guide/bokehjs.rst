@@ -28,9 +28,9 @@ JavaScript objects to render the visualization.
 
 This combination of Python and JavaScript allows you to define a visualization
 in Python while taking advantage of all the interactivity offered by JavaScript
-running in a browser. Additionally, this combination allows you to do almost all
-data handling with Python and use large and streaming server-side data with an
-interactive JavaScript visualization.
+running in a browser. Additionally, this combination enables you to do almost
+all data handling with Python and use large and streaming server-side data with
+an interactive JavaScript visualization.
 
 Source code location
 --------------------
@@ -53,7 +53,7 @@ BokehJS interface
 -----------------
 
 BokehJS is a standalone JavaScript library for dynamic and interactive
-visualization in the browser. It is built on top of HTML5 canvas, and designed
+visualization in the browser. It is built on top of HTML5 canvas and designed
 for high-performance rendering of larger data sets. While BokehJS accepts
 visualizations defined in a JSON file, you can also :ref:`create visualizations
 with BokehJS directly <userguide_bokehjs>`.
@@ -81,13 +81,20 @@ Code Style Guide
 
 BokehJS doesn't have an explicit style guide. Make sure to run ``node make
 lint`` or ``node make lint --fix`` before committing to the Bokeh repository.
-Also, review the surrounding code and try to be consistent with existing code.
+Also, review the surrounding code and try to be consistent with the existing
+code.
 
-Some guidelines/tips to adhere to when working on BokehJS:
+Some guidelines and tips to keep in mind when working on BokehJS:
 
 * Do not use ``for-in`` loops, especially unguarded by ``hasOwnProperty()`` Use
   ``for-of`` loop in combination with ``keys()``, ``values()`` and/or
   ``entries()`` from the ``core/util/object`` module instead.
+* Use double quotes (``"string"``) for strings by default. Use single
+  quotes in cases where they help you avoid escaping quotation marks
+  (``case '"': return "&quot;"``).
+* Use template strings (template literals) for multiline, tagged, and
+  interpolated strings ( ```Bokeh ${Bokeh.version}``` )
+
 
 Development requirements
 ------------------------
@@ -109,7 +116,7 @@ Bokeh officially supports the following platforms for development and testing:
 * MacOS 10.15
 
 It is possible to work on BokehJS on different platforms and versions. However,
-things might not work as intended and some tests will not work.
+things might not work as intended, and some tests will not work.
 
 Building BokehJS
 ----------------
@@ -132,7 +139,7 @@ system. These are the most common commands:
 changes.
 
 You can use ``tsc`` directly for error checking, for example inside an IDE.
-However, don't use it for code emit, because BokehJS requires AST transforms t
+However, don't use it for code emit, because BokehJS requires AST transforms to
 produce usable library code.
 
 Testing
@@ -156,13 +163,20 @@ Some of :ref:`Bokeh's JavaScript tests <contributor_guide_testing_local_javascri
 include running fully automated tests with a headless version of Chrome. For
 local testing and especially for running and updating specific tests, :ref:`run
 these tests manually with Chrome's GUI
-<contributor_guide_testing_local_javascript_devtools>`. In most cases, the
-results of running tests locally with Chrome's GUI are the same as running them
-in the CI with headless Chrome.
+<contributor_guide_testing_local_javascript_devtools>`.
 
-However, there are rare cases where headless and GUI Chrome generate
-different results. In this situation, you can't use the GUI - instead, you need
-to debug BokehJS' code directly in the headless browser.
+In most cases, the results of running tests locally with Chrome's GUI are the
+same as running them in the CI with headless Chrome. However, there are rare
+cases where headless and GUI Chrome generate different results. In this
+situation, you can't use the GUI - instead, you need to debug BokehJS' code
+directly in the headless browser.
+
+.. note::
+    The following instructions only apply to the rare cases where you actually
+    need to debug specifically in the headless version of Chrome. In most cases,
+    you should be able to debug BokehJS with the GUI version of Chrome. See
+    :ref:`contributor_guide_testing_local_javascript_devtools` for instructions
+    on debugging BokehJS with the GUI version of Chrome.
 
 Follow these steps in case you need to debug directly in the headless version of
 Chrome:
