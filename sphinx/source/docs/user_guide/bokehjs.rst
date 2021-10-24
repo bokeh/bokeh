@@ -112,7 +112,7 @@ The JavaScript sample below is very similar to the Python code in
         for (let x = 0; x <= M; x += 4) {
             xx.push(x);
             yy.push(y);
-            colors.push(plt.color(50+2*x, 30+2*y, 150));
+            colors.push(plt.color([50+2*x, 30+2*y, 150]));
             radii.push(Math.random() * 0.4 + 1.7)
         }
     }
@@ -130,7 +130,7 @@ The JavaScript sample below is very similar to the Python code in
     const circles = p.circle({ field: "x" }, { field: "y" }, {
         source: source,
         radius: radii,
-        fill_color: colors,
+        fill_color: { field: "colors" },
         fill_alpha: 0.6,
         line_color: null
     });

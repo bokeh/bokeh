@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import json
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -156,12 +157,18 @@ class Receiver:
         self._check_complete()
 
     def _BUFFER_HEADER(self, fragment: Fragment) -> None:
-        self._buf_header = self._assume_text(fragment)
+        header = json.loads(self._assume_text(fragment))
+        if set(header) != { "id" }:
+            raise ValidationError(f"Malformed buffer header {header!r}")
+        self._buf_header = header
         self._current_consumer = self._BUFFER_PAYLOAD  # type: ignore[assignment] # https://github.com/python/mypy/issues/2427
 
     def _BUFFER_PAYLOAD(self, fragment: Fragment) -> None:
         payload = self._assume_binary(fragment)
-        cast(Message[Any], self._partial).assemble_buffer(cast(BufferHeader, self._buf_header), payload)
+        if self._buf_header is None:
+            raise ValidationError("Consuming a buffer payload, but current buffer header is None")
+        header = BufferHeader(id=self._buf_header["id"])
+        cast(Message[Any], self._partial).assemble_buffer(header, payload)
 
         self._check_complete()
 
