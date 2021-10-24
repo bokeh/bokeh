@@ -93,8 +93,12 @@ Some guidelines and tips to keep in mind when working on BokehJS:
   quotes in cases where they help you avoid escaping quotation marks
   (``case '"': return "&quot;"``).
 * Use template strings (template literals) for multiline, tagged, and
-  interpolated strings ( ```Bokeh ${Bokeh.version}``` )
+  interpolated strings ( ```Bokeh ${Bokeh.version}``` ).
 
+Always lint your BokehJS code with ESLint_: From the :bokeh-tree:`bokehjs`
+directory, run ``node make lint`` to check your code. Run
+``node make lint --fix`` to have ESLint fix some problems automatically. For
+more details, see the rules defined in :bokeh-tree:`bokehjs/eslint.json`.
 
 Development requirements
 ------------------------

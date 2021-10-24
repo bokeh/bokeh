@@ -309,8 +309,8 @@ the BokehJS devtools server. This system requires the Chrome web browser to be
 available on your system. Use the BokehJS devtools server to run tests and
 review the visual tests' output.
 
-First, start the devtools server from the `bokehjs` subdirectory with the
-following command:
+First, start the devtools server from the :bokeh-tree:`bokehjs` subdirectory
+with the following command:
 
 .. code-block:: sh
 
