@@ -38,6 +38,7 @@
     }],
     "@typescript-eslint/semi": ["error", "never"],
     "@typescript-eslint/type-annotation-spacing": ["error"],
+    "@typescript-eslint/no-unnecessary-condition": ["error", {"allowConstantLoopConditions": true}],
     "brace-style": ["error", "1tbs", {"allowSingleLine": true}],
     "comma-dangle": ["error", "always-multiline"],
     "comma-spacing": ["error", {"before": false, "after": true}],
