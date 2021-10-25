@@ -5,11 +5,12 @@ import {display, fig} from "./_util"
 
 import {
   HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle,
-  Legend, LegendItem, Title, Row, Column, GridBox,
+  Legend, LegendItem, Line, Title, Row, Column, GridBox,
 } from "@bokehjs/models"
 import {Div} from "@bokehjs/models/widgets"
 import {assert} from "@bokehjs/core/util/assert"
 import {gridplot} from "@bokehjs/api/gridplot"
+import {offset} from "@bokehjs/core/dom"
 
 describe("Bug", () => {
   describe("in issue #10612", () => {
@@ -145,6 +146,30 @@ describe("Bug", () => {
       expect(grid8).to.be.instanceof(GridBox)
       const grid9 = gridplot([[p0, p1]], {merge_tools: false, toolbar_location: null})
       expect(grid9).to.be.instanceof(GridBox)
+    })
+  })
+
+  describe("in issue #11750", () => {
+    it("re-renders when hover glyph isn't defined", async () => {
+      const data_source = new ColumnDataSource({data: {x_field: [0, 1], y_field: [0.1]}})
+      const glyph = new Line({x: {field: "x_field"}, y: {field: "y_field"}})
+      const renderer = new GlyphRenderer({data_source, glyph})
+      const plot = fig([200, 200], {tools: [new HoverTool({mode: "vline"})]})
+      plot.add_renderers(renderer)
+
+      const {view} = await display(plot)
+
+      const lnv = view.renderer_views.get(renderer)!
+      const ln_spy = sinon.spy(lnv, "request_render")
+      const ui = view.canvas_view.ui_event_bus
+      const {left, top} = offset(ui.hit_area)
+
+      for (let i=0; i<=1; i+=0.2) {
+        const [[sx], [sy]] = lnv.coordinates.map_to_screen([i], [i])
+        const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
+        ui._mouse_move(ev)
+      }
+      expect(ln_spy.callCount).to.be.equal(0)
     })
   })
 })
