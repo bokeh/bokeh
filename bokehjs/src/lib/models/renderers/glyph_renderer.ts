@@ -37,11 +37,6 @@ const nonselection_defaults: Defaults = {
   line: {},
 }
 
-const hover_defaults: Defaults = {
-  fill: {},
-  line: {},
-}
-
 const muted_defaults: Defaults = {
   fill: {fill_alpha: 0.2},
   line: {},
@@ -102,8 +97,8 @@ export class GlyphRendererView extends DataRendererView {
     nonselection_glyph = glyph_from_mode(nonselection_defaults, nonselection_glyph)
     this.nonselection_glyph = await this.build_glyph_view(nonselection_glyph)
 
-    hover_glyph = glyph_from_mode(hover_defaults, hover_glyph)
-    this.hover_glyph = await this.build_glyph_view(hover_glyph)
+    if (hover_glyph != null)
+      this.hover_glyph = await this.build_glyph_view(hover_glyph)
 
     muted_glyph = glyph_from_mode(muted_defaults, muted_glyph)
     this.muted_glyph = await this.build_glyph_view(muted_glyph)
@@ -219,10 +214,10 @@ export class GlyphRendererView extends DataRendererView {
 
     this.glyph.set_visuals(source, all_indices)
     this.decimated_glyph.set_visuals(source, all_indices)
-    this.selection_glyph?.set_visuals(source, all_indices)
-    this.nonselection_glyph?.set_visuals(source, all_indices)
+    this.selection_glyph.set_visuals(source, all_indices)
+    this.nonselection_glyph.set_visuals(source, all_indices)
     this.hover_glyph?.set_visuals(source, all_indices)
-    this.muted_glyph?.set_visuals(source, all_indices)
+    this.muted_glyph.set_visuals(source, all_indices)
   }
 
   override get has_webgl(): boolean {
@@ -285,7 +280,7 @@ export class GlyphRendererView extends DataRendererView {
       nonselection_glyph = this.decimated_glyph
       selection_glyph = this.selection_glyph
     } else {
-      glyph = this.model.muted && this.muted_glyph != null ? this.muted_glyph : this.glyph
+      glyph = this.model.muted ? this.muted_glyph : this.glyph
       nonselection_glyph = this.nonselection_glyph
       selection_glyph = this.selection_glyph
     }
