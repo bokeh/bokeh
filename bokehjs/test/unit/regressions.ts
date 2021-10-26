@@ -150,26 +150,32 @@ describe("Bug", () => {
   })
 
   describe("in issue #11750", () => {
-    it("re-renders when hover glyph isn't defined", async () => {
-      const data_source = new ColumnDataSource({data: {x_field: [0, 1], y_field: [0.1]}})
-      const glyph = new Line({x: {field: "x_field"}, y: {field: "y_field"}})
-      const renderer = new GlyphRenderer({data_source, glyph})
-      const plot = fig([200, 200], {tools: [new HoverTool({mode: "vline"})]})
-      plot.add_renderers(renderer)
+    it("makes plots render uncecessarily when hover glyph wasn't defined", async () => {
+      async function test(hover_glyph: Line | null) {
+        const data_source = new ColumnDataSource({data: {x: [0, 1], y: [0.1]}})
+        const glyph = new Line({line_color: "red"})
+        const renderer = new GlyphRenderer({data_source, glyph, hover_glyph})
+        const plot = fig([200, 200], {tools: [new HoverTool({mode: "vline"})]})
+        plot.add_renderers(renderer)
 
-      const {view} = await display(plot)
+        const {view} = await display(plot)
 
-      const lnv = view.renderer_views.get(renderer)!
-      const ln_spy = sinon.spy(lnv, "request_render")
-      const ui = view.canvas_view.ui_event_bus
-      const {left, top} = offset(ui.hit_area)
+        const lnv = view.renderer_views.get(renderer)!
+        const ln_spy = sinon.spy(lnv, "request_render")
+        const ui = view.canvas_view.ui_event_bus
+        const {left, top} = offset(ui.hit_area)
 
-      for (let i=0; i<=1; i+=0.2) {
-        const [[sx], [sy]] = lnv.coordinates.map_to_screen([i], [i])
-        const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
-        ui._mouse_move(ev)
+        for (let i = 0; i <= 1; i += 0.2) {
+          const [[sx], [sy]] = lnv.coordinates.map_to_screen([i], [i])
+          const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
+          ui._mouse_move(ev)
+        }
+
+        return ln_spy.callCount
       }
-      expect(ln_spy.callCount).to.be.equal(0)
+
+      expect(await test(null)).to.be.equal(0)
+      expect(await test(new Line({line_color: "blue"}))).to.be.equal(6)
     })
   })
 })
