@@ -55,7 +55,7 @@ describe("GlyphRendererView", async () => {
     {parent: await build_view(new Plot())},
   )
 
-  const {glyph, selection_glyph, nonselection_glyph, hover_glyph, muted_glyph, decimated_glyph} = view
+  const {glyph, selection_glyph, nonselection_glyph, muted_glyph, decimated_glyph} = view
 
   it("should have default selection_glyph equal to main glyph", () => {
     expect(selection_glyph.model.attributes).to.be.equal(glyph.model.attributes)
@@ -65,8 +65,9 @@ describe("GlyphRendererView", async () => {
     expect((nonselection_glyph.model as Circle).fill_alpha).to.be.equal({value: 0.2})
   })
 
-  it("should have default hover_glyph model equal to main glyph model", () => {
-    expect(hover_glyph?.model.attributes).to.be.equal(glyph.model.attributes)
+  it("should have undefined hover_glyph if renderer hover_glyph is null", () => {
+    expect(view.model.hover_glyph).to.be.null
+    expect(view.hover_glyph).to.be.undefined
   })
 
   it("should have default muted_glyph with 0.2 alpha", () => {
