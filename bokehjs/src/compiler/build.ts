@@ -85,9 +85,11 @@ async function lint(config_file: Path, paths: Path[]): Promise<boolean> {
   })
 
   const results = await eslint.lintFiles(paths)
-  const ok = results.every(result => result.errorCount == 0)
 
-  if (!ok) {
+  const errors = results.some(result => result.errorCount != 0)
+  const warnings = results.some(result => result.warningCount != 0)
+
+  if (errors || warnings) {
     const formatter = await eslint.loadFormatter("stylish")
     const output = formatter.format(results)
 
@@ -95,7 +97,7 @@ async function lint(config_file: Path, paths: Path[]): Promise<boolean> {
       print(line)
   }
 
-  return ok
+  return !errors
 }
 
 export type InitOptions = {
