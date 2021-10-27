@@ -1,4 +1,4 @@
-import {resolve, relative, join, dirname, basename, extname, normalize} from "path"
+import {resolve, relative, join, dirname, basename, extname, normalize, sep} from "path"
 import module from "module"
 import crypto from "crypto"
 
@@ -511,17 +511,36 @@ export class Linker {
 
   protected readonly ext = ".js"
 
-  resolve_package(dir: string): string | null {
-    const index = (() => {
-      const pkg_path = join(dir, "package.json")
-      if (file_exists(pkg_path)) {
-        const pkg = JSON.parse(read(pkg_path)!)
-        if (this.target != null && pkg.module != null)
-          return pkg.module
-        if (pkg.main != null)
-          return pkg.main
+  get_package(dir: string): {[key: string]: unknown} {
+    const pkg_path = join(dir, "package.json")
+    if (file_exists(pkg_path))
+      return JSON.parse(read(pkg_path)!)
+    else
+      return {}
+  }
+
+  resolve_export_map(dir: string, subpath: string): string | null {
+    const pkg = this.get_package(dir)
+    const export_map = (pkg.exports ?? {}) as object
+    const path = join(dir, subpath)
+    for (const [key, val] of Object.entries(export_map)) {
+      if (join(dir, key) == path) {
+        return join(dir, val)
       }
-      return "index.js"
+    }
+    return null
+  }
+
+  resolve_package(dir: string): string | null {
+    const pkg = this.get_package(dir)
+
+    const index = (() => {
+      if (this.target != null && pkg.module != null)
+        return pkg.module as string
+      else if (pkg.main != null)
+        return pkg.main as string
+      else
+        return "index.js"
     })()
 
     const path = join(dir, index)
@@ -591,6 +610,16 @@ export class Linker {
         const file = this.resolve_package(path)
         if (file != null)
           return file
+      }
+
+      const [dir, ...rest] = dep.split(sep)
+      if (rest.length >= 1) {
+        const path = join(base, dir)
+        if (directory_exists(path)) {
+          const file = this.resolve_export_map(path, rest.join(sep))
+          if (file != null)
+            return file
+        }
       }
 
       if (parent.file.startsWith(base)) {
@@ -735,7 +764,7 @@ export ${export_type} css;
 
         // XXX: .json extension will cause an internal error
         const {output, error} = transpile(type == "json" ? `${file}.ts` : file, source, target, transform)
-        if (error)
+        if (error != null)
           throw new BuildError("linker", error)
         else {
           source = output
