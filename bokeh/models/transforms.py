@@ -35,8 +35,10 @@ from ..core.properties import (
     Nullable,
     Seq,
     String,
+    Tuple,
 )
 from ..model import Model
+from ..models.forces import Simulation
 from .sources import ColumnarDataSource
 
 #-----------------------------------------------------------------------------
@@ -48,6 +50,7 @@ __all__ = (
     'Dodge',
     'Interpolator',
     'Jitter',
+    'Swarm',
     'LinearInterpolator',
     'StepInterpolator',
     'Transform',
@@ -171,6 +174,34 @@ class Jitter(Transform):
     When applying Jitter to Categorical data values, the corresponding
     ``FactorRange`` must be supplied as the ``range`` property.
     """)
+
+
+class Swarm(Transform):
+    ''' Distribute data using force direction simulation to prevent overlap.
+
+    '''
+
+    simulation = Instance(Simulation, help="""
+    Force simulation object to apply to data set.
+    """)
+
+    def _filter_kwargs(self, kwargs_dict: Dict, args_list: Tuple):
+        return {key:value for (key, value) in kwargs_dict.items() if key in args_list}
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        _SIM_ARGS = ("alpha", "alpha_min", "alpha_decay", "velocity_decay", "iterations", "animated", "fixed_x", "fixed_y")
+        _COLLISION_ARGS = ("radius", "strength")
+
+        if "radius" not in kwargs:
+            kwargs["radius"] = 0.1
+        if "simulation" in kwargs:
+            self.simulation = kwargs["simulation"]
+        else:
+            simulation_kwargs = self._filter_kwargs(kwargs, _SIM_ARGS)
+            collision_kwargs = self._filter_kwargs(kwargs, _COLLISION_ARGS)
+            self.simulation = Simulation(**simulation_kwargs).collision(**collision_kwargs)
+
 
 @abstract
 class Interpolator(Transform):

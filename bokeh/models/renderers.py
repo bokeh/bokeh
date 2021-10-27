@@ -36,6 +36,7 @@ from ..core.properties import (
     Enum,
     Float,
     Instance,
+    List,
     Nullable,
     Override,
     String,
@@ -51,6 +52,7 @@ from ..core.validation.errors import (
 )
 from ..model import Model
 from .canvas import CoordinateMapping
+from .forces import ForceModel, Simulation
 from .glyphs import (
     Circle,
     ConnectedXYGlyph,
@@ -245,10 +247,15 @@ class GlyphRenderer(DataRenderer):
     being hovered over by a ``HoverTool``.
     """)
 
-    muted_glyph = Nullable(Either(Auto, Instance(Glyph)), default="auto", help=""""
+    muted_glyph = Nullable(Either(Auto, Instance(Glyph)), default="auto", help="""
     """)
 
     muted = Bool(False, help="""
+    """)
+
+    simulation = Nullable(Either(Instance(Simulation), List(Instance(ForceModel))), default=None, help="""
+    ``Simulation`` object, or list of ``ForceModel`` objects to apply to plot with default simulation parameters.
+    Only applicable to glyphs of type ``XYGlyph``.
     """)
 
     def add_decoration(self, marking: Marking, node: Literal["start", "middle", "end"]) -> Decoration:

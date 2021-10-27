@@ -44,7 +44,7 @@ __all__ = (
 )
 
 RENDERER_ARGS = ['name', 'coordinates', 'x_range_name', 'y_range_name',
-                 'level', 'view', 'visible', 'muted']
+                 'level', 'view', 'visible', 'muted', 'simulation']
 
 #-----------------------------------------------------------------------------
 # General API

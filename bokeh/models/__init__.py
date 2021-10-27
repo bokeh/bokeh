@@ -38,6 +38,7 @@ from .callbacks import *
 from .canvas import *
 from .expressions import *
 from .filters import *
+from .forces import *
 from .formatters import *
 from .glyphs import *
 from .graphs import *

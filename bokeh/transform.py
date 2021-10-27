@@ -39,7 +39,7 @@ from .models.mappers import (
     LinearColorMapper,
     LogColorMapper,
 )
-from .models.transforms import Dodge, Jitter
+from .models.transforms import Dodge, Jitter, Swarm
 
 if TYPE_CHECKING:
     from .colors import Color
@@ -238,6 +238,12 @@ def jitter(field_name: str, width: float, mean: float = 0,
                                     width=width,
                                     distribution=distribution,
                                     range=range))
+
+def swarm(field_name: str, **kwargs):
+    ''' Create a ``DataSpec dict that applies a client side ``Simulation``
+    to a ``ColumnDataSource column. ``
+    '''
+    return field(field_name, Swarm(**kwargs))
 
 def linear_cmap(field_name: str, palette: Sequence[ColorLike], low: float, high: float,
         low_color: ColorLike | None = None, high_color: ColorLike | None = None, nan_color: ColorLike = "gray") -> Field:
