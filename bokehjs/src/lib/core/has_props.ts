@@ -104,10 +104,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   // TODO: don't use Partial<>, but exclude inherited properties
   static define<T>(obj: Partial<p.DefineOf<T>> | ((types: typeof kinds) => Partial<p.DefineOf<T>>)): void {
     for (const [name, prop] of entries(isFunction(obj) ? obj(kinds) : obj)) {
-      if (this.prototype._props[name] != null)
+      if (name in this.prototype._props)
         throw new Error(`attempted to redefine property '${this.prototype.type}.${name}'`)
 
-      if ((this.prototype as any)[name] != null)
+      if (name in this.prototype)
         throw new Error(`attempted to redefine attribute '${this.prototype.type}.${name}'`)
 
       Object.defineProperty(this.prototype, name, {
@@ -177,9 +177,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   static override<T>(obj: Partial<p.DefaultsOf<T>>): void {
     for (const [name, prop] of entries(obj)) {
       const default_value = this._fix_default(prop, name)
-      const value = this.prototype._props[name]
-      if (value == null)
+      if (!(name in this.prototype._props))
         throw new Error(`attempted to override nonexistent '${this.prototype.type}.${name}'`)
+      const value = this.prototype._props[name]
       const props = {...this.prototype._props}
       props[name] = {...value, default_value}
       this.prototype._props = props
@@ -200,9 +200,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   readonly properties: {[key: string]: Property} = {}
 
   property(name: string): Property {
-    const prop = this.properties[name]
-    if (prop != null)
-      return prop
+    if (name in this.properties)
+      return this.properties[name]
     else
       throw new Error(`unknown property ${this.type}.${name}`)
   }

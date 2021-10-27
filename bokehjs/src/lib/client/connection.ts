@@ -176,7 +176,7 @@ export class ClientConnection {
         // Since the session already exists, we don't need to call `resolve` again.
       }
     } catch (error) {
-      console.trace?.(error)
+      console.trace(error)
       logger.error(`Failed to repull session ${error}`)
       reject(error instanceof Error ? error : `${error}`)
     }

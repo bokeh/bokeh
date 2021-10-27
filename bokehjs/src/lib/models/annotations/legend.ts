@@ -10,9 +10,8 @@ import {SideLayout} from "core/layout/side_panel"
 import {font_metrics} from "core/util/text"
 import {BBox} from "core/util/bbox"
 import {max, every, some} from "core/util/array"
-import {isString, isArray} from "core/util/types"
+import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
-import {unreachable} from "core/util/assert"
 
 export class LegendView extends AnnotationView {
   override model: Legend
@@ -139,12 +138,11 @@ export class LegendView extends AnnotationView {
           sy = (vr.end + vr.start)/2 - legend_height/2
           break
       }
-    } else if (isArray(location) && location.length == 2) {
+    } else {
       const [vx, vy] = location
       sx = panel.bbox.xview.compute(vx)
       sy = panel.bbox.yview.compute(vy) - legend_height
-    } else
-      unreachable()
+    }
 
     return new BBox({left: sx, top: sy, width: legend_width, height: legend_height})
   }

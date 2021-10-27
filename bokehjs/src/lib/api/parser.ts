@@ -147,7 +147,7 @@ const max_unop_len = max_key_len(unary_ops)
 const max_binop_len = max_key_len(binary_ops)
 
 function binary_precedence(op_val: string): number {
-  return binary_ops[op_val] ?? 0
+  return op_val in binary_ops ? binary_ops[op_val] : 0
 }
 
 function is_decimal_digit(ch: number): boolean {
@@ -472,7 +472,7 @@ export class Parser {
           this.error("Unclosed [")
         }
         this.index++
-      } else if (ch == OPAREN_CODE) {
+      } else { // ch == OPAREN_CODE
         // A function call is being made; gobble all the arguments
         node = {
           type: CALL,

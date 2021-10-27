@@ -45,8 +45,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
     return this.canvas_view
   }
 
-  protected _title: Title
-  protected _toolbar: ToolbarPanel
+  protected _title?: Title
+  protected _toolbar?: ToolbarPanel
 
   protected _outer_bbox: BBox = new BBox()
   protected _inner_bbox: BBox = new BBox()
@@ -216,7 +216,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
 
     const {toolbar_location, toolbar} = this.model
-    if (toolbar_location != null && toolbar != null) {
+    if (toolbar_location != null) {
       this._toolbar = new ToolbarPanel({toolbar})
       toolbar.toolbar_location = toolbar_location
     }
@@ -267,13 +267,13 @@ export class PlotView extends LayoutDOMView implements Renderable {
       }
     }
 
-    const {title_location, title} = this.model
-    if (title_location != null && title != null) {
+    const {title_location} = this.model
+    if (title_location != null && this._title != null) {
       get_side(title_location).push(this._title)
     }
 
-    const {toolbar_location, toolbar} = this.model
-    if (toolbar_location != null && toolbar != null) {
+    const {toolbar_location} = this.model
+    if (toolbar_location != null && this._toolbar != null) {
       const panels = get_side(toolbar_location)
       let push_toolbar = true
 

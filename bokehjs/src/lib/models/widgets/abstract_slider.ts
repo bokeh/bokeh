@@ -24,11 +24,11 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
   override model: AbstractSlider
 
   protected group_el: HTMLElement
-  protected slider_el: HTMLElement
+  protected slider_el?: HTMLElement
   protected title_el: HTMLElement
 
   *controls() {
-    yield this.slider_el as any
+    yield this.slider_el as HTMLInputElement
   }
 
   private _noUiSlider: API
@@ -81,7 +81,7 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
   }
 
   protected _set_bar_color(): void {
-    if (!this.model.disabled) {
+    if (!this.model.disabled && this.slider_el != null) {
       const connect_el = this.slider_el.querySelector<HTMLElement>(".noUi-connect")!
       connect_el.style.backgroundColor = color2css(this.model.bar_color)
     }
@@ -107,7 +107,7 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
       tooltips = false
 
     if (this.slider_el == null) {
-      this.slider_el = div() as any
+      this.slider_el = div()
 
       this._noUiSlider = noUiSlider.create(this.slider_el, {
         range: {min: start, max: end},
@@ -124,7 +124,7 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
       this._noUiSlider.on("change", (_, __, values) => this._change(values))
 
       const toggleTooltip = (i: number, show: boolean): void => {
-        if (!tooltips)
+        if (tooltips == null || this.slider_el == null)
           return
         const handle = this.slider_el.querySelectorAll(".noUi-handle")[i]
         const tooltip = handle.querySelector<HTMLElement>(".noUi-tooltip")!

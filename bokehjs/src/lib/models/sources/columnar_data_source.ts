@@ -34,7 +34,7 @@ export abstract class ColumnarDataSource extends DataSource {
   data: {[key: string]: Arrayable}
 
   get_array<T>(key: string): T[] {
-    let column = this.data[key]
+    let column = this.data[key] as Arrayable | undefined
 
     if (column == null)
       this.data[key] = column = []
@@ -76,9 +76,8 @@ export abstract class ColumnarDataSource extends DataSource {
     this.patching = new Signal(this, "patching")
   }
 
-  get_column(colname: string): Arrayable | null {
-    const column = this.data[colname]
-    return column != null ? column : null
+  get_column(name: string): Arrayable | null {
+    return name in this.data ? this.data[name] : null
   }
 
   columns(): string[] {

@@ -91,7 +91,7 @@ async function run_tests(): Promise<boolean> {
     try {
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
         return stackTrace.callFrames.map(({functionName, url, lineNumber, columnNumber}) => {
-          return {name: functionName ?? "(anonymous)", url, line: lineNumber+1, col: columnNumber+1}
+          return {name: functionName ? functionName : "(anonymous)", url, line: lineNumber+1, col: columnNumber+1}
         })
       }
 
@@ -276,7 +276,7 @@ async function run_tests(): Promise<boolean> {
         if (argv.grep != null) {
           const regex = new RegExp(argv.grep as string)
           for (const [suites, test] of test_suite) {
-            if (!description(suites, test).match(regex) != null) {
+            if (description(suites, test).match(regex) == null) {
               test.skip = true
             }
           }

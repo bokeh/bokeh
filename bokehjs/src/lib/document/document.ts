@@ -357,13 +357,11 @@ export class Document {
     // Create all instances, but without setting their props
     const references = new Map()
     for (const obj of references_json) {
-      const obj_id = obj.id
-      const obj_type = obj.type
-      const obj_attrs = obj.attributes ?? {}
+      const {id, type, attributes} = obj
 
-      let instance = existing_models.get(obj_id)
+      let instance = existing_models.get(id)
       if (instance == null) {
-        instance = Document._instantiate_object(obj_id, obj_type, obj_attrs, resolver)
+        instance = Document._instantiate_object(id, type, attributes, resolver)
       }
       references.set(instance.id, instance)
     }

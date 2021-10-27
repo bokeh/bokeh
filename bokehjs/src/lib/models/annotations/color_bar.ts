@@ -301,7 +301,7 @@ export class ColorBarView extends AnnotationView {
         if (this.panel != null)
           return this.panel.is_horizontal ? "horizontal" : "vertical"
         else {
-          if (halign == "start" || halign == "end" || (halign == "center" && valign == "center"))
+          if (halign == "start" || halign == "end" || (/*halign == "center" &&*/ valign == "center"))
             return "vertical"
           else
             return "horizontal"

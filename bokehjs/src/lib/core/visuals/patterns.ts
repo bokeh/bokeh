@@ -26,7 +26,7 @@ function _x(ctx: Context2d, h: number): void {
   ctx.stroke()
 }
 
-export const hatch_aliases: {[key: string]: HatchPattern} = {
+export const hatch_aliases: {[key: string]: HatchPattern | undefined} = {
   " ": "blank",
   ".": "dot",
   o: "ring",

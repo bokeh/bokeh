@@ -22,7 +22,7 @@ export type Failed = {
   diagnostics: Diagnostics
 }
 
-export function is_failed<T>(obj: T | Failed): obj is Failed {
+export function is_failed<T>(obj: T | Partial<Failed>): obj is Failed {
   return "diagnostics" in obj && obj.diagnostics != null
 }
 

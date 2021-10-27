@@ -82,10 +82,8 @@ export class NumericInputView extends InputWidgetView {
   }
 
   set_input_filter(): void {
-    if (this.model.mode == "int")
-      this._set_input_filter((value) => int_regex.test(value))
-    else if (this.model.mode == "float")
-      this._set_input_filter((value) => float_regex.test(value))
+    const regex = this.model.mode == "int" ? int_regex : float_regex
+    this._set_input_filter((value) => regex.test(value))
   }
 
   bound_value(value: number): number {

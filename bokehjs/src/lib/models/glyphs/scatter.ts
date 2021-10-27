@@ -6,7 +6,7 @@ import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
 export type ScatterData = MarkerData & {
-  readonly marker: p.Uniform<MarkerType>
+  readonly marker: p.Uniform<MarkerType | null>
 }
 
 export interface ScatterView extends ScatterData {}
@@ -38,7 +38,7 @@ export class ScatterView extends MarkerView {
           const [marker_type] = [...marker_types]
 
           const MarkerGL = this.glcls
-          if (MarkerGL?.is_supported(marker_type)) {
+          if (marker_type != null && MarkerGL?.is_supported(marker_type)) {
             const {glglyph} = this
             if (glglyph == null || glglyph.marker_type != marker_type) {
               this.glglyph = new MarkerGL(regl_wrapper, this, marker_type)

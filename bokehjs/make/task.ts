@@ -161,7 +161,7 @@ export async function run(task: Task): Promise<Result> {
       let result: Result
       try {
         const value = await task.fn(...args)
-        result = value === undefined ? success(value) : value
+        result = typeof value == "undefined" ? success(undefined) : value
       } catch (error) {
         result = failure(error instanceof Error ? error : new Error(`${error}`))
       }

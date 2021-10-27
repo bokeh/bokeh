@@ -28,13 +28,7 @@ export function cat_v_compute<T>(data: ArrayableOf<Factor>, factors: Arrayable<F
     if (isString(d))
       key = index_of(factors as Arrayable<L1Factor>, d)
     else {
-      if (start != null) {
-        if (end != null)
-          d = d.slice(start, end) as Factor
-        else
-          d = d.slice(start) as Factor
-      } else if (end != null)
-        d = d.slice(0, end) as Factor
+      d = d.slice(start, end ?? undefined) as Factor
 
       if (d.length == 1)
         key = index_of(factors as Arrayable<L1Factor>, d[0])

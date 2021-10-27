@@ -1,5 +1,6 @@
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ScalarExpression} from "./expression"
+import {obj} from "core/util/object"
 import {max} from "core/util/array"
 import * as p from "core/properties"
 
@@ -29,7 +30,7 @@ export class Maximum extends ScalarExpression<number> {
   }
 
   protected _compute(source: ColumnarDataSource): number {
-    const column = source.data[this.field] ?? []
+    const column = obj(source.data).get(this.field) ?? []
     return Math.max(this.initial ?? -Infinity, max(column))
   }
 }

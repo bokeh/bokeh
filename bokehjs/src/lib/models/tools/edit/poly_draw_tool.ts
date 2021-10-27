@@ -216,7 +216,7 @@ export class PolyDrawToolView extends PolyToolView {
   }
 
   override activate(): void {
-    if (!this.model.vertex_renderer || !this.model.active)
+    if (this.model.vertex_renderer == null || !this.model.active)
       return
     this._show_vertices()
     if (!this._initialized) {

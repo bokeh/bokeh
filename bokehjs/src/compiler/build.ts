@@ -33,7 +33,7 @@ export function isObject(obj: unknown): obj is object {
 }
 
 export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
-  return isObject(obj) && (obj.constructor == null || obj.constructor === Object)
+  return isObject(obj) && (typeof obj.constructor == "undefined" || obj.constructor === Object)
 }
 
 function print(str: string): void {
@@ -51,7 +51,7 @@ function npm_install(base_dir: Path): void {
 
 type Metadata = {
   bokeh_version?: string
-  signatures: {[key: string]: string}
+  signatures: {[key: string]: string | undefined}
 }
 
 function is_up_to_date(base_dir: Path, file: string, metadata: Metadata) {

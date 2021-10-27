@@ -159,9 +159,7 @@ export class Bundle {
     const aliases_json = JSON.stringify(to_obj(aliases))
     const externals_json = JSON.stringify(to_obj(externals))
 
-    sources += `${suffix}, ${safe_id(entry)}, ${aliases_json}, ${externals_json});`
-    if (postlude != null)
-      sources += postlude
+    sources += `${suffix}, ${safe_id(entry)}, ${aliases_json}, ${externals_json});${postlude}`
 
     const source_map = convert.fromBase64(sourcemap.base64()).toObject()
     return new Artifact(sources, minified ? null : source_map, aliases)
@@ -556,7 +554,7 @@ export class Linker {
     const json_file = `${path}.json`
     const has_js_file = file_exists(js_file)
     const has_json_file = file_exists(json_file)
-    const has_file = has_js_file ?? has_json_file
+    const has_file = has_js_file || has_json_file
 
     if (directory_exists(path)) {
       const pkg_file = this.resolve_package(path)

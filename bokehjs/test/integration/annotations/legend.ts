@@ -68,22 +68,14 @@ describe("Legend annotation", () => {
     legends: Partial<Legend.Attrs>[]
   }) => Promise<void>
 
-  function plot({
-    orientation,
-  }: {
-    orientation: Orientation
-  }): PlotFn {
+  function plot({orientation}: {orientation: Orientation}): PlotFn {
     return async ({
       glyphs,
       legend_items,
       figure_dimensions,
       legends,
     }) => {
-      const p = fig(figure_dimensions ??
-          orientation === "horizontal"
-            ? [250, 150]
-            : [150, 250]
-      )
+      const p = fig(figure_dimensions ?? orientation === "horizontal" ? [250, 150] : [150, 250])
 
       p.add_layout(new LinearAxis(), "above")
       p.add_layout(new LinearAxis(), "right")
@@ -117,12 +109,11 @@ describe("Legend annotation", () => {
         ]
       }
 
-      const items = legend_items.map(
-        ({label, renderers, visible}) => new LegendItem({label, renderers: renderers.map(r => gls[r]), visible})
-      )
+      const items = legend_items.map(({label, renderers, visible}) => {
+        return new LegendItem({label, renderers: renderers.map(r => gls[r]), visible})
+      })
 
-
-      if (!legends?.length) {
+      if (legends.length == 0) {
         legends = [{}]
       }
 

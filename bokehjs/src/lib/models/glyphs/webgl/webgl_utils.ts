@@ -6,7 +6,7 @@ export const cap_lookup = {butt: 0, round: 1, square: 2}
 
 export const join_lookup = {miter: 0, round: 1, bevel: 2}
 
-const hatch_pattern_lookup: {[key: string]: number} = {
+const hatch_pattern_lookup: {[key: string]: number | undefined} = {
   blank: 0,
   dot: 1,
   ring: 2,

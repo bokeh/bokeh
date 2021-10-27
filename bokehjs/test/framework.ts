@@ -184,12 +184,7 @@ function from_seq([si, ti]: TestSeq): [Suite[], Test] {
 }
 
 function _handle_error(err: Error | null): {str: string, stack?: string} | null {
-  if (err instanceof Error)
-    return {str: err.toString(), stack: err.stack}
-  else if (err != null)
-    return {str: `${err}`}
-  else
-    return null
+  return err == null ? null : {str: err.toString(), stack: err.stack}
 }
 
 export async function run(seq: TestSeq): Promise<Result> {

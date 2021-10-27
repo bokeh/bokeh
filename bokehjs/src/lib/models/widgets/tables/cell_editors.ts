@@ -347,7 +347,8 @@ export class IntEditorView extends CellEditorView {
   }
 
   override serializeValue(): any {
-    return parseInt(this.getValue(), 10) ?? 0
+    const value = parseInt(this.getValue(), 10)
+    return isNaN(value) ? 0 : value
   }
 
   override loadValue(item: Item): void {
@@ -406,7 +407,8 @@ export class NumberEditorView extends CellEditorView {
   }
 
   override serializeValue(): any {
-    return parseFloat(this.getValue()) ?? 0.0
+    const value = parseFloat(this.getValue())
+    return isNaN(value) ? 0.0 : value
   }
 
   override loadValue(item: Item): void {
