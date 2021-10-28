@@ -11,7 +11,7 @@ export function is_undefined(obj: unknown): obj is undefined {
   return typeof obj === "undefined"
 }
 
-export function is_defined<T extends unknown>(obj: T): obj is (T extends undefined ? never : T) {
+export function is_defined<T>(obj: T): obj is (T extends undefined ? never : T) {
   return typeof obj !== "undefined"
 }
 
