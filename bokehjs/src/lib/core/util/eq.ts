@@ -139,9 +139,12 @@ export class Comparator {
       const an = ai.next()
       const bn = bi.next()
 
-      if (an.done && bn.done)
+      const an_done = an.done ?? false
+      const bn_done = bn.done ?? false
+
+      if (an_done && bn_done)
         return true
-      if (an.done || bn.done)
+      if (an_done || bn_done)
         return false
 
       if (!this.eq(an.value, bn.value))

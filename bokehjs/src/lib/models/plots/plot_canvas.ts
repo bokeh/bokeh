@@ -451,7 +451,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     const needs_layout = () => {
       for (const panel of this.model.side_panels) {
         const view = this.renderer_views.get(panel)! as AnnotationView | AxisView
-        if (view.layout?.has_size_changed()) {
+        if (view.layout?.has_size_changed() ?? false) {
           this.invalidate_painters(view)
           return true
         }

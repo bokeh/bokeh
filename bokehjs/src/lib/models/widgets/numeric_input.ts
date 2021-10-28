@@ -55,7 +55,7 @@ export class NumericInputView extends InputWidgetView {
       if (!inputFilter(this.input_el.value)) { // an invalid character is entered
         const difflen = this.old_value.length - this.input_el.value.length
         this.input_el.value = this.old_value
-        if (selectionStart && selectionEnd)
+        if (selectionStart != null && selectionEnd != null)
           this.input_el.setSelectionRange(selectionStart-1, selectionEnd + difflen)
       } else
         this.old_value = this.input_el.value

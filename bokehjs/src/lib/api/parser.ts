@@ -233,7 +233,7 @@ export class Parser {
       } else {
         // Try to gobble each expression individually
         const node = this.gobbleExpression()
-        if (node) {
+        if (node != false) {
           nodes.push(node)
           // If we weren't able to find a binary expression and are out of room, then
           // the expression passed in probably has too much
@@ -294,13 +294,13 @@ export class Parser {
     // Then, check to see if there's a binary operator operating on that leftmost thing
     // Don't gobbleBinaryOp without a left-hand-side
     const left = this.gobbleToken()
-    if (!left) {
+    if (left == false) {
       return left
     }
     let biop = this.gobbleBinaryOp()
 
     // If there wasn't a binary operator, just return the leftmost node
-    if (!biop) {
+    if (biop == false) {
       return left
     }
 
@@ -310,7 +310,7 @@ export class Parser {
     let biop_info = {value: biop, prec: binary_precedence(biop)}
 
     const right = this.gobbleToken()
-    if (!right) {
+    if (right == false) {
       this.error(`Expected expression after ${biop}`)
     }
 
@@ -318,7 +318,7 @@ export class Parser {
 
     // Properly deal with precedence using [recursive descent](http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm)
     let cur_biop
-    while ((biop = this.gobbleBinaryOp())) {
+    while ((biop = this.gobbleBinaryOp()) != false) {
       const prec = binary_precedence(biop)
 
       if (prec == 0) {
@@ -345,7 +345,7 @@ export class Parser {
 
       const node = this.gobbleToken()
 
-      if (!node) {
+      if (node == false) {
         this.error(`Expected expression after ${cur_biop}`)
       }
 
@@ -401,7 +401,7 @@ export class Parser {
         )) {
           this.index += tc_len
           const argument = this.gobbleToken()
-          if (!argument) {
+          if (argument == false) {
             this.error("missing unaryOp argument")
           }
           return {
@@ -428,7 +428,7 @@ export class Parser {
       }
     }
 
-    if (!node) {
+    if (node == false) {
       return false
     }
 
@@ -458,7 +458,7 @@ export class Parser {
         }
       } else if (ch == OBRACK_CODE) {
         const expr = this.gobbleExpression()
-        if (!expr) {
+        if (expr == false) {
           this.error("Expected an expression")
         }
         node = {
@@ -658,7 +658,7 @@ export class Parser {
       } else {
         const node = this.gobbleExpression()
 
-        if (!node || node.type == COMPOUND) {
+        if (node == false || node.type == COMPOUND) {
           this.error("Expected comma")
         }
 

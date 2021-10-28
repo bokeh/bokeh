@@ -1,5 +1,6 @@
 import * as p from "core/properties"
 import {span} from "core/dom"
+import {is_nullish}  from "core/util/types"
 import {Formatter, Column, Grid as SlickGrid, Group, GroupTotals, RowMetadata, ColumnMetadata} from "@bokeh/slickgrid"
 import {DTINDEX_NAME, Item} from "./definitions"
 import {TableDataProvider, DataTableView, DataTable} from "./data_table"
@@ -161,7 +162,7 @@ export class DataCubeProvider extends TableDataProvider {
     const toggledGroups = this.toggledGroupsByLevel[level]
 
     groups.forEach((group) => {
-      if (group.groups) {
+      if (!is_nullish(group.groups)) { // XXX: bad typings
         this.addTotals(group.groups, level + 1)
       }
 
@@ -180,7 +181,7 @@ export class DataCubeProvider extends TableDataProvider {
     groups.forEach((group) => {
       rows.push(group)
       if (!group.collapsed) {
-        const subRows = group.groups
+        const subRows = !is_nullish(group.groups) // XXX: bad typings
           ? this.flattenedGroupedRows(group.groups, level + 1)
           : group.rows
         rows.push(...subRows)

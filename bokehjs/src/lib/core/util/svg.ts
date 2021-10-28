@@ -461,7 +461,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     for (let i = 0; i < keys.length; i++) {
       const style = STYLES[keys[i]]
       const value = this[keys[i]]
-      if (style.apply?.includes(type)) {
+      if (style.apply != null && style.apply.includes(type)) {
         if (value instanceof CanvasPattern) {
           for (const def of [...value.__ctx.__defs.childNodes]) {
             if (def instanceof Element) {
@@ -488,7 +488,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
             let attr = style.svgAttr!
             if (keys[i] === "globalAlpha") {
               attr = `${type}-${style.svgAttr}`
-              if (currentElement.getAttribute(attr)) {
+              if (currentElement.getAttribute(attr) != null) {
                 // fill-opacity or stroke-opacity has already been set by stroke or fill.
                 continue
               }

@@ -383,7 +383,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     // be recursively nested within `"change"` events.
     if (changing)
       return
-    if (!options.no_change) {
+    if (!(options.no_change ?? false)) {
       while (this._pending) {
         this._pending = false
         this.change.emit()

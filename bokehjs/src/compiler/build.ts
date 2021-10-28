@@ -110,8 +110,8 @@ export async function init(base_dir: Path, _bokehjs_dir: Path, base_setup: InitO
   print(`Working directory: ${cyan(base_dir)}`)
 
   const setup: Required<InitOptions> = {
-    interactive: !!base_setup.interactive,
-    bokehjs_version: base_setup.bokehjs_version != null ? base_setup.bokehjs_version : base_setup.bokeh_version.split("-")[0],
+    interactive: base_setup.interactive ?? false,
+    bokehjs_version: base_setup.bokehjs_version ?? base_setup.bokeh_version.split("-")[0],
     bokeh_version: base_setup.bokeh_version,
   }
 
@@ -218,7 +218,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   print(`Working directory: ${cyan(base_dir)}`)
 
   const setup: Required<BuildOptions> = {
-    rebuild: !!base_setup.rebuild,
+    rebuild: base_setup.rebuild ?? false,
     bokeh_version: base_setup.bokeh_version,
   }
 
@@ -315,7 +315,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   if (is_failed(tsoutput)) {
     print(report_diagnostics(tsoutput.diagnostics).text)
 
-    if (options.noEmitOnError)
+    if (options.noEmitOnError ?? false)
       return false
   }
 
@@ -367,7 +367,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     return null
   })()
 
-  const license_text = license ? `${preludes.comment(license)}\n` : ""
+  const license_text = license != null ? `${preludes.comment(license)}\n` : ""
 
   const prelude_base = `${license_text}${preludes.plugin_prelude()}`
   const prelude = {main: prelude_base, plugin: prelude_base}

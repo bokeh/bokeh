@@ -182,7 +182,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     const {width, height} = this._size()
     const {angle} = this
 
-    if (!angle)
+    if (angle == null || angle == 0)
       return {width, height}
     else {
       const c = Math.cos(Math.abs(angle))
@@ -239,7 +239,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   rect(): Rect {
     const rect = this._rect()
     const {angle} = this
-    if (!angle)
+    if (angle == null || angle == 0)
       return rect
     else {
       const {sx, sy} = this.position
@@ -317,9 +317,10 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     ctx.save()
     const {sx, sy} = this.position
 
-    if (this.angle) {
+    const {angle} = this
+    if (angle != null && angle != 0) {
       ctx.translate(sx, sy)
-      ctx.rotate(this.angle)
+      ctx.rotate(angle)
       ctx.translate(-sx, -sy)
     }
 

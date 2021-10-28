@@ -7,8 +7,10 @@
  * @param wait [number] time in milliseconds to use for window
  * @return [function] throttled function
  */
+type TimeoutID = number
+
 export function throttle(func: () => void, wait: number): () => Promise<void> {
-  let timeout: number | null = null
+  let timeout: TimeoutID | null = null
   let previous = 0
   let pending = false
 
@@ -34,7 +36,7 @@ export function throttle(func: () => void, wait: number): () => Promise<void> {
         }
         pending = true
         requestAnimationFrame(later)
-      } else if (!timeout && !pending) {
+      } else if (timeout == null && !pending) {
         timeout = setTimeout(() => requestAnimationFrame(later), remaining)
       } else {
         resolve()

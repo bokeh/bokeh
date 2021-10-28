@@ -15,7 +15,8 @@ export function is_defined<T extends unknown>(obj: T): obj is (T extends undefin
   return typeof obj !== "undefined"
 }
 
-function isNullish(obj: unknown): obj is null | undefined {
+// XXX: use only to work around strict conditional expressions
+export function is_nullish(obj: unknown): obj is null | undefined {
   return obj == null
 }
 
@@ -79,7 +80,7 @@ export function isObject(obj: unknown): obj is object {
 }
 
 export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
-  return isObject(obj) && (isNullish(obj.constructor) || obj.constructor === Object)
+  return isObject(obj) && (is_nullish(obj.constructor) || obj.constructor === Object)
 }
 
 export function isIterable(obj: unknown): obj is Iterable<unknown> {

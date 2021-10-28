@@ -50,7 +50,7 @@ async function main() {
       const result = await build(base_dir, bokehjs_dir, {rebuild, bokeh_version})
       process.exit(result ? 0 : 1)
     } catch (error) {
-      const msg = error instanceof Error && error.stack ? error.stack : `${error}`
+      const msg = error instanceof Error && error.stack != null ? error.stack : `${error}`
       console.log(msg)
       process.exit(1)
     }
@@ -64,7 +64,7 @@ async function main() {
       const result = await init(base_dir, bokehjs_dir, {interactive, bokehjs_version, bokeh_version})
       process.exit(result ? 0 : 1)
     } catch (error) {
-      const msg = error instanceof Error && error.stack ? error.stack : `${error}`
+      const msg = error instanceof Error && error.stack != null ? error.stack : `${error}`
       console.log(msg)
       process.exit(1)
     }
@@ -72,7 +72,7 @@ async function main() {
     try {
       reply(await compile())
     } catch (error) {
-      const msg = error instanceof Error && error.stack ? error.stack : `${error}`
+      const msg = error instanceof Error && error.stack != null ? error.stack : `${error}`
       reply({error: msg})
     }
   }

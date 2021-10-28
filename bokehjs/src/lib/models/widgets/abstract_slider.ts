@@ -96,7 +96,7 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
 
     const {start, end, value, step} = this._calc_to()
 
-    let tooltips: boolean | any[] // XXX
+    let tooltips: any[] | null // XXX
     if (this.model.tooltips) {
       const formatter = {
         to: (value: number): string => this.model.pretty(value),
@@ -104,7 +104,7 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
 
       tooltips = repeat(formatter, value.length)
     } else
-      tooltips = false
+      tooltips = null
 
     if (this.slider_el == null) {
       this.slider_el = div()
@@ -115,7 +115,7 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
         step,
         behaviour: this.model.behaviour,
         connect: this.model.connected,
-        tooltips,
+        tooltips: tooltips ?? false,
         orientation: this.model.orientation,
         direction: this.model.direction,
       })
@@ -123,7 +123,7 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
       this._noUiSlider.on("slide",  (_, __, values) => this._slide(values))
       this._noUiSlider.on("change", (_, __, values) => this._change(values))
 
-      const toggleTooltip = (i: number, show: boolean): void => {
+      const toggle_tooltip = (i: number, show: boolean): void => {
         if (tooltips == null || this.slider_el == null)
           return
         const handle = this.slider_el.querySelectorAll(".noUi-handle")[i]
@@ -131,8 +131,8 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
         tooltip.style.display = show ? "block" : ""
       }
 
-      this._noUiSlider.on("start", (_, i) => toggleTooltip(i, true))
-      this._noUiSlider.on("end",   (_, i) => toggleTooltip(i, false))
+      this._noUiSlider.on("start", (_, i) => toggle_tooltip(i, true))
+      this._noUiSlider.on("end",   (_, i) => toggle_tooltip(i, false))
     } else {
       this._noUiSlider.updateOptions({
         range: {min: start, max: end},

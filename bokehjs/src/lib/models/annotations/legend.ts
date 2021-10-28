@@ -63,9 +63,15 @@ export class LegendView extends AnnotationView {
       this.text_widths.set(name, max([ctx.measureText(name).width, label_width]))
     }
 
-    this.visuals.title_text.set_value(ctx)
-    this.title_height = this.model.title ? font_metrics(this.visuals.title_text.font_value()).height + this.model.title_standoff : 0
-    this.title_width = this.model.title ? ctx.measureText(this.model.title).width : 0
+    const {title} = this.model
+    if (title == null || title.length == 0) {
+      this.title_width = 0
+      this.title_height = 0
+    } else {
+      this.visuals.title_text.set_value(ctx)
+      this.title_width = ctx.measureText(title).width
+      this.title_height = font_metrics(this.visuals.title_text.font_value()).height + this.model.title_standoff
+    }
 
     ctx.restore()
 
@@ -302,7 +308,7 @@ export class LegendView extends AnnotationView {
 
   protected _draw_title(ctx: Context2d, bbox: BBox): void {
     const {title} = this.model
-    if (!title || !this.visuals.title_text.doit)
+    if (title == null || title.length == 0 || !this.visuals.title_text.doit)
       return
 
     ctx.save()

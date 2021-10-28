@@ -64,7 +64,7 @@ export function show_error(error: unknown): void {
   if (error instanceof BuildError) {
     log(`${chalk.red("failed:")} ${error.message}`)
   } else {
-    const msg = error instanceof Error && error.stack ? error.stack : error
+    const msg = error instanceof Error && error.stack != null ? error.stack : error
     print(`${chalk.red("failed:")} ${msg}`)
   }
 }

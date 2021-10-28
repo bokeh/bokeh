@@ -188,7 +188,7 @@ export function collect_exports(exported: Exports[]) {
           }
           exported.push({type: "bindings", bindings, module})
         }
-      } else if (ts.isExportAssignment(statement) && !statement.isExportEquals) {
+      } else if (ts.isExportAssignment(statement) && !(statement.isExportEquals ?? false)) {
         // export default name
         exported.push({type: "named", name: "default"})
       } else if (ts.isClassDeclaration(statement) || ts.isFunctionDeclaration(statement)) {

@@ -160,7 +160,7 @@ export class ColorBarView extends AnnotationView {
     })
 
     const {title} = this.model
-    if (title) {
+    if (title != null) {
       this._title = new Title({
         text: title,
         standoff: this.model.title_standoff,
