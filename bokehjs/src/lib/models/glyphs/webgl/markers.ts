@@ -27,17 +27,17 @@ export class MarkerGL extends BaseGLGlyph {
   protected _antialias: number
 
   // data properties, either all or none are set.
-  protected _centers: Float32Buffer
-  protected _sizes: Float32Buffer
-  protected _angles: Float32Buffer
+  protected _centers?: Float32Buffer
+  protected _sizes?: Float32Buffer
+  protected _angles?: Float32Buffer
 
   // visual properties, either all or none are set.
-  protected _linewidths: Float32Buffer
+  protected _linewidths?: Float32Buffer
   protected _line_rgba: NormalizedUint8Buffer
   protected _fill_rgba: NormalizedUint8Buffer
 
   // indices properties.
-  protected _show: Uint8Buffer
+  protected _show?: Uint8Buffer
   protected _show_all: boolean
 
   static is_supported(marker_type: MarkerType): boolean {
@@ -102,7 +102,7 @@ export class MarkerGL extends BaseGLGlyph {
       this.visuals_changed = false
     }
 
-    const nmarkers = mainGlGlyph._centers.length / 2
+    const nmarkers = mainGlGlyph._centers!.length / 2
 
     if (this._show == null)
       this._show = new Uint8Buffer(this.regl_wrapper)
@@ -132,12 +132,12 @@ export class MarkerGL extends BaseGLGlyph {
       viewport: this.regl_wrapper.viewport,
       canvas_size: [transform.width, transform.height],
       pixel_ratio: transform.pixel_ratio,
-      center: mainGlGlyph._centers,
-      size: mainGlGlyph._sizes,
-      angle: mainGlGlyph._angles,
+      center: mainGlGlyph._centers!,
+      size: mainGlGlyph._sizes!,
+      angle: mainGlGlyph._angles!,
       nmarkers,
       antialias: this._antialias,
-      linewidth: this._linewidths,
+      linewidth: this._linewidths!,
       line_color: this._line_rgba,
       fill_color: this._fill_rgba,
       show: this._show,
@@ -167,16 +167,16 @@ export class MarkerGL extends BaseGLGlyph {
     }
     this._centers.update()
 
-    if (is_CircleView(this.glyph) && this.glyph.radius != null) {
-      const sizes_array = this._sizes.get_sized_array(nmarkers)
+    if (is_CircleView(this.glyph) && this.glyph.use_radius) {
+      const sizes_array = this._sizes!.get_sized_array(nmarkers)
       for (let i = 0; i < nmarkers; i++)
         sizes_array[i] = this.glyph.sradius[i]*2
-      this._sizes.update()
+      this._sizes!.update()
     } else {
-      this._sizes.set_from_prop(this.glyph.size)
+      this._sizes!.set_from_prop(this.glyph.size)
     }
 
-    this._angles.set_from_prop(this.glyph.angle)
+    this._angles!.set_from_prop(this.glyph.angle)
   }
 
   protected _set_visuals(): void {

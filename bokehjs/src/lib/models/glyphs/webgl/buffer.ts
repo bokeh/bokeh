@@ -13,7 +13,7 @@ type WrappedArrayType = Float32Array | Uint8Array
 // update the Buffers are also kept for reuse to avoid unnecessary reallocation.
 abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
   protected regl_wrapper: ReglWrapper
-  protected buffer: Buffer
+  protected buffer?: Buffer
   protected array?: ArrayType
   protected is_scalar: boolean
 

@@ -50,7 +50,7 @@ export class TableColumn extends Model {
       field: this.field,
       name: this.title ?? this.field,
       width: this.width,
-      formatter: this.formatter != null ? this.formatter.doFormat.bind(this.formatter) : undefined,
+      formatter: this.formatter.doFormat.bind(this.formatter),
       model: this.editor,
       editor: this.editor.default_view,
       sortable: this.sortable,

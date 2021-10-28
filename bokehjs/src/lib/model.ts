@@ -3,7 +3,7 @@ import {Class} from "./core/class"
 import {ModelEvent} from "./core/bokeh_events"
 import * as p from "./core/properties"
 import {isString} from "./core/util/types"
-import {is_empty, entries} from "./core/util/object"
+import {obj} from "./core/util/object"
 import {equals, Comparator} from "core/util/eq"
 import {logger} from "./core/logging"
 import {CallbackLike0} from "./models/callbacks/callback"
@@ -66,10 +66,10 @@ export class Model extends HasProps {
   }
 
   /*protected*/ _process_event(event: ModelEvent): void {
-    for (const callback of this.js_event_callbacks[event.event_name] ?? [])
+    for (const callback of obj(this.js_event_callbacks).get(event.event_name) ?? [])
       callback.execute(event)
 
-    if (this.document != null && this.subscribed_events.some((m) => m == event.event_name))
+    if (this.document != null && this.subscribed_events.some((model) => model == event.event_name))
       this.document.event_manager.send_event(event)
   }
 
@@ -101,7 +101,7 @@ export class Model extends HasProps {
     }
     this._js_callbacks.clear()
 
-    for (const [event, callbacks] of entries(this.js_property_callbacks)) {
+    for (const [event, callbacks] of obj(this.js_property_callbacks)) {
       const wrappers = callbacks.map((cb) => () => cb.execute(this))
       this._js_callbacks.set(event, wrappers)
       const signal = signal_for(event)
@@ -111,7 +111,7 @@ export class Model extends HasProps {
   }
 
   protected override _doc_attached(): void {
-    if (!is_empty(this.js_event_callbacks) || this.subscribed_events.length != 0)
+    if (!obj(this.js_event_callbacks).is_empty || this.subscribed_events.length != 0)
       this._update_event_callbacks()
   }
 

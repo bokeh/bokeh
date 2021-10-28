@@ -45,8 +45,9 @@ export abstract class ButtonToolButtonView extends DOMView {
     })
     this.connect(this.model.change, () => this.render())
     this._hammer.on("tap", (e) => {
-      if (this._menu?.is_open) {
-        this._menu.hide()
+      const {_menu} = this
+      if (_menu != null && _menu.is_open) {
+        _menu.hide()
         return
       }
       if (e.target == this.el) {

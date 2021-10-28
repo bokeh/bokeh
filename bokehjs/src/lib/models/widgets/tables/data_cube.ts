@@ -1,5 +1,6 @@
 import * as p from "core/properties"
 import {span} from "core/dom"
+import {is_nullish}  from "core/util/types"
 import {Formatter, Column, Grid as SlickGrid, Group, GroupTotals, RowMetadata, ColumnMetadata} from "@bokeh/slickgrid"
 import {DTINDEX_NAME, Item} from "./definitions"
 import {TableDataProvider, DataTableView, DataTable} from "./data_table"
@@ -161,7 +162,7 @@ export class DataCubeProvider extends TableDataProvider {
     const toggledGroups = this.toggledGroupsByLevel[level]
 
     groups.forEach((group) => {
-      if (group.groups) {
+      if (!is_nullish(group.groups)) { // XXX: bad typings
         this.addTotals(group.groups, level + 1)
       }
 
@@ -180,7 +181,7 @@ export class DataCubeProvider extends TableDataProvider {
     groups.forEach((group) => {
       rows.push(group)
       if (!group.collapsed) {
-        const subRows = group.groups
+        const subRows = !is_nullish(group.groups) // XXX: bad typings
           ? this.flattenedGroupedRows(group.groups, level + 1)
           : group.rows
         rows.push(...subRows)
@@ -197,8 +198,8 @@ export class DataCubeProvider extends TableDataProvider {
       this.addTotals(groups)
       this.rows = this.flattenedGroupedRows(groups)
       this.target.data = {
-        row_indices: this.rows.map(value => value instanceof Group ? (value as Group<number>).rows : value),
-        labels: this.rows.map(value => value instanceof Group ? (value as Group<number>).title : labels[value as number]),
+        row_indices: this.rows.map(value => value instanceof Group ? value.rows : value),
+        labels: this.rows.map(value => value instanceof Group ? value.title : labels[value]),
       }
     }
   }
@@ -214,7 +215,7 @@ export class DataCubeProvider extends TableDataProvider {
     return item instanceof Group
       ? item as Item
       : Object.keys(data)
-        .reduce((o, c) => ({...o, [c]: data[c][item as number]}), {[DTINDEX_NAME]: item})
+        .reduce((o, c) => ({...o, [c]: data[c][item]}), {[DTINDEX_NAME]: item})
   }
 
   getItemMetadata(i: number): RowMetadata<Item> {
@@ -222,7 +223,7 @@ export class DataCubeProvider extends TableDataProvider {
     const columns = this.columns.slice(1)
 
     const aggregators = myItem instanceof Group
-      ? this.groupingInfos[(myItem as Group<number>).level].aggregators
+      ? this.groupingInfos[myItem.level].aggregators
       : []
 
     function adapter(column: Column<Item>): ColumnMetadata<Item> {

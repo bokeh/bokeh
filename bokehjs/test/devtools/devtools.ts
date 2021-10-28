@@ -91,7 +91,7 @@ async function run_tests(): Promise<boolean> {
     try {
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
         return stackTrace.callFrames.map(({functionName, url, lineNumber, columnNumber}) => {
-          return {name: functionName ?? "(anonymous)", url, line: lineNumber+1, col: columnNumber+1}
+          return {name: functionName ? functionName : "(anonymous)", url, line: lineNumber+1, col: columnNumber+1}
         })
       }
 
@@ -276,7 +276,7 @@ async function run_tests(): Promise<boolean> {
         if (argv.grep != null) {
           const regex = new RegExp(argv.grep as string)
           for (const [suites, test] of test_suite) {
-            if (!description(suites, test).match(regex) != null) {
+            if (description(suites, test).match(regex) == null) {
               test.skip = true
             }
           }
@@ -509,9 +509,9 @@ async function run_tests(): Promise<boolean> {
             }
           }
 
-          if (status.skipped)
+          if (status.skipped ?? false)
             skipped++
-          if (status.failure || status.timeout)
+          if ((status.failure ?? false) || (status.timeout ?? false))
             failures++
 
           progress.increment(1, state())
@@ -521,7 +521,7 @@ async function run_tests(): Promise<boolean> {
       }
 
       for (const [suites, test, status] of test_suite) {
-        if (status.failure || status.timeout) {
+        if ((status.failure ?? false) || (status.timeout ?? false)) {
           console.log("")
 
           let depth = 0
@@ -572,7 +572,7 @@ async function run_tests(): Promise<boolean> {
   } catch (error) {
     failure = true
     if (!(error instanceof Exit)) {
-      const msg = error instanceof Error && error.stack ? error.stack : error
+      const msg = error instanceof Error && error.stack != null ? error.stack : error
       console.error(`INTERNAL ERROR: ${msg}`)
     }
   } finally {

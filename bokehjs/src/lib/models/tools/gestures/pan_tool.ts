@@ -24,7 +24,7 @@ export class PanToolView extends GestureToolView {
   protected v_axis_only: boolean
   protected h_axis_only: boolean
 
-  protected pan_info: {
+  protected pan_info?: {
     xrs: Map<string, Interval>
     yrs: Map<string, Interval>
     sdx: number

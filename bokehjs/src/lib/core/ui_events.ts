@@ -291,7 +291,7 @@ export class UIEventBus implements EventListenerObject {
     const views = plot_view.get_renderer_views()
 
     for (const view of reversed(views)) {
-      if (view.interactive_hit?.(sx, sy))
+      if (view.interactive_hit?.(sx, sy) ?? false)
         return view
     }
 

@@ -8,9 +8,8 @@
 
 function fontSize(element: Element): number | null {
   const value = getComputedStyle(element).fontSize
-  if (value != null)
-    return parseInt(value, 10)
-  return null
+  const size = parseInt(value, 10)
+  return isNaN(size) ? null : size
 }
 
 function lineHeight(element: HTMLElement): number {

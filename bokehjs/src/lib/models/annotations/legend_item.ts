@@ -45,11 +45,9 @@ export class LegendItem extends Model {
         return false
       }
       const source = this.renderers[0].data_source
-      if (source != null) {
-        for (const r of this.renderers) {
-          if (r.data_source != source) {
-            return false
-          }
+      for (const r of this.renderers) {
+        if (r.data_source != source) {
+          return false
         }
       }
     }
@@ -63,7 +61,7 @@ export class LegendItem extends Model {
         return false
       }
       const source = this.renderers[0].data_source
-      if (source != null && !includes(source.columns(), field)) {
+      if (!includes(source.columns(), field)) {
         return false
       }
     }
@@ -103,7 +101,7 @@ export class LegendItem extends Model {
     const field = this.get_field_from_label_prop()
     if (field != null) {
       let source: ColumnarDataSource
-      if (this.renderers[0] && this.renderers[0].data_source != null)
+      if (this.renderers.length != 0)
         source = this.renderers[0].data_source
       else
         return ["No source found"]

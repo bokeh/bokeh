@@ -1,6 +1,6 @@
 declare namespace google.colab {
   declare export type CommMessage = {
-    buffers: ArrayBuffer[]
+    buffers?: ArrayBuffer[]
     data: string
   }
 

@@ -90,6 +90,9 @@ export const Location = Enum("above", "below", "left", "right")
 export type Logo = "normal" | "grey"
 export const Logo = Enum("normal", "grey")
 
+export type MapType = typeof MapType["__type__"]
+export const MapType = Enum("satellite", "roadmap", "terrain", "hybrid")
+
 export type MarkerType =
   "asterisk" | "circle" | "circle_cross" | "circle_dot" | "circle_x" |
   "circle_y" | "cross" | "dash" | "diamond" | "diamond_cross" | "diamond_dot" |

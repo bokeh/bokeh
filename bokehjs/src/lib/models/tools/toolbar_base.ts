@@ -351,7 +351,7 @@ export class ToolbarBase extends Model {
     }
     const new_gestures = create_gesture_map()
     for (const tool of this.tools) {
-      if (tool instanceof GestureTool && tool.event_type) {
+      if (tool instanceof GestureTool && tool.event_type != null) {
         if (isString(tool.event_type)) {
           new_gestures[tool.event_type].tools.push(tool)
           check_event_type(tool.event_type, tool)

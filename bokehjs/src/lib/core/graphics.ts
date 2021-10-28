@@ -90,7 +90,7 @@ export abstract class GraphicsBox {
   size(): Size {
     const {width, height} = this._size()
     const {angle} = this
-    if (!angle)
+    if (angle == null || angle == 0)
       return {width, height}
     else {
       const c = Math.cos(Math.abs(angle))
@@ -106,7 +106,7 @@ export abstract class GraphicsBox {
   rect(): Rect {
     const rect = this._rect()
     const {angle} = this
-    if (!angle)
+    if (angle == null || angle == 0)
       return rect
     else {
       const {sx, sy} = this.position
@@ -436,7 +436,7 @@ export class TextBox extends GraphicsBox {
     const {align} = this
 
     const {angle} = this
-    if (angle) {
+    if (angle != null && angle != 0) {
       ctx.translate(sx, sy)
       ctx.rotate(angle)
       ctx.translate(-sx, -sy)
@@ -558,7 +558,7 @@ export class BaseExpo extends GraphicsBox {
   paint(ctx: Context2d): void {
     ctx.save()
     const {angle} = this
-    if (angle) {
+    if (angle != null && angle != 0) {
       const {sx, sy} = this.position
       ctx.translate(sx, sy)
       ctx.rotate(angle)

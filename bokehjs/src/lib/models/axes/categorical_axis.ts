@@ -116,7 +116,7 @@ export class CategoricalAxisView extends AxisView {
       const labels = format(major)
       const mid_labels = ticks.mids.map((x) => x[1])
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
-      info.push([map(mid_labels as string[]), coords.mids, this.model.subgroup_label_orientation, this.visuals.subgroup_text])
+      info.push([map(mid_labels), coords.mids, this.model.subgroup_label_orientation, this.visuals.subgroup_text])
       info.push([map(ticks.tops as string[]), coords.tops, this.model.group_label_orientation, this.visuals.group_text])
     }
 

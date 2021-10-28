@@ -1,4 +1,5 @@
 import {unreachable} from "./assert"
+import {is_defined} from "./types"
 
 type char = string
 
@@ -52,7 +53,7 @@ const _native_font_metrics = (() => {
     const font_ascent = metrics.fontBoundingBoxAscent
     const font_descent = metrics.fontBoundingBoxDescent
 
-    if (font_ascent != null && font_descent != null) {
+    if (is_defined(font_ascent) && is_defined(font_descent)) {
       return {
         height: font_ascent + font_descent,
         ascent: font_ascent,
@@ -65,7 +66,7 @@ const _native_font_metrics = (() => {
     const text_ascent = metrics.actualBoundingBoxAscent
     const text_descent = metrics.actualBoundingBoxDescent
 
-    if (text_ascent != null && text_descent != null) {
+    if (is_defined(text_ascent) && is_defined(text_descent)) {
       return {
         height: text_ascent + text_descent,
         ascent: text_ascent,
@@ -90,7 +91,7 @@ const _native_glyph_metrics = (() => {
     const glyph_ascent = metrics.actualBoundingBoxAscent
     const glyph_descent = metrics.actualBoundingBoxDescent
 
-    if (glyph_ascent != null && glyph_descent != null) {
+    if (is_defined(glyph_ascent) && is_defined(glyph_descent)) {
       return {
         width: metrics.width,
         height: glyph_ascent + glyph_descent,

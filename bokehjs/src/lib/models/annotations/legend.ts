@@ -10,9 +10,8 @@ import {SideLayout} from "core/layout/side_panel"
 import {font_metrics} from "core/util/text"
 import {BBox} from "core/util/bbox"
 import {max, every, some} from "core/util/array"
-import {isString, isArray} from "core/util/types"
+import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
-import {unreachable} from "core/util/assert"
 
 export class LegendView extends AnnotationView {
   override model: Legend
@@ -64,9 +63,15 @@ export class LegendView extends AnnotationView {
       this.text_widths.set(name, max([ctx.measureText(name).width, label_width]))
     }
 
-    this.visuals.title_text.set_value(ctx)
-    this.title_height = this.model.title ? font_metrics(this.visuals.title_text.font_value()).height + this.model.title_standoff : 0
-    this.title_width = this.model.title ? ctx.measureText(this.model.title).width : 0
+    const {title} = this.model
+    if (title == null || title.length == 0) {
+      this.title_width = 0
+      this.title_height = 0
+    } else {
+      this.visuals.title_text.set_value(ctx)
+      this.title_width = ctx.measureText(title).width
+      this.title_height = font_metrics(this.visuals.title_text.font_value()).height + this.model.title_standoff
+    }
 
     ctx.restore()
 
@@ -139,12 +144,11 @@ export class LegendView extends AnnotationView {
           sy = (vr.end + vr.start)/2 - legend_height/2
           break
       }
-    } else if (isArray(location) && location.length == 2) {
+    } else {
       const [vx, vy] = location
       sx = panel.bbox.xview.compute(vx)
       sy = panel.bbox.yview.compute(vy) - legend_height
-    } else
-      unreachable()
+    }
 
     return new BBox({left: sx, top: sy, width: legend_width, height: legend_height})
   }
@@ -304,7 +308,7 @@ export class LegendView extends AnnotationView {
 
   protected _draw_title(ctx: Context2d, bbox: BBox): void {
     const {title} = this.model
-    if (!title || !this.visuals.title_text.doit)
+    if (title == null || title.length == 0 || !this.visuals.title_text.doit)
       return
 
     ctx.save()

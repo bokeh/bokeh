@@ -6,7 +6,7 @@ import {Texture} from "models/textures/texture"
 import {keys} from "./util/object"
 
 export type HatchPattern = HatchPatternType | string
-export type HatchExtra = {[key: string]: Texture}
+export type HatchExtra = {[key: string]: Texture | undefined}
 
 // Primitive
 

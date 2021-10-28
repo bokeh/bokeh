@@ -147,8 +147,8 @@ export function sort_by<T>(array: T[], key: (item: T) => number): T[] {
     const a = left.key
     const b = right.key
     if (a !== b) {
-      if (a > b || a === undefined) return  1
-      if (a < b || b === undefined) return -1
+      if (a > b) return  1
+      if (a < b) return -1
     }
     return left.index - right.index
   })

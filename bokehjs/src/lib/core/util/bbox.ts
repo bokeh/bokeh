@@ -71,7 +71,7 @@ export class BBox implements Rect, Equatable {
       this.x1 = 0
       this.y1 = 0
     } else if ("x0" in box) {
-      const {x0, y0, x1, y1} = box as Rect
+      const {x0, y0, x1, y1} = box
       if (!(x0 <= x1 && y0 <= y1))
         throw new Error(`invalid bbox {x0: ${x0}, y0: ${y0}, x1: ${x1}, y1: ${y1}}`)
       this.x0 = x0
@@ -79,7 +79,7 @@ export class BBox implements Rect, Equatable {
       this.x1 = x1
       this.y1 = y1
     } else if ("x" in box) {
-      const {x, y, width, height} = box as Box
+      const {x, y, width, height} = box
       if (!(width >= 0 && height >= 0))
         throw new Error(`invalid bbox {x: ${x}, y: ${y}, width: ${width}, height: ${height}}`)
       this.x0 = x
