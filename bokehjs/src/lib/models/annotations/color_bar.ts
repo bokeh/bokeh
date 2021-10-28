@@ -160,7 +160,7 @@ export class ColorBarView extends AnnotationView {
     })
 
     const {title} = this.model
-    if (title) {
+    if (title != null) {
       this._title = new Title({
         text: title,
         standoff: this.model.title_standoff,
@@ -301,7 +301,7 @@ export class ColorBarView extends AnnotationView {
         if (this.panel != null)
           return this.panel.is_horizontal ? "horizontal" : "vertical"
         else {
-          if (halign == "start" || halign == "end" || (halign == "center" && valign == "center"))
+          if (halign == "start" || halign == "end" || (/*halign == "center" &&*/ valign == "center"))
             return "vertical"
           else
             return "horizontal"

@@ -5,7 +5,7 @@ import {CellExternalCopyManager} from "@bokeh/slickgrid/plugins/slick.cellextern
 import {Grid as SlickGrid, DataProvider, SortColumn, OnSortEventArgs, OnSelectedRowsChangedEventArgs} from "@bokeh/slickgrid"
 import * as p from "core/properties"
 import {uniqueId} from "core/util/string"
-import {isString, isNumber} from "core/util/types"
+import {isString, isNumber, is_defined} from "core/util/types"
 import {some, range} from "core/util/array"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
@@ -83,10 +83,8 @@ export class TableDataProvider implements DataProvider<Item> {
     return this.getRecords()
   }
 
-  slice(start: number, end: number | null, step?: number): Item[] {
-    start = start ?? 0
+  slice(start: number, end: number | null, step: number = 1): Item[] {
     end = end ?? this.getLength()
-    step = step ?? 1
     return range(start, end, step).map((i) => this.getItem(i))
   }
 
@@ -146,7 +144,7 @@ export class DataTableView extends WidgetView {
   }
 
   override remove(): void {
-    this.grid?.destroy()
+    this.grid.destroy()
     super.remove()
   }
 
@@ -286,7 +284,7 @@ export class DataTableView extends WidgetView {
 
     let {reorderable} = this.model
 
-    if (reorderable && !(typeof $ !== "undefined" && $.fn != null && ($.fn as any).sortable != null)) {
+    if (reorderable && !(typeof $ != "undefined" && typeof $.fn != "undefined" && "sortable" in $.fn)) {
       if (!_warned_not_reorderable) {
         logger.warn("jquery-ui is required to enable DataTable.reorderable")
         _warned_not_reorderable = true
@@ -317,7 +315,7 @@ export class DataTableView extends WidgetView {
       frozenBottom: frozen_bottom,
     }
 
-    const initialized = this.grid != null
+    const initialized = is_defined(this.grid)
 
     this.data = new TableDataProvider(this.model.source, this.model.view)
     this.grid = new SlickGrid(this.el, this.data, columns, options)

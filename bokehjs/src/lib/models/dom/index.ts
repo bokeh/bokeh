@@ -246,7 +246,7 @@ export abstract class DOMElementView extends DOMNodeView {
           if (isString(value)) {
             const name = prop.attr.replace(/_/g, "-")
             if (this.el.style.hasOwnProperty(name)) {
-              this.el.style.setProperty(name, value as string)
+              this.el.style.setProperty(name, value)
             }
           }
         }

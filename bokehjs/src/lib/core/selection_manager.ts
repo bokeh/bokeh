@@ -60,7 +60,7 @@ export class SelectionManager {
       }
     } else if (is_GraphRendererView(renderer_view)) {
       const hit_test_result = renderer_view.model.inspection_policy.hit_test(geometry, renderer_view)
-      did_hit = did_hit || renderer_view.model.inspection_policy.do_inspection(hit_test_result, geometry, renderer_view, false, "replace")
+      did_hit = renderer_view.model.inspection_policy.do_inspection(hit_test_result, geometry, renderer_view, false, "replace")
     }
 
     return did_hit

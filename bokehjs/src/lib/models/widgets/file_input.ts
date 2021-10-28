@@ -5,7 +5,7 @@ import {Widget, WidgetView} from "models/widgets/widget"
 export class FileInputView extends WidgetView {
   override model: FileInput
 
-  protected dialog_el: HTMLInputElement
+  protected dialog_el?: HTMLInputElement
 
   override connect_signals(): void {
     super.connect_signals()
@@ -18,7 +18,7 @@ export class FileInputView extends WidgetView {
     if (this.dialog_el == null) {
       this.dialog_el = input({type: "file", multiple})
       this.dialog_el.onchange = () => {
-        const {files} = this.dialog_el
+        const files = this.dialog_el?.files
         if (files != null) {
           this.load_files(files)
         }
@@ -26,7 +26,7 @@ export class FileInputView extends WidgetView {
       this.el.appendChild(this.dialog_el)
     }
 
-    if (accept != null && accept != "") {
+    if (accept != "") {
       this.dialog_el.accept = accept
     }
 

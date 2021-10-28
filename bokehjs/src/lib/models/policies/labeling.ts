@@ -122,7 +122,7 @@ export class CustomLabelingPolicy extends LabelingPolicy {
     const generator = this.func.call(obj, indices, bboxes, distance, ...this.values)
 
     let result = generator.next()
-    if (result.done && result.value !== undefined) {
+    if ((result.done ?? false) && result.value !== undefined) {
       const {value} = result
       if (value instanceof Indices)
         return value
@@ -138,7 +138,7 @@ export class CustomLabelingPolicy extends LabelingPolicy {
       do {
         array.push(result.value)
         result = generator.next()
-      } while (!result.done)
+      } while (!(result.done ?? false))
 
       return Indices.from_indices(indices.size, array)
     }

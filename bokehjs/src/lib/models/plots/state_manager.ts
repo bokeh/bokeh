@@ -22,13 +22,12 @@ export class StateManager {
   protected index: number = -1
 
   protected _do_state_change(index: number): StateInfo {
-    const state = this.history[index] != null ? this.history[index].state : this.initial_state
+    const state = index in this.history ? this.history[index].state : this.initial_state
 
     if (state.range != null)
       this.parent.update_range(state.range)
 
-    if (state.selection != null)
-      this.parent.update_selection(state.selection)
+    this.parent.update_selection(state.selection)
 
     return state
   }
@@ -36,7 +35,7 @@ export class StateManager {
   push(type: string, new_state: Partial<StateInfo>): void {
     const {history, index} = this
 
-    const prev_state = history[index] != null ? history[index].state : {}
+    const prev_state = index in history ? history[index].state : {}
     const state = {...this.initial_state, ...prev_state, ...new_state}
 
     this.history = this.history.slice(0, this.index + 1)

@@ -240,7 +240,7 @@ export class AxisView extends GuideRendererView {
     axis_label_graphics.visuals = this.visuals.axis_label_text.values()
     axis_label_graphics.angle = this.panel.get_label_angle_heuristic("parallel")
 
-    if (this.plot_view.base_font_size)
+    if (this.plot_view.base_font_size != null)
       axis_label_graphics.base_font_size = this.plot_view.base_font_size
 
     axis_label_graphics.position = position

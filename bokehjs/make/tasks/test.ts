@@ -303,7 +303,7 @@ function compile(name: string, options?: {auto_index?: boolean}) {
   // `files` is in TS canonical form, i.e. `/` is the separator on all platforms
   const base_dir = `test/${name}`
 
-  compile_typescript(`./${base_dir}/tsconfig.json`, !options?.auto_index ? {} : {
+  compile_typescript(`./${base_dir}/tsconfig.json`, !(options?.auto_index ?? false) ? {} : {
     inputs(files) {
       const imports = ['export * from "../framework"']
 

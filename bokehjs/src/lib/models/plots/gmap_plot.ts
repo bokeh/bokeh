@@ -1,5 +1,6 @@
 import {Plot} from "./plot"
 import * as p from "core/properties"
+import {MapType} from "core/enums"
 import {Model} from "../../model"
 import {Range1d} from "../ranges/range1d"
 
@@ -56,9 +57,9 @@ export class GMapOptions extends MapOptions {
 
   static {
     this.define<GMapOptions.Props>(({Boolean, Int, String}) => ({
-      map_type:      [ String,  "roadmap" ],
+      map_type:      [ MapType, "roadmap" ],
       scale_control: [ Boolean, false     ],
-      styles:        [ String             ],
+      styles:        [ String             ], // XXX: non-nullable, JSON
       tilt:          [ Int,     45        ],
     }))
   }

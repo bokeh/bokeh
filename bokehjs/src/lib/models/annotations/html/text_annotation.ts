@@ -37,7 +37,7 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   override render(): void {
     if (!this.model.visible)
-      undisplay(this.el!)
+      undisplay(this.el)
 
     super.render()
   }

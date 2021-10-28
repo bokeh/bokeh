@@ -99,7 +99,7 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
         }
         case "Ref": {
           const [, modelref] = ref
-          const model = resolver.get(qualified(modelref))
+          const model = resolver.get(qualified(modelref), null)
           if (model != null)
             return kinds.Ref(model)
           else
@@ -117,7 +117,7 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
       const name = qualified(def.extends)
       if (name == "Model") // TODO: support base classes in general
         return Model
-      const base = resolver.get(name)
+      const base = resolver.get(name, null)
       if (base != null)
         return base
       else

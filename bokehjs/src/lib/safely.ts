@@ -56,7 +56,7 @@ export function safely<T>(fn: () => T, silent: boolean = false): T | undefined {
   try {
     return fn()
   } catch (error) {
-    const text = error instanceof Error && error.stack ? error.stack : `${error}`
+    const text = error instanceof Error && error.stack != null ? error.stack : `${error}`
     _burst_into_flames(text)
     if (!silent)
       throw error

@@ -16,14 +16,14 @@ const missing_point_threshold = -9000.0
 
 export class LineGL extends BaseGLGlyph {
   protected _nsegments: number
-  protected _points: Float32Buffer
+  protected _points?: Float32Buffer
 
   protected _antialias: number
   protected _color: number[]
   protected _linewidth: number
   protected _miter_limit: number
   protected _line_dash: number[]
-  protected _is_closed: boolean
+  protected _is_closed?: boolean
 
   // Only needed if line has dashes.
   protected _length_so_far?: Float32Buffer
@@ -67,7 +67,7 @@ export class LineGL extends BaseGLGlyph {
         linewidth: this._linewidth,
         antialias: this._antialias,
         miter_limit: this._miter_limit,
-        points: mainGlGlyph._points,
+        points: mainGlGlyph._points!,
         nsegments: mainGlGlyph._nsegments,
         line_join,
         line_cap,
@@ -88,7 +88,7 @@ export class LineGL extends BaseGLGlyph {
         linewidth: this._linewidth,
         antialias: this._antialias,
         miter_limit: this._miter_limit,
-        points: mainGlGlyph._points,
+        points: mainGlGlyph._points!,
         nsegments: mainGlGlyph._nsegments,
         line_join,
         line_cap,
@@ -143,7 +143,7 @@ export class LineGL extends BaseGLGlyph {
     if (this._is_dashed()) {
       if (this._length_so_far == null)
         this._length_so_far = new Float32Buffer(this.regl_wrapper)
-      const lengths_array = this._length_so_far!.get_sized_array(this._nsegments)
+      const lengths_array = this._length_so_far.get_sized_array(this._nsegments)
 
       let length = 0.0
       for (let i = 0; i < this._nsegments; i++) {
@@ -154,7 +154,7 @@ export class LineGL extends BaseGLGlyph {
                               (points_array[2*i+5] - points_array[2*i+3])**2)
       }
 
-      this._length_so_far!.update()
+      this._length_so_far.update()
     }
   }
 

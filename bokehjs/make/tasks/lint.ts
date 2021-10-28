@@ -22,18 +22,22 @@ async function eslint(dir: string): Promise<void> {
   const files = glob(...include.map((pat) => normalize(join(dir, pat))))
 
   const results = await eslint.lintFiles(files)
-  const ok = results.every(result => result.errorCount == 0)
+
+  const errors = results.some(result => result.errorCount != 0)
+  const warnings = results.some(result => result.warningCount != 0)
 
   if (fix)
     await ESLint.outputFixes(results)
 
-  if (!ok) {
+  if (errors || warnings) {
     const formatter = await eslint.loadFormatter("stylish")
     const output = formatter.format(results)
 
     for (const line of output.trim().split("\n"))
       log(line)
+  }
 
+  if (errors) {
     const total = results.reduce((total, result) => total + result.errorCount, 0)
     throw new BuildError("eslint", `lint failed with ${chalk.red(total)} errors`)
   }

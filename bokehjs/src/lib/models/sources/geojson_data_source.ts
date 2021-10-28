@@ -7,6 +7,7 @@ import {ColumnarDataSource} from "./columnar_data_source"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {Arrayable} from "core/types"
+import {is_undefined} from "core/util/types"
 import {range} from "core/util/array"
 import {entries} from "core/util/object"
 
@@ -165,7 +166,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     let items: (Feature<GeoItem> | GeoItem)[]
     switch (geojson.type) {
       case "GeometryCollection": {
-        if (geojson.geometries == null)
+        if (is_undefined(geojson.geometries))
           throw new Error("No geometries found in GeometryCollection")
 
         if (geojson.geometries.length === 0)
@@ -175,7 +176,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
         break
       }
       case "FeatureCollection": {
-        if (geojson.features == null)
+        if (is_undefined(geojson.features))
           throw new Error("No features found in FeaturesCollection")
 
         if (geojson.features.length == 0)
@@ -190,7 +191,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
 
     let item_count = 0
     for (const item of items) {
-      const geometry = item.type === "Feature" ? item.geometry! : item
+      const geometry = item.type === "Feature" ? item.geometry : item
       if (geometry.type == "GeometryCollection")
         item_count += geometry.geometries.length
       else
@@ -208,7 +209,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
 
     let arr_index = 0
     for (const item of items) {
-      const geometry = item.type == "Feature" ? item.geometry! : item
+      const geometry = item.type == "Feature" ? item.geometry : item
 
       if (geometry.type == "GeometryCollection") {
         for (const g of geometry.geometries) {
