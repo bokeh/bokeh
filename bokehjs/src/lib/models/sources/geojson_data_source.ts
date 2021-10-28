@@ -191,7 +191,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
 
     let item_count = 0
     for (const item of items) {
-      const geometry = item.type === "Feature" ? item.geometry! : item
+      const geometry = item.type === "Feature" ? item.geometry : item
       if (geometry.type == "GeometryCollection")
         item_count += geometry.geometries.length
       else
@@ -209,7 +209,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
 
     let arr_index = 0
     for (const item of items) {
-      const geometry = item.type == "Feature" ? item.geometry! : item
+      const geometry = item.type == "Feature" ? item.geometry : item
 
       if (geometry.type == "GeometryCollection") {
         for (const g of geometry.geometries) {

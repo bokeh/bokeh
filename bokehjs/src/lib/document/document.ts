@@ -492,8 +492,8 @@ export class Document {
   }
 
   static _events_to_sync_objects(from_obj: Struct, to_obj: Struct, to_doc: Document, value_refs: Set<HasProps>): ModelChanged[] {
-    const from_keys = Object.keys(from_obj.attributes!) //XXX!
-    const to_keys = Object.keys(to_obj.attributes!) //XXX!
+    const from_keys = Object.keys(from_obj.attributes)
+    const to_keys = Object.keys(to_obj.attributes)
     const removed = difference(from_keys, to_keys)
     const added = difference(to_keys, from_keys)
     const shared = intersection(from_keys, to_keys)
@@ -510,13 +510,13 @@ export class Document {
     }
 
     for (const key of added) {
-      const new_value = to_obj.attributes![key] // XXX!
+      const new_value = to_obj.attributes[key]
       events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
     }
 
     for (const key of shared) {
-      const old_value = from_obj.attributes![key] // XXX!
-      const new_value = to_obj.attributes![key] // XXX!
+      const old_value = from_obj.attributes[key]
+      const new_value = to_obj.attributes[key]
       if (old_value == null && new_value == null) {
       } else if (old_value == null || new_value == null) {
         events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))

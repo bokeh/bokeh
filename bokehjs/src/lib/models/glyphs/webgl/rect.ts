@@ -182,7 +182,7 @@ export class RectGL extends BaseGLGlyph {
         this._hatch_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
       }
 
-      this._hatch_patterns!.set_from_hatch_pattern(hatch.hatch_pattern)
+      this._hatch_patterns.set_from_hatch_pattern(hatch.hatch_pattern)
       this._hatch_scales!.set_from_prop(hatch.hatch_scale)
       this._hatch_weights!.set_from_prop(hatch.hatch_weight)
       this._hatch_rgba!.set_from_color(hatch.hatch_color, hatch.hatch_alpha)

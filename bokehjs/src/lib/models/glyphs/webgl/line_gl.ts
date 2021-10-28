@@ -143,7 +143,7 @@ export class LineGL extends BaseGLGlyph {
     if (this._is_dashed()) {
       if (this._length_so_far == null)
         this._length_so_far = new Float32Buffer(this.regl_wrapper)
-      const lengths_array = this._length_so_far!.get_sized_array(this._nsegments)
+      const lengths_array = this._length_so_far.get_sized_array(this._nsegments)
 
       let length = 0.0
       for (let i = 0; i < this._nsegments; i++) {
@@ -154,7 +154,7 @@ export class LineGL extends BaseGLGlyph {
                               (points_array[2*i+5] - points_array[2*i+3])**2)
       }
 
-      this._length_so_far!.update()
+      this._length_so_far.update()
     }
   }
 

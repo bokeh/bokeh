@@ -341,8 +341,8 @@ export abstract class LayoutDOMView extends DOMView {
         // we reached <body> element, so use viewport size
         if (measuring == document.body) {
           const {margin: {left, right, top, bottom}} = extents(document.body)
-          const width  = Math.ceil(document.documentElement!.clientWidth  - left - right)
-          const height = Math.ceil(document.documentElement!.clientHeight - top  - bottom)
+          const width  = Math.ceil(document.documentElement.clientWidth  - left - right)
+          const height = Math.ceil(document.documentElement.clientHeight - top  - bottom)
           return {width, height}
         }
 

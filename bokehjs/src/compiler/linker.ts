@@ -790,11 +790,11 @@ export ${export_type} css;
       externals = new Set(collected.filter((dep) => this.is_external(dep)))
       shims = new Set(collected.filter((dep) => this.is_shimmed(dep)))
     } else {
-      dependency_paths = cached!.module.dependency_paths
-      exported = cached!.module.exported
-      externals = cached!.module.externals
-      shims = cached!.module.shims
-      source = cached!.module.source
+      dependency_paths = cached.module.dependency_paths
+      exported = cached.module.exported
+      externals = cached.module.externals
+      shims = cached.module.shims
+      source = cached.module.source
     }
 
     return {
