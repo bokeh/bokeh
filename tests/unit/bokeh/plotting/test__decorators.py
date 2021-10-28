@@ -20,7 +20,7 @@ import pytest ; pytest
 from mock import mock
 
 # Bokeh imports
-from bokeh.models import CDSView, ColumnDataSource, Marker
+from bokeh.models import CDSView, Marker
 from bokeh.plotting import Figure
 from bokeh.plotting._renderer import RENDERER_ARGS
 
@@ -49,7 +49,7 @@ _renderer_args_values = dict(
     x_range_name=[None, "", "x range"],
     y_range_name=[None, "", "y range"],
     level=[None, "overlay"],
-    view=[None, CDSView(source=ColumnDataSource())],
+    view=[None, CDSView()],
     visible=[None, False, True],
     muted=[None, False, True],
 )

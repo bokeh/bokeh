@@ -632,16 +632,11 @@ class TableWidget(Widget):
     The source of data for the widget.
     """)
 
-    view = Instance(CDSView, help="""
+    view = Instance(CDSView, default=lambda: CDSView(), help="""
     A view into the data source to use when rendering table rows. A default view
     of the entire data source is created if a view is not passed in during
     initialization.
     """)
-
-    def __init__(self, **kw) -> None:
-        super().__init__(**kw)
-        if "view" not in kw:
-            self.view = CDSView(source=self.source)
 
 class DataTable(TableWidget):
     ''' Two-dimensional grid for visualization and editing large amounts

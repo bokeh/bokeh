@@ -120,7 +120,7 @@ class Test_make_glyph:
 #     'x_range_name': [None, '', 'x range'],
 #     'y_range_name': [None, '', 'y range'],
 #     'level': [None, 'overlay'],
-#     'view': [None, CDSView(source=None)],
+#     'view': [None, CDSView()],
 #     'visible': [None, False, True],
 #     'muted': [None, False, True]
 # }
