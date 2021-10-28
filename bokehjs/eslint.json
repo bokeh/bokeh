@@ -42,6 +42,7 @@
     "@typescript-eslint/strict-boolean-expressions": ["error", {"allowAny": true}],
     "@typescript-eslint/no-unnecessary-type-assertion": ["error"],
     "@typescript-eslint/no-unnecessary-type-constraint": ["error"],
+    "no-self-assign": ["error", {"props": false}],
     "brace-style": ["error", "1tbs", {"allowSingleLine": true}],
     "comma-dangle": ["error", "always-multiline"],
     "comma-spacing": ["error", {"before": false, "after": true}],
