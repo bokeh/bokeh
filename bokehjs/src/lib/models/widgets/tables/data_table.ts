@@ -83,10 +83,8 @@ export class TableDataProvider implements DataProvider<Item> {
     return this.getRecords()
   }
 
-  slice(start: number, end: number | null, step?: number): Item[] {
-    start = start
+  slice(start: number, end: number | null, step: number = 1): Item[] {
     end = end ?? this.getLength()
-    step = step ?? 1
     return range(start, end, step).map((i) => this.getItem(i))
   }
 
