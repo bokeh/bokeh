@@ -138,10 +138,11 @@ export class DataRange1d extends DataRange {
     return result
   }
 
-  /*protected*/ _compute_min_max(plot_bounds: Iterable<Rect>, dimension: Dim): [number, number] {
+  /*protected*/ _compute_min_max(plot_bounds: Iterable<[Plot, Rect]>, dimension: Dim): [number, number] {
     let overall = bbox.empty()
-    for (const rect of plot_bounds) {
-      overall = bbox.union(overall, rect)
+    for (const [plot, rect] of plot_bounds) {
+      if (plot.visible)
+        overall = bbox.union(overall, rect)
     }
 
     let min, max: number
@@ -245,7 +246,7 @@ export class DataRange1d extends DataRange {
     this._plot_bounds.set(plot, total_bounds)
 
     // compute the min/mix for our specified dimension
-    const [min, max] = this._compute_min_max(this._plot_bounds.values(), dimension)
+    const [min, max] = this._compute_min_max(this._plot_bounds.entries(), dimension)
 
     // derive start, end from bounds and data range config
     let [start, end] = this._compute_range(min, max)
