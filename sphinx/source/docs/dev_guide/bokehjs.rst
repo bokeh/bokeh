@@ -100,6 +100,28 @@ directory, run ``node make lint`` to check your code. Run
 ``node make lint --fix`` to have ESLint fix some problems automatically. For
 more details, see the rules defined in :bokeh-tree:`bokehjs/eslint.json`.
 
+.. tip::
+  If you use VSCode, you can use the following configuration for your workspace
+  to use ESLint directly in the editor:
+
+  .. code-block:: json
+
+        "eslint.format.enable": true,
+        "eslint.lintTask.enable": true,
+        "eslint.debug": false,
+        "eslint.quiet": false,
+        "eslint.options": {
+          "cache": true,
+          "extensions": [".ts"],
+          "overrideConfigFile": "./eslint.json"
+        },
+        "eslint.workingDirectories": [
+          "./bokehjs"
+        ]
+
+  This requires the `ESLint extension for VSCode`_ and ESLint version 8 or above
+  to be installed.
+
 Development requirements
 ------------------------
 
@@ -330,3 +352,4 @@ Views extend the respective ``BaseView`` base class.
 .. _ESLint: https://eslint.org/
 .. _JSFiddle: http://jsfiddle.net/
 .. _GitHub_Actions: https://github.com/bokeh/bokeh/actions?query=workflow%3ABokehJS-CI
+.. _ESLint extension for VSCode: https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
