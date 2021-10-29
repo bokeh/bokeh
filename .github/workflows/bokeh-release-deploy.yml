@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to deploy a release for"
+        description: "Version to deploy a release for (e.g. 3.0.0, 2.4.0dev8)"
         required: true
 
 env:
