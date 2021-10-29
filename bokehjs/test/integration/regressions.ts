@@ -1492,4 +1492,34 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #11770", () => {
+    it("prevents correct computation of linked data ranges and a subset of plots not visible", async () => {
+      function vis(visible: boolean) {
+        const source = new ColumnDataSource({data: {x: [0.1], y: [0.1]}})
+
+        const fig0 = fig([200, 200], {visible})
+        const fig1 = fig([200, 200], {x_axis_type: "log", y_axis_type: "log"})
+        const fig2 = fig([200, 200], {x_axis_type: "log", x_range: fig1.x_range, y_range: fig1.y_range, visible})
+        fig0.line({x: {field: "x"}, y: {field: "y"}, source})
+        fig1.line({x: {field: "x"}, y: {field: "y"}, source})
+        fig2.line({x: {field: "x"}, y: {field: "y"}, source})
+
+        const layout = column([fig0, fig1, fig2])
+        return {source, layout}
+      }
+
+      const vis0 = vis(true)
+      const vis1 = vis(false)
+
+      const {view} = await display(row([vis0.layout, vis1.layout]))
+      const [cv0, cv1] = view.child_views
+
+      vis0.source.data = {x: [10, 11], y: [10, 11]}
+      await Promise.all(cv0.child_views.map((v) => v.ready))
+
+      vis1.source.data = {x: [10, 11], y: [10, 11]}
+      await Promise.all(cv1.child_views.map((v) => v.ready))
+    })
+  })
 })
