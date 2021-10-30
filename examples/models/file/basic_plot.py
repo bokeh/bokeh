@@ -5,7 +5,7 @@
     :apis: bokeh.models
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter_markers`
     :keywords: circle, figure, scatter
- 
+
 '''
 from numpy import arange, pi, sin
 
