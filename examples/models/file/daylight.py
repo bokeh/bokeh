@@ -1,6 +1,6 @@
-''' A plot shading the daylight hours in a city's local time (which are
-discontinuous due to summer time) using the Patch and Line plot elements to
-draw custom outlines and fills.
+''' A plot showing the daylight hours in a city's local time (which are
+discontinuous due to summer time) using the ``Patch`` and ``Line`` plot
+elements to draw custom outlines and fills.
 
 .. bokeh-example-metadata::
     :sampledata: daylight
