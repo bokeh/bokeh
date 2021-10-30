@@ -4,7 +4,7 @@ API.
 
 .. bokeh-example-metadata::
     :sampledata: sine wave
-    :apis: bokeh.models
+    :apis: bokeh.models.Circle, bokeh.models.Plot, bokeh.models.ColumnDataSource, bokeh.models.LinearAxis, bokeh.models.PanTool, bokeh.models.WheelZoomTool
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter_markers`
     :keywords: circle, figure, scatter
 
