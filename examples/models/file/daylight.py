@@ -1,3 +1,13 @@
+''' A plot shading the daylight hours in a city's local time (which are
+discontinuous due to summer time) using the Patch and Line plot elements to
+draw custom outlines and fills.
+
+.. bokeh-example-metadata::
+    :sampledata: daylight
+    :apis: bokeh.models.glyphs.Line, bokeh.models.glyphs.Patch, bokeh.models.plots.Plot.add_glyph, bokeh.document.document.Document
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_line_glyphs`, :ref:`userguide_plotting` > :ref:`userguide_plotting_patch_polygon_glyphs`
+    :keywords: outline, shading, fill
+'''
 import datetime as dt
 from time import mktime
 
