@@ -1,3 +1,14 @@
+''' A scatter plot of a smooth periodic oscillation. This example demonstrates red
+circle scatter markers with black outlines, using the low-level ``bokeh.models``
+API.
+
+.. bokeh-example-metadata::
+    :sampledata: sine wave
+    :apis: bokeh.models.Circle, bokeh.models.Plot, bokeh.models.ColumnDataSource, bokeh.models.LinearAxis, bokeh.models.PanTool, bokeh.models.WheelZoomTool
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter_markers`
+    :keywords: circle, figure, scatter
+
+'''
 from numpy import arange, pi, sin
 
 from bokeh.document import Document
