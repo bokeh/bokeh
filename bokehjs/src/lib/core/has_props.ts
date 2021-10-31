@@ -209,7 +209,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   get attributes(): Attrs {
     const attrs: Attrs = {}
     for (const prop of this) {
-      attrs[prop.attr] = prop.get_value()
+      if (!prop.is_unset)
+        attrs[prop.attr] = prop.get_value()
     }
     return attrs
   }
@@ -364,7 +365,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     this._changing = true
 
     for (const [prop, value] of changes) {
-      if (check_eq === false || !is_equal(prop.get_value(), value)) {
+      if (check_eq === false || prop.is_unset || !is_equal(prop.get_value(), value)) {
         prop.set_value(value)
         changed.add(prop)
       }
@@ -418,7 +419,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     for (const [attr, value] of changes) {
       const prop = this.properties[attr]
       changed.set(prop, value)
-      previous.set(prop, prop.get_value())
+      previous.set(prop, prop.is_unset ? undefined : prop.get_value())
     }
 
     const updated = this._setv(changed, options)
@@ -495,8 +496,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         refs.add(v)
         if (recursive) {
           for (const prop of v.syncable_properties()) {
-            const value = prop.get_value()
-            HasProps._value_record_references(value, refs, {recursive})
+            if (!prop.is_unset) {
+              const value = prop.get_value()
+              HasProps._value_record_references(value, refs, {recursive})
+            }
           }
         }
       }

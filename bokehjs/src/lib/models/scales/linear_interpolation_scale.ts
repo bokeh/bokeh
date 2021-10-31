@@ -25,14 +25,20 @@ export class LinearInterpolationScale extends Scale<number> {
   static {
     this.internal<LinearInterpolationScale.Props>(({Arrayable, Ref}) => ({
       binning:      [ Arrayable ],
-      linear_scale: [
-        Ref(LinearScale),
-        (self) => new LinearScale({
-          source_range: (self as LinearInterpolationScale).source_range,
-          target_range: (self as LinearInterpolationScale).target_range,
-        }),
-      ],
+      linear_scale: [ Ref(LinearScale) ],
     }))
+  }
+
+  override initialize(): void {
+    super.initialize()
+
+    const {source_range, target_range} = this.properties
+    if (!source_range.is_unset && !target_range.is_unset) {
+      this.linear_scale = new LinearScale({
+        source_range: source_range.get_value(),
+        target_range: target_range.get_value(),
+      })
+    }
   }
 
   override connect_signals(): void {

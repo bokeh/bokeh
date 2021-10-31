@@ -36,7 +36,7 @@ export function isSpec(obj: any): boolean {
 }
 
 export type Spec<T> = {
-  readonly value?: T
+  readonly value?: T | typeof unset
   readonly field?: string
   readonly expr?: Expression<T>
   readonly transform?: Transform<unknown, T>
@@ -85,6 +85,8 @@ export interface PropertyConstructor<T> {
   readonly prototype: Property<T>
 }
 
+const unset = Symbol("unset")
+
 export abstract class Property<T = unknown> {
   __value__: T
 
@@ -98,8 +100,15 @@ export abstract class Property<T = unknown> {
 
   protected spec: Spec<T>
 
+  get is_unset(): boolean {
+    return this.spec.value == unset
+  }
+
   get_value(): T {
-    return this.spec.value!
+    if (this.spec.value != unset)
+      return this.spec.value!
+    else
+      throw new Error(`${this.obj}.${this.attr} is unset`)
   }
 
   set_value(val: T): void {
@@ -159,9 +168,7 @@ export abstract class Property<T = unknown> {
           if (default_value !== undefined)
             attr_value = default_value(obj)
           else {
-            // XXX: temporary and super sketchy, but affects only "readonly" and a few internal properties
-            // console.warn(`${this.obj}.${this.attr} has no value nor default`)
-            this.spec = {value: null as any}
+            this.spec = {value: unset}
             return
           }
         }

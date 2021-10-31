@@ -12,10 +12,9 @@ describe("SingleIntervalTicker Model", () => {
       expect(interval).to.be.equal(10)
     })
 
-    it("should return null if interval property is not set", () => {
+    it("should throw if interval property is not set", () => {
       const ticker = new SingleIntervalTicker()
-      const interval = ticker.get_interval(0, 10, 11)
-      expect(interval).to.be.null
+      expect(() => ticker.get_interval(0, 10, 11)).to.throw()
     })
   })
 })

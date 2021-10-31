@@ -99,7 +99,7 @@ export class TapTool extends SelectTool {
     this.define<TapTool.Props>(({Any, Enum, Nullable}) => ({
       behavior: [ TapBehavior, "select" ],
       gesture:  [ Enum("tap", "doubletap"), "tap"],
-      callback: [ Nullable(Any /*TODO*/) ],
+      callback: [ Nullable(Any /*TODO*/), null ],
     }))
 
     this.register_alias("click", () => new TapTool({behavior: "inspect"}))
