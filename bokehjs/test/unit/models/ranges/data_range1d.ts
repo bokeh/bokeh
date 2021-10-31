@@ -10,22 +10,20 @@ describe("datarange1d module", () => {
   describe("default creation", () => {
     const r = new DataRange1d()
 
-    it("should have start = null", () => {
-      expect(r.start).to.be.null
+    it("should have start = NaN", () => {
+      expect(r.start).to.be.NaN
     })
 
-    it("should have end = null", () => {
-      expect(r.end).to.be.null
+    it("should have end = NaN", () => {
+      expect(r.end).to.be.NaN
     })
 
-    // Math.min(null, null) == 0
-    it("should have min = 0", () => {
-      expect(r.min).to.be.equal(0)
+    it("should have min = NaN", () => {
+      expect(r.min).to.be.NaN
     })
 
-    // Math.max(null, null) == 0
-    it("should have max = 0", () => {
-      expect(r.max).to.be.equal(0)
+    it("should have max = NaN", () => {
+      expect(r.max).to.be.NaN
     })
 
     it("should have flipped = false", () => {
@@ -37,7 +35,7 @@ describe("datarange1d module", () => {
     })
 
     it("should be valid", () => {
-      expect(r.is_valid).to.be.true
+      expect(r.is_valid).to.be.false
     })
 
     it("should have follow = null", () => {

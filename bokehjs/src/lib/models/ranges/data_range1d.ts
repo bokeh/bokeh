@@ -42,8 +42,8 @@ export class DataRange1d extends DataRange {
 
   static {
     this.define<DataRange1d.Props>(({Boolean, Number, Nullable}) => ({
-      start:               [ Number ],
-      end:                 [ Number ],
+      start:               [ Number, NaN ],
+      end:                 [ Number, NaN ],
       range_padding:       [ Number, 0.1 ],
       range_padding_units: [ PaddingUnits, "percent" ],
       flipped:             [ Boolean, false ],
@@ -73,8 +73,8 @@ export class DataRange1d extends DataRange {
   override initialize(): void {
     super.initialize()
 
-    this._initial_start = this.start
-    this._initial_end = this.end
+    this._initial_start = isNaN(this.start) ? null : this.start
+    this._initial_end = isNaN(this.end) ? null : this.end
     this._initial_range_padding = this.range_padding
     this._initial_range_padding_units = this.range_padding_units
     this._initial_follow = this.follow
@@ -161,9 +161,9 @@ export class DataRange1d extends DataRange {
 
     if (this._initial_start != null)
       min = this._initial_start
-
     if (this._initial_end != null)
       max = this._initial_end
+
     if (this.scale_hint == "log") {
       if (isNaN(min) || !isFinite(min) || min <= 0) {
         if (isNaN(max) || !isFinite(max) || max <= 0)
