@@ -187,7 +187,8 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   size(): Size {
     const {width, height} = this._size()
     const {angle} = this
-    if (!angle)
+
+    if (angle == null || angle == 0)
       return {width, height}
     else {
       const c = Math.cos(Math.abs(angle))
