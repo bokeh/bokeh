@@ -185,7 +185,7 @@ export class ColorBarView extends AnnotationView {
   }
 
   protected _apply_axis_properties(): void {
-    const builtins: Partial<Axis.Attrs> = {
+    const attrs: Partial<Axis.Attrs> = {
       ticker: this._ticker,
       formatter: this._formatter,
       major_label_standoff: this.model.label_standoff,
@@ -196,29 +196,33 @@ export class ColorBarView extends AnnotationView {
       minor_tick_out: this.model.minor_tick_out,
       major_label_overrides: this.model.major_label_overrides,
       major_label_policy: this.model.major_label_policy,
+      // TODO: this needs strict typing
+      ...mixins.attrs_of(this.model, "major_label_", mixins.Text, true),
+      ...mixins.attrs_of(this.model, "major_tick_", mixins.Line, true),
+      ...mixins.attrs_of(this.model, "minor_tick_", mixins.Line, true),
     }
-    this._axis.setv({...this.model.axis_mixins(), ...builtins})
+    this._axis.setv(attrs)
   }
 
   protected _apply_title_properties(): void {
-    const builtins: Partial<Title.Attrs> = {
+    const attrs: Partial<Title.Attrs> = {
       text: this.model.title ?? "",
       standoff: this.model.title_standoff,
+      // TODO: this needs strict typing
+      ...mixins.attrs_of(this.model, "title_", mixins.Text, false),
     }
-    this._title.setv({...this.model.title_mixins(), ...builtins})
+    this._title.setv(attrs)
   }
 
   override connect_signals(): void {
     super.connect_signals()
-    // TODO: this.connect(this.model.change, () => this.plot_view.invalidate_layout())
+    this.connect(this.model.change, () => {
+      this._apply_title_properties()
+      this._apply_axis_properties()
+      // TODO?: this.plot_view.invalidate_layout()
+    })
     this.connect(this._ticker.change, () => this.request_render())
     this.connect(this._formatter.change, () => this.request_render())
-    this.on_change(this.model.title_properties, () => {
-      this._apply_title_properties()
-    })
-    this.on_change(this.model.axis_properties, () => {
-      this._apply_axis_properties()
-    })
     this.connect(this.model.color_mapper.metrics_change, () => {
       const range = this._major_range
       const scale = this._major_scale
@@ -643,39 +647,6 @@ export interface ColorBar extends ColorBar.Attrs {}
 export class ColorBar extends Annotation {
   override properties: ColorBar.Props
   override __view_type__: ColorBarView
-
-  axis_mixins(withprefix: boolean = true): {[key: string]: any} {
-    return {
-      ...mixins.attrs_of(this, "major_label_", mixins.Text, withprefix),
-      ...mixins.attrs_of(this, "major_tick_", mixins.Line, withprefix),
-      ...mixins.attrs_of(this, "minor_tick_", mixins.Line, withprefix),
-    }
-  }
-
-  title_mixins(withprefix: boolean = false): {[key: string]: any} {
-    return mixins.attrs_of(this, "title_", mixins.Text, withprefix)
-  }
-
-  get axis_properties(): p.Property[] {
-    const _axis_properties: p.Property[] = []
-    const names: string[] = ["major_tick_in", "major_tick_out", "minor_tick_in", "minor_tick_out", "label_standoff",
-                             "major_label_overrides", "major_label_policy", ...Object.keys(this.axis_mixins())]
-
-    for (const name of names) {
-      _axis_properties.push(this.property(name))
-    }
-    return _axis_properties
-  }
-
-  get title_properties(): p.Property[] {
-    const _title_properties: p.Property[] = []
-    const names: string[] = ["title", "title_standoff", ...Object.keys(this.title_mixins(true))]
-
-    for (const name of names) {
-      _title_properties.push(this.property(name))
-    }
-    return _title_properties
-  }
 
   constructor(attrs?: Partial<ColorBar.Attrs>) {
     super(attrs)
