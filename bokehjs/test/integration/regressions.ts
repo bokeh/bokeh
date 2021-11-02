@@ -1237,15 +1237,15 @@ describe("Bug", () => {
 
         const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
         ui._mouse_move(ev)
-
-        return view.ready
       }
 
       const [pv0, pv1, pv2] = view.child_views as PlotView[]
 
-      await hover_at(pv0, r0,  2, 5)
-      await hover_at(pv1, r1, 12, 5)
-      await hover_at(pv2, r2,  2, 5)
+      hover_at(pv0, r0,  2, 5)
+      hover_at(pv1, r1, 12, 5)
+      hover_at(pv2, r2,  2, 5)
+
+      await view.ready
     })
   })
 
@@ -1284,12 +1284,10 @@ describe("Bug", () => {
 
       const {view} = await display(row([p0, p1]))
 
-      // TODO: allow `await view.ready` to await readiness of its children
       p0.renderers = [esri]
-      await view.child_views[0].ready
-
       p1.renderers = [osm]
-      await view.child_views[1].ready
+
+      await view.ready
     })
   })
 
@@ -1508,7 +1506,6 @@ describe("Bug", () => {
       p.image({image: [img], x: 0, y: 0, dw, dh, color_mapper})
 
       const {view} = await display(p, [350, 350])
-      await view.ready
 
       color_bar.color_mapper.palette = plasma(50)
       color_bar.major_label_text_font_style = "bold italic"
@@ -1538,13 +1535,11 @@ describe("Bug", () => {
       const vis1 = vis(false)
 
       const {view} = await display(row([vis0.layout, vis1.layout]))
-      const [cv0, cv1] = view.child_views
 
       vis0.source.data = {x: [10, 11], y: [10, 11]}
-      await Promise.all(cv0.child_views.map((v) => v.ready))
-
       vis1.source.data = {x: [10, 11], y: [10, 11]}
-      await Promise.all(cv1.child_views.map((v) => v.ready))
+
+      await view.ready
     })
   })
 })
