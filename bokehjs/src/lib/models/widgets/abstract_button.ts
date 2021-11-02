@@ -24,7 +24,7 @@ export abstract class AbstractButtonView extends ControlView {
     await super.lazy_initialize()
     const {icon} = this.model
     if (icon != null) {
-      this.icon_view = await build_view(icon, {parent: this}) as AbstractIconView
+      this.icon_view = await build_view(icon, {parent: this})
     }
   }
 

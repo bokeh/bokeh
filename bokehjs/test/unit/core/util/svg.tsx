@@ -102,24 +102,22 @@ describe("SVGRenderingContext2d", () => {
 
   it("should draw arcs correctly", async () => {
     const test = (ctx: AnyContext2D) => {
-      // Draw shapes
       for (let i = 0; i <= 3; i++) {
         for (let j = 0; j <= 2; j++) {
           ctx.beginPath()
-          const x             = 25 + j * 50                 // x coordinate
-          const y             = 25 + i * 50                 // y coordinate
-          const radius        = 20                          // Arc radius
-          const start_angle    = 0                           // Starting point on circle
-          const end_angle      = Math.PI + (Math.PI * j) / 2 // End point on circle
-          const counterclockwise = i % 2 == 1               // Draw counterclockwise
+          const x                = 25 + j * 50
+          const y                = 25 + i * 50
+          const radius           = 20
+          const start_angle      = 0
+          const end_angle        = Math.PI + (Math.PI * j) / 2
+          const counterclockwise = i % 2 == 1
 
           ctx.arc(x, y, radius, start_angle, end_angle, counterclockwise)
 
-          if (i > 1) {
+          if (i > 1)
             ctx.fill()
-          } else {
+          else
             ctx.stroke()
-          }
         }
       }
     }
@@ -221,7 +219,6 @@ describe("SVGRenderingContext2d", () => {
       </svg>
     )
   })
-
 
   it("should fill a red rectangle correctly", async () => {
     const test = (ctx: AnyContext2D) => {
@@ -693,8 +690,6 @@ describe("SVGRenderingContext2d", () => {
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="300" height="150">
         <defs>
           <linearGradient
-            fill="none"
-            stroke="none"
             id="ZoSvZRFIOOma"
             x1="20px"
             x2="20px"
@@ -813,20 +808,18 @@ describe("SVGRenderingContext2d", () => {
     const size = {width: 200, height: 200}
 
     const test = (ctx: AnyContext2D) => {
-      const patternCanvas = document.createElement("canvas")
-      const patternContext = patternCanvas.getContext("2d")!
+      const canvas = document.createElement("canvas")
+      const pattern_ctx = canvas.getContext("2d")!
 
-      // Give the pattern a width and height of 50
-      patternCanvas.width = 50
-      patternCanvas.height = 50
+      canvas.width = 10
+      canvas.height = 10
 
-      // Give the pattern a background color and draw an arc
-      patternContext.fillStyle = "#fec"
-      patternContext.fillRect(0, 0, patternCanvas.width, patternCanvas.height)
-      patternContext.arc(0, 0, 50, 0, 0.5 * Math.PI)
-      patternContext.stroke()
+      pattern_ctx.fillStyle = "#fec"
+      pattern_ctx.fillRect(0, 0, canvas.width, canvas.height)
+      pattern_ctx.arc(0, 0, 10, 0, 0.5*Math.PI)
+      pattern_ctx.stroke()
 
-      const pattern = ctx.createPattern(patternCanvas, "repeat")!
+      const pattern = ctx.createPattern(canvas, "repeat")!
       ctx.fillStyle = pattern
       ctx.fillRect(0, 0, size.width, size.height)
     }
@@ -840,13 +833,8 @@ describe("SVGRenderingContext2d", () => {
     expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
         <defs>
-          <pattern
-            id="ZoSvZRFIOOma"
-            width="50"
-            height="50"
-            patternUnits="userSpaceOnUse"
-          >
-            <image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAytJREFUaEPdmm1IU1EYx/+2sK9F860+2IeFWvnWFy2riWU6DQUtp/nSWDa1+QJmauiWScyXD1JoGRUKZtDMQK2lKA58SyLDRFESMU1LBQvSmZofjDNxlDq31ab37ML5dC+X/+8+55znef7nWix/71oG5Vea5A4szAEkUpRtHiA+wfHmAeLked48QHYf8KYfZH5+AXs5p+kHGR4Zh2+ImH6QjrcfkJFTTD9IdW0z5DWN9IOUVdZiePQr/SAhMdcRHRZAP8hOKw8sTr6hG+R1UwfuPa6CQn6XbpD4VBncXRwQJwilG2TfIX+8V1bCzpZNL0hXdz8S0vLxrrlC3YRQW8ZLZKXYZWmJ7LTLdIO4nozAkwe5cDl8kF6Q0bEJcM+JMNLzUtPbUjm18orKwWLtQHrKJXpB5ubmYeN4Fqqxtr+cBuoikpRRCAeOPRKv8OkFGf8yhWN+Qoz1Kdb5PlRFJCpOAt6Z44i8wKMXpG9gCBGxWejtkG/owlETkUB+CsSxYQjw9aIXpK2zG1m376NV8UirJ0pFRPjCG0gW8eHl6UYvyNqaShsJoyNSVdOEF3VKyMvydNrsjAUZ+PgJoYJ09Hc+1wnB6DJ+tRdnsVj0grhzI1FeIoWbs4NeEIyMSEyCFL7eHojmB+oNwTgQqawUC4tLKLyVbBAEo0AIhBV7D5JE4QZDMAaETCdba/Y/RWKVetu3X7KwU69eNHhNrA3btoGQPOF8IhxdygqDdidGZXaSsXMKHqK3/Rn0zRO6Fs6WR4TUToNDn/UqO3SJ//P+loGQUpwYzkecOBpTzRChup41OQjp7MjR2KzqJ/Ik4k1LcV1iN7tvMhBiFGTmlqCnbxAFOclaO7v/EW/SqUV8p8zcYtQoWpB/M3FDo8BY4k0CQmzMp9UNkBWVIV+auM53MoV4o4EQa7+2vgV19a34MaNCgjAUGSkCU2ve8P0GrxFy3FVHxDe0Yr+dNYJ5XATxTmlc8W2h0HY+Qn6LmJiaXhmT3zAzq8Krxnb1l/fz8VQLD/Lnqk+KmHJZXBNHLWtEq4VP49fSEuxs2CvDlg1Hjj2OujqpAYyViY39AX4DXR+42EzS/N8AAAAASUVORK5CYII="/>
+          <pattern id="ZoSvZRFIOOma" width="10" height="10" patternUnits="userSpaceOnUse">
+            <image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAIxJREFUKFNj/P/uzH8GAiCjqI2BkRiF5q7xxClkE7cgrPDu/ScMaYWthBX6RxcxJMf441e4cPkWhv1HzjAsmNqAW+Gz568Z1M2DGT4/OgQOE6y+BpmUW97F8OrWLgYODg5MhSCHF9X0MQgK8IGtQwaM6QlB/89fvslw/tJNBjtLQ4a89AgGP097jCgAACZAS/EvDmTVAAAAAElFTkSuQmCC"/>
           </pattern>
         </defs>
         <path
@@ -861,7 +849,7 @@ describe("SVGRenderingContext2d", () => {
 
   it("Create a pattern from an image", async () => {
     const test = async (ctx: AnyContext2D) => {
-      const img = await load_image("/assets/images/pattern.png")
+      const img = await load_image("/assets/images/pattern_small.png")
       const pattern = ctx.createPattern(img, "repeat")!
       ctx.fillStyle = pattern
       ctx.fillRect(0, 0, 300, 300)
@@ -877,13 +865,8 @@ describe("SVGRenderingContext2d", () => {
     expect_element(svg).to.have.equal_attributes(
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
         <defs>
-          <pattern
-            id="ZoSvZRFIOOma"
-            width="86"
-            height="117"
-            patternUnits="userSpaceOnUse"
-          >
-            <image href="/assets/images/pattern.png" />
+          <pattern id="ZoSvZRFIOOma" width="10" height="20" patternUnits="userSpaceOnUse">
+            <image href="/assets/images/pattern_small.png" />
           </pattern>
         </defs>
         <path
@@ -944,13 +927,14 @@ describe("SVGRenderingContext2d", () => {
 
   it("Support drawImage with HTMLImageElement", async () => {
     const test = async (ctx: AnyContext2D) => {
-      const img = await load_image("/assets/images/pattern.png")
+      const img = await load_image("/assets/images/pattern_small.png")
       ctx.drawImage(img, 0, 0)
-      ctx.drawImage(img, 0, 50, 200, 200)
-      ctx.drawImage(img, 0, 0, 25, 25, 0, 250, 200, 200)
+      ctx.drawImage(img, 11, 17)
+      ctx.drawImage(img, 11, 17, 15, 25)
+      ctx.drawImage(img, 5, 5, 5, 10, 11, 17, 10, 15)
     }
 
-    const size = {width: 200, height: 450}
+    const size = {width: 100, height: 100}
     const ctx = new SVGRenderingContext2D(size)
 
     await test(ctx)
@@ -958,50 +942,59 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(
-      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="450">
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="100" height="100">
         <defs/>
         <image
-          width="86"
-          height="117"
+          width="10"
+          height="20"
           preserveAspectRatio="none"
-          href="/assets/images/pattern.png"
+          href="/assets/images/pattern_small.png"
         ></image>
         <image
-          width="200"
-          height="200"
+          width="10"
+          height="20"
           preserveAspectRatio="none"
-          transform="matrix(1, 0, 0, 1, 0, 50)"
-          href="/assets/images/pattern.png"
+          transform="matrix(1, 0, 0, 1, 11, 17)"
+          href="/assets/images/pattern_small.png"
         ></image>
         <image
-          width="200"
-          height="200"
+          width="15"
+          height="25"
           preserveAspectRatio="none"
-          transform="matrix(1, 0, 0, 1, 0, 250)"
+          transform="matrix(1, 0, 0, 1, 11, 17)"
+          href="/assets/images/pattern_small.png"
+        ></image>
+        <image
+          width="10"
+          height="15"
+          preserveAspectRatio="none"
+          transform="matrix(1, 0, 0, 1, 11, 17)"
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAPCAYAAADd/14OAAAAAXNSR0IArs4c6QAAAbpJREFUKFNNkkvLuUEYxq9xLiQWjknOoRQiUhZWtiweeymfwLewsLFXNlZ2Nj6ADTbIKRaeJ1nYYIGc5m3m3/vvnZruaebXdd/X1ZB6vU59Ph9yuRzcbjcUCgXkcjnYkiQJw+GQV9JqtWgqlYLH44HJZOLA4/HA+XzGfD7HYDDAbrcDabfbNJvNwmKxQKvVcvB0OmG1WmE6nWIymeB4PIIIgkCDwSCKxSJY/X6/mM1m6Ha7uFwuSKfTcDqdIJVKhX4+H8Tjca7KQKa42WxgNBpRKBTAPJBms0nZ5fv9xuv1wv1+h16vh9frRTgcRiKRgN1uB5EkiYqiiOVyyfd6vYbVakW5XEYsFoNOp4NarQa5Xq90sVig3+/jcDjAbDYjEAggmUzC5XJBo9FAqVSCbLdbOh6P0ev1eH6CICAajfI8GcQUVSoVSKPRoPv9HgaDAX6/H5lMhs/EZmabGWUGSa1WozKZDPl8nivZbDaeJ4Oezyc3x0ySarVK2SylUgmhUIgHTgjhlQG32+0f2Ol0KIvA4XDwWP6CrCVrTSkFGY1GNBKJ8IF/PwOnAQ78LiKKImVqrN1vy/+vfw4/8DfKLVi/6aYAAAAASUVORK5CYII="
         ></image>
       </svg>
     )
   })
 
-  it("Support drawImage with Canvas", async () => {
+  it("Support drawImage() with canvas", async () => {
     const test = (ctx: AnyContext2D) => {
-      const patternCanvas = document.createElement("canvas")
-      const patternContext = patternCanvas.getContext("2d")!
+      const canvas = document.createElement("canvas")
+      const pattern_ctx = canvas.getContext("2d")!
 
-      patternCanvas.width = 50
-      patternCanvas.height = 50
+      canvas.width = 10
+      canvas.height = 20
 
-      patternContext.fillStyle = "#fec"
-      patternContext.fillRect(0, 0, patternCanvas.width, patternCanvas.height)
-      patternContext.arc(0, 0, 50, 0, 0.5 * Math.PI)
-      patternContext.stroke()
+      pattern_ctx.fillStyle = "#fec"
+      pattern_ctx.fillRect(0, 0, canvas.width, canvas.height)
+      pattern_ctx.arc(0, 0, 10, 0, 0.5*Math.PI)
+      pattern_ctx.stroke()
 
-      ctx.drawImage(patternCanvas, 0, 0)
-      ctx.drawImage(patternCanvas, 0, 50, 200, 200)
-      ctx.drawImage(patternCanvas, 25, 0, 25, 25, 0, 250, 200, 200)
+      ctx.drawImage(canvas, 0, 0)
+      ctx.drawImage(canvas, 11, 17)
+      ctx.drawImage(canvas, 11, 17, 20, 30)
+      ctx.drawImage(canvas, 5, 5, 5, 10, 11, 17, 20, 30)
     }
 
-    const size = {width: 200, height: 450}
+    const size = {width: 100, height: 100}
     const ctx = new SVGRenderingContext2D(size)
 
     test(ctx)
@@ -1009,24 +1002,34 @@ describe("SVGRenderingContext2d", () => {
     await compare_on_dom(test, svg, size)
 
     expect_element(svg).to.have.equal_attributes(
-      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="450">
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="100" height="100">
         <defs/>
         <image
-          width="50"
-          height="50"
+          width="10"
+          height="20"
           preserveAspectRatio="none"
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAUCAYAAAC07qxWAAAAAXNSR0IArs4c6QAAAKtJREFUOE9j/P/uzH8GAiCjqI2BkRiF5q7xxClkE7cgrPDu/ScMaYWthBX6RxcxJMf441e4cPkWhv1HzjAsmNqAW+Gz568Z1M2DGT4/OgQOE6y+BpmUW97F8OrWLgYODg5MhSCHF9X0MQgK8IGtQwaM6QlB/89fvslw/tJNBjtLQ4a89AgGP097jChgnNFX+d9QV53BUE+DgZWVBWccERUzOD2DzdhRE/FmCAA2lXErq+FjDAAAAABJRU5ErkJggg=="
         ></image>
         <image
-          width="200"
-          height="200"
+          width="10"
+          height="20"
           preserveAspectRatio="none"
-          transform="matrix(1, 0, 0, 1, 0, 50)"
+          transform="matrix(1, 0, 0, 1, 11, 17)"
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAUCAYAAAC07qxWAAAAAXNSR0IArs4c6QAAAKtJREFUOE9j/P/uzH8GAiCjqI2BkRiF5q7xxClkE7cgrPDu/ScMaYWthBX6RxcxJMf441e4cPkWhv1HzjAsmNqAW+Gz568Z1M2DGT4/OgQOE6y+BpmUW97F8OrWLgYODg5MhSCHF9X0MQgK8IGtQwaM6QlB/89fvslw/tJNBjtLQ4a89AgGP097jChgnNFX+d9QV53BUE+DgZWVBWccERUzOD2DzdhRE/FmCAA2lXErq+FjDAAAAABJRU5ErkJggg=="
         ></image>
         <image
-          width="200"
-          height="200"
+          width="20"
+          height="30"
           preserveAspectRatio="none"
-          transform="matrix(1, 0, 0, 1, 0, 250)"
+          transform="matrix(1, 0, 0, 1, 11, 17)"
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAeCAYAAAAsEj5rAAAAAXNSR0IArs4c6QAAAN9JREFUSEtj/P/uzH8GKoCMojawKYyD1kBz13jqupBN3GKQGnj3/hOwy9IKW6njQv/oIrBByTH+g8zAhcu3gF20/8gZML1gagN5Lnz2/DVYo7p5MJj+/OgQSrYgOWFTzUCYF3PLu8AuenVrF5jm4OAgzoWw5FBU0wfWICjAhxJWuLI/Ti+TbWB6QhC4tDl/+SbY0vOXILSdpSGYzkuPANN+nva4HIXq5Rl9lWADDXXVwRKGehpgmpWVhSgD0BUxUt1AapWHMJeSnA4JhcOogYRCiLD8aBgSDiNCKkZgGAIAj/SmRM4P8f4AAAAASUVORK5CYII="
+        ></image>
+        <image
+          width="20"
+          height="30"
+          preserveAspectRatio="none"
+          transform="matrix(1, 0, 0, 1, 11, 17)"
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAeCAYAAAAsEj5rAAAAAXNSR0IArs4c6QAAAIdJREFUSEtj/P/uzH8GPGDh8i0osvuPnEHhL5jagMJnHHoGPnv+GsUL6ubBKPzPjw7hCyEGDC8PPgMXTG1AieXc8i4UL726tQuFz8HBgd/Lg9/A+EgfFC+jJ1S8/sMiyTj4DSSU9Uj28qiBpAYZhnqC5SGpNowaSGqIYaofDcPRMCQjBKiebAAjZ5yvXBMSMAAAAABJRU5ErkJggg=="
         ></image>
       </svg>
     )

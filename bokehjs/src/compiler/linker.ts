@@ -1,4 +1,4 @@
-import {resolve, relative, join, dirname, basename, extname, normalize} from "path"
+import {resolve, relative, join, dirname, basename, extname, normalize, sep} from "path"
 import module from "module"
 import crypto from "crypto"
 
@@ -159,9 +159,7 @@ export class Bundle {
     const aliases_json = JSON.stringify(to_obj(aliases))
     const externals_json = JSON.stringify(to_obj(externals))
 
-    sources += `${suffix}, ${safe_id(entry)}, ${aliases_json}, ${externals_json});`
-    if (postlude != null)
-      sources += postlude
+    sources += `${suffix}, ${safe_id(entry)}, ${aliases_json}, ${externals_json});${postlude}`
 
     const source_map = convert.fromBase64(sourcemap.base64()).toObject()
     return new Artifact(sources, minified ? null : source_map, aliases)
@@ -513,17 +511,36 @@ export class Linker {
 
   protected readonly ext = ".js"
 
-  resolve_package(dir: string): string | null {
-    const index = (() => {
-      const pkg_path = join(dir, "package.json")
-      if (file_exists(pkg_path)) {
-        const pkg = JSON.parse(read(pkg_path)!)
-        if (this.target != null && pkg.module != null)
-          return pkg.module
-        if (pkg.main != null)
-          return pkg.main
+  get_package(dir: string): {[key: string]: unknown} {
+    const pkg_path = join(dir, "package.json")
+    if (file_exists(pkg_path))
+      return JSON.parse(read(pkg_path)!)
+    else
+      return {}
+  }
+
+  resolve_export_map(dir: string, subpath: string): string | null {
+    const pkg = this.get_package(dir)
+    const export_map = (pkg.exports ?? {}) as object
+    const path = join(dir, subpath)
+    for (const [key, val] of Object.entries(export_map)) {
+      if (join(dir, key) == path) {
+        return join(dir, val)
       }
-      return "index.js"
+    }
+    return null
+  }
+
+  resolve_package(dir: string): string | null {
+    const pkg = this.get_package(dir)
+
+    const index = (() => {
+      if (this.target != null && pkg.module != null)
+        return pkg.module as string
+      else if (pkg.main != null)
+        return pkg.main as string
+      else
+        return "index.js"
     })()
 
     const path = join(dir, index)
@@ -556,7 +573,7 @@ export class Linker {
     const json_file = `${path}.json`
     const has_js_file = file_exists(js_file)
     const has_json_file = file_exists(json_file)
-    const has_file = has_js_file ?? has_json_file
+    const has_file = has_js_file || has_json_file
 
     if (directory_exists(path)) {
       const pkg_file = this.resolve_package(path)
@@ -593,6 +610,16 @@ export class Linker {
         const file = this.resolve_package(path)
         if (file != null)
           return file
+      }
+
+      const [dir, ...rest] = dep.split(sep)
+      if (rest.length >= 1) {
+        const path = join(base, dir)
+        if (directory_exists(path)) {
+          const file = this.resolve_export_map(path, rest.join(sep))
+          if (file != null)
+            return file
+        }
       }
 
       if (parent.file.startsWith(base)) {
@@ -737,7 +764,7 @@ export ${export_type} css;
 
         // XXX: .json extension will cause an internal error
         const {output, error} = transpile(type == "json" ? `${file}.ts` : file, source, target, transform)
-        if (error)
+        if (error != null)
           throw new BuildError("linker", error)
         else {
           source = output
@@ -763,11 +790,11 @@ export ${export_type} css;
       externals = new Set(collected.filter((dep) => this.is_external(dep)))
       shims = new Set(collected.filter((dep) => this.is_shimmed(dep)))
     } else {
-      dependency_paths = cached!.module.dependency_paths
-      exported = cached!.module.exported
-      externals = cached!.module.externals
-      shims = cached!.module.shims
-      source = cached!.module.source
+      dependency_paths = cached.module.dependency_paths
+      exported = cached.module.exported
+      externals = cached.module.externals
+      shims = cached.module.shims
+      source = cached.module.source
     }
 
     return {

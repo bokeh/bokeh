@@ -182,7 +182,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     const {width, height} = this._size()
     const {angle} = this
 
-    if (!angle)
+    if (angle == null || angle == 0)
       return {width, height}
     else {
       const c = Math.cos(Math.abs(angle))
@@ -239,7 +239,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   rect(): Rect {
     const rect = this._rect()
     const {angle} = this
-    if (!angle)
+    if (angle == null || angle == 0)
       return rect
     else {
       const {sx, sy} = this.position
@@ -285,7 +285,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
   protected abstract _process_text(text: string): HTMLElement | undefined
 
-  private async load_image(): Promise<HTMLImageElement | null> {
+  private async load_image(): Promise<CanvasImage | null> {
     if (this.provider.MathJax == null)
       return null
 
@@ -301,15 +301,9 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     svg_element.setAttribute("font", this.font)
     svg_element.setAttribute("stroke", this.color)
 
-    const outer_HTML = svg_element.outerHTML
-    const blob = new Blob([outer_HTML], {type: "image/svg+xml"})
-    const url = URL.createObjectURL(blob)
-
-    try {
-      this.svg_image = await load_image(url)
-    } finally {
-      URL.revokeObjectURL(url)
-    }
+    const svg = svg_element.outerHTML
+    const src = `data:image/svg+xml;utf-8,${encodeURIComponent(svg)}`
+    this.svg_image = await load_image(src)
 
     this.parent.request_layout()
     return this.svg_image
@@ -323,9 +317,10 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     ctx.save()
     const {sx, sy} = this.position
 
-    if (this.angle) {
+    const {angle} = this
+    if (angle != null && angle != 0) {
       ctx.translate(sx, sy)
-      ctx.rotate(this.angle)
+      ctx.rotate(angle)
       ctx.translate(-sx, -sy)
     }
 

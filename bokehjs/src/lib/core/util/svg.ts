@@ -18,7 +18,7 @@ type FontData = {
 }
 
 // helper function to map named to numbered entities
-function createNamedToNumberedLookup(input: string, radix: number): Map<string, string> {
+function createNamedToNumberedLookup(input: string, radix?: number): Map<string, string> {
   const lookup = new Map()
   const items = input.split(",")
   radix = radix ?? 10
@@ -37,14 +37,14 @@ function createNamedToNumberedLookup(input: string, radix: number): Map<string, 
 function getTextAnchor(textAlign: string): string {
   // TODO: support rtl languages
   const mapping: KV<string> = {left: "start", right: "end", center: "middle", start: "start", end: "end"}
-  return mapping[textAlign] ?? mapping.start
+  return textAlign in mapping ? mapping[textAlign] : mapping.start
 }
 
 // helper function to map canvas-textBaseline to svg-dominantBaseline
 function getDominantBaseline(textBaseline: string): string {
   // INFO: not supported in all browsers
   const mapping: KV<string> = {alphabetic: "alphabetic", hanging: "hanging", top: "text-before-edge", bottom: "text-after-edge", middle: "central"}
-  return mapping[textBaseline] ?? mapping.alphabetic
+  return textBaseline in mapping ? mapping[textBaseline] : mapping.alphabetic
 }
 
 // Unpack entities lookup where the numbers are in radix 32 to reduce the size
@@ -290,8 +290,8 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
   __defs: SVGElement
   __stack: SVGCanvasState[]
   __document: Document
-  __currentElement: SVGElement // null?
-  __currentDefaultPath: string
+  __currentElement: SVGElement
+  __currentDefaultPath: string = ""
   __currentPosition: {x: number, y: number} | null = null
   //__currentElementsToStyle: {element: SVGElement, children: SVGElement[]} | null = null
 
@@ -308,7 +308,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
   lineJoin: CanvasLineJoin
   miterLimit: number
   lineWidth: number
-  globalAlpha: number
+  globalAlpha: number = 1.0
   globalCompositeOperation: string // XXX: really a string? // TODO: implement
   font: string
   direction: CanvasDirection // TODO: implement
@@ -363,6 +363,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     this.__root = this.__document.createElementNS("http://www.w3.org/2000/svg", "svg")
     this.__root.setAttribute("version", "1.1")
     this.__root.setAttribute("xmlns", "http://www.w3.org/2000/svg")
+    this.__currentElement = this.__root
 
     this.width = options?.width ?? 500
     this.height = options?.height ?? 500
@@ -460,7 +461,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     for (let i = 0; i < keys.length; i++) {
       const style = STYLES[keys[i]]
       const value = this[keys[i]]
-      if (style.apply?.includes(type)) {
+      if (style.apply != null && style.apply.includes(type)) {
         if (value instanceof CanvasPattern) {
           for (const def of [...value.__ctx.__defs.childNodes]) {
             if (def instanceof Element) {
@@ -481,18 +482,13 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
             const matches = regex.exec(value)!
             const [, r, g, b, a] = matches
             currentElement.setAttribute(style.svgAttr, `rgb(${r},${g},${b})`)
-            // should take globalAlpha here
-            let opacity = parseFloat(a)
-            const globalAlpha = this.globalAlpha
-            if (globalAlpha != null) {
-              opacity *= globalAlpha
-            }
+            const opacity = parseFloat(a)*this.globalAlpha
             currentElement.setAttribute(`${style.svgAttr}-opacity`, `${opacity}`)
           } else {
             let attr = style.svgAttr!
             if (keys[i] === "globalAlpha") {
               attr = `${type}-${style.svgAttr}`
-              if (currentElement.getAttribute(attr)) {
+              if (currentElement.getAttribute(attr) != null) {
                 // fill-opacity or stroke-opacity has already been set by stroke or fill.
                 continue
               }
@@ -650,8 +646,8 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     if (!isFinite(x + y))
       return
 
-    const el = this.__currentElement
-    if (!el || el.nodeName !== "path") {
+    const currentElement = this.__currentElement
+    if (currentElement.nodeName !== "path") {
       this.beginPath()
     }
 
@@ -828,7 +824,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     let path: Path2D | null = null
     if (path_or_fill_rule instanceof Path2D)
       path = path_or_fill_rule
-    else if ((path_or_fill_rule == "evenodd" || path_or_fill_rule == "nonzero" || path_or_fill_rule == null) && fill_rule == null)
+    else if (fill_rule == null)
       fill_rule = path_or_fill_rule
     else
       throw new Error("invalid arguments")
@@ -968,13 +964,13 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     */
   __parseFont(): FontData {
     const regex = /^\s*(?=(?:(?:[-a-z]+\s*){0,2}(italic|oblique))?)(?=(?:(?:[-a-z]+\s*){0,2}(small-caps))?)(?=(?:(?:[-a-z]+\s*){0,2}(bold(?:er)?|lighter|[1-9]00))?)(?:(?:normal|\1|\2|\3)\s*){0,3}((?:xx?-)?(?:small|large)|medium|smaller|larger|[.\d]+(?:\%|in|[cem]m|ex|p[ctx]))(?:\s*\/\s*(normal|[.\d]+(?:\%|in|[cem]m|ex|p[ctx])))?\s*([-,\'\"\sa-z0-9]+?)\s*$/i
-    const fontPart = regex.exec(this.font)!
+    const [, style, decoration, weight, size,, family] = regex.exec(this.font)! as (string | undefined)[] // XXX: RegExpExecArray is incorrecdt
     const data: FontData = {
-      style: fontPart[1] ?? "normal",
-      size: fontPart[4] ?? "10px",
-      family: fontPart[6] ?? "sans-serif",
-      weight: fontPart[3] ?? "normal",
-      decoration: fontPart[2] ?? "normal",
+      style: style ?? "normal",
+      size: size ?? "10px",
+      family: family ?? "sans-serif",
+      weight: weight ?? "normal",
+      decoration: decoration ?? "normal",
     }
 
     return data
@@ -1019,7 +1015,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * Creates a text element, in position x,y
     */
   fillText(text: string, x: number, y: number): void {
-    if (text == null || !isFinite(x + y))
+    if (!isFinite(x + y))
       return
     this.__applyText(text, x, y, "fill")
   }
@@ -1028,7 +1024,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * Strokes text
     */
   strokeText(text: string, x: number, y: number): void {
-    if (text == null || !isFinite(x + y))
+    if (!isFinite(x + y))
       return
     this.__applyText(text, x, y, "stroke")
   }
@@ -1286,7 +1282,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
   }
 
   setLineDash(segments: number[]): void {
-    if (segments && segments.length > 0)
+    if (segments.length > 0)
       this.lineDash = segments.join(",")
     else
       this.lineDash = null

@@ -35,9 +35,13 @@ from os.path import (
 )
 from subprocess import PIPE, Popen
 from typing import (
+    Any,
+    Callable,
     Dict,
     List,
     Sequence,
+    Set,
+    Tuple,
     Type,
 )
 
@@ -74,24 +78,24 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class AttrDict(dict):
+class AttrDict(Dict[str, Any]):
     ''' Provide a dict subclass that supports access by named attributes.
 
     '''
-    def __getattr__(self, key):
+    def __getattr__(self, key: str) -> Any:
         return self[key]
 
 class CompilationError(RuntimeError):
     ''' A ``RuntimeError`` subclass for reporting JS compilation errors.
 
     '''
-    def __init__(self, error) -> None:
+    def __init__(self, error: Dict[str, str] | str) -> None:
         super().__init__()
         if isinstance(error, dict):
             self.line = error.get("line")
             self.column = error.get("column")
             self.message = error.get("message")
-            self.text = error.get("text")
+            self.text = error.get("text", "")
             self.annotated = error.get("annotated")
         else:
             self.text = error
@@ -108,7 +112,7 @@ def nodejs_version() -> str | None:
 def npmjs_version() -> str | None:
     return _version(_run_npmjs)
 
-def nodejs_compile(code, lang="javascript", file=None):
+def nodejs_compile(code: str, lang: str = "javascript", file: str | None = None) -> AttrDict:
     compilejs_script = join(bokehjs_dir, "js", "compiler.js")
     output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=bokehjs_dir))
     lines = output.split("\n")
@@ -120,14 +124,17 @@ def nodejs_compile(code, lang="javascript", file=None):
     obj = json.loads("\n".join(lines[i:]))
     if isinstance(obj, dict):
         return AttrDict(obj)
-    else:
-        return dict(error=obj)
+    raise CompilationError(obj)
 
 class Implementation:
     ''' Base class for representing Bokeh custom model implementations.
 
     '''
-    file = None
+    file: str | None = None
+    code: str
+    @property
+    def lang(self) -> str:
+        raise NotImplementedError()
 
 class Inline(Implementation):
     ''' Base class for representing Bokeh custom model implementations that may
@@ -141,7 +148,7 @@ class Inline(Implementation):
             A file path to a file containing the source text (default: None)
 
     '''
-    def __init__(self, code, file=None) -> None:
+    def __init__(self, code: str, file: str|None = None) -> None:
         self.code = code
         self.file = file
 
@@ -157,7 +164,7 @@ class TypeScript(Inline):
 
     '''
     @property
-    def lang(self):
+    def lang(self) -> str:
         return "typescript"
 
 class JavaScript(Inline):
@@ -172,7 +179,7 @@ class JavaScript(Inline):
 
     '''
     @property
-    def lang(self):
+    def lang(self) -> str:
         return "javascript"
 
 class Less(Inline):
@@ -180,7 +187,7 @@ class Less(Inline):
 
     '''
     @property
-    def lang(self):
+    def lang(self) -> str:
         return "less"
 
 class FromFile(Implementation):
@@ -197,13 +204,15 @@ class FromFile(Implementation):
         self.file = path
 
     @property
-    def lang(self) -> str | None:
-        if self.file.endswith(".ts"):
-            return "typescript"
-        if self.file.endswith(".js"):
-            return "javascript"
-        if self.file.endswith((".css", ".less")):
-            return "less"
+    def lang(self) -> str:
+        if self.file is not None:
+            if self.file.endswith(".ts"):
+                return "typescript"
+            if self.file.endswith(".js"):
+                return "javascript"
+            if self.file.endswith((".css", ".less")):
+                return "less"
+        raise ValueError(f"unknown file type {self.file}")
 
 #: recognized extensions that can be compiled
 exts = (".ts", ".js", ".css", ".less")
@@ -246,7 +255,7 @@ class CustomModel:
 
     @property
     def implementation(self) -> Implementation:
-        impl = self.cls.__implementation__
+        impl = getattr(self.cls, "__implementation__")
 
         if isinstance(impl, str):
             if "\n" not in impl and impl.endswith(exts):
@@ -261,19 +270,19 @@ class CustomModel:
         return impl
 
     @property
-    def dependencies(self):
+    def dependencies(self) -> Dict[str, str]:
         return getattr(self.cls, "__dependencies__", {})
 
     @property
-    def module(self):
-        return "custom/%s" % snakify(self.full_name)
+    def module(self) -> str:
+        return f"custom/{snakify(self.full_name)}"
 
-def get_cache_hook():
+def get_cache_hook() -> Callable[[CustomModel, Implementation], AttrDict | None]:
     '''Returns the current cache hook used to look up the compiled
        code given the CustomModel and Implementation'''
     return _CACHING_IMPLEMENTATION
 
-def set_cache_hook(hook):
+def set_cache_hook(hook: Callable[[CustomModel, Implementation], AttrDict | None]) -> None:
     '''Sets a compiled model cache hook used to look up the compiled
        code given the CustomModel and Implementation'''
     global _CACHING_IMPLEMENTATION
@@ -383,11 +392,9 @@ _export_template = \
 _module_template = \
 """"%(module)s": function(require, module, exports) {\n%(source)s\n}"""
 
-def _detect_nodejs():
-    if settings.nodejs_path() is not None:
-        nodejs_paths = [settings.nodejs_path()]
-    else:
-        nodejs_paths = ["nodejs", "node"]
+def _detect_nodejs() -> str:
+    nodejs_path = settings.nodejs_path()
+    nodejs_paths = [nodejs_path] if nodejs_path is not None else ["nodejs", "node"]
 
     for nodejs_path in nodejs_paths:
         try:
@@ -408,8 +415,8 @@ def _detect_nodejs():
                 return nodejs_path
 
     # if we've reached here, no valid version was found
-    version = ".".join(map(str, nodejs_min_version))
-    raise RuntimeError('node.js v%s or higher is needed to allow compilation of custom models ' % version +
+    version_repr = ".".join(str(x) for x in nodejs_min_version)
+    raise RuntimeError(f'node.js v{version_repr} or higher is needed to allow compilation of custom models ' +
                        '("conda install nodejs" or follow https://nodejs.org/en/download/)')
 
 _nodejs = None
@@ -421,7 +428,7 @@ def _nodejs_path() -> str:
         _nodejs = _detect_nodejs()
     return _nodejs
 
-def _npmjs_path():
+def _npmjs_path() -> str:
     global _npmjs
     if _npmjs is None:
         _npmjs = join(dirname(_nodejs_path()), "npm")
@@ -429,10 +436,10 @@ def _npmjs_path():
             _npmjs += '.cmd'
     return _npmjs
 
-def _crlf_cr_2_lf(s):
+def _crlf_cr_2_lf(s: str) -> str:
     return re.sub(r"\\r\\n|\\r|\\n", r"\\n", s)
 
-def _run(app, argv, input=None):
+def _run(app: str, argv: List[str], input: Dict[str, Any] | None = None) -> str:
     proc = Popen([app] + argv, stdout=PIPE, stderr=PIPE, stdin=PIPE)
     (stdout, errout) = proc.communicate(input=None if input is None else json.dumps(input).encode())
 
@@ -441,21 +448,21 @@ def _run(app, argv, input=None):
     else:
         return _crlf_cr_2_lf(stdout.decode('utf-8'))
 
-def _run_nodejs(argv, input=None):
+def _run_nodejs(argv: List[str], input: Dict[str, Any] | None = None) -> str:
     return _run(_nodejs_path(), argv, input)
 
-def _run_npmjs(argv, input=None):
+def _run_npmjs(argv: List[str], input: Dict[str, Any] | None = None) -> str:
     return _run(_npmjs_path(), argv, input)
 
-def _version(run_app) -> str | None:
+def _version(run_app: Callable[[List[str], Dict[str, Any] | None], str]) -> str | None:
     try:
-        version = run_app(["--version"])
+        version = run_app(["--version"], None)  # explicit None to make mypy happy
     except RuntimeError:
         return None
     else:
         return version.strip()
 
-def _model_cache_no_op(model, implementation):
+def _model_cache_no_op(model: CustomModel, implementation: Implementation) -> AttrDict | None:
     """Return cached compiled implementation"""
     return None
 
@@ -474,12 +481,12 @@ def _get_custom_models(models: Sequence[Type[Model]] | None) -> Dict[str, Custom
 
     return custom_models if custom_models else None
 
-def _compile_models(custom_models: Dict[str, CustomModel]):
+def _compile_models(custom_models: Dict[str, CustomModel]) -> Dict[str, AttrDict]:
     """Returns the compiled implementation of supplied `models`. """
     ordered_models = sorted(custom_models.values(), key=lambda model: model.full_name)
     custom_impls = {}
 
-    dependencies: List[str] = []
+    dependencies: List[Tuple[str, str]] = []
     for model in ordered_models:
         dependencies.extend(list(model.dependencies.items()))
 
@@ -493,14 +500,11 @@ def _compile_models(custom_models: Dict[str, CustomModel]):
         if compiled is None:
             compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
 
-        if "error" in compiled:
-            raise CompilationError(compiled.error)
-
         custom_impls[model.full_name] = compiled
 
     return custom_impls
 
-def _bundle_models(custom_models) -> str:
+def _bundle_models(custom_models: Dict[str, CustomModel]) -> str:
     """ Create a JavaScript bundle with selected `models`. """
     exports = []
     modules = []
@@ -518,11 +522,11 @@ def _bundle_models(custom_models) -> str:
 
     extra_modules = {}
 
-    def resolve_modules(to_resolve, root):
+    def resolve_modules(to_resolve: Set[str], root: str) -> Dict[str, str]:
         resolved = {}
         for module in to_resolve:
             if module.startswith(("./", "../")):
-                def mkpath(module, ext=""):
+                def mkpath(module: str, ext: str = "") -> str:
                     return abspath(join(root, *module.split("/")) + ext)
 
                 if module.endswith(exts):
@@ -539,9 +543,6 @@ def _bundle_models(custom_models) -> str:
 
                 impl = FromFile(path)
                 compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
-
-                if "error" in compiled:
-                    raise CompilationError(compiled.error)
 
                 if impl.lang == "less":
                     code = _style_template % dict(css=json.dumps(compiled.code))
@@ -565,7 +566,7 @@ def _bundle_models(custom_models) -> str:
 
         return resolved
 
-    def resolve_deps(deps, root):
+    def resolve_deps(deps : List[str], root: str) -> Dict[str, str]:
         custom_modules = {model.module for model in custom_models.values()}
         missing = set(deps) - known_modules - custom_modules
         return resolve_modules(missing, root)
@@ -581,18 +582,19 @@ def _bundle_models(custom_models) -> str:
     exports = sorted(exports, key=lambda spec: spec[1])
     modules = sorted(modules, key=lambda spec: spec[0])
 
+    bare_modules = []
     for i, (module, code, deps) in enumerate(modules):
         for name, ref in deps.items():
             code = code.replace("""require("%s")""" % name, """require("%s")""" % ref)
             code = code.replace("""require('%s')""" % name, """require('%s')""" % ref)
-        modules[i] = (module, code)
+        bare_modules.append((module, code))
 
     sep = ",\n"
 
-    exports = sep.join(_export_template % dict(name=name, module=module) for (name, module) in exports)
-    modules = sep.join(_module_template % dict(module=module, source=code) for (module, code) in modules)
+    rendered_exports = sep.join(_export_template % dict(name=name, module=module) for (name, module) in exports)
+    rendered_modules = sep.join(_module_template % dict(module=module, source=code) for (module, code) in bare_modules)
 
-    content = _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
+    content = _plugin_template % dict(prelude=_plugin_prelude, exports=rendered_exports, modules=rendered_modules)
     return _plugin_umd % dict(content=content)
 
 #-----------------------------------------------------------------------------

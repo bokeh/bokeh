@@ -21,6 +21,10 @@ declare global {
   }
 }
 
+function has_maps_API(): boolean {
+  return typeof google == "undefined" || typeof google.maps == "undefined"
+}
+
 const gmaps_ready = new Signal0({}, "gmaps_ready")
 
 const load_google_api = function(api_key: string, api_version: string): void {
@@ -66,7 +70,7 @@ export class GMapPlotView extends PlotView {
       logger.error(`api_key is required. See ${url} for more information on how to obtain your own.`)
     }
 
-    if (typeof google === "undefined" || google.maps == null) {
+    if (has_maps_API()) {
       if (typeof window._bokeh_gmaps_callback === "undefined") {
         const {api_key, api_version} = this.model
         load_google_api(api_key, api_version)
@@ -153,8 +157,7 @@ export class GMapPlotView extends PlotView {
       tilt: mo.tilt,
     }
 
-    if (mo.styles != null)
-      map_options.styles = JSON.parse(mo.styles)
+    map_options.styles = JSON.parse(mo.styles)
 
     // create the map with above options in div
     this.map_el = div({style: {position: "absolute"}})
@@ -254,7 +257,7 @@ export class GMapPlotView extends PlotView {
 
   // this method is expected and called by PlotView.render
   protected override _map_hook(_ctx: Context2d, frame_box: FrameBox): void {
-    if (this.map == null && typeof google !== "undefined" && google.maps != null)
+    if (this.map == null && has_maps_API())
       this._build_map()
 
     if (this.map_el != null) {

@@ -26,7 +26,7 @@ export class RangeManager {
 
   invalidate_dataranges: boolean = true
 
-  update(range_info: RangeInfo | null, options?: RangeOptions): void {
+  update(range_info: RangeInfo | null, options: RangeOptions = {}): void {
     const {x_ranges, y_ranges} = this.frame
     if (range_info == null) {
       for (const [, range] of x_ranges) {
@@ -44,7 +44,7 @@ export class RangeManager {
       for (const [name, range] of y_ranges) {
         range_info_iter.push([range, range_info.yrs.get(name)!])
       }
-      if (options?.scrolling) {
+      if (options.scrolling ?? false) {
         this._update_ranges_together(range_info_iter)   // apply interval bounds while keeping aspect
       }
       this._update_ranges_individually(range_info_iter, options)
@@ -76,13 +76,11 @@ export class RangeManager {
         continue
 
       const bds = renderer_view.glyph_view.bounds()
-      if (bds != null)
-        bounds.set(renderer, bds)
+      bounds.set(renderer, bds)
 
       if (calculate_log_bounds) {
         const log_bds = renderer_view.glyph_view.log_bounds()
-        if (log_bds != null)
-          log_bounds.set(renderer, log_bds)
+        log_bounds.set(renderer, log_bds)
       }
     }
 
@@ -191,9 +189,10 @@ export class RangeManager {
     }
   }
 
-  protected _update_ranges_individually(range_info_iter: [Range, Interval][], options?: RangeOptions): void {
-    const panning = !!options?.panning
-    const scrolling = !!options?.scrolling
+  protected _update_ranges_individually(range_info_iter: [Range, Interval][], options: RangeOptions = {}): void {
+    const panning = options.panning ?? false
+    const scrolling = options.scrolling ?? false
+    const maintain_focus = options.maintain_focus ?? false
 
     let hit_bound = false
     for (const [rng, range_info] of range_info_iter) {
@@ -259,7 +258,7 @@ export class RangeManager {
     // the scroll-zoom tool maintains its focus position. Setting `maintain_focus`
     // to false results in a more "gliding" behavior, allowing one to
     // zoom out more smoothly, at the cost of losing the focus position.
-    if (scrolling && hit_bound && options?.maintain_focus)
+    if (scrolling && hit_bound && maintain_focus)
       return
 
     for (const [rng, range_info] of range_info_iter) {

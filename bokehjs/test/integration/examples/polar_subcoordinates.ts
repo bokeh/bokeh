@@ -9,6 +9,7 @@ import {values} from "@bokehjs/core/util/object"
 import {Fraction} from "@bokehjs/core/util/math"
 import {brightness} from "@bokehjs/core/util/color"
 import {named_colors} from "@bokehjs/core/util/svg_colors"
+import {unreachable} from "@bokehjs/core/util/assert"
 
 import {Color} from "@bokehjs/core/types"
 
@@ -22,6 +23,7 @@ describe("Examples", () => {
       for (const color of values(named_colors))
         if (brightness(color) < 0.6)
           yield color
+      unreachable()
     })()
 
     function rose(xy: GlyphAPI, k: Fraction, A: number = 1): void {
@@ -39,7 +41,7 @@ describe("Examples", () => {
       // XXX: Map keys are compared by reference
       const hash = k.toString()
       if (!color_map.has(hash))
-        color_map.set(hash, dark_colors.next().value!)
+        color_map.set(hash, dark_colors.next().value)
 
       const color = color_map.get(hash)
       xy.line({expr: t.x}, {expr: t.y}, {line_color: color, source}) // TODO: expr convenience

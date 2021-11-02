@@ -27,13 +27,15 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   get_node_coordinates(node_source: ColumnarDataSource): [Arrayable<number>, Arrayable<number>] {
-    const index = node_source.data.index ?? []
+    const {data} = node_source
+    const index = "index" in data ? data.index : []
     const n = index.length
     const xs = new Float64Array(n)
     const ys = new Float64Array(n)
+    const {graph_layout} = this
     for (let i = 0; i < n; i++) {
-      const point = this.graph_layout[index[i]]
-      const [x, y] = point ?? [NaN, NaN]
+      const j = index[i]
+      const [x, y] = j in graph_layout ? graph_layout[j] : [NaN, NaN]
       xs[i] = x
       ys[i] = y
     }
@@ -41,22 +43,24 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   get_edge_coordinates(edge_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]] {
-    const starts = edge_source.data.start ?? []
-    const ends = edge_source.data.end ?? []
+    const {data} = edge_source
+    const starts = "start" in data ? data.start : []
+    const ends = "end" in data ? data.end : []
     const n = Math.min(starts.length, ends.length)
     const xs: number[][] = []
     const ys: number[][] = []
-    const has_paths = edge_source.data.xs != null && edge_source.data.ys != null
+    const has_paths = "xs" in data && "ys" in data
+    const {graph_layout} = this
     for (let i = 0; i < n; i++) {
-      const in_layout = this.graph_layout[starts[i]] != null && this.graph_layout[ends[i]] != null
+      const in_layout = starts[i] in graph_layout && ends[i] in graph_layout
       if (has_paths && in_layout) {
         xs.push(edge_source.data.xs[i])
         ys.push(edge_source.data.ys[i])
       } else {
         let start, end
         if (in_layout) {
-          start = this.graph_layout[starts[i]]
-          end = this.graph_layout[ends[i]]
+          start = graph_layout[starts[i]]
+          end = graph_layout[ends[i]]
         } else {
           start = [NaN, NaN]
           end = [NaN, NaN]

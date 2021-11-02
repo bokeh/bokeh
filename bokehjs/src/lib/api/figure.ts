@@ -207,18 +207,18 @@ export class Figure extends BaseFigure {
     delete attrs.x_axis_type
     delete attrs.y_axis_type
 
-    const x_minor_ticks = attrs.x_minor_ticks != null ? attrs.x_minor_ticks : "auto"
-    const y_minor_ticks = attrs.y_minor_ticks != null ? attrs.y_minor_ticks : "auto"
+    const x_minor_ticks = attrs.x_minor_ticks ?? "auto"
+    const y_minor_ticks = attrs.y_minor_ticks ?? "auto"
     delete attrs.x_minor_ticks
     delete attrs.y_minor_ticks
 
-    const x_axis_location = attrs.x_axis_location != null ? attrs.x_axis_location : "below"
-    const y_axis_location = attrs.y_axis_location != null ? attrs.y_axis_location : "left"
+    const x_axis_location = attrs.x_axis_location ?? "below"
+    const y_axis_location = attrs.y_axis_location ?? "left"
     delete attrs.x_axis_location
     delete attrs.y_axis_location
 
-    const x_axis_label = attrs.x_axis_label != null ? attrs.x_axis_label : ""
-    const y_axis_label = attrs.y_axis_label != null ? attrs.y_axis_label : ""
+    const x_axis_label = attrs.x_axis_label ?? ""
+    const y_axis_label = attrs.y_axis_label ?? ""
     delete attrs.x_axis_label
     delete attrs.y_axis_label
 
@@ -227,8 +227,8 @@ export class Figure extends BaseFigure {
     delete attrs.x_range
     delete attrs.y_range
 
-    const x_scale = attrs.x_scale != null ? attrs.x_scale : Figure._get_scale(x_range, x_axis_type)
-    const y_scale = attrs.y_scale != null ? attrs.y_scale : Figure._get_scale(y_range, y_axis_type)
+    const x_scale = attrs.x_scale ?? Figure._get_scale(x_range, x_axis_type)
+    const y_scale = attrs.y_scale ?? Figure._get_scale(y_range, y_axis_type)
     delete attrs.x_scale
     delete attrs.y_scale
 
@@ -310,26 +310,26 @@ export class Figure extends BaseFigure {
     let i = 1
     while (true) {
       const new_name = `${name}__${i}`
-      if (data[new_name] != null) {
+      if (new_name in data)
         i += 1
-      } else {
+      else
         return new_name
-      }
     }
   }
 
   _fixup_values(cls: Class<HasProps>, data: Data, attrs: Attrs): Set<string> {
     const unresolved_attrs = new Set<string>()
+    const props = cls.prototype._props
 
     for (const [name, value] of entries(attrs)) {
-      const prop = cls.prototype._props[name]
+      if (name in props) {
+        const prop = cls.prototype._props[name]
 
-      if (prop != null) {
         if (prop.type.prototype instanceof VectorSpec) {
           if (value != null) {
             if (isArray(value) || nd.is_NDArray(value)) {
               let field
-              if (data[name] != null) {
+              if (name in data) {
                 if (data[name] !== value) {
                   field = this._find_uniq_name(data, name)
                   data[field] = value
@@ -539,12 +539,9 @@ export class Figure extends BaseFigure {
       }
 
       axis.axis_label = axis_label
+      this.add_layout(axis, axis_location)
 
       const grid = new Grid({dimension: dim, ticker: axis.ticker})
-
-      if (axis_location !== null) {
-        this.add_layout(axis, axis_location)
-      }
       this.add_layout(grid)
     }
   }
@@ -578,18 +575,14 @@ export class Figure extends BaseFigure {
 
   _get_num_minor_ticks(axis: Axis, num_minor_ticks?: number | "auto"): number {
     if (isNumber(num_minor_ticks)) {
-      if (num_minor_ticks <= 1) {
+      if (num_minor_ticks <= 1)
         throw new Error("num_minor_ticks must be > 1")
-      }
-      return num_minor_ticks
-    }
-    if (num_minor_ticks == null) {
+      else
+        return num_minor_ticks
+    } else if (num_minor_ticks == null)
       return 0
-    }
-    if (num_minor_ticks === "auto") {
+    else
       return axis instanceof LogAxis ? 10 : 5
-    }
-    throw new Error("shouldn't have happened")
   }
 
   _process_tools(tools: (Tool | string)[] | string): Tool[] {
@@ -647,8 +640,6 @@ export class Figure extends BaseFigure {
 
   protected _handle_legend_group(name: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
     const source = glyph_renderer.data_source
-    if (source == null)
-      throw new Error("cannot use 'legend_group' on a glyph without a data source already configured")
     if (!(name in source.data))
       throw new Error("column to be grouped does not exist in glyph data source")
 

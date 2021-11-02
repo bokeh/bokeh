@@ -1,4 +1,4 @@
-import {display, with_internal} from "./_util"
+import {display, row, with_internal} from "./_util"
 
 import {
   LinearAxis, LogAxis, CategoricalAxis,
@@ -10,7 +10,7 @@ import {
 } from "@bokehjs/models"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
-import {Side} from "@bokehjs/core/enums"
+import {OutputBackend, Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
 
 (() => {
@@ -193,27 +193,35 @@ import {radians} from "@bokehjs/core/util/math"
 
     describe("in both orientations", () => {
       async function hvplot(attrs: Partial<LogAxis.Attrs>): Promise<void> {
-        const p = new Plot({
-          width: 600,
-          height: 400,
-          x_scale: new LogScale(),
-          y_scale: new LogScale(),
-          x_range: new Range1d({start: 10**-2, end: 10**11}),
-          y_range: new Range1d({start: 10**-2, end: 10**11}),
-          min_border_top: 20,
-          min_border_bottom: 20,
-          min_border_left: 0,
-          min_border_right: 0,
-          title: null,
-          toolbar_location: null,
-        })
+        function make_plot(output_backend: OutputBackend) {
+          const p = new Plot({
+            output_backend,
+            title: output_backend,
+            width: 600,
+            height: 400,
+            x_scale: new LogScale(),
+            y_scale: new LogScale(),
+            x_range: new Range1d({start: 10**-2, end: 10**11}),
+            y_range: new Range1d({start: 10**-2, end: 10**11}),
+            min_border_top: 20,
+            min_border_bottom: 20,
+            min_border_left: 0,
+            min_border_right: 0,
+            toolbar_location: null,
+          })
 
-        p.add_layout(new LogAxis(attrs), "left")
-        p.add_layout(new LogAxis(attrs), "right")
-        p.add_layout(new LogAxis(attrs), "above")
-        p.add_layout(new LogAxis(attrs), "below")
+          p.add_layout(new LogAxis(attrs), "left")
+          p.add_layout(new LogAxis(attrs), "right")
+          p.add_layout(new LogAxis(attrs), "above")
+          p.add_layout(new LogAxis(attrs), "below")
 
-        await display(p)
+          return p
+        }
+
+        const p0 = make_plot("canvas")
+        const p1 = make_plot("svg")
+
+        await display(row([p0, p1]))
       }
 
       it("should support LaTeX notation on axis labels", async () => {

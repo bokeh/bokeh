@@ -357,13 +357,11 @@ export class Document {
     // Create all instances, but without setting their props
     const references = new Map()
     for (const obj of references_json) {
-      const obj_id = obj.id
-      const obj_type = obj.type
-      const obj_attrs = obj.attributes ?? {}
+      const {id, type, attributes} = obj
 
-      let instance = existing_models.get(obj_id)
+      let instance = existing_models.get(id)
       if (instance == null) {
-        instance = Document._instantiate_object(obj_id, obj_type, obj_attrs, resolver)
+        instance = Document._instantiate_object(id, type, attributes, resolver)
       }
       references.set(instance.id, instance)
     }
@@ -494,8 +492,8 @@ export class Document {
   }
 
   static _events_to_sync_objects(from_obj: Struct, to_obj: Struct, to_doc: Document, value_refs: Set<HasProps>): ModelChanged[] {
-    const from_keys = Object.keys(from_obj.attributes!) //XXX!
-    const to_keys = Object.keys(to_obj.attributes!) //XXX!
+    const from_keys = Object.keys(from_obj.attributes)
+    const to_keys = Object.keys(to_obj.attributes)
     const removed = difference(from_keys, to_keys)
     const added = difference(to_keys, from_keys)
     const shared = intersection(from_keys, to_keys)
@@ -512,13 +510,13 @@ export class Document {
     }
 
     for (const key of added) {
-      const new_value = to_obj.attributes![key] // XXX!
+      const new_value = to_obj.attributes[key]
       events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
     }
 
     for (const key of shared) {
-      const old_value = from_obj.attributes![key] // XXX!
-      const new_value = to_obj.attributes![key] // XXX!
+      const old_value = from_obj.attributes[key]
+      const new_value = to_obj.attributes[key]
       if (old_value == null && new_value == null) {
       } else if (old_value == null || new_value == null) {
         events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
@@ -642,12 +640,14 @@ export class Document {
     Document._initialize_references_json(references_json, new Map(), references, new Map())
 
     const doc = new Document({resolver})
+    doc._push_all_models_freeze()
     for (const id of root_ids) {
       const root = references.get(id)
       if (root != null) {
         doc.add_root(root as Model) // XXX: HasProps
       }
     }
+    doc._pop_all_models_freeze()
     doc.set_title(json.title!) // XXX!
     return doc
   }
