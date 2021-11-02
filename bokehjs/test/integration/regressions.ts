@@ -37,7 +37,7 @@ import {defer} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, show} from "@bokehjs/api/plotting"
 import {MarkerArgs} from "@bokehjs/api/glyph_api"
-import {Spectral11, turbo} from "@bokehjs/api/palettes"
+import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import {div, offset} from "@bokehjs/core/dom"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
@@ -1489,6 +1489,31 @@ describe("Bug", () => {
       const {view} = await display(row([p0, p1, p2]))
 
       source.stream({x: x.slice(6), y: y.slice(6)}, 8)
+      await view.ready
+    })
+  })
+
+  describe("in issue #11462", () => {
+    it("doesn't update ColorBar after mapper/axis/title property updates", async () => {
+      const random = new Random(1)
+      const p = fig([200, 200])
+
+      const color_mapper = new LinearColorMapper({palette: turbo(50), low: 0, high: 1})
+      const color_bar = new ColorBar({color_mapper, title: "original title", label_standoff: 12})
+      p.add_layout(color_bar, "right")
+
+      const dw = 10
+      const dh = 10
+      const img = ndarray(random.floats(dw*dh), {dtype: "float64", shape: [dw, dw]})
+      p.image({image: [img], x: 0, y: 0, dw, dh, color_mapper})
+
+      const {view} = await display(p, [350, 350])
+      await view.ready
+
+      color_bar.color_mapper.palette = plasma(50)
+      color_bar.major_label_text_font_style = "bold italic"
+      color_bar.title = "new title"
+
       await view.ready
     })
   })

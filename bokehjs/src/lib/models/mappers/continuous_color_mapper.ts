@@ -50,6 +50,9 @@ export abstract class ContinuousColorMapper extends ColorMapper {
       }
     }
 
+    const {high, low, high_color, low_color, palette, nan_color} = this.properties
+    this.on_change([high, low, high_color, low_color, palette, nan_color], () => this.update_data())
+
     this.connect(this.properties.domain.change, () => connect_renderers())
     connect_renderers()
   }
