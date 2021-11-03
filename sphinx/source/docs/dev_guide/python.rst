@@ -42,6 +42,59 @@ code should include new or updated tests. See :ref:`contributor_guide_testing`
 and :ref:`contributor_guide_writing_tests` for more information on testing,
 including Python-specific tests.
 
+.. _contributor_guide_python_organization:
+
+Source code organization
+------------------------
+
+The Bokeh repository contains Bokeh's Python code as well as the JavaScript code
+of :ref:`BokehJS <contributor_guide_bokehjs>`. These are the most relevant
+folders containing Python code:
+
+``bokeh/``
+  The Python code for the Bokeh library itself is located in the
+  :bokeh-tree:`bokeh` folder.
+
+  Everything that comprises a Bokeh visualization (such as
+  :ref:`tools <userguide_tools>`, :term:`glyphs <Glyph>`,
+  :term:`widgets <Widget>`, or :ref:`ColumnDataSources <userguide_data_cds>`) is
+  based on a Bokeh model. The Python code for all models is located in
+  :bokeh-tree:`bokeh/models`. See :ref:`contributor_guide_python_models` below
+  for more information on models.
+
+  Other subdirectories in this folder include:
+
+  * :bokeh-tree:`bokeh/plotting` containing Bokeh's :ref:`plotting interface
+    <userguide_interfaces_plotting>`
+  * :bokeh-tree:`bokeh/colors` containing code for handling
+    :ref:`colors <userguide_styling_colors>`
+  * :bokeh-tree:`bokeh/embed` containing code for :ref:`embedding Bokeh content
+    in web pages <userguide_embed>`.
+  * :bokeh-tree:`bokeh/io` containing code for Bokeh's IO functions, such as
+    :ref:`file export <userguide_export>` and :ref:`notebook output
+    <userguide_jupyter>`
+  * :bokeh-tree:`bokeh/palettes` containing code for Bokeh's :ref:`palettes
+    <bokeh.palettes>`
+  * :bokeh-tree:`bokeh/sphinxext` containing code for custom Sphinx extension
+    used in :ref:`Bokeh's documentation <contributor_guide_documentation>`
+
+  See the |reference guide| for more information on the structure of this
+  directory and its subdirectories.
+
+``examples/``
+  The :bokeh-tree:`examples` folder contains examples for most of Bokeh's
+  functionalities. Some of those examples are used in Bokeh's :ref:`gallery
+  <gallery>`.
+
+``tests/``
+  The :bokeh-tree:`tests` folder contains Bokeh's suite of tests. See
+  :ref:`contributor_guide_testing` and :ref:`contributor_guide_writing_tests`
+  for more information on testing.
+
+``typings/``
+  The :bokeh-tree:`typings` folder contains `stub files`_ for Bokeh's type
+  hints.
+
 .. _contributor_guide_python_models:
 
 Models and properties
@@ -66,25 +119,28 @@ these JavaScript objects to render the visualization.
     :align: center
     :width: 100%
 
-All of those models are subclasses of :class:`bokeh.models`. They all inherit
-from the :class:`~bokeh.core.has_props.HasProps` base class:
+Whenever you update or add models in Python, you need to also :ref:`update the
+corresponding TypeScript code for BokehJS <contributor_guide_bokehjs>`.
+
+All of Bokeh's Python models are located in :bokeh-tree:`bokeh/models` and its
+subfolders. They all are subclasses of :class:`~bokeh.model.Model`:
 
 .. code-block:: python
 
-    class Whatever(HasProps):
-        """ `Whatever` model. """
+    class SomeNewModel(Model):
+        """ Some new model. """
 
 Models contain properties, which are class attributes defined in
 :class:`bokeh.core.properties`. For example:
 
 .. code-block:: python
 
-    class IntProps(HasProps):
+    class ModelWithIntProps(Model):
         prop1 = Int()
         prop2 = Int(10)
 
-In this example, the `IntProps` model represents objects that have two integer
-values, ``prop1`` and ``prop2``.
+In this example, the ``ModelWithIntProps`` model represents objects that have
+two integer values, ``prop1`` and ``prop2``.
 
 Bokeh uses a wide variety of property types:
 
@@ -110,7 +166,7 @@ An example of a more realistic model might look like this:
 
 .. code-block:: python
 
-    class Sample(HasProps):
+    class SomeModel(Model):
         prop1 = Int(127)
         prop2 = Either(Int, List(Int), Dict(String, List(Int)))
         prop3 = Enum("x", "y", "z")
@@ -146,3 +202,4 @@ To type check your code locally, run ``mypy bokeh``.
 .. _Flake8: https://flake8.pycqa.org/
 .. _isort: https://pycqa.github.io/isort/
 .. _mypy: https://mypy.readthedocs.io
+.. _stub files: https://www.python.org/dev/peps/pep-0484/#stub-files
