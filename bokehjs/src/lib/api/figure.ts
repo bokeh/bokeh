@@ -16,7 +16,7 @@ import {
   Range, Range1d, DataRange1d, FactorRange,
   Scale, LinearScale, LogScale, CategoricalScale,
   LinearAxis, LogAxis, CategoricalAxis, DatetimeAxis, MercatorAxis,
-  ColumnarDataSource, ColumnDataSource, CDSView,
+  ColumnarDataSource, ColumnDataSource,
   Plot, Tool, ContinuousTicker,
   CoordinateMapping,
 } from "./models"
@@ -395,7 +395,7 @@ export class Figure extends BaseFigure {
     const data = clone(source.data)
     delete attrs.source
 
-    const view = attrs.view != null ? attrs.view : new CDSView({source})
+    const {view} = attrs
     delete attrs.view
 
     const legend = attrs.legend

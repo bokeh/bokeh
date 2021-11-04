@@ -77,6 +77,9 @@ export abstract class ContinuousColorMapper extends ColorMapper {
   protected *_collect(domain: [GlyphRenderer, string | string[]][]) {
     for (const [renderer, fields] of domain) {
       for (const field of isArray(fields) ? fields : [fields]) {
+        if (renderer.view.indices == null) // TODO: use is_unset
+          continue
+
         let array = renderer.data_source.get_column(field)!
         array = renderer.view.indices.select(array)
 

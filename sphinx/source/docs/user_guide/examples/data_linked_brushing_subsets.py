@@ -12,7 +12,7 @@ y1 = [xx**2 for xx in x]
 source = ColumnDataSource(data=dict(x=x, y0=y0, y1=y1))
 
 # create a view of the source for one plot to use
-view = CDSView(source=source, filters=[BooleanFilter([True if y > 250 or y < 100 else False for y in y1])])
+view = CDSView(filters=[BooleanFilter([True if y > 250 or y < 100 else False for y in y1])])
 
 TOOLS = "box_select,lasso_select,hover,help"
 

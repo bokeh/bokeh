@@ -731,11 +731,6 @@ class CDSView(Model):
     List of filters that the view comprises.
     """)
 
-    source = Instance(ColumnarDataSource, help="""
-    The ``ColumnDataSource`` associated with this view. Used to determine
-    the length of the columns.
-    """)
-
 class GeoJSONDataSource(ColumnarDataSource):
     '''
 

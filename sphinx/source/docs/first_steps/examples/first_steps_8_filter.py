@@ -6,7 +6,7 @@ from bokeh.plotting import figure, show
 source = ColumnDataSource(data=dict(x=[1, 2, 3, 4, 5], y=[1, 2, 3, 4, 5]))
 
 # create a view using an IndexFilter with the index positions [0, 2, 4]
-view = CDSView(source=source, filters=[IndexFilter([0, 2, 4])])
+view = CDSView(filters=[IndexFilter([0, 2, 4])])
 
 # setup tools
 tools = ["box_select", "hover", "reset"]

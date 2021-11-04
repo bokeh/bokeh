@@ -109,6 +109,13 @@ Explicit sub-typing support was removed both from models and the protocol.
 If you want to extend existing models without the need for providing an
 implementation, then use data models (e.g. extend from ``DataModel``).
 
+``CDSView.source``
+..................
+
+``CDSView`` now implicitly uses the source provided by a glyph renderer it
+as assigned to. Previously providing a data source in both a glyph renderer
+and a source view was redundant.
+
 Runtime dependencies
 ~~~~~~~~~~~~~~~~~~~~
 

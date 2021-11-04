@@ -43,10 +43,6 @@ validation checks.
     A |Scale| type is incompatible with one or more ranges on the same plot
     dimension (will result in blank plot).
 
-1010 *(CDSVIEW_SOURCE_DOESNT_MATCH)*
-    A |GlyphRenderer| has a ``CDSView`` whose source doesn't match the ``GlyphRenderer``'s
-    data source.
-
 1011 *(MALFORMED_GRAPH_SOURCE)*
     The ``GraphSource`` is incorrectly configured.
 
@@ -158,10 +154,6 @@ INCOMPATIBLE_SCALE_AND_RANGE = Error(
     1009,
     "INCOMPATIBLE_SCALE_AND_RANGE",
     "A Scale is incompatible with one or more ranges on the same plot dimension")
-CDSVIEW_SOURCE_DOESNT_MATCH = Error(
-    1010,
-    "CDSVIEW_SOURCE_DOESNT_MATCH",
-    "CDSView used by Glyph renderer must have a source that matches the Glyph renderer's data source")
 MALFORMED_GRAPH_SOURCE = Error(
     1011,
     "MALFORMED_GRAPH_SOURCE",
