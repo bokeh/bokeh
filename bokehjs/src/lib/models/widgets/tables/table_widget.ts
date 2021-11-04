@@ -27,13 +27,4 @@ export class TableWidget extends Widget {
       view:   [ Ref(CDSView), () => new CDSView() ],
     }))
   }
-
-  override initialize(): void {
-    super.initialize()
-
-    if (this.view.source == null) {
-      this.view.source = this.source
-      this.view.compute_indices()
-    }
-  }
 }

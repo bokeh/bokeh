@@ -333,7 +333,7 @@ class _BokehStructureGraph:
         model_id = self._node_source.data["index"][0]
         groupfilter = GroupFilter(column_name="id", group=model_id)
 
-        data_table2_view = CDSView(source=prop_source, filters=[groupfilter])
+        data_table2_view = CDSView(filters=[groupfilter])
         data_table2 = DataTable(
             source=prop_source,
             view=data_table2_view,

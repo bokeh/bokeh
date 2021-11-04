@@ -44,7 +44,6 @@ from ..core.validation import error
 from ..core.validation.errors import (
     BAD_COLUMN_NAME,
     CDSVIEW_FILTERS_WITH_CONNECTED,
-    CDSVIEW_SOURCE_DOESNT_MATCH,
     MALFORMED_GRAPH_SOURCE,
     MISSING_GLYPH,
     NO_SOURCE_FOR_GLYPH,
@@ -175,10 +174,6 @@ class GlyphRenderer(DataRenderer):
     def _check_no_source_for_glyph(self):
         if not self.data_source: return str(self)
 
-    @error(CDSVIEW_SOURCE_DOESNT_MATCH)
-    def _check_cdsview_source(self):
-        if self.data_source is not self.view.source: return str(self)
-
     @error(BAD_COLUMN_NAME)
     def _check_bad_column_name(self):
         if not self.glyph: return
@@ -199,16 +194,11 @@ class GlyphRenderer(DataRenderer):
             missing = ['key "%s" value "%s' % (k, v) for v, k in missing_values]
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
 
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-        if "view" not in kwargs and "data_source" in kwargs:
-            self.view = CDSView(source=self.data_source)
-
     data_source = Instance(DataSource, help="""
     Local data source to use when rendering glyphs on the plot.
     """)
 
-    view = Instance(CDSView, help="""
+    view = Instance(CDSView, default=lambda: CDSView(), help="""
     A view into the data source to use when rendering glyphs. A default view
     of the entire data source is created when a view is not passed in during
     initialization.

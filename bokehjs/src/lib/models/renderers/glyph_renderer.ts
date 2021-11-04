@@ -5,11 +5,11 @@ import {HAreaView} from "../glyphs/harea"
 import {VAreaView} from "../glyphs/varea"
 import {Glyph, GlyphView} from "../glyphs/glyph"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {CDSView} from "../sources/cds_view"
+import {CDSView, CDSViewView} from "../sources/cds_view"
 import {Color, Indices} from "core/types"
 import * as p from "core/properties"
 import {filter} from "core/util/arrayable"
-import {extend, clone} from "core/util/object"
+import {extend, clone, entries} from "core/util/object"
 import {HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
 import {SelectionManager} from "core/selection_manager"
@@ -47,6 +47,8 @@ const muted_defaults: Defaults = {
 export class GlyphRendererView extends DataRendererView {
   override model: GlyphRenderer
 
+  cds_view: CDSViewView
+
   glyph: GlyphView
   selection_glyph: GlyphView
   nonselection_glyph: GlyphView
@@ -63,8 +65,14 @@ export class GlyphRendererView extends DataRendererView {
 
   protected last_dtrender: number
 
+  get data_source(): p.Property<ColumnarDataSource> {
+    return this.model.properties.data_source
+  }
+
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
+
+    this.cds_view = await build_view(this.model.view, {parent: this})
 
     const base_glyph = this.model.glyph
     this.glyph = await this.build_glyph_view(base_glyph)
@@ -122,6 +130,7 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   override remove(): void {
+    this.cds_view.remove()
     this.glyph.remove()
     this.selection_glyph.remove()
     this.nonselection_glyph.remove()
@@ -154,7 +163,11 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.model.data_source._select, render)
     if (this.hover_glyph != null)
       this.connect(this.model.data_source.inspect, render)
-    this.connect(this.model.properties.view.change, update)
+    this.connect(this.model.properties.view.change, async () => {
+      this.cds_view.remove()
+      this.cds_view = await build_view(this.model.view, {parent: this})
+      update()
+    })
     this.connect(this.model.view.properties.indices.change, update)
     this.connect(this.model.view.properties.masked.change, () => this.set_visuals())
     this.connect(this.model.properties.visible.change, () => this.plot_view.invalidate_dataranges = true)
@@ -356,11 +369,24 @@ export class GlyphRendererView extends DataRendererView {
     ctx.restore()
   }
 
+  get_reference_point(field: string | null, value?: any): number {
+    if (field != null) {
+      const array = this.model.data_source.get_column(field)
+      if (array != null) {
+        for (const [key, index] of entries(this.model.view.indices_map)) {
+          if (array[parseInt(key)] == value)
+            return index
+        }
+      }
+    }
+    return 0
+  }
+
   draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: string, index: number | null): void {
     if (this.glyph.data_size == 0)
       return
     if (index == null)
-      index = this.model.get_reference_point(field, label)
+      index = this.get_reference_point(field, label)
     this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, index)
   }
 
@@ -408,7 +434,7 @@ export class GlyphRenderer extends DataRenderer {
 
     this.define<GlyphRenderer.Props>(({Boolean, Auto, Or, Ref, Null, Nullable}) => ({
       data_source:        [ Ref(ColumnarDataSource) ],
-      view:               [ Ref(CDSView), (self) => new CDSView({source: (self as GlyphRenderer).data_source}) ],
+      view:               [ Ref(CDSView), () => new CDSView() ],
       glyph:              [ Ref(Glyph) ],
       hover_glyph:        [ Nullable(Ref(Glyph)), null ],
       nonselection_glyph: [ Or(Ref(Glyph), Auto, Null), "auto" ],
@@ -416,28 +442,6 @@ export class GlyphRenderer extends DataRenderer {
       muted_glyph:        [ Or(Ref(Glyph), Auto, Null), "auto" ],
       muted:              [ Boolean, false ],
     }))
-  }
-
-  override initialize(): void {
-    super.initialize()
-
-    if (this.view.source != this.data_source) {
-      this.view.source = this.data_source
-      this.view.compute_indices()
-    }
-  }
-
-  get_reference_point(field: string | null, value?: any): number {
-    if (field != null) {
-      const data = this.data_source.get_column(field)
-      if (data != null) {
-        for (const [key, index] of Object.entries(this.view.indices_map)) {
-          if (data[parseInt(key)] == value)
-            return index
-        }
-      }
-    }
-    return 0
   }
 
   get_selection_manager(): SelectionManager {

@@ -16,7 +16,8 @@ import {ColumnType, Item, DTINDEX_NAME} from "./definitions"
 import {TableWidget} from "./table_widget"
 import {TableColumn} from "./table_column"
 import {ColumnDataSource} from "../../sources/column_data_source"
-import {CDSView} from "../../sources/cds_view"
+import {CDSView, CDSViewView} from "../../sources/cds_view"
+import {build_view} from "core/build_views"
 
 import tables_css, * as tables from "styles/widgets/tables.css"
 import slickgrid_css from "styles/widgets/slickgrid.css"
@@ -117,11 +118,28 @@ export class TableDataProvider implements DataProvider<Item> {
 export class DataTableView extends WidgetView {
   override model: DataTable
 
+  protected cds_view: CDSViewView
+
   protected data: TableDataProvider
   protected grid: SlickGrid<Item>
 
   protected _in_selection_update = false
   protected _width: number | null = null
+
+  get data_source(): p.Property<ColumnDataSource> {
+    return this.model.properties.source
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    this.cds_view = await build_view(this.model.view, {parent: this})
+  }
+
+  override remove(): void {
+    this.cds_view.remove()
+    this.grid.destroy()
+    super.remove()
+  }
 
   override connect_signals(): void {
     super.connect_signals()
@@ -141,11 +159,6 @@ export class DataTableView extends WidgetView {
         this.render()
       })
     }
-  }
-
-  override remove(): void {
-    this.grid.destroy()
-    super.remove()
   }
 
   override styles(): string[] {
@@ -184,7 +197,7 @@ export class DataTableView extends WidgetView {
     // before passing to the DataProvider. This will result in extra calls to
     // compute_indices. This "over execution" will be addressed in a more
     // general look at events
-    this.model.view.compute_indices()
+    this.cds_view.compute_indices()
     this.data.init(this.model.source, this.model.view)
 
     // This is obnoxious but there is no better way to programmatically force
