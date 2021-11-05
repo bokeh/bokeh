@@ -1048,41 +1048,63 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     if (radius_x < 0 || radius_y < 0)
       throw new DOMException("IndexSizeError, radius can't be negative")
 
+    const initial_diff = counterclockwise ? end_angle - start_angle : start_angle - end_angle
+
     start_angle = start_angle % (2 * Math.PI)
     end_angle = end_angle % (2 * Math.PI)
 
-    if (start_angle === end_angle) {
-      // circle time! subtract some of the angle so svg is happy (svg elliptical arc can't draw a full circle)
-      end_angle = ((end_angle + (2 * Math.PI)) - 0.001 * (counterclockwise ? -1 : 1)) % (2*Math.PI)
-    }
-
-    const end_x = x + radius_x * Math.cos(end_angle)
-    const end_y = y + radius_y * Math.sin(end_angle)
     const start_x = x + radius_x * Math.cos(start_angle)
     const start_y = y + radius_y * Math.sin(start_angle)
-
-    const sweep_flag = counterclockwise ? 0 : 1
-    let large_arc_flag = 0
-    let diff = end_angle - start_angle
-
-    // https://github.com/gliffy/canvas2svg/issues/4
-    if (diff < 0) {
-      diff += 2 * Math.PI
-    }
-
-    if (counterclockwise) {
-      large_arc_flag = diff > Math.PI ? 0 : 1
-    } else {
-      large_arc_flag = diff > Math.PI ? 1 : 0
-    }
-
     this.lineTo(start_x, start_y)
-    const [tend_x, tend_y] = this._transform.apply(end_x, end_y)
 
     // Canvas ellipse defines rotation in radians and SVG elliptical arc is defined in degrees
     const rotation_in_degrees = rotation * 180 / Math.PI
 
-    this.__addPathCommand(tend_x, tend_y, `A ${radius_x} ${radius_y} ${rotation_in_degrees} ${large_arc_flag} ${sweep_flag} ${tend_x} ${tend_y}`)
+    const sweep_flag = counterclockwise ? 0 : 1
+
+    /**
+     * Check if need to draw full ellipse (issue #11475). When testing if angular difference is
+     * equal to an integer multiple of 2*pi radians, need to account for float64 to float32 rounding
+     * error on both the start and end angles, hence the factor of 2. Do not assume full circle if
+     * start and end angles are close, but test here depends on combination of sign of angular
+     * difference and wedge direction (clockwise/counterclockwise) to obtain the same results as on
+     * canvas.
+     */
+    const float32_epsilon = 1.1920928955078125e-7  // IEEE-754
+    if (Math.abs(start_angle - end_angle) < 2*float32_epsilon &&
+        !(Math.abs(initial_diff) < 2*float32_epsilon && initial_diff < 0)) {
+
+      // Draw full ellipse. SVG elliptical arc cannot do this, so instead use two semi ellipses.
+      const mid_x = x + radius_x * Math.cos(start_angle + Math.PI)
+      const mid_y = y + radius_y * Math.sin(start_angle + Math.PI)
+
+      const [tstart_x, tstart_y] = this._transform.apply(start_x, start_y)
+      const [tmid_x, tmid_y] = this._transform.apply(mid_x, mid_y)
+
+      this.__addPathCommand(tstart_x, tstart_y, `A ${radius_x} ${radius_y} ${rotation_in_degrees} 0 ${sweep_flag} ${tmid_x} ${tmid_y} A ${radius_x} ${radius_y} ${rotation_in_degrees} 0 ${sweep_flag} ${tstart_x} ${tstart_y}`)
+    } else {
+      // Draw partial ellipse only.
+      const end_x = x + radius_x * Math.cos(end_angle)
+      const end_y = y + radius_y * Math.sin(end_angle)
+
+      let large_arc_flag = 0
+      let diff = end_angle - start_angle
+
+      // https://github.com/gliffy/canvas2svg/issues/4
+      if (diff < 0) {
+        diff += 2 * Math.PI
+      }
+
+      if (counterclockwise) {
+        large_arc_flag = diff > Math.PI ? 0 : 1
+      } else {
+        large_arc_flag = diff > Math.PI ? 1 : 0
+      }
+
+      const [tend_x, tend_y] = this._transform.apply(end_x, end_y)
+
+      this.__addPathCommand(tend_x, tend_y, `A ${radius_x} ${radius_y} ${rotation_in_degrees} ${large_arc_flag} ${sweep_flag} ${tend_x} ${tend_y}`)
+    }
   }
 
   private _clip_path: Path | null = null
