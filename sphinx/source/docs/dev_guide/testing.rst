@@ -373,9 +373,17 @@ will filter tests by keyword.
 To only run or view tests for a specific platform, append either
 ``platform=linux``, ``platform=macos``, or ``platform=windows`` to the URL.
 
-.. seealso::
-    For information on adding and updating BokehJS tests, see
-    :ref:`contributor_guide_writing_tests_bokehjs`.
+For information on adding and updating BokehJS tests, see
+:ref:`contributor_guide_writing_tests_bokehjs`.
+
+.. note::
+    In most cases, the results of running tests locally with the regular Chrome
+    GUI are the same as running them in :ref:`Bokeh's CI
+    <contributor_guide_testing_ci>` which uses a headless version of Chrome.
+    However, there are rare cases where headless and GUI Chrome generate
+    different results. In this situation, you can't use the GUI - instead, you
+    need to debug BokehJS' code directly in the headless browser. See
+    :ref:`contributor_guide_debug_headless` for more information.
 
 .. _contributor_guide_testing_local_examples:
 
