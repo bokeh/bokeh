@@ -197,9 +197,17 @@ Bokeh uses two systems for type checking Python code:
 :ref:`Bokeh's CI <contributor_guide_testing_ci>` uses `mypy`_ to check types.
 To type check your code locally, run ``mypy bokeh``.
 
+.. note::
+    In case you want to use type information with tools other than mypy (such as
+    extracting information with ``typing.get_type_hints``, for example), you
+    will most likely need to use Python 3.10 or later. This is because some
+    of Bokeh's type hints use the ``X | Y`` syntax for union types as defined in
+    `PEP 604`_.
+
 .. _PEP8: https://www.python.org/dev/peps/pep-0008/
 .. _Google Python Style Guide: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
 .. _Flake8: https://flake8.pycqa.org/
 .. _isort: https://pycqa.github.io/isort/
 .. _mypy: https://mypy.readthedocs.io
 .. _stub files: https://www.python.org/dev/peps/pep-0484/#stub-files
+.. _PEP 604: https://www.python.org/dev/peps/pep-0604/
