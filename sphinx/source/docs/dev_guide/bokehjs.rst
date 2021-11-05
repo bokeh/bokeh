@@ -113,6 +113,8 @@ more details, see the rules defined in :bokeh-tree:`bokehjs/eslint.json`.
   This requires the `ESLint extension for VSCode`_ and ESLint version 8 or above
   to be installed.
 
+.. _contributor_guide_bokehjs_requirements:
+
 Development requirements
 ------------------------
 
@@ -135,6 +137,8 @@ Bokeh officially supports the following platforms for development and testing:
 It is possible to work on BokehJS on different platforms and versions. However,
 things might not work as intended, and some tests will not work.
 
+.. _contributor_guide_bokehjs_building:
+
 Building BokehJS
 ----------------
 
@@ -155,6 +159,8 @@ system. These are the most common commands:
 ``node make`` automatically runs ``npm install`` whenever ``package.json``
 changes.
 
+.. _contributor_guide_bokehjs_testing:
+
 Testing
 -------
 
@@ -168,6 +174,8 @@ To learn more about running tests for BokehJS locally, see
 
 To learn more about adding and updating tests for BokehJS, see
 :ref:`contributor_guide_writing_tests_bokehjs`.
+
+.. _contributor_guide_bokehjs_models_views:
 
 Models and views in BokehJS
 ---------------------------
