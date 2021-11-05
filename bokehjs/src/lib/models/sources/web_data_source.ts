@@ -25,9 +25,8 @@ export abstract class WebDataSource extends ColumnDataSource {
     super(attrs)
   }
 
-  override get_column(colname: string): Arrayable {
-    const column = this.data[colname]
-    return column != null ? column : []
+  override get_column(name: string): Arrayable {
+    return name in this.data ? this.data[name] : []
   }
 
   override get_length(): number {

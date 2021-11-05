@@ -24,7 +24,7 @@ export class LineView extends XYGlyphView {
     await super.lazy_initialize()
 
     const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl?.regl_wrapper.has_webgl) {
+    if (webgl != null && webgl.regl_wrapper.has_webgl) {
       const {LineGL} = await import("./webgl/line_gl")
       this.glglyph = new LineGL(webgl.regl_wrapper, this)
     }

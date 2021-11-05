@@ -100,7 +100,7 @@ describe("Color mapping", () => {
       const color_mapper = new EqHistColorMapper({palette})
 
       const p = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
-      p.image({image: [data as any], x: 0, y: 0, dw: 10, dh: 10, color_mapper})
+      p.image({image: [data], x: 0, y: 0, dw: 10, dh: 10, color_mapper})
 
       const color_bar = new ColorBar({
         color_mapper,
@@ -180,7 +180,7 @@ describe("Color mapping", () => {
       const [x0, y0, r0] = data_flat(0.8)
       const g0 = p0.circle({
         x: x0, y: y0, radius: r0,
-        fill_color: {field: "radius", transform: mapper} as any, // XXX: bad types in VectorSpec, ColorMapper and Transform
+        fill_color: {field: "radius", transform: mapper},
         fill_alpha: 0.6, line_color: null,
       })
       mapper.domain.push([g0, "radius"])
@@ -189,7 +189,7 @@ describe("Color mapping", () => {
       const [x1, y1, r1] = data_flat(1.0)
       const g1 = p1.circle({
         x: x1, y: y1, radius: r1,
-        fill_color: {field: "radius", transform: mapper} as any,
+        fill_color: {field: "radius", transform: mapper},
         fill_alpha: 0.6, line_color: null,
       })
       mapper.domain.push([g1, "radius"])
@@ -198,7 +198,7 @@ describe("Color mapping", () => {
       const [x2, y2, r2] = data_flat(1.2)
       const g2 = p2.circle({
         x: x2, y: y2, radius: r2,
-        fill_color: {field: "radius", transform: mapper} as any,
+        fill_color: {field: "radius", transform: mapper},
         fill_alpha: 0.6, line_color: null,
       })
       mapper.domain.push([g2, "radius"])
@@ -207,7 +207,7 @@ describe("Color mapping", () => {
       const [x3, y3, r3] = data_sloped(2.0)
       const g3 = p3.circle({
         x: x3, y: y3, radius: r3,
-        fill_color: {field: "radius", transform: mapper} as any,
+        fill_color: {field: "radius", transform: mapper},
         fill_alpha: 0.6, line_color: null,
       })
       mapper.domain.push([g3, "radius"])

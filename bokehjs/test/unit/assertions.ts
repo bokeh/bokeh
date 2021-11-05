@@ -59,23 +59,22 @@ type ElementAssertions = {
 
 function compare_attributes(actual: Element, expected: Element) {
   if (actual.nodeName !== expected.nodeName)
-    throw new ExpectationError(`expected <${actual.nodeName} /> to be equal <${expected.nodeName} />`)
+    throw new ExpectationError(`expected <${actual.nodeName}> to be equal <${expected.nodeName}>`)
 
-  for (const attr of expected.attributes) {
-    const attr_val = actual.getAttribute(attr.name)
-    let error = false
+  const names = (el: Element) => [...el.attributes].map((attr) => attr.name)
+  const attrs = new Set([...names(actual), ...names(expected)])
 
-    if (!attr.value || attr.value === "none" || attr.value === "null")
-      if (!attr_val || attr_val === "none" || attr_val === "null")
-        continue
+  for (const attr of attrs) {
+    const actual_val = actual.getAttribute(attr)
+    const expected_val = expected.getAttribute(attr)
+
+    if (actual_val == null || expected_val == null) {
+      if (actual_val == null)
+        throw new ExpectationError(`expected attribute ${attr} missing in the actual element`)
       else
-        error = true
-
-    if (actual.getAttribute(attr.name) !== attr.value)
-      error = true
-
-    if (error)
-      throw new ExpectationError(`expected ${attr.name}="${attr.value}" to be equal ${attr.name}="${actual.getAttribute(attr.name)}"`)
+        throw new ExpectationError(`actual attribute ${attr} missing in the expected element`)
+    } else if (actual_val !== expected_val)
+      throw new ExpectationError(`expected ${attr}="${expected_val}" to be equal ${attr}="${actual_val}"`)
   }
 }
 

@@ -8,6 +8,8 @@ import {DTINDEX_NAME} from "@bokehjs/models/widgets/tables/definitions"
 
 import {range} from "@bokehjs/core/util/array"
 
+import {build} from "../../sources/cds_view"
+
 describe("data_table module", () => {
 
   it("should define DTINDEX_NAME", () => {
@@ -48,29 +50,33 @@ describe("data_table module", () => {
 
   describe("DataProvider class", () => {
 
-    it("should raise an error if DTINDEX_NAME is in source", () => {
+    it("should raise an error if DTINDEX_NAME is in source", async () => {
       const bad = new ColumnDataSource({data: {__bkdt_internal_index__: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = new CDSView({source: bad})
+      const view = new CDSView()
+      await build(view, bad)
       expect(() => new TableDataProvider(bad, view)).to.throw()
     })
 
-    it("should construct an internal index", () => {
+    it("should construct an internal index", async () => {
       const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = new CDSView({source})
+      const view = new CDSView()
+      await build(view, source)
       const dp = new TableDataProvider(source, view)
       expect(dp.index).to.be.equal([0, 1, 2, 3])
     })
 
-    it("should report the data source length", () => {
+    it("should report the data source length", async () => {
       const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = new CDSView({source})
+      const view = new CDSView()
+      await build(view, source)
       const dp = new TableDataProvider(source, view)
       expect(dp.getLength()).to.be.equal(4)
     })
 
-    it("should return items when unsorted", () => {
+    it("should return items when unsorted", async () => {
       const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = new CDSView({source})
+      const view = new CDSView()
+      await build(view, source)
       const dp = new TableDataProvider(source, view)
 
       expect(dp.getItems()).to.be.equal([
@@ -81,9 +87,10 @@ describe("data_table module", () => {
       ])
     })
 
-    it("should return all items when unsorted", () => {
+    it("should return all items when unsorted", async () => {
       const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = new CDSView({source})
+      const view = new CDSView()
+      await build(view, source)
       const dp = new TableDataProvider(source, view)
 
       expect(dp.getItems()).to.be.equal([
@@ -94,9 +101,10 @@ describe("data_table module", () => {
       ])
     })
 
-    it("should return items when sorted", () => {
+    it("should return items when sorted", async () => {
       const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = new CDSView({source})
+      const view = new CDSView()
+      await build(view, source)
       const dp = new TableDataProvider(source, view)
       const fake_col = {sortAsc: true, sortCol: {field: "bar"}}
       dp.sort([fake_col])
@@ -109,9 +117,10 @@ describe("data_table module", () => {
       ])
     })
 
-    it("should return fields when unsorted", () => {
+    it("should return fields when unsorted", async () => {
       const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = new CDSView({source})
+      const view = new CDSView()
+      await build(view, source)
       const dp = new TableDataProvider(source, view)
 
       expect(dp.getField(0, "index")).to.be.equal(0)
@@ -130,9 +139,10 @@ describe("data_table module", () => {
       expect(dp.getField(3, DTINDEX_NAME)).to.be.equal(3)
     })
 
-    it("should return fields when sorted", () => {
+    it("should return fields when sorted", async () => {
       const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = new CDSView({source})
+      const view = new CDSView()
+      await build(view, source)
       const dp = new TableDataProvider(source, view)
 
       const fake_col = {sortAsc: true, sortCol: {field: "bar"}}
@@ -154,9 +164,10 @@ describe("data_table module", () => {
       expect(dp.getField(3, DTINDEX_NAME)).to.be.equal(0)
     })
 
-    it("should get all records", () => {
+    it("should get all records", async () => {
       const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = new CDSView({source})
+      const view = new CDSView()
+      await build(view, source)
       const dp = new TableDataProvider(source, view)
       expect(dp.getRecords()).to.be.equal(range(0, dp.getLength()).map((i) => dp.getItem(i)))
 
@@ -165,9 +176,10 @@ describe("data_table module", () => {
       expect(dp.getRecords()).to.be.equal(range(0, dp.getLength()).map((i) => dp.getItem(i)))
     })
 
-    it("should re-order only the index when sorted", () => {
+    it("should re-order only the index when sorted", async () => {
       const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = new CDSView({source})
+      const view = new CDSView()
+      await build(view, source)
       const dp = new TableDataProvider(source, view)
       expect(dp.index).to.be.equal([0, 1, 2, 3])
 
@@ -177,9 +189,10 @@ describe("data_table module", () => {
       expect(dp.source.data).to.be.equal({index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]})
     })
 
-    it("should set fields when unsorted", () => {
+    it("should set fields when unsorted", async () => {
       const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = new CDSView({source})
+      const view = new CDSView()
+      await build(view, source)
       const dp = new TableDataProvider(source, view)
 
       dp.setField(0, "index", 10.1)
@@ -189,9 +202,10 @@ describe("data_table module", () => {
       expect(dp.source.data).to.be.equal({index: [10.1, 1, 2, 10], bar: [3.4, 1.2, 100, -10]})
     })
 
-    it("should set fields when sorted", () => {
+    it("should set fields when sorted", async () => {
       const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = new CDSView({source})
+      const view = new CDSView()
+      await build(view, source)
       const dp = new TableDataProvider(source, view)
       const fake_col = {sortAsc: true, sortCol: {field: "bar"}}
       dp.sort([fake_col])
@@ -203,12 +217,13 @@ describe("data_table module", () => {
       expect(dp.source.data).to.be.equal({index: [0, 1, 2, 10.1], bar: [3.4, 100, 0, -10]})
     })
 
-    it("should support sorting NaNs and infinities", () => {
+    it("should support sorting NaNs and infinities", async () => {
       const source = new ColumnDataSource({data: {
         index: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
         col0: [3.4, -Infinity, NaN, 1.21, 1.2, -Infinity, Infinity, 0, NaN, -10],
       }})
-      const view = new CDSView({source})
+      const view = new CDSView()
+      await build(view, source)
       const dp = new TableDataProvider(source, view)
 
       expect(dp.getItems()).to.be.equal([

@@ -74,8 +74,8 @@ export class StringFormatter extends CellFormatter {
         break
     }
 
-    if (text_align != null)
-      text.style.textAlign = text_align
+    text.style.textAlign = text_align
+
     if (text_color != null)
       text.style.color = color2css(text_color)
 

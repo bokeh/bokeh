@@ -63,7 +63,7 @@ export abstract class UpperLowerView extends DataAnnotationView {
 export class XOrYCoordinateSpec extends p.CoordinateSpec {
   override readonly obj: UpperLower
 
-  override spec: p.Spec<this["__value__"]> & {units: SpatialUnits}
+  override spec: p.Spec<this["__value__"]> & {units?: SpatialUnits}
 
   get dimension(): "x" | "y" {
     return this.obj.dimension == "width" ? "x" : "y"

@@ -77,9 +77,9 @@ export type ColSizing =
   {policy: "fit" | "max", flex?: number, align?: TrackAlign} |
   {policy: "fixed", width: number, align?: TrackAlign}
 
-export type RowsSizing = QuickTrackSizing | {[key: string]: QuickTrackSizing | RowSizing}
+export type RowsSizing = QuickTrackSizing | {[key: string]: QuickTrackSizing | RowSizing | undefined}
 
-export type ColsSizing = QuickTrackSizing | {[key: string]: QuickTrackSizing | ColSizing}
+export type ColsSizing = QuickTrackSizing | {[key: string]: QuickTrackSizing | ColSizing | undefined}
 
 type Span = {r0: number, c0: number, r1: number, c1: number}
 
@@ -215,13 +215,12 @@ export class Grid extends Layoutable {
         rows[y] = {policy: "min", align}
       else if (row.policy == "fit" || row.policy == "max")
         rows[y] = {policy: row.policy, flex: row.flex ?? 1, align}
-      else if (row.policy == "auto") {
+      else {
         if (some(items.row(y), (layout) => layout.is_height_expanding()))
           rows[y] = {policy: "max", flex: 1, align}
         else
           rows[y] = {policy: "min", align}
-      } else
-        throw new Error("unrechable")
+      }
     }
 
     const cols: ColSpec[] = new Array(ncols)
@@ -247,13 +246,12 @@ export class Grid extends Layoutable {
         cols[x] = {policy: "min", align}
       else if (col.policy == "fit" || col.policy == "max")
         cols[x] = {policy: col.policy, flex: col.flex ?? 1, align}
-      else if (col.policy == "auto") {
+      else {
         if (some(items.col(x), (layout) => layout.is_width_expanding()))
           cols[x] = {policy: "max", flex: 1, align}
         else
           cols[x] = {policy: "min", align}
-      } else
-        throw new Error("unrechable")
+      }
     }
 
     const [rspacing, cspacing] =

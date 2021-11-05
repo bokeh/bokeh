@@ -37,7 +37,7 @@ import {defer} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, show} from "@bokehjs/api/plotting"
 import {MarkerArgs} from "@bokehjs/api/glyph_api"
-import {Spectral11, turbo} from "@bokehjs/api/palettes"
+import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import {div, offset} from "@bokehjs/core/dom"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
@@ -233,7 +233,7 @@ describe("Bug", () => {
       const y = [0, 1, 2, 3]
       const c = ["black", "red", "green", "blue"]
       const source = new ColumnDataSource({data: {x, y, c}, selected})
-      const view = new CDSView({source, filters: [new BooleanFilter({booleans: [false, true, true, true]})]})
+      const view = new CDSView({filters: [new BooleanFilter({booleans: [false, true, true, true]})]})
       p.circle({field: "x"}, {field: "y"}, {source, view, color: {field: "c"}, size: 20})
       return p
     }
@@ -863,7 +863,7 @@ describe("Bug", () => {
         ys: [[0, 1], [0, 1], [0, 1]],
       }})
       const filter = new IndexFilter({indices: [0, 2]})
-      const view = new CDSView({source, filters: [filter]})
+      const view = new CDSView({filters: [filter]})
 
       const p = fig([200, 200])
       p.multi_line({field: "xs"}, {field: "ys"}, {view, source})
@@ -991,7 +991,7 @@ describe("Bug", () => {
         },
       })
 
-      const view = new CDSView({source})
+      const view = new CDSView() // shared view between renderers
 
       const circle_renderer = new GlyphRenderer({
         data_source: source,
@@ -1201,7 +1201,7 @@ describe("Bug", () => {
           },
         })
         const color_mapper = new LinearColorMapper({low: 0, high: 6, palette: Spectral11})
-        const cds_view = new CDSView({source, filters: [new IndexFilter({indices})]})
+        const cds_view = new CDSView({filters: [new IndexFilter({indices})]})
         const ir = p.image({
           image: {field: "image"},
           x: {field: "x"},
@@ -1237,15 +1237,15 @@ describe("Bug", () => {
 
         const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
         ui._mouse_move(ev)
-
-        return view.ready
       }
 
       const [pv0, pv1, pv2] = view.child_views as PlotView[]
 
-      await hover_at(pv0, r0,  2, 5)
-      await hover_at(pv1, r1, 12, 5)
-      await hover_at(pv2, r2,  2, 5)
+      hover_at(pv0, r0,  2, 5)
+      hover_at(pv1, r1, 12, 5)
+      hover_at(pv2, r2,  2, 5)
+
+      await view.ready
     })
   })
 
@@ -1284,12 +1284,10 @@ describe("Bug", () => {
 
       const {view} = await display(row([p0, p1]))
 
-      // TODO: allow `await view.ready` to await readiness of its children
       p0.renderers = [esri]
-      await view.child_views[0].ready
-
       p1.renderers = [osm]
-      await view.child_views[1].ready
+
+      await view.ready
     })
   })
 
@@ -1489,6 +1487,58 @@ describe("Bug", () => {
       const {view} = await display(row([p0, p1, p2]))
 
       source.stream({x: x.slice(6), y: y.slice(6)}, 8)
+      await view.ready
+    })
+  })
+
+  describe("in issue #11462", () => {
+    it("doesn't update ColorBar after mapper/axis/title property updates", async () => {
+      const random = new Random(1)
+      const p = fig([200, 200])
+
+      const color_mapper = new LinearColorMapper({palette: turbo(50), low: 0, high: 1})
+      const color_bar = new ColorBar({color_mapper, title: "original title", label_standoff: 12})
+      p.add_layout(color_bar, "right")
+
+      const dw = 10
+      const dh = 10
+      const img = ndarray(random.floats(dw*dh), {dtype: "float64", shape: [dw, dw]})
+      p.image({image: [img], x: 0, y: 0, dw, dh, color_mapper})
+
+      const {view} = await display(p, [350, 350])
+
+      color_bar.color_mapper.palette = plasma(50)
+      color_bar.major_label_text_font_style = "bold italic"
+      color_bar.title = "new title"
+
+      await view.ready
+    })
+  })
+
+  describe("in issue #11770", () => {
+    it("prevents correct computation of linked data ranges and a subset of plots not visible", async () => {
+      function vis(visible: boolean) {
+        const source = new ColumnDataSource({data: {x: [0.1], y: [0.1]}})
+
+        const fig0 = fig([200, 200], {visible})
+        const fig1 = fig([200, 200], {x_axis_type: "log", y_axis_type: "log"})
+        const fig2 = fig([200, 200], {x_axis_type: "log", x_range: fig1.x_range, y_range: fig1.y_range, visible})
+        fig0.line({x: {field: "x"}, y: {field: "y"}, source})
+        fig1.line({x: {field: "x"}, y: {field: "y"}, source})
+        fig2.line({x: {field: "x"}, y: {field: "y"}, source})
+
+        const layout = column([fig0, fig1, fig2])
+        return {source, layout}
+      }
+
+      const vis0 = vis(true)
+      const vis1 = vis(false)
+
+      const {view} = await display(row([vis0.layout, vis1.layout]))
+
+      vis0.source.data = {x: [10, 11], y: [10, 11]}
+      vis1.source.data = {x: [10, 11], y: [10, 11]}
+
       await view.ready
     })
   })

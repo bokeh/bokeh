@@ -1,0 +1,6 @@
+Plot bbox=[0, 0, 200, 200]
+  LinearAxis bbox=[26, 178, 80, 22]
+  LinearAxis bbox=[0, 5, 26, 173]
+  ColorBar bbox=[106, 5, 94, 173]
+    Title bbox=[116, 15, 19, 153]
+    LinearAxis bbox=[160, 15, 30, 153]

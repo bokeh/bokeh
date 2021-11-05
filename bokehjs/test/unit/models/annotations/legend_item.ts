@@ -163,13 +163,6 @@ describe("LegendItem", () => {
       expect(field).to.be.equal(["No source found"])
     })
 
-    it("should return 'No source found' list if no source on renderer", () => {
-      const gr = new GlyphRenderer()
-      const legend_item = new LegendItem({label: {field: "milk"}, renderers: [gr]})
-      const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.equal(["No source found"])
-    })
-
     it("should return value in single list if label is value", () => {
       const legend_item = new LegendItem({label: {value: "milk"}})
       const field = legend_item.get_labels_list_from_label_prop()

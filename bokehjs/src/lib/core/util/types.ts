@@ -7,6 +7,19 @@ import {Arrayable, TypedArray} from "../types"
 
 const toString = Object.prototype.toString
 
+export function is_undefined(obj: unknown): obj is undefined {
+  return typeof obj === "undefined"
+}
+
+export function is_defined<T>(obj: T): obj is (T extends undefined ? never : T) {
+  return typeof obj !== "undefined"
+}
+
+// XXX: use only to work around strict conditional expressions
+export function is_nullish(obj: unknown): obj is null | undefined {
+  return obj == null
+}
+
 export function isBoolean(obj: unknown): obj is boolean {
   return obj === true || obj === false || toString.call(obj) === "[object Boolean]"
 }
@@ -67,7 +80,7 @@ export function isObject(obj: unknown): obj is object {
 }
 
 export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
-  return isObject(obj) && (obj.constructor == null || obj.constructor === Object)
+  return isObject(obj) && (is_nullish(obj.constructor) || obj.constructor === Object)
 }
 
 export function isIterable(obj: unknown): obj is Iterable<unknown> {

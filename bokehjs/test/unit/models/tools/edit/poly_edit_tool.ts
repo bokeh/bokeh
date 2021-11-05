@@ -193,8 +193,6 @@ describe("PolyEditTool", (): void => {
       hit_test_stub.returns(new Selection({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._doubletap(tap_event)
-      // Have to call CDSView.compute_indices manually for testing
-      testcase.vertex_renderer.view.compute_indices()
       vertex_hit_test_stub.returns(new Selection({indices: [1]}))
       testcase.draw_tool_view._tap(tap_event)
       expect(testcase.vertex_source.selected.indices).to.be.equal([1])
@@ -209,8 +207,6 @@ describe("PolyEditTool", (): void => {
       hit_test_stub.returns(new Selection({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._doubletap(tap_event)
-      // Have to call CDSView.compute_indices manually for testing
-      testcase.vertex_renderer.view.compute_indices()
 
       vertex_hit_test_stub.returns(new Selection({indices: [1]}))
       testcase.draw_tool_view._tap(tap_event)
@@ -237,8 +233,6 @@ describe("PolyEditTool", (): void => {
       vertex_hit_test_stub.returns(null)
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._doubletap(tap_event)
-      // Have to call CDSView.compute_indices manually for testing
-      testcase.vertex_renderer.view.compute_indices()
       vertex_hit_test_stub.returns(new Selection({indices: [1]}))
       const panstart_event = make_pan_event(300, 300)
       testcase.draw_tool_view._pan_start(panstart_event)
@@ -264,7 +258,6 @@ describe("PolyEditTool", (): void => {
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._doubletap(tap_event) // Poly selected
       vertex_hit_test_stub.returns(new Selection({indices: [1]}))
-      testcase.vertex_renderer.view.compute_indices()
       testcase.draw_tool_view._doubletap(tap_event) // Vertex selected
       vertex_hit_test_stub.returns(new Selection({indices: [2]}))
       testcase.draw_tool_view._doubletap(make_tap_event(290, 290)) // Add new vertex
@@ -289,7 +282,6 @@ describe("PolyEditTool", (): void => {
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._doubletap(tap_event) // Poly selected
       vertex_hit_test_stub.returns(new Selection({indices: [1]}))
-      testcase.vertex_renderer.view.compute_indices()
       testcase.draw_tool_view._doubletap(tap_event) // Vertex selected
       vertex_hit_test_stub.returns(new Selection({indices: [2]}))
       const tap_event2 = make_tap_event(290, 290)

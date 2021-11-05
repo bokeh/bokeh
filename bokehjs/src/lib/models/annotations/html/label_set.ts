@@ -73,7 +73,7 @@ export class HTMLLabelSetView extends DataAnnotationView {
   }
 
   protected _paint(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {
-    assert(this.els != null)
+    assert(i in this.els)
     const el = this.els[i]
 
     el.textContent = text

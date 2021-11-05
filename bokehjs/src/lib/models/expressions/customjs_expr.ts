@@ -62,7 +62,7 @@ export class CustomJSExpr extends Expression {
     const generator = this.func.apply(source, this.values)
 
     let result = generator.next()
-    if (result.done && result.value !== undefined) {
+    if ((result.done ?? false) && result.value !== undefined) {
       const {value} = result
       if (isArray(value) || isTypedArray(value))
         return value
@@ -76,7 +76,7 @@ export class CustomJSExpr extends Expression {
       do {
         array.push(result.value)
         result = generator.next()
-      } while (!result.done)
+      } while (!(result.done ?? false))
 
       return array
     }

@@ -13,19 +13,19 @@ export class RectGL extends BaseGLGlyph {
   protected _antialias: number
 
   // data properties, either all or none are set.
-  protected _centers: Float32Buffer
-  protected _widths: Float32Buffer
-  protected _heights: Float32Buffer
-  protected _angles: Float32Buffer
+  protected _centers?: Float32Buffer
+  protected _widths?: Float32Buffer
+  protected _heights?: Float32Buffer
+  protected _angles?: Float32Buffer
 
   // visual properties, either all or none are set.
-  protected _linewidths: Float32Buffer
+  protected _linewidths?: Float32Buffer
   protected _line_rgba: NormalizedUint8Buffer
   protected _fill_rgba: NormalizedUint8Buffer
   protected _line_joins: Uint8Buffer
 
   // indices properties.
-  protected _show: Uint8Buffer
+  protected _show?: Uint8Buffer
   protected _show_all: boolean
 
   // Only needed if have hatch pattern, either all or none of the buffers are set.
@@ -55,7 +55,7 @@ export class RectGL extends BaseGLGlyph {
       this.visuals_changed = false
     }
 
-    const nmarkers = mainGlGlyph._centers.length / 2
+    const nmarkers = mainGlGlyph._centers!.length / 2
 
     if (this._show == null)
       this._show = new Uint8Buffer(this.regl_wrapper)
@@ -86,13 +86,13 @@ export class RectGL extends BaseGLGlyph {
         viewport: this.regl_wrapper.viewport,
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
-        center: mainGlGlyph._centers,
-        width: mainGlGlyph._widths,
-        height: mainGlGlyph._heights,
-        angle: mainGlGlyph._angles,
+        center: mainGlGlyph._centers!,
+        width: mainGlGlyph._widths!,
+        height: mainGlGlyph._heights!,
+        angle: mainGlGlyph._angles!,
         nmarkers,
         antialias: this._antialias,
-        linewidth: this._linewidths,
+        linewidth: this._linewidths!,
         line_color: this._line_rgba,
         fill_color: this._fill_rgba,
         line_join: this._line_joins,
@@ -109,13 +109,13 @@ export class RectGL extends BaseGLGlyph {
         viewport: this.regl_wrapper.viewport,
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
-        center: mainGlGlyph._centers,
-        width: mainGlGlyph._widths,
-        height: mainGlGlyph._heights,
-        angle: mainGlGlyph._angles,
+        center: mainGlGlyph._centers!,
+        width: mainGlGlyph._widths!,
+        height: mainGlGlyph._heights!,
+        angle: mainGlGlyph._angles!,
         nmarkers,
         antialias: this._antialias,
-        linewidth: this._linewidths,
+        linewidth: this._linewidths!,
         line_color: this._line_rgba,
         fill_color: this._fill_rgba,
         line_join: this._line_joins,
@@ -148,9 +148,9 @@ export class RectGL extends BaseGLGlyph {
     }
     this._centers.update()
 
-    this._widths.set_from_array(this.glyph.sw)
-    this._heights.set_from_array(this.glyph.sh)
-    this._angles.set_from_prop(this.glyph.angle)
+    this._widths!.set_from_array(this.glyph.sw)
+    this._heights!.set_from_array(this.glyph.sh)
+    this._angles!.set_from_prop(this.glyph.angle)
   }
 
   protected _set_visuals(): void {
@@ -182,7 +182,7 @@ export class RectGL extends BaseGLGlyph {
         this._hatch_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
       }
 
-      this._hatch_patterns!.set_from_hatch_pattern(hatch.hatch_pattern)
+      this._hatch_patterns.set_from_hatch_pattern(hatch.hatch_pattern)
       this._hatch_scales!.set_from_prop(hatch.hatch_scale)
       this._hatch_weights!.set_from_prop(hatch.hatch_weight)
       this._hatch_rgba!.set_from_color(hatch.hatch_color, hatch.hatch_alpha)

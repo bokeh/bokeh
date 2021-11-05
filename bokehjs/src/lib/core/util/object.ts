@@ -41,3 +41,68 @@ export function to_object<T>(map: Iterable<[string | number, T]>): PlainObject<T
   }
   return obj
 }
+
+export class Dict<V> implements Map<string, V> {
+  constructor(readonly obj: {[key: string]: V}) {}
+
+  readonly [Symbol.toStringTag] = "Dict"
+
+  clear(): void {
+    for (const key of keys(this.obj)) {
+      delete this.obj[key]
+    }
+  }
+
+  delete(key: string): boolean {
+    const had = key in this
+    delete this.obj[key]
+    return had
+  }
+
+  get(key: string): V | undefined {
+    return key in this.obj ? this.obj[key] : undefined
+  }
+
+  has(key: string): boolean {
+    return key in this.obj
+  }
+
+  set(key: string, value: V): this {
+    this.obj[key] = value
+    return this
+  }
+
+  get size(): number {
+    return size(this.obj)
+  }
+
+  get is_empty(): boolean {
+    return this.size == 0
+  }
+
+  [Symbol.iterator](): IterableIterator<[string, V]> {
+    return this.entries()
+  }
+
+  *keys(): IterableIterator<string> {
+    yield* keys(this.obj)
+  }
+
+  *values(): IterableIterator<V> {
+    yield* values(this.obj)
+  }
+
+  *entries(): IterableIterator<[string, V]> {
+    yield* entries(this.obj)
+  }
+
+  forEach(callback: (value: V, key: string, map: Map<string, V>) => void, that?: unknown): void {
+    for (const [key, value] of this.entries()) {
+      callback.call(that, value, key, this)
+    }
+  }
+}
+
+export function obj<V>(o: {[key: string]: V}): Dict<V> {
+  return new Dict(o)
+}

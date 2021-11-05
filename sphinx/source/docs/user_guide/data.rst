@@ -399,10 +399,8 @@ data. You can also share those views between different plots.
 To plot with a filtered subset of data, pass a |CDSView| to the ``view``
 argument of any renderer method on a Bokeh plot.
 
-A |CDSView| has two properties, ``source`` and ``filters``:
+A |CDSView| has one property, ``filters``:
 
-* ``source`` is the |ColumnDataSource| that the you want to apply the filters
-  to.
 * ``filters`` is a list of |Filter| objects, listed and described below.
 
 In this example, you create a |CDSView| called ``view``. ``view`` uses the
@@ -416,7 +414,7 @@ renderer function:
     from bokeh.models import ColumnDataSource, CDSView
 
     source = ColumnDataSource(some_data)
-    view = CDSView(source=source, filters=[filter1, filter2])
+    view = CDSView(filters=[filter1, filter2])
 
     p = figure()
     p.circle(x="x", y="y", source=source, view=view)
