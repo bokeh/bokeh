@@ -224,6 +224,14 @@ bindings or checking existing bindings for completeness, for example.
 If you would like to start working on a new binding or have a new binding added
 to this list, please contact the Bokeh core team through `Slack`_.
 
+.. _contributor_guide_vulnerability:
+
+Report a vulnerability
+^^^^^^^^^^^^^^^^^^^^^^
+
+To report a security vulnerability, please use the `Tidelift security contact`_.
+Tidelift will coordinate the fix and disclosure.
+
 .. _contributor_guide_spread_the_word:
 
 Spread the word
@@ -263,5 +271,6 @@ accounts when you talk about anything that you made with Bokeh!
 .. _samuelcolvin: https://github.com/samuelcolvin
 .. _bokeh_scala: https://github.com/bokeh/bokeh-scala
 .. _mattpap: https://github.com/mattpap
+.. _Tidelift security contact: https://tidelift.com/security
 .. _Twitter: https://twitter.com/bokeh
 .. _LinkedIn: https://www.linkedin.com/company/project-bokeh/
