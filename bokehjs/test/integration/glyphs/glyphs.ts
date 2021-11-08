@@ -7,6 +7,7 @@ import {hatch_aliases} from "@bokehjs/core/visuals/patterns"
 import {entries} from "@bokehjs/core/util/object"
 import {zip} from "@bokehjs/core/util/array"
 import {HatchPattern} from "@bokehjs/core/property_mixins"
+import {np} from "@bokehjs/api/linalg"
 
 describe("Glyph models", () => {
   const x = [1, 2, 3]
@@ -296,6 +297,28 @@ describe("Glyph models", () => {
       const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
       p.wedge({x: [1, 2, 3], y, radius: [1, 1.25, 1.5], start_angle: 0.4, end_angle: 4.8, fill_color, alpha: 0.6})
       p.wedge({x: [3, 4, 5], y, radius: [1, 1.25, 1.5], start_angle: 0.4, end_angle: 4.8, fill_color, alpha: 0.6, hatch_pattern})
+      return p
+    }
+    await display(row([p("canvas"), p("svg")]))
+  })
+
+  it("should support full circle Wedge", async () => {
+    const x = [0, 1, 0, 1]
+    const y = [0, 0, 1, 1]
+    const y2 = [2, 2, 3, 3]
+
+    const small = 1e-7
+    let start_angle = [0, 0, 0, 0]
+    let end_angle = [2*np.pi, 2*np.pi+small, -2*np.pi, -2*np.pi-small]
+
+    // Round angles to float32 (issue #11475).
+    start_angle = start_angle.map(x => Math.fround(x))
+    end_angle = end_angle.map(x => Math.fround(x))
+
+    function p(output_backend: OutputBackend) {
+      const p = fig([150, 300], {x_range: [-0.5, 1.5], y_range: [-0.5, 3.5], output_backend, title: output_backend})
+      p.wedge({x, y, start_angle, end_angle, radius: 0.4, direction: "clock", alpha: 0.6, line_color: "red", line_width: 2})
+      p.wedge({x, y: y2, start_angle, end_angle, radius: 0.4, direction: "anticlock", alpha: 0.6, line_color: "blue", line_width: 2})
       return p
     }
     await display(row([p("canvas"), p("svg")]))
