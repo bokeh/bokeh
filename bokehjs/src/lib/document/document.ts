@@ -13,7 +13,7 @@ import {difference, intersection, copy, includes} from "core/util/array"
 import {values, entries} from "core/util/object"
 import * as sets from "core/util/set"
 import {is_equal} from "core/util/eq"
-import {isArray, isPlainObject} from "core/util/types"
+import {isArray, isPlainObject, isString, isNumber} from "core/util/types"
 import {LayoutDOM} from "models/layouts/layout_dom"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import {ClientSession} from "client/session"
@@ -268,7 +268,7 @@ export class Document {
   }
 
   set_title(title: string, setter_id?: string): void {
-    if (title !== this._title) {
+    if (title != this._title) {
       this._title = title
       this._trigger_on_change(new TitleChangedEvent(this, title, setter_id))
     }
@@ -611,28 +611,119 @@ export class Document {
     return Document.from_json(json)
   }
 
-  static from_json(json: DocJson): Document {
-    logger.debug("Creating Document from JSON")
-
+  private static _handle_version(json: DocJson): void {
     function pyify(version: string) {
       return version.replace(/-(dev|rc)\./, "$1")
     }
 
-    const py_version = json.version! // XXX!
-    const is_dev = py_version.indexOf("+") !== -1 || py_version.indexOf("-") !== -1
-    const versions_string = `Library versions: JS (${js_version}) / Python (${py_version})`
-    if (!is_dev && pyify(js_version) != py_version) {
-      logger.warn("JS/Python version mismatch")
-      logger.warn(versions_string)
+    if (json.version != null) {
+      const py_version = json.version
+      const is_dev = py_version.indexOf("+") !== -1 || py_version.indexOf("-") !== -1
+      const versions_string = `Library versions: JS (${js_version}) / Python (${py_version})`
+      if (!is_dev && pyify(js_version) != py_version) {
+        logger.warn("JS/Python version mismatch")
+        logger.warn(versions_string)
+      } else
+        logger.debug(versions_string)
     } else
-      logger.debug(versions_string)
+      logger.warn("'version' field is missing")
+  }
 
-    const resolver = new ModelResolver()
-    if (json.defs != null) {
-      resolve_defs(json.defs, resolver)
+  static decode(value: unknown/*, buffers?: Buffer[]*/): unknown {
+
+    function decode(obj: unknown): unknown {
+      if (isPlainObject(obj)) {
+        if ("$type" in obj) {
+          switch (obj.$type) {
+            case "number": {
+              if ("value" in obj) {
+                const {value} = obj
+                if (isString(value)) {
+                  switch (value) {
+                    case "nan":  return NaN
+                    case "+inf": return +Infinity
+                    case "-inf": return -Infinity
+                  }
+                } else if (isNumber(value))
+                  return value
+              }
+            }
+            case "array": {
+              const decoded = []
+              if ("entries" in obj && isArray(obj.entries)) {
+                for (const entry of obj.entries) {
+                  decoded.push(decode(entry))
+                }
+              }
+              return decoded
+            }
+            /*
+            case "ndarray": {
+              export type NDArrayRef = {
+                buffer: Ref | string
+                order: ByteOrder
+                dtype: DataType
+                shape: Shape
+              }
+            }
+            */
+            case "set": {
+              const decoded = new Set()
+              if ("entries" in obj && isArray(obj.entries)) {
+                for (const entry of obj.entries) {
+                  decoded.add(decode(entry))
+                }
+              }
+              return decoded
+            }
+            case "map": {
+              const decoded = new Map()
+              if ("entries" in obj && isArray(obj.entries)) {
+                for (const entry of obj.entries) {
+                  if (isArray(entry) && entry.length == 2) {
+                    const [k, v] = entry
+                    decoded.set(decode(k), decode(v))
+                  } else
+                    throw new Error(`invalid entry when decoding an object of type '${obj.$type}'`)
+                }
+              }
+              return decoded
+            }
+          }
+          throw new Error(`unable to decode an object of type '${obj.$type}'`)
+        } else {
+          const decoded: PlainObject = {}
+          for (const [k, v] of entries(obj)) {
+            decoded[k] = decode(v)
+          }
+          return decoded
+        }
+      } else if (isArray(obj)) {
+        const decoded: unknown[] = []
+        for (const v of obj) {
+          decoded.push(decode(v))
+        }
+        return decoded
+      } else
+        return obj
     }
 
-    const roots_json = json.roots
+    return decode(value)
+  }
+
+  static from_json(json: DocJson): Document {
+    logger.debug("Creating Document from JSON")
+
+    const doc_repr = Document.decode(json) as DocJson
+
+    Document._handle_version(doc_repr)
+
+    const resolver = new ModelResolver()
+    if (doc_repr.defs != null) {
+      resolve_defs(doc_repr.defs, resolver)
+    }
+
+    const roots_json = doc_repr.roots
     const root_ids = roots_json.root_ids
     const references_json = roots_json.references
 
@@ -648,7 +739,10 @@ export class Document {
       }
     }
     doc._pop_all_models_freeze()
-    doc.set_title(json.title!) // XXX!
+
+    if (doc_repr.title != null)
+      doc.set_title(doc_repr.title)
+
     return doc
   }
 
