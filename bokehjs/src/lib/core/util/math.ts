@@ -152,3 +152,5 @@ export class Fraction implements Floating {
     return `${this.numer}/${this.denom}`
   }
 }
+
+export const float32_epsilon = 1.1920928955078125e-7  // IEEE-754
