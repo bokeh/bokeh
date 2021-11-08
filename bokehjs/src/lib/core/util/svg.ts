@@ -5,6 +5,7 @@
 import {AffineTransform} from "./affine"
 import {isString, isNumber} from "./types"
 import {random, Random} from "./random"
+import {float32_epsilon} from "./math"
 import {empty} from "../dom"
 
 type KV<T> = {[key: string]: T}
@@ -1070,7 +1071,6 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
      * difference and wedge direction (clockwise/counterclockwise) to obtain the same results as on
      * canvas.
      */
-    const float32_epsilon = 1.1920928955078125e-7  // IEEE-754
     if (Math.abs(start_angle - end_angle) < 2*float32_epsilon &&
         !(Math.abs(initial_diff) < 2*float32_epsilon && initial_diff < 0)) {
 
@@ -1087,7 +1087,6 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       const end_x = x + radius_x * Math.cos(end_angle)
       const end_y = y + radius_y * Math.sin(end_angle)
 
-      let large_arc_flag = 0
       let diff = end_angle - start_angle
 
       // https://github.com/gliffy/canvas2svg/issues/4
@@ -1095,11 +1094,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
         diff += 2 * Math.PI
       }
 
-      if (counterclockwise) {
-        large_arc_flag = diff > Math.PI ? 0 : 1
-      } else {
-        large_arc_flag = diff > Math.PI ? 1 : 0
-      }
+      const large_arc_flag = (counterclockwise !== diff > Math.PI) ? 1 : 0  // imitation xor
 
       const [tend_x, tend_y] = this._transform.apply(end_x, end_y)
 
