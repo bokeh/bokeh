@@ -100,3 +100,5 @@ export function clamp(val: number, min: number, max: number): number {
 export function log(x: number, base: number = Math.E): number {
   return Math.log(x)/Math.log(base)
 }
+
+export const float32_epsilon = 1.1920928955078125e-7  // IEEE-754

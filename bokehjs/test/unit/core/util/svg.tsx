@@ -154,7 +154,7 @@ describe("SVGRenderingContext2d", () => {
           fill="none"
           stroke="#000000"
           paint-order="fill"
-          d="M 145 25 A 20 20 0 1 1 144.99999000000082 24.98000000333332"
+          d="M 145 25 A 20 20 0 0 1 105 25.000000000000004 A 20 20 0 0 1 145 25"
           stroke-miterlimit="10"
           stroke-dasharray=""
         />
@@ -178,7 +178,7 @@ describe("SVGRenderingContext2d", () => {
           fill="none"
           stroke="#000000"
           paint-order="fill"
-          d="M 145 75 A 20 20 0 1 0 144.99999000000082 75.01999999666667"
+          d="M 145 75 A 20 20 0 0 0 105 75 A 20 20 0 0 0 145 75"
           stroke-miterlimit="10"
           stroke-dasharray=""
         />
@@ -198,7 +198,7 @@ describe("SVGRenderingContext2d", () => {
           fill="#000000"
           stroke="none"
           paint-order="stroke"
-          d="M 145 125 A 20 20 0 1 1 144.99999000000082 124.98000000333332"
+          d="M 145 125 A 20 20 0 0 1 105 125 A 20 20 0 0 1 145 125"
         />
         <path
           fill="#000000"
@@ -216,7 +216,7 @@ describe("SVGRenderingContext2d", () => {
           fill="#000000"
           stroke="none"
           paint-order="stroke"
-          d="M 145 175 A 20 20 0 1 0 144.99999000000082 175.01999999666668"
+          d="M 145 175 A 20 20 0 0 0 105 175 A 20 20 0 0 0 145 175"
         />
       </svg>
     )
@@ -283,7 +283,7 @@ describe("SVGRenderingContext2d", () => {
           fill="blue"
           stroke="none"
           paint-order="stroke"
-          d="M 5 0 A 5 5 0 1 1 4.999997500000209 -0.004999999166669603"
+          d="M 5 0 A 5 5 0 0 1 -5 6.123233995736766e-16 A 5 5 0 0 1 5 0"
         />
         <path
           fill="gray"
@@ -476,13 +476,13 @@ describe("SVGRenderingContext2d", () => {
           fill="blue"
           stroke="none"
           paint-order="stroke"
-          d="M 55 20 A 5 5 0 1 1 54.999997500000205 19.99500000083333 L 255 100 A 5 5 0 1 1 254.9999975000002 99.99500000083333"
+          d="M 55 20 A 5 5 0 0 1 45 20 A 5 5 0 0 1 55 20 L 255 100 A 5 5 0 0 1 245 100 A 5 5 0 0 1 255 100"
         />
         <path
           fill="red"
           stroke="none"
           paint-order="stroke"
-          d="M 235 30 A 5 5 0 1 1 234.9999975000002 29.99500000083333 L 155 80 A 5 5 0 1 1 154.9999975000002 79.99500000083333"
+          d="M 235 30 A 5 5 0 0 1 225 30 A 5 5 0 0 1 235 30 L 155 80 A 5 5 0 0 1 145 80 A 5 5 0 0 1 155 80"
         />
       </svg>
     )
@@ -532,13 +532,13 @@ describe("SVGRenderingContext2d", () => {
           fill="blue"
           stroke="none"
           paint-order="stroke"
-          d="M 55 20 A 5 5 0 1 1 54.999997500000205 19.99500000083333 L 55 100 A 5 5 0 1 1 54.999997500000205 99.99500000083333"
+          d="M 55 20 A 5 5 0 0 1 45 20 A 5 5 0 0 1 55 20 L 55 100 A 5 5 0 0 1 45 100 A 5 5 0 0 1 55 100"
         />
         <path
           fill="red"
           stroke="none"
           paint-order="stroke"
-          d="M 235 30 A 5 5 0 1 1 234.9999975000002 29.99500000083333"
+          d="M 235 30 A 5 5 0 0 1 225 30 A 5 5 0 0 1 235 30"
         />
       </svg>
     )
@@ -607,13 +607,13 @@ describe("SVGRenderingContext2d", () => {
           fill="blue"
           stroke="none"
           paint-order="stroke"
-          d="M 205 20 A 5 5 0 1 1 204.9999975000002 19.99500000083333"
+          d="M 205 20 A 5 5 0 0 1 195 20 A 5 5 0 0 1 205 20"
         />
         <path
           fill="red"
           stroke="none"
           paint-order="stroke"
-          d="M 205 130 A 5 5 0 1 1 204.9999975000002 129.99500000083333 L 55 20 A 5 5 0 1 1 54.999997500000205 19.99500000083333"
+          d="M 205 130 A 5 5 0 0 1 195 130 A 5 5 0 0 1 205 130 L 55 20 A 5 5 0 0 1 45 20 A 5 5 0 0 1 55 20"
         />
       </svg>
     )
