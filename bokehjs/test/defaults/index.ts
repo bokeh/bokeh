@@ -34,37 +34,12 @@ function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defa
   const bokehjs_missing: string[] = []
 
   for (let [k, js_v] of entries(bokehjs_defaults)) {
-    // special case for graph renderer node_renderer/edge_renderer
+    // node_renderer/edge_renderer are configured dynamicaly in bokehjs
     if (name == "GraphRenderer" && (k == "node_renderer" || k == "edge_renderer"))
-      continue
-
-    // special case for factor range and start/end (null vs 0)
-    if (name == "FactorRange" && (k == "start" || k == "end"))
-      continue
-
-    // special case for date picker, default is "now"
-    if (name == "DatePicker" && k == "value")
-      continue
-
-    // special case for date time tickers, class hierarchy and attributes are handled differently
-    if (name == "DatetimeTicker" && k == "tickers")
       continue
 
     // special case for days/months/years tickers (null vs computed integer)
     if ((name == "DaysTicker" || name == "MonthsTicker" || name == "YearsTicker") && k == "interval")
-      continue
-
-    // special case for Title derived text properties
-    if (name == "Title" && (k == "text_align" || k == "text_baseline"))
-      continue
-
-    if (name == "DateSlider" && (k == "start" || k == "end" || k == "value" || k == "value_throttled"))
-      continue
-
-    if (name == "DateRangeSlider" && (k == "start" || k == "end"))
-      continue
-
-    if (name == "GlyphRenderer" && k == "view")
       continue
 
     // if testing in dev mode, we use special platform independent "Bokeh" font, instead of the default
@@ -188,8 +163,14 @@ describe("Defaults", () => {
     //  throw new ExpectationError(`expected bokehjs to implement ${to_string([...missing_js])} models`)
   })
 
-  // TODO: add a default to GeoJSONDataSource.geojson?
-  const skipped_models = new Set(["Figure", "GeoJSONDataSource", "WebDataSource"])
+  const skipped_models = new Set([
+    "Figure",               // it's complicated ...
+    "GeoJSONDataSource",    // geojson and _update_data()
+    "WebDataSource",        // data_url and setup()
+    "AjaxDataSource",       // data_url and setup()
+    "ServerSentDataSource", // data_url and setup()
+    "ImageURLTexture",      // url and load_image()
+  ])
 
   for (const name of Models.registered_names()) {
     const fn = skipped_models.has(name) || internal_models.has(name) ? it.skip : it
