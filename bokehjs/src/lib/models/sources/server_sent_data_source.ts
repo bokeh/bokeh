@@ -4,8 +4,7 @@ import * as p from "core/properties"
 export namespace ServerSentDataSource {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = WebDataSource.Props & {
-  }
+  export type Props = WebDataSource.Props
 }
 
 export interface ServerSentDataSource extends ServerSentDataSource.Attrs {}

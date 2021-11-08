@@ -85,7 +85,7 @@ export interface PropertyConstructor<T> {
   readonly prototype: Property<T>
 }
 
-const unset = Symbol("unset")
+export const unset = Symbol("unset")
 
 export abstract class Property<T = unknown> {
   __value__: T

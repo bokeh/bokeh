@@ -198,7 +198,7 @@ describe("Defaults", () => {
       const model = Models(name) as any
       const obj = new model() // TODO: this relies on null hack in properties
 
-      const serializer = new Serializer()
+      const serializer = new Serializer({include_unset: true})
       const ref = serializer.to_serializable(obj)
       const attrs = serializer.resolve_ref(ref)!.attributes
 
