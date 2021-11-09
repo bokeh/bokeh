@@ -25,7 +25,6 @@ RUN addgroup --gid 1000 docker && \
 RUN curl -LO https://dl.google.com/linux/direct/$CHROME_DEB && \
     apt install --no-install-recommends -y ./$CHROME_DEB && \
     rm $CHROME_DEB && \
-    apt purge -y curl && \
     apt autoremove -y && \
     apt clean -y && \
     rm -rf /var/lib/apt/lists/*
