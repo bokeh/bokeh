@@ -345,10 +345,9 @@ export class Document {
     this._trigger_on_change(new ModelChangedEvent(this, model, attr, old_value, new_value, options?.setter_id, options?.hint))
   }
 
-  static _instantiate_object(obj_id: string, obj_type: string, obj_attrs: Attrs, resolver: ModelResolver): HasProps {
-    const full_attrs = {...obj_attrs, id: obj_id, __deferred__: true}
-    const model = resolver.get(obj_type)
-    return new (model as any)(full_attrs)
+  static _instantiate_object(id: string, type: string, resolver: ModelResolver): HasProps {
+    const model = resolver.get(type)
+    return new (model as any)({id})
   }
 
   // given a JSON representation of all models in a graph, return a
@@ -357,12 +356,7 @@ export class Document {
     // Create all instances, but without setting their props
     const references = new Map()
     for (const obj of references_json) {
-      const {id, type, attributes} = obj
-
-      let instance = existing_models.get(id)
-      if (instance == null) {
-        instance = Document._instantiate_object(id, type, attributes, resolver)
-      }
+      const instance = existing_models.get(obj.id) ?? Document._instantiate_object(obj.id, obj.type, resolver)
       references.set(instance.id, instance)
     }
     return references

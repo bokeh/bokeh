@@ -36,7 +36,7 @@ export function isSpec(obj: any): boolean {
 }
 
 export type Spec<T> = {
-  readonly value?: T | typeof unset
+  readonly value?: T | Unset
   readonly field?: string
   readonly expr?: Expression<T>
   readonly transform?: Transform<unknown, T>
@@ -81,11 +81,12 @@ export type PropertyOptions<T> = {
 }
 
 export interface PropertyConstructor<T> {
-  new (obj: HasProps, attr: string, kind: Kind<T>, default_value?: (obj: HasProps) => T, initial_value?: T, options?: PropertyOptions<T>): Property<T>
+  new (obj: HasProps, attr: string, kind: Kind<T>, default_value: (obj: HasProps) => T, options?: PropertyOptions<T>): Property<T>
   readonly prototype: Property<T>
 }
 
 export const unset = Symbol("unset")
+export type Unset = typeof unset
 
 export abstract class Property<T = unknown> {
   __value__: T
@@ -98,10 +99,52 @@ export abstract class Property<T = unknown> {
     return !this.internal
   }
 
-  protected spec: Spec<T>
+  protected spec: Spec<T> = {value: unset}
 
   get is_unset(): boolean {
     return this.spec.value == unset
+  }
+
+  protected _initialized: boolean = false
+  get initialized(): boolean {
+    return this._initialized
+  }
+
+  initialize(initial_value: T | Unset = unset): void {
+    if (this._initialized)
+      throw new Error("already initialized")
+
+    let attr_value: T | Unset = unset
+
+    if (initial_value != unset) {
+      attr_value = initial_value
+      this._dirty = true
+    } else {
+      const value = this._default_override()
+      if (value != unset)
+        attr_value = value
+      else {
+        let themed = false
+        if (global_theme != null) {
+          const value = global_theme.get(this.obj, this.attr) as T | undefined
+          if (value !== undefined) {
+            attr_value = value
+            themed = true
+          }
+        }
+
+        if (!themed) {
+          attr_value = this.default_value(this.obj)
+        }
+      }
+    }
+
+    if (attr_value != unset)
+      this._update(attr_value)
+    else
+      this.spec = {value: unset}
+
+    this._initialized = true
   }
 
   get_value(): T {
@@ -112,14 +155,18 @@ export abstract class Property<T = unknown> {
   }
 
   set_value(val: T): void {
-    this._update(val)
-    this._dirty = true
+    if (!this._initialized)
+      this.initialize(val)
+    else {
+      this._update(val)
+      this._dirty = true
+    }
   }
 
   // abstract _intrinsic_default(): T
 
-  _default_override(): T | undefined {
-    return undefined
+  _default_override(): T | Unset {
+    return unset
   }
 
   private _dirty: boolean = false
@@ -127,7 +174,7 @@ export abstract class Property<T = unknown> {
     return this._dirty
   }
 
-  readonly change: Signal0<HasProps>
+  readonly change: Signal0<HasProps> = new Signal0(this.obj, "change")
 
   /*readonly*/ internal: boolean
 
@@ -137,45 +184,11 @@ export abstract class Property<T = unknown> {
   constructor(readonly obj: HasProps,
               readonly attr: string,
               readonly kind: Kind<T>,
-              readonly default_value?: (obj: HasProps) => T,
-              initial_value?: T,
+              readonly default_value: (obj: HasProps) => T,
               options: PropertyOptions<T> = {}) {
-    this.change = new Signal0(this.obj, "change")
-
     this.internal = options.internal ?? false
     this.convert = options.convert
     this.on_update = options.on_update
-
-    let attr_value: T
-    if (initial_value !== undefined) {
-      attr_value = initial_value
-      this._dirty = true
-    } else {
-      const value = this._default_override()
-      if (value !== undefined)
-        attr_value = value
-      else {
-        let themed = false
-        if (global_theme != null) {
-          const value = global_theme.get(obj, attr) as T | undefined
-          if (value !== undefined) {
-            attr_value = value
-            themed = true
-          }
-        }
-
-        if (!themed) {
-          if (default_value !== undefined)
-            attr_value = default_value(obj)
-          else {
-            this.spec = {value: unset}
-            return
-          }
-        }
-      }
-    }
-
-    this._update(attr_value!)
   }
 
   //protected abstract _update(attr_value: T): void
@@ -238,8 +251,8 @@ export class PrimitiveProperty<T> extends Property<T> {}
 
 /** @deprecated */
 export class Font extends PrimitiveProperty<string> {
-  override _default_override(): string | undefined {
-    return settings.dev ? "Bokeh" : undefined
+  override _default_override(): string | Unset {
+    return settings.dev ? "Bokeh" : unset
   }
 }
 
@@ -306,8 +319,8 @@ export class LineJoinScalar extends ScalarSpec<enums.LineJoin> {}
 export class LineCapScalar extends ScalarSpec<enums.LineCap> {}
 export class LineDashScalar extends ScalarSpec<enums.LineDash | number[]> {}
 export class FontScalar extends ScalarSpec<string> {
-  override _default_override(): string | undefined {
-    return settings.dev ? "Bokeh" : undefined
+  override _default_override(): string | Unset {
+    return settings.dev ? "Bokeh" : unset
   }
 }
 export class FontSizeScalar extends ScalarSpec<string> {}
@@ -616,8 +629,8 @@ export class LineJoinSpec extends DataSpec<enums.LineJoin> {}
 export class LineCapSpec extends DataSpec<enums.LineCap> {}
 export class LineDashSpec extends DataSpec<enums.LineDash | number[]> {}
 export class FontSpec extends DataSpec<string> {
-  override _default_override(): string | undefined {
-    return settings.dev ? "Bokeh" : undefined
+  override _default_override(): string | Unset {
+    return settings.dev ? "Bokeh" : unset
   }
 }
 export class FontSizeSpec extends DataSpec<string> {}

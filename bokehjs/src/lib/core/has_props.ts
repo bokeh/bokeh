@@ -7,6 +7,7 @@ import {Struct, Ref, is_ref} from "./util/refs"
 import * as p from "./properties"
 import * as k from "./kinds"
 import {Property} from "./properties"
+import {assert} from "./util/assert"
 import {uniqueId} from "./util/string"
 import {keys, values, entries, extend} from "./util/object"
 import {isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
@@ -18,6 +19,8 @@ import {equals, Equatable, Comparator} from "./util/eq"
 import {pretty, Printable, Printer} from "./util/pretty"
 import {clone, Cloneable, Cloner} from "./util/cloneable"
 import * as kinds from "./kinds"
+
+type AttrsLike = {[key: string]: unknown} | Map<string, unknown>
 
 export module HasProps {
   export type Attrs = p.AttrsOf<Props>
@@ -83,15 +86,17 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   /** @prototype */
   _props: {[key: string]: {
     type: p.PropertyConstructor<unknown>
-    default_value?: (self: HasProps) => unknown // T
+    default_value: (self: HasProps) => unknown | p.Unset
     options: p.PropertyOptions<unknown>
   }}
 
   /** @prototype */
   _mixins: [string, object][]
 
-  private static _fix_default(default_value: any, _attr: string): undefined | (() => any) {
-    if (default_value === undefined || isFunction(default_value))
+  private static _fix_default(default_value: any, _attr: string): () => any {
+    if (default_value === undefined)
+      return () => p.unset
+    else if (isFunction(default_value))
       return default_value
     else if (isPrimitive(default_value))
       return () => default_value
@@ -265,19 +270,11 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return ref
   }
 
-  constructor(attrs: Attrs | Map<string, unknown> = {}) {
+  constructor(attrs: {id: string} | AttrsLike = {}) {
     super()
 
-    for (const attr of attrs instanceof Map ? attrs.keys() : keys(attrs)) {
-      if (attr == "id" || attr == "__deferred__")
-        continue
-      if (!(attr in this._props))
-        throw new Error(`unknown property ${this.type}.${attr}`)
-    }
-
-    const get = attrs instanceof Map ? attrs.get.bind(attrs) : (name: string) => attrs[name]
-
-    this.id = (get("id") as string | undefined) ?? uniqueId()
+    const deferred = isPlainObject(attrs) && "id" in attrs
+    this.id = deferred ? attrs.id as string : uniqueId()
 
     for (const [name, {type, default_value, options}] of entries(this._props)) {
       let property: p.Property<unknown>
@@ -290,18 +287,29 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         })
       } else {
         if (type instanceof k.Kind)
-          property = new p.PrimitiveProperty(this, name, type, default_value, get(name), options)
+          property = new p.PrimitiveProperty(this, name, type, default_value, options)
         else
-          property = new type(this, name, k.Any, default_value, get(name), options)
+          property = new type(this, name, k.Any, default_value, options)
 
         this.properties[name] = property
       }
     }
 
-    // allowing us to defer initialization when loading many models
-    // when loading a bunch of models, we want to do initialization as a second pass
-    // because other objects that this one depends on might not be loaded yet
-    if (!(get("__deferred__") ?? false)) {
+    if (deferred) {
+      assert(keys(attrs).length == 1)
+    } else {
+      const items = attrs instanceof Map ? attrs.entries() : entries(attrs)
+
+      for (const [attr, value] of items) {
+        if (attr in this.properties)
+          this.properties[attr].set_value(value)
+        else
+          throw new Error(`unknown property ${this.type}.${attr}`)
+      }
+
+      // allowing us to defer initialization when loading many models
+      // when loading a bunch of models, we want to do initialization as a second pass
+      // because other objects that this one depends on might not be loaded yet
       this.finalize()
       this.connect_signals()
     }
@@ -309,6 +317,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   finalize(): void {
     for (const prop of this) {
+      if (!prop.initialized)
+        prop.initialize()
+
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
         continue
 
