@@ -23,6 +23,12 @@ export class Comparator {
   private readonly a_stack: unknown[] = []
   private readonly b_stack: unknown[] = []
 
+  readonly structural: boolean
+
+  constructor(options?: {structural?: boolean}) {
+    this.structural = options?.structural ?? false
+  }
+
   eq(a: any, b: any): boolean {
     if (Object.is(a, b))
       return true
@@ -156,24 +162,32 @@ export class Comparator {
     if (a.size != b.size)
       return false
 
-    for (const [key, val] of a) {
-      if (!b.has(key) || !this.eq(val, b.get(key)))
-        return false
-    }
+    if (this.structural)
+      return this.iterables(a.entries(), b.entries())
+    else {
+      for (const [key, val] of a) {
+        if (!b.has(key) || !this.eq(val, b.get(key)))
+          return false
+      }
 
-    return true
+      return true
+    }
   }
 
   sets(a: Set<unknown>, b: Set<unknown>): boolean {
     if (a.size != b.size)
       return false
 
-    for (const key of a) {
-      if (!b.has(key))
-        return false
-    }
+    if (this.structural)
+      return this.iterables(a.entries(), b.entries())
+    else {
+      for (const key of a) {
+        if (!b.has(key))
+          return false
+      }
 
-    return true
+      return true
+    }
   }
 
   objects(a: PlainObject, b: PlainObject): boolean {
@@ -218,6 +232,11 @@ export class SimilarComparator extends Comparator {
 
 export function is_equal(a: unknown, b: unknown): boolean {
   const comparator = new Comparator()
+  return comparator.eq(a, b)
+}
+
+export function is_structurally_equal(a: unknown, b: unknown): boolean {
+  const comparator = new Comparator({structural: true})
   return comparator.eq(a, b)
 }
 
