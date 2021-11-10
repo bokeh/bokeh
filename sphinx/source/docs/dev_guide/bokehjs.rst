@@ -122,11 +122,11 @@ To build and test BokehJS locally, follow the instructions in
 :ref:`contributor_guide_setup`. This way, all required packages
 should be installed and configured on your system.
 
-BokehJS requires the following minimum versions:
+Developing BokehJS requires the following minimum versions:
 
-* node 14+
+* Node.js 14+
 * npm 7.4+ (most recent version)
-* chrome/chromium browser 94+ or equivalent
+* Chrome/Chromium browser 94+ or equivalent
 
 Bokeh officially supports the following platforms for development and testing:
 
@@ -134,8 +134,8 @@ Bokeh officially supports the following platforms for development and testing:
 * Windows 10 (or Server 2019)
 * MacOS 10.15
 
-It is possible to work on BokehJS on different platforms and versions. However,
-things might not work as intended, and some tests will not work.
+It is possible to work on BokehJS using different platforms and versions.
+However, things might not work as intended, and some tests will not work.
 
 .. _contributor_guide_bokehjs_building:
 
@@ -241,8 +241,8 @@ like ``Mixins`` or ``Visuals``.
   export interface NewActionTool extends NewActionTool.Attrs {}
 
 If you want to update a model, the most relevant property in most cases is
-``Props``. The properties defined there need to match the properties and types
-of the respective Python model. The BokehJS properties are defined in
+``Props``. The properties you define there need to match the properties and
+types of the respective Python model. The BokehJS properties are defined in
 ``core.properties`` and are usually imported with
 ``import * as p from "core/properties"``.
 

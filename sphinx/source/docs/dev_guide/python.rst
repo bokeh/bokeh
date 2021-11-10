@@ -64,18 +64,18 @@ folders containing Python code:
 
   Other subdirectories in this folder include:
 
-  * :bokeh-tree:`bokeh/plotting` containing Bokeh's :ref:`plotting interface
+  * :bokeh-tree:`bokeh/plotting` contains Bokeh's :ref:`plotting interface
     <userguide_interfaces_plotting>`
-  * :bokeh-tree:`bokeh/colors` containing code for handling
+  * :bokeh-tree:`bokeh/colors` contains code for handling
     :ref:`colors <userguide_styling_colors>`
-  * :bokeh-tree:`bokeh/embed` containing code for :ref:`embedding Bokeh content
+  * :bokeh-tree:`bokeh/embed` contains code for :ref:`embedding Bokeh content
     in web pages <userguide_embed>`.
-  * :bokeh-tree:`bokeh/io` containing code for Bokeh's IO functions, such as
+  * :bokeh-tree:`bokeh/io` contains code for Bokeh's IO functions, such as
     :ref:`file export <userguide_export>` and :ref:`notebook output
     <userguide_jupyter>`
-  * :bokeh-tree:`bokeh/palettes` containing code for Bokeh's :ref:`palettes
+  * :bokeh-tree:`bokeh/palettes` contains code for Bokeh's :ref:`palettes
     <bokeh.palettes>`
-  * :bokeh-tree:`bokeh/sphinxext` containing code for custom Sphinx extension
+  * :bokeh-tree:`bokeh/sphinxext` contains code for custom Sphinx extension
     used in :ref:`Bokeh's documentation <contributor_guide_documentation>`
 
   See the |reference guide| for more information on the structure of this
@@ -102,8 +102,8 @@ Models and properties
 
 The central building blocks of all Bokeh visualizations are objects based on
 Bokeh's :term:`models <Model>`. These models are representations of
-:term:`plot <Plot>` elements, such as axes, :term:`glyphs <Glyph>`, or
-:term:`widgets <Widget>`.
+:term:`plot <Plot>` elements, such as :ref:`axes <userguide_styling_axes>`,
+:term:`glyphs <Glyph>`, or :term:`widgets <Widget>`.
 
 On the Python side, Bokeh serializes the attributes of each plot element object
 into JSON data. On the browser side, BokehJS deserializes this JSON data and
