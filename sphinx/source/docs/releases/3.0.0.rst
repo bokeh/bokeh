@@ -139,3 +139,10 @@ bokehjs changes
 ``Figure`` now return a model proxy object, which mimics the behavior of bokeh's
 plotting API. Arrays of axes/grids can be obtained using new ``xaxes``, ``yaxes``,
 ``axes``, ``xgrids``, ``ygrids`` and ``grids`` attributes.
+
+Property changes push to server
+...............................
+
+Previously all changes were pushed to server, even if no actual changes were made.
+Now only effective changes are pushed, which now maches the internal behavior of
+bokehjs.

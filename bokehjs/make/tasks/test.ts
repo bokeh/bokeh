@@ -134,6 +134,10 @@ async function headless(port: number): Promise<ChildProcess> {
     "--force-color-profile=srgb",           // ^^^
     "--force-device-scale-factor=1",        // ^^^
   ]
+  const bokeh_in_docker = process.env.BOKEH_IN_DOCKER ?? ""
+  if (bokeh_in_docker == "1") {
+    args.push("--no-sandbox")
+  }
   const executable = chrome()
   const proc = spawn(executable, args, {stdio: "pipe"})
 
