@@ -7,7 +7,6 @@ import {hatch_aliases} from "@bokehjs/core/visuals/patterns"
 import {entries} from "@bokehjs/core/util/object"
 import {zip} from "@bokehjs/core/util/array"
 import {HatchPattern} from "@bokehjs/core/property_mixins"
-import {np} from "@bokehjs/api/linalg"
 
 describe("Glyph models", () => {
   const x = [1, 2, 3]
@@ -309,7 +308,7 @@ describe("Glyph models", () => {
 
     const small = 1e-7
     let start_angle = [0, 0, 0, 0]
-    let end_angle = [2*np.pi, 2*np.pi+small, -2*np.pi, -2*np.pi-small]
+    let end_angle = [2*Math.PI, 2*Math.PI+small, -2*Math.PI, -2*Math.PI-small]
 
     // Round angles to float32 (issue #11475).
     start_angle = start_angle.map(x => Math.fround(x))
