@@ -473,6 +473,23 @@ describe("Document", () => {
     expect(event.new_).to.be.equal(42)
   })
 
+  it("notifies only on actual changes", () => {
+    const d = new Document()
+    expect(d.roots().length).to.be.equal(0)
+
+    const m = new AnotherModel()
+
+    d.add_root(m)
+    expect(d.roots().length).to.be.equal(1)
+
+    const events: ev.DocumentEvent[] = []
+    d.on_change((event) => events.push(event))
+
+    expect(m.bar).to.be.equal(1)
+    m.bar = 1
+    expect(events.length).to.be.equal(0)
+  })
+
   it("can notify on changes in batches", () => {
     const d = new Document()
     const m = new SomeModel()
