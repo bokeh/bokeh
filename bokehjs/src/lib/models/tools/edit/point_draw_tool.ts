@@ -30,9 +30,8 @@ export class PointDrawToolView extends EditToolView {
     if (ykey) cds.get_array(ykey).push(y)
     this._pad_empty_columns(cds, [xkey, ykey])
 
-    cds.change.emit()
-    cds.data = cds.data
-    cds.properties.data.change.emit()
+    const {data} = cds
+    cds.setv({data}, {check_eq: false}) // XXX: inplace updates
   }
 
   override _keyup(ev: KeyEvent): void {

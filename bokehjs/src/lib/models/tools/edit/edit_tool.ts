@@ -97,8 +97,8 @@ export abstract class EditToolView extends GestureToolView {
     if (redraw)
       cds.change.emit()
     if (emit) {
-      cds.data = cds.data
-      cds.properties.data.change.emit()
+      const {data} = cds
+      cds.setv({data}, {check_eq: false})
     }
   }
 
