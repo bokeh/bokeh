@@ -125,7 +125,7 @@ should be installed and configured on your system.
 Developing BokehJS requires the following minimum versions:
 
 * Node.js 14+
-* npm 7.4+ (most recent version)
+* npm 7.4+
 * Chrome/Chromium browser 94+ or equivalent
 
 Bokeh officially supports the following platforms for development and testing:
@@ -148,9 +148,11 @@ commands start with ``node make``.
 Use ``node make help`` to list all available commands for the BokehJS build
 system. These are the most common commands:
 
-* ``node make build``: Builds the entire library, including legacy scripts.
-* ``node make dev``: Builds the library without legacy scripts. This is faster
-  than ``node make build`` but not suitable for production code or packaging.
+* ``node make build``: Builds the entire library, including the extensions
+  compiler.
+* ``node make dev``: Builds the library without the extensions compiler. This is
+  faster than ``node make build`` but not suitable for production code or
+  packaging.
 * ``node make test``: Runs all BokehJS tests. To only run specific tests, see
   :ref:`contributor_guide_testing_local_javascript_selecting`.
 * ``node make lint`` lint BokehJS with ESLint_. Run ``node make lint --fix`` to
