@@ -1,0 +1,63 @@
+name: Bug report
+about: Create a report to help us improve
+title: "[BUG]"
+labels: TRIAGE
+assignees: ''
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Bug report
+
+        Thank you for reporting a bug and helping us improve Bokeh!
+
+        See xxxxx user guide for more information on how to file an issue.
+
+        Please be aware that the issue tracker is NOT the place for general
+        support. For questions and technical assistance, come join the
+        [Bokeh Project Discourse) (https://discourse.bokeh.org).
+
+        Please provide *ALL* of the following information. Issues that do not
+        contain the necessary information may be closed immediately
+
+        ## Environment information
+  - type: input
+    attributes:
+      label: Bokeh version
+      description: >-
+        [Version of Bokeh, as provided by `bokeh info`]
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Python version
+      description: >-
+        [Python version, as provided by `bokeh info`]
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Operating System (name and version)
+      description: >-
+        [E.g. "Ubuntu 20.04", "Windows 11", "MacOS X 12.0.1"]
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: If the issue you are reporting is related to a browser:
+  - type: input
+    attributes:
+      label: Browser name and version
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: If the issue you are reporting is related to Jupyter notebook / Jupyter Lab:
+  - type: input
+    attributes:
+      label: Jupyter notebook / Jupyter Lab version
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: etc. [TBD]
