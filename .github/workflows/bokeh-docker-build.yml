@@ -20,7 +20,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ci/docker
-          load: false
+          load: true
           tags: bokeh-dev:latest
 
       - name: Save image to file
