@@ -1,8 +1,7 @@
 name: Bug report
-about: Create a report to help us improve
+description: Create a report to help us improve
 title: "[BUG] "
 labels: TRIAGE
-assignees: ''
 body:
   - type: markdown
     attributes:
@@ -48,8 +47,7 @@ body:
       required: true
   - type: markdown
     attributes:
-      value: |
-        If the issue you are reporting is related to a browser:
+      value: "If the issue you are reporting is related to a browser:"
   - type: input
     attributes:
       label: Browser name and version
