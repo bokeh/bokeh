@@ -65,7 +65,7 @@ def test_run(capsys: Capture) -> None:
     main(["bokeh", "info"])
     out, err = capsys.readouterr()
     lines = out.split("\n")
-    assert len(lines) == 8
+    assert len(lines) == 9
     assert lines[0].startswith("Python version")
     assert lines[1].startswith("IPython version")
     assert lines[2].startswith("Tornado version")
