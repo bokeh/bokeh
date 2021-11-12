@@ -182,13 +182,13 @@ class Minimum(ScalarExpression):
     """ Computes minimum value of a data source's column. """
 
     field = NonNullable(String)
-    initial = Nullable(Float, default=None) # TODO: float("+inf"))
+    initial = Nullable(Float, default=float("+inf"))
 
 class Maximum(ScalarExpression):
     """ Computes maximum value of a data source's column. """
 
     field = NonNullable(String)
-    initial = Nullable(Float, default=None) # TODO: float("-inf"))
+    initial = Nullable(Float, default=float("-inf"))
 
 #-----------------------------------------------------------------------------
 # Dev API

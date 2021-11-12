@@ -59,6 +59,7 @@ declare namespace _Some2 {
 
   export type Props = _Some1.Props & {
     prop10: p.Property<_Some0>
+    prop11: p.Property<_Some0[]>
   }
 }
 
@@ -118,6 +119,7 @@ describe("document/defs module", () => {
         overrides: [
           {name: "tags", default: ["some", "default", "tags"]},
         ],
+        references: [],
       }, {
         name: "Some1",
         module: "some",
@@ -135,15 +137,21 @@ describe("document/defs module", () => {
           {name: "prop9", kind: ["Enum", "enum0", "enum1", "enum2"], default: "enum2"},
         ],
         overrides: [],
+        references: [],
       }, {
         name: "Some2",
         module: "some",
         extends: {name: "Some1", module: "some"},
         properties: [
-          {name: "prop10", kind: ["Ref", {name: "Some0", module: "some"}], default: {id: "some001"}}, // TODO: resolve refs
+          {name: "prop10", kind: ["Ref", {name: "Some0", module: "some"}], default: {id: "some001"}},
+          {name: "prop11", kind: ["Array", ["Ref", {name: "Some0", module: "some"}]], default: [{id: "some001"}, {id: "some002"}]},
         ],
         overrides: [
           {name: "prop2", default: "a"},
+        ],
+        references: [
+          {id: "some001", type: "some.Some0", attributes: {prop2: false, prop4: 128}},
+          {id: "some002", type: "some.Some0", attributes: {prop2: false, prop4: 129}},
         ],
       }, {
         name: "Some3",
@@ -155,6 +163,7 @@ describe("document/defs module", () => {
         overrides: [
           {name: "data", default: {default_column: [0, 1, 2]}},
         ],
+        references: [],
       }, {
         name: "Some4",
         module: "some",
@@ -166,6 +175,7 @@ describe("document/defs module", () => {
           {name: "data", default: {default_column: [3, 4, 5]}},
           {name: "prop0", default: 2},
         ],
+        references: [],
       }]
 
       const resolver = new ModelResolver()
@@ -237,7 +247,7 @@ describe("document/defs module", () => {
       ])
       expect([...some2].map((prop) => prop.attr)).to.be.equal([
         ...model_props,
-        "prop0", "prop1", "prop2", "prop3", "prop4", "prop5", "prop6", "prop7", "prop8", "prop9", "prop10"])
+        "prop0", "prop1", "prop2", "prop3", "prop4", "prop5", "prop6", "prop7", "prop8", "prop9", "prop10", "prop11"])
       expect([...some3].map((prop) => prop.attr)).to.be.equal([
         ...model_props,
         ...cds_props,
@@ -267,7 +277,7 @@ describe("document/defs module", () => {
       expect(some1.prop5).to.be.equal([[0, "a"], [1, "b"], [2, "c"]])
       expect(some1.prop6).to.be.equal({name0: 0, name1: "a"})
       expect(some1.prop7).to.be.equal({a: 0, b: 1, c: 2})
-      // expect(some1.prop8).to.be.equal(new Map([[["a", "a"], 0], [["b"], 1]]))
+      expect(some1.prop8).to.be.structurally.equal(new Map([[["a", "a"], 0], [["b"], 1]]))
       expect(some1.prop9).to.be.equal("enum2")
 
       expect(some1.tags).to.be.equal([])
@@ -280,9 +290,13 @@ describe("document/defs module", () => {
       expect(some2.prop5).to.be.equal([[0, "a"], [1, "b"], [2, "c"]])
       expect(some2.prop6).to.be.equal({name0: 0, name1: "a"})
       expect(some2.prop7).to.be.equal({a: 0, b: 1, c: 2})
-      // expect(some2.prop8).to.be.equal(new Map([[["a", "a"], 0], [["b"], 1]]))
+      expect(some2.prop8).to.be.structurally.equal(new Map([[["a", "a"], 0], [["b"], 1]]))
       expect(some2.prop9).to.be.equal("enum2")
-      // expect(some2.prop10).to.be.equal(new Some0()) // TODO: resolve refs
+
+      const some001 = new Some0({prop2: false, prop4: 128})
+      const some002 = new Some0({prop2: false, prop4: 129})
+      expect(some2.prop10).to.be.structurally.equal(some001)
+      expect(some2.prop11).to.be.structurally.equal([some001, some002])
 
       expect(some3.data).to.be.equal({default_column: [0, 1, 2]})
       expect(some3.prop0).to.be.equal(1)

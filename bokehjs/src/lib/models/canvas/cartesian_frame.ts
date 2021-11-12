@@ -28,8 +28,8 @@ export class CartesianFrame {
               private readonly extra_y_ranges: Ranges = {},
               private readonly extra_x_scales: Scales = {},
               private readonly extra_y_scales: Scales = {}) {
-    assert(in_x_scale.source_range == null && in_x_scale.target_range == null)
-    assert(in_y_scale.source_range == null && in_y_scale.target_range == null)
+    assert(in_x_scale.properties.source_range.is_unset && in_x_scale.properties.target_range.is_unset)
+    assert(in_y_scale.properties.source_range.is_unset && in_y_scale.properties.target_range.is_unset)
     this._configure_scales()
   }
 

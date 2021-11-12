@@ -150,7 +150,7 @@ export class RangeManager {
     const yrs: Map<string, Interval> = new Map()
     for (const [name, range] of x_ranges) {
       const {start, end} = range
-      if (start == null || end == null || isNaN(start + end)) {
+      if (isNaN(start + end)) {
         good_vals = false
         break
       }
@@ -159,7 +159,7 @@ export class RangeManager {
     if (good_vals) {
       for (const [name, range] of y_ranges) {
         const {start, end} = range
-        if (start == null || end == null || isNaN(start + end)) {
+        if (isNaN(start + end)) {
           good_vals = false
           break
         }

@@ -146,3 +146,40 @@ Property changes push to server
 Previously all changes were pushed to server, even if no actual changes were made.
 Now only effective changes are pushed, which now maches the internal behavior of
 bokehjs.
+
+Deserialization code was split-off from ``Document``
+....................................................
+
+Now the purpose of ``Document`` is to manage models and deal with high-level
+serialization concerns. Low-level handling was split-off into ``Deserializer``
+class.
+
+``HasProps.constructor``
+........................
+
+The ``constructor`` of ``HasProps`` has now two clearly defined code paths,
+one for deferred and the other immediate initialization. The former is triggered
+with ``new HasProps({id})`` syntax (it doesn't allow providing initial values)
+and the later with ``new HasProps(attrs)``, where ``attrs`` can not have an
+``id`` field. As a side effect, duplicating model's identity is not permitted
+by default anymore, though one can still use deferred initializtion for this.
+
+Protocol changes
+~~~~~~~~~~~~~~~~
+
+Serialization of numbers
+........................
+
+Outside of ndarrays, nan, +inf and -inf are now systematically serialized as
+``{"$type": "number", "value": "nan"}``, ``{"$type": "number", "value": "+inf"}``
+and ``{"$type": "number", "value": "-inf"}`` respectively.
+
+Other changes
+~~~~~~~~~~~~~
+
+``Minimum.initial`` and ``Maximum.initial``
+...........................................
+
+Thanks to added support for serialization of infinities, ``initial`` properties can
+now have intrinsic default values (inifinity and minus infinity respectively) instead
+of ``None`` / ``null``.

@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from math import isnan
+
 # External imports
 import mock
 import xyzservices.providers as xyz
@@ -382,8 +385,8 @@ class Test_list_attr_splat:
     def test_set(self) -> None:
         obj = bmp._list_attr_splat([DataRange1d(), DataRange1d()])
         assert len(obj) == 2
-        assert obj[0].start == None
-        assert obj[1].start == None
+        assert isnan(obj[0].start)
+        assert isnan(obj[1].start)
         obj.start = 10
         assert obj[0].start == 10
         assert obj[1].start == 10

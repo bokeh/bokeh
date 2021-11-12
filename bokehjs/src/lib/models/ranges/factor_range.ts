@@ -140,8 +140,8 @@ export class FactorRange extends Range {
       group_padding:       [ Number, 1.4 ],
       range_padding:       [ Number, 0 ],
       range_padding_units: [ PaddingUnits, "percent" ],
-      start:               [ Number ],
-      end:                 [ Number ],
+      start:               [ Number, NaN ],
+      end:                 [ Number, NaN ],
     }))
 
     this.internal<FactorRange.Props>(({Number, String, Array, Tuple, Nullable}) => ({

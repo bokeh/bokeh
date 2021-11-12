@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 import datetime as dt
+from math import isnan
 
 # External imports
 import mock
@@ -138,8 +139,8 @@ class Test_DataRange1d:
 
     def test_init_with_no_arguments(self) -> None:
         datarange1d = DataRange1d()
-        assert datarange1d.start is None
-        assert datarange1d.end is None
+        assert isnan(datarange1d.start)
+        assert isnan(datarange1d.end)
         assert datarange1d.bounds is None
 
     def test_init_with_timedelta(self) -> None:

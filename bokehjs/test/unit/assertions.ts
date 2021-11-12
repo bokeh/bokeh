@@ -1,5 +1,5 @@
 import {isNumber, isString, isArray, isTypedArray, isPlainObject, isFunction, isIterable} from "@bokehjs/core/util/types"
-import {is_equal, is_similar} from "@bokehjs/core/util/eq"
+import {is_equal, is_structurally_equal, is_similar} from "@bokehjs/core/util/eq"
 import {to_string} from "@bokehjs/core/util/pretty"
 import {Class} from "@bokehjs/core/class"
 
@@ -39,6 +39,7 @@ type NotBe<T> = {
 }
 
 type Assertions<T> = {
+  structurally: {equal(expected: T): void}
   equal(expected: T): void
   similar(expected: T, tolerance?: number): void
   identical(expected: T): void
@@ -103,6 +104,19 @@ class ElementAsserts implements ElementAssertions {
 
 class Asserts implements Assertions<unknown> {
   constructor(readonly value: unknown, readonly negated: boolean = false) {}
+
+  get structurally() {
+    const that = this
+    return {
+      equal(expected: unknown): void {
+        const {value} = that
+        if (!is_structurally_equal(that.value, expected) == !that.negated) {
+          const be = that.negated ? "not be" : "be"
+          throw new ExpectationError(`expected ${to_string(value)} to ${be} structurally equal to ${to_string(expected)}`)
+        }
+      },
+    }
+  }
 
   equal(expected: unknown): void {
     const {value} = this
