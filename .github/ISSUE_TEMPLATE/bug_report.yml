@@ -8,9 +8,11 @@ body:
       value: "# Bug report"
   - type: markdown
     attributes:
+      value: Thank you for reporting a bug and helping us improve Bokeh!
+  - type: markdown
+    attributes:
       value: >
-        Thank you for reporting a bug and helping us improve Bokeh! See
-        [Creating issues](https://docs.bokeh.org/en/latest/docs/dev_guide/creating_issues.html)
+        See [Creating issues](https://docs.bokeh.org/en/latest/docs/dev_guide/creating_issues.html)
         in the [Bokeh contributor guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html)
         for more information on how to file an issue.
   - type: markdown
@@ -21,25 +23,15 @@ body:
         [Bokeh Project Discourse](https://discourse.bokeh.org).
   - type: markdown
     attributes:
-      value: >
-        Please provide *ALL* of the following information. Issues that do not
-        contain the necessary information may be closed immediately!
-  - type: markdown
-    attributes:
       value: |
         ## Environment information
-  - type: input
+  - type: textarea
+    id: bokeh_info
     attributes:
-      label: Bokeh version
+      label: Software versions
       description: >-
-        Version of Bokeh, as provided by `bokeh info`.
-    validations:
-      required: true
-  - type: input
-    attributes:
-      label: Python version
-      description: >-
-        Python version, as provided by `bokeh info`.
+        Run `bokeh info` and paste the output here. See the [Bokeh documentation](https://docs.bokeh.org/en/latest/docs/reference/command/subcommands/info.html)
+        for more information.
     validations:
       required: true
   - type: input
