@@ -118,3 +118,9 @@ body:
         example.
     validations:
       required: false
+  - type: markdown
+    attributes:
+      value: >
+        Note: *Everyone interacting in the Bokeh project's codebases, issue
+        trackers, and discussion forums is expected to follow the
+        [Code of Conduct](https://github.com/bokeh/bokeh/blob/master/CODE_OF_CONDUCT.md).*
