@@ -5,6 +5,8 @@
 
 Bokeh Version ``3.0.0`` () is a major milestone of Bokeh project.
 
+* Support added for favicons
+
 .. _release-3-0-0-migration:
 
 `Migration Guide`

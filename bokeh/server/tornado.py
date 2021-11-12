@@ -58,6 +58,7 @@ from .connection import ServerConnection
 from .contexts import ApplicationContext
 from .session import ServerSession
 from .urls import per_app_patterns, toplevel_patterns
+from .views.icon_handler import IconHandler
 from .views.root_handler import RootHandler
 from .views.static_handler import StaticHandler
 from .views.ws import WSHandler
@@ -116,6 +117,8 @@ class BokehTornado(TornadoApplication):
 
         prefix (str, optional) :
             A URL prefix to use for all Bokeh server paths. (default: None)
+
+        icon_paath (str, optional) :
 
         extra_websocket_origins (list[str], optional) :
             A list of hosts that can connect to the websocket.
@@ -267,6 +270,7 @@ class BokehTornado(TornadoApplication):
                  websocket_max_message_size_bytes: int = DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
                  websocket_compression_level: int | None = None,
                  websocket_compression_mem_level: int | None = None,
+                 icon_path: str = settings.icon_path(),
                  index: str | None = None,
                  auth_provider: AuthProvider = NullAuth(),
                  xsrf_cookies: bool = False,
@@ -385,7 +389,7 @@ class BokehTornado(TornadoApplication):
         self._secret_key = secret_key
         self._sign_sessions = sign_sessions
         self._generate_session_ids = generate_session_ids
-        log.debug("These host origins can connect to the websocket: %r", list(self._websocket_origins))
+        log.debug(f"These host origins can connect to the websocket: {list(self._websocket_origins)!r}")
 
         # Wrap applications in ApplicationContext
         self._applications = {}
@@ -395,7 +399,13 @@ class BokehTornado(TornadoApplication):
         extra_patterns = extra_patterns or []
         extra_patterns.extend(self.auth_provider.endpoints)
 
-        all_patterns: URLRoutes = []
+        if icon_path == "none":
+            self._icon = None
+        else:
+            with open(icon_path, 'rb') as f:
+                self._icon = f.read()
+        all_patterns: URLRoutes = [(r'/favicon.ico', IconHandler, dict(app=self))]
+
         for key, app in applications.items():
             app_patterns: URLRoutes = []
             for p in per_app_patterns:
@@ -497,6 +507,13 @@ class BokehTornado(TornadoApplication):
 
         '''
         return self._index
+
+    @property
+    def icon(self) -> str | None:
+        ''' Favicon file data, or None
+
+        '''
+        return self._icon
 
     @property
     def io_loop(self) -> IOLoop:
