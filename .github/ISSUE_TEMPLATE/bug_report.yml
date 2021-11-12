@@ -22,44 +22,39 @@ body:
         contain the necessary information may be closed immediately
 
         ## Environment information
-
-        Basic information
   - type: input
     attributes:
       label: Bokeh version
       description: >-
-        [Version of Bokeh, as provided by `bokeh info`]
+        Version of Bokeh, as provided by `bokeh info`
     validations:
       required: true
   - type: input
     attributes:
       label: Python version
       description: >-
-        [Python version, as provided by `bokeh info`]
+        Python version, as provided by `bokeh info`
     validations:
       required: true
   - type: input
     attributes:
       label: Operating System (name and version)
       description: >-
-        [E.g. "Ubuntu 20.04", "Windows 11", "MacOS X 12.0.1"]
+        E.g. "Ubuntu 20.04", "Windows 11", "MacOS X 12.0.1"
     validations:
       required: true
-  - type: markdown
-    attributes:
-      value: "If the issue you are reporting is related to a browser:"
   - type: input
     attributes:
       label: Browser name and version
+      description: >-
+        "Please supply if the issue you are reporting is related to a browser"
     validations:
       required: false
-  - type: markdown
-    attributes:
-      value: |
-        If the issue you are reporting is related to Jupyter notebook / Jupyter Lab:
   - type: input
     attributes:
       label: Jupyter notebook / Jupyter Lab version
+      description: >-
+        Please supply if the issue you are reporting is related to Jupyter notebook / Jupyter Lab
     validations:
       required: false
   - type: markdown
