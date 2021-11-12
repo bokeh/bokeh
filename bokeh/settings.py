@@ -138,7 +138,7 @@ import yaml
 from typing_extensions import Literal
 
 # Bokeh imports
-from .util.paths import bokehjsdir, serverdir
+from .util.paths import bokehjsdir
 
 if TYPE_CHECKING:
     from .core.types import PathLike
@@ -292,39 +292,6 @@ def convert_validation(value: Union[str, ValidationLevel]) -> ValidationLevel:
         return cast(ValidationLevel, lowered)
 
     raise ValueError(f"Cannot convert {value!r} to validation level, valid values are: {VALID_LEVELS!r}")
-
-def convert_icon_path(value: str) -> str:
-    '''Convert a string to a an icon path
-
-    If a validation level is passed in, it is returned as-is.
-
-    Args:
-        value (str):
-            A string value to convert to an icon path
-
-    Returns:
-        string
-
-    Raises:
-        ValueError
-
-    '''
-    lowered = value.lower()
-
-    if lowered == "none":
-        return "none"
-
-    if lowered == "default":
-        return join(serverdir(), "views", "bokeh.ico")
-
-    # undocumented
-    if lowered == "default-dev":
-        return join(serverdir(), "views", "bokeh-dev.ico")
-
-    if not value.endswith(".ico"):
-        raise ValueError(f"Cannot convert {value!r} to valid icon path")
-
-    return value
 
 class _Unset: pass
 
@@ -498,8 +465,6 @@ class PrioritizedSetting(Generic[T]):
             return "List[String]"
         if self._convert is convert_validation:
             return "Validation Level"
-        if self._convert is convert_icon_path:
-            return "Icon Path"
         raise RuntimeError("unreachable")
 
 _config_user_locations: Sequence[str] = (
@@ -606,18 +571,6 @@ class Settings:
 
     This setting is necessary to re-deploy existing versions of docs with new
     fixes or changes.
-    """)
-
-    icon_path: PrioritizedSetting[str] = PrioritizedSetting("icon_path", "BOKEH_ICON_PATH", default="default", dev_default="default-dev", convert=convert_icon_path, help="""
-    Configure the file path to a .ico file for the Bokeh server to use as a
-    favicon.
-
-    The value should be the full path to a .ico file, or one the following
-    special values:
-
-    - ``default`` to use the default project icon file
-    - ``none`` to turn off favicon support entirely
-
     """)
 
     ignore_filename: PrioritizedSetting[bool] = PrioritizedSetting("ignore_filename", "BOKEH_IGNORE_FILENAME", default=False, convert=convert_bool, help="""

@@ -51,7 +51,6 @@ _expected_settings = (
     'docs_alert',
     'docs_cdn',
     'docs_version',
-    'icon_path',
     'ignore_filename',
     'log_level',
     'minified',
@@ -100,10 +99,7 @@ class TestSettings:
 
         assert bs.settings.allowed_ws_origin.convert_type == "List[String]"
 
-        assert bs.settings.icon_path.convert_type == "Icon Path"
-
         default_typed = set(_expected_settings) - {
-            'icon_path',
             'ignore_filename',
             'minified',
             'perform_document_validation',
@@ -170,21 +166,6 @@ class TestConverters:
     def test_convert_validation_bad(self) -> None:
         with pytest.raises(ValueError):
             bs.convert_validation("junk")
-
-    @pytest.mark.parametrize("value", ["none", "NONE", "None"])
-    def test_convert_icon_path_none(self, value) -> None:
-        assert bs.convert_icon_path(value) == "none"
-
-    def test_convert_icon_path_default(self) -> None:
-        assert bs.convert_icon_path("default").endswith("bokeh.ico")
-        assert bs.convert_icon_path("default-dev").endswith("bokeh-dev.ico")
-
-    def test_convert_icon_path_good(self) -> None:
-        assert bs.convert_icon_path("/foo/bar.ico") == "/foo/bar.ico"
-
-    def test_convert_icon_path_bad(self) -> None:
-        with pytest.raises(ValueError):
-            bs.convert_icon_path("junk")
 
 class TestPrioritizedSetting:
     def test_env_var_property(self) -> None:
@@ -327,87 +308,6 @@ class TestPrioritizedSetting:
         assert s.bar() == 10
         s.bar = 20
         assert s.bar() == 20
-
-class TestDefaults:
-
-    def test_allowed_ws_origin(self):
-        assert bs.settings.allowed_ws_origin.default == []
-
-    def test_auth_module(self):
-        assert bs.settings.auth_module.default == None
-
-    def test_browser(self):
-        assert bs.settings.browser.default == None
-
-    def test_cdn_version(self):
-        assert bs.settings.cdn_version.default == None
-
-    def test_cookie_secret(self):
-        assert bs.settings.cookie_secret.default == None
-
-    def test_docs_alert(self):
-        assert bs.settings.docs_alert.default == None
-
-    def test_docs_cdn(self):
-        assert bs.settings.docs_cdn.default == None
-
-    def test_docs_version(self):
-        assert bs.settings.docs_version.default == None
-
-    def test_icon_path(self):
-        assert bs.settings.icon_path.default == "default"
-
-    def test_ignore_filename(self):
-        assert bs.settings.ignore_filename.default == False
-
-    def test_log_level(self):
-        assert bs.settings.log_level.default == "info"
-
-    def test_minified(self):
-        assert bs.settings.minified.default == True
-
-    def test_nodejs_path(self):
-        assert bs.settings.nodejs_path.default == None
-
-    def test_perform_document_validation(self):
-        assert bs.settings.perform_document_validation.default == True
-
-    def test_pretty(self):
-        assert bs.settings.pretty.default == False
-
-    def test_py_log_level(self):
-        assert bs.settings.py_log_level.default == "none"
-
-    def test_resources(self):
-        assert bs.settings.resources.default == "cdn"
-
-    def test_rootdir(self):
-        assert bs.settings.rootdir.default == None
-
-    def test_secret_key(self):
-        assert bs.settings.secret_key.default == None
-
-    def test_sign_sessions(self):
-        assert bs.settings.sign_sessions.default == False
-
-    def test_simple_ids(self):
-        assert bs.settings.simple_ids.default == True
-
-    def test_ssl_certfile(self):
-        assert bs.settings.ssl_certfile.default == None
-
-    def test_ssl_keyfile(self):
-        assert bs.settings.ssl_keyfile.default == None
-
-    def test_ssl_password(self):
-        assert bs.settings.ssl_password.default == None
-
-    def test_validation_level(self):
-        assert bs.settings.validation_level.default == "none"
-
-    def test_xsrf_cookies(self):
-        assert bs.settings.xsrf_cookies.default == False
-
 
 #-----------------------------------------------------------------------------
 # Private API
