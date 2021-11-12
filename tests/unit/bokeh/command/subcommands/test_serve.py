@@ -19,6 +19,7 @@ import pytest ; pytest
 # Standard library imports
 import argparse
 import contextlib
+import os.path
 import re
 import socket
 import subprocess
@@ -41,6 +42,46 @@ import bokeh.command.subcommands.serve as bcss  # isort:skip
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
+
+HERE = os.path.abspath(os.path.dirname(__file__))
+APPS = os.path.join(HERE, 'apps', '*.py')
+
+PORT_PAT = re.compile(r'Bokeh app running at: http://localhost:(\d+)')
+
+# http://eyalarubas.com/python-subproc-nonblock.html
+class NBSR:
+    def __init__(self, stream) -> None:
+        '''
+        stream: the stream to read from.
+                Usually a process' stdout or stderr.
+        '''
+
+        self._s = stream
+        self._q = Queue()
+
+        def _populateQueue(stream, queue):
+            '''
+            Collect lines from 'stream' and put them in 'quque'.
+            '''
+
+            while True:
+                line = stream.readline()
+                if line:
+                    queue.put(line)
+                else:
+                    break
+
+        self._t = Thread(target = _populateQueue,
+                args = (self._s, self._q))
+        self._t.daemon = True
+        self._t.start() #start collecting lines from the stream
+
+    def readline(self, timeout = None):
+        try:
+            return self._q.get(block = timeout is not None,
+                    timeout = timeout)
+        except Empty:
+            return None
 
 #-----------------------------------------------------------------------------
 # General API
@@ -176,6 +217,15 @@ def test_args() -> None:
             metavar = 'PREFIX',
             type    = str,
             help    = "URL prefix for Bokeh server URLs",
+            default = None,
+        )),
+
+        ('--icon-path', Argument(
+            metavar = "ICON_PATH",
+            type    = str,
+            help    = "Path to a .ico file to use as the favicon, or 'none' to "
+                      "disable favicon support. If unset, a default Bokeh icon will "
+                      "be used",
             default = None,
         )),
 
@@ -363,13 +413,13 @@ def test_args() -> None:
         )),
     )
 
-
 @contextlib.contextmanager
 def run_bokeh_serve(args):
     cmd = [sys.executable, "-m", "bokeh", "serve"] + args
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False)
+    nbsr = NBSR(p.stdout)
     try:
-        yield p
+        yield p, nbsr
     except Exception as e:
         p.terminate()
         p.wait()
@@ -384,6 +434,31 @@ def run_bokeh_serve(args):
     else:
         p.terminate()
         p.wait()
+
+def assert_pattern(nbsr, pat):
+    m = None
+    for i in range(20):
+        o = nbsr.readline(0.5)
+        if not o:
+            continue
+        m = pat.search(o.decode())
+        if m is not None:
+            break
+    if m is None:
+        pytest.fail("Did not find pattern in process output")
+
+def check_port(nbsr):
+    m = None
+    for i in range(20):
+        o = nbsr.readline(0.5)
+        if not o:
+            continue
+        m = PORT_PAT.search(o.decode())
+        if m is not None:
+            break
+    if m is None:
+        pytest.fail("Did not find port in process output")
+    return int(m.group(1))
 
 def check_error(args):
     cmd = [sys.executable, "-m", "bokeh", "serve"] + args
@@ -414,161 +489,73 @@ def test_port_not_available() -> None:
         sock.close()
 
 def test_no_glob_by_default_on_filename_if_wildcard_in_quotes() -> None:
-    import os.path
-
-    here = os.path.abspath(os.path.dirname(__file__))
-    path = os.path.join(here, 'apps', '*.py')
-    out = check_error([path])
+    out = check_error([APPS])
     expected = "ERROR: Path for Bokeh server application does not exist:"
     assert expected in out
     assert '*' in out
 
-
-
-
-# http://eyalarubas.com/python-subproc-nonblock.html
-class NBSR:
-    def __init__(self, stream) -> None:
-        '''
-        stream: the stream to read from.
-                Usually a process' stdout or stderr.
-        '''
-
-        self._s = stream
-        self._q = Queue()
-
-        def _populateQueue(stream, queue):
-            '''
-            Collect lines from 'stream' and put them in 'quque'.
-            '''
-
-            while True:
-                line = stream.readline()
-                if line:
-                    queue.put(line)
-                else:
-                    break
-
-        self._t = Thread(target = _populateQueue,
-                args = (self._s, self._q))
-        self._t.daemon = True
-        self._t.start() #start collecting lines from the stream
-
-    def readline(self, timeout = None):
-        try:
-            return self._q.get(block = timeout is not None,
-                    timeout = timeout)
-        except Empty:
-            return None
-
 def test_glob_flag_on_filename_if_wildcard_in_quotes() -> None:
-    import os.path
-
-    pat = re.compile(r'Bokeh app running at: http://localhost:(\d+)/line_on_off')
-    m = None
-    here = os.path.abspath(os.path.dirname(__file__))
-    path = os.path.join(here, 'apps', '*.py')
-
-    with run_bokeh_serve(["--port", "0", "--glob", path]) as p:
-        nbsr = NBSR(p.stdout)
-        m = None
-        for i in range(20):
-            o = nbsr.readline(0.5)
-            if not o:
-                continue
-            m = pat.search(o.decode())
-            if m is not None:
-                break
-        if m is None:
-            pytest.fail("no matching log line in process output")
-        port = int(m.group(1))
+    with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (p, nbsr):
+        port = check_port(nbsr)
         assert port > 0
         r = requests.get(f"http://localhost:{port}/apply_theme")
         assert r.status_code == 200
 
 def test_actual_port_printed_out() -> None:
-    pat = re.compile(r'Bokeh app running at: http://localhost:(\d+)')
-    m = None
-    with run_bokeh_serve(["--port", "0"]) as p:
-        nbsr = NBSR(p.stdout)
-        m = None
-        for i in range(20):
-            o = nbsr.readline(0.5)
-            if not o:
-                continue
-            m = pat.search(o.decode())
-            if m is not None:
-                break
-        if m is None:
-            pytest.fail("no matching log line in process output")
-        port = int(m.group(1))
+    with run_bokeh_serve(["--port", "0"]) as (p, nbsr):
+        port = check_port(nbsr)
         assert port > 0
         r = requests.get(f"http://localhost:{port}/")
         assert r.status_code == 200
 
 def test_websocket_max_message_size_printed_out() -> None:
     pat = re.compile(r'Torndado websocket_max_message_size set to 12345')
-    with run_bokeh_serve(["--websocket-max-message-size", "12345"]) as p:
-        nbsr = NBSR(p.stdout)
-        m = None
-        for i in range(20):
-            o = nbsr.readline(0.5)
-            if not o:
-                continue
-            m = pat.search(o.decode())
-            if m is not None:
-                break
-        if m is None:
-            pytest.fail("no matching log line in process output")
+    with run_bokeh_serve(["--websocket-max-message-size", "12345"]) as (p, nbsr):
+        assert_pattern(nbsr, pat)
 
-def test_xsrf_printed_option() -> None:
-    pat = re.compile(r'XSRF cookie protection enabled')
-    m = None
-    with run_bokeh_serve(["--enable-xsrf-cookies"]) as p:
-        nbsr = NBSR(p.stdout)
-        m = None
-        for i in range(20):
-            o = nbsr.readline(0.5)
-            if not o:
-                continue
-            m = pat.search(o.decode())
-            if m is not None:
-                break
-        if m is None:
-            pytest.fail("no matching log line in process output")
+class TestXSRF:
 
-def test_xsrf_printed_envar() -> None:
-    pat = re.compile(r'XSRF cookie protection enabled')
-    m = None
-    with envset(BOKEH_XSRF_COOKIES="yes"):
-        with run_bokeh_serve(["--enable-xsrf-cookies"]) as p:
-            nbsr = NBSR(p.stdout)
-            m = None
-            for i in range(20):
-                o = nbsr.readline(0.5)
-                if not o:
-                    continue
-                m = pat.search(o.decode())
-                if m is not None:
-                    break
-            if m is None:
-                pytest.fail("no matching log line in process output")
+    def test_printed_option(self) -> None:
+        pat = re.compile(r'XSRF cookie protection enabled')
+        with run_bokeh_serve(["--enable-xsrf-cookies"]) as (p, nbsr):
+            assert_pattern(nbsr, pat)
+
+    def test_printed_envar(self) -> None:
+        pat = re.compile(r'XSRF cookie protection enabled')
+        with envset(BOKEH_XSRF_COOKIES="yes"):
+            with run_bokeh_serve(["--enable-xsrf-cookies"]) as (p, nbsr):
+                assert_pattern(nbsr, pat)
 
 def test_auth_module_printed() -> None:
     pat = re.compile(r'User authentication hooks provided \(no default user\)')
-    m = None
-    with run_bokeh_serve(["--auth-module", join(split(__file__)[0], "_dummy_auth.py")]) as p:
-        nbsr = NBSR(p.stdout)
-        m = None
-        for i in range(20):
-            o = nbsr.readline(0.5)
-            if not o:
-                continue
-            m = pat.search(o.decode())
-            if m is not None:
-                break
-        if m is None:
-            pytest.fail("no matching log line in process output")
+    with run_bokeh_serve(["--auth-module", join(split(__file__)[0], "_dummy_auth.py")]) as (p, nbsr):
+        assert_pattern(nbsr, pat)
+
+class TestIcon:
+    def test_default(self) -> None:
+        with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (p, nbsr):
+            port = check_port(nbsr)
+            assert port > 0
+            r = requests.get(f"http://localhost:{port}/favicon.ico")
+            assert r.status_code == 200
+            assert r.headers["content-type"] == "image/x-icon"
+
+    def test_none_option(self) -> None:
+        with run_bokeh_serve(["--port", "0", "--icon-path", "none", "--glob", APPS]) as (p, nbsr):
+            port = check_port(nbsr)
+            assert port > 0
+            r = requests.get(f"http://localhost:{port}/favicon.ico")
+            assert r.status_code == 404
+
+    def test_none_envvar(self) -> None:
+        with envset(BOKEH_ICON_PATH="none"):
+            with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (p, nbsr):
+                port = check_port(nbsr)
+                assert port > 0
+                r = requests.get(f"http://localhost:{port}/favicon.ico")
+                assert r.status_code == 404
+
+
 
 #-----------------------------------------------------------------------------
 # Private API
