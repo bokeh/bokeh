@@ -35,6 +35,7 @@ body:
     validations:
       required: true
   - type: input
+    id: os
     attributes:
       label: Operating System
       description: >-
@@ -43,6 +44,7 @@ body:
     validations:
       required: true
   - type: input
+    id: browser
     attributes:
       label: Browser name and version
       description: >-
@@ -50,6 +52,7 @@ body:
     validations:
       required: false
   - type: input
+    id: jupyter
     attributes:
       label: Jupyter notebook / Jupyter Lab version
       description: >-
@@ -86,6 +89,7 @@ body:
       description: >
         [Complete, minimal, self-contained example code](https://stackoverflow.com/help/minimal-reproducible-example)
         that reproduces the issue.
+      render: Python
     validations:
       required: true
   - type: markdown
@@ -93,7 +97,7 @@ body:
       value: |
         ## Additional information
   - type: textarea
-    id: traceback-concole
+    id: traceback-console
     attributes:
       label: Stack traceback or browser console output
       description: >
