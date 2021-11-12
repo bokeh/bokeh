@@ -294,7 +294,7 @@ def convert_validation(value: Union[str, ValidationLevel]) -> ValidationLevel:
     raise ValueError(f"Cannot convert {value!r} to validation level, valid values are: {VALID_LEVELS!r}")
 
 def convert_icon_path(value: str) -> str:
-    '''Convert a string to a an icon path
+    '''Convert a string to an icon path
 
     Args:
         value (str):
