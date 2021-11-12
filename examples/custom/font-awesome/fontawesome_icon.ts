@@ -56,7 +56,7 @@ export class FontAwesomeIcon extends AbstractIcon {
     this.define<FontAwesomeIcon.Props>(({Boolean, String, Number, Enum, Nullable}) => ({
       icon_name: [ String, "check" ],
       size:      [ Number, 1 ],
-      flip:      [ Nullable(Enum("horizontal", "vertical")) ],
+      flip:      [ Nullable(Enum("horizontal", "vertical")), null ],
       spin:      [ Boolean, false ],
     }))
   }

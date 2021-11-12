@@ -84,7 +84,7 @@ class CDSDerivedDataModel(ColumnDataSource, DataModel):
     data = Override(default={"default_column": [4, 5, 6]})
 
 class CDSDerivedDerivedDataModel(CDSDerivedDataModel):
-    prop3 = Instance(SomeDataModel, default=SomeDataModel())
+    prop3 = Instance(SomeDataModel, default=SomeDataModel(prop0=-1))
 
     data = Override(default={"default_column": [7, 8, 9]})
 
@@ -743,6 +743,7 @@ class TestDocument:
                     dict(default=111, kind="Any", name="prop1"),
                     dict(default=[1, 2, 3], kind="Any", name="prop2"),
                 ],
+                references=[],
             ),
             dict(
                 extends=dict(module="test_document", name="SomeDataModel"),
@@ -758,6 +759,7 @@ class TestDocument:
                     dict(kind="Any", name="prop6"),
                     dict(default=None, kind="Any", name="prop7"),
                 ],
+                references=[],
             ),
             dict(
                 extends=dict(name="ColumnDataSource", module=None),
@@ -771,6 +773,7 @@ class TestDocument:
                     dict(default=111, kind="Any", name="prop1"),
                     dict(default=[1, 2, 3], kind="Any", name="prop2"),
                 ],
+                references=[],
             ),
             dict(
                 extends=dict(name="CDSDerivedDataModel", module="test_document"),
@@ -780,7 +783,18 @@ class TestDocument:
                     dict(default={"default_column": [7, 8, 9]}, name="data"),
                 ],
                 properties=[
-                    dict(default=CDSDerivedDerivedDataModel.prop3.property._default.ref, kind="Any", name="prop3"),
+                    dict(
+                        default=CDSDerivedDerivedDataModel.prop3.property._default.ref,
+                        kind="Any",
+                        name="prop3",
+                    ),
+                ],
+                references=[
+                    dict(
+                        id=CDSDerivedDerivedDataModel.prop3.property._default.ref["id"],
+                        type="test_document.SomeDataModel",
+                        attributes=dict(prop0=-1),
+                    ),
                 ],
             ),
         ]

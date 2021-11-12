@@ -1,7 +1,7 @@
 import {assert} from "./util/assert"
 import {entries} from "./util/object"
 import {Ref, Struct} from "./util/refs"
-import {isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString} from "./util/types"
+import {isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isSymbol} from "./util/types"
 
 export type SerializableType =
   | null
@@ -32,15 +32,22 @@ export type SerializableOf<T extends SerializableType> =
 
 export class SerializationError extends Error {}
 
+export type Options = {
+  include_defaults: boolean
+  include_unset: boolean
+}
+
 export class Serializer {
   private readonly _references: Map<unknown, Ref> = new Map()
   private readonly _definitions: Map<unknown, Struct> = new Map()
   private readonly _refmap: Map<Ref, Struct> = new Map()
 
   readonly include_defaults: boolean
+  readonly include_unset: boolean
 
-  constructor(options?: {include_defaults?: boolean}) {
+  constructor(options?: Partial<Options>) {
     this.include_defaults = options?.include_defaults ?? true
+    this.include_unset = options?.include_unset ?? false
   }
 
   get_ref(obj: unknown): Ref | undefined {
@@ -106,8 +113,17 @@ export class Serializer {
         result[key] = this.to_serializable(value)
       }
       return result
-    } else if (obj === null || isBoolean(obj) || isNumber(obj) || isString(obj)) {
+    } else if (obj === null || isBoolean(obj) || isString(obj)) {
       return obj
+    } else if (isNumber(obj)) {
+      if (isNaN(obj))
+        return {$type: "number", value: "nan"}
+      else if (!isFinite(obj))
+        return {$type: "number", value: `${obj < 0 ? "-" : "+"}inf`}
+      else
+        return obj
+    } else if (isSymbol(obj) && obj.description != null) {
+      return {$type: "symbol", name: obj.description}
     } else
       throw new SerializationError(`${Object.prototype.toString.call(obj)} is not serializable`)
   }

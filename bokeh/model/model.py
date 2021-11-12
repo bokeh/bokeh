@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from inspect import isclass
 from json import loads
+from math import isinf, isnan
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -613,20 +614,23 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         '''
         attrs = self.properties_with_values(include_defaults=include_defaults)
 
-        for (k, v) in attrs.items():
+        for attr, v in attrs.items():
             # we can't serialize Infinity, we send it as None and
             # the other side has to fix it up. This transformation
             # can't be in our json_encoder because the json
             # module checks for inf before it calls the custom
             # encoder.
-            if isinstance(v, float) and v == float('inf'):
-                attrs[k] = None
+            if isinstance(v, float):
+                # XXX this will happen in the serializer at some point
+                if isnan(v):
+                    attrs[attr] = {"$type": "number", "value": "nan"}
+                elif isinf(v):
+                    attrs[attr] = {"$type": "number", "value": f"{'-' if v < 0 else '+'}inf"}
 
         return attrs
 
     def _repr_html_(self) -> str:
         return html_repr(self)
-
 
     def _sphinx_height_hint(self) -> int|None:
         return None

@@ -40,7 +40,7 @@ export class CustomAction extends ActionTool {
     this.prototype.default_view = CustomActionView
 
     this.define<CustomAction.Props>(({Any, Nullable}) => ({
-      callback: [ Nullable(Any /*TODO*/) ],
+      callback: [ Nullable(Any /*TODO*/), null ],
     }))
 
     this.override<CustomAction.Props>({

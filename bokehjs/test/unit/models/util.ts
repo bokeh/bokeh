@@ -3,9 +3,12 @@ import {expect} from "assertions"
 import {compute_renderers} from "@bokehjs/models/util"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {GraphRenderer} from "@bokehjs/models/renderers/graph_renderer"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 
-const g0 = new GlyphRenderer()
-const g1 = new GlyphRenderer()
+const data_source = new ColumnDataSource()
+
+const g0 = new GlyphRenderer({data_source})
+const g1 = new GlyphRenderer({data_source})
 const g2 = new GraphRenderer()
 
 describe("compute_renderers", () => {

@@ -34,8 +34,8 @@ export abstract class Range extends Model {
     }))
   }
 
-  start: number
-  end: number
+  abstract start: number
+  abstract end: number
 
   abstract get min(): number
   abstract get max(): number

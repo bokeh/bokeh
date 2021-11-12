@@ -33,7 +33,7 @@ export class Model extends HasProps {
   }
 
   override [equals](that: this, cmp: Comparator): boolean {
-    return cmp.eq(this.id, that.id) && super[equals](that, cmp)
+    return (cmp.structural ? true : cmp.eq(this.id, that.id)) && super[equals](that, cmp)
   }
 
   constructor(attrs?: Partial<Model.Attrs>) {

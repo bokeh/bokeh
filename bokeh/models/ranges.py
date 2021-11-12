@@ -180,12 +180,12 @@ class DataRange1d(DataRange):
     as an absolute quantity. (default: ``"percent"``)
     """)
 
-    start = Either(Null, Float, Datetime, TimeDelta, help="""
+    start = Either(Float, Datetime, TimeDelta, default=float("nan"), help="""
     An explicitly supplied range start. If provided, will override
     automatically computed start value.
     """)
 
-    end = Either(Null, Float, Datetime, TimeDelta, help="""
+    end = Either(Float, Datetime, TimeDelta, default=float("nan"), help="""
     An explicitly supplied range end. If provided, will override
     automatically computed end value.
     """)
@@ -391,6 +391,7 @@ class FactorRange(Range):
     start = Readonly(Float, help="""
     The start of the range, in synthetic coordinates.
 
+    .. note::
         Synthetic coordinates are only computed in the browser, based on the
         factors and various padding properties. The value of ``start`` will only
         be available in situations where bidirectional communication is

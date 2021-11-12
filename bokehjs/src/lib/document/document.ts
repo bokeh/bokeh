@@ -4,16 +4,14 @@ import {logger} from "../core/logging"
 import {BokehEvent, DocumentReady, ModelEvent, LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
 import {Serializer} from "core/serializer"
-import {ID, Attrs, Data, PlainObject} from "core/types"
+import {Deserializer, RefMap} from "core/deserializer"
+import {ID, Data} from "core/types"
 import {Signal0} from "core/signaling"
-import {Struct, is_ref} from "core/util/refs"
-import {Buffers, is_NDArray_ref, decode_NDArray} from "core/util/serialization"
-import {ndarray} from "core/util/ndarray"
+import {Struct} from "core/util/refs"
+import {Buffers} from "core/util/serialization"
 import {difference, intersection, copy, includes} from "core/util/array"
-import {values, entries} from "core/util/object"
 import * as sets from "core/util/set"
 import {is_equal} from "core/util/eq"
-import {isArray, isPlainObject} from "core/util/types"
 import {LayoutDOM} from "models/layouts/layout_dom"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import {ClientSession} from "client/session"
@@ -60,8 +58,6 @@ export type Patch = {
   references: Struct[]
   events: DocumentChanged[]
 }
-
-export type RefMap = Map<ID, HasProps>
 
 export const documents: Document[] = []
 
@@ -268,7 +264,7 @@ export class Document {
   }
 
   set_title(title: string, setter_id?: string): void {
-    if (title !== this._title) {
+    if (title != this._title) {
       this._title = title
       this._trigger_on_change(new TitleChangedEvent(this, title, setter_id))
     }
@@ -343,133 +339,6 @@ export class Document {
 
   _notify_change(model: HasProps, attr: string, old_value: unknown, new_value: unknown, options?: {setter_id?: string, hint?: DocumentChangedEvent}): void {
     this._trigger_on_change(new ModelChangedEvent(this, model, attr, old_value, new_value, options?.setter_id, options?.hint))
-  }
-
-  static _instantiate_object(obj_id: string, obj_type: string, obj_attrs: Attrs, resolver: ModelResolver): HasProps {
-    const full_attrs = {...obj_attrs, id: obj_id, __deferred__: true}
-    const model = resolver.get(obj_type)
-    return new (model as any)(full_attrs)
-  }
-
-  // given a JSON representation of all models in a graph, return a
-  // dict of new model objects
-  static _instantiate_references_json(references_json: Struct[], existing_models: RefMap, resolver: ModelResolver): RefMap {
-    // Create all instances, but without setting their props
-    const references = new Map()
-    for (const obj of references_json) {
-      const {id, type, attributes} = obj
-
-      let instance = existing_models.get(id)
-      if (instance == null) {
-        instance = Document._instantiate_object(id, type, attributes, resolver)
-      }
-      references.set(instance.id, instance)
-    }
-    return references
-  }
-
-  // if v looks like a ref, or a collection, resolve it, otherwise return it unchanged
-  // recurse into collections but not into HasProps
-  static _resolve_refs(value: unknown, old_references: RefMap, new_references: RefMap, buffers: Buffers): unknown {
-    function resolve_ref(v: unknown): unknown {
-      if (is_ref(v)) {
-        const obj = old_references.get(v.id) ?? new_references.get(v.id)
-        if (obj != null)
-          return obj
-        else
-          throw new Error(`reference ${JSON.stringify(v)} isn't known (not in Document?)`)
-      } else if (is_NDArray_ref(v)) {
-        const {buffer, dtype, shape} = decode_NDArray(v, buffers)
-        return ndarray(buffer, {dtype, shape})
-      } else if (isArray(v))
-        return resolve_array(v)
-      else if (isPlainObject(v))
-        return resolve_dict(v)
-      else
-        return v
-    }
-
-    function resolve_array(array: unknown[]) {
-      const results: unknown[] = []
-      for (const v of array) {
-        results.push(resolve_ref(v))
-      }
-      return results
-    }
-
-    function resolve_dict(dict: PlainObject) {
-      const resolved: PlainObject = {}
-      for (const [k, v] of entries(dict)) {
-        resolved[k] = resolve_ref(v)
-      }
-      return resolved
-    }
-
-    return resolve_ref(value)
-  }
-
-  // given a JSON representation of all models in a graph and new
-  // model instances, set the properties on the models from the
-  // JSON
-  static _initialize_references_json(references_json: Struct[], old_references: RefMap, new_references: RefMap, buffers: Buffers): void {
-    const to_update = new Map<ID, {instance: HasProps, is_new: boolean}>()
-
-    for (const {id, attributes} of references_json) {
-      const is_new = !old_references.has(id)
-      const instance = is_new ? new_references.get(id)! : old_references.get(id)!
-
-      // replace references with actual instances in obj_attrs
-      const resolved_attrs = Document._resolve_refs(attributes, old_references, new_references, buffers) as Attrs
-      instance.setv(resolved_attrs, {silent: true})
-      to_update.set(id, {instance, is_new})
-    }
-
-    const ordered_instances: HasProps[] = []
-    const handled = new Set<ID>()
-
-    function finalize_all_by_dfs(v: unknown): void {
-      if (v instanceof HasProps) {
-        // note that we ignore instances that aren't updated (not in to_update)
-        if (to_update.has(v.id) && !handled.has(v.id)) {
-          handled.add(v.id)
-
-          const {instance, is_new} = to_update.get(v.id)!
-          const {attributes} = instance
-
-          for (const value of values(attributes)) {
-            finalize_all_by_dfs(value)
-          }
-
-          if (is_new) {
-            // Finalizing here just to avoid iterating
-            // over `ordered_instances` twice.
-            instance.finalize()
-            // Preserving an ordered collection of instances
-            // to avoid having to go through DFS again.
-            ordered_instances.push(instance)
-          }
-        }
-      } else if (isArray(v)) {
-        for (const e of v)
-          finalize_all_by_dfs(e)
-      } else if (isPlainObject(v)) {
-        for (const value of values(v))
-          finalize_all_by_dfs(value)
-      }
-    }
-
-    for (const item of to_update.values()) {
-      finalize_all_by_dfs(item.instance)
-    }
-
-    // `connect_signals` has to be executed last because it
-    // may rely on properties of dependencies that are initialized
-    // only in `finalize`. It's a problem that appears when
-    // there are circular references, e.g. as in
-    // CDS -> CustomJS (on data change) -> GlyphRenderer (in args) -> CDS.
-    for (const instance of ordered_instances) {
-      instance.connect_signals()
-    }
   }
 
   //////
@@ -611,33 +480,42 @@ export class Document {
     return Document.from_json(json)
   }
 
-  static from_json(json: DocJson): Document {
-    logger.debug("Creating Document from JSON")
-
+  private static _handle_version(json: DocJson): void {
     function pyify(version: string) {
       return version.replace(/-(dev|rc)\./, "$1")
     }
 
-    const py_version = json.version! // XXX!
-    const is_dev = py_version.indexOf("+") !== -1 || py_version.indexOf("-") !== -1
-    const versions_string = `Library versions: JS (${js_version}) / Python (${py_version})`
-    if (!is_dev && pyify(js_version) != py_version) {
-      logger.warn("JS/Python version mismatch")
-      logger.warn(versions_string)
+    if (json.version != null) {
+      const py_version = json.version
+      const is_dev = py_version.indexOf("+") !== -1 || py_version.indexOf("-") !== -1
+      const versions_string = `Library versions: JS (${js_version}) / Python (${py_version})`
+      if (!is_dev && pyify(js_version) != py_version) {
+        logger.warn("JS/Python version mismatch")
+        logger.warn(versions_string)
+      } else
+        logger.debug(versions_string)
     } else
-      logger.debug(versions_string)
+      logger.warn("'version' field is missing")
+  }
+
+  static from_json(json: DocJson): Document {
+    logger.debug("Creating Document from JSON")
+
+    const doc_repr = Deserializer.decode(json) as DocJson
+
+    Document._handle_version(doc_repr)
 
     const resolver = new ModelResolver()
-    if (json.defs != null) {
-      resolve_defs(json.defs, resolver)
+    if (doc_repr.defs != null) {
+      resolve_defs(doc_repr.defs, resolver)
     }
 
-    const roots_json = json.roots
+    const roots_json = doc_repr.roots
     const root_ids = roots_json.root_ids
     const references_json = roots_json.references
 
-    const references = Document._instantiate_references_json(references_json, new Map(), resolver)
-    Document._initialize_references_json(references_json, new Map(), references, new Map())
+    const references = Deserializer._instantiate_references_json(references_json, new Map(), resolver)
+    Deserializer._initialize_references_json(references_json, new Map(), references, new Map())
 
     const doc = new Document({resolver})
     doc._push_all_models_freeze()
@@ -648,7 +526,10 @@ export class Document {
       }
     }
     doc._pop_all_models_freeze()
-    doc.set_title(json.title!) // XXX!
+
+    if (doc_repr.title != null)
+      doc.set_title(doc_repr.title)
+
     return doc
   }
 
@@ -682,7 +563,7 @@ export class Document {
   apply_json_patch(patch: Patch, buffers: Buffers | ReturnType<Buffers["entries"]> = new Map(), setter_id?: string): void {
     const references_json = patch.references
     const events_json = patch.events
-    const references = Document._instantiate_references_json(references_json, this._all_models, this._resolver)
+    const references = Deserializer._instantiate_references_json(references_json, this._all_models, this._resolver)
 
     if (!(buffers instanceof Map)) {
       buffers = new Map(buffers)
@@ -715,7 +596,7 @@ export class Document {
         new_references.set(id, value)
     }
 
-    Document._initialize_references_json(references_json, old_references, new_references, buffers)
+    Deserializer._initialize_references_json(references_json, old_references, new_references, buffers)
 
     for (const event_json of events_json) {
       switch (event_json.kind) {
@@ -730,7 +611,7 @@ export class Document {
               throw new Error("expected exactly one buffer")
             }
           } else {
-            data = Document._resolve_refs(msg_data, old_references, new_references, buffers)
+            data = Deserializer._resolve_refs(msg_data, old_references, new_references, buffers)
           }
 
           this._trigger_on_message(msg_type, data)
@@ -743,7 +624,7 @@ export class Document {
             throw new Error(`Cannot apply patch to ${patched_id} which is not in the document`)
           }
           const attr = event_json.attr
-          const value = Document._resolve_refs(event_json.new, old_references, new_references, buffers)
+          const value = Deserializer._resolve_refs(event_json.new, old_references, new_references, buffers)
           patched_obj.setv({[attr]: value}, {setter_id})
           break
         }
@@ -753,7 +634,7 @@ export class Document {
           if (column_source == null) {
             throw new Error(`Cannot stream to ${column_source_id} which is not in the document`)
           }
-          const data = Document._resolve_refs(event_json.new, new Map(), new Map(), buffers) as Data
+          const data = Deserializer._resolve_refs(event_json.new, new Map(), new Map(), buffers) as Data
           if (event_json.cols != null) {
             for (const k in column_source.data) {
               if (!(k in data)) {

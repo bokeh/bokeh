@@ -9,7 +9,7 @@ export namespace Minimum {
 
   export type Props = ScalarExpression.Props & {
     field: p.Property<string>
-    initial: p.Property<number | null>
+    initial: p.Property<number>
   }
 }
 
@@ -23,14 +23,14 @@ export class Minimum extends ScalarExpression<number> {
   }
 
   static {
-    this.define<Minimum.Props>(({Number, String, Nullable}) => ({
+    this.define<Minimum.Props>(({Number, String}) => ({
       field:   [ String ],
-      initial: [ Nullable(Number), null ], // TODO: Infinity
+      initial: [ Number, Infinity ],
     }))
   }
 
   protected _compute(source: ColumnarDataSource): number {
     const column = obj(source.data).get(this.field) ?? []
-    return Math.min(this.initial ?? Infinity, min(column))
+    return Math.min(this.initial, min(column))
   }
 }

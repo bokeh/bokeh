@@ -40,18 +40,14 @@ export namespace Kinds {
       super()
     }
 
-    valid(_value: unknown): _value is ObjType {
-      // XXX: disable validation for now, because object graph initialization depends on this.
-      // return value instanceof this.obj_type
-      return true
+    valid(value: unknown): value is ObjType {
+      return value instanceof this.obj_type
     }
   }
 
   export class AnyRef<ObjType extends object> extends Kind<ObjType> {
-    valid(_value: unknown): _value is ObjType {
-      // XXX: disable validation for now, because object graph initialization depends on this.
-      // return tp.isObject(value)
-      return true
+    valid(value: unknown): value is ObjType {
+      return tp.isObject(value)
     }
   }
 

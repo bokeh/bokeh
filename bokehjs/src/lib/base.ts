@@ -65,9 +65,9 @@ export class ModelResolver {
 
   get(name: string): typeof HasProps
   get<M extends typeof HasProps, T>(name: string, or_else: T): M | T
-  get<T>(name: string, or_else: T): (typeof HasProps) | T
+  get<T>(name: string, or_else: T): typeof HasProps | T
 
-  get<T>(name: string, or_else?: T): (typeof HasProps) | T {
+  get<T>(name: string, or_else?: T): typeof HasProps | T {
     const model = Models.get(name) ?? this._known_models.get(name)
     if (model != null)
       return model

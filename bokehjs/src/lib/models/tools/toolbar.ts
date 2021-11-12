@@ -63,9 +63,9 @@ export class Toolbar extends ToolbarBase {
   static {
     this.prototype.default_view = ToolbarBaseView
 
-    this.define<Toolbar.Props>(({Or, Ref, Auto, Null}) => ({
+    this.define<Toolbar.Props>(({Array, Or, Ref, Auto, Null}) => ({
       active_drag:    [ Or(Ref(Drag), Auto, Null), "auto" ],
-      active_inspect: [ Or(Ref(Inspection), Auto, Null), "auto" ],
+      active_inspect: [ Or(Ref(Inspection), Array(Ref(Inspection)), Auto, Null), "auto" ],
       active_scroll:  [ Or(Ref(Scroll), Auto, Null), "auto" ],
       active_tap:     [ Or(Ref(Tap), Auto, Null), "auto" ],
       active_multi:   [ Or(Ref(GestureTool), Auto, Null), "auto" ],

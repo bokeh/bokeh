@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {Serializer} from "@bokehjs/core/serializer"
+import {Serializer, SerializationError} from "@bokehjs/core/serializer"
 import {HasProps} from "@bokehjs/core/has_props"
 import * as p from "@bokehjs/core/properties"
 import {wildcard} from "@bokehjs/core/util/eq"
@@ -59,9 +59,9 @@ describe("core/serializer module", () => {
       expect(to_serializable(0)).to.be.equal({repr: 0, json: "0"})
       expect(to_serializable(1)).to.be.equal({repr: 1, json: "1"})
       expect(to_serializable(-1)).to.be.equal({repr: -1, json: "-1"})
-      expect(to_serializable(NaN)).to.be.equal({repr: NaN, json: "null"})               // XXX
-      expect(to_serializable(Infinity)).to.be.equal({repr: Infinity, json: "null"})     // XXX
-      expect(to_serializable(-Infinity)).to.be.equal({repr: -Infinity, json: "null"})   // XXX
+      expect(to_serializable(NaN)).to.be.equal({repr: {$type: "number", value: "nan"}, json: '{"$type":"number","value":"nan"}'})
+      expect(to_serializable(Infinity)).to.be.equal({repr: {$type: "number", value: "+inf"}, json: '{"$type":"number","value":"+inf"}'})
+      expect(to_serializable(-Infinity)).to.be.equal({repr: {$type: "number", value: "-inf"}, json: '{"$type":"number","value":"-inf"}'})
       expect(to_serializable(Number.MAX_SAFE_INTEGER)).to.be.equal({repr: Number.MAX_SAFE_INTEGER, json: `${Number.MAX_SAFE_INTEGER}`})
       expect(to_serializable(Number.MIN_SAFE_INTEGER)).to.be.equal({repr: Number.MIN_SAFE_INTEGER, json: `${Number.MIN_SAFE_INTEGER}`})
       expect(to_serializable(Number.MAX_VALUE)).to.be.equal({repr: Number.MAX_VALUE, json: `${Number.MAX_VALUE}`})
@@ -72,6 +72,11 @@ describe("core/serializer module", () => {
       expect(to_serializable("")).to.be.equal({repr: "", json: '""'})
       expect(to_serializable("a")).to.be.equal({repr: "a", json: '"a"'})
       expect(to_serializable("a'b'c")).to.be.equal({repr: "a'b'c", json: '"a\'b\'c"'})
+    })
+
+    it("that supports symbols", () => {
+      expect(to_serializable(Symbol("foo"))).to.be.equal({repr: {$type: "symbol", name: "foo"}, json: '{"$type":"symbol","name":"foo"}'})
+      expect(() => to_serializable(Symbol())).to.throw(SerializationError)
     })
 
     it("that supports arrays", () => {
