@@ -73,7 +73,8 @@ def test_run(capsys: Capture) -> None:
     assert lines[4].startswith("BokehJS static")
     assert lines[5].startswith("node.js version")
     assert lines[6].startswith("npm version")
-    assert lines[7] == ""
+    assert lines[7].startswith("Operating system")
+    assert lines[8] == ""
     assert err == ""
 
 def test_run_static(capsys: Capture) -> None:
