@@ -118,7 +118,7 @@ class BokehTornado(TornadoApplication):
         prefix (str, optional) :
             A URL prefix to use for all Bokeh server paths. (default: None)
 
-        icon_paath (str, optional) :
+        icon_path (str, optional) :
 
         extra_websocket_origins (list[str], optional) :
             A list of hosts that can connect to the websocket.
