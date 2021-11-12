@@ -32,15 +32,15 @@ body:
       description: >-
         Run `bokeh info` and paste the output here. See the [Bokeh documentation](https://docs.bokeh.org/en/latest/docs/reference/command/subcommands/info.html)
         for more information.
-    validations:
-      required: true
-  - type: input
-    id: os
-    attributes:
-      label: Operating System
-      description: >-
-        Please supply name and version, e.g. "Ubuntu 20.04", "Windows 11",
-        "MacOS X 12.0.1".
+      placeholder: |
+        Python version      :  3.9.7 | packaged by conda-forge | (default, Sep 29 2021, 19:20:46)
+        IPython version     :  7.20.0
+        Tornado version     :  6.1
+        Bokeh version       :  3.0.0
+        BokehJS static path :  /opt/anaconda/envs/test/lib/python3.9/site-packages/bokeh/server/static
+        node.js version     :  v16.12.0
+        npm version         :  7.24.2
+        Operating system    :  Linux-5.11.0-40-generic-x86_64-with-glibc2.31
     validations:
       required: true
   - type: input
