@@ -5,14 +5,12 @@ labels: TRIAGE
 body:
   - type: markdown
     attributes:
-      value: |
-        # Bug report
-
-        Thank you for reporting a bug and helping us improve Bokeh!
+      value: "# Bug report"
   - type: markdown
     attributes:
       value: >
-        See [Creating issues](https://docs.bokeh.org/en/latest/docs/dev_guide/creating_issues.html)
+        Thank you for reporting a bug and helping us improve Bokeh! See
+        [Creating issues](https://docs.bokeh.org/en/latest/docs/dev_guide/creating_issues.html)
         in the [Bokeh contributor guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html)
         for more information on how to file an issue.
   - type: markdown
@@ -34,14 +32,14 @@ body:
     attributes:
       label: Bokeh version
       description: >-
-        Version of Bokeh, as provided by `bokeh info`
+        Version of Bokeh, as provided by `bokeh info`.
     validations:
       required: true
   - type: input
     attributes:
       label: Python version
       description: >-
-        Python version, as provided by `bokeh info`
+        Python version, as provided by `bokeh info`.
     validations:
       required: true
   - type: input
@@ -49,14 +47,14 @@ body:
       label: Operating System
       description: >-
         Please supply name and version, e.g. "Ubuntu 20.04", "Windows 11",
-        "MacOS X 12.0.1"
+        "MacOS X 12.0.1".
     validations:
       required: true
   - type: input
     attributes:
       label: Browser name and version
       description: >-
-        Please supply if the issue you are reporting is related to a browser
+        Please supply if the issue you are reporting is related to a browser.
     validations:
       required: false
   - type: input
@@ -64,7 +62,7 @@ body:
       label: Jupyter notebook / Jupyter Lab version
       description: >-
         Please supply if the issue you are reporting is related to Jupyter
-        notebook or Jupyter Lab
+        notebook or Jupyter Lab.
     validations:
       required: false
   - type: markdown
@@ -95,7 +93,7 @@ body:
       label: Example code
       description: >
         [Complete, minimal, self-contained example code](https://stackoverflow.com/help/minimal-reproducible-example)
-        that reproduces the issue
+        that reproduces the issue.
     validations:
       required: true
   - type: markdown
@@ -118,8 +116,8 @@ body:
       label: Screenshots
       description: >-
         If possible, add additional information that might help understand what
-        your bug report is about. This can be screenshots or [screencasts]
-        (https://github.blog/2021-05-13-video-uploads-available-github/) that
-        demonstrate the behavior you are filing an issues about, for example.
+        your bug report is about. This can be screenshots or [screencasts](https://github.blog/2021-05-13-video-uploads-available-github/)
+        that demonstrate the behavior you are filing an issues about, for
+        example.
     validations:
       required: false
