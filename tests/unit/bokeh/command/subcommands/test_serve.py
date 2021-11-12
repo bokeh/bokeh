@@ -542,6 +542,25 @@ class TestIcon:
             assert r.status_code == 200
             assert r.headers["content-type"] == "image/x-icon"
 
+    def test_explicit_option(self) -> None:
+        with run_bokeh_serve(["--port", "0", "--icon-path", join(HERE, "favicon-dev.ico"), "--glob", APPS]) as (p, nbsr):
+            port = check_port(nbsr)
+            assert port > 0
+            r = requests.get(f"http://localhost:{port}/favicon.ico")
+            assert r.status_code == 200
+            assert r.headers["content-type"] == "image/x-icon"
+            assert r.content == open(join(HERE, "favicon-dev.ico"), "rb").read()
+
+    def test_explicit_envvar(self) -> None:
+        with envset(BOKEH_ICON_PATH=join(HERE, "favicon-dev.ico")):
+            with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (p, nbsr):
+                port = check_port(nbsr)
+                assert port > 0
+                r = requests.get(f"http://localhost:{port}/favicon.ico")
+                assert r.status_code == 200
+                assert r.headers["content-type"] == "image/x-icon"
+                assert r.content == open( join(HERE, "favicon-dev.ico"), "rb").read()
+
     def test_none_option(self) -> None:
         with run_bokeh_serve(["--port", "0", "--icon-path", "none", "--glob", APPS]) as (p, nbsr):
             port = check_port(nbsr)
