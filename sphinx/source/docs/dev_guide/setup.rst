@@ -444,13 +444,14 @@ You should see output similar to:
 
 .. code-block:: sh
 
-    Python version      :  3.9.6 | packaged by conda-forge | (default, Jul 11 2021, 03:39:48)
-    IPython version     :  7.25.0
+    Python version      :  3.9.7 | packaged by conda-forge | (default, Sep 29 2021, 19:20:46)
+    IPython version     :  7.20.0
     Tornado version     :  6.1
-    Bokeh version       :  2.4.0dev1+42.g9c3ee2f7e.dirty
-    BokehJS static path :  /home/user/bokeh/bokeh/server/static
-    node.js version     :  v15.14.0
-    npm version         :  7.19.1
+    Bokeh version       :  3.0.0dev1+20.g6c394d579
+    BokehJS static path :  /opt/anaconda/envs/test/lib/python3.9/site-packages/bokeh/server/static
+    node.js version     :  v16.12.0
+    npm version         :  7.24.2
+    Operating system    :  Linux-5.11.0-40-generic-x86_64-with-glibc2.31
 
 Run examples
 ~~~~~~~~~~~~

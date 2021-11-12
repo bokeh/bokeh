@@ -17,13 +17,14 @@ This will print general information to standard output, such as Python and Bokeh
 
 .. code-block:: none
 
-    Python version      :  3.9.1 (default, Dec 11 2020, 06:28:49)
+    Python version      :  3.9.7 | packaged by conda-forge | (default, Sep 29 2021, 19:20:46)
     IPython version     :  7.20.0
     Tornado version     :  6.1
-    Bokeh version       :  2.3.0
+    Bokeh version       :  3.0.0
     BokehJS static path :  /opt/anaconda/envs/test/lib/python3.9/site-packages/bokeh/server/static
-    node.js version     :  v15.10.0
-    npm version         :  7.5.3
+    node.js version     :  v16.12.0
+    npm version         :  7.24.2
+    Operating system    :  Linux-5.11.0-40-generic-x86_64-with-glibc2.31
 
 Sometimes it can be useful to get just paths to the BokehJS static files in order
 to configure other servers or processes. To do this, use the ``--static`` option
@@ -53,6 +54,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import platform
 import sys
 from argparse import Namespace
 
@@ -127,6 +129,7 @@ class Info(Subcommand):
             print(f"BokehJS static path :  {settings.bokehjsdir()}")
             print(f"node.js version     :  {if_installed(nodejs_version())}")
             print(f"npm version         :  {if_installed(npmjs_version())}")
+            print(f"Operating system    :  {platform.platform()}")
 
 #-----------------------------------------------------------------------------
 # Dev API
