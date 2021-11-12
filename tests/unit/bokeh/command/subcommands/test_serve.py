@@ -220,12 +220,12 @@ def test_args() -> None:
             default = None,
         )),
 
-        ('--icon-path', Argument(
-            metavar = "ICON_PATH",
+        ('--ico-path', Argument(
+            metavar = "ICO_PATH",
             type    = str,
-            help    = "Path to a .ico file to use as the favicon, or 'none' to "
-                      "disable favicon support. If unset, a default Bokeh icon will "
-                      "be used",
+            help    = "Path to a .ico file to use as the favicon.ico, or 'none' to "
+                      "disable favicon.ico support. If unset, a default Bokeh .ico "
+                      "file will be used",
             default = None,
         )),
 
@@ -533,7 +533,7 @@ def test_auth_module_printed() -> None:
     with run_bokeh_serve(["--auth-module", join(split(__file__)[0], "_dummy_auth.py")]) as (p, nbsr):
         assert_pattern(nbsr, pat)
 
-class TestIcon:
+class TestIco:
     def test_default(self) -> None:
         with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (p, nbsr):
             port = check_port(nbsr)
@@ -543,7 +543,7 @@ class TestIcon:
             assert r.headers["content-type"] == "image/x-icon"
 
     def test_explicit_option(self) -> None:
-        with run_bokeh_serve(["--port", "0", "--icon-path", join(HERE, "favicon-dev.ico"), "--glob", APPS]) as (p, nbsr):
+        with run_bokeh_serve(["--port", "0", "--ico-path", join(HERE, "favicon-dev.ico"), "--glob", APPS]) as (p, nbsr):
             port = check_port(nbsr)
             assert port > 0
             r = requests.get(f"http://localhost:{port}/favicon.ico")
@@ -552,7 +552,7 @@ class TestIcon:
             assert r.content == open(join(HERE, "favicon-dev.ico"), "rb").read()
 
     def test_explicit_envvar(self) -> None:
-        with envset(BOKEH_ICON_PATH=join(HERE, "favicon-dev.ico")):
+        with envset(BOKEH_ICO_PATH=join(HERE, "favicon-dev.ico")):
             with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (p, nbsr):
                 port = check_port(nbsr)
                 assert port > 0
@@ -562,14 +562,14 @@ class TestIcon:
                 assert r.content == open( join(HERE, "favicon-dev.ico"), "rb").read()
 
     def test_none_option(self) -> None:
-        with run_bokeh_serve(["--port", "0", "--icon-path", "none", "--glob", APPS]) as (p, nbsr):
+        with run_bokeh_serve(["--port", "0", "--ico-path", "none", "--glob", APPS]) as (p, nbsr):
             port = check_port(nbsr)
             assert port > 0
             r = requests.get(f"http://localhost:{port}/favicon.ico")
             assert r.status_code == 404
 
     def test_none_envvar(self) -> None:
-        with envset(BOKEH_ICON_PATH="none"):
+        with envset(BOKEH_ICO_PATH="none"):
             with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (p, nbsr):
                 port = check_port(nbsr)
                 assert port > 0

@@ -28,7 +28,7 @@ from tornado.web import HTTPError, RequestHandler
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'IconHandler',
+    'IcoHandler',
 )
 
 
@@ -40,7 +40,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class IconHandler(RequestHandler):
+class IcoHandler(RequestHandler):
     ''' Implements a custom Tornado request handler for favicon.ico
     files.
 

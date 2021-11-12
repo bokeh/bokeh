@@ -293,12 +293,12 @@ def convert_validation(value: Union[str, ValidationLevel]) -> ValidationLevel:
 
     raise ValueError(f"Cannot convert {value!r} to validation level, valid values are: {VALID_LEVELS!r}")
 
-def convert_icon_path(value: str) -> str:
-    '''Convert a string to an icon path
+def convert_ico_path(value: str) -> str:
+    '''Convert a string to an .ico path
 
     Args:
         value (str):
-            A string value to convert to an icon path
+            A string value to convert to a .ico path
 
     Returns:
         string
@@ -320,7 +320,7 @@ def convert_icon_path(value: str) -> str:
         return join(serverdir(), "views", "bokeh-dev.ico")
 
     if not value.endswith(".ico"):
-        raise ValueError(f"Cannot convert {value!r} to valid icon path")
+        raise ValueError(f"Cannot convert {value!r} to valid .ico path")
 
     return value
 
@@ -496,8 +496,8 @@ class PrioritizedSetting(Generic[T]):
             return "List[String]"
         if self._convert is convert_validation:
             return "Validation Level"
-        if self._convert is convert_icon_path:
-            return "Icon Path"
+        if self._convert is convert_ico_path:
+            return "Ico Path"
         raise RuntimeError("unreachable")
 
 _config_user_locations: Sequence[str] = (
@@ -606,15 +606,15 @@ class Settings:
     fixes or changes.
     """)
 
-    icon_path: PrioritizedSetting[str] = PrioritizedSetting("icon_path", "BOKEH_ICON_PATH", default="default", dev_default="default-dev", convert=convert_icon_path, help="""
+    ico_path: PrioritizedSetting[str] = PrioritizedSetting("ico_path", "BOKEH_ICO_PATH", default="default", dev_default="default-dev", convert=convert_ico_path, help="""
     Configure the file path to a .ico file for the Bokeh server to use as a
-    favicon.
+    favicon.ico file.
 
     The value should be the full path to a .ico file, or one the following
     special values:
 
-    - ``default`` to use the default project icon file
-    - ``none`` to turn off favicon support entirely
+    - ``default`` to use the default project .ico file
+    - ``none`` to turn off favicon.ico support entirely
 
     """)
 

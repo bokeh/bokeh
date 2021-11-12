@@ -51,7 +51,7 @@ _expected_settings = (
     'docs_alert',
     'docs_cdn',
     'docs_version',
-    'icon_path',
+    'ico_path',
     'ignore_filename',
     'log_level',
     'minified',
@@ -100,10 +100,10 @@ class TestSettings:
 
         assert bs.settings.allowed_ws_origin.convert_type == "List[String]"
 
-        assert bs.settings.icon_path.convert_type == "Icon Path"
+        assert bs.settings.ico_path.convert_type == "Ico Path"
 
         default_typed = set(_expected_settings) - {
-            'icon_path',
+            'ico_path',
             'ignore_filename',
             'minified',
             'perform_document_validation',
@@ -172,19 +172,19 @@ class TestConverters:
             bs.convert_validation("junk")
 
     @pytest.mark.parametrize("value", ["none", "NONE", "None"])
-    def test_convert_icon_path_none(self, value) -> None:
-        assert bs.convert_icon_path(value) == "none"
+    def test_convert_ico_path_none(self, value) -> None:
+        assert bs.convert_ico_path(value) == "none"
 
-    def test_convert_icon_path_default(self) -> None:
-        assert bs.convert_icon_path("default").endswith("bokeh.ico")
-        assert bs.convert_icon_path("default-dev").endswith("bokeh-dev.ico")
+    def test_convert_ico_path_default(self) -> None:
+        assert bs.convert_ico_path("default").endswith("bokeh.ico")
+        assert bs.convert_ico_path("default-dev").endswith("bokeh-dev.ico")
 
-    def test_convert_icon_path_good(self) -> None:
-        assert bs.convert_icon_path("/foo/bar.ico") == "/foo/bar.ico"
+    def test_convert_ico_path_good(self) -> None:
+        assert bs.convert_ico_path("/foo/bar.ico") == "/foo/bar.ico"
 
-    def test_convert_icon_path_bad(self) -> None:
+    def test_convert_ico_path_bad(self) -> None:
         with pytest.raises(ValueError):
-            bs.convert_icon_path("junk")
+            bs.convert_ico_path("junk")
 
 class TestPrioritizedSetting:
     def test_env_var_property(self) -> None:
@@ -354,8 +354,8 @@ class TestDefaults:
     def test_docs_version(self):
         assert bs.settings.docs_version.default == None
 
-    def test_icon_path(self):
-        assert bs.settings.icon_path.default == "default"
+    def test_ico_path(self):
+        assert bs.settings.ico_path.default == "default"
 
     def test_ignore_filename(self):
         assert bs.settings.ignore_filename.default == False

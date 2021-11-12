@@ -58,7 +58,7 @@ from .connection import ServerConnection
 from .contexts import ApplicationContext
 from .session import ServerSession
 from .urls import per_app_patterns, toplevel_patterns
-from .views.icon_handler import IconHandler
+from .views.ico_handler import IcoHandler
 from .views.root_handler import RootHandler
 from .views.static_handler import StaticHandler
 from .views.ws import WSHandler
@@ -118,7 +118,8 @@ class BokehTornado(TornadoApplication):
         prefix (str, optional) :
             A URL prefix to use for all Bokeh server paths. (default: None)
 
-        icon_path (str, optional) :
+        ico_path (str, optional) :
+            A path to a .ico file to return for ``/favicon.ico``.
 
         extra_websocket_origins (list[str], optional) :
             A list of hosts that can connect to the websocket.
@@ -270,7 +271,7 @@ class BokehTornado(TornadoApplication):
                  websocket_max_message_size_bytes: int = DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
                  websocket_compression_level: int | None = None,
                  websocket_compression_mem_level: int | None = None,
-                 icon_path: str = settings.icon_path(),
+                 ico_path: str = settings.ico_path(),
                  index: str | None = None,
                  auth_provider: AuthProvider = NullAuth(),
                  xsrf_cookies: bool = False,
@@ -399,12 +400,12 @@ class BokehTornado(TornadoApplication):
         extra_patterns = extra_patterns or []
         extra_patterns.extend(self.auth_provider.endpoints)
 
-        if icon_path == "none":
+        if ico_path == "none":
             self._icon = None
         else:
-            with open(icon_path, 'rb') as f:
+            with open(ico_path, 'rb') as f:
                 self._icon = f.read()
-        all_patterns: URLRoutes = [(r'/favicon.ico', IconHandler, dict(app=self))]
+        all_patterns: URLRoutes = [(r'/favicon.ico', IcoHandler, dict(app=self))]
 
         for key, app in applications.items():
             app_patterns: URLRoutes = []
@@ -510,7 +511,7 @@ class BokehTornado(TornadoApplication):
 
     @property
     def icon(self) -> str | None:
-        ''' Favicon file data, or None
+        ''' Favicon.ico file data, or None
 
         '''
         return self._icon

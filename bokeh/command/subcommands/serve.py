@@ -99,16 +99,16 @@ with globs may not be expanded by the shell. In situations like this, the
 
     subprocess.call(["bokeh", "serve", "--glob", "*.py"])
 
-An icon file may be configured with the ``--icon-path`` option, and the Bokeh
-server will return the contents of this file as ``/favicon.ico``:
+A .ico file may be configured with the ``--ico-path`` option, and the Bokeh
+server will return the contents of this file for ``/favicon.ico``:
 
 .. code-block:: sh
 
-    bokeh serve app.py --icon-file=/assets/app.ico
+    bokeh serve app.py --ico-path=/assets/app.ico
 
-Since browsers only look at the top-level root, only one icon file may be
+Since browsers only look at the top-level root, only one .ico file may be
 supplied, even if multiple apps are running. By default, a Bokeh project logo
-is returned as the favicon.
+is returned as the favicon.ico file.
 
 Application Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -569,12 +569,12 @@ class Serve(Subcommand):
             default = None,
         )),
 
-        ('--icon-path', Argument(
-            metavar = "ICON_PATH",
+        ('--ico-path', Argument(
+            metavar = "ICO_PATH",
             type    = str,
-            help    = "Path to a .ico file to use as the favicon, or 'none' to "
-                      "disable favicon support. If unset, a default Bokeh icon will "
-                      "be used",
+            help    = "Path to a .ico file to use as the favicon.ico, or 'none' to "
+                      "disable favicon.ico support. If unset, a default Bokeh .ico "
+                      "file will be used",
             default = None,
         )),
 
@@ -886,7 +886,7 @@ class Serve(Subcommand):
         server_kwargs['use_index'] = not args.disable_index
         server_kwargs['redirect_root'] = not args.disable_index_redirect
         server_kwargs['autoreload'] = args.dev is not None
-        server_kwargs['icon_path'] = settings.icon_path(getattr(args, 'icon_path', None))
+        server_kwargs['ico_path'] = settings.ico_path(getattr(args, 'ico_path', None))
 
         def find_autoreload_targets(app_path: str) -> None:
             path = os.path.abspath(app_path)
