@@ -9,8 +9,10 @@ import {
 } from "@bokehjs/models"
 import {Div} from "@bokehjs/models/widgets"
 import {assert} from "@bokehjs/core/util/assert"
-import {gridplot} from "@bokehjs/api/gridplot"
+import {build_view} from "@bokehjs/core/build_views"
 import {offset} from "@bokehjs/core/dom"
+import {gridplot} from "@bokehjs/api/gridplot"
+import {Document, DocJson} from "@bokehjs/document"
 
 describe("Bug", () => {
   describe("in issue #10612", () => {
@@ -175,6 +177,115 @@ describe("Bug", () => {
 
       expect(await test(null)).to.be.equal(0)
       expect(await test(new Line({line_color: "blue"}))).to.be.equal(6)
+    })
+  })
+
+  describe("in issue #11803", () => {
+    it("makes properties containing ndarrays always dirty", async () => {
+      const doc_json: DocJson = {
+        defs: [],
+        roots: {
+          references: [{
+            id: "1003",
+            type: "ColumnDataSource",
+            attributes: {
+              data: {
+                x: {
+                  __ndarray__: "AAAAAAAAAACHROdKGFfWP4dE50oYV+Y/ZXMtOFLB8D+HROdKGFf2P6kVoV3e7Ps/ZXMtOFLBAED2W4pBNYwDQIdE50oYVwZAGC1EVPshCUA=",
+                  dtype: "float64",
+                  order: "little",
+                  shape: [10],
+                },
+                y0: {
+                  __ndarray__: "AAAAAAAA8D+Mcwt+GjrGPxstUkL2Ee6/BAAAAAAA4L83UM+ib4PoPzpQz6Jvg+g/8v//////378eLVJC9hHuv3NzC34aOsY/AAAAAAAA8D8=",
+                  dtype: "float64",
+                  order: "little",
+                  shape: [10],
+                },
+                y1: {
+                  __ndarray__: "AAAAAAAAAAAcFjxSt5HkPxccgYyLg+8/q0xY6Hq26z/4C4p0qOPVP/QLinSo49W/qExY6Hq2678YHIGMi4Pvvx8WPFK3keS/B1wUMyamsbw=",
+                  dtype: "float64",
+                  order: "little",
+                  shape: [10],
+                },
+              },
+            },
+          }, {
+            id: "1006",
+            type: "Line",
+            attributes: {
+              x: {field: "x"},
+              y: {field: "y0"},
+            },
+          }, {
+            id: "1005",
+            type: "GlyphRenderer",
+            attributes: {
+              data_source: {id: "1003"},
+              glyph: {id: "1004"},
+            },
+          }, {
+            id: "1004",
+            type: "Line",
+            attributes: {
+              x: {field: "x"},
+              y: {field: "y1"},
+            },
+          }, {
+            id: "1007",
+            type: "GlyphRenderer",
+            attributes: {
+              data_source: {id: "1003"},
+              glyph: {id: "1006"},
+            },
+          }, {
+            id: "1008",
+            type: "DataRange1d",
+            attributes: {},
+          }, {
+            id: "1009",
+            type: "DataRange1d",
+            attributes: {},
+          }, {
+            id: "1010",
+            type: "LinearScale",
+            attributes: {},
+          }, {
+            id: "1011",
+            type: "LinearScale",
+            attributes: {},
+          }, {
+            id: "1002",
+            type: "Plot",
+            attributes: {
+              renderers: [{id: "1005"}, {id: "1007"}],
+              x_range: {id: "1008"},
+              x_scale: {id: "1010"},
+              y_range: {id: "1009"},
+              y_scale: {id: "1011"},
+            },
+          }],
+          root_ids: ["1002"],
+        },
+        title: "Bokeh Application",
+        version: "3.0.0",
+      }
+
+      const doc = Document.from_json(doc_json)
+
+      const patch0 = Document._compute_patch_since_json(doc_json, doc)
+      expect(patch0.events).to.be.empty
+
+      expect(doc.roots().length).to.be.equal(1)
+      await build_view(doc.roots()[0], {parent: null})
+
+      const patch1 = Document._compute_patch_since_json(doc_json, doc)
+      expect(patch1.events).to.be.similar([
+        {kind: "ModelChanged", model: {id: "1008"}, attr: "start", new: -0.15707963267948988},
+        {kind: "ModelChanged", model: {id: "1008"}, attr: "end", new: 3.2986722862692828},
+        {kind: "ModelChanged", model: {id: "1009"}, attr: "start", new: -1.0840481406628186},
+        {kind: "ModelChanged", model: {id: "1009"}, attr: "end", new: 1.0992403876506105},
+      ])
     })
   })
 })
