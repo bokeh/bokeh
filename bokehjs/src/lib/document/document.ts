@@ -525,7 +525,8 @@ export class Document {
       } else if (old_value == null || new_value == null) {
         events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
       } else {
-        if (!is_equal(old_value, new_value))
+        // XXX: issue #11803, ndarrays' JSON-like repr may not be comparable due to lazy serialization
+        if (key != "data" && !is_equal(old_value, new_value))
           events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
       }
     }
