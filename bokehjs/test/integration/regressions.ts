@@ -1542,4 +1542,16 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #11801", () => {
+    it("prevents computation of data ranges if a plot was initially not visible", async () => {
+      const p = fig([200, 200], {visible: false})
+      p.line([1, 2, 3], [1, 2, 3])
+
+      const {view} = await display(p)
+
+      p.visible = true
+      await view.ready
+    })
+  })
 })

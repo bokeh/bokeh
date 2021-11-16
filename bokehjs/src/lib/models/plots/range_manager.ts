@@ -139,7 +139,8 @@ export class RangeManager {
         this._update_dataranges(coordinates)
     }
 
-    this.invalidate_dataranges = false
+    if (this.compute_initial() != null)
+      this.invalidate_dataranges = false
   }
 
   compute_initial(): RangeInfo | null {
