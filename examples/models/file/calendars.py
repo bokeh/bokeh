@@ -1,4 +1,4 @@
-''' A rendering of the 2014 monthly calender.
+''' A rendering of the 2014 monthly calendar.
 
 This example demonstrates the usage of plotting several
 plots together using ``gridplot``.
