@@ -46,7 +46,7 @@ Feature request
 
 When you `create a new issue`_, you can choose between creating these two types
 of issues. When creating either type of issue, GitHub will present you with a
-template. Please follow the instructions in those templates closely and provide
+form. Please follow the instructions in those forms closely and provide
 all necessary information.
 
 .. note::
@@ -62,6 +62,10 @@ Reporting bugs
 To `file a new bug report`_, you should have the following information ready.
 This will help with resolving your issue as quickly as possible:
 
+Title
+    Add a short, descriptive title for your bug report. The form field already
+    contains ``[BUG] ``, add your title after that.
+
 Software version info
     To find the version of packages such as Bokeh, Python, IPython, and Node.js,
     use the following command in the environment where you have Bokeh installed:
@@ -73,22 +77,18 @@ Software version info
     This provides you with a list of the versions of relevant software packages.
     Copy and paste this information into your bug report.
 
-    Additionally, you should also provide information about your web browser's
-    version, the version of your operating system, and the version of any
-    other packages relevant to the bug you are reporting.
-
-Description of expected behavior and the observed behavior
+Issue details
     Describe the behavior you would have expected and the behavior you observed
     instead.
 
 Complete, minimal, self-contained example code that reproduces the issue
-    Please provide a code example that follows the
+    Provide a code example that follows the
     `definition of a minimal, reproducible example at stackoverflow.com`_.
     For more details, see `Craft Minimal Bug Reports at matthewrocklin.com`_.
 
 Stack traceback and/or browser JavaScript console output
-    Add any error messages or logs that might be helpful in reproducing and
-    identifying the bug.
+    Optionally, add any error messages or logs that might be helpful in
+    reproducing and identifying the bug.
 
 Screenshots or screencasts of the bug in action
     If possible, add additional information that might help understand what
@@ -104,10 +104,18 @@ To `file a new feature request`_, you should have the following information
 ready. This will help with reaching a decision on your proposed feature as
 quickly as possible:
 
-Describe the solution you'd like
+Title
+    Add a short, descriptive title for your feature request. The form field
+    already contains ``[FEATURE] ``, add your title after that.
+
+Description of the problem you'd like solved
+    A clear and concise description of what problem you would like to solve with
+    the suggested feature..
+
+Description of the solution you'd like
     A clear and concise description of what you want to happen.
 
-Describe alternatives you've considered
+Description of alternatives you've considered
     A clear and concise description of any alternative solutions or features
     you've considered.
 
@@ -140,8 +148,8 @@ information about labels and the issue management process.
 .. _definition of a minimal, reproducible example at stackoverflow.com: https://stackoverflow.com/help/minimal-reproducible-example
 .. _Craft Minimal Bug Reports at matthewrocklin.com: https://matthewrocklin.com/blog/work/2018/02/28/minimal-bug-reports
 .. _create a new issue: https://github.com/bokeh/bokeh/issues/new/choose
-.. _file a new bug report: https://github.com/bokeh/bokeh/issues/new?assignees=&labels=TRIAGE&template=bug_report.md&title=%5BBUG%5D
+.. _file a new bug report: https://github.com/bokeh/bokeh/issues/new?assignees=&labels=TRIAGE&template=bug_report.yml&title=%5BBUG%5D+
 .. _screencasts: https://github.blog/2021-05-13-video-uploads-available-github/
-.. _file a new feature request: https://github.com/bokeh/bokeh/issues/new?assignees=&labels=TRIAGE&template=feature_request.md&title=%5BFEATURE%5D
+.. _file a new feature request: https://github.com/bokeh/bokeh/issues/new?assignees=&labels=TRIAGE&template=feature_request.yml&title=%5BFEATURE%5D+
 .. _Bokeh core team: https://github.com/bokeh/bokeh/wiki/BEP-4:-Project-Roles#core-team
 .. _`section "Issues" in BEP 1: Issues and PRs management`: https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management
