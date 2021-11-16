@@ -64,7 +64,7 @@ This will help with resolving your issue as quickly as possible:
 
 Title
     Add a short, descriptive title for your bug report. The form field already
-    contains ``[BUG] ``, add your title after that.
+    contains ``[BUG]``, add your title after that.
 
 Software version info
     To find the version of packages such as Bokeh, Python, IPython, and Node.js,
@@ -106,7 +106,7 @@ quickly as possible:
 
 Title
     Add a short, descriptive title for your feature request. The form field
-    already contains ``[FEATURE] ``, add your title after that.
+    already contains ``[FEATURE]``, add your title after that.
 
 Description of the problem you'd like solved
     A clear and concise description of what problem you would like to solve with
