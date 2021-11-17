@@ -67,31 +67,6 @@ function is_static(node: ts.Node): boolean {
   return node.modifiers != null && node.modifiers.find((modifier) => modifier.kind == ts.SyntaxKind.StaticKeyword) != null
 }
 
-export function add_init_class() {
-  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
-    const {factory} = context
-
-    function visit(node: ts.Node): ts.VisitResult<ts.Node> {
-      node = ts.visitEachChild(node, visit, context)
-
-      if (ts.isClassDeclaration(node) && node.name != null) {
-        const name = `init_${node.name.getText()}`
-
-        if (node.members.find((member) => ts.isMethodDeclaration(member) && member.name.getText() == name && is_static(member)) != null) {
-          const init = factory.createExpressionStatement(
-            factory.createCallExpression(
-              factory.createPropertyAccessExpression(node.name, name), undefined, undefined))
-          return [node, init]
-        }
-      }
-
-      return node
-    }
-
-    return ts.visitNode(root, visit)
-  }
-}
-
 export function insert_class_name() {
   function has__name__(node: ts.ClassDeclaration): boolean {
     return node.members.find((member) => ts.isPropertyDeclaration(member) && member.name.getText() == "__name__" && is_static(member)) != null

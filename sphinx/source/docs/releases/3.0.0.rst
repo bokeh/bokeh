@@ -166,6 +166,13 @@ and the later with ``new HasProps(attrs)``, where ``attrs`` can not have an
 ``id`` field. As a side effect, duplicating model's identity is not permitted
 by default anymore, though one can still use deferred initializtion for this.
 
+``init_ModelName`` was removed
+..............................
+
+This static initializer was added automatically by bokehjs' build system and
+extensions' compiler. This isn't needed anymore as TypeScript supports ES2022
+static initialization blocks (``static {}``).
+
 Protocol changes
 ~~~~~~~~~~~~~~~~
 
