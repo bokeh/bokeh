@@ -1,3 +1,4 @@
+import {PlainObject} from "core/types"
 import {uniqueId} from "core/util/string"
 
 export type Socket = {
@@ -11,12 +12,12 @@ export type Header = {
   num_buffers?: number
 }
 
-export class Message {
+export class Message<T> {
   readonly buffers: Map<string, ArrayBuffer> = new Map()
 
-  private constructor(readonly header: Header, readonly metadata: any, readonly content: any) {}
+  private constructor(readonly header: Header, readonly metadata: PlainObject, readonly content: T) {}
 
-  static assemble(header_json: string, metadata_json: string, content_json: string): Message {
+  static assemble<T>(header_json: string, metadata_json: string, content_json: string): Message<T> {
     const header = JSON.parse(header_json)
     const metadata = JSON.parse(metadata_json)
     const content = JSON.parse(content_json)
@@ -31,11 +32,7 @@ export class Message {
     this.buffers.set(id, buf_payload)
   }
 
-  // not defined for BokehJS, only *receiving* buffers is supported
-  // add_buffer: (buf_header, buf_payload) ->
-  // write_buffers: (socket)
-
-  static create(msgtype: string, metadata: any, content: any = {}): Message {
+  static create<T>(msgtype: string, metadata: PlainObject, content: T): Message<T> {
     const header = Message.create_header(msgtype)
     return new Message(header, metadata, content)
   }
@@ -48,17 +45,12 @@ export class Message {
   }
 
   complete(): boolean {
-    if (this.header != null && this.metadata != null && this.content != null) {
-      if (this.header.num_buffers != undefined)
-        return this.buffers.size == this.header.num_buffers
-      else
-        return true
-    } else
-      return false
+    const {num_buffers} = this.header
+    return num_buffers == null || this.buffers.size == num_buffers
   }
 
   send(socket: Socket): void {
-    const nb = this.header.num_buffers != null ? this.header.num_buffers : 0
+    const nb = this.header.num_buffers ?? 0
     if (nb > 0)
       throw new Error("BokehJS only supports receiving buffers, not sending")
     const header_json = JSON.stringify(this.header)
