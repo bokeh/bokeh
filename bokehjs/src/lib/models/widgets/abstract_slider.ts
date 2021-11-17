@@ -69,8 +69,14 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
     this.title_el.style.display = hide_header ? "none" : ""
 
     if (!hide_header) {
-      if (this.model.title?.length != 0)
-        this.title_el.textContent = `${this.model.title}: `
+      const {title} = this.model
+      if (title != null && title.length > 0) {
+        if (this.contains_tex_string(title)) {
+          this.title_el.innerHTML = `${this.process_tex(title)}: `
+        } else {
+          this.title_el.textContent = `${title}: `
+        }
+      }
 
       if (this.model.show_value) {
         const {value} = this._calc_to()
@@ -153,6 +159,7 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
 
     this.group_el = div({class: inputs.input_group}, this.title_el, this.slider_el)
     this.el.appendChild(this.group_el)
+    this._has_finished = true
   }
 
   protected _slide(values: number[]): void {

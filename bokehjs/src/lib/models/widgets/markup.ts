@@ -1,7 +1,6 @@
 import {CachedVariadicBox} from "core/layout/html"
 import {div} from "core/dom"
 import * as p from "core/properties"
-import {default_provider, MathJaxProvider} from "models/text/providers"
 import {Widget, WidgetView} from "./widget"
 
 import clearfix_css, {clearfix} from "styles/clearfix.css"
@@ -12,28 +11,18 @@ export abstract class MarkupView extends WidgetView {
 
   protected markup_el: HTMLElement
 
-  get provider(): MathJaxProvider {
-    return default_provider
-  }
-
   override async lazy_initialize() {
     await super.lazy_initialize()
 
-    if (this.provider.status == "not_started")
-      await this.provider.fetch()
-
-    if (this.provider.status == "not_started" || this.provider.status == "loading")
-      this.provider.ready.connect(() => {
-        if (this.contains_tex_string())
+    if (this.math_provider.status == "not_started" || this.math_provider.status == "loading")
+      this.math_provider.ready.connect(() => {
+        if (this.contains_tex_string(this.model.text))
           this.rerender()
       })
   }
 
-  override after_layout(): void {
-    super.after_layout()
-
-    if (this.provider.status === "loading")
-      this._has_finished = false
+  has_math_disabled() {
+    return this.model.disable_math || !this.contains_tex_string(this.model.text)
   }
 
   protected rerender() {
@@ -64,42 +53,9 @@ export abstract class MarkupView extends WidgetView {
     this.markup_el = div({class: clearfix, style})
     this.el.appendChild(this.markup_el)
 
-    if (this.provider.status == "failed" || this.provider.status == "loaded")
+    if (this.math_provider.status == "failed" || this.math_provider.status == "loaded")
       this._has_finished = true
   }
-
-  has_math_disabled() {
-    return this.model.disable_math || !this.contains_tex_string()
-  }
-
-  process_tex(): string {
-    if (!this.provider.MathJax)
-      return this.model.text
-
-    const {text} = this.model
-    const tex_parts = this.provider.MathJax.find_tex(text)
-    const processed_text: string[] = []
-
-    let last_index: number | undefined = 0
-    for (const part of tex_parts) {
-      processed_text.push(text.slice(last_index, part.start.n))
-      processed_text.push(this.provider.MathJax.tex2svg(part.math, {display: part.display}).outerHTML)
-
-      last_index = part.end.n
-    }
-
-    if (last_index! < text.length)
-      processed_text.push(text.slice(last_index))
-
-    return processed_text.join("")
-  }
-
-  private contains_tex_string(): boolean {
-    if (!this.provider.MathJax)
-      return false
-
-    return this.provider.MathJax.find_tex(this.model.text).length > 0
-  };
 }
 
 export namespace Markup {
