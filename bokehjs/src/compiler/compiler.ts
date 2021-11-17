@@ -97,10 +97,6 @@ export function default_transformers(options: ts.CompilerOptions): ts.CustomTran
   const insert_class_name = transforms.insert_class_name()
   transformers.before.push(insert_class_name)
 
-  // TODO: remove this in 3.0
-  const add_init_class = transforms.add_init_class()
-  transformers.before.push(add_init_class)
-
   const base = options.baseUrl
   if (base != null) {
     const relativize_modules = transforms.relativize_modules((file, module_path) => {
