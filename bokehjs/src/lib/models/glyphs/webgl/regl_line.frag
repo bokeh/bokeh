@@ -109,6 +109,26 @@ float dash_distance(in float x)
     return u_dash_scale*dist;
 }
 
+float clip_dash_distance(in float x, in float offset, in float sign_along)
+{
+    // Return clipped dash distance, sign_along is +1.0 if looking forward
+    // into next segment and -1.0 if looking backward into previous segment.
+    float half_antialias = 0.5*u_antialias;
+
+    if (sign_along*x > half_antialias) {
+        // Outside antialias region, use usual dash distance.
+        return dash_distance(offset + x);
+    }
+    else {
+        // Inside antialias region.
+        // Dash distance at edge of antialias region clipped to half_antialias.
+        float edge_dist = min(dash_distance(offset + sign_along*half_antialias), half_antialias);
+
+        // Physical distance from dash distance at edge of antialias region.
+        return edge_dist + sign_along*x - half_antialias;
+    }
+}
+
 mat2 rotation_matrix(in float sign_start)
 {
     // Rotation matrix for v_coords from this segment to prev or next segment.
@@ -129,6 +149,7 @@ void main()
     int join_type = int(u_line_join + 0.5);
     int cap_type = int(u_line_cap + 0.5);
     float halfwidth = 0.5*(u_linewidth + u_antialias);
+    float half_antialias = 0.5*u_antialias;
 
     // Extract flags.
     int flags = int(v_flags + 0.5);
@@ -142,7 +163,11 @@ void main()
 
     float dist = v_coords.y;  // For straight segment, and miter join.
 
-    if (v_coords.x <= 0.5*u_antialias) {
+    // Along-segment coords with respect to end of segment, +ve inside segment
+    // so equivalent to v_coords.x at start of segment.
+    float end_coords_x = v_segment_length - v_coords.x;
+
+    if (v_coords.x <= half_antialias) {
         // At start of segment, either cap or join.
         if (has_start_cap)
             dist = cap(cap_type, v_coords.x, v_coords.y);
@@ -153,10 +178,10 @@ void main()
             dist = max(abs(dist), bevel_join_distance(1.0, halfwidth));
         // else a miter join which uses the default dist calculation.
     }
-    else if (v_coords.x >= v_segment_length - 0.5*u_antialias) {
+    else if (end_coords_x <= half_antialias) {
         // At end of segment, either cap or join.
         if (has_end_cap)
-            dist = cap(cap_type, v_segment_length - v_coords.x, v_coords.y);
+            dist = cap(cap_type, end_coords_x, v_coords.y);
         else if (join_type == round_join)
             dist = distance(v_coords, vec2(v_segment_length, 0));
         else if ((join_type == bevel_join ||
@@ -173,61 +198,65 @@ void main()
         dist = dash_distance(v_coords.x);
 
         if (!has_start_cap && cap_type == butt_cap) {
-            if (v_coords.x < 0.5*u_antialias) {
+            if (v_coords.x < half_antialias) {
                 // Outer of start join rendered solid color or not at all
                 // depending on whether corner point is in dash or gap, with
                 // antialiased ends.
-                dist = (dash_distance(0.0) > 0.0 ? 0.5*u_antialias - v_coords.x
-                                                 : -0.5*u_linewidth);
+                if (dash_distance(0.0) > 0.0) {
+                    // Corner is solid color.
+                    dist = max(dist, min(half_antialias, -v_coords.x));
+                    // Avoid visible antialiasing band between corner and dash.
+                    dist = max(dist, dash_distance(half_antialias));
+                }
+                else {
+                    // Use large negative value so corner not colored.
+                    dist = -halfwidth;
 
-                // Also consider antialiased end of dash just outside corner.
-                float end_dist = dash_distance(0.5*u_antialias) + v_coords.x -
-                    0.5*u_antialias;
-                dist = max(dist, end_dist);
+                    if (v_coords.x > -half_antialias) {
+                        // Consider antialias region of dash after start region.
+                        float edge_dist = min(dash_distance(half_antialias), half_antialias);
+                        dist = max(dist, edge_dist + v_coords.x - half_antialias);
+                    }
+                }
             }
 
             vec2 prev_coords = rotation_matrix(1.0)*v_coords;
 
-            if (abs(prev_coords.y) < halfwidth &&
-                prev_coords.x < 0.5*u_antialias) {
-                // Extend dashes across from previous segment, with antialiased
-                // end.
-                float new_dist = dash_distance(min(prev_coords.x,
-                                                   -0.5*u_antialias));
-
-                if (prev_coords.x > -0.5*u_antialias)
-                    new_dist -= prev_coords.x + 0.5*u_antialias;
-
+            if (abs(prev_coords.y) < halfwidth && prev_coords.x < half_antialias) {
+                // Extend dashes across from end of previous segment, with antialiased end.
+                float new_dist = clip_dash_distance(prev_coords.x, 0.0, -1.0);
                 new_dist = min(new_dist, 0.5*u_linewidth - abs(prev_coords.y));
                 dist = max(dist, new_dist);
             }
         }
 
         if (!has_end_cap && cap_type == butt_cap) {
-            if (v_coords.x > v_segment_length - 0.5*u_antialias) {
+            if (end_coords_x < half_antialias) {
                 // Similar for end join.
-                dist = (dash_distance(v_segment_length) > 0.0
-                            ? v_coords.x - v_segment_length + 0.5*u_antialias
-                            : -0.5*u_linewidth);
+                if (dash_distance(v_segment_length) > 0.0) {
+                    // Corner is solid color.
+                    dist = max(dist, min(half_antialias, -end_coords_x));
+                    // Avoid visible antialiasing band between corner and dash.
+                    dist = max(dist, dash_distance(v_segment_length - half_antialias));
+                }
+                else {
+                    // Use large negative value so corner not colored.
+                    dist = -halfwidth;
 
-                float end_dist =
-                    dash_distance(v_segment_length - 0.5*u_antialias) -
-                    v_coords.x + v_segment_length - 0.5*u_antialias;
-                dist = max(dist, end_dist);
+                    if (end_coords_x > -half_antialias) {
+                        // Consider antialias region of dash before end region.
+                        float edge_dist = min(dash_distance(v_segment_length - half_antialias),
+                                              half_antialias);
+                        dist = max(dist, edge_dist + end_coords_x - half_antialias);
+                    }
+                }
             }
 
-            vec2 next_coords =
-                rotation_matrix(-1.0)*(v_coords - vec2(v_segment_length, 0.0));
+            vec2 next_coords = rotation_matrix(-1.0)*(v_coords - vec2(v_segment_length, 0.0));
 
-            if (abs(next_coords.y) < halfwidth &&
-                next_coords.x > -0.5*u_antialias) {
+            if (abs(next_coords.y) < halfwidth && next_coords.x > -half_antialias) {
                 // Extend dashes across from next segment, with antialiased end.
-                float new_dist = dash_distance(v_segment_length +
-                    max(next_coords.x, 0.5*u_antialias));
-
-                if (next_coords.x < 0.5*u_antialias)
-                    new_dist += next_coords.x - 0.5*u_antialias;
-
+                float new_dist = clip_dash_distance(next_coords.x, v_segment_length, 1.0);
                 new_dist = min(new_dist, 0.5*u_linewidth - abs(next_coords.y));
                 dist = max(dist, new_dist);
             }
