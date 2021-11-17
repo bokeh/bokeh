@@ -41,6 +41,7 @@ from bokeh.document.events import (
     SessionCallbackRemoved,
     TitleChangedEvent,
 )
+from bokeh.document.json import ModelChanged, PatchJson
 from bokeh.io.doc import curdoc
 from bokeh.model import DataModel
 from bokeh.models import ColumnDataSource
@@ -945,6 +946,32 @@ class TestDocument:
 
         assert root1.foo == 57
         assert root1.child.foo == 44
+
+    def test_patch_a_reference_with_implicit_reference_set(self) -> None:
+        m0 = SomeModelInTestDocument(foo=0, child=None)
+        m1 = SomeModelInTestDocument(foo=1, child=m0)
+        m2 = SomeModelInTestDocument(foo=2, child=m1)
+        m3 = SomeModelInTestDocument(foo=3, child=m2)
+
+        doc = document.Document()
+        doc.add_root(m3)
+
+        patch = PatchJson(
+            events=[
+                ModelChanged(
+                    kind="ModelChanged",
+                    model=m2.ref,
+                    attr="child",
+                    new=m0.ref,
+                    hint=None,
+                ),
+            ],
+            references=[], # known models are not included by bokehjs to improve performance (e.g. reduce payload size)
+        )
+
+        assert m2.child == m1
+        doc.apply_json_patch(patch)
+        assert m2.child == m0
 
     # a more realistic set of models instead of fake models
     def test_scatter(self) -> None:
