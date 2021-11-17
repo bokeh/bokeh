@@ -441,7 +441,7 @@ export class MathMLView extends MathTextView {
     styled = insert_text_on_position(
       styled,
       styled.indexOf(matchs[0]) +  matchs[0].length,
-      `<mstyle displaystyle="true" mathcolor="${color2hexrgb(this.color)}">`
+      `<mstyle displaystyle="true" mathcolor="${color2hexrgb(this.color)}" ${this.font.includes("bold") ? 'mathvariant="bold"' : "" }>`
     )
 
     matchs = styled.match(/<\/[^>]*?math.*?>/s)
@@ -486,7 +486,8 @@ export class TeXView extends MathTextView {
 
   override get styled_text(): string {
     const [r, g, b] = color2rgba(this.color)
-    return `\\color[RGB]{${r}, ${g}, ${b}} ${this.text}`
+
+    return `\\color[RGB]{${r}, ${g}, ${b}} ${this.font.includes("bold") ? `\\bf{${this.text}}` : this.text}`
   }
 
   protected _process_text(): HTMLElement | undefined {
