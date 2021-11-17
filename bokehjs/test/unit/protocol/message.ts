@@ -87,21 +87,6 @@ describe("protocol/message module", () => {
 
     describe("complete method", () => {
 
-      it("should return false if header is missing", () => {
-        const m = Message.assemble("null", '{"bar":2}', '{"baz":3}')
-        expect(m.complete()).to.be.false
-      })
-
-      it("should return false if content is missing", () => {
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', "null", '{"baz":3}')
-        expect(m.complete()).to.be.false
-      })
-
-      it("should return false if metadata is missing", () => {
-        const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', '{"bar":2}', "null")
-        expect(m.complete()).to.be.false
-      })
-
       it("should return true if num_buffers matches", () => {
         const m0 = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', '{"bar":2}', '{"baz":3}')
         expect(m0.complete()).to.be.true

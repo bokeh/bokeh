@@ -1,5 +1,6 @@
-import {Document} from "document"
+import {Document, Patch} from "document"
 import {Receiver} from "protocol/receiver"
+import {Message} from "protocol/message"
 import {logger} from "core/logging"
 import {stylesheet} from "core/dom"
 import {size, values} from "core/util/object"
@@ -29,7 +30,7 @@ function _handle_notebook_comms(this: Document, receiver: Receiver, comm_msg: Co
 
   const msg = receiver.message
   if (msg != null)
-    this.apply_json_patch(msg.content, msg.buffers)
+    this.apply_json_patch((msg as Message<Patch>).content, msg.buffers)
 }
 
 function _init_comms(target: string, doc: Document): void {
