@@ -1,14 +1,15 @@
 import {Message} from "protocol/message"
 import {isString} from "core/util/types"
+import {assert} from "core/util/assert"
 
 export type Fragment = string | ArrayBuffer
 
 export class Receiver {
-  message: Message | null = null
+  message: Message<unknown> | null = null
 
-  protected _partial: Message | null = null
+  protected _partial: Message<unknown> | null = null
 
-  protected _fragments: Fragment[] = []
+  protected _fragments: [string?, string?, string?] = []
 
   protected _buf_header: string | null = null
 
@@ -36,8 +37,8 @@ export class Receiver {
   _CONTENT(fragment: Fragment): void {
     this._assume_text(fragment)
     this._fragments.push(fragment)
-    const [header_json, metadata_json, content_json] =
-      this._fragments.slice(0, 3) as [string, string, string]
+    const [header_json, metadata_json, content_json] = this._fragments
+    assert(header_json != null && metadata_json != null && content_json != null)
     this._partial = Message.assemble(header_json, metadata_json, content_json)
     this._check_complete()
   }
@@ -50,7 +51,8 @@ export class Receiver {
 
   _BUFFER_PAYLOAD(fragment: Fragment): void {
     this._assume_binary(fragment)
-    this._partial!.assemble_buffer(this._buf_header!, fragment)
+    assert(this._partial != null && this._buf_header != null)
+    this._partial.assemble_buffer(this._buf_header, fragment)
     this._check_complete()
   }
 
