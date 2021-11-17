@@ -52,4 +52,4 @@ jobs:
       - name: Run tests
         if: ${{ github.event.inputs.run_tests }}
         run: |
-          docker run -v $GITHUB_WORKSPACE:/bokeh -u $(id --user):$(id --group) --rm -e BOKEH_DOCKER_BUILD=1 bokeh-dev:latest
+          docker run -v $GITHUB_WORKSPACE:/bokeh -u $(id --user):$(id --group) --rm -e BOKEH_DOCKER_BUILD=1 -e BOKEH_DOCKER_TEST=1 bokeh-dev:latest
