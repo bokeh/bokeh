@@ -8,6 +8,7 @@
     "type": "git",
     "url": "https://github.com/bokeh/bokeh.git"
   },
+  "workspaces": ["./src/lib"],
   "devDependencies": {
     "@types/cli-progress": "^3.9.2",
     "@types/express": "^4.17.13",

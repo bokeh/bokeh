@@ -8,6 +8,7 @@
     "type": "git",
     "url": "https://github.com/bokeh/bokeh.git"
   },
+  "workspaces": ["./src/compiler"],
   "devDependencies": {
     "@types/css": "^0.0.33",
     "@types/node": "^16.9.4",
