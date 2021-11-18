@@ -55,7 +55,7 @@ export abstract class WidgetView extends HTMLBoxView {
       this._has_finished = false
   }
 
-  protected process_tex(text: string): string {
+  process_tex(text: string): string {
     if (!this.provider.MathJax)
       return text
 
