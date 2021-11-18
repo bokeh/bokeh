@@ -41,6 +41,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
+          name: artifact
           path: bokeh-dev.tar
 
       - name: Checkout source
@@ -53,3 +54,23 @@ jobs:
         if: ${{ github.event.inputs.run_tests }}
         run: |
           docker run -v $GITHUB_WORKSPACE:/bokeh -u $(id --user):$(id --group) --rm -e BOKEH_DOCKER_BUILD=1 -e BOKEH_DOCKER_TEST=1 bokeh-dev:latest
+
+      - name: Collect results
+        if: ${{ github.event.inputs.run_tests }}
+        run: |
+          OS=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
+          SRC="bokehjs/test/baselines/${OS}"
+          DST="bokehjs-report/${SRC}"
+          mkdir -p ${DST}
+          if [[ -e ${SRC}/report.json ]];
+          then
+            CHANGED=$(git status --short ${SRC}/\*.blf ${SRC}/\*.png | cut -c4-)
+            cp ${SRC}/report.json ${CHANGED} ${DST}
+          fi
+
+      - name: Upload test report
+        if: ${{ github.event.inputs.run_tests }}
+        uses: actions/upload-artifact@v1
+        with:
+          name: artifact
+          path: bokehjs-report
