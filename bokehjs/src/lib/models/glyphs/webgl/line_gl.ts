@@ -172,10 +172,6 @@ export class LineGL extends BaseGLGlyph {
     }
 
     this._line_dash = resolve_line_dash(line_visuals.line_dash.value)
-    if (this._line_dash.length == 1)
-      // Dash pattern of single number means gap is same length as dash.
-      this._line_dash.push(this._line_dash[0])
-
     if (this._is_dashed()) {
       [this._dash_tex_info, this._dash_tex, this._dash_scale] =
         this.regl_wrapper.get_dash(this._line_dash)
