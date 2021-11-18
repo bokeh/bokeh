@@ -14,8 +14,8 @@ export abstract class MarkupView extends WidgetView {
   override async lazy_initialize() {
     await super.lazy_initialize()
 
-    if (this.math_provider.status == "not_started" || this.math_provider.status == "loading")
-      this.math_provider.ready.connect(() => {
+    if (this.provider.status == "not_started" || this.provider.status == "loading")
+      this.provider.ready.connect(() => {
         if (this.contains_tex_string(this.model.text))
           this.rerender()
       })
@@ -53,7 +53,7 @@ export abstract class MarkupView extends WidgetView {
     this.markup_el = div({class: clearfix, style})
     this.el.appendChild(this.markup_el)
 
-    if (this.math_provider.status == "failed" || this.math_provider.status == "loaded")
+    if (this.provider.status == "failed" || this.provider.status == "loaded")
       this._has_finished = true
   }
 }

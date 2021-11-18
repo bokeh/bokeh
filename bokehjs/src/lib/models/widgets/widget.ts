@@ -37,35 +37,35 @@ export abstract class WidgetView extends HTMLBoxView {
   }
 
 
-  get math_provider(): MathJaxProvider {
+  get provider(): MathJaxProvider {
     return default_provider
   }
 
   override async lazy_initialize() {
     await super.lazy_initialize()
 
-    if (this.math_provider.status == "not_started")
-      await this.math_provider.fetch()
+    if (this.provider.status == "not_started")
+      await this.provider.fetch()
   }
 
   override after_layout(): void {
     super.after_layout()
 
-    if (this.math_provider.status == "loading")
+    if (this.provider.status == "loading")
       this._has_finished = false
   }
 
   protected process_tex(text: string): string {
-    if (!this.math_provider.MathJax)
+    if (!this.provider.MathJax)
       return text
 
-    const tex_parts = this.math_provider.MathJax.find_tex(text)
+    const tex_parts = this.provider.MathJax.find_tex(text)
     const processed_text: string[] = []
 
     let last_index: number | undefined = 0
     for (const part of tex_parts) {
       processed_text.push(text.slice(last_index, part.start.n))
-      processed_text.push(this.math_provider.MathJax.tex2svg(part.math, {display: part.display}).outerHTML)
+      processed_text.push(this.provider.MathJax.tex2svg(part.math, {display: part.display}).outerHTML)
 
       last_index = part.end.n
     }
@@ -77,10 +77,10 @@ export abstract class WidgetView extends HTMLBoxView {
   }
 
   protected contains_tex_string(text: string): boolean {
-    if (!this.math_provider.MathJax)
+    if (!this.provider.MathJax)
       return false
 
-    return this.math_provider.MathJax.find_tex(text).length > 0
+    return this.provider.MathJax.find_tex(text).length > 0
   };
 }
 
