@@ -1,4 +1,5 @@
 import {gcd, is_pow_2} from "./utils/math"
+import {concat} from "core/util/array"
 import {map} from "core/util/arrayable"
 import {Regl, Texture2D} from "regl"
 
@@ -156,9 +157,9 @@ export class DashCache {
   }
 
   public get(pattern: number[]): DashReturn {
-    // Limit pattern to even number of items.
+    // Odd-length patterns are repeated to match canvas.
     if (pattern.length % 2 == 1)
-      pattern = pattern.slice(0, -1)
+      pattern = concat([pattern, pattern])
 
     return this._get_or_create(pattern)
   }

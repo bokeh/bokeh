@@ -141,7 +141,8 @@ describe("Line glyph", () => {
       const X = () => [x+=0.15, 1+x, 2+x, 3+x, 4+x]
       const Y = () => [10 - (y+=5), 20-y, 14-y, 12-y, 40-y]
 
-      const dashes = [[4, 4], [10, 5, 10, 13], [20, 10]]
+      // Note first pattern has odd length so pattern will be repeated.
+      const dashes = [[4], [10, 5, 10, 13], [20, 10]]
 
       for (let i = 0; i < colors.length; i++) {
         for (let j = 0; j < linewidths.length; j++) {
