@@ -11,10 +11,10 @@
   "devDependencies": {
     "@types/combine-source-map": "^0.8.2",
     "@types/convert-source-map": "^1.5.2",
-    "@types/eslint": "^7.28.0",
+    "@types/eslint": "^8.2.0",
     "@types/less": "^3.0.3",
     "@types/node": "^16.9.4",
-    "@types/yargs": "^16.0.4",
+    "@types/yargs": "^17.0.7",
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "@typescript-eslint/parser": "^5.1.0",
     "acorn": "^8.5.0",

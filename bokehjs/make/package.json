@@ -13,7 +13,7 @@
     "@types/css": "^0.0.33",
     "@types/node": "^16.9.4",
     "@types/which": "^2.0.1",
-    "@types/yargs": "^16.0.4",
+    "@types/yargs": "^17.0.7",
     "chalk": "^4.1.2",
     "css": "^3.0.0",
     "del": "^6.0.0",
