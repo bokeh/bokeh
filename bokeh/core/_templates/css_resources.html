@@ -10,10 +10,10 @@ Resources object.
 
 -#}
 {% for file in css_files %}
-<link rel="stylesheet" href="{{ file }}" type="text/css" />
+    <link rel="stylesheet" href="{{ file }}" type="text/css" />
 {% endfor %}
 {% for css in css_raw %}
-<style>
-    {{ css|indent(8) }}
-</style>
+    <style>
+        {{ css }}
+    </style>
 {% endfor %}

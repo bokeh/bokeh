@@ -22,15 +22,16 @@ that accepts these same parameters.
   {% block inner_head %}
     <meta charset="utf-8">
     <title>{% block title %}{{ title | e if title else "Bokeh Plot" }}{% endblock %}</title>
-  {%-  block preamble %}{% endblock %}
-  {%-  block resources %}
-  {%    block css_resources %}
-  {{- bokeh_css if bokeh_css }}
-  {%-    endblock css_resources %}
-  {%    block js_resources %}
-  {{- bokeh_js if bokeh_js }}
-  {%-    endblock js_resources %}
-  {% endblock resources %}
+
+  {%  block preamble -%}{%- endblock %}
+  {%  block resources -%}
+  {%   block css_resources -%}
+    {{- bokeh_css if bokeh_css }}
+  {%-  endblock css_resources %}
+  {%   block js_resources -%}
+    {{ bokeh_js if bokeh_js }}
+  {%-  endblock js_resources %}
+  {%  endblock resources %}
   {%  block postamble %}{% endblock %}
   {% endblock inner_head %}
   </head>
@@ -45,8 +46,8 @@ that accepts these same parameters.
   {%          block root scoped %}
   {{ embed(root) }}
   {%          endblock %}
-  {% endfor %}
-  {%    endfor %}
+  {%         endfor %}
+  {%      endfor %}
   {%    endblock contents %}
     {{ plot_script | indent(4) }}
   {%  endblock inner_body %}
