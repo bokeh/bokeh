@@ -18,7 +18,14 @@ import pytest ; pytest
 
 # Standard library imports
 import hashlib
+import re
 from os.path import abspath, join, split
+from typing import List
+
+# Bokeh imports
+from bokeh.embed import file_html
+from bokeh.plotting import figure
+from bokeh.resources import JSResources
 
 # Module under test
 import bokeh.core.templates as bct # isort:skip
@@ -38,7 +45,6 @@ TOP_PATH = abspath(join(split(bct.__file__)[0]))
 #-----------------------------------------------------------------------------
 
 def _crlf_cr_2_lf_bin(s):
-    import re
     return re.sub(b"\r\n|\r|\n", b"\n", s)
 
 #-----------------------------------------------------------------------------
@@ -49,6 +55,12 @@ def compute_sha256(data):
     sha256 = hashlib.sha256()
     sha256.update(data)
     return sha256.hexdigest()
+
+def get_html_lines() -> List[str]:
+    p = figure()
+    p.scatter(x=[], y=[])
+    html = file_html(p, JSResources(mode="absolute"))
+    return html.split('\n')
 
 pinned_template_sha256 = "5d26be35712286918e36cc469c9354076b3d555eb39799aa63d04473c0566c29"
 
@@ -66,6 +78,10 @@ def test_autoload_template_has_changed() -> None:
             in notebooks has been completed successfully, update this test
             with the new file SHA256 signature."""
 
+def test_no_white_space_in_top_of_html() -> None:
+    lines = get_html_lines()
+    r = re.compile(r'\S')
+    assert(r.search(lines[0]) is not None)
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
