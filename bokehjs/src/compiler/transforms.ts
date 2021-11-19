@@ -32,15 +32,15 @@ export function relativize_modules(relativize: (file: string, module_path: strin
           if (ts.isImportDeclaration(node)) {
             const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
             if (moduleSpecifier != null) {
-              const {decorators, modifiers, importClause} = node
-              return factory.updateImportDeclaration(node, decorators, modifiers, importClause, moduleSpecifier)
+              const {decorators, modifiers, importClause, assertClause} = node
+              return factory.updateImportDeclaration(node, decorators, modifiers, importClause, moduleSpecifier, assertClause)
             }
           }
           if (ts.isExportDeclaration(node)) {
             const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
             if (moduleSpecifier != null) {
-              const {decorators, modifiers, isTypeOnly, exportClause} = node
-              return factory.updateExportDeclaration(node, decorators, modifiers, isTypeOnly, exportClause, moduleSpecifier)
+              const {decorators, modifiers, isTypeOnly, exportClause, assertClause} = node
+              return factory.updateExportDeclaration(node, decorators, modifiers, isTypeOnly, exportClause, moduleSpecifier, assertClause)
             }
           }
           if (is_require(node)) {
