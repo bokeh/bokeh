@@ -25,7 +25,7 @@ Notebook according to a Resources object.
         <a href="https://bokeh.org" target="_blank" class="bk-logo bk-logo-small bk-logo-notebook"></a>
         <span id="{{ element_id }}">Loading BokehJS ...</span>
     </div>
-    {%- if verbose %}
+    {% if verbose %}
     <style>
         p.bokeh_notebook { margin-left: 24px; }
         table.bokeh_notebook {
@@ -66,7 +66,7 @@ Notebook according to a Resources object.
             <td class="bokeh_notebook">{{ css_info }}</td>
         </tr>
     </table>
-    {%- endif %}
-    {%- for warning in warnings %}
+    {% endif %}
+    {% for warning in warnings %}
     <p style="background-color: #f2d7dc;">{{ warning }}</p>
-    {%- endfor %}
+    {% endfor %}
