@@ -18,6 +18,8 @@ jobs:
 
       - name: Checkout source
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -43,12 +45,6 @@ jobs:
         with:
           name: artifact
           path: bokeh-dev.tar
-
-      - name: Checkout source
-        if: ${{ github.event.inputs.run_tests }}
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       - name: Run tests
         if: ${{ github.event.inputs.run_tests }}
