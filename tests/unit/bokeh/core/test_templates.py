@@ -83,23 +83,19 @@ def test_no_white_space_in_top_of_html() -> None:
     any_character = re.compile(r"\S")
     assert(any_character.search(lines[0]) is not None)
 
-def test_no_scripts_start_on_same_line() -> None:
+def test_no_two_scripts_start_on_same_line() -> None:
     lines = get_html_lines()
-    script_start = re.compile("<script")
     for line in lines:
-        start_match = script_start.findall(line)
-        if start_match:
-            assert len(start_match) == 1
+        if "<script" in line:
+            assert len(line.split("<script")) == 2
         
-def test_no_scripts_start_on_same_line_another_ends() -> None:
+def test_dont_start_script_on_same_line_after_another_ends() -> None:
     lines = get_html_lines()
-    script_start = re.compile("<script")
-    script_end = re.compile("</script>")
     for line in lines:
-        start_match = script_start.search(line)
-        end_match = script_end.search(line)
-        if  start_match and end_match:
-            assert start_match.start() < end_match.start()
+        if "<script" in line and "</script" in line:
+            start_match = line.rfind("<script")
+            end_match = line.rfind("</script")
+            assert start_match < end_match
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
