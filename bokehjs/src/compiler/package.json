@@ -1,0 +1,30 @@
+{
+  "name": "@bokeh/compiler",
+  "version": "3.0.0-dev.1",
+  "private": true,
+  "description": "Internal package for bokehjs' extensions compiler",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bokeh/bokeh.git"
+  },
+  "devDependencies": {
+    "@types/combine-source-map": "^0.8.2",
+    "@types/convert-source-map": "^1.5.2",
+    "@types/eslint": "^8.2.0",
+    "@types/less": "^3.0.3",
+    "@types/node": "^16.9.4",
+    "@types/yargs": "^16.0.4",
+    "@typescript-eslint/eslint-plugin": "^5.1.0",
+    "@typescript-eslint/parser": "^5.1.0",
+    "acorn": "^8.5.0",
+    "chalk": "^4.1.2",
+    "combine-source-map": "^0.8.0",
+    "convert-source-map": "^1.8.0",
+    "eslint": "^8.1.0",
+    "less": "^4.1.1",
+    "terser": "^5.8.0",
+    "typescript": "~4.5.2",
+    "yargs": "^17.1.1"
+  }
+}
