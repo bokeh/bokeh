@@ -3,7 +3,8 @@ name: BokehJS-CI
 on:
   push:
     branches:
-      - master
+      - main
+      - branch-*
     paths:
       - 'bokehjs/**'
   pull_request:
