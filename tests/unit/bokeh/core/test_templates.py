@@ -80,8 +80,26 @@ def test_autoload_template_has_changed() -> None:
 
 def test_no_white_space_in_top_of_html() -> None:
     lines = get_html_lines()
-    r = re.compile(r'\S')
-    assert(r.search(lines[0]) is not None)
+    any_character = re.compile(r"\S")
+    assert(any_character.search(lines[0]) is not None)
+
+def test_no_scripts_start_on_same_line() -> None:
+    lines = get_html_lines()
+    script_start = re.compile("<script")
+    for line in lines:
+        start_match = script_start.findall(line)
+        if start_match:
+            assert len(start_match) == 1
+        
+def test_no_scripts_start_on_same_line_another_ends() -> None:
+    lines = get_html_lines()
+    script_start = re.compile("<script")
+    script_end = re.compile("</script>")
+    for line in lines:
+        start_match = script_start.search(line)
+        end_match = script_end.search(line)
+        if  start_match and end_match:
+            assert start_match.start() < end_match.start()
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
