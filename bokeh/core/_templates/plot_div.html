@@ -6,9 +6,7 @@ Renders a basic plot div, that can be used in conjunction with PLOT_JS.
 :type elementid: str
 
 -#}
-
 {% from macros import embed %}
-
 {{ embed(doc) if doc.elementid }}
 {% for root in doc.roots %}
   {{ embed(root) }}
