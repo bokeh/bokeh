@@ -3,7 +3,7 @@ name: Bokeh-CI
 on:
   push:
     branches:
-      - master
+      - main
       - branch-*
   pull_request:
 
