@@ -69,8 +69,8 @@ outside of the area where the axis is drawn.
 
 .. _userguide_tools_specifying_tools:
 
-Specifying tools
-----------------
+Specifying tools Trying
+-----------------------
 
 At the lowest |bokeh.models| level, you can add tools to a ``Plot`` by
 passing instances of ``Tool`` objects to the ``add_tools()`` method:
@@ -110,6 +110,49 @@ method with the figure() function's tools argument:
 
     plot = figure(tools="pan,wheel_zoom,box_zoom,reset")
     plot.add_tools(BoxSelectTool(dimensions="width"))
+
+
+.. _userguide_tools_customize_tools_icon:
+
+Customizing tools icon
+----------------------
+You can change the :ref:`bokeh.models.tools` tooltip by passing it to
+the ``description`` keyword using the ``add_tools()`` method of a plot or any
+of it's instances like |figure|.
+
+.. code-block:: python
+
+    plot.add_tools(BoxSelectTool(description="My tool"))
+
+
+It's also possible to change a tool icon using the ``icon`` keyword.
+
+You can pass:
+    1. A well known icon name
+
+        .. code-block:: python
+
+            plot.add_tools(BoxSelectTool(icon="box_zoom"))
+    2. A CSS selector
+
+        .. code-block:: python
+
+            plot.add_tools(BoxSelectTool(icon=".my-icon-class"))
+    3. An image path
+
+        .. code-block:: python
+
+            plot.add_tools(BoxSelectTool(icon="path/to/icon"))
+    4. A PIL Image instance
+
+        .. code-block:: python
+
+            from bokeh.models import BoxSelectTool
+            import PIL
+
+            my_icon = PIL.Image.open("path/to/icon").convert("RGB")
+
+            plot.add_tools(BoxSelectTool(icon=my_icon))
 
 .. _userguide_tools_setting_active_tools:
 
