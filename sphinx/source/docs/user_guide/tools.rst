@@ -69,8 +69,8 @@ outside of the area where the axis is drawn.
 
 .. _userguide_tools_specifying_tools:
 
-Specifying tools Trying
------------------------
+Specifying tools
+----------------
 
 At the lowest |bokeh.models| level, you can add tools to a ``Plot`` by
 passing instances of ``Tool`` objects to the ``add_tools()`` method:
