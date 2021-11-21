@@ -1,3 +1,5 @@
+''' A module file for creating a waterfall sample for the spectogram.
+'''
 from os.path import dirname, join
 
 from bokeh.core.properties import Color, Float, Int, Override, Seq

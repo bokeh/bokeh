@@ -1,3 +1,12 @@
+''' A stock OHLC chart that monitors the MACD indicator.
+This example shows the streaming and updating feature of Bokeh charts.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.models.ColumnDataSource, bokeh.model.Model.select, bokeh.models.Slider
+    :refs:
+    :keywords: candlestick, stocks, macd, line, ohlc
+
+'''
 import numpy as np
 
 from bokeh.driving import count

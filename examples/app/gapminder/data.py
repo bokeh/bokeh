@@ -1,3 +1,6 @@
+''' Dataset for the main.py of the gapminder example.
+
+'''
 import numpy as np
 
 

@@ -1,3 +1,5 @@
+''' A module file for the waterfall audio.
+'''
 from time import sleep
 
 import numpy as np

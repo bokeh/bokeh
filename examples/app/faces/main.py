@@ -1,3 +1,18 @@
+''' A face detection example that uses the Haar Cascade algorithm.
+This example shows the capability of Bokeh streaming with an integrated
+OpenCV package.
+
+.. note::
+    This chart needs the OpenCV package to run.
+
+.. bokeh-example-metadata::
+    :apis:bokeh.models.ColumnDataSource
+    :refs:
+    :keywords: haar cascade, opencsv, face detection
+
+.. _Haar Cascade: https://docs.opencv.org/3.4/db/d28/tutorial_cascade_classifier.html
+
+'''
 from datetime import datetime as dt
 
 import cv2

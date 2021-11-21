@@ -1,3 +1,18 @@
+''' A k-nearest neighbors (KNN) chart using datasets from scikit-learn. This
+example demonstrates solving both classification and regression problems.
+
+.. note::
+    This clustering visualization needs the scikit-learn package to run.
+
+.. bokeh-example-metadata::
+    :sampledata: nearest neighbors
+    :apis: bokeh.models.ColumnDataSource, bokeh.model.Model.select, bokeh.models.Slider
+    :refs:
+    :keywords: models, clustering, scikit-learn
+
+.. _K-nearest neighbors algorithm: https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm
+
+'''
 import numpy as np
 from sklearn import cluster, datasets
 from sklearn.neighbors import kneighbors_graph
