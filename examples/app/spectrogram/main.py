@@ -1,3 +1,15 @@
+''' A spectogram chart that uses a waterfall dataset.
+This example shows the streaming efficiency of Bokeh with live audio.
+
+.. note::
+    This clustering visualization needs the scipy package to run.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.models.Slider
+    :refs:
+    :keywords: spectogram, audio, streaming, scipy
+
+'''
 from math import ceil
 from os.path import dirname, join
 

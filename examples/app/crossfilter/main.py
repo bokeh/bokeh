@@ -1,3 +1,19 @@
+''' A crossfilter plot map that uses the `Auto MPG dataset`_. This example
+demonstrates the relationship of datasets together. A hover tooltip displays
+information on each dot.
+
+.. note::
+    This chart needs the Pandas package to run.
+
+.. bokeh-example-metadata::
+    :sampledata: autompg
+    :apis: bokeh.model.Model.select
+    :refs:
+    :keywords: pandas, crossfilter
+
+.. _Auto MPG dataset: https://archive.ics.uci.edu/ml/datasets/auto+mpg
+
+'''
 import pandas as pd
 
 from bokeh.layouts import column, row

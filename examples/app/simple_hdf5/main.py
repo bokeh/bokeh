@@ -1,3 +1,14 @@
+''' A simple chart visualizing hdf5 files.
+
+.. note::
+    This visualization needs the hdf5 library to run.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.models.ColumnDataSource, bokeh.model.Model.select
+    :refs:
+    :keywords: hdf5, data files, categorical
+
+'''
 import os
 from os.path import dirname, join
 
