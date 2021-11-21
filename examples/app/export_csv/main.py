@@ -1,3 +1,7 @@
+''' A column salary chart with minimum and maximum values.
+This example shows the capability of exporting a csv file from ColumnDataSource.
+
+'''
 from os.path import dirname, join
 
 import pandas as pd

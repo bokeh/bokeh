@@ -1,3 +1,10 @@
+''' A spectogram chart that uses a waterfall dataset.
+This example shows the streaming efficiency of Bokeh with live audio.
+
+.. note::
+    This example needs the scipy package to run.
+
+'''
 from math import ceil
 from os.path import dirname, join
 

@@ -1,7 +1,6 @@
 """ Example demonstrating turning lines on and off - with bokeh server
 
 """
-
 import numpy as np
 
 from bokeh.io import curdoc

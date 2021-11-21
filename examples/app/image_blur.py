@@ -1,3 +1,10 @@
+''' An image blurring example. This sample shows the capability
+of Bokeh to transform images to have certain effects.
+
+.. note::
+    This example needs the scipy package to run.
+
+'''
 import numpy as np
 import scipy.misc
 

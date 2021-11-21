@@ -1,3 +1,9 @@
+''' A simple chart visualizing hdf5 files.
+
+.. note::
+    This example needs the hdf5 library to run.
+
+'''
 import os
 from os.path import dirname, join
 
