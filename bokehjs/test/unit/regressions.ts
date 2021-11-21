@@ -12,7 +12,7 @@ import {assert} from "@bokehjs/core/util/assert"
 import {build_view} from "@bokehjs/core/build_views"
 import {offset} from "@bokehjs/core/dom"
 import {gridplot} from "@bokehjs/api/gridplot"
-import {Document, DocJson} from "@bokehjs/document"
+import {Document, DocJson, DocumentEvent, ModelChangedEvent} from "@bokehjs/document"
 
 describe("Bug", () => {
   describe("in issue #10612", () => {
@@ -271,20 +271,21 @@ describe("Bug", () => {
         version: "3.0.0",
       }
 
-      const doc = Document.from_json(doc_json)
-
-      const patch0 = Document._compute_patch_since_json(doc_json, doc)
-      expect(patch0.events).to.be.empty
+      const events0: DocumentEvent[] = []
+      const doc = Document.from_json(doc_json, events0)
+      expect(events0).to.be.empty
 
       expect(doc.roots().length).to.be.equal(1)
+
+      const events1: DocumentEvent[] = []
+      doc.on_change((event) => events1.push(event))
       await build_view(doc.roots()[0], {parent: null})
 
-      const patch1 = Document._compute_patch_since_json(doc_json, doc)
-      expect(patch1.events).to.be.similar([
-        {kind: "ModelChanged", model: {id: "1008"}, attr: "start", new: -0.15707963267948988},
-        {kind: "ModelChanged", model: {id: "1008"}, attr: "end", new: 3.2986722862692828},
-        {kind: "ModelChanged", model: {id: "1009"}, attr: "start", new: -1.0840481406628186},
-        {kind: "ModelChanged", model: {id: "1009"}, attr: "end", new: 1.0992403876506105},
+      expect(events1).to.be.similar([
+        new ModelChangedEvent(doc, doc.get_model_by_id("1008")!, "start", NaN, -0.15707963267948988),
+        new ModelChangedEvent(doc, doc.get_model_by_id("1008")!, "end",   NaN,  3.2986722862692828),
+        new ModelChangedEvent(doc, doc.get_model_by_id("1009")!, "start", NaN, -1.0840481406628186),
+        new ModelChangedEvent(doc, doc.get_model_by_id("1009")!, "end",   NaN,  1.0992403876506105),
       ])
     })
   })

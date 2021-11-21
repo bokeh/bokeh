@@ -133,7 +133,7 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
     }
 
     const references = Deserializer._instantiate_references_json(def.references, new Map(), resolver)
-    Deserializer._initialize_references_json(def.references, new Map(), references, new Map())
+    Deserializer._initialize_references_json(def.references, new Map(), references, new Map(), null)
 
     function resolve_refs(value: unknown): unknown {
       return Deserializer._resolve_refs(value, new Map(), references, new Map())

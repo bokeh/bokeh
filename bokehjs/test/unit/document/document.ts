@@ -2,7 +2,6 @@ import {expect} from "assertions"
 import * as sinon from "sinon"
 
 import {assert} from "@bokehjs/core/util/assert"
-import {values, entries} from "@bokehjs/core/util/object"
 import {Document, DEFAULT_TITLE} from "@bokehjs/document"
 import * as ev from "@bokehjs/document/events"
 import {version as js_version} from "@bokehjs/version"
@@ -122,45 +121,6 @@ class ModelWithConstructTimeChanges extends Model {
 }
 
 Models.register("ModelWithConstructTimeChanges", ModelWithConstructTimeChanges)
-
-namespace ComplicatedModelWithConstructTimeChanges {
-  export type Attrs = p.AttrsOf<Props>
-  export type Props = Model.Props & {
-    list_prop: p.Property<AnotherModel[]>
-    dict_prop: p.Property<{[key: string]: AnotherModel}>
-    obj_prop: p.Property<ModelWithConstructTimeChanges>
-    dict_of_list_prop: p.Property<{[key: string]: Model[]}>
-  }
-}
-
-interface ComplicatedModelWithConstructTimeChanges extends ComplicatedModelWithConstructTimeChanges.Attrs {}
-
-class ComplicatedModelWithConstructTimeChanges extends Model {
-  override properties: ComplicatedModelWithConstructTimeChanges.Props
-
-  constructor(attrs?: Partial<ComplicatedModelWithConstructTimeChanges.Attrs>) {
-    super(attrs)
-  }
-
-  override initialize(): void {
-    super.initialize()
-    this.list_prop = [new AnotherModel()]
-    this.dict_prop = {foo: new AnotherModel()}
-    this.obj_prop = new ModelWithConstructTimeChanges()
-    this.dict_of_list_prop = {foo: [new AnotherModel()]}
-  }
-
-  static {
-    this.define<ComplicatedModelWithConstructTimeChanges.Props>(({Array, Dict, Ref}) => ({
-      list_prop:         [ Array(Ref(AnotherModel)) ],
-      dict_prop:         [ Dict(Ref(AnotherModel)) ],
-      obj_prop:          [ Ref(ModelWithConstructTimeChanges) ],
-      dict_of_list_prop: [ Dict(Array(Ref(Model))) ],
-    }))
-  }
-}
-
-Models.register("ComplicatedModelWithConstructTimeChanges", ComplicatedModelWithConstructTimeChanges)
 
 describe("Document", () => {
   let date_stub: sinon.SinonStub
@@ -901,89 +861,32 @@ describe("Document", () => {
     expect(root1_copy.child!.document).to.be.equal(copy)
   })
 
-  it("computes patch for models added during construction", () => {
-    const d = new Document()
-    expect(d.roots().length).to.be.equal(0)
-    expect(d._all_models.size).to.be.equal(0)
-
-    const root1 = new ModelWithConstructTimeChanges()
-    // change it so it doesn't match what initialize() does
-    root1.foo = 3
-    root1.child = null
-    d.add_root(root1)
-
-    const json = d.to_json_string()
-    const parsed = JSON.parse(json)
-    parsed.version = js_version
-    const copy = Document.from_json_string(JSON.stringify(parsed))
-
-    const patch = Document._compute_patch_since_json(JSON.parse(json), copy)
-
-    expect(patch.events.length).to.be.equal(2)
-    expect(root1.foo).to.be.equal(3)
-    expect(root1.child).to.be.null
-    d.apply_json_patch(patch)
-    expect(root1.foo).to.be.equal(4)
-    expect(root1.child).to.be.instanceof(AnotherModel)
-  })
-
-  it("computes complicated patch for models added during construction", () => {
-    // this test simulates how from_json has to compute changes
-    // to send back to the server, when the client side makes
-    // changes while constructing the parsed document.
-    const d = new Document()
-    expect(d.roots().length).to.be.equal(0)
-    expect(d._all_models.size).to.be.equal(0)
-
-    const root1 = new ComplicatedModelWithConstructTimeChanges()
-    // change it so it doesn't match what initialize() does
-    const serialized_values = {
-      name: "foo",
-      tags: ["bar"],
-      list_prop: [new AnotherModel({bar: 42})],
-      dict_prop: {foo: new AnotherModel({bar: 43})},
-      obj_prop: new ModelWithConstructTimeChanges(),
-      dict_of_list_prop: {foo: [new AnotherModel({bar: 44})]},
-    }
-    root1.setv(serialized_values)
-
-    d.add_root(root1)
-
-    // in computing this, we will construct a
-    // ComplicatedModelWithConstructTimeChanges which will set
-    // stuff in initialize(), overwriting serialized_values above.
-    const json = d.to_json_string()
-    const parsed = JSON.parse(json)
-    parsed.version = js_version
-    const copy = Document.from_json_string(JSON.stringify(parsed))
-
-    const patch = Document._compute_patch_since_json(JSON.parse(json), copy)
-
-    // document should have the values we set above
-    for (const [key, value] of entries(serialized_values)) {
-      expect(root1.property(key).get_value()).to.be.equal(value)
+  it("can detect changes during model initialization", () => {
+    const doc_json = {
+      version: js_version,
+      title: "Bokeh Application",
+      roots: {
+        root_ids: ["j0"],
+        references: [{
+          type: "ModelWithConstructTimeChanges",
+          id: "j0",
+          attributes: {
+            foo: 3,
+          },
+        }],
+      },
     }
 
-    expect(root1.list_prop[0].bar).to.be.equal(42)
-    expect(root1.dict_prop.foo.bar).to.be.equal(43)
+    const events: ev.DocumentEvent[] = []
+    const doc = Document.from_json(doc_json, events)
 
-    expect(patch.events.length).to.be.equal(4)
+    expect(doc.roots().length).to.be.equal(1)
+    expect(events.length).to.be.equal(2)
 
-    // but when we apply the patch, initialize() should override
-    // what we had in the json only for the four things that
-    // ComplicatedModelWithConstructTimeChanges changes (not name
-    // and tags)
-    d.apply_json_patch(patch)
-    expect(root1.name).to.be.equal("foo")
-    expect(root1.tags).to.be.equal(["bar"])
-    expect(root1.list_prop.length).to.be.equal(1)
-    expect(root1.list_prop[0].bar).to.be.equal(1)
-    expect(Object.keys(root1.dict_prop).length).to.be.equal(1)
-    expect(root1.dict_prop.foo.bar).to.be.equal(1)
-    expect(root1.obj_prop).to.be.instanceof(ModelWithConstructTimeChanges)
-    expect(root1.obj_prop.child).to.be.instanceof(AnotherModel)
-    expect(Object.keys(root1.dict_of_list_prop).length).to.be.equal(1)
-    expect(values(root1.dict_of_list_prop)[0].length).to.be.equal(1)
+    const [root0] = doc.roots()
+    assert(root0 instanceof ModelWithConstructTimeChanges)
+    expect(root0.foo).to.be.equal(4)
+    expect(root0.child).to.be.instanceof(AnotherModel)
   })
 
   it("computes minimum patch for objects referencing known objects", () => {

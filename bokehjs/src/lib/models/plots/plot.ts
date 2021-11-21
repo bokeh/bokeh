@@ -192,14 +192,6 @@ export class Plot extends LayoutDOM {
     })
   }
 
-  protected override _doc_attached(): void {
-    super._doc_attached()
-    this._push_changes([
-      [this.properties.inner_height, null, this.inner_height],
-      [this.properties.inner_width, null, this.inner_width],
-    ])
-  }
-
   override initialize(): void {
     super.initialize()
 
