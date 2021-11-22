@@ -9,7 +9,6 @@ sorting options based on a given dataset.
     :keywords: pandas, categorical, tooltip, query
 
 '''
-
 import sqlite3 as sql
 from os.path import dirname, join
 

@@ -1,3 +1,15 @@
+''' An image blurring example. This sample shows the capability
+of Bokeh to transform images to have certain effects.
+
+.. note::
+    This file needs the scipy package to run.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider
+    :refs:
+    :keywords: scipy, tooltip
+
+'''
 import numpy as np
 import scipy.misc
 

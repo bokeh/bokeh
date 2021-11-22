@@ -7,7 +7,7 @@ example demonstrates solving both classification and regression problems.
 .. bokeh-example-metadata::
     :sampledata: nearest neighbors
     :apis: bokeh.models.ColumnDataSource, bokeh.model.Model.select, bokeh.models.Slider
-    :refs:
+    :refs: :ref:`userguide_scatter_markers` > :ref:`userguide_scatter_markers`
     :keywords: models, clustering, scikit-learn
 
 .. _K-nearest neighbors algorithm: https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm

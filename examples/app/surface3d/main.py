@@ -1,3 +1,12 @@
+''' A 3D graph using the ColumnDataSource of Bokeh with the Graph3d library.
+This example shows the custom extension feature of Bokeh.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.models.ColumnDataSource
+    :refs:
+    :keywords: javascript, plotting, graph3d,
+
+'''
 import numpy as np
 
 from bokeh.driving import count

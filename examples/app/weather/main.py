@@ -1,3 +1,17 @@
+''' A weather chart for three cities using a csv file.
+This illustration demonstrates different interpretation of the same data
+with the distribution option.
+
+.. note::
+    This chart needs the Scipy and Pandas package to run. See
+    the included `README`_ for more information.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.DataRange1d, bokeh.model.Model.select
+    :refs:
+    :keywords: bars, pandas, scipy, csv
+
+'''
 import datetime
 from os.path import dirname, join
 

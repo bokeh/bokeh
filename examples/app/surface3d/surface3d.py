@@ -1,3 +1,6 @@
+''' A module file for the main.py that sets the default value and view of the graph.
+
+'''
 from bokeh.core.properties import Any, Dict, Instance, String
 from bokeh.models import ColumnDataSource, LayoutDOM
 

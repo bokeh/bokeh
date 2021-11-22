@@ -1,3 +1,13 @@
+''' A taylor series visualization graph. This example demonstrates
+the ability of Bokeh for inputted expressions to reflect on a chart.
+
+.. bokeh-example-metadata::
+    :sampledata: movie data
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.models.TextInput, bokeh.layouts.column, bokeh.io.curdoc
+    :refs:
+    :keywords: taylor, tooltip, line, slider
+
+'''
 import numpy as np
 import sympy as sy
 
