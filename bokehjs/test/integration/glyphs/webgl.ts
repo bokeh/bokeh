@@ -41,4 +41,21 @@ describe("webgl", () => {
 
     await display(row([p0, p1]))
   })
+
+  it("should support zoom without NaN problems", async () => {
+    // See 8th item of issue #11050.
+    const x = [-1, 1, 1, -1]
+    const y = [0, 0, 1, 1]
+
+    function make_plot(output_backend: OutputBackend) {
+      const p = fig([200, 200], {output_backend, title: output_backend, x_range: [0.999, 1.001]})
+      p.line(x, y, {line_width: 10})
+      return p
+    }
+
+    const p0 = make_plot("canvas")
+    const p1 = make_plot("webgl")
+
+    await display(row([p0, p1]))
+  })
 })

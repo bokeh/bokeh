@@ -5,18 +5,13 @@ import {color2rgba} from "core/util/color"
 import {resolve_line_dash} from "core/visuals/line"
 import {Texture2D} from "regl"
 import {cap_lookup, join_lookup} from "./webgl_utils"
-import {Float32Buffer} from "./buffer"
+import {Float32Buffer, Uint8Buffer} from "./buffer"
 import {LineGlyphProps, LineDashGlyphProps} from "./types"
-
-// Avoiding use of nan or inf to represent missing data in webgl as shaders may
-// have reduced floating point precision.  So here using a large-ish negative
-// value instead.
-const missing_point = -10000.0
-const missing_point_threshold = -9000.0
 
 export class LineGL extends BaseGLGlyph {
   protected _nsegments: number
   protected _points?: Float32Buffer
+  protected _show?: Uint8Buffer  // Applies to segments not points.
 
   protected _antialias: number
   protected _color: number[]
@@ -68,6 +63,7 @@ export class LineGL extends BaseGLGlyph {
         antialias: this._antialias,
         miter_limit: this._miter_limit,
         points: mainGlGlyph._points!,
+        show: mainGlGlyph._show!,
         nsegments: mainGlGlyph._nsegments,
         line_join,
         line_cap,
@@ -89,6 +85,7 @@ export class LineGL extends BaseGLGlyph {
         antialias: this._antialias,
         miter_limit: this._miter_limit,
         points: mainGlGlyph._points!,
+        show: mainGlGlyph._show!,
         nsegments: mainGlGlyph._nsegments,
         line_join,
         line_cap,
@@ -105,25 +102,19 @@ export class LineGL extends BaseGLGlyph {
     const npoints = this.glyph.sx.length
     this._nsegments = npoints-1
 
-    if (this._is_closed == null) {
-      this._is_closed = (this.glyph.sx[0] == this.glyph.sx[npoints-1] &&
-                         this.glyph.sy[0] == this.glyph.sy[npoints-1] &&
-                         isFinite(this.glyph.sx[0]) &&
-                         isFinite(this.glyph.sy[0]))
-    }
+    this._is_closed = (npoints > 2 &&
+                       this.glyph.sx[0] == this.glyph.sx[npoints-1] &&
+                       this.glyph.sy[0] == this.glyph.sy[npoints-1] &&
+                       isFinite(this.glyph.sx[0]) &&
+                       isFinite(this.glyph.sy[0]))
 
     if (this._points == null)
       this._points = new Float32Buffer(this.regl_wrapper)
     const points_array = this._points.get_sized_array((npoints+2)*2)
 
     for (let i = 1; i < npoints+1; i++) {
-      if (isFinite(this.glyph.sx[i-1]) && isFinite(this.glyph.sy[i-1])) {
-        points_array[2*i  ] = this.glyph.sx[i-1]
-        points_array[2*i+1] = this.glyph.sy[i-1]
-      } else {
-        points_array[2*i  ] = missing_point
-        points_array[2*i+1] = missing_point
-      }
+      points_array[2*i  ] = this.glyph.sx[i-1]
+      points_array[2*i+1] = this.glyph.sy[i-1]
     }
 
     if (this._is_closed) {
@@ -132,13 +123,35 @@ export class LineGL extends BaseGLGlyph {
       points_array[2*npoints+2] = points_array[4]  // Second point.
       points_array[2*npoints+3] = points_array[5]
     } else {
-      points_array[0] = missing_point
-      points_array[1] = missing_point
-      points_array[2*npoints+2] = missing_point
-      points_array[2*npoints+3] = missing_point
+      // These are never used by the WebGL shaders, but setting to zero anyway.
+      points_array[0] = 0.0
+      points_array[1] = 0.0
+      points_array[2*npoints+2] = 0.0
+      points_array[2*npoints+3] = 0.0
     }
 
     this._points.update()
+
+    if (this._show == null)
+      this._show = new Uint8Buffer(this.regl_wrapper)
+    const show_array = this._show.get_sized_array(npoints+1)
+
+    let start_finite = isFinite(this.glyph.sx[0]) && isFinite(this.glyph.sy[0])
+    for (let i = 1; i < npoints; i++) {
+      const end_finite = isFinite(this.glyph.sx[i]) && isFinite(this.glyph.sy[i])
+      show_array[i] = (start_finite && end_finite) ? 1 : 0
+      start_finite = end_finite
+    }
+
+    if (this._is_closed) {
+      show_array[0] = show_array[npoints-1]
+      show_array[npoints] = show_array[1]
+    } else {
+      show_array[0] = 0
+      show_array[npoints] = 0
+    }
+
+    this._show.update()
 
     if (this._is_dashed()) {
       if (this._length_so_far == null)
@@ -148,8 +161,7 @@ export class LineGL extends BaseGLGlyph {
       let length = 0.0
       for (let i = 0; i < this._nsegments; i++) {
         lengths_array[i] = length
-        if (points_array[2*i+2] > missing_point_threshold &&
-            points_array[2*i+4] > missing_point_threshold)
+        if (show_array[i+1] == 1)
           length += Math.sqrt((points_array[2*i+4] - points_array[2*i+2])**2 +
                               (points_array[2*i+5] - points_array[2*i+3])**2)
       }

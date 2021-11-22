@@ -45,6 +45,7 @@ export type LineGlyphProps = CommonProps & {
   linewidth: number
   miter_limit: number
   points: Float32Buffer
+  show: Uint8Buffer
   nsegments: number
   line_cap: number
   line_join: number
@@ -124,6 +125,9 @@ export type LineGlyphAttributes = {
   a_point_start: AttributeConfig
   a_point_end: AttributeConfig
   a_point_next: AttributeConfig
+  a_show_prev: AttributeConfig
+  a_show_curr: AttributeConfig
+  a_show_next: AttributeConfig
 }
 
 export type LineDashGlyphAttributes = LineGlyphAttributes & {

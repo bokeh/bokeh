@@ -182,6 +182,15 @@ function regl_solid_line(regl: Regl, line_geometry: Buffer, line_triangles: Elem
       a_point_next(_, props) {
         return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*6)
       },
+      a_show_prev(_, props) {
+        return props.show.to_attribute_config()
+      },
+      a_show_curr(_, props) {
+        return props.show.to_attribute_config(Uint8Array.BYTES_PER_ELEMENT)
+      },
+      a_show_next(_, props) {
+        return props.show.to_attribute_config(Uint8Array.BYTES_PER_ELEMENT*2)
+      },
     },
 
     uniforms: {
@@ -244,6 +253,15 @@ function regl_dashed_line(regl: Regl, line_geometry: Buffer, line_triangles: Ele
       },
       a_point_next(_, props) {
         return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*6)
+      },
+      a_show_prev(_, props) {
+        return props.show.to_attribute_config()
+      },
+      a_show_curr(_, props) {
+        return props.show.to_attribute_config(Uint8Array.BYTES_PER_ELEMENT)
+      },
+      a_show_next(_, props) {
+        return props.show.to_attribute_config(Uint8Array.BYTES_PER_ELEMENT*2)
       },
       a_length_so_far(_, props) {
         return props.length_so_far.to_attribute_config()
