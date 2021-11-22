@@ -56,7 +56,6 @@ dependencies:
   - icalendar
   - networkx
   - notebook
-  - opencv
   - pyshp
   - scikit-learn
   - sympy
