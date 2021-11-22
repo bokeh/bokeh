@@ -1,3 +1,8 @@
+''' A chart that uses the population dataset of the globe.
+This example shows the ability of Bokeh to use two different kinds of graph into
+one file and sorting them by having different colors and lines.
+
+'''
 from math import pi
 
 from bokeh.io import curdoc

@@ -13,6 +13,12 @@ at your command prompt. Then navigate to the URL
 
 in your browser.
 
+.. bokeh-example-metadata::
+    :sampledata: movie data
+    :apis:  bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.models.TextInput, bokeh.layouts.column
+    :refs:
+    :keywords: wave, tooltip, slider
+
 '''
 import numpy as np
 

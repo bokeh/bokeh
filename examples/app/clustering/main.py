@@ -4,12 +4,6 @@ example demonstrates solving both classification and regression problems.
 .. note::
     This clustering visualization needs the scikit-learn package to run.
 
-.. bokeh-example-metadata::
-    :sampledata: nearest neighbors
-    :apis: bokeh.models.ColumnDataSource, bokeh.model.Model.select, bokeh.models.Slider
-    :refs:
-    :keywords: models, clustering, scikit-learn
-
 .. _K-nearest neighbors algorithm: https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm
 
 '''

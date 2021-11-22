@@ -1,3 +1,7 @@
+''' A taylor series visualization graph. This example demonstrates
+the ability of Bokeh for inputted expressions to reflect on a chart.
+
+'''
 import numpy as np
 import sympy as sy
 
