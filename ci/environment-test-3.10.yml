@@ -34,7 +34,6 @@ dependencies:
   - nbconvert >=5.4
   - networkx
   - nodejs 14.*
-  #- numba
   - pandas
   - psutil
   - pydot
