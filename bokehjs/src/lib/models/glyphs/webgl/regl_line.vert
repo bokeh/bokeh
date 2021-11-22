@@ -8,13 +8,14 @@ const int miter_join = 0;
 const int round_join = 1;
 const int bevel_join = 2;
 
-const float missing_point_threshold = -9000.0;
-
 attribute vec2 a_position;
 attribute vec2 a_point_prev;
 attribute vec2 a_point_start;
 attribute vec2 a_point_end;
 attribute vec2 a_point_next;
+attribute float a_show_prev;
+attribute float a_show_curr;
+attribute float a_show_next;
 #ifdef DASHED
 attribute float a_length_so_far;
 #endif
@@ -62,8 +63,7 @@ float sign_no_zero(in float x)
 
 void main()
 {
-    if (a_point_start.x < missing_point_threshold ||
-        a_point_end.x < missing_point_threshold) {
+    if (a_show_curr < 0.5) {
         // Line segment has non-finite value at one or both ends, do not render.
         gl_Position = vec4(-2.0, -2.0, 0.0, 1.0);
         return;
@@ -84,8 +84,8 @@ void main()
 
     v_coords.y = a_position.y*halfwidth;  // Overwritten later for end points.
 
-    bool has_start_cap = a_point_prev.x < missing_point_threshold;
-    bool has_end_cap = a_point_next.x < missing_point_threshold;
+    bool has_start_cap = a_show_prev < 0.5;
+    bool has_end_cap = a_show_next < 0.5;
 
     vec2 point_normal_start;
     float cos_theta_start;
