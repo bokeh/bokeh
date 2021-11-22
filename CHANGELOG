@@ -1,3 +1,26 @@
+2021-11-22    2.4.2:
+--------------------
+  * bugfixes:
+    - #11422 [component: bokehjs] [BUG] `DeserializationError` when trying to change a `DataTable`'s columns with `CustomJS`
+    - #11800 [BUG] DeserializationError when plotting graphs
+    - #11801 [component: bokehjs] [BUG] Log axis figures don't render if they're not visible at start
+    - #11807 [component: bokehjs] Work around issues with initialization-time change discovery
+    - #11808 Don't unnecessarily update node/edge renderers in graphs
+
+  * tasks:
+    - #11613 [component: docs] Cache-bust custom.css for docs
+    - #11791 [component: docs] Update issue template to use new GH forms
+    - #11761 [component: docs] Clarify use of color in first steps guide
+    - #11762 [component: docs] Replace slash with backslash for PS commands
+    - #11767 [component: bokehjs] Upgrade jquery-ui to resolve security concerns
+    - #11781 [component: examples] fix transform jitter example
+    - #11786 bokeh 2.4.2 backports
+    - #11790 [component: build] Bryanv/pin sphinx 42
+    - #11797 Add OS to bokeh info
+    - #11805 More 3.0 -> 2.4.2 backports
+    - #11810 [component: docs] Update docs for new issue forms
+    - #11824 Updates for release 
+
 2021-10-13    2.4.1:
 --------------------
   * bugfixes:
