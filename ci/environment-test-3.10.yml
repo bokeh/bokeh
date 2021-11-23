@@ -2,7 +2,7 @@ name: bk-test
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
+  - python=3.10
 
   # runtime
   - jinja2 >=2.7
@@ -39,7 +39,7 @@ dependencies:
   - pydot
   - pygments
   - pytest 6.2*
-  - pytest-asyncio=0.12.0
+  - pytest-asyncio
   - pytest-cov >=1.8.1
   - pytest-html
   - pytest-xdist
