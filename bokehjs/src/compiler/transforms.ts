@@ -191,17 +191,17 @@ function isImportCall(node: ts.Node): node is ts.ImportCall {
   return ts.isCallExpression(node) && node.expression.kind == ts.SyntaxKind.ImportKeyword
 }
 
-export function collect_imports(imports: Set<string>) {
+export function collect_imports(static_imports: Set<string>, dynamic_imports: Set<string>) {
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
     function visit(node: ts.Node): ts.Node {
       if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
         const name = node.moduleSpecifier
         if (name != null && ts.isStringLiteral(name) && name.text.length != 0)
-          imports.add(name.text)
+          static_imports.add(name.text)
       } else if (isImportCall(node)) {
         const [name] = node.arguments
         if (ts.isStringLiteral(name) && name.text.length != 0)
-          imports.add(name.text)
+          dynamic_imports.add(name.text)
       }
 
       return ts.visitEachChild(node, visit, context)

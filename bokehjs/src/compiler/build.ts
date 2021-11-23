@@ -331,8 +331,14 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   if (is_package)
     bases.push(join(base_dir, "node_modules"))
 
+  const entry = {
+    name: artifact,
+    main: join(lib_dir, "index.js"),
+    output: join(dist_dir, `${artifact}.js`),
+  }
+
   const linker = new Linker({
-    entries: [join(lib_dir, "index.js")],
+    entries: [entry],
     bases,
     cache: join(dist_dir, `${artifact}.json`),
     excluded: (dep) => dep == "tslib" || dep.startsWith("@bokehjs/"),
@@ -346,9 +352,6 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   if (!status)
     success = false
   linker.store_cache()
-  const outputs = [join(dist_dir, `${artifact}.js`)]
-
-  const min_js = (js: string) => rename(js, {ext: ".min.js"})
 
   const license = (() => {
     if (isPlainObject(bokeh_ext.license)) {
@@ -386,6 +389,9 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
       .map((bundle) => bundle.assemble({prelude, postlude, minified}))
       .map((artifact, i) => artifact.write(outputs[i]))
   }
+
+  const outputs = [entry.output]
+  const min_js = (js: string) => rename(js, {ext: ".min.js"})
 
   bundle(false, outputs)
   bundle(true, outputs.map(min_js))

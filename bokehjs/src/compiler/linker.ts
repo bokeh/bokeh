@@ -13,11 +13,11 @@ import {read, write, file_exists, directory_exists, rename, Path} from "./sys"
 import {report_diagnostics} from "./compiler"
 import * as transforms from "./transforms"
 import {BuildError} from "./error"
-import {Graph, detect_cycles} from "./graph"
+import {Graph, detect_cycles as cycles} from "./graph"
 
 const root_path = process.cwd()
 
-const cache_version = 4
+const cache_version = 5
 
 export type Transformers = ts.TransformerFactory<ts.SourceFile>[]
 
@@ -45,6 +45,7 @@ export type ModuleInfo = {
   dependency_map: Map<string, number>
   dependencies: Map<string, ModuleInfo>
   exported: transforms.Exports[]
+  dynamic_imports: Set<string>
   externals: Set<string>
   shims: Set<string>
 }
@@ -95,7 +96,7 @@ export type AssemblyOptions = {
 
 export class Bundle {
   constructor(
-    readonly entry: ModuleInfo,
+    readonly main: ModuleInfo,
     readonly artifacts: ModuleArtifact[],
     readonly builtins: boolean,
     readonly bases: Bundle[] = []) {}
@@ -117,7 +118,7 @@ export class Bundle {
       return typeof id == "number" ? id.toString() : JSON.stringify(id)
     }
 
-    const {entry, artifacts, bases} = this
+    const {main, artifacts, bases} = this
     const minified = options.minified ?? false
 
     const plugin = bases.length != 0
@@ -159,7 +160,7 @@ export class Bundle {
     const aliases_json = JSON.stringify(to_obj(aliases))
     const externals_json = JSON.stringify(to_obj(externals))
 
-    sources += `${suffix}, ${safe_id(entry)}, ${aliases_json}, ${externals_json});${postlude}`
+    sources += `${suffix}, ${safe_id(main)}, ${aliases_json}, ${externals_json});${postlude}`
 
     const source_map = convert.fromBase64(sourcemap.base64()).toObject()
     return new Artifact(sources, minified ? null : source_map, aliases)
@@ -221,8 +222,15 @@ export class Artifact {
   }
 }
 
-export interface LinkerOpts {
-  entries: Path[]
+export type BundleDef = {
+  name: string
+  main: Path
+  output: Path
+  extends?: BundleDef[]
+}
+
+export type LinkerOpts = {
+  entries: BundleDef[]
   bases?: Path[]
   excludes?: Path[]    // paths: process, but don't include in a bundle
   externals?: (string | RegExp)[] // modules: delegate to an external require()
@@ -240,7 +248,7 @@ export interface LinkerOpts {
 }
 
 export class Linker {
-  readonly entries: Path[]
+  readonly entries: BundleDef[]
   readonly bases: Path[]
   readonly excludes: Set<Path>
   readonly external_modules: Set<string>
@@ -259,7 +267,7 @@ export class Linker {
   readonly overrides: Map<string, string>
 
   constructor(opts: LinkerOpts) {
-    this.entries = opts.entries.map((path) => resolve(path))
+    this.entries = opts.entries.map((entry) => ({...entry, path: resolve(entry.main)}))
     this.bases = (opts.bases ?? []).map((path) => resolve(path))
     this.excludes = new Set((opts.excludes ?? []).map((path) => resolve(path)))
     this.external_modules = new Set((opts.externals ?? []).filter((s): s is string => typeof s === "string"))
@@ -278,8 +286,8 @@ export class Linker {
     }
 
     for (const entry of this.entries) {
-      if (!file_exists(entry))
-        throw new BuildError("linker", `entry path ${entry} doesn't exist or isn't a file`)
+      if (!file_exists(entry.main))
+        throw new BuildError("linker", `entry path ${entry.main} doesn't exist or isn't a file`)
     }
 
     for (const base of this.bases) {
@@ -312,46 +320,61 @@ export class Linker {
   async link(): Promise<{bundles: Bundle[], status: boolean}> {
     let status = true
 
-    const [entries] = this.resolve(this.entries)
-    const [main, ...plugins] = entries
+    const [mains] = this.resolve(this.entries.map((entry) => entry.main))
 
-    const dirnames = plugins.map((plugin) => dirname(plugin.file))
-    const is_excluded = (module: ModuleInfo) => {
-      return dirnames.find((e) => module.file.startsWith(e)) != null
+    type Entry = {
+      name: string
+      main: ModuleInfo
+      bases: Entry[]
+      modules: ModuleInfo[]
     }
 
-    const main_modules = this.reachable(main, is_excluded)
-    const parents = new Set(main_modules)
-
-    const plugin_modules: ModuleInfo[][] = []
-
-    for (const plugin of plugins) {
-      const files = this.reachable(plugin, (module) => parents.has(module))
-      plugin_modules.push(files)
+    function concat<T>(arrays: T[][]): T[] {
+      return ([] as T[]).concat(...arrays)
     }
 
-    const all_modules = main_modules.concat(...plugin_modules)
+    const entries: Entry[] = []
+
+    for (let i = 0; i < this.entries.length; i++) {
+      const def = this.entries[i]
+      const main = mains[i]
+
+      const bases = (def.extends ?? []).map((base_def) => {
+        const base = entries.find((item) => item.name == base_def.name)
+        if (base != null)
+          return base
+        else
+          throw new Error(`can't resolve parent bundle '${base_def.name}' for '${def.name}'`)
+      })
+
+      const parents = new Set(concat(bases.map((base) => base.modules)))
+      const modules = this.reachable(main, (module) => parents.has(module))
+
+      entries.push({name: def.name, main, bases, modules})
+    }
+
+    const all_modules = concat(entries.map((entry) => entry.modules))
     if (!this.plugin)
       all_modules.forEach((module, i) => module.id = i)
     else
       all_modules.forEach((module) => module.id = module.hash.slice(0, 10))
 
-    if (this.detect_cycles) {
+    function detect_cycles(modules: ModuleInfo[]) {
       function is_internal(module: ModuleInfo) {
         return module.canonical != null
       }
 
-      const nodes = all_modules.filter(is_internal)
+      const nodes = modules.filter(is_internal)
       const graph: Graph<ModuleInfo> = new Map()
       for (const node of nodes) {
         const deps = [...node.dependencies.values()]
         graph.set(node, deps.filter(is_internal))
       }
 
-      const cycles = detect_cycles(graph)
-      if (cycles.length != 0) {
+      const found_cycles = cycles(graph)
+      if (found_cycles.length != 0) {
         status = false
-        for (const cycle of cycles) {
+        for (const cycle of found_cycles) {
           console.log(`${chalk.red("\u2717")} cycle detected:`)
           for (const module of cycle) {
             const is_last = cycle[cycle.length-1] == module
@@ -424,15 +447,16 @@ export class Linker {
       return result
     }
 
-    const main_bundle = new Bundle(main, await artifacts(main_modules), this.builtins)
-
-    const plugin_bundles: Bundle[] = []
-    for (let j = 0; j < plugins.length; j++) {
-      const plugin_bundle = new Bundle(plugins[j], await artifacts(plugin_modules[j]), this.builtins, [main_bundle])
-      plugin_bundles.push(plugin_bundle)
+    if (this.detect_cycles) {
+      detect_cycles(all_modules)
     }
 
-    const bundles = [main_bundle, ...plugin_bundles]
+    const bundles: Bundle[] = []
+    for (const entry of entries) {
+      const bases = entry.bases.map((base) => bundles.find((bundle) => bundle.main == base.main)!)
+      const bundle = new Bundle(entry.main, await artifacts(entry.modules), this.builtins, bases)
+      bundles.push(bundle)
+    }
 
     this.cache.clear()
     for (const bundle of bundles) {
@@ -754,6 +778,7 @@ export ${export_type} css;
 
     let ast: ts.SourceFile | undefined
     let dependency_paths: Map<string, Path>
+    let dynamic_imports: Set<string> = new Set()
     let externals: Set<string>
     let shims: Set<string>
     let exported: transforms.Exports[] = []
@@ -764,13 +789,13 @@ export ${export_type} css;
       if ((this.target != null && resolution == "ESM") || type == "json") {
         const {ES2020, ES2017, ES2015} = ts.ScriptTarget
         const target = this.target == "ES2020" ? ES2020 : (this.target == "ES2017" ? ES2017 : ES2015)
-        const imports = new Set<string>()
+        const static_imports = new Set<string>()
         if (canonical != "tslib") {
-          imports.add("tslib")
+          static_imports.add("tslib")
         }
 
         const transform: {before: Transformers, after: Transformers} = {
-          before: [transforms.collect_imports(imports), transforms.rename_exports(), transforms.collect_exports(exported)],
+          before: [transforms.collect_imports(static_imports, dynamic_imports), transforms.rename_exports(), transforms.collect_exports(exported)],
           after: [],
         }
 
@@ -780,7 +805,7 @@ export ${export_type} css;
           throw new BuildError("linker", error)
         else {
           source = output
-          collected = [...imports]
+          collected = [...static_imports, ...dynamic_imports]
         }
       }
 
@@ -803,6 +828,7 @@ export ${export_type} css;
       shims = new Set(collected.filter((dep) => this.is_shimmed(dep)))
     } else {
       dependency_paths = cached.module.dependency_paths
+      dynamic_imports = cached.module.dynamic_imports
       exported = cached.module.exported
       externals = cached.module.externals
       shims = cached.module.shims
@@ -825,6 +851,7 @@ export ${export_type} css;
       dependency_map: new Map(),
       dependencies: new Map(),
       exported,
+      dynamic_imports,
       externals,
       shims,
     }

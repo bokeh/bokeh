@@ -30,29 +30,42 @@ export const src_dir = {
   examples: join(base_dir, "examples"),
 }
 
-export const lib = {
-  bokehjs: {
-    main: join(build_dir.lib, "main.js"),
-    output: join(build_dir.js, "bokeh.js"),
-  },
-  gl: {
-    main: join(build_dir.lib, "models/glyphs/webgl/main.js"),
-    output: join(build_dir.js, "bokeh-gl.js"),
-  },
-  api: {
-    main: join(build_dir.lib, "api/main.js"),
-    output: join(build_dir.js, "bokeh-api.js"),
-  },
-  widgets: {
-    main: join(build_dir.lib, "models/widgets/main.js"),
-    output: join(build_dir.js, "bokeh-widgets.js"),
-  },
-  tables: {
-    main: join(build_dir.lib, "models/widgets/tables/main.js"),
-    output: join(build_dir.js, "bokeh-tables.js"),
-  },
-  mathjax: {
-    main: join(build_dir.lib, "models/text/mathjax/main.js"),
-    output: join(build_dir.js, "bokeh-mathjax.js"),
-  },
+import {BundleDef} from "@compiler/linker"
+
+const bokehjs: BundleDef = {
+  name: "bokeh",
+  main: join(build_dir.lib, "main.js"),
+  output: join(build_dir.js, "bokeh.js"),
 }
+const gl: BundleDef = {
+  name: "bokeh-gl",
+  main: join(build_dir.lib, "models/glyphs/webgl/main.js"),
+  output: join(build_dir.js, "bokeh-gl.js"),
+  extends: [bokehjs],
+}
+const api: BundleDef = {
+  name: "bokeh-api",
+  main: join(build_dir.lib, "api/main.js"),
+  output: join(build_dir.js, "bokeh-api.js"),
+  extends: [bokehjs],
+}
+const widgets: BundleDef = {
+  name: "bokeh-widgets",
+  main: join(build_dir.lib, "models/widgets/main.js"),
+  output: join(build_dir.js, "bokeh-widgets.js"),
+  extends: [bokehjs],
+}
+const tables: BundleDef = {
+  name: "bokeh-tables",
+  main: join(build_dir.lib, "models/widgets/tables/main.js"),
+  output: join(build_dir.js, "bokeh-tables.js"),
+  extends: [bokehjs, widgets],
+}
+const mathjax: BundleDef = {
+  name: "bokeh-mathjax",
+  main: join(build_dir.lib, "models/text/mathjax/main.js"),
+  output: join(build_dir.js, "bokeh-mathjax.js"),
+  extends: [bokehjs],
+}
+
+export const lib = {bokehjs, gl, api, widgets, tables, mathjax}

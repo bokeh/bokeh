@@ -263,8 +263,14 @@ function compile(name: string, options?: {auto_index?: boolean}) {
 }
 
 async function bundle(name: string): Promise<void> {
+  const test = {
+    name,
+    main: join(paths.build_dir.test, name, "index.js"),
+    output: join(paths.build_dir.test, `${name}.js`),
+  }
+
   const linker = new Linker({
-    entries: [join(paths.build_dir.test, name, "index.js")],
+    entries: [test],
     bases: [paths.build_dir.test, "./node_modules"],
     cache: join(paths.build_dir.test, `${name}.json`),
     target: "ES2020",
@@ -287,7 +293,7 @@ async function bundle(name: string): Promise<void> {
     plugin: preludes.plugin_postlude(),
   }
 
-  bundle.assemble({prelude, postlude}).write(join(paths.build_dir.test, `${name}.js`))
+  bundle.assemble({prelude, postlude}).write(test.output)
 
   if (!status)
     throw new BuildError(`${name}:bundle`, "unable to bundle modules")

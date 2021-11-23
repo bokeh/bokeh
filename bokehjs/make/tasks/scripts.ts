@@ -115,11 +115,10 @@ function min_js(js: string): string {
 }
 
 task("scripts:bundle", [passthrough("scripts:compile")], async () => {
-  const {bokehjs, gl, api, widgets, tables, mathjax} = paths.lib
-  const packages = [bokehjs, gl, api, widgets, tables, mathjax]
+  const entries = Object.values(paths.lib)
 
   const linker = new Linker({
-    entries: packages.map((pkg) => pkg.main),
+    entries,
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.json") : undefined,
     target: "ES2017",
@@ -138,7 +137,7 @@ exports.VERSION = "0.0.0";
   const {bundles, status} = await linker.link()
   linker.store_cache()
 
-  const outputs = packages.map((pkg) => pkg.output)
+  const outputs = entries.map((entry) => entry.output)
 
   const prelude = {
     main: preludes.prelude(),
