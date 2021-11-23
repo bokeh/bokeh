@@ -20,7 +20,7 @@
 
 - path: "examples/app"
   type: server
-  skip: ["simple_hdf5", "spectrogram", "stocks"]
+  skip: ["faces", "simple_hdf5", "spectrogram", "stocks"]
 
 - path: "examples/integration/*"
 
