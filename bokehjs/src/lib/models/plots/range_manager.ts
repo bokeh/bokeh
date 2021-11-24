@@ -215,7 +215,7 @@ export class RangeManager {
 
         if (rng.is_reversed) {
           if (min != null) {
-            if (min >= range_info.end) {
+            if (min > range_info.end) {
               hit_bound = true
               range_info.end = min
               if (panning || scrolling) {
@@ -224,7 +224,7 @@ export class RangeManager {
             }
           }
           if (max != null) {
-            if (max <= range_info.start) {
+            if (max < range_info.start) {
               hit_bound = true
               range_info.start = max
               if (panning || scrolling) {
@@ -234,7 +234,7 @@ export class RangeManager {
           }
         } else {
           if (min != null) {
-            if (min >= range_info.start) {
+            if (min > range_info.start) {
               hit_bound = true
               range_info.start = min
               if (panning || scrolling) {
@@ -243,7 +243,7 @@ export class RangeManager {
             }
           }
           if (max != null) {
-            if (max <= range_info.end) {
+            if (max < range_info.end) {
               hit_bound = true
               range_info.end = max
               if (panning || scrolling) {

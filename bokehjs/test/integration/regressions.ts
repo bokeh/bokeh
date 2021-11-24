@@ -15,6 +15,7 @@ import {
   Plot,
   TeX,
   HoverTool,
+  ZoomInTool,
   TileRenderer, WMTSTileSource,
   Renderer,
   ImageURLTexture,
@@ -1554,4 +1555,24 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #11832", () => {
+    it("should x-zoom the x-axis when the y-axis is bounded", async () => {
+      const zoom_in_tool = new ZoomInTool({dimensions: "width"})
+
+      const p = fig([200, 200], {x_range: [-1, 1], y_range: [-1, 1]})
+      p.y_range.bounds = [-1, 1]
+
+      p.add_tools(zoom_in_tool)
+      p.line([-1, 0, 1], [-1, 1, 0])
+
+      const {view} = await display(p)
+
+      const zoom_in_tool_view = view.tool_views.get(zoom_in_tool)! as ZoomInTool["__view_type__"]
+      zoom_in_tool_view.doit()
+
+      await view.ready
+    })
+  })
+
 })
