@@ -1,0 +1,45 @@
+name: 'Test Setup'
+
+description: 'Perform Setup Steps for Bokeh CI Test Jobs'
+
+inputs:
+  test-env:
+    description: 'Test environment file to use'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+        miniconda-version: 'latest'
+        activate-environment: bk-test
+        environment-file: ci/environment-test-${{ inputs.test-env }}.yml
+
+    - name: Download Bokehjs
+      uses: actions/download-artifact@v1
+      with:
+        name: bokehjs-build
+
+    - name: Download conda package
+      uses: actions/download-artifact@v1
+      with:
+        name: conda-bld-noarch
+
+    - name: Unpack artifacts
+      shell: bash -l {0}
+      run: bash ci/unpack_artifacts.sh
+
+    - name: Cache node modules
+      uses: actions/cache@v1
+      with:
+        path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+        key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
+
+    - name: Install node modules
+      shell: bash -l {0}
+      run: bash ci/install_node_modules.sh
+
+    - name: Install Bokeh package
+      shell: bash -l {0}
+      run: bash ci/install_bokeh_package.sh
