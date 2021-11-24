@@ -2,7 +2,7 @@
 
 set -eu
 
-CONDA_DIR=.conda_docker
+CONDA_DIR=/home/docker/conda_bokeh
 ENV_NAME=bkdev
 MINICONDA_SCRIPT=Miniconda3-latest-Linux-x86_64.sh
 
@@ -14,11 +14,11 @@ if [ ! -d .git ] || [ ! -f environment.yml ]; then
 fi
 
 if [ ! -f "$CONDA_DIR/condabin/conda" ]; then
-    # Install miniconda into $CONDA_DIR
+    # Install miniconda into $CONDA_DIR on docker filesystem.
     START_DIR=$(pwd)
     cd /tmp
     curl -LO "http://repo.continuum.io/miniconda/$MINICONDA_SCRIPT"
-    bash $MINICONDA_SCRIPT -p $START_DIR/$CONDA_DIR -b
+    bash $MINICONDA_SCRIPT -p $CONDA_DIR -b
     rm $MINICONDA_SCRIPT
     cd $START_DIR
 fi
