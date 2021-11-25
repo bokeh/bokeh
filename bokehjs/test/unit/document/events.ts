@@ -136,11 +136,11 @@ describe("events module", () => {
 
     // TODO (bev) test the case with references returned
 
-    it("should delegate generating json to a hint", () =>{
+    it("should delegate generating json to a hint", () => {
       const d = new Document()
       const m = new TestModel()
       const hint = new events.ColumnsStreamedEvent(d, m.ref(), {foo: [1, 2], bar: [3, 4]})
-      const event = new events.ModelChangedEvent(d, m, "foo", 1, 2, undefined, hint)
+      const event = new events.ModelChangedEvent(d, m, "foo", 1, 2, hint)
       const serializer = new Serializer()
       const result = serializer.to_serializable(event)
       expect(result).to.be.equal({

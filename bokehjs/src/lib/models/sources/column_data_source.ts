@@ -7,7 +7,7 @@ import {NDArray} from "core/util/ndarray"
 import {entries} from "core/util/object"
 import * as typed_array from "core/util/typed_array"
 import {union} from "core/util/set"
-import {ColumnsPatchedEvent, ColumnsStreamedEvent} from "document/events"
+import {ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent} from "document/events"
 
 //exported for testing
 export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: number): Arrayable {
@@ -161,20 +161,21 @@ export class ColumnDataSource extends ColumnarDataSource {
     }))
   }
 
-  stream(new_data: Data, rollover?: number, setter_id?: string): void {
+  stream(new_data: Data, rollover?: number, sync: boolean = true): void {
     const {data} = this
     for (const [name, new_column] of entries(new_data)) {
       data[name] = stream_to_column(data[name], new_column, rollover)
     }
     this.setv({data}, {silent: true})
     this.streaming.emit()
-    if (this.document != null) {
+    if (this.document != null && sync) {
       const hint = new ColumnsStreamedEvent(this.document, this.ref(), new_data, rollover)
-      this.document._notify_change(this, "data", null, null, {setter_id, hint})
+      const event = new ModelChangedEvent(this.document, this, "data", null, null, hint)
+      this.document._trigger_on_change(event)
     }
   }
 
-  patch(patches: PatchSet<unknown>, setter_id?: string): void {
+  patch(patches: PatchSet<unknown>, sync: boolean = true): void {
     const {data} = this
     let patched: Set<number> = new Set()
     for (const [column, patch] of entries(patches)) {
@@ -182,9 +183,10 @@ export class ColumnDataSource extends ColumnarDataSource {
     }
     this.setv({data}, {silent: true})
     this.patching.emit([...patched])
-    if (this.document != null) {
+    if (this.document != null && sync) {
       const hint = new ColumnsPatchedEvent(this.document, this.ref(), patches)
-      this.document._notify_change(this, "data", null, null, {setter_id, hint})
+      const event = new ModelChangedEvent(this.document, this, "data", null, null, hint)
+      this.document._trigger_on_change(event)
     }
   }
 }

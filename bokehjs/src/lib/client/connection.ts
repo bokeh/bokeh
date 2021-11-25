@@ -151,7 +151,7 @@ export class ClientConnection {
           const events: DocumentEvent[] = []
           const document = Document.from_json(doc_json, events)
 
-          this.session = new ClientSession(this, document, this.id)
+          this.session = new ClientSession(this, document)
 
           // Send back change events that happend during model initialization.
           for (const event of events) {

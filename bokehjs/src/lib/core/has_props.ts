@@ -29,8 +29,8 @@ export module HasProps {
   export type SetOptions = {
     check_eq?: boolean
     silent?: boolean
+    sync?: boolean
     no_change?: boolean
-    setter_id?: string
   }
 }
 
@@ -420,7 +420,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     if (changes.length == 0)
       return
 
-    if (options.silent === true) {
+    if (options.silent ?? false) {
       this._watchers = new WeakMap()
 
       for (const [attr, value] of changes) {
@@ -456,7 +456,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         }
       }
 
-      this._push_changes(changed, options)
+      if (options.sync ?? true)
+        this._push_changes(changed)
     }
   }
 
@@ -559,7 +560,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return false
   }
 
-  protected _push_changes(changes: [Property, unknown, unknown][], options: {setter_id?: string} = {}): void {
+  protected _push_changes(changes: [Property, unknown, unknown][]): void {
     if (!this.is_syncable)
       return
 
@@ -567,12 +568,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     if (document == null)
       return
 
-    const {setter_id} = options
-
     const events = []
     for (const [prop, old_value, new_value] of changes) {
       if (prop.syncable)
-        events.push(new ModelChangedEvent(document, this, prop.attr, old_value, new_value, setter_id))
+        events.push(new ModelChangedEvent(document, this, prop.attr, old_value, new_value))
     }
 
     if (events.length != 0) {
@@ -580,7 +579,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       if (events.length == 1)
         [event] = events
       else
-        event = new DocumentEventBatch(document, events, setter_id)
+        event = new DocumentEventBatch(document, events)
       document._trigger_on_change(event)
     }
   }
