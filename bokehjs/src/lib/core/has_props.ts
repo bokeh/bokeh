@@ -3,7 +3,7 @@ import {View} from "./view"
 import {Class} from "./class"
 import {Attrs} from "./types"
 import {Signal0, Signal, Signalable, ISignalable} from "./signaling"
-import {Struct, Ref, is_ref} from "./util/refs"
+import {Struct, Ref} from "./util/refs"
 import * as p from "./properties"
 import * as k from "./kinds"
 import {Property} from "./properties"
@@ -310,16 +310,27 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       // allowing us to defer initialization when loading many models
       // when loading a bunch of models, we want to do initialization as a second pass
       // because other objects that this one depends on might not be loaded yet
+      this.finalize_props()
       this.finalize()
       this.connect_signals()
     }
   }
 
-  finalize(): void {
+  finalize_props(): void {
     for (const prop of this) {
       if (!prop.initialized)
         prop.initialize()
+    }
+  }
 
+  finalize(): void {
+    this.initialize()
+  }
+
+  initialize(): void {}
+
+  connect_signals(): void {
+    for (const prop of this) {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
         continue
 
@@ -332,13 +343,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
           this.connect(expr.change, () => this.exprchange.emit())
       }
     }
-
-    this.initialize()
   }
-
-  initialize(): void {}
-
-  connect_signals(): void {}
 
   disconnect_signals(): void {
     Signal.disconnect_receiver(this)
@@ -479,25 +484,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  // this is like _value_record_references but expects to find refs
-  // instead of models, and takes a doc to look up the refs in
-  static _json_record_references(doc: Document, v: unknown, refs: Set<HasProps>, options: {recursive: boolean}): void {
-    const {recursive} = options
-    if (is_ref(v)) {
-      const model = doc.get_model_by_id(v.id)
-      if (model != null && !refs.has(model)) {
-        HasProps._value_record_references(model, refs, {recursive})
-      }
-    } else if (isArray(v)) {
-      for (const elem of v)
-        HasProps._json_record_references(doc, elem, refs, {recursive})
-    } else if (isPlainObject(v)) {
-      for (const elem of values(v)) {
-        HasProps._json_record_references(doc, elem, refs, {recursive})
-      }
-    }
-  }
-
   // add all references from 'v' to 'result', if recurse
   // is true then descend into refs, if false only
   // descend into non-refs
@@ -536,8 +522,12 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   attach_document(doc: Document): void {
     // This should only be called by the Document implementation to set the document field
-    if (this.document != null && this.document != doc)
-      throw new Error("models must be owned by only a single document")
+    if (this.document != null) {
+      if (this.document == doc)
+        return
+      else
+        throw new Error("models must be owned by only a single document")
+    }
 
     this.document = doc
     this._doc_attached()

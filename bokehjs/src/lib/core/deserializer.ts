@@ -6,6 +6,7 @@ import {Buffers, is_NDArray_ref, decode_NDArray} from "./util/serialization"
 import {ndarray} from "./util/ndarray"
 import {values, entries} from "./util/object"
 import {isArray, isPlainObject, isString, isNumber} from "./util/types"
+import {type Document} from "document"
 
 export type RefMap = Map<ID, HasProps>
 
@@ -153,7 +154,7 @@ export class Deserializer {
   // given a JSON representation of all models in a graph and new
   // model instances, set the properties on the models from the
   // JSON
-  static _initialize_references_json(references_json: Struct[], old_references: RefMap, new_references: RefMap, buffers: Buffers): void {
+  static _initialize_references_json(references_json: Struct[], old_references: RefMap, new_references: RefMap, buffers: Buffers, doc: Document | null): void {
     const to_update = new Map<ID, {instance: HasProps, is_new: boolean}>()
 
     for (const {id, attributes} of references_json) {
@@ -185,6 +186,11 @@ export class Deserializer {
           if (is_new) {
             // Finalizing here just to avoid iterating
             // over `ordered_instances` twice.
+
+            // finalize unset properties before this
+            instance.finalize_props()
+            if (doc != null)
+              instance.attach_document(doc)
             instance.finalize()
             // Preserving an ordered collection of instances
             // to avoid having to go through DFS again.
