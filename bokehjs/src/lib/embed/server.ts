@@ -27,19 +27,21 @@ export function _get_ws_url(app_path: string | undefined, absolute_url: string |
   return `${protocol}//${loc.host}${app_path}/ws`
 }
 
-// map { websocket url to map { session id to promise of ClientSession } }
-const _sessions: {[key: string]: {[key: string]: Promise<ClientSession>}} = {}
+type WebSocketURL = string
+type SessionID = string
+
+const _sessions: Map<WebSocketURL, Map<SessionID, Promise<ClientSession>>> = new Map()
 
 function _get_session(websocket_url: string, token: string, args_string: string): Promise<ClientSession> {
   const session_id = parse_token(token).session_id
-  if (!(websocket_url in _sessions))
-    _sessions[websocket_url] = {}
+  if (!_sessions.has(websocket_url))
+    _sessions.set(websocket_url, new Map())
 
-  const subsessions = _sessions[websocket_url]
-  if (!(session_id in subsessions))
-    subsessions[session_id] = pull_session(websocket_url, token, args_string)
+  const subsessions = _sessions.get(websocket_url)!
+  if (!subsessions.has(session_id))
+    subsessions.set(session_id, pull_session(websocket_url, token, args_string))
 
-  return subsessions[session_id]
+  return subsessions.get(session_id)!
 }
 
 // Fill element with the roots from token
