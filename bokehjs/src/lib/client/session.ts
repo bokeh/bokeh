@@ -54,10 +54,10 @@ export class ClientSession {
   // Sends a request to the server for info about the server, such as its Bokeh
   // version. Returns a promise, the value of the promise is a free-form dictionary
   // of server details.
-  async request_server_info(): Promise<unknown> {
+  async request_server_info(): Promise<{version_info: string}> {
     const message = Message.create("SERVER-INFO-REQ", {}, {})
     const reply = await this._connection.send_with_reply(message)
-    return reply.content
+    return reply.content as {version_info: string}
   }
 
   // Sends some request to the server (no guarantee about which one) and returns
