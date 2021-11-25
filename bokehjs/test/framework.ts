@@ -50,7 +50,6 @@ export function describe(description: string, fn: Func/* | AsyncFunc*/): void {
 type ItFn = (description: string, fn: Func | AsyncFunc) => Test
 type _It = ItFn & {
   skip: ItFn
-  with_server: ItFn
   allowing: (threshold: number) => ItFn
   dpr: (dpr: number) => ItFn
 }
@@ -85,7 +84,6 @@ export const it: _It = ((description: string, fn: Func | AsyncFunc): Test => {
   return _it(description, fn, false)
 }) as _It
 it.skip = skip
-it.with_server = skip
 it.allowing = allowing
 it.dpr = dpr
 
