@@ -1,5 +1,5 @@
 import {logger} from "core/logging"
-import {Document, DocJson} from "document"
+import {Document, DocJson, DocumentEvent} from "document"
 import {Message} from "protocol/message"
 import {Receiver} from "protocol/receiver"
 import {ClientSession, ErrorMsg} from "./session"
@@ -148,19 +148,15 @@ export class ClientConnection {
           logger.debug("Got new document after connection was already closed")
           reject(new Error("The connection has been closed"))
         } else {
-          const document = Document.from_json(doc_json)
-
-          // Constructing models changes some of their attributes, we deal with that
-          // here. This happens when models set attributes during construction
-          // or initialization.
-          const patch = Document._compute_patch_since_json(doc_json, document)
-          if (patch.events.length > 0) {
-            logger.debug(`Sending ${patch.events.length} changes from model construction back to server`)
-            const patch_message = Message.create("PATCH-DOC", {}, patch)
-            this.send(patch_message)
-          }
+          const events: DocumentEvent[] = []
+          const document = Document.from_json(doc_json, events)
 
           this.session = new ClientSession(this, document, this.id)
+
+          // Send back change events that happend during model initialization.
+          for (const event of events) {
+            document._trigger_on_change(event)
+          }
 
           for (const msg of this._pending_messages) {
             this.session.handle(msg)

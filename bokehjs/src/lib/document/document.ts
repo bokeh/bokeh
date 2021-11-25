@@ -8,10 +8,10 @@ import {Deserializer, RefMap} from "core/deserializer"
 import {ID, Data} from "core/types"
 import {Signal0} from "core/signaling"
 import {Struct} from "core/util/refs"
+import {equals, Equatable, Comparator} from "core/util/eq"
 import {Buffers} from "core/util/serialization"
-import {difference, intersection, copy, includes} from "core/util/array"
+import {copy, includes} from "core/util/array"
 import * as sets from "core/util/set"
-import {is_equal} from "core/util/eq"
 import {LayoutDOM} from "models/layouts/layout_dom"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import {ClientSession} from "client/session"
@@ -20,8 +20,10 @@ import {ModelDef, resolve_defs} from "./defs"
 import {
   DocumentEvent, DocumentEventBatch, DocumentChangedEvent, ModelChangedEvent,
   RootRemovedEvent, TitleChangedEvent, MessageSentEvent,
-  DocumentChanged, ModelChanged, RootAddedEvent,
+  DocumentChanged, RootAddedEvent,
 } from "./events"
+
+export type Out<T> = T
 
 // Dispatches events to the subscribed models
 export class EventManager {
@@ -65,7 +67,7 @@ export const DEFAULT_TITLE = "Bokeh Application"
 
 // This class should match the API of the Python Document class
 // as much as possible.
-export class Document {
+export class Document implements Equatable {
   readonly event_manager: EventManager
   readonly idle: Signal0<this>
 
@@ -97,6 +99,10 @@ export class Document {
     this._idle_roots = new WeakMap() // TODO: WeakSet would be better
     this._interactive_timestamp = null
     this._interactive_plot = null
+  }
+
+  [equals](that: this, _cmp: Comparator): boolean {
+    return this == that
   }
 
   get layoutables(): LayoutDOM[] {
@@ -341,124 +347,6 @@ export class Document {
     this._trigger_on_change(new ModelChangedEvent(this, model, attr, old_value, new_value, options?.setter_id, options?.hint))
   }
 
-  //////
-  ///{{{
-
-  static _event_for_attribute_change(changed_obj: Struct, key: string, new_value: unknown, doc: Document, value_refs: Set<HasProps>): ModelChanged | null {
-    const changed_model = doc.get_model_by_id(changed_obj.id)! // XXX!
-    if (!changed_model.property(key).syncable)
-      return null
-    else {
-      const event: ModelChanged = {
-        kind: "ModelChanged",
-        model: {id: changed_obj.id},
-        attr: key,
-        new: new_value,
-      }
-      HasProps._json_record_references(doc, new_value, value_refs, {recursive: true})
-      return event
-    }
-  }
-
-  static _events_to_sync_objects(from_obj: Struct, to_obj: Struct, to_doc: Document, value_refs: Set<HasProps>): ModelChanged[] {
-    const from_keys = Object.keys(from_obj.attributes)
-    const to_keys = Object.keys(to_obj.attributes)
-    const removed = difference(from_keys, to_keys)
-    const added = difference(to_keys, from_keys)
-    const shared = intersection(from_keys, to_keys)
-    const events: (ModelChanged | null)[] = []
-
-    for (const key of removed) {
-      // we don't really have a "remove" event - not sure this ever
-      // happens even. One way this could happen is if the server
-      // does include_defaults=True and we do
-      // include_defaults=false ... in that case it'd be best to
-      // just ignore this probably. Warn about it, could mean
-      // there's a bug if we don't have a key that the server sent.
-      logger.warn(`Server sent key ${key} but we don't seem to have it in our JSON`)
-    }
-
-    for (const key of added) {
-      const new_value = to_obj.attributes[key]
-      events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
-    }
-
-    for (const key of shared) {
-      const old_value = from_obj.attributes[key]
-      const new_value = to_obj.attributes[key]
-      if (old_value == null && new_value == null) {
-      } else if (old_value == null || new_value == null) {
-        events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
-      } else {
-        // XXX: issue #11803, ndarrays' JSON-like repr may not be comparable due to lazy serialization
-        if (key != "data" && !is_equal(old_value, new_value))
-          events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
-      }
-    }
-
-    return events.filter((e): e is ModelChanged => e != null)
-  }
-
-  // we use this to detect changes during document deserialization
-  // (in model constructors and initializers)
-  static _compute_patch_since_json(from_json: DocJson, to_doc: Document): Patch {
-    const to_json = to_doc.to_json(false) // include_defaults=false
-
-    function refs(json: DocJson): Map<ID, Struct> {
-      const result = new Map<ID, Struct>()
-      for (const obj of json.roots.references)
-        result.set(obj.id, obj)
-      return result
-    }
-
-    const from_references = refs(from_json)
-    const from_roots: Map<ID, Struct> = new Map()
-    const from_root_ids: ID[] = []
-    for (const r of from_json.roots.root_ids) {
-      from_roots.set(r, from_references.get(r)!)
-      from_root_ids.push(r)
-    }
-
-    const to_references = refs(to_json)
-    const to_roots: Map<ID, Struct> = new Map()
-    const to_root_ids: ID[] = []
-    for (const r of to_json.roots.root_ids) {
-      to_roots.set(r, to_references.get(r)!)
-      to_root_ids.push(r)
-    }
-
-    from_root_ids.sort()
-    to_root_ids.sort()
-
-    if (difference(from_root_ids, to_root_ids).length > 0 ||
-        difference(to_root_ids, from_root_ids).length > 0) {
-      // this would arise if someone does add_root/remove_root during
-      // document deserialization, hopefully they won't ever do so.
-      throw new Error("Not implemented: computing add/remove of document roots")
-    }
-
-    const value_refs = new Set<HasProps>()
-    let events: DocumentChanged[] = []
-
-    for (const id of to_doc._all_models.keys()) {
-      if (from_references.has(id)) {
-        const update_model_events = Document._events_to_sync_objects(from_references.get(id)!, to_references.get(id)!, to_doc, value_refs)
-        events = events.concat(update_model_events)
-      }
-    }
-
-    const serializer = new Serializer({include_defaults: false})
-    serializer.to_serializable([...value_refs])
-
-    return {
-      references: [...serializer.definitions],
-      events,
-    }
-  }
-
-  ///}}}
-  //////
-
   to_json_string(include_defaults: boolean = true): string {
     return JSON.stringify(this.to_json(include_defaults))
   }
@@ -476,9 +364,9 @@ export class Document {
     }
   }
 
-  static from_json_string(s: string): Document {
+  static from_json_string(s: string, events?: Out<DocumentEvent[]>): Document {
     const json = JSON.parse(s)
-    return Document.from_json(json)
+    return Document.from_json(json, events)
   }
 
   private static _handle_version(json: DocJson): void {
@@ -499,7 +387,7 @@ export class Document {
       logger.warn("'version' field is missing")
   }
 
-  static from_json(json: DocJson): Document {
+  static from_json(json: DocJson, events?: Out<DocumentEvent[]>): Document {
     logger.debug("Creating Document from JSON")
 
     const doc_repr = Deserializer.decode(json) as DocJson
@@ -515,11 +403,17 @@ export class Document {
     const root_ids = roots_json.root_ids
     const references_json = roots_json.references
 
-    const references = Deserializer._instantiate_references_json(references_json, new Map(), resolver)
-    Deserializer._initialize_references_json(references_json, new Map(), references, new Map())
-
     const doc = new Document({resolver})
     doc._push_all_models_freeze()
+
+    const listener = (event: DocumentEvent) => events?.push(event)
+    doc.on_change(listener, true)
+
+    const references = Deserializer._instantiate_references_json(references_json, new Map(), resolver)
+    Deserializer._initialize_references_json(references_json, new Map(), references, new Map(), doc)
+
+    doc.remove_on_change(listener)
+
     for (const id of root_ids) {
       const root = references.get(id)
       if (root != null) {
@@ -597,7 +491,7 @@ export class Document {
         new_references.set(id, value)
     }
 
-    Deserializer._initialize_references_json(references_json, old_references, new_references, buffers)
+    Deserializer._initialize_references_json(references_json, old_references, new_references, buffers, this)
 
     for (const event_json of events_json) {
       switch (event_json.kind) {

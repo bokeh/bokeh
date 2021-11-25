@@ -3,6 +3,7 @@ import {Data} from "core/types"
 import {HasProps} from "core/has_props"
 import {Ref} from "core/util/refs"
 import {PatchSet} from "models/sources/column_data_source"
+import {equals, Equatable, Comparator} from "core/util/eq"
 import {serialize, Serializable, Serializer} from "core/serializer"
 
 export type ModelChanged = {
@@ -57,13 +58,27 @@ export type ColumnsPatched = {
 export type DocumentChanged =
   ModelChanged | MessageSent | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsPatched
 
-export abstract class DocumentEvent {
+export abstract class DocumentEvent implements Equatable {
   constructor(readonly document: Document) {}
+
+  get [Symbol.toStringTag](): string {
+    return (this.constructor as any).__name__
+  }
+
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.document, that.document)
+  }
 }
 
 export class DocumentEventBatch<T extends DocumentChangedEvent> extends DocumentEvent {
   constructor(document: Document, readonly events: T[], readonly setter_id?: string) {
     super(document)
+  }
+
+  override [equals](that: this, cmp: Comparator): boolean {
+    return super[equals](that, cmp) &&
+      cmp.eq(this.events, that.events) &&
+      cmp.eq(this.setter_id, that.setter_id)
   }
 }
 
@@ -74,6 +89,12 @@ export abstract class DocumentChangedEvent extends DocumentEvent implements Seri
 export class MessageSentEvent extends DocumentChangedEvent {
   constructor(document: Document, readonly msg_type: string, readonly msg_data: unknown) {
     super(document)
+  }
+
+  override [equals](that: this, cmp: Comparator): boolean {
+    return super[equals](that, cmp) &&
+      cmp.eq(this.msg_type, that.msg_type) &&
+      cmp.eq(this.msg_data, that.msg_data)
   }
 
   [serialize](serializer: Serializer): DocumentChanged {
@@ -97,6 +118,16 @@ export class ModelChangedEvent extends DocumentChangedEvent {
       readonly setter_id?: string,
       readonly hint?: DocumentChangedEvent) {
     super(document)
+  }
+
+  override [equals](that: this, cmp: Comparator): boolean {
+    return super[equals](that, cmp) &&
+      cmp.eq(this.model, that.model) &&
+      cmp.eq(this.attr, that.attr) &&
+      cmp.eq(this.old, that.old) &&
+      cmp.eq(this.new_, that.new_) &&
+      cmp.eq(this.setter_id, that.setter_id) &&
+      cmp.eq(this.hint, that.hint)
   }
 
   [serialize](serializer: Serializer): DocumentChanged {
@@ -129,6 +160,12 @@ export class ColumnsPatchedEvent extends DocumentChangedEvent {
     super(document)
   }
 
+  override [equals](that: this, cmp: Comparator): boolean {
+    return super[equals](that, cmp) &&
+      cmp.eq(this.column_source, that.column_source) &&
+      cmp.eq(this.patches, that.patches)
+  }
+
   [serialize](_serializer: Serializer): ColumnsPatched {
     return {
       kind: "ColumnsPatched",
@@ -147,6 +184,13 @@ export class ColumnsStreamedEvent extends DocumentChangedEvent {
     super(document)
   }
 
+  override [equals](that: this, cmp: Comparator): boolean {
+    return super[equals](that, cmp) &&
+      cmp.eq(this.column_source, that.column_source) &&
+      cmp.eq(this.data, that.data) &&
+      cmp.eq(this.rollover, that.rollover)
+  }
+
   [serialize](_serializer: Serializer): ColumnsStreamed {
     return {
       kind: "ColumnsStreamed",
@@ -163,6 +207,12 @@ export class TitleChangedEvent extends DocumentChangedEvent {
     super(document)
   }
 
+  override [equals](that: this, cmp: Comparator): boolean {
+    return super[equals](that, cmp) &&
+      cmp.eq(this.title, that.title) &&
+      cmp.eq(this.setter_id, that.setter_id)
+  }
+
   [serialize](_serializer: Serializer): TitleChanged {
     return {
       kind: "TitleChanged",
@@ -177,6 +227,12 @@ export class RootAddedEvent extends DocumentChangedEvent {
     super(document)
   }
 
+  override [equals](that: this, cmp: Comparator): boolean {
+    return super[equals](that, cmp) &&
+      cmp.eq(this.model, that.model) &&
+      cmp.eq(this.setter_id, that.setter_id)
+  }
+
   [serialize](serializer: Serializer): RootAdded {
     return {
       kind: "RootAdded",
@@ -189,6 +245,12 @@ export class RootRemovedEvent extends DocumentChangedEvent {
 
   constructor(document: Document, readonly model: HasProps, readonly setter_id?: string) {
     super(document)
+  }
+
+  override [equals](that: this, cmp: Comparator): boolean {
+    return super[equals](that, cmp) &&
+      cmp.eq(this.model, that.model) &&
+      cmp.eq(this.setter_id, that.setter_id)
   }
 
   [serialize](_serializer: Serializer): RootRemoved {
