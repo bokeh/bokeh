@@ -457,8 +457,11 @@ export class Document implements Equatable {
     // TODO: We need a proper differential serializer. For now just remove known
     // definitions. We are doing this after a complete serialization, so that all
     // new objects are recorded.
-    for (const model of this._all_models.values()) {
-      serializer.remove_def(model)
+    const need_all_models = events.some((ev) => ev instanceof RootAddedEvent)
+    if (!need_all_models) {
+      for (const model of this._all_models.values()) {
+        serializer.remove_def(model)
+      }
     }
 
     return {
