@@ -73,8 +73,7 @@ export class MarkerGL extends BaseGLGlyph {
       this._show = new Uint8Buffer(this.regl_wrapper)
 
     const ntypes = mainGlGlyph._unique_marker_types.length
-    for (let i = 0; i < ntypes; i++) {
-      const marker_type = mainGlGlyph._unique_marker_types[i]
+    for (const marker_type of mainGlGlyph._unique_marker_types) {
       if (marker_type == null)
         continue
 
@@ -85,13 +84,11 @@ export class MarkerGL extends BaseGLGlyph {
         this._show_all = false
 
         // Reset all show values to zero.
-        for (let i = 0; i < nmarkers; i++)
-          show_array[i] = 0
+        show_array.fill(0)
 
         // Set show values of markers to render to 255.
         nshow = 0
-        for (let j = 0; j < indices.length; j++) {
-          const k = indices[j]  // Marker index.
+        for (const k of indices) {  // Marker index.
           if (ntypes == 1 || mainGlGlyph._marker_types!.get(k) == marker_type) {
             show_array[k] = 255
             nshow++
@@ -99,8 +96,7 @@ export class MarkerGL extends BaseGLGlyph {
         }
       } else if (!this._show_all || prev_nmarkers != nmarkers) {
         this._show_all = true
-        for (let i = 0; i < nmarkers; i++)
-          show_array[i] = 255
+        show_array.fill(255)
       }
       this._show.update()
 

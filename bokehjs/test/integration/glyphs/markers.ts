@@ -94,7 +94,8 @@ describe("Marker glyph", () => {
   it("should support multiple marker types in scatter", async () => {
     const marker_type = [
       "asterisk", "circle", "square_dot", "triangle_pin", "star",
-      "x", "diamond_cross", "star", "circle_cross", "hex_dot"]
+      "x", "diamond_cross", "star", "circle_cross", "hex_dot",
+    ]
 
     function make_plot(output_backend: OutputBackend) {
       const p = fig([150, 150], {output_backend, title: output_backend})
