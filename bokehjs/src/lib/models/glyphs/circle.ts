@@ -39,7 +39,7 @@ export class CircleView extends XYGlyphView {
     const {webgl} = this.renderer.plot_view.canvas_view
     if (webgl != null && webgl.regl_wrapper.has_webgl) {
       const {MarkerGL} = await import("./webgl/markers")
-      this.glglyph = new MarkerGL(webgl.regl_wrapper, this, "circle")
+      this.glglyph = new MarkerGL(webgl.regl_wrapper, this)
     }
   }
 
