@@ -111,7 +111,6 @@ method with the figure() function's tools argument:
     plot = figure(tools="pan,wheel_zoom,box_zoom,reset")
     plot.add_tools(BoxSelectTool(dimensions="width"))
 
-
 .. _userguide_tools_customize_tools_icon:
 
 Customizing tools icon
@@ -144,17 +143,7 @@ You can pass:
         .. code-block:: python
 
             plot.add_tools(BoxSelectTool(icon="path/to/icon"))
-            
-    4. A PIL Image instance
 
-        .. code-block:: python
-
-            from bokeh.models import BoxSelectTool
-            import PIL
-
-            my_icon = PIL.Image.open("path/to/icon").convert("RGB")
-
-            plot.add_tools(BoxSelectTool(icon=my_icon))
 
 .. _userguide_tools_setting_active_tools:
 
