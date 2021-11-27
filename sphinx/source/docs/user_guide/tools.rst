@@ -122,6 +122,7 @@ of it's instances like |figure|.
 .. code-block:: python
 
     plot.add_tools(BoxSelectTool(description="My tool"))
+
 It's also possible to change a tool icon using the ``icon`` keyword.
 
 You can pass:
@@ -131,13 +132,11 @@ You can pass:
         .. code-block:: python
 
             plot.add_tools(BoxSelectTool(icon="box_zoom"))
-            
     2. A CSS selector
 
         .. code-block:: python
 
             plot.add_tools(BoxSelectTool(icon=".my-icon-class"))
-            
     3. An image path
 
         .. code-block:: python
