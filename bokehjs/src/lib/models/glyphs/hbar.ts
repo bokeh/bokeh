@@ -14,6 +14,8 @@ export type HBarData = LRTBData & {
   sright: ScreenArray
   stop: ScreenArray
   sbottom: ScreenArray
+
+  readonly max_height: number
 }
 
 export interface HBarView extends HBarData {}
