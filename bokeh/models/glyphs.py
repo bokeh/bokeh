@@ -92,6 +92,7 @@ __all__ = (
     'Annulus',
     'Arc',
     'Bezier',
+    'Block',
     'Circle',
     'ConnectedXYGlyph',
     'Ellipse',
@@ -347,6 +348,43 @@ class Bezier(LineGlyph):
 
     line_props = Include(LineProps, help="""
     The {prop} values for the Bezier curves.
+    """)
+
+class Block(LineGlyph, FillGlyph, HatchGlyph):
+    ''' Render rectangular regions, given a corner coordinate, width and height.
+
+    '''
+
+    __example__ = "examples/reference/models/Block.py"
+
+    _args = ('x', 'y', 'width', 'height')
+
+    x = NumberSpec(default=field("x"), help="""
+    The x-coordinates of the centers of the blocks.
+    """)
+
+    y = NumberSpec(default=field("y"), help="""
+    The y-coordinates of the centers of the blocks.
+    """)
+
+    width = NumberSpec(default=1, help="""
+    The widths of the blocks.
+    """)
+
+    height = NumberSpec(default=1, help="""
+    The heights of the blocks.
+    """)
+
+    line_props = Include(LineProps, help="""
+    The {prop} values for the vertical bars.
+    """)
+
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the vertical bars.
+    """)
+
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the vertical bars.
     """)
 
 class Circle(Marker):
