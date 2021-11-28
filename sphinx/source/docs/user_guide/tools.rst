@@ -132,17 +132,18 @@ You can pass:
         .. code-block:: python
 
             plot.add_tools(BoxSelectTool(icon="box_zoom"))
+
     2. A CSS selector
 
         .. code-block:: python
 
             plot.add_tools(BoxSelectTool(icon=".my-icon-class"))
+
     3. An image path
 
         .. code-block:: python
 
             plot.add_tools(BoxSelectTool(icon="path/to/icon"))
-
 
 .. _userguide_tools_setting_active_tools:
 
