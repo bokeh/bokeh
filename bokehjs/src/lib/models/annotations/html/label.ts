@@ -1,7 +1,6 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {resolve_angle} from "core/util/math"
 import {SpatialUnits, AngleUnits} from "core/enums"
-import {TextBox} from "core/graphics"
 import {Size} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
 import * as mixins from "core/property_mixins"
@@ -21,8 +20,7 @@ export class HTMLLabelView extends TextAnnotationView {
 
   // XXX: this needs to use CSS computed styles
   protected override _get_size(): Size {
-    const {text} = this.model
-    const graphics = new TextBox({text})
+    const graphics = this._text_view.graphics()
     const {angle, angle_units} = this.model
     graphics.angle = resolve_angle(angle, angle_units)
     graphics.visuals = this.visuals.text.values()

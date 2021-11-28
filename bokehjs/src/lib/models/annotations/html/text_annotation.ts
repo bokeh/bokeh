@@ -4,11 +4,17 @@ import {div, display, undisplay, remove} from "core/dom"
 import * as p from "core/properties"
 import {SideLayout} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
+import {build_view} from "core/build_views"
+import {isString} from "core/util/types"
+import {parse_delimited_string} from "models/text/utils"
 import { default_provider, MathJaxProvider } from "models/text/providers"
+import { BaseTextView } from "models/text/base_text"
 
 export abstract class TextAnnotationView extends AnnotationView {
   override model: TextAnnotation
   override visuals: TextAnnotation.Visuals
+
+  protected _text_view: BaseTextView
 
   get provider(): MathJaxProvider {
     return default_provider
@@ -30,11 +36,15 @@ export abstract class TextAnnotationView extends AnnotationView {
     this.plot_view.canvas_view.add_overlay(this.el)
   }
 
-  override async lazy_initialize() {
-    await super.lazy_initialize()
+  protected async _init_text(): Promise<void> {
+    const {text} = this.model
+    const _text = isString(text) ? parse_delimited_string(text) : text
+    this._text_view = await build_view(_text, {parent: this})
+  }
 
-    if (this.provider.status == "not_started")
-      await this.provider.fetch()
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    await this._init_text()
   }
 
   private contains_tex_string(): boolean {
@@ -50,11 +60,19 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   override remove(): void {
     remove(this.el)
+    this._text_view.remove()
     super.remove()
   }
 
   override connect_signals(): void {
     super.connect_signals()
+
+    const {text} = this.model.properties
+    this.on_change(text, async () => {
+      this._text_view.remove()
+      await this._init_text()
+    })
+
     this.connect(this.model.change, () => this.render())
   }
 

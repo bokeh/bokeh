@@ -1,6 +1,5 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {VerticalAlign, TextAlign} from "core/enums"
-import {TextBox} from "core/graphics"
 import {Size, Layoutable} from "core/layout"
 import {Panel} from "core/layout/side_panel"
 import * as mixins from "core/property_mixins"
@@ -83,8 +82,7 @@ export class HTMLTitleView extends TextAnnotationView {
 
   // XXX: this needs to use CSS computed styles
   protected override _get_size(): Size {
-    const {text} = this.model
-    const graphics = new TextBox({text})
+    const graphics = this._text_view.graphics()
     graphics.visuals = this.visuals.text.values()
     const {width, height} = graphics.size()
     // XXX: The magic 2px is for backwards compatibility. This will be removed at
