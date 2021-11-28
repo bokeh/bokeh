@@ -1,8 +1,8 @@
-import {LRTB, LRTBView, LRTBData} from "./lrtb"
+import {Box, BoxView, BoxData} from "./box"
 import {FloatArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 
-export type VBarData = LRTBData & {
+export type VBarData = BoxData & {
   _x: FloatArray
   _bottom: FloatArray
   readonly width: p.Uniform<number>
@@ -20,7 +20,7 @@ export type VBarData = LRTBData & {
 
 export interface VBarView extends VBarData {}
 
-export class VBarView extends LRTBView {
+export class VBarView extends BoxView {
   override model: VBar
   override visuals: VBar.Visuals
 
@@ -65,19 +65,19 @@ export class VBarView extends LRTBView {
 export namespace VBar {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = LRTB.Props & {
+  export type Props = Box.Props & {
     x: p.CoordinateSpec
     bottom: p.CoordinateSpec
     width: p.NumberSpec
     top: p.CoordinateSpec
   }
 
-  export type Visuals = LRTB.Visuals
+  export type Visuals = Box.Visuals
 }
 
 export interface VBar extends VBar.Attrs {}
 
-export class VBar extends LRTB {
+export class VBar extends Box {
   override properties: VBar.Props
   override __view_type__: VBarView
 
