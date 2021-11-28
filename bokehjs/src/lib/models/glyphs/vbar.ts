@@ -14,6 +14,8 @@ export type VBarData = LRTBData & {
   sbottom: ScreenArray
   sleft: ScreenArray
   sright: ScreenArray
+
+  readonly max_width: number
 }
 
 export interface VBarView extends VBarData {}
