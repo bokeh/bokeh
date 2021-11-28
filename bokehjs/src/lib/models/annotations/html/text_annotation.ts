@@ -4,10 +4,15 @@ import {div, display, undisplay, remove} from "core/dom"
 import * as p from "core/properties"
 import {SideLayout} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
+import { default_provider, MathJaxProvider } from "models/text/providers"
 
 export abstract class TextAnnotationView extends AnnotationView {
   override model: TextAnnotation
   override visuals: TextAnnotation.Visuals
+
+  get provider(): MathJaxProvider {
+    return default_provider
+  }
 
   override update_layout(): void {
     const {panel} = this
@@ -23,6 +28,24 @@ export abstract class TextAnnotationView extends AnnotationView {
     super.initialize()
     this.el = div()
     this.plot_view.canvas_view.add_overlay(this.el)
+  }
+
+  override async lazy_initialize() {
+    await super.lazy_initialize()
+
+    if (this.provider.status == "not_started")
+      await this.provider.fetch()
+  }
+
+  private contains_tex_string(): boolean {
+    if (!this.provider.MathJax)
+      return false
+
+    return this.provider.MathJax.find_tex(this.model.text).length > 0
+  };
+
+  protected has_math_disabled() {
+    return this.model.disable_math || !this.contains_tex_string()
   }
 
   override remove(): void {
@@ -42,11 +65,37 @@ export abstract class TextAnnotationView extends AnnotationView {
     super.render()
   }
 
+  process_tex(): string {
+    if (!this.provider.MathJax)
+      return this.model.text
+
+    const {text} = this.model
+    const tex_parts = this.provider.MathJax.find_tex(text)
+    const processed_text: string[] = []
+
+    let last_index: number | undefined = 0
+    for (const part of tex_parts) {
+      processed_text.push(text.slice(last_index, part.start.n))
+      processed_text.push(this.provider.MathJax.tex2svg(part.math, {display: part.display}).outerHTML)
+
+      last_index = part.end.n
+    }
+
+    if (last_index! < text.length)
+      processed_text.push(text.slice(last_index))
+
+    return processed_text.join("")
+  }
+
   protected _paint(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
     const {el} = this
     undisplay(el)
 
-    el.textContent = text
+    if (this.has_math_disabled())
+      el.textContent = text
+    else
+      el.innerHTML = this.process_tex()
+
     this.visuals.text.set_value(ctx)
 
     el.style.position = "absolute"
@@ -107,7 +156,10 @@ export abstract class TextAnnotationView extends AnnotationView {
 
 export namespace TextAnnotation {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = Annotation.Props
+  export type Props = Annotation.Props & {
+    text: p.Property<string>
+    disable_math: p.Property<boolean>
+  }
 
   export type Visuals = Annotation.Visuals & {
     text: visuals.Text
@@ -124,5 +176,12 @@ export abstract class TextAnnotation extends Annotation {
 
   constructor(attrs?: Partial<TextAnnotation.Attrs>) {
     super(attrs)
+  }
+
+  static {
+    this.define<TextAnnotation.Props>(({Boolean, String}) => ({
+      text:  [ String, "" ],
+      disable_math: [ Boolean, false ],
+    }))
   }
 }
