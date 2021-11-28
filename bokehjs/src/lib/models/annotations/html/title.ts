@@ -97,7 +97,6 @@ export namespace HTMLTitle {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TextAnnotation.Props & {
-    text: p.Property<string>
     vertical_align: p.Property<VerticalAlign>
     align: p.Property<TextAlign>
     offset: p.Property<number>
@@ -131,8 +130,7 @@ export class HTMLTitle extends TextAnnotation {
       ["background_", mixins.Fill],
     ])
 
-    this.define<HTMLTitle.Props>(({Number, String}) => ({
-      text:             [ String, "" ],
+    this.define<HTMLTitle.Props>(({Number}) => ({
       vertical_align:   [ VerticalAlign, "bottom" ],
       align:            [ TextAlign, "left" ],
       offset:           [ Number, 0 ],

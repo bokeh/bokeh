@@ -55,7 +55,6 @@ export namespace HTMLLabel {
     x_units: p.Property<SpatialUnits>
     y: p.Property<number>
     y_units: p.Property<SpatialUnits>
-    text: p.Property<string>
     angle: p.Property<number>
     angle_units: p.Property<AngleUnits>
     x_offset: p.Property<number>
@@ -91,12 +90,11 @@ export class HTMLLabel extends TextAnnotation {
       ["background_", mixins.Fill],
     ])
 
-    this.define<HTMLLabel.Props>(({Number, String, Angle}) => ({
+    this.define<HTMLLabel.Props>(({Number, Angle}) => ({
       x:           [ Number ],
       x_units:     [ SpatialUnits, "data" ],
       y:           [ Number ],
       y_units:     [ SpatialUnits, "data" ],
-      text:        [ String, "" ],
       angle:       [ Angle, 0 ],
       angle_units: [ AngleUnits, "rad" ],
       x_offset:    [ Number, 0 ],
