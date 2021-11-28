@@ -79,7 +79,7 @@ export class Document implements Equatable {
   protected _all_models_freeze_count: number
   protected _callbacks: Map<((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), boolean>
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
-  private _idle_roots: WeakMap<HasProps, boolean>
+  private _idle_roots: WeakSet<HasProps>
   protected _interactive_timestamp: number | null
   protected _interactive_plot: Model | null
   protected _interactive_finalize: (() => void)| null
@@ -96,7 +96,7 @@ export class Document implements Equatable {
     this._message_callbacks = new Map()
     this.event_manager = new EventManager(this)
     this.idle = new Signal0(this, "idle")
-    this._idle_roots = new WeakMap() // TODO: WeakSet would be better
+    this._idle_roots = new WeakSet()
     this._interactive_timestamp = null
     this._interactive_plot = null
   }
@@ -118,7 +118,7 @@ export class Document implements Equatable {
   }
 
   notify_idle(model: HasProps): void {
-    this._idle_roots.set(model, true)
+    this._idle_roots.add(model)
     if (this.is_idle) {
       logger.info(`document idle at ${Date.now() - this._init_timestamp} ms`)
       this.event_manager.send_event(new DocumentReady())
