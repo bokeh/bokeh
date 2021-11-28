@@ -6,7 +6,7 @@ import {load_image} from "core/util/image"
 import {CanvasImage} from "models/glyphs/image_url"
 import {color2css, color2hexrgb, color2rgba} from "core/util/color"
 import {Size} from "core/types"
-import {GraphicsBox, TextHeightMetric, Position} from "core/graphics"
+import {GraphicsBox, TextHeightMetric, Position, text_width} from "core/graphics"
 import {font_metrics, parse_css_font_size, parse_css_length} from "core/util/text"
 import {insert_text_on_position} from "core/util/string"
 import {AffineTransform, Rect} from "core/util/affine"
@@ -215,7 +215,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
         ?.replace(/([A-z])/g, "") ?? "0"
     )
 
-    const svg_styles = this.svg_element?.getAttribute("style")?.split(";")
+    const svg_styles = this.svg_element.getAttribute("style")?.split(";")
     if (svg_styles) {
       const rulesMap = new Map()
       svg_styles.forEach(property => {
@@ -236,12 +236,26 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
       height: fmetrics.x_height * heightEx,
     }
   }
+
+  get truncated_text() {
+    return this.model.text.length > 6
+      ? `${this.model.text.substring(0, 6)}...`
+      : this.model.text
+  }
+
   width?: {value: number, unit: "%"}
   height?: {value: number, unit: "%"}
 
   _size(): Size {
     if (!this.svg_image) {
-      return {width: this._base_font_size, height: this._base_font_size}
+      if (this.provider.status == "failed" || this.provider.status == "not_started") {
+        return {
+          width: text_width(this.truncated_text, this.font),
+          height: font_metrics(this.font).height,
+        }
+      } else {
+        return {width: this._base_font_size, height: this._base_font_size}
+      }
     }
 
     const fmetrics = font_metrics(this.font)
@@ -366,6 +380,12 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     if (this.svg_image) {
       const {width, height} = this.get_image_dimensions()
       ctx.drawImage(this.svg_image, x, y, width, height)
+    } else if (this.provider.status == "failed" || this.provider.status == "not_started") {
+      ctx.fillStyle = this.color
+      ctx.font = this.font
+      ctx.textAlign = "left"
+      ctx.textBaseline = "alphabetic"
+      ctx.fillText(this.truncated_text, x, y + font_metrics(this.font).ascent)
     }
 
     ctx.restore()
