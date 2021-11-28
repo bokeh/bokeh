@@ -10,10 +10,7 @@ import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
 import {Selection} from "../selections/selection"
 import * as p from "core/properties"
 
-// This class is intended to be a private implementation detail that can
-// be re-used by various rect, bar, box, quad, etc. glyphs.
-
-export type LRTBData = GlyphData & p.UniformsOf<LRTB.Mixins> & {
+export type BoxData = GlyphData & p.UniformsOf<Box.Mixins> & {
   _right: FloatArray
   _bottom: FloatArray
   _left: FloatArray
@@ -25,11 +22,11 @@ export type LRTBData = GlyphData & p.UniformsOf<LRTB.Mixins> & {
   stop: ScreenArray
 }
 
-export interface LRTBView extends LRTBData {}
+export interface BoxView extends BoxData {}
 
-export abstract class LRTBView extends GlyphView {
-  override model: LRTB
-  override visuals: LRTB.Visuals
+export abstract class BoxView extends GlyphView {
+  override model: Box
+  override visuals: Box.Visuals
 
   override get_anchor_point(anchor: Anchor, i: number, _spt: [number, number]): {x: number, y: number} | null {
     const left = Math.min(this.sleft[i], this.sright[i])
@@ -67,7 +64,7 @@ export abstract class LRTBView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: LRTBData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: BoxData): void {
     const {sleft, sright, stop, sbottom} = data ?? this
 
     for (const i of indices) {
@@ -139,7 +136,7 @@ export abstract class LRTBView extends GlyphView {
   }
 }
 
-export namespace LRTB {
+export namespace Box {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Glyph.Props & Mixins
@@ -149,17 +146,17 @@ export namespace LRTB {
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
-export interface LRTB extends LRTB.Attrs {}
+export interface Box extends Box.Attrs {}
 
-export abstract class LRTB extends Glyph {
-  override properties: LRTB.Props
-  override __view_type__: LRTBView
+export abstract class Box extends Glyph {
+  override properties: Box.Props
+  override __view_type__: BoxView
 
-  constructor(attrs?: Partial<LRTB.Attrs>) {
+  constructor(attrs?: Partial<Box.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.mixins<LRTB.Mixins>([LineVector, FillVector, HatchVector])
+    this.mixins<Box.Mixins>([LineVector, FillVector, HatchVector])
   }
 }

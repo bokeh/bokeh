@@ -1,8 +1,8 @@
-import {LRTB, LRTBView, LRTBData} from "./lrtb"
+import {Box, BoxView, BoxData} from "./box"
 import {FloatArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 
-export type QuadData = LRTBData & {
+export type QuadData = BoxData & {
   _right: FloatArray
   _bottom: FloatArray
   _left: FloatArray
@@ -16,7 +16,7 @@ export type QuadData = LRTBData & {
 
 export interface QuadView extends QuadData {}
 
-export class QuadView extends LRTBView {
+export class QuadView extends BoxView {
   override model: Quad
   override visuals: Quad.Visuals
 
@@ -38,19 +38,19 @@ export class QuadView extends LRTBView {
 export namespace Quad {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = LRTB.Props & {
+  export type Props = Box.Props & {
     right: p.CoordinateSpec
     bottom: p.CoordinateSpec
     left: p.CoordinateSpec
     top: p.CoordinateSpec
   }
 
-  export type Visuals = LRTB.Visuals
+  export type Visuals = Box.Visuals
 }
 
 export interface Quad extends Quad.Attrs {}
 
-export class Quad extends LRTB {
+export class Quad extends Box {
   override properties: Quad.Props
   override __view_type__: QuadView
 
