@@ -6,6 +6,7 @@ import type {GlyphView} from "../glyph"
 import type {ScatterView} from "../scatter"
 import type {CircleView} from "../circle"
 import {MarkerType} from "core/enums"
+import {Uniform, UniformScalar} from "core/uniforms"
 
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
 // have reduced floating point precision.  So here using a large-ish negative
@@ -23,10 +24,11 @@ function is_CircleView(glyph_view: GlyphView): glyph_view is CircleView {
 // function in the fragment shader that defines the marker geometry and is
 // enabled through a #define.
 export class MarkerGL extends BaseGLGlyph {
-  protected _marker_type: MarkerType
   protected _antialias: number
 
   // data properties, either all or none are set.
+  protected _marker_types?: Uniform<MarkerType | null>
+  protected _unique_marker_types: (MarkerType | null)[]
   protected _centers?: Float32Buffer
   protected _sizes?: Float32Buffer
   protected _angles?: Float32Buffer
@@ -40,46 +42,9 @@ export class MarkerGL extends BaseGLGlyph {
   protected _show?: Uint8Buffer
   protected _show_all: boolean
 
-  static is_supported(marker_type: MarkerType): boolean {
-    switch (marker_type) {
-      case "asterisk":
-      case "circle":
-      case "circle_cross":
-      case "circle_dot":
-      case "circle_x":
-      case "circle_y":
-      case "cross":
-      case "dash":
-      case "diamond":
-      case "diamond_cross":
-      case "diamond_dot":
-      case "dot":
-      case "hex":
-      case "hex_dot":
-      case "inverted_triangle":
-      case "plus":
-      case "square":
-      case "square_cross":
-      case "square_dot":
-      case "square_pin":
-      case "square_x":
-      case "star":
-      case "star_dot":
-      case "triangle":
-      case "triangle_dot":
-      case "triangle_pin":
-      case "x":
-      case "y":
-        return true
-      default:
-        return false
-    }
-  }
-
-  constructor(regl_wrapper: ReglWrapper, override readonly glyph: MarkerLikeView, readonly marker_type: MarkerType) {
+  constructor(regl_wrapper: ReglWrapper, override readonly glyph: MarkerLikeView) {
     super(regl_wrapper, glyph)
 
-    this._marker_type = marker_type
     this._antialias = 0.8
     this._show_all = false
   }
@@ -107,42 +72,54 @@ export class MarkerGL extends BaseGLGlyph {
     if (this._show == null)
       this._show = new Uint8Buffer(this.regl_wrapper)
 
-    const prev_nmarkers = this._show.length
-    const show_array = this._show.get_sized_array(nmarkers)
-    if (indices.length < nmarkers) {
-      this._show_all = false
+    const ntypes = mainGlGlyph._unique_marker_types.length
+    for (const marker_type of mainGlGlyph._unique_marker_types) {
+      if (marker_type == null)
+        continue
 
-      // Reset all show values to zero.
-      for (let i = 0; i < nmarkers; i++)
-        show_array[i] = 0
+      let nshow = nmarkers  // Number of markers to show.
+      const prev_nmarkers = this._show.length
+      const show_array = this._show.get_sized_array(nmarkers)
+      if (ntypes > 1 || indices.length < nmarkers) {
+        this._show_all = false
 
-      // Set show values of markers to render to 255.
-      for (let j = 0; j < indices.length; j++) {
-        show_array[indices[j]] = 255
+        // Reset all show values to zero.
+        show_array.fill(0)
+
+        // Set show values of markers to render to 255.
+        nshow = 0
+        for (const k of indices) {  // Marker index.
+          if (ntypes == 1 || mainGlGlyph._marker_types!.get(k) == marker_type) {
+            show_array[k] = 255
+            nshow++
+          }
+        }
+      } else if (!this._show_all || prev_nmarkers != nmarkers) {
+        this._show_all = true
+        show_array.fill(255)
       }
-    } else if (!this._show_all || prev_nmarkers != nmarkers) {
-      this._show_all = true
-      for (let i = 0; i < nmarkers; i++)
-        show_array[i] = 255
-    }
-    this._show.update()
+      this._show.update()
 
-    const props: MarkerGlyphProps = {
-      scissor: this.regl_wrapper.scissor,
-      viewport: this.regl_wrapper.viewport,
-      canvas_size: [transform.width, transform.height],
-      pixel_ratio: transform.pixel_ratio,
-      center: mainGlGlyph._centers!,
-      size: mainGlGlyph._sizes!,
-      angle: mainGlGlyph._angles!,
-      nmarkers,
-      antialias: this._antialias,
-      linewidth: this._linewidths!,
-      line_color: this._line_rgba,
-      fill_color: this._fill_rgba,
-      show: this._show,
+      if (nshow == 0)
+        continue
+
+      const props: MarkerGlyphProps = {
+        scissor: this.regl_wrapper.scissor,
+        viewport: this.regl_wrapper.viewport,
+        canvas_size: [transform.width, transform.height],
+        pixel_ratio: transform.pixel_ratio,
+        center: mainGlGlyph._centers!,
+        size: mainGlGlyph._sizes!,
+        angle: mainGlGlyph._angles!,
+        nmarkers,
+        antialias: this._antialias,
+        linewidth: this._linewidths!,
+        line_color: this._line_rgba,
+        fill_color: this._fill_rgba,
+        show: this._show,
+      }
+      this.regl_wrapper.marker(marker_type)(props)
     }
-    this.regl_wrapper.marker(this._marker_type)(props)
   }
 
   protected _set_data(): void {
@@ -177,6 +154,17 @@ export class MarkerGL extends BaseGLGlyph {
     }
 
     this._angles!.set_from_prop(this.glyph.angle)
+
+    if (is_CircleView(this.glyph)) {
+      if (this._marker_types == null) {
+        // Circle glyph is always a circle.
+        this._marker_types = new UniformScalar("circle", 1)
+        this._unique_marker_types = ["circle"]
+      }
+    } else {
+      this._marker_types = this.glyph.marker
+      this._unique_marker_types = [...new Set(this._marker_types)]
+    }
   }
 
   protected _set_visuals(): void {
