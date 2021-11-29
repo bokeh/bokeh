@@ -427,6 +427,37 @@ export class AsciiView extends MathTextView {
   protected _process_text(): HTMLElement | undefined {
     return undefined // TODO: this.provider.MathJax?.ascii2svg(text)
   }
+
+  override _size(): Size {
+    return {
+      width: text_width(this.text, this.font),
+      height: font_metrics(this.font).height,
+    }
+  }
+
+  override paint(ctx: Context2d) {
+    ctx.save()
+    const {sx, sy} = this.position
+
+    const {angle} = this
+    if (angle != null && angle != 0) {
+      ctx.translate(sx, sy)
+      ctx.rotate(angle)
+      ctx.translate(-sx, -sy)
+    }
+
+    const {x, y} = this._computed_position()
+    ctx.fillStyle = this.color
+    ctx.font = this.font
+    ctx.textAlign = "left"
+    ctx.textBaseline = "alphabetic"
+    ctx.fillText(this.text, x, y + font_metrics(this.font).ascent)
+
+
+    ctx.restore()
+    this._has_finished = true
+    this.parent.notify_finished_after_paint()
+  }
 }
 
 export namespace Ascii {
