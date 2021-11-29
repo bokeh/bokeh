@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "strictNullChecks": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "useUnknownInCatchVariables": true,
+    "alwaysStrict": true,
+    "noErrorTruncation": true,
+    "noEmitOnError": false,
+    "declaration": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "importHelpers": false,
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "ES2020",
+    "lib": ["es2020"],
+    "baseUrl": ".",
+    "outDir": "../../build/server"
+  },
+  "include": ["./**/*.ts"]
+}

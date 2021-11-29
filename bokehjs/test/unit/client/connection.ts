@@ -4,7 +4,7 @@ import {pull_session} from "@bokehjs/client/connection"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {unique_id} from "@bokehjs/core/util/string"
 
-const port = 5009
+const port = 5007
 const url = `ws://localhost:${port}/ws`
 
 function token(session_id: string = unique_id(), session_expiry: number = Date.now() + 300) {
