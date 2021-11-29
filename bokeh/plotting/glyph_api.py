@@ -929,6 +929,11 @@ Examples:
             from a data source column, *all* markers including circles may only
             be configured with ``size`` in |screen units|.
 
+        .. note::
+            ``Scatter`` markers with multiple marker types may be drawn in a
+            different order when using the WebGL output backend. This is an explicit
+            trade-off made in the interests of performance.
+
         '''
         marker_type = kwargs.pop("marker", "circle")
 
