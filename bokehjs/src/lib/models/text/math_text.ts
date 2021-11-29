@@ -326,16 +326,35 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
     const {x, y} = this._computed_position()
 
+
+    ctx.fillStyle = this.color
+    ctx.font = this.font
+    ctx.textAlign = "left"
+    ctx.textBaseline = "alphabetic"
+    ctx.fillText(this.model.text, x, y + font_metrics(this.font).ascent)
+    ctx.restore()
+
+    this.draw_tex(ctx)
+  }
+
+  async draw_tex(ctx: Context2d) {
+    ctx.save()
+    const {sx, sy} = this.position
+
+    const {angle} = this
+    if (angle != null && angle != 0) {
+      ctx.translate(sx, sy)
+      ctx.rotate(angle)
+      ctx.translate(-sx, -sy)
+    }
+
+    const {x, y} = this._computed_position()
+
     if (this.svg_image != null) {
       const {width, height} = this.get_image_dimensions()
       ctx.drawImage(this.svg_image, x, y, width, height)
-    } else {
-      ctx.fillStyle = this.color
-      ctx.font = this.font
-      ctx.textAlign = "left"
-      ctx.textBaseline = "alphabetic"
-      ctx.fillText(this.model.text, x, y + font_metrics(this.font).ascent)
     }
+
     ctx.restore()
 
     if (!this._has_finished && (this.provider.status == "failed" || this.has_image_loaded)) {
