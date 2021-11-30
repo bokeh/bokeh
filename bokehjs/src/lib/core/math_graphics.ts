@@ -3,13 +3,14 @@ import {BBox} from "./util/bbox"
 import {font_metrics, parse_css_font_size, parse_css_length} from "./util/text"
 import {isNumber, is_defined, isObject} from "./util/types"
 import {Rect} from "./util/affine"
-import {color2css, color2rgba} from "./util/color"
+import {color2css, color2hexrgb, color2rgba} from "./util/color"
 import * as visuals from "./visuals"
 import {default_provider, MathJaxProvider} from "models/text/providers"
 import {GraphicsBox} from "./graphics"
 import {Context2d} from "./util/canvas"
 import {CanvasImage} from "models/glyphs/image_url"
 import {load_image} from "./util/image"
+import {insert_text_on_position} from "./util/string"
 
 export function is_math_box(graphics: unknown): graphics is MathBox {
   return isObject(graphics) && is_defined((graphics as MathBox).provider)
@@ -269,5 +270,35 @@ export class TeXBox extends MathBox {
       return false
 
     return this.provider.MathJax.find_tex(text).length > 0
+  }
+}
+
+export class MathMLBox extends MathBox {
+  get styled_formula(): string {
+    let styled = this.text.trim()
+    let matchs = styled.match(/<math(.*?[^?])?>/s)
+    if (!matchs)
+      return this.text.trim()
+
+    styled = insert_text_on_position(
+      styled,
+      styled.indexOf(matchs[0]) +  matchs[0].length,
+      `<mstyle displaystyle="true" mathcolor="${color2hexrgb(this.color)}" ${this.font.includes("bold") ? 'mathvariant="bold"' : "" }>`
+    )
+
+    matchs = styled.match(/<\/[^>]*?math.*?>/s)
+    if (!matchs)
+      return this.text.trim()
+
+    return insert_text_on_position(styled, styled.indexOf(matchs[0]), "</mstyle>")
+  }
+
+  process_text(): SVGElement {
+    const fmetrics = font_metrics(this.font)
+
+    return this.provider.MathJax?.mathml2svg(this.styled_formula, {
+      em: this.base_font_size,
+      ex: fmetrics.x_height,
+    }).children[0] as SVGElement
   }
 }

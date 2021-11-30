@@ -13,7 +13,7 @@ import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
 import {BaseText, BaseTextView} from "./base_text"
 import {MathJaxProvider, default_provider} from "./providers"
-import {TeXBox} from "core/math_graphics"
+import {MathMLBox, TeXBox} from "core/math_graphics"
 
 /**
  * Helper class for rendering MathText into Canvas
@@ -521,6 +521,10 @@ export namespace MathML {
 export interface MathML extends MathML.Attrs {}
 
 export class MathML extends MathText {
+  override graphics(): MathMLBox {
+    return new MathMLBox(this)
+  }
+
   override properties: MathML.Props
   override __view_type__: MathMLView
 
