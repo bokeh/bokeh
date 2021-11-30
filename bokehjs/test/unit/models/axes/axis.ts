@@ -11,6 +11,7 @@ import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {build_view} from "@bokehjs/core/build_views"
 import {TextBox} from "@bokehjs/core/graphics"
 import {TeXView, TeX} from "@bokehjs/models/text/math_text"
+import { is_math_box } from "@bokehjs/core/math_graphics"
 
 describe("Axis", () => {
 
@@ -74,7 +75,7 @@ describe("Axis", () => {
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_view(axis)!
 
-    expect(axis_view._axis_label_view).to.be.instanceof(TeXView)
+    expect(is_math_box(axis_view.axis_label_graphics)).to.be.true
   })
 
   it("should convert mathstrings with line breaks in between delimiters on axis labels to TeX", async () => {
@@ -97,7 +98,7 @@ describe("Axis", () => {
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_view(axis)!
 
-    expect(axis_view._axis_label_view).to.be.instanceof(TeXView)
+    expect(is_math_box(axis_view.axis_label_graphics)).to.be.true
   })
 
   it("loc should return numeric fixed_location", async () => {

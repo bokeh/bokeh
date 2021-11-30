@@ -11,8 +11,8 @@ import {Context2d} from "./util/canvas"
 import {CanvasImage} from "models/glyphs/image_url"
 import {load_image} from "./util/image"
 
-export function is_math_box(graphics: GraphicsBox): graphics is MathBox {
-  return is_defined((graphics as MathBox).provider)
+export function is_math_box(graphics: unknown): graphics is MathBox {
+  return is_defined((graphics as MathBox)?.provider)
 }
 
 export abstract class MathBox extends GraphicsBox {
