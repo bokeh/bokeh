@@ -7,7 +7,7 @@ import {isNumber} from "./util/types"
 import {Rect, AffineTransform} from "./util/affine"
 import {color2css, color2rgba} from "./util/color"
 import * as visuals from "./visuals"
-import { default_provider, MathJaxProvider } from "models/text/providers"
+import {default_provider, MathJaxProvider} from "models/text/providers"
 
 export const text_width: (text: string, font: string) => number = (() => {
   const canvas = document.createElement("canvas")
@@ -763,7 +763,7 @@ export class TeXBox extends GraphicsBox {
   }
 
   private process_text(): HTMLElement {
-    if(!this.provider.MathJax) {
+    if (!this.provider.MathJax) {
       throw new Error("Please load MathJax before calling process_text")
     }
 

@@ -5,10 +5,13 @@ import {isNumber} from "./util/types"
 import {Rect} from "./util/affine"
 import {color2css, color2rgba} from "./util/color"
 import * as visuals from "./visuals"
-import { default_provider, MathJaxProvider } from "models/text/providers"
-import { GraphicsBox } from "./graphics"
+import {default_provider, MathJaxProvider} from "models/text/providers"
+import {GraphicsBox} from "./graphics"
+import {Context2d} from "./util/canvas"
+import {CanvasImage} from "models/glyphs/image_url"
+import {load_image} from "./util/image"
 
-export class TeXBox extends GraphicsBox {
+export abstract class MathBox extends GraphicsBox {
   font: string
   color: string
   text: string
@@ -102,45 +105,27 @@ export class TeXBox extends GraphicsBox {
     return {x, y}
   }
 
-  get styled_text(): string {
-    const [r, g, b] = color2rgba(this.color)
-
-    return `\\color[RGB]{${r}, ${g}, ${b}} ${this.font.includes("bold") ? `\\bf{${this.text}}` : this.text}`
-  }
-
-  private process_text(): HTMLElement {
-    if(!this.provider.MathJax) {
-      throw new Error("Please load MathJax before calling process_text")
-    }
-
-    // TODO: allow plot/document level configuration of macros
-    return this.provider.MathJax.tex2svg(this.styled_text, {
-      em: this.base_font_size,
-      ex: font_metrics(this.font).x_height,
-    })
-  }
-
   private get_image_dimensions(): Size {
     if (!this.provider.MathJax) {
       return {width: 0, height: 0}
     }
 
-    const svg_element = this.process_text()
+    const mathjax_element = this.process_text()
     const fmetrics = font_metrics(this.font)
 
     const heightEx = parseFloat(
-      svg_element
+      mathjax_element
         .getAttribute("height")
         ?.replace(/([A-z])/g, "") ?? "0"
     )
 
     const widthEx = parseFloat(
-      svg_element
+      mathjax_element
         .getAttribute("width")
         ?.replace(/([A-z])/g, "") ?? "0"
     )
 
-    const svg_styles = svg_element.getAttribute("style")?.split(";")
+    const svg_styles = mathjax_element.getAttribute("style")?.split(";")
 
     if (svg_styles) {
       const rulesMap = new Map()
@@ -168,23 +153,80 @@ export class TeXBox extends GraphicsBox {
       return {width: 0, height: 0}
     }
 
-    const svg_element = this.process_text()
+    const fmetrics = font_metrics(this.font)
+    let {width, height} = this.get_image_dimensions()
+    height = Math.max(height, fmetrics.height)
 
-    const heightEx = parseFloat(
-      svg_element
-        .getAttribute("height")
-        ?.replace(/([A-z])/g, "") ?? "0"
-    )
+    const w_scale = this.width?.unit == "%" ? this.width.value : 1
+    const h_scale = this.height?.unit == "%" ? this.height.value : 1
 
-    const widthEx = parseFloat(
-      svg_element
-        .getAttribute("width")
-        ?.replace(/([A-z])/g, "") ?? "0"
-    )
+    return {width: width*w_scale, height: height*h_scale}
+  }
 
-    return {
-      width: font_metrics(this.font).x_height * widthEx,
-      height: font_metrics(this.font).x_height * heightEx,
+  private get_image(): Promise<CanvasImage> {
+    const svg_element = this.process_text().children[0] as SVGElement
+
+    svg_element.setAttribute("font", this.font)
+    svg_element.setAttribute("stroke", this.color)
+
+    const svg = svg_element.outerHTML
+    const src = `data:image/svg+xml;utf-8,${encodeURIComponent(svg)}`
+    return load_image(src)
+  }
+
+  async draw(ctx: Context2d) {
+    ctx.save()
+    const {sx, sy} = this.position
+
+    const {angle} = this
+
+    if (angle != null && angle != 0) {
+      ctx.translate(sx, sy)
+      ctx.rotate(angle)
+      ctx.translate(-sx, -sy)
     }
+
+    const {x, y} = this._computed_position()
+
+    try {
+      const {width, height} = this.get_image_dimensions()
+      ctx.drawImage(await this.get_image(), x, y, width, height)
+    } catch (error) {
+      ctx.fillStyle = this.color
+      ctx.font = this.font
+      ctx.textAlign = "left"
+      ctx.textBaseline = "alphabetic"
+      ctx.fillText(this.text, x, y + font_metrics(this.font).ascent)
+    }
+
+    ctx.restore()
+  }
+
+  paint(ctx: Context2d): void {
+    this.draw(ctx)
+  }
+
+  abstract get styled_formula(): string
+
+  abstract process_text(): HTMLElement
+}
+
+export class TeXBox extends MathBox {
+  get styled_formula(): string {
+    const [r, g, b] = color2rgba(this.color)
+
+    return `\\color[RGB]{${r}, ${g}, ${b}} ${this.font.includes("bold") ? `\\bf{${this.text}}` : this.text}`
+  }
+
+  process_text(): HTMLElement {
+    if (!this.provider.MathJax) {
+      throw new Error("Please load MathJax before calling process_text")
+    }
+
+    // TODO: allow plot/document level configuration of macros
+    return this.provider.MathJax.tex2svg(this.styled_formula, {
+      em: this.base_font_size,
+      ex: font_metrics(this.font).x_height,
+    })
   }
 }
