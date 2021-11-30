@@ -1,7 +1,7 @@
 import {Size} from "./types"
 import {BBox} from "./util/bbox"
 import {font_metrics, parse_css_font_size, parse_css_length} from "./util/text"
-import {isNumber} from "./util/types"
+import {isNumber, is_defined} from "./util/types"
 import {Rect} from "./util/affine"
 import {color2css, color2rgba} from "./util/color"
 import * as visuals from "./visuals"
@@ -11,11 +11,20 @@ import {Context2d} from "./util/canvas"
 import {CanvasImage} from "models/glyphs/image_url"
 import {load_image} from "./util/image"
 
+export function is_math_box(graphics: GraphicsBox): graphics is MathBox {
+  return is_defined((graphics as MathBox).provider)
+}
+
 export abstract class MathBox extends GraphicsBox {
   font: string
   color: string
   text: string
   valign: number
+
+  constructor({text}: {text: string}) {
+    super()
+    this.text = text
+  }
 
   get provider(): MathJaxProvider {
     return default_provider
@@ -110,22 +119,22 @@ export abstract class MathBox extends GraphicsBox {
       return {width: 0, height: 0}
     }
 
-    const mathjax_element = this.process_text()
+    const svg_element = this.process_text()
     const fmetrics = font_metrics(this.font)
 
     const heightEx = parseFloat(
-      mathjax_element
+      svg_element
         .getAttribute("height")
         ?.replace(/([A-z])/g, "") ?? "0"
     )
 
     const widthEx = parseFloat(
-      mathjax_element
+      svg_element
         .getAttribute("width")
         ?.replace(/([A-z])/g, "") ?? "0"
     )
 
-    const svg_styles = mathjax_element.getAttribute("style")?.split(";")
+    const svg_styles = svg_element.getAttribute("style")?.split(";")
 
     if (svg_styles) {
       const rulesMap = new Map()
@@ -164,7 +173,7 @@ export abstract class MathBox extends GraphicsBox {
   }
 
   private get_image(): Promise<CanvasImage> {
-    const svg_element = this.process_text().children[0] as SVGElement
+    const svg_element = this.process_text()
 
     svg_element.setAttribute("font", this.font)
     svg_element.setAttribute("stroke", this.color)
@@ -174,8 +183,21 @@ export abstract class MathBox extends GraphicsBox {
     return load_image(src)
   }
 
-  async draw(ctx: Context2d) {
+  async paint(ctx: Context2d): Promise<void> {
+    let image: CanvasImage | undefined
+
+    try {
+      image = await this.get_image()
+    } catch (error) {
+      image = undefined
+    }
+
     ctx.save()
+    if (ctx.layer) {
+      ctx.scale(ctx.layer.pixel_ratio, ctx.layer.pixel_ratio)
+      ctx.translate(0.5, 0.5)
+    }
+
     const {sx, sy} = this.position
 
     const {angle} = this
@@ -188,10 +210,10 @@ export abstract class MathBox extends GraphicsBox {
 
     const {x, y} = this._computed_position()
 
-    try {
+    if (image) {
       const {width, height} = this.get_image_dimensions()
-      ctx.drawImage(await this.get_image(), x, y, width, height)
-    } catch (error) {
+      ctx.drawImage(image, x, y, width, height)
+    } else {
       ctx.fillStyle = this.color
       ctx.font = this.font
       ctx.textAlign = "left"
@@ -202,13 +224,9 @@ export abstract class MathBox extends GraphicsBox {
     ctx.restore()
   }
 
-  paint(ctx: Context2d): void {
-    this.draw(ctx)
-  }
-
   abstract get styled_formula(): string
 
-  abstract process_text(): HTMLElement
+  abstract process_text(): SVGElement
 }
 
 export class TeXBox extends MathBox {
@@ -218,7 +236,7 @@ export class TeXBox extends MathBox {
     return `\\color[RGB]{${r}, ${g}, ${b}} ${this.font.includes("bold") ? `\\bf{${this.text}}` : this.text}`
   }
 
-  process_text(): HTMLElement {
+  process_text(): SVGElement {
     if (!this.provider.MathJax) {
       throw new Error("Please load MathJax before calling process_text")
     }
@@ -227,6 +245,6 @@ export class TeXBox extends MathBox {
     return this.provider.MathJax.tex2svg(this.styled_formula, {
       em: this.base_font_size,
       ex: font_metrics(this.font).x_height,
-    })
+    }).children[0] as SVGElement
   }
 }

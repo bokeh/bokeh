@@ -15,7 +15,7 @@ import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
 import {entries} from "core/util/object"
 import {isNumber} from "core/util/types"
-import {GraphicsBoxes, TextBox} from "core/graphics"
+import {GraphicsBox, GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
 import {BaseTextView} from "../text/base_text"
 import {BaseText} from "../text/base_text"
@@ -23,6 +23,7 @@ import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
 import {isString} from "core/util/types"
 import {parse_delimited_string} from "models/text/utils"
+import {is_math_box} from "core/math_graphics"
 
 const {abs} = Math
 
@@ -47,7 +48,6 @@ export class AxisView extends GuideRendererView {
   panel: Panel
   layout: Layoutable
 
-  /*private*/ _axis_label_view: BaseTextView | null = null
   /*private*/ _major_label_views: Map<string, BaseTextView> = new Map()
 
   override async lazy_initialize(): Promise<void> {
@@ -57,13 +57,19 @@ export class AxisView extends GuideRendererView {
     await this._init_major_labels()
   }
 
-  protected async _init_axis_label(): Promise<void> {
+  get axis_label_graphics(): GraphicsBox | null {
     const {axis_label} = this.model
-    if (axis_label != null) {
-      const _axis_label = isString(axis_label) ? parse_delimited_string(axis_label) : axis_label
-      this._axis_label_view = await build_view(_axis_label, {parent: this})
-    } else
-      this._axis_label_view = null
+
+    if (axis_label == null)
+      return null
+
+    const _axis_label = isString(axis_label) ? parse_delimited_string(axis_label) : axis_label
+    return _axis_label.graphics()
+  }
+
+  protected async _init_axis_label(): Promise<void> {
+    if (this.axis_label_graphics != null && is_math_box(this.axis_label_graphics))
+      await this.axis_label_graphics.load_provider()
   }
 
   protected async _init_major_labels(): Promise<void> {
@@ -116,12 +122,7 @@ export class AxisView extends GuideRendererView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {axis_label, major_label_overrides} = this.model.properties
-
-    this.on_change(axis_label, async () => {
-      this._axis_label_view?.remove()
-      await this._init_axis_label()
-    })
+    const {major_label_overrides} = this.model.properties
 
     this.on_change(major_label_overrides, async () => {
       for (const label_view of this._major_label_views.values()) {
@@ -186,10 +187,9 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _axis_label_extent(): number {
-    if (this._axis_label_view == null)
+    const axis_label_graphics = this.axis_label_graphics
+    if (axis_label_graphics == null)
       return 0
-
-    const axis_label_graphics = this._axis_label_view.graphics()
 
     const padding = 3
 
@@ -207,7 +207,8 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _draw_axis_label(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
-    if (this._axis_label_view == null || this.model.fixed_location != null)
+    const axis_label_graphics = this.axis_label_graphics
+    if (axis_label_graphics == null || this.model.fixed_location != null)
       return
 
     const [sx, sy] = (() => {
@@ -234,8 +235,6 @@ export class AxisView extends GuideRendererView {
       x_anchor: align,
       y_anchor: vertical_align,
     }
-
-    const axis_label_graphics = this._axis_label_view.graphics()
 
     axis_label_graphics.visuals = this.visuals.axis_label_text.values()
     axis_label_graphics.angle = this.panel.get_label_angle_heuristic("parallel")
@@ -607,8 +606,6 @@ export class AxisView extends GuideRendererView {
   }
 
   override remove(): void {
-    this._axis_label_view?.remove()
-
     for (const label_view of this._major_label_views.values()) {
       label_view.remove()
     }
@@ -619,11 +616,6 @@ export class AxisView extends GuideRendererView {
   override has_finished(): boolean {
     if (!super.has_finished())
       return false
-
-    if (this._axis_label_view != null) {
-      if (!this._axis_label_view.has_finished())
-        return false
-    }
 
     for (const label_view of this._major_label_views.values()) {
       if (!label_view.has_finished())

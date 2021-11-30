@@ -13,6 +13,7 @@ import {AffineTransform, Rect} from "core/util/affine"
 import {BBox} from "core/util/bbox"
 import {BaseText, BaseTextView} from "./base_text"
 import {MathJaxProvider, default_provider} from "./providers"
+import {TeXBox} from "core/math_graphics"
 
 /**
  * Helper class for rendering MathText into Canvas
@@ -565,6 +566,10 @@ export namespace TeX {
 export interface TeX extends TeX.Attrs {}
 
 export class TeX extends MathText {
+  override graphics(): TeXBox {
+    return new TeXBox(this)
+  }
+
   override properties: TeX.Props
   override __view_type__: TeXView
 
