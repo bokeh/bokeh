@@ -1,7 +1,7 @@
 import {Size} from "./types"
 import {BBox} from "./util/bbox"
 import {font_metrics, parse_css_font_size, parse_css_length} from "./util/text"
-import {isNumber, is_defined, isPlainObject} from "./util/types"
+import {isNumber, is_defined, isObject} from "./util/types"
 import {Rect} from "./util/affine"
 import {color2css, color2rgba} from "./util/color"
 import * as visuals from "./visuals"
@@ -12,7 +12,7 @@ import {CanvasImage} from "models/glyphs/image_url"
 import {load_image} from "./util/image"
 
 export function is_math_box(graphics: unknown): graphics is MathBox {
-  return isPlainObject(graphics) && is_defined(graphics.provider)
+  return isObject(graphics) && is_defined((graphics as MathBox).provider)
 }
 
 export abstract class MathBox extends GraphicsBox {
