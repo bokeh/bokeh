@@ -11,7 +11,7 @@ import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {build_view} from "@bokehjs/core/build_views"
 import {TextBox} from "@bokehjs/core/graphics"
 import {TeXView, TeX} from "@bokehjs/models/text/math_text"
-import { is_math_box } from "@bokehjs/core/math_graphics"
+import {is_math_box} from "@bokehjs/core/math_graphics"
 
 describe("Axis", () => {
 
