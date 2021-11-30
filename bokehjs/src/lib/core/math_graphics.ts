@@ -293,7 +293,7 @@ export class MathMLBox extends MathBox {
     return insert_text_on_position(styled, styled.indexOf(matchs[0]), "</mstyle>")
   }
 
-  process_text(): SVGElement {
+  to_svg(): SVGElement {
     const fmetrics = font_metrics(this.font)
 
     return this.provider.MathJax?.mathml2svg(this.styled_formula, {
