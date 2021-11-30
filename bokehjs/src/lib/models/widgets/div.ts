@@ -5,17 +5,19 @@ import {TeXBox} from "core/math_graphics"
 export class DivView extends MarkupView {
   override model: Div
 
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    await new TeXBox(this.model).load_provider()
+  }
+
   override async render(): Promise<void> {
     super.render()
     if (this.model.render_as_text)
       this.markup_el.textContent = this.model.text
     else if (this.model.disable_math)
       this.markup_el.innerHTML = this.model.text
-    else {
-      const graphics = new TeXBox(this.model)
-      await graphics.load_provider()
-      this.markup_el.innerHTML = graphics.to_html_string()
-    }
+    else
+      this.markup_el.innerHTML = new TeXBox(this.model).to_html_string()
   }
 }
 
