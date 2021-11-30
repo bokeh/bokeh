@@ -1,19 +1,23 @@
 import {Markup, MarkupView} from "./markup"
 import {p as paragraph} from "core/dom"
 import * as p from "core/properties"
+import {TeXBox} from "core/math_graphics"
 
 export class ParagraphView extends MarkupView {
   override model: Paragraph
 
-  override render(): void {
+  override async render(): Promise<void> {
     super.render()
     // This overrides default user-agent styling and helps layout work
     const content = paragraph({style: {margin: 0}})
 
-    if (this.has_math_disabled())
+    if (this.model.disable_math)
       content.textContent = this.model.text
-    else
-      content.innerHTML = this.process_tex()
+    else {
+      const graphics = new TeXBox(this.model)
+      await graphics.load_provider()
+      this.markup_el.innerHTML = graphics.to_html_string()
+    }
 
     this.markup_el.appendChild(content)
   }

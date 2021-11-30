@@ -1,15 +1,21 @@
 import {Markup, MarkupView} from "./markup"
 import * as p from "core/properties"
+import {TeXBox} from "core/math_graphics"
 
 export class DivView extends MarkupView {
   override model: Div
 
-  override render(): void {
+  override async render(): Promise<void> {
     super.render()
     if (this.model.render_as_text)
       this.markup_el.textContent = this.model.text
-    else
-      this.markup_el.innerHTML = this.has_math_disabled() ? this.model.text : this.process_tex()
+    else if (this.model.disable_math)
+      this.markup_el.innerHTML = this.model.text
+    else {
+      const graphics = new TeXBox(this.model)
+      await graphics.load_provider()
+      this.markup_el.innerHTML = graphics.to_html_string()
+    }
   }
 }
 

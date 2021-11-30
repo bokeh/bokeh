@@ -76,8 +76,8 @@ describe("MathText graphics", () => {
       stub.value({tex2svg, find_tex})
 
       try {
-        const tex_html = new TeXBox({text: `$$tex$}$.to_html_string()
-        text`)
+        const tex_html = new TeXBox({text: `$$tex$$
+        text`}).to_html_string()
         expect(tex_html).to.be.equal(`<svg display=\"true\">tex</svg>
         text`)
       } finally {
