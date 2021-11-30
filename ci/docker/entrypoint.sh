@@ -9,9 +9,15 @@ MINICONDA_SCRIPT=Miniconda3-latest-Linux-x86_64.sh
 
 eval "$(fixuid -q)"
 
+if [ "${BOKEH_DOCKER_CHROME_VERSION:-0}" == 1 ]; then
+    # Print numerical chrome version and exit.
+    google-chrome --version | awk '{print $NF}'
+    exit 1
+fi
+
 if [ ! -d .git ] || [ ! -f environment.yml ]; then
     echo "Directory does not contain Bokeh git repo."
-    exit 1
+    exit 2
 fi
 
 if [ "${BOKEH_DOCKER_CONDA:-1}" == 1 ]; then
@@ -20,7 +26,7 @@ if [ "${BOKEH_DOCKER_CONDA:-1}" == 1 ]; then
     ENV_YML_FILE=ci/environment-test-$BOKEH_DOCKER_PY.yml
     if [ ! -f $ENV_YML_FILE ]; then
         echo "Cannot find environment file $ENV_YML_FILE"
-        exit 1
+        exit 3
     fi
 
     if [ ! -f "$CONDA_DIR/condabin/conda" ]; then
