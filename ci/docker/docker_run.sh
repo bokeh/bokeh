@@ -21,6 +21,12 @@ for name in BOKEH_DOCKER_CONDA BOKEH_DOCKER_PY BOKEH_DOCKER_BUILD BOKEH_DOCKER_T
     fi
 done
 
-CMD="docker run -v $PWD:/bokeh -u $UID_GID -p 5006:5006 $ENV_VARS -it $IMAGE_AND_TAG"
+INTERACTIVE="-it"
+if [ "${BOKEH_DOCKER_CHROME_VERSION:-0}" == 1 ]; then
+    # If only want chrome version, do not need to run interactively.
+    INTERACTIVE=""
+fi
+
+CMD="docker run -v $PWD:/bokeh -u $UID_GID -p 5006:5006 $ENV_VARS $INTERACTIVE $IMAGE_AND_TAG"
 echo $CMD
 $CMD
