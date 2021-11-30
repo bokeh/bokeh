@@ -119,7 +119,7 @@ export abstract class MathBox extends GraphicsBox {
       return {width: 0, height: 0}
     }
 
-    const svg_element = this.process_text()
+    const svg_element = this.to_svg()
     const fmetrics = font_metrics(this.font)
 
     const heightEx = parseFloat(
@@ -173,7 +173,7 @@ export abstract class MathBox extends GraphicsBox {
   }
 
   private get_image(): Promise<CanvasImage> {
-    const svg_element = this.process_text()
+    const svg_element = this.to_svg()
 
     svg_element.setAttribute("font", this.font)
     svg_element.setAttribute("stroke", this.color)
@@ -221,7 +221,7 @@ export abstract class MathBox extends GraphicsBox {
 
   abstract get styled_formula(): string
 
-  abstract process_text(): SVGElement
+  abstract to_svg(): SVGElement
 }
 
 export class TeXBox extends MathBox {
@@ -231,7 +231,7 @@ export class TeXBox extends MathBox {
     return `\\color[RGB]{${r}, ${g}, ${b}} ${this.font.includes("bold") ? `\\bf{${this.text}}` : this.text}`
   }
 
-  process_text(): SVGElement {
+  to_svg(): SVGElement {
     if (!this.provider.MathJax) {
       throw new Error("Please load MathJax before calling process_text")
     }
@@ -241,5 +241,33 @@ export class TeXBox extends MathBox {
       em: this.base_font_size,
       ex: font_metrics(this.font).x_height,
     }).children[0] as SVGElement
+  }
+
+  to_html_string(): string {
+    if (!this.provider.MathJax)
+      return this.text
+
+    const tex_parts = this.provider.MathJax.find_tex(this.text)
+    const processed_text: string[] = []
+
+    let last_index: number | undefined = 0
+    for (const part of tex_parts) {
+      processed_text.push(this.text.slice(last_index, part.start.n))
+      processed_text.push(this.provider.MathJax.tex2svg(part.math, {display: part.display}).outerHTML)
+
+      last_index = part.end.n
+    }
+
+    if (last_index! < this.text.length)
+      processed_text.push(this.text.slice(last_index))
+
+    return processed_text.join("")
+  }
+
+  contains_tex(text: string): boolean {
+    if (!this.provider.MathJax)
+      return false
+
+    return this.provider.MathJax.find_tex(text).length > 0
   }
 }
