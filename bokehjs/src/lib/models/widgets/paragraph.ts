@@ -15,11 +15,12 @@ export class ParagraphView extends MarkupView {
     super.render()
     // This overrides default user-agent styling and helps layout work
     const content = paragraph({style: {margin: 0}})
+    const math_graphics = new TeXBox(this.model)
 
-    if (this.model.disable_math)
+    if (this.model.disable_math ||!math_graphics.contains_tex())
       content.textContent = this.model.text
     else
-      this.markup_el.innerHTML = new TeXBox(this.model).to_html_string()
+      this.markup_el.innerHTML = math_graphics.to_html_string()
 
     this.markup_el.appendChild(content)
   }
