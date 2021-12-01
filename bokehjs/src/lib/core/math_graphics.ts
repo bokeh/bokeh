@@ -245,7 +245,7 @@ export class TeXBox extends MathBox {
   }
 
   to_html_string(): string {
-    if (!this.provider.MathJax)
+    if (!this.provider.MathJax || !this.contains_tex())
       return this.text
 
     const tex_parts = this.provider.MathJax.find_tex(this.text)
@@ -265,11 +265,11 @@ export class TeXBox extends MathBox {
     return processed_text.join("")
   }
 
-  contains_tex(text: string): boolean {
+  contains_tex(): boolean {
     if (!this.provider.MathJax)
       return false
 
-    return this.provider.MathJax.find_tex(text).length > 0
+    return this.provider.MathJax.find_tex(this.text).length > 0
   }
 }
 
