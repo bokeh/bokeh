@@ -2,7 +2,7 @@ import {isObject, isArray} from "./core/util/types"
 import {values} from "./core/util/object"
 import {HasProps} from "./core/has_props"
 
-export const overrides: {[key: string]: typeof HasProps} = {}
+const overrides: Map<string, typeof HasProps> = new Map()
 const _all_models: Map<string, typeof HasProps> = new Map()
 
 export interface Models {
@@ -24,15 +24,15 @@ export const Models = ((name: string): typeof HasProps => {
 }) as Models
 
 Models.get = (name) => {
-  return overrides[name] ?? _all_models.get(name)
+  return overrides.get(name) ?? _all_models.get(name)
 }
 
 Models.register = (name, model) => {
-  overrides[name] = model
+  overrides.set(name, model)
 }
 
 Models.unregister = (name) => {
-  delete overrides[name]
+  overrides.delete(name)
 }
 
 function is_HasProps(obj: unknown): obj is typeof HasProps {
@@ -65,9 +65,9 @@ export class ModelResolver {
 
   get(name: string): typeof HasProps
   get<M extends typeof HasProps, T>(name: string, or_else: T): M | T
-  get<T>(name: string, or_else: T): (typeof HasProps) | T
+  get<T>(name: string, or_else: T): typeof HasProps | T
 
-  get<T>(name: string, or_else?: T): (typeof HasProps) | T {
+  get<T>(name: string, or_else?: T): typeof HasProps | T {
     const model = Models.get(name) ?? this._known_models.get(name)
     if (model != null)
       return model

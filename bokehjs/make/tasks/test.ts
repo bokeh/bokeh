@@ -134,6 +134,10 @@ async function headless(port: number): Promise<ChildProcess> {
     "--force-color-profile=srgb",           // ^^^
     "--force-device-scale-factor=1",        // ^^^
   ]
+  const bokeh_in_docker = process.env.BOKEH_IN_DOCKER ?? ""
+  if (bokeh_in_docker == "1") {
+    args.push("--no-sandbox")
+  }
   const executable = chrome()
   const proc = spawn(executable, args, {stdio: "pipe"})
 
@@ -303,7 +307,7 @@ function compile(name: string, options?: {auto_index?: boolean}) {
   // `files` is in TS canonical form, i.e. `/` is the separator on all platforms
   const base_dir = `test/${name}`
 
-  compile_typescript(`./${base_dir}/tsconfig.json`, !options?.auto_index ? {} : {
+  compile_typescript(`./${base_dir}/tsconfig.json`, !(options?.auto_index ?? false) ? {} : {
     inputs(files) {
       const imports = ['export * from "../framework"']
 

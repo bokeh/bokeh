@@ -10,22 +10,20 @@ describe("datarange1d module", () => {
   describe("default creation", () => {
     const r = new DataRange1d()
 
-    it("should have start = null", () => {
-      expect(r.start).to.be.null
+    it("should have start = NaN", () => {
+      expect(r.start).to.be.NaN
     })
 
-    it("should have end = null", () => {
-      expect(r.end).to.be.null
+    it("should have end = NaN", () => {
+      expect(r.end).to.be.NaN
     })
 
-    // Math.min(null, null) == 0
-    it("should have min = 0", () => {
-      expect(r.min).to.be.equal(0)
+    it("should have min = NaN", () => {
+      expect(r.min).to.be.NaN
     })
 
-    // Math.max(null, null) == 0
-    it("should have max = 0", () => {
-      expect(r.max).to.be.equal(0)
+    it("should have max = NaN", () => {
+      expect(r.max).to.be.NaN
     })
 
     it("should have flipped = false", () => {
@@ -37,7 +35,7 @@ describe("datarange1d module", () => {
     })
 
     it("should be valid", () => {
-      expect(r.is_valid).to.be.true
+      expect(r.is_valid).to.be.false
     })
 
     it("should have follow = null", () => {
@@ -257,28 +255,33 @@ describe("datarange1d module", () => {
   describe("_compute_min_max", () => {
 
     it("should compute max/min for dimension of a single plot_bounds", () => {
+      const p = new Plot({visible: true})
       const r = new DataRange1d()
-      const bounds = [
-        {x0: 0, x1: 10, y0: 5, y1: 6},
-      ]
+      const bounds = new Map([
+        [p, {x0: 0, x1: 10, y0: 5, y1: 6}],
+      ])
       expect(r._compute_min_max(bounds, 0)).to.be.equal([0, 10])
       expect(r._compute_min_max(bounds, 1)).to.be.equal([5, 6])
     })
 
     it("should compute max/min for dimension of multiple plot_bounds", () => {
+      const p0 = new Plot({visible: true})
+      const p1 = new Plot({visible: true})
+      const p2 = new Plot({visible: true})
+
       const r = new DataRange1d()
-      const bounds0 = [
-        {x0: 0, x1: 10, y0: 5, y1: 6},
-        {x0: 0, x1: 15, y0: 5.5, y1: 5.6},
-      ]
+      const bounds0 = new Map([
+        [p0, {x0: 0, x1: 10, y0: 5, y1: 6}],
+        [p1, {x0: 0, x1: 15, y0: 5.5, y1: 5.6}],
+      ])
       expect(r._compute_min_max(bounds0, 0)).to.be.equal([0, 15])
       expect(r._compute_min_max(bounds0, 1)).to.be.equal([5, 6])
 
-      const bounds1 = [
-        {x0: 0, x1: 10, y0: 5, y1: 6},
-        {x0: 0, x1: 15, y0: 5.5, y1: 5.6},
-        {x0: -10, x1: 15, y0: 0, y1: 2},
-      ]
+      const bounds1 = new Map([
+        [p0, {x0: 0, x1: 10, y0: 5, y1: 6}],
+        [p1, {x0: 0, x1: 15, y0: 5.5, y1: 5.6}],
+        [p2, {x0: -10, x1: 15, y0: 0, y1: 2}],
+      ])
       expect(r._compute_min_max(bounds1, 0)).to.be.equal([-10, 15])
       expect(r._compute_min_max(bounds1, 1)).to.be.equal([0, 6])
     })

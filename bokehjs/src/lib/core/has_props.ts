@@ -3,12 +3,13 @@ import {View} from "./view"
 import {Class} from "./class"
 import {Attrs} from "./types"
 import {Signal0, Signal, Signalable, ISignalable} from "./signaling"
-import {Struct, Ref, is_ref} from "./util/refs"
+import {Struct, Ref} from "./util/refs"
 import * as p from "./properties"
 import * as k from "./kinds"
 import {Property} from "./properties"
+import {assert} from "./util/assert"
 import {uniqueId} from "./util/string"
-import {values, entries, extend} from "./util/object"
+import {keys, values, entries, extend} from "./util/object"
 import {isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import {is_equal} from "./util/eq"
 import {serialize, Serializable, Serializer} from "./serializer"
@@ -18,6 +19,8 @@ import {equals, Equatable, Comparator} from "./util/eq"
 import {pretty, Printable, Printer} from "./util/pretty"
 import {clone, Cloneable, Cloner} from "./util/cloneable"
 import * as kinds from "./kinds"
+
+type AttrsLike = {[key: string]: unknown} | Map<string, unknown>
 
 export module HasProps {
   export type Attrs = p.AttrsOf<Props>
@@ -83,15 +86,17 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   /** @prototype */
   _props: {[key: string]: {
     type: p.PropertyConstructor<unknown>
-    default_value?: (self: HasProps) => unknown // T
+    default_value: (self: HasProps) => unknown | p.Unset
     options: p.PropertyOptions<unknown>
   }}
 
   /** @prototype */
   _mixins: [string, object][]
 
-  private static _fix_default(default_value: any, _attr: string): undefined | (() => any) {
-    if (default_value === undefined || isFunction(default_value))
+  private static _fix_default(default_value: any, _attr: string): () => any {
+    if (default_value === undefined)
+      return () => p.unset
+    else if (isFunction(default_value))
       return default_value
     else if (isPrimitive(default_value))
       return () => default_value
@@ -104,10 +109,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   // TODO: don't use Partial<>, but exclude inherited properties
   static define<T>(obj: Partial<p.DefineOf<T>> | ((types: typeof kinds) => Partial<p.DefineOf<T>>)): void {
     for (const [name, prop] of entries(isFunction(obj) ? obj(kinds) : obj)) {
-      if (this.prototype._props[name] != null)
+      if (name in this.prototype._props)
         throw new Error(`attempted to redefine property '${this.prototype.type}.${name}'`)
 
-      if ((this.prototype as any)[name] != null)
+      if (name in this.prototype)
         throw new Error(`attempted to redefine attribute '${this.prototype.type}.${name}'`)
 
       Object.defineProperty(this.prototype, name, {
@@ -177,9 +182,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   static override<T>(obj: Partial<p.DefaultsOf<T>>): void {
     for (const [name, prop] of entries(obj)) {
       const default_value = this._fix_default(prop, name)
-      const value = this.prototype._props[name]
-      if (value == null)
+      if (!(name in this.prototype._props))
         throw new Error(`attempted to override nonexistent '${this.prototype.type}.${name}'`)
+      const value = this.prototype._props[name]
       const props = {...this.prototype._props}
       props[name] = {...value, default_value}
       this.prototype._props = props
@@ -189,8 +194,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   override toString(): string {
     return `${this.type}(${this.id})`
   }
-
-  _subtype: string | undefined = undefined
 
   document: Document | null = null
 
@@ -202,9 +205,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   readonly properties: {[key: string]: Property} = {}
 
   property(name: string): Property {
-    const prop = this.properties[name]
-    if (prop != null)
-      return prop
+    if (name in this.properties)
+      return this.properties[name]
     else
       throw new Error(`unknown property ${this.type}.${name}`)
   }
@@ -212,7 +214,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   get attributes(): Attrs {
     const attrs: Attrs = {}
     for (const prop of this) {
-      attrs[prop.attr] = prop.get_value()
+      if (!prop.is_unset)
+        attrs[prop.attr] = prop.get_value()
     }
     return attrs
   }
@@ -258,7 +261,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     const struct = this.struct()
     for (const prop of this) {
       if (prop.syncable && (serializer.include_defaults || prop.dirty)) {
-        struct.attributes[prop.attr] = serializer.to_serializable(prop.get_value())
+        const value = serializer.include_unset && prop.is_unset ? p.unset : prop.get_value()
+        struct.attributes[prop.attr] = serializer.to_serializable(value)
       }
     }
     serializer.add_def(this, struct)
@@ -266,12 +270,11 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return ref
   }
 
-  constructor(attrs: Attrs | Map<string, unknown> = {}) {
+  constructor(attrs: {id: string} | AttrsLike = {}) {
     super()
 
-    const get = attrs instanceof Map ? attrs.get.bind(attrs) : (name: string) => attrs[name]
-
-    this.id = (get("id") as string | undefined) ?? uniqueId()
+    const deferred = isPlainObject(attrs) && "id" in attrs
+    this.id = deferred ? attrs.id as string : uniqueId()
 
     for (const [name, {type, default_value, options}] of entries(this._props)) {
       let property: p.Property<unknown>
@@ -284,24 +287,49 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         })
       } else {
         if (type instanceof k.Kind)
-          property = new p.PrimitiveProperty(this, name, type, default_value, get(name), options)
+          property = new p.PrimitiveProperty(this, name, type, default_value, options)
         else
-          property = new type(this, name, k.Any, default_value, get(name), options)
+          property = new type(this, name, k.Any, default_value, options)
 
         this.properties[name] = property
       }
     }
 
-    // allowing us to defer initialization when loading many models
-    // when loading a bunch of models, we want to do initialization as a second pass
-    // because other objects that this one depends on might not be loaded yet
-    if (!(get("__deferred__") ?? false)) {
+    if (deferred) {
+      assert(keys(attrs).length == 1)
+    } else {
+      const items = attrs instanceof Map ? attrs.entries() : entries(attrs)
+
+      for (const [attr, value] of items) {
+        if (attr in this.properties)
+          this.properties[attr].set_value(value)
+        else
+          throw new Error(`unknown property ${this.type}.${attr}`)
+      }
+
+      // allowing us to defer initialization when loading many models
+      // when loading a bunch of models, we want to do initialization as a second pass
+      // because other objects that this one depends on might not be loaded yet
+      this.finalize_props()
       this.finalize()
       this.connect_signals()
     }
   }
 
+  finalize_props(): void {
+    for (const prop of this) {
+      if (!prop.initialized)
+        prop.initialize()
+    }
+  }
+
   finalize(): void {
+    this.initialize()
+  }
+
+  initialize(): void {}
+
+  connect_signals(): void {
     for (const prop of this) {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
         continue
@@ -315,13 +343,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
           this.connect(expr.change, () => this.exprchange.emit())
       }
     }
-
-    this.initialize()
   }
-
-  initialize(): void {}
-
-  connect_signals(): void {}
 
   disconnect_signals(): void {
     Signal.disconnect_receiver(this)
@@ -338,46 +360,58 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return cloner.clone(this)
   }
 
+  private _watchers: WeakMap<object, boolean> = new WeakMap()
+
+  changed_for(obj: object): boolean {
+    const changed = this._watchers.get(obj)
+    this._watchers.set(obj, false)
+    return changed ?? true
+  }
+
   private _pending: boolean = false
   private _changing: boolean = false
 
   // Set a hash of model attributes on the object, firing `"change"`. This is
   // the core primitive operation of a model, updating the data and notifying
   // anyone who needs to know about the change in state. The heart of the beast.
-  private _setv(changes: Map<Property, unknown>, options: HasProps.SetOptions): void {
+  private _setv(changes: Map<Property, unknown>, options: HasProps.SetOptions): Set<Property> {
     // Extract attributes and options.
     const check_eq   = options.check_eq
-    const changed    = []
+    const changed    = new Set<Property>()
     const changing   = this._changing
     this._changing = true
 
     for (const [prop, value] of changes) {
-      if (check_eq === false || !is_equal(prop.get_value(), value)) {
+      if (check_eq === false || prop.is_unset || !is_equal(prop.get_value(), value)) {
         prop.set_value(value)
-        changed.push(prop)
+        changed.add(prop)
       }
     }
 
     // Trigger all relevant attribute changes.
-    if (changed.length > 0)
+    if (changed.size > 0) {
+      this._watchers = new WeakMap()
       this._pending = true
+    }
     for (const prop of changed) {
       prop.change.emit()
     }
 
     // You might be wondering why there's a `while` loop here. Changes can
     // be recursively nested within `"change"` events.
-    if (changing)
-      return
-    if (!options.no_change) {
-      while (this._pending) {
-        this._pending = false
-        this.change.emit()
+    if (!changing) {
+      if (!(options.no_change ?? false)) {
+        while (this._pending) {
+          this._pending = false
+          this.change.emit()
+        }
       }
+
+      this._pending = false
+      this._changing = false
     }
 
-    this._pending = false
-    this._changing = false
+    return changed
   }
 
   setv(changed_attrs: Attrs, options: HasProps.SetOptions = {}): void {
@@ -387,9 +421,12 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       return
 
     if (options.silent === true) {
+      this._watchers = new WeakMap()
+
       for (const [attr, value] of changes) {
         this.properties[attr].set_value(value)
       }
+
       return
     }
 
@@ -399,16 +436,17 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     for (const [attr, value] of changes) {
       const prop = this.properties[attr]
       changed.set(prop, value)
-      previous.set(prop, prop.get_value())
+      previous.set(prop, prop.is_unset ? undefined : prop.get_value())
     }
 
-    this._setv(changed, options)
+    const updated = this._setv(changed, options)
 
     const {document} = this
     if (document != null) {
       const changed: [Property, unknown, unknown][] = []
       for (const [prop, value] of previous) {
-        changed.push([prop, value, prop.get_value()])
+        if (updated.has(prop))
+          changed.push([prop, value, prop.get_value()])
       }
 
       for (const [, old_value, new_value] of changed) {
@@ -432,16 +470,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       id: this.id,
       attributes: {},
     }
-    if (this._subtype != null) {
-      struct.subtype = this._subtype
-    }
     return struct
-  }
-
-  // we only keep the subtype so we match Python;
-  // only Python cares about this
-  set_subtype(subtype: string): void {
-    this._subtype = subtype
   }
 
   *[Symbol.iterator](): PropertyGenerator {
@@ -455,25 +484,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  // this is like _value_record_references but expects to find refs
-  // instead of models, and takes a doc to look up the refs in
-  static _json_record_references(doc: Document, v: unknown, refs: Set<HasProps>, options: {recursive: boolean}): void {
-    const {recursive} = options
-    if (is_ref(v)) {
-      const model = doc.get_model_by_id(v.id)
-      if (model != null && !refs.has(model)) {
-        HasProps._value_record_references(model, refs, {recursive})
-      }
-    } else if (isArray(v)) {
-      for (const elem of v)
-        HasProps._json_record_references(doc, elem, refs, {recursive})
-    } else if (isPlainObject(v)) {
-      for (const elem of values(v)) {
-        HasProps._json_record_references(doc, elem, refs, {recursive})
-      }
-    }
-  }
-
   // add all references from 'v' to 'result', if recurse
   // is true then descend into refs, if false only
   // descend into non-refs
@@ -484,8 +494,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         refs.add(v)
         if (recursive) {
           for (const prop of v.syncable_properties()) {
-            const value = prop.get_value()
-            HasProps._value_record_references(value, refs, {recursive})
+            if (!prop.is_unset) {
+              const value = prop.get_value()
+              HasProps._value_record_references(value, refs, {recursive})
+            }
           }
         }
       }
@@ -510,8 +522,12 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   attach_document(doc: Document): void {
     // This should only be called by the Document implementation to set the document field
-    if (this.document != null && this.document != doc)
-      throw new Error("models must be owned by only a single document")
+    if (this.document != null) {
+      if (this.document == doc)
+        return
+      else
+        throw new Error("models must be owned by only a single document")
+    }
 
     this.document = doc
     this._doc_attached()

@@ -15,7 +15,7 @@ export abstract class AnnotationView extends RendererView {
   after_layout?(): void
 
   get_size(): Size {
-    if (this.model.visible) {
+    if (this.displayed) {
       const {width, height} = this._get_size()
       return {width: Math.round(width), height: Math.round(height)}
     } else

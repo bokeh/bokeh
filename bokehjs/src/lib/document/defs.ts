@@ -1,6 +1,8 @@
 import {ModelResolver} from "../base"
 import {Model} from "../model"
 import * as kinds from "core/kinds"
+import {Deserializer} from "core/deserializer"
+import {Struct} from "core/util/refs"
 import {isString} from "core/util/types"
 import {to_object} from "core/util/object"
 
@@ -13,6 +15,7 @@ export type ModelDef = ModelRef & {
   extends: ModelRef
   properties: PropertyDef[]
   overrides: OverrideDef[]
+  references: Struct[]
 }
 
 export type PrimitiveKindRef = "Any" | "Unknown" | "Boolean" | "Number" | "Int" | "String" | "Null"
@@ -99,7 +102,7 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
         }
         case "Ref": {
           const [, modelref] = ref
-          const model = resolver.get(qualified(modelref))
+          const model = resolver.get(qualified(modelref), null)
           if (model != null)
             return kinds.Ref(model)
           else
@@ -117,7 +120,7 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
       const name = qualified(def.extends)
       if (name == "Model") // TODO: support base classes in general
         return Model
-      const base = resolver.get(name)
+      const base = resolver.get(name, null)
       if (base != null)
         return base
       else
@@ -129,13 +132,20 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
       static override __module__ = def.module ?? undefined
     }
 
+    const references = Deserializer._instantiate_references_json(def.references, new Map(), resolver)
+    Deserializer._initialize_references_json(def.references, new Map(), references, new Map(), null)
+
+    function resolve_refs(value: unknown): unknown {
+      return Deserializer._resolve_refs(value, new Map(), references, new Map())
+    }
+
     for (const prop of def.properties) {
       const kind = kind_of(prop.kind)
-      model.define<any>({[prop.name]: [kind, prop.default]})
+      model.define<any>({[prop.name]: [kind, resolve_refs(prop.default)]})
     }
 
     for (const prop of def.overrides) {
-      model.override<any>({[prop.name]: prop.default})
+      model.override<any>({[prop.name]: resolve_refs(prop.default)})
     }
 
     resolver.register(model)

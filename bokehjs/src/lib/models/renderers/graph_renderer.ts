@@ -62,9 +62,6 @@ export class GraphRendererView extends DataRendererView {
     edge_renderer.glyph.ys = {expr: edge_coords.y}
     node_renderer.glyph.x = {expr: node_coords.x}
     node_renderer.glyph.y = {expr: node_coords.y}
-
-    this.model.edge_renderer = edge_renderer
-    this.model.node_renderer = node_renderer
   }
 
   override remove(): void {

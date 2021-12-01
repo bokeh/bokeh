@@ -80,6 +80,7 @@ code {
     --pst-color-h5: var(--pst-color-text-base);
     --pst-color-h6: var(--pst-color-text-base);
     --pst-color-paragraph: var(--pst-color-text-base);
+    --pst-color-inline-code: var(--pst-color-text-base);
     --pst-color-link: 255, 0, 0;
     --pst-color-link-hover: 227, 46, 0;
     --pst-color-headerlink: 198, 15, 15;
@@ -258,6 +259,32 @@ using sphinx_panels */
 
 img.image-border {
     border: 1px solid rgba(var(--pst-color-borders),1);
+    margin-bottom: 1.15rem;
+    border-radius: .2rem;
+    box-shadow: 1px 1px 1px #d8d8d8;
+}
+
+/* "next" and "previous" links in page footer */
+.prev-next-area a.left-prev {
+    float: left;
+}
+
+.prev-next-area a.right-next {
+    float: right;
+}
+
+.prev-next-area a {
+    padding: 10px;
+    margin-top: 2em;
+    border: 1px solid rgba(var(--pst-color-borders),1);
+    border-radius: 1.5px;
+    max-width: 45%;
+    overflow-x: hidden;
+    color: rgba(var(--pst-color-paragraph),1);
+}
+
+.prev-next-area a p.prev-next-title {
+    color: rgba(var(--pst-color-paragraph),1);
 }
 
 /* Pandas dataframe css */
@@ -343,4 +370,9 @@ dl.py dt.field-odd, dl.py dt.field-even {
     margin-top: 10px;
     margin-bottom: 2px;
     background-color: #eee;
+}
+
+/* If no-sidebar is present, hide the div entirely to prevent taking space */
+.no-sidebar {
+  display: none;
 }

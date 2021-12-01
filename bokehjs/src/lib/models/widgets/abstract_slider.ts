@@ -24,11 +24,11 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
   override model: AbstractSlider
 
   protected group_el: HTMLElement
-  protected slider_el: HTMLElement
+  protected slider_el?: HTMLElement
   protected title_el: HTMLElement
 
   *controls() {
-    yield this.slider_el as any
+    yield this.slider_el as HTMLInputElement
   }
 
   private _noUiSlider: API
@@ -81,7 +81,7 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
   }
 
   protected _set_bar_color(): void {
-    if (!this.model.disabled) {
+    if (!this.model.disabled && this.slider_el != null) {
       const connect_el = this.slider_el.querySelector<HTMLElement>(".noUi-connect")!
       connect_el.style.backgroundColor = color2css(this.model.bar_color)
     }
@@ -96,7 +96,7 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
 
     const {start, end, value, step} = this._calc_to()
 
-    let tooltips: boolean | any[] // XXX
+    let tooltips: any[] | null // XXX
     if (this.model.tooltips) {
       const formatter = {
         to: (value: number): string => this.model.pretty(value),
@@ -104,10 +104,10 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
 
       tooltips = repeat(formatter, value.length)
     } else
-      tooltips = false
+      tooltips = null
 
     if (this.slider_el == null) {
-      this.slider_el = div() as any
+      this.slider_el = div()
 
       this._noUiSlider = noUiSlider.create(this.slider_el, {
         range: {min: start, max: end},
@@ -115,7 +115,7 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
         step,
         behaviour: this.model.behaviour,
         connect: this.model.connected,
-        tooltips,
+        tooltips: tooltips ?? false,
         orientation: this.model.orientation,
         direction: this.model.direction,
       })
@@ -123,16 +123,16 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
       this._noUiSlider.on("slide",  (_, __, values) => this._slide(values))
       this._noUiSlider.on("change", (_, __, values) => this._change(values))
 
-      const toggleTooltip = (i: number, show: boolean): void => {
-        if (!tooltips)
+      const toggle_tooltip = (i: number, show: boolean): void => {
+        if (tooltips == null || this.slider_el == null)
           return
         const handle = this.slider_el.querySelectorAll(".noUi-handle")[i]
         const tooltip = handle.querySelector<HTMLElement>(".noUi-tooltip")!
         tooltip.style.display = show ? "block" : ""
       }
 
-      this._noUiSlider.on("start", (_, i) => toggleTooltip(i, true))
-      this._noUiSlider.on("end",   (_, i) => toggleTooltip(i, false))
+      this._noUiSlider.on("start", (_, i) => toggle_tooltip(i, true))
+      this._noUiSlider.on("end",   (_, i) => toggle_tooltip(i, false))
     } else {
       this._noUiSlider.updateOptions({
         range: {min: start, max: end},

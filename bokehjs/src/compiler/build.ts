@@ -15,7 +15,7 @@ import * as tsconfig_json from "./tsconfig.ext.json"
 import chalk from "chalk"
 const {cyan, magenta, red} = chalk
 
-import {CLIEngine} from "eslint"
+import {ESLint} from "eslint"
 
 import "@typescript-eslint/eslint-plugin"
 import "@typescript-eslint/parser"
@@ -33,7 +33,7 @@ export function isObject(obj: unknown): obj is object {
 }
 
 export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
-  return isObject(obj) && (obj.constructor == null || obj.constructor === Object)
+  return isObject(obj) && (typeof obj.constructor == "undefined" || obj.constructor === Object)
 }
 
 function print(str: string): void {
@@ -51,7 +51,7 @@ function npm_install(base_dir: Path): void {
 
 type Metadata = {
   bokeh_version?: string
-  signatures: {[key: string]: string}
+  signatures: {[key: string]: string | undefined}
 }
 
 function is_up_to_date(base_dir: Path, file: string, metadata: Metadata) {
@@ -78,25 +78,26 @@ function needs_install(base_dir: Path, metadata: Metadata): string | null {
     return null
 }
 
-function lint(config_file: Path, paths: Path[]): boolean {
-  const engine = new CLIEngine({
-    configFile: config_file,
+async function lint(config_file: Path, paths: Path[]): Promise<boolean> {
+  const eslint = new ESLint({
     extensions: [".ts", ".js"],
+    overrideConfigFile: config_file,
   })
 
-  const report = engine.executeOnFiles(paths)
-  CLIEngine.outputFixes(report)
+  const results = await eslint.lintFiles(paths)
 
-  const ok = report.errorCount == 0
-  if (!ok) {
-    const formatter = engine.getFormatter()
-    const output = formatter(report.results)
+  const errors = results.some(result => result.errorCount != 0)
+  const warnings = results.some(result => result.warningCount != 0)
+
+  if (errors || warnings) {
+    const formatter = await eslint.loadFormatter("stylish")
+    const output = formatter.format(results)
 
     for (const line of output.trim().split("\n"))
       print(line)
   }
 
-  return ok
+  return !errors
 }
 
 export type InitOptions = {
@@ -109,8 +110,8 @@ export async function init(base_dir: Path, _bokehjs_dir: Path, base_setup: InitO
   print(`Working directory: ${cyan(base_dir)}`)
 
   const setup: Required<InitOptions> = {
-    interactive: !!base_setup.interactive,
-    bokehjs_version: base_setup.bokehjs_version != null ? base_setup.bokehjs_version : base_setup.bokeh_version.split("-")[0],
+    interactive: base_setup.interactive ?? false,
+    bokehjs_version: base_setup.bokehjs_version ?? base_setup.bokeh_version.split("-")[0],
     bokeh_version: base_setup.bokeh_version,
   }
 
@@ -144,7 +145,7 @@ export async function init(base_dir: Path, _bokehjs_dir: Path, base_setup: InitO
     keywords: [],
     repository: {},
     dependencies: {
-      bokehjs: `^${setup.bokehjs_version}`,
+      "@bokeh/bokehjs": `^${setup.bokehjs_version}`,
     },
     devDependencies: {},
   }
@@ -217,7 +218,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   print(`Working directory: ${cyan(base_dir)}`)
 
   const setup: Required<BuildOptions> = {
-    rebuild: !!base_setup.rebuild,
+    rebuild: base_setup.rebuild ?? false,
     bokeh_version: base_setup.bokeh_version,
   }
 
@@ -314,7 +315,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   if (is_failed(tsoutput)) {
     print(report_diagnostics(tsoutput.diagnostics).text)
 
-    if (options.noEmitOnError)
+    if (options.noEmitOnError ?? false)
       return false
   }
 
@@ -366,7 +367,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     return null
   })()
 
-  const license_text = license ? `${preludes.comment(license)}\n` : ""
+  const license_text = license != null ? `${preludes.comment(license)}\n` : ""
 
   const prelude_base = `${license_text}${preludes.plugin_prelude()}`
   const prelude = {main: prelude_base, plugin: prelude_base}

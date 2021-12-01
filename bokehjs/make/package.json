@@ -1,0 +1,27 @@
+{
+  "name": "@bokeh/make",
+  "version": "3.0.0-dev.1",
+  "private": true,
+  "description": "Internal package for bokehjs' build system",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bokeh/bokeh.git"
+  },
+  "workspaces": ["./src/compiler"],
+  "devDependencies": {
+    "@types/css": "^0.0.33",
+    "@types/node": "^16.9.4",
+    "@types/which": "^2.0.1",
+    "@types/yargs": "^16.0.4",
+    "chalk": "^4.1.2",
+    "css": "^3.0.0",
+    "del": "^6.0.0",
+    "semver": "^7.3.5",
+    "ts-node": "^10.2.1",
+    "tsconfig-paths": "^3.11.0",
+    "typescript": "~4.5.2",
+    "which": "^2.0.2",
+    "yargs": "^17.1.1"
+  }
+}

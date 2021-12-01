@@ -1,3 +1,55 @@
+2021-11-22    2.4.2:
+--------------------
+  * bugfixes:
+    - #11422 [component: bokehjs] [BUG] `DeserializationError` when trying to change a `DataTable`'s columns with `CustomJS`
+    - #11800 [BUG] DeserializationError when plotting graphs
+    - #11801 [component: bokehjs] [BUG] Log axis figures don't render if they're not visible at start
+    - #11807 [component: bokehjs] Work around issues with initialization-time change discovery
+    - #11808 Don't unnecessarily update node/edge renderers in graphs
+
+  * tasks:
+    - #11613 [component: docs] Cache-bust custom.css for docs
+    - #11791 [component: docs] Update issue template to use new GH forms
+    - #11761 [component: docs] Clarify use of color in first steps guide
+    - #11762 [component: docs] Replace slash with backslash for PS commands
+    - #11767 [component: bokehjs] Upgrade jquery-ui to resolve security concerns
+    - #11781 [component: examples] fix transform jitter example
+    - #11786 bokeh 2.4.2 backports
+    - #11790 [component: build] Bryanv/pin sphinx 42
+    - #11797 Add OS to bokeh info
+    - #11805 More 3.0 -> 2.4.2 backports
+    - #11810 [component: docs] Update docs for new issue forms
+    - #11824 Updates for release
+
+2021-10-13    2.4.1:
+--------------------
+  * bugfixes:
+    - #11119 [component: bokehjs] [BUG] varea_stack() and vline_stack() fails to update correctly when new source data is different length
+    - #11625 [component: tests] [BUG] Codebase test failures in Windows
+    - #11627 [BUG] mypy tests fail in Windows
+    - #11629 [BUG] Hover tool takes long time to render
+    - #11633 [component: bokehjs] [BUG] RangesUpdate not emitted when using xwheel_pan
+    - #11645 [component: bokehjs] [BUG] `bokeh init` creates a `package.json` which refers to the deprecated Bokeh JS node package
+    - #11646 [component: bokehjs] [BUG] Using band_hatch_pattern with images doesn't work
+    - #11661 [component: bokehjs] [BUG] Issue with line rendering when selecting indices
+    - #11670 [component: bokehjs] [BUG] Duplicate change events for autocomplete_input
+    - #11679 [BUG] Parallel Plot example with output_backend="webgl" not working
+    - #11713 [component: docs] Documentation builds are failing in CI
+    - #11644 [component: bokehjs] Actually fix clipping in SVG `<text>` nodes
+
+  * tasks:
+    - #11617 [component: docs] Update Team link in footer
+    - #11658 [component: build] Support "pip install" from sdist
+    - #11618 [component: tests] Reduce Tornado imports
+    - #11628 [component: docs] Correct path in dev guide server instructions
+    - #11652 [component: build] Update bokehjs' dependencies
+    - #11668 [component: docs] Add information about mathjax bundle
+    - #11681 [NO SQUASH] Batch of 3.0 -> 2.4 backports
+    - #11712 [component: tests] Upgrade baselines to Chrome 94
+    - #11722 [component: tests] Update visual baselines on MacOS
+    - #11724 [NO SQUASH] More 3.0 -> 2.4 backports
+    - #11738 [component: docs] Add release notes for Bokeh 2.4.1
+
 2021-09-15      2.4:
 --------------------
   * bugfixes:
@@ -9,7 +61,7 @@
     - #10927 [component: docs] Inconsistent information about ``_units`` property in reference guide
     - #11016 [component: bokehjs] [BUG] Figure name passed to `renderer.glyph.name` but not `renderer.name`
     - #11025 [component: bokehjs] Line and MultiLine produce inconsistent data bbox with trailing NaNs
-    - #11035 [component: bokehjs] [BUG] `Bokeh.Widgets` objects missing `tools`, required by `Bokeh.Plotting.gridplot()` 
+    - #11035 [component: bokehjs] [BUG] `Bokeh.Widgets` objects missing `tools`, required by `Bokeh.Plotting.gridplot()`
     - #11037 [component: bokehjs] [BUG] Using `sizing_mode` in gridplot layouts requires explicit assignment
     - #11038 [component: bokehjs] [BUG] Calling `figure({title:"some title"})` replaces Title object with string, prevents subsequent updates to title text
     - #11045 [component: bokehjs] Hatch patterns are lost with SVG backend after interaction
@@ -35,7 +87,7 @@
     - #11444 [component: tests] [BUG] license-related codebase tests on Win10 fail
     - #11446 [component: bokehjs] [BUG] Hover glyphs permanently rendered with vline/hline mode in 2.4.0dev
     - #11457 [component: tests] `MathText` integration tests are not robust
-    - #11460 [component: tests] Bokeh-CI unit export tests failing 
+    - #11460 [component: tests] Bokeh-CI unit export tests failing
     - #11474 [component: bokehjs] [BUG] graph_renderer.layout_provider changes via JS code are not displayed on plots
     - #11477 [component: server] [BUG] Increasing memory consumption of bokeh server (part 2)
     - #11479 [component: bokehjs] [BUG] MathText axis labels do not all render in multi-figure layouts
@@ -87,7 +139,7 @@
     - #9329 [component: docs] Document bokeh.sampledata
     - #9671 [component: server] [FEATURE] Enable the Server to serve apps at sub urls like /gallery/image-classifier
     - #9961 [component: docs] Ref Docs need sidebar TOC
-    - #10137 [component: docs] [BUG] Anchors in docs can be jumpy 
+    - #10137 [component: docs] [BUG] Anchors in docs can be jumpy
     - #10287 Update to isort 5.7
     - #10391 [component: tests] Test legacy bundles before release
     - #10572 [component: build] [FEATURE] Bokeh Python Wheel packages
@@ -143,7 +195,7 @@
     - #11090 [component: bokehjs] Simplify rendering code with visuals.apply()
     - #11092 HasProps and misc cleanup
     - #11108 [component: bokehjs] Fix WebGL line regression
-    - #11115 [NO SQUASH] Forward ports to branch-2.4 
+    - #11115 [NO SQUASH] Forward ports to branch-2.4
     - #11117 [component: docs] Fix python3 incompatible print in callback docs
     - #11134 [NO SQUASH] more ports from branch-2.3
     - #11140 [component: build] Remove all cyclic dependencies from bokehjs

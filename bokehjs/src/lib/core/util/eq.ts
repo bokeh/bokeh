@@ -23,6 +23,12 @@ export class Comparator {
   private readonly a_stack: unknown[] = []
   private readonly b_stack: unknown[] = []
 
+  readonly structural: boolean
+
+  constructor(options?: {structural?: boolean}) {
+    this.structural = options?.structural ?? false
+  }
+
   eq(a: any, b: any): boolean {
     if (Object.is(a, b))
       return true
@@ -40,6 +46,8 @@ export class Comparator {
     switch (class_name) {
       case "[object Number]":
         return this.numbers(a, b)
+      case "[object Symbol]":
+        return a === b
       case "[object RegExp]":
       case "[object String]":
         return `${a}` == `${b}`
@@ -137,9 +145,12 @@ export class Comparator {
       const an = ai.next()
       const bn = bi.next()
 
-      if (an.done && bn.done)
+      const an_done = an.done ?? false
+      const bn_done = bn.done ?? false
+
+      if (an_done && bn_done)
         return true
-      if (an.done || bn.done)
+      if (an_done || bn_done)
         return false
 
       if (!this.eq(an.value, bn.value))
@@ -151,24 +162,32 @@ export class Comparator {
     if (a.size != b.size)
       return false
 
-    for (const [key, val] of a) {
-      if (!b.has(key) || !this.eq(val, b.get(key)))
-        return false
-    }
+    if (this.structural)
+      return this.iterables(a.entries(), b.entries())
+    else {
+      for (const [key, val] of a) {
+        if (!b.has(key) || !this.eq(val, b.get(key)))
+          return false
+      }
 
-    return true
+      return true
+    }
   }
 
   sets(a: Set<unknown>, b: Set<unknown>): boolean {
     if (a.size != b.size)
       return false
 
-    for (const key of a) {
-      if (!b.has(key))
-        return false
-    }
+    if (this.structural)
+      return this.iterables(a.entries(), b.entries())
+    else {
+      for (const key of a) {
+        if (!b.has(key))
+          return false
+      }
 
-    return true
+      return true
+    }
   }
 
   objects(a: PlainObject, b: PlainObject): boolean {
@@ -213,6 +232,11 @@ export class SimilarComparator extends Comparator {
 
 export function is_equal(a: unknown, b: unknown): boolean {
   const comparator = new Comparator()
+  return comparator.eq(a, b)
+}
+
+export function is_structurally_equal(a: unknown, b: unknown): boolean {
+  const comparator = new Comparator({structural: true})
   return comparator.eq(a, b)
 }
 

@@ -30,5 +30,6 @@ exclude bokeh/server/static/js/*.json
 global-exclude *.js.map
 include bokeh/server/static/js/bokeh.json
 include bokeh/server/views/*.html
+include bokeh/server/views/*.ico
 include bokeh/util/sampledata.json
 include bokeh/_sri.json

@@ -75,11 +75,8 @@ export class BoxEditToolView extends EditToolView {
     const curpoint: [number, number] = [ev.sx, ev.sy]
     const frame = this.plot_view.frame
     const dims = this.model.dimensions
-    const limits = this.model._get_dim_limits(this._draw_basepoint, curpoint, frame, dims)
-    if (limits != null) {
-      const [sxlim, sylim] = limits
-      this._set_extent(sxlim, sylim, append, emit)
-    }
+    const [sxlim, sylim] = this.model._get_dim_limits(this._draw_basepoint, curpoint, frame, dims)
+    this._set_extent(sxlim, sylim, append, emit)
   }
 
   override _doubletap(ev: TapEvent): void {

@@ -43,10 +43,6 @@ export class TooltipView extends AnnotationView {
 
   protected _render(): void {
     const {content} = this.model
-    if (content == null) {
-      undisplay(this.el)
-      return
-    }
 
     empty(this.el)
     classes(this.el).toggle("bk-tooltip-custom", this.model.custom)

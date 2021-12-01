@@ -28,7 +28,6 @@ import {Tool} from "../tools/tool"
 import {DataRange1d} from "../ranges/data_range1d"
 
 import {PlotView} from "./plot_canvas"
-
 export {PlotView}
 
 export namespace Plot {
@@ -191,14 +190,6 @@ export class Plot extends LayoutDOM {
       border_fill_color: "#ffffff",
       background_fill_color: "#ffffff",
     })
-  }
-
-  protected override _doc_attached(): void {
-    super._doc_attached()
-    this._push_changes([
-      [this.properties.inner_height, null, this.inner_height],
-      [this.properties.inner_width, null, this.inner_width],
-    ])
   }
 
   override initialize(): void {

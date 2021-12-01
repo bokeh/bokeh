@@ -3,7 +3,7 @@ import {display, fig} from "../_util"
 import {Legend, LegendItem, LinearAxis} from "@bokehjs/models"
 import {Random} from "@bokehjs/core/util/random"
 import {range} from "@bokehjs/core/util/array"
-import {CircleArgs, LineArgs} from "@bokehjs/api/plotting"
+import {CircleArgs, LineArgs} from "@bokehjs/api/glyph_api"
 import {Orientation} from "@bokehjs/core/enums"
 
 describe("Legend annotation", () => {
@@ -68,22 +68,14 @@ describe("Legend annotation", () => {
     legends: Partial<Legend.Attrs>[]
   }) => Promise<void>
 
-  function plot({
-    orientation,
-  }: {
-    orientation: Orientation
-  }): PlotFn {
+  function plot({orientation}: {orientation: Orientation}): PlotFn {
     return async ({
       glyphs,
       legend_items,
       figure_dimensions,
       legends,
     }) => {
-      const p = fig(figure_dimensions ??
-          orientation === "horizontal"
-            ? [250, 150]
-            : [150, 250]
-      )
+      const p = fig(figure_dimensions ?? (orientation == "horizontal" ? [250, 150] : [150, 250]))
 
       p.add_layout(new LinearAxis(), "above")
       p.add_layout(new LinearAxis(), "right")
@@ -94,7 +86,7 @@ describe("Legend annotation", () => {
       const y1 = random.floats(10)
       const y2 = random.floats(10)
 
-      if (!glyphs?.length) {
+      if (glyphs == null) {
         glyphs = [
           {type: "circle", x, y: y0, options: {fill_color: "red"}},
           {type: "circle", x, y: y1, options: {fill_color: "blue"}},
@@ -104,12 +96,12 @@ describe("Legend annotation", () => {
       }
 
       const gls = glyphs.map(({x, y, type, options}) =>
-        type === "line"
+        type == "line"
           ? p.line(x, y, options as Partial<LineArgs>)
           : p.circle(x, y, options)
       )
 
-      if (!legend_items?.length) {
+      if (legend_items == null) {
         legend_items = [
           {label: "#0", renderers: [0]},
           {label: "#1", renderers: [1, 2]},
@@ -117,12 +109,11 @@ describe("Legend annotation", () => {
         ]
       }
 
-      const items = legend_items.map(
-        ({label, renderers, visible}) => new LegendItem({label, renderers: renderers.map(r => gls[r]), visible})
-      )
+      const items = legend_items.map(({label, renderers, visible}) => {
+        return new LegendItem({label, renderers: renderers.map(r => gls[r]), visible})
+      })
 
-
-      if (!legends?.length) {
+      if (legends.length == 0) {
         legends = [{}]
       }
 
@@ -172,7 +163,7 @@ describe("Legend annotation", () => {
           title: "title",
           glyph_width: 30,
         }],
-        figure_dimensions: orientation === "horizontal" ? [350, 150] : undefined,
+        figure_dimensions: orientation == "horizontal" ? [350, 150] : undefined,
       })
     })
 

@@ -55,7 +55,7 @@ __all__ = (
     'PrintfTickFormatter',
     'LogTickFormatter',
     'CategoricalTickFormatter',
-    'FuncTickFormatter',
+    'CustomJSTickFormatter',
     'DatetimeTickFormatter',
 )
 
@@ -301,7 +301,7 @@ class CategoricalTickFormatter(TickFormatter):
     '''
     pass
 
-class FuncTickFormatter(TickFormatter):
+class CustomJSTickFormatter(TickFormatter):
     ''' Display tick values that are formatted by a user-defined function.
 
     .. warning::

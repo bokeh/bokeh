@@ -32,15 +32,15 @@ export function relativize_modules(relativize: (file: string, module_path: strin
           if (ts.isImportDeclaration(node)) {
             const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
             if (moduleSpecifier != null) {
-              const {decorators, modifiers, importClause} = node
-              return factory.updateImportDeclaration(node, decorators, modifiers, importClause, moduleSpecifier)
+              const {decorators, modifiers, importClause, assertClause} = node
+              return factory.updateImportDeclaration(node, decorators, modifiers, importClause, moduleSpecifier, assertClause)
             }
           }
           if (ts.isExportDeclaration(node)) {
             const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
             if (moduleSpecifier != null) {
-              const {decorators, modifiers, isTypeOnly, exportClause} = node
-              return factory.updateExportDeclaration(node, decorators, modifiers, isTypeOnly, exportClause, moduleSpecifier)
+              const {decorators, modifiers, isTypeOnly, exportClause, assertClause} = node
+              return factory.updateExportDeclaration(node, decorators, modifiers, isTypeOnly, exportClause, moduleSpecifier, assertClause)
             }
           }
           if (is_require(node)) {
@@ -65,31 +65,6 @@ export function relativize_modules(relativize: (file: string, module_path: strin
 
 function is_static(node: ts.Node): boolean {
   return node.modifiers != null && node.modifiers.find((modifier) => modifier.kind == ts.SyntaxKind.StaticKeyword) != null
-}
-
-export function add_init_class() {
-  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
-    const {factory} = context
-
-    function visit(node: ts.Node): ts.VisitResult<ts.Node> {
-      node = ts.visitEachChild(node, visit, context)
-
-      if (ts.isClassDeclaration(node) && node.name != null) {
-        const name = `init_${node.name.getText()}`
-
-        if (node.members.find((member) => ts.isMethodDeclaration(member) && member.name.getText() == name && is_static(member)) != null) {
-          const init = factory.createExpressionStatement(
-            factory.createCallExpression(
-              factory.createPropertyAccessExpression(node.name, name), undefined, undefined))
-          return [node, init]
-        }
-      }
-
-      return node
-    }
-
-    return ts.visitNode(root, visit)
-  }
 }
 
 export function insert_class_name() {
@@ -188,7 +163,7 @@ export function collect_exports(exported: Exports[]) {
           }
           exported.push({type: "bindings", bindings, module})
         }
-      } else if (ts.isExportAssignment(statement) && !statement.isExportEquals) {
+      } else if (ts.isExportAssignment(statement) && !(statement.isExportEquals ?? false)) {
         // export default name
         exported.push({type: "named", name: "default"})
       } else if (ts.isClassDeclaration(statement) || ts.isFunctionDeclaration(statement)) {

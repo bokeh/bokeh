@@ -3,130 +3,173 @@
 Contributing to BokehJS
 =======================
 
-BokehJS is the in-browser client-side runtime library that users of Bokeh
+:term:`BokehJS` is the in-browser client-side runtime library that users of Bokeh
 ultimately interact with. This library is written primarily in TypeScript
 and is one of the unique things about the Bokeh plotting system.
 
-.. _contributor_guide_bokehjs_motivations:
+The central building blocks of all Bokeh visualizations are objects based on
+Bokeh's :term:`models <Model>`. These models are representations of
+:term:`plot <Plot>` elements, such as axes, :term:`glyphs <Glyph>`, or
+:term:`widgets <Widget>`.
 
-BokehJS Motivations
--------------------
+On the Python side, Bokeh serializes the attributes of each plot element object
+into JSON data. On the browser side, BokehJS deserializes this JSON data and
+creates JavaScript objects based on this information. BokehJS then uses these
+JavaScript objects to render the visualization.
 
-When researching the wide field of JavaScript plotting libraries, we found
-that they were all architected and designed to integrate with other JavaScript.
-If they provided any server-side wrappers, those were always "second class"
-and primarily designed to generate a simple configuration for the front-end JS.
-Of the few JS plotting libraries that offered any level of interactivity, the
-interaction was not really configurable or customizable from outside the JS
-itself. Very few JS plotting libraries took large and streaming server-side
-data into account, and providing seamless access to those facilities from
-another language like Python was not a consideration.
+.. image:: /_images/bokeh_bokehjs.svg
+    :class: image-border
+    :alt: Flowchart describing the flow of data from Python objects through JSON
+          to the browser-side. There, the JSON data is converted into JavaScript
+          objects which then get rendered as output. Output can be HTML Canvas,
+          WebGL, or SVG.
+    :align: center
+    :width: 100%
 
-This, in turn, has caused the developers of Python plotting libraries to
-only treat the browser as a "backend target" environment, for which they
-will generate static images or a bunch of JavaScript.
+This combination of Python and JavaScript allows you to define a visualization
+in Python while taking advantage of all the interactivity offered by JavaScript
+running in a browser. Additionally, this combination enables you to do almost
+all data handling with Python and use large and streaming server-side data with
+an interactive JavaScript visualization.
 
-.. _contributor_guide_bokehjs_goals:
+In addition to using BokehJS to create visualizations based on JSON data, you
+can also use BokehJS as a standalone JavaScript library. See
+:ref:`userguide_bokehjs` for more information on creating visualizations
+directly with BokehJS.
 
-Goals
------
+.. _contributor_guide_bokehjs_source_location:
 
-BokehJS is intended to be a standalone, first-class JavaScript plotting
-library and *interaction runtime* for dynamic, highly-customizable
-information visualization.
+Source code location
+--------------------
 
-.. _contributor_guide_bokehjs_interface:
+The Bokeh repository contains Bokeh's Python code as well as the JavaScript code
+of BokehJS. The BokehJS source code is located in the :bokeh-tree:`bokehjs`
+directory in this monorepo repository.
 
-Interface
----------
+**All further instructions and shell commands assume that** ``bokehjs/`` **is
+your current directory.**
 
-BokehJS is a standalone JavaScript library for dynamic and interactive
-visualization in the browser. It is built on top of HTML5 canvas, and designed
-for high-performance rendering of larger data sets. Its interface is declarative,
-in the style of Protovis_, but its implementation consists of a reactive scene
-graph (similar to Chaco_).
+.. tip::
+  Set the working folder of your IDE to the ``bokehjs`` directory. This way,
+  some of the tools within your IDE might work better with the BokehJS source
+  code.
 
-More information is available at :ref:`userguide_bokehjs`.
+.. _contributor_guide_bokehjs_css:
 
-CSS Class Names
+CSS for BokehJS
 ---------------
 
-The CSS for controlling Bokeh presentation are located in a ``bokeh.css`` file
-that is compiled from several separate ``.less`` files in the BokehJS source
-tree. All CSS classes specifically for Bokeh DOM elements are prefixed with
-the string ``bk-``. For instance some examples are: ``.bk-plot``, ``.bk-toolbar-button``, etc.
+The CSS definitions for BokehJS are contained in several ``.less`` files in the
+:bokeh-tree:`bokehjs/src/less/` directory. All CSS classes for Bokeh DOM
+elements are prefixed with ``bk-``. For example: ``.bk-plot`` or
+``.bk-toolbar-button``.
 
 .. _contributor_guide_bokehjs_development:
+.. _contributor_guide_bokehjs_style_guide:
 
-Development
------------
+Code Style Guide
+-----------------
 
-BokehJS's source code is located in the :bokeh-tree:`bokehjs` directory in Bokeh's
-monorepo repository. All further instructions and shell commands assume that
-``bokehjs/`` is the current directory.
+BokehJS doesn't have an explicit style guide. Make sure to run ``node make
+lint`` or ``node make lint --fix`` before committing to the Bokeh repository.
+Also, review the surrounding code and try to be consistent with the existing
+code.
 
-Some guidelines to adhere to when working on BokehJS:
+Some guidelines and tips to keep in mind when working on BokehJS:
 
 * Do not use ``for-in`` loops, especially unguarded by ``hasOwnProperty()`` Use
   ``for-of`` loop in combination with ``keys()``, ``values()`` and/or
   ``entries()`` from the ``core/util/object`` module instead.
+* Use double quotes (``"string"``) for strings by default. Use single
+  quotes in cases where they help you avoid escaping quotation marks
+  (``case '"': return "&quot;"``).
+* Use `template literals (template strings)`_ for multiline, tagged, and
+  interpolated strings ( ```Bokeh ${Bokeh.version}``` ).
 
-Requirements
-~~~~~~~~~~~~
+Always lint your BokehJS code with ESLint_: From the :bokeh-tree:`bokehjs`
+directory, run ``node make lint`` to check your code. Run
+``node make lint --fix`` to have ESLint fix some problems automatically. For
+more details, see the rules defined in :bokeh-tree:`bokehjs/eslint.json`.
 
-* node 14+
-* npm 7.4+ (most recent version)
-* chrome/chromium browser 93+ or equivalent
+.. tip::
+  If you use VSCode, you can use the following configuration for your workspace
+  to use ESLint directly in the editor:
 
-You can install nodejs with conda:
+  .. code-block:: json
 
-.. code-block:: sh
+        "eslint.format.enable": true,
+        "eslint.lintTask.enable": true,
+        "eslint.debug": false,
+        "eslint.quiet": false,
+        "eslint.options": {
+          "cache": true,
+          "extensions": [".ts"],
+          "overrideConfigFile": "./eslint.json"
+        },
+        "eslint.workingDirectories": [
+          "./bokehjs"
+        ]
 
-    $ conda install -c conda-forge nodejs
+  This requires the `ESLint extension for VSCode`_ and ESLint version 8 or above
+  to be installed.
 
-or follow the official installation `instructions <https://nodejs.org/en/download/>`_.
+.. _contributor_guide_bokehjs_requirements:
 
-Upgrade your npm after installing or updating nodejs, or whenever asked by npm:
+Development requirements
+------------------------
 
-.. code-block:: sh
+To build and test BokehJS locally, follow the instructions in
+:ref:`contributor_guide_setup`. This way, all required packages
+should be installed and configured on your system.
 
-    $ npm install -g npm@7
+Developing BokehJS requires the following minimum versions:
 
-Officially supported platforms are as follows:
+* Node.js 14+
+* npm 7.4+
+* Chrome/Chromium browser 94+ or equivalent
+
+Bokeh officially supports the following platforms for development and testing:
 
 * Linux Ubuntu 20.04+ or equivalent
 * Windows 10 (or Server 2019)
 * MacOS 10.15
 
-BokehJS can be developed on different platforms and versions of aforementioned
-software, but results may vary, especially when it comes to testing (visual
-testing in particular).
+It is possible to work on BokehJS using different platforms and versions.
+However, things might not work as intended, and some tests will not work.
 
-Building
-~~~~~~~~
+.. _contributor_guide_bokehjs_building:
 
-BokehJS's build is maintained by using an in-house tool that visually resembles
-gulp. All commands start with ``node make`` (don't confuse this with GNU make).
+Building BokehJS
+----------------
 
-Most common commands:
+For building, BokehJS relies on a custom tool similar to gulp_. All
+commands start with ``node make``.
 
-* ``node make build``
-* ``node make test``
-* ``node make lint``
+Use ``node make help`` to list all available commands for the BokehJS build
+system. These are the most common commands:
 
-Use ``node make help`` to list all available commands.
+* ``node make build``: Builds the entire library, including the extensions
+  compiler.
+* ``node make dev``: Builds the library without the extensions compiler. This is
+  faster than ``node make build`` but not suitable for production code or
+  packaging.
+* ``node make test``: Runs all BokehJS tests. To only run specific tests, see
+  :ref:`contributor_guide_testing_local_javascript_selecting`.
+* ``node make lint`` lint BokehJS with ESLint_. Run ``node make lint --fix`` to
+  have ESLint fix some problems automatically.
 
-``node make`` automatically runs ``npm install`` whenever ``package.json`` changes.
+``node make`` automatically runs ``npm install`` whenever ``package.json``
+changes.
 
-You can use ``tsc`` directly for error checking (e.g. in an IDE). However, don't use
-it for code emit, because we rely on AST transforms to produce viable library code.
+.. _contributor_guide_bokehjs_testing:
 
 Testing
-~~~~~~~
+-------
 
-The Bokeh repository contains several test suites. These tests help to make sure
-that BokehJS functions consistently as its own library as well as in combination
-with all other components of Bokeh.
+The Bokeh repository contains several :ref:`test suites
+<contributor_guide_testing>`. These tests help to make sure that BokehJS
+functions consistently as its own library as well as in combination with all
+other components of Bokeh.
 
 To learn more about running tests for BokehJS locally, see
 :ref:`contributor_guide_testing_local_javascript`.
@@ -134,34 +177,121 @@ To learn more about running tests for BokehJS locally, see
 To learn more about adding and updating tests for BokehJS, see
 :ref:`contributor_guide_writing_tests_bokehjs`.
 
-Debugging in Headless Chrome
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _contributor_guide_bokehjs_models_views:
 
-Although testing in headless Chrome and running tests manually in Chrome should agree
-with each other most of the time, there are rare cases where headless and GUI Chrome
-diverge. In this situation one has to debug BokehJS' code directly in the headless
-browser.
+Models and views in BokehJS
+---------------------------
 
-Start BokehJS' devtools server in one console and run ``node make test:run:headless``
-in another. This starts Chrome in headless mode preconfigured for bokehjs' testing
-setup. Then open Chrome (or any other web browser), navigate to http://localhost:9222 and
-click ``about:blank`` link. This opens remote devtools console. Use its navigation bar
-and navigate to e.g. http://localhost:5777/integration/run (or other URL mentioned in
-an earlier paragraph). You are now set up for debugging in headless Chrome.
+The fundamental building blocks of visualizations in BokehJS are models and
+views:
 
-Minimal Model/View Module
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Models
+  A model is a data structure that may or may not have a visual representation.
+  BokehJS' models and their properties match the :ref:`models and respective
+  properties in Bokeh's Python code <contributor_guide_python_models>`. Bokeh
+  uses :ref:`defaults tests <contributor_guide_testing_local_javascript_selecting>`
+  to make sure that models stay compatible between Python and BokehJS.
 
-Models (and views) come in many forms and sizes. At minimum, a model is implemented.
-A view may follow if a "visual" model is being implemented. A minimal model/view
-module looks like this:
+Views
+  A view defines the visual representation of a model. Any model that influences
+  how things look in the browser requires a corresponding view.
+
+For each model, the model definition and the corresponding view should be in the
+same file in the :bokeh-tree:`bokehjs/models` directory.
+
+.. tip::
+  When updating or adding new models and views, look at how similar models and
+  views are currently implemented.
+
+Base classes for models and views
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+BokehJS models usually extend a base class. For example: the ``Axis`` model
+extends ``GuideRenderer``, the ``Circle`` model extends ``XYGlyph``.
+
+The model's corresponding view extends a corresponding base view class. For
+example: ``AxisView`` extends ``GuideRendererView``, ``CircleView``
+extends ``XYGlyphView``.
+
+Suppose you want to define a new type of :ref:`action button tool for the Bokeh
+tool bar <userguide_tools_actions>`, called ``NewActionTool``. The model for
+your new button would inherit from ``ActionTool``, and its corresponding view
+would inherit from ``ActionToolView``:
 
 .. code-block:: typescript
 
-    import {BaseModel, BaseModelView} from "models/..."
+  import {ActionTool, ActionToolView} from "./action_tool"
 
-    export class SomeModelView extends BaseModelView {
-      model: SomeModel
+Models
+~~~~~~
+
+BokehJS models require a ``namespace`` and ``interface``. At a minimum, this
+includes ``Attrs`` and ``Props``. There are also more properties you can use,
+like ``Mixins`` or ``Visuals``.
+
+.. code-block:: typescript
+
+  export namespace NewActionTool {
+    export type Attrs = p.AttrsOf<Props>
+
+    export type Props = ActionTool.Props & {
+      some_property: p.Property<number>
+      some_other_property: p.Property<string>
+    }
+  }
+
+  export interface NewActionTool extends NewActionTool.Attrs {}
+
+If you want to update a model, the most relevant property in most cases is
+``Props``. The properties you define there need to match the properties and
+types of the respective Python model. The BokehJS properties are defined in
+``core.properties`` and are usually imported with
+``import * as p from "core/properties"``.
+
+Next, define the actual model itself. The model extends the respective
+``BaseModel`` base class. If your model includes a view, this is also where you
+link model and view.
+
+.. code-block:: typescript
+
+  export class NewActionTool extends ActionTool {
+    properties: NewActionTool.Props
+    // only when a view is required:
+    __view_type__: NewActionToolView
+
+    // do not remove this constructor, or you won't be
+    // able to use `new NewActionTool({some_property: 1})`
+    // this constructor
+    constructor(attrs?: Partial<NewActionTool.Attrs>) {
+      super(attrs)
+    }
+
+    static {
+      this.prototype.default_view = NewActionToolView
+
+      this.define<NewActionTool.Props>(({Number, String}) => ({
+        some_property: [ Number, 0 ],
+        some_other_property: [ String, "Default String" ],
+        ...
+        // add more property definitions and defaults
+        // use properties from lib/core/property and primitives from lib/core/kinds
+        // does have to match Python, both type and default value (and nullability)
+      }))
+    }
+  }
+
+Views
+~~~~~
+
+If your model requires display-related logic, you need to define a view. A view
+generally handles how a model is displayed in the browser.
+
+Views extend the respective ``BaseView`` base class.
+
+.. code-block:: typescript
+
+    export class NewActionToolView extends ActionToolView {
+      override model: NewActionToolView
 
       initialize(): void {
         super.initialize()
@@ -172,51 +302,13 @@ module looks like this:
         await super.lazy_initialize()
         // perform view lazy initialization (remove if not needed)
       }
+
+      ...
     }
 
-    export namespace SomeModel {
-      export type Attrs = p.AttrsOf<Props>
-
-      export type Props = BaseModel.Props & {
-        some_property: p.Property<number>
-        // add more property declarations
-      }
-    }
-
-    export interface SomeModel extends SomeModel.Attrs {}
-
-    export class SomeModel extends BaseModel {
-      properties: SomeModel.Props
-      __view_type__: SomeModelView
-
-      // do not remove this constructor, or you won't be
-      // able to use `new SomeModel({some_property: 1})`
-      constructor(attrs?: Partial<SomeModel.Attrs>) {
-        super(attrs)
-      }
-
-      static {
-        this.prototype.default_view = SomeModelView
-
-        this.define<SomeModel.Props>(({Number}) => ({
-          some_property: [ Number, 0 ],
-          // add more property definitions
-        }))
-      }
-    }
-
-For trivial modules like this, most of the code is just boilerplate to make
-BokehJS's code statically type-check and generate useful type declarations
-for further consumption (in tests or by users).
-
-Code Style Guide
-~~~~~~~~~~~~~~~~
-
-BokehJS doesn't have an explicit style guide. Make your changes consistent in
-formatting. Use ``node make lint``. Follow patterns observed in the surrounding
-code and apply common sense.
-
-.. _Chaco: https://github.com/enthought/chaco
+.. _gulp: https://gulpjs.com/
+.. _ESLint: https://eslint.org/
 .. _JSFiddle: http://jsfiddle.net/
-.. _Protovis: http://mbostock.github.io/protovis/
 .. _GitHub_Actions: https://github.com/bokeh/bokeh/actions?query=workflow%3ABokehJS-CI
+.. _ESLint extension for VSCode: https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
+.. _template literals (template strings): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals

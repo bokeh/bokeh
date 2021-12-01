@@ -14,9 +14,6 @@ describe("refs module", () => {
       const obj0 = {id: 10, type: "foo"}
       expect(refs.is_ref(obj0)).to.be.false
 
-      const obj1 = {id: 10, type: "foo", subtype: "bar"}
-      expect(refs.is_ref(obj1)).to.be.false
-
       const obj2 = {}
       expect(refs.is_ref(obj2)).to.be.false
 
@@ -28,9 +25,6 @@ describe("refs module", () => {
 
       const obj5 = {id: 10, b: "foo"}
       expect(refs.is_ref(obj5)).to.be.false
-
-      const obj6 = {subtype: "bar"}
-      expect(refs.is_ref(obj6)).to.be.false
 
       const obj7 = {a: 10, b: "foo", c: "bar", d: "baz"}
       expect(refs.is_ref(obj7)).to.be.false

@@ -231,7 +231,7 @@ describe("core/visuals", () => {
         const renderer_view = await create_glyph_renderer_view(circle, data)
 
         const filter = new IndexFilter({indices: [1, 2]})
-        renderer_view.model.view = new CDSView({source: renderer_view.model.data_source, filters: [filter]})
+        renderer_view.model.view = new CDSView({filters: [filter]})
         // XXX: need to manually set_data because signals for renderer aren't connected by create_glyph_view util
         renderer_view.set_data()
 

@@ -46,8 +46,8 @@ export class ColorBarView extends AnnotationView {
   protected _axis: Axis
   protected _axis_view: Axis["__view_type__"]
 
-  protected _title?: Title
-  protected _title_view?: Title["__view_type__"]
+  protected _title: Title
+  protected _title_view: Title["__view_type__"]
 
   protected _ticker: Ticker
   protected _formatter: TickFormatter
@@ -130,11 +130,6 @@ export class ColorBarView extends AnnotationView {
     this._minor_range = new Range1d({start: 0, end: 1})
     this._minor_scale = new LinearScale()
 
-    const major_label_text = mixins.attrs_of(this.model, "major_label_", mixins.Text, true)
-    const major_tick_line = mixins.attrs_of(this.model, "major_tick_", mixins.Line, true)
-    const minor_tick_line = mixins.attrs_of(this.model, "minor_tick_", mixins.Line, true)
-    const title_text = mixins.attrs_of(this.model, "title_", mixins.Text)
-
     const AxisCls = (() => {
       if (color_mapper instanceof CategoricalColorMapper)
         return CategoricalAxis
@@ -143,30 +138,12 @@ export class ColorBarView extends AnnotationView {
       else
         return LinearAxis
     })()
-    this._axis = new AxisCls({
-      ticker: this._ticker,
-      formatter: this._formatter,
-      major_tick_in: this.model.major_tick_in,
-      major_tick_out: this.model.major_tick_out,
-      minor_tick_in: this.model.minor_tick_in,
-      minor_tick_out: this.model.minor_tick_out,
-      major_label_standoff: this.model.label_standoff,
-      major_label_overrides: this.model.major_label_overrides,
-      major_label_policy: this.model.major_label_policy,
-      axis_line_color: null,
-      ...major_label_text,
-      ...major_tick_line,
-      ...minor_tick_line,
-    })
 
-    const {title} = this.model
-    if (title) {
-      this._title = new Title({
-        text: title,
-        standoff: this.model.title_standoff,
-        ...title_text,
-      })
-    }
+    this._axis = new AxisCls()
+    this._apply_axis_properties()
+
+    this._title = new Title()
+    this._apply_title_properties()
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -189,22 +166,61 @@ export class ColorBarView extends AnnotationView {
       request_layout() {
         self.parent.request_layout()
       },
+      request_paint() {
+        self.parent.request_paint(self)
+      },
+      request_render() {
+        self.request_paint()
+      },
     }
 
     this._axis_view = await build_view(this._axis, {parent})
-    if (this._title != null)
-      this._title_view = await build_view(this._title, {parent})
+    this._title_view = await build_view(this._title, {parent})
   }
 
   override remove(): void {
-    this._title_view?.remove()
+    this._title_view.remove()
     this._axis_view.remove()
     super.remove()
   }
 
+  protected _apply_axis_properties(): void {
+    const attrs: Partial<Axis.Attrs> = {
+      ticker: this._ticker,
+      formatter: this._formatter,
+      major_label_standoff: this.model.label_standoff,
+      axis_line_color: null,
+      major_tick_in: this.model.major_tick_in,
+      major_tick_out: this.model.major_tick_out,
+      minor_tick_in: this.model.minor_tick_in,
+      minor_tick_out: this.model.minor_tick_out,
+      major_label_overrides: this.model.major_label_overrides,
+      major_label_policy: this.model.major_label_policy,
+      // TODO: this needs strict typing
+      ...mixins.attrs_of(this.model, "major_label_", mixins.Text, true),
+      ...mixins.attrs_of(this.model, "major_tick_", mixins.Line, true),
+      ...mixins.attrs_of(this.model, "minor_tick_", mixins.Line, true),
+    }
+    this._axis.setv(attrs)
+  }
+
+  protected _apply_title_properties(): void {
+    const attrs: Partial<Title.Attrs> = {
+      text: this.model.title ?? "",
+      standoff: this.model.title_standoff,
+      // TODO: this needs strict typing
+      ...mixins.attrs_of(this.model, "title_", mixins.Text, false),
+    }
+    this._title.setv(attrs)
+  }
+
   override connect_signals(): void {
     super.connect_signals()
-    // TODO: this.connect(this.model.change, () => this.plot_view.invalidate_layout())
+    this.connect(this.model.change, () => {
+      this._apply_title_properties()
+      this._apply_axis_properties()
+      // TODO?: this.plot_view.invalidate_layout()
+    })
     this.connect(this._ticker.change, () => this.request_render())
     this.connect(this._formatter.change, () => this.request_render())
     this.connect(this.model.color_mapper.metrics_change, () => {
@@ -301,7 +317,7 @@ export class ColorBarView extends AnnotationView {
         if (this.panel != null)
           return this.panel.is_horizontal ? "horizontal" : "vertical"
         else {
-          if (halign == "start" || halign == "end" || (halign == "center" && valign == "center"))
+          if (halign == "start" || halign == "end" || (/*halign == "center" &&*/ valign == "center"))
             return "vertical"
           else
             return "horizontal"
@@ -468,16 +484,14 @@ export class ColorBarView extends AnnotationView {
     right_panel.set_sizing({width_policy: "min", height_policy: "fit"})
 
     const {_title_view} = this
-    if (_title_view != null) {
-      if (orientation == "horizontal") {
-        _title_view.panel = new Panel("above")
-        _title_view.update_layout()
-        top_panel.children.push(_title_view.layout)
-      } else {
-        _title_view.panel = new Panel("left")
-        _title_view.update_layout()
-        left_panel.children.push(_title_view.layout)
-      }
+    if (orientation == "horizontal") {
+      _title_view.panel = new Panel("above")
+      _title_view.update_layout()
+      top_panel.children.push(_title_view.layout)
+    } else {
+      _title_view.panel = new Panel("left")
+      _title_view.update_layout()
+      left_panel.children.push(_title_view.layout)
     }
 
     const {panel} = this
@@ -532,7 +546,7 @@ export class ColorBarView extends AnnotationView {
     ctx.save()
     this._paint_bbox(ctx, this._inner_layout.bbox)
     this._paint_image(ctx, this._inner_layout.center_panel.bbox)
-    this._title_view?.render()
+    this._title_view.render()
     this._axis_view.render()
     ctx.restore()
   }
@@ -577,8 +591,7 @@ export class ColorBarView extends AnnotationView {
 
   override serializable_state(): SerializableState {
     const {children = [], ...state} = super.serializable_state()
-    if (this._title_view != null)
-      children.push(this._title_view.serializable_state())
+    children.push(this._title_view.serializable_state())
     children.push(this._axis_view.serializable_state())
     return {...state, children}
   }

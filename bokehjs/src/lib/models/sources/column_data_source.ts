@@ -156,8 +156,8 @@ export class ColumnDataSource extends ColumnarDataSource {
   }
 
   static {
-    this.define<ColumnDataSource.Props>(({Dict, Any /*Arrayable*/}) => ({
-      data: [ Dict(Any /*Arrayable*/), {} ], // TODO: resolve ndarray refs earlier
+    this.define<ColumnDataSource.Props>(({Dict, Arrayable}) => ({
+      data: [ Dict(Arrayable), {} ],
     }))
   }
 

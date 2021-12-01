@@ -26,7 +26,7 @@ export class RangeManager {
 
   invalidate_dataranges: boolean = true
 
-  update(range_info: RangeInfo | null, options?: RangeOptions): void {
+  update(range_info: RangeInfo | null, options: RangeOptions = {}): void {
     const {x_ranges, y_ranges} = this.frame
     if (range_info == null) {
       for (const [, range] of x_ranges) {
@@ -44,7 +44,7 @@ export class RangeManager {
       for (const [name, range] of y_ranges) {
         range_info_iter.push([range, range_info.yrs.get(name)!])
       }
-      if (options?.scrolling) {
+      if (options.scrolling ?? false) {
         this._update_ranges_together(range_info_iter)   // apply interval bounds while keeping aspect
       }
       this._update_ranges_individually(range_info_iter, options)
@@ -76,13 +76,11 @@ export class RangeManager {
         continue
 
       const bds = renderer_view.glyph_view.bounds()
-      if (bds != null)
-        bounds.set(renderer, bds)
+      bounds.set(renderer, bds)
 
       if (calculate_log_bounds) {
         const log_bds = renderer_view.glyph_view.log_bounds()
-        if (log_bds != null)
-          log_bounds.set(renderer, log_bds)
+        log_bounds.set(renderer, log_bds)
       }
     }
 
@@ -141,7 +139,8 @@ export class RangeManager {
         this._update_dataranges(coordinates)
     }
 
-    this.invalidate_dataranges = false
+    if (this.compute_initial() != null)
+      this.invalidate_dataranges = false
   }
 
   compute_initial(): RangeInfo | null {
@@ -152,7 +151,7 @@ export class RangeManager {
     const yrs: Map<string, Interval> = new Map()
     for (const [name, range] of x_ranges) {
       const {start, end} = range
-      if (start == null || end == null || isNaN(start + end)) {
+      if (isNaN(start + end)) {
         good_vals = false
         break
       }
@@ -161,7 +160,7 @@ export class RangeManager {
     if (good_vals) {
       for (const [name, range] of y_ranges) {
         const {start, end} = range
-        if (start == null || end == null || isNaN(start + end)) {
+        if (isNaN(start + end)) {
           good_vals = false
           break
         }
@@ -191,9 +190,10 @@ export class RangeManager {
     }
   }
 
-  protected _update_ranges_individually(range_info_iter: [Range, Interval][], options?: RangeOptions): void {
-    const panning = !!options?.panning
-    const scrolling = !!options?.scrolling
+  protected _update_ranges_individually(range_info_iter: [Range, Interval][], options: RangeOptions = {}): void {
+    const panning = options.panning ?? false
+    const scrolling = options.scrolling ?? false
+    const maintain_focus = options.maintain_focus ?? false
 
     let hit_bound = false
     for (const [rng, range_info] of range_info_iter) {
@@ -215,7 +215,7 @@ export class RangeManager {
 
         if (rng.is_reversed) {
           if (min != null) {
-            if (min >= range_info.end) {
+            if (min > range_info.end) {
               hit_bound = true
               range_info.end = min
               if (panning || scrolling) {
@@ -224,7 +224,7 @@ export class RangeManager {
             }
           }
           if (max != null) {
-            if (max <= range_info.start) {
+            if (max < range_info.start) {
               hit_bound = true
               range_info.start = max
               if (panning || scrolling) {
@@ -234,7 +234,7 @@ export class RangeManager {
           }
         } else {
           if (min != null) {
-            if (min >= range_info.start) {
+            if (min > range_info.start) {
               hit_bound = true
               range_info.start = min
               if (panning || scrolling) {
@@ -243,7 +243,7 @@ export class RangeManager {
             }
           }
           if (max != null) {
-            if (max <= range_info.end) {
+            if (max < range_info.end) {
               hit_bound = true
               range_info.end = max
               if (panning || scrolling) {
@@ -259,7 +259,7 @@ export class RangeManager {
     // the scroll-zoom tool maintains its focus position. Setting `maintain_focus`
     // to false results in a more "gliding" behavior, allowing one to
     // zoom out more smoothly, at the cost of losing the focus position.
-    if (scrolling && hit_bound && options?.maintain_focus)
+    if (scrolling && hit_bound && maintain_focus)
       return
 
     for (const [rng, range_info] of range_info_iter) {

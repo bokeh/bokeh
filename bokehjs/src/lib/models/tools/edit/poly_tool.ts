@@ -1,6 +1,7 @@
 import * as p from "core/properties"
 import {UIEvent} from "core/ui_events"
 import {isArray} from "core/util/types"
+import {assert} from "core/util/assert"
 import {MultiLine} from "../../glyphs/multi_line"
 import {Patches} from "../../glyphs/patches"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
@@ -15,8 +16,10 @@ export abstract class PolyToolView extends EditToolView {
   override model: PolyTool
 
   _set_vertices(xs: number[] | number, ys: number[] | number): void {
-    const point_glyph: any = this.model.vertex_renderer.glyph
-    const point_cds = this.model.vertex_renderer.data_source
+    const {vertex_renderer} = this.model
+    assert(vertex_renderer != null)
+    const point_glyph: any = vertex_renderer.glyph
+    const point_cds = vertex_renderer.data_source
     const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
     if (pxkey) {
       if (isArray(xs))
@@ -63,7 +66,7 @@ export namespace PolyTool {
 
   export type Props = EditTool.Props & {
     renderers: p.Property<(GlyphRenderer & HasPolyGlyph)[]>
-    vertex_renderer: p.Property<GlyphRenderer & HasXYGlyph>
+    vertex_renderer: p.Property<(GlyphRenderer & HasXYGlyph) | null>
   }
 }
 
@@ -80,8 +83,8 @@ export abstract class PolyTool extends EditTool {
   }
 
   static {
-    this.define<PolyTool.Props>(({AnyRef}) => ({
-      vertex_renderer: [ AnyRef<GlyphRenderer & HasXYGlyph>() ],
+    this.define<PolyTool.Props>(({AnyRef, Nullable}) => ({
+      vertex_renderer: [ Nullable(AnyRef<GlyphRenderer & HasXYGlyph>()), null ],
     }))
   }
 }

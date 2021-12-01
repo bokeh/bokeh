@@ -1,7 +1,7 @@
 import {display, fig, row} from "./_util"
 
 import {ColumnDataSource, GlyphRenderer, Circle} from "@bokehjs/models"
-import {ColorNDArray} from "@bokehjs/api/plotting"
+import {ColorNDArray} from "@bokehjs/api/glyph_api"
 import * as nd from "@bokehjs/core/util/ndarray"
 import {isArrayable} from "@bokehjs/core/util/types"
 import {Value, Vector} from "@bokehjs/core/vectorization"

@@ -1,5 +1,6 @@
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Expression} from "./expression"
+import {obj} from "core/util/object"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
@@ -30,9 +31,10 @@ export class Stack extends Expression {
     const n = source.get_length() ?? 0
     const result = new Float64Array(n)
     for (const f of this.fields) {
-      const column = source.data[f]
+      const column = obj(source.data).get(f)
       if (column != null) {
-        for (let i = 0, k = Math.min(n, column.length); i < k; i++) {
+        const k = Math.min(n, column.length)
+        for (let i = 0; i < k; i++) {
           result[i] += column[i]
         }
       }

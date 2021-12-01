@@ -4,9 +4,21 @@
 //     Underscore may be freely distributed under the MIT license.
 
 import {Arrayable, TypedArray} from "../types"
-import {every} from "./array"
 
 const toString = Object.prototype.toString
+
+export function is_undefined(obj: unknown): obj is undefined {
+  return typeof obj === "undefined"
+}
+
+export function is_defined<T>(obj: T): obj is (T extends undefined ? never : T) {
+  return typeof obj !== "undefined"
+}
+
+// XXX: use only to work around strict conditional expressions
+export function is_nullish(obj: unknown): obj is null | undefined {
+  return obj == null
+}
 
 export function isBoolean(obj: unknown): obj is boolean {
   return obj === true || obj === false || toString.call(obj) === "[object Boolean]"
@@ -42,13 +54,17 @@ export function isArray<T>(obj: unknown): obj is T[] {
   return Array.isArray(obj)
 }
 
-export function isArrayOf<T>(arr: unknown[], predicate: (item: unknown) => item is T): arr is T[] {
-  return every(arr, predicate)
+export function isArrayOf<T>(array: unknown[], predicate: (item: unknown) => item is T): array is T[] {
+  for (const item of array) {
+    if (!predicate(item))
+      return false
+  }
+  return true
 }
 
-export function isArrayableOf<T>(arr: Arrayable, predicate: (item: unknown) => item is T): arr is Arrayable<T> {
-  for (let i = 0, end = arr.length; i < end; i++) {
-    if (!predicate(arr[i]))
+export function isArrayableOf<T>(array: Arrayable, predicate: (item: unknown) => item is T): array is Arrayable<T> {
+  for (const item of array) {
+    if (!predicate(item))
       return false
   }
   return true
@@ -64,7 +80,7 @@ export function isObject(obj: unknown): obj is object {
 }
 
 export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
-  return isObject(obj) && (obj.constructor == null || obj.constructor === Object)
+  return isObject(obj) && (is_nullish(obj.constructor) || obj.constructor === Object)
 }
 
 export function isIterable(obj: unknown): obj is Iterable<unknown> {

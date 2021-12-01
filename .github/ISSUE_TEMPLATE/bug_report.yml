@@ -1,0 +1,120 @@
+name: Bug report
+description: Create a report to help us improve
+title: "[BUG] "
+labels: TRIAGE
+body:
+  - type: markdown
+    attributes:
+      value: "# Bug report"
+  - type: markdown
+    attributes:
+      value: Thank you for reporting a bug and helping us improve Bokeh!
+  - type: markdown
+    attributes:
+      value: >
+        See [Creating issues](https://docs.bokeh.org/en/latest/docs/dev_guide/creating_issues.html)
+        in the [Bokeh contributor guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html)
+        for more information on how to file an issue.
+  - type: markdown
+    attributes:
+      value: >
+        Please be aware that the issue tracker is NOT the place for general
+        support. For questions and technical assistance, come join the
+        [Bokeh Project Discourse](https://discourse.bokeh.org).
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## Environment information
+  - type: textarea
+    id: bokeh_info
+    attributes:
+      label: Software versions
+      description: >-
+        Run `bokeh info` and paste the output here. See the [Bokeh documentation](https://docs.bokeh.org/en/latest/docs/reference/command/subcommands/info.html)
+        for more information.
+      placeholder: |
+        Python version      :  3.9.7 | packaged by conda-forge | (default, Sep 29 2021, 19:20:46)
+        IPython version     :  7.20.0
+        Tornado version     :  6.1
+        Bokeh version       :  3.0.0
+        BokehJS static path :  /opt/anaconda/envs/test/lib/python3.9/site-packages/bokeh/server/static
+        node.js version     :  v16.12.0
+        npm version         :  7.24.2
+        Operating system    :  Linux-5.11.0-40-generic-x86_64-with-glibc2.31
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser name and version
+      description: >-
+        Please supply if the issue you are reporting is related to a browser.
+    validations:
+      required: false
+  - type: input
+    id: jupyter
+    attributes:
+      label: Jupyter notebook / Jupyter Lab version
+      description: >-
+        Please supply if the issue you are reporting is related to Jupyter
+        notebook or Jupyter Lab.
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        ## Issue details
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: observed-behavior
+    attributes:
+      label: Observed behavior
+      description: What did actually happen?
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        ## Reproducible example
+  - type: textarea
+    id: example
+    attributes:
+      label: Example code
+      description: >
+        [Complete, minimal, self-contained example code](https://stackoverflow.com/help/minimal-reproducible-example)
+        that reproduces the issue.
+      render: Python
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        ## Additional information
+  - type: textarea
+    id: traceback-console
+    attributes:
+      label: Stack traceback or browser console output
+      description: >
+        Add any error messages or logs that might be helpful in reproducing and
+        identifying the bug. For example the Python stack traceback or the
+        browser JavaScript console output.
+    validations:
+      required: false
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: >-
+        If possible, add additional information that might help understand what
+        your bug report is about. This can be screenshots or [screencasts](https://github.blog/2021-05-13-video-uploads-available-github/)
+        that demonstrate the behavior you are filing an issues about, for
+        example.
+    validations:
+      required: false

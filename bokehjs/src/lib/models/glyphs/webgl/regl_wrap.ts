@@ -14,7 +14,7 @@ import rect_fragment_shader from "./rect.frag"
 // ReglWrapper object.  This ensures that regl is correctly initialised before
 // it is used, and is only initialised once.
 
-let regl_wrapper: ReglWrapper
+let regl_wrapper: ReglWrapper | null = null
 
 export function get_regl(gl: WebGLRenderingContext): ReglWrapper {
   if (regl_wrapper == null)
@@ -27,14 +27,14 @@ type ReglRenderFunction = ({}) => void
 export class ReglWrapper {
   private _regl: Regl
   private _regl_available: boolean
-  private _dash_cache: DashCache
+  private _dash_cache?: DashCache
 
   // Drawing functions.
-  private _solid_line: ReglRenderFunction
-  private _dashed_line: ReglRenderFunction
-  private _marker_map: Map<MarkerType, ReglRenderFunction>
-  private _rect_no_hatch: ReglRenderFunction
-  private _rect_hatch: ReglRenderFunction
+  private _solid_line?: ReglRenderFunction
+  private _dashed_line?: ReglRenderFunction
+  private _marker_map?: Map<MarkerType, ReglRenderFunction>
+  private _rect_no_hatch?: ReglRenderFunction
+  private _rect_hatch?: ReglRenderFunction
 
   // Static Buffers/Elements
   private _line_geometry: Buffer
@@ -107,7 +107,6 @@ export class ReglWrapper {
   public get_dash(line_dash: number[]): DashReturn {
     if (this._dash_cache == null)
       this._dash_cache = new DashCache(this._regl)
-
     return this._dash_cache.get(line_dash)
   }
 
@@ -183,6 +182,15 @@ function regl_solid_line(regl: Regl, line_geometry: Buffer, line_triangles: Elem
       a_point_next(_, props) {
         return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*6)
       },
+      a_show_prev(_, props) {
+        return props.show.to_attribute_config()
+      },
+      a_show_curr(_, props) {
+        return props.show.to_attribute_config(Uint8Array.BYTES_PER_ELEMENT)
+      },
+      a_show_next(_, props) {
+        return props.show.to_attribute_config(Uint8Array.BYTES_PER_ELEMENT*2)
+      },
     },
 
     uniforms: {
@@ -245,6 +253,15 @@ function regl_dashed_line(regl: Regl, line_geometry: Buffer, line_triangles: Ele
       },
       a_point_next(_, props) {
         return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*6)
+      },
+      a_show_prev(_, props) {
+        return props.show.to_attribute_config()
+      },
+      a_show_curr(_, props) {
+        return props.show.to_attribute_config(Uint8Array.BYTES_PER_ELEMENT)
+      },
+      a_show_next(_, props) {
+        return props.show.to_attribute_config(Uint8Array.BYTES_PER_ELEMENT*2)
       },
       a_length_so_far(_, props) {
         return props.length_so_far.to_attribute_config()

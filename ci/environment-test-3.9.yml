@@ -13,6 +13,7 @@ dependencies:
   - pyyaml >=3.10
   - tornado >=5
   - typing_extensions >=3.10.0
+  - xyzservices>=2021.09.1
 
   # tests
   - beautifulsoup4
@@ -33,7 +34,6 @@ dependencies:
   - nbconvert >=5.4
   - networkx
   - nodejs 14.*
-  #- numba
   - pandas
   - psutil
   - pydot
@@ -46,7 +46,6 @@ dependencies:
   - requests >=1.2.3
   - selenium >=3.8
   - scipy
-  - xyzservices
   - pre-commit
 
   # examples
@@ -56,7 +55,6 @@ dependencies:
   - icalendar
   - networkx
   - notebook
-  - opencv
   - pyshp
   - scikit-learn
   - sympy
@@ -66,8 +64,8 @@ dependencies:
   - pip:
     # docs
     - autoclasstoc
-    - pydata_sphinx_theme
-    - sphinx >=4.1
+    - pydata_sphinx_theme >=0.7.1
+    - sphinx >=4.1,<4.3
     - sphinxext-opengraph
     - sphinx-panels
     - sphinx-tabs

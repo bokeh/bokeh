@@ -1,7 +1,12 @@
 import {Document, DocumentEvent, DocumentEventBatch} from "document"
+import type {Patch} from "document"
 import {Message} from "protocol/message"
 import {ClientConnection} from "./connection"
 import {logger} from "core/logging"
+
+export type OkMsg = Message<{}>
+export type ErrorMsg = Message<{text: string, traceback: string | null}>
+export type PatchMsg = Message<Patch>
 
 export class ClientSession {
   protected _document_listener = (event: DocumentEvent) => {
@@ -12,17 +17,25 @@ export class ClientSession {
     this.document.on_change(this._document_listener, true)
   }
 
-  handle(message: Message): void {
+  handle(message: Message<unknown>): void {
     const msgtype = message.msgtype()
 
-    if (msgtype === "PATCH-DOC")
-      this._handle_patch(message)
-    else if (msgtype === "OK")
-      this._handle_ok(message)
-    else if (msgtype === "ERROR")
-      this._handle_error(message)
-    else
-      logger.debug(`Doing nothing with message ${message.msgtype()}`)
+    switch (msgtype) {
+      case "PATCH-DOC": {
+        this._handle_patch(message as PatchMsg)
+        break
+      }
+      case "OK": {
+        this._handle_ok(message as OkMsg)
+        break
+      }
+      case "ERROR": {
+        this._handle_error(message as ErrorMsg)
+        break
+      }
+      default:
+        logger.debug(`Doing nothing with message '${msgtype}'`)
+    }
   }
 
   close(): void {
@@ -37,7 +50,7 @@ export class ClientSession {
   // version. Returns a promise, the value of the promise is a free-form dictionary
   // of server details.
   async request_server_info(): Promise<unknown> {
-    const message = Message.create("SERVER-INFO-REQ", {})
+    const message = Message.create("SERVER-INFO-REQ", {}, {})
     const reply = await this._connection.send_with_reply(message)
     return reply.content
   }
@@ -69,15 +82,15 @@ export class ClientSession {
     this._connection.send(message)
   }
 
-  protected _handle_patch(message: Message): void {
+  protected _handle_patch(message: PatchMsg): void {
     this.document.apply_json_patch(message.content, message.buffers, this.id)
   }
 
-  protected _handle_ok(message: Message): void {
+  protected _handle_ok(message: OkMsg): void {
     logger.trace(`Unhandled OK reply to ${message.reqid()}`)
   }
 
-  protected _handle_error(message: Message): void {
+  protected _handle_error(message: ErrorMsg): void {
     logger.error(`Unhandled ERROR reply to ${message.reqid()}: ${message.content.text}`)
   }
 }

@@ -64,7 +64,12 @@ from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
 from .property.singletons import Undefined
 from .property.wrappers import PropertyValueContainer
-from .types import ID, JSON, Unknown
+from .types import (
+    ID,
+    JSON,
+    ReferenceJson,
+    Unknown,
+)
 
 if TYPE_CHECKING:
     from ..client.session import ClientSession
@@ -364,8 +369,21 @@ class HasProps(metaclass=MetaHasProps):
         for prop_name, default in getattr(cls, "__overridden_defaults__", {}).items():
             overrides.append(OverrideDef(name=prop_name, default=default))
 
+        from ..document.util import references_json
+        from ..model.util import collect_models
+
+        values = [ obj["default"] for obj in properties + overrides if obj.get("default") is not None ]
+        references = references_json(collect_models(values))
+
         modelref = model_ref(cls)
-        modeldef = ModelDef(name=modelref["name"], module=modelref["module"], extends=extends, properties=properties, overrides=overrides)
+        modeldef = ModelDef(
+            name=modelref["name"],
+            module=modelref["module"],
+            extends=extends,
+            properties=properties,
+            overrides=overrides,
+            references=references,
+        )
 
         serializer.add_ref(cls, modelref, modeldef)
         return modelref
@@ -745,6 +763,7 @@ class ModelDef(ModelRef):
     extends: ModelRef
     properties: List[PropertyDef]
     overrides: List[OverrideDef]
+    references: List[ReferenceJson]
 
 #-----------------------------------------------------------------------------
 # Private API

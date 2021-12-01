@@ -3,7 +3,8 @@ name: BokehJS-CI
 on:
   push:
     branches:
-      - master
+      - main
+      - branch-*
     paths:
       - 'bokehjs/**'
   pull_request:
@@ -36,11 +37,17 @@ jobs:
         run: |
           npm install -g npm@7
 
-      - name: Upgrade chromium
+      - name: Install chromium
         if: runner.os == 'Linux'
         shell: bash
         run: |
-          sudo snap install chromium
+          VER=95.0.4638.69
+          REV=chromium_1810
+          URL=https://github.com/bokeh/chromium/raw/main/linux/$VER
+          wget --no-verbose $URL/$REV.assert
+          wget --no-verbose $URL/$REV.snap
+          sudo snap ack $REV.assert
+          sudo snap install $REV.snap
 
       - name: Install dependencies
         working-directory: ./bokehjs

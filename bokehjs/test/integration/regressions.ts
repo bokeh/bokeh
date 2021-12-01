@@ -1,6 +1,6 @@
 import sinon from "sinon"
 
-import {display, fig, row, column, grid} from "./_util"
+import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
 
 import {
   Arrow, ArrowHead, NormalHead, OpenHead,
@@ -15,6 +15,7 @@ import {
   Plot,
   TeX,
   HoverTool,
+  ZoomInTool,
   TileRenderer, WMTSTileSource,
   Renderer,
   ImageURLTexture,
@@ -35,13 +36,16 @@ import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
 import {defer} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
-import {Figure, MarkerArgs, show} from "@bokehjs/api/plotting"
-import {Spectral11, turbo} from "@bokehjs/api/palettes"
+import {Figure, show} from "@bokehjs/api/plotting"
+import {MarkerArgs} from "@bokehjs/api/glyph_api"
+import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import {div, offset} from "@bokehjs/core/dom"
 
-import {DelayedInternalProvider} from "./axes"
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {PlotView} from "@bokehjs/models/plots/plot"
+
+import {f} from "@bokehjs/api/expr"
+import {np} from "@bokehjs/api/linalg"
 
 const n_marker_types = [...MarkerType].length
 
@@ -92,8 +96,6 @@ describe("Bug", () => {
   describe("in issue #9879", () => {
     it("disallows to change FactorRange to a lower dimension with a different number of factors", async () => {
       const p = fig([200, 200], {
-        title: null,
-        toolbar_location: null,
         x_range: new FactorRange({factors: [["a", "b"], ["b", "c"]]}),
         y_range: new DataRange1d(),
       })
@@ -232,7 +234,7 @@ describe("Bug", () => {
       const y = [0, 1, 2, 3]
       const c = ["black", "red", "green", "blue"]
       const source = new ColumnDataSource({data: {x, y, c}, selected})
-      const view = new CDSView({source, filters: [new BooleanFilter({booleans: [false, true, true, true]})]})
+      const view = new CDSView({filters: [new BooleanFilter({booleans: [false, true, true, true]})]})
       p.circle({field: "x"}, {field: "y"}, {source, view, color: {field: "c"}, size: 20})
       return p
     }
@@ -468,7 +470,7 @@ describe("Bug", () => {
       const p = fig([200, 100])
       p.circle([0, 1, 2], [0, 1, 2], {radius: 0.25})
       const {view} = await display(p)
-      p.xaxis.map((axis) => axis.axis_label = "X-Axis Label")
+      p.xaxis.axis_label = "X-Axis Label"
       await view.ready
     })
   })
@@ -862,7 +864,7 @@ describe("Bug", () => {
         ys: [[0, 1], [0, 1], [0, 1]],
       }})
       const filter = new IndexFilter({indices: [0, 2]})
-      const view = new CDSView({source, filters: [filter]})
+      const view = new CDSView({filters: [filter]})
 
       const p = fig([200, 200])
       p.multi_line({field: "xs"}, {field: "ys"}, {view, source})
@@ -883,7 +885,7 @@ describe("Bug", () => {
         min_border_left: 20,
         min_border_right: 20,
       })
-      p.xaxis.map((axis) => axis.major_label_text_font_size = "14pt")
+      p.xaxis.major_label_text_font_size = "14pt"
       await display(p)
     })
   })
@@ -990,7 +992,7 @@ describe("Bug", () => {
         },
       })
 
-      const view = new CDSView({source})
+      const view = new CDSView() // shared view between renderers
 
       const circle_renderer = new GlyphRenderer({
         data_source: source,
@@ -1043,10 +1045,10 @@ describe("Bug", () => {
       p.add_layout(new LinearAxis({major_label_text_color: null}), "right")
       p.add_layout(new LinearAxis({major_label_text_color: null}), "above")
 
-      p.axis.map((ax) => ax.major_tick_in = 10)
-      p.axis.map((ax) => ax.major_tick_out = 0)
-      p.axis.map((ax) => ax.minor_tick_in = 5)
-      p.axis.map((ax) => ax.minor_tick_out = 0)
+      p.axis.major_tick_in = 10
+      p.axis.major_tick_out = 0
+      p.axis.minor_tick_in = 5
+      p.axis.minor_tick_out = 0
 
       await display(p)
     })
@@ -1102,7 +1104,7 @@ describe("Bug", () => {
       const y = [6e-2, 7e-4, 6e-6, 4e-8, 5e-10]
 
       const p = fig([200, 200], {y_axis_type: axis})
-      p.yaxis.map((axis) => axis.major_label_text_font_size = "1.5em")
+      p.yaxis.major_label_text_font_size = "1.5em"
       p.line({x, y})
 
       return p
@@ -1200,7 +1202,7 @@ describe("Bug", () => {
           },
         })
         const color_mapper = new LinearColorMapper({low: 0, high: 6, palette: Spectral11})
-        const cds_view = new CDSView({source, filters: [new IndexFilter({indices})]})
+        const cds_view = new CDSView({filters: [new IndexFilter({indices})]})
         const ir = p.image({
           image: {field: "image"},
           x: {field: "x"},
@@ -1236,28 +1238,28 @@ describe("Bug", () => {
 
         const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
         ui._mouse_move(ev)
-
-        return view.ready
       }
 
       const [pv0, pv1, pv2] = view.child_views as PlotView[]
 
-      await hover_at(pv0, r0,  2, 5)
-      await hover_at(pv1, r1, 12, 5)
-      await hover_at(pv2, r2,  2, 5)
+      hover_at(pv0, r0,  2, 5)
+      hover_at(pv1, r1, 12, 5)
+      hover_at(pv2, r2,  2, 5)
+
+      await view.ready
     })
   })
 
   describe("in issue #11413", () => {
     const osm_source = new WMTSTileSource({
       // url: "https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
-      url: "/tiles/osm/{Z}_{X}_{Y}.png",
+      url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
       attribution: "&copy; (0) OSM source attribution",
     })
 
     const esri_source = new WMTSTileSource({
       // url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg",
-      url: "/tiles/esri/{Z}_{Y}_{X}.jpg",
+      url: "/assets/tiles/esri/{Z}_{Y}_{X}.jpg",
       attribution: "&copy; (1) Esri source attribution",
     })
 
@@ -1283,12 +1285,10 @@ describe("Bug", () => {
 
       const {view} = await display(row([p0, p1]))
 
-      // TODO: allow `await view.ready` to await readiness of its children
       p0.renderers = [esri]
-      await view.child_views[0].ready
-
       p1.renderers = [osm]
-      await view.child_views[1].ready
+
+      await view.ready
     })
   })
 
@@ -1415,17 +1415,164 @@ describe("Bug", () => {
   })
 
   describe("in issue #11646", () => {
-    const url = "/images/canvas_createpattern.png"
+    const url = "/assets/images/pattern.png"
 
     it("disallows using image texture as grid line's band fill", async () => {
       const p = fig([400, 200])
 
       p.vbar({x: [0], top: [1], alpha: 0.2, hatch_pattern: "."})
 
-      p.xgrid[0].band_hatch_extra = {mycustom: new ImageURLTexture({url})}
-      p.xgrid[0].band_hatch_pattern = "mycustom"
+      p.xgrid.band_hatch_extra = {mycustom: new ImageURLTexture({url})}
+      p.xgrid.band_hatch_pattern = "mycustom"
 
       await display(p)
     })
   })
+
+  describe("in issue #11661", () => {
+    it("makes line render incorrectly when painting with a subset of indices", async () => {
+      const random = new Random(1)
+
+      const x = range(0, 10)
+      const y = random.floats(x.length)
+
+      function plot(indices: number[]) {
+        const p = fig([300, 100], {
+          title: `Selected: ${indices.length == 0 ? "\u2205" : indices.join(", ")}`,
+          x_axis_type: null, y_axis_type: null,
+        })
+
+        const selected = new Selection({indices})
+        const source = new ColumnDataSource({data: {x, y}, selected})
+
+        p.line({x: {field: "x"}, y: {field: "y"}, source, line_width: 3, line_color: "#addd8e"})
+        p.circle({x: {field: "x"}, y: {field: "y"}, source, size: 3, color: "#31a354"})
+
+        return p
+      }
+
+      const plots = [
+        plot([]),
+        plot([3]),
+        plot([3, 4]),
+        plot([3, 5]),
+        plot([3, 6]),
+        plot([0, 3, 4, 9]),
+      ]
+
+      await display(column(plots))
+    })
+  })
+
+  describe("in issue #5046", () => {
+    it("prevents webgl rendering of streaming markers", async () => {
+      const radius = 0.8
+      const angles = np.linspace(0, 2*np.pi, 13)
+      const x = f`${radius}*np.cos(${angles})`
+      const y = f`${radius}*np.sin(${angles})`
+      const source = new ColumnDataSource({data: {x: x.slice(0, 6), y: y.slice(0, 6)}})
+
+      function plot(output_backend: OutputBackend) {
+        const p = fig([200, 200], {
+          output_backend, title: output_backend,
+          x_range: [-1, 1], y_range: [-1, 1],
+        })
+        p.circle({x: {field: "x"}, y: {field: "y"}, size: 20, source})
+        return p
+      }
+
+      const p0 = plot("canvas")
+      const p1 = plot("svg")
+      const p2 = plot("webgl")
+
+      const {view} = await display(row([p0, p1, p2]))
+
+      source.stream({x: x.slice(6), y: y.slice(6)}, 8)
+      await view.ready
+    })
+  })
+
+  describe("in issue #11462", () => {
+    it("doesn't update ColorBar after mapper/axis/title property updates", async () => {
+      const random = new Random(1)
+      const p = fig([200, 200])
+
+      const color_mapper = new LinearColorMapper({palette: turbo(50), low: 0, high: 1})
+      const color_bar = new ColorBar({color_mapper, title: "original title", label_standoff: 12})
+      p.add_layout(color_bar, "right")
+
+      const dw = 10
+      const dh = 10
+      const img = ndarray(random.floats(dw*dh), {dtype: "float64", shape: [dw, dw]})
+      p.image({image: [img], x: 0, y: 0, dw, dh, color_mapper})
+
+      const {view} = await display(p, [350, 350])
+
+      color_bar.color_mapper.palette = plasma(50)
+      color_bar.major_label_text_font_style = "bold italic"
+      color_bar.title = "new title"
+
+      await view.ready
+    })
+  })
+
+  describe("in issue #11770", () => {
+    it("prevents correct computation of linked data ranges and a subset of plots not visible", async () => {
+      function vis(visible: boolean) {
+        const source = new ColumnDataSource({data: {x: [0.1], y: [0.1]}})
+
+        const fig0 = fig([200, 200], {visible})
+        const fig1 = fig([200, 200], {x_axis_type: "log", y_axis_type: "log"})
+        const fig2 = fig([200, 200], {x_axis_type: "log", x_range: fig1.x_range, y_range: fig1.y_range, visible})
+        fig0.line({x: {field: "x"}, y: {field: "y"}, source})
+        fig1.line({x: {field: "x"}, y: {field: "y"}, source})
+        fig2.line({x: {field: "x"}, y: {field: "y"}, source})
+
+        const layout = column([fig0, fig1, fig2])
+        return {source, layout}
+      }
+
+      const vis0 = vis(true)
+      const vis1 = vis(false)
+
+      const {view} = await display(row([vis0.layout, vis1.layout]))
+
+      vis0.source.data = {x: [10, 11], y: [10, 11]}
+      vis1.source.data = {x: [10, 11], y: [10, 11]}
+
+      await view.ready
+    })
+  })
+
+  describe("in issue #11801", () => {
+    it("prevents computation of data ranges if a plot was initially not visible", async () => {
+      const p = fig([200, 200], {visible: false})
+      p.line([1, 2, 3], [1, 2, 3])
+
+      const {view} = await display(p)
+
+      p.visible = true
+      await view.ready
+    })
+  })
+
+  describe("in issue #11832", () => {
+    it("should x-zoom the x-axis when the y-axis is bounded", async () => {
+      const zoom_in_tool = new ZoomInTool({dimensions: "width"})
+
+      const p = fig([200, 200], {x_range: [-1, 1], y_range: [-1, 1]})
+      p.y_range.bounds = [-1, 1]
+
+      p.add_tools(zoom_in_tool)
+      p.line([-1, 0, 1], [-1, 1, 0])
+
+      const {view} = await display(p)
+
+      const zoom_in_tool_view = view.tool_views.get(zoom_in_tool)! as ZoomInTool["__view_type__"]
+      zoom_in_tool_view.doit()
+
+      await view.ready
+    })
+  })
+
 })

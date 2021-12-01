@@ -122,9 +122,11 @@ export class TabsView extends LayoutDOMView {
     for (const child_view of child_views)
       hide(child_view.el)
 
-    const tab = child_views[this.model.active]
-    if (tab != null)
+    const {active} = this.model
+    if (active in child_views) {
+      const tab = child_views[active]
       show(tab.el)
+    }
   }
 
   override render(): void {

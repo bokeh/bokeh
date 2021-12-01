@@ -1,14 +1,14 @@
 import {expect} from "assertions"
 
 import {Slider, RangeSlider, DateSlider, DateRangeSlider} from "@bokehjs/models/widgets"
-import {FuncTickFormatter} from "@bokehjs/models/formatters"
+import {CustomJSTickFormatter} from "@bokehjs/models/formatters"
 import {isInteger} from "@bokehjs/core/util/types"
 import {build_view} from "@bokehjs/core/build_views"
 
 describe("SliderView", () => {
 
   it("_calc_from should return integer if start/end/step all integers", async () => {
-    const s = new Slider({start: 0, end: 10, step: 1})
+    const s = new Slider({start: 0, end: 10, step: 1, value: 0})
     const sv = (await build_view(s)).build()
 
     const r = (sv as any /* XXX: protected */)._calc_from([5.0])
@@ -24,7 +24,7 @@ describe("Slider", () => {
   })
 
   it("should support TickFormatter format", () => {
-    const format = new FuncTickFormatter({code: "return (tick/1000).toFixed(0) + 'k'"})
+    const format = new CustomJSTickFormatter({code: "return (tick/1000).toFixed(0) + 'k'"})
     const slider = new Slider({format})
     expect(slider.pretty(-104000)).to.be.equal("-104k")
   })
@@ -37,7 +37,7 @@ describe("RangeSlider", () => {
   })
 
   it("should support TickFormatter format", () => {
-    const format = new FuncTickFormatter({code: "return (tick/1000).toFixed(0) + 'k'"})
+    const format = new CustomJSTickFormatter({code: "return (tick/1000).toFixed(0) + 'k'"})
     const slider = new RangeSlider({format})
     expect(slider.pretty(-104000)).to.be.equal("-104k")
   })
@@ -50,7 +50,7 @@ describe("DateSlider", () => {
   })
 
   it("should support TickFormatter format", () => {
-    const format = new FuncTickFormatter({code: "return Math.floor(1970 + tick/(1000*60*60*24*365)).toFixed(0)"})
+    const format = new CustomJSTickFormatter({code: "return Math.floor(1970 + tick/(1000*60*60*24*365)).toFixed(0)"})
     const slider = new DateSlider({format})
     expect(slider.pretty(1599402993268)).to.be.equal("2020")
   })
@@ -63,7 +63,7 @@ describe("DateRangeSlider", () => {
   })
 
   it("should support TickFormatter format", () => {
-    const format = new FuncTickFormatter({code: "return Math.floor(1970 + tick/(1000*60*60*24*365)).toFixed(0)"})
+    const format = new CustomJSTickFormatter({code: "return Math.floor(1970 + tick/(1000*60*60*24*365)).toFixed(0)"})
     const slider = new DateRangeSlider({format})
     expect(slider.pretty(1599402993268)).to.be.equal("2020")
   })

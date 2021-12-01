@@ -1,8 +1,8 @@
 import {logger} from "core/logging"
-import {Document, DocJson} from "document"
+import {Document, DocJson, DocumentEvent} from "document"
 import {Message} from "protocol/message"
 import {Receiver} from "protocol/receiver"
-import {ClientSession} from "./session"
+import {ClientSession, ErrorMsg} from "./session"
 
 export const DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
 export const DEFAULT_TOKEN = "eyJzZXNzaW9uX2lkIjogImRlZmF1bHQifQ"
@@ -11,7 +11,7 @@ let _connection_count: number = 0
 
 export type Rejecter = (error: Error | string) => void
 export type SessionResolver = (s: ClientSession) => void
-export type MessageResolver = (m: Message) => void
+export type MessageResolver = (m: Message<unknown>) => void
 export type PendingReply = {resolve: MessageResolver, reject: Rejecter}
 
 export type Token = {
@@ -37,9 +37,9 @@ export class ClientConnection {
   closed_permanently: boolean = false
   id: string
 
-  protected _current_handler: ((message: Message) => void) | null = null
+  protected _current_handler: ((message: Message<unknown>) => void) | null = null
   protected _pending_replies: Map<string, PendingReply> = new Map()
-  protected _pending_messages: Message[] = []
+  protected _pending_messages: Message<unknown>[] = []
   protected readonly _receiver: Receiver = new Receiver()
 
   constructor(readonly url: string = DEFAULT_SERVER_WEBSOCKET_URL,
@@ -113,27 +113,27 @@ export class ClientConnection {
     setTimeout(retry, milliseconds)
   }
 
-  send(message: Message): void {
+  send(message: Message<unknown>): void {
     if (this.socket == null)
       throw new Error(`not connected so cannot send ${message}`)
     message.send(this.socket)
   }
 
-  async send_with_reply(message: Message): Promise<Message> {
-    const reply = await new Promise<Message>((resolve, reject) => {
+  async send_with_reply<T>(message: Message<unknown>): Promise<Message<T>> {
+    const reply = await new Promise<Message<unknown>>((resolve, reject) => {
       this._pending_replies.set(message.msgid(), {resolve, reject})
       this.send(message)
     })
 
-    if (reply.msgtype() === "ERROR")
-      throw new Error(`Error reply ${reply.content.text}`)
+    if (reply.msgtype() == "ERROR")
+      throw new Error(`Error reply ${(reply as ErrorMsg).content.text}`)
     else
-      return reply
+      return reply as Message<T>
   }
 
   protected async _pull_doc_json(): Promise<DocJson> {
-    const message = Message.create("PULL-DOC-REQ", {})
-    const reply = await this.send_with_reply(message)
+    const message = Message.create("PULL-DOC-REQ", {}, {})
+    const reply = await this.send_with_reply<{doc: DocJson}>(message)
     if (!("doc" in reply.content))
       throw new Error("No 'doc' field in PULL-DOC-REPLY")
     return reply.content.doc
@@ -148,19 +148,15 @@ export class ClientConnection {
           logger.debug("Got new document after connection was already closed")
           reject(new Error("The connection has been closed"))
         } else {
-          const document = Document.from_json(doc_json)
-
-          // Constructing models changes some of their attributes, we deal with that
-          // here. This happens when models set attributes during construction
-          // or initialization.
-          const patch = Document._compute_patch_since_json(doc_json, document)
-          if (patch.events.length > 0) {
-            logger.debug(`Sending ${patch.events.length} changes from model construction back to server`)
-            const patch_message = Message.create("PATCH-DOC", {}, patch)
-            this.send(patch_message)
-          }
+          const events: DocumentEvent[] = []
+          const document = Document.from_json(doc_json, events)
 
           this.session = new ClientSession(this, document, this.id)
+
+          // Send back change events that happend during model initialization.
+          for (const event of events) {
+            document._trigger_on_change(event)
+          }
 
           for (const msg of this._pending_messages) {
             this.session.handle(msg)
@@ -176,7 +172,7 @@ export class ClientConnection {
         // Since the session already exists, we don't need to call `resolve` again.
       }
     } catch (error) {
-      console.trace?.(error)
+      console.trace(error)
       logger.error(`Failed to repull session ${error}`)
       reject(error instanceof Error ? error : `${error}`)
     }
@@ -184,7 +180,7 @@ export class ClientConnection {
 
   protected _on_open(resolve: SessionResolver, reject: Rejecter): void {
     logger.info(`Websocket connection ${this._number} is now open`)
-    this._current_handler = (message: Message) => {
+    this._current_handler = (message: Message<unknown>) => {
       this._awaiting_ack_handler(message, resolve, reject)
     }
   }
@@ -235,9 +231,9 @@ export class ClientConnection {
       this.socket.close(1002, detail) // 1002 = protocol error
   }
 
-  protected _awaiting_ack_handler(message: Message, resolve: SessionResolver, reject: Rejecter): void {
+  protected _awaiting_ack_handler(message: Message<unknown>, resolve: SessionResolver, reject: Rejecter): void {
     if (message.msgtype() === "ACK") {
-      this._current_handler = (message: Message) => this._steady_state_handler(message)
+      this._current_handler = (message: Message<unknown>) => this._steady_state_handler(message)
 
       // Reload any sessions
       this._repull_session_doc(resolve, reject)
@@ -245,7 +241,7 @@ export class ClientConnection {
       this._close_bad_protocol("First message was not an ACK")
   }
 
-  protected _steady_state_handler(message: Message): void {
+  protected _steady_state_handler(message: Message<unknown>): void {
     const reqid = message.reqid()
     const pr = this._pending_replies.get(reqid)
     if (pr) {

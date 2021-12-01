@@ -29,7 +29,7 @@
     </div>
     <div>
     <a href="https://docs.bokeh.org/en/latest/docs/installation.html">
-    <img src="https://img.shields.io/pypi/dm/bokeh?label=PyPI"
+    <img src="https://img.shields.io/pypi/dm/bokeh?label=PyPI&style=flat"
          alt="PyPI downloads per month" />
     </a>
     </div>
@@ -47,7 +47,7 @@
 
   <td>People</td>
   <td>
-    <img src="https://img.shields.io/github/contributors/bokeh/bokeh"
+    <img src="https://img.shields.io/github/contributors-anon/bokeh/bokeh"
          alt="GitHub contributors" />
   </td>
 </tr>
@@ -377,8 +377,3 @@ The Bokeh project is also grateful for the donation of services from the followi
 * [Slack](https://slack.com)
 * [QuestionScout](https://www.questionscout.com/)
 * [1Password](https://1password.com/)
-
-## Security
-
-To report a security vulnerability, please use the [Tidelift security contact](https://tidelift.com/security).
-Tidelift will coordinate the fix and disclosure.

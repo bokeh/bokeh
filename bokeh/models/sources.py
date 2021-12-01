@@ -89,7 +89,10 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    DataDict = TDict[str, Sequence[Unknown]]
+    import numpy.typing as npt
+    import pandas as pd
+
+    DataDict = TDict[str, Union[Sequence[TAny], npt.NDArray[TAny], pd.Series, pd.Index]]
 
     Index = Union[int, slice, Tuple[Union[int, slice], ...]]
 
@@ -726,11 +729,6 @@ class CDSView(Model):
 
     filters = List(Instance(Filter), default=[], help="""
     List of filters that the view comprises.
-    """)
-
-    source = Instance(ColumnarDataSource, help="""
-    The ``ColumnDataSource`` associated with this view. Used to determine
-    the length of the columns.
     """)
 
 class GeoJSONDataSource(ColumnarDataSource):

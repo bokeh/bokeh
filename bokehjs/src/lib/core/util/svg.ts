@@ -5,6 +5,7 @@
 import {AffineTransform} from "./affine"
 import {isString, isNumber} from "./types"
 import {random, Random} from "./random"
+import {float32_epsilon} from "./math"
 import {empty} from "../dom"
 
 type KV<T> = {[key: string]: T}
@@ -18,7 +19,7 @@ type FontData = {
 }
 
 // helper function to map named to numbered entities
-function createNamedToNumberedLookup(input: string, radix: number): Map<string, string> {
+function createNamedToNumberedLookup(input: string, radix?: number): Map<string, string> {
   const lookup = new Map()
   const items = input.split(",")
   radix = radix ?? 10
@@ -37,14 +38,14 @@ function createNamedToNumberedLookup(input: string, radix: number): Map<string, 
 function getTextAnchor(textAlign: string): string {
   // TODO: support rtl languages
   const mapping: KV<string> = {left: "start", right: "end", center: "middle", start: "start", end: "end"}
-  return mapping[textAlign] ?? mapping.start
+  return textAlign in mapping ? mapping[textAlign] : mapping.start
 }
 
 // helper function to map canvas-textBaseline to svg-dominantBaseline
 function getDominantBaseline(textBaseline: string): string {
   // INFO: not supported in all browsers
   const mapping: KV<string> = {alphabetic: "alphabetic", hanging: "hanging", top: "text-before-edge", bottom: "text-after-edge", middle: "central"}
-  return mapping[textBaseline] ?? mapping.alphabetic
+  return textBaseline in mapping ? mapping[textBaseline] : mapping.alphabetic
 }
 
 // Unpack entities lookup where the numbers are in radix 32 to reduce the size
@@ -290,8 +291,8 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
   __defs: SVGElement
   __stack: SVGCanvasState[]
   __document: Document
-  __currentElement: SVGElement // null?
-  __currentDefaultPath: string
+  __currentElement: SVGElement
+  __currentDefaultPath: string = ""
   __currentPosition: {x: number, y: number} | null = null
   //__currentElementsToStyle: {element: SVGElement, children: SVGElement[]} | null = null
 
@@ -308,7 +309,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
   lineJoin: CanvasLineJoin
   miterLimit: number
   lineWidth: number
-  globalAlpha: number
+  globalAlpha: number = 1.0
   globalCompositeOperation: string // XXX: really a string? // TODO: implement
   font: string
   direction: CanvasDirection // TODO: implement
@@ -363,6 +364,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     this.__root = this.__document.createElementNS("http://www.w3.org/2000/svg", "svg")
     this.__root.setAttribute("version", "1.1")
     this.__root.setAttribute("xmlns", "http://www.w3.org/2000/svg")
+    this.__currentElement = this.__root
 
     this.width = options?.width ?? 500
     this.height = options?.height ?? 500
@@ -460,7 +462,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     for (let i = 0; i < keys.length; i++) {
       const style = STYLES[keys[i]]
       const value = this[keys[i]]
-      if (style.apply?.includes(type)) {
+      if (style.apply != null && style.apply.includes(type)) {
         if (value instanceof CanvasPattern) {
           for (const def of [...value.__ctx.__defs.childNodes]) {
             if (def instanceof Element) {
@@ -481,18 +483,13 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
             const matches = regex.exec(value)!
             const [, r, g, b, a] = matches
             currentElement.setAttribute(style.svgAttr, `rgb(${r},${g},${b})`)
-            // should take globalAlpha here
-            let opacity = parseFloat(a)
-            const globalAlpha = this.globalAlpha
-            if (globalAlpha != null) {
-              opacity *= globalAlpha
-            }
+            const opacity = parseFloat(a)*this.globalAlpha
             currentElement.setAttribute(`${style.svgAttr}-opacity`, `${opacity}`)
           } else {
             let attr = style.svgAttr!
             if (keys[i] === "globalAlpha") {
               attr = `${type}-${style.svgAttr}`
-              if (currentElement.getAttribute(attr)) {
+              if (currentElement.getAttribute(attr) != null) {
                 // fill-opacity or stroke-opacity has already been set by stroke or fill.
                 continue
               }
@@ -650,8 +647,8 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     if (!isFinite(x + y))
       return
 
-    const el = this.__currentElement
-    if (!el || el.nodeName !== "path") {
+    const currentElement = this.__currentElement
+    if (currentElement.nodeName !== "path") {
       this.beginPath()
     }
 
@@ -828,7 +825,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     let path: Path2D | null = null
     if (path_or_fill_rule instanceof Path2D)
       path = path_or_fill_rule
-    else if ((path_or_fill_rule == "evenodd" || path_or_fill_rule == "nonzero" || path_or_fill_rule == null) && fill_rule == null)
+    else if (fill_rule == null)
       fill_rule = path_or_fill_rule
     else
       throw new Error("invalid arguments")
@@ -968,13 +965,13 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     */
   __parseFont(): FontData {
     const regex = /^\s*(?=(?:(?:[-a-z]+\s*){0,2}(italic|oblique))?)(?=(?:(?:[-a-z]+\s*){0,2}(small-caps))?)(?=(?:(?:[-a-z]+\s*){0,2}(bold(?:er)?|lighter|[1-9]00))?)(?:(?:normal|\1|\2|\3)\s*){0,3}((?:xx?-)?(?:small|large)|medium|smaller|larger|[.\d]+(?:\%|in|[cem]m|ex|p[ctx]))(?:\s*\/\s*(normal|[.\d]+(?:\%|in|[cem]m|ex|p[ctx])))?\s*([-,\'\"\sa-z0-9]+?)\s*$/i
-    const fontPart = regex.exec(this.font)!
+    const [, style, decoration, weight, size,, family] = regex.exec(this.font)! as (string | undefined)[] // XXX: RegExpExecArray is incorrecdt
     const data: FontData = {
-      style: fontPart[1] ?? "normal",
-      size: fontPart[4] ?? "10px",
-      family: fontPart[6] ?? "sans-serif",
-      weight: fontPart[3] ?? "normal",
-      decoration: fontPart[2] ?? "normal",
+      style: style ?? "normal",
+      size: size ?? "10px",
+      family: family ?? "sans-serif",
+      weight: weight ?? "normal",
+      decoration: decoration ?? "normal",
     }
 
     return data
@@ -1019,7 +1016,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * Creates a text element, in position x,y
     */
   fillText(text: string, x: number, y: number): void {
-    if (text == null || !isFinite(x + y))
+    if (!isFinite(x + y))
       return
     this.__applyText(text, x, y, "fill")
   }
@@ -1028,7 +1025,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * Strokes text
     */
   strokeText(text: string, x: number, y: number): void {
-    if (text == null || !isFinite(x + y))
+    if (!isFinite(x + y))
       return
     this.__applyText(text, x, y, "stroke")
   }
@@ -1052,41 +1049,57 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     if (radius_x < 0 || radius_y < 0)
       throw new DOMException("IndexSizeError, radius can't be negative")
 
+    const initial_diff = counterclockwise ? end_angle - start_angle : start_angle - end_angle
+
     start_angle = start_angle % (2 * Math.PI)
     end_angle = end_angle % (2 * Math.PI)
 
-    if (start_angle === end_angle) {
-      // circle time! subtract some of the angle so svg is happy (svg elliptical arc can't draw a full circle)
-      end_angle = ((end_angle + (2 * Math.PI)) - 0.001 * (counterclockwise ? -1 : 1)) % (2*Math.PI)
-    }
-
-    const end_x = x + radius_x * Math.cos(end_angle)
-    const end_y = y + radius_y * Math.sin(end_angle)
     const start_x = x + radius_x * Math.cos(start_angle)
     const start_y = y + radius_y * Math.sin(start_angle)
-
-    const sweep_flag = counterclockwise ? 0 : 1
-    let large_arc_flag = 0
-    let diff = end_angle - start_angle
-
-    // https://github.com/gliffy/canvas2svg/issues/4
-    if (diff < 0) {
-      diff += 2 * Math.PI
-    }
-
-    if (counterclockwise) {
-      large_arc_flag = diff > Math.PI ? 0 : 1
-    } else {
-      large_arc_flag = diff > Math.PI ? 1 : 0
-    }
-
     this.lineTo(start_x, start_y)
-    const [tend_x, tend_y] = this._transform.apply(end_x, end_y)
 
     // Canvas ellipse defines rotation in radians and SVG elliptical arc is defined in degrees
     const rotation_in_degrees = rotation * 180 / Math.PI
 
-    this.__addPathCommand(tend_x, tend_y, `A ${radius_x} ${radius_y} ${rotation_in_degrees} ${large_arc_flag} ${sweep_flag} ${tend_x} ${tend_y}`)
+    const sweep_flag = counterclockwise ? 0 : 1
+
+    /**
+     * Check if need to draw full ellipse (issue #11475). When testing if angular difference is
+     * equal to an integer multiple of 2*pi radians, need to account for float64 to float32 rounding
+     * error on both the start and end angles, hence the factor of 2. Do not assume full circle if
+     * start and end angles are close, but test here depends on combination of sign of angular
+     * difference and wedge direction (clockwise/counterclockwise) to obtain the same results as on
+     * canvas.
+     */
+    if (Math.abs(start_angle - end_angle) < 2*float32_epsilon &&
+        !(Math.abs(initial_diff) < 2*float32_epsilon && initial_diff < 0)) {
+
+      // Draw full ellipse. SVG elliptical arc cannot do this, so instead use two semi ellipses.
+      const mid_x = x + radius_x * Math.cos(start_angle + Math.PI)
+      const mid_y = y + radius_y * Math.sin(start_angle + Math.PI)
+
+      const [tstart_x, tstart_y] = this._transform.apply(start_x, start_y)
+      const [tmid_x, tmid_y] = this._transform.apply(mid_x, mid_y)
+
+      this.__addPathCommand(tstart_x, tstart_y, `A ${radius_x} ${radius_y} ${rotation_in_degrees} 0 ${sweep_flag} ${tmid_x} ${tmid_y} A ${radius_x} ${radius_y} ${rotation_in_degrees} 0 ${sweep_flag} ${tstart_x} ${tstart_y}`)
+    } else {
+      // Draw partial ellipse only.
+      const end_x = x + radius_x * Math.cos(end_angle)
+      const end_y = y + radius_y * Math.sin(end_angle)
+
+      let diff = end_angle - start_angle
+
+      // https://github.com/gliffy/canvas2svg/issues/4
+      if (diff < 0) {
+        diff += 2 * Math.PI
+      }
+
+      const large_arc_flag = (counterclockwise !== diff > Math.PI) ? 1 : 0  // imitation xor
+
+      const [tend_x, tend_y] = this._transform.apply(end_x, end_y)
+
+      this.__addPathCommand(tend_x, tend_y, `A ${radius_x} ${radius_y} ${rotation_in_degrees} ${large_arc_flag} ${sweep_flag} ${tend_x} ${tend_y}`)
+    }
   }
 
   private _clip_path: Path | null = null
@@ -1286,7 +1299,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
   }
 
   setLineDash(segments: number[]): void {
-    if (segments && segments.length > 0)
+    if (segments.length > 0)
       this.lineDash = segments.join(",")
     else
       this.lineDash = null

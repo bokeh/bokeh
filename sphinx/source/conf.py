@@ -123,7 +123,7 @@ html_context = {
     'VERSION': version,
 }
 
-html_css_files = ['custom.css']
+html_css_files = [f"custom.css?v={version}"]
 
 html_static_path = ['_static']
 
@@ -153,3 +153,5 @@ templates_path = ['_templates']
 
 def setup(app):
     app.add_object_type('confval', 'confval', objname='configuration value', indextemplate='pair: %s; configuration value')
+    app.add_js_file(None, body=f"const BOKEH_CURRENT_VERSION = {version!r};", priority=100)
+    app.add_js_file("custom.js")

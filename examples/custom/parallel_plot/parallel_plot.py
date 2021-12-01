@@ -1,9 +1,9 @@
 import numpy as np
 
 from bokeh.layouts import column
-from bokeh.models import (BasicTickFormatter, ColumnDataSource, Div,
-                          FixedTicker, FuncTickFormatter, LinearAxis,
-                          LinearColorMapper, MultiLine, Range1d)
+from bokeh.models import (BasicTickFormatter, ColumnDataSource,
+                          CustomJSTickFormatter, Div, FixedTicker,
+                          LinearAxis, LinearColorMapper, MultiLine, Range1d)
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg import autompg_clean as df
 
@@ -39,7 +39,7 @@ def parallel_plot(df, color=None, palette=None):
     # Create x axis ticks from columns contained in dataframe
     fixed_x_ticks = FixedTicker(
         ticks=np.arange(ndims), minor_ticks=[])
-    formatter_x_ticks = FuncTickFormatter(
+    formatter_x_ticks = CustomJSTickFormatter(
         code="return columns[index]", args={"columns": df.columns})
     p.xaxis.ticker = fixed_x_ticks
     p.xaxis.formatter = formatter_x_ticks

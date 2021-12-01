@@ -200,45 +200,26 @@ script is located at the top level of the *source checkout* directory.
 The ``setup.py`` script has two main modes of operation:
 
 ``python setup.py develop``
-    Bokeh will be installed to refer to the source directory. Any changes
-    you make to the python source code will be available immediately without
+    Bokeh will be installed to refer to your local source directory. Any changes
+    you make to the Python source code will be available immediately without
     any additional steps. **This is the recommended mode when working on the
     Bokeh codebase.**
 
 ``python setup.py install``
-    Bokeh will be installed in your Python ``site-packages`` directory.
+    Bokeh will be installed in your local Python ``site-packages`` directory.
     In this mode, any changes to the Python source code will have no effect
     until you run ``setup.py install`` again.
 
-With either mode, Bokeh asks you how to install :term:`BokehJS`. For
-example:
-
-.. code-block:: sh
-
-    python setup.py develop
-
-    Bokeh includes a JavaScript library (BokehJS) that has its own
-    build process. How would you like to handle BokehJS:
-
-    1) build and install fresh BokehJS
-    2) install last built BokehJS from bokeh/bokehjs/build
-
-    Choice?
-
-Unless you know what you are doing, you should choose option 1 here. At the very
-least, you need to build BokehJS the first time you set up your local
-development environment.
-
-You can skip this prompt by supplying the appropriate command-line option
-to ``setup.py``. For example:
-
-* ``python setup.py develop --build-js``
-* ``python setup.py develop --install-js``
+Running either of those two commands also builds and installs a local version of
+:term:`BokehJS`. If you want to skip building a new version of BokehJS and use a
+different local version instead, use the ``--install-js`` flag:
+``python setup.py develop --install-js``
 
 .. note::
     You need to **rebuild BokehJS each time the BokehJS source code changes**.
-    This can become necessary because you made changes yourself or because you
-    pulled updated code from GitHub.
+    This can be necessary because you made changes yourself or because you
+    pulled updated code from GitHub. Re-run ``python setup.py develop`` to build
+    and install BokehJS.
 
     Occasionally, the **list of JavaScript dependencies also changes**. If this
     happens, you will need to re-run the instructions in the
@@ -444,13 +425,14 @@ You should see output similar to:
 
 .. code-block:: sh
 
-    Python version      :  3.9.6 | packaged by conda-forge | (default, Jul 11 2021, 03:39:48)
-    IPython version     :  7.25.0
+    Python version      :  3.9.7 | packaged by conda-forge | (default, Sep 29 2021, 19:20:46)
+    IPython version     :  7.20.0
     Tornado version     :  6.1
-    Bokeh version       :  2.4.0dev1+42.g9c3ee2f7e.dirty
-    BokehJS static path :  /home/user/bokeh/bokeh/server/static
-    node.js version     :  v15.14.0
-    npm version         :  7.19.1
+    Bokeh version       :  3.0.0dev1+20.g6c394d579
+    BokehJS static path :  /opt/anaconda/envs/test/lib/python3.9/site-packages/bokeh/server/static
+    node.js version     :  v16.12.0
+    npm version         :  7.24.2
+    Operating system    :  Linux-5.11.0-40-generic-x86_64-with-glibc2.31
 
 Run examples
 ~~~~~~~~~~~~

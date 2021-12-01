@@ -184,12 +184,7 @@ function from_seq([si, ti]: TestSeq): [Suite[], Test] {
 }
 
 function _handle_error(err: Error | null): {str: string, stack?: string} | null {
-  if (err instanceof Error)
-    return {str: err.toString(), stack: err.stack}
-  else if (err != null)
-    return {str: `${err}`}
-  else
-    return null
+  return err == null ? null : {str: err.toString(), stack: err.stack}
 }
 
 export async function run(seq: TestSeq): Promise<Result> {
@@ -259,8 +254,8 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
       const rect = test.el!.getBoundingClientRect()
       if (width > rect.width || height > rect.height)
         throw new Error(`viewport size exceeded [${width}, ${height}] > [${rect.width}, ${rect.height}]`)
-      const left = rect.left + window.pageXOffset - document.documentElement!.clientLeft
-      const top = rect.top + window.pageYOffset - document.documentElement!.clientTop
+      const left = rect.left + window.pageXOffset - document.documentElement.clientLeft
+      const top = rect.top + window.pageYOffset - document.documentElement.clientTop
       const bbox = {x: left, y: top, width: rect.width, height: rect.height}
       const state = test.view.serializable_state()
       return {error, time, state, bbox}

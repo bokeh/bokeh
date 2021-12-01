@@ -29,10 +29,10 @@ Use the :func:`~bokeh.plotting.Figure.circle` function instead of
 
 .. code-block:: python
 
-    p.circle(x, y3, legend_label="Objects", line_color="yellow", size=12)
+    p.circle(x, y3, legend_label="Objects", color="yellow", size=12)
 
-Add the :func:`~bokeh.plotting.Figure.circle` function to your previous
-visualization:
+Replace one of the ``line()`` functions in your previous visualization with
+the :func:`~bokeh.plotting.Figure.circle` function to create circles:
 
 .. literalinclude:: examples/first_steps_2_add_circles.py
    :language: python
@@ -83,6 +83,12 @@ define aspects like the color or diameter of the circles:
 * ``line_color``: the fill color of the circles' outlines
 * ``size``: the size of the circles (in |screen units| or |data units|)
 * ``legend_label``: legend entry for the circles
+
+Note that in the previous examples, you used the ``color`` property to define
+the color of an object. ``color`` is an alias that automatically sets all
+color properties of an object to the same color. For example, passing
+``"yellow"`` to a circle's ``color`` property is the same as setting
+``fill_color`` and ``line_color`` to yellow individually.
 
 In Bokeh, you can :ref:`specify colors <userguide_styling_colors>` in several
 ways. For example:

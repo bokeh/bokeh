@@ -74,7 +74,7 @@ medal = Circle(x="MetersBack", y="Year", size=10, fill_color="MedalFill", line_c
 medal_renderer = plot.add_glyph(source, medal)
 
 #sprint[sprint.Medal=="gold" * sprint.Year in [1988, 1968, 1936, 1896]]
-plot.add_glyph(source, Text(x="MetersBack", y="Year", x_offset=10, text="Name"), view=CDSView(source=source, filters=filters))
+plot.add_glyph(source, Text(x="MetersBack", y="Year", x_offset=10, text="Name"), view=CDSView(filters=filters))
 
 plot.add_glyph(source, Text(x=7.5, y=1942, text=["No Olympics in 1940 or 1944"],
                             text_font_style="italic", text_color="silver"))

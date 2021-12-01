@@ -5,6 +5,8 @@
 
 Bokeh Version ``3.0.0`` () is a major milestone of Bokeh project.
 
+* Support added for favicon.ico files
+
 .. _release-3-0-0-migration:
 
 `Migration Guide`
@@ -96,3 +98,97 @@ separated between those which render to canvas and those that use HTML and CSS.
 The default is canvas rendering. Use the new ``HTMLTitle``, ``HTMLLabel`` and
 ``HTMLLabelSet`` models whenever previously ``css`` render mode was used. Note
 that ``Span`` and ``BoxAnnotation`` don't have a HTML equivalent anymore.
+
+``FuncTickFormatter``
+.....................
+
+``FuncTickFormatter`` has been renamed to ``CustomJSTickFormatter``.
+
+``HasProps.__subtype__``
+........................
+
+Explicit sub-typing support was removed both from models and the protocol.
+If you want to extend existing models without the need for providing an
+implementation, then use data models (e.g. extend from ``DataModel``).
+
+``CDSView.source``
+..................
+
+``CDSView`` now implicitly uses the source provided by a glyph renderer it
+as assigned to. Previously providing a data source in both a glyph renderer
+and a source view was redundant.
+
+Runtime dependencies
+~~~~~~~~~~~~~~~~~~~~
+
+Bokeh now requires the package ``xyzservices`` for managing tile
+source metadata.
+
+Deprecations
+~~~~~~~~~~~~
+
+``tile_providers`` module providing ``get_providers`` and ``Vendors`` is now deprecated.
+Any tile specification (e.g. as string name) can be now passed directly to ``add_tile``
+instead.
+
+bokehjs changes
+~~~~~~~~~~~~~~~
+
+``Figure.xaxis``, etc.
+......................
+
+``xaxis``, ``yaxis``, ``axis``, ``xgrid``, ``ygrid`` and ``grid`` attributes of
+``Figure`` now return a model proxy object, which mimics the behavior of bokeh's
+plotting API. Arrays of axes/grids can be obtained using new ``xaxes``, ``yaxes``,
+``axes``, ``xgrids``, ``ygrids`` and ``grids`` attributes.
+
+Property changes push to server
+...............................
+
+Previously all changes were pushed to server, even if no actual changes were made.
+Now only effective changes are pushed, which now maches the internal behavior of
+bokehjs.
+
+Deserialization code was split-off from ``Document``
+....................................................
+
+Now the purpose of ``Document`` is to manage models and deal with high-level
+serialization concerns. Low-level handling was split-off into ``Deserializer``
+class.
+
+``HasProps.constructor``
+........................
+
+The ``constructor`` of ``HasProps`` has now two clearly defined code paths,
+one for deferred and the other immediate initialization. The former is triggered
+with ``new HasProps({id})`` syntax (it doesn't allow providing initial values)
+and the later with ``new HasProps(attrs)``, where ``attrs`` can not have an
+``id`` field. As a side effect, duplicating model's identity is not permitted
+by default anymore, though one can still use deferred initializtion for this.
+
+``init_ModelName`` was removed
+..............................
+
+This static initializer was added automatically by bokehjs' build system and
+extensions' compiler. This isn't needed anymore as TypeScript supports ES2022
+static initialization blocks (``static {}``).
+
+Protocol changes
+~~~~~~~~~~~~~~~~
+
+Serialization of numbers
+........................
+
+Outside of ndarrays, nan, +inf and -inf are now systematically serialized as
+``{"$type": "number", "value": "nan"}``, ``{"$type": "number", "value": "+inf"}``
+and ``{"$type": "number", "value": "-inf"}`` respectively.
+
+Other changes
+~~~~~~~~~~~~~
+
+``Minimum.initial`` and ``Maximum.initial``
+...........................................
+
+Thanks to added support for serialization of infinities, ``initial`` properties can
+now have intrinsic default values (inifinity and minus infinity respectively) instead
+of ``None`` / ``null``.

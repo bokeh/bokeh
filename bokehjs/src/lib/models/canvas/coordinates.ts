@@ -58,7 +58,7 @@ export namespace CoordinateMapping {
 
 export interface CoordinateMapping extends CoordinateMapping.Attrs {}
 
-export abstract class CoordinateMapping extends Model {
+export class CoordinateMapping extends Model {
   override properties: CoordinateMapping.Props
 
   constructor(attrs?: Partial<CoordinateMapping.Attrs>) {

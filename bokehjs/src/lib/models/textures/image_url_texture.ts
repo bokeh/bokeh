@@ -7,7 +7,7 @@ import {ImageLoader} from "core/util/image"
 export namespace ImageURLTexture {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Texture.Props  & {
+  export type Props = Texture.Props & {
     url: p.Property<string>
   }
 }

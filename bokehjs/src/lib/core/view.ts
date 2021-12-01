@@ -46,6 +46,9 @@ export class View implements ISignalable {
       new_slot = (args: Args, sender: Sender): void => {
         const promise = Promise.resolve(slot.call(this, args, sender))
         this._ready = this._ready.then(() => promise)
+        if (this.root != this) {
+          this.root._ready = this.root._ready.then(() => this._ready)
+        }
       }
       this._slots.set(slot, new_slot)
     }

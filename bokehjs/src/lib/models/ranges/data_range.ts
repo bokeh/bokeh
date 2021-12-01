@@ -20,8 +20,8 @@ export abstract class DataRange extends Range {
   }
 
   static {
-    this.define<DataRange.Props>(({Array, AnyRef}) => ({
-      renderers: [ Array(AnyRef(/*DataRenderer*/)), [] ], // TODO: [] -> "auto"
+    this.define<DataRange.Props>(({Array, AnyRef, Or, Auto}) => ({
+      renderers: [ Or(Array(AnyRef<DataRenderer>()), Auto), [] ],
     }))
   }
 }

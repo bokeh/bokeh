@@ -1146,6 +1146,11 @@ class Scatter(Marker):
         |data units|, use the :class:`~bokeh.models.glyphs.Circle` glyph instead
         of the ``Scatter`` glyph.
 
+    .. note::
+        ``Scatter`` markers with multiple marker types may be drawn in a
+        different order when using the WebGL output backend. This is an explicit
+        trade-off made in the interests of performance.
+
     '''
 
     __example__ = "examples/reference/models/Scatter.py"

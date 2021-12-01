@@ -9,6 +9,10 @@
 get_provider
     Use this function to retrieve an instance of a predefined tile provider.
 
+    .. warning::
+        get_provider is deprecated as of Bokeh 3.0.0 and will be removed in a future
+        release. Use ``add_tile`` directly instead.
+
     Args:
         provider_name (Union[str, Vendors, xyzservices.TileProvider])
             Name of the tile provider to supply.
@@ -42,6 +46,10 @@ The available built-in tile providers are listed in the ``Vendors`` enum:
 .. bokeh-enum:: Vendors
     :module: bokeh.tile_providers
     :noindex:
+
+.. warning::
+    The built-in Vendors are deprecated as of Bokeh 3.0.0 and will be removed in a future
+    release. You can pass the same strings to ``add_tile`` directly.
 
 Any of these values may be be passed to the ``get_provider`` function in order
 to obtain a tile provider to use with a Bokeh plot. Representative samples of
@@ -147,18 +155,20 @@ log = logging.getLogger(__name__)
 import sys
 import types
 
+# External imports
+# __all__ defined at the bottom on the class module
+import xyzservices
+
 # Bokeh imports
 from bokeh.core.enums import enumeration
 
 # Bokeh imports
-from .util.dependencies import import_optional
+from .util.deprecation import deprecated
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-# __all__ defined at the bottom on the class module
-xyzservices = import_optional('xyzservices')
 
 #-----------------------------------------------------------------------------
 # General API
@@ -173,93 +183,52 @@ xyzservices = import_optional('xyzservices')
 #-----------------------------------------------------------------------------
 
 class _TileProvidersModule(types.ModuleType):
-    _CARTO_ATTRIBUTION = (
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,'
-        '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
-    )
 
-    _STAMEN_ATTRIBUTION = (
-        'Map tiles by <a href="https://stamen.com">Stamen Design</a>, '
-        'under <a href="https://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. '
-        'Data by <a href="https://openstreetmap.org">OpenStreetMap</a>, '
-        'under %s.'
-    )
+    def deprecated_vendors():
+        deprecated((3, 0, 0), "tile_providers module", "add_tile directly")
+        return enumeration('CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA',
+                            'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER',
+                            'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS',
+                            'OSM', 'ESRI_IMAGERY',
+                            case_sensitive=True)
 
-    _OSM_ATTRIBTION = (
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    )
-
-    _WIKIMEDIA_ATTRIBUTION = (
-        '&copy; <a href="https://foundation.wikimedia.org/wiki/Maps_Terms_of_Use">Wikimedia Maps</a> contributors'
-    )
-
-    _ESRI_IMAGERY_ATTRIBUTION = (
-        '&copy; <a href="http://downloads.esri.com/ArcGISOnline/docs/tou_summary.pdf">Esri</a>, '
-        'Earthstar Geographics'
-    )
-
-    _SERVICE_URLS = dict(
-        CARTODBPOSITRON='https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-        CARTODBPOSITRON_RETINA='https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-        STAMEN_TERRAIN='https://stamen-tiles.a.ssl.fastly.net/terrain/{Z}/{X}/{Y}.png',
-        STAMEN_TERRAIN_RETINA='https://stamen-tiles.a.ssl.fastly.net/terrain/{Z}/{X}/{Y}@2x.png',
-        STAMEN_TONER='https://stamen-tiles.a.ssl.fastly.net/toner/{Z}/{X}/{Y}.png',
-        STAMEN_TONER_BACKGROUND='https://stamen-tiles.a.ssl.fastly.net/toner-background/{Z}/{X}/{Y}.png',
-        STAMEN_TONER_LABELS='https://stamen-tiles.a.ssl.fastly.net/toner-labels/{Z}/{X}/{Y}.png',
-        OSM='https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png',
-        WIKIMEDIA='https://maps.wikimedia.org/osm-intl/{Z}/{X}/{Y}@2x.png',
-        ESRI_IMAGERY='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg'
-    )
-
-    _STAMEN_ATTRIBUTION_URLS = dict(
-        STAMEN_TERRAIN='<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>',
-        STAMEN_TERRAIN_RETINA='<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>',
-        STAMEN_TONER='<a href="https://www.openstreetmap.org/copyright">ODbL</a>',
-        STAMEN_TONER_BACKGROUND='<a href="https://www.openstreetmap.org/copyright">ODbL</a>',
-        STAMEN_TONER_LABELS='<a href="https://www.openstreetmap.org/copyright">ODbL</a>',
-    )
-
-    Vendors = enumeration('CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA',
-                          'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER',
-                          'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS',
-                          'OSM','WIKIMEDIA','ESRI_IMAGERY',
-                          case_sensitive=True)
+    Vendors = deprecated_vendors()
 
     def get_provider(self, provider_name):
+        deprecated((3, 0, 0), "get_provider", "add_tile directly")
         from bokeh.models import WMTSTileSource
 
         if isinstance(provider_name, WMTSTileSource):
             # This allows `get_provider(CARTODBPOSITRON)` to work
             return WMTSTileSource(url=provider_name.url, attribution=provider_name.attribution)
 
-        if xyzservices and isinstance(provider_name, xyzservices.TileProvider):
+        if isinstance(provider_name, str):
+            provider_name = provider_name.lower()
+
+            if provider_name == "esri_imagery":
+                provider_name = "esri_worldimagery"
+            if provider_name == "osm":
+                provider_name = "openstreetmap_mapnik"
+
+            if "retina" in provider_name:
+                provider_name = provider_name.replace("retina", "")
+                retina = True
+            else:
+                retina = False
+            scale_factor = "@2x" if retina else None
+
+            provider_name = xyzservices.providers.query_name(provider_name)
+        else:
+            scale_factor = None
+
+        if isinstance(provider_name, xyzservices.TileProvider):
             return WMTSTileSource(
-                url=provider_name.build_url(scale_factor="@2x"),
+                url=provider_name.build_url(scale_factor=scale_factor),
                 attribution=provider_name.html_attribution,
                 min_zoom=provider_name.get("min_zoom", 0),
                 max_zoom=provider_name.get("max_zoom", 30),
             )
 
-        selected_provider = provider_name.upper()
-
-        if selected_provider not in self.Vendors:
-            raise ValueError('Unknown tile provider %s' % provider_name)
-
-        url = self._SERVICE_URLS[selected_provider]
-        if selected_provider.startswith('CARTO'):
-            attribution = self._CARTO_ATTRIBUTION
-        elif selected_provider.startswith('STAMEN'):
-            attribution = self._STAMEN_ATTRIBUTION % self._STAMEN_ATTRIBUTION_URLS[selected_provider]
-        elif selected_provider.startswith('OSM'):
-            attribution = self._OSM_ATTRIBTION
-        elif selected_provider.startswith('WIKIMEDIA'):
-            attribution = self._WIKIMEDIA_ATTRIBUTION
-        elif selected_provider.startswith('ESRI_IMAGERY'):
-            attribution = self._ESRI_IMAGERY_ATTRIBUTION
-        else:
-
-            raise RuntimeError('Can not retrieve attribution for %s' % selected_provider)
-        return WMTSTileSource(url=url, attribution=attribution)
 
     # Properties --------------------------------------------------------------
 
@@ -271,7 +240,6 @@ class _TileProvidersModule(types.ModuleType):
     STAMEN_TONER_BACKGROUND = Vendors.STAMEN_TONER_BACKGROUND
     STAMEN_TONER_LABELS = Vendors.STAMEN_TONER_LABELS
     OSM = Vendors.OSM
-    WIKIMEDIA = Vendors.WIKIMEDIA
     ESRI_IMAGERY = Vendors.ESRI_IMAGERY
 
 #-----------------------------------------------------------------------------
@@ -289,7 +257,6 @@ _mod.__all__ = (
     'STAMEN_TONER_BACKGROUND',
     'STAMEN_TONER_LABELS',
     'OSM',
-    'WIKIMEDIA',
     'ESRI_IMAGERY',
     'get_provider',
     'Vendors'

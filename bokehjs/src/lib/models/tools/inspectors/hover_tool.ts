@@ -579,7 +579,7 @@ export class HoverTool extends InspectTool {
       show_arrow:   [ Boolean, true ],
       anchor:       [ Anchor, "center" ],
       attachment:   [ TooltipAttachment, "horizontal" ],
-      callback:     [ Nullable(Any /*TODO*/) ],
+      callback:     [ Nullable(Any /*TODO*/), null ],
     }))
 
     this.register_alias("hover", () => new HoverTool())

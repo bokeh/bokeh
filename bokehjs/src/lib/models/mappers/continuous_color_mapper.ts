@@ -50,6 +50,9 @@ export abstract class ContinuousColorMapper extends ColorMapper {
       }
     }
 
+    const {high, low, high_color, low_color, palette, nan_color} = this.properties
+    this.on_change([high, low, high_color, low_color, palette, nan_color], () => this.update_data())
+
     this.connect(this.properties.domain.change, () => connect_renderers())
     connect_renderers()
   }
@@ -74,8 +77,14 @@ export abstract class ContinuousColorMapper extends ColorMapper {
   protected *_collect(domain: [GlyphRenderer, string | string[]][]) {
     for (const [renderer, fields] of domain) {
       for (const field of isArray(fields) ? fields : [fields]) {
-        let array = renderer.data_source.get_column(field)!
-        array = renderer.view.indices.select(array)
+        if (renderer.view.properties.indices.is_unset)
+          continue
+
+        const column = renderer.data_source.get_column(field)
+        if (column == null)
+          continue
+
+        let array = renderer.view.indices.select(column)
 
         const masked = renderer.view.masked
         const selected = renderer.data_source.selected.indices

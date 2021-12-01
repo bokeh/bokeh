@@ -7,6 +7,8 @@ import {TableColumn} from "@bokehjs/models/widgets/tables/table_column"
 import {GroupingInfo, DataCubeProvider, DataCube} from "@bokehjs/models/widgets/tables/data_cube"
 import {SumAggregator} from "@bokehjs/models/widgets/tables/row_aggregators"
 
+import {build} from "../../sources/cds_view"
+
 describe("data_cube module", () => {
 
   describe("DataCube class", () => {
@@ -22,7 +24,7 @@ describe("data_cube module", () => {
     let columns: any[] // XXX TableColumn[]
     let grouping: GroupingInfo[]
 
-    before_each(() => {
+    before_each(async () => {
       source = new ColumnDataSource({
         data: {
           color: ["red", "red", "red", "green", "green", "blue"],
@@ -30,7 +32,9 @@ describe("data_cube module", () => {
           value: [10, 20, 30, 40, 50, 60],
         },
       })
-      view = new CDSView({source})
+      view = new CDSView()
+      await build(view, source)
+
       columns = [
         new TableColumn({field: "color"}),
         new TableColumn({field: "width"}),

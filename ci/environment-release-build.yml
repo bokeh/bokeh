@@ -13,6 +13,7 @@ dependencies:
   - pyyaml >=3.10
   - tornado >=5
   - typing_extensions >=3.10.0
+  - xyzservices>=2021.09.1
 
   # build
   - boto
@@ -37,15 +38,14 @@ dependencies:
   - pygments
   - pyshp
   - scipy
-  - xyzservices
 
   # pip dependencies
   - pip
   - pip:
     # docs
     - autoclasstoc
-    - pydata_sphinx_theme
-    - sphinx >=4.1
+    - pydata_sphinx_theme >=0.7.1
+    - sphinx >=4.1,<4.3
     - sphinxext-opengraph
     - sphinx-panels
     - sphinx-tabs
