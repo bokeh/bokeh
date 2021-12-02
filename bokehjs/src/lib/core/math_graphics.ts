@@ -266,11 +266,32 @@ export class MathMLBox extends MathBox {
   }
 
   process_text(): SVGElement {
+    if (!this.provider.MathJax) {
+      throw new Error("Please load MathJax before calling process_text")
+    }
     const fmetrics = font_metrics(this.font)
 
     return this.provider.MathJax?.mathml2svg(this.styled_formula, {
       em: this.base_font_size,
       ex: fmetrics.x_height,
+    }).children[0] as SVGElement
+  }
+}
+
+export class AsciiBox extends MathBox {
+  get styled_formula(): string {
+    return this.text
+  }
+
+  process_text(): SVGElement {
+    if (!this.provider.MathJax) {
+      throw new Error("Please load MathJax before calling process_text")
+    }
+
+    // TODO: this.provider.MathJax.ascii2svg(this.text)
+    return this.provider.MathJax.tex2svg(this.styled_formula, {
+      em: this.base_font_size,
+      ex: font_metrics(this.font).x_height,
     }).children[0] as SVGElement
   }
 }
