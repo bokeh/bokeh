@@ -60,6 +60,15 @@ describe("Glyph models", () => {
     await display(row([p("canvas"), p("svg")]))
   })
 
+  it("should support Block", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([200, 300], {output_backend, title: output_backend})
+      p.rect({x, y, width: 1, height: 2})
+      return p
+    }
+    await display(row([p("canvas"), p("svg")]))
+  })
+
   it("should support Circle", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
