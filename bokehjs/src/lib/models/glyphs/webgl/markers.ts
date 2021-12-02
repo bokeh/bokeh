@@ -53,11 +53,7 @@ export class MarkerGL extends BaseGLGlyph {
     // The main glyph has the data, this glyph has the visuals.
     const mainGlGlyph = main_glyph.glglyph!
 
-    // Temporary solution for circles to always force call to _set_data.
-    // Correct solution depends on keeping the webgl properties constant and
-    // only changing the indices, which in turn depends on the correct webgl
-    // instanced rendering.
-    if (mainGlGlyph.data_changed || is_CircleView(this.glyph)) {
+    if (mainGlGlyph.data_changed) {
       mainGlGlyph._set_data()
       mainGlGlyph.data_changed = false
     }
