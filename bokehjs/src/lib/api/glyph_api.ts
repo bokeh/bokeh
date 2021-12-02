@@ -9,7 +9,7 @@ import * as nd from "core/util/ndarray"
 import {Glyph, GlyphRenderer, ColumnarDataSource, CDSView, CoordinateMapping} from "./models"
 
 import {
-  AnnularWedge, Annulus, Arc, Bezier, Circle, Ellipse, HArea,
+  AnnularWedge, Annulus, Arc, Bezier, Block, Circle, Ellipse, HArea,
   HBar, HexTile, Image, ImageRGBA, ImageURL, Line, MultiLine,
   MultiPolygons, Patch, Patches, Quad, Quadratic, Ray, Rect,
   Scatter, Segment, Spline, Step, Text, VArea, VBar, Wedge,
@@ -106,6 +106,7 @@ export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFi
 export type AnnulusArgs       = GlyphArgs<Annulus.Props>       & AuxLine & AuxFill
 export type ArcArgs           = GlyphArgs<Arc.Props>           & AuxLine
 export type BezierArgs        = GlyphArgs<Bezier.Props>        & AuxLine
+export type BlockArgs         = GlyphArgs<Block.Props>         & AuxLine & AuxFill
 export type CircleArgs        = GlyphArgs<Circle.Props>        & AuxLine & AuxFill
 export type EllipseArgs       = GlyphArgs<Ellipse.Props>       & AuxLine & AuxFill
 export type HAreaArgs         = GlyphArgs<HArea.Props>                   & AuxFill
@@ -175,6 +176,14 @@ export interface IGlyphAPI {
     cx1: BezierArgs["cx1"],
     cy1: BezierArgs["cy1"],
     args?: Partial<BezierArgs>): TypedGlyphRenderer<Bezier>
+
+  block(args: Partial<BlockArgs>): TypedGlyphRenderer<Block>
+  block(
+    x0: BlockArgs["x"],
+    y0: BlockArgs["y"],
+    x1: BlockArgs["width"],
+    y1: BlockArgs["height"],
+    args?: Partial<BlockArgs>): TypedGlyphRenderer<Block>
 
   circle(args: Partial<CircleArgs>): TypedGlyphRenderer<Circle>
   circle(
@@ -452,6 +461,9 @@ export abstract class GlyphAPI implements IGlyphAPI {
   }
   bezier(...args: unknown[]): TypedGlyphRenderer<Bezier> {
     return this._glyph(Bezier, ["x0", "y0", "x1", "y1", "cx0", "cy0", "cx1", "cy1"], args)
+  }
+  block(...args: unknown[]): TypedGlyphRenderer<Block> {
+    return this._glyph(Block, ["x", "y", "width", "height"], args)
   }
   circle(...args: unknown[]): TypedGlyphRenderer<Circle> {
     return this._glyph(Circle, ["x", "y"], args)
