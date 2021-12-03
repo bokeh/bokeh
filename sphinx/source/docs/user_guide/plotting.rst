@@ -189,13 +189,20 @@ Rectangles
 To draw *axis aligned* rectangles by specifying the ``left``, ``right``,
 ``top``, and ``bottom`` positions, use the |quad| glyph function:
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles.py
+.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles_quad.py
+    :source-position: above
+
+To draw *axis aligned* rectangles by specifying the ``x`` and ``y``
+coordinates for a corner, and a ``width`` and ``height``, use the |block|
+glyph function:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles_block.py
     :source-position: above
 
 To draw arbitrary rectangles by specifying center coordinates, ``width``,
 ``height``, and ``angle``, use the |rect| glyph function:
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles_rotated.py
+.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles_rect.py
     :source-position: above
 
 .. _userguide_plotting_hex:
@@ -598,6 +605,7 @@ adding new glyph methods as well as when adding new axis objects with the
 .. |arc|               replace:: :func:`~bokeh.plotting.Figure.arc`
 .. |asterisk|          replace:: :func:`~bokeh.plotting.Figure.asterisk`
 .. |bezier|            replace:: :func:`~bokeh.plotting.Figure.bezier`
+.. |block|             replace:: :func:`~bokeh.plotting.Figure.block`
 .. |circle|            replace:: :func:`~bokeh.plotting.Figure.circle`
 .. |circle_cross|      replace:: :func:`~bokeh.plotting.Figure.circle_cross`
 .. |circle_dot|        replace:: :func:`~bokeh.plotting.Figure.circle_dot`
