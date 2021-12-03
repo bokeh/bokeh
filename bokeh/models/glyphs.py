@@ -376,15 +376,15 @@ class Block(LineGlyph, FillGlyph, HatchGlyph):
     """)
 
     line_props = Include(LineProps, help="""
-    The {prop} values for the vertical bars.
+    The {prop} values for the blocks.
     """)
 
     fill_props = Include(FillProps, help="""
-    The {prop} values for the vertical bars.
+    The {prop} values for the blocks.
     """)
 
     hatch_props = Include(HatchProps, help="""
-    The {prop} values for the vertical bars.
+    The {prop} values for the blocks.
     """)
 
 class Circle(Marker):
