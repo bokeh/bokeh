@@ -1144,7 +1144,7 @@ LaTeX on axis labels, titles, and labels
     ending with `MathJax default delimiters`_ and containing LaTeX notation. For
     example:
 
-    .. bokeh-plot:: docs/user_guide/examples/styling_math_text_latex_axis_labels_titles.py
+    .. bokeh-plot:: docs/user_guide/examples/styling_math_text_latex_axis_labels_titles_labels.py
         :source-position: above
 
 LaTeX and tick labels
