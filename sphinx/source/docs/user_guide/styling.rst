@@ -1113,15 +1113,21 @@ Adding mathematical notations
 
 Bokeh supports mathematical notations expressed in the LaTeX_ and MathML_ markup
 languages with a growing number of elements. Currently, you can use LaTeX
-and MathML notations with :ref:`axis labels <userguide_styling_axes_labels>` and
-tick labels using :func:`~bokeh.models.Axis.major_label_overrides`. You can
-also use LaTeX with :class:`div <bokeh.models.Div>` or
-:class:`paragraph widgets <bokeh.models.Paragraph>`.
+and MathML notations with the following elements:
+
+* :ref:`Axis labels <userguide_styling_axes_labels>`
+* Tick labels using :func:`~bokeh.models.Axis.major_label_overrides`
+* :ref:`userguide_annotations_titles`
+* :ref:`userguide_annotations_labels`
+* :ref:`Div widgets <userguide_interaction_widgets_div>`
+* :ref:`Paragraph widgets <userguide_interaction_widgets_paragraph>`
 
 Bokeh uses the MathJax_ library to handle LaTeX and MathML. See the official
-`MathJax documentation`_ for more information on MathJax. If you use the
-|components| function, make sure to include the ``bokeh-mathjax-`` resource in
-your html template.
+`MathJax documentation`_ for more information on MathJax.
+
+.. note::
+    If you use the |components| function, make sure to include the
+    ``bokeh-mathjax-`` resource in your html template.
 
 LaTeX
 ~~~~~
@@ -1131,13 +1137,14 @@ This string needs to begin and end with one of the
 `MathJax default delimiters`_. These delimiters are ``$$...$$``,  ``\[...\]``,
 and ``\(...\)``. For example: ``r"$$\sin(x)$$"``.
 
-LaTeX and axis labels
-    To use LaTeX notation as an axis label, pass a raw string literal beginning
-    and ending with `MathJax default delimiters`_ and containing LaTeX notation
-    to the :class:`~bokeh.models.Axis.axis_label` property of an axis. For
+LaTeX on axis labels, titles, and labels
+    To use LaTeX notation as an :ref:`axis label <userguide_styling_axes_labels>`,
+    :ref:`title <userguide_annotations_titles>`, or :ref:`label
+    <userguide_annotations_labels>`, pass a raw string literal beginning and
+    ending with `MathJax default delimiters`_ and containing LaTeX notation. For
     example:
 
-    .. bokeh-plot:: docs/user_guide/examples/styling_math_text_latex_axis_labels.py
+    .. bokeh-plot:: docs/user_guide/examples/styling_math_text_latex_axis_labels_titles_labels.py
         :source-position: above
 
 LaTeX and tick labels
@@ -1165,9 +1172,24 @@ LaTeX with div and paragraph widgets
     To disable LaTeX rendering for a div or paragraph widget, set the widget's
     ``disable_math`` property to True.
 
-You also have the option to use the `LaTeX extensions included in MathJax`_.
-For example, use the `color extension`_ to change the color of the rendered
-LaTeX notation: ``\color{white} \sin(x)``.
+You can use some of Bokeh's standard |text properties| to change the appearance
+of rendered math text. Use ``text_font_size`` to change the font size, use
+``text_color`` to change the color. For example:
+
+.. code-block:: python
+
+    p.xaxis.axis_label = r"$$\nu \:(10^{15} s^{-1})$$"
+    p.xaxis.axis_label_text_color = "green"
+    p.xaxis.axis_label_text_font_size = "50px"
+
+Text color and sizes defined in a :ref:`Bokeh theme
+<userguide_styling_using_themes>` also work.
+
+Additionally, you have the option to use the `LaTeX extensions included in MathJax`_.
+For example, use ``\text{}`` to combine literal text with a math expression. Or
+use the `color extension`_ to change the color of the rendered LaTeX notation:
+``\color{white} \sin(x)``. Text properties set with a LaTeX extension override
+any text properties set elsewhere in your code or in a theme.
 
 .. note::
     There are limitations to how much of LaTeX MathJax supports. See
@@ -1182,6 +1204,16 @@ property that accepts a string containing MathML. For example:
 
 .. bokeh-plot:: docs/user_guide/examples/styling_math_text_mathml_axis_labels.py
     :source-position: above
+
+Similar to LaTeX, you can also use Bokeh's standard |text properties|
+``text_font_size`` and ``text_color`` to change font size and color for MathML
+notations. For example:
+
+.. code-block:: python
+
+    plot.xaxis.axis_label = MathML(text=mathml)
+    plot.xaxis.axis_label_text_color = "green"
+    plot.xaxis.axis_label_text_font_size = "50px"
 
 For more information, see :class:`~bokeh.models.text.MathML` in the
 |reference guide|.

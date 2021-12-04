@@ -150,6 +150,8 @@ values, a ``step`` size, an initial ``value``, and a ``title``:
 
 More information can be found in the Reference for |DateRangeSlider|.
 
+.. _userguide_interaction_widgets_div:
+
 Div
 ~~~
 
@@ -201,6 +203,8 @@ A multi-select widget to present multiple available options in vertical list:
     :source-position: below
 
 More information can be found in the Reference for |MultiSelect|.
+
+.. _userguide_interaction_widgets_paragraph:
 
 Paragraph
 ~~~~~~~~~
