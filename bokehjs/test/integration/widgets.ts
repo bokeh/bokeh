@@ -112,6 +112,11 @@ describe("Widgets", () => {
     await display(obj, [500, 150])
   })
 
+  it("should allow Slider with math text string on title", async () => {
+    const obj = new Slider({title: "$$\\mu$$", value: 10, start: 0, end: 100, step: 0.5})
+    await display(obj, [500, 100])
+  })
+
   it("should allow Slider", async () => {
     const obj = new Slider({value: 10, start: 0, end: 100, step: 0.5})
     await display(obj, [500, 100])
