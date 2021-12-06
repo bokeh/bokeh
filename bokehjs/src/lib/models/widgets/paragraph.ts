@@ -13,7 +13,7 @@ export class ParagraphView extends MarkupView {
     if (this.has_math_disabled())
       content.textContent = this.model.text
     else
-      content.innerHTML = this.process_tex()
+      content.innerHTML = this.process_tex(this.model.text)
 
     this.markup_el.appendChild(content)
   }
