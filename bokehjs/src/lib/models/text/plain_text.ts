@@ -1,16 +1,11 @@
 import {BaseText, BaseTextView} from "./base_text"
-import {GraphicsBox, TextBox} from "core/graphics"
+import {TextBox} from "core/graphics"
 import * as p from "core/properties"
 
 export class PlainTextView extends BaseTextView {
   override model: PlainText
 
-  override initialize(): void {
-    super.initialize()
-    this._has_finished = true
-  }
-
-  graphics(): GraphicsBox {
+  graphics(): TextBox {
     return new TextBox({text: this.model.text})
   }
 }

@@ -41,7 +41,7 @@ import {MarkerArgs} from "@bokehjs/api/glyph_api"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import {div, offset} from "@bokehjs/core/dom"
 
-import {MathTextView} from "@bokehjs/models/text/math_text"
+import {MathBox} from "@bokehjs/core/math_graphics"
 import {PlotView} from "@bokehjs/models/plots/plot"
 
 import {f} from "@bokehjs/api/expr"
@@ -1117,7 +1117,7 @@ describe("Bug", () => {
 
   describe("in issue #11479", () => {
     it("doesn't allow to render math text in multiple plots", async () => {
-      const stub = sinon.stub(MathTextView.prototype, "provider")
+      const stub = sinon.stub(MathBox.prototype, "provider")
       stub.value(new DelayedInternalProvider())
       try {
         const p0 = fig([200, 150], {

@@ -9,7 +9,7 @@ import {LayoutDOM, Row, Column, GridBox} from "@bokehjs/models/layouts/index"
 import {wait} from "@bokehjs/core/util/defer"
 import {tex2svg, mathml2svg} from "@bokehjs/models/text/mathjax"
 import {MathJaxProvider, NoProvider} from "@bokehjs/models/text/providers"
-import {MathTextView} from "@bokehjs/models/text/math_text"
+import {MathBox} from "@bokehjs/core/math_graphics"
 
 export function grid(items: Matrix<LayoutDOM> | LayoutDOM[][], opts?: Partial<GridBox.Attrs>): GridBox {
   const children = Matrix.from(items).to_sparse()
@@ -53,7 +53,7 @@ export class InternalProvider extends MathJaxProvider {
 
 export function with_provider(provider: MathJaxProvider) {
   return async (fn: () => Promise<void>) => {
-    const stub = sinon.stub(MathTextView.prototype, "provider")
+    const stub = sinon.stub(MathBox.prototype, "provider")
     stub.value(provider)
     try {
       await fn()
