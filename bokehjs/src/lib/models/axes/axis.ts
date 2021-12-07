@@ -23,6 +23,7 @@ import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
 import {isString} from "core/util/types"
 import {parse_delimited_string} from "models/text/utils"
+import {is_math_box} from "core/math_graphics"
 
 const {abs} = Math
 
@@ -48,6 +49,7 @@ export class AxisView extends GuideRendererView {
   layout: Layoutable
 
   /*private*/ _axis_label_view: BaseTextView | null = null
+  private axis_label_graphics: BaseTextView | null = null
   /*private*/ _major_label_views: Map<string, BaseTextView> = new Map()
 
   override async lazy_initialize(): Promise<void> {
@@ -61,7 +63,12 @@ export class AxisView extends GuideRendererView {
     const {axis_label} = this.model
     if (axis_label != null) {
       const _axis_label = isString(axis_label) ? parse_delimited_string(axis_label) : axis_label
-      this._axis_label_view = await build_view(_axis_label, {parent: this})
+      const axis_label_view = await build_view(_axis_label, {parent: this})
+      const axis_label_graphics = axis_label_view.graphics()
+      if (is_math_box(axis_label_graphics)) {
+        await axis_label_graphics.load_provider()
+      }
+
     } else
       this._axis_label_view = null
   }
@@ -440,13 +447,6 @@ export class AxisView extends GuideRendererView {
       }
     }
 
-    // XXX: make sure unused overrides don't prevent document idle
-    for (const label_view of this._major_label_views.values()) {
-      if (!visited.has(label_view)) {
-        (label_view as any)._has_finished = true
-      }
-    }
-
     return new GraphicsBoxes(labels)
   }
 
@@ -614,23 +614,6 @@ export class AxisView extends GuideRendererView {
     }
 
     super.remove()
-  }
-
-  override has_finished(): boolean {
-    if (!super.has_finished())
-      return false
-
-    if (this._axis_label_view != null) {
-      if (!this._axis_label_view.has_finished())
-        return false
-    }
-
-    for (const label_view of this._major_label_views.values()) {
-      if (!label_view.has_finished())
-        return false
-    }
-
-    return true
   }
 }
 

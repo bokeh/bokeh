@@ -8,6 +8,11 @@ import {AsciiBox, MathBox, MathMLBox, TeXBox} from "core/math_graphics"
 export abstract class MathTextView extends BaseTextView {
   override model: MathText
 
+  override async lazy_initialize() {
+    await super.lazy_initialize()
+    await this.graphics().load_provider()
+  }
+
   abstract override graphics(): MathBox
 }
 

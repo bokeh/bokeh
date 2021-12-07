@@ -126,7 +126,7 @@ export abstract class MathBox extends GraphicsBox {
 
   private get_image_dimensions(): Size {
     if (!this.provider.MathJax) {
-      return {width: 0, height: 0}
+      return {width: 13, height: 13}
     }
 
     const svg_element = this.process_text()
@@ -168,7 +168,7 @@ export abstract class MathBox extends GraphicsBox {
 
   _size(): Size {
     if (!this.provider.MathJax) {
-      return {width: 0, height: 0}
+      return {width: 13, height: 13}
     }
 
     const fmetrics = font_metrics(this.font)
@@ -199,6 +199,7 @@ export abstract class MathBox extends GraphicsBox {
     try {
       image = await this.get_image()
     } catch (error) {
+      console.error(error)
       image = undefined
     }
 
