@@ -1,20 +1,14 @@
 ''' Present a scatter plot with linked histograms on both axes.
 
-.. note::
-    Use the ``bokeh serve`` command to run the example by executing:
+Use the ``bokeh serve`` command to run the example by executing:
 
-        bokeh serve selection_histogram.py
+    bokeh serve selection_histogram.py
 
-    at your command prompt. Then navigate to the URL
+at your command prompt. Then navigate to the URL
 
-        http://localhost:5006/selection_histogram
+    http://localhost:5006/selection_histogram
 
-    in your browser.
-
-.. bokeh-example-metadata::
-    :apis: bokeh.models.BoxSelectTool, bokeh.models.LassoSelectTool, bokeh.layouts.gridplot
-    :refs:
-    :keywords: histogram, scatter, link, tooltip
+in your browser.
 
 '''
 import numpy as np

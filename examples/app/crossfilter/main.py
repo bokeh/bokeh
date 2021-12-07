@@ -5,12 +5,6 @@ information on each dot.
 .. note::
     This chart needs the Pandas package to run.
 
-.. bokeh-example-metadata::
-    :sampledata: autompg
-    :apis: bokeh.model.Model.select
-    :refs: :ref:`userguide_providing_data_as_a_columndatasource` > :ref:`userguide_using_a_pandas_dataframe`
-    :keywords: pandas, crossfilter
-
 .. _Auto MPG dataset: https://archive.ics.uci.edu/ml/datasets/auto+mpg
 
 '''

@@ -2,12 +2,6 @@
 This example shows the ability of Bokeh to use two different kinds of graph into
 one file and sorting them by having different colors and lines.
 
-.. bokeh-example-metadata::
-    :sampledata: population
-    :apis: bokeh.models.ColumnDataSource, bokeh.transform.factor_cmap, bokeh.transform.transform
-    :refs:
-    :keywords: bars, categorical,
-
 '''
 from math import pi
 

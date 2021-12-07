@@ -1,12 +1,6 @@
 """ Example demonstrating turning lines on and off - with bokeh server
 
-.. bokeh-example-metadata::
-    :apis: bokeh.models.CheckboxGroup
-    :refs:
-    :keywords: line, tooltip
-
 """
-
 import numpy as np
 
 from bokeh.io import curdoc
