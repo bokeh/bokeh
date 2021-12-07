@@ -88,6 +88,8 @@ class Color(metaclass=ABCMeta):
     def darken(self: Self, amount: float) -> Self:
         ''' Darken (reduce the luminance) of this color.
 
+        *Subclasses must implement this method.*
+
         Args:
             amount (float) :
                 Amount to reduce the luminance by (clamped above zero)
@@ -96,9 +98,7 @@ class Color(metaclass=ABCMeta):
             Color
 
         '''
-        hsl = self.to_hsl()
-        hsl.l = self.clamp(hsl.l - amount)
-        return self.from_hsl(hsl)
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
@@ -138,6 +138,8 @@ class Color(metaclass=ABCMeta):
     def lighten(self: Self, amount: float) -> Self:
         ''' Lighten (increase the luminance) of this color.
 
+        *Subclasses must implement this method.*
+
         Args:
             amount (float) :
                 Amount to increase the luminance by (clamped above zero)
@@ -146,9 +148,7 @@ class Color(metaclass=ABCMeta):
             Color
 
         '''
-        hsl = self.to_hsl()
-        hsl.l = self.clamp(hsl.l + amount, 1)
-        return self.from_hsl(hsl)
+        raise NotImplementedError
 
     @abstractmethod
     def to_css(self) -> str:
