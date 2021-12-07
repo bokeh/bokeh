@@ -26,6 +26,18 @@ export function* flat_map<T, U>(iterable: Iterable<T>, fn: (item: T, i: number) 
   }
 }
 
+export function* interleave<T>(seq: Iterable<T>, separator: () => T): Iterable<T> {
+  let first = true
+  for (const entry of seq) {
+    if (first)
+      first = false
+    else
+      yield separator()
+
+    yield entry
+  }
+}
+
 // https://docs.python.org/3.8/library/itertools.html#itertools.combinations
 export function* combinations<T>(seq: T[], r: number): Iterable<T[]> {
   const n = seq.length

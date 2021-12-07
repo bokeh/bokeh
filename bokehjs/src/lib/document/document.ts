@@ -75,7 +75,7 @@ export class Document implements Equatable {
   protected readonly _resolver: ModelResolver
   protected _title: string
   protected _roots: Model[]
-  /*protected*/ _all_models: Map<ID, HasProps>
+  /*protected*/ _all_models: Map<ID, Model>
   protected _all_models_freeze_count: number
   protected _callbacks: Map<((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), boolean>
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
@@ -230,7 +230,7 @@ export class Document implements Equatable {
     for (const a of to_attach) {
       a.attach_document(this)
     }
-    this._all_models = recomputed
+    this._all_models = recomputed as any // XXX
   }
 
   roots(): Model[] {

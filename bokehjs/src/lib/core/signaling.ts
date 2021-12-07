@@ -10,11 +10,11 @@ export class Signal<Args, Sender extends object> {
   constructor(readonly sender: Sender, readonly name: string) {}
 
   connect(slot: Slot<Args, Sender>, context: object | null = null): boolean {
-    if (!receiversForSender.has(this.sender)) {
-      receiversForSender.set(this.sender, [])
+    if (!receivers_for_sender.has(this.sender)) {
+      receivers_for_sender.set(this.sender, [])
     }
 
-    const receivers = receiversForSender.get(this.sender)!
+    const receivers = receivers_for_sender.get(this.sender)!
 
     if (find_connection(receivers, this, slot, context) != null) {
       return false
@@ -22,11 +22,11 @@ export class Signal<Args, Sender extends object> {
 
     const receiver = context ?? slot
 
-    if (!sendersForReceiver.has(receiver)) {
-      sendersForReceiver.set(receiver, [])
+    if (!senders_for_receiver.has(receiver)) {
+      senders_for_receiver.set(receiver, [])
     }
 
-    const senders = sendersForReceiver.get(receiver)!
+    const senders = senders_for_receiver.get(receiver)!
 
     const connection = {signal: this, slot, context}
     receivers.push(connection)
@@ -36,7 +36,7 @@ export class Signal<Args, Sender extends object> {
   }
 
   disconnect(slot: Slot<Args, Sender>, context: object | null = null): boolean {
-    const receivers = receiversForSender.get(this.sender)
+    const receivers = receivers_for_sender.get(this.sender)
     if (receivers == null || receivers.length === 0) {
       return false
     }
@@ -47,7 +47,7 @@ export class Signal<Args, Sender extends object> {
     }
 
     const receiver = context ?? slot
-    const senders = sendersForReceiver.get(receiver)!
+    const senders = senders_for_receiver.get(receiver)!
 
     connection.signal = null
     schedule_cleanup(receivers)
@@ -57,7 +57,7 @@ export class Signal<Args, Sender extends object> {
   }
 
   emit(args: Args): void {
-    const receivers = receiversForSender.get(this.sender) ?? []
+    const receivers = receivers_for_sender.get(this.sender) ?? []
 
     for (const {signal, slot, context} of receivers) {
       if (signal === this) {
@@ -75,11 +75,11 @@ export class Signal0<Sender extends object> extends Signal<void, Sender> {
 
 export namespace Signal {
   export function disconnect_between(sender: object, receiver: object): void {
-    const receivers = receiversForSender.get(sender)
+    const receivers = receivers_for_sender.get(sender)
     if (receivers == null || receivers.length === 0)
       return
 
-    const senders = sendersForReceiver.get(receiver)
+    const senders = senders_for_receiver.get(receiver)
     if (senders == null || senders.length === 0)
       return
 
@@ -96,7 +96,7 @@ export namespace Signal {
   }
 
   export function disconnect_sender(sender: object): void {
-    const receivers = receiversForSender.get(sender)
+    const receivers = receivers_for_sender.get(sender)
     if (receivers == null || receivers.length === 0)
       return
 
@@ -106,14 +106,14 @@ export namespace Signal {
 
       const receiver = connection.context ?? connection.slot
       connection.signal = null
-      schedule_cleanup(sendersForReceiver.get(receiver)!)
+      schedule_cleanup(senders_for_receiver.get(receiver)!)
     }
 
     schedule_cleanup(receivers)
   }
 
   export function disconnect_receiver(receiver: object, slot?: Slot<any, any>, except_senders?: Set<object>): void {
-    const senders = sendersForReceiver.get(receiver)
+    const senders = senders_for_receiver.get(receiver)
     if (senders == null || senders.length === 0)
       return
 
@@ -129,14 +129,14 @@ export namespace Signal {
         continue
 
       connection.signal = null
-      schedule_cleanup(receiversForSender.get(sender)!)
+      schedule_cleanup(receivers_for_sender.get(sender)!)
     }
 
     schedule_cleanup(senders)
   }
 
   export function disconnect_all(obj: object): void {
-    const receivers = receiversForSender.get(obj)
+    const receivers = receivers_for_sender.get(obj)
     if (receivers != null && receivers.length !== 0) {
       for (const connection of receivers) {
         connection.signal = null
@@ -144,7 +144,7 @@ export namespace Signal {
       schedule_cleanup(receivers)
     }
 
-    const senders = sendersForReceiver.get(obj)
+    const senders = senders_for_receiver.get(obj)
     if (senders != null && senders.length !== 0) {
       for (const connection of senders) {
         connection.signal = null
@@ -176,8 +176,9 @@ type Connection = {
   readonly context: object | null
 }
 
-const receiversForSender = new WeakMap<object, Connection[]>()
-const sendersForReceiver = new WeakMap<object, Connection[]>()
+/** @internal */
+export const receivers_for_sender = new WeakMap<object, Connection[]>()
+const senders_for_receiver = new WeakMap<object, Connection[]>()
 
 function find_connection(conns: Connection[], signal: Signal<any, any>, slot: Slot<any, any>, context: any): Connection | undefined {
   return find(conns, conn => conn.signal === signal && conn.slot === slot && conn.context === context)
