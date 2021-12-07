@@ -1,3 +1,12 @@
+''' An plot of two interactive sliders. The values are updated simultaneously as the slider bars are dragged to different values. 
+This example demonstrates how ``CustomJS`` callbacks react to user interaction events.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.layouts.column, bokeh.models.callbacks.CustomJS
+    :refs: :ref:`userguide_interaction_jscallbacks` > :ref:`userguide_interaction_jscallbacks_customjs_interactions`
+    :keywords: javascript callback
+
+'''
 from bokeh.io import output_file, show
 from bokeh.layouts import column
 from bokeh.models import CustomJS, Div, Slider
