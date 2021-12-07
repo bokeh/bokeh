@@ -1,5 +1,5 @@
 ''' A bar chart based on simple Python lists of data. The example below
-sorts the fruit categories in ascending order based on counts and 
+sorts the fruit categories in ascending order based on counts and
 rearranges the bars accordingly.
 
 .. bokeh-example-metadata::
