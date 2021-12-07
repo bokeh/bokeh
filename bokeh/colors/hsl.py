@@ -147,6 +147,36 @@ class HSL(Color):
         from .rgb import RGB  # prevent circular import
         r, g, b = colorsys.hls_to_rgb(float(self.h)/360, self.l, self.s)
         return RGB(round(r*255), round(g*255), round(b*255), self.a)
+    
+    def darken(self, amount: float) -> HSL:
+        ''' Darken (reduce the luminance) of this color.
+
+        Args:
+            amount (float) :
+                Amount to reduce the luminance by (clamped above zero)
+
+        Returns:
+            Color
+
+        '''
+        hsl = self.copy()
+        hsl.l = self.clamp(hsl.l - amount)
+        return self.from_hsl(hsl)
+        
+    def lighten(self, amount: float) -> HSL:
+        ''' Lighten (increase the luminance) of this color.
+
+        Args:
+            amount (float) :
+                Amount to increase the luminance by (clamped above zero)
+
+        Returns:
+            Color
+
+        '''
+        hsl = self.copy()
+        hsl.l = self.clamp(hsl.l + amount, 1)
+        return self.from_hsl(hsl)
 
 #-----------------------------------------------------------------------------
 # Dev API

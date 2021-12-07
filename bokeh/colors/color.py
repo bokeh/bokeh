@@ -84,6 +84,7 @@ class Color(metaclass=ABCMeta):
         '''
         raise NotImplementedError
 
+    @abstractmethod
     def darken(self: Self, amount: float) -> Self:
         ''' Darken (reduce the luminance) of this color.
 
@@ -133,6 +134,7 @@ class Color(metaclass=ABCMeta):
         '''
         raise NotImplementedError
 
+    @abstractmethod
     def lighten(self: Self, amount: float) -> Self:
         ''' Lighten (increase the luminance) of this color.
 
