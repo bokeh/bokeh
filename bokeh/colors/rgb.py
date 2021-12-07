@@ -153,6 +153,39 @@ class RGB(Color):
 
         '''
         return self.copy()
+    
+    def darken(self, amount: float) -> HSL:
+        ''' Darken (reduce the luminance) of this color.
+
+        Args:
+            amount (float) :
+                Amount to reduce the luminance by (clamped above zero)
+
+        Returns:
+            :class:`~bokeh.colors.rgb.RGB`
+
+        '''
+        return self.lighten(-amount)
+        
+    def lighten(self, amount: float) -> HSL:
+        ''' Lighten (increase the luminance) of this color.
+
+        Args:
+            amount (float) :
+                Amount to increase the luminance by (clamped above zero)
+
+        Returns:
+            :class:`~bokeh.colors.rgb.RGB`
+
+        '''
+        rgb = self.copy()
+        h, l, s = colorsys.rgb_to_hls(float(rgb.r)/255, float(rgb.g)/255, float(rgb.b)/255)
+        new_l = self.clamp(l + amount, 1)
+        r, g, b = colorsys.hls_to_rgb(h, new_l, s)
+        rgb.r = round(r * 255)
+        rgb.g = round(g * 255)
+        rgb.b = round(b * 255)
+        return rgb
 
     @property
     def brightness(self) -> float:

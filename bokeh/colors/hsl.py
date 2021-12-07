@@ -156,12 +156,10 @@ class HSL(Color):
                 Amount to reduce the luminance by (clamped above zero)
 
         Returns:
-            Color
+            :class:`~bokeh.colors.hsl.HSL`
 
         '''
-        hsl = self.copy()
-        hsl.l = self.clamp(hsl.l - amount)
-        return self.from_hsl(hsl)
+        return self.lighten(-amount)
         
     def lighten(self, amount: float) -> HSL:
         ''' Lighten (increase the luminance) of this color.
@@ -171,7 +169,7 @@ class HSL(Color):
                 Amount to increase the luminance by (clamped above zero)
 
         Returns:
-            Color
+            :class:`~bokeh.colors.hsl.HSL`
 
         '''
         hsl = self.copy()
