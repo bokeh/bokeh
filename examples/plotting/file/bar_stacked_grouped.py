@@ -6,9 +6,9 @@
     :keywords: bars, categorical, stacked, grouped
 
 '''
-from bokeh.io import output_file
+from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, FactorRange
-from bokeh.plotting import figure, show
+from bokeh.plotting import figure
 
 output_file("bar_stacked_grouped.html")
 
