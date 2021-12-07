@@ -314,18 +314,17 @@ export class NodesAndAdjacentNodes extends GraphHitTestPolicy {
     const selected_nodes = []
     for (let i = 0; i < edge_source.data.start.length; i++) {
       if (contains(selected_node_indices, edge_source.data.start[i])) {
-	adjacent_nodes.push(edge_source.data.end[i])
-	selected_nodes.push(edge_source.data.start[i])
+        adjacent_nodes.push(edge_source.data.end[i])
+        selected_nodes.push(edge_source.data.start[i])
       }
       if (contains(selected_node_indices, edge_source.data.end[i])) {
         adjacent_nodes.push(edge_source.data.start[i])
-	selected_nodes.push(edge_source.data.end[i])
+        selected_nodes.push(edge_source.data.end[i])
       }
     }
     for (let i = 0; i < selected_nodes.length; i++)
       adjacent_nodes.push(selected_nodes[i])
 
-    // make map of node indices, making selected node the last node in the map
     const adjacent_node_indices = uniq(adjacent_nodes).map((i) => indexOf(node_source.data.index, i))
     return new Selection({indices: adjacent_node_indices})
   }
