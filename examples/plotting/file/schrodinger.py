@@ -3,7 +3,7 @@ dimension in a parabolic potential well. This example demonstrates the use of
 mathtext on ``Label`` and ``Title`` annotations.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.line, bokeh.plotting.Figure.varea, bokeh.models.Label, bokeh.models.Title
+    :apis: bokeh.plotting.Figure.line, bokeh.plotting.Figure.varea, bokeh.models.annotations.Label, bokeh.models.annotations.Title
     :refs: :ref:`userguide_styling` > :ref:`userguide_styling_math`
     :keywords: mathtext, latex
 
@@ -25,7 +25,7 @@ p.yaxis.visible = False
 p.xgrid.visible = False
 p.ygrid.visible = False
 p.add_layout(Title(text=r"$$\text{Each wavefunction is labelled with its quantum number } v \text{ and energy } E_v$$"), "above")
-p.add_layout(Title(text=r"$$\text{in a potential } V(q) = \frac{q^2}{2} \text{ shown by the black line.}$$"), "above")
+p.add_layout(Title(text=r"$$\text{in a potential } V(q) = \frac{q^2}{2} \text{ shown by the dashed line.}$$"), "above")
 
 q = np.linspace(-6, 6, 100)
 yscale = 0.75
@@ -49,6 +49,6 @@ for v in range(number_of_modes):
     p.add_layout(Label(x=3.9, y=E_v, y_offset=-25, text=r"$$E_" + str(v) + r" = (" + str(2*v+1) + r"/2) \hbar\omega$$"))
 
 V = q**2 / 2
-p.line(q, V, line_color="black", line_width=2)
+p.line(q, V, line_color="black", line_width=2, line_dash="dashed")
 
 show(p)

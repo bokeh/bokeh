@@ -5,7 +5,7 @@ use of mathtext on ``Div``, ``Paragraph`` and ``Slider`` objects, as well as
 axis labels, and also streaming data via a ``ColumnDataSource``.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.circle, bokeh.plotting.Figure.line, bokeh.models.ColumnDataSource.stream,
+    :apis: bokeh.plotting.Figure.circle, bokeh.plotting.Figure.line, bokeh.models.sources.ColumnDataSource.stream,
         bokeh.models.Div, bokeh.models.Paragraph, bokeh.models.Slider
     :refs: :ref:`userguide_styling` > :ref:`userguide_styling_math`
     :keywords: mathtext, latex
@@ -81,7 +81,10 @@ def update():
 
 ps = []
 for i in range(2):
-    p = figure(width=600, height=600, x_range=Range1d(-2.0, 2.0), y_range=Range1d(-2.0, 2.0), toolbar_location=None)
+    p = figure(
+        width=600, height=600, x_range=Range1d(-2.0, 2.0), y_range=Range1d(-2.0, 2.0),
+        toolbar_location=None, background_fill_color="#f6f6f6",
+    )
     p.xaxis.axis_label = r"$$x \text{ (m)}$$"
     p.yaxis.axis_label = r"$$\frac{dx}{dt} \text{ (m/s)}$$"
     ps.append(p)
