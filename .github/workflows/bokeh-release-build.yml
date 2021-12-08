@@ -8,7 +8,7 @@ on:
         required: true
 
 env:
-  CONDA_BASE_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+  CONDA_BASE_REQS: "conda=4.11.0 conda-build=3.21.7 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
   CONDA_ENV_REQS: "python=3.9 jinja2 yaml pyyaml"
 
 jobs:
