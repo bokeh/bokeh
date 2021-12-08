@@ -333,35 +333,33 @@ export class NodesAndAdjacentNodes extends GraphHitTestPolicy {
     if (hit_test_result == null)
       return false
 
-    const initial_node_selection = graph.node_renderer.data_source.selected
-    initial_node_selection.update(hit_test_result, final, mode)
+    const node_selection = graph.node_renderer.data_source.selected
+    node_selection.update(hit_test_result, final, mode)
 
-    const final_node_selection = graph.node_renderer.data_source.selected
     const adjacent_nodes_selection = this.get_adjacent_nodes(graph.node_renderer.data_source, graph.edge_renderer.data_source, "selection")
     if (!adjacent_nodes_selection.is_empty())
-      final_node_selection.update(adjacent_nodes_selection, final, mode)
+      node_selection.update(adjacent_nodes_selection, final, mode)
 
     graph.node_renderer.data_source._select.emit()
 
-    return !initial_node_selection.is_empty()
+    return !node_selection.is_empty()
   }
 
   do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean {
     if (hit_test_result == null)
       return false
 
-    const initial_node_inspection = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model)
-    initial_node_inspection.update(hit_test_result, final, mode)
-    graph_view.node_view.model.data_source.setv({inspected: initial_node_inspection}, {silent: true})
+    const node_inspection = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model)
+    node_inspection.update(hit_test_result, final, mode)
+    graph_view.node_view.model.data_source.setv({inspected: node_inspection}, {silent: true})
 
-    const final_node_inspection = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model)
     const adjacent_nodes_inspection = this.get_adjacent_nodes(graph_view.node_view.model.data_source, graph_view.edge_view.model.data_source, "inspection")
     if (!adjacent_nodes_inspection.is_empty()) {
-      final_node_inspection.update(adjacent_nodes_inspection, final, mode)
-      graph_view.node_view.model.data_source.setv({inspected: final_node_inspection}, {silent: true})
+      node_inspection.update(adjacent_nodes_inspection, final, mode)
+      graph_view.node_view.model.data_source.setv({inspected: node_inspection}, {silent: true})
     }
 
     graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view.model, {geometry}])
-    return !initial_node_inspection.is_empty()
+    return !node_inspection.is_empty()
   }
 }
