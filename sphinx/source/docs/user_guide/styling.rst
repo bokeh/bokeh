@@ -1119,6 +1119,8 @@ and MathML notations with the following elements:
 * Tick labels using :func:`~bokeh.models.Axis.major_label_overrides`
 * :ref:`userguide_annotations_titles`
 * :ref:`userguide_annotations_labels`
+* :ref:`RangeSlider widgets <userguide_interaction_widgets_range_slider>`
+* :ref:`Slider widgets <userguide_interaction_widgets_slider>`
 * :ref:`Div widgets <userguide_interaction_widgets_div>`
 * :ref:`Paragraph widgets <userguide_interaction_widgets_paragraph>`
 
@@ -1158,6 +1160,15 @@ LaTeX and tick labels
     Use this function to replace any plain text tick labels with LaTeX notation:
 
     .. bokeh-plot:: docs/user_guide/examples/styling_math_text_latex_tick_labels.py
+        :source-position: above
+
+LaTeX on RangeSlider and Slider widget titles
+    To use LaTeX notation in the title of a :ref:`userguide_interaction_widgets_range_slider`
+    or :ref:`userguide_interaction_widgets_slider` widget, pass a raw string
+    literal beginning and ending with `MathJax default delimiters`_ and containing
+    LaTeX notation as the ``title`` parameter. For example:
+
+    .. bokeh-plot:: docs/user_guide/examples/styling_math_text_latex_slider_widget_title.py
         :source-position: above
 
 LaTeX with div and paragraph widgets
