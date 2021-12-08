@@ -6,7 +6,7 @@ by setting the legend ``click_policy`` property to ``"hide"``.
     :sampledata: stocks
     :apis: bokeh.palettes.Spectral4
     :refs: :ref:`userguide_interaction` > :ref:`userguide_interaction_legends`
-    :keywords: line, intractions, legend, hide, glyphs
+    :keywords: line, interactions, legend, hide, glyphs
 
 '''
 
