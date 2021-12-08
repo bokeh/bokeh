@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from abc import ABCMeta, abstractmethod
+import colorsys
 from typing import TYPE_CHECKING, Type, TypeVar
 
 ## Bokeh imports
@@ -98,7 +99,7 @@ class Color(metaclass=ABCMeta):
             Color
 
         '''
-        raise NotImplementedError
+        return self.lighten(-amount)
 
     @classmethod
     @abstractmethod
@@ -148,7 +149,14 @@ class Color(metaclass=ABCMeta):
             Color
 
         '''
-        raise NotImplementedError
+        rgb = self.to_rgb()
+        h, l, s = colorsys.rgb_to_hls(float(rgb.r)/255, float(rgb.g)/255, float(rgb.b)/255)
+        new_l = self.clamp(l + amount, 1)
+        r, g, b = colorsys.hls_to_rgb(h, new_l, s)
+        rgb.r = round(r * 255)
+        rgb.g = round(g * 255)
+        rgb.b = round(b * 255)
+        return self.from_rgb(rgb)
 
     @abstractmethod
     def to_css(self) -> str:
