@@ -62,15 +62,15 @@ class Test_Color:
         assert c2 is not c
         assert c2.a == 0.2
         assert c2.r == 97
-        assert c.g == 10
-        assert c.b == 185
+        assert c2.g == 10
+        assert c2.b == 185
 
         c2 = c.darken(1.2)
         assert c2 is not c
         assert c2.a == 0.2
         assert c2.r == 0
-        assert c.g == 0
-        assert c.b == 0
+        assert c2.g == 0
+        assert c2.b == 0
 
     def test_lighten(self) -> None:
         c = HSL(10, 0.2, 0.2, 0.2)
@@ -94,15 +94,15 @@ class Test_Color:
         assert c2 is not c
         assert c2.a == 0.2
         assert c2.r == 148
-        assert c.g == 52
-        assert c.b == 245
+        assert c2.g == 52
+        assert c2.b == 245
 
         c2 = c.darken(1.2)
         assert c2 is not c
         assert c2.a == 0.2
         assert c2.r == 255
-        assert c.g == 255
-        assert c.b == 255
+        assert c2.g == 255
+        assert c2.b == 255
 
 #-----------------------------------------------------------------------------
 # Dev API
