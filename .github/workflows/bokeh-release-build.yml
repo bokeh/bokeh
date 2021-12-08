@@ -61,3 +61,7 @@ jobs:
           SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
         run: |
            python -m release build $BOKEH_VERSION
+           echo "***************"
+           ls
+           ls noarch
+           exit 1
