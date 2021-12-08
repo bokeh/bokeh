@@ -7,6 +7,7 @@ mathtext on titles, ``Label`` annotations and axis labels.
     :keywords: mathtext, latex
 
 .. _Bessel functions: https://en.wikipedia.org/wiki/Bessel_function
+
 '''
 import numpy as np
 from scipy.special import jv
