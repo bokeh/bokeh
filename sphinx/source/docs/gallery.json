@@ -15,6 +15,7 @@
         { "path": "examples/plotting/file/bar_mixed.py",                       "name": "bar_mixed"                      },
         { "path": "examples/plotting/file/bar_nested_colormapped.py",          "name": "bar_nested_colormapped"         },
         { "path": "examples/plotting/file/categorical_heatmap.py",             "name": "categorical_heatmap"            },
+        { "path": "examples/plotting/file/schrodinger.py",                     "name": "schrodinger"                    },
         { "path": "examples/plotting/file/bar_pandas_groupby_colormapped.py",  "name": "bar_pandas_groupby_colormapped" },
         { "path": "examples/plotting/file/bar_pandas_groupby_nested.py",       "name": "bar_pandas_groupby_nested"      },
         { "path": "examples/plotting/file/bar_stacked.py",                     "name": "bar_stacked"                    },
