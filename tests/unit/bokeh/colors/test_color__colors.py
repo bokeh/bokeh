@@ -100,9 +100,9 @@ class Test_Color:
         c2 = c.darken(1.2)
         assert c2 is not c
         assert c2.a == 0.2
-        assert c2.r == 255
-        assert c2.g == 255
-        assert c2.b == 255
+        assert c2.r == 0
+        assert c2.g == 0
+        assert c2.b == 0
 
 #-----------------------------------------------------------------------------
 # Dev API
