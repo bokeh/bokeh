@@ -60,7 +60,7 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
         run: |
-           python -m release build $BOKEH_VERSION
+           python -m release build $BOKEH_VERSION || true
            echo "***************"
            ls
            ls noarch
