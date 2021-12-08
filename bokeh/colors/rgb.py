@@ -82,7 +82,7 @@ class RGB(Color):
         '''
         return RGB(self.r, self.g, self.b, self.a)
 
-    def darken(self, amount: float) -> HSL:
+    def darken(self, amount: float) -> RGB:
         ''' Darken (reduce the luminance) of this color.
 
         Args:
@@ -167,7 +167,7 @@ class RGB(Color):
         '''
         return self.copy()
 
-    def lighten(self, amount: float) -> HSL:
+    def lighten(self, amount: float) -> RGB:
         ''' Lighten (increase the luminance) of this color.
 
         Args:
