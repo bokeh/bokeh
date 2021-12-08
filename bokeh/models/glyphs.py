@@ -351,7 +351,7 @@ class Bezier(LineGlyph):
     """)
 
 class Block(LineGlyph, FillGlyph, HatchGlyph):
-    ''' Render rectangular regions, given a corner coordinate, width and height.
+    ''' Render rectangular regions, given a corner coordinate, width, and height.
 
     '''
 
