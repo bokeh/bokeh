@@ -21,6 +21,7 @@ dependencies:
   - colorama
   - colorcet
   - coverage
+  - django 3.*
   - firefox
   - flake8
   - flaky
