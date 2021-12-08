@@ -21,8 +21,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from abc import ABCMeta, abstractmethod
 import colorsys
+from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Type, TypeVar
 
 ## Bokeh imports
