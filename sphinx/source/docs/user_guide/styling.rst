@@ -1164,8 +1164,8 @@ LaTeX and tick labels
 
 LaTeX on RangeSlider and Slider widget titles
     To use LaTeX notation in the title of a :ref:`userguide_interaction_widgets_range_slider`
-    or `userguide_interaction_widgets_slider` widget, pass a raw string literal
-    beginning and ending with `MathJax default delimiters`_ and containing
+    or :ref:`userguide_interaction_widgets_slider` widget, pass a raw string
+    literal beginning and ending with `MathJax default delimiters`_ and containing
     LaTeX notation as the ``title`` parameter. For example:
 
     .. bokeh-plot:: docs/user_guide/examples/styling_math_text_latex_slider_widget_title.py
