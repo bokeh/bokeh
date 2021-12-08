@@ -1,14 +1,20 @@
 import {Model} from "../../model"
 import {View} from "core/view"
-import {GraphicsBox} from "core/graphics"
 import * as p from "core/properties"
 import {RendererView} from "models/renderers/renderer"
+import {TextBox} from "core/graphics"
+import {MathBox} from "core/math_graphics"
 
 export abstract class BaseTextView extends View {
   override model: BaseText
   override parent: RendererView
 
-  abstract graphics(): GraphicsBox
+  override initialize(): void {
+    super.initialize()
+    this._has_finished = true
+  }
+
+  abstract graphics(): MathBox | TextBox
 }
 
 export namespace BaseText {

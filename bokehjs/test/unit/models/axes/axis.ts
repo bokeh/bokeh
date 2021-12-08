@@ -10,7 +10,8 @@ import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {build_view} from "@bokehjs/core/build_views"
 import {TextBox} from "@bokehjs/core/graphics"
-import {TeXView, TeX} from "@bokehjs/models/text/math_text"
+import {TeX} from "@bokehjs/models/text/math_text"
+import {MathBox} from "@bokehjs/core/math_graphics"
 
 describe("Axis", () => {
 
@@ -53,7 +54,7 @@ describe("Axis", () => {
     const labels = axis_view.compute_labels([0, 2, 4, 6, 8, 10])
 
     expect(labels.items.map((l) => (l as TextBox).text)).to.be.equal(["zero", "2", "\\pi", "6", "8", "ten"])
-    expect(labels.items.filter(l => l instanceof TeXView).length).to.be.equal(2)
+    expect(labels.items.filter(l => l instanceof MathBox).length).to.be.equal(2)
   })
 
   it("should convert mathstrings on axis labels to TeX", async () => {
@@ -74,7 +75,7 @@ describe("Axis", () => {
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_view(axis)!
 
-    expect(axis_view._axis_label_view).to.be.instanceof(TeXView)
+    expect(axis_view._axis_label_graphics).to.be.instanceof(MathBox)
   })
 
   it("should convert mathstrings with line breaks in between delimiters on axis labels to TeX", async () => {
@@ -97,7 +98,7 @@ describe("Axis", () => {
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_view(axis)!
 
-    expect(axis_view._axis_label_view).to.be.instanceof(TeXView)
+    expect(axis_view._axis_label_graphics).to.be.instanceof(MathBox)
   })
 
   it("loc should return numeric fixed_location", async () => {

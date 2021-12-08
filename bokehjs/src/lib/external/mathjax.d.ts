@@ -22,4 +22,9 @@ declare namespace MathJax {
   function ascii2svg(_formula: string, options?: ConvertOptions): HTMLElement
   function mathml2svg(formula: string, options?: ConvertOptions): HTMLElement
   function find_tex(text: string): ProtoItem[]
+
+  class MathJaxCanvas {
+    constructor(readonly svg: SVGSVGElement, readonly ctx: CanvasRenderingContext2D, output_size: {width: number, height: number})
+    draw(): void
+  }
 }

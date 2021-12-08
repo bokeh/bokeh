@@ -830,8 +830,11 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     else
       throw new Error("invalid arguments")
 
-    if (path != null)
-      throw new Error("not implemented")
+    if (path != null) {
+      this.beginPath()
+      this.__addPathCommand(0, 0, path.toString())
+      this._apply_transform(this.__currentElement)
+    }
 
     // XXX: hack (?) to allow fill and hatch visuals on same canvas path
     if (this.__currentElement.getAttribute("fill") != "none") {

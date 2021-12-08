@@ -7,6 +7,8 @@ import {browserAdaptor} from "mathjax-full/js/adaptors/browserAdaptor"
 import {RegisterHTMLHandler} from "mathjax-full/js/handlers/html.js"
 import {AllPackages} from "mathjax-full/js/input/tex/AllPackages.js"
 import {FindTeX} from "mathjax-full/js/input/tex/FindTeX.js"
+import {MathJaxCanvas} from "./canvas"
+export {MathJaxCanvas}
 
 const adaptor = browserAdaptor()
 RegisterHTMLHandler(adaptor)

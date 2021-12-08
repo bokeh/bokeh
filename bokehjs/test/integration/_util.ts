@@ -7,7 +7,7 @@ import {Figure, figure} from "@bokehjs/api/plotting"
 import {LayoutDOM, Row, Column, GridBox} from "@bokehjs/models/layouts/index"
 
 import {wait} from "@bokehjs/core/util/defer"
-import {tex2svg, mathml2svg} from "@bokehjs/models/text/mathjax"
+import {tex2svg, mathml2svg, MathJaxCanvas} from "@bokehjs/models/text/mathjax"
 import {MathJaxProvider, NoProvider} from "@bokehjs/models/text/providers"
 import {MathBox} from "@bokehjs/core/math_graphics"
 
@@ -30,7 +30,7 @@ export function fig([width, height]: [number, number], attrs?: Partial<Figure.At
 
 export class DelayedInternalProvider extends MathJaxProvider {
   get MathJax() {
-    return this.status == "loaded" ? {tex2svg, mathml2svg} : null
+    return this.status == "loaded" ? {tex2svg, mathml2svg, MathJaxCanvas} : null
   }
 
   async fetch() {
@@ -44,7 +44,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
 
 export class InternalProvider extends MathJaxProvider {
   get MathJax() {
-    return this.status == "loaded" ? {tex2svg, mathml2svg} : null
+    return this.status == "loaded" ? {tex2svg, mathml2svg, MathJaxCanvas} : null
   }
   async fetch() {
     this.status = "loaded"
