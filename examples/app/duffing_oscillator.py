@@ -9,6 +9,7 @@ axis labels, and also streaming data via a ``ColumnDataSource``.
         bokeh.models.Div, bokeh.models.Paragraph, bokeh.models.Slider
     :refs: :ref:`userguide_styling` > :ref:`userguide_styling_math`
     :keywords: mathtext, latex
+
 '''
 import numpy as np
 
