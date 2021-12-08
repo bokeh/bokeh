@@ -125,6 +125,22 @@ Examples:
 
 """
 
+    @glyph_method(glyphs.Block)
+    def block(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """
+Examples:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.block(x=[1, 2, 3], y=[1,2,3], width=0.5, height=1, , color="#CAB2D6")
+
+        show(plot)
+
+"""
+
     @marker_method()
     def circle_cross(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
