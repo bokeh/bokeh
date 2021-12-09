@@ -22,7 +22,6 @@ that accepts these same parameters.
   {% block inner_head %}
     <meta charset="utf-8">
     <title>{% block title %}{{ title | e if title else "Bokeh Plot" }}{% endblock %}</title>
-
   {%  block preamble -%}{%- endblock %}
   {%  block resources -%}
   {%   block css_resources -%}
@@ -49,7 +48,7 @@ that accepts these same parameters.
   {%         endfor %}
   {%      endfor %}
   {%    endblock contents %}
-    {{ plot_script | indent(4) }}
+  {{ plot_script | indent(6) }}
   {%  endblock inner_body %}
   </body>
   {% endblock body%}
