@@ -6,7 +6,7 @@
 Bokeh Version ``3.0.0`` () is a major milestone of Bokeh project.
 
 * Support added for favicon.ico files
-* Support added for new selection policy NodesAndAdjacentNodes 
+* Support added for new selection policy NodesAndAdjacentNodes
 
 .. _release-3-0-0-migration:
 
