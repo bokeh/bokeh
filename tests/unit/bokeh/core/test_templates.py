@@ -25,7 +25,7 @@ from typing import List
 # Bokeh imports
 from bokeh.embed import file_html
 from bokeh.plotting import figure
-from bokeh.resources import JSResources
+from bokeh.resources import JSResources, CSSResources, ResourcesMode
 
 # Module under test
 import bokeh.core.templates as bct # isort:skip
@@ -56,10 +56,10 @@ def compute_sha256(data):
     sha256.update(data)
     return sha256.hexdigest()
 
-def get_html_lines() -> List[str]:
+def get_html_lines(resource_mode: ResourcesMode) -> List[str]:
     p = figure()
     p.scatter(x=[], y=[])
-    html = file_html(p, JSResources(mode="absolute"))
+    html = file_html(p, resources=(JSResources(mode=resource_mode), CSSResources(mode=resource_mode)))
     return html.split('\n')
 
 pinned_template_sha256 = "5d26be35712286918e36cc469c9354076b3d555eb39799aa63d04473c0566c29"
@@ -79,23 +79,17 @@ def test_autoload_template_has_changed() -> None:
             with the new file SHA256 signature."""
 
 def test_no_white_space_in_top_of_html() -> None:
-    lines = get_html_lines()
+    lines = get_html_lines("inline")
     any_character = re.compile(r"\S")
     assert(any_character.search(lines[0]) is not None)
-
-def test_no_two_scripts_start_on_same_line() -> None:
-    lines = get_html_lines()
-    for line in lines:
-        if "<script" in line:
-            assert len(line.split("<script")) == 2
         
 def test_dont_start_script_on_same_line_after_another_ends() -> None:
-    lines = get_html_lines()
-    for line in lines:
-        if "<script" in line and "</script" in line:
-            start_match = line.rfind("<script")
-            end_match = line.rfind("</script")
-            assert start_match < end_match
+    modes: List[ResourcesMode] = ["inline", "cdn", "server", "relative", "absolute"]
+    for mode in modes:
+        lines = get_html_lines(mode)
+        for line in lines:
+            if "<script" in line and "</script" in line:
+                assert line.rfind("<script") < line.rfind("</script")
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
