@@ -1,4 +1,10 @@
-""" The LaTeX example was derived from: http://matplotlib.org/users/usetex.html. """
+""" The LaTeX example was derived from: http://matplotlib.org/users/usetex.html.
+
+Note: Bokeh supports LaTeX natively on several elements. The purpose of this
+example is to demonstrate how to use a custom extension. For more information
+about using LaTeX in Bokeh, see 'Adding mathematical notations' in the user
+guide: https://docs.bokeh.org/en/latest/docs/user_guide/styling.html#adding-mathematical-notations.
+"""
 
 import numpy as np
 from scipy.special import jv
