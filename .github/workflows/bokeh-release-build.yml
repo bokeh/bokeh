@@ -62,6 +62,7 @@ jobs:
         run: |
            python -m release build $BOKEH_VERSION || true
            echo "***************"
-           ls
            ls noarch
+           echo "***************"
+           git status
            exit 1
