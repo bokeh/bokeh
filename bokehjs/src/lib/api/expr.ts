@@ -71,6 +71,10 @@ function evaluate(ast: Expression, refs: unknown[]): unknown {
             case "*": return np.mul
             case "/": return np.div
             case "**": return np.pow
+            case "<=": return np.le
+            case ">=": return np.ge
+            case "<": return np.lt
+            case ">": return np.gt
             default:
               throw new Error(`unsupported operator: ${ast.operator}`)
           }
