@@ -167,9 +167,8 @@ class NodesAndAdjacentNodes(GraphHitTestPolicy):
     With the ``NodesAndAdjacentNodes`` policy, inspection or selection of
     graph nodes will also result in the inspection or selection any nodes that
     are immediately adjacent (connected by a single edge). There is no
-    selection or inspection of graph edges. The last entry in each list
-    returned by NodesAndAdjacentNodes refers to the original node that was
-    inspected or selected.
+    selection or inspection of graph edges, and indication of which node is the
+    tool-selected one.
 
     '''
 
