@@ -13,6 +13,7 @@ import {map, sum as _sum, bin_counts} from "core/util/arrayable"
 import {Random} from "core/util/random"
 import {is_equal} from "core/util/eq"
 import {float, Floating, is_Floating} from "core/util/math"
+import * as math from "core/util/math"
 
 export type Numerical = number | Floating | Arrayable<number>
 
@@ -94,6 +95,28 @@ export namespace np {
       return Math.sqrt(x[float]())
     else
       return map(x, (v) => Math.sqrt(v))
+  }
+
+  export function factorial<T extends Numerical>(x: T): T
+  export function factorial(x: Numerical): Numerical {
+    if (isNumber(x))
+      return math.factorial(x)
+    else if (is_Floating(x))
+      return math.factorial(x[float]())
+    else
+      return map(x, math.factorial)
+  }
+
+  export function hermite(n: number): (x: Numerical) => Numerical {
+    const poly = math.hermite(n)
+    return (x) => {
+      if (isNumber(x))
+        return math.eval_poly(poly, x)
+      else if (is_Floating(x))
+        return math.eval_poly(poly, x[float]())
+      else
+        return map(x, (v) => math.eval_poly(poly, v))
+    }
   }
 
   export function pos<T extends Numerical>(x: T): T
@@ -234,6 +257,80 @@ export namespace np {
         throw new Error("shape or dtype mismatch")
     } else
       throw new Error("not implemented")
+  }
+
+  function cmp(x0: Numerical, y0: Numerical, op: (x: number, y: number) => boolean): Numerical {
+    const x = is_Floating(x0) ? x0[float]() : x0
+    const y = is_Floating(y0) ? y0[float]() : y0
+
+    const x_num = isNumber(x)
+    const y_num = isNumber(y)
+
+    const int = (v: boolean) => v ? 1 : 0
+
+    if (x_num && y_num)
+      return int(x >= y)
+    else if (x_num && !y_num)
+      return map(y, (yi) => int(op(x, yi)))
+    else if (!x_num && y_num)
+      return map(x, (xi) => int(op(xi, y)))
+    else if (is_NDArray(x) && is_NDArray(y)) {
+      if (is_equal(x.shape, y.shape) && x.dtype == y.dtype)
+        return map(x, (xi, i) => int(op(xi, y[i])))
+      else
+        throw new Error("shape or dtype mismatch")
+    } else
+      throw new Error("not implemented")
+  }
+
+  export function ge(x0: number, y0: number): number
+  export function ge(x0: Numerical, y0: Numerical): NDArray
+  export function ge(x0: Numerical, y0: Numerical): Numerical {
+    return cmp(x0, y0, (x, y) => x >= y)
+  }
+
+  export function le(x0: number, y0: number): number
+  export function le(x0: Numerical, y0: Numerical): NDArray
+  export function le(x0: Numerical, y0: Numerical): Numerical {
+    return cmp(x0, y0, (x, y) => x <= y)
+  }
+
+  export function gt(x0: number, y0: number): number
+  export function gt(x0: Numerical, y0: Numerical): NDArray
+  export function gt(x0: Numerical, y0: Numerical): Numerical {
+    return cmp(x0, y0, (x, y) => x > y)
+  }
+
+  export function lt(x0: number, y0: number): number
+  export function lt(x0: Numerical, y0: Numerical): NDArray
+  export function lt(x0: Numerical, y0: Numerical): Numerical {
+    return cmp(x0, y0, (x, y) => x < y)
+  }
+
+  export function where(condition: NDArray, x0: Numerical, y0: Numerical): NDArray {
+    const x = is_Floating(x0) ? x0[float]() : x0
+    const y = is_Floating(y0) ? y0[float]() : y0
+
+    const x_num = isNumber(x)
+    const y_num = isNumber(y)
+
+    const fn = ((): (cond_i: number, i: number) => number => {
+      if (x_num && y_num)
+        return (cond_i) => cond_i != 0 ? x : y
+      else if (x_num && !y_num)
+        return (cond_i, i) => cond_i != 0 ? x : y[i]
+      else if (!x_num && y_num)
+        return (cond_i, i) => cond_i != 0 ? x[i] : y
+      else if (is_NDArray(x) && is_NDArray(y)) {
+        if (is_equal(x.shape, y.shape) && x.dtype == y.dtype)
+          return (cond_i, i) => cond_i != 0 ? x[i] : y[i]
+        else
+          throw new Error("shape or dtype mismatch")
+      } else
+        throw new Error("not implemented")
+    })()
+
+    return ndarray(map(condition, fn))
   }
 
   type HistogramOptions = {density: boolean, bins: Arrayable<number>}

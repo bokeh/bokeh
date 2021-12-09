@@ -62,8 +62,14 @@ describe("Expression parser", () => {
 
   it("should support integer constants", () => {
     expect(parse("0")).to.be.equal(literal(0))
+    expect(parse("1")).to.be.equal(literal(1))
     expect(parse("12")).to.be.equal(literal(12))
     expect(parse("123")).to.be.equal(literal(123))
+
+    expect(parse("-0")).to.be.equal(neg(literal(0)))
+    expect(parse("-1")).to.be.equal(neg(literal(1)))
+    expect(parse("-12")).to.be.equal(neg(literal(12)))
+    expect(parse("-123")).to.be.equal(neg(literal(123)))
   })
 
   it("should support number constants", () => {
@@ -73,6 +79,13 @@ describe("Expression parser", () => {
     expect(parse("0.3")).to.be.equal(literal(0.3))
     expect(parse("1.3")).to.be.equal(literal(1.3))
     expect(parse("12.34")).to.be.equal(literal(12.34))
+
+    expect(parse("-.3")).to.be.equal(neg(literal(0.3)))
+    expect(parse("-4.")).to.be.equal(neg(literal(4.0)))
+    expect(parse("-0.0")).to.be.equal(neg(literal(0.0)))
+    expect(parse("-0.3")).to.be.equal(neg(literal(0.3)))
+    expect(parse("-1.3")).to.be.equal(neg(literal(1.3)))
+    expect(parse("-12.34")).to.be.equal(neg(literal(12.34)))
   })
 
   it("should support scientific notation", () => {
@@ -82,6 +95,13 @@ describe("Expression parser", () => {
     expect(parse("12.34e-1")).to.be.equal(literal(12.34e-1))
     expect(parse("12.34e+12")).to.be.equal(literal(12.34e+12))
     expect(parse("12.34e-12")).to.be.equal(literal(12.34e-12))
+
+    expect(parse("-12.34e+0")).to.be.equal(neg(literal(12.34e+0)))
+    expect(parse("-12.34e-0")).to.be.equal(neg(literal(12.34e-0)))
+    expect(parse("-12.34e+1")).to.be.equal(neg(literal(12.34e+1)))
+    expect(parse("-12.34e-1")).to.be.equal(neg(literal(12.34e-1)))
+    expect(parse("-12.34e+12")).to.be.equal(neg(literal(12.34e+12)))
+    expect(parse("-12.34e-12")).to.be.equal(neg(literal(12.34e-12)))
   })
 
   it("should support identifiers", () => {
@@ -212,11 +232,60 @@ describe("Expression parser", () => {
     expect(parse("((1)*(2+3))")).to.be.equal(mul(_1, add(_2, _3)))
     expect(parse("((1)*((2)+(3)))")).to.be.equal(mul(_1, add(_2, _3)))
 
-
     expect(parse("(1+2)*3")).to.be.equal(mul(add(_1, _2), _3))
     expect(parse("(1+2)*3+4-2-5+2/2*3")).to.be.equal(add(sub(sub(add(mul(add(_1, _2), _3), _4), _2), _5), mul(div(_2, _2), _3)))
     expect(parse("1 + 2-   3*  4 /5")).to.be.equal(sub(add(_1, _2), div(mul(_3, _4), _5)))
     expect(parse("\n1\r\n+\n2\n")).to.be.equal(add(_1, _2))
+  })
 
+  it("should support unary minus", () => {
+    const _1 = literal(1)
+    const _2 = literal(2)
+
+    expect(parse("-1+2")).to.be.equal(add(neg(_1), _2))
+    expect(parse("-1-2")).to.be.equal(sub(neg(_1), _2))
+    expect(parse("-1*2")).to.be.equal(mul(neg(_1), _2))
+    expect(parse("-1/2")).to.be.equal(div(neg(_1), _2))
+    //expect(parse("-1**2")).to.be.equal(neg(pow(_1, _2))) // XXX: fix schrodinger example when resolved
+
+    expect(parse("-(1)+2")).to.be.equal(add(neg(_1), _2))
+    expect(parse("-(1)-2")).to.be.equal(sub(neg(_1), _2))
+    expect(parse("-(1)*2")).to.be.equal(mul(neg(_1), _2))
+    expect(parse("-(1)/2")).to.be.equal(div(neg(_1), _2))
+    //expect(parse("-(1)**2")).to.be.equal(neg(pow(_1, _2)))
+
+    expect(parse("(-1)+2")).to.be.equal(add(neg(_1), _2))
+    expect(parse("(-1)-2")).to.be.equal(sub(neg(_1), _2))
+    expect(parse("(-1)*2")).to.be.equal(mul(neg(_1), _2))
+    expect(parse("(-1)/2")).to.be.equal(div(neg(_1), _2))
+    expect(parse("(-1)**2")).to.be.equal(pow(neg(_1), _2))
+
+    expect(parse("-1+(-2)")).to.be.equal(add(neg(_1), neg(_2)))
+    expect(parse("-1-(-2)")).to.be.equal(sub(neg(_1), neg(_2)))
+
+    expect(parse("-1*-2")).to.be.equal(mul(neg(_1), neg(_2)))
+    expect(parse("-1/-2")).to.be.equal(div(neg(_1), neg(_2)))
+    //expect(parse("-1**-2")).to.be.equal(neg(pow(_1, neg(_2))))
+
+    expect(parse("-(1)*-(2)")).to.be.equal(mul(neg(_1), neg(_2)))
+    expect(parse("-(1)/-(2)")).to.be.equal(div(neg(_1), neg(_2)))
+    //expect(parse("-(1)**-(2)")).to.be.equal(neg(pow(_1, neg(_2))))
+
+    expect(parse("(-1)*(-2)")).to.be.equal(mul(neg(_1), neg(_2)))
+    expect(parse("(-1)/(-2)")).to.be.equal(div(neg(_1), neg(_2)))
+    expect(parse("(-1)**(-2)")).to.be.equal(pow(neg(_1), neg(_2)))
+  })
+
+  it("should support correct operator associativity", () => {
+    const _1 = literal(1)
+    const _2 = literal(2)
+    const _3 = literal(3)
+    const _4 = literal(4)
+
+    expect(parse("1+2+3+4")).to.be.equal(add(add(add(_1, _2), _3), _4))
+    expect(parse("1-2-3-4")).to.be.equal(sub(sub(sub(_1, _2), _3), _4))
+    expect(parse("1*2*3*4")).to.be.equal(mul(mul(mul(_1, _2), _3), _4))
+    expect(parse("1/2/3/4")).to.be.equal(div(div(div(_1, _2), _3), _4))
+    //expect(parse("1**2**3**4")).to.be.equal(pow(_1, pow(_2, pow(_3, _4))))
   })
 })
