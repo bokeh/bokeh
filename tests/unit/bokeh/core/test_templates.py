@@ -25,7 +25,7 @@ from typing import List
 # Bokeh imports
 from bokeh.embed import file_html
 from bokeh.plotting import figure
-from bokeh.resources import JSResources, CSSResources, ResourcesMode
+from bokeh.resources import CSSResources, JSResources, ResourcesMode
 
 # Module under test
 import bokeh.core.templates as bct # isort:skip
@@ -82,7 +82,7 @@ def test_no_white_space_in_top_of_html() -> None:
     lines = get_html_lines("inline")
     any_character = re.compile(r"\S")
     assert(any_character.search(lines[0]) is not None)
-        
+
 def test_dont_start_script_on_same_line_after_another_ends() -> None:
     modes: List[ResourcesMode] = ["inline", "cdn", "server", "relative", "absolute"]
     for mode in modes:
