@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/test",
-  "version": "3.0.0-dev.1",
+  "version": "3.0.0-dev.2",
   "private": true,
   "description": "Internal package for bokehjs' testing framework and tests",
   "license": "BSD-3-Clause",
@@ -8,7 +8,9 @@
     "type": "git",
     "url": "https://github.com/bokeh/bokeh.git"
   },
-  "workspaces": ["./src/lib"],
+  "workspaces": [
+    "./src/lib"
+  ],
   "devDependencies": {
     "@types/cli-progress": "^3.9.2",
     "@types/express": "^4.17.13",
