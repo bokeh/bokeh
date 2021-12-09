@@ -25,7 +25,7 @@ from typing import List
 # Bokeh imports
 from bokeh.embed import file_html
 from bokeh.plotting import figure
-from bokeh.resources import CSSResources, JSResources, ResourcesMode
+from bokeh.resources import Resources, ResourcesMode
 
 # Module under test
 import bokeh.core.templates as bct # isort:skip
@@ -59,7 +59,7 @@ def compute_sha256(data):
 def get_html_lines(resource_mode: ResourcesMode) -> List[str]:
     p = figure()
     p.scatter(x=[], y=[])
-    html = file_html(p, resources=(JSResources(mode=resource_mode), CSSResources(mode=resource_mode)))
+    html = file_html(p, resources=Resources(resource_mode))
     return html.split('\n')
 
 pinned_template_sha256 = "5d26be35712286918e36cc469c9354076b3d555eb39799aa63d04473c0566c29"
