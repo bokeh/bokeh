@@ -1,3 +1,15 @@
+''' A line plot using stock price data. Sometimes it is desirable to be able to
+hide glyphs by clicking on an entry in a ``Legend``. This can be accomplished
+by setting the legend ``click_policy`` property to ``"hide"``.
+
+.. bokeh-example-metadata::
+    :sampledata: stocks
+    :apis: bokeh.palettes.Spectral4
+    :refs: :ref:`userguide_interaction` > :ref:`userguide_interaction_legends`
+    :keywords: line, interactions, legend, hide, glyphs
+
+'''
+
 import pandas as pd
 
 from bokeh.palettes import Spectral4

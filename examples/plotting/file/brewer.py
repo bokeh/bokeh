@@ -1,3 +1,13 @@
+''' A plot of randomly stacked area styled using the Brewer palette
+from the `brewer` dictionary.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.palettes.brewer
+    :refs: :ref:`userguide_styling` > :ref:`userguide_styling_using_palettes`
+    :keywords: brewer, palettes, patches
+
+'''
+
 import numpy as np
 import pandas as pd
 
