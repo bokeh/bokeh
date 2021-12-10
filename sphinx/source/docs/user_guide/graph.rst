@@ -162,11 +162,6 @@ Below are examples of graphs with added node and edge interactions:
 
 .. tabs::
 
-   .. tab:: NodesAndAdjacentNodes
-
-      .. bokeh-plot:: docs/user_guide/examples/graph_interaction_nodesadjacentnodes.py
-        :source-position: above
-
    .. tab:: NodesAndLinkedEdges
 
       .. bokeh-plot:: docs/user_guide/examples/graph_interaction_nodeslinkededges.py
@@ -175,7 +170,12 @@ Below are examples of graphs with added node and edge interactions:
    .. tab:: EdgesAndLinkedNodes
 
       .. bokeh-plot:: docs/user_guide/examples/graph_interaction_edgeslinkednodes.py
-        :source-position: above   
+        :source-position: above
+
+   .. tab:: NodesAndAdjacentNodes
+
+      .. bokeh-plot:: docs/user_guide/examples/graph_interaction_nodesadjacentnodes.py
+        :source-position: above
 
 Node and edge attributes
 ------------------------
