@@ -433,6 +433,7 @@ export class UIEventBus implements EventListenerObject {
           this.trigger(signal, e, active_gesture.id)
 
         const active_inspectors = plot_view.model.toolbar.inspectors.filter(t => t.active)
+        const is_pan_selected = !!plot_view.model.toolbar.gestures.pan.active
         let cursor = "default"
 
         // the event happened on a renderer
@@ -443,9 +444,19 @@ export class UIEventBus implements EventListenerObject {
             // override event_type to cause inspectors to clear overlays
             signal = this.move_exit as any // XXX
           }
-
         // the event happened on the plot frame but off a renderer
         } else if (this._hit_test_frame(plot_view, e.sx, e.sy)) {
+          // If pan is selected, change cursor to make on-axis panning more discoverable
+          if (is_pan_selected) {
+            console.log(e.sx, e.sy, '|', plot_view.layout.bbox)
+            if(e.sx <= plot_view.layout.bbox["x1"] * 0.10){
+              cursor = "ns-resize"
+            } else if(e.sy >= plot_view.layout.bbox["y1"] * 0.90) {
+              cursor = "ew-resize"
+            } else {
+              cursor = "all-scroll"
+            }
+          }
           if (!is_empty(active_inspectors)) {
             cursor = "crosshair"
           }
