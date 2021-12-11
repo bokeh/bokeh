@@ -648,6 +648,11 @@ export const ColorblindCalm4 = [0x2d3142ff, 0x848fa2ff, 0x058ed9ff, 0xcc2d35ff]
 export const ColorblindCalm5 = [0x2d3142ff, 0x848fa2ff, 0x058ed9ff, 0xcc2d35ff, 0xff934fff]
 export const ColorblindCalm6 = [0x2d3142ff, 0x848fa2ff, 0x058ed9ff, 0xcc2d35ff, 0xff934fff, 0xe1daaeff]
 
+export const ColorblindNature3 = [0x2e4052ff, 0xe5323bff, 0xa997dfff]
+export const ColorblindNature4 = [0x2e4052ff, 0xe5323bff, 0xa997dfff, 0xffc857ff]
+export const ColorblindNature5 = [0x2e4052ff, 0xe5323bff, 0xa997dfff, 0xffc857ff, 0x929084ff]
+export const ColorblindNature6 = [0x2e4052ff, 0xe5323bff, 0xa997dfff, 0xffc857ff, 0x929084ff, 0xbdd9bfff]
+
 export type YlGn         = "YlGn3"         | "YlGn4"         | "YlGn5"         | "YlGn6"         | "YlGn7"         | "YlGn8"         | "YlGn9"
 export type YlGnBu       = "YlGnBu3"       | "YlGnBu4"       | "YlGnBu5"       | "YlGnBu6"       | "YlGnBu7"       | "YlGnBu8"       | "YlGnBu9"
 export type GnBu         = "GnBu3"         | "GnBu4"         | "GnBu5"         | "GnBu6"         | "GnBu7"         | "GnBu8"         | "GnBu9"
@@ -693,6 +698,7 @@ export type Category20b  = "Category20b_3" | "Category20b_4" | "Category20b_5" |
 export type Category20c  = "Category20c_3" | "Category20c_4" | "Category20c_5" | "Category20c_6" | "Category20c_7" | "Category20c_8" | "Category20c_9" | "Category20c_10" | "Category20c_11"| "Category20c_12" | "Category20c_13" | "Category20c_14" | "Category20c_15" | "Category20c_16" | "Category20c_17" | "Category20c_18" | "Category20c_19" | "Category20c_20"
 export type Colorblind   = "Colorblind3"   | "Colorblind4"   | "Colorblind5"   | "Colorblind6"   | "Colorblind7"   | "Colorblind8"
 export type ColorblindCalm = "ColorblindCalm3" | "ColorblindCalm4" | "ColorblindCalm5" | "ColorblindCalm6"
+export type ColorblindNature = "ColorblindNature3" | "ColorblindNature4" | "CColorblindNature5" | "ColorblindNature6"
 
 export type Palette = YlGn
                     | YlGnBu
@@ -739,6 +745,7 @@ export type Palette = YlGn
                     | Category20c
                     | Colorblind
                     | ColorblindCalm
+                    | ColorblindNature
 
 export const YlGn        = {YlGn3, YlGn4, YlGn5, YlGn6, YlGn7, YlGn8, YlGn9}
 export const YlGnBu      = {YlGnBu3, YlGnBu4, YlGnBu5, YlGnBu6, YlGnBu7, YlGnBu8, YlGnBu9}
@@ -785,6 +792,7 @@ export const Category20b = {Category20b_3, Category20b_4, Category20b_5, Categor
 export const Category20c = {Category20c_3, Category20c_4, Category20c_5, Category20c_6, Category20c_7, Category20c_8, Category20c_9, Category20c_10, Category20c_11, Category20c_12, Category20c_13, Category20c_14, Category20c_15, Category20c_16, Category20c_17, Category20c_18, Category20c_19, Category20c_20}
 export const Colorblind  = {Colorblind3, Colorblind4, Colorblind5, Colorblind6, Colorblind7, Colorblind8}
 export const ColorblindCalm = {ColorblindCalm3, ColorblindCalm4, ColorblindCalm5, ColorblindCalm6}
+export const ColorblindNature = {ColorblindNature3, ColorblindNature4, ColorblindNature5, ColorblindNature6}
 
 export function linear_palette<T>(palette: T[], n: number): T[] {
   if (n <= palette.length)

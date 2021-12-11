@@ -1099,6 +1099,7 @@ Colorblind6 = Colorblind8[:6]
 Colorblind5 = Colorblind8[:5]
 Colorblind4 = Colorblind8[:4]
 Colorblind3 = Colorblind8[:3]
+
 # two more colorblind friendly palettes from https://medium.com/cafe-pixo/inclusive-color-palettes-for-the-web-bbfe8cf2410e
 #             ('navy', 'grey', 'blue', 'red', 'orange', 'light yellow') # key
 ColorblindCalm6 = ('#2D3142', '#848FA2', '#058ED9', '#CC2D35', '#FF934F', '#E1DAAE') # reordered
@@ -1106,6 +1107,11 @@ ColorblindCalm5 = ColorblindCalm6[:5]
 ColorblindCalm4 = ColorblindCalm6[:4]
 ColorblindCalm3 = ColorblindCalm6[:3]
 
+#                   ('navy   ', 'red    ', 'purple ', 'yellow ', 'olive  ', 'mint   ')
+ColorblindNature6 = ('#2E4052', '#E5323B', '#A997DF', '#FFC857', '#929084', '#BDD9BF')
+ColorblindNature5 = ColorblindNature6[:5]
+ColorblindNature4 = ColorblindNature6[:4]
+ColorblindNature3 = ColorblindNature6[:3]
 
 # Bokeh palette created from colors of shutter logo
 Bokeh8 = ('#EC1557', '#F05223', '#F6A91B', '#A5CD39', '#20B254', '#00AAAE', '#4998D3', '#892889')
@@ -1173,6 +1179,8 @@ Category20c = { 3:  Category20c_3,  4:  Category20c_4,  5:  Category20c_5,  6:  
                 18: Category20c_18, 19: Category20c_19, 20: Category20c_20 }
 Colorblind  = { 3: Colorblind3, 4: Colorblind4, 5: Colorblind5, 6: Colorblind6, 7: Colorblind7, 8: Colorblind8 }
 ColorblindCalm = { 3: ColorblindCalm3, 4: ColorblindCalm4, 5: ColorblindCalm5, 6: ColorblindCalm6 }
+ColorblindNature = {3: ColorblindNature3, 4: ColorblindNature4, 5: ColorblindNature5, 6: ColorblindNature6}
+
 Bokeh = { 3: Bokeh3, 4: Bokeh4, 5: Bokeh5, 6: Bokeh6, 7: Bokeh7, 8: Bokeh8 }
 
 brewer = {
@@ -1234,7 +1242,8 @@ mpl = {
 
 colorblind = {
     "Colorblind" : Colorblind,
-    "ColorblindCalm" : ColorblindCalm
+    "ColorblindCalm" : ColorblindCalm,
+    "ColorblindNature": ColorblindNature
 }
 
 all_palettes = deepcopy(brewer)
