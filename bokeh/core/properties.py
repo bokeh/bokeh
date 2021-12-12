@@ -343,8 +343,8 @@ from .property.numeric import Size; Size
 
 from .property.override import Override ; Override
 
-from .property.pandas import PandasDataFrame ; PandasDataFrame
-from .property.pandas import PandasGroupBy ; PandasGroupBy
+from .property.pd import PandasDataFrame ; PandasDataFrame
+from .property.pd import PandasGroupBy ; PandasGroupBy
 
 from .property.primitive import Bool; Bool
 from .property.primitive import Complex; Complex

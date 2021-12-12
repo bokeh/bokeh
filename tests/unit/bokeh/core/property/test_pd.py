@@ -4,33 +4,31 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Provide (optional) Pandas properties.
-
-"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations
+from __future__ import annotations # isort:skip
 
-import logging # isort:skip
-log = logging.getLogger(__name__)
+import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ...util.dependencies import import_optional
-from .bases import Property
+from bokeh._testing.util.api import verify_all
+
+from _util_property import _TestHasProps, _TestModel
+
+# Module under test
+import bokeh.core.property.pd as bcpp # isort:skip
 
 #-----------------------------------------------------------------------------
-# Globals and constants
+# Setup
 #-----------------------------------------------------------------------------
 
-pd = import_optional('pandas')
-
-__all__ = (
+ALL = (
     'PandasDataFrame',
     'PandasGroupBy',
 )
@@ -39,39 +37,37 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class PandasDataFrame(Property):
-    """ Accept Pandas DataFrame values.
 
-    This property only exists to support type validation, e.g. for "accepts"
-    clauses. It is not serializable itself, and is not useful to add to
-    Bokeh models directly.
+class Test_PandasDataFrame:
+    def test_valid(self, pd) -> None:
+        prop = bcpp.PandasDataFrame()
+        assert prop.is_valid(pd.DataFrame())
 
-    """
-    def validate(self, value, detail=True):
-        super().validate(value, detail)
+    def test_invalid(self) -> None:
+        prop = bcpp.PandasDataFrame()
+        assert not prop.is_valid(None)
+        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(())
+        assert not prop.is_valid([])
+        assert not prop.is_valid({})
+        assert not prop.is_valid(_TestHasProps())
+        assert not prop.is_valid(_TestModel())
 
-        if pd and isinstance(value, pd.DataFrame):
-            return
 
-        msg = "" if not detail else f"expected Pandas DataFrame, got {value!r}"
-        raise ValueError(msg)
+class Test_PandasGroupBy:
+    def test_valid(self, pd) -> None:
+        prop = bcpp.PandasGroupBy()
+        assert prop.is_valid(pd.core.groupby.GroupBy(pd.DataFrame()))
 
-class PandasGroupBy(Property):
-    """ Accept Pandas DataFrame values.
-
-    This property only exists to support type validation, e.g. for "accepts"
-    clauses. It is not serializable itself, and is not useful to add to
-    Bokeh models directly.
-
-    """
-    def validate(self, value, detail=True):
-        super().validate(value, detail)
-
-        if pd and isinstance(value, pd.core.groupby.GroupBy):
-            return
-
-        msg = "" if not detail else f"expected Pandas GroupBy, got {value!r}"
-        raise ValueError(msg)
+    def test_invalid(self) -> None:
+        prop = bcpp.PandasGroupBy()
+        assert not prop.is_valid(None)
+        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(())
+        assert not prop.is_valid([])
+        assert not prop.is_valid({})
+        assert not prop.is_valid(_TestHasProps())
+        assert not prop.is_valid(_TestModel())
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -84,3 +80,5 @@ class PandasGroupBy(Property):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+Test___all__ = verify_all(bcpp, ALL)

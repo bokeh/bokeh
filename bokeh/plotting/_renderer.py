@@ -27,15 +27,12 @@ import numpy as np
 # Bokeh imports
 from ..core.properties import ColorSpec
 from ..models import ColumnarDataSource, ColumnDataSource, GlyphRenderer
-from ..util.dependencies import import_optional
 from ..util.string import nice_join
 from ._legends import pop_legend_kwarg, update_legend
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
-
-pd = import_optional('pandas')
 
 __all__ = (
     'create_renderer',

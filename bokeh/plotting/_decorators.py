@@ -31,6 +31,7 @@ from ._renderer import create_renderer
 
 __all__ = (
     'glyph_method',
+    'marker_method',
 )
 
 #-----------------------------------------------------------------------------

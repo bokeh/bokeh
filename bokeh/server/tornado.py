@@ -86,7 +86,6 @@ __all__ = (
     'BokehTornado',
 )
 
-pd = import_optional("pandas")
 psutil = import_optional("psutil")
 
 GB = 2**20
@@ -761,6 +760,7 @@ class BokehTornado(TornadoApplication):
         objs = [x for x in gc.get_objects() if isinstance(x, ModuleType) and "bokeh_app_" in str(x)]
         log.debug(f"  uncollected modules: {len(objs)}")
 
+        pd = import_optional('pandas')
         if pd:
             objs = [x for x in all_objs if isinstance(x, pd.DataFrame)]
             log.debug("  uncollected DataFrames: %d", len(objs))

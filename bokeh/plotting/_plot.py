@@ -48,8 +48,6 @@ from ..util.dependencies import import_optional
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-pd = import_optional('pandas')
-
 __all__ = (
     'get_range',
     'get_scale',
@@ -67,6 +65,7 @@ __all__ = (
 def get_range(range_input):
     if range_input is None:
         return DataRange1d()
+    pd = import_optional('pandas')
     if pd and isinstance(range_input, pd.core.groupby.GroupBy):
         return FactorRange(factors=sorted(list(range_input.groups.keys())))
     if isinstance(range_input, Range):
