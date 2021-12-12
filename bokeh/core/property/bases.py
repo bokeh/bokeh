@@ -67,8 +67,6 @@ if TYPE_CHECKING:
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-pd = import_optional('pandas')
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -237,6 +235,7 @@ class Property(PropertyDescriptorFactory[T]):
         if isinstance(new, np.ndarray) or isinstance(old, np.ndarray):
             return np.array_equal(new, old)
 
+        pd = import_optional('pandas')
         if pd:
             if isinstance(new, pd.Series) or isinstance(old, pd.Series):
                 return np.array_equal(new, old)

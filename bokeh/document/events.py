@@ -69,11 +69,9 @@ from typing import (
 ## External imports
 if TYPE_CHECKING:
     import pandas as pd
-else:
-    from ..util.dependencies import import_optional
-    pd = import_optional('pandas')
 
 # Bokeh imports
+from ..util.dependencies import import_optional
 from ..util.serialization import make_id
 from .json import (
     ColumnDataChanged,
@@ -613,6 +611,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         super().__init__(document, setter, callback_invoker)
         self.column_source = column_source
 
+        pd = import_optional('pandas')
         if pd and isinstance(data, pd.DataFrame):
             data = {c: data[c] for c in data.columns}
 

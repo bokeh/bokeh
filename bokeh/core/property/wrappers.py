@@ -76,9 +76,6 @@ from typing import (
 # External imports
 import numpy as np
 
-# Bokeh imports
-from ...util.dependencies import import_optional
-
 if TYPE_CHECKING:
     from ...document import Document
     from ...document.events import DocumentPatchedEvent
@@ -90,8 +87,6 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
-
-pd = import_optional('pandas')
 
 __all__ = (
     'notify_owner',

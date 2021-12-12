@@ -57,21 +57,14 @@ import collections
 import datetime as dt
 import decimal
 import json
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 # External imports
 import numpy as np
 
-if TYPE_CHECKING:
-    import dateutil.relativedelta as rd
-    import pandas as pd
-else:
-    from ..util.dependencies import import_optional
-    rd = import_optional("dateutil.relativedelta")
-    pd = import_optional("pandas")
-
 # Bokeh imports
 from ..settings import settings
+from ..util.dependencies import import_optional
 from ..util.serialization import (
     convert_datetime_type,
     convert_timedelta_type,
@@ -192,6 +185,7 @@ class BokehJSONEncoder(json.JSONEncoder):
                 this method is passed on to the default system JSON encoder.
 
         '''
+        rd = import_optional("dateutil.relativedelta")
 
         # date/time values that get serialized as milliseconds
         if is_datetime_type(obj):
@@ -246,6 +240,8 @@ class BokehJSONEncoder(json.JSONEncoder):
         from ..colors import Color
         from ..model import Model
         from .has_props import HasProps
+
+        pd = import_optional('pandas')
 
         # array types -- use force_list here, only binary
         # encoding CDS columns for now

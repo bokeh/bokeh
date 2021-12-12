@@ -31,13 +31,6 @@ from typing import (
     overload,
 )
 
-## External imports
-if TYPE_CHECKING:
-    import pandas as pd
-else:
-    from ..util.dependencies import import_optional
-    pd = import_optional("pandas")
-
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.properties import (
@@ -59,6 +52,7 @@ from ..core.properties import (
     String,
 )
 from ..model import Model
+from ..util.dependencies import import_optional
 from ..util.serialization import convert_datetime_array
 from ..util.warnings import BokehUserWarning
 from .callbacks import CustomJS
@@ -225,6 +219,7 @@ class ColumnDataSource(ColumnarDataSource):
         raw_data: DataDict = kwargs.pop("data", {})
 
         if not isinstance(raw_data, dict):
+            pd = import_optional('pandas')
             if pd and isinstance(raw_data, pd.DataFrame):
                 raw_data = self._data_from_df(raw_data)
             elif pd and isinstance(raw_data, pd.core.groupby.GroupBy):
@@ -253,6 +248,8 @@ class ColumnDataSource(ColumnarDataSource):
             dict[str, np.array]
 
         '''
+        pd = import_optional('pandas')
+
         _df = df.copy()
 
         # Flatten columns
@@ -367,6 +364,7 @@ class ColumnDataSource(ColumnarDataSource):
             DataFrame
 
         '''
+        pd = import_optional('pandas')
         if not pd:
             raise RuntimeError('Pandas must be installed to convert to a Pandas Dataframe')
         return pd.DataFrame(self.data)
@@ -505,6 +503,7 @@ class ColumnDataSource(ColumnarDataSource):
         '''
         needs_length_check = True
 
+        pd = import_optional('pandas')
         if pd and isinstance(new_data, (pd.Series, pd.DataFrame)):
             if isinstance(new_data, pd.Series):
                 new_data = new_data.to_frame().T

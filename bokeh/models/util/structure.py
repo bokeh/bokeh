@@ -41,9 +41,6 @@ from typing import TYPE_CHECKING, Dict, Set
 ## External dependencies
 if TYPE_CHECKING:
     import pandas as pd
-else:
-    from ...util.dependencies import import_optional
-    pd = import_optional("pandas")
 
 # Bokeh imports
 from bokeh.layouts import column
@@ -67,6 +64,7 @@ from bokeh.models import (
     TableColumn,
     TapTool,
 )
+from bokeh.util.dependencies import import_required
 
 if TYPE_CHECKING:
     from ...core.types import ID
@@ -309,7 +307,7 @@ class _BokehStructureGraph:
         analyzed. Used as datasource to show attributes.
 
         """
-        import pandas as pd
+        pd = import_required("pandas", "Structure graphs require Pandas (http://pandas.pydata.org) to be installed")
         df = pd.DataFrame()
         for x in self._graph.nodes(data=True):
             M = self._model.select_one(dict(id=x[0]))
