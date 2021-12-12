@@ -423,9 +423,14 @@ def _model_requires_mathjax(model: Model) -> bool:
     from ..models.annotations import TextAnnotation
     from ..models.axes import Axis
     from ..models.widgets.markups import Div, Paragraph
+    from ..models.widgets.sliders import AbstractSlider
 
     if isinstance(model, TextAnnotation):
         if isinstance(model.text, str) and is_tex_string(model.text):
+            return True
+
+    if isinstance(model, AbstractSlider):
+        if isinstance(model.title, str) and is_tex_string(model.title):
             return True
 
     if isinstance(model, Axis):

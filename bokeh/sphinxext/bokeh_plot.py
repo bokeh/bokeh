@@ -221,7 +221,7 @@ class BokehPlotDirective(BokehDirective):
             with open(path) as f:
                 return f.read(), path
         except Exception as e:
-            raise SphinxError(f"bokeh-plot:: error reading source for {self.env.docname!r}: {e!r}")
+            raise SphinxError(f"bokeh-plot:: error reading {path!r} for {self.env.docname!r}: {e!r}")
 
     def process_source(self, source, path, js_filename):
         Model._clear_extensions()

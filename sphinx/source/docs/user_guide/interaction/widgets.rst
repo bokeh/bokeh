@@ -256,6 +256,8 @@ A radio group uses standard radio button appearance:
 
 More information can be found in the Reference for |RadioGroup|.
 
+.. _userguide_interaction_widgets_range_slider:
+
 RangeSlider
 ~~~~~~~~~~~
 
@@ -276,6 +278,8 @@ A single selection widget:
     :source-position: below
 
 More information can be found in the Reference for |Select|.
+
+.. _userguide_interaction_widgets_slider:
 
 Slider
 ~~~~~~

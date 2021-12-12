@@ -18,7 +18,7 @@ dependencies:
   # build
   - boto
   - colorama
-  - conda-build=3.20.5
+  - conda-build=3.21.7
   - conda-verify=3.4.2
   - libiconv
   - nodejs 14.*
