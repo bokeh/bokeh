@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Arrayable, Rect, ScreenArray, to_screen} from "core/types"
+import {Arrayable, Rect, ScreenArray, to_screen, Indices} from "core/types"
 import {Anchor} from "core/enums"
 import * as p from "core/properties"
 import {minmax} from "core/util/arrayable"
@@ -25,6 +25,7 @@ export type ImageURLData = XYGlyphData & {
   readonly max_h: number
 
   image: (CanvasImage | undefined)[]
+  rendered: Indices
 }
 
 export interface ImageURLView extends ImageURLData {}
@@ -57,6 +58,7 @@ export class ImageURLView extends XYGlyphView {
 
     const n_urls = this.url.length
     this.image = new Array(n_urls)
+    this.rendered = new Indices(n_urls)
 
     const {retry_attempts, retry_timeout} = this.model
     const {_set_data_iteration} = this
@@ -66,16 +68,21 @@ export class ImageURLView extends XYGlyphView {
       if (!url)
         continue
 
-      new ImageLoader(url, {
-        loaded: (image) => {
-          if (this._set_data_iteration == _set_data_iteration) {
-            this.image[i] = image
+      const loader = new ImageLoader(url, {
+        loaded: () => {
+          if (this._set_data_iteration == _set_data_iteration && !this.rendered.get(i)) {
             this.renderer.request_render()
+          }
+        },
+        failed: () => {
+          if (this._set_data_iteration == _set_data_iteration) {
+            this.image[i] = undefined
           }
         },
         attempts: retry_attempts + 1,
         timeout: retry_timeout,
       })
+      this.image[i] = loader.image
     }
 
     const w_data = this.model.properties.w.units == "data"
@@ -154,7 +161,7 @@ export class ImageURLView extends XYGlyphView {
   }
 
   override has_finished(): boolean {
-    return super.has_finished() && this._images_rendered == true
+    return super.has_finished() && this._images_rendered
   }
 
   protected override _map_data(): void {
@@ -174,23 +181,23 @@ export class ImageURLView extends XYGlyphView {
 
     // TODO (bev): take actual border width into account when clipping
     const {frame} = this.renderer.plot_view
+    const {left, top, width, height} = frame.bbox
     ctx.beginPath()
-    ctx.rect(
-      frame.bbox.left+1, frame.bbox.top+1,
-      frame.bbox.width-2, frame.bbox.height-2,
-    )
+    ctx.rect(left + 1, top + 1, width - 2, height - 2)
     ctx.clip()
 
     let finished = true
 
     for (const i of indices) {
-      if (!isFinite(sx[i] + sy[i] + angle.get(i) + global_alpha.get(i)))
-        continue
-
       const img = image[i]
 
-      if (img == null) {
+      if (!isFinite(sx[i] + sy[i] + angle.get(i) + global_alpha.get(i)) || img == null)
+        continue
+
+      if (!img.complete) {
         finished = false
+        continue
+      } else if (img.naturalWidth == 0 && img.naturalHeight == 0) { // dumb way of detecting broken images
         continue
       }
 
@@ -262,6 +269,8 @@ export class ImageURLView extends XYGlyphView {
       ctx.drawImage(image, sx_i, sy_i, sw_i, sh_i)
 
     ctx.restore()
+
+    this.rendered.set(i)
   }
 
   override bounds(): Rect {
