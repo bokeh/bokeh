@@ -698,7 +698,7 @@ export type Category20b  = "Category20b_3" | "Category20b_4" | "Category20b_5" |
 export type Category20c  = "Category20c_3" | "Category20c_4" | "Category20c_5" | "Category20c_6" | "Category20c_7" | "Category20c_8" | "Category20c_9" | "Category20c_10" | "Category20c_11"| "Category20c_12" | "Category20c_13" | "Category20c_14" | "Category20c_15" | "Category20c_16" | "Category20c_17" | "Category20c_18" | "Category20c_19" | "Category20c_20"
 export type Colorblind   = "Colorblind3"   | "Colorblind4"   | "Colorblind5"   | "Colorblind6"   | "Colorblind7"   | "Colorblind8"
 export type ColorblindCalm = "ColorblindCalm3" | "ColorblindCalm4" | "ColorblindCalm5" | "ColorblindCalm6"
-export type ColorblindNature = "ColorblindNature3" | "ColorblindNature4" | "CColorblindNature5" | "ColorblindNature6"
+export type ColorblindNature = "ColorblindNature3" | "ColorblindNature4" | "ColorblindNature5" | "ColorblindNature6"
 
 export type Palette = YlGn
                     | YlGnBu
