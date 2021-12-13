@@ -11,21 +11,15 @@
 
       *, *:before, *:after {
         box-sizing: inherit;
-      }
-
-      *, *:before, *:after {
         margin: 0;
         border: 0;
         padding: 0;
         background-image: none;
       }
 
-      .bk-root, input::-webkit-file-upload-button {
-        font-family: Bokeh;
-      }
-
-      .bk-root pre.bk {
-        font-family: BokehMono;
+      * {
+        --bokeh-base-font: Bokeh;
+        --bokeh-mono-font: BokehMono;
       }
 
       .container {

@@ -2,7 +2,7 @@
 
 :host {
   box-sizing: border-box;
-  font-family: Helvetica, Arial, sans-serif;
+  font-family: var(--bokeh-base-font, Helvetica, Arial, sans-serif);
   font-size: 13px; // 0.8em
 }
 
@@ -15,4 +15,8 @@
   border: 0;
   padding: 0;
   background-image: none;
+}
+
+pre {
+  font-family: var(--bokeh-mono-font, monospace);
 }
