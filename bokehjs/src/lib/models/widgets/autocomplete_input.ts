@@ -149,8 +149,11 @@ export class AutocompleteInputView extends TextInputView {
           if (acnorm(text).startsWith(acnorm(value))) {
             completions.push(text)
           }
+          if (acnorm(text).includes(acnorm(value))) {
+            completions.push(text)
+          }
         }
-
+        
         this._update_completions(completions)
 
         if (completions.length == 0)
