@@ -153,7 +153,6 @@ export class AutocompleteInputView extends TextInputView {
             completions.push(text)
           }
         }
-        
         this._update_completions(completions)
 
         if (completions.length == 0)
