@@ -1,7 +1,15 @@
-from bokeh.io import output_file, show
-from bokeh.plotting import figure
+''' A bar chart based on simple Python lists of data. The example below
+sorts the fruit categories in ascending order based on counts and
+rearranges the bars accordingly.
 
-output_file("bar_sorted.html")
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.vbar
+    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_sorted`
+    :keywords: bars, categorical, sort
+
+'''
+
+from bokeh.plotting import figure, show
 
 fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 counts = [5, 3, 4, 2, 4, 6]

@@ -50,7 +50,16 @@ def clean_repo(config: Config, system: System) -> ActionReturn:
 
 
 def commit_staging_branch(config: Config, system: System) -> ActionReturn:
-    paths = ("CHANGELOG", "bokehjs/package-lock.json", "bokehjs/package.json", "bokeh/_sri.json")
+    paths = (
+        "CHANGELOG",
+        "bokehjs/package-lock.json",
+        "bokehjs/package.json",
+        "bokehjs/make/package.json",
+        "bokehjs/src/compiler/package.json",
+        "bokehjs/src/lib/package.json",
+        "bokehjs/test/package.json",
+        "bokeh/_sri.json",
+    )
     for path in paths:
         try:
             system.run(f"git add {path}")

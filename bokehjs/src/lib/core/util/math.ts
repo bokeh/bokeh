@@ -154,3 +154,35 @@ export class Fraction implements Floating {
 }
 
 export const float32_epsilon = 1.1920928955078125e-7  // IEEE-754
+
+export function factorial(x: number): number {
+  let y = 1
+  for (let i = 2; i <= x; i++) {
+    y *= i
+  }
+  return y
+}
+
+type Poly = number[]
+
+export function hermite(n: number): Poly {
+  const poly = new Array(n + 1)
+  poly.fill(0)
+  const fn = factorial(n)
+  for (let k = 0; k <= Math.floor(n/2); k++) {
+    const c = (-1)**k*fn / (factorial(k)*factorial(n - 2*k)) * 2**(n - 2*k)
+    poly[2*k] = c
+  }
+  return poly
+}
+
+export function eval_poly(poly: Poly, x: number): number {
+  const n = poly.length - 1
+  let y = 0
+  let x_n = 1
+  for (let i = n; i >= 0; i--) {
+    y += x_n*poly[i]
+    x_n *= x
+  }
+  return y
+}
