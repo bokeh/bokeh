@@ -1,5 +1,5 @@
 import {display, fig, row} from "../_util"
-import {with_internal, with_delayed, with_none} from "../_util"
+import {with_internal, with_none} from "../_util"
 
 import {OutputBackend} from "@bokehjs/core/enums"
 import {Label, TeX, Ascii, MathML} from "@bokehjs/models"
@@ -39,13 +39,6 @@ describe("Label annotation", () => {
     it("should support MathML notation", async () => {
       await with_internal(async () => {
         const p = plot_label({text: new MathML({text: mathml})})
-        await display(p)
-      })
-    })
-
-    it("should support LaTeX notation with a delay in loading", async () => {
-      await with_delayed(async () => {
-        const p = plot_label({text: new TeX({text: tex})})
         await display(p)
       })
     })

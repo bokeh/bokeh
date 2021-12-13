@@ -268,7 +268,10 @@ export class MathMLBox extends MathBox {
 
 export class AsciiBox extends MathBox {
   get styled_formula(): string {
-    return this.text
+    const [r, g, b] = color2rgba(this.color)
+    const ascii = `\\text ${this.text}`
+
+    return `\\color[RGB]{${r}, ${g}, ${b}} ${this.font.includes("bold") ? `\\bf{${ascii}}` : ascii}`
   }
 
   to_svg(): SVGSVGElement {

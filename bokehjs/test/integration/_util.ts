@@ -6,7 +6,6 @@ import {Matrix} from "@bokehjs/core/util/matrix"
 import {Figure, figure} from "@bokehjs/api/plotting"
 import {LayoutDOM, Row, Column, GridBox} from "@bokehjs/models/layouts/index"
 
-import {wait} from "@bokehjs/core/util/defer"
 import {tex2svg, mathml2svg, MathJaxCanvas} from "@bokehjs/models/text/mathjax"
 import {MathJaxProvider, NoProvider} from "@bokehjs/models/text/providers"
 import {MathBox} from "@bokehjs/core/math_graphics"
@@ -26,20 +25,6 @@ export function column(children: LayoutDOM[], opts?: Partial<Column.Attrs>): Col
 
 export function fig([width, height]: [number, number], attrs?: Partial<Figure.Attrs>): Figure {
   return figure({width, height, title: null, toolbar_location: null, ...attrs})
-}
-
-export class DelayedInternalProvider extends MathJaxProvider {
-  get MathJax() {
-    return this.status == "loaded" ? {tex2svg, mathml2svg, MathJaxCanvas} : null
-  }
-
-  async fetch() {
-    this.status = "loading"
-    wait(50).then(() => {
-      this.status = "loaded"
-      this.ready.emit()
-    })
-  }
 }
 
 export class InternalProvider extends MathJaxProvider {
@@ -64,5 +49,4 @@ export function with_provider(provider: MathJaxProvider) {
 }
 
 export const with_internal = with_provider(new InternalProvider())
-export const with_delayed = with_provider(new DelayedInternalProvider())
 export const with_none = with_provider(new NoProvider())

@@ -83,7 +83,7 @@ export class TitleView extends TextAnnotationView {
     if (!this.displayed)
       return {width: 0, height: 0}
 
-    const graphics = this._text_view.graphics()
+    const graphics = this._text_graphics
     graphics.visuals = this.visuals.text.values()
 
     const {width, height} = graphics._size()

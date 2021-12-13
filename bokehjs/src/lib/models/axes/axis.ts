@@ -17,7 +17,6 @@ import {entries} from "core/util/object"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
-import {BaseTextView} from "../text/base_text"
 import {BaseText} from "../text/base_text"
 import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
@@ -49,7 +48,7 @@ export class AxisView extends GuideRendererView {
   layout: Layoutable
 
   /*private*/ _axis_label_graphics: MathBox | TextBox | null
-  /*private*/ _major_label_views: Map<string, BaseTextView> = new Map()
+  /*private*/ _major_label_graphics: Map<string, MathBox | TextBox> = new Map()
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -71,7 +70,8 @@ export class AxisView extends GuideRendererView {
     const {major_label_overrides} = this.model
     for (const [label, label_text] of entries(major_label_overrides)) {
       const _label_text = isString(label_text) ? parse_delimited_string(label_text) : label_text
-      this._major_label_views.set(label, await build_view(_label_text, {parent: this}))
+      const label_view = await build_view(_label_text)
+      this._major_label_graphics.set(label, label_view.graphics())
     }
   }
 
@@ -124,9 +124,6 @@ export class AxisView extends GuideRendererView {
     })
 
     this.on_change(major_label_overrides, async () => {
-      for (const label_view of this._major_label_views.values()) {
-        label_view.remove()
-      }
       await this._init_major_labels()
     })
 
@@ -428,14 +425,14 @@ export class AxisView extends GuideRendererView {
 
   compute_labels(ticks: number[]): GraphicsBoxes {
     const labels = this.model.formatter.format_graphics(ticks, this)
-    const {_major_label_views} = this
+    const {_major_label_graphics: _major_label_views} = this
 
     const visited = new Set()
     for (let i = 0; i < ticks.length; i++) {
       const override = _major_label_views.get(ticks[i].toString())
       if (override != null) {
         visited.add(override)
-        labels[i] = override.graphics()
+        labels[i] = override
       }
     }
 
@@ -596,14 +593,6 @@ export class AxisView extends GuideRendererView {
       ...super.serializable_state(),
       bbox: this.layout.bbox.box,
     }
-  }
-
-  override remove(): void {
-    for (const label_view of this._major_label_views.values()) {
-      label_view.remove()
-    }
-
-    super.remove()
   }
 }
 
