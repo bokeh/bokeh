@@ -28,17 +28,14 @@ describe("Feature", () => {
 
     before_each(() => {
       // this will append exactly once; don't remove for manual review
-      // XXX: `.bk-toolbar-button` is needed to override `background-image`
-      // from `.bk-root`. Drop this when shadow DOM (CSS modularization) is
-      // implemented.
       stylesheet.append(`
-        .bk-toolbar-button.pan-tool-custom-icon-both {
+        .pan-tool-custom-icon-both {
           background-image: url("${encodeURI(both)}");
         }
-        .bk-toolbar-button.pan-tool-custom-icon-width {
+        .pan-tool-custom-icon-width {
           background-image: url("${encodeURI(width)}");
         }
-        .bk-toolbar-button.pan-tool-custom-icon-height {
+        .pan-tool-custom-icon-height {
           background-image: url("${encodeURI(height)}");
         }
       `)
