@@ -103,7 +103,12 @@ export class ContextMenu {
   }
 
   protected _position(at: At): void {
-    const parent_el = this.el.parentElement
+    const parent_el = (() => {
+      if (this.el.parentNode instanceof ShadowRoot)
+        return this.el.parentNode.host
+      else
+        return this.el.parentElement
+    })()
     if (parent_el != null) {
       const pos = (() => {
         if ("left_of" in at) {
