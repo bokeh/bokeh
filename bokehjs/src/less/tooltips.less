@@ -23,13 +23,11 @@
     .bring-to-front();
   }
 
-  /*
-  :host > div:not(:first-child) {
+  .bk-tooltip-contents > div:not(:first-child) {
     // gives space when multiple elements are being hovered over
     margin-top: 5px;
     border-top: @tooltipBorder 1px dashed;
   }
-  */
 
   .tooltip-arrow-horizontal() {
     position: absolute;
@@ -57,40 +55,40 @@
     display: block;
   }
 
-  :host(.bk-left.bk-tooltip-arrow)::before {
+  :host(.bk-left.bk-tooltip-arrow) .bk-tooltip-content::before {
     .tooltip-arrow-horizontal();
     left: -@tooltipArrowWidth;
     border-right-width: @tooltipArrowWidth;
     border-right-color: @tooltipArrowColor;
   }
 
-  :host(.bk-left)::before {
+  :host(.bk-left) .bk-tooltip-content::before {
     left: -@tooltipArrowWidth;
     border-right-width: @tooltipArrowWidth;
     border-right-color: @tooltipArrowColor;
   }
 
-  :host(.bk-right.bk-tooltip-arrow)::after {
+  :host(.bk-right.bk-tooltip-arrow) .bk-tooltip-content::after {
     .tooltip-arrow-horizontal();
     right: -@tooltipArrowWidth;
     border-left-width: @tooltipArrowWidth;
     border-left-color: @tooltipArrowColor;
   }
 
-  :host(.bk-right)::after {
+  :host(.bk-right) .bk-tooltip-content::after {
     right: -@tooltipArrowWidth;
     border-left-width: @tooltipArrowWidth;
     border-left-color: @tooltipArrowColor;
   }
 
-  :host(.bk-above)::before {
+  :host(.bk-above) .bk-tooltip-content::before {
     .tooltip-arrow-vertical();
     top: -@tooltipArrowHeight;
     border-bottom-width: @tooltipArrowHeight;
     border-bottom-color: @tooltipArrowColor;
   }
 
-  :host(.bk-below)::after {
+  :host(.bk-below) .bk-tooltip-content::after {
     .tooltip-arrow-vertical();
     bottom: -@tooltipArrowHeight;
     border-top-width: @tooltipArrowHeight;

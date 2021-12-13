@@ -161,7 +161,7 @@ export class Tooltip extends Annotation {
 
     this.internal<Tooltip.Props>(({Boolean, Number, Tuple, Ref, Nullable}) => ({
       position: [ Nullable(Tuple(Number, Number)), null ],
-      content:  [ Ref(HTMLElement), () => div() ],
+      content:  [ Ref(HTMLElement), () => div({class: "bk-tooltip-content"}) ],
       custom:   [ Boolean ],
     }))
 
