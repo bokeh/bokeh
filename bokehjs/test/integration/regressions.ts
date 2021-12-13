@@ -1,6 +1,6 @@
 import sinon from "sinon"
 
-import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
+import {display, fig, row, column, grid, InternalProvider} from "./_util"
 
 import {
   Arrow, ArrowHead, NormalHead, OpenHead,
@@ -1118,7 +1118,7 @@ describe("Bug", () => {
   describe("in issue #11479", () => {
     it("doesn't allow to render math text in multiple plots", async () => {
       const stub = sinon.stub(MathBox.prototype, "provider")
-      stub.value(new DelayedInternalProvider())
+      stub.value(new InternalProvider())
       try {
         const p0 = fig([200, 150], {
           x_axis_label: new TeX({text: "\\theta\\cdot\\left(\\frac{\\sin(x) + 1}{\\Gamma}\\right)"}),
