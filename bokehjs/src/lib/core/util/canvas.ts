@@ -120,7 +120,9 @@ export class CanvasLayer {
         const ctx = new SVGRenderingContext2D()
         this._ctx = ctx
         this._canvas = ctx.get_svg()
-        this._el = div({style}, this._canvas)
+        this._el = div({style})
+        const shadow_el = this._el.attachShadow({mode: "open"})
+        shadow_el.appendChild(this._canvas)
         break
       }
     }
