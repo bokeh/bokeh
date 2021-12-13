@@ -32,6 +32,7 @@ import base64
 import datetime as dt
 import sys
 import uuid
+from functools import lru_cache
 from math import isinf, isnan
 from threading import Lock
 from typing import (
@@ -68,20 +69,16 @@ if TYPE_CHECKING:
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-_DATETIME_TYPES = set()
-
+@lru_cache(None)
 def _compute_datetime_types() -> Set[type]:
-    if not _DATETIME_TYPES:
-        _DATETIME_TYPES.add(dt.time)
-        _DATETIME_TYPES.add(dt.datetime)
-        _DATETIME_TYPES.add(np.datetime64)
-        pd = import_optional('pandas')
-        if pd:
-            _DATETIME_TYPES.add(pd.Timestamp)
-            _DATETIME_TYPES.add(pd.Timedelta)
-            _DATETIME_TYPES.add(pd.Period)
-            _DATETIME_TYPES.add(type(pd.NaT))
-    return _DATETIME_TYPES
+    result = {dt.time, dt.datetime, np.datetime64}
+    pd = import_optional('pandas')
+    if pd:
+        result.add(pd.Timestamp)
+        result.add(pd.Timedelta)
+        result.add(pd.Period)
+        result.add(type(pd.NaT))
+    return result
 
 def __getattr__(name: str) -> Any:
     if name == "DATETIME_TYPES":
