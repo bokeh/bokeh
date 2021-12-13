@@ -9,6 +9,8 @@ import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {Panel} from "./panel"
 
 import tabs_css, * as tabs from "styles/tabs.css"
+import buttons_css, * as buttons from "styles/buttons.css"
+import caret_css, * as caret from "styles/caret.css"
 
 export class TabsView extends LayoutDOMView {
   override model: Tabs
@@ -29,7 +31,7 @@ export class TabsView extends LayoutDOMView {
   }
 
   override styles(): string[] {
-    return [...super.styles(), tabs_css]
+    return [...super.styles(), tabs_css, buttons_css, caret_css]
   }
 
   get child_models(): LayoutDOM[] {
@@ -161,8 +163,8 @@ export class TabsView extends LayoutDOMView {
     this.headers_el = div({class: [tabs.headers]}, headers)
     this.wrapper_el = div({class: tabs.headers_wrapper}, this.headers_el)
 
-    this.left_el = div({class: [buttons.btn, buttons.btn_default], disabled: ""}, div({class: [menus.caret, tabs.left]}))
-    this.right_el = div({class: [buttons.btn, buttons.btn_default]}, div({class: [menus.caret, tabs.right]}))
+    this.left_el = div({class: [buttons.btn, buttons.btn_default], disabled: ""}, div({class: [caret.caret, tabs.left]}))
+    this.right_el = div({class: [buttons.btn, buttons.btn_default]}, div({class: [caret.caret, tabs.right]}))
 
     this.left_el.addEventListener("click", () => this.do_scroll("left"))
     this.right_el.addEventListener("click", () => this.do_scroll("right"))
