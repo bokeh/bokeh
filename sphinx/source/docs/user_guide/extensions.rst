@@ -296,7 +296,6 @@ often have to study the source code of the base classes in
     extensions_gallery/ticking
     extensions_gallery/tool
     extensions_gallery/wrapping
-    extensions_gallery/latex
     extensions_gallery/widget
 
 :ref:`userguide_extensions_examples_ticking`
@@ -309,9 +308,6 @@ often have to study the source code of the base classes in
 :ref:`userguide_extensions_examples_wrapping`
     Connect Python to a third-party JavaScript library by wrapping it in
     a Bokeh custom extension.
-
-:ref:`userguide_extensions_examples_latex`
-    Include a third-party JavaScript library to render LaTeX.
 
 :ref:`userguide_extensions_examples_widget`
     Include a third-party JavaScript library in an extension widget.
