@@ -92,7 +92,7 @@ describe("Marker glyph", () => {
   })
 
   it("should support multiple marker types in scatter", async () => {
-    const marker_type = [
+    const marker: MarkerType[] = [
       "asterisk", "circle", "square_dot", "triangle_pin", "star",
       "x", "diamond_cross", "star", "circle_cross", "hex_dot",
     ]
@@ -100,7 +100,7 @@ describe("Marker glyph", () => {
     function make_plot(output_backend: OutputBackend) {
       const p = fig([150, 150], {output_backend, title: output_backend})
       p.scatter({
-        x, y, marker: marker_type, size: 14,
+        x, y, marker, size: 14,
         line_color: "navy", fill_color: "orange", alpha: 0.5,
       })
       return p
