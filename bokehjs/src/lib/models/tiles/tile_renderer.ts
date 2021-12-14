@@ -7,7 +7,7 @@ import {Plot} from "../plots/plot"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
-import {div, removeElement} from "core/dom"
+import {div, style, remove} from "core/dom"
 import * as p from "core/properties"
 import {Image, ImageLoader} from "core/util/image"
 import {includes} from "core/util/array"
@@ -39,15 +39,11 @@ export class TileRendererView extends RendererView {
   protected render_timer?: number
   protected prefetch_timer?: number
 
+  protected attribution_el?: HTMLElement
+
   override initialize(): void {
     this._tiles = []
     super.initialize()
-  }
-
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    //const {attribution} = this.model.tile_source
-    //build_view(
   }
 
   override connect_signals(): void {
@@ -58,7 +54,7 @@ export class TileRendererView extends RendererView {
 
   override remove(): void {
     if (this.attribution_el != null)
-      removeElement(this.attribution_el)
+      remove(this.attribution_el)
     super.remove()
   }
 
@@ -92,10 +88,9 @@ export class TileRendererView extends RendererView {
     this._last_width = undefined
   }
 
-  /*
   protected _update_attribution(): void {
     if (this.attribution_el != null)
-      removeElement(this.attribution_el)
+      remove(this.attribution_el)
 
     const {attribution} = this.model.tile_source
 
@@ -104,25 +99,28 @@ export class TileRendererView extends RendererView {
       const offset_right = layout.bbox.width - frame.bbox.right
       const offset_bottom = layout.bbox.height - frame.bbox.bottom
       const max_width = frame.bbox.width
+
       this.attribution_el = div({
         style: {
           right: `${offset_right}px`,
           bottom: `${offset_bottom}px`,
-          'max-width': `${max_width}px`,
+          "max-width": `${max_width}px`,
         },
       })
-  override styles(): string[] {
-    return [...super.styles(), attribution_css]
-  }
 
+      const style_el = style(attribution_css)
+      const contents_el = div()
+      contents_el.innerHTML = attribution
+
+      const shadow_el = this.attribution_el.attachShadow({mode: "open"})
+      shadow_el.appendChild(style_el)
+      shadow_el.appendChild(contents_el)
+
+      this.attribution_el.title = contents_el.textContent!.replace(/\s*\n\s*/g, " ")
       this.plot_view.canvas_view.add_event(this.attribution_el)
-
-      this.attribution_el.innerHTML = attribution
-  */
-      //this.attribution_el.title = this.attribution_el.textContent!.replace(/\s*\n\s*/g, " ")
-    //}
-  //}
+    }
     // TODO: add support for DOMElement
+  }
 
   protected _map_data(): void {
     this.initial_extent = this.get_extent()
