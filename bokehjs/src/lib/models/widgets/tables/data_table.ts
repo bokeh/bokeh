@@ -4,6 +4,7 @@ import {CellExternalCopyManager} from "@bokeh/slickgrid/plugins/slick.cellextern
 
 import {Grid as SlickGrid, DataProvider, SortColumn, OnSortEventArgs, OnSelectedRowsChangedEventArgs} from "@bokeh/slickgrid"
 import * as p from "core/properties"
+import {div, position} from "core/dom"
 import {uniqueId} from "core/util/string"
 import {isString, isNumber, is_defined} from "core/util/types"
 import {some, range} from "core/util/array"
@@ -130,6 +131,14 @@ export class DataTableView extends WidgetView {
     return this.model.properties.source
   }
 
+  protected wrapper_el: HTMLElement
+
+  override initialize(): void {
+    super.initialize()
+    this.wrapper_el = div({class: tables.data_table})
+    this.shadow_el.appendChild(this.wrapper_el)
+  }
+
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     this.cds_view = await build_view(this.model.view, {parent: this})
@@ -167,6 +176,8 @@ export class DataTableView extends WidgetView {
 
   override update_position(): void {
     super.update_position()
+    const {width, height} = this.layout.bbox
+    position(this.wrapper_el, {x: 0, y: 0, width, height})
     this.grid.resizeCanvas()
   }
 
@@ -256,10 +267,6 @@ export class DataTableView extends WidgetView {
     }
   }
 
-  override css_classes(): string[] {
-    return super.css_classes().concat(tables.data_table)
-  }
-
   get autosize(): string {
     let autosize: string
     if (this.model.fit_columns === true)
@@ -331,7 +338,7 @@ export class DataTableView extends WidgetView {
     const initialized = is_defined(this.grid)
 
     this.data = new TableDataProvider(this.model.source, this.model.view)
-    this.grid = new SlickGrid(this.el, this.data, columns, options)
+    this.grid = new SlickGrid(this.wrapper_el, this.data, columns, options)
 
     if (this.autosize == AutosizeModes.fit_viewport) {
       this.grid.autosizeColumns()
@@ -395,7 +402,7 @@ export class DataTableView extends WidgetView {
   }
 
   _hide_header(): void {
-    for (const el of this.el.querySelectorAll(".slick-header-columns")) {
+    for (const el of this.shadow_el.querySelectorAll(".slick-header-columns")) {
       (el as HTMLElement).style.height = "0px"
     }
     this.grid.resizeCanvas()

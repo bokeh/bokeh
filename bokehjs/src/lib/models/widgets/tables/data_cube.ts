@@ -1,6 +1,6 @@
 import * as p from "core/properties"
 import {span} from "core/dom"
-import {is_nullish}  from "core/util/types"
+import {is_nullish} from "core/util/types"
 import {Formatter, Column, Grid as SlickGrid, Group, GroupTotals, RowMetadata, ColumnMetadata} from "@bokeh/slickgrid"
 import {DTINDEX_NAME, Item} from "./definitions"
 import {TableDataProvider, DataTableView, DataTable} from "./data_table"
@@ -297,7 +297,7 @@ export class DataCubeView extends DataTableView {
     this.el.style.width = `${this.model.width}px`
 
     this.grid = new SlickGrid(
-      this.el,
+      this.wrapper_el,
       this.data,
       columns,
       options,
