@@ -41,7 +41,7 @@ from ..core.templates import (
     FILE,
     MACROS,
     PLOT_DIV,
-    _env,
+    get_env,
 )
 from ..document.document import DEFAULT_TITLE
 from ..settings import settings
@@ -146,7 +146,7 @@ def html_page_for_render_items(bundle: Bundle | Tuple[str, str], docs_json: Dict
     if template is None:
         template = FILE
     elif isinstance(template, str):
-        template = _env.from_string("{% extends base %}\n" + template)
+        template = get_env().from_string("{% extends base %}\n" + template)
 
     html = template.render(context)
     return html

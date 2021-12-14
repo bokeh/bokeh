@@ -37,7 +37,9 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import sys
+from functools import lru_cache
 from os.path import dirname, join
+from typing import Any
 
 # External imports
 from jinja2 import Environment, FileSystemLoader
@@ -46,28 +48,11 @@ from jinja2 import Environment, FileSystemLoader
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-__all__ = (
-    'AUTOLOAD_JS',
-    'AUTOLOAD_NB_JS',
-    'AUTOLOAD_REQUEST_TAG',
-    'AUTOLOAD_TAG',
-    'CSS_RESOURCES',
-    'DOC_JS',
-    'DOC_NB_JS',
-    'FILE',
-    'get_env',
-    'JS_RESOURCES',
-    'MACROS',
-    'NOTEBOOK_LOAD',
-    'PLOT_DIV',
-    'ROOT_DIV',
-    'SCRIPT_TAG',
-)
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
 
+@lru_cache(None)
 def get_env():
     ''' Get the correct Jinja2 Environment, also for frozen scripts.
     '''
@@ -84,40 +69,33 @@ def get_env():
 # Private API
 #-----------------------------------------------------------------------------
 
-_env = get_env()
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-JS_RESOURCES = _env.get_template("js_resources.html")
-
-CSS_RESOURCES = _env.get_template("css_resources.html")
-
-SCRIPT_TAG = _env.get_template("script_tag.html")
-
-PLOT_DIV = _env.get_template("plot_div.html")
-
-ROOT_DIV = _env.get_template("root_div.html")
-
-DOC_JS = _env.get_template("doc_js.js")
-
-DOC_NB_JS = _env.get_template("doc_nb_js.js")
-
-FILE = _env.get_template("file.html")
-
-MACROS = _env.get_template("macros.html")
-
-NOTEBOOK_LOAD = _env.get_template("notebook_load.html")
-
-AUTOLOAD_JS = _env.get_template("autoload_js.js")
-
-AUTOLOAD_NB_JS = _env.get_template("autoload_nb_js.js")
-
-AUTOLOAD_TAG = _env.get_template("autoload_tag.html")
-
-AUTOLOAD_REQUEST_TAG = _env.get_template("autoload_request_tag.html")
-
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+_templates = dict(
+    JS_RESOURCES=lambda: get_env().get_template("js_resources.html"),
+    CSS_RESOURCES=lambda: get_env().get_template("css_resources.html"),
+    SCRIPT_TAG=lambda: get_env().get_template("script_tag.html"),
+    PLOT_DIV=lambda: get_env().get_template("plot_div.html"),
+    ROOT_DIV=lambda: get_env().get_template("root_div.html"),
+    DOC_JS=lambda: get_env().get_template("doc_js.js"),
+    DOC_NB_JS=lambda: get_env().get_template("doc_nb_js.js"),
+    FILE=lambda: get_env().get_template("file.html"),
+    MACROS=lambda: get_env().get_template("macros.html"),
+    NOTEBOOK_LOAD=lambda: get_env().get_template("notebook_load.html"),
+    AUTOLOAD_JS=lambda: get_env().get_template("autoload_js.js"),
+    AUTOLOAD_NB_JS=lambda: get_env().get_template("autoload_nb_js.js"),
+    AUTOLOAD_TAG=lambda: get_env().get_template("autoload_tag.html"),
+    AUTOLOAD_REQUEST_TAG=lambda: get_env().get_template("autoload_request_tag.html"),
+)
+
+@lru_cache(None)
+def __getattr__(name: str) -> Any:
+    if name in _templates:
+        return _templates[name]()
+    raise AttributeError()
