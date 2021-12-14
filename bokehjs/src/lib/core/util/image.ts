@@ -17,7 +17,7 @@ export async function load_image(url: string, options?: LoaderOptions): Promise<
 }
 
 export class ImageLoader {
-  private _image = new Image()
+  readonly image = new Image()
 
   promise: Promise<Image>
 
@@ -25,17 +25,17 @@ export class ImageLoader {
     const {attempts = 1, timeout = 1} = config
 
     this.promise = new Promise((resolve, _reject) => {
-      this._image.crossOrigin = "anonymous"
+      this.image.crossOrigin = "anonymous"
 
       let retries = 0
-      this._image.onerror = () => {
+      this.image.onerror = () => {
         if (++retries == attempts) {
           const message = `unable to load ${url} image after ${attempts} attempts`
           logger.warn(message)
 
-          if (this._image.crossOrigin != null) {
+          if (this.image.crossOrigin != null) {
             logger.warn(`attempting to load ${url} without a cross origin policy`)
-            this._image.crossOrigin = null
+            this.image.crossOrigin = null
             retries = 0
           } else {
             if (config.failed != null)
@@ -44,15 +44,15 @@ export class ImageLoader {
           }
         }
 
-        setTimeout(() => this._image.src = url, timeout)
+        setTimeout(() => this.image.src = url, timeout)
       }
-      this._image.onload = () => {
+      this.image.onload = () => {
         this._finished = true
         if (config.loaded != null)
-          config.loaded(this._image)
-        resolve(this._image)
+          config.loaded(this.image)
+        resolve(this.image)
       }
-      this._image.src = url
+      this.image.src = url
     })
   }
 
@@ -60,12 +60,5 @@ export class ImageLoader {
 
   get finished(): boolean {
     return this._finished
-  }
-
-  get image(): Image {
-    if (this._finished)
-      return this._image
-    else
-      throw new Error("not loaded yet")
   }
 }
