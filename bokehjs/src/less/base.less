@@ -4,13 +4,12 @@
   box-sizing: border-box;
   font-family: var(--bokeh-base-font, Helvetica, Arial, sans-serif);
   font-size: 13px; // 0.8em
+  line-height: @line-height;
 }
 
 *, *:before, *:after {
+  // box-sizing is not inherited by default, so force it to get consistent results
   box-sizing: inherit;
-  font-family: inherit;
-  font-size: 100%;
-  line-height: @line-height;
 }
 
 pre {
