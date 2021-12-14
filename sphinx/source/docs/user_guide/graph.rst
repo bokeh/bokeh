@@ -151,16 +151,31 @@ For example, setting ``selection_policy`` to ``NodesAndLinkedEdges()``
 lets you select a node and all associated edges. Similarly, setting
 ``inspection_policy`` to ``EdgesAndLinkedNodes()`` lets you inspect the
 ``"start"`` and ``"end"`` nodes of an edge by hovering over it with the
-HoverTool.
+HoverTool. ``NodesAndAdjacentNodes()`` lets you inspect a node and all
+other nodes connected to it by a graph edge.
 
 You can customize the ``selection_glyph``, ``nonselection_glyph``,
 and/or ``hover_glyph`` attributes of the edge and node sub-renderers
 to add dynamic visual elements to your graph interactions.
 
-Here is an example of a graph with added node and edge interactions:
+Below are examples of graphs with added node and edge interactions:
 
-.. bokeh-plot:: docs/user_guide/examples/graph_interaction.py
-    :source-position: above
+.. tabs::
+
+   .. tab:: NodesAndLinkedEdges
+
+      .. bokeh-plot:: docs/user_guide/examples/graph_interaction_nodeslinkededges.py
+        :source-position: above
+
+   .. tab:: EdgesAndLinkedNodes
+
+      .. bokeh-plot:: docs/user_guide/examples/graph_interaction_edgeslinkednodes.py
+        :source-position: above
+
+   .. tab:: NodesAndAdjacentNodes
+
+      .. bokeh-plot:: docs/user_guide/examples/graph_interaction_nodesadjacentnodes.py
+        :source-position: above
 
 Node and edge attributes
 ------------------------
