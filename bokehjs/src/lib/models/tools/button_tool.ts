@@ -35,7 +35,7 @@ export abstract class ButtonToolButtonView extends DOMView {
       const orientation = this.parent.model.horizontal ? "vertical" : "horizontal"
       this._menu = new ContextMenu(!reverse ? items : reversed(items), {
         orientation,
-        prevent_hide: (event) => event.target == this.el,
+        prevent_hide: (event) => event.composedPath().includes(this.el),
       })
     }
 

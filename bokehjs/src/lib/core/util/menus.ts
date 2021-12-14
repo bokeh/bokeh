@@ -66,8 +66,7 @@ export class ContextMenu {
   }
 
   protected _on_mousedown = (event: MouseEvent) => {
-    const {target} = event
-    if (target instanceof Node && this.el.contains(target))
+    if (event.composedPath().includes(this.el))
       return
 
     if (this.prevent_hide?.(event) ?? false)

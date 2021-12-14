@@ -153,7 +153,7 @@ export class UIEventBus implements EventListenerObject {
     document.addEventListener("keyup", this)
 
     this.menu = new ContextMenu([], {
-      prevent_hide: (event) => event.button == 2 && event.target == this.hit_area,
+      prevent_hide: (event) => event.button == 2 && event.composedPath().includes(this.hit_area),
     })
     this.hit_area.appendChild(this.menu.el)
   }

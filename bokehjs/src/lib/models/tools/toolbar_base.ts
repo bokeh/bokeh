@@ -65,6 +65,7 @@ export class ToolbarBaseView extends DOMComponentView {
   protected _tool_button_views: Map<ButtonTool, ButtonToolButtonView>
   protected _toolbar_view_model: ToolbarViewModel
   protected _overflow_menu: ContextMenu
+  protected _overflow_el?: HTMLElement
 
   override initialize(): void {
     super.initialize()
@@ -77,7 +78,9 @@ export class ToolbarBaseView extends DOMComponentView {
     this._overflow_menu = new ContextMenu([], {
       orientation,
       reversed,
-      //prevent_hide: (event) => event.target == this.el,
+      prevent_hide: (event) => {
+        return this._overflow_el != null ? event.composedPath().includes(this._overflow_el) : false
+      },
     })
   }
 
@@ -168,22 +171,23 @@ export class ToolbarBaseView extends DOMComponentView {
     let overflowed = false
     const overflow_size = 15
     this.root.shadow_el.appendChild(this._overflow_menu.el)
-    const overflow_button = div({class: toolbars.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
+    const overflow_el = div({class: toolbars.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
+    this._overflow_el = overflow_el
     const toggle_menu = () => {
       const at = (() => {
         switch (this.model.toolbar_location) {
-          case "right": return {left_of:  overflow_button}
-          case "left":  return {right_of: overflow_button}
-          case "above": return {below: overflow_button}
-          case "below": return {above: overflow_button}
+          case "right": return {left_of:  overflow_el}
+          case "left":  return {right_of: overflow_el}
+          case "above": return {below: overflow_el}
+          case "below": return {above: overflow_el}
         }
       })()
       this._overflow_menu.toggle(at)
     }
-    overflow_button.addEventListener("click", () => {
+    this._overflow_el.addEventListener("click", () => {
       toggle_menu()
     })
-    overflow_button.addEventListener("keydown", (event) => {
+    this._overflow_el.addEventListener("keydown", (event) => {
       if (event.keyCode == Keys.Enter) {
         toggle_menu()
       }
@@ -199,7 +203,7 @@ export class ToolbarBaseView extends DOMComponentView {
         overflowed = horizontal ? size > bbox.width - overflow_size : size > bbox.height - overflow_size
         if (overflowed) {
           this.shadow_el.removeChild(el)
-          this.shadow_el.appendChild(overflow_button)
+          this.shadow_el.appendChild(this._overflow_el)
 
           const {items} = this._overflow_menu
           items.splice(0, items.length)
