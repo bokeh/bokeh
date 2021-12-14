@@ -11,8 +11,9 @@ Journal of Anthropological Research, 33, 452-473.
 import networkx as nx
 
 from bokeh.io import curdoc, show
-from bokeh.models import (BoxSelectTool, Circle, Column, EdgesAndLinkedNodes, HoverTool,
-                          MultiLine, NodesAndLinkedEdges, Plot, Range1d, Row, TapTool)
+from bokeh.models import (BoxSelectTool, Circle, Column, EdgesAndLinkedNodes,
+                          HoverTool, MultiLine, NodesAndAdjacentNodes,
+                          NodesAndLinkedEdges, Plot, Range1d, Row, TapTool)
 from bokeh.palettes import Spectral4
 from bokeh.plotting import from_networkx
 
@@ -57,7 +58,15 @@ plot_4 = create_graph(nx.fruchterman_reingold_layout, selection_policy=EdgesAndL
 plot_4.title.text = "FR Layout (EdgesAndLinkedNodes selection policy)"
 plot_4.add_tools(TapTool())
 
-layout = Column(Row(plot_1, plot_2), Row(plot_3, plot_4))
+plot_5 = create_graph(nx.circular_layout, inspection_policy=NodesAndAdjacentNodes(), scale=1, center=(0,0))
+plot_5.title.text = "Circular Layout (NodesAndAdjacentNodes inspection policy)"
+plot_5.add_tools(HoverTool(tooltips=None))
+
+plot_6 = create_graph(nx.fruchterman_reingold_layout, selection_policy=NodesAndAdjacentNodes(), scale=2, center=(0,0), dim=2)
+plot_6.title.text = "FR Layout (NodesAndAdjacentNodes selection policy)"
+plot_6.add_tools(TapTool())
+
+layout = Column(Row(plot_1, plot_2), Row(plot_3, plot_4), Row(plot_5, plot_6))
 
 doc = curdoc()
 doc.add_root(layout)
