@@ -1,3 +1,11 @@
+'''Two scatter plots one representing # Cylinders vs. MPG and the second graph representing acceleration vs. MPG
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.circle
+    :refs: :ref:`plotting_scatter` > :ref:`plotting_scatter_circle`
+    :keywords: scatter, acceleration, mpg, cylinder
+
+'''
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, output_file, show
