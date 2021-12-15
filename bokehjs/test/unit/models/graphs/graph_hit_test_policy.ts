@@ -7,7 +7,7 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 import {Circle} from "@bokehjs/models/glyphs/circle"
 import {MultiLine} from "@bokehjs/models/glyphs/multi_line"
-import {EdgesOnly, NodesOnly, NodesAndLinkedEdges, EdgesAndLinkedNodes, NodesAndAdjacentNodes} from "@bokehjs/models/graphs/graph_hit_test_policy"
+import {EdgesOnly, NodesOnly, NodesAndLinkedEdges, EdgesAndLinkedNodes, NodesAndLinkedEdgesAndLinkedNodes, NodesAndAdjacentNodes} from "@bokehjs/models/graphs/graph_hit_test_policy"
 import {LayoutProvider} from "@bokehjs/models/graphs/layout_provider"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {GraphRenderer, GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
@@ -386,6 +386,105 @@ describe("GraphHitTestPolicy", () => {
 
         expect(did_hit).to.be.true
         expect(node_source.inspected.indices).to.be.equal([0, 2, 1])
+      })
+    })
+  })
+
+  describe("NodesAndLinkedEdgesAndLinkedNodes", () => {
+
+    describe("do_selection method", () => {
+
+      it("should clear edge selections if hit_test_result is empty", () => {
+        // create initial inspection to clear
+        const initial_selection = new Selection()
+        initial_selection.multiline_indices = {0: [0, 1], 1: [0]}
+        edge_source.selected = initial_selection
+
+        const hit_test_result = new Selection()
+        const policy = new NodesAndLinkedEdges()
+        policy.do_selection(hit_test_result, gr, true, "replace")
+
+        expect(edge_source.selected.is_empty()).to.be.true
+      })
+
+      it("should select linked edges if hit_test_result is not empty", () => {
+        const hit_test_result = new Selection({indices: [0]})
+        const policy = new NodesAndLinkedEdges()
+
+        policy.do_selection(hit_test_result, gr, true, "replace")
+
+        expect(edge_source.selected.multiline_indices).to.be.equal({0: [ 0 ], 1: [ 0 ]})
+      })
+
+      it("should clear node selections if hit_test result is empty", () => {
+        const initial_selection = new Selection()
+        initial_selection.indices = [0, 1]
+        node_source.selected = initial_selection
+
+        const hit_test_result = new Selection()
+        const policy = new EdgesAndLinkedNodes()
+        policy.do_selection(hit_test_result, gr, true, "replace")
+
+        expect(node_source.selected.is_empty()).to.be.true
+      })
+
+      it("should select linked nodes if hit_test_result is not empty", () => {
+        const hit_test_result = new Selection()
+        hit_test_result.indices = [1]
+
+        const policy = new EdgesAndLinkedNodes()
+        policy.do_selection(hit_test_result, gr, true, "replace")
+
+        expect(node_source.selected.indices).to.be.equal([0, 2])
+      })
+    })
+
+    describe("do_inspection method", () => {
+
+      it("should clear edge inspections if hit_test_result is empty", () => {
+        // create initial inspection to clear
+        const initial_inspection = new Selection()
+        initial_inspection.multiline_indices = {0: [0, 1], 1: [0]}
+        edge_source.inspected = initial_inspection
+
+        const hit_test_result = new Selection()
+        const policy = new NodesAndLinkedEdges()
+        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
+
+        expect(did_hit).to.be.false
+        expect(edge_source.inspected.is_empty()).to.be.true
+      })
+
+      it("should select linked edges if hit_test_result is not empty", () => {
+        const hit_test_result = new Selection({indices: [0]})
+        const policy = new NodesAndLinkedEdges()
+        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
+
+        expect(did_hit).to.be.true
+        expect(edge_source.inspected.multiline_indices).to.be.equal({0: [ 0 ], 1: [ 0 ]})
+      })
+
+      it("should clear node inspections if hit_test_result is empty", () => {
+        const initial_inspection = new Selection({indices: [0, 1]})
+        node_source.inspected = initial_inspection
+
+        const hit_test_result = new Selection()
+        const policy = new EdgesAndLinkedNodes()
+        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
+
+        expect(did_hit).to.be.false
+        expect(node_source.inspected.is_empty()).to.be.true
+      })
+
+      it("should inspect linked nodes if hit_test_result is not empty", () => {
+        const hit_test_result = new Selection()
+        hit_test_result.indices = [1]
+
+        const policy = new EdgesAndLinkedNodes()
+        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
+
+        expect(did_hit).to.be.true
+        expect(node_source.inspected.indices).to.be.equal([0, 2])
       })
     })
   })
