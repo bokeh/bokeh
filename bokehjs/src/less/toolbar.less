@@ -1,14 +1,5 @@
 @import "./_mixins.less";
 
-  @toolbarSize: 30px;
-
-  @buttonHeight: 30px;
-  @buttonWidth: 30px;
-  @buttonColor: lightgray;
-
-  @activeToolHighlight: #26aae1;
-  @activeToolBorder: 2px solid transparent;
-
   :host {
     display: flex;
     flex-wrap: nowrap;
@@ -45,97 +36,5 @@
       order: 0;
       margin-bottom: 5px;
       margin-top: 0px;
-    }
-  }
-
-  .bk-toolbar-button {
-    width: @buttonWidth;
-    height: @buttonHeight;
-
-    cursor: pointer;
-
-    background-size: 60% 60%;
-    background-origin: border-box;
-    background-color: transparent;
-    background-repeat: no-repeat;
-    background-position: center center;
-  }
-
-  .bk-toolbar-button, .bk-tool-overflow {
-    &:hover {
-      background-color: rgba(192, 192, 192, 0.15);
-    }
-
-    &:focus, &:focus-visible {
-      outline: 1px dotted @activeToolHighlight;
-      outline-offset: -1px;
-    }
-
-    &::-moz-focus-inner {
-      border: 0;
-    }
-  }
-
-  .toolbar-button-border(@side) {
-    border-@{side}: @activeToolBorder;
-    &.bk-active {
-      border-@{side}-color: @activeToolHighlight;
-    }
-  }
-
-  :host(.bk-above) .bk-toolbar-button {
-    .toolbar-button-border(bottom);
-  }
-
-  :host(.bk-below) .bk-toolbar-button {
-    .toolbar-button-border(top);
-  }
-
-  :host(.bk-right) .bk-toolbar-button {
-    .toolbar-button-border(left);
-  }
-
-  :host(.bk-left) .bk-toolbar-button {
-    .toolbar-button-border(right);
-  }
-
-  .bk-divider {
-    content: " ";
-    display: inline-block;
-    background-color: @buttonColor;
-  }
-
-  :host(.bk-above), :host(.bk-below) {
-    .bk-divider {
-      height: 10px;
-      width: 1px;
-    }
-  }
-
-  :host(.bk-left), :host(.bk-right) {
-    .bk-divider {
-      height: 1px;
-      width: 10px;
-    }
-  }
-
-  .bk-tool-overflow {
-    color: gray;
-    display: flex;
-    align-items: center;
-  }
-
-  :host(.bk-above), :host(.bk-below), :host(.bk-horizontal) {
-    .bk-tool-overflow {
-      width: @buttonWidth ./ 2;
-      height: @buttonHeight;
-      flex-direction: row;
-    }
-  }
-  :host(.bk-left), :host(.bk-right), :host(.bk-vertical) {
-    .bk-tool-overflow {
-      width: @buttonWidth;
-      height: @buttonHeight ./ 2;
-      flex-direction: column;
     }
   }

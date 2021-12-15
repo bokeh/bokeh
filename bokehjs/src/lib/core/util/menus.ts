@@ -27,6 +27,7 @@ export type MenuOptions = {
   orientation?: Orientation
   reversed?: boolean
   prevent_hide?: (event: MouseEvent) => boolean
+  extra_styles?: string[]
 }
 
 export class ContextMenu {
@@ -47,11 +48,13 @@ export class ContextMenu {
   readonly orientation: Orientation
   readonly reversed: boolean
   readonly prevent_hide?: (event: MouseEvent) => boolean
+  readonly extra_styles: string[]
 
   constructor(readonly items: MenuItem[], options: MenuOptions = {}) {
     this.orientation = options.orientation ?? "vertical"
     this.reversed = options.reversed ?? false
     this.prevent_hide = options.prevent_hide
+    this.extra_styles = options.extra_styles ?? []
 
     this.shadow_el = this.el.attachShadow({mode: "open"})
     this.stylesheet_el = style({}, ...this.styles())
@@ -138,7 +141,7 @@ export class ContextMenu {
   }
 
   styles(): string[] {
-    return [base_css, /*...super.styles(), */menus_css, icons_css]
+    return [base_css, /*...super.styles(), */menus_css, icons_css, ...this.extra_styles]
   }
 
   empty(): void {

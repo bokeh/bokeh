@@ -9,9 +9,8 @@ import * as p from "core/properties"
 import {startsWith} from "core/util/string"
 import {reversed} from "core/util/array"
 
-import toolbar_css, * as toolbars from "styles/toolbar.css"
+import tools_css, * as tools from "styles/tool_button.css"
 import icons_css from "styles/icons.css"
-import menus_css from "styles/menus.css"
 
 import {ContextMenu, MenuItem} from "core/util/menus"
 
@@ -69,11 +68,11 @@ export abstract class ButtonToolButtonView extends DOMView {
   }
 
   override styles(): string[] {
-    return [...super.styles(), toolbar_css, icons_css, menus_css]
+    return [...super.styles(), tools_css, icons_css]
   }
 
   override css_classes(): string[] {
-    return super.css_classes().concat(toolbars.toolbar_button)
+    return super.css_classes().concat(tools.toolbar_button)
   }
 
   override render(): void {

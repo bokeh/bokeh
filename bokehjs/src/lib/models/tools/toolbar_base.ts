@@ -22,6 +22,7 @@ import {InspectTool} from "./inspectors/inspect_tool"
 import {ContextMenu} from "core/util/menus"
 
 import toolbars_css, * as toolbars from "styles/toolbar.css"
+import tools_css, * as tools from "styles/tool_button.css"
 import logos_css, * as logos from "styles/logo.css"
 import icons_css from "styles/icons.css"
 
@@ -81,6 +82,7 @@ export class ToolbarBaseView extends DOMComponentView {
       prevent_hide: (event) => {
         return this._overflow_el != null ? event.composedPath().includes(this._overflow_el) : false
       },
+      extra_styles: [tools_css],
     })
   }
 
@@ -103,7 +105,7 @@ export class ToolbarBaseView extends DOMComponentView {
   }
 
   override styles(): string[] {
-    return [...super.styles(), toolbars_css, logos_css, icons_css]
+    return [...super.styles(), toolbars_css, tools_css, logos_css, icons_css]
   }
 
   override remove(): void {
@@ -164,14 +166,14 @@ export class ToolbarBaseView extends DOMComponentView {
     bars.push(this.model.inspectors.filter((tool) => tool.toggleable).map(el))
 
     const non_empty = bars.filter((bar) => bar.length != 0)
-    const divider = () => div({class: toolbars.divider})
+    const divider = () => div({class: tools.divider})
 
     const {bbox} = this.layout
 
     let overflowed = false
     const overflow_size = 15
     this.root.shadow_el.appendChild(this._overflow_menu.el)
-    const overflow_el = div({class: toolbars.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
+    const overflow_el = div({class: tools.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
     this._overflow_el = overflow_el
     const toggle_menu = () => {
       const at = (() => {
