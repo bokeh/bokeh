@@ -1,5 +1,5 @@
 '''This example shows the same data on two separate tile plots.
-The left plot is using a built-in CartoDB tile source, and is using
+The left plot uses the built-in CartoDB tile source, and the right plot uses
 a customized tile source configured for OpenStreetMap
 
 .. bokeh-example-metadata::
