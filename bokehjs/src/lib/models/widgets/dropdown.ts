@@ -7,7 +7,8 @@ import * as p from "core/properties"
 import {isString} from "core/util/types"
 
 import * as buttons from "styles/buttons.css"
-import menus_css, * as menus from "styles/menus.css"
+import /*menus_css,*/ * as menus from "styles/menus.css"
+import carets_css, * as carets from "styles/caret.css"
 
 export class DropdownView extends AbstractButtonView {
   override model: Dropdown
@@ -17,13 +18,13 @@ export class DropdownView extends AbstractButtonView {
   protected menu: HTMLElement
 
   override styles(): string[] {
-    return [...super.styles(), menus_css]
+    return [...super.styles(), carets_css]
   }
 
   override render(): void {
     super.render()
 
-    const caret = div({class: [menus.caret, menus.down]})
+    const caret = div({class: [carets.caret, carets.down]})
 
     if (!this.model.is_split)
       this.button_el.appendChild(caret)

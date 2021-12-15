@@ -49,7 +49,7 @@ export class MultiSelectView extends InputWidgetView {
   render_selection(): void {
     const selected = new Set(this.model.value)
 
-    for (const el of this.el.querySelectorAll("option"))
+    for (const el of this.shadow_el.querySelectorAll("option"))
       el.selected = selected.has(el.value)
 
     // Note that some browser implementations might not reduce
@@ -58,10 +58,10 @@ export class MultiSelectView extends InputWidgetView {
   }
 
   override change_input(): void {
-    const is_focused = this.el.querySelector("select:focus") != null
+    const is_focused = this.shadow_el.querySelector("select:focus") != null
 
     const values = []
-    for (const el of this.el.querySelectorAll("option")) {
+    for (const el of this.shadow_el.querySelectorAll("option")) {
       if (el.selected)
         values.push(el.value)
     }

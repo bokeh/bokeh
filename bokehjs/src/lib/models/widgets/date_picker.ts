@@ -61,7 +61,7 @@ export class DatePickerView extends InputWidgetView {
     this.input_el = input({type: "text", class: inputs.input, disabled: this.model.disabled})
     this.group_el.appendChild(this.input_el)
     this._picker = flatpickr(this.input_el, {
-      appendTo: this.shadow_el as HTMLElement,
+      appendTo: this.shadow_el as any, // XXX: ShadowRoot is not a HTMLElement
       defaultDate: this.model.value,
       minDate: this.model.min_date ?? undefined,
       maxDate: this.model.max_date ?? undefined,

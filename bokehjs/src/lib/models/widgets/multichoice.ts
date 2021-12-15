@@ -95,10 +95,10 @@ export class MultiChoiceView extends InputWidgetView {
   }
 
   override change_input(): void {
-    const is_focused = this.el.querySelector("select:focus") != null
+    const is_focused = this.shadow_el.querySelector("select:focus") != null
 
     const values = []
-    for (const el of this.el.querySelectorAll("option")) {
+    for (const el of this.shadow_el.querySelectorAll("option")) {
       if (el.selected)
         values.push(el.value)
     }

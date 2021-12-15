@@ -4,7 +4,7 @@ import {empty, display, undisplay, div, Keys} from "core/dom"
 import * as p from "core/properties"
 import {clamp} from "core/util/math"
 
-import menus_css, * as menus from "styles/menus.css"
+import /*menus_css,*/ * as menus from "styles/menus.css"
 
 export class AutocompleteInputView extends TextInputView {
   override model: AutocompleteInput
@@ -16,10 +16,6 @@ export class AutocompleteInputView extends TextInputView {
   protected _hover_index: number = 0
 
   protected menu: HTMLElement
-
-  override styles(): string[] {
-    return [...super.styles(), menus_css]
-  }
 
   override render(): void {
     super.render()
