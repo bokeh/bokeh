@@ -40,6 +40,7 @@ log = logging.getLogger(__name__)
 from ..core.enums import (
     Anchor,
     Direction,
+    Palette,
     StepMode,
     enumeration,
 )
@@ -664,16 +665,16 @@ class Image(XYGlyph):
     images to have a gap between them, when they should appear flush.
     """)
 
-    color_mapper = Instance(ColorMapper, lambda: LinearColorMapper(palette="Greys9"), help="""
+    color_mapper = Instance(ColorMapper, default="Greys9", help="""
     A ``ColorMapper`` to use to map the scalar data from ``image``
     into RGBA values for display.
 
+    The name of a palette from ``bokeh.palettes`` may also be set, in which
+    case a ``LinearColorMapper`` configured with the named palette wil be used.
+
     .. note::
         The color mapping step happens on the client.
-    """)
-
-    # TODO: (bev) support anchor property for Image
-    # ref: https://github.com/bokeh/bokeh/issues/1763
+    """).accepts(Enum(Palette), lambda pal: LinearColorMapper(palette=pal))
 
 class ImageRGBA(XYGlyph):
     ''' Render images given as RGBA data.

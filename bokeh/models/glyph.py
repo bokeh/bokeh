@@ -34,6 +34,7 @@ from inspect import Parameter
 from ..core.has_props import abstract
 from ..core.properties import Instance, List
 from ..core.property._sphinx import type_link
+from ..core.property.validation import without_property_validation
 from ..model import Model
 from .graphics import Decoration
 
@@ -76,6 +77,7 @@ class Glyph(Model):
     _extra_kws = {}
 
     @classmethod
+    @without_property_validation
     def parameters(cls):
         ''' Generate Python ``Parameter`` values suitable for functions that are
         derived from the glyph.
@@ -120,7 +122,7 @@ class Glyph(Model):
         kws = set(cls.properties()) - set(cls._args) - omissions
         for kw in kws:
             descriptor = cls.lookup(kw)
-            default=descriptor.class_default(cls)
+            default = descriptor.class_default(cls)
 
             # simplify field(x) defaults to just present the column name
             if isinstance(default, dict) and set(default) == {"field"}:

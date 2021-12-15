@@ -32,6 +32,7 @@ import base64
 import datetime as dt
 import sys
 import uuid
+from functools import lru_cache
 from math import isinf, isnan
 from threading import Lock
 from typing import (
@@ -53,13 +54,11 @@ from typing_extensions import Literal, TypedDict, TypeGuard
 if TYPE_CHECKING:
     import numpy.typing as npt
     import pandas as pd
-else:
-    from .dependencies import import_optional
-    pd = import_optional('pandas')
 
 # Bokeh imports
 from ..core.types import ID
 from ..settings import settings
+from .dependencies import import_optional
 from .string import format_docstring
 
 if TYPE_CHECKING:
@@ -69,6 +68,22 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+@lru_cache(None)
+def _compute_datetime_types() -> Set[type]:
+    result = {dt.time, dt.datetime, np.datetime64}
+    pd = import_optional('pandas')
+    if pd:
+        result.add(pd.Timestamp)
+        result.add(pd.Timedelta)
+        result.add(pd.Period)
+        result.add(type(pd.NaT))
+    return result
+
+def __getattr__(name: str) -> Any:
+    if name == "DATETIME_TYPES":
+        return _compute_datetime_types()
+    raise AttributeError
 
 BINARY_ARRAY_TYPES = {
     np.dtype(np.float32),
@@ -80,18 +95,6 @@ BINARY_ARRAY_TYPES = {
     np.dtype(np.uint32),
     np.dtype(np.int32),
 }
-
-DATETIME_TYPES: Set[type] = {
-    dt.time,
-    dt.datetime,
-    np.datetime64,
-}
-
-if pd:
-    DATETIME_TYPES.add(pd.Timestamp)
-    DATETIME_TYPES.add(pd.Timedelta)
-    DATETIME_TYPES.add(pd.Period)
-    DATETIME_TYPES.add(type(pd.NaT))
 
 NP_EPOCH = np.datetime64(0, 'ms')
 NP_MS_DELTA = np.timedelta64(1, 'ms')
@@ -156,6 +159,8 @@ def is_datetime_type(obj: Any) -> TypeGuard[dt.time | dt.datetime | np.datetime6
         bool : True if ``obj`` is a datetime type
 
     '''
+    _dt_tuple = tuple(_compute_datetime_types())
+
     return isinstance(obj, _dt_tuple)
 
 def is_timedelta_type(obj: Any) -> TypeGuard[dt.timedelta | np.timedelta64]:
@@ -212,6 +217,8 @@ def convert_datetime_type(obj: Any | pd.Timestamp | pd.Timedelta | dt.datetime |
         float : milliseconds
 
     '''
+    pd = import_optional('pandas')
+
     # Pandas NaT
     if pd and obj is pd.NaT:
         return np.nan
@@ -384,6 +391,8 @@ def transform_array_to_list(array: npt.NDArray[Any]) -> Sequence[Any]:
         list or dict
 
     '''
+    pd = import_optional('pandas')
+
     if (array.dtype.kind in ('u', 'i', 'f') and (~np.isfinite(array)).any()):
         transformed = array.astype('object')
         transformed[np.isnan(array)] = 'NaN'
@@ -422,6 +431,8 @@ def transform_series(series: pd.Series | pd.Index, force_list: bool = False, buf
         list or dict
 
     '''
+    pd = import_optional('pandas')
+
     # not checking for pd here, this function should only be called if it
     # is already known that series is a Pandas Series type
     if isinstance(series, pd.PeriodIndex):
@@ -522,6 +533,8 @@ def transform_column_source_data(data: DataDict, buffers: Buffers | None = None,
         JSON compatible dict
 
     '''
+    pd = import_optional('pandas')
+
     to_transform = set(data) if cols is None else set(cols)
 
     data_copy: SerializedData = {}
@@ -633,8 +646,6 @@ def decode_base64_dict(data: Base64BufferJson) -> npt.NDArray[Any]:
 
 _simple_id = 999
 _simple_id_lock = Lock()
-
-_dt_tuple = tuple(DATETIME_TYPES)
 
 #-----------------------------------------------------------------------------
 # Code
