@@ -71,8 +71,8 @@ plot_7 = create_graph(nx.circular_layout, inspection_policy=NodesAndLinkedEdgesA
 plot_7.title.text = "Circular Layout (NodesAndLinkedEdgesAndLinkedNodes inspection policy)"
 plot_7.add_tools(HoverTool(tooltips=None))
 
-plot_8 = create_graph(nx.spring_layout, selection_policy=NodesAndLinkedEdgesAndLinkedNodes(), scale=2, center=(0,0))
-plot_8.title.text = "Spring Layout (NodesAndLinkedEdgesAndLinkedNodes selection policy)"
+plot_8 = create_graph(nx.fruchterman_reingold_layout, selection_policy=NodesAndLinkedEdgesAndLinkedNodes(), scale=2, center=(0,0), dim=2)
+plot_8.title.text = "FR Layout (NodesAndLinkedEdgesAndLinkedNodes selection policy)"
 plot_8.add_tools(TapTool(), BoxSelectTool())
 
 layout = Column(Row(plot_1, plot_2), Row(plot_3, plot_4), Row(plot_5, plot_6), Row(plot_7, plot_8))

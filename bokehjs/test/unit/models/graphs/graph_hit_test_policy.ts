@@ -401,7 +401,7 @@ describe("GraphHitTestPolicy", () => {
         edge_source.selected = initial_selection
 
         const hit_test_result = new Selection()
-        const policy = new NodesAndLinkedEdges()
+        const policy = new NodesAndLinkedEdgesAndLinkedNodes()
         policy.do_selection(hit_test_result, gr, true, "replace")
 
         expect(edge_source.selected.is_empty()).to.be.true
@@ -409,7 +409,7 @@ describe("GraphHitTestPolicy", () => {
 
       it("should select linked edges if hit_test_result is not empty", () => {
         const hit_test_result = new Selection({indices: [0]})
-        const policy = new NodesAndLinkedEdges()
+        const policy = new NodesAndLinkedEdgesAndLinkedNodes()
 
         policy.do_selection(hit_test_result, gr, true, "replace")
 
@@ -422,20 +422,20 @@ describe("GraphHitTestPolicy", () => {
         node_source.selected = initial_selection
 
         const hit_test_result = new Selection()
-        const policy = new EdgesAndLinkedNodes()
+        const policy = new NodesAndLinkedEdgesAndLinkedNodes()
         policy.do_selection(hit_test_result, gr, true, "replace")
 
         expect(node_source.selected.is_empty()).to.be.true
       })
 
-      it("should select linked nodes if hit_test_result is not empty", () => {
-        const hit_test_result = new Selection()
-        hit_test_result.indices = [1]
+      it("should inspect adjacent nodes if hit_test_result is not empty", () => {
+        const hit_test_result = new Selection({indices: [1]})
 
-        const policy = new EdgesAndLinkedNodes()
-        policy.do_selection(hit_test_result, gr, true, "replace")
+        const policy = new NodesAndLinkedEdgesAndLinkedNodes()
+        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
-        expect(node_source.selected.indices).to.be.equal([0, 2])
+        expect(did_hit).to.be.true
+        expect(node_source.inspected.indices).to.be.equal([0, 2, 1])
       })
     })
 
@@ -448,7 +448,7 @@ describe("GraphHitTestPolicy", () => {
         edge_source.inspected = initial_inspection
 
         const hit_test_result = new Selection()
-        const policy = new NodesAndLinkedEdges()
+        const policy = new NodesAndLinkedEdgesAndLinkedNodes()
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.false
@@ -457,7 +457,7 @@ describe("GraphHitTestPolicy", () => {
 
       it("should select linked edges if hit_test_result is not empty", () => {
         const hit_test_result = new Selection({indices: [0]})
-        const policy = new NodesAndLinkedEdges()
+        const policy = new NodesAndLinkedEdgesAndLinkedNodes()
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.true
@@ -469,22 +469,21 @@ describe("GraphHitTestPolicy", () => {
         node_source.inspected = initial_inspection
 
         const hit_test_result = new Selection()
-        const policy = new EdgesAndLinkedNodes()
+        const policy = new NodesAndLinkedEdgesAndLinkedNodes()
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.false
         expect(node_source.inspected.is_empty()).to.be.true
       })
 
-      it("should inspect linked nodes if hit_test_result is not empty", () => {
-        const hit_test_result = new Selection()
-        hit_test_result.indices = [1]
+      it("should inspect adjacent nodes if hit_test_result is not empty", () => {
+        const hit_test_result = new Selection({indices: [1]})
 
-        const policy = new EdgesAndLinkedNodes()
+        const policy = new NodesAndLinkedEdgesAndLinkedNodes()
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.true
-        expect(node_source.inspected.indices).to.be.equal([0, 2])
+        expect(node_source.inspected.indices).to.be.equal([0, 2, 1])
       })
     })
   })

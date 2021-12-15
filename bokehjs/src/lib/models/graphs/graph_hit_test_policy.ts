@@ -405,20 +405,30 @@ export class NodesAndLinkedEdgesAndLinkedNodes extends GraphHitTestPolicy {
     return linked_edges
   }
 
-  get_linked_nodes(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: string): Selection {
-    let edge_indices: number[] = []
-    if (mode == "selection")
-      edge_indices = edge_source.selected.indices
-    else if (mode == "inspection")
-      edge_indices = edge_source.inspected.indices
-    const nodes = []
-    for (const i of edge_indices) {
-      nodes.push(edge_source.data.start[i])
-      nodes.push(edge_source.data.end[i])
+  get_adjacent_nodes(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: string): Selection {
+    let selected_node_indices = []
+    if (mode == "selection") {
+      selected_node_indices = node_source.selected.indices.map((i) => node_source.data.index[i])
+    } else if (mode == "inspection") {
+      selected_node_indices = node_source.inspected.indices.map((i) => node_source.data.index[i])
     }
+    const adjacent_nodes = []
+    const selected_nodes = []
+    for (let i = 0; i < edge_source.data.start.length; i++) {
+      if (contains(selected_node_indices, edge_source.data.start[i])) {
+        adjacent_nodes.push(edge_source.data.end[i])
+        selected_nodes.push(edge_source.data.start[i])
+      }
+      if (contains(selected_node_indices, edge_source.data.end[i])) {
+        adjacent_nodes.push(edge_source.data.start[i])
+        selected_nodes.push(edge_source.data.end[i])
+      }
+    }
+    for (let i = 0; i < selected_nodes.length; i++)
+      adjacent_nodes.push(selected_nodes[i])
 
-    const node_indices = uniq(nodes).map((i) => indexOf(node_source.data.index, i))
-    return new Selection({indices: node_indices})
+    const adjacent_node_indices = uniq(adjacent_nodes).map((i) => indexOf(node_source.data.index, i))
+    return new Selection({indices: adjacent_node_indices})
   }
 
   do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
@@ -431,6 +441,10 @@ export class NodesAndLinkedEdgesAndLinkedNodes extends GraphHitTestPolicy {
     const edge_selection = graph.edge_renderer.data_source.selected
     const linked_edges_selection = this.get_linked_edges(graph.node_renderer.data_source, graph.edge_renderer.data_source, "selection")
     edge_selection.update(linked_edges_selection, final, mode)
+
+    const adjacent_nodes_selection = this.get_adjacent_nodes(graph.node_renderer.data_source, graph.edge_renderer.data_source, "selection")
+    if (!adjacent_nodes_selection.is_empty())
+      node_selection.update(adjacent_nodes_selection, final, mode)
 
     graph.node_renderer.data_source._select.emit()
 
@@ -448,6 +462,12 @@ export class NodesAndLinkedEdgesAndLinkedNodes extends GraphHitTestPolicy {
     const edge_inspection = graph_view.edge_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.edge_view.model)
     const linked_edges = this.get_linked_edges(graph_view.node_view.model.data_source, graph_view.edge_view.model.data_source, "inspection")
     edge_inspection.update(linked_edges, final, mode)
+
+    const adjacent_nodes_inspection = this.get_adjacent_nodes(graph_view.node_view.model.data_source, graph_view.edge_view.model.data_source, "inspection")
+    if (!adjacent_nodes_inspection.is_empty()) {
+      node_inspection.update(adjacent_nodes_inspection, final, mode)
+      graph_view.node_view.model.data_source.setv({inspected: node_inspection}, {silent: true})
+    }
 
     //silently set inspected attr to avoid triggering data_source.change event and rerender
     graph_view.edge_view.model.data_source.setv({inspected: edge_inspection}, {silent: true})
