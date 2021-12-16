@@ -179,10 +179,10 @@ class NodesAndLinkedEdgesAndLinkedNodes(GraphHitTestPolicy):
     '''
     With the ``NodesAndLinkedEdgesAndLinkedNodes`` policy, inspection or selection
     of graph nodes will result in the inspection or selection of the node, any their
-    linked graph edges, and of the linked graph nodes. There is no selection or 
-    inspection of graph edges, and no indication of which node is the tool-selected 
-    one from the policy-selected nodes. There is no selection or inspection of graph 
-    edges, and no indication of which node is the tool-selected one from the 
+    linked graph edges, and of the linked graph nodes. There is no selection or
+    inspection of graph edges, and no indication of which node is the tool-selected
+    one from the policy-selected nodes. There is no selection or inspection of graph
+    edges, and no indication of which node is the tool-selected one from the
     policy-selected nodes.
     '''
 
