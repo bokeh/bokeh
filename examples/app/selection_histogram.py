@@ -11,7 +11,6 @@ at your command prompt. Then navigate to the URL
 in your browser.
 
 '''
-
 import numpy as np
 
 from bokeh.layouts import gridplot

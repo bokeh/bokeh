@@ -1,3 +1,7 @@
+''' A gapminder chart using a population, life expectancy, and ferility dataset.
+This example shows the data visualization capability of Bokeh to recreate charts.
+
+'''
 import pandas as pd
 
 from bokeh.io import curdoc

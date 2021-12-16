@@ -1,3 +1,7 @@
+''' A stock OHLC chart that monitors the MACD indicator.
+This example shows the streaming and updating feature of Bokeh charts.
+
+'''
 import numpy as np
 
 from bokeh.driving import count

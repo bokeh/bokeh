@@ -1,3 +1,13 @@
+''' A dashboard that utilizes `Auto MPG`_ and stocks dataset.
+This example demonstrates the use of Bootstrap templates to compile several types
+of charts in one file.
+
+.. note::
+    This example needs the Pandas package to run.
+
+.. _Auto MPG: https://archive.ics.uci.edu/ml/datasets/auto+mpg
+
+'''
 from collections import Counter
 from math import pi
 
