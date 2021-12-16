@@ -137,6 +137,7 @@ function chrome(): string {
 async function headless(port: number): Promise<ChildProcess> {
   const args = [
     "--headless",
+    "--no-first-run",
     `--remote-debugging-address=${argv.host ?? "127.0.0.1"}`,
     `--remote-debugging-port=${port}`,
     "--font-render-hinting=none",           // fixes measureText() on Linux with external fonts
