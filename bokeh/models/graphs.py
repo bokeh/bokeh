@@ -43,6 +43,7 @@ __all__ = (
     'GraphHitTestPolicy',
     'LayoutProvider',
     'NodeCoordinates',
+    'NodesAndAdjacentNodes',
     'NodesAndLinkedEdges',
     'NodesOnly',
     'StaticLayoutProvider',
@@ -156,6 +157,18 @@ class EdgesAndLinkedNodes(GraphHitTestPolicy):
     edges will result in the inspection or selection of the edge and of the
     linked graph nodes. There is no direct selection or inspection of graph
     nodes.
+
+    '''
+
+    pass
+
+class NodesAndAdjacentNodes(GraphHitTestPolicy):
+    '''
+    With the ``NodesAndAdjacentNodes`` policy, inspection or selection of
+    graph nodes will also result in the inspection or selection any nodes that
+    are immediately adjacent (connected by a single edge). There is no
+    selection or inspection of graph edges, and no indication of which node is
+    the tool-selected one from the policy-selected nodes.
 
     '''
 

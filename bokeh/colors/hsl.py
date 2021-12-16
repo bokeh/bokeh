@@ -87,6 +87,19 @@ class HSL(Color):
         '''
         return HSL(self.h, self.s, self.l, self.a)
 
+    def darken(self, amount: float) -> HSL:
+        ''' Darken (reduce the luminance) of this color.
+
+        Args:
+            amount (float) :
+                Amount to reduce the luminance by (clamped above zero)
+
+        Returns:
+            :class:`~bokeh.colors.hsl.HSL`
+
+        '''
+        return self.lighten(-amount)
+
     @classmethod
     def from_hsl(cls, value: HSL) -> HSL:
         ''' Copy an HSL color from another HSL color value.
@@ -147,6 +160,21 @@ class HSL(Color):
         from .rgb import RGB  # prevent circular import
         r, g, b = colorsys.hls_to_rgb(float(self.h)/360, self.l, self.s)
         return RGB(round(r*255), round(g*255), round(b*255), self.a)
+
+    def lighten(self, amount: float) -> HSL:
+        ''' Lighten (increase the luminance) of this color.
+
+        Args:
+            amount (float) :
+                Amount to increase the luminance by (clamped above zero)
+
+        Returns:
+            :class:`~bokeh.colors.hsl.HSL`
+
+        '''
+        hsl = self.copy()
+        hsl.l = self.clamp(hsl.l + amount, 1)
+        return self.from_hsl(hsl)
 
 #-----------------------------------------------------------------------------
 # Dev API

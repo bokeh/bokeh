@@ -40,7 +40,7 @@ from typing_extensions import Literal, TypedDict
 
 # Bokeh imports
 from .. import __version__
-from ..core.templates import (
+from ..core.templates import (  # type: ignore[attr-defined]
     AUTOLOAD_JS,
     AUTOLOAD_TAG,
     FILE,

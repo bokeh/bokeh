@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import colorsys
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Type, TypeVar
 
@@ -87,6 +88,8 @@ class Color(metaclass=ABCMeta):
     def darken(self: Self, amount: float) -> Self:
         ''' Darken (reduce the luminance) of this color.
 
+        *Subclasses must implement this method.*
+
         Args:
             amount (float) :
                 Amount to reduce the luminance by (clamped above zero)
@@ -95,9 +98,7 @@ class Color(metaclass=ABCMeta):
             Color
 
         '''
-        hsl = self.to_hsl()
-        hsl.l = self.clamp(hsl.l - amount)
-        return self.from_hsl(hsl)
+        return self.lighten(-amount)
 
     @classmethod
     @abstractmethod
@@ -136,6 +137,8 @@ class Color(metaclass=ABCMeta):
     def lighten(self: Self, amount: float) -> Self:
         ''' Lighten (increase the luminance) of this color.
 
+        *Subclasses must implement this method.*
+
         Args:
             amount (float) :
                 Amount to increase the luminance by (clamped above zero)
@@ -144,9 +147,14 @@ class Color(metaclass=ABCMeta):
             Color
 
         '''
-        hsl = self.to_hsl()
-        hsl.l = self.clamp(hsl.l + amount, 1)
-        return self.from_hsl(hsl)
+        rgb = self.to_rgb()
+        h, l, s = colorsys.rgb_to_hls(float(rgb.r)/255, float(rgb.g)/255, float(rgb.b)/255)
+        new_l = self.clamp(l + amount, 1)
+        r, g, b = colorsys.hls_to_rgb(h, new_l, s)
+        rgb.r = round(r * 255)
+        rgb.g = round(g * 255)
+        rgb.b = round(b * 255)
+        return self.from_rgb(rgb)
 
     @abstractmethod
     def to_css(self) -> str:

@@ -283,3 +283,83 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
     return !edge_inspection.is_empty()
   }
 }
+
+export namespace NodesAndAdjacentNodes {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = GraphHitTestPolicy.Props
+}
+
+export interface NodesAndAdjacentNodes extends NodesAndAdjacentNodes.Attrs {}
+
+export class NodesAndAdjacentNodes extends GraphHitTestPolicy {
+  override properties: NodesAndAdjacentNodes.Props
+
+  constructor(attrs?: Partial<NodesAndAdjacentNodes.Attrs>) {
+    super(attrs)
+  }
+
+  hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
+    return this._hit_test(geometry, graph_view, graph_view.node_view)
+  }
+
+  get_adjacent_nodes(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: string): Selection {
+    let selected_node_indices = []
+    if (mode == "selection") {
+      selected_node_indices = node_source.selected.indices.map((i) => node_source.data.index[i])
+    } else if (mode == "inspection") {
+      selected_node_indices = node_source.inspected.indices.map((i) => node_source.data.index[i])
+    }
+    const adjacent_nodes = []
+    const selected_nodes = []
+    for (let i = 0; i < edge_source.data.start.length; i++) {
+      if (contains(selected_node_indices, edge_source.data.start[i])) {
+        adjacent_nodes.push(edge_source.data.end[i])
+        selected_nodes.push(edge_source.data.start[i])
+      }
+      if (contains(selected_node_indices, edge_source.data.end[i])) {
+        adjacent_nodes.push(edge_source.data.start[i])
+        selected_nodes.push(edge_source.data.end[i])
+      }
+    }
+    for (let i = 0; i < selected_nodes.length; i++)
+      adjacent_nodes.push(selected_nodes[i])
+
+    const adjacent_node_indices = uniq(adjacent_nodes).map((i) => indexOf(node_source.data.index, i))
+    return new Selection({indices: adjacent_node_indices})
+  }
+
+  do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
+    if (hit_test_result == null)
+      return false
+
+    const node_selection = graph.node_renderer.data_source.selected
+    node_selection.update(hit_test_result, final, mode)
+
+    const adjacent_nodes_selection = this.get_adjacent_nodes(graph.node_renderer.data_source, graph.edge_renderer.data_source, "selection")
+    if (!adjacent_nodes_selection.is_empty())
+      node_selection.update(adjacent_nodes_selection, final, mode)
+
+    graph.node_renderer.data_source._select.emit()
+
+    return !node_selection.is_empty()
+  }
+
+  do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean {
+    if (hit_test_result == null)
+      return false
+
+    const node_inspection = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model)
+    node_inspection.update(hit_test_result, final, mode)
+    graph_view.node_view.model.data_source.setv({inspected: node_inspection}, {silent: true})
+
+    const adjacent_nodes_inspection = this.get_adjacent_nodes(graph_view.node_view.model.data_source, graph_view.edge_view.model.data_source, "inspection")
+    if (!adjacent_nodes_inspection.is_empty()) {
+      node_inspection.update(adjacent_nodes_inspection, final, mode)
+      graph_view.node_view.model.data_source.setv({inspected: node_inspection}, {silent: true})
+    }
+
+    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view.model, {geometry}])
+    return !node_inspection.is_empty()
+  }
+}

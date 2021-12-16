@@ -10,9 +10,16 @@ import {
 import {Div} from "@bokehjs/models/widgets"
 import {assert} from "@bokehjs/core/util/assert"
 import {build_view} from "@bokehjs/core/build_views"
+import {base64_to_buffer} from "@bokehjs/core/util/buffer"
 import {offset} from "@bokehjs/core/dom"
 import {gridplot} from "@bokehjs/api/gridplot"
 import {Document, DocJson, DocumentEvent, ModelChangedEvent} from "@bokehjs/document"
+
+import {ImageURLView} from "@bokehjs/models/glyphs/image_url"
+
+function data_url(data: string, mime: string, encoding: string = "base64") {
+  return `data:${mime};${encoding},${data}`
+}
 
 describe("Bug", () => {
   describe("in issue #10612", () => {
@@ -287,6 +294,48 @@ describe("Bug", () => {
         new ModelChangedEvent(doc, doc.get_model_by_id("1009")!, "start", NaN, -1.0840481406628186),
         new ModelChangedEvent(doc, doc.get_model_by_id("1009")!, "end",   NaN,  1.0992403876506105),
       ])
+    })
+  })
+
+  describe("in issue #11877", async () => {
+    it("requires two render iterations to paint data URL images", async () => {
+      const jpg = "/9j/4AAQSkZJRgABAQEASABIAAD//gATQ3JlYXRlZCB3aXRoIEdJTVD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wgARCAAUABQDAREAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/xAAWAQEBAQAAAAAAAAAAAAAAAAAABwn/2gAMAwEAAhADEAAAAbIZ30QAAAD/xAAUEAEAAAAAAAAAAAAAAAAAAAAw/9oACAEBAAEFAh//xAAUEQEAAAAAAAAAAAAAAAAAAAAw/9oACAEDAQE/AR//xAAUEQEAAAAAAAAAAAAAAAAAAAAw/9oACAECAQE/AR//xAAUEAEAAAAAAAAAAAAAAAAAAAAw/9oACAEBAAY/Ah//xAAUEAEAAAAAAAAAAAAAAAAAAAAw/9oACAEBAAE/IR//2gAMAwEAAgADAAAAEAAAAB//xAAUEQEAAAAAAAAAAAAAAAAAAAAw/9oACAEDAQE/EB//xAAUEQEAAAAAAAAAAAAAAAAAAAAw/9oACAECAQE/EB//xAAUEAEAAAAAAAAAAAAAAAAAAAAw/9oACAEBAAE/EB//2Q=="
+      const png = "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5QwMEBEn745HIwAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAAdElEQVQ4y2NkwA/M/uORZGKgAAycZkbCSnB7m8bO/n+SXGf//w91M6M5Bc7Gaj8jMdaiaDAnQjNWnegGvefnh7AEP34kYCeGTQjNECDw4QMx2rAH2AcBASJ1Yg9tZP2MeEMUe1RB9DMSSgW0SZ6Ynh9M+RkAVKIcx4/3GikAAAAASUVORK5CYII="
+
+      const render = sinon.spy(ImageURLView.prototype, "render")
+
+      try {
+        const p0 = fig([200, 200])
+        p0.image_url([data_url(jpg, "image/jpeg")], 0, 0, null, null)
+        await display(p0)
+        expect(render.callCount).to.be.equal(1)
+
+        render.resetHistory()
+
+        const p1 = fig([200, 200])
+        p1.image_url([data_url(png, "image/png")], 0, 0, null, null)
+        await display(p1)
+        expect(render.callCount).to.be.equal(1)
+
+        render.resetHistory()
+
+        const url = URL.createObjectURL(new Blob([base64_to_buffer(png)]))
+        const p2 = fig([200, 200])
+        p2.image_url([url], 0, 0, null, null)
+        await display(p2)
+        expect(render.callCount).to.be.above(0)
+        expect(render.callCount).to.be.below(3)
+
+        render.resetHistory()
+
+        const p3 = fig([200, 200])
+        p3.image_url(["/assets/images/pattern.png"], 0, 0, null, null)
+        await display(p3)
+        expect(render.callCount).to.be.above(0)
+        expect(render.callCount).to.be.below(3)
+      } finally {
+        render.restore()
+      }
     })
   })
 })

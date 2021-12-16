@@ -150,6 +150,8 @@ values, a ``step`` size, an initial ``value``, and a ``title``:
 
 More information can be found in the Reference for |DateRangeSlider|.
 
+.. _userguide_interaction_widgets_div:
+
 Div
 ~~~
 
@@ -202,6 +204,8 @@ A multi-select widget to present multiple available options in vertical list:
 
 More information can be found in the Reference for |MultiSelect|.
 
+.. _userguide_interaction_widgets_paragraph:
+
 Paragraph
 ~~~~~~~~~
 
@@ -252,6 +256,8 @@ A radio group uses standard radio button appearance:
 
 More information can be found in the Reference for |RadioGroup|.
 
+.. _userguide_interaction_widgets_range_slider:
+
 RangeSlider
 ~~~~~~~~~~~
 
@@ -272,6 +278,8 @@ A single selection widget:
     :source-position: below
 
 More information can be found in the Reference for |Select|.
+
+.. _userguide_interaction_widgets_slider:
 
 Slider
 ~~~~~~

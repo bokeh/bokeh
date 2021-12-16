@@ -40,6 +40,7 @@ log = logging.getLogger(__name__)
 from ..core.enums import (
     Anchor,
     Direction,
+    Palette,
     StepMode,
     enumeration,
 )
@@ -92,6 +93,7 @@ __all__ = (
     'Annulus',
     'Arc',
     'Bezier',
+    'Block',
     'Circle',
     'ConnectedXYGlyph',
     'Ellipse',
@@ -347,6 +349,43 @@ class Bezier(LineGlyph):
 
     line_props = Include(LineProps, help="""
     The {prop} values for the Bezier curves.
+    """)
+
+class Block(LineGlyph, FillGlyph, HatchGlyph):
+    ''' Render rectangular regions, given a corner coordinate, width, and height.
+
+    '''
+
+    __example__ = "examples/reference/models/Block.py"
+
+    _args = ('x', 'y', 'width', 'height')
+
+    x = NumberSpec(default=field("x"), help="""
+    The x-coordinates of the centers of the blocks.
+    """)
+
+    y = NumberSpec(default=field("y"), help="""
+    The y-coordinates of the centers of the blocks.
+    """)
+
+    width = NumberSpec(default=1, help="""
+    The widths of the blocks.
+    """)
+
+    height = NumberSpec(default=1, help="""
+    The heights of the blocks.
+    """)
+
+    line_props = Include(LineProps, help="""
+    The {prop} values for the blocks.
+    """)
+
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the blocks.
+    """)
+
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the blocks.
     """)
 
 class Circle(Marker):
@@ -626,16 +665,16 @@ class Image(XYGlyph):
     images to have a gap between them, when they should appear flush.
     """)
 
-    color_mapper = Instance(ColorMapper, lambda: LinearColorMapper(palette="Greys9"), help="""
+    color_mapper = Instance(ColorMapper, default="Greys9", help="""
     A ``ColorMapper`` to use to map the scalar data from ``image``
     into RGBA values for display.
 
+    The name of a palette from ``bokeh.palettes`` may also be set, in which
+    case a ``LinearColorMapper`` configured with the named palette wil be used.
+
     .. note::
         The color mapping step happens on the client.
-    """)
-
-    # TODO: (bev) support anchor property for Image
-    # ref: https://github.com/bokeh/bokeh/issues/1763
+    """).accepts(Enum(Palette), lambda pal: LinearColorMapper(palette=pal))
 
 class ImageRGBA(XYGlyph):
     ''' Render images given as RGBA data.
