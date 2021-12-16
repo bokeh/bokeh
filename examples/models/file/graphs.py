@@ -12,8 +12,8 @@ import networkx as nx
 
 from bokeh.io import curdoc, show
 from bokeh.models import (BoxSelectTool, Circle, Column, EdgesAndLinkedNodes,
-                          HoverTool, MultiLine, NodesAndAdjacentNodes, 
-                          NodesAndLinkedEdges, NodesAndLinkedEdgesAndLinkedNodes, 
+                          HoverTool, MultiLine, NodesAndAdjacentNodes,
+                          NodesAndLinkedEdges, NodesAndLinkedEdgesAndLinkedNodes,
                           Plot, Range1d, Row, TapTool)
 from bokeh.palettes import Spectral4
 from bokeh.plotting import from_networkx
