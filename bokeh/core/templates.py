@@ -78,7 +78,7 @@ def get_env():
         # Non-frozen Python and cx_Freeze can use __file__ directly
         templates_path = join(dirname(__file__), '_templates')
 
-    return Environment(loader=FileSystemLoader(templates_path))
+    return Environment(loader=FileSystemLoader(templates_path), trim_blocks=True, lstrip_blocks=True)
 
 #-----------------------------------------------------------------------------
 # Private API
