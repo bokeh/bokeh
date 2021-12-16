@@ -10,6 +10,8 @@
     border: 1px solid #ccc;
     border-radius: @border-radius;
 
+    font-family: inherit;
+
     @border-focus: #66afe9;
     @border-focus-faded: fade(@border-focus, 60%);
     &:focus {
@@ -39,6 +41,10 @@
     }
   }
 
+  option {
+    padding: 0;
+  }
+
   select[multiple], select[size], textarea {
     &.bk-input {
       height: auto;
@@ -65,6 +71,8 @@
 
     // XXX: this is horrible, but at least looks good by default
     input[type="checkbox"], input[type="radio"] {
+      margin: 0;
+
       & + span {
         position: relative;
         top: -2px;

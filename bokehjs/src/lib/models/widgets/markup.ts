@@ -39,7 +39,7 @@ export abstract class MarkupView extends WidgetView {
   }
 
   override styles(): string[] {
-    return [...super.styles(), clearfix_css]
+    return [...super.styles(), clearfix_css, "p { margin: 0; }"]
   }
 
   override _update_layout(): void {
