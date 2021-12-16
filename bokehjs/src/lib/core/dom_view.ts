@@ -48,6 +48,8 @@ export abstract class DOMView extends View {
 export abstract class DOMComponentView extends DOMView {
   override el: Element
 
+  override readonly root: DOMComponentView
+
   shadow_el: ShadowRoot
   stylesheet_el: HTMLStyleElement
 

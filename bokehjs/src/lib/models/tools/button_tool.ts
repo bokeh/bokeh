@@ -1,7 +1,7 @@
 import Hammer, {Manager} from "hammerjs"
 
 import {Class} from "core/class"
-import {DOMView} from "core/dom_view"
+import {DOMView, DOMComponentView} from "core/dom_view"
 import {Tool, ToolView} from "./tool"
 import {empty, Keys} from "core/dom"
 import {Dimensions, ToolIcon} from "core/enums"
@@ -20,6 +20,7 @@ export abstract class ButtonToolButtonView extends DOMView {
   override model: ButtonTool
   override readonly parent: ToolbarBaseView
   override el: HTMLElement
+  override readonly root: DOMComponentView
 
   private _hammer: InstanceType<typeof Manager>
   private _menu?: ContextMenu
