@@ -1,3 +1,12 @@
+''' This example displays a CartoDB Positron base world map 
+
+.. bokeh-example-metadata::
+	:apis: bokeh.plotting.Figure.add_tile
+	:refs:  :ref:`userguide_geo` > :ref:`userguide_tools`
+	:keywords: map, plot, colormap
+
+'''
+
 from bokeh.plotting import figure, output_file, show
 
 output_file("tile_source.html")
