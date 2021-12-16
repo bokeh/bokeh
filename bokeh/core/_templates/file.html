@@ -28,7 +28,7 @@ that accepts these same parameters.
     {{- bokeh_css if bokeh_css }}
   {%-  endblock css_resources %}
   {%   block js_resources -%}
-    {{ bokeh_js if bokeh_js }}
+    {{  bokeh_js if bokeh_js }}
   {%-  endblock js_resources %}
   {%  endblock resources %}
   {%  block postamble %}{% endblock %}
@@ -40,12 +40,12 @@ that accepts these same parameters.
   {%  block inner_body %}
   {%    block contents %}
   {%      for doc in docs %}
-  {{ embed(doc) if doc.elementid }}
-  {%-        for root in doc.roots %}
+  {{        embed(doc) if doc.elementid }}
+  {%-       for root in doc.roots %}
   {%          block root scoped %}
-  {{ embed(root) }}
+  {{            embed(root) }}
   {%          endblock %}
-  {%         endfor %}
+  {%        endfor %}
   {%      endfor %}
   {%    endblock contents %}
   {{ plot_script | indent(4) }}
