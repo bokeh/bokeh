@@ -59,7 +59,7 @@
       <div class="header">Diff</div>
       <div class="header">Reference</div>
     {%- for description, status in results %}
-      {%- if status.failure %}
+      {%- if full or status.failure %}
       <div class="description">{{ description | join(" ⇒ ") }}</div>
       <img src="data:image/png;base64,{{ status.image }}"></img>
       <img src="data:image/png;base64,{{ status.image_diff }}"></img>

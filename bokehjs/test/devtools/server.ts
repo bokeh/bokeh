@@ -71,8 +71,9 @@ app.get("/unit/run", unit(true))
 app.get("/defaults/run", defaults(true))
 app.get("/integration/run", integration(true))
 
-app.get("/integration/report", using_report(({results}, _, res) => {
-  res.render("test/devtools/report.html", {title: "Integration Tests Report", results})
+app.get("/integration/report", using_report(({results}, req, res) => {
+  const full = req.query.full == ""
+  res.render("test/devtools/report.html", {title: "Integration Tests Report", results, full})
 }))
 
 app.get("/integration/metrics", using_report(({metrics}, _, res) => {
