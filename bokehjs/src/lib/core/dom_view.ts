@@ -10,6 +10,11 @@ export abstract class DOMView extends View {
   static tag_name: keyof HTMLElementTagNameMap = "div"
 
   el: Node
+  shadow_el?: ShadowRoot
+
+  get children_el(): Node {
+    return this.shadow_el ?? this.el
+  }
 
   override readonly root: DOMView
 
@@ -48,9 +53,7 @@ export abstract class DOMView extends View {
 export abstract class DOMComponentView extends DOMView {
   override el: Element
 
-  override readonly root: DOMComponentView
-
-  shadow_el: ShadowRoot
+  override shadow_el: ShadowRoot
   stylesheet_el: HTMLStyleElement
 
   override initialize(): void {
