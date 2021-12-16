@@ -12,10 +12,6 @@ associated with your data. A simple, but typical complete example of this API lo
 
     show(p)
 
-There are three subdirectories:
+## Structure
 
-* `file` examples that output to static HTML files
-
-* `notebook` examples that display inline in [Jupyter](http://jupyter.org) notebooks
-
-* `server` examples that send output to a Bokeh server, using the python client library for the server
+The `file`  subdirectory contains examples that output to static HTML files
