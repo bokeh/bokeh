@@ -344,8 +344,7 @@ export class ClassList {
 
   clear(): this {
     for (const cls of this.values) {
-      if (cls != "bk")
-        this.classList.remove(cls)
+      this.classList.remove(cls)
     }
     return this
   }
