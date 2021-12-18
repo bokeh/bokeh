@@ -281,7 +281,7 @@ export function content_size(el: HTMLElement): Size {
   const {padding} = extents(el)
   let width = 0
   let height = 0
-  for (const child of el.children) {
+  for (const child of (el.shadowRoot ?? el).children) {
     const rect = child.getBoundingClientRect()
     width = Math.max(width, Math.ceil(rect.left - left - padding.left + rect.width))
     height = Math.max(height, Math.ceil(rect.top - top - padding.top + rect.height))
