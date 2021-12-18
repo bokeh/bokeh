@@ -424,7 +424,7 @@ class DatePicker(InputWidget):
     Optional latest allowable date.
     """)
 
-    disabled_dates = List(Either(Date, Tuple(Date, Date)), default=[], help="""
+    disabled_dates = Nullable(List(Either(Date, Tuple(Date, Date))), default=None, help="""
     A list of dates of ``(start, end)`` date ranges to make unavailable for
     selection. All other dates will be avalable.
 
@@ -432,7 +432,7 @@ class DatePicker(InputWidget):
         Only one of ``disabled_dates`` and ``enabled_dates`` should be specified.
     """)
 
-    enabled_dates = List(Either(Date, Tuple(Date, Date)), default=[], help="""
+    enabled_dates = Nullable(List(Either(Date, Tuple(Date, Date))), default=None, help="""
     A list of dates of ``(start, end)`` date ranges to make available for
     selection. All other dates will be unavailable.
 
