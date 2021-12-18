@@ -63,8 +63,7 @@ export class AutocompleteInputView extends TextInputView {
       display(this.menu)
 
       const listener = (event: MouseEvent) => {
-        const {target} = event
-        if (target instanceof HTMLElement && !this.el.contains(target)) {
+        if (!event.composedPath().includes(this.el)) {
           document.removeEventListener("click", listener)
           this._hide_menu()
         }
