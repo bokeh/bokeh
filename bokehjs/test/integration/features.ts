@@ -1,7 +1,7 @@
 import {display, fig} from "./_util"
 
 import {PanTool, SaveTool} from "@bokehjs/models"
-import {stylesheet} from "@bokehjs/core/dom"
+//import {stylesheet} from "@bokehjs/core/dom"
 
 function svg_data_url(svg: string): string {
   return `data:image/svg+xml;utf-8,${svg}`
@@ -26,6 +26,7 @@ describe("Feature", () => {
 </svg>
 `)
 
+    /* TODO: see below
     before_each(() => {
       // this will append exactly once; don't remove for manual review
       stylesheet.append(`
@@ -40,6 +41,7 @@ describe("Feature", () => {
         }
       `)
     })
+    */
 
     it("should allow customizing tool icons", async () => {
       const tools = [
@@ -49,9 +51,11 @@ describe("Feature", () => {
         new PanTool({icon: both, dimensions: "both"}),
         new PanTool({icon: width, dimensions: "width"}),
         new PanTool({icon: height, dimensions: "height"}),
+        /* TODO: this doesn't make sense with CSS isolation
         new PanTool({icon: ".pan-tool-custom-icon-both", dimensions: "both"}),
         new PanTool({icon: ".pan-tool-custom-icon-width", dimensions: "width"}),
         new PanTool({icon: ".pan-tool-custom-icon-height", dimensions: "height"}),
+        */
         new SaveTool({icon: "copy_to_clipboard"}),
       ]
       const p = fig([400, 100], {toolbar_location: "above", tools})
