@@ -7,7 +7,7 @@ import * as p from "core/properties"
 import {isString} from "core/util/types"
 
 import * as buttons from "styles/buttons.css"
-import /*menus_css,*/ * as menus from "styles/menus.css"
+import dropdown_css, * as dropdown from "styles/dropdown.css"
 import carets_css, * as carets from "styles/caret.css"
 
 export class DropdownView extends AbstractButtonView {
@@ -18,7 +18,7 @@ export class DropdownView extends AbstractButtonView {
   protected menu: HTMLElement
 
   override styles(): string[] {
-    return [...super.styles(), carets_css]
+    return [...super.styles(), dropdown_css, carets_css]
   }
 
   override render(): void {
@@ -37,7 +37,7 @@ export class DropdownView extends AbstractButtonView {
 
     const items = this.model.menu.map((item, i) => {
       if (item == null)
-        return div({class: menus.divider})
+        return div({class: dropdown.divider})
       else {
         const label = isString(item) ? item : item[0]
         const el = div(label)
@@ -46,7 +46,7 @@ export class DropdownView extends AbstractButtonView {
       }
     })
 
-    this.menu = div({class: [menus.menu, menus.below]}, items)
+    this.menu = div({class: [dropdown.menu, dropdown.below]}, items)
     this.shadow_el.appendChild(this.menu)
     undisplay(this.menu)
   }
