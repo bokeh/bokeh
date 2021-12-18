@@ -1,40 +1,40 @@
 @import "./_mixins.less";
 
-  :host {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    .no-user-select();
-  }
+:host {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  .no-user-select();
+}
 
-  :host(.bk-hidden) {
-    visibility: hidden;
-    opacity: 0;
-    transition: visibility 0.3s linear, opacity 0.3s linear;
-  }
+:host(.bk-hidden) {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0.3s linear, opacity 0.3s linear;
+}
+
+.bk-logo {
+  flex-shrink: 0;
+}
+
+:host(.bk-above), :host(.bk-below) {
+  flex-direction: row;
+  justify-content: flex-end;
 
   .bk-logo {
-    flex-shrink: 0;
+    order: 1;
+    margin-left: 5px;
+    margin-right: 0px;
   }
+}
 
-  :host(.bk-above), :host(.bk-below) {
-    flex-direction: row;
-    justify-content: flex-end;
+:host(.bk-left), :host(.bk-right) {
+  flex-direction: column;
+  justify-content: flex-start;
 
-    .bk-logo {
-      order: 1;
-      margin-left: 5px;
-      margin-right: 0px;
-    }
+  .bk-logo {
+    order: 0;
+    margin-bottom: 5px;
+    margin-top: 0px;
   }
-
-  :host(.bk-left), :host(.bk-right) {
-    flex-direction: column;
-    justify-content: flex-start;
-
-    .bk-logo {
-      order: 0;
-      margin-bottom: 5px;
-      margin-top: 0px;
-    }
-  }
+}

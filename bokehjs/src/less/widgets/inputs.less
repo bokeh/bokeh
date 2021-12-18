@@ -1,142 +1,142 @@
 @import "../_mixins.less";
 
-  .bk-input {
-    display: inline-block;
-    width: 100%;
-    flex-grow: 1;
-    min-height: (@line-height-computed + (@padding-vertical*2) + 2);
-    padding: 0 @padding-horizontal;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: @border-radius;
+.bk-input {
+  display: inline-block;
+  width: 100%;
+  flex-grow: 1;
+  min-height: (@line-height-computed + (@padding-vertical*2) + 2);
+  padding: 0 @padding-horizontal;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: @border-radius;
 
-    font-family: inherit;
+  font-family: inherit;
 
-    @border-focus: #66afe9;
-    @border-focus-faded: fade(@border-focus, 60%);
-    &:focus {
-      border-color: @border-focus;
-      outline: 0;
-      box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px @border-focus-faded;
-    }
+  @border-focus: #66afe9;
+  @border-focus-faded: fade(@border-focus, 60%);
+  &:focus {
+    border-color: @border-focus;
+    outline: 0;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px @border-focus-faded;
+  }
 
-    .placeholder(#999);
+  .placeholder(#999);
 
-    &[disabled] {
-      cursor: not-allowed;
-      background-color: #eee;
-      opacity: 1;
+  &[disabled] {
+    cursor: not-allowed;
+    background-color: #eee;
+    opacity: 1;
+  }
+}
+
+select:not([multiple]), select:not([size]) {
+  &.bk-input {
+    height: auto;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg version="1.1" viewBox="0 0 25 20" xmlns="http://www.w3.org/2000/svg"><path d="M 0,0 25,0 12.5,20 Z" fill="black" /></svg>');
+    background-position: right 0.5em center;
+    background-size: 8px 6px;
+    background-repeat: no-repeat;
+  }
+}
+
+option {
+  padding: 0;
+}
+
+select[multiple], select[size], textarea {
+  &.bk-input {
+    height: auto;
+  }
+}
+
+.bk-input-group {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: start;
+  flex-direction: column;
+
+  white-space: nowrap;
+
+  &.bk-inline {
+    flex-direction: row;
+
+    & > *:not(:first-child) {
+      margin-left: 5px;
     }
   }
 
-  select:not([multiple]), select:not([size]) {
-    &.bk-input {
-      height: auto;
-      appearance: none;
-      -webkit-appearance: none;
-      background-image: url('data:image/svg+xml;utf8,<svg version="1.1" viewBox="0 0 25 20" xmlns="http://www.w3.org/2000/svg"><path d="M 0,0 25,0 12.5,20 Z" fill="black" /></svg>');
-      background-position: right 0.5em center;
-      background-size: 8px 6px;
-      background-repeat: no-repeat;
-    }
-  }
+  // XXX: this is horrible, but at least looks good by default
+  input[type="checkbox"], input[type="radio"] {
+    margin: 0;
 
-  option {
-    padding: 0;
-  }
-
-  select[multiple], select[size], textarea {
-    &.bk-input {
-      height: auto;
-    }
-  }
-
-  .bk-input-group {
-    width: 100%;
-    height: 100%;
-    display: inline-flex;
-    flex-wrap: nowrap;
-    align-items: start;
-    flex-direction: column;
-
-    white-space: nowrap;
-
-    &.bk-inline {
-      flex-direction: row;
-
-      & > *:not(:first-child) {
-        margin-left: 5px;
-      }
-    }
-
-    // XXX: this is horrible, but at least looks good by default
-    input[type="checkbox"], input[type="radio"] {
-      margin: 0;
-
-      & + span {
-        position: relative;
-        top: -2px;
-        margin-left: 3px;
-      }
-    }
-
-    >.bk-spin-wrapper {
-      display: inherit;
-      width: inherit;
-      height: inherit;
+    & + span {
       position: relative;
-      overflow: hidden;
-      padding: 0;
-      vertical-align: middle;
+      top: -2px;
+      margin-left: 3px;
+    }
+  }
 
-      input {
-        padding-right: 20px;
+  >.bk-spin-wrapper {
+    display: inherit;
+    width: inherit;
+    height: inherit;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+    vertical-align: middle;
+
+    input {
+      padding-right: 20px;
+    }
+
+    >.bk-spin-btn {
+      position: absolute;
+      display: block;
+      height: 50%;
+      min-height: 0;
+      min-width: 0;
+      width: 30px;
+      padding: 0;
+      margin: 0;
+      right: 0;
+      border: none;
+      background: none;
+      cursor: pointer;
+
+      &:before {
+        content: "";
+        display: inline-block;
+        transform: translateY(-50%);
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
       }
 
-      >.bk-spin-btn {
-        position: absolute;
-        display: block;
-        height: 50%;
-        min-height: 0;
-        min-width: 0;
-        width: 30px;
-        padding: 0;
-        margin: 0;
-        right: 0;
-        border: none;
-        background: none;
-        cursor: pointer;
+      &.bk-spin-btn-up {
+        top: 0;
 
         &:before {
-          content: "";
-          display: inline-block;
-          transform: translateY(-50%);
-          border-left: 5px solid transparent;
-          border-right: 5px solid transparent;
+          border-bottom: 5px solid black;
+        }
+        &:disabled:before {
+          border-bottom-color: grey;
+        }
+      }
+
+      &.bk-spin-btn-down {
+        bottom: 0;
+
+        &:before {
+          border-top: 5px solid black;
         }
 
-        &.bk-spin-btn-up {
-          top: 0;
-
-          &:before {
-            border-bottom: 5px solid black;
-          }
-          &:disabled:before {
-            border-bottom-color: grey;
-          }
-        }
-
-        &.bk-spin-btn-down {
-          bottom: 0;
-
-          &:before {
-            border-top: 5px solid black;
-          }
-
-          &:disabled:before {
-            border-top-color: grey;
-          }
+        &:disabled:before {
+          border-top-color: grey;
         }
       }
     }
   }
+}
