@@ -1,5 +1,9 @@
 @import "../_mixins.less";
 
+input::-webkit-file-upload-button {
+  font-family: inherit;
+}
+
 .bk-input {
   display: inline-block;
   width: 100%;
@@ -9,8 +13,6 @@
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: @border-radius;
-
-  font-family: inherit;
 
   @border-focus: #66afe9;
   @border-focus-faded: fade(@border-focus, 60%);
