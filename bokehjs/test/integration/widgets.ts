@@ -38,16 +38,44 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
-  it.allowing(31)("should allow Dropdown", async () => {
+  it("should allow Dropdown", async () => {
     const menu = ["Item 1", "Item 2", null, "Item 3"]
     const obj = new Dropdown({label: "Dropdown 1", button_type: "primary", menu})
     await display(obj, [500, 100])
   })
 
-  it.allowing(33)("should allow split Dropdown", async () => {
+  it("should allow Dropdown with menu open", async () => {
+    const menu = ["Item 1", "Item 2", null, "Item 3"]
+    const obj = new Dropdown({label: "Dropdown 1", button_type: "primary", menu})
+    const {view} = await display(obj, [500, 200])
+
+    const button = view.shadow_el.querySelector("button")!
+    const {left, top} = button.getBoundingClientRect()
+
+    const ev = new MouseEvent("click", {clientX: left + 5, clientY: top + 5})
+    button.dispatchEvent(ev)
+
+    await view.ready
+  })
+
+  it("should allow split Dropdown", async () => {
     const menu = ["Item 1", "Item 2", null, "Item 3"]
     const obj = new Dropdown({label: "Dropdown 2", button_type: "primary", menu, split: true})
     await display(obj, [500, 100])
+  })
+
+  it("should allow split Dropdown with menu open", async () => {
+    const menu = ["Item 1", "Item 2", null, "Item 3"]
+    const obj = new Dropdown({label: "Dropdown 1", button_type: "primary", menu, split: true})
+    const {view} = await display(obj, [500, 200])
+
+    const toggle = view.shadow_el.querySelector(".bk-dropdown-toggle")!
+    const {left, top} = toggle.getBoundingClientRect()
+
+    const ev = new MouseEvent("click", {clientX: left + 5, clientY: top + 5})
+    toggle.dispatchEvent(ev)
+
+    await view.ready
   })
 
   it("should allow CheckboxGroup", async () => {
