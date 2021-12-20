@@ -122,8 +122,8 @@ export class TooltipView extends AnnotationView {
     }
 
     this.el.style.top = `${top}px`
-    this.el.style.left = left != null ? `${left}px` : "auto"
-    this.el.style.right = right != null ? `${right}px` : "auto"
+    this.el.style.left = left != null ? `${left}px` : ""
+    this.el.style.right = right != null ? `${right}px` : ""
   }
 }
 
