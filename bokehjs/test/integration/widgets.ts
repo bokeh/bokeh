@@ -155,6 +155,12 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
+  it("should allow Div with float children", async () => {
+    const html = 'Some <b>bold text<b/>.<div style="float: left; width: 40px; height: 40px; background-color: red"></div>'
+    const obj = new Div({text: html, style: {border: "1px dotted blue", padding: "5px"}})
+    await display(obj, [500, 100])
+  })
+
   it("should allow Paragraph", async () => {
     const obj = new Paragraph({text: "some text"})
     await display(obj, [500, 100])
