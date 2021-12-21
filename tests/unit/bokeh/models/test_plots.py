@@ -39,6 +39,7 @@ from bokeh.models import (
     PanTool,
     Plot,
     Range1d,
+    ResetTool,
     Title,
     WMTSTileSource,
 )
@@ -372,6 +373,58 @@ def test_add_tile_tilesource():
     assert tile_source.url == mapnik.build_url()
     assert tile_source.attribution == mapnik.html_attribution
 
+def test_add_tools_single():
+    plot = Plot()
+    assert len(plot.tools) == 0
+
+    tool = PanTool()
+    plot.add_tools(tool)
+    assert plot.tools[0] == tool
+
+def test_add_tools_multiple():
+    plot = Plot()
+    first_tool = PanTool()
+    second_tool = ResetTool()
+
+    plot.add_tools(first_tool, second_tool)
+    assert plot.tools[0] == first_tool
+    assert plot.tools[1] == second_tool
+
+def test_add_tools_invalid():
+    plot = Plot()
+
+    with pytest.raises(ValueError) as e:
+        plot.add_tools("not a tool")
+        assert str(e.value) == "ValueError: All arguments to add_tool must be Tool subclasses."
+
+def test_remove_tools_single():
+    first_tool = PanTool()
+    second_tool = ResetTool()
+    plot=Plot(tools=[first_tool, second_tool])
+    assert plot.tools[0] == first_tool
+    assert plot.tools[1] == second_tool
+
+    plot.remove_tools(first_tool)
+    assert len(plot.tools) == 1
+    assert plot.tools[0] == second_tool
+
+def test_remove_tools_multiple():
+    first_tool = PanTool()
+    second_tool = ResetTool()
+    plot=Plot(tools=[first_tool, second_tool])
+
+    plot.remove_tools(first_tool, second_tool)
+    assert len(plot.tools) == 0
+
+def test_remove_tools_invalid():
+    first_tool = PanTool()
+    second_tool = ResetTool()
+    third_tool = PanTool()
+    plot=Plot(tools=[first_tool, second_tool])
+
+    with pytest.raises(ValueError) as e:
+        plot.remove_tools(third_tool)
+        assert str(e.value).startswith("ValueError: Invalid tool PanTool")
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

@@ -299,6 +299,23 @@ class Plot(LayoutDOM):
 
             self.toolbar.tools.append(tool)
 
+    def remove_tools(self, *tools: Tool) -> None:
+        ''' Removes tools from the plot.
+
+        Args:
+            *tools (Tool) : the tools to remove from the Plot
+
+        Returns:
+            None
+
+        '''
+        for tool in tools:
+            if not isinstance(tool, Tool):
+                raise ValueError("All arguments to remove_tool must be Tool subclasses.")
+            elif tool not in self.toolbar.tools:
+                raise ValueError(f"Invalid tool {tool} specified. Available tools are {nice_join(self.toolbar.tools)}")
+            self.toolbar.tools.remove(tool)
+
     @overload
     def add_glyph(self, glyph: Glyph, **kwargs: Any) -> GlyphRenderer: ...
     @overload
