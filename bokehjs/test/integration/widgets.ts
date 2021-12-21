@@ -178,6 +178,29 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
+  it.allowing(8)("should allow DatePicker with dialog open", async () => {
+    const obj = new DatePicker({value: new Date(Date.UTC(2017, 8, 1)).toDateString()})
+    const {view} = await display(obj, [500, 400])
+
+    const input_el = view.shadow_el.querySelector(".bk-input")!
+    const {left, top} = input_el.getBoundingClientRect()
+
+    const ev = new MouseEvent("click", {clientX: left + 5, clientY: top + 5})
+    input_el.dispatchEvent(ev)
+
+    await view.ready
+
+    async function finished_animating(el: Element) {
+      return new Promise<void>((resolve, reject) => {
+        el.addEventListener("animationend", () => resolve(), {once: true})
+        el.addEventListener("animationcancel", () => reject(), {once: true})
+      })
+    }
+
+    const calendar_el = view.shadow_el.querySelector(".flatpickr-calendar")!
+    await finished_animating(calendar_el)
+  })
+
   it("should allow Div", async () => {
     const obj = new Div({text: "some <b>text</b>"})
     await display(obj, [500, 100])

@@ -93,6 +93,7 @@ export class DatePickerView extends InputWidgetView {
     this.change_input()
   }
 
+  // https://github.com/flatpickr/flatpickr/pull/2362
   protected _position(self: flatpickr.Instance, custom_el: HTMLElement | undefined): void {
     const positionElement = custom_el ?? self._positionElement
 
@@ -105,7 +106,14 @@ export class DatePickerView extends InputWidgetView {
     const configPos = this.model.position.split(" ")
     const configPosVertical = configPos[0]
     const configPosHorizontal = configPos.length > 1 ? configPos[1] : null
-    const inputBounds = positionElement.getBoundingClientRect()
+    // const inputBounds = positionElement.getBoundingClientRect()
+    const inputBounds = {
+      top: positionElement.offsetTop,
+      bottom: positionElement.offsetTop + positionElement.offsetHeight,
+      left: positionElement.offsetLeft,
+      right: positionElement.offsetLeft + positionElement.offsetWidth,
+      width: positionElement.offsetWidth,
+    }
     const distanceFromBottom = window.innerHeight - inputBounds.bottom
     const showOnTop =
       configPosVertical === "above" ||
@@ -113,10 +121,16 @@ export class DatePickerView extends InputWidgetView {
         distanceFromBottom < calendarHeight &&
         inputBounds.top > calendarHeight)
 
-    const top =
-      window.pageYOffset +
-      inputBounds.top +
-      (!showOnTop ? positionElement.offsetHeight + 2 : -calendarHeight - 2)
+    // const top =
+    //   window.pageYOffset +
+    //   inputBounds.top +
+    //   (!showOnTop ? positionElement.offsetHeight + 2 : -calendarHeight - 2)
+    const top = self.config.appendTo
+      ? inputBounds.top +
+        (!showOnTop ? positionElement.offsetHeight + 2 : -calendarHeight - 2)
+      : window.pageYOffset +
+        inputBounds.top +
+        (!showOnTop ? positionElement.offsetHeight + 2 : -calendarHeight - 2)
 
     self.calendarContainer.classList.toggle("arrowTop", !showOnTop)
     self.calendarContainer.classList.toggle("arrowBottom", showOnTop)
