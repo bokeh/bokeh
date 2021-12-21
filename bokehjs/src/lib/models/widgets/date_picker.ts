@@ -33,7 +33,7 @@ export class DatePickerView extends InputWidgetView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {value, min_date, max_date, disabled_dates, enabled_dates, position, inline} = this.model.properties
+    const {value, min_date, max_date, disabled_dates, enabled_dates, inline} = this.model.properties
     this.connect(value.change, () => this._picker?.setDate(this.model.value))
     this.connect(min_date.change, () => this._picker?.set("minDate", this.model.min_date))
     this.connect(max_date.change, () => this._picker?.set("maxDate", this.model.max_date))
@@ -45,7 +45,6 @@ export class DatePickerView extends InputWidgetView {
       const {enabled_dates} = this.model
       this._picker?.set("enable", enabled_dates != null ? _convert_date_list(enabled_dates) : undefined)
     })
-    this.connect(position.change, () => this._picker?.set("position", this.model.position))
     this.connect(inline.change, () => this._picker?.set("inline", this.model.inline))
   }
 
@@ -72,7 +71,7 @@ export class DatePickerView extends InputWidgetView {
       positionElement: this.input_el,
       defaultDate: this.model.value,
       inline: this.model.inline,
-      position: this.model.position,
+      position: this._position.bind(this),
       onChange: (selected_dates, date_string, instance) => this._on_change(selected_dates, date_string, instance),
     }
 
@@ -92,6 +91,89 @@ export class DatePickerView extends InputWidgetView {
   protected _on_change(_selected_dates: Date[], date_string: string, _instance: flatpickr.Instance): void {
     this.model.value = date_string
     this.change_input()
+  }
+
+  protected _position(self: flatpickr.Instance, custom_el: HTMLElement | undefined): void {
+    const positionElement = custom_el ?? self._positionElement
+
+    const calendarHeight = Array.prototype.reduce.call(
+      self.calendarContainer.children,
+        ((acc: number, child: HTMLElement) => acc + child.offsetHeight) as any,
+        0
+    ) as number
+    const calendarWidth = self.calendarContainer.offsetWidth
+    const configPos = this.model.position.split(" ")
+    const configPosVertical = configPos[0]
+    const configPosHorizontal = configPos.length > 1 ? configPos[1] : null
+    const inputBounds = positionElement.getBoundingClientRect()
+    const distanceFromBottom = window.innerHeight - inputBounds.bottom
+    const showOnTop =
+      configPosVertical === "above" ||
+      (configPosVertical !== "below" &&
+        distanceFromBottom < calendarHeight &&
+        inputBounds.top > calendarHeight)
+
+    const top =
+      window.pageYOffset +
+      inputBounds.top +
+      (!showOnTop ? positionElement.offsetHeight + 2 : -calendarHeight - 2)
+
+    self.calendarContainer.classList.toggle("arrowTop", !showOnTop)
+    self.calendarContainer.classList.toggle("arrowBottom", showOnTop)
+
+    if (self.config.inline) return
+
+    let left = window.pageXOffset + inputBounds.left
+    let isCenter = false
+    let isRight = false
+
+    if (configPosHorizontal === "center") {
+      left -= (calendarWidth - inputBounds.width) / 2
+      isCenter = true
+    } else if (configPosHorizontal === "right") {
+      left -= calendarWidth - inputBounds.width
+      isRight = true
+    }
+
+    self.calendarContainer.classList.toggle("arrowLeft", !isCenter && !isRight)
+    self.calendarContainer.classList.toggle("arrowCenter", isCenter)
+    self.calendarContainer.classList.toggle("arrowRight", isRight)
+
+    const right =
+      window.document.body.offsetWidth -
+      (window.pageXOffset + inputBounds.right)
+    const rightMost = left + calendarWidth > window.document.body.offsetWidth
+    const centerMost = right + calendarWidth > window.document.body.offsetWidth
+
+    self.calendarContainer.classList.toggle("rightMost", rightMost)
+
+    if (self.config.static) return
+
+    self.calendarContainer.style.top = `${top}px`
+
+    if (!rightMost) {
+      self.calendarContainer.style.left = `${left}px`
+      self.calendarContainer.style.right = "auto"
+    } else if (!centerMost) {
+      self.calendarContainer.style.left = "auto"
+      self.calendarContainer.style.right = `${right}px`
+    } else {
+      const css = this.shadow_el.styleSheets[0]
+      const bodyWidth = window.document.body.offsetWidth
+      const centerLeft = Math.max(0, bodyWidth / 2 - calendarWidth / 2)
+      const centerBefore = ".flatpickr-calendar.centerMost:before"
+      const centerAfter = ".flatpickr-calendar.centerMost:after"
+      const centerIndex = css.cssRules.length
+      const centerStyle = `{left:${inputBounds.left}px;right:auto;}`
+      self.calendarContainer.classList.toggle("rightMost", false)
+      self.calendarContainer.classList.toggle("centerMost", true)
+      css.insertRule(
+        `${centerBefore},${centerAfter}${centerStyle}`,
+        centerIndex
+      )
+      self.calendarContainer.style.left = `${centerLeft}px`
+      self.calendarContainer.style.right = "auto"
+    }
   }
 }
 
