@@ -17,11 +17,16 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Tuple
+
 # External imports
 from flaky import flaky
 
 # Bokeh imports
-from bokeh._testing.util.selenium import RECORD, enter_text_in_element
+from bokeh._testing.plugins.project import BokehModelPage, BokehServerPage, SinglePlotPage
+from bokeh._testing.util.selenium import RECORD, enter_text_in_element, find_element_for
+from bokeh.application.handlers.function import ModifyDoc
 from bokeh.layouts import column
 from bokeh.models import (
     Circle,
@@ -41,61 +46,60 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-def modify_doc(doc):
-    source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
+def mk_modify_doc(text_input: PasswordInput) -> Tuple[ModifyDoc, Plot]:
     plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-    plot.add_glyph(source, Circle(x='x', y='y', size=20))
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
-    text_input = PasswordInput(css_classes=["foo"])
-    def cb(attr, old, new):
-        source.data['val'] = [old, new]
-    text_input.on_change('value', cb)
-    doc.add_root(column(text_input, plot))
-
+    def modify_doc(doc):
+        source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
+        plot.add_glyph(source, Circle(x='x', y='y', size=20))
+        plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+        def cb(attr, old, new):
+            source.data['val'] = [old, new]
+        text_input.on_change('value', cb)
+        doc.add_root(column(text_input, plot))
+    return modify_doc, plot
 
 @pytest.mark.selenium
 class Test_PasswordInput:
-    def test_displays_password_input(self, bokeh_model_page) -> None:
-        pw_input = PasswordInput(css_classes=["foo"])
-
+    def test_displays_password_input(self, bokeh_model_page: BokehModelPage) -> None:
+        pw_input = PasswordInput()
         page = bokeh_model_page(pw_input)
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, pw_input, "input")
         assert el.get_attribute('type') == "password"
 
         assert page.has_no_console_errors()
 
-    def test_displays_title(self, bokeh_model_page) -> None:
-        pw_input = PasswordInput(title="title", css_classes=["foo"])
-
+    def test_displays_title(self, bokeh_model_page: BokehModelPage) -> None:
+        pw_input = PasswordInput(title="title")
         page = bokeh_model_page(pw_input)
 
-        el = page.driver.find_element_by_css_selector('.foo label')
+        el = find_element_for(page.driver, pw_input, "label")
         assert el.text == "title"
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, pw_input, "input")
         assert el.get_attribute('placeholder') == ""
         assert el.get_attribute('type') == "password"
 
         assert page.has_no_console_errors()
 
-    def test_displays_placeholder(self, bokeh_model_page) -> None:
-        pw_input = PasswordInput(placeholder="placeholder", css_classes=["foo"])
-
+    def test_displays_placeholder(self, bokeh_model_page: BokehModelPage) -> None:
+        pw_input = PasswordInput(placeholder="placeholder")
         page = bokeh_model_page(pw_input)
 
-        el = page.driver.find_element_by_css_selector('.foo label')
+        el = find_element_for(page.driver, pw_input, "label")
         assert el.text == ""
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, pw_input, "input")
         assert el.get_attribute('placeholder') == "placeholder"
         assert el.get_attribute('type') == "password"
 
         assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
-    def test_server_on_change_no_round_trip_without_enter_or_click(self, bokeh_server_page) -> None:
+    def test_server_on_change_no_round_trip_without_enter_or_click(self, bokeh_server_page: BokehServerPage) -> None:
+        text_input = PasswordInput()
+        modify_doc, _ = mk_modify_doc(text_input)
         page = bokeh_server_page(modify_doc)
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         enter_text_in_element(page.driver, el, "pre", enter=False) # not change event if enter is not pressed
 
         page.click_custom_action()
@@ -110,10 +114,12 @@ class Test_PasswordInput:
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
     @flaky(max_runs=10)
-    def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
+    def test_server_on_change_round_trip(self, bokeh_server_page: BokehServerPage) -> None:
+        text_input = PasswordInput()
+        modify_doc, plot = mk_modify_doc(text_input)
         page = bokeh_server_page(modify_doc)
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         enter_text_in_element(page.driver, el, "val1")
 
         page.click_custom_action()
@@ -131,7 +137,7 @@ class Test_PasswordInput:
 
         # Check clicking outside input also triggers
         enter_text_in_element(page.driver, el, "val3", click=2, enter=False)
-        page.click_canvas_at_position(10, 10)
+        page.click_canvas_at_position(plot, 10, 10)
 
         page.click_custom_action()
 
@@ -141,16 +147,16 @@ class Test_PasswordInput:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_js_on_change_executes(self, single_plot_page) -> None:
+    def test_js_on_change_executes(self, single_plot_page: SinglePlotPage) -> None:
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
         plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Circle(x='x', y='y', size=20))
-        text_input = PasswordInput(css_classes=['foo'])
+        text_input = PasswordInput()
         text_input.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
 
         page = single_plot_page(column(text_input, plot))
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         enter_text_in_element(page.driver, el, "val1")
 
         results = page.results
@@ -164,7 +170,7 @@ class Test_PasswordInput:
 
         # Check clicking outside input also triggers
         enter_text_in_element(page.driver, el, "val3", click=2, enter=False)
-        page.click_canvas_at_position(10, 10)
+        page.click_canvas_at_position(plot, 10, 10)
         results = page.results
 
         assert results['value'] == 'val3'

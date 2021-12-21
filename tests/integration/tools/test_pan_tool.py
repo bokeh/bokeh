@@ -18,7 +18,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh._testing.util.selenium import RECORD
+from bokeh._testing.plugins.project import SinglePlotPage
+from bokeh._testing.util.selenium import RECORD, find_matching_element
 from bokeh.events import RangesUpdate
 from bokeh.models import (
     ColumnDataSource,
@@ -57,54 +58,51 @@ _css = dict(both='pan', width='xpan', height='ypan')
 @pytest.mark.selenium
 class Test_PanTool:
     @pytest.mark.parametrize('dim', ['both', 'width', 'height'])
-    def test_selected_by_default(self, dim, single_plot_page) -> None:
+    def test_selected_by_default(self, dim, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot(dim)
-
         page = single_plot_page(plot)
 
-        target = 'bk-tool-icon-%s' % _css[dim]
-
-        button = page.driver.find_element_by_class_name(target)
+        button = find_matching_element(page.driver, f".bk-tool-icon-{_css[dim]}")
         assert 'active' in button.get_attribute('class')
 
         assert page.has_no_console_errors()
 
     @pytest.mark.parametrize('dim', ['both', 'width', 'height'])
-    def test_can_be_deselected_and_selected(self, dim, single_plot_page) -> None:
+    def test_can_be_deselected_and_selected(self, dim, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot(dim)
 
         page = single_plot_page(plot)
 
-        target = 'bk-tool-icon-%s' % _css[dim]
+        target = f".bk-tool-icon-{_css[dim]}"
 
         # Check is active
-        button = page.driver.find_element_by_class_name(target)
+        button = find_matching_element(page.driver, target)
         assert 'active' in button.get_attribute('class')
 
         # Click and check is not active
-        button = page.driver.find_element_by_class_name(target)
+        button = find_matching_element(page.driver, target)
         button.click()
         assert 'active' not in button.get_attribute('class')
 
         # Click again and check is active
-        button = page.driver.find_element_by_class_name(target)
+        button = find_matching_element(page.driver, target)
         button.click()
         assert 'active' in button.get_attribute('class')
 
         assert page.has_no_console_errors()
 
     @pytest.mark.parametrize('dim', ['both', 'width', 'height'])
-    def test_pan_has_no_effect_when_deslected(self, dim, single_plot_page) -> None:
+    def test_pan_has_no_effect_when_deslected(self, dim, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot(dim)
 
         page = single_plot_page(plot)
 
-        target = 'bk-tool-icon-%s' % _css[dim]
+        target = f".bk-tool-icon-{_css[dim]}"
 
-        button = page.driver.find_element_by_class_name(target)
+        button = find_matching_element(page.driver, target)
         button.click()
 
-        page.drag_canvas_at_position(100, 100, 20, 20)
+        page.drag_canvas_at_position(plot, 100, 100, 20, 20)
 
         page.click_custom_action()
 
@@ -116,12 +114,12 @@ class Test_PanTool:
 
         assert page.has_no_console_errors()
 
-    def test_pan_updates_both_ranges(self, single_plot_page) -> None:
+    def test_pan_updates_both_ranges(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
 
-        page.drag_canvas_at_position(100, 100, 20, 20)
+        page.drag_canvas_at_position(plot, 100, 100, 20, 20)
 
         page.click_custom_action()
 
@@ -133,12 +131,12 @@ class Test_PanTool:
 
         assert page.has_no_console_errors()
 
-    def test_xpan_upates_only_xrange(self, single_plot_page) -> None:
+    def test_xpan_upates_only_xrange(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot('width')
 
         page = single_plot_page(plot)
 
-        page.drag_canvas_at_position(100, 100, 20, 20)
+        page.drag_canvas_at_position(plot, 100, 100, 20, 20)
 
         page.click_custom_action()
 
@@ -150,12 +148,12 @@ class Test_PanTool:
 
         assert page.has_no_console_errors()
 
-    def test_ypan_updates_only_yrange(self, single_plot_page) -> None:
+    def test_ypan_updates_only_yrange(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot('height')
 
         page = single_plot_page(plot)
 
-        page.drag_canvas_at_position(100, 100, 20, 20)
+        page.drag_canvas_at_position(plot, 100, 100, 20, 20)
 
         page.click_custom_action()
 
@@ -167,7 +165,7 @@ class Test_PanTool:
 
         assert page.has_no_console_errors()
 
-    def test_ranges_update(self, single_plot_page) -> None:
+    def test_ranges_update(self, single_plot_page: SinglePlotPage) -> None:
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
         plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))
@@ -183,7 +181,7 @@ class Test_PanTool:
 
         page = single_plot_page(plot)
 
-        page.drag_canvas_at_position(100, 100, 20, 20)
+        page.drag_canvas_at_position(plot, 100, 100, 20, 20)
 
         page.click_custom_action()
 

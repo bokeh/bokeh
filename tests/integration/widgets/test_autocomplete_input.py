@@ -17,12 +17,22 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Tuple
+
 # External imports
 from flaky import flaky
 from selenium.webdriver.common.keys import Keys
 
 # Bokeh imports
-from bokeh._testing.util.selenium import RECORD, enter_text_in_element, hover_element
+from bokeh._testing.plugins.project import BokehModelPage, BokehServerPage
+from bokeh._testing.util.selenium import (
+    RECORD,
+    enter_text_in_element,
+    find_element_for,
+    hover_element,
+)
+from bokeh.application.handlers.function import ModifyDoc
 from bokeh.layouts import column
 from bokeh.models import (
     AutocompleteInput,
@@ -42,59 +52,59 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-def modify_doc(doc):
-    source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
+def mk_modify_doc(input_box: AutocompleteInput) -> Tuple[ModifyDoc, Plot]:
     plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-    plot.add_glyph(source, Circle(x='x', y='y', size=20))
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
-    input_box = AutocompleteInput(css_classes=["foo"])
-    input_box.title = "title"
-    input_box.value = "400"
-    input_box.completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"]
-    def cb(attr, old, new):
-        source.data['val'] = [old, new]
-    input_box.on_change('value', cb)
-    doc.add_root(column(input_box, plot))
-
+    def modify_doc(doc):
+        source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
+        plot.add_glyph(source, Circle(x='x', y='y', size=20))
+        plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+        input_box.title = "title"
+        input_box.value = "400"
+        input_box.completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"]
+        def cb(attr, old, new):
+            source.data['val'] = [old, new]
+        input_box.on_change('value', cb)
+        doc.add_root(column(input_box, plot))
+    return modify_doc, plot
 
 @pytest.mark.selenium
 class Test_AutocompleteInput:
-    def test_displays_text_input(self, bokeh_model_page) -> None:
-        text_input = AutocompleteInput(css_classes=["foo"], completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
+    def test_displays_text_input(self, bokeh_model_page: BokehModelPage) -> None:
+        text_input = AutocompleteInput(completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
 
         page = bokeh_model_page(text_input)
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         assert el.get_attribute('type') == "text"
 
         assert page.has_no_console_errors()
 
-    def test_displays_title(self, bokeh_model_page) -> None:
-        text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
+    def test_displays_title(self, bokeh_model_page: BokehModelPage) -> None:
+        text_input = AutocompleteInput(title="title", completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
 
         page = bokeh_model_page(text_input)
 
-        el = page.driver.find_element_by_css_selector('.foo label')
+        el = find_element_for(page.driver, text_input, "label")
         assert el.text == "title"
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         assert el.get_attribute('placeholder') == ""
         assert el.get_attribute('type') == "text"
 
         assert page.has_no_console_errors()
 
-    def test_displays_menu(self, bokeh_model_page) -> None:
-        text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
+    def test_displays_menu(self, bokeh_model_page: BokehModelPage) -> None:
+        text_input = AutocompleteInput(title="title", completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
 
         page = bokeh_model_page(text_input)
 
-        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' in el.get_attribute('style')
 
         # double click to highlight and overwrite old text
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         enter_text_in_element(page.driver, el, "100", click=2, enter=False)
 
-        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
         items = el.find_elements_by_tag_name("div")
@@ -102,10 +112,10 @@ class Test_AutocompleteInput:
         assert items[0].text == "100001"
         assert "bk-active" in items[0].get_attribute('class')
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         enter_text_in_element(page.driver, el, "123", click=2, enter=False)
 
-        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
         items = el.find_elements_by_tag_name("div")
@@ -125,21 +135,21 @@ class Test_AutocompleteInput:
 
         assert page.has_no_console_errors()
 
-    def test_min_characters(self, bokeh_model_page) -> None:
-        text_input = AutocompleteInput(title="title", css_classes=["foo"],
+    def test_min_characters(self, bokeh_model_page: BokehModelPage) -> None:
+        text_input = AutocompleteInput(title="title",
                                        completions = ["100001", "12344556", "12344557", "3194567289", "209374209374", "aaaaaa", "aaabbb", "AAAaAA", "AAABbB"],
                                        min_characters=1)
 
         page = bokeh_model_page(text_input)
 
-        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' in el.get_attribute('style')
 
         # double click to highlight and overwrite old text
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         enter_text_in_element(page.driver, el, "1", click=2, enter=False)
 
-        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
         items = el.find_elements_by_tag_name("div")
@@ -151,19 +161,19 @@ class Test_AutocompleteInput:
         assert "bk-active" not in items[1].get_attribute('class')
         assert "bk-active" not in items[2].get_attribute('class')
 
-    def test_case_insensitivity(self, bokeh_model_page) -> None:
-        text_input = AutocompleteInput(title="title", css_classes=["foo"], case_sensitive=False, completions = ["100001", "aaaaaa", "aaabbb", "AAAaAA", "AAABbB"])
+    def test_case_insensitivity(self, bokeh_model_page: BokehModelPage) -> None:
+        text_input = AutocompleteInput(title="title", case_sensitive=False, completions = ["100001", "aaaaaa", "aaabbb", "AAAaAA", "AAABbB"])
 
         page = bokeh_model_page(text_input)
 
-        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' in el.get_attribute('style')
 
         # double click to highlight and overwrite old text
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         enter_text_in_element(page.driver, el, "aAa", click=2, enter=False)
 
-        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
         items = el.find_elements_by_tag_name("div")
@@ -174,10 +184,10 @@ class Test_AutocompleteInput:
         assert items[3].text == "AAABbB"
         assert "bk-active" in items[0].get_attribute('class')
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         enter_text_in_element(page.driver, el, "aAaB", click=2, enter=False)
 
-        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
         items = el.find_elements_by_tag_name("div")
@@ -197,20 +207,20 @@ class Test_AutocompleteInput:
 
         assert page.has_no_console_errors()
 
-    def test_case_sensitivity(self, bokeh_model_page) -> None:
+    def test_case_sensitivity(self, bokeh_model_page: BokehModelPage) -> None:
         # case_sensitive=True by default
-        text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "aAaaaa", "aAaBbb", "AAAaAA", "aAaBbB"])
+        text_input = AutocompleteInput(title="title", completions = ["100001", "aAaaaa", "aAaBbb", "AAAaAA", "aAaBbB"])
 
         page = bokeh_model_page(text_input)
 
-        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' in el.get_attribute('style')
 
         # double click to highlight and overwrite old text
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         enter_text_in_element(page.driver, el, "aAa", click=2, enter=False)
 
-        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
         items = el.find_elements_by_tag_name("div")
@@ -220,10 +230,10 @@ class Test_AutocompleteInput:
         assert items[2].text == "aAaBbB"
         assert "bk-active" in items[0].get_attribute('class')
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         enter_text_in_element(page.driver, el, "aAaB", click=2, enter=False)
 
-        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
         items = el.find_elements_by_tag_name("div")
@@ -242,9 +252,9 @@ class Test_AutocompleteInput:
 
         assert page.has_no_console_errors()
 
-    def test_server_restriction_to_list(self, bokeh_server_page) -> None:
+    def test_server_restriction_to_list(self, bokeh_server_page: BokehServerPage) -> None:
         """Test that input entered manually doesn't end up in the value."""
-        text_input = AutocompleteInput(css_classes=["foo"], completions = ["aAaBbb"], restrict=True)
+        text_input = AutocompleteInput(completions = ["aAaBbb"], restrict=True)
 
         def add_autocomplete(doc):
             # note: for some reason, bokeh_server_page requires a 'canvas' in the document
@@ -253,21 +263,21 @@ class Test_AutocompleteInput:
 
         page = bokeh_server_page(add_autocomplete)
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         text = "not in completions"
         enter_text_in_element(page.driver, el, text, click=1, enter=True)
 
         assert text_input.value == ''
         assert page.has_no_console_errors()
 
-    def test_no_restriction(self, bokeh_model_page) -> None:
+    def test_no_restriction(self, bokeh_model_page: BokehModelPage) -> None:
         """Test effect of 'restrict=False' with explicit JS callback"""
-        text_input = AutocompleteInput(css_classes=["foo"], completions = ["aAaBbb", "aAaBbB"], restrict=False)
+        text_input = AutocompleteInput(completions = ["aAaBbb", "aAaBbB"], restrict=False)
         text_input.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
 
         page = bokeh_model_page(text_input)
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         text = "not in completions"
         enter_text_in_element(page.driver, el, text, click=1, enter=True)
 
@@ -275,9 +285,9 @@ class Test_AutocompleteInput:
         assert results['value'] == text
         assert page.has_no_console_errors()
 
-    def test_server_no_restriction(self, bokeh_server_page) -> None:
+    def test_server_no_restriction(self, bokeh_server_page: BokehServerPage) -> None:
         """Test effect of 'restrict=False' without explicit callback."""
-        text_input = AutocompleteInput(css_classes=["foo"], completions = ["aAaBbb", "aAaBbB"], restrict=False)
+        text_input = AutocompleteInput(completions = ["aAaBbb", "aAaBbB"], restrict=False)
 
         def add_autocomplete(doc):
             # note: for some reason, bokeh_server_page requires a 'canvas' in the document
@@ -286,25 +296,25 @@ class Test_AutocompleteInput:
 
         page = bokeh_server_page(add_autocomplete)
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         text = "not in completions"
         enter_text_in_element(page.driver, el, text, click=1, enter=True)
 
         assert text_input.value == text
         assert page.has_no_console_errors()
 
-    def test_arrow_cannot_escape_menu(self, bokeh_model_page) -> None:
-        text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
+    def test_arrow_cannot_escape_menu(self, bokeh_model_page: BokehModelPage) -> None:
+        text_input = AutocompleteInput(title="title", completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
 
         page = bokeh_model_page(text_input)
 
-        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' in el.get_attribute('style')
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         enter_text_in_element(page.driver, el, "123", click=2, enter=False)
 
-        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
         items = el.find_elements_by_tag_name("div")
@@ -350,18 +360,18 @@ class Test_AutocompleteInput:
 
         assert page.has_no_console_errors()
 
-    def test_mouse_hover(self, bokeh_model_page) -> None:
-        text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
+    def test_mouse_hover(self, bokeh_model_page: BokehModelPage) -> None:
+        text_input = AutocompleteInput(title="title", completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
 
         page = bokeh_model_page(text_input)
 
-        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' in el.get_attribute('style')
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, text_input, "input")
         enter_text_in_element(page.driver, el, "123", click=2, enter=False)
 
-        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
         items = el.find_elements_by_tag_name("div")
@@ -380,7 +390,7 @@ class Test_AutocompleteInput:
         assert "bk-active" not in items[0].get_attribute('class')
         assert "bk-active" in items[1].get_attribute('class')
 
-    def test_unrestricted_selection_callback_count(self, bokeh_server_page) -> None:
+    def test_unrestricted_selection_callback_count(self, bokeh_server_page: BokehServerPage) -> None:
         class CallbackCounter:
             def __init__(self) -> None:
                 self.count = 0
@@ -391,24 +401,27 @@ class Test_AutocompleteInput:
 
         counter = CallbackCounter()
 
+        input_box = AutocompleteInput(completions = ["100001", "12344556"], restrict=False)
+
         def unrestricted_input(doc):
-            input_box = AutocompleteInput(css_classes=["foo"], completions = ["100001", "12344556"], restrict=False)
             input_box.on_change('value', counter.increment)
             plot = Plot()
             doc.add_root(column(input_box, plot))
 
         page = bokeh_server_page(unrestricted_input)
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, input_box, "input")
         enter_text_in_element(page.driver, el, "ASDF", enter=True)
         assert(counter.count == 1)
         assert(counter.new == "ASDF")
 
     @flaky(max_runs=10)
-    def test_server_on_change_no_round_trip_without_enter_or_click(self, bokeh_server_page) -> None:
+    def test_server_on_change_no_round_trip_without_enter_or_click(self, bokeh_server_page: BokehServerPage) -> None:
+        input_box = AutocompleteInput()
+        modify_doc, _ = mk_modify_doc(input_box)
         page = bokeh_server_page(modify_doc)
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, input_box, "input")
         enter_text_in_element(page.driver, el, "pre", enter=False)  # not change event if enter is not pressed
 
         page.click_custom_action()
@@ -423,11 +436,13 @@ class Test_AutocompleteInput:
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
     @flaky(max_runs=10)
-    def test_server_on_change_round_trip_full_entry(self, bokeh_server_page) -> None:
+    def test_server_on_change_round_trip_full_entry(self, bokeh_server_page: BokehServerPage) -> None:
+        input_box = AutocompleteInput()
+        modify_doc, plot = mk_modify_doc(input_box)
         page = bokeh_server_page(modify_doc)
 
         # double click to highlight and overwrite old text
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, input_box, "input")
         enter_text_in_element(page.driver, el, "100001", click=2)
 
         page.click_custom_action()
@@ -444,7 +459,7 @@ class Test_AutocompleteInput:
 
         # Check clicking outside input also triggers
         enter_text_in_element(page.driver, el, "3194567289", click=2)
-        page.click_canvas_at_position(10, 10)
+        page.click_canvas_at_position(plot, 10, 10)
 
         page.click_custom_action()
 
@@ -455,11 +470,13 @@ class Test_AutocompleteInput:
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
     @flaky(max_runs=10)
-    def test_server_on_change_round_trip_partial_entry(self, bokeh_server_page) -> None:
+    def test_server_on_change_round_trip_partial_entry(self, bokeh_server_page: BokehServerPage) -> None:
+        input_box = AutocompleteInput()
+        modify_doc, plot = mk_modify_doc(input_box)
         page = bokeh_server_page(modify_doc)
 
         # double click to highlight and overwrite old text
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, input_box, "input")
         enter_text_in_element(page.driver, el, "100", click=2)
 
         page.click_custom_action()
@@ -476,7 +493,7 @@ class Test_AutocompleteInput:
 
         # Check clicking outside input also triggers
         enter_text_in_element(page.driver, el, "319", click=2, enter=False)
-        page.click_canvas_at_position(10, 10)
+        page.click_canvas_at_position(plot, 10, 10)
 
         page.click_custom_action()
 
@@ -487,11 +504,13 @@ class Test_AutocompleteInput:
         #assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
-    def test_server_on_change_round_trip_menu_entry(self, bokeh_server_page) -> None:
+    def test_server_on_change_round_trip_menu_entry(self, bokeh_server_page: BokehServerPage) -> None:
+        input_box = AutocompleteInput()
+        modify_doc, _ = mk_modify_doc(input_box)
         page = bokeh_server_page(modify_doc)
 
         # double click to highlight and overwrite old text
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = find_element_for(page.driver, input_box, "input")
         enter_text_in_element(page.driver, el, "123", click=2, enter=False)
         enter_text_in_element(page.driver, el, Keys.DOWN, click=0)
 
@@ -502,7 +521,7 @@ class Test_AutocompleteInput:
 
         enter_text_in_element(page.driver, el, "123", click=2, enter=False)
 
-        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        el = find_element_for(page.driver, input_box, ".bk-menu")
         items = el.find_elements_by_tag_name("div")
         hover_element(page.driver, items[1])
         items[1].click()

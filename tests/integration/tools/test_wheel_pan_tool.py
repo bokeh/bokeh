@@ -18,6 +18,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh._testing.plugins.project import SinglePlotPage
 from bokeh._testing.util.selenium import RECORD, SCROLL
 from bokeh.events import RangesUpdate
 from bokeh.models import (
@@ -54,7 +55,7 @@ def _make_plot(dimension):
 
 @pytest.mark.selenium
 class Test_WheelPanTool:
-    def test_xwheel_deselected_by_default(self, single_plot_page) -> None:
+    def test_xwheel_deselected_by_default(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot('width')
 
         page = single_plot_page(plot)
@@ -64,7 +65,7 @@ class Test_WheelPanTool:
 
         assert page.has_no_console_errors()
 
-    def test_xwheel_can_be_selected_and_deselected(self, single_plot_page) -> None:
+    def test_xwheel_can_be_selected_and_deselected(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot('width')
 
         page = single_plot_page(plot)
@@ -85,7 +86,7 @@ class Test_WheelPanTool:
 
         assert page.has_no_console_errors()
 
-    def test_ywheel_deselected_by_default(self, single_plot_page) -> None:
+    def test_ywheel_deselected_by_default(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot('height')
 
         page = single_plot_page(plot)
@@ -95,7 +96,7 @@ class Test_WheelPanTool:
 
         assert page.has_no_console_errors()
 
-    def test_ywheel_can_be_selected_and_deselected(self, single_plot_page) -> None:
+    def test_ywheel_can_be_selected_and_deselected(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot('height')
 
         page = single_plot_page(plot)
@@ -116,7 +117,7 @@ class Test_WheelPanTool:
 
         assert page.has_no_console_errors()
 
-    def test_xwheel_pan(self, single_plot_page) -> None:
+    def test_xwheel_pan(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot('width')
 
         page = single_plot_page(plot)
@@ -158,7 +159,7 @@ class Test_WheelPanTool:
 
         assert page.has_no_console_errors()
 
-    def test_ywheel_pan(self, single_plot_page) -> None:
+    def test_ywheel_pan(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot("height")
 
         page = single_plot_page(plot)
@@ -200,7 +201,7 @@ class Test_WheelPanTool:
 
         assert page.has_no_console_errors()
 
-    def test_xpan_ranges_update(self, single_plot_page) -> None:
+    def test_xpan_ranges_update(self, single_plot_page: SinglePlotPage) -> None:
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
         plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))
@@ -229,7 +230,7 @@ class Test_WheelPanTool:
 
         assert page.has_no_console_errors()
 
-    def test_ypan_ranges_update(self, single_plot_page) -> None:
+    def test_ypan_ranges_update(self, single_plot_page: SinglePlotPage) -> None:
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
         plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))

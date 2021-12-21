@@ -24,9 +24,11 @@ from time import sleep
 from selenium.webdriver.common.keys import Keys
 
 # Bokeh imports
+from bokeh._testing.plugins.project import BokehModelPage
 from bokeh._testing.util.selenium import (
     RECORD,
     enter_text_in_element,
+    find_element_for,
     get_table_row,
     shift_click,
 )
@@ -50,7 +52,7 @@ pytest_plugins = (
 
 @pytest.mark.selenium
 class Test_DataTableCopyPaste:
-    def test_single_row_copy(self, bokeh_model_page) -> None:
+    def test_single_row_copy(self, bokeh_model_page: BokehModelPage) -> None:
         data = {'x': [1,2,3,4], 'y': [1,1,1,1], 'd': ['foo', 'bar', 'baz', 'quux']}
         source = ColumnDataSource(data)
         table = DataTable(columns=[
@@ -59,17 +61,17 @@ class Test_DataTableCopyPaste:
             TableColumn(field="d", title="d"),
         ], source=source)
 
-        text_input = TextInput(css_classes=["foo"])
+        text_input = TextInput()
         text_input.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
 
         page = bokeh_model_page(column(table, text_input))
 
-        row = get_table_row(page.driver, 2)
+        row = get_table_row(page.driver, table, 2)
         row.click()
 
         enter_text_in_element(page.driver, row, Keys.INSERT, mod=Keys.CONTROL, click=0, enter=False)
 
-        input_el = page.driver.find_element_by_css_selector('.foo')
+        input_el = find_element_for(page.driver, text_input)
         enter_text_in_element(page.driver, input_el, Keys.INSERT, mod=Keys.SHIFT, enter=False)
         enter_text_in_element(page.driver, input_el, "")
 
@@ -80,7 +82,7 @@ class Test_DataTableCopyPaste:
 
         assert page.has_no_console_errors()
 
-    def test_single_row_copy_with_zero(self, bokeh_model_page) -> None:
+    def test_single_row_copy_with_zero(self, bokeh_model_page: BokehModelPage) -> None:
         data = {'x': [1,2,3,4], 'y': [0,0,0,0], 'd': ['foo', 'bar', 'baz', 'quux']}
         source = ColumnDataSource(data)
         table = DataTable(columns=[
@@ -89,17 +91,17 @@ class Test_DataTableCopyPaste:
             TableColumn(field="d", title="d"),
         ], source=source)
 
-        text_input = TextInput(css_classes=["foo"])
+        text_input = TextInput()
         text_input.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
 
         page = bokeh_model_page(column(table, text_input))
 
-        row = get_table_row(page.driver, 2)
+        row = get_table_row(page.driver, table, 2)
         row.click()
 
         enter_text_in_element(page.driver, row, Keys.INSERT, mod=Keys.CONTROL, click=0, enter=False)
 
-        input_el = page.driver.find_element_by_css_selector('.foo')
+        input_el = find_element_for(page.driver, text_input)
         enter_text_in_element(page.driver, input_el, Keys.INSERT, mod=Keys.SHIFT, enter=False)
         enter_text_in_element(page.driver, input_el, "")
 
@@ -110,7 +112,7 @@ class Test_DataTableCopyPaste:
 
         assert page.has_no_console_errors()
 
-    def test_multi_row_copy(self, bokeh_model_page) -> None:
+    def test_multi_row_copy(self, bokeh_model_page: BokehModelPage) -> None:
         data = {'x': [1,2,3,4], 'y': [0,1,2,3], 'd': ['foo', 'bar', 'baz', 'quux']}
         source = ColumnDataSource(data)
         table = DataTable(columns=[
@@ -119,20 +121,20 @@ class Test_DataTableCopyPaste:
             TableColumn(field="d", title="d"),
         ], source=source)
 
-        text_input = TextInput(css_classes=["foo"])
+        text_input = TextInput()
         text_input.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
 
         page = bokeh_model_page(column(table, text_input))
 
-        row = get_table_row(page.driver, 1)
+        row = get_table_row(page.driver, table, 1)
         row.click()
 
-        row = get_table_row(page.driver, 3)
+        row = get_table_row(page.driver, table, 3)
         shift_click(page.driver, row)
 
         enter_text_in_element(page.driver, row, Keys.INSERT, mod=Keys.CONTROL, click=0, enter=False)
 
-        input_el = page.driver.find_element_by_css_selector('.foo')
+        input_el = find_element_for(page.driver, text_input)
         enter_text_in_element(page.driver, input_el, Keys.INSERT, mod=Keys.SHIFT, enter=False)
         enter_text_in_element(page.driver, input_el, "")
 

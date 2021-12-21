@@ -21,11 +21,13 @@ import pytest ; pytest
 from flaky import flaky
 
 # Bokeh imports
+from bokeh._testing.plugins.project import BokehModelPage, BokehServerPage
 from bokeh._testing.util.selenium import (
     RECORD,
     ActionChains,
     Keys,
     enter_text_in_element,
+    find_element_for,
 )
 from bokeh.layouts import column
 from bokeh.models import (
@@ -47,69 +49,69 @@ pytest_plugins = (
 )
 
 
-def modify_doc(doc):
-    source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-    plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+def mk_modify_doc(spinner: Spinner):
+    def modify_doc(doc):
+        source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
+        plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
 
-    plot.add_glyph(source, Circle(x='x', y='y'))
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
-    spinner = Spinner(low=-1, high=10, step=0.1, value=4, css_classes=["foo"], format="0[.]0")
+        plot.add_glyph(source, Circle(x='x', y='y'))
+        plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
-    def cb(attr, old, new):
-        source.data['val'] = [old, new]
+        def cb(attr, old, new):
+            source.data['val'] = [old, new]
 
-    spinner.on_change('value', cb)
-    doc.add_root(column(spinner, plot))
-    return doc
-
+        spinner.on_change('value', cb)
+        doc.add_root(column(spinner, plot))
+        return doc
+    return modify_doc
 
 @pytest.mark.selenium
 class Test_Spinner(object):
 
-    def test_spinner_display(self, bokeh_model_page) -> None:
-        spinner = Spinner(css_classes=["foo"])
+    def test_spinner_display(self, bokeh_model_page: BokehModelPage) -> None:
+        spinner = Spinner()
 
         page = bokeh_model_page(spinner)
 
-        input_el = page.driver.find_element_by_css_selector('.foo input')
-        btn_up_el = page.driver.find_element_by_css_selector('.foo .bk-spin-btn-up')
-        btn_down_el = page.driver.find_element_by_css_selector('.foo .bk-spin-btn-down')
+        input_el = find_element_for(page.driver, spinner, "input")
+        btn_up_el = find_element_for(page.driver, spinner, ".bk-spin-btn-up")
+        btn_down_el = find_element_for(page.driver, spinner, ".bk-spin-btn-down")
         assert input_el.get_attribute('type') == "text"
         assert btn_up_el.tag_name == "button"
         assert btn_down_el.tag_name == "button"
 
         assert page.has_no_console_errors()
 
-    def test_spinner_display_title(self, bokeh_model_page) -> None:
-        spinner = Spinner(title="title", css_classes=["foo"])
+    def test_spinner_display_title(self, bokeh_model_page: BokehModelPage) -> None:
+        spinner = Spinner(title="title")
 
         page = bokeh_model_page(spinner)
 
-        label_el = page.driver.find_element_by_css_selector('.foo label')
+        label_el = find_element_for(page.driver, spinner, "label")
         assert label_el.text == "title"
-        input_el = page.driver.find_element_by_css_selector('.foo input')
+        input_el = find_element_for(page.driver, spinner, "input")
         assert input_el.get_attribute('type') == "text"
 
         assert page.has_no_console_errors()
 
-    def test_spinner_value_format(self, bokeh_model_page) -> None:
-        spinner = Spinner(value=1, low=0, high=10, step=1, css_classes=["foo"], format="0.00")
+    def test_spinner_value_format(self, bokeh_model_page: BokehModelPage) -> None:
+        spinner = Spinner(value=1, low=0, high=10, step=1, format="0.00")
 
         page = bokeh_model_page(spinner)
 
-        input_el = page.driver.find_element_by_css_selector('.foo input')
+        input_el = find_element_for(page.driver, spinner, "input")
 
         assert input_el.get_attribute('value') == '1.00'
 
         assert page.has_no_console_errors()
 
-    def test_spinner_smallest_step(self, bokeh_model_page) -> None:
-        spinner = Spinner(value=0, low=0, high=1, step=1e-16, css_classes=["foo"])
+    def test_spinner_smallest_step(self, bokeh_model_page: BokehModelPage) -> None:
+        spinner = Spinner(value=0, low=0, high=1, step=1e-16)
         spinner.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
 
         page = bokeh_model_page(spinner)
 
-        input_el = page.driver.find_element_by_css_selector('.foo input')
+        input_el = find_element_for(page.driver, spinner, "input")
 
         enter_text_in_element(page.driver, input_el, "0.43654644333534")
         results = page.results
@@ -121,15 +123,15 @@ class Test_Spinner(object):
 
         assert page.has_no_console_errors()
 
-    def test_spinner_spinning_events(self, bokeh_model_page) -> None:
-        spinner = Spinner(value=0, low=0, high=1, step=0.01, css_classes=["foo"])
+    def test_spinner_spinning_events(self, bokeh_model_page: BokehModelPage) -> None:
+        spinner = Spinner(value=0, low=0, high=1, step=0.01)
         spinner.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
 
         page = bokeh_model_page(spinner)
 
-        input_el = page.driver.find_element_by_css_selector('.foo input')
-        btn_up_el = page.driver.find_element_by_css_selector('.foo .bk-spin-btn-up')
-        btn_down_el = page.driver.find_element_by_css_selector('.foo .bk-spin-btn-down')
+        input_el = find_element_for(page.driver, spinner, "input")
+        btn_up_el = find_element_for(page.driver, spinner, ".bk-spin-btn-up")
+        btn_down_el = find_element_for(page.driver, spinner, ".bk-spin-btn-down")
 
         enter_text_in_element(page.driver, input_el, "0.5")
         results = page.results
@@ -184,10 +186,11 @@ class Test_Spinner(object):
         assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
-    def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
-        page = bokeh_server_page(modify_doc)
+    def test_server_on_change_round_trip(self, bokeh_server_page: BokehServerPage) -> None:
+        spinner = Spinner(low=-1, high=10, step=0.1, value=4, format="0[.]0")
+        page = bokeh_server_page(mk_modify_doc(spinner))
 
-        input_el = page.driver.find_element_by_css_selector('.foo input')
+        input_el = find_element_for(page.driver, spinner, "input")
 
         # same value
         enter_text_in_element(page.driver, input_el, "4", click=2)

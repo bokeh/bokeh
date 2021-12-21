@@ -21,10 +21,11 @@ import pytest ; pytest
 from time import sleep
 
 # Bokeh imports
+from bokeh._testing.plugins.project import BokehModelPage
 from bokeh._testing.util.selenium import (
     copy_table_rows,
-    enter_text_in_cell_with_click_enter,
-    get_page_element,
+    enter_text_with_click_enter,
+    find_element_for,
     paste_values,
 )
 from bokeh.layouts import column
@@ -46,25 +47,25 @@ pytest_plugins = (
 
 @pytest.mark.selenium
 class Test_CopyPaste:
-    def test_copy_paste_to_textarea(self, bokeh_model_page) -> None:
+    def test_copy_paste_to_textarea(self, bokeh_model_page: BokehModelPage) -> None:
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
         columns = [TableColumn(field='x', title='x'), TableColumn(field='y', title='y')]
         table = DataTable(source=source, columns=columns, editable=False, width=600)
-        text_area = Div(text='<textarea id="T1"></textarea>')
+        text_area = Div(text='<textarea></textarea>')
 
         page = bokeh_model_page(column(table, text_area))
 
         # Use reversed order to get the correct order
-        copy_table_rows(page.driver, [2, 1])
+        copy_table_rows(page.driver, table, [2, 1])
 
         # Copy is a little slow
         sleep(0.1)
 
-        element = get_page_element(page.driver, '#T1')
+        element = find_element_for(page.driver, text_area, "textarea")
 
         # Selenium doesn't paste until we write something to the element first
         # textarea works like a cell
-        enter_text_in_cell_with_click_enter(page.driver, element, 'PASTED:')
+        enter_text_with_click_enter(page.driver, element, 'PASTED:')
 
         paste_values(page.driver, element)
 

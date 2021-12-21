@@ -21,7 +21,8 @@ import pytest ; pytest
 from flaky import flaky
 
 # Bokeh imports
-from bokeh._testing.util.selenium import RECORD
+from bokeh._testing.plugins.project import BokehServerPage
+from bokeh._testing.util.selenium import RECORD, find_element_for
 from bokeh.layouts import column
 from bokeh.models import (
     Button,
@@ -54,14 +55,15 @@ def is_cds_data_streamed(evt):
 @pytest.mark.selenium
 class Test_ColumnDataSource:
     @flaky(max_runs=10)
-    def test_client_source_patch_sends_patch_event(self, bokeh_server_page) -> None:
+    def test_client_source_patch_sends_patch_event(self, bokeh_server_page: BokehServerPage) -> None:
         data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
         source = ColumnDataSource(data)
+        button = Button()
+
         def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
-            button = Button(css_classes=["foo"])
             button.js_on_click(CustomJS(args=dict(s=source), code="s.patch({'x': [[1, 100]]})"))
             doc.add_root(column(button, plot))
 
@@ -73,8 +75,8 @@ class Test_ColumnDataSource:
         assert results ==  {'data': {'x': [1,2,3,4], 'y': [10,20,30,40]}}
         assert source.data == {'x': [1,2,3,4], 'y': [10,20,30,40]}
 
-        button = page.driver.find_element_by_class_name('foo')
-        button.click()
+        button_el = find_element_for(page.driver, button)
+        button_el.click()
 
         page.click_custom_action()
         results = page.results
@@ -99,14 +101,15 @@ class Test_ColumnDataSource:
         #assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
-    def test_client_source_stream_sends_patch_event(self, bokeh_server_page) -> None:
+    def test_client_source_stream_sends_patch_event(self, bokeh_server_page: BokehServerPage) -> None:
         data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
         source = ColumnDataSource(data)
+        button = Button()
+
         def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
-            button = Button(css_classes=["foo"])
             button.js_on_click(CustomJS(args=dict(s=source), code="s.stream({'x': [100], 'y': [200]})"))
             doc.add_root(column(button, plot))
 
@@ -118,8 +121,8 @@ class Test_ColumnDataSource:
         assert results ==  {'data': {'x': [1,2,3,4], 'y': [10,20,30,40]}}
         assert source.data == {'x': [1,2,3,4], 'y': [10,20,30,40]}
 
-        button = page.driver.find_element_by_class_name('foo')
-        button.click()
+        button_el = find_element_for(page.driver, button)
+        button_el.click()
 
         page.click_custom_action()
         results = page.results

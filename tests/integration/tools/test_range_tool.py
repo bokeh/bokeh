@@ -18,6 +18,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh._testing.plugins.project import SinglePlotPage
 from bokeh._testing.util.selenium import RECORD
 from bokeh.models import (
     ColumnDataSource,
@@ -56,7 +57,7 @@ def _make_plot():
 
 @pytest.mark.selenium
 class Test_RangeTool:
-    def test_selected_by_default(self, single_plot_page) -> None:
+    def test_selected_by_default(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -67,7 +68,7 @@ class Test_RangeTool:
 
         assert page.has_no_console_errors()
 
-    def test_can_be_deselected_and_selected(self, single_plot_page) -> None:
+    def test_can_be_deselected_and_selected(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -90,7 +91,7 @@ class Test_RangeTool:
 
         assert page.has_no_console_errors()
 
-    def test_center_pan_has_no_effect_when_deselected(self, single_plot_page) -> None:
+    def test_center_pan_has_no_effect_when_deselected(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -99,7 +100,7 @@ class Test_RangeTool:
         button = page.get_toolbar_button(target)
         button.click()
 
-        page.drag_canvas_at_position(500, 200, 100, 0)
+        page.drag_canvas_at_position(plot, 500, 200, 100, 0)
 
         page.click_custom_action()
 
@@ -109,12 +110,12 @@ class Test_RangeTool:
 
         assert page.has_no_console_errors()
 
-    def test_center_pan_updates_range_when_selected(self, single_plot_page) -> None:
+    def test_center_pan_updates_range_when_selected(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
 
-        page.drag_canvas_at_position(500, 200, 100, 0)
+        page.drag_canvas_at_position(plot, 500, 200, 100, 0)
 
         page.click_custom_action()
 
@@ -122,7 +123,7 @@ class Test_RangeTool:
         assert results['start'] == 0.5
         assert results['end'] == 0.7
 
-        page.drag_canvas_at_position(600, 200, -300, 0)
+        page.drag_canvas_at_position(plot, 600, 200, -300, 0)
 
         page.click_custom_action()
 
@@ -132,13 +133,13 @@ class Test_RangeTool:
 
         assert page.has_no_console_errors()
 
-    def test_center_pan_with_right_side_outside(self, single_plot_page) -> None:
+    def test_center_pan_with_right_side_outside(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
         plot.tools[0].x_range.end = 1.1
 
         page = single_plot_page(plot)
 
-        page.drag_canvas_at_position(500, 200, 100, 0)
+        page.drag_canvas_at_position(plot, 500, 200, 100, 0)
 
         page.click_custom_action()
 
@@ -146,7 +147,7 @@ class Test_RangeTool:
         assert results['start'] == 0.5
         assert results['end'] == 1.2
 
-        page.drag_canvas_at_position(600, 200, -300, 0)
+        page.drag_canvas_at_position(plot, 600, 200, -300, 0)
 
         page.click_custom_action()
 
@@ -156,13 +157,13 @@ class Test_RangeTool:
 
         assert page.has_no_console_errors()
 
-    def test_center_pan_with_left_side_outside(self, single_plot_page) -> None:
+    def test_center_pan_with_left_side_outside(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
         plot.tools[0].x_range.start = -0.1
 
         page = single_plot_page(plot)
 
-        page.drag_canvas_at_position(500, 200, -100, 0)
+        page.drag_canvas_at_position(plot, 500, 200, -100, 0)
 
         page.click_custom_action()
 
@@ -170,7 +171,7 @@ class Test_RangeTool:
         assert results['start'] == -0.2
         assert results['end'] == 0.5
 
-        page.drag_canvas_at_position(400, 200, 300, 0)
+        page.drag_canvas_at_position(plot, 400, 200, 300, 0)
 
         page.click_custom_action()
 
@@ -180,12 +181,12 @@ class Test_RangeTool:
 
         assert page.has_no_console_errors()
 
-    def test_left_edge_drag_updates_start(self, single_plot_page) -> None:
+    def test_left_edge_drag_updates_start(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
 
-        page.drag_canvas_at_position(400, 200, 100, 0)
+        page.drag_canvas_at_position(plot, 400, 200, 100, 0)
 
         page.click_custom_action()
 
@@ -193,7 +194,7 @@ class Test_RangeTool:
         assert results['start'] == 0.5
         assert results['end'] == 0.6
 
-        page.drag_canvas_at_position(500, 200, -300, 0)
+        page.drag_canvas_at_position(plot, 500, 200, -300, 0)
 
         page.click_custom_action()
 
@@ -201,12 +202,12 @@ class Test_RangeTool:
         assert results['start'] == 0.2
         assert results['end'] == 0.6
 
-    def test_left_edge_drag_can_flip(self, single_plot_page) -> None:
+    def test_left_edge_drag_can_flip(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
 
-        page.drag_canvas_at_position(400, 200, 300, 0)
+        page.drag_canvas_at_position(plot, 400, 200, 300, 0)
 
         page.click_custom_action()
 
@@ -214,13 +215,13 @@ class Test_RangeTool:
         assert results['start'] == 0.6
         assert results['end'] == 0.7
 
-    def test_left_edge_drag_with_right_edge_outside(self, single_plot_page) -> None:
+    def test_left_edge_drag_with_right_edge_outside(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
         plot.tools[0].x_range.end = 1.1
 
         page = single_plot_page(plot)
 
-        page.drag_canvas_at_position(400, 200, 300, 0)
+        page.drag_canvas_at_position(plot, 400, 200, 300, 0)
 
         page.click_custom_action()
 
@@ -228,12 +229,12 @@ class Test_RangeTool:
         assert results['start'] == 0.7
         assert results['end'] == 1.1
 
-    def test_right_edge_drag_updates_end(self, single_plot_page) -> None:
+    def test_right_edge_drag_updates_end(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
 
-        page.drag_canvas_at_position(600, 200, 100, 0)
+        page.drag_canvas_at_position(plot, 600, 200, 100, 0)
 
         page.click_custom_action()
 
@@ -241,7 +242,7 @@ class Test_RangeTool:
         assert results['start'] == 0.4
         assert results['end'] == 0.7
 
-        page.drag_canvas_at_position(700, 200, -200, 0)
+        page.drag_canvas_at_position(plot, 700, 200, -200, 0)
 
         page.click_custom_action()
 
@@ -249,12 +250,12 @@ class Test_RangeTool:
         assert results['start'] == 0.4
         assert results['end'] == 0.5
 
-    def test_right_edge_drag_can_flip(self, single_plot_page) -> None:
+    def test_right_edge_drag_can_flip(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
 
-        page.drag_canvas_at_position(600, 200, -300, 0)
+        page.drag_canvas_at_position(plot, 600, 200, -300, 0)
 
         page.click_custom_action()
 
@@ -262,13 +263,13 @@ class Test_RangeTool:
         assert results['start'] == 0.3
         assert results['end'] == 0.4
 
-    def test_right_edge_drag_with_left_edge_outside(self, single_plot_page) -> None:
+    def test_right_edge_drag_with_left_edge_outside(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
         plot.tools[0].x_range.start = -0.1
 
         page = single_plot_page(plot)
 
-        page.drag_canvas_at_position(600, 200, -300, 0)
+        page.drag_canvas_at_position(plot, 600, 200, -300, 0)
 
         page.click_custom_action()
 
@@ -279,12 +280,12 @@ class Test_RangeTool:
 
     # TODO (bev) This test is broken due to some dumb reason with tooling
     @pytest.mark.skip
-    def test_center_pan_stops_at_plot_range_limit(self, single_plot_page) -> None:
+    def test_center_pan_stops_at_plot_range_limit(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
 
-        page.drag_canvas_at_position(500, 200, 300, 0)
+        page.drag_canvas_at_position(plot, 500, 200, 300, 0)
 
         page.click_custom_action()
 
@@ -292,7 +293,7 @@ class Test_RangeTool:
         assert results['start'] == 0.7
         assert results['end'] == 0.9
 
-        page.drag_canvas_at_position(800, 200, 150, 0)
+        page.drag_canvas_at_position(plot, 800, 200, 150, 0)
 
         page.click_custom_action()
 

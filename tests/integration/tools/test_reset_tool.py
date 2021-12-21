@@ -18,6 +18,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh._testing.plugins.project import SinglePlotPage
 from bokeh._testing.util.selenium import RECORD
 from bokeh.events import RangesUpdate
 from bokeh.models import (
@@ -56,7 +57,7 @@ def _make_plot():
 
 @pytest.mark.selenium
 class Test_ResetTool:
-    def test_deselected_by_default(self, single_plot_page) -> None:
+    def test_deselected_by_default(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -66,7 +67,7 @@ class Test_ResetTool:
 
         assert page.has_no_console_errors()
 
-    def test_clicking_resets_range(self, single_plot_page) -> None:
+    def test_clicking_resets_range(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -97,7 +98,7 @@ class Test_ResetTool:
 
         assert page.has_no_console_errors()
 
-    def test_clicking_resets_selection(self, single_plot_page) -> None:
+    def test_clicking_resets_selection(self, single_plot_page: SinglePlotPage) -> None:
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
         source.selected.indices = [0]
         source.selected.line_indices = [0]
@@ -138,7 +139,7 @@ class Test_ResetTool:
 
         assert page.has_no_console_errors()
 
-    def test_ranges_udpate(self, single_plot_page) -> None:
+    def test_ranges_udpate(self, single_plot_page: SinglePlotPage) -> None:
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
         plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))
