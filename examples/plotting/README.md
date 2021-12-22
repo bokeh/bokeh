@@ -14,6 +14,4 @@ associated with your data. A simple, but typical complete example of this API lo
 
     show(p)
 
-## Structure
-
-The `file`  subdirectory contains examples that output to static HTML files
+The [`file`](/file)  subdirectory contains examples that output to static HTML files
