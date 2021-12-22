@@ -251,6 +251,13 @@ export class Plot extends LayoutDOM {
     this.toolbar.tools = this.toolbar.tools.concat(tools)
   }
 
+  remove_tools(...tools: Tool[]): void {
+    for (const tool of tools) {
+      this.toolbar.tools.splice(this.toolbar.tools.indexOf(tool), 1)
+    }
+
+  }
+
   get panels(): (Annotation | Axis | Grid)[] {
     return [...this.side_panels, ...this.center]
   }

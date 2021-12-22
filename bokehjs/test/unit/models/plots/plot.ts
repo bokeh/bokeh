@@ -9,6 +9,7 @@ import {build_view} from "@bokehjs/core/build_views"
 import {Place} from "@bokehjs/core/enums"
 import {GraphRenderer, GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
 import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
+import {ResetTool, PanTool, Toolbar} from "@bokehjs/models"
 import {Rect, Circle, MultiLine} from "@bokehjs/models/glyphs"
 import {ColumnDataSource} from "@bokehjs/models/sources"
 import {StaticLayoutProvider} from "@bokehjs/models/graphs"
@@ -25,7 +26,43 @@ async function new_plot_view(attrs: Partial<Plot.Attrs> = {}): Promise<PlotView>
 describe("Plot module", () => {
 
   describe("Plot", () => {
+    it("should add single tool using add_tools method", () => {
+      const plot = new Plot()
+      const reset = new ResetTool()
+      const pan = new PanTool()
+
+      plot.add_tools(reset, pan)
+
+      const {tools} = plot.toolbar
+      expect(tools.length).to.be.equal(2)
+      expect(tools[0]).to.be.identical(reset)
+      expect(tools[1]).to.be.identical(pan)
+    })
+
+    it("should remove a single tool using remove_tools method", () => {
+      const reset = new ResetTool()
+      const pan = new PanTool()
+      const plot = new Plot({toolbar: new Toolbar({tools: [reset, pan]})})
+
+      plot.remove_tools(pan)
+
+      const {tools} = plot.toolbar
+      expect(tools.length).to.be.equal(1)
+      expect(tools[0]).to.be.identical(reset)
+    })
+
+    it("should remove all tools using remove_tools method", () => {
+      const reset = new ResetTool()
+      const pan = new PanTool()
+      const plot = new Plot({toolbar: new Toolbar({tools: [reset, pan]})})
+
+      plot.remove_tools(pan, reset)
+
+      const {tools} = plot.toolbar
+      expect(tools.length).to.be.equal(0)
+    })
   })
+
 
   describe("PlotView", () => {
     it("should allow to resolve child renderers of its composite renderers", async () => {
