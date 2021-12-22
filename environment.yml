@@ -42,7 +42,7 @@ dependencies:
   - mypy >=0.920
   - nbconvert >=5.4
   - networkx
-  - nodejs >=14
+  - nodejs >=14, <17
   - numba
   - pandas
   - psutil
