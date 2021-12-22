@@ -1,6 +1,6 @@
 # Face Detection Example
 
-Create and example that uses [OpenCV](https://opencv.org) and efficient Bokeh
+Create an example that uses [OpenCV](https://opencv.org) and efficient Bokeh
 streaming to perform face detection on live video input.
 
 <img src="https://static.bokeh.org/faces.png" width="80%"></img>

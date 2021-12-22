@@ -295,7 +295,7 @@ class BaseServer:
         if not self._stopped:
             self.stop(wait=False)
 
-    def _sigterm(self, signum: signal.Signals, frame: FrameType) -> None:
+    def _sigterm(self, signum: int, frame: FrameType | None) -> None:
         print(f"Received signal {signum}, shutting down")
         # Tell self._loop.start() to return.
         self._loop.add_callback_from_signal(self._loop.stop)

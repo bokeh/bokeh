@@ -14,6 +14,16 @@ import * as preludes from "@compiler/prelude"
 import {compile_typescript} from "@compiler/compiler"
 import * as paths from "../paths"
 
+const platform = (() => {
+  switch (os.type()) {
+    case "Linux":      return "linux"
+    case "Darwin":     return "macos"
+    case "Windows_NT": return "windows"
+    default:
+      throw new Error(`unsupported platform: ${os.type()}`)
+  }
+})()
+
 async function is_available(port: number): Promise<boolean> {
   const host = "0.0.0.0"
   const timeout = 10000
@@ -95,14 +105,14 @@ task("test:codebase", ["test:codebase:compile"], async () => {
 function sys_path(): string {
   const path = [process.env.PATH]
 
-  switch (os.type()) {
-    case "Linux":
+  switch (platform) {
+    case "linux":
       path.push("/opt/google/chrome/")
       break
-    case "Darwin":
+    case "macos":
       path.push("/Applications/Google\ Chrome.app/Contents/MacOS/")
       break
-    case "Windows_NT":
+    case "windows":
       path.push("c:\\Program Files\\Google\\Chrome\\Application\\")
       path.push("c:\\Program Files (x86)\\Google\\Chrome\\Application\\")
       break
@@ -127,6 +137,7 @@ function chrome(): string {
 async function headless(port: number): Promise<ChildProcess> {
   const args = [
     "--headless",
+    "--no-first-run",
     `--remote-debugging-address=${argv.host ?? "127.0.0.1"}`,
     `--remote-debugging-port=${port}`,
     "--font-render-hinting=none",           // fixes measureText() on Linux with external fonts
@@ -374,7 +385,15 @@ task("test:compile:integration", async () => compile("integration", {auto_index:
 const build_integration = task("test:build:integration", [passthrough("test:compile:integration")], async () => await bundle("integration"))
 
 task2("test:integration", [start, build_integration], async ([devtools_port, server_port]) => {
-  await devtools(devtools_port, server_port, "integration", "test/baselines")
+  const baselines_root = (() => {
+    if (platform == "linux")
+      return "test/baselines"
+    else {
+      console.log(`${chalk.yellow("warning")}: baseline testing is not supported on this platform`)
+      return undefined
+    }
+  })()
+  await devtools(devtools_port, server_port, "integration", baselines_root)
   return success(undefined)
 })
 

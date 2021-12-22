@@ -1,3 +1,7 @@
+''' A 3D graph using the ColumnDataSource of Bokeh with the Graph3d library.
+This example shows the custom extension feature of Bokeh.
+
+'''
 import numpy as np
 
 from bokeh.driving import count

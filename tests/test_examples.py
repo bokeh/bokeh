@@ -279,7 +279,7 @@ with open(filename, 'rb') as example:
         pass
 
     if sys.platform != "win32":
-        def alarm_handler(sig: int, frame: FrameType) -> NoReturn:
+        def alarm_handler(sig: int, frame: FrameType | None) -> NoReturn:
             raise Timeout
 
         signal.signal(signal.SIGALRM, alarm_handler)
