@@ -10,9 +10,10 @@ the version of Bokeh you are running**.
 
 This directory contains examples of Bokeh Apps, which are simple and easy to create web applications for data visualization or exploration.
 
-###[`custom`](custom/)
+### [`custom`](custom/)
 
 The content of this directory demonstrate how to add custom extensions to Bokeh.
+Check project's documentation [page](https://docs.bokeh.org/en/latest/docs/user_guide/extensions.html)  
 
 ### [`embed`](embed/)
 
@@ -25,9 +26,6 @@ some  particular aspect of Bokeh capability (such as [linking and
 brushing](http://www.infovis-wiki.net/index.php?title=Linking_and_Brushing)),
 or walk through a particular example in additional detail.
 
-### [`Integration`](integration/)
-
-This directory contains code useful with Bokeh's integrations.
 
 ### [`models`](models/)
 
