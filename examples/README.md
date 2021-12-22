@@ -12,7 +12,7 @@ This directory contains examples of Bokeh Apps, which are simple and easy to cre
 
 ### [`custom`](custom/)
 
-The content of this directory demonstrate how to add custom extensions to Bokeh. Check project's documentation [page](https://docs.bokeh.org/en/latest/docs/user_guide/extensions.html)  
+The content of this directory demonstrate how to add custom extensions to Bokeh. Check project's documentation [page](https://docs.bokeh.org/en/latest/docs/user_guide/extensions.html)
 
 ### [`embed`](embed/)
 
