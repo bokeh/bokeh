@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 from math import isnan
+from typing import Tuple
 
 # External imports
 import mock
@@ -57,6 +58,13 @@ You are attempting to set `plot.legend.location` on a plot that has zero legends
 
 Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with a legend parameter set.
 """
+
+def create_plot_and_tools(prefilled: bool = False) -> Tuple[Plot, PanTool, ResetTool]:
+    if prefilled:
+        pan = PanTool()
+        reset = ResetTool()
+        return (Plot(tools=[pan, reset]), pan, reset)
+    return (Plot(), PanTool(), ResetTool())
 
 #-----------------------------------------------------------------------------
 # General API
@@ -374,17 +382,14 @@ def test_add_tile_tilesource():
     assert tile_source.attribution == mapnik.html_attribution
 
 def test_add_tools_single():
-    plot = Plot()
+    plot, first_tool, _ = create_plot_and_tools()
     assert len(plot.tools) == 0
 
-    tool = PanTool()
-    plot.add_tools(tool)
-    assert plot.tools[0] == tool
+    plot.add_tools(first_tool)
+    assert plot.tools[0] == first_tool
 
 def test_add_tools_multiple():
-    plot = Plot()
-    first_tool = PanTool()
-    second_tool = ResetTool()
+    plot, first_tool, second_tool = create_plot_and_tools()
 
     plot.add_tools(first_tool, second_tool)
     assert plot.tools[0] == first_tool
@@ -398,29 +403,21 @@ def test_add_tools_invalid():
         assert str(e.value) == "ValueError: All arguments to add_tool must be Tool subclasses."
 
 def test_remove_tools_single():
-    first_tool = PanTool()
-    second_tool = ResetTool()
-    plot=Plot(tools=[first_tool, second_tool])
-    assert plot.tools[0] == first_tool
-    assert plot.tools[1] == second_tool
+    plot, first_tool, second_tool = create_plot_and_tools(prefilled=True)
 
     plot.remove_tools(first_tool)
     assert len(plot.tools) == 1
     assert plot.tools[0] == second_tool
 
 def test_remove_tools_multiple():
-    first_tool = PanTool()
-    second_tool = ResetTool()
-    plot=Plot(tools=[first_tool, second_tool])
+    plot, first_tool, second_tool = create_plot_and_tools(prefilled=True)
 
     plot.remove_tools(first_tool, second_tool)
     assert len(plot.tools) == 0
 
 def test_remove_tools_invalid():
-    first_tool = PanTool()
-    second_tool = ResetTool()
+    (plot, *_) = create_plot_and_tools(prefilled=True)
     third_tool = PanTool()
-    plot=Plot(tools=[first_tool, second_tool])
 
     with pytest.raises(ValueError) as e:
         plot.remove_tools(third_tool)
