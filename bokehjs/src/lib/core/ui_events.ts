@@ -458,8 +458,9 @@ export class UIEventBus implements EventListenerObject {
         break
       }
       case "tap": {
-        const {target} = srcEvent
-        if (target != null && target != this.hit_area)
+        // XXX: hammerjs, why non-standard path?
+        const path: EventTarget[] = (srcEvent as any).path ?? srcEvent.composedPath()
+        if (path.length != 0 && path[0] != this.hit_area)
           return // don't trigger bokeh events
 
         if (view != null && view.on_hit != null)
