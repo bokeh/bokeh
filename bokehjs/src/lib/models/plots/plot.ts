@@ -252,14 +252,7 @@ export class Plot extends LayoutDOM {
   }
 
   remove_tools(...tools: Tool[]): void {
-    const {toolbar} = this
-    for (const tool of tools) {
-      if (toolbar.tools.includes(tool))
-        toolbar.tools.splice(toolbar.tools.indexOf(tool), 1)
-      else
-        throw new Error(`Invalid tool "${tool}" specified. Available tools are "${this.toolbar.tools.join(", ")}"`)
-    }
-
+    remove_by(this.toolbar.tools, (t) => tools.includes(t))
   }
 
   get panels(): (Annotation | Axis | Grid)[] {

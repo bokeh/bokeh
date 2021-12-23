@@ -70,14 +70,6 @@ describe("Plot module", () => {
       const {tools} = plot.toolbar
       expect(tools.length).to.be.equal(0)
     })
-
-    it("should throw error when removing invalid tool", () => {
-      const {plot} = new_plot_with_tools()
-      const pan = new PanTool()
-
-      expect(() => plot.remove_tools(pan)).to.throw()
-
-    })
   })
 
 
