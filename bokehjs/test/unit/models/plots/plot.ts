@@ -23,6 +23,19 @@ async function new_plot_view(attrs: Partial<Plot.Attrs> = {}): Promise<PlotView>
   return (await build_view(plot)).build()
 }
 
+interface PlotWithTools {
+  plot: Plot
+  reset: ResetTool
+  pan: PanTool
+}
+
+function new_plot_with_tools(): PlotWithTools {
+  const reset = new ResetTool()
+  const pan = new PanTool()
+  const plot = new Plot({toolbar: new Toolbar({tools: [reset, pan]})})
+  return {plot, reset, pan}
+}
+
 describe("Plot module", () => {
 
   describe("Plot", () => {
@@ -40,9 +53,7 @@ describe("Plot module", () => {
     })
 
     it("should remove a single tool using remove_tools method", () => {
-      const reset = new ResetTool()
-      const pan = new PanTool()
-      const plot = new Plot({toolbar: new Toolbar({tools: [reset, pan]})})
+      const {plot, reset, pan} = new_plot_with_tools()
 
       plot.remove_tools(pan)
 
@@ -52,14 +63,20 @@ describe("Plot module", () => {
     })
 
     it("should remove all tools using remove_tools method", () => {
-      const reset = new ResetTool()
-      const pan = new PanTool()
-      const plot = new Plot({toolbar: new Toolbar({tools: [reset, pan]})})
+      const {plot, reset, pan} = new_plot_with_tools()
 
       plot.remove_tools(pan, reset)
 
       const {tools} = plot.toolbar
       expect(tools.length).to.be.equal(0)
+    })
+
+    it("should throw error when removing invalid tool", () => {
+      const {plot} = new_plot_with_tools()
+      const pan = new PanTool()
+
+      expect(() => plot.remove_tools(pan)).to.throw()
+
     })
   })
 

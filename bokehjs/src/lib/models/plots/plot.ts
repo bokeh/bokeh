@@ -252,8 +252,12 @@ export class Plot extends LayoutDOM {
   }
 
   remove_tools(...tools: Tool[]): void {
+    const {toolbar} = this
     for (const tool of tools) {
-      this.toolbar.tools.splice(this.toolbar.tools.indexOf(tool), 1)
+      if (toolbar.tools.includes(tool))
+        toolbar.tools.splice(toolbar.tools.indexOf(tool), 1)
+      else
+        throw new Error(`Invalid tool "${tool}" specified. Available tools are "${this.toolbar.tools.join(", ")}"`)
     }
 
   }
