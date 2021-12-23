@@ -1,5 +1,6 @@
 import * as p from "core/properties"
 import {input, textarea, select, option, Keys} from "core/dom"
+import {isInteger, isString} from "core/util/types"
 
 import {DOMComponentView} from "core/dom_view"
 import {Model} from "../../../model"
@@ -357,11 +358,15 @@ export class IntEditorView extends CellEditorView {
     this.inputEl.select()
   }
 
-  override validateValue(value: any): any {
-    if (isNaN(value))
-      return {valid: false, msg: "Please enter a valid integer"}
-    else
+  override validateValue(value: unknown): any {
+    if (isString(value)) {
+      value = Number(value)
+    }
+
+    if (isInteger(value))
       return super.validateValue(value)
+    else
+      return {valid: false, msg: "Please enter a valid integer"}
   }
 }
 
