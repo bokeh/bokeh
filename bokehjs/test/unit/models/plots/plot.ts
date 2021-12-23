@@ -42,14 +42,12 @@ describe("Plot module", () => {
     it("should add single tool using add_tools method", () => {
       const plot = new Plot()
       const reset = new ResetTool()
-      const pan = new PanTool()
 
-      plot.add_tools(reset, pan)
+      plot.add_tools(reset)
 
       const {tools} = plot.toolbar
-      expect(tools.length).to.be.equal(2)
+      expect(tools.length).to.be.equal(1)
       expect(tools[0]).to.be.identical(reset)
-      expect(tools[1]).to.be.identical(pan)
     })
 
     it("should remove a single tool using remove_tools method", () => {
