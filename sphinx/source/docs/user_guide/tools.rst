@@ -77,9 +77,13 @@ passing instances of ``Tool`` objects to the ``add_tools()`` method:
 
 .. code-block:: python
 
+    from bokeh.models import LassoSelectTool, Plot, WheelZoomTool
+
     plot = Plot()
     plot.add_tools(LassoSelectTool())
-    plot.add_tools(WheelZoomTool())
+
+    wheel = WheelZoomTool()
+    plot.add_tools(wheel)
 
 This way of adding tools works with any Bokeh ``Plot`` or ``Plot`` subclass,
 such as ``Figure``.
@@ -89,27 +93,33 @@ function. The tools parameter accepts a list of tool objects, for example:
 
 .. code-block:: python
 
-    tools = [BoxZoomTool(), ResetTool()]
+    from bokeh.models import BoxZoomTool, ResetTool
+    from bokeh.plotting import figure
+
+    plot = figure(tools=[BoxZoomTool(), ResetTool()])
 
 You can also add multiple tools with a comma-separated string
 containing tool shortcut names:
 
 .. code-block:: python
 
-    tools = "pan,wheel_zoom,box_zoom,reset"
+    from bokeh.plotting import figure
+
+    plot = figure(tools="pan,wheel_zoom,box_zoom,reset")
 
 This method does not allow setting properties of the tools.
 
-Finally, you can add new tools to a plot by passing a tool object
-to the ``add_tools()`` method of a plot. You can combine the add_tools()
-method with the figure() function's tools argument:
+Remove tools by passing a tool object to the ``remove_tools()`` method of a plot.
 
 .. code-block:: python
 
-    from bokeh.models import BoxSelectTool
+    from bokeh.models import BoxSelectTool, WheelZoomTool
+    from bokeh.plotting import figure
 
-    plot = figure(tools="pan,wheel_zoom,box_zoom,reset")
-    plot.add_tools(BoxSelectTool(dimensions="width"))
+    tools = box, wheel = BoxSelectTool(dimensions="width"), WheelZoomTool()
+    plot = figure(tools=tools)
+
+    plot.remove_tools(box)
 
 .. _userguide_tools_customize_tools_icon:
 

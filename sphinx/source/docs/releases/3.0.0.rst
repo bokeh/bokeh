@@ -8,6 +8,7 @@ Bokeh Version ``3.0.0`` () is a major milestone of Bokeh project.
 * Support added for favicon.ico files
 * Initial import times reduced
 * Support added for new selection policy NodesAndAdjacentNodes
+* Plot.remove_tools() function added
 
 .. _release-3-0-0-migration:
 

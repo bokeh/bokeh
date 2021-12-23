@@ -386,8 +386,8 @@ toolbar:
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_tools.py
     :source-position: none
 
-To change the available tools at any time after creating your figure, you need
-to use the :func:`~bokeh.models.plots.Plot.add_tools` function.
+To change the available tools at any time after creating your figure,
+use the :func:`~bokeh.models.plots.Plot.add_tools` and :func:`~bokeh.models.plots.Plot.remove_tools` functions.
 
 All tools also offer various properties to define how they can be used. With the
 :class:`~bokeh.models.tools.PanTool`, for example, you can limit the movement to
