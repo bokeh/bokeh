@@ -39,10 +39,10 @@ dependencies:
   - ipython
   - isort 5.8
   - mock
-  - mypy >=0.910
+  - mypy >=0.920
   - nbconvert >=5.4
   - networkx
-  - nodejs >=14
+  - nodejs >=14, <17
   - numba
   - pandas
   - psutil

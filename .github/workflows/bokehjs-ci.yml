@@ -80,11 +80,10 @@ jobs:
           node make lint
 
       - name: Collect results
-        if: always()
+        if: runner.os == 'Linux' && always()
         shell: bash
         run: |
-          OS=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
-          SRC="bokehjs/test/baselines/${OS}"
+          SRC="bokehjs/test/baselines/linux"
           DST="bokehjs-report/${SRC}"
           mkdir -p ${DST}
           if [[ -e ${SRC}/report.json ]];
@@ -94,7 +93,7 @@ jobs:
           fi
 
       - name: Upload report
-        if: always()
+        if: runner.os == 'Linux' && always()
         uses: actions/upload-artifact@v1
         with:
           name: bokehjs-report

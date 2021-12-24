@@ -1,3 +1,12 @@
+''' A `k-nearest neighbors`_ (KNN) chart using datasets from scikit-learn. This
+example demonstrates solving both classification and regression problems.
+
+.. note::
+    This example needs the scikit-learn package to run.
+
+.. _k-nearest neighbors: https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm
+
+'''
 import numpy as np
 from sklearn import cluster, datasets
 from sklearn.neighbors import kneighbors_graph

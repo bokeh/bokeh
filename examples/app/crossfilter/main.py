@@ -1,3 +1,13 @@
+''' A crossfilter plot map that uses the `Auto MPG dataset`_. This example
+demonstrates the relationship of datasets together. A hover tooltip displays
+information on each dot.
+
+.. note::
+    This example needs the Pandas package to run.
+
+.. _Auto MPG dataset: https://archive.ics.uci.edu/ml/datasets/auto+mpg
+
+'''
 import pandas as pd
 
 from bokeh.layouts import column, row
