@@ -643,6 +643,183 @@ export const Colorblind6 = [0x0072b2ff, 0xe69f00ff, 0xf0e442ff, 0x009e73ff, 0x56
 export const Colorblind7 = [0x0072b2ff, 0xe69f00ff, 0xf0e442ff, 0x009e73ff, 0x56b4e9ff, 0xd55e00ff, 0xcc79a7ff]
 export const Colorblind8 = [0x0072b2ff, 0xe69f00ff, 0xf0e442ff, 0x009e73ff, 0x56b4e9ff, 0xd55e00ff, 0xcc79a7ff, 0x000000ff]
 
+export const Bright3 = [0x4477aaff, 0xee6677ff, 0x228833ff]
+export const Bright4 = [0x4477aaff, 0xee6677ff, 0x228833ff, 0xccbb44ff]
+export const Bright5 = [0x4477aaff, 0xee6677ff, 0x228833ff, 0xccbb44ff, 0x66cceeff]
+export const Bright6 = [0x4477aaff, 0xee6677ff, 0x228833ff, 0xccbb44ff, 0x66cceeff, 0xaa3377ff]
+export const Bright7 = [0x4477aaff, 0xee6677ff, 0x228833ff, 0xccbb44ff, 0x66cceeff, 0xaa3377ff, 0xbbbbbbff]
+
+export const HighContrast3 = [0x004488ff, 0xddaa33ff, 0xbb5566ff]
+
+export const Vibrant3 = [0xee7733ff, 0x0077bbff, 0x33bbeeff]
+export const Vibrant4 = [0xee7733ff, 0x0077bbff, 0x33bbeeff, 0xee3377ff]
+export const Vibrant5 = [0xee7733ff, 0x0077bbff, 0x33bbeeff, 0xee3377ff, 0xcc3311ff]
+export const Vibrant6 = [0xee7733ff, 0x0077bbff, 0x33bbeeff, 0xee3377ff, 0xcc3311ff, 0x009988ff]
+export const Vibrant7 = [0xee7733ff, 0x0077bbff, 0x33bbeeff, 0xee3377ff, 0xcc3311ff, 0x009988ff, 0xbbbbbbff]
+
+export const Muted3 = [0xcc6677ff, 0x332288ff, 0xddcc77ff]
+export const Muted4 = [0xcc6677ff, 0x332288ff, 0xddcc77ff, 0x117733ff]
+export const Muted5 = [0xcc6677ff, 0x332288ff, 0xddcc77ff, 0x117733ff, 0x88cceeff]
+export const Muted6 = [0xcc6677ff, 0x332288ff, 0xddcc77ff, 0x117733ff, 0x88cceeff, 0x882255ff]
+export const Muted7 = [0xcc6677ff, 0x332288ff, 0xddcc77ff, 0x117733ff, 0x88cceeff, 0x882255ff, 0x44aa99ff]
+export const Muted8 = [0xcc6677ff, 0x332288ff, 0xddcc77ff, 0x117733ff, 0x88cceeff, 0x882255ff, 0x44aa99ff, 0x999933ff]
+export const Muted9 = [0xcc6677ff, 0x332288ff, 0xddcc77ff, 0x117733ff, 0x88cceeff, 0x882255ff, 0x44aa99ff, 0x999933ff, 0xaa4499ff]
+
+export const MediumContrast3 = [0x6699ccff, 0x004488ff, 0xeecc66ff]
+export const MediumContrast4 = [0x6699ccff, 0x004488ff, 0xeecc66ff, 0x994455ff]
+export const MediumContrast5 = [0x6699ccff, 0x004488ff, 0xeecc66ff, 0x994455ff, 0x997700ff]
+export const MediumContrast6 = [0x6699ccff, 0x004488ff, 0xeecc66ff, 0x994455ff, 0x997700ff, 0xee99aaff]
+
+export const Pale3 = [0xbbcceeff, 0xcceeffff, 0xccddaaff]
+export const Pale4 = [0xbbcceeff, 0xcceeffff, 0xccddaaff, 0xeeeebbff]
+export const Pale5 = [0xbbcceeff, 0xcceeffff, 0xccddaaff, 0xeeeebbff, 0xffccccff]
+export const Pale6 = [0xbbcceeff, 0xcceeffff, 0xccddaaff, 0xeeeebbff, 0xffccccff, 0xddddddff]
+
+export const Dark3 = [0x222255ff, 0x225555ff, 0x225522ff]
+export const Dark4 = [0x222255ff, 0x225555ff, 0x225522ff, 0x666633ff]
+export const Dark5 = [0x222255ff, 0x225555ff, 0x225522ff, 0x666633ff, 0x663333ff]
+export const Dark6 = [0x222255ff, 0x225555ff, 0x225522ff, 0x666633ff, 0x663333ff, 0x555555ff]
+
+export const Light3 = [0x77aaddff, 0xee8866ff, 0xeedd88ff]
+export const Light4 = [0x77aaddff, 0xee8866ff, 0xeedd88ff, 0xffaabbff]
+export const Light5 = [0x77aaddff, 0xee8866ff, 0xeedd88ff, 0xffaabbff, 0x99ddffff]
+export const Light6 = [0x77aaddff, 0xee8866ff, 0xeedd88ff, 0xffaabbff, 0x99ddffff, 0x44bb99ff]
+export const Light7 = [0x77aaddff, 0xee8866ff, 0xeedd88ff, 0xffaabbff, 0x99ddffff, 0x44bb99ff, 0xbbcc33ff]
+export const Light8 = [0x77aaddff, 0xee8866ff, 0xeedd88ff, 0xffaabbff, 0x99ddffff, 0x44bb99ff, 0xbbcc33ff, 0xaaaa00ff]
+export const Light9 = [0x77aaddff, 0xee8866ff, 0xeedd88ff, 0xffaabbff, 0x99ddffff, 0x44bb99ff, 0xbbcc33ff, 0xaaaa00ff, 0xddddddff]
+
+export const Sunset3 = [0x364b9aff, 0xeaecccff, 0xa50026ff]
+export const Sunset4 = [0x364b9aff, 0xa5d2e5ff, 0xfdc072ff, 0xa50026ff]
+export const Sunset5 = [0x364b9aff, 0x83b8d7ff, 0xeaecccff, 0xf99858ff, 0xa50026ff]
+export const Sunset6 = [0x364b9aff, 0x6ea6cdff, 0xc2e4efff, 0xfeda8bff, 0xf67e4bff, 0xa50026ff]
+export const Sunset7 = [0x364b9aff, 0x6197c5ff, 0xa5d2e5ff, 0xeaecccff, 0xfdc072ff, 0xed6841ff, 0xa50026ff]
+export const Sunset8 = [0x364b9aff, 0x598dc0ff, 0x92c4deff, 0xcde6e5ff, 0xf8df9dff, 0xfcab62ff, 0xe75839ff, 0xa50026ff]
+export const Sunset9 = [0x364b9aff, 0x5384bcff, 0x83b8d7ff, 0x87ddebff, 0xeaecccff, 0xfdd081ff, 0xf99858ff, 0xe34d34ff, 0xa50026ff]
+export const Sunset10 = [0x364b9aff, 0x4e7fb9ff, 0x77aed1ff, 0xa5d2e5ff, 0xd3e7dfff, 0xf5e2a7ff, 0xfdc072ff, 0xf78951ff, 0xdf4430ff, 0xa50026ff]
+export const Sunset11 = [0x364b9aff, 0x4a7bb7ff, 0x6ea6cdff, 0x98cae1ff, 0xc2e4efff, 0xeaecccff, 0xfeda8bff, 0xfdb366ff, 0xf67e4bff, 0xdd3d2dff, 0xa50026ff]
+
+export const BuRd3 = [0x2166acff, 0xf7f7f7ff, 0xb2182bff]
+export const BuRd4 = [0x2166acff, 0xbbdaeaff, 0xfac9b0ff, 0xb2182bff]
+export const BuRd5 = [0x2166acff, 0x92c5deff, 0xf7f7f7ff, 0xf4a582ff, 0xb2182bfF]
+export const BuRd6 = [0x2166acff, 0x72b1d3ff, 0xd8e8f1ff, 0xfbe0d0ff, 0xe8896cff, 0xb2182bff]
+export const BuRd7 = [0x2166acff, 0x5da3cbff, 0xbbdaeaff, 0xf7f7f7ff, 0xfac9b0ff, 0xe0775eff, 0xb2182bff]
+export const BuRd8 = [0x2166acff, 0x4e9ac6ff, 0xa3cee3ff, 0xe1ecf3ff, 0xfae7dbff, 0xf6b495ff, 0xda6954ff, 0xb2182bff]
+export const BuRd9 = [0x2166acff, 0x4393c3ff, 0x92c5deff, 0xd1e5f0ff, 0xf7f7f7ff, 0xfddbc7ff, 0xf4a582ff, 0xd6604dff, 0xb2182bff]
+
+export const TolPRGn3 = [0x762a83ff, 0xf7f7f7ff, 0x1b7837ff]
+export const TolPRGn4 = [0x762a83ff, 0xdac4dfff, 0xcae6c1ff, 0x1b7837ff]
+export const TolPRGn5 = [0x762a83ff, 0xc2a5cfff, 0xf7f7f7ff, 0xacd39eff, 0x1b7837ff]
+export const TolPRGn6 = [0x762a83ff, 0xb18fc0ff, 0xeadbebff, 0xdef1daff, 0x8bc485ff, 0x1b7837ff]
+export const TolPRGn7 = [0x762a83ff, 0xa681b7ff, 0xdac4dfff, 0xf7f7f7ff, 0xcae6c1ff, 0x75ba75ff, 0x1b7837ff]
+export const TolPRGn8 = [0x762a83ff, 0x9e77b0ff, 0xccb2d6ff, 0xede3eeff, 0xe5f3e2ff, 0xb8dbadff, 0x65b369ff, 0x1b7837ff]
+export const TolPRGn9 = [0x762a83ff, 0x9970abff, 0xc2a5cfff, 0xe7d4e8ff, 0xf7f7f7ff, 0xd9f0d3ff, 0xacd39eff, 0x5aae61ff, 0x1b7837ff]
+
+export const TolYlOrBr3 = [0xffffe5ff, 0xfb9a29ff, 0x662506ff]
+export const TolYlOrBr4 = [0xffffe5ff, 0xfece65ff, 0xe1640eff, 0x662506ff]
+export const TolYlOrBr5 = [0xffffe5ff, 0xfee391ff, 0xfb9a29ff, 0xcc4c02ff, 0x662506ff]
+export const TolYlOrBr6 = [0xffffe5ff, 0xfeeba2ff, 0xfdbb47ff, 0xef7818ff, 0xb74202ff, 0x662506ff]
+export const TolYlOrBr7 = [0xffffe5ff, 0xfef0adff, 0xfece65ff, 0xfb9a29ff, 0xe1640eff, 0xaa3c03ff, 0x662506ff]
+export const TolYlOrBr8 = [0xffffe5ff, 0xfef4b5ff, 0xfeda7eff, 0xfcb23eff, 0xf2821dff, 0xd55607ff, 0xa03703ff, 0x662506ff]
+export const TolYlOrBr9 = [0xffffe5ff, 0xfff7bcff, 0xfee391ff, 0xfec44fff, 0xfb9a29ff, 0xec7014ff, 0xcc4c02ff, 0x993404ff, 0x662506ff]
+
+export const Iridescent3 = [0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff]
+export const Iridescent4 = [0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff]
+export const Iridescent5 = [0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff]
+export const Iridescent6 = [0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff]
+export const Iridescent7 = [0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff]
+export const Iridescent8 = [0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff, 0xb5ddd8ff]
+export const Iridescent9 = [0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff, 0xb5ddd8ff, 0xa8d8dcff]
+export const Iridescent10 = [0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff, 0xb5ddd8ff, 0xa8d8dcff, 0x9bd2e1ff]
+export const Iridescent11 = [
+  0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff, 0xb5ddd8ff, 0xa8d8dcff, 0x9bd2e1ff, 0x8dcbe4ff]
+export const Iridescent12 = [
+  0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff, 0xb5ddd8ff, 0xa8d8dcff, 0x9bd2e1ff,
+  0x8dcbe4ff, 0x81c4e7ff]
+export const Iridescent13 = [
+  0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff, 0xb5ddd8ff, 0xa8d8dcff, 0x9bd2e1ff,
+  0x8dcbe4ff, 0x81c4e7ff, 0x7bbce7ff]
+export const Iridescent14 = [
+  0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff, 0xb5ddd8ff, 0xa8d8dcff, 0x9bd2e1ff,
+  0x8dcbe4ff, 0x81c4e7ff, 0x7bbce7ff, 0x7eb2e4ff]
+export const Iridescent15 = [
+  0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff, 0xb5ddd8ff, 0xa8d8dcff, 0x9bd2e1ff,
+  0x8dcbe4ff, 0x81c4e7ff, 0x7bbce7ff, 0x7eb2e4ff, 0x88a5ddff]
+export const Iridescent16 = [
+  0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff, 0xb5ddd8ff, 0xa8d8dcff, 0x9bd2e1ff,
+  0x8dcbe4ff, 0x81c4e7ff, 0x7bbce7ff, 0x7eb2e4ff, 0x88a5ddff, 0x9398d2ff]
+export const Iridescent17 = [
+  0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff, 0xb5ddd8ff, 0xa8d8dcff, 0x9bd2e1ff,
+  0x8dcbe4ff, 0x81c4e7ff, 0x7bbce7ff, 0x7eb2e4ff, 0x88a5ddff, 0x9398d2ff, 0x9b8ac4ff]
+export const Iridescent18 = [
+  0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff, 0xb5ddd8ff, 0xa8d8dcff, 0x9bd2e1ff,
+  0x8dcbe4ff, 0x81c4e7ff, 0x7bbce7ff, 0x7eb2e4ff, 0x88a5ddff, 0x9398d2ff, 0x9b8ac4ff, 0x9d7db2ff]
+export const Iridescent19 = [
+  0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff, 0xb5ddd8ff, 0xa8d8dcff, 0x9bd2e1ff,
+  0x8dcbe4ff, 0x81c4e7ff, 0x7bbce7ff, 0x7eb2e4ff, 0x88a5ddff, 0x9398d2ff, 0x9b8ac4ff, 0x9d7db2ff, 0x9a709eff]
+export const Iridescent20 = [
+  0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff, 0xb5ddd8ff, 0xa8d8dcff, 0x9bd2e1ff,
+  0x8dcbe4ff, 0x81c4e7ff, 0x7bbce7ff, 0x7eb2e4ff, 0x88a5ddff, 0x9398d2ff, 0x9b8ac4ff, 0x9d7db2ff, 0x9a709eff, 0x906388ff]
+export const Iridescent21 = [
+  0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff, 0xb5ddd8ff, 0xa8d8dcff, 0x9bd2e1ff,
+  0x8dcbe4ff, 0x81c4e7ff, 0x7bbce7ff, 0x7eb2e4ff, 0x88a5ddff, 0x9398d2ff, 0x9b8ac4ff, 0x9d7db2ff, 0x9a709eff, 0x906388ff, 0x805770ff]
+export const Iridescent22 = [
+  0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff, 0xb5ddd8ff, 0xa8d8dcff, 0x9bd2e1ff,
+  0x8dcbe4ff, 0x81c4e7ff, 0x7bbce7ff, 0x7eb2e4ff, 0x88a5ddff, 0x9398d2ff, 0x9b8ac4ff, 0x9d7db2ff, 0x9a709eff, 0x906388ff,
+  0x805770ff, 0x684957ff]
+export const Iridescent23 = [
+  0xfefbe9ff, 0xfcf7d5ff, 0xf5f3c1ff, 0xeaf0b5ff, 0xddecbfff, 0xd0e7caff, 0xc2e3d2ff, 0xb5ddd8ff, 0xa8d8dcff, 0x9bd2e1ff,
+  0x8dcbe4ff, 0x81c4e7ff, 0x7bbce7ff, 0x7eb2e4ff, 0x88a5ddff, 0x9398d2ff, 0x9b8ac4ff, 0x9d7db2ff, 0x9a709eff, 0x906388ff,
+  0x805770ff, 0x684957ff, 0x46353aff]
+
+export const TolRainbow3 = [0x1965b0ff, 0xf7f056ff, 0xdc050cff]
+export const TolRainbow4 = [0x1965b0ff, 0x4eb265ff, 0xf7f056ff, 0xdc050cff]
+export const TolRainbow5 = [0x1965b0ff, 0x7bafdeff, 0x4eb265ff, 0xf7f056ff, 0xdc050cff]
+export const TolRainbow6 = [0x1965b0ff, 0x7bafdeff, 0x4eb265ff, 0xcae0abff, 0xf7f056ff, 0xdc050cff]
+export const TolRainbow7 = [0x882e72ff, 0x1965b0ff, 0x7bafdeff, 0x4eb265ff, 0xcae0abff, 0xf7f056ff, 0xdc050cff]
+export const TolRainbow8 = [0x882e72ff, 0x1965b0ff, 0x7bafdeff, 0x4eb265ff, 0xcae0abff, 0xf7f056ff, 0xee8026ff, 0xdc050cff]
+export const TolRainbow9 = [0x882e72ff, 0x1965b0ff, 0x7bafdeff, 0x4eb265ff, 0xcae0abff, 0xf7f056ff, 0xee8026ff, 0xdc050cff, 0x72190eff]
+export const TolRainbow10 = [0x882e72ff, 0x1965b0ff, 0x7bafdeff, 0x4eb265ff, 0xcae0abff, 0xf7f056ff, 0xf4a736ff, 0xe8601cff, 0xdc050cff, 0x72190eff]
+export const TolRainbow11 = [
+  0x882e72ff, 0x1965b0ff, 0x5289c7ff, 0x7bafdeff, 0x4eb265ff, 0xcae0abff, 0xf7f056ff, 0xf4a736ff, 0xe8601cff, 0xdc050cff, 0x72190eff]
+export const TolRainbow12 = [
+  0xd1bbd7ff, 0xaa6f9eff, 0x882e72ff, 0x1965b0ff, 0x5289c7ff, 0x7bafdeff, 0x4eb265ff, 0xcae0abff, 0xf7f056ff, 0xf4a736ff,
+  0xe8601cff, 0xdc050cff]
+export const TolRainbow13 = [
+  0xd1bbd7ff, 0xaa6f9eff, 0x882e72ff, 0x1965b0ff, 0x5289c7ff, 0x7bafdeff, 0x4eb265ff, 0x90c987ff, 0xcae0abff, 0xf7f056ff,
+  0xf4a736ff, 0xe8601cff, 0xdc050cff]
+export const TolRainbow14 = [
+  0xd1bbd7ff, 0xaa6f9eff, 0x882e72ff, 0x1965b0ff, 0x5289c7ff, 0x7bafdeff, 0x4eb265ff, 0x90c987ff, 0xcae0abff, 0xf7f056ff,
+  0xf6c141ff, 0xf1932dff, 0xe8601cff, 0xdc050cff]
+export const TolRainbow15 = [
+  0xd1bbd7ff, 0xaa6f9eff, 0x882e72ff, 0x1965b0ff, 0x5289c7ff, 0x7bafdeff, 0x4eb265ff, 0x90c987ff, 0xcae0abff, 0xf7f056ff,
+  0xf6c141ff, 0xf1932dff, 0xe8601cff, 0xdc050cff, 0x72190eff]
+export const TolRainbow16 = [
+  0xd1bbd7ff, 0xba8db4ff, 0xaa6f9eff, 0x882e72ff, 0x1965b0ff, 0x5289c7ff, 0x7bafdeff, 0x4eb265ff, 0x90c987ff, 0xcae0abff,
+  0xf7f056ff, 0xf6c141ff, 0xf1932dff, 0xe8601cff, 0xdc050cff, 0x72190eff]
+export const TolRainbow17 = [
+  0xd1bbd7ff, 0xba8db4ff, 0xaa6f9eff, 0x994f88ff, 0x882e72ff, 0x1965b0ff, 0x5289c7ff, 0x7bafdeff, 0x4eb265ff, 0x90c987ff,
+  0xcae0abff, 0xf7f056ff, 0xf6c141ff, 0xf1932dff, 0xe8601cff, 0xdc050cff, 0x72190eff]
+export const TolRainbow18 = [
+  0xd1bbd7ff, 0xba8db4ff, 0xaa6f9eff, 0x994f88ff, 0x882e72ff, 0x1965b0ff, 0x5289c7ff, 0x7bafdeff, 0x4eb265ff, 0x90c987ff,
+  0xcae0abff, 0xf7f056ff, 0xf6c141ff, 0xf1932dff, 0xe8601cff, 0xdc050cff, 0xa5170eff, 0x72190eff]
+export const TolRainbow19 = [
+  0xd9cce3ff, 0xcaaccbff, 0xba8db4ff, 0xaa6f9eff, 0x994f88ff, 0x882e72ff, 0x1965b0ff, 0x5289c7ff, 0x7bafdeff, 0x4eb265ff,
+  0x90c987ff, 0xcae0abff, 0xf7f056ff, 0xf6c141ff, 0xf1932dff, 0xe8601cff, 0xdc050cff, 0xa5170eff, 0x72190ef]
+export const TolRainbow20 = [
+  0xd9cce3ff, 0xcaaccbff, 0xba8db4ff, 0xaa6f9eff, 0x994f88ff, 0x882e72ff, 0x1965b0ff, 0x437dbfff, 0x6195cfff, 0x7bafdeff,
+  0x4eb265ff, 0x90c987ff, 0xcae0abff, 0xf7f056ff, 0xf6c141ff, 0xf1932dff, 0xe8601cff, 0xdc050cff, 0xa5170eff, 0x72190eff]
+export const TolRainbow21 = [
+  0xd9cce3ff, 0xcaaccbff, 0xba8db4ff, 0xaa6f9eff, 0x994f88ff, 0x882e72ff, 0x1965b0ff, 0x437dbfff, 0x6195cfff, 0x7bafdeff,
+  0x4eb265ff, 0x90c987ff, 0xcae0abff, 0xf7f056ff, 0xf7cb45ff, 0xf4a736ff, 0xee8026ff, 0xe65518ff, 0xdc050cff, 0xa5170eff, 0x72190eff]
+export const TolRainbow22 = [
+  0xd9cce3ff, 0xcaaccbff, 0xba8db4ff, 0xaa6f9eff, 0x994f88ff, 0x882e72ff, 0x1965b0ff, 0x437dbfff, 0x6195cfff, 0x7bafdeff,
+  0x4eb265ff, 0x90c987ff, 0xcae0abff, 0xf7f056ff, 0xf7cb45ff, 0xf4a736ff, 0xee8026ff, 0xe65518ff, 0xdc050cff, 0xa5170eff,
+  0x72190eff, 0x42150aff]
+export const TolRainbow23 = [
+  0xe8ecfbff, 0xd9cce3ff, 0xcaaccbff, 0xba8db4ff, 0xaa6f9eff, 0x994f88ff, 0x882e72ff, 0x1965b0ff, 0x437dbfff, 0x6195cfff,
+  0x7bafdeff, 0x4eb265ff, 0x90c987ff, 0xcae0abff, 0xf7f056ff, 0xf7cb45ff, 0xf4a736ff, 0xee8026ff, 0xe65518ff, 0xdc050cff,
+  0xa5170eff, 0x72190eff, 0x42150aff]
+
 export type YlGn         = "YlGn3"         | "YlGn4"         | "YlGn5"         | "YlGn6"         | "YlGn7"         | "YlGn8"         | "YlGn9"
 export type YlGnBu       = "YlGnBu3"       | "YlGnBu4"       | "YlGnBu5"       | "YlGnBu6"       | "YlGnBu7"       | "YlGnBu8"       | "YlGnBu9"
 export type GnBu         = "GnBu3"         | "GnBu4"         | "GnBu5"         | "GnBu6"         | "GnBu7"         | "GnBu8"         | "GnBu9"
@@ -687,6 +864,24 @@ export type Category20   = "Category20_3"  | "Category20_4"  | "Category20_5"  |
 export type Category20b  = "Category20b_3" | "Category20b_4" | "Category20b_5" | "Category20b_6" | "Category20b_7" | "Category20b_8" | "Category20b_9" | "Category20b_10" | "Category20b_11"| "Category20b_12" | "Category20b_13" | "Category20b_14" | "Category20b_15" | "Category20b_16" | "Category20b_17" | "Category20b_18" | "Category20b_19" | "Category20b_20"
 export type Category20c  = "Category20c_3" | "Category20c_4" | "Category20c_5" | "Category20c_6" | "Category20c_7" | "Category20c_8" | "Category20c_9" | "Category20c_10" | "Category20c_11"| "Category20c_12" | "Category20c_13" | "Category20c_14" | "Category20c_15" | "Category20c_16" | "Category20c_17" | "Category20c_18" | "Category20c_19" | "Category20c_20"
 export type Colorblind   = "Colorblind3"   | "Colorblind4"   | "Colorblind5"   | "Colorblind6"   | "Colorblind7"   | "Colorblind8"
+export type Bright       = "Bright3"       | "Bright4"       | "Bright5"       | "Bright6"       | "Bright7"
+export type HighContrast = "HighContrast3"
+export type Vibrant      = "Vibrant3"      | "Vibrant4"      | "Vibrant5"      | "Vibrant6"      | "Vibrant7"
+export type Muted        = "Muted3"        | "Muted4"        | "Muted5"        | "Muted6"        | "Muted7"        | "Muted8"
+export type MediumContrast = "MediumContrast3" | "MediumContrast4" | "MediumContrast5" | "MediumContrast6"
+export type Pale         = "Pale3"         | "Pale4"         | "Pale5"         | "Pale6"
+export type Dark         = "Dark3"         | "Dark4"         | "Dark5"         | "Dark6"
+export type Light        = "Light3"        | "Light4"        | "Light5"        | "Light6"        | "Light7"        | "Light8"        | "Light9"
+export type Sunset       = "Sunset3"       | "Sunset4"       | "Sunset5"       | "Sunset6"       | "Sunset7"       | "Sunset8"       | "Sunset9"       | "Sunset10"        | "Sunset11"
+export type BuRd         = "BuRd3"         | "BuRd4"         | "BuRd5"         | "BuRd6"         | "BuRd7"         | "BuRd8"         | "BuRd9"
+export type TolPRGn      = "TolPRGn3"      | "TolPRGn4"      | "TolPRGn5"      | "TolPRGn6"      | "TolPRGn7"      | "TolPRGn8"      | "TolPRGn9"
+export type TolYlOrBr    = "TolYlOrBr3"    | "TolYlOrBr4"    | "TolYlOrBr5"    | "TolYlOrBr6"    | "TolYlOrBr7"    | "TolYlOrBr8"    | "TolYlOrBr9"
+export type Iridescent   = "Iridescent3"   | "Iridescent4"   | "Iridescent5"   | "Iridescent6"   | "Iridescent7"   | "Iridescent8"   | "Iridescent9"   | "Iridescent10"
+                         | "Iridescent11"  | "Iridescent12"  | "Iridescent13"  | "Iridescent14"  | "Iridescent15"  | "Iridescent16" |  "Iridescent17"  | "Iridescent18"
+                         | "Iridescent19"  | "Iridescent20"  | "Iridescent21"  | "Iridescent22"  | "Iridescent23"
+export type TolRainbow = "TolRainbow3"  | "TolRainbow4"  | "TolRainbow5"  | "TolRainbow6"  | "TolRainbow7"  | "TolRainbow8"  | "TolRainbow9"  | "TolRainbow10"
+                            | "TolRainbow11" | "TolRainbow12" | "TolRainbow13" | "TolRainbow14" | "TolRainbow15" | "TolRainbow16" | "TolRainbow17" | "TolRainbow18"
+                            | "TolRainbow19" | "TolRainbow20" | "TolRainbow21" | "TolRainbow22" | "TolRainbow23"
 
 export type Palette = YlGn
                     | YlGnBu
@@ -732,6 +927,20 @@ export type Palette = YlGn
                     | Category20b
                     | Category20c
                     | Colorblind
+                    | Bright
+                    | HighContrast
+                    | Vibrant
+                    | Muted
+                    | MediumContrast
+                    | Pale
+                    | Dark
+                    | Light
+                    | Sunset
+                    | BuRd
+                    | TolPRGn
+                    | TolYlOrBr
+                    | Iridescent
+                    | TolRainbow
 
 export const YlGn        = {YlGn3, YlGn4, YlGn5, YlGn6, YlGn7, YlGn8, YlGn9}
 export const YlGnBu      = {YlGnBu3, YlGnBu4, YlGnBu5, YlGnBu6, YlGnBu7, YlGnBu8, YlGnBu9}
@@ -777,6 +986,24 @@ export const Category20  = {Category20_3, Category20_4, Category20_5, Category20
 export const Category20b = {Category20b_3, Category20b_4, Category20b_5, Category20b_6, Category20b_7, Category20b_8, Category20b_9, Category20b_10, Category20b_11, Category20b_12, Category20b_13, Category20b_14, Category20b_15, Category20b_16, Category20b_17, Category20b_18, Category20b_19, Category20b_20}
 export const Category20c = {Category20c_3, Category20c_4, Category20c_5, Category20c_6, Category20c_7, Category20c_8, Category20c_9, Category20c_10, Category20c_11, Category20c_12, Category20c_13, Category20c_14, Category20c_15, Category20c_16, Category20c_17, Category20c_18, Category20c_19, Category20c_20}
 export const Colorblind  = {Colorblind3, Colorblind4, Colorblind5, Colorblind6, Colorblind7, Colorblind8}
+export const Bright       = {Bright3, Bright4, Bright5, Bright6, Bright7}
+export const HighContrast = {HighContrast3}
+export const Vibrant      = {Vibrant3, Vibrant4, Vibrant5, Vibrant6, Vibrant7}
+export const Muted        = {Muted3, Muted4, Muted5, Muted6, Muted7, Muted8}
+export const MediumContrast = {MediumContrast3, MediumContrast4, MediumContrast5, MediumContrast6}
+export const Pale         = {Pale3, Pale4, Pale5, Pale6}
+export const Dark         = {Dark3, Dark4, Dark5, Dark6}
+export const Light        = {Light3, Light4, Light5, Light6, Light7, Light8, Light9}
+export const Sunset       = {Sunset3, Sunset4, Sunset5, Sunset6, Sunset7, Sunset8, Sunset9, Sunset10, Sunset11}
+export const BuRd         = {BuRd3, BuRd4, BuRd5, BuRd6, BuRd7, BuRd8, BuRd9}
+export const TolPRGn      = {TolPRGn3, TolPRGn4, TolPRGn5, TolPRGn6, TolPRGn7, TolPRGn8, TolPRGn9}
+export const TolYlOrBr    = {TolYlOrBr3, TolYlOrBr4, TolYlOrBr5, TolYlOrBr6, TolYlOrBr7, TolYlOrBr8, TolYlOrBr9}
+export const Iridescent   = {Iridescent3, Iridescent4, Iridescent5, Iridescent6, Iridescent7, Iridescent8, Iridescent9, Iridescent10,
+                             Iridescent11, Iridescent12, Iridescent13, Iridescent14, Iridescent15, Iridescent16, Iridescent17, Iridescent18,
+                             Iridescent19, Iridescent20, Iridescent21, Iridescent22, Iridescent23}
+export const TolRainbow = {TolRainbow3, TolRainbow4, TolRainbow5, TolRainbow6, TolRainbow7, TolRainbow8, TolRainbow9, TolRainbow10,
+                           TolRainbow11, TolRainbow12, TolRainbow13, TolRainbow14, TolRainbow15, TolRainbow16, TolRainbow17, TolRainbow18,
+                           TolRainbow19, TolRainbow20, TolRainbow21, TolRainbow22, TolRainbow23}
 
 export function linear_palette<T>(palette: T[], n: number): T[] {
   if (n <= palette.length)
@@ -848,6 +1075,38 @@ export function grey(n: number) {
  * * Neither the name of the author nor the names of contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ****************************************************************************
+ * License regarding Paul Tol's color schemes (Bright, HighContrast, Vibrant,
+ * Muted, MediumContrast, Pale, Dark, Light, Sunset, BuRd, TolPRGn, TolYlOrBr,
+ * Iridescent, TolRainbow)
+ *
+ * Copyright (c) 2021, Paul Tol
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * * Neither the name of the copyright holder nor the names of contributors may
+ *   be used to endorse or promote products derived from this software without
+ *   specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
