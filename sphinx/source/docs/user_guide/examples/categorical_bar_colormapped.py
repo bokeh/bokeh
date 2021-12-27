@@ -1,6 +1,6 @@
 from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource
-from bokeh.palettes import Spectral6
+from bokeh.palettes import Bright6
 from bokeh.plotting import figure
 from bokeh.transform import factor_cmap
 
@@ -13,7 +13,7 @@ source = ColumnDataSource(data=dict(fruits=fruits, counts=counts))
 
 p = figure(x_range=fruits, height=250, toolbar_location=None, title="Fruit counts")
 p.vbar(x='fruits', top='counts', width=0.9, source=source, legend_field="fruits",
-       line_color='white', fill_color=factor_cmap('fruits', palette=Spectral6, factors=fruits))
+       line_color='white', fill_color=factor_cmap('fruits', palette=Bright6, factors=fruits))
 
 p.xgrid.grid_line_color = None
 p.y_range.start = 0

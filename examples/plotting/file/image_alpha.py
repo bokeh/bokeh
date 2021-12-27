@@ -17,7 +17,7 @@ p1 = figure(x_range=(0, 10), y_range=(0, 10))
 # Solid line to show effect of alpha
 p1.line([0, 10], [0, 10], color='red', line_width=2)
 # Use alpha kwarg to set alpha value
-img = p1.image(image=[d], x=0, y=0, dw=10, dh=10, palette="Spectral11", alpha=0.7)
+img = p1.image(image=[d], x=0, y=0, dw=10, dh=10, palette="Sunset11", alpha=0.7)
 # Alpha for color mapper attributes can be set explicitly and is applied prior
 # to the global alpha, e.g. NaN color:
 img.glyph.color_mapper.nan_color = (128, 128, 128, 0.1)
