@@ -104,7 +104,7 @@
 # License regarding Paul Tol's color schemes (Bright, HighContrast, Vibrant,
 # Muted, MediumContrast, Pale, Dark, Light, Sunset, BuRd, TolPRGn, TolYlOrBr,
 # Iridescent, TolRainbow)
-# 
+#
 # Copyright (c) 2021, Paul Tol
 # All rights reserved.
 #
@@ -1231,7 +1231,7 @@ BuRd4 = ('#2166AC', '#BBDAEA', '#FAC9B0', '#B2182B')
 BuRd3 = ('#2166AC', '#F7F7F7', '#B2182B')
 
 # This is similar to the Brewer PRGn scheme, with green A6DBA0 shifted to ACD39E to make it print-friendly.
-TolPRGn9 = ('#762A83', '#9970AB', '#C2A5CF', '#E7D4E8', '#F7F7F7', '#D9F0D3', '#ACD39E', '#5AAE61', '#1B7837') 
+TolPRGn9 = ('#762A83', '#9970AB', '#C2A5CF', '#E7D4E8', '#F7F7F7', '#D9F0D3', '#ACD39E', '#5AAE61', '#1B7837')
 TolPRGn8 = ('#762A83', '#9E77B0', '#CCB2D6', '#EDE3EE', '#E5F3E2', '#B8DBAD', '#65B369', '#1B7837')
 TolPRGn7 = ('#762A83', '#A681B7', '#DAC4DF', '#F7F7F7', '#CAE6C1', '#75BA75', '#1B7837')
 TolPRGn6 = ('#762A83', '#B18FC0', '#EADBEB', '#DEF1DA', '#8BC485', '#1B7837')
@@ -1481,7 +1481,7 @@ tol = {
     "TolPRGn": TolPRGn,
     "TolYlOrBr": TolYlOrBr,
     "Iridescent": Iridescent,
-    "TolRainbow": TolRainbow    
+    "TolRainbow": TolRainbow
 }
 
 accessible = {
