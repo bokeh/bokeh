@@ -419,7 +419,13 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import math
 from copy import deepcopy
-from typing import Dict, List, Tuple
+from typing import (
+    Any,
+    Dict,
+    List,
+    Tuple,
+    cast,
+)
 
 # External imports
 import numpy as np
@@ -1469,7 +1475,7 @@ mpl = {
 
 tol = {
     "Bright": Bright,
-    "HighContrast": HighContrast,
+    "HighContrast": cast(Dict[int, Any], HighContrast),
     "Vibrant": Vibrant,
     "Muted": Muted,
     "MediumContrast": MediumContrast,
@@ -1481,7 +1487,7 @@ tol = {
     "TolPRGn": TolPRGn,
     "TolYlOrBr": TolYlOrBr,
     "Iridescent": Iridescent,
-    "TolRainbow": TolRainbow
+    "TolRainbow": TolRainbow,
 }
 
 accessible = {
