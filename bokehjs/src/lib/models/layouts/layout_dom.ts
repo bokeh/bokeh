@@ -18,6 +18,36 @@ import {SizingPolicy, BoxSizing, Size, Layoutable} from "core/layout"
 import {CanvasLayer} from "core/util/canvas"
 import {SerializableState} from "core/view"
 
+import {Sizeable, SizeHint} from "core/layout"
+import {BBox} from "core/util/bbox"
+
+class CSSLayout extends Layoutable {
+  constructor(readonly el: Element) {
+    super()
+  }
+
+  protected _measure(_viewport: Sizeable): SizeHint {
+    return {width: 0, height: 0}
+  }
+
+  override compute(_viewport: Sizeable): void {
+    const style = getComputedStyle(this.el)
+
+    function resolve(value: string, alt: number = 0): number {
+      const number = parseFloat(value)
+      return isNaN(number) ? alt : number
+    }
+
+    const left = resolve(style.left)
+    const top = resolve(style.top)
+    const width = resolve(style.width)
+    const height = resolve(style.height)
+
+    const outer = new BBox({left, top, width, height})
+    this.set_geometry(outer)
+  }
+}
+
 export abstract class LayoutDOMView extends UIElementView {
   override model: LayoutDOM
 
@@ -149,9 +179,11 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   _update_layout(): void {
-    const sizing = this.box_sizing()
+    this.layout = new CSSLayout(this.el)
 
+    const sizing = this.box_sizing()
     const {style} = this.el
+
     style.display = (sizing.visible ?? true) ? "" : "none"
     style.width = sizing.width != null ? `${sizing.width}px` : "auto"
     style.height = sizing.height != null ? `${sizing.height}px` : "auto"
@@ -225,7 +257,7 @@ export abstract class LayoutDOMView extends UIElementView {
 
   compute_layout(): void {
     const start = Date.now()
-    this.layout?.compute(this._viewport)
+    this.layout.compute(this._viewport)
     this.update_position()
     this.after_layout()
     logger.debug(`layout computed in ${Date.now() - start} ms`)
