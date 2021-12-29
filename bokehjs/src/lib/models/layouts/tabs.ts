@@ -1,5 +1,4 @@
-import {Grid} from "core/layout"
-import {div, size, scroll_size, show, hide, display, undisplay, children, StyleSheetLike} from "core/dom"
+import {div, show, hide, children/*, size, scroll_size, display, undisplay*/, StyleSheetLike} from "core/dom"
 import {sum, remove_at} from "core/util/array"
 import {clamp} from "core/util/math"
 import {Location} from "core/enums"
@@ -22,6 +21,7 @@ export class TabsView extends LayoutDOMView {
   protected headers_el: HTMLElement
   protected left_el: HTMLElement
   protected right_el: HTMLElement
+  protected stack_el: HTMLElement
 
   override connect_signals(): void {
     super.connect_signals()
@@ -38,17 +38,47 @@ export class TabsView extends LayoutDOMView {
   }
 
   override _update_layout(): void {
-    const panels = this.child_views.map((child_view) => {
-      return {layout: child_view.layout, row: 1, col: 1}
-    })
+    super._update_layout()
 
-    this.layout = new Grid(panels)
-    this.layout.set_sizing(this.box_sizing())
+    const {style} = this.el
+    style.display = "flex"
+
+    switch (this.model.tabs_location) {
+      case "above": {
+        style.flexDirection = "column"
+        this.header_el.style.order = "0"
+        break
+      }
+      case "below": {
+        style.flexDirection = "column"
+        this.header_el.style.order = "1"
+        break
+      }
+      case "left": {
+        style.flexDirection = "row"
+        this.header_el.style.order = "0"
+        break
+      }
+      case "right": {
+        style.flexDirection = "row"
+        this.header_el.style.order = "1"
+        break
+      }
+    }
+
+    this.el.style.flex = "1 1 auto"
+    this.header_el.style.flex = "0 0 auto"
+
+    for (const child of this.child_views) {
+      child.el.style.gridArea = "1 / 1 / 1 / 1"
+    }
   }
+
 
   override update_position(): void {
     super.update_position()
 
+    /*
     const loc = this.model.tabs_location
     const vertical = loc == "above" || loc == "below"
 
@@ -75,6 +105,7 @@ export class TabsView extends LayoutDOMView {
         undisplay(this.scroll_el)
       }
     }
+    */
 
     const {child_views} = this
     for (const child_view of child_views)
@@ -132,6 +163,19 @@ export class TabsView extends LayoutDOMView {
     const loc = this.model.tabs_location
     this.header_el = div({class: [tabs.tabs_header, tabs[loc]]}, this.scroll_el, this.wrapper_el)
     this.shadow_el.appendChild(this.header_el)
+
+    this.stack_el = div({
+      style: {
+        display: "grid",
+        gridTemplateRows: "1fr",
+        gridTemplateColumns: "1fr",
+      },
+    })
+    this.shadow_el.appendChild(this.stack_el)
+
+    for (const child of this.child_views) {
+      this.stack_el.appendChild(child.el)
+    }
   }
 
   private _scroll_index = 0
