@@ -1,5 +1,5 @@
-import {Grid, ContentBox, Layoutable, Sizeable} from "core/layout"
-import {div, position, size, scroll_size, show, hide, display, undisplay, children, StyleSheetLike} from "core/dom"
+import {Grid} from "core/layout"
+import {div, size, scroll_size, show, hide, display, undisplay, children, StyleSheetLike} from "core/dom"
 import {sum, remove_at} from "core/util/array"
 import {clamp} from "core/util/math"
 import {Location} from "core/enums"
@@ -15,8 +15,6 @@ import icons_css from "styles/icons.css"
 
 export class TabsView extends LayoutDOMView {
   override model: Tabs
-
-  protected header: Layoutable
 
   protected header_el: HTMLElement
   protected wrapper_el: HTMLElement
@@ -40,57 +38,16 @@ export class TabsView extends LayoutDOMView {
   }
 
   override _update_layout(): void {
-    const loc = this.model.tabs_location
-    const vertical = loc == "above" || loc == "below"
-
-    // XXX: this is a hack, this should be handled by "fit" policy in grid layout
-    const {scroll_el, headers_el} = this
-    this.header = new class extends ContentBox {
-      protected override _measure(viewport: Sizeable) {
-        const min_headers = 3
-
-        const scroll = size(scroll_el)
-        const headers = children(headers_el).slice(0, min_headers).map((el) => size(el))
-
-        const {width, height} = super._measure(viewport)
-        if (vertical) {
-          const min_width = scroll.width + sum(headers.map((size) => size.width))
-          return {width: viewport.width != Infinity ? viewport.width : min_width, height}
-        } else {
-          const min_height = scroll.height + sum(headers.map((size) => size.height))
-          return {width, height: viewport.height != Infinity ? viewport.height : min_height}
-        }
-      }
-    }(this.header_el)
-    if (vertical)
-      this.header.set_sizing({width_policy: "fit", height_policy: "fixed"})
-    else
-      this.header.set_sizing({width_policy: "fixed", height_policy: "fit"})
-
-    let row = 1
-    let col = 1
-    switch (loc) {
-      case "above": row -= 1; break
-      case "below": row += 1; break
-      case "left":  col -= 1; break
-      case "right": col += 1; break
-    }
-
-    const header = {layout: this.header, row, col}
-
     const panels = this.child_views.map((child_view) => {
       return {layout: child_view.layout, row: 1, col: 1}
     })
 
-    this.layout = new Grid([header, ...panels])
+    this.layout = new Grid(panels)
     this.layout.set_sizing(this.box_sizing())
   }
 
   override update_position(): void {
     super.update_position()
-
-    this.header_el.style.position = "absolute" // XXX: do it in position()
-    position(this.header_el, this.header.bbox)
 
     const loc = this.model.tabs_location
     const vertical = loc == "above" || loc == "below"
@@ -98,7 +55,7 @@ export class TabsView extends LayoutDOMView {
     const scroll_el_size = size(this.scroll_el)
     const headers_el_size = scroll_size(this.headers_el)
     if (vertical) {
-      const {width} = this.header.bbox
+      const width = parseFloat(getComputedStyle(this.header_el).width)
       if (headers_el_size.width > width) {
         this.wrapper_el.style.maxWidth = `${width - scroll_el_size.width}px`
         display(this.scroll_el)
@@ -108,7 +65,7 @@ export class TabsView extends LayoutDOMView {
         undisplay(this.scroll_el)
       }
     } else {
-      const {height} = this.header.bbox
+      const height = parseFloat(getComputedStyle(this.header_el).height)
       if (headers_el_size.height > height) {
         this.wrapper_el.style.maxHeight = `${height - scroll_el_size.height}px`
         display(this.scroll_el)

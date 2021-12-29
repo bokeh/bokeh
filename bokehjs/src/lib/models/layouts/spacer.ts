@@ -1,5 +1,4 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
-import {LayoutItem} from "core/layout"
 import * as p from "core/properties"
 
 export class SpacerView extends LayoutDOMView {
@@ -7,11 +6,6 @@ export class SpacerView extends LayoutDOMView {
 
   get child_models(): LayoutDOM[] {
     return []
-  }
-
-  override _update_layout(): void {
-    this.layout = new LayoutItem()
-    this.layout.set_sizing(this.box_sizing())
   }
 }
 

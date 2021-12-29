@@ -176,7 +176,10 @@ export class DataTableView extends WidgetView {
 
   override update_position(): void {
     super.update_position()
-    const {width, height} = this.layout.bbox
+    const style = getComputedStyle(this.el)
+    const width = parseFloat(style.width)
+    const height = parseFloat(style.height)
+    //const {width, height} = this.layout.bbox
     position(this.wrapper_el, {x: 0, y: 0, width, height})
     this.grid.resizeCanvas()
   }

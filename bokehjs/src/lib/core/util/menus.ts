@@ -132,15 +132,23 @@ export class ContextMenu { //extends DOMComponentView {
       return at
     })()
 
-    const rect = this.target.getBoundingClientRect()
-    const style = getComputedStyle(this.target)
-    const margin_left = parseFloat(style.marginLeft)
-    const margin_top = parseFloat(style.marginTop)
+    const parent_el = this.el.offsetParent ?? document.body
+    const origin = (() => {
+      const rect = parent_el.getBoundingClientRect()
+      const style = getComputedStyle(parent_el)
+      return {
+        left: rect.left - parseFloat(style.marginLeft),
+        right: rect.right + parseFloat(style.marginRight),
+        top: rect.top - parseFloat(style.marginTop),
+        bottom: rect.bottom + parseFloat(style.marginBottom),
+      }
+    })()
 
-    this.el.style.left = pos.left != null ? `${pos.left - (rect.left - margin_left)}px` : ""
-    this.el.style.top = pos.top != null ? `${pos.top - (rect.top - margin_top)}px` : ""
-    this.el.style.right = pos.right != null ? `${rect.right + margin_left - pos.right}px` : ""
-    this.el.style.bottom = pos.bottom != null ? `${rect.bottom + margin_top - pos.bottom}px` : ""
+    const {style} = this.el
+    style.left = pos.left != null ? `${pos.left - origin.left}px` : "auto"
+    style.top = pos.top != null ? `${pos.top - origin.top}px` : "auto"
+    style.right = pos.right != null ? `${origin.right - pos.right}px` : "auto"
+    style.bottom = pos.bottom != null ? `${origin.bottom - pos.bottom}px` : "auto"
   }
 
   styles(): string[] {

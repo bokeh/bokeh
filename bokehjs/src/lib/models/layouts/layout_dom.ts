@@ -4,7 +4,7 @@ import {IterViews} from "core/view"
 import {Signal} from "core/signaling"
 import {Color} from "core/types"
 import {Align, SizingMode} from "core/enums"
-import {position, classes, extents, undisplayed, StyleSheetLike} from "core/dom"
+import {classes, StyleSheetLike} from "core/dom"
 import {logger} from "core/logging"
 import {BBox} from "core/util/bbox"
 import {isNumber, isArray} from "core/util/types"
@@ -29,13 +29,9 @@ export abstract class LayoutDOMView extends UIElementView {
 
   protected _child_views: Map<LayoutDOM, LayoutDOMView>
 
-  protected _on_resize?: () => void
-
-  protected _offset_parent: Element | null = null
-
-  protected _parent_observer?: number
-
   protected _viewport: Partial<Size> = {}
+
+  protected _resize_observer: ResizeObserver
 
   layout: Layoutable
 
@@ -65,7 +61,6 @@ export abstract class LayoutDOMView extends UIElementView {
 
   override initialize(): void {
     super.initialize()
-    this.el.style.position = this.is_layout_root ? "relative" : "absolute"
     this._child_views = new Map()
   }
 
@@ -78,6 +73,7 @@ export abstract class LayoutDOMView extends UIElementView {
     for (const child_view of this.child_views)
       child_view.remove()
     this._child_views.clear()
+    this._resize_observer.disconnect()
     super.remove()
   }
 
@@ -97,23 +93,15 @@ export abstract class LayoutDOMView extends UIElementView {
       }
     })
 
-    if (this.is_layout_root) {
-      this._on_resize = () => this.resize_layout()
-      window.addEventListener("resize", this._on_resize)
+    this._resize_observer = new ResizeObserver((entries) => {
+      const {width, height} = entries[0].contentRect
+      console.log("resize", `${this}`, width, height)
+      this.resize_layout(width, height)
 
-      this._parent_observer = setInterval(() => {
-        const offset_parent = this.el.offsetParent
-
-        if (this._offset_parent != offset_parent) {
-          this._offset_parent = offset_parent
-
-          if (offset_parent != null) {
-            this.compute_viewport()
-            this.invalidate_layout()
-          }
-        }
-      }, 250)
-    }
+      this._has_finished = true
+      this.notify_finished()
+    })
+    this._resize_observer.observe(this.el, {box: "border-box"})
 
     const p = this.model.properties
     this.on_change([
@@ -135,10 +123,6 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   override disconnect_signals(): void {
-    if (this._parent_observer != null)
-      clearTimeout(this._parent_observer)
-    if (this._on_resize != null)
-      window.removeEventListener("resize", this._on_resize)
     super.disconnect_signals()
   }
 
@@ -181,21 +165,35 @@ export abstract class LayoutDOMView extends UIElementView {
     }
   }
 
-  abstract _update_layout(): void
+  _update_layout(): void {
+    const sizing = this.box_sizing()
+
+    const {style} = this.el
+    style.display = (sizing.visible ?? true) ? "" : "none"
+    style.width = sizing.width != null ? `${sizing.width}px` : "auto"
+    style.height = sizing.height != null ? `${sizing.height}px` : "auto"
+    style.minWidth = `${sizing.min_width}px`
+    style.minHeight = `${sizing.min_height}px`
+    style.aspectRatio = `${sizing.aspect}`
+
+    if (sizing.margin != null) {
+      const {left, right, top, bottom} = sizing.margin
+      style.margin = `${top}px ${right}px ${bottom}px ${left}px`
+    }
+    // TODO: padding
+    // valign
+    // halign
+  }
 
   update_layout(): void {
-    for (const child_view of this.child_views)
+    for (const child_view of this.child_views) {
       child_view.update_layout()
+    }
 
     this._update_layout()
   }
 
   update_position(): void {
-    this.el.style.display = this.model.visible ? "block" : "none"
-
-    const margin = this.is_layout_root ? this.layout.sizing.margin : undefined
-    position(this.el, this.layout.bbox, margin)
-
     for (const child_view of this.child_views)
       child_view.update_position()
   }
@@ -203,18 +201,24 @@ export abstract class LayoutDOMView extends UIElementView {
   after_layout(): void {
     for (const child_view of this.child_views)
       child_view.after_layout()
-
-    this._has_finished = true
   }
 
-  compute_viewport(): void {
-    this._viewport = this._viewport_size()
+  update_viewport(width?: number, height?: number): boolean {
+    if (width == null)
+      width = parseFloat(getComputedStyle(this.el).width)
+    if (height == null)
+      height = parseFloat(getComputedStyle(this.el).height)
+
+    if (this._viewport.width != width || this._viewport.height != height) {
+      this._viewport = {width, height}
+      return true
+    }
+
+    return false
   }
 
   override renderTo(element: Node): void {
     element.appendChild(this.el)
-    this._offset_parent = this.el.offsetParent
-    this.compute_viewport()
     this.build()
     this.notify_finished()
   }
@@ -225,6 +229,7 @@ export abstract class LayoutDOMView extends UIElementView {
 
     this.render()
     this.update_layout()
+    this.update_viewport()
     this.compute_layout()
 
     return this
@@ -237,20 +242,20 @@ export abstract class LayoutDOMView extends UIElementView {
 
   compute_layout(): void {
     const start = Date.now()
-    this.layout.compute(this._viewport)
+    this.layout?.compute(this._viewport)
     this.update_position()
     this.after_layout()
     logger.debug(`layout computed in ${Date.now() - start} ms`)
   }
 
-  resize_layout(): void {
-    this.root.compute_viewport()
-    this.root.compute_layout()
+  resize_layout(width: number, height: number): void {
+    if (this.update_viewport(width, height))
+      this.compute_layout()
   }
 
   invalidate_layout(): void {
-    this.root.update_layout()
-    this.root.compute_layout()
+    this.update_layout()
+    this.compute_layout()
   }
 
   invalidate_render(): void {
@@ -271,11 +276,11 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   protected _width_policy(): SizingPolicy {
-    return this.model.width != null ? "fixed" : "fit"
+    return "fixed"
   }
 
   protected _height_policy(): SizingPolicy {
-    return this.model.height != null ? "fixed" : "fit"
+    return "fixed"
   }
 
   box_sizing(): Partial<BoxSizing> {
@@ -363,42 +368,6 @@ export abstract class LayoutDOMView extends UIElementView {
       sizing.halign = sizing.valign = align
 
     return sizing
-  }
-
-  protected _viewport_size(): Partial<Size> {
-    return undisplayed(this.el, () => {
-      let measuring: HTMLElement | null = this.el
-
-      while (measuring = measuring.parentElement) {
-        // .bk-root element doesn't bring any value
-        if (measuring.classList.contains("bk-root"))
-          continue
-
-        // we reached <body> element, so use viewport size
-        if (measuring == document.body) {
-          const {margin: {left, right, top, bottom}} = extents(document.body)
-          const width  = Math.ceil(document.documentElement.clientWidth  - left - right)
-          const height = Math.ceil(document.documentElement.clientHeight - top  - bottom)
-          return {width, height}
-        }
-
-        // stop on first element with sensible dimensions
-        const {padding: {left, right, top, bottom}} = extents(measuring)
-        const {width, height} = measuring.getBoundingClientRect()
-
-        const inner_width = Math.ceil(width - left - right)
-        const inner_height = Math.ceil(height - top - bottom)
-
-        if (inner_width > 0 || inner_height > 0)
-          return {
-            width: inner_width > 0 ? inner_width : undefined,
-            height: inner_height > 0 ? inner_height : undefined,
-          }
-      }
-
-      // this element is detached from DOM
-      return {}
-    })
   }
 
   export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {

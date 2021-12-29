@@ -228,43 +228,6 @@ export abstract class Layoutable {
   }
 }
 
-export class LayoutItem extends Layoutable {
-
-  protected _measure(viewport: Size): SizeHint {
-    const {width_policy, height_policy} = this.sizing
-
-    const width = (() => {
-      const {width} = this.sizing
-      if (viewport.width == Infinity) {
-        return width ?? 0
-      } else {
-        switch (width_policy) {
-          case "fixed": return width ?? 0
-          case "min":   return width != null ? min(viewport.width, width) : 0
-          case "fit":   return width != null ? min(viewport.width, width) : viewport.width
-          case "max":   return width != null ? max(viewport.width, width) : viewport.width
-        }
-      }
-    })()
-
-    const height = (() => {
-      const {height} = this.sizing
-      if (viewport.height == Infinity) {
-        return height ?? 0
-      } else {
-        switch (height_policy) {
-          case "fixed": return height ?? 0
-          case "min":   return height != null ? min(viewport.height, height) : 0
-          case "fit":   return height != null ? min(viewport.height, height) : viewport.height
-          case "max":   return height != null ? max(viewport.height, height) : viewport.height
-        }
-      }
-    })()
-
-    return {width, height}
-  }
-}
-
 export abstract class ContentLayoutable extends Layoutable {
 
   protected abstract _content_size(): Sizeable

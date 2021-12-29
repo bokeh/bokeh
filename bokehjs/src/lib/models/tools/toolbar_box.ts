@@ -3,7 +3,6 @@ import {Location} from "core/enums"
 import {Toolbar, ToolbarView} from "./toolbar"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
-import {ContentBox} from "core/layout"
 
 export class ToolbarBoxView extends LayoutDOMView {
   override model: ToolbarBox
@@ -39,25 +38,9 @@ export class ToolbarBoxView extends LayoutDOMView {
     return [this.model.toolbar as any] // XXX
   }
 
-  override _update_layout(): void {
-    this.layout = new ContentBox(this.child_views[0].el)
-
-    const {toolbar} = this.model
-
-    if (toolbar.horizontal) {
-      this.layout.set_sizing({
-        width_policy: "fit", min_width: 100, height_policy: "fixed",
-      })
-    } else {
-      this.layout.set_sizing({
-        width_policy: "fixed", height_policy: "fit", min_height: 100,
-      })
-    }
-  }
-
   override after_layout(): void {
     super.after_layout()
-    this.toolbar_view.layout.bbox = this.layout.bbox
+    //this.toolbar_view.layout.bbox = this.layout.bbox
     this.toolbar_view.render() // render the second time to revise overflow
   }
 }

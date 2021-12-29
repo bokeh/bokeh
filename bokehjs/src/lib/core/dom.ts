@@ -396,36 +396,6 @@ export enum Keys {
   Delete    = 46,
 }
 
-export function undisplayed<T>(el: HTMLElement, fn: () => T): T {
-  const {display} = el.style
-  el.style.display = "none"
-  try {
-    return fn()
-  } finally {
-    el.style.display = display
-  }
-}
-
-export function unsized<T>(el: HTMLElement, fn: () => T): T {
-  return sized(el, {}, fn)
-}
-
-export function sized<T>(el: HTMLElement, size: Partial<Size>, fn: () => T): T {
-  const {width, height, position, display} = el.style
-  el.style.position = "absolute"
-  el.style.display = ""
-  el.style.width = size.width != null && size.width != Infinity ? `${size.width}px` : "auto"
-  el.style.height = size.height != null && size.height != Infinity ? `${size.height}px` : "auto"
-  try {
-    return fn()
-  } finally {
-    el.style.position = position
-    el.style.display = display
-    el.style.width = width
-    el.style.height = height
-  }
-}
-
 export class StyleSheet {
   readonly el: HTMLStyleElement
 

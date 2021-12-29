@@ -121,7 +121,7 @@ describe("Plot module", () => {
 
     it("layout should set element style correctly", async () => {
       const view = await new_plot_view({width: 425, height: 658})
-      const expected_style = "position: relative; display: block; left: 0px; top: 0px; width: 425px; height: 658px; margin: 0px;"
+      const expected_style = "width: 425px; height: 658px; margin: 0px;"
       expect(view.el.style.cssText).to.be.equal(expected_style)
     })
 

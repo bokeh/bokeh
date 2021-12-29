@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import abspath, expanduser
+from typing import Sequence
 from warnings import warn
 
 # External imports
@@ -51,7 +52,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def save(obj: LayoutDOM, filename: PathLike | None = None, resources: ResourcesLike | None = None,
+def save(obj: LayoutDOM | Sequence[LayoutDOM], filename: PathLike | None = None, resources: ResourcesLike | None = None,
         title: str | None = None, template: Template | None = None, state: State | None = None) -> str:
     ''' Save an HTML file with the data for the current document.
 
@@ -154,7 +155,7 @@ def _get_save_title(state: State, title: str | None, suppress_warning: bool) -> 
 
     return DEFAULT_TITLE
 
-def _save_helper(obj: LayoutDOM, filename: PathLike, resources: Resources | None,
+def _save_helper(obj: LayoutDOM | Sequence[LayoutDOM], filename: PathLike, resources: Resources | None,
         title: str | None, template: Template | None, theme: Theme | None = None) -> None:
     '''
 

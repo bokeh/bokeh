@@ -10,7 +10,7 @@ export abstract class ButtonGroupView extends OrientedControlView {
   override model: ButtonGroup
 
   protected override get default_size(): number | undefined {
-    return this.orientation == "horizontal" ? super.default_size : undefined
+    return this.model.orientation == "horizontal" ? super.default_size : undefined
   }
 
   protected _buttons: HTMLElement[]

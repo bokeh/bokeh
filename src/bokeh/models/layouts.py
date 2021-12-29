@@ -466,15 +466,6 @@ class Row(Box):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
-    Describes how the component should maintain its columns' widths.
-
-    .. note::
-        This is an experimental feature and may change in future. Use it at your
-        own discretion.
-
-    """)
-
     def _sphinx_height_hint(self) -> int|None:
         if any(x._sphinx_height_hint() is None for x in self.children):
             return None
@@ -490,15 +481,6 @@ class Column(Box):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
-    Describes how the component should maintain its rows' heights.
-
-    .. note::
-        This is an experimental feature and may change in future. Use it at your
-        own discretion.
-
-    """)
 
     def _sphinx_height_hint(self) -> int|None:
         if any(x._sphinx_height_hint() is None for x in self.children):

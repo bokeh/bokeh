@@ -262,6 +262,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   override _update_layout(): void {
+    super._update_layout()
+
     // TODO: invalidating all should imply "needs paint"
     this._invalidate_all = true
     this._needs_paint = true
@@ -521,7 +523,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
 
     if (needs_layout())
-      this.root.compute_layout()
+      this./*root.*/compute_layout()
   }
 
   get_renderer_views(): RendererView[] {
