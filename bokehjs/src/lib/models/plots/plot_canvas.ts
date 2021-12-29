@@ -31,6 +31,7 @@ import {BorderLayout} from "core/layout/border"
 import {Row, Column} from "core/layout/grid"
 import {Panel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
+import {parse_css_font_size} from "core/util/text"
 import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
 import {StateInfo, StateManager} from "./state_manager"
 import {settings} from "core/settings"
@@ -93,6 +94,19 @@ export class PlotView extends LayoutDOMView implements Renderable {
       }
     }
     return view
+  }
+
+  get base_font_size(): number | null {
+    const font_size = getComputedStyle(this.el).fontSize
+    const result = parse_css_font_size(font_size)
+
+    if (result != null) {
+      const {value, unit} = result
+      if (unit == "px")
+        return value
+    }
+
+    return null
   }
 
   /*protected*/ renderer_views: Map<Renderer, RendererView>
