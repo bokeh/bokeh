@@ -40,7 +40,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   _x_anchor: "left" | "center" | "right" = "left"
   _y_anchor: "top"  | "center" | "baseline" | "bottom" = "center"
 
-  _base_font_size: number = 13 // the same as .bk-root's font-size (13px)
+  _base_font_size: number = 13 // the same as :host's font-size (13px)
 
   set base_font_size(v: number | null | undefined) {
     if (v != null)

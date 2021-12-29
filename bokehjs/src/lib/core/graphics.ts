@@ -44,7 +44,7 @@ export abstract class GraphicsBox {
   text_height_metric?: TextHeightMetric
   align: "auto" | "left" | "center" | "right" | "justify" = "left"
 
-  _base_font_size: number = 13 // the same as .bk-root's font-size (13px)
+  _base_font_size: number = 13 // the same as :host's font-size (13px)
 
   _x_anchor: "left" | "center" | "right" = "left"
   _y_anchor: "top"  | "center" | "baseline" | "bottom" = "center"

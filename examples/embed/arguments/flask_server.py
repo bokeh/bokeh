@@ -21,11 +21,9 @@ home_html = """
 <!DOCTYPE html>
 <html lang="en">
   <body>
-    <div class="bk-root">
-      <h1><a href="/batch/1"> Batch 1 (cos)</a></h1>
-      <h1><a href="/batch/2"> Batch 2 (sin)</a></h1>
-      <h1><a href="/batch/3"> Batch 3 (tan)</a></h1>
-    </div>
+    <h1><a href="/batch/1"> Batch 1 (cos)</a></h1>
+    <h1><a href="/batch/2"> Batch 2 (sin)</a></h1>
+    <h1><a href="/batch/3"> Batch 3 (tan)</a></h1>
   </body>
 </html>
 """

@@ -191,7 +191,7 @@ this:
 
 .. code-block:: html
 
-    <div class="bk-root" id="9574d123-9332-4b5f-96cc-6323bef37f40"></div>
+    <div id="9574d123-9332-4b5f-96cc-6323bef37f40"></div>
 
 You can insert or template this script and its companion ``<div>`` in an HTML
 document and, when the script executes, your plot replaces the ``<div>``.
@@ -357,9 +357,9 @@ Running ``python scatter.py`` prints out the following:
     </script>
 
         {
-            'Green': '\n<div class="bk-root" id="e89297cf-a2dc-4edd-8993-e16f0ca6af04"></div>',
-            'Blue': '\n<div class="bk-root" id="eeb9a417-02a1-47e3-ab82-221abe8a1644"></div>',
-            'Red': '\n<div class="bk-root" id="c311f123-368f-43ba-88b6-4e3ecd9aed94"></div>'
+            'Green': '\n<div id="e89297cf-a2dc-4edd-8993-e16f0ca6af04"></div>',
+            'Blue': '\n<div id="eeb9a417-02a1-47e3-ab82-221abe8a1644"></div>',
+            'Red': '\n<div id="c311f123-368f-43ba-88b6-4e3ecd9aed94"></div>'
         }
 
 You can then insert the resulting script and ``<div>`` elements into a

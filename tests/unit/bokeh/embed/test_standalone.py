@@ -257,7 +257,6 @@ class Test_components:
 
         el = els[0]
         assert set(el.attrs) == {"class", "id", "data-root-id"}
-        assert el.attrs["class"] == ["bk-root"]
         assert el.attrs["id"] == "ID"
         assert el.attrs["data-root-id"] == test_plot.id
         assert el.string is None
