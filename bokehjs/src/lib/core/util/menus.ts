@@ -1,4 +1,4 @@
-import {div, style, classes, empty, remove, Keys} from "../dom"
+import {div, style, empty, remove, Keys} from "../dom"
 import {Orientation} from "../enums"
 import {reversed} from "./array"
 
@@ -162,7 +162,7 @@ export class ContextMenu { //extends DOMComponentView {
 
   render(): void {
     this.empty()
-    classes(this.el).add(menus[this.orientation])
+    this.el.classList.add(menus[this.orientation])
 
     const items = this.reversed ? reversed(this.items) : this.items
     for (const item of items) {

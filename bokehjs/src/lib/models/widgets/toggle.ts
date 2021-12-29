@@ -1,5 +1,4 @@
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
-import {classes} from "core/dom"
 import {ButtonClick} from "core/bokeh_events"
 import * as p from "core/properties"
 
@@ -25,7 +24,7 @@ export class ToggleView extends AbstractButtonView {
   }
 
   protected _update_active(): void {
-    classes(this.button_el).toggle(buttons.active, this.model.active)
+    this.button_el.classList.toggle(buttons.active, this.model.active)
   }
 }
 

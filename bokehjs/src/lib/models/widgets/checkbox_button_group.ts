@@ -1,8 +1,6 @@
 import {ButtonGroup, ButtonGroupView} from "./button_group"
 
-import {classes} from "core/dom"
 import * as p from "core/properties"
-
 import * as buttons from "styles/buttons.css"
 
 export class CheckboxButtonGroupView extends ButtonGroupView {
@@ -21,8 +19,8 @@ export class CheckboxButtonGroupView extends ButtonGroupView {
   protected _update_active(): void {
     const {active} = this
 
-    this._buttons.forEach((button, i) => {
-      classes(button).toggle(buttons.active, active.has(i))
+    this._buttons.forEach((button_el, i) => {
+      button_el.classList.toggle(buttons.active, active.has(i))
     })
   }
 }
