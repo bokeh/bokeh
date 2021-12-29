@@ -9,7 +9,7 @@ import * as p from "core/properties"
 export class DecorationView extends View {
   override model: Decoration
   visuals: Decoration.Visuals
-  override parent: RendererView
+  override readonly parent: RendererView
 
   marking: MarkingView
 

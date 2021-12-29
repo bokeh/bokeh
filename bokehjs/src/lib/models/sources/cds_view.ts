@@ -10,7 +10,7 @@ import {ColumnarDataSource} from "./columnar_data_source"
 
 export class CDSViewView extends View {
   override model: CDSView
-  override parent: View & {readonly data_source: p.Property<ColumnarDataSource>}
+  override readonly parent: View & {readonly data_source: p.Property<ColumnarDataSource>}
 
   override initialize(): void {
     super.initialize()

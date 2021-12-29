@@ -19,8 +19,6 @@ export abstract class DOMView extends View {
     return this.shadow_el ?? this.el
   }
 
-  override readonly root: DOMView
-
   override initialize(): void {
     super.initialize()
     this.el = this._createElement()

@@ -10,7 +10,7 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 export abstract class MarkingView extends View implements visuals.Renderable {
   override model: Marking
   visuals: Marking.Visuals
-  override parent: RendererView
+  override readonly parent: RendererView
 
   size: p.Uniform<number>
 

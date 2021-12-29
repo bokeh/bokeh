@@ -6,7 +6,7 @@ import {RendererView} from "models/renderers/renderer"
 
 export abstract class BaseTextView extends View {
   override model: BaseText
-  override parent: RendererView
+  override readonly parent: RendererView
 
   abstract graphics(): GraphicsBox
 }
