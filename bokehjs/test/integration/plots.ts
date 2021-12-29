@@ -252,7 +252,6 @@ describe("Plot", () => {
     const {view, el} = await display(plot, [200, 200])
     el.style.width = "300px"
     el.style.height = "300px"
-    view.resize_layout() // TODO: ResizeObserver
     await view.ready
   })
 
