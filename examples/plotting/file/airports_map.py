@@ -1,3 +1,13 @@
+'''This example shows the same data on two separate tile plots.
+The left plot uses the built-in CartoDB tile source, and the right plot uses
+a customized tile source configured for OpenStreetMap
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.add_tile, bokeh.plotting.Figure.circle
+    :refs: :ref:`userguide_geo` > :ref:`userguide_geo_gmap`, :ref:`userguide_geo` > :ref:`userguide_geo_tile` > :ref:`userguide_geo_tile_source`
+    :keywords: tile, map, field, elevation, geo
+
+'''
 from bokeh.layouts import column, gridplot
 from bokeh.models import Div, Range1d, WMTSTileSource
 from bokeh.plotting import figure, show
