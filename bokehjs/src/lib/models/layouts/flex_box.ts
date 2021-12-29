@@ -2,9 +2,9 @@ import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import * as p from "core/properties"
 import {unreachable} from "core/util/assert"
 
-export abstract class BoxView extends LayoutDOMView {
-  override model: Box
-  protected abstract _orientation: "row" | "column"
+export abstract class FlexBoxView extends LayoutDOMView {
+  override model: FlexBox
+  protected abstract _direction: "row" | "column"
 
   override connect_signals(): void {
     super.connect_signals()
@@ -16,16 +16,17 @@ export abstract class BoxView extends LayoutDOMView {
   }
 
   override _update_layout(): void {
-    const {style} = this.el
+    super._update_layout()
 
+    const {style} = this.el
     style.display = "flex"
-    style.flexDirection = this._orientation
+    style.flexDirection = this._direction
     style.gap = `${this.model.spacing}px`
 
     for (const view of this.child_views) {
       const sizing = view.box_sizing()
       const flex = (() => {
-        const policy = this._orientation == "row" ? sizing.width_policy : sizing.height_policy
+        const policy = this._direction == "row" ? sizing.width_policy : sizing.height_policy
         switch (policy) {
           case "fixed": return "0 0 auto"
           case "fit": return "1 1 auto"
@@ -39,7 +40,7 @@ export abstract class BoxView extends LayoutDOMView {
   }
 }
 
-export namespace Box {
+export namespace FlexBox {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutDOM.Props & {
@@ -48,18 +49,18 @@ export namespace Box {
   }
 }
 
-export interface Box extends Box.Attrs {}
+export interface FlexBox extends FlexBox.Attrs {}
 
-export abstract class Box extends LayoutDOM {
-  override properties: Box.Props
-  override __view_type__: BoxView
+export abstract class FlexBox extends LayoutDOM {
+  override properties: FlexBox.Props
+  override __view_type__: FlexBoxView
 
-  constructor(attrs?: Partial<Box.Attrs>) {
+  constructor(attrs?: Partial<FlexBox.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.define<Box.Props>(({Number, Array, Ref}) => ({
+    this.define<FlexBox.Props>(({Number, Array, Ref}) => ({
       children: [ Array(Ref(LayoutDOM)), [] ],
       spacing:  [ Number, 0 ],
     }))

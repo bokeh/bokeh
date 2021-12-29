@@ -1,19 +1,19 @@
-import {Box, BoxView} from "./box"
+import {FlexBox, FlexBoxView} from "./flex_box"
 import * as p from "core/properties"
 
-export class ColumnView extends BoxView {
+export class ColumnView extends FlexBoxView {
   override model: Column
-  protected _orientation = "column" as const
+  protected _direction = "column" as const
 }
 
 export namespace Column {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = Box.Props
+  export type Props = FlexBox.Props
 }
 
 export interface Column extends Column.Attrs {}
 
-export class Column extends Box {
+export class Column extends FlexBox {
   override properties: Column.Props
   override __view_type__: ColumnView
 
