@@ -18,6 +18,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh._testing.plugins.project import SinglePlotPage
 from bokeh._testing.util.selenium import RECORD
 from bokeh.models import CustomAction, CustomJS
 from bokeh.plotting import figure
@@ -33,7 +34,7 @@ pytest_plugins = (
 
 @pytest.mark.selenium
 class Test_CustomAction:
-    def test_tap_triggers_callback(self, single_plot_page) -> None:
+    def test_tap_triggers_callback(self, single_plot_page: SinglePlotPage) -> None:
         plot = figure(height=800, width=1000, tools='')
         plot.rect(x=[1, 2], y=[1, 1], width=1, height=1)
         plot.add_tools(CustomAction(callback=CustomJS(code=RECORD("activated", "true"))))

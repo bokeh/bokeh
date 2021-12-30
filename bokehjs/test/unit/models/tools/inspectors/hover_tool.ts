@@ -100,124 +100,124 @@ describe("HoverTool", () => {
 
     const html =
 `
-<div class="bk" style="display: table; border-spacing: 2px;">
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">index: </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">0</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+<div style="display: table; border-spacing: 2px;">
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">index: </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">0</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">(x,y): </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">(10, 20)</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">(x,y): </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">(10, 20)</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">radius: </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">0.200</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">radius: </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">0.200</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">hex &amp; swatch (known): </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">colors unknown</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">hex &amp; swatch (known): </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">colors unknown</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">swatch &amp; hex (known): </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">colors unknown</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">swatch &amp; hex (known): </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">colors unknown</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">hex, swatch (known): </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">colors unknown</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">hex, swatch (known): </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">colors unknown</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">swatch, hex (known): </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">colors unknown</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">swatch, hex (known): </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">colors unknown</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">hex (known): </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">colors unknown</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">hex (known): </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">colors unknown</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">swatch (known): </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">colors unknown</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">swatch (known): </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">colors unknown</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">hex &amp; swatch (unknown): </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">__colors unknown</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">hex &amp; swatch (unknown): </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">__colors unknown</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">swatch &amp; hex (unknown): </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">__colors unknown</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">swatch &amp; hex (unknown): </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">__colors unknown</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">hex, swatch (unknown): </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">__colors unknown</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">hex, swatch (unknown): </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">__colors unknown</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">swatch, hex (unknown): </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">__colors unknown</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">swatch, hex (unknown): </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">__colors unknown</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">hex (unknown): </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">__colors unknown</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">hex (unknown): </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">__colors unknown</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">swatch (unknown): </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">__colors unknown</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">swatch (unknown): </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">__colors unknown</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">foo: </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">abcd</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">foo: </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">abcd</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
-  <div class="bk" style="display: table-row;">
-    <div class="bk bk-tooltip-row-label" style="display: table-cell;">bar: </div>
-    <div class="bk bk-tooltip-row-value" style="display: table-cell;">
-      <span class="bk" data-value="">-1</span>
-      <span class="bk bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div style="display: table-row;">
+    <div class="bk-tooltip-row-label" style="display: table-cell;">bar: </div>
+    <div class="bk-tooltip-row-value" style="display: table-cell;">
+      <span data-value="">-1</span>
+      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
     </div>
   </div>
 </div>

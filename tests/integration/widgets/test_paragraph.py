@@ -21,6 +21,8 @@ import pytest ; pytest
 from html import escape
 
 # Bokeh imports
+from bokeh._testing.plugins.project import BokehModelPage
+from bokeh._testing.util.selenium import find_element_for
 from bokeh.models import Paragraph
 
 #-----------------------------------------------------------------------------
@@ -39,22 +41,22 @@ are <i>200</i> and <i>100</i> respectively."""
 
 @pytest.mark.selenium
 class Test_TextParagraph:
-    def test_displays_div_as_text(self, bokeh_model_page) -> None:
-        para = Paragraph(text=text, css_classes=["foo"])
+    def test_displays_div_as_text(self, bokeh_model_page: BokehModelPage) -> None:
+        para = Paragraph(text=text)
 
         page = bokeh_model_page(para)
 
-        el = page.driver.find_element_by_css_selector('.foo div p')
+        el = find_element_for(page.driver, para, "div p")
         assert el.get_attribute("innerHTML") == escape(text, quote=None)
 
         assert page.has_no_console_errors()
 
-    def test_set_style(self, bokeh_model_page) -> None:
-        para = Paragraph(text=text, css_classes=["foo"], style={'font-size': '26px'})
+    def test_set_style(self, bokeh_model_page: BokehModelPage) -> None:
+        para = Paragraph(text=text, style={'font-size': '26px'})
 
         page = bokeh_model_page(para)
 
-        el = page.driver.find_element_by_css_selector('.foo div')
+        el = find_element_for(page.driver, para, "div")
         assert 'font-size: 26px;' in el.get_attribute('style')
 
         assert page.has_no_console_errors()

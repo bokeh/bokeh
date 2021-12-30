@@ -1,4 +1,5 @@
 import {Model} from "../../model"
+//import {DOMElement} from "../dom"
 import {Extent, Bounds} from "./tile_utils"
 import {entries} from "core/util/object"
 import * as p from "core/properties"
@@ -16,7 +17,7 @@ export namespace TileSource {
     max_zoom: p.Property<number>
     min_zoom: p.Property<number>
     extra_url_vars: p.Property<{[key: string]: string}>
-    attribution: p.Property<string>
+    attribution: p.Property<string/* | DOMElement | (string | DOMElement)[] | null*/>
     x_origin_offset: p.Property<number>
     y_origin_offset: p.Property<number>
     initial_resolution: p.Property<number | null>
@@ -33,13 +34,13 @@ export abstract class TileSource extends Model {
   }
 
   static {
-    this.define<TileSource.Props>(({Number, String, Dict, Nullable}) => ({
+    this.define<TileSource.Props>(({Number, String, Dict, Nullable /*, Null, Or, Ref*/}) => ({
       url:                [ String, "" ],
       tile_size:          [ Number, 256 ],
       max_zoom:           [ Number, 30 ],
       min_zoom:           [ Number, 0 ],
       extra_url_vars:     [ Dict(String), {} ],
-      attribution:        [ String, "" ],
+      attribution:        [ String, ""], // Or(String, Ref(DOMElement), Null), null ],
       x_origin_offset:    [ Number ],
       y_origin_offset:    [ Number ],
       initial_resolution: [ Nullable(Number), null ],

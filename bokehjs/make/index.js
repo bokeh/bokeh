@@ -1,6 +1,7 @@
 const crypto = require("crypto")
 const cp = require("child_process")
 const fs = require("fs")
+const {join, dirname, basename} = require("path")
 
 function npm_install() {
   const npm = process.platform != "win32" ? "npm" : "npm.cmd"
@@ -14,7 +15,7 @@ if (!fs.existsSync("node_modules/")) {
   npm_install()
 }
 
-const {engines} = require("../package.json")
+const {engines, workspaces} = require("../package.json")
 
 const node_version = process.version
 const npm_version = cp.execSync("npm --version").toString().trim()
@@ -32,7 +33,7 @@ if (!semver.satisfies(npm_version, engines.npm)) {
 }
 
 function is_up_to_date(file) {
-  const hash_file = "." + file
+  const hash_file = join(dirname(file), `.${basename(file)}`)
 
   if (!fs.existsSync(hash_file))
     return false
@@ -46,9 +47,13 @@ function is_up_to_date(file) {
   return old_hash == new_hash
 }
 
-if (!is_up_to_date("package.json")) {
-  console.log("package.json has changed. Running `npm install`.")
-  npm_install()
+for (const workspace of ["", ...workspaces]) {
+  const path = join(workspace, "package.json")
+  if (!is_up_to_date(path)) {
+    console.log(`${path} has changed. Running 'npm install'.`)
+    npm_install()
+    break
+  }
 }
 
 const {register} = require("ts-node")

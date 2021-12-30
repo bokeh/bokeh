@@ -1,0 +1,27 @@
+@import "./_mixins.less";
+
+@caret-width: 4px;
+
+.bk-caret {
+  display: inline-block;
+  vertical-align: middle;
+  width: 0;
+  height: 0;
+  margin: 0 5px;
+
+  &.bk-down { border-top:    @caret-width solid; }
+  &.bk-up   { border-bottom: @caret-width solid; }
+
+  &.bk-down, &.bk-up {
+    border-right: @caret-width solid transparent;
+    border-left:  @caret-width solid transparent;
+  }
+
+  &.bk-left  { border-right: @caret-width solid; }
+  &.bk-right { border-left:  @caret-width solid; }
+
+  &.bk-left, &.bk-right {
+    border-top:    @caret-width solid transparent;
+    border-bottom: @caret-width solid transparent;
+  }
+}

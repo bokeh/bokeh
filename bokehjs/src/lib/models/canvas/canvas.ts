@@ -72,8 +72,6 @@ const style = {
   position: "absolute",
   top: "0",
   left: "0",
-  width: "100%",
-  height: "100%",
 }
 
 export class CanvasView extends DOMView {
@@ -99,7 +97,7 @@ export class CanvasView extends DOMView {
     this.primary = this.create_layer()
     this.overlays = this.create_layer()
     this.overlays_el = div({style})
-    this.events_el = div({class: "bk-canvas-events", style})
+    this.events_el = div({style})
 
     const elements = [
       this.underlays_el,
@@ -109,7 +107,7 @@ export class CanvasView extends DOMView {
       this.events_el,
     ]
 
-    extend(this.el.style, style)
+    this.el.style.position = "relative"
     append(this.el, ...elements)
 
     this.ui_event_bus = new UIEventBus(this)
@@ -149,8 +147,17 @@ export class CanvasView extends DOMView {
   resize(width: number, height: number): void {
     this.bbox = new BBox({left: 0, top: 0, width, height})
 
+    const style = {
+      width: `${width}px`,
+      height: `${height}px`,
+    }
+
+    extend(this.el.style, style)
+    extend(this.underlays_el.style, style)
     this.primary.resize(width, height)
     this.overlays.resize(width, height)
+    extend(this.overlays_el.style, style)
+    extend(this.events_el.style, style)
   }
 
   prepare_webgl(frame_box: FrameBox): void {

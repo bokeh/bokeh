@@ -38,16 +38,44 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
-  it.allowing(31)("should allow Dropdown", async () => {
+  it("should allow Dropdown", async () => {
     const menu = ["Item 1", "Item 2", null, "Item 3"]
     const obj = new Dropdown({label: "Dropdown 1", button_type: "primary", menu})
     await display(obj, [500, 100])
   })
 
-  it.allowing(33)("should allow split Dropdown", async () => {
+  it("should allow Dropdown with menu open", async () => {
+    const menu = ["Item 1", "Item 2", null, "Item 3"]
+    const obj = new Dropdown({label: "Dropdown 1", button_type: "primary", menu})
+    const {view} = await display(obj, [500, 200])
+
+    const button = view.shadow_el.querySelector("button")!
+    const {left, top} = button.getBoundingClientRect()
+
+    const ev = new MouseEvent("click", {clientX: left + 5, clientY: top + 5})
+    button.dispatchEvent(ev)
+
+    await view.ready
+  })
+
+  it("should allow split Dropdown", async () => {
     const menu = ["Item 1", "Item 2", null, "Item 3"]
     const obj = new Dropdown({label: "Dropdown 2", button_type: "primary", menu, split: true})
     await display(obj, [500, 100])
+  })
+
+  it("should allow split Dropdown with menu open", async () => {
+    const menu = ["Item 1", "Item 2", null, "Item 3"]
+    const obj = new Dropdown({label: "Dropdown 1", button_type: "primary", menu, split: true})
+    const {view} = await display(obj, [500, 200])
+
+    const toggle = view.shadow_el.querySelector(".bk-dropdown-toggle")!
+    const {left, top} = toggle.getBoundingClientRect()
+
+    const ev = new MouseEvent("click", {clientX: left + 5, clientY: top + 5})
+    toggle.dispatchEvent(ev)
+
+    await view.ready
   })
 
   it("should allow CheckboxGroup", async () => {
@@ -150,8 +178,37 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
+  it.allowing(8)("should allow DatePicker with dialog open", async () => {
+    const obj = new DatePicker({value: new Date(Date.UTC(2017, 8, 1)).toDateString()})
+    const {view} = await display(obj, [500, 400])
+
+    const input_el = view.shadow_el.querySelector(".bk-input")!
+    const {left, top} = input_el.getBoundingClientRect()
+
+    const ev = new MouseEvent("click", {clientX: left + 5, clientY: top + 5})
+    input_el.dispatchEvent(ev)
+
+    await view.ready
+
+    async function finished_animating(el: Element) {
+      return new Promise<void>((resolve, reject) => {
+        el.addEventListener("animationend", () => resolve(), {once: true})
+        el.addEventListener("animationcancel", () => reject(), {once: true})
+      })
+    }
+
+    const calendar_el = view.shadow_el.querySelector(".flatpickr-calendar")!
+    await finished_animating(calendar_el)
+  })
+
   it("should allow Div", async () => {
     const obj = new Div({text: "some <b>text</b>"})
+    await display(obj, [500, 100])
+  })
+
+  it("should allow Div with float children", async () => {
+    const html = 'Some <b>bold text<b/>.<div style="float: left; width: 40px; height: 40px; background-color: red"></div>'
+    const obj = new Div({text: html, style: {border: "1px dotted blue", padding: "5px"}})
     await display(obj, [500, 100])
   })
 

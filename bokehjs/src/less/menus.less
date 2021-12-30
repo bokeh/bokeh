@@ -1,155 +1,92 @@
 @import "./_mixins.less";
 
-.bk-root {
-  .bk-menu-icon {
-    width: 28px;
-    height: 28px;
+.bk-menu-icon {
+  width: 28px;
+  height: 28px;
 
-    background-size: 60%;
-    background-color: transparent;
-    background-repeat: no-repeat;
-    background-position: center center;
+  background-size: 60%;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+:host {
+  position: absolute;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  .no-user-select();
+
+  width: auto;
+  height: auto;
+
+  .bring-to-front();
+
+  cursor: pointer;
+  font-size: @font-size;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: @border-radius;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+}
+
+:host(.bk-horizontal) {
+  flex-direction: row;
+}
+:host(.bk-vertical) {
+  flex-direction: column;
+}
+
+.bk-divider {
+  cursor: default;
+  overflow: hidden;
+  background-color: #e5e5e5;
+}
+:host(.bk-horizontal) > .bk-divider {
+  width: 1px;
+  margin: 5px 0;
+}
+:host(.bk-vertical) > .bk-divider {
+  height: 1px;
+  margin: 0 5px;
+}
+
+:host > :not(.bk-divider) {
+  border: 1px solid transparent;
+
+  @activeToolHighlight: #26aae1;
+
+  &.bk-active {
+    border-color: @activeToolHighlight;
   }
-
-  .bk-context-menu {
-    position: absolute;
-    display: inline-flex;
-    flex-wrap: nowrap;
-    .no-user-select();
-
-    &.bk-horizontal {
-      flex-direction: row;
-    }
-    &.bk-vertical {
-      flex-direction: column;
-    }
-
-    width: auto;
-    height: auto;
-
-    .bring-to-front();
-
-    cursor: pointer;
-    font-size: @font-size;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: @border-radius;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-
-    & > .bk-divider {
-      cursor: default;
-      overflow: hidden;
-      background-color: #e5e5e5;
-    }
-    &.bk-horizontal > .bk-divider {
-      width: 1px;
-      margin: 5px 0;
-    }
-    &.bk-vertical > .bk-divider {
-      height: 1px;
-      margin: 0 5px;
-    }
-
-    & > :not(.bk-divider) {
-      border: 1px solid transparent;
-
-      @activeToolHighlight: #26aae1;
-
-      &.bk-active {
-        border-color: @activeToolHighlight;
-      }
-      &:hover {
-        background-color: #f9f9f9;
-      }
-      &:focus, &:focus-visible {
-        outline: 1px dotted @activeToolHighlight;
-        outline-offset: -1px;
-      }
-      &::-moz-focus-inner {
-        border: 0;
-      }
-    }
-    &.bk-horizontal > :not(.bk-divider) {
-      &:first-child {
-        border-top-left-radius: @border-radius;
-        border-bottom-left-radius: @border-radius;
-      }
-      &:last-child {
-        border-top-right-radius: @border-radius;
-        border-bottom-right-radius: @border-radius;
-      }
-    }
-    &.bk-vertical > :not(.bk-divider) {
-      &:first-child {
-        border-top-left-radius: @border-radius;
-        border-top-right-radius: @border-radius;
-      }
-      &:last-child {
-        border-bottom-left-radius: @border-radius;
-        border-bottom-right-radius: @border-radius;
-      }
-    }
+  &:hover {
+    background-color: #f9f9f9;
   }
-
-  .bk-menu {
-    &.bk-above {
-      bottom: 100%;
-    }
-    &.bk-below {
-      top: 100%;
-    }
-
-    position: absolute;
-    left: 0;
-    width: 100%;
-    .bring-to-front();
-
-    cursor: pointer;
-    font-size: @font-size;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: @border-radius;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-
-    & > .bk-divider {
-      height: 1px;
-      margin: ((@line-height-computed ./ 2) - 1) 0;
-      overflow: hidden;
-      background-color: #e5e5e5;
-    }
-
-    & > :not(.bk-divider) {
-      padding: @padding-vertical @padding-horizontal;
-
-      &:hover, &.bk-active {
-        background-color: darken(white, 10%);
-      }
-    }
+  &:focus, &:focus-visible {
+    outline: 1px dotted @activeToolHighlight;
+    outline-offset: -1px;
   }
+  &::-moz-focus-inner {
+    border: 0;
+  }
+}
 
-  @caret-width: 4px;
-
-  .bk-caret {
-    display: inline-block;
-    vertical-align: middle;
-    width: 0;
-    height: 0;
-    margin: 0 5px;
-
-    &.bk-down { border-top:    @caret-width solid; }
-    &.bk-up   { border-bottom: @caret-width solid; }
-
-    &.bk-down, &.bk-up {
-      border-right: @caret-width solid transparent;
-      border-left:  @caret-width solid transparent;
-    }
-
-    &.bk-left  { border-right: @caret-width solid; }
-    &.bk-right { border-left:  @caret-width solid; }
-
-    &.bk-left, &.bk-right {
-      border-top:    @caret-width solid transparent;
-      border-bottom: @caret-width solid transparent;
-    }
+:host(.bk-horizontal) > :not(.bk-divider) {
+  &:first-child {
+    border-top-left-radius: @border-radius;
+    border-bottom-left-radius: @border-radius;
+  }
+  &:last-child {
+    border-top-right-radius: @border-radius;
+    border-bottom-right-radius: @border-radius;
+  }
+}
+:host(.bk-vertical) > :not(.bk-divider) {
+  &:first-child {
+    border-top-left-radius: @border-radius;
+    border-top-right-radius: @border-radius;
+  }
+  &:last-child {
+    border-bottom-left-radius: @border-radius;
+    border-bottom-right-radius: @border-radius;
   }
 }

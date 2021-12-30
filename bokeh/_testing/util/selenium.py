@@ -30,10 +30,8 @@ from typing import (
 )
 
 # External imports
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.wait import WebDriverWait
 
 if TYPE_CHECKING:
     from selenium.webdriver.common.keys import _KeySeq
@@ -42,10 +40,13 @@ if TYPE_CHECKING:
 
 # Bokeh imports
 from bokeh.models import Button
-from bokeh.util.serialization import make_id
 
 if TYPE_CHECKING:
+    from bokeh.model import Model
     from bokeh.models.callbacks import Callback
+    from bokeh.models.plots import Plot
+    from bokeh.models.widgets import Slider
+    from bokeh.models.widgets.tables import DataTable
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -63,7 +64,6 @@ __all__ = (
     'enter_text_in_cell',
     'enter_text_in_cell_with_click_enter',
     'enter_text_in_element',
-    'get_page_element',
     'get_slider_bar_color',
     'get_slider_title_text',
     'get_slider_title_value',
@@ -81,12 +81,154 @@ __all__ = (
     'select_element_and_press_key',
     'shift_click',
     'sort_table_column',
-    'wait_for_canvas_resize',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+MATCHES_SCRIPT = """
+    function* descend(el, sel) {
+        if (el.matches(sel)) {
+            yield el
+        }
+        if (el.shadowRoot) {
+            for (const child of el.shadowRoot.children) {
+                yield* descend(child, sel)
+            }
+        }
+        for (const child of el.children) {
+            yield* descend(child, sel)
+        }
+    }
+
+    const selector = arguments[0]
+    const root = arguments[1] ?? document.documentElement
+
+    return [...descend(root, selector)]
+"""
+
+def find_matching_elements(driver: WebDriver, selector: str, *, root: WebElement | None = None) -> List[WebElement]:
+    return driver.execute_script(MATCHES_SCRIPT, selector, root)
+
+def find_matching_element(driver: WebDriver, selector: str, *, root: WebElement | None = None) -> WebElement:
+    elements = find_matching_elements(driver, selector, root=root)
+    n = len(elements)
+    if n == 0:
+        raise ValueError("not found")
+    else:
+        return elements[0]
+    #elif n == 1:
+    #    return elements[0]
+    #else:
+    #    raise ValueError("multiple elements found")
+
+FIND_VIEW_SCRIPT = """
+    function* find(views, id, fn) {
+        for (const view of views) {
+            if (view.model.id == id) {
+                yield* fn(view)
+            } else if ("child_views" in view) {
+                yield* find(view.child_views, id, fn)
+            } else if ("tool_views" in view) {
+                yield* find(view.tool_views.values(), id, fn)
+            } else if ("renderer_views" in view) {
+                yield* find(view.renderer_views.values(), id, fn)
+            }
+        }
+    }
+
+    function head(iter) {
+        for (const item of iter) {
+            return item
+        }
+        return undefined
+    }
+
+    function views() {
+        return Object.values(Bokeh.index)
+    }
+"""
+
+def get_events_el(driver: WebDriver, model: Plot) -> WebElement:
+    script = FIND_VIEW_SCRIPT + """
+    const id = arguments[0]
+    function* fn(view) {
+        yield view.canvas_view.events_el
+    }
+    return head(find(views(), id, fn)) ?? null
+    """
+    el = driver.execute_script(script, model.id)
+    if el is not None:
+        return el
+    else:
+        raise RuntimeError(f"can't resolve a view for {model}")
+
+def get_toolbar_el(driver: WebDriver, model: Plot) -> WebElement:
+    script = FIND_VIEW_SCRIPT + """
+    const id = arguments[0]
+    const {ToolbarPanelView} = Bokeh.require("models/annotations/toolbar_panel")
+    function* fn(view) {
+        for (const rv of view.renderer_views.values()) {
+            if (rv instanceof ToolbarPanelView) {
+                yield rv._toolbar_view.el
+                break
+            }
+        }
+    }
+    return head(find(views(), id, fn)) ?? null
+    """
+    el = driver.execute_script(script, model.id)
+    if el is not None:
+        return el
+    else:
+        raise RuntimeError(f"can't resolve a view for {model}")
+
+
+FIND_SCRIPT = """
+    const id = arguments[0]
+    const selector = arguments[1]
+
+    function* find(views) {
+        for (const view of views) {
+            if (view.model.id == id) {
+                if (selector != null) {
+                    const el = view.shadow_el ?? view.el
+                    yield [...el.querySelectorAll(selector)]
+                } else
+                    yield [view.el]
+            } else if ("child_views" in view) {
+                yield* find(view.child_views)
+            } else if ("tool_views" in view) {
+                yield* find(view.tool_views.values())
+            } else if ("renderer_views" in view) {
+                yield* find(view.renderer_views.values())
+            }
+        }
+    }
+"""
+
+def find_elements_for(driver: WebDriver, model: Model, selector: str | None = None) -> List[WebElement]:
+    script = FIND_SCRIPT + """
+    for (const els of find(Object.values(Bokeh.index))) {
+        return els
+    }
+    return null
+    """
+    return driver.execute_script(script, model.id, selector)
+
+def find_element_for(driver: WebDriver, model: Model, selector: str | None = None) -> WebElement:
+    script = FIND_SCRIPT + """
+    for (const els of find(Object.values(Bokeh.index))) {
+        return els[0] ?? null
+    }
+    return null
+    """
+    el = driver.execute_script(script, model.id, selector)
+    if el is not None:
+        return el
+    else:
+        raise ValueError("not found")
 
 def COUNT(key: str) -> str:
     return 'Bokeh._testing.count(%r);' % key
@@ -103,7 +245,7 @@ RESULTS = 'return Bokeh._testing.results'
 
 def SCROLL(amt: float) -> str:
     return """
-    const elt = document.getElementsByClassName("bk-canvas-events")[0];
+    const elt = Object.values(Bokeh.index)[0].canvas_view.events_el;
     const event = new WheelEvent('wheel', { deltaY: %f, clientX: 100, clientY: 100} );
     elt.dispatchEvent(event);
     """ % amt
@@ -118,12 +260,11 @@ def alt_click(driver: WebDriver, element: WebElement) -> None:
 
 class ButtonWrapper:
     def __init__(self, label: str, callback: Callback) -> None:
-        self.ref = "button-" + make_id()
-        self.obj = Button(label=label, css_classes=[self.ref])
+        self.obj = Button(label=label)
         self.obj.js_on_event('button_click', callback)
 
     def click(self, driver: WebDriver) -> None:
-        button = driver.find_element_by_css_selector(".%s .bk-btn" % self.ref)
+        button = find_element_for(driver, self.obj, ".bk-btn")
         button.click()
 
 class element_to_start_resizing:
@@ -187,30 +328,60 @@ def enter_text_in_element(driver: WebDriver, element: WebElement, text: str,
         actions.key_up(mod)
     actions.perform()
 
-def enter_text_in_cell(driver: WebDriver, cell: WebElement, text: str) -> None:
+def enter_text_in_cell(driver: WebDriver, table: DataTable, row: int, col: int, text: str) -> None:
     actions = ActionChains(driver)
+    cell = get_table_cell(driver, table, row, col)
     actions.move_to_element(cell)
     actions.double_click() # start editing a cell
+    actions.perform()
+
+    actions = ActionChains(driver)
+    cell = get_table_cell(driver, table, row, col)
+    try:
+        input = find_matching_element(driver, "input", root=cell)
+    except ValueError:
+        return # table.editable == False
+    actions.move_to_element(input)
     actions.click()        # XXX: perhaps sleep() would also work; not required when interacting manually
     actions.double_click() # select all text and overwrite it in the next step
     actions.send_keys(text + Keys.ENTER)
     actions.perform()
 
-def enter_text_in_cell_with_click_enter(driver: WebDriver, cell: WebElement, text: str) -> None:
+def escape_cell(driver: WebDriver, table: DataTable, row: int, col: int) -> None:
+    cell = get_table_cell(driver, table, row, col)
+    try:
+        input = find_matching_element(driver, "input", root=cell)
+    except ValueError:
+        return
+
+    actions = ActionChains(driver)
+    actions.move_to_element(input)
+    actions.send_keys(Keys.ESCAPE)
+    actions.perform()
+
+def enter_text_in_cell_with_click_enter(driver: WebDriver, table: DataTable, row: int, col: int, text: str) -> None:
+    actions = ActionChains(driver)
+    cell = get_table_cell(driver, table, row, col)
+    actions.move_to_element(cell)
+    actions.click()
+    actions.send_keys(Keys.ENTER + text + Keys.ENTER)
+    actions.perform()
+
+def enter_text_with_click_enter(driver: WebDriver, cell: WebElement, text: str) -> None:
     actions = ActionChains(driver)
     actions.move_to_element(cell)
     actions.click()
     actions.send_keys(Keys.ENTER + text + Keys.ENTER)
     actions.perform()
 
-def copy_table_rows(driver: WebDriver, rows: Sequence[int]) -> None:
+def copy_table_rows(driver: WebDriver, table: DataTable, rows: Sequence[int]) -> None:
     actions = ActionChains(driver)
-    row = get_table_row(driver, rows[0])
+    row = get_table_row(driver, table, rows[0])
     actions.move_to_element(row)
     actions.click()
     actions.key_down(Keys.SHIFT)
     for r in rows[1:]:
-        row = get_table_row(driver, r)
+        row = get_table_row(driver, table, r)
         actions.move_to_element(row)
         actions.click()
     actions.key_up(Keys.SHIFT)
@@ -230,36 +401,36 @@ def paste_values(driver: WebDriver, el: WebElement | None = None) -> None:
     # actions.send_keys(Keys.CONTROL, 'v')
     actions.perform()
 
-def get_table_column_cells(driver: WebDriver, col: int) -> List[str]:
+def get_table_column_cells(driver: WebDriver, table: DataTable, col: int) -> List[str]:
     result = []
-    grid = driver.find_element_by_css_selector('.grid-canvas')
-    rows = grid.find_elements_by_css_selector(".slick-row")
+    rows = find_elements_for(driver, table, ".slick-row")
     for row in rows:
         elt = row.find_element_by_css_selector('.slick-cell.l%d.r%d' % (col, col))
         result.append(elt.text)
     return result
 
-def get_table_row(driver: WebDriver, row: int) -> WebElement:
-    return driver.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(%d)' % row)
+def get_table_row(driver: WebDriver, table: DataTable, row: int) -> WebElement:
+    return find_element_for(driver, table, f".slick-row:nth-child({row})")
 
-def get_table_selected_rows(driver: WebDriver) -> Set[int]:
+def get_table_selected_rows(driver: WebDriver, table: DataTable) -> Set[int]:
     result = set()
-    grid = driver.find_element_by_css_selector('.grid-canvas')
-    rows = grid.find_elements_by_css_selector(".slick-row")
+    rows = find_elements_for(driver, table, ".slick-row")
     for i, row in enumerate(rows):
         elt = row.find_element_by_css_selector('.slick-cell.l1.r1')
         if 'selected' in elt.get_attribute('class'):
             result.add(i)
     return result
 
-def get_table_cell(driver: WebDriver, row: int, col: int) -> WebElement:
-    return driver.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(%d) .r%d' % (row, col))
+def get_table_cell(driver: WebDriver, table: DataTable, row: int, col: int) -> WebElement:
+    return find_element_for(driver, table, f".slick-row:nth-child({row}) .r{col}")
 
-def get_table_header(driver: WebDriver, col: int) -> WebElement:
-    return driver.find_element_by_css_selector('.slick-header-columns .slick-header-column:nth-child(%d)' % col)
+def get_table_header(driver: WebDriver, table: DataTable, col: int) -> WebElement:
+    return find_element_for(driver, table, f".slick-header-columns .slick-header-column:nth-child({col})")
 
-def get_page_element(driver: WebDriver, element_selector: str) -> WebElement:
-    return driver.find_element_by_css_selector(element_selector)
+def sort_table_column(driver: WebDriver, table: DataTable, col: int, double: bool = False) -> None:
+    elt = find_element_for(driver, table, f".slick-header-columns .slick-header-column:nth-child({col})")
+    elt.click()
+    if double: elt.click()
 
 def shift_click(driver: WebDriver, element: WebElement) -> None:
     actions = ActionChains(driver)
@@ -268,28 +439,8 @@ def shift_click(driver: WebDriver, element: WebElement) -> None:
     actions.key_up(Keys.SHIFT)
     actions.perform()
 
-def sort_table_column(driver: WebDriver, col: int, double: bool = False) -> None:
-    elt = driver.find_element_by_css_selector('.slick-header-columns .slick-header-column:nth-child(%d)' % col)
-    elt.click()
-    if double: elt.click()
-
-def wait_for_canvas_resize(canvas: WebElement, test_driver: WebDriver) -> None:
-    '''
-
-    '''
-    try:
-        wait = WebDriverWait(test_driver, 1)
-        wait.until(element_to_start_resizing(canvas))
-        wait.until(element_to_finish_resizing(canvas))
-    except TimeoutException:
-        # Resize may or may not happen instantaneously,
-        # Put the waits in to give some time, but allow test to
-        # try and process.
-        pass
-
-def drag_slider(driver: WebDriver, css_class: str, distance: float, release: bool = True) -> None:
-    el = driver.find_element_by_css_selector(css_class)
-    handle = el.find_element_by_css_selector('.noUi-handle')
+def drag_slider(driver: WebDriver, slider: Slider, distance: float, release: bool = True) -> None:
+    handle = find_element_for(driver, slider, ".noUi-handle")
     actions = ActionChains(driver)
     actions.move_to_element(handle)
     actions.click_and_hold()
@@ -298,9 +449,8 @@ def drag_slider(driver: WebDriver, css_class: str, distance: float, release: boo
         actions.release()
     actions.perform()
 
-def drag_range_slider(driver: WebDriver, css_class: str, location: str, distance: float) -> None:
-    el = driver.find_element_by_css_selector(css_class)
-    handle = el.find_element_by_css_selector('.noUi-handle-' + location)
+def drag_range_slider(driver: WebDriver, slider: Slider, location: str, distance: float) -> None:
+    handle = find_element_for(driver, slider, f".noUi-handle-{location}")
     actions = ActionChains(driver)
     actions.move_to_element(handle)
     actions.click_and_hold()
@@ -308,18 +458,15 @@ def drag_range_slider(driver: WebDriver, css_class: str, location: str, distance
     actions.release()
     actions.perform()
 
-def get_slider_title_text(driver: WebDriver, css_class: str) -> str:
-    el = driver.find_element_by_css_selector(css_class)
-    return el.find_element_by_css_selector('div.bk-input-group > div.bk-slider-title').text
+def get_slider_title_text(driver: WebDriver, slider: Slider) -> str:
+    return find_element_for(driver, slider, "div.bk-input-group > div.bk-slider-title").text
 
-def get_slider_title_value(driver: WebDriver, css_class: str) -> str:
-    el = driver.find_element_by_css_selector(css_class)
-    return el.find_element_by_css_selector('div.bk-input-group > div > span.bk-slider-value').text
+def get_slider_title_value(driver: WebDriver, slider: Slider) -> str:
+    return find_element_for(driver, slider, "div.bk-input-group > div > span.bk-slider-value").text
 
-def get_slider_bar_color(driver: WebDriver, css_class: str) -> str:
-    el = driver.find_element_by_css_selector(css_class)
-    bar = el.find_element_by_css_selector('.noUi-connect')
-    return bar.value_of_css_property('background-color')
+def get_slider_bar_color(driver: WebDriver, slider: Slider) -> str:
+    bar_el = find_element_for(driver, slider, ".noUi-connect")
+    return bar_el.value_of_css_property("background-color")
 
 #-----------------------------------------------------------------------------
 # Dev API

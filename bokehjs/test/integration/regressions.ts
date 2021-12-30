@@ -1182,7 +1182,7 @@ describe("Bug", () => {
       const {left, top} = offset(ui.hit_area)
 
       const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
-      ui._mouse_move(ev)
+      ui.hit_area.dispatchEvent(ev)
 
       await view.ready
     })
@@ -1237,7 +1237,7 @@ describe("Bug", () => {
         const {left, top} = offset(ui.hit_area)
 
         const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
-        ui._mouse_move(ev)
+        ui.hit_area.dispatchEvent(ev)
       }
 
       const [pv0, pv1, pv2] = view.child_views as PlotView[]

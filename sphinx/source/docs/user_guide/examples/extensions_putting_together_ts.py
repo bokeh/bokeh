@@ -35,7 +35,7 @@ export class CustomView extends HTMLBoxView {
       color: "#b88d8e",
       backgroundColor: "#2a3153",
     }})
-    this.el.appendChild(this.content_el)
+    this.shadow_el.appendChild(this.content_el)
 
     this._update_text()
   }

@@ -158,7 +158,7 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
     this._update_title()
 
     this.group_el = div({class: inputs.input_group}, this.title_el, this.slider_el)
-    this.el.appendChild(this.group_el)
+    this.shadow_el.appendChild(this.group_el)
     this._has_finished = true
   }
 

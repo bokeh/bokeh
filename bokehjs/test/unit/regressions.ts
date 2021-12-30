@@ -176,7 +176,7 @@ describe("Bug", () => {
         for (let i = 0; i <= 1; i += 0.2) {
           const [[sx], [sy]] = lnv.coordinates.map_to_screen([i], [i])
           const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
-          ui._mouse_move(ev)
+          ui.hit_area.dispatchEvent(ev)
         }
 
         return ln_spy.callCount

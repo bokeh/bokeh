@@ -398,8 +398,8 @@ def _log_console(driver: WebDriver) -> None:
 
 def _maximize_viewport(web_driver: WebDriver) -> Tuple[int, int, int]:
     calculate_viewport_size = """\
-        const root = document.getElementsByClassName("bk-root")[0]
-        const {width, height} = root.children[0].getBoundingClientRect()
+        const root_view = Object.values(Bokeh.index)[0]
+        const {width, height} = root_view.el.getBoundingClientRect()
         return [width, height, window.devicePixelRatio]
     """
     viewport_size: Tuple[int, int, int] = web_driver.execute_script(calculate_viewport_size)

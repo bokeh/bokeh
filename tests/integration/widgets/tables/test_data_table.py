@@ -18,6 +18,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh._testing.plugins.project import BokehModelPage
 from bokeh._testing.util.selenium import RECORD, ButtonWrapper, get_table_cell
 from bokeh.layouts import column
 from bokeh.models import (
@@ -49,7 +50,7 @@ class Test_CellEditor_Base:
 
 @pytest.mark.selenium
 class Test_DataTable:
-    def test_row_highlights_reflect_no_initial_selection(self, bokeh_model_page) -> None:
+    def test_row_highlights_reflect_no_initial_selection(self, bokeh_model_page: BokehModelPage) -> None:
 
         source = ColumnDataSource({'values': [1, 2]})
         column = TableColumn(field='values', title='values')
@@ -57,15 +58,15 @@ class Test_DataTable:
 
         page = bokeh_model_page(table)
 
-        row0 = get_table_cell(page.driver, 1, 1)
+        row0 = get_table_cell(page.driver, table, 1, 1)
         assert 'selected' not in row0.get_attribute('class')
 
-        row1 = get_table_cell(page.driver, 2, 1)
+        row1 = get_table_cell(page.driver, table, 2, 1)
         assert 'selected' not in row1.get_attribute('class')
 
         assert page.has_no_console_errors()
 
-    def test_row_highlights_reflect_initial_selection(self, bokeh_model_page) -> None:
+    def test_row_highlights_reflect_initial_selection(self, bokeh_model_page: BokehModelPage) -> None:
 
         source = ColumnDataSource({'values': [1, 2]})
         source.selected.indices = [1]
@@ -74,15 +75,15 @@ class Test_DataTable:
 
         page = bokeh_model_page(table)
 
-        row0 = get_table_cell(page.driver, 1, 1)
+        row0 = get_table_cell(page.driver, table, 1, 1)
         assert 'selected' not in row0.get_attribute('class')
 
-        row1 = get_table_cell(page.driver, 2, 1)
+        row1 = get_table_cell(page.driver, table, 2, 1)
         assert 'selected' in row1.get_attribute('class')
 
         assert page.has_no_console_errors()
 
-    def test_row_highlights_reflect_ui_selection(self, bokeh_model_page) -> None:
+    def test_row_highlights_reflect_ui_selection(self, bokeh_model_page: BokehModelPage) -> None:
 
         source = ColumnDataSource({'values': [1, 2]})
         column = TableColumn(field='values', title='values')
@@ -90,24 +91,24 @@ class Test_DataTable:
 
         page = bokeh_model_page(table)
 
-        row0 = get_table_cell(page.driver, 1, 1)
+        row0 = get_table_cell(page.driver, table, 1, 1)
         assert 'selected' not in row0.get_attribute('class')
 
-        row1 = get_table_cell(page.driver, 2, 1)
+        row1 = get_table_cell(page.driver, table, 2, 1)
         assert 'selected' not in row1.get_attribute('class')
 
-        cell = get_table_cell(page.driver, 2, 1)
+        cell = get_table_cell(page.driver, table, 2, 1)
         cell.click()
 
-        row0 = get_table_cell(page.driver, 1, 1)
+        row0 = get_table_cell(page.driver, table, 1, 1)
         assert 'selected' not in row0.get_attribute('class')
 
-        row1 = get_table_cell(page.driver, 2, 1)
+        row1 = get_table_cell(page.driver, table, 2, 1)
         assert 'selected' in row1.get_attribute('class')
 
         assert page.has_no_console_errors()
 
-    def test_row_highlights_reflect_js_selection(self, bokeh_model_page) -> None:
+    def test_row_highlights_reflect_js_selection(self, bokeh_model_page: BokehModelPage) -> None:
 
         source = ColumnDataSource({'values': [1, 2]})
         col = TableColumn(field='values', title='values')
@@ -119,18 +120,18 @@ class Test_DataTable:
 
         page = bokeh_model_page(column(button.obj, table))
 
-        row0 = get_table_cell(page.driver, 1, 1)
+        row0 = get_table_cell(page.driver, table, 1, 1)
         assert 'selected' not in row0.get_attribute('class')
 
-        row1 = get_table_cell(page.driver, 2, 1)
+        row1 = get_table_cell(page.driver, table, 2, 1)
         assert 'selected' not in row1.get_attribute('class')
 
         button.click(page.driver)
 
-        row0 = get_table_cell(page.driver, 1, 1)
+        row0 = get_table_cell(page.driver, table, 1, 1)
         assert 'selected' not in row0.get_attribute('class')
 
-        row1 = get_table_cell(page.driver, 2, 1)
+        row1 = get_table_cell(page.driver, table, 2, 1)
         assert 'selected' in row1.get_attribute('class')
 
         assert page.has_no_console_errors()

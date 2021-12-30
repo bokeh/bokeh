@@ -18,7 +18,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh._testing.util.selenium import RECORD
+from bokeh._testing.plugins.project import SinglePlotPage
+from bokeh._testing.util.selenium import RECORD, find_element_for
 from bokeh.layouts import column
 from bokeh.models import (
     Button,
@@ -52,7 +53,7 @@ def _make_plot(**kw):
 
 @pytest.mark.selenium
 class Test_DataRange1d:
-    def test_includes_hidden_glyphs_by_default(self, single_plot_page) -> None:
+    def test_includes_hidden_glyphs_by_default(self, single_plot_page: SinglePlotPage) -> None:
         plot, glyph = _make_plot()
 
         page = single_plot_page(plot)
@@ -65,7 +66,7 @@ class Test_DataRange1d:
 
         assert page.has_no_console_errors()
 
-    def test_includes_hidden_glyphs_when_asked(self, single_plot_page) -> None:
+    def test_includes_hidden_glyphs_when_asked(self, single_plot_page: SinglePlotPage) -> None:
         plot, glyph = _make_plot(only_visible=False)
 
         page = single_plot_page(plot)
@@ -78,7 +79,7 @@ class Test_DataRange1d:
 
         assert page.has_no_console_errors()
 
-    def test_excludes_hidden_glyphs_when_asked(self, single_plot_page) -> None:
+    def test_excludes_hidden_glyphs_when_asked(self, single_plot_page: SinglePlotPage) -> None:
         plot, glyph = _make_plot(only_visible=True)
 
         page = single_plot_page(plot)
@@ -92,7 +93,7 @@ class Test_DataRange1d:
         assert page.has_no_console_errors()
 
 
-    def test_updates_when_visibility_is_toggled(self, single_plot_page) -> None:
+    def test_updates_when_visibility_is_toggled(self, single_plot_page: SinglePlotPage) -> None:
         source = ColumnDataSource(dict(x=[1, 2], y1=[0, 1], y2=[10,11]))
         plot = Plot(height=400, width=400, x_range=DataRange1d(), y_range=DataRange1d(only_visible=True), min_border=0)
         plot.add_glyph(source, Circle(x='x', y='y1'))
@@ -100,7 +101,7 @@ class Test_DataRange1d:
         code = RECORD("yrstart", "p.y_range.start", final=False) + RECORD("yrend", "p.y_range.end")
         plot.add_tools(CustomAction(callback=CustomJS(args=dict(p=plot), code=code)))
         plot.toolbar_sticky = False
-        button = Button(css_classes=['foo'])
+        button = Button()
         button.js_on_click(CustomJS(args=dict(glyph=glyph), code="glyph.visible=false"))
 
         page = single_plot_page(column(plot, button))
@@ -111,7 +112,7 @@ class Test_DataRange1d:
         assert results['yrstart'] <= 0
         assert results['yrend'] >= 11
 
-        button = page.driver.find_element_by_css_selector('.foo .bk-btn')
+        button = find_element_for(page.driver, button, ".bk-btn")
         button.click()
 
         page.click_custom_action()

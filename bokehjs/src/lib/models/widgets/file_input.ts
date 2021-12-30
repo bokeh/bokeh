@@ -2,7 +2,9 @@ import {input} from "core/dom"
 import * as p from "core/properties"
 import {Widget, WidgetView} from "models/widgets/widget"
 
-export class FileInputView extends WidgetView {
+import inputs_css from "styles/widgets/inputs.css"
+
+export class FileInputView extends WidgetView { // TODO: InputWidgetView
   override model: FileInput
 
   protected dialog_el?: HTMLInputElement
@@ -10,6 +12,10 @@ export class FileInputView extends WidgetView {
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())
+  }
+
+  override styles(): string[] {
+    return [...super.styles(), inputs_css]
   }
 
   override render(): void {
@@ -23,7 +29,7 @@ export class FileInputView extends WidgetView {
           this.load_files(files)
         }
       }
-      this.el.appendChild(this.dialog_el)
+      this.shadow_el.appendChild(this.dialog_el)
     }
 
     if (accept != "") {

@@ -1,67 +1,65 @@
-.bk-root {
-  @import (less) "../../../node_modules/nouislider/dist/nouislider.css";
+@import (less) "../../../node_modules/nouislider/dist/nouislider.css";
 
-  .noUi-handle {
-    cursor: grab;
-    cursor: -webkit-grab;
+.noUi-handle {
+  cursor: grab;
+  cursor: -webkit-grab;
 
-    &.noUi-active {
-      cursor: grabbing;
-      cursor: -webkit-grabbing;
-    }
-
-    &:after, &:before {
-      display: none;
-    }
+  &.noUi-active {
+    cursor: grabbing;
+    cursor: -webkit-grabbing;
   }
 
-  .noUi-tooltip {
+  &:after, &:before {
     display: none;
-    white-space: nowrap;
   }
+}
 
-  .noUi-handle:hover {
-    .noUi-tooltip {
-      display: block;
-    }
+.noUi-tooltip {
+  display: none;
+  white-space: nowrap;
+}
+
+.noUi-handle:hover {
+  .noUi-tooltip {
+    display: block;
   }
+}
 
-  @slider-size: 10px;
+@slider-size: 10px;
 
-  .noUi-horizontal {
-    width: 100%;
-    height: @slider-size;
-  }
-  .noUi-vertical {
-    width: @slider-size;
-    height: 100%;
-  }
+.noUi-horizontal {
+  width: 100%;
+  height: @slider-size;
+}
+.noUi-vertical {
+  width: @slider-size;
+  height: 100%;
+}
 
-  @handle-width: 14px;
-  @handle-height: 18px;
-  @handle-right: -@handle-width ./ 2;
-  @handle-top: -(@handle-height - @slider-size) ./ 2 - 1;
+@handle-width: 14px;
+@handle-height: 18px;
+@handle-right: -@handle-width ./ 2;
+@handle-top: -(@handle-height - @slider-size) ./ 2 - 1;
 
-  .noUi-horizontal .noUi-handle {
-    width: @handle-width;
-    height: @handle-height;
-    right: @handle-right;
-    top: @handle-top;
-  }
-  .noUi-vertical .noUi-handle {
-    width: @handle-height;
-    height: @handle-width;
-    right: @handle-top;
-    top: @handle-right;
-  }
+.noUi-horizontal .noUi-handle {
+  width: @handle-width;
+  height: @handle-height;
+  right: @handle-right;
+  top: @handle-top;
+}
+.noUi-vertical .noUi-handle {
+  width: @handle-height;
+  height: @handle-width;
+  right: @handle-top;
+  top: @handle-right;
+}
 
-  @slider-margin: (@handle-height - @slider-size) ./ 2 + 1;
+@slider-margin: (@handle-height - @slider-size) ./ 2 + 1;
 
-  .noUi-target.noUi-horizontal {
-    margin: @slider-margin 0px;
-  }
+.noUi-target.noUi-horizontal {
+  margin: @slider-margin 0px;
+}
 
-  .noUi-target.noUi-vertical {
-    margin: 0px @slider-margin;
-  }
+.noUi-target.noUi-vertical {
+  margin: 0px @slider-margin;
 }

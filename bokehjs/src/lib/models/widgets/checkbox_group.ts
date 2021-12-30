@@ -13,7 +13,7 @@ export class CheckboxGroupView extends InputGroupView {
     super.render()
 
     const group = div({class: [inputs.input_group, this.model.inline ? inputs.inline : null]})
-    this.el.appendChild(group)
+    this.shadow_el.appendChild(group)
 
     const {active, labels} = this.model
 

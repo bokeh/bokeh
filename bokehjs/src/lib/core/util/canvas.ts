@@ -1,5 +1,6 @@
 import {SVGRenderingContext2D} from "./svg"
 import {BBox} from "./bbox"
+import {extend} from "./object"
 import {div, canvas} from "../dom"
 import {OutputBackend} from "../enums"
 
@@ -120,7 +121,9 @@ export class CanvasLayer {
         const ctx = new SVGRenderingContext2D()
         this._ctx = ctx
         this._canvas = ctx.get_svg()
-        this._el = div({style}, this._canvas)
+        this._el = div({style})
+        const shadow_el = this._el.attachShadow({mode: "open"})
+        shadow_el.appendChild(this._canvas)
         break
       }
     }
@@ -135,6 +138,12 @@ export class CanvasLayer {
     const target = this._ctx instanceof SVGRenderingContext2D ? this._ctx : this.canvas
     target.width = width*this.pixel_ratio
     target.height = height*this.pixel_ratio
+
+    const style = {
+      width: `${width}px`,
+      height: `${height}px`,
+    }
+    extend(this._el.style, style)
   }
 
   private _base_transform: DOMMatrix

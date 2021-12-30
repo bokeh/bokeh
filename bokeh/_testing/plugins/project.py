@@ -49,14 +49,20 @@ if TYPE_CHECKING:
 
 # Bokeh imports
 import bokeh.server.views.ws as ws
-from bokeh._testing.util.selenium import INIT, RESULTS, wait_for_canvas_resize
+from bokeh._testing.util.selenium import (
+    INIT,
+    RESULTS,
+    find_matching_element,
+    get_events_el,
+)
+from bokeh.application.handlers.function import ModifyDoc
 from bokeh.io import save
+from bokeh.models import LayoutDOM, Plot
 from bokeh.server.server import Server
 
 if TYPE_CHECKING:
     from bokeh._testing.plugins.file_server import SimpleWebServer
-    from bokeh.application.handlers.function import ModifyDoc
-    from bokeh.models.layouts import LayoutDOM
+    from bokeh.model import Model
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -209,21 +215,24 @@ class _ElementMixin:
 class _CanvasMixin(_ElementMixin):
     canvas: WebElement
 
-    def click_canvas_at_position(self, x: int, y: int) -> None:
-        self.click_element_at_position(self.canvas, x, y)
+    def click_canvas_at_position(self, plot: Plot, x: int, y: int) -> None:
+        events_el = get_events_el(self._driver, plot)
+        self.click_element_at_position(events_el, x, y)
 
-    def double_click_canvas_at_position(self, x: int, y: int) -> None:
-        self.double_click_element_at_position(self.canvas, x, y)
+    def double_click_canvas_at_position(self, plot: Plot, x: int, y: int) -> None:
+        events_el = get_events_el(self._driver, plot)
+        self.double_click_element_at_position(events_el, x, y)
+
+    def drag_canvas_at_position(self, plot: Plot, x: int, y: int, dx: int, dy: int, mod: _KeySeq | None = None) -> None:
+        events_el = get_events_el(self._driver, plot)
+        self.drag_element_at_position(events_el, x, y, dx, dy, mod)
 
     def click_custom_action(self) -> None:
-        button = self._driver.find_element_by_class_name("bk-toolbar-button-custom-action")
+        button = find_matching_element(self._driver, ".bk-toolbar-button-custom-action")
         button.click()
 
-    def drag_canvas_at_position(self, x: int, y: int, dx: int, dy: int, mod: _KeySeq | None = None) -> None:
-        self.drag_element_at_position(self.canvas, x, y, dx, dy, mod)
-
     def get_toolbar_button(self, name: str) -> WebElement:
-        return self._driver.find_element_by_class_name(f"bk-tool-icon-{name}")
+        return find_matching_element(self._driver, f".bk-tool-icon-{name}")
 
 class _BokehPageMixin(_ElementMixin):
 
@@ -234,7 +243,7 @@ class _BokehPageMixin(_ElementMixin):
     @property
     def results(self) -> Dict[str, Any]:
         WebDriverWait(self._driver, 10).until(EC.staleness_of(self.test_div))
-        self.test_div = self._driver.find_element_by_class_name("bokeh-test-div")
+        self.test_div = find_matching_element(self._driver, ".bokeh-test-div")
         return self._driver.execute_script(RESULTS)
 
     @property
@@ -243,7 +252,7 @@ class _BokehPageMixin(_ElementMixin):
 
     def init_results(self) -> None:
         self._driver.execute_script(INIT)
-        self.test_div = self._driver.find_element_by_class_name("bokeh-test-div")
+        self.test_div = find_matching_element(self._driver, ".bokeh-test-div")
 
     def has_no_console_errors(self) -> bool:
         return self._has_no_console_errors(self._driver)
@@ -259,9 +268,12 @@ class _BokehModelPage(_BokehPageMixin):
         self._driver.get(output_file_url)
         self.init_results()
 
+        await_ready(driver, model)
+
+BokehModelPage = Callable[[LayoutDOM], _BokehModelPage]
+
 @pytest.fixture()
-def bokeh_model_page(driver: WebDriver, output_file_url: str,
-        has_no_console_errors: HasNoConsoleErrors) -> Callable[[LayoutDOM], _BokehModelPage]:
+def bokeh_model_page(driver: WebDriver, output_file_url: str, has_no_console_errors: HasNoConsoleErrors) -> BokehModelPage:
     def func(model: LayoutDOM) -> _BokehModelPage:
         return _BokehModelPage(model, driver, output_file_url, has_no_console_errors)
     return func
@@ -272,12 +284,11 @@ class _SinglePlotPage(_BokehModelPage, _CanvasMixin):
     def __init__(self, model: LayoutDOM, driver: WebDriver, output_file_url: str, has_no_console_errors: HasNoConsoleErrors) -> None:
         super().__init__(model, driver, output_file_url, has_no_console_errors)
 
-        self.canvas = self._driver.find_element_by_tag_name('canvas')
-        wait_for_canvas_resize(self.canvas, self._driver)
+SinglePlotPage = Callable[[LayoutDOM], _SinglePlotPage]
 
 @pytest.fixture()
 def single_plot_page(driver: WebDriver, output_file_url: str,
-        has_no_console_errors: HasNoConsoleErrors) -> Callable[[LayoutDOM], _SinglePlotPage]:
+        has_no_console_errors: HasNoConsoleErrors) -> SinglePlotPage:
     def func(model: LayoutDOM) -> _SinglePlotPage:
         return _SinglePlotPage(model, driver, output_file_url, has_no_console_errors)
     return func
@@ -294,15 +305,54 @@ class _BokehServerPage(_BokehPageMixin, _CanvasMixin):
 
         self.init_results()
 
-        self.canvas = self._driver.find_element_by_tag_name('canvas')
-        wait_for_canvas_resize(self.canvas, self._driver)
+        def ready(driver: WebDriver) -> bool:
+            try:
+                await_all_ready(driver)
+                return True
+            except RuntimeError:
+                return False
+        WebDriverWait(self._driver, 10).until(ready)
+
+BokehServerPage = Callable[[ModifyDoc], _BokehServerPage]
 
 @pytest.fixture()
 def bokeh_server_page(driver: WebDriver, bokeh_app_info: BokehAppInfo,
-        has_no_console_errors: HasNoConsoleErrors) -> Callable[[ModifyDoc], _BokehServerPage]:
+        has_no_console_errors: HasNoConsoleErrors) -> BokehServerPage:
     def func(modify_doc: ModifyDoc) -> _BokehServerPage:
         return _BokehServerPage(modify_doc, driver, bokeh_app_info, has_no_console_errors)
     return func
+
+def await_ready(driver: WebDriver, root: Model) -> None:
+    script = """
+    const [root_id, done] = [...arguments];
+    (async function() {
+        const view = Bokeh.index[root_id]
+        if (view == null)
+            done(false)
+        else {
+            await view.ready
+            done(true)
+        }
+    })()
+    """
+    if not driver.execute_async_script(script, root.id):
+        raise RuntimeError(f"could not find a root view for {root}")
+
+def await_all_ready(driver: WebDriver) -> None:
+    script = """
+    const [done] = [...arguments];
+    (async function() {
+        const views = [...Object.values(Bokeh.index)]
+        if (views.length == 0)
+            done(false)
+        else {
+            await Promise.all(views.map((view) => view.ready))
+            done(true)
+        }
+    })()
+    """
+    if not driver.execute_async_script(script):
+        raise RuntimeError("could not find any root views")
 
 #-----------------------------------------------------------------------------
 # Dev API

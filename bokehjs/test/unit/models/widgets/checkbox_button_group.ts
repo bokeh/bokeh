@@ -32,7 +32,7 @@ describe("CheckboxButtonGroup", () => {
       expect(spy.called).to.be.false
       expect(g.active).to.be.equal([0, 1, 2])
 
-      const button = view.el.querySelector<HTMLElement>(".bk-btn:nth-child(1)")
+      const button = view.shadow_el.querySelector<HTMLElement>(".bk-btn:nth-child(1)")
       button!.click()
 
       expect(spy.callCount).to.be.equal(1)

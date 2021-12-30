@@ -9,7 +9,6 @@ export type HTMLChild = HTMLItem | HTMLItem[]
 const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
   return (attrs: HTMLAttrs | HTMLChild = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
     const element = document.createElement(tag)
-    element.classList.add("bk")
 
     if (!isPlainObject(attrs)) {
       children = [attrs, ...children]
@@ -282,7 +281,7 @@ export function content_size(el: HTMLElement): Size {
   const {padding} = extents(el)
   let width = 0
   let height = 0
-  for (const child of el.children) {
+  for (const child of (el.shadowRoot ?? el).children) {
     const rect = child.getBoundingClientRect()
     width = Math.max(width, Math.ceil(rect.left - left - padding.left + rect.width))
     height = Math.max(height, Math.ceil(rect.top - top - padding.top + rect.height))
@@ -345,8 +344,7 @@ export class ClassList {
 
   clear(): this {
     for (const cls of this.values) {
-      if (cls != "bk")
-        this.classList.remove(cls)
+      this.classList.remove(cls)
     }
     return this
   }

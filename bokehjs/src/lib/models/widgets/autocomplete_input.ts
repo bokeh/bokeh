@@ -4,7 +4,7 @@ import {empty, display, undisplay, div, Keys} from "core/dom"
 import * as p from "core/properties"
 import {clamp} from "core/util/math"
 
-import menus_css, * as menus from "styles/menus.css"
+import dropdown_css, * as dropdown from "styles/dropdown.css"
 
 export class AutocompleteInputView extends TextInputView {
   override model: AutocompleteInput
@@ -18,7 +18,7 @@ export class AutocompleteInputView extends TextInputView {
   protected menu: HTMLElement
 
   override styles(): string[] {
-    return [...super.styles(), menus_css]
+    return [...super.styles(), dropdown_css]
   }
 
   override render(): void {
@@ -27,10 +27,10 @@ export class AutocompleteInputView extends TextInputView {
     this.input_el.addEventListener("keydown", (event) => this._keydown(event))
     this.input_el.addEventListener("keyup", (event) => this._keyup(event))
 
-    this.menu = div({class: [menus.menu, menus.below]})
+    this.menu = div({class: [dropdown.menu, dropdown.below]})
     this.menu.addEventListener("click", (event) => this._menu_click(event))
     this.menu.addEventListener("mouseover", (event) => this._menu_hover(event))
-    this.el.appendChild(this.menu)
+    this.shadow_el.appendChild(this.menu)
     undisplay(this.menu)
   }
 
@@ -52,7 +52,7 @@ export class AutocompleteInputView extends TextInputView {
       this.menu.appendChild(item)
     }
     if (completions.length > 0)
-      this.menu.children[0].classList.add(menus.active)
+      this.menu.children[0].classList.add(dropdown.active)
   }
 
   protected _show_menu(): void {
@@ -63,8 +63,7 @@ export class AutocompleteInputView extends TextInputView {
       display(this.menu)
 
       const listener = (event: MouseEvent) => {
-        const {target} = event
-        if (target instanceof HTMLElement && !this.el.contains(target)) {
+        if (!event.composedPath().includes(this.el)) {
           document.removeEventListener("click", listener)
           this._hide_menu()
         }
@@ -90,21 +89,21 @@ export class AutocompleteInputView extends TextInputView {
 
   protected _menu_hover(event: MouseEvent): void {
     if (event.target != event.currentTarget && event.target instanceof Element) {
-      let i = 0
-      for (i = 0; i<this.menu.children.length; i++) {
-        if (this.menu.children[i].textContent! == event.target.textContent!)
+      for (let i = 0; i < this.menu.children.length; i++) {
+        if (this.menu.children[i].textContent! == event.target.textContent!) {
+          this._bump_hover(i)
           break
+        }
       }
-      this._bump_hover(i)
     }
   }
 
   protected _bump_hover(new_index: number): void {
     const n_children = this.menu.children.length
     if (this._open && n_children > 0) {
-      this.menu.children[this._hover_index].classList.remove(menus.active)
+      this.menu.children[this._hover_index].classList.remove(dropdown.active)
       this._hover_index = clamp(new_index, 0, n_children-1)
-      this.menu.children[this._hover_index].classList.add(menus.active)
+      this.menu.children[this._hover_index].classList.add(dropdown.active)
     }
   }
 

@@ -107,7 +107,7 @@ the final BokehJS scripts.
         // slider value.
         super.render()
 
-        this.el.appendChild(div({
+        this.shadow_el.appendChild(div({
           style: {
             padding: '2px',
             color: '#b88d8e',

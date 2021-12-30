@@ -19,13 +19,16 @@ import pytest ; pytest
 
 # Standard library imports
 import time
+from typing import Tuple
 
 # External imports
 from flaky import flaky
 
 # Bokeh imports
+from bokeh._testing.plugins.project import BokehServerPage, SinglePlotPage
 from bokeh._testing.util.compare import cds_data_almost_equal
 from bokeh._testing.util.selenium import RECORD
+from bokeh.application.handlers.function import ModifyDoc
 from bokeh.layouts import column
 from bokeh.models import (
     ColumnDataSource,
@@ -58,10 +61,10 @@ def _make_plot(num_objects=0):
     plot.toolbar_sticky = False
     return plot
 
-def _make_server_plot(expected, num_objects=0):
+def _make_server_plot(expected, num_objects=0) -> Tuple[ModifyDoc, Plot]:
+    plot = Plot(height=400, width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
     def modify_doc(doc):
         source = ColumnDataSource(dict(xs=[], ys=[]))
-        plot = Plot(height=400, width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
         renderer = plot.add_glyph(source, MultiLine(xs='xs', ys='ys'))
         tool = FreehandDrawTool(num_objects=num_objects, renderers=[renderer])
         plot.add_tools(tool)
@@ -74,12 +77,12 @@ def _make_server_plot(expected, num_objects=0):
         code = RECORD("matches", "div.text")
         plot.add_tools(CustomAction(callback=CustomJS(args=dict(div=div), code=code)))
         doc.add_root(column(plot, div))
-    return modify_doc
+    return modify_doc, plot
 
 
 @pytest.mark.selenium
 class Test_FreehandDrawTool:
-    def test_selected_by_default(self, single_plot_page) -> None:
+    def test_selected_by_default(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -89,7 +92,7 @@ class Test_FreehandDrawTool:
 
         assert page.has_no_console_errors()
 
-    def test_can_be_deselected_and_selected(self, single_plot_page) -> None:
+    def test_can_be_deselected_and_selected(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -110,13 +113,13 @@ class Test_FreehandDrawTool:
 
         assert page.has_no_console_errors()
 
-    def test_drag_triggers_draw(self, single_plot_page) -> None:
+    def test_drag_triggers_draw(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
 
         # ensure clicking adds a point
-        page.drag_canvas_at_position(200, 200, 50, 50)
+        page.drag_canvas_at_position(plot, 200, 200, 50, 50)
         page.click_custom_action()
 
         expected = {'xs': [[1.6216216216216217, 2.027027027027027, 2.027027027027027, 2.027027027027027]],
@@ -125,14 +128,14 @@ class Test_FreehandDrawTool:
 
         assert page.has_no_console_errors()
 
-    def test_num_object_limits_lines(self, single_plot_page) -> None:
+    def test_num_object_limits_lines(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot(num_objects=1)
 
         page = single_plot_page(plot)
 
         # ensure clicking adds a point
-        page.drag_canvas_at_position(200, 200, 50, 50)
-        page.drag_canvas_at_position(100, 100, 100, 100)
+        page.drag_canvas_at_position(plot, 200, 200, 50, 50)
+        page.drag_canvas_at_position(plot, 100, 100, 100, 100)
         page.click_custom_action()
 
         expected = {'xs': [[0.8108108108108109, 1.6216216216216217, 1.6216216216216217, 1.6216216216216217]],
@@ -142,26 +145,28 @@ class Test_FreehandDrawTool:
         assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
-    def test_freehand_draw_syncs_to_server(self, bokeh_server_page) -> None:
+    def test_freehand_draw_syncs_to_server(self, bokeh_server_page: BokehServerPage) -> None:
         expected = {'xs': [[1.6216216216216217, 2.027027027027027, 2.027027027027027, 2.027027027027027]],
                     'ys': [[1.5, 1.125, 1.125, 1.125]]}
 
-        page = bokeh_server_page(_make_server_plot(expected))
+        modify_doc, plot = _make_server_plot(expected)
+        page = bokeh_server_page(modify_doc)
 
-        page.drag_canvas_at_position(200, 200, 50, 50)
+        page.drag_canvas_at_position(plot, 200, 200, 50, 50)
         page.click_custom_action()
 
         assert page.results == {"matches": "True"}
 
     @flaky(max_runs=10)
-    def test_line_delete_syncs_to_server(self, bokeh_server_page) -> None:
+    def test_line_delete_syncs_to_server(self, bokeh_server_page: BokehServerPage) -> None:
         expected = {'xs': [], 'ys': []}
 
-        page = bokeh_server_page(_make_server_plot(expected))
+        modify_doc, plot = _make_server_plot(expected)
+        page = bokeh_server_page(modify_doc)
 
         # ensure clicking adds a point
-        page.drag_canvas_at_position(200, 200, 50, 50)
-        page.click_canvas_at_position(200, 200)
+        page.drag_canvas_at_position(plot, 200, 200, 50, 50)
+        page.click_canvas_at_position(plot, 200, 200)
         time.sleep(0.4)  # hammerJS click timeout
         page.send_keys("\ue003")  # Backspace
 

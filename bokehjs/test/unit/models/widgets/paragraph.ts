@@ -9,7 +9,7 @@ describe("Paragraph.View render", () => {
     const p = new Paragraph()
     const pv = (await build_view(p)).build()
 
-    const el = pv.el.querySelector<HTMLElement>("p")!
+    const el = pv.shadow_el.querySelector<HTMLElement>("p")!
     expect(el.style.cssText.includes("margin: 0px;")).to.be.true
     // TODO: expect(getComputedStyle(el).margin).to.be.equal("0px")
   })

@@ -1,8 +1,8 @@
 import {logger} from "core/logging"
-import {classes, empty, div, a, Keys} from "core/dom"
+import {classes, div, a, Keys} from "core/dom"
 import {build_views, remove_views} from "core/build_views"
 import * as p from "core/properties"
-import {DOMView} from "core/dom_view"
+import {DOMComponentView} from "core/dom_view"
 import {Logo, Location} from "core/enums"
 import {EventType} from "core/ui_events"
 import {some, every} from "core/util/array"
@@ -22,7 +22,9 @@ import {InspectTool} from "./inspectors/inspect_tool"
 import {ContextMenu} from "core/util/menus"
 
 import toolbars_css, * as toolbars from "styles/toolbar.css"
+import tools_css, * as tools from "styles/tool_button.css"
 import logos_css, * as logos from "styles/logo.css"
+import icons_css from "styles/icons.css"
 
 export namespace ToolbarViewModel {
   export type Attrs = p.AttrsOf<Props>
@@ -57,13 +59,14 @@ export class ToolbarViewModel extends Model {
   }
 }
 
-export class ToolbarBaseView extends DOMView {
+export class ToolbarBaseView extends DOMComponentView {
   override model: ToolbarBase
   override el: HTMLElement
 
   protected _tool_button_views: Map<ButtonTool, ButtonToolButtonView>
   protected _toolbar_view_model: ToolbarViewModel
   protected _overflow_menu: ContextMenu
+  protected _overflow_el?: HTMLElement
 
   override initialize(): void {
     super.initialize()
@@ -76,7 +79,10 @@ export class ToolbarBaseView extends DOMView {
     this._overflow_menu = new ContextMenu([], {
       orientation,
       reversed,
-      //prevent_hide: (event) => event.target == this.el,
+      prevent_hide: (event) => {
+        return this._overflow_el != null ? event.composedPath().includes(this._overflow_el) : false
+      },
+      extra_styles: [tools_css],
     })
   }
 
@@ -99,7 +105,7 @@ export class ToolbarBaseView extends DOMView {
   }
 
   override styles(): string[] {
-    return [...super.styles(), toolbars_css, logos_css]
+    return [...super.styles(), toolbars_css, tools_css, logos_css, icons_css]
   }
 
   override remove(): void {
@@ -120,12 +126,12 @@ export class ToolbarBaseView extends DOMView {
 
   protected _on_visible_change(): void {
     const {visible} = this._toolbar_view_model
-    classes(this.el).toggle(toolbars.toolbar_hidden, !visible)
+    classes(this.el).toggle(toolbars.hidden, !visible)
   }
 
   override render(): void {
-    empty(this.el)
-    this.el.classList.add(toolbars.toolbar)
+    this.empty()
+
     this.el.classList.add(toolbars[this.model.toolbar_location])
     this._toolbar_view_model.autohide = this.model.autohide
     this._on_visible_change()
@@ -136,7 +142,7 @@ export class ToolbarBaseView extends DOMView {
     if (this.model.logo != null) {
       const gray = this.model.logo === "grey" ? logos.grey : null
       const logo_el = a({href: "https://bokeh.org/", target: "_blank", class: [logos.logo, logos.logo_small, gray]})
-      this.el.appendChild(logo_el)
+      this.shadow_el.appendChild(logo_el)
       const {width, height} = logo_el.getBoundingClientRect()
       size += horizontal ? width : height
     }
@@ -160,29 +166,30 @@ export class ToolbarBaseView extends DOMView {
     bars.push(this.model.inspectors.filter((tool) => tool.toggleable).map(el))
 
     const non_empty = bars.filter((bar) => bar.length != 0)
-    const divider = () => div({class: toolbars.divider})
+    const divider = () => div({class: tools.divider})
 
     const {bbox} = this.layout
 
     let overflowed = false
     const overflow_size = 15
-    this.root.el.appendChild(this._overflow_menu.el)
-    const overflow_button = div({class: toolbars.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
+    this.root.children_el.appendChild(this._overflow_menu.el)
+    const overflow_el = div({class: tools.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
+    this._overflow_el = overflow_el
     const toggle_menu = () => {
       const at = (() => {
         switch (this.model.toolbar_location) {
-          case "right": return {left_of:  overflow_button}
-          case "left":  return {right_of: overflow_button}
-          case "above": return {below: overflow_button}
-          case "below": return {above: overflow_button}
+          case "right": return {left_of:  overflow_el}
+          case "left":  return {right_of: overflow_el}
+          case "above": return {below: overflow_el}
+          case "below": return {above: overflow_el}
         }
       })()
       this._overflow_menu.toggle(at)
     }
-    overflow_button.addEventListener("click", () => {
+    this._overflow_el.addEventListener("click", () => {
       toggle_menu()
     })
-    overflow_button.addEventListener("keydown", (event) => {
+    this._overflow_el.addEventListener("keydown", (event) => {
       if (event.keyCode == Keys.Enter) {
         toggle_menu()
       }
@@ -192,13 +199,13 @@ export class ToolbarBaseView extends DOMView {
       if (overflowed) {
         this._overflow_menu.items.push({content: el, class: horizontal ? toolbars.right : toolbars.above})
       } else {
-        this.el.appendChild(el)
+        this.shadow_el.appendChild(el)
         const {width, height} = el.getBoundingClientRect()
         size += horizontal ? width : height
         overflowed = horizontal ? size > bbox.width - overflow_size : size > bbox.height - overflow_size
         if (overflowed) {
-          this.el.removeChild(el)
-          this.el.appendChild(overflow_button)
+          this.shadow_el.removeChild(el)
+          this.shadow_el.appendChild(this._overflow_el)
 
           const {items} = this._overflow_menu
           items.splice(0, items.length)

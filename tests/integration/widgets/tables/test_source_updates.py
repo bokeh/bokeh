@@ -21,10 +21,12 @@ import pytest ; pytest
 from flaky import flaky
 
 # Bokeh imports
+from bokeh._testing.plugins.project import BokehServerPage, SinglePlotPage
 from bokeh._testing.util.selenium import (
     RECORD,
     alt_click,
     enter_text_in_cell,
+    find_element_for,
     get_table_cell,
     get_table_column_cells,
     get_table_row,
@@ -70,20 +72,20 @@ def has_cds_data_patches(msgs):
 @pytest.mark.selenium
 class Test_DataTableSource:
     @flaky(max_runs=10)
-    def test_server_source_patch_does_not_duplicate_data_update_event(self, bokeh_server_page) -> None:
-        def modify_doc(doc):
-            data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
-            source = ColumnDataSource(data)
+    def test_server_source_patch_does_not_duplicate_data_update_event(self, bokeh_server_page: BokehServerPage) -> None:
+        btn = Button(label="Click Me!")
 
+        data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
+        source = ColumnDataSource(data)
+
+        table = DataTable(columns=[
+            TableColumn(field="x"),
+            TableColumn(field="y")
+        ], source=source, editable=False)
+
+        def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
-
-            table = DataTable(columns=[
-                TableColumn(field="x"),
-                TableColumn(field="y")
-            ], source=source, editable=False)
-
-            btn = Button(label="Click Me!", css_classes=["foo"])
 
             @btn.on_click
             def btn_click():
@@ -98,8 +100,8 @@ class Test_DataTableSource:
         results = page.results
         assert results ==  {'data': {'x': [1,2,3,4], 'y': [10,20,30,40]}}
 
-        button = page.driver.find_element_by_class_name('foo')
-        button.click()
+        btn_el = find_element_for(page.driver, btn)
+        btn_el.click()
 
         page.click_custom_action()
 
@@ -125,20 +127,20 @@ class Test_DataTableSource:
         #assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
-    def test_server_source_stream_does_not_duplicate_data_update_event(self, bokeh_server_page) -> None:
-        def modify_doc(doc):
-            data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
-            source = ColumnDataSource(data)
+    def test_server_source_stream_does_not_duplicate_data_update_event(self, bokeh_server_page: BokehServerPage) -> None:
+        btn = Button(label="Click Me!")
 
+        data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
+        source = ColumnDataSource(data)
+
+        table = DataTable(columns=[
+            TableColumn(field="x"),
+            TableColumn(field="y")
+        ], source=source, editable=False)
+
+        def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
-
-            table = DataTable(columns=[
-                TableColumn(field="x"),
-                TableColumn(field="y")
-            ], source=source, editable=False)
-
-            btn = Button(label="Click Me!", css_classes=["foo"])
 
             @btn.on_click
             def btn_click():
@@ -153,8 +155,8 @@ class Test_DataTableSource:
         results = page.results
         assert results ==  {'data': {'x': [1,2,3,4], 'y': [10,20,30,40]}}
 
-        button = page.driver.find_element_by_class_name('foo')
-        button.click()
+        btn_el = find_element_for(page.driver, btn)
+        btn_el.click()
 
         page.click_custom_action()
 
@@ -180,20 +182,21 @@ class Test_DataTableSource:
         #assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
-    def test_server_source_update_does_not_duplicate_data_update_event(self, bokeh_server_page) -> None:
+    def test_server_source_update_does_not_duplicate_data_update_event(self, bokeh_server_page: BokehServerPage) -> None:
+        btn = Button(label="Click Me!")
+
+        data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
+        source = ColumnDataSource(data)
+
+        table = DataTable(columns=[
+            TableColumn(field="x"),
+            TableColumn(field="y")
+        ], source=source, editable=False)
+
         def modify_doc(doc):
-            data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
-            source = ColumnDataSource(data)
 
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
-
-            table = DataTable(columns=[
-                TableColumn(field="x"),
-                TableColumn(field="y")
-            ], source=source, editable=False)
-
-            btn = Button(label="Click Me!", css_classes=["foo"])
 
             @btn.on_click
             def btn_click():
@@ -208,8 +211,8 @@ class Test_DataTableSource:
         results = page.results
         assert results ==  {'data': {'x': [1,2,3,4], 'y': [10,20,30,40]}}
 
-        button = page.driver.find_element_by_class_name('foo')
-        button.click()
+        btn_el = find_element_for(page.driver, btn)
+        btn_el.click()
 
         page.click_custom_action()
 
@@ -235,18 +238,18 @@ class Test_DataTableSource:
         #assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
-    def test_server_edit_does_not_duplicate_data_update_event(self, bokeh_server_page) -> None:
-        def modify_doc(doc):
-            data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
-            source = ColumnDataSource(data)
+    def test_server_edit_does_not_duplicate_data_update_event(self, bokeh_server_page: BokehServerPage) -> None:
+        data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
+        source = ColumnDataSource(data)
 
+        table = DataTable(columns=[
+            TableColumn(field="x"),
+            TableColumn(field="y", editor=NumberEditor())
+        ], source=source, editable=True)
+
+        def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
-
-            table = DataTable(columns=[
-                TableColumn(field="x"),
-                TableColumn(field="y", editor=NumberEditor())
-            ], source=source, editable=True)
 
             doc.add_root(column(plot, table))
 
@@ -257,9 +260,9 @@ class Test_DataTableSource:
         results = page.results
         assert results ==  {'data': {'x': [1,2,3,4], 'y': [10,20,30,40]}}
 
-        cell = get_table_cell(page.driver, 3, 2)
+        cell = get_table_cell(page.driver, table, 3, 2)
         assert cell.text == '30'
-        enter_text_in_cell(page.driver, cell, '100')
+        enter_text_in_cell(page.driver, table, 3, 2, '100')
 
         page.click_custom_action()
 
@@ -285,19 +288,18 @@ class Test_DataTableSource:
         #assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
-    def test_server_basic_selection(self, bokeh_server_page) -> None:
+    def test_server_basic_selection(self, bokeh_server_page: BokehServerPage) -> None:
         data = {'x': [1,2,3,4,5,6], 'y': [60,50,40,30,20,10]}
         source = ColumnDataSource(data)
 
-        def modify_doc(doc):
+        table = DataTable(columns=[
+            TableColumn(field="x"),
+            TableColumn(field="y")
+        ], source=source, editable=False)
 
+        def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("indices", "s.selected.indices"))))
-
-            table = DataTable(columns=[
-                TableColumn(field="x"),
-                TableColumn(field="y")
-            ], source=source, editable=False)
 
             doc.add_root(column(plot, table))
 
@@ -308,10 +310,10 @@ class Test_DataTableSource:
         results = page.results
         assert results ==  {'indices': []}
         assert set(source.selected.indices) == set()
-        assert get_table_selected_rows(page.driver) == set()
+        assert get_table_selected_rows(page.driver, table) == set()
 
         # select the third row
-        row = get_table_row(page.driver, 3)
+        row = get_table_row(page.driver, table, 3)
         row.click()
 
         page.click_custom_action()
@@ -319,10 +321,10 @@ class Test_DataTableSource:
         results = page.results
         assert results ==  {'indices': [2]}
         assert source.selected.indices == [2]
-        assert get_table_selected_rows(page.driver) == {2}
+        assert get_table_selected_rows(page.driver, table) == {2}
 
         # select the first row
-        row = get_table_row(page.driver, 1)
+        row = get_table_row(page.driver, table, 1)
         row.click()
 
         page.click_custom_action()
@@ -330,25 +332,24 @@ class Test_DataTableSource:
         results = page.results
         assert results ==  {'indices': [0]}
         assert source.selected.indices == [0]
-        assert get_table_selected_rows(page.driver) == {0}
+        assert get_table_selected_rows(page.driver, table) == {0}
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
-    def test_server_basic_mulitselection(self, bokeh_server_page) -> None:
+    def test_server_basic_mulitselection(self, bokeh_server_page: BokehServerPage) -> None:
         data = {'x': [1,2,3,4,5,6], 'y': [60,50,40,30,20,10]}
         source = ColumnDataSource(data)
 
-        def modify_doc(doc):
+        table = DataTable(columns=[
+            TableColumn(field="x"),
+            TableColumn(field="y")
+        ], source=source, editable=False)
 
+        def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("indices", "s.selected.indices"))))
-
-            table = DataTable(columns=[
-                TableColumn(field="x"),
-                TableColumn(field="y")
-            ], source=source, editable=False)
 
             doc.add_root(column(plot, table))
 
@@ -359,13 +360,13 @@ class Test_DataTableSource:
         results = page.results
         assert results ==  {'indices': []}
         assert set(source.selected.indices) == set()
-        assert get_table_selected_rows(page.driver) == set()
+        assert get_table_selected_rows(page.driver, table) == set()
 
         # select the third row
-        row = get_table_row(page.driver, 2)
+        row = get_table_row(page.driver, table, 2)
         row.click()
 
-        row = get_table_row(page.driver, 4)
+        row = get_table_row(page.driver, table, 4)
         shift_click(page.driver, row)
 
         page.click_custom_action()
@@ -373,9 +374,9 @@ class Test_DataTableSource:
         results = page.results
         assert set(results["indices"]) == {1, 2, 3}
         assert set(source.selected.indices) == {1, 2, 3}
-        assert get_table_selected_rows(page.driver) == {1, 2, 3}
+        assert get_table_selected_rows(page.driver, table) == {1, 2, 3}
 
-        row = get_table_row(page.driver, 6)
+        row = get_table_row(page.driver, table, 6)
         alt_click(page.driver, row)
 
         page.click_custom_action()
@@ -383,27 +384,27 @@ class Test_DataTableSource:
         results = page.results
         assert set(results["indices"]) == {1, 2, 3, 5}
         assert set(source.selected.indices) == {1, 2, 3, 5}
-        assert get_table_selected_rows(page.driver) == {1, 2, 3, 5}
+        assert get_table_selected_rows(page.driver, table) == {1, 2, 3, 5}
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
-    def test_server_sorted_after_data_update(self, bokeh_server_page) -> None:
+    def test_server_sorted_after_data_update(self, bokeh_server_page: BokehServerPage) -> None:
+        button = Button()
+
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)
 
-        def modify_doc(doc):
+        table = DataTable(columns=[
+            TableColumn(field="x", title="x", sortable=True),
+            TableColumn(field="y", title="y", sortable=True)
+        ], source=source, editable=False)
 
+        def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
-            table = DataTable(columns=[
-                TableColumn(field="x", title="x", sortable=True),
-                TableColumn(field="y", title="y", sortable=True)
-            ], source=source, editable=False)
-
-            button = Button(css_classes=["foo"])
             def cb():
                 source.data =  {'x': [0,1,2,3,4,5,6,7], 'y': [70,60,50,40,30,20,10,0]}
             button.on_click(cb)
@@ -417,21 +418,21 @@ class Test_DataTableSource:
         results = page.results
         assert results ==  {'data': {'x': [1,2,5,6], 'y': [60,50,20,10]}}
 
-        assert get_table_column_cells(page.driver, 1) == ['1', '2', '5', '6']
-        assert get_table_column_cells(page.driver, 2) == ['60', '50', '20', '10']
+        assert get_table_column_cells(page.driver, table, 1) == ['1', '2', '5', '6']
+        assert get_table_column_cells(page.driver, table, 2) == ['60', '50', '20', '10']
 
-        sort_table_column(page.driver, 1)
+        sort_table_column(page.driver, table, 1)
 
-        assert get_table_column_cells(page.driver, 1) == ['1', '2', '5', '6']
-        assert get_table_column_cells(page.driver, 2) == ['60', '50', '20', '10']
+        assert get_table_column_cells(page.driver, table, 1) == ['1', '2', '5', '6']
+        assert get_table_column_cells(page.driver, table, 2) == ['60', '50', '20', '10']
 
-        sort_table_column(page.driver, 2, True)
+        sort_table_column(page.driver, table, 2, True)
 
-        assert get_table_column_cells(page.driver, 1) == ['6', '5', '2', '1']
-        assert get_table_column_cells(page.driver, 2) == ['10', '20', '50', '60']
+        assert get_table_column_cells(page.driver, table, 1) == ['6', '5', '2', '1']
+        assert get_table_column_cells(page.driver, table, 2) == ['10', '20', '50', '60']
 
-        button = page.driver.find_element_by_class_name('foo')
-        button.click()
+        button_el = find_element_for(page.driver, button)
+        button_el.click()
 
         page.click_custom_action()
 
@@ -439,29 +440,29 @@ class Test_DataTableSource:
         assert results ==  {'data': {'x': [0,1,2,3,4,5,6,7], 'y': [70,60,50,40,30,20,10,0]}}
         assert source.data == {'x': [0,1,2,3,4,5,6,7], 'y': [70,60,50,40,30,20,10,0]}
 
-        assert get_table_column_cells(page.driver, 1) == ['7', '6', '5', '4', '3', '2', '1', '0']
-        assert get_table_column_cells(page.driver, 2) == ['0', '10', '20', '30', '40', '50', '60', '70']
+        assert get_table_column_cells(page.driver, table, 1) == ['7', '6', '5', '4', '3', '2', '1', '0']
+        assert get_table_column_cells(page.driver, table, 2) == ['0', '10', '20', '30', '40', '50', '60', '70']
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
     @pytest.mark.skip
     @flaky(max_runs=10)
-    def test_server_sorted_after_patch(self, bokeh_server_page) -> None:
+    def test_server_sorted_after_patch(self, bokeh_server_page: BokehServerPage) -> None:
+        button = Button()
+
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)
 
-        def modify_doc(doc):
+        table = DataTable(columns=[
+            TableColumn(field="x", title="x", sortable=True),
+            TableColumn(field="y", title="y", sortable=True)
+        ], source=source, editable=False)
 
+        def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
-            table = DataTable(columns=[
-                TableColumn(field="x", title="x", sortable=True),
-                TableColumn(field="y", title="y", sortable=True)
-            ], source=source, editable=False)
-
-            button = Button(css_classes=["foo"])
             def cb():
                 source.patch({'y': [[2, 100]]})
             button.on_click(cb)
@@ -475,21 +476,21 @@ class Test_DataTableSource:
         results = page.results
         assert results ==  {'data': {'x': [1,2,5,6], 'y': [60,50,20,10]}}
 
-        assert get_table_column_cells(page.driver, 1) == ['1', '2', '5', '6']
-        assert get_table_column_cells(page.driver, 2) == ['60', '50', '20', '10']
+        assert get_table_column_cells(page.driver, table, 1) == ['1', '2', '5', '6']
+        assert get_table_column_cells(page.driver, table, 2) == ['60', '50', '20', '10']
 
-        sort_table_column(page.driver, 1)
+        sort_table_column(page.driver, table, 1)
 
-        assert get_table_column_cells(page.driver, 1) == ['1', '2', '5', '6']
-        assert get_table_column_cells(page.driver, 2) == ['60', '50', '20', '10']
+        assert get_table_column_cells(page.driver, table, 1) == ['1', '2', '5', '6']
+        assert get_table_column_cells(page.driver, table, 2) == ['60', '50', '20', '10']
 
-        sort_table_column(page.driver, 2, True)
+        sort_table_column(page.driver, table, 2, True)
 
-        assert get_table_column_cells(page.driver, 1) == ['6', '5', '2', '1']
-        assert get_table_column_cells(page.driver, 2) == ['10', '20', '50', '60']
+        assert get_table_column_cells(page.driver, table, 1) == ['6', '5', '2', '1']
+        assert get_table_column_cells(page.driver, table, 2) == ['10', '20', '50', '60']
 
-        button = page.driver.find_element_by_class_name('foo')
-        button.click()
+        button_el = find_element_for(page.driver, button)
+        button_el.click()
 
         page.click_custom_action()
 
@@ -497,29 +498,29 @@ class Test_DataTableSource:
         assert results ==  {'data': {'x': [1,2,5,6], 'y': [60,50,100,10]}}
         assert source.data == {'x': [1,2,5,6], 'y': [60,50,100,10]}
 
-        assert get_table_column_cells(page.driver, 1) == ['6', '2', '1', '5']
-        assert get_table_column_cells(page.driver, 2) == ['10', '50', '60', '100']
+        assert get_table_column_cells(page.driver, table, 1) == ['6', '2', '1', '5']
+        assert get_table_column_cells(page.driver, table, 2) == ['10', '50', '60', '100']
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
     @pytest.mark.skip
     @flaky(max_runs=10)
-    def test_server_sorted_after_stream(self, bokeh_server_page) -> None:
+    def test_server_sorted_after_stream(self, bokeh_server_page: BokehServerPage) -> None:
+        button = Button()
+
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)
 
-        def modify_doc(doc):
+        table = DataTable(columns=[
+            TableColumn(field="x", title="x", sortable=True),
+            TableColumn(field="y", title="y", sortable=True)
+        ], source=source, editable=False)
 
+        def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
-            table = DataTable(columns=[
-                TableColumn(field="x", title="x", sortable=True),
-                TableColumn(field="y", title="y", sortable=True)
-            ], source=source, editable=False)
-
-            button = Button(css_classes=["foo"])
             def cb():
                 source.stream({'x': [100], 'y': [100]})
             button.on_click(cb)
@@ -533,21 +534,21 @@ class Test_DataTableSource:
         results = page.results
         assert results ==  {'data': {'x': [1,2,5,6], 'y': [60,50,20,10]}}
 
-        assert get_table_column_cells(page.driver, 1) == ['1', '2', '5', '6']
-        assert get_table_column_cells(page.driver, 2) == ['60', '50', '20', '10']
+        assert get_table_column_cells(page.driver, table, 1) == ['1', '2', '5', '6']
+        assert get_table_column_cells(page.driver, table, 2) == ['60', '50', '20', '10']
 
-        sort_table_column(page.driver, 1)
+        sort_table_column(page.driver, table, 1)
 
-        assert get_table_column_cells(page.driver, 1) == ['1', '2', '5', '6']
-        assert get_table_column_cells(page.driver, 2) == ['60', '50', '20', '10']
+        assert get_table_column_cells(page.driver, table, 1) == ['1', '2', '5', '6']
+        assert get_table_column_cells(page.driver, table, 2) == ['60', '50', '20', '10']
 
-        sort_table_column(page.driver, 2, True)
+        sort_table_column(page.driver, table, 2, True)
 
-        assert get_table_column_cells(page.driver, 1) == ['6', '5', '2', '1']
-        assert get_table_column_cells(page.driver, 2) == ['10', '20', '50', '60']
+        assert get_table_column_cells(page.driver, table, 1) == ['6', '5', '2', '1']
+        assert get_table_column_cells(page.driver, table, 2) == ['10', '20', '50', '60']
 
-        button = page.driver.find_element_by_class_name('foo')
-        button.click()
+        button_el = find_element_for(page.driver, button)
+        button_el.click()
 
         page.click_custom_action()
 
@@ -555,27 +556,26 @@ class Test_DataTableSource:
         assert results ==  {'data': {'x': [1,2,5,6,100], 'y': [60,50,20,10,100]}}
         assert source.data == {'x': [1,2,5,6,100], 'y': [60,50,20,10,100]}
 
-        assert get_table_column_cells(page.driver, 1) == ['6', '5', '2', '1', '100']
-        assert get_table_column_cells(page.driver, 2) == ['10', '20', '50', '60', '100']
+        assert get_table_column_cells(page.driver, table, 1) == ['6', '5', '2', '1', '100']
+        assert get_table_column_cells(page.driver, table, 2) == ['10', '20', '50', '60', '100']
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
     @pytest.mark.skip
     @flaky(max_runs=10)
-    def test_server_sorted_after_edit(self, bokeh_server_page) -> None:
+    def test_server_sorted_after_edit(self, bokeh_server_page: BokehServerPage) -> None:
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)
 
-        def modify_doc(doc):
+        table = DataTable(columns=[
+            TableColumn(field="x", title="x", sortable=True),
+            TableColumn(field="y", title="y", sortable=True, editor=NumberEditor())
+        ], source=source, editable=True)
 
+        def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
-
-            table = DataTable(columns=[
-                TableColumn(field="x", title="x", sortable=True),
-                TableColumn(field="y", title="y", sortable=True, editor=NumberEditor())
-            ], source=source, editable=True)
 
             doc.add_root(column(plot, table))
 
@@ -586,22 +586,22 @@ class Test_DataTableSource:
         results = page.results
         assert results ==  {'data': {'x': [1,2,5,6], 'y': [60,50,20,10]}}
 
-        assert get_table_column_cells(page.driver, 1) == ['1', '2', '5', '6']
-        assert get_table_column_cells(page.driver, 2) == ['60', '50', '20', '10']
+        assert get_table_column_cells(page.driver, table, 1) == ['1', '2', '5', '6']
+        assert get_table_column_cells(page.driver, table, 2) == ['60', '50', '20', '10']
 
-        sort_table_column(page.driver, 1)
+        sort_table_column(page.driver, table, 1)
 
-        assert get_table_column_cells(page.driver, 1) == ['1', '2', '5', '6']
-        assert get_table_column_cells(page.driver, 2) == ['60', '50', '20', '10']
+        assert get_table_column_cells(page.driver, table, 1) == ['1', '2', '5', '6']
+        assert get_table_column_cells(page.driver, table, 2) == ['60', '50', '20', '10']
 
-        sort_table_column(page.driver, 2, True)
+        sort_table_column(page.driver, table, 2, True)
 
-        assert get_table_column_cells(page.driver, 1) == ['6', '5', '2', '1']
-        assert get_table_column_cells(page.driver, 2) == ['10', '20', '50', '60']
+        assert get_table_column_cells(page.driver, table, 1) == ['6', '5', '2', '1']
+        assert get_table_column_cells(page.driver, table, 2) == ['10', '20', '50', '60']
 
-        cell = get_table_cell(page.driver, 3, 2)
+        cell = get_table_cell(page.driver, table, 3, 2)
         assert cell.text == '50'
-        enter_text_in_cell(page.driver, cell, '100')
+        enter_text_in_cell(page.driver, table, 3, 2, '100')
 
         page.click_custom_action()
 
@@ -609,26 +609,25 @@ class Test_DataTableSource:
         assert results ==  {'data': {'x': [1,2,5,6], 'y': [60,100,20,10]}}
         assert source.data == {'x': [1,2,5,6], 'y': [60,100,20,10]}
 
-        assert get_table_column_cells(page.driver, 1) == ['6', '5', '1', '2']
-        assert get_table_column_cells(page.driver, 2) == ['10', '20', '60', '100']
+        assert get_table_column_cells(page.driver, table, 1) == ['6', '5', '1', '2']
+        assert get_table_column_cells(page.driver, table, 2) == ['10', '20', '60', '100']
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
-    def test_server_source_updated_after_edit(self, bokeh_server_page) -> None:
+    def test_server_source_updated_after_edit(self, bokeh_server_page: BokehServerPage) -> None:
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)
 
-        def modify_doc(doc):
+        table = DataTable(columns=[
+            TableColumn(field="x", title="x", sortable=True),
+            TableColumn(field="y", title="y", sortable=True, editor=NumberEditor())
+        ], source=source, editable=True)
 
+        def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
-
-            table = DataTable(columns=[
-                TableColumn(field="x", title="x", sortable=True),
-                TableColumn(field="y", title="y", sortable=True, editor=NumberEditor())
-            ], source=source, editable=True)
 
             doc.add_root(column(plot, table))
 
@@ -639,12 +638,12 @@ class Test_DataTableSource:
         results = page.results
         assert results ==  {'data': {'x': [1,2,5,6], 'y': [60,50,20,10]}}
 
-        assert get_table_column_cells(page.driver, 1) == ['1', '2', '5', '6']
-        assert get_table_column_cells(page.driver, 2) == ['60', '50', '20', '10']
+        assert get_table_column_cells(page.driver, table, 1) == ['1', '2', '5', '6']
+        assert get_table_column_cells(page.driver, table, 2) == ['60', '50', '20', '10']
 
-        cell = get_table_cell(page.driver, 3, 2)
+        cell = get_table_cell(page.driver, table, 3, 2)
         assert cell.text == '20'
-        enter_text_in_cell(page.driver, cell, '100')
+        enter_text_in_cell(page.driver, table, 3, 2, '100')
 
         page.click_custom_action()
 
@@ -652,26 +651,26 @@ class Test_DataTableSource:
         assert results ==  {'data': {'x': [1,2,5,6], 'y': [60,50,100,10]}}
         assert source.data == {'x': [1,2,5,6], 'y': [60,50,100,10]}
 
-        assert get_table_column_cells(page.driver, 1) == ['1', '2', '5', '6']
-        assert get_table_column_cells(page.driver, 2) == ['60', '50', '100', '10']
+        assert get_table_column_cells(page.driver, table, 1) == ['1', '2', '5', '6']
+        assert get_table_column_cells(page.driver, table, 2) == ['60', '50', '100', '10']
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
-    def test_server_source_callback_triggered_after_edit(self, bokeh_server_page) -> None:
+    def test_server_source_callback_triggered_after_edit(self, bokeh_server_page: BokehServerPage) -> None:
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)
+
+        table = DataTable(columns=[
+            TableColumn(field="x", title="x", sortable=True),
+            TableColumn(field="y", title="y", sortable=True, editor=NumberEditor())
+        ], source=source, editable=True)
 
         result = []
 
         def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-
-            table = DataTable(columns=[
-                TableColumn(field="x", title="x", sortable=True),
-                TableColumn(field="y", title="y", sortable=True, editor=NumberEditor())
-            ], source=source, editable=True)
 
             def cb(attr, old, new):
                 result.append("CALLED")
@@ -683,16 +682,16 @@ class Test_DataTableSource:
 
         assert result == []
 
-        cell = get_table_cell(page.driver, 3, 2)
+        cell = get_table_cell(page.driver, table, 3, 2)
         assert cell.text == '20'
-        enter_text_in_cell(page.driver, cell, '100')
+        enter_text_in_cell(page.driver, table, 3, 2, '100')
 
         assert result == ["CALLED"]
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_glyph_selection_updates_table(self, single_plot_page) -> None:
+    def test_glyph_selection_updates_table(self, single_plot_page: SinglePlotPage) -> None:
         plot = Plot(height=800, width=1000)
 
         data = {'x': [1,2,3,4], 'y': [1, 1, 1, 1]}
@@ -707,10 +706,10 @@ class Test_DataTableSource:
 
         page = single_plot_page(column(plot, table))
 
-        page.click_canvas_at_position(500, 400)
+        page.click_canvas_at_position(plot, 500, 400)
         assert set(page.results["indices"]) == {1, 2}
 
-        assert get_table_selected_rows(page.driver) == {1, 2}
+        assert get_table_selected_rows(page.driver, table) == {1, 2}
 
         assert page.has_no_console_errors()
 

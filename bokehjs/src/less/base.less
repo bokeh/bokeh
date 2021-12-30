@@ -1,0 +1,19 @@
+@import "./_mixins.less";
+
+:host {
+  box-sizing: border-box;
+  font-family: var(--bokeh-base-font, Helvetica, Arial, sans-serif);
+  font-size: 13px; // 0.8em
+  line-height: @line-height;
+}
+
+*, *:before, *:after {
+  // box-sizing is not inherited by default, so force it to get consistent results
+  box-sizing: inherit;
+  font-family: inherit;
+}
+
+pre {
+  font-family: var(--bokeh-mono-font, monospace);
+  margin: 0;
+}
