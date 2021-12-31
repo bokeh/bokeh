@@ -17,7 +17,7 @@ import pandas as pd
 import shapefile as shp
 
 from bokeh.models import ColorBar, ColumnDataSource, Label, LinearColorMapper
-from bokeh.palettes import YlOrRd5
+from bokeh.palettes import TolYlOrBr5
 from bokeh.plotting import figure, show
 from bokeh.sampledata.us_states import data
 
@@ -46,7 +46,7 @@ p.title.align = "center"
 p.title.text_font_size = "21px"
 p.title.text_color = "#333344"
 
-mapper = LinearColorMapper(palette=list(reversed(YlOrRd5)), low=0, high=100)
+mapper = LinearColorMapper(palette=list(TolYlOrBr5), low=0, high=100)
 
 source = ColumnDataSource(data=dict(
     state_xs=list(states.lons),

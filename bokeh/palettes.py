@@ -101,6 +101,38 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #-----------------------------------------------------------------------------
+# License regarding Paul Tol's color schemes (Bright, HighContrast, Vibrant,
+# Muted, MediumContrast, PaleTextBackground, DarkText, Light, Sunset, BuRd,
+# TolPRGn, TolYlOrBr, Iridescent, TolRainbow)
+#
+# Copyright (c) 2021, Paul Tol
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of the copyright holder nor the names of contributors may
+#   be used to endorse or promote products derived from this software without
+#   specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#-----------------------------------------------------------------------------
 """ Provide a collection of palettes for color mapping.
 
 In the context of Bokeh, a *palette* is a simple plain Python list of (hex) RGB color
@@ -134,7 +166,7 @@ arbitrary size from special larger palettes.
 
 The Brewer palettes are also collected and grouped by name in a
 ``brewer`` dictionary, e.g.: ``brewer['Spectral'][6]``. Similarly there are
-attributes ``d3``, ``mpl``, and ``colorblind`` that have dictionaries
+attributes ``d3``, ``mpl``, and ``tol`` that have dictionaries
 corresponding to the those groups of palettes.
 
 Finally, all palettes are collected in the ``all_palettes`` palettes
@@ -175,13 +207,25 @@ Bokeh's own palette, comprised of the shutter logo colors:
 
 .. bokeh-palette-group:: bokeh
 
-Usability Palettes
-~~~~~~~~~~~~~~~~~~
+Accessible Palettes
+~~~~~~~~~~~~~~~~~~~
 
-Bokeh includes some palettes that are useful for addressing color
-deficiencies. These are shown below.
+Bokeh includes some palettes that are useful for addressing
+color deficiencies, which contains `Paul Tol's color schemes`_, and
+``Colorblind`` from https://jfly.uni-koeln.de/color/#pallet.
 
+.. bokeh-palette-group:: tol
 .. bokeh-palette-group:: colorblind
+
+The following palettes are also introduced in `Paul Tol's color schemes`_
+but with different usage. ``PaleTextBackground`` should be used for the
+background of black text. ``DarkText`` is meant for text itself on a white
+background. The idea is to use one dark color for support, not all combined
+and not for just one word.
+
+:PaleTextBackground: :bokeh-palette:`PaleTextBackground`
+
+:DarkText: :bokeh-palette:`DarkText`
 
 Large Palettes
 ~~~~~~~~~~~~~~
@@ -296,6 +340,25 @@ following notable attributes in the ``bokeh.palettes`` module:
     The names of the MPL palette groups are: ``Inferno``, ``Magma``
     ``Plasma``, ``Viridis``
 
+.. data:: tol
+
+    A set of accessible palettes from `Paul Tol's color schemes`_. This
+    dictionary is indexed with a palette name to obtain a complete group of
+    palettes, e.g. ``Bright``, and then further indexed with an integer to
+    select a palette of a specific size from the group:
+
+    .. code-block:: python
+
+        >> tol['Bright'][4]
+        ('#4477AA', '#EE6677', '#228833', '#CCBB44')
+
+    The resulting palette looks like: :bokeh-palette:`tol['Bright'][4]`
+
+    The names of the Tol palette groups are: ``Bright``, ``HighContrast``,
+    ``Vibrant``, ``Muted``, ``MediumContrast``, ``Light``,
+    ``Sunset``, ``BuRd``, ``TolPRGn``, ``TolYlOrBr``, ``Iridescent``,
+    ``TolRainbow``
+
 .. data:: small_palettes
 
     All palette groups, excluding 256-length palettes. This dictionary is
@@ -336,6 +399,7 @@ source file.
 .. _colorcet: https://colorcet.holoviz.org
 .. _D3: https://github.com/d3/d3-3.x-api-reference/blob/master/Ordinal-Scales.md#categorical-colors
 .. _Matplotlib: http://matplotlib.org/examples/color/colormaps_reference.html
+.. _`Paul Tol's color schemes`: https://personal.sron.nl/~pault/
 
 """
 
@@ -1100,6 +1164,158 @@ Colorblind5 = Colorblind8[:5]
 Colorblind4 = Colorblind8[:4]
 Colorblind3 = Colorblind8[:3]
 
+#-----------------------------------------------------------------------------
+# Palettes created by Paul Tol (https://personal.sron.nl/~pault/)
+Bright7 = ('#4477AA', '#EE6677', '#228833', '#CCBB44', '#66CCEE', '#AA3377', '#BBBBBB')
+Bright6 = Bright7[:6]
+Bright5 = Bright7[:5]
+Bright4 = Bright7[:4]
+Bright3 = Bright7[:3]
+
+HighContrast3 = ('#004488', '#DDAA33', '#BB5566')
+
+Vibrant7 = ('#EE7733', '#0077BB', '#33BBEE', '#EE3377', '#CC3311', '#009988', '#BBBBBB')
+Vibrant6 = Vibrant7[:6]
+Vibrant5 = Vibrant7[:5]
+Vibrant4 = Vibrant7[:4]
+Vibrant3 = Vibrant7[:3]
+
+Muted9 = ('#CC6677', '#332288', '#DDCC77', '#117733', '#88CCEE', '#882255', '#44AA99', '#999933', '#AA4499')
+Muted8 = Muted9[:8]
+Muted7 = Muted9[:7]
+Muted6 = Muted9[:6]
+Muted5 = Muted9[:5]
+Muted4 = Muted9[:4]
+Muted3 = Muted9[:3]
+
+MediumContrast6 = ('#6699CC', '#004488', '#EECC66', '#994455', '#997700', '#EE99AA')
+MediumContrast5 = MediumContrast6[:5]
+MediumContrast4 = MediumContrast6[:4]
+MediumContrast3 = MediumContrast6[:3]
+
+PaleTextBackground = ('#BBCCEE', '#CCEEFF', '#CCDDAA', '#EEEEBB', '#FFCCCC', '#DDDDDD')
+
+DarkText = ('#222255', '#225555', '#225522', '#666633', '#663333', '#555555')
+
+Light9 = ('#77AADD', '#EE8866', '#EEDD88', '#FFAABB', '#99DDFF', '#44BB99', '#BBCC33', '#AAAA00', '#DDDDDD')
+Light8 = Light9[:8]
+Light7 = Light9[:7]
+Light6 = Light9[:6]
+Light5 = Light9[:5]
+Light4 = Light9[:4]
+Light3 = Light9[:3]
+
+Sunset11 = ('#364B9A', '#4A7BB7', '#6EA6CD', '#98CAE1', '#C2E4EF', '#EAECCC', '#FEDA8B', '#FDB366', '#F67E4B', '#DD3D2D', '#A50026')
+Sunset10 = ('#364B9A', '#4E7FB9', '#77AED1', '#A5D2E5', '#D3E7DF', '#F5E2A7', '#FDC072', '#F78951', '#DF4430', '#A50026')
+Sunset9 = ('#364B9A', '#5384BC', '#83B8D7', '#87DDEB', '#EAECCC', '#FDD081', '#F99858', '#E34D34', '#A50026')
+Sunset8 = ('#364B9A', '#598DC0', '#92C4DE', '#CDE6E5', '#F8DF9D', '#FCAB62', '#E75839', '#A50026')
+Sunset7 = ('#364B9A', '#6197C5', '#A5D2E5', '#EAECCC', '#FDC072', '#ED6841', '#A50026')
+Sunset6 = ('#364B9A', '#6EA6CD', '#C2E4EF', '#FEDA8B', '#F67E4B', '#A50026')
+Sunset5 = ('#364B9A', '#83B8D7', '#EAECCC', '#F99858', '#A50026')
+Sunset4 = ('#364B9A', '#A5D2E5', '#FDC072', '#A50026')
+Sunset3 = ('#364B9A', '#EAECCC', '#A50026')
+
+BuRd9 = ('#2166AC', '#4393C3', '#92C5DE', '#D1E5F0', '#F7F7F7', '#FDDBC7', '#F4A582', '#D6604D', '#B2182B')
+BuRd8 = ('#2166AC', '#4E9AC6', '#A3CEE3', '#E1ECF3', '#FAE7DB', '#F6B495', '#DA6954', '#B2182B')
+BuRd7 = ('#2166AC', '#5DA3CB', '#BBDAEA', '#F7F7F7', '#FAC9B0', '#E0775E', '#B2182B')
+BuRd6 = ('#2166AC', '#72B1D3', '#D8E8F1', '#FBE0D0', '#E8896C', '#B2182B')
+BuRd5 = ('#2166AC', '#92C5DE', '#F7F7F7', '#F4A582', '#B2182B')
+BuRd4 = ('#2166AC', '#BBDAEA', '#FAC9B0', '#B2182B')
+BuRd3 = ('#2166AC', '#F7F7F7', '#B2182B')
+
+# This is similar to the Brewer PRGn scheme, with green A6DBA0 shifted to ACD39E to make it print-friendly.
+TolPRGn9 = ('#762A83', '#9970AB', '#C2A5CF', '#E7D4E8', '#F7F7F7', '#D9F0D3', '#ACD39E', '#5AAE61', '#1B7837')
+TolPRGn8 = ('#762A83', '#9E77B0', '#CCB2D6', '#EDE3EE', '#E5F3E2', '#B8DBAD', '#65B369', '#1B7837')
+TolPRGn7 = ('#762A83', '#A681B7', '#DAC4DF', '#F7F7F7', '#CAE6C1', '#75BA75', '#1B7837')
+TolPRGn6 = ('#762A83', '#B18FC0', '#EADBEB', '#DEF1DA', '#8BC485', '#1B7837')
+TolPRGn5 = ('#762A83', '#C2A5CF', '#F7F7F7', '#ACD39E', '#1B7837')
+TolPRGn4 = ('#762A83', '#DAC4DF', '#CAE6C1', '#1B7837')
+TolPRGn3 = ('#762A83', '#F7F7F7', '#1B7837')
+
+# This is similar to the Brewer YlOrBr scheme, with orange FE9929 shifted to FB9A29 to make it print-friendly.
+TolYlOrBr9 = ('#FFFFE5', '#FFF7BC', '#FEE391', '#FEC44F', '#FB9A29', '#EC7014', '#CC4C02', '#993404', '#662506')
+TolYlOrBr8 = ('#FFFFE5', '#FEF4B5', '#FEDA7E', '#FCB23E', '#F2821D', '#D55607', '#A03703', '#662506')
+TolYlOrBr7 = ('#FFFFE5', '#FEF0AD', '#FECE65', '#FB9A29', '#E1640E', '#AA3C03', '#662506')
+TolYlOrBr6 = ('#FFFFE5', '#FEEBA2', '#FDBB47', '#EF7818', '#B74202', '#662506')
+TolYlOrBr5 = ('#FFFFE5', '#FEE391', '#FB9A29', '#CC4C02', '#662506')
+TolYlOrBr4 = ('#FFFFE5', '#FECE65', '#E1640E', '#662506')
+TolYlOrBr3 = ('#FFFFE5', '#FB9A29', '#662506')
+
+Iridescent23 = (
+    '#FEFBE9', '#FCF7D5', '#F5F3C1', '#EAF0B5', '#DDECBF', '#D0E7CA', '#C2E3D2', '#B5DDD8', '#A8D8DC', '#9BD2E1',
+    '#8DCBE4', '#81C4E7', '#7BBCE7', '#7EB2E4', '#88A5DD', '#9398D2', '#9B8AC4', '#9D7DB2', '#9A709E', '#906388',
+    '#805770', '#684957', '#46353A')
+Iridescent22 = Iridescent23[:22]
+Iridescent21 = Iridescent23[:21]
+Iridescent20 = Iridescent23[:20]
+Iridescent19 = Iridescent23[:19]
+Iridescent18 = Iridescent23[:18]
+Iridescent17 = Iridescent23[:17]
+Iridescent16 = Iridescent23[:16]
+Iridescent15 = Iridescent23[:15]
+Iridescent14 = Iridescent23[:14]
+Iridescent13 = Iridescent23[:13]
+Iridescent12 = Iridescent23[:12]
+Iridescent11 = Iridescent23[:11]
+Iridescent10 = Iridescent23[:10]
+Iridescent9 = Iridescent23[:9]
+Iridescent8 = Iridescent23[:8]
+Iridescent7 = Iridescent23[:7]
+Iridescent6 = Iridescent23[:6]
+Iridescent5 = Iridescent23[:5]
+Iridescent4 = Iridescent23[:4]
+Iridescent3 = Iridescent23[:3]
+
+# Scheme from https://personal.sron.nl/~pault/#fig:scheme_rainbow_discrete_all
+TolRainbow23 = (
+    '#E8ECFB', '#D9CCE3', '#CAACCB', '#BA8DB4', '#AA6F9E', '#994F88', '#882E72', '#1965B0', '#437DBF', '#6195CF',
+    '#7BAFDE', '#4EB265', '#90C987', '#CAE0AB', '#F7F056', '#F7CB45', '#F4A736', '#EE8026', '#E65518', '#DC050C',
+    '#A5170E', '#72190E', '#42150A')
+TolRainbow22 = (
+    '#D9CCE3', '#CAACCB', '#BA8DB4', '#AA6F9E', '#994F88', '#882E72', '#1965B0', '#437DBF', '#6195CF', '#7BAFDE',
+    '#4EB265', '#90C987', '#CAE0AB', '#F7F056', '#F7CB45', '#F4A736', '#EE8026', '#E65518', '#DC050C', '#A5170E',
+    '#72190E', '#42150A')
+TolRainbow21 = (
+    '#D9CCE3', '#CAACCB', '#BA8DB4', '#AA6F9E', '#994F88', '#882E72', '#1965B0', '#437DBF', '#6195CF', '#7BAFDE',
+    '#4EB265', '#90C987', '#CAE0AB', '#F7F056', '#F7CB45', '#F4A736', '#EE8026', '#E65518', '#DC050C', '#A5170E', '#72190E')
+TolRainbow20 = (
+    '#D9CCE3', '#CAACCB', '#BA8DB4', '#AA6F9E', '#994F88', '#882E72', '#1965B0', '#437DBF', '#6195CF', '#7BAFDE',
+    '#4EB265', '#90C987', '#CAE0AB', '#F7F056', '#F6C141', '#F1932D', '#E8601C', '#DC050C', '#A5170E', '#72190E')
+TolRainbow19 = (
+    '#D9CCE3', '#CAACCB', '#BA8DB4', '#AA6F9E', '#994F88', '#882E72', '#1965B0', '#5289C7', '#7BAFDE', '#4EB265',
+    '#90C987', '#CAE0AB', '#F7F056', '#F6C141', '#F1932D', '#E8601C', '#DC050C', '#A5170E', '#72190E')
+TolRainbow18 = (
+    '#D1BBD7', '#BA8DB4', '#AA6F9E', '#994F88', '#882E72', '#1965B0', '#5289C7', '#7BAFDE', '#4EB265', '#90C987',
+    '#CAE0AB', '#F7F056', '#F6C141', '#F1932D', '#E8601C', '#DC050C', '#A5170E', '#72190E')
+TolRainbow17 = (
+    '#D1BBD7', '#BA8DB4', '#AA6F9E', '#994F88', '#882E72', '#1965B0', '#5289C7', '#7BAFDE', '#4EB265', '#90C987',
+    '#CAE0AB', '#F7F056', '#F6C141', '#F1932D', '#E8601C', '#DC050C', '#72190E')
+TolRainbow16 = (
+    '#D1BBD7', '#BA8DB4', '#AA6F9E', '#882E72', '#1965B0', '#5289C7', '#7BAFDE', '#4EB265', '#90C987', '#CAE0AB',
+    '#F7F056', '#F6C141', '#F1932D', '#E8601C', '#DC050C', '#72190E')
+TolRainbow15 = (
+    '#D1BBD7', '#AA6F9E', '#882E72', '#1965B0', '#5289C7', '#7BAFDE', '#4EB265', '#90C987', '#CAE0AB', '#F7F056',
+    '#F6C141', '#F1932D', '#E8601C', '#DC050C', '#72190E')
+TolRainbow14 = (
+    '#D1BBD7', '#AA6F9E', '#882E72', '#1965B0', '#5289C7', '#7BAFDE', '#4EB265', '#90C987', '#CAE0AB', '#F7F056',
+    '#F6C141', '#F1932D', '#E8601C', '#DC050C')
+TolRainbow13 = (
+    '#D1BBD7', '#AA6F9E', '#882E72', '#1965B0', '#5289C7', '#7BAFDE', '#4EB265', '#90C987', '#CAE0AB', '#F7F056',
+    '#F4A736', '#E8601C', '#DC050C')
+TolRainbow12 = (
+    '#D1BBD7', '#AA6F9E', '#882E72', '#1965B0', '#5289C7', '#7BAFDE', '#4EB265', '#CAE0AB', '#F7F056', '#F4A736',
+    '#E8601C', '#DC050C')
+TolRainbow11 = ('#882E72', '#1965B0', '#5289C7', '#7BAFDE', '#4EB265', '#CAE0AB', '#F7F056', '#F4A736', '#E8601C', '#DC050C', '#72190E')
+TolRainbow10 = ('#882E72', '#1965B0', '#7BAFDE', '#4EB265', '#CAE0AB', '#F7F056', '#F4A736', '#E8601C', '#DC050C', '#72190E')
+TolRainbow9 = ('#882E72', '#1965B0', '#7BAFDE', '#4EB265', '#CAE0AB', '#F7F056', '#EE8026', '#DC050C', '#72190E')
+TolRainbow8 = ('#882E72', '#1965B0', '#7BAFDE', '#4EB265', '#CAE0AB', '#F7F056', '#EE8026', '#DC050C')
+TolRainbow7 = ('#882E72', '#1965B0', '#7BAFDE', '#4EB265', '#CAE0AB', '#F7F056', '#DC050C')
+TolRainbow6 = ('#1965B0', '#7BAFDE', '#4EB265', '#CAE0AB', '#F7F056', '#DC050C')
+TolRainbow5 = ('#1965B0', '#7BAFDE', '#4EB265', '#F7F056', '#DC050C')
+TolRainbow4 = ('#1965B0', '#4EB265', '#F7F056', '#DC050C')
+TolRainbow3 = ('#1965B0', '#F7F056', '#DC050C')
+#-----------------------------------------------------------------------------
+
 # Bokeh palette created from colors of shutter logo
 Bokeh8 = ('#EC1557', '#F05223', '#F6A91B', '#A5CD39', '#20B254', '#00AAAE', '#4998D3', '#892889')
 Bokeh7 = ('#EC1557', '#F05223', '#F6A91B', '#A5CD39', '#20B254', '#00AAAE', '#892889')
@@ -1165,6 +1381,24 @@ Category20c = { 3:  Category20c_3,  4:  Category20c_4,  5:  Category20c_5,  6:  
                 13: Category20c_13, 14: Category20c_14, 15: Category20c_15, 16: Category20c_16, 17: Category20c_17,
                 18: Category20c_18, 19: Category20c_19, 20: Category20c_20 }
 Colorblind  = { 3: Colorblind3, 4: Colorblind4, 5: Colorblind5, 6: Colorblind6, 7: Colorblind7, 8: Colorblind8 }
+Bright = { 3: Bright3, 4: Bright4, 5: Bright5, 6: Bright6, 7: Bright7 }
+HighContrast: Dict[int, Tuple[str, ...]] = { 3: HighContrast3 }
+Vibrant = { 3: Vibrant3, 4: Vibrant4, 5: Vibrant5, 6: Vibrant6, 7: Vibrant7 }
+Muted = { 3: Muted3, 4: Muted4, 5: Muted5, 6: Muted6, 7: Muted7, 8: Muted8, 9: Muted9 }
+MediumContrast = { 3: MediumContrast3, 4: MediumContrast4, 5: MediumContrast5, 6: MediumContrast6 }
+Light = { 3: Light3, 4: Light4, 5: Light5, 6: Light6, 7: Light7, 8: Light8, 9: Light9 }
+Sunset = { 3: Sunset3, 4: Sunset4, 5: Sunset5, 6: Sunset6, 7: Sunset7, 8: Sunset8, 9: Sunset9, 10: Sunset10, 11: Sunset11 }
+BuRd = { 3: BuRd3, 4: BuRd4, 5: BuRd5, 6: BuRd6, 7: BuRd7, 8: BuRd8, 9: BuRd9 }
+TolPRGn = { 3: TolPRGn3, 4: TolPRGn4, 5: TolPRGn5, 6: TolPRGn6, 7: TolPRGn7, 8: TolPRGn8, 9: TolPRGn9 }
+TolYlOrBr = { 3: TolYlOrBr3, 4: TolYlOrBr4, 5: TolYlOrBr5, 6: TolYlOrBr6, 7: TolYlOrBr7, 8: TolYlOrBr8, 9: TolYlOrBr9 }
+Iridescent = { 3:  Iridescent3,  4:  Iridescent4,  5:  Iridescent5,  6:  Iridescent6,  7:  Iridescent7,
+                8:  Iridescent8,  9:  Iridescent9,  10: Iridescent10, 11: Iridescent11, 12: Iridescent12,
+                13: Iridescent13, 14: Iridescent14, 15: Iridescent15, 16: Iridescent16, 17: Iridescent17,
+                18: Iridescent18, 19: Iridescent19, 20: Iridescent20, 21: Iridescent21, 22: Iridescent22, 23: Iridescent23 }
+TolRainbow = { 3:  TolRainbow3,  4:  TolRainbow4,  5:  TolRainbow5,  6:  TolRainbow6,  7:  TolRainbow7,
+                8:  TolRainbow8,  9:  TolRainbow9,  10: TolRainbow10, 11: TolRainbow11, 12: TolRainbow12,
+                13: TolRainbow13, 14: TolRainbow14, 15: TolRainbow15, 16: TolRainbow16, 17: TolRainbow17,
+                18: TolRainbow18, 19: TolRainbow19, 20: TolRainbow20, 21: TolRainbow21, 22: TolRainbow22, 23: TolRainbow23 }
 Bokeh = { 3: Bokeh3, 4: Bokeh4, 5: Bokeh5, 6: Bokeh6, 7: Bokeh7, 8: Bokeh8 }
 
 brewer = {
@@ -1224,12 +1458,28 @@ mpl = {
     "Cividis" : Cividis,
 }
 
+tol = {
+    "Bright": Bright,
+    "HighContrast": HighContrast,
+    "Vibrant": Vibrant,
+    "Muted": Muted,
+    "MediumContrast": MediumContrast,
+    "Light": Light,
+    "Sunset": Sunset,
+    "BuRd": BuRd,
+    "TolPRGn": TolPRGn,
+    "TolYlOrBr": TolYlOrBr,
+    "Iridescent": Iridescent,
+    "TolRainbow": TolRainbow,
+}
+
 colorblind = {
     "Colorblind" : Colorblind
 }
 
 all_palettes = deepcopy(brewer)
 all_palettes.update(d3)
+all_palettes.update(tol)
 all_palettes["Colorblind"] = Colorblind
 all_palettes["Magma"]      = Magma
 all_palettes["Inferno"]    = Inferno
