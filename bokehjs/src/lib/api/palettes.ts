@@ -863,8 +863,6 @@ export type HighContrast = "HighContrast3"
 export type Vibrant      = "Vibrant3"      | "Vibrant4"      | "Vibrant5"      | "Vibrant6"      | "Vibrant7"
 export type Muted        = "Muted3"        | "Muted4"        | "Muted5"        | "Muted6"        | "Muted7"        | "Muted8"
 export type MediumContrast = "MediumContrast3" | "MediumContrast4" | "MediumContrast5" | "MediumContrast6"
-export type Pale         = "Pale3"         | "Pale4"         | "Pale5"         | "Pale6"
-export type Dark         = "Dark3"         | "Dark4"         | "Dark5"         | "Dark6"
 export type Light        = "Light3"        | "Light4"        | "Light5"        | "Light6"        | "Light7"        | "Light8"        | "Light9"
 export type Sunset       = "Sunset3"       | "Sunset4"       | "Sunset5"       | "Sunset6"       | "Sunset7"       | "Sunset8"       | "Sunset9"       | "Sunset10"        | "Sunset11"
 export type BuRd         = "BuRd3"         | "BuRd4"         | "BuRd5"         | "BuRd6"         | "BuRd7"         | "BuRd8"         | "BuRd9"
@@ -926,8 +924,6 @@ export type Palette = YlGn
                     | Vibrant
                     | Muted
                     | MediumContrast
-                    | Pale
-                    | Dark
                     | Light
                     | Sunset
                     | BuRd
@@ -985,8 +981,6 @@ export const HighContrast = {HighContrast3}
 export const Vibrant      = {Vibrant3, Vibrant4, Vibrant5, Vibrant6, Vibrant7}
 export const Muted        = {Muted3, Muted4, Muted5, Muted6, Muted7, Muted8}
 export const MediumContrast = {MediumContrast3, MediumContrast4, MediumContrast5, MediumContrast6}
-export const Pale         = {PaleTextBackground}
-export const Dark         = {DarkText}
 export const Light        = {Light3, Light4, Light5, Light6, Light7, Light8, Light9}
 export const Sunset       = {Sunset3, Sunset4, Sunset5, Sunset6, Sunset7, Sunset8, Sunset9, Sunset10, Sunset11}
 export const BuRd         = {BuRd3, BuRd4, BuRd5, BuRd6, BuRd7, BuRd8, BuRd9}
