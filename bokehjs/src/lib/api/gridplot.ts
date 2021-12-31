@@ -1,4 +1,4 @@
-import {LayoutDOM, Row, Column, GridBox, ToolbarBox, ProxyToolbar, Plot, Tool, Toolbar} from "./models"
+import {LayoutDOM, Row, Column, GridBox, ToolbarBox, ProxyToolbar, Plot, Tool} from "./models"
 import {SizingMode, Location} from "../core/enums"
 import {Matrix} from "../core/util/matrix"
 import {unreachable} from "core/util/assert"
@@ -26,7 +26,7 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
   const matrix = Matrix.from(children)
 
   const items: [LayoutDOM, number, number][] = []
-  const toolbars: Toolbar[] = []
+  const tools: Tool[] = []
 
   for (const [item, row, col] of matrix) {
     if (item == null)
@@ -34,7 +34,7 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
 
     if (item instanceof Plot) {
       if (merge_tools) {
-        toolbars.push(item.toolbar)
+        tools.push(...item.toolbar.tools)
         item.toolbar_location = null
       }
     }
@@ -51,12 +51,8 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
   if (!merge_tools || toolbar_location == null)
     return grid
 
-  const tools: Tool[] = []
-  for (const toolbar of toolbars) {
-    tools.push(...toolbar.tools)
-  }
   const toolbar = new ToolbarBox({
-    toolbar: new ProxyToolbar({toolbars, tools}),
+    toolbar: new ProxyToolbar({tools}),
     toolbar_location,
   })
 

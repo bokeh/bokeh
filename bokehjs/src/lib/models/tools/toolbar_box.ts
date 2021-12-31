@@ -9,7 +9,6 @@ import {ActionTool} from "./actions/action_tool"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
 import {ToolbarBase, ToolbarBaseView, GestureType} from "./toolbar_base"
-import {Toolbar} from "./toolbar"
 import {ToolProxy} from "./tool_proxy"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
@@ -18,9 +17,7 @@ import {ContentBox} from "core/layout"
 export namespace ProxyToolbar {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ToolbarBase.Props & {
-    toolbars: p.Property<Toolbar[]>
-  }
+  export type Props = ToolbarBase.Props
 }
 
 export interface ProxyToolbar extends ProxyToolbar.Attrs {}
@@ -30,12 +27,6 @@ export class ProxyToolbar extends ToolbarBase {
 
   constructor(attrs?: Partial<ProxyToolbar.Attrs>) {
     super(attrs)
-  }
-
-  static {
-    this.define<ProxyToolbar.Props>(({Array, Ref}) => ({
-      toolbars: [ Array(Ref(Toolbar)), [] ],
-    }))
   }
 
   override _proxied_tools: (Tool | ToolProxy)[]
