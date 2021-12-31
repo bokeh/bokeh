@@ -79,6 +79,12 @@ jobs:
         run: |
           node make lint
 
+      - name: Check repository status
+        shell: bash
+        run: |
+          OUTPUT=$(git status --short bokehjs -- ':!bokehjs/test/baselines')
+          if [[ ! -z "$OUTPUT" ]]; then echo $OUTPUT; exit 1; fi
+
       - name: Collect results
         if: runner.os == 'Linux' && always()
         shell: bash
