@@ -102,8 +102,8 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #-----------------------------------------------------------------------------
 # License regarding Paul Tol's color schemes (Bright, HighContrast, Vibrant,
-# Muted, MediumContrast, Pale, Dark, Light, Sunset, BuRd, TolPRGn, TolYlOrBr,
-# Iridescent, TolRainbow)
+# Muted, MediumContrast, PaleTextBackground, DarkText, Light, Sunset, BuRd,
+# TolPRGn, TolYlOrBr, Iridescent, TolRainbow)
 #
 # Copyright (c) 2021, Paul Tol
 # All rights reserved.
@@ -166,7 +166,7 @@ arbitrary size from special larger palettes.
 
 The Brewer palettes are also collected and grouped by name in a
 ``brewer`` dictionary, e.g.: ``brewer['Spectral'][6]``. Similarly there are
-attributes ``d3``, ``mpl``, and ``accessible`` that have dictionaries
+attributes ``d3``, ``mpl``, and ``tol`` that have dictionaries
 corresponding to the those groups of palettes.
 
 Finally, all palettes are collected in the ``all_palettes`` palettes
@@ -214,7 +214,18 @@ Bokeh includes some palettes that are useful for addressing
 color deficiencies, which contains `Paul Tol's color schemes`_, and
 ``Colorblind`` from https://jfly.uni-koeln.de/color/#pallet.
 
-.. bokeh-palette-group:: accessible
+.. bokeh-palette-group:: tol
+.. bokeh-palette-group:: colorblind
+
+The following palettes are also introduced in `Paul Tol's color schemes`_
+but with different usage. ``PaleTextBackground`` should be used for the
+background of black text. ``DarkText`` is meant for text itself on a white
+background. The idea is to use one dark color for support, not all combined
+and not for just one word.
+
+:PaleTextBackground: :bokeh-palette:`PaleTextBackground`
+
+:DarkText: :bokeh-palette:`DarkText`
 
 Large Palettes
 ~~~~~~~~~~~~~~
@@ -344,21 +355,9 @@ following notable attributes in the ``bokeh.palettes`` module:
     The resulting palette looks like: :bokeh-palette:`tol['Bright'][4]`
 
     The names of the Tol palette groups are: ``Bright``, ``HighContrast``,
-    ``Vibrant``, ``Muted``, ``MediumContrast``, ``Pale``, ``Dark``, ``Light``,
+    ``Vibrant``, ``Muted``, ``MediumContrast``, ``Light``,
     ``Sunset``, ``BuRd``, ``TolPRGn``, ``TolYlOrBr``, ``Iridescent``,
     ``TolRainbow``
-
-    .. note::
-        The Tol palette group can also be accessed from the ``accessible``
-        dictionary:
-
-        .. code-block:: python
-
-            >> accessible['Bright'][4]
-            ('#4477AA', '#EE6677', '#228833', '#CCBB44')
-
-        The resulting palette looks the same:
-        :bokeh-palette:`accessible['Bright'][4]`
 
 .. data:: small_palettes
 
@@ -419,13 +418,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import math
 from copy import deepcopy
-from typing import (
-    Any,
-    Dict,
-    List,
-    Tuple,
-    cast,
-)
+from typing import Dict, List, Tuple
 
 # External imports
 import numpy as np
@@ -1200,15 +1193,9 @@ MediumContrast5 = MediumContrast6[:5]
 MediumContrast4 = MediumContrast6[:4]
 MediumContrast3 = MediumContrast6[:3]
 
-Pale6 = ('#BBCCEE', '#CCEEFF', '#CCDDAA', '#EEEEBB', '#FFCCCC', '#DDDDDD')
-Pale5 = Pale6[:5]
-Pale4 = Pale6[:4]
-Pale3 = Pale6[:3]
+PaleTextBackground = ('#BBCCEE', '#CCEEFF', '#CCDDAA', '#EEEEBB', '#FFCCCC', '#DDDDDD')
 
-Dark6 = ('#222255', '#225555', '#225522', '#666633', '#663333', '#555555')
-Dark5 = Dark6[:5]
-Dark4 = Dark6[:4]
-Dark3 = Dark6[:3]
+DarkText = ('#222255', '#225555', '#225522', '#666633', '#663333', '#555555')
 
 Light9 = ('#77AADD', '#EE8866', '#EEDD88', '#FFAABB', '#99DDFF', '#44BB99', '#BBCC33', '#AAAA00', '#DDDDDD')
 Light8 = Light9[:8]
@@ -1395,12 +1382,10 @@ Category20c = { 3:  Category20c_3,  4:  Category20c_4,  5:  Category20c_5,  6:  
                 18: Category20c_18, 19: Category20c_19, 20: Category20c_20 }
 Colorblind  = { 3: Colorblind3, 4: Colorblind4, 5: Colorblind5, 6: Colorblind6, 7: Colorblind7, 8: Colorblind8 }
 Bright = { 3: Bright3, 4: Bright4, 5: Bright5, 6: Bright6, 7: Bright7 }
-HighContrast = { 3: HighContrast3 }
+HighContrast: Dict[int, Tuple[str, ...]] = { 3: HighContrast3 }
 Vibrant = { 3: Vibrant3, 4: Vibrant4, 5: Vibrant5, 6: Vibrant6, 7: Vibrant7 }
 Muted = { 3: Muted3, 4: Muted4, 5: Muted5, 6: Muted6, 7: Muted7, 8: Muted8, 9: Muted9 }
 MediumContrast = { 3: MediumContrast3, 4: MediumContrast4, 5: MediumContrast5, 6: MediumContrast6 }
-Pale = { 3: Pale3, 4: Pale4, 5: Pale5, 6: Pale6 }
-Dark = { 3: Dark3, 4: Dark4, 5: Dark5, 6: Dark6 }
 Light = { 3: Light3, 4: Light4, 5: Light5, 6: Light6, 7: Light7, 8: Light8, 9: Light9 }
 Sunset = { 3: Sunset3, 4: Sunset4, 5: Sunset5, 6: Sunset6, 7: Sunset7, 8: Sunset8, 9: Sunset9, 10: Sunset10, 11: Sunset11 }
 BuRd = { 3: BuRd3, 4: BuRd4, 5: BuRd5, 6: BuRd6, 7: BuRd7, 8: BuRd8, 9: BuRd9 }
@@ -1475,12 +1460,10 @@ mpl = {
 
 tol = {
     "Bright": Bright,
-    "HighContrast": cast(Dict[int, Any], HighContrast),
+    "HighContrast": HighContrast,
     "Vibrant": Vibrant,
     "Muted": Muted,
     "MediumContrast": MediumContrast,
-    "Pale": Pale,
-    "Dark": Dark,
     "Light": Light,
     "Sunset": Sunset,
     "BuRd": BuRd,
@@ -1490,14 +1473,14 @@ tol = {
     "TolRainbow": TolRainbow,
 }
 
-accessible = {
-    "Colorblind" : Colorblind,
+colorblind = {
+    "Colorblind" : Colorblind
 }
-accessible.update(tol)
 
 all_palettes = deepcopy(brewer)
 all_palettes.update(d3)
-all_palettes.update(accessible)
+all_palettes.update(tol)
+all_palettes["Colorblind"] = Colorblind
 all_palettes["Magma"]      = Magma
 all_palettes["Inferno"]    = Inferno
 all_palettes["Plasma"]     = Plasma

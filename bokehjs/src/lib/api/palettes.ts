@@ -670,15 +670,9 @@ export const MediumContrast4 = [0x6699ccff, 0x004488ff, 0xeecc66ff, 0x994455ff]
 export const MediumContrast5 = [0x6699ccff, 0x004488ff, 0xeecc66ff, 0x994455ff, 0x997700ff]
 export const MediumContrast6 = [0x6699ccff, 0x004488ff, 0xeecc66ff, 0x994455ff, 0x997700ff, 0xee99aaff]
 
-export const Pale3 = [0xbbcceeff, 0xcceeffff, 0xccddaaff]
-export const Pale4 = [0xbbcceeff, 0xcceeffff, 0xccddaaff, 0xeeeebbff]
-export const Pale5 = [0xbbcceeff, 0xcceeffff, 0xccddaaff, 0xeeeebbff, 0xffccccff]
-export const Pale6 = [0xbbcceeff, 0xcceeffff, 0xccddaaff, 0xeeeebbff, 0xffccccff, 0xddddddff]
+export const PaleTextBackground = [0xbbcceeff, 0xcceeffff, 0xccddaaff, 0xeeeebbff, 0xffccccff, 0xddddddff]
 
-export const Dark3 = [0x222255ff, 0x225555ff, 0x225522ff]
-export const Dark4 = [0x222255ff, 0x225555ff, 0x225522ff, 0x666633ff]
-export const Dark5 = [0x222255ff, 0x225555ff, 0x225522ff, 0x666633ff, 0x663333ff]
-export const Dark6 = [0x222255ff, 0x225555ff, 0x225522ff, 0x666633ff, 0x663333ff, 0x555555ff]
+export const DarkText = [0x222255ff, 0x225555ff, 0x225522ff, 0x666633ff, 0x663333ff, 0x555555ff]
 
 export const Light3 = [0x77aaddff, 0xee8866ff, 0xeedd88ff]
 export const Light4 = [0x77aaddff, 0xee8866ff, 0xeedd88ff, 0xffaabbff]
@@ -991,8 +985,8 @@ export const HighContrast = {HighContrast3}
 export const Vibrant      = {Vibrant3, Vibrant4, Vibrant5, Vibrant6, Vibrant7}
 export const Muted        = {Muted3, Muted4, Muted5, Muted6, Muted7, Muted8}
 export const MediumContrast = {MediumContrast3, MediumContrast4, MediumContrast5, MediumContrast6}
-export const Pale         = {Pale3, Pale4, Pale5, Pale6}
-export const Dark         = {Dark3, Dark4, Dark5, Dark6}
+export const Pale         = {PaleTextBackground}
+export const Dark         = {DarkText}
 export const Light        = {Light3, Light4, Light5, Light6, Light7, Light8, Light9}
 export const Sunset       = {Sunset3, Sunset4, Sunset5, Sunset6, Sunset7, Sunset8, Sunset9, Sunset10, Sunset11}
 export const BuRd         = {BuRd3, BuRd4, BuRd5, BuRd6, BuRd7, BuRd8, BuRd9}
@@ -1088,8 +1082,8 @@ export function grey(n: number) {
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************
  * License regarding Paul Tol's color schemes (Bright, HighContrast, Vibrant,
- * Muted, MediumContrast, Pale, Dark, Light, Sunset, BuRd, TolPRGn, TolYlOrBr,
- * Iridescent, TolRainbow)
+ * Muted, MediumContrast, PaleTextBackground, DarkText, Light, Sunset, BuRd,
+ * TolPRGn, TolYlOrBr, Iridescent, TolRainbow)
  *
  * Copyright (c) 2021, Paul Tol
  * All rights reserved.
