@@ -29,7 +29,7 @@ export class ToolbarPanelView extends AnnotationView {
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    this._toolbar_view = await build_view(this.model.toolbar, {parent: this}) as ToolbarBaseView
+    this._toolbar_view = await build_view(this.model.toolbar, {parent: this})
     this.plot_view.visibility_callbacks.push((visible) => this._toolbar_view.set_visibility(visible))
   }
 

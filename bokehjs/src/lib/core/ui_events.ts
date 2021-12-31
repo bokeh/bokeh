@@ -306,10 +306,6 @@ export class UIEventBus implements EventListenerObject {
     return plot_view.frame.bbox.contains(sx, sy)
   }
 
-  protected _hit_test_canvas(plot_view: PlotView, sx: number, sy: number): boolean {
-    return plot_view.layout.bbox.contains(sx, sy)
-  }
-
   protected _hit_test_plot(sx: number, sy: number): PlotView | null {
     // TODO: z-index
     for (const plot_view of this.canvas_view.plot_views) {
@@ -424,7 +420,17 @@ export class UIEventBus implements EventListenerObject {
     const event_type = signal.name
     const base_type = event_type.split(":")[0] as BaseType
     const view = this._hit_test_renderers(plot_view, e.sx, e.sy)
-    const on_canvas = this._hit_test_canvas(plot_view, e.sx, e.sy)
+
+    switch (signal.name) {
+      case "move:enter": {
+        plot_view.set_toolbar_visibility(true)
+        break
+      }
+      case "move:exit": {
+        plot_view.set_toolbar_visibility(false)
+        break
+      }
+    }
 
     switch (base_type) {
       case "move": {
@@ -452,7 +458,6 @@ export class UIEventBus implements EventListenerObject {
         }
 
         this.set_cursor(cursor)
-        plot_view.set_toolbar_visibility(on_canvas)
 
         active_inspectors.map((inspector) => this.trigger(signal, e, inspector.id))
         break
