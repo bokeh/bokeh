@@ -55,6 +55,7 @@ function _supports_auto(et: string): boolean {
 
 export class Toolbar extends ToolbarBase {
   override properties: Toolbar.Props
+  override __view_type__: ToolbarBaseView
 
   constructor(attrs?: Partial<Toolbar.Attrs>) {
     super(attrs)

@@ -1,7 +1,9 @@
 import {expect} from "assertions"
 
-import {ToolbarBase, ToolbarViewModel} from "@bokehjs/models/tools/toolbar_base"
+import {ToolbarBase} from "@bokehjs/models/tools/toolbar_base"
+import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
+import {build_view} from "@bokehjs/core/build_views"
 
 describe("ToolbarBase", () => {
 
@@ -52,51 +54,53 @@ describe("ToolbarBase", () => {
   })
 })
 
-describe("ToolbarViewModel", () => {
+describe("ToolbarBaseView", () => {
 
   describe("visible getter", () => {
-    let toolbar_view_model: ToolbarViewModel
-
-    before_each(() => {
-      // autohide is false by default and visible is null
-      toolbar_view_model = new ToolbarViewModel()
+    it("should be true if autohide is false and _visible isn't set", async () => {
+      const tb = new Toolbar()
+      const tbv = await build_view(tb, {parent: null})
+      expect(tbv.model.autohide).to.be.false
+      expect(tbv.visible).to.be.true
     })
 
-    it("should be true if autohide is false and _visible isn't set", () => {
-      expect(toolbar_view_model.autohide).to.be.false
-      expect(toolbar_view_model.visible).to.be.true
+    it("should be true if autohide is false and _visible is true", async () => {
+      const tb = new Toolbar()
+      const tbv = await build_view(tb, {parent: null})
+      tbv.set_visibility(true)
+      expect(tbv.model.autohide).to.be.false
+      expect(tbv.visible).to.be.true
     })
 
-    it("should be true if autohide is false and _visible is true", () => {
-      toolbar_view_model._visible = true
-      expect(toolbar_view_model.autohide).to.be.false
-      expect(toolbar_view_model.visible).to.be.true
+    it("should be true if autohide is false and _visible is false", async () => {
+      const tb = new Toolbar()
+      const tbv = await build_view(tb, {parent: null})
+      tbv.set_visibility(false)
+      expect(tbv.model.autohide).to.be.false
+      expect(tbv.visible).to.be.true
     })
 
-    it("should be true if autohide is false and _visible is false", () => {
-      toolbar_view_model._visible = false
-      expect(toolbar_view_model.autohide).to.be.false
-      expect(toolbar_view_model.visible).to.be.true
+    it("should be false if autohide is true and _visible isn't set", async () => {
+      const tb = new Toolbar({autohide: true})
+      const tbv = await build_view(tb, {parent: null})
+      expect(tbv.model.autohide).to.be.true
+      expect(tbv.visible).to.be.false
     })
 
-    it("should be false if autohide is true and _visible isn't set", () => {
-      toolbar_view_model.autohide = true
-      expect(toolbar_view_model.autohide).to.be.true
-      expect(toolbar_view_model.visible).to.be.false
+    it("should be true if autohide is true and _visible is true", async () => {
+      const tb = new Toolbar({autohide: true})
+      const tbv = await build_view(tb, {parent: null})
+      tbv.set_visibility(true)
+      expect(tbv.model.autohide).to.be.true
+      expect(tbv.visible).to.be.true
     })
 
-    it("should be true if autohide is true and _visible is true", () => {
-      toolbar_view_model.autohide = true
-      toolbar_view_model._visible = true
-      expect(toolbar_view_model.autohide).to.be.true
-      expect(toolbar_view_model.visible).to.be.true
-    })
-
-    it("should be false if autohide is true and _visible is false", () => {
-      toolbar_view_model.autohide = true
-      toolbar_view_model._visible = false
-      expect(toolbar_view_model.autohide).to.be.true
-      expect(toolbar_view_model.visible).to.be.false
+    it("should be false if autohide is true and _visible is false", async () => {
+      const tb = new Toolbar({autohide: true})
+      const tbv = await build_view(tb, {parent: null})
+      tbv.set_visibility(false)
+      expect(tbv.model.autohide).to.be.true
+      expect(tbv.visible).to.be.false
     })
   })
 })
