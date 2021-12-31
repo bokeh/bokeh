@@ -1,5 +1,5 @@
 import {logger} from "core/logging"
-import {classes, div, a, Keys} from "core/dom"
+import {div, a, Keys} from "core/dom"
 import {build_views, remove_views} from "core/build_views"
 import * as p from "core/properties"
 import {DOMComponentView} from "core/dom_view"
@@ -26,52 +26,22 @@ import tools_css, * as tools from "styles/tool_button.css"
 import logos_css, * as logos from "styles/logo.css"
 import icons_css from "styles/icons.css"
 
-export namespace ToolbarViewModel {
-  export type Attrs = p.AttrsOf<Props>
-
-  export type Props = Model.Props & {
-    autohide: p.Property<boolean>
-    _visible: p.Property<boolean | null>
-  }
-}
-
-export interface ToolbarViewModel extends ToolbarViewModel.Attrs { }
-
-export class ToolbarViewModel extends Model {
-  override properties: ToolbarViewModel.Props
-
-  constructor(attrs?: Partial<ToolbarViewModel.Attrs>) {
-    super(attrs)
-  }
-
-  static {
-    this.define<ToolbarViewModel.Props>(({Boolean}) => ({
-      autohide: [ Boolean, false ],
-    }))
-
-    this.internal<ToolbarViewModel.Props>(({Boolean, Nullable}) => ({
-      _visible: [ Nullable(Boolean), null ],
-    }))
-  }
-
-  get visible(): boolean {
-    return !this.autohide || (this._visible ?? false)
-  }
-}
-
 export class ToolbarBaseView extends DOMComponentView {
   override model: ToolbarBase
   override el: HTMLElement
 
   protected _tool_button_views: Map<ButtonTool, ButtonToolButtonView>
-  protected _toolbar_view_model: ToolbarViewModel
   protected _overflow_menu: ContextMenu
   protected _overflow_el?: HTMLElement
+
+  private _visible: boolean | null = null
+  get visible(): boolean {
+    return !this.model.autohide || (this._visible ?? false)
+  }
 
   override initialize(): void {
     super.initialize()
     this._tool_button_views = new Map()
-    this._toolbar_view_model = new ToolbarViewModel({autohide: this.model.autohide})
 
     const {toolbar_location} = this.model
     const reversed = toolbar_location == "left" || toolbar_location == "above"
@@ -97,11 +67,7 @@ export class ToolbarBaseView extends DOMComponentView {
       await this._build_tool_button_views()
       this.render()
     })
-    this.connect(this.model.properties.autohide.change, () => {
-      this._toolbar_view_model.autohide = this.model.autohide
-      this._on_visible_change()
-    })
-    this.connect(this._toolbar_view_model.properties._visible.change, () => this._on_visible_change())
+    this.connect(this.model.properties.autohide.change, () => this._on_visible_change())
   }
 
   override styles(): string[] {
@@ -119,21 +85,20 @@ export class ToolbarBaseView extends DOMComponentView {
   }
 
   set_visibility(visible: boolean): void {
-    if (visible != this._toolbar_view_model._visible) {
-      this._toolbar_view_model._visible = visible
+    if (visible != this._visible) {
+      this._visible = visible
+      this._on_visible_change()
     }
   }
 
   protected _on_visible_change(): void {
-    const {visible} = this._toolbar_view_model
-    classes(this.el).toggle(toolbars.hidden, !visible)
+    this.el.classList.toggle(toolbars.hidden, !this.visible)
   }
 
   override render(): void {
     this.empty()
 
     this.el.classList.add(toolbars[this.model.toolbar_location])
-    this._toolbar_view_model.autohide = this.model.autohide
     this._on_visible_change()
 
     const {horizontal} = this.model
