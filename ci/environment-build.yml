@@ -6,7 +6,7 @@ dependencies:
   - conda-build=3.21.7
   - conda-verify=3.4.2
   - libiconv
-  - nodejs 14.*
+  - nodejs 16.*
   - ripgrep=0.10.0
   - setuptools
   - yaml

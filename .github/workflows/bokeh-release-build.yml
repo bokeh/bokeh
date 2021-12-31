@@ -48,7 +48,7 @@ jobs:
 
       - name: Install NPM
         shell: bash -l {0}
-        run: npm install -g npm@7
+        run: npm install -g npm@8
 
       - name: Build Release Tarball
         shell: bash -l {0}
