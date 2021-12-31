@@ -25,7 +25,8 @@ export class Matrix<T> {
     for (let y = 0; y < this.nrows; y++) {
       for (let x = 0; x < this.ncols; x++) {
         const value = this._matrix[y][x]
-        yield [value, y, x]
+        if (value !== undefined)
+          yield [value, y, x]
       }
     }
   }
@@ -62,7 +63,7 @@ export class Matrix<T> {
       return obj
     } else if (ncols != null) {
       const entries = obj as U[]
-      const nrows = Math.floor(entries.length/ncols)
+      const nrows = Math.ceil(entries.length/ncols)
       return new Matrix(nrows, ncols, (row, col) => entries[row*ncols + col])
     } else {
       const arrays = obj as U[][]
