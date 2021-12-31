@@ -258,6 +258,13 @@ export const RdYlGn9     = [0x1a9850ff, 0x66bd63ff, 0xa6d96aff, 0xd9ef8bff, 0xff
 export const RdYlGn10    = [0x006837ff, 0x1a9850ff, 0x66bd63ff, 0xa6d96aff, 0xd9ef8bff, 0xfee08bff, 0xfdae61ff, 0xf46d43ff, 0xd73027ff, 0xa50026ff]
 export const RdYlGn11    = [0x006837ff, 0x1a9850ff, 0x66bd63ff, 0xa6d96aff, 0xd9ef8bff, 0xffffbfff, 0xfee08bff, 0xfdae61ff, 0xf46d43ff, 0xd73027ff, 0xa50026ff]
 
+export const Bokeh3      = [0xec1557ff, 0xf05223ff, 0xf6a91bff]
+export const Bokeh4      = [...Bokeh3, 0xa5cd39ff]
+export const Bokeh5      = [...Bokeh4, 0x20b254ff]
+export const Bokeh6      = [...Bokeh5, 0x00aaaeff]
+export const Bokeh7      = [...Bokeh6, 0x892889ff]
+export const Bokeh8      = [...Bokeh6, 0x4998d3ff, 0x892889ff]
+
 export const Inferno3    = [0x000003ff, 0xba3655ff, 0xfcfea4ff]
 export const Inferno4    = [0x000003ff, 0x781c6dff, 0xed6825ff, 0xfcfea4ff]
 export const Inferno5    = [0x000003ff, 0x550f6dff, 0xba3655ff, 0xf98c09ff, 0xfcfea4ff]
@@ -386,15 +393,15 @@ export const Viridis256  = [0x440154ff, 0x440255ff, 0x440357ff, 0x450558ff, 0x45
                             0xd7e219ff, 0xdae218ff, 0xdce218ff, 0xdfe318ff, 0xe1e318ff, 0xe4e318ff, 0xe7e419ff, 0xe9e419ff, 0xece41aff, 0xeee51bff, 0xf1e51cff, 0xf3e51eff,
                             0xf6e61fff, 0xf8e621ff, 0xfae622ff, 0xfde724ff]
 
-export const Cividis3   = [0x00204cff, 0x7b7b78ff, 0xffe945]
-export const Cividis4   = [0x00204cff, 0x565c6cff, 0xa69c75ff, 0xffe945]
-export const Cividis5   = [0x00204cff, 0x404c6bff, 0x7b7b78ff, 0xbcae6eff, 0xffe945]
-export const Cividis6   = [0x00204cff, 0x31446bff, 0x666870ff, 0x958f78ff, 0xcab969ff, 0xffe945]
-export const Cividis7   = [0x00204cff, 0x223d6cff, 0x565c6cff, 0x7b7b78ff, 0xa69c75ff, 0xd3c065ff, 0xffe945]
-export const Cividis8   = [0x00204cff, 0x15396dff, 0x49536bff, 0x6c6d72ff, 0x8d8878ff, 0xb2a672ff, 0xd9c661ff, 0xffe945]
-export const Cividis9   = [0x00204cff, 0x01356eff, 0x404c6bff, 0x5f636eff, 0x7b7b78ff, 0x9b9377ff, 0xbcae6eff, 0xdfcb5dff, 0xffe945]
-export const Cividis10  = [0x00204cff, 0x00336eff, 0x37476bff, 0x565c6cff, 0x6f7073ff, 0x898578ff, 0xa69c75ff, 0xc3b46cff, 0xe3cd5bff, 0xffe945]
-export const Cividis11  = [0x00204cff, 0x00316fff, 0x31446bff, 0x4d556bff, 0x666870ff, 0x7b7b78ff, 0x958f78ff, 0xaea373ff, 0xcab969ff, 0xe6d059ff, 0xffe945]
+export const Cividis3   = [0x00204cff, 0x7b7b78ff, 0xffe945ff]
+export const Cividis4   = [0x00204cff, 0x565c6cff, 0xa69c75ff, 0xffe945ff]
+export const Cividis5   = [0x00204cff, 0x404c6bff, 0x7b7b78ff, 0xbcae6eff, 0xffe945ff]
+export const Cividis6   = [0x00204cff, 0x31446bff, 0x666870ff, 0x958f78ff, 0xcab969ff, 0xffe945ff]
+export const Cividis7   = [0x00204cff, 0x223d6cff, 0x565c6cff, 0x7b7b78ff, 0xa69c75ff, 0xd3c065ff, 0xffe945ff]
+export const Cividis8   = [0x00204cff, 0x15396dff, 0x49536bff, 0x6c6d72ff, 0x8d8878ff, 0xb2a672ff, 0xd9c661ff, 0xffe945ff]
+export const Cividis9   = [0x00204cff, 0x01356eff, 0x404c6bff, 0x5f636eff, 0x7b7b78ff, 0x9b9377ff, 0xbcae6eff, 0xdfcb5dff, 0xffe945ff]
+export const Cividis10  = [0x00204cff, 0x00336eff, 0x37476bff, 0x565c6cff, 0x6f7073ff, 0x898578ff, 0xa69c75ff, 0xc3b46cff, 0xe3cd5bff, 0xffe945ff]
+export const Cividis11  = [0x00204cff, 0x00316fff, 0x31446bff, 0x4d556bff, 0x666870ff, 0x7b7b78ff, 0x958f78ff, 0xaea373ff, 0xcab969ff, 0xe6d059ff, 0xffe945ff]
 export const Cividis256 = [
   0x00204cff, 0x00204eff, 0x002150ff, 0x002251ff, 0x002353ff, 0x002355ff, 0x002456ff, 0x002558ff,
   0x00265aff, 0x00265bff, 0x00275dff, 0x00285fff, 0x002861ff, 0x002963ff, 0x002a64ff, 0x002a66ff,
@@ -849,10 +856,12 @@ export type Pastel2      = "Pastel2_3"     | "Pastel2_4"     | "Pastel2_5"     |
 export type Set1         = "Set1_3"        | "Set1_4"        | "Set1_5"        | "Set1_6"        | "Set1_7"        | "Set1_8"        | "Set1_9"
 export type Set2         = "Set2_3"        | "Set2_4"        | "Set2_5"        | "Set2_6"        | "Set2_7"        | "Set2_8"
 export type Set3         = "Set3_3"        | "Set3_4"        | "Set3_5"        | "Set3_6"        | "Set3_7"        | "Set3_8"        | "Set3_9"        | "Set3_10"        | "Set3_11"        | "Set3_12"
+export type Bokeh        = "Bokeh3"        | "Bokeh4"        | "Bokeh5"        | "Bokeh6"        | "Bokeh7"        | "Bokeh8"
 export type Inferno      = "Inferno3"      | "Inferno4"      | "Inferno5"      | "Inferno6"      | "Inferno7"      | "Inferno8"      | "Inferno9"      | "Inferno10"      | "Inferno11"      | "Inferno256"
 export type Magma        = "Magma3"        | "Magma4"        | "Magma5"        | "Magma6"        | "Magma7"        | "Magma8"        | "Magma9"        | "Magma10"        | "Magma11"        | "Magma256"
 export type Plasma       = "Plasma3"       | "Plasma4"       | "Plasma5"       | "Plasma6"       | "Plasma7"       | "Plasma8"       | "Plasma9"       | "Plasma10"       | "Plasma11"       | "Plasma256"
 export type Viridis      = "Viridis3"      | "Viridis4"      | "Viridis5"      | "Viridis6"      | "Viridis7"      | "Viridis8"      | "Viridis9"      | "Viridis10"      | "Viridis11"      | "Viridis256"
+export type Cividis      = "Cividis3"      | "Cividis4"      | "Cividis5"      | "Cividis6"      | "Cividis7"      | "Cividis8"      | "Cividis9"      | "Cividis10"      | "Cividis11"      | "Cividis256"
 export type Category10   = "Category10_3"  | "Category10_4"  | "Category10_5"  | "Category10_6"  | "Category10_7"  | "Category10_8"  | "Category10_9"  | "Category10_10"
 export type Category20   = "Category20_3"  | "Category20_4"  | "Category20_5"  | "Category20_6"  | "Category20_7"  | "Category20_8"  | "Category20_9"  | "Category20_10"  | "Category20_11" | "Category20_12"  | "Category20_13"  | "Category20_14"  | "Category20_15"  | "Category20_16"  | "Category20_17"  | "Category20_18"  | "Category20_19"  | "Category20_20"
 export type Category20b  = "Category20b_3" | "Category20b_4" | "Category20b_5" | "Category20b_6" | "Category20b_7" | "Category20b_8" | "Category20b_9" | "Category20b_10" | "Category20b_11"| "Category20b_12" | "Category20b_13" | "Category20b_14" | "Category20b_15" | "Category20b_16" | "Category20b_17" | "Category20b_18" | "Category20b_19" | "Category20b_20"
@@ -910,10 +919,12 @@ export type Palette = YlGn
                     | Set1
                     | Set2
                     | Set3
+                    | Bokeh
                     | Inferno
                     | Magma
                     | Plasma
                     | Viridis
+                    | Cividis
                     | Category10
                     | Category20
                     | Category20b
@@ -932,66 +943,146 @@ export type Palette = YlGn
                     | Iridescent
                     | TolRainbow
 
-export const YlGn        = {YlGn3, YlGn4, YlGn5, YlGn6, YlGn7, YlGn8, YlGn9}
-export const YlGnBu      = {YlGnBu3, YlGnBu4, YlGnBu5, YlGnBu6, YlGnBu7, YlGnBu8, YlGnBu9}
-export const GnBu        = {GnBu3, GnBu4, GnBu5, GnBu6, GnBu7, GnBu8, GnBu9}
-export const BuGn        = {BuGn3, BuGn4, BuGn5, BuGn6, BuGn7, BuGn8, BuGn9}
-export const PuBuGn      = {PuBuGn3, PuBuGn4, PuBuGn5, PuBuGn6, PuBuGn7, PuBuGn8, PuBuGn9}
-export const PuBu        = {PuBu3, PuBu4, PuBu5, PuBu6, PuBu7, PuBu8, PuBu9}
-export const BuPu        = {BuPu3, BuPu4, BuPu5, BuPu6, BuPu7, BuPu8, BuPu9}
-export const RdPu        = {RdPu3, RdPu4, RdPu5, RdPu6, RdPu7, RdPu8, RdPu9}
-export const PuRd        = {PuRd3, PuRd4, PuRd5, PuRd6, PuRd7, PuRd8, PuRd9}
-export const OrRd        = {OrRd3, OrRd4, OrRd5, OrRd6, OrRd7, OrRd8, OrRd9}
-export const YlOrRd      = {YlOrRd3, YlOrRd4, YlOrRd5, YlOrRd6, YlOrRd7, YlOrRd8, YlOrRd9}
-export const YlOrBr      = {YlOrBr3, YlOrBr4, YlOrBr5, YlOrBr6, YlOrBr7, YlOrBr8, YlOrBr9}
-export const Purples     = {Purples3, Purples4, Purples5, Purples6, Purples7, Purples8, Purples9}
-export const Blues       = {Blues3, Blues4, Blues5, Blues6, Blues7, Blues8, Blues9}
-export const Greens      = {Greens3, Greens4, Greens5, Greens6, Greens7, Greens8, Greens9}
-export const Oranges     = {Oranges3, Oranges4, Oranges5, Oranges6, Oranges7, Oranges8, Oranges9}
-export const Reds        = {Reds3, Reds4, Reds5, Reds6, Reds7, Reds8, Reds9}
-export const Greys       = {Greys3, Greys4, Greys5, Greys6, Greys7, Greys8, Greys9, Greys10, Greys11, Greys256}
-export const PuOr        = {PuOr3, PuOr4, PuOr5, PuOr6, PuOr7, PuOr8, PuOr9, PuOr10, PuOr11}
-export const BrBG        = {BrBG3, BrBG4, BrBG5, BrBG6, BrBG7, BrBG8, BrBG9, BrBG10, BrBG11}
-export const PRGn        = {PRGn3, PRGn4, PRGn5, PRGn6, PRGn7, PRGn8, PRGn9, PRGn10, PRGn11}
-export const PiYG        = {PiYG3, PiYG4, PiYG5, PiYG6, PiYG7, PiYG8, PiYG9, PiYG10, PiYG11}
-export const RdBu        = {RdBu3, RdBu4, RdBu5, RdBu6, RdBu7, RdBu8, RdBu9, RdBu10, RdBu11}
-export const RdGy        = {RdGy3, RdGy4, RdGy5, RdGy6, RdGy7, RdGy8, RdGy9, RdGy10, RdGy11}
-export const RdYlBu      = {RdYlBu3, RdYlBu4, RdYlBu5, RdYlBu6, RdYlBu7, RdYlBu8, RdYlBu9, RdYlBu10, RdYlBu11}
-export const Spectral    = {Spectral3, Spectral4, Spectral5, Spectral6, Spectral7, Spectral8, Spectral9, Spectral10, Spectral11}
-export const RdYlGn      = {RdYlGn3, RdYlGn4, RdYlGn5, RdYlGn6, RdYlGn7, RdYlGn8, RdYlGn9, RdYlGn10, RdYlGn11}
-export const Inferno     = {Inferno3, Inferno4, Inferno5, Inferno6, Inferno7, Inferno8, Inferno9, Inferno10, Inferno11, Inferno256}
-export const Magma       = {Magma3, Magma4, Magma5, Magma6, Magma7, Magma8, Magma9, Magma10, Magma11, Magma256}
-export const Plasma      = {Plasma3, Plasma4, Plasma5, Plasma6, Plasma7, Plasma8, Plasma9, Plasma10, Plasma11, Plasma256}
-export const Viridis     = {Viridis3, Viridis4, Viridis5, Viridis6, Viridis7, Viridis8, Viridis9, Viridis10, Viridis11, Viridis256}
-export const Accent      = {Accent3, Accent4, Accent5, Accent6, Accent7, Accent8}
-export const Dark2       = {Dark2_3, Dark2_4, Dark2_5, Dark2_6, Dark2_7, Dark2_8}
-export const Paired      = {Paired3, Paired4, Paired5, Paired6, Paired7, Paired8, Paired9, Paired10, Paired11, Paired12}
-export const Pastel1     = {Pastel1_3, Pastel1_4, Pastel1_5, Pastel1_6, Pastel1_7, Pastel1_8, Pastel1_9}
-export const Pastel2     = {Pastel2_3, Pastel2_4, Pastel2_5, Pastel2_6, Pastel2_7, Pastel2_8}
-export const Set1        = {Set1_3, Set1_4, Set1_5, Set1_6, Set1_7, Set1_8, Set1_9}
-export const Set2        = {Set2_3, Set2_4, Set2_5, Set2_6, Set2_7, Set2_8}
-export const Set3        = {Set3_3, Set3_4, Set3_5, Set3_6, Set3_7, Set3_8, Set3_9, Set3_10, Set3_11, Set3_12}
-export const Category10  = {Category10_3, Category10_4, Category10_5, Category10_6, Category10_7, Category10_8, Category10_9, Category10_10}
-export const Category20  = {Category20_3, Category20_4, Category20_5, Category20_6, Category20_7, Category20_8, Category20_9, Category20_10, Category20_11, Category20_12, Category20_13, Category20_14, Category20_15, Category20_16, Category20_17, Category20_18, Category20_19, Category20_20}
-export const Category20b = {Category20b_3, Category20b_4, Category20b_5, Category20b_6, Category20b_7, Category20b_8, Category20b_9, Category20b_10, Category20b_11, Category20b_12, Category20b_13, Category20b_14, Category20b_15, Category20b_16, Category20b_17, Category20b_18, Category20b_19, Category20b_20}
-export const Category20c = {Category20c_3, Category20c_4, Category20c_5, Category20c_6, Category20c_7, Category20c_8, Category20c_9, Category20c_10, Category20c_11, Category20c_12, Category20c_13, Category20c_14, Category20c_15, Category20c_16, Category20c_17, Category20c_18, Category20c_19, Category20c_20}
-export const Colorblind  = {Colorblind3, Colorblind4, Colorblind5, Colorblind6, Colorblind7, Colorblind8}
-export const Bright       = {Bright3, Bright4, Bright5, Bright6, Bright7}
-export const HighContrast = {HighContrast3}
-export const Vibrant      = {Vibrant3, Vibrant4, Vibrant5, Vibrant6, Vibrant7}
-export const Muted        = {Muted3, Muted4, Muted5, Muted6, Muted7, Muted8}
+export const YlGn           = {YlGn3, YlGn4, YlGn5, YlGn6, YlGn7, YlGn8, YlGn9}
+export const YlGnBu         = {YlGnBu3, YlGnBu4, YlGnBu5, YlGnBu6, YlGnBu7, YlGnBu8, YlGnBu9}
+export const GnBu           = {GnBu3, GnBu4, GnBu5, GnBu6, GnBu7, GnBu8, GnBu9}
+export const BuGn           = {BuGn3, BuGn4, BuGn5, BuGn6, BuGn7, BuGn8, BuGn9}
+export const PuBuGn         = {PuBuGn3, PuBuGn4, PuBuGn5, PuBuGn6, PuBuGn7, PuBuGn8, PuBuGn9}
+export const PuBu           = {PuBu3, PuBu4, PuBu5, PuBu6, PuBu7, PuBu8, PuBu9}
+export const BuPu           = {BuPu3, BuPu4, BuPu5, BuPu6, BuPu7, BuPu8, BuPu9}
+export const RdPu           = {RdPu3, RdPu4, RdPu5, RdPu6, RdPu7, RdPu8, RdPu9}
+export const PuRd           = {PuRd3, PuRd4, PuRd5, PuRd6, PuRd7, PuRd8, PuRd9}
+export const OrRd           = {OrRd3, OrRd4, OrRd5, OrRd6, OrRd7, OrRd8, OrRd9}
+export const YlOrRd         = {YlOrRd3, YlOrRd4, YlOrRd5, YlOrRd6, YlOrRd7, YlOrRd8, YlOrRd9}
+export const YlOrBr         = {YlOrBr3, YlOrBr4, YlOrBr5, YlOrBr6, YlOrBr7, YlOrBr8, YlOrBr9}
+export const Purples        = {Purples3, Purples4, Purples5, Purples6, Purples7, Purples8, Purples9}
+export const Blues          = {Blues3, Blues4, Blues5, Blues6, Blues7, Blues8, Blues9}
+export const Greens         = {Greens3, Greens4, Greens5, Greens6, Greens7, Greens8, Greens9}
+export const Oranges        = {Oranges3, Oranges4, Oranges5, Oranges6, Oranges7, Oranges8, Oranges9}
+export const Reds           = {Reds3, Reds4, Reds5, Reds6, Reds7, Reds8, Reds9}
+export const Greys          = {Greys3, Greys4, Greys5, Greys6, Greys7, Greys8, Greys9, Greys10, Greys11, Greys256}
+export const PuOr           = {PuOr3, PuOr4, PuOr5, PuOr6, PuOr7, PuOr8, PuOr9, PuOr10, PuOr11}
+export const BrBG           = {BrBG3, BrBG4, BrBG5, BrBG6, BrBG7, BrBG8, BrBG9, BrBG10, BrBG11}
+export const PRGn           = {PRGn3, PRGn4, PRGn5, PRGn6, PRGn7, PRGn8, PRGn9, PRGn10, PRGn11}
+export const PiYG           = {PiYG3, PiYG4, PiYG5, PiYG6, PiYG7, PiYG8, PiYG9, PiYG10, PiYG11}
+export const RdBu           = {RdBu3, RdBu4, RdBu5, RdBu6, RdBu7, RdBu8, RdBu9, RdBu10, RdBu11}
+export const RdGy           = {RdGy3, RdGy4, RdGy5, RdGy6, RdGy7, RdGy8, RdGy9, RdGy10, RdGy11}
+export const RdYlBu         = {RdYlBu3, RdYlBu4, RdYlBu5, RdYlBu6, RdYlBu7, RdYlBu8, RdYlBu9, RdYlBu10, RdYlBu11}
+export const Spectral       = {Spectral3, Spectral4, Spectral5, Spectral6, Spectral7, Spectral8, Spectral9, Spectral10, Spectral11}
+export const RdYlGn         = {RdYlGn3, RdYlGn4, RdYlGn5, RdYlGn6, RdYlGn7, RdYlGn8, RdYlGn9, RdYlGn10, RdYlGn11}
+export const Bokeh          = {Bokeh3, Bokeh4, Bokeh5, Bokeh6, Bokeh7, Bokeh8}
+export const Inferno        = {Inferno3, Inferno4, Inferno5, Inferno6, Inferno7, Inferno8, Inferno9, Inferno10, Inferno11, Inferno256}
+export const Magma          = {Magma3, Magma4, Magma5, Magma6, Magma7, Magma8, Magma9, Magma10, Magma11, Magma256}
+export const Plasma         = {Plasma3, Plasma4, Plasma5, Plasma6, Plasma7, Plasma8, Plasma9, Plasma10, Plasma11, Plasma256}
+export const Viridis        = {Viridis3, Viridis4, Viridis5, Viridis6, Viridis7, Viridis8, Viridis9, Viridis10, Viridis11, Viridis256}
+export const Cividis        = {Cividis3, Cividis4, Cividis5, Cividis6, Cividis7, Cividis8, Cividis9, Cividis10, Cividis11, Cividis256}
+export const Turbo          = {Turbo3, Turbo4, Turbo5, Turbo6, Turbo7, Turbo8, Turbo9, Turbo10, Turbo11, Turbo256}
+export const Accent         = {Accent3, Accent4, Accent5, Accent6, Accent7, Accent8}
+export const Dark2          = {Dark2_3, Dark2_4, Dark2_5, Dark2_6, Dark2_7, Dark2_8}
+export const Paired         = {Paired3, Paired4, Paired5, Paired6, Paired7, Paired8, Paired9, Paired10, Paired11, Paired12}
+export const Pastel1        = {Pastel1_3, Pastel1_4, Pastel1_5, Pastel1_6, Pastel1_7, Pastel1_8, Pastel1_9}
+export const Pastel2        = {Pastel2_3, Pastel2_4, Pastel2_5, Pastel2_6, Pastel2_7, Pastel2_8}
+export const Set1           = {Set1_3, Set1_4, Set1_5, Set1_6, Set1_7, Set1_8, Set1_9}
+export const Set2           = {Set2_3, Set2_4, Set2_5, Set2_6, Set2_7, Set2_8}
+export const Set3           = {Set3_3, Set3_4, Set3_5, Set3_6, Set3_7, Set3_8, Set3_9, Set3_10, Set3_11, Set3_12}
+export const Category10     = {Category10_3, Category10_4, Category10_5, Category10_6, Category10_7, Category10_8, Category10_9, Category10_10}
+export const Category20     = {Category20_3, Category20_4, Category20_5, Category20_6, Category20_7, Category20_8, Category20_9, Category20_10, Category20_11, Category20_12, Category20_13, Category20_14, Category20_15, Category20_16, Category20_17, Category20_18, Category20_19, Category20_20}
+export const Category20b    = {Category20b_3, Category20b_4, Category20b_5, Category20b_6, Category20b_7, Category20b_8, Category20b_9, Category20b_10, Category20b_11, Category20b_12, Category20b_13, Category20b_14, Category20b_15, Category20b_16, Category20b_17, Category20b_18, Category20b_19, Category20b_20}
+export const Category20c    = {Category20c_3, Category20c_4, Category20c_5, Category20c_6, Category20c_7, Category20c_8, Category20c_9, Category20c_10, Category20c_11, Category20c_12, Category20c_13, Category20c_14, Category20c_15, Category20c_16, Category20c_17, Category20c_18, Category20c_19, Category20c_20}
+export const Colorblind     = {Colorblind3, Colorblind4, Colorblind5, Colorblind6, Colorblind7, Colorblind8}
+export const Bright         = {Bright3, Bright4, Bright5, Bright6, Bright7}
+export const HighContrast   = {HighContrast3}
+export const Vibrant        = {Vibrant3, Vibrant4, Vibrant5, Vibrant6, Vibrant7}
+export const Muted          = {Muted3, Muted4, Muted5, Muted6, Muted7, Muted8}
 export const MediumContrast = {MediumContrast3, MediumContrast4, MediumContrast5, MediumContrast6}
-export const Light        = {Light3, Light4, Light5, Light6, Light7, Light8, Light9}
-export const Sunset       = {Sunset3, Sunset4, Sunset5, Sunset6, Sunset7, Sunset8, Sunset9, Sunset10, Sunset11}
-export const BuRd         = {BuRd3, BuRd4, BuRd5, BuRd6, BuRd7, BuRd8, BuRd9}
-export const TolPRGn      = {TolPRGn3, TolPRGn4, TolPRGn5, TolPRGn6, TolPRGn7, TolPRGn8, TolPRGn9}
-export const TolYlOrBr    = {TolYlOrBr3, TolYlOrBr4, TolYlOrBr5, TolYlOrBr6, TolYlOrBr7, TolYlOrBr8, TolYlOrBr9}
-export const Iridescent   = {Iridescent3, Iridescent4, Iridescent5, Iridescent6, Iridescent7, Iridescent8, Iridescent9, Iridescent10,
-                             Iridescent11, Iridescent12, Iridescent13, Iridescent14, Iridescent15, Iridescent16, Iridescent17, Iridescent18,
-                             Iridescent19, Iridescent20, Iridescent21, Iridescent22, Iridescent23}
-export const TolRainbow = {TolRainbow3, TolRainbow4, TolRainbow5, TolRainbow6, TolRainbow7, TolRainbow8, TolRainbow9, TolRainbow10,
-                           TolRainbow11, TolRainbow12, TolRainbow13, TolRainbow14, TolRainbow15, TolRainbow16, TolRainbow17, TolRainbow18,
-                           TolRainbow19, TolRainbow20, TolRainbow21, TolRainbow22, TolRainbow23}
+export const Light          = {Light3, Light4, Light5, Light6, Light7, Light8, Light9}
+export const Sunset         = {Sunset3, Sunset4, Sunset5, Sunset6, Sunset7, Sunset8, Sunset9, Sunset10, Sunset11}
+export const BuRd           = {BuRd3, BuRd4, BuRd5, BuRd6, BuRd7, BuRd8, BuRd9}
+export const TolPRGn        = {TolPRGn3, TolPRGn4, TolPRGn5, TolPRGn6, TolPRGn7, TolPRGn8, TolPRGn9}
+export const TolYlOrBr      = {TolYlOrBr3, TolYlOrBr4, TolYlOrBr5, TolYlOrBr6, TolYlOrBr7, TolYlOrBr8, TolYlOrBr9}
+export const Iridescent     = {Iridescent3, Iridescent4, Iridescent5, Iridescent6, Iridescent7, Iridescent8, Iridescent9, Iridescent10,
+                               Iridescent11, Iridescent12, Iridescent13, Iridescent14, Iridescent15, Iridescent16, Iridescent17, Iridescent18,
+                               Iridescent19, Iridescent20, Iridescent21, Iridescent22, Iridescent23}
+export const TolRainbow     = {TolRainbow3, TolRainbow4, TolRainbow5, TolRainbow6, TolRainbow7, TolRainbow8, TolRainbow9, TolRainbow10,
+                               TolRainbow11, TolRainbow12, TolRainbow13, TolRainbow14, TolRainbow15, TolRainbow16, TolRainbow17, TolRainbow18,
+                               TolRainbow19, TolRainbow20, TolRainbow21, TolRainbow22, TolRainbow23}
+
+export const brewer = {
+  YlGn,
+  YlGnBu,
+  GnBu,
+  BuGn,
+  PuBuGn,
+  PuBu,
+  BuPu,
+  RdPu,
+  PuRd,
+  OrRd,
+  YlOrRd,
+  YlOrBr,
+  Purples,
+  Blues,
+  Greens,
+  Oranges,
+  Reds,
+  Greys,
+  PuOr,
+  BrBG,
+  PRGn,
+  PiYG,
+  RdBu,
+  RdGy,
+  RdYlBu,
+  Spectral,
+  RdYlGn,
+  Accent,
+  Dark2,
+  Paired,
+  Pastel1,
+  Pastel2,
+  Set1,
+  Set2,
+  Set3,
+}
+
+export const d3 = {
+  Category10,
+  Category20,
+  Category20b,
+  Category20c,
+}
+
+export const bokeh = {
+  Bokeh,
+}
+
+export const mpl = {
+  Magma,
+  Inferno,
+  Plasma,
+  Viridis,
+  Cividis,
+  Turbo,
+}
+
+export const tol = {
+  Bright,
+  HighContrast,
+  Vibrant,
+  Muted,
+  MediumContrast,
+  Light,
+  Sunset,
+  BuRd,
+  TolPRGn,
+  TolYlOrBr,
+  Iridescent,
+  TolRainbow,
+}
+
+export const colorblind = {
+  Colorblind,
+}
 
 export function linear_palette<T>(palette: T[], n: number): T[] {
   if (n <= palette.length)
