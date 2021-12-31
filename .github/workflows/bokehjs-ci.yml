@@ -21,7 +21,7 @@ jobs:
       max-parallel: 3
       matrix:
         os: [ubuntu-20.04, macos-latest, windows-latest]
-        node-version: [14.x]
+        node-version: [16.x]
 
     steps:
       - name: Checkout the repository
@@ -35,7 +35,7 @@ jobs:
       - name: Upgrade npm
         shell: bash
         run: |
-          npm install -g npm@7
+          npm install -g npm@8
 
       - name: Install chromium
         if: runner.os == 'Linux'
