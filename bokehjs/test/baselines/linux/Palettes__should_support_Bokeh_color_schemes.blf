@@ -1,0 +1,4 @@
+GridBox bbox=[0, 0, 200, 200]
+  Plot bbox=[0, 0, 200, 200]
+    CategoricalAxis bbox=[0, 27, 20, 168]
+    Title bbox=[20, 0, 175, 27]

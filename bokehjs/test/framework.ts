@@ -355,7 +355,7 @@ function _infer_viewport(obj: LayoutDOM): Size {
       for (const [child, row, col] of obj.children) {
         const size = _infer_viewport(child)
         widths[col] = Math.max(widths[col], size.width)
-        heights[col] = Math.max(heights[row], size.height)
+        heights[row] = Math.max(heights[row], size.height)
       }
       width = sum(widths)
       height = sum(heights)
