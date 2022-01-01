@@ -5,13 +5,29 @@ import {ToolbarBase, ToolbarBaseView} from "./toolbar_base"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {ContentBox} from "core/layout"
 
-
 export class ToolbarBoxView extends LayoutDOMView {
   override model: ToolbarBox
 
   override initialize(): void {
     this.model.toolbar.toolbar_location = this.model.toolbar_location
     super.initialize()
+  }
+
+  get _toolbar_view(): ToolbarBaseView {
+    return this.child_views[0] as any
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    const {parent} = this
+    if (parent instanceof LayoutDOMView) {
+      parent.mouseenter.connect(() => {
+        this._toolbar_view.set_visibility(true)
+      })
+      parent.mouseleave.connect(() => {
+        this._toolbar_view.set_visibility(false)
+      })
+    }
   }
 
   get child_models(): LayoutDOM[] {
@@ -36,9 +52,8 @@ export class ToolbarBoxView extends LayoutDOMView {
 
   override after_layout(): void {
     super.after_layout()
-    const toolbar_view = this.child_views[0] as any as ToolbarBaseView
-    toolbar_view.layout.bbox = this.layout.bbox
-    toolbar_view.render() // render the second time to revise overflow
+    this._toolbar_view.layout.bbox = this.layout.bbox
+    this._toolbar_view.render() // render the second time to revise overflow
   }
 }
 
