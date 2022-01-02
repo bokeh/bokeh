@@ -26,14 +26,12 @@ type ActiveGestureToolsProps = {
   active_multi: p.Property<GestureTool | "auto" | null>
 }
 
-type ActiveToolsProps = ActiveGestureToolsProps & {
-  active_inspect: p.Property<Inspection | Inspection[] | "auto" | null>
-}
-
 export namespace Toolbar {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ToolbarBase.Props & ActiveToolsProps
+  export type Props = ToolbarBase.Props & ActiveGestureToolsProps & {
+    active_inspect: p.Property<Inspection | Inspection[] | "auto" | null>
+  }
 }
 
 export interface Toolbar extends Toolbar.Attrs {}
