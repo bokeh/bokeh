@@ -40,12 +40,13 @@ from .models import (
     Box,
     Column,
     GridBox,
+    GridPlot,
     LayoutDOM,
     Plot,
     ProxyToolbar,
     Row,
     Spacer,
-    ToolbarBox,
+    Toolbar,
 )
 from .util.dataclasses import dataclass
 
@@ -187,7 +188,7 @@ def gridplot(
         width: int | None = None,
         height: int | None = None,
         toolbar_options: Any = None, # TODO
-        merge_tools: bool = True) -> LayoutDOM:
+        merge_tools: bool = True) -> GridPlot:
     ''' Create a grid of plots rendered on separate canvases.
 
     The ``gridplot`` function builds a single toolbar for all the plots in the
@@ -227,9 +228,7 @@ def gridplot(
             a single toolbar.
 
     Returns:
-        Row or Column: A row or column containing the grid toolbar and the grid
-            of plots (depending on whether the toolbar is left/right or
-            above/below. The grid is always a Column of Rows of plots.
+        GridPlot:
 
     Examples:
 
@@ -287,20 +286,11 @@ def gridplot(
                 raise ValueError("Only LayoutDOM items can be inserted into a grid")
 
     if not merge_tools or not toolbar_location:
-        return GridBox(children=items, sizing_mode=sizing_mode)
+        toolbar = Toolbar(tools=tools, **toolbar_options)
+    else:
+        toolbar = ProxyToolbar(tools=tools, **toolbar_options)
 
-    grid = GridBox(children=items)
-    proxy = ProxyToolbar(tools=tools, **toolbar_options)
-    toolbar = ToolbarBox(toolbar=proxy, toolbar_location=toolbar_location)
-
-    if toolbar_location == 'above':
-        return Column(children=[toolbar, grid], sizing_mode=sizing_mode)
-    elif toolbar_location == 'below':
-        return Column(children=[grid, toolbar], sizing_mode=sizing_mode)
-    elif toolbar_location == 'left':
-        return Row(children=[toolbar, grid], sizing_mode=sizing_mode)
-    elif toolbar_location == 'right':
-        return Row(children=[grid, toolbar], sizing_mode=sizing_mode)
+    return GridPlot(children=items, toolbar=toolbar, toolbar_location=toolbar_location, sizing_mode=sizing_mode)
 
 # XXX https://github.com/python/mypy/issues/731
 @overload

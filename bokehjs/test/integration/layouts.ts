@@ -451,25 +451,23 @@ describe("ToolbarBox", () => {
     return row([p, tb])
   }
 
-  const viewport: [number, number] = [300, 300]
-
   it("should allow placement above a figure", async () => {
-    const {view} = await display(tb_above(), viewport)
+    const {view} = await display(tb_above())
     expect(() => view.export("svg")).to.not.throw()
   })
 
   it("should allow placement below a figure", async () => {
-    const {view} = await display(tb_below(), viewport)
+    const {view} = await display(tb_below())
     expect(() => view.export("svg")).to.not.throw()
   })
 
   it("should allow placement left of a figure", async () => {
-    const {view} = await display(tb_left(), viewport)
+    const {view} = await display(tb_left())
     expect(() => view.export("svg")).to.not.throw()
   })
 
   it("should allow placement right of a figure", async () => {
-    const {view} = await display(tb_right(), viewport)
+    const {view} = await display(tb_right())
     expect(() => view.export("svg")).to.not.throw()
   })
 })

@@ -28,6 +28,11 @@ export class ToolbarBoxView extends LayoutDOMView {
         this.toolbar_view.set_visibility(false)
       })
     }
+
+    const {toolbar_location} = this.model.properties
+    this.on_change(toolbar_location, () => {
+      this.model.toolbar.toolbar_location = this.model.toolbar_location
+    })
   }
 
   get child_models(): LayoutDOM[] {

@@ -31,6 +31,7 @@ from bokeh.layouts import (
 from bokeh.models import (
     Column,
     GridBox,
+    GridPlot,
     LayoutDOM,
     Row,
     Spacer,
@@ -81,7 +82,7 @@ def test_gridplot_None() -> None:
     p0, p1, p2, p3 = p(), p(), p(), p()
     g = gridplot([[p0, p1], [None, None], [p2, p3]], toolbar_location=None)
 
-    assert isinstance(g, GridBox) and len(g.children) == 4
+    assert isinstance(g, GridPlot) and len(g.children) == 4
     assert g.children == [(p0, 0, 0), (p1, 0, 1), (p2, 2, 0), (p3, 2, 1)]
 
 def test_layout_simple() -> None:

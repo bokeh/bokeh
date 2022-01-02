@@ -3,12 +3,11 @@ import {fig, display} from "../../_util"
 
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {ToolbarPanelView} from "@bokehjs/models/annotations/toolbar_panel"
-import {ToolbarBox, ToolbarBoxView} from "@bokehjs/models/tools/toolbar_box"
+import {ToolbarBoxView} from "@bokehjs/models/tools/toolbar_box"
 import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
 import {SelectTool, SelectToolView} from "@bokehjs/models/tools/gestures/select_tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
-import {Column} from "@bokehjs/models"
 import {gridplot} from "@bokehjs/api/gridplot"
 
 describe("Toolbar", () => {
@@ -44,9 +43,8 @@ describe("Toolbar", () => {
       const p1 = fig([200, 200])
       p1.rect({x: [0, 1], y: [0, 1], width: 1, height: 1, color: ["red", "blue"]})
 
-      const gp = gridplot([[p0, p1]], {toolbar_location: "above"}) as Column
-      const tb = gp.children[0] as ToolbarBox
-      tb.toolbar.autohide = true
+      const gp = gridplot([[p0, p1]], {toolbar_location: "above"})
+      gp.toolbar.autohide = true
 
       const {view} = await display(gp)
       const tbv = view.child_views[0] as ToolbarBoxView

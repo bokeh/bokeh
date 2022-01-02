@@ -55,6 +55,7 @@ from ..core.properties import (
     Override,
     Readonly,
     String,
+    Tuple,
 )
 from ..core.property_mixins import ScalarFillProps, ScalarLineProps
 from ..core.query import find
@@ -62,6 +63,7 @@ from ..core.validation import error, warning
 from ..core.validation.errors import (
     BAD_EXTRA_RANGE_NAME,
     INCOMPATIBLE_SCALE_AND_RANGE,
+    REPEATED_LAYOUT_CHILD,
     REQUIRED_RANGE,
     REQUIRED_SCALE,
 )
@@ -72,7 +74,13 @@ from .annotations import Annotation, Legend, Title
 from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
-from .layouts import LayoutDOM
+from .layouts import (
+    ColSizing,
+    IntOrString,
+    LayoutDOM,
+    QuickTrackSizing,
+    RowSizing,
+)
 from .ranges import (
     DataRange1d,
     FactorRange,
@@ -88,13 +96,19 @@ from .scales import (
 )
 from .sources import ColumnarDataSource, ColumnDataSource, DataSource
 from .tiles import TileSource, WMTSTileSource
-from .tools import HoverTool, Tool, Toolbar
+from .tools import (
+    HoverTool,
+    Tool,
+    Toolbar,
+    ToolbarBase,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'GridPlot',
     'Plot',
 )
 
@@ -794,6 +808,58 @@ class Plot(LayoutDOM):
     is desired, this property may be set to ``"event_only"``, which will
     suppress all of the actions except the Reset event.
     """)
+
+class GridPlot(LayoutDOM):
+    """ """
+
+    toolbar = Instance(ToolbarBase, default=lambda: Toolbar(), help="""
+    The toolbar associated with this grid plot, which holds all the tools.
+    It is automatically created with the plot if necessary.
+    """)
+
+    toolbar_location = Nullable(Enum(Location), default="above", help="""
+    Indicates where the layout the toolbar will be located. If set to None,
+    no toolbar will be attached to the grid plot.
+    """)
+
+    children = List(Either(
+        Tuple(Instance(LayoutDOM), Int, Int),
+        Tuple(Instance(LayoutDOM), Int, Int, Int, Int)), default=[], help="""
+    A list of subplots with their associated position in the grid, row and column
+    index and optional row and column spans (the defaul span is 1).
+    """)
+
+    rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
+    Describes how the grid should maintain its rows' heights.
+
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion.
+
+    """)
+
+    cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
+    Describes how the grid should maintain its columns' widths.
+
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion.
+
+    """)
+
+    spacing = Either(Int, Tuple(Int, Int), default=0, help="""
+    The gap between children (in pixels).
+
+    Either a number, if spacing is the same for both dimensions, or a pair
+    of numbers indicating spacing in the vertical and horizontal dimensions
+    respectively.
+    """)
+
+    @error(REPEATED_LAYOUT_CHILD)
+    def _check_repeated_layout_children(self):
+        children = [ child[0] for child in self.children ]
+        if len(children) != len(set(children)):
+            return str(self)
 
 #-----------------------------------------------------------------------------
 # Dev API

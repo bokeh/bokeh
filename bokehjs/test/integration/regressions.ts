@@ -22,7 +22,7 @@ import {
   ImageURLTexture,
 } from "@bokehjs/models"
 
-import {Button, Select, MultiSelect, MultiChoice, RadioGroup} from "@bokehjs/models/widgets"
+import {Button, Select, MultiSelect, MultiChoice, RadioGroup, Div} from "@bokehjs/models/widgets"
 import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
@@ -45,6 +45,7 @@ import {div, offset} from "@bokehjs/core/dom"
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {PlotView} from "@bokehjs/models/plots/plot"
 
+import {gridplot} from "@bokehjs/api/gridplot"
 import {f} from "@bokehjs/api/expr"
 import {np} from "@bokehjs/api/linalg"
 
@@ -1629,6 +1630,120 @@ describe("Bug", () => {
       } finally {
         document.fonts.delete(font)
       }
+    })
+  })
+
+  describe("in issue #11035", () => {
+    it("doesn't allow to use non-Plot models in gridplot()", async () => {
+      const plot = fig([200, 200])
+      plot.circle([1, 2, 3], [1, 2, 3])
+
+      const div = new Div({text: "some text"})
+      const button = new Button({label: "Click!"})
+
+      const gp = gridplot([[plot, div], [null, button]], {merge_tools: true, toolbar_location: "above"})
+      await display(gp)
+    })
+  })
+
+  describe("in issue #11623", () => {
+    function make_plot(toolbar_location: Location | null) {
+      const p = fig([200, 200], {toolbar_location})
+      p.circle([1, 2, 3], [1, 2, 3], {color: "red"})
+      return p
+    }
+
+    it("doesn't allow changing location of a Plot toolbar from null to 'above'", async () => {
+      const p = make_plot(null)
+      const {view} = await display(p)
+
+      p.toolbar_location = "above"
+      await view.ready
+    })
+
+    it("doesn't allow changing location of a Plot toolbar from 'above' to null", async () => {
+      const p = make_plot("above")
+      const {view} = await display(p)
+
+      p.toolbar_location = null
+      await view.ready
+    })
+
+    it("doesn't allow changing location of a Plot toolbar from 'above' to 'left'", async () => {
+      const p = make_plot("above")
+      const {view} = await display(p)
+
+      p.toolbar_location = "left"
+      await view.ready
+    })
+
+    it("doesn't allow changing location of a Plot toolbar from 'above' to 'right'", async () => {
+      const p = make_plot("above")
+      const {view} = await display(p)
+
+      p.toolbar_location = "right"
+      await view.ready
+    })
+
+    it("doesn't allow changing location of a Plot toolbar from 'above' to 'below'", async () => {
+      const p = make_plot("above")
+      const {view} = await display(p)
+
+      p.toolbar_location = "below"
+      await view.ready
+    })
+
+    function make_gridplot(toolbar_location: Location | null) {
+      const p0 = fig([100, 100])
+      p0.circle([1, 2, 3], [1, 2, 3], {color: "red"})
+      const p1 = fig([100, 100])
+      p1.circle([1, 2, 3], [1, 2, 3], {color: "blue"})
+      const p2 = fig([100, 100])
+      p2.circle([1, 2, 3], [1, 2, 3], {color: "green"})
+      const p3 = fig([100, 100])
+      p3.circle([1, 2, 3], [1, 2, 3], {color: "yellow"})
+
+      return gridplot([[p0, p1], [p2, p3]], {toolbar_location})
+    }
+
+    it("doesn't allow changing location of a GridPlot toolbar from null to 'above'", async () => {
+      const gp = make_gridplot(null)
+      const {view} = await display(gp)
+
+      gp.toolbar_location = "above"
+      await view.ready
+    })
+
+    it("doesn't allow changing location of a GridPlot toolbar from 'above' to null", async () => {
+      const gp = make_gridplot("above")
+      const {view} = await display(gp)
+
+      gp.toolbar_location = null
+      await view.ready
+    })
+
+    it("doesn't allow changing location of a GridPlot toolbar from 'above' to 'left'", async () => {
+      const gp = make_gridplot("above")
+      const {view} = await display(gp)
+
+      gp.toolbar_location = "left"
+      await view.ready
+    })
+
+    it("doesn't allow changing location of a GridPlot toolbar from 'above' to 'right'", async () => {
+      const gp = make_gridplot("above")
+      const {view} = await display(gp)
+
+      gp.toolbar_location = "right"
+      await view.ready
+    })
+
+    it("doesn't allow changing location of a GridPlot toolbar from 'above' to 'below'", async () => {
+      const gp = make_gridplot("above")
+      const {view} = await display(gp)
+
+      gp.toolbar_location = "below"
+      await view.ready
     })
   })
 })

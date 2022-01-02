@@ -1,7 +1,6 @@
-import {LayoutDOM, Row, Column, GridBox, ToolbarBox, ProxyToolbar, Plot, Tool} from "./models"
+import {GridPlot, Plot, ProxyToolbar, Toolbar, Tool, LayoutDOM} from "./models"
 import {SizingMode, Location} from "../core/enums"
 import {Matrix} from "../core/util/matrix"
-import {unreachable} from "core/util/assert"
 
 export type GridPlotOpts = {
   toolbar_location?: Location | null
@@ -11,17 +10,10 @@ export type GridPlotOpts = {
   height?: number
 }
 
-function or_else<T>(value: T | undefined, default_value: T): T {
-  if (value === undefined)
-    return default_value
-  else
-    return value
-}
-
-export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | null>, options: GridPlotOpts = {}): LayoutDOM {
-  const toolbar_location = or_else(options.toolbar_location, "above")
-  const merge_tools      = or_else(options.merge_tools, true)
-  const sizing_mode      = or_else(options.sizing_mode, null)
+export function gridplot(children: (LayoutDOM | null)[][] | Matrix<Plot | null>, options: GridPlotOpts = {}): GridPlot {
+  const toolbar_location = options.toolbar_location
+  const merge_tools      = options.merge_tools ?? true
+  const sizing_mode      = options.sizing_mode
 
   const matrix = Matrix.from(children)
 
@@ -47,25 +39,12 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
     items.push([item, row, col])
   }
 
-  const grid = new GridBox({children: items, sizing_mode})
-  if (!merge_tools || toolbar_location == null)
-    return grid
+  const toolbar = (() => {
+    if (!merge_tools)
+      return new Toolbar({tools})
+    else
+      return new ProxyToolbar({tools})
+  })()
 
-  const toolbar = new ToolbarBox({
-    toolbar: new ProxyToolbar({tools}),
-    toolbar_location,
-  })
-
-  switch (toolbar_location) {
-    case "above":
-      return new Column({children: [toolbar, grid], sizing_mode})
-    case "below":
-      return new Column({children: [grid, toolbar], sizing_mode})
-    case "left":
-      return new Row({children: [toolbar, grid], sizing_mode})
-    case "right":
-      return new Row({children: [grid, toolbar], sizing_mode})
-    default:
-      unreachable()
-  }
+  return new GridPlot({children: items, sizing_mode, toolbar, toolbar_location})
 }
