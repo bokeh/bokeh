@@ -13,7 +13,7 @@ export class ToolbarBoxView extends LayoutDOMView {
     super.initialize()
   }
 
-  get _toolbar_view(): ToolbarBaseView {
+  get toolbar_view(): ToolbarBaseView {
     return this.child_views[0] as any
   }
 
@@ -22,10 +22,10 @@ export class ToolbarBoxView extends LayoutDOMView {
     const {parent} = this
     if (parent instanceof LayoutDOMView) {
       parent.mouseenter.connect(() => {
-        this._toolbar_view.set_visibility(true)
+        this.toolbar_view.set_visibility(true)
       })
       parent.mouseleave.connect(() => {
-        this._toolbar_view.set_visibility(false)
+        this.toolbar_view.set_visibility(false)
       })
     }
   }
@@ -52,8 +52,8 @@ export class ToolbarBoxView extends LayoutDOMView {
 
   override after_layout(): void {
     super.after_layout()
-    this._toolbar_view.layout.bbox = this.layout.bbox
-    this._toolbar_view.render() // render the second time to revise overflow
+    this.toolbar_view.layout.bbox = this.layout.bbox
+    this.toolbar_view.render() // render the second time to revise overflow
   }
 }
 
