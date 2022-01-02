@@ -70,6 +70,7 @@ export interface ToolbarBox extends ToolbarBox.Attrs {}
 
 export class ToolbarBox extends LayoutDOM {
   override properties: ToolbarBox.Props
+  override __view_type__: ToolbarBoxView
 
   constructor(attrs?: Partial<ToolbarBox.Attrs>) {
     super(attrs)
