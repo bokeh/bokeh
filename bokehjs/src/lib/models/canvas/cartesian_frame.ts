@@ -119,12 +119,20 @@ export class CartesianFrame {
     return this._y_ranges
   }
 
+  get ranges(): Set<Range> {
+    return new Set([...this.x_ranges.values(), ...this.y_ranges.values()])
+  }
+
   get x_scales(): Map<string, Scale> {
     return this._x_scales
   }
 
   get y_scales(): Map<string, Scale> {
     return this._y_scales
+  }
+
+  get scales(): Set<Scale> {
+    return new Set([...this.x_scales.values(), ...this.y_scales.values()])
   }
 
   get x_scale(): Scale {

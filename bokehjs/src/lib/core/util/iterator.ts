@@ -19,6 +19,13 @@ export function* join<T>(seq: Iterable<Iterable<T>>, separator?: () => T): Itera
   }
 }
 
+export function* flat_map<T, U>(iterable: Iterable<T>, fn: (item: T, i: number) => Iterable<U>): Iterable<U> {
+  let i = 0
+  for (const item of iterable) {
+    yield* fn(item, i++)
+  }
+}
+
 // https://docs.python.org/3.8/library/itertools.html#itertools.combinations
 export function* combinations<T>(seq: T[], r: number): Iterable<T[]> {
   const n = seq.length

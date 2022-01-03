@@ -10,6 +10,7 @@ import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {Axis, AxisView} from "../axes/axis"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
+import {DataRange1d} from "../ranges/data_range1d"
 
 import {Reset} from "core/bokeh_events"
 import {build_view, build_views, remove_views} from "core/build_views"
@@ -164,8 +165,15 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   override remove(): void {
+    for (const r of this.frame.ranges.values()) {
+      if (r instanceof DataRange1d) {
+        r.plots.delete(this.model)
+      }
+    }
+
     remove_views(this.renderer_views)
     remove_views(this.tool_views)
+
     this.canvas_view.remove()
     super.remove()
   }
@@ -204,6 +212,12 @@ export class PlotView extends LayoutDOMView implements Renderable {
       this.model.extra_x_scales,
       this.model.extra_y_scales,
     )
+
+    for (const r of this.frame.ranges.values()) {
+      if (r instanceof DataRange1d) {
+        r.plots.add(this.model)
+      }
+    }
 
     this._range_manager = new RangeManager(this)
     this._state_manager = new StateManager(this, this._initial_state)
