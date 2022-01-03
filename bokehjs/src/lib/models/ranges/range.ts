@@ -1,5 +1,4 @@
 import {Model} from "../../model"
-import type {Plot} from "../plots/plot"
 import * as p from "core/properties"
 
 export namespace Range {
@@ -9,7 +8,6 @@ export namespace Range {
     bounds: p.Property<[number | null, number | null] | "auto" | null>
     min_interval: p.Property<number | null>
     max_interval: p.Property<number | null>
-    plots: p.Property<Plot[]>
   }
 }
 
@@ -27,10 +25,6 @@ export abstract class Range extends Model {
       bounds:       [ Nullable(Or(Tuple(Nullable(Number), Nullable(Number)), Auto)), null ],
       min_interval: [ Nullable(Number), null ],
       max_interval: [ Nullable(Number), null ],
-    }))
-
-    this.internal<Range.Props>(({Array, AnyRef}) => ({
-      plots: [ Array(AnyRef()), [] ],
     }))
   }
 

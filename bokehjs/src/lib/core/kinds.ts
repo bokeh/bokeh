@@ -3,8 +3,11 @@ import * as tp from "./util/types"
 import {is_Color} from "./util/color"
 import {size} from "./util/object"
 
-type ESMap<K, V> = Map<K, V>
-const ESMap = window.Map
+type ESMap<K, V> = globalThis.Map<K, V>
+const ESMap = globalThis.Map
+
+type ESSet<V> = globalThis.Set<V>
+const ESSet = globalThis.Set
 
 const {hasOwnProperty} = Object.prototype
 
@@ -193,11 +196,11 @@ export namespace Kinds {
   }
 
   export class Enum<T extends string | number> extends Kind<T> {
-    readonly values: Set<T>
+    readonly values: ESSet<T>
 
     constructor(values: Iterable<T>) {
       super()
-      this.values = new Set(values)
+      this.values = new ESSet(values)
     }
 
     valid(value: unknown): value is T {
@@ -250,6 +253,25 @@ export namespace Kinds {
     }
   }
 
+  export class Set<ItemType> extends Kind<ESSet<ItemType>> {
+
+    constructor(readonly item_type: Kind<ItemType>) {
+      super()
+    }
+
+    valid(value: unknown): value is this["__type__"] {
+      if (!(value instanceof ESSet))
+        return false
+
+      for (const item of value) {
+        if (!this.item_type.valid(item))
+          return false
+      }
+
+      return true
+    }
+  }
+
   export class Color extends Kind<types.Color> {
     valid(value: unknown): value is types.Color {
       return is_Color(value)
@@ -280,6 +302,7 @@ export const Arrayable = new Kinds.Arrayable()
 export const Array = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Array(item_type)
 export const Dict = <V>(item_type: Kind<V>) => new Kinds.Dict(item_type)
 export const Map = <K, V>(key_type: Kind<K>, item_type: Kind<V>) => new Kinds.Map(key_type, item_type)
+export const Set = <V>(item_type: Kind<V>) => new Kinds.Set(item_type)
 export const Enum = <T extends string | number>(...values: T[]) => new Kinds.Enum(values)
 export const Ref = <ObjType extends object>(obj_type: Constructor<ObjType>) => new Kinds.Ref<ObjType>(obj_type)
 export const AnyRef = <ObjType extends object>() => new Kinds.AnyRef<ObjType>()

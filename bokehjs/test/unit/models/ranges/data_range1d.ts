@@ -139,12 +139,14 @@ describe("datarange1d module", () => {
     it("should add renderers from one plot", () => {
       const g1 = new GlyphRenderer()
       const p1 = new Plot({renderers: [g1]})
-      const r1 = new DataRange1d({plots: [p1]})
+      const r1 = new DataRange1d()
+      r1.plots.add(p1)
       expect(r1.computed_renderers()).to.be.equal([g1])
 
       const g2 = new GlyphRenderer()
       const p2 = new Plot({renderers: [g1, g2]})
-      const r2 = new DataRange1d({plots: [p2]})
+      const r2 = new DataRange1d()
+      r2.plots.add(p2)
       expect(r2.computed_renderers()).to.be.equal([g1, g2])
     })
 
@@ -155,7 +157,9 @@ describe("datarange1d module", () => {
       const g2 = new GlyphRenderer()
       const p2 = new Plot({renderers: [g2]})
 
-      const r = new DataRange1d({plots: [p1, p2]})
+      const r = new DataRange1d()
+      r.plots.add(p1)
+      r.plots.add(p2)
       expect(r.computed_renderers()).to.be.equal([g1, g2])
     })
 
@@ -166,7 +170,9 @@ describe("datarange1d module", () => {
       const g2 = new GlyphRenderer()
       const p2 = new Plot({renderers: [g2]})
 
-      const r = new DataRange1d({plots: [p1, p2], renderers: [g2]})
+      const r = new DataRange1d({renderers: [g2]})
+      r.plots.add(p1)
+      r.plots.add(p2)
       expect(r.computed_renderers()).to.be.equal([g2])
     })
   })
@@ -346,7 +352,8 @@ describe("datarange1d module", () => {
     it("should update its start and end values", () => {
       const g = new GlyphRenderer()
       const p = new Plot({renderers: [g]})
-      const r = new DataRange1d({plots: [p]})
+      const r = new DataRange1d()
+      r.plots.add(p)
 
       const bounds = new Map([
         [g, {x0: -10, x1: -6, y0: 5, y1: 6}],
@@ -359,7 +366,8 @@ describe("datarange1d module", () => {
     it("should not update its start or end values to NaN when log", () => {
       const g = new GlyphRenderer()
       const p = new Plot({renderers: [g]})
-      const r = new DataRange1d({scale_hint: "log", plots: [p]})
+      const r = new DataRange1d({scale_hint: "log"})
+      r.plots.add(p)
 
       const bounds = new Map([
         [g, {x0: Infinity, x1: -Infinity, y0: 5, y1: 6}],

@@ -4,6 +4,7 @@ import * as sinon from "sinon"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {PlotView} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
 import {Label, LabelView} from "@bokehjs/models/annotations/label"
 import {build_view} from "@bokehjs/core/build_views"
 import {Place} from "@bokehjs/core/enums"
@@ -190,6 +191,36 @@ describe("Plot module", () => {
         view.unpause()
         expect(view.is_paused).to.be.false
       })
+    })
+
+    it("should configure data ranges", async () => {
+      const x_range = new DataRange1d()
+      const y_range = new DataRange1d()
+
+      const p0 = new Plot({x_range, y_range})
+      const pv0 = (await build_view(p0)).build()
+
+      const p1 = new Plot({x_range, y_range})
+      const pv1 = (await build_view(p1)).build()
+
+      expect(x_range.plots.has(p0)).to.be.true
+      expect(y_range.plots.has(p0)).to.be.true
+      expect(x_range.plots.has(p1)).to.be.true
+      expect(y_range.plots.has(p1)).to.be.true
+
+      pv0.remove()
+
+      expect(x_range.plots.has(p0)).to.be.false
+      expect(y_range.plots.has(p0)).to.be.false
+      expect(x_range.plots.has(p1)).to.be.true
+      expect(y_range.plots.has(p1)).to.be.true
+
+      pv1.remove()
+
+      expect(x_range.plots.has(p0)).to.be.false
+      expect(y_range.plots.has(p0)).to.be.false
+      expect(x_range.plots.has(p1)).to.be.false
+      expect(y_range.plots.has(p1)).to.be.false
     })
   })
 })
