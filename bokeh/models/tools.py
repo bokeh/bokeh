@@ -322,9 +322,6 @@ class ProxyToolbar(ToolbarBase):
 
     '''
 
-    toolbars = List(Instance(Toolbar), help="""
-    """)
-
 class ToolbarBox(LayoutDOM):
     ''' A layoutable toolbar that can accept the tools of multiple plots, and
     can merge the tools into a single button for convenience.

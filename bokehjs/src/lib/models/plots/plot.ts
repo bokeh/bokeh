@@ -4,8 +4,7 @@ import * as p from "core/properties"
 import {Signal0} from "core/signaling"
 import {Location, OutputBackend, Place, ResetPolicy} from "core/enums"
 import {concat, remove_by} from "core/util/array"
-import {values} from "core/util/object"
-import {isArray, isString} from "core/util/types"
+import {isString} from "core/util/types"
 
 import {LayoutDOM} from "../layouts/layout_dom"
 import {Axis} from "../axes/axis"
@@ -110,7 +109,7 @@ export class Plot extends LayoutDOM {
 
   readonly use_map: boolean = false
 
-  reset: Signal0<this>
+  readonly reset = new Signal0(this, "reset")
 
   constructor(attrs?: Partial<Plot.Attrs>) {
     super(attrs)
@@ -192,28 +191,6 @@ export class Plot extends LayoutDOM {
       border_fill_color: "#ffffff",
       background_fill_color: "#ffffff",
     })
-  }
-
-  override initialize(): void {
-    super.initialize()
-
-    this.reset = new Signal0(this, "reset")
-
-    for (const xr of values(this.extra_x_ranges).concat(this.x_range)) {
-      let plots = xr.plots
-      if (isArray(plots)) {
-        plots = plots.concat(this)
-        xr.setv({plots}, {silent: true})
-      }
-    }
-
-    for (const yr of values(this.extra_y_ranges).concat(this.y_range)) {
-      let plots = yr.plots
-      if (isArray(plots)) {
-        plots = plots.concat(this)
-        yr.setv({plots}, {silent: true})
-      }
-    }
   }
 
   add_layout(renderer: Annotation | GuideRenderer, side: Place = "center"): void {

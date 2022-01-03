@@ -98,6 +98,7 @@ export class ToolbarBaseView extends DOMComponentView {
   override render(): void {
     this.empty()
 
+    this.el.className = ""
     this.el.classList.add(toolbars[this.model.toolbar_location])
     this._on_visible_change()
 

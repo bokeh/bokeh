@@ -10,6 +10,7 @@ import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {Axis, AxisView} from "../axes/axis"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
+import {DataRange1d} from "../ranges/data_range1d"
 
 import {Reset} from "core/bokeh_events"
 import {build_view, build_views, remove_views} from "core/build_views"
@@ -65,8 +66,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
   set invalidate_dataranges(value: boolean) {
     this._range_manager.invalidate_dataranges = value
   }
-
-  visibility_callbacks: ((visible: boolean) => void)[]
 
   protected _is_paused?: number
 
@@ -164,8 +163,15 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   override remove(): void {
+    for (const r of this.frame.ranges.values()) {
+      if (r instanceof DataRange1d) {
+        r.plots.delete(this.model)
+      }
+    }
+
     remove_views(this.renderer_views)
     remove_views(this.tool_views)
+
     this.canvas_view.remove()
     super.remove()
   }
@@ -189,7 +195,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
       selection: new Map(),               // XXX: initial selection?
       dimensions: {width: 0, height: 0},  // XXX: initial dimensions
     }
-    this.visibility_callbacks = []
 
     this.renderer_views = new Map()
     this.tool_views = new Map()
@@ -204,6 +209,12 @@ export class PlotView extends LayoutDOMView implements Renderable {
       this.model.extra_x_scales,
       this.model.extra_y_scales,
     )
+
+    for (const r of this.frame.ranges.values()) {
+      if (r instanceof DataRange1d) {
+        r.plots.add(this.model)
+      }
+    }
 
     this._range_manager = new RangeManager(this)
     this._state_manager = new StateManager(this, this._initial_state)
@@ -445,11 +456,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
         views.push(renderer_view)
     }
     return views
-  }
-
-  set_toolbar_visibility(visible: boolean): void {
-    for (const callback of this.visibility_callbacks)
-      callback(visible)
   }
 
   update_range(range_info: RangeInfo | null, options?: RangeOptions): void {

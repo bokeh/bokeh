@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {enumerate, join, combinations, subsets} from "@bokehjs/core/util/iterator"
+import {enumerate, join, flat_map, combinations, subsets} from "@bokehjs/core/util/iterator"
 
 describe("core/util/iterator module", () => {
   it("implements enumerate() function", () => {
@@ -18,6 +18,14 @@ describe("core/util/iterator module", () => {
     expect([...join([], () => 0)]).to.be.equal([])
     expect([...join([[1, 2, 3], [4, 5, 6]], () => 0)]).to.be.equal([1, 2, 3, 0, 4, 5, 6])
     expect([...join([[1, 2, 3], [4, 5, 6], [7, 8, 9]], () => 0)]).to.be.equal([1, 2, 3, 0, 4, 5, 6, 0, 7, 8, 9])
+  })
+
+  it("implements flat_map() function", () => {
+    const r0 = flat_map([1, 2, 3], (k) => Array(k).fill(k))
+    expect([...r0]).to.be.equal([1, 2, 2, 3, 3, 3])
+
+    const r1 = flat_map([1, 2, 3], function* (k) { yield* Array(k).fill(k) })
+    expect([...r1]).to.be.equal([1, 2, 2, 3, 3, 3])
   })
 
   it("implements combinations() function", () => {

@@ -421,17 +421,6 @@ export class UIEventBus implements EventListenerObject {
     const base_type = event_type.split(":")[0] as BaseType
     const view = this._hit_test_renderers(plot_view, e.sx, e.sy)
 
-    switch (signal.name) {
-      case "move:enter": {
-        plot_view.set_toolbar_visibility(true)
-        break
-      }
-      case "move:exit": {
-        plot_view.set_toolbar_visibility(false)
-        break
-      }
-    }
-
     switch (base_type) {
       case "move": {
         const active_gesture = gestures[base_type].active

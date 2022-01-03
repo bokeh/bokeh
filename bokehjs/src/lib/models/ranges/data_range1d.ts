@@ -3,7 +3,7 @@ import type {Renderer} from "../renderers/renderer"
 import type {DataRenderer} from "../renderers/data_renderer"
 import {PaddingUnits, StartEnd} from "core/enums"
 import {Rect} from "core/types"
-import {concat} from "core/util/array"
+import {flat_map} from "core/util/iterator"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
@@ -58,6 +58,8 @@ export class DataRange1d extends DataRange {
     }))
   }
 
+  readonly plots = new Set<Plot>()
+
   protected _initial_start: number | null
   protected _initial_end: number | null
   protected _initial_range_padding: number
@@ -95,8 +97,8 @@ export class DataRange1d extends DataRange {
   computed_renderers(): DataRenderer[] {
     // TODO (bev) check that renderers actually configured with this range
     const {renderers} = this
-    const all_renderers = concat(this.plots.map((plot) => plot.data_renderers))
-    return compute_renderers(renderers.length == 0 ? "auto" : renderers, all_renderers)
+    const all_renderers = flat_map(this.plots, (plot) => plot.data_renderers)
+    return compute_renderers(renderers.length == 0 ? "auto" : renderers, [...all_renderers])
   }
 
   /*protected*/ _compute_plot_bounds(renderers: Renderer[], bounds: Bounds): Rect {
