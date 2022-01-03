@@ -5,8 +5,15 @@ import {Location} from "@bokehjs/core/enums"
 import {Range1d, LinearScale, LinearAxis, ColumnDataSource} from "@bokehjs/models"
 
 describe("Plot", () => {
-  const f = (location: Location | null, title?: string) => {
-    const p = fig([200, 200], {tools: "pan,reset", title, toolbar_location: location, title_location: location})
+  const f = (location: Location | null, options: {title?: string, inner?: boolean} = {}) => {
+    const {title, inner} = options
+    const p = fig([200, 200], {
+      tools: "pan,reset",
+      title,
+      toolbar_inner: inner,
+      toolbar_location: location,
+      title_location: location,
+    })
     p.circle([0, 5, 10], [0, 5, 10], {size: 10})
     return p
   }
@@ -32,19 +39,35 @@ describe("Plot", () => {
   })
 
   it("should allow toolbar placement above with title", async () => {
-    await display(f("above", "Plot Title"))
+    await display(f("above", {title: "Plot Title"}))
   })
 
   it("should allow toolbar placement below with title", async () => {
-    await display(f("below", "Plot Title"))
+    await display(f("below", {title: "Plot Title"}))
   })
 
   it("should allow toolbar placement left with title", async () => {
-    await display(f("left", "Plot Title"))
+    await display(f("left", {title: "Plot Title"}))
   })
 
   it("should allow toolbar placement right with title", async () => {
-    await display(f("right", "Plot Title"))
+    await display(f("right", {title: "Plot Title"}))
+  })
+
+  it("should allow toolbar placement above inside the frame", async () => {
+    await display(f("above", {inner: true}))
+  })
+
+  it("should allow toolbar placement below inside the frame", async () => {
+    await display(f("below", {inner: true}))
+  })
+
+  it("should allow toolbar placement left inside the frame", async () => {
+    await display(f("left", {inner: true}))
+  })
+
+  it("should allow toolbar placement right inside the frame", async () => {
+    await display(f("right", {inner: true}))
   })
 
   it("should allow fixed x fixed plot", async () => {
