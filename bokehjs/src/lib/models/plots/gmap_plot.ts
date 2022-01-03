@@ -41,7 +41,7 @@ export namespace GMapOptions {
   export type Props = MapOptions.Props & {
     map_type: p.Property<string>
     scale_control: p.Property<boolean>
-    styles: p.Property<string>
+    styles: p.Property<string | null>
     tilt: p.Property<number>
   }
 }
@@ -56,11 +56,11 @@ export class GMapOptions extends MapOptions {
   }
 
   static {
-    this.define<GMapOptions.Props>(({Boolean, Int, String}) => ({
-      map_type:      [ MapType, "roadmap" ],
-      scale_control: [ Boolean, false     ],
-      styles:        [ String             ], // XXX: non-nullable, JSON
-      tilt:          [ Int,     45        ],
+    this.define<GMapOptions.Props>(({Boolean, Int, String, Nullable}) => ({
+      map_type:      [ MapType, "roadmap"],
+      scale_control: [ Boolean, false ],
+      styles:        [ Nullable(String), null ],
+      tilt:          [ Int, 45 ],
     }))
   }
 }
@@ -95,12 +95,13 @@ export class GMapPlot extends Plot {
     this.define<GMapPlot.Props>(({String, Ref}) => ({
       map_options: [ Ref(GMapOptions) ],
       api_key:     [ String ],
-      api_version: [ String, "3.43" ],
+      api_version: [ String, "3.47" ],
     }))
 
     this.override<GMapPlot.Props>({
       x_range: () => new Range1d(),
       y_range: () => new Range1d(),
+      background_fill_alpha: 0.0,
     })
   }
 }

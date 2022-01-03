@@ -665,7 +665,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
       primary.prepare()
       this.canvas_view.prepare_webgl(frame_box)
 
-      this._map_hook(primary.ctx, frame_box)
       this._paint_empty(primary.ctx, frame_box)
       this._paint_outline(primary.ctx, frame_box)
 
@@ -727,8 +726,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
       ctx.restore()
     }
   }
-
-  protected _map_hook(_ctx: Context2d, _frame_box: FrameBox): void {}
 
   protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
     const [cx, cy, cw, ch] = [0, 0, this.layout.bbox.width, this.layout.bbox.height]

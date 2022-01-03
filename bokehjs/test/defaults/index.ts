@@ -142,7 +142,7 @@ function diff<T>(a: Set<T>, b: Set<T>): Set<T> {
 
 describe("Defaults", () => {
   const internal_models = new Set([
-    "Figure", "Canvas", "LinearInterpolationScale", "ScanningColorMapper",
+    "Figure", "GMap", "Canvas", "LinearInterpolationScale", "ScanningColorMapper",
     "ToolProxy", "CenterRotatable", "ButtonTool", "Spline",
   ])
 
