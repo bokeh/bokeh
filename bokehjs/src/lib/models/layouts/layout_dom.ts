@@ -1,4 +1,5 @@
 import {Model} from "../../model"
+import {Signal} from "core/signaling"
 import {Color} from "core/types"
 import {Align, SizingMode} from "core/enums"
 import {position, classes, extents, undisplayed} from "core/dom"
@@ -33,6 +34,9 @@ export abstract class LayoutDOMView extends DOMComponentView {
   protected _viewport: Partial<Size> = {}
 
   layout: Layoutable
+
+  readonly mouseenter = new Signal<MouseEvent, this>(this, "mouseenter")
+  readonly mouseleave = new Signal<MouseEvent, this>(this, "mouseleave")
 
   get is_layout_root(): boolean {
     return this.is_root || !(this.parent instanceof LayoutDOMView)
@@ -71,6 +75,13 @@ export abstract class LayoutDOMView extends DOMComponentView {
 
   override connect_signals(): void {
     super.connect_signals()
+
+    this.el.addEventListener("mouseenter", (event) => {
+      this.mouseenter.emit(event)
+    })
+    this.el.addEventListener("mouseleave", (event) => {
+      this.mouseleave.emit(event)
+    })
 
     if (this.is_layout_root) {
       this._on_resize = () => this.resize_layout()

@@ -1,12 +1,72 @@
 import {expect} from "assertions"
+import {fig, display} from "../../_util"
 
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
+import {ToolbarPanelView} from "@bokehjs/models/annotations/toolbar_panel"
+import {ToolbarBox, ToolbarBoxView} from "@bokehjs/models/tools/toolbar_box"
 import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
 import {SelectTool, SelectToolView} from "@bokehjs/models/tools/gestures/select_tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
+import {Column} from "@bokehjs/models"
+import {gridplot} from "@bokehjs/api/gridplot"
 
 describe("Toolbar", () => {
+
+  describe("should support autohide=true", () => {
+    it("in single plots", async () => {
+      const p = fig([200, 200], {toolbar_location: "right"})
+      p.toolbar.autohide = true
+      p.rect({x: [0, 1], y: [0, 1], width: 1, height: 1, color: ["red", "blue"]})
+
+      const {view} = await display(p)
+      const tpv = [...view.renderer_views.values()].find((rv): rv is ToolbarPanelView => rv instanceof ToolbarPanelView)!
+
+      expect(tpv.toolbar_view.visible).to.be.false
+      expect(tpv.toolbar_view.el.classList.contains("bk-hidden")).to.be.true
+
+      const ev0 = new MouseEvent("mouseenter", {clientX: 0, clientY: 0})
+      view.el.dispatchEvent(ev0)
+
+      expect(tpv.toolbar_view.visible).to.be.true
+      expect(tpv.toolbar_view.el.classList.contains("bk-hidden")).to.be.false
+
+      const ev1 = new MouseEvent("mouseleave", {clientX: 0, clientY: 0})
+      view.el.dispatchEvent(ev1)
+
+      expect(tpv.toolbar_view.visible).to.be.false
+      expect(tpv.toolbar_view.el.classList.contains("bk-hidden")).to.be.true
+    })
+
+    it("in grid plots", async () => {
+      const p0 = fig([200, 200])
+      p0.rect({x: [0, 1], y: [0, 1], width: 1, height: 1, color: ["red", "blue"]})
+      const p1 = fig([200, 200])
+      p1.rect({x: [0, 1], y: [0, 1], width: 1, height: 1, color: ["red", "blue"]})
+
+      const gp = gridplot([[p0, p1]], {toolbar_location: "above"}) as Column
+      const tb = gp.children[0] as ToolbarBox
+      tb.toolbar.autohide = true
+
+      const {view} = await display(gp)
+      const tbv = view.child_views[0] as ToolbarBoxView
+
+      expect(tbv.toolbar_view.visible).to.be.false
+      expect(tbv.toolbar_view.el.classList.contains("bk-hidden")).to.be.true
+
+      const ev0 = new MouseEvent("mouseenter", {clientX: 0, clientY: 0})
+      view.el.dispatchEvent(ev0)
+
+      expect(tbv.toolbar_view.visible).to.be.true
+      expect(tbv.toolbar_view.el.classList.contains("bk-hidden")).to.be.false
+
+      const ev1 = new MouseEvent("mouseleave", {clientX: 0, clientY: 0})
+      view.el.dispatchEvent(ev1)
+
+      expect(tbv.toolbar_view.visible).to.be.false
+      expect(tbv.toolbar_view.el.classList.contains("bk-hidden")).to.be.true
+    })
+  })
 
   describe("_init_tools method", () => {
     let hover_1: HoverTool

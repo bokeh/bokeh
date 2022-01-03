@@ -50,7 +50,7 @@ from .models import (
 from .util.dataclasses import dataclass
 
 if TYPE_CHECKING:
-    from .models import Toolbar
+    from .models import Tool
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -261,7 +261,7 @@ def gridplot(
         children = []
 
     # Make the grid
-    toolbars: List[Toolbar] = []
+    tools: List[Tool] = []
     items: List[Tuple[LayoutDOM, int, int]] = []
 
     for y, row in enumerate(children):
@@ -271,7 +271,7 @@ def gridplot(
             elif isinstance(item, LayoutDOM):
                 if merge_tools:
                     for plot in item.select(dict(type=Plot)):
-                        toolbars.append(plot.toolbar)
+                        tools.extend(plot.toolbar.tools)
                         plot.toolbar_location = None
 
                 if width is not None:
@@ -290,8 +290,7 @@ def gridplot(
         return GridBox(children=items, sizing_mode=sizing_mode)
 
     grid = GridBox(children=items)
-    tools = sum([ toolbar.tools for toolbar in toolbars ], [])
-    proxy = ProxyToolbar(toolbars=toolbars, tools=tools, **toolbar_options)
+    proxy = ProxyToolbar(tools=tools, **toolbar_options)
     toolbar = ToolbarBox(toolbar=proxy, toolbar_location=toolbar_location)
 
     if toolbar_location == 'above':

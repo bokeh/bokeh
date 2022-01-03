@@ -67,8 +67,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this._range_manager.invalidate_dataranges = value
   }
 
-  visibility_callbacks: ((visible: boolean) => void)[]
-
   protected _is_paused?: number
 
   protected lod_started: boolean
@@ -197,7 +195,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
       selection: new Map(),               // XXX: initial selection?
       dimensions: {width: 0, height: 0},  // XXX: initial dimensions
     }
-    this.visibility_callbacks = []
 
     this.renderer_views = new Map()
     this.tool_views = new Map()
@@ -412,11 +409,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
         views.push(renderer_view)
     }
     return views
-  }
-
-  set_toolbar_visibility(visible: boolean): void {
-    for (const callback of this.visibility_callbacks)
-      callback(visible)
   }
 
   update_range(range_info: RangeInfo | null, options?: RangeOptions): void {

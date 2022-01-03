@@ -18,8 +18,8 @@ export class ToolbarPanelView extends AnnotationView {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
   }
 
-  protected _toolbar_view: ToolbarBaseView
-  protected el: HTMLElement
+  toolbar_view: ToolbarBaseView
+  el: HTMLElement
 
   override initialize(): void {
     super.initialize()
@@ -29,12 +29,21 @@ export class ToolbarPanelView extends AnnotationView {
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    this._toolbar_view = await build_view(this.model.toolbar, {parent: this})
-    this.plot_view.visibility_callbacks.push((visible) => this._toolbar_view.set_visibility(visible))
+    this.toolbar_view = await build_view(this.model.toolbar, {parent: this})
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    this.plot_view.mouseenter.connect(() => {
+      this.toolbar_view.set_visibility(true)
+    })
+    this.plot_view.mouseleave.connect(() => {
+      this.toolbar_view.set_visibility(false)
+    })
   }
 
   override remove(): void {
-    this._toolbar_view.remove()
+    this.toolbar_view.remove()
     remove(this.el)
     super.remove()
   }
@@ -62,9 +71,9 @@ export class ToolbarPanelView extends AnnotationView {
       this.el.style.position = "absolute"
       this.el.style.overflow = "hidden"
       empty(this.el)
-      this.el.appendChild(this._toolbar_view.el)
-      this._toolbar_view.layout.bbox = bbox
-      this._toolbar_view.render()
+      this.el.appendChild(this.toolbar_view.el)
+      this.toolbar_view.layout.bbox = bbox
+      this.toolbar_view.render()
       this._invalidate_toolbar = false
     }
 
