@@ -22,7 +22,7 @@ declare global {
 }
 
 function has_maps_API(): boolean {
-  return typeof google == "undefined" || typeof google.maps == "undefined"
+  return typeof google != "undefined" && typeof google.maps != "undefined"
 }
 
 const gmaps_ready = new Signal0({}, "gmaps_ready")
@@ -70,7 +70,7 @@ export class GMapPlotView extends PlotView {
       logger.error(`api_key is required. See ${url} for more information on how to obtain your own.`)
     }
 
-    if (has_maps_API()) {
+    if (!has_maps_API()) {
       if (typeof window._bokeh_gmaps_callback === "undefined") {
         const {api_key, api_version} = this.model
         load_google_api(api_key, api_version)
@@ -157,7 +157,9 @@ export class GMapPlotView extends PlotView {
       tilt: mo.tilt,
     }
 
-    map_options.styles = JSON.parse(mo.styles)
+    if (mo.styles != null) {
+      map_options.styles = JSON.parse(mo.styles)
+    }
 
     // create the map with above options in div
     this.map_el = div({style: {position: "absolute"}})
@@ -247,7 +249,8 @@ export class GMapPlotView extends PlotView {
   }
 
   protected _update_styles(): void {
-    this.map.setOptions({styles: JSON.parse(this.model.map_options.styles)})
+    const {styles} = this.model.map_options
+    this.map.setOptions({styles: styles != null ? JSON.parse(styles) : null})
   }
 
   protected _update_zoom(): void {

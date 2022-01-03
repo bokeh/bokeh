@@ -32,6 +32,7 @@ from ..core.properties import (
     Instance,
     Int,
     NonNullable,
+    Nullable,
     Override,
     String,
 )
@@ -112,7 +113,7 @@ class GMapOptions(MapOptions):
     Whether the Google map should display its distance scale control.
     """)
 
-    styles = NonNullable(JSON, help="""
+    styles = Nullable(JSON, default=None, help="""
     A JSON array of `map styles`_ to use for the ``GMapPlot``. Many example styles can
     `be found here`_.
 
@@ -180,7 +181,7 @@ class GMapPlot(MapPlot):
     for more information on how to obtain your own.
     """)
 
-    api_version = String(default="3.43", help="""
+    api_version = String(default="3.47", help="""
     The version of Google Maps API to use. See https://developers.google.com/maps/documentation/javascript/versions
     for more information.
 
