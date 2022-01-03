@@ -2,11 +2,8 @@ import {logger} from "core/logging"
 import {Signal0} from "core/signaling"
 import {div, remove} from "core/dom"
 import {wgs84_mercator} from "core/util/projections"
-import {Context2d} from "core/util/canvas"
-import {color2css} from "core/util/color"
 import {GMapPlot} from "./gmap_plot"
 import {PlotView} from "./plot_canvas"
-import {FrameBox} from "../canvas/canvas"
 import {RangeInfo, RangeOptions} from "./range_manager"
 
 type GMapRangeInfo = RangeInfo & {
@@ -53,8 +50,6 @@ export class GMapPlotView extends PlotView {
   protected map_types: any
 
   override initialize(): void {
-    this.pause()
-
     super.initialize()
 
     this._tiles_loaded = false
@@ -69,16 +64,25 @@ export class GMapPlotView extends PlotView {
       const url = "https://developers.google.com/maps/documentation/javascript/get-api-key"
       logger.error(`api_key is required. See ${url} for more information on how to obtain your own.`)
     }
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    this.map_el = div({style: {position: "absolute"}})
+    this.canvas_view.add_underlay(this.map_el)
 
     if (!has_maps_API()) {
       if (typeof window._bokeh_gmaps_callback === "undefined") {
         const {api_key, api_version} = this.model
         load_google_api(api_key, api_version)
       }
-      gmaps_ready.connect(() => this.request_paint("everything"))
-    }
-
-    this.unpause()
+      gmaps_ready.connect(() => {
+        this._build_map()
+        this.request_paint("everything")
+      })
+    } else
+      this._build_map()
   }
 
   override remove(): void {
@@ -162,8 +166,6 @@ export class GMapPlotView extends PlotView {
     }
 
     // create the map with above options in div
-    this.map_el = div({style: {position: "absolute"}})
-    this.canvas_view.add_underlay(this.map_el)
     this.map = new maps.Map(this.map_el, map_options)
 
     // update bokeh ranges whenever the map idles, which should be after most UI action
@@ -258,45 +260,13 @@ export class GMapPlotView extends PlotView {
     this._set_bokeh_ranges()
   }
 
-  // this method is expected and called by PlotView.render
-  protected override _map_hook(_ctx: Context2d, frame_box: FrameBox): void {
-    if (this.map == null && has_maps_API())
-      this._build_map()
+  override update_position(): void {
+    super.update_position()
 
-    if (this.map_el != null) {
-      const [left, top, width, height] = frame_box
-      this.map_el.style.top    = `${top}px`
-      this.map_el.style.left   = `${left}px`
-      this.map_el.style.width  = `${width}px`
-      this.map_el.style.height = `${height}px`
-    }
-  }
-
-  // this overrides the standard _paint_empty to make the inner canvas transparent
-  protected override _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
-    const ow = this.layout.bbox.width
-    const oh = this.layout.bbox.height
-    const [left, top, iw, ih] = frame_box
-
-    ctx.clearRect(0, 0, ow, oh)
-
-    ctx.beginPath()
-    ctx.moveTo(0,  0)
-    ctx.lineTo(0,  oh)
-    ctx.lineTo(ow, oh)
-    ctx.lineTo(ow, 0)
-    ctx.lineTo(0,  0)
-
-    ctx.moveTo(left,    top)
-    ctx.lineTo(left+iw, top)
-    ctx.lineTo(left+iw, top+ih)
-    ctx.lineTo(left,    top+ih)
-    ctx.lineTo(left,    top)
-    ctx.closePath()
-
-    if (this.model.border_fill_color != null) {
-      ctx.fillStyle = color2css(this.model.border_fill_color)
-      ctx.fill()
-    }
+    const {left, top, width, height} = this.frame.bbox
+    this.map_el.style.top    = `${top}px`
+    this.map_el.style.left   = `${left}px`
+    this.map_el.style.width  = `${width}px`
+    this.map_el.style.height = `${height}px`
   }
 }

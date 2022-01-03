@@ -176,6 +176,8 @@ class GMapPlot(MapPlot):
 
     border_fill_color = Override(default="#ffffff")
 
+    background_fill_alpha = Override(default=0.0)
+
     api_key = NonNullable(Base64String, help="""
     Google Maps API requires an API key. See https://developers.google.com/maps/documentation/javascript/get-api-key
     for more information on how to obtain your own.
