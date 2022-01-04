@@ -576,6 +576,11 @@ class Plot(LayoutDOM):
     the toolbar will be outside of the axes, titles etc.
     """)
 
+    toolbar_inner = Bool(default=False, help="""
+    Locate the toolbar inside the frame. Setting this property to ``True``
+    makes most sense with auto-hidden toolbars.
+    """)
+
     left = List(Instance(Renderer), help="""
     A list of renderers to occupy the area to the left of the plot.
     """)

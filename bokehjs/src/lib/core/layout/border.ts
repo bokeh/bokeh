@@ -15,10 +15,18 @@ export class BorderLayout extends Layoutable {
   bottom_panel: Layoutable
   left_panel: Layoutable
   right_panel: Layoutable
+
   center_panel: Layoutable
+
+  inner_top_panel?: Layoutable
+  inner_bottom_panel?: Layoutable
+  inner_left_panel?: Layoutable
+  inner_right_panel?: Layoutable
 
   min_border: Margin = {left: 0, top: 0, right: 0, bottom: 0}
   padding: Margin = {left: 0, top: 0, right: 0, bottom: 0}
+
+  center_border_width: number = 0
 
   protected _measure(viewport: Size): SizeHint {
     viewport = new Sizeable({
@@ -68,5 +76,31 @@ export class BorderLayout extends Layoutable {
     this.bottom_panel.set_geometry(new BBox({left, right, top: bottom, height: bottom_hint.height}))
     this.left_panel.set_geometry(new BBox({top, bottom, right: left, width: left_hint.width}))
     this.right_panel.set_geometry(new BBox({top, bottom, left: right, width: right_hint.width}))
+
+    const adjusted_inner = inner.shrink_by(this.center_border_width)
+
+    if (this.inner_top_panel != null) {
+      const {left, right, top, width} = adjusted_inner
+      const inner_top_hint = this.inner_top_panel.measure({width, height: 0})
+      this.inner_top_panel.set_geometry(new BBox({left, right, top, height: inner_top_hint.height}))
+    }
+
+    if (this.inner_bottom_panel != null) {
+      const {left, right, bottom, width} = adjusted_inner
+      const inner_bottom_hint = this.inner_bottom_panel.measure({width, height: 0})
+      this.inner_bottom_panel.set_geometry(new BBox({left, right, bottom, height: inner_bottom_hint.height}))
+    }
+
+    if (this.inner_left_panel != null) {
+      const {top, bottom, left, height} = adjusted_inner
+      const inner_left_hint = this.inner_left_panel.measure({width: 0, height})
+      this.inner_left_panel.set_geometry(new BBox({top, bottom, left, width: inner_left_hint.width}))
+    }
+
+    if (this.inner_right_panel != null) {
+      const {top, bottom, right, height} = adjusted_inner
+      const inner_right_hint = this.inner_right_panel.measure({width: 0, height})
+      this.inner_right_panel.set_geometry(new BBox({top, bottom, right, width: inner_right_hint.width}))
+    }
   }
 }

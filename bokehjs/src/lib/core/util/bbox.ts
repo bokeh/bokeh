@@ -64,7 +64,7 @@ export class BBox implements Rect, Equatable {
   readonly x1: number
   readonly y1: number
 
-  constructor(box?: Rect | Box | Position) {
+  constructor(box?: Rect | Box | Position, correct: boolean = false) {
     if (box == null) {
       this.x0 = 0
       this.y0 = 0
@@ -124,8 +124,15 @@ export class BBox implements Rect, Equatable {
         bottom = box.bottom
       }
 
-      if (!(left <= right && top <= bottom))
-        throw new Error(`invalid bbox {left: ${left}, top: ${top}, right: ${right}, bottom: ${bottom}}`)
+      if (left > right || top > bottom) {
+        if (correct) {
+          if (left > right)
+            left = right
+          if (top > bottom)
+            top = bottom
+        } else
+          throw new Error(`invalid bbox {left: ${left}, top: ${top}, right: ${right}, bottom: ${bottom}}`)
+      }
 
       this.x0 = left
       this.y0 = top
@@ -246,7 +253,7 @@ export class BBox implements Rect, Equatable {
       right: this.right - size,
       top: this.top + size,
       bottom: this.bottom - size,
-    })
+    }, true)
   }
 
   union(that: Rect): BBox {

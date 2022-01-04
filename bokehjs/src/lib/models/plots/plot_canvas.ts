@@ -226,9 +226,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
       this._title = title instanceof Title ? title : new Title({text: title})
     }
 
-    const {toolbar_location, toolbar} = this.model
+    const {toolbar_location, toolbar_inner, toolbar} = this.model
     if (toolbar_location != null) {
-      this._toolbar = new ToolbarPanel({toolbar})
+      this._toolbar = new ToolbarPanel({toolbar, inner: toolbar_inner})
       toolbar.toolbar_location = toolbar_location
     }
   }
@@ -262,6 +262,11 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this.layout = new BorderLayout()
     this.layout.set_sizing(this.box_sizing())
 
+    if (this.visuals.outline_line.doit) {
+      const width = this.visuals.outline_line.line_width.get_value()
+      this.layout.center_border_width = width
+    }
+
     type Panels = (Axis | Annotation | Annotation[])[]
 
     const above: Panels = copy(this.model.above)
@@ -269,12 +274,17 @@ export class PlotView extends LayoutDOMView implements Renderable {
     const left:  Panels = copy(this.model.left)
     const right: Panels = copy(this.model.right)
 
-    const get_side = (side: Side): Panels => {
+    const inner_above: Panels = []
+    const inner_below: Panels = []
+    const inner_left:  Panels = []
+    const inner_right: Panels = []
+
+    const get_side = (side: Side, inner: boolean = false): Panels => {
       switch (side) {
-        case "above": return above
-        case "below": return below
-        case "left":  return left
-        case "right": return right
+        case "above": return inner ? inner_above : above
+        case "below": return inner ? inner_below : below
+        case "left":  return inner ? inner_left  : left
+        case "right": return inner ? inner_right : right
       }
     }
 
@@ -285,25 +295,30 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     const {toolbar_location} = this.model
     if (toolbar_location != null && this._toolbar != null) {
-      const panels = get_side(toolbar_location)
-      let push_toolbar = true
+      if (!this.model.toolbar_inner) {
+        const panels = get_side(toolbar_location)
+        let push_toolbar = true
 
-      if (this.model.toolbar_sticky) {
-        for (let i = 0; i < panels.length; i++) {
-          const panel = panels[i]
-          if (panel instanceof Title) {
-            if (toolbar_location == "above" || toolbar_location == "below")
-              panels[i] = [panel, this._toolbar]
-            else
-              panels[i] = [this._toolbar, panel]
-            push_toolbar = false
-            break
+        if (this.model.toolbar_sticky) {
+          for (let i = 0; i < panels.length; i++) {
+            const panel = panels[i]
+            if (panel instanceof Title) {
+              if (toolbar_location == "above" || toolbar_location == "below")
+                panels[i] = [panel, this._toolbar]
+              else
+                panels[i] = [this._toolbar, panel]
+              push_toolbar = false
+              break
+            }
           }
         }
-      }
 
-      if (push_toolbar)
+        if (push_toolbar)
+          panels.push(this._toolbar)
+      } else {
+        const panels = get_side(toolbar_location, true)
         panels.push(this._toolbar)
+      }
     }
 
     const set_layout = (side: Side, model: Annotation | Axis): Layoutable => {
@@ -355,16 +370,28 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
 
     const center_panel = new NodeLayout()
+
     const top_panel    = new VStack()
     const bottom_panel = new VStack()
     const left_panel   = new HStack()
     const right_panel  = new HStack()
 
+    const inner_top_panel    = new VStack()
+    const inner_bottom_panel = new VStack()
+    const inner_left_panel   = new HStack()
+    const inner_right_panel  = new HStack()
+
     center_panel.absolute = true
+
     top_panel.absolute = true
     bottom_panel.absolute = true
     left_panel.absolute = true
     right_panel.absolute = true
+
+    inner_top_panel.absolute = true
+    inner_bottom_panel.absolute = true
+    inner_left_panel.absolute = true
+    inner_right_panel.absolute = true
 
     center_panel.children =
       this.model.center.filter((obj): obj is Annotation => {
@@ -390,16 +417,36 @@ export class PlotView extends LayoutDOMView implements Renderable {
     left_panel.children   = reversed(set_layouts("left",  left))
     right_panel.children  =          set_layouts("right", right)
 
+    inner_top_panel.children    = set_layouts("above", inner_above)
+    inner_bottom_panel.children = set_layouts("below", inner_below)
+    inner_left_panel.children   = set_layouts("left",  inner_left)
+    inner_right_panel.children  = set_layouts("right", inner_right)
+
     top_panel.set_sizing({width_policy: "fit", height_policy: "min"/*, min_height: this.layout.min_border.top*/})
     bottom_panel.set_sizing({width_policy: "fit", height_policy: "min"/*, min_height: this.layout.min_width.bottom*/})
     left_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: this.layout.min_width.left*/})
     right_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: this.layout.min_width.right*/})
 
+    inner_top_panel.set_sizing({width_policy: "fit", height_policy: "min"})
+    inner_bottom_panel.set_sizing({width_policy: "fit", height_policy: "min"})
+    inner_left_panel.set_sizing({width_policy: "min", height_policy: "fit"})
+    inner_right_panel.set_sizing({width_policy: "min", height_policy: "fit"})
+
     this.layout.center_panel = center_panel
+
     this.layout.top_panel = top_panel
     this.layout.bottom_panel = bottom_panel
     this.layout.left_panel = left_panel
     this.layout.right_panel = right_panel
+
+    if (inner_top_panel.children.length != 0)
+      this.layout.inner_top_panel = inner_top_panel
+    if (inner_bottom_panel.children.length != 0)
+      this.layout.inner_bottom_panel = inner_bottom_panel
+    if (inner_left_panel.children.length != 0)
+      this.layout.inner_left_panel = inner_left_panel
+    if (inner_right_panel.children.length != 0)
+      this.layout.inner_right_panel = inner_right_panel
   }
 
   get axis_views(): AxisView[] {

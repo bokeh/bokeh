@@ -36,6 +36,7 @@ export namespace Plot {
     toolbar: p.Property<Toolbar>
     toolbar_location: p.Property<Location | null>
     toolbar_sticky: p.Property<boolean>
+    toolbar_inner: p.Property<boolean>
 
     frame_width: p.Property<number | null>
     frame_height: p.Property<number | null>
@@ -127,6 +128,7 @@ export class Plot extends LayoutDOM {
       toolbar:           [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location:  [ Nullable(Location), "right" ],
       toolbar_sticky:    [ Boolean, true ],
+      toolbar_inner:     [ Boolean, false ],
 
       frame_width:       [ Nullable(Number), null ],
       frame_height:      [ Nullable(Number), null ],
