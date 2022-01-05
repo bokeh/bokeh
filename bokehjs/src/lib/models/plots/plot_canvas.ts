@@ -111,7 +111,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     if (this._is_paused == null)
       throw new Error("wasn't paused")
 
-    this._is_paused -= 1
+    this._is_paused = Math.max(this._is_paused - 1, 0)
     if (this._is_paused == 0 && !no_render)
       this.request_paint("everything")
   }
@@ -245,9 +245,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
     await this.build_tool_views()
 
     this._range_manager.update_dataranges()
-    this.unpause(true)
-
-    logger.debug("PlotView initialized")
   }
 
   protected override _width_policy(): SizingPolicy {
@@ -595,6 +592,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   override after_layout(): void {
     super.after_layout()
+    this.unpause(true)
 
     for (const [, child_view] of this.renderer_views) {
       if (child_view instanceof AnnotationView)
