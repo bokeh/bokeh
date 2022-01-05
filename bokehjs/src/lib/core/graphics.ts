@@ -1,7 +1,7 @@
 import {Size} from "./types"
 import {BBox} from "./util/bbox"
 import {Context2d} from "./util/canvas"
-import {font_metrics, /*glyph_metrics,*/ FontMetrics, parse_css_font_size} from "./util/text"
+import {font_metrics, FontMetrics, parse_css_font_size} from "./util/text"
 import {max, max_by, sum} from "./util/array"
 import {isNumber} from "./util/types"
 import {Rect, AffineTransform} from "./util/affine"
@@ -231,30 +231,6 @@ export class TextBox extends GraphicsBox {
         return "cap"
       else
         return "ascent_descent"
-
-      /*
-      const {font} = this
-      const fmetrics = font_metrics(font)
-
-      let max_ascent = 0
-      let max_descent = 0
-      for (const c of this.text) {
-        const metrics = glyph_metrics(c, font)
-        max_ascent = Math.max(metrics.ascent)
-        max_descent = Math.max(metrics.descent)
-      }
-
-      const ascent = (() => {
-        if (max_ascent > fmetrics.cap_height)
-          return "ascent"
-        else if (max_ascent > fmetrics.x_height)
-          return "cap"
-        else
-          return "x"
-      })()
-
-      return max_descent > 0 ? `${ascent}_descent` as const : ascent
-      */
     }
   }
 
