@@ -269,14 +269,16 @@ const _glyph_metrics = (() => {
   }
 })()
 
-const _metrics_cache: Map<string, {font: FontMetrics, glyphs: Map<char, BoxMetrics>}> = new Map()
+const _metrics_cache: Map<string, {font: FontMetrics/*, glyphs: Map<char, BoxMetrics>*/}> = new Map()
 
 export function font_metrics(font: string): FontMetrics {
   let metrics = _metrics_cache.get(font)
   if (metrics == null) {
-    // TODO: document.fonts.check(font)
-    metrics = {font: _font_metrics(font), glyphs: new Map()}
-    _metrics_cache.set(font, metrics)
+    const loaded = document.fonts.check(font)
+    metrics = {font: _font_metrics(font)/*, glyphs: new Map()*/}
+    if (loaded) {
+      _metrics_cache.set(font, metrics)
+    }
   }
   return metrics.font
 }
