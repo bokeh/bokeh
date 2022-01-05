@@ -36,12 +36,6 @@ interface Float64Array {
   constructor: Float64ArrayConstructor
 }
 
-interface Document {
-  fonts: {
-    check(font: string, text?: string): boolean
-  }
-}
-
 declare interface OffscreenCanvas extends EventTarget {
   height: number
   width: number

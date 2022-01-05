@@ -15,6 +15,18 @@ export class Text extends VisualProperties {
     return !(color == null || alpha == 0)
   }
 
+  override update(): void {
+    if (!this.doit)
+      return
+
+    const {fonts} = document
+    const font = this.font_value()
+
+    if (!fonts.check(font)) {
+      fonts.load(font).then(() => this.obj.request_render())
+    }
+  }
+
   Values: ValuesOf<mixins.Text>
   values(): this["Values"] {
     return {
@@ -64,6 +76,18 @@ export class TextScalar extends VisualUniforms {
     return !(color == 0 || alpha == 0)
   }
 
+  override update(): void {
+    if (!this.doit)
+      return
+
+    const {fonts} = document
+    const font = this.font_value()
+
+    if (!fonts.check(font)) {
+      fonts.load(font).then(() => this.obj.request_render())
+    }
+  }
+
   Values: ValuesOf<mixins.Text>
   values(): this["Values"] {
     return {
@@ -109,8 +133,18 @@ export class TextVector extends VisualUniforms {
   readonly text_baseline:    p.Uniform<TextBaseline>
   readonly text_line_height: p.Uniform<number>
 
+  private _assert_font(i: number): void {
+    const {fonts} = document
+    const font = this.font_value(i)
+
+    if (!fonts.check(font)) {
+      fonts.load(font).then(() => this.obj.request_render())
+    }
+  }
+
   Values: ValuesOf<mixins.Text>
   values(i: number): this["Values"] {
+    this._assert_font(i)
     return {
       color:       this.text_color.get(i),
       alpha:       this.text_alpha.get(i),
@@ -134,6 +168,8 @@ export class TextVector extends VisualUniforms {
   }
 
   set_vectorize(ctx: Context2d, i: number): void {
+    this._assert_font(i)
+
     const color = this.text_color.get(i)
     const alpha = this.text_alpha.get(i)
     const font = this.font_value(i)
