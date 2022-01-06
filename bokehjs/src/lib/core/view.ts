@@ -62,7 +62,6 @@ export class View implements ISignalable {
     this.model = model
     this.parent = parent
     this.root = parent == null ? this : parent.root
-    this.removed.emit()
   }
 
   initialize(): void {
@@ -71,9 +70,11 @@ export class View implements ISignalable {
 
   async lazy_initialize(): Promise<void> {}
 
+  protected _removed: boolean = false
   remove(): void {
     this.disconnect_signals()
     this.removed.emit()
+    this._removed = true
   }
 
   toString(): string {

@@ -1,8 +1,6 @@
 import {unreachable} from "./assert"
 import {is_defined} from "./types"
 
-type char = string
-
 export type BoxMetrics = {
   width: number
   height: number
@@ -73,30 +71,6 @@ const _native_font_metrics = (() => {
         descent: text_descent,
         cap_height: cap_metrics.actualBoundingBoxAscent,
         x_height: x_metrics.actualBoundingBoxAscent,
-      }
-    }
-
-    unreachable()
-  }
-})()
-
-const _native_glyph_metrics = (() => {
-  const canvas = _offscreen_canvas(0, 0)
-  const ctx = canvas.getContext("2d")!
-
-  return (glyph: char, font: string): BoxMetrics => {
-    ctx.font = font
-    const metrics = ctx.measureText(glyph)
-
-    const glyph_ascent = metrics.actualBoundingBoxAscent
-    const glyph_descent = metrics.actualBoundingBoxDescent
-
-    if (is_defined(glyph_ascent) && is_defined(glyph_descent)) {
-      return {
-        width: metrics.width,
-        height: glyph_ascent + glyph_descent,
-        ascent: glyph_ascent,
-        descent: glyph_descent,
       }
     }
 
@@ -186,71 +160,6 @@ const _internal_font_metrics = (() => {
   }
 })()
 
-const _internal_glyph_metrics = (() => {
-  const canvas = document.createElement("canvas")
-  const ctx = canvas.getContext("2d")!
-
-  let cwidth = -1
-  let cheight = -1
-
-  return (glyph: char, font: string, scale: number = 1): BoxMetrics => {
-    ctx.font = font
-    const {width: _em} = ctx.measureText("M")
-    const em = _em*scale
-
-    const width = Math.ceil(em)
-    const height = Math.ceil(2.0*em)
-    const baseline = Math.ceil(1.5*em)
-
-    if (cwidth < width || cheight < height) {
-      cwidth = width
-      canvas.width = width
-      cheight = height
-      canvas.height = height
-    }
-
-    ctx.save()
-    ctx.scale(scale, scale)
-
-    ctx.fillStyle = "#f00"
-    ctx.fillRect(0, 0, width, height)
-
-    const measure_ascent = (data: Uint8ClampedArray) => {
-      let k = 0
-      for (let i = 0; i <= baseline; i++) {
-        for (let j = 0; j < width; j++, k += 4)
-          if (data[k] != 255)
-            return baseline - i
-      }
-      return 0
-    }
-
-    const measure_descent = (data: Uint8ClampedArray) => {
-      let k = data.length - 4
-      for (let i = height; i >= baseline; i--) {
-        for (let j = 0; j < width; j++, k -= 4)
-          if (data[k] != 255)
-            return i - baseline
-      }
-      return 0
-    }
-
-    ctx.font = font
-    ctx.fillStyle = "#000"
-
-    ctx.fillText(glyph, 0, baseline/scale)
-    const size = ctx.measureText(glyph)
-
-    const {data} = ctx.getImageData(0, 0, width, height)
-    const ascent = measure_ascent(data)/scale
-    const descent = measure_descent(data)/scale
-
-    ctx.restore()
-
-    return {width: size.width, height: ascent + descent, ascent, descent}
-  }
-})()
-
 const _font_metrics = (() => {
   try {
     _native_font_metrics("normal 10px sans-serif")
@@ -260,41 +169,18 @@ const _font_metrics = (() => {
   }
 })()
 
-const _glyph_metrics = (() => {
-  try {
-    _native_glyph_metrics("A", "normal 10px sans-serif")
-    return _native_glyph_metrics
-  } catch {
-    return _internal_glyph_metrics
-  }
-})()
-
-const _metrics_cache: Map<string, {font: FontMetrics, glyphs: Map<char, BoxMetrics>}> = new Map()
+const _metrics_cache: Map<string, {font: FontMetrics}> = new Map()
 
 export function font_metrics(font: string): FontMetrics {
   let metrics = _metrics_cache.get(font)
   if (metrics == null) {
-    // TODO: document.fonts.check(font)
-    metrics = {font: _font_metrics(font), glyphs: new Map()}
-    _metrics_cache.set(font, metrics)
+    const loaded = document.fonts.check(font)
+    metrics = {font: _font_metrics(font)}
+    if (loaded) {
+      _metrics_cache.set(font, metrics)
+    }
   }
   return metrics.font
-}
-
-export function glyph_metrics(glyph: char, font: string): BoxMetrics {
-  let metrics = _metrics_cache.get(font)
-  if (metrics == null) {
-    font_metrics(font)
-    metrics = _metrics_cache.get(font)!
-  }
-
-  let glyph_metrics = metrics.glyphs.get(glyph)
-  if (glyph_metrics == null) {
-    glyph_metrics = _glyph_metrics(glyph, font)
-    metrics.glyphs.set(glyph, glyph_metrics)
-  }
-
-  return glyph_metrics
 }
 
 export function parse_css_font_size(size: string): {value: number, unit: string} | null {

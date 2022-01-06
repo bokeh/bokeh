@@ -9,7 +9,7 @@ import {np} from "@bokehjs/api/linalg"
 import {NDArray} from "@bokehjs/core/util/ndarray"
 import {enumerate} from "@bokehjs/core/util/iterator"
 
-import {use_theme} from "@bokehjs/core/properties"
+import {Theme, use_theme} from "@bokehjs/core/properties"
 
 import {TeX} from "@bokehjs/models"
 import {Div} from "@bokehjs/models/widgets"
@@ -20,10 +20,19 @@ function tex(strings: TemplateStringsArray, ...subs: unknown[]): TeX {
   return new TeX({text: r(strings, ...subs)})
 }
 
-describe("Examples", () => {
-  it("should support BlackbodyRadiation", async () => {
-    use_theme(dark_minimal)
+function with_theme(theme: Theme, fn: () => Promise<void>) {
+  return () => {
+    use_theme(theme)
+    try {
+      return fn()
+    } finally {
+      use_theme()
+    }
+  }
+}
 
+describe("Examples", () => {
+  it("should support BlackbodyRadiation", with_theme(dark_minimal, async () => {
     const p = figure({
       width: 700, height: 500,
       toolbar_location: null,
@@ -77,7 +86,5 @@ describe("Examples", () => {
     })
 
     await display(column([p, div]))
-
-    use_theme()
-  })
+  }))
 })
