@@ -2,7 +2,7 @@ name: bk-release-build
 channels:
   - conda-forge
 dependencies:
-  - python=3.7
+  - python=3.8
 
   # runtime
   - jinja2 >=2.7

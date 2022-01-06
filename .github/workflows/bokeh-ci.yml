@@ -118,7 +118,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.7'
+          test-env: '3.8'
 
       - name: Install chromium
         if: runner.os == 'Linux'
@@ -180,7 +180,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.7'
+          test-env: '3.8'
 
       - name: Install chromium
         if: runner.os == 'Linux'
@@ -224,7 +224,7 @@ jobs:
       max-parallel: 6
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.8', '3.9', '3.10']
 
     steps:
       - uses: actions/checkout@v2
@@ -260,7 +260,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.7'
+          test-env: '3.8'
 
       - name: Remove extra packages
         shell: bash -l {0}
@@ -280,7 +280,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.7'
+          test-env: '3.8'
 
       - name: Cache sampledata
         uses: actions/cache@v1

@@ -39,7 +39,7 @@ except ImportError:
 # Module global variables
 # -----------------------------------------------------------------------------
 
-MIN_PYTHON_VERSION = (3, 7)
+MIN_PYTHON_VERSION = (3, 8)
 
 # state our runtime deps here, also used by meta.yaml (so KEEP the spaces)
 INSTALL_REQUIRES = [
