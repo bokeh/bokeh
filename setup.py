@@ -97,7 +97,7 @@ setup(
 
     # details needed by setup
     install_requires=INSTALL_REQUIRES,
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     packages=find_packages(include=["bokeh", "bokeh.*"]),
     include_package_data=True,
     entry_points={'console_scripts': ['bokeh = bokeh.__main__:main']},

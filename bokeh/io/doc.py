@@ -42,9 +42,6 @@ __all__ = (
     'set_curdoc',
 )
 
-# annotated global must come first in py 3.7
-_PATCHED_CURDOCS: List[weakref.ReferenceType[Document|UnlockedDocumentProxy]] = []
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -103,6 +100,8 @@ def set_curdoc(doc: Document) -> None:
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+_PATCHED_CURDOCS: List[weakref.ReferenceType[Document | UnlockedDocumentProxy]] = []
 
 #-----------------------------------------------------------------------------
 # Code
