@@ -19,8 +19,8 @@ from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup,
                           Dropdown, IntEditor, MultiChoice, MultiSelect, NumberEditor,
                           NumberFormatter, Panel, Paragraph, PreText, RadioButtonGroup,
                           RadioGroup, RangeSlider, Row, Select, SelectEditor, Slider,
-                          Spinner, StringEditor, StringFormatter, TableColumn, Tabs,
-                          TextAreaInput, TextInput, Toggle)
+                          Spinner, StringEditor, StringFormatter, Switch, TableColumn,
+                          Tabs, TextAreaInput, TextInput, Toggle)
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
 from bokeh.sampledata.autompg2 import autompg2 as mpg
@@ -73,6 +73,10 @@ spinner = Spinner(value=100)
 color_picker = ColorPicker(color="red", title="Choose color:")
 
 date_picker = DatePicker(value=date(2017, 8, 1))
+
+switch_0 = Switch(active=False)
+
+switch_1 = Switch(active=True)
 
 paragraph = Paragraph(text="some text")
 
@@ -137,6 +141,7 @@ widgets = Column(children=[
             select, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider,
             spinner, color_picker, date_picker,
+            Row(children=[switch_0, switch_1]),
             paragraph, div, pre_text,
         ]),
         tabs,

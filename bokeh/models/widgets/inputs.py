@@ -62,6 +62,7 @@ __all__ = (
     'PasswordInput',
     'Select',
     'Spinner',
+    'Switch',
     'TextInput',
     'TextAreaInput'
 )
@@ -243,6 +244,15 @@ class Spinner(NumericInput):
     Defines the debounce time in ms before updating `value_throttled` when the
     mouse wheel is used to change the input
     """)
+
+class Switch(Widget):
+    """ A checkbox-like widget. """
+
+    active = Bool(default=False, help="""
+    The state of the widget.
+    """)
+
+    width = Override(default=32)
 
 class TextLikeInput(InputWidget):
     ''' Base class for text-like input widgets.

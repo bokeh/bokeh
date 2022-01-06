@@ -16,6 +16,14 @@ Bokeh Version ``3.0.0`` () is a major milestone of Bokeh project.
 `Migration Guide`
 -----------------
 
+Additions
+~~~~~~~~~
+
+``Switch`` widget
+.................
+
+Provides a replacement for a checkbox input.
+
 Removals
 ~~~~~~~~
 
