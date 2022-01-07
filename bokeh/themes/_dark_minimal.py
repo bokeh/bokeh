@@ -7,7 +7,7 @@
 
 json = {
     "attrs": {
-        "Figure" : {
+        "figure" : {
             "background_fill_color": "#20262B",
             "border_fill_color": "#15191C",
             "outline_line_color": "#E0E0E0",

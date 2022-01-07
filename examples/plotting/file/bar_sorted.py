@@ -3,7 +3,7 @@ sorts the fruit categories in ascending order based on counts and
 rearranges the bars accordingly.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.vbar
+    :apis: bokeh.plotting.figure.vbar
     :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_sorted`
     :keywords: bars, categorical, sort
 

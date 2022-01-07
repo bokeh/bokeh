@@ -8,7 +8,7 @@ between petal width and length for three different iris species.
 
 .. bokeh-example-metadata::
     :sampledata: iris
-    :apis: bokeh.plotting.Figure.scatter
+    :apis: bokeh.plotting.figure.scatter
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter_markers`
     :keywords: alpha, colormap, scatter
 

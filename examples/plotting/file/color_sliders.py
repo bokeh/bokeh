@@ -2,7 +2,7 @@
 ``CustomJS`` callbacks that can update a plot.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.rect, bokeh.plotting.Figure.text, bokeh.layouts.column, bokeh.layouts.row, bokeh.models.sources.ColumnDataSource, bokeh.models.callbacks.CustomJS, bokeh.models.widgets.sliders.Slider, bokeh.themes.Theme # noqa: E501
+    :apis: bokeh.plotting.figure.rect, bokeh.plotting.figure.text, bokeh.layouts.column, bokeh.layouts.row, bokeh.models.sources.ColumnDataSource, bokeh.models.callbacks.CustomJS, bokeh.models.widgets.sliders.Slider, bokeh.themes.Theme # noqa: E501
     :refs: :ref:`userguide_interaction_jscallbacks` > :ref:`userguide_interaction_jscallbacks_customjs`
     :keywords: hover, javascript callback, theme, tooltip
 

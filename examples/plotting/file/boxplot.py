@@ -2,7 +2,7 @@
 multiple basic glyphs to create a more complicated chart.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.vbar, bokeh.plotting.Figure.rect, bokeh.plotting.Figure.segment
+    :apis: bokeh.plotting.figure.vbar, bokeh.plotting.figure.rect, bokeh.plotting.figure.segment
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_segments_rays`, :ref:`userguide_plotting_bars_rects`
     :keywords: bars, boxplot, categorical, pandas
 

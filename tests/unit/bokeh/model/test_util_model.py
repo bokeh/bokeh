@@ -89,10 +89,10 @@ def test_collect_models() -> None:
 
 def test_get_class() -> None:
     from bokeh.models import Plot, Range1d
-    from bokeh.plotting import Figure, GMap
+    from bokeh.plotting import GMap, figure
     assert bmu.get_class("Plot") is Plot
     assert bmu.get_class("Range1d") is Range1d
-    assert bmu.get_class("Figure") is Figure
+    assert bmu.get_class("Figure") is figure  # Note: __view_model__ == "Figure"
     assert bmu.get_class("GMap") is GMap
 
 def test_visit_immediate_value_references() -> None:

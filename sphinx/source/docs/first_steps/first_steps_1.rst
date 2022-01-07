@@ -80,7 +80,7 @@ Follow these steps to recreate this simple line chart:
         p = figure(title="Simple line example", x_axis_label='x', y_axis_label='y')
 
 4. Add a line graph to the plot you just created, using the
-   :func:`~bokeh.plotting.Figure.line` function. Pass the following arguments:
+   :func:`~bokeh.plotting.figure.line` function. Pass the following arguments:
 
    * your lists ``x`` and ``y`` containing the data
    * ``legend_label``: a string to label the line graph with (optional)
@@ -116,7 +116,7 @@ With Bokeh's |bokeh.plotting| interface, you can add more glyphs to your plot:
     :source-position: none
 
 To add more line graphs to your plot, all you need to do is call the
-:func:`~bokeh.plotting.Figure.line` function multiple times.
+:func:`~bokeh.plotting.figure.line` function multiple times.
 
 First, add more data as the basis for additional graphs:
 
@@ -136,7 +136,7 @@ argument in the |figure| function:
     # create a new plot with a title and axis labels
     p = figure(title="Multiple line example", x_axis_label='x', y_axis_label='y')
 
-Finally, add more calls to the |Figure.line| function:
+Finally, add more calls to the |figure.line| function:
 
 .. code-block:: python
 
@@ -169,7 +169,7 @@ Bokeh's |bokeh.plotting| interface require:
     various properties of your plot, such as its title, tools, and axes labels.
 
 3. Adding renderers
-    You used |Figure.line| to create a line. Renderers have various options
+    You used |figure.line| to create a line. Renderers have various options
     that allow you to specify visual attributes such as colors, legends, and
     widths.
 
@@ -196,4 +196,4 @@ Bokeh's |bokeh.plotting| interface require:
     :height: 19px
     :alt: Help symbol
 
-.. |Figure.line|     replace:: :func:`~bokeh.plotting.Figure.line`
+.. |figure.line|     replace:: :func:`~bokeh.plotting.figure.line`

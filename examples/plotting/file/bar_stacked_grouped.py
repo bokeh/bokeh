@@ -1,7 +1,7 @@
 ''' A stacked bar chart grouped into four groups using data in plain Python lists.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.ColumnDataSource, bokeh.models.FactorRange, bokeh.plotting.Figure.vbar_stack
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.FactorRange, bokeh.plotting.figure.vbar_stack
     :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_stacked_and_grouped`
     :keywords: bars, categorical, stacked, grouped
 

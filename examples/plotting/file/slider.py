@@ -2,7 +2,7 @@
 adding widgets and ``CustomJS`` callbacks that can update a plot.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.line, bokeh.layouts.column, bokeh.layouts.row, bokeh.models.callbacks.CustomJS, bokeh.models.widgets.sliders.Slider
+    :apis: bokeh.plotting.figure.line, bokeh.layouts.column, bokeh.layouts.row, bokeh.models.callbacks.CustomJS, bokeh.models.widgets.sliders.Slider
     :refs: :ref:`userguide_interaction_jscallbacks` > :ref:`userguide_interaction_jscallbacks_customjs`
     :keywords: javascript callback
 

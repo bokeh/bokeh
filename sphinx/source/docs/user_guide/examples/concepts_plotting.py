@@ -1,6 +1,6 @@
 from bokeh.plotting import figure, output_file, show
 
-# create a Figure object
+# create a figure object
 p = figure(width=300, height=300, tools="pan,reset,save")
 
 # add a Circle renderer to this figure

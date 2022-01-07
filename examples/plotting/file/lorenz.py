@@ -2,7 +2,7 @@
 ``multi_line`` to display many lines with a single vectorized glyph.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.multi_line
+    :apis: bokeh.plotting.figure.multi_line
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_line_glyphs` > :ref:`userguide_plotting_line_glyphs_multi`
     :keywords: fractal, lorenz, scipy
 

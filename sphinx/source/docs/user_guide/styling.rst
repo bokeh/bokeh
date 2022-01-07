@@ -82,7 +82,7 @@ Using YAML, for example:
 .. code-block:: yaml
 
     attrs:
-        Figure:
+        figure:
             background_fill_color: '#2F2F2F'
             border_fill_color: '#2F2F2F'
             outline_line_color: '#444444'
@@ -339,7 +339,7 @@ You can also use the |select| method to query on other attributes as well:
 .. code-block:: python
 
     >>> p.circle(0, 0, name="mycircle")
-    <bokeh.plotting.Figure at 0x106608810>
+    <bokeh.plotting.figure at 0x106608810>
 
     >>> p.select(name="mycircle")
     [<bokeh.models.renderers.GlyphRenderer at 0x106a4c810>]
@@ -1252,10 +1252,10 @@ For more information, see :class:`~bokeh.models.text.MathML` in the
 .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
 .. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
 
-.. |legend| replace:: :class:`~bokeh.plotting.Figure.legend`
-.. |grid|   replace:: :class:`~bokeh.plotting.Figure.grid`
-.. |xgrid|  replace:: :class:`~bokeh.plotting.Figure.xgrid`
-.. |ygrid|  replace:: :class:`~bokeh.plotting.Figure.ygrid`
-.. |axis|   replace:: :class:`~bokeh.plotting.Figure.axis`
-.. |xaxis|  replace:: :class:`~bokeh.plotting.Figure.xaxis`
-.. |yaxis|  replace:: :class:`~bokeh.plotting.Figure.yaxis`
+.. |legend| replace:: :class:`~bokeh.plotting.figure.legend`
+.. |grid|   replace:: :class:`~bokeh.plotting.figure.grid`
+.. |xgrid|  replace:: :class:`~bokeh.plotting.figure.xgrid`
+.. |ygrid|  replace:: :class:`~bokeh.plotting.figure.ygrid`
+.. |axis|   replace:: :class:`~bokeh.plotting.figure.axis`
+.. |xaxis|  replace:: :class:`~bokeh.plotting.figure.xaxis`
+.. |yaxis|  replace:: :class:`~bokeh.plotting.figure.yaxis`

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :sampledata: sprint
-    :apis: bokeh.plotting.Figure.hbar
+    :apis: bokeh.plotting.figure.hbar
     :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_intervals`
     :keywords: bar, hbar
 

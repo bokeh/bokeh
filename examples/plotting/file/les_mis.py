@@ -3,7 +3,7 @@ This example example demonostrates a basic hover tooltip.
 
 .. bokeh-example-metadata::
     :sampledata: les_mis
-    :apis: bokeh.plotting.Figure.rect
+    :apis: bokeh.plotting.figure.rect
     :refs: :ref:`userguide_tools` > :ref:`userguide_tools_hover_tool`
     :keywords: hover, rect, tooltip
 

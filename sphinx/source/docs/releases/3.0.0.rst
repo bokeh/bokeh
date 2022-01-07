@@ -64,7 +64,7 @@ Markers
 .......
 
 Individual scatter markers, e.g ``Square``, ``DiamondX`` have been removed,
-along with their related glyph methods. Use ``Scatter`` and ``Figure.scatter``
+along with their related glyph methods. Use ``Scatter`` and ``figure.scatter``
 instead.
 
 ``bokeh.util.session_id``
@@ -138,11 +138,11 @@ instead.
 bokehjs changes
 ~~~~~~~~~~~~~~~
 
-``Figure.xaxis``, etc.
+``figure.xaxis``, etc.
 ......................
 
 ``xaxis``, ``yaxis``, ``axis``, ``xgrid``, ``ygrid`` and ``grid`` attributes of
-``Figure`` now return a model proxy object, which mimics the behavior of bokeh's
+``figure`` now return a model proxy object, which mimics the behavior of bokeh's
 plotting API. Arrays of axes/grids can be obtained using new ``xaxes``, ``yaxes``,
 ``axes``, ``xgrids``, ``ygrids`` and ``grids`` attributes.
 

@@ -107,7 +107,7 @@ class Theme:
         .. code-block:: yaml
 
             attrs:
-                Figure:
+                figure:
                     background_fill_color: '#2F2F2F'
                     border_fill_color: '#2F2F2F'
                     outline_line_color: '#444444'
@@ -125,7 +125,7 @@ class Theme:
 
             {
             'attrs' : {
-                'Figure' : {
+                'figure' : {
                     'background_fill_color': '#2F2F2F',
                     'border_fill_color': '#2F2F2F',
                     'outline_line_color': '#444444',

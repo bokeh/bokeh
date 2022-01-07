@@ -7,7 +7,7 @@ efficacies.
 
 .. bokeh-example-metadata::
     :sampledata: antibiotics
-    :apis: bokeh.plotting.Figure.annular_wedge, bokeh.plotting.Figure.circle, bokeh.plotting.Figure.text
+    :apis: bokeh.plotting.figure.annular_wedge, bokeh.plotting.figure.circle, bokeh.plotting.figure.text
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_wedges_arcs`, :ref:`userguide_styling` > :ref:`userguide_styling_visual_properties`
     :keywords: text, wedges
 

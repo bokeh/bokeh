@@ -25,9 +25,9 @@ from ..models import (
     MercatorTickFormatter,
     Range1d,
 )
+from ._figure import BaseFigureOptions
 from ._plot import _get_num_minor_ticks
 from ._tools import process_active_tools, process_tools_arg
-from .figure import BaseFigureOptions
 from .glyph_api import GlyphAPI
 
 #-----------------------------------------------------------------------------

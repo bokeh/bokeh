@@ -1,7 +1,7 @@
 ''' A plot demonstrates rendering images from bare RGBA array data.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.image_rgba
+    :apis: bokeh.plotting.figure.image_rgba
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_images`
     :keywords: image, rgba
 

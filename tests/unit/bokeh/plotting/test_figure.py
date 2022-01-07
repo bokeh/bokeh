@@ -49,7 +49,7 @@ from bokeh.plotting import _figure as bpf # isort:skip
 #-----------------------------------------------------------------------------
 
 
-class TestFigure:
+class Testfigure:
     def test_basic(self) -> None:
         p = bpf.figure()
         q = bpf.figure()

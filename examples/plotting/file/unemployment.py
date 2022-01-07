@@ -2,7 +2,7 @@
 adding a ``ColorBar`` to a plot.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.rect, bokeh.models.annotations.ColorBar
+    :apis: bokeh.plotting.figure.rect, bokeh.models.annotations.ColorBar
     :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_color_bars`
     :keywords: categorical, colorbar, heatmap, hover, tooltip
 

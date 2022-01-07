@@ -4,7 +4,7 @@ automatic handing of Pandas GroupBy objects and colormapping with
 
 .. bokeh-example-metadata::
     :sampledata: autompg
-    :apis: bokeh.plotting.Figure.vbar, bokeh.transform.factor_cmap
+    :apis: bokeh.plotting.figure.vbar, bokeh.transform.factor_cmap
     :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_pandas`
     :keywords: bars, categorical, colormap, groupby, pandas
 

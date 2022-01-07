@@ -1,7 +1,7 @@
 ''' A plot that demonstrates rendering images by colormapping scalar arrays.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.image
+    :apis: bokeh.plotting.figure.image
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_images`
     :keywords: image
 
