@@ -5,14 +5,13 @@ import {Context2d} from "core/util/canvas"
 import {Selection, ImageIndex} from "../selections/selection"
 import {PointGeometry} from "core/geometry"
 import {SpatialIndex} from "core/util/spatial"
-import {concat} from "core/util/array"
-import {NDArray, is_NDArray} from "core/util/ndarray"
+import {NDArray} from "core/util/ndarray"
 import {assert} from "core/util/assert"
 
 export type ImageDataBase = XYGlyphData & {
   image_data: HTMLCanvasElement[]
 
-  readonly image: p.Uniform<NDArray | number[][]>
+  readonly image: p.Uniform<NDArray>
   readonly dw: p.Uniform<number>
   readonly dh: p.Uniform<number>
   readonly global_alpha: p.Uniform<number>
@@ -83,19 +82,11 @@ export abstract class ImageBaseView extends XYGlyphView {
         continue
 
       const img = this.image.get(i)
-      let flat_img: Arrayable<number>
-      if (is_NDArray(img)) {
-        assert(img.dimension == 2, "expected a 2D array")
-        flat_img = img
-        this._height[i] = img.shape[0]
-        this._width[i] = img.shape[1]
-      } else {
-        flat_img = concat(img)
-        this._height[i] = img.length
-        this._width[i] = img[0].length
-      }
+      assert(img.dimension == 2, "expected a 2D array")
+      this._height[i] = img.shape[0]
+      this._width[i] = img.shape[1]
 
-      const buf8 = this._flat_img_to_buf8(flat_img)
+      const buf8 = this._flat_img_to_buf8(img)
       this._set_image_data_from_buffer(i, buf8)
     }
   }
