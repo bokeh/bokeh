@@ -33,7 +33,6 @@ from bokeh.layouts import column
 from bokeh.models import (
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Div,
     Plot,
@@ -57,7 +56,7 @@ def _make_plot(num_objects=0, add=True, drag=True):
     plot.add_tools(tool)
     plot.toolbar.active_multi = tool
     code = RECORD("x", "source.data.x", final=False) + RECORD("y", "source.data.y")
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(source=source), code=code)))
+    plot.tags.append(CustomJS(name="custom-action", args=dict(source=source), code=code))
     plot.toolbar_sticky = False
     return plot
 
@@ -75,7 +74,7 @@ def _make_server_plot(expected) -> Tuple[ModifyDoc, Plot]:
                 div.text = 'True'
         source.on_change('data', cb)
         code = RECORD("matches", "div.text")
-        plot.add_tools(CustomAction(callback=CustomJS(args=dict(div=div), code=code)))
+        plot.tags.append(CustomJS(name="custom-action", args=dict(div=div), code=code))
         doc.add_root(column(plot, div))
     return modify_doc, plot
 
@@ -121,7 +120,7 @@ class Test_PointDrawTool:
         # ensure clicking adds a point
         page.click_canvas_at_position(plot, 200, 200)
         time.sleep(0.4) # hammerJS click timeout
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"x": [1, 2, 1.6216216216216217],
                     "y": [1, 1, 1.5]}
@@ -137,7 +136,7 @@ class Test_PointDrawTool:
         # ensure clicking does not add a point
         page.click_canvas_at_position(plot, 200, 200)
         time.sleep(0.4) # hammerJS click timeout
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"x": [1, 2], "y": [1, 1]}
         assert cds_data_almost_equal(page.results, expected)
@@ -153,7 +152,7 @@ class Test_PointDrawTool:
         page.click_canvas_at_position(plot, 200, 200)
         time.sleep(0.4) # hammerJS click timeout
         page.drag_canvas_at_position(plot, 200, 200, 70, 53)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"x": [1, 2, 2.1891891891891895],
                     "y": [1, 1, 1.1024999999999998]}
@@ -170,7 +169,7 @@ class Test_PointDrawTool:
         page.click_canvas_at_position(plot, 200, 200)
         time.sleep(0.4) # hammerJS click timeout
         page.drag_canvas_at_position(plot, 200, 200, 70, 53)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"x": [1, 2, 1.6216216216216217],
                     "y": [1, 1, 1.5]}
@@ -186,7 +185,7 @@ class Test_PointDrawTool:
         # ensure clicking adds a point
         page.click_canvas_at_position(plot, 200, 200)
         time.sleep(0.4) # hammerJS click timeout
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"x": [2, 1.6216216216216217],
                     "y": [1, 1.5]}
@@ -205,7 +204,7 @@ class Test_PointDrawTool:
         page.click_canvas_at_position(plot, 200, 200)
         time.sleep(0.5) # hammerJS click timeout
 
-        page.click_custom_action()
+        page.eval_custom_action()
         assert page.results == {"matches": "True"}
 
     @flaky(max_runs=10)
@@ -220,7 +219,7 @@ class Test_PointDrawTool:
         time.sleep(0.4) # hammerJS click timeout
         page.drag_canvas_at_position(plot, 200, 200, 70, 53)
 
-        page.click_custom_action()
+        page.eval_custom_action()
         assert page.results == {"matches": "True"}
 
     @flaky(max_runs=10)
@@ -238,5 +237,5 @@ class Test_PointDrawTool:
         page.send_keys("\ue003")  # Backspace
         time.sleep(0.4)  # hammerJS click timeout
 
-        page.click_custom_action()
+        page.eval_custom_action()
         assert page.results == {"matches": "True"}

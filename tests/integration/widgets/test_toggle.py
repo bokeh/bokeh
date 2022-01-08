@@ -28,7 +28,6 @@ from bokeh.layouts import column
 from bokeh.models import (
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Plot,
     Range1d,
@@ -70,7 +69,7 @@ class Test_Toggle:
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
             def cb(value):
                 if value:
                     source.data=dict(x=[10, 20], y=[10, 10])
@@ -84,7 +83,7 @@ class Test_Toggle:
         button_el = find_element_for(page.driver, button, ".bk-btn")
         button_el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results == {'data': {'x': [10, 20], 'y': [10, 10]}}
@@ -92,7 +91,7 @@ class Test_Toggle:
         button_el = find_element_for(page.driver, button, ".bk-btn")
         button_el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results == {'data': {'x': [100, 200], 'y': [100, 100]}}
@@ -100,7 +99,7 @@ class Test_Toggle:
         button_el = find_element_for(page.driver, button, ".bk-btn")
         button_el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results == {'data': {'x': [10, 20], 'y': [10, 10]}}

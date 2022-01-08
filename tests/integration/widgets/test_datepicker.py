@@ -30,7 +30,6 @@ from bokeh.layouts import column
 from bokeh.models import (
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     DatePicker,
     Plot,
@@ -184,7 +183,7 @@ class Test_DatePicker:
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
             def cb(attr, old, new):
                 source.data['val'] = [old, new]
@@ -201,7 +200,7 @@ class Test_DatePicker:
         assert el.is_displayed()
         el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ['2019-09-20', '2019-09-16']
@@ -213,7 +212,7 @@ class Test_DatePicker:
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
             def cb(attr, old, new):
                 source.data['val'] = [old, new]
@@ -231,7 +230,7 @@ class Test_DatePicker:
         assert el.is_displayed()
         el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         el = find_element_for(page.driver, dp, 'span[aria-label="September 15, 2019"]')
         assert "flatpickr-disabled" in el.get_attribute("class")

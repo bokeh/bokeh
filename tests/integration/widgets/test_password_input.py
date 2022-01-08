@@ -31,7 +31,6 @@ from bokeh.layouts import column
 from bokeh.models import (
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     PasswordInput,
     Plot,
@@ -51,7 +50,7 @@ def mk_modify_doc(text_input: PasswordInput) -> Tuple[ModifyDoc, Plot]:
     def modify_doc(doc):
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
         plot.add_glyph(source, Circle(x='x', y='y', size=20))
-        plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+        plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
         def cb(attr, old, new):
             source.data['val'] = [old, new]
         text_input.on_change('value', cb)
@@ -102,7 +101,7 @@ class Test_PasswordInput:
         el = find_element_for(page.driver, text_input, "input")
         enter_text_in_element(page.driver, el, "pre", enter=False) # not change event if enter is not pressed
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ["a", "b"]
@@ -122,7 +121,7 @@ class Test_PasswordInput:
         el = find_element_for(page.driver, text_input, "input")
         enter_text_in_element(page.driver, el, "val1")
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ["", "val1"]
@@ -130,7 +129,7 @@ class Test_PasswordInput:
         # double click to highlight and overwrite old text
         enter_text_in_element(page.driver, el, "val2", click=2)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ["val1", "val2"]
@@ -139,7 +138,7 @@ class Test_PasswordInput:
         enter_text_in_element(page.driver, el, "val3", click=2, enter=False)
         page.click_canvas_at_position(plot, 10, 10)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ["val2", "val3"]

@@ -32,7 +32,6 @@ from bokeh.application.handlers.function import ModifyDoc
 from bokeh.layouts import column
 from bokeh.models import (
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Div,
     FreehandDrawTool,
@@ -57,7 +56,7 @@ def _make_plot(num_objects=0):
     plot.add_tools(tool)
     plot.toolbar.active_multi = tool
     code = RECORD("xs", "source.data.xs", final=False) + RECORD("ys", "source.data.ys")
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(source=source), code=code)))
+    plot.tags.append(CustomJS(name="custom-action", args=dict(source=source), code=code))
     plot.toolbar_sticky = False
     return plot
 
@@ -75,7 +74,7 @@ def _make_server_plot(expected, num_objects=0) -> Tuple[ModifyDoc, Plot]:
                 div.text = 'True'
         source.on_change('data', cb)
         code = RECORD("matches", "div.text")
-        plot.add_tools(CustomAction(callback=CustomJS(args=dict(div=div), code=code)))
+        plot.tags.append(CustomJS(name="custom-action", args=dict(div=div), code=code))
         doc.add_root(column(plot, div))
     return modify_doc, plot
 
@@ -120,7 +119,7 @@ class Test_FreehandDrawTool:
 
         # ensure clicking adds a point
         page.drag_canvas_at_position(plot, 200, 200, 50, 50)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {'xs': [[1.6216216216216217, 2.027027027027027, 2.027027027027027, 2.027027027027027]],
                     'ys': [[1.5, 1.125, 1.125, 1.125]]}
@@ -136,7 +135,7 @@ class Test_FreehandDrawTool:
         # ensure clicking adds a point
         page.drag_canvas_at_position(plot, 200, 200, 50, 50)
         page.drag_canvas_at_position(plot, 100, 100, 100, 100)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {'xs': [[0.8108108108108109, 1.6216216216216217, 1.6216216216216217, 1.6216216216216217]],
                     'ys': [[2.25, 1.5, 1.5, 1.5]]}
@@ -153,7 +152,7 @@ class Test_FreehandDrawTool:
         page = bokeh_server_page(modify_doc)
 
         page.drag_canvas_at_position(plot, 200, 200, 50, 50)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         assert page.results == {"matches": "True"}
 
@@ -170,5 +169,5 @@ class Test_FreehandDrawTool:
         time.sleep(0.4)  # hammerJS click timeout
         page.send_keys("\ue003")  # Backspace
 
-        page.click_custom_action()
+        page.eval_custom_action()
         assert page.results == {"matches": "True"}

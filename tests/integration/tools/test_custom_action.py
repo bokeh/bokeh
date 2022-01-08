@@ -37,12 +37,11 @@ class Test_CustomAction:
     def test_tap_triggers_callback(self, single_plot_page: SinglePlotPage) -> None:
         plot = figure(height=800, width=1000, tools='')
         plot.rect(x=[1, 2], y=[1, 1], width=1, height=1)
-        plot.add_tools(CustomAction(callback=CustomJS(code=RECORD("activated", "true"))))
+        plot.add_tools(CustomAction(icon=".bk-tool-icon-custom-action", callback=CustomJS(code=RECORD("activated", "true"))))
 
         page = single_plot_page(plot)
 
-        page.click_custom_action()
-
+        page.get_toolbar_button("custom-action").click()
         assert page.results["activated"] == True
 
         assert page.has_no_console_errors()

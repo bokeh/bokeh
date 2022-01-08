@@ -38,7 +38,6 @@ from bokeh.layouts import column
 from bokeh.models import (
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     DateRangeSlider,
     Plot,
@@ -140,7 +139,7 @@ class Test_DateRangeSlider:
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
             def cb(attr, old, new):
                 source.data['val'] = [slider.value_as_date[0].isoformat(), slider.value_as_date[1].isoformat()]
@@ -152,7 +151,7 @@ class Test_DateRangeSlider:
 
         drag_range_slider(page.driver, slider, "lower", 50)
 
-        page.click_custom_action()
+        page.eval_custom_action()
         results = page.results
         new = results['data']['val']
         assert new[0] > '2017-08-04'
@@ -160,7 +159,7 @@ class Test_DateRangeSlider:
         drag_range_slider(page.driver, slider, "upper", -50)
 
 
-        page.click_custom_action()
+        page.eval_custom_action()
         results = page.results
         new = results['data']['val']
         assert new[1] < '2017-08-09'
@@ -169,7 +168,7 @@ class Test_DateRangeSlider:
 #         # handle = find_element_for(page.driver, slider, ".noUi-handle-lower")
 #         # select_element_and_press_key(page.driver, handle, Keys.ARROW_RIGHT)
 
-#         # page.click_custom_action()
+#         # page.eval_custom_action()
 #         # results = page.results
 #         # old, new = results['data']['val']
 #         # assert float(new[0]) >= 1

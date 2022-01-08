@@ -25,7 +25,6 @@ from bokeh.models import (
     Button,
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     DataRange1d,
     Plot,
@@ -46,7 +45,7 @@ def _make_plot(**kw):
     glyph = plot.add_glyph(source, Circle(x='x', y='y2'))
     glyph.visible = False
     code = RECORD("yrstart", "p.y_range.start", final=False) + RECORD("yrend", "p.y_range.end")
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(p=plot), code=code)))
+    plot.tags.append(CustomJS(name="custom-action", args=dict(p=plot), code=code))
     plot.toolbar_sticky = False
     return plot, glyph
 
@@ -58,7 +57,7 @@ class Test_DataRange1d:
 
         page = single_plot_page(plot)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['yrstart'] <= 0
@@ -71,7 +70,7 @@ class Test_DataRange1d:
 
         page = single_plot_page(plot)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['yrstart'] <= 0
@@ -84,7 +83,7 @@ class Test_DataRange1d:
 
         page = single_plot_page(plot)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['yrstart'] <= 0
@@ -99,14 +98,14 @@ class Test_DataRange1d:
         plot.add_glyph(source, Circle(x='x', y='y1'))
         glyph = plot.add_glyph(source, Circle(x='x', y='y2'))
         code = RECORD("yrstart", "p.y_range.start", final=False) + RECORD("yrend", "p.y_range.end")
-        plot.add_tools(CustomAction(callback=CustomJS(args=dict(p=plot), code=code)))
+        plot.tags.append(CustomJS(name="custom-action", args=dict(p=plot), code=code))
         plot.toolbar_sticky = False
         button = Button()
         button.js_on_click(CustomJS(args=dict(glyph=glyph), code="glyph.visible=false"))
 
         page = single_plot_page(column(plot, button))
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['yrstart'] <= 0
@@ -115,7 +114,7 @@ class Test_DataRange1d:
         button = find_element_for(page.driver, button, ".bk-btn")
         button.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['yrstart'] <= 0

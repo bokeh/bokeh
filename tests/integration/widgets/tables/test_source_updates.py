@@ -38,7 +38,6 @@ from bokeh.layouts import column
 from bokeh.models import (
     Button,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     DataTable,
     NumberEditor,
@@ -85,7 +84,7 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
             @btn.on_click
             def btn_click():
@@ -95,7 +94,7 @@ class Test_DataTableSource:
 
         page = bokeh_server_page(modify_doc)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [1,2,3,4], 'y': [10,20,30,40]}}
@@ -103,7 +102,7 @@ class Test_DataTableSource:
         btn_el = find_element_for(page.driver, btn)
         btn_el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [42,2,3,4], 'y': [10,20,30,40]}}
@@ -140,7 +139,7 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
             @btn.on_click
             def btn_click():
@@ -150,7 +149,7 @@ class Test_DataTableSource:
 
         page = bokeh_server_page(modify_doc)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [1,2,3,4], 'y': [10,20,30,40]}}
@@ -158,7 +157,7 @@ class Test_DataTableSource:
         btn_el = find_element_for(page.driver, btn)
         btn_el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [1,2,3,4,5], 'y': [10,20,30,40,50]}}
@@ -196,7 +195,7 @@ class Test_DataTableSource:
         def modify_doc(doc):
 
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
             @btn.on_click
             def btn_click():
@@ -206,7 +205,7 @@ class Test_DataTableSource:
 
         page = bokeh_server_page(modify_doc)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [1,2,3,4], 'y': [10,20,30,40]}}
@@ -214,7 +213,7 @@ class Test_DataTableSource:
         btn_el = find_element_for(page.driver, btn)
         btn_el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [5,6,7,8], 'y': [50,60,70,80]}}
@@ -249,13 +248,13 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
             doc.add_root(column(plot, table))
 
         page = bokeh_server_page(modify_doc)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [1,2,3,4], 'y': [10,20,30,40]}}
@@ -264,7 +263,7 @@ class Test_DataTableSource:
         assert cell.text == '30'
         enter_text_in_cell(page.driver, table, 3, 2, '100')
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [1,2,3,4], 'y': [10, 20, 100, 40]}}
@@ -299,13 +298,13 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("indices", "s.selected.indices"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("indices", "s.selected.indices")))
 
             doc.add_root(column(plot, table))
 
         page = bokeh_server_page(modify_doc)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'indices': []}
@@ -316,7 +315,7 @@ class Test_DataTableSource:
         row = get_table_row(page.driver, table, 3)
         row.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'indices': [2]}
@@ -327,7 +326,7 @@ class Test_DataTableSource:
         row = get_table_row(page.driver, table, 1)
         row.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'indices': [0]}
@@ -349,13 +348,13 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("indices", "s.selected.indices"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("indices", "s.selected.indices")))
 
             doc.add_root(column(plot, table))
 
         page = bokeh_server_page(modify_doc)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'indices': []}
@@ -369,7 +368,7 @@ class Test_DataTableSource:
         row = get_table_row(page.driver, table, 4)
         shift_click(page.driver, row)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert set(results["indices"]) == {1, 2, 3}
@@ -379,7 +378,7 @@ class Test_DataTableSource:
         row = get_table_row(page.driver, table, 6)
         alt_click(page.driver, row)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert set(results["indices"]) == {1, 2, 3, 5}
@@ -403,7 +402,7 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
             def cb():
                 source.data =  {'x': [0,1,2,3,4,5,6,7], 'y': [70,60,50,40,30,20,10,0]}
@@ -413,7 +412,7 @@ class Test_DataTableSource:
 
         page = bokeh_server_page(modify_doc)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [1,2,5,6], 'y': [60,50,20,10]}}
@@ -434,7 +433,7 @@ class Test_DataTableSource:
         button_el = find_element_for(page.driver, button)
         button_el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [0,1,2,3,4,5,6,7], 'y': [70,60,50,40,30,20,10,0]}}
@@ -461,7 +460,7 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
             def cb():
                 source.patch({'y': [[2, 100]]})
@@ -471,7 +470,7 @@ class Test_DataTableSource:
 
         page = bokeh_server_page(modify_doc)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [1,2,5,6], 'y': [60,50,20,10]}}
@@ -492,7 +491,7 @@ class Test_DataTableSource:
         button_el = find_element_for(page.driver, button)
         button_el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [1,2,5,6], 'y': [60,50,100,10]}}
@@ -519,7 +518,7 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
             def cb():
                 source.stream({'x': [100], 'y': [100]})
@@ -529,7 +528,7 @@ class Test_DataTableSource:
 
         page = bokeh_server_page(modify_doc)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [1,2,5,6], 'y': [60,50,20,10]}}
@@ -550,7 +549,7 @@ class Test_DataTableSource:
         button_el = find_element_for(page.driver, button)
         button_el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [1,2,5,6,100], 'y': [60,50,20,10,100]}}
@@ -575,13 +574,13 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
             doc.add_root(column(plot, table))
 
         page = bokeh_server_page(modify_doc)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [1,2,5,6], 'y': [60,50,20,10]}}
@@ -603,7 +602,7 @@ class Test_DataTableSource:
         assert cell.text == '50'
         enter_text_in_cell(page.driver, table, 3, 2, '100')
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [1,2,5,6], 'y': [60,100,20,10]}}
@@ -627,13 +626,13 @@ class Test_DataTableSource:
 
         def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
             doc.add_root(column(plot, table))
 
         page = bokeh_server_page(modify_doc)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [1,2,5,6], 'y': [60,50,20,10]}}
@@ -645,7 +644,7 @@ class Test_DataTableSource:
         assert cell.text == '20'
         enter_text_in_cell(page.driver, table, 3, 2, '100')
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results ==  {'data': {'x': [1,2,5,6], 'y': [60,50,100,10]}}

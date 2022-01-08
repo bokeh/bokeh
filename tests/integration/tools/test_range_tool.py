@@ -22,7 +22,6 @@ from bokeh._testing.plugins.project import SinglePlotPage
 from bokeh._testing.util.selenium import RECORD
 from bokeh.models import (
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Plot,
     Range1d,
@@ -50,7 +49,7 @@ def _make_plot():
     plot.add_tools(tool)
     plot.min_border_right = 100
     code = RECORD("start", "t.x_range.start", final=False) + RECORD("end", "t.x_range.end")
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(t=tool), code=code)))
+    plot.tags.append(CustomJS(name="custom-action", args=dict(t=tool), code=code))
     plot.toolbar_sticky = False
     return plot
 
@@ -102,7 +101,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 500, 200, 100, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == 0.4
@@ -117,7 +116,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 500, 200, 100, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == 0.5
@@ -125,7 +124,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 600, 200, -300, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == 0.2
@@ -141,7 +140,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 500, 200, 100, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == 0.5
@@ -149,7 +148,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 600, 200, -300, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == 0.2
@@ -165,7 +164,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 500, 200, -100, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == -0.2
@@ -173,7 +172,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 400, 200, 300, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == 0.1
@@ -188,7 +187,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 400, 200, 100, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == 0.5
@@ -196,7 +195,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 500, 200, -300, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == 0.2
@@ -209,7 +208,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 400, 200, 300, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == 0.6
@@ -223,7 +222,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 400, 200, 300, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == 0.7
@@ -236,7 +235,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 600, 200, 100, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == 0.4
@@ -244,7 +243,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 700, 200, -200, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == 0.4
@@ -257,7 +256,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 600, 200, -300, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == 0.3
@@ -271,7 +270,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 600, 200, -300, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == -0.1
@@ -287,7 +286,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 500, 200, 300, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == 0.7
@@ -295,7 +294,7 @@ class Test_RangeTool:
 
         page.drag_canvas_at_position(plot, 800, 200, 150, 0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['start'] == 0.8

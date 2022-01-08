@@ -31,7 +31,6 @@ from bokeh.layouts import column
 from bokeh.models import (
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     NumericInput,
     Plot,
@@ -52,7 +51,7 @@ def mk_modify_doc(num_input: NumericInput) -> Tuple[ModifyDoc, Plot]:
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
 
         plot.add_glyph(source, Circle(x='x', y='y'))
-        plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+        plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
         def cb(attr, old, new):
             source.data['val'] = [old, new]
@@ -104,7 +103,7 @@ class Test_NumericInput(object):
         el = find_element_for(page.driver, num_input, "input")
         enter_text_in_element(page.driver, el, "pre", enter=False)  # not change event if enter is not pressed
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ["a", "b"]
@@ -124,7 +123,7 @@ class Test_NumericInput(object):
         el = find_element_for(page.driver, num_input, "input")
         enter_text_in_element(page.driver, el, "2")
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == [4, 42]
@@ -132,7 +131,7 @@ class Test_NumericInput(object):
         # double click to highlight and overwrite old text
         enter_text_in_element(page.driver, el, "34", click=2)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == [42, 34]
@@ -141,7 +140,7 @@ class Test_NumericInput(object):
         enter_text_in_element(page.driver, el, "56", click=2, enter=False)
         page.click_canvas_at_position(plot, 10, 10)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == [34, 56]

@@ -227,9 +227,8 @@ class _CanvasMixin(_ElementMixin):
         events_el = get_events_el(self._driver, plot)
         self.drag_element_at_position(events_el, x, y, dx, dy, mod)
 
-    def click_custom_action(self) -> None:
-        button = find_matching_element(self._driver, ".bk-toolbar-button-custom-action")
-        button.click()
+    def eval_custom_action(self) -> None:
+        return self._driver.execute_script('Bokeh.documents[0].get_model_by_name("custom-action").execute()')
 
     def get_toolbar_button(self, name: str) -> WebElement:
         return find_matching_element(self._driver, f".bk-tool-icon-{name}")

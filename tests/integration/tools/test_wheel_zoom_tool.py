@@ -23,7 +23,6 @@ from bokeh._testing.util.selenium import RECORD, SCROLL
 from bokeh.events import RangesUpdate
 from bokeh.models import (
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Plot,
     Range1d,
@@ -48,7 +47,7 @@ def _make_plot(dimensions="both"):
            RECORD("xrend", "p.x_range.end", final=False) + \
            RECORD("yrstart", "p.y_range.start", final=False) + \
            RECORD("yrend", "p.y_range.end")
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(p=plot), code=code)))
+    plot.tags.append(CustomJS(name="custom-action", args=dict(p=plot), code=code))
     plot.toolbar_sticky = False
     return plot
 
@@ -94,7 +93,7 @@ class Test_WheelZoomTool:
         # First check that scrolling has no effect before the tool is activated
         page.driver.execute_script(SCROLL(200))
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] == 0
@@ -108,7 +107,7 @@ class Test_WheelZoomTool:
 
         page.driver.execute_script(SCROLL(200))
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] < 0
@@ -126,7 +125,7 @@ class Test_WheelZoomTool:
         # First check that scrolling has no effect before the tool is activated
         page.driver.execute_script(SCROLL(-200))
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] == 0
@@ -140,7 +139,7 @@ class Test_WheelZoomTool:
 
         page.driver.execute_script(SCROLL(-200))
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] > 0
@@ -158,7 +157,7 @@ class Test_WheelZoomTool:
         # First check that scrolling has no effect before the tool is activated
         page.driver.execute_script(SCROLL(-200))
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] == 0
@@ -172,7 +171,7 @@ class Test_WheelZoomTool:
 
         page.driver.execute_script(SCROLL(-200))
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] > 0
@@ -182,7 +181,7 @@ class Test_WheelZoomTool:
 
         page.driver.execute_script(SCROLL(400))
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] < 0
@@ -200,7 +199,7 @@ class Test_WheelZoomTool:
         # First check that scrolling has no effect before the tool is activated
         page.driver.execute_script(SCROLL(-200))
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] == 0
@@ -214,7 +213,7 @@ class Test_WheelZoomTool:
 
         page.driver.execute_script(SCROLL(-200))
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] == 0
@@ -224,7 +223,7 @@ class Test_WheelZoomTool:
 
         page.driver.execute_script(SCROLL(400))
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] == 0
@@ -245,7 +244,7 @@ class Test_WheelZoomTool:
                RECORD("y0", "cb_obj.y0", final=False) + \
                RECORD("y1", "cb_obj.y1")
         plot.js_on_event(RangesUpdate, CustomJS(code=code))
-        plot.add_tools(CustomAction(callback=CustomJS(code="")))
+        plot.tags.append(CustomJS(name="custom-action", code=""))
         plot.toolbar_sticky = False
 
         page = single_plot_page(plot)
@@ -255,7 +254,7 @@ class Test_WheelZoomTool:
 
         page.driver.execute_script(SCROLL(-200))
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['event_name'] == "rangesupdate"

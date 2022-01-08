@@ -23,7 +23,6 @@ from bokeh._testing.util.selenium import RECORD
 from bokeh.events import RangesUpdate
 from bokeh.models import (
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Plot,
     Range1d,
@@ -48,7 +47,7 @@ def _make_plot():
            RECORD("xrend", "p.x_range.end", final=False) + \
            RECORD("yrstart", "p.y_range.start", final=False) + \
            RECORD("yrend", "p.y_range.end")
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(p=plot), code=code)))
+    plot.tags.append(CustomJS(name="custom-action", args=dict(p=plot), code=code))
     plot.toolbar_sticky = False
     return plot
 
@@ -73,7 +72,7 @@ class Test_ZoomOutTool:
         button = page.get_toolbar_button('zoom-out')
         button.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         first = page.results
         assert first['xrstart'] < 0
@@ -84,7 +83,7 @@ class Test_ZoomOutTool:
         button = page.get_toolbar_button('zoom-out')
         button.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         second = page.results
         assert second['xrstart'] < first['xrstart']
@@ -105,7 +104,7 @@ class Test_ZoomOutTool:
                RECORD("y0", "cb_obj.y0", final=False) + \
                RECORD("y1", "cb_obj.y1")
         plot.js_on_event(RangesUpdate, CustomJS(code=code))
-        plot.add_tools(CustomAction(callback=CustomJS(code="")))
+        plot.tags.append(CustomJS(name="custom-action", code=""))
         plot.toolbar_sticky = False
 
         page = single_plot_page(plot)
@@ -113,7 +112,7 @@ class Test_ZoomOutTool:
         button = page.get_toolbar_button('zoom-out')
         button.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['event_name'] == "rangesupdate"

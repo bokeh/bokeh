@@ -28,7 +28,6 @@ from bokeh.layouts import row
 from bokeh.models import (
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     MultiChoice,
     Plot,
@@ -48,7 +47,7 @@ def mk_modify_doc(input_box: MultiChoice):
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
         plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Circle(x='x', y='y', size=20))
-        plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+        plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
         input_box.title = "title"
         input_box.options = ["100001", "12344556", "12344557", "3194567289", "209374209374"]
         input_box.value = ["12344556", "12344557"]
@@ -123,7 +122,7 @@ class Test_MultiChoice:
         inp.click()
 
         inp.send_keys(Keys.ENTER)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == [['12344556', '12344557'], ['12344556', '12344557', '100001']]

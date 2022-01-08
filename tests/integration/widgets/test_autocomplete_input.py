@@ -38,7 +38,6 @@ from bokeh.models import (
     AutocompleteInput,
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Plot,
     Range1d,
@@ -57,7 +56,7 @@ def mk_modify_doc(input_box: AutocompleteInput) -> Tuple[ModifyDoc, Plot]:
     def modify_doc(doc):
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
         plot.add_glyph(source, Circle(x='x', y='y', size=20))
-        plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+        plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
         input_box.title = "title"
         input_box.value = "400"
         input_box.completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"]
@@ -424,7 +423,7 @@ class Test_AutocompleteInput:
         el = find_element_for(page.driver, input_box, "input")
         enter_text_in_element(page.driver, el, "pre", enter=False)  # not change event if enter is not pressed
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ["a", "b"]
@@ -445,14 +444,14 @@ class Test_AutocompleteInput:
         el = find_element_for(page.driver, input_box, "input")
         enter_text_in_element(page.driver, el, "100001", click=2)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ["400", "100001"]
 
         enter_text_in_element(page.driver, el, "12344556", click=2)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ["100001", "12344556"]
@@ -461,7 +460,7 @@ class Test_AutocompleteInput:
         enter_text_in_element(page.driver, el, "3194567289", click=2)
         page.click_canvas_at_position(plot, 10, 10)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ["12344556", "3194567289"]
@@ -479,14 +478,14 @@ class Test_AutocompleteInput:
         el = find_element_for(page.driver, input_box, "input")
         enter_text_in_element(page.driver, el, "100", click=2)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ["400", "100001"]
 
         enter_text_in_element(page.driver, el, "123", click=2)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ["100001", "12344556"]
@@ -495,7 +494,7 @@ class Test_AutocompleteInput:
         enter_text_in_element(page.driver, el, "319", click=2, enter=False)
         page.click_canvas_at_position(plot, 10, 10)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ["12344556", "3194567289"]
@@ -514,7 +513,7 @@ class Test_AutocompleteInput:
         enter_text_in_element(page.driver, el, "123", click=2, enter=False)
         enter_text_in_element(page.driver, el, Keys.DOWN, click=0)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ["400", "12344557"]
@@ -526,7 +525,7 @@ class Test_AutocompleteInput:
         hover_element(page.driver, items[1])
         items[1].click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ["400", "12344557"]
