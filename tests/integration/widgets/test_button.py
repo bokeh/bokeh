@@ -29,7 +29,6 @@ from bokeh.models import (
     Button,
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Plot,
     Range1d,
@@ -71,7 +70,7 @@ class Test_Button:
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
             def cb(event):
                 source.data=dict(x=[10, 20], y=[10, 10])
             button.on_click(cb)
@@ -82,7 +81,7 @@ class Test_Button:
         button_el = find_element_for(page.driver, button, ".bk-btn")
         button_el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results == {'data': {'x': [10, 20], 'y': [10, 10]}}
@@ -98,7 +97,7 @@ class Test_Button:
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
             def cb(event):
                 source.data=dict(x=[10, 20], y=[10, 10])
             button.on_event('button_click', cb)
@@ -109,7 +108,7 @@ class Test_Button:
         button_el = find_element_for(page.driver, button, ".bk-btn")
         button_el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results == {'data': {'x': [10, 20], 'y': [10, 10]}}

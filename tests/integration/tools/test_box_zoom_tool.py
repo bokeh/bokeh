@@ -23,7 +23,6 @@ from bokeh._testing.util.selenium import RECORD
 from bokeh.models import (
     BoxZoomTool,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     PanTool,
     Plot,
@@ -48,7 +47,7 @@ def _make_plot(tool):
            RECORD("xrend", "p.x_range.end", final=False) + \
            RECORD("yrstart", "p.y_range.start", final=False) + \
            RECORD("yrend", "p.y_range.end")
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(p=plot), code=code)))
+    plot.tags.append(CustomJS(name="custom-action", args=dict(p=plot), code=code))
     plot.toolbar_sticky = False
     return plot
 
@@ -109,7 +108,7 @@ class Test_BoxZoomTool:
 
         page.drag_canvas_at_position(plot, 100, 100, 20, 20)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] == 0
@@ -126,7 +125,7 @@ class Test_BoxZoomTool:
 
         page.drag_canvas_at_position(plot, 100, 100, 200, 200)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] == pytest.approx(0.25)
@@ -143,7 +142,7 @@ class Test_BoxZoomTool:
 
         page.drag_canvas_at_position(plot, 100, 100, 50, 50)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert (results['xrstart'] + results['xrend'])/2.0 == pytest.approx(0.25)
@@ -158,7 +157,7 @@ class Test_BoxZoomTool:
 
         page.drag_canvas_at_position(plot, 200, 200, 500, 500)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] == 0
@@ -175,7 +174,7 @@ class Test_BoxZoomTool:
 
         page.drag_canvas_at_position(plot, 250, 250, 50, 50)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] > 0.5
@@ -192,7 +191,7 @@ class Test_BoxZoomTool:
 
         page.drag_canvas_at_position(plot, 250, 250, 500, 50)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] > 0.5
@@ -209,7 +208,7 @@ class Test_BoxZoomTool:
 
         page.drag_canvas_at_position(plot, 250, 250, 50, 50)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] == 0
@@ -226,7 +225,7 @@ class Test_BoxZoomTool:
 
         page.drag_canvas_at_position(plot, 250, 250, 50, 500)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] == 0
@@ -244,7 +243,7 @@ class Test_BoxZoomTool:
 
         page.drag_canvas_at_position(plot, 150, 150, 70, 53)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert (results['xrend'] - results['xrstart']) / (results['yrend'] - results['yrstart']) == pytest.approx(2.0)

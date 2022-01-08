@@ -27,7 +27,6 @@ from bokeh.layouts import column
 from bokeh.models import (
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Plot,
     Range1d,
@@ -226,7 +225,7 @@ class Test_Select:
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
             def cb(attr, old, new):
                 source.data['val'] = [old, new]
             select.on_change('value', cb)
@@ -240,7 +239,7 @@ class Test_Select:
         el = find_element_for(page.driver, select, 'select option[value="Option 3"]')
         el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ["", "Option 3"]
@@ -251,7 +250,7 @@ class Test_Select:
         el = find_element_for(page.driver, select, 'select option[value="Option 1"]')
         el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == ["Option 3", "Option 1"]

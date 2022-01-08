@@ -33,7 +33,6 @@ from bokeh.layouts import column
 from bokeh.models import (
     BoxEditTool,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Div,
     Plot,
@@ -60,7 +59,7 @@ def _make_plot(dimensions="both", num_objects: int = 0) -> Plot:
            RECORD("y", "source.data.y", final=False) + \
            RECORD("width", "source.data.width", final=False) + \
            RECORD("height", "source.data.height")
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(source=source), code=code)))
+    plot.tags.append(CustomJS(name="custom-action", args=dict(source=source), code=code))
     plot.toolbar_sticky = False
     return plot
 
@@ -78,7 +77,7 @@ def _make_server_plot(expected, num_objects: int = 0) -> Tuple[ModifyDoc, Plot]:
                 div.text = 'True'
         source.on_change('data', cb)
         code = RECORD("matches", "div.text")
-        plot.add_tools(CustomAction(callback=CustomJS(args=dict(div=div), code=code)))
+        plot.tags.append(CustomJS(name="custom-action", args=dict(div=div), code=code))
         doc.add_root(column(plot, div))
     return modify_doc, plot
 
@@ -126,7 +125,7 @@ class Test_BoxEditTool:
         time.sleep(0.5)
         page.double_click_canvas_at_position(plot, 200, 200)
         time.sleep(0.5)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"x": [1, 2, 1.2162162162162162],
                     "y": [1, 1, 1.875],
@@ -144,7 +143,7 @@ class Test_BoxEditTool:
         # ensure double clicking added a box
         page.drag_canvas_at_position(plot, 100, 100, 50, 50, mod="\ue008")
         time.sleep(0.5)
-        page.click_custom_action()
+        page.eval_custom_action()
         expected = {"x": [1, 2, 1.0135135135135136],
                     "y": [1, 1, 2.0625],
                     "width": [0.5, 0.5, 0.4054054054054054],
@@ -165,7 +164,7 @@ class Test_BoxEditTool:
         time.sleep(0.5)
         page.drag_canvas_at_position(plot, 150, 150, 50, 50)
         time.sleep(0.5)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"x": [1, 2, 1.6216216216216217],
                     "y": [1, 1, 1.5000000000000002],
@@ -190,7 +189,7 @@ class Test_BoxEditTool:
         page.send_keys("\ue003")  # Backspace
         time.sleep(0.5)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"x": [2], "y": [1], "width": [0.5], "height": [0.5]}
         assert cds_data_almost_equal(page.results, expected)
@@ -205,7 +204,7 @@ class Test_BoxEditTool:
         # ensure double clicking added a box
         page.drag_canvas_at_position(plot, 100, 100, 50, 50, mod="\ue008")
         time.sleep(0.5)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"x": [2, 1.0135135135135136],
                     "y": [1, 2.0625],
@@ -231,7 +230,7 @@ class Test_BoxEditTool:
         page.double_click_canvas_at_position(plot, 200, 200)
         time.sleep(0.5)
 
-        page.click_custom_action()
+        page.eval_custom_action()
         assert page.results == {"matches": "True"}
 
     @flaky(max_runs=10)
@@ -251,9 +250,9 @@ class Test_BoxEditTool:
         time.sleep(0.5)
         page.drag_canvas_at_position(plot, 150, 150, 50, 50)
         time.sleep(0.5)
-        page.click_custom_action()
+        page.eval_custom_action()
 
-        page.click_custom_action()
+        page.eval_custom_action()
         assert page.results == {"matches": "True"}
 
     @flaky(max_runs=10)
@@ -274,5 +273,5 @@ class Test_BoxEditTool:
         page.send_keys("\ue003")  # Backspace
         time.sleep(0.5)
 
-        page.click_custom_action()
+        page.eval_custom_action()
         assert page.results == {"matches": "True"}

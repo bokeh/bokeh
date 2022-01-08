@@ -33,7 +33,6 @@ from bokeh.layouts import column
 from bokeh.models import (
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Div,
     MultiLine,
@@ -62,7 +61,7 @@ def _make_plot(num_objects=0, drag=True, vertices=False):
     plot.add_tools(tool)
     plot.toolbar.active_multi = tool
     code = RECORD("xs", "source.data.xs", final=False) + RECORD("ys", "source.data.ys")
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(source=source), code=code)))
+    plot.tags.append(CustomJS(name="custom-action", args=dict(source=source), code=code))
     plot.toolbar_sticky = False
     return plot
 
@@ -80,7 +79,7 @@ def _make_server_plot(expected) -> Tuple[ModifyDoc, Plot]:
                 div.text = 'True'
         source.on_change('data', cb)
         code = RECORD("matches", "div.text")
-        plot.add_tools(CustomAction(callback=CustomJS(args=dict(div=div), code=code)))
+        plot.tags.append(CustomJS(name="custom-action", args=dict(div=div), code=code))
         doc.add_root(column(plot, div))
     return modify_doc, plot
 
@@ -127,7 +126,7 @@ class Test_PolyDrawTool:
         page.double_click_canvas_at_position(plot, 200, 200)
         page.double_click_canvas_at_position(plot, 300, 300)
         time.sleep(0.5)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"xs": [[1, 2], [1.6216216216216217, 2.4324324324324325]],
                     "ys": [[1, 1], [1.5, 0.75]]}
@@ -146,7 +145,7 @@ class Test_PolyDrawTool:
         time.sleep(0.5)
         page.double_click_canvas_at_position(plot, 201, 201)
         time.sleep(0.5)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"xs": [[1, 2], [1.6216216216216217, 2.4324324324324325, 1.6216216216216217]],
                     "ys": [[1, 1], [1.5, 0.75, 1.5]]}
@@ -164,7 +163,7 @@ class Test_PolyDrawTool:
         page.double_click_canvas_at_position(plot, 300, 300)
         time.sleep(0.4) # hammerJS click timeout
         page.drag_canvas_at_position(plot, 200, 200, 70, 50)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"xs": [[1, 2], [2.1891891891891895, 3]],
                     "ys": [[1, 1], [1.125, 0.375]]}
@@ -182,7 +181,7 @@ class Test_PolyDrawTool:
         page.double_click_canvas_at_position(plot, 300, 300)
         time.sleep(0.4) # hammerJS click timeout
         page.drag_canvas_at_position(plot, 200, 200, 70, 53)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"xs": [[1, 2], [1.6216216216216217, 2.4324324324324325]],
                     "ys": [[1, 1], [1.5, 0.75]] }
@@ -200,7 +199,7 @@ class Test_PolyDrawTool:
         page.double_click_canvas_at_position(plot, 300, 300)
         time.sleep(0.4) # hammerJS click timeout
         page.drag_canvas_at_position(plot, 200, 200, 70, 50)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"xs": [[2.1891891891891895, 3]],
                     "ys": [[1.125, 0.375]]}
@@ -221,7 +220,7 @@ class Test_PolyDrawTool:
         page.double_click_canvas_at_position(plot, 300, 300)
         time.sleep(0.5)
 
-        page.click_custom_action()
+        page.eval_custom_action()
         assert page.results == {"matches": "True"}
 
     # TODO (bev) Fix up after GH CI switch
@@ -240,7 +239,7 @@ class Test_PolyDrawTool:
         time.sleep(0.4) # hammerJS click timeout
         page.drag_canvas_at_position(plot, 200, 200, 70, 50)
 
-        page.click_custom_action()
+        page.eval_custom_action()
         assert page.results == {"matches": "True"}
 
     @flaky(max_runs=10)
@@ -259,5 +258,5 @@ class Test_PolyDrawTool:
         page.send_keys("\ue003")  # Backspace
         time.sleep(0.4)  # hammerJS click timeout
 
-        page.click_custom_action()
+        page.eval_custom_action()
         assert page.results == {"matches": "True"}

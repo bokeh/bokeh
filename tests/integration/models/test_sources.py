@@ -27,7 +27,6 @@ from bokeh.layouts import column
 from bokeh.models import (
     Button,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Plot,
     Range1d,
@@ -62,14 +61,14 @@ class Test_ColumnDataSource:
 
         def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
             button.js_on_click(CustomJS(args=dict(s=source), code="s.patch({'x': [[1, 100]]})"))
             doc.add_root(column(button, plot))
 
         page = bokeh_server_page(modify_doc)
 
-        page.click_custom_action()
+        page.eval_custom_action()
         results = page.results
 
         assert results ==  {'data': {'x': [1,2,3,4], 'y': [10,20,30,40]}}
@@ -78,7 +77,7 @@ class Test_ColumnDataSource:
         button_el = find_element_for(page.driver, button)
         button_el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
         results = page.results
 
         assert results ==  {'data': {'x': [1,100,3,4], 'y': [10,20,30,40]}}
@@ -108,14 +107,14 @@ class Test_ColumnDataSource:
 
         def modify_doc(doc):
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
             button.js_on_click(CustomJS(args=dict(s=source), code="s.stream({'x': [100], 'y': [200]})"))
             doc.add_root(column(button, plot))
 
         page = bokeh_server_page(modify_doc)
 
-        page.click_custom_action()
+        page.eval_custom_action()
         results = page.results
 
         assert results ==  {'data': {'x': [1,2,3,4], 'y': [10,20,30,40]}}
@@ -124,7 +123,7 @@ class Test_ColumnDataSource:
         button_el = find_element_for(page.driver, button)
         button_el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
         results = page.results
 
         assert results ==  {'data': {'x': [1,2,3,4,100], 'y': [10,20,30,40,200]}}

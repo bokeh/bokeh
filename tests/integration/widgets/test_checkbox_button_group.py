@@ -28,7 +28,6 @@ from bokeh.models import (
     CheckboxButtonGroup,
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Plot,
     Range1d,
@@ -54,7 +53,7 @@ class Test_CheckboxButtonGroup:
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
             def cb(active):
                 source.data['val'] = (active + [0, 0])[:2] # keep col length at 2, padded with zero
             group.on_click(cb)
@@ -65,7 +64,7 @@ class Test_CheckboxButtonGroup:
         el = find_element_for(page.driver, group, ".bk-btn:nth-child(3)")
         el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == [2, 0]
@@ -73,7 +72,7 @@ class Test_CheckboxButtonGroup:
         el = find_element_for(page.driver, group, ".bk-btn:nth-child(1)")
         el.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['data']['val'] == [0, 2]

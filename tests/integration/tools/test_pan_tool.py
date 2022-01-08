@@ -23,7 +23,6 @@ from bokeh._testing.util.selenium import RECORD, find_matching_element
 from bokeh.events import RangesUpdate
 from bokeh.models import (
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     PanTool,
     Plot,
@@ -48,7 +47,7 @@ def _make_plot(dimensions="both"):
            RECORD("xrend", "p.x_range.end", final=False) + \
            RECORD("yrstart", "p.y_range.start", final=False) + \
            RECORD("yrend", "p.y_range.end")
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(p=plot), code=code)))
+    plot.tags.append(CustomJS(name="custom-action", args=dict(p=plot), code=code))
     plot.toolbar_sticky = False
     return plot
 
@@ -104,7 +103,7 @@ class Test_PanTool:
 
         page.drag_canvas_at_position(plot, 100, 100, 20, 20)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] == 0
@@ -121,7 +120,7 @@ class Test_PanTool:
 
         page.drag_canvas_at_position(plot, 100, 100, 20, 20)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] < 0
@@ -138,7 +137,7 @@ class Test_PanTool:
 
         page.drag_canvas_at_position(plot, 100, 100, 20, 20)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] < 0
@@ -155,7 +154,7 @@ class Test_PanTool:
 
         page.drag_canvas_at_position(plot, 100, 100, 20, 20)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['xrstart'] == 0
@@ -176,14 +175,14 @@ class Test_PanTool:
                RECORD("y0", "cb_obj.y0", final=False) + \
                RECORD("y1", "cb_obj.y1")
         plot.js_on_event(RangesUpdate, CustomJS(code=code))
-        plot.add_tools(CustomAction(callback=CustomJS(code="")))
+        plot.tags.append(CustomJS(name="custom-action", code=""))
         plot.toolbar_sticky = False
 
         page = single_plot_page(plot)
 
         page.drag_canvas_at_position(plot, 100, 100, 20, 20)
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results['event_name'] == "rangesupdate"

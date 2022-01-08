@@ -33,7 +33,6 @@ from bokeh.layouts import column
 from bokeh.models import (
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Div,
     MultiLine,
@@ -63,7 +62,7 @@ def _make_plot() -> Plot:
     plot.add_tools(tool)
     plot.toolbar.active_multi = tool
     code = RECORD("xs", "source.data.xs", final=False) + RECORD("ys", "source.data.ys")
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(source=source), code=code)))
+    plot.tags.append(CustomJS(name="custom-action", args=dict(source=source), code=code))
     plot.toolbar_sticky = False
     return plot
 
@@ -90,7 +89,7 @@ def _make_server_plot(expected) -> Tuple[ModifyDoc, Plot, ColumnDataSource]:
                 return
         source.on_change('data', cb)
         code = RECORD("matches", "div.text")
-        plot.add_tools(CustomAction(callback=CustomJS(args=dict(div=div), code=code)))
+        plot.tags.append(CustomJS(name="custom-action", args=dict(div=div), code=code))
         doc.add_root(column(plot, div))
     return modify_doc, plot, source
 
@@ -140,7 +139,7 @@ class Test_PolyEditTool:
         time.sleep(0.5)
         page.double_click_canvas_at_position(plot, 250, 150)
         time.sleep(0.5)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {'xs': [[1, 2], [1.6, 2.45, 2.027027027027027]],
                     'ys': [[1, 1], [1.5, 0.75, 1.8749999999999998]]}
@@ -162,7 +161,7 @@ class Test_PolyEditTool:
         time.sleep(0.5)
         page.double_click_canvas_at_position(plot, 200, 200)
         time.sleep(0.5)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"xs": [[1, 2], [1.6, 2.45, 2.027027027027027, 1.6]],
                     "ys": [[1, 1], [1.5, 0.75, 1.8749999999999998, 1.5]]}
@@ -185,7 +184,7 @@ class Test_PolyEditTool:
         page.send_keys("\ue00c")  # Escape
         page.drag_canvas_at_position(plot, 250, 150, 70, 50)
         time.sleep(0.5)
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"xs": [[1, 2], [1.6, 2.45, 2.5945945945945947]],
                     "ys": [[1, 1], [1.5, 0.75, 1.5]]}
@@ -209,7 +208,7 @@ class Test_PolyEditTool:
         page.click_canvas_at_position(plot, 298, 298)
         time.sleep(0.5)
         page.send_keys("\ue003")  # Escape
-        page.click_custom_action()
+        page.eval_custom_action()
 
         expected = {"xs": [[1, 2], [1.6, 2.027027027027027]],
                     "ys": [[1, 1], [1.5, 1.8749999999999998]]}
@@ -231,7 +230,7 @@ class Test_PolyEditTool:
         page.double_click_canvas_at_position(plot, 250, 150)
         time.sleep(0.5)
 
-        page.click_custom_action()
+        page.eval_custom_action()
         assert page.results == {"matches": "True"}
         assert page.has_no_console_errors()
 
@@ -254,7 +253,7 @@ class Test_PolyEditTool:
         page.drag_canvas_at_position(plot, 250, 150, 70, 50)
         time.sleep(0.5)
 
-        page.click_custom_action()
+        page.eval_custom_action()
         assert page.results == {"matches": "True"}
         assert page.has_no_console_errors()
 
@@ -282,7 +281,7 @@ class Test_PolyEditTool:
         page.drag_canvas_at_position(plot, 250, 150, 70, 50)
         time.sleep(0.5)
 
-        page.click_custom_action()
+        page.eval_custom_action()
         assert page.results == {"matches": "True"}
         assert page.has_no_console_errors()
 
@@ -306,6 +305,6 @@ class Test_PolyEditTool:
         time.sleep(0.5)
         page.send_keys("\ue003")  # Backspace
 
-        page.click_custom_action()
+        page.eval_custom_action()
         assert page.results == {"matches": "True"}
         assert page.has_no_console_errors()

@@ -33,7 +33,6 @@ from bokeh.layouts import column
 from bokeh.models import (
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Plot,
     Range1d,
@@ -55,7 +54,7 @@ def mk_modify_doc(spinner: Spinner):
         plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
 
         plot.add_glyph(source, Circle(x='x', y='y'))
-        plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+        plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
         def cb(attr, old, new):
             source.data['val'] = [old, new]
@@ -194,38 +193,38 @@ class Test_Spinner(object):
 
         # same value
         enter_text_in_element(page.driver, input_el, "4", click=2)
-        page.click_custom_action()
+        page.eval_custom_action()
         results = page.results
         assert results['data']['val'] == ["a", "b"]
 
         # new valid value
         enter_text_in_element(page.driver, input_el, "5", click=2)
-        page.click_custom_action()
+        page.eval_custom_action()
         results = page.results
         assert results['data']['val'] == [4, 5]
 
         # new overflow value
         enter_text_in_element(page.driver, input_el, "11", click=2)
-        page.click_custom_action()
+        page.eval_custom_action()
         results = page.results
         assert results['data']['val'] == [5, 10]
 
         # new underflow value
         enter_text_in_element(page.driver, input_el, "-2", click=2)
-        page.click_custom_action()
+        page.eval_custom_action()
         results = page.results
         assert results['data']['val'] == [10, -1]
 
         # new decimal value
         input_el.clear() #negative previous values needs a triple click to be selected
         enter_text_in_element(page.driver, input_el, "5.1")
-        page.click_custom_action()
+        page.eval_custom_action()
         results = page.results
         assert results['data']['val'] == [None, 5.1]
 
         # new decimal value test rounding
         enter_text_in_element(page.driver, input_el, "5.19", click=2)
-        page.click_custom_action()
+        page.eval_custom_action()
         results = page.results
         assert results['data']['val'] == [5.1, 5.19]
         assert input_el.get_attribute('value') == '5.2'

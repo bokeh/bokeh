@@ -28,7 +28,6 @@ from bokeh.layouts import column
 from bokeh.models import (
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Plot,
     Range1d,
@@ -51,7 +50,7 @@ def mk_modify_doc(text_input: TextAreaInput):
         plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Circle(x='x', y='y', size=20))
         code = RECORD("data", "s.data")
-        plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=code)))
+        plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=code))
         def cb(attr, old, new):
             foo.append((old, new))
             source.data['val'] = [old, new]
@@ -83,6 +82,6 @@ class Test_TextInput:
         el = find_element_for(page.driver, text_input, "textarea")
         enter_text_in_element(page.driver, el, "val1" + Keys.TAB)
 
-        page.click_custom_action()
+        page.eval_custom_action()
         results = page.results
         assert results['data']['val'] == ["", "val1"]

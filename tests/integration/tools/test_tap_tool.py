@@ -20,7 +20,7 @@ import pytest ; pytest
 # Bokeh imports
 from bokeh._testing.plugins.project import SinglePlotPage
 from bokeh._testing.util.selenium import RECORD
-from bokeh.models import CustomAction, CustomJS, TapTool
+from bokeh.models import CustomJS, TapTool
 from bokeh.plotting import figure
 
 #-----------------------------------------------------------------------------
@@ -43,13 +43,13 @@ class Test_TapTool:
         plot = figure(height=800, width=1000, tools='')
         plot.rect(x=[1, 2], y=[1, 1], width=1, height=1)
         plot.add_tools(TapTool(callback=CustomJS(code=RECORD("indices", "cb_data.source.selected.indices"))))
-        plot.add_tools(CustomAction(callback=CustomJS(args=dict(p=plot), code=RECORD("junk", "10"))))
+        plot.tags.append(CustomJS(name="custom-action", args=dict(p=plot), code=RECORD("junk", "10")))
 
         page = single_plot_page(plot)
 
         # make sure no indicies (even an empty list) was recorded
         page.click_canvas_at_position(plot, 50, 50)
-        page.click_custom_action()
+        page.eval_custom_action()
         assert page.results == {"junk": 10}
 
         assert page.has_no_console_errors()

@@ -28,7 +28,6 @@ from bokeh.layouts import column
 from bokeh.models import (
     Circle,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Dropdown,
     Plot,
@@ -76,7 +75,7 @@ class Test_Dropdown:
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
-            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
             def cb(event):
                 item = event.item
                 if item == "item_1_value":
@@ -96,7 +95,7 @@ class Test_Dropdown:
         item = find_element_for(page.driver, button, ".bk-menu > *:nth-child(1)")
         item.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results == {'data': {'x': [10, 20], 'y': [10, 10]}}
@@ -107,7 +106,7 @@ class Test_Dropdown:
         item = find_element_for(page.driver, button, ".bk-menu > *:nth-child(3)")
         item.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results == {'data': {'x': [1000, 2000], 'y': [1000, 1000]}}
@@ -118,7 +117,7 @@ class Test_Dropdown:
         item = find_element_for(page.driver, button, ".bk-menu > *:nth-child(2)")
         item.click()
 
-        page.click_custom_action()
+        page.eval_custom_action()
 
         results = page.results
         assert results == {'data': {'x': [100, 200], 'y': [100, 100]}}

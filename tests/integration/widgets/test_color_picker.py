@@ -28,7 +28,6 @@ from bokeh.models import (
     Circle,
     ColorPicker,
     ColumnDataSource,
-    CustomAction,
     CustomJS,
     Plot,
     Range1d,
@@ -48,7 +47,7 @@ def mk_modify_doc(colorpicker: ColorPicker):
         plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
 
         plot.add_glyph(source, Circle(x='x', y='y'))
-        plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+        plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
         def cb(attr, old, new):
             source.data['val'] = [old.lower(), new.lower()]  # ensure lowercase of hexa strings
@@ -105,7 +104,7 @@ class Test_ColorPicker:
 
         # new value
         enter_value_in_color_picker(page.driver, el, '#0000ff')
-        page.click_custom_action()
+        page.eval_custom_action()
         results = page.results
         assert results['data']['val'] == ['#ff0000', '#0000ff']
 
