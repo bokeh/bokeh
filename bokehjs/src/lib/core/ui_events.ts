@@ -423,7 +423,7 @@ export class UIEventBus implements EventListenerObject {
 
     switch (base_type) {
       case "move": {
-        const active_gesture = gestures[base_type].active
+        const active_gesture = gestures.move.active
         if (active_gesture != null)
           this.trigger(signal, e, active_gesture.id)
 
@@ -457,18 +457,21 @@ export class UIEventBus implements EventListenerObject {
         if (path.length != 0 && path[0] != this.hit_area)
           return // don't trigger bokeh events
 
-        if (view != null && view.on_hit != null)
-          view.on_hit(e.sx, e.sy)
+        view?.on_hit?.(e.sx, e.sy)
 
-        const active_gesture = gestures[base_type].active
-        if (active_gesture != null)
-          this.trigger(signal, e, active_gesture.id)
+        if (this._hit_test_frame(plot_view, e.sx, e.sy)) {
+          const active_gesture = gestures.tap.active
+          if (active_gesture != null)
+            this.trigger(signal, e, active_gesture.id)
+        }
         break
       }
       case "doubletap": {
-        const active_gesture = gestures.doubletap.active ?? gestures.tap.active
-        if (active_gesture != null)
-          this.trigger(signal, e, active_gesture.id)
+        if (this._hit_test_frame(plot_view, e.sx, e.sy)) {
+          const active_gesture = gestures.doubletap.active ?? gestures.tap.active
+          if (active_gesture != null)
+            this.trigger(signal, e, active_gesture.id)
+        }
         break
       }
       case "scroll": {
@@ -486,7 +489,7 @@ export class UIEventBus implements EventListenerObject {
         break
       }
       case "pan": {
-        const active_gesture = gestures[base_type].active
+        const active_gesture = gestures.pan.active
         if (active_gesture != null) {
           srcEvent.preventDefault()
           this.trigger(signal, e, active_gesture.id)
