@@ -135,11 +135,11 @@ class Toggle(AbstractButton):
             None
 
         """
-        self.on_change('active', lambda attr, old, new: handler(new))
+        self.on_event(ButtonClick, handler)
 
     def js_on_click(self, handler: Callback) -> None:
         """ Set up a JavaScript handler for button state changes (clicks). """
-        self.js_on_change('active', handler)
+        self.js_on_event(ButtonClick, handler)
 
 class Dropdown(AbstractButton):
     ''' A dropdown button.

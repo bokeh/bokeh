@@ -1,5 +1,6 @@
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
 import {classes} from "core/dom"
+import {ButtonClick} from "core/bokeh_events"
 import * as p from "core/properties"
 
 import * as buttons from "styles/buttons.css"
@@ -19,6 +20,7 @@ export class ToggleView extends AbstractButtonView {
 
   override click(): void {
     this.model.active = !this.model.active
+    this.model.trigger_event(new ButtonClick())
     super.click()
   }
 
