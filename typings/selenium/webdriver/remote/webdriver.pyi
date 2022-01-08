@@ -1,6 +1,4 @@
-from typing import Any, List
-
-from typing_extensions import Literal, TypedDict
+from typing import Any, List, Literal, TypedDict
 
 from .webelement import WebElement
 

@@ -22,11 +22,15 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import warnings
-from typing import Any, List as TList, overload
+from typing import (
+    Any,
+    List as TList,
+    Literal,
+    overload,
+)
 
 # External imports
 import xyzservices
-from typing_extensions import Literal
 
 # Bokeh imports
 from ..core.enums import (

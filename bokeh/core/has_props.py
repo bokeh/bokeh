@@ -37,20 +37,20 @@ from typing import (
     Dict,
     Iterable,
     List,
+    Literal,
     Mapping,
     NoReturn,
     Set,
     Tuple,
     Type,
+    TypedDict,
     TypeVar,
     Union,
     overload,
 )
 from warnings import warn
 
-# External imports
-from typing_extensions import Literal, TypedDict
-
+## External imports
 if TYPE_CHECKING:
     F = TypeVar("F", bound=Callable[..., Any])
     def lru_cache(arg: int | None) -> Callable[[F], F]: ...

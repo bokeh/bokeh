@@ -66,11 +66,9 @@ from typing import (
     Generic,
     List,
     Tuple,
+    TypedDict,
     TypeVar,
 )
-
-# External imports
-from typing_extensions import TypedDict
 
 # Bokeh imports
 import bokeh.util.serialization as bkserial

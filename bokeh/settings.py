@@ -126,6 +126,7 @@ from typing import (
     Dict,
     Generic,
     List,
+    Literal,
     Sequence,
     Type,
     TypeVar,
@@ -135,7 +136,6 @@ from typing import (
 
 # External imports
 import yaml
-from typing_extensions import Literal
 
 # Bokeh imports
 from .util.paths import bokehjsdir, serverdir

@@ -35,12 +35,11 @@ from os.path import (
     join,
 )
 from shutil import which
-from typing import List, Set
+from typing import List, Literal, Set
 
 # External imports
 from selenium import webdriver
 from selenium.webdriver.remote.webdriver import WebDriver
-from typing_extensions import Literal
 
 #-----------------------------------------------------------------------------
 # Globals and constants

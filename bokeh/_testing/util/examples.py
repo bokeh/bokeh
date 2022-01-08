@@ -34,11 +34,10 @@ from os.path import (
     relpath,
     splitext,
 )
-from typing import List, Union
+from typing import List, Literal, Union
 
 # External imports
 import yaml
-from typing_extensions import Literal
 
 #-----------------------------------------------------------------------------
 # Globals and constants

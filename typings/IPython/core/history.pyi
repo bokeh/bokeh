@@ -1,6 +1,4 @@
-from typing import List, Tuple, overload
-
-from typing_extensions import Literal
+from typing import List, Literal, Tuple, overload
 
 class HistoryAccessorBase:
     @overload

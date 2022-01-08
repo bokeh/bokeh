@@ -34,12 +34,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Dict
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Literal,
+)
 from urllib.parse import quote_plus
 
-# External imports
-from typing_extensions import Literal
-
+## External imports
 if TYPE_CHECKING:
     from tornado.ioloop import IOLoop
 

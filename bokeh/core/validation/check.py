@@ -26,11 +26,10 @@ from typing import (
     Iterable,
     Iterator,
     List,
+    Literal,
+    Protocol,
     Set,
 )
-
-# External imports
-from typing_extensions import Literal, Protocol
 
 # Bokeh imports
 from ...model import Model

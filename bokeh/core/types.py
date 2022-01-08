@@ -25,13 +25,12 @@ import os  # lgtm [py/unused-import]
 from typing import (
     Any,
     Dict,
+    Literal,
     NewType,
     Sequence,
+    TypedDict,
     Union,
 )
-
-# External imports
-from typing_extensions import Literal, TypedDict
 
 #-----------------------------------------------------------------------------
 # Globals and constants

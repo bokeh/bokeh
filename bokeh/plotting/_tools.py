@@ -28,14 +28,12 @@ from typing import (
     Dict,
     Iterator,
     List,
+    Literal,
     Sequence,
     Tuple,
     Union,
     cast,
 )
-
-# External imports
-from typing_extensions import Literal
 
 # Bokeh imports
 from ..models import (

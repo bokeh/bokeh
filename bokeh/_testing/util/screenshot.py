@@ -29,10 +29,7 @@ from os.path import (
     pardir,
     split,
 )
-from typing import List
-
-# External imports
-from typing_extensions import TypedDict
+from typing import List, TypedDict
 
 # Bokeh imports
 from bokeh.util.terminal import fail, trace
