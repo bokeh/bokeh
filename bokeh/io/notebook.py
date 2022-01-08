@@ -28,15 +28,16 @@ from typing import (
     Callable,
     Dict,
     List,
+    Literal,
+    Protocol,
+    TypedDict,
     cast,
     overload,
 )
 from uuid import uuid4
 from warnings import warn
 
-# External imports
-from typing_extensions import Literal, Protocol, TypedDict
-
+## External imports
 if TYPE_CHECKING:
     from ipykernel.comm import Comm
 

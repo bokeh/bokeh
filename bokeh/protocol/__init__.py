@@ -28,12 +28,10 @@ from typing import (
     Any,
     Dict,
     List,
+    Literal,
     Type,
     overload,
 )
-
-# External imports
-from typing_extensions import Literal
 
 # Bokeh imports
 from .exceptions import ProtocolError

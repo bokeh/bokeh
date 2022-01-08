@@ -42,11 +42,9 @@ from typing import (
     Set,
     Tuple,
     Type,
+    TypedDict,
 )
 from warnings import warn
-
-# External imports
-from typing_extensions import TypedDict
 
 # Bokeh imports
 from ..core.templates import CSS_RESOURCES, JS_RESOURCES

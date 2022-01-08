@@ -27,11 +27,11 @@ from typing import (
     Any,
     ContextManager,
     Iterator,
+    Protocol,
 )
 
 # External imports
 import pytest
-from typing_extensions import Protocol
 
 # Bokeh imports
 from bokeh.server.server import Server

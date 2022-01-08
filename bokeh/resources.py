@@ -43,13 +43,13 @@ from typing import (
     ClassVar,
     Dict,
     List,
+    Literal,
+    Protocol,
     Tuple,
     Union,
     cast,
+    get_args,
 )
-
-# External imports
-from typing_extensions import Literal, Protocol, get_args
 
 # Bokeh imports
 from . import __version__

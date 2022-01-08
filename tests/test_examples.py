@@ -33,6 +33,7 @@ from types import FrameType
 from typing import (
     Iterator,
     List,
+    Literal,
     NoReturn,
     Tuple,
     Union,
@@ -42,7 +43,6 @@ from typing import (
 import _pytest.config
 import _pytest.mark
 import _pytest.python
-from typing_extensions import Literal
 
 # Bokeh imports
 from bokeh._testing.util.examples import Example, Flags, collect_examples

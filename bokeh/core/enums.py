@@ -78,10 +78,9 @@ from typing import (
     Dict,
     Iterator,
     List,
+    Literal,
+    get_args,
 )
-
-# External imports
-from typing_extensions import Literal, get_args
 
 # Bokeh imports
 from .. import colors, palettes

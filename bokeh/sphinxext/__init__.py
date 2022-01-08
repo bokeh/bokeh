@@ -9,8 +9,8 @@
 # Imports
 # -----------------------------------------------------------------------------
 
-# External imports
-from typing_extensions import TypedDict
+# Standard library imports
+from typing import TypedDict
 
 # -----------------------------------------------------------------------------
 # Globals and constants

@@ -1,8 +1,5 @@
 # Standard library imports
-from typing import IO, Any, Dict, List
-
-# External imports
-from typing_extensions import Literal
+from typing import IO, Any, Dict, List, Literal
 
 # XXX: this is incorrect
 class PageElement:

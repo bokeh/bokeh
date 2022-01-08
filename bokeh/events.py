@@ -70,11 +70,10 @@ from typing import (
     TYPE_CHECKING,
     ClassVar,
     Dict,
+    Literal,
     Type,
+    TypedDict,
 )
-
-# External imports
-from typing_extensions import Literal, TypedDict
 
 ## Bokeh imports
 if TYPE_CHECKING:

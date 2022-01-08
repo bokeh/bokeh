@@ -26,11 +26,10 @@ from typing import (
     Any,
     Dict,
     List,
+    Literal,
+    TypedDict,
     Union,
 )
-
-# External imports
-from typing_extensions import Literal, TypedDict
 
 ## Bokeh imports
 if TYPE_CHECKING:

@@ -27,14 +27,12 @@ from argparse import ArgumentParser, Namespace
 from typing import (
     Any,
     ClassVar,
+    Literal,
     Sequence,
     Tuple,
     Type,
     Union,
 )
-
-# External imports
-from typing_extensions import Literal
 
 # Bokeh imports
 from ..util.dataclasses import (

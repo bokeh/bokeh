@@ -21,12 +21,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Literal
 from urllib.parse import quote_plus, urlparse
 
-# External imports
-from typing_extensions import Literal
-
+## External imports
 if TYPE_CHECKING:
     from jinja2 import Template
 

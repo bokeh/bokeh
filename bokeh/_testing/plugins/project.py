@@ -30,6 +30,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Protocol,
     Tuple,
 )
 
@@ -40,7 +41,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler
-from typing_extensions import Protocol
 
 if TYPE_CHECKING:
     from selenium.webdriver.common.keys import _KeySeq

@@ -26,9 +26,11 @@ from typing import (
     Any,
     Dict,
     List,
+    Literal,
     Sequence,
     Tuple,
     Type,
+    TypedDict,
     Union,
     cast,
     overload,
@@ -36,7 +38,6 @@ from typing import (
 
 # External imports
 from jinja2 import Template
-from typing_extensions import Literal, TypedDict
 
 # Bokeh imports
 from .. import __version__

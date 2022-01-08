@@ -26,12 +26,11 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Literal,
+    Protocol,
     TypeVar,
     cast,
 )
-
-# External imports
-from typing_extensions import Literal, Protocol
 
 ## Bokeh imports
 if TYPE_CHECKING:

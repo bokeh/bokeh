@@ -23,10 +23,12 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import webbrowser
 from os.path import abspath
-from typing import Dict, cast
-
-# External imports
-from typing_extensions import Literal, Protocol
+from typing import (
+    Dict,
+    Literal,
+    Protocol,
+    cast,
+)
 
 # Bokeh imports
 from ..settings import settings

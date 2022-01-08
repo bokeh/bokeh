@@ -40,16 +40,18 @@ from typing import (
     Any,
     Dict,
     List,
+    Literal,
     Sequence,
     Set,
     Tuple,
+    TypedDict,
     Union,
     cast,
 )
 
 # External imports
 import numpy as np
-from typing_extensions import Literal, TypedDict, TypeGuard
+from typing_extensions import TypeGuard
 
 if TYPE_CHECKING:
     import numpy.typing as npt

@@ -22,9 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from difflib import get_close_matches
-
-# External imports
-from typing_extensions import Literal
+from typing import Literal
 
 # Bokeh imports
 from ..core.enums import RenderLevel

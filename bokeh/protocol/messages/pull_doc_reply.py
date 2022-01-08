@@ -18,10 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any
-
-# External imports
-from typing_extensions import TypedDict
+from typing import TYPE_CHECKING, Any, TypedDict
 
 # Bokeh imports
 from ...core.types import ID
