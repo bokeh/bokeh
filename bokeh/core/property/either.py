@@ -114,9 +114,9 @@ class Either(ParameterizedProperty):
             value = tp.wrap(value)
         return value
 
-    # TODO (bev) implement this
-    # def _may_have_unstable_default(self):
-    #     return any(tp._may_have_unstable_default() for tp in self.type_params)
+    def _may_have_unstable_default(self):
+        return super()._may_have_unstable_default() or \
+            any(tp._may_have_unstable_default() for tp in self.type_params)
 
 #-----------------------------------------------------------------------------
 # Dev API

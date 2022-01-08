@@ -89,6 +89,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import types
 from copy import copy
 from typing import (
     TYPE_CHECKING,
@@ -477,7 +478,9 @@ class PropertyDescriptor(Generic[T]):
         if self.name in unstable_dict:
             return unstable_dict[self.name]
 
-        if self.property._may_have_unstable_default():
+        # _may_have_unstable_default() doesn't have access to overrides, so check manually
+        if self.property._may_have_unstable_default() or \
+                isinstance(obj.__class__.__overridden_defaults__.get(self.name, None), types.FunctionType):
             if isinstance(default, PropertyValueContainer):
                 default._register_owner(obj, self)
             unstable_dict[self.name] = default
