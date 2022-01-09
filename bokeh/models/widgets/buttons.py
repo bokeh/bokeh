@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 # Bokeh imports
 from ...core.enums import ButtonType
@@ -124,22 +124,6 @@ class Toggle(AbstractButton):
     The initial state of a button. Also used to trigger ``on_click`` event
     handler.
     """)
-
-    def on_click(self, handler: Callable[[bool], None]) -> None:
-        """ Set up a handler for button state changes (clicks).
-
-        Args:
-            handler (func) : handler function to call when button is toggled.
-
-        Returns:
-            None
-
-        """
-        self.on_event(ButtonClick, handler)
-
-    def js_on_click(self, handler: Callback) -> None:
-        """ Set up a JavaScript handler for button state changes (clicks). """
-        self.js_on_event(ButtonClick, handler)
 
 class Dropdown(AbstractButton):
     ''' A dropdown button.

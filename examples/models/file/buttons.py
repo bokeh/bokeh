@@ -12,10 +12,10 @@ button_disabled = Button(label="Button (disabled) - no click event", button_type
 button_disabled.js_on_click(CustomJS(code="console.log('button(disabled): click ', this.toString())"))
 
 toggle_inactive = Toggle(label="Toggle button (initially inactive)", button_type="success")
-toggle_inactive.js_on_click(CustomJS(code="console.log('toggle(inactive): active=' + this.active, this.toString())"))
+toggle_inactive.js_on_event('button_click', CustomJS(code="console.log('toggle(inactive): active=' + this.active, this.toString())"))
 
 toggle_active = Toggle(label="Toggle button (initially active)", button_type="success", active=True)
-toggle_active.js_on_click(CustomJS(code="console.log('toggle(active): active=' + this.active, this.toString())"))
+toggle_active.js_on_event('button_click', CustomJS(code="console.log('toggle(active): active=' + this.active, this.toString())"))
 
 menu = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), None, ("Item 3", "item_3_value")]
 

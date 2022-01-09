@@ -70,12 +70,12 @@ class Test_Toggle:
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
             plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
-            def cb(value):
-                if value:
+            def cb(event):
+                if button.active:
                     source.data=dict(x=[10, 20], y=[10, 10])
                 else:
                     source.data=dict(x=[100, 200], y=[100, 100])
-            button.on_click(cb)
+            button.on_event('button_click', cb)
             doc.add_root(column(button, plot))
 
         page = bokeh_server_page(modify_doc)
@@ -111,7 +111,7 @@ class Test_Toggle:
 
     def test_js_on_click_executes(self, bokeh_model_page: BokehModelPage) -> None:
         button = Toggle()
-        button.js_on_click(CustomJS(code=RECORD("value", "cb_obj.active")))
+        button.js_on_event('button_click', CustomJS(code=RECORD("value", "cb_obj.origin.active")))
 
         page = bokeh_model_page(button)
 
