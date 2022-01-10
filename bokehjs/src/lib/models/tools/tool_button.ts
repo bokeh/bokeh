@@ -1,23 +1,20 @@
 import Hammer, {Manager} from "hammerjs"
 
-import {Class} from "core/class"
 import {DOMView} from "core/dom_view"
-import {Tool, ToolView} from "./tool"
 import {empty, Keys} from "core/dom"
-import {Dimensions, ToolIcon} from "core/enums"
-import * as p from "core/properties"
+import {ToolIcon} from "core/enums"
+import {ContextMenu} from "core/util/menus"
 import {startsWith} from "core/util/string"
 import {reversed} from "core/util/array"
 
 import tools_css, * as tools from "styles/tool_button.css"
 import icons_css from "styles/icons.css"
 
-import {ContextMenu, MenuItem} from "core/util/menus"
-
 import type {ToolbarView} from "./toolbar"
+import type {Tool} from "./tool"
 
-export abstract class ButtonToolButtonView extends DOMView {
-  override model: ButtonTool
+export abstract class ToolButtonView extends DOMView {
+  override model: Tool
   override readonly parent: ToolbarView
   override el: HTMLElement
 
@@ -112,63 +109,5 @@ export abstract class ButtonToolButtonView extends DOMView {
       }
     })()
     this._menu?.toggle(at)
-  }
-}
-
-export abstract class ButtonToolView extends ToolView {
-  override model: ButtonTool
-}
-
-export namespace ButtonTool {
-  export type Attrs = p.AttrsOf<Props>
-
-  export type Props = Tool.Props & {
-    disabled: p.Property<boolean>
-  }
-}
-
-export interface ButtonTool extends ButtonTool.Attrs {}
-
-export abstract class ButtonTool extends Tool {
-  override properties: ButtonTool.Props
-  override __view_type__: ButtonToolView
-
-  constructor(attrs?: Partial<ButtonTool.Attrs>) {
-    super(attrs)
-  }
-
-  static {
-    this.internal<ButtonTool.Props>(({Boolean}) => ({
-      disabled: [ Boolean, false ],
-    }))
-  }
-
-  readonly tool_name: string
-  readonly tool_icon?: string
-
-  button_view: Class<ButtonToolButtonView>
-
-  // utility function to return a tool name, modified
-  // by the active dimensions. Used by tools that have dimensions
-  protected _get_dim_tooltip(dims: Dimensions): string {
-    const {description, tool_name} = this
-    if (description != null)
-      return description
-    else if (dims == "both")
-      return tool_name
-    else
-      return `${tool_name} (${dims == "width" ? "x" : "y"}-axis)`
-  }
-
-  get tooltip(): string {
-    return this.description ?? this.tool_name
-  }
-
-  get computed_icon(): string | undefined {
-    return this.icon ?? `.${this.tool_icon}`
-  }
-
-  get menu(): MenuItem[] | null {
-    return null
   }
 }

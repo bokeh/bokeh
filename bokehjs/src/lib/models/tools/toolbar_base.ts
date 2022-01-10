@@ -13,8 +13,8 @@ import {CanvasLayer} from "core/util/canvas"
 import {BBox} from "core/util/bbox"
 import {Model} from "model"
 import {Tool} from "./tool"
-import {ButtonTool, ButtonToolButtonView} from "./button_tool"
 import {ToolProxy, ToolLike} from "./tool_proxy"
+import {ToolButtonView} from "./tool_button"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
 import {ActionTool} from "./actions/action_tool"
@@ -30,7 +30,7 @@ export class ToolbarView extends DOMComponentView {
   override model: Toolbar
   override el: HTMLElement
 
-  protected _tool_button_views: Map<ToolLike<ButtonTool>, ButtonToolButtonView>
+  protected _tool_button_views: Map<ToolLike<Tool>, ToolButtonView>
   protected _overflow_menu: ContextMenu
   protected _overflow_el?: HTMLElement
 
@@ -118,7 +118,7 @@ export class ToolbarView extends DOMComponentView {
 
     const bars: HTMLElement[][] = []
 
-    const el = (tool: ToolLike<ButtonTool>) => {
+    const el = (tool: ToolLike<Tool>) => {
       return this._tool_button_views.get(tool)!.el
     }
 
@@ -214,14 +214,14 @@ export type GesturesMap = {
 export type GestureType = keyof GesturesMap
 
 // XXX: add appropriate base classes to get rid of this
-export type Drag = ButtonTool
-export const Drag = ButtonTool
-export type Inspection = ButtonTool
-export const Inspection = ButtonTool
-export type Scroll = ButtonTool
-export const Scroll = ButtonTool
-export type Tap = ButtonTool
-export const Tap = ButtonTool
+export type Drag = Tool
+export const Drag = Tool
+export type Inspection = Tool
+export const Inspection = Tool
+export type Scroll = Tool
+export const Scroll = Tool
+export type Tap = Tool
+export const Tap = Tool
 
 type ActiveGestureToolsProps = {
   active_drag: p.Property<ToolLike<Drag> | "auto" | null>
@@ -234,7 +234,7 @@ export namespace Toolbar {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    tools: p.Property<(ButtonTool | ToolProxy<ButtonTool>)[]>
+    tools: p.Property<(Tool | ToolProxy<Tool>)[]>
     logo: p.Property<Logo | null>
     autohide: p.Property<boolean>
     toolbar_location: p.Property<Location>
@@ -278,7 +278,7 @@ export class Toolbar extends Model {
     this.prototype.default_view = ToolbarView
 
     this.define<Toolbar.Props>(({Any, Boolean, Array, Or, Ref, Nullable/*, Null, Auto*/}) => ({
-      tools:          [ Array(Or(Ref(ButtonTool), Ref(ToolProxy))), [] ],
+      tools:          [ Array(Or(Ref(Tool), Ref(ToolProxy))), [] ],
       logo:           [ Nullable(Logo), "normal" ],
       autohide:       [ Boolean, false ],
       active_drag:    [ Any /*Or(Ref(Drag), Auto, Null)*/, "auto" ],
@@ -343,7 +343,7 @@ export class Toolbar extends Model {
 
   protected _init_tools(): void {
     // The only purpose of this function is to avoid unnecessary property churning.
-    const tools_changed = function(_old_tools: ToolLike<ButtonTool>[], _new_tools: ToolLike<ButtonTool>[]) {
+    const tools_changed = function(_old_tools: ToolLike<Tool>[], _new_tools: ToolLike<Tool>[]) {
       return true
       /*
       if (old_tools.length != new_tools.length) {
@@ -356,7 +356,7 @@ export class Toolbar extends Model {
 
     type AbstractConstructor<T, Args extends any[] = any[]> = abstract new (...args: Args) => T
 
-    function isa<A extends ButtonTool>(tool: unknown, type: AbstractConstructor<A>): tool is ToolLike<A> {
+    function isa<A extends Tool>(tool: unknown, type: AbstractConstructor<A>): tool is ToolLike<A> {
       return (tool instanceof ToolProxy ? tool.underlying : tool) instanceof type
     }
 
@@ -372,7 +372,7 @@ export class Toolbar extends Model {
     if (tools_changed(this.actions, new_actions)) {
       this.actions = new_actions
     }
-    const check_event_type = (et: EventType, tool: ToolLike<ButtonTool>) => {
+    const check_event_type = (et: EventType, tool: ToolLike<Tool>) => {
       if (!(et in this.gestures)) {
         logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool}`)
       }

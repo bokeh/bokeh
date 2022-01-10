@@ -1,7 +1,9 @@
 import * as p from "core/properties"
 import {View} from "core/view"
+import {Class} from "core/class"
 import {Dimensions, ToolIcon} from "core/enums"
 import {min, max} from "core/util/array"
+import {MenuItem} from "core/util/menus"
 import {Model} from "../../model"
 import {Renderer} from "../renderers/renderer"
 import {CartesianFrame} from "../canvas/cartesian_frame"
@@ -26,6 +28,8 @@ import type {UndoTool} from "./actions/undo_tool"
 import type {RedoTool} from "./actions/redo_tool"
 import type {ResetTool} from "./actions/reset_tool"
 import type {HelpTool} from "./actions/help_tool"
+
+import {ToolButtonView} from "./tool_button"
 
 export type ToolAliases = {
   pan:          PanTool
@@ -124,6 +128,7 @@ export namespace Tool {
     icon: p.Property<ToolIcon | string | null>
     description: p.Property<string | null>
     active: p.Property<boolean>
+    disabled: p.Property<boolean>
   }
 }
 
@@ -149,13 +154,31 @@ export abstract class Tool extends Model {
 
     this.internal<Tool.Props>(({Boolean}) => ({
       active: [ Boolean, false ],
+      disabled: [ Boolean, false ],
     }))
   }
+
+  readonly tool_name: string
+  readonly tool_icon?: string
 
   /*abstract*/ readonly event_type?: EventType | EventType[]
 
   get computed_overlays(): Renderer[] {
     return []
+  }
+
+  button_view: Class<ToolButtonView>
+
+  get tooltip(): string {
+    return this.description ?? this.tool_name
+  }
+
+  get computed_icon(): string | undefined {
+    return this.icon ?? `.${this.tool_icon}`
+  }
+
+  get menu(): MenuItem[] | null {
+    return null
   }
 
   // utility function to get limits along both dimensions, given
@@ -180,6 +203,18 @@ export abstract class Tool extends Model {
       sylim = [vr.start, vr.end]
 
     return [sxlim, sylim]
+  }
+
+  // utility function to return a tool name, modified
+  // by the active dimensions. Used by tools that have dimensions
+  protected _get_dim_tooltip(dims: Dimensions): string {
+    const {description, tool_name} = this
+    if (description != null)
+      return description
+    else if (dims == "both")
+      return tool_name
+    else
+      return `${tool_name} (${dims == "width" ? "x" : "y"}-axis)`
   }
 
   /** @prototype */

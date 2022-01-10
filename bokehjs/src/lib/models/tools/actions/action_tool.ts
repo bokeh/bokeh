@@ -1,8 +1,9 @@
-import {ButtonTool, ButtonToolView, ButtonToolButtonView} from "../button_tool"
+import {Tool, ToolView} from "../tool"
+import {ToolButtonView} from "../tool_button"
 import {Signal} from "core/signaling"
 import * as p from "core/properties"
 
-export class ActionToolButtonView extends ButtonToolButtonView {
+export class ActionToolButtonView extends ToolButtonView {
   override model: ActionTool
 
   protected _clicked(): void {
@@ -10,7 +11,7 @@ export class ActionToolButtonView extends ButtonToolButtonView {
   }
 }
 
-export abstract class ActionToolView extends ButtonToolView {
+export abstract class ActionToolView extends ToolView {
   override model: ActionTool
 
   override connect_signals(): void {
@@ -24,12 +25,12 @@ export abstract class ActionToolView extends ButtonToolView {
 export namespace ActionTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ButtonTool.Props
+  export type Props = Tool.Props
 }
 
 export interface ActionTool extends ActionTool.Attrs {}
 
-export abstract class ActionTool extends ButtonTool {
+export abstract class ActionTool extends Tool {
   override properties: ActionTool.Props
   override __view_type__: ActionToolView
 
