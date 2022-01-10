@@ -1,6 +1,5 @@
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {ToolbarBox, ToolbarBoxView} from "../tools/toolbar_box"
-import {ToolbarBase} from "../tools/toolbar_base"
 import {Toolbar} from "../tools/toolbar"
 import {Grid, RowsSizing, ColsSizing, Row, Column} from "core/layout/grid"
 import {Location} from "core/enums"
@@ -93,7 +92,7 @@ export namespace GridPlot {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutDOM.Props & {
-    toolbar: p.Property<ToolbarBase>
+    toolbar: p.Property<Toolbar>
     toolbar_location: p.Property<Location | null>
     children: p.Property<[LayoutDOM, number, number, number?, number?][]>
     rows: p.Property<RowsSizing>
@@ -116,7 +115,7 @@ export class GridPlot extends LayoutDOM {
     this.prototype.default_view = GridPlotView
 
     this.define<GridPlot.Props>(({Any, Int, Number, Tuple, Array, Ref, Or, Opt, Nullable}) => ({
-      toolbar:          [ Ref(ToolbarBase), () => new Toolbar() ],
+      toolbar:          [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location: [ Nullable(Location), "above" ],
       children:         [ Array(Tuple(Ref(LayoutDOM), Int, Int, Opt(Int), Opt(Int))), [] ],
       rows:             [ Any /*TODO*/, "auto" ],

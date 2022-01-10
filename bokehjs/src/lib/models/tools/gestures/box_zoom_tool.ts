@@ -212,4 +212,8 @@ export class BoxZoomTool extends GestureTool {
   override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
   }
+
+  override get computed_overlays() {
+    return [...super.computed_overlays, this.overlay]
+  }
 }

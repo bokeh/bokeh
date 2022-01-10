@@ -14,11 +14,11 @@ import icons_css from "styles/icons.css"
 
 import {ContextMenu, MenuItem} from "core/util/menus"
 
-import type {ToolbarBaseView} from "./toolbar_base"
+import type {ToolbarView} from "./toolbar"
 
 export abstract class ButtonToolButtonView extends DOMView {
   override model: ButtonTool
-  override readonly parent: ToolbarBaseView
+  override readonly parent: ToolbarView
   override el: HTMLElement
 
   private _hammer: InstanceType<typeof Manager>

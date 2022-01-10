@@ -292,4 +292,8 @@ export class RangeTool extends GestureTool {
   override tool_icon = tool_icon_range
   override event_type = "pan" as "pan"
   override default_order = 1
+
+  override get computed_overlays() {
+    return [...super.computed_overlays, this.overlay]
+  }
 }

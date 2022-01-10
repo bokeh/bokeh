@@ -152,9 +152,9 @@ export abstract class Tool extends Model {
     }))
   }
 
-  readonly event_type?: EventType | EventType[]
+  /*abstract*/ readonly event_type?: EventType | EventType[]
 
-  get synthetic_renderers(): Renderer[] {
+  get computed_overlays(): Renderer[] {
     return []
   }
 

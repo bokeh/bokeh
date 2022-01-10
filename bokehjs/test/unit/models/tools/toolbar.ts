@@ -8,9 +8,56 @@ import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
 import {SelectTool, SelectToolView} from "@bokehjs/models/tools/gestures/select_tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
+import {build_view} from "@bokehjs/core/build_views"
 import {gridplot} from "@bokehjs/api/gridplot"
 
 describe("Toolbar", () => {
+
+  describe("_active_change method", () => {
+    let pan_1: PanTool
+    let pan_2: PanTool
+    let toolbar: Toolbar
+
+    before_each(() => {
+      // by default these tools are inactive
+      pan_1 = new PanTool()
+      pan_2 = new PanTool()
+      toolbar = new Toolbar()
+      toolbar.gestures.pan.tools = [new PanTool(), new PanTool()]
+    })
+
+    it("should correctly activate tool with currently active tool", () => {
+      pan_1.active = true
+      toolbar._active_change(pan_1)
+      expect(pan_1.active).to.be.true
+      expect(pan_2.active).to.be.false
+      expect(toolbar.gestures.pan.active).to.be.equal(pan_1)
+    })
+
+    it("should correctly deactivate tool", () => {
+      // activate the tool as setup
+      pan_1.active = true
+      toolbar._active_change(pan_1)
+      // now deactivate the tool
+      pan_1.active = false
+      toolbar._active_change(pan_1)
+      expect(pan_1.active).to.be.false
+      expect(pan_2.active).to.be.false
+      expect(toolbar.gestures.pan.active).to.be.null
+    })
+
+    it("should correctly active tool and deactive currently active one", () => {
+      // activate the tool as setup
+      pan_1.active = true
+      toolbar._active_change(pan_1)
+      // now activate the other tool
+      pan_2.active = true
+      toolbar._active_change(pan_2)
+      expect(pan_1.active).to.be.false
+      expect(pan_2.active).to.be.true
+      expect(toolbar.gestures.pan.active).to.be.equal(pan_2)
+    })
+  })
 
   describe("should support autohide=true", () => {
     it("in single plots", async () => {
@@ -112,12 +159,64 @@ describe("Toolbar", () => {
   })
 })
 
+describe("ToolbarView", () => {
+
+  describe("visible getter", () => {
+    it("should be true if autohide is false and _visible isn't set", async () => {
+      const tb = new Toolbar()
+      const tbv = await build_view(tb, {parent: null})
+      expect(tbv.model.autohide).to.be.false
+      expect(tbv.visible).to.be.true
+    })
+
+    it("should be true if autohide is false and _visible is true", async () => {
+      const tb = new Toolbar()
+      const tbv = await build_view(tb, {parent: null})
+      tbv.set_visibility(true)
+      expect(tbv.model.autohide).to.be.false
+      expect(tbv.visible).to.be.true
+    })
+
+    it("should be true if autohide is false and _visible is false", async () => {
+      const tb = new Toolbar()
+      const tbv = await build_view(tb, {parent: null})
+      tbv.set_visibility(false)
+      expect(tbv.model.autohide).to.be.false
+      expect(tbv.visible).to.be.true
+    })
+
+    it("should be false if autohide is true and _visible isn't set", async () => {
+      const tb = new Toolbar({autohide: true})
+      const tbv = await build_view(tb, {parent: null})
+      expect(tbv.model.autohide).to.be.true
+      expect(tbv.visible).to.be.false
+    })
+
+    it("should be true if autohide is true and _visible is true", async () => {
+      const tb = new Toolbar({autohide: true})
+      const tbv = await build_view(tb, {parent: null})
+      tbv.set_visibility(true)
+      expect(tbv.model.autohide).to.be.true
+      expect(tbv.visible).to.be.true
+    })
+
+    it("should be false if autohide is true and _visible is false", async () => {
+      const tb = new Toolbar({autohide: true})
+      const tbv = await build_view(tb, {parent: null})
+      tbv.set_visibility(false)
+      expect(tbv.model.autohide).to.be.true
+      expect(tbv.visible).to.be.false
+    })
+  })
+})
+
 class MultiToolView extends SelectToolView {}
 
 class MultiTool extends SelectTool {
   override default_view = MultiToolView
   override tool_name = "Multi Tool"
   override event_type = ["tap" as "tap", "pan" as "pan"]
+  override default_order = 10
 }
 
 describe("Toolbar Multi Gesture Tool", () => {

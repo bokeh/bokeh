@@ -1,6 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {Toolbar} from "../tools/toolbar"
-import {ToolbarBaseView} from "../tools/toolbar_base"
+import {Toolbar, ToolbarView} from "../tools/toolbar"
 import {build_view} from "core/build_views"
 import {div, empty, position, display, undisplay, remove} from "core/dom"
 import {Size, Layoutable} from "core/layout"
@@ -18,7 +17,7 @@ export class ToolbarPanelView extends AnnotationView {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
   }
 
-  toolbar_view: ToolbarBaseView
+  toolbar_view: ToolbarView
   el: HTMLElement
 
   override initialize(): void {

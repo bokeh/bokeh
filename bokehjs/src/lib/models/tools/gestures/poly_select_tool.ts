@@ -111,4 +111,8 @@ export class PolySelectTool extends SelectTool {
   override tool_icon = tool_icon_polygon_select
   override event_type = "tap" as "tap"
   override default_order = 11
+
+  override get computed_overlays() {
+    return [...super.computed_overlays, this.overlay]
+  }
 }

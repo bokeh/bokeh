@@ -5,32 +5,35 @@ import {Class} from "core/class"
 import {Model} from "../../model"
 import {ButtonTool, ButtonToolButtonView} from "./button_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
+import {Renderer} from "../renderers/renderer"
 import {MenuItem} from "core/util/menus"
-import {enumerate} from "core/util/iterator"
+import {enumerate, flat_map, some} from "core/util/iterator"
+
+export type ToolLike<T extends Tool> = T | ToolProxy<T>
 
 export namespace ToolProxy {
-  export type Attrs = p.AttrsOf<Props>
+  export type Attrs<T extends ButtonTool> = p.AttrsOf<Props<T>>
 
-  export type Props = Model.Props & {
-    tools: p.Property<ButtonTool[]>
+  export type Props<T extends ButtonTool> = Model.Props & {
+    tools: p.Property<T[]>
     active: p.Property<boolean>
     disabled: p.Property<boolean>
   }
 }
 
-export interface ToolProxy extends ToolProxy.Attrs {}
+export interface ToolProxy<T extends ButtonTool> extends ToolProxy.Attrs<T> {}
 
-export class ToolProxy extends Model {
-  override properties: ToolProxy.Props
+export class ToolProxy<T extends ButtonTool> extends Model {
+  override properties: ToolProxy.Props<T>
 
-  constructor(attrs?: Partial<ToolProxy.Attrs>) {
+  constructor(attrs?: Partial<ToolProxy.Attrs<T>>) {
     super(attrs)
   }
 
   static {
-    this.define<ToolProxy.Props>(({Boolean, Array, Ref}) => ({
+    this.define<ToolProxy.Props<ButtonTool>>(({Boolean, Array, Ref}) => ({
       tools:    [ Array(Ref(ButtonTool)), [] ],
-      active:   [ Boolean, false ],
+      active:   [ Boolean, (self) => some((self as ToolProxy<ButtonTool>).tools, (tool) => tool.active) ],
       disabled: [ Boolean, false ],
     }))
   }
@@ -39,12 +42,20 @@ export class ToolProxy extends Model {
 
   // Operates all the tools given only one button
 
+  get underlying(): ButtonTool {
+    return this.tools[0]
+  }
+
   get button_view(): Class<ButtonToolButtonView> {
     return this.tools[0].button_view
   }
 
-  get event_type(): undefined | EventType | EventType[] {
-    return this.tools[0].event_type
+  get event_type(): EventType | EventType[] {
+    return this.tools[0].event_type!
+  }
+
+  get default_order(): number {
+    return (this.tools[0] as any).default_order // only gestures etc.
   }
 
   get tooltip(): string {
@@ -62,6 +73,10 @@ export class ToolProxy extends Model {
   get toggleable(): boolean {
     const tool = this.tools[0]
     return tool instanceof InspectTool && tool.toggleable
+  }
+
+  get computed_overlays(): Renderer[] {
+    return [...flat_map(this.tools, (tool) => tool.computed_overlays)]
   }
 
   override initialize(): void {

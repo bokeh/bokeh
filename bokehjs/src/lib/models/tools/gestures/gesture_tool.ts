@@ -1,5 +1,6 @@
 import {ButtonTool, ButtonToolView} from "../button_tool"
 import {OnOffButtonView} from "../on_off_button"
+import {EventType} from "core/ui_events"
 import * as p from "core/properties"
 
 export abstract class GestureToolView extends ButtonToolView {
@@ -24,5 +25,7 @@ export abstract class GestureTool extends ButtonTool {
 
   override button_view = OnOffButtonView
 
-  default_order: number
+  abstract readonly default_order: number
+
+  abstract override readonly event_type: EventType | EventType[]
 }

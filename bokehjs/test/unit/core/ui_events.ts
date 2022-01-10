@@ -583,6 +583,7 @@ describe("ui_event_bus module", () => {
         override default_view = MultiToolView
         override tool_name = "Multi Tool"
         override event_type = ["tap" as "tap", "pan" as "pan"]
+        override default_order = 10
       }
 
       const tool = new MultiTool()

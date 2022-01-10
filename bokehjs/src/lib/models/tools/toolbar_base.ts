@@ -5,20 +5,20 @@ import * as p from "core/properties"
 import {DOMComponentView} from "core/dom_view"
 import {Logo, Location} from "core/enums"
 import {EventType} from "core/ui_events"
-import {some, every} from "core/util/array"
+import {every, sort_by, includes, intersection} from "core/util/array"
 import {join} from "core/util/iterator"
-import {values} from "core/util/object"
-import {isString} from "core/util/types"
+import {values, entries} from "core/util/object"
+import {isString, isArray} from "core/util/types"
 import {CanvasLayer} from "core/util/canvas"
 import {BBox} from "core/util/bbox"
 import {Model} from "model"
 import {Tool} from "./tool"
 import {ButtonTool, ButtonToolButtonView} from "./button_tool"
+import {ToolProxy, ToolLike} from "./tool_proxy"
 import {GestureTool} from "./gestures/gesture_tool"
+import {InspectTool} from "./inspectors/inspect_tool"
 import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
-import {ToolProxy} from "./tool_proxy"
-import {InspectTool} from "./inspectors/inspect_tool"
 import {ContextMenu} from "core/util/menus"
 
 import toolbars_css, * as toolbars from "styles/toolbar.css"
@@ -26,11 +26,11 @@ import tools_css, * as tools from "styles/tool_button.css"
 import logos_css, * as logos from "styles/logo.css"
 import icons_css from "styles/icons.css"
 
-export class ToolbarBaseView extends DOMComponentView {
-  override model: ToolbarBase
+export class ToolbarView extends DOMComponentView {
+  override model: Toolbar
   override el: HTMLElement
 
-  protected _tool_button_views: Map<ButtonTool, ButtonToolButtonView>
+  protected _tool_button_views: Map<ToolLike<ButtonTool>, ButtonToolButtonView>
   protected _overflow_menu: ContextMenu
   protected _overflow_el?: HTMLElement
 
@@ -80,8 +80,7 @@ export class ToolbarBaseView extends DOMComponentView {
   }
 
   protected async _build_tool_button_views(): Promise<void> {
-    const tools: ButtonTool[] = (this.model._proxied_tools != null ? this.model._proxied_tools : this.model.tools) as any // XXX
-    await build_views(this._tool_button_views as any, tools, {parent: this as any}, (tool) => tool.button_view) // XXX: no ButtonToolButton model
+    await build_views(this._tool_button_views as any, this.model.tools, {parent: this as any}, (tool) => tool.button_view) // XXX: no ButtonToolButton model
   }
 
   set_visibility(visible: boolean): void {
@@ -119,7 +118,7 @@ export class ToolbarBaseView extends DOMComponentView {
 
     const bars: HTMLElement[][] = []
 
-    const el = (tool: ButtonTool) => {
+    const el = (tool: ToolLike<ButtonTool>) => {
       return this._tool_button_views.get(tool)!.el
     }
 
@@ -200,36 +199,57 @@ export class ToolbarBaseView extends DOMComponentView {
 }
 
 export type GesturesMap = {
-  pan:       { tools: GestureTool[], active: Tool | null }
-  scroll:    { tools: GestureTool[], active: Tool | null }
-  pinch:     { tools: GestureTool[], active: Tool | null }
-  tap:       { tools: GestureTool[], active: Tool | null }
-  doubletap: { tools: GestureTool[], active: Tool | null }
-  press:     { tools: GestureTool[], active: Tool | null }
-  pressup:   { tools: GestureTool[], active: Tool | null }
-  rotate:    { tools: GestureTool[], active: Tool | null }
-  move:      { tools: GestureTool[], active: Tool | null }
-  multi:     { tools: GestureTool[], active: Tool | null }
+  pan:       {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
+  scroll:    {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
+  pinch:     {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
+  tap:       {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
+  doubletap: {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
+  press:     {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
+  pressup:   {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
+  rotate:    {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
+  move:      {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
+  multi:     {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
 }
 
 export type GestureType = keyof GesturesMap
 
-export namespace ToolbarBase {
+// XXX: add appropriate base classes to get rid of this
+export type Drag = ButtonTool
+export const Drag = ButtonTool
+export type Inspection = ButtonTool
+export const Inspection = ButtonTool
+export type Scroll = ButtonTool
+export const Scroll = ButtonTool
+export type Tap = ButtonTool
+export const Tap = ButtonTool
+
+type ActiveGestureToolsProps = {
+  active_drag: p.Property<ToolLike<Drag> | "auto" | null>
+  active_scroll: p.Property<ToolLike<Scroll> | "auto" | null>
+  active_tap: p.Property<ToolLike<Tap> | "auto" | null>
+  active_multi: p.Property<ToolLike<GestureTool> | "auto" | null>
+}
+
+export namespace Toolbar {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    tools: p.Property<Tool[]>
+    tools: p.Property<(ButtonTool | ToolProxy<ButtonTool>)[]>
     logo: p.Property<Logo | null>
-    gestures: p.Property<GesturesMap>
-    actions: p.Property<ActionTool[]>
-    inspectors: p.Property<InspectTool[]>
-    help: p.Property<HelpTool[]>
-    toolbar_location: p.Property<Location>
     autohide: p.Property<boolean>
+    toolbar_location: p.Property<Location>
+
+    gestures: p.Property<GesturesMap>
+    actions: p.Property<ToolLike<ActionTool>[]>
+    inspectors: p.Property<ToolLike<InspectTool>[]>
+    help: p.Property<ToolLike<HelpTool>[]>
+
+  } & ActiveGestureToolsProps & {
+    active_inspect: p.Property<ToolLike<Inspection> | ToolLike<Inspection>[] | "auto" | null>
   }
 }
 
-export interface ToolbarBase extends ToolbarBase.Attrs {}
+export interface Toolbar extends Toolbar.Attrs {}
 
 function create_gesture_map(): GesturesMap {
   return {
@@ -246,23 +266,30 @@ function create_gesture_map(): GesturesMap {
   }
 }
 
-export class ToolbarBase extends Model {
-  override properties: ToolbarBase.Props
+export class Toolbar extends Model {
+  override properties: Toolbar.Props
+  override __view_type__: ToolbarView
 
-  constructor(attrs?: Partial<ToolbarBase.Attrs>) {
+  constructor(attrs?: Partial<Toolbar.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.prototype.default_view = ToolbarBaseView
+    this.prototype.default_view = ToolbarView
 
-    this.define<ToolbarBase.Props>(({Boolean, Array, Ref, Nullable}) => ({
-      tools:    [ Array(Ref(Tool)), [] ],
-      logo:     [ Nullable(Logo), "normal" ],
-      autohide: [ Boolean, false ],
+    this.define<Toolbar.Props>(({Any, Boolean, Array, Or, Ref, Nullable/*, Null, Auto*/}) => ({
+      tools:          [ Array(Or(Ref(ButtonTool), Ref(ToolProxy))), [] ],
+      logo:           [ Nullable(Logo), "normal" ],
+      autohide:       [ Boolean, false ],
+      active_drag:    [ Any /*Or(Ref(Drag), Auto, Null)*/, "auto" ],
+      active_inspect: [ Any /*Or(Ref(Inspection), Array(Ref(Inspection)), Auto, Null)*/, "auto" ],
+      active_scroll:  [ Any /*Or(Ref(Scroll), Auto, Null)*/, "auto" ],
+      active_tap:     [ Any /*Or(Ref(Tap), Auto, Null)*/, "auto" ],
+      active_multi:   [ Any /*Or(Ref(GestureTool), Auto, Null)*/, "auto" ],
     }))
 
-    this.internal<ToolbarBase.Props>(({Array, Struct, Ref, Nullable}) => {
+    this.internal<Toolbar.Props>(({Any, Array, Ref, Or/*, Struct, Nullable*/}) => {
+      /*
       const GestureEntry = Struct({
         tools: Array(Ref(GestureTool)),
         active: Nullable(Ref(Tool)),
@@ -279,52 +306,80 @@ export class ToolbarBase extends Model {
         move:      GestureEntry,
         multi:     GestureEntry,
       })
+      */
       return {
-        gestures:         [ GestureMap, create_gesture_map ],
-        actions:          [ Array(Ref(ActionTool)), [] ],
-        inspectors:       [ Array(Ref(InspectTool)), [] ],
-        help:             [ Array(Ref(HelpTool)), [] ],
+        gestures:         [ Any, /*GestureMap,*/ create_gesture_map ],
+        actions:          [ Array(Or(Ref(ActionTool), Ref(ToolProxy))), [] ],
+        inspectors:       [ Array(Or(Ref(InspectTool), Ref(ToolProxy))), [] ],
+        help:             [ Array(Or(Ref(HelpTool), Ref(ToolProxy))), [] ],
         toolbar_location: [ Location, "right" ],
       }
     })
   }
 
-  _proxied_tools?: (Tool | ToolProxy)[]
+  get horizontal(): boolean {
+    return this.toolbar_location == "above" || this.toolbar_location == "below"
+  }
+
+  get vertical(): boolean {
+    return this.toolbar_location == "left" || this.toolbar_location == "right"
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {tools, active_drag, active_inspect, active_scroll, active_tap, active_multi} = this.properties
+    this.on_change([tools, active_drag, active_inspect, active_scroll, active_tap, active_multi], () => {
+      this._init_tools()
+      this._activate_tools()
+    })
+  }
 
   override initialize(): void {
     super.initialize()
     this._init_tools()
+    this._activate_tools()
   }
 
   protected _init_tools(): void {
     // The only purpose of this function is to avoid unnecessary property churning.
-    const tools_changed = function(old_tools: Tool[], new_tools: Tool[]) {
+    const tools_changed = function(_old_tools: ToolLike<ButtonTool>[], _new_tools: ToolLike<ButtonTool>[]) {
+      return true
+      /*
       if (old_tools.length != new_tools.length) {
         return true
       }
       const new_ids = new Set(new_tools.map(t => t.id))
-      return some(old_tools, t=> !new_ids.has(t.id))
+      return some(old_tools, t => !new_ids.has(t.id))
+      */
     }
-    const new_inspectors = this.tools.filter(t => t instanceof InspectTool) as InspectTool[]
+
+    type AbstractConstructor<T, Args extends any[] = any[]> = abstract new (...args: Args) => T
+
+    function isa<A extends ButtonTool>(tool: unknown, type: AbstractConstructor<A>): tool is ToolLike<A> {
+      return (tool instanceof ToolProxy ? tool.underlying : tool) instanceof type
+    }
+
+    const new_inspectors = this.tools.filter(t => isa(t, InspectTool)) as ToolLike<InspectTool>[]
     if (tools_changed(this.inspectors, new_inspectors)) {
       this.inspectors = new_inspectors
     }
-    const new_help = this.tools.filter(t => t instanceof HelpTool) as HelpTool[]
+    const new_help = this.tools.filter(t => isa(t, HelpTool)) as ToolLike<HelpTool>[]
     if (tools_changed(this.help, new_help)) {
       this.help = new_help
     }
-    const new_actions = this.tools.filter(t => t instanceof ActionTool) as ActionTool[]
+    const new_actions = this.tools.filter(t => isa(t, ActionTool)) as ToolLike<ActionTool>[]
     if (tools_changed(this.actions, new_actions)) {
       this.actions = new_actions
     }
-    const check_event_type = (et: EventType, tool: Tool) => {
+    const check_event_type = (et: EventType, tool: ToolLike<ButtonTool>) => {
       if (!(et in this.gestures)) {
         logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool}`)
       }
     }
     const new_gestures = create_gesture_map()
     for (const tool of this.tools) {
-      if (tool instanceof GestureTool && tool.event_type != null) {
+      if (isa(tool, GestureTool)) {
         if (isString(tool.event_type)) {
           new_gestures[tool.event_type].tools.push(tool)
           check_event_type(tool.event_type, tool)
@@ -347,19 +402,86 @@ export class ToolbarBase extends Model {
     }
   }
 
-  get horizontal(): boolean {
-    return this.toolbar_location === "above" || this.toolbar_location === "below"
+  protected _activate_tools(): void {
+    if (this.active_inspect == "auto") {
+      // do nothing as all tools are active be default
+    } else if (this.active_inspect == null) {
+      for (const inspector of this.inspectors)
+        inspector.active = false
+    } else if (isArray(this.active_inspect)) {
+      const active_inspect = intersection(this.active_inspect, this.inspectors)
+      if (active_inspect.length != this.active_inspect.length) {
+        this.active_inspect = active_inspect
+      }
+      for (const inspector of this.inspectors) {
+        if (!includes(this.active_inspect, inspector))
+          inspector.active = false
+      }
+    } else {
+      let found = false
+      for (const inspector of this.inspectors) {
+        if (inspector != this.active_inspect)
+          inspector.active = false
+        else
+          found = true
+      }
+      if (!found) {
+        this.active_inspect = null
+      }
+    }
+
+    const _activate_gesture = (tool: ToolLike<GestureTool>) => {
+      if (tool.active) {
+        // tool was activated by a proxy, but we need to finish configuration manually
+        this._active_change(tool)
+      } else
+        tool.active = true
+    }
+
+    // Connecting signals has to be done before changing the active state of the tools.
+    for (const gesture of values(this.gestures)) {
+      gesture.tools = sort_by(gesture.tools, (tool) => tool.default_order)
+      for (const tool of gesture.tools) {
+        this.connect(tool.properties.active.change, () => this._active_change(tool))
+      }
+    }
+
+    function _get_active_attr(et: string): keyof ActiveGestureToolsProps | null {
+      switch (et) {
+        case "tap": return "active_tap"
+        case "pan": return "active_drag"
+        case "pinch":
+        case "scroll": return "active_scroll"
+        case "multi": return "active_multi"
+      }
+      return null
+    }
+
+    function _supports_auto(et: string): boolean {
+      return et == "tap" || et == "pan"
+    }
+
+    for (const [et, gesture] of entries(this.gestures)) {
+      const active_attr = _get_active_attr(et)
+      if (active_attr) {
+        const active_tool = this[active_attr]
+        if (active_tool == "auto") {
+          if (gesture.tools.length != 0 && _supports_auto(et)) {
+            _activate_gesture(gesture.tools[0])
+          }
+        } else if (active_tool != null) {
+          if (includes(this.tools, active_tool)) {
+            _activate_gesture(active_tool as ToolLike<GestureTool>) // XXX: remove this cast
+          } else {
+            this[active_attr] = null
+          }
+        }
+      }
+    }
   }
 
-  get vertical(): boolean {
-    return this.toolbar_location === "left" || this.toolbar_location === "right"
-  }
-
-  _active_change(tool: Tool): void {
+  _active_change(tool: ToolLike<GestureTool>): void {
     const {event_type} = tool
-
-    if (event_type == null)
-      return
 
     const event_types = isString(event_type) ? [event_type] : event_type
 
