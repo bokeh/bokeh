@@ -61,7 +61,7 @@ export class SaveTool extends ActionTool {
   override get menu(): MenuItem[] | null {
     return [
       {
-        icon: "bk-tool-icon-copy-to-clipboard",
+        icon: "bk-tool-icon-copy",
         tooltip: "Copy image to clipboard",
         if: () => typeof ClipboardItem !== "undefined",
         handler: () => {

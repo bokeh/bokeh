@@ -295,7 +295,7 @@ class Test_bce:
 
     def test_ToolIcon(self) -> None:
         assert tuple(bce.ToolIcon) == ("append_mode", "box_edit", "box_select", "box_zoom", "clear_selection",
-            "copy_to_clipboard", "crosshair", "freehand_draw", "help", "hover", "intersect_mode", "lasso_select",
+            "copy", "crosshair", "freehand_draw", "help", "hover", "intersect_mode", "lasso_select",
             "line_edit", "pan", "point_draw", "poly_draw", "poly_edit", "polygon_select", "range", "redo",
             "replace_mode", "reset", "save", "subtract_mode", "tap_select", "undo", "wheel_pan", "wheel_zoom",
             "xpan", "ypan", "zoom_in", "zoom_out")
