@@ -513,6 +513,8 @@ class SaveTool(ActionTool):
 
     '''
 
+    filename = String(default="bokeh_plot")
+
 class ResetTool(ActionTool):
     ''' *toolbar icon*: |reset_icon|
 

@@ -24,7 +24,15 @@ export class SaveToolView extends ActionToolView {
   doit(action: "save" | "copy" = "save"): void {
     switch (action) {
       case "save":
-        this.save("bokeh_plot")
+        if (this.model.filename == "bokeh_plot") {
+          const filename = prompt("Enter filename", "bokeh_plot")
+          if (filename != null) {
+            this.save(filename)
+          }
+        }
+        else {
+          this.save(this.model.filename)
+        }
         break
       case "copy":
         this.copy()
@@ -36,7 +44,9 @@ export class SaveToolView extends ActionToolView {
 export namespace SaveTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ActionTool.Props
+  export type Props = ActionTool.Props & {
+    filename: p.Property<string>
+    }
 }
 
 export interface SaveTool extends SaveTool.Attrs {}
@@ -51,6 +61,10 @@ export class SaveTool extends ActionTool {
 
   static {
     this.prototype.default_view = SaveToolView
+
+    this.define<SaveTool.Props>(({String}) => ({
+      filename: [ String, "bokeh_plot" ],
+    }))
 
     this.register_alias("save", () => new SaveTool())
   }
