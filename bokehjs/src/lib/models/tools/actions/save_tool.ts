@@ -29,8 +29,7 @@ export class SaveToolView extends ActionToolView {
           if (filename != null) {
             this.save(filename)
           }
-        }
-        else {
+        } else {
           this.save(this.model.filename)
         }
         break
