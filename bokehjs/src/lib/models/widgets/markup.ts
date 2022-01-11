@@ -63,7 +63,6 @@ export namespace Markup {
 
   export type Props = Widget.Props & {
     text: p.Property<string>
-    style: p.Property<{[key: string]: string}>
     disable_math: p.Property<boolean>
   }
 }
@@ -79,9 +78,8 @@ export abstract class Markup extends Widget {
   }
 
   static {
-    this.define<Markup.Props>(({Boolean, String, Dict}) => ({
+    this.define<Markup.Props>(({Boolean, String}) => ({
       text:  [ String, "" ],
-      style: [ Dict(String), {} ],
       disable_math: [ Boolean, false ],
     }))
   }

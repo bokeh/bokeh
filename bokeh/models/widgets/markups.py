@@ -28,12 +28,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import (
-    Any,
-    Bool,
-    Dict,
-    String,
-)
+from ...core.properties import Bool, String
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -74,10 +69,6 @@ class Markup(Widget):
         either has to set explicit dimensions using CSS properties,
         HTML attributes or model's ``width`` and ``height`` properties,
         or inline images' contents using data URIs.
-    """)
-
-    style = Dict(String, Any, default={}, help="""
-    Raw CSS style declaration. Note this may be web browser dependent.
     """)
 
     disable_math = Bool(False, help="""

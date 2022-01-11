@@ -3,7 +3,8 @@ import {concat, union} from "./array"
 
 const {hasOwnProperty} = Object.prototype
 
-export const {keys, values, entries, assign: extend} = Object
+export const {keys, values, entries, assign} = Object
+export const extend = assign
 
 export function clone<T>(obj: PlainObject<T>): PlainObject<T> {
   return {...obj}

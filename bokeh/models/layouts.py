@@ -267,6 +267,16 @@ class LayoutDOM(Model):
     property will always contain a list.
     """).accepts(Seq(String), lambda x: list(x))
 
+    style = Dict(String, String, help="""
+    Inline CSS styles applied to this DOM element.
+    """)
+
+    stylesheets = List(String, help="""
+    Additional style sheets to use for this DOM element. Note that all bokeh's components
+    use shadow DOM, thus any included style sheets must reflect that, e.g. use ``:host``
+    CSS pseudo selector to access the root DOM element.
+    """)
+
     @warning(FIXED_SIZING_MODE)
     def _check_fixed_sizing_mode(self):
         if self.sizing_mode == "fixed" and (self.width is None or self.height is None):
