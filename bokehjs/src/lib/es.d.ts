@@ -36,6 +36,14 @@ interface Float64Array {
   constructor: Float64ArrayConstructor
 }
 
+declare interface ShadowRoot {
+  adoptedStyleSheets: readonly StyleSheet[]
+}
+
+declare interface CSSStyleSheet {
+  replaceSync(text: string): void
+}
+
 declare interface OffscreenCanvas extends EventTarget {
   height: number
   width: number

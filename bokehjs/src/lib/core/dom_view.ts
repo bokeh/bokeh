@@ -2,6 +2,8 @@ import {View} from "./view"
 import {createElement, remove, empty, style} from "./dom"
 import base_css from "styles/base.css"
 
+const has_adopted_stylesheets = "adoptedStyleSheets" in ShadowRoot.prototype
+
 export interface DOMView extends View {
   constructor: Function & {tag_name: keyof HTMLElementTagNameMap}
 }
@@ -54,13 +56,27 @@ export abstract class DOMComponentView extends DOMView {
   override el: HTMLElement
 
   override shadow_el: ShadowRoot
-  stylesheet_el: HTMLStyleElement
+  stylesheet_els: HTMLStyleElement[] = []
 
   override initialize(): void {
     super.initialize()
     this.shadow_el = this.el.attachShadow({mode: "open"})
-    this.stylesheet_el = style({}, ...this.styles())
-    this.shadow_el.appendChild(this.stylesheet_el)
+
+    if (has_adopted_stylesheets) {
+      const sheets: CSSStyleSheet[] = []
+      for (const style of this.styles()) {
+        const sheet = new CSSStyleSheet()
+        sheet.replaceSync(style)
+        sheets.push(sheet)
+      }
+      this.shadow_el.adoptedStyleSheets = sheets
+    } else {
+      for (const style_ of this.styles()) {
+        const stylesheet_el = style({}, style_)
+        this.stylesheet_els.push(stylesheet_el)
+        this.shadow_el.appendChild(stylesheet_el)
+      }
+    }
   }
 
   override styles(): string[] {
@@ -69,6 +85,8 @@ export abstract class DOMComponentView extends DOMView {
 
   empty(): void {
     empty(this.shadow_el)
-    this.shadow_el.appendChild(this.stylesheet_el)
+    for (const stylesheet_el of this.stylesheet_els) {
+      this.shadow_el.appendChild(stylesheet_el)
+    }
   }
 }
