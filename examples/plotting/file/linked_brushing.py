@@ -5,7 +5,7 @@
     :sampledata: autompg
     :apis: bokeh.plotting.Figure.circle
     :refs: :ref:`plotting_scatter` > :ref:`plotting_scatter_circle`
-    :keywords: scatter, acceleration, mpg, cylinder
+    :keywords: scatter, linked brushing
 
 '''
 from bokeh.layouts import row
