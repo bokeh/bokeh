@@ -29,7 +29,7 @@ verify = CustomJS(args=dict(user=user, password=password, secret=secret), code="
 """ % (USER, PASSWD))
 
 password.js_on_change('value', verify)
-button.js_on_click(verify)
+button.js_on_event('button_click', verify)
 
 layout = row(column(text, user, password, button), secret)
 

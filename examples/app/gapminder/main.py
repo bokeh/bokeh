@@ -82,7 +82,7 @@ def animate():
         curdoc().remove_periodic_callback(callback_id)
 
 button = Button(label='► Play', width=60)
-button.on_click(animate)
+button.on_event('button_click', animate)
 
 layout = layout([
     [plot],

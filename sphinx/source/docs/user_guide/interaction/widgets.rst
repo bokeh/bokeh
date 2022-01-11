@@ -22,12 +22,12 @@ There are two ways to use a widget's functionality:
     * A ``CustomJS`` callback (see :ref:`userguide_interaction_jscallbacks`).
       This approach will work in standalone HTML documents or Bokeh server apps.
     * Use ``bokeh serve`` to start a Bokeh server and set up event handlers with
-      ``.on_change`` (or for some widgets, ``.on_click``).
+      ``.on_change`` or ``.on_event``.
 
 Event handlers are Python functions that users can attach to widgets. These
 functions are then called when certain attributes on the widget are changed.
 The function signature of event handlers is determined by how they are attached
-to widgets (whether by ``.on_change`` or ``.on_click``, for example).
+to widgets (whether by ``.on_change`` or ``.on_event``, for example).
 
 All widgets have an ``.on_change`` method that takes an attribute name and one
 or more event handlers as parameters. These handlers are expected to have the
@@ -45,9 +45,9 @@ values of the attribute.
     text_input.on_change("value", my_text_input_handler)
 
 Additionally, some widgets, including the button, dropdown, and checkbox, have
-an ``.on_click`` method that takes an event handler as its only parameter. For
+an ``.on_event`` method that takes an event handler as its only parameter. For
 a plain ``Button``, this handler is called without parameters. For the other
-widgets with ``.on_click``, the handler is passed the new attribute value.
+widgets with ``.on_event``, the handler is passed the new attribute value.
 
 .. code-block:: python
 

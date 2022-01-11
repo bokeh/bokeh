@@ -101,7 +101,7 @@ class Test_DataRange1d:
         plot.tags.append(CustomJS(name="custom-action", args=dict(p=plot), code=code))
         plot.toolbar_sticky = False
         button = Button()
-        button.js_on_click(CustomJS(args=dict(glyph=glyph), code="glyph.visible=false"))
+        button.js_on_event('button_click', CustomJS(args=dict(glyph=glyph), code="glyph.visible=false"))
 
         page = single_plot_page(column(plot, button))
 

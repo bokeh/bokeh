@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 # Bokeh imports
 from ...core.enums import ButtonType
@@ -39,6 +39,7 @@ from ...core.properties import (
     Tuple,
 )
 from ...events import ButtonClick, MenuItemClick
+from ...util.deprecation import deprecated
 from ..callbacks import Callback
 from .icons import AbstractIcon
 from .widget import Widget
@@ -107,10 +108,12 @@ class Button(AbstractButton):
             None
 
         '''
+        deprecated((3, 0, 0), 'on_click(handler)', 'on_event("button_click", handler)')
         self.on_event(ButtonClick, handler)
 
     def js_on_click(self, handler: Callback) -> None:
         ''' Set up a JavaScript handler for button clicks. '''
+        deprecated((3, 0, 0), 'js_on_click(handler)', 'js_on_event("button_click", handler)')
         self.js_on_event(ButtonClick, handler)
 
 class Toggle(AbstractButton):
@@ -121,9 +124,23 @@ class Toggle(AbstractButton):
     label = Override(default="Toggle")
 
     active = Bool(False, help="""
-    The initial state of a button. Also used to trigger ``on_click`` event
-    handler.
+    The state of the toggle button.
     """)
+
+    def on_click(self, handler: Callable[[bool], None]) -> None:
+        """ Set up a handler for button state changes (clicks).
+        Args:
+            handler (func) : handler function to call when button is toggled.
+        Returns:
+            None
+        """
+        deprecated((3, 0, 0), 'on_click(handler)', 'on_event("button_click", handler)')
+        self.on_change('active', lambda attr, old, new: handler(new))
+
+    def js_on_click(self, handler: Callback) -> None:
+        """ Set up a JavaScript handler for button state changes (clicks). """
+        deprecated((3, 0, 0), 'js_on_click(handler)', 'js_on_event("button_click", handler)')
+        self.js_on_change('active', handler)
 
 class Dropdown(AbstractButton):
     ''' A dropdown button.
@@ -150,11 +167,13 @@ class Dropdown(AbstractButton):
             None
 
         '''
+        deprecated((3, 0, 0), 'on_click(handler)', 'on_event("button_click", handler) OR on_event("menu_item_click", handler)')
         self.on_event(ButtonClick, handler)
         self.on_event(MenuItemClick, handler)
 
     def js_on_click(self, handler: Callback) -> None:
         ''' Set up a JavaScript handler for button or menu item clicks. '''
+        deprecated((3, 0, 0), 'js_on_click(handler)', 'js_on_event("button_click", handler) OR js_on_event("menu_item_click", handler)')
         self.js_on_event(ButtonClick, handler)
         self.js_on_event(MenuItemClick, handler)
 

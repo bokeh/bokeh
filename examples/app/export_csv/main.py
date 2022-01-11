@@ -27,7 +27,7 @@ slider = RangeSlider(title="Max Salary", start=10000, end=110000, value=(10000, 
 slider.on_change('value', lambda attr, old, new: update())
 
 button = Button(label="Download", button_type="success")
-button.js_on_click(CustomJS(args=dict(source=source),
+button.js_on_event("button_click", CustomJS(args=dict(source=source),
                             code=open(join(dirname(__file__), "download.js")).read()))
 
 columns = [
