@@ -1,3 +1,10 @@
+'''  A grid plot that shows four figures that use different glyphs.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.layouts.gridplot, bokeh.plotting.Figure.line, bokeh.plotting.Figure.annular_wedge, bokeh.plotting.Figure.bezier, bokeh.plotting.Figure.quad
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_bars_rects`, :ref:`userguide_layout` >  :ref:`userguide_layout_gridplot`
+    :keywords: grid, gridplot
+'''
 import numpy as np
 
 from bokeh.plotting import figure, gridplot, output_file, show
