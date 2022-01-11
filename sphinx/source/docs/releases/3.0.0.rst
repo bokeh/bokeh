@@ -135,6 +135,17 @@ Deprecations
 Any tile specification (e.g. as string name) can be now passed directly to ``add_tile``
 instead.
 
+API changes
+~~~~~~~~~~~
+
+``gridplot()`` now returns ``GridPlot`` models
+..............................................
+
+Previously ``gridplot()`` returned a combination of ``Row`` and ``Column`` layouts,
+depending on the supplied arguments. Additionally, setting ``merge_tools`` now tells
+grid plots to actually merge tools instead of hidding the toolbar. To hide a toolbar,
+use ``toolbar_location=None``.
+
 bokehjs changes
 ~~~~~~~~~~~~~~~
 
@@ -196,3 +207,8 @@ Other changes
 Thanks to added support for serialization of infinities, ``initial`` properties can
 now have intrinsic default values (inifinity and minus infinity respectively) instead
 of ``None`` / ``null``.
+
+``gridplot()`` now returns ``GridPlot`` models
+..............................................
+
+See bokeh's API changes for details.

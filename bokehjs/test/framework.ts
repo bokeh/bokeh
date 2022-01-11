@@ -312,6 +312,8 @@ import {sum} from "@bokehjs/core/util/array"
 import {Size} from "@bokehjs/core/layout"
 import {Row, Column, GridBox} from "@bokehjs/models/layouts"
 import {ToolbarBox} from "@bokehjs/models/tools/toolbar_box"
+import {GridPlot} from "@bokehjs/models/plots"
+import {Button, Div} from "@bokehjs/models/widgets"
 
 function _infer_viewport(obj: LayoutDOM): Size {
   const {sizing_mode, width_policy, height_policy} = obj
@@ -341,7 +343,7 @@ function _infer_viewport(obj: LayoutDOM): Size {
       }
 
       height += obj.spacing*(obj.children.length - 1)
-    } else if (obj instanceof GridBox) {
+    } else if (obj instanceof GridBox || obj instanceof GridPlot) {
       let nrow = 0
       let ncol = 0
       for (const [, row, col] of obj.children) {
@@ -359,6 +361,19 @@ function _infer_viewport(obj: LayoutDOM): Size {
       }
       width = sum(widths)
       height = sum(heights)
+
+      if (obj instanceof GridPlot) {
+        switch (obj.toolbar_location) {
+          case "above":
+          case "below":
+            height += 30
+            break
+          case "left":
+          case "right":
+            width += 30
+            break
+        }
+      }
     } else if (obj instanceof ToolbarBox) {
       switch (obj.toolbar_location) {
         case "above":
@@ -372,6 +387,12 @@ function _infer_viewport(obj: LayoutDOM): Size {
           height = 0
           break
       }
+    } else if (obj instanceof Button) {
+      width = 300
+      height = 50
+    } else if (obj instanceof Div) {
+      width = 300
+      height = 100
     } else {
       width = obj.width ?? Infinity
       height = obj.height ?? Infinity

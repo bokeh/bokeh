@@ -290,8 +290,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
       get_side(title_location).push(this._title)
     }
 
-    const {toolbar_location} = this.model
-    if (toolbar_location != null && this._toolbar != null) {
+    if (this._toolbar != null) {
+      const {toolbar_location} = this._toolbar.toolbar
+
       if (!this.model.toolbar_inner) {
         const panels = get_side(toolbar_location)
         let push_toolbar = true
@@ -574,6 +575,27 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     this.connect(this.model.change, () => this.request_paint("everything"))
     this.connect(this.model.reset, () => this.reset())
+
+    const {toolbar_location} = this.model.properties
+    this.on_change(toolbar_location, async () => {
+      const {toolbar_location} = this.model
+      if (this._toolbar != null) {
+        if (toolbar_location != null) {
+          this._toolbar.toolbar.toolbar_location = toolbar_location
+        } else {
+          this._toolbar = undefined
+          await this.build_renderer_views()
+        }
+      } else {
+        if (toolbar_location != null) {
+          const {toolbar, toolbar_inner} = this.model
+          this._toolbar = new ToolbarPanel({toolbar, inner: toolbar_inner})
+          toolbar.toolbar_location = toolbar_location
+          await this.build_renderer_views()
+        }
+      }
+      this.invalidate_layout()
+    })
   }
 
   override has_finished(): boolean {
