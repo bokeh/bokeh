@@ -7,11 +7,11 @@ import * as p from "core/properties"
 import {Signal0} from "core/signaling"
 import {Size} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
-import {font_metrics} from "core/util/text"
 import {BBox} from "core/util/bbox"
 import {max, every, some} from "core/util/array"
 import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
+import {TextBox} from "core/graphics"
 
 export class LegendView extends AnnotationView {
   override model: Legend
@@ -45,37 +45,41 @@ export class LegendView extends AnnotationView {
   }
 
   compute_legend_bbox(): BBox {
-    const legend_names = this.model.get_legend_names()
-
     const {glyph_height, glyph_width} = this.model
     const {label_height, label_width} = this.model
 
-    this.max_label_height = max(
-      [font_metrics(this.visuals.label_text.font_value()).height, label_height, glyph_height],
-    )
+    const items = []
+    for (const item of this.model.items) {
+      const field = item.get_field_from_label_prop()
+      const labels = item.get_labels_list_from_label_prop()
 
-    // this is to measure text properties
-    const {ctx} = this.layer
-    ctx.save()
-    this.visuals.label_text.set_value(ctx)
-    this.text_widths = new Map()
-    for (const name of legend_names) {
-      this.text_widths.set(name, max([ctx.measureText(name).width, label_width]))
+      for (const label of labels) {
+        const text_box = new TextBox({text: `${label}`}) // XXX: not always string
+        text_box.visuals = this.visuals.label_text.values()
+        items.push({item, field, label, text_box, bbox: text_box.bbox()})
+      }
     }
+
+    this.text_widths = new Map()
+    for (const item of items) {
+      this.text_widths.set(item.label, max([item.bbox.width, label_width]))
+    }
+
+    this.max_label_height = max([label_height, glyph_height, ...items.map((item) => item.bbox.height)])
+    const max_label_width = max([0, ...this.text_widths.values()])
 
     const {title} = this.model
     if (title == null || title.length == 0) {
       this.title_width = 0
       this.title_height = 0
     } else {
-      this.visuals.title_text.set_value(ctx)
-      this.title_width = ctx.measureText(title).width
-      this.title_height = font_metrics(this.visuals.title_text.font_value()).height + this.model.title_standoff
+      const title_box = new TextBox({text: title})
+      title_box.visuals = this.visuals.title_text.values()
+
+      const {width, height} = title_box.bbox()
+      this.title_width = width
+      this.title_height = height + this.model.title_standoff
     }
-
-    ctx.restore()
-
-    const max_label_width = Math.max(max([...this.text_widths.values()]), 0)
 
     const legend_margin = this.model.margin
     const {legend_padding} = this
@@ -84,10 +88,10 @@ export class LegendView extends AnnotationView {
 
     let legend_height: number, legend_width: number
     if (this.model.orientation == "vertical") {
-      legend_height = legend_names.length*this.max_label_height + Math.max(legend_names.length - 1, 0)*legend_spacing + 2*legend_padding + this.title_height
+      legend_height = items.length*this.max_label_height + Math.max(items.length - 1, 0)*legend_spacing + 2*legend_padding + this.title_height
       legend_width = max([(max_label_width + glyph_width + label_standoff + 2*legend_padding), this.title_width + 2*legend_padding])
     } else {
-      let item_width = 2*legend_padding + Math.max(legend_names.length - 1, 0)*legend_spacing
+      let item_width = 2*legend_padding + Math.max(items.length - 1, 0)*legend_spacing
       for (const [, width] of this.text_widths) {
         item_width += max([width, label_width]) + glyph_width + label_standoff
       }
