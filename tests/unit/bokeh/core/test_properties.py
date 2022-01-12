@@ -417,7 +417,7 @@ class TestBasic:
 
         assert 'x' not in f_base.properties_with_values(include_defaults=False)
         assert 'x' not in f_sub.properties_with_values(include_defaults=False)
-        assert 'x' not in f_sub_sub.properties_with_values(include_defaults=False)
+        assert 'x' in f_sub_sub.properties_with_values(include_defaults=False)
 
     # def test_kwargs_init(self) -> None:
     #     class Foo(HasProps):

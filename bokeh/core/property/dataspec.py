@@ -253,8 +253,10 @@ class NumberSpec(DataSpec):
         m.location = "foo" # field
 
     """
+    _value_type = Float
+
     def __init__(self, default=Undefined, help=None, key_type=_ExprFieldValueTransform, accept_datetime=True, accept_timedelta=True) -> None:
-        super().__init__(key_type, Float, default=default, help=help)
+        super().__init__(key_type, self._value_type, default=default, help=help)
         if accept_timedelta:
             self.accepts(TimeDelta, convert_timedelta_type)
         if accept_datetime:
@@ -478,6 +480,8 @@ class DistanceSpec(UnitsSpec):
         return super().prepare_value(cls, name, value)
 
 class NullDistanceSpec(DistanceSpec):
+
+    _value_type = Nullable(Float)
 
     def __init__(self, default=None, units_default="data", help=None) -> None:
         super().__init__(default=default, units_default=units_default, help=help)

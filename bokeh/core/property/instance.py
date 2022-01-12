@@ -136,7 +136,7 @@ class Instance(Property[T]):
 
     def _may_have_unstable_default(self):
         # because the instance value is mutable
-        return True
+        return self._default is not Undefined
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -492,7 +492,7 @@ class SingleParameterizedProperty(ParameterizedProperty[T]):
         return self.type_param.wrap(value)
 
     def _may_have_unstable_default(self) -> bool:
-        return self.type_param._may_have_unstable_default()
+        return super()._may_have_unstable_default() or self.type_param._may_have_unstable_default()
 
 class PrimitiveProperty(Property[T]):
     """ A base class for simple property types.
@@ -540,7 +540,7 @@ class ContainerProperty(ParameterizedProperty[T]):
 
     def _may_have_unstable_default(self) -> bool:
         # all containers are mutable, so the default can be modified
-        return True
+        return self._default is not Undefined
 
 def validation_on() -> bool:
     """ Check if property validation is currently active

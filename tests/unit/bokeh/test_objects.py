@@ -162,6 +162,7 @@ class TestCollectModels:
 
 class SomeModelToJson(Model):
     child = Instance(Model)
+    null_child = Nullable(Instance(Model))
     foo = Int()
     bar = String()
 
@@ -274,12 +275,14 @@ class TestModel:
 
     def test_to_json(self) -> None:
         child_obj = SomeModelToJson(foo=57, bar="hello")
-        obj = SomeModelToJson(child=child_obj,
-                              foo=42, bar="world")
+        obj = SomeModelToJson(child=child_obj, foo=42, bar="world")
+
         json = obj.to_json(include_defaults=True)
         json_string = obj.to_json_string(include_defaults=True)
+
         assert json == {
             "child": {"id": child_obj.id},
+            "null_child": None,
             "id": obj.id,
             "name": None,
             "tags": [],
@@ -298,9 +301,26 @@ class TestModel:
             '"js_event_callbacks":{},' +
             '"js_property_callbacks":{},' +
             '"name":null,' +
+            '"null_child":null,' +
             '"subscribed_events":[],' +
             '"syncable":true,' +
             '"tags":[]}'
+        ) % (child_obj.id, obj.id) == json_string
+
+        json = obj.to_json(include_defaults=False)
+        json_string = obj.to_json_string(include_defaults=False)
+
+        assert json == {
+            "child": {"id": child_obj.id},
+            "id": obj.id,
+            "foo": 42,
+            "bar": "world",
+        }
+        assert (
+            '{"bar":"world",' +
+            '"child":{"id":"%s"},' +
+            '"foo":42,' +
+            '"id":"%s"}'
         ) % (child_obj.id, obj.id) == json_string
 
     def test_no_units_in_json(self) -> None:
