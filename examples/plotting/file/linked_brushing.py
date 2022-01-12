@@ -1,3 +1,13 @@
+'''An example of linked brushing with two scatter plots showing two views of the same data.
+   One representing # Cylinders vs. MPG and the second graph representing acceleration vs. MPG
+
+.. bokeh-example-metadata::
+    :sampledata: autompg
+    :apis: bokeh.plotting.Figure.circle
+    :refs: :ref:`plotting_scatter` > :ref:`plotting_scatter_circle`
+    :keywords: scatter, linked brushing
+
+'''
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, output_file, show
