@@ -33,6 +33,7 @@ from ...core.properties import (
     Nullable,
     String,
 )
+from ...util.deprecation import deprecated
 from .buttons import ButtonLike
 from .widget import Widget
 
@@ -78,10 +79,12 @@ class AbstractGroup(Widget):
             None
 
         '''
+        deprecated((3, 0, 0), 'on_click(handler)', 'on_event("button_click", handler)')
         self.on_change('active', lambda attr, old, new: handler(new))
 
     def js_on_click(self, handler: Callback) -> None:
         ''' Set up a handler for button check/radio box clicks including the selected indices. '''
+        deprecated((3, 0, 0), 'js_on_click(handler)', 'js_on_event("button_click", handler)')
         self.js_on_change('active', handler)
 
 @abstract

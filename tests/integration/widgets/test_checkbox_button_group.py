@@ -54,9 +54,9 @@ class Test_CheckboxButtonGroup:
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
             plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
-            def cb(active):
-                source.data['val'] = (active + [0, 0])[:2] # keep col length at 2, padded with zero
-            group.on_click(cb)
+            def cb(event):
+                source.data['val'] = (group.active + [0, 0])[:2] # keep col length at 2, padded with zero
+            group.on_event('button_click', cb)
             doc.add_root(column(group, plot))
 
         page = bokeh_server_page(modify_doc)
@@ -82,7 +82,7 @@ class Test_CheckboxButtonGroup:
 
     def test_js_on_change_executes(self, bokeh_model_page: BokehModelPage) -> None:
         group = CheckboxButtonGroup(labels=LABELS)
-        group.js_on_click(CustomJS(code=RECORD("active", "cb_obj.active")))
+        group.js_on_event('button_click', CustomJS(code=RECORD("active", "cb_obj.origin.active")))
 
         page = bokeh_model_page(group)
 

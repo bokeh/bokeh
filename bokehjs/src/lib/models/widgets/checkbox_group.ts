@@ -1,4 +1,5 @@
 import {InputGroup, InputGroupView} from "./input_group"
+import {ButtonClick} from "core/bokeh_events"
 
 import {input, label, div, span} from "core/dom"
 import {includes} from "core/util/array"
@@ -20,7 +21,10 @@ export class CheckboxGroupView extends InputGroupView {
     this._inputs = []
     for (let i = 0; i < labels.length; i++) {
       const checkbox = input({type: "checkbox", value: `${i}`})
-      checkbox.addEventListener("change", () => this.change_active(i))
+      checkbox.addEventListener("click", () => {
+        this.change_active(i)
+        this.model.trigger_event(new ButtonClick())
+      })
       this._inputs.push(checkbox)
 
       if (this.model.disabled)

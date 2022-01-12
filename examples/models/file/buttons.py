@@ -39,10 +39,10 @@ radio_group = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
 radio_group.js_on_click(CustomJS(code="console.log('radio_group: active=' + this.active, this.toString())"))
 
 checkbox_button_group = CheckboxButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
-checkbox_button_group.js_on_click(CustomJS(code="console.log('checkbox_button_group: active=' + this.active, this.toString())"))
+checkbox_button_group.js_on_event("button_group", CustomJS(code="console.log('checkbox_button_group: active=' + this.origin.active, this.toString())"))
 
 radio_button_group = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
-radio_button_group.js_on_click(CustomJS(code="console.log('radio_button_group: active=' + this.active, this.toString())"))
+radio_button_group.js_on_event("button_group", CustomJS(code="console.log('radio_button_group: active=' + this.origin.active, this.toString())"))
 
 widget_box = Column(children=[
     button, button_disabled,
