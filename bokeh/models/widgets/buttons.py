@@ -129,8 +129,10 @@ class Toggle(AbstractButton):
 
     def on_click(self, handler: Callable[[bool], None]) -> None:
         """ Set up a handler for button state changes (clicks).
+
         Args:
             handler (func) : handler function to call when button is toggled.
+
         Returns:
             None
         """
