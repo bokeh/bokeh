@@ -56,7 +56,7 @@ class Test_TextParagraph:
 
         page = bokeh_model_page(para)
 
-        el = find_element_for(page.driver, para, "div")
+        el = find_element_for(page.driver, para)
         assert 'font-size: 26px;' in el.get_attribute('style')
 
         assert page.has_no_console_errors()
