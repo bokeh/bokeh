@@ -1,11 +1,13 @@
-@dataTableFontSize: 11px;
+:host {
+  --dataTableFontSize: 11px;
+}
 
 .bk-data-table {
   // XXX: SlickGrid depends on the content-box model.
   box-sizing: content-box;
 
   // TODO: this should be configured for all widgets
-  font-size: @dataTableFontSize;
+  font-size: var(--dataTableFontSize);
 
   input[type="checkbox"] {
     margin-left: 4px;
@@ -91,5 +93,5 @@
 }
 
 .bk-cell-editor-completion {
-  font-size: @dataTableFontSize;
+  font-size: var(--dataTableFontSize);
 }

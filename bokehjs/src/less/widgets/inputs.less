@@ -8,11 +8,11 @@ input[type=file]::file-selector-button {
   display: inline-block;
   width: 100%;
   flex-grow: 1;
-  min-height: (@line-height-computed + (@padding-vertical*2) + 2);
-  padding: 0 @padding-horizontal;
+  min-height: calc(var(--line-height-computed) + 2*var(--padding-vertical) + 2px);
+  padding: 0 var(--padding-horizontal);
   background-color: #fff;
   border: 1px solid #ccc;
-  border-radius: @border-radius;
+  border-radius: var(--border-radius);
 
   @border-focus: #66afe9;
   @border-focus-faded: fade(@border-focus, 60%);

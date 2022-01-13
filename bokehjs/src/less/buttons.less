@@ -8,10 +8,10 @@
   white-space: nowrap;
   cursor: pointer;
 
-  padding: @padding-vertical @padding-horizontal;
-  font-size: @font-size;
+  padding: var(--padding-vertical) var(--padding-horizontal);
+  font-size: var(--font-size);
   border: 1px solid transparent;
-  border-radius: @border-radius;
+  border-radius: var(--border-radius);
   outline: 0;
 
   .no-user-select();
@@ -156,6 +156,6 @@
 
   .bk-dropdown-toggle {
     flex: 0 0 0;
-    padding: @padding-vertical (@padding-horizontal ./ 2);
+    padding: var(--padding-vertical) calc(var(--padding-horizontal)/2);
   }
 }
