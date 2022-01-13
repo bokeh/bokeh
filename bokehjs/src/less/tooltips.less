@@ -1,15 +1,15 @@
 @import "./_mixins.less";
 
 :host {
-  --tooltipBorder: #e5e5e5;  /* Same border color used everywhere */
-  --tooltipColor: white;
-  --tooltipText: #2f2f2f;
+  --tooltip-border: #e5e5e5;  /* Same border color used everywhere */
+  --tooltip-color: white;
+  --tooltip-text: #2f2f2f;
 
-  --tooltipArrowColor: #909599;  /* Gray of icons */
-  --tooltipArrowWidth: 10px;
-  --tooltipArrowHeight: 10px;
-  --tooltipArrowHalfWidth: 7px;
-  --tooltipArrowHalfHeight: 7px;
+  --tooltip-arrow-color: #909599;  /* Gray of icons */
+  --tooltip-arrow-width: 10px;
+  --tooltip-arrow-height: 10px;
+  --tooltip-arrow-half-width: 7px;
+  --tooltip-arrow-half-height: 7px;
 }
 
 :host {
@@ -18,9 +18,9 @@
   font-size: 12px;
   position: absolute;
   padding: 5px;
-  border: 1px solid var(--tooltipBorder);
-  color: var(--tooltipText);
-  background-color: var(--tooltipColor);
+  border: 1px solid var(--tooltip-border);
+  color: var(--tooltip-text);
+  background-color: var(--tooltip-color);
   pointer-events: none;
   opacity: 0.95;
   .bring-to-front();
@@ -29,17 +29,17 @@
 .bk-tooltip-contents > div:not(:first-child) {
   // gives space when multiple elements are being hovered over
   margin-top: 5px;
-  border-top: var(--tooltipBorder) 1px dashed;
+  border-top: var(--tooltip-border) 1px dashed;
 }
 
 .tooltip-arrow-horizontal() {
   position: absolute;
-  margin: calc(-1*var(--tooltipArrowHalfHeight)) 0 0 0;
+  margin: calc(-1*var(--tooltip-arrow-half-height)) 0 0 0;
   top: 50%;
   width: 0;
   height: 0;
   border-style: solid;
-  border-width: var(--tooltipArrowHalfHeight) 0 var(--tooltipArrowHalfHeight) 0;
+  border-width: var(--tooltip-arrow-half-height) 0 var(--tooltip-arrow-half-height) 0;
   border-color: transparent;
   content: " ";
   display: block;
@@ -47,12 +47,12 @@
 
 .tooltip-arrow-vertical() {
   position: absolute;
-  margin: 0 0 0 calc(-1*var(--tooltipArrowHalfWidth));
+  margin: 0 0 0 calc(-1*var(--tooltip-arrow-half-width));
   left: 50%;
   width: 0;
   height: 0;
   border-style: solid;
-  border-width: 0 var(--tooltipArrowHalfWidth) 0 var(--tooltipArrowHalfWidth);
+  border-width: 0 var(--tooltip-arrow-half-width) 0 var(--tooltip-arrow-half-width);
   border-color: transparent;
   content: " ";
   display: block;
@@ -60,42 +60,42 @@
 
 :host(.bk-left.bk-tooltip-arrow) .bk-tooltip-content::before {
   .tooltip-arrow-horizontal();
-  left: calc(-1*var(--tooltipArrowWidth));
-  border-right-width: var(--tooltipArrowWidth);
-  border-right-color: var(--tooltipArrowColor);
+  left: calc(-1*var(--tooltip-arrow-width));
+  border-right-width: var(--tooltip-arrow-width);
+  border-right-color: var(--tooltip-arrow-color);
 }
 
 :host(.bk-left) .bk-tooltip-content::before {
-  left: calc(-1*var(--tooltipArrowWidth));
-  border-right-width: var(--tooltipArrowWidth);
-  border-right-color: var(--tooltipArrowColor);
+  left: calc(-1*var(--tooltip-arrow-width));
+  border-right-width: var(--tooltip-arrow-width);
+  border-right-color: var(--tooltip-arrow-color);
 }
 
 :host(.bk-right.bk-tooltip-arrow) .bk-tooltip-content::after {
   .tooltip-arrow-horizontal();
-  right: calc(-1*var(--tooltipArrowWidth));
-  border-left-width: var(--tooltipArrowWidth);
-  border-left-color: var(--tooltipArrowColor);
+  right: calc(-1*var(--tooltip-arrow-width));
+  border-left-width: var(--tooltip-arrow-width);
+  border-left-color: var(--tooltip-arrow-color);
 }
 
 :host(.bk-right) .bk-tooltip-content::after {
-  right: calc(-1*var(--tooltipArrowWidth));
-  border-left-width: var(--tooltipArrowWidth);
-  border-left-color: var(--tooltipArrowColor);
+  right: calc(-1*var(--tooltip-arrow-width));
+  border-left-width: var(--tooltip-arrow-width);
+  border-left-color: var(--tooltip-arrow-color);
 }
 
 :host(.bk-above) .bk-tooltip-content::before {
   .tooltip-arrow-vertical();
-  top: calc(-1*var(--tooltipArrowHeight));
-  border-bottom-width: var(--tooltipArrowHeight);
-  border-bottom-color: var(--tooltipArrowColor);
+  top: calc(-1*var(--tooltip-arrow-height));
+  border-bottom-width: var(--tooltip-arrow-height);
+  border-bottom-color: var(--tooltip-arrow-color);
 }
 
 :host(.bk-below) .bk-tooltip-content::after {
   .tooltip-arrow-vertical();
-  bottom: calc(-1*var(--tooltipArrowHeight));
-  border-top-width: var(--tooltipArrowHeight);
-  border-top-color: var(--tooltipArrowColor);
+  bottom: calc(-1*var(--tooltip-arrow-height));
+  border-top-width: var(--tooltip-arrow-height);
+  border-top-color: var(--tooltip-arrow-color);
 }
 
 .bk-tooltip-row-label {
