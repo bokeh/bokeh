@@ -23,7 +23,7 @@ dependencies:
   - colorcet
   - coverage
   - django 3.*
-  - firefox
+  - firefox =>96
   - flake8
   - flaky
   - geckodriver

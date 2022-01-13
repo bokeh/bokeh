@@ -166,14 +166,18 @@ def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
         "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAFNJ"
         "REFUOE9jZKAyYKSyeQyjBkJC9D8DgwMDBBMCBxgZGA4gK8Iahv8ZGBoYGBjqCZnGwMDQ"
         "yAhRCwejBsIjZTQMcSaggUs21M0pROQQnEpGYPEFALJrIRXAq4rZAAAAAElFTkSuQmCC"
+
     )
     firefox_data = (
-        "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAMUlEQVQ4jWNgGAVDA/xnY"
-        "HD4z8DQQAR2INbAhv8MDP+JwA2jBo4aOJQMpG5OGQUkAQCAKdw3str/WgAAAABJRU5ErkJggg=="
+        "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAUUlEQVQ4T2NkoDJgpLJ5D"
+        "KMGQkL0PwODA5ACYULgADDMDiArwhqGQAMbgIrqCZkGlG8EGgBSCwejBsIjZTQMcSaggUs"
+        "21M0pROQQnEpGYPEFALJrIRV3ULevAAAAAElFTkSuQmCC"
     )
 
-    name = webdriver.name
-    assert name == "chrome" and svgs == output(chrome_data) or name == "firefox" and svgs == output(firefox_data)
+    if webdriver.name == "chrome":
+        assert svgs == output(chrome_data)
+    else:
+        assert svgs == output(firefox_data)
 
 @flaky(max_runs=10)
 @pytest.mark.selenium
