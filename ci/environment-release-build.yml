@@ -28,7 +28,7 @@ dependencies:
 
   # docs
   - colorcet
-  - firefox
+  - firefox =>96
   - geckodriver
   - icalendar
   - ipython
