@@ -55,7 +55,7 @@ widgets with ``.on_event``, the handler is passed the new attribute value.
         print('Radio button option ' + str(new) + ' selected.')
 
     radio_group = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
-    radio_group.on_click(my_radio_handler)
+    radio_group.on_event('button_click', my_radio_handler)
 
 Bokeh provides a simple default set of widgets. Users can create their own
 custom widgets, or wrap different third party widget libraries by creating
