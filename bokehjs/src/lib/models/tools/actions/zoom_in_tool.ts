@@ -1,5 +1,5 @@
 import {ZoomBaseTool, ZoomBaseToolView} from "./zoom_base_tool"
-import {tool_icon_zoom_in} from "styles/icons.css"
+import * as icons from "styles/icons.css"
 
 export class ZoomInToolView extends ZoomBaseToolView {
   override model: ZoomBaseTool
@@ -25,5 +25,17 @@ export class ZoomInTool extends ZoomBaseTool {
 
   override sign = 1 as 1
   override tool_name = "Zoom In"
-  override tool_icon = tool_icon_zoom_in
+
+  override get computed_icon(): string {
+    const {icon} = this
+    if (icon != null)
+      return icon
+    else {
+      switch (this.dimensions) {
+        case "both":   return `.${icons.tool_icon_zoom_in}`
+        case "width":  return `.${icons.tool_icon_x_zoom_in}`
+        case "height": return `.${icons.tool_icon_y_zoom_in}`
+      }
+    }
+  }
 }

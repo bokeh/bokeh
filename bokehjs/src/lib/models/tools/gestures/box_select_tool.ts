@@ -4,7 +4,7 @@ import * as p from "core/properties"
 import {Dimensions, BoxOrigin, SelectionMode} from "core/enums"
 import {PanEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
-import {tool_icon_box_select} from "styles/icons.css"
+import * as icons from "styles/icons.css"
 
 export class BoxSelectToolView extends SelectToolView {
   override model: BoxSelectTool
@@ -117,11 +117,23 @@ export class BoxSelectTool extends SelectTool {
   }
 
   override tool_name = "Box Select"
-  override tool_icon = tool_icon_box_select
   override event_type = "pan" as "pan"
   override default_order = 30
 
   override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
+  }
+
+  override get computed_icon(): string {
+    const {icon} = this
+    if (icon != null)
+      return icon
+    else {
+      switch (this.dimensions) {
+        case "both":   return `.${icons.tool_icon_box_select}`
+        case "width":  return `.${icons.tool_icon_x_box_select}`
+        case "height": return `.${icons.tool_icon_y_box_select}`
+      }
+    }
   }
 }

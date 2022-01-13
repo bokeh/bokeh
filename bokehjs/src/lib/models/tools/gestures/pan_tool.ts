@@ -162,8 +162,8 @@ export class PanTool extends GestureTool {
     else {
       switch (this.dimensions) {
         case "both":   return `.${icons.tool_icon_pan}`
-        case "width":  return `.${icons.tool_icon_xpan}`
-        case "height": return `.${icons.tool_icon_ypan}`
+        case "width":  return `.${icons.tool_icon_x_pan}`
+        case "height": return `.${icons.tool_icon_y_pan}`
       }
     }
   }

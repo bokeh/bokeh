@@ -1,5 +1,5 @@
 import {ZoomBaseTool, ZoomBaseToolView} from "./zoom_base_tool"
-import {tool_icon_zoom_out} from "styles/icons.css"
+import * as icons from "styles/icons.css"
 import * as p from "core/properties"
 
 export class ZoomOutToolView extends ZoomBaseToolView {
@@ -38,5 +38,17 @@ export class ZoomOutTool extends ZoomBaseTool {
 
   override sign = -1 as -1
   override tool_name = "Zoom Out"
-  override tool_icon = tool_icon_zoom_out
+
+  override get computed_icon(): string {
+    const {icon} = this
+    if (icon != null)
+      return icon
+    else {
+      switch (this.dimensions) {
+        case "both":   return `.${icons.tool_icon_zoom_out}`
+        case "width":  return `.${icons.tool_icon_x_zoom_out}`
+        case "height": return `.${icons.tool_icon_y_zoom_out}`
+      }
+    }
+  }
 }

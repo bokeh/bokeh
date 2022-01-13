@@ -51,10 +51,11 @@ export abstract class ZoomBaseTool extends ActionTool {
     }))
   }
 
+  readonly maintain_focus: boolean = true
+
   readonly sign: -1 | 1
 
   override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
   }
-  readonly maintain_focus: boolean = true
 }
