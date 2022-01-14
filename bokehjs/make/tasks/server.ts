@@ -1,7 +1,7 @@
 import {spawn, ChildProcess} from "child_process"
 import {argv} from "yargs"
 
-import {task, success, BuildError} from "../task"
+import {task, task2, success, BuildError} from "../task"
 import {find_port, retry, terminate, keep_alive} from "./_util"
 
 async function server(host?: string, port?: number, inspect?: boolean): Promise<ChildProcess> {
@@ -42,7 +42,7 @@ task("run:server", async () => {
   await keep_alive()
 })
 
-task("start:server", async () => {
+export const start_server = task2("start:server", [], async () => {
   let use_port = port
   await retry(async () => {
     use_port = await find_port(use_port)

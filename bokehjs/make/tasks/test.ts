@@ -7,6 +7,7 @@ import which from "which"
 import {task, task2, success, passthrough, BuildError} from "../task"
 import * as paths from "../paths"
 import {platform, find_port, retry, terminate, keep_alive} from "./_util"
+import {start_server as start_js_server} from "./server"
 
 import {Linker} from "@compiler/linker"
 import * as preludes from "@compiler/prelude"
@@ -295,7 +296,7 @@ async function bundle(name: string): Promise<void> {
 task("test:compile:unit", async () => compile("unit", {auto_index: true}))
 const build_unit = task("test:build:unit", [passthrough("test:compile:unit")], async () => await bundle("unit"))
 
-task2("test:unit", [start, build_unit], async ([devtools_port, server_port]) => {
+task2("test:unit", [start, start_js_server, build_unit], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "unit")
   return success(undefined)
 })
