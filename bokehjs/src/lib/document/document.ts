@@ -14,7 +14,6 @@ import {copy, includes} from "core/util/array"
 import * as sets from "core/util/set"
 import {LayoutDOM} from "models/layouts/layout_dom"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {ClientSession} from "client/session"
 import {Model} from "model"
 import {ModelDef, resolve_defs} from "./defs"
 import {
@@ -27,7 +26,6 @@ export type Out<T> = T
 
 // Dispatches events to the subscribed models
 export class EventManager {
-  session: ClientSession | null = null
   subscribed_models: Set<Model> = new Set()
 
   constructor(readonly document: Document) {}
