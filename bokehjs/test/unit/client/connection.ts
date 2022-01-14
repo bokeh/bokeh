@@ -42,7 +42,7 @@ describe("ClientSession", () => {
     }
   })
 
-  it("should sync a document between two connections", async () => {
+  it.skip("should sync a document between two connections", async () => {
     const session1 = await pull_session(url, token())
     try {
       const root = new Range1d({start: 123, end: 456})
