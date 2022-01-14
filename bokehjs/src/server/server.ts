@@ -5,7 +5,10 @@ import {argv} from "yargs"
 import {version} from "./package.json"
 import {Receiver} from "./receiver"
 import {Message} from "./message"
-import {isString} from "../lib/core/util/types"
+import {isString} from "core/util/types"
+// import {Document} from "document/document"
+
+class Document {}
 
 type Token = {
   session_expiry: number
@@ -60,6 +63,10 @@ type Request = IncomingMessage & {[TOKEN]?: string}
 const host = argv.host as string | undefined ?? "127.0.0.1"
 const port = parseInt(argv.port as string | undefined ?? "5877")
 
+function log(_message: string): void {
+  //console.log(message)
+}
+
 const wss = new WebSocket.Server({
   host,
   port,
@@ -77,7 +84,7 @@ const wss = new WebSocket.Server({
 })
 
 class ServerSession {
-  constructor(readonly id: ID) {}
+  constructor(readonly id: ID, readonly document: Document = new Document()) {}
 }
 
 const sessions: Map<ID, ServerSession> = new Map()
@@ -110,14 +117,14 @@ wss.on("connection", (ws, req: Request) => {
   })()
 
   const receiver = new Receiver()
-  console.log(`Connected to session ${session.id}`)
+  log(`Connected to session ${session.id}`)
 
   const ack = Message.create("ACK", {}, {})
   ack.send(ws)
 
   ws.addEventListener("message", (event) => {
     const {data, type} = event
-    console.log(`received: ${data} ${type}`)
+    log(`received: ${data} ${type}`)
     if (isString(data) || data instanceof ArrayBuffer)
       receiver.consume(data)
     else {
@@ -163,12 +170,12 @@ wss.on("connection", (ws, req: Request) => {
 
   ws.addEventListener("error", (event) => {
     const {message} = event
-    console.log(`Client errored: ${message}`)
+    log(`Client errored: ${message}`)
   })
 
   ws.addEventListener("close", (event) => {
     const {code, reason} = event
-    console.log(`Client disconnected (${code}): ${reason}`)
+    log(`Client disconnected (${code}): ${reason}`)
   })
 })
 

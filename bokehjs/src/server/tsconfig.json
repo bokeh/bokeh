@@ -27,7 +27,10 @@
     "target": "ES2020",
     "lib": ["es2020"],
     "baseUrl": ".",
-    "outDir": "../../build/server"
+    "outDir": "../../build/server",
+    "paths": {
+      "core/*": ["../../build/js/lib/core/*", "../../build/js/types/core/*"]
+    }
   },
   "include": ["./**/*.ts"]
 }

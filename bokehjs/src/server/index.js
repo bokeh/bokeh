@@ -1,11 +1,19 @@
+const {join} = require("path")
 const {register} = require("ts-node")
+const tsconfig_paths = require("tsconfig-paths")
 
-process.on('uncaughtException', function(err) {
+process.on("uncaughtException", function(err) {
   console.error(err)
   process.exit(1)
 })
 
-// XXX: assumes running from bokehjs/
-register({project: "./src/server/tsconfig.json", cache: false, logError: true})
+register({project: join(__dirname, "tsconfig.json"), cache: false, logError: true})
+
+tsconfig_paths.register({
+  baseUrl: __dirname,
+  paths: {
+    "core/*": ["../lib/core/*"],
+  },
+})
 
 require("./server")
