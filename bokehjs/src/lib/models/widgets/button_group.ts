@@ -4,7 +4,6 @@ import {ButtonType} from "core/enums"
 import {div} from "core/dom"
 import * as p from "core/properties"
 
-
 import buttons_css, * as buttons from "styles/buttons.css"
 
 export abstract class ButtonGroupView extends OrientedControlView {
