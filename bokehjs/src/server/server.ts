@@ -1,4 +1,8 @@
+import {IncomingMessage} from "http"
 import WebSocket from "ws"
+import {argv} from "yargs"
+
+import {version} from "./package.json"
 import {Receiver} from "./receiver"
 import {Message} from "./message"
 import {isString} from "../lib/core/util/types"
@@ -37,8 +41,6 @@ type DocJson = {
   }
 }
 
-const version = "3.0.0-dev.1"
-
 type VersionInfo = {
   bokeh: string
   server: string
@@ -53,13 +55,14 @@ type PullDoc = {
 }
 
 const TOKEN = Symbol("TOKEN")
-
-import {IncomingMessage} from "http"
-
 type Request = IncomingMessage & {[TOKEN]?: string}
 
+const host = argv.host as string | undefined ?? "127.0.0.1"
+const port = parseInt(argv.port as string | undefined ?? "5877")
+
 const wss = new WebSocket.Server({
-  port: 5007,
+  host,
+  port,
   handleProtocols: (protocols, request: Request) => {
     if (protocols.size == 2) {
       const [bokeh, token] = protocols
@@ -169,14 +172,7 @@ wss.on("connection", (ws, req: Request) => {
   })
 })
 
-const address = (() => {
-  const addr = wss.address()
-  if (isString(addr))
-    return addr
-  else {
-    const {address, port} = addr
-    return `ws://${address}:${port}`
-  }
-})()
+const address = `ws://${host}:${port}`
 
-console.log(`Listening on ${address}`)
+console.log(`BokehJS server ${version} listening on ${address}`)
+process.send?.("ready")
