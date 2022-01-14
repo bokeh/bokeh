@@ -16,8 +16,8 @@ important features and fixes several bugs. Some of the highlights include:
 * New module :ref:`bokeh.transform` with helper functions for simplifying
   ``DataSpec`` expressions, including  :func:`~bokeh.transform.jitter`,
   :func:`~bokeh.transform.dodge`, :func:`~bokeh.transform.factor_cmap`, etc.
-* Added :func:`~bokeh.plotting.Figure.hbar_stack` and
-  :func:`~bokeh.plotting.Figure.vbar_stack` to greatly simplify
+* Added :func:`~bokeh.plotting.figure.hbar_stack` and
+  :func:`~bokeh.plotting.figure.vbar_stack` to greatly simplify
   creation of stacked bar charts.
 * Improvements for using Bokeh with Categorical data:
 
@@ -93,7 +93,7 @@ two simpler functions :func:`~bokeh.embed.server_document` and
 :func:`~bokeh.embed.server_session` described above.
 
 ``bokeh.models.tools.tool_events`` has been deprecated. Users should instead
-use the ``SelectionGeometry`` event present on ``Plot`` or ``Figure``.
+use the ``SelectionGeometry`` event present on ``Plot`` or ``figure``.
 
 ``DynamicImageRenderer`` and ``Plot.add_dynamic_image`` have been deprecated.
 For GIS-related use-cases built on top of Bokeh, consider using

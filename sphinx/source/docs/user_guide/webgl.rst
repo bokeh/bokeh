@@ -26,38 +26,38 @@ To enable WebGL in Bokeh, set the plot's ``output_backend`` property to
 Support
 -------
 
-Bokeh's WebGL support covers a subset of glyphs. This includes the :func:`~bokeh.plotting.Figure.line`
+Bokeh's WebGL support covers a subset of glyphs. This includes the :func:`~bokeh.plotting.figure.line`
 glyph, and most markers:
 
-* :func:`~bokeh.plotting.Figure.asterisk`
+* :func:`~bokeh.plotting.figure.asterisk`
 
-* :func:`~bokeh.plotting.Figure.circle`
+* :func:`~bokeh.plotting.figure.circle`
 
-* :func:`~bokeh.plotting.Figure.circle_cross`
+* :func:`~bokeh.plotting.figure.circle_cross`
 
-* :func:`~bokeh.plotting.Figure.circle_x`
+* :func:`~bokeh.plotting.figure.circle_x`
 
-* :func:`~bokeh.plotting.Figure.cross`
+* :func:`~bokeh.plotting.figure.cross`
 
-* :func:`~bokeh.plotting.Figure.diamond`
+* :func:`~bokeh.plotting.figure.diamond`
 
-* :func:`~bokeh.plotting.Figure.diamond_cross`
+* :func:`~bokeh.plotting.figure.diamond_cross`
 
-* :func:`~bokeh.plotting.Figure.hex`
+* :func:`~bokeh.plotting.figure.hex`
 
-* :func:`~bokeh.plotting.Figure.inverted_triangle`
+* :func:`~bokeh.plotting.figure.inverted_triangle`
 
-* :func:`~bokeh.plotting.Figure.square`
+* :func:`~bokeh.plotting.figure.square`
 
-* :func:`~bokeh.plotting.Figure.square_cross`
+* :func:`~bokeh.plotting.figure.square_cross`
 
-* :func:`~bokeh.plotting.Figure.square_x`
+* :func:`~bokeh.plotting.figure.square_x`
 
-* :func:`~bokeh.plotting.Figure.star`
+* :func:`~bokeh.plotting.figure.star`
 
-* :func:`~bokeh.plotting.Figure.triangle`
+* :func:`~bokeh.plotting.figure.triangle`
 
-* :func:`~bokeh.plotting.Figure.x`
+* :func:`~bokeh.plotting.figure.x`
 
 You can combine multiple glyphs in a plot, even if some are rendered in WebGL,
 and some are not.

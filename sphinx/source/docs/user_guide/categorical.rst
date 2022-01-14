@@ -157,7 +157,7 @@ You can color the bars in several ways:
 Stacking
 ~~~~~~~~
 
-To stack vertical bars, use the :func:`~bokeh.plotting.Figure.vbar_stack`
+To stack vertical bars, use the :func:`~bokeh.plotting.figure.vbar_stack`
 function. The example below uses three sets of fruit data. Each set
 corresponds to a year. This example produces a bar chart for each set and
 stacks each fruit's bar elements on top of each other.

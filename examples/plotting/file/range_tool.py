@@ -4,7 +4,7 @@ lower plot may be dragged to update the range on the top plot.
 
 .. bokeh-example-metadata::
     :sampledata: stocks
-    :apis: bokeh.plotting.Figure.line, bokeh.models.tools.RangeTool
+    :apis: bokeh.plotting.figure.line, bokeh.models.tools.RangeTool
     :refs: :ref:`userguide_tools`
     :keywords: line, timeseries, stocks
 

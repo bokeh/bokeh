@@ -33,7 +33,6 @@ ALL = (
     'DEFAULT_TOOLS',
     'Document',
     'figure',
-    'Figure',
     'from_networkx',
     'gmap',
     'GMap',

@@ -24,15 +24,15 @@ glyphs, such as lines, bars, hex tiles, or other polygons.
 Rendering circles
 ^^^^^^^^^^^^^^^^^
 
-Use the :func:`~bokeh.plotting.Figure.circle` function instead of
-:func:`~bokeh.plotting.Figure.line` to render circles:
+Use the :func:`~bokeh.plotting.figure.circle` function instead of
+:func:`~bokeh.plotting.figure.line` to render circles:
 
 .. code-block:: python
 
     p.circle(x, y3, legend_label="Objects", color="yellow", size=12)
 
 Replace one of the ``line()`` functions in your previous visualization with
-the :func:`~bokeh.plotting.Figure.circle` function to create circles:
+the :func:`~bokeh.plotting.figure.circle` function to create circles:
 
 .. literalinclude:: examples/first_steps_2_add_circles.py
    :language: python
@@ -44,14 +44,14 @@ the :func:`~bokeh.plotting.Figure.circle` function to create circles:
 Rendering bars
 ^^^^^^^^^^^^^^
 
-Similarly, use the :func:`~bokeh.plotting.Figure.vbar` function to render
+Similarly, use the :func:`~bokeh.plotting.figure.vbar` function to render
 vertical bars:
 
 .. code-block:: python
 
     p.vbar(x=x, top=y2, legend_label="Rate", width=0.5, bottom=0, color="red")
 
-Add the :func:`~bokeh.plotting.Figure.vbar` function to your previous
+Add the :func:`~bokeh.plotting.figure.vbar` function to your previous
 visualization:
 
 .. literalinclude:: examples/first_steps_2_add_bars.py
@@ -74,7 +74,7 @@ your glyphs look like.
 Defining properties of new glyphs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The :func:`~bokeh.plotting.Figure.circle` function, for example, lets you
+The :func:`~bokeh.plotting.figure.circle` function, for example, lets you
 define aspects like the color or diameter of the circles:
 
 * ``fill_color``: the fill color of the circles
@@ -121,7 +121,7 @@ red color by passing the argument ``fill_color="red"``.
 
 To change the color of your circles from red to blue, you first need to assign
 a variable name (such as ``circle``) to the new object when you call the
-:func:`~bokeh.plotting.Figure.circle` function.
+:func:`~bokeh.plotting.figure.circle` function.
 
 .. code-block:: python
 

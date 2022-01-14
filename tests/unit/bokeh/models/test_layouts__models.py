@@ -18,7 +18,7 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.models import ColumnDataSource, Slider
-from bokeh.plotting import Figure
+from bokeh.plotting import figure
 
 # Module under test
 from bokeh.models.layouts import Row, Column, LayoutDOM # isort:skip
@@ -45,7 +45,7 @@ def check_props_with_sizing_mode(layout):
 
 def check_children_prop(layout_callable):
     ## component subclasses are layouts, widgets and plots
-    components = [Row(), Column(), Figure()]
+    components = [Row(), Column(), figure()]
 
     # Test layout accepts splatted components
     layout1 = layout_callable(*components)

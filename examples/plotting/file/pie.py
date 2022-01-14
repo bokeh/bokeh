@@ -2,7 +2,7 @@
 a cumulative sum transform for computing positions for the wedges.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.transform.cumsum, bokeh.plotting.Figure.wedge
+    :apis: bokeh.transform.cumsum, bokeh.plotting.figure.wedge
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_wedges_arcs`
     :keywords: cumsum, pandas, pie, wedge
 

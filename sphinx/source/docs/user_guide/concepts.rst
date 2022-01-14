@@ -216,7 +216,7 @@ automatically assembles plots with default elements such as axes, grids, and
 tools for you.
 
 The |figure| function is at the core of the |bokeh.plotting| interface. This
-function creates a |Figure| model that includes methods for adding different
+function creates a |figure| model that includes methods for adding different
 kinds of glyphs to a plot. This function also takes care of composing the
 various elements of your visualization, such as axes, grids, and tools.
 
@@ -228,7 +228,7 @@ plot:
 
 Calling the |figure| function is all it takes to create a basic plot object. To
 add data renderers to your plot object, call a glyph method such as
-|Figure.circle|. You don't have to worry about axes and grids (although you can
+|figure.circle|. You don't have to worry about axes and grids (although you can
 configure them if you want to), and you only need to list the tools you want to
 add. To display your visualization in a browser, in most cases, all you need to
 do is call the output function |show|.
@@ -329,4 +329,4 @@ For more information on Bokeh models, see |bokeh.models| in the |reference guide
 
 .. |Rect| replace:: :class:`~bokeh.models.glyphs.Rect`
 
-.. |Figure.circle|   replace:: :func:`Figure.circle <bokeh.plotting.Figure.circle>`
+.. |figure.circle|   replace:: :func:`figure.circle <bokeh.plotting.figure.circle>`

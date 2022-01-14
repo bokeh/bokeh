@@ -126,7 +126,7 @@ NetworkX
     to generate Bokeh graph renderers directly from NetworkX data.
 
 pandas
-    Necessary for the :func:`~bokeh.plotting.Figure.hexbin` function.
+    Necessary for the :func:`~bokeh.plotting.figure.hexbin` function.
     Additionally, having pandas installed makes some aspects of Bokeh simpler
     to use. For example, glyph functions are able to automatically convert
     pandas DataFrames to Bokeh data sources.

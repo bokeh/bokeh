@@ -17,7 +17,7 @@ Use standard Python lists of data to pass values directly into a plotting
 function.
 
 In this example, the lists ``x_values`` and ``y_values`` pass data
-to the :func:`~bokeh.plotting.Figure.circle` function (see
+to the :func:`~bokeh.plotting.figure.circle` function (see
 :ref:`plotting function <userguide_plotting>` for more examples):
 
 .. code-block:: python
@@ -405,7 +405,7 @@ A |CDSView| has one property, ``filters``:
 
 In this example, you create a |CDSView| called ``view``. ``view`` uses the
 ColumnDataSource ``source`` and a list of two filters, ``filter1`` and
-``filter2``. ``view`` is then passed to a :func:`~bokeh.plotting.Figure.circle`
+``filter2``. ``view`` is then passed to a :func:`~bokeh.plotting.figure.circle`
 renderer function:
 
 .. code-block:: python

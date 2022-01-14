@@ -39,7 +39,7 @@ from bokeh.core.types import ID
 from bokeh.document import Document
 from bokeh.embed.util import RenderRoot, standalone_docs_json
 from bokeh.io import curdoc
-from bokeh.plotting import Figure, figure
+from bokeh.plotting import figure
 from bokeh.resources import CDN, CSSResources, JSResources
 from bokeh.themes import Theme
 
@@ -59,7 +59,7 @@ def stable_id() -> ID:
     return ID('ID')
 
 @pytest.fixture
-def test_plot() -> Figure:
+def test_plot() -> figure:
     from bokeh.plotting import figure
     test_plot = figure(title="'foo'")
     test_plot.circle([1, 2], [2, 3])
@@ -85,11 +85,11 @@ PAGE = Template("""
 
 
 class Test_autoload_static:
-    def test_return_type(self, test_plot: Figure) -> None:
+    def test_return_type(self, test_plot: figure) -> None:
         r = bes.autoload_static(test_plot, CDN, "some/path")
         assert len(r) == 2
 
-    def test_script_attrs(self, test_plot: Figure) -> None:
+    def test_script_attrs(self, test_plot: figure) -> None:
         _, tag = bes.autoload_static(test_plot, CDN, "some/path")
         html = bs4.BeautifulSoup(tag, "html.parser")
         scripts = html.find_all(name='script')
@@ -101,7 +101,7 @@ class Test_autoload_static:
     @pytest.mark.parametrize("version", ["1.4.0rc1", "2.0.0dev3"])
     @pytest.mark.selenium
     def test_js_dev_cdn(self, version: str, monkeypatch: pytest.MonkeyPatch, driver: WebDriver,
-            test_file_path_and_url: Tuple[str, str], test_plot: Figure) -> None:
+            test_file_path_and_url: Tuple[str, str], test_plot: figure) -> None:
         monkeypatch.setattr(buv, "__version__", "1.4.0rc1")
         monkeypatch.setattr(resources, "__version__", "1.4.0rc1")
         js, tag = bes.autoload_static(test_plot, CDN, "some/path")
@@ -122,7 +122,7 @@ class Test_autoload_static:
 
     @pytest.mark.selenium
     def test_js_release_cdn(self, monkeypatch: pytest.MonkeyPatch, driver: WebDriver,
-            test_file_path_and_url: Tuple[str, str], test_plot: Figure) -> None:
+            test_file_path_and_url: Tuple[str, str], test_plot: figure) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0")
         monkeypatch.setattr(resources, "__version__", "2.0.0")
         r = deepcopy(CDN)
@@ -148,7 +148,7 @@ class Test_autoload_static:
 
     @pytest.mark.selenium
     def test_js_release_dev_cdn(self, monkeypatch: pytest.MonkeyPatch, driver: WebDriver,
-            test_file_path_and_url: Tuple[str, str], test_plot: Figure) -> None:
+            test_file_path_and_url: Tuple[str, str], test_plot: figure) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0-foo")
         monkeypatch.setattr(resources, "__version__", "2.0.0-foo")
         js, tag = bes.autoload_static(test_plot, CDN, "some/path")
@@ -171,7 +171,7 @@ class Test_autoload_static:
 
     @pytest.mark.selenium
     def test_js_release_server(self, monkeypatch: pytest.MonkeyPatch, driver: WebDriver,
-            test_file_path_and_url: Tuple[str, str], test_plot: Figure) -> None:
+            test_file_path_and_url: Tuple[str, str], test_plot: figure) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0")
         monkeypatch.setattr(resources, "__version__", "2.0.0")
         js, tag = bes.autoload_static(test_plot, resources.Resources(mode="server"), "some/path")
@@ -242,7 +242,7 @@ class Test_components:
         _, plotiddict = bes.components({'p1': plot1, 'p2': plot2}, wrap_plot_info=False)
         assert plotiddict == {'p1': expected_plotdict_1, 'p2': expected_plotdict_2}
 
-    def test_result_attrs(self, test_plot: Figure) -> None:
+    def test_result_attrs(self, test_plot: figure) -> None:
         script, _ = bes.components(test_plot)
         html = bs4.BeautifulSoup(script, "html.parser")
         scripts = html.find_all(name='script')
@@ -250,7 +250,7 @@ class Test_components:
         assert scripts[0].attrs == {'type': 'text/javascript'}
 
     @patch('bokeh.embed.util.make_globally_unique_id', new=stable_id)
-    def test_div_attrs(self, test_plot: Figure) -> None:
+    def test_div_attrs(self, test_plot: figure) -> None:
         _, div = bes.components(test_plot)
         html = bs4.BeautifulSoup(div, "html.parser")
 
@@ -264,17 +264,17 @@ class Test_components:
         assert el.attrs["data-root-id"] == test_plot.id
         assert el.string is None
 
-    def test_script_is_utf8_encoded(self, test_plot: Figure) -> None:
+    def test_script_is_utf8_encoded(self, test_plot: figure) -> None:
         script, _ = bes.components(test_plot)
         assert isinstance(script, str)
 
-    def test_quoting(self, test_plot: Figure) -> None:
+    def test_quoting(self, test_plot: figure) -> None:
         script, _ = bes.components(test_plot)
         assert "&quot;" not in script
         assert "'foo'" not in script
         assert "&#x27;foo&#x27;" in script
 
-    def test_output_is_without_script_tag_when_wrap_script_is_false(self, test_plot: Figure) -> None:
+    def test_output_is_without_script_tag_when_wrap_script_is_false(self, test_plot: figure) -> None:
         script, _ = bes.components(test_plot)
         html = bs4.BeautifulSoup(script, "html.parser")
         scripts = html.find_all(name='script')
@@ -289,7 +289,7 @@ class Test_components:
 
 
 class Test_file_html:
-    def test_return_type(self, test_plot: Figure) -> None:
+    def test_return_type(self, test_plot: figure) -> None:
 
         class fake_template:
             def __init__(self, tester: Any, user_template_variables: Set[str] | None = None) -> None:
@@ -323,7 +323,7 @@ class Test_file_html:
         assert isinstance(r, str)
 
     @patch('bokeh.embed.bundle.warn')
-    def test_file_html_handles_js_only_resources(self, mock_warn: MagicMock, test_plot: Figure) -> None:
+    def test_file_html_handles_js_only_resources(self, mock_warn: MagicMock, test_plot: figure) -> None:
         js_resources = JSResources(mode="relative", components=["bokeh"])
         template = Template("<head>{{ bokeh_js }}</head><body></body>")
         output = bes.file_html(test_plot, (js_resources, None), "title", template=template)
@@ -331,7 +331,7 @@ class Test_file_html:
         assert output == html
 
     @patch('bokeh.embed.bundle.warn')
-    def test_file_html_provides_warning_if_no_css(self, mock_warn: MagicMock, test_plot: Figure) -> None:
+    def test_file_html_provides_warning_if_no_css(self, mock_warn: MagicMock, test_plot: figure) -> None:
         js_resources = JSResources()
         bes.file_html(test_plot, (js_resources, None), "title")
         mock_warn.assert_called_once_with(
@@ -339,7 +339,7 @@ class Test_file_html:
         )
 
     @patch('bokeh.embed.bundle.warn')
-    def test_file_html_handles_css_only_resources(self, mock_warn: MagicMock, test_plot: Figure) -> None:
+    def test_file_html_handles_css_only_resources(self, mock_warn: MagicMock, test_plot: figure) -> None:
         css_resources = CSSResources(mode="relative", components=["bokeh"])
         template = Template("<head>{{ bokeh_css }}</head><body></body>")
         output = bes.file_html(test_plot, (None, css_resources), "title", template=template)
@@ -347,14 +347,14 @@ class Test_file_html:
         assert output == html
 
     @patch('bokeh.embed.bundle.warn')
-    def test_file_html_provides_warning_if_no_js(self, mock_warn: MagicMock, test_plot: Figure) -> None:
+    def test_file_html_provides_warning_if_no_js(self, mock_warn: MagicMock, test_plot: figure) -> None:
         css_resources = CSSResources()
         bes.file_html(test_plot, (None, css_resources), "title")
         mock_warn.assert_called_once_with(
             'No Bokeh JS Resources provided to template. If required you will need to provide them manually.'
         )
 
-    def test_file_html_title_is_escaped(self, test_plot: Figure) -> None:
+    def test_file_html_title_is_escaped(self, test_plot: figure) -> None:
         r = bes.file_html(test_plot, CDN, "&<")
         assert "<title>&amp;&lt;</title>" in r
 
@@ -378,33 +378,33 @@ class Test_file_html:
 JSON_ITEMS_KEYS = {"target_id", "root_id", "doc", "version"}
 
 class Test_json_item:
-    def test_with_target_id(self, test_plot: Figure) -> None:
+    def test_with_target_id(self, test_plot: figure) -> None:
         out = bes.json_item(test_plot, target=ID("foo"))
         assert set(out.keys()) == JSON_ITEMS_KEYS
         assert out['target_id'] == "foo"
 
-    def test_without_target_id(self, test_plot: Figure) -> None:
+    def test_without_target_id(self, test_plot: figure) -> None:
         out = bes.json_item(test_plot)
         assert set(out.keys()) == JSON_ITEMS_KEYS
         assert out['target_id'] == None
 
-    def test_doc_json(self, test_plot: Figure) -> None:
+    def test_doc_json(self, test_plot: figure) -> None:
         out = bes.json_item(test_plot, target=ID("foo"))
         assert set(out.keys()) == JSON_ITEMS_KEYS
         expected = list(standalone_docs_json([test_plot]).values())[0]
         assert out['doc'] == expected
 
-    def test_doc_title(self, test_plot: Figure) -> None:
+    def test_doc_title(self, test_plot: figure) -> None:
         out = bes.json_item(test_plot, target=ID("foo"))
         assert set(out.keys()) == JSON_ITEMS_KEYS
         assert out['doc']['title'] == ""
 
-    def test_root_id(self, test_plot: Figure) -> None:
+    def test_root_id(self, test_plot: figure) -> None:
         out = bes.json_item(test_plot, target=ID("foo"))
         assert set(out.keys()) == JSON_ITEMS_KEYS
         assert out['doc']['roots']['root_ids'][0] == out['root_id']
 
-    def test_version(self, monkeypatch: pytest.MonkeyPatch, test_plot: Figure) -> None:
+    def test_version(self, monkeypatch: pytest.MonkeyPatch, test_plot: figure) -> None:
         from bokeh import __version__
 
         out = bes.json_item(test_plot, target=ID("foo"))
@@ -416,7 +416,7 @@ class Test_json_item:
         assert out['doc']['version'] == __version__
 
     @patch('bokeh.embed.standalone.OutputDocumentFor')
-    def test_apply_theme(self, mock_OFD: MagicMock, test_plot: Figure) -> None:
+    def test_apply_theme(self, mock_OFD: MagicMock, test_plot: figure) -> None:
         # the subsequent call inside ODF will fail since the model was never
         # added to a document. Ignoring that since we just want to make sure
         # ODF is called with the expected theme arg.

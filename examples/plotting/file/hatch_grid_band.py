@@ -1,7 +1,7 @@
 ''' A simple line plot demonstrating hatched patterns for grid bands.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.line, bokeh.models.Grid
+    :apis: bokeh.plotting.figure.line, bokeh.models.Grid
     :refs: :ref:`userguide_styling` > :ref:`userguide_styling_grid_bands`
     :keywords: hatching, grid band
 

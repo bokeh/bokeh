@@ -3,7 +3,7 @@
 hover tooltip displays information for each tile.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.hexbin
+    :apis: bokeh.plotting.figure.hexbin
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_hex`
     :keywords: hex, hexbin, hover, tooltip
 

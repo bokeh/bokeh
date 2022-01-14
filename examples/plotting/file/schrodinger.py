@@ -3,7 +3,7 @@ dimension in a parabolic potential well. This example demonstrates the use of
 mathtext on ``Label`` and ``Title`` annotations.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.line, bokeh.plotting.Figure.varea, bokeh.models.annotations.Label, bokeh.models.annotations.Title
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.varea, bokeh.models.annotations.Label, bokeh.models.annotations.Title
     :refs: :ref:`userguide_styling` > :ref:`userguide_styling_math`
     :keywords: mathtext, latex
 

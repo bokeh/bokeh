@@ -86,7 +86,7 @@ passing instances of ``Tool`` objects to the ``add_tools()`` method:
     plot.add_tools(wheel)
 
 This way of adding tools works with any Bokeh ``Plot`` or ``Plot`` subclass,
-such as ``Figure``.
+such as ``figure``.
 
 You can specify tools by passing the ``tools`` parameter to the |figure|
 function. The tools parameter accepts a list of tool objects, for example:

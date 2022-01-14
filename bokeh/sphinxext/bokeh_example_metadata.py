@@ -10,7 +10,7 @@ The ``bokeh-example-metadata`` directive can be used by supplying:
 
     .. bokeh-example-metadata::
         :sampledata: `sampledata_iris`
-        :apis: `~bokeh.plotting.Figure.vbar`, :func:`~bokeh.transform.factor_cmap`
+        :apis: `~bokeh.plotting.figure.vbar`, :func:`~bokeh.transform.factor_cmap`
         :refs: `userguide_categorical_bars`
         :words: bar, vbar, legend, factor_cmap, palette
 
@@ -128,8 +128,8 @@ def _apis(apis: str | None) -> str | None:
         # handle a few special cases more carefully
         if api.startswith("bokeh.models"):
             results.append(f":class:`bokeh.models.{last} <{api}>`")
-        elif "Figure." in api:
-            results.append(f":meth:`Figure.{last} <{api}>`")
+        elif "figure." in api:
+            results.append(f":meth:`figure.{last} <{api}>`")
         elif "GMap." in api:
             results.append(f":meth:`GMap.{last} <{api}>`")
 

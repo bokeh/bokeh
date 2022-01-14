@@ -5,7 +5,7 @@ penguin species.
 
 .. bokeh-example-metadata::
     :sampledata: penguins
-    :apis: bokeh.plotting.Figure.scatter, bokeh.transform.linear_cmap, bokeh.transform.factor_mark
+    :apis: bokeh.plotting.figure.scatter, bokeh.transform.linear_cmap, bokeh.transform.factor_mark
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter_markers`, :ref:`userguide_data` > :ref:`userguide_data_transforming`
     :keywords: alpha, colormap, markermap, scatter
 

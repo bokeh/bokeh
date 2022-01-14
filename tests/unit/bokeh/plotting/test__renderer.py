@@ -21,7 +21,7 @@ from bokeh.models import Circle
 
 #from mock import mock
 
-#from bokeh.plotting import Figure
+#from bokeh.plotting import figure
 
 # Module under test
 import bokeh.plotting._renderer as bpr # isort:skip
@@ -129,6 +129,6 @@ class Test_make_glyph:
 #     for value in values:
 #         with mock.patch('bokeh.plotting.helpers.GlyphRenderer', autospec=True) as gr_mock:
 #             fn = bpd._glyph_function(Marker)
-#             fn(Figure(), x=0, y=0, **{arg: value})
+#             fn(figure(), x=0, y=0, **{arg: value})
 #             _, kwargs = gr_mock.call_args
 #             assert arg in kwargs and kwargs[arg] == value

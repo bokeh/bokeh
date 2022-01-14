@@ -17,10 +17,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# this is just for testing, otherwise the figure module is shadowed
-# by the figure function and inacessible (needs happen up top)
-from . import figure as _figure ; _figure
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -32,7 +28,6 @@ __all__ = (
     'DEFAULT_TOOLS',
     'Document',
     'figure',
-    'Figure',
     'from_networkx',
     'gmap',
     'GMap',
@@ -54,10 +49,9 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-from .figure import Figure; Figure
-from .figure import figure; figure
-from .figure import markers; markers
-from .figure import DEFAULT_TOOLS; DEFAULT_TOOLS
+from ._figure import figure; figure
+from ._figure import markers; markers
+from ._figure import DEFAULT_TOOLS; DEFAULT_TOOLS
 
 from .gmap import GMap; GMap
 from .gmap import gmap; gmap

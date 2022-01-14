@@ -185,7 +185,7 @@ def get_class(view_model_name: str) -> Type[Model]:
     # has to be creates first. These imports ensure that all built-in Bokeh
     # models are represented in the catalog.
     from .. import models; models
-    from ..plotting import Figure, GMap; Figure, GMap
+    from ..plotting import figure, GMap; figure, GMap
     from .model import Model
 
     known_models = Model.model_class_reverse_map

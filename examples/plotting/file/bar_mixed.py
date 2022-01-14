@@ -3,7 +3,7 @@ demonstrates mixing nested categorical factors with top-level categorical
 factors.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.ranges.FactorRange, bokeh.plotting.Figure.line, bokeh.plotting.Figure.vbar
+    :apis: bokeh.models.ranges.FactorRange, bokeh.plotting.figure.line, bokeh.plotting.figure.vbar
     :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_mixed`
     :keywords: bar, line, vbar
 

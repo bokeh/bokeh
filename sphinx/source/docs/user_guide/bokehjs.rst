@@ -285,7 +285,7 @@ and hover policy. Here is an example of a ``bar`` chart and the plot it generate
 Known Issues
 ------------
 
-* :bokeh-issue:`11016` Figure name passed to `renderer.glyph.name` but not `renderer.name`
+* :bokeh-issue:`11016` figure name passed to `renderer.glyph.name` but not `renderer.name`
 * :bokeh-issue:`11034` Palettes not accessible by name for `ColorMapper` objects in BokehJS
 * :bokeh-issue:`11035` `Bokeh.Widgets.Div()` missing `tools`, required by `Bokeh.Plotting.gridplot()`
 * :bokeh-issue:`11036` Making axis range padding persistent requires changing `._initial_range_padding` as well

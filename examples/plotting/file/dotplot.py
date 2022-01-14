@@ -1,7 +1,7 @@
 ''' A categorical dot plot based on simple Python lists of data.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.circle, bokeh.plotting.Figure.segment
+    :apis: bokeh.plotting.figure.circle, bokeh.plotting.figure.segment
     :refs: :ref:`userguide_categorical`
     :keywords: circle, dotplot, segments
 

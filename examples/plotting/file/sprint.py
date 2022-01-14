@@ -4,7 +4,7 @@ new browser tab for the Wikipedia entry of the sprinter.
 
 .. bokeh-example-metadata::
     :sampledata: sprint
-    :apis: bokeh.plotting.Figure.scatter, bokeh.models.Arrow, bokeh.models.ColumnDataSource, bokeh.models.Label, bokeh.models.SingleIntervalTicker, bokeh.models.TapTool # noqa: E501
+    :apis: bokeh.plotting.figure.scatter, bokeh.models.Arrow, bokeh.models.ColumnDataSource, bokeh.models.Label, bokeh.models.SingleIntervalTicker, bokeh.models.TapTool # noqa: E501
     :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_labels`
     :keywords: label, scatter, taptool
 

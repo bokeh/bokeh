@@ -125,7 +125,7 @@ Marker models are deprecated
 
 Marker models like ``Asterisk``, ``CircleX``, ``X``, etc. are deprecated. Use
 the ``Scatter`` glyph with a marker type instead, e.g. replace ``Asterisk()``
-with ``Scatter(marker="asterisk")``. Marker methods on ``Figure`` will default
+with ``Scatter(marker="asterisk")``. Marker methods on ``figure`` will default
 to use ``Scatter`` glyph. Marker models were removed from BokehJS.
 
 Tooltip deprecations
@@ -153,7 +153,7 @@ for maintaining the coordinate system of a plot. Use the ``layout.center_panel``
 of a plot to access any layout-related capability. Note you can still use
 ``CartesianFrame.bbox``, so most code doesn't have to change.
 
-Figure sizing fixed in BokehJS
+figure sizing fixed in BokehJS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Previously, setting ``plot.frame_width`` while using ``sizing_mode:'fixed'``

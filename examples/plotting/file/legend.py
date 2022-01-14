@@ -1,7 +1,7 @@
 ''' Line and marker plots that demonstrate automatic legends.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.layouts.gridplot, bokeh.plotting.Figure.circle, bokeh.plotting.Figure.line, bokeh.plotting.Figure.square
+    :apis: bokeh.layouts.gridplot, bokeh.plotting.figure.circle, bokeh.plotting.figure.line, bokeh.plotting.figure.square
     :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_legends`
     :keywords: gridplot
 

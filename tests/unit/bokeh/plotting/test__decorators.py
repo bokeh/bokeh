@@ -21,7 +21,7 @@ from mock import mock
 
 # Bokeh imports
 from bokeh.models import CDSView, Marker
-from bokeh.plotting import Figure
+from bokeh.plotting import figure
 from bokeh.plotting._renderer import RENDERER_ARGS
 
 # Module under test
@@ -59,7 +59,7 @@ def test__glyph_receives_renderer_arg(arg, values) -> None:
         with mock.patch('bokeh.plotting._renderer.GlyphRenderer', autospec=True) as gr_mock:
             def foo(**kw): pass
             fn = bpd.glyph_method(Marker)(foo)
-            fn(Figure(), x=0, y=0, **{arg: value})
+            fn(figure(), x=0, y=0, **{arg: value})
             _, kwargs = gr_mock.call_args
             assert arg in kwargs and kwargs[arg] == value
 
