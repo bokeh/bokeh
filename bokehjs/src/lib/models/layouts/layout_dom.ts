@@ -6,6 +6,7 @@ import {position, classes, extents, undisplayed} from "core/dom"
 import {logger} from "core/logging"
 import {isNumber, isArray} from "core/util/types"
 import {color2css} from "core/util/color"
+import {assign} from "core/util/object"
 import {parse_css_font_size} from "core/util/text"
 import * as p from "core/properties"
 
@@ -115,6 +116,8 @@ export abstract class LayoutDOMView extends DOMComponentView {
     this.on_change([
       p.background,
       p.css_classes,
+      p.style,
+      p.stylesheets,
     ], () => this.invalidate_render())
   }
 
@@ -127,7 +130,11 @@ export abstract class LayoutDOMView extends DOMComponentView {
   }
 
   override css_classes(): string[] {
-    return super.css_classes().concat(this.model.css_classes)
+    return [...super.css_classes(), ...this.model.css_classes]
+  }
+
+  override styles(): string[] {
+    return [...super.styles(), ...this.model.stylesheets]
   }
 
   abstract get child_models(): LayoutDOM[]
@@ -143,6 +150,8 @@ export abstract class LayoutDOMView extends DOMComponentView {
   override render(): void {
     super.render()
     this.empty() // XXX: this should be in super
+
+    assign(this.el.style, this.model.style)
 
     const {background} = this.model
     this.el.style.backgroundColor = background != null ? color2css(background) : ""
@@ -400,6 +409,10 @@ export abstract class LayoutDOMView extends DOMComponentView {
   }
 }
 
+export type FilterStrings<T> = {[K in keyof T & string as T[K] extends string ? K : never]?: T[K]}
+
+export type CSSInlineStyle = FilterStrings<CSSStyleDeclaration>
+
 export namespace LayoutDOM {
   export type Attrs = p.AttrsOf<Props>
 
@@ -420,6 +433,8 @@ export namespace LayoutDOM {
     align: p.Property<Align | [Align, Align]>
     background: p.Property<Color | null>
     css_classes: p.Property<string[]>
+    style: p.Property<CSSInlineStyle>
+    stylesheets: p.Property<string[]>
   }
 }
 
@@ -435,7 +450,7 @@ export abstract class LayoutDOM extends Model {
 
   static {
     this.define<LayoutDOM.Props>((types) => {
-      const {Boolean, Number, String, Auto, Color, Array, Tuple, Or, Null, Nullable} = types
+      const {Boolean, Number, String, Auto, Color, Array, Tuple, Dict, Or, Null, Nullable} = types
       const Number2 = Tuple(Number, Number)
       const Number4 = Tuple(Number, Number, Number, Number)
       return {
@@ -455,6 +470,8 @@ export abstract class LayoutDOM extends Model {
         align:         [ Or(Align, Tuple(Align, Align)), "start" ],
         background:    [ Nullable(Color), null ],
         css_classes:   [ Array(String), [] ],
+        style:         [ Dict(String), {} ], // TODO: add validation for CSSInlineStyle
+        stylesheets:   [ Array(String), [] ],
       }
     })
   }

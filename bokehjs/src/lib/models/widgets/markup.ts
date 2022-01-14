@@ -49,8 +49,7 @@ export abstract class MarkupView extends WidgetView {
 
   override render(): void {
     super.render()
-    const style = {...this.model.style, display: "inline-block"}
-    this.markup_el = div({class: clearfix, style})
+    this.markup_el = div({class: clearfix, style: {display: "inline-block"}})
     this.shadow_el.appendChild(this.markup_el)
 
     if (this.provider.status == "failed" || this.provider.status == "loaded")
@@ -63,7 +62,6 @@ export namespace Markup {
 
   export type Props = Widget.Props & {
     text: p.Property<string>
-    style: p.Property<{[key: string]: string}>
     disable_math: p.Property<boolean>
   }
 }
@@ -79,9 +77,8 @@ export abstract class Markup extends Widget {
   }
 
   static {
-    this.define<Markup.Props>(({Boolean, String, Dict}) => ({
+    this.define<Markup.Props>(({Boolean, String}) => ({
       text:  [ String, "" ],
-      style: [ Dict(String), {} ],
       disable_math: [ Boolean, false ],
     }))
   }

@@ -54,7 +54,7 @@
   }
 
   .bk-tab {
-    padding: 4px 8px; // @padding-vertical @padding-horizontal;
+    padding: 4px 8px; // var(--padding-vertical) var(--padding-horizontal);
     border: solid transparent;
     white-space: nowrap;
     cursor: pointer;
@@ -82,19 +82,19 @@
 
   &.bk-above .bk-tab {
     border-width: 3px 1px 0px 1px;
-    border-radius: @border-radius @border-radius 0 0;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
   }
   &.bk-right .bk-tab {
     border-width: 1px 3px 1px 0px;
-    border-radius: 0 @border-radius @border-radius 0;
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
   }
   &.bk-below .bk-tab {
     border-width: 0px 1px 3px 1px;
-    border-radius: 0 0 @border-radius @border-radius;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
   }
   &.bk-left .bk-tab {
     border-width: 1px 0px 1px 3px;
-    border-radius: @border-radius 0 0 @border-radius;
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
   }
 }
 

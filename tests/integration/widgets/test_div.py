@@ -63,7 +63,7 @@ class Test_Div:
         div = Div(text=text, style={'font-size': '26px'})
         page = bokeh_model_page(div)
 
-        el = find_element_for(page.driver, div, "div")
+        el = find_element_for(page.driver, div)
         assert 'font-size: 26px;' in el.get_attribute('style')
 
         assert page.has_no_console_errors()

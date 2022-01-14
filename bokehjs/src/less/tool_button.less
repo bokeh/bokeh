@@ -1,15 +1,15 @@
 :host {
-  --buttonHeight: 30px;
-  --buttonWidth: 30px;
-  --buttonColor: lightgray;
+  --button-width: 30px;
+  --button-height: 30px;
+  --button-color: lightgray;
 
-  --activeToolHighlight: #26aae1;
-  --activeToolBorder: 2px solid transparent;
+  --active-tool-highlight: #26aae1;
+  --active-tool-border: 2px solid transparent;
 }
 
 .bk-toolbar-button {
-  width: var(--buttonWidth);
-  height: var(--buttonHeight);
+  width: var(--button-width);
+  height: var(--button-height);
 
   cursor: pointer;
 
@@ -26,7 +26,7 @@
   }
 
   &:focus, &:focus-visible {
-    outline: 1px dotted var(--activeToolHighlight);
+    outline: 1px dotted var(--active-tool-highlight);
     outline-offset: -1px;
   }
 
@@ -36,9 +36,9 @@
 }
 
 .toolbar-button-border(@side) {
-  border-@{side}: var(--activeToolBorder);
+  border-@{side}: var(--active-tool-border);
   &.bk-active {
-    border-@{side}-color: var(--activeToolHighlight);
+    border-@{side}-color: var(--active-tool-highlight);
   }
 }
 
@@ -61,7 +61,7 @@
 .bk-divider {
   content: " ";
   display: inline-block;
-  background-color: var(--buttonColor);
+  background-color: var(--button-color);
 }
 
 :host(.bk-above), :host(.bk-below) {
@@ -86,15 +86,15 @@
 
 :host(.bk-above), :host(.bk-below), :host(.bk-horizontal) {
   .bk-tool-overflow {
-    width: calc(var(--buttonWidth) / 2);
-    height: var(--buttonHeight);
+    width: calc(var(--button-width)/2);
+    height: var(--button-height);
     flex-direction: row;
   }
 }
 :host(.bk-left), :host(.bk-right), :host(.bk-vertical) {
   .bk-tool-overflow {
-    width: var(--buttonWidth);
-    height: calc(var(--buttonHeight) / 2);
+    width: var(--button-width);
+    height: calc(var(--button-height)/2);
     flex-direction: column;
   }
 }

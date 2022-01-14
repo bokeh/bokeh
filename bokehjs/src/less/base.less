@@ -1,10 +1,19 @@
-@import "./_mixins.less";
+:host {
+  --font-size: 12px;
+  --line-height: calc(20 / 14);
+  --line-height-computed: calc(var(--font-size) * var(--line-height));
+
+  --border-radius: 4px;
+
+  --padding-vertical: 6px;
+  --padding-horizontal: 12px;
+}
 
 :host {
   box-sizing: border-box;
   font-family: var(--bokeh-base-font, Helvetica, Arial, sans-serif);
   font-size: 13px; // 0.8em
-  line-height: @line-height;
+  line-height: var(--line-height);
 }
 
 *, *:before, *:after {

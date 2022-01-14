@@ -455,7 +455,7 @@ ToolIcon = enumeration(
   "box_select",
   "box_zoom",
   "clear_selection",
-  "copy_to_clipboard",
+  "copy",
   "crosshair",
   "freehand_draw",
   "help",

@@ -122,6 +122,11 @@ implementation, then use data models (e.g. extend from ``DataModel``).
 as assigned to. Previously providing a data source in both a glyph renderer
 and a source view was redundant.
 
+Renames
+~~~~~~~
+
+* ``copy_to_clipboard`` icon was renamed to ``copy``
+
 Runtime dependencies
 ~~~~~~~~~~~~~~~~~~~~
 
