@@ -7,6 +7,7 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 
 import {
   Button, Toggle, Dropdown,
+  Switch,
   CheckboxGroup, RadioGroup,
   CheckboxButtonGroup, RadioButtonGroup,
   TextInput, AutocompleteInput, TextAreaInput, FileInput,
@@ -76,6 +77,16 @@ describe("Widgets", () => {
     toggle.dispatchEvent(ev)
 
     await view.ready
+  })
+
+  it("should allow Switch with active=false", async () => {
+    const obj = new Switch({active: false})
+    await display(obj, [500, 50])
+  })
+
+  it("should allow Switch with active=true", async () => {
+    const obj = new Switch({active: true})
+    await display(obj, [500, 50])
   })
 
   it("should allow CheckboxGroup", async () => {

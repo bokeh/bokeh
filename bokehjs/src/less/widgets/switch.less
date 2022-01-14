@@ -1,0 +1,37 @@
+:host {
+  cursor: pointer;
+  height: 16px;
+}
+
+:host(.disabled) {
+  cursor: default;
+}
+
+.bar {
+  position: relative;
+  top: 3px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #e5e5e5;
+  transition-property: background-color;
+}
+
+.knob {
+  position: relative;
+  top: -3px;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background-color: #adadad;
+  transition-property: left, background-color;
+}
+
+:host(.active) .bar {
+  background-color: #c2d5f7;
+}
+
+:host(.active) .knob {
+  left: calc(100% - 16px);
+  background-color: #3b80f0;
+}
