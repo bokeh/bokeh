@@ -7,7 +7,7 @@ import {Document} from "@bokehjs/document/document"
 import * as events from "@bokehjs/document/events"
 
 const EVENTS = [
-//  "ColumnDataChangedEvent", // Not implemented yet
+  "ColumnDataChangedEvent",
   "ColumnsPatchedEvent",
   "ColumnsStreamedEvent",
   "DocumentChangedEvent",

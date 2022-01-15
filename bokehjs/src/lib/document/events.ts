@@ -38,8 +38,8 @@ export type RootRemoved = {
 export type ColumnDataChanged = {
   kind: "ColumnDataChanged"
   column_source: Ref
-  cols?: any
-  new: unknown
+  new: Data
+  cols?: string[]
 }
 
 export type ColumnsStreamed = {
@@ -168,6 +168,32 @@ export class ColumnsPatchedEvent extends DocumentChangedEvent {
       kind: "ColumnsPatched",
       column_source: this.column_source,
       patches: this.patches,
+    }
+  }
+}
+
+export class ColumnDataChangedEvent extends DocumentChangedEvent {
+
+  constructor(document: Document,
+      readonly column_source: Ref,
+      readonly new_: Data,
+      readonly cols?: string[]) {
+    super(document)
+  }
+
+  override [equals](that: this, cmp: Comparator): boolean {
+    return super[equals](that, cmp) &&
+      cmp.eq(this.column_source, that.column_source) &&
+      cmp.eq(this.new_, that.new_) &&
+      cmp.eq(this.cols, that.cols)
+  }
+
+  [serialize](_serializer: Serializer): ColumnDataChanged {
+    return {
+      kind: "ColumnDataChanged",
+      column_source: this.column_source,
+      new: this.new_,
+      cols: this.cols,
     }
   }
 }

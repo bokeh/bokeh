@@ -564,7 +564,7 @@ export class Document implements Equatable {
           }
           const data = event_json.data
           const rollover = event_json.rollover
-          column_source.stream(data, rollover, false)
+          column_source.stream(data, rollover, {sync: false})
           break
         }
         case "ColumnsPatched": {
@@ -577,7 +577,7 @@ export class Document implements Equatable {
             throw new Error("Cannot patch non-ColumnDataSource")
           }
           const patches = event_json.patches
-          column_source.patch(patches, false)
+          column_source.patch(patches, {sync: false})
           break
         }
         case "RootAdded": {

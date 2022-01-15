@@ -161,21 +161,21 @@ export class ColumnDataSource extends ColumnarDataSource {
     }))
   }
 
-  stream(new_data: Data, rollover?: number, sync: boolean = true): void {
+  stream(new_data: Data, rollover?: number, {sync}: {sync?: boolean} = {}): void {
     const {data} = this
     for (const [name, new_column] of entries(new_data)) {
       data[name] = stream_to_column(data[name], new_column, rollover)
     }
     this.setv({data}, {silent: true})
     this.streaming.emit()
-    if (this.document != null && sync) {
+    if (this.document != null && (sync ?? true)) {
       const hint = new ColumnsStreamedEvent(this.document, this.ref(), new_data, rollover)
       const event = new ModelChangedEvent(this.document, this, "data", null, null, hint)
       this.document._trigger_on_change(event)
     }
   }
 
-  patch(patches: PatchSet<unknown>, sync: boolean = true): void {
+  patch(patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {
     const {data} = this
     let patched: Set<number> = new Set()
     for (const [column, patch] of entries(patches)) {
@@ -183,7 +183,7 @@ export class ColumnDataSource extends ColumnarDataSource {
     }
     this.setv({data}, {silent: true})
     this.patching.emit([...patched])
-    if (this.document != null && sync) {
+    if (this.document != null && (sync ?? true)) {
       const hint = new ColumnsPatchedEvent(this.document, this.ref(), patches)
       const event = new ModelChangedEvent(this.document, this, "data", null, null, hint)
       this.document._trigger_on_change(event)
