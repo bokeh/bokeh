@@ -33,10 +33,10 @@ dropdown_split.js_on_event("button_click", CustomJS(code="console.log('dropdown(
 dropdown_split.js_on_event("menu_item_click", CustomJS(code="console.log('dropdown(split): ' + this.item, this.toString())"))
 
 checkbox_group = CheckboxGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
-checkbox_group.js_on_event('button_click', CustomJS(code="console.log('checkbox_group: active=' + this.origin.active, this.toString())"))
+checkbox_group.js_on_change('active', CustomJS(code="console.log('checkbox_group: active=' + this.active, this.toString())"))
 
 radio_group = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
-radio_group.js_on_event('button_click', CustomJS(code="console.log('radio_group: active=' + this.origin.active, this.toString())"))
+radio_group.js_on_change('active', CustomJS(code="console.log('radio_group: active=' + this.active, this.toString())"))
 
 checkbox_button_group = CheckboxButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
 checkbox_button_group.js_on_event("button_click", CustomJS(code="console.log('checkbox_button_group: active=' + this.origin.active, this.toString())"))

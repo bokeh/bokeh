@@ -3,7 +3,6 @@ import {uniqueId} from "core/util/string"
 import * as p from "core/properties"
 
 import {InputGroup, InputGroupView} from "./input_group"
-import {ButtonClick} from "core/bokeh_events"
 
 import * as inputs from "styles/widgets/inputs.css"
 
@@ -22,10 +21,7 @@ export class RadioGroupView extends InputGroupView {
     this._inputs = []
     for (let i = 0; i < labels.length; i++) {
       const radio = input({type: "radio", name, value: `${i}`})
-      radio.addEventListener("click", () => {
-        this.change_active(i)
-        this.model.trigger_event(new ButtonClick())
-      })
+      radio.addEventListener("change", () => this.change_active(i))
       this._inputs.push(radio)
 
       if (this.model.disabled)
