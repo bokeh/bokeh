@@ -131,7 +131,7 @@ as assigned to. Previously providing a data source in both a glyph renderer
 and a source view was redundant.
 
 ``RadioGroup / CheckboxGroup on_click``
-..................
+.......................................
 
 ``RadioGroup`` and ``CheckboxGroup`` no longer supports ``on_click`` event handlers.
 Use ``on_change('active', cb)`` instead.
