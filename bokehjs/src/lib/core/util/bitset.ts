@@ -3,6 +3,8 @@ import {Arrayable, ArrayableNew} from "../types"
 import {assert} from "./assert"
 
 export class BitSet implements Equatable {
+  readonly [Symbol.toStringTag] = "BitSet"
+
   private readonly _array: Uint32Array
   private readonly _nwords: number
 
@@ -18,8 +20,6 @@ export class BitSet implements Equatable {
       this._array = init
     }
   }
-
-  [Symbol.toStringTag] = "BitSet"
 
   clone(): BitSet {
     return new BitSet(this.size, new Uint32Array(this._array))

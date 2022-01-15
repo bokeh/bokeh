@@ -220,6 +220,10 @@ export function remove_by<T>(array: T[], key: (item: T) => boolean): void {
   }
 }
 
+export function clear(array: unknown[]): void {
+  array.splice(0, array.length)
+}
+
 // Shuffle a collection, using the modern version of the
 // [Fisher-Yates shuffle](http://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
 export function shuffle<T>(array: T[]): T[] {

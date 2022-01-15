@@ -16,6 +16,7 @@ import {Scalar, Vector, Dimensional, Transform, Expression, ScalarExpression, Ve
 import {settings} from "./settings"
 import {Kind} from "./kinds"
 import {is_NDArray, NDArray} from "./util/ndarray"
+import {diagnostics} from "./diagnostics"
 
 import {Uniform, UniformScalar, UniformVector, ColorUniformVector} from "./uniforms"
 export {Uniform, UniformScalar, UniformVector}
@@ -161,6 +162,7 @@ export abstract class Property<T = unknown> {
       this._update(val)
       this._dirty = true
     }
+    diagnostics.report(this)
   }
 
   // abstract _intrinsic_default(): T
