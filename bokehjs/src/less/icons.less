@@ -1,190 +1,190 @@
-.tool-icon(@icon, @file) {
-  @path: "../../../sphinx/source/_images/icons";
-  background-image: var(@icon, data-uri("@{path}/@{file}.png"));
+.tool-icon(@icon, @default) {
+  mask-image: var(@icon, @default);
+  -webkit-mask-image: var(@icon, var(@default));
 }
 
 .bk-tool-icon-copy {
-  .tool-icon(--bokeh-icon-copy, "Copy");
+  .tool-icon(--bokeh-icon-copy, --bokeh-default-icon-copy);
 }
 
 .bk-tool-icon-replace-mode {
-  .tool-icon(--bokeh-icon-replace-mode, "ReplaceMode");
+  .tool-icon(--bokeh-icon-replace-mode, --bokeh-default-icon-replace-mode);
 }
 
 .bk-tool-icon-append-mode {
-  .tool-icon(--bokeh-icon-append-mode, "AppendMode");
+  .tool-icon(--bokeh-icon-append-mode, --bokeh-default-icon-append-mode);
 }
 
 .bk-tool-icon-intersect-mode {
-  .tool-icon(--bokeh-icon-intersect-mode, "IntersectMode");
+  .tool-icon(--bokeh-icon-intersect-mode, --bokeh-default-icon-intersect-mode);
 }
 
 .bk-tool-icon-subtract-mode {
-  .tool-icon(--bokeh-icon-subtract-mode, "SubtractMode");
+  .tool-icon(--bokeh-icon-subtract-mode, --bokeh-default-icon-subtract-mode);
 }
 
 .bk-tool-icon-clear-selection {
-  .tool-icon(--bokeh-icon-clear-selection, "ClearSelection");
+  .tool-icon(--bokeh-icon-clear-selection, --bokeh-default-icon-clear-selection);
 }
 
 .bk-tool-icon-box-select {
-  .tool-icon(--bokeh-icon-box-select, "BoxSelect");
+  .tool-icon(--bokeh-icon-box-select, --bokeh-default-icon-box-select);
 }
 
 .bk-tool-icon-x-box-select {
-  .tool-icon(--bokeh-icon-x-box-select, "BoxSelect");
+  .tool-icon(--bokeh-icon-x-box-select, --bokeh-default-icon-x-box-select);
 }
 
 .bk-tool-icon-y-box-select {
-  .tool-icon(--bokeh-icon-y-box-select, "BoxSelect");
+  .tool-icon(--bokeh-icon-y-box-select, --bokeh-default-icon-y-box-select);
 }
 
 .bk-tool-icon-box-zoom {
-  .tool-icon(--bokeh-icon-box-zoom, "BoxZoom");
+  .tool-icon(--bokeh-icon-box-zoom, --bokeh-default-icon-box-zoom);
 }
 
 .bk-tool-icon-zoom-in {
-  .tool-icon(--bokeh-icon-zoom-in, "ZoomIn");
+  .tool-icon(--bokeh-icon-zoom-in, --bokeh-default-icon-zoom-in);
 }
 
 .bk-tool-icon-x-zoom-in {
-  .tool-icon(--bokeh-icon-x-zoom-in, "ZoomIn");
+  .tool-icon(--bokeh-icon-x-zoom-in, --bokeh-default-icon-x-zoom-in);
 }
 
 .bk-tool-icon-y-zoom-in {
-  .tool-icon(--bokeh-icon-y-zoom-in, "ZoomIn");
+  .tool-icon(--bokeh-icon-y-zoom-in, --bokeh-default-icon-y-zoom-in);
 }
 
 .bk-tool-icon-zoom-out {
-  .tool-icon(--bokeh-icon-zoom-out, "ZoomOut");
+  .tool-icon(--bokeh-icon-zoom-out, --bokeh-default-icon-zoom-out);
 }
 
 .bk-tool-icon-x-zoom-out {
-  .tool-icon(--bokeh-icon-x-zoom-out, "ZoomOut");
+  .tool-icon(--bokeh-icon-x-zoom-out, --bokeh-default-icon-x-zoom-out);
 }
 
 .bk-tool-icon-y-zoom-out {
-  .tool-icon(--bokeh-icon-y-zoom-out, "ZoomOut");
+  .tool-icon(--bokeh-icon-y-zoom-out, --bokeh-default-icon-y-zoom-out);
 }
 
 .bk-tool-icon-help {
-  .tool-icon(--bokeh-icon-help, "Help");
+  .tool-icon(--bokeh-icon-help, --bokeh-default-icon-help);
 }
 
 .bk-tool-icon-hover {
-  .tool-icon(--bokeh-icon-hover, "Hover");
+  .tool-icon(--bokeh-icon-hover, --bokeh-default-icon-hover);
 }
 
 .bk-tool-icon-crosshair {
-  .tool-icon(--bokeh-icon-crosshair, "Crosshair");
+  .tool-icon(--bokeh-icon-crosshair, --bokeh-default-icon-crosshair);
 }
 
 .bk-tool-icon-lasso-select {
-  .tool-icon(--bokeh-icon-lasso-select, "LassoSelect");
+  .tool-icon(--bokeh-icon-lasso-select, --bokeh-default-icon-lasso-select);
 }
 
 .bk-tool-icon-pan {
-  .tool-icon(--bokeh-icon-pan, "Pan");
+  .tool-icon(--bokeh-icon-pan, --bokeh-default-icon-pan);
 }
 
 .bk-tool-icon-x-pan {
-  .tool-icon(--bokeh-icon-x-pan, "XPan");
+  .tool-icon(--bokeh-icon-x-pan, --bokeh-default-icon-x-pan);
 }
 
 .bk-tool-icon-y-pan {
-  .tool-icon(--bokeh-icon-y-pan, "YPan");
+  .tool-icon(--bokeh-icon-y-pan, --bokeh-default-icon-y-pan);
 }
 
 .bk-tool-icon-range {
-  .tool-icon(--bokeh-icon-range, "Range");
+  .tool-icon(--bokeh-icon-range, --bokeh-default-icon-range);
 }
 
 .bk-tool-icon-polygon-select {
-  .tool-icon(--bokeh-icon-polygon-select, "PolygonSelect");
+  .tool-icon(--bokeh-icon-polygon-select, --bokeh-default-icon-polygon-select);
 }
 
 .bk-tool-icon-redo {
-  .tool-icon(--bokeh-icon-redo, "Redo");
+  .tool-icon(--bokeh-icon-redo, --bokeh-default-icon-redo);
 }
 
 .bk-tool-icon-reset {
-  .tool-icon(--bokeh-icon-reset, "Reset");
+  .tool-icon(--bokeh-icon-reset, --bokeh-default-icon-reset);
 }
 
 .bk-tool-icon-save {
-  .tool-icon(--bokeh-icon-save, "Save");
+  .tool-icon(--bokeh-icon-save, --bokeh-default-icon-save);
 }
 
 .bk-tool-icon-tap-select {
-  .tool-icon(--bokeh-icon-tap-select, "Tap");
+  .tool-icon(--bokeh-icon-tap-select, --bokeh-default-icon-tap-select);
 }
 
 .bk-tool-icon-undo {
-  .tool-icon(--bokeh-icon-undo, "Undo");
+  .tool-icon(--bokeh-icon-undo, --bokeh-default-icon-undo);
 }
 
 .bk-tool-icon-wheel-pan {
-  .tool-icon(--bokeh-icon-wheel-pan, "WheelPan");
+  .tool-icon(--bokeh-icon-wheel-pan, --bokeh-default-icon-wheel-pan);
 }
 
 .bk-tool-icon-wheel-zoom {
-  .tool-icon(--bokeh-icon-wheel-zoom, "WheelZoom");
+  .tool-icon(--bokeh-icon-wheel-zoom, --bokeh-default-icon-wheel-zoom);
 }
 
 .bk-tool-icon-box-edit {
-  .tool-icon(--bokeh-icon-box-edit, "BoxEdit");
+  .tool-icon(--bokeh-icon-box-edit, --bokeh-default-icon-box-edit);
 }
 
 .bk-tool-icon-freehand-draw {
-  .tool-icon(--bokeh-icon-freehand-draw, "FreehandDraw");
+  .tool-icon(--bokeh-icon-freehand-draw, --bokeh-default-icon-freehand-draw);
 }
 
 .bk-tool-icon-poly-draw {
-  .tool-icon(--bokeh-icon-poly-draw, "PolyDraw");
+  .tool-icon(--bokeh-icon-poly-draw, --bokeh-default-icon-poly-draw);
 }
 
 .bk-tool-icon-point-draw {
-  .tool-icon(--bokeh-icon-point-draw, "PointDraw");
+  .tool-icon(--bokeh-icon-point-draw, --bokeh-default-icon-point-draw);
 }
 
 .bk-tool-icon-poly-edit {
-  .tool-icon(--bokeh-icon-poly-edit, "PolyEdit");
+  .tool-icon(--bokeh-icon-poly-edit, --bokeh-default-icon-poly-edit);
 }
 
 .bk-tool-icon-line-edit {
-  .tool-icon(--bokeh-icon-line-edit, "LineEdit");
+  .tool-icon(--bokeh-icon-line-edit, --bokeh-default-icon-line-edit);
 }
 
 :host {
-  --bokeh-icon-pan: data-uri("icons/pan.svg");
-  --bokeh-icon-x-pan: data-uri("icons/x-pan.svg");
-  --bokeh-icon-y-pan: data-uri("icons/y-pan.svg");
+  --bokeh-default-icon-pan: data-uri("icons/pan.svg");
+  --bokeh-default-icon-x-pan: data-uri("icons/x-pan.svg");
+  --bokeh-default-icon-y-pan: data-uri("icons/y-pan.svg");
 
-  --bokeh-icon-zoom-in: data-uri("icons/zoom-in.svg");
-  --bokeh-icon-x-zoom-in: data-uri("icons/x-zoom-in.svg");
-  --bokeh-icon-y-zoom-in: data-uri("icons/y-zoom-in.svg");
+  --bokeh-default-icon-zoom-in: data-uri("icons/zoom-in.svg");
+  --bokeh-default-icon-x-zoom-in: data-uri("icons/x-zoom-in.svg");
+  --bokeh-default-icon-y-zoom-in: data-uri("icons/y-zoom-in.svg");
 
-  --bokeh-icon-zoom-out: data-uri("icons/zoom-out.svg");
-  --bokeh-icon-x-zoom-out: data-uri("icons/x-zoom-out.svg");
-  --bokeh-icon-y-zoom-out: data-uri("icons/y-zoom-out.svg");
+  --bokeh-default-icon-zoom-out: data-uri("icons/zoom-out.svg");
+  --bokeh-default-icon-x-zoom-out: data-uri("icons/x-zoom-out.svg");
+  --bokeh-default-icon-y-zoom-out: data-uri("icons/y-zoom-out.svg");
 
-  --bokeh-icon-undo: data-uri("icons/undo.svg");
-  --bokeh-icon-redo: data-uri("icons/redo.svg");
-  --bokeh-icon-reset: data-uri("icons/reset.svg");
+  --bokeh-default-icon-undo: data-uri("icons/undo.svg");
+  --bokeh-default-icon-redo: data-uri("icons/redo.svg");
+  --bokeh-default-icon-reset: data-uri("icons/reset.svg");
 
-  --bokeh-icon-save: data-uri("icons/download.svg");
-  --bokeh-icon-copy: data-uri("icons/copy.svg");
+  --bokeh-default-icon-save: data-uri("icons/download.svg");
+  --bokeh-default-icon-copy: data-uri("icons/copy.svg");
 
-  --bokeh-icon-help: data-uri("icons/help.svg");
+  --bokeh-default-icon-help: data-uri("icons/help.svg");
 
-  --bokeh-icon-hover: data-uri("icons/tooltip.svg");
-  --bokeh-icon-crosshair: data-uri("icons/crosshair.svg");
+  --bokeh-default-icon-hover: data-uri("icons/tooltip.svg");
+  --bokeh-default-icon-crosshair: data-uri("icons/crosshair.svg");
 
-  --bokeh-icon-box-select: data-uri("icons/box-select.svg");
-  --bokeh-icon-x-box-select: data-uri("icons/x-box-select.svg");
-  --bokeh-icon-y-box-select: data-uri("icons/y-box-select.svg");
+  --bokeh-default-icon-box-select: data-uri("icons/box-select.svg");
+  --bokeh-default-icon-x-box-select: data-uri("icons/x-box-select.svg");
+  --bokeh-default-icon-y-box-select: data-uri("icons/y-box-select.svg");
 
-  --bokeh-icon-tap-select: data-uri("icons/tap-select.svg");
+  --bokeh-default-icon-tap-select: data-uri("icons/tap-select.svg");
 
-  --bokeh-icon-clear-selection: data-uri("icons/clear-selection.svg");
+  --bokeh-default-icon-clear-selection: data-uri("icons/clear-selection.svg");
 }
