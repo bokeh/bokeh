@@ -266,6 +266,11 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         for name, value in properties.items():
             setattr(self, name, value)
 
+        for name in self.properties() - set(properties.keys()):
+            desc = self.lookup(name)
+            if desc.has_unstable_default(self):
+                desc._get(self) # this fills-in `_unstable_*_values`
+
         self._initialized = True
 
     def __setattr__(self, name: str, value: Unknown) -> None:
@@ -747,7 +752,7 @@ def _HasProps_to_serializable(cls: Type[HasProps], serializer: Serializer) -> Re
         if default is Undefined:
             prop_def = PropertyDef(name=prop_name, kind=kind)
         else:
-            if callable(default):
+            if descriptor.is_unstable(default):
                 default = default()
 
             prop_def = PropertyDef(name=prop_name, kind=kind, default=serializer.encode(default))

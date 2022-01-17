@@ -161,7 +161,7 @@ class Property(PropertyDescriptorFactory[T]):
         return callable(self._default)
 
     @classmethod
-    def _copy_default(cls, default: Callable[[], T] | T, no_eval: bool = False) -> T:
+    def _copy_default(cls, default: Callable[[], T] | T, *, no_eval: bool = False) -> T:
         """ Return a copy of the default, or a new value if the default
         is specified by a function.
 
@@ -173,7 +173,7 @@ class Property(PropertyDescriptorFactory[T]):
                 return default
             return default()
 
-    def _raw_default(self, no_eval: bool = False) -> T:
+    def _raw_default(self, *, no_eval: bool = False) -> T:
         """ Return the untransformed default value.
 
         The raw_default() needs to be validated and transformed by
@@ -183,7 +183,7 @@ class Property(PropertyDescriptorFactory[T]):
         """
         return self._copy_default(self._default, no_eval=no_eval)
 
-    def themed_default(self, cls: Type[HasProps], name: str, theme_overrides: Dict[str, Any] | None, no_eval: bool = False) -> T:
+    def themed_default(self, cls: Type[HasProps], name: str, theme_overrides: Dict[str, Any] | None, *, no_eval: bool = False) -> T:
         """ The default, transformed by prepare_value() and the theme overrides.
 
         """
@@ -545,5 +545,5 @@ def validation_on() -> bool:
 #-----------------------------------------------------------------------------
 
 @register_type_link(SingleParameterizedProperty)
-def _sphinx_type(obj):
+def _sphinx_type(obj: SingleParameterizedProperty[Any]):
     return f"{property_link(obj)}({type_link(obj.type_param)})"

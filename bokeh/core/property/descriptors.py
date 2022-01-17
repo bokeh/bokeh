@@ -90,13 +90,18 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from copy import copy
+from types import FunctionType
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Generic,
     Type,
     TypeVar,
 )
+
+# External imports
+from typing_extensions import TypeGuard
 
 # Bokeh imports
 from .singletons import Undefined
@@ -162,6 +167,9 @@ class AliasPropertyDescriptor(Generic[T]):
     @property
     def readonly(self) -> bool:
         return self.property.readonly
+
+    def has_unstable_default(self, obj: HasProps) -> bool:
+        return obj.lookup(self.aliased_name).has_unstable_default(obj)
 
 class PropertyDescriptor(Generic[T]):
     """ A base class for Bokeh properties with simple get/set and serialization
@@ -299,7 +307,7 @@ class PropertyDescriptor(Generic[T]):
         if self.name in obj._unstable_default_values:
             del obj._unstable_default_values[self.name]
 
-    def class_default(self, cls, no_eval: bool = False):
+    def class_default(self, cls: Type[HasProps], *, no_eval: bool = False):
         """ Get the default value for a specific subtype of ``HasProps``,
         which may not be used for an individual instance.
 
@@ -428,6 +436,16 @@ class PropertyDescriptor(Generic[T]):
         """
         return self.property.serialized
 
+    def has_unstable_default(self, obj: HasProps) -> bool:
+        # _may_have_unstable_default() doesn't have access to overrides, so check manually
+        return self.property._may_have_unstable_default() or \
+            self.is_unstable(obj.__overridden_defaults__.get(self.name, None))
+
+    @classmethod
+    def is_unstable(cls, value: Any) -> TypeGuard[Callable[[], Any]]:
+        from .instance import InstanceDefault
+        return isinstance(value, (FunctionType, InstanceDefault))
+
     def _get(self, obj: HasProps) -> T:
         """ Internal implementation of instance attribute access for the
         ``PropertyDescriptor`` getter.
@@ -477,9 +495,7 @@ class PropertyDescriptor(Generic[T]):
         if self.name in unstable_dict:
             return unstable_dict[self.name]
 
-        # _may_have_unstable_default() doesn't have access to overrides, so check manually
-        if self.property._may_have_unstable_default() or \
-                callable(obj.__class__.__overridden_defaults__.get(self.name, None)):
+        if self.has_unstable_default(obj):
             if isinstance(default, PropertyValueContainer):
                 default._register_owner(obj, self)
             unstable_dict[self.name] = default
