@@ -55,7 +55,7 @@ __all__ = (
 
 ID = NewType("ID", str)
 
-JSON = Any
+JSON = Any # TODO: Union[None, bool, float, str, List[JSON], Dict[str, JSON]]
 
 PathLike = Union[str, "os.PathLike[str]"]
 

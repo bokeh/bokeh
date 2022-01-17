@@ -2,7 +2,7 @@ import {ModelResolver} from "../base"
 import {HasProps} from "./has_props"
 import {ID, Attrs, PlainObject} from "./types"
 import {Struct, is_ref} from "./util/refs"
-import {Buffers, is_NDArray_ref, decode_NDArray} from "./util/serialization"
+import {Buffers, is_NDArray_ref, decode_NDArray, NDArrayRef} from "./util/serialization"
 import {ndarray} from "./util/ndarray"
 import {values, entries} from "./util/object"
 import {isArray, isPlainObject, isString, isNumber} from "./util/types"
@@ -10,14 +10,37 @@ import {type Document} from "document"
 
 export type RefMap = Map<ID, HasProps>
 
+type AnyVal = AnyRef
+type AnyRef = NumberRef | ArrayRef | NDArrayRef | SetRef | MapRef
+
+type NumberRef = {
+  type: "number"
+  value: number | "nan" | "-inf" | "+inf"
+}
+
+type ArrayRef = {
+  type: "array"
+  entries: AnyVal[]
+}
+
+type SetRef = {
+  type: "map"
+  entries: AnyVal[]
+}
+
+type MapRef = {
+  type: "map"
+  entries: [AnyVal, AnyVal][]
+}
+
 export class Deserializer {
 
-  static decode(value: unknown/*, buffers?: Buffer[]*/): unknown {
+  static decode(value: unknown, buffers: Buffers = new Map()): unknown {
 
     function decode(obj: unknown): unknown {
       if (isPlainObject(obj)) {
-        if ("$type" in obj) {
-          switch (obj.$type) {
+        if ("type" in obj) {
+          switch (obj.type) {
             case "number": {
               if ("value" in obj) {
                 const {value} = obj
@@ -40,16 +63,10 @@ export class Deserializer {
               }
               return decoded
             }
-            /*
             case "ndarray": {
-              export type NDArrayRef = {
-                buffer: Ref | string
-                order: ByteOrder
-                dtype: DataType
-                shape: Shape
-              }
+              const {buffer, dtype, shape} = decode_NDArray(obj as NDArrayRef, buffers)
+              return ndarray(buffer, {dtype, shape})
             }
-            */
             case "set": {
               const decoded = new Set()
               if ("entries" in obj && isArray(obj.entries)) {
@@ -67,13 +84,16 @@ export class Deserializer {
                     const [k, v] = entry
                     decoded.set(decode(k), decode(v))
                   } else
-                    throw new Error(`invalid entry when decoding an object of type '${obj.$type}'`)
+                    throw new Error(`invalid entry when decoding an object of type '${obj.type}'`)
                 }
               }
               return decoded
             }
           }
-          throw new Error(`unable to decode an object of type '${obj.$type}'`)
+          if ("attributes" in obj)
+            return obj // TODO: for now resolved later
+          else
+            throw new Error(`unable to decode an object of type '${obj.type}'`)
         } else {
           const decoded: PlainObject = {}
           for (const [k, v] of entries(obj)) {

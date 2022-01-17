@@ -101,6 +101,7 @@ from typing import (
 )
 
 # Bokeh imports
+from ..serialization import Deserializer
 from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
 
@@ -374,7 +375,10 @@ class PropertyDescriptor(Generic[T]):
             None
 
         """
-        value = self.property.prepare_value(obj, self.name, self.property.from_json(json, models=models))
+        deserializer = Deserializer()
+        json = deserializer.from_serializable(json)
+        json = self.property.from_json(json, models=models)
+        value = self.property.prepare_value(obj, self.name, json)
         old = self._get(obj)
         self._set(obj, old, value, setter=setter)
 

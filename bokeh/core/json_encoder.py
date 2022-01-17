@@ -53,33 +53,18 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import collections
-import datetime as dt
-import decimal
 import json
 from typing import Any
 
-# External imports
-import numpy as np
-
 # Bokeh imports
 from ..settings import settings
-from ..util.dependencies import import_optional
-from ..util.serialization import (
-    convert_datetime_type,
-    convert_timedelta_type,
-    is_datetime_type,
-    is_timedelta_type,
-    transform_array,
-    transform_series,
-)
+from .types import JSON
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'BokehJSONEncoder',
     'serialize_json',
 )
 
@@ -87,7 +72,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def serialize_json(obj: Any, pretty: bool | None = None, indent: int | None = None, **kwargs: Any) -> str:
+def serialize_json(obj: JSON, *, pretty: bool | None = None, indent: int | None = None, **kwargs: Any) -> str:
     ''' Return a serialized JSON representation of objects, suitable to
     send to BokehJS.
 
@@ -161,104 +146,12 @@ def serialize_json(obj: Any, pretty: bool | None = None, indent: int | None = No
     if pretty and indent is None:
         indent = 2
 
-    return json.dumps(obj, cls=BokehJSONEncoder, allow_nan=False, indent=indent, separators=separators, sort_keys=True, **kwargs)
+    return json.dumps(obj, allow_nan=False, indent=indent, separators=separators, sort_keys=True, **kwargs)
 
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-class BokehJSONEncoder(json.JSONEncoder):
-    ''' A custom ``json.JSONEncoder`` subclass for encoding objects in
-    accordance with the BokehJS protocol.
-
-    '''
-
-    def transform_python_types(self, obj: Any) -> Any:
-        ''' Handle special scalars such as (Python, NumPy, or Pandas)
-        datetimes, or Decimal values.
-
-        Args:
-            obj (obj) :
-
-                The object to encode. Anything not specifically handled in
-                this method is passed on to the default system JSON encoder.
-
-        '''
-        rd = import_optional("dateutil.relativedelta")
-
-        # date/time values that get serialized as milliseconds
-        if is_datetime_type(obj):
-            return convert_datetime_type(obj)
-
-        if is_timedelta_type(obj):
-            return convert_timedelta_type(obj)
-
-        # Date
-        if isinstance(obj, dt.date):
-            return obj.isoformat()
-
-        # slice objects
-        elif isinstance(obj, slice):
-            return dict(start=obj.start, stop=obj.stop, step=obj.step)
-
-        # NumPy scalars
-        elif np.issubdtype(type(obj), np.floating):
-            return float(obj)
-        elif np.issubdtype(type(obj), np.integer):
-            return int(obj)
-        elif np.issubdtype(type(obj), np.bool_):
-            return bool(obj)
-
-        # Decimal values
-        elif isinstance(obj, decimal.Decimal):
-            return float(obj)
-
-        # RelativeDelta gets serialized as a dict
-        elif rd and isinstance(obj, rd.relativedelta):
-            return dict(years=obj.years,
-                    months=obj.months,
-                    days=obj.days,
-                    hours=obj.hours,
-                    minutes=obj.minutes,
-                    seconds=obj.seconds,
-                    microseconds=obj.microseconds)
-
-        else:
-            return super().default(obj)
-
-    def default(self, obj: Any) -> Any:
-        ''' The required ``default`` method for ``JSONEncoder`` subclasses.
-
-        Args:
-            obj (obj) :
-
-                The object to encode. Anything not specifically handled in
-                this method is passed on to the default system JSON encoder.
-
-        '''
-        from ..colors import Color
-        from ..model import Model
-        from .has_props import HasProps
-
-        pd = import_optional('pandas')
-
-        # array types -- use force_list here, only binary
-        # encoding CDS columns for now
-        if pd and isinstance(obj, (pd.Series, pd.Index)):
-            return transform_series(obj, force_list=True)
-        elif isinstance(obj, np.ndarray):
-            return transform_array(obj, force_list=True)
-        elif isinstance(obj, collections.deque):
-            return [ self.default(item) for item in obj ]
-        elif isinstance(obj, Model):
-            return obj.ref
-        elif isinstance(obj, HasProps):
-            return obj.properties_with_values(include_defaults=False)
-        elif isinstance(obj, Color):
-            return obj.to_css()
-        else:
-            return self.transform_python_types(obj)
 
 #-----------------------------------------------------------------------------
 # Private API

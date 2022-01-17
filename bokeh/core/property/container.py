@@ -31,7 +31,7 @@ from collections.abc import (
 from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
-from ...util.serialization import decode_base64_dict, transform_column_source_data
+from ...util.serialization import decode_base64_dict
 from ._sphinx import property_link, register_type_link, type_link
 from .bases import ContainerProperty, DeserializationError
 from .descriptors import ColumnDataPropertyDescriptor
@@ -79,7 +79,10 @@ class Seq(ContainerProperty):
         return [self.item_type]
 
     def from_json(self, json, *, models=None):
-        if isinstance(json, list):
+        import numpy as np
+        if isinstance(json, np.ndarray):
+            return self._new_instance(json)
+        elif isinstance(json, list):
             return self._new_instance([ self.item_type.from_json(item, models=models) for item in json ])
         else:
             raise DeserializationError(f"{self} expected a list, got {json}")
@@ -262,9 +265,6 @@ class ColumnData(Dict):
         if isinstance(hint, ColumnsStreamedEvent):
             return hint.data
         return value
-
-    def serialize_value(self, value):
-        return transform_column_source_data(value)
 
     def wrap(self, value):
         """ Some property types need to wrap their values in special containers, etc.

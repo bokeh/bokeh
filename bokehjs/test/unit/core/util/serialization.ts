@@ -1,18 +1,18 @@
 import {expect} from "assertions"
 
-import {encode_NDArray, decode_NDArray} from "@bokehjs/core/util/serialization"
+import {encode_NDArray, decode_NDArray, Base64Buffer} from "@bokehjs/core/util/serialization"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BYTE_ORDER} from "@bokehjs/core/util/platform"
-import {wildcard} from "@bokehjs/core/util/eq"
 
-describe("serialization module", () => {
+describe("core/util/serialization module", () => {
   it("should support NDArray serialization and de-serialization", () => {
     const nd0 = ndarray([1, 2, 3, 4, 5, 6], {dtype: "int32", shape: [2, 3]})
 
     const buffers0 = new Map<string, ArrayBuffer>()
     const ref0_0 = encode_NDArray(nd0, buffers0)
     expect(ref0_0).to.be.equal({
-      __buffer__: "0",
+      type: "ndarray",
+      array: {id: "0"},
       order: BYTE_ORDER,
       dtype: "int32",
       shape: [2, 3],
@@ -30,14 +30,15 @@ describe("serialization module", () => {
 
     const ref0_1 = encode_NDArray(nd0)
     expect(ref0_1).to.be.equal({
-      __ndarray__: {toJSON: wildcard},
+      type: "ndarray",
+      array: new Base64Buffer(nd0.buffer),
       order: BYTE_ORDER,
       dtype: "int32",
       shape: [2, 3],
     })
 
     expect(JSON.stringify(ref0_1)).to.be.equal(
-      `{"__ndarray__":"AQAAAAIAAAADAAAABAAAAAUAAAAGAAAA","order":"${BYTE_ORDER}","dtype":"int32","shape":[2,3]}`)
+      `{"type":"ndarray","array":"AQAAAAIAAAADAAAABAAAAAUAAAAGAAAA","order":"${BYTE_ORDER}","dtype":"int32","shape":[2,3]}`)
 
     const json0_1 = JSON.parse(JSON.stringify(ref0_1))
 

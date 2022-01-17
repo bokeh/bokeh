@@ -20,6 +20,7 @@ import pytest ; pytest
 from typing import Set, Tuple, Type
 
 # Bokeh imports
+from bokeh.core.json_encoder import serialize_json
 from bokeh.core.properties import (
     Any,
     Dict,
@@ -278,7 +279,7 @@ class TestModel:
         obj = SomeModelToJson(child=child_obj, foo=42, bar="world")
 
         json = obj.to_json(include_defaults=True)
-        json_string = obj.to_json_string(include_defaults=True)
+        json_string = serialize_json(json)
 
         assert json == {
             "child": {"id": child_obj.id},
@@ -308,7 +309,7 @@ class TestModel:
         ) % (child_obj.id, obj.id) == json_string
 
         json = obj.to_json(include_defaults=False)
-        json_string = obj.to_json_string(include_defaults=False)
+        json_string = serialize_json(json)
 
         assert json == {
             "child": {"id": child_obj.id},

@@ -172,12 +172,6 @@ def test_transform_array_force_list_default_with_buffers(dt) -> None:
     assert out['dtype'] == a.dtype.name
     assert '__buffer__' in out
 
-@pytest.mark.parametrize('dt', bus.BINARY_ARRAY_TYPES)
-def test_transform_array_force_list_true(dt) -> None:
-    a = np.empty(shape=10, dtype=dt)
-    out = bus.transform_array(a, force_list=True)
-    assert isinstance(out, list)
-
 def test_transform_series_force_list_default(pd) -> None:
     # default int seems to be int64, can't be encoded!
     df = pd.Series([1, 3, 5, 6, 8])
@@ -296,24 +290,6 @@ def test_transform_series_force_list_default_with_buffers(pd) -> None:
     assert 'dtype' in out
     assert out['dtype'] == 'float64'
     assert '__buffer__' in out
-
-
-def test_transform_series_force_list_true(pd) -> None:
-    df = pd.Series([1, 3, 5, 6, 8])
-    out = bus.transform_series(df, force_list=True)
-    assert isinstance(out, list)
-
-    df = pd.Series([1, 3, 5, 6, 8], dtype=np.int32)
-    out = bus.transform_series(df, force_list=True)
-    assert isinstance(out, list)
-
-    df = pd.Series([1.0, 3, 5, 6, 8])
-    out = bus.transform_series(df, force_list=True)
-    assert isinstance(out, list)
-
-    df = pd.Series(np.array([np.nan, np.inf, -np.inf, 0]))
-    out = bus.transform_series(df, force_list=True)
-    assert isinstance(out, list)
 
 @pytest.mark.parametrize('dt', bus.BINARY_ARRAY_TYPES)
 def test_transform_array_to_list(dt) -> None:

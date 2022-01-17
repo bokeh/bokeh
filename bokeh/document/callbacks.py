@@ -228,11 +228,9 @@ class DocumentCallbackManager:
             doc.models.update_name(model, old, new)
 
         if hint is None:
-            serializable_new = model.lookup(attr).serializable_value(model)
-        else:
-            serializable_new = None
+            new = model.lookup(attr).serializable_value(model)
 
-        event = ModelChangedEvent(doc, model, attr, old, new, serializable_new, hint, setter, callback_invoker)
+        event = ModelChangedEvent(doc, model, attr, old, new, hint, setter, callback_invoker)
         self.trigger_on_change(event)
 
     def notify_event(self, model: Model, event: ModelEvent, callback_invoker: Invoker) -> None:

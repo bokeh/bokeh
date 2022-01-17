@@ -25,7 +25,6 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     Dict,
-    Iterable,
     List,
     Mapping,
     Type,
@@ -47,7 +46,6 @@ if TYPE_CHECKING:
 __all__ = (
     'initialize_references_json',
     'instantiate_references_json',
-    'references_json',
 )
 
 #-----------------------------------------------------------------------------
@@ -131,27 +129,6 @@ def instantiate_references_json(references_json: List[ReferenceJson], existing_i
             references[instance.id] = instance
 
     return references
-
-def references_json(references: Iterable[Model]) -> List[ReferenceJson]:
-    ''' Given a list of all models in a graph, return JSON representing
-    them and their properties.
-
-    Args:
-        references (seq[Model]) :
-            A list of models to convert to JSON
-
-    Returns:
-        list
-
-    '''
-
-    references_json: List[ReferenceJson] = []
-    for r in references:
-        struct = r.struct
-        struct['attributes'] = r._to_json_like(include_defaults=False)
-        references_json.append(struct)
-
-    return references_json
 
 #-----------------------------------------------------------------------------
 # Private API

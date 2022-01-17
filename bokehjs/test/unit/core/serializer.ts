@@ -1,9 +1,9 @@
 import {expect} from "assertions"
 
 import {Serializer, SerializationError} from "@bokehjs/core/serializer"
+import {Base64Buffer} from "@bokehjs/core/util/serialization"
 import {HasProps} from "@bokehjs/core/has_props"
 import * as p from "@bokehjs/core/properties"
-import {wildcard} from "@bokehjs/core/util/eq"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BYTE_ORDER} from "@bokehjs/core/util/platform"
 
@@ -59,9 +59,9 @@ describe("core/serializer module", () => {
       expect(to_serializable(0)).to.be.equal({repr: 0, json: "0"})
       expect(to_serializable(1)).to.be.equal({repr: 1, json: "1"})
       expect(to_serializable(-1)).to.be.equal({repr: -1, json: "-1"})
-      expect(to_serializable(NaN)).to.be.equal({repr: {$type: "number", value: "nan"}, json: '{"$type":"number","value":"nan"}'})
-      expect(to_serializable(Infinity)).to.be.equal({repr: {$type: "number", value: "+inf"}, json: '{"$type":"number","value":"+inf"}'})
-      expect(to_serializable(-Infinity)).to.be.equal({repr: {$type: "number", value: "-inf"}, json: '{"$type":"number","value":"-inf"}'})
+      expect(to_serializable(NaN)).to.be.equal({repr: {type: "number", value: "nan"}, json: '{"type":"number","value":"nan"}'})
+      expect(to_serializable(Infinity)).to.be.equal({repr: {type: "number", value: "+inf"}, json: '{"type":"number","value":"+inf"}'})
+      expect(to_serializable(-Infinity)).to.be.equal({repr: {type: "number", value: "-inf"}, json: '{"type":"number","value":"-inf"}'})
       expect(to_serializable(Number.MAX_SAFE_INTEGER)).to.be.equal({repr: Number.MAX_SAFE_INTEGER, json: `${Number.MAX_SAFE_INTEGER}`})
       expect(to_serializable(Number.MIN_SAFE_INTEGER)).to.be.equal({repr: Number.MIN_SAFE_INTEGER, json: `${Number.MIN_SAFE_INTEGER}`})
       expect(to_serializable(Number.MAX_VALUE)).to.be.equal({repr: Number.MAX_VALUE, json: `${Number.MAX_VALUE}`})
@@ -75,7 +75,7 @@ describe("core/serializer module", () => {
     })
 
     it("that supports symbols", () => {
-      expect(to_serializable(Symbol("foo"))).to.be.equal({repr: {$type: "symbol", name: "foo"}, json: '{"$type":"symbol","name":"foo"}'})
+      expect(to_serializable(Symbol("foo"))).to.be.equal({repr: {type: "symbol", name: "foo"}, json: '{"type":"symbol","name":"foo"}'})
       expect(() => to_serializable(Symbol())).to.throw(SerializationError)
     })
 
@@ -98,12 +98,13 @@ describe("core/serializer module", () => {
 
       expect(to_serializable(nd0)).to.be.equal({
         repr: {
-          __ndarray__: {toJSON: wildcard},
+          type: "ndarray",
+          array: new Base64Buffer(nd0.buffer),
           order: BYTE_ORDER,
           dtype: "int32",
           shape: [1, 3],
         },
-        json: `{"__ndarray__":"AQAAAAIAAAADAAAA","order":"${BYTE_ORDER}","dtype":"int32","shape":[1,3]}`,
+        json: `{"type":"ndarray","array":"AQAAAAIAAAADAAAA","order":"${BYTE_ORDER}","dtype":"int32","shape":[1,3]}`,
       })
     })
 
@@ -119,9 +120,9 @@ describe("core/serializer module", () => {
 
       expect(repr).to.be.equal({id: obj2.id})
       expect(defs).to.be.equal([
-        {type: "SomeModel", id: obj0.id, attributes: {value: 10, array: [], dict: {}, obj: {id: obj2.id}}},
-        {type: "SomeModel", id: obj1.id, attributes: {value: 20, array: [], dict: {}, obj: {id: obj0.id}}},
-        {type: "SomeModel", id: obj2.id, attributes: {value: 30, array: [], dict: {}, obj: {id: obj1.id}}},
+        {type: "SomeModel", id: obj0.id, attributes: {value: 10, obj: {id: obj2.id}}},
+        {type: "SomeModel", id: obj1.id, attributes: {value: 20, obj: {id: obj0.id}}},
+        {type: "SomeModel", id: obj2.id, attributes: {value: 30, obj: {id: obj1.id}}},
       ])
     })
   })

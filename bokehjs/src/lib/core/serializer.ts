@@ -34,7 +34,6 @@ export class SerializationError extends Error {}
 
 export type Options = {
   include_defaults: boolean
-  include_unset: boolean
 }
 
 export class Serializer {
@@ -43,11 +42,9 @@ export class Serializer {
   private readonly _refmap: Map<Ref, Struct> = new Map()
 
   readonly include_defaults: boolean
-  readonly include_unset: boolean
 
   constructor(options?: Partial<Options>) {
-    this.include_defaults = options?.include_defaults ?? true
-    this.include_unset = options?.include_unset ?? false
+    this.include_defaults = options?.include_defaults ?? false
   }
 
   get_ref(obj: unknown): Ref | undefined {
@@ -117,13 +114,13 @@ export class Serializer {
       return obj
     } else if (isNumber(obj)) {
       if (isNaN(obj))
-        return {$type: "number", value: "nan"}
+        return {type: "number", value: "nan"}
       else if (!isFinite(obj))
-        return {$type: "number", value: `${obj < 0 ? "-" : "+"}inf`}
+        return {type: "number", value: `${obj < 0 ? "-" : "+"}inf`}
       else
         return obj
     } else if (isSymbol(obj) && obj.description != null) {
-      return {$type: "symbol", name: obj.description}
+      return {type: "symbol", name: obj.description}
     } else
       throw new SerializationError(`${Object.prototype.toString.call(obj)} is not serializable`)
   }

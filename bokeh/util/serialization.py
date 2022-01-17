@@ -30,23 +30,17 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import base64
 import datetime as dt
-import sys
 import uuid
 from functools import lru_cache
-from math import isinf, isnan
 from threading import Lock
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     List,
     Literal,
-    Sequence,
     Set,
     Tuple,
     TypedDict,
-    Union,
-    cast,
 )
 
 # External imports
@@ -58,14 +52,10 @@ if TYPE_CHECKING:
     import pandas as pd
 
 # Bokeh imports
-from ..core.types import ID
+from ..core.types import ID, Ref
 from ..settings import settings
 from .dependencies import import_optional
 from .string import format_docstring
-
-if TYPE_CHECKING:
-    from ..models.sources import DataDict
-    from ..protocol.message import BufferRef
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -112,17 +102,12 @@ __all__ = (
     'convert_datetime_type',
     'convert_timedelta_type',
     'decode_base64_dict',
-    'encode_binary_dict',
-    'encode_base64_dict',
     'is_datetime_type',
     'is_timedelta_type',
     'make_globally_unique_id',
     'make_id',
-    'serialize_array',
     'transform_array',
     'transform_array_to_list',
-    'transform_column_source_data',
-    'traverse_data',
     'transform_series',
 )
 
@@ -133,22 +118,10 @@ __all__ = (
 ByteOrder = Literal["little", "big"]
 
 class BufferJson(TypedDict):
-    __buffer__: ID
+    array: Ref | str
     shape: Tuple[int, ...]
     dtype: str
     order: ByteOrder
-
-class Base64BufferJson(TypedDict):
-    __ndarray__: str
-    shape: Tuple[int, ...]
-    dtype: str
-    order: ByteOrder
-
-SerializedColumn = Union[Base64BufferJson, BufferJson, Sequence[Any]] # mypy pukes with | and TypedDict
-SerializedData = Dict[str, SerializedColumn]
-
-if TYPE_CHECKING:
-    Buffers = List[BufferRef]
 
 def is_datetime_type(obj: Any) -> TypeGuard[dt.time | dt.datetime | np.datetime64]:
     ''' Whether an object is any date, time, or datetime type recognized by
@@ -348,42 +321,29 @@ array_encoding_disabled.__doc__ = format_docstring(
     binary_array_types="\n    ".join(f"* ``np.{x}``" for x in BINARY_ARRAY_TYPES),
 )
 
-def transform_array(array: npt.NDArray[Any], force_list: bool = False, buffers: Buffers | None = None) -> Base64BufferJson | BufferJson | Sequence[Any]:
-    ''' Transform a NumPy arrays into serialized format
+def transform_array(array: npt.NDArray[Any]) -> npt.NDArray[Any]:
+    ''' Transform a ndarray into a serializable ndarray.
 
     Converts un-serializable dtypes and returns JSON serializable
     format
 
     Args:
         array (np.ndarray) : a NumPy array to be transformed
-        force_list (bool, optional) : whether to only output to standard lists
-            This function can encode some dtypes using a binary encoding, but
-            setting this argument to True will override that and cause only
-            standard Python lists to be emitted. (default: False)
-
-        buffers (set, optional) :
-            If binary buffers are desired, the buffers parameter may be
-            provided, and any columns that may be sent as binary buffers
-            will be added to the set. If None, then only base64 encoding
-            will be used (default: None)
-
-            If force_list is True, then this value will be ignored, and
-            no buffers will be generated.
-
-            **This is an "out" parameter**. The values it contains will be
-            modified in-place.
-
 
     Returns:
-        JSON
+        ndarray
 
     '''
-
     array = convert_datetime_array(array)
 
-    return serialize_array(array, force_list=force_list, buffers=buffers)
+    if isinstance(array, np.ma.MaskedArray):
+        # Set masked values to nan
+        array = array.filled(np.nan)  # type: ignore # filled is untyped
+    if not array.flags["C_CONTIGUOUS"]:
+        array = np.ascontiguousarray(array)
+    return array
 
-def transform_array_to_list(array: npt.NDArray[Any]) -> Sequence[Any]:
+def transform_array_to_list(array: npt.NDArray[Any]) -> List[Any]:
     ''' Transforms a NumPy array into a list of values
 
     Args:
@@ -407,30 +367,14 @@ def transform_array_to_list(array: npt.NDArray[Any]) -> Sequence[Any]:
         return transformed.tolist()
     return array.tolist()
 
-def transform_series(series: pd.Series | pd.Index, force_list: bool = False, buffers: Buffers | None = None) -> Base64BufferJson | BufferJson | Sequence[Any]:
+def transform_series(series: pd.Series | pd.Index) -> npt.NDArray[Any]:
     ''' Transforms a Pandas series into serialized form
 
     Args:
         series (pd.Series) : the Pandas series to transform
-        force_list (bool, optional) : whether to only output to standard lists
-            This function can encode some dtypes using a binary encoding, but
-            setting this argument to True will override that and cause only
-            standard Python lists to be emitted. (default: False)
-
-        buffers (set, optional) :
-            If binary buffers are desired, the buffers parameter may be
-            provided, and any columns that may be sent as binary buffers
-            will be added to the set. If None, then only base64 encoding
-            will be used (default: None)
-
-            If force_list is True, then this value will be ignored, and
-            no buffers will be generated.
-
-            **This is an "out" parameter**. The values it contains will be
-            modified in-place.
 
     Returns:
-        list or dict
+        ndarray
 
     '''
     pd = import_optional('pandas')
@@ -441,186 +385,9 @@ def transform_series(series: pd.Series | pd.Index, force_list: bool = False, buf
         vals = series.to_timestamp().values  # type: ignore # pandas PeriodIndex type is misunderstood somehow
     else:
         vals = series.values
-    return transform_array(vals, force_list=force_list, buffers=buffers)
+    return vals
 
-def serialize_array(array: npt.NDArray[Any], force_list: bool = False, buffers: Buffers | None = None) -> Base64BufferJson | BufferJson | Sequence[Any]:
-    ''' Transforms a NumPy array into serialized form.
-
-    Args:
-        array (np.ndarray) : the NumPy array to transform
-        force_list (bool, optional) : whether to only output to standard lists
-            This function can encode some dtypes using a binary encoding, but
-            setting this argument to True will override that and cause only
-            standard Python lists to be emitted. (default: False)
-
-        buffers (set, optional) :
-            If binary buffers are desired, the buffers parameter may be
-            provided, and any columns that may be sent as binary buffers
-            will be added to the set. If None, then only base64 encoding
-            will be used (default: None)
-
-            If force_list is True, then this value will be ignored, and
-            no buffers will be generated.
-
-            **This is an "out" parameter**. The values it contains will be
-            modified in-place.
-
-    Returns:
-        list or dict
-
-    '''
-    if isinstance(array, np.ma.MaskedArray):
-        # Set masked values to nan
-        array = array.filled(np.nan)  # type: ignore # filled is untyped
-    if (array_encoding_disabled(array) or force_list):
-        return transform_array_to_list(array)
-    if not array.flags['C_CONTIGUOUS']:
-        array = np.ascontiguousarray(array)
-    if buffers is None:
-        return encode_base64_dict(array)
-    else:
-        return encode_binary_dict(array, buffers)
-
-def traverse_data(obj: Sequence[Any], buffers: Buffers | None = None) -> List[Any]:
-    ''' Recursively traverse an object until a flat list is found.
-
-    The flat list is converted to a numpy array and passed to transform_array()
-    to handle ``nan``, ``inf``, and ``-inf``.
-
-    Args:
-        obj (list) : a list of values or lists
-
-    '''
-    if all(isinstance(el, np.ndarray) for el in obj):
-        return [transform_array(el, buffers=buffers) for el in obj]
-    obj_copy: List[Any] = []
-    for item in obj:
-        # Check the base/common case first for performance reasons
-        # Also use type(x) is float because it's faster than isinstance
-        if type(item) is float:
-            if isnan(item):
-                item = 'NaN'
-            elif isinf(item):
-                if item > 0:
-                    item = 'Infinity'
-                else:
-                    item = '-Infinity'
-            obj_copy.append(item)
-        elif isinstance(item, (list, tuple)):  # check less common type second
-            obj_copy.append(traverse_data(item))
-        else:
-            obj_copy.append(item)
-    return obj_copy
-
-def transform_column_source_data(data: DataDict, buffers: Buffers | None = None, cols: List[str] | None = None) -> SerializedData:
-    ''' Transform ``ColumnSourceData`` data to a serialized format
-
-    Args:
-        data (dict) : the mapping of names to data columns to transform
-
-        buffers (set, optional) :
-            If binary buffers are desired, the buffers parameter may be
-            provided, and any columns that may be sent as binary buffers
-            will be added to the set. If None, then only base64 encoding
-            will be used (default: None)
-
-            **This is an "out" parameter**. The values it contains will be
-            modified in-place.
-
-        cols (list[str], optional) :
-            Optional list of subset of columns to transform. If None, all
-            columns will be transformed (default: None)
-
-    Returns:
-        JSON compatible dict
-
-    '''
-    pd = import_optional('pandas')
-
-    to_transform = set(data) if cols is None else set(cols)
-
-    data_copy: SerializedData = {}
-    for key in to_transform:
-        value = data[key]
-        if pd and isinstance(value, (pd.Series, pd.Index)):
-            data_copy[key] = transform_series(value, buffers=buffers)
-        elif isinstance(value, np.ndarray):
-            data_copy[key] = transform_array(value, buffers=buffers)
-        elif isinstance(value, (list, tuple)):
-            data_copy[key] = traverse_data(value, buffers=buffers)
-        else:
-            raise ValueError(f"Unable to transform type {type(value)!r} for a ColumnDataSource")
-
-    return data_copy
-
-def encode_binary_dict(array: npt.NDArray[Any], buffers: Buffers) -> BufferJson:
-    ''' Send a numpy array as an unencoded binary buffer
-
-    The encoded format is a dict with the following structure:
-
-    .. code:: python
-
-        {
-            '__buffer__' :  << an ID to locate the buffer >>,
-            'shape'      : << array shape >>,
-            'dtype'      : << dtype name >>,
-            'order'      : << byte order at origin (little or big)>>
-        }
-
-    Args:
-        array (np.ndarray) : an array to encode
-
-        buffers (set) :
-            Set to add buffers to
-
-            **This is an "out" parameter**. The values it contains will be
-            modified in-place.
-
-    Returns:
-        dict
-
-    '''
-    from ..protocol.message import BufferHeader
-    buffer_id = make_id()
-    buf = (BufferHeader(id=buffer_id), array.tobytes())
-    buffers.append(buf)
-
-    return BufferJson(
-        __buffer__  = buffer_id,
-        shape       = array.shape,
-        dtype       = str(array.dtype.name),
-        order       = cast(ByteOrder, sys.byteorder),
-    )
-
-def encode_base64_dict(array: npt.NDArray[Any]) -> Base64BufferJson:
-    ''' Encode a NumPy array using base64:
-
-    The encoded format is a dict with the following structure:
-
-    .. code:: python
-
-        {
-            '__ndarray__' : << base64 encoded array data >>,
-            'shape'       : << array shape >>,
-            'dtype'       : << dtype name >>,
-        }
-
-    Args:
-
-        array (np.ndarray) : an array to encode
-
-    Returns:
-        dict
-
-    '''
-    return Base64BufferJson(
-        __ndarray__ = base64.b64encode(array.data).decode('utf-8'),
-        shape       = array.shape,
-        dtype       = str(array.dtype.name),
-        order       = cast(ByteOrder, sys.byteorder),
-    )
-
-def decode_base64_dict(data: Base64BufferJson) -> npt.NDArray[Any]:
+def decode_base64_dict(buffer: BufferJson) -> npt.NDArray[Any]:
     ''' Decode a base64 encoded array into a NumPy array.
 
     Args:
@@ -632,10 +399,18 @@ def decode_base64_dict(data: Base64BufferJson) -> npt.NDArray[Any]:
         np.ndarray
 
     '''
-    b64 = base64.b64decode(data['__ndarray__'])
-    array = np.copy(np.frombuffer(b64, dtype=data['dtype']))  # type: ignore # from and frombuffer are untyped
-    if len(data['shape']) > 1:
-        array = array.reshape(data['shape'])
+    data = buffer["array"]
+    dtype = buffer["dtype"]
+    shape = buffer["shape"]
+
+    if isinstance(data, str):
+        bytes = base64.b64decode(data)
+    else:
+        raise NotImplementedError("TODO")
+
+    array = np.copy(np.frombuffer(bytes, dtype=dtype))  # type: ignore # from and frombuffer are untyped
+    if len(shape) > 1:
+        array = array.reshape(shape)
     return array
 
 #-----------------------------------------------------------------------------

@@ -64,6 +64,7 @@ from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
 from .property.singletons import Undefined
 from .property.wrappers import PropertyValueContainer
+from .serialization import JSON, Serializable, Serializer
 from .types import ID, ReferenceJson, Unknown
 
 if TYPE_CHECKING:
@@ -165,6 +166,10 @@ class MetaHasProps(type):
         return super().__new__(cls, class_name, bases, class_dict)
 
     def __init__(cls, class_name: str, bases: Tuple[type, ...], _) -> None:
+        # HasProps itself may not have any properties defined
+        if class_name == "HasProps":
+            return
+
         # Check for improperly redeclared a Property attribute.
         base_properties: Dict[str, Any] = {}
         for base in (x for x in bases if issubclass(x, HasProps)):
@@ -182,7 +187,7 @@ class MetaHasProps(type):
         if unused_overrides:
             warn(f"Overrides of {unused_overrides} in class {cls.__name__} does not override anything.", RuntimeWarning, stacklevel=2)
 
-class HasProps(metaclass=MetaHasProps):
+class HasProps(Serializable, metaclass=MetaHasProps):
     ''' Base class for all class types that have Bokeh properties.
 
     .. autoclasstoc::
@@ -345,6 +350,8 @@ class HasProps(metaclass=MetaHasProps):
         properties: List[PropertyDef] = []
         overrides: List[OverrideDef] = []
 
+        value_serializer = Serializer()
+
         # TODO: don't use unordered sets
         for prop_name in cls.__properties__:
             descriptor = cls.lookup(prop_name)
@@ -357,18 +364,12 @@ class HasProps(metaclass=MetaHasProps):
                 if isinstance(default, types.FunctionType):
                     default = default()
 
-                prop_def = PropertyDef(name=prop_name, kind=kind, default=default)
+                prop_def = PropertyDef(name=prop_name, kind=kind, default=value_serializer.to_serializable(default))
 
             properties.append(prop_def)
 
         for prop_name, default in getattr(cls, "__overridden_defaults__", {}).items():
-            overrides.append(OverrideDef(name=prop_name, default=default))
-
-        from ..document.util import references_json
-        from ..model.util import collect_models
-
-        values = [ obj["default"] for obj in properties + overrides if obj.get("default") is not None ]
-        references = references_json(collect_models(values))
+            overrides.append(OverrideDef(name=prop_name, default=value_serializer.to_serializable(default)))
 
         modelref = model_ref(cls)
         modeldef = ModelDef(
@@ -377,14 +378,23 @@ class HasProps(metaclass=MetaHasProps):
             extends=extends,
             properties=properties,
             overrides=overrides,
-            references=references,
+            references=value_serializer.references,
         )
 
         serializer.add_ref(cls, modelref, modeldef)
         return modelref
 
-    def to_serializable(self, serializer: Any) -> Any:
-        pass # TODO: new serializer, hopefully in near future
+    def to_serializable(self, serializer: Serializer) -> JSON:
+        cls = type(self)
+
+        def attributes(obj: HasProps, serializer: Serializer) -> JSON:
+            properties = obj.properties_with_values(include_defaults=False)
+            return {key: serializer.to_serializable(val) for key, val in properties.items()}
+
+        return dict(
+            type=f"{cls.__module__}.{cls.__name__}",
+            attributes=attributes(self, serializer)
+        )
 
     # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
     def set_from_json(self, name: str, json: bokeh.types.JSON, *,

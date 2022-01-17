@@ -217,8 +217,8 @@ Serialization of numbers
 ........................
 
 Outside of ndarrays, nan, +inf and -inf are now systematically serialized as
-``{"$type": "number", "value": "nan"}``, ``{"$type": "number", "value": "+inf"}``
-and ``{"$type": "number", "value": "-inf"}`` respectively.
+``{"type": "number", "value": "nan"}``, ``{"type": "number", "value": "+inf"}``
+and ``{"type": "number", "value": "-inf"}`` respectively.
 
 Other changes
 ~~~~~~~~~~~~~

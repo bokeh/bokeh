@@ -51,6 +51,7 @@ log = logging.getLogger(__name__)
 from argparse import Namespace
 
 # Bokeh imports
+from ...core.json_encoder import serialize_json
 from ...document import Document
 from ..subcommand import Argument
 from .file_output import FileOutputSubcommand
@@ -97,7 +98,7 @@ class JSON(FileOutputSubcommand):
         '''
 
         '''
-        return doc.to_json_string(indent=args.indent)
+        return serialize_json(doc.to_json(), indent=args.indent)
 
 #-----------------------------------------------------------------------------
 # Dev API

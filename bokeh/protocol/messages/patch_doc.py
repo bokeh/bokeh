@@ -18,28 +18,18 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from json import loads
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    List,
-    Set,
-    Tuple,
-)
+from typing import TYPE_CHECKING, Any, List
 
 # Bokeh imports
-from ...core.json_encoder import serialize_json
+from ...core.serialization import Serializer
 from ...document.callbacks import invoke_with_curdoc
 from ...document.json import PatchJson
-from ...document.util import references_json
 from ..message import Message
 
 if TYPE_CHECKING:
     from ...core.has_props import Setter
     from ...document.document import Document
-    from ...document.events import DocumentPatched, DocumentPatchedEvent
-    from ...model import Model
-    from ..message import BufferRef
+    from ...document.events import DocumentPatchedEvent
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -47,7 +37,6 @@ if TYPE_CHECKING:
 
 __all__ = (
     'patch_doc',
-    'process_document_events',
 )
 
 #-----------------------------------------------------------------------------
@@ -96,15 +85,17 @@ class patch_doc(Message[PatchJson]):
         if len(docs) != 1:
             raise ValueError("PATCH-DOC message configured with events for more than one document")
 
-        # this roundtrip is unfortunate, but is needed because there are type conversions
-        # in BokehJSONEncoder which keep us from easily generating non-string JSON
-        patch_json, buffers = process_document_events(events, use_buffers)
-        content = loads(patch_json)
+        serializer = Serializer(binary=use_buffers)
 
-        msg = cls(header, metadata, content)
+        patch_json = PatchJson(
+            events     = serializer.to_serializable(events),
+            references = serializer.references,
+        )
 
-        for (buffer_header, payload) in buffers:
-            msg.add_buffer(buffer_header, payload)
+        msg = cls(header, metadata, patch_json)
+
+        for buffer in serializer.buffers:
+            msg.add_buffer(buffer.ref, buffer.data)
 
         return msg
 
@@ -113,35 +104,6 @@ class patch_doc(Message[PatchJson]):
 
         '''
         invoke_with_curdoc(doc, lambda: doc.apply_json_patch(self.content, setter))
-
-def process_document_events(events: List[DocumentPatchedEvent], use_buffers: bool = True) -> Tuple[str, List[BufferRef]]:
-    ''' Create a JSON string describing a patch to be applied as well as
-    any optional buffers.
-
-    Args:
-      events : list of events to be translated into patches
-
-    Returns:
-      str, list :
-        JSON string which can be applied to make the given updates to obj
-        as well as any optional buffers
-
-    '''
-
-    json_events: List[DocumentPatched] = []
-    references: Set[Model] = set()
-
-    buffers: List[BufferRef] | None = [] if use_buffers else None
-
-    for event in events:
-        json_events.append(event.generate(references, buffers))
-
-    json = PatchJson(
-        events     = json_events,
-        references = references_json(references),
-    )
-
-    return serialize_json(json), buffers or []
 
 #-----------------------------------------------------------------------------
 # Private API

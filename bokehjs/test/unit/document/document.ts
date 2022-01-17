@@ -890,7 +890,7 @@ describe("Document", () => {
     expect(root0.child).to.be.instanceof(AnotherModel)
   })
 
-  it("computes minimum patch for objects referencing known objects", () => {
+  it("computes minimal patch for objects referencing known objects", () => {
     const doc = new Document()
     expect(doc.roots().length).to.be.equal(0)
     expect(doc._all_models.size).to.be.equal(0)
@@ -916,14 +916,7 @@ describe("Document", () => {
         type: "SomeModel",
         id: obj.id,
         attributes: {
-          tags: [],
-          name: null,
-          js_property_callbacks: {},
-          js_event_callbacks: {},
-          subscribed_events: [],
-          syncable: true,
           foo: 11,
-          child: null,
         },
       }],
     })

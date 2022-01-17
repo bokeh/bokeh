@@ -53,8 +53,8 @@ from jinja2 import Template
 # Bokeh imports
 from ..core.enums import HoldPolicyType
 from ..core.has_props import is_DataModel
-from ..core.json_encoder import serialize_json
 from ..core.query import find, is_single_string_selector
+from ..core.serialization import Serializer
 from ..core.templates import FILE
 from ..core.types import ID, Unknown
 from ..core.validation import check_integrity, process_validation_issues
@@ -79,7 +79,7 @@ from .events import (
 from .json import DocJson, PatchJson, RootsJson
 from .models import DocumentModelManager
 from .modules import DocumentModuleManager
-from .util import initialize_references_json, instantiate_references_json, references_json
+from .util import initialize_references_json, instantiate_references_json
 
 if TYPE_CHECKING:
     from ..application.application import SessionContext, SessionDestroyedCallback
@@ -388,19 +388,6 @@ class Document:
 
         for event_json in events_json:
             DocumentPatchedEvent.handle_json(self, event_json, references, setter)
-
-    def apply_json_patch_string(self, patch: str) -> None:
-        ''' Apply a JSON patch provided as a string.
-
-        Args:
-            patch (str) :
-
-        Returns:
-            None
-
-        '''
-        json_parsed = loads(patch)
-        self.apply_json_patch(json_parsed)
 
     def clear(self) -> None:
         ''' Remove all content from the document but do not reset title.
@@ -747,42 +734,27 @@ class Document:
             JSON-data
 
         '''
-
-        # this is a total hack to go via a string, needed because
-        # our BokehJSONEncoder goes straight to a string.
-        doc_json = self.to_json_string()
-        return loads(doc_json)
-
-    def to_json_string(self, indent: int | None = None) -> str:
-        ''' Convert the document to a JSON string.
-
-        Args:
-            indent (int or None, optional) : number of spaces to indent, or
-                None to suppress all newlines and indentation (default: None)
-
-        Returns:
-            str
-
-        '''
-        serializer = StaticSerializer()
+        model_serializer = StaticSerializer()
         for model in Model.model_class_reverse_map.values():
             if is_DataModel(model):
                 # TODO: serializer.serialize(model)
-                model.static_to_serializable(serializer)
+                model.static_to_serializable(model_serializer)
 
-        root_ids = [ r.id for r in self._roots ]
+        serializer = Serializer(binary=False)
+        roots = serializer.to_serializable(self._roots)
+        root_ids = [ r["id"] for r in roots ]
 
-        json = DocJson(
+        doc_json = DocJson(
             title=self.title,
-            defs=serializer.definitions,
+            defs=model_serializer.definitions,
             roots=RootsJson(
-                root_ids=root_ids,
-                references=references_json(self.models),
+                root_ids=root_ids, # TODO: normalize to List[Ref]
+                references=serializer.references,
             ),
             version=__version__,
         )
 
-        return serialize_json(json, indent=indent)
+        return doc_json
 
     def unhold(self) -> None:
         ''' Turn off any active document hold and apply any collected events.

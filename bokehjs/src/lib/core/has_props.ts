@@ -265,7 +265,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     const struct = this.struct()
     for (const prop of this) {
       if (prop.syncable && (serializer.include_defaults || prop.dirty)) {
-        const value = serializer.include_unset && prop.is_unset ? p.unset : prop.get_value()
+        const value = prop.get_value()
         struct.attributes[prop.attr] = serializer.to_serializable(value)
       }
     }

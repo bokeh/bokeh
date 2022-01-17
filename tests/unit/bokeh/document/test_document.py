@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 import weakref
+from typing import Any
 
 # External imports
 from mock import patch
@@ -45,7 +46,7 @@ from bokeh.document.json import ModelChanged, PatchJson
 from bokeh.io.doc import curdoc
 from bokeh.model import DataModel
 from bokeh.models import ColumnDataSource
-from bokeh.protocol.messages.patch_doc import process_document_events
+from bokeh.protocol.messages.patch_doc import patch_doc
 from bokeh.server.contexts import BokehSessionContext
 from bokeh.util.logconfig import basicConfig
 
@@ -688,8 +689,8 @@ class TestDocument:
         d.add_root(root1)
         d.title = "Foo"
 
-        json = d.to_json_string()
-        copy = document.Document.from_json_string(json)
+        json = d.to_json()
+        copy = document.Document.from_json(json)
 
         assert len(copy.roots) == 1
         assert copy.title == "Foo"
@@ -707,8 +708,8 @@ class TestDocument:
         d.add_root(root2)
         assert len(d.roots) == 2
 
-        json = d.to_json_string()
-        copy = document.Document.from_json_string(json)
+        json = d.to_json()
+        copy = document.Document.from_json(json)
 
         assert len(copy.roots) == 2
         foos = []
@@ -820,15 +821,15 @@ class TestDocument:
         d.add_root(root2)
         assert len(d.roots) == 2
 
-        event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
-        patch1, buffers = process_document_events([event1])
-        d.apply_json_patch_string(patch1)
+        event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, 57)
+        patch1 = patch_doc.create([event1]).content
+        d.apply_json_patch(patch1)
 
         assert root1.foo == 57
 
-        event2 = ModelChangedEvent(d, child1, 'foo', child1.foo, 67, 67)
-        patch2, buffers = process_document_events([event2])
-        d.apply_json_patch_string(patch2)
+        event2 = ModelChangedEvent(d, child1, 'foo', child1.foo, 67)
+        patch2 = patch_doc.create([event2]).content
+        d.apply_json_patch(patch2)
 
         assert child1.foo == 67
 
@@ -840,11 +841,10 @@ class TestDocument:
         d.add_root(root1)
         assert len(d.roots) == 1
 
-        def patch_test(new_value):
-            serializable_new = root1.lookup('foo').property.to_serializable(root1, 'foo', new_value)
-            event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, new_value, serializable_new)
-            patch1, buffers = process_document_events([event1])
-            d.apply_json_patch_string(patch1)
+        def patch_test(new_value: Any):
+            event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, new_value)
+            patch1 = patch_doc.create([event1]).content
+            d.apply_json_patch(patch1)
             if isinstance(new_value, dict):
                 return root1.lookup('foo').serializable_value(root1)
             else:
@@ -902,9 +902,9 @@ class TestDocument:
         assert child2.id not in d.models
         assert child3.id not in d.models
 
-        event1 = ModelChangedEvent(d, root1, 'child', root1.child, child3, child3)
-        patch1, buffers = process_document_events([event1])
-        d.apply_json_patch_string(patch1)
+        event1 = ModelChangedEvent(d, root1, 'child', root1.child, child3)
+        patch1 = patch_doc.create([event1]).content
+        d.apply_json_patch(patch1)
 
         assert root1.child.id == child3.id
         assert root1.child.child.id == child2.id
@@ -913,9 +913,9 @@ class TestDocument:
         assert child3.id in d.models
 
         # put it back how it was before
-        event2 = ModelChangedEvent(d, root1, 'child', root1.child, child1, child1)
-        patch2, buffers = process_document_events([event2])
-        d.apply_json_patch_string(patch2)
+        event2 = ModelChangedEvent(d, root1, 'child', root1.child, child1)
+        patch2 = patch_doc.create([event2]).content
+        d.apply_json_patch(patch2)
 
         assert root1.child.id == child1.id
         assert root1.child.child is None
@@ -939,10 +939,10 @@ class TestDocument:
 
         child2 = SomeModelInTestDocument(foo=44)
 
-        event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
-        event2 = ModelChangedEvent(d, root1, 'child', root1.child, child2, child2)
-        patch1, buffers = process_document_events([event1, event2])
-        d.apply_json_patch_string(patch1)
+        event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, 57)
+        event2 = ModelChangedEvent(d, root1, 'child', root1.child, child2)
+        patch1 = patch_doc.create([event1, event2]).content
+        d.apply_json_patch(patch1)
 
         assert root1.foo == 57
         assert root1.child.foo == 44
