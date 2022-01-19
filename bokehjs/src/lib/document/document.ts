@@ -14,11 +14,10 @@ import {copy, includes} from "core/util/array"
 import * as sets from "core/util/set"
 import {LayoutDOM} from "models/layouts/layout_dom"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {ClientSession} from "client/session"
 import {Model} from "model"
 import {ModelDef, resolve_defs} from "./defs"
 import {
-  DocumentEvent, DocumentEventBatch, DocumentChangedEvent, ModelChangedEvent,
+  DocumentEvent, DocumentEventBatch, DocumentChangedEvent,
   RootRemovedEvent, TitleChangedEvent, MessageSentEvent,
   DocumentChanged, RootAddedEvent,
 } from "./events"
@@ -27,7 +26,6 @@ export type Out<T> = T
 
 // Dispatches events to the subscribed models
 export class EventManager {
-  session: ClientSession | null = null
   subscribed_models: Set<Model> = new Set()
 
   constructor(readonly document: Document) {}
@@ -79,7 +77,7 @@ export class Document implements Equatable {
   protected _all_models_freeze_count: number
   protected _callbacks: Map<((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), boolean>
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
-  private _idle_roots: WeakMap<HasProps, boolean>
+  private _idle_roots: WeakSet<HasProps>
   protected _interactive_timestamp: number | null
   protected _interactive_plot: Model | null
   protected _interactive_finalize: (() => void)| null
@@ -96,7 +94,7 @@ export class Document implements Equatable {
     this._message_callbacks = new Map()
     this.event_manager = new EventManager(this)
     this.idle = new Signal0(this, "idle")
-    this._idle_roots = new WeakMap() // TODO: WeakSet would be better
+    this._idle_roots = new WeakSet()
     this._interactive_timestamp = null
     this._interactive_plot = null
   }
@@ -118,7 +116,7 @@ export class Document implements Equatable {
   }
 
   notify_idle(model: HasProps): void {
-    this._idle_roots.set(model, true)
+    this._idle_roots.add(model)
     if (this.is_idle) {
       logger.info(`document idle at ${Date.now() - this._init_timestamp} ms`)
       this.event_manager.send_event(new DocumentReady())
@@ -237,10 +235,9 @@ export class Document implements Equatable {
     return this._roots
   }
 
-  add_root(model: Model, setter_id?: string): void {
-    logger.debug(`Adding root: ${model}`)
+  protected _add_root(model: Model): boolean {
     if (includes(this._roots, model))
-      return
+      return false
 
     this._push_all_models_freeze()
     try {
@@ -248,13 +245,14 @@ export class Document implements Equatable {
     } finally {
       this._pop_all_models_freeze()
     }
-    this._trigger_on_change(new RootAddedEvent(this, model, setter_id))
+
+    return true
   }
 
-  remove_root(model: Model, setter_id?: string): void {
+  protected _remove_root(model: Model): boolean {
     const i = this._roots.indexOf(model)
     if (i < 0)
-      return
+      return false
 
     this._push_all_models_freeze()
     try {
@@ -262,18 +260,34 @@ export class Document implements Equatable {
     } finally {
       this._pop_all_models_freeze()
     }
-    this._trigger_on_change(new RootRemovedEvent(this, model, setter_id))
+
+    return true
+  }
+
+  protected _set_title(title: string): boolean {
+    const new_title = title != this._title
+    if (new_title)
+      this._title = title
+    return new_title
+  }
+
+  add_root(model: Model): void {
+    if (this._add_root(model))
+      this._trigger_on_change(new RootAddedEvent(this, model))
+  }
+
+  remove_root(model: Model): void {
+    if (this._remove_root(model))
+      this._trigger_on_change(new RootRemovedEvent(this, model))
+  }
+
+  set_title(title: string): void {
+    if (this._set_title(title))
+      this._trigger_on_change(new TitleChangedEvent(this, title))
   }
 
   title(): string {
     return this._title
-  }
-
-  set_title(title: string, setter_id?: string): void {
-    if (title != this._title) {
-      this._title = title
-      this._trigger_on_change(new TitleChangedEvent(this, title, setter_id))
-    }
   }
 
   get_model_by_id(model_id: string): HasProps | null {
@@ -341,10 +355,6 @@ export class Document implements Equatable {
         callback(event as any) // TODO
       }
     }
-  }
-
-  _notify_change(model: HasProps, attr: string, old_value: unknown, new_value: unknown, options?: {setter_id?: string, hint?: DocumentChangedEvent}): void {
-    this._trigger_on_change(new ModelChangedEvent(this, model, attr, old_value, new_value, options?.setter_id, options?.hint))
   }
 
   to_json_string(include_defaults: boolean = true): string {
@@ -445,8 +455,11 @@ export class Document implements Equatable {
     // TODO: We need a proper differential serializer. For now just remove known
     // definitions. We are doing this after a complete serialization, so that all
     // new objects are recorded.
-    for (const model of this._all_models.values()) {
-      serializer.remove_def(model)
+    const need_all_models = events.some((ev) => ev instanceof RootAddedEvent)
+    if (!need_all_models) {
+      for (const model of this._all_models.values()) {
+        serializer.remove_def(model)
+      }
     }
 
     return {
@@ -455,7 +468,7 @@ export class Document implements Equatable {
     }
   }
 
-  apply_json_patch(patch: Patch, buffers: Buffers | ReturnType<Buffers["entries"]> = new Map(), setter_id?: string): void {
+  apply_json_patch(patch: Patch, buffers: Buffers | ReturnType<Buffers["entries"]> = new Map()): void {
     const references_json = patch.references
     const events_json = patch.events
     const references = Deserializer._instantiate_references_json(references_json, this._all_models, this._resolver)
@@ -520,7 +533,7 @@ export class Document implements Equatable {
           }
           const attr = event_json.attr
           const value = Deserializer._resolve_refs(event_json.new, old_references, new_references, buffers)
-          patched_obj.setv({[attr]: value}, {setter_id})
+          patched_obj.setv({[attr]: value}, {sync: false})
           break
         }
         case "ColumnDataChanged": {
@@ -537,7 +550,7 @@ export class Document implements Equatable {
               }
             }
           }
-          column_source.setv({data}, {setter_id, check_eq: false})
+          column_source.setv({data}, {sync: false, check_eq: false})
           break
         }
         case "ColumnsStreamed": {
@@ -551,7 +564,7 @@ export class Document implements Equatable {
           }
           const data = event_json.data
           const rollover = event_json.rollover
-          column_source.stream(data, rollover, setter_id)
+          column_source.stream(data, rollover, {sync: false})
           break
         }
         case "ColumnsPatched": {
@@ -564,23 +577,23 @@ export class Document implements Equatable {
             throw new Error("Cannot patch non-ColumnDataSource")
           }
           const patches = event_json.patches
-          column_source.patch(patches, setter_id)
+          column_source.patch(patches, {sync: false})
           break
         }
         case "RootAdded": {
           const root_id = event_json.model.id
           const root_obj = references.get(root_id)
-          this.add_root(root_obj as Model, setter_id) // XXX: HasProps
+          this._add_root(root_obj as Model) // XXX: HasProps
           break
         }
         case "RootRemoved": {
           const root_id = event_json.model.id
           const root_obj = references.get(root_id)
-          this.remove_root(root_obj as Model, setter_id) // XXX: HasProps
+          this._remove_root(root_obj as Model) // XXX: HasProps
           break
         }
         case "TitleChanged": {
-          this.set_title(event_json.title, setter_id)
+          this._set_title(event_json.title)
           break
         }
         default:

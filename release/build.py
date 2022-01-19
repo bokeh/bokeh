@@ -150,6 +150,7 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
         "make/package.json": update_package_json,
         "src/compiler/package.json": update_package_json,
         "src/lib/package.json": update_package_json,
+        "src/server/package.json": update_package_json,
         "test/package.json": update_package_json,
         "package-lock.json": update_package_lock_json,
     }

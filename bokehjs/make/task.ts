@@ -71,7 +71,7 @@ export function show_error(error: unknown): void {
 
 export type Fn<Args extends unknown[], T> = (...args: Args) => Promise<Result<T> | void>
 
-class Task<T = unknown> {
+export class Task<T = unknown> {
   constructor(readonly name: string,
               readonly deps: Dependency[],
               readonly fn?: Fn<unknown[], T>) {}
@@ -83,6 +83,7 @@ class Task<T = unknown> {
 
 const tasks = new Map<string, Task>()
 
+export function task2<T>            (name: string, deps: [],                             fn: ()                       => Promise<Result<T>>): Task<T>
 export function task2<T, T0>        (name: string, deps: [Task<T0>],                     fn: (v0: T0)                 => Promise<Result<T>>): Task<T>
 export function task2<T, T0, T1>    (name: string, deps: [Task<T0>, Task<T1>],           fn: (v0: T0, v1: T1)         => Promise<Result<T>>): Task<T>
 export function task2<T, T0, T1, T2>(name: string, deps: [Task<T0>, Task<T1>, Task<T2>], fn: (v0: T0, v1: T1, v2: T2) => Promise<Result<T>>): Task<T>

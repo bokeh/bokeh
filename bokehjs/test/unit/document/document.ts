@@ -9,6 +9,7 @@ import {Models} from "@bokehjs/base"
 import {Model} from "@bokehjs/model"
 import * as logging from "@bokehjs/core/logging"
 import * as p from "@bokehjs/core/properties"
+import {ColumnDataSource} from "@bokehjs/models"
 
 import {trap} from "../../util"
 
@@ -925,6 +926,160 @@ describe("Document", () => {
           child: null,
         },
       }],
+    })
+  })
+
+  describe("doesn't boomerang events", () => {
+    it("when adding a new root", () => {
+      const doc = new Document()
+
+      const events: ev.DocumentEvent[] = []
+      doc.on_change((event) => events.push(event))
+
+      const model0 = new SomeModel({foo: 127})
+      const event = new ev.RootAddedEvent(doc, model0)
+      const patch = doc.create_json_patch([event])
+      doc.apply_json_patch(patch)
+
+      expect(events.length).to.be.equal(0)
+      expect(doc.roots().length).to.be.equal(1)
+
+      const model1 = new SomeModel({foo: 128})
+      doc.add_root(model1)
+
+      expect(events.length).to.be.equal(1)
+      expect(doc.roots().length).to.be.equal(2)
+    })
+
+    it("when removing a root", () => {
+      const doc = new Document()
+
+      const model0 = new SomeModel({foo: 127})
+      const model1 = new SomeModel({foo: 128})
+      doc.add_root(model0)
+      doc.add_root(model1)
+      expect(doc.roots().length).to.be.equal(2)
+
+      const events: ev.DocumentEvent[] = []
+      doc.on_change((event) => events.push(event))
+
+      const event = new ev.RootRemovedEvent(doc, model0)
+      const patch = doc.create_json_patch([event])
+      doc.apply_json_patch(patch)
+
+      expect(events.length).to.be.equal(0)
+      expect(doc.roots().length).to.be.equal(1)
+
+      doc.remove_root(model1)
+
+      expect(events.length).to.be.equal(1)
+      expect(doc.roots().length).to.be.equal(0)
+    })
+
+    it("when chaning a title", () => {
+      const doc = new Document()
+
+      const events: ev.DocumentEvent[] = []
+      doc.on_change((event) => events.push(event))
+
+      expect(doc.title()).to.be.equal(DEFAULT_TITLE)
+
+      const event = new ev.TitleChangedEvent(doc, "some title")
+      const patch = doc.create_json_patch([event])
+      doc.apply_json_patch(patch)
+
+      expect(events.length).to.be.equal(0)
+      expect(doc.title()).to.be.equal("some title")
+
+      doc.set_title("other title")
+
+      expect(events.length).to.be.equal(1)
+      expect(doc.title()).to.be.equal("other title")
+    })
+
+    it("when modifying a model", () => {
+      const doc = new Document()
+
+      const model = new SomeModel({foo: 127})
+      doc.add_root(model)
+
+      const events: ev.DocumentEvent[] = []
+      doc.on_change((event) => events.push(event))
+
+      expect(doc.title()).to.be.equal(DEFAULT_TITLE)
+
+      const event = new ev.ModelChangedEvent(doc, model, "foo", model.foo, 128)
+      const patch = doc.create_json_patch([event])
+      doc.apply_json_patch(patch)
+
+      expect(events.length).to.be.equal(0)
+      expect(model.foo).to.be.equal(128)
+
+      model.foo = 129
+
+      expect(events.length).to.be.equal(1)
+      expect(model.foo).to.be.equal(129)
+    })
+
+    it("when changing column data", () => {
+      const doc = new Document()
+
+      const source = new ColumnDataSource({data: {col0: [1, 2, 3]}})
+      doc.add_root(source)
+
+      const events: ev.DocumentEvent[] = []
+      doc.on_change((event) => events.push(event))
+
+      const event = new ev.ColumnDataChangedEvent(doc, source.ref(), {col1: [4, 5, 6]})
+      const patch = doc.create_json_patch([event])
+      doc.apply_json_patch(patch)
+
+      expect(events.length).to.be.equal(0)
+      expect(source.data).to.be.equal({col1: [4, 5, 6]})
+    })
+
+    it("when streaming to a column", () => {
+      const doc = new Document()
+
+      const source = new ColumnDataSource({data: {col0: [1, 2, 3]}})
+      doc.add_root(source)
+
+      const events: ev.DocumentEvent[] = []
+      doc.on_change((event) => events.push(event))
+
+      const event = new ev.ColumnsStreamedEvent(doc, source.ref(), {col0: [4, 5, 6]})
+      const patch = doc.create_json_patch([event])
+      doc.apply_json_patch(patch)
+
+      expect(events.length).to.be.equal(0)
+      expect(source.data).to.be.equal({col0: [1, 2, 3, 4, 5, 6]})
+
+      source.stream({col0: [7, 8, 9]})
+
+      expect(events.length).to.be.equal(1)
+      expect(source.data).to.be.equal({col0: [1, 2, 3, 4, 5, 6, 7, 8, 9]})
+    })
+
+    it("when patching a column", () => {
+      const doc = new Document()
+
+      const source = new ColumnDataSource({data: {col0: [1, 2, 3, 4, 5, 6]}})
+      doc.add_root(source)
+
+      const events: ev.DocumentEvent[] = []
+      doc.on_change((event) => events.push(event))
+
+      const event = new ev.ColumnsPatchedEvent(doc, source.ref(), {col0: [[{start: 1, stop: 3}, [20, 30]]]})
+      const patch = doc.create_json_patch([event])
+      doc.apply_json_patch(patch)
+
+      expect(events.length).to.be.equal(0)
+      expect(source.data).to.be.equal({col0: [1, 20, 30, 4, 5, 6]})
+
+      source.patch({col0: [[{start: 3, stop: 5}, [40, 50]]]})
+
+      expect(events.length).to.be.equal(1)
+      expect(source.data).to.be.equal({col0: [1, 20, 30, 40, 50, 6]})
     })
   })
 })

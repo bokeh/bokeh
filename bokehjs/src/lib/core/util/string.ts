@@ -20,7 +20,7 @@ export function uuid4(): string {
 
 let counter = 1000
 
-export function uniqueId(prefix?: string): string {
+export function unique_id(prefix?: string): string {
   const id = settings.dev ? `j${counter++}` : uuid4()
 
   if (prefix != null)
@@ -28,6 +28,9 @@ export function uniqueId(prefix?: string): string {
   else
     return id
 }
+
+/** @deprecated */
+export const uniqueId = unique_id
 
 export function escape(s: string): string {
   return s.replace(/(?:[&<>"'`])/g, (ch) => {

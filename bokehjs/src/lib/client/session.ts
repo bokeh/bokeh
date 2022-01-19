@@ -13,8 +13,13 @@ export class ClientSession {
     this._document_changed(event)
   }
 
-  constructor(protected readonly _connection: ClientConnection, readonly document: Document, readonly id: string) {
+  constructor(protected readonly _connection: ClientConnection, readonly document: Document) {
     this.document.on_change(this._document_listener, true)
+  }
+
+  // XXX: this is only needed in tests
+  get id(): string {
+    return this._connection.id
   }
 
   handle(message: Message<unknown>): void {
@@ -49,10 +54,10 @@ export class ClientSession {
   // Sends a request to the server for info about the server, such as its Bokeh
   // version. Returns a promise, the value of the promise is a free-form dictionary
   // of server details.
-  async request_server_info(): Promise<unknown> {
+  async request_server_info(): Promise<{version_info: string}> {
     const message = Message.create("SERVER-INFO-REQ", {}, {})
     const reply = await this._connection.send_with_reply(message)
-    return reply.content
+    return reply.content as {version_info: string}
   }
 
   // Sends some request to the server (no guarantee about which one) and returns
@@ -69,10 +74,6 @@ export class ClientSession {
   }
 
   protected _document_changed(event: DocumentEvent): void {
-    // Filter out events that were initiated by the ClientSession itself
-    if ((event as any).setter_id === this.id) // XXX: not all document events define this
-      return
-
     const events = event instanceof DocumentEventBatch ? event.events : [event]
     const patch = this.document.create_json_patch(events)
 
@@ -83,7 +84,7 @@ export class ClientSession {
   }
 
   protected _handle_patch(message: PatchMsg): void {
-    this.document.apply_json_patch(message.content, message.buffers, this.id)
+    this.document.apply_json_patch(message.content, message.buffers)
   }
 
   protected _handle_ok(message: OkMsg): void {

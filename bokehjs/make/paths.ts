@@ -17,6 +17,7 @@ export const build_dir = {
   types: join(JS_BUILD_DIR, "types"),
   lib: join(JS_BUILD_DIR, "lib"),
   compiler: join(JS_BUILD_DIR, "compiler"),
+  server: join(JS_BUILD_DIR, "server"),
   packages: join(BUILD_DIR, "packages"),
 }
 
@@ -24,6 +25,7 @@ export const src_dir = {
   lib: join(base_dir, "src", "lib"),
   less: join(base_dir, "src", "less"),
   compiler: join(base_dir, "src", "compiler"),
+  server: join(base_dir, "src", "server"),
   test: join(base_dir, "test"),
   examples: join(base_dir, "examples"),
 }

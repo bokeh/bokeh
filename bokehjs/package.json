@@ -29,6 +29,7 @@
     "./make",
     "./src/compiler",
     "./src/lib",
+    "./src/server",
     "./test"
   ],
   "scripts": {

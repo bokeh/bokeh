@@ -3,7 +3,7 @@
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
-import {Arrayable, TypedArray} from "../types"
+import type {Arrayable, TypedArray} from "../types"
 
 const toString = Object.prototype.toString
 

@@ -151,7 +151,7 @@ export class ClientConnection {
           const events: DocumentEvent[] = []
           const document = Document.from_json(doc_json, events)
 
-          this.session = new ClientSession(this, document, this.id)
+          this.session = new ClientSession(this, document)
 
           // Send back change events that happend during model initialization.
           for (const event of events) {
@@ -233,7 +233,7 @@ export class ClientConnection {
 
   protected _awaiting_ack_handler(message: Message<unknown>, resolve: SessionResolver, reject: Rejecter): void {
     if (message.msgtype() === "ACK") {
-      this._current_handler = (message: Message<unknown>) => this._steady_state_handler(message)
+      this._current_handler = (message) => this._steady_state_handler(message)
 
       // Reload any sessions
       this._repull_session_doc(resolve, reject)

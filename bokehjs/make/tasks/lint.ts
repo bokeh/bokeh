@@ -52,9 +52,10 @@ task("eslint:test:devtools", async () => await eslint(join(paths.src_dir.test, "
 task("eslint:make", async () => await eslint(paths.make_dir))
 task("eslint:lib", async () => await eslint(paths.src_dir.lib))
 task("eslint:compiler", async () => await eslint(paths.src_dir.compiler))
+task("eslint:server", async () => await eslint(paths.src_dir.server))
 task("eslint:test", ["eslint:test:unit", "eslint:test:defaults", "eslint:test:integration", "eslint:test:codebase", "eslint:test:devtools"])
 task("eslint:examples", async () => await eslint(paths.src_dir.examples))
 
-task("eslint", ["eslint:make", "eslint:lib", "eslint:compiler", "eslint:test", "eslint:examples"])
+task("eslint", ["eslint:make", "eslint:lib", "eslint:compiler", "eslint:server", "eslint:test", "eslint:examples"])
 
 task("lint", ["eslint"])
