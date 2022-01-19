@@ -155,7 +155,7 @@ Any tile specification (e.g. as string name) can be now passed directly to ``add
 instead.
 
 ``on_click`` event handlers on button type widgets have been replaced with ``on_event``
-using ``bokeh.events.ButtonClick`` as the event type.
+using ``bokeh.events.ButtonClick`` ("button_click") as the event type.
 
 API changes
 ~~~~~~~~~~~
