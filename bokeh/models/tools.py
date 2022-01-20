@@ -513,6 +513,12 @@ class SaveTool(ActionTool):
 
     '''
 
+    filename = Nullable(String, help="""
+    Optional string specifying the filename of the saved image (extension not
+    needed). If a filename is not provided or set to None, the user is prompted
+    for a filename at save time.
+    """)
+
 class ResetTool(ActionTool):
     ''' *toolbar icon*: |reset_icon|
 

@@ -408,8 +408,16 @@ SaveTool
 * name: ``'save'``
 * icon: |save_icon|
 
-The save tool pops up a modal dialog that allows you to save a PNG image
-of the plot.
+The save tool allows you to save a PNG image of the plot. By default, you will be
+prompted for a filename. Alternatively, you can create an instance of the tool
+yourself and provide a filename:
+
+.. code-block:: python
+
+    SaveTool(filename='custom_filename') # png extension not needed
+
+Either way, the file will then be downloaded directly or a modal dialog will open
+depending on your browser.
 
 ZoomInTool
 ~~~~~~~~~~
