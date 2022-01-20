@@ -411,6 +411,7 @@ SaveTool
 The save tool allows you to save a PNG image of the plot. By default, you will be
 prompted for a filename. Alternatively, you can create an instance of the tool
 yourself and provide a filename:
+
 .. code-block:: python
 
     SaveTool(filename='custom_filename') # png extension not needed
