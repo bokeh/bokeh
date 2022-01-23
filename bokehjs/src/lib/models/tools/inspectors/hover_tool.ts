@@ -8,6 +8,7 @@ import {GraphRenderer} from "../../renderers/graph_renderer"
 import {DataRenderer} from "../../renderers/data_renderer"
 import {LineView} from "../../glyphs/line"
 import {MultiLineView} from "../../glyphs/multi_line"
+import {VAreaView} from "../../glyphs/varea"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
 import {replace_placeholders, Formatters, FormatterType, Vars} from "core/util/templating"
@@ -285,6 +286,21 @@ export class HoverToolView extends InspectToolView {
           name: renderer.name,
         }
         tooltips.push([rx, ry, this._render_tooltips(ds, ii, vars)])
+      }
+    }
+
+    if (glyph instanceof VAreaView) {
+      for (const i of subset_indices.line_indices) {
+        const data_x = glyph._x
+        const data_y = glyph._y2
+        const [rx, ry] = [sx, sy]
+        const vars = {
+          index: i,
+          x, y, sx, sy, data_x, data_y, rx, ry,
+          indices: subset_indices.line_indices,
+          name: renderer.name,
+        }
+        tooltips.push([rx, ry, this._render_tooltips(ds, i, vars)])
       }
     }
 
