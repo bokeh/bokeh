@@ -770,7 +770,7 @@ describe("Document", () => {
     expect(d._all_models.has(child3.id)).to.be.true
 
     // put it back how it was before
-    const event2 = new ev.ModelChangedEvent(d, root1, "child", child1.child, child1)
+    const event2 = new ev.ModelChangedEvent(d, root1, "child", root1.child, child1)
     const patch2 = d.create_json_patch([event2])
     d.apply_json_patch(patch2)
 

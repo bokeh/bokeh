@@ -262,14 +262,16 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     const ref = this.ref()
     serializer.add_ref(this, ref)
 
-    const struct = this.struct()
+    const attributes: Attrs = {}
     for (const prop of this) {
       if (prop.syncable && (serializer.include_defaults || prop.dirty)) {
         const value = prop.get_value()
-        struct.attributes[prop.attr] = serializer.to_serializable(value)
+        attributes[prop.attr] = serializer.to_serializable(value)
       }
     }
-    serializer.add_def(this, struct)
+
+    const {type, id} = this
+    serializer.add_def(this, {type, id, attributes})
 
     return ref
   }
@@ -467,15 +469,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   ref(): Ref {
     return {id: this.id}
-  }
-
-  struct(): Struct {
-    const struct: Struct = {
-      type: this.type,
-      id: this.id,
-      attributes: {},
-    }
-    return struct
   }
 
   *[Symbol.iterator](): PropertyGenerator {

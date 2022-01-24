@@ -201,18 +201,18 @@ class Serializer:
     def _encode_dict(self, obj: Dict[Any, Any]) -> JSON:
         return {self._encode(key): self._encode(val) for key, val in obj.items()}
 
-    def _encode_bytes(self, obj: bytes) -> JSON:
-        buffer = self.add_buf(obj)
-        return dict(
-            type="bytes",
-            data=buffer.ref if self.binary else buffer.to_base64(),
-        )
-
     def _encode_dataclass(self, obj: Any) -> JSON:
         cls = type(obj)
         return dict(
             type=f"{cls.__module__}.{cls.__name__}",
             attributes=[ (key, self._encode(val)) for key, val in entries(obj) ],
+        )
+
+    def _encode_bytes(self, obj: bytes) -> JSON:
+        buffer = self.add_buf(obj)
+        return dict(
+            type="bytes",
+            data=buffer.ref if self.binary else buffer.to_base64(),
         )
 
     def _encode_ndarray(self, obj: npt.NDArray[Any]) -> JSON:
@@ -221,8 +221,7 @@ class Serializer:
         if array_encoding_disabled(array):
             data = self._encode_list(array.tolist())
         else:
-            buffer = self.add_buf(array.tobytes())
-            data = buffer.ref if self.binary else buffer.to_base64()
+            data = self._encode_bytes(array.tobytes())
 
         return dict(
             type="ndarray",

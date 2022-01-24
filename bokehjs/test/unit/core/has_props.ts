@@ -101,16 +101,6 @@ describe("core/has_props module", () => {
     })
   })
 
-  describe("HasProps.struct()", () => {
-
-    it("should return a correct struct for a standard HasProps", () => {
-      const obj = new TestModel()
-      const struct = obj.struct()
-      expect(struct.id).to.be.equal(obj.id)
-      expect(struct.type).to.be.equal(obj.type)
-    })
-  })
-
   it("implements HasProps[toStringTag] method", () => {
     const obj0 = new SubclassWithProps()
     const obj1 = new SubSubclassWithProps()

@@ -93,18 +93,48 @@ describe("core/serializer module", () => {
       expect(to_serializable(obj0)).to.be.equal({repr: {id: obj0.id}, json: `{"id":"${obj0.id}"}`})
     })
 
+    it("should support ArrayBuffer instances", () => {
+      const buf0 = new Uint8Array([0, 1, 2, 3, 4, 5, 6]).buffer
+      expect(to_serializable(buf0)).to.be.equal({
+        repr: {
+          type: "bytes",
+          data: new Base64Buffer(buf0),
+        },
+        json: '{"type":"bytes","data":"AAECAwQFBg=="}',
+      })
+    })
+
     it("should support ndarrays", () => {
       const nd0 = ndarray([1, 2, 3], {dtype: "int32", shape: [1, 3]})
 
       expect(to_serializable(nd0)).to.be.equal({
         repr: {
           type: "ndarray",
-          array: new Base64Buffer(nd0.buffer),
+          array: {
+            type: "bytes",
+            data: new Base64Buffer(nd0.buffer),
+          },
           order: BYTE_ORDER,
           dtype: "int32",
           shape: [1, 3],
         },
-        json: `{"type":"ndarray","array":"AQAAAAIAAAADAAAA","order":"${BYTE_ORDER}","dtype":"int32","shape":[1,3]}`,
+        json: `{"type":"ndarray","array":{"type":"bytes","data":"AQAAAAIAAAADAAAA"},"order":"${BYTE_ORDER}","dtype":"int32","shape":[1,3]}`,
+      })
+
+      const nd1 = ndarray([1.1, 2.1, 3.1, 4.1, 5.1, 6.1], {dtype: "float64", shape: [2, 3]})
+
+      expect(to_serializable(nd1)).to.be.equal({
+        repr: {
+          type: "ndarray",
+          array: {
+            type: "bytes",
+            data: new Base64Buffer(nd1.buffer),
+          },
+          order: BYTE_ORDER,
+          dtype: "float64",
+          shape: [2, 3],
+        },
+        json: `{"type":"ndarray","array":{"type":"bytes","data":"mpmZmZmZ8T/NzMzMzMwAQM3MzMzMzAhAZmZmZmZmEEBmZmZmZmYUQGZmZmZmZhhA"},"order":"${BYTE_ORDER}","dtype":"float64","shape":[2,3]}`,
       })
     })
 

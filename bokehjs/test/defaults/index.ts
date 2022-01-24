@@ -19,19 +19,22 @@ import {settings} from "@bokehjs/core/settings"
 import "@bokehjs/models/widgets/main"
 import "@bokehjs/models/widgets/tables/main"
 
+type KV = {[key: string]: unknown}
+
 class DefaultsSerializer extends Serializer {
 
   override to_serializable(obj: unknown): unknown {
     if (obj instanceof HasProps) {
-      const struct: KV = obj.struct()
+      const attributes: KV = {}
       for (const prop of obj) {
         if (prop.syncable) {
           const value = prop.is_unset ? unset : prop.get_value()
-          struct.attributes[prop.attr] = this.to_serializable(value)
+          attributes[prop.attr] = this.to_serializable(value)
         }
       }
-      delete struct.id
-      return struct
+
+      const {type} = obj
+      return {type, attributes}
     } else {
       return super.to_serializable(obj)
     }
@@ -45,8 +48,6 @@ function get_defaults(name: string) {
   else
     throw new Error(`can't find defaults for ${name}`)
 }
-
-type KV = {[key: string]: any}
 
 function check_matching_defaults(context: string[], name: string, python_defaults: KV, bokehjs_defaults: KV): boolean {
   const different: string[] = []
@@ -65,7 +66,7 @@ function check_matching_defaults(context: string[], name: string, python_default
       continue
 
     // if testing in dev mode, we use special platform independent "Bokeh" font, instead of the default
-    if (settings.dev && k.includes("text_font") && (js_v == "Bokeh" || js_v?.value == "Bokeh"))
+    if (settings.dev && k.includes("text_font") && (js_v == "Bokeh" || (js_v as any)?.value == "Bokeh"))
       continue
 
     if (k in python_defaults) {
@@ -205,7 +206,7 @@ describe("Defaults", () => {
       const defaults = serializer.to_serializable(obj)
 
       const python_defaults = get_defaults(name)
-      const bokehjs_defaults = (defaults as KV).attributes
+      const bokehjs_defaults = (defaults as KV).attributes as KV
 
       if (!check_matching_defaults([], name, python_defaults, bokehjs_defaults)) {
         throw new ExpectationError(`expected ${name} model to match defaults with bokeh`)

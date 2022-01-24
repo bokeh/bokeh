@@ -2,6 +2,7 @@ import {assert} from "./util/assert"
 import {entries} from "./util/object"
 import {Ref, Struct} from "./util/refs"
 import {isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isSymbol} from "./util/types"
+import {encode_bytes} from "./util/serialization"
 
 export type SerializableType =
   | null
@@ -13,7 +14,7 @@ export type SerializableType =
   | {[key: string]: SerializableType}
   //| Map<SerializableType, SerializableType>
   //| Set<SerializableType>
-  //| ArrayBuffer
+  | ArrayBuffer
   // TypedArray?
 
 export const serialize = Symbol("serialize")
@@ -96,7 +97,7 @@ export class Serializer {
       return ref
     else if (is_Serializable(obj))
       return obj[serialize](this)
-    else if (isArray(obj) || isTypedArray(obj)) {
+    else if (isArray(obj) || isTypedArray(obj)) { // ???: typed arrays
       const n = obj.length
       const result: unknown[] = new Array(n)
       for (let i = 0; i < n; i++) {
@@ -104,6 +105,8 @@ export class Serializer {
         result[i] = this.to_serializable(value)
       }
       return result
+    } else if (obj instanceof ArrayBuffer) {
+      return encode_bytes(obj)
     } else if (isPlainObject(obj)) {
       const result: {[key: string]: unknown} = {}
       for (const [key, value] of entries(obj)) {

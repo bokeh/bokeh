@@ -1,7 +1,7 @@
 import {ModelResolver} from "../base"
 import {Model} from "../model"
 import * as kinds from "core/kinds"
-import {Deserializer} from "core/deserializer"
+import {Deserializer, AnyVal} from "core/deserializer"
 import {Struct} from "core/util/refs"
 import {isString} from "core/util/types"
 import {to_object} from "core/util/object"
@@ -132,20 +132,22 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
       static override __module__ = def.module ?? undefined
     }
 
-    const references = Deserializer._instantiate_references_json(def.references, new Map(), resolver)
-    Deserializer._initialize_references_json(def.references, new Map(), references, new Map(), null)
+    const deserializer = new Deserializer(resolver)
 
-    function resolve_refs(value: unknown): unknown {
-      return Deserializer._resolve_refs(value, new Map(), references, new Map())
+    function decode(value: unknown): unknown {
+      if (value === undefined)
+        return value
+      else
+        return deserializer.decode(value as AnyVal, def.references)
     }
 
     for (const prop of def.properties) {
       const kind = kind_of(prop.kind)
-      model.define<any>({[prop.name]: [kind, resolve_refs(prop.default)]})
+      model.define<any>({[prop.name]: [kind, decode(prop.default)]})
     }
 
     for (const prop of def.overrides) {
-      model.override<any>({[prop.name]: resolve_refs(prop.default)})
+      model.override<any>({[prop.name]: decode(prop.default)})
     }
 
     resolver.register(model)

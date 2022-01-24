@@ -5,7 +5,7 @@ import {BokehEvent, DocumentReady, ModelEvent, LODStart, LODEnd} from "core/boke
 import {HasProps} from "core/has_props"
 import {Serializer} from "core/serializer"
 import {Deserializer, RefMap} from "core/deserializer"
-import {ID, Data} from "core/types"
+import {ID} from "core/types"
 import {Signal0} from "core/signaling"
 import {Struct} from "core/util/refs"
 import {equals, Equatable, Comparator} from "core/util/eq"
@@ -13,7 +13,6 @@ import {Buffers} from "core/util/serialization"
 import {copy, includes} from "core/util/array"
 import * as sets from "core/util/set"
 import {LayoutDOM} from "models/layouts/layout_dom"
-import {ColumnDataSource} from "models/sources/column_data_source"
 import {Model} from "model"
 import {ModelDef, resolve_defs} from "./defs"
 import {
@@ -397,21 +396,14 @@ export class Document implements Equatable {
       logger.warn("'version' field is missing")
   }
 
-  static from_json(json: DocJson, events?: Out<DocumentEvent[]>): Document {
+  static from_json(doc_json: DocJson, events?: Out<DocumentEvent[]>): Document {
     logger.debug("Creating Document from JSON")
-
-    const doc_repr = Deserializer.decode(json) as DocJson
-
-    Document._handle_version(doc_repr)
+    Document._handle_version(doc_json)
 
     const resolver = new ModelResolver()
-    if (doc_repr.defs != null) {
-      resolve_defs(doc_repr.defs, resolver)
+    if (doc_json.defs != null) {
+      resolve_defs(doc_json.defs, resolver)
     }
-
-    const roots_json = doc_repr.roots
-    const root_ids = roots_json.root_ids
-    const references_json = roots_json.references
 
     const doc = new Document({resolver})
     doc._push_all_models_freeze()
@@ -419,22 +411,21 @@ export class Document implements Equatable {
     const listener = (event: DocumentEvent) => events?.push(event)
     doc.on_change(listener, true)
 
-    const references = Deserializer._instantiate_references_json(references_json, new Map(), resolver)
-    Deserializer._initialize_references_json(references_json, new Map(), references, new Map(), doc)
+    const deserializer = new Deserializer(resolver, doc._all_models)
+
+    const root_refs = doc_json.roots.root_ids.map((id) => { return {id} }) // TODO: root_ids -> roots
+    const roots = deserializer.decode(root_refs, doc_json.roots.references, new Map(), doc) as Model[]
 
     doc.remove_on_change(listener)
 
-    for (const id of root_ids) {
-      const root = references.get(id)
-      if (root != null) {
-        doc.add_root(root as Model) // XXX: HasProps
-      }
+    for (const root of roots) {
+      doc.add_root(root)
     }
+
+    if (doc_json.title != null)
+      doc.set_title(doc_json.title)
+
     doc._pop_all_models_freeze()
-
-    if (doc_repr.title != null)
-      doc.set_title(doc_repr.title)
-
     return doc
   }
 
@@ -469,81 +460,30 @@ export class Document implements Equatable {
   }
 
   apply_json_patch(patch: Patch, buffers: Buffers | ReturnType<Buffers["entries"]> = new Map()): void {
-    const references_json = patch.references
-    const events_json = patch.events
-    const references = Deserializer._instantiate_references_json(references_json, this._all_models, this._resolver)
-
     if (!(buffers instanceof Map)) {
       buffers = new Map(buffers)
     }
 
-    // The model being changed isn't always in references so add it in
-    for (const event_json of events_json) {
-      switch (event_json.kind) {
-        case "RootAdded":
-        case "RootRemoved":
-        case "ModelChanged": {
-          const model_id = event_json.model.id
-          const model = this._all_models.get(model_id)
-          if (model != null) {
-            references.set(model_id, model)
-          } else if (!references.has(model_id)) {
-            logger.warn(`Got an event for unknown model ${event_json.model}"`)
-            throw new Error("event model wasn't known")
-          }
-          break
-        }
-      }
-    }
+    this._push_all_models_freeze()
 
-    // split references into old and new so we know whether to initialize or update
-    const old_references: RefMap = new Map(this._all_models)
-    const new_references: RefMap = new Map()
-    for (const [id, value] of references) {
-      if (!old_references.has(id))
-        new_references.set(id, value)
-    }
+    const deserializer = new Deserializer(this._resolver, this._all_models)
+    const events = deserializer.decode(patch.events, patch.references, buffers, this) as DocumentChanged[] // not really, (De) SerializedOf
 
-    Deserializer._initialize_references_json(references_json, old_references, new_references, buffers, this)
-
-    for (const event_json of events_json) {
-      switch (event_json.kind) {
+    for (const event of events) {
+      switch (event.kind) {
         case "MessageSent": {
-          const {msg_type, msg_data} = event_json
-          let data: unknown
-          if (msg_data === undefined) {
-            if (buffers.size == 1) {
-              const [[, buffer]] = buffers
-              data = buffer
-            } else {
-              throw new Error("expected exactly one buffer")
-            }
-          } else {
-            data = Deserializer._resolve_refs(msg_data, old_references, new_references, buffers)
-          }
-
-          this._trigger_on_message(msg_type, data)
+          const {msg_type, msg_data} = event
+          this._trigger_on_message(msg_type, msg_data)
           break
         }
         case "ModelChanged": {
-          const patched_id = event_json.model.id
-          const patched_obj = this._all_models.get(patched_id)
-          if (patched_obj == null) {
-            throw new Error(`Cannot apply patch to ${patched_id} which is not in the document`)
-          }
-          const attr = event_json.attr
-          const value = Deserializer._resolve_refs(event_json.new, old_references, new_references, buffers)
-          patched_obj.setv({[attr]: value}, {sync: false})
+          const {model, attr, new: value} = event
+          model.setv({[attr]: value}, {sync: false})
           break
         }
         case "ColumnDataChanged": {
-          const column_source_id = event_json.column_source.id
-          const column_source = this._all_models.get(column_source_id) as ColumnDataSource | undefined
-          if (column_source == null) {
-            throw new Error(`Cannot stream to ${column_source_id} which is not in the document`)
-          }
-          const data = Deserializer._resolve_refs(event_json.new, new Map(), new Map(), buffers) as Data
-          if (event_json.cols != null) {
+          const {column_source, cols, new: data} = event
+          if (cols != null) {
             for (const k in column_source.data) {
               if (!(k in data)) {
                 data[k] = column_source.data[k]
@@ -554,51 +494,32 @@ export class Document implements Equatable {
           break
         }
         case "ColumnsStreamed": {
-          const column_source_id = event_json.column_source.id
-          const column_source = this._all_models.get(column_source_id)
-          if (column_source == null) {
-            throw new Error(`Cannot stream to ${column_source_id} which is not in the document`)
-          }
-          if (!(column_source instanceof ColumnDataSource)) {
-            throw new Error("Cannot stream to non-ColumnDataSource")
-          }
-          const data = event_json.data
-          const rollover = event_json.rollover
+          const {column_source, data, rollover} = event
           column_source.stream(data, rollover, {sync: false})
           break
         }
         case "ColumnsPatched": {
-          const column_source_id = event_json.column_source.id
-          const column_source = this._all_models.get(column_source_id)
-          if (column_source == null) {
-            throw new Error(`Cannot patch ${column_source_id} which is not in the document`)
-          }
-          if (!(column_source instanceof ColumnDataSource)) {
-            throw new Error("Cannot patch non-ColumnDataSource")
-          }
-          const patches = event_json.patches
+          const {column_source, patches} = event
           column_source.patch(patches, {sync: false})
           break
         }
         case "RootAdded": {
-          const root_id = event_json.model.id
-          const root_obj = references.get(root_id)
-          this._add_root(root_obj as Model) // XXX: HasProps
+          this._add_root(event.model)
           break
         }
         case "RootRemoved": {
-          const root_id = event_json.model.id
-          const root_obj = references.get(root_id)
-          this._remove_root(root_obj as Model) // XXX: HasProps
+          this._remove_root(event.model)
           break
         }
         case "TitleChanged": {
-          this._set_title(event_json.title)
+          this._set_title(event.title)
           break
         }
         default:
-          throw new Error(`Unknown patch event ${JSON.stringify(event_json)}`)
+          throw new Error(`unknown patch event type '${event.kind}'`)
       }
     }
+
+    this._pop_all_models_freeze()
   }
 }
