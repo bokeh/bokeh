@@ -37,6 +37,6 @@ for (const r of [r1, n1, r2, u2]) {
 """)
 
 button = Button(label='Press to toggle Jitter!', width=300)
-button.js_on_click(callback)
+button.js_on_event("button_click", callback)
 
 show(Column(button, p))

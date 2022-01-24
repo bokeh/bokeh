@@ -63,7 +63,7 @@ class Test_ColumnDataSource:
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
-            button.js_on_click(CustomJS(args=dict(s=source), code="s.patch({'x': [[1, 100]]})"))
+            button.js_on_event('button_click', CustomJS(args=dict(s=source), code="s.patch({'x': [[1, 100]]})"))
             doc.add_root(column(button, plot))
 
         page = bokeh_server_page(modify_doc)
@@ -109,7 +109,7 @@ class Test_ColumnDataSource:
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
-            button.js_on_click(CustomJS(args=dict(s=source), code="s.stream({'x': [100], 'y': [200]})"))
+            button.js_on_event('button_click', CustomJS(args=dict(s=source), code="s.stream({'x': [100], 'y': [200]})"))
             doc.add_root(column(button, plot))
 
         page = bokeh_server_page(modify_doc)

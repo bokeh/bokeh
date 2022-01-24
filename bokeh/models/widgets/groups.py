@@ -20,9 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import TYPE_CHECKING, Callable, List as TList
-
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import (
@@ -35,9 +32,6 @@ from ...core.properties import (
 )
 from .buttons import ButtonLike
 from .widget import Widget
-
-if TYPE_CHECKING:
-    from ..callbacks import Callback
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -66,23 +60,6 @@ class AbstractGroup(Widget):
     labels = List(String, help="""
     List of text labels contained in this group.
     """)
-
-    def on_click(self, handler: Callable[[int], None] | Callable[[TList[int]], None]) -> None:
-        ''' Set up a handler for button check/radio box clicks including
-        the selected indices.
-
-        Args:
-            handler (func) : handler function to call when button is clicked.
-
-        Returns:
-            None
-
-        '''
-        self.on_change('active', lambda attr, old, new: handler(new))
-
-    def js_on_click(self, handler: Callback) -> None:
-        ''' Set up a handler for button check/radio box clicks including the selected indices. '''
-        self.js_on_change('active', handler)
 
 @abstract
 class ButtonGroup(AbstractGroup, ButtonLike):

@@ -130,6 +130,12 @@ implementation, then use data models (e.g. extend from ``DataModel``).
 as assigned to. Previously providing a data source in both a glyph renderer
 and a source view was redundant.
 
+``RadioGroup / CheckboxGroup on_click``
+.......................................
+
+``RadioGroup`` and ``CheckboxGroup`` no longer supports ``on_click`` event handlers.
+Use ``on_change('active', cb)`` instead.
+
 Renames
 ~~~~~~~
 
@@ -147,6 +153,9 @@ Deprecations
 ``tile_providers`` module providing ``get_providers`` and ``Vendors`` is now deprecated.
 Any tile specification (e.g. as string name) can be now passed directly to ``add_tile``
 instead.
+
+``on_click`` event handlers on button type widgets have been replaced with ``on_event``
+using ``bokeh.events.ButtonClick`` ("button_click") as the event type.
 
 API changes
 ~~~~~~~~~~~

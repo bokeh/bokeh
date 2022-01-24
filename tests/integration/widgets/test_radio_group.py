@@ -68,9 +68,9 @@ class Test_RadioGroup:
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
             plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
-            def cb(active):
-                source.data['val'] = [active, "b"]
-            group.on_click(cb)
+            def cb(attr, old, new):
+                source.data['val'] = [new, "b"]
+            group.on_change('active', cb)
             doc.add_root(column(group, plot))
 
         page = bokeh_server_page(modify_doc)
@@ -96,7 +96,7 @@ class Test_RadioGroup:
 
     def test_js_on_change_executes(self, bokeh_model_page: BokehModelPage) -> None:
         group = RadioGroup(labels=LABELS)
-        group.js_on_click(CustomJS(code=RECORD("active", "cb_obj.active")))
+        group.js_on_change('active', CustomJS(code=RECORD("active", "cb_obj.active")))
 
         page = bokeh_model_page(group)
 

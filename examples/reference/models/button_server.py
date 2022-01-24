@@ -12,7 +12,7 @@ source = ColumnDataSource(data=dict(x=x, y=y))
 
 plot_figure = figure(height=450, width=600,
               tools="save,reset",
-              x_range=[0,14], y_range=[0,12],toolbar_location="below")
+              x_range=[0,14], y_range=[0,12], toolbar_location="below")
 
 plot_figure.scatter('x', 'y', source=source, size=10)
 
@@ -21,7 +21,7 @@ button = Button(label="Click to set plot title", button_type="success")
 def button_click():
     plot_figure.title.text = 'Button Clicked'
 
-button.on_click(button_click)
+button.on_event('button_click', button_click)
 
 layout=row(button,plot_figure)
 

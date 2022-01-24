@@ -65,7 +65,7 @@ def make_dropdown(prop, menu):
             glyph[prop] = cb_obj.item;
         }
     """)
-    dropdown.js_on_click(cb)
+    dropdown.js_on_event("menu_item_click", cb)
     return dropdown
 
 sliders = [

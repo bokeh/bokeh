@@ -998,12 +998,12 @@ class TestDocument:
         button1 = Button(label="1")
         button2 = Button(label="2")
         def clicked_1():
-            button2.on_click(clicked_2)
+            button2.on_event('button_click', clicked_2)
             d.add_root(button2)
         def clicked_2():
             pass
 
-        button1.on_click(clicked_1)
+        button1.on_event('button_click', clicked_1)
         d.add_root(button1)
 
         event_json = {"event_name": "button_click", "event_values": {"model": {"id": button1.id}}}

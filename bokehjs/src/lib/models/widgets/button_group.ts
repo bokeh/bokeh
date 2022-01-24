@@ -1,5 +1,5 @@
 import {OrientedControl, OrientedControlView} from "./oriented_control"
-
+import {ButtonClick} from "core/bokeh_events"
 import {ButtonType} from "core/enums"
 import {div} from "core/dom"
 import * as p from "core/properties"
@@ -39,7 +39,10 @@ export abstract class ButtonGroupView extends OrientedControlView {
         class: [buttons.btn, buttons[`btn_${this.model.button_type}` as const]],
         disabled: this.model.disabled,
       }, label)
-      button.addEventListener("click", () => this.change_active(i))
+      button.addEventListener("click", () => {
+        this.change_active(i)
+        this.model.trigger_event(new ButtonClick())
+      })
       return button
     })
 

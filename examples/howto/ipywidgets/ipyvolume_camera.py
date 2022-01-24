@@ -24,7 +24,7 @@ def randomize(button):
         scatter.z = z
 
 randomize_button = ipw.Button(description="Randomize")
-randomize_button.on_click(randomize)
+randomize_button.on_event("button_click", randomize)
 
 def change_anglex(change):
     v = round(np.degrees(change["new"])) % 360

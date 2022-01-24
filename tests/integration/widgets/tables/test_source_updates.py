@@ -86,9 +86,9 @@ class Test_DataTableSource:
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
-            @btn.on_click
-            def btn_click():
+            def btn_click(event):
                 source.patch({"x": [(0, 42)]})
+            btn.on_event('button_click', btn_click)
 
             doc.add_root(column(plot, table, btn))
 
@@ -141,9 +141,9 @@ class Test_DataTableSource:
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
-            @btn.on_click
-            def btn_click():
+            def btn_click(event):
                 source.stream({"x": [5], "y": [50]})
+            btn.on_event('button_click', btn_click)
 
             doc.add_root(column(plot, table, btn))
 
@@ -197,9 +197,9 @@ class Test_DataTableSource:
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
-            @btn.on_click
-            def btn_click():
+            def btn_click(event):
                 source.data = {'x': [5,6,7,8], 'y': [50,60,70,80]}
+            btn.on_event('button_click', btn_click)
 
             doc.add_root(column(plot, table, btn))
 
@@ -406,7 +406,7 @@ class Test_DataTableSource:
 
             def cb():
                 source.data =  {'x': [0,1,2,3,4,5,6,7], 'y': [70,60,50,40,30,20,10,0]}
-            button.on_click(cb)
+            button.on_event('button_click', cb)
 
             doc.add_root(column(plot, table, button))
 
@@ -464,7 +464,7 @@ class Test_DataTableSource:
 
             def cb():
                 source.patch({'y': [[2, 100]]})
-            button.on_click(cb)
+            button.on_event('button_click', cb)
 
             doc.add_root(column(plot, table, button))
 
@@ -522,7 +522,7 @@ class Test_DataTableSource:
 
             def cb():
                 source.stream({'x': [100], 'y': [100]})
-            button.on_click(cb)
+            button.on_event('button_click', cb)
 
             doc.add_root(column(plot, table, button))
 
