@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
-def publish_display_data(data: Dict[str, Any], metadata: Dict[Any, Any] | None = ...,
-    source: str | None = ..., *, transient: Dict[str, Any] | None = ..., **kwargs: Any) -> None: ...
+def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None = ...,
+    source: str | None = ..., *, transient: dict[str, Any] | None = ..., **kwargs: Any) -> None: ...

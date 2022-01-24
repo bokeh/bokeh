@@ -1,10 +1,10 @@
-from typing import Callable, Sequence, Type, TypeVar
+from typing import Callable, Sequence, TypeVar
 
 from ..remote.webdriver import WebDriver
 
 _T = TypeVar("_T")
 
 class WebDriverWait:
-    def __init__(self, driver: WebDriver, timeout: int, poll_frequency: float = ..., ignored_exceptions: Sequence[Type[Exception]] | None = ...) -> None: ...
+    def __init__(self, driver: WebDriver, timeout: int, poll_frequency: float = ..., ignored_exceptions: Sequence[type[Exception]] | None = ...) -> None: ...
 
     def until(self, method: Callable[[WebDriver], _T], message: str = ...) -> _T: ...
