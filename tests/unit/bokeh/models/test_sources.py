@@ -27,6 +27,7 @@ import numpy as np
 # Bokeh imports
 from bokeh.models import Selection
 from bokeh.util.serialization import convert_datetime_array, transform_column_source_data
+from bokeh.util.warnings import BokehDeprecationWarning
 
 # Module under test
 import bokeh.models.sources as bms # isort:skip
@@ -39,6 +40,10 @@ import bokeh.models.sources as bms # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
+def test_CDSView_deprecated_source_property() -> None:
+    source = bms.ColumnDataSource()
+    with pytest.warns(BokehDeprecationWarning):
+        bms.CDSView(source=source)
 
 class TestColumnDataSource:
     def test_basic(self) -> None:

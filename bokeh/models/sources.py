@@ -53,6 +53,7 @@ from ..core.properties import (
 )
 from ..model import Model
 from ..util.dependencies import import_optional
+from ..util.deprecation import deprecated
 from ..util.serialization import convert_datetime_array
 from ..util.warnings import BokehUserWarning
 from .callbacks import CustomJS
@@ -725,6 +726,12 @@ class CDSView(Model):
     ''' A view into a ``ColumnDataSource`` that represents a row-wise subset.
 
     '''
+
+    def __init__(self, *args: TAny, **kwargs: TAny) -> None:
+        if "source" in kwargs:
+            del kwargs["source"]
+            deprecated("CDSView.source is no longer needed, and is now ignored. In a future release, passing source will result an error.")
+        super().__init__(*args, **kwargs)
 
     filters = List(Instance(Filter), default=[], help="""
     List of filters that the view comprises.
