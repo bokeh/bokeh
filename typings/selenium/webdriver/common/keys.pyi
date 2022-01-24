@@ -1,7 +1,9 @@
 # Standard library imports
 from typing import Sequence, Union
 
-_KeySeq = Union[str, int, Sequence[str]]
+from typing_extensions import TypeAlias
+
+_KeySeq: TypeAlias = Union[str, int, Sequence[str]]
 
 class Keys:
     NULL: str
