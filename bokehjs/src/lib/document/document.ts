@@ -18,7 +18,7 @@ import {ModelDef, resolve_defs} from "./defs"
 import {
   DocumentEvent, DocumentEventBatch, DocumentChangedEvent,
   RootRemovedEvent, TitleChangedEvent, MessageSentEvent,
-  DocumentChanged, RootAddedEvent,
+  Decoded, DocumentChanged, RootAddedEvent,
 } from "./events"
 
 export type Out<T> = T
@@ -71,7 +71,7 @@ export class Document implements Equatable {
   protected readonly _init_timestamp: number
   protected readonly _resolver: ModelResolver
   protected _title: string
-  protected _roots: Model[]
+  protected _roots: HasProps[]
   /*protected*/ _all_models: Map<ID, Model>
   protected _all_models_freeze_count: number
   protected _callbacks: Map<((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), boolean>
@@ -230,11 +230,11 @@ export class Document implements Equatable {
     this._all_models = recomputed as any // XXX
   }
 
-  roots(): Model[] {
+  roots(): HasProps[] {
     return this._roots
   }
 
-  protected _add_root(model: Model): boolean {
+  protected _add_root(model: HasProps): boolean {
     if (includes(this._roots, model))
       return false
 
@@ -248,7 +248,7 @@ export class Document implements Equatable {
     return true
   }
 
-  protected _remove_root(model: Model): boolean {
+  protected _remove_root(model: HasProps): boolean {
     const i = this._roots.indexOf(model)
     if (i < 0)
       return false
@@ -270,12 +270,12 @@ export class Document implements Equatable {
     return new_title
   }
 
-  add_root(model: Model): void {
+  add_root(model: HasProps): void {
     if (this._add_root(model))
       this._trigger_on_change(new RootAddedEvent(this, model))
   }
 
-  remove_root(model: Model): void {
+  remove_root(model: HasProps): void {
     if (this._remove_root(model))
       this._trigger_on_change(new RootRemovedEvent(this, model))
   }
@@ -414,7 +414,7 @@ export class Document implements Equatable {
     const deserializer = new Deserializer(resolver, doc._all_models)
 
     const root_refs = doc_json.roots.root_ids.map((id) => { return {id} }) // TODO: root_ids -> roots
-    const roots = deserializer.decode(root_refs, doc_json.roots.references, new Map(), doc) as Model[]
+    const roots = deserializer.decode(root_refs, doc_json.roots.references as any, new Map(), doc) as Model[] // XXX
 
     doc.remove_on_change(listener)
 
@@ -467,7 +467,7 @@ export class Document implements Equatable {
     this._push_all_models_freeze()
 
     const deserializer = new Deserializer(this._resolver, this._all_models)
-    const events = deserializer.decode(patch.events, patch.references, buffers, this) as DocumentChanged[] // not really, (De) SerializedOf
+    const events = deserializer.decode(patch.events, patch.references as any, buffers, this) as Decoded.DocumentChanged[] // XXX
 
     for (const event of events) {
       switch (event.kind) {
@@ -516,7 +516,7 @@ export class Document implements Equatable {
           break
         }
         default:
-          throw new Error(`unknown patch event type '${event.kind}'`)
+          throw new Error(`unknown patch event type '${(event as any).kind}'`) // XXX
       }
     }
 

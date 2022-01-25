@@ -313,7 +313,7 @@ export class InspectorView extends HTMLBoxView {
       }
     }
 
-    const render_props = (model: Model) => {
+    const render_props = (model: HasProps) => {
       clear(props_list)
       empty(props_list_el)
 

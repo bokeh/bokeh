@@ -1,8 +1,7 @@
 import {ModelResolver} from "../base"
 import {Model} from "../model"
 import * as kinds from "core/kinds"
-import {Deserializer, AnyVal} from "core/deserializer"
-import {Struct} from "core/util/refs"
+import {Deserializer, AnyVal, ModelRef as ModelRep} from "core/deserializer"
 import {isString} from "core/util/types"
 import {to_object} from "core/util/object"
 
@@ -15,7 +14,7 @@ export type ModelDef = ModelRef & {
   extends: ModelRef
   properties: PropertyDef[]
   overrides: OverrideDef[]
-  references: Struct[]
+  references: ModelRep[]
 }
 
 export type PrimitiveKindRef = "Any" | "Unknown" | "Boolean" | "Number" | "Int" | "String" | "Null"

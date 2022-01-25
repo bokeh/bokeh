@@ -2,7 +2,7 @@ import {Document} from "./document"
 import {Data} from "core/types"
 import {HasProps} from "core/has_props"
 import {Ref} from "core/util/refs"
-import {PatchSet} from "models/sources/column_data_source"
+import {PatchSet, type ColumnDataSource} from "models/sources/column_data_source"
 import {equals, Equatable, Comparator} from "core/util/eq"
 import {serialize, Serializable, Serializer} from "core/serializer"
 
@@ -57,6 +57,60 @@ export type ColumnsPatched = {
 
 export type DocumentChanged =
   ModelChanged | MessageSent | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsPatched
+
+export namespace Decoded {
+  export type ModelChanged = {
+    kind: "ModelChanged"
+    model: HasProps
+    attr: string
+    new: unknown
+    hint?: unknown
+  }
+
+  export type MessageSent = {
+    kind: "MessageSent"
+    msg_type: string
+    msg_data?: unknown
+  }
+
+  export type TitleChanged = {
+    kind: "TitleChanged"
+    title: string
+  }
+
+  export type RootAdded = {
+    kind: "RootAdded"
+    model: HasProps
+  }
+
+  export type RootRemoved = {
+    kind: "RootRemoved"
+    model: HasProps
+  }
+
+  export type ColumnDataChanged = {
+    kind: "ColumnDataChanged"
+    column_source: ColumnDataSource
+    new: Data
+    cols?: string[]
+  }
+
+  export type ColumnsStreamed = {
+    kind: "ColumnsStreamed"
+    column_source: ColumnDataSource
+    data: Data
+    rollover?: number
+  }
+
+  export type ColumnsPatched = {
+    kind: "ColumnsPatched"
+    column_source: ColumnDataSource
+    patches: PatchSet<unknown>
+  }
+
+  export type DocumentChanged =
+    ModelChanged | MessageSent | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsPatched
+}
 
 export abstract class DocumentEvent implements Equatable {
   constructor(readonly document: Document) {}
@@ -152,7 +206,7 @@ export class ModelChangedEvent extends DocumentChangedEvent {
 export class ColumnsPatchedEvent extends DocumentChangedEvent {
 
   constructor(document: Document,
-      readonly column_source: Ref,
+      readonly column_source: ColumnDataSource,
       readonly patches: PatchSet<unknown>) {
     super(document)
   }
@@ -166,7 +220,7 @@ export class ColumnsPatchedEvent extends DocumentChangedEvent {
   [serialize](_serializer: Serializer): ColumnsPatched {
     return {
       kind: "ColumnsPatched",
-      column_source: this.column_source,
+      column_source: this.column_source.ref(),
       patches: this.patches,
     }
   }
@@ -175,7 +229,7 @@ export class ColumnsPatchedEvent extends DocumentChangedEvent {
 export class ColumnDataChangedEvent extends DocumentChangedEvent {
 
   constructor(document: Document,
-      readonly column_source: Ref,
+      readonly column_source: ColumnDataSource,
       readonly new_: Data,
       readonly cols?: string[]) {
     super(document)
@@ -191,7 +245,7 @@ export class ColumnDataChangedEvent extends DocumentChangedEvent {
   [serialize](_serializer: Serializer): ColumnDataChanged {
     return {
       kind: "ColumnDataChanged",
-      column_source: this.column_source,
+      column_source: this.column_source.ref(),
       new: this.new_,
       cols: this.cols,
     }
@@ -201,7 +255,7 @@ export class ColumnDataChangedEvent extends DocumentChangedEvent {
 export class ColumnsStreamedEvent extends DocumentChangedEvent {
 
   constructor(document: Document,
-      readonly column_source: Ref,
+      readonly column_source: ColumnDataSource,
       readonly data: Data,
       readonly rollover?: number) {
     super(document)
@@ -217,7 +271,7 @@ export class ColumnsStreamedEvent extends DocumentChangedEvent {
   [serialize](_serializer: Serializer): ColumnsStreamed {
     return {
       kind: "ColumnsStreamed",
-      column_source: this.column_source,
+      column_source: this.column_source.ref(),
       data: this.data,
       rollover: this.rollover,
     }

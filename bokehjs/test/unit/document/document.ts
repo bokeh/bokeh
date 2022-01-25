@@ -677,7 +677,7 @@ describe("Document", () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)
     const root1 = new SomeModel()
-    root1.name = "bar"
+    root1.name = "foo"
     d.add_root(root1)
     expect(d.roots().length).to.be.equal(1)
 
@@ -687,8 +687,10 @@ describe("Document", () => {
     const copy = Document.from_json_string(JSON.stringify(parsed))
 
     expect(copy.roots().length).to.be.equal(1)
-    expect(copy.roots()[0]).to.be.instanceof(SomeModel)
-    expect(copy.roots()[0].name).to.be.equal("bar")
+    const model0 = copy.roots()[0]
+    expect(model0).to.be.instanceof(SomeModel)
+    assert(model0 instanceof SomeModel)
+    expect(model0.name).to.be.equal("foo")
 
     // be sure defaults were NOT included
     const attrs0 = parsed.roots.references[0].attributes
@@ -1023,7 +1025,7 @@ describe("Document", () => {
       const events: ev.DocumentEvent[] = []
       doc.on_change((event) => events.push(event))
 
-      const event = new ev.ColumnDataChangedEvent(doc, source.ref(), {col1: [4, 5, 6]})
+      const event = new ev.ColumnDataChangedEvent(doc, source, {col1: [4, 5, 6]})
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
@@ -1040,7 +1042,7 @@ describe("Document", () => {
       const events: ev.DocumentEvent[] = []
       doc.on_change((event) => events.push(event))
 
-      const event = new ev.ColumnsStreamedEvent(doc, source.ref(), {col0: [4, 5, 6]})
+      const event = new ev.ColumnsStreamedEvent(doc, source, {col0: [4, 5, 6]})
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
@@ -1062,7 +1064,7 @@ describe("Document", () => {
       const events: ev.DocumentEvent[] = []
       doc.on_change((event) => events.push(event))
 
-      const event = new ev.ColumnsPatchedEvent(doc, source.ref(), {col0: [[{start: 1, stop: 3}, [20, 30]]]})
+      const event = new ev.ColumnsPatchedEvent(doc, source, {col0: [[{start: 1, stop: 3}, [20, 30]]]})
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
