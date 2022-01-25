@@ -11,7 +11,7 @@ from __future__ import annotations
 
 # Standard library imports
 import re
-from typing import Dict, Tuple
+from typing import Dict, Set, Tuple
 
 # Bokeh imports
 from .enums import VersionType
@@ -42,6 +42,8 @@ class Config:
 
         self._secrets: Dict[str, str] = {}
 
+        self._modified: Set[str] = set()
+
     def add_secret(self, name: str, secret: str) -> None:
         """"""
         if name in self._secrets:
@@ -49,9 +51,16 @@ class Config:
         LOG.add_scrubber(Scrubber(secret, name=name))
         self._secrets[name] = secret
 
+    def add_modified(self, path: str) -> None:
+        self._modified.add(path)
+
     @property
     def secrets(self) -> Dict[str, str]:
         return self._secrets
+
+    @property
+    def modified(self) -> Set[str]:
+        return self._modified
 
     @property
     def prerelease(self) -> bool:

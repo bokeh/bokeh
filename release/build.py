@@ -165,6 +165,7 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
             with open(filename, "w") as f:
                 json.dump(content, f, indent=2)
                 f.write("\n")
+            config.add_modified(filename)
         except Exception as e:
             return FAILED(f"Unable to write new version to file {filename!r}", details=e.args)
 
@@ -179,6 +180,7 @@ def update_changelog(config: Config, system: System) -> ActionReturn:
         system.pushd("scripts")
         system.run(f"python milestone.py -a {config.milestone_version}")
         system.popd()
+        config.add_modified("CHANGELOG")
         return PASSED("Updated CHANGELOG with new closed issues")
     except RuntimeError as e:
         return FAILED("CHANGELOG update failed", details=e.args)
@@ -190,6 +192,7 @@ def update_hash_manifest(config: Config, system: System) -> ActionReturn:
         system.cd("scripts")
         system.run(f"python sri.py {config.version}")
         system.cd("..")
+        config.add_modified("bokeh/_sri.json")
         return PASSED("Updated SRI hash manifest")
     except RuntimeError as e:
         return FAILED("SRI hash manifest update failed", details=e.args)
