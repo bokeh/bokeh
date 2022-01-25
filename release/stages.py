@@ -106,6 +106,7 @@ BUILD_STEPS: StepListType = (
     dev_install,
     update_hash_manifest,
     commit_staging_branch,
+    check_checkout_is_clean,
     tag_release_version,
     build_npm_packages,
     build_conda_packages,

@@ -50,8 +50,11 @@ def clean_repo(config: Config, system: System) -> ActionReturn:
 
 
 def commit_staging_branch(config: Config, system: System) -> ActionReturn:
-    paths = ("CHANGELOG", "bokehjs/package-lock.json", "bokehjs/package.json", "bokeh/_sri.json")
-    for path in paths:
+    for path in config.modified:
+        try:
+            system.run(f"git ls-files --error-unmatch {path}")
+        except RuntimeError:
+            return FAILED("File {path!r} marked modified does not exist in the repo")
         try:
             system.run(f"git add {path}")
         except RuntimeError as e:
