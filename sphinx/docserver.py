@@ -91,7 +91,7 @@ if __name__ == "__main__":
     print(f"Visit http://localhost:{PORT}/en/latest/index.html to see plots\n")
 
     server = threading.Thread(target=serve_http)
-    server.start()
+    server.install()
 
     time.sleep(0.5)
 

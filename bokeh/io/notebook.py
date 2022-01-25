@@ -528,7 +528,7 @@ def show_app(app: Application, state: State, notebook_url: str | Callable[[int |
     server_id = ID(uuid4().hex)
     curstate().uuid_to_server[server_id] = server
 
-    server.start()
+    server.install()
 
     if callable(notebook_url):
         url = notebook_url(server.port)

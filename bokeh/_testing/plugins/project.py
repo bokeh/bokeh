@@ -157,7 +157,7 @@ def bokeh_app_info(request: pytest.FixtureRequest, driver: WebDriver) -> BokehAp
                             port=port,
                             io_loop=io_loop,
                             extra_patterns=[('/exit', _ExitHandler, dict(io_loop=io_loop))])
-            server.start()
+            server.install()
             server.io_loop.start()
 
         t = Thread(target=worker)

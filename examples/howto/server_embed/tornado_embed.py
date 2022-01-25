@@ -47,7 +47,7 @@ def bkapp(doc):
 # add the following to the `extra_patterns` argument, replacing `DIR` with the desired directory.
 # (r'/DIR/(.*)', StaticFileHandler, {'path': os.path.normpath(os.path.dirname(__file__) + '/DIR')})
 server = Server({'/bkapp': bkapp}, num_procs=4, extra_patterns=[('/', IndexHandler)])
-server.start()
+server.install()
 
 if __name__ == '__main__':
     from bokeh.util.browser import view

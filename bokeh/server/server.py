@@ -442,7 +442,7 @@ class Server(BaseServer):
 
             http_server = HTTPServer(tornado_app, **http_server_kwargs)
 
-            http_server.start(opts.num_procs)
+            http_server.install(opts.num_procs)
             http_server.add_sockets(sockets)
 
         except Exception:
@@ -450,7 +450,7 @@ class Server(BaseServer):
                 s.close()
             raise
 
-        # Can only refer to IOLoop after HTTPServer.start() is called, see #5524
+        # Can only refer to IOLoop after HTTPServer.install() is called, see #5524
         if io_loop is None:
             io_loop = IOLoop.current()
 

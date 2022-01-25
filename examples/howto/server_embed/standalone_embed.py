@@ -32,7 +32,7 @@ def bkapp(doc):
 # let Server handle that. If you need to explicitly handle IOLoops then you
 # will need to use the lower level BaseServer class.
 server = Server({'/': bkapp}, num_procs=4)
-server.start()
+server.install()
 
 if __name__ == '__main__':
     print('Opening Bokeh application on http://localhost:5006/')

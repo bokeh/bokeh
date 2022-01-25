@@ -264,13 +264,13 @@ def test_ssl_args_plumbing(ManagedServerLoop: MSL) -> None:
 def test_base_server() -> None:
     app = BokehTornado(Application())
     httpserver = HTTPServer(app)
-    httpserver.start()
+    httpserver.install()
 
     loop = IOLoop()
     loop.make_current()
 
     server = BaseServer(loop, app, httpserver)
-    server.start()
+    server.install()
 
     assert server.io_loop == loop
     assert server._tornado.io_loop == loop
@@ -827,7 +827,7 @@ def test__ioloop_not_forcibly_stopped() -> None:
     loop = IOLoop()
     loop.make_current()
     server = Server(application, io_loop=loop)
-    server.start()
+    server.install()
     result = []
 
     def f():

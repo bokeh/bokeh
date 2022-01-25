@@ -19,7 +19,7 @@ useful if users wish to embed the Bokeh server programmatically:
     app = Application(FunctionHandler(make_doc))
 
     server = Server({'/bkapp': app}, io_loop=IOLoop.current())
-    server.start()
+    server.install()
 
 For complete examples of this technique, see
 :bokeh-tree:`examples/howto/server_embed`

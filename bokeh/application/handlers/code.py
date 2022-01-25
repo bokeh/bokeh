@@ -19,7 +19,7 @@ applications that run off scripts and notebooks.
     app = Application(FunctionHandler(make_doc))
 
     server = Server({'/bkapp': app}, io_loop=IOLoop.current())
-    server.start()
+    server.install()
 
 '''
 

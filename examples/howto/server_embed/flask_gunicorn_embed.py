@@ -75,7 +75,7 @@ def bk_worker():
     bokeh_http.add_sockets(sockets)
 
     server = BaseServer(IOLoop.current(), bokeh_tornado, bokeh_http)
-    server.start()
+    server.install()
     server.io_loop.start()
 
 t = Thread(target=bk_worker)

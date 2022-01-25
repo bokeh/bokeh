@@ -745,7 +745,7 @@ basis for integration of Bokeh in such a scenario:
    )
 
    # start timers and services and immediately return
-   server.start()
+   server.install()
 
 You can also create and control an ``IOLoop`` directly. This can be useful when
 creating standalone "normal" Python scripts that serve Bokeh apps or embedding
