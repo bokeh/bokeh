@@ -118,7 +118,7 @@ class SimpleWebServer:
 @pytest.fixture(scope='session')
 def file_server(request: pytest.FixtureRequest) -> SimpleWebServer:
     server = SimpleWebServer()
-    server.install()
+    server.start()
     request.addfinalizer(server.stop)
     return server
 

@@ -450,7 +450,7 @@ class Server(BaseServer):
                 s.close()
             raise
 
-        # Can only refer to IOLoop after HTTPServer.install() is called, see #5524
+        # Can only refer to IOLoop after HTTPServer.start() is called, see #5524
         if io_loop is None:
             io_loop = IOLoop.current()
 

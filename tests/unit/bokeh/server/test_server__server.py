@@ -264,7 +264,7 @@ def test_ssl_args_plumbing(ManagedServerLoop: MSL) -> None:
 def test_base_server() -> None:
     app = BokehTornado(Application())
     httpserver = HTTPServer(app)
-    httpserver.install()
+    httpserver.start()
 
     loop = IOLoop()
     loop.make_current()
