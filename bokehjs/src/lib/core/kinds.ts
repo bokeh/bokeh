@@ -186,13 +186,17 @@ export namespace Kinds {
     }
   }
 
-  export class Arrayable extends Kind<types.Arrayable> {
+  export class Arrayable<ItemType> extends Kind<types.Arrayable<ItemType>> {
+    constructor(readonly item_type: Kind<ItemType>) {
+      super()
+    }
+
     valid(value: unknown): value is types.Arrayable {
       return tp.isArray(value) || tp.isTypedArray(value) // TODO: too specific
     }
 
     override toString(): string {
-      return "Arrayable"
+      return `Array(${this.item_type.toString()})`
     }
   }
 
@@ -399,7 +403,7 @@ export const Opt = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Opt(base_t
 export const Or = <T extends unknown[]>(...types: Kinds.TupleKind<T>) => new Kinds.Or(types)
 export const Tuple = <T extends [unknown, ...unknown[]]>(...types: Kinds.TupleKind<T>) => new Kinds.Tuple(types)
 export const Struct = <T extends object>(struct_type: {[key in keyof T]: Kind<T[key]>}) => new Kinds.Struct(struct_type)
-export const Arrayable = new Kinds.Arrayable()
+export const Arrayable = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Arrayable(item_type)
 export const Array = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Array(item_type)
 export const Dict = <V>(item_type: Kind<V>) => new Kinds.Dict(item_type)
 export const Map = <K, V>(key_type: Kind<K>, item_type: Kind<V>) => new Kinds.Map(key_type, item_type)

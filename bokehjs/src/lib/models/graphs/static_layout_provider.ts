@@ -7,7 +7,7 @@ export namespace StaticLayoutProvider {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutProvider.Props & {
-    graph_layout: p.Property<{[key: string]: Arrayable}>
+    graph_layout: p.Property<{[key: string]: Arrayable<number>}>
   }
 }
 
@@ -21,8 +21,8 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   static {
-    this.define<StaticLayoutProvider.Props>(({Arrayable, Dict}) => ({
-      graph_layout: [ Dict(Arrayable), {} ], // TODO: length == 2
+    this.define<StaticLayoutProvider.Props>(({Number, Arrayable, Dict}) => ({
+      graph_layout: [ Dict(Arrayable(Number)), {} ], // TODO: length == 2
     }))
   }
 
