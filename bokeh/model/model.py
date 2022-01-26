@@ -482,6 +482,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             for key, val in updates.items():
                 setattr(obj, key, val)
 
+    # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
     def to_json(self, include_defaults: bool) -> bokeh.types.JSON:
         ''' Returns a dictionary of the attributes of this object,
         containing only "JSON types" (string, number, boolean,
