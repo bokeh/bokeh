@@ -36,10 +36,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     List,
-    Literal,
     Set,
-    Tuple,
-    TypedDict,
 )
 
 # External imports
@@ -51,7 +48,7 @@ if TYPE_CHECKING:
     import pandas as pd
 
 # Bokeh imports
-from ..core.types import ID, Ref
+from ..core.types import ID
 from ..settings import settings
 from .dependencies import import_optional
 from .string import format_docstring

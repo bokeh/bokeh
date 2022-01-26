@@ -18,8 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 import datetime as dt
-import decimal
-from collections import deque
+import sys
 from typing import Sequence
 
 # External imports
@@ -106,10 +105,10 @@ class TestSerializer:
         v1 = SomeModel(p0=3, p1="b", p2=[4, 5, 6])
         v2 = SomeDataClass(f0=2, f1=[1, 2, 3])
 
-        value = [None, False, True, "abc", 1, 1.17, nan, -inf, +inf, v0, v1, v2, [nan]]
+        val = [None, False, True, "abc", 1, 1.17, nan, -inf, +inf, v0, v1, v2, [nan]]
 
         encoder = Serializer()
-        rep = encoder.to_serializable(value)
+        rep = encoder.to_serializable(val)
         assert rep == [
             None, False, True, "abc", 1, 1.17,
             dict(type="number", value="nan"),
@@ -149,21 +148,21 @@ class TestSerializer:
 
     def test_bytes_binary(self) -> None:
         encoder = Serializer(binary=True)
-        value = bytes([0xFF, 0x00, 0x17, 0xFE, 0x00])
-        rep = encoder.to_serializable(value)
+        val = bytes([0xFF, 0x00, 0x17, 0xFE, 0x00])
+        rep = encoder.to_serializable(val)
         assert rep == dict(
             type="bytes",
             data=dict(id="1"),
         )
         assert encoder.references == []
         assert encoder.buffers == [
-            Buffer(id=ID("1"), data=value),
+            Buffer(id=ID("1"), data=val),
         ]
 
     def test_bytes_base64(self) -> None:
         encoder = Serializer(binary=False)
-        value = bytes([0xFF, 0x00, 0x17, 0xFE, 0x00])
-        rep = encoder.to_serializable(value)
+        val = bytes([0xFF, 0x00, 0x17, 0xFE, 0x00])
+        rep = encoder.to_serializable(val)
         assert rep == dict(
             type="bytes",
             data="/wAX/gA=",
@@ -171,10 +170,46 @@ class TestSerializer:
         assert encoder.references == []
         assert encoder.buffers == []
 
+    def test_ndarray_binary(self) -> None:
+        encoder = Serializer(binary=True)
+        val = np.array([0, 1, 2, 3, 4, 5], dtype="int32")
+        rep = encoder.to_serializable(val)
+        assert rep == dict(
+            type="ndarray",
+            array=dict(
+                type="bytes",
+                data=dict(id=ID("1")),
+            ),
+            order=sys.byteorder,
+            shape=[6],
+            dtype="int32",
+        )
+        assert encoder.references == []
+        assert encoder.buffers == [
+            Buffer(id=ID("1"), data=val.tobytes()),
+        ]
+
+    def test_ndarray_base64(self) -> None:
+        encoder = Serializer(binary=False)
+        val = np.array([0, 1, 2, 3, 4, 5], dtype="int32")
+        rep = encoder.to_serializable(val)
+        assert rep == dict(
+            type="ndarray",
+            array=dict(
+                type="bytes",
+                data="AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAA",
+            ),
+            order=sys.byteorder,
+            shape=[6],
+            dtype="int32",
+        )
+        assert encoder.references == []
+        assert encoder.buffers == []
+
     def test_HasProps(self) -> None:
-        value = SomeProps(p0=2, p1="a", p2=[1, 2, 3])
+        val = SomeProps(p0=2, p1="a", p2=[1, 2, 3])
         encoder = Serializer()
-        rep = encoder.to_serializable(value)
+        rep = encoder.to_serializable(val)
         assert rep == dict(
             type="test_core_serialization.SomeProps",
             attributes=dict(
@@ -187,13 +222,13 @@ class TestSerializer:
         assert encoder.buffers == []
 
     def test_Model(self) -> None:
-        value = SomeModel(p0=3, p1="b", p2=[4, 5, 6])
+        val = SomeModel(p0=3, p1="b", p2=[4, 5, 6])
         encoder = Serializer()
-        rep = encoder.to_serializable(value)
-        assert rep == dict(id=value.id)
+        rep = encoder.to_serializable(val)
+        assert rep == dict(id=val.id)
         assert encoder.references == [dict(
             type="test_core_serialization.SomeModel",
-            id=value.id,
+            id=val.id,
             attributes=dict(
                 p0=3,
                 p1="b",
@@ -203,9 +238,9 @@ class TestSerializer:
         assert encoder.buffers == []
 
     def test_dataclass(self) -> None:
-        value = SomeDataClass(f0=2, f1=[1, 2, 3])
+        val = SomeDataClass(f0=2, f1=[1, 2, 3])
         encoder = Serializer()
-        rep = encoder.to_serializable(value)
+        rep = encoder.to_serializable(val)
         assert rep == dict(
             type="test_core_serialization.SomeDataClass",
             attributes=[
@@ -218,9 +253,9 @@ class TestSerializer:
         assert encoder.buffers == []
 
     def test_dataclass_nested(self) -> None:
-        value = SomeDataClass(f0=2, f1=[1, 2, 3], f2=SomeDataClass(f0=3, f1=[4, 5, 6]))
+        val = SomeDataClass(f0=2, f1=[1, 2, 3], f2=SomeDataClass(f0=3, f1=[4, 5, 6]))
         encoder = Serializer()
-        rep = encoder.to_serializable(value)
+        rep = encoder.to_serializable(val)
         assert rep == dict(
             type="test_core_serialization.SomeDataClass",
             attributes=[
@@ -241,9 +276,9 @@ class TestSerializer:
 
     def test_dataclass_HasProps_nested(self) -> None:
         v0 = SomeProps(p0=2, p1="a", p2=[1, 2, 3])
-        value = SomeDataClass(f0=2, f1=[1, 2, 3], f4=v0)
+        val = SomeDataClass(f0=2, f1=[1, 2, 3], f4=v0)
         encoder = Serializer()
-        rep = encoder.to_serializable(value)
+        rep = encoder.to_serializable(val)
         assert rep == dict(
             type="test_core_serialization.SomeDataClass",
             attributes=[
@@ -265,9 +300,9 @@ class TestSerializer:
 
     def test_dataclass_Model_nested(self) -> None:
         v0 = SomeModel(p0=3, p1="b", p2=[4, 5, 6])
-        value = SomeDataClass(f0=2, f1=[1, 2, 3], f5=v0)
+        val = SomeDataClass(f0=2, f1=[1, 2, 3], f5=v0)
         encoder = Serializer()
-        rep = encoder.to_serializable(value)
+        rep = encoder.to_serializable(val)
         assert rep == dict(
             type="test_core_serialization.SomeDataClass",
             attributes=[
@@ -288,65 +323,87 @@ class TestSerializer:
         )]
         assert encoder.buffers == []
 
-    def test_color(self) -> None:
-        value = RGB(16, 32, 64)
+    def test_color_rgb(self) -> None:
+        val = RGB(16, 32, 64)
         encoder = Serializer()
-        rep = encoder.to_serializable(value)
+        rep = encoder.to_serializable(val)
         assert rep == "rgb(16, 32, 64)"
         assert encoder.references == []
         assert encoder.buffers == []
 
-        value = RGB(16, 32, 64, 0.1)
+    def test_color_rgba(self) -> None:
+        val = RGB(16, 32, 64, 0.1)
         encoder = Serializer()
-        rep = encoder.to_serializable(value)
+        rep = encoder.to_serializable(val)
         assert rep == "rgba(16, 32, 64, 0.1)"
         assert encoder.references == []
         assert encoder.buffers == []
 
-    """
-    def test_ndarray(self) -> None:
-        a = np.arange(5)
-        assert self.encoder.default(a) == [0, 1, 2, 3, 4]
-
-    def test_pd_series(self, pd) -> None:
-        value = pd.Series([1, 3, 5, 6, 8])
-        encoder = Serializer()
-        rep = encoder.to_serializable(value)
-        assert rep == [1, 3, 5, 6, 8]
+    def test_pd_series_base64(self, pd) -> None:
+        encoder = Serializer(binary=False)
+        val = pd.Series([0, 1, 2, 3, 4, 5], dtype="int32")
+        rep = encoder.to_serializable(val)
+        assert rep == dict(
+            type="ndarray",
+            array=dict(
+                type="bytes",
+                data="AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAA",
+            ),
+            order=sys.byteorder,
+            shape=[6],
+            dtype="int32",
+        )
+        assert encoder.references == []
+        assert encoder.buffers == []
 
     def test_np_int64(self) -> None:
-        npint = np.asscalar(np.int64(1))
-        assert self.encoder.default(npint) == 1
-        assert isinstance(self.encoder.default(npint), int)
+        encoder = Serializer()
+        val = np.asscalar(np.int64(1))
+        rep = encoder.to_serializable(val)
+        assert rep == 1
+        assert isinstance(rep, int)
 
     def test_np_float64(self) -> None:
-        npfloat = np.float64(1.33)
-        assert self.encoder.default(npfloat) == 1.33
-        assert isinstance(self.encoder.default(npfloat), float)
+        encoder = Serializer()
+        val = np.float64(1.33)
+        rep = encoder.to_serializable(val)
+        assert rep == 1.33
+        assert isinstance(rep, float)
 
     def test_np_bool(self) -> None:
-        nptrue = np.bool_(True)
-        assert self.encoder.default(nptrue) == True
-        assert isinstance(self.encoder.default(nptrue), bool)
+        encoder = Serializer()
+        val = np.bool_(True)
+        rep = encoder.to_serializable(val)
+        assert rep == True
+        assert isinstance(rep, bool)
 
     def test_np_datetime64(self) -> None:
-        npdt64 = np.datetime64('2017-01-01')
-        assert self.encoder.default(npdt64) == 1483228800000.0
-        assert isinstance(self.encoder.default(npdt64), float)
+        encoder = Serializer()
+        val = np.datetime64('2017-01-01')
+        rep = encoder.to_serializable(val)
+        assert rep == 1483228800000.0
+        assert isinstance(rep, float)
 
     def test_dt_time(self) -> None:
-        dttime = dt.time(12, 32, 15)
-        assert self.encoder.default(dttime) == 45135000.0
-        assert isinstance(self.encoder.default(dttime), float)
+        encoder = Serializer()
+        val = dt.time(12, 32, 15)
+        rep = encoder.to_serializable(val)
+        assert rep == 45135000.0
+        assert isinstance(rep, float)
 
     def test_rd_relativedelta(self) -> None:
-        rdelt = rd.relativedelta()
-        assert isinstance(self.encoder.default(rdelt), dict)
+        encoder = Serializer()
+        val = rd.relativedelta()
+        rep = encoder.to_serializable(val)
+        assert isinstance(rep, dict)
 
     def test_pd_timestamp(self, pd) -> None:
-        ts = pd.Timestamp('April 28, 1948')
-        assert self.encoder.default(ts) == -684115200000
+        encoder = Serializer()
+        val = pd.Timestamp('April 28, 1948')
+        rep = encoder.to_serializable(val)
+        assert rep == -684115200000
 
+    """
     def test_decimal(self) -> None:
         dec = decimal.Decimal(20.3)
         assert self.encoder.default(dec) == 20.3
@@ -373,7 +430,6 @@ class TestSerializer:
         assert self.encoder.default(c) == dict(start=None, stop=None, step=None)
         assert isinstance(self.encoder.default(c), dict)
     """
-
 
 """
     def test_set_data_from_json_list(self) -> None:
@@ -513,6 +569,201 @@ class TestSerializeJson:
         serialized = self.serialize(delta)
         deserialized = self.deserialize(serialized)
         assert deserialized == 3000
+
+
+@pytest.mark.parametrize('dt', [np.float32, np.float64, np.int64])
+@pytest.mark.parametrize('shape', [(12,), (2, 6), (2,2,3)])
+def test_encode_base64_dict(dt, shape) -> None:
+    a = np.arange(12, dtype=dt)
+    a.reshape(shape)
+    d = bus.encode_base64_dict(a)
+
+    assert 'shape' in d
+    assert d['shape'] == a.shape
+
+    assert 'dtype' in d
+    assert d['dtype'] == a.dtype.name
+
+    assert '__ndarray__' in d
+    b64 = base64.b64decode(d['__ndarray__'])
+    aa = np.frombuffer(b64, dtype=d['dtype'])
+    assert np.array_equal(a, aa)
+
+@pytest.mark.parametrize('dt', [np.float32, np.float64, np.int64])
+@pytest.mark.parametrize('shape', [(12,), (2, 6), (2,2,3)])
+def test_decode_base64_dict(dt, shape) -> None:
+    a = np.arange(12, dtype=dt)
+    a.reshape(shape)
+    data = base64.b64encode(a).decode('utf-8')
+    d = {
+        '__ndarray__'  : data,
+        'dtype'        : a.dtype.name,
+        'shape'        : a.shape
+    }
+    aa = bus.decode_base64_dict(d)
+
+    assert aa.shape == a.shape
+
+    assert aa.dtype.name == a.dtype.name
+
+    assert np.array_equal(a, aa)
+
+    assert aa.flags['WRITEABLE']
+
+@pytest.mark.parametrize('dt', [np.float32, np.float64, np.int64])
+@pytest.mark.parametrize('shape', [(12,), (2, 6), (2,2,3)])
+def test_encode_decode_roundtrip(dt, shape) -> None:
+    a = np.arange(12, dtype=dt)
+    a.reshape(shape)
+    d = bus.encode_base64_dict(a)
+    aa = bus.decode_base64_dict(d)
+    assert np.array_equal(a, aa)
+
+
+@pytest.mark.parametrize('dt', bus.BINARY_ARRAY_TYPES)
+@pytest.mark.parametrize('shape', [(12,), (2, 6), (2,2,3)])
+def test_encode_binary_dict(dt, shape) -> None:
+    a = np.arange(12, dtype=dt)
+    a.reshape(shape)
+    bufs = []
+    d = bus.encode_binary_dict(a, buffers=bufs)
+
+    assert len(bufs) == 1
+    assert len(bufs[0]) == 2
+    assert bufs[0][1] == a.tobytes()
+    assert 'shape' in d
+    assert d['shape'] == a.shape
+
+    assert 'dtype' in d
+    assert d['dtype'] == a.dtype.name
+
+    assert '__buffer__' in d
+
+@pytest.mark.parametrize('cols', [None, [], ['a'], ['a', 'b'], ['a', 'b', 'c']])
+@pytest.mark.parametrize('dt1', [np.float32, np.float64, np.int64])
+@pytest.mark.parametrize('dt2', [np.float32, np.float64, np.int64])
+def test_transform_column_source_data_with_buffers(pd, cols, dt1, dt2) -> None:
+    d = dict(a=[1,2,3], b=np.array([4,5,6], dtype=dt1), c=pd.Series([7,8,9], dtype=dt2))
+    bufs = []
+    out = bus.transform_column_source_data(d, buffers=bufs, cols=cols)
+    assert set(out) == (set(d) if cols is None else set(cols))
+    if 'a' in out:
+        assert out['a'] == [1,2,3]
+    for x in ['b', 'c']:
+        dt = d[x].dtype
+        if x in out:
+            if dt in bus.BINARY_ARRAY_TYPES:
+                assert isinstance(out[x], dict)
+                assert 'shape' in out[x]
+                assert out[x]['shape'] == d[x].shape
+                assert 'dtype' in out[x]
+                assert out[x]['dtype'] == d[x].dtype.name
+                assert '__buffer__' in out[x]
+            else:
+                assert isinstance(out[x], list)
+                assert out[x] == list(d[x])
+
+def test_transform_series_force_list_default_with_buffers(pd) -> None:
+    # default int seems to be int64, can't be converted to buffer!
+    df = pd.Series([1, 3, 5, 6, 8])
+    out = bus.transform_series(df)
+    assert isinstance(out, list)
+    assert out == [1, 3, 5, 6, 8]
+
+    df = pd.Series([1, 3, 5, 6, 8], dtype=np.int32)
+    bufs = []
+    out = bus.transform_series(df, buffers=bufs)
+    assert isinstance(out, dict)
+    assert len(bufs) == 1
+    assert len(bufs[0]) == 2
+    assert isinstance(bufs[0][0], dict)
+    assert list(bufs[0][0]) == ["id"]
+    assert bufs[0][1] == np.array(df).tobytes()
+    assert 'shape' in out
+    assert out['shape'] == df.shape
+    assert 'dtype' in out
+    assert out['dtype'] == df.dtype.name
+    assert '__buffer__' in out
+
+    df = pd.Series([1.0, 3, 5, 6, 8])
+    bufs = []
+    out = bus.transform_series(df, buffers=bufs)
+    assert isinstance(out, dict)
+    assert len(bufs) == 1
+    assert len(bufs[0]) == 2
+    assert isinstance(bufs[0][0], dict)
+    assert list(bufs[0][0]) == ["id"]
+    assert bufs[0][1] == np.array(df).tobytes()
+    assert 'shape' in out
+    assert out['shape'] == df.shape
+    assert 'dtype' in out
+    assert out['dtype'] == df.dtype.name
+    assert '__buffer__' in out
+
+    df = pd.Series(np.array([np.nan, np.inf, -np.inf, 0]))
+    bufs = []
+    out = bus.transform_series(df, buffers=bufs)
+    assert isinstance(out, dict)
+    assert len(bufs) == 1
+    assert len(bufs[0]) == 2
+    assert isinstance(bufs[0][0], dict)
+    assert list(bufs[0][0]) == ["id"]
+    assert bufs[0][1] == np.array(df).tobytes()
+    assert 'shape' in out
+    assert out['shape'] == df.shape
+    assert 'dtype' in out
+    assert out['dtype'] == df.dtype.name
+    assert '__buffer__' in out
+
+    # PeriodIndex
+    df = pd.period_range('1900-01-01','2000-01-01', freq='A')
+    bufs = []
+    out = bus.transform_series(df, buffers=bufs)
+    assert isinstance(out, dict)
+    assert len(bufs) == 1
+    assert len(bufs[0]) == 2
+    assert isinstance(bufs[0][0], dict)
+    assert list(bufs[0][0]) == ["id"]
+    assert bufs[0][1] == bus.convert_datetime_array(df.to_timestamp().values).tobytes()
+    assert 'shape' in out
+    assert out['shape'] == df.shape
+    assert 'dtype' in out
+    assert out['dtype'] == 'float64'
+    assert '__buffer__' in out
+
+    # DatetimeIndex
+    df = pd.period_range('1900-01-01','2000-01-01', freq='A').to_timestamp()
+    bufs = []
+    out = bus.transform_series(df, buffers=bufs)
+    assert isinstance(out, dict)
+    assert len(bufs) == 1
+    assert len(bufs[0]) == 2
+    assert isinstance(bufs[0][0], dict)
+    assert list(bufs[0][0]) == ["id"]
+    assert bufs[0][1] == bus.convert_datetime_array(df.values).tobytes()
+    assert 'shape' in out
+    assert out['shape'] == df.shape
+    assert 'dtype' in out
+    assert out['dtype'] == 'float64'
+    assert '__buffer__' in out
+
+    # TimeDeltaIndex
+    df = pd.to_timedelta(np.arange(5), unit='s')
+    bufs = []
+    out = bus.transform_series(df, buffers=bufs)
+    assert isinstance(out, dict)
+    assert len(bufs) == 1
+    assert len(bufs[0]) == 2
+    assert isinstance(bufs[0][0], dict)
+    assert list(bufs[0][0]) == ["id"]
+    assert bufs[0][1] == bus.convert_datetime_array(df.values).tobytes()
+    assert 'shape' in out
+    assert out['shape'] == df.shape
+    assert 'dtype' in out
+    assert out['dtype'] == 'float64'
+    assert '__buffer__' in out
+
+
 """
 
 

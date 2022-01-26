@@ -226,7 +226,7 @@ class Serializer:
         return dict(
             type="ndarray",
             array=data,
-            shape=array.shape,
+            shape=list(array.shape),
             dtype=str(array.dtype.name),
             order=sys.byteorder,
         )
@@ -283,7 +283,7 @@ class NDArrayRef(TypedDict):
     array: BytesRef | ArrayRef
     order: ByteOrder
     dtype: str
-    shape: Tuple[int, ...]
+    shape: List[int]
 
 class Deserializer:
     """ """
