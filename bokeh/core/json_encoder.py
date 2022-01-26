@@ -7,9 +7,6 @@
 ''' Provide a functions and classes to implement a custom JSON encoder for
 serializing objects for BokehJS.
 
-The primary interface is provided by the |serialize_json| function, which
-uses the custom |BokehJSONEncoder| to produce JSON output.
-
 In general, functions in this module convert values in the following way:
 
 * Datetime values (Python, Pandas, NumPy) are converted to floating point
@@ -36,7 +33,6 @@ In general, functions in this module convert values in the following way:
 * ``Color`` instances are converted to CSS color values.
 
 .. |serialize_json| replace:: :class:`~bokeh.core.json_encoder.serialize_json`
-.. |BokehJSONEncoder| replace:: :class:`~bokeh.core.json_encoder.BokehJSONEncoder`
 
 '''
 
@@ -58,7 +54,6 @@ from typing import Any
 
 # Bokeh imports
 from ..settings import settings
-from .types import JSON
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -72,7 +67,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def serialize_json(obj: JSON, *, pretty: bool | None = None, indent: int | None = None, **kwargs: Any) -> str:
+def serialize_json(obj: Any, *, pretty: bool | None = None, indent: int | None = None, **kwargs: Any) -> str:
     ''' Return a serialized JSON representation of objects, suitable to
     send to BokehJS.
 
