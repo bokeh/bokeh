@@ -442,7 +442,7 @@ class Server(BaseServer):
 
             http_server = HTTPServer(tornado_app, **http_server_kwargs)
 
-            http_server.install(opts.num_procs)
+            http_server.start(opts.num_procs)
             http_server.add_sockets(sockets)
 
         except Exception:
