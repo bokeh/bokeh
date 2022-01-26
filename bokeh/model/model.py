@@ -485,7 +485,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
         return dict(id=self.id, **attributes)
 
-    def to_serializable(self, serializer: Serializer) -> JSON:
+    # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
+    def to_serializable(self, serializer: Serializer) -> bokeh.types.JSON:
         if not serializer.has_ref(self):
             serializer.add_ref(self, self.ref)
 
