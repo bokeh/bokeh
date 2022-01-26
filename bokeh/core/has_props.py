@@ -50,8 +50,8 @@ from typing import (
 )
 from warnings import warn
 
-## External imports
 if TYPE_CHECKING:
+    import bokeh.types
     F = TypeVar("F", bound=Callable[..., Any])
     def lru_cache(arg: int | None) -> Callable[[F], F]: ...
 else:
@@ -64,12 +64,7 @@ from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
 from .property.singletons import Undefined
 from .property.wrappers import PropertyValueContainer
-from .types import (
-    ID,
-    JSON,
-    ReferenceJson,
-    Unknown,
-)
+from .types import ID, ReferenceJson, Unknown
 
 if TYPE_CHECKING:
     from ..client.session import ClientSession
@@ -391,7 +386,7 @@ class HasProps(metaclass=MetaHasProps):
     def to_serializable(self, serializer: Any) -> Any:
         pass # TODO: new serializer, hopefully in near future
 
-    def set_from_json(self, name: str, json: JSON, *,
+    def set_from_json(self, name: str, json: bokeh.types.JSON, *,
             models: Dict[ID, HasProps] | None = None, setter: Setter | None = None) -> None:
         ''' Set a property value on this object from JSON.
 
@@ -454,7 +449,7 @@ class HasProps(metaclass=MetaHasProps):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    def update_from_json(self, json_attributes: Dict[str, JSON], *,
+    def update_from_json(self, json_attributes: Dict[str, bokeh.types.JSON], *,
             models: Mapping[ID, HasProps] | None = None, setter: Setter | None = None) -> None:
         ''' Updates the object's properties from a JSON attributes dictionary.
 

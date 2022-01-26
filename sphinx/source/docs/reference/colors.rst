@@ -14,24 +14,6 @@ bokeh.colors.Color
    :members:
    :inherited-members:
 
-.. _bokeh.colors.HSL:
-
-bokeh.colors.HSL
-----------------
-
-.. automodule:: bokeh.colors.hsl
-   :members:
-   :inherited-members:
-
-.. _bokeh.colors.RGB:
-
-bokeh.colors.RGB
-----------------
-
-.. automodule:: bokeh.colors.rgb
-   :members:
-   :inherited-members:
-
 .. _bokeh.colors.groups:
 
 bokeh.colors.groups

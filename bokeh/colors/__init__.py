@@ -23,9 +23,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from . import groups, named
-from .color import Color
-from .hsl import HSL
-from .rgb import RGB
+from .color import HSL, RGB, Color
 
 #-----------------------------------------------------------------------------
 # Globals and constants
