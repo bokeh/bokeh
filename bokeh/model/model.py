@@ -58,9 +58,10 @@ from .util import (
 )
 
 if TYPE_CHECKING:
+    import bokeh.types
+
     from ..core.has_props import Setter
     from ..core.query import SelectorType
-    from ..core.types import JSON
     from ..document import Document
     from ..document.events import DocumentPatchedEvent
     from ..models.callbacks import Callback as JSEventCallback
@@ -481,7 +482,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             for key, val in updates.items():
                 setattr(obj, key, val)
 
-    def to_json(self, include_defaults: bool) -> JSON:
+    # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
+    def to_json(self, include_defaults: bool) -> bokeh.types.JSON:
         ''' Returns a dictionary of the attributes of this object,
         containing only "JSON types" (string, number, boolean,
         none, dict, list).

@@ -66,7 +66,7 @@ dependencies:
     # docs
     - autoclasstoc
     - pydata_sphinx_theme >=0.7.1
-    - sphinx >=4.1,<4.3
+    - sphinx >=4.3.2
     - sphinxext-opengraph
     - sphinx-panels
     - sphinx-tabs

@@ -29,7 +29,7 @@ from typing import (
 )
 
 # Bokeh imports
-from .rgb import RGB
+from .color import RGB
 
 #-----------------------------------------------------------------------------
 # Globals and constants
