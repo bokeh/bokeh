@@ -28,7 +28,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import base64
 import datetime as dt
 import uuid
 from functools import lru_cache
@@ -101,7 +100,6 @@ __all__ = (
     'convert_datetime_array',
     'convert_datetime_type',
     'convert_timedelta_type',
-    'decode_base64_dict',
     'is_datetime_type',
     'is_timedelta_type',
     'make_globally_unique_id',
@@ -114,14 +112,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-ByteOrder = Literal["little", "big"]
-
-class BufferJson(TypedDict):
-    array: Ref | str
-    shape: Tuple[int, ...]
-    dtype: str
-    order: ByteOrder
 
 def is_datetime_type(obj: Any) -> TypeGuard[dt.time | dt.datetime | np.datetime64]:
     ''' Whether an object is any date, time, or datetime type recognized by
@@ -386,32 +376,6 @@ def transform_series(series: pd.Series | pd.Index) -> npt.NDArray[Any]:
     else:
         vals = series.values
     return vals
-
-def decode_base64_dict(buffer: BufferJson) -> npt.NDArray[Any]:
-    ''' Decode a base64 encoded array into a NumPy array.
-
-    Args:
-        data (dict) : encoded array data to decode
-
-    Data should have the format encoded by :func:`encode_base64_dict`.
-
-    Returns:
-        np.ndarray
-
-    '''
-    data = buffer["array"]
-    dtype = buffer["dtype"]
-    shape = buffer["shape"]
-
-    if isinstance(data, str):
-        bytes = base64.b64decode(data)
-    else:
-        raise NotImplementedError("TODO")
-
-    array = np.copy(np.frombuffer(bytes, dtype=dtype))  # type: ignore # from and frombuffer are untyped
-    if len(shape) > 1:
-        array = array.reshape(shape)
-    return array
 
 #-----------------------------------------------------------------------------
 # Dev API

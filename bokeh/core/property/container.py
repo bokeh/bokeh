@@ -31,7 +31,6 @@ from collections.abc import (
 from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
-from ...util.serialization import decode_base64_dict
 from ._sphinx import property_link, register_type_link, type_link
 from .bases import ContainerProperty, DeserializationError
 from .descriptors import ColumnDataPropertyDescriptor
@@ -233,30 +232,6 @@ class ColumnData(Dict):
         metaclass and added to ``HasProps`` subclasses during class creation.
         """
         return [ ColumnDataPropertyDescriptor(base_name, self) ]
-
-
-    def from_json(self, json, *, models=None):
-        """ Decodes column source data encoded as lists or base64 strings.
-        """
-        if not isinstance(json, dict):
-            raise DeserializationError(f"{self} expected a dict, got {json}")
-        new_data = {}
-        for key, value in json.items():
-            key = self.keys_type.from_json(key, models=models)
-            if isinstance(value, dict) and '__ndarray__' in value:
-                new_data[key] = decode_base64_dict(value)
-            elif isinstance(value, list) and any(isinstance(el, dict) and '__ndarray__' in el for el in value):
-                new_list = []
-                for el in value:
-                    if isinstance(el, dict) and '__ndarray__' in el:
-                        el = decode_base64_dict(el)
-                    elif isinstance(el, list):
-                        el = self.values_type.from_json(el)
-                    new_list.append(el)
-                new_data[key] = new_list
-            else:
-                new_data[key] = self.values_type.from_json(value, models=models)
-        return new_data
 
     def _hinted_value(self, value: Any, hint: DocumentPatchedEvent | None) -> Any:
         from ...document.events import ColumnDataChangedEvent, ColumnsStreamedEvent

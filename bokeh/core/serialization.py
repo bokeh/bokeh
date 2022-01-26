@@ -28,6 +28,7 @@ from typing import (
     Any,
     Dict,
     List,
+    Literal,
     Tuple,
     Type,
     TypedDict,
@@ -46,7 +47,6 @@ from ..util.serialization import (
     array_encoding_disabled,
     convert_datetime_type,
     convert_timedelta_type,
-    decode_base64_dict,
     is_datetime_type,
     is_timedelta_type,
     transform_array,
@@ -268,10 +268,27 @@ class Serializer:
 
         raise SerializationError(f"can't serialize {type(obj)}")
 
+class ArrayRef(TypedDict):
+    type: Literal["array"]
+    entries: List[Any]
+
+class BytesRef(TypedDict):
+    type: Literal["bytes"]
+    data: Ref | str
+
+ByteOrder = Literal["little", "big"]
+
+class NDArrayRef(TypedDict):
+    type: Literal["ndarray"]
+    array: BytesRef | ArrayRef
+    order: ByteOrder
+    dtype: str
+    shape: Tuple[int, ...]
+
 class Deserializer:
     """ """
 
-    # TODO: refs, buffers
+    _buffers: Dict[ID, Buffer]
 
     def from_serializable(self, obj: JSON) -> Any:
         return self._decode(obj)
@@ -286,14 +303,16 @@ class Deserializer:
                 elif type == "array":
                     entries = obj["entries"]
                     return [ self._decode(entry) for entry in entries ]
-                elif type == "ndarray":
-                    return decode_base64_dict(obj)
                 elif type == "set":
                     entries = obj["entries"]
                     return set([ self._decode(entry) for entry in entries ])
                 elif type == "map":
                     entries = obj["entries"]
                     return { self._decode(key): self._decode(val) for key, val in entries.items() }
+                elif type == "bytes":
+                    return self._decode_bytes(obj)
+                elif type == "ndarray":
+                    return self._decode_ndarray(obj)
                 else:
                     raise ValueError(f"unsupported serialized type '{type}'")
             else:
@@ -302,6 +321,38 @@ class Deserializer:
             return [ self._decode(entry) for entry in obj ]
         else:
             return obj
+
+    def _decode_bytes(self, obj: BytesRef) -> bytes:
+        data = obj["data"]
+
+        if isinstance(data, str):
+            return base64.b64decode(data)
+        else:
+            id = data["id"]
+
+            buffer = self._buffers.get(id)
+            if buffer is not None:
+                return buffer.data
+            else:
+                raise ValueError(f"can't resolve buffer id={id}")
+
+    def _decode_ndarray(self, obj: NDArrayRef) -> npt.NDArray[Any]:
+        array = obj["array"]
+        dtype = obj["dtype"]
+        shape = obj["shape"]
+
+        decoded = self._decode(array)
+
+        ndarray: npt.NDArray[Any]
+        if isinstance(decoded, bytes):
+            ndarray = np.copy(np.frombuffer(decoded, dtype=dtype))  # type: ignore # from and frombuffer are untyped
+        else:
+            ndarray = np.ndarray(decoded, dtype=dtype)
+
+        if len(shape) > 1:
+            ndarray = ndarray.reshape(shape)
+
+        return ndarray
 
 #-----------------------------------------------------------------------------
 # Dev API
