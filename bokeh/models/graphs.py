@@ -76,6 +76,7 @@ class StaticLayoutProvider(LayoutProvider):
 
     '''
 
+    # TODO: length == 2
     graph_layout = Dict(Either(String, Int), Seq(Any), default={}, help="""
     The coordinates of the graph nodes in cartesian space. The dictionary
     keys correspond to a node index and the values are a two element sequence
