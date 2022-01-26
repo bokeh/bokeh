@@ -36,7 +36,7 @@ from typing import (
 # Bokeh imports
 from ..core import properties as p
 from ..core.has_props import HasProps, abstract
-from ..core.serialization import Reference, Serializer
+from ..core.serialization import ModelRef, Serializer
 from ..core.types import ID, Ref, Unknown
 from ..events import Event
 from ..themes import default as default_theme
@@ -235,26 +235,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     @property
     def ref(self) -> Ref:
         return Ref(id=self._id)
-
-    @property
-    def struct(self) -> Reference:
-        ''' A Bokeh protocol "structure" of this model, i.e. a dict of the form:
-
-        .. code-block:: python
-
-            {
-                'type' : << view model name >>
-                'id'   : << unique model id >>
-            }
-
-        '''
-        this = Reference(
-            id=self.id,
-            type=self.__qualified_model__,
-            attributes={},
-        )
-
-        return this
 
     # Public methods ----------------------------------------------------------
 
@@ -507,12 +487,14 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     def to_serializable(self, serializer: Serializer) -> JSON:
         if not serializer.has_ref(self):
-            ref = Reference(
-                id=self.id,
+            serializer.add_ref(self, self.ref)
+
+            rep = ModelRef(
                 type=self.__qualified_model__,
+                id=self.id,
                 attributes=super().to_serializable(serializer)["attributes"],
             )
-            serializer.add_ref(self, ref)
+            serializer.add_rep(self, rep)
 
         return self.ref
 

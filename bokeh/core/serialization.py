@@ -71,10 +71,27 @@ _serializers: Dict[Type[Any], Any] = {}
 # General API
 #-----------------------------------------------------------------------------
 
-class Reference(TypedDict):
-    id: ID
+class ModelRef(TypedDict):
     type: str
+    id: ID
     attributes: Dict[str, Any]
+
+class ArrayRef(TypedDict):
+    type: Literal["array"]
+    entries: List[Any]
+
+class BytesRef(TypedDict):
+    type: Literal["bytes"]
+    data: Ref | str
+
+ByteOrder = Literal["little", "big"]
+
+class NDArrayRef(TypedDict):
+    type: Literal["ndarray"]
+    array: BytesRef | ArrayRef
+    order: ByteOrder
+    dtype: str
+    shape: List[int]
 
 @dataclass
 class Buffer:
@@ -98,14 +115,20 @@ class Serializable:
         """ """
         raise NotImplementedError()
 
+ObjID = int
+
 class Serializer:
     """ """
 
-    _references: Dict[Any, Reference]
+    _circular: Dict[ObjID, Any]
+    _references: Dict[ObjID, Ref]
+    _definitions: Dict[ObjID, ModelRef]
     _buffers: List[Buffer]
 
     def __init__(self, *, binary: bool = True) -> None:
+        self._circular = {}
         self._references = {}
+        self._definitions = {}
         self._buffers = []
         self.binary = binary
 
@@ -114,13 +137,22 @@ class Serializer:
         return self._encode(obj)
 
     def has_ref(self, obj: Any) -> bool:
-        return obj in self._references
+        return id(obj) in self._references
 
-    def add_ref(self, obj: Any, ref: Reference) -> None:
-        self._references[obj] = ref
+    def add_ref(self, obj: Any, ref: Ref) -> None:
+        assert id(obj) not in self._references
+        self._references[id(obj)] = ref
+
+    def get_ref(self, obj: Any) -> Ref | None:
+        return self._references.get(id(obj))
 
     def del_ref(self, obj: Any) -> None:
-        del self._references[obj]
+        del self._references[id(obj)]
+        del self._definitions[id(obj)]
+
+    def add_rep(self, obj: Any, rep: ModelRef) -> None:
+        assert id(obj) in self._references
+        self._definitions[id(obj)] = rep
 
     def add_buf(self, obj: bytes) -> Buffer:
         buffer = Buffer(self._next_id(), obj)
@@ -129,8 +161,8 @@ class Serializer:
         return buffer
 
     @property
-    def references(self) -> List[Reference]:
-        return list(self._references.values())
+    def references(self) -> List[ModelRef]:
+        return list(self._definitions.values())
 
     @property
     def buffers(self) -> List[Buffer]:
@@ -142,6 +174,21 @@ class Serializer:
         return ID(str(self._id))
 
     def _encode(self, obj: Any) -> JSON:
+        ref = self.get_ref(obj)
+        if ref is not None:
+            return ref
+
+        ident = id(obj)
+        if ident in self._circular:
+            raise ValueError("circular reference")
+
+        self._circular[ident] = obj
+        rep = self.__encode(obj)
+        del self._circular[ident]
+
+        return rep
+
+    def __encode(self, obj: Any) -> JSON:
         if isinstance(obj, Serializable):
             return obj.to_serializable(self)
         elif type(obj) in _serializers:
@@ -267,23 +314,6 @@ class Serializer:
             )
 
         raise SerializationError(f"can't serialize {type(obj)}")
-
-class ArrayRef(TypedDict):
-    type: Literal["array"]
-    entries: List[Any]
-
-class BytesRef(TypedDict):
-    type: Literal["bytes"]
-    data: Ref | str
-
-ByteOrder = Literal["little", "big"]
-
-class NDArrayRef(TypedDict):
-    type: Literal["ndarray"]
-    array: BytesRef | ArrayRef
-    order: ByteOrder
-    dtype: str
-    shape: List[int]
 
 class Deserializer:
     """ """

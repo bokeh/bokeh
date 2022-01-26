@@ -19,7 +19,7 @@ import pytest ; pytest
 # Standard library imports
 import datetime as dt
 import sys
-from typing import Sequence
+from typing import Any, Sequence
 
 # External imports
 import dateutil.relativedelta as rd
@@ -29,7 +29,13 @@ import numpy as np
 from bokeh._testing.util.types import Capture
 from bokeh.colors import RGB
 from bokeh.core.has_props import HasProps
-from bokeh.core.properties import Int, List, String
+from bokeh.core.properties import (
+    Instance,
+    Int,
+    List,
+    Nullable,
+    String,
+)
 from bokeh.core.serialization import Buffer, Serializer
 from bokeh.core.types import ID
 from bokeh.model import Model
@@ -59,6 +65,7 @@ class SomeModel(Model):
     p0 = Int(default=1)
     p1 = String()
     p2 = List(Int)
+    p3 = Nullable(Instance(lambda: SomeModel))
 
 @dataclass
 class SomeDataClass:
@@ -145,6 +152,14 @@ class TestSerializer:
         )]
 
         assert encoder.buffers == []
+
+    def test_list_circular(self) -> None:
+        val: Sequence[Any] = [1, 2, 3]
+        val.insert(2, val)
+
+        encoder = Serializer()
+        with pytest.raises(ValueError):
+            encoder.to_serializable(val)
 
     def test_bytes_binary(self) -> None:
         encoder = Serializer(binary=True)
@@ -235,6 +250,23 @@ class TestSerializer:
                 p2=[4, 5, 6],
             ),
         )]
+        assert encoder.buffers == []
+
+    def test_Model_circular(self) -> None:
+        val0 = SomeModel(p0=10)
+        val1 = SomeModel(p0=20, p3=val0)
+        val2 = SomeModel(p0=30, p3=val1)
+        val0.p3 = val2
+
+        encoder = Serializer()
+        rep = encoder.to_serializable(val2)
+
+        assert rep == dict(id=val2.id)
+        assert encoder.references == [
+            dict(type="test_core_serialization.SomeModel", id=val0.id, attributes=dict(p0=10, p3=dict(id=val2.id))),
+            dict(type="test_core_serialization.SomeModel", id=val1.id, attributes=dict(p0=20, p3=dict(id=val0.id))),
+            dict(type="test_core_serialization.SomeModel", id=val2.id, attributes=dict(p0=30, p3=dict(id=val1.id))),
+        ]
         assert encoder.buffers == []
 
     def test_dataclass(self) -> None:
@@ -358,7 +390,7 @@ class TestSerializer:
 
     def test_np_int64(self) -> None:
         encoder = Serializer()
-        val = np.asscalar(np.int64(1))
+        val = np.int64(1).item()
         rep = encoder.to_serializable(val)
         assert rep == 1
         assert isinstance(rep, int)

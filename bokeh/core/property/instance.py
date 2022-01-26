@@ -28,6 +28,7 @@ from importlib import import_module
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Dict,
     Type,
     TypeVar,
@@ -65,12 +66,12 @@ class Instance(Property[T]):
             (default: False)
 
     """
-    _instance_type: Type[T] | str
+    _instance_type: Type[T] | Callable[[], Type[T]] | str
 
-    def __init__(self, instance_type: Type[T] | str, default: Init[T] = Undefined,
+    def __init__(self, instance_type: Type[T] | Callable[[], Type[T]] | str, default: Init[T] = Undefined,
             help: str | None = None, readonly: bool = False, serialized: bool | None = None):
-        if not isinstance(instance_type, (type, str)):
-            raise ValueError(f"expected a type or string, got {instance_type}")
+        if not (isinstance(instance_type, (type, str)) or callable(instance_type)):
+            raise ValueError(f"expected a type, fn() -> type, or string, got {instance_type}")
 
         from ..has_props import HasProps
         if isinstance(instance_type, type) and not issubclass(instance_type, HasProps):
@@ -91,9 +92,13 @@ class Instance(Property[T]):
 
     @property
     def instance_type(self) -> Type[HasProps]:
-        if isinstance(self._instance_type, str):
+        if isinstance(self._instance_type, type):
+            pass # just type-check, because type is callable (see the last condition)
+        elif isinstance(self._instance_type, str):
             module, name = self._instance_type.rsplit(".", 1)
             self._instance_type = getattr(import_module(module, "bokeh"), name)
+        elif callable(self._instance_type):
+            self._instance_type = self._instance_type()
 
         return self._instance_type
 

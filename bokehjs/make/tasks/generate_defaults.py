@@ -18,11 +18,12 @@ class DefaultsSerializer(Serializer):
 
     def _encode(self, obj: Any) -> JSON:
         if isinstance(obj, Model):
-            rep = obj.struct
             properties = obj.properties_with_values(include_defaults=True)
             attributes = {key: self.to_serializable(val) for key, val in properties.items()}
-            rep["attributes"] = attributes
-            del rep["id"] # there's no way the ID will match bokehjs
+            rep = dict(
+                type=obj.__qualified_model__,
+                attributes=attributes,
+            )
             return rep
         elif obj is Undefined:
             return dict(type="symbol", name="unset")

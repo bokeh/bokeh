@@ -202,14 +202,6 @@ class TestModel:
         )
         assert testObject.properties_with_values(include_defaults=False) == {}
 
-    def test_struct(self) -> None:
-        testObject = self.pObjectClass(id='test_id')
-        assert testObject.struct == dict(
-            id='test_id',
-            type='test_objects.SomeModel',
-            attributes={},
-        )
-
     def test_references_by_ref_by_value(self) -> None:
         from bokeh.core.has_props import HasProps
         from bokeh.core.properties import Instance, Int
