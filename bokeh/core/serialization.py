@@ -377,7 +377,7 @@ class Deserializer:
         if isinstance(decoded, bytes):
             ndarray = np.copy(np.frombuffer(decoded, dtype=dtype))  # type: ignore # from and frombuffer are untyped
         else:
-            ndarray = np.ndarray(decoded, dtype=dtype)
+            ndarray = np.array(decoded, dtype=dtype)
 
         if len(shape) > 1:
             ndarray = ndarray.reshape(shape)
