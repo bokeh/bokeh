@@ -64,7 +64,7 @@ class Test_MultiChoice:
         page = bokeh_model_page(text_input)
 
         el = find_element_for(page.driver, text_input, "input")
-        assert el.get_attribute('type') == "text"
+        assert el.get_attribute('type') == "search"
 
         assert page.has_no_console_errors()
 
@@ -76,7 +76,7 @@ class Test_MultiChoice:
         assert el.text == "title"
         el = find_element_for(page.driver, text_input, "input")
         assert el.get_attribute('placeholder') == ""
-        assert el.get_attribute('type') == "text"
+        assert el.get_attribute('type') == "search"
 
         assert page.has_no_console_errors()
 

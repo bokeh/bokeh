@@ -91,7 +91,7 @@ async function lint(config_file: Path, paths: Path[]): Promise<boolean> {
 
   if (errors || warnings) {
     const formatter = await eslint.loadFormatter("stylish")
-    const output = formatter.format(results)
+    const output = await formatter.format(results)
 
     for (const line of output.trim().split("\n"))
       print(line)

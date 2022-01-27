@@ -31,7 +31,7 @@ async function eslint(dir: string): Promise<void> {
 
   if (errors || warnings) {
     const formatter = await eslint.loadFormatter("stylish")
-    const output = formatter.format(results)
+    const output = await formatter.format(results)
 
     for (const line of output.trim().split("\n"))
       log(line)
