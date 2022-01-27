@@ -165,7 +165,7 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
             with open(filename, "w") as f:
                 json.dump(content, f, indent=2)
                 f.write("\n")
-            config.add_modified(filename)
+            config.add_modified(f"bokehjs/{filename}")
         except Exception as e:
             return FAILED(f"Unable to write new version to file {filename!r}", details=e.args)
 

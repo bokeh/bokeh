@@ -48,7 +48,9 @@ jobs:
 
       - name: Install NPM
         shell: bash -l {0}
-        run: npm install -g npm@8
+        run: |
+          npm install -g npm@8
+          npm --version
 
       - name: Build Release Tarball
         shell: bash -l {0}
@@ -60,4 +62,4 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
         run: |
-           python -m release build $BOKEH_VERSION || true
+           python -m release build $BOKEH_VERSION
