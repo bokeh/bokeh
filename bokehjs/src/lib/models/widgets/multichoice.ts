@@ -1,5 +1,4 @@
 import Choices from "choices.js"
-import {Choices as ChoicesNS} from "choices.js"
 
 import {select} from "core/dom"
 import {isString} from "core/util/types"
@@ -60,21 +59,17 @@ export class MultiChoiceView extends InputWidgetView {
     const item = `choices__item ${fill}`
     const button = `choices__button ${fill}`
 
-    const options: Partial<ChoicesNS.Options> = {
+    const options = {
       choices,
       duplicateItemsAllowed: false,
       shouldSort: false,
       removeItemButton: this.model.delete_button,
-      classNames: {item, button} as ChoicesNS.ClassNames, // XXX: bad typings, missing Partial<>
+      classNames: {item, button} as any, // XXX: missing typings
+      placeholderValue: this.model.placeholder ?? undefined,
+      maxItemCount: this.model.max_items ?? undefined,
+      renderChoiceLimit: this.model.option_limit ?? undefined,
+      searchResultLimit: this.model.search_option_limit ?? undefined,
     }
-    if (this.model.placeholder != null)
-      options.placeholderValue = this.model.placeholder
-    if (this.model.max_items != null)
-      options.maxItemCount = this.model.max_items
-    if (this.model.option_limit != null)
-      options.renderChoiceLimit = this.model.option_limit
-    if (this.model.search_option_limit != null)
-      options.searchResultLimit = this.model.search_option_limit
 
     this.choice_el = new Choices(this.input_el, options)
     const height = (): number => (this.choice_el as any).containerOuter.element.getBoundingClientRect().height
