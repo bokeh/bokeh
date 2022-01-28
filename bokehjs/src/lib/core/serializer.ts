@@ -1,8 +1,9 @@
 import {assert} from "./util/assert"
 import {entries} from "./util/object"
 import {Ref, Struct} from "./util/refs"
-import {isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isSymbol} from "./util/types"
+import {/*isBasicObject, */isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isSymbol} from "./util/types"
 import {encode_bytes} from "./util/serialization"
+import {map} from "./util/iterator"
 
 export type SerializableType =
   | null
@@ -108,11 +109,17 @@ export class Serializer {
     } else if (obj instanceof ArrayBuffer) {
       return encode_bytes(obj)
     } else if (isPlainObject(obj)) {
+      return {type: "map", entries: [...map(entries(obj), ([key, val]) => [this.to_serializable(key), this.to_serializable(val)])]}
+    /*
+    } else if (isBasicObject(obj)) {
+      return {type: "map", entries: [...map(entries(obj), ([key, val]) => [this.to_serializable(key), this.to_serializable(val)])]}
+    } else if (isPlainObject(obj)) {
       const result: {[key: string]: unknown} = {}
       for (const [key, value] of entries(obj)) {
         result[key] = this.to_serializable(value)
       }
       return result
+    */
     } else if (obj === null || isBoolean(obj) || isString(obj)) {
       return obj
     } else if (isNumber(obj)) {
@@ -122,6 +129,10 @@ export class Serializer {
         return {type: "number", value: `${obj < 0 ? "-" : "+"}inf`}
       else
         return obj
+    } else if (obj instanceof Set) {
+      return {type: "set", entries: [...map(obj.values(), (val) => this.to_serializable(val))]}
+    } else if (obj instanceof Map) {
+      return {type: "map", entries: [...map(obj.entries(), ([key, val]) => [this.to_serializable(key), this.to_serializable(val)])]}
     } else if (isSymbol(obj) && obj.description != null) {
       return {type: "symbol", name: obj.description}
     } else

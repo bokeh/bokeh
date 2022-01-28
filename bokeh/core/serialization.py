@@ -246,7 +246,10 @@ class Serializer:
         return [self._encode(item) for item in obj]
 
     def _encode_dict(self, obj: Dict[Any, Any]) -> JSON:
-        return {self._encode(key): self._encode(val) for key, val in obj.items()}
+        return dict(
+            type="map",
+            entries=[[self._encode(key), self._encode(val)] for key, val in obj.items()],
+        )
 
     def _encode_dataclass(self, obj: Any) -> JSON:
         cls = type(obj)

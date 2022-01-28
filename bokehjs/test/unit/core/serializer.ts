@@ -20,7 +20,8 @@ namespace SomeModel {
     value: p.Property<number>
     array: p.Property<number[]>
     dict: p.Property<{[key: string]: number}>
-    map: p.Property<Map<string, number>>
+    map: p.Property<Map<number[], number>>
+    set: p.Property<Set<number[]>>
     obj: p.Property<SomeModel | null>
   }
 }
@@ -85,7 +86,40 @@ describe("core/serializer module", () => {
     })
 
     it("that supports plain objects", () => {
-      expect(to_serializable({})).to.be.equal({repr: {}, json: "{}"})
+      const val0 = {}
+      expect(to_serializable(val0)).to.be.equal({
+        repr: {type: "map", entries: []},
+        json: '{"type":"map","entries":[]}'},
+      )
+      /*
+      expect(to_serializable(val0)).to.be.equal({repr: {}, json: "{}"})
+      */
+      const val1 = {key0: 0, key1: NaN}
+      expect(to_serializable(val1)).to.be.equal({
+        repr: {type: "map", entries: [["key0", 0], ["key1", {type: "number", value: "nan"}]]},
+        json: '{"type":"map","entries":[["key0",0],["key1",{"type":"number","value":"nan"}]]}',
+      })
+      /*
+      expect(to_serializable(val1)).to.be.equal({
+        repr: {key0: 0, key1: {type: "number", value: "nan"}},
+        json: '{"key0":0,"key1":{"type":"number","value":"nan"}}',
+      })
+      */
+    })
+
+    it("that supports basic objects", () => {
+      const val0 = Object.create(null)
+      expect(to_serializable(val0)).to.be.equal({
+        repr: {type: "map", entries: []},
+        json: '{"type":"map","entries":[]}'},
+      )
+      const val1 = Object.create(null)
+      val1.key0 = 0
+      val1.key1 = NaN
+      expect(to_serializable(val1)).to.be.equal({
+        repr: {type: "map", entries: [["key0", 0], ["key1", {type: "number", value: "nan"}]]},
+        json: '{"type":"map","entries":[["key0",0],["key1",{"type":"number","value":"nan"}]]}',
+      })
     })
 
     it("should support HasProps instances", () => {

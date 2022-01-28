@@ -12,6 +12,7 @@ import {
   isTypedArray,
   isObject,
   isPlainObject,
+  isBasicObject,
 } from "@bokehjs/core/util/types"
 
 class X {}
@@ -128,12 +129,21 @@ describe("core/util/types module", () => {
   it("should support isObject() function", () => {
     expect(isObject(0)).to.be.false
     expect(isObject({})).to.be.true
+    expect(isPlainObject(Object.create(null))).to.be.true
     expect(isObject(new X())).to.be.true
   })
 
   it("should support isPlainObject() function", () => {
     expect(isPlainObject(0)).to.be.false
     expect(isPlainObject({})).to.be.true
+    expect(isPlainObject(Object.create(null))).to.be.true
     expect(isPlainObject(new X())).to.be.false
+  })
+
+  it("should support isBasicObject() function", () => {
+    expect(isBasicObject(0)).to.be.false
+    expect(isBasicObject({})).to.be.false
+    expect(isBasicObject(Object.create(null))).to.be.true
+    expect(isBasicObject(new X())).to.be.false
   })
 })

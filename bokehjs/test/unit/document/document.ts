@@ -910,8 +910,11 @@ describe("Document", () => {
         kind: "MessageSent",
         msg_type: "ping",
         msg_data: {
-          model: {id: root.id},
-          companion_model: {id: obj.id},
+          type: "map",
+          entries: [
+            ["model", {id: root.id}],
+            ["companion_model", {id: obj.id}],
+          ],
         },
       }],
       references: [{

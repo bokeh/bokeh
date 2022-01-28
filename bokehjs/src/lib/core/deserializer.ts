@@ -5,7 +5,7 @@ import {Ref, is_ref} from "./util/refs"
 import {Buffers, decode_bytes, BytesRef, NDArrayRef} from "./util/serialization"
 import {ndarray, NDArray} from "./util/ndarray"
 import {entries} from "./util/object"
-import {map} from "./util/array"
+import {map, every} from "./util/array"
 import {BYTE_ORDER} from "./util/platform"
 import {swap} from "./util/buffer"
 import {isArray, isPlainObject, isString, isNumber} from "./util/types"
@@ -173,13 +173,17 @@ export class Deserializer {
     return decoded
   }
 
-  protected _decode_map(obj: MapRef): Map<unknown, unknown> {
-    const decoded = new Map()
-    for (const entry of obj.entries) {
-      const [key, val] = entry
-      decoded.set(this._decode(key), this._decode(val))
-    }
-    return decoded
+  protected _decode_map(obj: MapRef): Map<unknown, unknown> | {[key: string]: unknown} {
+    const decoded = map(obj.entries, ([key, val]) => [this._decode(key), this._decode(val)] as const)
+    const is_str = every(decoded, ([key]) => isString(key))
+    if (is_str) {
+      const obj: {[key: string]: unknown} = {} // Object.create(null)
+      for (const [key, val] of decoded) {
+        obj[key as string] = val
+      }
+      return obj
+    } else
+      return new Map(decoded)
   }
 
   protected _decode_bytes(obj: BytesRef): ArrayBuffer {

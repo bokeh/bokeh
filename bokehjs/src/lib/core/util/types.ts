@@ -79,6 +79,10 @@ export function isObject(obj: unknown): obj is object {
   return tp === "function" || tp === "object" && !!obj
 }
 
+export function isBasicObject<T>(obj: unknown): obj is {[key: string]: T} {
+  return isObject(obj) && is_nullish(obj.constructor)
+}
+
 export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
   return isObject(obj) && (is_nullish(obj.constructor) || obj.constructor === Object)
 }
