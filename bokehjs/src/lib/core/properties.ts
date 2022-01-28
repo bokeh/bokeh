@@ -103,7 +103,7 @@ export abstract class Property<T = unknown> {
   protected spec: Spec<T> = {value: unset}
 
   get is_unset(): boolean {
-    return this.spec.value == unset
+    return this.spec.value === unset
   }
 
   protected _initialized: boolean = false
@@ -117,12 +117,12 @@ export abstract class Property<T = unknown> {
 
     let attr_value: T | Unset = unset
 
-    if (initial_value != unset) {
+    if (initial_value !== unset) {
       attr_value = initial_value
       this._dirty = true
     } else {
       const value = this._default_override()
-      if (value != unset)
+      if (value !== unset)
         attr_value = value
       else {
         let themed = false
@@ -140,7 +140,7 @@ export abstract class Property<T = unknown> {
       }
     }
 
-    if (attr_value != unset)
+    if (attr_value !== unset)
       this._update(attr_value)
     else
       this.spec = {value: unset}
@@ -149,7 +149,7 @@ export abstract class Property<T = unknown> {
   }
 
   get_value(): T {
-    if (this.spec.value != unset)
+    if (this.spec.value !== unset)
       return this.spec.value!
     else
       throw new Error(`${this.obj}.${this.attr} is unset`)
