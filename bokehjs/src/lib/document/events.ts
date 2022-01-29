@@ -10,7 +10,6 @@ export type ModelChanged = {
   kind: "ModelChanged"
   model: Ref
   attr: string
-  old: unknown
   new: unknown
   hint?: unknown
 }
@@ -64,7 +63,6 @@ export namespace Decoded {
     kind: "ModelChanged"
     model: HasProps
     attr: string
-    old: unknown
     new: unknown
     hint?: unknown
   }
@@ -168,7 +166,6 @@ export class ModelChangedEvent extends DocumentChangedEvent {
   constructor(document: Document,
       readonly model: HasProps,
       readonly attr: string,
-      readonly old: unknown,
       readonly new_: unknown,
       readonly hint?: DocumentChangedEvent) {
     super(document)
@@ -178,7 +175,6 @@ export class ModelChangedEvent extends DocumentChangedEvent {
     return super[equals](that, cmp) &&
       cmp.eq(this.model, that.model) &&
       cmp.eq(this.attr, that.attr) &&
-      cmp.eq(this.old, that.old) &&
       cmp.eq(this.new_, that.new_) &&
       cmp.eq(this.hint, that.hint)
   }
@@ -200,7 +196,6 @@ export class ModelChangedEvent extends DocumentChangedEvent {
       kind: "ModelChanged",
       model: this.model.ref(),
       attr: this.attr,
-      old: null,
       new: value_serialized,
     }
   }

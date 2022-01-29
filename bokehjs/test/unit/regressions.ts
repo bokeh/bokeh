@@ -306,10 +306,10 @@ describe("Bug", () => {
       await build_view(doc.roots()[0], {parent: null})
 
       expect(events1).to.be.similar([
-        new ModelChangedEvent(doc, doc.get_model_by_id("1008")!, "start", NaN, -0.15707963267948988),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1008")!, "end",   NaN,  3.2986722862692828),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1009")!, "start", NaN, -1.0840481406628186),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1009")!, "end",   NaN,  1.0992403876506105),
+        new ModelChangedEvent(doc, doc.get_model_by_id("1008")!, "start", -0.15707963267948988),
+        new ModelChangedEvent(doc, doc.get_model_by_id("1008")!, "end",    3.2986722862692828),
+        new ModelChangedEvent(doc, doc.get_model_by_id("1009")!, "start", -1.0840481406628186),
+        new ModelChangedEvent(doc, doc.get_model_by_id("1009")!, "end",    1.0992403876506105),
       ])
     })
   })

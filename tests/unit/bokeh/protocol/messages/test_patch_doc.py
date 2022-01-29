@@ -67,18 +67,18 @@ class TestPatchDocument:
     def test_create_multiple_docs(self) -> None:
         sample1 = self._sample_doc()
         obj1 = next(iter(sample1.roots))
-        event1 = ModelChangedEvent(sample1, obj1, 'foo', obj1.foo, 42)
+        event1 = ModelChangedEvent(sample1, obj1, 'foo', 42)
 
         sample2 = self._sample_doc()
         obj2 = next(iter(sample2.roots))
-        event2 = ModelChangedEvent(sample2, obj2, 'foo', obj2.foo, 42)
+        event2 = ModelChangedEvent(sample2, obj2, 'foo', 42)
         with pytest.raises(ValueError):
             proto.create("PATCH-DOC", [event1, event2])
 
     def test_create_model_changed(self) -> None:
         sample = self._sample_doc()
         obj = next(iter(sample.roots))
-        event = ModelChangedEvent(sample, obj, 'foo', obj.foo, 42)
+        event = ModelChangedEvent(sample, obj, 'foo', 42)
         proto.create("PATCH-DOC", [event])
 
     def test_create_then_apply_model_changed(self) -> None:
@@ -91,7 +91,7 @@ class TestPatchDocument:
 
         obj = next(iter(sample.roots))
         assert obj.foo == 2
-        event = ModelChangedEvent(sample, obj, 'foo', obj.foo, 42)
+        event = ModelChangedEvent(sample, obj, 'foo', 42)
         msg = proto.create("PATCH-DOC", [event])
 
         copy = document.Document.from_json(sample.to_json())
@@ -126,7 +126,7 @@ class TestPatchDocument:
         sample.on_change(sample_document_callback_assert)
 
         # Model property changed
-        event = ModelChangedEvent(sample, root, 'child', root.child, new_child)
+        event = ModelChangedEvent(sample, root, 'child', new_child)
         msg = proto.create("PATCH-DOC", [event])
         msg.apply_to_document(sample, mock_session)
         assert msg.buffers == []
@@ -144,21 +144,21 @@ class TestPatchDocument:
         assert msg3.buffers == []
 
         # ColumnsStreamed
-        event4 = ModelChangedEvent(sample, cds, 'data', 10, None,
+        event4 = ModelChangedEvent(sample, cds, 'data', None,
                                    hint=ColumnsStreamedEvent(sample, cds, {"a": [3]}, None, mock_session))
         msg4 = proto.create("PATCH-DOC", [event4])
         msg4.apply_to_document(sample, mock_session)
         assert msg4.buffers == []
 
         # ColumnsPatched
-        event5 = ModelChangedEvent(sample, cds, 'data', 10, None,
+        event5 = ModelChangedEvent(sample, cds, 'data', None,
                                    hint=ColumnsPatchedEvent(sample, cds, {"a": [(0, 11)]}))
         msg5 = proto.create("PATCH-DOC", [event5])
         msg5.apply_to_document(sample, mock_session)
         assert msg5.buffers == []
 
         # ColumnDataChanged, use_buffers=False
-        event6 = ModelChangedEvent(sample, cds, 'data', {'a': np.array([0., 1.])}, None,
+        event6 = ModelChangedEvent(sample, cds, 'data', None,
                                    hint=ColumnDataChangedEvent(sample, cds))
         msg6 = proto.create("PATCH-DOC", [event6], use_buffers=False)
         msg6.apply_to_document(sample, mock_session)
@@ -166,7 +166,7 @@ class TestPatchDocument:
 
         print(cds.data)
         # ColumnDataChanged, use_buffers=True
-        event7 = ModelChangedEvent(sample, cds, 'data', {'a': np.array([0., 1.])}, None,
+        event7 = ModelChangedEvent(sample, cds, 'data', None,
                                    hint=ColumnDataChangedEvent(sample, cds))
         msg7 = proto.create("PATCH-DOC", [event7])
         # can't test apply, doc not set up to *receive* binary buffers

@@ -109,7 +109,7 @@ describe("events module", () => {
     it("should generating json with no references", () =>{
       const d = new Document()
       const m = new TestModel()
-      const event = new events.ModelChangedEvent(d, m, "foo", 1, 2)
+      const event = new events.ModelChangedEvent(d, m, "foo", 2)
       const serializer = new Serializer()
       const result = serializer.to_serializable(event)
       expect(result).to.be.equal({
@@ -117,7 +117,6 @@ describe("events module", () => {
         model: m.ref(),
         attr: "foo",
         new: 2,
-        old: null,
       })
     })
 
@@ -125,7 +124,7 @@ describe("events module", () => {
       const d = new Document()
       const m = new TestModel()
       const m2 = new TestModelWithProps({foo: []})
-      const event = new events.ModelChangedEvent(d, m2, "foo", [], [m])
+      const event = new events.ModelChangedEvent(d, m2, "foo", [m])
       const serializer = new Serializer()
       const result = serializer.to_serializable(event)
       expect(result).to.be.equal({
@@ -133,7 +132,6 @@ describe("events module", () => {
         model: m2.ref(),
         attr: "foo",
         new: [m.ref()],
-        old: null,
       })
       const expected_refs = new Set([m])
       expect(serializer.objects).to.be.equal(expected_refs)
@@ -145,7 +143,7 @@ describe("events module", () => {
       const d = new Document()
       const m = new ColumnDataSource()
       const hint = new events.ColumnsStreamedEvent(d, m, {foo: [1, 2], bar: [3, 4]})
-      const event = new events.ModelChangedEvent(d, m, "foo", 1, 2, hint)
+      const event = new events.ModelChangedEvent(d, m, "foo", 2, hint)
       const serializer = new Serializer()
       const result = serializer.to_serializable(event)
       expect(result).to.be.equal({
@@ -159,8 +157,8 @@ describe("events module", () => {
     it("should support equality", () => {
       const doc = new Document()
       const model = new TestModel()
-      const ev0 = new events.ModelChangedEvent(doc, model, "foo", [], [1])
-      const ev1 = new events.ModelChangedEvent(doc, model, "foo", [], [2])
+      const ev0 = new events.ModelChangedEvent(doc, model, "foo", [1])
+      const ev1 = new events.ModelChangedEvent(doc, model, "foo", [2])
       expect(is_equal(ev0, ev0)).to.be.equal(true)
       expect(is_equal(ev0, ev1)).to.be.equal(false)
     })

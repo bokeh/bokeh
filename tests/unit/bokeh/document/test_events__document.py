@@ -138,13 +138,12 @@ class TestDocumentPatchedEvent:
 class TestModelChangedEvent:
     def test_init_defaults(self) -> None:
         doc = Document()
-        e = bde.ModelChangedEvent(doc, "model", "attr", "old", "new")
+        e = bde.ModelChangedEvent(doc, "model", "attr", "new")
         assert e.document == doc
         assert e.setter == None
         assert e.callback_invoker == None
         assert e.model == "model"
         assert e.attr == "attr"
-        assert e.old == "old"
         assert e.new == "new"
         assert e.hint == None
         assert e.callback_invoker == None
@@ -154,26 +153,24 @@ class TestModelChangedEvent:
 
     def test_init_ignores_hint_with_setter(self) -> None:
         doc = Document()
-        e = bde.ModelChangedEvent(doc, "model", "attr", "old", "new", setter="setter", hint="hint", callback_invoker="invoker")
+        e = bde.ModelChangedEvent(doc, "model", "attr", "new", setter="setter", hint="hint", callback_invoker="invoker")
         assert e.document == doc
         assert e.setter == "setter"
         assert e.callback_invoker == "invoker"
         assert e.model == "model"
         assert e.attr == "attr"
-        assert e.old == "old"
         assert e.new == "new"
         assert e.hint == "hint"
         assert e.callback_invoker == "invoker"
 
     def test_init_uses_hint_with_no_setter(self) -> None:
         doc = Document()
-        e = bde.ModelChangedEvent(doc, "model", "attr", "old", "new", hint="hint", callback_invoker="invoker")
+        e = bde.ModelChangedEvent(doc, "model", "attr", "new", hint="hint", callback_invoker="invoker")
         assert e.document == doc
         assert e.setter == None
         assert e.callback_invoker == "invoker"
         assert e.model == "model"
         assert e.attr == "attr"
-        assert e.old == "old"
         assert e.new == "new"
         assert e.hint == "hint"
         assert e.callback_invoker == "invoker"
@@ -182,7 +179,7 @@ class TestModelChangedEvent:
 
     def test_dispatch(self) -> None:
         doc = Document()
-        e = bde.ModelChangedEvent(doc, "model", "attr", "old", "new")
+        e = bde.ModelChangedEvent(doc, "model", "attr", "new")
         e.dispatch(FakeEmptyDispatcher())
         d = FakeFullDispatcher()
         e.dispatch(d)
@@ -190,40 +187,39 @@ class TestModelChangedEvent:
 
     def test_combine_ignores_except_title_changd_event(self) -> None:
         doc = Document()
-        e = bde.ModelChangedEvent(doc, "model", "attr", "old", "new")
+        e = bde.ModelChangedEvent(doc, "model", "attr", "new")
         e2 = bde.DocumentPatchedEvent(doc, "setter", "invoker")
         assert e.combine(e2) == False
 
     def test_combine_ignores_different_setter(self) -> None:
         doc = Document()
-        e = bde.ModelChangedEvent(doc, "model", "attr", "old", "new", None, "setter")
-        e2  = bde.ModelChangedEvent(doc, "model", "attr", "old2", "new2", None, "setter2")
+        e = bde.ModelChangedEvent(doc, "model", "attr", "new", None, "setter")
+        e2 = bde.ModelChangedEvent(doc, "model", "attr", "new2", None, "setter2")
         assert e.combine(e2) == False
 
     def test_combine_ignores_different_doc(self) -> None:
         doc = Document()
-        e = bde.ModelChangedEvent(doc, "model", "attr", "old", "new")
-        e2 = bde.ModelChangedEvent("doc2", "model", "attr", "old2", "new2")
+        e = bde.ModelChangedEvent(doc, "model", "attr", "new")
+        e2 = bde.ModelChangedEvent("doc2", "model", "attr", "new2")
         assert e.combine(e2) == False
 
     def test_combine_ignores_different_model(self) -> None:
         doc = Document()
-        e = bde.ModelChangedEvent(doc, "model", "attr", "old", "new")
-        e2 = bde.ModelChangedEvent(doc, "model2", "attr", "old2", "new2")
+        e = bde.ModelChangedEvent(doc, "model", "attr", "new")
+        e2 = bde.ModelChangedEvent(doc, "model2", "attr", "new2")
         assert e.combine(e2) == False
 
     def test_combine_ignores_different_attr(self) -> None:
         doc = Document()
-        e = bde.ModelChangedEvent(doc, "model", "attr", "old", "new")
-        e2 = bde.ModelChangedEvent(doc, "model", "attr2", "old2", "new2")
+        e = bde.ModelChangedEvent(doc, "model", "attr", "new")
+        e2 = bde.ModelChangedEvent(doc, "model", "attr2", "new2")
         assert e.combine(e2) == False
 
     def test_combine_with_matching_model_changed_event(self) -> None:
         doc = Document()
-        e = bde.ModelChangedEvent(doc, "model", "attr", "old", "new", callback_invoker="invoker")
-        e2 = bde.ModelChangedEvent(doc, "model", "attr", "old2", "new2", callback_invoker="invoker2")
+        e = bde.ModelChangedEvent(doc, "model", "attr", "new", callback_invoker="invoker")
+        e2 = bde.ModelChangedEvent(doc, "model", "attr", "new2", callback_invoker="invoker2")
         assert e.combine(e2) == True
-        assert e.old == "old"  # keeps original old value
         assert e.new == "new2"
         assert e.callback_invoker == "invoker2"
 
@@ -234,8 +230,8 @@ class TestModelChangedEvent:
         m = SomeModel()
         h = bde.ColumnsStreamedEvent(doc, m, dict(foo=1), 200, "setter", "invoker")
         h2 = bde.ColumnsStreamedEvent(doc, m, dict(foo=2), 300, "setter", "invoker")
-        e = bde.ModelChangedEvent(doc, "model", "attr", "old", "new", hint=h, callback_invoker="invoker")
-        e2 = bde.ModelChangedEvent(doc, "model", "attr", "old2", "new2", hint=h2, callback_invoker="invoker2")
+        e = bde.ModelChangedEvent(doc, "model", "attr", "new", hint=h, callback_invoker="invoker")
+        e2 = bde.ModelChangedEvent(doc, "model", "attr", "new2", hint=h2, callback_invoker="invoker2")
         assert e.combine(e2) == False
         assert mock_combine.call_count == 1
         assert mock_combine.call_args[0] == (h2,)

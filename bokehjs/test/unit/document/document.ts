@@ -429,7 +429,6 @@ describe("Document", () => {
     expect(event.document).to.be.equal(d)
     expect(event.model).to.be.equal(m)
     expect(event.attr).to.be.equal("bar")
-    expect(event.old).to.be.equal(1)
     expect(event.new_).to.be.equal(42)
   })
 
@@ -725,13 +724,13 @@ describe("Document", () => {
     d.add_root(root2)
     expect(d.roots().length).to.be.equal(2)
 
-    const event1 = new ev.ModelChangedEvent(d, root1, "foo", root1.foo, 57)
+    const event1 = new ev.ModelChangedEvent(d, root1, "foo", 57)
     const patch1 = d.create_json_patch([event1])
     d.apply_json_patch(patch1)
 
     expect(root1.foo).to.be.equal(57)
 
-    const event2 = new ev.ModelChangedEvent(d, child1, "foo", child1.foo, 67)
+    const event2 = new ev.ModelChangedEvent(d, child1, "foo", 67)
     const patch2 = d.create_json_patch([event2])
     d.apply_json_patch(patch2)
 
@@ -758,7 +757,7 @@ describe("Document", () => {
     expect(d._all_models.has(child2.id)).to.be.false
     expect(d._all_models.has(child2.id)).to.be.false
 
-    const event1 = new ev.ModelChangedEvent(d, root1, "child", root1.child, child3)
+    const event1 = new ev.ModelChangedEvent(d, root1, "child", child3)
     const patch1 = d.create_json_patch([event1])
     d.apply_json_patch(patch1)
 
@@ -771,7 +770,7 @@ describe("Document", () => {
     expect(d._all_models.has(child3.id)).to.be.true
 
     // put it back how it was before
-    const event2 = new ev.ModelChangedEvent(d, root1, "child", root1.child, child1)
+    const event2 = new ev.ModelChangedEvent(d, root1, "child", child1)
     const patch2 = d.create_json_patch([event2])
     d.apply_json_patch(patch2)
 
@@ -797,8 +796,8 @@ describe("Document", () => {
 
     const child2 = new SomeModel({foo: 44})
 
-    const event1 = new ev.ModelChangedEvent(d, root1, "foo", root1.foo, 57)
-    const event2 = new ev.ModelChangedEvent(d, root1, "child", root1.child, child2)
+    const event1 = new ev.ModelChangedEvent(d, root1, "foo", 57)
+    const event2 = new ev.ModelChangedEvent(d, root1, "child", child2)
     const patch1 = d.create_json_patch([event1, event2])
     d.apply_json_patch(patch1)
 
@@ -826,7 +825,7 @@ describe("Document", () => {
     expect(root1.document!.roots().length).to.be.equal(1)
     expect(root1.child).to.be.null
 
-    const event1 = new ev.ModelChangedEvent(d, root1, "child", root1.child, child1)
+    const event1 = new ev.ModelChangedEvent(d, root1, "child", child1)
     const patch1 = d.create_json_patch([event1])
     d.apply_json_patch(patch1)
 
@@ -1005,7 +1004,7 @@ describe("Document", () => {
 
       expect(doc.title()).to.be.equal(DEFAULT_TITLE)
 
-      const event = new ev.ModelChangedEvent(doc, model, "foo", model.foo, 128)
+      const event = new ev.ModelChangedEvent(doc, model, "foo", 128)
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 

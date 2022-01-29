@@ -305,7 +305,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
     kind = "ModelChanged"
 
-    def __init__(self, document: Document, model: Model, attr: str, old: Unknown, new: Unknown,
+    def __init__(self, document: Document, model: Model, attr: str, new: Unknown,
             hint: DocumentPatchedEvent | None = None,
             setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
@@ -319,9 +319,6 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
             attr (str) :
                 The name of the attribute to update on the model.
-
-            old (object) :
-                The old value of the attribute
 
             new (object) :
                 The new value of the attribute
@@ -351,7 +348,6 @@ class ModelChangedEvent(DocumentPatchedEvent):
         super().__init__(document, setter, callback_invoker)
         self.model = model
         self.attr = attr
-        self.old = old
         self.new = new
         self.hint = hint
 

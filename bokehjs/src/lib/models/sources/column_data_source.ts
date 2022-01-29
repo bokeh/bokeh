@@ -170,7 +170,7 @@ export class ColumnDataSource extends ColumnarDataSource {
     this.streaming.emit()
     if (this.document != null && (sync ?? true)) {
       const hint = new ColumnsStreamedEvent(this.document, this, new_data, rollover)
-      const event = new ModelChangedEvent(this.document, this, "data", null, null, hint)
+      const event = new ModelChangedEvent(this.document, this, "data", null, hint)
       this.document._trigger_on_change(event)
     }
   }
@@ -185,7 +185,7 @@ export class ColumnDataSource extends ColumnarDataSource {
     this.patching.emit([...patched])
     if (this.document != null && (sync ?? true)) {
       const hint = new ColumnsPatchedEvent(this.document, this, patches)
-      const event = new ModelChangedEvent(this.document, this, "data", null, null, hint)
+      const event = new ModelChangedEvent(this.document, this, "data", null, hint)
       this.document._trigger_on_change(event)
     }
   }

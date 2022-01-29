@@ -566,9 +566,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       return
 
     const events = []
-    for (const [prop, old_value, new_value] of changes) {
+    for (const [prop,, new_value] of changes) {
       if (prop.syncable)
-        events.push(new ModelChangedEvent(document, this, prop.attr, old_value, new_value))
+        events.push(new ModelChangedEvent(document, this, prop.attr, new_value))
     }
 
     if (events.length != 0) {

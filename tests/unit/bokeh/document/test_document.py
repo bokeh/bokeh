@@ -393,7 +393,6 @@ class TestDocument:
         assert event.document == d
         assert event.model == m
         assert event.attr == 'bar'
-        assert event.old == 1
         assert event.new == 42
         assert len(curdoc_from_listener) == 1
         assert curdoc_from_listener[0] is d
@@ -423,7 +422,6 @@ class TestDocument:
         assert event.hint.rollover == 200
         assert event.attr == 'data'
         # old == new because stream events update in-place
-        assert event.old == dict(a=[10, 11, 12], b=[20, 21, 22])
         assert event.new == dict(a=[10, 11, 12], b=[20, 21, 22])
         assert len(curdoc_from_listener) == 1
         assert curdoc_from_listener[0] is d
@@ -452,7 +450,6 @@ class TestDocument:
         assert event.hint.patches == dict(a=[(0, 1)], b=[(0,0), (1,1)])
         assert event.attr == 'data'
         # old == new because stream events update in-place
-        assert event.old == dict(a=[1, 11], b=[0, 1])
         assert event.new == dict(a=[1, 11], b=[0, 1])
         assert len(curdoc_from_listener) == 1
         assert curdoc_from_listener[0] is d
@@ -822,13 +819,13 @@ class TestDocument:
         d.add_root(root2)
         assert len(d.roots) == 2
 
-        event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, 57)
+        event1 = ModelChangedEvent(d, root1, 'foo', 57)
         patch1 = patch_doc.create([event1]).content
         d.apply_json_patch(patch1)
 
         assert root1.foo == 57
 
-        event2 = ModelChangedEvent(d, child1, 'foo', child1.foo, 67)
+        event2 = ModelChangedEvent(d, child1, 'foo', 67)
         patch2 = patch_doc.create([event2]).content
         d.apply_json_patch(patch2)
 
@@ -843,7 +840,7 @@ class TestDocument:
         assert len(d.roots) == 1
 
         def patch_test(new_value: Any):
-            event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, new_value)
+            event1 = ModelChangedEvent(d, root1, 'foo', new_value)
             patch1 = patch_doc.create([event1]).content
             d.apply_json_patch(patch1)
             if isinstance(new_value, dict):
@@ -903,7 +900,7 @@ class TestDocument:
         assert child2.id not in d.models
         assert child3.id not in d.models
 
-        event1 = ModelChangedEvent(d, root1, 'child', root1.child, child3)
+        event1 = ModelChangedEvent(d, root1, 'child', child3)
         patch1 = patch_doc.create([event1]).content
         d.apply_json_patch(patch1)
 
@@ -914,7 +911,7 @@ class TestDocument:
         assert child3.id in d.models
 
         # put it back how it was before
-        event2 = ModelChangedEvent(d, root1, 'child', root1.child, child1)
+        event2 = ModelChangedEvent(d, root1, 'child', child1)
         patch2 = patch_doc.create([event2]).content
         d.apply_json_patch(patch2)
 
@@ -940,8 +937,8 @@ class TestDocument:
 
         child2 = SomeModelInTestDocument(foo=44)
 
-        event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, 57)
-        event2 = ModelChangedEvent(d, root1, 'child', root1.child, child2)
+        event1 = ModelChangedEvent(d, root1, 'foo', 57)
+        event2 = ModelChangedEvent(d, root1, 'child', child2)
         patch1 = patch_doc.create([event1, event2]).content
         d.apply_json_patch(patch1)
 
