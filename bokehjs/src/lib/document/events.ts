@@ -10,6 +10,7 @@ export type ModelChanged = {
   kind: "ModelChanged"
   model: Ref
   attr: string
+  old: unknown
   new: unknown
   hint?: unknown
 }
@@ -38,7 +39,7 @@ export type RootRemoved = {
 export type ColumnDataChanged = {
   kind: "ColumnDataChanged"
   column_source: Ref
-  new: Data
+  data: Data
   cols?: string[]
 }
 
@@ -63,6 +64,7 @@ export namespace Decoded {
     kind: "ModelChanged"
     model: HasProps
     attr: string
+    old: unknown
     new: unknown
     hint?: unknown
   }
@@ -91,7 +93,7 @@ export namespace Decoded {
   export type ColumnDataChanged = {
     kind: "ColumnDataChanged"
     column_source: ColumnDataSource
-    new: Data
+    data: Data
     cols?: string[]
   }
 
@@ -198,6 +200,7 @@ export class ModelChangedEvent extends DocumentChangedEvent {
       kind: "ModelChanged",
       model: this.model.ref(),
       attr: this.attr,
+      old: null,
       new: value_serialized,
     }
   }
@@ -230,7 +233,7 @@ export class ColumnDataChangedEvent extends DocumentChangedEvent {
 
   constructor(document: Document,
       readonly column_source: ColumnDataSource,
-      readonly new_: Data,
+      readonly data: Data,
       readonly cols?: string[]) {
     super(document)
   }
@@ -238,7 +241,7 @@ export class ColumnDataChangedEvent extends DocumentChangedEvent {
   override [equals](that: this, cmp: Comparator): boolean {
     return super[equals](that, cmp) &&
       cmp.eq(this.column_source, that.column_source) &&
-      cmp.eq(this.new_, that.new_) &&
+      cmp.eq(this.data, that.data) &&
       cmp.eq(this.cols, that.cols)
   }
 
@@ -246,7 +249,7 @@ export class ColumnDataChangedEvent extends DocumentChangedEvent {
     return {
       kind: "ColumnDataChanged",
       column_source: this.column_source.ref(),
-      new: this.new_,
+      data: this.data,
       cols: this.cols,
     }
   }

@@ -60,7 +60,10 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    ClassVar,
+    Dict,
     List,
+    Type,
     Union,
     cast,
 )
@@ -92,7 +95,7 @@ if TYPE_CHECKING:
     from ..protocol.message import BufferRef
     from ..server.callbacks import SessionCallback
     from .document import Document
-    from .json import Patches, ReferenceJson
+    from .json import Patches
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -204,10 +207,12 @@ class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
 
     '''
 
-    _handlers = {}
+    kind: ClassVar[str]
+
+    _handlers: ClassVar[Dict[str, Type[DocumentPatchedEvent]]] = {}
 
     def __init_subclass__(cls):
-        cls._handlers[cls.kind] = cls._handle_json
+        cls._handlers[cls.kind] = cls
 
     def dispatch(self, receiver: Any) -> None:
         ''' Dispatch handling of this event to a receiver.
@@ -233,15 +238,21 @@ class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
 
 
     @staticmethod
-    def handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
+    def handle_event(doc: Document, event_rep: DocumentPatched, setter: Setter | None) -> None:
         '''
 
         '''
-        event_kind = event_json['kind']
-        handler = DocumentPatchedEvent._handlers.get(event_kind, None)
-        if handler is None:
-            raise RuntimeError(f"Unknown patch event {event_json!r}")
-        handler(doc, event_json, references, setter)
+        event_kind = event_rep.pop("kind")
+        event_cls = DocumentPatchedEvent._handlers.get(event_kind, None)
+        if event_cls is None:
+            raise RuntimeError(f"unknown patch event type '{event_kind!r}'")
+
+        event = event_cls(document=doc, setter=setter, **event_rep)
+        event_cls._handle_event(doc, event)
+
+    @staticmethod
+    def _handle_event(doc: Document, event: DocumentPatchedEvent) -> None:
+        raise NotImplementedError()
 
 class MessageSentEvent(DocumentPatchedEvent):
     '''
@@ -277,10 +288,10 @@ class MessageSentEvent(DocumentPatchedEvent):
         return msg
 
     @staticmethod
-    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        message_callbacks = doc.callbacks._message_callbacks.get(event_json["msg_type"], [])
+    def _handle_event(doc: Document, event: MessageSentEvent) -> None:
+        message_callbacks = doc.callbacks._message_callbacks.get(event.msg_type, [])
         for cb in message_callbacks:
-            cb(event_json["msg_data"])
+            cb(event.msg_data)
 
 class ModelChangedEvent(DocumentPatchedEvent):
     ''' A concrete event representing updating an attribute and value of a
@@ -405,17 +416,11 @@ class ModelChangedEvent(DocumentPatchedEvent):
         )
 
     @staticmethod
-    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        patched_id = event_json['model']['id']
-        if patched_id not in doc.models:
-            if doc.models.seen(patched_id):
-                log.trace(f"Cannot apply patch to {patched_id} which is not in the document anymore. This is usually harmless")
-                return
-            raise RuntimeError(f"Cannot apply patch to {patched_id} which is not in the document")
-        patched_obj = doc.models[patched_id]
-        attr = event_json['attr']
-        value = event_json['new']
-        patched_obj.set_from_json(attr, value, models=references, setter=setter)
+    def _handle_event(doc: Document, event: ModelChangedEvent) -> None:
+        model = event.model
+        attr = event.attr
+        value = event.new
+        model.set_from_json(attr, value, setter=event.setter)
 
 class ColumnDataChangedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently replacing *all*
@@ -425,7 +430,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
 
     kind = "ColumnDataChanged"
 
-    def __init__(self, document: Document, column_source: ColumnarDataSource,
+    def __init__(self, document: Document, column_source: ColumnarDataSource, data: DataDict | None = None,
             cols: List[str] | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 
@@ -455,6 +460,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
         '''
         super().__init__(document, setter, callback_invoker)
         self.column_source = column_source
+        self.data = data
         self.cols = cols
 
     def dispatch(self, receiver: Any) -> None:
@@ -476,7 +482,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
             {
                 'kind'          : 'ColumnDataChanged'
                 'column_source' : <reference to a CDS>
-                'new'           : <new data to steam to column_source>
+                'data'          : <new data to steam to column_source>
                 'cols'          : <specific columns to update>
             }
 
@@ -484,7 +490,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
             serializer (Serializer):
 
         '''
-        data = self.column_source.data
+        data = self.data if self.data is not None else self.column_source.data
         cols = self.cols
 
         if cols is not None:
@@ -493,18 +499,15 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
         return ColumnDataChanged(
             kind          = self.kind,
             column_source = self.column_source.ref,
-            new           = serializer.to_serializable(data),
+            data          = serializer.to_serializable(data),
             cols          = serializer.to_serializable(cols),
         )
 
     @staticmethod
-    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        source_id = event_json['column_source']['id']
-        if source_id not in doc.models:
-            raise RuntimeError(f"Cannot apply patch to {source_id} which is not in the document")
-        source = doc.models[source_id]
-        value = event_json['new']
-        source.set_from_json('data', value, models=references, setter=setter)
+    def _handle_event(doc: Document, event: ColumnDataChangedEvent) -> None:
+        model = event.column_source
+        data = event.data
+        model.set_from_json("data", data, setter=event.setter)
 
 class ColumnsStreamedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently streaming new data
@@ -517,7 +520,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
     data: DataDict
 
     def __init__(self, document: Document, column_source: ColumnarDataSource, data: DataDict | pd.DataFrame,
-            rollover: int | None, setter: Setter | None = None, callback_invoker: Invoker | None = None):
+            rollover: int | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 
         Args:
@@ -532,7 +535,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
                 If a DataFrame, will be stored as ``{c: df[c] for c in df.columns}``
 
-            rollover (int) :
+            rollover (int, optional) :
                 A rollover limit. If the data source columns exceed this
                 limit, earlier values will be discarded to maintain the
                 column length under the limit.
@@ -595,14 +598,11 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         )
 
     @staticmethod
-    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        source_id = event_json['column_source']['id']
-        if source_id not in doc.models:
-            raise RuntimeError(f"Cannot stream to {source_id} which is not in the document")
-        source = doc.models[source_id]
-        data = event_json['data']
-        rollover = event_json.get('rollover', None)
-        source._stream(data, rollover, setter)
+    def _handle_event(doc: Document, event: ColumnsStreamedEvent) -> None:
+        model = event.column_source
+        data = event.data
+        rollover = event.rollover
+        model._stream(data, rollover, event.setter)
 
 class ColumnsPatchedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently applying data patches
@@ -675,13 +675,10 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
         )
 
     @staticmethod
-    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        source_id = event_json['column_source']['id']
-        if source_id not in doc.models:
-            raise RuntimeError(f"Cannot apply patch to {source_id} which is not in the document")
-        source = doc.models[source_id]
-        patches = event_json['patches']
-        source.patch(patches, setter)
+    def _handle_event(doc: Document, event: ColumnsPatchedEvent) -> None:
+        model = event.column_source
+        patches = event.patches
+        model.patch(patches, event.setter)
 
 class TitleChangedEvent(DocumentPatchedEvent):
     ''' A concrete event representing a change to the title of a Bokeh
@@ -758,8 +755,8 @@ class TitleChangedEvent(DocumentPatchedEvent):
         )
 
     @staticmethod
-    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        doc.set_title(event_json['title'], setter)
+    def _handle_event(doc: Document, event: TitleChangedEvent) -> None:
+        doc.set_title(event.title, event.setter)
 
 class RootAddedEvent(DocumentPatchedEvent):
     ''' A concrete event representing a change to add a new Model to a
@@ -816,10 +813,9 @@ class RootAddedEvent(DocumentPatchedEvent):
         )
 
     @staticmethod
-    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        root_id = event_json['model']['id']
-        root_obj = references[root_id]
-        doc.add_root(root_obj, setter)
+    def _handle_event(doc: Document, event: RootAddedEvent) -> None:
+        model = event.model
+        doc.add_root(model, event.setter)
 
 class RootRemovedEvent(DocumentPatchedEvent):
     ''' A concrete event representing a change to remove an existing Model
@@ -877,10 +873,9 @@ class RootRemovedEvent(DocumentPatchedEvent):
         )
 
     @staticmethod
-    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        root_id = event_json['model']['id']
-        root_obj = references[root_id]
-        doc.remove_root(root_obj, setter)
+    def _handle_event(doc: Document, event: RootRemovedEvent) -> None:
+        model = event.model
+        doc.remove_root(model, event.setter)
 
 class SessionCallbackAdded(DocumentChangedEvent):
     ''' A concrete event representing a change to add a new callback (e.g.

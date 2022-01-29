@@ -117,6 +117,7 @@ describe("events module", () => {
         model: m.ref(),
         attr: "foo",
         new: 2,
+        old: null,
       })
     })
 
@@ -132,6 +133,7 @@ describe("events module", () => {
         model: m2.ref(),
         attr: "foo",
         new: [m.ref()],
+        old: null,
       })
       const expected_refs = new Set([m])
       expect(serializer.objects).to.be.equal(expected_refs)

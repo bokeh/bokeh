@@ -26,9 +26,13 @@ from math import isinf, isnan
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
+    ClassVar,
     Dict,
     List,
     Literal,
+    NoReturn,
+    Sequence,
     Tuple,
     Type,
     TypedDict,
@@ -36,6 +40,7 @@ from typing import (
 
 # External imports
 import numpy as np
+from typing_extensions import TypeAlias
 
 if TYPE_CHECKING:
     import numpy.typing as npt
@@ -54,12 +59,18 @@ from ..util.serialization import (
 )
 from .types import ID, JSON, Ref
 
+if TYPE_CHECKING:
+    from ..core.has_props import Setter
+    from ..model import Model
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    "DeserializationError",
     "Deserializer",
+    "SerializationError",
     "Serializer",
 )
 
@@ -105,7 +116,7 @@ class Buffer:
     def to_base64(self) -> str:
         return base64.b64encode(self.data).decode("utf-8")
 
-class SerializationError(Exception):
+class SerializationError(ValueError):
     """ """
 
 class Serializable:
@@ -180,7 +191,7 @@ class Serializer:
 
         ident = id(obj)
         if ident in self._circular:
-            raise ValueError("circular reference")
+            raise SerializationError("circular reference")
 
         self._circular[ident] = obj
         rep = self.__encode(obj)
@@ -318,42 +329,116 @@ class Serializer:
 
         raise SerializationError(f"can't serialize {type(obj)}")
 
+Decoder: TypeAlias = Callable[[JSON, "Deserializer"], Any]
+
+class DeserializationError(ValueError):
+    pass
+
 class Deserializer:
     """ """
 
+    _decoders: ClassVar[Dict[str, Decoder]] = {}
+
+    @classmethod
+    def register(cls, type: str, decoder: Decoder) -> None:
+        assert type not in cls._decoders, f"'{type} is already registered"
+        cls._decoders[type] = decoder
+
+    _references: Dict[ID, Model]
+    _setter: Setter | None
+
+    _refs: Dict[ID, ModelRef]
     _buffers: Dict[ID, Buffer]
+    _deserializing: bool
 
-    def from_serializable(self, obj: JSON) -> Any:
-        return self._decode(obj)
+    def __init__(self, references: Sequence[Model] | None = None, setter: Setter | None = None):
+        self._references = {obj.id: obj for obj in references or []}
+        self._setter = setter
+        self._deserializing = False
 
-    def _decode(self, obj: JSON) -> Any:
+    def from_serializable(self, obj: JSON, refs: List[ModelRef] = [], buffers: List[Buffer] = []) -> Any:
+        assert not self._deserializing, "internal error"
+        self._deserializing = True
+
+        self._refs = {ref["id"]: ref for ref in refs}
+        self._buffers = {buf.id: buf for buf in buffers}
+
+        try:
+            return self.decode(obj)
+        finally:
+            self._refs = {}
+            self._buffers = {}
+            self._deserializing = False
+
+    def decode(self, obj: JSON) -> Any:
         if isinstance(obj, dict):
-            if "type" in obj:
+            if "id" in obj and "type" not in obj:
+                return self._decode_ref(obj)
+            elif "type" in obj:
                 type = obj["type"]
                 if type == "number":
                     value = obj["value"]
                     return float(value) if isinstance(value, str) else value
                 elif type == "array":
                     entries = obj["entries"]
-                    return [ self._decode(entry) for entry in entries ]
+                    return [ self.decode(entry) for entry in entries ]
                 elif type == "set":
                     entries = obj["entries"]
-                    return set([ self._decode(entry) for entry in entries ])
+                    return set([ self.decode(entry) for entry in entries ])
                 elif type == "map":
                     entries = obj["entries"]
-                    return { self._decode(key): self._decode(val) for key, val in entries.items() }
+                    return { self.decode(key): self.decode(val) for key, val in entries }
                 elif type == "bytes":
                     return self._decode_bytes(obj)
                 elif type == "ndarray":
                     return self._decode_ndarray(obj)
+                elif type in self._decoders:
+                    return self._decoders[type](obj, self)
                 else:
-                    raise ValueError(f"unsupported serialized type '{type}'")
+                    raise DeserializationError(f"unsupported serialized type '{type}'")
             else:
-                return { key: self._decode(val) for key, val in obj.items() }
+                return { key: self.decode(val) for key, val in obj.items() }
         elif isinstance(obj, list):
-            return [ self._decode(entry) for entry in obj ]
+            return [ self.decode(entry) for entry in obj ]
         else:
             return obj
+
+    def _decode_ref(self, obj: Ref) -> Model:
+        id = obj["id"]
+        instance = self._references.get(id)
+        if instance is not None:
+            return instance
+
+        model_ref = self._refs.get(id)
+        if model_ref is None:
+            raise DeserializationError(f"can't resolve reference '{id}'")
+
+        type = model_ref["type"]
+        attributes = model_ref["attributes"]
+
+        from ..model import Model
+        cls = Model.model_class_reverse_map.get(type)
+        if cls is None:
+            raise DeserializationError(f"can't resolve type '{type}'")
+
+        instance = cls.__new__(cls, id=id)
+        if instance is None:
+            raise DeserializationError(f"can't instantiate {type}(id={id})")
+
+        self._references[instance.id] = instance
+
+        # We want to avoid any Model specific initialization that happens with
+        # Slider(...) when reconstituting from JSON, but we do need to perform
+        # general HasProps machinery that sets properties, so call it explicitly
+        if not instance._initialized:
+            from .has_props import HasProps
+            HasProps.__init__(instance)
+
+        decoded_attributes = {key: self.decode(val) for key, val in attributes.items()}
+        for key, val in decoded_attributes.items():
+            instance.set_from_json(key, val, setter=self._setter)
+
+        return instance
 
     def _decode_bytes(self, obj: BytesRef) -> bytes:
         data = obj["data"]
@@ -367,14 +452,14 @@ class Deserializer:
             if buffer is not None:
                 return buffer.data
             else:
-                raise ValueError(f"can't resolve buffer id={id}")
+                raise DeserializationError(f"can't resolve buffer '{id}'")
 
     def _decode_ndarray(self, obj: NDArrayRef) -> npt.NDArray[Any]:
         array = obj["array"]
         dtype = obj["dtype"]
         shape = obj["shape"]
 
-        decoded = self._decode(array)
+        decoded = self.decode(array)
 
         ndarray: npt.NDArray[Any]
         if isinstance(decoded, bytes):
@@ -386,6 +471,9 @@ class Deserializer:
             ndarray = ndarray.reshape(shape)
 
         return ndarray
+
+    def error(self, message: str) -> NoReturn:
+        raise DeserializationError(message)
 
 #-----------------------------------------------------------------------------
 # Dev API

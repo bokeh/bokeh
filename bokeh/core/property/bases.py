@@ -61,7 +61,6 @@ from .singletons import (
 
 if TYPE_CHECKING:
     from ...document.events import DocumentPatchedEvent
-    from ..types import ID
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -73,7 +72,6 @@ if TYPE_CHECKING:
 
 __all__ = (
     'ContainerProperty',
-    'DeserializationError',
     'PrimitiveProperty',
     'Property',
     'validation_on',
@@ -88,9 +86,6 @@ T = TypeVar("T")
 TypeOrInst = Union[Type[T], T]
 
 Init = Union[T, UndefinedType, IntrinsicType]
-
-class DeserializationError(Exception):
-    pass
 
 class Property(PropertyDescriptorFactory[T]):
     """ Base class for Bokeh property instances, which can be added to Bokeh
@@ -260,14 +255,6 @@ class Property(PropertyDescriptorFactory[T]):
         # if the comparison fails for some reason, just punt and return no-match
         except ValueError:
             return False
-
-    def from_json(self, json: Any, *, models: Dict[ID, HasProps] | None = None) -> T:
-        """ Convert from JSON-compatible values into a value for this property.
-
-        JSON-compatible values are: list, dict, number, string, bool, None
-
-        """
-        return json
 
     def serialize_value(self, value: T) -> Any:
         """ Change the value into a JSON serializable format.
@@ -482,9 +469,6 @@ class SingleParameterizedProperty(ParameterizedProperty[T]):
         super().validate(value, detail=detail)
         self.type_param.validate(value, detail=detail)
 
-    def from_json(self, json: Any, *, models: Dict[str, HasProps] | None = None) -> T:
-        return self.type_param.from_json(json, models=models)
-
     def transform(self, value: T) -> T:
         return self.type_param.transform(value)
 
@@ -525,13 +509,6 @@ class PrimitiveProperty(Property[T]):
         expected_type = nice_join([ cls.__name__ for cls in self._underlying_type ])
         msg = f"expected a value of type {expected_type}, got {value} of type {type(value).__name__}"
         raise ValueError(msg)
-
-    def from_json(self, json: Any, *, models: Dict[str, HasProps] | None = None) -> T:
-        if isinstance(json, self._underlying_type):
-            return json
-        expected_type = nice_join([ cls.__name__ for cls in self._underlying_type ])
-        msg = f"{self} expected {expected_type}, got {json} of type {type(json).__name__}"
-        raise DeserializationError(msg)
 
 class ContainerProperty(ParameterizedProperty[T]):
     """ A base class for Container-like type properties.

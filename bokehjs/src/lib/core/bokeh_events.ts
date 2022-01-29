@@ -1,39 +1,49 @@
 import {HasProps} from "./has_props"
+import {Attrs} from "./types"
 import {GeometryData} from "./geometry"
 import {Class} from "./class"
+import {serialize, Serializable, Serializer} from "./serializer"
+import {equals, Equatable, Comparator} from "./util/eq"
 
-export type JSON = {[key: string]: unknown}
-
-export type EventJSON = {event_name: string, event_values: JSON}
+export type BokehEventRep = {
+  type: "event"
+  name: string
+  values: unknown
+}
 
 function event(event_name: string) {
-  return function(cls: Class<BokehEvent>) {
+  return (cls: Class<BokehEvent>) => {
     cls.prototype.event_name = event_name
   }
 }
 
-export abstract class BokehEvent {
+export abstract class BokehEvent implements Serializable, Equatable {
   /* prototype */ event_name: string
 
-  to_json(): EventJSON {
-    const {event_name} = this
-    return {event_name, event_values: this._to_json()}
+  [serialize](serializer: Serializer): BokehEventRep {
+    const {event_name: name, event_values} = this
+    const values = serializer.to_serializable(event_values)
+    return {type: "event", name, values}
   }
 
-  protected abstract _to_json(): JSON
+  [equals](that: this, cmp: Comparator): boolean {
+    return this.event_name == that.event_name && cmp.eq(this.event_values, that.event_values)
+  }
+
+  protected abstract get event_values(): Attrs
 }
 
 export abstract class ModelEvent extends BokehEvent {
   origin: HasProps | null = null
 
-  protected _to_json(): JSON {
+  protected get event_values(): Attrs {
     return {model: this.origin}
   }
 }
 
 @event("document_ready")
 export class DocumentReady extends BokehEvent {
-  protected _to_json(): JSON {
+  protected get event_values(): Attrs {
     return {}
   }
 }
@@ -48,9 +58,9 @@ export class MenuItemClick extends ModelEvent {
     super()
   }
 
-  protected override _to_json(): JSON {
+  protected override get event_values(): Attrs {
     const {item} = this
-    return {...super._to_json(), item}
+    return {...super.event_values, item}
   }
 }
 
@@ -71,11 +81,10 @@ export class RangesUpdate extends UIEvent {
     super()
   }
 
-  protected override _to_json(): JSON {
+  protected override get event_values(): Attrs {
     const {x0, x1, y0, y1} = this
-    return {...super._to_json(), x0, x1, y0, y1}
+    return {...super.event_values, x0, x1, y0, y1}
   }
-
 }
 
 @event("selectiongeometry")
@@ -85,9 +94,9 @@ export class SelectionGeometry extends UIEvent {
     super()
   }
 
-  protected override _to_json(): JSON {
+  protected override get event_values(): Attrs {
     const {geometry, final} = this
-    return {...super._to_json(), geometry, final}
+    return {...super.event_values, geometry, final}
   }
 }
 
@@ -101,9 +110,9 @@ export abstract class PointEvent extends UIEvent {
     super()
   }
 
-  protected override _to_json(): JSON {
+  protected override get event_values(): Attrs {
     const {sx, sy, x, y} = this
-    return {...super._to_json(), sx, sy, x, y}
+    return {...super.event_values, sx, sy, x, y}
   }
 }
 
@@ -117,9 +126,9 @@ export class Pan extends PointEvent {
     super(sx, sy, x, y)
   }
 
-  protected override _to_json(): JSON {
+  protected override get event_values(): Attrs {
     const {delta_x, delta_y/*, direction*/} = this
-    return {...super._to_json(), delta_x, delta_y/*, direction*/}
+    return {...super.event_values, delta_x, delta_y/*, direction*/}
   }
 }
 
@@ -132,9 +141,9 @@ export class Pinch extends PointEvent {
     super(sx, sy, x, y)
   }
 
-  protected override _to_json(): JSON {
+  protected override get event_values(): Attrs {
     const {scale} = this
-    return {...super._to_json(), scale}
+    return {...super.event_values, scale}
   }
 }
 
@@ -147,9 +156,9 @@ export class Rotate extends PointEvent {
     super(sx, sy, x, y)
   }
 
-  protected override _to_json(): JSON {
+  protected override get event_values(): Attrs {
     const {rotation} = this
-    return {...super._to_json(), rotation}
+    return {...super.event_values, rotation}
   }
 }
 
@@ -162,9 +171,9 @@ export class MouseWheel extends PointEvent {
     super(sx, sy, x, y)
   }
 
-  protected override _to_json(): JSON {
+  protected override get event_values(): Attrs {
     const {delta} = this
-    return {...super._to_json(), delta}
+    return {...super.event_values, delta}
   }
 }
 

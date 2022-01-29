@@ -30,7 +30,7 @@ export class EventManager {
   constructor(readonly document: Document) {}
 
   send_event(bokeh_event: BokehEvent): void {
-    const event = new MessageSentEvent(this.document, "bokeh_event", bokeh_event.to_json())
+    const event = new MessageSentEvent(this.document, "bokeh_event", bokeh_event)
     this.document._trigger_on_change(event)
   }
 
@@ -482,7 +482,7 @@ export class Document implements Equatable {
           break
         }
         case "ColumnDataChanged": {
-          const {column_source, cols, new: data} = event
+          const {column_source, cols, data} = event
           if (cols != null) {
             for (const k in column_source.data) {
               if (!(k in data)) {

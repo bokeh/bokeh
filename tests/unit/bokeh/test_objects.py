@@ -279,8 +279,8 @@ class TestModel:
             "id": obj.id,
             "name": None,
             "tags": [],
-            'js_property_callbacks': {},
-            "js_event_callbacks": {},
+            'js_property_callbacks': dict(type="map", entries=[]),
+            "js_event_callbacks": dict(type="map", entries=[]),
             "subscribed_events": [],
             "syncable": True,
             "foo": 42,
@@ -291,8 +291,8 @@ class TestModel:
             '"child":{"id":"%s"},' +
             '"foo":42,' +
             '"id":"%s",' +
-            '"js_event_callbacks":{},' +
-            '"js_property_callbacks":{},' +
+            '"js_event_callbacks":{"entries":[],"type":"map"},' +
+            '"js_property_callbacks":{"entries":[],"type":"map"},' +
             '"name":null,' +
             '"null_child":null,' +
             '"subscribed_events":[],' +

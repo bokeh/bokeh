@@ -45,9 +45,6 @@ class Nullable(SingleParameterizedProperty):
     def __init__(self, type_param, *, default=None, help=None, serialized=None, readonly=False) -> None:
         super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
 
-    def from_json(self, json, *, models=None):
-        return None if json is None else super().from_json(json, models=models)
-
     def transform(self, value):
         return None if value is None else super().transform(value)
 

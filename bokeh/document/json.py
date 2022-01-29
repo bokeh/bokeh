@@ -87,8 +87,8 @@ class RootRemoved(TypedDict):
 class ColumnDataChanged(TypedDict):
     kind: Literal["ColumnDataChanged"]
     column_source: Ref
+    data: DataDict
     cols: List[str] | None
-    new: Unknown
 
 class ColumnsStreamed(TypedDict):
     kind: Literal["ColumnsStreamed"]

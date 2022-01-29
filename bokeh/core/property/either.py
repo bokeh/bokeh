@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...util.string import nice_join
 from ._sphinx import property_link, register_type_link, type_link
-from .bases import DeserializationError, ParameterizedProperty
+from .bases import ParameterizedProperty
 from .singletons import Intrinsic
 
 #-----------------------------------------------------------------------------
@@ -82,14 +82,6 @@ class Either(ParameterizedProperty):
     @property
     def type_params(self):
         return self._type_params
-
-    def from_json(self, json, *, models=None):
-        for tp in self.type_params:
-            try:
-                return tp.from_json(json, models=models)
-            except DeserializationError:
-                pass
-        raise DeserializationError(f"{self} couldn't deserialize {json}")
 
     def transform(self, value):
         for param in self.type_params:

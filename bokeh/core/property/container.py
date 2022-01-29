@@ -32,7 +32,7 @@ from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
-from .bases import ContainerProperty, DeserializationError
+from .bases import ContainerProperty
 from .descriptors import ColumnDataPropertyDescriptor
 from .enum import Enum
 from .numeric import Int
@@ -76,15 +76,6 @@ class Seq(ContainerProperty):
     @property
     def type_params(self):
         return [self.item_type]
-
-    def from_json(self, json, *, models=None):
-        import numpy as np
-        if isinstance(json, np.ndarray):
-            return self._new_instance(json)
-        elif isinstance(json, list):
-            return self._new_instance([ self.item_type.from_json(item, models=models) for item in json ])
-        else:
-            raise DeserializationError(f"{self} expected a list, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, True)
@@ -179,12 +170,6 @@ class Dict(ContainerProperty):
     def type_params(self):
         return [self.keys_type, self.values_type]
 
-    def from_json(self, json, *, models=None):
-        if isinstance(json, dict):
-            return { self.keys_type.from_json(key, models=models): self.values_type.from_json(value, models=models) for key, value in json.items() }
-        else:
-            raise DeserializationError(f"{self} expected a dict, got {json}")
-
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
@@ -268,12 +253,6 @@ class Tuple(ContainerProperty):
     @property
     def type_params(self):
         return self._type_params
-
-    def from_json(self, json, *, models=None):
-        if isinstance(json, list):
-            return tuple(type_param.from_json(item, models=models) for type_param, item in zip(self.type_params, json))
-        else:
-            raise DeserializationError(f"{self} expected a list, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, detail)

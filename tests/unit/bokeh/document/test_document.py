@@ -32,6 +32,7 @@ from bokeh.core.properties import (
     Nullable,
     Override,
 )
+from bokeh.core.serialization import Deserializer
 from bokeh.document.events import (
     ColumnsPatchedEvent,
     ColumnsStreamedEvent,
@@ -768,7 +769,7 @@ class TestDocument:
                 module="test_document",
                 name="CDSDerivedDataModel",
                 overrides=[
-                    dict(default={"default_column": [4, 5, 6]}, name="data"),
+                    dict(default=dict(type="map", entries=[["default_column", [4, 5, 6]]]), name="data"),
                 ],
                 properties=[
                     dict(default=0, kind="Any", name="prop0"),
@@ -782,7 +783,7 @@ class TestDocument:
                 module="test_document",
                 name="CDSDerivedDerivedDataModel",
                 overrides=[
-                    dict(default={"default_column": [7, 8, 9]}, name="data"),
+                    dict(default=dict(type="map", entries=[["default_column", [7, 8, 9]]]), name="data"),
                 ],
                 properties=[
                     dict(
@@ -1006,9 +1007,14 @@ class TestDocument:
         button1.on_event('button_click', clicked_1)
         d.add_root(button1)
 
-        event_json = {"event_name": "button_click", "event_values": {"model": {"id": button1.id}}}
+        decoder = Deserializer(references=[button1])
+        event = decoder.from_serializable(dict(
+            type="event",
+            name="button_click",
+            values=dict(model=dict(id=button1.id)),
+        ))
         try:
-            d.callbacks.trigger_json_event(event_json)
+            d.callbacks.trigger_event(event)
         except RuntimeError:
             pytest.fail("trigger_event probably did not copy models before modifying")
 

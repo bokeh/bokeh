@@ -248,7 +248,7 @@ class TestColumnDataChangedEvent:
     def test_init(self) -> None:
         doc = Document()
         m = SomeModel()
-        e = bde.ColumnDataChangedEvent(doc, m, [1,2], "setter", "invoker")
+        e = bde.ColumnDataChangedEvent(doc, m, None, [1,2], "setter", "invoker")
         assert e.document == doc
         assert e.column_source == m
         assert e.cols == [1,2]
@@ -261,17 +261,22 @@ class TestColumnDataChangedEvent:
     def test_to_serializable(self) -> None:
         doc = Document()
         m = SomeModel(data={"col0": [1], "col1": [1, 2], "col2": [1, 2, 3]})
-        e = bde.ColumnDataChangedEvent(doc, m, ["col1", "col2"], "setter", "invoker")
+        e = bde.ColumnDataChangedEvent(doc, m, None, ["col1", "col2"], "setter", "invoker")
         s = Serializer()
         r = s.to_serializable(e)
-        assert r == dict(kind=e.kind, column_source=m.ref, new={"col1": [1, 2], "col2": [1, 2, 3]}, cols=["col1", "col2"])
+        assert r == dict(
+            kind=e.kind,
+            column_source=m.ref,
+            data=dict(type="map", entries=[["col1", [1, 2]], ["col2", [1, 2, 3]]]),
+            cols=["col1", "col2"],
+        )
         assert s.references == []
         assert s.buffers == []
 
     def test_dispatch(self) -> None:
         doc = Document()
         m = SomeModel()
-        e = bde.ColumnDataChangedEvent(doc, m, [1,2], "setter", "invoker")
+        e = bde.ColumnDataChangedEvent(doc, m, None, [1,2], "setter", "invoker")
         e.dispatch(FakeEmptyDispatcher())
         d = FakeFullDispatcher()
         e.dispatch(d)
@@ -280,8 +285,8 @@ class TestColumnDataChangedEvent:
     def test_combine_ignores_all(self) -> None:
         doc = Document()
         m = SomeModel()
-        e = bde.ColumnDataChangedEvent(doc, m, [1,2], "setter", "invoker")
-        e2 = bde.ColumnDataChangedEvent(doc, m, [3,4], "setter", "invoker")
+        e = bde.ColumnDataChangedEvent(doc, m, None, [1,2], "setter", "invoker")
+        e2 = bde.ColumnDataChangedEvent(doc, m, None, [3,4], "setter", "invoker")
         assert e.combine(e2) == False
         assert e.cols == [1,2]
 
@@ -309,7 +314,7 @@ class TestColumnsStreamedEvent:
         e = bde.ColumnsStreamedEvent(doc, m, dict(foo=1), 200, "setter", "invoker")
         s = Serializer()
         r = s.to_serializable(e)
-        assert r == dict(kind=e.kind, column_source=m.ref, data=dict(foo=1), rollover=200)
+        assert r == dict(kind=e.kind, column_source=m.ref, data=dict(type="map", entries=[["foo", 1]]), rollover=200)
         assert s.references == []
         assert s.buffers == []
 

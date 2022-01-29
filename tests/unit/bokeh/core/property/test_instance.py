@@ -18,8 +18,6 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
-from bokeh.core.has_props import HasProps
-from bokeh.core.properties import Float, Int
 
 from _util_property import _TestHasProps, _TestModel, _TestModel2
 
@@ -72,16 +70,6 @@ class Test_Instance:
         assert not prop.is_valid({})
         assert not prop.is_valid(_TestModel2())
         assert not prop.is_valid(_TestHasProps())
-
-    def test_from_json(self) -> None:
-        class MapOptions(HasProps):
-            lat = Float()
-            lng = Float()
-            zoom = Int(12)
-
-        v1 = bcpi.Instance(MapOptions).from_json(dict(lat=1, lng=2))
-        v2 = MapOptions(lat=1, lng=2)
-        assert v1.equals(v2)
 
     def test_has_ref(self) -> None:
         prop = bcpi.Instance(_TestModel)

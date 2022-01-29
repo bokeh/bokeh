@@ -38,7 +38,6 @@ from typing import (
     Iterable,
     List,
     Literal,
-    Mapping,
     NoReturn,
     Set,
     Tuple,
@@ -51,7 +50,6 @@ from typing import (
 from warnings import warn
 
 if TYPE_CHECKING:
-    import bokeh.types
     F = TypeVar("F", bound=Callable[..., Any])
     def lru_cache(arg: int | None) -> Callable[[F], F]: ...
 else:
@@ -65,7 +63,7 @@ from .property.override import Override
 from .property.singletons import Undefined
 from .property.wrappers import PropertyValueContainer
 from .serialization import JSON, Serializable, Serializer
-from .types import ID, ReferenceJson, Unknown
+from .types import ReferenceJson, Unknown
 
 if TYPE_CHECKING:
     from ..client.session import ClientSession
@@ -397,8 +395,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         )
 
     # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
-    def set_from_json(self, name: str, json: bokeh.types.JSON, *,
-            models: Dict[ID, HasProps] | None = None, setter: Setter | None = None) -> None:
+    def set_from_json(self, name: str, value: Any, *, setter: Setter | None = None) -> None:
         ''' Set a property value on this object from JSON.
 
         Args:
@@ -427,9 +424,9 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
         '''
         if name in self.properties(_with_props=True):
-            log.trace(f"Patching attribute {name!r} of {self!r} with {json!r}") # type: ignore # TODO: log.trace()
+            log.trace(f"Patching attribute {name!r} of {self!r} with {value!r}") # type: ignore # TODO: log.trace()
             descriptor = self.lookup(name)
-            descriptor.set_from_json(self, json, models=models, setter=setter)
+            descriptor.set_from_json(self, value, setter=setter)
         else:
             log.warning("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
@@ -459,37 +456,6 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         '''
         for k, v in kwargs.items():
             setattr(self, k, v)
-
-    # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
-    def update_from_json(self, json_attributes: Dict[str, bokeh.types.JSON], *,
-            models: Mapping[ID, HasProps] | None = None, setter: Setter | None = None) -> None:
-        ''' Updates the object's properties from a JSON attributes dictionary.
-
-        Args:
-            json_attributes: (JSON-dict) : attributes and values to update
-
-            models (dict or None, optional) :
-                Mapping of model ids to models (default: None)
-
-                This is needed in cases where the attributes to update also
-                have values that have references.
-
-            setter(ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
-        Returns:
-            None
-
-        '''
-        for k, v in json_attributes.items():
-            self.set_from_json(k, v, models=models, setter=setter)
 
     @overload
     @classmethod

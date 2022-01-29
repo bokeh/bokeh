@@ -10,6 +10,7 @@ import {Model} from "@bokehjs/model"
 import * as logging from "@bokehjs/core/logging"
 import * as p from "@bokehjs/core/properties"
 import {ColumnDataSource} from "@bokehjs/models"
+import {DocumentReady} from "@bokehjs/core/bokeh_events"
 
 import {trap} from "../../util"
 
@@ -402,12 +403,10 @@ describe("Document", () => {
     doc.notify_idle(root)
 
     expect(signals).to.be.equal(1)
-    expect(events.length).to.be.equal(2) // [RootAdded, MessageSent]
-
-    const [, event] = events
-    assert(event instanceof ev.MessageSentEvent)
-    expect(event.msg_type).to.be.equal("bokeh_event")
-    expect(event.msg_data).to.be.equal({event_name: "document_ready", event_values: {}})
+    expect(events).to.be.equal([
+      new ev.RootAddedEvent(doc, root),
+      new ev.MessageSentEvent(doc, "bokeh_event", new DocumentReady()),
+    ])
   })
 
   it("can notify on changes", () => {

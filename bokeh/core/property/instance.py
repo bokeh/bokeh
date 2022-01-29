@@ -29,19 +29,17 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Type,
     TypeVar,
 )
 
 # Bokeh imports
 from ._sphinx import model_link, property_link, register_type_link
-from .bases import DeserializationError, Init, Property
+from .bases import Init, Property
 from .singletons import Undefined
 
 if TYPE_CHECKING:
     from ..has_props import HasProps
-    from ..types import JSON
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -101,32 +99,6 @@ class Instance(Property[T]):
             self._instance_type = self._instance_type()
 
         return self._instance_type
-
-    def from_json(self, json: JSON, *, models: Dict[str, HasProps] | None = None) -> T:
-        if isinstance(json, dict):
-            from ...model import Model
-            if issubclass(self.instance_type, Model):
-                if models is None:
-                    raise DeserializationError(f"{self} can't deserialize without models")
-                else:
-                    model = models.get(json["id"])
-
-                    if model is not None:
-                        return model
-                    else:
-                        raise DeserializationError(f"{self} failed to deserialize reference to {json}")
-            else:
-                attrs = {}
-
-                for name, value in json.items():
-                    prop_descriptor = self.instance_type.lookup(name).property
-                    attrs[name] = prop_descriptor.from_json(value, models=models)
-
-                # XXX: this doesn't work when Instance(Superclass) := Subclass()
-                # Serialization dict must carry type information to resolve this.
-                return self.instance_type(**attrs)
-        else:
-            raise DeserializationError(f"{self} expected a dict, got {json}")
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)

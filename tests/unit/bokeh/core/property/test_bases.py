@@ -34,7 +34,6 @@ import bokeh.core.property.bases as bcpb # isort:skip
 
 ALL = (
     'ContainerProperty',
-    'DeserializationError',
     'PrimitiveProperty',
     'Property',
     'validation_on',

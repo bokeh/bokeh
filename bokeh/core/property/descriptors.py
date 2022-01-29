@@ -94,21 +94,19 @@ from copy import copy
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Generic,
     Type,
     TypeVar,
 )
 
 # Bokeh imports
-from ..serialization import Deserializer
 from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
 
 if TYPE_CHECKING:
     from ...document.events import DocumentPatchedEvent
     from ..has_props import HasProps, Setter
-    from ..types import ID, Unknown
+    from ..types import Unknown
     from .bases import Property
 
 #-----------------------------------------------------------------------------
@@ -345,8 +343,7 @@ class PropertyDescriptor(Generic[T]):
         value = self.__get__(obj, obj.__class__)
         return self.property.serialize_value(value)
 
-    def set_from_json(self, obj: HasProps, json: Any, *,
-            models: Dict[ID, HasProps] | None = None, setter: Setter | None = None):
+    def set_from_json(self, obj: HasProps, value: Any, *, setter: Setter | None = None):
         """Sets the value of this property from a JSON value.
 
         Args:
@@ -375,10 +372,7 @@ class PropertyDescriptor(Generic[T]):
             None
 
         """
-        deserializer = Deserializer()
-        json = deserializer.from_serializable(json)
-        json = self.property.from_json(json, models=models)
-        value = self.property.prepare_value(obj, self.name, json)
+        value = self.property.prepare_value(obj, self.name, value)
         old = self._get(obj)
         self._set(obj, old, value, setter=setter)
 
@@ -725,7 +719,7 @@ class DataSpecPropertyDescriptor(PropertyDescriptor):
         """
         return self.property.to_serializable(obj, self.name, getattr(obj, self.name))
 
-    def set_from_json(self, obj, json, *, models=None, setter=None):
+    def set_from_json(self, obj: HasProps, value: Any, *, setter: Setter | None = None):
         """ Sets the value of this property from a JSON value.
 
         This method first
@@ -752,21 +746,21 @@ class DataSpecPropertyDescriptor(PropertyDescriptor):
             None
 
         """
-        if isinstance(json, dict):
+        if isinstance(value, dict):
             # we want to try to keep the "format" of the data spec as string, dict, or number,
             # assuming the serialized dict is compatible with that.
             old = getattr(obj, self.name)
             if old is not None:
                 try:
                     self.property._type.validate(old, False)
-                    if 'value' in json:
-                        json = json['value']
+                    if 'value' in value:
+                        value = value['value']
                 except ValueError:
-                    if isinstance(old, str) and 'field' in json:
-                        json = json['field']
+                    if isinstance(old, str) and 'field' in value:
+                        value = value['field']
                 # leave it as a dict if 'old' was a dict
 
-        super().set_from_json(obj, json, models=models, setter=setter)
+        super().set_from_json(obj, value, setter=setter)
 
 class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
     """ A ``PropertyDescriptor`` for Bokeh |UnitsSpec| properties that
@@ -864,7 +858,7 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
 
         """
         json = self._extract_units(obj, json)
-        super().set_from_json(obj, json, models=models, setter=setter)
+        super().set_from_json(obj, json, setter=setter)
 
     def _extract_units(self, obj, value):
         """ Internal helper for dealing with units associated units properties

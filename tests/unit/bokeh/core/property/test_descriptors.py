@@ -50,8 +50,6 @@ ALL = (
 class Foo:
     def prepare_value(self, owner, name, value):
         return value
-    def from_json(self, x, models=None, setter=None):
-        return 10
 
 class Test_PropertyDescriptor:
 
@@ -75,11 +73,11 @@ class Test_PropertyDescriptor:
     def test_set_from_json(self, mock_get: MagicMock, mock_set: MagicMock) -> None:
         f = Foo()
         d = bcpd.PropertyDescriptor("foo", f)
-        d.set_from_json(f, "bar", models=10)
+        d.set_from_json(f, "bar")
         assert mock_get.called_once_with((f, "bar", 10), {})
         assert mock_set.called_once_with((f, "bar", 10), {})
 
-    def test_erializable_value(self) -> None:
+    def test_serializable_value(self) -> None:
         result = {}
         class Foo:
             def serialize_value(self, val):
