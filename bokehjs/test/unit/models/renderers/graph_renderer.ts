@@ -18,12 +18,12 @@ type GraphComponents = {
 
 async function create_graph_document(): Promise<GraphComponents> {
   const layout_provider = new StaticLayoutProvider({
-    graph_layout: {
-      4: [2, 1],
-      5: [2, 2],
-      6: [3, 1],
-      7: [3, 2],
-    },
+    graph_layout: new Map([
+      [4, [2, 1]],
+      [5, [2, 2]],
+      [6, [3, 1]],
+      [7, [3, 2]],
+    ]),
   })
 
   const node_renderer = new GlyphRenderer({
@@ -58,12 +58,12 @@ describe("GraphRendererView", () => {
   it("should have new x and y coordinates after graph_layout is changed", async () => {
     const {test_graph, test_layout_provider} = await create_graph_document()
 
-    test_layout_provider.graph_layout = {
-      4: [3, 0],
-      5: [4, 1],
-      6: [5, 2],
-      7: [6, 3],
-    }
+    test_layout_provider.graph_layout = new Map([
+      [4, [3, 0]],
+      [5, [4, 1]],
+      [6, [5, 2]],
+      [7, [6, 3]],
+    ])
     test_graph.layout_provider = test_layout_provider
 
     const {x, y} = test_graph.layout_provider.node_coordinates.v_compute(test_graph.node_renderer.data_source)

@@ -720,12 +720,12 @@ describe("Bug", () => {
       })
 
       const layout_provider = new StaticLayoutProvider({
-        graph_layout: {
-          4: [2, 1],
-          5: [2, 2],
-          6: [3, 1],
-          7: [3, 2],
-        },
+        graph_layout: new Map([
+          [4, [2, 1]],
+          [5, [2, 2]],
+          [6, [3, 1]],
+          [7, [3, 2]],
+        ]),
       })
 
       const node_renderer = new GlyphRenderer({
@@ -1383,12 +1383,12 @@ describe("Bug", () => {
       })
 
       const layout_provider = new StaticLayoutProvider({
-        graph_layout: {
-          4: [2, 1],
-          5: [2, 2],
-          6: [3, 1],
-          7: [3, 2],
-        },
+        graph_layout: new Map([
+          [4, [2, 1]],
+          [5, [2, 2]],
+          [6, [3, 1]],
+          [7, [3, 2]],
+        ]),
       })
 
       const node_renderer = new GlyphRenderer({
@@ -1405,12 +1405,12 @@ describe("Bug", () => {
       const {view} = await display(p)
 
       graph.layout_provider = new StaticLayoutProvider({
-        graph_layout: {
-          4: [1, 1],
-          5: [1, 2],
-          6: [2, 2],
-          7: [2, 1],
-        },
+        graph_layout: new Map([
+          [4, [1, 1]],
+          [5, [1, 2]],
+          [6, [2, 2]],
+          [7, [2, 1]],
+        ]),
       })
       await view.ready
     })
