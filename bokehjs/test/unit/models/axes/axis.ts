@@ -24,7 +24,7 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      major_label_overrides: {0: "zero", 4: "four", 10: "ten"},
+      major_label_overrides: new Map([[0, "zero"], [4, "four"], [10, "ten"]]),
     })
     plot.add_layout(axis, "below")
     const plot_view = (await build_view(plot)).build()
@@ -44,7 +44,7 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      major_label_overrides: {0: "zero", 4: new TeX({text: "\\pi"}), 10: "$$ten$$"},
+      major_label_overrides: new Map<number, string | TeX>([[0, "zero"], [4, new TeX({text: "\\pi"})], [10, "$$ten$$"]]),
     })
     plot.add_layout(axis, "below")
     const plot_view = (await build_view(plot)).build()
