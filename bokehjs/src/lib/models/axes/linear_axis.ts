@@ -12,8 +12,8 @@ export namespace LinearAxis {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ContinuousAxis.Props & {
-    ticker: p.Property<ContinuousTicker>
-    formatters: p.Property<BasicTickFormatter>
+    //ticker: p.Property<ContinuousTicker>
+    //formatters: p.Property<BasicTickFormatter>
   }
 }
 
@@ -24,7 +24,7 @@ export class LinearAxis extends ContinuousAxis {
   override __view_type__: LinearAxisView
 
   override ticker: ContinuousTicker
-  formatters: BasicTickFormatter    // XXX: no override, a TS bug?
+  override formatter: BasicTickFormatter
 
   constructor(attrs?: Partial<LinearAxis.Attrs>) {
     super(attrs)

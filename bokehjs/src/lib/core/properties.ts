@@ -12,11 +12,12 @@ import {to_big_endian} from "./util/platform"
 import {isNumber, isTypedArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
-import {Scalar, Vector, Dimensional, Transform, Expression, ScalarExpression, VectorExpression} from "./vectorization"
+import {isValue, isField, isExpr, /*Value,*/ Scalar, Vector, Dimensional, Transform, Expression, ScalarExpression, VectorExpression} from "./vectorization"
 import {settings} from "./settings"
 import {Kind} from "./kinds"
 import {is_NDArray, NDArray} from "./util/ndarray"
 import {diagnostics} from "./diagnostics"
+import {unreachable} from "./util/assert"
 
 import {Uniform, UniformScalar, UniformVector, ColorUniformVector} from "./uniforms"
 export {Uniform, UniformScalar, UniformVector}
@@ -37,7 +38,7 @@ export function isSpec(obj: any): boolean {
 }
 
 export type Spec<T> = {
-  readonly value?: T | Unset
+  readonly value?: T
   readonly field?: string
   readonly expr?: Expression<T>
   readonly transform?: Transform<unknown, T>
@@ -92,18 +93,14 @@ export type Unset = typeof unset
 export abstract class Property<T = unknown> {
   __value__: T
 
-  get is_value(): boolean {
-    return this.spec.value !== undefined
-  }
-
   get syncable(): boolean {
     return !this.internal
   }
 
-  protected spec: Spec<T> = {value: unset}
+  protected _value: T | Unset = unset
 
   get is_unset(): boolean {
-    return this.spec.value === unset
+    return this._value === unset
   }
 
   protected _initialized: boolean = false
@@ -143,14 +140,14 @@ export abstract class Property<T = unknown> {
     if (attr_value !== unset)
       this._update(attr_value)
     else
-      this.spec = {value: unset}
+      this._value = unset
 
     this._initialized = true
   }
 
   get_value(): T {
-    if (this.spec.value !== unset)
-      return this.spec.value!
+    if (this._value !== unset)
+      return this._value
     else
       throw new Error(`${this.obj}.${this.attr} is unset`)
   }
@@ -202,13 +199,13 @@ export abstract class Property<T = unknown> {
       if (converted !== undefined)
         attr_value = converted
     }
-    this.spec = {value: attr_value}
+    this._value = attr_value
     this.on_update?.(attr_value, this.obj)
   }
 
   toString(): string {
     /*${this.name}*/
-    return `Prop(${this.obj}.${this.attr}, spec: ${valueToString(this.spec)})`
+    return `Prop(${this.obj}.${this.attr}, value: ${valueToString(this._value)})`
   }
 
   // ----- customizable policies
@@ -224,17 +221,6 @@ export abstract class Property<T = unknown> {
 
   valid(value: unknown): boolean {
     return this.kind.valid(value)
-  }
-
-  // ----- property accessors
-
-  _value(do_spec_transform: boolean = true): any {
-    if (!this.is_value)
-      throw new Error("attempted to retrieve property value for property without value specification")
-    let ret = this.normalize([this.spec.value])[0]
-    if (this.spec.transform != null && do_spec_transform)
-      ret = this.spec.transform.compute(ret)
-    return ret
   }
 }
 
@@ -266,22 +252,23 @@ export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T |
   override __value__: T
   __scalar__: S
 
+  protected override _value: this["__scalar__"] | Unset = unset
+
   override get_value(): S {
-    // XXX: denormalize value for serialization, because bokeh doens't support scalar properties
-    const {value, expr, transform} = this.spec
-    return (expr != null || transform != null ? this.spec : value) as any
-    // XXX: allow obj.x = null; obj.x == null
-    // return this.spec.value === null ? null : this.spec as any
+    if (this._value !== unset)
+      return this._value
+    else
+      throw new Error(`${this.obj}.${this.attr} is unset`)
   }
 
   protected override _update(attr_value: S | T): void {
     if (isSpec(attr_value))
-      this.spec = attr_value
+      this._value = attr_value as S
     else
-      this.spec = {value: attr_value}
+      this._value = {value: attr_value} as any // Value<T>
 
-    if (this.spec.value != null)
-      this.validate(this.spec.value)
+    if (isValue(this._value))
+      this.validate(this._value.value)
   }
 
   materialize(value: T): T {
@@ -293,15 +280,17 @@ export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T |
   }
 
   uniform(source: ColumnarDataSource): UniformScalar<T/*T_out!!!*/> {
-    const {expr, value, transform} = this.spec
+    const obj = this.get_value()
     const n = source.get_length() ?? 1
-    if (expr != null) {
+    if (isExpr(obj)) {
+      const {expr, transform} = obj
       let result = (expr as ScalarExpression<T>).compute(source)
       if (transform != null)
         result = transform.compute(result) as any
       result = this.materialize(result)
       return this.scalar(result, n)
     } else {
+      const {value, transform} = obj
       let result = value
       if (transform != null)
         result = transform.compute(result)
@@ -334,19 +323,23 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
   override __value__: T
   __vector__: V
 
+  protected override _value: this["__vector__"] | Unset = unset
+
   override get_value(): V {
-    // XXX: allow obj.x = null; obj.x == null
-    return this.spec.value === null ? null : this.spec as any
+    if (this._value !== unset)
+      return this._value
+    else
+      throw new Error(`${this.obj}.${this.attr} is unset`)
   }
 
   protected override _update(attr_value: V | T): void {
     if (isSpec(attr_value))
-      this.spec = attr_value
+      this._value = attr_value as V
     else
-      this.spec = {value: attr_value}
+      this._value = {value: attr_value} as any // Value<T>
 
-    if (this.spec.value != null)
-      this.validate(this.spec.value)
+    if (isValue(this._value))
+      this.validate(this._value.value)
   }
 
   materialize(value: T): T {
@@ -366,9 +359,10 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
   }
 
   uniform(source: ColumnarDataSource): Uniform<T/*T_out!!!*/> {
-    const {field, expr, value, transform} = this.spec
+    const obj = this.get_value()
     const n = source.get_length() ?? 1
-    if (field != null) {
+    if (isField(obj)) {
+      const {field, transform} = obj
       let array = source.get_column(field)
       if (array != null) {
         if (transform != null)
@@ -379,19 +373,22 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
         logger.warn(`attempted to retrieve property array for nonexistent field '${field}'`)
         return this.scalar(null as any, n)
       }
-    } else if (expr != null) {
+    } else if (isExpr(obj)) {
+      const {expr, transform} = obj
       let array = (expr as VectorExpression<T>).v_compute(source)
       if (transform != null)
         array = transform.v_compute(array) as any
       array = this.v_materialize(array)
       return this.vector(array)
-    } else {
+    } else if (isValue(obj)) {
+      const {value, transform} = obj
       let result = value
       if (transform != null)
         result = transform.compute(result)
       result = this.materialize(result as any)
-      return this.scalar(result, n)
-    }
+      return this.scalar(result as T, n)
+    } else
+      unreachable()
   }
 
   array(source: ColumnarDataSource): Arrayable<unknown> {
@@ -399,20 +396,23 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
 
     const length = source.get_length() ?? 1
 
-    if (this.spec.field != null) {
-      const column = source.get_column(this.spec.field)
+    const obj = this.get_value()
+    if (isField(obj)) {
+      const {field} = obj
+      const column = source.get_column(field)
       if (column != null)
         array = this.normalize(column)
       else {
-        logger.warn(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
+        logger.warn(`attempted to retrieve property array for nonexistent field '${field}'`)
         const missing = new Float64Array(length)
         missing.fill(NaN)
         array = missing
       }
-    } else if (this.spec.expr != null) {
-      array = this.normalize((this.spec.expr as VectorExpression<T>).v_compute(source))
+    } else if (isExpr(obj)) {
+      const {expr} = obj
+      array = this.normalize((expr as VectorExpression<T>).v_compute(source))
     } else {
-      const value = this._value(false) // don't apply any spec transform
+      const value = this.normalize([obj.value])[0]
       if (isNumber(value)) {
         const values = new Float64Array(length)
         values.fill(value)
@@ -421,8 +421,9 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
         array = repeat(value, length)
     }
 
-    if (this.spec.transform != null)
-      array = this.spec.transform.v_compute(array)
+    const {transform} = obj
+    if (transform != null)
+      array = transform.v_compute(array)
     return array
   }
 }
@@ -433,26 +434,31 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
   abstract get default_units(): Units
   abstract get valid_units(): Units[]
 
-  override spec: Spec<T> & {units?: Units}
+  protected override _value: this["__vector__"] | Unset = unset
 
   override _update(attr_value: any): void {
     super._update(attr_value)
 
-    const {units} = this.spec
-    if (units != null && !includes(this.valid_units, units)) {
-      throw new Error(`units must be one of ${this.valid_units.join(", ")}; got: ${units}`)
+    if (this._value !== unset) {
+      const {units} = this._value
+      if (units != null && !includes(this.valid_units, units)) {
+        throw new Error(`units must be one of ${this.valid_units.join(", ")}; got: ${units}`)
+      }
     }
   }
 
   get units(): Units {
-    return this.spec.units ?? this.default_units
+    return this._value !== unset ? this._value.units ?? this.default_units : this.default_units
   }
 
   set units(units: Units) {
-    if (units != this.default_units)
-      this.spec.units = units
-    else
-      delete this.spec.units
+    if (this._value !== unset) {
+      if (units != this.default_units)
+        this._value.units = units
+      else
+        delete this._value.units
+    } else
+      throw new Error(`${this.obj}.${this.attr} is unset`)
   }
 }
 

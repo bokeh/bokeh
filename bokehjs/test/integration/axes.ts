@@ -1,7 +1,7 @@
 import {display, row, with_internal} from "./_util"
 
 import {
-  LinearAxis, LogAxis, CategoricalAxis,
+  Axis, LinearAxis, LogAxis, CategoricalAxis,
   LinearScale, LogScale, CategoricalScale,
   Range1d, FactorRange,
   AllLabels, NoOverlap,
@@ -14,7 +14,7 @@ import {OutputBackend, Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
 
 (() => {
-  type PlotFn = (attrs: Partial<LinearAxis.Attrs>, options?: {minor_size?: number, num_ticks?: number}) => Promise<void>
+  type PlotFn = (attrs: Partial<Axis.Attrs>, options?: {minor_size?: number, num_ticks?: number}) => Promise<void>
 
   function hplot(side: Side, axis_type: "linear" | "log"): PlotFn {
     return async (attrs, options) => {

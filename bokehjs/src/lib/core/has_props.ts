@@ -19,6 +19,7 @@ import {equals, Equatable, Comparator} from "./util/eq"
 import {pretty, Printable, Printer} from "./util/pretty"
 import {clone, Cloneable, Cloner} from "./util/cloneable"
 import * as kinds from "./kinds"
+import {Scalar, Vector, isExpr} from "./vectorization"
 
 type AttrsLike = {[key: string]: unknown} | Map<string, unknown>
 
@@ -339,15 +340,14 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     for (const prop of this) {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
         continue
+      if (prop.is_unset)
+        continue
 
-      const value = prop.get_value() as p.Spec<unknown> | null // XXX: T -> any under instanceof
-      if (value != null) {
-        const {transform, expr} = value
-        if (transform != null)
-          this.connect(transform.change, () => this.transformchange.emit())
-        if (expr != null)
-          this.connect(expr.change, () => this.exprchange.emit())
-      }
+      const value = prop.get_value() as Scalar<unknown> | Vector<unknown>
+      if (value.transform != null)
+        this.connect(value.transform.change, () => this.transformchange.emit())
+      if (isExpr(value))
+        this.connect(value.expr.change, () => this.exprchange.emit())
     }
   }
 

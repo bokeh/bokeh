@@ -1,6 +1,7 @@
 import {DataAnnotation, DataAnnotationView} from "./data_annotation"
 import {Arrayable} from "core/types"
 import {Dimension, SpatialUnits} from "core/enums"
+import {Dimensional} from "core/vectorization"
 import * as p from "core/properties"
 
 export abstract class UpperLowerView extends DataAnnotationView {
@@ -63,7 +64,7 @@ export abstract class UpperLowerView extends DataAnnotationView {
 export class XOrYCoordinateSpec extends p.CoordinateSpec {
   override readonly obj: UpperLower
 
-  override spec: p.Spec<this["__value__"]> & {units?: SpatialUnits}
+  protected override _value: Dimensional<this["__vector__"], SpatialUnits> | p.Unset = p.unset
 
   get dimension(): "x" | "y" {
     return this.obj.dimension == "width" ? "x" : "y"
@@ -71,7 +72,7 @@ export class XOrYCoordinateSpec extends p.CoordinateSpec {
 
   // XXX: a hack to make a coordinate & unit spec
   get units(): SpatialUnits {
-    return this.spec.units ?? "data"
+    return this._value === p.unset ? "data" : this._value.units ?? "data"
   }
 }
 
