@@ -623,7 +623,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
                 continue
 
             try:
-                value = descriptor.serializable_value(self)
+                value = descriptor.get_value(self)
             except UnsetValueError:
                 if include_undefined:
                     value = Undefined

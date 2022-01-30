@@ -144,10 +144,10 @@ class Test_ColorSpec:
         desc = Foo.__dict__["col"]
         f = Foo()
         assert f.col == "colorfield"
-        assert desc.serializable_value(f) == {"field": "colorfield"}
+        assert desc.get_value(f) == {"field": "colorfield"}
         f.col = "myfield"
         assert f.col == "myfield"
-        assert desc.serializable_value(f) == {"field": "myfield"}
+        assert desc.get_value(f) == {"field": "myfield"}
 
     def test_field_default(self) -> None:
         class Foo(HasProps):
@@ -155,10 +155,10 @@ class Test_ColorSpec:
         desc = Foo.__dict__["col"]
         f = Foo()
         assert f.col == "red"
-        assert desc.serializable_value(f) == {"value": "red"}
+        assert desc.get_value(f) == {"value": "red"}
         f.col = "myfield"
         assert f.col == "myfield"
-        assert desc.serializable_value(f) == {"field": "myfield"}
+        assert desc.get_value(f) == {"field": "myfield"}
 
     def test_default_tuple(self) -> None:
         class Foo(HasProps):
@@ -166,7 +166,7 @@ class Test_ColorSpec:
         desc = Foo.__dict__["col"]
         f = Foo()
         assert f.col == (128, 255, 124)
-        assert desc.serializable_value(f) == {"value": "rgb(128, 255, 124)"}
+        assert desc.get_value(f) == {"value": "rgb(128, 255, 124)"}
 
     def test_fixed_value(self) -> None:
         class Foo(HasProps):
@@ -174,7 +174,7 @@ class Test_ColorSpec:
         desc = Foo.__dict__["col"]
         f = Foo()
         assert f.col == "gray"
-        assert desc.serializable_value(f) == {"value": "gray"}
+        assert desc.get_value(f) == {"value": "gray"}
 
     def test_named_value(self) -> None:
         class Foo(HasProps):
@@ -184,10 +184,10 @@ class Test_ColorSpec:
 
         f.col = "red"
         assert f.col == "red"
-        assert desc.serializable_value(f) == {"value": "red"}
+        assert desc.get_value(f) == {"value": "red"}
         f.col = "forestgreen"
         assert f.col == "forestgreen"
-        assert desc.serializable_value(f) == {"value": "forestgreen"}
+        assert desc.get_value(f) == {"value": "forestgreen"}
 
     def test_case_insensitive_named_value(self) -> None:
         class Foo(HasProps):
@@ -197,10 +197,10 @@ class Test_ColorSpec:
 
         f.col = "RED"
         assert f.col == "RED"
-        assert desc.serializable_value(f) == {"value": "RED"}
+        assert desc.get_value(f) == {"value": "RED"}
         f.col = "ForestGreen"
         assert f.col == "ForestGreen"
-        assert desc.serializable_value(f) == {"value": "ForestGreen"}
+        assert desc.get_value(f) == {"value": "ForestGreen"}
 
     def test_named_value_set_none(self) -> None:
         class Foo(HasProps):
@@ -208,14 +208,14 @@ class Test_ColorSpec:
         desc = Foo.__dict__["col"]
         f = Foo()
         f.col = None
-        assert desc.serializable_value(f) == {"value": None}
+        assert desc.get_value(f) == {"value": None}
 
     def test_named_value_unset(self) -> None:
         class Foo(HasProps):
             col = bcpd.ColorSpec("colorfield")
         desc = Foo.__dict__["col"]
         f = Foo()
-        assert desc.serializable_value(f) == {"field": "colorfield"}
+        assert desc.get_value(f) == {"field": "colorfield"}
 
     def test_named_color_overriding_default(self) -> None:
         class Foo(HasProps):
@@ -224,10 +224,10 @@ class Test_ColorSpec:
         f = Foo()
         f.col = "forestgreen"
         assert f.col == "forestgreen"
-        assert desc.serializable_value(f) == {"value": "forestgreen"}
+        assert desc.get_value(f) == {"value": "forestgreen"}
         f.col = "myfield"
         assert f.col == "myfield"
-        assert desc.serializable_value(f) == {"field": "myfield"}
+        assert desc.get_value(f) == {"field": "myfield"}
 
     def test_hex_value(self) -> None:
         class Foo(HasProps):
@@ -236,10 +236,10 @@ class Test_ColorSpec:
         f = Foo()
         f.col = "#FF004A"
         assert f.col == "#FF004A"
-        assert desc.serializable_value(f) == {"value": "#FF004A"}
+        assert desc.get_value(f) == {"value": "#FF004A"}
         f.col = "myfield"
         assert f.col == "myfield"
-        assert desc.serializable_value(f) == {"field": "myfield"}
+        assert desc.get_value(f) == {"field": "myfield"}
 
     def test_tuple_value(self) -> None:
         class Foo(HasProps):
@@ -248,13 +248,13 @@ class Test_ColorSpec:
         f = Foo()
         f.col = (128, 200, 255)
         assert f.col == (128, 200, 255)
-        assert desc.serializable_value(f) == {"value": "rgb(128, 200, 255)"}
+        assert desc.get_value(f) == {"value": "rgb(128, 200, 255)"}
         f.col = "myfield"
         assert f.col == "myfield"
-        assert desc.serializable_value(f) == {"field": "myfield"}
+        assert desc.get_value(f) == {"field": "myfield"}
         f.col = (100, 150, 200, 0.5)
         assert f.col == (100, 150, 200, 0.5)
-        assert desc.serializable_value(f) == {"value": "rgba(100, 150, 200, 0.5)"}
+        assert desc.get_value(f) == {"value": "rgba(100, 150, 200, 0.5)"}
 
     def test_set_dict(self) -> None:
         class Foo(HasProps):
@@ -266,7 +266,7 @@ class Test_ColorSpec:
 
         f.col = "field2"
         assert f.col == "field2"
-        assert desc.serializable_value(f) == {"field": "field2"}
+        assert desc.get_value(f) == {"field": "field2"}
 
     def test_isconst(self) -> None:
         assert bcpd.ColorSpec.isconst("red")
@@ -317,43 +317,43 @@ class Test_FontSizeSpec:
             v = '10%s' % unit
             a.x = v
             assert a.x == v
-            assert a.lookup('x').serializable_value(a) == dict(value=v)
+            assert a.lookup('x').get_value(a) == dict(value=v)
 
             v = '10.2%s' % unit
             a.x = v
             assert a.x == v
-            assert a.lookup('x').serializable_value(a) == dict(value=v)
+            assert a.lookup('x').get_value(a) == dict(value=v)
 
             f = '_10%s' % unit
             a.x = f
             assert a.x == f
-            assert a.lookup('x').serializable_value(a) == dict(field=f)
+            assert a.lookup('x').get_value(a) == dict(field=f)
 
             f = '_10.2%s' % unit
             a.x = f
             assert a.x == f
-            assert a.lookup('x').serializable_value(a) == dict(field=f)
+            assert a.lookup('x').get_value(a) == dict(field=f)
 
         for unit in css_units.upper().split("|"):
             v = '10%s' % unit
             a.x = v
             assert a.x == v
-            assert a.lookup('x').serializable_value(a) == dict(value=v)
+            assert a.lookup('x').get_value(a) == dict(value=v)
 
             v = '10.2%s' % unit
             a.x = v
             assert a.x == v
-            assert a.lookup('x').serializable_value(a) == dict(value=v)
+            assert a.lookup('x').get_value(a) == dict(value=v)
 
             f = '_10%s' % unit
             a.x = f
             assert a.x == f
-            assert a.lookup('x').serializable_value(a) == dict(field=f)
+            assert a.lookup('x').get_value(a) == dict(field=f)
 
             f = '_10.2%s' % unit
             a.x = f
             assert a.x == f
-            assert a.lookup('x').serializable_value(a) == dict(field=f)
+            assert a.lookup('x').get_value(a) == dict(field=f)
 
     def test_bad_font_size_values(self) -> None:
         class Foo(HasProps):
@@ -395,10 +395,10 @@ class Test_NumberSpec:
             x = bcpd.NumberSpec("xfield")
         f = Foo()
         assert f.x == "xfield"
-        assert Foo.__dict__["x"].serializable_value(f) == {"field": "xfield"}
+        assert Foo.__dict__["x"].get_value(f) == {"field": "xfield"}
         f.x = "my_x"
         assert f.x == "my_x"
-        assert Foo.__dict__["x"].serializable_value(f) == {"field": "my_x"}
+        assert Foo.__dict__["x"].get_value(f) == {"field": "my_x"}
 
     def test_value(self) -> None:
         class Foo(HasProps):
@@ -407,12 +407,12 @@ class Test_NumberSpec:
         assert f.x == "xfield"
         f.x = 12
         assert f.x == 12
-        assert Foo.__dict__["x"].serializable_value(f) == {"value": 12}
+        assert Foo.__dict__["x"].get_value(f) == {"value": 12}
         f.x = 15
         assert f.x == 15
-        assert Foo.__dict__["x"].serializable_value(f) == {"value": 15}
+        assert Foo.__dict__["x"].get_value(f) == {"value": 15}
         f.x = dict(value=32)
-        assert Foo.__dict__["x"].serializable_value(f) == {"value": 32}
+        assert Foo.__dict__["x"].get_value(f) == {"value": 32}
 
     def tests_accepts_timedelta(self):
         class Foo(HasProps):
@@ -485,13 +485,13 @@ class Test_NumberSpec:
             y = bcpd.NumberSpec(default=12)
         f = Foo()
         assert f.y == 12
-        assert Foo.__dict__["y"].serializable_value(f) == {"value": 12}
+        assert Foo.__dict__["y"].get_value(f) == {"value": 12}
         f.y = "y1"
         assert f.y == "y1"
         # Once we set a concrete value, the default is ignored, because it is unused
         f.y = 32
         assert f.y == 32
-        assert Foo.__dict__["y"].serializable_value(f) == {"value": 32}
+        assert Foo.__dict__["y"].get_value(f) == {"value": 32}
 
     def test_multiple_instances(self) -> None:
         class Foo(HasProps):
@@ -503,11 +503,11 @@ class Test_NumberSpec:
         b.x = 14
         assert a.x == 13
         assert b.x == 14
-        assert Foo.__dict__["x"].serializable_value(a) == {"value": 13}
-        assert Foo.__dict__["x"].serializable_value(b) == {"value": 14}
+        assert Foo.__dict__["x"].get_value(a) == {"value": 13}
+        assert Foo.__dict__["x"].get_value(b) == {"value": 14}
         b.x = {"field": "x3"}
-        assert Foo.__dict__["x"].serializable_value(a) == {"value": 13}
-        assert Foo.__dict__["x"].serializable_value(b) == {"field": "x3"}
+        assert Foo.__dict__["x"].get_value(a) == {"value": 13}
+        assert Foo.__dict__["x"].get_value(b) == {"field": "x3"}
 
     def test_set_from_json_keeps_mode(self) -> None:
         class Foo(HasProps):

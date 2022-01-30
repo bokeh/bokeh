@@ -836,7 +836,7 @@ class TestDocument:
             patch1 = patch_doc.create([event1]).content
             d.apply_json_patch(patch1)
             if isinstance(new_value, dict):
-                return root1.lookup('foo').serializable_value(root1)
+                return root1.lookup('foo').get_value(root1)
             else:
                 return root1.foo
         assert patch_test(57) == 57

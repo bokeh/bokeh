@@ -270,12 +270,6 @@ class Tuple(ContainerProperty):
         """
         return tuple(typ.transform(x) for (typ, x) in zip(self.type_params, value))
 
-    def serialize_value(self, value):
-        """ Change the value into a JSON serializable format.
-
-        """
-        return tuple(typ.serialize_value(x) for (typ, x) in zip(self.type_params, value))
-
 class RelativeDelta(Dict):
     """ Accept RelativeDelta dicts for time delta values.
 

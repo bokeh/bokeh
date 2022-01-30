@@ -77,23 +77,6 @@ class Test_PropertyDescriptor:
         assert mock_get.called_once_with((f, "bar", 10), {})
         assert mock_set.called_once_with((f, "bar", 10), {})
 
-    def test_serializable_value(self) -> None:
-        result = {}
-        class Foo:
-            def serialize_value(self, val):
-                result['foo'] = val
-        f = Foo()
-        f.foo = 10
-
-        d = bcpd.PropertyDescriptor("foo", f)
-        d.property = Foo()
-
-        # simulate the __get__ a subclass would have
-        d.__get__ = lambda obj, owner: f.foo
-
-        d.serializable_value(f)
-        assert result['foo'] == 10
-
     def test___get__improper(self) -> None:
         f = Foo()
         d = bcpd.PropertyDescriptor("foo", f)

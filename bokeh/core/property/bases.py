@@ -256,12 +256,6 @@ class Property(PropertyDescriptorFactory[T]):
         except ValueError:
             return False
 
-    def serialize_value(self, value: T) -> Any:
-        """ Change the value into a JSON serializable format.
-
-        """
-        return value
-
     def transform(self, value: Any) -> T:
         """ Change the value into the canonical format for this property.
 

@@ -228,7 +228,7 @@ class DocumentCallbackManager:
 
         event: DocumentPatchedEvent
         if hint is None:
-            new = model.lookup(attr).serializable_value(model)
+            new = model.lookup(attr).get_value(model)
             event = ModelChangedEvent(doc, model, attr, new, setter, callback_invoker)
         else:
             event = hint

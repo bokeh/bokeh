@@ -326,8 +326,8 @@ class PropertyDescriptor(Generic[T]):
         """
         return self.property.themed_default(obj.__class__, self.name, obj.themed_values())
 
-    def serializable_value(self, obj: HasProps) -> Any:
-        """ Produce the value as it should be serialized.
+    def get_value(self, obj: HasProps) -> Any:
+        """ Produce the value used for serialization.
 
         Sometimes it is desirable for the serialized value to differ from
         the ``__get__`` in order for the ``__get__`` value to appear simpler
@@ -337,11 +337,10 @@ class PropertyDescriptor(Generic[T]):
             obj (HasProps) : the object to get the serialized attribute for
 
         Returns:
-            JSON-like
+            Any
 
         """
-        value = self.__get__(obj, obj.__class__)
-        return self.property.serialize_value(value)
+        return self.__get__(obj, obj.__class__)
 
     def set_from_json(self, obj: HasProps, value: Any, *, setter: Setter | None = None):
         """Sets the value of this property from a JSON value.
@@ -712,7 +711,7 @@ class DataSpecPropertyDescriptor(PropertyDescriptor):
 
     """
 
-    def serializable_value(self, obj):
+    def get_value(self, obj: HasProps) -> Any:
         """
 
         """
