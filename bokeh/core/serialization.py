@@ -419,7 +419,11 @@ class Deserializer:
         from ..model import Model
         cls = Model.model_class_reverse_map.get(type)
         if cls is None:
-            raise DeserializationError(f"can't resolve type '{type}'")
+            if type == "Figure":
+                from ..plotting import figure
+                cls = figure # XXX: helps with push_session(); this needs a better resolution scheme
+            else:
+                raise DeserializationError(f"can't resolve type '{type}'")
 
         instance = cls.__new__(cls, id=id)
         if instance is None:
