@@ -413,16 +413,12 @@ class TestDocument:
         m.stream(dict(a=[11, 12], b=[21, 22]), 200)
         assert events
         event = events[0]
-        assert isinstance(event, ModelChangedEvent)
-        assert isinstance(event.hint, ColumnsStreamedEvent)
+        assert isinstance(event, ColumnsStreamedEvent)
         assert event.document == d
         assert event.model == m
-        assert event.hint.column_source == m
-        assert event.hint.data == dict(a=[11, 12], b=[21, 22])
-        assert event.hint.rollover == 200
-        assert event.attr == 'data'
-        # old == new because stream events update in-place
-        assert event.new == dict(a=[10, 11, 12], b=[20, 21, 22])
+        assert event.attr == "data"
+        assert event.data == dict(a=[11, 12], b=[21, 22])
+        assert event.rollover == 200
         assert len(curdoc_from_listener) == 1
         assert curdoc_from_listener[0] is d
 
@@ -442,15 +438,11 @@ class TestDocument:
         m.patch(dict(a=[(0, 1)], b=[(0,0), (1,1)]))
         assert events
         event = events[0]
-        assert isinstance(event, ModelChangedEvent)
-        assert isinstance(event.hint, ColumnsPatchedEvent)
+        assert isinstance(event, ColumnsPatchedEvent)
         assert event.document == d
         assert event.model == m
-        assert event.hint.column_source == m
-        assert event.hint.patches == dict(a=[(0, 1)], b=[(0,0), (1,1)])
-        assert event.attr == 'data'
-        # old == new because stream events update in-place
-        assert event.new == dict(a=[1, 11], b=[0, 1])
+        assert event.attr == "data"
+        assert event.patches == dict(a=[(0, 1)], b=[(0,0), (1,1)])
         assert len(curdoc_from_listener) == 1
         assert curdoc_from_listener[0] is d
 
@@ -961,7 +953,6 @@ class TestDocument:
                     model=m2.ref,
                     attr="child",
                     new=m0.ref,
-                    hint=None,
                 ),
             ],
             references=[], # known models are not included by bokehjs to improve performance (e.g. reduce payload size)

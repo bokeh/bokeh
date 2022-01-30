@@ -65,7 +65,6 @@ class ModelChanged(TypedDict):
     model: Ref
     attr: str
     new: Unknown
-    hint: DocumentPatched | None  # type: ignore[misc] # https://github.com/python/mypy/issues/731
 
 class MessageSent(TypedDict):
     kind: Literal["MessageSent"]
@@ -86,22 +85,25 @@ class RootRemoved(TypedDict):
 
 class ColumnDataChanged(TypedDict):
     kind: Literal["ColumnDataChanged"]
-    column_source: Ref
+    model: Ref
+    attr: str
     data: DataDict
     cols: List[str] | None
 
 class ColumnsStreamed(TypedDict):
     kind: Literal["ColumnsStreamed"]
-    column_source: Ref
+    model: Ref
+    attr: str
     data: DataDict
     rollover: int | None
 
 class ColumnsPatched(TypedDict):
     kind: Literal["ColumnsPatched"]
-    column_source: Ref
+    model: Ref
+    attr: str
     patches: Patches
 
-DocumentPatched = Union[ # type: ignore[misc] # https://github.com/python/mypy/issues/731
+DocumentPatched = Union[
     MessageSent,
     ModelChanged,
     ColumnDataChanged,
@@ -112,7 +114,7 @@ DocumentPatched = Union[ # type: ignore[misc] # https://github.com/python/mypy/i
     RootRemoved,
 ]
 
-DocumentChanged = DocumentPatched  # type: ignore[misc] # https://github.com/python/mypy/issues/731
+DocumentChanged = DocumentPatched
 
 class RootsJson(TypedDict):
     root_ids: List[ID]

@@ -700,8 +700,7 @@ class ColumnDataPropertyDescriptor(PropertyDescriptor):
             raise ValueError(_CDS_SET_FROM_CDS_ERROR)
 
         from ...document.events import ColumnDataChangedEvent
-
-        hint = ColumnDataChangedEvent(obj.document, obj, setter=setter) if obj.document else None
+        hint = ColumnDataChangedEvent(obj.document, obj, "data", setter=setter) if obj.document else None
 
         value = self.property.prepare_value(obj, self.name, value)
         old = self._get(obj)

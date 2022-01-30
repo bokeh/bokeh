@@ -79,7 +79,7 @@ class Test_ColumnData:
 
         prop = bcpc.ColumnData(String, Seq(Any))
         source = ColumnDataSource(data=dict(foo=[10], bar=[20], baz=[30]))
-        hint = ColumnDataChangedEvent("doc", source, cols=["foo"])
+        hint = ColumnDataChangedEvent("doc", source, "data", cols=["foo"])
         assert prop._hinted_value(source.data, hint) == dict(foo=[10])
 
     def test__hinted_value_with_hint_ColumnsStreamed(self) -> None:
@@ -88,7 +88,7 @@ class Test_ColumnData:
         prop = bcpc.ColumnData(String, Seq(Any))
         source = ColumnDataSource(data=dict(foo=[10], bar=[20], baz=[30]))
         new_data = dict(foo=[11], bar=[21], baz=[31])
-        hint = ColumnsStreamedEvent("doc", source, new_data, rollover=10)
+        hint = ColumnsStreamedEvent("doc", source, "data", new_data, rollover=10)
         assert prop._hinted_value(source.data, hint) == new_data
 
     def test__hinted_value_without_hint(self) -> None:

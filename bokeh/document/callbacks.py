@@ -226,10 +226,13 @@ class DocumentCallbackManager:
         if attr == 'name':
             doc.models.update_name(model, old, new)
 
+        event: DocumentPatchedEvent
         if hint is None:
             new = model.lookup(attr).serializable_value(model)
+            event = ModelChangedEvent(doc, model, attr, new, setter, callback_invoker)
+        else:
+            event = hint
 
-        event = ModelChangedEvent(doc, model, attr, new, hint, setter, callback_invoker)
         self.trigger_on_change(event)
 
     def notify_event(self, model: Model, event: ModelEvent, callback_invoker: Invoker) -> None:

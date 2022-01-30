@@ -221,7 +221,7 @@ class ColumnData(Dict):
     def _hinted_value(self, value: Any, hint: DocumentPatchedEvent | None) -> Any:
         from ...document.events import ColumnDataChangedEvent, ColumnsStreamedEvent
         if isinstance(hint, ColumnDataChangedEvent):
-            return { col: hint.column_source.data[col] for col in hint.cols }
+            return { col: hint.model.data[col] for col in hint.cols }
         if isinstance(hint, ColumnsStreamedEvent):
             return hint.data
         return value

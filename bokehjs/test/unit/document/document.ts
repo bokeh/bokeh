@@ -1026,7 +1026,7 @@ describe("Document", () => {
       const events: ev.DocumentEvent[] = []
       doc.on_change((event) => events.push(event))
 
-      const event = new ev.ColumnDataChangedEvent(doc, source, {col1: [4, 5, 6]})
+      const event = new ev.ColumnDataChangedEvent(doc, source, "data", {col1: [4, 5, 6]})
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
@@ -1043,7 +1043,7 @@ describe("Document", () => {
       const events: ev.DocumentEvent[] = []
       doc.on_change((event) => events.push(event))
 
-      const event = new ev.ColumnsStreamedEvent(doc, source, {col0: [4, 5, 6]})
+      const event = new ev.ColumnsStreamedEvent(doc, source, "data", {col0: [4, 5, 6]})
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
@@ -1065,7 +1065,7 @@ describe("Document", () => {
       const events: ev.DocumentEvent[] = []
       doc.on_change((event) => events.push(event))
 
-      const event = new ev.ColumnsPatchedEvent(doc, source, {col0: [[{start: 1, stop: 3}, [20, 30]]]})
+      const event = new ev.ColumnsPatchedEvent(doc, source, "data", {col0: [[{start: 1, stop: 3}, [20, 30]]]})
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 

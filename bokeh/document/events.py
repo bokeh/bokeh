@@ -91,7 +91,7 @@ if TYPE_CHECKING:
     from ..core.has_props import Setter
     from ..core.types import Unknown
     from ..model import Model
-    from ..models.sources import ColumnarDataSource, DataDict
+    from ..models.sources import DataDict
     from ..protocol.message import BufferRef
     from ..server.callbacks import SessionCallback
     from .document import Document
@@ -297,16 +297,11 @@ class ModelChangedEvent(DocumentPatchedEvent):
     ''' A concrete event representing updating an attribute and value of a
     specific Bokeh Model.
 
-    This is the "standard" way of updating most Bokeh model attributes. For
-    special casing situations that can optimized (e.g. streaming, etc.), a
-    ``hint`` may be supplied that overrides normal mechanisms.
-
     '''
 
     kind = "ModelChanged"
 
     def __init__(self, document: Document, model: Model, attr: str, new: Unknown,
-            hint: DocumentPatchedEvent | None = None,
             setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 
@@ -323,12 +318,6 @@ class ModelChangedEvent(DocumentPatchedEvent):
             new (object) :
                 The new value of the attribute
 
-            hint (DocumentPatchedEvent, optional) :
-                When appropriate, a secondary event may be supplied that
-                modifies the normal update process. For example, in order
-                to stream or patch data more efficiently than the standard
-                update mechanism.
-
             setter (ClientSession or ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
@@ -343,13 +332,10 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
 
         '''
-        if setter is None and isinstance(hint, (ColumnsStreamedEvent, ColumnsPatchedEvent)):
-            setter = hint.setter
         super().__init__(document, setter, callback_invoker)
         self.model = model
         self.attr = attr
         self.new = new
-        self.hint = hint
 
     def combine(self, event: DocumentChangedEvent) -> bool:
         '''
@@ -364,9 +350,6 @@ class ModelChangedEvent(DocumentPatchedEvent):
             return False
         if self.document != event.document:
             return False
-
-        if self.hint is not None and event.hint is not None:
-            return self.hint.combine(event.hint)
 
         if (self.model == event.model) and (self.attr == event.attr):
             self.new = event.new
@@ -393,9 +376,6 @@ class ModelChangedEvent(DocumentPatchedEvent):
             serializer (Serializer):
 
         '''
-        if self.hint is not None:
-            return self.hint.to_serializable(serializer)
-
         new = serializer.to_serializable(self.new)
 
         # we know we don't want a whole new copy of the obj we're patching
@@ -408,7 +388,6 @@ class ModelChangedEvent(DocumentPatchedEvent):
             model = self.model.ref,
             attr  = self.attr,
             new   = new,
-            hint  = None,
         )
 
     @staticmethod
@@ -426,7 +405,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
 
     kind = "ColumnDataChanged"
 
-    def __init__(self, document: Document, column_source: ColumnarDataSource, data: DataDict | None = None,
+    def __init__(self, document: Document, model: Model, attr: str, data: DataDict | None = None,
             cols: List[str] | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 
@@ -455,7 +434,8 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
 
         '''
         super().__init__(document, setter, callback_invoker)
-        self.column_source = column_source
+        self.model = model
+        self.attr = attr
         self.data = data
         self.cols = cols
 
@@ -486,24 +466,26 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
             serializer (Serializer):
 
         '''
-        data = self.data if self.data is not None else self.column_source.data
+        data = self.data if self.data is not None else getattr(self.model, self.attr)
         cols = self.cols
 
         if cols is not None:
             data = {col: value for col in cols if (value := data.get(col)) is not None}
 
         return ColumnDataChanged(
-            kind          = self.kind,
-            column_source = self.column_source.ref,
-            data          = serializer.to_serializable(data),
-            cols          = serializer.to_serializable(cols),
+            kind  = self.kind,
+            model = self.model.ref,
+            attr  = self.attr,
+            data  = serializer.to_serializable(data),
+            cols  = serializer.to_serializable(cols),
         )
 
     @staticmethod
     def _handle_event(doc: Document, event: ColumnDataChangedEvent) -> None:
-        model = event.column_source
+        model = event.model
+        attr = event.attr
         data = event.data
-        model.set_from_json("data", data, setter=event.setter)
+        model.set_from_json(attr, data, setter=event.setter)
 
 class ColumnsStreamedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently streaming new data
@@ -515,7 +497,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
     data: DataDict
 
-    def __init__(self, document: Document, column_source: ColumnarDataSource, data: DataDict | pd.DataFrame,
+    def __init__(self, document: Document, model: Model, attr: str, data: DataDict | pd.DataFrame,
             rollover: int | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 
@@ -550,7 +532,8 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
         '''
         super().__init__(document, setter, callback_invoker)
-        self.column_source = column_source
+        self.model = model
+        self.attr = attr
 
         pd = import_optional('pandas')
         if pd and isinstance(data, pd.DataFrame):
@@ -587,15 +570,18 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
         '''
         return ColumnsStreamed(
-            kind          = self.kind,
-            column_source = self.column_source.ref,
-            data          = serializer.to_serializable(self.data),
-            rollover      = self.rollover,
+            kind     = self.kind,
+            model    = self.model.ref,
+            attr     = self.attr,
+            data     = serializer.to_serializable(self.data),
+            rollover = self.rollover,
         )
 
     @staticmethod
     def _handle_event(doc: Document, event: ColumnsStreamedEvent) -> None:
-        model = event.column_source
+        model = event.model
+        attr = event.attr
+        assert attr == "data"
         data = event.data
         rollover = event.rollover
         model._stream(data, rollover, event.setter)
@@ -608,7 +594,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
 
     kind = "ColumnsPatched"
 
-    def __init__(self, document: Document, column_source: ColumnarDataSource, patches: Patches,
+    def __init__(self, document: Document, model: Model, attr: str, patches: Patches,
             setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 
@@ -635,7 +621,8 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
 
         '''
         super().__init__(document, setter, callback_invoker)
-        self.column_source = column_source
+        self.model = model
+        self.attr = attr
         self.patches = patches
 
     def dispatch(self, receiver: Any) -> None:
@@ -665,14 +652,17 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
 
         '''
         return ColumnsPatched(
-            kind          = self.kind,
-            column_source = self.column_source.ref,
-            patches       = self.patches,
+            kind    = self.kind,
+            model   = self.model.ref,
+            attr    = self.attr,
+            patches = serializer.to_serializable(self.patches),
         )
 
     @staticmethod
     def _handle_event(doc: Document, event: ColumnsPatchedEvent) -> None:
-        model = event.column_source
+        model = event.model
+        attr = event.attr
+        assert attr == "data"
         patches = event.patches
         model.patch(patches, event.setter)
 

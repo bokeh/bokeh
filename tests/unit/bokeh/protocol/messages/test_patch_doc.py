@@ -144,30 +144,26 @@ class TestPatchDocument:
         assert msg3.buffers == []
 
         # ColumnsStreamed
-        event4 = ModelChangedEvent(sample, cds, 'data', None,
-                                   hint=ColumnsStreamedEvent(sample, cds, {"a": [3]}, None, mock_session))
+        event4 = ColumnsStreamedEvent(sample, cds, "data", {"a": [3]}, None, mock_session)
         msg4 = proto.create("PATCH-DOC", [event4])
         msg4.apply_to_document(sample, mock_session)
         assert msg4.buffers == []
 
         # ColumnsPatched
-        event5 = ModelChangedEvent(sample, cds, 'data', None,
-                                   hint=ColumnsPatchedEvent(sample, cds, {"a": [(0, 11)]}))
+        event5 = ColumnsPatchedEvent(sample, cds, "data", {"a": [(0, 11)]})
         msg5 = proto.create("PATCH-DOC", [event5])
         msg5.apply_to_document(sample, mock_session)
         assert msg5.buffers == []
 
         # ColumnDataChanged, use_buffers=False
-        event6 = ModelChangedEvent(sample, cds, 'data', None,
-                                   hint=ColumnDataChangedEvent(sample, cds))
+        event6 = ColumnDataChangedEvent(sample, cds, "data")
         msg6 = proto.create("PATCH-DOC", [event6], use_buffers=False)
         msg6.apply_to_document(sample, mock_session)
         assert msg6.buffers == []
 
         print(cds.data)
         # ColumnDataChanged, use_buffers=True
-        event7 = ModelChangedEvent(sample, cds, 'data', None,
-                                   hint=ColumnDataChangedEvent(sample, cds))
+        event7 = ColumnDataChangedEvent(sample, cds, "data")
         msg7 = proto.create("PATCH-DOC", [event7])
         # can't test apply, doc not set up to *receive* binary buffers
         # msg7.apply_to_document(sample, mock_session)

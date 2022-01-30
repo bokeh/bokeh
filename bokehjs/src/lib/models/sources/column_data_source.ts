@@ -7,7 +7,7 @@ import {NDArray} from "core/util/ndarray"
 import {entries} from "core/util/object"
 import * as typed_array from "core/util/typed_array"
 import {union} from "core/util/set"
-import {ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent} from "document/events"
+import {ColumnsPatchedEvent, ColumnsStreamedEvent} from "document/events"
 
 //exported for testing
 export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: number): Arrayable {
@@ -162,6 +162,8 @@ export class ColumnDataSource extends ColumnarDataSource {
   }
 
   stream(new_data: Data, rollover?: number, {sync}: {sync?: boolean} = {}): void {
+    //this.properties.data.stream(new_data, rollover, {sync})
+
     const {data} = this
     for (const [name, new_column] of entries(new_data)) {
       data[name] = stream_to_column(data[name], new_column, rollover)
@@ -169,13 +171,14 @@ export class ColumnDataSource extends ColumnarDataSource {
     this.setv({data}, {silent: true})
     this.streaming.emit()
     if (this.document != null && (sync ?? true)) {
-      const hint = new ColumnsStreamedEvent(this.document, this, new_data, rollover)
-      const event = new ModelChangedEvent(this.document, this, "data", null, hint)
+      const event = new ColumnsStreamedEvent(this.document, this, "data", new_data, rollover)
       this.document._trigger_on_change(event)
     }
   }
 
   patch(patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {
+    //this.properties.data.patch(patches, {sync})
+
     const {data} = this
     let patched: Set<number> = new Set()
     for (const [column, patch] of entries(patches)) {
@@ -184,8 +187,7 @@ export class ColumnDataSource extends ColumnarDataSource {
     this.setv({data}, {silent: true})
     this.patching.emit([...patched])
     if (this.document != null && (sync ?? true)) {
-      const hint = new ColumnsPatchedEvent(this.document, this, patches)
-      const event = new ModelChangedEvent(this.document, this, "data", null, hint)
+      const event = new ColumnsPatchedEvent(this.document, this, "data", patches)
       this.document._trigger_on_change(event)
     }
   }

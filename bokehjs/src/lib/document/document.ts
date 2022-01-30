@@ -5,13 +5,14 @@ import {BokehEvent, DocumentReady, ModelEvent, LODStart, LODEnd} from "core/boke
 import {HasProps} from "core/has_props"
 import {Serializer} from "core/serializer"
 import {Deserializer, RefMap} from "core/deserializer"
-import {ID} from "core/types"
+import {ID, Data} from "core/types"
 import {Signal0} from "core/signaling"
 import {Struct} from "core/util/refs"
 import {equals, Equatable, Comparator} from "core/util/eq"
 import {Buffers} from "core/util/serialization"
 import {copy, includes} from "core/util/array"
 import * as sets from "core/util/set"
+import {assert} from "core/util/assert"
 import {LayoutDOM} from "models/layouts/layout_dom"
 import {Model} from "model"
 import {ModelDef, resolve_defs} from "./defs"
@@ -482,25 +483,30 @@ export class Document implements Equatable {
           break
         }
         case "ColumnDataChanged": {
-          const {column_source, cols, data} = event
+          const {model, attr, cols, data} = event
           if (cols != null) {
-            for (const k in column_source.data) {
+            const current_data = model.property(attr).get_value() as Data
+            for (const k in current_data) {
               if (!(k in data)) {
-                data[k] = column_source.data[k]
+                data[k] = current_data[k]
               }
             }
           }
-          column_source.setv({data}, {sync: false, check_eq: false})
+          model.setv({data}, {sync: false, check_eq: false})
           break
         }
         case "ColumnsStreamed": {
-          const {column_source, data, rollover} = event
-          column_source.stream(data, rollover, {sync: false})
+          const {model, attr, data, rollover} = event
+          assert(attr == "data", "only 'data' property is supported")
+          // model.property(attr).stream(data, rollover, {sync: false})
+          model.stream(data, rollover, {sync: false})
           break
         }
         case "ColumnsPatched": {
-          const {column_source, patches} = event
-          column_source.patch(patches, {sync: false})
+          const {model, attr, patches} = event
+          assert(attr == "data", "only 'data' property is supported")
+          // model.property(attr).patch(patches, {sync: false})
+          model.patch(patches, {sync: false})
           break
         }
         case "RootAdded": {

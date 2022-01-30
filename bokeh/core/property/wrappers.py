@@ -388,7 +388,7 @@ class PropertyValueColumnData(PropertyValueDict):
         # we must loop ourselves here instead of calling _notify_owners
         # because the hint is customized for each owner separately
         for (owner, descriptor) in self._owners:
-            hint = ColumnDataChangedEvent(owner.document, owner, cols=list(cols))
+            hint = ColumnDataChangedEvent(owner.document, owner, "data", cols=list(cols))
             descriptor._notify_mutated(owner, old, hint=hint)
 
         return result
@@ -440,8 +440,7 @@ class PropertyValueColumnData(PropertyValueDict):
                     del L[:-rollover]
 
         from ...document.events import ColumnsStreamedEvent
-
-        self._notify_owners(old, hint=ColumnsStreamedEvent(doc, source, new_data, rollover, setter))
+        self._notify_owners(old, hint=ColumnsStreamedEvent(doc, source, "data", new_data, rollover, setter))
 
     # don't wrap with notify_owner --- notifies owners explicitly
     def _patch(self, doc: Document, source: ColumnarDataSource, patches, setter: Setter | None = None) -> None:
@@ -480,8 +479,7 @@ class PropertyValueColumnData(PropertyValueDict):
                     self[name][ind[0]][tuple(ind[1:])] = np.array(value, copy=False).reshape(shape)
 
         from ...document.events import ColumnsPatchedEvent
-
-        self._notify_owners(old, hint=ColumnsPatchedEvent(doc, source, patches, setter))
+        self._notify_owners(old, hint=ColumnsPatchedEvent(doc, source, "data", patches, setter))
 
 #-----------------------------------------------------------------------------
 # Private API
