@@ -2,7 +2,7 @@ import {Document} from "./document"
 import {Data} from "core/types"
 import {HasProps} from "core/has_props"
 import {Ref} from "core/util/refs"
-import {PatchSet} from "models/sources/column_data_source"
+import {PatchSet} from "core/patching"
 import {equals, Equatable, Comparator} from "core/util/eq"
 import {serialize, Serializable, Serializer} from "core/serializer"
 

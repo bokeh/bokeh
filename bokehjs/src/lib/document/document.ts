@@ -3,6 +3,7 @@ import {version as js_version} from "../version"
 import {logger} from "../core/logging"
 import {BokehEvent, DocumentReady, ModelEvent, LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
+import {Property} from "core/properties"
 import {Serializer} from "core/serializer"
 import {Deserializer, RefMap} from "core/deserializer"
 import {ID, Data} from "core/types"
@@ -12,7 +13,6 @@ import {equals, Equatable, Comparator} from "core/util/eq"
 import {Buffers} from "core/util/serialization"
 import {copy, includes} from "core/util/array"
 import * as sets from "core/util/set"
-import {assert} from "core/util/assert"
 import {LayoutDOM} from "models/layouts/layout_dom"
 import {Model} from "model"
 import {ModelDef, resolve_defs} from "./defs"
@@ -497,16 +497,14 @@ export class Document implements Equatable {
         }
         case "ColumnsStreamed": {
           const {model, attr, data, rollover} = event
-          assert(attr == "data", "only 'data' property is supported")
-          // model.property(attr).stream(data, rollover, {sync: false})
-          model.stream(data, rollover, {sync: false})
+          const prop = model.property(attr) as Property<Data>
+          model.stream_to(prop, data, rollover, {sync: false})
           break
         }
         case "ColumnsPatched": {
           const {model, attr, patches} = event
-          assert(attr == "data", "only 'data' property is supported")
-          // model.property(attr).patch(patches, {sync: false})
-          model.patch(patches, {sync: false})
+          const prop = model.property(attr) as Property<Data>
+          model.patch_to(prop, patches, {sync: false})
           break
         }
         case "RootAdded": {

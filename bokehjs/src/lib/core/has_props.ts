@@ -1,7 +1,7 @@
 //import {logger} from "./logging"
 import {View} from "./view"
 import {Class} from "./class"
-import {Attrs} from "./types"
+import {Attrs, Data} from "./types"
 import {Signal0, Signal, Signalable, ISignalable} from "./signaling"
 import {Ref} from "./util/refs"
 import * as p from "./properties"
@@ -14,12 +14,13 @@ import {isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import {is_equal} from "./util/eq"
 import {serialize, Serializable, Serializer} from "./serializer"
 import type {Document} from "../document/document"
-import {DocumentEvent, DocumentEventBatch, ModelChangedEvent} from "../document/events"
+import {DocumentEvent, DocumentEventBatch, ModelChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "../document/events"
 import {equals, Equatable, Comparator} from "./util/eq"
 import {pretty, Printable, Printer} from "./util/pretty"
 import {clone, Cloneable, Cloner} from "./util/cloneable"
 import * as kinds from "./kinds"
 import {Scalar, Vector, isExpr} from "./vectorization"
+import {stream_to_columns, patch_to_columns, PatchSet} from "./patching"
 
 type AttrsLike = {[key: string]: unknown} | Map<string, unknown>
 
@@ -206,6 +207,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   readonly change          = new Signal0<this>(this, "change")
   readonly transformchange = new Signal0<this>(this, "transformchange")
   readonly exprchange      = new Signal0<this>(this, "exprchange")
+  readonly streaming       = new Signal0<this>(this, "streaming")
+  readonly patching        = new Signal<number[], this>(this, "patching")
 
   readonly properties: {[key: string]: Property} = {}
 
@@ -368,6 +371,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   private _watchers: WeakMap<object, boolean> = new WeakMap()
 
+  protected _clear_watchers(): void {
+    this._watchers = new WeakMap()
+  }
+
   changed_for(obj: object): boolean {
     const changed = this._watchers.get(obj)
     this._watchers.set(obj, false)
@@ -396,7 +403,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
     // Trigger all relevant attribute changes.
     if (changed.size > 0) {
-      this._watchers = new WeakMap()
+      this._clear_watchers()
       this._pending = true
     }
     for (const prop of changed) {
@@ -427,7 +434,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       return
 
     if (options.silent ?? false) {
-      this._watchers = new WeakMap()
+      this._clear_watchers()
 
       for (const [attr, value] of changes) {
         this.properties[attr].set_value(value)
@@ -584,6 +591,30 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   on_change(properties: Property<unknown> | Property<unknown>[], fn: () => void): void {
     for (const property of isArray(properties) ? properties : [properties]) {
       this.connect(property.change, fn)
+    }
+  }
+
+  stream_to(prop: Property<Data>, new_data: Data, rollover?: number, {sync}: {sync?: boolean} = {}): void {
+    const data = prop.get_value()
+    stream_to_columns(data, new_data, rollover)
+    this._clear_watchers()
+    prop.set_value(data)
+    this.streaming.emit()
+    if (this.document != null && (sync ?? true)) {
+      const event = new ColumnsStreamedEvent(this.document, this, prop.attr, new_data, rollover)
+      this.document._trigger_on_change(event)
+    }
+  }
+
+  patch_to(prop: Property<Data>, patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {
+    const data = prop.get_value()
+    const patched = patch_to_columns(data, patches)
+    this._clear_watchers()
+    prop.set_value(data)
+    this.patching.emit([...patched])
+    if (this.document != null && (sync ?? true)) {
+      const event = new ColumnsPatchedEvent(this.document, this, prop.attr, patches)
+      this.document._trigger_on_change(event)
     }
   }
 }
