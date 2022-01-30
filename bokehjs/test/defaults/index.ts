@@ -90,12 +90,6 @@ function check_matching_defaults(context: string[], name: string, python_default
       }
 
       if (!is_equal(py_v, js_v)) {
-        // these two conditionals compare 'foo' and {value: 'foo'}
-        if (isPlainObject(js_v) && "value" in js_v && is_equal(py_v, js_v.value))
-          continue
-        if (isPlainObject(py_v) && "value" in py_v && is_equal(py_v.value, js_v))
-          continue
-
         // compare arrays of objects
         if (isArray(js_v) && isArray(py_v)) {
           let equal = true
