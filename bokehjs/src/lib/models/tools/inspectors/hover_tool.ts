@@ -8,6 +8,8 @@ import {GraphRenderer} from "../../renderers/graph_renderer"
 import {DataRenderer} from "../../renderers/data_renderer"
 import {LineView} from "../../glyphs/line"
 import {MultiLineView} from "../../glyphs/multi_line"
+import {PatchView} from "../../glyphs/patch"
+import {HAreaView} from "../../glyphs/harea"
 import {VAreaView} from "../../glyphs/varea"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
@@ -30,7 +32,7 @@ import {compute_renderers} from "../../util"
 import * as styles from "styles/tooltips.css"
 import {Template, TemplateView} from "../../dom"
 
-export type TooltipVars = {index: number} & Vars
+export type TooltipVars = {index?: number} & Vars
 
 export function _nearest_line_hit(i: number, geometry: Geometry,
     sx: number, sy: number, dx: Arrayable<number>, dy: Arrayable<number>): [[number, number], number] {
@@ -225,7 +227,7 @@ export class HoverToolView extends InspectToolView {
     const fullset_indices = selection_manager.inspectors.get(renderer)!
     const subset_indices = renderer.view.convert_selection_to_subset(fullset_indices)
 
-    if (fullset_indices.is_empty()) {
+    if (fullset_indices.is_empty() && fullset_indices.view == null) {
       tooltip.clear()
       return
     }
@@ -244,6 +246,47 @@ export class HoverToolView extends InspectToolView {
     const {glyph} = renderer_view
 
     const tooltips: [number, number, HTMLElement | null][] = []
+
+    if (glyph instanceof PatchView) {
+      const [rx, ry] = [sx, sy]
+      const vars = {
+        x, y, sx, sy, rx, ry,
+        name: renderer.name,
+      }
+      tooltips.push([rx, ry, this._render_tooltips(ds, -1, vars)])
+    }
+
+    if (glyph instanceof HAreaView) {
+      for (const i of subset_indices.line_indices) {
+        const data_x1 = glyph._x1
+        const data_x2 = glyph._x2
+        const data_y = glyph._y
+        const [rx, ry] = [sx, sy]
+        const vars = {
+          index: i,
+          x, y, sx, sy, data_x1, data_x2, data_y, rx, ry,
+          indices: subset_indices.line_indices,
+          name: renderer.name,
+        }
+        tooltips.push([rx, ry, this._render_tooltips(ds, i, vars)])
+      }
+    }
+
+    if (glyph instanceof VAreaView) {
+      for (const i of subset_indices.line_indices) {
+        const data_x = glyph._x
+        const data_y1 = glyph._y1
+        const data_y2 = glyph._y2
+        const [rx, ry] = [sx, sy]
+        const vars = {
+          index: i,
+          x, y, sx, sy, data_x, data_y1, data_y2, rx, ry,
+          indices: subset_indices.line_indices,
+          name: renderer.name,
+        }
+        tooltips.push([rx, ry, this._render_tooltips(ds, i, vars)])
+      }
+    }
 
     if (glyph instanceof LineView) {
       for (const i of subset_indices.line_indices) {
@@ -286,21 +329,6 @@ export class HoverToolView extends InspectToolView {
           name: renderer.name,
         }
         tooltips.push([rx, ry, this._render_tooltips(ds, ii, vars)])
-      }
-    }
-
-    if (glyph instanceof VAreaView) {
-      for (const i of subset_indices.line_indices) {
-        const data_x = glyph._x
-        const data_y = glyph._y2
-        const [rx, ry] = [sx, sy]
-        const vars = {
-          index: i,
-          x, y, sx, sy, data_x, data_y, rx, ry,
-          indices: subset_indices.line_indices,
-          name: renderer.name,
-        }
-        tooltips.push([rx, ry, this._render_tooltips(ds, i, vars)])
       }
     }
 
