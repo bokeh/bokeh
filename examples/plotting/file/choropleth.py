@@ -1,3 +1,13 @@
+'''This example shows an unemployment map by county of the United States of America in 2009.
+It demonstrates drawing shapes using polygonal data, as well as using color scales to indicate different integer ranges
+
+.. bokeh-example-metadata::
+    :sampledata: us_counties, us_states, unemployment
+    :apis: bokeh.plotting.figure.patches, bokeh.palettes.Viridis6, bokeh.plotting.show
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_patches`
+    :keywords: colormap, shapes, vector, polygon
+'''
+
 from bokeh.palettes import Viridis6
 from bokeh.plotting import figure, show
 from bokeh.sampledata.unemployment import data as unemployment
