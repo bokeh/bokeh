@@ -143,7 +143,8 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
         assert content["lockfileVersion"] == 2, "Expected lock file v2"
         content["version"] = config.js_version
         for pkg in content["packages"].values():
-            pkg["version"] = config.js_version
+            if pkg.get("name", "").startswith("@bokeh/"):
+                pkg["version"] = config.js_version
 
     files: Dict[str, Callable[[Dict[str, Any]], None]] = {
         "package.json": update_package_json,
