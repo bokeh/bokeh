@@ -231,6 +231,12 @@ class DocumentCallbackManager:
             new = model.lookup(attr).get_value(model)
             event = ModelChangedEvent(doc, model, attr, new, setter, callback_invoker)
         else:
+            assert hint.callback_invoker is None
+            hint.callback_invoker = callback_invoker
+
+            if hint.setter is None:
+                hint.setter = setter
+
             event = hint
 
         self.trigger_on_change(event)
