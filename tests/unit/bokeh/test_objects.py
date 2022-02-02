@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Set, Tuple, Type
+from typing import Set, Tuple
 
 # Bokeh imports
 from bokeh.core.json_encoder import serialize_json
@@ -169,17 +169,15 @@ class SomeModelToJson(Model):
 
 
 class TestModel:
-    pObjectClass: Type[SomeModel]
 
     def setup_method(self) -> None:
-        self.pObjectClass = SomeModel
         self.maxDiff = None
 
     def test_init(self) -> None:
-        testObject = self.pObjectClass(id='test_id')
+        testObject = SomeModel(id='test_id')
         assert testObject.id == 'test_id'
 
-        testObject2 = self.pObjectClass()
+        testObject2 = SomeModel()
         assert testObject2.id is not None
 
         assert set(testObject.properties()) == {
@@ -206,23 +204,23 @@ class TestModel:
         from bokeh.core.has_props import HasProps
         from bokeh.core.properties import Instance, Int
 
-        class T(self.pObjectClass):
+        class T(SomeModel):
             t = Int(0)
 
-        class Y(self.pObjectClass):
+        class Y(SomeModel):
             t1 = Instance(T)
 
         class Z1(HasProps):
             t2 = Instance(T)
 
-        class Z2(self.pObjectClass):
+        class Z2(SomeModel):
             t2 = Instance(T)
 
-        class X1(self.pObjectClass):
+        class X1(SomeModel):
             y = Instance(Y)
             z1 = Instance(Z1)
 
-        class X2(self.pObjectClass):
+        class X2(SomeModel):
             y = Instance(Y)
             z2 = Instance(Z2)
 
@@ -251,10 +249,10 @@ class TestModel:
         # Warning: Duplicate __view_model__ declaration of 'Y' for class Y.
         #          Previous definition: <class 'bokeh.tests.test_objects.Y'>
 
-        class U(self.pObjectClass):
+        class U(SomeModel):
             a = Int()
 
-        class V(self.pObjectClass):
+        class V(SomeModel):
             u1 = Instance(U)
             u2 = List(Instance(U))
             u3 = Tuple(Int, Instance(U))
