@@ -32,12 +32,7 @@ import datetime as dt
 import uuid
 from functools import lru_cache
 from threading import Lock
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    List,
-    Set,
-)
+from typing import TYPE_CHECKING, Any, Set
 
 # External imports
 import numpy as np
@@ -102,7 +97,6 @@ __all__ = (
     'make_globally_unique_id',
     'make_id',
     'transform_array',
-    'transform_array_to_list',
     'transform_series',
 )
 
@@ -329,30 +323,6 @@ def transform_array(array: npt.NDArray[Any]) -> npt.NDArray[Any]:
     if not array.flags["C_CONTIGUOUS"]:
         array = np.ascontiguousarray(array)
     return array
-
-def transform_array_to_list(array: npt.NDArray[Any]) -> List[Any]:
-    ''' Transforms a NumPy array into a list of values
-
-    Args:
-        array (np.nadarray) : the NumPy array series to transform
-
-    Returns:
-        list or dict
-
-    '''
-    pd = import_optional('pandas')
-
-    if (array.dtype.kind in ('u', 'i', 'f') and (~np.isfinite(array)).any()):
-        transformed = array.astype('object')
-        transformed[np.isnan(array)] = 'NaN'
-        transformed[np.isposinf(array)] = 'Infinity'
-        transformed[np.isneginf(array)] = '-Infinity'
-        return transformed.tolist()
-    elif (array.dtype.kind == 'O' and pd and pd.isnull(array).any()):
-        transformed = array.astype('object')
-        transformed[pd.isnull(array)] = 'NaN'
-        return transformed.tolist()
-    return array.tolist()
 
 def transform_series(series: pd.Series | pd.Index) -> npt.NDArray[Any]:
     ''' Transforms a Pandas series into serialized form

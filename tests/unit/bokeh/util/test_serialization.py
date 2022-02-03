@@ -171,19 +171,6 @@ def test_transform_series(pd) -> None:
     out = bus.transform_series(df)
     assert isinstance(out, np.ndarray)
 
-@pytest.mark.parametrize('dt', bus.BINARY_ARRAY_TYPES)
-def test_transform_array_to_list(dt) -> None:
-    a = np.empty(shape=10, dtype=dt)
-    out = bus.transform_array_to_list(a)
-    assert isinstance(out, list)
-
-@pytest.mark.parametrize('values', [(['cat', 'dog']), ([1.2, 'apple'])])
-def test_transform_array_with_nans_to_list(pd, values) -> None:
-    s = pd.Series([np.nan, values[0], values[1]])
-    out = bus.transform_array_to_list(s)
-    assert isinstance(out, list)
-    assert out == ['NaN', values[0], values[1]]
-
 def test_array_encoding_disabled_by_dtype() -> None:
 
     assert len(bus.BINARY_ARRAY_TYPES) > 0
