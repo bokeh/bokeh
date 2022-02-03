@@ -270,7 +270,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     for (const prop of this) {
       if (prop.syncable && (serializer.include_defaults || prop.dirty)) {
         const value = prop.get_value()
-        attributes[prop.attr] = serializer.to_serializable(value)
+        attributes[prop.attr] = serializer.encode(value)
       }
     }
 

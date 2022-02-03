@@ -376,7 +376,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
             serializer (Serializer):
 
         '''
-        new = serializer.to_serializable(self.new)
+        new = serializer.encode(self.new)
 
         # we know we don't want a whole new copy of the obj we're patching
         # unless it's also the new value
@@ -476,8 +476,8 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
             kind  = self.kind,
             model = self.model.ref,
             attr  = self.attr,
-            data  = serializer.to_serializable(data),
-            cols  = serializer.to_serializable(cols),
+            data  = serializer.encode(data),
+            cols  = serializer.encode(cols),
         )
 
     @staticmethod
@@ -573,7 +573,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
             kind     = self.kind,
             model    = self.model.ref,
             attr     = self.attr,
-            data     = serializer.to_serializable(self.data),
+            data     = serializer.encode(self.data),
             rollover = self.rollover,
         )
 
@@ -655,7 +655,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
             kind    = self.kind,
             model   = self.model.ref,
             attr    = self.attr,
-            patches = serializer.to_serializable(self.patches),
+            patches = serializer.encode(self.patches),
         )
 
     @staticmethod
@@ -795,7 +795,7 @@ class RootAddedEvent(DocumentPatchedEvent):
         '''
         return RootAdded(
             kind  = self.kind,
-            model = serializer.to_serializable(self.model),
+            model = serializer.encode(self.model),
         )
 
     @staticmethod

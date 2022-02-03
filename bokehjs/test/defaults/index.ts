@@ -23,20 +23,20 @@ type KV = {[key: string]: unknown}
 
 class DefaultsSerializer extends Serializer {
 
-  override to_serializable(obj: unknown): unknown {
+  override encode(obj: unknown): unknown {
     if (obj instanceof HasProps) {
       const attributes: KV = {}
       for (const prop of obj) {
         if (prop.syncable) {
           const value = prop.is_unset ? unset : prop.get_value()
-          attributes[prop.attr] = this.to_serializable(value)
+          attributes[prop.attr] = this.encode(value)
         }
       }
 
       const {type} = obj
       return {type, attributes}
     } else {
-      return super.to_serializable(obj)
+      return super.encode(obj)
     }
   }
 }
@@ -197,7 +197,7 @@ describe("Defaults", () => {
       const obj: HasProps = new (model as any)() // TODO: instantiating a possibly abstract class?
 
       const serializer = new DefaultsSerializer()
-      const defaults = serializer.to_serializable(obj)
+      const defaults = serializer.encode(obj)
 
       const python_defaults = get_defaults(name)
       const bokehjs_defaults = (defaults as KV).attributes as KV

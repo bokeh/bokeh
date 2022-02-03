@@ -1,7 +1,7 @@
 import {ModelResolver} from "../base"
 import {Model} from "../model"
 import * as kinds from "core/kinds"
-import {Deserializer, AnyVal, ModelRef as ModelRep} from "core/deserializer"
+import {Deserializer, AnyVal, ModelRep} from "core/deserializer"
 import {isString} from "core/util/types"
 import {to_object} from "core/util/object"
 

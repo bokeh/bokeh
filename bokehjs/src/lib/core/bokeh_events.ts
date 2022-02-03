@@ -22,7 +22,7 @@ export abstract class BokehEvent implements Serializable, Equatable {
 
   [serialize](serializer: Serializer): BokehEventRep {
     const {event_name: name, event_values} = this
-    const values = serializer.to_serializable(event_values)
+    const values = serializer.encode(event_values)
     return {type: "event", name, values}
   }
 

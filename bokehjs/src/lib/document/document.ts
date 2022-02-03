@@ -363,7 +363,7 @@ export class Document implements Equatable {
 
   to_json(include_defaults: boolean = true): DocJson {
     const serializer = new Serializer({include_defaults})
-    const roots = serializer.to_serializable(this._roots)
+    const roots = serializer.encode(this._roots)
     return {
       version: js_version,
       title: this._title,
@@ -442,7 +442,7 @@ export class Document implements Equatable {
     }
 
     const serializer = new Serializer()
-    const events_repr = serializer.to_serializable(events)
+    const events_repr = serializer.encode(events)
 
     // TODO: We need a proper differential serializer. For now just remove known
     // definitions. We are doing this after a complete serialization, so that all

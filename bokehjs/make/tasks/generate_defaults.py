@@ -7,7 +7,7 @@ from os.path import dirname, join
 
 # Bokeh imports
 from bokeh.core.property.singletons import Undefined
-from bokeh.core.serialization import Serializer, JSON
+from bokeh.core.serialization import AnyRep, Serializer
 from bokeh.core.json_encoder import serialize_json
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
@@ -16,10 +16,10 @@ import bokeh.models; bokeh.models # isort:skip
 
 class DefaultsSerializer(Serializer):
 
-    def _encode(self, obj: Any) -> JSON:
+    def _encode(self, obj: Any) -> AnyRep:
         if isinstance(obj, Model):
             properties = obj.properties_with_values(include_defaults=True)
-            attributes = {key: self.to_serializable(val) for key, val in properties.items()}
+            attributes = {key: self.encode(val) for key, val in properties.items()}
             rep = dict(
                 type=obj.__qualified_model__,
                 attributes=attributes,
@@ -42,7 +42,7 @@ for name, model in Model.model_class_reverse_map.items():
 
     q = lambda prop: prop.readonly or prop.serialized
     properties = obj.query_properties_with_values(q, include_undefined=True)
-    attributes = {key: serializer.to_serializable(val) for key, val in properties.items()}
+    attributes = {key: serializer.encode(val) for key, val in properties.items()}
     all_json[name] = attributes
 
 def output_defaults_module(filename: str, defaults: Any) -> None:

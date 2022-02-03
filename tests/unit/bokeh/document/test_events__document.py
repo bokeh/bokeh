@@ -116,7 +116,7 @@ class TestDocumentPatchedEvent:
         s = Serializer()
         e = bde.DocumentPatchedEvent(doc, "setter", "invoker")
         with pytest.raises(NotImplementedError):
-            s.to_serializable(e)
+            s.encode(e)
 
     def test_dispatch(self) -> None:
         doc = Document()
@@ -232,7 +232,7 @@ class TestColumnDataChangedEvent:
         m = SomeModel(data={"col0": [1], "col1": [1, 2], "col2": [1, 2, 3]})
         e = bde.ColumnDataChangedEvent(doc, m, "data", None, ["col1", "col2"], "setter", "invoker")
         s = Serializer()
-        r = s.to_serializable(e)
+        r = s.encode(e)
         assert r == dict(
             kind=e.kind,
             model=m.ref,
@@ -284,7 +284,7 @@ class TestColumnsStreamedEvent:
         m = SomeModel()
         e = bde.ColumnsStreamedEvent(doc, m, "data", dict(foo=1), 200, "setter", "invoker")
         s = Serializer()
-        r = s.to_serializable(e)
+        r = s.encode(e)
         assert r == dict(kind=e.kind, model=m.ref, attr="data", data=dict(type="map", entries=[["foo", 1]]), rollover=200)
         assert s.references == []
         assert s.buffers == []
@@ -340,7 +340,7 @@ class TestColumnsPatchedEvent:
         m = SomeModel()
         e = bde.ColumnsPatchedEvent(doc, m, "data", [1, 2], "setter", "invoker")
         s = Serializer()
-        r = s.to_serializable(e)
+        r = s.encode(e)
         assert r == dict(kind=e.kind, model=m.ref, attr="data", patches=[1,2])
         assert s.references == []
         assert s.buffers == []
@@ -381,7 +381,7 @@ class TestTitleChangedEvent:
         doc = Document()
         e = bde.TitleChangedEvent(doc, "title", "setter", "invoker")
         s = Serializer()
-        r = s.to_serializable(e)
+        r = s.encode(e)
         assert r == dict(kind=e.kind, title="title")
         assert s.references == []
         assert s.buffers == []
@@ -449,7 +449,7 @@ class TestRootAddedEvent:
         m = SomeModel(ref1=ref1, ref2=ref2)
         e = bde.RootAddedEvent(doc, m, "setter", "invoker")
         s = Serializer()
-        r = s.to_serializable(e)
+        r = s.encode(e)
         assert r == dict(kind=e.kind, model=m.ref)
         assert len(s.references) == 3 # [m, ref1, ref2]
         assert s.buffers == []
@@ -484,7 +484,7 @@ class TestRootRemovedEvent:
         m = SomeModel()
         e = bde.RootRemovedEvent(doc, m, "setter", "invoker")
         s = Serializer()
-        r = s.to_serializable(e)
+        r = s.encode(e)
         assert r == dict(kind=e.kind, model=m.ref)
         assert s.references == []
         assert s.buffers == []

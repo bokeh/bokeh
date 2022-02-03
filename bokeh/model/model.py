@@ -36,8 +36,8 @@ from typing import (
 # Bokeh imports
 from ..core import properties as p
 from ..core.has_props import HasProps, abstract
-from ..core.serialization import ModelRef, Serializer
-from ..core.types import ID, Ref, Unknown
+from ..core.serialization import ModelRep, Ref, Serializer
+from ..core.types import ID, Unknown
 from ..events import Event
 from ..themes import default as default_theme
 from ..util.callback_manager import EventCallbackManager, PropertyCallbackManager
@@ -51,8 +51,6 @@ from .util import (
 )
 
 if TYPE_CHECKING:
-    import bokeh.types
-
     from ..core.has_props import Setter
     from ..core.query import SelectorType
     from ..document import Document
@@ -456,7 +454,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
                 setattr(obj, key, val)
 
     # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
-    def to_json(self, include_defaults: bool) -> bokeh.types.JSON:
+    def to_json(self, include_defaults: bool) -> Any:
         ''' Returns a dictionary of the attributes of this object,
         containing only "JSON types" (string, number, boolean,
         none, dict, list).
@@ -481,16 +479,15 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         serializer = Serializer()
 
         properties = self.properties_with_values(include_defaults=include_defaults)
-        attributes = {key: serializer.to_serializable(val) for key, val in properties.items()}
+        attributes = {key: serializer.encode(val) for key, val in properties.items()}
 
         return dict(id=self.id, **attributes)
 
-    # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
-    def to_serializable(self, serializer: Serializer) -> bokeh.types.JSON:
+    def to_serializable(self, serializer: Serializer) -> Ref:
         if not serializer.has_ref(self):
             serializer.add_ref(self, self.ref)
 
-            rep = ModelRef(
+            rep = ModelRep(
                 type=self.__qualified_model__,
                 id=self.id,
                 attributes=super().to_serializable(serializer)["attributes"],

@@ -2,7 +2,7 @@ import {ModelResolver} from "../base"
 import {HasProps} from "./has_props"
 import {ID, Attrs, PlainObject} from "./types"
 import {Ref, is_ref} from "./util/refs"
-import {Buffers, decode_bytes, BytesRef, NDArrayRef} from "./util/serialization"
+import {Buffers, decode_bytes, BytesRep, NDArrayRep} from "./util/serialization"
 import {ndarray, NDArray} from "./util/ndarray"
 import {entries} from "./util/object"
 import {map, every} from "./util/array"
@@ -14,34 +14,34 @@ import {type Document} from "document"
 export type RefMap = Map<ID, HasProps>
 
 export type AnyVal = null | boolean | number | string | Ref | AnyRef | AnyVal[]
-export type AnyRef = NumberRef | ArrayRef | SetRef | MapRef | BytesRef | NDArrayRef | TypeRef
+export type AnyRef = NumberRep | ArrayRep | SetRep | MapRep | BytesRep | NDArrayRep | TypeRep
 
-export type NumberRef = {
+export type NumberRep = {
   type: "number"
   value: number | "nan" | "-inf" | "+inf"
 }
 
-export type ArrayRef = {
+export type ArrayRep = {
   type: "array"
   entries: AnyVal[]
 }
 
-export type SetRef = {
+export type SetRep = {
   type: "set"
   entries: AnyVal[]
 }
 
-export type MapRef = {
+export type MapRep = {
   type: "map"
   entries: [AnyVal, AnyVal][]
 }
 
-export type TypeRef = {
+export type TypeRep = {
   type: string
   attributes: {[key: string]: AnyVal}
 }
 
-export type ModelRef = TypeRef & {
+export type ModelRep = TypeRep & {
   id: string
 }
 
@@ -51,7 +51,7 @@ export class Deserializer {
     readonly resolver: ModelResolver = new ModelResolver(),
     readonly references: RefMap = new Map()) {}
 
-  protected _refs: Map<ID, ModelRef> = new Map()
+  protected _refs: Map<ID, ModelRep> = new Map()
   protected _buffers: Buffers = new Map()
   protected _to_finalize: HasProps[] = []
 
@@ -60,7 +60,7 @@ export class Deserializer {
     return new (model as any)({id})
   }
 
-  decode(obj: unknown /*AnyVal*/, refs: ModelRef[], buffers: Buffers = new Map(), document?: Document): unknown {
+  decode(obj: unknown /*AnyVal*/, refs: ModelRep[], buffers: Buffers = new Map(), document?: Document): unknown {
     this._refs = new Map(refs.map((ref) => [ref.id, ref]))
     this._buffers = buffers
     this._to_finalize = []
@@ -103,20 +103,20 @@ export class Deserializer {
       if ("type" in obj) {
         switch (obj.type) {
           case "number":
-            return this._decode_number(obj as NumberRef)
+            return this._decode_number(obj as NumberRep)
           case "array":
-            return this._decode_array(obj as ArrayRef)
+            return this._decode_array(obj as ArrayRep)
           case "set":
-            return this._decode_set(obj as SetRef)
+            return this._decode_set(obj as SetRep)
           case "map":
-            return this._decode_map(obj as MapRef)
+            return this._decode_map(obj as MapRep)
           case "bytes":
-            return this._decode_bytes(obj as BytesRef)
+            return this._decode_bytes(obj as BytesRep)
           case "ndarray":
-            return this._decode_ndarray(obj as NDArrayRef)
+            return this._decode_ndarray(obj as NDArrayRep)
           default: {
             if ("attributes" in obj && !("id" in obj)) {
-              return this._decode_type(obj as TypeRef)
+              return this._decode_type(obj as TypeRep)
             }
           }
         }
@@ -129,7 +129,7 @@ export class Deserializer {
       return obj
   }
 
-  protected _decode_number(obj: NumberRef): number {
+  protected _decode_number(obj: NumberRep): number {
     if ("value" in obj) {
       const {value} = obj
       if (isString(value)) {
@@ -157,7 +157,7 @@ export class Deserializer {
     return decoded
   }
 
-  protected _decode_array(obj: ArrayRef): unknown[] {
+  protected _decode_array(obj: ArrayRep): unknown[] {
     const decoded = []
     for (const entry of obj.entries) {
       decoded.push(this._decode(entry))
@@ -165,7 +165,7 @@ export class Deserializer {
     return decoded
   }
 
-  protected _decode_set(obj: SetRef): Set<unknown> {
+  protected _decode_set(obj: SetRep): Set<unknown> {
     const decoded = new Set()
     for (const entry of obj.entries) {
       decoded.add(this._decode(entry))
@@ -173,7 +173,7 @@ export class Deserializer {
     return decoded
   }
 
-  protected _decode_map(obj: MapRef): Map<unknown, unknown> | {[key: string]: unknown} {
+  protected _decode_map(obj: MapRep): Map<unknown, unknown> | {[key: string]: unknown} {
     const decoded = map(obj.entries, ([key, val]) => [this._decode(key), this._decode(val)] as const)
     const is_str = every(decoded, ([key]) => isString(key))
     if (is_str) {
@@ -186,11 +186,11 @@ export class Deserializer {
       return new Map(decoded)
   }
 
-  protected _decode_bytes(obj: BytesRef): ArrayBuffer {
+  protected _decode_bytes(obj: BytesRep): ArrayBuffer {
     return decode_bytes(obj, this._buffers)
   }
 
-  protected _decode_ndarray(obj: NDArrayRef): NDArray {
+  protected _decode_ndarray(obj: NDArrayRep): NDArray {
     const {array, shape, dtype, order} = obj
 
     const decoded = this._decode(array) as ArrayBuffer | unknown[]
@@ -202,7 +202,7 @@ export class Deserializer {
     return ndarray(decoded as any /*XXX*/, {dtype, shape})
   }
 
-  protected _decode_type(obj: TypeRef): unknown {
+  protected _decode_type(obj: TypeRep): unknown {
     const cls = this.resolver.get(obj.type)
     const attrs = this._decode(obj.attributes)
     return new (cls as any)(attrs)

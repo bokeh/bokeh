@@ -42,7 +42,7 @@ if TYPE_CHECKING:
     from ipykernel.comm import Comm
 
 # Bokeh imports
-from ..core.types import ID, JSON
+from ..core.types import ID
 from ..util.serialization import make_id
 from .state import curstate
 
@@ -91,7 +91,7 @@ class CommsHandle:
     '''
 
     '''
-    _json: JSON = {}
+    _json: Any = {}
     _cellno: int | None
     _doc: Document
 

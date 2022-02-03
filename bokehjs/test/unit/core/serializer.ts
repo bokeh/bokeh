@@ -9,7 +9,7 @@ import {BYTE_ORDER} from "@bokehjs/core/util/platform"
 
 function to_serializable(obj: unknown): {repr: unknown, json: string} {
   const serializer = new Serializer()
-  const repr = serializer.to_serializable(obj)
+  const repr = serializer.encode(obj)
   const json = JSON.stringify(repr)
   return {repr, json}
 }
@@ -179,7 +179,7 @@ describe("core/serializer module", () => {
       obj0.obj = obj2
 
       const serializer = new Serializer()
-      const repr = serializer.to_serializable(obj2)
+      const repr = serializer.encode(obj2)
       const defs = [...serializer.definitions]
 
       expect(repr).to.be.equal({id: obj2.id})

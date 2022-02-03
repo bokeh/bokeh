@@ -27,7 +27,7 @@ from math import sqrt
 from typing import Type, TypeVar
 
 # Bokeh imports
-from ..core.serialization import JSON, Serializable, Serializer
+from ..core.serialization import AnyRep, Serializable, Serializer
 from ..util.deprecation import deprecated
 
 #-----------------------------------------------------------------------------
@@ -52,7 +52,7 @@ class Color(Serializable, metaclass=ABCMeta):
     def __repr__(self) -> str:
         return self.to_css()
 
-    def to_serializable(self, serializer: Serializer) -> JSON:
+    def to_serializable(self, serializer: Serializer) -> AnyRep:
         return self.to_css()
 
     @staticmethod

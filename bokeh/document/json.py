@@ -34,12 +34,8 @@ from typing import (
 ## Bokeh imports
 if TYPE_CHECKING:
     from ..core.has_props import ModelDef
-    from ..core.types import (
-        ID,
-        Ref,
-        ReferenceJson,
-        Unknown,
-    )
+    from ..core.serialization import ModelRep, Ref
+    from ..core.types import ID, Unknown
     from ..models.sources import DataDict
 
 #-----------------------------------------------------------------------------
@@ -118,7 +114,7 @@ DocumentChanged = DocumentPatched
 
 class RootsJson(TypedDict):
     root_ids: List[ID]
-    references: List[ReferenceJson]
+    references: List[ModelRep]
 
 class DocJson(TypedDict):
     version: str | None
@@ -128,7 +124,7 @@ class DocJson(TypedDict):
 
 class PatchJson(TypedDict):
     events: List[DocumentChanged]
-    references: List[ReferenceJson]
+    references: List[ModelRep]
 
 #-----------------------------------------------------------------------------
 # Private API

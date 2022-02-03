@@ -156,7 +156,7 @@ export class MessageSentEvent extends DocumentChangedEvent {
 
   [serialize](serializer: Serializer): DocumentChanged {
     const value = this.msg_data
-    const value_serialized = serializer.to_serializable(value)
+    const value_serialized = serializer.encode(value)
     return {
       kind: "MessageSent",
       msg_type: this.msg_type,
@@ -183,7 +183,7 @@ export class ModelChangedEvent extends DocumentChangedEvent {
 
   [serialize](serializer: Serializer): DocumentChanged {
     const value = this.new_
-    const value_serialized = serializer.to_serializable(value)
+    const value_serialized = serializer.encode(value)
 
     if (this.model != value) {
       // we know we don't want a whole new copy of the obj we're
@@ -317,7 +317,7 @@ export class RootAddedEvent extends DocumentChangedEvent {
   [serialize](serializer: Serializer): RootAdded {
     return {
       kind: "RootAdded",
-      model: serializer.to_serializable(this.model),
+      model: serializer.encode(this.model),
     }
   }
 }

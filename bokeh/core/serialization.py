@@ -57,7 +57,7 @@ from ..util.serialization import (
     transform_array,
     transform_series,
 )
-from .types import ID, JSON, Ref
+from .types import ID
 
 if TYPE_CHECKING:
     from ..core.has_props import Setter
@@ -76,30 +76,35 @@ __all__ = (
 
 MAX_INT = 2**53 - 1
 
-_serializers: Dict[Type[Any], Any] = {}
+_serializers: Dict[Type[Any], Callable[[Any], "Serializer"]] = {}
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class ModelRef(TypedDict):
+AnyRep: TypeAlias = Any
+
+class Ref(TypedDict):
+    id: ID
+
+class ModelRep(TypedDict):
     type: str
     id: ID
     attributes: Dict[str, Any]
 
-class ArrayRef(TypedDict):
+class ArrayRep(TypedDict):
     type: Literal["array"]
     entries: List[Any]
 
-class BytesRef(TypedDict):
+class BytesRep(TypedDict):
     type: Literal["bytes"]
     data: Ref | str
 
 ByteOrder = Literal["little", "big"]
 
-class NDArrayRef(TypedDict):
+class NDArrayRep(TypedDict):
     type: Literal["ndarray"]
-    array: BytesRef | ArrayRef
+    array: BytesRep | ArrayRep
     order: ByteOrder
     dtype: str
     shape: List[int]
@@ -116,13 +121,16 @@ class Buffer:
     def to_base64(self) -> str:
         return base64.b64encode(self.data).decode("utf-8")
 
+Encoder: TypeAlias = Callable[[Any, "Serializer"], AnyRep]
+Decoder: TypeAlias = Callable[[AnyRep, "Deserializer"], Any]
+
 class SerializationError(ValueError):
     """ """
 
 class Serializable:
     """ """
 
-    def to_serializable(self, serializer: Serializer) -> JSON:
+    def to_serializable(self, serializer: Serializer) -> AnyRep:
         """ """
         raise NotImplementedError()
 
@@ -133,7 +141,7 @@ class Serializer:
 
     _circular: Dict[ObjID, Any]
     _references: Dict[ObjID, Ref]
-    _definitions: Dict[ObjID, ModelRef]
+    _definitions: Dict[ObjID, ModelRep]
     _buffers: List[Buffer]
 
     def __init__(self, *, binary: bool = True) -> None:
@@ -143,9 +151,9 @@ class Serializer:
         self._buffers = []
         self.binary = binary
 
-    def to_serializable(self, obj: Any) -> JSON:
+    def serialize(self, obj: Any) -> AnyRep:
         """ """
-        return self._encode(obj)
+        return self.encode(obj)
 
     def has_ref(self, obj: Any) -> bool:
         return id(obj) in self._references
@@ -161,7 +169,7 @@ class Serializer:
         del self._references[id(obj)]
         del self._definitions[id(obj)]
 
-    def add_rep(self, obj: Any, rep: ModelRef) -> None:
+    def add_rep(self, obj: Any, rep: ModelRep) -> None:
         assert id(obj) in self._references
         self._definitions[id(obj)] = rep
 
@@ -172,7 +180,7 @@ class Serializer:
         return buffer
 
     @property
-    def references(self) -> List[ModelRef]:
+    def references(self) -> List[ModelRep]:
         return list(self._definitions.values())
 
     @property
@@ -184,7 +192,7 @@ class Serializer:
         self._id += 1
         return ID(str(self._id))
 
-    def _encode(self, obj: Any) -> JSON:
+    def encode(self, obj: Any) -> AnyRep:
         ref = self.get_ref(obj)
         if ref is not None:
             return ref
@@ -194,16 +202,16 @@ class Serializer:
             raise SerializationError("circular reference")
 
         self._circular[ident] = obj
-        rep = self.__encode(obj)
+        rep = self._encode(obj)
         del self._circular[ident]
 
         return rep
 
-    def __encode(self, obj: Any) -> JSON:
+    def _encode(self, obj: Any) -> AnyRep:
         if isinstance(obj, Serializable):
             return obj.to_serializable(self)
         elif type(obj) in _serializers:
-            return _serializers[type(obj)](self)
+            return _serializers[type(obj)](obj, self)
         elif obj is None:
             return None
         elif isinstance(obj, bool):
@@ -229,20 +237,20 @@ class Serializer:
         else:
             return self._encode_other(obj)
 
-    def _encode_bool(self, obj: bool) -> JSON:
+    def _encode_bool(self, obj: bool) -> AnyRep:
         return obj
 
-    def _encode_str(self, obj: str) -> JSON:
+    def _encode_str(self, obj: str) -> AnyRep:
         return obj
 
-    def _encode_int(self, obj: int) -> JSON:
+    def _encode_int(self, obj: int) -> AnyRep:
         if -MAX_INT < obj <= MAX_INT:
             return obj
         else:
             log.warning("out of range integer may result in loss of precision")
             return self._encode_float(float(obj))
 
-    def _encode_float(self, obj: float) -> JSON:
+    def _encode_float(self, obj: float) -> AnyRep:
         if isnan(obj):
             return dict(type="number", value="nan")
         elif isinf(obj):
@@ -250,33 +258,33 @@ class Serializer:
         else:
             return obj
 
-    def _encode_tuple(self, obj: Tuple[Any, ...]) -> JSON:
+    def _encode_tuple(self, obj: Tuple[Any, ...]) -> AnyRep:
         return self._encode_list(list(obj))
 
-    def _encode_list(self, obj: List[Any]) -> JSON:
-        return [self._encode(item) for item in obj]
+    def _encode_list(self, obj: List[Any]) -> AnyRep:
+        return [self.encode(item) for item in obj]
 
-    def _encode_dict(self, obj: Dict[Any, Any]) -> JSON:
+    def _encode_dict(self, obj: Dict[Any, Any]) -> AnyRep:
         return dict(
             type="map",
-            entries=[[self._encode(key), self._encode(val)] for key, val in obj.items()],
+            entries=[[self.encode(key), self.encode(val)] for key, val in obj.items()],
         )
 
-    def _encode_dataclass(self, obj: Any) -> JSON:
+    def _encode_dataclass(self, obj: Any) -> AnyRep:
         cls = type(obj)
         return dict(
             type=f"{cls.__module__}.{cls.__name__}",
-            attributes={key: self._encode(val) for key, val in entries(obj)},
+            attributes={key: self.encode(val) for key, val in entries(obj)},
         )
 
-    def _encode_bytes(self, obj: bytes) -> JSON:
+    def _encode_bytes(self, obj: bytes) -> AnyRep:
         buffer = self.add_buf(obj)
         return dict(
             type="bytes",
             data=buffer.ref if self.binary else buffer.to_base64(),
         )
 
-    def _encode_ndarray(self, obj: npt.NDArray[Any]) -> JSON:
+    def _encode_ndarray(self, obj: npt.NDArray[Any]) -> AnyRep:
         array = transform_array(obj)
 
         if array_encoding_disabled(array):
@@ -294,7 +302,7 @@ class Serializer:
             order=sys.byteorder,
         )
 
-    def _encode_other(self, obj: Any) -> JSON:
+    def _encode_other(self, obj: Any) -> AnyRep:
         pd = import_optional("pandas")
         if pd and isinstance(obj, (pd.Series, pd.Index)):
             return self._encode_ndarray(transform_series(obj))
@@ -320,18 +328,16 @@ class Serializer:
         rd = import_optional("dateutil.relativedelta")
         if rd and isinstance(obj, rd.relativedelta):
             return dict(
-                years=self.to_serializable(obj.years),
-                months=self.to_serializable(obj.months),
-                days=self.to_serializable(obj.days),
-                hours=self.to_serializable(obj.hours),
-                minutes=self.to_serializable(obj.minutes),
-                seconds=self.to_serializable(obj.seconds),
-                microseconds=self.to_serializable(obj.microseconds),
+                years=self.encode(obj.years),
+                months=self.encode(obj.months),
+                days=self.encode(obj.days),
+                hours=self.encode(obj.hours),
+                minutes=self.encode(obj.minutes),
+                seconds=self.encode(obj.seconds),
+                microseconds=self.encode(obj.microseconds),
             )
 
         raise SerializationError(f"can't serialize {type(obj)}")
-
-Decoder: TypeAlias = Callable[[JSON, "Deserializer"], Any]
 
 class DeserializationError(ValueError):
     pass
@@ -349,7 +355,7 @@ class Deserializer:
     _references: Dict[ID, Model]
     _setter: Setter | None
 
-    _refs: Dict[ID, ModelRef]
+    _refs: Dict[ID, ModelRep]
     _buffers: Dict[ID, Buffer]
     _deserializing: bool
 
@@ -358,7 +364,7 @@ class Deserializer:
         self._setter = setter
         self._deserializing = False
 
-    def from_serializable(self, obj: JSON, refs: List[ModelRef] = [], buffers: List[Buffer] = []) -> Any:
+    def from_serializable(self, obj: AnyRep, refs: List[ModelRep] = [], buffers: List[Buffer] = []) -> Any:
         assert not self._deserializing, "internal error"
         self._deserializing = True
 
@@ -372,7 +378,7 @@ class Deserializer:
             self._buffers = {}
             self._deserializing = False
 
-    def decode(self, obj: JSON) -> Any:
+    def decode(self, obj: AnyRep) -> Any:
         if isinstance(obj, dict):
             if "id" in obj and "type" not in obj:
                 return self._decode_ref(obj)
@@ -446,7 +452,7 @@ class Deserializer:
 
         return instance
 
-    def _decode_bytes(self, obj: BytesRef) -> bytes:
+    def _decode_bytes(self, obj: BytesRep) -> bytes:
         data = obj["data"]
 
         if isinstance(data, str):
@@ -460,7 +466,7 @@ class Deserializer:
             else:
                 raise DeserializationError(f"can't resolve buffer '{id}'")
 
-    def _decode_ndarray(self, obj: NDArrayRef) -> npt.NDArray[Any]:
+    def _decode_ndarray(self, obj: NDArrayRep) -> npt.NDArray[Any]:
         array = obj["array"]
         dtype = obj["dtype"]
         shape = obj["shape"]

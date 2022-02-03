@@ -88,7 +88,7 @@ class patch_doc(Message[PatchJson]):
         serializer = Serializer(binary=use_buffers)
 
         patch_json = PatchJson(
-            events     = serializer.to_serializable(events),
+            events     = serializer.encode(events),
             references = serializer.references,
         )
 

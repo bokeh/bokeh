@@ -62,8 +62,13 @@ from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
 from .property.singletons import Undefined
 from .property.wrappers import PropertyValueContainer
-from .serialization import JSON, Serializable, Serializer
-from .types import ReferenceJson, Unknown
+from .serialization import (
+    AnyRep,
+    ModelRep,
+    Serializable,
+    Serializer,
+)
+from .types import Unknown
 
 if TYPE_CHECKING:
     from ..client.session import ClientSession
@@ -362,12 +367,12 @@ class HasProps(Serializable, metaclass=MetaHasProps):
                 if isinstance(default, types.FunctionType):
                     default = default()
 
-                prop_def = PropertyDef(name=prop_name, kind=kind, default=value_serializer.to_serializable(default))
+                prop_def = PropertyDef(name=prop_name, kind=kind, default=value_serializer.encode(default))
 
             properties.append(prop_def)
 
         for prop_name, default in getattr(cls, "__overridden_defaults__", {}).items():
-            overrides.append(OverrideDef(name=prop_name, default=value_serializer.to_serializable(default)))
+            overrides.append(OverrideDef(name=prop_name, default=value_serializer.encode(default)))
 
         modelref = model_ref(cls)
         modeldef = ModelDef(
@@ -382,12 +387,12 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         serializer.add_ref(cls, modelref, modeldef)
         return modelref
 
-    def to_serializable(self, serializer: Serializer) -> JSON:
+    def to_serializable(self, serializer: Serializer) -> AnyRep:
         cls = type(self)
 
-        def attributes(obj: HasProps, serializer: Serializer) -> JSON:
+        def attributes(obj: HasProps, serializer: Serializer) -> Dict[str, AnyRep]:
             properties = obj.properties_with_values(include_defaults=False)
-            return {key: serializer.to_serializable(val) for key, val in properties.items()}
+            return {key: serializer.encode(val) for key, val in properties.items()}
 
         return dict(
             type=f"{cls.__module__}.{cls.__name__}",
@@ -736,7 +741,7 @@ class ModelDef(ModelRef):
     extends: ModelRef
     properties: List[PropertyDef]
     overrides: List[OverrideDef]
-    references: List[ReferenceJson]
+    references: List[ModelRep]
 
 #-----------------------------------------------------------------------------
 # Private API

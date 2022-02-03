@@ -81,25 +81,25 @@ class TestSerializer:
     def test_primitive(self) -> None:
         encoder = Serializer()
 
-        assert encoder.to_serializable(None) is None
-        assert encoder.to_serializable(False) == False
-        assert encoder.to_serializable(True) == True
-        assert encoder.to_serializable("abc") == "abc"
+        assert encoder.encode(None) is None
+        assert encoder.encode(False) == False
+        assert encoder.encode(True) == True
+        assert encoder.encode("abc") == "abc"
 
-        assert encoder.to_serializable(1) == 1
-        assert encoder.to_serializable(1.17) == 1.17
+        assert encoder.encode(1) == 1
+        assert encoder.encode(1.17) == 1.17
 
-        assert encoder.to_serializable(nan) == dict(type="number", value="nan")
+        assert encoder.encode(nan) == dict(type="number", value="nan")
 
-        assert encoder.to_serializable(-inf) == dict(type="number", value="-inf")
-        assert encoder.to_serializable(+inf) == dict(type="number", value="+inf")
+        assert encoder.encode(-inf) == dict(type="number", value="-inf")
+        assert encoder.encode(+inf) == dict(type="number", value="+inf")
 
         assert encoder.references == []
         assert encoder.buffers == []
 
     def test_max_int(self, capsys: Capture) -> None:
         encoder = Serializer()
-        rep = encoder.to_serializable(2**64)
+        rep = encoder.encode(2**64)
         assert rep == 2.0**64
         assert isinstance(rep, float)
 
@@ -115,7 +115,7 @@ class TestSerializer:
         val = [None, False, True, "abc", 1, 1.17, nan, -inf, +inf, v0, v1, v2, [nan]]
 
         encoder = Serializer()
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == [
             None, False, True, "abc", 1, 1.17,
             dict(type="number", value="nan"),
@@ -159,12 +159,12 @@ class TestSerializer:
 
         encoder = Serializer()
         with pytest.raises(ValueError):
-            encoder.to_serializable(val)
+            encoder.encode(val)
 
     def test_bytes_binary(self) -> None:
         encoder = Serializer(binary=True)
         val = bytes([0xFF, 0x00, 0x17, 0xFE, 0x00])
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == dict(
             type="bytes",
             data=dict(id="1"),
@@ -177,7 +177,7 @@ class TestSerializer:
     def test_bytes_base64(self) -> None:
         encoder = Serializer(binary=False)
         val = bytes([0xFF, 0x00, 0x17, 0xFE, 0x00])
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == dict(
             type="bytes",
             data="/wAX/gA=",
@@ -188,7 +188,7 @@ class TestSerializer:
     def test_ndarray_binary(self) -> None:
         encoder = Serializer(binary=True)
         val = np.array([0, 1, 2, 3, 4, 5], dtype="int32")
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == dict(
             type="ndarray",
             array=dict(
@@ -207,7 +207,7 @@ class TestSerializer:
     def test_ndarray_base64(self) -> None:
         encoder = Serializer(binary=False)
         val = np.array([0, 1, 2, 3, 4, 5], dtype="int32")
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == dict(
             type="ndarray",
             array=dict(
@@ -230,7 +230,7 @@ class TestSerializer:
         encoder = Serializer()
         val = np.array([[X()], [X(1)], [X(2, "b")]])
 
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == dict(
             type="ndarray",
             array=[
@@ -248,7 +248,7 @@ class TestSerializer:
     def test_HasProps(self) -> None:
         val = SomeProps(p0=2, p1="a", p2=[1, 2, 3])
         encoder = Serializer()
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == dict(
             type="test_core_serialization.SomeProps",
             attributes=dict(
@@ -263,7 +263,7 @@ class TestSerializer:
     def test_Model(self) -> None:
         val = SomeModel(p0=3, p1="b", p2=[4, 5, 6])
         encoder = Serializer()
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == dict(id=val.id)
         assert encoder.references == [dict(
             type="test_core_serialization.SomeModel",
@@ -283,7 +283,7 @@ class TestSerializer:
         val0.p3 = val2
 
         encoder = Serializer()
-        rep = encoder.to_serializable(val2)
+        rep = encoder.encode(val2)
 
         assert rep == dict(id=val2.id)
         assert encoder.references == [
@@ -296,7 +296,7 @@ class TestSerializer:
     def test_dataclass(self) -> None:
         val = SomeDataClass(f0=2, f1=[1, 2, 3])
         encoder = Serializer()
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == dict(
             type="test_core_serialization.SomeDataClass",
             attributes=dict(
@@ -311,7 +311,7 @@ class TestSerializer:
     def test_dataclass_nested(self) -> None:
         val = SomeDataClass(f0=2, f1=[1, 2, 3], f2=SomeDataClass(f0=3, f1=[4, 5, 6]))
         encoder = Serializer()
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == dict(
             type="test_core_serialization.SomeDataClass",
             attributes=dict(
@@ -334,7 +334,7 @@ class TestSerializer:
         v0 = SomeProps(p0=2, p1="a", p2=[1, 2, 3])
         val = SomeDataClass(f0=2, f1=[1, 2, 3], f4=v0)
         encoder = Serializer()
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == dict(
             type="test_core_serialization.SomeDataClass",
             attributes=dict(
@@ -358,7 +358,7 @@ class TestSerializer:
         v0 = SomeModel(p0=3, p1="b", p2=[4, 5, 6])
         val = SomeDataClass(f0=2, f1=[1, 2, 3], f5=v0)
         encoder = Serializer()
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == dict(
             type="test_core_serialization.SomeDataClass",
             attributes=dict(
@@ -382,7 +382,7 @@ class TestSerializer:
     def test_color_rgb(self) -> None:
         val = RGB(16, 32, 64)
         encoder = Serializer()
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == "rgb(16, 32, 64)"
         assert encoder.references == []
         assert encoder.buffers == []
@@ -390,7 +390,7 @@ class TestSerializer:
     def test_color_rgba(self) -> None:
         val = RGB(16, 32, 64, 0.1)
         encoder = Serializer()
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == "rgba(16, 32, 64, 0.1)"
         assert encoder.references == []
         assert encoder.buffers == []
@@ -398,7 +398,7 @@ class TestSerializer:
     def test_pd_series_base64(self, pd) -> None:
         encoder = Serializer(binary=False)
         val = pd.Series([0, 1, 2, 3, 4, 5], dtype="int32")
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == dict(
             type="ndarray",
             array=dict(
@@ -415,48 +415,48 @@ class TestSerializer:
     def test_np_int64(self) -> None:
         encoder = Serializer()
         val = np.int64(1).item()
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == 1
         assert isinstance(rep, int)
 
     def test_np_float64(self) -> None:
         encoder = Serializer()
         val = np.float64(1.33)
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == 1.33
         assert isinstance(rep, float)
 
     def test_np_bool(self) -> None:
         encoder = Serializer()
         val = np.bool_(True)
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == True
         assert isinstance(rep, bool)
 
     def test_np_datetime64(self) -> None:
         encoder = Serializer()
         val = np.datetime64('2017-01-01')
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == 1483228800000.0
         assert isinstance(rep, float)
 
     def test_dt_time(self) -> None:
         encoder = Serializer()
         val = dt.time(12, 32, 15)
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == 45135000.0
         assert isinstance(rep, float)
 
     def test_rd_relativedelta(self) -> None:
         encoder = Serializer()
         val = rd.relativedelta()
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert isinstance(rep, dict)
 
     def test_pd_timestamp(self, pd) -> None:
         encoder = Serializer()
         val = pd.Timestamp('April 28, 1948')
-        rep = encoder.to_serializable(val)
+        rep = encoder.encode(val)
         assert rep == -684115200000
 
     """

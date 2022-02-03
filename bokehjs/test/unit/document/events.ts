@@ -48,7 +48,7 @@ describe("events module", () => {
       const m = new ColumnDataSource()
       const event = new events.ColumnsPatchedEvent(d, m, "data", {foo: [[1, 2]]})
       const serializer = new Serializer()
-      const result = serializer.to_serializable(event)
+      const result = serializer.encode(event)
       expect(result).to.be.equal({
         kind: "ColumnsPatched",
         model: m.ref(),
@@ -73,7 +73,7 @@ describe("events module", () => {
       const m = new ColumnDataSource()
       const event = new events.ColumnsStreamedEvent(d, m, "data", {foo: [1, 2], bar: [3, 4]}, 10)
       const serializer = new Serializer()
-      const result = serializer.to_serializable(event)
+      const result = serializer.encode(event)
       expect(result).to.be.equal({
         kind: "ColumnsStreamed",
         model: m.ref(),
@@ -88,7 +88,7 @@ describe("events module", () => {
       const m = new ColumnDataSource()
       const event = new events.ColumnsStreamedEvent(d, m, "data", {foo: [1, 2], bar: [3, 4]})
       const serializer = new Serializer()
-      const result = serializer.to_serializable(event)
+      const result = serializer.encode(event)
       expect(result).to.be.equal({
         kind: "ColumnsStreamed",
         model: m.ref(),
@@ -114,7 +114,7 @@ describe("events module", () => {
       const m = new TestModel()
       const event = new events.ModelChangedEvent(d, m, "foo", 2)
       const serializer = new Serializer()
-      const result = serializer.to_serializable(event)
+      const result = serializer.encode(event)
       expect(result).to.be.equal({
         kind: "ModelChanged",
         model: m.ref(),
@@ -129,7 +129,7 @@ describe("events module", () => {
       const m2 = new TestModelWithProps({foo: []})
       const event = new events.ModelChangedEvent(d, m2, "foo", [m])
       const serializer = new Serializer()
-      const result = serializer.to_serializable(event)
+      const result = serializer.encode(event)
       expect(result).to.be.equal({
         kind: "ModelChanged",
         model: m2.ref(),
@@ -157,7 +157,7 @@ describe("events module", () => {
       const d = new Document()
       const event = new events.TitleChangedEvent(d, "foo")
       const serializer = new Serializer()
-      const result = serializer.to_serializable(event)
+      const result = serializer.encode(event)
       expect(result).to.be.equal({
         kind: "TitleChanged",
         title: "foo",
@@ -179,7 +179,7 @@ describe("events module", () => {
       const m = new TestModel()
       const event = new events.RootAddedEvent(d, m)
       const serializer = new Serializer()
-      const result = serializer.to_serializable(event)
+      const result = serializer.encode(event)
       expect(result).to.be.equal({
         kind: "RootAdded",
         model: m.ref(),
@@ -201,7 +201,7 @@ describe("events module", () => {
       const m = new TestModel()
       const event = new events.RootRemovedEvent(d, m)
       const serializer = new Serializer()
-      const result = serializer.to_serializable(event)
+      const result = serializer.encode(event)
       expect(result).to.be.equal({
         kind: "RootRemoved",
         model: m.ref(),

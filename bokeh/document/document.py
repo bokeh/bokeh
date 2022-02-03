@@ -54,9 +54,9 @@ from jinja2 import Template
 from ..core.enums import HoldPolicyType
 from ..core.has_props import is_DataModel
 from ..core.query import find, is_single_string_selector
-from ..core.serialization import Deserializer, Serializer
+from ..core.serialization import Deserializer, Ref, Serializer
 from ..core.templates import FILE
-from ..core.types import ID, Ref, Unknown
+from ..core.types import ID, Unknown
 from ..core.validation import check_integrity, process_validation_issues
 from ..events import Event
 from ..model import Model
@@ -428,7 +428,7 @@ class Document:
         # TODO: buffers
 
         deserializer = Deserializer()
-        root_refs: List[Ref] = [dict(id=id) for id in root_ids]
+        root_refs = [Ref(id=id) for id in root_ids]
         roots = deserializer.from_serializable(root_refs, references_json)
 
         doc = Document()
@@ -738,7 +738,7 @@ class Document:
                 model.static_to_serializable(model_serializer)
 
         serializer = Serializer(binary=False)
-        roots = serializer.to_serializable(self._roots)
+        roots = serializer.encode(self._roots)
         root_ids = [ r["id"] for r in roots ]
 
         doc_json = DocJson(

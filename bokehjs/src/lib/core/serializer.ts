@@ -96,6 +96,9 @@ export class Serializer {
     return this.encode(obj)
   }
 
+  encode<T extends SerializableType>(obj: T): SerializableOf<T>
+  encode(obj: unknown): unknown
+
   encode(obj: unknown): unknown {
     const ref = this.get_ref(obj)
     if (ref != null)
@@ -107,20 +110,20 @@ export class Serializer {
       const result: unknown[] = new Array(n)
       for (let i = 0; i < n; i++) {
         const value = obj[i]
-        result[i] = this.to_serializable(value)
+        result[i] = this.encode(value)
       }
       return result
     } else if (obj instanceof ArrayBuffer) {
       return encode_bytes(obj)
     } else if (isPlainObject(obj)) {
-      return {type: "map", entries: [...map(entries(obj), ([key, val]) => [this.to_serializable(key), this.to_serializable(val)])]}
+      return {type: "map", entries: [...map(entries(obj), ([key, val]) => [this.encode(key), this.encode(val)])]}
     /*
     } else if (isBasicObject(obj)) {
-      return {type: "map", entries: [...map(entries(obj), ([key, val]) => [this.to_serializable(key), this.to_serializable(val)])]}
+      return {type: "map", entries: [...map(entries(obj), ([key, val]) => [this.encode(key), this.encode(val)])]}
     } else if (isPlainObject(obj)) {
       const result: {[key: string]: unknown} = {}
       for (const [key, value] of entries(obj)) {
-        result[key] = this.to_serializable(value)
+        result[key] = this.encode(value)
       }
       return result
     */
@@ -134,9 +137,9 @@ export class Serializer {
       else
         return obj
     } else if (obj instanceof Set) {
-      return {type: "set", entries: [...map(obj.values(), (val) => this.to_serializable(val))]}
+      return {type: "set", entries: [...map(obj.values(), (val) => this.encode(val))]}
     } else if (obj instanceof Map) {
-      return {type: "map", entries: [...map(obj.entries(), ([key, val]) => [this.to_serializable(key), this.to_serializable(val)])]}
+      return {type: "map", entries: [...map(obj.entries(), ([key, val]) => [this.encode(key), this.encode(val)])]}
     } else if (isSymbol(obj) && obj.description != null) {
       return {type: "symbol", name: obj.description}
     } else
