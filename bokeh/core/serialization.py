@@ -266,7 +266,7 @@ class Serializer:
         cls = type(obj)
         return dict(
             type=f"{cls.__module__}.{cls.__name__}",
-            attributes=[ (key, self._encode(val)) for key, val in entries(obj) ],
+            attributes={key: self._encode(val) for key, val in entries(obj)},
         )
 
     def _encode_bytes(self, obj: bytes) -> JSON:
@@ -280,19 +280,21 @@ class Serializer:
         array = transform_array(obj)
 
         if array_encoding_disabled(array):
-            data = self._encode_list(array.tolist())
+            data = self._encode_list(array.flatten().tolist())
+            dtype = "object"
         else:
             data = self._encode_bytes(array.tobytes())
+            dtype = str(array.dtype.name)
 
         return dict(
             type="ndarray",
             array=data,
             shape=list(array.shape),
-            dtype=str(array.dtype.name),
+            dtype=dtype,
             order=sys.byteorder,
         )
 
-    def _encode_other(self, obj: Any) -> Any:
+    def _encode_other(self, obj: Any) -> JSON:
         pd = import_optional("pandas")
         if pd and isinstance(obj, (pd.Series, pd.Index)):
             return self._encode_ndarray(transform_series(obj))

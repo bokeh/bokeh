@@ -16,7 +16,7 @@ export const ColorArray = Uint32Array
 export type RGBAArray = Uint8ClampedArray
 export const RGBAArray = Uint8ClampedArray
 
-export type DataType = "uint8" | "int8" | "uint16" | "int16" | "uint32" | "int32" | "float32" | "float64"
+export type DataType = "uint8" | "int8" | "uint16" | "int16" | "uint32" | "int32" | "float32" | "float64" | "object"
 
 export type TypedArray =
   Uint8Array   | Int8Array    |

@@ -132,11 +132,11 @@ class TestSerializer:
             dict(id=v1.id),
             dict(
                 type="test_core_serialization.SomeDataClass",
-                attributes=[
-                    ("f0", 2),
-                    ("f1", [1, 2, 3]),
-                    ("f2", None),
-                ],
+                attributes=dict(
+                    f0=2,
+                    f1=[1, 2, 3],
+                    f2=None,
+                ),
             ),
             [dict(type="number", value="nan")],
         ]
@@ -221,6 +221,30 @@ class TestSerializer:
         assert encoder.references == []
         assert encoder.buffers == []
 
+    def test_ndarray_object(self) -> None:
+        @dataclass
+        class X:
+            f: int = 0
+            g: str = "a"
+
+        encoder = Serializer()
+        val = np.array([[X()], [X(1)], [X(2, "b")]])
+
+        rep = encoder.to_serializable(val)
+        assert rep == dict(
+            type="ndarray",
+            array=[
+                dict(type="test_core_serialization.X", attributes=dict(f=0, g="a")),
+                dict(type="test_core_serialization.X", attributes=dict(f=1, g="a")),
+                dict(type="test_core_serialization.X", attributes=dict(f=2, g="b")),
+            ],
+            order=sys.byteorder,
+            shape=[3, 1],
+            dtype="object",
+        )
+        assert encoder.references == []
+        assert encoder.buffers == []
+
     def test_HasProps(self) -> None:
         val = SomeProps(p0=2, p1="a", p2=[1, 2, 3])
         encoder = Serializer()
@@ -275,11 +299,11 @@ class TestSerializer:
         rep = encoder.to_serializable(val)
         assert rep == dict(
             type="test_core_serialization.SomeDataClass",
-            attributes=[
-                ("f0", 2),
-                ("f1", [1, 2, 3]),
-                ("f2", None),
-            ],
+            attributes=dict(
+                f0=2,
+                f1=[1, 2, 3],
+                f2=None,
+            ),
         )
         assert encoder.references == []
         assert encoder.buffers == []
@@ -290,18 +314,18 @@ class TestSerializer:
         rep = encoder.to_serializable(val)
         assert rep == dict(
             type="test_core_serialization.SomeDataClass",
-            attributes=[
-                ("f0", 2),
-                ("f1", [1, 2, 3]),
-                ("f2", dict(
+            attributes=dict(
+                f0=2,
+                f1=[1, 2, 3],
+                f2=dict(
                     type="test_core_serialization.SomeDataClass",
-                    attributes=[
-                        ("f0", 3),
-                        ("f1", [4, 5, 6]),
-                        ("f2", None),
-                    ],
-                )),
-            ],
+                    attributes=dict(
+                        f0=3,
+                        f1=[4, 5, 6],
+                        f2=None,
+                    ),
+                ),
+            ),
         )
         assert encoder.references == []
         assert encoder.buffers == []
@@ -313,19 +337,19 @@ class TestSerializer:
         rep = encoder.to_serializable(val)
         assert rep == dict(
             type="test_core_serialization.SomeDataClass",
-            attributes=[
-                ("f0", 2),
-                ("f1", [1, 2, 3]),
-                ("f2", None),
-                ("f4", dict(
+            attributes=dict(
+                f0=2,
+                f1=[1, 2, 3],
+                f2=None,
+                f4=dict(
                     type="test_core_serialization.SomeProps",
                     attributes=dict(
                         p0=2,
                         p1="a",
                         p2=[1, 2, 3],
                     ),
-                )),
-            ],
+                ),
+            ),
         )
         assert encoder.references == []
         assert encoder.buffers == []
@@ -337,12 +361,12 @@ class TestSerializer:
         rep = encoder.to_serializable(val)
         assert rep == dict(
             type="test_core_serialization.SomeDataClass",
-            attributes=[
-                ("f0", 2),
-                ("f1", [1, 2, 3]),
-                ("f2", None),
-                ("f5", dict(id=v0.id)),
-            ],
+            attributes=dict(
+                f0=2,
+                f1=[1, 2, 3],
+                f2=None,
+                f5=dict(id=v0.id),
+            ),
         )
         assert encoder.references == [dict(
             type="test_core_serialization.SomeModel",

@@ -1,6 +1,5 @@
 import {DataType, TypedArray} from "../types"
 import {isObject, isArray} from "./types"
-import {unreachable} from "./assert"
 import {equals, Equatable, Comparator} from "./eq"
 import {serialize, Serializable, Serializer} from "../serializer"
 import {encode_NDArray} from "./serialization"
@@ -40,8 +39,8 @@ export class Uint8NDArray extends Uint8Array implements NDArrayType {
     return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
 
-  [serialize](_serializer: Serializer): unknown {
-    return encode_NDArray(this)
+  [serialize](serializer: Serializer): unknown {
+    return encode_NDArray(this, serializer)
   }
 }
 
@@ -61,8 +60,8 @@ export class Int8NDArray extends Int8Array implements NDArrayType {
     return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
 
-  [serialize](_serializer: Serializer): unknown {
-    return encode_NDArray(this)
+  [serialize](serializer: Serializer): unknown {
+    return encode_NDArray(this, serializer)
   }
 }
 
@@ -82,8 +81,8 @@ export class Uint16NDArray extends Uint16Array implements NDArrayType {
     return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
 
-  [serialize](_serializer: Serializer): unknown {
-    return encode_NDArray(this)
+  [serialize](serializer: Serializer): unknown {
+    return encode_NDArray(this, serializer)
   }
 }
 
@@ -103,8 +102,8 @@ export class Int16NDArray extends Int16Array implements NDArrayType {
     return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
 
-  [serialize](_serializer: Serializer): unknown {
-    return encode_NDArray(this)
+  [serialize](serializer: Serializer): unknown {
+    return encode_NDArray(this, serializer)
   }
 }
 
@@ -124,8 +123,8 @@ export class Uint32NDArray extends Uint32Array implements NDArrayType {
     return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
 
-  [serialize](_serializer: Serializer): unknown {
-    return encode_NDArray(this)
+  [serialize](serializer: Serializer): unknown {
+    return encode_NDArray(this, serializer)
   }
 }
 
@@ -145,8 +144,8 @@ export class Int32NDArray extends Int32Array implements NDArrayType {
     return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
 
-  [serialize](_serializer: Serializer): unknown {
-    return encode_NDArray(this)
+  [serialize](serializer: Serializer): unknown {
+    return encode_NDArray(this, serializer)
   }
 }
 
@@ -166,8 +165,8 @@ export class Float32NDArray extends Float32Array implements NDArrayType {
     return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
 
-  [serialize](_serializer: Serializer): unknown {
-    return encode_NDArray(this)
+  [serialize](serializer: Serializer): unknown {
+    return encode_NDArray(this, serializer)
   }
 }
 
@@ -187,8 +186,37 @@ export class Float64NDArray extends Float64Array implements NDArrayType {
     return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
 
-  [serialize](_serializer: Serializer): unknown {
-    return encode_NDArray(this)
+  [serialize](serializer: Serializer): unknown {
+    return encode_NDArray(this, serializer)
+  }
+}
+
+export class ObjectNDArray extends Array implements NDArrayType {
+  readonly [__ndarray__] = true
+  readonly dtype: "object" = "object"
+  readonly shape: number[]
+  readonly dimension: number
+
+  constructor(seq: ArrayLike<number>/* | ArrayBufferLike*/, shape?: number[]) {
+    /* TODO: TS 4.6
+    if (seq instanceof ArrayBuffer) {
+      throw new Error("not supported with dtype='object'")
+    }
+    */
+    super(seq.length)
+    for (let i = 0; i < seq.length; i++) {
+      this[i] = seq[i]
+    }
+    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
+    this.dimension = this.shape.length
+  }
+
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
+  }
+
+  [serialize](serializer: Serializer): unknown {
+    return encode_NDArray(this, serializer)
   }
 }
 
@@ -196,7 +224,8 @@ export type NDArray =
   Uint8NDArray   | Int8NDArray    |
   Uint16NDArray  | Int16NDArray   |
   Uint32NDArray  | Int32NDArray   |
-  Float32NDArray | Float64NDArray
+  Float32NDArray | Float64NDArray |
+  ObjectNDArray
 
 export function is_NDArray(v: unknown): v is NDArray {
   return isObject(v) && __ndarray__ in v
@@ -211,6 +240,7 @@ export type NDArrayTypes = {
   "int32":   {typed: Int32Array,   ndarray: Int32NDArray}
   "float32": {typed: Float32Array, ndarray: Float32NDArray}
   "float64": {typed: Float64Array, ndarray: Float64NDArray}
+  "object":  {typed: unknown[],    ndarray: ObjectNDArray}
 }
 
 export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "uint8", shape: [number]}): Uint8NDArray & Array1d
@@ -221,6 +251,7 @@ export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype:
 export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "float32", shape: [number, number]}): Float32NDArray & Array2d
 export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "float64", shape: [number]}): Float64NDArray & Array1d
 export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "float64", shape: [number, number]}): Float64NDArray & Array2d
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "object", shape: [number, number]}): ObjectNDArray & Array2d
 
 export function ndarray<K extends DataType = "float64">(array: ArrayBuffer | ArrayLike<number>, options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
 export function ndarray<K extends DataType>(array: NDArrayTypes[K]["typed"], options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
@@ -241,8 +272,7 @@ export function ndarray(array: ArrayBuffer | TypedArray | ArrayLike<number>, opt
           case array instanceof Int32Array:   return "int32"
           case array instanceof Float32Array: return "float32"
           case array instanceof Float64Array: return "float64"
-          default:
-            unreachable()
+          default:                            return "object"
         }
       })()
     }
@@ -257,5 +287,6 @@ export function ndarray(array: ArrayBuffer | TypedArray | ArrayLike<number>, opt
     case "int32":   return new Int32NDArray(array, shape)
     case "float32": return new Float32NDArray(array, shape)
     case "float64": return new Float64NDArray(array, shape)
+    default:        return new ObjectNDArray(array as any, shape) // TODO: TS 4.6
   }
 }

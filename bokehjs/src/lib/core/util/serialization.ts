@@ -5,6 +5,7 @@ import type {NDArray} from "./ndarray"
 import {BYTE_ORDER} from "./platform"
 import {base64_to_buffer, buffer_to_base64} from "./buffer"
 import {Comparator, Equatable, equals} from "./eq"
+import {Serializer} from "../serializer"
 import {type ArrayRef} from "../deserializer"
 
 export class Base64Buffer implements Equatable {
@@ -63,10 +64,11 @@ export function encode_bytes(bytes: ArrayBuffer, buffers?: Buffers): BytesRef {
   }
 }
 
-export function encode_NDArray(array: NDArray, buffers?: Buffers): NDArrayRef {
+export function encode_NDArray(array: NDArray, serializer: Serializer): NDArrayRef {
+  const encoded = serializer.encode(array.dtype == "object" ? Array.from(array) : array.buffer)
   return {
     type: "ndarray",
-    array: encode_bytes(array.buffer, buffers),
+    array: encoded as ArrayRef | BytesRef,
     order: BYTE_ORDER,
     dtype: array.dtype,
     shape: array.shape,

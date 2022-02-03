@@ -93,6 +93,10 @@ export class Serializer {
   to_serializable(obj: unknown): unknown
 
   to_serializable(obj: unknown): unknown {
+    return this.encode(obj)
+  }
+
+  encode(obj: unknown): unknown {
     const ref = this.get_ref(obj)
     if (ref != null)
       return ref

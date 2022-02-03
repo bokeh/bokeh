@@ -193,14 +193,13 @@ export class Deserializer {
   protected _decode_ndarray(obj: NDArrayRef): NDArray {
     const {array, shape, dtype, order} = obj
 
-    const decoded = this._decode(array)
+    const decoded = this._decode(array) as ArrayBuffer | unknown[]
     if (decoded instanceof ArrayBuffer) {
       if (order != BYTE_ORDER) {
         swap(decoded, dtype)
       }
-      return ndarray(decoded, {dtype, shape})
-    } else
-      return decoded as any // TODO: should be an ndarray
+    }
+    return ndarray(decoded as any /*XXX*/, {dtype, shape})
   }
 
   protected _decode_type(obj: TypeRef): unknown {
