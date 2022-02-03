@@ -453,36 +453,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             for key, val in updates.items():
                 setattr(obj, key, val)
 
-    # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
-    def to_json(self, include_defaults: bool) -> Any:
-        ''' Returns a dictionary of the attributes of this object,
-        containing only "JSON types" (string, number, boolean,
-        none, dict, list).
-
-        References to other objects are serialized as "refs" (just
-        the object ID and type info), so the deserializer will
-        need to separately have the full attributes of those
-        other objects.
-
-        There's no corresponding ``from_json()`` because to
-        deserialize an object is normally done in the context of a
-        Document (since the Document can resolve references).
-
-        For most purposes it's best to serialize and deserialize
-        entire documents.
-
-        Args:
-            include_defaults (bool) : whether to include attributes
-                that haven't been changed from the default
-
-        '''
-        serializer = Serializer()
-
-        properties = self.properties_with_values(include_defaults=include_defaults)
-        attributes = {key: serializer.encode(val) for key, val in properties.items()}
-
-        return dict(id=self.id, **attributes)
-
     def to_serializable(self, serializer: Serializer) -> Ref:
         if not serializer.has_ref(self):
             serializer.add_ref(self, self.ref)

@@ -20,7 +20,6 @@ import pytest ; pytest
 from typing import Set, Tuple
 
 # Bokeh imports
-from bokeh.core.json_encoder import serialize_json
 from bokeh.core.properties import (
     Any,
     Dict,
@@ -263,83 +262,6 @@ class TestModel:
         v = V(u1=u1, u2=[u2], u3=(3, u3), u4={"4": u4}, u5={"5": [u5]})
 
         assert v.references() == {v, u1, u2, u3, u4, u5}
-
-    def test_to_json(self) -> None:
-        child_obj = SomeModelToJson(foo=57, bar="hello")
-        obj = SomeModelToJson(child=child_obj, foo=42, bar="world")
-
-        json = obj.to_json(include_defaults=True)
-        json_string = serialize_json(json)
-
-        assert json == {
-            "child": {"id": child_obj.id},
-            "null_child": None,
-            "id": obj.id,
-            "name": None,
-            "tags": [],
-            'js_property_callbacks': dict(type="map", entries=[]),
-            "js_event_callbacks": dict(type="map", entries=[]),
-            "subscribed_events": [],
-            "syncable": True,
-            "foo": 42,
-            "bar": "world",
-        }
-        assert (
-            '{"bar":"world",' +
-            '"child":{"id":"%s"},' +
-            '"foo":42,' +
-            '"id":"%s",' +
-            '"js_event_callbacks":{"entries":[],"type":"map"},' +
-            '"js_property_callbacks":{"entries":[],"type":"map"},' +
-            '"name":null,' +
-            '"null_child":null,' +
-            '"subscribed_events":[],' +
-            '"syncable":true,' +
-            '"tags":[]}'
-        ) % (child_obj.id, obj.id) == json_string
-
-        json = obj.to_json(include_defaults=False)
-        json_string = serialize_json(json)
-
-        assert json == {
-            "child": {"id": child_obj.id},
-            "id": obj.id,
-            "foo": 42,
-            "bar": "world",
-        }
-        assert (
-            '{"bar":"world",' +
-            '"child":{"id":"%s"},' +
-            '"foo":42,' +
-            '"id":"%s"}'
-        ) % (child_obj.id, obj.id) == json_string
-
-    def test_no_units_in_json(self) -> None:
-        from bokeh.models import AnnularWedge
-        obj = AnnularWedge()
-        json = obj.to_json(include_defaults=True)
-        assert 'start_angle' in json
-        assert 'start_angle_units' not in json
-        assert 'outer_radius' in json
-        assert 'outer_radius_units' not in json
-
-    def test_dataspec_field_in_json(self) -> None:
-        from bokeh.models import AnnularWedge
-        obj = AnnularWedge()
-        obj.start_angle = "fieldname"
-        json = obj.to_json(include_defaults=True)
-        assert 'start_angle' in json
-        assert 'start_angle_units' not in json
-        assert json["start_angle"] == dict(type="map", entries=[["field", "fieldname"]]) # TODO: dict(type="field", field="fieldname")
-
-    def test_dataspec_value_in_json(self) -> None:
-        from bokeh.models import AnnularWedge
-        obj = AnnularWedge()
-        obj.start_angle = 60
-        json = obj.to_json(include_defaults=True)
-        assert 'start_angle' in json
-        assert 'start_angle_units' not in json
-        assert json["start_angle"] == dict(type="map", entries=[["value", 60]]) # TODO: dict(type="value", value=60)
 
     def test_list_default(self) -> None:
         class HasListDefault(Model):

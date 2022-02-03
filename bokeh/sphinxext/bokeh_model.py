@@ -57,12 +57,14 @@ log = logging.getLogger(__name__)
 import importlib
 import json
 import warnings
+from typing import Dict
 
 # External imports
 from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
 # Bokeh imports
+from bokeh.core.serialization import AnyRep, Serializer
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
@@ -128,7 +130,7 @@ class BokehModelDirective(BokehDirective):
             warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
             model_obj = model()
 
-        model_json = json.dumps(model_obj.to_json(include_defaults=True), sort_keys=True, indent=2, separators=(",", ": "))
+        model_json = json.dumps(to_json_rep(model_obj), sort_keys=True, indent=2, separators=(",", ": "))
 
         rst_text = MODEL_DETAIL.render(
             name=model_name,
@@ -148,6 +150,14 @@ def setup(app):
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
+
+def to_json_rep(obj: Model) -> Dict[str, AnyRep]:
+    serializer = Serializer()
+
+    properties = obj.properties_with_values(include_defaults=True)
+    attributes = {key: serializer.encode(val) for key, val in properties.items()}
+
+    return dict(id=obj.id, **attributes)
 
 # -----------------------------------------------------------------------------
 # Code
