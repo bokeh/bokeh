@@ -70,28 +70,6 @@ export class HAreaView extends AreaView {
     return result
   }
 
-  // protected override _hit_point(geometry: PointGeometry): Selection {
-  //   const L = this.sy.length
-  //   const sx = new ScreenArray(2*L)
-  //   const sy = new ScreenArray(2*L)
-
-  //   for (let i = 0, end = L; i < end; i++) {
-  //     sx[i] = this.sx1[i]
-  //     sy[i] = this.sy[i]
-  //     sx[L+i] = this.sx2[L-i-1]
-  //     sy[L+i] = this.sy[L-i-1]
-  //   }
-
-  //   const result = new Selection()
-
-  //   if (hittest.point_in_poly(geometry.sx, geometry.sy, sx, sy)) {
-  //     result.add_to_selected_glyphs(this.model)
-  //     result.view = this
-  //   }
-
-  //   return result
-  // }
-
   scenterxy(i: number): [number, number] {
     const scx = (this.sx1[i] + this.sx2[i])/2
     const scy = this.sy[i]

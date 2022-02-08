@@ -76,28 +76,6 @@ export class VAreaView extends AreaView {
     return result
   }
 
-  //   protected override _hit_point(geometry: PointGeometry): Selection {
-  //     const L = this.sx.length
-  //     const sx = new ScreenArray(2*L)
-  //     const sy = new ScreenArray(2*L)
-
-  //     for (let i = 0, end = L; i < end; i++) {
-  //       sx[i] = this.sx[i]
-  //       sy[i] = this.sy1[i]
-  //       sx[L+i] = this.sx[L-i-1]
-  //       sy[L+i] = this.sy2[L-i-1]
-  //     }
-
-  //     const result = new Selection()
-
-  //     if (hittest.point_in_poly(geometry.sx, geometry.sy, sx, sy)) {
-  //       result.add_to_selected_glyphs(this.model)
-  //       result.view = this
-  //     }
-
-  //     return result
-  //   }
-
   protected override _map_data(): void {
     this.sx  = this.renderer.xscale.v_compute(this._x)
     this.sy1 = this.renderer.yscale.v_compute(this._y1)
