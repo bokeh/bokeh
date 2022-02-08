@@ -23,6 +23,7 @@ dependencies:
   # docs
   - colorcet
   - pygments
+  - sphinx-copybutton
 
   # tests
   - beautifulsoup4
