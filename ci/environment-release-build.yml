@@ -36,6 +36,7 @@ dependencies:
   - pandas
   - pydot
   - pygments
+  - sphinx-copybutton
   - pyshp
   - scipy
 
