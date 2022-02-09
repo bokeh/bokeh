@@ -39,7 +39,7 @@ export type ColumnDataChanged = {
   kind: "ColumnDataChanged"
   model: Ref
   attr: string
-  data: Data
+  data: unknown // AnyVal
   cols?: string[]
 }
 
@@ -47,7 +47,7 @@ export type ColumnsStreamed = {
   kind: "ColumnsStreamed"
   model: Ref
   attr: string
-  data: Data
+  data: unknown // AnyVal
   rollover?: number
 }
 
@@ -55,7 +55,7 @@ export type ColumnsPatched = {
   kind: "ColumnsPatched"
   model: Ref
   attr: string
-  patches: PatchSet<unknown>
+  patches: unknown // AnyVal
 }
 
 export type DocumentChanged =
@@ -156,12 +156,10 @@ export class MessageSentEvent extends DocumentChangedEvent {
   }
 
   [serialize](serializer: Serializer): DocumentChanged {
-    const value = this.msg_data
-    const value_serialized = serializer.encode(value)
     return {
       kind: "MessageSent",
       msg_type: this.msg_type,
-      msg_data: value_serialized,
+      msg_data: serializer.encode(this.msg_data),
     }
   }
 }
@@ -219,12 +217,12 @@ export class ColumnDataChangedEvent extends DocumentChangedEvent {
       cmp.eq(this.cols, that.cols)
   }
 
-  [serialize](_serializer: Serializer): ColumnDataChanged {
+  [serialize](serializer: Serializer): ColumnDataChanged {
     return {
       kind: "ColumnDataChanged",
       model: this.model.ref(),
       attr: this.attr,
-      data: this.data,
+      data: serializer.encode(this.data),
       cols: this.cols,
     }
   }
@@ -248,12 +246,12 @@ export class ColumnsStreamedEvent extends DocumentChangedEvent {
       cmp.eq(this.rollover, that.rollover)
   }
 
-  [serialize](_serializer: Serializer): ColumnsStreamed {
+  [serialize](serializer: Serializer): ColumnsStreamed {
     return {
       kind: "ColumnsStreamed",
       model: this.model.ref(),
       attr: this.attr,
-      data: this.data,
+      data: serializer.encode(this.data),
       rollover: this.rollover,
     }
   }
@@ -275,12 +273,12 @@ export class ColumnsPatchedEvent extends DocumentChangedEvent {
       cmp.eq(this.patches, that.patches)
   }
 
-  [serialize](_serializer: Serializer): ColumnsPatched {
+  [serialize](serializer: Serializer): ColumnsPatched {
     return {
       kind: "ColumnsPatched",
       attr: this.attr,
       model: this.model.ref(),
-      patches: this.patches,
+      patches: serializer.encode(this.patches),
     }
   }
 }

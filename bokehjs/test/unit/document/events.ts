@@ -53,7 +53,7 @@ describe("events module", () => {
         kind: "ColumnsPatched",
         model: m.ref(),
         attr: "data",
-        patches: {foo: [[1, 2]]},
+        patches: {type: "map", entries: [["foo", [[1, 2]]]]},
       })
     })
 
@@ -78,7 +78,7 @@ describe("events module", () => {
         kind: "ColumnsStreamed",
         model: m.ref(),
         attr: "data",
-        data: {foo: [1, 2], bar: [3, 4]},
+        data: {type: "map", entries: [["foo", [1, 2]], ["bar", [3, 4]]]},
         rollover: 10,
       })
     })
@@ -93,8 +93,8 @@ describe("events module", () => {
         kind: "ColumnsStreamed",
         model: m.ref(),
         attr: "data",
-        data: {foo: [1, 2], bar: [3, 4]},
-        rollover: undefined,
+        data: {type: "map", entries: [["foo", [1, 2]], ["bar", [3, 4]]]},
+        rollover: undefined, // XXX: undefined is not serializable
       })
     })
 
