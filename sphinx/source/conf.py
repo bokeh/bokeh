@@ -33,6 +33,7 @@ exclude_patterns = ['docs/releases/*']
 extensions = [
     'autoclasstoc',
     'sphinxext.opengraph',
+    'sphinx_copybutton',
     'sphinx_panels',
 #    'sphinx_reredirects',
     'sphinx_tabs.tabs',
@@ -75,6 +76,8 @@ autoclasstoc_sections = [
 ]
 
 autodoc_member_order = 'groupwise'
+
+copybutton_prompt_text = ">>> "
 
 bokeh_missing_google_api_key_ok = False
 
