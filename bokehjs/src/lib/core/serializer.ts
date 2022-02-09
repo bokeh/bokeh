@@ -3,7 +3,6 @@ import {entries} from "./util/object"
 import {Ref} from "./util/refs"
 import {/*isBasicObject, */isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isSymbol} from "./util/types"
 import {encode_bytes} from "./util/serialization"
-import {type ModelRep} from "./deserializer"
 import {map} from "./util/iterator"
 
 export type SerializableType =
@@ -36,18 +35,20 @@ export type SerializableOf<T extends SerializableType> =
 export class SerializationError extends Error {}
 
 export type Options = {
+  references: Map<unknown, Ref>
   include_defaults: boolean
 }
 
 export class Serializer {
-  private readonly _references: Map<unknown, Ref> = new Map()
-  private readonly _definitions: Map<unknown, ModelRep> = new Map()
-  private readonly _refmap: Map<Ref, ModelRep> = new Map()
+  private readonly _references: Map<unknown, Ref>
 
   readonly include_defaults: boolean
 
   constructor(options?: Partial<Options>) {
     this.include_defaults = options?.include_defaults ?? false
+
+    const references = options?.references
+    this._references = references != null ? new Map(references) : new Map()
   }
 
   get_ref(obj: unknown): Ref | undefined {
@@ -57,21 +58,6 @@ export class Serializer {
   add_ref(obj: unknown, ref: Ref): void {
     assert(!this._references.has(obj))
     this._references.set(obj, ref)
-  }
-
-  add_def(obj: unknown, def: ModelRep): void {
-    const ref = this.get_ref(obj)
-    assert(ref != null)
-    this._definitions.set(obj, def)
-    this._refmap.set(ref, def)
-  }
-
-  get objects(): Set<unknown> {
-    return new Set(this._references.keys())
-  }
-
-  remove_def(obj: unknown): boolean {
-    return this._definitions.delete(obj)
   }
 
   to_serializable<T extends SerializableType>(obj: T): SerializableOf<T>

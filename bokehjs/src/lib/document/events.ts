@@ -169,7 +169,7 @@ export class ModelChangedEvent extends DocumentChangedEvent {
   constructor(document: Document,
       readonly model: HasProps,
       readonly attr: string,
-      readonly new_: unknown) {
+      readonly value: unknown) {
     super(document)
   }
 
@@ -177,24 +177,15 @@ export class ModelChangedEvent extends DocumentChangedEvent {
     return super[equals](that, cmp) &&
       cmp.eq(this.model, that.model) &&
       cmp.eq(this.attr, that.attr) &&
-      cmp.eq(this.new_, that.new_)
+      cmp.eq(this.value, that.value)
   }
 
   [serialize](serializer: Serializer): DocumentChanged {
-    const value = this.new_
-    const value_serialized = serializer.encode(value)
-
-    if (this.model != value) {
-      // we know we don't want a whole new copy of the obj we're
-      // patching unless it's also the value itself
-      serializer.remove_def(this.model)
-    }
-
     return {
       kind: "ModelChanged",
       model: this.model.ref(),
       attr: this.attr,
-      new: value_serialized,
+      new: serializer.encode(this.value),
     }
   }
 }

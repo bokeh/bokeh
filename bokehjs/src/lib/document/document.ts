@@ -6,6 +6,7 @@ import {HasProps} from "core/has_props"
 import {Property} from "core/properties"
 import {Serializer} from "core/serializer"
 import {Deserializer, ModelRep, RefMap} from "core/deserializer"
+import {Ref} from "core/util/refs"
 import {ID, Data} from "core/types"
 import {Signal0} from "core/signaling"
 import {equals, Equatable, Comparator} from "core/util/eq"
@@ -69,6 +70,7 @@ export class Document implements Equatable {
   protected _title: string
   protected _roots: HasProps[]
   /*protected*/ _all_models: Map<ID, Model>
+  protected _new_models: Set<HasProps>
   protected _all_models_freeze_count: number
   protected _callbacks: Map<((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), boolean>
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
@@ -84,6 +86,7 @@ export class Document implements Equatable {
     this._title = DEFAULT_TITLE
     this._roots = []
     this._all_models = new Map()
+    this._new_models = new Set()
     this._all_models_freeze_count = 0
     this._callbacks = new Map()
     this._message_callbacks = new Map()
@@ -220,8 +223,9 @@ export class Document implements Equatable {
     for (const d of to_detach) {
       d.detach_document()
     }
-    for (const a of to_attach) {
-      a.attach_document(this)
+    for (const model of to_attach) {
+      model.attach_document(this)
+      this._new_models.add(model)
     }
     this._all_models = recomputed as any // XXX
   }
@@ -431,22 +435,18 @@ export class Document implements Equatable {
         throw new Error("Cannot create a patch using events from a different document")
     }
 
-    const serializer = new Serializer()
-    const events_repr = serializer.encode(events)
-
-    // TODO: We need a proper differential serializer. For now just remove known
-    // definitions. We are doing this after a complete serialization, so that all
-    // new objects are recorded.
-    const need_all_models = events.some((ev) => ev instanceof RootAddedEvent)
-    if (!need_all_models) {
-      for (const model of this._all_models.values()) {
-        serializer.remove_def(model)
+    const references: Map<HasProps, Ref> = new Map()
+    for (const model of this._all_models.values()) {
+      if (!this._new_models.has(model)) {
+        references.set(model, model.ref())
       }
     }
 
-    return {
-      events: events_repr,
-    }
+    const serializer = new Serializer({references})
+    const patch = {events: serializer.encode(events)}
+
+    this._new_models.clear()
+    return patch
   }
 
   apply_json_patch(patch: Patch, buffers: Buffers | ReturnType<Buffers["entries"]> = new Map()): void {

@@ -424,7 +424,9 @@ class Deserializer:
         id = obj["id"]
         instance = self._references.get(id)
         if instance is not None:
-            raise DeserializationError(f"reference already known '{id}'")
+            log.warning(f"reference already known '{id}'")
+            # TODO: raise DeserializationError(f"reference already known '{id}'")
+            return instance
 
         type = obj["type"]
         attributes = obj["attributes"]

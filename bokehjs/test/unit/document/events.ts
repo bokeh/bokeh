@@ -136,8 +136,6 @@ describe("events module", () => {
         attr: "foo",
         new: [{type: "TestModel", id: m.id, attributes: {}}],
       })
-      const expected_refs = new Set([m])
-      expect(serializer.objects).to.be.equal(expected_refs)
     })
 
     // TODO (bev) test the case with references returned

@@ -276,10 +276,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
 
     const {type, id} = this
-    const rep = {type, id, attributes}
-    serializer.add_def(this, rep)
-
-    return rep
+    return {type, id, attributes}
   }
 
   constructor(attrs: {id: string} | AttrsLike = {}) {

@@ -429,7 +429,7 @@ describe("Document", () => {
     expect(event.document).to.be.equal(d)
     expect(event.model).to.be.equal(m)
     expect(event.attr).to.be.equal("bar")
-    expect(event.new_).to.be.equal(42)
+    expect(event.value).to.be.equal(42)
   })
 
   it("notifies only on actual changes", () => {
@@ -489,7 +489,7 @@ describe("Document", () => {
     expect(events.length).to.be.equal(1)
     expect(events[0]).to.be.instanceof(ev.ModelChangedEvent)
     const event0 = events[0] as ev.ModelChangedEvent
-    expect(event0.new_).to.be.equal(42)
+    expect(event0.value).to.be.equal(42)
 
     d.remove_on_change(listener)
     m.bar = 43
@@ -888,7 +888,11 @@ describe("Document", () => {
   })
 
   it("computes minimal patch for objects referencing known objects", () => {
+    const events: ev.DocumentChangedEvent[] = []
+
     const doc = new Document()
+    doc.on_change((event) => events.push(event))
+
     expect(doc.roots().length).to.be.equal(0)
     expect(doc._all_models.size).to.be.equal(0)
 
@@ -896,11 +900,29 @@ describe("Document", () => {
     const root = new SomeModel({child})
     doc.add_root(root)
 
-    const obj = new SomeModel({foo: 11})
+    const patch0 = doc.create_json_patch(events)
+    expect(patch0).to.be.equal({
+      events: [{
+        kind: "RootAdded",
+        model: {
+          type: "SomeModel",
+          id: root.id,
+          attributes: {
+            child: {
+              type: "SomeModel",
+              id: child.id,
+              attributes: {},
+            },
+          },
+        },
+      }],
+    })
 
+    const obj = new SomeModel({foo: 11})
     const event = new ev.MessageSentEvent(doc, "ping", {model: root, companion_model: obj})
-    const patch = doc.create_json_patch([event])
-    expect(patch).to.be.equal({
+    const patch1 = doc.create_json_patch([event])
+
+    expect(patch1).to.be.equal({
       events: [{
         kind: "MessageSent",
         msg_type: "ping",
