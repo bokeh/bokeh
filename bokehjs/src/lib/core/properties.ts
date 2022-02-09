@@ -600,24 +600,30 @@ export class ColorSpec extends DataSpec<types.Color | null> {
           }
           return new ColorArray(array.buffer)
         }
+      } else if (colors.dtype == "object" && colors.dimension == 1) {
+        return this._from_css_array(colors)
       }
     } else {
-      const n = colors.length
-      const array = new RGBAArray(4*n)
-
-      let j = 0
-      for (const color of colors) {
-        const [r, g, b, a] = color2rgba(color)
-        array[j++] = r
-        array[j++] = g
-        array[j++] = b
-        array[j++] = a
-      }
-
-      return new ColorArray(array.buffer)
+      return this._from_css_array(colors)
     }
 
     throw new Error("invalid color array")
+  }
+
+  protected _from_css_array(colors: Arrayable<types.Color | null>): ColorArray {
+    const n = colors.length
+    const array = new RGBAArray(4*n)
+
+    let j = 0
+    for (const color of colors) {
+      const [r, g, b, a] = color2rgba(color)
+      array[j++] = r
+      array[j++] = g
+      array[j++] = b
+      array[j++] = a
+    }
+
+    return new ColorArray(array.buffer)
   }
 
   override vector(values: ColorArray): ColorUniformVector {

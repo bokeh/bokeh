@@ -148,4 +148,15 @@ describe("Color support", () => {
 
     await display(plot(colors))
   })
+
+  it("should allow object[N] arrays", async () => {
+    const colors = nd.ndarray([
+      "#ffff00ff",
+      "#ff0000ff",
+      "#00ff00ff",
+      "#0000ffff",
+    ], {dtype: "object", shape: [N]})
+
+    await display(plot(colors))
+  })
 })

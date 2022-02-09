@@ -3,6 +3,7 @@ import {expect} from "assertions"
 import * as p from "@bokehjs/core/properties"
 import * as enums from "@bokehjs/core/enums"
 import {keys} from "@bokehjs/core/util/object"
+import {ndarray} from "@bokehjs/core/util/ndarray"
 
 import {Color} from  "@bokehjs/core/types"
 import {HasProps} from  "@bokehjs/core/has_props"
@@ -617,6 +618,83 @@ describe("properties module", () => {
         expect(prop.valid([])).to.be.false
         expect(prop.valid(null)).to.be.false
         expect(prop.valid(undefined)).to.be.false
+      })
+    })
+  })
+
+  describe("ColorSpec", () => {
+    describe("should support v_materialize()", () => {
+      it("with dtype=uint8 and dim=1", () => {
+        const array = new Uint8Array([0x11, 0x22])
+        const input = ndarray(array, {dtype: "uint8", shape: [2]})
+        const obj = new Some()
+        const output = obj.properties.color_spec.v_materialize(input)
+        expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x11, 0x11, 0xFF, 0x22, 0x22, 0x22, 0xFF]))
+      })
+
+      it("with dtype=uint8 and dim=2 and shape=[_, 3]", () => {
+        const array = new Uint8Array([0x11, 0x22, 0x33, 0x22, 0x33, 0x44])
+        const input = ndarray(array, {dtype: "uint8", shape: [2, 3]})
+        const obj = new Some()
+        const output = obj.properties.color_spec.v_materialize(input)
+        expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0xFF, 0x22, 0x33, 0x44, 0xFF]))
+      })
+
+      it("with dtype=uint8 and dim=2 and shape=[_, 4]", () => {
+        const array = new Uint8Array([0x11, 0x22, 0x33, 0x44, 0x22, 0x33, 0x44, 0x55])
+        const input = ndarray(array, {dtype: "uint8", shape: [2, 4]})
+        const obj = new Some()
+        const output = obj.properties.color_spec.v_materialize(input)
+        expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0x44, 0x22, 0x33, 0x44, 0x55]))
+      })
+
+      it("with dtype=float32 and dim=2 and shape=[_, 3]", () => {
+        const array = new Float32Array([0.068, 0.135, 0.200, 0.135, 0.200, 0.268])
+        const input = ndarray(array, {dtype: "float32", shape: [2, 3]})
+        const obj = new Some()
+        const output = obj.properties.color_spec.v_materialize(input)
+        expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0xFF, 0x22, 0x33, 0x44, 0xFF]))
+      })
+
+      it("with dtype=float32 and dim=2 and shape=[_, 4]", () => {
+        const array = new Float32Array([0.068, 0.135, 0.200, 0.268, 0.135, 0.200, 0.268, 0.335])
+        const input = ndarray(array, {dtype: "float32", shape: [2, 4]})
+        const obj = new Some()
+        const output = obj.properties.color_spec.v_materialize(input)
+        expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0x44, 0x22, 0x33, 0x44, 0x55]))
+      })
+
+
+      it("with dtype=float64 and dim=2 and shape=[_, 3]", () => {
+        const array = new Float64Array([0.068, 0.135, 0.200, 0.135, 0.200, 0.268])
+        const input = ndarray(array, {dtype: "float64", shape: [2, 3]})
+        const obj = new Some()
+        const output = obj.properties.color_spec.v_materialize(input)
+        expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0xFF, 0x22, 0x33, 0x44, 0xFF]))
+      })
+
+      it("with dtype=float64 and dim=2 and shape=[_, 4]", () => {
+        const array = new Float64Array([0.068, 0.135, 0.200, 0.268, 0.135, 0.200, 0.268, 0.335])
+        const input = ndarray(array, {dtype: "float64", shape: [2, 4]})
+        const obj = new Some()
+        const output = obj.properties.color_spec.v_materialize(input)
+        expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0x44, 0x22, 0x33, 0x44, 0x55]))
+      })
+
+      it("with dtype=object and dim=1 (#RGB)", () => {
+        const array = ["#112233", "#223344"]
+        const input = ndarray(array, {dtype: "object", shape: [2]})
+        const obj = new Some()
+        const output = obj.properties.color_spec.v_materialize(input)
+        expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0xFF, 0x22, 0x33, 0x44, 0xFF]))
+      })
+
+      it("with dtype=object and dim=1 (#RGBA)", () => {
+        const array = ["#11223344", "#22334455"]
+        const input = ndarray(array, {dtype: "object", shape: [2]})
+        const obj = new Some()
+        const output = obj.properties.color_spec.v_materialize(input)
+        expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0x44, 0x22, 0x33, 0x44, 0x55]))
       })
     })
   })
