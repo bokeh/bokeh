@@ -1,3 +1,11 @@
+// XXX: for core/util/eq
+declare global {
+  // @ts-ignore
+  type Node = any
+  // @ts-ignore
+  const Node: Node
+}
+
 import {IncomingMessage} from "http"
 import WebSocket from "ws"
 import {argv} from "yargs"

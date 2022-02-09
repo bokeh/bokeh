@@ -1,13 +1,14 @@
 import {ModelResolver} from "../base"
 import {HasProps} from "./has_props"
 import {ID, Attrs, PlainObject} from "./types"
-import {Ref} from "./util/refs"
-import {Buffers, decode_bytes, BytesRep, NDArrayRep} from "./util/serialization"
+import {Ref, is_ref} from "./util/refs"
+import {Buffer} from "./serializer"
+import {NDArrayRep} from "./util/serialization"
 import {ndarray, NDArray} from "./util/ndarray"
 import {entries} from "./util/object"
 import {map, every} from "./util/array"
 import {BYTE_ORDER} from "./util/platform"
-import {swap} from "./util/buffer"
+import {base64_to_buffer, swap} from "./util/buffer"
 import {isArray, isPlainObject, isString, isNumber} from "./util/types"
 import {type Document} from "document"
 
@@ -36,6 +37,13 @@ export type MapRep = {
   entries: [AnyVal, AnyVal][]
 }
 
+export type BytesRep = {
+  type: "bytes"
+  data: Bytes
+}
+
+export type Bytes = Ref | string | Buffer
+
 export type TypeRep = {
   type: string
   attributes: {[key: string]: AnyVal}
@@ -51,7 +59,7 @@ export class Deserializer {
     readonly resolver: ModelResolver = new ModelResolver(),
     readonly references: RefMap = new Map()) {}
 
-  protected _buffers: Buffers = new Map()
+  protected _buffers: Map<ID, ArrayBuffer> = new Map()
   protected _to_finalize: HasProps[] = []
 
   protected _instantiate_object(id: string, type: string): HasProps {
@@ -59,7 +67,7 @@ export class Deserializer {
     return new (model as any)({id})
   }
 
-  decode(obj: unknown /*AnyVal*/, buffers: Buffers = new Map(), document?: Document): unknown {
+  decode(obj: unknown /*AnyVal*/, buffers: Map<ID, ArrayBuffer> = new Map(), document?: Document): unknown {
     this._buffers = buffers
     this._to_finalize = []
     const to_finalize = this._to_finalize
@@ -188,7 +196,17 @@ export class Deserializer {
   }
 
   protected _decode_bytes(obj: BytesRep): ArrayBuffer {
-    return decode_bytes(obj, this._buffers)
+    const {data} = obj
+    if (is_ref(data)) {
+      const buffer = this._buffers.get(data.id)
+      if (buffer != null)
+        return buffer
+      else
+        throw new Error(`buffer for id=${data.id} not found`)
+    } else if (isString(data))
+      return base64_to_buffer(data)
+    else
+      return data.buffer
   }
 
   protected _decode_ndarray(obj: NDArrayRep): NDArray {

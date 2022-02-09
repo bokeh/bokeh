@@ -1,7 +1,6 @@
 import {expect} from "assertions"
 
-import {Serializer, SerializationError} from "@bokehjs/core/serializer"
-import {Base64Buffer} from "@bokehjs/core/util/serialization"
+import {Serializer, SerializationError, Base64Buffer} from "@bokehjs/core/serializer"
 import {HasProps} from "@bokehjs/core/has_props"
 import * as p from "@bokehjs/core/properties"
 import {ndarray} from "@bokehjs/core/util/ndarray"

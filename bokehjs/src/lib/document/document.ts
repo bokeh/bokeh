@@ -10,7 +10,6 @@ import {Ref} from "core/util/refs"
 import {ID, Data} from "core/types"
 import {Signal0} from "core/signaling"
 import {equals, Equatable, Comparator} from "core/util/eq"
-import {Buffers} from "core/util/serialization"
 import {copy, includes} from "core/util/array"
 import * as sets from "core/util/set"
 import {LayoutDOM} from "models/layouts/layout_dom"
@@ -442,18 +441,14 @@ export class Document implements Equatable {
       }
     }
 
-    const serializer = new Serializer({references})
+    const serializer = new Serializer({references, binary: true})
     const patch = {events: serializer.encode(events)}
 
     this._new_models.clear()
     return patch
   }
 
-  apply_json_patch(patch: Patch, buffers: Buffers | ReturnType<Buffers["entries"]> = new Map()): void {
-    if (!(buffers instanceof Map)) {
-      buffers = new Map(buffers)
-    }
-
+  apply_json_patch(patch: Patch, buffers: Map<ID, ArrayBuffer> = new Map()): void {
     this._push_all_models_freeze()
 
     const deserializer = new Deserializer(this._resolver, this._all_models)

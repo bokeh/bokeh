@@ -2,8 +2,27 @@ import {assert} from "./util/assert"
 import {entries} from "./util/object"
 import {Ref} from "./util/refs"
 import {/*isBasicObject, */isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isSymbol} from "./util/types"
-import {encode_bytes} from "./util/serialization"
 import {map} from "./util/iterator"
+import {buffer_to_base64} from "./util/buffer"
+import {Comparator, Equatable, equals} from "./util/eq"
+
+export class Buffer implements Equatable {
+  constructor(readonly buffer: ArrayBuffer) {}
+
+  to_base64(): string {
+    return buffer_to_base64(this.buffer)
+  }
+
+  [equals](that: Buffer, cmp: Comparator): boolean {
+    return cmp.eq(this.buffer, that.buffer)
+  }
+}
+
+export class Base64Buffer extends Buffer {
+  toJSON(): string {
+    return this.to_base64()
+  }
+}
 
 export type SerializableType =
   | null
@@ -34,17 +53,28 @@ export type SerializableOf<T extends SerializableType> =
 
 export class SerializationError extends Error {}
 
+class Serialized<T> {
+  constructor(readonly value: T) {}
+
+  to_json(): string {
+    return JSON.stringify(this.value)
+  }
+}
+
 export type Options = {
   references: Map<unknown, Ref>
+  binary: boolean
   include_defaults: boolean
 }
 
 export class Serializer {
   private readonly _references: Map<unknown, Ref>
 
+  readonly binary: boolean
   readonly include_defaults: boolean
 
   constructor(options?: Partial<Options>) {
+    this.binary = options?.binary ?? false
     this.include_defaults = options?.include_defaults ?? false
 
     const references = options?.references
@@ -60,11 +90,11 @@ export class Serializer {
     this._references.set(obj, ref)
   }
 
-  to_serializable<T extends SerializableType>(obj: T): SerializableOf<T>
-  to_serializable(obj: unknown): unknown
+  to_serializable<T extends SerializableType>(obj: T): Serialized<SerializableOf<T>>
+  to_serializable(obj: unknown): Serialized<unknown>
 
-  to_serializable(obj: unknown): unknown {
-    return this.encode(obj)
+  to_serializable(obj: unknown): Serialized<unknown> {
+    return new Serialized(this.encode(obj))
   }
 
   encode<T extends SerializableType>(obj: T): SerializableOf<T>
@@ -85,7 +115,8 @@ export class Serializer {
       }
       return result
     } else if (obj instanceof ArrayBuffer) {
-      return encode_bytes(obj)
+      const data = this.binary ? new Buffer(obj) : new Base64Buffer(obj)
+      return {type: "bytes", data}
     } else if (isPlainObject(obj)) {
       return {type: "map", entries: [...map(entries(obj), ([key, val]) => [this.encode(key), this.encode(val)])]}
     /*

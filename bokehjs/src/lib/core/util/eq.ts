@@ -106,7 +106,7 @@ export class Comparator {
         }
       }
 
-      if (a instanceof Node) {
+      if (typeof Node !== "undefined" && a instanceof Node) {
         return this.nodes(a, b)
       }
 

@@ -1,5 +1,8 @@
-import {PlainObject} from "core/types"
-import {uniqueId} from "core/util/string"
+import {PlainObject, ID} from "../core/types"
+import {Buffer} from "../core/serializer"
+import {unique_id} from "../core/util/string"
+import {assert} from "../core/util/assert"
+import {Ref} from "../core/util/refs"
 
 export type Socket = {
   send(data: unknown): void
@@ -13,7 +16,11 @@ export type Header = {
 }
 
 export class Message<T> {
-  readonly buffers: Map<string, ArrayBuffer> = new Map()
+  protected readonly _buffers: Map<ID, ArrayBuffer> = new Map()
+
+  get buffers(): Map<ID, ArrayBuffer> {
+    return this._buffers
+  }
 
   private constructor(readonly header: Header, readonly metadata: PlainObject, readonly content: T) {}
 
@@ -25,11 +32,11 @@ export class Message<T> {
   }
 
   assemble_buffer(buf_header: string, buf_payload: ArrayBuffer): void {
-    const nb = this.header.num_buffers != null ? this.header.num_buffers : 0
-    if (nb <= this.buffers.size)
+    const nb = this.header.num_buffers ?? 0
+    if (nb <= this._buffers.size)
       throw new Error(`too many buffers received, expecting ${nb}`)
     const {id} = JSON.parse(buf_header)
-    this.buffers.set(id, buf_payload)
+    this._buffers.set(id, buf_payload)
   }
 
   static create<T>(msgtype: string, metadata: PlainObject, content: T): Message<T> {
@@ -39,26 +46,45 @@ export class Message<T> {
 
   static create_header(msgtype: string): Header {
     return {
-      msgid: uniqueId(),
+      msgid: unique_id(),
       msgtype,
     }
   }
 
   complete(): boolean {
     const {num_buffers} = this.header
-    return num_buffers == null || this.buffers.size == num_buffers
+    return num_buffers == null || this._buffers.size == num_buffers
   }
 
   send(socket: Socket): void {
-    const nb = this.header.num_buffers ?? 0
-    if (nb > 0)
-      throw new Error("BokehJS only supports receiving buffers, not sending")
+    assert(this.header.num_buffers == null)
+
+    const buffers: [Ref, ArrayBuffer][] = []
+    const content_json = JSON.stringify(this.content, (_, val) => {
+      if (val instanceof Buffer) {
+        const ref = {id: `${buffers.length}`}
+        buffers.push([ref, val.buffer])
+        return ref
+      } else
+        return val
+    })
+
+    const num_buffers = buffers.length
+    if (num_buffers > 0) {
+      this.header.num_buffers = num_buffers
+    }
+
     const header_json = JSON.stringify(this.header)
     const metadata_json = JSON.stringify(this.metadata)
-    const content_json = JSON.stringify(this.content)
+
     socket.send(header_json)
     socket.send(metadata_json)
     socket.send(content_json)
+
+    for (const [ref, buffer] of buffers) {
+      socket.send(JSON.stringify(ref))
+      socket.send(buffer)
+    }
   }
 
   msgid(): string {
