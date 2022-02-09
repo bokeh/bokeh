@@ -141,7 +141,7 @@ def serialize_json(obj: Any, *, pretty: bool | None = None, indent: int | None =
     if pretty and indent is None:
         indent = 2
 
-    return json.dumps(obj, allow_nan=False, indent=indent, separators=separators, sort_keys=True, **kwargs)
+    return json.dumps(obj, allow_nan=False, indent=indent, separators=separators, sort_keys=False, **kwargs)
 
 
 #-----------------------------------------------------------------------------

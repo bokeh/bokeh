@@ -240,7 +240,6 @@ class TestColumnDataChangedEvent:
             data=dict(type="map", entries=[["col1", [1, 2]], ["col2", [1, 2, 3]]]),
             cols=["col1", "col2"],
         )
-        assert s.references == []
         assert s.buffers == []
 
     def test_dispatch(self) -> None:
@@ -286,7 +285,6 @@ class TestColumnsStreamedEvent:
         s = Serializer()
         r = s.encode(e)
         assert r == dict(kind=e.kind, model=m.ref, attr="data", data=dict(type="map", entries=[["foo", 1]]), rollover=200)
-        assert s.references == []
         assert s.buffers == []
 
     def test_dispatch(self) -> None:
@@ -342,7 +340,6 @@ class TestColumnsPatchedEvent:
         s = Serializer()
         r = s.encode(e)
         assert r == dict(kind=e.kind, model=m.ref, attr="data", patches=[1,2])
-        assert s.references == []
         assert s.buffers == []
 
     def test_dispatch(self) -> None:
@@ -383,7 +380,6 @@ class TestTitleChangedEvent:
         s = Serializer()
         r = s.encode(e)
         assert r == dict(kind=e.kind, title="title")
-        assert s.references == []
         assert s.buffers == []
 
     def test_dispatch(self) -> None:
@@ -450,8 +446,25 @@ class TestRootAddedEvent:
         e = bde.RootAddedEvent(doc, m, "setter", "invoker")
         s = Serializer()
         r = s.encode(e)
-        assert r == dict(kind=e.kind, model=m.ref)
-        assert len(s.references) == 3 # [m, ref1, ref2]
+        assert r == dict(
+            kind=e.kind,
+            model=dict(
+                type="test_events__document.SomeModel",
+                id=m.id,
+                attributes=dict(
+                    ref1=dict(
+                        type="test_events__document.SomeModel",
+                        id=ref1.id,
+                        attributes=dict(),
+                    ),
+                    ref2=dict(
+                        type="test_events__document.SomeModel",
+                        id=ref2.id,
+                        attributes=dict(),
+                    ),
+                ),
+            ),
+        )
         assert s.buffers == []
 
     def test_dispatch(self) -> None:
@@ -486,7 +499,6 @@ class TestRootRemovedEvent:
         s = Serializer()
         r = s.encode(e)
         assert r == dict(kind=e.kind, model=m.ref)
-        assert s.references == []
         assert s.buffers == []
 
     def test_dispatch(self) -> None:

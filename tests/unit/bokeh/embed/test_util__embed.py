@@ -513,9 +513,8 @@ class Test_standalone_docs_json_and_render_items:
         doc = list(docs_json.values())[0]
         assert doc['title'] == "Bokeh Application"
         assert doc['version'] == __version__
-        assert len(doc['roots']['root_ids']) == 1
-        assert len(doc['roots']['references']) == 1
-        assert doc['roots']['references'] == [{'attributes': {}, 'id': str(p1.id), 'type': 'test_util__embed.SomeModel'}]
+        assert len(doc['roots']) == 1
+        assert doc['roots'] == [dict(type="test_util__embed.SomeModel", id=str(p1.id), attributes={})]
         assert len(render_items) == 1
 
     def test_passing_doc(self) -> None:
@@ -526,9 +525,8 @@ class Test_standalone_docs_json_and_render_items:
         doc = list(docs_json.values())[0]
         assert doc['title'] == "Bokeh Application"
         assert doc['version'] == __version__
-        assert len(doc['roots']['root_ids']) == 1
-        assert len(doc['roots']['references']) == 1
-        assert doc['roots']['references'] == [{'attributes': {}, 'id': str(p1.id), 'type': 'test_util__embed.SomeModel'}]
+        assert len(doc['roots']) == 1
+        assert doc['roots'] == [dict(type="test_util__embed.SomeModel", id=str(p1.id), attributes={})]
         assert len(render_items) == 1
 
     def test_exception_for_missing_doc(self) -> None:

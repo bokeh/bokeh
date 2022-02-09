@@ -5,10 +5,9 @@ import {BokehEvent, DocumentReady, ModelEvent, LODStart, LODEnd} from "core/boke
 import {HasProps} from "core/has_props"
 import {Property} from "core/properties"
 import {Serializer} from "core/serializer"
-import {Deserializer, RefMap} from "core/deserializer"
+import {Deserializer, ModelRep, RefMap} from "core/deserializer"
 import {ID, Data} from "core/types"
 import {Signal0} from "core/signaling"
-import {Struct} from "core/util/refs"
 import {equals, Equatable, Comparator} from "core/util/eq"
 import {Buffers} from "core/util/serialization"
 import {copy, includes} from "core/util/array"
@@ -48,14 +47,10 @@ export type DocJson = {
   version?: string
   title?: string
   defs?: ModelDef[]
-  roots: {
-    root_ids: ID[]
-    references: Struct[]
-  }
+  roots: ModelRep[]
 }
 
 export type Patch = {
-  references: Struct[]
   events: DocumentChanged[]
 }
 
@@ -367,10 +362,7 @@ export class Document implements Equatable {
     return {
       version: js_version,
       title: this._title,
-      roots: {
-        root_ids: roots.map((r) => r.id),
-        references: [...serializer.definitions],
-      },
+      roots,
     }
   }
 
@@ -413,9 +405,7 @@ export class Document implements Equatable {
     doc.on_change(listener, true)
 
     const deserializer = new Deserializer(resolver, doc._all_models)
-
-    const root_refs = doc_json.roots.root_ids.map((id) => { return {id} }) // TODO: root_ids -> roots
-    const roots = deserializer.decode(root_refs, doc_json.roots.references as any, new Map(), doc) as Model[] // XXX
+    const roots = deserializer.decode(doc_json.roots, new Map(), doc) as Model[] // XXX
 
     doc.remove_on_change(listener)
 
@@ -456,7 +446,6 @@ export class Document implements Equatable {
 
     return {
       events: events_repr,
-      references: [...serializer.definitions],
     }
   }
 
@@ -468,7 +457,7 @@ export class Document implements Equatable {
     this._push_all_models_freeze()
 
     const deserializer = new Deserializer(this._resolver, this._all_models)
-    const events = deserializer.decode(patch.events, patch.references as any, buffers, this) as Decoded.DocumentChanged[] // XXX
+    const events = deserializer.decode(patch.events, buffers, this) as Decoded.DocumentChanged[] // XXX
 
     for (const event of events) {
       switch (event.kind) {

@@ -54,7 +54,7 @@ from jinja2 import Template
 from ..core.enums import HoldPolicyType
 from ..core.has_props import is_DataModel
 from ..core.query import find, is_single_string_selector
-from ..core.serialization import Deserializer, Ref, Serializer
+from ..core.serialization import Deserializer, Serializer
 from ..core.templates import FILE
 from ..core.types import ID, Unknown
 from ..core.validation import check_integrity, process_validation_issues
@@ -76,7 +76,7 @@ from .events import (
     RootRemovedEvent,
     TitleChangedEvent,
 )
-from .json import DocJson, PatchJson, RootsJson
+from .json import DocJson, PatchJson
 from .models import DocumentModelManager
 from .modules import DocumentModuleManager
 
@@ -372,12 +372,11 @@ class Document:
             None
 
         '''
-        references_json = patch["references"]
         events_json = patch["events"]
         # TODO: buffers
 
         deserializer = Deserializer(list(self.models), setter)
-        events = deserializer.from_serializable(events_json, references_json)
+        events = deserializer.from_serializable(events_json)
         assert isinstance(events, list) # List[DocumentPatched]
 
         for event in events:
@@ -422,14 +421,11 @@ class Document:
             Document :
 
         '''
-        roots_json = json['roots']
-        root_ids = roots_json['root_ids']
-        references_json = roots_json['references']
+        roots_json = json["roots"]
         # TODO: buffers
 
         deserializer = Deserializer()
-        root_refs = [Ref(id=id) for id in root_ids]
-        roots = deserializer.from_serializable(root_refs, references_json)
+        roots = deserializer.from_serializable(roots_json)
 
         doc = Document()
         for root in roots:
@@ -739,15 +735,11 @@ class Document:
 
         serializer = Serializer(binary=False)
         roots = serializer.encode(self._roots)
-        root_ids = [ r["id"] for r in roots ]
 
         doc_json = DocJson(
             title=self.title,
             defs=model_serializer.definitions,
-            roots=RootsJson(
-                root_ids=root_ids, # TODO: normalize to List[Ref]
-                references=serializer.references,
-            ),
+            roots=roots,
             version=__version__,
         )
 

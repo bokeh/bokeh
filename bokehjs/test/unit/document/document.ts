@@ -691,7 +691,7 @@ describe("Document", () => {
     expect(model0.name).to.be.equal("foo")
 
     // be sure defaults were NOT included
-    const attrs0 = parsed.roots.references[0].attributes
+    const attrs0 = parsed.roots[0].attributes
     expect("tags" in attrs0).to.be.false
     expect("foo" in attrs0).to.be.false
     expect("child" in attrs0).to.be.false
@@ -700,7 +700,7 @@ describe("Document", () => {
 
     // double-check different results if we do include_defaults
     const parsed_with_defaults = JSON.parse(d.to_json_string(true))
-    const attrs1 = parsed_with_defaults.roots.references[0].attributes
+    const attrs1 = parsed_with_defaults.roots[0].attributes
     //expect('tags' in attrs1).to.be.true
     expect("foo" in attrs1).to.be.true
     expect("child" in attrs1).to.be.true
@@ -866,16 +866,13 @@ describe("Document", () => {
     const doc_json = {
       version: js_version,
       title: "Bokeh Application",
-      roots: {
-        root_ids: ["j0"],
-        references: [{
-          type: "ModelWithConstructTimeChanges",
-          id: "j0",
-          attributes: {
-            foo: 3,
-          },
-        }],
-      },
+      roots: [{
+        type: "ModelWithConstructTimeChanges",
+        id: "j0",
+        attributes: {
+          foo: 3,
+        },
+      }],
     }
 
     const events: ev.DocumentEvent[] = []
@@ -911,15 +908,14 @@ describe("Document", () => {
           type: "map",
           entries: [
             ["model", {id: root.id}],
-            ["companion_model", {id: obj.id}],
+            ["companion_model", {
+              type: "SomeModel",
+              id: obj.id,
+              attributes: {
+                foo: 11,
+              },
+            }],
           ],
-        },
-      }],
-      references: [{
-        type: "SomeModel",
-        id: obj.id,
-        attributes: {
-          foo: 11,
         },
       }],
     })

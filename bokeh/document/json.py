@@ -35,7 +35,7 @@ from typing import (
 if TYPE_CHECKING:
     from ..core.has_props import ModelDef
     from ..core.serialization import ModelRep, Ref
-    from ..core.types import ID, Unknown
+    from ..core.types import Unknown
     from ..models.sources import DataDict
 
 #-----------------------------------------------------------------------------
@@ -112,19 +112,14 @@ DocumentPatched = Union[
 
 DocumentChanged = DocumentPatched
 
-class RootsJson(TypedDict):
-    root_ids: List[ID]
-    references: List[ModelRep]
-
 class DocJson(TypedDict):
     version: str | None
     title: str | None
     defs: List[ModelDef] | None
-    roots: RootsJson
+    roots: List[ModelRep]
 
 class PatchJson(TypedDict):
     events: List[DocumentChanged]
-    references: List[ModelRep]
 
 #-----------------------------------------------------------------------------
 # Private API

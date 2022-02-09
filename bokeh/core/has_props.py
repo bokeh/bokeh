@@ -62,12 +62,7 @@ from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
 from .property.singletons import Undefined
 from .property.wrappers import PropertyValueContainer
-from .serialization import (
-    AnyRep,
-    ModelRep,
-    Serializable,
-    Serializer,
-)
+from .serialization import AnyRep, Serializable, Serializer
 from .types import Unknown
 
 if TYPE_CHECKING:
@@ -381,7 +376,6 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             extends=extends,
             properties=properties,
             overrides=overrides,
-            references=value_serializer.references,
         )
 
         serializer.add_ref(cls, modelref, modeldef)
@@ -741,7 +735,6 @@ class ModelDef(ModelRef):
     extends: ModelRef
     properties: List[PropertyDef]
     overrides: List[OverrideDef]
-    references: List[ModelRep]
 
 #-----------------------------------------------------------------------------
 # Private API

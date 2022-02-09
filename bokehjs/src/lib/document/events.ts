@@ -5,6 +5,7 @@ import {Ref} from "core/util/refs"
 import {PatchSet} from "core/patching"
 import {equals, Equatable, Comparator} from "core/util/eq"
 import {serialize, Serializable, Serializer} from "core/serializer"
+import {ModelRep} from "core/deserializer"
 
 export type ModelChanged = {
   kind: "ModelChanged"
@@ -26,7 +27,7 @@ export type TitleChanged = {
 
 export type RootAdded = {
   kind: "RootAdded"
-  model: Ref
+  model: ModelRep
 }
 
 export type RootRemoved = {

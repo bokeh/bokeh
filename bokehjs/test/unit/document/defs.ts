@@ -119,7 +119,6 @@ describe("document/defs module", () => {
         overrides: [
           {name: "tags", default: ["some", "default", "tags"]},
         ],
-        references: [],
       }, {
         name: "Some1",
         module: "some",
@@ -137,21 +136,21 @@ describe("document/defs module", () => {
           {name: "prop9", kind: ["Enum", "enum0", "enum1", "enum2"], default: "enum2"},
         ],
         overrides: [],
-        references: [],
       }, {
         name: "Some2",
         module: "some",
         extends: {name: "Some1", module: "some"},
-        properties: [
-          {name: "prop10", kind: ["Ref", {name: "Some0", module: "some"}], default: {id: "some001"}},
-          {name: "prop11", kind: ["Array", ["Ref", {name: "Some0", module: "some"}]], default: [{id: "some001"}, {id: "some002"}]},
-        ],
+        properties: [{
+          name: "prop10",
+          kind: ["Ref", {name: "Some0", module: "some"}],
+          default: {id: "some001", type: "some.Some0", attributes: {prop2: false, prop4: 128}},
+        }, {
+          name: "prop11",
+          kind: ["Array", ["Ref", {name: "Some0", module: "some"}]],
+          default: [{id: "some001"}, {id: "some002", type: "some.Some0", attributes: {prop2: false, prop4: 129}}],
+        }],
         overrides: [
           {name: "prop2", default: "a"},
-        ],
-        references: [
-          {id: "some001", type: "some.Some0", attributes: {prop2: false, prop4: 128}},
-          {id: "some002", type: "some.Some0", attributes: {prop2: false, prop4: 129}},
         ],
       }, {
         name: "Some3",
@@ -163,7 +162,6 @@ describe("document/defs module", () => {
         overrides: [
           {name: "data", default: {default_column: [0, 1, 2]}},
         ],
-        references: [],
       }, {
         name: "Some4",
         module: "some",
@@ -175,7 +173,6 @@ describe("document/defs module", () => {
           {name: "data", default: {default_column: [3, 4, 5]}},
           {name: "prop0", default: 2},
         ],
-        references: [],
       }]
 
       const resolver = new ModelResolver()

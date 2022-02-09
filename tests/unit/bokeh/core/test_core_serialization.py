@@ -94,7 +94,6 @@ class TestSerializer:
         assert encoder.encode(-inf) == dict(type="number", value="-inf")
         assert encoder.encode(+inf) == dict(type="number", value="+inf")
 
-        assert encoder.references == []
         assert encoder.buffers == []
 
     def test_max_int(self, capsys: Capture) -> None:
@@ -129,7 +128,15 @@ class TestSerializer:
                     p2=[1, 2, 3],
                 ),
             ),
-            dict(id=v1.id),
+            dict(
+                type="test_core_serialization.SomeModel",
+                id=v1.id,
+                attributes=dict(
+                    p0=3,
+                    p1="b",
+                    p2=[4, 5, 6],
+                ),
+            ),
             dict(
                 type="test_core_serialization.SomeDataClass",
                 attributes=dict(
@@ -140,17 +147,6 @@ class TestSerializer:
             ),
             [dict(type="number", value="nan")],
         ]
-
-        assert encoder.references == [dict(
-            type="test_core_serialization.SomeModel",
-            id=v1.id,
-            attributes=dict(
-                p0=3,
-                p1="b",
-                p2=[4, 5, 6],
-            ),
-        )]
-
         assert encoder.buffers == []
 
     def test_list_circular(self) -> None:
@@ -169,7 +165,6 @@ class TestSerializer:
             type="bytes",
             data=dict(id="1"),
         )
-        assert encoder.references == []
         assert encoder.buffers == [
             Buffer(id=ID("1"), data=val),
         ]
@@ -182,7 +177,6 @@ class TestSerializer:
             type="bytes",
             data="/wAX/gA=",
         )
-        assert encoder.references == []
         assert encoder.buffers == []
 
     def test_ndarray_binary(self) -> None:
@@ -199,7 +193,6 @@ class TestSerializer:
             shape=[6],
             dtype="int32",
         )
-        assert encoder.references == []
         assert encoder.buffers == [
             Buffer(id=ID("1"), data=val.tobytes()),
         ]
@@ -218,7 +211,6 @@ class TestSerializer:
             shape=[6],
             dtype="int32",
         )
-        assert encoder.references == []
         assert encoder.buffers == []
 
     def test_ndarray_object(self) -> None:
@@ -242,7 +234,6 @@ class TestSerializer:
             shape=[3, 1],
             dtype="object",
         )
-        assert encoder.references == []
         assert encoder.buffers == []
 
     def test_HasProps(self) -> None:
@@ -257,15 +248,13 @@ class TestSerializer:
                 p2=[1, 2, 3],
             ),
         )
-        assert encoder.references == []
         assert encoder.buffers == []
 
     def test_Model(self) -> None:
         val = SomeModel(p0=3, p1="b", p2=[4, 5, 6])
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == dict(id=val.id)
-        assert encoder.references == [dict(
+        assert rep == dict(
             type="test_core_serialization.SomeModel",
             id=val.id,
             attributes=dict(
@@ -273,7 +262,7 @@ class TestSerializer:
                 p1="b",
                 p2=[4, 5, 6],
             ),
-        )]
+        )
         assert encoder.buffers == []
 
     def test_Model_circular(self) -> None:
@@ -285,12 +274,28 @@ class TestSerializer:
         encoder = Serializer()
         rep = encoder.encode(val2)
 
-        assert rep == dict(id=val2.id)
-        assert encoder.references == [
-            dict(type="test_core_serialization.SomeModel", id=val0.id, attributes=dict(p0=10, p3=dict(id=val2.id))),
-            dict(type="test_core_serialization.SomeModel", id=val1.id, attributes=dict(p0=20, p3=dict(id=val0.id))),
-            dict(type="test_core_serialization.SomeModel", id=val2.id, attributes=dict(p0=30, p3=dict(id=val1.id))),
-        ]
+        assert rep == dict(
+            type="test_core_serialization.SomeModel",
+            id=val2.id,
+            attributes=dict(
+                p0=30,
+                p3=dict(
+                    type="test_core_serialization.SomeModel",
+                    id=val1.id,
+                    attributes=dict(
+                        p0=20,
+                        p3=dict(
+                            type="test_core_serialization.SomeModel",
+                            id=val0.id,
+                            attributes=dict(
+                                p0=10,
+                                p3=dict(id=val2.id),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        )
         assert encoder.buffers == []
 
     def test_dataclass(self) -> None:
@@ -305,7 +310,6 @@ class TestSerializer:
                 f2=None,
             ),
         )
-        assert encoder.references == []
         assert encoder.buffers == []
 
     def test_dataclass_nested(self) -> None:
@@ -327,7 +331,6 @@ class TestSerializer:
                 ),
             ),
         )
-        assert encoder.references == []
         assert encoder.buffers == []
 
     def test_dataclass_HasProps_nested(self) -> None:
@@ -351,7 +354,6 @@ class TestSerializer:
                 ),
             ),
         )
-        assert encoder.references == []
         assert encoder.buffers == []
 
     def test_dataclass_Model_nested(self) -> None:
@@ -365,18 +367,17 @@ class TestSerializer:
                 f0=2,
                 f1=[1, 2, 3],
                 f2=None,
-                f5=dict(id=v0.id),
+                f5=dict(
+                    type="test_core_serialization.SomeModel",
+                    id=v0.id,
+                    attributes=dict(
+                        p0=3,
+                        p1="b",
+                        p2=[4, 5, 6],
+                    ),
+                ),
             ),
         )
-        assert encoder.references == [dict(
-            type="test_core_serialization.SomeModel",
-            id=v0.id,
-            attributes=dict(
-                p0=3,
-                p1="b",
-                p2=[4, 5, 6],
-            ),
-        )]
         assert encoder.buffers == []
 
     def test_color_rgb(self) -> None:
@@ -384,7 +385,6 @@ class TestSerializer:
         encoder = Serializer()
         rep = encoder.encode(val)
         assert rep == "rgb(16, 32, 64)"
-        assert encoder.references == []
         assert encoder.buffers == []
 
     def test_color_rgba(self) -> None:
@@ -392,7 +392,6 @@ class TestSerializer:
         encoder = Serializer()
         rep = encoder.encode(val)
         assert rep == "rgba(16, 32, 64, 0.1)"
-        assert encoder.references == []
         assert encoder.buffers == []
 
     def test_pd_series_base64(self, pd) -> None:
@@ -409,7 +408,6 @@ class TestSerializer:
             shape=[6],
             dtype="int32",
         )
-        assert encoder.references == []
         assert encoder.buffers == []
 
     def test_np_int64(self) -> None:

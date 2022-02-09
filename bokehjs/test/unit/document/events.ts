@@ -134,7 +134,7 @@ describe("events module", () => {
         kind: "ModelChanged",
         model: m2.ref(),
         attr: "foo",
-        new: [m.ref()],
+        new: [{type: "TestModel", id: m.id, attributes: {}}],
       })
       const expected_refs = new Set([m])
       expect(serializer.objects).to.be.equal(expected_refs)
@@ -182,7 +182,7 @@ describe("events module", () => {
       const result = serializer.encode(event)
       expect(result).to.be.equal({
         kind: "RootAdded",
-        model: m.ref(),
+        model: {type: "TestModel", id: m.id, attributes: {}},
       })
     })
 

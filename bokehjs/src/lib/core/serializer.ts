@@ -1,8 +1,9 @@
 import {assert} from "./util/assert"
 import {entries} from "./util/object"
-import {Ref, Struct} from "./util/refs"
+import {Ref} from "./util/refs"
 import {/*isBasicObject, */isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isSymbol} from "./util/types"
 import {encode_bytes} from "./util/serialization"
+import {type ModelRep} from "./deserializer"
 import {map} from "./util/iterator"
 
 export type SerializableType =
@@ -40,8 +41,8 @@ export type Options = {
 
 export class Serializer {
   private readonly _references: Map<unknown, Ref> = new Map()
-  private readonly _definitions: Map<unknown, Struct> = new Map()
-  private readonly _refmap: Map<Ref, Struct> = new Map()
+  private readonly _definitions: Map<unknown, ModelRep> = new Map()
+  private readonly _refmap: Map<Ref, ModelRep> = new Map()
 
   readonly include_defaults: boolean
 
@@ -58,7 +59,7 @@ export class Serializer {
     this._references.set(obj, ref)
   }
 
-  add_def(obj: unknown, def: Struct): void {
+  add_def(obj: unknown, def: ModelRep): void {
     const ref = this.get_ref(obj)
     assert(ref != null)
     this._definitions.set(obj, def)
@@ -67,22 +68,6 @@ export class Serializer {
 
   get objects(): Set<unknown> {
     return new Set(this._references.keys())
-  }
-
-  get references(): Set<Ref> {
-    return new Set(this._references.values())
-  }
-
-  get definitions(): Set<Struct> {
-    return new Set(this._definitions.values())
-  }
-
-  resolve_ref(ref: Ref): Struct | undefined {
-    return this._refmap.get(ref)
-  }
-
-  remove_ref(obj: unknown): boolean {
-    return this._references.delete(obj)
   }
 
   remove_def(obj: unknown): boolean {

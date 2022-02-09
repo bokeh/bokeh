@@ -105,7 +105,6 @@ class Test_push_notebook:
         assert mock_send.call_count == 3  # sends header, metadata, then content
         assert json.loads(mock_send.call_args[0][0]) == {
             "events": [{"kind": "TitleChanged", "title": "foo"}],
-            "references": [],
         }
         assert mock_send.call_args[1] == {}
 

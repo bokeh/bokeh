@@ -139,12 +139,14 @@ ObjID = int
 class Serializer:
     """ """
 
+    _id: int
     _circular: Dict[ObjID, Any]
     _references: Dict[ObjID, Ref]
     _definitions: Dict[ObjID, ModelRep]
     _buffers: List[Buffer]
 
     def __init__(self, *, binary: bool = True) -> None:
+        self._id = 0
         self._circular = {}
         self._references = {}
         self._definitions = {}
@@ -187,7 +189,6 @@ class Serializer:
     def buffers(self) -> List[Buffer]:
         return list(self._buffers)
 
-    _id: int = 0
     def _next_id(self) -> ID:
         self._id += 1
         return ID(str(self._id))
@@ -355,7 +356,6 @@ class Deserializer:
     _references: Dict[ID, Model]
     _setter: Setter | None
 
-    _refs: Dict[ID, ModelRep]
     _buffers: Dict[ID, Buffer]
     _deserializing: bool
 
@@ -364,24 +364,25 @@ class Deserializer:
         self._setter = setter
         self._deserializing = False
 
-    def from_serializable(self, obj: AnyRep, refs: List[ModelRep] = [], buffers: List[Buffer] = []) -> Any:
+    def from_serializable(self, obj: AnyRep, buffers: List[Buffer] = []) -> Any:
         assert not self._deserializing, "internal error"
         self._deserializing = True
 
-        self._refs = {ref["id"]: ref for ref in refs}
         self._buffers = {buf.id: buf for buf in buffers}
 
         try:
             return self.decode(obj)
         finally:
-            self._refs = {}
             self._buffers = {}
             self._deserializing = False
 
     def decode(self, obj: AnyRep) -> Any:
         if isinstance(obj, dict):
-            if "id" in obj and "type" not in obj:
-                return self._decode_ref(obj)
+            if "id" in obj:
+                if "type" not in obj:
+                    return self._decode_ref(obj)
+                else:
+                    return self._decode_type_ref(obj)
             elif "type" in obj:
                 type = obj["type"]
                 if type == "number":
@@ -416,13 +417,17 @@ class Deserializer:
         instance = self._references.get(id)
         if instance is not None:
             return instance
-
-        model_ref = self._refs.get(id)
-        if model_ref is None:
+        else:
             raise DeserializationError(f"can't resolve reference '{id}'")
 
-        type = model_ref["type"]
-        attributes = model_ref["attributes"]
+    def _decode_type_ref(self, obj: ModelRep) -> Model:
+        id = obj["id"]
+        instance = self._references.get(id)
+        if instance is not None:
+            raise DeserializationError(f"reference already known '{id}'")
+
+        type = obj["type"]
+        attributes = obj["attributes"]
 
         from ..model import Model
         cls = Model.model_class_reverse_map.get(type)

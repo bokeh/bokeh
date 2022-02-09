@@ -1,7 +1,7 @@
 import {ModelResolver} from "../base"
 import {HasProps} from "./has_props"
 import {ID, Attrs, PlainObject} from "./types"
-import {Ref, is_ref} from "./util/refs"
+import {Ref} from "./util/refs"
 import {Buffers, decode_bytes, BytesRep, NDArrayRep} from "./util/serialization"
 import {ndarray, NDArray} from "./util/ndarray"
 import {entries} from "./util/object"
@@ -13,8 +13,8 @@ import {type Document} from "document"
 
 export type RefMap = Map<ID, HasProps>
 
-export type AnyVal = null | boolean | number | string | Ref | AnyRef | AnyVal[]
-export type AnyRef = NumberRep | ArrayRep | SetRep | MapRep | BytesRep | NDArrayRep | TypeRep
+export type AnyVal = null | boolean | number | string | Ref | AnyRep | AnyVal[] | {[key: string]: AnyVal}
+export type AnyRep = NumberRep | ArrayRep | SetRep | MapRep | BytesRep | NDArrayRep | ModelRep | TypeRep
 
 export type NumberRep = {
   type: "number"
@@ -51,7 +51,6 @@ export class Deserializer {
     readonly resolver: ModelResolver = new ModelResolver(),
     readonly references: RefMap = new Map()) {}
 
-  protected _refs: Map<ID, ModelRep> = new Map()
   protected _buffers: Buffers = new Map()
   protected _to_finalize: HasProps[] = []
 
@@ -60,8 +59,7 @@ export class Deserializer {
     return new (model as any)({id})
   }
 
-  decode(obj: unknown /*AnyVal*/, refs: ModelRep[], buffers: Buffers = new Map(), document?: Document): unknown {
-    this._refs = new Map(refs.map((ref) => [ref.id, ref]))
+  decode(obj: unknown /*AnyVal*/, buffers: Buffers = new Map(), document?: Document): unknown {
     this._buffers = buffers
     this._to_finalize = []
     const to_finalize = this._to_finalize
@@ -70,7 +68,6 @@ export class Deserializer {
       try {
         return this._decode(obj)
       } finally {
-        this._refs = new Map()
         this._buffers = new Map()
         this._to_finalize = []
       }
@@ -95,12 +92,12 @@ export class Deserializer {
   }
 
   protected _decode(obj: unknown /*AnyVal*/): unknown {
-    if (is_ref(obj)) {
-      return this._decode_ref(obj)
-    } else if (isArray(obj)) {
+    if (isArray(obj)) {
       return this._decode_plain_array(obj)
     } else if (isPlainObject(obj)) {
-      if ("type" in obj) {
+      if ("id" in obj && !("type" in obj)) {
+        return this._decode_ref(obj as Ref)
+      } else if ("type" in obj) {
         switch (obj.type) {
           case "number":
             return this._decode_number(obj as NumberRep)
@@ -115,8 +112,12 @@ export class Deserializer {
           case "ndarray":
             return this._decode_ndarray(obj as NDArrayRep)
           default: {
-            if ("attributes" in obj && !("id" in obj)) {
-              return this._decode_type(obj as TypeRep)
+            if ("attributes" in obj) {
+              if ("id" in obj) {
+                return this._decode_type_ref(obj as ModelRep)
+              } else {
+                return this._decode_type(obj as TypeRep)
+              }
             }
           }
         }
@@ -212,20 +213,23 @@ export class Deserializer {
     const instance = this.references.get(obj.id)
     if (instance != null)
       return instance
+    else
+      throw new Error(`reference ${obj.id} isn't known`)
+  }
 
-    const model_ref = this._refs.get(obj.id)
-    if (model_ref != null) {
-      const {id, type, attributes} = model_ref
+  protected _decode_type_ref(obj: ModelRep): HasProps {
+    if (this.references.has(obj.id))
+      throw new Error(`reference already known '${obj.id}'`)
 
-      const instance = this._instantiate_object(id, type)
-      this.references.set(id, instance)
+    const {id, type, attributes} = obj
 
-      const decoded_attributes = this._decode(attributes) as Attrs
-      instance.setv(decoded_attributes, {silent: true})
-      this._to_finalize.push(instance)
+    const instance = this._instantiate_object(id, type)
+    this.references.set(id, instance)
 
-      return instance
-    } else
-      throw new Error(`reference ${obj} isn't known`)
+    const decoded_attributes = this._decode(attributes) as Attrs
+    instance.setv(decoded_attributes, {silent: true})
+    this._to_finalize.push(instance)
+
+    return instance
   }
 }

@@ -403,7 +403,7 @@ class Test_json_item:
     def test_root_id(self, test_plot: figure) -> None:
         out = bes.json_item(test_plot, target=ID("foo"))
         assert set(out.keys()) == JSON_ITEMS_KEYS
-        assert out['doc']['roots']['root_ids'][0] == out['root_id']
+        assert out['doc']['roots'][0]["id"] == out['root_id']
 
     def test_version(self, monkeypatch: pytest.MonkeyPatch, test_plot: figure) -> None:
         from bokeh import __version__

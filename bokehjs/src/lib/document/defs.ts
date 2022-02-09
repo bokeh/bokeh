@@ -1,7 +1,7 @@
 import {ModelResolver} from "../base"
 import {Model} from "../model"
 import * as kinds from "core/kinds"
-import {Deserializer, AnyVal, ModelRep} from "core/deserializer"
+import {Deserializer, AnyVal} from "core/deserializer"
 import {isString} from "core/util/types"
 import {to_object} from "core/util/object"
 
@@ -14,7 +14,6 @@ export type ModelDef = ModelRef & {
   extends: ModelRef
   properties: PropertyDef[]
   overrides: OverrideDef[]
-  references: ModelRep[]
 }
 
 export type PrimitiveKindRef = "Any" | "Unknown" | "Boolean" | "Number" | "Int" | "String" | "Null"
@@ -137,7 +136,7 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
       if (value === undefined)
         return value
       else
-        return deserializer.decode(value as AnyVal, def.references)
+        return deserializer.decode(value as AnyVal)
     }
 
     for (const prop of def.properties) {

@@ -13,6 +13,7 @@ import {keys, values, entries, extend} from "./util/object"
 import {isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import {is_equal} from "./util/eq"
 import {serialize, Serializable, Serializer} from "./serializer"
+import {ModelRep, AnyVal} from "./deserializer"
 import type {Document} from "../document/document"
 import {DocumentEvent, DocumentEventBatch, ModelChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "../document/events"
 import {equals, Equatable, Comparator} from "./util/eq"
@@ -262,22 +263,23 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return `${cls}${T("(")}${T("{")}${items.join(`${T(",")} `)}${T("}")}${T(")")}`
   }
 
-  [serialize](serializer: Serializer): Ref {
+  [serialize](serializer: Serializer): ModelRep {
     const ref = this.ref()
     serializer.add_ref(this, ref)
 
-    const attributes: Attrs = {}
+    const attributes: {[key: string]: AnyVal} = {}
     for (const prop of this) {
       if (prop.syncable && (serializer.include_defaults || prop.dirty)) {
         const value = prop.get_value()
-        attributes[prop.attr] = serializer.encode(value)
+        attributes[prop.attr] = serializer.encode(value) as AnyVal
       }
     }
 
     const {type, id} = this
-    serializer.add_def(this, {type, id, attributes})
+    const rep = {type, id, attributes}
+    serializer.add_def(this, rep)
 
-    return ref
+    return rep
   }
 
   constructor(attrs: {id: string} | AttrsLike = {}) {

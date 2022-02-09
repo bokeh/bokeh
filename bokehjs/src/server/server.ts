@@ -28,7 +28,7 @@ function parse_token(token: string): Token {
 
 type ID = string
 
-type Struct = {
+type ModelRep = {
   id: string
   type: string
   attributes: {[key: string]: unknown}
@@ -38,10 +38,7 @@ type DocJson = {
   version?: string
   title?: string
   //defs?: ModelDef[]
-  roots: {
-    root_ids: ID[]
-    references: Struct[]
-  }
+  roots: ModelRep[]
 }
 
 type VersionInfo = {
@@ -141,10 +138,7 @@ wss.on("connection", (ws, req: Request) => {
               doc: {
                 version,
                 title: "NodeJS application",
-                roots: {
-                  root_ids: [],
-                  references: [],
-                },
+                roots: [],
               },
             })
           case "PUSH-DOC":

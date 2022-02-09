@@ -124,7 +124,10 @@ describe("core/serializer module", () => {
 
     it("should support HasProps instances", () => {
       const obj0 = new SomeModel()
-      expect(to_serializable(obj0)).to.be.equal({repr: {id: obj0.id}, json: `{"id":"${obj0.id}"}`})
+      expect(to_serializable(obj0)).to.be.equal({
+        repr: {type: "SomeModel", id: obj0.id, attributes: {}},
+        json: `{"type":"SomeModel","id":"${obj0.id}","attributes":{}}`,
+      })
     })
 
     it("should support ArrayBuffer instances", () => {
@@ -180,14 +183,29 @@ describe("core/serializer module", () => {
 
       const serializer = new Serializer()
       const repr = serializer.encode(obj2)
-      const defs = [...serializer.definitions]
 
-      expect(repr).to.be.equal({id: obj2.id})
-      expect(defs).to.be.equal([
-        {type: "SomeModel", id: obj0.id, attributes: {value: 10, obj: {id: obj2.id}}},
-        {type: "SomeModel", id: obj1.id, attributes: {value: 20, obj: {id: obj0.id}}},
-        {type: "SomeModel", id: obj2.id, attributes: {value: 30, obj: {id: obj1.id}}},
-      ])
+      expect(repr).to.be.equal({
+        type: "SomeModel",
+        id: obj2.id,
+        attributes: {
+          value: 30,
+          obj: {
+            type: "SomeModel",
+            id: obj1.id,
+            attributes: {
+              value: 20,
+              obj: {
+                type: "SomeModel",
+                id: obj0.id,
+                attributes: {
+                  value: 10,
+                  obj: {id: obj2.id},
+                },
+              },
+            },
+          },
+        },
+      })
     })
   })
 })
