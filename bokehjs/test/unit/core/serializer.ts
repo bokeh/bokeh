@@ -3,6 +3,7 @@ import {expect} from "assertions"
 import {Serializer, SerializationError, Base64Buffer} from "@bokehjs/core/serializer"
 import {HasProps} from "@bokehjs/core/has_props"
 import * as p from "@bokehjs/core/properties"
+import {Slice} from "@bokehjs/core/types"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BYTE_ORDER} from "@bokehjs/core/util/platform"
 
@@ -126,6 +127,14 @@ describe("core/serializer module", () => {
       expect(to_serializable(obj0)).to.be.equal({
         repr: {type: "SomeModel", id: obj0.id, attributes: {}},
         json: `{"type":"SomeModel","id":"${obj0.id}","attributes":{}}`,
+      })
+    })
+
+    it("should support Slice instances", () => {
+      const slice0 = new Slice({start: 10, step: 2})
+      expect(to_serializable(slice0)).to.be.equal({
+        repr: {type: "slice", start: 10, stop: null, step: 2},
+        json: '{"type":"slice","start":10,"stop":null,"step":2}',
       })
     })
 

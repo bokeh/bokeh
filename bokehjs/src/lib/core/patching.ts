@@ -1,4 +1,4 @@
-import {Arrayable, Data, TypedArray} from "core/types"
+import {Arrayable, Data, TypedArray, Slice} from "core/types"
 import {isTypedArray, isArray, isNumber} from "core/util/types"
 import {NDArray} from "core/util/ndarray"
 import {entries} from "core/util/object"
@@ -48,8 +48,6 @@ export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: 
   } else
     throw new Error("unsupported array types")
 }
-
-export type Slice = {start?: number, stop?: number, step?: number}
 
 // exported for testing
 export function slice(ind: number | Slice, length: number): [number, number, number] {

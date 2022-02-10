@@ -11,6 +11,7 @@ import * as logging from "@bokehjs/core/logging"
 import * as p from "@bokehjs/core/properties"
 import {ColumnDataSource} from "@bokehjs/models"
 import {DocumentReady} from "@bokehjs/core/bokeh_events"
+import {Slice} from "@bokehjs/core/types"
 
 import {trap} from "../../util"
 
@@ -1083,14 +1084,14 @@ describe("Document", () => {
       const events: ev.DocumentEvent[] = []
       doc.on_change((event) => events.push(event))
 
-      const event = new ev.ColumnsPatchedEvent(doc, source, "data", {col0: [[{start: 1, stop: 3}, [20, 30]]]})
+      const event = new ev.ColumnsPatchedEvent(doc, source, "data", {col0: [[new Slice({start: 1, stop: 3}), [20, 30]]]})
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
       expect(events.length).to.be.equal(0)
       expect(source.data).to.be.equal({col0: [1, 20, 30, 4, 5, 6]})
 
-      source.patch({col0: [[{start: 3, stop: 5}, [40, 50]]]})
+      source.patch({col0: [[new Slice({start: 3, stop: 5}), [40, 50]]]})
 
       expect(events.length).to.be.equal(1)
       expect(source.data).to.be.equal({col0: [1, 20, 30, 40, 50, 6]})

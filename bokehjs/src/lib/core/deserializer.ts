@@ -1,6 +1,6 @@
 import {ModelResolver} from "../base"
 import {HasProps} from "./has_props"
-import {ID, Attrs, PlainObject} from "./types"
+import {ID, Attrs, PlainObject, Slice} from "./types"
 import {Ref, is_ref} from "./util/refs"
 import {Buffer} from "./serializer"
 import {NDArrayRep} from "./util/serialization"
@@ -43,6 +43,13 @@ export type BytesRep = {
 }
 
 export type Bytes = Ref | string | Buffer
+
+export type SliceRep = {
+  type: "slice"
+  start: number | null
+  stop: number | null
+  step: number | null
+}
 
 export type TypeRep = {
   type: string
@@ -117,6 +124,8 @@ export class Deserializer {
             return this._decode_map(obj as MapRep)
           case "bytes":
             return this._decode_bytes(obj as BytesRep)
+          case "slice":
+            return this._decode_slice(obj as SliceRep)
           case "ndarray":
             return this._decode_ndarray(obj as NDArrayRep)
           default: {
@@ -207,6 +216,13 @@ export class Deserializer {
       return base64_to_buffer(data)
     else
       return data.buffer
+  }
+
+  protected _decode_slice(obj: SliceRep): Slice {
+    const start = this._decode(obj.start) as number | null
+    const stop = this._decode(obj.stop) as number | null
+    const step = this._decode(obj.step) as number | null
+    return new Slice({start, stop, step})
   }
 
   protected _decode_ndarray(obj: NDArrayRep): NDArray {

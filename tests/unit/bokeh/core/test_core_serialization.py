@@ -36,7 +36,7 @@ from bokeh.core.properties import (
     Nullable,
     String,
 )
-from bokeh.core.serialization import Buffer, Serializer
+from bokeh.core.serialization import Buffer, Deserializer, Serializer
 from bokeh.core.types import ID
 from bokeh.model import Model
 from bokeh.util.dataclasses import NotRequired, Unspecified, dataclass
@@ -156,6 +156,24 @@ class TestSerializer:
         encoder = Serializer()
         with pytest.raises(ValueError):
             encoder.encode(val)
+
+    def test_slice(self) -> None:
+        encoder = Serializer()
+
+        val0 = slice(2)
+        assert encoder.encode(val0) == dict(type="slice", start=None, stop=2, step=None)
+
+        val1 = slice(0, 2)
+        assert encoder.encode(val1) == dict(type="slice", start=0, stop=2, step=None)
+
+        val2 = slice(0, 10, 2)
+        assert encoder.encode(val2) == dict(type="slice", start=0, stop=10, step=2)
+
+        val3 = slice(0, None, 2)
+        assert encoder.encode(val3) == dict(type="slice", start=0, stop=None, step=2)
+
+        val4 = slice(None, None, None)
+        assert encoder.encode(val4) == dict(type="slice", start=None, stop=None, step=None)
 
     def test_bytes_binary(self) -> None:
         encoder = Serializer(binary=True)
@@ -457,33 +475,25 @@ class TestSerializer:
         rep = encoder.encode(val)
         assert rep == -684115200000
 
-    """
-    def test_decimal(self) -> None:
-        dec = decimal.Decimal(20.3)
-        assert self.encoder.default(dec) == 20.3
-        assert isinstance(self.encoder.default(dec), float)
+class TestDeserializer:
 
     def test_slice(self) -> None:
-        c = slice(2)
-        assert self.encoder.default(c) == dict(start=None, stop=2, step=None)
-        assert isinstance(self.encoder.default(c), dict)
+        decoder = Deserializer()
 
-        c = slice(0,2)
-        assert self.encoder.default(c) == dict(start=0, stop=2, step=None)
-        assert isinstance(self.encoder.default(c), dict)
+        rep0 = dict(type="slice", start=None, stop=2, step=None)
+        assert decoder.from_serializable(rep0) == slice(2)
 
-        c = slice(0, 10, 2)
-        assert self.encoder.default(c) == dict(start=0, stop=10, step=2)
-        assert isinstance(self.encoder.default(c), dict)
+        rep1 = dict(type="slice", start=0, stop=2, step=None)
+        assert decoder.from_serializable(rep1) == slice(0, 2)
 
-        c = slice(0, None, 2)
-        assert self.encoder.default(c) == dict(start=0, stop=None, step=2)
-        assert isinstance(self.encoder.default(c), dict)
+        rep2 = dict(type="slice", start=0, stop=10, step=2)
+        assert decoder.from_serializable(rep2) == slice(0, 10, 2)
 
-        c = slice(None, None, None)
-        assert self.encoder.default(c) == dict(start=None, stop=None, step=None)
-        assert isinstance(self.encoder.default(c), dict)
-    """
+        rep3 = dict(type="slice", start=0, stop=None, step=2)
+        assert decoder.from_serializable(rep3) == slice(0, None, 2)
+
+        rep4 = dict(type="slice", start=None, stop=None, step=None)
+        assert decoder.from_serializable(rep4) == slice(None, None, None)
 
 """
     def test_set_data_from_json_list(self) -> None:
@@ -896,7 +906,6 @@ def test_transform_series_force_list_default_with_buffers(pd) -> None:
 
 
 """
-
 
 #-----------------------------------------------------------------------------
 # Private API

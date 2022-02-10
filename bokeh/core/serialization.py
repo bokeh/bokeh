@@ -46,7 +46,12 @@ if TYPE_CHECKING:
     import numpy.typing as npt
 
 # Bokeh imports
-from ..util.dataclasses import dataclass, entries, is_dataclass
+from ..util.dataclasses import (
+    Unspecified,
+    dataclass,
+    entries,
+    is_dataclass,
+)
 from ..util.dependencies import import_optional
 from ..util.serialization import (
     array_encoding_disabled,
@@ -101,6 +106,11 @@ class BytesRep(TypedDict):
     data: Ref | str
 
 ByteOrder = Literal["little", "big"]
+
+class SliceRep(TypedDict):
+    start: int | None
+    stop: int | None
+    step: int | None
 
 class NDArrayRep(TypedDict):
     type: Literal["ndarray"]
@@ -208,6 +218,9 @@ class Serializer:
 
         return rep
 
+    def encode_struct(self, **fields: Any) -> Dict[str, AnyRep]:
+        return {key: self.encode(val) for key, val in fields.items() if val is not Unspecified}
+
     def _encode(self, obj: Any) -> AnyRep:
         if isinstance(obj, Serializable):
             return obj.to_serializable(self)
@@ -231,6 +244,8 @@ class Serializer:
             return self._encode_dict(obj)
         elif isinstance(obj, bytes):
             return self._encode_bytes(obj)
+        elif isinstance(obj, slice):
+            return self._encode_slice(obj)
         elif isinstance(obj, np.ndarray):
             return self._encode_ndarray(obj)
         elif is_dataclass(obj):
@@ -283,6 +298,14 @@ class Serializer:
         return dict(
             type="bytes",
             data=buffer.ref if self.binary else buffer.to_base64(),
+        )
+
+    def _encode_slice(self, obj: slice) -> AnyRep:
+        return self.encode_struct(
+            type="slice",
+            start=obj.start,
+            stop=obj.stop,
+            step=obj.step,
         )
 
     def _encode_ndarray(self, obj: npt.NDArray[Any]) -> AnyRep:
@@ -399,6 +422,8 @@ class Deserializer:
                     return { self.decode(key): self.decode(val) for key, val in entries }
                 elif type == "bytes":
                     return self._decode_bytes(obj)
+                elif type == "slice":
+                    return self._decode_slice(obj)
                 elif type == "ndarray":
                     return self._decode_ndarray(obj)
                 elif type in self._decoders:
@@ -472,6 +497,12 @@ class Deserializer:
                 return buffer.data
             else:
                 raise DeserializationError(f"can't resolve buffer '{id}'")
+
+    def _decode_slice(self, obj: SliceRep) -> slice:
+        start = self.decode(obj["start"])
+        stop = self.decode(obj["stop"])
+        step = self.decode(obj["step"])
+        return slice(start, stop, step)
 
     def _decode_ndarray(self, obj: NDArrayRep) -> npt.NDArray[Any]:
         array = obj["array"]

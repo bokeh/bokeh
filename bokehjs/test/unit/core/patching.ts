@@ -3,6 +3,7 @@ import {expect} from "assertions"
 import {difference} from "@bokehjs/core/util/set"
 import {stream_to_column, slice, patch_to_column} from "@bokehjs/core/patching"
 import {ndarray, Int32NDArray, Float32NDArray, Float64NDArray} from "@bokehjs/core/util/ndarray"
+import {Slice} from "@bokehjs/core/types"
 
 describe("core/patching module", () => {
 
@@ -14,25 +15,25 @@ describe("core/patching module", () => {
     })
 
     it("should return start, stop, end for slice object", () => {
-      expect(slice({start: 1, stop: 10, step: 2}, 5)).to.be.equal([1, 10, 2])
-      expect(slice({start: 1, stop: 10, step: 2}, 5)).to.be.equal([1, 10, 2])
-      expect(slice({start: 1, stop: 10, step: 2}, 15)).to.be.equal([1, 10, 2])
+      expect(slice(new Slice({start: 1, stop: 10, step: 2}), 5)).to.be.equal([1, 10, 2])
+      expect(slice(new Slice({start: 1, stop: 10, step: 2}), 5)).to.be.equal([1, 10, 2])
+      expect(slice(new Slice({start: 1, stop: 10, step: 2}), 15)).to.be.equal([1, 10, 2])
     })
 
     it("should return 0 for start when slice start is null", () => {
-      expect(slice({stop: 10, step: 2}, 5)).to.be.equal([0, 10, 2])
-      expect(slice({stop: 10, step: 2}, 5)).to.be.equal([0, 10, 2])
-      expect(slice({stop: 10, step: 2}, 15)).to.be.equal([0, 10, 2])
+      expect(slice(new Slice({stop: 10, step: 2}), 5)).to.be.equal([0, 10, 2])
+      expect(slice(new Slice({stop: 10, step: 2}), 5)).to.be.equal([0, 10, 2])
+      expect(slice(new Slice({stop: 10, step: 2}), 15)).to.be.equal([0, 10, 2])
     })
 
     it("should return 1 for step when slice step is null", () => {
-      expect(slice({start: 1, stop: 10}, 5)).to.be.equal([1, 10, 1])
-      expect(slice({start: 1, stop: 10}, 5)).to.be.equal([1, 10, 1])
-      expect(slice({start: 1, stop: 10}, 15)).to.be.equal([1, 10, 1])
+      expect(slice(new Slice({start: 1, stop: 10}), 5)).to.be.equal([1, 10, 1])
+      expect(slice(new Slice({start: 1, stop: 10}), 5)).to.be.equal([1, 10, 1])
+      expect(slice(new Slice({start: 1, stop: 10}), 15)).to.be.equal([1, 10, 1])
     })
 
     it("should return length for stop when slice stop is null", () => {
-      expect(slice({start: 1, step: 2}, 11)).to.be.equal([1, 11, 2])
+      expect(slice(new Slice({start: 1, step: 2}), 11)).to.be.equal([1, 11, 2])
     })
   })
 
@@ -77,39 +78,39 @@ describe("core/patching module", () => {
 
       it("should patch Arrays to Arrays", () => {
         const a = ndarray([1, 2, 3, 4, 5])
-        patch_to_column(a, [[{start: 2, stop: 4, step: 1}, [100, 101]]])
+        patch_to_column(a, [[new Slice({start: 2, stop: 4, step: 1}), [100, 101]]])
         expect(a).to.be.equal(ndarray([1, 2, 100, 101, 5]))
 
-        patch_to_column(a, [[{start: 1, stop: 3, step: 1}, [99, 102]]])
+        patch_to_column(a, [[new Slice({start: 1, stop: 3, step: 1}), [99, 102]]])
         expect(a).to.be.equal(ndarray([1, 99, 102, 101, 5]))
       })
 
       it("should patch typed Arrays to typed Arrays", () => {
         for (const typ of [Float32NDArray, Float64NDArray, Int32NDArray]) {
           const a = new typ([1, 2, 3, 4, 5])
-          patch_to_column(a, [[{start: 2, stop: 4, step: 1}, [100, 101]]])
+          patch_to_column(a, [[new Slice({start: 2, stop: 4, step: 1}), [100, 101]]])
           expect(a).to.be.equal(new typ([1, 2, 100, 101, 5]))
 
-          patch_to_column(a, [[{start: 1, stop: 3, step: 1}, [99, 102]]])
+          patch_to_column(a, [[new Slice({start: 1, stop: 3, step: 1}), [99, 102]]])
           expect(a).to.be.equal(new typ([1, 99, 102, 101, 5]))
         }
       })
 
       it("should handle patch indices with strides", () => {
         const a = ndarray([1, 2, 3, 4, 5], {dtype: "int32"})
-        patch_to_column(a, [[{start: 1, stop: 5, step: 2}, [100, 101]]])
+        patch_to_column(a, [[new Slice({start: 1, stop: 5, step: 2}), [100, 101]]])
         expect(a).to.be.equal(new Int32NDArray([1, 100, 3, 101, 5]))
       })
 
       it("should handle multi-part patches", () => {
         const a = ndarray([1, 2, 3, 4, 5])
-        patch_to_column(a, [[{start: 2, stop: 4, step: 1}, [100, 101]], [{stop: 1, step: 1}, [10]], [4, -1]])
+        patch_to_column(a, [[new Slice({start: 2, stop: 4, step: 1}), [100, 101]], [new Slice({stop: 1, step: 1}), [10]], [4, -1]])
         expect(a).to.be.equal(ndarray([10, 2, 100, 101, -1]))
       })
 
       it("should return a Set of the patched indices", () => {
         const a = ndarray([1, 2, 3, 4, 5])
-        const s = patch_to_column(a, [[{start: 2, stop: 4, step: 1}, [100, 101]], [{stop: 1, step: 1}, [10]], [4, -1]])
+        const s = patch_to_column(a, [[new Slice({start: 2, stop: 4, step: 1}), [100, 101]], [new Slice({stop: 1, step: 1}), [10]], [4, -1]])
         expect(difference(s, new Set([0, 2, 3, 4]))).to.be.equal(new Set())
       })
     })
@@ -121,14 +122,14 @@ describe("core/patching module", () => {
         const b = ndarray([10, 20, -1, -2, 0, 10], {shape: [6]})
         const c = ndarray([1, 2, 3, 4], {shape: [4]})
         patch_to_column([a, b, c], [
-          [[0, {start: 2, stop: 4, step: 1}], [100, 101]],
+          [[0, new Slice({start: 2, stop: 4, step: 1})], [100, 101]],
         ])
         expect(a).to.be.equal(ndarray([1, 2, 100, 101, 5]))
         expect(b).to.be.equal(ndarray([10, 20, -1, -2, 0, 10]))
         expect(c).to.be.equal(ndarray([1, 2, 3, 4]))
 
         patch_to_column([a, b, c], [
-          [[1, {start: 2, stop: 4, step: 1}], [100, 101]],
+          [[1, new Slice({start: 2, stop: 4, step: 1})], [100, 101]],
         ])
         expect(a).to.be.equal(ndarray([1, 2, 100, 101, 5]))
         expect(b).to.be.equal(ndarray([10, 20, 100, 101, 0, 10]))
@@ -141,14 +142,14 @@ describe("core/patching module", () => {
           const b = new typ([10, 20, -1, -2, 0, 10], [6])
           const c = new typ([1, 2, 3, 4], [4])
           patch_to_column([a, b, c], [
-            [[0, {start: 2, stop: 4, step: 1}], [100, 101]],
+            [[0, new Slice({start: 2, stop: 4, step: 1})], [100, 101]],
           ])
           expect(a).to.be.equal(new typ([1, 2, 100, 101, 5]))
           expect(b).to.be.equal(new typ([10, 20, -1, -2, 0, 10]))
           expect(c).to.be.equal(new typ([1, 2, 3, 4]))
 
           patch_to_column([a, b, c], [
-            [[1, {start: 2, stop: 4, step: 1}], [100, 101]],
+            [[1, new Slice({start: 2, stop: 4, step: 1})], [100, 101]],
           ])
           expect(a).to.be.equal(new typ([1, 2, 100, 101, 5]))
           expect(b).to.be.equal(new typ([10, 20, 100, 101, 0, 10]))
@@ -161,14 +162,14 @@ describe("core/patching module", () => {
         const b = new Int32NDArray([10, 20, -1, -2, 0, 10], [6])
         const c = new Int32NDArray([1, 2, 3, 4], [4])
         patch_to_column([a, b, c], [
-          [[0, {start: 1, stop: 5, step: 2}], [100, 101]],
+          [[0, new Slice({start: 1, stop: 5, step: 2})], [100, 101]],
         ])
         expect(a).to.be.equal(new Int32NDArray([1, 100, 3, 101, 5]))
         expect(b).to.be.equal(new Int32NDArray([10, 20, -1, -2, 0, 10]))
         expect(c).to.be.equal(new Int32NDArray([1, 2, 3, 4]))
 
         patch_to_column([a, b, c], [
-          [[1, {step: 3}], [100, 101]],
+          [[1, new Slice({step: 3})], [100, 101]],
         ])
         expect(a).to.be.equal(new Int32NDArray([1, 100, 3, 101, 5]))
         expect(b).to.be.equal(new Int32NDArray([100, 20, -1, 101, 0, 10]))
@@ -180,8 +181,8 @@ describe("core/patching module", () => {
         const b = ndarray([10, 20, -1, -2, 0, 10], {shape: [6]})
         const c = ndarray([1, 2, 3, 4], {shape: [4]})
         patch_to_column([a, b, c], [
-          [[0, {start: 2, stop: 4, step: 1}], [100, 101]],
-          [[1, {stop: 2, step: 1}], [999, 999]],
+          [[0, new Slice({start: 2, stop: 4, step: 1})], [100, 101]],
+          [[1, new Slice({stop: 2, step: 1})], [999, 999]],
           [[1, 5], [6]],
         ])
         expect(a).to.be.equal(ndarray([1, 2, 100, 101, 5]))
@@ -194,8 +195,8 @@ describe("core/patching module", () => {
         const b = ndarray([10, 20, -1, -2, 0, 10], {shape: [6]})
         const c = ndarray([1, 2, 3, 4], {shape: [4]})
         const s = patch_to_column([a, b, c], [
-          [[0, {start: 2, stop: 4, step: 1}], [100, 101]],
-          [[1, {stop: 2, step: 1}], [999, 999]],
+          [[0, new Slice({start: 2, stop: 4, step: 1})], [100, 101]],
+          [[1, new Slice({stop: 2, step: 1})], [999, 999]],
           [[1, 5], [6]],
         ])
         expect(difference(s, new Set([0, 1]))).to.be.equal(new Set())
@@ -208,13 +209,13 @@ describe("core/patching module", () => {
         const a = ndarray([1, 2, 3, 4, 5, 6], {shape: [2, 3]})
         const b = ndarray([10, 20, -1, -2, 0, 10], {shape: [3, 2]})
         const c = ndarray([1, 2], {shape: [1, 2]})
-        patch_to_column([a, b, c], [[[0, {}, 2], [100, 101]]])
+        patch_to_column([a, b, c], [[[0, new Slice(), 2], [100, 101]]])
         expect(a).to.be.equal(ndarray([1, 2, 100, 4, 5, 101], {shape: [2, 3]}))
         expect(b).to.be.equal(ndarray([10, 20, -1, -2, 0, 10], {shape: [3, 2]}))
         expect(c).to.be.equal(ndarray([1, 2], {shape: [1, 2]}))
 
         patch_to_column([a, b, c], [
-          [[1, {start: 0, stop: 2, step: 1}, {start: 0, stop: 1, step: 1}], [100, 101]],
+          [[1, new Slice({start: 0, stop: 2, step: 1}), new Slice({start: 0, stop: 1, step: 1})], [100, 101]],
         ])
         expect(a).to.be.equal(ndarray([1, 2, 100, 4, 5, 101], {shape: [2, 3]}))
         expect(b).to.be.equal(ndarray([100, 20, 101, -2, 0, 10], {shape: [3, 2]}))
@@ -227,14 +228,14 @@ describe("core/patching module", () => {
           const b = new typ([10, 20, -1, -2, 0, 10], [3, 2])
           const c = new typ([1, 2], [1, 2])
           patch_to_column([a, b, c], [
-            [[0, {}, 2], [100, 101]],
+            [[0, new Slice(), 2], [100, 101]],
           ])
           expect(a).to.be.equal(new typ([1, 2, 100, 4, 5, 101], [2, 3]))
           expect(b).to.be.equal(new typ([10, 20, -1, -2, 0, 10], [3, 2]))
           expect(c).to.be.equal(new typ([1, 2], [1, 2]))
 
           patch_to_column([a, b, c], [
-            [[1, {start: 0, stop: 2, step: 1}, {start: 0, stop: 1, step: 1}], [100, 101]],
+            [[1, new Slice({start: 0, stop: 2, step: 1}), new Slice({start: 0, stop: 1, step: 1})], [100, 101]],
           ])
           expect(a).to.be.equal(new typ([1, 2, 100, 4, 5, 101], [2, 3]))
           expect(b).to.be.equal(new typ([100, 20, 101, -2, 0, 10], [3, 2]))
@@ -247,14 +248,14 @@ describe("core/patching module", () => {
         const b = new Int32NDArray([10, 20, -1, -2, 0, 10], [3, 2])
         const c = new Int32NDArray([1, 2], [1, 2])
         patch_to_column([a, b, c], [
-          [[0, {step: 1}, 2], [100, 101]],
+          [[0, new Slice({step: 1}), 2], [100, 101]],
         ])
         expect(a).to.be.equal(new Int32NDArray([1, 2, 100, 4, 5, 101], [2, 3]))
         expect(b).to.be.equal(new Int32NDArray([10, 20, -1, -2, 0, 10], [3, 2]))
         expect(c).to.be.equal(new Int32NDArray([1, 2], [1, 2]))
 
         patch_to_column([a, b, c], [
-          [[1, {start: 0, stop: 3, step: 2}, {start: 0, stop: 1, step: 1}], [100, 101]],
+          [[1, new Slice({start: 0, stop: 3, step: 2}), new Slice({start: 0, stop: 1, step: 1})], [100, 101]],
         ])
         expect(a).to.be.equal(new Int32NDArray([1, 2, 100, 4, 5, 101], [2, 3]))
         expect(b).to.be.equal(new Int32NDArray([100, 20, -1, -2, 101, 10], [3, 2]))
@@ -266,8 +267,8 @@ describe("core/patching module", () => {
         const b = ndarray([10, 20, -1, -2, 0, 10], {shape: [3, 2]})
         const c = ndarray([1, 2], {shape: [1, 2]})
         patch_to_column([a, b, c], [
-          [[0, {step: 1}, 2], [100, 101]],
-          [[1, {start: 0, stop: 2, step: 1}, {start: 0, stop: 1, step: 1}], [100, 101]],
+          [[0, new Slice({step: 1}), 2], [100, 101]],
+          [[1, new Slice({start: 0, stop: 2, step: 1}), new Slice({start: 0, stop: 1, step: 1})], [100, 101]],
         ])
         expect(a).to.be.equal(ndarray([1, 2, 100, 4, 5, 101], {shape: [2, 3]}))
         expect(b).to.be.equal(ndarray([100, 20, 101, -2, 0, 10], {shape: [3, 2]}))
@@ -279,8 +280,8 @@ describe("core/patching module", () => {
         const b = ndarray([10, 20, -1, -2, 0, 10], {shape: [3, 2]})
         const c = ndarray([1, 2], {shape: [1, 2]})
         const s = patch_to_column([a, b, c], [
-          [[0, {step: 1}, 2], [100, 101]],
-          [[1, {start: 0, stop: 2, step: 1}, {start: 0, stop: 1, step: 1}], [100, 101]],
+          [[0, new Slice({step: 1}), 2], [100, 101]],
+          [[1, new Slice({start: 0, stop: 2, step: 1}), new Slice({start: 0, stop: 1, step: 1})], [100, 101]],
         ])
         expect(difference(s, new Set([0, 1]))).to.be.equal(new Set())
       })
