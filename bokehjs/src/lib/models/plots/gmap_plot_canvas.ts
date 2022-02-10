@@ -49,6 +49,8 @@ export class GMapPlotView extends PlotView {
   private map: google.maps.Map
   protected map_types: any
 
+  protected _api_key: string
+
   override initialize(): void {
     super.initialize()
 
@@ -60,7 +62,10 @@ export class GMapPlotView extends PlotView {
     this.initial_lat = lat
     this.initial_lng = lng
 
-    if (!this.model.api_key) {
+    const decoder = new TextDecoder("utf-8")
+    this._api_key = decoder.decode(this.model.api_key)
+
+    if (!this._api_key) {
       const url = "https://developers.google.com/maps/documentation/javascript/get-api-key"
       logger.error(`api_key is required. See ${url} for more information on how to obtain your own.`)
     }
@@ -74,8 +79,8 @@ export class GMapPlotView extends PlotView {
 
     if (!has_maps_API()) {
       if (typeof window._bokeh_gmaps_callback === "undefined") {
-        const {api_key, api_version} = this.model
-        load_google_api(api_key, api_version)
+        const {api_version} = this.model
+        load_google_api(this._api_key, api_version)
       }
       gmaps_ready.connect(() => {
         this._build_map()

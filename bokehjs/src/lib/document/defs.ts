@@ -16,7 +16,7 @@ export type ModelDef = ModelRef & {
   overrides: OverrideDef[]
 }
 
-export type PrimitiveKindRef = "Any" | "Unknown" | "Boolean" | "Number" | "Int" | "String" | "Null"
+export type PrimitiveKindRef = "Any" | "Unknown" | "Boolean" | "Number" | "Int" | "Bytes" | "String" | "Null"
 
 export type KindRef =
   PrimitiveKindRef |
@@ -56,6 +56,7 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
         case "Boolean": return kinds.Boolean
         case "Number": return kinds.Number
         case "Int": return kinds.Int
+        case "Bytes": return kinds.Bytes
         case "String": return kinds.String
         case "Null": return kinds.Null
       }

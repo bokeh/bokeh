@@ -78,6 +78,7 @@ Basic Properties
 .. autoclass:: Auto
 .. autoclass:: Bool
 .. autoclass:: Byte
+.. autoclass:: Bytes
 .. autoclass:: Color
 .. autoclass:: Complex
 .. autoclass:: DashPattern
@@ -194,9 +195,9 @@ __all__ = (
     'AnyRef',
     'Array',
     'Auto',
-    'Base64String',
     'Bool',
     'Byte',
+    'Bytes',
     'Color',
     'ColorHex',
     'ColorSpec',
@@ -347,6 +348,7 @@ from .property.pd import PandasDataFrame ; PandasDataFrame
 from .property.pd import PandasGroupBy ; PandasGroupBy
 
 from .property.primitive import Bool; Bool
+from .property.primitive import Bytes; Bytes
 from .property.primitive import Complex; Complex
 from .property.primitive import Int; Int
 from .property.primitive import Float; Float
@@ -355,7 +357,6 @@ from .property.primitive import String; String
 
 from .property.readonly import Readonly; Readonly
 
-from .property.string import Base64String; Base64String
 from .property.string import MathString; MathString
 from .property.string import Regex; Regex
 

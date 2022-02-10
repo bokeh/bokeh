@@ -252,6 +252,16 @@ export namespace Kinds {
     }
   }
 
+  export class Bytes extends Kind<ArrayBuffer> {
+    valid(value: unknown): value is ArrayBuffer {
+      return value instanceof ArrayBuffer
+    }
+
+    override toString(): string {
+      return "Bytes"
+    }
+  }
+
   export class String extends Kind<string> {
     valid(value: unknown): value is string {
       return tp.isString(value)
@@ -395,6 +405,7 @@ export const Unknown = new Kinds.Unknown()
 export const Boolean = new Kinds.Boolean()
 export const Number = new Kinds.Number()
 export const Int = new Kinds.Int()
+export const Bytes = new Kinds.Bytes()
 export const String = new Kinds.String()
 export const Regex = (regex: RegExp) => new Kinds.Regex(regex)
 export const Null = new Kinds.Null()
