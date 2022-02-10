@@ -130,7 +130,7 @@ class HatchPatternType(Either):
     """
 
     def __init__(self, default=[], help=None) -> None:
-        types = Enum(enums.HatchPattern), Enum(enums.HatchPatternAbbreviation)
+        types = Enum(enums.HatchPattern), Enum(enums.HatchPatternAbbreviation), String
         super().__init__(*types, default=default, help=help)
 
     def __str__(self) -> str:

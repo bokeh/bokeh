@@ -29,7 +29,6 @@ from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from ...util.string import nice_join
 from .. import enums
 from .color import Color
-from .container import Dict, List
 from .datetime import Datetime, TimeDelta
 from .descriptors import DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
 from .either import Either
@@ -43,6 +42,7 @@ from .primitive import (
     String,
 )
 from .singletons import Undefined
+from .struct import Optional, Struct
 from .visual import (
     DashPattern,
     FontSize,
@@ -86,10 +86,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-_ExprFieldValueTransform = Enum("expr", "field", "value", "transform")
-
-_ExprFieldValueTransformUnits = Enum("expr", "field", "value", "transform", "units")
 
 #-----------------------------------------------------------------------------
 # General API
@@ -179,26 +175,31 @@ class DataSpec(Either):
             color = ColorSpec(help="docs for color") # defaults to None
 
     """
-    def __init__(self, key_type, value_type, default, help=None) -> None:
+    def __init__(self, value_type, default, help=None) -> None:
         super().__init__(
             String,
-            Dict(
-                key_type,
-                Either(
-                    String,
-                    Instance('bokeh.models.transforms.Transform'),
-                    Instance('bokeh.models.expressions.Expression'),
-                    value_type)),
             value_type,
+            Struct(
+                value=value_type,
+                transform=Optional(Instance("bokeh.models.transforms.Transform")),
+            ),
+            Struct(
+                field=String,
+                transform=Optional(Instance("bokeh.models.transforms.Transform")),
+            ),
+            Struct(
+                expr=Instance("bokeh.models.expressions.Expression"),
+                transform=Optional(Instance("bokeh.models.transforms.Transform")),
+            ),
             default=default,
             help=help
         )
-        self._type = self._validate_type_param(value_type)
+        self.value_type = self._validate_type_param(value_type)
         self.accepts(Instance("bokeh.models.expressions.Expression"), lambda obj: expr(obj))
 
     # TODO (bev) add stricter validation on keys
 
-    def make_descriptors(self, base_name):
+    def make_descriptors(self, base_name: str):
         """ Return a list of ``DataSpecPropertyDescriptor`` instances to
         install on a class, in order to delegate attribute access to this
         property.
@@ -217,21 +218,21 @@ class DataSpec(Either):
     def to_serializable(self, obj, name, val):
         # Check for spec type value
         try:
-            self._type.validate(val, False)
-            return dict(value=val)
+            self.value_type.validate(val, False)
+            return value(val)
         except ValueError:
             pass
 
         # Check for data source field name
         if isinstance(val, str):
-            return dict(field=val)
+            return field(val)
 
         # Must be dict, return a new dict
         return dict(val)
 
 class IntSpec(DataSpec):
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
-        super().__init__(key_type, Int, default=default, help=help)
+    def __init__(self, default, help=None) -> None:
+        super().__init__(Int, default=default, help=help)
 
 class NumberSpec(DataSpec):
     """ A |DataSpec| property that accepts numeric and datetime fixed values.
@@ -253,10 +254,9 @@ class NumberSpec(DataSpec):
         m.location = "foo" # field
 
     """
-    _value_type = Float
 
-    def __init__(self, default=Undefined, help=None, key_type=_ExprFieldValueTransform, accept_datetime=True, accept_timedelta=True) -> None:
-        super().__init__(key_type, self._value_type, default=default, help=help)
+    def __init__(self, default=Undefined, help=None, accept_datetime=True, accept_timedelta=True) -> None:
+        super().__init__(Float, default=default, help=help)
         if accept_timedelta:
             self.accepts(TimeDelta, convert_timedelta_type)
         if accept_datetime:
@@ -270,11 +270,11 @@ class AlphaSpec(NumberSpec):
 
     def __init__(self, default=1.0, help=None) -> None:
         help = f"{help or ''}\n{self._default_help}"
-        super().__init__(default=default, help=help, key_type=_ExprFieldValueTransform, accept_datetime=False, accept_timedelta=False)
+        super().__init__(default=default, help=help, accept_datetime=False, accept_timedelta=False)
 
 class NullStringSpec(DataSpec):
-    def __init__(self, default=None, help=None, key_type=_ExprFieldValueTransform) -> None:
-        super().__init__(key_type, Nullable(List(String)), default=default, help=help)
+    def __init__(self, default=None, help=None) -> None:
+        super().__init__(Nullable(String), default=default, help=help)
 
 class StringSpec(DataSpec):
     """ A |DataSpec| property that accepts string fixed values.
@@ -291,8 +291,8 @@ class StringSpec(DataSpec):
         m.title = "foo"        # field
 
     """
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
-        super().__init__(key_type, List(String), default=default, help=help)
+    def __init__(self, default, help=None) -> None:
+        super().__init__(String, default=default, help=help)
 
     def prepare_value(self, cls, name, value):
         if isinstance(value, list):
@@ -322,8 +322,8 @@ class FontSizeSpec(DataSpec):
 
     """
 
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
-        super().__init__(key_type, FontSize, default=default, help=help)
+    def __init__(self, default, help=None) -> None:
+        super().__init__(FontSize, default=default, help=help)
 
     def validate(self, value, detail=True):
         # We want to preserve existing semantics and be a little more restrictive. This
@@ -336,28 +336,28 @@ class FontSizeSpec(DataSpec):
                 raise ValueError(msg)
 
 class FontStyleSpec(DataSpec):
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
-        super().__init__(key_type, Enum(enums.FontStyle), default=default, help=help)
+    def __init__(self, default, help=None) -> None:
+        super().__init__(Enum(enums.FontStyle), default=default, help=help)
 
 class TextAlignSpec(DataSpec):
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
-        super().__init__(key_type, Enum(enums.TextAlign), default=default, help=help)
+    def __init__(self, default, help=None) -> None:
+        super().__init__(Enum(enums.TextAlign), default=default, help=help)
 
 class TextBaselineSpec(DataSpec):
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
-        super().__init__(key_type, Enum(enums.TextBaseline), default=default, help=help)
+    def __init__(self, default, help=None) -> None:
+        super().__init__(Enum(enums.TextBaseline), default=default, help=help)
 
 class LineJoinSpec(DataSpec):
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
-        super().__init__(key_type, Enum(enums.LineJoin), default=default, help=help)
+    def __init__(self, default, help=None) -> None:
+        super().__init__(Enum(enums.LineJoin), default=default, help=help)
 
 class LineCapSpec(DataSpec):
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
-        super().__init__(key_type, Enum(enums.LineCap), default=default, help=help)
+    def __init__(self, default, help=None) -> None:
+        super().__init__(Enum(enums.LineCap), default=default, help=help)
 
 class DashPatternSpec(DataSpec):
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
-        super().__init__(key_type, DashPattern, default=default, help=help)
+    def __init__(self, default, help=None) -> None:
+        super().__init__(DashPattern, default=default, help=help)
 
 class HatchPatternSpec(DataSpec):
     """ A |DataSpec| property that accepts hatch pattern types as fixed values.
@@ -376,8 +376,8 @@ class HatchPatternSpec(DataSpec):
 
     """
 
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
-        super().__init__(key_type, Nullable(HatchPatternType), default=default, help=help)
+    def __init__(self, default, help=None) -> None:
+        super().__init__(Nullable(HatchPatternType), default=default, help=help)
 
 class MarkerSpec(DataSpec):
     """ A |DataSpec| property that accepts marker types as fixed values.
@@ -396,8 +396,8 @@ class MarkerSpec(DataSpec):
 
     """
 
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
-        super().__init__(key_type, MarkerType, default=default, help=help)
+    def __init__(self, default, help=None) -> None:
+        super().__init__(MarkerType, default=default, help=help)
 
 class UnitsSpec(NumberSpec):
     """ A |DataSpec| property that accepts numeric fixed values, and also
@@ -406,11 +406,30 @@ class UnitsSpec(NumberSpec):
     """
 
     def __init__(self, default, units_enum, units_default, help=None) -> None:
-        super().__init__(default=default, help=help, key_type=_ExprFieldValueTransformUnits)
+        super().__init__(default=default, help=help)
+
         units_type = Enum(units_enum, default=units_default, serialized=False, help=f"""
         Units to use for the associated property: {nice_join(units_enum)}
         """)
         self._units_type = self._validate_type_param(units_type, help_allowed=True)
+
+        self._type_params += [
+            Struct(
+                value=self.value_type,
+                transform=Optional(Instance("bokeh.models.transforms.Transform")),
+                units=Optional(units_type),
+            ),
+            Struct(
+                field=String,
+                transform=Optional(Instance("bokeh.models.transforms.Transform")),
+                units=Optional(units_type),
+            ),
+            Struct(
+                expr=Instance("bokeh.models.expressions.Expression"),
+                transform=Optional(Instance("bokeh.models.transforms.Transform")),
+                units=Optional(units_type),
+            ),
+        ]
 
     def __str__(self) -> str:
         units_default = self._units_type._default
@@ -481,11 +500,9 @@ class DistanceSpec(UnitsSpec):
 
 class NullDistanceSpec(DistanceSpec):
 
-    _value_type = Nullable(Float)
-
     def __init__(self, default=None, units_default="data", help=None) -> None:
         super().__init__(default=default, units_default=units_default, help=help)
-        self._type = Nullable(self._type)
+        self.value_type = Nullable(Float)
         self._type_params = [Null()] + self._type_params
 
     def prepare_value(self, cls, name, value):
@@ -548,9 +565,9 @@ class ColorSpec(DataSpec):
 
     """
 
-    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform) -> None:
+    def __init__(self, default, help=None) -> None:
         help = f"{help or ''}\n{self._default_help}"
-        super().__init__(key_type, Nullable(Color), default=default, help=help)
+        super().__init__(Nullable(Color), default=default, help=help)
 
     @classmethod
     def isconst(cls, val):

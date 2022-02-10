@@ -21,8 +21,16 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    Any,
+    Generic,
+    Set,
+    TypeVar,
+)
+
 # Bokeh imports
-from .bases import ParameterizedProperty
+from .bases import ParameterizedProperty, Property
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -32,22 +40,38 @@ __all__ = (
     'Struct',
 )
 
+T = TypeVar("T")
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class Optional(Generic[T]):
+
+    def __init__(self, type_param: Property[T]):
+        self.type_param = type_param
 
 class Struct(ParameterizedProperty):
     """ Accept values that are structures.
 
 
     """
+
+    _optional: Set[str]
+
     def __init__(self, **fields) -> None:
         default = fields.pop("default", None)
         help = fields.pop("help", None)
 
         self._fields = {}
+        self._optional = set()
+
         for name, type in fields.items():
-            self._fields[name] = self._validate_type_param(type)
+            if isinstance(type, Optional):
+                self._optional.add(name)
+                type = type.type_param
+
+            self._fields[name] = self._validate_type_param(type, help_allowed=True) # XXX
 
         super().__init__(default=default, help=help)
 
@@ -55,16 +79,22 @@ class Struct(ParameterizedProperty):
     def type_params(self):
         return list(self._fields.values())
 
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True):
         super().validate(value, detail)
 
         if isinstance(value, dict) and len(value) <= len(self._fields):
-            # note use of for-else loop here
             for name, type in self._fields.items():
-                if not type.is_valid(value.get(name, None)):
+                if name not in value:
+                    if name not in self._optional:
+                        break
+                elif not type.is_valid(value[name]):
                     break
             else:
-                return
+                for name in value.keys():
+                    if name not in self._fields:
+                        break
+                else:
+                    return
 
         msg = "" if not detail else f"expected an element of {self}, got {value!r}"
         raise ValueError(msg)

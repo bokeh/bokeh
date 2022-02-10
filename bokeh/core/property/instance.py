@@ -26,7 +26,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from importlib import import_module
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Type,
@@ -34,12 +33,10 @@ from typing import (
 )
 
 # Bokeh imports
+from ..serialization import Serializable
 from ._sphinx import model_link, property_link, register_type_link
 from .bases import Init, Property
 from .singletons import Undefined
-
-if TYPE_CHECKING:
-    from ..has_props import HasProps
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -49,14 +46,14 @@ __all__ = (
     'Instance',
 )
 
-T = TypeVar("T", bound="HasProps")
+T = TypeVar("T", bound=Serializable)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
 class Instance(Property[T]):
-    """ Accept values that are instances of |HasProps|.
+    """ Accept values that are instances of serializable types (e.g. |HasProps|).
 
     Args:
         readonly (bool, optional) :
@@ -71,13 +68,17 @@ class Instance(Property[T]):
         if not (isinstance(instance_type, (type, str)) or callable(instance_type)):
             raise ValueError(f"expected a type, fn() -> type, or string, got {instance_type}")
 
-        from ..has_props import HasProps
-        if isinstance(instance_type, type) and not issubclass(instance_type, HasProps):
-            raise ValueError(f"expected a subclass of HasProps, got {instance_type}")
+        if isinstance(instance_type, type):
+            self._assert_serializable(instance_type)
 
         self._instance_type = instance_type
 
         super().__init__(default=default, help=help, readonly=readonly, serialized=serialized)
+
+    @staticmethod
+    def _assert_serializable(instance_type: Type[Any]) -> None:
+        if not (isinstance(instance_type, type) and issubclass(instance_type, Serializable)):
+            raise ValueError(f"expected a subclass of Serializable (e.g. HasProps), got {instance_type}")
 
     def __str__(self) -> str:
         class_name = self.__class__.__name__
@@ -89,16 +90,21 @@ class Instance(Property[T]):
         return True
 
     @property
-    def instance_type(self) -> Type[HasProps]:
+    def instance_type(self) -> Type[Serializable]:
+        instance_type: Type[Serializable]
         if isinstance(self._instance_type, type):
-            pass # just type-check, because type is callable (see the last condition)
+            instance_type = self._instance_type
         elif isinstance(self._instance_type, str):
             module, name = self._instance_type.rsplit(".", 1)
-            self._instance_type = getattr(import_module(module, "bokeh"), name)
-        elif callable(self._instance_type):
-            self._instance_type = self._instance_type()
+            instance_type = getattr(import_module(module, "bokeh"), name)
+            self._assert_serializable(instance_type)
+            self._instance_type = instance_type
+        else:
+            instance_type = self._instance_type()
+            self._assert_serializable(instance_type)
+            self._instance_type = instance_type
 
-        return self._instance_type
+        return instance_type
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)

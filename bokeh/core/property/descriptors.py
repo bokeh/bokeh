@@ -750,7 +750,7 @@ class DataSpecPropertyDescriptor(PropertyDescriptor):
             old = getattr(obj, self.name)
             if old is not None:
                 try:
-                    self.property._type.validate(old, False)
+                    self.property.value_type.validate(old, False)
                     if 'value' in value:
                         value = value['value']
                 except ValueError:

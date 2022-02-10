@@ -203,9 +203,9 @@ def test_HasProps_equals() -> None:
 
 def test_HasProps_update() -> None:
     c = Child()
-    c.update(**dict(lst2=[1,2], str2="baz", int1=25, ds1=value("foo")))
+    c.update(**dict(lst2=[1,2], str2="baz", int1=25, ds1=value(123)))
     assert c.int1 == 25
-    assert c.ds1 == value("foo")
+    assert c.ds1 == value(123)
     assert c.lst1 == []
     assert c.int2 == None
     assert c.str2 == "baz"
