@@ -89,9 +89,6 @@ export class GMapPlot extends Plot {
   static {
     this.prototype.default_view = GMapPlotView
 
-    // This seems to be necessary so that everything can initialize.
-    // Feels very clumsy, but I'm not sure how the properties system wants
-    // to handle something like this situation.
     this.define<GMapPlot.Props>(({String, Ref}) => ({
       map_options: [ Ref(GMapOptions) ],
       api_key:     [ String ],
