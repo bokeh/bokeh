@@ -1,5 +1,5 @@
 import {PointGeometry} from "core/geometry"
-import {FloatArray, ScreenArray, to_screen} from "core/types"
+import {FloatArray, ScreenArray} from "core/types"
 import {Area, AreaView, AreaData} from "./area"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
@@ -63,8 +63,8 @@ export class VAreaView extends AreaView {
     const result = new Selection()
 
     for (let i = 0, end = L-1; i < end; i++) {
-      const sx = to_screen([this.sx[i], this.sx[i+1], this.sx[i+1], this.sx[i]])
-      const sy = to_screen([this.sy1[i], this.sy1[i+1], this.sy2[i+1], this.sy2[i]])
+      const sx = [this.sx[i], this.sx[i+1], this.sx[i+1], this.sx[i]]
+      const sy = [this.sy1[i], this.sy1[i+1], this.sy2[i+1], this.sy2[i]]
 
       if (hittest.point_in_poly(geometry.sx, geometry.sy, sx, sy)) {
         result.add_to_selected_glyphs(this.model)
