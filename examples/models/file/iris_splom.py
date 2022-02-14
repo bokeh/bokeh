@@ -1,5 +1,5 @@
 ''' A scatter plot matrix (SPLOM) chart using `Fisher's Iris dataset`_. This
-example demonstrates sharing ranged between plots to acheive linked panning.
+example demonstrates sharing ranged between plots to achieve linked panning.
 
 .. note::
     This example is maintained for historical compatibility. Please consider

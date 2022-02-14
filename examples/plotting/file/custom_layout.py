@@ -21,7 +21,7 @@ template = """
 {% block contents %}
 <div>
 <p>This example shows how different Bokeh Document roots may be embedded in custom
-templates. The individal plots were embedded in divs using the embed macro:
+templates. The individual plots were embedded in divs using the embed macro:
 
 <pre>
     &lt;div class="p"&gt;&#123;&#123; embed(roots.p0) &#125;&#125;&lt;/div&gt;

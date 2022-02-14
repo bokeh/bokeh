@@ -1,7 +1,7 @@
 try:
     import asyncio
 except ImportError:
-    raise RuntimeError("This example requries Python3 / asyncio")
+    raise RuntimeError("This example requires Python3 / asyncio")
 
 from threading import Thread
 

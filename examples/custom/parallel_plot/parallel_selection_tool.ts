@@ -136,7 +136,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
     }
   }
 
-  _box_paramaters(index: number) {
+  _box_parameters(index: number) {
     const {xkey, ykey, wkey, hkey} = this._cds_select_keys
     const x = this.cds_select.get_array<number>(xkey)[index]
     const y = this.cds_select.get_array<number>(ykey)[index]
@@ -150,7 +150,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
     if (nboxes != 0 && nboxes != null) {
       const [xtest, ytest] = [this.xscale.invert(sx), this.yscale.invert(sy)]
       for (let i = 0; i < nboxes; i++) {
-        const {x, y, w, h} = this._box_paramaters(i)
+        const {x, y, w, h} = this._box_parameters(i)
         if (xtest >= (x - w / 2) && xtest <= x + w / 2 &&
             ytest >= (y - h / 2) && ytest <= y + h / 2) {
           return i
@@ -174,7 +174,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
     //Save y position of the drag start
     if (this.ind_active_box != null) {
       this._base_point = [this.xscale.invert(ev.sx), this.yscale.invert(ev.sy)]
-      this._base_box_parameters = this._box_paramaters(this.ind_active_box)
+      this._base_box_parameters = this._box_parameters(this.ind_active_box)
     }
   }
 

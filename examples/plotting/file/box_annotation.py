@@ -14,7 +14,7 @@ from bokeh.sampledata.glucose import data
 
 data = data.loc['2010-10-04':'2010-10-04']
 
-p = figure(title="Glocose Readings, Oct 4th\n(Red = Outside Range)",
+p = figure(title="Glucose Readings, Oct 4th\n(Red = Outside Range)",
            x_axis_type="datetime", tools="pan,wheel_zoom,box_zoom,reset,save")
 p.background_fill_color = "#efefef"
 p.xgrid.grid_line_color=None

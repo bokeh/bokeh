@@ -1,4 +1,4 @@
-''' Bessel functions of the first kind. This example demostrates the use of
+''' Bessel functions of the first kind. This example demonstrates the use of
 mathtext on titles, ``Label`` annotations and axis labels.
 
 .. bokeh-example-metadata::
