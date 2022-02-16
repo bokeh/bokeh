@@ -256,6 +256,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   override _update_layout(): void {
+    // TODO: invalidating all should imply "needs paint"
+    this._invalidate_all = true
+    this._needs_paint = true
+
     this.layout = new BorderLayout()
     this.layout.set_sizing(this.box_sizing())
 

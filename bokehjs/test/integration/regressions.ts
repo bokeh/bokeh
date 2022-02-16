@@ -1746,4 +1746,37 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #12001", () => {
+    async function plot(fn: (color_bar: ColorBar) => void) {
+      const random = new Random(1)
+      const p = fig([200, 200])
+
+      const color_mapper = new LinearColorMapper({palette: turbo(50), low: 0, high: 1})
+      const color_bar = new ColorBar({color_mapper, label_standoff: 12})
+      p.add_layout(color_bar, "right")
+
+      const dw = 10
+      const dh = 10
+      const img = ndarray(random.floats(dw*dh), {dtype: "float64", shape: [dw, dw]})
+      p.image({image: [img], x: 0, y: 0, dw, dh, color_mapper})
+
+      const {view} = await display(p, [250, 250])
+
+      fn(color_bar)
+      await view.ready
+    }
+
+    it("doesn't allow updating palette of a color mapper of a color bar", async () => {
+      await plot((color_bar) => {
+        color_bar.color_mapper.palette = plasma(50)
+      })
+    })
+
+    it("doesn't allow updating color mapper of a color bar", async () => {
+      await plot((color_bar) => {
+        color_bar.color_mapper = new LinearColorMapper({palette: plasma(50), low: 0, high: 1})
+      })
+    })
+  })
 })
