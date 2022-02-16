@@ -64,6 +64,7 @@ export class HAreaView extends AreaView {
         result.add_to_selected_glyphs(this.model)
         result.view = this
         result.line_indices = [i]
+        break
       }
     }
 
