@@ -99,10 +99,12 @@ class SessionConsumer(AsyncHttpConsumer, ConsumerHelper):
 
     application_context: ApplicationContext
 
-    def __init__(self, scope: Dict[str, Any]) -> None:
-        super().__init__(scope)
-
-        kwargs = self.scope["url_route"]["kwargs"]
+    def __init__(self, scope: Dict[str, Any] = None, **kwargs) -> None:
+        if scope is not None:
+            super().__init__(scope)
+            kwargs = self.scope["url_route"]["kwargs"]
+        else:
+            super().__init__()
         self.application_context = kwargs["app_context"]
 
         # XXX: accessing asyncio's IOLoop directly doesn't work
@@ -174,10 +176,12 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
 
     application_context: ApplicationContext
 
-    def __init__(self, scope: Dict[str, Any]) -> None:
-        super().__init__(scope)
-
-        kwargs = self.scope['url_route']["kwargs"]
+    def __init__(self, scope: Dict[str, Any] = None, **kwargs) -> None:
+        if scope is not None:
+            super().__init__(scope)
+            kwargs = self.scope["url_route"]["kwargs"]
+        else:
+            super().__init__()
         self.application_context = kwargs["app_context"]
 
         if self.application_context.io_loop is None:

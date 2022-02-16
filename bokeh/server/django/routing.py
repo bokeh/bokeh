@@ -24,7 +24,7 @@ from typing import Callable, List, Union
 
 # External imports
 from channels.http import AsgiHandler
-from django.conf.urls import url
+from django.urls import re_path
 from django.urls.resolvers import URLPattern
 
 # Bokeh imports
@@ -105,7 +105,7 @@ class RoutingConfiguration:
             self._add_new_routing(routing)
 
     def get_http_urlpatterns(self) -> List[URLPattern]:
-        return self._http_urlpatterns + [url(r"", AsgiHandler)]
+        return self._http_urlpatterns + [re_path(r"", AsgiHandler)]
 
     def get_websocket_urlpatterns(self) -> List[URLPattern]:
         return self._websocket_urlpatterns
@@ -120,11 +120,11 @@ class RoutingConfiguration:
             return r"^{}$".format(join(re.escape(routing.url)) + suffix)
 
         if routing.document:
-            self._http_urlpatterns.append(url(urlpattern(), DocConsumer, kwargs=kwargs))
+            self._http_urlpatterns.append(re_path(urlpattern(), DocConsumer, kwargs=kwargs))
         if routing.autoload:
-            self._http_urlpatterns.append(url(urlpattern("/autoload.js"), AutoloadJsConsumer, kwargs=kwargs))
+            self._http_urlpatterns.append(re_path(urlpattern("/autoload.js"), AutoloadJsConsumer, kwargs=kwargs))
 
-        self._websocket_urlpatterns.append(url(urlpattern("/ws"), WSConsumer, kwargs=kwargs))
+        self._websocket_urlpatterns.append(re_path(urlpattern("/ws"), WSConsumer, kwargs=kwargs))
 
 #-----------------------------------------------------------------------------
 # Dev API
