@@ -328,10 +328,6 @@ class Serializer:
         )
 
     def _encode_other(self, obj: Any) -> AnyRep:
-        pd = import_optional("pandas")
-        if pd and isinstance(obj, (pd.Series, pd.Index)):
-            return self._encode_ndarray(transform_series(obj))
-
         # date/time values that get serialized as milliseconds
         if is_datetime_type(obj):
             return convert_datetime_type(obj)
@@ -349,6 +345,10 @@ class Serializer:
             return self._encode_int(int(obj))
         if np.issubdtype(type(obj), np.bool_):
             return self._encode_bool(bool(obj))
+
+        pd = import_optional("pandas")
+        if pd and isinstance(obj, (pd.Series, pd.Index)):
+            return self._encode_ndarray(transform_series(obj))
 
         rd = import_optional("dateutil.relativedelta")
         if rd and isinstance(obj, rd.relativedelta):
