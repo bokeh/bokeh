@@ -223,6 +223,13 @@ export class ColorBarView extends AnnotationView {
     })
     this.connect(this._ticker.change, () => this.request_render())
     this.connect(this._formatter.change, () => this.request_render())
+    this.connect(this.model.properties.color_mapper.change, async () => {
+      this._title_view.remove()
+      this._axis_view.remove()
+      this.initialize()
+      await this.lazy_initialize()
+      this.plot_view.invalidate_layout()
+    })
     this.connect(this.model.color_mapper.metrics_change, () => {
       const range = this._major_range
       const scale = this._major_scale
