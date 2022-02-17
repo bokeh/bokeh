@@ -15,9 +15,11 @@ import {Geometry} from "core/geometry"
 import {SelectionManager} from "core/selection_manager"
 import {build_view} from "core/build_views"
 import {Context2d} from "core/util/canvas"
+import {is_equal} from "core/util/eq"
 import {FactorRange} from "../ranges/factor_range"
 import {Decoration} from "../graphics/decoration"
 import {Marking} from "../graphics/marking"
+import {OpaqueIndices, MultiIndices, ImageIndex} from "../selections/selection"
 
 type Defaults = {
   fill: {fill_alpha?: number, fill_color?: Color}
@@ -140,6 +142,14 @@ export class GlyphRendererView extends DataRendererView {
     super.remove()
   }
 
+  private _previous_inspected?: {
+    indices: OpaqueIndices
+    line_indices: OpaqueIndices
+    multiline_indices: MultiIndices
+    image_indices: ImageIndex[]
+    selected_glyphs: Glyph[]
+  }
+
   override connect_signals(): void {
     super.connect_signals()
 
@@ -162,7 +172,21 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.model.data_source.selected.change, render)
     this.connect(this.model.data_source._select, render)
     if (this.hover_glyph != null)
-      this.connect(this.model.data_source.inspect, render)
+      this.connect(this.model.data_source.inspect, () => {
+        // XXX: hoping for the best, assuming no in-place mutation
+        const {inspected} = this.model.data_source
+        const current_inspected = {
+          indices: inspected.indices,
+          line_indices: inspected.line_indices,
+          multiline_indices: inspected.multiline_indices,
+          image_indices: inspected.image_indices,
+          selected_glyphs: inspected.selected_glyphs,
+        }
+        if (!is_equal(this._previous_inspected, current_inspected)) {
+          this._previous_inspected = current_inspected
+          render()
+        }
+      })
     this.connect(this.model.properties.view.change, async () => {
       this.cds_view.remove()
       this.cds_view = await build_view(this.model.view, {parent: this})
@@ -265,6 +289,15 @@ export class GlyphRendererView extends DataRendererView {
 
     // inspected is in full set space
     const {inspected} = this.model.data_source
+
+    this._previous_inspected = {
+      indices: inspected.indices,
+      line_indices: inspected.line_indices,
+      multiline_indices: inspected.multiline_indices,
+      image_indices: inspected.image_indices,
+      selected_glyphs: inspected.selected_glyphs,
+    }
+
     const inspected_full_indices = new Set((() => {
       if (inspected.is_empty())
         return []

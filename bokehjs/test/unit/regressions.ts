@@ -5,7 +5,7 @@ import {display, fig} from "./_util"
 
 import {
   HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle,
-  Legend, LegendItem, Line, Title,
+  Legend, LegendItem, Line, Rect, Title,
 } from "@bokehjs/models"
 import {assert} from "@bokehjs/core/util/assert"
 import {build_view} from "@bokehjs/core/build_views"
@@ -131,7 +131,7 @@ describe("Bug", () => {
   describe("in issue #11750", () => {
     it("makes plots render uncecessarily when hover glyph wasn't defined", async () => {
       async function test(hover_glyph: Line | null) {
-        const data_source = new ColumnDataSource({data: {x: [0, 1], y: [0.1]}})
+        const data_source = new ColumnDataSource({data: {x: [0, 1], y: [0.1, 0.1]}})
         const glyph = new Line({line_color: "red"})
         const renderer = new GlyphRenderer({data_source, glyph, hover_glyph})
         const plot = fig([200, 200], {tools: [new HoverTool({mode: "vline"})]})
@@ -154,7 +154,41 @@ describe("Bug", () => {
       }
 
       expect(await test(null)).to.be.equal(0)
-      expect(await test(new Line({line_color: "blue"}))).to.be.equal(6)
+      expect(await test(new Line({line_color: "blue"}))).to.be.equal(1)
+    })
+  })
+
+  describe("in issue #11999", () => {
+    it("makes plots render uncecessarily when inspection indices don't change", async () => {
+      const data_source = new ColumnDataSource({data: {x: [0, 0.6], y: [0.6, 0], width: [0.4, 0.4], height: [0.4, 0.4]}})
+      const glyph = new Rect({line_color: "red"})
+      const hover_glyph = new Rect({line_color: "blue"})
+      const renderer = new GlyphRenderer({data_source, glyph, hover_glyph})
+      const plot = fig([200, 200], {tools: [new HoverTool()]})
+      plot.add_renderers(renderer)
+
+      const {view} = await display(plot)
+
+      const gv = view.renderer_views.get(renderer)!
+      const gv_spy = sinon.spy(gv, "request_render")
+      const ui = view.canvas_view.ui_event_bus
+      const {left, top} = offset(ui.hit_area)
+
+      for (let i = 0; i <= 1; i += 0.2) {
+        const [[sx], [sy]] = gv.coordinates.map_to_screen([i], [i])
+        const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
+        ui.hit_area.dispatchEvent(ev)
+      }
+
+      expect(gv_spy.callCount).to.be.equal(0)
+
+      for (let i = 1; i >= 0; i -= 0.2) {
+        const [[sx], [sy]] = gv.coordinates.map_to_screen([0.8], [i])
+        const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
+        ui.hit_area.dispatchEvent(ev)
+      }
+
+      expect(gv_spy.callCount).to.be.equal(1)
     })
   })
 
