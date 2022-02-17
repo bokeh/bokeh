@@ -58,6 +58,7 @@ from ..core.enums import (
 from ..core.has_props import abstract
 from ..core.properties import (
     Alpha,
+    AnyRef,
     Auto,
     Bool,
     Color,
@@ -903,7 +904,7 @@ class CustomJSHover(Model):
 
     '''
 
-    args = Dict(String, Instance(Model), help="""
+    args = Dict(String, AnyRef, help="""
     A mapping of names to Bokeh plot objects. These objects are made available
     to the callback code snippet as the values of named parameters to the
     callback.
