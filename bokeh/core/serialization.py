@@ -315,6 +315,7 @@ class Serializer:
             data = self._encode_list(array.flatten().tolist())
             dtype = "object"
         else:
+            # TODO: investigate if this copy is really necessary
             data = self._encode_bytes(array.tobytes())
             dtype = str(array.dtype.name)
 
