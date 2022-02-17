@@ -84,7 +84,7 @@ def test_without_document_lock_accepts_async_function() -> None:
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(callback_obj.callback())
-    
+
     assert callback_obj.callback.nolock == True
     assert i == 1
 
