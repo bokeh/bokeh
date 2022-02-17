@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 from functools import wraps
 from typing import (
     TYPE_CHECKING,
@@ -82,9 +83,15 @@ def without_document_lock(func: F) -> NoLockCallback[F]:
     exception being raised.
 
     '''
-    @wraps(func)
-    def _wrapper(*args: Any, **kw: Any) -> None:
-        func(*args, **kw)
+    if asyncio.iscoroutinefunction(func):
+        @wraps(func)
+        async def _wrapper(*args: Any, **kw: Any) -> None:
+            await func(*args, **kw)
+    else:
+        @wraps(func)
+        def _wrapper(*args: Any, **kw: Any) -> None:
+            func(*args, **kw)
+
     wrapper = cast(NoLockCallback[F], _wrapper)
     wrapper.nolock = True
     return wrapper
