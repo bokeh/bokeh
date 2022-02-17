@@ -197,8 +197,6 @@ class DataSpec(Either):
         self.value_type = self._validate_type_param(value_type)
         self.accepts(Instance("bokeh.models.expressions.Expression"), lambda obj: expr(obj))
 
-    # TODO (bev) add stricter validation on keys
-
     def make_descriptors(self, base_name: str):
         """ Return a list of ``DataSpecPropertyDescriptor`` instances to
         install on a class, in order to delegate attribute access to this
