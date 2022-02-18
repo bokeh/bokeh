@@ -4,11 +4,11 @@ from typing import Any
 
 from typing_extensions import TypeAlias
 
+from ..common.by import _ByType
 from ..remote.webdriver import WebDriver
 from ..remote.webelement import WebElement
 
-By: TypeAlias = Any
-_Locator: TypeAlias = tuple[By, str]
+_Locator: TypeAlias = tuple[_ByType, str]
 
 class title_is:
     def __init__(self, title: str) -> None: ...

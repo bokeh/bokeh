@@ -22,6 +22,7 @@ import json
 
 # External imports
 from jinja2 import Template
+from selenium.webdriver.common.by import By
 
 # Bokeh imports
 from bokeh.embed import json_item
@@ -65,6 +66,6 @@ class Test_json_item:
 
         driver.get(url)
 
-        div = driver.find_elements_by_class_name("this-plot")
+        div = driver.find_elements(By.CLASS_NAME, "this-plot")
         assert has_no_console_errors(driver)
         assert len(div) == 1

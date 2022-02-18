@@ -19,6 +19,7 @@ import pytest ; pytest
 
 # External imports
 from flaky import flaky
+from selenium.webdriver.common.by import By
 
 # Bokeh imports
 from bokeh._testing.plugins.project import BokehModelPage, BokehServerPage
@@ -62,7 +63,7 @@ class Test_Select:
         assert el.text == ""
 
         el = find_element_for(page.driver, select, "select")
-        opts = el.find_elements_by_tag_name('option')
+        opts = el.find_elements(By.TAG_NAME, 'option')
         assert len(opts) == 3
 
         for i, opt in enumerate(opts, 1):
@@ -80,7 +81,7 @@ class Test_Select:
         assert el.text == ""
 
         el = find_element_for(page.driver, select, "select")
-        opts = el.find_elements_by_tag_name('option')
+        opts = el.find_elements(By.TAG_NAME, 'option')
         assert len(opts) == 3
 
         for i, opt in enumerate(opts, 1):
@@ -99,7 +100,7 @@ class Test_Select:
         assert el.text == ""
 
         el = find_element_for(page.driver, select, "select")
-        opts = el.find_elements_by_tag_name('option')
+        opts = el.find_elements(By.TAG_NAME, 'option')
         assert len(opts) == 3
 
         for i, opt in enumerate(opts, 1):
@@ -117,7 +118,7 @@ class Test_Select:
         assert el.text == ""
 
         el = find_element_for(page.driver, select, "select")
-        opts = el.find_elements_by_tag_name('option')
+        opts = el.find_elements(By.TAG_NAME, 'option')
         assert len(opts) == 3
 
         for i, opt in enumerate(opts, 1):
@@ -135,12 +136,12 @@ class Test_Select:
         assert el.text == ""
 
         el = find_element_for(page.driver, select, "select")
-        grps = el.find_elements_by_tag_name('optgroup')
+        grps = el.find_elements(By.TAG_NAME, 'optgroup')
         assert len(grps) == 2
 
         for i, grp in enumerate(grps, 1):
             assert grp.get_attribute('label') == "g%d" %i
-            opts = grp.find_elements_by_tag_name('option')
+            opts = grp.find_elements(By.TAG_NAME, 'option')
             assert len(opts) == i
             for j, opt in enumerate(opts, 1):
                 assert opt.text == "Option %d" % (i*10 + j)
@@ -159,12 +160,12 @@ class Test_Select:
         select_el = find_element_for(page.driver, select, "select")
         assert select_el.get_attribute("value") == "Option 22"
 
-        grps = select_el.find_elements_by_tag_name('optgroup')
+        grps = select_el.find_elements(By.TAG_NAME, 'optgroup')
         assert len(grps) == 2
 
         for i, grp in enumerate(grps, 1):
             assert grp.get_attribute('label') == "g%d" %i
-            opts = grp.find_elements_by_tag_name('option')
+            opts = grp.find_elements(By.TAG_NAME, 'option')
             assert len(opts) == i
             for j, opt in enumerate(opts, 1):
                 assert opt.text == "Option %d" % (i*10 + j)
@@ -181,12 +182,12 @@ class Test_Select:
         assert el.text == ""
 
         el = find_element_for(page.driver, select, "select")
-        grps = el.find_elements_by_tag_name('optgroup')
+        grps = el.find_elements(By.TAG_NAME, 'optgroup')
         assert len(grps) == 2
 
         for i, grp in enumerate(grps, 1):
             assert grp.get_attribute('label') == "g%d" %i
-            opts = grp.find_elements_by_tag_name('option')
+            opts = grp.find_elements(By.TAG_NAME, 'option')
             assert len(opts) == i
             for j, opt in enumerate(opts, 1):
                 assert opt.text == "Option %d" % (i*10 + j)
@@ -205,12 +206,12 @@ class Test_Select:
         select_el = find_element_for(page.driver, select, "select")
         assert select_el.get_attribute("value") == "22"
 
-        grps = select_el.find_elements_by_tag_name('optgroup')
+        grps = select_el.find_elements(By.TAG_NAME, 'optgroup')
         assert len(grps) == 2
 
         for i, grp in enumerate(grps, 1):
             assert grp.get_attribute('label') == f"g{i}"
-            opts = grp.find_elements_by_tag_name('option')
+            opts = grp.find_elements(By.TAG_NAME, 'option')
             assert len(opts) == i
             for j, opt in enumerate(opts, 1):
                 assert opt.text == "Option %d" % (i*10 + j)

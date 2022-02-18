@@ -19,6 +19,7 @@ import pytest ; pytest
 
 # External imports
 from flaky import flaky
+from selenium.webdriver.common.by import By
 
 # Bokeh imports
 from bokeh._testing.plugins.project import BokehModelPage, BokehServerPage
@@ -57,7 +58,7 @@ class Test_CheckboxGroup:
 
         for i, label in enumerate(labels):
             assert label.text == LABELS[i]
-            input = label.find_element_by_tag_name('input')
+            input = label.find_element(By.TAG_NAME, 'input')
             assert input.get_attribute('value') == str(i)
             assert input.get_attribute('type') == 'checkbox'
 

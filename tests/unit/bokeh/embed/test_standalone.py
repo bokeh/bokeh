@@ -30,6 +30,7 @@ from typing import (
 import bs4
 from jinja2 import Template
 from mock import MagicMock, patch
+from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 
 # Bokeh imports
@@ -114,7 +115,7 @@ class Test_autoload_static:
 
         driver.get(url)
 
-        scripts = driver.find_elements_by_css_selector('head script')
+        scripts = driver.find_elements(By.CSS_SELECTOR, 'head script')
         assert len(scripts) == 5
         for script in scripts:
             assert script.get_attribute("crossorigin") == None
@@ -138,7 +139,7 @@ class Test_autoload_static:
 
         driver.get(url)
 
-        scripts = driver.find_elements_by_css_selector('head script')
+        scripts = driver.find_elements(By.CSS_SELECTOR, 'head script')
         for x in scripts:
             print(x.get_attribute("src"))
         assert len(scripts) == 4
@@ -161,7 +162,7 @@ class Test_autoload_static:
 
         driver.get(url)
 
-        scripts = driver.find_elements_by_css_selector('head script')
+        scripts = driver.find_elements(By.CSS_SELECTOR, 'head script')
         for x in scripts:
             print(x.get_attribute("src"))
         assert len(scripts) == 5
@@ -184,7 +185,7 @@ class Test_autoload_static:
 
         driver.get(url)
 
-        scripts = driver.find_elements_by_css_selector('head script')
+        scripts = driver.find_elements(By.CSS_SELECTOR, 'head script')
         assert len(scripts) == 5
         for script in scripts:
             assert script.get_attribute("crossorigin") == None

@@ -22,6 +22,7 @@ from typing import Tuple
 
 # External imports
 from flaky import flaky
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 # Bokeh imports
@@ -106,7 +107,7 @@ class Test_AutocompleteInput:
         el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
-        items = el.find_elements_by_tag_name("div")
+        items = el.find_elements(By.TAG_NAME, "div")
         assert len(items) == 1
         assert items[0].text == "100001"
         assert "bk-active" in items[0].get_attribute('class')
@@ -117,7 +118,7 @@ class Test_AutocompleteInput:
         el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
-        items = el.find_elements_by_tag_name("div")
+        items = el.find_elements(By.TAG_NAME, "div")
         assert len(items) == 2
         assert items[0].text == "12344556"
         assert items[1].text == "12344557"
@@ -125,7 +126,7 @@ class Test_AutocompleteInput:
         assert "bk-active" not in items[1].get_attribute('class')
 
         enter_text_in_element(page.driver, el, Keys.DOWN, click=0, enter=False)
-        items = el.find_elements_by_tag_name("div")
+        items = el.find_elements(By.TAG_NAME, "div")
         assert len(items) == 2
         assert items[0].text == "12344556"
         assert items[1].text == "12344557"
@@ -151,7 +152,7 @@ class Test_AutocompleteInput:
         el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
-        items = el.find_elements_by_tag_name("div")
+        items = el.find_elements(By.TAG_NAME, "div")
         assert len(items) == 3
         assert items[0].text == "100001"
         assert items[1].text == "12344556"
@@ -175,7 +176,7 @@ class Test_AutocompleteInput:
         el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
-        items = el.find_elements_by_tag_name("div")
+        items = el.find_elements(By.TAG_NAME, "div")
         assert len(items) == 4
         assert items[0].text == "aaaaaa"
         assert items[1].text == "aaabbb"
@@ -189,7 +190,7 @@ class Test_AutocompleteInput:
         el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
-        items = el.find_elements_by_tag_name("div")
+        items = el.find_elements(By.TAG_NAME, "div")
         assert len(items) == 2
         assert items[0].text == "aaabbb"
         assert items[1].text == "AAABbB"
@@ -197,7 +198,7 @@ class Test_AutocompleteInput:
         assert "bk-active" not in items[1].get_attribute('class')
 
         enter_text_in_element(page.driver, el, Keys.DOWN, click=0, enter=False)
-        items = el.find_elements_by_tag_name("div")
+        items = el.find_elements(By.TAG_NAME, "div")
         assert len(items) == 2
         assert items[0].text == "aaabbb"
         assert items[1].text == "AAABbB"
@@ -222,7 +223,7 @@ class Test_AutocompleteInput:
         el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
-        items = el.find_elements_by_tag_name("div")
+        items = el.find_elements(By.TAG_NAME, "div")
         assert len(items) == 3
         assert items[0].text == "aAaaaa"
         assert items[1].text == "aAaBbb"
@@ -235,14 +236,14 @@ class Test_AutocompleteInput:
         el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
-        items = el.find_elements_by_tag_name("div")
+        items = el.find_elements(By.TAG_NAME, "div")
         assert len(items) == 2
         assert items[0].text == "aAaBbb"
         assert items[1].text == "aAaBbB"
         assert "bk-active" in items[0].get_attribute('class')
 
         enter_text_in_element(page.driver, el, Keys.DOWN, click=0, enter=False)
-        items = el.find_elements_by_tag_name("div")
+        items = el.find_elements(By.TAG_NAME, "div")
         assert len(items) == 2
         assert items[0].text == "aAaBbb"
         assert items[1].text == "aAaBbB"
@@ -316,7 +317,7 @@ class Test_AutocompleteInput:
         el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
-        items = el.find_elements_by_tag_name("div")
+        items = el.find_elements(By.TAG_NAME, "div")
         assert len(items) == 2
         assert items[0].text == "12344556"
         assert items[1].text == "12344557"
@@ -325,7 +326,7 @@ class Test_AutocompleteInput:
 
         # arrow down moves to second item
         enter_text_in_element(page.driver, el, Keys.DOWN, click=0, enter=False)
-        items = el.find_elements_by_tag_name("div")
+        items = el.find_elements(By.TAG_NAME, "div")
         assert len(items) == 2
         assert items[0].text == "12344556"
         assert items[1].text == "12344557"
@@ -334,7 +335,7 @@ class Test_AutocompleteInput:
 
         # arrow down again has no effect
         enter_text_in_element(page.driver, el, Keys.DOWN, click=0, enter=False)
-        items = el.find_elements_by_tag_name("div")
+        items = el.find_elements(By.TAG_NAME, "div")
         assert len(items) == 2
         assert items[0].text == "12344556"
         assert items[1].text == "12344557"
@@ -373,7 +374,7 @@ class Test_AutocompleteInput:
         el = find_element_for(page.driver, text_input, ".bk-menu")
         assert 'display: none;' not in el.get_attribute('style')
 
-        items = el.find_elements_by_tag_name("div")
+        items = el.find_elements(By.TAG_NAME, "div")
         assert len(items) == 2
         assert items[0].text == "12344556"
         assert items[1].text == "12344557"
@@ -381,7 +382,7 @@ class Test_AutocompleteInput:
         assert "bk-active" not in items[1].get_attribute('class')
 
         # hover over second element
-        items = el.find_elements_by_tag_name("div")
+        items = el.find_elements(By.TAG_NAME, "div")
         hover_element(page.driver, items[1])
         assert len(items) == 2
         assert items[0].text == "12344556"
@@ -521,7 +522,7 @@ class Test_AutocompleteInput:
         enter_text_in_element(page.driver, el, "123", click=2, enter=False)
 
         el = find_element_for(page.driver, input_box, ".bk-menu")
-        items = el.find_elements_by_tag_name("div")
+        items = el.find_elements(By.TAG_NAME, "div")
         hover_element(page.driver, items[1])
         items[1].click()
 
