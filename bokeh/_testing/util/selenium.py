@@ -31,6 +31,7 @@ from typing import (
 
 # External imports
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 if TYPE_CHECKING:
@@ -405,7 +406,7 @@ def get_table_column_cells(driver: WebDriver, table: DataTable, col: int) -> Lis
     result = []
     rows = find_elements_for(driver, table, ".slick-row")
     for row in rows:
-        elt = row.find_element_by_css_selector('.slick-cell.l%d.r%d' % (col, col))
+        elt = row.find_element(By.CSS_SELECTOR, '.slick-cell.l%d.r%d' % (col, col))
         result.append(elt.text)
     return result
 
@@ -416,7 +417,7 @@ def get_table_selected_rows(driver: WebDriver, table: DataTable) -> Set[int]:
     result = set()
     rows = find_elements_for(driver, table, ".slick-row")
     for i, row in enumerate(rows):
-        elt = row.find_element_by_css_selector('.slick-cell.l1.r1')
+        elt = row.find_element(By.CSS_SELECTOR, '.slick-cell.l1.r1')
         if 'selected' in elt.get_attribute('class'):
             result.add(i)
     return result

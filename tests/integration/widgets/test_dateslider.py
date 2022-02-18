@@ -133,7 +133,8 @@ class Test_DateSlider:
             plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
 
             def cb(attr, old, new):
-                source.data['val'] = [slider.value_as_date.isoformat()]
+                iso_date = slider.value_as_date.isoformat()
+                source.data['val'] = [iso_date, iso_date]
 
             slider.on_change('value', cb)
             doc.add_root(column(slider, plot))

@@ -19,6 +19,7 @@ import pytest ; pytest
 
 # External imports
 from flaky import flaky
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 # Bokeh imports
@@ -96,7 +97,7 @@ class Test_MultiChoice:
         inp.send_keys(Keys.ENTER)
 
         selected = find_element_for(page.driver, text_input, ".choices__list--multiple")
-        items = selected.find_elements_by_css_selector("div")
+        items = selected.find_elements(By.CSS_SELECTOR, "div")
         assert len(items) == 1
 
         item = find_element_for(page.driver, text_input, ".choices__list--multiple div.choices__item")
@@ -108,7 +109,7 @@ class Test_MultiChoice:
         delete_button.click()
 
         selected = find_element_for(page.driver, text_input, ".choices__list--multiple")
-        items = selected.find_elements_by_css_selector("div")
+        items = selected.find_elements(By.CSS_SELECTOR, "div")
         assert len(items) == 0
 
         assert page.has_no_console_errors()
