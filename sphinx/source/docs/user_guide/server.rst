@@ -547,15 +547,13 @@ To allow all threads access to the same document, save a local copy of
 
 .. code-block:: python
 
+    import time
     from functools import partial
     from random import random
     from threading import Thread
-    import time
 
     from bokeh.models import ColumnDataSource
     from bokeh.plotting import curdoc, figure
-
-    from tornado import gen
 
     # only modify from a Bokeh session callback
     source = ColumnDataSource(data=dict(x=[0], y=[0]))
@@ -564,8 +562,7 @@ To allow all threads access to the same document, save a local copy of
     # see the same document.
     doc = curdoc()
 
-    @gen.coroutine
-    def update(x, y):
+    async def update(x, y):
         source.stream(dict(x=[x], y=[y]))
 
     def blocking_task():
@@ -619,11 +616,10 @@ session callback with a different update rate.
 
 .. code-block:: python
 
-    from functools import partial
+    import asyncio
     import time
-
     from concurrent.futures import ThreadPoolExecutor
-    from tornado import gen
+    from functools import partial
 
     from bokeh.document import without_document_lock
     from bokeh.models import ColumnDataSource
@@ -642,30 +638,28 @@ session callback with a different update rate.
         return i
 
     # the unlocked callback uses this locked callback to safely update
-    @gen.coroutine
-    def locked_update(i):
+    async def locked_update(i):
         source.stream(dict(x=[source.data['x'][-1]+1], y=[i], color=["blue"]))
 
     # this unlocked callback will not prevent other session callbacks from
     # executing while it is running
-    @gen.coroutine
     @without_document_lock
-    def unlocked_task():
+    async def unlocked_task():
         global i
         i += 1
-        res = yield executor.submit(blocking_task, i)
+        res = await asyncio.wrap_future(executor.submit(blocking_task, i), loop=None)
         doc.add_next_tick_callback(partial(locked_update, i=res))
 
-    @gen.coroutine
-    def update():
+    async def update():
         source.stream(dict(x=[source.data['x'][-1]+1], y=[i], color=["red"]))
 
-    p = figure(x_range=[0, 100], y_range=[0,20])
+    p = figure(x_range=[0, 100], y_range=[0, 20])
     l = p.circle(x='x', y='y', color='color', source=source)
 
     doc.add_periodic_callback(unlocked_task, 1000)
     doc.add_periodic_callback(update, 200)
     doc.add_root(p)
+
 
 As before, you can run this example by saving to a Python file and running
 ``bokeh serve`` on it.

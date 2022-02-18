@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 from functools import wraps
 from typing import (
     TYPE_CHECKING,
@@ -82,10 +83,20 @@ def without_document_lock(func: F) -> NoLockCallback[F]:
     Attempts to otherwise access or change the Document will result in an
     exception being raised.
 
+    ``func`` can be a synchronous function, an async function, or a function
+    decorated with ``asyncio.coroutine``. The returned function will be an
+    async function if ``func`` is any of the latter two.
+
     '''
-    @wraps(func)
-    def _wrapper(*args: Any, **kw: Any) -> None:
-        func(*args, **kw)
+    if asyncio.iscoroutinefunction(func):
+        @wraps(func)
+        async def _wrapper(*args: Any, **kw: Any) -> None:
+            await func(*args, **kw)
+    else:
+        @wraps(func)
+        def _wrapper(*args: Any, **kw: Any) -> None:
+            func(*args, **kw)
+
     wrapper = cast(NoLockCallback[F], _wrapper)
     wrapper.nolock = True
     return wrapper
