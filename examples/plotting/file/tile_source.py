@@ -1,9 +1,9 @@
 """ This example displays a CartoDB Positron base world map.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.add_tile
+    :apis: bokeh.plotting.figure.add_tile
     :refs:  :ref:`userguide_geo` > :ref:`userguide_tools`
-    :keywords: map, plot
+    :keywords: map, geo, tiles
 
 """
 
