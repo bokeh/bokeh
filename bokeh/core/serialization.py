@@ -210,7 +210,7 @@ class Serializer:
 
         ident = id(obj)
         if ident in self._circular:
-            raise SerializationError("circular reference")
+            self.error("circular reference")
 
         self._circular[ident] = obj
         rep = self._encode(obj)
@@ -362,7 +362,10 @@ class Serializer:
                 microseconds=self.encode(obj.microseconds),
             )
 
-        raise SerializationError(f"can't serialize {type(obj)}")
+        self.error(f"can't serialize {type(obj)}")
+
+    def error(self, message: str) -> NoReturn:
+        raise SerializationError(message)
 
 class DeserializationError(ValueError):
     pass
@@ -430,7 +433,7 @@ class Deserializer:
                 elif type in self._decoders:
                     return self._decoders[type](obj, self)
                 else:
-                    raise DeserializationError(f"unsupported serialized type '{type}'")
+                    self.error(f"unsupported serialized type '{type}'")
             else:
                 return { key: self.decode(val) for key, val in obj.items() }
         elif isinstance(obj, list):
@@ -444,14 +447,14 @@ class Deserializer:
         if instance is not None:
             return instance
         else:
-            raise DeserializationError(f"can't resolve reference '{id}'")
+            self.error(f"can't resolve reference '{id}'")
 
     def _decode_type_ref(self, obj: ModelRep) -> Model:
         id = obj["id"]
         instance = self._references.get(id)
         if instance is not None:
             log.warning(f"reference already known '{id}'")
-            # TODO: raise DeserializationError(f"reference already known '{id}'")
+            # TODO: self.error(f"reference already known '{id}'")
             return instance
 
         type = obj["type"]
@@ -464,11 +467,11 @@ class Deserializer:
                 from ..plotting import figure
                 cls = figure # XXX: helps with push_session(); this needs a better resolution scheme
             else:
-                raise DeserializationError(f"can't resolve type '{type}'")
+                self.error(f"can't resolve type '{type}'")
 
         instance = cls.__new__(cls, id=id)
         if instance is None:
-            raise DeserializationError(f"can't instantiate {type}(id={id})")
+            self.error(f"can't instantiate {type}(id={id})")
 
         self._references[instance.id] = instance
 
@@ -497,7 +500,7 @@ class Deserializer:
             if buffer is not None:
                 return buffer.data
             else:
-                raise DeserializationError(f"can't resolve buffer '{id}'")
+                self.error(f"can't resolve buffer '{id}'")
 
     def _decode_slice(self, obj: SliceRep) -> slice:
         start = self.decode(obj["start"])

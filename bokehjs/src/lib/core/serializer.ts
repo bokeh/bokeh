@@ -147,4 +147,8 @@ export class Serializer {
     } else
       throw new SerializationError(`${Object.prototype.toString.call(obj)} is not serializable`)
   }
+
+  error(message: string): never {
+    throw new SerializationError(message)
+  }
 }

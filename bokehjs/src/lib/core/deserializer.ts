@@ -60,6 +60,8 @@ export type ModelRep = TypeRep & {
   id: string
 }
 
+export class DeserializationError extends Error {}
+
 export class Deserializer {
 
   constructor(
@@ -142,7 +144,7 @@ export class Deserializer {
         return this._decode_plain_object(obj)
       }
 
-      throw new Error(`unable to decode an object of type '${obj.type}'`)
+      this.error(`unable to decode an object of type '${obj.type}'`)
     } else
       return obj
   }
@@ -160,7 +162,7 @@ export class Deserializer {
         return value
     }
 
-    throw new Error(`invalid number representation '${obj}'`)
+    this.error(`invalid number representation '${obj}'`)
   }
 
   protected _decode_plain_array(obj: unknown[]): unknown[] {
@@ -211,7 +213,7 @@ export class Deserializer {
       if (buffer != null)
         return buffer
       else
-        throw new Error(`buffer for id=${data.id} not found`)
+        this.error(`buffer for id=${data.id} not found`)
     } else if (isString(data))
       return base64_to_buffer(data)
     else
@@ -248,12 +250,12 @@ export class Deserializer {
     if (instance != null)
       return instance
     else
-      throw new Error(`reference ${obj.id} isn't known`)
+      this.error(`reference ${obj.id} isn't known`)
   }
 
   protected _decode_type_ref(obj: ModelRep): HasProps {
     if (this.references.has(obj.id))
-      throw new Error(`reference already known '${obj.id}'`)
+      this.error(`reference already known '${obj.id}'`)
 
     const {id, type, attributes} = obj
 
@@ -265,5 +267,9 @@ export class Deserializer {
     this._to_finalize.push(instance)
 
     return instance
+  }
+
+  error(message: string): never {
+    throw new DeserializationError(message)
   }
 }
