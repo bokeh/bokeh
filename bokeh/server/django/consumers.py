@@ -97,26 +97,30 @@ class ConsumerHelper(AsyncConsumer):
 
 class SessionConsumer(AsyncHttpConsumer, ConsumerHelper):
 
-    application_context: ApplicationContext
+    _application_context: ApplicationContext | None
 
-    def __init__(self, scope: Dict[str, Any] = None, **kwargs) -> None:
-        if scope is not None:
-            super().__init__(scope)
-            kwargs = self.scope["url_route"]["kwargs"]
-        else:
-            super().__init__()
-        self.application_context = kwargs["app_context"]
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._application_context = None
 
-        # XXX: accessing asyncio's IOLoop directly doesn't work
-        if self.application_context.io_loop is None:
-            self.application_context._loop = IOLoop.current()
+    @property
+    def application_context(self) -> ApplicationContext:
+        if self._application_context is None:
+            self._application_context = self.scope["url_route"]["kwargs"]["app_context"]
+
+            # XXX: accessing asyncio's IOLoop directly doesn't work
+            if self.application_context.io_loop is None:
+                self.application_context._loop = IOLoop.current()
+
+        return self._application_context
 
     async def _get_session(self) -> ServerSession:
         session_id = self.arguments.get('bokeh-session-id',
                                         generate_session_id(secret_key=None, signed=False))
-        payload = {'headers': {k.decode('utf-8'): v.decode('utf-8')
-                               for k, v in self.request.headers},
-                   'cookies': dict(self.request.cookies)}
+        payload = dict(
+            headers={k.decode('utf-8'): v.decode('utf-8') for k, v in self.request.headers},
+            cookies=dict(self.request.cookies),
+        )
         token = generate_jwt_token(session_id,
                                    secret_key=None,
                                    signed=False,
@@ -173,22 +177,23 @@ class DocConsumer(SessionConsumer):
 class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
 
     _clients: Set[ServerConnection]
+    _application_context: ApplicationContext | None
 
-    application_context: ApplicationContext
-
-    def __init__(self, scope: Dict[str, Any] = None, **kwargs) -> None:
-        if scope is not None:
-            super().__init__(scope)
-            kwargs = self.scope["url_route"]["kwargs"]
-        else:
-            super().__init__()
-        self.application_context = kwargs["app_context"]
-
-        if self.application_context.io_loop is None:
-            raise RuntimeError("io_loop should already been set")
-
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._application_context = None
         self._clients = set()
         self.lock = locks.Lock()
+
+    @property
+    def application_context(self) -> ApplicationContext:
+        if self._application_context is None:
+            self._application_context = self.scope["url_route"]["kwargs"]["app_context"]
+
+            if self.application_context.io_loop is None:
+                raise RuntimeError("io_loop should already been set")
+
+        return self._application_context
 
     async def connect(self):
         log.info('WebSocket connection opened')
