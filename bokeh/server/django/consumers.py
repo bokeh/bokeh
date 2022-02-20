@@ -302,7 +302,7 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
             socket: AsyncConsumer,
             application_context: ApplicationContext,
             session: ServerSession) -> ServerConnection:
-        connection = AsyncServerConnection(protocol, socket, application_context, session)
+        connection = ServerConnection(protocol, socket, application_context, session)
         self._clients.add(connection)
         return connection
 
@@ -313,14 +313,6 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-# TODO: remove this when coroutines are dropped
-class AsyncServerConnection(ServerConnection):
-
-    async def send_patch_document(self, event):
-        """ Sends a PATCH-DOC message, returning a Future that's completed when it's written out. """
-        msg = self.protocol.create('PATCH-DOC', [event])
-        await self._socket._send_bokeh_message(msg)
 
 class AttrDict(dict):
     """ Provide a dict subclass that supports access by named attributes.
