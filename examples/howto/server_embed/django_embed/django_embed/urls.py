@@ -26,7 +26,7 @@ from bokeh.server.django import autoload, directory, document, static_extensions
 
 from . import views
 
-bokeh_app_config = apps.get_app_config('bokeh.server.django')
+bokeh_app_config = apps.get_app_config('bokeh_server_django')
 
 urlpatterns = [
     path("admin/", admin.site.urls),

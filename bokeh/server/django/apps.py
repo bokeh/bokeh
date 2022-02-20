@@ -42,7 +42,8 @@ __all__ = (
 
 class DjangoBokehConfig(AppConfig):
 
-    name = label = 'bokeh.server.django'
+    name = 'bokeh.server.django'
+    label = 'bokeh_server_django'
 
     _routes: RoutingConfiguration | None = None
 
