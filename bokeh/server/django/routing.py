@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Callable, List, Union
 
 # External imports
-from channels.http import AsgiHandler
+from django.core.asgi import get_asgi_application
 from django.urls import re_path
 from django.urls.resolvers import URLPattern
 
@@ -105,7 +105,7 @@ class RoutingConfiguration:
             self._add_new_routing(routing)
 
     def get_http_urlpatterns(self) -> List[URLPattern]:
-        return self._http_urlpatterns + [re_path(r"", AsgiHandler)]
+        return self._http_urlpatterns + [re_path(r"", get_asgi_application())]
 
     def get_websocket_urlpatterns(self) -> List[URLPattern]:
         return self._websocket_urlpatterns
@@ -120,11 +120,11 @@ class RoutingConfiguration:
             return r"^{}$".format(join(re.escape(routing.url)) + suffix)
 
         if routing.document:
-            self._http_urlpatterns.append(re_path(urlpattern(), DocConsumer, kwargs=kwargs))
+            self._http_urlpatterns.append(re_path(urlpattern(), DocConsumer.as_asgi(), kwargs=kwargs))
         if routing.autoload:
-            self._http_urlpatterns.append(re_path(urlpattern("/autoload.js"), AutoloadJsConsumer, kwargs=kwargs))
+            self._http_urlpatterns.append(re_path(urlpattern("/autoload.js"), AutoloadJsConsumer.as_asgi(), kwargs=kwargs))
 
-        self._websocket_urlpatterns.append(re_path(urlpattern("/ws"), WSConsumer, kwargs=kwargs))
+        self._websocket_urlpatterns.append(re_path(urlpattern("/ws"), WSConsumer.as_asgi(), kwargs=kwargs))
 
 #-----------------------------------------------------------------------------
 # Dev API
