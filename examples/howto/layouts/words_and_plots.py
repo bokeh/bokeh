@@ -69,7 +69,7 @@ def intro():
         <p>This is an example of <code>scale_width</code> mode (happy to continue the conversations
         about what to name the modes). In <code>scale_width</code> everything responds to the width
         that's available to it. Plots alter their height to maintain their aspect ratio, and widgets
-        are allowed to grow as tall as they need to accomodate themselves. Often times widgets
+        are allowed to grow as tall as they need to accommodate themselves. Often times widgets
         stay the same height, but text is a good example of a widget that doesn't.</p>
         <h4>I want to stress that this was all written in python. There is no templating or
         use of <code>bokeh.embed</code>.</h4>

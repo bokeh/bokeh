@@ -29,7 +29,7 @@ The demos container here are:
   <tr><td colspan="2">dash</td></tr>
   <tr>
     <td><a href="https://github.com/bokeh/bokeh/tree/master/examples/app/dash"><img src="https://docs.bokeh.org/static/dash_t.png" width=400></img></a></td>
-    <td>Demonstrates use of custom Boostrap template with a Bokeh application</td>
+    <td>Demonstrates use of custom Bootstrap template with a Bokeh application</td>
   </tr>
 
   <tr><td colspan="2">export_csv</td></tr>

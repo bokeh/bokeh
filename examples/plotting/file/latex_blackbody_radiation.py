@@ -22,7 +22,7 @@ p = figure(
 
 def spectral_radiance(nu, T):
     h = 6.626e-34   # Planck constant (Js)
-    k = 1.3806e-23  # Boltzman constant (J/K)
+    k = 1.3806e-23  # Boltzmann constant (J/K)
     c = 2.9979e8    # Speed of light in vacuum (m/s)
     return (2*h*nu**3/c**2) / (np.exp(h*nu/(k*T)) - 1.0)
 

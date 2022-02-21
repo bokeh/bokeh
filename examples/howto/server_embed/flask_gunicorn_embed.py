@@ -1,8 +1,4 @@
-try:
-    import asyncio
-except ImportError:
-    raise RuntimeError("This example requries Python3 / asyncio")
-
+import asyncio
 from threading import Thread
 
 from flask import Flask, render_template

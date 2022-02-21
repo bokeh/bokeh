@@ -10,7 +10,7 @@ app = Flask(__name__)
 @app.route('/')
 def bkapp_page():
 
-    # pull a new session from aunning Bokeh server
+    # pull a new session from running Bokeh server
     with pull_session(url=app_url) as session:
 
         # update or customize that session
