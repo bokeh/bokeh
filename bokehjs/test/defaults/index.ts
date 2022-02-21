@@ -11,7 +11,7 @@ import {isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {keys, entries} from "@bokehjs/core/util/object"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {to_string} from "@bokehjs/core/util/pretty"
-import {Serializer} from "@bokehjs/core/serializer"
+import {Serializer} from "@bokehjs/core/serialization"
 
 import {Models} from "@bokehjs/base"
 import {settings} from "@bokehjs/core/settings"

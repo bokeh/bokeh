@@ -1,7 +1,7 @@
 import {expect} from "assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
-import {Serializer} from "@bokehjs/core/serializer"
+import {Serializer} from "@bokehjs/core/serialization"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {Document} from "@bokehjs/document/document"
 import * as events from "@bokehjs/document/events"

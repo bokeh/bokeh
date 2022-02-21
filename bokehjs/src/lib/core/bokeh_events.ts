@@ -2,7 +2,7 @@ import {HasProps} from "./has_props"
 import {Attrs} from "./types"
 import {GeometryData} from "./geometry"
 import {Class} from "./class"
-import {serialize, Serializable, Serializer} from "./serializer"
+import {serialize, Serializable, Serializer} from "./serialization"
 import {equals, Equatable, Comparator} from "./util/eq"
 
 export type BokehEventRep = {

@@ -1,72 +1,29 @@
-import {ModelResolver} from "../base"
-import {HasProps} from "./has_props"
-import {ID, Attrs, PlainObject, Slice} from "./types"
-import {Ref, is_ref} from "./util/refs"
-import {Buffer} from "./serializer"
-import {NDArrayRep} from "./util/serialization"
-import {ndarray, NDArray} from "./util/ndarray"
-import {entries} from "./util/object"
-import {map, every} from "./util/array"
-import {BYTE_ORDER} from "./util/platform"
-import {base64_to_buffer, swap} from "./util/buffer"
-import {isArray, isPlainObject, isString, isNumber} from "./util/types"
-import {type Document} from "document"
+import {type ModelResolver} from "../../base"
+import {type Document} from "../../document"
 
-export type RefMap = Map<ID, HasProps>
+import {HasProps} from "../has_props"
+import {ID, Attrs, PlainObject} from "../types"
+import {Ref, is_ref} from "../util/refs"
+import {ndarray, NDArray} from "../util/ndarray"
+import {entries} from "../util/object"
+import {map, every} from "../util/array"
+import {BYTE_ORDER} from "../util/platform"
+import {base64_to_buffer, swap} from "../util/buffer"
+import {isArray, isPlainObject, isString, isNumber} from "../util/types"
+import {Slice} from "../util/slice"
 
-export type AnyVal = null | boolean | number | string | Ref | AnyRep | AnyVal[] | {[key: string]: AnyVal}
-export type AnyRep = NumberRep | ArrayRep | SetRep | MapRep | BytesRep | NDArrayRep | ModelRep | TypeRep
-
-export type NumberRep = {
-  type: "number"
-  value: number | "nan" | "-inf" | "+inf"
-}
-
-export type ArrayRep = {
-  type: "array"
-  entries: AnyVal[]
-}
-
-export type SetRep = {
-  type: "set"
-  entries: AnyVal[]
-}
-
-export type MapRep = {
-  type: "map"
-  entries: [AnyVal, AnyVal][]
-}
-
-export type BytesRep = {
-  type: "bytes"
-  data: Bytes
-}
-
-export type Bytes = Ref | string | Buffer
-
-export type SliceRep = {
-  type: "slice"
-  start: number | null
-  stop: number | null
-  step: number | null
-}
-
-export type TypeRep = {
-  type: string
-  attributes: {[key: string]: AnyVal}
-}
-
-export type ModelRep = TypeRep & {
-  id: string
-}
+import {
+  NumberRep, ArrayRep, SetRep, MapRep, BytesRep, SliceRep,
+  NDArrayRep, ModelRep, TypeRep,
+} from "./reps"
 
 export class DeserializationError extends Error {}
 
 export class Deserializer {
 
   constructor(
-    readonly resolver: ModelResolver = new ModelResolver(),
-    readonly references: RefMap = new Map()) {}
+    readonly resolver: ModelResolver,
+    readonly references: Map<ID, HasProps> = new Map()) {}
 
   protected _buffers: Map<ID, ArrayBuffer> = new Map()
   protected _to_finalize: HasProps[] = []
@@ -241,6 +198,8 @@ export class Deserializer {
 
   protected _decode_type(obj: TypeRep): unknown {
     const cls = this.resolver.get(obj.type)
+    if (cls == null)
+      this.error(`could not resolve model '${obj.type}', which could be due to a widget or a custom model not being registered before first usage`)
     const attrs = this._decode(obj.attributes)
     return new (cls as any)(attrs)
   }

@@ -4,8 +4,8 @@ import {logger} from "../core/logging"
 import {BokehEvent, DocumentReady, ModelEvent, LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
 import {Property} from "core/properties"
-import {Serializer} from "core/serializer"
-import {Deserializer, ModelRep, RefMap} from "core/deserializer"
+import {Serializer, ModelRep} from "core/serialization"
+import {Deserializer} from "core/serialization/deserializer"
 import {Ref} from "core/util/refs"
 import {ID, Data} from "core/types"
 import {Signal0} from "core/signaling"
@@ -215,7 +215,7 @@ export class Document implements Equatable {
     const old_all_models_set = new Set(this._all_models.values())
     const to_detach = sets.difference(old_all_models_set, new_all_models_set)
     const to_attach = sets.difference(new_all_models_set, old_all_models_set)
-    const recomputed: RefMap = new Map()
+    const recomputed: Map<ID, HasProps> = new Map()
     for (const model of new_all_models_set) {
       recomputed.set(model.id, model)
     }

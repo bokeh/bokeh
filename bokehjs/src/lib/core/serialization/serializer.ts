@@ -1,28 +1,9 @@
-import {assert} from "./util/assert"
-import {entries} from "./util/object"
-import {Ref} from "./util/refs"
-import {/*isBasicObject, */isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isSymbol} from "./util/types"
-import {map} from "./util/iterator"
-import {buffer_to_base64} from "./util/buffer"
-import {Comparator, Equatable, equals} from "./util/eq"
-
-export class Buffer implements Equatable {
-  constructor(readonly buffer: ArrayBuffer) {}
-
-  to_base64(): string {
-    return buffer_to_base64(this.buffer)
-  }
-
-  [equals](that: Buffer, cmp: Comparator): boolean {
-    return cmp.eq(this.buffer, that.buffer)
-  }
-}
-
-export class Base64Buffer extends Buffer {
-  toJSON(): string {
-    return this.to_base64()
-  }
-}
+import {assert} from "../util/assert"
+import {entries} from "../util/object"
+import {Ref} from "../util/refs"
+import {/*isBasicObject, */isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isSymbol} from "../util/types"
+import {map} from "../util/iterator"
+import {Buffer, Base64Buffer} from "./reps"
 
 export type SerializableType =
   | null

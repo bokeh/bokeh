@@ -11,7 +11,7 @@ import * as logging from "@bokehjs/core/logging"
 import * as p from "@bokehjs/core/properties"
 import {ColumnDataSource} from "@bokehjs/models"
 import {DocumentReady} from "@bokehjs/core/bokeh_events"
-import {Slice} from "@bokehjs/core/types"
+import {Slice} from "@bokehjs/core/util/slice"
 
 import {trap} from "../../util"
 

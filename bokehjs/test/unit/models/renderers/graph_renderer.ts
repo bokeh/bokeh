@@ -8,7 +8,7 @@ import {Circle, MultiLine} from "@bokehjs/models/glyphs"
 import {Plot} from "@bokehjs/models/plots"
 import {Document} from "@bokehjs/document"
 import {build_view} from "@bokehjs/core/build_views"
-import {SerializationError} from "@bokehjs/core/serializer"
+import {SerializationError} from "@bokehjs/core/serialization"
 
 type GraphComponents = {
   test_graph: GraphRenderer

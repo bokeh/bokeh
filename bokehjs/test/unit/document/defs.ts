@@ -178,11 +178,11 @@ describe("document/defs module", () => {
       const resolver = new ModelResolver()
       resolve_defs(defs, resolver)
 
-      const Some0 = resolver.get<typeof _Some0, null>("some.Some0", null)
-      const Some1 = resolver.get<typeof _Some1, null>("some.Some1", null)
-      const Some2 = resolver.get<typeof _Some2, null>("some.Some2", null)
-      const Some3 = resolver.get<typeof _Some3, null>("some.Some3", null)
-      const Some4 = resolver.get<typeof _Some4, null>("some.Some4", null)
+      const Some0 = resolver.get<typeof _Some0>("some.Some0")
+      const Some1 = resolver.get<typeof _Some1>("some.Some1")
+      const Some2 = resolver.get<typeof _Some2>("some.Some2")
+      const Some3 = resolver.get<typeof _Some3>("some.Some3")
+      const Some4 = resolver.get<typeof _Some4>("some.Some4")
 
       assert(Some0 != null)
       assert(Some1 != null)

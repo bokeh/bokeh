@@ -1,10 +1,21 @@
 import {DataType, TypedArray} from "../types"
 import {isObject, isArray} from "./types"
+import {BYTE_ORDER} from "./platform"
 import {equals, Equatable, Comparator} from "./eq"
-import {serialize, Serializable, Serializer} from "../serializer"
-import {encode_NDArray} from "./serialization"
+import {serialize, Serializable, Serializer, ArrayRep, BytesRep, NDArrayRep} from "../serialization"
 
 const __ndarray__ = Symbol("__ndarray__")
+
+function encode_NDArray(array: NDArray, serializer: Serializer): NDArrayRep {
+  const encoded = serializer.encode(array.dtype == "object" ? Array.from(array) : array.buffer)
+  return {
+    type: "ndarray",
+    array: encoded as ArrayRep | BytesRep,
+    order: BYTE_ORDER,
+    dtype: array.dtype,
+    shape: array.shape,
+  }
+}
 
 export interface NDArrayType extends Equatable, Serializable {
   readonly [__ndarray__]: boolean

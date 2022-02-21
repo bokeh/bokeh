@@ -3,7 +3,7 @@ import {expect} from "assertions"
 import {difference} from "@bokehjs/core/util/set"
 import {stream_to_column, slice, patch_to_column} from "@bokehjs/core/patching"
 import {ndarray, Int32NDArray, Float32NDArray, Float64NDArray} from "@bokehjs/core/util/ndarray"
-import {Slice} from "@bokehjs/core/types"
+import {Slice} from "@bokehjs/core/util/slice"
 
 describe("core/patching module", () => {
 

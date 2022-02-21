@@ -1,5 +1,5 @@
 import {PlainObject, ID} from "../lib/core/types"
-import {Buffer} from "../lib/core/serializer"
+import {Buffer} from "../lib/core/serialization"
 import {unique_id} from "../lib/core/util/string"
 import {assert} from "../lib/core/util/assert"
 import {Ref} from "../lib/core/util/refs"

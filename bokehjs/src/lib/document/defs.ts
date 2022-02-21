@@ -1,7 +1,8 @@
 import {ModelResolver} from "../base"
 import {Model} from "../model"
 import * as kinds from "core/kinds"
-import {Deserializer, AnyVal} from "core/deserializer"
+import {AnyVal} from "core/serialization"
+import {Deserializer} from "core/serialization/deserializer"
 import {isString} from "core/util/types"
 import {to_object} from "core/util/object"
 
@@ -101,7 +102,7 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
         }
         case "Ref": {
           const [, modelref] = ref
-          const model = resolver.get(qualified(modelref), null)
+          const model = resolver.get(qualified(modelref))
           if (model != null)
             return kinds.Ref(model)
           else
@@ -119,7 +120,7 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
       const name = qualified(def.extends)
       if (name == "Model") // TODO: support base classes in general
         return Model
-      const base = resolver.get(name, null)
+      const base = resolver.get(name)
       if (base != null)
         return base
       else

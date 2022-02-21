@@ -63,23 +63,16 @@ Models.registered_names = () => [..._all_models.keys()]
 export class ModelResolver {
   protected _known_models: Map<string, typeof HasProps> = new Map()
 
-  get(name: string): typeof HasProps
-  get<M extends typeof HasProps, T>(name: string, or_else: T): M | T
-  get<T>(name: string, or_else: T): typeof HasProps | T
+  get(name: string): typeof HasProps | null
+  get<M extends typeof HasProps>(name: string): M | null
 
-  get<T>(name: string, or_else?: T): typeof HasProps | T {
-    const model = Models.get(name) ?? this._known_models.get(name)
-    if (model != null)
-      return model
-    else if (or_else !== undefined)
-      return or_else
-    else
-      throw new Error(`Model '${name}' does not exist. This could be due to a widget or a custom model not being registered before first usage.`)
+  get(name: string): typeof HasProps | null {
+    return Models.get(name) ?? this._known_models.get(name) ?? null
   }
 
   register(model: typeof HasProps): void {
     const name = model.__qualified__
-    if (this.get(name, null) == null)
+    if (this.get(name) == null)
       this._known_models.set(name, model)
     else
       console.warn(`Model '${name}' was already registered with this resolver`)
