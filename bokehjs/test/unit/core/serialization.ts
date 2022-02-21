@@ -3,7 +3,8 @@ import {expect} from "assertions"
 import {Serializer, SerializationError} from "@bokehjs/core/serialization/serializer"
 import {Deserializer, DeserializationError} from "@bokehjs/core/serialization/deserializer"
 import {Base64Buffer, AnyVal} from "@bokehjs/core/serialization/reps"
-import {ModelResolver} from "@bokehjs/base"
+import {default_resolver} from "@bokehjs/base"
+import {ModelResolver} from "@bokehjs/core/resolvers"
 import {HasProps} from "@bokehjs/core/has_props"
 import * as p from "@bokehjs/core/properties"
 import {Slice} from "@bokehjs/core/util/slice"
@@ -235,7 +236,7 @@ describe("core/serialization module", () => {
         shape: [1, 3],
       }
 
-      const resolver = new ModelResolver()
+      const resolver = new ModelResolver(default_resolver)
       const deserializer = new Deserializer(resolver)
 
       const val = deserializer.decode(rep)
@@ -243,7 +244,7 @@ describe("core/serialization module", () => {
     })
 
     it("should not allow unknown types", () => {
-      const resolver = new ModelResolver()
+      const resolver = new ModelResolver(default_resolver)
       const deserializer = new Deserializer(resolver)
 
       const rep = {type: "unknown", attributes: {foo: 1}}

@@ -1,7 +1,7 @@
-import {type ModelResolver} from "../../base"
 import {type Document} from "../../document"
 
 import {HasProps} from "../has_props"
+import {type ModelResolver} from "../resolvers"
 import {ID, Attrs, PlainObject} from "../types"
 import {Ref, is_ref} from "../util/refs"
 import {ndarray, NDArray} from "../util/ndarray"
@@ -27,11 +27,6 @@ export class Deserializer {
 
   protected _buffers: Map<ID, ArrayBuffer> = new Map()
   protected _to_finalize: HasProps[] = []
-
-  protected _instantiate_object(id: string, type: string): HasProps {
-    const model = this.resolver.get(type)
-    return new (model as any)({id})
-  }
 
   decode(obj: unknown /*AnyVal*/, buffers: Map<ID, ArrayBuffer> = new Map(), document?: Document): unknown {
     this._buffers = buffers
@@ -197,11 +192,9 @@ export class Deserializer {
   }
 
   protected _decode_type(obj: TypeRep): unknown {
-    const cls = this.resolver.get(obj.type)
-    if (cls == null)
-      this.error(`could not resolve model '${obj.type}', which could be due to a widget or a custom model not being registered before first usage`)
+    const cls = this._resolve_type(obj.type)
     const attrs = this._decode(obj.attributes)
-    return new (cls as any)(attrs)
+    return new cls(attrs)
   }
 
   protected _decode_ref(obj: Ref): HasProps {
@@ -218,7 +211,8 @@ export class Deserializer {
 
     const {id, type, attributes} = obj
 
-    const instance = this._instantiate_object(id, type)
+    const cls = this._resolve_type(type)
+    const instance = new cls({id})
     this.references.set(id, instance)
 
     const decoded_attributes = this._decode(attributes) as Attrs
@@ -230,5 +224,13 @@ export class Deserializer {
 
   error(message: string): never {
     throw new DeserializationError(message)
+  }
+
+  private _resolve_type(type: string): any {
+    const cls = this.resolver.get(type)
+    if (cls != null)
+      return cls
+    else
+      this.error(`could not resolve model '${type}', which could be due to a widget or a custom model not being registered before first usage`)
   }
 }

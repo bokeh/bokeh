@@ -1,8 +1,9 @@
 import {expect} from "assertions"
 
 import {resolve_defs, ModelDef} from "@bokehjs/document/defs"
-import {ModelResolver} from "@bokehjs/base"
 import {Model} from "@bokehjs/model"
+import {default_resolver} from "@bokehjs/base"
+import {ModelResolver} from "@bokehjs/core/resolvers"
 import * as p from "@bokehjs/core/properties"
 import {assert} from "@bokehjs/core/util/assert"
 import {ColumnDataSource} from "@bokehjs/models"
@@ -175,7 +176,7 @@ describe("document/defs module", () => {
         ],
       }]
 
-      const resolver = new ModelResolver()
+      const resolver = new ModelResolver(default_resolver)
       resolve_defs(defs, resolver)
 
       const Some0 = resolver.get<typeof _Some0>("some.Some0")

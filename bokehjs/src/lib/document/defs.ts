@@ -1,6 +1,6 @@
-import {ModelResolver} from "../base"
 import {Model} from "../model"
 import * as kinds from "core/kinds"
+import {ModelResolver} from "core/resolvers"
 import {AnyVal} from "core/serialization"
 import {Deserializer} from "core/serialization/deserializer"
 import {isString} from "core/util/types"

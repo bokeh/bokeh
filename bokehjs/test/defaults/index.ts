@@ -13,7 +13,7 @@ import {is_equal} from "@bokehjs/core/util/eq"
 import {to_string} from "@bokehjs/core/util/pretty"
 import {Serializer} from "@bokehjs/core/serialization"
 
-import {Models} from "@bokehjs/base"
+import {default_resolver} from "@bokehjs/base"
 import {settings} from "@bokehjs/core/settings"
 
 import "@bokehjs/models/widgets/main"
@@ -164,7 +164,7 @@ describe("Defaults", () => {
   ])
 
   it("have bokehjs and bokeh implement the same set of models", () => {
-    const js_models = new Set(Models.registered_names())
+    const js_models = new Set(default_resolver.names)
     const py_models = new Set(keys(all_defaults))
 
     for (const model of internal_models) {
@@ -189,11 +189,11 @@ describe("Defaults", () => {
     "ImageURLTexture",      // url and load_image()
   ])
 
-  for (const name of Models.registered_names()) {
+  for (const name of default_resolver.names) {
     const fn = skipped_models.has(name) || internal_models.has(name) ? it.skip : it
 
     fn(`bokehjs should implement serializable ${name} model and match defaults with bokeh`, () => {
-      const model = Models.get(name)
+      const model = default_resolver.get(name)
       const obj: HasProps = new (model as any)() // TODO: instantiating a possibly abstract class?
 
       const serializer = new DefaultsSerializer()

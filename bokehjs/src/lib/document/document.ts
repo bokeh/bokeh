@@ -1,9 +1,10 @@
-import {ModelResolver} from "../base"
+import {default_resolver} from "../base"
 import {version as js_version} from "../version"
 import {logger} from "../core/logging"
 import {BokehEvent, DocumentReady, ModelEvent, LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
 import {Property} from "core/properties"
+import {ModelResolver} from "core/resolvers"
 import {Serializer, ModelRep} from "core/serialization"
 import {Deserializer} from "core/serialization/deserializer"
 import {Ref} from "core/util/refs"
@@ -81,7 +82,7 @@ export class Document implements Equatable {
   constructor(options?: {resolver?: ModelResolver}) {
     documents.push(this)
     this._init_timestamp = Date.now()
-    this._resolver = options?.resolver ?? new ModelResolver()
+    this._resolver = options?.resolver ?? new ModelResolver(default_resolver)
     this._title = DEFAULT_TITLE
     this._roots = []
     this._all_models = new Map()
@@ -396,7 +397,7 @@ export class Document implements Equatable {
     logger.debug("Creating Document from JSON")
     Document._handle_version(doc_json)
 
-    const resolver = new ModelResolver()
+    const resolver = new ModelResolver(default_resolver)
     if (doc_json.defs != null) {
       resolve_defs(doc_json.defs, resolver)
     }

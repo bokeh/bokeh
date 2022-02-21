@@ -5,7 +5,7 @@ import {assert} from "@bokehjs/core/util/assert"
 import {Document, DEFAULT_TITLE} from "@bokehjs/document"
 import * as ev from "@bokehjs/document/events"
 import {version as js_version} from "@bokehjs/version"
-import {Models} from "@bokehjs/base"
+import {register_models} from "@bokehjs/base"
 import {Model} from "@bokehjs/model"
 import * as logging from "@bokehjs/core/logging"
 import * as p from "@bokehjs/core/properties"
@@ -38,7 +38,7 @@ class AnotherModel extends Model {
   }
 }
 
-Models.register("AnotherModel", AnotherModel)
+register_models({AnotherModel})
 
 namespace SomeModel {
   export type Attrs = p.AttrsOf<Props>
@@ -65,7 +65,7 @@ class SomeModel extends Model {
   }
 }
 
-Models.register("SomeModel", SomeModel)
+register_models({SomeModel})
 
 namespace SomeModelWithChildren {
   export type Attrs = p.AttrsOf<Props>
@@ -90,7 +90,7 @@ class SomeModelWithChildren extends Model {
   }
 }
 
-Models.register("SomeModelWithChildren", SomeModelWithChildren)
+register_models({SomeModelWithChildren})
 
 namespace ModelWithConstructTimeChanges {
   export type Attrs = p.AttrsOf<Props>
@@ -123,7 +123,7 @@ class ModelWithConstructTimeChanges extends Model {
   }
 }
 
-Models.register("ModelWithConstructTimeChanges", ModelWithConstructTimeChanges)
+register_models({ModelWithConstructTimeChanges})
 
 describe("Document", () => {
   let date_stub: sinon.SinonStub
