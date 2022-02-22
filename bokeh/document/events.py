@@ -376,18 +376,11 @@ class ModelChangedEvent(DocumentPatchedEvent):
             serializer (Serializer):
 
         '''
-        new = serializer.encode(self.new)
-
-        # we know we don't want a whole new copy of the obj we're patching
-        # unless it's also the new value
-        if self.model != self.new and serializer.has_ref(self.model):
-            serializer.del_ref(self.model)
-
         return ModelChanged(
             kind  = self.kind,
             model = self.model.ref,
             attr  = self.attr,
-            new   = new,
+            new   = serializer.encode(self.new),
         )
 
     @staticmethod

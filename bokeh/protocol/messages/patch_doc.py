@@ -81,15 +81,14 @@ class patch_doc(Message[PatchJson]):
         if not events:
             raise ValueError("PATCH-DOC message requires at least one event")
 
-        docs = { event.document for event in events }
+        docs = {event.document for event in events}
         if len(docs) != 1:
             raise ValueError("PATCH-DOC message configured with events for more than one document")
 
-        serializer = Serializer(binary=use_buffers)
-
-        patch_json = PatchJson(
-            events     = serializer.encode(events),
-        )
+        [doc] = docs
+        serializer = Serializer(references=doc.models.synced_references, binary=use_buffers)
+        patch_json = PatchJson(events=serializer.encode(events))
+        doc.models.flush()
 
         msg = cls(header, metadata, patch_json)
 

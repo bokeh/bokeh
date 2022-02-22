@@ -65,6 +65,7 @@ class DocumentModelManager:
     _document : weakref.ReferenceType[Document]
     _freeze_count: int
     _models: Dict[ID, Model]
+    _new_models: Set[Model]
     _models_by_name: MultiValuedDict[str, Model]
     _seen_model_ids: Set[ID] = set()
 
@@ -80,6 +81,7 @@ class DocumentModelManager:
         self._freeze_count = 0
         self._models = {}
         self._models_by_name = MultiValuedDict()
+        self._new_models = set()
         self._seen_model_ids = set()
 
     def __len__(self) -> int:
@@ -173,6 +175,14 @@ class DocumentModelManager:
         '''
         return self._models_by_name.get_one(name, f"Found more than one model named '{name}'")
 
+    @property
+    def synced_references(self) -> Set[Model]:
+        return set(model for model in self._models.values() if model not in self._new_models)
+
+    def flush(self) -> None:
+        ''' Clean up transient state of the document's models. '''
+        self._new_models.clear()
+
     def invalidate(self) -> None:
         ''' Recompute the set of all models, if not currently frozen
 
@@ -222,6 +232,7 @@ class DocumentModelManager:
 
         for ma in to_attach:
             ma._attach_document(document)
+            self._new_models.add(ma)
 
         self._models = recomputed
         self._models_by_name = recomputed_by_name

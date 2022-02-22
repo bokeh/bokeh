@@ -743,6 +743,7 @@ class Document:
             version=__version__,
         )
 
+        self.models.flush()
         return doc_json
 
     def unhold(self) -> None:

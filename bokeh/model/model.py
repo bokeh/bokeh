@@ -459,13 +459,11 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         else:
             serializer.add_ref(self, self.ref)
 
-            rep = ModelRep(
+            return ModelRep(
                 type=self.__qualified_model__,
                 id=self.id,
                 attributes=super().to_serializable(serializer)["attributes"],
             )
-            serializer.add_rep(self, rep)
-            return rep
 
     def trigger(self, attr: str, old: Unknown, new: Unknown,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:

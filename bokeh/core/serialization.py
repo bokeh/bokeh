@@ -33,6 +33,7 @@ from typing import (
     Literal,
     NoReturn,
     Sequence,
+    Set,
     Tuple,
     Type,
     TypedDict,
@@ -152,20 +153,14 @@ class Serializer:
     _id: int
     _circular: Dict[ObjID, Any]
     _references: Dict[ObjID, Ref]
-    _definitions: Dict[ObjID, ModelRep]
     _buffers: List[Buffer]
 
-    def __init__(self, *, binary: bool = True) -> None:
+    def __init__(self, *, references: Set[Model] = set(), binary: bool = True) -> None:
         self._id = 0
         self._circular = {}
-        self._references = {}
-        self._definitions = {}
+        self._references = {id(obj): obj.ref for obj in references}
         self._buffers = []
         self.binary = binary
-
-    def serialize(self, obj: Any) -> AnyRep:
-        """ """
-        return self.encode(obj)
 
     def has_ref(self, obj: Any) -> bool:
         return id(obj) in self._references
@@ -177,23 +172,11 @@ class Serializer:
     def get_ref(self, obj: Any) -> Ref | None:
         return self._references.get(id(obj))
 
-    def del_ref(self, obj: Any) -> None:
-        del self._references[id(obj)]
-        del self._definitions[id(obj)]
-
-    def add_rep(self, obj: Any, rep: ModelRep) -> None:
-        assert id(obj) in self._references
-        self._definitions[id(obj)] = rep
-
     def add_buf(self, obj: bytes) -> Buffer:
         buffer = Buffer(self._next_id(), obj)
         if self.binary:
             self._buffers.append(buffer)
         return buffer
-
-    @property
-    def references(self) -> List[ModelRep]:
-        return list(self._definitions.values())
 
     @property
     def buffers(self) -> List[Buffer]:
@@ -458,9 +441,9 @@ class Deserializer:
         id = obj["id"]
         instance = self._references.get(id)
         if instance is not None:
-            log.warning(f"reference already known '{id}'")
-            # TODO: self.error(f"reference already known '{id}'")
-            return instance
+            # log.warning(f"reference already known '{id}'")
+            # return instance
+            self.error(f"reference already known '{id}'")
 
         type = obj["type"]
         attributes = obj["attributes"]
