@@ -140,10 +140,13 @@ export class DocumentEventBatch<T extends DocumentChangedEvent> extends Document
 }
 
 export abstract class DocumentChangedEvent extends DocumentEvent implements Serializable {
+  readonly abstract kind: string
   abstract [serialize](serializer: Serializer): DocumentChanged
 }
 
 export class MessageSentEvent extends DocumentChangedEvent {
+  kind = "MessageSent" as const
+
   constructor(document: Document, readonly msg_type: string, readonly msg_data: unknown) {
     super(document)
   }
@@ -156,7 +159,7 @@ export class MessageSentEvent extends DocumentChangedEvent {
 
   [serialize](serializer: Serializer): DocumentChanged {
     return {
-      kind: "MessageSent",
+      kind: this.kind,
       msg_type: this.msg_type,
       msg_data: serializer.encode(this.msg_data),
     }
@@ -164,6 +167,7 @@ export class MessageSentEvent extends DocumentChangedEvent {
 }
 
 export class ModelChangedEvent extends DocumentChangedEvent {
+  kind = "ModelChanged" as const
 
   constructor(document: Document,
       readonly model: HasProps,
@@ -181,7 +185,7 @@ export class ModelChangedEvent extends DocumentChangedEvent {
 
   [serialize](serializer: Serializer): DocumentChanged {
     return {
-      kind: "ModelChanged",
+      kind: this.kind,
       model: this.model.ref(),
       attr: this.attr,
       new: serializer.encode(this.value),
@@ -190,6 +194,7 @@ export class ModelChangedEvent extends DocumentChangedEvent {
 }
 
 export class ColumnDataChangedEvent extends DocumentChangedEvent {
+  kind = "ColumnDataChanged" as const
 
   constructor(document: Document,
       readonly model: HasProps,
@@ -209,7 +214,7 @@ export class ColumnDataChangedEvent extends DocumentChangedEvent {
 
   [serialize](serializer: Serializer): ColumnDataChanged {
     return {
-      kind: "ColumnDataChanged",
+      kind: this.kind,
       model: this.model.ref(),
       attr: this.attr,
       data: serializer.encode(this.data),
@@ -219,6 +224,7 @@ export class ColumnDataChangedEvent extends DocumentChangedEvent {
 }
 
 export class ColumnsStreamedEvent extends DocumentChangedEvent {
+  kind = "ColumnsStreamed" as const
 
   constructor(document: Document,
       readonly model: HasProps,
@@ -238,7 +244,7 @@ export class ColumnsStreamedEvent extends DocumentChangedEvent {
 
   [serialize](serializer: Serializer): ColumnsStreamed {
     return {
-      kind: "ColumnsStreamed",
+      kind: this.kind,
       model: this.model.ref(),
       attr: this.attr,
       data: serializer.encode(this.data),
@@ -248,6 +254,7 @@ export class ColumnsStreamedEvent extends DocumentChangedEvent {
 }
 
 export class ColumnsPatchedEvent extends DocumentChangedEvent {
+  kind = "ColumnsPatched" as const
 
   constructor(document: Document,
       readonly model: HasProps,
@@ -265,7 +272,7 @@ export class ColumnsPatchedEvent extends DocumentChangedEvent {
 
   [serialize](serializer: Serializer): ColumnsPatched {
     return {
-      kind: "ColumnsPatched",
+      kind: this.kind,
       attr: this.attr,
       model: this.model.ref(),
       patches: serializer.encode(this.patches),
@@ -274,6 +281,7 @@ export class ColumnsPatchedEvent extends DocumentChangedEvent {
 }
 
 export class TitleChangedEvent extends DocumentChangedEvent {
+  kind = "TitleChanged" as const
 
   constructor(document: Document, readonly title: string) {
     super(document)
@@ -286,13 +294,14 @@ export class TitleChangedEvent extends DocumentChangedEvent {
 
   [serialize](_serializer: Serializer): TitleChanged {
     return {
-      kind: "TitleChanged",
+      kind: this.kind,
       title: this.title,
     }
   }
 }
 
 export class RootAddedEvent extends DocumentChangedEvent {
+  kind = "RootAdded" as const
 
   constructor(document: Document, readonly model: HasProps) {
     super(document)
@@ -305,13 +314,14 @@ export class RootAddedEvent extends DocumentChangedEvent {
 
   [serialize](serializer: Serializer): RootAdded {
     return {
-      kind: "RootAdded",
+      kind: this.kind,
       model: serializer.encode(this.model),
     }
   }
 }
 
 export class RootRemovedEvent extends DocumentChangedEvent {
+  kind = "RootRemoved" as const
 
   constructor(document: Document, readonly model: HasProps) {
     super(document)
@@ -324,7 +334,7 @@ export class RootRemovedEvent extends DocumentChangedEvent {
 
   [serialize](_serializer: Serializer): RootRemoved {
     return {
-      kind: "RootRemoved",
+      kind: this.kind,
       model: this.model.ref(),
     }
   }
