@@ -408,8 +408,8 @@ export class Document implements Equatable {
     const listener = (event: DocumentEvent) => events?.push(event)
     doc.on_change(listener, true)
 
-    const deserializer = new Deserializer(resolver, doc._all_models)
-    const roots = deserializer.decode(doc_json.roots, new Map(), doc) as Model[] // XXX
+    const deserializer = new Deserializer(resolver, doc._all_models, (obj) => obj.attach_document(doc))
+    const roots = deserializer.decode(doc_json.roots, new Map()) as Model[]
 
     doc.remove_on_change(listener)
 
@@ -452,8 +452,8 @@ export class Document implements Equatable {
   apply_json_patch(patch: Patch, buffers: Map<ID, ArrayBuffer> = new Map()): void {
     this._push_all_models_freeze()
 
-    const deserializer = new Deserializer(this._resolver, this._all_models)
-    const events = deserializer.decode(patch.events, buffers, this) as Decoded.DocumentChanged[] // XXX
+    const deserializer = new Deserializer(this._resolver, this._all_models, (obj) => obj.attach_document(this))
+    const events = deserializer.decode(patch.events, buffers) as Decoded.DocumentChanged[]
 
     for (const event of events) {
       switch (event.kind) {

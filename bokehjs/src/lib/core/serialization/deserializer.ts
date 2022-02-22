@@ -1,6 +1,4 @@
-import {type Document} from "../../document"
-
-import {HasProps} from "../has_props"
+import {type HasProps} from "../has_props"
 import {type ModelResolver} from "../resolvers"
 import {ID, Attrs, PlainObject} from "../types"
 import {Ref, is_ref} from "../util/refs"
@@ -23,12 +21,14 @@ export class Deserializer {
 
   constructor(
     readonly resolver: ModelResolver,
-    readonly references: Map<ID, HasProps> = new Map()) {}
+    readonly references: Map<ID, HasProps> = new Map(),
+    readonly finalize?: (obj: HasProps) => void,
+  ) {}
 
   protected _buffers: Map<ID, ArrayBuffer> = new Map()
   protected _to_finalize: HasProps[] = []
 
-  decode(obj: unknown /*AnyVal*/, buffers: Map<ID, ArrayBuffer> = new Map(), document?: Document): unknown {
+  decode(obj: unknown /*AnyVal*/, buffers: Map<ID, ArrayBuffer> = new Map()): unknown {
     this._buffers = buffers
     this._to_finalize = []
     const to_finalize = this._to_finalize
@@ -44,8 +44,7 @@ export class Deserializer {
 
     for (const instance of to_finalize) {
       instance.finalize_props()
-      if (document != null)
-        instance.attach_document(document)
+      this.finalize?.(instance)
       instance.finalize()
     }
 
