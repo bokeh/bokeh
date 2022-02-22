@@ -16,10 +16,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-import sys
-from subprocess import run
-
 # External imports
 from tornado.ioloop import IOLoop
 
@@ -35,15 +31,6 @@ import bokeh.client.connection as bcc # isort:skip
 
 class FakeSess:
     id = "session_id"
-
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
-
-@pytest.mark.skipif(sys.platform != "win32" or sys.version_info < (3, 8), reason="event loop test only for win, py>=3.8")
-def test_windows_event_loop_fixup():
-    proc = run([sys.executable, "-c", "import asyncio, sys; import bokeh.client.connection; sys.exit(int(isinstance(asyncio.get_event_loop_policy(), asyncio.WindowsProactorEventLoopPolicy)))"'']) # noqa
-    assert proc.returncode == 0, "bokeh.client did not fixup windows event loop"
 
 #-----------------------------------------------------------------------------
 # Dev API

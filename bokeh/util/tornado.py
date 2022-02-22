@@ -36,6 +36,7 @@ from typing import (
 )
 
 # External imports
+import tornado
 from tornado import gen
 from tornado.ioloop import IOLoop
 
@@ -58,7 +59,11 @@ __all__ = ()
 
 # See https://github.com/bokeh/bokeh/issues/9507
 def fixup_windows_event_loop_policy() -> None:
-    if sys.platform == 'win32' and sys.version_info[:3] >= (3, 8, 0):
+    if (
+        sys.platform == 'win32'
+        and sys.version_info[:3] >= (3, 8, 0)
+        and tornado.version_info < (6, 1)
+    ):
         import asyncio
         if type(asyncio.get_event_loop_policy()) is asyncio.WindowsProactorEventLoopPolicy:
             # WindowsProactorEventLoopPolicy is not compatible with tornado 6
