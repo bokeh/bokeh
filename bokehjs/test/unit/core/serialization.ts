@@ -1,8 +1,7 @@
 import {expect} from "assertions"
 
-import {Serializer, SerializationError} from "@bokehjs/core/serialization/serializer"
+import {Serializer, SerializationError, Base64Buffer, AnyVal} from "@bokehjs/core/serialization"
 import {Deserializer, DeserializationError} from "@bokehjs/core/serialization/deserializer"
-import {Base64Buffer, AnyVal} from "@bokehjs/core/serialization/reps"
 import {default_resolver} from "@bokehjs/base"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {HasProps} from "@bokehjs/core/has_props"

@@ -3,7 +3,7 @@ import {entries} from "../util/object"
 import {Ref} from "../util/refs"
 import {/*isBasicObject, */isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isSymbol} from "../util/types"
 import {map} from "../util/iterator"
-import {Buffer, Base64Buffer} from "./reps"
+import {Buffer, Base64Buffer} from "./buffer"
 
 export type SerializableType =
   | null

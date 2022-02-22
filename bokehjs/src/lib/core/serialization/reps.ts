@@ -1,25 +1,6 @@
 import {ByteOrder, DataType} from "../types"
 import {Ref} from "../util/refs"
-import {buffer_to_base64} from "../util/buffer"
-import {Comparator, Equatable, equals} from "../util/eq"
-
-export class Buffer implements Equatable {
-  constructor(readonly buffer: ArrayBuffer) {}
-
-  to_base64(): string {
-    return buffer_to_base64(this.buffer)
-  }
-
-  [equals](that: Buffer, cmp: Comparator): boolean {
-    return cmp.eq(this.buffer, that.buffer)
-  }
-}
-
-export class Base64Buffer extends Buffer {
-  toJSON(): string {
-    return this.to_base64()
-  }
-}
+import {Buffer} from "./buffer"
 
 export type AnyVal = null | boolean | number | string | Ref | AnyRep | AnyVal[] | {[key: string]: AnyVal}
 export type AnyRep = NumberRep | ArrayRep | SetRep | MapRep | BytesRep | NDArrayRep | ModelRep | TypeRep
