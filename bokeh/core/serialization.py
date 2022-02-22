@@ -383,27 +383,32 @@ class Deserializer:
     _references: Dict[ID, Model]
     _setter: Setter | None
 
+    _decoding: bool
     _buffers: Dict[ID, Buffer]
-    _deserializing: bool
 
     def __init__(self, references: Sequence[Model] | None = None, setter: Setter | None = None):
         self._references = {obj.id: obj for obj in references or []}
         self._setter = setter
-        self._deserializing = False
+        self._decoding = False
+        self._buffers = {}
 
-    def from_serializable(self, obj: AnyRep, buffers: List[Buffer] = []) -> Any:
-        assert not self._deserializing, "internal error"
-        self._deserializing = True
+    def decode(self, obj: AnyRep, buffers: List[Buffer] | None = None) -> Any:
+        if buffers is not None:
+            for buffer in buffers:
+                self._buffers[buffer.id] = buffer
 
-        self._buffers = {buf.id: buf for buf in buffers}
+        if self._decoding:
+            return self._decode(obj)
+
+        self._decoding = True
 
         try:
-            return self.decode(obj)
+            return self._decode(obj)
         finally:
-            self._buffers = {}
-            self._deserializing = False
+            self._buffers.clear()
+            self._decoding = False
 
-    def decode(self, obj: AnyRep) -> Any:
+    def _decode(self, obj: AnyRep) -> Any:
         if isinstance(obj, dict):
             if "id" in obj:
                 if "type" not in obj:
@@ -417,13 +422,13 @@ class Deserializer:
                     return float(value) if isinstance(value, str) else value
                 elif type == "array":
                     entries = obj["entries"]
-                    return [ self.decode(entry) for entry in entries ]
+                    return [ self._decode(entry) for entry in entries ]
                 elif type == "set":
                     entries = obj["entries"]
-                    return set([ self.decode(entry) for entry in entries ])
+                    return set([ self._decode(entry) for entry in entries ])
                 elif type == "map":
                     entries = obj["entries"]
-                    return { self.decode(key): self.decode(val) for key, val in entries }
+                    return { self._decode(key): self._decode(val) for key, val in entries }
                 elif type == "bytes":
                     return self._decode_bytes(obj)
                 elif type == "slice":
@@ -435,9 +440,9 @@ class Deserializer:
                 else:
                     self.error(f"unsupported serialized type '{type}'")
             else:
-                return { key: self.decode(val) for key, val in obj.items() }
+                return { key: self._decode(val) for key, val in obj.items() }
         elif isinstance(obj, list):
-            return [ self.decode(entry) for entry in obj ]
+            return [ self._decode(entry) for entry in obj ]
         else:
             return obj
 
@@ -482,7 +487,7 @@ class Deserializer:
             from .has_props import HasProps
             HasProps.__init__(instance)
 
-        decoded_attributes = {key: self.decode(val) for key, val in attributes.items()}
+        decoded_attributes = {key: self._decode(val) for key, val in attributes.items()}
         for key, val in decoded_attributes.items():
             instance.set_from_json(key, val, setter=self._setter)
 
@@ -503,9 +508,9 @@ class Deserializer:
                 self.error(f"can't resolve buffer '{id}'")
 
     def _decode_slice(self, obj: SliceRep) -> slice:
-        start = self.decode(obj["start"])
-        stop = self.decode(obj["stop"])
-        step = self.decode(obj["step"])
+        start = self._decode(obj["start"])
+        stop = self._decode(obj["stop"])
+        step = self._decode(obj["step"])
         return slice(start, stop, step)
 
     def _decode_ndarray(self, obj: NDArrayRep) -> npt.NDArray[Any]:
@@ -513,7 +518,7 @@ class Deserializer:
         dtype = obj["dtype"]
         shape = obj["shape"]
 
-        decoded = self.decode(array)
+        decoded = self._decode(array)
 
         ndarray: npt.NDArray[Any]
         if isinstance(decoded, bytes):

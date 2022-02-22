@@ -59,7 +59,7 @@ def test_common_decode_json() -> None:
             model = Plot()
 
         decoder = Deserializer(references=[model])
-        event = decoder.from_serializable(dict(
+        event = decoder.decode(dict(
             type="event",
             name=event_cls.event_name,
             values=dict(
@@ -80,7 +80,7 @@ def test_pointevent_subclass_decode_json() -> None:
         model = Plot()
 
         decoder = Deserializer(references=[model])
-        event = decoder.from_serializable(dict(
+        event = decoder.decode(dict(
             type="event",
             name=event_cls.event_name,
             values=dict(
@@ -105,7 +105,7 @@ def test_panevent_decode_json() -> None:
     model = Plot()
 
     decoder = Deserializer(references=[model])
-    event = decoder.from_serializable(dict(
+    event = decoder.decode(dict(
         type="event",
         name=events.Pan.event_name,
         values=dict(
@@ -135,7 +135,7 @@ def test_mousewheelevent_decode_json() -> None:
     model = Plot()
 
     decoder = Deserializer(references=[model])
-    event = decoder.from_serializable(dict(
+    event = decoder.decode(dict(
         type="event",
         name=events..event_name,
         values=dict(
@@ -150,7 +150,7 @@ def test_mousewheelevent_decode_json() -> None:
     model = Plot()
 
     decoder = Deserializer(references=[model])
-    event = decoder.from_serializable(dict(
+    event = decoder.decode(dict(
         type="event",
         name=events.MouseWheel.event_name,
         values=dict(
@@ -177,7 +177,7 @@ def test_pinchevent_decode_json() -> None:
     model = Plot()
 
     decoder = Deserializer(references=[model])
-    event = decoder.from_serializable(dict(
+    event = decoder.decode(dict(
         type="event",
         name=events.Pinch.event_name,
         values=dict(

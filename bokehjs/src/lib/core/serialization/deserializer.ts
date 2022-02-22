@@ -25,24 +25,36 @@ export class Deserializer {
     readonly finalize?: (obj: HasProps) => void,
   ) {}
 
-  protected _buffers: Map<ID, ArrayBuffer> = new Map()
-  protected _to_finalize: HasProps[] = []
+  protected _decoding: boolean = false
+  protected readonly _buffers: Map<ID, ArrayBuffer> = new Map()
+  protected readonly _finalizable: Set<HasProps> = new Set()
 
-  decode(obj: unknown /*AnyVal*/, buffers: Map<ID, ArrayBuffer> = new Map()): unknown {
-    this._buffers = buffers
-    this._to_finalize = []
-    const to_finalize = this._to_finalize
+  decode(obj: unknown /*AnyVal*/, buffers?: Map<ID, ArrayBuffer>): unknown {
+    if (buffers != null) {
+      for (const [id, buffer] of buffers) {
+        this._buffers.set(id, buffer)
+      }
+    }
+
+    if (this._decoding) {
+      return this._decode(obj)
+    }
+
+    this._decoding = true
+    let finalizable: Set<HasProps>
 
     const decoded = (() => {
       try {
         return this._decode(obj)
       } finally {
-        this._buffers = new Map()
-        this._to_finalize = []
+        finalizable = new Set(this._finalizable)
+        this._decoding = false
+        this._buffers.clear()
+        this._finalizable.clear()
       }
     })()
 
-    for (const instance of to_finalize) {
+    for (const instance of finalizable) {
       instance.finalize_props()
       this.finalize?.(instance)
       instance.finalize()
@@ -52,7 +64,7 @@ export class Deserializer {
     // of dependencies that are initialized only in `finalize`. It's a problem
     // that appears when there are circular references, e.g. as in
     // CDS -> CustomJS (on data change) -> GlyphRenderer (in args) -> CDS.
-    for (const instance of to_finalize) {
+    for (const instance of finalizable) {
       instance.connect_signals()
     }
 
@@ -216,7 +228,7 @@ export class Deserializer {
 
     const decoded_attributes = this._decode(attributes) as Attrs
     instance.setv(decoded_attributes, {silent: true})
-    this._to_finalize.push(instance)
+    this._finalizable.add(instance)
 
     return instance
   }

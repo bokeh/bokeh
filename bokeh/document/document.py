@@ -376,7 +376,7 @@ class Document:
         # TODO: buffers
 
         deserializer = Deserializer(list(self.models), setter)
-        events = deserializer.from_serializable(events_json)
+        events = deserializer.decode(events_json)
         assert isinstance(events, list) # List[DocumentPatched]
 
         for event in events:
@@ -425,7 +425,7 @@ class Document:
         # TODO: buffers
 
         deserializer = Deserializer()
-        roots = deserializer.from_serializable(roots_json)
+        roots = deserializer.decode(roots_json)
 
         doc = Document()
         for root in roots:

@@ -481,19 +481,19 @@ class TestDeserializer:
         decoder = Deserializer()
 
         rep0 = dict(type="slice", start=None, stop=2, step=None)
-        assert decoder.from_serializable(rep0) == slice(2)
+        assert decoder.decode(rep0) == slice(2)
 
         rep1 = dict(type="slice", start=0, stop=2, step=None)
-        assert decoder.from_serializable(rep1) == slice(0, 2)
+        assert decoder.decode(rep1) == slice(0, 2)
 
         rep2 = dict(type="slice", start=0, stop=10, step=2)
-        assert decoder.from_serializable(rep2) == slice(0, 10, 2)
+        assert decoder.decode(rep2) == slice(0, 10, 2)
 
         rep3 = dict(type="slice", start=0, stop=None, step=2)
-        assert decoder.from_serializable(rep3) == slice(0, None, 2)
+        assert decoder.decode(rep3) == slice(0, None, 2)
 
         rep4 = dict(type="slice", start=None, stop=None, step=None)
-        assert decoder.from_serializable(rep4) == slice(None, None, None)
+        assert decoder.decode(rep4) == slice(None, None, None)
 
 """
     def test_set_data_from_json_list(self) -> None:

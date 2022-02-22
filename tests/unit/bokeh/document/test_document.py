@@ -990,7 +990,7 @@ class TestDocument:
         d.add_root(button1)
 
         decoder = Deserializer(references=[button1])
-        event = decoder.from_serializable(dict(
+        event = decoder.decode(dict(
             type="event",
             name="button_click",
             values=dict(model=dict(id=button1.id)),
