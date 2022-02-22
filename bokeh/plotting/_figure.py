@@ -57,6 +57,7 @@ from ._graph import get_graph_kwargs
 from ._plot import get_range, get_scale, process_axis_and_grid
 from ._stack import double_stack, single_stack
 from ._tools import process_active_tools, process_tools_arg
+from .contour import contour_data_dicts
 from .glyph_api import _MARKER_SHORTCUTS, GlyphAPI
 
 #-----------------------------------------------------------------------------
@@ -647,6 +648,39 @@ class figure(Plot, GlyphAPI):
         graph_renderer = GraphRenderer(layout_provider=layout_provider, **kw)
         self.renderers.append(graph_renderer)
         return graph_renderer
+
+    def contour(self, x, y, z, levels, fill_color=None, line_color=None):
+        if fill_color is None and line_color is None:
+            raise RuntimeError("Neither fill nor line requested in contour")
+
+        data_dicts = contour_data_dicts(x, y, z, levels, fill_color, line_color)
+
+        glyphs = []  # To return.
+
+        fill_data_dict = data_dicts.get("fill", None)
+        if fill_data_dict:
+            source = ColumnDataSource(fill_data_dict)
+            kwargs = dict(source=source, line_width=0)
+            scalar_fill = isinstance(fill_color, str)
+            if scalar_fill:
+                kwargs["fill_color"] = fill_color
+            else:
+                kwargs["fill_color"] = "fill_color"
+            glyphs.append(self.multi_polygons("xs", "ys", **kwargs))
+
+        line_data_dict = data_dicts.get("line", None)
+        if line_data_dict:
+            source = ColumnDataSource(line_data_dict)
+            kwargs = dict(source=source)
+            scalar_line = isinstance(line_color, str)
+            if scalar_line:
+                kwargs["line_color"] = line_color
+            else:
+                kwargs["line_color"] = "line_color"
+                raise RuntimeError("Only supporting scalar line_color so far")
+            glyphs.append(self.multi_line("xs", "ys", **kwargs))
+
+        return glyphs
 
 def markers():
     ''' Prints a list of valid marker types for scatter()

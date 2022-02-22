@@ -10,6 +10,7 @@ dependencies:
   - yaml
 
   # runtime
+  - contourpy>=1
   - jinja2>=2.7
   - numpy>=1.11.3
   - packaging>=16.8
