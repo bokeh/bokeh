@@ -1,5 +1,6 @@
 import numpy as np
 
+from bokeh.core.properties import value
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (AnnularWedge, Annulus, Arc, Bezier, Circle, Column,
@@ -39,8 +40,8 @@ source = ColumnDataSource(dict(
 
 print()
 
-def screen(value):
-    return dict(value=value, units="screen")
+def screen(val: float):
+    return value(val, units="screen")
 
 glyphs = [
     ("annular_wedge", AnnularWedge(x="x", y="y", inner_radius=screen(10), outer_radius=screen(20), start_angle=0.6, end_angle=4.1, fill_color="#8888ee")),
@@ -48,7 +49,7 @@ glyphs = [
     ("arc", Arc(x="x", y="y", radius=screen(20), start_angle=0.6, end_angle=4.1, line_color="#BEAED4", line_width=3)),
     ("bezier", Bezier(x0="x", y0="y", x1="xp02", y1="y", cx0="xp01", cy0="yp01", cx1="xm01", cy1="ym01", line_color="#D95F02", line_width=2)),
     ("ellipse", Ellipse(x="x", y="y", width=screen(15), height=screen(25), angle=-0.7, fill_color="#1D91C0")),
-    ("image_url",  ImageURL(x="x", y="y", w=0.4, h=0.4, url=dict(value="https://static.bokeh.org/logos/logo.png"), anchor="center")),
+    ("image_url",  ImageURL(x="x", y="y", w=0.4, h=0.4, url=value("https://static.bokeh.org/logos/logo.png"), anchor="center")),
     ("line", Line(x="x", y="y", line_color="#F46D43")),
     ("multi_line", MultiLine(xs="xs", ys="ys", line_color="#8073AC", line_width=2)),
     ("multi_polygons", MultiPolygons(xs="xsss", ys="ysss", line_color="#8073AC", fill_color="#FB9A99", line_width=2)),
@@ -59,7 +60,7 @@ glyphs = [
     ("ray", Ray(x="x", y="y", length=45, angle=-0.7, line_color="#FB8072", line_width=2)),
     ("rect", Rect(x="x", y="y", width=screen(10), height=screen(20), angle=-0.7, fill_color="#CAB2D6")),
     ("segment", Segment(x0="x", y0="y", x1="xm01", y1="ym01", line_color="#F4A582", line_width=3)),
-    ("text", Text(x="x", y="y", text=["hello"])),
+    ("text", Text(x="x", y="y", text=value("hello"))),
     ("wedge", Wedge(x="x", y="y", radius=screen(15), start_angle=0.6, end_angle=4.1, fill_color="#B3DE69")),
 ]
 

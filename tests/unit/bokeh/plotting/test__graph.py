@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh.core.properties import field
 from bokeh.models import (
     Circle,
     ColumnDataSource,
@@ -92,7 +93,7 @@ class Test_get_graph_kwargs:
 
         node_glyph = kw['node_renderer'].glyph
         assert isinstance(node_glyph, Scatter)
-        assert node_glyph.marker == {'field': 'marker'}
+        assert node_glyph.marker == field('marker')
 
     def test_handle_edge_property_mixins(self) -> None:
         kwargs = dict(edge_line_color="purple", edge_selection_line_color="blue",

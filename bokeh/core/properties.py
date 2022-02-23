@@ -293,8 +293,6 @@ from .property.dataspec import ColorSpec; ColorSpec
 from .property.dataspec import DashPatternSpec; DashPatternSpec
 from .property.dataspec import DataSpec; DataSpec
 from .property.dataspec import DistanceSpec; DistanceSpec
-from .property.dataspec import expr; expr
-from .property.dataspec import field; field
 from .property.dataspec import FontSizeSpec; FontSizeSpec
 from .property.dataspec import FontStyleSpec; FontStyleSpec
 from .property.dataspec import HatchPatternSpec; HatchPatternSpec
@@ -310,7 +308,6 @@ from .property.dataspec import StringSpec; StringSpec
 from .property.dataspec import TextAlignSpec; TextAlignSpec
 from .property.dataspec import TextBaselineSpec; TextBaselineSpec
 from .property.dataspec import UnitsSpec; UnitsSpec
-from .property.dataspec import value; value
 
 from .property.datetime import Date; Date
 from .property.datetime import Datetime; Datetime
@@ -363,6 +360,10 @@ from .property.string import Regex; Regex
 from .property.struct import Struct; Struct
 
 from .property.text_like import TextLike; TextLike
+
+from .property.vectorization import expr; expr
+from .property.vectorization import field; field
+from .property.vectorization import value; value
 
 from .property.visual import DashPattern; DashPattern
 from .property.visual import FontSize; FontSize

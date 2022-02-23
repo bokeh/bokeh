@@ -28,9 +28,9 @@ from bokeh.core.properties import (
     Override,
     String,
 )
-from bokeh.core.property.dataspec import field, value
 from bokeh.core.property.descriptors import DataSpecPropertyDescriptor, PropertyDescriptor
 from bokeh.core.property.singletons import Intrinsic
+from bokeh.core.property.vectorization import field, value
 
 # Module under test
 import bokeh.core.has_props as hp # isort:skip

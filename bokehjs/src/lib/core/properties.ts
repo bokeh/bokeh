@@ -12,12 +12,13 @@ import {to_big_endian} from "./util/platform"
 import {isNumber, isTypedArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
-import {isValue, isField, isExpr, /*Value,*/ Scalar, Vector, Dimensional, Transform, Expression, ScalarExpression, VectorExpression} from "./vectorization"
+import {isValue, isField, isExpr, /*Value,*/ Scalar, Vector, Dimensional, ScalarExpression, VectorExpression} from "./vectorization"
 import {settings} from "./settings"
 import {Kind} from "./kinds"
 import {is_NDArray, NDArray} from "./util/ndarray"
 import {diagnostics} from "./diagnostics"
 import {unreachable} from "./util/assert"
+import {serialize} from "./serialization"
 
 import {Uniform, UniformScalar, UniformVector, ColorUniformVector} from "./uniforms"
 export {Uniform, UniformScalar, UniformVector}
@@ -35,13 +36,6 @@ export function isSpec(obj: any): boolean {
           ((obj.value === undefined ? 0 : 1) +
            (obj.field === undefined ? 0 : 1) +
            (obj.expr  === undefined ? 0 : 1) == 1) // garbage JS XOR
-}
-
-export type Spec<T> = {
-  readonly value?: T
-  readonly field?: string
-  readonly expr?: Expression<T>
-  readonly transform?: Transform<unknown, T>
 }
 
 export interface Theme {
@@ -264,8 +258,24 @@ export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T |
   protected override _update(attr_value: S | T): void {
     if (isSpec(attr_value))
       this._value = attr_value as S
-    else
+    else {
       this._value = {value: attr_value} as any // Value<T>
+    }
+
+    if (isPlainObject(this._value)) {
+      const {_value} = this
+      this._value[serialize] = (serializer) => {
+        const {value, field, expr, transform, units} = _value as any
+        return serializer.encode_struct((() => {
+          if (value !== undefined)
+            return {type: "value", value, transform, units}
+          else if (field !== undefined)
+            return {type: "field", field, transform, units}
+          else
+            return {type: "expr", expr, transform, units}
+        })())
+      }
+    }
 
     if (isValue(this._value))
       this.validate(this._value.value)
@@ -337,6 +347,21 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       this._value = attr_value as V
     else
       this._value = {value: attr_value} as any // Value<T>
+
+    if (isPlainObject(this._value)) {
+      const {_value} = this
+      this._value[serialize] = (serializer) => {
+        const {value, field, expr, transform, units} = _value as any
+        return serializer.encode_struct((() => {
+          if (value !== undefined)
+            return {type: "value", value, transform, units}
+          else if (field !== undefined)
+            return {type: "field", field, transform, units}
+          else
+            return {type: "expr", expr, transform, units}
+        })())
+      }
+    }
 
     if (isValue(this._value))
       this.validate(this._value.value)

@@ -1,6 +1,7 @@
 from math import pi
+from typing import Any, Literal
 
-from bokeh.core.properties import expr
+from bokeh.core.properties import expr, value
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Arc, Circle, ColumnDataSource, Plot,
@@ -26,26 +27,26 @@ major_step, minor_step = 25, 5
 plot.add_glyph(Circle(x=0, y=0, radius=1.00, fill_color="white", line_color="black"))
 plot.add_glyph(Circle(x=0, y=0, radius=0.05, fill_color="gray", line_color="black"))
 
-plot.add_glyph(Text(x=0, y=+0.15, text=["km/h"], text_color="red", text_align="center", text_baseline="bottom", text_font_style="bold"))
-plot.add_glyph(Text(x=0, y=-0.15, text=["mph"], text_color="blue", text_align="center", text_baseline="top", text_font_style="bold"))
+plot.add_glyph(Text(x=0, y=+0.15, text=value("km/h"), text_color="red", text_align="center", text_baseline="bottom", text_font_style="bold"))
+plot.add_glyph(Text(x=0, y=-0.15, text=value("mph"), text_color="blue", text_align="center", text_baseline="top", text_font_style="bold"))
 
-def data(value):
+def data(val: float):
     """Shorthand to override default units with "data", for e.g. `Ray.length`. """
-    return dict(value=value, units="data")
+    return value(val, units="data")
 
-def speed_to_angle(speed, units):
+def speed_to_angle(speed: float, units: str) -> float:
     max_speed = max_kmh if units == "kmh" else max_mph
     speed = min(max(speed, 0), max_speed)
     total_angle = start_angle - end_angle
     angle = total_angle*float(speed)/max_speed
     return start_angle - angle
 
-def add_needle(speed, units):
+def add_needle(speed: float, units: str) -> None:
     angle = speed_to_angle(speed, units)
     plot.add_glyph(Ray(x=0, y=0, length=data(0.75), angle=angle,    line_color="black", line_width=3))
     plot.add_glyph(Ray(x=0, y=0, length=data(0.10), angle=angle-pi, line_color="black", line_width=3))
 
-def add_gauge(radius, max_value, length, direction, color, major_step, minor_step):
+def add_gauge(radius: float, max_value: float, length: float, direction: Literal[-1, 1], color: Any, major_step: int, minor_step: int) -> None:
     major_angles, minor_angles = [], []
 
     total_angle = start_angle - end_angle

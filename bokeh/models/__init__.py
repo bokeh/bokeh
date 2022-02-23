@@ -30,7 +30,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.property.dataspec import expr, field, value  # Legacy API
 from ..model import Model
 from .annotations import *  # lgtm [py/polluting-import]
 from .axes import *

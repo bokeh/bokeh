@@ -9,10 +9,11 @@ import {BYTE_ORDER} from "../util/platform"
 import {base64_to_buffer, swap} from "../util/buffer"
 import {isArray, isPlainObject, isString, isNumber} from "../util/types"
 import {Slice} from "../util/slice"
+import {Value, Field, Expr} from "../vectorization"
 
 import {
   NumberRep, ArrayRep, SetRep, MapRep, BytesRep, SliceRep,
-  NDArrayRep, ModelRep, TypeRep,
+  NDArrayRep, ModelRep, TypeRep, ValueRep, FieldRep, ExprRep,
 } from "./reps"
 
 export class DeserializationError extends Error {}
@@ -91,6 +92,12 @@ export class Deserializer {
             return this._decode_bytes(obj as BytesRep)
           case "slice":
             return this._decode_slice(obj as SliceRep)
+          case "value":
+            return this._decode_value(obj as ValueRep)
+          case "field":
+            return this._decode_field(obj as FieldRep)
+          case "expr":
+            return this._decode_expr(obj as ExprRep)
           case "ndarray":
             return this._decode_ndarray(obj as NDArrayRep)
           default: {
@@ -188,6 +195,27 @@ export class Deserializer {
     const stop = this._decode(obj.stop) as number | null
     const step = this._decode(obj.step) as number | null
     return new Slice({start, stop, step})
+  }
+
+  protected _decode_value(obj: ValueRep): Value<unknown> {
+    const value = this._decode(obj.value)
+    const transform = obj.transform != null ? this._decode(obj.transform) : undefined
+    const units = obj.units != null ? this._decode(obj.units) : undefined
+    return {value, transform, units} as any
+  }
+
+  protected _decode_field(obj: FieldRep): Field {
+    const field = this._decode(obj.field)
+    const transform = obj.transform != null ? this._decode(obj.transform) : undefined
+    const units = obj.units != null ? this._decode(obj.units) : undefined
+    return {field, transform, units} as any
+  }
+
+  protected _decode_expr(obj: ExprRep): Expr<unknown> {
+    const expr = this._decode(obj.expr)
+    const transform = obj.transform != null ? this._decode(obj.transform) : undefined
+    const units = obj.units != null ? this._decode(obj.units) : undefined
+    return {expr, transform, units} as any
   }
 
   protected _decode_ndarray(obj: NDArrayRep): NDArray {

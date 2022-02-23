@@ -21,10 +21,11 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ... import colors
+from ...util.dataclasses import Unspecified
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from ...util.string import nice_join
 from .. import enums
@@ -43,6 +44,12 @@ from .primitive import (
 )
 from .singletons import Undefined
 from .struct import Optional, Struct
+from .vectorization import (
+    Expr,
+    Field,
+    Value,
+    Vectorized,
+)
 from .visual import (
     DashPattern,
     FontSize,
@@ -51,9 +58,7 @@ from .visual import (
 )
 
 if TYPE_CHECKING:
-    from ...core.types import Unknown
-    from ...models.expressions import Expression
-    from ...models.transforms import Transform
+    from ...core.has_props import HasProps
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -66,8 +71,6 @@ __all__ = (
     'DashPatternSpec',
     'DataSpec',
     'DistanceSpec',
-    'expr',
-    'field',
     'FontSizeSpec',
     'FontStyleSpec',
     'HatchPatternSpec',
@@ -80,7 +83,6 @@ __all__ = (
     'StringSpec',
     'TextAlignSpec',
     'TextBaselineSpec',
-    'value',
 )
 
 #-----------------------------------------------------------------------------
@@ -175,10 +177,14 @@ class DataSpec(Either):
             color = ColorSpec(help="docs for color") # defaults to None
 
     """
+
     def __init__(self, value_type, default, help=None) -> None:
         super().__init__(
             String,
             value_type,
+            Instance(Value),
+            Instance(Field),
+            Instance(Expr),
             Struct(
                 value=value_type,
                 transform=Optional(Instance("bokeh.models.transforms.Transform")),
@@ -195,7 +201,18 @@ class DataSpec(Either):
             help=help
         )
         self.value_type = self._validate_type_param(value_type)
-        self.accepts(Instance("bokeh.models.expressions.Expression"), lambda obj: expr(obj))
+        self.accepts(Instance("bokeh.models.expressions.Expression"), lambda obj: Expr(obj))
+
+    def transform(self, value: Any):
+        if isinstance(value, dict):
+            if "value" in value:
+                return Value(**value)
+            if "field" in value:
+                return Field(**value)
+            if "expr" in value:
+                return Expr(**value)
+
+        return super().transform(value)
 
     def make_descriptors(self, base_name: str):
         """ Return a list of ``DataSpecPropertyDescriptor`` instances to
@@ -213,20 +230,19 @@ class DataSpec(Either):
         """
         return [ DataSpecPropertyDescriptor(base_name, self) ]
 
-    def to_serializable(self, obj, name, val):
+    def to_serializable(self, obj: HasProps, name: str, val: Any) -> Vectorized:
         # Check for spec type value
         try:
             self.value_type.validate(val, False)
-            return value(val)
+            return Value(val)
         except ValueError:
             pass
 
         # Check for data source field name
         if isinstance(val, str):
-            return field(val)
+            return Field(val)
 
-        # Must be dict, return a new dict
-        return dict(val)
+        return val
 
 class IntSpec(DataSpec):
     def __init__(self, default, help=None) -> None:
@@ -274,6 +290,13 @@ class NullStringSpec(DataSpec):
     def __init__(self, default=None, help=None) -> None:
         super().__init__(Nullable(String), default=default, help=help)
 
+    def to_serializable(self, obj: HasProps, name: str, val: Any) -> Vectorized:
+        if val is None:
+            return Value(val)
+        if isinstance(val, str):
+            return Field(val)
+        return val
+
 class StringSpec(DataSpec):
     """ A |DataSpec| property that accepts string fixed values.
 
@@ -292,12 +315,10 @@ class StringSpec(DataSpec):
     def __init__(self, default, help=None) -> None:
         super().__init__(String, default=default, help=help)
 
-    def prepare_value(self, cls, name, value):
-        if isinstance(value, list):
-            if len(value) != 1:
-                raise TypeError("StringSpec convenience list values must have length 1")
-            value = dict(value=value[0])
-        return super().prepare_value(cls, name, value)
+    def to_serializable(self, obj: HasProps, name: str, val: Any) -> Vectorized:
+        if isinstance(val, str):
+            return Field(val)
+        return val
 
 class FontSizeSpec(DataSpec):
     """ A |DataSpec| property that accepts font-size fixed values.
@@ -433,10 +454,10 @@ class UnitsSpec(NumberSpec):
         units_default = self._units_type._default
         return f"{self.__class__.__name__}(units_default={units_default!r})"
 
-    def get_units(self, obj, name):
-        return getattr(obj, name+"_units")
+    def get_units(self, obj: HasProps, name: str) -> str:
+        return getattr(obj, name + "_units")
 
-    def make_descriptors(self, base_name):
+    def make_descriptors(self, base_name: str):
         """ Return a list of ``PropertyDescriptor`` instances to install on a
         class, in order to delegate attribute access to this property.
 
@@ -457,16 +478,13 @@ class UnitsSpec(NumberSpec):
         units_props = self._units_type.make_descriptors(units_name)
         return units_props + [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
 
-    def to_serializable(self, obj, name, val):
-        d = super().to_serializable(obj, name, val)
-        if d is not None and 'units' not in d:
-            # d is a PropertyValueDict at this point, we need to convert it to
-            # a plain dict if we are going to modify its value, otherwise a
-            # notify_change that should not happen will be triggered
+    def to_serializable(self, obj: HasProps, name: str, val: Any) -> Vectorized:
+        val = super().to_serializable(obj, name, val)
+        if val.units is Unspecified:
             units = self.get_units(obj, name)
             if units != self._units_type._default:
-                d = dict(**d, units=units)
-        return d
+                val.units = units # XXX: clone and update?
+        return val
 
 class AngleSpec(UnitsSpec):
     """ A |DataSpec| property that accepts numeric fixed values, and also
@@ -598,31 +616,30 @@ class ColorSpec(DataSpec):
         """
         return isinstance(val, tuple) and len(val) in (3, 4) and all(isinstance(v, (float, int)) for v in val)
 
-    def to_serializable(self, obj, name, val):
+    def to_serializable(self, obj: HasProps, name: str, val: Any) -> Vectorized:
         if val is None:
-            return dict(value=None)
+            return Value(None)
 
         # Check for hexadecimal or named color
         if self.isconst(val):
-            return dict(value=val)
+            return Value(val)
 
         # Check for RGB or RGBA tuple
         if isinstance(val, tuple):
-            return dict(value=colors.RGB(*val).to_css())
+            return Value(colors.RGB(*val).to_css())
 
         # Check for data source field name
         if isinstance(val, colors.RGB):
-            return val.to_css()
+            return Value(val.to_css())
 
         # Check for data source field name or rgb(a) string
         if isinstance(val, str):
             if val.startswith(("rgb(", "rgba(")):
-                return val
+                return Value(val)
 
-            return dict(field=val)
+            return Field(val)
 
-        # Must be dict, return new dict
-        return dict(val)
+        return val
 
     def prepare_value(self, cls, name, value):
         # Some explanation is in order. We want to accept tuples like
@@ -636,95 +653,6 @@ class ColorSpec(DataSpec):
         if self.is_color_tuple_shape(value):
             value = tuple(int(v) if i < 3 else v for i, v in enumerate(value))
         return super().prepare_value(cls, name, value)
-
-# DataSpec helpers ------------------------------------------------------------
-
-class Expr(TypedDict, total=False):
-    expr: Expression
-    transform: Transform | None
-
-class Field(TypedDict, total=False):
-    field: str
-    transform: Transform | None
-
-class Value(TypedDict, total=False):
-    value: Unknown
-    transform: Transform | None
-
-def expr(expression: Expression, transform: Transform | None = None) -> Expr:
-    """ Convenience function to explicitly return an "expr" specification for
-    a Bokeh |DataSpec| property.
-
-    Args:
-        expression (Expression) : a computed expression for a
-            ``DataSpec`` property.
-
-        transform (Transform, optional) : a transform to apply (default: None)
-
-    Returns:
-        dict : ``{ "expr": expression }``
-
-    .. note::
-        This function is included for completeness. String values for
-        property specifications are by default interpreted as field names.
-
-    """
-    if transform:
-        return Expr(expr=expression, transform=transform)
-    return Expr(expr=expression)
-
-def field(name: str, transform: Transform | None = None) -> Field:
-    """ Convenience function to explicitly return a "field" specification for
-    a Bokeh |DataSpec| property.
-
-    Args:
-        name (str) : name of a data source field to reference for a
-            ``DataSpec`` property.
-
-        transform (Transform, optional) : a transform to apply (default: None)
-
-    Returns:
-        dict : ``{ "field": name }``
-
-    .. note::
-        This function is included for completeness. String values for
-        property specifications are by default interpreted as field names.
-
-    """
-    if transform:
-        return Field(field=name, transform=transform)
-    return Field(field=name)
-
-def value(val: Unknown, transform: Transform | None = None) -> Value:
-    """ Convenience function to explicitly return a "value" specification for
-    a Bokeh |DataSpec| property.
-
-    Args:
-        val (any) : a fixed value to specify for a ``DataSpec`` property.
-
-        transform (Transform, optional) : a transform to apply (default: None)
-
-    Returns:
-        dict : ``{ "value": name }``
-
-    .. note::
-        String values for property specifications are by default interpreted
-        as field names. This function is especially useful when you want to
-        specify a fixed value with text properties.
-
-    Example:
-
-        .. code-block:: python
-
-            # The following will take text values to render from a data source
-            # column "text_column", but use a fixed value "16px" for font size
-            p.text("x", "y", text="text_column",
-                   text_font_size=value("16px"), source=source)
-
-    """
-    if transform:
-        return Value(value=val, transform=transform)
-    return Value(value=val)
 
 #-----------------------------------------------------------------------------
 # Dev API

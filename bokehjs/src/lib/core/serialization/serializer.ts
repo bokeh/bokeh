@@ -129,6 +129,15 @@ export class Serializer {
       throw new SerializationError(`${Object.prototype.toString.call(obj)} is not serializable`)
   }
 
+  encode_struct(struct: {[key: string]: unknown}): {[key: string]: unknown} {
+    const result: {[key: string]: unknown} = {}
+    for (const [key, val] of entries(struct)) {
+      if (val !== undefined)
+        result[key] = this.encode(val)
+    }
+    return result
+  }
+
   error(message: string): never {
     throw new SerializationError(message)
   }

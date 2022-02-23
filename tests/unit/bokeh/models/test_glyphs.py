@@ -35,7 +35,7 @@ from bokeh.core.enums import (
     TextAlign,
     TextBaseline,
 )
-from bokeh.core.property.dataspec import field
+from bokeh.core.property.vectorization import field
 
 from _util_models import (
     FILL,

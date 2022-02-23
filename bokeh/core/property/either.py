@@ -23,6 +23,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ...util.string import nice_join
 from ._sphinx import property_link, register_type_link, type_link
@@ -83,7 +86,7 @@ class Either(ParameterizedProperty):
     def type_params(self):
         return self._type_params
 
-    def transform(self, value):
+    def transform(self, value: Any) -> Any:
         for param in self.type_params:
             try:
                 return param.transform(value)

@@ -89,6 +89,19 @@ function check_matching_defaults(context: string[], name: string, python_default
         continue
       }
 
+      // XXX: deal with the lack of scalar properties in bokeh
+      function is_vector(obj: unknown): boolean {
+        return isPlainObject(obj) && (obj.type == "value" || obj.type == "field" || obj.type == "expr")
+      }
+
+      if (is_vector(py_v) && !is_vector(js_v)) {
+        if (is_equal(py_v, {type: "value", value: js_v}))
+          continue
+      } else if (!is_vector(py_v) && is_vector(js_v)) {
+        if (is_equal({type: "value", value: py_v}, js_v))
+          continue
+      }
+
       if (!is_equal(py_v, js_v)) {
         // compare arrays of objects
         if (isArray(js_v) && isArray(py_v)) {
