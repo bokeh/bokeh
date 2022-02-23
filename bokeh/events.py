@@ -152,30 +152,7 @@ class Event:
             _CONCRETE_EVENT_CLASSES[cls.event_name] = cls
 
     @classmethod
-    def decode_json(cls, rep: EventRep, decoder: Deserializer) -> Event:
-        ''' Custom JSON decoder for Events.
-
-        Can be used as the ``object_hook`` argument of ``json.load`` or
-        ``json.loads``.
-
-        Args:
-            rep (dict) : a JSON dictionary to decode
-                The dictionary should have keys ``event_name`` and ``event_values``
-
-        Raises:
-            ValueError, if the event_name is unknown
-
-        Examples:
-
-            .. code-block:: python
-
-                >>> import json
-                >>> from bokeh.events import Event
-                >>> data = '{"event_name": "pan", "event_values" : {"model_id": 1, "x": 10, "y": 20, "sx": 200, "sy": 37}}'
-                >>> json.loads(data, object_hook=Event.decode_json)
-                <bokeh.events.Pan object at 0x1040f84a8>
-
-        '''
+    def from_serializable(cls, rep: EventRep, decoder: Deserializer) -> Event:
         if not ("name" in rep and "values" in rep):
             decoder.error("invalid representation")
 
@@ -667,4 +644,4 @@ class RotateStart(PointEvent):
 # Code
 #-----------------------------------------------------------------------------
 
-Deserializer.register("event", Event.decode_json)
+Deserializer.register("event", Event.from_serializable)
