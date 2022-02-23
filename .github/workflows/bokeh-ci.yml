@@ -260,11 +260,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.8'
-
-      - name: Remove extra packages
-        shell: bash -l {0}
-        run: conda remove --yes --quiet --no-pin pandas pandas-stubs scipy notebook scikit-learn sympy flask networkx
+          test-env: 'minimal-deps'
 
       - name: Run tests
         shell: bash -l {0}

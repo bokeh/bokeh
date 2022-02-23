@@ -1,0 +1,73 @@
+name: bk-test
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+
+  # runtime
+  - jinja2 >=2.7
+  - numpy >=1.11.3
+  - packaging >=16.8
+  - pillow >=4.0
+  - python-dateutil >=2.1
+  - pyyaml >=3.10
+  - tornado <=5.1
+  - typing_extensions >=3.10.0
+  - xyzservices>=2021.09.1
+
+  # tests
+  - beautifulsoup4
+  - channels
+  - click
+  - colorama
+  - colorcet
+  - coverage
+  - django 3.*
+  - firefox =>96
+  - flake8
+  - flaky
+  - geckodriver
+  - ipython
+  - isort 5.8
+  - mock
+  - mypy >=0.920
+  - nbconvert >=5.4
+  - nodejs 16.*
+  - psutil
+  - pydot
+  - pygments
+  - pytest 6.2*
+  - pytest-asyncio=0.12.0
+  - pytest-cov >=1.8.1
+  - pytest-html
+  - pytest-xdist
+  - requests >=1.2.3
+  - selenium >=3.8
+  - pre-commit
+
+  # examples
+  - django
+  - h5py
+  - icalendar
+  - pyshp
+
+  # pip dependencies
+  - pip
+  - pip:
+    # docs
+    - autoclasstoc
+    - pydata_sphinx_theme >=0.7.1
+    - sphinx >=4.3.2
+    - sphinx-copybutton
+    - sphinxext-opengraph
+    - sphinx-panels
+    - sphinx-tabs
+    - sphinx-reredirects
+    # tests
+    - types-boto
+    - types-colorama
+    - types-mock
+    - types-pillow
+    - types-pyyaml
+    - types-requests
+    - flake8-pyi
