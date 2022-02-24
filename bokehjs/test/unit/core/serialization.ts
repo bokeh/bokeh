@@ -186,7 +186,7 @@ describe("core/serialization module", () => {
       })
     })
 
-    it("should support circular references", () => {
+    it("should support circular model references", () => {
       const obj0 = new SomeModel({value: 10})
       const obj1 = new SomeModel({value: 20, obj: obj0})
       const obj2 = new SomeModel({value: 30, obj: obj1})
@@ -217,6 +217,14 @@ describe("core/serialization module", () => {
           },
         },
       })
+    })
+
+    it("should throw on circular object references", () => {
+      const val: unknown[] = [1, 2, 3]
+      val.push(val)
+
+      const serializer = new Serializer()
+      expect(() => serializer.encode(val)).to.throw(SerializationError, /circular reference/)
     })
   })
 

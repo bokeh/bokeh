@@ -54,6 +54,8 @@ export class Serializer {
   readonly binary: boolean
   readonly include_defaults: boolean
 
+  protected readonly _circular: WeakSet<object> = new WeakSet()
+
   constructor(options?: Partial<Options>) {
     this.binary = options?.binary ?? false
     this.include_defaults = options?.include_defaults ?? false
@@ -83,9 +85,28 @@ export class Serializer {
 
   encode(obj: unknown): unknown {
     const ref = this.get_ref(obj)
-    if (ref != null)
+    if (ref != null) {
       return ref
-    else if (is_Serializable(obj))
+    }
+
+    if (!isObject(obj)) {
+      return this._encode(obj)
+    } else {
+      if (this._circular.has(obj)) {
+        this.error("circular reference")
+      }
+
+      this._circular.add(obj)
+      try {
+        return this._encode(obj)
+      } finally {
+        this._circular.delete(obj)
+      }
+    }
+  }
+
+  protected _encode(obj: unknown): unknown {
+    if (is_Serializable(obj))
       return obj[serialize](this)
     else if (isArray(obj) || isTypedArray(obj)) { // ???: typed arrays
       const n = obj.length

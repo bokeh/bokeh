@@ -196,10 +196,10 @@ class Serializer:
             self.error("circular reference")
 
         self._circular[ident] = obj
-        rep = self._encode(obj)
-        del self._circular[ident]
-
-        return rep
+        try:
+            return self._encode(obj)
+        finally:
+            del self._circular[ident]
 
     def encode_struct(self, **fields: Any) -> Dict[str, AnyRep]:
         return {key: self.encode(val) for key, val in fields.items() if val is not Unspecified}
