@@ -121,7 +121,7 @@ class TestSerializer:
             dict(type="number", value="-inf"),
             dict(type="number", value="+inf"),
             dict(
-                type="test_core_serialization.SomeProps",
+                type="test_serialization.SomeProps",
                 attributes=dict(
                     p0=2,
                     p1="a",
@@ -129,7 +129,7 @@ class TestSerializer:
                 ),
             ),
             dict(
-                type="test_core_serialization.SomeModel",
+                type="test_serialization.SomeModel",
                 id=v1.id,
                 attributes=dict(
                     p0=3,
@@ -138,7 +138,7 @@ class TestSerializer:
                 ),
             ),
             dict(
-                type="test_core_serialization.SomeDataClass",
+                type="test_serialization.SomeDataClass",
                 attributes=dict(
                     f0=2,
                     f1=[1, 2, 3],
@@ -244,9 +244,9 @@ class TestSerializer:
         assert rep == dict(
             type="ndarray",
             array=[
-                dict(type="test_core_serialization.X", attributes=dict(f=0, g="a")),
-                dict(type="test_core_serialization.X", attributes=dict(f=1, g="a")),
-                dict(type="test_core_serialization.X", attributes=dict(f=2, g="b")),
+                dict(type="test_serialization.X", attributes=dict(f=0, g="a")),
+                dict(type="test_serialization.X", attributes=dict(f=1, g="a")),
+                dict(type="test_serialization.X", attributes=dict(f=2, g="b")),
             ],
             order=sys.byteorder,
             shape=[3, 1],
@@ -259,7 +259,7 @@ class TestSerializer:
         encoder = Serializer()
         rep = encoder.encode(val)
         assert rep == dict(
-            type="test_core_serialization.SomeProps",
+            type="test_serialization.SomeProps",
             attributes=dict(
                 p0=2,
                 p1="a",
@@ -273,7 +273,7 @@ class TestSerializer:
         encoder = Serializer()
         rep = encoder.encode(val)
         assert rep == dict(
-            type="test_core_serialization.SomeModel",
+            type="test_serialization.SomeModel",
             id=val.id,
             attributes=dict(
                 p0=3,
@@ -293,17 +293,17 @@ class TestSerializer:
         rep = encoder.encode(val2)
 
         assert rep == dict(
-            type="test_core_serialization.SomeModel",
+            type="test_serialization.SomeModel",
             id=val2.id,
             attributes=dict(
                 p0=30,
                 p3=dict(
-                    type="test_core_serialization.SomeModel",
+                    type="test_serialization.SomeModel",
                     id=val1.id,
                     attributes=dict(
                         p0=20,
                         p3=dict(
-                            type="test_core_serialization.SomeModel",
+                            type="test_serialization.SomeModel",
                             id=val0.id,
                             attributes=dict(
                                 p0=10,
@@ -321,7 +321,7 @@ class TestSerializer:
         encoder = Serializer()
         rep = encoder.encode(val)
         assert rep == dict(
-            type="test_core_serialization.SomeDataClass",
+            type="test_serialization.SomeDataClass",
             attributes=dict(
                 f0=2,
                 f1=[1, 2, 3],
@@ -335,12 +335,12 @@ class TestSerializer:
         encoder = Serializer()
         rep = encoder.encode(val)
         assert rep == dict(
-            type="test_core_serialization.SomeDataClass",
+            type="test_serialization.SomeDataClass",
             attributes=dict(
                 f0=2,
                 f1=[1, 2, 3],
                 f2=dict(
-                    type="test_core_serialization.SomeDataClass",
+                    type="test_serialization.SomeDataClass",
                     attributes=dict(
                         f0=3,
                         f1=[4, 5, 6],
@@ -357,13 +357,13 @@ class TestSerializer:
         encoder = Serializer()
         rep = encoder.encode(val)
         assert rep == dict(
-            type="test_core_serialization.SomeDataClass",
+            type="test_serialization.SomeDataClass",
             attributes=dict(
                 f0=2,
                 f1=[1, 2, 3],
                 f2=None,
                 f4=dict(
-                    type="test_core_serialization.SomeProps",
+                    type="test_serialization.SomeProps",
                     attributes=dict(
                         p0=2,
                         p1="a",
@@ -380,13 +380,13 @@ class TestSerializer:
         encoder = Serializer()
         rep = encoder.encode(val)
         assert rep == dict(
-            type="test_core_serialization.SomeDataClass",
+            type="test_serialization.SomeDataClass",
             attributes=dict(
                 f0=2,
                 f1=[1, 2, 3],
                 f2=None,
                 f5=dict(
-                    type="test_core_serialization.SomeModel",
+                    type="test_serialization.SomeModel",
                     id=v0.id,
                     attributes=dict(
                         p0=3,
