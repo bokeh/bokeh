@@ -26,7 +26,7 @@ import numpy as np
 
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
-from bokeh.core.has_props import HasProps
+from bokeh.core.has_props import HasProps, Local
 from bokeh.core.property.vectorization import (
     Field,
     Value,
@@ -68,7 +68,7 @@ ALL = (
 
 def test_strict_dataspec_key_values() -> None:
     for typ in (bcpd.NumberSpec, bcpd.StringSpec, bcpd.FontSizeSpec, bcpd.ColorSpec, bcpd.SizeSpec):
-        class Foo(HasProps):
+        class Foo(HasProps, Local):
             x = typ("x")
         f = Foo()
         with pytest.raises(ValueError):
@@ -76,7 +76,7 @@ def test_strict_dataspec_key_values() -> None:
 
 def test_dataspec_dict_to_serializable() -> None:
     for typ in (bcpd.NumberSpec, bcpd.StringSpec, bcpd.FontSizeSpec, bcpd.ColorSpec):
-        class Foo(HasProps):
+        class Foo(HasProps, Local):
             x = typ("x")
         foo = Foo(x=dict(field='foo'))
         props = foo.properties_with_values(include_defaults=False)
@@ -539,15 +539,15 @@ class Test_NumberSpec:
 
 class Test_UnitSpec:
     def test_strict_key_values(self) -> None:
-        class FooUnits(HasProps):
+        class FooSpatialUnits(HasProps):
             x = bcpd.DistanceSpec("x")
-        f = FooUnits()
+        f = FooSpatialUnits()
         f.x = dict(field="foo", units="screen")
         with pytest.raises(ValueError):
             f.x = dict(field="foo", units="junk", foo="crap")
-        class FooUnits(HasProps):
+        class FooAngleUnits(HasProps):
             x = bcpd.AngleSpec("x")
-        f = FooUnits()
+        f = FooAngleUnits()
         f.x = dict(field="foo", units="deg")
         with pytest.raises(ValueError):
             f.x = dict(field="foo", units="junk", foo="crap")

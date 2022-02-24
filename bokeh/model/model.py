@@ -25,7 +25,6 @@ from inspect import isclass
 from typing import (
     TYPE_CHECKING,
     Any,
-    ClassVar,
     Dict,
     Iterable,
     List,
@@ -43,12 +42,7 @@ from ..themes import default as default_theme
 from ..util.callback_manager import EventCallbackManager, PropertyCallbackManager
 from ..util.serialization import make_id
 from .docs import html_repr, process_example
-from .util import (
-    HasDocumentRef,
-    collect_models,
-    qualified_model,
-    visit_value_and_its_immediate_references,
-)
+from .util import HasDocumentRef, collect_models, visit_value_and_its_immediate_references
 
 if TYPE_CHECKING:
     from ..core.has_props import Setter
@@ -80,28 +74,9 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     '''
 
-    model_class_reverse_map: ClassVar[Dict[str, Type[Model]]] = {}
-
     @classmethod
     def __init_subclass__(cls):
         super().__init_subclass__()
-
-        # use an explicitly provided view model name if there is one
-        if "__view_model__" not in cls.__dict__:
-            cls.__view_model__ = cls.__name__
-        if "__view_module__" not in cls.__dict__:
-            cls.__view_module__ = cls.__module__
-
-        qualified = qualified_model(cls)
-
-        cls.__qualified_model__ = qualified
-
-        # update the mapping of view model names to classes, checking for any duplicates
-        previous = cls.model_class_reverse_map.get(qualified, None)
-        if previous is not None and not hasattr(cls, "__implementation__"):
-            raise Warning(f"Duplicate qualified model declaration of '{qualified}'. Previous definition: {previous}")
-        cls.model_class_reverse_map[qualified] = cls
-
         process_example(cls)
 
     _id: ID
@@ -455,10 +430,11 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     def to_serializable(self, serializer: Serializer) -> ModelRep:
         serializer.add_ref(self, self.ref)
+        rep = super().to_serializable(serializer)
         return ModelRep(
-            type=self.__qualified_model__,
+            type=rep["type"],
             id=self.id,
-            attributes=super().to_serializable(serializer)["attributes"],
+            attributes=rep["attributes"],
         )
 
     def trigger(self, attr: str, old: Unknown, new: Unknown,

@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 from typing import Any, Dict
 
 # Bokeh imports
-from ..core.has_props import HasProps
+from ..core.has_props import HasProps, Local
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -39,7 +39,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Options(HasProps):
+class Options(HasProps, Local):
     ''' Leverage the Bokeh properties type system for specifying and
     validating configuration options.
 

@@ -470,6 +470,23 @@ def test_has_props_dupe_prop() -> None:
     else:
         assert False
 
+class TopLevelQualified(hp.HasProps, hp.Qualified):
+    foo = Int()
+
+class TopLevelNonQualified(hp.HasProps, hp.NonQualified):
+    foo = Int()
+
+def test_qualified() -> None:
+    class InnerQualified(hp.HasProps, hp.Qualified):
+        foo = Int()
+
+    class InnerNonQualified(hp.HasProps, hp.NonQualified):
+        foo = Int()
+
+    assert TopLevelQualified.__qualified_model__ == "test_has_props.TopLevelQualified"
+    assert TopLevelNonQualified.__qualified_model__ == "TopLevelNonQualified"
+    assert InnerQualified.__qualified_model__ == "test_has_props.test_qualified.InnerQualified"
+    assert InnerNonQualified.__qualified_model__ == "test_qualified.InnerNonQualified"
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -53,11 +53,11 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
+class Foo(HasProps):
+    pat = bcpv.DashPattern()
 
 class TestDashPattern:
     def test_valid_named(self) -> None:
-        class Foo(HasProps):
-            pat = bcpv.DashPattern()
         f = Foo()
 
         assert f.pat == []
@@ -73,8 +73,6 @@ class TestDashPattern:
         assert f.pat == [6, 4, 2, 4]
 
     def test_valid_string(self) -> None:
-        class Foo(HasProps):
-            pat = bcpv.DashPattern()
         f = Foo()
 
         f.pat = ""
@@ -90,8 +88,6 @@ class TestDashPattern:
             f.pat = "abc 6"
 
     def test_valid_list(self) -> None:
-        class Foo(HasProps):
-            pat = bcpv.DashPattern()
         f = Foo()
 
         f.pat = ()

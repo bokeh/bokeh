@@ -93,6 +93,10 @@ AnyRep: TypeAlias = Any
 class Ref(TypedDict):
     id: ID
 
+class TypeRep(TypedDict):
+    type: str
+    attributes: Dict[str, Any]
+
 class ModelRep(TypedDict):
     type: str
     id: ID

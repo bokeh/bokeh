@@ -34,6 +34,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    ClassVar,
     Dict,
     Iterable,
     List,
@@ -62,7 +63,12 @@ from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
 from .property.singletons import Undefined
 from .property.wrappers import PropertyValueContainer
-from .serialization import AnyRep, Serializable, Serializer
+from .serialization import (
+    AnyRep,
+    Serializable,
+    Serializer,
+    TypeRep,
+)
 from .types import Unknown
 
 if TYPE_CHECKING:
@@ -80,6 +86,8 @@ __all__ = (
     'abstract',
     'HasProps',
     'MetaHasProps',
+    'NonQualified',
+    'Qualified',
 )
 
 #-----------------------------------------------------------------------------
@@ -185,6 +193,15 @@ class MetaHasProps(type):
         if unused_overrides:
             warn(f"Overrides of {unused_overrides} in class {cls.__name__} does not override anything.", RuntimeWarning, stacklevel=2)
 
+class Local:
+    """Don't register this class in model registry. """
+
+class Qualified:
+    """Resolve this class by a fully qualified name. """
+
+class NonQualified:
+    """Resolve this class by a non-qualified name. """
+
 class HasProps(Serializable, metaclass=MetaHasProps):
     ''' Base class for all class types that have Bokeh properties.
 
@@ -196,6 +213,48 @@ class HasProps(Serializable, metaclass=MetaHasProps):
     _property_values: Dict[str, Unknown]
     _unstable_default_values: Dict[str, Unknown]
     _unstable_themed_values: Dict[str, Unknown]
+
+    __view_model__: ClassVar[str]
+    __view_module__: ClassVar[str]
+    __qualified_model__: ClassVar[str]
+    __implementation__: ClassVar[Any] # TODO: specific type
+    __data_model__: ClassVar[bool]
+
+    model_class_reverse_map: ClassVar[Dict[str, Type[HasProps]]] = {}
+
+    @classmethod
+    def __init_subclass__(cls):
+        super().__init_subclass__()
+
+        # use an explicitly provided view model name if there is one
+        if "__view_model__" not in cls.__dict__:
+            cls.__view_model__ = cls.__qualname__.replace("<locals>.", "")
+        if "__view_module__" not in cls.__dict__:
+            cls.__view_module__ = cls.__module__
+
+        if "__qualified_model__" not in cls.__dict__:
+            def qualified():
+                module = cls.__view_module__
+                model = cls.__view_model__
+
+                if issubclass(cls, NonQualified):
+                    return model
+
+                if not issubclass(cls, Qualified):
+                    head = module.split(".")[0]
+                    if head == "bokeh" or head == "__main__" or "__implementation__" in cls.__dict__:
+                        return model
+
+                return f"{module}.{model}"
+
+            cls.__qualified_model__ = qualified()
+
+        if not (issubclass(cls, Local) or cls.__name__.startswith("_")):
+            # update the mapping of view model names to classes, checking for any duplicates
+            previous = cls.model_class_reverse_map.get(cls.__qualified_model__, None)
+            if previous is not None and not hasattr(cls, "__implementation__"):
+                raise Warning(f"Duplicate qualified model declaration of '{cls.__qualified_model__}'. Previous definition: {previous}")
+            cls.model_class_reverse_map[cls.__qualified_model__] = cls
 
     def __init__(self, **properties: Any) -> None:
         '''
@@ -304,11 +363,6 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         else:
             return self.properties_with_values() == other.properties_with_values()
 
-    # TODO: this assumes that HasProps/Model are defined as in bokehjs, which
-    # isn't the case here. HasProps must be serializable through refs only.
-    __view_model__: str
-    __view_module__: str
-
     @classmethod
     def static_to_serializable(cls, serializer: StaticSerializer) -> ModelRef:
         from ..model import DataModel, Model
@@ -381,15 +435,15 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         serializer.add_ref(cls, modelref, modeldef)
         return modelref
 
-    def to_serializable(self, serializer: Serializer) -> AnyRep:
+    def to_serializable(self, serializer: Serializer) -> TypeRep:
         cls = type(self)
 
         def attributes(obj: HasProps, serializer: Serializer) -> Dict[str, AnyRep]:
             properties = obj.properties_with_values(include_defaults=False)
             return {key: serializer.encode(val) for key, val in properties.items()}
 
-        return dict(
-            type=f"{cls.__module__}.{cls.__name__}",
+        return TypeRep(
+            type=cls.__qualified_model__,
             attributes=attributes(self, serializer)
         )
 

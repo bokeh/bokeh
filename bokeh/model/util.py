@@ -30,7 +30,7 @@ from typing import (
 )
 
 # Bokeh imports
-from ..core.has_props import HasProps, abstract
+from ..core.has_props import HasProps, Qualified
 
 if TYPE_CHECKING:
     from ..core.types import ID, Unknown
@@ -43,7 +43,7 @@ if TYPE_CHECKING:
 
 __all__ = (
     'HasDocumentRef',
-    'Qualified',
+    'Qualified', # XXX: for backwards compatibility
     'collect_filtered_models',
     'collect_models',
     'get_class',
@@ -81,21 +81,6 @@ class HasDocumentRef:
     @document.setter
     def document(self, doc: Document) -> None:
         self._document = doc
-
-@abstract
-class Qualified(HasProps):
-    pass
-
-def qualified_model(cls: Type[Model]) -> str:
-    module = cls.__view_module__
-    model = cls.__view_model__
-    impl = cls.__dict__.get("__implementation__", None)
-
-    if not issubclass(cls, Qualified):
-        head = module.split(".")[0]
-        if head == "bokeh" or head == "__main__" or impl is not None:
-            return model
-    return f"{module}.{model}"
 
 def collect_filtered_models(discard: Callable[[Model], bool] | None, *input_values: Unknown) -> List[Model]:
     ''' Collect a duplicate-free list of all other Bokeh models referred to by

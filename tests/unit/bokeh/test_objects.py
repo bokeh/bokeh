@@ -108,15 +108,13 @@ def large_plot(n: int) -> Tuple[Model, Set[Model]]:
 
 class TestModelCls:
     def setup_method(self):
-        from bokeh.model import Model
-        self.model_cls = Model
-        self.old_map = dict(self.model_cls.model_class_reverse_map)
+        self.old_map = dict(Model.model_class_reverse_map)
 
     def teardown_method(self):
-        self.model_cls.model_class_reverse_map = self.old_map
+        Model.model_class_reverse_map = self.old_map
 
     def mkclass(self):
-        class Test_Class(self.model_cls):
+        class Test_Class(Model):
             foo = 1
         return Test_Class
 
@@ -129,7 +127,7 @@ class TestModelCls:
     def test_get_class(self) -> None:
         from bokeh.model import get_class
         self.mkclass()
-        tclass = get_class('test_objects.Test_Class')
+        tclass = get_class('test_objects.TestModelCls.mkclass.Test_Class')
         assert hasattr(tclass, 'foo')
         with pytest.raises(KeyError):
             get_class('Imaginary_Class')
