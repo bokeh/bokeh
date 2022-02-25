@@ -1,5 +1,5 @@
 from bokeh.io import show
-from bokeh.palettes import RdYlGn
+from bokeh.palettes import Cividis, RdYlGn
 from bokeh.plotting import figure
 import numpy as np
 
@@ -9,5 +9,8 @@ nlevels = 10
 levels = np.linspace(-1.0, 1.0, nlevels)
 
 fig = figure()
-fig.contour(x, y, z, levels, fill_color=RdYlGn[nlevels-1], line_color="black")
+fig.contour(x, y, z, levels,
+    fill_color=RdYlGn[nlevels-1],
+    line_color=Cividis[nlevels][::-1],
+)
 show(fig)

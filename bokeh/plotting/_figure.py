@@ -677,7 +677,6 @@ class figure(Plot, GlyphAPI):
                 kwargs["line_color"] = line_color
             else:
                 kwargs["line_color"] = "line_color"
-                raise RuntimeError("Only supporting scalar line_color so far")
             glyphs.append(self.multi_line("xs", "ys", **kwargs))
 
         return glyphs

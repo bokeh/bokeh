@@ -17,6 +17,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+import numpy as np
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -37,8 +40,8 @@ def contour_coords(x, y, z, levels, want_fill, want_line):
     if not want_fill and not want_line:
         raise RuntimeError("Neither fill nor line requested in contour_coords")
 
-    from contourpy import contour_generator
-    cont_gen = contour_generator(x, y, z)
+    from contourpy import contour_generator, LineType
+    cont_gen = contour_generator(x, y, z, line_type=LineType.ChunkCombinedOffset)
 
     coords = {}  # To return.
 
@@ -58,8 +61,8 @@ def contour_coords(x, y, z, levels, want_fill, want_line):
         for level in levels:
             lines = cont_gen.lines(level)
             xs, ys = _lines_to_xs_and_ys(lines)
-            all_xs += xs
-            all_ys += ys
+            all_xs.append(xs)
+            all_ys.append(ys)
         coords["line"] = (all_xs, all_ys)
 
     return coords
@@ -129,7 +132,23 @@ def _filled_to_xs_and_ys(filled):
 def _lines_to_xs_and_ys(lines):
     # Processes line data returned from a single call to
     # contourpy.ContourGenerator.lines(level).
-    # ContourPy line data format is LineType.Separate.
-    xs = [line[:, 0] for line in lines]
-    ys = [line[:, 1] for line in lines]
+    # ContourPy line data format is LineType.ChunkCombinedOffset.
+    points = lines[0][0]
+    if points is None:
+        return [], []
+
+    offsets = lines[1][0]
+    npoints = len(points)
+    nlines = len(offsets) - 1
+
+    xs = np.empty(npoints + nlines-1)
+    ys = np.empty(npoints + nlines-1)
+    for i in range(nlines):
+        start = offsets[i]
+        end = offsets[i+1]
+        if i > 0:
+            xs[start+i-1] = np.nan
+            ys[start+i-1] = np.nan
+        xs[start+i:end+i] = points[start:end, 0]
+        ys[start+i:end+i] = points[start:end, 1]
     return xs, ys

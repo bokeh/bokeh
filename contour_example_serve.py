@@ -1,3 +1,4 @@
+from bokeh.driving import count
 from bokeh.palettes import RdYlGn
 from bokeh.plotting import figure, curdoc
 from bokeh.plotting.contour import contour_data_dicts
@@ -12,10 +13,9 @@ nlevels = 10
 levels = np.linspace(-1.0, 1.0, nlevels)
 fill_color = RdYlGn[nlevels-1]
 line_color = "black"
-timestep = 0
 
-def callback():
-    global timestep
+@count()
+def callback(timestep):
     timestep += 1
     z = calc_z(timestep)
     data_dicts = contour_data_dicts(x, y, z, levels, fill_color=fill_color, line_color=line_color)
