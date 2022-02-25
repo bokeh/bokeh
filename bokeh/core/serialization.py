@@ -82,8 +82,6 @@ __all__ = (
 
 MAX_INT = 2**53 - 1
 
-_serializers: Dict[Type[Any], Callable[[Any], "Serializer"]] = {}
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -154,6 +152,13 @@ ObjID = int
 class Serializer:
     """ """
 
+    _encoders: ClassVar[Dict[Type[Any], Encoder]] = {}
+
+    @classmethod
+    def register(cls, type: Type[Any], encoder: Encoder) -> None:
+        assert type not in cls._encoders, f"'{type} is already registered"
+        cls._encoders[type] = encoder
+
     _id: int
     _circular: Dict[ObjID, Any]
     _references: Dict[ObjID, Ref]
@@ -211,8 +216,8 @@ class Serializer:
     def _encode(self, obj: Any) -> AnyRep:
         if isinstance(obj, Serializable):
             return obj.to_serializable(self)
-        elif type(obj) in _serializers:
-            return _serializers[type(obj)](obj, self)
+        elif (encoder := self._encoders.get(type(obj))) is not None:
+            return encoder(obj, self)
         elif obj is None:
             return None
         elif isinstance(obj, bool):

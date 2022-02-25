@@ -727,10 +727,8 @@ class TestDocument:
         json = doc.to_json()
         assert json["defs"] == [
             dict(
-                extends=dict(name="Model", module=None),
-                module="test_document",
-                name="SomeDataModel",
-                overrides=[],
+                type="model",
+                qualified="test_document.SomeDataModel",
                 properties=[
                     dict(default=0, kind="Any", name="prop0"),
                     dict(default=111, kind="Any", name="prop1"),
@@ -738,12 +736,9 @@ class TestDocument:
                 ],
             ),
             dict(
-                extends=dict(module="test_document", name="SomeDataModel"),
-                module="test_document",
-                name="DerivedDataModel",
-                overrides=[
-                    dict(default=119, name="prop2"),
-                ],
+                type="model",
+                qualified="test_document.DerivedDataModel",
+                extends=dict(id="test_document.SomeDataModel"),
                 properties=[
                     dict(default=0, kind="Any", name="prop3"),
                     dict(default=112, kind="Any", name="prop4"),
@@ -751,27 +746,27 @@ class TestDocument:
                     dict(kind="Any", name="prop6"),
                     dict(default=None, kind="Any", name="prop7"),
                 ],
+                overrides=[
+                    dict(default=119, name="prop2"),
+                ],
             ),
             dict(
-                extends=dict(name="ColumnDataSource", module=None),
-                module="test_document",
-                name="CDSDerivedDataModel",
-                overrides=[
-                    dict(default=dict(type="map", entries=[["default_column", [4, 5, 6]]]), name="data"),
-                ],
+                type="model",
+                qualified="test_document.CDSDerivedDataModel",
+                extends=dict(id="ColumnDataSource"),
                 properties=[
                     dict(default=0, kind="Any", name="prop0"),
                     dict(default=111, kind="Any", name="prop1"),
                     dict(default=[1, 2, 3], kind="Any", name="prop2"),
                 ],
+                overrides=[
+                    dict(default=dict(type="map", entries=[["default_column", [4, 5, 6]]]), name="data"),
+                ],
             ),
             dict(
-                extends=dict(name="CDSDerivedDataModel", module="test_document"),
-                module="test_document",
-                name="CDSDerivedDerivedDataModel",
-                overrides=[
-                    dict(default=dict(type="map", entries=[["default_column", [7, 8, 9]]]), name="data"),
-                ],
+                type="model",
+                qualified="test_document.CDSDerivedDerivedDataModel",
+                extends=dict(id="test_document.CDSDerivedDataModel"),
                 properties=[
                     dict(
                         default=dict(
@@ -782,6 +777,9 @@ class TestDocument:
                         kind="Any",
                         name="prop3",
                     ),
+                ],
+                overrides=[
+                    dict(default=dict(type="map", entries=[["default_column", [7, 8, 9]]]), name="data"),
                 ],
             ),
         ]

@@ -721,24 +721,21 @@ class Document:
             self.callbacks.trigger_on_change(TitleChangedEvent(self, title, setter))
 
     def to_json(self) -> DocJson:
-        ''' Convert this document to a JSON object.
+        ''' Convert this document to a JSON-serializble object.
 
         Return:
-            JSON-data
+            DocJson
 
         '''
-        model_serializer = StaticSerializer()
-        for model in Model.model_class_reverse_map.values():
-            if is_DataModel(model):
-                # TODO: serializer.serialize(model)
-                model.static_to_serializable(model_serializer)
+        data_models = [ model for model in Model.model_class_reverse_map.values() if is_DataModel(model) ]
 
         serializer = Serializer(binary=False)
+        defs = serializer.encode(data_models)
         roots = serializer.encode(self._roots)
 
         doc_json = DocJson(
             title=self.title,
-            defs=model_serializer.definitions,
+            defs=defs,
             roots=roots,
             version=__version__,
         )
@@ -808,30 +805,6 @@ class Document:
             dest_doc.add_root(r)
 
         dest_doc.title = self.title
-
-class StaticSerializer:
-
-    _refs: Dict[object, Any] = {} # obj -> ref (dict, preferably dataclass)
-    _defs: List[Any] = [] # (ref & def)[] (dict, preferably dataclass)
-
-    def __init__(self) -> None:
-        self._refs = {} # obj -> ref (dict, preferably dataclass)
-        self._defs = [] # (ref & def)[] (dict, preferably dataclass)
-
-    def serialize(self, obj: object) -> Any:
-        pass # TODO: serialize built-ins, {to_serializable}, etc.
-
-    def get_ref(self, obj: object) -> Any:
-        return self._refs.get(obj, None)
-
-    def add_ref(self, obj: object, obj_ref: Any, obj_def: Any) -> None:
-        if obj not in self._refs:
-            self._refs[obj] = obj_ref
-            self._defs.append(obj_def)
-
-    @property
-    def definitions(self) -> List[Any]:
-        return list(self._defs)
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -1,6 +1,7 @@
 import {expect} from "assertions"
 
-import {resolve_defs, ModelDef} from "@bokehjs/document/defs"
+import {Deserializer} from "@bokehjs/core/serialization/deserializer"
+import {ModelDef} from "@bokehjs/document/defs"
 import {Model} from "@bokehjs/model"
 import {default_resolver} from "@bokehjs/base"
 import {ModelResolver} from "@bokehjs/core/resolvers"
@@ -105,9 +106,9 @@ describe("document/defs module", () => {
   describe("implements resolve_defs() function", () => {
     it("that supports basic definitions", () => {
       const defs: ModelDef[] = [{
-        name: "Some0",
-        module: "some",
-        extends: {name: "Model"},
+        type: "model",
+        qualified: "some.Some0",
+        extends: {id: "Model"},
         properties: [
           {name: "prop0", kind: "Any", default: 0},
           {name: "prop1", kind: "Unknown", default: 1},
@@ -121,9 +122,8 @@ describe("document/defs module", () => {
           {name: "tags", default: ["some", "default", "tags"]},
         ],
       }, {
-        name: "Some1",
-        module: "some",
-        extends: {name: "Model"},
+        type: "model",
+        qualified: "some.Some1",
         properties: [
           {name: "prop0", kind: ["Regex", "^[a-z][a-z0-9]*"], default: "a0"},
           {name: "prop1", kind: ["Nullable", "Int"], default: null},
@@ -136,27 +136,26 @@ describe("document/defs module", () => {
           {name: "prop8", kind: ["Map", ["Array", "String"], "Int"], default: new Map([[["a", "a"], 0], [["b"], 1]])},
           {name: "prop9", kind: ["Enum", "enum0", "enum1", "enum2"], default: "enum2"},
         ],
-        overrides: [],
       }, {
-        name: "Some2",
-        module: "some",
-        extends: {name: "Some1", module: "some"},
+        type: "model",
+        qualified: "some.Some2",
+        extends: {id: "some.Some1"},
         properties: [{
           name: "prop10",
-          kind: ["Ref", {name: "Some0", module: "some"}],
+          kind: ["Ref", {id: "some.Some0"}],
           default: {id: "some001", type: "some.Some0", attributes: {prop2: false, prop4: 128}},
         }, {
           name: "prop11",
-          kind: ["Array", ["Ref", {name: "Some0", module: "some"}]],
+          kind: ["Array", ["Ref", {id: "some.Some0"}]],
           default: [{id: "some001"}, {id: "some002", type: "some.Some0", attributes: {prop2: false, prop4: 129}}],
         }],
         overrides: [
           {name: "prop2", default: "a"},
         ],
       }, {
-        name: "Some3",
-        module: "some",
-        extends: {name: "ColumnDataSource"},
+        type: "model",
+        qualified: "some.Some3",
+        extends: {id: "ColumnDataSource"},
         properties: [
           {name: "prop0", kind: "Number", default: 1},
         ],
@@ -164,9 +163,9 @@ describe("document/defs module", () => {
           {name: "data", default: {default_column: [0, 1, 2]}},
         ],
       }, {
-        name: "Some4",
-        module: "some",
-        extends: {name: "Some3", module: "some"},
+        type: "model",
+        qualified: "some.Some4",
+        extends: {id: "some.Some3"},
         properties: [
           {name: "prop1", kind: ["Array", "Number"], default: [0, 1, 2]},
         ],
@@ -177,7 +176,12 @@ describe("document/defs module", () => {
       }]
 
       const resolver = new ModelResolver(default_resolver)
-      resolve_defs(defs, resolver)
+      const deserializer = new Deserializer(resolver)
+
+      const models = deserializer.decode(defs) as (typeof Model)[]
+
+      expect(models).to.be.instanceof(Array)
+      expect(models.length).to.be.equal(5)
 
       const Some0 = resolver.get<typeof _Some0>("some.Some0")
       const Some1 = resolver.get<typeof _Some1>("some.Some1")
@@ -199,11 +203,11 @@ describe("document/defs module", () => {
       expect(Some4.prototype).to.be.instanceof(ColumnDataSource)
       expect(Some4.prototype).to.be.instanceof(Some3)
 
-      expect(Some0.__module__).to.be.equal("some")
-      expect(Some1.__module__).to.be.equal("some")
-      expect(Some2.__module__).to.be.equal("some")
-      expect(Some3.__module__).to.be.equal("some")
-      expect(Some4.__module__).to.be.equal("some")
+      expect(Some0.__qualified__).to.be.equal("some.Some0")
+      expect(Some1.__qualified__).to.be.equal("some.Some1")
+      expect(Some2.__qualified__).to.be.equal("some.Some2")
+      expect(Some3.__qualified__).to.be.equal("some.Some3")
+      expect(Some4.__qualified__).to.be.equal("some.Some4")
 
       const some0 = new Some0()
       const some1 = new Some1()

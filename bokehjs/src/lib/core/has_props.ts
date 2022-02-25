@@ -46,6 +46,8 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
 
 export type PropertyGenerator = Generator<Property, void, undefined>
 
+const _qualified_names = new WeakMap<typeof HasProps, string>()
+
 export abstract class HasProps extends Signalable() implements Equatable, Printable, Serializable, Cloneable {
   __view_type__: View
 
@@ -53,12 +55,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   get is_syncable(): boolean {
     return true
-  }
-
-  // XXX: setter is only required for backwards compatibility
-  set type(name: string) {
-    console.warn("prototype.type = 'ModelName' is deprecated, use static __name__ instead")
-    this.constructor.__name__ = name
   }
 
   get type(): string {
@@ -69,12 +65,21 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   static __module__?: string
 
   static get __qualified__(): string {
-    const {__module__, __name__} = this
-    return __module__ != null ? `${__module__}.${__name__}` : __name__
+    let qualified = _qualified_names.get(this)
+    if (qualified == null) {
+      const {__module__, __name__} = this
+      qualified = __module__ != null ? `${__module__}.${__name__}` : __name__
+      _qualified_names.set(this, qualified)
+    }
+    return qualified
+  }
+
+  static set __qualified__(qualified: string) {
+    _qualified_names.set(this, qualified)
   }
 
   get [Symbol.toStringTag](): string {
-    return this.constructor.__name__
+    return this.constructor.__qualified__
   }
 
   static {

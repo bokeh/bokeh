@@ -16,9 +16,19 @@ import {
   NDArrayRep, ModelRep, TypeRep, ValueRep, FieldRep, ExprRep,
 } from "./reps"
 
+export type Decoder = (rep: any, deserializer: Deserializer) => unknown
+const _decoders: Map<string, Decoder> = new Map()
+
 export class DeserializationError extends Error {}
 
 export class Deserializer {
+
+  static register(type: string, decoder: Decoder): void {
+    if (!_decoders.has(type))
+      _decoders.set(type, decoder)
+    else
+      throw new Error(`'${type}' already registered for decoding`)
+  }
 
   constructor(
     readonly resolver: ModelResolver,
@@ -78,7 +88,11 @@ export class Deserializer {
     } else if (isPlainObject(obj)) {
       if ("id" in obj && !("type" in obj)) {
         return this._decode_ref(obj as Ref)
-      } else if ("type" in obj) {
+      } else if ("type" in obj && isString(obj.type)) {
+        const decoder = _decoders.get(obj.type)
+        if (decoder != null) {
+          return decoder(obj, this)
+        }
         switch (obj.type) {
           case "number":
             return this._decode_number(obj as NumberRep)

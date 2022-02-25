@@ -15,12 +15,14 @@ import {copy, includes} from "core/util/array"
 import * as sets from "core/util/set"
 import {LayoutDOM} from "models/layouts/layout_dom"
 import {Model} from "model"
-import {ModelDef, resolve_defs} from "./defs"
+import {ModelDef, decode_def} from "./defs"
 import {
   DocumentEvent, DocumentEventBatch, DocumentChangedEvent,
   RootRemovedEvent, TitleChangedEvent, MessageSentEvent,
   Decoded, DocumentChanged, RootAddedEvent,
 } from "./events"
+
+Deserializer.register("model", decode_def)
 
 export type Out<T> = T
 
@@ -399,7 +401,8 @@ export class Document implements Equatable {
 
     const resolver = new ModelResolver(default_resolver)
     if (doc_json.defs != null) {
-      resolve_defs(doc_json.defs, resolver)
+      const deserializer = new Deserializer(resolver)
+      deserializer.decode(doc_json.defs)
     }
 
     const doc = new Document({resolver})
@@ -409,7 +412,7 @@ export class Document implements Equatable {
     doc.on_change(listener, true)
 
     const deserializer = new Deserializer(resolver, doc._all_models, (obj) => obj.attach_document(doc))
-    const roots = deserializer.decode(doc_json.roots, new Map()) as Model[]
+    const roots = deserializer.decode(doc_json.roots) as Model[]
 
     doc.remove_on_change(listener)
 

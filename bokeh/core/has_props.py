@@ -65,15 +65,15 @@ from .property.singletons import Undefined
 from .property.wrappers import PropertyValueContainer
 from .serialization import (
     AnyRep,
+    Ref,
     Serializable,
     Serializer,
     TypeRep,
 )
-from .types import Unknown
+from .types import ID, Unknown
 
 if TYPE_CHECKING:
     from ..client.session import ClientSession
-    from ..document.document import StaticSerializer
     from ..server.session import ServerSession
     from .property.bases import Property
     from .property.dataspec import DataSpec
@@ -362,78 +362,6 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             return False
         else:
             return self.properties_with_values() == other.properties_with_values()
-
-    @classmethod
-    def static_to_serializable(cls, serializer: StaticSerializer) -> ModelRef:
-        from ..model import DataModel, Model
-
-        def model_ref(cls: Type[HasProps]) -> ModelRef:
-            if cls == Model:
-                name = "Model"
-                module = "bokeh.model"
-            else:
-                name = cls.__view_model__
-                module = cls.__view_module__
-
-            # TODO: remove this
-            if module == "__main__" or module.split(".")[0] == "bokeh":
-                module = None
-
-            return ModelRef(name=name, module=module)
-
-        # TODO: resolving already visited objects should be serializer's duty
-        ref = serializer.get_ref(cls)
-        if ref is not None:
-            return ref
-        if not is_DataModel(cls):
-            return model_ref(cls)
-
-        # TODO: consider supporting mixin models
-        bases: List[Type[HasProps]] = [ base for base in cls.__bases__ if issubclass(base, HasProps) and base != DataModel ]
-        if len(bases) == 0:
-            bases = [Model]
-
-        if len(bases) == 1:
-            [base] = bases
-            extends = base.static_to_serializable(serializer)
-        else:
-            raise RuntimeError("multiple bases are not supported")
-
-        properties: List[PropertyDef] = []
-        overrides: List[OverrideDef] = []
-
-        value_serializer = Serializer()
-
-        # TODO: don't use unordered sets
-        for prop_name in cls.__properties__:
-            descriptor = cls.lookup(prop_name)
-            kind = "Any" # TODO: serialize kinds
-            default = descriptor.property._default
-
-            if default is Undefined:
-                prop_def = PropertyDef(name=prop_name, kind=kind)
-            else:
-                if isinstance(default, types.FunctionType):
-                    default = default()
-
-                prop_def = PropertyDef(name=prop_name, kind=kind, default=value_serializer.encode(default))
-
-            properties.append(prop_def)
-
-        for prop_name, default in getattr(cls, "__overridden_defaults__", {}).items():
-            overrides.append(OverrideDef(name=prop_name, default=value_serializer.encode(default)))
-
-        modelref = model_ref(cls)
-        modeldef = ModelDef(
-            name=modelref["name"],
-            module=modelref["module"],
-            extends=extends,
-            properties=properties,
-            overrides=overrides,
-        )
-
-        serializer.add_ref(cls, modelref, modeldef)
-        return modelref
 
     def to_serializable(self, serializer: Serializer) -> TypeRep:
         cls = type(self)
@@ -773,7 +701,6 @@ KindRef = Any # TODO
 class _PropertyDef(TypedDict):
     name: str
     kind: KindRef
-
 class PropertyDef(_PropertyDef, total=False):
     default: Unknown
 
@@ -781,14 +708,70 @@ class OverrideDef(TypedDict):
     name: str
     default: Unknown
 
-class ModelRef(TypedDict):
-    name: str
-    module: str | None
-
-class ModelDef(ModelRef):
-    extends: ModelRef
+class _ModelDef(TypedDict):
+    type: Literal["model"]
+    qualified: str
+class ModelDef(_ModelDef, total=False):
+    extends: Ref | None
     properties: List[PropertyDef]
     overrides: List[OverrideDef]
+
+def _HasProps_to_serializable(cls: Type[HasProps], serializer: Serializer) -> Ref | ModelDef:
+    from ..model import DataModel, Model
+
+    ref = Ref(id=ID(cls.__qualified_model__))
+    serializer.add_ref(cls, ref)
+
+    if not is_DataModel(cls):
+        return ref
+
+    # TODO: consider supporting mixin models
+    bases: List[Type[HasProps]] = [ base for base in cls.__bases__ if issubclass(base, Model) and base != DataModel ]
+    if len(bases) == 0:
+        extends = None
+    elif len(bases) == 1:
+        [base] = bases
+        extends = serializer.encode(base)
+    else:
+        serializer.error("multiple bases are not supported")
+
+    properties: List[PropertyDef] = []
+    overrides: List[OverrideDef] = []
+
+    # TODO: don't use unordered sets
+    for prop_name in cls.__properties__:
+        descriptor = cls.lookup(prop_name)
+        kind = "Any" # TODO: serialize kinds
+        default = descriptor.property._default
+
+        if default is Undefined:
+            prop_def = PropertyDef(name=prop_name, kind=kind)
+        else:
+            if isinstance(default, types.FunctionType):
+                default = default()
+
+            prop_def = PropertyDef(name=prop_name, kind=kind, default=serializer.encode(default))
+
+        properties.append(prop_def)
+
+    for prop_name, default in getattr(cls, "__overridden_defaults__", {}).items():
+        overrides.append(OverrideDef(name=prop_name, default=serializer.encode(default)))
+
+    modeldef = ModelDef(
+        type="model",
+        qualified=cls.__qualified_model__,
+    )
+
+    if extends is not None:
+        modeldef["extends"] = extends
+    if properties:
+        modeldef["properties"] = properties
+    if overrides:
+        modeldef["overrides"] = overrides
+
+    return modeldef
+
+Serializer.register(MetaHasProps, _HasProps_to_serializable)
 
 #-----------------------------------------------------------------------------
 # Private API
