@@ -62,12 +62,14 @@ export type ExprRep = {
 
 export type TypeRep = {
   type: string
-  attributes: {[key: string]: AnyVal}
+  attributes?: {[key: string]: AnyVal}
 }
 
-export type ModelRep = TypeRep & {
+export type TypeRefRep = TypeRep & {
   id: string
 }
+
+export type ModelRep = TypeRefRep
 
 export type Shape = number[]
 

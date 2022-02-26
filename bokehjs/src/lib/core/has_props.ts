@@ -9,7 +9,7 @@ import * as k from "./kinds"
 import {Property} from "./properties"
 import {assert} from "./util/assert"
 import {uniqueId} from "./util/string"
-import {keys, values, entries, extend} from "./util/object"
+import {keys, values, entries, extend, is_empty} from "./util/object"
 import {isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import {is_equal} from "./util/eq"
 import {serialize, Serializable, Serializer, ModelRep, AnyVal} from "./serialization"
@@ -280,7 +280,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
 
     const {type, id} = this
-    return {type, id, attributes}
+    const rep = {type, id}
+
+    return is_empty(attributes) ? rep : {...rep, attributes}
   }
 
   constructor(attrs: {id: string} | AttrsLike = {}) {

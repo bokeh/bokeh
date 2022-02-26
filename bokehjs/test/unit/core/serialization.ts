@@ -128,8 +128,8 @@ describe("core/serialization module", () => {
     it("should support HasProps instances", () => {
       const obj0 = new SomeModel()
       expect(to_serializable(obj0)).to.be.equal({
-        rep: {type: "SomeModel", id: obj0.id, attributes: {}},
-        json: `{"type":"SomeModel","id":"${obj0.id}","attributes":{}}`,
+        rep: {type: "SomeModel", id: obj0.id},
+        json: `{"type":"SomeModel","id":"${obj0.id}"}`,
       })
     })
 

@@ -115,12 +115,10 @@ export class Deserializer {
           case "ndarray":
             return this._decode_ndarray(obj as NDArrayRep)
           default: {
-            if ("attributes" in obj) {
-              if ("id" in obj) {
-                return this._decode_type_ref(obj as ModelRep)
-              } else {
-                return this._decode_type(obj as TypeRep)
-              }
+            if ("id" in obj) {
+              return this._decode_type_ref(obj as ModelRep)
+            } else {
+              return this._decode_type(obj as TypeRep)
             }
           }
         }
@@ -128,7 +126,7 @@ export class Deserializer {
         return this._decode_plain_object(obj)
       }
 
-      this.error(`unable to decode an object of type '${obj.type}'`)
+      //this.error(`unable to decode an object of type '${obj.type}'`)
     } else
       return obj
   }
@@ -245,9 +243,12 @@ export class Deserializer {
   }
 
   protected _decode_type(obj: TypeRep): unknown {
-    const cls = this._resolve_type(obj.type)
-    const attrs = this._decode(obj.attributes)
-    return new cls(attrs)
+    const {type, attributes} = obj
+    const cls = this._resolve_type(type)
+    if (attributes != null)
+      return new cls(this._decode(attributes))
+    else
+      return new cls()
   }
 
   protected _decode_ref(obj: Ref): HasProps {
@@ -268,10 +269,12 @@ export class Deserializer {
     const instance = new cls({id})
     this.references.set(id, instance)
 
-    const decoded_attributes = this._decode(attributes) as Attrs
-    instance.setv(decoded_attributes, {silent: true})
-    this._finalizable.add(instance)
+    if (attributes != null) {
+      const decoded_attributes = this._decode(attributes) as Attrs
+      instance.setv(decoded_attributes, {silent: true})
+    }
 
+    this._finalizable.add(instance)
     return instance
   }
 

@@ -912,7 +912,6 @@ describe("Document", () => {
             child: {
               type: "SomeModel",
               id: child.id,
-              attributes: {},
             },
           },
         },

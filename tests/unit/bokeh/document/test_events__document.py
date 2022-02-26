@@ -455,12 +455,10 @@ class TestRootAddedEvent:
                     ref1=dict(
                         type="test_events__document.SomeModel",
                         id=ref1.id,
-                        attributes=dict(),
                     ),
                     ref2=dict(
                         type="test_events__document.SomeModel",
                         id=ref2.id,
-                        attributes=dict(),
                     ),
                 ),
             ),

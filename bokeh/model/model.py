@@ -430,12 +430,15 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     def to_serializable(self, serializer: Serializer) -> ModelRep:
         serializer.add_ref(self, self.ref)
-        rep = super().to_serializable(serializer)
-        return ModelRep(
-            type=rep["type"],
-            id=self.id,
-            attributes=rep["attributes"],
-        )
+
+        super_rep = super().to_serializable(serializer)
+        rep = ModelRep(type=super_rep["type"], id=self.id)
+
+        attributes = super_rep.get("attributes")
+        if attributes is not None:
+            rep["attributes"] = attributes
+
+        return rep
 
     def trigger(self, attr: str, old: Unknown, new: Unknown,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:

@@ -64,7 +64,6 @@ from .property.override import Override
 from .property.singletons import Undefined
 from .property.wrappers import PropertyValueContainer
 from .serialization import (
-    AnyRep,
     Ref,
     Serializable,
     Serializer,
@@ -364,16 +363,15 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             return self.properties_with_values() == other.properties_with_values()
 
     def to_serializable(self, serializer: Serializer) -> TypeRep:
-        cls = type(self)
+        rep = TypeRep(type=self.__qualified_model__)
 
-        def attributes(obj: HasProps, serializer: Serializer) -> Dict[str, AnyRep]:
-            properties = obj.properties_with_values(include_defaults=False)
-            return {key: serializer.encode(val) for key, val in properties.items()}
+        properties = self.properties_with_values(include_defaults=False)
+        attributes = {key: serializer.encode(val) for key, val in properties.items()}
 
-        return TypeRep(
-            type=cls.__qualified_model__,
-            attributes=attributes(self, serializer)
-        )
+        if attributes:
+            rep["attributes"] = attributes
+
+        return rep
 
     # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
     def set_from_json(self, name: str, value: Any, *, setter: Setter | None = None) -> None:

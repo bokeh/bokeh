@@ -91,14 +91,18 @@ AnyRep: TypeAlias = Any
 class Ref(TypedDict):
     id: ID
 
-class TypeRep(TypedDict):
+class _TypeRep(TypedDict):
     type: str
+class TypeRep(_TypeRep, total=False):
     attributes: Dict[str, Any]
 
-class ModelRep(TypedDict):
+class _TypeRefRep(TypedDict):
     type: str
     id: ID
+class TypeRefRep(_TypeRefRep, total=False):
     attributes: Dict[str, Any]
+
+ModelRep = TypeRefRep
 
 class ArrayRep(TypedDict):
     type: Literal["array"]
@@ -450,12 +454,10 @@ class Deserializer:
         id = obj["id"]
         instance = self._references.get(id)
         if instance is not None:
-            # log.warning(f"reference already known '{id}'")
-            # return instance
             self.error(f"reference already known '{id}'")
 
         type = obj["type"]
-        attributes = obj["attributes"]
+        attributes = obj.get("attributes")
 
         from ..model import Model
         cls = Model.model_class_reverse_map.get(type)
@@ -479,9 +481,10 @@ class Deserializer:
             from .has_props import HasProps
             HasProps.__init__(instance)
 
-        decoded_attributes = {key: self._decode(val) for key, val in attributes.items()}
-        for key, val in decoded_attributes.items():
-            instance.set_from_json(key, val, setter=self._setter)
+        if attributes is not None:
+            decoded_attributes = {key: self._decode(val) for key, val in attributes.items()}
+            for key, val in decoded_attributes.items():
+                instance.set_from_json(key, val, setter=self._setter)
 
         return instance
 
