@@ -49,6 +49,17 @@ describe("core/util/pretty module", () => {
       expect(to_string(new Map([[1, true], [2, false], [3, true]]))).to.be.equal("Map([[1, true], [2, false], [3, true]])")
     })
 
+    it("that supports ArrayBuffer", () => {
+      const buf0 = new Uint8Array([]).buffer
+      expect(to_string(buf0)).to.be.equal("ArrayBuffer(#0)")
+
+      const buf1 = new Uint8Array([1, 2, 3]).buffer
+      expect(to_string(buf1)).to.be.equal("ArrayBuffer(#3)")
+
+      const buf2 = new Uint32Array([1, 2, 3, 4]).buffer
+      expect(to_string(buf2)).to.be.equal("ArrayBuffer(#16)")
+    })
+
     it("that supports circular objects", () => {
       type X = {y: number, z?: X}
       const x: X = {y: 1}

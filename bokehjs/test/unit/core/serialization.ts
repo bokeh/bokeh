@@ -152,6 +152,38 @@ describe("core/serialization module", () => {
       })
     })
 
+    it("should support typed arrays", () => {
+      const arr0 = new Int32Array([1, 2, 3])
+
+      expect(to_serializable(arr0)).to.be.equal({
+        rep: {
+          type: "typed_array",
+          array: {
+            type: "bytes",
+            data: new Base64Buffer(arr0.buffer),
+          },
+          order: BYTE_ORDER,
+          dtype: "int32",
+        },
+        json: `{"type":"typed_array","array":{"type":"bytes","data":"AQAAAAIAAAADAAAA"},"order":"${BYTE_ORDER}","dtype":"int32"}`,
+      })
+
+      const arr1 = new Float64Array([1.1, 2.1, 3.1, 4.1, 5.1, 6.1])
+
+      expect(to_serializable(arr1)).to.be.equal({
+        rep: {
+          type: "typed_array",
+          array: {
+            type: "bytes",
+            data: new Base64Buffer(arr1.buffer),
+          },
+          order: BYTE_ORDER,
+          dtype: "float64",
+        },
+        json: `{"type":"typed_array","array":{"type":"bytes","data":"mpmZmZmZ8T/NzMzMzMwAQM3MzMzMzAhAZmZmZmZmEEBmZmZmZmYUQGZmZmZmZhhA"},"order":"${BYTE_ORDER}","dtype":"float64"}`,
+      })
+    })
+
     it("should support ndarrays", () => {
       const nd0 = ndarray([1, 2, 3], {dtype: "int32", shape: [1, 3]})
 

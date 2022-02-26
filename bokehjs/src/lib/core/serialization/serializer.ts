@@ -1,9 +1,12 @@
+import {TypedArray} from "../types"
 import {assert} from "../util/assert"
 import {entries} from "../util/object"
 import {Ref} from "../util/refs"
 import {/*isBasicObject, */isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isSymbol} from "../util/types"
 import {map} from "../util/iterator"
+import {BYTE_ORDER} from "../util/platform"
 import {Buffer, Base64Buffer} from "./buffer"
+import {BytesRep, TypedArrayRep} from "./reps"
 
 export type SerializableType =
   | null
@@ -108,7 +111,7 @@ export class Serializer {
   protected _encode(obj: unknown): unknown {
     if (is_Serializable(obj))
       return obj[serialize](this)
-    else if (isArray(obj) || isTypedArray(obj)) { // ???: typed arrays
+    else if (isArray(obj)) {
       const n = obj.length
       const result: unknown[] = new Array(n)
       for (let i = 0; i < n; i++) {
@@ -116,6 +119,8 @@ export class Serializer {
         result[i] = this.encode(value)
       }
       return result
+    } else if (isTypedArray(obj)) {
+      return this._encode_typed_array(obj)
     } else if (obj instanceof ArrayBuffer) {
       const data = this.binary ? new Buffer(obj) : new Base64Buffer(obj)
       return {type: "bytes", data}
@@ -161,5 +166,33 @@ export class Serializer {
 
   error(message: string): never {
     throw new SerializationError(message)
+  }
+
+  protected _encode_typed_array(obj: TypedArray): TypedArrayRep {
+    const array = this.encode(obj.buffer) as BytesRep
+
+    const dtype = (() => {
+      switch (obj.constructor) {
+        case Uint8Array: return "uint8"
+        case Int8Array: return "int8"
+        case Uint16Array: return "uint16"
+        case Int16Array: return "int16"
+        case Uint32Array: return "uint32"
+        case Int32Array: return "int32"
+        // case BigUint64Array: return "uint64"
+        // case BigInt64Array: return "int64"
+        case Float32Array: return "float32"
+        case Float64Array: return "float64"
+        default:
+          this.error(`can't serialize typed array of type '${obj[Symbol.toStringTag]}'`)
+      }
+    })()
+
+    return {
+      type: "typed_array",
+      array,
+      order: BYTE_ORDER,
+      dtype,
+    }
   }
 }

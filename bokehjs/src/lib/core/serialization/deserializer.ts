@@ -1,6 +1,6 @@
 import {type HasProps} from "../has_props"
 import {type ModelResolver} from "../resolvers"
-import {ID, Attrs, PlainObject} from "../types"
+import {ID, Attrs, PlainObject, TypedArray} from "../types"
 import {Ref, is_ref} from "../util/refs"
 import {ndarray, NDArray} from "../util/ndarray"
 import {entries} from "../util/object"
@@ -12,7 +12,7 @@ import {Slice} from "../util/slice"
 import {Value, Field, Expr} from "../vectorization"
 
 import {
-  NumberRep, ArrayRep, SetRep, MapRep, BytesRep, SliceRep,
+  NumberRep, ArrayRep, SetRep, MapRep, BytesRep, SliceRep, TypedArrayRep,
   NDArrayRep, ModelRep, TypeRep, ValueRep, FieldRep, ExprRep,
 } from "./reps"
 
@@ -112,6 +112,8 @@ export class Deserializer {
             return this._decode_field(obj as FieldRep)
           case "expr":
             return this._decode_expr(obj as ExprRep)
+          case "typed_array":
+            return this._decode_typed_array(obj as TypedArrayRep)
           case "ndarray":
             return this._decode_ndarray(obj as NDArrayRep)
           default: {
@@ -230,15 +232,38 @@ export class Deserializer {
     return {expr, transform, units} as any
   }
 
+  protected _decode_typed_array(obj: TypedArrayRep): TypedArray {
+    const {array, order, dtype} = obj
+
+    const buffer = this._decode(array) as ArrayBuffer
+    if (order != BYTE_ORDER) {
+      swap(buffer, dtype)
+    }
+
+    switch (dtype) {
+      case "uint8":   return new Uint8Array(buffer)
+      case "int8":    return new Int8Array(buffer)
+      case "uint16":  return new Uint16Array(buffer)
+      case "int16":   return new Int16Array(buffer)
+      case "uint32":  return new Uint32Array(buffer)
+      case "int32":   return new Int32Array(buffer)
+      // case "uint64": return new BigInt64Array(buffer)
+      // case "int64":  return new BigInt64Array(buffer)
+      case "float32": return new Float32Array(buffer)
+      case "float64": return new Float64Array(buffer)
+      default:
+        this.error(`unsupported dtype '${dtype}'`)
+    }
+  }
+
   protected _decode_ndarray(obj: NDArrayRep): NDArray {
-    const {array, shape, dtype, order} = obj
+    const {array, order, dtype, shape} = obj
 
     const decoded = this._decode(array) as ArrayBuffer | unknown[]
-    if (decoded instanceof ArrayBuffer) {
-      if (order != BYTE_ORDER) {
-        swap(decoded, dtype)
-      }
+    if (decoded instanceof ArrayBuffer && order != BYTE_ORDER) {
+      swap(decoded, dtype)
     }
+
     return ndarray(decoded as any /*XXX*/, {dtype, shape})
   }
 

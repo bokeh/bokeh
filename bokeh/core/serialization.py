@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 import base64
 import datetime as dt
 import sys
+from array import array as TypedArray
 from math import isinf, isnan
 from typing import (
     TYPE_CHECKING,
@@ -119,11 +120,19 @@ class SliceRep(TypedDict):
     stop: int | None
     step: int | None
 
+DType: TypeAlias = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "float32", "float64"]
+
+class TypedArrayRep(TypedDict):
+    type: Literal["typed_array"]
+    array: BytesRep
+    order: ByteOrder
+    dtype: DType
+
 class NDArrayRep(TypedDict):
     type: Literal["ndarray"]
     array: BytesRep | ArrayRep
     order: ByteOrder
-    dtype: str
+    dtype: DType | Literal["object"]
     shape: List[int]
 
 @dataclass
@@ -242,6 +251,8 @@ class Serializer:
             return self._encode_bytes(obj)
         elif isinstance(obj, slice):
             return self._encode_slice(obj)
+        elif isinstance(obj, TypedArray):
+            return self._encode_array(obj)
         elif isinstance(obj, np.ndarray):
             return self._encode_ndarray(obj)
         elif is_dataclass(obj):
@@ -302,6 +313,28 @@ class Serializer:
             start=obj.start,
             stop=obj.stop,
             step=obj.step,
+        )
+
+    def _encode_array(self, obj: TypedArray[int | float]) -> AnyRep:
+        array = self._encode_bytes(obj.tobytes())
+
+        typecode = obj.typecode
+        bitsize = obj.itemsize*8
+
+        if typecode in {"f", "d"}:
+            dtype = f"float{bitsize}"
+        elif typecode in {"B", "H", "I", "L"}: #, "Q"}:
+            dtype = f"uint{bitsize}"
+        elif typecode in {"b", "h", "i", "l"}: #, "q"}:
+            dtype = f"int{bitsize}"
+        else:
+            self.error(f"can't serialize array with items of type '{typecode}'")
+
+        return dict(
+            type="typed_array",
+            array=array,
+            order=sys.byteorder,
+            dtype=dtype,
         )
 
     def _encode_ndarray(self, obj: npt.NDArray[Any]) -> AnyRep:
@@ -429,6 +462,8 @@ class Deserializer:
                     return self._decode_bytes(obj)
                 elif type == "slice":
                     return self._decode_slice(obj)
+                elif type == "typed_array":
+                    return self._decode_typed_array(obj)
                 elif type == "ndarray":
                     return self._decode_ndarray(obj)
                 elif type in self._decoders:
@@ -508,8 +543,39 @@ class Deserializer:
         step = self._decode(obj["step"])
         return slice(start, stop, step)
 
+    def _decode_typed_array(self, obj: TypedArrayRep) -> TypedArray[int | float]:
+        array = obj["array"]
+        order = obj["order"]
+        dtype = obj["dtype"]
+
+        data = self._decode(array)
+
+        dtype_to_typecode = dict(
+            uint8="B",
+            int8="b",
+            uint16="H",
+            int16="h",
+            uint32="I",
+            int32="i",
+            #uint64="Q",
+            #int64="q",
+            float32="f",
+            float64="d",
+        )
+
+        typecode = dtype_to_typecode.get(dtype)
+        if typecode is None:
+            self.error(f"unsupported dtype '{dtype}'")
+
+        typed_array = TypedArray(typecode, data)
+        if order != sys.byteorder:
+            typed_array.byteswap()
+
+        return typed_array
+
     def _decode_ndarray(self, obj: NDArrayRep) -> npt.NDArray[Any]:
         array = obj["array"]
+        order = obj["order"]
         dtype = obj["dtype"]
         shape = obj["shape"]
 
@@ -518,6 +584,9 @@ class Deserializer:
         ndarray: npt.NDArray[Any]
         if isinstance(decoded, bytes):
             ndarray = np.copy(np.frombuffer(decoded, dtype=dtype))  # type: ignore # from and frombuffer are untyped
+
+            if order != sys.byteorder:
+                ndarray.byteswap(inplace=True)
         else:
             ndarray = np.array(decoded, dtype=dtype)
 

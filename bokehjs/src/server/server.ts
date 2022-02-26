@@ -1,9 +1,12 @@
 // XXX: for core/util/eq
+// XXX: for core/util/platform
 declare global {
   // @ts-ignore
   type Node = any
   // @ts-ignore
   const Node: Node
+  // @ts-ignore
+  const navigator: any
 }
 
 import {IncomingMessage} from "http"

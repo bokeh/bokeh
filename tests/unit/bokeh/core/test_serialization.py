@@ -19,6 +19,7 @@ import pytest ; pytest
 # Standard library imports
 import datetime as dt
 import sys
+from array import array as TypedArray
 from typing import Any, Sequence
 
 # External imports
@@ -194,6 +195,38 @@ class TestSerializer:
         assert rep == dict(
             type="bytes",
             data="/wAX/gA=",
+        )
+        assert encoder.buffers == []
+
+    def test_typed_array_binary(self) -> None:
+        encoder = Serializer(binary=True)
+        val = TypedArray("i", [0, 1, 2, 3, 4, 5])
+        rep = encoder.encode(val)
+        assert rep == dict(
+            type="typed_array",
+            array=dict(
+                type="bytes",
+                data=dict(id=ID("1")),
+            ),
+            order=sys.byteorder,
+            dtype="int32",
+        )
+        assert encoder.buffers == [
+            Buffer(id=ID("1"), data=val.tobytes()),
+        ]
+
+    def test_typed_array_base64(self) -> None:
+        encoder = Serializer(binary=False)
+        val = TypedArray("i", [0, 1, 2, 3, 4, 5])
+        rep = encoder.encode(val)
+        assert rep == dict(
+            type="typed_array",
+            array=dict(
+                type="bytes",
+                data="AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAA",
+            ),
+            order=sys.byteorder,
+            dtype="int32",
         )
         assert encoder.buffers == []
 

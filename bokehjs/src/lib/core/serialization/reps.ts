@@ -71,6 +71,13 @@ export type TypeRefRep = TypeRep & {
 
 export type ModelRep = TypeRefRep
 
+export type TypedArrayRep = {
+  type: "typed_array"
+  array: BytesRep
+  order: ByteOrder
+  dtype: DataType
+}
+
 export type Shape = number[]
 
 export type NDArrayRep = {
