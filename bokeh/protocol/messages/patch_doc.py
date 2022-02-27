@@ -86,14 +86,15 @@ class patch_doc(Message[PatchJson]):
             raise ValueError("PATCH-DOC message configured with events for more than one document")
 
         [doc] = docs
-        serializer = Serializer(references=doc.models.synced_references, binary=use_buffers)
+        serializer = Serializer(references=doc.models.synced_references)
         patch_json = PatchJson(events=serializer.encode(events))
         doc.models.flush()
 
         msg = cls(header, metadata, patch_json)
 
-        for buffer in serializer.buffers:
-            msg.add_buffer(buffer.ref, buffer.data)
+        if use_buffers:
+            for buffer in serializer.buffers:
+                msg.add_buffer(buffer)
 
         return msg
 
@@ -101,7 +102,7 @@ class patch_doc(Message[PatchJson]):
         '''
 
         '''
-        invoke_with_curdoc(doc, lambda: doc.apply_json_patch(self.content, setter))
+        invoke_with_curdoc(doc, lambda: doc.apply_json_patch(self.payload, setter=setter))
 
 #-----------------------------------------------------------------------------
 # Private API

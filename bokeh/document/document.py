@@ -54,7 +54,7 @@ from jinja2 import Template
 from ..core.enums import HoldPolicyType
 from ..core.has_props import is_DataModel
 from ..core.query import find, is_single_string_selector
-from ..core.serialization import Deserializer, Serializer
+from ..core.serialization import Deserializer, Serialized, Serializer
 from ..core.templates import FILE
 from ..core.types import ID, Unknown
 from ..core.validation import check_integrity, process_validation_issues
@@ -350,7 +350,7 @@ class Document:
         cb = TimeoutCallback(callback=None, timeout=timeout_milliseconds, callback_id=make_id())
         return self.callbacks.add_session_callback(cb, callback, one_shot=True)
 
-    def apply_json_patch(self, patch: PatchJson, setter: Setter | None = None) -> None:
+    def apply_json_patch(self, patch: PatchJson | Serialized[PatchJson], *, setter: Setter | None = None) -> None:
         ''' Apply a JSON patch object and process any resulting events.
 
         Args:
@@ -372,11 +372,8 @@ class Document:
             None
 
         '''
-        events_json = patch["events"]
-        # TODO: buffers
-
-        deserializer = Deserializer(list(self.models), setter)
-        events = deserializer.decode(events_json)
+        deserializer = Deserializer(list(self.models), setter=setter)
+        events = deserializer.decode(patch)["events"]
         assert isinstance(events, list) # List[DocumentPatched]
 
         for event in events:
@@ -411,28 +408,31 @@ class Document:
         gc.collect()
 
     @classmethod
-    def from_json(cls, json: DocJson) -> Document:
+    def from_json(cls, doc_json: DocJson | Serialized[DocJson]) -> Document:
         ''' Load a document from JSON.
 
-        json (JSON-data) :
+        doc_json (JSON-data) :
             A JSON-encoded document to create a new Document from.
 
         Returns:
             Document :
 
         '''
-        roots_json = json["roots"]
-        # TODO: buffers
+        # TODO: deserialize model definitions
+        if isinstance(doc_json, dict):
+            doc_json["defs"] = []
 
         deserializer = Deserializer()
-        roots = deserializer.decode(roots_json)
+        doc_struct = deserializer.decode(doc_json)
+
+        roots = doc_struct["roots"]
+        title = doc_struct["title"]
 
         doc = Document()
         for root in roots:
             doc.add_root(root)
 
-        doc.title = json['title']
-
+        doc.title = title
         return doc
 
     @classmethod
@@ -729,7 +729,7 @@ class Document:
         '''
         data_models = [ model for model in Model.model_class_reverse_map.values() if is_DataModel(model) ]
 
-        serializer = Serializer(binary=False)
+        serializer = Serializer()
         defs = serializer.encode(data_models)
         roots = serializer.encode(self._roots)
 

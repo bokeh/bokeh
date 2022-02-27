@@ -16,7 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Module under test
+# Bokeh imports
+from bokeh.core.json_encoder import serialize_json
+from bokeh.core.serialization import Serializer
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -25,6 +27,80 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+def test_json_encoder():
+    val0 = [None, True, False, -128, -1, 0, 1, 128, float("nan"), {"key_0": b"uvw"}]
+    rep0 = Serializer().serialize(val0)
+
+    assert rep0.buffers is not None and len(rep0.buffers) == 1
+
+    assert serialize_json(rep0.content) == """\
+[null,true,false,-128,-1,0,1,128,{"type":"number","value":"nan"},{"type":"map","entries":[["key_0",{"type":"bytes","data":"dXZ3"}]]}]\
+"""
+
+    assert serialize_json(rep0) == """\
+[null,true,false,-128,-1,0,1,128,{"type":"number","value":"nan"},{"type":"map","entries":[["key_0",{"type":"bytes","data":{"id":"%s"}}]]}]\
+""" % rep0.buffers[0].id
+
+    assert serialize_json(rep0.content, pretty=True) == """\
+[
+  null,
+  true,
+  false,
+  -128,
+  -1,
+  0,
+  1,
+  128,
+  {
+    "type": "number",
+    "value": "nan"
+  },
+  {
+    "type": "map",
+    "entries": [
+      [
+        "key_0",
+        {
+          "type": "bytes",
+          "data": "dXZ3"
+        }
+      ]
+    ]
+  }
+]\
+"""
+
+    assert serialize_json(rep0, pretty=True) == """\
+[
+  null,
+  true,
+  false,
+  -128,
+  -1,
+  0,
+  1,
+  128,
+  {
+    "type": "number",
+    "value": "nan"
+  },
+  {
+    "type": "map",
+    "entries": [
+      [
+        "key_0",
+        {
+          "type": "bytes",
+          "data": {
+            "id": "%s"
+          }
+        }
+      ]
+    ]
+  }
+]\
+""" % rep0.buffers[0].id
 
 #-----------------------------------------------------------------------------
 # Dev API

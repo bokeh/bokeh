@@ -22,6 +22,7 @@ import numpy as np
 # Bokeh imports
 import bokeh.document as document
 from bokeh.core.properties import Instance, Int, Nullable
+from bokeh.core.serialization import Buffer
 from bokeh.document.events import (
     ColumnDataChangedEvent,
     ColumnsPatchedEvent,
@@ -165,17 +166,15 @@ class TestPatchDocument:
         # ColumnDataChanged, use_buffers=True
         event7 = ColumnDataChangedEvent(sample, cds, "data")
         msg7 = proto.create("PATCH-DOC", [event7])
+
         # can't test apply, doc not set up to *receive* binary buffers
         # msg7.apply_to_document(sample, mock_session)
         assert len(msg7.buffers) == 1
-        buf = msg7.buffers.pop()
-        assert len(buf) == 2
-        assert isinstance(buf[0], dict)
-        assert list(buf[0]) == ['id']
+        [buf] = msg7.buffers
 
         # reports CDS buffer *as it is* Normally events called by setter and
         # value in local object would have been already mutated.
-        assert buf[1] == np.array([11., 1., 2., 3]).tobytes()
+        assert msg7.buffers == [Buffer(buf.id, np.array([11., 1., 2., 3]).tobytes())]
 
 #-----------------------------------------------------------------------------
 # Dev API

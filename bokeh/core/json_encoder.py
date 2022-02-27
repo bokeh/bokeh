@@ -49,11 +49,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import json
-from typing import Any
+from json import JSONEncoder
+from typing import Any, List, Tuple
 
 # Bokeh imports
 from ..settings import settings
+from .serialization import Buffer, Serialized
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -67,7 +68,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def serialize_json(obj: Any, *, pretty: bool | None = None, indent: int | None = None, **kwargs: Any) -> str:
+def serialize_json(obj: Any | Serialized[Any], *, pretty: bool | None = None, indent: int | None = None) -> str:
     ''' Return a serialized JSON representation of objects, suitable to
     send to BokehJS.
 
@@ -126,11 +127,6 @@ def serialize_json(obj: Any, *, pretty: bool | None = None, indent: int | None =
             }
 
     '''
-    # these args to json.dumps are computed internally and should not be passed along
-    for name in ['allow_nan', 'separators', 'sort_keys']:
-        if name in kwargs:
-            raise ValueError(f"The value of {name!r} is computed internally, overriding is not permissible.")
-
     pretty = settings.pretty(pretty)
 
     if pretty:
@@ -141,12 +137,37 @@ def serialize_json(obj: Any, *, pretty: bool | None = None, indent: int | None =
     if pretty and indent is None:
         indent = 2
 
-    return json.dumps(obj, allow_nan=False, indent=indent, separators=separators, sort_keys=False, **kwargs)
+    content: Any
+    buffers: List[Buffer]
+    if isinstance(obj, Serialized):
+        content = obj.content
+        buffers = obj.buffers or []
+    else:
+        content = obj
+        buffers = []
 
+    encoder = PayloadEncoder(buffers=buffers, indent=indent, separators=separators)
+    return encoder.encode(content)
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+class PayloadEncoder(JSONEncoder):
+    def __init__(self, *, buffers: List[Buffer] = [], threshold: int = 100,
+            indent: int | None = None, separators: Tuple[str, str] | None = None):
+        super().__init__(sort_keys=False, allow_nan=False, indent=indent, separators=separators)
+        self._buffers = {buf.id: buf for buf in buffers}
+        self._threshold = threshold
+
+    def default(self, obj: Any) -> Any:
+        if isinstance(obj, Buffer):
+            if obj.id in self._buffers: # TODO: and len(obj.data) > self._threshold:
+                return obj.ref
+            else:
+                return obj.to_base64()
+        else:
+            return super().default(obj)
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -30,6 +30,7 @@ from typing import (
     Callable,
     ClassVar,
     Dict,
+    Generic,
     List,
     Literal,
     NoReturn,
@@ -38,6 +39,8 @@ from typing import (
     Tuple,
     Type,
     TypedDict,
+    TypeVar,
+    overload,
 )
 
 # External imports
@@ -61,6 +64,7 @@ from ..util.serialization import (
     convert_timedelta_type,
     is_datetime_type,
     is_timedelta_type,
+    make_id,
     transform_array,
     transform_series,
 )
@@ -147,6 +151,13 @@ class Buffer:
     def to_base64(self) -> str:
         return base64.b64encode(self.data).decode("utf-8")
 
+T = TypeVar("T")
+
+@dataclass
+class Serialized(Generic[T]):
+    content: T
+    buffers: List[Buffer] | None = None
+
 Encoder: TypeAlias = Callable[[Any, "Serializer"], AnyRep]
 Decoder: TypeAlias = Callable[[AnyRep, "Deserializer"], Any]
 
@@ -172,17 +183,16 @@ class Serializer:
         assert type not in cls._encoders, f"'{type} is already registered"
         cls._encoders[type] = encoder
 
-    _id: int
-    _circular: Dict[ObjID, Any]
     _references: Dict[ObjID, Ref]
+    _deferred: bool
+    _circular: Dict[ObjID, Any]
     _buffers: List[Buffer]
 
-    def __init__(self, *, references: Set[Model] = set(), binary: bool = True) -> None:
-        self._id = 0
-        self._circular = {}
+    def __init__(self, *, references: Set[Model] = set(), deferred: bool = True) -> None:
         self._references = {id(obj): obj.ref for obj in references}
+        self._deferred = deferred
+        self._circular = {}
         self._buffers = []
-        self.binary = binary
 
     def has_ref(self, obj: Any) -> bool:
         return id(obj) in self._references
@@ -194,19 +204,12 @@ class Serializer:
     def get_ref(self, obj: Any) -> Ref | None:
         return self._references.get(id(obj))
 
-    def add_buf(self, obj: bytes) -> Buffer:
-        buffer = Buffer(self._next_id(), obj)
-        if self.binary:
-            self._buffers.append(buffer)
-        return buffer
-
     @property
     def buffers(self) -> List[Buffer]:
         return list(self._buffers)
 
-    def _next_id(self) -> ID:
-        self._id += 1
-        return ID(str(self._id))
+    def serialize(self, obj: Any) -> Serialized[Any]:
+        return Serialized(self.encode(obj), self.buffers)
 
     def encode(self, obj: Any) -> AnyRep:
         ref = self.get_ref(obj)
@@ -301,11 +304,14 @@ class Serializer:
         )
 
     def _encode_bytes(self, obj: bytes) -> AnyRep:
-        buffer = self.add_buf(obj)
-        return dict(
-            type="bytes",
-            data=buffer.ref if self.binary else buffer.to_base64(),
-        )
+        buffer = Buffer(make_id(), obj)
+        if self._deferred:
+            self._buffers.append(buffer)
+            data = buffer
+        else:
+            data = buffer.to_base64()
+
+        return dict(type="bytes", data=data)
 
     def _encode_slice(self, obj: slice) -> AnyRep:
         return self.encode_struct(
@@ -415,13 +421,23 @@ class Deserializer:
     _decoding: bool
     _buffers: Dict[ID, Buffer]
 
-    def __init__(self, references: Sequence[Model] | None = None, setter: Setter | None = None):
+    def __init__(self, references: Sequence[Model] | None = None, *, setter: Setter | None = None):
         self._references = {obj.id: obj for obj in references or []}
         self._setter = setter
         self._decoding = False
         self._buffers = {}
 
-    def decode(self, obj: AnyRep, buffers: List[Buffer] | None = None) -> Any:
+    @overload
+    def decode(self, obj: Serialized[Any]) -> Any: ...
+    @overload
+    def decode(self, obj: AnyRep | Serialized[Any], buffers: List[Buffer] | None = None) -> Any: ...
+
+    def decode(self, obj: AnyRep | Serialized[Any], buffers: List[Buffer] | None = None) -> Any:
+        if isinstance(obj, Serialized):
+            assert buffers is None
+            buffers = obj.buffers
+            obj = obj.content
+
         if buffers is not None:
             for buffer in buffers:
                 self._buffers[buffer.id] = buffer
@@ -528,14 +544,16 @@ class Deserializer:
 
         if isinstance(data, str):
             return base64.b64decode(data)
+        elif isinstance(data, Buffer):
+            buffer = data # in case of decode(encode(obj))
         else:
             id = data["id"]
 
             buffer = self._buffers.get(id)
-            if buffer is not None:
-                return buffer.data
-            else:
+            if buffer is None:
                 self.error(f"can't resolve buffer '{id}'")
+
+        return buffer.data
 
     def _decode_slice(self, obj: SliceRep) -> slice:
         start = self._decode(obj["start"])

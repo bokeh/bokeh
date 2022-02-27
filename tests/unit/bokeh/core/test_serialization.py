@@ -37,8 +37,7 @@ from bokeh.core.properties import (
     Nullable,
     String,
 )
-from bokeh.core.serialization import Buffer, Deserializer, Serializer
-from bokeh.core.types import ID
+from bokeh.core.serialization import Deserializer, SerializationError, Serializer
 from bokeh.model import Model
 from bokeh.util.dataclasses import NotRequired, Unspecified, dataclass
 
@@ -155,7 +154,7 @@ class TestSerializer:
         val.insert(2, val)
 
         encoder = Serializer()
-        with pytest.raises(ValueError):
+        with pytest.raises(SerializationError):
             encoder.encode(val)
 
     def test_slice(self) -> None:
@@ -176,20 +175,20 @@ class TestSerializer:
         val4 = slice(None, None, None)
         assert encoder.encode(val4) == dict(type="slice", start=None, stop=None, step=None)
 
-    def test_bytes_binary(self) -> None:
-        encoder = Serializer(binary=True)
+    def test_bytes(self) -> None:
+        encoder = Serializer()
         val = bytes([0xFF, 0x00, 0x17, 0xFE, 0x00])
         rep = encoder.encode(val)
-        assert rep == dict(
-            type="bytes",
-            data=dict(id="1"),
-        )
-        assert encoder.buffers == [
-            Buffer(id=ID("1"), data=val),
-        ]
+
+        assert len(encoder.buffers) == 1
+
+        [buf] = encoder.buffers
+        assert buf.data == val
+
+        assert rep == dict(type="bytes", data=buf)
 
     def test_bytes_base64(self) -> None:
-        encoder = Serializer(binary=False)
+        encoder = Serializer(deferred=False)
         val = bytes([0xFF, 0x00, 0x17, 0xFE, 0x00])
         rep = encoder.encode(val)
         assert rep == dict(
@@ -198,25 +197,25 @@ class TestSerializer:
         )
         assert encoder.buffers == []
 
-    def test_typed_array_binary(self) -> None:
-        encoder = Serializer(binary=True)
+    def test_typed_array(self) -> None:
+        encoder = Serializer()
         val = TypedArray("i", [0, 1, 2, 3, 4, 5])
         rep = encoder.encode(val)
+
+        assert len(encoder.buffers) == 1
+
+        [buf] = encoder.buffers
+        assert buf.data == val.tobytes()
+
         assert rep == dict(
             type="typed_array",
-            array=dict(
-                type="bytes",
-                data=dict(id=ID("1")),
-            ),
+            array=dict(type="bytes", data=buf),
             order=sys.byteorder,
             dtype="int32",
         )
-        assert encoder.buffers == [
-            Buffer(id=ID("1"), data=val.tobytes()),
-        ]
 
     def test_typed_array_base64(self) -> None:
-        encoder = Serializer(binary=False)
+        encoder = Serializer(deferred=False)
         val = TypedArray("i", [0, 1, 2, 3, 4, 5])
         rep = encoder.encode(val)
         assert rep == dict(
@@ -230,26 +229,26 @@ class TestSerializer:
         )
         assert encoder.buffers == []
 
-    def test_ndarray_binary(self) -> None:
-        encoder = Serializer(binary=True)
+    def test_ndarray(self) -> None:
+        encoder = Serializer()
         val = np.array([0, 1, 2, 3, 4, 5], dtype="int32")
         rep = encoder.encode(val)
+
+        assert len(encoder.buffers) == 1
+
+        [buf] = encoder.buffers
+        assert buf.data == val.tobytes()
+
         assert rep == dict(
             type="ndarray",
-            array=dict(
-                type="bytes",
-                data=dict(id=ID("1")),
-            ),
+            array=dict(type="bytes", data=buf),
             order=sys.byteorder,
             shape=[6],
             dtype="int32",
         )
-        assert encoder.buffers == [
-            Buffer(id=ID("1"), data=val.tobytes()),
-        ]
 
     def test_ndarray_base64(self) -> None:
-        encoder = Serializer(binary=False)
+        encoder = Serializer(deferred=False)
         val = np.array([0, 1, 2, 3, 4, 5], dtype="int32")
         rep = encoder.encode(val)
         assert rep == dict(
@@ -445,21 +444,21 @@ class TestSerializer:
         assert rep == "rgba(16, 32, 64, 0.1)"
         assert encoder.buffers == []
 
-    def test_pd_series_base64(self, pd) -> None:
-        encoder = Serializer(binary=False)
+    def test_pd_series(self, pd) -> None:
+        encoder = Serializer()
         val = pd.Series([0, 1, 2, 3, 4, 5], dtype="int32")
         rep = encoder.encode(val)
+
+        assert len(encoder.buffers) == 1
+        [buf] = encoder.buffers
+
         assert rep == dict(
             type="ndarray",
-            array=dict(
-                type="bytes",
-                data="AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAA",
-            ),
+            array=dict(type="bytes", data=buf),
             order=sys.byteorder,
             shape=[6],
             dtype="int32",
         )
-        assert encoder.buffers == []
 
     def test_np_int64(self) -> None:
         encoder = Serializer()
