@@ -268,7 +268,7 @@ class Message(Generic[Content]):
         sent = 0
         for buffer in self._buffers:
             header = json.dumps(buffer.ref)
-            payload = buffer.data
+            payload = buffer.to_bytes()
             await conn.write_message(header, locked=locked)
             await conn.write_message(payload, binary=True, locked=locked)
             sent += len(header) + len(payload)

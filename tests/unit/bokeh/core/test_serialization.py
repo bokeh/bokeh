@@ -205,7 +205,7 @@ class TestSerializer:
         assert len(encoder.buffers) == 1
 
         [buf] = encoder.buffers
-        assert buf.data == val.tobytes()
+        assert bytes(buf.data) == val.tobytes()
 
         assert rep == dict(
             type="typed_array",
@@ -237,7 +237,7 @@ class TestSerializer:
         assert len(encoder.buffers) == 1
 
         [buf] = encoder.buffers
-        assert buf.data == val.tobytes()
+        assert bytes(buf.data) == val.tobytes()
 
         assert rep == dict(
             type="ndarray",

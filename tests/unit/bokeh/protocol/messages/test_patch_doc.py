@@ -22,7 +22,6 @@ import numpy as np
 # Bokeh imports
 import bokeh.document as document
 from bokeh.core.properties import Instance, Int, Nullable
-from bokeh.core.serialization import Buffer
 from bokeh.document.events import (
     ColumnDataChangedEvent,
     ColumnsPatchedEvent,
@@ -174,7 +173,7 @@ class TestPatchDocument:
 
         # reports CDS buffer *as it is* Normally events called by setter and
         # value in local object would have been already mutated.
-        assert msg7.buffers == [Buffer(buf.id, np.array([11., 1., 2., 3]).tobytes())]
+        assert bytes(buf.data) == np.array([11., 1., 2., 3]).tobytes()
 
 #-----------------------------------------------------------------------------
 # Dev API

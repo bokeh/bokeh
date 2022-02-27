@@ -115,7 +115,7 @@ class ArrayRep(TypedDict):
 
 class BytesRep(TypedDict):
     type: Literal["bytes"]
-    data: Ref | str
+    data: Buffer | str
 
 ByteOrder = Literal["little", "big"]
 
@@ -142,11 +142,14 @@ class NDArrayRep(TypedDict):
 @dataclass
 class Buffer:
     id: ID
-    data: bytes
+    data: bytes | memoryview
 
     @property
     def ref(self) -> Ref:
         return Ref(id=self.id)
+
+    def to_bytes(self) -> bytes:
+        return self.data if isinstance(self.data, bytes) else self.data.tobytes()
 
     def to_base64(self) -> str:
         return base64.b64encode(self.data).decode("utf-8")
@@ -303,7 +306,7 @@ class Serializer:
             attributes={key: self.encode(val) for key, val in entries(obj)},
         )
 
-    def _encode_bytes(self, obj: bytes) -> AnyRep:
+    def _encode_bytes(self, obj: bytes | memoryview) -> BytesRep:
         buffer = Buffer(make_id(), obj)
         if self._deferred:
             self._buffers.append(buffer)
@@ -311,7 +314,7 @@ class Serializer:
         else:
             data = buffer.to_base64()
 
-        return dict(type="bytes", data=data)
+        return BytesRep(type="bytes", data=data)
 
     def _encode_slice(self, obj: slice) -> AnyRep:
         return self.encode_struct(
@@ -322,7 +325,7 @@ class Serializer:
         )
 
     def _encode_array(self, obj: TypedArray[int | float]) -> AnyRep:
-        array = self._encode_bytes(obj.tobytes())
+        array = self._encode_bytes(memoryview(obj))
 
         typecode = obj.typecode
         bitsize = obj.itemsize*8
@@ -350,8 +353,7 @@ class Serializer:
             data = self._encode_list(array.flatten().tolist())
             dtype = "object"
         else:
-            # TODO: investigate if this copy is really necessary
-            data = self._encode_bytes(array.tobytes())
+            data = self._encode_bytes(memoryview(array))
             dtype = str(array.dtype.name)
 
         return dict(
