@@ -303,10 +303,11 @@ class TestSerializer:
             f: int = 0
             g: str = "a"
 
-        encoder = Serializer()
         val = np.array([[X()], [X(1)], [X(2, "b")]])
 
+        encoder = Serializer()
         rep = encoder.encode(val)
+
         assert rep == dict(
             type="ndarray",
             array=[
@@ -319,6 +320,54 @@ class TestSerializer:
             dtype="object",
         )
         assert encoder.buffers == []
+
+    def test_ndarray_int64_uint64(self) -> None:
+        val0 = np.array([-2**16], dtype="int64")
+        val1 = np.array([2**16], dtype="uint64")
+        val2 = np.array([-2**36], dtype="int64")
+        val3 = np.array([2**36], dtype="uint64")
+
+        encoder = Serializer()
+
+        rep0 = encoder.encode(val0)
+        rep1 = encoder.encode(val1)
+        rep2 = encoder.encode(val2)
+        rep3 = encoder.encode(val3)
+
+        assert len(encoder.buffers) == 2
+        [buf0, buf1] = encoder.buffers
+
+        assert rep0 == dict(
+            type="ndarray",
+            array=dict(type="bytes", data=buf0),
+            order=sys.byteorder,
+            shape=[1],
+            dtype="int32",
+        )
+
+        assert rep1 == dict(
+            type="ndarray",
+            array=dict(type="bytes", data=buf1),
+            order=sys.byteorder,
+            shape=[1],
+            dtype="uint32",
+        )
+
+        assert rep2 == dict(
+            type="ndarray",
+            array=[-2**36],
+            order=sys.byteorder,
+            shape=[1],
+            dtype="object",
+        )
+
+        assert rep3 == dict(
+            type="ndarray",
+            array=[2**36],
+            order=sys.byteorder,
+            shape=[1],
+            dtype="object",
+        )
 
     def test_HasProps(self) -> None:
         val = SomeProps(p0=2, p1="a", p2=[1, 2, 3])

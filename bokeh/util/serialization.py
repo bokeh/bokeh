@@ -32,7 +32,12 @@ import datetime as dt
 import uuid
 from functools import lru_cache
 from threading import Lock
-from typing import TYPE_CHECKING, Any, Set
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Set,
+    Type,
+)
 
 # External imports
 import numpy as np
@@ -317,11 +322,27 @@ def transform_array(array: npt.NDArray[Any]) -> npt.NDArray[Any]:
     '''
     array = convert_datetime_array(array)
 
+    # XXX: as long as we can't support 64-bit integers, try to convert
+    # to 32-bits. If not possible, let the serializer convert to a less
+    # efficient representation and/or deal with any error messaging.
+    def _cast_if_can(array: npt.NDArray[Any], dtype: Type[Any]) -> npt.NDArray[Any]:
+        info = np.iinfo(dtype)
+
+        if np.any((array < info.min) | (info.max < array)):
+            return array
+        else:
+            return array.astype(dtype, casting="unsafe")
+
+    if array.dtype == np.dtype(np.int64):
+        array = _cast_if_can(array, np.int32)
+    elif array.dtype == np.dtype(np.uint64):
+        array = _cast_if_can(array, np.uint32)
+
     if isinstance(array, np.ma.MaskedArray):
-        # Set masked values to nan
         array = array.filled(np.nan)  # type: ignore # filled is untyped
     if not array.flags["C_CONTIGUOUS"]:
         array = np.ascontiguousarray(array)
+
     return array
 
 def transform_series(series: pd.Series | pd.Index) -> npt.NDArray[Any]:
