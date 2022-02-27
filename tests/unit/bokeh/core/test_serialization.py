@@ -20,7 +20,7 @@ import pytest ; pytest
 import datetime as dt
 import sys
 from array import array as TypedArray
-from typing import Any, Sequence
+from typing import Any, Dict, Sequence
 
 # External imports
 import dateutil.relativedelta as rd
@@ -152,6 +152,40 @@ class TestSerializer:
     def test_list_circular(self) -> None:
         val: Sequence[Any] = [1, 2, 3]
         val.insert(2, val)
+
+        encoder = Serializer()
+        with pytest.raises(SerializationError):
+            encoder.encode(val)
+
+    def test_empty_dict(self) -> None:
+        val = {}
+
+        encoder = Serializer()
+        rep = encoder.encode(val)
+
+        assert rep == dict(type="map", entries=[])
+        assert encoder.buffers == []
+
+    def test_dict(self) -> None:
+        val = {float("nan"): {1: [2, 3]}, "bcd": None, "abc": True, None: float("inf")}
+
+        encoder = Serializer()
+        rep = encoder.encode(val)
+
+        assert rep == dict(
+            type="map",
+            entries=[
+                [dict(type="number", value="nan"), dict(type="map", entries=[[1, [2, 3]]])],
+                ["bcd", None],
+                ["abc", True],
+                [None, dict(type="number", value="+inf")],
+            ],
+        )
+        assert encoder.buffers == []
+
+    def test_dict_circular(self) -> None:
+        val: Dict[Any, Any] = {float("nan"): [1, 2]}
+        val[float("inf")] = val
 
         encoder = Serializer()
         with pytest.raises(SerializationError):

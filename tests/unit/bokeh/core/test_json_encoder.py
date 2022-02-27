@@ -102,6 +102,14 @@ def test_json_encoder():
 ]\
 """ % rep0.buffers[0].id
 
+def test_json_encoder_dict_no_sort():
+    val0 = {float("nan"): 0, "key_1": 1, "abc": 2, "key_0": 3}
+    rep0 = Serializer().serialize(val0)
+
+    assert serialize_json(rep0) == """\
+{"type":"map","entries":[[{"type":"number","value":"nan"},0],["key_1",1],["abc",2],["key_0",3]]}\
+"""
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
