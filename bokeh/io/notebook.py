@@ -49,7 +49,13 @@ from .state import curstate
 if TYPE_CHECKING:
     from ..application.application import Application
     from ..document.document import Document
-    from ..document.events import DocumentPatchedEvent, ModelChangedEvent
+    from ..document.events import (
+        ColumnDataChangedEvent,
+        ColumnsPatchedEvent,
+        ColumnsStreamedEvent,
+        DocumentPatchedEvent,
+        ModelChangedEvent,
+    )
     from ..embed.bundle import Bundle
     from ..model import Model
     from ..resources import Resources
@@ -136,6 +142,18 @@ class CommsHandle:
     # internal doc with the event so that it is collected (until a
     # call to push_notebook processes and clear colleted events)
     def _document_model_changed(self, event: ModelChangedEvent) -> None:
+        if event.model.id in self.doc.models:
+            self.doc.callbacks.trigger_on_change(event)
+
+    def _column_data_changed(self, event: ColumnDataChangedEvent) -> None:
+        if event.model.id in self.doc.models:
+            self.doc.callbacks.trigger_on_change(event)
+
+    def _columns_streamed(self, event: ColumnsStreamedEvent) -> None:
+        if event.model.id in self.doc.models:
+            self.doc.callbacks.trigger_on_change(event)
+
+    def _columns_patched(self, event: ColumnsPatchedEvent) -> None:
         if event.model.id in self.doc.models:
             self.doc.callbacks.trigger_on_change(event)
 
