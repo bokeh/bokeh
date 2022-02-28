@@ -31,7 +31,7 @@ use ``conda`` and install Selenium together with geckodriver.
         .. code-block:: sh
 
           conda install selenium geckodriver -c conda-forge
-          
+
         In order for geckodriver to work, you also need to have Firefox
         available on your system. See `Supported platforms`_ in the geckodriver
         documentation to make sure your version of Firefox is compatible.
