@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" """
+""" Serialization and deserialization utilities. """
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -82,8 +82,10 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    "Buffer",
     "DeserializationError",
     "Deserializer",
+    "Serializable",
     "SerializationError",
     "Serializer",
 )
@@ -191,19 +193,19 @@ Encoder: TypeAlias = Callable[[Any, "Serializer"], AnyRep]
 Decoder: TypeAlias = Callable[[AnyRep, "Deserializer"], Any]
 
 class SerializationError(ValueError):
-    """ """
+    pass
 
 class Serializable:
-    """ """
+    """ A mixin for making a type serializable. """
 
     def to_serializable(self, serializer: Serializer) -> AnyRep:
-        """ """
+        """ Converts this object to a serializable representation. """
         raise NotImplementedError()
 
 ObjID = int
 
 class Serializer:
-    """ """
+    """ Convert built-in and custom types into serializable representations. """
 
     _encoders: ClassVar[Dict[Type[Any], Encoder]] = {}
 
@@ -453,7 +455,7 @@ class DeserializationError(ValueError):
     pass
 
 class Deserializer:
-    """ """
+    """ Convert from serializable representations to built-in and custom types. """
 
     _decoders: ClassVar[Dict[str, Decoder]] = {}
 
