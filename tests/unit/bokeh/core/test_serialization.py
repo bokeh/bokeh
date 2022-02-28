@@ -23,7 +23,6 @@ from array import array as TypedArray
 from typing import Any, Dict, Sequence
 
 # External imports
-import dateutil.relativedelta as rd
 import numpy as np
 
 # Bokeh imports
@@ -626,12 +625,6 @@ class TestSerializer:
         rep = encoder.encode(val)
         assert rep == 45135000.0
         assert isinstance(rep, float)
-
-    def test_rd_relativedelta(self) -> None:
-        encoder = Serializer()
-        val = rd.relativedelta()
-        rep = encoder.encode(val)
-        assert isinstance(rep, dict)
 
     def test_pd_timestamp(self, pd) -> None:
         encoder = Serializer()

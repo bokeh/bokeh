@@ -437,18 +437,6 @@ class Serializer:
         if pd and isinstance(obj, (pd.Series, pd.Index)):
             return self._encode_ndarray(transform_series(obj))
 
-        rd = import_optional("dateutil.relativedelta")
-        if rd and isinstance(obj, rd.relativedelta):
-            return dict(
-                years=self.encode(obj.years),
-                months=self.encode(obj.months),
-                days=self.encode(obj.days),
-                hours=self.encode(obj.hours),
-                minutes=self.encode(obj.minutes),
-                seconds=self.encode(obj.seconds),
-                microseconds=self.encode(obj.microseconds),
-            )
-
         self.error(f"can't serialize {type(obj)}")
 
     def error(self, message: str) -> NoReturn:
