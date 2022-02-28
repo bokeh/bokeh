@@ -334,8 +334,10 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
     handle.comms.send(msg.header_json)
     handle.comms.send(msg.metadata_json)
     handle.comms.send(msg.content_json)
-    for header, payload in msg.buffers:
-        handle.comms.send(json.dumps(header))
+    for buffer in msg.buffers:
+        header = json.dumps(buffer.ref)
+        payload = buffer.to_bytes()
+        handle.comms.send(header)
         handle.comms.send(buffers=[payload])
 
 def run_notebook_hook(notebook_type: NotebookType, action: Literal["load", "doc", "app"], *args: Any, **kwargs: Any) -> Any:
