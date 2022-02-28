@@ -43,7 +43,6 @@ from typing import (
     TypeVar,
     Union,
     cast,
-    overload,
 )
 
 # External imports
@@ -476,17 +475,13 @@ class Deserializer:
         self._decoding = False
         self._buffers = {}
 
-    @overload
-    def decode(self, obj: Serialized[Any]) -> Any: ...
-    @overload
-    def decode(self, obj: AnyRep | Serialized[Any], buffers: List[Buffer] | None = None) -> Any: ...
-
-    def decode(self, obj: AnyRep | Serialized[Any], buffers: List[Buffer] | None = None) -> Any:
+    def deserialize(self, obj: Any | Serialized[Any]) -> Any:
         if isinstance(obj, Serialized):
-            assert buffers is None
-            buffers = obj.buffers
-            obj = obj.content
+            return self.decode(obj.content, obj.buffers)
+        else:
+            return self.decode(obj)
 
+    def decode(self, obj: AnyRep, buffers: List[Buffer] | None = None) -> Any:
         if buffers is not None:
             for buffer in buffers:
                 self._buffers[buffer.id] = buffer

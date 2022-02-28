@@ -350,7 +350,7 @@ class Document:
         cb = TimeoutCallback(callback=None, timeout=timeout_milliseconds, callback_id=make_id())
         return self.callbacks.add_session_callback(cb, callback, one_shot=True)
 
-    def apply_json_patch(self, patch: PatchJson | Serialized[PatchJson], *, setter: Setter | None = None) -> None:
+    def apply_json_patch(self, patch_json: PatchJson | Serialized[PatchJson], *, setter: Setter | None = None) -> None:
         ''' Apply a JSON patch object and process any resulting events.
 
         Args:
@@ -373,7 +373,9 @@ class Document:
 
         '''
         deserializer = Deserializer(list(self.models), setter=setter)
-        events = deserializer.decode(patch)["events"]
+        patch: PatchJson = deserializer.deserialize(patch_json)
+
+        events = patch["events"]
         assert isinstance(events, list) # List[DocumentPatched]
 
         for event in events:
@@ -423,7 +425,7 @@ class Document:
             doc_json["defs"] = []
 
         deserializer = Deserializer()
-        doc_struct = deserializer.decode(doc_json)
+        doc_struct = deserializer.deserialize(doc_json)
 
         roots = doc_struct["roots"]
         title = doc_struct["title"]
