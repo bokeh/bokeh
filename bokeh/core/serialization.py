@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import base64
 import datetime as dt
+import importlib.util
 import sys
 from array import array as TypedArray
 from math import isinf, isnan
@@ -87,7 +88,8 @@ __all__ = (
     "Serializer",
 )
 
-MAX_INT = 2**53 - 1
+_MAX_SAFE_INT = 2**53 - 1
+_HAS_PANDAS = importlib.util.find_spec("pandas") is not None
 
 #-----------------------------------------------------------------------------
 # General API
@@ -297,7 +299,7 @@ class Serializer:
         return obj
 
     def _encode_int(self, obj: int) -> AnyRep:
-        if -MAX_INT < obj <= MAX_INT:
+        if -_MAX_SAFE_INT < obj <= _MAX_SAFE_INT:
             return obj
         else:
             log.warning("out of range integer may result in loss of precision")
@@ -433,9 +435,10 @@ class Serializer:
         if np.issubdtype(type(obj), np.bool_):
             return self._encode_bool(bool(obj))
 
-        pd = import_optional("pandas")
-        if pd and isinstance(obj, (pd.Series, pd.Index)):
-            return self._encode_ndarray(transform_series(obj))
+        if _HAS_PANDAS and obj.__module__ is not None and obj.__module__.startswith("pandas"):
+            pd = import_optional("pandas")
+            if pd and isinstance(obj, (pd.Series, pd.Index)):
+                return self._encode_ndarray(transform_series(obj))
 
         self.error(f"can't serialize {type(obj)}")
 
