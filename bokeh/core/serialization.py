@@ -175,7 +175,7 @@ class Buffer:
         return Ref(id=self.id)
 
     def to_bytes(self) -> bytes:
-        return self.data if isinstance(self.data, bytes) else self.data.tobytes()
+        return self.data.tobytes() if isinstance(self.data, memoryview) else self.data
 
     def to_base64(self) -> str:
         return base64.b64encode(self.data).decode("utf-8")
@@ -344,6 +344,8 @@ class Serializer:
 
     def _encode_bytes(self, obj: bytes | memoryview) -> BytesRep:
         buffer = Buffer(make_id(), obj)
+
+        data: Buffer | str
         if self._deferred:
             self._buffers.append(buffer)
             data = buffer
@@ -360,7 +362,7 @@ class Serializer:
             step=self.encode(obj.step),
         )
 
-    def _encode_typed_array(self, obj: TypedArray[int | float]) -> TypedArrayRep:
+    def _encode_typed_array(self, obj: TypedArray[Any]) -> TypedArrayRep:
         array = self._encode_bytes(memoryview(obj))
 
         typecode = obj.typecode
@@ -401,11 +403,13 @@ class Serializer:
     def _encode_ndarray(self, obj: npt.NDArray[Any]) -> NDArrayRep:
         array = transform_array(obj)
 
+        data: ArrayRepLike | BytesRep
+        dtype: NDDataType
         if array_encoding_disabled(array):
             data = self._encode_list(array.flatten().tolist())
             dtype = "object"
         else:
-            data = self._encode_bytes(memoryview(array))
+            data = self._encode_bytes(array.data)
             dtype = cast(NDDataType, array.dtype.name)
 
         return NDArrayRep(
@@ -503,33 +507,36 @@ class Deserializer:
                 if type in self._decoders:
                     return self._decoders[type](obj, self)
                 elif type == "ref":
-                    return self._decode_ref(obj)
+                    return self._decode_ref(cast(Ref, obj))
                 elif type == "number":
-                    return self._decode_number(obj)
+                    return self._decode_number(cast(NumberRep, obj))
                 elif type == "array":
-                    return self._decode_array(obj)
+                    return self._decode_array(cast(ArrayRep, obj))
                 elif type == "set":
-                    return self._decode_set(obj)
+                    return self._decode_set(cast(SetRep, obj))
                 elif type == "map":
-                    return self._decode_map(obj)
+                    return self._decode_map(cast(MapRep, obj))
                 elif type == "bytes":
-                    return self._decode_bytes(obj)
+                    return self._decode_bytes(cast(BytesRep, obj))
                 elif type == "slice":
-                    return self._decode_slice(obj)
+                    return self._decode_slice(cast(SliceRep, obj))
                 elif type == "typed_array":
-                    return self._decode_typed_array(obj)
+                    return self._decode_typed_array(cast(TypedArrayRep, obj))
                 elif type == "ndarray":
-                    return self._decode_ndarray(obj)
+                    return self._decode_ndarray(cast(NDArrayRep, obj))
                 elif type == "object":
-                    return self._decode_object_ref(obj)
+                    if "id" in obj:
+                        return self._decode_object_ref(cast(ObjectRefRep, obj))
+                    else:
+                        return self._decode_object(cast(ObjectRep, obj))
                 else:
                     self.error(f"unable to decode an object of type '{type}'")
             elif "id" in obj:
-                return self._decode_ref(obj)
+                return self._decode_ref(cast(Ref, obj))
             else:
                 return {key: self._decode(val) for key, val in obj.items()}
         elif isinstance(obj, list):
-            return [ self._decode(entry) for entry in obj ]
+            return [self._decode(entry) for entry in obj]
         else:
             return obj
 
@@ -541,19 +548,19 @@ class Deserializer:
         else:
             self.error(f"can't resolve reference '{id}'")
 
-    def _decode_number(self, obj: NumberRep):
+    def _decode_number(self, obj: NumberRep) -> float:
         value = obj["value"]
         return float(value) if isinstance(value, str) else value
 
-    def _decode_array(self, obj: ArrayRep):
+    def _decode_array(self, obj: ArrayRep) -> List[Any]:
         entries = obj["entries"]
         return [ self._decode(entry) for entry in entries ]
 
-    def _decode_set(self, obj: SetRep):
+    def _decode_set(self, obj: SetRep) -> Set[Any]:
         entries = obj["entries"]
         return set([ self._decode(entry) for entry in entries ])
 
-    def _decode_map(self, obj: MapRep):
+    def _decode_map(self, obj: MapRep) -> Dict[Any, Any]:
         entries = obj["entries"]
         return { self._decode(key): self._decode(val) for key, val in entries }
 
@@ -567,8 +574,9 @@ class Deserializer:
         else:
             id = data["id"]
 
-            buffer = self._buffers.get(id)
-            if buffer is None:
+            if id in self._buffers:
+                buffer = self._buffers[id]
+            else:
                 self.error(f"can't resolve buffer '{id}'")
 
         return buffer.data
@@ -579,7 +587,7 @@ class Deserializer:
         step = self._decode(obj["step"])
         return slice(start, stop, step)
 
-    def _decode_typed_array(self, obj: TypedArrayRep) -> TypedArray[int | float]:
+    def _decode_typed_array(self, obj: TypedArrayRep) -> TypedArray[Any]:
         array = obj["array"]
         order = obj["order"]
         dtype = obj["dtype"]
@@ -603,7 +611,7 @@ class Deserializer:
         if typecode is None:
             self.error(f"unsupported dtype '{dtype}'")
 
-        typed_array = TypedArray(typecode, data)
+        typed_array: TypedArray[Any] = TypedArray(typecode, data)
         if order != sys.byteorder:
             typed_array.byteswap()
 
@@ -619,7 +627,7 @@ class Deserializer:
 
         ndarray: npt.NDArray[Any]
         if isinstance(decoded, bytes):
-            ndarray = np.copy(np.frombuffer(decoded, dtype=dtype))  # type: ignore # from and frombuffer are untyped
+            ndarray = np.copy(np.frombuffer(decoded, dtype=dtype))
 
             if order != sys.byteorder:
                 ndarray.byteswap(inplace=True)
@@ -631,6 +639,9 @@ class Deserializer:
 
         return ndarray
 
+    def _decode_object(self, obj: ObjectRep) -> object:
+        raise NotImplementedError()
+
     def _decode_object_ref(self, obj: ObjectRefRep) -> Model:
         id = obj["id"]
         instance = self._references.get(id)
@@ -640,16 +651,9 @@ class Deserializer:
         name = obj["name"]
         attributes = obj.get("attributes")
 
-        from ..model import Model
-        cls = Model.model_class_reverse_map.get(name)
-        if cls is None:
-            if name == "Figure":
-                from ..plotting import figure
-                cls = figure # XXX: helps with push_session(); this needs a better resolution scheme
-            else:
-                self.error(f"can't resolve type '{name}'")
-
+        cls = self._resolve_type(name)
         instance = cls.__new__(cls, id=id)
+
         if instance is None:
             self.error(f"can't instantiate {name}(id={id})")
 
@@ -668,6 +672,21 @@ class Deserializer:
                 instance.set_from_json(key, val, setter=self._setter)
 
         return instance
+
+    def _resolve_type(self, type: str) -> Type[Model]:
+        from ..model import Model
+        cls = Model.model_class_reverse_map.get(type)
+        if cls is not None:
+            if issubclass(cls, Model):
+                return cls
+            else:
+                self.error(f"object of type '{type}' is not a subclass of 'Model'")
+        else:
+            if type == "Figure":
+                from ..plotting import figure
+                return figure # XXX: helps with push_session(); this needs a better resolution scheme
+            else:
+                self.error(f"can't resolve type '{type}'")
 
     def error(self, message: str) -> NoReturn:
         raise DeserializationError(message)
