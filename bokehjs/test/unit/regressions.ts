@@ -197,15 +197,18 @@ describe("Bug", () => {
       const doc_json: DocJson = {
         defs: [],
         roots: [{
-          type: "Plot",
+          type: "object",
+          name: "Plot",
           id: "1002",
           attributes: {
             renderers: [{
+              type: "object",
+              name: "GlyphRenderer",
               id: "1005",
-              type: "GlyphRenderer",
               attributes: {
                 data_source: {
-                  type: "ColumnDataSource",
+                  type: "object",
+                  name: "ColumnDataSource",
                   id: "1003",
                   attributes: {
                     data: {
@@ -243,7 +246,8 @@ describe("Bug", () => {
                   },
                 },
                 glyph: {
-                  type: "Line",
+                  type: "object",
+                  name: "Line",
                   id: "1004",
                   attributes: {
                     x: {field: "x"},
@@ -252,12 +256,14 @@ describe("Bug", () => {
                 },
               },
             }, {
+              type: "object",
+              name: "GlyphRenderer",
               id: "1007",
-              type: "GlyphRenderer",
               attributes: {
                 data_source: {id: "1003"},
                 glyph: {
-                  type: "Line",
+                  type: "object",
+                  name: "Line",
                   id: "1006",
                   attributes: {
                     x: {field: "x"},
@@ -267,22 +273,26 @@ describe("Bug", () => {
               },
             }],
             x_range: {
-              type: "DataRange1d",
+              type: "object",
+              name: "DataRange1d",
               id: "1008",
               attributes: {},
             },
             x_scale: {
-              type: "LinearScale",
+              type: "object",
+              name: "LinearScale",
               id: "1010",
               attributes: {},
             },
             y_range: {
-              type: "DataRange1d",
+              type: "object",
+              name: "DataRange1d",
               id: "1009",
               attributes: {},
             },
             y_scale: {
-              type: "LinearScale",
+              type: "object",
+              name: "LinearScale",
               id: "1011",
               attributes: {},
             },

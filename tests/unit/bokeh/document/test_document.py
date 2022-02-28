@@ -25,6 +25,7 @@ from mock import patch
 
 # Bokeh imports
 from bokeh.core.enums import HoldPolicy
+from bokeh.core.has_props import ModelDef, OverrideDef, PropertyDef
 from bokeh.core.properties import (
     Instance,
     Int,
@@ -33,7 +34,13 @@ from bokeh.core.properties import (
     Override,
 )
 from bokeh.core.property.vectorization import Field, Value
-from bokeh.core.serialization import Deserializer
+from bokeh.core.serialization import (
+    Deserializer,
+    MapRep,
+    ObjectRefRep,
+    Ref,
+)
+from bokeh.core.types import ID
 from bokeh.document.events import (
     ColumnsPatchedEvent,
     ColumnsStreamedEvent,
@@ -726,60 +733,61 @@ class TestDocument:
 
         json = doc.to_json()
         assert json["defs"] == [
-            dict(
+            ModelDef(
                 type="model",
-                qualified="test_document.SomeDataModel",
+                name="test_document.SomeDataModel",
                 properties=[
-                    dict(default=0, kind="Any", name="prop0"),
-                    dict(default=111, kind="Any", name="prop1"),
-                    dict(default=[1, 2, 3], kind="Any", name="prop2"),
+                    PropertyDef(name="prop0", kind="Any", default=0),
+                    PropertyDef(name="prop1", kind="Any", default=111),
+                    PropertyDef(name="prop2", kind="Any", default=[1, 2, 3]),
                 ],
             ),
-            dict(
+            ModelDef(
                 type="model",
-                qualified="test_document.DerivedDataModel",
-                extends=dict(id="test_document.SomeDataModel"),
+                name="test_document.DerivedDataModel",
+                extends=Ref(id=ID("test_document.SomeDataModel")),
                 properties=[
-                    dict(default=0, kind="Any", name="prop3"),
-                    dict(default=112, kind="Any", name="prop4"),
-                    dict(default=[1, 2, 3, 4], kind="Any", name="prop5"),
-                    dict(kind="Any", name="prop6"),
-                    dict(default=None, kind="Any", name="prop7"),
+                    PropertyDef(name="prop3", kind="Any", default=0),
+                    PropertyDef(name="prop4", kind="Any", default=112),
+                    PropertyDef(name="prop5", kind="Any", default=[1, 2, 3, 4]),
+                    PropertyDef(name="prop6", kind="Any"),
+                    PropertyDef(name="prop7", kind="Any", default=None),
                 ],
                 overrides=[
-                    dict(default=119, name="prop2"),
+                    OverrideDef(name="prop2", default=119),
                 ],
             ),
-            dict(
+            ModelDef(
                 type="model",
-                qualified="test_document.CDSDerivedDataModel",
-                extends=dict(id="ColumnDataSource"),
+                name="test_document.CDSDerivedDataModel",
+                extends=Ref(id=ID("ColumnDataSource")),
                 properties=[
-                    dict(default=0, kind="Any", name="prop0"),
-                    dict(default=111, kind="Any", name="prop1"),
-                    dict(default=[1, 2, 3], kind="Any", name="prop2"),
+                    PropertyDef(name="prop0", kind="Any", default=0),
+                    PropertyDef(name="prop1", kind="Any", default=111),
+                    PropertyDef(name="prop2", kind="Any", default=[1, 2, 3]),
                 ],
                 overrides=[
-                    dict(default=dict(type="map", entries=[["default_column", [4, 5, 6]]]), name="data"),
+                    OverrideDef(name="data", default=MapRep(type="map", entries=[("default_column", [4, 5, 6])])),
                 ],
             ),
-            dict(
+            ModelDef(
                 type="model",
-                qualified="test_document.CDSDerivedDerivedDataModel",
-                extends=dict(id="test_document.CDSDerivedDataModel"),
+                name="test_document.CDSDerivedDerivedDataModel",
+                extends=Ref(id=ID("test_document.CDSDerivedDataModel")),
                 properties=[
-                    dict(
-                        default=dict(
-                            type="test_document.SomeDataModel",
+                    PropertyDef(
+                        name="prop3",
+                        kind="Any",
+                        default=ObjectRefRep(
+                            type="object",
+                            name="test_document.SomeDataModel",
                             id=CDSDerivedDerivedDataModel.prop3.property._default.ref["id"],
                             attributes=dict(prop0=-1),
                         ),
-                        kind="Any",
-                        name="prop3",
                     ),
                 ],
                 overrides=[
-                    dict(default=dict(type="map", entries=[["default_column", [7, 8, 9]]]), name="data"),
+                    OverrideDef(name="data", default=MapRep(type="map", entries=[("default_column", [7, 8, 9])])),
                 ],
             ),
         ]

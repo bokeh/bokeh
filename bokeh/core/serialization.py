@@ -40,6 +40,8 @@ from typing import (
     Type,
     TypedDict,
     TypeVar,
+    Union,
+    cast,
     overload,
 )
 
@@ -96,47 +98,69 @@ AnyRep: TypeAlias = Any
 class Ref(TypedDict):
     id: ID
 
-class _TypeRep(TypedDict):
-    type: str
-class TypeRep(_TypeRep, total=False):
-    attributes: Dict[str, Any]
-
-class _TypeRefRep(TypedDict):
-    type: str
+class RefRep(TypedDict):
+    type: Literal["ref"]
     id: ID
-class TypeRefRep(_TypeRefRep, total=False):
-    attributes: Dict[str, Any]
 
-ModelRep = TypeRefRep
+class NumberRep(TypedDict):
+    type: Literal["number"]
+    value: Literal["nan", "-inf", "+inf"] | float
 
 class ArrayRep(TypedDict):
     type: Literal["array"]
-    entries: List[Any]
+    entries: List[AnyRep]
+
+ArrayRepLike: TypeAlias = Union[ArrayRep, List[AnyRep]]
+
+class SetRep(TypedDict):
+    type: Literal["set"]
+    entries: List[AnyRep]
+
+class MapRep(TypedDict):
+    type: Literal["map"]
+    entries: List[Tuple[AnyRep, AnyRep]]
 
 class BytesRep(TypedDict):
     type: Literal["bytes"]
-    data: Buffer | str
-
-ByteOrder = Literal["little", "big"]
+    data: Buffer | Ref | str
 
 class SliceRep(TypedDict):
+    type: Literal["slice"]
     start: int | None
     stop: int | None
     step: int | None
 
-DType: TypeAlias = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "float32", "float64"]
+class _ObjectRep(TypedDict):
+    type: Literal["object"]
+    name: str
+class ObjectRep(_ObjectRep, total=False):
+    attributes: Dict[str, AnyRep]
+
+class _ObjectRefRep(TypedDict):
+    type: Literal["object"]
+    name: str
+    id: ID
+class ObjectRefRep(_ObjectRefRep, total=False):
+    attributes: Dict[str, AnyRep]
+
+ModelRep = ObjectRefRep
+
+ByteOrder = Literal["little", "big"]
+
+DataType: TypeAlias = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "float32", "float64"] # "uint64", "int64"
+NDDataType: TypeAlias = Union[DataType, Literal["object"]]
 
 class TypedArrayRep(TypedDict):
     type: Literal["typed_array"]
     array: BytesRep
     order: ByteOrder
-    dtype: DType
+    dtype: DataType
 
 class NDArrayRep(TypedDict):
     type: Literal["ndarray"]
-    array: BytesRep | ArrayRep
+    array: BytesRep | ArrayRepLike
     order: ByteOrder
-    dtype: DType | Literal["object"]
+    dtype: NDDataType
     shape: List[int]
 
 @dataclass
@@ -258,7 +282,7 @@ class Serializer:
         elif isinstance(obj, slice):
             return self._encode_slice(obj)
         elif isinstance(obj, TypedArray):
-            return self._encode_array(obj)
+            return self._encode_typed_array(obj)
         elif isinstance(obj, np.ndarray):
             return self._encode_ndarray(obj)
         elif is_dataclass(obj):
@@ -279,32 +303,42 @@ class Serializer:
             log.warning("out of range integer may result in loss of precision")
             return self._encode_float(float(obj))
 
-    def _encode_float(self, obj: float) -> AnyRep:
+    def _encode_float(self, obj: float) -> NumberRep | float:
         if isnan(obj):
-            return dict(type="number", value="nan")
+            return NumberRep(type="number", value="nan")
         elif isinf(obj):
-            return dict(type="number", value=f"{'-' if obj < 0 else '+'}inf")
+            return NumberRep(type="number", value="-inf" if obj < 0 else "+inf")
         else:
             return obj
 
-    def _encode_tuple(self, obj: Tuple[Any, ...]) -> AnyRep:
+    def _encode_tuple(self, obj: Tuple[Any, ...]) -> ArrayRepLike:
         return self._encode_list(list(obj))
 
-    def _encode_list(self, obj: List[Any]) -> AnyRep:
+    def _encode_list(self, obj: List[Any]) -> ArrayRepLike:
         return [self.encode(item) for item in obj]
 
-    def _encode_dict(self, obj: Dict[Any, Any]) -> AnyRep:
-        return dict(
+    def _encode_dict(self, obj: Dict[Any, Any]) -> MapRep:
+        return MapRep(
             type="map",
-            entries=[[self.encode(key), self.encode(val)] for key, val in obj.items()],
+            entries=[(self.encode(key), self.encode(val)) for key, val in obj.items()],
         )
 
-    def _encode_dataclass(self, obj: Any) -> AnyRep:
+    def _encode_dataclass(self, obj: Any) -> ObjectRep:
         cls = type(obj)
-        return dict(
-            type=f"{cls.__module__}.{cls.__name__}",
-            attributes={key: self.encode(val) for key, val in entries(obj)},
+
+        module = cls.__module__
+        name = cls.__qualname__.replace("<locals>.", "")
+
+        rep = ObjectRep(
+            type="object",
+            name=f"{module}.{name}",
         )
+
+        attributes = list(entries(obj))
+        if attributes:
+            rep["attributes"] = {key: self.encode(val) for key, val in attributes}
+
+        return rep
 
     def _encode_bytes(self, obj: bytes | memoryview) -> BytesRep:
         buffer = Buffer(make_id(), obj)
@@ -316,37 +350,53 @@ class Serializer:
 
         return BytesRep(type="bytes", data=data)
 
-    def _encode_slice(self, obj: slice) -> AnyRep:
-        return self.encode_struct(
+    def _encode_slice(self, obj: slice) -> SliceRep:
+        return SliceRep(
             type="slice",
-            start=obj.start,
-            stop=obj.stop,
-            step=obj.step,
+            start=self.encode(obj.start),
+            stop=self.encode(obj.stop),
+            step=self.encode(obj.step),
         )
 
-    def _encode_array(self, obj: TypedArray[int | float]) -> AnyRep:
+    def _encode_typed_array(self, obj: TypedArray[int | float]) -> TypedArrayRep:
         array = self._encode_bytes(memoryview(obj))
 
         typecode = obj.typecode
-        bitsize = obj.itemsize*8
+        itemsize = obj.itemsize
 
-        if typecode in {"f", "d"}:
-            dtype = f"float{bitsize}"
-        elif typecode in {"B", "H", "I", "L"}: #, "Q"}:
-            dtype = f"uint{bitsize}"
-        elif typecode in {"b", "h", "i", "l"}: #, "q"}:
-            dtype = f"int{bitsize}"
-        else:
-            self.error(f"can't serialize array with items of type '{typecode}'")
+        def dtype() -> DataType:
+            if typecode == "f":
+                return "float32"
+            elif typecode == "d":
+                return "float64"
+            elif typecode in {"B", "H", "I", "L", "Q"}:
+                if obj.itemsize == 1:
+                    return "uint8"
+                elif obj.itemsize == 2:
+                    return "uint16"
+                elif obj.itemsize == 4:
+                    return "uint32"
+                #elif obj.itemsize == 8:
+                #    return "uint64"
+            elif typecode in {"b", "h", "i", "l", "q"}:
+                if obj.itemsize == 1:
+                    return "int8"
+                elif obj.itemsize == 2:
+                    return "int16"
+                elif obj.itemsize == 4:
+                    return "int32"
+                #elif obj.itemsize == 8:
+                #    return "int64"
+            self.error(f"can't serialize array with items of type '{typecode}@{itemsize}'")
 
-        return dict(
+        return TypedArrayRep(
             type="typed_array",
             array=array,
             order=sys.byteorder,
-            dtype=dtype,
+            dtype=dtype(),
         )
 
-    def _encode_ndarray(self, obj: npt.NDArray[Any]) -> AnyRep:
+    def _encode_ndarray(self, obj: npt.NDArray[Any]) -> NDArrayRep:
         array = transform_array(obj)
 
         if array_encoding_disabled(array):
@@ -354,9 +404,9 @@ class Serializer:
             dtype = "object"
         else:
             data = self._encode_bytes(memoryview(array))
-            dtype = str(array.dtype.name)
+            dtype = cast(NDDataType, array.dtype.name)
 
-        return dict(
+        return NDArrayRep(
             type="ndarray",
             array=data,
             shape=list(array.shape),
@@ -457,25 +507,20 @@ class Deserializer:
 
     def _decode(self, obj: AnyRep) -> Any:
         if isinstance(obj, dict):
-            if "id" in obj:
-                if "type" not in obj:
-                    return self._decode_ref(obj)
-                else:
-                    return self._decode_type_ref(obj)
-            elif "type" in obj:
+            if "type" in obj:
                 type = obj["type"]
-                if type == "number":
-                    value = obj["value"]
-                    return float(value) if isinstance(value, str) else value
+                if type in self._decoders:
+                    return self._decoders[type](obj, self)
+                elif type == "ref":
+                    return self._decode_ref(obj)
+                elif type == "number":
+                    return self._decode_number(obj)
                 elif type == "array":
-                    entries = obj["entries"]
-                    return [ self._decode(entry) for entry in entries ]
+                    return self._decode_array(obj)
                 elif type == "set":
-                    entries = obj["entries"]
-                    return set([ self._decode(entry) for entry in entries ])
+                    return self._decode_set(obj)
                 elif type == "map":
-                    entries = obj["entries"]
-                    return { self._decode(key): self._decode(val) for key, val in entries }
+                    return self._decode_map(obj)
                 elif type == "bytes":
                     return self._decode_bytes(obj)
                 elif type == "slice":
@@ -484,12 +529,14 @@ class Deserializer:
                     return self._decode_typed_array(obj)
                 elif type == "ndarray":
                     return self._decode_ndarray(obj)
-                elif type in self._decoders:
-                    return self._decoders[type](obj, self)
+                elif type == "object":
+                    return self._decode_object_ref(obj)
                 else:
-                    self.error(f"unsupported serialized type '{type}'")
+                    self.error(f"unable to decode an object of type '{type}'")
+            elif "id" in obj:
+                return self._decode_ref(obj)
             else:
-                return { key: self._decode(val) for key, val in obj.items() }
+                return {key: self._decode(val) for key, val in obj.items()}
         elif isinstance(obj, list):
             return [ self._decode(entry) for entry in obj ]
         else:
@@ -503,43 +550,21 @@ class Deserializer:
         else:
             self.error(f"can't resolve reference '{id}'")
 
-    def _decode_type_ref(self, obj: ModelRep) -> Model:
-        id = obj["id"]
-        instance = self._references.get(id)
-        if instance is not None:
-            self.error(f"reference already known '{id}'")
+    def _decode_number(self, obj: NumberRep):
+        value = obj["value"]
+        return float(value) if isinstance(value, str) else value
 
-        type = obj["type"]
-        attributes = obj.get("attributes")
+    def _decode_array(self, obj: ArrayRep):
+        entries = obj["entries"]
+        return [ self._decode(entry) for entry in entries ]
 
-        from ..model import Model
-        cls = Model.model_class_reverse_map.get(type)
-        if cls is None:
-            if type == "Figure":
-                from ..plotting import figure
-                cls = figure # XXX: helps with push_session(); this needs a better resolution scheme
-            else:
-                self.error(f"can't resolve type '{type}'")
+    def _decode_set(self, obj: SetRep):
+        entries = obj["entries"]
+        return set([ self._decode(entry) for entry in entries ])
 
-        instance = cls.__new__(cls, id=id)
-        if instance is None:
-            self.error(f"can't instantiate {type}(id={id})")
-
-        self._references[instance.id] = instance
-
-        # We want to avoid any Model specific initialization that happens with
-        # Slider(...) when reconstituting from JSON, but we do need to perform
-        # general HasProps machinery that sets properties, so call it explicitly
-        if not instance._initialized:
-            from .has_props import HasProps
-            HasProps.__init__(instance)
-
-        if attributes is not None:
-            decoded_attributes = {key: self._decode(val) for key, val in attributes.items()}
-            for key, val in decoded_attributes.items():
-                instance.set_from_json(key, val, setter=self._setter)
-
-        return instance
+    def _decode_map(self, obj: MapRep):
+        entries = obj["entries"]
+        return { self._decode(key): self._decode(val) for key, val in entries }
 
     def _decode_bytes(self, obj: BytesRep) -> bytes:
         data = obj["data"]
@@ -614,6 +639,44 @@ class Deserializer:
             ndarray = ndarray.reshape(shape)
 
         return ndarray
+
+    def _decode_object_ref(self, obj: ObjectRefRep) -> Model:
+        id = obj["id"]
+        instance = self._references.get(id)
+        if instance is not None:
+            self.error(f"reference already known '{id}'")
+
+        name = obj["name"]
+        attributes = obj.get("attributes")
+
+        from ..model import Model
+        cls = Model.model_class_reverse_map.get(name)
+        if cls is None:
+            if name == "Figure":
+                from ..plotting import figure
+                cls = figure # XXX: helps with push_session(); this needs a better resolution scheme
+            else:
+                self.error(f"can't resolve type '{name}'")
+
+        instance = cls.__new__(cls, id=id)
+        if instance is None:
+            self.error(f"can't instantiate {name}(id={id})")
+
+        self._references[instance.id] = instance
+
+        # We want to avoid any Model specific initialization that happens with
+        # Slider(...) when reconstituting from JSON, but we do need to perform
+        # general HasProps machinery that sets properties, so call it explicitly
+        if not instance._initialized:
+            from .has_props import HasProps
+            HasProps.__init__(instance)
+
+        if attributes is not None:
+            decoded_attributes = {key: self._decode(val) for key, val in attributes.items()}
+            for key, val in decoded_attributes.items():
+                instance.set_from_json(key, val, setter=self._setter)
+
+        return instance
 
     def error(self, message: str) -> NoReturn:
         raise DeserializationError(message)

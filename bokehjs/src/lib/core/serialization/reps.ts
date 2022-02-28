@@ -3,7 +3,7 @@ import {Ref} from "../util/refs"
 import {Buffer} from "./buffer"
 
 export type AnyVal = null | boolean | number | string | Ref | AnyRep | AnyVal[] | {[key: string]: AnyVal}
-export type AnyRep = NumberRep | ArrayRep | SetRep | MapRep | BytesRep | NDArrayRep | ModelRep | TypeRep
+export type AnyRep = NumberRep | ArrayRep | SetRep | MapRep | BytesRep | NDArrayRep | ObjectRefRep | ObjectRep
 
 export type NumberRep = {
   type: "number"
@@ -60,16 +60,20 @@ export type ExprRep = {
   units?: AnyVal
 }
 
-export type TypeRep = {
-  type: string
+export type ObjectRep = {
+  type: "object"
+  name: string
   attributes?: {[key: string]: AnyVal}
 }
 
-export type TypeRefRep = TypeRep & {
+export type ObjectRefRep = {
+  type: "object"
+  name: string
   id: string
+  attributes?: {[key: string]: AnyVal}
 }
 
-export type ModelRep = TypeRefRep
+export type ModelRep = ObjectRefRep
 
 export type TypedArrayRep = {
   type: "typed_array"

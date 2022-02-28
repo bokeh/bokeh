@@ -13,7 +13,7 @@ import {Value, Field, Expr} from "../vectorization"
 
 import {
   NumberRep, ArrayRep, SetRep, MapRep, BytesRep, SliceRep, TypedArrayRep,
-  NDArrayRep, ModelRep, TypeRep, ValueRep, FieldRep, ExprRep,
+  NDArrayRep, ObjectRefRep, ObjectRep, ValueRep, FieldRep, ExprRep,
 } from "./reps"
 
 export type Decoder = (rep: any, deserializer: Deserializer) => unknown
@@ -86,14 +86,14 @@ export class Deserializer {
     if (isArray(obj)) {
       return this._decode_plain_array(obj)
     } else if (isPlainObject(obj)) {
-      if ("id" in obj && !("type" in obj)) {
-        return this._decode_ref(obj as Ref)
-      } else if ("type" in obj && isString(obj.type)) {
+      if (isString(obj.type)) {
         const decoder = _decoders.get(obj.type)
         if (decoder != null) {
           return decoder(obj, this)
         }
         switch (obj.type) {
+          case "ref":
+            return this._decode_ref(obj as Ref)
           case "number":
             return this._decode_number(obj as NumberRep)
           case "array":
@@ -116,19 +116,22 @@ export class Deserializer {
             return this._decode_typed_array(obj as TypedArrayRep)
           case "ndarray":
             return this._decode_ndarray(obj as NDArrayRep)
-          default: {
-            if ("id" in obj) {
-              return this._decode_type_ref(obj as ModelRep)
+          case "object": {
+            if (isString(obj.id)) {
+              return this._decode_object_ref(obj as ObjectRefRep)
             } else {
-              return this._decode_type(obj as TypeRep)
+              return this._decode_object(obj as ObjectRep)
             }
           }
+          default: {
+            this.error(`unable to decode an object of type '${obj.type}'`)
+          }
         }
+      } else if (isString(obj.id)) {
+        return this._decode_ref(obj as Ref)
       } else {
         return this._decode_plain_object(obj)
       }
-
-      //this.error(`unable to decode an object of type '${obj.type}'`)
     } else
       return obj
   }
@@ -267,7 +270,7 @@ export class Deserializer {
     return ndarray(decoded as any /*XXX*/, {dtype, shape})
   }
 
-  protected _decode_type(obj: TypeRep): unknown {
+  protected _decode_object(obj: ObjectRep): unknown {
     const {type, attributes} = obj
     const cls = this._resolve_type(type)
     if (attributes != null)
@@ -284,11 +287,11 @@ export class Deserializer {
       this.error(`reference ${obj.id} isn't known`)
   }
 
-  protected _decode_type_ref(obj: ModelRep): HasProps {
+  protected _decode_object_ref(obj: ObjectRefRep): HasProps {
     if (this.references.has(obj.id))
       this.error(`reference already known '${obj.id}'`)
 
-    const {id, type, attributes} = obj
+    const {id, name: type, attributes} = obj
 
     const cls = this._resolve_type(type)
     const instance = new cls({id})
@@ -312,6 +315,6 @@ export class Deserializer {
     if (cls != null)
       return cls
     else
-      this.error(`could not resolve model '${type}', which could be due to a widget or a custom model not being registered before first usage`)
+      this.error(`could not resolve type '${type}', which could be due to a widget or a custom model not being registered before first usage`)
   }
 }

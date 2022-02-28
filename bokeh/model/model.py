@@ -35,7 +35,7 @@ from typing import (
 # Bokeh imports
 from ..core import properties as p
 from ..core.has_props import HasProps, abstract
-from ..core.serialization import ModelRep, Ref, Serializer
+from ..core.serialization import ObjectRefRep, Ref, Serializer
 from ..core.types import ID, Unknown
 from ..events import Event
 from ..themes import default as default_theme
@@ -428,11 +428,15 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             for key, val in updates.items():
                 setattr(obj, key, val)
 
-    def to_serializable(self, serializer: Serializer) -> ModelRep:
+    def to_serializable(self, serializer: Serializer) -> ObjectRefRep:
         serializer.add_ref(self, self.ref)
 
         super_rep = super().to_serializable(serializer)
-        rep = ModelRep(type=super_rep["type"], id=self.id)
+        rep = ObjectRefRep(
+            type="object",
+            name=super_rep["name"],
+            id=self.id,
+        )
 
         attributes = super_rep.get("attributes")
         if attributes is not None:

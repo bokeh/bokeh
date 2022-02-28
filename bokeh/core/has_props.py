@@ -64,10 +64,10 @@ from .property.override import Override
 from .property.singletons import Undefined
 from .property.wrappers import PropertyValueContainer
 from .serialization import (
+    ObjectRep,
     Ref,
     Serializable,
     Serializer,
-    TypeRep,
 )
 from .types import ID, Unknown
 
@@ -362,8 +362,11 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         else:
             return self.properties_with_values() == other.properties_with_values()
 
-    def to_serializable(self, serializer: Serializer) -> TypeRep:
-        rep = TypeRep(type=self.__qualified_model__)
+    def to_serializable(self, serializer: Serializer) -> ObjectRep:
+        rep = ObjectRep(
+            type="object",
+            name=self.__qualified_model__,
+        )
 
         properties = self.properties_with_values(include_defaults=False)
         attributes = {key: serializer.encode(val) for key, val in properties.items()}
@@ -708,7 +711,7 @@ class OverrideDef(TypedDict):
 
 class _ModelDef(TypedDict):
     type: Literal["model"]
-    qualified: str
+    name: str
 class ModelDef(_ModelDef, total=False):
     extends: Ref | None
     properties: List[PropertyDef]
@@ -757,7 +760,7 @@ def _HasProps_to_serializable(cls: Type[HasProps], serializer: Serializer) -> Re
 
     modeldef = ModelDef(
         type="model",
-        qualified=cls.__qualified_model__,
+        name=cls.__qualified_model__,
     )
 
     if extends is not None:

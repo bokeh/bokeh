@@ -12,7 +12,7 @@ import {uniqueId} from "./util/string"
 import {keys, values, entries, extend, is_empty} from "./util/object"
 import {isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import {is_equal} from "./util/eq"
-import {serialize, Serializable, Serializer, ModelRep, AnyVal} from "./serialization"
+import {serialize, Serializable, Serializer, ObjectRefRep, AnyVal} from "./serialization"
 import type {Document} from "../document/document"
 import {DocumentEvent, DocumentEventBatch, ModelChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "../document/events"
 import {equals, Equatable, Comparator} from "./util/eq"
@@ -267,7 +267,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return `${cls}${T("(")}${T("{")}${items.join(`${T(",")} `)}${T("}")}${T(")")}`
   }
 
-  [serialize](serializer: Serializer): ModelRep {
+  [serialize](serializer: Serializer): ObjectRefRep {
     const ref = this.ref()
     serializer.add_ref(this, ref)
 
@@ -279,8 +279,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
     }
 
-    const {type, id} = this
-    const rep = {type, id}
+    const {type: name, id} = this
+    const rep = {type: "object" as const, name, id}
 
     return is_empty(attributes) ? rep : {...rep, attributes}
   }

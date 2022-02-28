@@ -868,7 +868,8 @@ describe("Document", () => {
       version: js_version,
       title: "Bokeh Application",
       roots: [{
-        type: "ModelWithConstructTimeChanges",
+        type: "object" as const,
+        name: "ModelWithConstructTimeChanges",
         id: "j0",
         attributes: {
           foo: 3,
@@ -906,11 +907,13 @@ describe("Document", () => {
       events: [{
         kind: "RootAdded",
         model: {
-          type: "SomeModel",
+          type: "object",
+          name: "SomeModel",
           id: root.id,
           attributes: {
             child: {
-              type: "SomeModel",
+              type: "object",
+              name: "SomeModel",
               id: child.id,
             },
           },
@@ -931,7 +934,8 @@ describe("Document", () => {
           entries: [
             ["model", {id: root.id}],
             ["companion_model", {
-              type: "SomeModel",
+              type: "object",
+              name: "SomeModel",
               id: obj.id,
               attributes: {
                 foo: 11,

@@ -37,7 +37,20 @@ from bokeh.core.properties import (
     Nullable,
     String,
 )
-from bokeh.core.serialization import Deserializer, SerializationError, Serializer
+from bokeh.core.serialization import (
+    BytesRep,
+    Deserializer,
+    MapRep,
+    NDArrayRep,
+    NumberRep,
+    ObjectRefRep,
+    ObjectRep,
+    Ref,
+    SerializationError,
+    Serializer,
+    SliceRep,
+    TypedArrayRep,
+)
 from bokeh.model import Model
 from bokeh.util.dataclasses import NotRequired, Unspecified, dataclass
 
@@ -89,10 +102,10 @@ class TestSerializer:
         assert encoder.encode(1) == 1
         assert encoder.encode(1.17) == 1.17
 
-        assert encoder.encode(nan) == dict(type="number", value="nan")
+        assert encoder.encode(nan) == NumberRep(type="number", value="nan")
 
-        assert encoder.encode(-inf) == dict(type="number", value="-inf")
-        assert encoder.encode(+inf) == dict(type="number", value="+inf")
+        assert encoder.encode(-inf) == NumberRep(type="number", value="-inf")
+        assert encoder.encode(+inf) == NumberRep(type="number", value="+inf")
 
         assert encoder.buffers == []
 
@@ -106,6 +119,15 @@ class TestSerializer:
         assert out == ""
         assert err == "" # "out of range integer may result in loss of precision"
 
+    def test_list_empty(self) -> None:
+        val = []
+
+        encoder = Serializer()
+        rep = encoder.encode(val)
+
+        assert rep == []
+        assert encoder.buffers == []
+
     def test_list(self) -> None:
         v0 = SomeProps(p0=2, p1="a", p2=[1, 2, 3])
         v1 = SomeModel(p0=3, p1="b", p2=[4, 5, 6])
@@ -117,19 +139,21 @@ class TestSerializer:
         rep = encoder.encode(val)
         assert rep == [
             None, False, True, "abc", 1, 1.17,
-            dict(type="number", value="nan"),
-            dict(type="number", value="-inf"),
-            dict(type="number", value="+inf"),
-            dict(
-                type="test_serialization.SomeProps",
+            NumberRep(type="number", value="nan"),
+            NumberRep(type="number", value="-inf"),
+            NumberRep(type="number", value="+inf"),
+            ObjectRep(
+                type="object",
+                name="test_serialization.SomeProps",
                 attributes=dict(
                     p0=2,
                     p1="a",
                     p2=[1, 2, 3],
                 ),
             ),
-            dict(
-                type="test_serialization.SomeModel",
+            ObjectRefRep(
+                type="object",
+                name="test_serialization.SomeModel",
                 id=v1.id,
                 attributes=dict(
                     p0=3,
@@ -137,15 +161,16 @@ class TestSerializer:
                     p2=[4, 5, 6],
                 ),
             ),
-            dict(
-                type="test_serialization.SomeDataClass",
+            ObjectRep(
+                type="object",
+                name="test_serialization.SomeDataClass",
                 attributes=dict(
                     f0=2,
                     f1=[1, 2, 3],
                     f2=None,
                 ),
             ),
-            [dict(type="number", value="nan")],
+            [NumberRep(type="number", value="nan")],
         ]
         assert encoder.buffers == []
 
@@ -157,13 +182,13 @@ class TestSerializer:
         with pytest.raises(SerializationError):
             encoder.encode(val)
 
-    def test_empty_dict(self) -> None:
+    def test_dict_empty(self) -> None:
         val = {}
 
         encoder = Serializer()
         rep = encoder.encode(val)
 
-        assert rep == dict(type="map", entries=[])
+        assert rep == MapRep(type="map", entries=[])
         assert encoder.buffers == []
 
     def test_dict(self) -> None:
@@ -172,13 +197,13 @@ class TestSerializer:
         encoder = Serializer()
         rep = encoder.encode(val)
 
-        assert rep == dict(
+        assert rep == MapRep(
             type="map",
             entries=[
-                [dict(type="number", value="nan"), dict(type="map", entries=[[1, [2, 3]]])],
-                ["bcd", None],
-                ["abc", True],
-                [None, dict(type="number", value="+inf")],
+                (NumberRep(type="number", value="nan"), MapRep(type="map", entries=[(1, [2, 3])])),
+                ("bcd", None),
+                ("abc", True),
+                (None, NumberRep(type="number", value="+inf")),
             ],
         )
         assert encoder.buffers == []
@@ -195,19 +220,19 @@ class TestSerializer:
         encoder = Serializer()
 
         val0 = slice(2)
-        assert encoder.encode(val0) == dict(type="slice", start=None, stop=2, step=None)
+        assert encoder.encode(val0) == SliceRep(type="slice", start=None, stop=2, step=None)
 
         val1 = slice(0, 2)
-        assert encoder.encode(val1) == dict(type="slice", start=0, stop=2, step=None)
+        assert encoder.encode(val1) == SliceRep(type="slice", start=0, stop=2, step=None)
 
         val2 = slice(0, 10, 2)
-        assert encoder.encode(val2) == dict(type="slice", start=0, stop=10, step=2)
+        assert encoder.encode(val2) == SliceRep(type="slice", start=0, stop=10, step=2)
 
         val3 = slice(0, None, 2)
-        assert encoder.encode(val3) == dict(type="slice", start=0, stop=None, step=2)
+        assert encoder.encode(val3) == SliceRep(type="slice", start=0, stop=None, step=2)
 
         val4 = slice(None, None, None)
-        assert encoder.encode(val4) == dict(type="slice", start=None, stop=None, step=None)
+        assert encoder.encode(val4) == SliceRep(type="slice", start=None, stop=None, step=None)
 
     def test_bytes(self) -> None:
         encoder = Serializer()
@@ -219,13 +244,13 @@ class TestSerializer:
         [buf] = encoder.buffers
         assert buf.data == val
 
-        assert rep == dict(type="bytes", data=buf)
+        assert rep == BytesRep(type="bytes", data=buf)
 
     def test_bytes_base64(self) -> None:
         encoder = Serializer(deferred=False)
         val = bytes([0xFF, 0x00, 0x17, 0xFE, 0x00])
         rep = encoder.encode(val)
-        assert rep == dict(
+        assert rep == BytesRep(
             type="bytes",
             data="/wAX/gA=",
         )
@@ -241,9 +266,9 @@ class TestSerializer:
         [buf] = encoder.buffers
         assert bytes(buf.data) == val.tobytes()
 
-        assert rep == dict(
+        assert rep == TypedArrayRep(
             type="typed_array",
-            array=dict(type="bytes", data=buf),
+            array=BytesRep(type="bytes", data=buf),
             order=sys.byteorder,
             dtype="int32",
         )
@@ -252,9 +277,9 @@ class TestSerializer:
         encoder = Serializer(deferred=False)
         val = TypedArray("i", [0, 1, 2, 3, 4, 5])
         rep = encoder.encode(val)
-        assert rep == dict(
+        assert rep == TypedArrayRep(
             type="typed_array",
-            array=dict(
+            array=BytesRep(
                 type="bytes",
                 data="AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAA",
             ),
@@ -273,9 +298,9 @@ class TestSerializer:
         [buf] = encoder.buffers
         assert bytes(buf.data) == val.tobytes()
 
-        assert rep == dict(
+        assert rep == NDArrayRep(
             type="ndarray",
-            array=dict(type="bytes", data=buf),
+            array=BytesRep(type="bytes", data=buf),
             order=sys.byteorder,
             shape=[6],
             dtype="int32",
@@ -285,9 +310,9 @@ class TestSerializer:
         encoder = Serializer(deferred=False)
         val = np.array([0, 1, 2, 3, 4, 5], dtype="int32")
         rep = encoder.encode(val)
-        assert rep == dict(
+        assert rep == NDArrayRep(
             type="ndarray",
-            array=dict(
+            array=BytesRep(
                 type="bytes",
                 data="AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAA",
             ),
@@ -308,12 +333,24 @@ class TestSerializer:
         encoder = Serializer()
         rep = encoder.encode(val)
 
-        assert rep == dict(
+        assert rep == NDArrayRep(
             type="ndarray",
             array=[
-                dict(type="test_serialization.X", attributes=dict(f=0, g="a")),
-                dict(type="test_serialization.X", attributes=dict(f=1, g="a")),
-                dict(type="test_serialization.X", attributes=dict(f=2, g="b")),
+                ObjectRep(
+                    type="object",
+                    name="test_serialization.TestSerializer.test_ndarray_object.X",
+                    attributes=dict(f=0, g="a"),
+                ),
+                ObjectRep(
+                    type="object",
+                    name="test_serialization.TestSerializer.test_ndarray_object.X",
+                    attributes=dict(f=1, g="a"),
+                ),
+                ObjectRep(
+                    type="object",
+                    name="test_serialization.TestSerializer.test_ndarray_object.X",
+                    attributes=dict(f=2, g="b"),
+                ),
             ],
             order=sys.byteorder,
             shape=[3, 1],
@@ -337,23 +374,23 @@ class TestSerializer:
         assert len(encoder.buffers) == 2
         [buf0, buf1] = encoder.buffers
 
-        assert rep0 == dict(
+        assert rep0 == NDArrayRep(
             type="ndarray",
-            array=dict(type="bytes", data=buf0),
+            array=BytesRep(type="bytes", data=buf0),
             order=sys.byteorder,
             shape=[1],
             dtype="int32",
         )
 
-        assert rep1 == dict(
+        assert rep1 == NDArrayRep(
             type="ndarray",
-            array=dict(type="bytes", data=buf1),
+            array=BytesRep(type="bytes", data=buf1),
             order=sys.byteorder,
             shape=[1],
             dtype="uint32",
         )
 
-        assert rep2 == dict(
+        assert rep2 == NDArrayRep(
             type="ndarray",
             array=[-2**36],
             order=sys.byteorder,
@@ -361,7 +398,7 @@ class TestSerializer:
             dtype="object",
         )
 
-        assert rep3 == dict(
+        assert rep3 == NDArrayRep(
             type="ndarray",
             array=[2**36],
             order=sys.byteorder,
@@ -373,8 +410,9 @@ class TestSerializer:
         val = SomeProps(p0=2, p1="a", p2=[1, 2, 3])
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == dict(
-            type="test_serialization.SomeProps",
+        assert rep == ObjectRep(
+            type="object",
+            name="test_serialization.SomeProps",
             attributes=dict(
                 p0=2,
                 p1="a",
@@ -387,8 +425,9 @@ class TestSerializer:
         val = SomeModel(p0=3, p1="b", p2=[4, 5, 6])
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == dict(
-            type="test_serialization.SomeModel",
+        assert rep == ObjectRefRep(
+            type="object",
+            name="test_serialization.SomeModel",
             id=val.id,
             attributes=dict(
                 p0=3,
@@ -407,22 +446,25 @@ class TestSerializer:
         encoder = Serializer()
         rep = encoder.encode(val2)
 
-        assert rep == dict(
-            type="test_serialization.SomeModel",
+        assert rep == ObjectRefRep(
+            type="object",
+            name="test_serialization.SomeModel",
             id=val2.id,
             attributes=dict(
                 p0=30,
-                p3=dict(
-                    type="test_serialization.SomeModel",
+                p3=ObjectRefRep(
+                    type="object",
+                    name="test_serialization.SomeModel",
                     id=val1.id,
                     attributes=dict(
                         p0=20,
-                        p3=dict(
-                            type="test_serialization.SomeModel",
+                        p3=ObjectRefRep(
+                            type="object",
+                            name="test_serialization.SomeModel",
                             id=val0.id,
                             attributes=dict(
                                 p0=10,
-                                p3=dict(id=val2.id),
+                                p3=Ref(id=val2.id),
                             ),
                         ),
                     ),
@@ -435,8 +477,9 @@ class TestSerializer:
         val = SomeDataClass(f0=2, f1=[1, 2, 3])
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == dict(
-            type="test_serialization.SomeDataClass",
+        assert rep == ObjectRep(
+            type="object",
+            name="test_serialization.SomeDataClass",
             attributes=dict(
                 f0=2,
                 f1=[1, 2, 3],
@@ -449,13 +492,15 @@ class TestSerializer:
         val = SomeDataClass(f0=2, f1=[1, 2, 3], f2=SomeDataClass(f0=3, f1=[4, 5, 6]))
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == dict(
-            type="test_serialization.SomeDataClass",
+        assert rep == ObjectRep(
+            type="object",
+            name="test_serialization.SomeDataClass",
             attributes=dict(
                 f0=2,
                 f1=[1, 2, 3],
-                f2=dict(
-                    type="test_serialization.SomeDataClass",
+                f2=ObjectRep(
+                    type="object",
+                    name="test_serialization.SomeDataClass",
                     attributes=dict(
                         f0=3,
                         f1=[4, 5, 6],
@@ -471,14 +516,16 @@ class TestSerializer:
         val = SomeDataClass(f0=2, f1=[1, 2, 3], f4=v0)
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == dict(
-            type="test_serialization.SomeDataClass",
+        assert rep == ObjectRep(
+            type="object",
+            name="test_serialization.SomeDataClass",
             attributes=dict(
                 f0=2,
                 f1=[1, 2, 3],
                 f2=None,
-                f4=dict(
-                    type="test_serialization.SomeProps",
+                f4=ObjectRep(
+                    type="object",
+                    name="test_serialization.SomeProps",
                     attributes=dict(
                         p0=2,
                         p1="a",
@@ -494,14 +541,16 @@ class TestSerializer:
         val = SomeDataClass(f0=2, f1=[1, 2, 3], f5=v0)
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == dict(
-            type="test_serialization.SomeDataClass",
+        assert rep == ObjectRep(
+            type="object",
+            name="test_serialization.SomeDataClass",
             attributes=dict(
                 f0=2,
                 f1=[1, 2, 3],
                 f2=None,
-                f5=dict(
-                    type="test_serialization.SomeModel",
+                f5=ObjectRefRep(
+                    type="object",
+                    name="test_serialization.SomeModel",
                     id=v0.id,
                     attributes=dict(
                         p0=3,
@@ -535,9 +584,9 @@ class TestSerializer:
         assert len(encoder.buffers) == 1
         [buf] = encoder.buffers
 
-        assert rep == dict(
+        assert rep == NDArrayRep(
             type="ndarray",
-            array=dict(type="bytes", data=buf),
+            array=BytesRep(type="bytes", data=buf),
             order=sys.byteorder,
             shape=[6],
             dtype="int32",
@@ -595,19 +644,19 @@ class TestDeserializer:
     def test_slice(self) -> None:
         decoder = Deserializer()
 
-        rep0 = dict(type="slice", start=None, stop=2, step=None)
+        rep0 = SliceRep(type="slice", start=None, stop=2, step=None)
         assert decoder.decode(rep0) == slice(2)
 
-        rep1 = dict(type="slice", start=0, stop=2, step=None)
+        rep1 = SliceRep(type="slice", start=0, stop=2, step=None)
         assert decoder.decode(rep1) == slice(0, 2)
 
-        rep2 = dict(type="slice", start=0, stop=10, step=2)
+        rep2 = SliceRep(type="slice", start=0, stop=10, step=2)
         assert decoder.decode(rep2) == slice(0, 10, 2)
 
-        rep3 = dict(type="slice", start=0, stop=None, step=2)
+        rep3 = SliceRep(type="slice", start=0, stop=None, step=2)
         assert decoder.decode(rep3) == slice(0, None, 2)
 
-        rep4 = dict(type="slice", start=None, stop=None, step=None)
+        rep4 = SliceRep(type="slice", start=None, stop=None, step=None)
         assert decoder.decode(rep4) == slice(None, None, None)
 
 """

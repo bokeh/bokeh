@@ -128,8 +128,8 @@ describe("core/serialization module", () => {
     it("should support HasProps instances", () => {
       const obj0 = new SomeModel()
       expect(to_serializable(obj0)).to.be.equal({
-        rep: {type: "SomeModel", id: obj0.id},
-        json: `{"type":"SomeModel","id":"${obj0.id}"}`,
+        rep: {type: "object", name: "SomeModel", id: obj0.id},
+        json: `{"type":"object","name":"SomeModel","id":"${obj0.id}"}`,
       })
     })
 
@@ -228,17 +228,20 @@ describe("core/serialization module", () => {
       const rep = serializer.encode(obj2)
 
       expect(rep).to.be.equal({
-        type: "SomeModel",
+        type: "object",
+        name: "SomeModel",
         id: obj2.id,
         attributes: {
           value: 30,
           obj: {
-            type: "SomeModel",
+            type: "object",
+            name: "SomeModel",
             id: obj1.id,
             attributes: {
               value: 20,
               obj: {
-                type: "SomeModel",
+                type: "object",
+                name: "SomeModel",
                 id: obj0.id,
                 attributes: {
                   value: 10,

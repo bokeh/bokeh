@@ -103,11 +103,11 @@ declare class _Some4 extends _Some3 {
 }
 
 describe("document/defs module", () => {
-  describe("implements resolve_defs() function", () => {
+  describe("implements a deserializer", () => {
     it("that supports basic definitions", () => {
       const defs: ModelDef[] = [{
         type: "model",
-        qualified: "some.Some0",
+        name: "some.Some0",
         extends: {id: "Model"},
         properties: [
           {name: "prop0", kind: "Any", default: 0},
@@ -123,7 +123,7 @@ describe("document/defs module", () => {
         ],
       }, {
         type: "model",
-        qualified: "some.Some1",
+        name: "some.Some1",
         properties: [
           {name: "prop0", kind: ["Regex", "^[a-z][a-z0-9]*"], default: "a0"},
           {name: "prop1", kind: ["Nullable", "Int"], default: null},
@@ -138,23 +138,23 @@ describe("document/defs module", () => {
         ],
       }, {
         type: "model",
-        qualified: "some.Some2",
+        name: "some.Some2",
         extends: {id: "some.Some1"},
         properties: [{
           name: "prop10",
           kind: ["Ref", {id: "some.Some0"}],
-          default: {id: "some001", type: "some.Some0", attributes: {prop2: false, prop4: 128}},
+          default: {type: "object", name: "some.Some0", id: "some001", attributes: {prop2: false, prop4: 128}},
         }, {
           name: "prop11",
           kind: ["Array", ["Ref", {id: "some.Some0"}]],
-          default: [{id: "some001"}, {id: "some002", type: "some.Some0", attributes: {prop2: false, prop4: 129}}],
+          default: [{id: "some001"}, {type: "object", name: "some.Some0", id: "some002", attributes: {prop2: false, prop4: 129}}],
         }],
         overrides: [
           {name: "prop2", default: "a"},
         ],
       }, {
         type: "model",
-        qualified: "some.Some3",
+        name: "some.Some3",
         extends: {id: "ColumnDataSource"},
         properties: [
           {name: "prop0", kind: "Number", default: 1},
@@ -164,7 +164,7 @@ describe("document/defs module", () => {
         ],
       }, {
         type: "model",
-        qualified: "some.Some4",
+        name: "some.Some4",
         extends: {id: "some.Some3"},
         properties: [
           {name: "prop1", kind: ["Array", "Number"], default: [0, 1, 2]},

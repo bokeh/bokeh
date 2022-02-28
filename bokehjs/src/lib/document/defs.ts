@@ -9,7 +9,7 @@ import {to_object} from "core/util/object"
 
 export type ModelDef = {
   type: "model"
-  qualified: string
+  name: string
   extends?: Ref
   properties?: PropertyDef[]
   overrides?: OverrideDef[]
@@ -118,11 +118,11 @@ export function decode_def(def: ModelDef, deserializer: Deserializer): typeof Ha
     if (base != null)
       return base
     else
-      throw new Error(`base model ${name} of ${def.qualified} is not defined`)
+      throw new Error(`base model ${name} of ${def.name} is not defined`)
   })()
 
   const model = class extends base {
-    static override __qualified__ = def.qualified
+    static override __qualified__ = def.name
   }
 
   function decode(value: unknown): unknown {

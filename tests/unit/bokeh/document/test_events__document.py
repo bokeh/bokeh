@@ -21,7 +21,7 @@ from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.properties import Any, ColumnData, Instance
-from bokeh.core.serialization import Serializer
+from bokeh.core.serialization import MapRep, ObjectRefRep, Serializer
 from bokeh.document import Document
 from bokeh.model import Model
 
@@ -237,7 +237,7 @@ class TestColumnDataChangedEvent:
             kind=e.kind,
             model=m.ref,
             attr="data",
-            data=dict(type="map", entries=[["col1", [1, 2]], ["col2", [1, 2, 3]]]),
+            data=MapRep(type="map", entries=[("col1", [1, 2]), ("col2", [1, 2, 3])]),
             cols=["col1", "col2"],
         )
         assert s.buffers == []
@@ -284,7 +284,7 @@ class TestColumnsStreamedEvent:
         e = bde.ColumnsStreamedEvent(doc, m, "data", dict(foo=1), 200, "setter", "invoker")
         s = Serializer()
         r = s.encode(e)
-        assert r == dict(kind=e.kind, model=m.ref, attr="data", data=dict(type="map", entries=[["foo", 1]]), rollover=200)
+        assert r == dict(kind=e.kind, model=m.ref, attr="data", data=MapRep(type="map", entries=[("foo", 1)]), rollover=200)
         assert s.buffers == []
 
     def test_dispatch(self) -> None:
@@ -448,16 +448,19 @@ class TestRootAddedEvent:
         r = s.encode(e)
         assert r == dict(
             kind=e.kind,
-            model=dict(
-                type="test_events__document.SomeModel",
+            model=ObjectRefRep(
+                type="object",
+                name="test_events__document.SomeModel",
                 id=m.id,
                 attributes=dict(
-                    ref1=dict(
-                        type="test_events__document.SomeModel",
+                    ref1=ObjectRefRep(
+                        type="object",
+                        name="test_events__document.SomeModel",
                         id=ref1.id,
                     ),
-                    ref2=dict(
-                        type="test_events__document.SomeModel",
+                    ref2=ObjectRefRep(
+                        type="object",
+                        name="test_events__document.SomeModel",
                         id=ref2.id,
                     ),
                 ),
