@@ -273,19 +273,11 @@ class MessageSentEvent(DocumentPatchedEvent):
             cast(DocumentMessageSentMixin, receiver)._document_message_sent(self)
 
     def to_serializable(self, serializer: Serializer) -> MessageSent:
-        msg = MessageSent(
+        return MessageSent(
             kind=self.kind,
             msg_type=self.msg_type,
-            msg_data=None,
+            msg_data=serializer.encode(self.msg_data),
         )
-
-        if not isinstance(self.msg_data, bytes):
-            msg["msg_data"] = self.msg_data
-        else:
-            assert serializer.binary
-            serializer.add_bytes(self.msg_data)
-
-        return msg
 
     @staticmethod
     def _handle_event(doc: Document, event: MessageSentEvent) -> None:
