@@ -27,6 +27,7 @@ from datetime import timedelta
 
 # External imports
 import mock
+import tornado
 from _util_server import (
     http_get,
     url,
@@ -805,7 +806,11 @@ def test__server_multiple_processes() -> None:
             application = Application()
             server.Server(application, num_procs=3, port=0)
 
-        tornado_fp.assert_called_with(3, mock.ANY)
+        assert tornado_fp.mock_calls == [
+            mock.call(3, None)
+            if tornado.version_info >= (6,)
+            else mock.call(3)
+        ]
 
 def test__existing_ioloop_with_multiple_processes_exception(ManagedServerLoop, event_loop) -> None:
     application = Application()
