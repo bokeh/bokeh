@@ -477,7 +477,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
     @classmethod
     @lru_cache(None)
-    def properties(cls, *, _with_props: bool = False) -> Union[Set[str], Dict[str, Property[Any]]]:
+    def properties(cls, *, _with_props: bool = False) -> Set[str] | Dict[str, Property[Any]]:
         ''' Collect the names of properties on this class.
 
         .. warning::
@@ -490,7 +490,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
         '''
         props: Dict[str, Property[Any]] = {}
-        for c in cls.__mro__:
+        for c in reversed(cls.__mro__):
             props.update(getattr(c, "__properties__", {}))
 
         if not _with_props:

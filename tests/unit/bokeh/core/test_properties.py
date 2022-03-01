@@ -235,21 +235,53 @@ class TestBasic:
             sub_container = List(String)
             sub_child = Instance(HasProps)
 
+        class Deep(Sub):
+            deep_num = Int(12)
+            deep_container = List(String)
+            deep_child = Instance(HasProps)
+
         b = Base()
-        assert {"child"} == set(b.properties_with_refs())
-        assert {"num", "container", "child"} == b.properties()
+        assert set(b.properties_with_refs()) == {"child"}
+        assert b.properties() == {"num", "container", "child"}
+        assert list(b.properties(_with_props=True).keys()) == ["num", "container", "child"]
 
         m = Mixin()
         assert set(m.properties_with_refs()) == {"mixin_child"}
         assert m.properties() == {"mixin_num", "mixin_container", "mixin_child"}
+        assert list(m.properties(_with_props=True).keys()) == ["mixin_num", "mixin_container", "mixin_child"]
 
         s = Sub()
         assert set(s.properties_with_refs()) == {"child", "sub_child", "mixin_child"}
-        assert s.properties() == {"num", "container", "child", "mixin_num", "mixin_container", "mixin_child", "sub_num", "sub_container", "sub_child"}
+        assert s.properties() == {
+            "num", "container", "child",
+            "mixin_num", "mixin_container", "mixin_child",
+            "sub_num", "sub_container", "sub_child",
+        }
+        assert list(s.properties(_with_props=True).keys()) == [
+            "mixin_num", "mixin_container", "mixin_child", # XXX: it would be better if this was on the second line
+            "num", "container", "child",
+            "sub_num", "sub_container", "sub_child",
+        ]
+
+        d = Deep()
+        assert set(d.properties_with_refs()) == {"child", "sub_child", "mixin_child", "deep_child"}
+        assert d.properties() == {
+            "num", "container", "child",
+            "mixin_num", "mixin_container", "mixin_child",
+            "sub_num", "sub_container", "sub_child",
+            "deep_num", "deep_container", "deep_child",
+        }
+        assert list(d.properties(_with_props=True).keys()) == [
+            "mixin_num", "mixin_container", "mixin_child", # XXX: it would be better if this was on the second line
+            "num", "container", "child",
+            "sub_num", "sub_container", "sub_child",
+            "deep_num", "deep_container", "deep_child",
+        ]
 
         # verify caching
         assert s.properties_with_refs() is s.properties_with_refs()
         assert s.properties() is s.properties()
+        assert s.properties(_with_props=True) is s.properties(_with_props=True)
 
     def test_accurate_dataspecs(self) -> None:
         class Base(HasProps):
