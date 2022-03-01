@@ -736,10 +736,10 @@ class Document:
         roots = serializer.encode(self._roots)
 
         doc_json = DocJson(
+            version=__version__,
             title=self.title,
             defs=defs,
             roots=roots,
-            version=__version__,
         )
 
         self.models.flush()
