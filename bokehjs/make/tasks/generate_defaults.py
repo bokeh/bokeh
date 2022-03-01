@@ -7,7 +7,7 @@ from os.path import dirname, join
 
 # Bokeh imports
 from bokeh.core.property.singletons import Undefined
-from bokeh.core.serialization import AnyRep, Serializer
+from bokeh.core.serialization import AnyRep, ObjectRep, Serializer, SymbolRep
 from bokeh.core.json_encoder import serialize_json
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
@@ -26,7 +26,7 @@ class DefaultsSerializer(Serializer):
             )
             return rep
         elif obj is Undefined:
-            return dict(type="symbol", name="unset")
+            return SymbolRep(type="symbol", name="unset")
         else:
             return super()._encode(obj)
 

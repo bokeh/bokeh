@@ -12,8 +12,8 @@ import {Slice} from "../util/slice"
 import {Value, Field, Expr} from "../vectorization"
 
 import {
-  NumberRep, ArrayRep, SetRep, MapRep, BytesRep, SliceRep, TypedArrayRep,
-  NDArrayRep, ObjectRefRep, ObjectRep, ValueRep, FieldRep, ExprRep,
+  SymbolRep, NumberRep, ArrayRep, SetRep, MapRep, BytesRep, SliceRep, TypedArrayRep,
+  NDArrayRep, ObjectRep, ObjectRefRep, ValueRep, FieldRep, ExprRep,
 } from "./reps"
 
 export type Decoder = (rep: any, deserializer: Deserializer) => unknown
@@ -94,6 +94,8 @@ export class Deserializer {
         switch (obj.type) {
           case "ref":
             return this._decode_ref(obj as Ref)
+          case "symbol":
+            return this._decode_symbol(obj as SymbolRep)
           case "number":
             return this._decode_number(obj as NumberRep)
           case "array":
@@ -134,6 +136,10 @@ export class Deserializer {
       }
     } else
       return obj
+  }
+
+  protected _decode_symbol(obj: SymbolRep): symbol {
+    this.error(`can't resolve named symbol '${obj.name}'`) // TODO: implement symbol resolution
   }
 
   protected _decode_number(obj: NumberRep): number {

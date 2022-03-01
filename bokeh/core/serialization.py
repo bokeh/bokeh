@@ -105,6 +105,10 @@ class RefRep(TypedDict):
     type: Literal["ref"]
     id: ID
 
+class SymbolRep(TypedDict):
+    type: Literal["symbol"]
+    name: str
+
 class NumberRep(TypedDict):
     type: Literal["number"]
     value: Literal["nan", "-inf", "+inf"] | float
@@ -505,6 +509,8 @@ class Deserializer:
                     return self._decoders[type](obj, self)
                 elif type == "ref":
                     return self._decode_ref(cast(Ref, obj))
+                elif type == "symbol":
+                    return self._decode_symbol(cast(SymbolRep, obj))
                 elif type == "number":
                     return self._decode_number(cast(NumberRep, obj))
                 elif type == "array":
@@ -544,6 +550,10 @@ class Deserializer:
             return instance
         else:
             self.error(f"can't resolve reference '{id}'")
+
+    def _decode_symbol(self, obj: SymbolRep) -> float:
+        name = obj["name"]
+        self.error(f"can't resolve named symbol '{name}'") # TODO: implement symbol resolution
 
     def _decode_number(self, obj: NumberRep) -> float:
         value = obj["value"]
