@@ -33,8 +33,8 @@ class DefaultsSerializer extends Serializer {
         }
       }
 
-      const {type} = obj
-      return {type, attributes}
+      const {type: name} = obj
+      return {type: "object", name, attributes}
     } else {
       return super.encode(obj)
     }
@@ -80,12 +80,12 @@ function check_matching_defaults(context: string[], name: string, python_default
         }
       })()
 
-      function is_attrs(obj: unknown): obj is {type: string, attributes: KV} {
-        return isPlainObject(obj) && "attributes" in obj && "type" in obj
+      function is_object(obj: unknown): obj is {type: "object", name: string, attributes: KV} {
+        return isPlainObject(obj) && obj.type == "object"
       }
 
-      if (is_attrs(js_v) && is_attrs(py_v) && js_v.type == py_v.type) {
-        check_matching_defaults([...context, `${name}.${k}`], js_v.type, py_v.attributes, js_v.attributes)
+      if (is_object(js_v) && is_object(py_v) && js_v.name == py_v.name) {
+        check_matching_defaults([...context, `${name}.${k}`], js_v.name, py_v.attributes, js_v.attributes)
         continue
       }
 
@@ -114,8 +114,8 @@ function check_matching_defaults(context: string[], name: string, python_default
               const js_vi = js_v[i]
               const py_vi = py_v[i]
 
-              if (is_attrs(js_vi) && is_attrs(py_vi) && js_vi.type == py_vi.type) {
-                if (!check_matching_defaults([...context, `${name}.${k}[${i}]`], js_vi.type, py_vi.attributes, js_vi.attributes)) {
+              if (is_object(js_vi) && is_object(py_vi) && js_vi.name == py_vi.name) {
+                if (!check_matching_defaults([...context, `${name}.${k}[${i}]`], js_vi.name, py_vi.attributes, js_vi.attributes)) {
                   equal = false
                   break
                 }
