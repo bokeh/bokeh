@@ -310,7 +310,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
   miterLimit: number
   lineWidth: number
   globalAlpha: number = 1.0
-  globalCompositeOperation: string // XXX: really a string? // TODO: implement
+  globalCompositeOperation: GlobalCompositeOperation // TODO: implement
   font: string
   direction: CanvasDirection // TODO: implement
   shadowColor: string
@@ -958,6 +958,10 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     }, false)
     this.__defs.appendChild(grad)
     return new CanvasGradient(grad, this)
+  }
+
+  createConicGradient(_start_angle: number, _x: number, _y: number): CanvasGradient {
+    throw Error("not implemented")
   }
 
   /**
