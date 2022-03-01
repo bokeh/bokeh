@@ -3,6 +3,8 @@ import defer from "./defer"
 
 import {LayoutDOM, LayoutDOMView} from "@bokehjs/models/layouts/layout_dom"
 import {show} from "@bokehjs/api/plotting"
+import {Document} from "@bokehjs/document"
+import {HasProps} from "@bokehjs/core/has_props"
 import {div, empty} from "@bokehjs/core/dom"
 import {ViewOf} from "@bokehjs/core/view"
 import {isString, isArray} from "@bokehjs/core/util/types"
@@ -264,16 +266,25 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   return {error, time}
 }
 
-export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, number], el?: HTMLElement): Promise<{view: ViewOf<T>, el: HTMLElement}> {
+export async function display(obj: Document, viewport?: [number, number], el?: HTMLElement): Promise<{view: ViewOf<HasProps>, el: HTMLElement}>
+export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, number], el?: HTMLElement): Promise<{view: ViewOf<T>, el: HTMLElement}>
+
+export async function display(obj: Document | LayoutDOM, viewport?: [number, number], el?: HTMLElement): Promise<{view: ViewOf<HasProps>, el: HTMLElement}> {
   const test = current_test
   assert(test != null, "display() must be called in it(...) block")
+
+  if (obj instanceof Document) {
+    assert(obj.roots().length == 1)
+    assert(obj.roots()[0] instanceof LayoutDOM)
+  }
 
   const margin = 50
   const [width, height] = (() => {
     if (viewport != null)
       return viewport
     else {
-      const {width, height} = _infer_viewport(obj)
+      const model = obj instanceof Document ? obj.roots()[0] : obj
+      const {width, height} = _infer_viewport(model as LayoutDOM)
       if (isFinite(width) && isFinite(height)) {
         return [width + margin, height + margin]
       } else {
@@ -285,9 +296,9 @@ export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, n
   const vp = div({style: {width: `${width}px`, height: `${height}px`, overflow: "hidden"}}, el)
   container.appendChild(vp)
   const view = await show(obj, el ?? vp)
-  test.view = view
+  test.view = (isArray(view) ? view[0] : view) as LayoutDOMView
   test.el = vp
-  return {view, el: vp}
+  return {view: test.view, el: vp}
 }
 
 export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void, svg: SVGSVGElement, {width, height}: {width: number, height: number}): Promise<void> {

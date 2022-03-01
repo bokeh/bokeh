@@ -2,6 +2,7 @@ import {Document} from "../document"
 import * as embed from "../embed"
 
 import {ViewOf} from "core/view"
+import {HasProps} from "core/has_props"
 import {dom_ready} from "core/dom"
 import {isString, isArray} from "core/util/types"
 
@@ -11,12 +12,22 @@ declare const $: any
 
 export async function show<T extends LayoutDOM>(obj: T, target?: HTMLElement | string): Promise<ViewOf<T>>
 export async function show<T extends LayoutDOM>(obj: T[], target?: HTMLElement | string): Promise<ViewOf<T>[]>
+export async function show(obj: Document, target?: HTMLElement | string): Promise<ViewOf<HasProps>[]>
+export async function show(obj: LayoutDOM | Document, target?: HTMLElement | string): Promise<ViewOf<HasProps> | ViewOf<HasProps>[]>
 
-export async function show<T extends LayoutDOM>(obj: T | T[], target?: HTMLElement | string): Promise<ViewOf<T> | ViewOf<T>[]> {
-  const doc = new Document()
+export async function show(obj: Document | LayoutDOM | LayoutDOM[], target?: HTMLElement | string): Promise<ViewOf<HasProps> | ViewOf<HasProps>[]> {
+  const doc = (() => {
+    if (obj instanceof Document) {
+      return obj
+    } else {
+      const doc = new Document()
 
-  for (const item of isArray(obj) ? obj : [obj])
-    doc.add_root(item)
+      for (const item of isArray(obj) ? obj : [obj])
+        doc.add_root(item)
+
+      return doc
+    }
+  })()
 
   await dom_ready()
 
@@ -37,10 +48,10 @@ export async function show<T extends LayoutDOM>(obj: T | T[], target?: HTMLEleme
     throw new Error("target should be HTMLElement, string selector, $ or null")
   }
 
-  const views = await embed.add_document_standalone(doc, element) as ViewOf<T>[]
+  const views = await embed.add_document_standalone(doc, element)
 
   return new Promise((resolve, _reject) => {
-    const result = isArray(obj) ? views : views[0]
+    const result = isArray(obj) || obj instanceof Document ? views : views[0]
     if (doc.is_idle)
       resolve(result)
     else
