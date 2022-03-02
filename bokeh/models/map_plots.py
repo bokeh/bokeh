@@ -25,8 +25,8 @@ from ..core.enums import MapType
 from ..core.has_props import abstract
 from ..core.properties import (
     JSON,
-    Base64String,
     Bool,
+    Bytes,
     Enum,
     Float,
     Instance,
@@ -178,10 +178,10 @@ class GMapPlot(MapPlot):
 
     background_fill_alpha = Override(default=0.0)
 
-    api_key = NonNullable(Base64String, help="""
+    api_key = NonNullable(Bytes, help="""
     Google Maps API requires an API key. See https://developers.google.com/maps/documentation/javascript/get-api-key
     for more information on how to obtain your own.
-    """)
+    """).accepts(String, lambda val: val.encode("utf-8"))
 
     api_version = String(default="3.47", help="""
     The version of Google Maps API to use. See https://developers.google.com/maps/documentation/javascript/versions

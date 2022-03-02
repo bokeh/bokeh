@@ -147,9 +147,11 @@ def test_PropertyValueColumnData___setitem__(mock_notify: MagicMock) -> None:
     assert mock_notify.call_count == 1
     assert mock_notify.call_args[0] == (source, dict(foo=[10], bar=[20], baz=[30]))
     assert 'hint' in mock_notify.call_args[1]
-    assert isinstance(mock_notify.call_args[1]['hint'], ColumnDataChangedEvent)
-    assert mock_notify.call_args[1]['hint'].column_source == source
-    assert mock_notify.call_args[1]['hint'].cols == ['foo']
+    event = mock_notify.call_args[1]['hint']
+    assert isinstance(event, ColumnDataChangedEvent)
+    assert event.model == source
+    assert event.attr == "data"
+    assert event.cols == ['foo']
 
 @patch('bokeh.core.property.descriptors.ColumnDataPropertyDescriptor._notify_mutated')
 def test_PropertyValueColumnData_update(mock_notify: MagicMock) -> None:
@@ -165,9 +167,11 @@ def test_PropertyValueColumnData_update(mock_notify: MagicMock) -> None:
     assert mock_notify.call_count == 1
     assert mock_notify.call_args[0] == (source, dict(foo=[10], bar=[20], baz=[30]))
     assert 'hint' in mock_notify.call_args[1]
-    assert isinstance(mock_notify.call_args[1]['hint'], ColumnDataChangedEvent)
-    assert mock_notify.call_args[1]['hint'].column_source == source
-    assert sorted(mock_notify.call_args[1]['hint'].cols) == ['bar', 'foo']
+    event = mock_notify.call_args[1]['hint']
+    assert isinstance(event, ColumnDataChangedEvent)
+    assert event.model == source
+    assert event.attr == "data"
+    assert event.cols is not None and sorted(event.cols) == ['bar', 'foo']
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_list_to_list(mock_notify: MagicMock) -> None:
@@ -181,9 +185,10 @@ def test_PropertyValueColumnData__stream_list_to_list(mock_notify: MagicMock) ->
     assert mock_notify.call_count == 1
     assert mock_notify.call_args[0] == ({'foo': [10, 20]},) # streaming to list, "old" is actually updated value
     assert 'hint' in mock_notify.call_args[1]
-    assert isinstance(mock_notify.call_args[1]['hint'], ColumnsStreamedEvent)
-    assert mock_notify.call_args[1]['hint'].setter == 'setter'
-    assert mock_notify.call_args[1]['hint'].rollover == None
+    event = mock_notify.call_args[1]['hint']
+    assert isinstance(event, ColumnsStreamedEvent)
+    assert event.setter == 'setter'
+    assert event.rollover == None
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_list_to_array(mock_notify: MagicMock) -> None:
@@ -199,9 +204,10 @@ def test_PropertyValueColumnData__stream_list_to_array(mock_notify: MagicMock) -
     assert mock_notify.call_count == 1
     assert (mock_notify.call_args[0][0]['foo'] == np.array([10])).all()
     assert 'hint' in mock_notify.call_args[1]
-    assert isinstance(mock_notify.call_args[1]['hint'], ColumnsStreamedEvent)
-    assert mock_notify.call_args[1]['hint'].setter == 'setter'
-    assert mock_notify.call_args[1]['hint'].rollover == None
+    event = mock_notify.call_args[1]['hint']
+    assert isinstance(event, ColumnsStreamedEvent)
+    assert event.setter == 'setter'
+    assert event.rollover == None
 
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
@@ -216,9 +222,10 @@ def test_PropertyValueColumnData__stream_list_with_rollover(mock_notify: MagicMo
     assert mock_notify.call_count == 1
     assert mock_notify.call_args[0] == ({'foo': [20, 30, 40]},) # streaming to list, "old" is actually updated value
     assert 'hint' in mock_notify.call_args[1]
-    assert isinstance(mock_notify.call_args[1]['hint'], ColumnsStreamedEvent)
-    assert mock_notify.call_args[1]['hint'].setter == 'setter'
-    assert mock_notify.call_args[1]['hint'].rollover == 3
+    event = mock_notify.call_args[1]['hint']
+    assert isinstance(event, ColumnsStreamedEvent)
+    assert event.setter == 'setter'
+    assert event.rollover == 3
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_array_to_array(mock_notify: MagicMock) -> None:
@@ -236,9 +243,10 @@ def test_PropertyValueColumnData__stream_array_to_array(mock_notify: MagicMock) 
     assert 'foo' in mock_notify.call_args[0][0]
     assert (mock_notify.call_args[0][0]['foo'] == np.array([10])).all()
     assert 'hint' in mock_notify.call_args[1]
-    assert isinstance(mock_notify.call_args[1]['hint'], ColumnsStreamedEvent)
-    assert mock_notify.call_args[1]['hint'].setter == 'setter'
-    assert mock_notify.call_args[1]['hint'].rollover == None
+    event = mock_notify.call_args[1]['hint']
+    assert isinstance(event, ColumnsStreamedEvent)
+    assert event.setter == 'setter'
+    assert event.rollover == None
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_array_to_list(mock_notify: MagicMock) -> None:
@@ -254,9 +262,10 @@ def test_PropertyValueColumnData__stream_array_to_list(mock_notify: MagicMock) -
     assert 'foo' in mock_notify.call_args[0][0]
     assert mock_notify.call_args[0] == ({'foo': [10, 20]},) # streaming to list, "old" is actually updated value
     assert 'hint' in mock_notify.call_args[1]
-    assert isinstance(mock_notify.call_args[1]['hint'], ColumnsStreamedEvent)
-    assert mock_notify.call_args[1]['hint'].setter == 'setter'
-    assert mock_notify.call_args[1]['hint'].rollover == None
+    event = mock_notify.call_args[1]['hint']
+    assert isinstance(event, ColumnsStreamedEvent)
+    assert event.setter == 'setter'
+    assert event.rollover == None
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_array_with_rollover(mock_notify: MagicMock) -> None:
@@ -274,9 +283,10 @@ def test_PropertyValueColumnData__stream_array_with_rollover(mock_notify: MagicM
     assert 'foo' in mock_notify.call_args[0][0]
     assert (mock_notify.call_args[0][0]['foo'] == np.array([10, 20, 30])).all()
     assert 'hint' in mock_notify.call_args[1]
-    assert isinstance(mock_notify.call_args[1]['hint'], ColumnsStreamedEvent)
-    assert mock_notify.call_args[1]['hint'].setter == 'setter'
-    assert mock_notify.call_args[1]['hint'].rollover == 3
+    event = mock_notify.call_args[1]['hint']
+    assert isinstance(event, ColumnsStreamedEvent)
+    assert event.setter == 'setter'
+    assert event.rollover == 3
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__patch_with_simple_indices(mock_notify: MagicMock) -> None:
@@ -290,8 +300,9 @@ def test_PropertyValueColumnData__patch_with_simple_indices(mock_notify: MagicMo
     assert mock_notify.call_args[0] == ({'foo': [10, 40]},)
     assert pvcd == dict(foo=[10, 40])
     assert 'hint' in mock_notify.call_args[1]
-    assert isinstance(mock_notify.call_args[1]['hint'], ColumnsPatchedEvent)
-    assert mock_notify.call_args[1]['hint'].setter == 'setter'
+    event = mock_notify.call_args[1]['hint']
+    assert isinstance(event, ColumnsPatchedEvent)
+    assert event.setter == 'setter'
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__patch_with_repeated_simple_indices(mock_notify: MagicMock) -> None:
@@ -305,8 +316,9 @@ def test_PropertyValueColumnData__patch_with_repeated_simple_indices(mock_notify
     assert mock_notify.call_args[0] == ({'foo': [10, 50]},)
     assert pvcd == dict(foo=[10, 50])
     assert 'hint' in mock_notify.call_args[1]
-    assert isinstance(mock_notify.call_args[1]['hint'], ColumnsPatchedEvent)
-    assert mock_notify.call_args[1]['hint'].setter == 'setter'
+    event = mock_notify.call_args[1]['hint']
+    assert isinstance(event, ColumnsPatchedEvent)
+    assert event.setter == 'setter'
 
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
@@ -321,8 +333,9 @@ def test_PropertyValueColumnData__patch_with_slice_indices(mock_notify: MagicMoc
     assert mock_notify.call_args[0] == ({'foo': [1, 2, 30, 40, 50]},)
     assert pvcd == dict(foo=[1, 2, 30, 40, 50])
     assert 'hint' in mock_notify.call_args[1]
-    assert isinstance(mock_notify.call_args[1]['hint'], ColumnsPatchedEvent)
-    assert mock_notify.call_args[1]['hint'].setter == 'setter'
+    event = mock_notify.call_args[1]['hint']
+    assert isinstance(event, ColumnsPatchedEvent)
+    assert event.setter == 'setter'
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__patch_with_overlapping_slice_indices(mock_notify: MagicMock) -> None:
@@ -336,8 +349,9 @@ def test_PropertyValueColumnData__patch_with_overlapping_slice_indices(mock_noti
     assert mock_notify.call_args[0] == ({'foo': [1, 1000, 2000, 40, 50]},)
     assert pvcd == dict(foo=[1, 1000, 2000, 40, 50])
     assert 'hint' in mock_notify.call_args[1]
-    assert isinstance(mock_notify.call_args[1]['hint'], ColumnsPatchedEvent)
-    assert mock_notify.call_args[1]['hint'].setter == 'setter'
+    event = mock_notify.call_args[1]['hint']
+    assert isinstance(event, ColumnsPatchedEvent)
+    assert event.setter == 'setter'
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueList_mutators(mock_notify: MagicMock) -> None:

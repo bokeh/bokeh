@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Set, Tuple, Type
+from typing import Set, Tuple
 
 # Bokeh imports
 from bokeh.core.properties import (
@@ -108,15 +108,13 @@ def large_plot(n: int) -> Tuple[Model, Set[Model]]:
 
 class TestModelCls:
     def setup_method(self):
-        from bokeh.model import Model
-        self.model_cls = Model
-        self.old_map = dict(self.model_cls.model_class_reverse_map)
+        self.old_map = dict(Model.model_class_reverse_map)
 
     def teardown_method(self):
-        self.model_cls.model_class_reverse_map = self.old_map
+        Model.model_class_reverse_map = self.old_map
 
     def mkclass(self):
-        class Test_Class(self.model_cls):
+        class Test_Class(Model):
             foo = 1
         return Test_Class
 
@@ -129,7 +127,7 @@ class TestModelCls:
     def test_get_class(self) -> None:
         from bokeh.model import get_class
         self.mkclass()
-        tclass = get_class('test_objects.Test_Class')
+        tclass = get_class('test_objects.TestModelCls.mkclass.Test_Class')
         assert hasattr(tclass, 'foo')
         with pytest.raises(KeyError):
             get_class('Imaginary_Class')
@@ -168,17 +166,15 @@ class SomeModelToJson(Model):
 
 
 class TestModel:
-    pObjectClass: Type[SomeModel]
 
     def setup_method(self) -> None:
-        self.pObjectClass = SomeModel
         self.maxDiff = None
 
     def test_init(self) -> None:
-        testObject = self.pObjectClass(id='test_id')
+        testObject = SomeModel(id='test_id')
         assert testObject.id == 'test_id'
 
-        testObject2 = self.pObjectClass()
+        testObject2 = SomeModel()
         assert testObject2.id is not None
 
         assert set(testObject.properties()) == {
@@ -201,35 +197,27 @@ class TestModel:
         )
         assert testObject.properties_with_values(include_defaults=False) == {}
 
-    def test_struct(self) -> None:
-        testObject = self.pObjectClass(id='test_id')
-        assert testObject.struct == dict(
-            id='test_id',
-            type='test_objects.SomeModel',
-            attributes={},
-        )
-
     def test_references_by_ref_by_value(self) -> None:
         from bokeh.core.has_props import HasProps
         from bokeh.core.properties import Instance, Int
 
-        class T(self.pObjectClass):
+        class T(SomeModel):
             t = Int(0)
 
-        class Y(self.pObjectClass):
+        class Y(SomeModel):
             t1 = Instance(T)
 
         class Z1(HasProps):
             t2 = Instance(T)
 
-        class Z2(self.pObjectClass):
+        class Z2(SomeModel):
             t2 = Instance(T)
 
-        class X1(self.pObjectClass):
+        class X1(SomeModel):
             y = Instance(Y)
             z1 = Instance(Z1)
 
-        class X2(self.pObjectClass):
+        class X2(SomeModel):
             y = Instance(Y)
             z2 = Instance(Z2)
 
@@ -258,10 +246,10 @@ class TestModel:
         # Warning: Duplicate __view_model__ declaration of 'Y' for class Y.
         #          Previous definition: <class 'bokeh.tests.test_objects.Y'>
 
-        class U(self.pObjectClass):
+        class U(SomeModel):
             a = Int()
 
-        class V(self.pObjectClass):
+        class V(SomeModel):
             u1 = Instance(U)
             u2 = List(Instance(U))
             u3 = Tuple(Int, Instance(U))
@@ -272,83 +260,6 @@ class TestModel:
         v = V(u1=u1, u2=[u2], u3=(3, u3), u4={"4": u4}, u5={"5": [u5]})
 
         assert v.references() == {v, u1, u2, u3, u4, u5}
-
-    def test_to_json(self) -> None:
-        child_obj = SomeModelToJson(foo=57, bar="hello")
-        obj = SomeModelToJson(child=child_obj, foo=42, bar="world")
-
-        json = obj.to_json(include_defaults=True)
-        json_string = obj.to_json_string(include_defaults=True)
-
-        assert json == {
-            "child": {"id": child_obj.id},
-            "null_child": None,
-            "id": obj.id,
-            "name": None,
-            "tags": [],
-            'js_property_callbacks': {},
-            "js_event_callbacks": {},
-            "subscribed_events": [],
-            "syncable": True,
-            "foo": 42,
-            "bar": "world",
-        }
-        assert (
-            '{"bar":"world",' +
-            '"child":{"id":"%s"},' +
-            '"foo":42,' +
-            '"id":"%s",' +
-            '"js_event_callbacks":{},' +
-            '"js_property_callbacks":{},' +
-            '"name":null,' +
-            '"null_child":null,' +
-            '"subscribed_events":[],' +
-            '"syncable":true,' +
-            '"tags":[]}'
-        ) % (child_obj.id, obj.id) == json_string
-
-        json = obj.to_json(include_defaults=False)
-        json_string = obj.to_json_string(include_defaults=False)
-
-        assert json == {
-            "child": {"id": child_obj.id},
-            "id": obj.id,
-            "foo": 42,
-            "bar": "world",
-        }
-        assert (
-            '{"bar":"world",' +
-            '"child":{"id":"%s"},' +
-            '"foo":42,' +
-            '"id":"%s"}'
-        ) % (child_obj.id, obj.id) == json_string
-
-    def test_no_units_in_json(self) -> None:
-        from bokeh.models import AnnularWedge
-        obj = AnnularWedge()
-        json = obj.to_json(include_defaults=True)
-        assert 'start_angle' in json
-        assert 'start_angle_units' not in json
-        assert 'outer_radius' in json
-        assert 'outer_radius_units' not in json
-
-    def test_dataspec_field_in_json(self) -> None:
-        from bokeh.models import AnnularWedge
-        obj = AnnularWedge()
-        obj.start_angle = "fieldname"
-        json = obj.to_json(include_defaults=True)
-        assert 'start_angle' in json
-        assert 'start_angle_units' not in json
-        assert dict(field='fieldname') == json['start_angle']
-
-    def test_dataspec_value_in_json(self) -> None:
-        from bokeh.models import AnnularWedge
-        obj = AnnularWedge()
-        obj.start_angle = 60
-        json = obj.to_json(include_defaults=True)
-        assert 'start_angle' in json
-        assert 'start_angle_units' not in json
-        assert dict(value=60) == json['start_angle']
 
     def test_list_default(self) -> None:
         class HasListDefault(Model):

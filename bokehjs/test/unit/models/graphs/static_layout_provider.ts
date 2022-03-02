@@ -9,7 +9,7 @@ describe("StaticLayoutProvider", () => {
 
     it("should create an empty dict", () => {
       const layout_provider = new StaticLayoutProvider()
-      expect(layout_provider.graph_layout).to.be.equal({})
+      expect(layout_provider.graph_layout).to.be.equal(new Map())
     })
   })
 
@@ -18,7 +18,7 @@ describe("StaticLayoutProvider", () => {
 
     before_each(() => {
       layout_provider = new StaticLayoutProvider({
-        graph_layout: {0: [-1, 0], 1: [0, 1], 2: [1, 0], 3: [0, -1]},
+        graph_layout: new Map([[0, [-1, 0]], [1, [0, 1]], [2, [1, 0]], [3, [0, -1]]]),
       })
     })
 

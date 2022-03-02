@@ -9,7 +9,7 @@ x = [1,2,3,4,5,7,8,9,10]
 y = [1,2,3,4,5,7,8,9,10]
 
 #Use the field name of the column source
-mapper = linear_cmap(field_name='y', palette=Spectral6 ,low=min(y) ,high=max(y))
+mapper = linear_cmap(field='y', palette=Spectral6, low=min(y), high=max(y))
 
 source = ColumnDataSource(dict(x=x,y=y))
 

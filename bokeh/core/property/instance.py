@@ -26,21 +26,17 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from importlib import import_module
 from typing import (
-    TYPE_CHECKING,
     Any,
-    Dict,
+    Callable,
     Type,
     TypeVar,
 )
 
 # Bokeh imports
+from ..serialization import Serializable
 from ._sphinx import model_link, property_link, register_type_link
-from .bases import DeserializationError, Init, Property
+from .bases import Init, Property
 from .singletons import Undefined
-
-if TYPE_CHECKING:
-    from ..has_props import HasProps
-    from ..types import JSON
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -50,14 +46,14 @@ __all__ = (
     'Instance',
 )
 
-T = TypeVar("T", bound="HasProps")
+T = TypeVar("T", bound=Serializable)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
 class Instance(Property[T]):
-    """ Accept values that are instances of |HasProps|.
+    """ Accept values that are instances of serializable types (e.g. |HasProps|).
 
     Args:
         readonly (bool, optional) :
@@ -65,20 +61,24 @@ class Instance(Property[T]):
             (default: False)
 
     """
-    _instance_type: Type[T] | str
+    _instance_type: Type[T] | Callable[[], Type[T]] | str
 
-    def __init__(self, instance_type: Type[T] | str, default: Init[T] = Undefined,
+    def __init__(self, instance_type: Type[T] | Callable[[], Type[T]] | str, default: Init[T] = Undefined,
             help: str | None = None, readonly: bool = False, serialized: bool | None = None):
-        if not isinstance(instance_type, (type, str)):
-            raise ValueError(f"expected a type or string, got {instance_type}")
+        if not (isinstance(instance_type, (type, str)) or callable(instance_type)):
+            raise ValueError(f"expected a type, fn() -> type, or string, got {instance_type}")
 
-        from ..has_props import HasProps
-        if isinstance(instance_type, type) and not issubclass(instance_type, HasProps):
-            raise ValueError(f"expected a subclass of HasProps, got {instance_type}")
+        if isinstance(instance_type, type):
+            self._assert_serializable(instance_type)
 
         self._instance_type = instance_type
 
         super().__init__(default=default, help=help, readonly=readonly, serialized=serialized)
+
+    @staticmethod
+    def _assert_serializable(instance_type: Type[Any]) -> None:
+        if not (isinstance(instance_type, type) and issubclass(instance_type, Serializable)):
+            raise ValueError(f"expected a subclass of Serializable (e.g. HasProps), got {instance_type}")
 
     def __str__(self) -> str:
         class_name = self.__class__.__name__
@@ -90,38 +90,21 @@ class Instance(Property[T]):
         return True
 
     @property
-    def instance_type(self) -> Type[HasProps]:
-        if isinstance(self._instance_type, str):
+    def instance_type(self) -> Type[Serializable]:
+        instance_type: Type[Serializable]
+        if isinstance(self._instance_type, type):
+            instance_type = self._instance_type
+        elif isinstance(self._instance_type, str):
             module, name = self._instance_type.rsplit(".", 1)
-            self._instance_type = getattr(import_module(module, "bokeh"), name)
-
-        return self._instance_type
-
-    def from_json(self, json: JSON, *, models: Dict[str, HasProps] | None = None) -> T:
-        if isinstance(json, dict):
-            from ...model import Model
-            if issubclass(self.instance_type, Model):
-                if models is None:
-                    raise DeserializationError(f"{self} can't deserialize without models")
-                else:
-                    model = models.get(json["id"])
-
-                    if model is not None:
-                        return model
-                    else:
-                        raise DeserializationError(f"{self} failed to deserialize reference to {json}")
-            else:
-                attrs = {}
-
-                for name, value in json.items():
-                    prop_descriptor = self.instance_type.lookup(name).property
-                    attrs[name] = prop_descriptor.from_json(value, models=models)
-
-                # XXX: this doesn't work when Instance(Superclass) := Subclass()
-                # Serialization dict must carry type information to resolve this.
-                return self.instance_type(**attrs)
+            instance_type = getattr(import_module(module, "bokeh"), name)
+            self._assert_serializable(instance_type)
+            self._instance_type = instance_type
         else:
-            raise DeserializationError(f"{self} expected a dict, got {json}")
+            instance_type = self._instance_type()
+            self._assert_serializable(instance_type)
+            self._instance_type = instance_type
+
+        return instance_type
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)

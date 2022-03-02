@@ -10,7 +10,7 @@ Journal of Anthropological Research, 33, 452-473.
 
 import networkx as nx
 
-from bokeh.io import curdoc, show
+from bokeh.io import show
 from bokeh.models import (BoxSelectTool, Circle, Column, EdgesAndLinkedNodes,
                           HoverTool, MultiLine, NodesAndAdjacentNodes,
                           NodesAndLinkedEdges, Plot, Range1d, Row, TapTool)
@@ -67,8 +67,4 @@ plot_6.title.text = "FR Layout (NodesAndAdjacentNodes selection policy)"
 plot_6.add_tools(TapTool())
 
 layout = Column(Row(plot_1, plot_2), Row(plot_3, plot_4), Row(plot_5, plot_6))
-
-doc = curdoc()
-doc.add_root(layout)
-
 show(layout)

@@ -21,7 +21,7 @@ from itertools import chain
 
 # Bokeh imports
 from bokeh.core.enums import LineCap, LineJoin, NamedColor as Color
-from bokeh.core.property.dataspec import field, value
+from bokeh.core.property.vectorization import field, value
 
 # Module under test
  # isort:skip

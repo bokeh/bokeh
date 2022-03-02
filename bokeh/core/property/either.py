@@ -23,10 +23,13 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any, Type
+
 # Bokeh imports
 from ...util.string import nice_join
 from ._sphinx import property_link, register_type_link, type_link
-from .bases import DeserializationError, ParameterizedProperty
+from .bases import ParameterizedProperty, Property
 from .singletons import Intrinsic
 
 #-----------------------------------------------------------------------------
@@ -83,15 +86,7 @@ class Either(ParameterizedProperty):
     def type_params(self):
         return self._type_params
 
-    def from_json(self, json, *, models=None):
-        for tp in self.type_params:
-            try:
-                return tp.from_json(json, models=models)
-            except DeserializationError:
-                pass
-        raise DeserializationError(f"{self} couldn't deserialize {json}")
-
-    def transform(self, value):
+    def transform(self, value: Any) -> Any:
         for param in self.type_params:
             try:
                 return param.transform(value)
@@ -117,6 +112,13 @@ class Either(ParameterizedProperty):
     def _may_have_unstable_default(self):
         return super()._may_have_unstable_default() or \
             any(tp._may_have_unstable_default() for tp in self.type_params)
+
+    def replace(self, old: Type[Property[Any]], new: Property[Any]) -> Property[Any]:
+        if self.__class__ == old:
+            return new
+        else:
+            params = [ type_param.replace(old, new) for type_param in self.type_params ]
+            return Either(*params)
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -22,12 +22,9 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from inspect import isclass
-from json import loads
-from math import isinf, isnan
 from typing import (
     TYPE_CHECKING,
     Any,
-    ClassVar,
     Dict,
     Iterable,
     List,
@@ -38,28 +35,16 @@ from typing import (
 # Bokeh imports
 from ..core import properties as p
 from ..core.has_props import HasProps, abstract
-from ..core.json_encoder import serialize_json
-from ..core.types import (
-    ID,
-    Ref,
-    ReferenceJson,
-    Unknown,
-)
+from ..core.serialization import ObjectRefRep, Ref, Serializer
+from ..core.types import ID, Unknown
 from ..events import Event
 from ..themes import default as default_theme
 from ..util.callback_manager import EventCallbackManager, PropertyCallbackManager
 from ..util.serialization import make_id
 from .docs import html_repr, process_example
-from .util import (
-    HasDocumentRef,
-    collect_models,
-    qualified_model,
-    visit_value_and_its_immediate_references,
-)
+from .util import HasDocumentRef, collect_models, visit_value_and_its_immediate_references
 
 if TYPE_CHECKING:
-    import bokeh.types
-
     from ..core.has_props import Setter
     from ..core.query import SelectorType
     from ..document import Document
@@ -89,28 +74,9 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     '''
 
-    model_class_reverse_map: ClassVar[Dict[str, Type[Model]]] = {}
-
     @classmethod
     def __init_subclass__(cls):
         super().__init_subclass__()
-
-        # use an explicitly provided view model name if there is one
-        if "__view_model__" not in cls.__dict__:
-            cls.__view_model__ = cls.__name__
-        if "__view_module__" not in cls.__dict__:
-            cls.__view_module__ = cls.__module__
-
-        qualified = qualified_model(cls)
-
-        cls.__qualified_model__ = qualified
-
-        # update the mapping of view model names to classes, checking for any duplicates
-        previous = cls.model_class_reverse_map.get(qualified, None)
-        if previous is not None and not hasattr(cls, "__implementation__"):
-            raise Warning(f"Duplicate qualified model declaration of '{qualified}'. Previous definition: {previous}")
-        cls.model_class_reverse_map[qualified] = cls
-
         process_example(cls)
 
     _id: ID
@@ -242,26 +208,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     @property
     def ref(self) -> Ref:
         return Ref(id=self._id)
-
-    @property
-    def struct(self) -> ReferenceJson:
-        ''' A Bokeh protocol "structure" of this model, i.e. a dict of the form:
-
-        .. code-block:: python
-
-            {
-                'type' : << view model name >>
-                'id'   : << unique model id >>
-            }
-
-        '''
-        this = ReferenceJson(
-            id=self.id,
-            type=self.__qualified_model__,
-            attributes={},
-        )
-
-        return this
 
     # Public methods ----------------------------------------------------------
 
@@ -482,57 +428,21 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             for key, val in updates.items():
                 setattr(obj, key, val)
 
-    # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
-    def to_json(self, include_defaults: bool) -> bokeh.types.JSON:
-        ''' Returns a dictionary of the attributes of this object,
-        containing only "JSON types" (string, number, boolean,
-        none, dict, list).
+    def to_serializable(self, serializer: Serializer) -> ObjectRefRep:
+        serializer.add_ref(self, self.ref)
 
-        References to other objects are serialized as "refs" (just
-        the object ID and type info), so the deserializer will
-        need to separately have the full attributes of those
-        other objects.
+        super_rep = super().to_serializable(serializer)
+        rep = ObjectRefRep(
+            type="object",
+            name=super_rep["name"],
+            id=self.id,
+        )
 
-        There's no corresponding ``from_json()`` because to
-        deserialize an object is normally done in the context of a
-        Document (since the Document can resolve references).
+        attributes = super_rep.get("attributes")
+        if attributes is not None:
+            rep["attributes"] = attributes
 
-        For most purposes it's best to serialize and deserialize
-        entire documents.
-
-        Args:
-            include_defaults (bool) : whether to include attributes
-                that haven't been changed from the default
-
-        '''
-        return loads(self.to_json_string(include_defaults=include_defaults))
-
-    def to_json_string(self, include_defaults: bool) -> str:
-        ''' Returns a JSON string encoding the attributes of this object.
-
-        References to other objects are serialized as references
-        (just the object ID and type info), so the deserializer
-        will need to separately have the full attributes of those
-        other objects.
-
-        There's no corresponding ``from_json_string()`` because to
-        deserialize an object is normally done in the context of a
-        Document (since the Document can resolve references).
-
-        For most purposes it's best to serialize and deserialize
-        entire documents.
-
-        Args:
-            include_defaults (bool) : whether to include attributes
-                that haven't been changed from the default
-
-        '''
-        json_like = self._to_json_like(include_defaults=include_defaults)
-        json_like['id'] = self.id
-        # serialize_json "fixes" the JSON from _to_json_like by converting
-        # all types into plain JSON types # (it converts Model into refs,
-        # for example).
-        return serialize_json(json_like)
+        return rep
 
     def trigger(self, attr: str, old: Unknown, new: Unknown,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
@@ -595,41 +505,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         '''
         self.document = None
         default_theme.apply_to_model(self)
-
-    def _to_json_like(self, include_defaults: bool):
-        ''' Returns a dictionary of the attributes of this object, in
-        a layout corresponding to what BokehJS expects at unmarshalling time.
-
-        This method does not convert "Bokeh types" into "plain JSON types,"
-        for example each child Model will still be a Model, rather
-        than turning into a reference, numpy isn't handled, etc.
-        That's what "json like" means.
-
-        This method should be considered "private" or "protected",
-        for use internal to Bokeh; use ``to_json()`` instead because
-        it gives you only plain JSON-compatible types.
-
-        Args:
-            include_defaults (bool) : whether to include attributes
-                that haven't been changed from the default.
-
-        '''
-        attrs = self.properties_with_values(include_defaults=include_defaults)
-
-        for attr, v in attrs.items():
-            # we can't serialize Infinity, we send it as None and
-            # the other side has to fix it up. This transformation
-            # can't be in our json_encoder because the json
-            # module checks for inf before it calls the custom
-            # encoder.
-            if isinstance(v, float):
-                # XXX this will happen in the serializer at some point
-                if isnan(v):
-                    attrs[attr] = {"$type": "number", "value": "nan"}
-                elif isinf(v):
-                    attrs[attr] = {"$type": "number", "value": f"{'-' if v < 0 else '+'}inf"}
-
-        return attrs
 
     def _repr_html_(self) -> str:
         return html_repr(self)

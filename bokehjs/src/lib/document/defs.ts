@@ -1,24 +1,21 @@
-import {ModelResolver} from "../base"
 import {Model} from "../model"
 import * as kinds from "core/kinds"
-import {Deserializer} from "core/deserializer"
-import {Struct} from "core/util/refs"
+import {type HasProps} from "core/has_props"
+import {AnyVal} from "core/serialization"
+import {Deserializer} from "core/serialization/deserializer"
+import {Ref} from "core/util/refs"
 import {isString} from "core/util/types"
 import {to_object} from "core/util/object"
 
-export type ModelRef = {
+export type ModelDef = {
+  type: "model"
   name: string
-  module?: string | null
+  extends?: Ref
+  properties?: PropertyDef[]
+  overrides?: OverrideDef[]
 }
 
-export type ModelDef = ModelRef & {
-  extends: ModelRef
-  properties: PropertyDef[]
-  overrides: OverrideDef[]
-  references: Struct[]
-}
-
-export type PrimitiveKindRef = "Any" | "Unknown" | "Boolean" | "Number" | "Int" | "String" | "Null"
+export type PrimitiveKindRef = "Any" | "Unknown" | "Boolean" | "Number" | "Int" | "Bytes" | "String" | "Null"
 
 export type KindRef =
   PrimitiveKindRef |
@@ -31,7 +28,7 @@ export type KindRef =
   ["Dict", KindRef] |
   ["Map", KindRef, KindRef] |
   ["Enum", ...string[]] |
-  ["Ref", ModelRef] |
+  ["Ref", Ref] |
   ["AnyRef"]
 
 export type PropertyDef = {
@@ -45,10 +42,7 @@ export type OverrideDef = {
   default: unknown
 }
 
-export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
-  function qualified(ref: ModelRef): string {
-    return ref.module != null ? `${ref.module}.${ref.name}` : ref.name
-  }
+export function decode_def(def: ModelDef, deserializer: Deserializer): typeof HasProps {
 
   function kind_of(ref: KindRef): kinds.Kind<unknown> {
     if (isString(ref)) {
@@ -58,6 +52,7 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
         case "Boolean": return kinds.Boolean
         case "Number": return kinds.Number
         case "Int": return kinds.Int
+        case "Bytes": return kinds.Bytes
         case "String": return kinds.String
         case "Null": return kinds.Null
       }
@@ -102,11 +97,11 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
         }
         case "Ref": {
           const [, modelref] = ref
-          const model = resolver.get(qualified(modelref), null)
+          const model = deserializer.resolver.get(modelref.id)
           if (model != null)
             return kinds.Ref(model)
           else
-            throw new Error(`${qualified(modelref)} wasn't defined before referencing it`)
+            throw new Error(`${modelref.id} wasn't defined before referencing it`)
         }
         case "AnyRef": {
           return kinds.AnyRef()
@@ -115,39 +110,37 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
     }
   }
 
-  for (const def of defs) {
-    const base = (() => {
-      const name = qualified(def.extends)
-      if (name == "Model") // TODO: support base classes in general
-        return Model
-      const base = resolver.get(name, null)
-      if (base != null)
-        return base
-      else
-        throw new Error(`base model ${qualified(def.extends)} of ${qualified(def)} is not defined`)
-    })()
+  const base = (() => {
+    const name = def.extends?.id ?? "Model"
+    if (name == "Model") // TODO: support base classes in general
+      return Model
+    const base = deserializer.resolver.get(name)
+    if (base != null)
+      return base
+    else
+      throw new Error(`base model ${name} of ${def.name} is not defined`)
+  })()
 
-    const model = class extends base {
-      static override __name__ = def.name
-      static override __module__ = def.module ?? undefined
-    }
-
-    const references = Deserializer._instantiate_references_json(def.references, new Map(), resolver)
-    Deserializer._initialize_references_json(def.references, new Map(), references, new Map(), null)
-
-    function resolve_refs(value: unknown): unknown {
-      return Deserializer._resolve_refs(value, new Map(), references, new Map())
-    }
-
-    for (const prop of def.properties) {
-      const kind = kind_of(prop.kind)
-      model.define<any>({[prop.name]: [kind, resolve_refs(prop.default)]})
-    }
-
-    for (const prop of def.overrides) {
-      model.override<any>({[prop.name]: resolve_refs(prop.default)})
-    }
-
-    resolver.register(model)
+  const model = class extends base {
+    static override __qualified__ = def.name
   }
+
+  function decode(value: unknown): unknown {
+    if (value === undefined)
+      return value
+    else
+      return deserializer.decode(value as AnyVal)
+  }
+
+  for (const prop of def.properties ?? []) {
+    const kind = kind_of(prop.kind)
+    model.define<any>({[prop.name]: [kind, decode(prop.default)]})
+  }
+
+  for (const prop of def.overrides ?? []) {
+    model.override<any>({[prop.name]: decode(prop.default)})
+  }
+
+  deserializer.resolver.register(model)
+  return model
 }

@@ -5,18 +5,41 @@ import {ExpectationError} from "../unit/assertions"
 
 import all_defaults from "../.generated_defaults/defaults.json"
 
+import {HasProps} from "@bokehjs/core/has_props"
+import {unset} from "@bokehjs/core/properties"
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {keys, entries} from "@bokehjs/core/util/object"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {to_string} from "@bokehjs/core/util/pretty"
-import {Serializer} from "@bokehjs/core/serializer"
-import {is_ref} from "@bokehjs/core/util/refs"
+import {Serializer} from "@bokehjs/core/serialization"
 
-import {Models} from "@bokehjs/base"
+import {default_resolver} from "@bokehjs/base"
 import {settings} from "@bokehjs/core/settings"
 
 import "@bokehjs/models/widgets/main"
 import "@bokehjs/models/widgets/tables/main"
+
+type KV = {[key: string]: unknown}
+
+class DefaultsSerializer extends Serializer {
+
+  override encode(obj: unknown): unknown {
+    if (obj instanceof HasProps) {
+      const attributes: KV = {}
+      for (const prop of obj) {
+        if (prop.syncable) {
+          const value = prop.is_unset ? unset : prop.get_value()
+          attributes[prop.attr] = this.encode(value)
+        }
+      }
+
+      const {type: name} = obj
+      return {type: "object", name, attributes}
+    } else {
+      return super.encode(obj)
+    }
+  }
+}
 
 function get_defaults(name: string) {
   const defaults = all_defaults[name]
@@ -26,14 +49,14 @@ function get_defaults(name: string) {
     throw new Error(`can't find defaults for ${name}`)
 }
 
-type KV = {[key: string]: any}
-
-function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defaults: KV, serializer: Serializer): boolean {
+function check_matching_defaults(context: string[], name: string, python_defaults: KV, bokehjs_defaults: KV): boolean {
   const different: string[] = []
   const python_missing: string[] = []
   const bokehjs_missing: string[] = []
 
-  for (let [k, js_v] of entries(bokehjs_defaults)) {
+  for (const [k, js_v] of entries(bokehjs_defaults)) {
+    console.log(`${context.join(" -> ")} ${name}.${k}`)
+
     // node_renderer/edge_renderer are configured dynamicaly in bokehjs
     if (name == "GraphRenderer" && (k == "node_renderer" || k == "edge_renderer"))
       continue
@@ -43,53 +66,60 @@ function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defa
       continue
 
     // if testing in dev mode, we use special platform independent "Bokeh" font, instead of the default
-    if (settings.dev && k.includes("text_font") && (js_v == "Bokeh" || js_v?.value == "Bokeh"))
+    if (settings.dev && k.includes("text_font") && (js_v == "Bokeh" || (js_v as any)?.value == "Bokeh"))
       continue
 
     if (k in python_defaults) {
-      let py_v = python_defaults[k]
+      const py_v = (() => {
+        const v = python_defaults[k]
 
-      if (is_ref(js_v)) {
-        if (is_ref(py_v))
-          continue // TODO: defaults.json stops at one reference level, so assume equal
-        js_v = serializer.resolve_ref(js_v)!
+        if (k == "palette" && isArray(v)) {
+          return v.map((x) => parseInt((x as string).slice(1), 16))
+        } else {
+          return v
+        }
+      })()
+
+      function is_object(obj: unknown): obj is {type: "object", name: string, attributes: KV} {
+        return isPlainObject(obj) && obj.type == "object"
+      }
+
+      if (is_object(js_v) && is_object(py_v) && js_v.name == py_v.name) {
+        check_matching_defaults([...context, `${name}.${k}`], js_v.name, py_v.attributes, js_v.attributes)
+        continue
+      }
+
+      // XXX: deal with the lack of scalar properties in bokeh
+      function is_vector(obj: unknown): boolean {
+        return isPlainObject(obj) && (obj.type == "value" || obj.type == "field" || obj.type == "expr")
+      }
+
+      if (is_vector(py_v) && !is_vector(js_v)) {
+        if (is_equal(py_v, {type: "value", value: js_v}))
+          continue
+      } else if (!is_vector(py_v) && is_vector(js_v)) {
+        if (is_equal({type: "value", value: py_v}, js_v))
+          continue
       }
 
       if (!is_equal(py_v, js_v)) {
-        // these two conditionals compare 'foo' and {value: 'foo'}
-        if (isPlainObject(js_v) && "value" in js_v && is_equal(py_v, js_v.value))
-          continue
-        if (isPlainObject(py_v) && "value" in py_v && is_equal(py_v.value, js_v))
-          continue
-
-        if (isPlainObject(js_v) && "attributes" in js_v && isPlainObject(py_v) && "attributes" in py_v) {
-          if (js_v.type == py_v.type) {
-            check_matching_defaults(`${name}.${k}`, py_v.attributes as KV, js_v.attributes as KV, serializer)
-            continue
-          }
-        }
-
         // compare arrays of objects
         if (isArray(js_v) && isArray(py_v)) {
           let equal = true
 
-          // palettes in JS are stored as int color values
-          if (k == "palette") {
-            py_v = (py_v as string[]).map((x) => parseInt(x.slice(1), 16))
-          }
-
-          if (js_v.length !== py_v.length)
+          if (js_v.length != py_v.length)
             equal = false
           else {
             for (let i = 0; i < js_v.length; i++) {
-              let js_vi = js_v[i]
+              const js_vi = js_v[i]
               const py_vi = py_v[i]
-              if (is_ref(js_vi)) {
-                if (is_ref(py_vi))
-                  continue // TODO: defaults.json stops at one reference level, so assume equal
-                js_vi = serializer.resolve_ref(js_vi)!
-              }
-              if (!is_equal(js_vi, py_vi)) {
+
+              if (is_object(js_vi) && is_object(py_vi) && js_vi.name == py_vi.name) {
+                if (!check_matching_defaults([...context, `${name}.${k}[${i}]`], js_vi.name, py_vi.attributes, js_vi.attributes)) {
+                  equal = false
+                  break
+                }
+              } else if (!is_equal(js_vi, py_vi)) {
                 equal = false
                 break
               }
@@ -100,7 +130,7 @@ function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defa
             continue
         }
 
-        different.push(`${name}.${k}: bokehjs defaults to ${to_string(js_v)} but python defaults to ${to_string(py_v)}`)
+        different.push(`${[...context, `${name}.${k}`].join(" -> ")}: bokehjs defaults to ${to_string(js_v)} but python defaults to ${to_string(py_v)}`)
       }
     } else {
       // TODO: bad class structure due to inability to override help
@@ -108,13 +138,13 @@ function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defa
         continue
       if (name == "XYGlyph" && (k == "x" || k == "y"))
         continue
-      python_missing.push(`${name}.${k}: bokehjs defaults to ${to_string(js_v)} but python has no such property`)
+      python_missing.push(`${[...context, `${name}.${k}`].join(" -> ")}: bokehjs defaults to ${to_string(js_v)} but python has no such property`)
     }
   }
 
   for (const [k, v] of entries(python_defaults)) {
     if (!(k in bokehjs_defaults)) {
-      bokehjs_missing.push(`${name}.${k}: python defaults to ${to_string(v)} but bokehjs has no such property`)
+      bokehjs_missing.push(`${[...context, `${name}.${k}`].join(" -> ")}: python defaults to ${to_string(v)} but bokehjs has no such property`)
     }
   }
 
@@ -147,7 +177,7 @@ describe("Defaults", () => {
   ])
 
   it("have bokehjs and bokeh implement the same set of models", () => {
-    const js_models = new Set(Models.registered_names())
+    const js_models = new Set(default_resolver.names)
     const py_models = new Set(keys(all_defaults))
 
     for (const model of internal_models) {
@@ -172,21 +202,20 @@ describe("Defaults", () => {
     "ImageURLTexture",      // url and load_image()
   ])
 
-  for (const name of Models.registered_names()) {
+  for (const name of default_resolver.names) {
     const fn = skipped_models.has(name) || internal_models.has(name) ? it.skip : it
 
     fn(`bokehjs should implement serializable ${name} model and match defaults with bokeh`, () => {
-      const model = Models(name) as any
-      const obj = new model() // TODO: this relies on null hack in properties
+      const model = default_resolver.get(name)
+      const obj: HasProps = new (model as any)() // TODO: instantiating a possibly abstract class?
 
-      const serializer = new Serializer({include_unset: true})
-      const ref = serializer.to_serializable(obj)
-      const attrs = serializer.resolve_ref(ref)!.attributes
+      const serializer = new DefaultsSerializer()
+      const defaults = serializer.encode(obj)
 
       const python_defaults = get_defaults(name)
-      const bokehjs_defaults = attrs
+      const bokehjs_defaults = (defaults as KV).attributes as KV
 
-      if (!check_matching_defaults(name, python_defaults, bokehjs_defaults, serializer)) {
+      if (!check_matching_defaults([], name, python_defaults, bokehjs_defaults)) {
         throw new ExpectationError(`expected ${name} model to match defaults with bokeh`)
       }
     })

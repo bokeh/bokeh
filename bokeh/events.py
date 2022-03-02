@@ -75,9 +75,11 @@ from typing import (
     TypedDict,
 )
 
-## Bokeh imports
+# Bokeh imports
+from .core.serialization import Deserializer
+
 if TYPE_CHECKING:
-    from .core.types import ID, GeometryData, Unknown
+    from .core.types import GeometryData, Unknown
     from .model import Model
     from .models.plots import Plot
     from .models.widgets.buttons import AbstractButton
@@ -129,9 +131,10 @@ _CONCRETE_EVENT_CLASSES: Dict[str, Type[Event]] = {}
 # General API
 #-----------------------------------------------------------------------------
 
-class EventJson(TypedDict):
-    event_name: str
-    event_values: Dict[str, Unknown]
+class EventRep(TypedDict):
+    type: Literal["event"]
+    name: str
+    values: Dict[str, Unknown]
 
 class Event:
     ''' Base class for all Bokeh events.
@@ -149,46 +152,24 @@ class Event:
             _CONCRETE_EVENT_CLASSES[cls.event_name] = cls
 
     @classmethod
-    def decode_json(cls, dct: EventJson) -> Event:
-        ''' Custom JSON decoder for Events.
+    def from_serializable(cls, rep: EventRep, decoder: Deserializer) -> Event:
+        if not ("name" in rep and "values" in rep):
+            decoder.error("invalid representation")
 
-        Can be used as the ``object_hook`` argument of ``json.load`` or
-        ``json.loads``.
+        name = rep.get("name")
+        if name is None:
+            decoder.error("'name' field is missing")
+        values = rep.get("values")
+        if values is None:
+            decoder.error("'values' field is missing")
 
-        Args:
-            dct (dict) : a JSON dictionary to decode
-                The dictionary should have keys ``event_name`` and ``event_values``
+        cls = _CONCRETE_EVENT_CLASSES.get(name)
+        if cls is None:
+            decoder.error(f"can't resolve event '{name}'")
 
-        Raises:
-            ValueError, if the event_name is unknown
+        decoded_values = decoder.decode(values)
+        event = cls(**decoded_values)
 
-        Examples:
-
-            .. code-block:: python
-
-                >>> import json
-                >>> from bokeh.events import Event
-                >>> data = '{"event_name": "pan", "event_values" : {"model_id": 1, "x": 10, "y": 20, "sx": 200, "sy": 37}}'
-                >>> json.loads(data, object_hook=Event.decode_json)
-                <bokeh.events.Pan object at 0x1040f84a8>
-
-        '''
-        if not ('event_name' in dct and 'event_values' in dct):
-            return dct
-
-        event_name = dct['event_name']
-
-        if event_name not in _CONCRETE_EVENT_CLASSES:
-            raise ValueError("Could not find appropriate Event class for event_name: %r" % event_name)
-
-        event_values = dct['event_values']
-        model_id = event_values.pop('model', {"id": None})["id"]
-        event_cls = _CONCRETE_EVENT_CLASSES[event_name]
-        if issubclass(event_cls, ModelEvent):
-            event = event_cls(model=None, **event_values)
-            event._model_id = model_id
-        else:
-            event = event_cls(**event_values)
         return event
 
 
@@ -214,7 +195,7 @@ class ModelEvent(Event):
 
     '''
 
-    _model_id: ID | None
+    model: Model | None
 
     def __init__(self, model: Model | None) -> None:
         ''' Create a new base event.
@@ -224,9 +205,7 @@ class ModelEvent(Event):
             model (Model) : a Bokeh model to register event callbacks on
 
         '''
-        self._model_id = None
-        if model is not None:
-            self._model_id = model.id
+        self.model = model
 
 
 class ButtonClick(ModelEvent):
@@ -236,10 +215,10 @@ class ButtonClick(ModelEvent):
     event_name = 'button_click'
 
     def __init__(self, model: AbstractButton | None) -> None:
-        from .models.widgets import AbstractButton
-        if model is not None and not isinstance(model, AbstractButton):
+        from .models.widgets import AbstractButton, ButtonGroup
+        if model is not None and not isinstance(model, (AbstractButton, ButtonGroup)):
             clsname = self.__class__.__name__
-            raise ValueError(f"{clsname} event only applies to button models")
+            raise ValueError(f"{clsname} event only applies to button and button group models")
         super().__init__(model=model)
 
 class MenuItemClick(ModelEvent):
@@ -664,3 +643,5 @@ class RotateStart(PointEvent):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+Deserializer.register("event", Event.from_serializable)

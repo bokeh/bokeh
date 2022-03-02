@@ -16,9 +16,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-from mock import MagicMock, patch
-
 # Bokeh imports
 from bokeh.core.properties import (
     Alias,
@@ -31,9 +28,9 @@ from bokeh.core.properties import (
     Override,
     String,
 )
-from bokeh.core.property.dataspec import field, value
 from bokeh.core.property.descriptors import DataSpecPropertyDescriptor, PropertyDescriptor
 from bokeh.core.property.singletons import Intrinsic
+from bokeh.core.property.vectorization import field, value
 
 # Module under test
 import bokeh.core.has_props as hp # isort:skip
@@ -206,9 +203,9 @@ def test_HasProps_equals() -> None:
 
 def test_HasProps_update() -> None:
     c = Child()
-    c.update(**dict(lst2=[1,2], str2="baz", int1=25, ds1=value("foo")))
+    c.update(**dict(lst2=[1,2], str2="baz", int1=25, ds1=value(123)))
     assert c.int1 == 25
-    assert c.ds1 == value("foo")
+    assert c.ds1 == value(123)
     assert c.lst1 == []
     assert c.int2 == None
     assert c.str2 == "baz"
@@ -244,25 +241,6 @@ def test_HasProps_set_from_json() -> None:
     assert c.ds2 == field("y")
     assert c.lst2 == [1,2]
 
-
-def test_HasProps_update_from_json() -> None:
-    c = Child()
-    c.update_from_json(dict(lst2=[1,2], str2="baz", int1=25, ds1=field("foo")))
-    assert c.int1 == 25
-    assert c.ds1 == field("foo")
-    assert c.lst1 == []
-    assert c.int2 == None
-    assert c.str2 == "baz"
-    assert c.ds2 == field("y")
-    assert c.lst2 == [1,2]
-
-@patch('bokeh.core.has_props.HasProps.set_from_json')
-def test_HasProps_update_from_json_passes_models_and_setter(mock_set: MagicMock) -> None:
-    c = Child()
-    c.update_from_json(dict(lst1=[1,2]), models="foo", setter="bar")
-    assert mock_set.called
-    assert mock_set.call_args[0] == ('lst1', [1, 2])
-    assert mock_set.call_args[1] == {'models': 'foo', 'setter': 'bar'}
 
 def test_HasProps_set() -> None:
     c = Child()
@@ -492,6 +470,23 @@ def test_has_props_dupe_prop() -> None:
     else:
         assert False
 
+class TopLevelQualified(hp.HasProps, hp.Qualified):
+    foo = Int()
+
+class TopLevelNonQualified(hp.HasProps, hp.NonQualified):
+    foo = Int()
+
+def test_qualified() -> None:
+    class InnerQualified(hp.HasProps, hp.Qualified):
+        foo = Int()
+
+    class InnerNonQualified(hp.HasProps, hp.NonQualified):
+        foo = Int()
+
+    assert TopLevelQualified.__qualified_model__ == "test_has_props.TopLevelQualified"
+    assert TopLevelNonQualified.__qualified_model__ == "TopLevelNonQualified"
+    assert InnerQualified.__qualified_model__ == "test_has_props.test_qualified.InnerQualified"
+    assert InnerNonQualified.__qualified_model__ == "test_qualified.InnerNonQualified"
 
 #-----------------------------------------------------------------------------
 # Private API

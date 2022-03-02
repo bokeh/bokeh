@@ -53,8 +53,8 @@ from jinja2 import Template
 # Bokeh imports
 from ..core.enums import HoldPolicyType
 from ..core.has_props import is_DataModel
-from ..core.json_encoder import serialize_json
 from ..core.query import find, is_single_string_selector
+from ..core.serialization import Deserializer, Serialized, Serializer
 from ..core.templates import FILE
 from ..core.types import ID, Unknown
 from ..core.validation import check_integrity, process_validation_issues
@@ -76,10 +76,9 @@ from .events import (
     RootRemovedEvent,
     TitleChangedEvent,
 )
-from .json import DocJson, PatchJson, RootsJson
+from .json import DocJson, PatchJson
 from .models import DocumentModelManager
 from .modules import DocumentModuleManager
-from .util import initialize_references_json, instantiate_references_json, references_json
 
 if TYPE_CHECKING:
     from ..application.application import SessionContext, SessionDestroyedCallback
@@ -351,7 +350,7 @@ class Document:
         cb = TimeoutCallback(callback=None, timeout=timeout_milliseconds, callback_id=make_id())
         return self.callbacks.add_session_callback(cb, callback, one_shot=True)
 
-    def apply_json_patch(self, patch: PatchJson, setter: Setter | None = None) -> None:
+    def apply_json_patch(self, patch_json: PatchJson | Serialized[PatchJson], *, setter: Setter | None = None) -> None:
         ''' Apply a JSON patch object and process any resulting events.
 
         Args:
@@ -373,34 +372,15 @@ class Document:
             None
 
         '''
-        references_json = patch['references']
-        events_json = patch['events']
-        references = instantiate_references_json(references_json, self.models)
+        deserializer = Deserializer(list(self.models), setter=setter)
+        patch: PatchJson = deserializer.deserialize(patch_json)
 
-        # `references` contain only directly relevant models to not degrade performance
-        # (otherwise we would need to serialize and transfer entire model hierarchies),
-        # so use all known models to fill in the rest.
-        for model in self.models:
-            if model.id not in references:
-                references[model.id] = model
+        events = patch["events"]
+        assert isinstance(events, list) # List[DocumentPatched]
 
-        initialize_references_json(references_json, references, setter)
-
-        for event_json in events_json:
-            DocumentPatchedEvent.handle_json(self, event_json, references, setter)
-
-    def apply_json_patch_string(self, patch: str) -> None:
-        ''' Apply a JSON patch provided as a string.
-
-        Args:
-            patch (str) :
-
-        Returns:
-            None
-
-        '''
-        json_parsed = loads(patch)
-        self.apply_json_patch(json_parsed)
+        for event in events:
+            # TODO: assert isinstance(event, DocumentPatchedEvent)
+            DocumentPatchedEvent.handle_event(self, event, setter)
 
     def clear(self) -> None:
         ''' Remove all content from the document but do not reset title.
@@ -430,29 +410,31 @@ class Document:
         gc.collect()
 
     @classmethod
-    def from_json(cls, json: DocJson) -> Document:
+    def from_json(cls, doc_json: DocJson | Serialized[DocJson]) -> Document:
         ''' Load a document from JSON.
 
-        json (JSON-data) :
+        doc_json (JSON-data) :
             A JSON-encoded document to create a new Document from.
 
         Returns:
             Document :
 
         '''
-        roots_json = json['roots']
-        root_ids = roots_json['root_ids']
-        references_json = roots_json['references']
+        # TODO: deserialize model definitions
+        if isinstance(doc_json, dict):
+            doc_json["defs"] = []
 
-        references = instantiate_references_json(references_json, {})
-        initialize_references_json(references_json, references)
+        deserializer = Deserializer()
+        doc_struct = deserializer.deserialize(doc_json)
+
+        roots = doc_struct["roots"]
+        title = doc_struct["title"]
 
         doc = Document()
-        for r in root_ids:
-            doc.add_root(references[r])
+        for root in roots:
+            doc.add_root(root)
 
-        doc.title = json['title']
-
+        doc.title = title
         return doc
 
     @classmethod
@@ -741,48 +723,27 @@ class Document:
             self.callbacks.trigger_on_change(TitleChangedEvent(self, title, setter))
 
     def to_json(self) -> DocJson:
-        ''' Convert this document to a JSON object.
+        ''' Convert this document to a JSON-serializble object.
 
         Return:
-            JSON-data
+            DocJson
 
         '''
+        data_models = [ model for model in Model.model_class_reverse_map.values() if is_DataModel(model) ]
 
-        # this is a total hack to go via a string, needed because
-        # our BokehJSONEncoder goes straight to a string.
-        doc_json = self.to_json_string()
-        return loads(doc_json)
+        serializer = Serializer()
+        defs = serializer.encode(data_models)
+        roots = serializer.encode(self._roots)
 
-    def to_json_string(self, indent: int | None = None) -> str:
-        ''' Convert the document to a JSON string.
-
-        Args:
-            indent (int or None, optional) : number of spaces to indent, or
-                None to suppress all newlines and indentation (default: None)
-
-        Returns:
-            str
-
-        '''
-        serializer = StaticSerializer()
-        for model in Model.model_class_reverse_map.values():
-            if is_DataModel(model):
-                # TODO: serializer.serialize(model)
-                model.static_to_serializable(serializer)
-
-        root_ids = [ r.id for r in self._roots ]
-
-        json = DocJson(
-            title=self.title,
-            defs=serializer.definitions,
-            roots=RootsJson(
-                root_ids=root_ids,
-                references=references_json(self.models),
-            ),
+        doc_json = DocJson(
             version=__version__,
+            title=self.title,
+            defs=defs,
+            roots=roots,
         )
 
-        return serialize_json(json, indent=indent)
+        self.models.flush()
+        return doc_json
 
     def unhold(self) -> None:
         ''' Turn off any active document hold and apply any collected events.
@@ -846,30 +807,6 @@ class Document:
             dest_doc.add_root(r)
 
         dest_doc.title = self.title
-
-class StaticSerializer:
-
-    _refs: Dict[object, Any] = {} # obj -> ref (dict, preferably dataclass)
-    _defs: List[Any] = [] # (ref & def)[] (dict, preferably dataclass)
-
-    def __init__(self) -> None:
-        self._refs = {} # obj -> ref (dict, preferably dataclass)
-        self._defs = [] # (ref & def)[] (dict, preferably dataclass)
-
-    def serialize(self, obj: object) -> Any:
-        pass # TODO: serialize built-ins, {to_serializable}, etc.
-
-    def get_ref(self, obj: object) -> Any:
-        return self._refs.get(obj, None)
-
-    def add_ref(self, obj: object, obj_ref: Any, obj_def: Any) -> None:
-        if obj not in self._refs:
-            self._refs[obj] = obj_ref
-            self._defs.append(obj_def)
-
-    @property
-    def definitions(self) -> List[Any]:
-        return list(self._defs)
 
 #-----------------------------------------------------------------------------
 # Private API

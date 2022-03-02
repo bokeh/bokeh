@@ -6,10 +6,3 @@ bokeh.core.json_encoder
 .. automodule:: bokeh.core.json_encoder
 
     .. autofunction:: serialize_json
-
-    .. autoclass:: BokehJSONEncoder
-        :members:
-        :show-inheritance:
-        :inherited-members:
-
-        .. autoclasstoc::

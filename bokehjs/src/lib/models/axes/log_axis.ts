@@ -11,8 +11,8 @@ export namespace LogAxis {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ContinuousAxis.Props & {
-    ticker:    p.Property<LogTicker>
-    formatter: p.Property<LogTickFormatter>
+    //ticker: p.Property<LogTicker>
+    //formatter: p.Property<LogTickFormatter>
   }
 }
 
@@ -22,7 +22,7 @@ export class LogAxis extends ContinuousAxis {
   override properties: LogAxis.Props
   override __view_type__: LogAxisView
 
-  override ticker:    LogTicker
+  override ticker: LogTicker
   override formatter: LogTickFormatter
 
   constructor(attrs?: Partial<LogAxis.Attrs>) {

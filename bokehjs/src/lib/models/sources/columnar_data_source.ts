@@ -47,9 +47,6 @@ export abstract class ColumnarDataSource extends DataSource {
   _select: Signal0<this>
   inspect: Signal<[Renderer, {geometry: Geometry}], this>
 
-  streaming: Signal0<this>
-  patching: Signal<number[], this>
-
   readonly selection_manager = new SelectionManager(this)
 
   constructor(attrs?: Partial<ColumnarDataSource.Attrs>) {
@@ -71,9 +68,6 @@ export abstract class ColumnarDataSource extends DataSource {
 
     this._select = new Signal0(this, "select")
     this.inspect = new Signal(this, "inspect")
-
-    this.streaming = new Signal0(this, "streaming")
-    this.patching = new Signal(this, "patching")
   }
 
   get_column(name: string): Arrayable | null {

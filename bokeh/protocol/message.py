@@ -74,6 +74,8 @@ from typing import (
 import bokeh.util.serialization as bkserial
 
 # Bokeh imports
+from ..core.json_encoder import serialize_json
+from ..core.serialization import Buffer, Serialized
 from ..core.types import ID
 from .exceptions import MessageError, ProtocolError
 
@@ -134,7 +136,7 @@ class Message(Generic[Content]):
     _metadata: Metadata
     _metadata_json: str | None
 
-    _buffers: List[BufferRef]
+    _buffers: List[Buffer]
 
     def __init__(self, header: Header, metadata: Metadata, content: Content) -> None:
         ''' Initialize a new message from header, metadata, and content
@@ -204,7 +206,7 @@ class Message(Generic[Content]):
 
         return msg
 
-    def add_buffer(self, buf_header: BufferHeader, buf_payload: bytes) -> None:
+    def add_buffer(self, buffer: Buffer) -> None:
         ''' Associate a buffer header and payload with this message.
 
         Args:
@@ -224,8 +226,7 @@ class Message(Generic[Content]):
             self._header['num_buffers'] = 1
 
         self._header_json = None
-
-        self._buffers.append((buf_header, buf_payload))
+        self._buffers.append(buffer)
 
     def assemble_buffer(self, buf_header: BufferHeader, buf_payload: bytes) -> None:
         ''' Add a buffer header and payload that we read from the socket.
@@ -246,7 +247,7 @@ class Message(Generic[Content]):
         num_buffers = self.header.get("num_buffers", 0)
         if num_buffers <= len(self._buffers):
             raise ProtocolError(f"too many buffers received expecting {num_buffers}")
-        self._buffers.append((buf_header, buf_payload))
+        self._buffers.append(Buffer(buf_header["id"], buf_payload))
 
     async def write_buffers(self, conn: WebSocketClientConnectionWrapper, locked: bool = True) -> int:
         ''' Write any buffer headers and payloads to the given connection.
@@ -265,10 +266,12 @@ class Message(Generic[Content]):
         if conn is None:
             raise ValueError("Cannot write_buffers to connection None")
         sent = 0
-        for header, payload in self._buffers:
-            await conn.write_message(json.dumps(header), locked=locked)
+        for buffer in self._buffers:
+            header = json.dumps(buffer.ref)
+            payload = buffer.to_bytes()
+            await conn.write_message(header, locked=locked)
             await conn.write_message(payload, binary=True, locked=locked)
-            sent += (len(header) + len(payload))
+            sent += len(header) + len(payload)
         return sent
 
     @classmethod
@@ -339,6 +342,10 @@ class Message(Generic[Content]):
                self.content is not None and \
                self.header.get('num_buffers', 0) == len(self._buffers)
 
+    @property
+    def payload(self) -> Serialized[Content]:
+        return Serialized(self.content, self.buffers)
+
     # header fragment properties
 
     @property
@@ -370,7 +377,7 @@ class Message(Generic[Content]):
     @property
     def content_json(self) -> str:
         if not self._content_json:
-            self._content_json = json.dumps(self.content)
+            self._content_json = serialize_json(self.payload)
         return self._content_json
 
     # metadata fragment properties
@@ -393,8 +400,8 @@ class Message(Generic[Content]):
     # buffer properties
 
     @property
-    def buffers(self) -> List[BufferRef]:
-        return self._buffers
+    def buffers(self) -> List[Buffer]:
+        return list(self._buffers)
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -5,11 +5,13 @@ import {assert} from "@bokehjs/core/util/assert"
 import {Document, DEFAULT_TITLE} from "@bokehjs/document"
 import * as ev from "@bokehjs/document/events"
 import {version as js_version} from "@bokehjs/version"
-import {Models} from "@bokehjs/base"
+import {register_models} from "@bokehjs/base"
 import {Model} from "@bokehjs/model"
 import * as logging from "@bokehjs/core/logging"
 import * as p from "@bokehjs/core/properties"
 import {ColumnDataSource} from "@bokehjs/models"
+import {DocumentReady} from "@bokehjs/core/bokeh_events"
+import {Slice} from "@bokehjs/core/util/slice"
 
 import {trap} from "../../util"
 
@@ -36,7 +38,7 @@ class AnotherModel extends Model {
   }
 }
 
-Models.register("AnotherModel", AnotherModel)
+register_models({AnotherModel})
 
 namespace SomeModel {
   export type Attrs = p.AttrsOf<Props>
@@ -63,7 +65,7 @@ class SomeModel extends Model {
   }
 }
 
-Models.register("SomeModel", SomeModel)
+register_models({SomeModel})
 
 namespace SomeModelWithChildren {
   export type Attrs = p.AttrsOf<Props>
@@ -88,7 +90,7 @@ class SomeModelWithChildren extends Model {
   }
 }
 
-Models.register("SomeModelWithChildren", SomeModelWithChildren)
+register_models({SomeModelWithChildren})
 
 namespace ModelWithConstructTimeChanges {
   export type Attrs = p.AttrsOf<Props>
@@ -121,7 +123,7 @@ class ModelWithConstructTimeChanges extends Model {
   }
 }
 
-Models.register("ModelWithConstructTimeChanges", ModelWithConstructTimeChanges)
+register_models({ModelWithConstructTimeChanges})
 
 describe("Document", () => {
   let date_stub: sinon.SinonStub
@@ -402,12 +404,10 @@ describe("Document", () => {
     doc.notify_idle(root)
 
     expect(signals).to.be.equal(1)
-    expect(events.length).to.be.equal(2) // [RootAdded, MessageSent]
-
-    const [, event] = events
-    assert(event instanceof ev.MessageSentEvent)
-    expect(event.msg_type).to.be.equal("bokeh_event")
-    expect(event.msg_data).to.be.equal({event_name: "document_ready", event_values: {}})
+    expect(events).to.be.equal([
+      new ev.RootAddedEvent(doc, root),
+      new ev.MessageSentEvent(doc, "bokeh_event", new DocumentReady()),
+    ])
   })
 
   it("can notify on changes", () => {
@@ -430,8 +430,7 @@ describe("Document", () => {
     expect(event.document).to.be.equal(d)
     expect(event.model).to.be.equal(m)
     expect(event.attr).to.be.equal("bar")
-    expect(event.old).to.be.equal(1)
-    expect(event.new_).to.be.equal(42)
+    expect(event.value).to.be.equal(42)
   })
 
   it("notifies only on actual changes", () => {
@@ -491,7 +490,7 @@ describe("Document", () => {
     expect(events.length).to.be.equal(1)
     expect(events[0]).to.be.instanceof(ev.ModelChangedEvent)
     const event0 = events[0] as ev.ModelChangedEvent
-    expect(event0.new_).to.be.equal(42)
+    expect(event0.value).to.be.equal(42)
 
     d.remove_on_change(listener)
     m.bar = 43
@@ -677,7 +676,7 @@ describe("Document", () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)
     const root1 = new SomeModel()
-    root1.name = "bar"
+    root1.name = "foo"
     d.add_root(root1)
     expect(d.roots().length).to.be.equal(1)
 
@@ -687,11 +686,13 @@ describe("Document", () => {
     const copy = Document.from_json_string(JSON.stringify(parsed))
 
     expect(copy.roots().length).to.be.equal(1)
-    expect(copy.roots()[0]).to.be.instanceof(SomeModel)
-    expect(copy.roots()[0].name).to.be.equal("bar")
+    const model0 = copy.roots()[0]
+    expect(model0).to.be.instanceof(SomeModel)
+    assert(model0 instanceof SomeModel)
+    expect(model0.name).to.be.equal("foo")
 
     // be sure defaults were NOT included
-    const attrs0 = parsed.roots.references[0].attributes
+    const attrs0 = parsed.roots[0].attributes
     expect("tags" in attrs0).to.be.false
     expect("foo" in attrs0).to.be.false
     expect("child" in attrs0).to.be.false
@@ -700,7 +701,7 @@ describe("Document", () => {
 
     // double-check different results if we do include_defaults
     const parsed_with_defaults = JSON.parse(d.to_json_string(true))
-    const attrs1 = parsed_with_defaults.roots.references[0].attributes
+    const attrs1 = parsed_with_defaults.roots[0].attributes
     //expect('tags' in attrs1).to.be.true
     expect("foo" in attrs1).to.be.true
     expect("child" in attrs1).to.be.true
@@ -724,13 +725,13 @@ describe("Document", () => {
     d.add_root(root2)
     expect(d.roots().length).to.be.equal(2)
 
-    const event1 = new ev.ModelChangedEvent(d, root1, "foo", root1.foo, 57)
+    const event1 = new ev.ModelChangedEvent(d, root1, "foo", 57)
     const patch1 = d.create_json_patch([event1])
     d.apply_json_patch(patch1)
 
     expect(root1.foo).to.be.equal(57)
 
-    const event2 = new ev.ModelChangedEvent(d, child1, "foo", child1.foo, 67)
+    const event2 = new ev.ModelChangedEvent(d, child1, "foo", 67)
     const patch2 = d.create_json_patch([event2])
     d.apply_json_patch(patch2)
 
@@ -757,7 +758,7 @@ describe("Document", () => {
     expect(d._all_models.has(child2.id)).to.be.false
     expect(d._all_models.has(child2.id)).to.be.false
 
-    const event1 = new ev.ModelChangedEvent(d, root1, "child", root1.child, child3)
+    const event1 = new ev.ModelChangedEvent(d, root1, "child", child3)
     const patch1 = d.create_json_patch([event1])
     d.apply_json_patch(patch1)
 
@@ -770,7 +771,7 @@ describe("Document", () => {
     expect(d._all_models.has(child3.id)).to.be.true
 
     // put it back how it was before
-    const event2 = new ev.ModelChangedEvent(d, root1, "child", child1.child, child1)
+    const event2 = new ev.ModelChangedEvent(d, root1, "child", child1)
     const patch2 = d.create_json_patch([event2])
     d.apply_json_patch(patch2)
 
@@ -796,8 +797,8 @@ describe("Document", () => {
 
     const child2 = new SomeModel({foo: 44})
 
-    const event1 = new ev.ModelChangedEvent(d, root1, "foo", root1.foo, 57)
-    const event2 = new ev.ModelChangedEvent(d, root1, "child", root1.child, child2)
+    const event1 = new ev.ModelChangedEvent(d, root1, "foo", 57)
+    const event2 = new ev.ModelChangedEvent(d, root1, "child", child2)
     const patch1 = d.create_json_patch([event1, event2])
     d.apply_json_patch(patch1)
 
@@ -825,7 +826,7 @@ describe("Document", () => {
     expect(root1.document!.roots().length).to.be.equal(1)
     expect(root1.child).to.be.null
 
-    const event1 = new ev.ModelChangedEvent(d, root1, "child", root1.child, child1)
+    const event1 = new ev.ModelChangedEvent(d, root1, "child", child1)
     const patch1 = d.create_json_patch([event1])
     d.apply_json_patch(patch1)
 
@@ -866,16 +867,14 @@ describe("Document", () => {
     const doc_json = {
       version: js_version,
       title: "Bokeh Application",
-      roots: {
-        root_ids: ["j0"],
-        references: [{
-          type: "ModelWithConstructTimeChanges",
-          id: "j0",
-          attributes: {
-            foo: 3,
-          },
-        }],
-      },
+      roots: [{
+        type: "object" as const,
+        name: "ModelWithConstructTimeChanges",
+        id: "j0",
+        attributes: {
+          foo: 3,
+        },
+      }],
     }
 
     const events: ev.DocumentEvent[] = []
@@ -890,8 +889,12 @@ describe("Document", () => {
     expect(root0.child).to.be.instanceof(AnotherModel)
   })
 
-  it("computes minimum patch for objects referencing known objects", () => {
+  it("computes minimal patch for objects referencing known objects", () => {
+    const events: ev.DocumentChangedEvent[] = []
+
     const doc = new Document()
+    doc.on_change((event) => events.push(event))
+
     expect(doc.roots().length).to.be.equal(0)
     expect(doc._all_models.size).to.be.equal(0)
 
@@ -899,31 +902,46 @@ describe("Document", () => {
     const root = new SomeModel({child})
     doc.add_root(root)
 
-    const obj = new SomeModel({foo: 11})
+    const patch0 = doc.create_json_patch(events)
+    expect(patch0).to.be.equal({
+      events: [{
+        kind: "RootAdded",
+        model: {
+          type: "object",
+          name: "SomeModel",
+          id: root.id,
+          attributes: {
+            child: {
+              type: "object",
+              name: "SomeModel",
+              id: child.id,
+            },
+          },
+        },
+      }],
+    })
 
+    const obj = new SomeModel({foo: 11})
     const event = new ev.MessageSentEvent(doc, "ping", {model: root, companion_model: obj})
-    const patch = doc.create_json_patch([event])
-    expect(patch).to.be.equal({
+    const patch1 = doc.create_json_patch([event])
+
+    expect(patch1).to.be.equal({
       events: [{
         kind: "MessageSent",
         msg_type: "ping",
         msg_data: {
-          model: {id: root.id},
-          companion_model: {id: obj.id},
-        },
-      }],
-      references: [{
-        type: "SomeModel",
-        id: obj.id,
-        attributes: {
-          tags: [],
-          name: null,
-          js_property_callbacks: {},
-          js_event_callbacks: {},
-          subscribed_events: [],
-          syncable: true,
-          foo: 11,
-          child: null,
+          type: "map",
+          entries: [
+            ["model", {id: root.id}],
+            ["companion_model", {
+              type: "object",
+              name: "SomeModel",
+              id: obj.id,
+              attributes: {
+                foo: 11,
+              },
+            }],
+          ],
         },
       }],
     })
@@ -1008,7 +1026,7 @@ describe("Document", () => {
 
       expect(doc.title()).to.be.equal(DEFAULT_TITLE)
 
-      const event = new ev.ModelChangedEvent(doc, model, "foo", model.foo, 128)
+      const event = new ev.ModelChangedEvent(doc, model, "foo", 128)
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
@@ -1030,7 +1048,7 @@ describe("Document", () => {
       const events: ev.DocumentEvent[] = []
       doc.on_change((event) => events.push(event))
 
-      const event = new ev.ColumnDataChangedEvent(doc, source.ref(), {col1: [4, 5, 6]})
+      const event = new ev.ColumnDataChangedEvent(doc, source, "data", {col1: [4, 5, 6]})
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
@@ -1047,7 +1065,7 @@ describe("Document", () => {
       const events: ev.DocumentEvent[] = []
       doc.on_change((event) => events.push(event))
 
-      const event = new ev.ColumnsStreamedEvent(doc, source.ref(), {col0: [4, 5, 6]})
+      const event = new ev.ColumnsStreamedEvent(doc, source, "data", {col0: [4, 5, 6]})
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
@@ -1069,14 +1087,14 @@ describe("Document", () => {
       const events: ev.DocumentEvent[] = []
       doc.on_change((event) => events.push(event))
 
-      const event = new ev.ColumnsPatchedEvent(doc, source.ref(), {col0: [[{start: 1, stop: 3}, [20, 30]]]})
+      const event = new ev.ColumnsPatchedEvent(doc, source, "data", {col0: [[new Slice({start: 1, stop: 3}), [20, 30]]]})
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
       expect(events.length).to.be.equal(0)
       expect(source.data).to.be.equal({col0: [1, 20, 30, 4, 5, 6]})
 
-      source.patch({col0: [[{start: 3, stop: 5}, [40, 50]]]})
+      source.patch({col0: [[new Slice({start: 3, stop: 5}), [40, 50]]]})
 
       expect(events.length).to.be.equal(1)
       expect(source.data).to.be.equal({col0: [1, 20, 30, 40, 50, 6]})

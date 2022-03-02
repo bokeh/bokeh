@@ -1,7 +1,7 @@
 import {display, row, with_internal} from "./_util"
 
 import {
-  LinearAxis, LogAxis, CategoricalAxis,
+  Axis, LinearAxis, LogAxis, CategoricalAxis,
   LinearScale, LogScale, CategoricalScale,
   Range1d, FactorRange,
   AllLabels, NoOverlap,
@@ -14,7 +14,7 @@ import {OutputBackend, Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
 
 (() => {
-  type PlotFn = (attrs: Partial<LinearAxis.Attrs>, options?: {minor_size?: number, num_ticks?: number}) => Promise<void>
+  type PlotFn = (attrs: Partial<Axis.Attrs>, options?: {minor_size?: number, num_ticks?: number}) => Promise<void>
 
   function hplot(side: Side, axis_type: "linear" | "log"): PlotFn {
     return async (attrs, options) => {
@@ -234,12 +234,12 @@ import {radians} from "@bokehjs/core/util/math"
       it("should support LaTeX notation on tick labels when using overrides", async () => {
         await with_internal(async () => {
           await hvplot({
-            major_label_overrides: {
-              1: "one",
-              0.01: new TeX({text: "\\frac{0.133}{\\mu+2\\sigma^2}"}),
-              10000: new TeX({text: "10 \\ast 1000"}),
-              1000000: new TeX({text: "\\sigma^2"}),
-            },
+            major_label_overrides: new Map<number, string | TeX>([
+              [1, "one"],
+              [0.01, new TeX({text: "\\frac{0.133}{\\mu+2\\sigma^2}"})],
+              [10000, new TeX({text: "10 \\ast 1000"})],
+              [1000000, new TeX({text: "\\sigma^2"})],
+            ]),
           })
         })
       })

@@ -186,13 +186,17 @@ export namespace Kinds {
     }
   }
 
-  export class Arrayable extends Kind<types.Arrayable> {
+  export class Arrayable<ItemType> extends Kind<types.Arrayable<ItemType>> {
+    constructor(readonly item_type: Kind<ItemType>) {
+      super()
+    }
+
     valid(value: unknown): value is types.Arrayable {
       return tp.isArray(value) || tp.isTypedArray(value) // TODO: too specific
     }
 
     override toString(): string {
-      return "Arrayable"
+      return `Array(${this.item_type.toString()})`
     }
   }
 
@@ -245,6 +249,16 @@ export namespace Kinds {
 
     override toString(): string {
       return `Opt(${this.base_type.toString()})`
+    }
+  }
+
+  export class Bytes extends Kind<ArrayBuffer> {
+    valid(value: unknown): value is ArrayBuffer {
+      return value instanceof ArrayBuffer
+    }
+
+    override toString(): string {
+      return "Bytes"
     }
   }
 
@@ -391,6 +405,7 @@ export const Unknown = new Kinds.Unknown()
 export const Boolean = new Kinds.Boolean()
 export const Number = new Kinds.Number()
 export const Int = new Kinds.Int()
+export const Bytes = new Kinds.Bytes()
 export const String = new Kinds.String()
 export const Regex = (regex: RegExp) => new Kinds.Regex(regex)
 export const Null = new Kinds.Null()
@@ -399,7 +414,7 @@ export const Opt = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Opt(base_t
 export const Or = <T extends unknown[]>(...types: Kinds.TupleKind<T>) => new Kinds.Or(types)
 export const Tuple = <T extends [unknown, ...unknown[]]>(...types: Kinds.TupleKind<T>) => new Kinds.Tuple(types)
 export const Struct = <T extends object>(struct_type: {[key in keyof T]: Kind<T[key]>}) => new Kinds.Struct(struct_type)
-export const Arrayable = new Kinds.Arrayable()
+export const Arrayable = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Arrayable(item_type)
 export const Array = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Array(item_type)
 export const Dict = <V>(item_type: Kind<V>) => new Kinds.Dict(item_type)
 export const Map = <K, V>(key_type: Kind<K>, item_type: Kind<V>) => new Kinds.Map(key_type, item_type)

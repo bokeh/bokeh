@@ -60,8 +60,10 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    ClassVar,
+    Dict,
     List,
-    Set,
+    Type,
     Union,
     cast,
 )
@@ -71,8 +73,8 @@ if TYPE_CHECKING:
     import pandas as pd
 
 # Bokeh imports
+from ..core.serialization import Serializable, Serializer
 from ..util.dependencies import import_optional
-from ..util.serialization import make_id
 from .json import (
     ColumnDataChanged,
     ColumnsPatched,
@@ -89,11 +91,11 @@ if TYPE_CHECKING:
     from ..core.has_props import Setter
     from ..core.types import Unknown
     from ..model import Model
-    from ..models.sources import ColumnarDataSource, DataDict
+    from ..models.sources import DataDict
     from ..protocol.message import BufferRef
     from ..server.callbacks import SessionCallback
     from .document import Document
-    from .json import Patches, ReferenceJson
+    from .json import Patches
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -199,16 +201,18 @@ class DocumentChangedEvent:
         if hasattr(receiver, '_document_changed'):
             cast(DocumentChangedMixin, receiver)._document_changed(self)
 
-class DocumentPatchedEvent(DocumentChangedEvent):
+class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
     ''' A Base class for events that represent updating Bokeh Models and
     their properties.
 
     '''
 
-    _handlers = {}
+    kind: ClassVar[str]
+
+    _handlers: ClassVar[Dict[str, Type[DocumentPatchedEvent]]] = {}
 
     def __init_subclass__(cls):
-        cls._handlers[cls.kind] = cls._handle_json
+        cls._handlers[cls.kind] = cls
 
     def dispatch(self, receiver: Any) -> None:
         ''' Dispatch handling of this event to a receiver.
@@ -220,41 +224,35 @@ class DocumentPatchedEvent(DocumentChangedEvent):
         if hasattr(receiver, '_document_patched'):
             cast(DocumentPatchedMixin, receiver)._document_patched(self)
 
-    def generate(self, references: Set[Model], buffers: Buffers) -> DocumentPatched:
+    def to_serializable(self, serializer: Serializer) -> DocumentPatched:
         ''' Create a JSON representation of this event suitable for sending
         to clients.
 
         *Sub-classes must implement this method.*
 
         Args:
-            references (dict[str, Model]) :
-                If the event requires references to certain models in order to
-                function, they may be collected here.
-
-                **This is an "out" parameter**. The values it contains will be
-                modified in-place.
-
-            buffers (set) :
-                If the event needs to supply any additional Bokeh protocol
-                buffers, they may be added to this set.
-
-                **This is an "out" parameter**. The values it contains will be
-                modified in-place.
+            serializer (Serializer):
 
         '''
         raise NotImplementedError()
 
 
     @staticmethod
-    def handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
+    def handle_event(doc: Document, event_rep: DocumentPatched, setter: Setter | None) -> None:
         '''
 
         '''
-        event_kind = event_json['kind']
-        handler = DocumentPatchedEvent._handlers.get(event_kind, None)
-        if handler is None:
-            raise RuntimeError(f"Unknown patch event {event_json!r}")
-        handler(doc, event_json, references, setter)
+        event_kind = event_rep.pop("kind")
+        event_cls = DocumentPatchedEvent._handlers.get(event_kind, None)
+        if event_cls is None:
+            raise RuntimeError(f"unknown patch event type '{event_kind!r}'")
+
+        event = event_cls(document=doc, setter=setter, **event_rep)
+        event_cls._handle_event(doc, event)
+
+    @staticmethod
+    def _handle_event(doc: Document, event: DocumentPatchedEvent) -> None:
+        raise NotImplementedError()
 
 class MessageSentEvent(DocumentPatchedEvent):
     '''
@@ -274,43 +272,28 @@ class MessageSentEvent(DocumentPatchedEvent):
         if hasattr(receiver, "_document_message_sent"):
             cast(DocumentMessageSentMixin, receiver)._document_message_sent(self)
 
-    def generate(self, references: Set[Model], buffers: Buffers) -> MessageSent:
-        msg = MessageSent(
+    def to_serializable(self, serializer: Serializer) -> MessageSent:
+        return MessageSent(
             kind=self.kind,
             msg_type=self.msg_type,
-            msg_data=None,
+            msg_data=serializer.encode(self.msg_data),
         )
 
-        if not isinstance(self.msg_data, bytes):
-            msg["msg_data"] = self.msg_data
-        else:
-            assert buffers is not None
-            buffer_id = make_id()
-            buf = (dict(id=buffer_id), self.msg_data)
-            buffers.append(buf)
-
-        return msg
-
     @staticmethod
-    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        message_callbacks = doc.callbacks._message_callbacks.get(event_json["msg_type"], [])
+    def _handle_event(doc: Document, event: MessageSentEvent) -> None:
+        message_callbacks = doc.callbacks._message_callbacks.get(event.msg_type, [])
         for cb in message_callbacks:
-            cb(event_json["msg_data"])
+            cb(event.msg_data)
 
 class ModelChangedEvent(DocumentPatchedEvent):
     ''' A concrete event representing updating an attribute and value of a
     specific Bokeh Model.
 
-    This is the "standard" way of updating most Bokeh model attributes. For
-    special casing situations that can optimized (e.g. streaming, etc.), a
-    ``hint`` may be supplied that overrides normal mechanisms.
-
     '''
 
     kind = "ModelChanged"
 
-    def __init__(self, document: Document, model: Model, attr: str, old: Unknown, new: Unknown,
-            serializable_new: Unknown | None, hint: DocumentPatchedEvent | None = None,
+    def __init__(self, document: Document, model: Model, attr: str, new: Unknown,
             setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 
@@ -324,21 +307,8 @@ class ModelChangedEvent(DocumentPatchedEvent):
             attr (str) :
                 The name of the attribute to update on the model.
 
-            old (object) :
-                The old value of the attribute
-
             new (object) :
                 The new value of the attribute
-
-            serializable_new (object) :
-                A serialized (JSON) version of the new value. It may be
-                ``None`` if a hint is supplied.
-
-            hint (DocumentPatchedEvent, optional) :
-                When appropriate, a secondary event may be supplied that
-                modifies the normal update process. For example, in order
-                to stream or patch data more efficiently than the standard
-                update mechanism.
 
             setter (ClientSession or ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
@@ -354,15 +324,10 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
 
         '''
-        if setter is None and isinstance(hint, (ColumnsStreamedEvent, ColumnsPatchedEvent)):
-            setter = hint.setter
         super().__init__(document, setter, callback_invoker)
         self.model = model
         self.attr = attr
-        self.old = old
         self.new = new
-        self.serializable_new = serializable_new
-        self.hint = hint
 
     def combine(self, event: DocumentChangedEvent) -> bool:
         '''
@@ -378,12 +343,8 @@ class ModelChangedEvent(DocumentPatchedEvent):
         if self.document != event.document:
             return False
 
-        if self.hint is not None and event.hint is not None:
-            return self.hint.combine(event.hint)
-
         if (self.model == event.model) and (self.attr == event.attr):
             self.new = event.new
-            self.serializable_new = event.serializable_new
             self.callback_invoker = event.callback_invoker
             return True
 
@@ -399,70 +360,27 @@ class ModelChangedEvent(DocumentPatchedEvent):
         if hasattr(receiver, '_document_model_changed'):
             cast(DocumentModelChangedMixin, receiver)._document_model_changed(self)
 
-    def generate(self, references: Set[Model], buffers: Buffers) -> ModelChanged:
+    def to_serializable(self, serializer: Serializer) -> ModelChanged:
         ''' Create a JSON representation of this event suitable for sending
         to clients.
 
         Args:
-            references (dict[str, Model]) :
-                If the event requires references to certain models in order to
-                function, they may be collected here.
-
-                **This is an "out" parameter**. The values it contains will be
-                modified in-place.
-
-            buffers (set) :
-                If the event needs to supply any additional Bokeh protocol
-                buffers, they may be added to this set.
-
-                **This is an "out" parameter**. The values it contains will be
-                modified in-place.
+            serializer (Serializer):
 
         '''
-        from ..model import collect_models
-
-        if self.hint is not None:
-            return self.hint.generate(references, buffers)
-
-        value = self.serializable_new
-
-        # the new value is an object that may have not-yet-in-the-remote-doc
-        # references, and may also itself not be in the remote doc yet. The
-        # remote may already have some of the references, but unfortunately
-        # we don't have an easy way to know unless we were to check BEFORE the
-        # attr gets changed (we need the old _all_models before setting the
-        # property). So we have to send all the references the remote could
-        # need, even though it could be inefficient. If it turns out we need to
-        # fix this we could probably do it by adding some complexity.
-        value_refs = set(collect_models(value))
-
-        # we know we don't want a whole new copy of the obj we're patching
-        # unless it's also the new value
-        if self.model != value:
-            value_refs.discard(self.model)
-
-        references.update(value_refs)
-
         return ModelChanged(
             kind  = self.kind,
             model = self.model.ref,
             attr  = self.attr,
-            new   = value,
-            hint  = None,
+            new   = serializer.encode(self.new),
         )
 
     @staticmethod
-    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        patched_id = event_json['model']['id']
-        if patched_id not in doc.models:
-            if doc.models.seen(patched_id):
-                log.trace(f"Cannot apply patch to {patched_id} which is not in the document anymore. This is usually harmless")
-                return
-            raise RuntimeError(f"Cannot apply patch to {patched_id} which is not in the document")
-        patched_obj = doc.models[patched_id]
-        attr = event_json['attr']
-        value = event_json['new']
-        patched_obj.set_from_json(attr, value, models=references, setter=setter)
+    def _handle_event(doc: Document, event: ModelChangedEvent) -> None:
+        model = event.model
+        attr = event.attr
+        value = event.new
+        model.set_from_json(attr, value, setter=event.setter)
 
 class ColumnDataChangedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently replacing *all*
@@ -472,7 +390,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
 
     kind = "ColumnDataChanged"
 
-    def __init__(self, document: Document, column_source: ColumnarDataSource,
+    def __init__(self, document: Document, model: Model, attr: str, data: DataDict | None = None,
             cols: List[str] | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 
@@ -501,7 +419,9 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
 
         '''
         super().__init__(document, setter, callback_invoker)
-        self.column_source = column_source
+        self.model = model
+        self.attr = attr
+        self.data = data
         self.cols = cols
 
     def dispatch(self, receiver: Any) -> None:
@@ -514,7 +434,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
         if hasattr(receiver, '_column_data_changed'):
             cast(ColumnDataChangedMixin, receiver)._column_data_changed(self)
 
-    def generate(self, references: Set[Model], buffers: Buffers) -> ColumnDataChanged:
+    def to_serializable(self, serializer: Serializer) -> ColumnDataChanged:
         ''' Create a JSON representation of this event suitable for sending
         to clients.
 
@@ -523,46 +443,34 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
             {
                 'kind'          : 'ColumnDataChanged'
                 'column_source' : <reference to a CDS>
-                'new'           : <new data to steam to column_source>
+                'data'          : <new data to steam to column_source>
                 'cols'          : <specific columns to update>
             }
 
         Args:
-            references (dict[str, Model]) :
-                If the event requires references to certain models in order to
-                function, they may be collected here.
-
-                **This is an "out" parameter**. The values it contains will be
-                modified in-place.
-
-            buffers (set) :
-                If the event needs to supply any additional Bokeh protocol
-                buffers, they may be added to this set.
-
-                **This is an "out" parameter**. The values it contains will be
-                modified in-place.
-
+            serializer (Serializer):
 
         '''
-        from ..util.serialization import transform_column_source_data
+        data = self.data if self.data is not None else getattr(self.model, self.attr)
+        cols = self.cols
 
-        data_dict = transform_column_source_data(self.column_source.data, buffers=buffers, cols=self.cols)
+        if cols is not None:
+            data = {col: value for col in cols if (value := data.get(col)) is not None}
 
         return ColumnDataChanged(
-            kind          = self.kind,
-            column_source = self.column_source.ref,
-            new           = data_dict,
-            cols          = self.cols,
+            kind  = self.kind,
+            model = self.model.ref,
+            attr  = self.attr,
+            data  = serializer.encode(data),
+            cols  = serializer.encode(cols),
         )
 
     @staticmethod
-    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        source_id = event_json['column_source']['id']
-        if source_id not in doc.models:
-            raise RuntimeError(f"Cannot apply patch to {source_id} which is not in the document")
-        source = doc.models[source_id]
-        value = event_json['new']
-        source.set_from_json('data', value, models=references, setter=setter)
+    def _handle_event(doc: Document, event: ColumnDataChangedEvent) -> None:
+        model = event.model
+        attr = event.attr
+        data = event.data
+        model.set_from_json(attr, data, setter=event.setter)
 
 class ColumnsStreamedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently streaming new data
@@ -574,8 +482,8 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
     data: DataDict
 
-    def __init__(self, document: Document, column_source: ColumnarDataSource, data: DataDict | pd.DataFrame,
-            rollover: int | None, setter: Setter | None = None, callback_invoker: Invoker | None = None):
+    def __init__(self, document: Document, model: Model, attr: str, data: DataDict | pd.DataFrame,
+            rollover: int | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 
         Args:
@@ -590,7 +498,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
                 If a DataFrame, will be stored as ``{c: df[c] for c in df.columns}``
 
-            rollover (int) :
+            rollover (int, optional) :
                 A rollover limit. If the data source columns exceed this
                 limit, earlier values will be discarded to maintain the
                 column length under the limit.
@@ -609,7 +517,8 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
         '''
         super().__init__(document, setter, callback_invoker)
-        self.column_source = column_source
+        self.model = model
+        self.attr = attr
 
         pd = import_optional('pandas')
         if pd and isinstance(data, pd.DataFrame):
@@ -628,7 +537,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         if hasattr(receiver, '_columns_streamed'):
             cast(ColumnsStreamedMixin, receiver)._columns_streamed(self)
 
-    def generate(self, references: Set[Model], buffers: Buffers) -> ColumnsStreamed:
+    def to_serializable(self, serializer: Serializer) -> ColumnsStreamed:
         ''' Create a JSON representation of this event suitable for sending
         to clients.
 
@@ -642,37 +551,25 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
             }
 
         Args:
-            references (dict[str, Model]) :
-                If the event requires references to certain models in order to
-                function, they may be collected here.
-
-                **This is an "out" parameter**. The values it contains will be
-                modified in-place.
-
-            buffers (set) :
-                If the event needs to supply any additional Bokeh protocol
-                buffers, they may be added to this set.
-
-                **This is an "out" parameter**. The values it contains will be
-                modified in-place.
+            serializer (Serializer):
 
         '''
         return ColumnsStreamed(
-            kind          = self.kind,
-            column_source = self.column_source.ref,
-            data          = self.data,
-            rollover      = self.rollover,
+            kind     = self.kind,
+            model    = self.model.ref,
+            attr     = self.attr,
+            data     = serializer.encode(self.data),
+            rollover = self.rollover,
         )
 
     @staticmethod
-    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        source_id = event_json['column_source']['id']
-        if source_id not in doc.models:
-            raise RuntimeError(f"Cannot stream to {source_id} which is not in the document")
-        source = doc.models[source_id]
-        data = event_json['data']
-        rollover = event_json.get('rollover', None)
-        source._stream(data, rollover, setter)
+    def _handle_event(doc: Document, event: ColumnsStreamedEvent) -> None:
+        model = event.model
+        attr = event.attr
+        assert attr == "data"
+        data = event.data
+        rollover = event.rollover
+        model._stream(data, rollover, event.setter)
 
 class ColumnsPatchedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently applying data patches
@@ -682,7 +579,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
 
     kind = "ColumnsPatched"
 
-    def __init__(self, document: Document, column_source: ColumnarDataSource, patches: Patches,
+    def __init__(self, document: Document, model: Model, attr: str, patches: Patches,
             setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 
@@ -709,7 +606,8 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
 
         '''
         super().__init__(document, setter, callback_invoker)
-        self.column_source = column_source
+        self.model = model
+        self.attr = attr
         self.patches = patches
 
     def dispatch(self, receiver: Any) -> None:
@@ -722,7 +620,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
         if hasattr(receiver, '_columns_patched'):
             cast(ColumnsPatchedMixin, receiver)._columns_patched(self)
 
-    def generate(self, references: Set[Model], buffers: Buffers) -> ColumnsPatched:
+    def to_serializable(self, serializer: Serializer) -> ColumnsPatched:
         ''' Create a JSON representation of this event suitable for sending
         to clients.
 
@@ -735,35 +633,23 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
             }
 
         Args:
-            references (dict[str, Model]) :
-                If the event requires references to certain models in order to
-                function, they may be collected here.
-
-                **This is an "out" parameter**. The values it contains will be
-                modified in-place.
-
-            buffers (set) :
-                If the event needs to supply any additional Bokeh protocol
-                buffers, they may be added to this set.
-
-                **This is an "out" parameter**. The values it contains will be
-                modified in-place.
+            serializer (Serializer):
 
         '''
         return ColumnsPatched(
-            kind          = self.kind,
-            column_source = self.column_source.ref,
-            patches       = self.patches,
+            kind    = self.kind,
+            model   = self.model.ref,
+            attr    = self.attr,
+            patches = serializer.encode(self.patches),
         )
 
     @staticmethod
-    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        source_id = event_json['column_source']['id']
-        if source_id not in doc.models:
-            raise RuntimeError(f"Cannot apply patch to {source_id} which is not in the document")
-        source = doc.models[source_id]
-        patches = event_json['patches']
-        source.patch(patches, setter)
+    def _handle_event(doc: Document, event: ColumnsPatchedEvent) -> None:
+        model = event.model
+        attr = event.attr
+        assert attr == "data"
+        patches = event.patches
+        model.patch(patches, event.setter)
 
 class TitleChangedEvent(DocumentPatchedEvent):
     ''' A concrete event representing a change to the title of a Bokeh
@@ -819,7 +705,7 @@ class TitleChangedEvent(DocumentPatchedEvent):
         self.callback_invoker = event.callback_invoker
         return True
 
-    def generate(self, references: Set[Model], buffers: Buffers) -> TitleChanged:
+    def to_serializable(self, serializer: Serializer) -> TitleChanged:
         ''' Create a JSON representation of this event suitable for sending
         to clients.
 
@@ -831,19 +717,7 @@ class TitleChangedEvent(DocumentPatchedEvent):
             }
 
         Args:
-            references (dict[str, Model]) :
-                If the event requires references to certain models in order to
-                function, they may be collected here.
-
-                **This is an "out" parameter**. The values it contains will be
-                modified in-place.
-
-            buffers (set) :
-                If the event needs to supply any additional Bokeh protocol
-                buffers, they may be added to this set.
-
-                **This is an "out" parameter**. The values it contains will be
-                modified in-place.
+            serializer (Serializer):
 
         '''
         return TitleChanged(
@@ -852,8 +726,8 @@ class TitleChangedEvent(DocumentPatchedEvent):
         )
 
     @staticmethod
-    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        doc.set_title(event_json['title'], setter)
+    def _handle_event(doc: Document, event: TitleChangedEvent) -> None:
+        doc.set_title(event.title, event.setter)
 
 class RootAddedEvent(DocumentPatchedEvent):
     ''' A concrete event representing a change to add a new Model to a
@@ -889,7 +763,7 @@ class RootAddedEvent(DocumentPatchedEvent):
         super().__init__(document, setter, callback_invoker)
         self.model = model
 
-    def generate(self, references: Set[Model], buffers: Buffers) -> RootAdded:
+    def to_serializable(self, serializer: Serializer) -> RootAdded:
         ''' Create a JSON representation of this event suitable for sending
         to clients.
 
@@ -901,32 +775,18 @@ class RootAddedEvent(DocumentPatchedEvent):
             }
 
         Args:
-            references (dict[str, Model]) :
-                If the event requires references to certain models in order to
-                function, they may be collected here.
-
-                **This is an "out" parameter**. The values it contains will be
-                modified in-place.
-
-            buffers (set) :
-                If the event needs to supply any additional Bokeh protocol
-                buffers, they may be added to this set.
-
-                **This is an "out" parameter**. The values it contains will be
-                modified in-place.
+            serializer (Serializer):
 
         '''
-        references.update(self.model.references())
         return RootAdded(
             kind  = self.kind,
-            model = self.model.ref,
+            model = serializer.encode(self.model),
         )
 
     @staticmethod
-    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        root_id = event_json['model']['id']
-        root_obj = references[root_id]
-        doc.add_root(root_obj, setter)
+    def _handle_event(doc: Document, event: RootAddedEvent) -> None:
+        model = event.model
+        doc.add_root(model, event.setter)
 
 class RootRemovedEvent(DocumentPatchedEvent):
     ''' A concrete event representing a change to remove an existing Model
@@ -963,7 +823,7 @@ class RootRemovedEvent(DocumentPatchedEvent):
         super().__init__(document, setter, callback_invoker)
         self.model = model
 
-    def generate(self, references: Set[Model], buffers: Buffers) -> RootRemoved:
+    def to_serializable(self, serializer: Serializer) -> RootRemoved:
         ''' Create a JSON representation of this event suitable for sending
         to clients.
 
@@ -975,19 +835,7 @@ class RootRemovedEvent(DocumentPatchedEvent):
             }
 
         Args:
-            references (dict[str, Model]) :
-                If the event requires references to certain models in order to
-                function, they may be collected here.
-
-                **This is an "out" parameter**. The values it contains will be
-                modified in-place.
-
-            buffers (set) :
-                If the event needs to supply any additional Bokeh protocol
-                buffers, they may be added to this set.
-
-                **This is an "out" parameter**. The values it contains will be
-                modified in-place.
+            serializer (Serializer):
 
         '''
         return RootRemoved(
@@ -996,10 +844,9 @@ class RootRemovedEvent(DocumentPatchedEvent):
         )
 
     @staticmethod
-    def _handle_json(doc: Document, event_json: DocumentPatched, references: List[ReferenceJson], setter: Setter) -> None:
-        root_id = event_json['model']['id']
-        root_obj = references[root_id]
-        doc.remove_root(root_obj, setter)
+    def _handle_event(doc: Document, event: RootRemovedEvent) -> None:
+        model = event.model
+        doc.remove_root(model, event.setter)
 
 class SessionCallbackAdded(DocumentChangedEvent):
     ''' A concrete event representing a change to add a new callback (e.g.

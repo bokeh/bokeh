@@ -7,9 +7,6 @@
 ''' Provide a functions and classes to implement a custom JSON encoder for
 serializing objects for BokehJS.
 
-The primary interface is provided by the |serialize_json| function, which
-uses the custom |BokehJSONEncoder| to produce JSON output.
-
 In general, functions in this module convert values in the following way:
 
 * Datetime values (Python, Pandas, NumPy) are converted to floating point
@@ -36,7 +33,6 @@ In general, functions in this module convert values in the following way:
 * ``Color`` instances are converted to CSS color values.
 
 .. |serialize_json| replace:: :class:`~bokeh.core.json_encoder.serialize_json`
-.. |BokehJSONEncoder| replace:: :class:`~bokeh.core.json_encoder.BokehJSONEncoder`
 
 '''
 
@@ -53,33 +49,18 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import collections
-import datetime as dt
-import decimal
-import json
-from typing import Any
-
-# External imports
-import numpy as np
+from json import JSONEncoder
+from typing import Any, List, Tuple
 
 # Bokeh imports
 from ..settings import settings
-from ..util.dependencies import import_optional
-from ..util.serialization import (
-    convert_datetime_type,
-    convert_timedelta_type,
-    is_datetime_type,
-    is_timedelta_type,
-    transform_array,
-    transform_series,
-)
+from .serialization import Buffer, Serialized
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'BokehJSONEncoder',
     'serialize_json',
 )
 
@@ -87,7 +68,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def serialize_json(obj: Any, pretty: bool | None = None, indent: int | None = None, **kwargs: Any) -> str:
+def serialize_json(obj: Any | Serialized[Any], *, pretty: bool | None = None, indent: int | None = None) -> str:
     ''' Return a serialized JSON representation of objects, suitable to
     send to BokehJS.
 
@@ -146,11 +127,6 @@ def serialize_json(obj: Any, pretty: bool | None = None, indent: int | None = No
             }
 
     '''
-    # these args to json.dumps are computed internally and should not be passed along
-    for name in ['allow_nan', 'separators', 'sort_keys']:
-        if name in kwargs:
-            raise ValueError(f"The value of {name!r} is computed internally, overriding is not permissible.")
-
     pretty = settings.pretty(pretty)
 
     if pretty:
@@ -161,104 +137,37 @@ def serialize_json(obj: Any, pretty: bool | None = None, indent: int | None = No
     if pretty and indent is None:
         indent = 2
 
-    return json.dumps(obj, cls=BokehJSONEncoder, allow_nan=False, indent=indent, separators=separators, sort_keys=True, **kwargs)
+    content: Any
+    buffers: List[Buffer]
+    if isinstance(obj, Serialized):
+        content = obj.content
+        buffers = obj.buffers or []
+    else:
+        content = obj
+        buffers = []
 
+    encoder = PayloadEncoder(buffers=buffers, indent=indent, separators=separators)
+    return encoder.encode(content)
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
 
-class BokehJSONEncoder(json.JSONEncoder):
-    ''' A custom ``json.JSONEncoder`` subclass for encoding objects in
-    accordance with the BokehJS protocol.
-
-    '''
-
-    def transform_python_types(self, obj: Any) -> Any:
-        ''' Handle special scalars such as (Python, NumPy, or Pandas)
-        datetimes, or Decimal values.
-
-        Args:
-            obj (obj) :
-
-                The object to encode. Anything not specifically handled in
-                this method is passed on to the default system JSON encoder.
-
-        '''
-        rd = import_optional("dateutil.relativedelta")
-
-        # date/time values that get serialized as milliseconds
-        if is_datetime_type(obj):
-            return convert_datetime_type(obj)
-
-        if is_timedelta_type(obj):
-            return convert_timedelta_type(obj)
-
-        # Date
-        if isinstance(obj, dt.date):
-            return obj.isoformat()
-
-        # slice objects
-        elif isinstance(obj, slice):
-            return dict(start=obj.start, stop=obj.stop, step=obj.step)
-
-        # NumPy scalars
-        elif np.issubdtype(type(obj), np.floating):
-            return float(obj)
-        elif np.issubdtype(type(obj), np.integer):
-            return int(obj)
-        elif np.issubdtype(type(obj), np.bool_):
-            return bool(obj)
-
-        # Decimal values
-        elif isinstance(obj, decimal.Decimal):
-            return float(obj)
-
-        # RelativeDelta gets serialized as a dict
-        elif rd and isinstance(obj, rd.relativedelta):
-            return dict(years=obj.years,
-                    months=obj.months,
-                    days=obj.days,
-                    hours=obj.hours,
-                    minutes=obj.minutes,
-                    seconds=obj.seconds,
-                    microseconds=obj.microseconds)
-
-        else:
-            return super().default(obj)
+class PayloadEncoder(JSONEncoder):
+    def __init__(self, *, buffers: List[Buffer] = [], threshold: int = 100,
+            indent: int | None = None, separators: Tuple[str, str] | None = None):
+        super().__init__(sort_keys=False, allow_nan=False, indent=indent, separators=separators)
+        self._buffers = {buf.id: buf for buf in buffers}
+        self._threshold = threshold
 
     def default(self, obj: Any) -> Any:
-        ''' The required ``default`` method for ``JSONEncoder`` subclasses.
-
-        Args:
-            obj (obj) :
-
-                The object to encode. Anything not specifically handled in
-                this method is passed on to the default system JSON encoder.
-
-        '''
-        from ..colors import Color
-        from ..model import Model
-        from .has_props import HasProps
-
-        pd = import_optional('pandas')
-
-        # array types -- use force_list here, only binary
-        # encoding CDS columns for now
-        if pd and isinstance(obj, (pd.Series, pd.Index)):
-            return transform_series(obj, force_list=True)
-        elif isinstance(obj, np.ndarray):
-            return transform_array(obj, force_list=True)
-        elif isinstance(obj, collections.deque):
-            return [ self.default(item) for item in obj ]
-        elif isinstance(obj, Model):
-            return obj.ref
-        elif isinstance(obj, HasProps):
-            return obj.properties_with_values(include_defaults=False)
-        elif isinstance(obj, Color):
-            return obj.to_css()
+        if isinstance(obj, Buffer):
+            if obj.id in self._buffers: # TODO: and len(obj.data) > self._threshold:
+                return obj.ref
+            else:
+                return obj.to_base64()
         else:
-            return self.transform_python_types(obj)
+            return super().default(obj)
 
 #-----------------------------------------------------------------------------
 # Private API

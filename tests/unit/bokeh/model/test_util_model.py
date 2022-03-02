@@ -58,22 +58,6 @@ class TestHasDocumentRef:
         obj._temp_document = None
         assert obj.document is d
 
-class TestQualified:
-
-    def test_init(self) -> None:
-        q = bmu.Qualified()
-        assert q.properties() == set()
-
-class Test_qualified_model:
-
-    def test_non_qualified_model(self) -> None:
-        from bokeh.models import Range1d
-        assert bmu.qualified_model(Range1d) == "Range1d"
-
-    def test_qualified_model(self) -> None:
-        from bokeh.models.dom import DOMNode
-        assert bmu.qualified_model(DOMNode) == "bokeh.models.dom.DOMNode"
-
 # TODO (bev) test collect_filtered_models
 
 def test_collect_models() -> None:

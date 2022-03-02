@@ -42,14 +42,20 @@ if TYPE_CHECKING:
     from ipykernel.comm import Comm
 
 # Bokeh imports
-from ..core.types import ID, JSON
+from ..core.types import ID
 from ..util.serialization import make_id
 from .state import curstate
 
 if TYPE_CHECKING:
     from ..application.application import Application
     from ..document.document import Document
-    from ..document.events import DocumentPatchedEvent, ModelChangedEvent
+    from ..document.events import (
+        ColumnDataChangedEvent,
+        ColumnsPatchedEvent,
+        ColumnsStreamedEvent,
+        DocumentPatchedEvent,
+        ModelChangedEvent,
+    )
     from ..embed.bundle import Bundle
     from ..model import Model
     from ..resources import Resources
@@ -91,7 +97,7 @@ class CommsHandle:
     '''
 
     '''
-    _json: JSON = {}
+    _json: Any = {}
     _cellno: int | None
     _doc: Document
 
@@ -136,6 +142,18 @@ class CommsHandle:
     # internal doc with the event so that it is collected (until a
     # call to push_notebook processes and clear colleted events)
     def _document_model_changed(self, event: ModelChangedEvent) -> None:
+        if event.model.id in self.doc.models:
+            self.doc.callbacks.trigger_on_change(event)
+
+    def _column_data_changed(self, event: ColumnDataChangedEvent) -> None:
+        if event.model.id in self.doc.models:
+            self.doc.callbacks.trigger_on_change(event)
+
+    def _columns_streamed(self, event: ColumnsStreamedEvent) -> None:
+        if event.model.id in self.doc.models:
+            self.doc.callbacks.trigger_on_change(event)
+
+    def _columns_patched(self, event: ColumnsPatchedEvent) -> None:
         if event.model.id in self.doc.models:
             self.doc.callbacks.trigger_on_change(event)
 
@@ -316,8 +334,10 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
     handle.comms.send(msg.header_json)
     handle.comms.send(msg.metadata_json)
     handle.comms.send(msg.content_json)
-    for header, payload in msg.buffers:
-        handle.comms.send(json.dumps(header))
+    for buffer in msg.buffers:
+        header = json.dumps(buffer.ref)
+        payload = buffer.to_bytes()
+        handle.comms.send(header)
         handle.comms.send(buffers=[payload])
 
 def run_notebook_hook(notebook_type: NotebookType, action: Literal["load", "doc", "app"], *args: Any, **kwargs: Any) -> Any:

@@ -61,7 +61,6 @@ from .singletons import (
 
 if TYPE_CHECKING:
     from ...document.events import DocumentPatchedEvent
-    from ..types import ID
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -73,7 +72,6 @@ if TYPE_CHECKING:
 
 __all__ = (
     'ContainerProperty',
-    'DeserializationError',
     'PrimitiveProperty',
     'Property',
     'validation_on',
@@ -88,9 +86,6 @@ T = TypeVar("T")
 TypeOrInst = Union[Type[T], T]
 
 Init = Union[T, UndefinedType, IntrinsicType]
-
-class DeserializationError(Exception):
-    pass
 
 class Property(PropertyDescriptorFactory[T]):
     """ Base class for Bokeh property instances, which can be added to Bokeh
@@ -261,20 +256,6 @@ class Property(PropertyDescriptorFactory[T]):
         except ValueError:
             return False
 
-    def from_json(self, json: Any, *, models: Dict[ID, HasProps] | None = None) -> T:
-        """ Convert from JSON-compatible values into a value for this property.
-
-        JSON-compatible values are: list, dict, number, string, bool, None
-
-        """
-        return json
-
-    def serialize_value(self, value: T) -> Any:
-        """ Change the value into a JSON serializable format.
-
-        """
-        return value
-
     def transform(self, value: Any) -> T:
         """ Change the value into the canonical format for this property.
 
@@ -432,6 +413,12 @@ class Property(PropertyDescriptorFactory[T]):
         self.assertions.append((fn, msg_or_fn))
         return self
 
+    def replace(self, old: Type[Property[Any]], new: Property[Any]) -> Property[Any]:
+        if self.__class__ == old:
+            return new
+        else:
+            return self
+
 TItem = TypeVar("TItem", bound=Property[Any])
 
 class ParameterizedProperty(Property[TItem]):
@@ -462,6 +449,13 @@ class ParameterizedProperty(Property[TItem]):
     def has_ref(self) -> bool:
         return any(type_param.has_ref for type_param in self.type_params)
 
+    def replace(self, old: Type[Property[Any]], new: Property[Any]) -> Property[Any]:
+        if self.__class__ == old:
+            return new
+        else:
+            params = [ type_param.replace(old, new) for type_param in self.type_params ]
+            return self.__class__(*params)
+
 class SingleParameterizedProperty(ParameterizedProperty[T]):
     """ A parameterized property with a single type parameter. """
 
@@ -481,9 +475,6 @@ class SingleParameterizedProperty(ParameterizedProperty[T]):
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail=detail)
         self.type_param.validate(value, detail=detail)
-
-    def from_json(self, json: Any, *, models: Dict[str, HasProps] | None = None) -> T:
-        return self.type_param.from_json(json, models=models)
 
     def transform(self, value: T) -> T:
         return self.type_param.transform(value)
@@ -511,7 +502,7 @@ class PrimitiveProperty(Property[T]):
 
     """
 
-    _underlying_type: ClassVar[Tuple[Type[T]]]
+    _underlying_type: ClassVar[Tuple[Type[Any], ...]]
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
@@ -525,13 +516,6 @@ class PrimitiveProperty(Property[T]):
         expected_type = nice_join([ cls.__name__ for cls in self._underlying_type ])
         msg = f"expected a value of type {expected_type}, got {value} of type {type(value).__name__}"
         raise ValueError(msg)
-
-    def from_json(self, json: Any, *, models: Dict[str, HasProps] | None = None) -> T:
-        if isinstance(json, self._underlying_type):
-            return json
-        expected_type = nice_join([ cls.__name__ for cls in self._underlying_type ])
-        msg = f"{self} expected {expected_type}, got {json} of type {type(json).__name__}"
-        raise DeserializationError(msg)
 
 class ContainerProperty(ParameterizedProperty[T]):
     """ A base class for Container-like type properties.

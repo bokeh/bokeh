@@ -42,6 +42,7 @@ bokeh_integer_types = (numbers.Integral,)
 
 __all__ = (
     'Bool',
+    'Bytes',
     'Complex',
     'Int',
     'Float',
@@ -223,6 +224,17 @@ class Float(PrimitiveProperty[float]):
     _underlying_type = (numbers.Real,)
 
     def __init__(self, default: Init[float] = 0.0, *, help: str | None = None,
+            serialized: bool | None = None, readonly: bool = False):
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+
+class Bytes(PrimitiveProperty[bytes]):
+    """ Accept bytes values.
+
+    """
+
+    _underlying_type = (bytes,)
+
+    def __init__(self, default: Init[bytes] = b"", *, help: str | None = None,
             serialized: bool | None = None, readonly: bool = False):
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 

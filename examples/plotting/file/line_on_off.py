@@ -23,9 +23,9 @@ checkbox = CheckboxGroup(labels=["Line 0", "Line 1", "Line 2"],
                          active=[0, 1, 2], width=100)
 
 callback = CustomJS(args=dict(l0=l0, l1=l1, l2=l2, checkbox=checkbox), code="""
-l0.visible = 0 in checkbox.active;
-l1.visible = 1 in checkbox.active;
-l2.visible = 2 in checkbox.active;
+l0.visible = checkbox.active.includes(0)
+l1.visible = checkbox.active.includes(1)
+l2.visible = checkbox.active.includes(2)
 """)
 
 checkbox.js_on_change('active', callback)

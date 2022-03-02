@@ -8,7 +8,7 @@ x = list(range(-32, 33))
 y = [i**2 for i in x]
 
 # create linear color mapper
-mapper = linear_cmap(field_name="y", palette=Turbo256, low=min(y), high=max(y))
+mapper = linear_cmap(field="y", palette=Turbo256, low=min(y), high=max(y))
 
 # create plot
 p = figure(width=500, height=250)

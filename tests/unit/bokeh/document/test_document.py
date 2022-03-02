@@ -18,12 +18,14 @@ import pytest ; pytest
 
 # Standard library imports
 import weakref
+from typing import Any
 
 # External imports
 from mock import patch
 
 # Bokeh imports
 from bokeh.core.enums import HoldPolicy
+from bokeh.core.has_props import ModelDef, OverrideDef, PropertyDef
 from bokeh.core.properties import (
     Instance,
     Int,
@@ -31,6 +33,14 @@ from bokeh.core.properties import (
     Nullable,
     Override,
 )
+from bokeh.core.property.vectorization import Field, Value
+from bokeh.core.serialization import (
+    Deserializer,
+    MapRep,
+    ObjectRefRep,
+    Ref,
+)
+from bokeh.core.types import ID
 from bokeh.document.events import (
     ColumnsPatchedEvent,
     ColumnsStreamedEvent,
@@ -45,7 +55,7 @@ from bokeh.document.json import ModelChanged, PatchJson
 from bokeh.io.doc import curdoc
 from bokeh.model import DataModel
 from bokeh.models import ColumnDataSource
-from bokeh.protocol.messages.patch_doc import process_document_events
+from bokeh.protocol.messages.patch_doc import patch_doc
 from bokeh.server.contexts import BokehSessionContext
 from bokeh.util.logconfig import basicConfig
 
@@ -391,7 +401,6 @@ class TestDocument:
         assert event.document == d
         assert event.model == m
         assert event.attr == 'bar'
-        assert event.old == 1
         assert event.new == 42
         assert len(curdoc_from_listener) == 1
         assert curdoc_from_listener[0] is d
@@ -412,17 +421,12 @@ class TestDocument:
         m.stream(dict(a=[11, 12], b=[21, 22]), 200)
         assert events
         event = events[0]
-        assert isinstance(event, ModelChangedEvent)
-        assert isinstance(event.hint, ColumnsStreamedEvent)
+        assert isinstance(event, ColumnsStreamedEvent)
         assert event.document == d
         assert event.model == m
-        assert event.hint.column_source == m
-        assert event.hint.data == dict(a=[11, 12], b=[21, 22])
-        assert event.hint.rollover == 200
-        assert event.attr == 'data'
-        # old == new because stream events update in-place
-        assert event.old == dict(a=[10, 11, 12], b=[20, 21, 22])
-        assert event.new == dict(a=[10, 11, 12], b=[20, 21, 22])
+        assert event.attr == "data"
+        assert event.data == dict(a=[11, 12], b=[21, 22])
+        assert event.rollover == 200
         assert len(curdoc_from_listener) == 1
         assert curdoc_from_listener[0] is d
 
@@ -442,16 +446,11 @@ class TestDocument:
         m.patch(dict(a=[(0, 1)], b=[(0,0), (1,1)]))
         assert events
         event = events[0]
-        assert isinstance(event, ModelChangedEvent)
-        assert isinstance(event.hint, ColumnsPatchedEvent)
+        assert isinstance(event, ColumnsPatchedEvent)
         assert event.document == d
         assert event.model == m
-        assert event.hint.column_source == m
-        assert event.hint.patches == dict(a=[(0, 1)], b=[(0,0), (1,1)])
-        assert event.attr == 'data'
-        # old == new because stream events update in-place
-        assert event.old == dict(a=[1, 11], b=[0, 1])
-        assert event.new == dict(a=[1, 11], b=[0, 1])
+        assert event.attr == "data"
+        assert event.patches == dict(a=[(0, 1)], b=[(0,0), (1,1)])
         assert len(curdoc_from_listener) == 1
         assert curdoc_from_listener[0] is d
 
@@ -688,8 +687,8 @@ class TestDocument:
         d.add_root(root1)
         d.title = "Foo"
 
-        json = d.to_json_string()
-        copy = document.Document.from_json_string(json)
+        json = d.to_json()
+        copy = document.Document.from_json(json)
 
         assert len(copy.roots) == 1
         assert copy.title == "Foo"
@@ -707,8 +706,8 @@ class TestDocument:
         d.add_root(root2)
         assert len(d.roots) == 2
 
-        json = d.to_json_string()
-        copy = document.Document.from_json_string(json)
+        json = d.to_json()
+        copy = document.Document.from_json(json)
 
         assert len(copy.roots) == 2
         foos = []
@@ -734,68 +733,61 @@ class TestDocument:
 
         json = doc.to_json()
         assert json["defs"] == [
-            dict(
-                extends=dict(name="Model", module=None),
-                module="test_document",
-                name="SomeDataModel",
-                overrides=[],
+            ModelDef(
+                type="model",
+                name="test_document.SomeDataModel",
                 properties=[
-                    dict(default=0, kind="Any", name="prop0"),
-                    dict(default=111, kind="Any", name="prop1"),
-                    dict(default=[1, 2, 3], kind="Any", name="prop2"),
+                    PropertyDef(name="prop0", kind="Any", default=0),
+                    PropertyDef(name="prop1", kind="Any", default=111),
+                    PropertyDef(name="prop2", kind="Any", default=[1, 2, 3]),
                 ],
-                references=[],
             ),
-            dict(
-                extends=dict(module="test_document", name="SomeDataModel"),
-                module="test_document",
-                name="DerivedDataModel",
-                overrides=[
-                    dict(default=119, name="prop2"),
-                ],
+            ModelDef(
+                type="model",
+                name="test_document.DerivedDataModel",
+                extends=Ref(id=ID("test_document.SomeDataModel")),
                 properties=[
-                    dict(default=0, kind="Any", name="prop3"),
-                    dict(default=112, kind="Any", name="prop4"),
-                    dict(default=[1, 2, 3, 4], kind="Any", name="prop5"),
-                    dict(kind="Any", name="prop6"),
-                    dict(default=None, kind="Any", name="prop7"),
+                    PropertyDef(name="prop3", kind="Any", default=0),
+                    PropertyDef(name="prop4", kind="Any", default=112),
+                    PropertyDef(name="prop5", kind="Any", default=[1, 2, 3, 4]),
+                    PropertyDef(name="prop6", kind="Any"),
+                    PropertyDef(name="prop7", kind="Any", default=None),
                 ],
-                references=[],
+                overrides=[
+                    OverrideDef(name="prop2", default=119),
+                ],
             ),
-            dict(
-                extends=dict(name="ColumnDataSource", module=None),
-                module="test_document",
-                name="CDSDerivedDataModel",
-                overrides=[
-                    dict(default={"default_column": [4, 5, 6]}, name="data"),
-                ],
+            ModelDef(
+                type="model",
+                name="test_document.CDSDerivedDataModel",
+                extends=Ref(id=ID("ColumnDataSource")),
                 properties=[
-                    dict(default=0, kind="Any", name="prop0"),
-                    dict(default=111, kind="Any", name="prop1"),
-                    dict(default=[1, 2, 3], kind="Any", name="prop2"),
+                    PropertyDef(name="prop0", kind="Any", default=0),
+                    PropertyDef(name="prop1", kind="Any", default=111),
+                    PropertyDef(name="prop2", kind="Any", default=[1, 2, 3]),
                 ],
-                references=[],
+                overrides=[
+                    OverrideDef(name="data", default=MapRep(type="map", entries=[("default_column", [4, 5, 6])])),
+                ],
             ),
-            dict(
-                extends=dict(name="CDSDerivedDataModel", module="test_document"),
-                module="test_document",
-                name="CDSDerivedDerivedDataModel",
-                overrides=[
-                    dict(default={"default_column": [7, 8, 9]}, name="data"),
-                ],
+            ModelDef(
+                type="model",
+                name="test_document.CDSDerivedDerivedDataModel",
+                extends=Ref(id=ID("test_document.CDSDerivedDataModel")),
                 properties=[
-                    dict(
-                        default=CDSDerivedDerivedDataModel.prop3.property._default.ref,
-                        kind="Any",
+                    PropertyDef(
                         name="prop3",
+                        kind="Any",
+                        default=ObjectRefRep(
+                            type="object",
+                            name="test_document.SomeDataModel",
+                            id=CDSDerivedDerivedDataModel.prop3.property._default.ref["id"],
+                            attributes=dict(prop0=-1),
+                        ),
                     ),
                 ],
-                references=[
-                    dict(
-                        id=CDSDerivedDerivedDataModel.prop3.property._default.ref["id"],
-                        type="test_document.SomeDataModel",
-                        attributes=dict(prop0=-1),
-                    ),
+                overrides=[
+                    OverrideDef(name="data", default=MapRep(type="map", entries=[("default_column", [7, 8, 9])])),
                 ],
             ),
         ]
@@ -820,15 +812,15 @@ class TestDocument:
         d.add_root(root2)
         assert len(d.roots) == 2
 
-        event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
-        patch1, buffers = process_document_events([event1])
-        d.apply_json_patch_string(patch1)
+        event1 = ModelChangedEvent(d, root1, 'foo', 57)
+        patch1 = patch_doc.create([event1]).content
+        d.apply_json_patch(patch1)
 
         assert root1.foo == 57
 
-        event2 = ModelChangedEvent(d, child1, 'foo', child1.foo, 67, 67)
-        patch2, buffers = process_document_events([event2])
-        d.apply_json_patch_string(patch2)
+        event2 = ModelChangedEvent(d, child1, 'foo', 67)
+        patch2 = patch_doc.create([event2]).content
+        d.apply_json_patch(patch2)
 
         assert child1.foo == 67
 
@@ -840,30 +832,29 @@ class TestDocument:
         d.add_root(root1)
         assert len(d.roots) == 1
 
-        def patch_test(new_value):
-            serializable_new = root1.lookup('foo').property.to_serializable(root1, 'foo', new_value)
-            event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, new_value, serializable_new)
-            patch1, buffers = process_document_events([event1])
-            d.apply_json_patch_string(patch1)
+        def patch_test(new_value: Any):
+            event1 = ModelChangedEvent(d, root1, 'foo', new_value)
+            patch1 = patch_doc.create([event1]).content
+            d.apply_json_patch(patch1)
             if isinstance(new_value, dict):
-                return root1.lookup('foo').serializable_value(root1)
+                return root1.lookup('foo').get_value(root1)
             else:
                 return root1.foo
         assert patch_test(57) == 57
         assert 'data' == root1.foo_units
-        assert patch_test(dict(value=58)) == dict(value=58)
+        assert patch_test(dict(value=58)) == Value(58)
         assert 'data' == root1.foo_units
 
-        assert patch_test(dict(value=58, units='screen')) == dict(value=58, units='screen')
+        assert patch_test(dict(value=58, units='screen')) == Value(58, units='screen')
         assert 'screen' == root1.foo_units
-        assert patch_test(dict(value=59, units='screen')) == dict(value=59, units='screen')
+        assert patch_test(dict(value=59, units='screen')) == Value(59, units='screen')
         assert 'screen' == root1.foo_units
 
-        assert patch_test(dict(value=59, units='data')) == dict(value=59)
+        assert patch_test(dict(value=59, units='data')) == Value(59)
         assert 'data' == root1.foo_units
-        assert patch_test(dict(value=60, units='data')) == dict(value=60)
+        assert patch_test(dict(value=60, units='data')) == Value(60)
         assert 'data' == root1.foo_units
-        assert patch_test(dict(value=60, units='data')) == dict(value=60)
+        assert patch_test(dict(value=60, units='data')) == Value(60)
         assert 'data' == root1.foo_units
 
         assert patch_test(61) == 61
@@ -871,13 +862,13 @@ class TestDocument:
         root1.foo = "a_string" # so "woot" gets set as a string
         assert patch_test("woot") == "woot"
         assert 'data' == root1.foo_units
-        assert patch_test(dict(field="woot2")) == dict(field="woot2")
+        assert patch_test(dict(field="woot2")) == Field("woot2")
         assert 'data' == root1.foo_units
-        assert patch_test(dict(field="woot2", units='screen')) == dict(field="woot2", units='screen')
+        assert patch_test(dict(field="woot2", units='screen')) == Field("woot2", units='screen')
         assert 'screen' == root1.foo_units
-        assert patch_test(dict(field="woot3")) == dict(field="woot3", units="screen")
+        assert patch_test(dict(field="woot3")) == Field("woot3", units="screen")
         assert 'screen' == root1.foo_units
-        assert patch_test(dict(value=70)) == dict(value=70, units="screen")
+        assert patch_test(dict(value=70)) == Value(70, units="screen")
         assert 'screen' == root1.foo_units
         root1.foo = 123 # so 71 gets set as a number
         assert patch_test(71) == 71
@@ -902,9 +893,9 @@ class TestDocument:
         assert child2.id not in d.models
         assert child3.id not in d.models
 
-        event1 = ModelChangedEvent(d, root1, 'child', root1.child, child3, child3)
-        patch1, buffers = process_document_events([event1])
-        d.apply_json_patch_string(patch1)
+        event1 = ModelChangedEvent(d, root1, 'child', child3)
+        patch1 = patch_doc.create([event1]).content
+        d.apply_json_patch(patch1)
 
         assert root1.child.id == child3.id
         assert root1.child.child.id == child2.id
@@ -913,9 +904,9 @@ class TestDocument:
         assert child3.id in d.models
 
         # put it back how it was before
-        event2 = ModelChangedEvent(d, root1, 'child', root1.child, child1, child1)
-        patch2, buffers = process_document_events([event2])
-        d.apply_json_patch_string(patch2)
+        event2 = ModelChangedEvent(d, root1, 'child', child1)
+        patch2 = patch_doc.create([event2]).content
+        d.apply_json_patch(patch2)
 
         assert root1.child.id == child1.id
         assert root1.child.child is None
@@ -939,10 +930,10 @@ class TestDocument:
 
         child2 = SomeModelInTestDocument(foo=44)
 
-        event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
-        event2 = ModelChangedEvent(d, root1, 'child', root1.child, child2, child2)
-        patch1, buffers = process_document_events([event1, event2])
-        d.apply_json_patch_string(patch1)
+        event1 = ModelChangedEvent(d, root1, 'foo', 57)
+        event2 = ModelChangedEvent(d, root1, 'child', child2)
+        patch1 = patch_doc.create([event1, event2]).content
+        d.apply_json_patch(patch1)
 
         assert root1.foo == 57
         assert root1.child.foo == 44
@@ -963,7 +954,6 @@ class TestDocument:
                     model=m2.ref,
                     attr="child",
                     new=m0.ref,
-                    hint=None,
                 ),
             ],
             references=[], # known models are not included by bokehjs to improve performance (e.g. reduce payload size)
@@ -1006,9 +996,14 @@ class TestDocument:
         button1.on_event('button_click', clicked_1)
         d.add_root(button1)
 
-        event_json = {"event_name": "button_click", "event_values": {"model": {"id": button1.id}}}
+        decoder = Deserializer(references=[button1])
+        event = decoder.decode(dict(
+            type="event",
+            name="button_click",
+            values=dict(model=dict(id=button1.id)),
+        ))
         try:
-            d.callbacks.trigger_json_event(event_json)
+            d.callbacks.trigger_event(event)
         except RuntimeError:
             pytest.fail("trigger_event probably did not copy models before modifying")
 

@@ -26,7 +26,7 @@ import numpy as np
 
 # Bokeh imports
 from bokeh.models import Selection
-from bokeh.util.serialization import convert_datetime_array, transform_column_source_data
+from bokeh.util.serialization import convert_datetime_array
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Module under test
@@ -784,33 +784,6 @@ Lime,Green,99,$0.39
             ds.data.update(dict(a=[10, 11, 12]))
         assert len(warns) == 1
         assert str(warns[0].message) == "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 3), ('b', 2)"
-
-    def test_set_data_from_json_list(self) -> None:
-        ds = bms.ColumnDataSource()
-        data = {"foo": [1, 2, 3]}
-        ds.set_from_json('data', data)
-        assert ds.data == data
-
-    def test_set_data_from_json_base64(self) -> None:
-        ds = bms.ColumnDataSource()
-        data = {"foo": np.arange(3, dtype=np.int64)}
-        json = transform_column_source_data(data)
-        ds.set_from_json('data', json)
-        assert np.array_equal(ds.data["foo"], data["foo"])
-
-    def test_set_data_from_json_nested_base64(self) -> None:
-        ds = bms.ColumnDataSource()
-        data = {"foo": [[np.arange(3, dtype=np.int64)]]}
-        json = transform_column_source_data(data)
-        ds.set_from_json('data', json)
-        assert np.array_equal(ds.data["foo"], data["foo"])
-
-    def test_set_data_from_json_nested_base64_and_list(self) -> None:
-        ds = bms.ColumnDataSource()
-        data = {"foo": [np.arange(3, dtype=np.int64), [1, 2, 3]]}
-        json = transform_column_source_data(data)
-        ds.set_from_json('data', json)
-        assert np.array_equal(ds.data["foo"], data["foo"])
 
 #-----------------------------------------------------------------------------
 # Dev API

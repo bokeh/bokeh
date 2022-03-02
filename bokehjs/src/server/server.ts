@@ -1,3 +1,14 @@
+// XXX: for core/util/eq
+// XXX: for core/util/platform
+declare global {
+  // @ts-ignore
+  type Node = any
+  // @ts-ignore
+  const Node: Node
+  // @ts-ignore
+  const navigator: any
+}
+
 import {IncomingMessage} from "http"
 import WebSocket from "ws"
 import {argv} from "yargs"
@@ -28,7 +39,7 @@ function parse_token(token: string): Token {
 
 type ID = string
 
-type Struct = {
+type ModelRep = {
   id: string
   type: string
   attributes: {[key: string]: unknown}
@@ -38,10 +49,7 @@ type DocJson = {
   version?: string
   title?: string
   //defs?: ModelDef[]
-  roots: {
-    root_ids: ID[]
-    references: Struct[]
-  }
+  roots: ModelRep[]
 }
 
 type VersionInfo = {
@@ -141,10 +149,7 @@ wss.on("connection", (ws, req: Request) => {
               doc: {
                 version,
                 title: "NodeJS application",
-                roots: {
-                  root_ids: [],
-                  references: [],
-                },
+                roots: [],
               },
             })
           case "PUSH-DOC":

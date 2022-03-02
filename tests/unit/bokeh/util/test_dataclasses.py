@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import List, Union
+from typing import List
 
 # Module under test
 import bokeh.util.dataclasses as dc # isort:skip
@@ -30,14 +30,14 @@ import bokeh.util.dataclasses as dc # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_entries() -> None:
-    @dc.dataclass
-    class X:
-        f0: int
-        f1: List[str]
-        f2: X | None = None
-        f3: dc.NotRequired[Union[bool, None]] = dc.Unspecified
+@dc.dataclass
+class X:
+    f0: int
+    f1: List[int]
+    f2: X | None = None
+    f3: dc.NotRequired[bool | None] = dc.Unspecified
 
+def test_entries() -> None:
     x0 = X(0, [1, 2, 3])
     assert dict(dc.entries(x0)) == dict(f0=0, f1=[1, 2, 3], f2=None)
 
@@ -46,6 +46,13 @@ def test_entries() -> None:
 
     with pytest.raises(TypeError):
         list(dc.entries(object()))
+
+def test_is_dataclass() -> None:
+    x0 = X(f0 = 0, f1 = [1, 2, 3])
+
+    assert dc.is_dataclass(x0) is True
+    assert dc.is_dataclass(type(x0)) is False
+    assert dc.is_dataclass(object()) is False
 
 #-----------------------------------------------------------------------------
 # Private API

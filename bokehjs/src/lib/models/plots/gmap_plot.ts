@@ -70,7 +70,7 @@ export namespace GMapPlot {
 
   export type Props = Plot.Props & {
     map_options: p.Property<GMapOptions>
-    api_key: p.Property<string>
+    api_key: p.Property<ArrayBuffer>
     api_version: p.Property<string>
   }
 }
@@ -89,12 +89,9 @@ export class GMapPlot extends Plot {
   static {
     this.prototype.default_view = GMapPlotView
 
-    // This seems to be necessary so that everything can initialize.
-    // Feels very clumsy, but I'm not sure how the properties system wants
-    // to handle something like this situation.
-    this.define<GMapPlot.Props>(({String, Ref}) => ({
+    this.define<GMapPlot.Props>(({String, Bytes, Ref}) => ({
       map_options: [ Ref(GMapOptions) ],
-      api_key:     [ String ],
+      api_key:     [ Bytes ],
       api_version: [ String, "3.47" ],
     }))
 

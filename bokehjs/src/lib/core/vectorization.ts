@@ -22,15 +22,17 @@ export type VectorExpression<Out> = {
 
 export type Expression<T> = ScalarExpression<T> | VectorExpression<T>
 
-export type Value<T> = {
+import {Serializable} from "./serialization"
+
+export type Value<T> = Partial<Serializable> & {
   value: T
 }
 
-export type Field = {
+export type Field = Partial<Serializable> & {
   field: string
 }
 
-export type Expr<T> = {
+export type Expr<T> = Partial<Serializable> & {
   expr: Expression<T>
 }
 

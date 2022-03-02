@@ -428,7 +428,7 @@ def json_item(model: Model, target: ID | None = None, theme: ThemeLike = None) -
         docs_json = standalone_docs_json([model])
 
     doc_json = list(docs_json.values())[0]
-    root_id = doc_json['roots']['root_ids'][0]
+    root_id = doc_json["roots"][0]["id"]
 
     return StandaloneEmbedJson(
         target_id = target,

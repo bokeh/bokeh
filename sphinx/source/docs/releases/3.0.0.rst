@@ -5,7 +5,9 @@
 
 Bokeh Version ``3.0.0`` () is a major milestone of Bokeh project.
 
-* Official support for Python 3.7 was removed and for 3.10 added.
+* Support for legacy web browser (e.g. IE) was removed
+* Official support for Python 3.7 was removed and for 3.10 added
+* Serialization protocol was redesigned and vastly improved
 * Support added for favicon.ico files
 * Initial import times reduced
 * Support added for new selection policy NodesAndAdjacentNodes
@@ -213,12 +215,30 @@ static initialization blocks (``static {}``).
 Protocol changes
 ~~~~~~~~~~~~~~~~
 
+TODO: a lot of changes
+
+* ``references`` attribute was removed and object definitions are now stored in-line
+* ``nan`` and ``+/-inf`` can be serialized
+* Dataclasses can be serialized
+* Dictionaries with arbitrary keys can be serialized (uses ``Map`` in JS)
+* Dictionaries and structures are ordered
+* Binary serialization is now available everywhere (not just for ndarrays)
+* Binary serialization is now bi-directional
+* ``array.array`` and be serialized as JS typed arrays
+* Added support for generic ndarrays (``dtype=object``)
+* Streaming and patching is allowed in any model and property
+* ``ColumnsStreamed``, ``ColumnsPatched`` and ``ColumnDataChanged`` are now first-class events
+* Support for document event hints was removed
+* ``old`` attribute was removed from ``ModelChanged``
+* ``HasProps`` is now responsible for model registry (use ``Local`` to prevent registration)
+* ``Model.to_json()`` and ``Model.to_json_string()`` were removed (use ``Serializer`` instead)
+
 Serialization of numbers
 ........................
 
 Outside of ndarrays, nan, +inf and -inf are now systematically serialized as
-``{"$type": "number", "value": "nan"}``, ``{"$type": "number", "value": "+inf"}``
-and ``{"$type": "number", "value": "-inf"}`` respectively.
+``{"type": "number", "value": "nan"}``, ``{"type": "number", "value": "+inf"}``
+and ``{"type": "number", "value": "-inf"}`` respectively.
 
 Other changes
 ~~~~~~~~~~~~~

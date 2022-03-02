@@ -30,7 +30,7 @@ from typing import (
 )
 
 # Bokeh imports
-from .core.properties import expr, field
+from .core.property.vectorization import Expr, Field
 from .models.expressions import CumSum, Stack
 from .models.mappers import (
     CategoricalColorMapper,
@@ -44,7 +44,6 @@ from .models.transforms import Dodge, Jitter
 if TYPE_CHECKING:
     from .colors import Color
     from .core.enums import JitterRandomDistributionType
-    from .core.property.dataspec import Expr, Field
     from .models.ranges import Range
     from .models.transforms import Transform
 
@@ -93,14 +92,14 @@ def cumsum(field: str, include_zero: bool = False) -> Expr:
         include the last).
 
     '''
-    return expr(CumSum(field=field, include_zero=include_zero))
+    return Expr(CumSum(field=field, include_zero=include_zero))
 
-def dodge(field_name: str, value: float, range: Range | None = None) -> Field:
+def dodge(field: str, value: float, range: Range | None = None) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side ``Dodge``
     transformation to a ``ColumnDataSource`` column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field (str) : a field name to configure ``DataSpec`` with
 
         value (float) : the fixed offset to add to column data
 
@@ -109,19 +108,19 @@ def dodge(field_name: str, value: float, range: Range | None = None) -> Field:
             column data is categorical (default: None)
 
     Returns:
-        dict
+        Field
 
     '''
-    return field(field_name, Dodge(value=value, range=range))
+    return Field(field, Dodge(value=value, range=range))
 
-def factor_cmap(field_name: str, palette: Sequence[ColorLike], factors: Factors,
-        start: float = 0, end: float | None = None, nan_color: ColorLike = "gray"):
+def factor_cmap(field: str, palette: Sequence[ColorLike], factors: Factors,
+        start: float = 0, end: float | None = None, nan_color: ColorLike = "gray") -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side
     ``CategoricalColorMapper`` transformation to a ``ColumnDataSource``
     column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field (str) : a field name to configure ``DataSpec`` with
 
         palette (seq[color]) : a list of colors to use for colormapping
 
@@ -138,23 +137,25 @@ def factor_cmap(field_name: str, palette: Sequence[ColorLike], factors: Factors,
             from a column does not succeed (default: "gray")
 
     Returns:
-        dict
+        Field
 
     '''
-    return field(field_name, CategoricalColorMapper(palette=palette,
-                                                    factors=factors,
-                                                    start=start,
-                                                    end=end,
-                                                    nan_color=nan_color))
+    return Field(field, CategoricalColorMapper(
+        palette=palette,
+        factors=factors,
+        start=start,
+        end=end,
+        nan_color=nan_color,
+    ))
 
-def factor_hatch(field_name: str, patterns: Sequence[str], factors: Factors,
+def factor_hatch(field: str, patterns: Sequence[str], factors: Factors,
         start: float = 0, end: float | None = None) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side
     ``CategoricalPatternMapper`` transformation to a ``ColumnDataSource``
     column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field (str) : a field name to configure ``DataSpec`` with
 
         patterns (seq[string]) : a list of hatch patterns to use to map to
 
@@ -168,17 +169,19 @@ def factor_hatch(field_name: str, patterns: Sequence[str], factors: Factors,
             data has factors with multiple levels. (default: None)
 
     Returns:
-        dict
+        Field
 
     Added in version 1.1.1
 
     '''
-    return field(field_name, CategoricalPatternMapper(patterns=patterns,
-                                                      factors=factors,
-                                                      start=start,
-                                                      end=end))
+    return Field(field, CategoricalPatternMapper(
+        patterns=patterns,
+        factors=factors,
+        start=start,
+        end=end,
+    ))
 
-def factor_mark(field_name: str, markers: Sequence[str], factors: Factors,
+def factor_mark(field: str, markers: Sequence[str], factors: Factors,
         start: float = 0, end: float | None = None) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side
     ``CategoricalMarkerMapper`` transformation to a ``ColumnDataSource``
@@ -189,7 +192,7 @@ def factor_mark(field_name: str, markers: Sequence[str], factors: Factors,
         can be parameterized by glyph type.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field (str) : a field name to configure ``DataSpec`` with
 
         markers (seq[string]) : a list of markers to use to map to
 
@@ -203,21 +206,23 @@ def factor_mark(field_name: str, markers: Sequence[str], factors: Factors,
             data has factors with multiple levels. (default: None)
 
     Returns:
-        dict
+        Field
 
     '''
-    return field(field_name, CategoricalMarkerMapper(markers=markers,
-                                                     factors=factors,
-                                                     start=start,
-                                                     end=end))
+    return Field(field, CategoricalMarkerMapper(
+        markers=markers,
+        factors=factors,
+        start=start,
+        end=end,
+    ))
 
-def jitter(field_name: str, width: float, mean: float = 0,
+def jitter(field: str, width: float, mean: float = 0,
         distribution: JitterRandomDistributionType = "uniform", range: Range | None = None) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side ``Jitter``
     transformation to a ``ColumnDataSource`` column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field (str) : a field name to configure ``DataSpec`` with
 
         width (float) : the width of the random distribution to apply
 
@@ -231,21 +236,23 @@ def jitter(field_name: str, width: float, mean: float = 0,
             column data is categorical (default: None)
 
     Returns:
-        dict
+        Field
 
     '''
-    return field(field_name, Jitter(mean=mean,
-                                    width=width,
-                                    distribution=distribution,
-                                    range=range))
+    return Field(field, Jitter(
+        mean=mean,
+        width=width,
+        distribution=distribution,
+        range=range,
+    ))
 
-def linear_cmap(field_name: str, palette: Sequence[ColorLike], low: float, high: float,
+def linear_cmap(field: str, palette: Sequence[ColorLike], low: float, high: float,
         low_color: ColorLike | None = None, high_color: ColorLike | None = None, nan_color: ColorLike = "gray") -> Field:
     ''' Create a ``DataSpec`` dict that applyies a client-side
     ``LinearColorMapper`` transformation to a ``ColumnDataSource`` column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field (str) : a field name to configure ``DataSpec`` with
 
         palette (seq[color]) : a list of colors to use for colormapping
 
@@ -267,20 +274,22 @@ def linear_cmap(field_name: str, palette: Sequence[ColorLike], low: float, high:
             from a column does not succeed (default: "gray")
 
     '''
-    return field(field_name, LinearColorMapper(palette=palette,
-                                               low=low,
-                                               high=high,
-                                               nan_color=nan_color,
-                                               low_color=low_color,
-                                               high_color=high_color))
+    return Field(field, LinearColorMapper(
+        palette=palette,
+        low=low,
+        high=high,
+        nan_color=nan_color,
+        low_color=low_color,
+        high_color=high_color,
+    ))
 
-def log_cmap(field_name: str, palette: Sequence[ColorLike], low: float, high: float,
+def log_cmap(field: str, palette: Sequence[ColorLike], low: float, high: float,
         low_color: ColorLike | None = None, high_color: ColorLike | None = None, nan_color: ColorLike = "gray") -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side ``LogColorMapper``
     transformation to a ``ColumnDataSource`` column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field (str) : a field name to configure ``DataSpec`` with
 
         palette (seq[color]) : a list of colors to use for colormapping
 
@@ -302,12 +311,14 @@ def log_cmap(field_name: str, palette: Sequence[ColorLike], low: float, high: fl
             from a column does not succeed (default: "gray")
 
     '''
-    return field(field_name, LogColorMapper(palette=palette,
-                                            low=low,
-                                            high=high,
-                                            nan_color=nan_color,
-                                            low_color=low_color,
-                                            high_color=high_color))
+    return Field(field, LogColorMapper(
+        palette=palette,
+        low=low,
+        high=high,
+        nan_color=nan_color,
+        low_color=low_color,
+        high_color=high_color,
+    ))
 
 def stack(*fields: str) -> Expr:
     ''' Create a Create a ``DataSpec`` dict to generate a ``Stack`` expression
@@ -325,22 +336,22 @@ def stack(*fields: str) -> Expr:
 
     '''
 
-    return expr(Stack(fields=fields))
+    return Expr(Stack(fields=fields))
 
-def transform(field_name: str, transform: Transform) -> Field:
+def transform(field: str, transform: Transform) -> Field:
     ''' Create a ``DataSpec`` dict that applies an arbitrary client-side
     ``Transform`` to a ``ColumnDataSource`` column.
 
     Args:
-        field_name (str) : A field name to configure ``DataSpec`` with
+        field (str) : A field name to configure ``DataSpec`` with
 
         transform (Transform) : A transforms to apply to that field
 
     Returns:
-        dict
+        Field
 
     '''
-    return field(field_name, transform)
+    return Field(field, transform)
 
 #-----------------------------------------------------------------------------
 # Dev API

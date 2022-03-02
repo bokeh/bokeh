@@ -978,7 +978,7 @@ def test_server_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Manage
         client_session._loop_until_closed()
         assert not client_session.connected
 
-# this test is because we do the funky serializable_value
+# this test is because we do the funky get_value
 # tricks with the units specs
 def test_unit_spec_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, ManagedServerLoop: MSL) -> None:
     application = Application()

@@ -48,6 +48,8 @@ export class Printer {
       return this.object(obj)
     else if (isSymbol(obj))
       return this.symbol(obj)
+    else if (obj instanceof ArrayBuffer)
+      return this.array_buffer(obj)
     else
       return `${obj}`
   }
@@ -106,6 +108,10 @@ export class Printer {
       items.push(`${key}${T(":")} ${this.to_string(val)}`)
     }
     return `${T("{")}${items.join(`${T(",")} `)}${T("}")}`
+  }
+
+  array_buffer(obj: ArrayBuffer): string {
+    return `ArrayBuffer(#${obj.byteLength})`
   }
 }
 

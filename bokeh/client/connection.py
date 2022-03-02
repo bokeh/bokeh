@@ -393,8 +393,8 @@ class ClientConnection:
         # apps running inside a server can handle these updates much more
         # efficiently
         from bokeh.document.events import ColumnDataChangedEvent
-        if hasattr(event, 'hint') and isinstance(event.hint, ColumnDataChangedEvent):
-            event.hint.cols = None
+        if isinstance(event, ColumnDataChangedEvent):
+            event.cols = None
         msg = self._protocol.create('PATCH-DOC', [event], use_buffers=False)
         self._loop.add_callback(self.send_message, msg)
 

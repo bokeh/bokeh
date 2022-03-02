@@ -62,8 +62,8 @@ from ..core.properties import (
     SizeSpec,
     String,
     StringSpec,
+    field,
 )
-from ..core.property.dataspec import field
 from ..core.property_mixins import (
     FillProps,
     HatchProps,

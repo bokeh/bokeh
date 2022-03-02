@@ -63,7 +63,7 @@ palettes.
 First, use the :func:`~bokeh.transform.linear_cmap` function to create a color
 map for your data. The required attributes for this function are:
 
-* ``field_name``: the data sequence to map colors to
+* ``field``: the data sequence to map colors to
 * ``palette``: the palette to use
 * ``low``: the lowest value to map a color to
 * ``high``: the highest value to map a color to

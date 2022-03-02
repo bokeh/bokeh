@@ -1,7 +1,7 @@
 import {ByteOrder} from "../types"
 
 export const is_mobile = (() => {
-  return typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0)
+  return "ontouchstart" in globalThis || (typeof navigator !== "undefined" && navigator.maxTouchPoints > 0)
 })()
 
 export const is_little_endian = (() => {

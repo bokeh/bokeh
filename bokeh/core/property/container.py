@@ -31,9 +31,8 @@ from collections.abc import (
 from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
-from ...util.serialization import decode_base64_dict, transform_column_source_data
 from ._sphinx import property_link, register_type_link, type_link
-from .bases import ContainerProperty, DeserializationError
+from .bases import ContainerProperty
 from .descriptors import ColumnDataPropertyDescriptor
 from .enum import Enum
 from .numeric import Int
@@ -77,12 +76,6 @@ class Seq(ContainerProperty):
     @property
     def type_params(self):
         return [self.item_type]
-
-    def from_json(self, json, *, models=None):
-        if isinstance(json, list):
-            return self._new_instance([ self.item_type.from_json(item, models=models) for item in json ])
-        else:
-            raise DeserializationError(f"{self} expected a list, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, True)
@@ -177,12 +170,6 @@ class Dict(ContainerProperty):
     def type_params(self):
         return [self.keys_type, self.values_type]
 
-    def from_json(self, json, *, models=None):
-        if isinstance(json, dict):
-            return { self.keys_type.from_json(key, models=models): self.values_type.from_json(value, models=models) for key, value in json.items() }
-        else:
-            raise DeserializationError(f"{self} expected a dict, got {json}")
-
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
@@ -231,40 +218,13 @@ class ColumnData(Dict):
         """
         return [ ColumnDataPropertyDescriptor(base_name, self) ]
 
-
-    def from_json(self, json, *, models=None):
-        """ Decodes column source data encoded as lists or base64 strings.
-        """
-        if not isinstance(json, dict):
-            raise DeserializationError(f"{self} expected a dict, got {json}")
-        new_data = {}
-        for key, value in json.items():
-            key = self.keys_type.from_json(key, models=models)
-            if isinstance(value, dict) and '__ndarray__' in value:
-                new_data[key] = decode_base64_dict(value)
-            elif isinstance(value, list) and any(isinstance(el, dict) and '__ndarray__' in el for el in value):
-                new_list = []
-                for el in value:
-                    if isinstance(el, dict) and '__ndarray__' in el:
-                        el = decode_base64_dict(el)
-                    elif isinstance(el, list):
-                        el = self.values_type.from_json(el)
-                    new_list.append(el)
-                new_data[key] = new_list
-            else:
-                new_data[key] = self.values_type.from_json(value, models=models)
-        return new_data
-
     def _hinted_value(self, value: Any, hint: DocumentPatchedEvent | None) -> Any:
         from ...document.events import ColumnDataChangedEvent, ColumnsStreamedEvent
         if isinstance(hint, ColumnDataChangedEvent):
-            return { col: hint.column_source.data[col] for col in hint.cols }
+            return { col: hint.model.data[col] for col in hint.cols }
         if isinstance(hint, ColumnsStreamedEvent):
             return hint.data
         return value
-
-    def serialize_value(self, value):
-        return transform_column_source_data(value)
 
     def wrap(self, value):
         """ Some property types need to wrap their values in special containers, etc.
@@ -294,12 +254,6 @@ class Tuple(ContainerProperty):
     def type_params(self):
         return self._type_params
 
-    def from_json(self, json, *, models=None):
-        if isinstance(json, list):
-            return tuple(type_param.from_json(item, models=models) for type_param, item in zip(self.type_params, json))
-        else:
-            raise DeserializationError(f"{self} expected a list, got {json}")
-
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
@@ -315,12 +269,6 @@ class Tuple(ContainerProperty):
 
         """
         return tuple(typ.transform(x) for (typ, x) in zip(self.type_params, value))
-
-    def serialize_value(self, value):
-        """ Change the value into a JSON serializable format.
-
-        """
-        return tuple(typ.serialize_value(x) for (typ, x) in zip(self.type_params, value))
 
 class RelativeDelta(Dict):
     """ Accept RelativeDelta dicts for time delta values.

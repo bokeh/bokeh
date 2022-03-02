@@ -1,24 +1,26 @@
 //import {logger} from "./logging"
 import {View} from "./view"
 import {Class} from "./class"
-import {Attrs} from "./types"
+import {Attrs, Data} from "./types"
 import {Signal0, Signal, Signalable, ISignalable} from "./signaling"
-import {Struct, Ref} from "./util/refs"
+import {Ref} from "./util/refs"
 import * as p from "./properties"
 import * as k from "./kinds"
 import {Property} from "./properties"
 import {assert} from "./util/assert"
 import {uniqueId} from "./util/string"
-import {keys, values, entries, extend} from "./util/object"
+import {keys, values, entries, extend, is_empty} from "./util/object"
 import {isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import {is_equal} from "./util/eq"
-import {serialize, Serializable, Serializer} from "./serializer"
+import {serialize, Serializable, Serializer, ObjectRefRep, AnyVal} from "./serialization"
 import type {Document} from "../document/document"
-import {DocumentEvent, DocumentEventBatch, ModelChangedEvent} from "../document/events"
+import {DocumentEvent, DocumentEventBatch, ModelChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "../document/events"
 import {equals, Equatable, Comparator} from "./util/eq"
 import {pretty, Printable, Printer} from "./util/pretty"
 import {clone, Cloneable, Cloner} from "./util/cloneable"
 import * as kinds from "./kinds"
+import {Scalar, Vector, isExpr} from "./vectorization"
+import {stream_to_columns, patch_to_columns, PatchSet} from "./patching"
 
 type AttrsLike = {[key: string]: unknown} | Map<string, unknown>
 
@@ -44,6 +46,8 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
 
 export type PropertyGenerator = Generator<Property, void, undefined>
 
+const _qualified_names = new WeakMap<typeof HasProps, string>()
+
 export abstract class HasProps extends Signalable() implements Equatable, Printable, Serializable, Cloneable {
   __view_type__: View
 
@@ -51,12 +55,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   get is_syncable(): boolean {
     return true
-  }
-
-  // XXX: setter is only required for backwards compatibility
-  set type(name: string) {
-    console.warn("prototype.type = 'ModelName' is deprecated, use static __name__ instead")
-    this.constructor.__name__ = name
   }
 
   get type(): string {
@@ -67,12 +65,21 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   static __module__?: string
 
   static get __qualified__(): string {
-    const {__module__, __name__} = this
-    return __module__ != null ? `${__module__}.${__name__}` : __name__
+    let qualified = _qualified_names.get(this)
+    if (qualified == null) {
+      const {__module__, __name__} = this
+      qualified = __module__ != null ? `${__module__}.${__name__}` : __name__
+      _qualified_names.set(this, qualified)
+    }
+    return qualified
+  }
+
+  static set __qualified__(qualified: string) {
+    _qualified_names.set(this, qualified)
   }
 
   get [Symbol.toStringTag](): string {
-    return this.constructor.__name__
+    return this.constructor.__qualified__
   }
 
   static {
@@ -205,6 +212,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   readonly change          = new Signal0<this>(this, "change")
   readonly transformchange = new Signal0<this>(this, "transformchange")
   readonly exprchange      = new Signal0<this>(this, "exprchange")
+  readonly streaming       = new Signal0<this>(this, "streaming")
+  readonly patching        = new Signal<number[], this>(this, "patching")
 
   readonly properties: {[key: string]: Property} = {}
 
@@ -258,20 +267,22 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return `${cls}${T("(")}${T("{")}${items.join(`${T(",")} `)}${T("}")}${T(")")}`
   }
 
-  [serialize](serializer: Serializer): Ref {
+  [serialize](serializer: Serializer): ObjectRefRep {
     const ref = this.ref()
     serializer.add_ref(this, ref)
 
-    const struct = this.struct()
+    const attributes: {[key: string]: AnyVal} = {}
     for (const prop of this) {
       if (prop.syncable && (serializer.include_defaults || prop.dirty)) {
-        const value = serializer.include_unset && prop.is_unset ? p.unset : prop.get_value()
-        struct.attributes[prop.attr] = serializer.to_serializable(value)
+        const value = prop.get_value()
+        attributes[prop.attr] = serializer.encode(value) as AnyVal
       }
     }
-    serializer.add_def(this, struct)
 
-    return ref
+    const {type: name, id} = this
+    const rep = {type: "object" as const, name, id}
+
+    return is_empty(attributes) ? rep : {...rep, attributes}
   }
 
   constructor(attrs: {id: string} | AttrsLike = {}) {
@@ -337,15 +348,14 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     for (const prop of this) {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
         continue
+      if (prop.is_unset)
+        continue
 
-      const value = prop.get_value() as p.Spec<unknown> | null // XXX: T -> any under instanceof
-      if (value != null) {
-        const {transform, expr} = value
-        if (transform != null)
-          this.connect(transform.change, () => this.transformchange.emit())
-        if (expr != null)
-          this.connect(expr.change, () => this.exprchange.emit())
-      }
+      const value = prop.get_value() as Scalar<unknown> | Vector<unknown>
+      if (value.transform != null)
+        this.connect(value.transform.change, () => this.transformchange.emit())
+      if (isExpr(value))
+        this.connect(value.expr.change, () => this.exprchange.emit())
     }
   }
 
@@ -365,6 +375,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   private _watchers: WeakMap<object, boolean> = new WeakMap()
+
+  protected _clear_watchers(): void {
+    this._watchers = new WeakMap()
+  }
 
   changed_for(obj: object): boolean {
     const changed = this._watchers.get(obj)
@@ -394,7 +408,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
     // Trigger all relevant attribute changes.
     if (changed.size > 0) {
-      this._watchers = new WeakMap()
+      this._clear_watchers()
       this._pending = true
     }
     for (const prop of changed) {
@@ -425,7 +439,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       return
 
     if (options.silent ?? false) {
-      this._watchers = new WeakMap()
+      this._clear_watchers()
 
       for (const [attr, value] of changes) {
         this.properties[attr].set_value(value)
@@ -467,15 +481,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   ref(): Ref {
     return {id: this.id}
-  }
-
-  struct(): Struct {
-    const struct: Struct = {
-      type: this.type,
-      id: this.id,
-      attributes: {},
-    }
-    return struct
   }
 
   *[Symbol.iterator](): PropertyGenerator {
@@ -573,9 +578,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       return
 
     const events = []
-    for (const [prop, old_value, new_value] of changes) {
+    for (const [prop,, new_value] of changes) {
       if (prop.syncable)
-        events.push(new ModelChangedEvent(document, this, prop.attr, old_value, new_value))
+        events.push(new ModelChangedEvent(document, this, prop.attr, new_value))
     }
 
     if (events.length != 0) {
@@ -591,6 +596,30 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   on_change(properties: Property<unknown> | Property<unknown>[], fn: () => void): void {
     for (const property of isArray(properties) ? properties : [properties]) {
       this.connect(property.change, fn)
+    }
+  }
+
+  stream_to(prop: Property<Data>, new_data: Data, rollover?: number, {sync}: {sync?: boolean} = {}): void {
+    const data = prop.get_value()
+    stream_to_columns(data, new_data, rollover)
+    this._clear_watchers()
+    prop.set_value(data)
+    this.streaming.emit()
+    if (this.document != null && (sync ?? true)) {
+      const event = new ColumnsStreamedEvent(this.document, this, prop.attr, new_data, rollover)
+      this.document._trigger_on_change(event)
+    }
+  }
+
+  patch_to(prop: Property<Data>, patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {
+    const data = prop.get_value()
+    const patched = patch_to_columns(data, patches)
+    this._clear_watchers()
+    prop.set_value(data)
+    this.patching.emit([...patched])
+    if (this.document != null && (sync ?? true)) {
+      const event = new ColumnsPatchedEvent(this.document, this, prop.attr, patches)
+      this.document._trigger_on_change(event)
     }
   }
 }

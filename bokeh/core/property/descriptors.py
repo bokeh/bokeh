@@ -94,7 +94,6 @@ from copy import copy
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Generic,
     Type,
     TypeVar,
@@ -107,7 +106,7 @@ from .wrappers import PropertyValueColumnData, PropertyValueContainer
 if TYPE_CHECKING:
     from ...document.events import DocumentPatchedEvent
     from ..has_props import HasProps, Setter
-    from ..types import ID, Unknown
+    from ..types import Unknown
     from .bases import Property
 
 #-----------------------------------------------------------------------------
@@ -327,8 +326,8 @@ class PropertyDescriptor(Generic[T]):
         """
         return self.property.themed_default(obj.__class__, self.name, obj.themed_values())
 
-    def serializable_value(self, obj: HasProps) -> Any:
-        """ Produce the value as it should be serialized.
+    def get_value(self, obj: HasProps) -> Any:
+        """ Produce the value used for serialization.
 
         Sometimes it is desirable for the serialized value to differ from
         the ``__get__`` in order for the ``__get__`` value to appear simpler
@@ -338,14 +337,12 @@ class PropertyDescriptor(Generic[T]):
             obj (HasProps) : the object to get the serialized attribute for
 
         Returns:
-            JSON-like
+            Any
 
         """
-        value = self.__get__(obj, obj.__class__)
-        return self.property.serialize_value(value)
+        return self.__get__(obj, obj.__class__)
 
-    def set_from_json(self, obj: HasProps, json: Any, *,
-            models: Dict[ID, HasProps] | None = None, setter: Setter | None = None):
+    def set_from_json(self, obj: HasProps, value: Any, *, setter: Setter | None = None):
         """Sets the value of this property from a JSON value.
 
         Args:
@@ -374,7 +371,7 @@ class PropertyDescriptor(Generic[T]):
             None
 
         """
-        value = self.property.prepare_value(obj, self.name, self.property.from_json(json, models=models))
+        value = self.property.prepare_value(obj, self.name, value)
         old = self._get(obj)
         self._set(obj, old, value, setter=setter)
 
@@ -702,8 +699,7 @@ class ColumnDataPropertyDescriptor(PropertyDescriptor):
             raise ValueError(_CDS_SET_FROM_CDS_ERROR)
 
         from ...document.events import ColumnDataChangedEvent
-
-        hint = ColumnDataChangedEvent(obj.document, obj, setter=setter) if obj.document else None
+        hint = ColumnDataChangedEvent(obj.document, obj, "data", setter=setter) if obj.document else None
 
         value = self.property.prepare_value(obj, self.name, value)
         old = self._get(obj)
@@ -715,13 +711,13 @@ class DataSpecPropertyDescriptor(PropertyDescriptor):
 
     """
 
-    def serializable_value(self, obj):
+    def get_value(self, obj: HasProps) -> Any:
         """
 
         """
         return self.property.to_serializable(obj, self.name, getattr(obj, self.name))
 
-    def set_from_json(self, obj, json, *, models=None, setter=None):
+    def set_from_json(self, obj: HasProps, value: Any, *, setter: Setter | None = None):
         """ Sets the value of this property from a JSON value.
 
         This method first
@@ -748,21 +744,21 @@ class DataSpecPropertyDescriptor(PropertyDescriptor):
             None
 
         """
-        if isinstance(json, dict):
+        if isinstance(value, dict):
             # we want to try to keep the "format" of the data spec as string, dict, or number,
             # assuming the serialized dict is compatible with that.
             old = getattr(obj, self.name)
             if old is not None:
                 try:
-                    self.property._type.validate(old, False)
-                    if 'value' in json:
-                        json = json['value']
+                    self.property.value_type.validate(old, False)
+                    if 'value' in value:
+                        value = value['value']
                 except ValueError:
-                    if isinstance(old, str) and 'field' in json:
-                        json = json['field']
+                    if isinstance(old, str) and 'field' in value:
+                        value = value['field']
                 # leave it as a dict if 'old' was a dict
 
-        super().set_from_json(obj, json, models=models, setter=setter)
+        super().set_from_json(obj, value, setter=setter)
 
 class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
     """ A ``PropertyDescriptor`` for Bokeh |UnitsSpec| properties that
@@ -860,7 +856,7 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
 
         """
         json = self._extract_units(obj, json)
-        super().set_from_json(obj, json, models=models, setter=setter)
+        super().set_from_json(obj, json, setter=setter)
 
     def _extract_units(self, obj, value):
         """ Internal helper for dealing with units associated units properties

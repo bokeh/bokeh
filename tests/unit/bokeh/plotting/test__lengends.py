@@ -20,6 +20,7 @@ import pytest ; pytest
 import itertools
 
 # Bokeh imports
+from bokeh.core.properties import field, value
 from bokeh.models import (
     ColumnDataSource,
     GlyphRenderer,
@@ -65,10 +66,10 @@ def test_pop_legend_kwarg_error(keys) -> None:
 #-----------------------------------------------------------------------------
 
 def test__find_legend_item() -> None:
-    legend = Legend(items=[LegendItem(label=dict(value="foo")), LegendItem(label=dict(field="bar"))])
-    assert bpl._find_legend_item(dict(value="baz"), legend) is None
-    assert bpl._find_legend_item(dict(value="foo"), legend) is legend.items[0]
-    assert bpl._find_legend_item(dict(field="bar"), legend) is legend.items[1]
+    legend = Legend(items=[LegendItem(label=value("foo")), LegendItem(label=field("bar"))])
+    assert bpl._find_legend_item(value("baz"), legend) is None
+    assert bpl._find_legend_item(value("foo"), legend) is legend.items[0]
+    assert bpl._find_legend_item(field("bar"), legend) is legend.items[1]
 
 class Test__handle_legend_field:
     @pytest.mark.parametrize('arg', [1, 2.7, None, False, [], {}])
@@ -77,21 +78,21 @@ class Test__handle_legend_field:
             bpl._handle_legend_field(arg, "legend", "renderer")
 
     def test_label_already_exists(self) -> None:
-        legend = Legend(items=[LegendItem(label=dict(field="foo"))])
+        legend = Legend(items=[LegendItem(label=field("foo"))])
         renderer = GlyphRenderer()
         bpl._handle_legend_field("foo", legend, renderer)
         assert len(legend.items) == 1
-        assert legend.items[0].label == dict(field="foo")
+        assert legend.items[0].label == field("foo")
         assert legend.items[0].renderers == [renderer]
 
     def test_label_not_already_exists(self) -> None:
-        legend = Legend(items=[LegendItem(label=dict(field="foo"))])
+        legend = Legend(items=[LegendItem(label=field("foo"))])
         renderer = GlyphRenderer()
         bpl._handle_legend_field("bar", legend, renderer)
         assert len(legend.items) == 2
-        assert legend.items[0].label == dict(field="foo")
+        assert legend.items[0].label == field("foo")
         assert legend.items[0].renderers == []
-        assert legend.items[1].label == dict(field="bar")
+        assert legend.items[1].label == field("bar")
         assert legend.items[1].renderers == [renderer]
 
 
@@ -113,19 +114,19 @@ class Test__handle_legend_group:
         legend = Legend(items=[])
         bpl._handle_legend_group("foo", legend, renderer)
         assert len(legend.items) == 4
-        assert legend.items[0].label == dict(value="10")
+        assert legend.items[0].label == value("10")
         assert legend.items[0].renderers == [renderer]
         assert legend.items[0].index == 0
 
-        assert legend.items[1].label == dict(value="20")
+        assert legend.items[1].label == value("20")
         assert legend.items[1].renderers == [renderer]
         assert legend.items[1].index == 2
 
-        assert legend.items[2].label == dict(value="30")
+        assert legend.items[2].label == value("30")
         assert legend.items[2].renderers == [renderer]
         assert legend.items[2].index == 3
 
-        assert legend.items[3].label == dict(value="40")
+        assert legend.items[3].label == value("40")
         assert legend.items[3].renderers == [renderer]
         assert legend.items[3].index == 6
 
@@ -137,19 +138,19 @@ class Test__handle_legend_label:
             bpl._handle_legend_label(arg, "legend", "renderer")
 
     def test_label_already_exists(self) -> None:
-        legend = Legend(items=[LegendItem(label=dict(value="foo"))])
+        legend = Legend(items=[LegendItem(label=value("foo"))])
         renderer = GlyphRenderer()
         bpl._handle_legend_label("foo", legend, renderer)
         assert len(legend.items) == 1
-        assert legend.items[0].label == dict(value="foo")
+        assert legend.items[0].label == value("foo")
         assert legend.items[0].renderers == [renderer]
 
     def test_label_not_already_exists(self) -> None:
-        legend = Legend(items=[LegendItem(label=dict(value="foo"))])
+        legend = Legend(items=[LegendItem(label=value("foo"))])
         renderer = GlyphRenderer()
         bpl._handle_legend_label("bar", legend, renderer)
         assert len(legend.items) == 2
-        assert legend.items[0].label == dict(value="foo")
+        assert legend.items[0].label == value("foo")
         assert legend.items[0].renderers == []
-        assert legend.items[1].label == dict(value="bar")
+        assert legend.items[1].label == value("bar")
         assert legend.items[1].renderers == [renderer]

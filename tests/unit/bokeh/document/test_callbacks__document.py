@@ -57,7 +57,7 @@ class TestDocumentCallbackManager:
         assert len(gc.get_referrers(d)) == 0
 
         assert len(cm._message_callbacks) == 1
-        assert cm._message_callbacks == {"bokeh_event": [cm.trigger_json_event]}
+        assert cm._message_callbacks == {"bokeh_event": [cm.trigger_event]}
 
     def test_session_callbacks(self) -> None:
         d = Document()
@@ -234,7 +234,7 @@ class TestDocumentCallbackManager:
         def cb(x: Any) -> None:
             pass
         cm.on_message("foo", cb)
-        assert cm._message_callbacks == {"foo": [cb], "bokeh_event": [cm.trigger_json_event]}
+        assert cm._message_callbacks == {"foo": [cb], "bokeh_event": [cm.trigger_event]}
 
     def test_on_session_destroyed(self) -> None:
         d = Document()
@@ -267,7 +267,7 @@ class TestDocumentCallbackManager:
             pass
         cm.on_message("foo", cb)
         cm.remove_on_message("foo", cb)
-        assert cm._message_callbacks == {"foo": [], "bokeh_event": [cm.trigger_json_event]}
+        assert cm._message_callbacks == {"foo": [], "bokeh_event": [cm.trigger_event]}
 
     def test_remove_session_callback(self) -> None:
         d = Document()
@@ -303,7 +303,7 @@ class TestDocumentCallbackManager:
         mref = cm._subscribed_models["foo"].pop()
         assert mref() is m
 
-    # TODO (bev) def test_trigger_json_event
+    # TODO (bev) def test_trigger_event
     # TODO (bev) def test_trigger_on_change
 
     @pytest.mark.parametrize('policy', HoldPolicy)

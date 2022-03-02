@@ -21,12 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import (
-    dataclass,
-    field,
-    fields,
-    is_dataclass,
-)
+from dataclasses import dataclass, field, fields
 from typing import (
     Any,
     Iterable,
@@ -46,6 +41,7 @@ __all__ = (
     "entries",
     "field",
     "fields",
+    "is_dataclass",
 )
 
 #-----------------------------------------------------------------------------
@@ -67,13 +63,16 @@ NotRequired = Union[_UnspecifiedType, _T]
 
 def entries(obj: Any) -> Iterable[Tuple[str, Any]]:
     """ Iterate over a dataclass' fields and their values. """
-    if is_dataclass(obj) and not isinstance(obj, type):
+    if is_dataclass(obj):
         for f in fields(obj):
             value = getattr(obj, f.name)
             if value is not Unspecified:
                 yield (f.name, value)
     else:
         raise TypeError(f"expected a dataclass, got {type(obj)}")
+
+def is_dataclass(obj: Any) -> bool:
+    return hasattr(type(obj), "__dataclass_fields__")
 
 #-----------------------------------------------------------------------------
 # Private API

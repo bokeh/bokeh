@@ -40,7 +40,6 @@ from bokeh.models import Range1d, DataRange1d, FactorRange # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-
 class Test_Range1d:
     def test_basic(self) -> None:
         r = Range1d()
@@ -51,8 +50,11 @@ class Test_Range1d:
             "reset_end",
             "bounds",
             "min_interval",
-            "max_interval"],
-        )
+            "max_interval",
+        ])
+
+    def test_qualified(self) -> None:
+        assert Range1d.__qualified_model__ == "Range1d"
 
     def test_init_with_timedelta(self) -> None:
         range1d = Range1d(start=-dt.timedelta(seconds=5), end=dt.timedelta(seconds=3))

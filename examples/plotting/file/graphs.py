@@ -20,7 +20,7 @@ for k, v in us_states.items():
 
 source = ColumnDataSource(data=dict(lats=lats, lons=lons))
 
-graph_layout = dict(zip(airports.index.astype(str), zip(airports.Longitude, airports.Latitude)))
+graph_layout = dict(zip(airports.index, zip(airports.Longitude, airports.Latitude)))
 layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
 
 fig = figure(x_range=(-180, -60), y_range=(15,75),

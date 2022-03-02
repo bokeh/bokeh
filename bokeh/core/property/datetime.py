@@ -114,14 +114,6 @@ class Datetime(Property):
         msg = "" if not detail else f"Expected a date, datetime object, or timestamp, got {value!r}"
         raise ValueError(msg)
 
-    def serialize_value(self, value):
-        """ Change the value into a JSON serializable format.
-
-        """
-        if isinstance(value, datetime.date):
-            value = convert_date_to_datetime(value)
-        return value
-
     @staticmethod
     def is_timestamp(value):
         return isinstance(value, (float,) + bokeh_integer_types) and not isinstance(value, bool)

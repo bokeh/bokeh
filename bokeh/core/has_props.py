@@ -34,11 +34,11 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    ClassVar,
     Dict,
     Iterable,
     List,
     Literal,
-    Mapping,
     NoReturn,
     Set,
     Tuple,
@@ -51,7 +51,6 @@ from typing import (
 from warnings import warn
 
 if TYPE_CHECKING:
-    import bokeh.types
     F = TypeVar("F", bound=Callable[..., Any])
     def lru_cache(arg: int | None) -> Callable[[F], F]: ...
 else:
@@ -64,11 +63,16 @@ from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
 from .property.singletons import Undefined
 from .property.wrappers import PropertyValueContainer
-from .types import ID, ReferenceJson, Unknown
+from .serialization import (
+    ObjectRep,
+    Ref,
+    Serializable,
+    Serializer,
+)
+from .types import ID, Unknown
 
 if TYPE_CHECKING:
     from ..client.session import ClientSession
-    from ..document.document import StaticSerializer
     from ..server.session import ServerSession
     from .property.bases import Property
     from .property.dataspec import DataSpec
@@ -81,6 +85,8 @@ __all__ = (
     'abstract',
     'HasProps',
     'MetaHasProps',
+    'NonQualified',
+    'Qualified',
 )
 
 #-----------------------------------------------------------------------------
@@ -165,6 +171,10 @@ class MetaHasProps(type):
         return super().__new__(cls, class_name, bases, class_dict)
 
     def __init__(cls, class_name: str, bases: Tuple[type, ...], _) -> None:
+        # HasProps itself may not have any properties defined
+        if class_name == "HasProps":
+            return
+
         # Check for improperly redeclared a Property attribute.
         base_properties: Dict[str, Any] = {}
         for base in (x for x in bases if issubclass(x, HasProps)):
@@ -182,7 +192,16 @@ class MetaHasProps(type):
         if unused_overrides:
             warn(f"Overrides of {unused_overrides} in class {cls.__name__} does not override anything.", RuntimeWarning, stacklevel=2)
 
-class HasProps(metaclass=MetaHasProps):
+class Local:
+    """Don't register this class in model registry. """
+
+class Qualified:
+    """Resolve this class by a fully qualified name. """
+
+class NonQualified:
+    """Resolve this class by a non-qualified name. """
+
+class HasProps(Serializable, metaclass=MetaHasProps):
     ''' Base class for all class types that have Bokeh properties.
 
     .. autoclasstoc::
@@ -193,6 +212,48 @@ class HasProps(metaclass=MetaHasProps):
     _property_values: Dict[str, Unknown]
     _unstable_default_values: Dict[str, Unknown]
     _unstable_themed_values: Dict[str, Unknown]
+
+    __view_model__: ClassVar[str]
+    __view_module__: ClassVar[str]
+    __qualified_model__: ClassVar[str]
+    __implementation__: ClassVar[Any] # TODO: specific type
+    __data_model__: ClassVar[bool]
+
+    model_class_reverse_map: ClassVar[Dict[str, Type[HasProps]]] = {}
+
+    @classmethod
+    def __init_subclass__(cls):
+        super().__init_subclass__()
+
+        # use an explicitly provided view model name if there is one
+        if "__view_model__" not in cls.__dict__:
+            cls.__view_model__ = cls.__qualname__.replace("<locals>.", "")
+        if "__view_module__" not in cls.__dict__:
+            cls.__view_module__ = cls.__module__
+
+        if "__qualified_model__" not in cls.__dict__:
+            def qualified():
+                module = cls.__view_module__
+                model = cls.__view_model__
+
+                if issubclass(cls, NonQualified):
+                    return model
+
+                if not issubclass(cls, Qualified):
+                    head = module.split(".")[0]
+                    if head == "bokeh" or head == "__main__" or "__implementation__" in cls.__dict__:
+                        return model
+
+                return f"{module}.{model}"
+
+            cls.__qualified_model__ = qualified()
+
+        if not (issubclass(cls, Local) or cls.__name__.startswith("_")):
+            # update the mapping of view model names to classes, checking for any duplicates
+            previous = cls.model_class_reverse_map.get(cls.__qualified_model__, None)
+            if previous is not None and not hasattr(cls, "__implementation__"):
+                raise Warning(f"Duplicate qualified model declaration of '{cls.__qualified_model__}'. Previous definition: {previous}")
+            cls.model_class_reverse_map[cls.__qualified_model__] = cls
 
     def __init__(self, **properties: Any) -> None:
         '''
@@ -301,94 +362,22 @@ class HasProps(metaclass=MetaHasProps):
         else:
             return self.properties_with_values() == other.properties_with_values()
 
-    # TODO: this assumes that HasProps/Model are defined as in bokehjs, which
-    # isn't the case here. HasProps must be serializable through refs only.
-    __view_model__: str
-    __view_module__: str
-
-    @classmethod
-    def static_to_serializable(cls, serializer: StaticSerializer) -> ModelRef:
-        from ..model import DataModel, Model
-
-        def model_ref(cls: Type[HasProps]) -> ModelRef:
-            if cls == Model:
-                name = "Model"
-                module = "bokeh.model"
-            else:
-                name = cls.__view_model__
-                module = cls.__view_module__
-
-            # TODO: remove this
-            if module == "__main__" or module.split(".")[0] == "bokeh":
-                module = None
-
-            return ModelRef(name=name, module=module)
-
-        # TODO: resolving already visited objects should be serializer's duty
-        ref = serializer.get_ref(cls)
-        if ref is not None:
-            return ref
-        if not is_DataModel(cls):
-            return model_ref(cls)
-
-        # TODO: consider supporting mixin models
-        bases: List[Type[HasProps]] = [ base for base in cls.__bases__ if issubclass(base, HasProps) and base != DataModel ]
-        if len(bases) == 0:
-            bases = [Model]
-
-        if len(bases) == 1:
-            [base] = bases
-            extends = base.static_to_serializable(serializer)
-        else:
-            raise RuntimeError("multiple bases are not supported")
-
-        properties: List[PropertyDef] = []
-        overrides: List[OverrideDef] = []
-
-        # TODO: don't use unordered sets
-        for prop_name in cls.__properties__:
-            descriptor = cls.lookup(prop_name)
-            kind = "Any" # TODO: serialize kinds
-            default = descriptor.property._default
-
-            if default is Undefined:
-                prop_def = PropertyDef(name=prop_name, kind=kind)
-            else:
-                if isinstance(default, types.FunctionType):
-                    default = default()
-
-                prop_def = PropertyDef(name=prop_name, kind=kind, default=default)
-
-            properties.append(prop_def)
-
-        for prop_name, default in getattr(cls, "__overridden_defaults__", {}).items():
-            overrides.append(OverrideDef(name=prop_name, default=default))
-
-        from ..document.util import references_json
-        from ..model.util import collect_models
-
-        values = [ obj["default"] for obj in properties + overrides if obj.get("default") is not None ]
-        references = references_json(collect_models(values))
-
-        modelref = model_ref(cls)
-        modeldef = ModelDef(
-            name=modelref["name"],
-            module=modelref["module"],
-            extends=extends,
-            properties=properties,
-            overrides=overrides,
-            references=references,
+    def to_serializable(self, serializer: Serializer) -> ObjectRep:
+        rep = ObjectRep(
+            type="object",
+            name=self.__qualified_model__,
         )
 
-        serializer.add_ref(cls, modelref, modeldef)
-        return modelref
+        properties = self.properties_with_values(include_defaults=False)
+        attributes = {key: serializer.encode(val) for key, val in properties.items()}
 
-    def to_serializable(self, serializer: Any) -> Any:
-        pass # TODO: new serializer, hopefully in near future
+        if attributes:
+            rep["attributes"] = attributes
+
+        return rep
 
     # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
-    def set_from_json(self, name: str, json: bokeh.types.JSON, *,
-            models: Dict[ID, HasProps] | None = None, setter: Setter | None = None) -> None:
+    def set_from_json(self, name: str, value: Any, *, setter: Setter | None = None) -> None:
         ''' Set a property value on this object from JSON.
 
         Args:
@@ -417,9 +406,9 @@ class HasProps(metaclass=MetaHasProps):
 
         '''
         if name in self.properties(_with_props=True):
-            log.trace(f"Patching attribute {name!r} of {self!r} with {json!r}") # type: ignore # TODO: log.trace()
+            log.trace(f"Patching attribute {name!r} of {self!r} with {value!r}") # type: ignore # TODO: log.trace()
             descriptor = self.lookup(name)
-            descriptor.set_from_json(self, json, models=models, setter=setter)
+            descriptor.set_from_json(self, value, setter=setter)
         else:
             log.warning("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
@@ -449,37 +438,6 @@ class HasProps(metaclass=MetaHasProps):
         '''
         for k, v in kwargs.items():
             setattr(self, k, v)
-
-    # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
-    def update_from_json(self, json_attributes: Dict[str, bokeh.types.JSON], *,
-            models: Mapping[ID, HasProps] | None = None, setter: Setter | None = None) -> None:
-        ''' Updates the object's properties from a JSON attributes dictionary.
-
-        Args:
-            json_attributes: (JSON-dict) : attributes and values to update
-
-            models (dict or None, optional) :
-                Mapping of model ids to models (default: None)
-
-                This is needed in cases where the attributes to update also
-                have values that have references.
-
-            setter(ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
-        Returns:
-            None
-
-        '''
-        for k, v in json_attributes.items():
-            self.set_from_json(k, v, models=models, setter=setter)
 
     @overload
     @classmethod
@@ -519,7 +477,7 @@ class HasProps(metaclass=MetaHasProps):
 
     @classmethod
     @lru_cache(None)
-    def properties(cls, *, _with_props: bool = False) -> Union[Set[str], Dict[str, Property[Any]]]:
+    def properties(cls, *, _with_props: bool = False) -> Set[str] | Dict[str, Property[Any]]:
         ''' Collect the names of properties on this class.
 
         .. warning::
@@ -532,7 +490,7 @@ class HasProps(metaclass=MetaHasProps):
 
         '''
         props: Dict[str, Property[Any]] = {}
-        for c in cls.__mro__:
+        for c in reversed(cls.__mro__):
             props.update(getattr(c, "__properties__", {}))
 
         if not _with_props:
@@ -647,7 +605,7 @@ class HasProps(metaclass=MetaHasProps):
                 continue
 
             try:
-                value = descriptor.serializable_value(self)
+                value = descriptor.get_value(self)
             except UnsetValueError:
                 if include_undefined:
                     value = Undefined
@@ -744,7 +702,6 @@ KindRef = Any # TODO
 class _PropertyDef(TypedDict):
     name: str
     kind: KindRef
-
 class PropertyDef(_PropertyDef, total=False):
     default: Unknown
 
@@ -752,15 +709,70 @@ class OverrideDef(TypedDict):
     name: str
     default: Unknown
 
-class ModelRef(TypedDict):
+class _ModelDef(TypedDict):
+    type: Literal["model"]
     name: str
-    module: str | None
-
-class ModelDef(ModelRef):
-    extends: ModelRef
+class ModelDef(_ModelDef, total=False):
+    extends: Ref | None
     properties: List[PropertyDef]
     overrides: List[OverrideDef]
-    references: List[ReferenceJson]
+
+def _HasProps_to_serializable(cls: Type[HasProps], serializer: Serializer) -> Ref | ModelDef:
+    from ..model import DataModel, Model
+
+    ref = Ref(id=ID(cls.__qualified_model__))
+    serializer.add_ref(cls, ref)
+
+    if not is_DataModel(cls):
+        return ref
+
+    # TODO: consider supporting mixin models
+    bases: List[Type[HasProps]] = [ base for base in cls.__bases__ if issubclass(base, Model) and base != DataModel ]
+    if len(bases) == 0:
+        extends = None
+    elif len(bases) == 1:
+        [base] = bases
+        extends = serializer.encode(base)
+    else:
+        serializer.error("multiple bases are not supported")
+
+    properties: List[PropertyDef] = []
+    overrides: List[OverrideDef] = []
+
+    # TODO: don't use unordered sets
+    for prop_name in cls.__properties__:
+        descriptor = cls.lookup(prop_name)
+        kind = "Any" # TODO: serialize kinds
+        default = descriptor.property._default
+
+        if default is Undefined:
+            prop_def = PropertyDef(name=prop_name, kind=kind)
+        else:
+            if isinstance(default, types.FunctionType):
+                default = default()
+
+            prop_def = PropertyDef(name=prop_name, kind=kind, default=serializer.encode(default))
+
+        properties.append(prop_def)
+
+    for prop_name, default in getattr(cls, "__overridden_defaults__", {}).items():
+        overrides.append(OverrideDef(name=prop_name, default=serializer.encode(default)))
+
+    modeldef = ModelDef(
+        type="model",
+        name=cls.__qualified_model__,
+    )
+
+    if extends is not None:
+        modeldef["extends"] = extends
+    if properties:
+        modeldef["properties"] = properties
+    if overrides:
+        modeldef["overrides"] = overrides
+
+    return modeldef
+
+Serializer.register(MetaHasProps, _HasProps_to_serializable)
 
 #-----------------------------------------------------------------------------
 # Private API

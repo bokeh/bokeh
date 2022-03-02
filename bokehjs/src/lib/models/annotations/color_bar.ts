@@ -27,7 +27,8 @@ import {Panel} from "core/layout/side_panel"
 import {unreachable} from "core/util/assert"
 import {build_view} from "core/build_views"
 import {BBox} from "core/util/bbox"
-import {isString} from "core/util/types"
+import {isString, isPlainObject} from "core/util/types"
+import {Dict} from "core/util/object"
 import {SerializableState} from "core/view"
 
 const MINOR_DIM = 25
@@ -617,7 +618,7 @@ export namespace ColorBar {
     scale_alpha: p.Property<number>
     ticker: p.Property<Ticker | "auto">
     formatter: p.Property<TickFormatter | "auto">
-    major_label_overrides: p.Property<{[key: string]: string | BaseText}>
+    major_label_overrides: p.Property<Map<string | number, string | BaseText>>
     major_label_policy: p.Property<LabelingPolicy>
     color_mapper: p.Property<ColorMapper>
     label_standoff: p.Property<number>
@@ -672,7 +673,7 @@ export class ColorBar extends Annotation {
       ["background_",  mixins.Fill],
     ])
 
-    this.define<ColorBar.Props>(({Alpha, Number, String, Tuple, Dict, Or, Ref, Auto, Nullable}) => ({
+    this.define<ColorBar.Props>(({Alpha, Number, String, Tuple, Map, Or, Ref, Auto, Nullable}) => ({
       location:              [ Or(Anchor, Tuple(Number, Number)), "top_right" ],
       orientation:           [ Or(Orientation, Auto), "auto" ],
       title:                 [ Nullable(String), null ],
@@ -682,7 +683,11 @@ export class ColorBar extends Annotation {
       scale_alpha:           [ Alpha, 1.0 ],
       ticker:                [ Or(Ref(Ticker), Auto), "auto" ],
       formatter:             [ Or(Ref(TickFormatter), Auto), "auto" ],
-      major_label_overrides: [ Dict(Or(String, Ref(BaseText))), {} ],
+      major_label_overrides: [ Map(Or(String, Number), Or(String, Ref(BaseText))), new globalThis.Map(), {
+        convert(v: any) {
+          return isPlainObject(v) ? new Dict(v) : v
+        },
+      }],
       major_label_policy:    [ Ref(LabelingPolicy), () => new NoOverlap() ],
       color_mapper:          [ Ref(ColorMapper) ],
       label_standoff:        [ Number, 5 ],

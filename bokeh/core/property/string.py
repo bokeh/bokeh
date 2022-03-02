@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import base64
 import re
 
 # Bokeh imports
@@ -37,7 +36,6 @@ from .singletons import Undefined
 __all__ = (
     'Regex',
     'MathString',
-    'Base64String',
 )
 
 #-----------------------------------------------------------------------------
@@ -97,22 +95,6 @@ class Regex(String):
 
         msg = "" if not detail else f"expected a string matching {self.regex.pattern!r} pattern, got {value!r}"
         raise ValueError(msg)
-
-class Base64String(String):
-
-    def serialize_value(self, value):
-        """ Encode a ascii string using Base64.
-
-        Args:
-            value : a string to encode
-
-        Returns:
-            string
-
-        """
-        if isinstance(value, str):
-            value = base64.b64encode(value.encode("utf-8")).decode("utf-8")
-        return value
 
 class MathString(String):
     """ A string with math TeX/LaTeX delimiters.

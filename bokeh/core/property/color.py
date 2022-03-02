@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import re
+from typing import Any
 
 # Bokeh imports
 from ... import colors
@@ -50,12 +51,12 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 
-class RGB(Property):
+class RGB(Property[colors.RGB]):
     """ Accept colors.RGB values.
 
     """
 
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True):
         super().validate(value, detail)
 
         if isinstance(value, colors.RGB):

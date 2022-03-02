@@ -1,5 +1,6 @@
 import yaml
 
+from bokeh.core.properties import value
 from bokeh.document import Document
 from bokeh.models import (CDSView, Circle, ColumnDataSource, DataRange1d,
                           Grid, HoverTool, IndexFilter, LinearAxis, Plot,
@@ -76,7 +77,7 @@ medal_renderer = plot.add_glyph(source, medal)
 #sprint[sprint.Medal=="gold" * sprint.Year in [1988, 1968, 1936, 1896]]
 plot.add_glyph(source, Text(x="MetersBack", y="Year", x_offset=10, text="Name"), view=CDSView(filters=filters))
 
-plot.add_glyph(source, Text(x=7.5, y=1942, text=["No Olympics in 1940 or 1944"],
+plot.add_glyph(source, Text(x=7.5, y=1942, text=value("No Olympics in 1940 or 1944"),
                             text_font_style="italic", text_color="silver"))
 
 tooltips = """

@@ -30,6 +30,7 @@ from bokeh.core.properties import (
     List,
     String,
 )
+from bokeh.core.serialization import ObjectRefRep
 from bokeh.document.document import Document
 from bokeh.events import Tap
 from bokeh.io import curdoc
@@ -513,9 +514,8 @@ class Test_standalone_docs_json_and_render_items:
         doc = list(docs_json.values())[0]
         assert doc['title'] == "Bokeh Application"
         assert doc['version'] == __version__
-        assert len(doc['roots']['root_ids']) == 1
-        assert len(doc['roots']['references']) == 1
-        assert doc['roots']['references'] == [{'attributes': {}, 'id': str(p1.id), 'type': 'test_util__embed.SomeModel'}]
+        assert len(doc['roots']) == 1
+        assert doc['roots'] == [ObjectRefRep(type="object", name="test_util__embed.SomeModel", id=p1.id)]
         assert len(render_items) == 1
 
     def test_passing_doc(self) -> None:
@@ -526,9 +526,8 @@ class Test_standalone_docs_json_and_render_items:
         doc = list(docs_json.values())[0]
         assert doc['title'] == "Bokeh Application"
         assert doc['version'] == __version__
-        assert len(doc['roots']['root_ids']) == 1
-        assert len(doc['roots']['references']) == 1
-        assert doc['roots']['references'] == [{'attributes': {}, 'id': str(p1.id), 'type': 'test_util__embed.SomeModel'}]
+        assert len(doc['roots']) == 1
+        assert doc['roots'] == [ObjectRefRep(type="object", name="test_util__embed.SomeModel", id=p1.id)]
         assert len(render_items) == 1
 
     def test_exception_for_missing_doc(self) -> None:

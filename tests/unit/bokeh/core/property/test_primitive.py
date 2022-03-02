@@ -33,6 +33,7 @@ import bokeh.core.property.primitive as bcpp # isort:skip
 
 ALL = (
     'Bool',
+    'Bytes',
     'Complex',
     'Int',
     'Float',
@@ -298,6 +299,40 @@ class Test_Int:
         prop = bcpp.Int()
         assert str(prop) == "Int"
 
+class Test_Bytes:
+    def test_valid(self) -> None:
+        prop = bcpp.Bytes()
+
+        assert prop.is_valid(b"")
+        assert prop.is_valid(b"some")
+
+    def test_invalid(self) -> None:
+        prop = bcpp.Bytes()
+
+        assert not prop.is_valid(None)
+        assert not prop.is_valid(False)
+        assert not prop.is_valid(True)
+        assert not prop.is_valid(0)
+        assert not prop.is_valid(1)
+        assert not prop.is_valid(0.0)
+        assert not prop.is_valid(1.0)
+        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid("")
+        assert not prop.is_valid("some")
+
+        assert not prop.is_valid(())
+        assert not prop.is_valid([])
+        assert not prop.is_valid({})
+        assert not prop.is_valid(_TestHasProps())
+        assert not prop.is_valid(_TestModel())
+
+    def test_has_ref(self) -> None:
+        prop = bcpp.Bytes()
+        assert not prop.has_ref
+
+    def test_str(self) -> None:
+        prop = bcpp.Bytes()
+        assert str(prop) == "Bytes"
 
 class Test_String:
     def test_valid(self) -> None:
@@ -317,6 +352,8 @@ class Test_String:
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
         assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(b"")
+        assert not prop.is_valid(b"some")
 
         assert not prop.is_valid(())
         assert not prop.is_valid([])

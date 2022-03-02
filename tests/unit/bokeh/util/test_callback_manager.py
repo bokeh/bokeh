@@ -421,7 +421,7 @@ class TestEventCallbackManager:
         assert m._event_callbacks['foo'] == [cb]
 
         class ev:
-            _model_id = 10
+            model = m
             event_name = "foo"
 
         m._trigger_event(ev())

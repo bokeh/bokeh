@@ -27,6 +27,7 @@ import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 
+import {Document} from "@bokehjs/document"
 import {Color} from "@bokehjs/core/types"
 import {Anchor, Location, OutputBackend, MarkerType} from "@bokehjs/core/enums"
 import {subsets} from "@bokehjs/core/util/iterator"
@@ -720,12 +721,12 @@ describe("Bug", () => {
       })
 
       const layout_provider = new StaticLayoutProvider({
-        graph_layout: {
-          4: [2, 1],
-          5: [2, 2],
-          6: [3, 1],
-          7: [3, 2],
-        },
+        graph_layout: new Map([
+          [4, [2, 1]],
+          [5, [2, 2]],
+          [6, [3, 1]],
+          [7, [3, 2]],
+        ]),
       })
 
       const node_renderer = new GlyphRenderer({
@@ -1383,12 +1384,12 @@ describe("Bug", () => {
       })
 
       const layout_provider = new StaticLayoutProvider({
-        graph_layout: {
-          4: [2, 1],
-          5: [2, 2],
-          6: [3, 1],
-          7: [3, 2],
-        },
+        graph_layout: new Map([
+          [4, [2, 1]],
+          [5, [2, 2]],
+          [6, [3, 1]],
+          [7, [3, 2]],
+        ]),
       })
 
       const node_renderer = new GlyphRenderer({
@@ -1405,12 +1406,12 @@ describe("Bug", () => {
       const {view} = await display(p)
 
       graph.layout_provider = new StaticLayoutProvider({
-        graph_layout: {
-          4: [1, 1],
-          5: [1, 2],
-          6: [2, 2],
-          7: [2, 1],
-        },
+        graph_layout: new Map([
+          [4, [1, 1]],
+          [5, [1, 2]],
+          [6, [2, 2]],
+          [7, [2, 1]],
+        ]),
       })
       await view.ready
     })
@@ -1777,6 +1778,16 @@ describe("Bug", () => {
       await plot((color_bar) => {
         color_bar.color_mapper = new LinearColorMapper({palette: plasma(50), low: 0, high: 1})
       })
+    })
+  })
+
+  describe("in issue #11930", () => {
+    it("doesn't allow overriding int major axis labels with floats", async () => {
+      const response = await fetch("/assets/json/issue11930.json")
+      const json = await response.json()
+
+      const doc = Document.from_json(json)
+      await display(doc)
     })
   })
 })

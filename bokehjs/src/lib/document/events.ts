@@ -2,16 +2,15 @@ import {Document} from "./document"
 import {Data} from "core/types"
 import {HasProps} from "core/has_props"
 import {Ref} from "core/util/refs"
-import {PatchSet} from "models/sources/column_data_source"
+import {PatchSet} from "core/patching"
 import {equals, Equatable, Comparator} from "core/util/eq"
-import {serialize, Serializable, Serializer} from "core/serializer"
+import {serialize, Serializable, Serializer, ModelRep} from "core/serialization"
 
 export type ModelChanged = {
   kind: "ModelChanged"
   model: Ref
   attr: string
   new: unknown
-  hint?: unknown
 }
 
 export type MessageSent = {
@@ -27,7 +26,7 @@ export type TitleChanged = {
 
 export type RootAdded = {
   kind: "RootAdded"
-  model: Ref
+  model: ModelRep
 }
 
 export type RootRemoved = {
@@ -37,26 +36,85 @@ export type RootRemoved = {
 
 export type ColumnDataChanged = {
   kind: "ColumnDataChanged"
-  column_source: Ref
-  new: Data
+  model: Ref
+  attr: string
+  data: unknown // AnyVal
   cols?: string[]
 }
 
 export type ColumnsStreamed = {
   kind: "ColumnsStreamed"
-  column_source: Ref
-  data: Data
+  model: Ref
+  attr: string
+  data: unknown // AnyVal
   rollover?: number
 }
 
 export type ColumnsPatched = {
   kind: "ColumnsPatched"
-  column_source: Ref
-  patches: PatchSet<unknown>
+  model: Ref
+  attr: string
+  patches: unknown // AnyVal
 }
 
 export type DocumentChanged =
   ModelChanged | MessageSent | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsPatched
+
+export namespace Decoded {
+  export type ModelChanged = {
+    kind: "ModelChanged"
+    model: HasProps
+    attr: string
+    new: unknown
+  }
+
+  export type MessageSent = {
+    kind: "MessageSent"
+    msg_type: string
+    msg_data?: unknown
+  }
+
+  export type TitleChanged = {
+    kind: "TitleChanged"
+    title: string
+  }
+
+  export type RootAdded = {
+    kind: "RootAdded"
+    model: HasProps
+  }
+
+  export type RootRemoved = {
+    kind: "RootRemoved"
+    model: HasProps
+  }
+
+  export type ColumnDataChanged = {
+    kind: "ColumnDataChanged"
+    model: HasProps
+    attr: string
+    data: Data
+    cols?: string[]
+  }
+
+  export type ColumnsStreamed = {
+    kind: "ColumnsStreamed"
+    model: HasProps
+    attr: string
+    data: Data
+    rollover?: number
+  }
+
+  export type ColumnsPatched = {
+    kind: "ColumnsPatched"
+    model: HasProps
+    attr: string
+    patches: PatchSet<unknown>
+  }
+
+  export type DocumentChanged =
+    ModelChanged | MessageSent | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsPatched
+}
 
 export abstract class DocumentEvent implements Equatable {
   constructor(readonly document: Document) {}
@@ -82,10 +140,13 @@ export class DocumentEventBatch<T extends DocumentChangedEvent> extends Document
 }
 
 export abstract class DocumentChangedEvent extends DocumentEvent implements Serializable {
+  readonly abstract kind: string
   abstract [serialize](serializer: Serializer): DocumentChanged
 }
 
 export class MessageSentEvent extends DocumentChangedEvent {
+  kind = "MessageSent" as const
+
   constructor(document: Document, readonly msg_type: string, readonly msg_data: unknown) {
     super(document)
   }
@@ -97,24 +158,21 @@ export class MessageSentEvent extends DocumentChangedEvent {
   }
 
   [serialize](serializer: Serializer): DocumentChanged {
-    const value = this.msg_data
-    const value_serialized = serializer.to_serializable(value)
     return {
-      kind: "MessageSent",
+      kind: this.kind,
       msg_type: this.msg_type,
-      msg_data: value_serialized,
+      msg_data: serializer.encode(this.msg_data),
     }
   }
 }
 
 export class ModelChangedEvent extends DocumentChangedEvent {
+  kind = "ModelChanged" as const
 
   constructor(document: Document,
       readonly model: HasProps,
       readonly attr: string,
-      readonly old: unknown,
-      readonly new_: unknown,
-      readonly hint?: DocumentChangedEvent) {
+      readonly value: unknown) {
     super(document)
   }
 
@@ -122,86 +180,55 @@ export class ModelChangedEvent extends DocumentChangedEvent {
     return super[equals](that, cmp) &&
       cmp.eq(this.model, that.model) &&
       cmp.eq(this.attr, that.attr) &&
-      cmp.eq(this.old, that.old) &&
-      cmp.eq(this.new_, that.new_) &&
-      cmp.eq(this.hint, that.hint)
+      cmp.eq(this.value, that.value)
   }
 
   [serialize](serializer: Serializer): DocumentChanged {
-    if (this.hint != null)
-      return serializer.to_serializable(this.hint)
-
-    const value = this.new_
-    const value_serialized = serializer.to_serializable(value)
-
-    if (this.model != value) {
-      // we know we don't want a whole new copy of the obj we're
-      // patching unless it's also the value itself
-      serializer.remove_def(this.model)
-    }
-
     return {
-      kind: "ModelChanged",
+      kind: this.kind,
       model: this.model.ref(),
       attr: this.attr,
-      new: value_serialized,
-    }
-  }
-}
-
-export class ColumnsPatchedEvent extends DocumentChangedEvent {
-
-  constructor(document: Document,
-      readonly column_source: Ref,
-      readonly patches: PatchSet<unknown>) {
-    super(document)
-  }
-
-  override [equals](that: this, cmp: Comparator): boolean {
-    return super[equals](that, cmp) &&
-      cmp.eq(this.column_source, that.column_source) &&
-      cmp.eq(this.patches, that.patches)
-  }
-
-  [serialize](_serializer: Serializer): ColumnsPatched {
-    return {
-      kind: "ColumnsPatched",
-      column_source: this.column_source,
-      patches: this.patches,
+      new: serializer.encode(this.value),
     }
   }
 }
 
 export class ColumnDataChangedEvent extends DocumentChangedEvent {
+  kind = "ColumnDataChanged" as const
 
   constructor(document: Document,
-      readonly column_source: Ref,
-      readonly new_: Data,
+      readonly model: HasProps,
+      readonly attr: string,
+      readonly data: Data,
       readonly cols?: string[]) {
     super(document)
   }
 
   override [equals](that: this, cmp: Comparator): boolean {
     return super[equals](that, cmp) &&
-      cmp.eq(this.column_source, that.column_source) &&
-      cmp.eq(this.new_, that.new_) &&
+      cmp.eq(this.model, that.model) &&
+      cmp.eq(this.attr, that.attr) &&
+      cmp.eq(this.data, that.data) &&
       cmp.eq(this.cols, that.cols)
   }
 
-  [serialize](_serializer: Serializer): ColumnDataChanged {
+  [serialize](serializer: Serializer): ColumnDataChanged {
     return {
-      kind: "ColumnDataChanged",
-      column_source: this.column_source,
-      new: this.new_,
+      kind: this.kind,
+      model: this.model.ref(),
+      attr: this.attr,
+      data: serializer.encode(this.data),
       cols: this.cols,
     }
   }
 }
 
 export class ColumnsStreamedEvent extends DocumentChangedEvent {
+  kind = "ColumnsStreamed" as const
 
   constructor(document: Document,
-      readonly column_source: Ref,
+      readonly model: HasProps,
+      readonly attr: string,
       readonly data: Data,
       readonly rollover?: number) {
     super(document)
@@ -209,22 +236,52 @@ export class ColumnsStreamedEvent extends DocumentChangedEvent {
 
   override [equals](that: this, cmp: Comparator): boolean {
     return super[equals](that, cmp) &&
-      cmp.eq(this.column_source, that.column_source) &&
+      cmp.eq(this.model, that.model) &&
+      cmp.eq(this.attr, that.attr) &&
       cmp.eq(this.data, that.data) &&
       cmp.eq(this.rollover, that.rollover)
   }
 
-  [serialize](_serializer: Serializer): ColumnsStreamed {
+  [serialize](serializer: Serializer): ColumnsStreamed {
     return {
-      kind: "ColumnsStreamed",
-      column_source: this.column_source,
-      data: this.data,
+      kind: this.kind,
+      model: this.model.ref(),
+      attr: this.attr,
+      data: serializer.encode(this.data),
       rollover: this.rollover,
     }
   }
 }
 
+export class ColumnsPatchedEvent extends DocumentChangedEvent {
+  kind = "ColumnsPatched" as const
+
+  constructor(document: Document,
+      readonly model: HasProps,
+      readonly attr: string,
+      readonly patches: PatchSet<unknown>) {
+    super(document)
+  }
+
+  override [equals](that: this, cmp: Comparator): boolean {
+    return super[equals](that, cmp) &&
+      cmp.eq(this.model, that.model) &&
+      cmp.eq(this.attr, that.attr) &&
+      cmp.eq(this.patches, that.patches)
+  }
+
+  [serialize](serializer: Serializer): ColumnsPatched {
+    return {
+      kind: this.kind,
+      attr: this.attr,
+      model: this.model.ref(),
+      patches: serializer.encode(this.patches),
+    }
+  }
+}
+
 export class TitleChangedEvent extends DocumentChangedEvent {
+  kind = "TitleChanged" as const
 
   constructor(document: Document, readonly title: string) {
     super(document)
@@ -237,13 +294,14 @@ export class TitleChangedEvent extends DocumentChangedEvent {
 
   [serialize](_serializer: Serializer): TitleChanged {
     return {
-      kind: "TitleChanged",
+      kind: this.kind,
       title: this.title,
     }
   }
 }
 
 export class RootAddedEvent extends DocumentChangedEvent {
+  kind = "RootAdded" as const
 
   constructor(document: Document, readonly model: HasProps) {
     super(document)
@@ -256,13 +314,14 @@ export class RootAddedEvent extends DocumentChangedEvent {
 
   [serialize](serializer: Serializer): RootAdded {
     return {
-      kind: "RootAdded",
-      model: serializer.to_serializable(this.model),
+      kind: this.kind,
+      model: serializer.encode(this.model),
     }
   }
 }
 
 export class RootRemovedEvent extends DocumentChangedEvent {
+  kind = "RootRemoved" as const
 
   constructor(document: Document, readonly model: HasProps) {
     super(document)
@@ -275,7 +334,7 @@ export class RootRemovedEvent extends DocumentChangedEvent {
 
   [serialize](_serializer: Serializer): RootRemoved {
     return {
-      kind: "RootRemoved",
+      kind: this.kind,
       model: this.model.ref(),
     }
   }

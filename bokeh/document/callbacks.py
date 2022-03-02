@@ -57,7 +57,6 @@ from .locking import UnlockedDocumentProxy
 if TYPE_CHECKING:
     from ..application.application import SessionDestroyedCallback
     from ..core.has_props import Setter
-    from ..events import EventJson
     from ..server.callbacks import SessionCallback
     from .document import Document
     from .events import DocumentChangeCallback, DocumentChangedEvent, Invoker
@@ -125,7 +124,7 @@ class DocumentCallbackManager:
         self._hold = None
         self._held_events = []
 
-        self.on_message("bokeh_event", self.trigger_json_event)
+        self.on_message("bokeh_event", self.trigger_event)
 
     @property
     def session_callbacks(self) -> List[SessionCallback]:
@@ -227,12 +226,19 @@ class DocumentCallbackManager:
         if attr == 'name':
             doc.models.update_name(model, old, new)
 
+        event: DocumentPatchedEvent
         if hint is None:
-            serializable_new = model.lookup(attr).serializable_value(model)
+            new = model.lookup(attr).get_value(model)
+            event = ModelChangedEvent(doc, model, attr, new, setter, callback_invoker)
         else:
-            serializable_new = None
+            assert hint.callback_invoker is None
+            hint.callback_invoker = callback_invoker
 
-        event = ModelChangedEvent(doc, model, attr, old, new, serializable_new, hint, setter, callback_invoker)
+            if hint.setter is None:
+                hint.setter = setter
+
+            event = hint
+
         self.trigger_on_change(event)
 
     def notify_event(self, model: Model, event: ModelEvent, callback_invoker: Invoker) -> None:
@@ -340,12 +346,7 @@ class DocumentCallbackManager:
     def subscribe(self, key: str, model: Model) -> None:
         self._subscribed_models[key].add(weakref.ref(model))
 
-    def trigger_json_event(self, json: EventJson) -> None:
-        try:
-            event = Event.decode_json(json)
-        except ValueError:
-            log.warning('Could not decode event json: %s' % json)
-
+    def trigger_event(self, event: Event) -> None:
         # This is fairly gorpy, we are not being careful with model vs doc events, etc.
         if isinstance(event, ModelEvent):
             subscribed = self._subscribed_models[event.event_name].copy()

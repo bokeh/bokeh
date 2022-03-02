@@ -13,8 +13,8 @@ import {Indices} from "core/types"
 import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
-import {entries} from "core/util/object"
-import {isNumber} from "core/util/types"
+import {Dict} from "core/util/object"
+import {isNumber, isPlainObject} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
 import {BaseTextView} from "../text/base_text"
@@ -48,7 +48,7 @@ export class AxisView extends GuideRendererView {
   layout: Layoutable
 
   /*private*/ _axis_label_view: BaseTextView | null = null
-  /*private*/ _major_label_views: Map<string, BaseTextView> = new Map()
+  /*private*/ _major_label_views: Map<string | number, BaseTextView> = new Map()
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -67,8 +67,7 @@ export class AxisView extends GuideRendererView {
   }
 
   protected async _init_major_labels(): Promise<void> {
-    const {major_label_overrides} = this.model
-    for (const [label, label_text] of entries(major_label_overrides)) {
+    for (const [label, label_text] of this.model.major_label_overrides) {
       const _label_text = isString(label_text) ? parse_delimited_string(label_text) : label_text
       this._major_label_views.set(label, await build_view(_label_text, {parent: this}))
     }
@@ -433,7 +432,7 @@ export class AxisView extends GuideRendererView {
 
     const visited = new Set()
     for (let i = 0; i < ticks.length; i++) {
-      const override = _major_label_views.get(ticks[i].toString())
+      const override = _major_label_views.get(ticks[i])
       if (override != null) {
         visited.add(override)
         labels[i] = override.graphics()
@@ -645,7 +644,7 @@ export namespace Axis {
     axis_label_standoff: p.Property<number>
     major_label_standoff: p.Property<number>
     major_label_orientation: p.Property<TickLabelOrientation | number>
-    major_label_overrides: p.Property<{[key: string]: string | BaseText}>
+    major_label_overrides: p.Property<Map<string /*Cat*/ | number, string | BaseText>>
     major_label_policy: p.Property<LabelingPolicy>
     major_tick_in: p.Property<number>
     major_tick_out: p.Property<number>
@@ -691,7 +690,7 @@ export class Axis extends GuideRenderer {
       ["axis_label_",  mixins.Text],
     ])
 
-    this.define<Axis.Props>(({Any, Int, Number, String, Ref, Dict, Tuple, Or, Nullable, Auto}) => ({
+    this.define<Axis.Props>(({Any, Int, Number, String, Ref, Map, Tuple, Or, Nullable, Auto}) => ({
       bounds:                  [ Or(Tuple(Number, Number), Auto), "auto" ],
       ticker:                  [ Ref(Ticker) ],
       formatter:               [ Ref(TickFormatter) ],
@@ -699,7 +698,11 @@ export class Axis extends GuideRenderer {
       axis_label_standoff:     [ Int, 5 ],
       major_label_standoff:    [ Int, 5 ],
       major_label_orientation: [ Or(TickLabelOrientation, Number), "horizontal" ],
-      major_label_overrides:   [ Dict(Or(String, Ref(BaseText))), {} ],
+      major_label_overrides:   [ Map(Or(String, Number), Or(String, Ref(BaseText))), new globalThis.Map(), {
+        convert(v: any) {
+          return isPlainObject(v) ? new Dict(v) : v
+        },
+      }],
       major_label_policy:      [ Ref(LabelingPolicy), () => new AllLabels() ],
       major_tick_in:           [ Number, 2 ],
       major_tick_out:          [ Number, 6 ],

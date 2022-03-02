@@ -1,8 +1,10 @@
 import {expect} from "assertions"
 
-import {resolve_defs, ModelDef} from "@bokehjs/document/defs"
-import {ModelResolver} from "@bokehjs/base"
+import {Deserializer} from "@bokehjs/core/serialization/deserializer"
+import {ModelDef} from "@bokehjs/document/defs"
 import {Model} from "@bokehjs/model"
+import {default_resolver} from "@bokehjs/base"
+import {ModelResolver} from "@bokehjs/core/resolvers"
 import * as p from "@bokehjs/core/properties"
 import {assert} from "@bokehjs/core/util/assert"
 import {ColumnDataSource} from "@bokehjs/models"
@@ -101,12 +103,12 @@ declare class _Some4 extends _Some3 {
 }
 
 describe("document/defs module", () => {
-  describe("implements resolve_defs() function", () => {
+  describe("implements a deserializer", () => {
     it("that supports basic definitions", () => {
       const defs: ModelDef[] = [{
-        name: "Some0",
-        module: "some",
-        extends: {name: "Model"},
+        type: "model",
+        name: "some.Some0",
+        extends: {id: "Model"},
         properties: [
           {name: "prop0", kind: "Any", default: 0},
           {name: "prop1", kind: "Unknown", default: 1},
@@ -119,11 +121,9 @@ describe("document/defs module", () => {
         overrides: [
           {name: "tags", default: ["some", "default", "tags"]},
         ],
-        references: [],
       }, {
-        name: "Some1",
-        module: "some",
-        extends: {name: "Model"},
+        type: "model",
+        name: "some.Some1",
         properties: [
           {name: "prop0", kind: ["Regex", "^[a-z][a-z0-9]*"], default: "a0"},
           {name: "prop1", kind: ["Nullable", "Int"], default: null},
@@ -136,38 +136,36 @@ describe("document/defs module", () => {
           {name: "prop8", kind: ["Map", ["Array", "String"], "Int"], default: new Map([[["a", "a"], 0], [["b"], 1]])},
           {name: "prop9", kind: ["Enum", "enum0", "enum1", "enum2"], default: "enum2"},
         ],
-        overrides: [],
-        references: [],
       }, {
-        name: "Some2",
-        module: "some",
-        extends: {name: "Some1", module: "some"},
-        properties: [
-          {name: "prop10", kind: ["Ref", {name: "Some0", module: "some"}], default: {id: "some001"}},
-          {name: "prop11", kind: ["Array", ["Ref", {name: "Some0", module: "some"}]], default: [{id: "some001"}, {id: "some002"}]},
-        ],
+        type: "model",
+        name: "some.Some2",
+        extends: {id: "some.Some1"},
+        properties: [{
+          name: "prop10",
+          kind: ["Ref", {id: "some.Some0"}],
+          default: {type: "object", name: "some.Some0", id: "some001", attributes: {prop2: false, prop4: 128}},
+        }, {
+          name: "prop11",
+          kind: ["Array", ["Ref", {id: "some.Some0"}]],
+          default: [{id: "some001"}, {type: "object", name: "some.Some0", id: "some002", attributes: {prop2: false, prop4: 129}}],
+        }],
         overrides: [
           {name: "prop2", default: "a"},
         ],
-        references: [
-          {id: "some001", type: "some.Some0", attributes: {prop2: false, prop4: 128}},
-          {id: "some002", type: "some.Some0", attributes: {prop2: false, prop4: 129}},
-        ],
       }, {
-        name: "Some3",
-        module: "some",
-        extends: {name: "ColumnDataSource"},
+        type: "model",
+        name: "some.Some3",
+        extends: {id: "ColumnDataSource"},
         properties: [
           {name: "prop0", kind: "Number", default: 1},
         ],
         overrides: [
           {name: "data", default: {default_column: [0, 1, 2]}},
         ],
-        references: [],
       }, {
-        name: "Some4",
-        module: "some",
-        extends: {name: "Some3", module: "some"},
+        type: "model",
+        name: "some.Some4",
+        extends: {id: "some.Some3"},
         properties: [
           {name: "prop1", kind: ["Array", "Number"], default: [0, 1, 2]},
         ],
@@ -175,17 +173,21 @@ describe("document/defs module", () => {
           {name: "data", default: {default_column: [3, 4, 5]}},
           {name: "prop0", default: 2},
         ],
-        references: [],
       }]
 
-      const resolver = new ModelResolver()
-      resolve_defs(defs, resolver)
+      const resolver = new ModelResolver(default_resolver)
+      const deserializer = new Deserializer(resolver)
 
-      const Some0 = resolver.get<typeof _Some0, null>("some.Some0", null)
-      const Some1 = resolver.get<typeof _Some1, null>("some.Some1", null)
-      const Some2 = resolver.get<typeof _Some2, null>("some.Some2", null)
-      const Some3 = resolver.get<typeof _Some3, null>("some.Some3", null)
-      const Some4 = resolver.get<typeof _Some4, null>("some.Some4", null)
+      const models = deserializer.decode(defs) as (typeof Model)[]
+
+      expect(models).to.be.instanceof(Array)
+      expect(models.length).to.be.equal(5)
+
+      const Some0 = resolver.get<typeof _Some0>("some.Some0")
+      const Some1 = resolver.get<typeof _Some1>("some.Some1")
+      const Some2 = resolver.get<typeof _Some2>("some.Some2")
+      const Some3 = resolver.get<typeof _Some3>("some.Some3")
+      const Some4 = resolver.get<typeof _Some4>("some.Some4")
 
       assert(Some0 != null)
       assert(Some1 != null)
@@ -201,11 +203,11 @@ describe("document/defs module", () => {
       expect(Some4.prototype).to.be.instanceof(ColumnDataSource)
       expect(Some4.prototype).to.be.instanceof(Some3)
 
-      expect(Some0.__module__).to.be.equal("some")
-      expect(Some1.__module__).to.be.equal("some")
-      expect(Some2.__module__).to.be.equal("some")
-      expect(Some3.__module__).to.be.equal("some")
-      expect(Some4.__module__).to.be.equal("some")
+      expect(Some0.__qualified__).to.be.equal("some.Some0")
+      expect(Some1.__qualified__).to.be.equal("some.Some1")
+      expect(Some2.__qualified__).to.be.equal("some.Some2")
+      expect(Some3.__qualified__).to.be.equal("some.Some3")
+      expect(Some4.__qualified__).to.be.equal("some.Some4")
 
       const some0 = new Some0()
       const some1 = new Some1()

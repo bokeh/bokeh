@@ -17,6 +17,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh.core.serialization import Buffer
+from bokeh.core.types import ID
 from bokeh.protocol import Protocol
 from bokeh.protocol.exceptions import ValidationError
 
@@ -74,7 +76,7 @@ async def test_validation_success_with_one_buffer() -> None:
     assert partial.header == {"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}
     assert partial.content == {"bar":10}
     assert partial.metadata == {}
-    assert partial.buffers == [({"id": "buf_header"}, b'payload')]
+    assert partial.buffers == [Buffer(ID("buf_header"), b"payload")]
 
 async def test_multiple_validation_success_with_multiple_buffers() -> None:
     r = receiver.Receiver(proto)
@@ -94,7 +96,7 @@ async def test_multiple_validation_success_with_multiple_buffers() -> None:
         assert partial.content == {"bar":10}
         assert partial.metadata == {}
         for i in range(N):
-            assert partial.buffers[i] == ({"id": f"header{i}"}, f'payload{i}'.encode())
+            assert partial.buffers[i] == Buffer(ID(f"header{i}"), f"payload{i}".encode())
 
 async def test_binary_header_raises_error() -> None:
     r = receiver.Receiver(proto)

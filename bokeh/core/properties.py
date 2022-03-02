@@ -78,6 +78,7 @@ Basic Properties
 .. autoclass:: Auto
 .. autoclass:: Bool
 .. autoclass:: Byte
+.. autoclass:: Bytes
 .. autoclass:: Color
 .. autoclass:: Complex
 .. autoclass:: DashPattern
@@ -95,6 +96,7 @@ Basic Properties
 .. autoclass:: MarkerType
 .. autoclass:: MinMaxBounds
 .. autoclass:: NonNegativeInt
+.. autoclass:: Nothing
 .. autoclass:: Null
 .. autoclass:: Percent
 .. autoclass:: PositiveInt
@@ -194,9 +196,9 @@ __all__ = (
     'AnyRef',
     'Array',
     'Auto',
-    'Base64String',
     'Bool',
     'Byte',
+    'Bytes',
     'Color',
     'ColorHex',
     'ColorSpec',
@@ -230,6 +232,7 @@ __all__ = (
     'MinMaxBounds',
     'NonNegativeInt',
     'NonNullable',
+    'Nothing',
     'Null',
     'NullStringSpec',
     'Nullable',
@@ -292,8 +295,6 @@ from .property.dataspec import ColorSpec; ColorSpec
 from .property.dataspec import DashPatternSpec; DashPatternSpec
 from .property.dataspec import DataSpec; DataSpec
 from .property.dataspec import DistanceSpec; DistanceSpec
-from .property.dataspec import expr; expr
-from .property.dataspec import field; field
 from .property.dataspec import FontSizeSpec; FontSizeSpec
 from .property.dataspec import FontStyleSpec; FontStyleSpec
 from .property.dataspec import HatchPatternSpec; HatchPatternSpec
@@ -309,7 +310,6 @@ from .property.dataspec import StringSpec; StringSpec
 from .property.dataspec import TextAlignSpec; TextAlignSpec
 from .property.dataspec import TextBaselineSpec; TextBaselineSpec
 from .property.dataspec import UnitsSpec; UnitsSpec
-from .property.dataspec import value; value
 
 from .property.datetime import Date; Date
 from .property.datetime import Datetime; Datetime
@@ -330,6 +330,8 @@ from .property.instance import Instance; Instance
 
 from .property.json import JSON; JSON
 
+from .property.nothing import Nothing; Nothing
+
 from .property.nullable import NonNullable; NonNullable
 from .property.nullable import Nullable; Nullable
 
@@ -347,6 +349,7 @@ from .property.pd import PandasDataFrame ; PandasDataFrame
 from .property.pd import PandasGroupBy ; PandasGroupBy
 
 from .property.primitive import Bool; Bool
+from .property.primitive import Bytes; Bytes
 from .property.primitive import Complex; Complex
 from .property.primitive import Int; Int
 from .property.primitive import Float; Float
@@ -355,13 +358,16 @@ from .property.primitive import String; String
 
 from .property.readonly import Readonly; Readonly
 
-from .property.string import Base64String; Base64String
 from .property.string import MathString; MathString
 from .property.string import Regex; Regex
 
 from .property.struct import Struct; Struct
 
 from .property.text_like import TextLike; TextLike
+
+from .property.vectorization import expr; expr
+from .property.vectorization import field; field
+from .property.vectorization import value; value
 
 from .property.visual import DashPattern; DashPattern
 from .property.visual import FontSize; FontSize
