@@ -19,8 +19,6 @@ import pytest ; pytest
 # Standard library imports
 import json
 import logging
-import sys
-from subprocess import run
 
 # External imports
 from _util_server import http_get, url
@@ -48,11 +46,6 @@ logging.basicConfig(level=logging.DEBUG)
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-@pytest.mark.skipif(sys.platform != "win32" or sys.version_info < (3, 8), reason="event loop test only for win, py>=3.8")
-def test_windows_event_loop_fixup():
-    proc = run([sys.executable, "-c", "import asyncio, sys; import bokeh.server.tornado; sys.exit(int(isinstance(asyncio.get_event_loop_policy(), asyncio.WindowsProactorEventLoopPolicy)))"'']) # noqa
-    assert proc.returncode == 0, "bokeh.server did not fixup windows event loop"
 
 def test_default_resources(ManagedServerLoop: MSL) -> None:
     application = Application()
