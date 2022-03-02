@@ -1,8 +1,11 @@
 from bokeh.io import save
-from bokeh.models import ColumnDataSource, LogAxis, Plot, Range1d, Rect
+from bokeh.models import ColumnDataSource, LogAxis, LogScale, Plot, Range1d, Rect
 
-plot = Plot(height=400, width=400,
-            x_range=Range1d(0, 30), y_range=Range1d(1, 100))
+plot = Plot(
+    height=400, width=400,
+    x_range=Range1d(0, 30), y_range=Range1d(1, 100),
+    y_scale=LogScale(),
+)
 
 [x0, x1] = [10, 20]
 [y0, y1] = [10, 20]
