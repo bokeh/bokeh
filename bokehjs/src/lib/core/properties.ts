@@ -411,7 +411,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       if (transform != null)
         result = transform.compute(result)
       result = this.materialize(result as any)
-      return this.scalar(result as T, n)
+      return this.scalar(result, n)
     } else
       unreachable()
   }
