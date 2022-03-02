@@ -413,6 +413,12 @@ class Property(PropertyDescriptorFactory[T]):
         self.assertions.append((fn, msg_or_fn))
         return self
 
+    def replace(self, old: Type[Property[Any]], new: Property[Any]) -> Property[Any]:
+        if self.__class__ == old:
+            return new
+        else:
+            return self
+
 TItem = TypeVar("TItem", bound=Property[Any])
 
 class ParameterizedProperty(Property[TItem]):
@@ -442,6 +448,13 @@ class ParameterizedProperty(Property[TItem]):
     @property
     def has_ref(self) -> bool:
         return any(type_param.has_ref for type_param in self.type_params)
+
+    def replace(self, old: Type[Property[Any]], new: Property[Any]) -> Property[Any]:
+        if self.__class__ == old:
+            return new
+        else:
+            params = [ type_param.replace(old, new) for type_param in self.type_params ]
+            return self.__class__(*params)
 
 class SingleParameterizedProperty(ParameterizedProperty[T]):
     """ A parameterized property with a single type parameter. """
@@ -489,7 +502,7 @@ class PrimitiveProperty(Property[T]):
 
     """
 
-    _underlying_type: ClassVar[Tuple[Type[T]]]
+    _underlying_type: ClassVar[Tuple[Type[Any], ...]]
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)

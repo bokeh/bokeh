@@ -90,6 +90,7 @@ ALL = (
     'MinMaxBounds',
     'NonNegativeInt',
     'NonNullable',
+    'Nothing',
     'Null',
     'NullStringSpec',
     'Nullable',

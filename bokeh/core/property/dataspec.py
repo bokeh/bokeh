@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
-from ... import colors
 from ...util.dataclasses import Unspecified
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from ...util.string import nice_join
@@ -35,6 +34,7 @@ from .descriptors import DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
 from .either import Either
 from .enum import Enum
 from .instance import Instance
+from .nothing import Nothing
 from .nullable import Nullable
 from .primitive import (
     Float,
@@ -84,10 +84,6 @@ __all__ = (
     'TextAlignSpec',
     'TextBaselineSpec',
 )
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # General API
@@ -233,7 +229,7 @@ class DataSpec(Either):
     def to_serializable(self, obj: HasProps, name: str, val: Any) -> Vectorized:
         # Check for spec type value
         try:
-            self.value_type.validate(val, False)
+            self.value_type.replace(String, Nothing()).validate(val, False)
             return Value(val)
         except ValueError:
             pass
@@ -290,13 +286,6 @@ class NullStringSpec(DataSpec):
     def __init__(self, default=None, help=None) -> None:
         super().__init__(Nullable(String), default=default, help=help)
 
-    def to_serializable(self, obj: HasProps, name: str, val: Any) -> Vectorized:
-        if val is None:
-            return Value(val)
-        if isinstance(val, str):
-            return Field(val)
-        return val
-
 class StringSpec(DataSpec):
     """ A |DataSpec| property that accepts string fixed values.
 
@@ -314,11 +303,6 @@ class StringSpec(DataSpec):
     """
     def __init__(self, default, help=None) -> None:
         super().__init__(String, default=default, help=help)
-
-    def to_serializable(self, obj: HasProps, name: str, val: Any) -> Vectorized:
-        if isinstance(val, str):
-            return Field(val)
-        return val
 
 class FontSizeSpec(DataSpec):
     """ A |DataSpec| property that accepts font-size fixed values.
@@ -616,31 +600,6 @@ class ColorSpec(DataSpec):
         """
         return isinstance(val, tuple) and len(val) in (3, 4) and all(isinstance(v, (float, int)) for v in val)
 
-    def to_serializable(self, obj: HasProps, name: str, val: Any) -> Vectorized:
-        if val is None:
-            return Value(None)
-
-        # Check for hexadecimal or named color
-        if self.isconst(val):
-            return Value(val)
-
-        # Check for RGB or RGBA tuple
-        if isinstance(val, tuple):
-            return Value(colors.RGB(*val).to_css())
-
-        # Check for data source field name
-        if isinstance(val, colors.RGB):
-            return Value(val.to_css())
-
-        # Check for data source field name or rgb(a) string
-        if isinstance(val, str):
-            if val.startswith(("rgb(", "rgba(")):
-                return Value(val)
-
-            return Field(val)
-
-        return val
-
     def prepare_value(self, cls, name, value):
         # Some explanation is in order. We want to accept tuples like
         # (12.0, 100.0, 52.0) i.e. that have "float" byte values. The
@@ -656,6 +615,10 @@ class ColorSpec(DataSpec):
 
 #-----------------------------------------------------------------------------
 # Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

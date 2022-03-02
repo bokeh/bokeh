@@ -170,7 +170,7 @@ class Test_ColorSpec:
         desc = Foo.__dict__["col"]
         f = Foo()
         assert f.col == (128, 255, 124)
-        assert desc.get_value(f) == Value("rgb(128, 255, 124)")
+        assert desc.get_value(f) == Value((128, 255, 124))
 
     def test_fixed_value(self) -> None:
         class Foo(HasProps):
@@ -252,13 +252,13 @@ class Test_ColorSpec:
         f = Foo()
         f.col = (128, 200, 255)
         assert f.col == (128, 200, 255)
-        assert desc.get_value(f) == Value("rgb(128, 200, 255)")
+        assert desc.get_value(f) == Value((128, 200, 255))
         f.col = "myfield"
         assert f.col == "myfield"
         assert desc.get_value(f) == Field("myfield")
         f.col = (100, 150, 200, 0.5)
         assert f.col == (100, 150, 200, 0.5)
-        assert desc.get_value(f) == Value("rgba(100, 150, 200, 0.5)")
+        assert desc.get_value(f) == Value((100, 150, 200, 0.5))
 
     def test_set_dict(self) -> None:
         class Foo(HasProps):
@@ -551,6 +551,29 @@ class Test_UnitSpec:
         f.x = dict(field="foo", units="deg")
         with pytest.raises(ValueError):
             f.x = dict(field="foo", units="junk", foo="crap")
+
+
+class Test_HatchPatternSpec:
+    def test_field(self) -> None:
+        class Foo(HasProps):
+            col = bcpd.HatchPatternSpec("colorfield")
+        desc = Foo.__dict__["col"]
+
+        f = Foo()
+        assert f.col == "colorfield"
+        assert desc.get_value(f) == Field("colorfield")
+
+        f.col = "myfield"
+        assert f.col == "myfield"
+        assert desc.get_value(f) == Field("myfield")
+
+        f.col = "dot"
+        assert f.col == "dot"
+        assert desc.get_value(f) == Value("dot")
+
+        f.col = "/"
+        assert f.col == "/"
+        assert desc.get_value(f) == Value("/")
 
 #-----------------------------------------------------------------------------
 # Dev API

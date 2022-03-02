@@ -96,6 +96,7 @@ Basic Properties
 .. autoclass:: MarkerType
 .. autoclass:: MinMaxBounds
 .. autoclass:: NonNegativeInt
+.. autoclass:: Nothing
 .. autoclass:: Null
 .. autoclass:: Percent
 .. autoclass:: PositiveInt
@@ -231,6 +232,7 @@ __all__ = (
     'MinMaxBounds',
     'NonNegativeInt',
     'NonNullable',
+    'Nothing',
     'Null',
     'NullStringSpec',
     'Nullable',
@@ -327,6 +329,8 @@ from .property.include import Include ; Include
 from .property.instance import Instance; Instance
 
 from .property.json import JSON; JSON
+
+from .property.nothing import Nothing; Nothing
 
 from .property.nullable import NonNullable; NonNullable
 from .property.nullable import Nullable; Nullable

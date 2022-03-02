@@ -23,23 +23,26 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import typing
+
 # Bokeh imports
-from .bases import Property
+from .bases import Init, Property
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'Any',
-    'AnyRef'
+    "Any",
+    "AnyRef"
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Any(Property):
+class Any(Property[typing.Any]):
     """ Accept all values.
 
     The ``Any`` property does not do any validation or transformation.
@@ -84,7 +87,9 @@ class Any(Property):
 
     """
 
-    def __init__(self, default=None, help=None, serialized=None, readonly=False) -> None:
+    # TODO: default should be explicitly defined by the user (i.e. intrinsic here)
+    def __init__(self, default: Init[typing.Any] = None, help: str | None = None,
+            serialized: bool | None = None, readonly: bool = False) -> None:
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
 class AnyRef(Any):
