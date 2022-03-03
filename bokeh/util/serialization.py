@@ -74,14 +74,17 @@ def __getattr__(name: str) -> Any:
     raise AttributeError
 
 BINARY_ARRAY_TYPES = {
-    np.dtype(np.float32),
-    np.dtype(np.float64),
+    np.dtype(np.bool_),
     np.dtype(np.uint8),
     np.dtype(np.int8),
     np.dtype(np.uint16),
     np.dtype(np.int16),
     np.dtype(np.uint32),
     np.dtype(np.int32),
+    #np.dtype(np.uint64),
+    #np.dtype(np.int64),
+    np.dtype(np.float32),
+    np.dtype(np.float64),
 }
 
 NP_EPOCH = np.datetime64(0, 'ms')

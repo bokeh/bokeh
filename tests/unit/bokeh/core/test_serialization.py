@@ -37,6 +37,7 @@ from bokeh.core.properties import (
     String,
 )
 from bokeh.core.serialization import (
+    Buffer,
     BytesRep,
     Deserializer,
     MapRep,
@@ -320,6 +321,125 @@ class TestSerializer:
             dtype="int32",
         )
         assert encoder.buffers == []
+
+    def test_ndarray_dtypes_shape(self) -> None:
+        encoder = Serializer()
+
+        val0 = np.array([[0, 1, 0], [0, 1, 1]], dtype="bool")
+        val1 = np.array([[0, 1, 2], [3, 4, 5]], dtype="uint8")
+        val2 = np.array([[0, 1, 2], [3, 4, 5]], dtype="int8")
+        val3 = np.array([[0, 1, 2], [3, 4, 5]], dtype="uint16")
+        val4 = np.array([[0, 1, 2], [3, 4, 5]], dtype="int16")
+        val5 = np.array([[0, 1, 2], [3, 4, 5]], dtype="uint32")
+        val6 = np.array([[0, 1, 2], [3, 4, 5]], dtype="int32")
+        val7 = np.array([[0, 1, 2], [3, 4, 5]], dtype="uint64")
+        val8 = np.array([[0, 1, 2], [3, 4, 5]], dtype="int64")
+        val9 = np.array([[0, 1, 2], [3, 4, 5]], dtype="float32")
+        val10 = np.array([[0, 1, 2], [3, 4, 5]], dtype="float64")
+
+        rep0 = encoder.encode(val0)
+        rep1 = encoder.encode(val1)
+        rep2 = encoder.encode(val2)
+        rep3 = encoder.encode(val3)
+        rep4 = encoder.encode(val4)
+        rep5 = encoder.encode(val5)
+        rep6 = encoder.encode(val6)
+        rep7 = encoder.encode(val7)
+        rep8 = encoder.encode(val8)
+        rep9 = encoder.encode(val9)
+        rep10 = encoder.encode(val10)
+
+        assert len(encoder.buffers) == 11
+
+        assert rep0 == NDArrayRep(
+            type="ndarray",
+            array=BytesRep(type="bytes", data=encoder.buffers[0]),
+            order=sys.byteorder,
+            shape=[2, 3],
+            dtype="bool",
+        )
+
+        assert rep1 == NDArrayRep(
+            type="ndarray",
+            array=BytesRep(type="bytes", data=encoder.buffers[1]),
+            order=sys.byteorder,
+            shape=[2, 3],
+            dtype="uint8",
+        )
+
+        assert rep2 == NDArrayRep(
+            type="ndarray",
+            array=BytesRep(type="bytes", data=encoder.buffers[2]),
+            order=sys.byteorder,
+            shape=[2, 3],
+            dtype="int8",
+        )
+
+        assert rep3 == NDArrayRep(
+            type="ndarray",
+            array=BytesRep(type="bytes", data=encoder.buffers[3]),
+            order=sys.byteorder,
+            shape=[2, 3],
+            dtype="uint16",
+        )
+
+        assert rep4 == NDArrayRep(
+            type="ndarray",
+            array=BytesRep(type="bytes", data=encoder.buffers[4]),
+            order=sys.byteorder,
+            shape=[2, 3],
+            dtype="int16",
+        )
+
+        assert rep5 == NDArrayRep(
+            type="ndarray",
+            array=BytesRep(type="bytes", data=encoder.buffers[5]),
+            order=sys.byteorder,
+            shape=[2, 3],
+            dtype="uint32",
+        )
+
+        assert rep6 == NDArrayRep(
+            type="ndarray",
+            array=BytesRep(type="bytes", data=encoder.buffers[6]),
+            order=sys.byteorder,
+            shape=[2, 3],
+            dtype="int32",
+        )
+
+        assert rep7 == NDArrayRep(
+            type="ndarray",
+            array=BytesRep(type="bytes", data=Buffer(encoder.buffers[7].id, encoder.buffers[5].data)), # encoder.buffers[7]),
+            order=sys.byteorder,
+            shape=[2, 3],
+            dtype="uint32",
+            #dtype="uint64",
+        )
+
+        assert rep8 == NDArrayRep(
+            type="ndarray",
+            array=BytesRep(type="bytes", data=Buffer(encoder.buffers[8].id, encoder.buffers[6].data)), # encoder.buffers[8]),
+            order=sys.byteorder,
+            shape=[2, 3],
+            dtype="int32",
+            #dtype="int64",
+        )
+
+        assert rep9 == NDArrayRep(
+            type="ndarray",
+            array=BytesRep(type="bytes", data=encoder.buffers[9]),
+            order=sys.byteorder,
+            shape=[2, 3],
+            dtype="float32",
+        )
+
+        assert rep10 == NDArrayRep(
+            type="ndarray",
+            array=BytesRep(type="bytes", data=encoder.buffers[10]),
+            order=sys.byteorder,
+            shape=[2, 3],
+            dtype="float64",
+        )
 
     def test_ndarray_object(self) -> None:
         @dataclass

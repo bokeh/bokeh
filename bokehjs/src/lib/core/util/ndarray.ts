@@ -1,4 +1,4 @@
-import {DataType, TypedArray} from "../types"
+import {NDDataType, TypedArray} from "../types"
 import {isObject, isArray} from "./types"
 import {BYTE_ORDER} from "./platform"
 import {equals, Equatable, Comparator} from "./eq"
@@ -19,7 +19,7 @@ function encode_NDArray(array: NDArray, serializer: Serializer): NDArrayRep {
 
 export interface NDArrayType extends Equatable, Serializable {
   readonly [__ndarray__]: boolean
-  readonly dtype: DataType
+  readonly dtype: NDDataType
   readonly shape: number[]
   readonly dimension: number
 }
@@ -33,6 +33,27 @@ export type Uint8Array2d   = Uint8NDArray   & Array2d
 export type Float32Array2d = Float32NDArray & Array2d
 export type Float64Array2d = Float64NDArray & Array2d
 export type FloatArray2d   = Float32Array2d | Float64Array2d
+
+export class BoolNDArray extends Uint8Array implements NDArrayType {
+  readonly [__ndarray__] = true
+  readonly dtype: "bool" = "bool"
+  readonly shape: number[]
+  readonly dimension: number
+
+  constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
+    super(seq)
+    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
+    this.dimension = this.shape.length
+  }
+
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
+  }
+
+  [serialize](serializer: Serializer): unknown {
+    return encode_NDArray(this, serializer)
+  }
+}
 
 export class Uint8NDArray extends Uint8Array implements NDArrayType {
   readonly [__ndarray__] = true
@@ -232,6 +253,7 @@ export class ObjectNDArray extends Array implements NDArrayType {
 }
 
 export type NDArray =
+  BoolNDArray    |
   Uint8NDArray   | Int8NDArray    |
   Uint16NDArray  | Int16NDArray   |
   Uint32NDArray  | Int32NDArray   |
@@ -243,6 +265,7 @@ export function is_NDArray(v: unknown): v is NDArray {
 }
 
 export type NDArrayTypes = {
+  "bool":    {typed: Uint8Array,   ndarray: BoolNDArray}
   "uint8":   {typed: Uint8Array,   ndarray: Uint8NDArray}
   "int8":    {typed: Int8Array,    ndarray: Int8NDArray}
   "uint16":  {typed: Uint16Array,  ndarray: Uint16NDArray}
@@ -254,6 +277,7 @@ export type NDArrayTypes = {
   "object":  {typed: unknown[],    ndarray: ObjectNDArray}
 }
 
+export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "bool", shape: [number]}): BoolNDArray & Array1d
 export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "uint8", shape: [number]}): Uint8NDArray & Array1d
 export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "uint8", shape: [number, number]}): Uint8NDArray & Array2d
 export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "uint32", shape: [number]}): Uint32NDArray & Array1d
@@ -264,10 +288,10 @@ export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype:
 export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "float64", shape: [number, number]}): Float64NDArray & Array2d
 export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "object", shape: [number, number]}): ObjectNDArray & Array2d
 
-export function ndarray<K extends DataType = "float64">(array: ArrayBuffer | ArrayLike<number>, options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
-export function ndarray<K extends DataType>(array: NDArrayTypes[K]["typed"], options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
+export function ndarray<K extends NDDataType = "float64">(array: ArrayBuffer | ArrayLike<number>, options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
+export function ndarray<K extends NDDataType>(array: NDArrayTypes[K]["typed"], options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
 
-export function ndarray(array: ArrayBuffer | TypedArray | ArrayLike<number>, options: {dtype?: DataType, shape?: number[]} = {}): NDArray {
+export function ndarray(array: ArrayBuffer | TypedArray | ArrayLike<number>, options: {dtype?: NDDataType, shape?: number[]} = {}): NDArray {
   let {dtype} = options
   if (dtype == null) {
     if (array instanceof ArrayBuffer || isArray(array)) {
@@ -290,6 +314,7 @@ export function ndarray(array: ArrayBuffer | TypedArray | ArrayLike<number>, opt
   }
   const {shape} = options
   switch (dtype) {
+    case "bool":    return new BoolNDArray(array, shape)
     case "uint8":   return new Uint8NDArray(array, shape)
     case "int8":    return new Int8NDArray(array, shape)
     case "uint16":  return new Uint16NDArray(array, shape)

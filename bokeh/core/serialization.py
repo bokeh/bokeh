@@ -155,7 +155,7 @@ ModelRep = ObjectRefRep
 ByteOrder = Literal["little", "big"]
 
 DataType: TypeAlias = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "float32", "float64"] # "uint64", "int64"
-NDDataType: TypeAlias = Union[DataType, Literal["object"]]
+NDDataType: TypeAlias = Union[Literal["bool"], DataType, Literal["object"]]
 
 class TypedArrayRep(TypedDict):
     type: Literal["typed_array"]

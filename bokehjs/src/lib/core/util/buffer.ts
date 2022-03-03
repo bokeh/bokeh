@@ -1,4 +1,4 @@
-import {DataType} from "../types"
+import {NDDataType} from "../types"
 
 export function buffer_to_base64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer)
@@ -57,7 +57,7 @@ function swap64(buffer: ArrayBuffer): void {
   }
 }
 
-export function swap(buffer: ArrayBuffer, dtype: DataType): void {
+export function swap(buffer: ArrayBuffer, dtype: NDDataType): void {
   switch (dtype) {
     case "uint16":
     case "int16":

@@ -67,16 +67,22 @@ def test_np_consts() -> None:
     assert bus.NP_MS_DELTA == np.timedelta64(1, 'ms')
 
 def test_binary_array_types() -> None:
-    assert len(bus.BINARY_ARRAY_TYPES) == 8
-    for typ in [np.dtype(np.float32),
-                np.dtype(np.float64),
-                np.dtype(np.uint8),
-                np.dtype(np.int8),
-                np.dtype(np.uint16),
-                np.dtype(np.int16),
-                np.dtype(np.uint32),
-                np.dtype(np.int32)]:
-        assert typ in bus.BINARY_ARRAY_TYPES
+    assert len(bus.BINARY_ARRAY_TYPES) == 9
+    dtypes = [
+        np.dtype(np.bool_),
+        np.dtype(np.uint8),
+        np.dtype(np.int8),
+        np.dtype(np.uint16),
+        np.dtype(np.int16),
+        np.dtype(np.uint32),
+        np.dtype(np.int32),
+        #np.dtype(np.uint64),
+        #np.dtype(np.int64),
+        np.dtype(np.float32),
+        np.dtype(np.float64),
+    ]
+    for dtype in dtypes:
+        assert dtype in bus.BINARY_ARRAY_TYPES
 
 def test_datetime_types(pd) -> None:
     if pd is None:
