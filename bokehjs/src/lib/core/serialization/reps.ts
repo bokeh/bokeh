@@ -1,4 +1,4 @@
-import {ByteOrder, DataType} from "../types"
+import {ByteOrder, DataType, NDDataType} from "../types"
 import {Ref} from "../util/refs"
 import {Buffer} from "./buffer"
 
@@ -93,6 +93,6 @@ export type NDArrayRep = {
   type: "ndarray"
   array: BytesRep | ArrayRep
   order: ByteOrder
-  dtype: DataType
+  dtype: NDDataType
   shape: Shape
 }
