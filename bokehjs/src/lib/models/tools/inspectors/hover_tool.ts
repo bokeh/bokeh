@@ -227,6 +227,7 @@ export class HoverToolView extends InspectToolView {
     const fullset_indices = selection_manager.inspectors.get(renderer)!
     const subset_indices = renderer.view.convert_selection_to_subset(fullset_indices)
 
+    // XXX: https://github.com/bokeh/bokeh/pull/11992#pullrequestreview-897552484
     if (fullset_indices.is_empty() && fullset_indices.view == null) {
       tooltip.clear()
       return
