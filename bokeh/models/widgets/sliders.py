@@ -58,6 +58,7 @@ __all__ = (
     'RangeSlider',
     'DateSlider',
     'DateRangeSlider',
+    'DatetimeRangeSlider',
 )
 
 #-----------------------------------------------------------------------------
@@ -298,6 +299,50 @@ class DateRangeSlider(AbstractSlider):
     """)
 
     format = Override(default="%d %b %Y")
+
+class DatetimeRangeSlider(AbstractSlider):
+    """ Slider-based datetime range selection widget. """
+
+    @property
+    def value_as_datetime(self) -> tp.Tuple[datetime, datetime] | None:
+        ''' Convenience property to retrieve the value tuple as a tuple of
+        datetime objects.
+        '''
+        if self.value is None:
+            return None
+        v1, v2 = self.value
+        if isinstance(v1, numbers.Number):
+            d1 = datetime.utcfromtimestamp(v1 / 1000)
+        else:
+            d1 = v1
+        if isinstance(v2, numbers.Number):
+            d2 = datetime.utcfromtimestamp(v2 / 1000)
+        else:
+            d2 = v2
+        return d1, d2
+
+    value = NonNullable(Tuple(Datetime, Datetime), help="""
+    Initial or selected range.
+    """)
+
+    value_throttled = Readonly(NonNullable(Tuple(Datetime, Datetime)), help="""
+    Initial or selected value, throttled to report only on mouseup.
+    """)
+
+    start = NonNullable(Datetime, help="""
+    The minimum allowable value.
+    """)
+
+    end = NonNullable(Datetime, help="""
+    The maximum allowable value.
+    """)
+
+    step = Int(default=3600000, help="""
+    The step between consecutive values, in units of milliseconds.
+    Default is one hour.
+    """)
+
+    format = Override(default="%d %b %Y %H:%M:%S")
 
 #-----------------------------------------------------------------------------
 # Private API
