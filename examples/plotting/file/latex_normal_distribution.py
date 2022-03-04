@@ -1,4 +1,4 @@
-''' A plot of the Normal (Gaussian) distribution. his example demonstrates the
+''' A plot of the Normal (Gaussian) distribution. This example demonstrates the
 use of mathtext on axes and in ``Div`` objects.
 
 .. bokeh-example-metadata::
