@@ -70,6 +70,11 @@ class Range(Model):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+
 class Range1d(Range):
     ''' A fixed, closed range [start, end] in a continuous scalar
     dimension.
@@ -81,6 +86,18 @@ class Range1d(Range):
         Range(0, 10) # equivalent to Range(start=0, end=10)
 
     '''
+
+    def __init__(self, *args, **kwargs) -> None:
+        if args and ('start' in kwargs or 'end' in kwargs):
+            raise ValueError("'start' and 'end' keywords cannot be used with positional arguments")
+        if args and len(args) != 2:
+            raise ValueError('Only Range1d(start, end) acceptable when using positional arguments')
+
+        if args:
+            kwargs['start'] = args[0]
+            kwargs['end'] = args[1]
+
+        super().__init__(**kwargs)
 
     start = Either(Float, Datetime, TimeDelta, default=0, help="""
     The start of the range.
@@ -132,24 +149,16 @@ class Range1d(Range):
     maximum visible interval. Can be a ``TimeDelta``. Note that ``bounds`` can
     impose an implicit constraint on the maximum interval as well. """)
 
-    def __init__(self, *args, **kwargs) -> None:
-        if args and ('start' in kwargs or 'end' in kwargs):
-            raise ValueError("'start' and 'end' keywords cannot be used with positional arguments")
-        if args and len(args) != 2:
-            raise ValueError('Only Range1d(start, end) acceptable when using positional arguments')
-
-        if args:
-            kwargs['start'] = args[0]
-            kwargs['end'] = args[1]
-
-        super().__init__(**kwargs)
-
 
 @abstract
 class DataRange(Range):
     ''' A base class for all data range types.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     renderers = Either(List(Instance(Model)), Auto, help="""
     An explicit list of renderers to autorange against. If unset,
@@ -164,6 +173,11 @@ class DataRange1d(DataRange):
     assume min and max values of the data for associated renderers.
 
     '''
+
+    def __init__(self, *args, **kwargs) -> None:
+        if kwargs.get('follow') is not None:
+            kwargs['bounds'] = None
+        super().__init__(*args, **kwargs)
 
     range_padding = Either(Float, TimeDelta, default=0.1, help="""
     How much padding to add around the computed data bounds.
@@ -260,11 +274,6 @@ class DataRange1d(DataRange):
     If True, renderers that that are not visible will be excluded from automatic
     bounds computations.
     """)
-
-    def __init__(self, *args, **kwargs) -> None:
-        if kwargs.get('follow') is not None:
-            kwargs['bounds'] = None
-        super().__init__(**kwargs)
 
 
 class FactorRange(Range):

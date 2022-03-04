@@ -44,6 +44,10 @@ __all__ = (
 class Inspector(HTMLBox, Qualified):
     """ A diagnostic and inspection tool for documents, models, properties, etc. """
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

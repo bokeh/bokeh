@@ -142,6 +142,10 @@ class Marker(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     _args = ('x', 'y', 'size', 'angle')
 
     x = NumberSpec(default=field("x"), help="""
@@ -183,6 +187,10 @@ class AnnularWedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render annular wedges.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/AnnularWedge.py"
 
@@ -233,6 +241,10 @@ class Annulus(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     __example__ = "examples/reference/models/Annulus.py"
 
     _args = ('x', 'y', 'inner_radius', 'outer_radius')
@@ -269,6 +281,10 @@ class Arc(XYGlyph, LineGlyph):
     ''' Render arcs.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/Arc.py"
 
@@ -310,6 +326,10 @@ class Bezier(LineGlyph):
     .. _Wikipedia article for Bezier curve: http://en.wikipedia.org/wiki/Bezier_curve
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/Bezier.py"
 
@@ -356,6 +376,10 @@ class Block(LineGlyph, FillGlyph, HatchGlyph):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     __example__ = "examples/reference/models/Block.py"
 
     _args = ('x', 'y', 'width', 'height')
@@ -390,6 +414,10 @@ class Block(LineGlyph, FillGlyph, HatchGlyph):
 
 class Circle(Marker):
     ''' Render circle markers. '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/Circle.py"
 
@@ -429,6 +457,10 @@ class Ellipse(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render ellipses.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/Ellipse.py"
 
@@ -472,6 +504,10 @@ class HArea(LineGlyph, FillGlyph, HatchGlyph):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     __example__ = "examples/reference/models/HArea.py"
 
     _args = ('x1', 'x2', 'y')
@@ -501,6 +537,10 @@ class HBar(LineGlyph, FillGlyph, HatchGlyph):
     (``left``, ``right``) coordinates.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/HBar.py"
 
@@ -538,6 +578,10 @@ class HexTile(LineGlyph, FillGlyph, HatchGlyph):
     ''' Render horizontal tiles on a regular hexagonal grid.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/HexTile.py"
 
@@ -603,7 +647,7 @@ class Image(XYGlyph):
 
     '''
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         if 'palette' in kwargs and 'color_mapper' in kwargs:
             raise ValueError("only one of 'palette' and 'color_mapper' may be specified")
         elif 'color_mapper' not in kwargs:
@@ -612,7 +656,7 @@ class Image(XYGlyph):
             mapper = LinearColorMapper(palette)
             kwargs['color_mapper'] = mapper
 
-        super().__init__(**kwargs)
+        super().__init__(*args, *kwargs)
 
     _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
 
@@ -681,6 +725,10 @@ class ImageRGBA(XYGlyph):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
 
     image = NumberSpec(default=field("image"), help="""
@@ -731,6 +779,10 @@ class ImageURL(XYGlyph):
     ''' Render images loaded from given URLs.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/ImageURL.py"
 
@@ -811,6 +863,11 @@ class Line(ConnectedXYGlyph, LineGlyph):
         :bokeh-issue:`11498` for more information.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     _args = ('x', 'y')
 
     __example__ = "examples/reference/models/Line.py"
@@ -834,6 +891,10 @@ class MultiLine(LineGlyph):
     values is not a vector of scalars. Rather, it is a "list of lists".
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/MultiLine.py"
 
@@ -862,6 +923,10 @@ class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
     selection box will be included.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/MultiPolygons.py"
 
@@ -904,6 +969,10 @@ class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     of values only produces one glyph on the Plot.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/Patch.py"
 
@@ -950,6 +1019,10 @@ class Patches(LineGlyph, FillGlyph, HatchGlyph):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     __example__ = "examples/reference/models/Patches.py"
 
     _args = ('xs', 'ys')
@@ -989,6 +1062,10 @@ class Quad(LineGlyph, FillGlyph, HatchGlyph):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     __example__ = "examples/reference/models/Quad.py"
 
     _args = ('left', 'right', 'top', 'bottom')
@@ -1025,6 +1102,10 @@ class Quadratic(LineGlyph):
     ''' Render parabolas.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/Quadratic.py"
 
@@ -1063,6 +1144,10 @@ class Ray(XYGlyph, LineGlyph):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     __example__ = "examples/reference/models/Ray.py"
 
     _args = ('x', 'y', 'length', 'angle')
@@ -1092,6 +1177,10 @@ class Rect(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render rectangles.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/Rect.py"
 
@@ -1192,6 +1281,10 @@ class Scatter(Marker):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     __example__ = "examples/reference/models/Scatter.py"
 
     _args = ('x', 'y', 'size', 'angle', 'marker')
@@ -1205,6 +1298,10 @@ class Segment(LineGlyph):
     ''' Render segments.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/Segment.py"
 
@@ -1241,6 +1338,10 @@ class Step(XYGlyph, LineGlyph):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     __example__ = "examples/reference/models/Step.py"
 
     _args = ('x', 'y')
@@ -1270,6 +1371,10 @@ class Text(XYGlyph, TextGlyph):
     ''' Render text.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/Text.py"
 
@@ -1315,6 +1420,10 @@ class VArea(FillGlyph, HatchGlyph):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     __example__ = "examples/reference/models/VArea.py"
 
     _args = ('x', 'y1', 'y2')
@@ -1343,6 +1452,10 @@ class VBar(LineGlyph, FillGlyph, HatchGlyph):
     ''' Render vertical bars, given a center coordinate, width and (top, bottom) coordinates.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/VBar.py"
 
@@ -1380,6 +1493,10 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render wedges.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "examples/reference/models/Wedge.py"
 

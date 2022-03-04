@@ -44,6 +44,7 @@ from ...core.property_mixins import (
     ScalarHatchProps,
     ScalarLineProps,
 )
+from ...model.util import InstanceDefault
 from ...util.serialization import convert_datetime_type
 from .annotation import Annotation, DataAnnotation
 from .arrows import ArrowHead, TeeHead
@@ -71,6 +72,10 @@ class BoxAnnotation(Annotation):
     See :ref:`userguide_annotations_box_annotations` for information on plotting box annotations.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     left = Either(Null, Auto, NumberSpec(), help="""
     The x-coordinates of the left edge of the box annotation.
@@ -146,6 +151,11 @@ class Band(DataAnnotation):
     See :ref:`userguide_annotations_bands` for information on plotting bands.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     lower = UnitsSpec(default=field("lower"), units_enum=SpatialUnits, units_default="data", help="""
     The coordinates of the lower portion of the filled area band.
     """)
@@ -187,6 +197,10 @@ class PolyAnnotation(Annotation):
     plotting polygon annotations.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     xs = Seq(Float, default=[], help="""
     The x-coordinates of the region to draw.
@@ -233,6 +247,10 @@ class Slope(Annotation):
 
     """
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     gradient = Nullable(Float, help="""
     The gradient of the line, in |data units|
     """)
@@ -251,6 +269,10 @@ class Span(Annotation):
     See :ref:`userguide_annotations_spans` for information on plotting spans.
 
     """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     location = Nullable(Float, help="""
     The location of the span, along ``dimension``.
@@ -280,11 +302,15 @@ class Whisker(DataAnnotation):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     lower = UnitsSpec(default=field("lower"), units_enum=SpatialUnits, units_default="data", help="""
     The coordinates of the lower end of the whiskers.
     """)
 
-    lower_head = Nullable(Instance(ArrowHead), default=lambda: TeeHead(size=10), help="""
+    lower_head = Nullable(Instance(ArrowHead), default=InstanceDefault(TeeHead, size=10), help="""
     Instance of ``ArrowHead``.
     """)
 
@@ -292,7 +318,7 @@ class Whisker(DataAnnotation):
     The coordinates of the upper end of the whiskers.
     """)
 
-    upper_head = Nullable(Instance(ArrowHead), default=lambda: TeeHead(size=10), help="""
+    upper_head = Nullable(Instance(ArrowHead), default=InstanceDefault(TeeHead, size=10), help="""
     Instance of ``ArrowHead``.
     """)
 

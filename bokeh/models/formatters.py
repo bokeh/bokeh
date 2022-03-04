@@ -79,13 +79,21 @@ class TickFormatter(Model):
     ''' A base class for all tick formatter types.
 
     '''
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class BasicTickFormatter(TickFormatter):
     ''' Display tick values from continuous ranges as "basic numbers",
     using scientific notation when appropriate by default.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     precision = Either(Auto, Int, help="""
     How many digits of precision to display in tick labels.
     """)
@@ -120,6 +128,10 @@ class MercatorTickFormatter(BasicTickFormatter):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     dimension = Nullable(Enum(LatLon), help="""
     Specify whether to format ticks for Latitude or Longitude.
 
@@ -144,6 +156,10 @@ class MercatorTickFormatter(BasicTickFormatter):
 
 class NumeralTickFormatter(TickFormatter):
     ''' Tick formatter based on a human-readable format string. '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     format = String("0,0", help="""
     The number format, as defined in the following tables:
@@ -232,6 +248,10 @@ class NumeralTickFormatter(TickFormatter):
 class PrintfTickFormatter(TickFormatter):
     ''' Tick formatter based on a printf-style format string. '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     format = String("%s", help="""
     The number format, as defined as follows: the placeholder in the format
     string is marked by % and is followed by one or more of these elements,
@@ -283,6 +303,11 @@ class LogTickFormatter(TickFormatter):
     Most often useful in conjunction with a ``LogTicker``.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     ticker = Nullable(Instance(Ticker), help="""
     The corresponding ``LogTicker``, used to determine the correct
     base to use. If unset, the formatter will use base 10 as a default.
@@ -299,7 +324,10 @@ class CategoricalTickFormatter(TickFormatter):
     values.
 
     '''
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class CustomJSTickFormatter(TickFormatter):
     ''' Display tick values that are formatted by a user-defined function.
@@ -311,6 +339,10 @@ class CustomJSTickFormatter(TickFormatter):
         sanitize the user input prior to passing to Bokeh.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     args = Dict(String, AnyRef, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
@@ -546,6 +578,11 @@ class DatetimeTickFormatter(TickFormatter):
     .. _github issue: https://github.com/bokeh/bokeh/issues
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     microseconds = List(String,
                         help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"),
                         default=['%fus']).accepts(String, lambda fmt: [fmt])

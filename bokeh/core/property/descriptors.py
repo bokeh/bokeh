@@ -89,7 +89,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import types
 from copy import copy
 from typing import (
     TYPE_CHECKING,
@@ -300,19 +299,22 @@ class PropertyDescriptor(Generic[T]):
         if self.name in obj._unstable_default_values:
             del obj._unstable_default_values[self.name]
 
-    def class_default(self, cls):
+    def class_default(self, cls, no_eval: bool = False):
         """ Get the default value for a specific subtype of ``HasProps``,
         which may not be used for an individual instance.
 
         Args:
             cls (class) : The class to get the default value for.
 
+            no_eval (bool, optional) :
+                Whether to evaluate callables for defaults (default: False)
+
         Returns:
             object
 
 
         """
-        return self.property.themed_default(cls, self.name, None)
+        return self.property.themed_default(cls, self.name, None, no_eval=no_eval)
 
     def instance_default(self, obj: HasProps) -> T:
         """ Get the default value that will be used for a specific instance.
@@ -477,7 +479,7 @@ class PropertyDescriptor(Generic[T]):
 
         # _may_have_unstable_default() doesn't have access to overrides, so check manually
         if self.property._may_have_unstable_default() or \
-                isinstance(obj.__class__.__overridden_defaults__.get(self.name, None), types.FunctionType):
+                callable(obj.__class__.__overridden_defaults__.get(self.name, None)):
             if isinstance(default, PropertyValueContainer):
                 default._register_owner(obj, self)
             unstable_dict[self.name] = default

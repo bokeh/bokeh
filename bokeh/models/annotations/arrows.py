@@ -33,6 +33,7 @@ from ...core.properties import (
     field,
 )
 from ...core.property_mixins import FillProps, LineProps
+from ...model.util import InstanceDefault
 from ..graphics import Marking
 from .annotation import DataAnnotation
 
@@ -59,6 +60,10 @@ class ArrowHead(Marking):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     size = NumberSpec(default=25, help="""
     The size, in pixels, of the arrow head.
     """)
@@ -70,6 +75,10 @@ class OpenHead(ArrowHead):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     line_props = Include(LineProps, help="""
 
     The {prop} values for the arrow head outline.
@@ -79,6 +88,10 @@ class NormalHead(ArrowHead):
     ''' Render a closed-body arrow head.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     line_props = Include(LineProps, help="""
     The {prop} values for the arrow head outline.
@@ -95,6 +108,10 @@ class TeeHead(ArrowHead):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     line_props = Include(LineProps, help="""
     The {prop} values for the arrow head outline.
     """)
@@ -103,6 +120,10 @@ class VeeHead(ArrowHead):
     ''' Render a vee-style arrow head.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     line_props = Include(LineProps, help="""
     The {prop} values for the arrow head outline.
@@ -120,6 +141,10 @@ class Arrow(DataAnnotation):
     See :ref:`userguide_annotations_arrows` for information on plotting arrows.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     x_start = NumberSpec(default=field("x_start"), help="""
     The x-coordinates to locate the start of the arrows.
@@ -151,7 +176,7 @@ class Arrow(DataAnnotation):
     space" units by default.
     """)
 
-    end = Nullable(Instance(ArrowHead), default=lambda: OpenHead(), help="""
+    end = Nullable(Instance(ArrowHead), default=InstanceDefault(OpenHead), help="""
     Instance of ``ArrowHead``.
     """)
 

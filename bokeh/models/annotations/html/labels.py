@@ -90,6 +90,10 @@ class HTMLLabel(HTMLAnnotation):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     x = NonNullable(Float, help="""
     The x-coordinate in screen coordinates to locate the text anchors.
 
@@ -181,6 +185,10 @@ class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     x = NumberSpec(default=field("x"), help="""
     The x-coordinates to locate the text anchors.
     """)
@@ -243,6 +251,10 @@ class HTMLTitle(HTMLAnnotation):
     See :ref:`userguide_annotations_titles` for information on plotting titles.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     text = String(default="", help="""
     The text value to render.

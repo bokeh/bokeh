@@ -53,6 +53,10 @@ class Filter(Model):
     data when applied to a ``ColumnDataSource``.
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class IndexFilter(Filter):
     ''' An ``IndexFilter`` filters data by returning the subset of data at a given set of indices.
     '''
@@ -61,11 +65,11 @@ class IndexFilter(Filter):
     A list of integer indices representing the subset of data to select.
     """)
 
-    def __init__(self, *args, **kw) -> None:
-        if len(args) == 1 and "indices" not in kw:
-            kw["indices"] = args[0]
+    def __init__(self, *args, **kwargs) -> None:
+        if len(args) == 1 and "indices" not in kwargs:
+            kwargs["indices"] = args[0]
 
-        super().__init__(**kw)
+        super().__init__(**kwargs)
 
 class BooleanFilter(Filter):
     ''' A ``BooleanFilter`` filters data by returning the subset of data corresponding to indices
@@ -76,11 +80,11 @@ class BooleanFilter(Filter):
     A list of booleans indicating which rows of data to select.
     """)
 
-    def __init__(self, *args, **kw) -> None:
-        if len(args) == 1 and "booleans" not in kw:
-            kw["booleans"] = args[0]
+    def __init__(self, *args, **kwargs) -> None:
+        if len(args) == 1 and "booleans" not in kwargs:
+            kwargs["booleans"] = args[0]
 
-        super().__init__(**kw)
+        super().__init__(**kwargs)
 
 class GroupFilter(Filter):
     ''' A ``GroupFilter`` represents the rows of a ``ColumnDataSource`` where the values of the categorical
@@ -95,12 +99,12 @@ class GroupFilter(Filter):
     The value of the column indicating the rows of data to keep.
     """)
 
-    def __init__(self, *args, **kw) -> None:
-        if len(args) == 2 and "column_name" not in kw and "group" not in kw:
-            kw["column_name"] = args[0]
-            kw["group"] = args[1]
+    def __init__(self, *args, **kwargs) -> None:
+        if len(args) == 2 and "column_name" not in kwargs and "group" not in kwargs:
+            kwargs["column_name"] = args[0]
+            kwargs["group"] = args[1]
 
-        super().__init__(**kw)
+        super().__init__(**kwargs)
 
 class CustomJSFilter(Filter):
     ''' Filter data sources with a custom defined JavaScript function.
@@ -112,6 +116,10 @@ class CustomJSFilter(Filter):
         sanitize the user input prior to passing to Bokeh.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     args = RestrictedDict(String, AnyRef, disallow=("source",), help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.

@@ -46,6 +46,11 @@ class HTMLAnnotation(Annotation):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

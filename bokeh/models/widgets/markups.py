@@ -58,6 +58,10 @@ class Markup(Widget):
     .. _`TeX and LaTeX input`: https://docs.mathjax.org/en/latest/basic/mathematics.html#tex-and-latex-input
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     text = String(default="", help="""
     The text or HTML contents of the widget.
 
@@ -86,6 +90,10 @@ class Paragraph(Markup):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     __example__ = "sphinx/source/docs/user_guide/examples/interaction_paragraph.py"
 
 class Div(Markup):
@@ -93,6 +101,10 @@ class Div(Markup):
 
     This Bokeh model corresponds to an HTML ``<div>`` element.
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "sphinx/source/docs/user_guide/examples/interaction_div.py"
 
@@ -107,6 +119,10 @@ class PreText(Paragraph):
     This Bokeh model corresponds to an HTML ``<pre>`` element.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "sphinx/source/docs/user_guide/examples/interaction_pretext.py"
 

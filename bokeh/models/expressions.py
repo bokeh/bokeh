@@ -94,7 +94,11 @@ class Expression(Model):
         the source changes, implement ``_v_compute: (source)`` instead.
 
     '''
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 class CustomJSExpr(Expression):
     ''' Evaluate a JavaScript function/generator.
@@ -106,6 +110,10 @@ class CustomJSExpr(Expression):
         sanitize the user input prior to passing to Bokeh.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     args = Dict(String, AnyRef, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
@@ -125,11 +133,16 @@ class CustomJSExpr(Expression):
     be collected into an array.
     """)
 
+
 class CumSum(Expression):
     ''' An expression for generating arrays by cumulatively summing a single
     column from a ``ColumnDataSource``.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     field = NonNullable(String, help="""
     The name of a ``ColumnDataSource`` column to cumulatively sum for new values.
@@ -153,6 +166,7 @@ class CumSum(Expression):
 
     """)
 
+
 class Stack(Expression):
     ''' An expression for generating arrays by summing different columns from
     a ``ColumnDataSource``.
@@ -161,6 +175,10 @@ class Stack(Expression):
     level.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     fields = Seq(String, default=[], help="""
     A sequence of fields from a ``ColumnDataSource`` to sum (elementwise). For
@@ -174,37 +192,45 @@ class Stack(Expression):
     of the ``'sales'`` and ``'marketing'`` columns of a data source.
     """)
 
+
 @abstract
 class ScalarExpression(Model):
     """ Base class for for scalar expressions. """
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+
 class Minimum(ScalarExpression):
     """ Computes minimum value of a data source's column. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     field = NonNullable(String)
     initial = Nullable(Float, default=float("+inf"))
 
+
 class Maximum(ScalarExpression):
     """ Computes maximum value of a data source's column. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     field = NonNullable(String)
     initial = Nullable(Float, default=float("-inf"))
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
 
 @abstract
 class CoordinateTransform(Expression):
     """ Base class for coordinate transforms. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     @property
     def x(self):
@@ -214,8 +240,13 @@ class CoordinateTransform(Expression):
     def y(self):
         return YComponent(transform=self)
 
+
 class PolarTransform(CoordinateTransform):
     """ Transform from polar to cartesian coordinates. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     radius = NumberSpec(default=field("radius"), help="""
     The radial coordinate (i.e. the distance from the origin).
@@ -232,14 +263,42 @@ class PolarTransform(CoordinateTransform):
     Whether ``angle`` measures clockwise or anti-clockwise from the reference axis.
     """)
 
+
 @abstract
 class XYComponent(Expression):
     """ Base class for bi-variate expressions. """
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     transform = Instance(CoordinateTransform)
+
 
 class XComponent(XYComponent):
     """ X-component of a coordinate system transform to cartesian coordinates. """
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+
 class YComponent(XYComponent):
     """ Y-component of a coordinate system transform to cartesian coordinates. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

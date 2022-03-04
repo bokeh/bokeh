@@ -72,13 +72,22 @@ class Mapper(Transform):
     ''' Base class for mappers.
 
     '''
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 @abstract
 class ColorMapper(Mapper):
     ''' Base class for color mapper types.
 
     '''
+
+    def __init__(self, *args, **kwargs) -> None:
+        if len(args) == 1:
+            kwargs['palette'] = args[0]
+        super().__init__(**kwargs)
 
     palette = Seq(Color, help="""
     A sequence of colors to use as the target palette for mapping.
@@ -91,16 +100,16 @@ class ColorMapper(Mapper):
     Color to be used if data is NaN or otherwise not mappable.
     """)
 
-    def __init__(self, palette=None, **kwargs) -> None:
-        if palette is not None:
-            kwargs['palette'] = palette
-        super().__init__(**kwargs)
 
 @abstract
 class CategoricalMapper(Mapper):
     ''' Base class for mappers that map categorical factors to other values.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     factors = FactorSeq(help="""
     A sequence of factors / categories that map to the some target range. For
@@ -143,6 +152,10 @@ class CategoricalColorMapper(CategoricalMapper, ColorMapper):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     @warning(PALETTE_LENGTH_FACTORS_MISMATCH)
     def _check_palette_length(self):
         palette = self.palette
@@ -163,6 +176,10 @@ class CategoricalMarkerMapper(CategoricalMapper):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     markers = Seq(MarkerType, help="""
     A sequence of marker types to use as the target for mapping.
     """)
@@ -182,6 +199,10 @@ class CategoricalPatternMapper(CategoricalMapper):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     patterns = Seq(HatchPatternType, help="""
     A sequence of marker types to use as the target for mapping.
     """)
@@ -196,6 +217,10 @@ class ContinuousColorMapper(ColorMapper):
     ''' Base class for continuous color mapper types.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     domain = List(Tuple(Instance("bokeh.models.renderers.GlyphRenderer"), Either(String, List(String))), default=[], help="""
     A collection of glyph renderers to pool data from for establishing data metrics.
@@ -237,6 +262,10 @@ class LinearColorMapper(ContinuousColorMapper):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class LogColorMapper(ContinuousColorMapper):
     ''' Map numbers in a range [*low*, *high*] into a sequence of colors
     (a palette) on a natural logarithm scale.
@@ -256,11 +285,27 @@ class LogColorMapper(ContinuousColorMapper):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 @abstract
 class ScanningColorMapper(ContinuousColorMapper):
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 class EqHistColorMapper(ScanningColorMapper):
+    '''
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     bins = Int(default=256*256, help="Number of histogram bins")
 
 #-----------------------------------------------------------------------------

@@ -58,6 +58,10 @@ class TileSource(Model):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     _args = ('url', 'tile_size', 'min_zoom', 'max_zoom', 'extra_url_vars')
 
     url = String("", help="""
@@ -105,6 +109,10 @@ class MercatorTileSource(TileSource):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     _args = ('url', 'tile_size', 'min_zoom', 'max_zoom', 'x_origin_offset', 'y_origin_offset', 'extra_url_vars', 'initial_resolution')
 
     x_origin_offset = Override(default=20037508.34)
@@ -135,7 +143,10 @@ class TMSTileSource(MercatorTileSource):
     custom tile sets, including non-spatial datasets.
 
     '''
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class WMTSTileSource(MercatorTileSource):
     ''' Behaves much like ``TMSTileSource`` but has its tile-origin in the
@@ -146,7 +157,10 @@ class WMTSTileSource(MercatorTileSource):
     service which use the WMTS specification e.g. ``http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png``.
 
     '''
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class QUADKEYTileSource(MercatorTileSource):
     ''' Has the same tile origin as the ``WMTSTileSource`` but requests tiles using
@@ -154,7 +168,10 @@ class QUADKEYTileSource(MercatorTileSource):
     ``http://your.quadkey.tile.host/{Q}.png``
 
     '''
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class BBoxTileSource(MercatorTileSource):
     ''' Has the same default tile origin as the ``WMTSTileSource`` but requested
@@ -162,6 +179,10 @@ class BBoxTileSource(MercatorTileSource):
     ``http://your.custom.tile.service?bbox={XMIN},{YMIN},{XMAX},{YMAX}``.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     use_latlon = Bool(default=False, help="""
     Flag which indicates option to output ``{XMIN}``, ``{YMIN}``, ``{XMAX}``, ``{YMAX}`` in meters or latitude and longitude.

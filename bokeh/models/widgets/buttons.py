@@ -69,6 +69,10 @@ class ButtonLike(HasProps):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     button_type = Enum(ButtonType, help="""
     A style for the button, signifying it's role.
     """)
@@ -78,6 +82,10 @@ class AbstractButton(Widget, ButtonLike):
     ''' A base class that defines common properties for all button types.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     label = String("Button", help="""
     The text label for the button to display.
@@ -95,6 +103,10 @@ class Button(AbstractButton):
     ''' A click button.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     label = Override(default="Button")
 
@@ -120,6 +132,10 @@ class Toggle(AbstractButton):
     ''' A two-state toggle button.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     label = Override(default="Toggle")
 
@@ -148,6 +164,10 @@ class Dropdown(AbstractButton):
     ''' A dropdown button.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     label = Override(default="Dropdown")
 

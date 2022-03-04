@@ -29,7 +29,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import difflib
-import types
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -748,7 +747,7 @@ def _HasProps_to_serializable(cls: Type[HasProps], serializer: Serializer) -> Re
         if default is Undefined:
             prop_def = PropertyDef(name=prop_name, kind=kind)
         else:
-            if isinstance(default, types.FunctionType):
+            if callable(default):
                 default = default()
 
             prop_def = PropertyDef(name=prop_name, kind=kind, default=serializer.encode(default))

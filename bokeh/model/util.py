@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import (
     TYPE_CHECKING,
+    Any,
     Callable,
     List,
     Set,
@@ -222,6 +223,17 @@ def visit_value_and_its_immediate_references(obj: Unknown, visitor: Callable[[Mo
         else:
             # this isn't a Model, so recurse into it
             visit_immediate_value_references(obj, visitor)
+
+class InstanceDefault:
+    def __init__(self, model: Type[Model], **kwargs: Any) -> None:
+        self._model = model
+        self._kwargs = kwargs
+
+    def __call__(self) -> Model:
+        return self._model(**self._kwargs)
+
+    def __repr__(self) -> str:
+        return f"<Instance: {self._model.__name__}(" + ", ".join(f"{key}={val}" for key, val in self._kwargs.items()) +  ")>"
 
 #-----------------------------------------------------------------------------
 # Private API

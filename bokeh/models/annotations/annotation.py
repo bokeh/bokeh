@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import Instance, Override
+from ...model.util import InstanceDefault
 from ..renderers import Renderer
 from ..sources import ColumnDataSource, DataSource
 
@@ -44,6 +45,10 @@ class Annotation(Renderer):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     level = Override(default="annotation")
 
 @abstract
@@ -52,7 +57,11 @@ class DataAnnotation(Annotation):
 
     '''
 
-    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    source = Instance(DataSource, default=InstanceDefault(ColumnDataSource), help="""
     Local data source to use when rendering annotations on the plot.
     """)
 

@@ -45,6 +45,7 @@ from ...core.properties import (
     String,
 )
 from ...model import Model
+from ...model.util import InstanceDefault
 from ..sources import CDSView, ColumnDataSource, DataSource
 from .widget import Widget
 
@@ -91,17 +92,30 @@ class CellFormatter(Model):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 @abstract
 class CellEditor(Model):
     ''' Abstract base class for data table's cell editors.
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 @abstract
 class RowAggregator(Model):
     ''' Abstract base class for data cube's row formatters.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     field_ = String('', help="""
     Refers to the table column being aggregated
     """)
@@ -114,6 +128,10 @@ class StringFormatter(CellFormatter):
     ''' Basic string cell formatter.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     font_style = Enum(FontStyle, default="normal", help="""
     An optional text font style, e.g. bold, italic.
@@ -131,6 +149,10 @@ class ScientificFormatter(StringFormatter):
     ''' Display numeric values from continuous ranges as "basic numbers",
     using scientific notation when appropriate by default.
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     nan_format = Nullable(String, help="""
     Formatting to apply to NaN and None values (falls back to scientific formatting if not set).
@@ -154,6 +176,10 @@ class NumberFormatter(StringFormatter):
     ''' Number cell formatter.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     format = String("0,0", help="""
     The number format, as defined in the following tables:
@@ -248,6 +274,10 @@ class BooleanFormatter(CellFormatter):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     icon = Enum('check', 'check-circle', 'check-circle-o', 'check-square', 'check-square-o', help="""
     The icon visualizing the check mark.
     """)
@@ -256,6 +286,10 @@ class DateFormatter(StringFormatter):
     ''' Date cell formatter.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     format = Either(Enum(DateFormat), String, default='ISO-8601', help="""
     The date format can be any standard  `strftime`_ format string, as well
@@ -495,6 +529,11 @@ class HTMLTemplateFormatter(CellFormatter):
         )
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     template = String('<%= value %>', help="""
     Template string to be used by Underscore's template method.
     """)
@@ -503,6 +542,10 @@ class StringEditor(CellEditor):
     ''' Basic string cell editor with auto-completion.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     completions = List(String, help="""
     An optional list of completion strings.
@@ -513,10 +556,18 @@ class TextEditor(CellEditor):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class SelectEditor(CellEditor):
     ''' Select cell editor.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     options = List(String, help="""
     The list of options to select from.
@@ -527,15 +578,27 @@ class PercentEditor(CellEditor):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class CheckboxEditor(CellEditor):
     ''' Boolean value cell editor.
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class IntEditor(CellEditor):
     ''' Spinner-based integer cell editor.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     step = Int(1, help="""
     The major step value.
@@ -546,6 +609,10 @@ class NumberEditor(CellEditor):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     step = Float(0.01, help="""
     The major step value.
     """)
@@ -555,35 +622,63 @@ class TimeEditor(CellEditor):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class DateEditor(CellEditor):
     ''' Calendar-based date cell editor.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class AvgAggregator(RowAggregator):
     ''' Simple average across multiple rows.
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class MinAggregator(RowAggregator):
     ''' Smallest value across multiple rows.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class MaxAggregator(RowAggregator):
     ''' Largest value across multiple rows.
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class SumAggregator(RowAggregator):
     ''' Simple sum across multiple rows.
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class TableColumn(Model):
     ''' Table column widget.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     field = NonNullable(String, help="""
     The name of the field mapping to a column in the data source.
@@ -599,12 +694,12 @@ class TableColumn(Model):
     in pixels of this column.
     """)
 
-    formatter = Instance(CellFormatter, lambda: StringFormatter(), help="""
+    formatter = Instance(CellFormatter, InstanceDefault(StringFormatter), help="""
     The cell formatter for this column. By default, a simple string
     formatter is used.
     """)
 
-    editor = Instance(CellEditor, lambda: StringEditor(), help="""
+    editor = Instance(CellEditor, InstanceDefault(StringEditor), help="""
     The cell editor for this column. By default, a simple string editor
     is used.
     """)
@@ -628,11 +723,15 @@ class TableWidget(Widget):
 
     '''
 
-    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    source = Instance(DataSource, default=InstanceDefault(ColumnDataSource), help="""
     The source of data for the widget.
     """)
 
-    view = Instance(CDSView, default=lambda: CDSView(), help="""
+    view = Instance(CDSView, default=InstanceDefault(CDSView), help="""
     A view into the data source to use when rendering table rows. A default view
     of the entire data source is created if a view is not passed in during
     initialization.
@@ -643,6 +742,10 @@ class DataTable(TableWidget):
     of data.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     autosize_mode = Enum(AutosizeMode, default="force_fit", help="""
     Describes the column autosizing mode with one of the following options:
@@ -763,7 +866,12 @@ class DataTable(TableWidget):
 
 class GroupingInfo(Model):
     '''Describes how to calculate totals and sub-totals
+
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     getter = String('', help="""
     References the column which generates the unique keys of this sub-total (groupby).
@@ -779,7 +887,12 @@ class GroupingInfo(Model):
 
 class DataCube(DataTable):
     '''Specialized DataTable with collapsing groups, totals, and sub-totals.
+
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     grouping = List(Instance(GroupingInfo), help="""
     Describe what aggregation operations used to define sub-totals and totals

@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import types
 from importlib import import_module
 from typing import (
     Any,
@@ -135,5 +136,14 @@ class Instance(Property[T]):
 
 @register_type_link(Instance)
 def _sphinx_type_link(obj):
-    fullname = f"{obj.instance_type.__module__}.{obj.instance_type.__name__}"
-    return f"{property_link(obj)}({model_link(fullname)})"
+
+    # Sphinx links may be generated during docstring processing which means
+    # we can't necessarily evaluate pure function (e.g. lambda) Instance
+    # initializers, since they may contain circular references to the (not
+    # yet fully defined at this point) Model
+    if isinstance(obj._instance_type, types.FunctionType):
+        return f"{property_link(obj)}"
+
+    model = obj.instance_type
+    model_name = f"{model.__module__}.{model.__name__}"
+    return f"{property_link(obj)}({model_link(model_name)})"

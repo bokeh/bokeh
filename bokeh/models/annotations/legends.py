@@ -51,6 +51,7 @@ from ...core.property_mixins import ScalarFillProps, ScalarLineProps, ScalarText
 from ...core.validation import error
 from ...core.validation.errors import BAD_COLUMN_NAME, NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
 from ...model import Model
+from ...model.util import InstanceDefault
 from ..formatters import TickFormatter
 from ..labeling import LabelingPolicy, NoOverlap
 from ..mappers import ColorMapper
@@ -89,6 +90,10 @@ class ColorBar(Annotation):
         If the color bar is placed in a side panel, the location will likely
         have to be set to `(0,0)`.
     """)
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     orientation = Either(Enum(Orientation), Auto, default="auto", help="""
     Whether the color bar should be oriented vertically or horizontally.
@@ -135,7 +140,7 @@ class ColorBar(Annotation):
     override normal formatting.
     """)
 
-    major_label_policy = Instance(LabelingPolicy, default=lambda: NoOverlap(), help="""
+    major_label_policy = Instance(LabelingPolicy, default=InstanceDefault(NoOverlap), help="""
     Allows to filter out labels, e.g. declutter labels to avoid overlap.
     """)
 
@@ -279,6 +284,10 @@ class Legend(Annotation):
     See :ref:`userguide_annotations_legends` for information on plotting legends.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     location = Either(Enum(LegendLocation), Tuple(Float, Float), default="top_right", help="""
     The location where the legend should draw itself. It's either one of

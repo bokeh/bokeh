@@ -27,7 +27,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import types
 from copy import copy
 from typing import (
     TYPE_CHECKING,
@@ -159,20 +158,22 @@ class Property(PropertyDescriptorFactory[T]):
         to be called).
 
         """
-        return isinstance(self._default, types.FunctionType)
+        return callable(self._default)
 
     @classmethod
-    def _copy_default(cls, default: Callable[[], T] | T) -> T:
+    def _copy_default(cls, default: Callable[[], T] | T, no_eval: bool = False) -> T:
         """ Return a copy of the default, or a new value if the default
         is specified by a function.
 
         """
-        if not isinstance(default, types.FunctionType):
+        if not callable(default):
             return copy(default)
         else:
+            if no_eval:
+                return default
             return default()
 
-    def _raw_default(self) -> T:
+    def _raw_default(self, no_eval: bool = False) -> T:
         """ Return the untransformed default value.
 
         The raw_default() needs to be validated and transformed by
@@ -180,9 +181,9 @@ class Property(PropertyDescriptorFactory[T]):
         subclass overrides or by themes.
 
         """
-        return self._copy_default(self._default)
+        return self._copy_default(self._default, no_eval=no_eval)
 
-    def themed_default(self, cls: Type[HasProps], name: str, theme_overrides: Dict[str, Any] | None) -> T:
+    def themed_default(self, cls: Type[HasProps], name: str, theme_overrides: Dict[str, Any] | None, no_eval: bool = False) -> T:
         """ The default, transformed by prepare_value() and the theme overrides.
 
         """
@@ -191,9 +192,9 @@ class Property(PropertyDescriptorFactory[T]):
             overrides = cls._overridden_defaults()
 
         if name in overrides:
-            default = self._copy_default(overrides[name])
+            default = self._copy_default(overrides[name], no_eval=no_eval)
         else:
-            default = self._raw_default()
+            default = self._raw_default(no_eval=no_eval)
         return self.prepare_value(cls, name, default)
 
     @property

@@ -47,6 +47,7 @@ from ..core.validation.errors import (
     NO_SOURCE_FOR_GLYPH,
 )
 from ..model import Model
+from ..model.util import InstanceDefault
 from .canvas import CoordinateMapping
 from .glyphs import (
     Circle,
@@ -91,6 +92,10 @@ class RendererGroup(Model):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     visible = Bool(default=True, help="""
     Makes all groupped renderers visible or not.
     """)
@@ -100,6 +105,10 @@ class Renderer(Model):
     '''An abstract base class for renderer types.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     level = Enum(RenderLevel, help="""
     Specifies the level in which to paint this renderer.
@@ -128,7 +137,11 @@ class TileRenderer(Renderer):
 
     '''
 
-    tile_source = Instance(TileSource, default=lambda: WMTSTileSource(), help="""
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    tile_source = Instance(TileSource, default=InstanceDefault(WMTSTileSource), help="""
     Local data source to use when rendering glyphs on the plot.
     """)
 
@@ -152,12 +165,20 @@ class DataRenderer(Renderer):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     level = Override(default="glyph")
 
 class GlyphRenderer(DataRenderer):
     '''
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     @error(CDSVIEW_FILTERS_WITH_CONNECTED)
     def _check_cdsview_filters_with_connected(self):
@@ -196,7 +217,7 @@ class GlyphRenderer(DataRenderer):
     Local data source to use when rendering glyphs on the plot.
     """)
 
-    view = Instance(CDSView, default=lambda: CDSView(), help="""
+    view = Instance(CDSView, default=InstanceDefault(CDSView), help="""
     A view into the data source to use when rendering glyphs. A default view
     of the entire data source is created when a view is not passed in during
     initialization.
@@ -249,6 +270,10 @@ class GlyphRenderer(DataRenderer):
 
         return decoration
 
+
+# TODO: (bev) InstanceDefault woudl be better for these but the property
+# values are also model instances and that is too complicated for now
+
 _DEFAULT_NODE_RENDERER = lambda: GlyphRenderer(
     glyph=Circle(), data_source=ColumnDataSource(data=dict(index=[]))
 )
@@ -261,6 +286,10 @@ class GraphRenderer(DataRenderer):
     '''
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     @error(MALFORMED_GRAPH_SOURCE)
     def _check_malformed_graph_source(self):
@@ -289,12 +318,12 @@ class GraphRenderer(DataRenderer):
     rendered as the graph edges.
     """)
 
-    selection_policy = Instance(GraphHitTestPolicy, default=lambda: NodesOnly(), help="""
+    selection_policy = Instance(GraphHitTestPolicy, default=InstanceDefault(NodesOnly), help="""
     An instance of a ``GraphHitTestPolicy`` that provides the logic for selection
     of graph components.
     """)
 
-    inspection_policy = Instance(GraphHitTestPolicy, default=lambda: NodesOnly(), help="""
+    inspection_policy = Instance(GraphHitTestPolicy, default=InstanceDefault(NodesOnly), help="""
     An instance of a ``GraphHitTestPolicy`` that provides the logic for inspection
     of graph components.
     """)
@@ -305,6 +334,10 @@ class GuideRenderer(Renderer):
     not generally useful to instantiate on its own.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     level = Override(default="guide")
 

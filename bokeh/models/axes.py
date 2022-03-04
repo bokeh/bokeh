@@ -44,6 +44,7 @@ from ..core.properties import (
     Tuple,
 )
 from ..core.property_mixins import ScalarLineProps, ScalarTextProps
+from ..model.util import InstanceDefault
 from .formatters import (
     BasicTickFormatter,
     CategoricalTickFormatter,
@@ -87,6 +88,10 @@ class Axis(GuideRenderer):
     ''' A base class that defines common properties for all axis types.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     bounds = Either(Auto, Tuple(Float, Float), Tuple(Datetime, Datetime), help="""
     Bounds for the rendered axis. If unset, the axis will span the
@@ -156,7 +161,7 @@ class Axis(GuideRenderer):
     override normal formatting.
     """)
 
-    major_label_policy = Instance(LabelingPolicy, default=lambda: AllLabels(), help="""
+    major_label_policy = Instance(LabelingPolicy, default=InstanceDefault(AllLabels), help="""
     Allows to filter out labels, e.g. declutter labels to avoid overlap.
     """)
 
@@ -217,25 +222,38 @@ class ContinuousAxis(Axis):
     ''' A base class for all numeric, non-categorical axes types.
 
     '''
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class LinearAxis(ContinuousAxis):
     ''' An axis that picks nice numbers for tick locations on a
     linear scale. Configured with a ``BasicTickFormatter`` by default.
 
     '''
-    ticker = Override(default=lambda: BasicTicker())
 
-    formatter = Override(default=lambda: BasicTickFormatter())
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    ticker = Override(default=InstanceDefault(BasicTicker))
+
+    formatter = Override(default=InstanceDefault(BasicTickFormatter))
 
 class LogAxis(ContinuousAxis):
     ''' An axis that picks nice numbers for tick locations on a
     log scale. Configured with a ``LogTickFormatter`` by default.
 
     '''
-    ticker = Override(default=lambda: LogTicker())
 
-    formatter = Override(default=lambda: LogTickFormatter())
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    ticker = Override(default=InstanceDefault(LogTicker))
+
+    formatter = Override(default=InstanceDefault(LogTickFormatter))
 
 class CategoricalAxis(Axis):
     ''' An axis that displays ticks and labels for categorical ranges.
@@ -245,9 +263,14 @@ class CategoricalAxis(Axis):
     factors.
 
     '''
-    ticker = Override(default=lambda: CategoricalTicker())
 
-    formatter = Override(default=lambda: CategoricalTickFormatter())
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    ticker = Override(default=InstanceDefault(CategoricalTicker))
+
+    formatter = Override(default=InstanceDefault(CategoricalTickFormatter))
 
     separator_props = Include(ScalarLineProps, prefix="separator", help="""
     The {prop} of the separator line between top-level categorical groups.
@@ -308,9 +331,13 @@ class DatetimeAxis(LinearAxis):
 
     '''
 
-    ticker = Override(default=lambda: DatetimeTicker())
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
-    formatter = Override(default=lambda: DatetimeTickFormatter())
+    ticker = Override(default=InstanceDefault(DatetimeTicker))
+
+    formatter = Override(default=InstanceDefault(DatetimeTickFormatter))
 
 class MercatorAxis(LinearAxis):
     ''' An axis that picks nice numbers for tick locations on a
@@ -322,8 +349,8 @@ class MercatorAxis(LinearAxis):
             (default: 'lat')
 
     '''
-    def __init__(self, dimension='lat', **kw) -> None:
-        super().__init__(**kw)
+    def __init__(self, dimension='lat', *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
         # Just being careful. It would be defeat the purpose for anyone to actually
         # configure this axis with different kinds of tickers or formatters.
@@ -332,9 +359,9 @@ class MercatorAxis(LinearAxis):
         if isinstance(self.formatter, MercatorTickFormatter):
             self.formatter.dimension = dimension
 
-    ticker = Override(default=lambda: MercatorTicker())
+    ticker = Override(default=InstanceDefault(MercatorTicker))
 
-    formatter = Override(default=lambda: MercatorTickFormatter())
+    formatter = Override(default=InstanceDefault(MercatorTickFormatter))
 
 #-----------------------------------------------------------------------------
 # Dev API

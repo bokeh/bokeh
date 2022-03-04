@@ -57,6 +57,10 @@ class AbstractGroup(Widget):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     labels = List(String, help="""
     List of text labels contained in this group.
     """)
@@ -66,6 +70,10 @@ class ButtonGroup(AbstractGroup, ButtonLike):
     ''' Abstract base class for groups with items rendered as buttons.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     orientation = Enum("horizontal", "vertical", help="""
     Orient the button group either horizontally (default) or vertically.
@@ -77,6 +85,10 @@ class Group(AbstractGroup):
     boxes.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     inline = Bool(False, help="""
     Should items be arrange vertically (``False``) or horizontally
@@ -92,6 +104,10 @@ class CheckboxGroup(Group):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     active = List(Int, help="""
     The list of indices of selected check boxes.
     """)
@@ -100,6 +116,10 @@ class RadioGroup(Group):
     ''' A group of radio boxes.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     active = Nullable(Int, help="""
     The index of the selected radio box, or ``None`` if nothing is selected.
@@ -110,6 +130,10 @@ class CheckboxButtonGroup(ButtonGroup):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     active = List(Int, help="""
     The list of indices of selected check boxes.
     """)
@@ -118,6 +142,10 @@ class RadioButtonGroup(ButtonGroup):
     ''' A group of radio boxes rendered as toggle buttons.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     active = Nullable(Int, help="""
     The index of the selected radio box, or ``None`` if nothing is
