@@ -29,6 +29,7 @@ from .standalone import (
     file_html,
     json_item,
 )
+from .util import RenderRoot
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -41,6 +42,7 @@ __all__ = (
     'json_item',
     'server_document',
     'server_session',
+    'RenderRoot',
 )
 
 #-----------------------------------------------------------------------------

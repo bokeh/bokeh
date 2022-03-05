@@ -183,31 +183,23 @@ def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: 
 
     Args:
         models (Model|list|dict|tuple) :
-            A single Model, a list/tuple of Models, or a dictionary of keys and Models.
+            A single Model, a list/tuple of Models, or a dictionary of keys
+            and Models.
 
         wrap_script (boolean, optional) :
             If True, the returned javascript is wrapped in a script tag.
             (default: True)
 
-        wrap_plot_info (boolean, optional) : If True, returns ``<div>`` strings.
-            Otherwise, return dicts that can be used to build your own divs.
-            (default: True)
-
-            If False, the returned dictionary contains the following information:
-
-            .. code-block:: python
-
-                {
-                    'modelid':  'The model ID, used with Document.get_model_by_id',
-                    'elementid': 'The css identifier the BokehJS will look for to target the plot',
-                    'docid': 'Used by Bokeh to find the doc embedded in the returned script',
-                }
+        wrap_plot_info (boolean, optional) :
+            If True, returns ``<div>`` strings. Otherwise, return
+            :class:`~bokeh.embed.RenderRoot` objects that can be used to build
+            your own divs. (default: True)
 
         theme (Theme, optional) :
             Applies the specified theme when creating the components. If None,
-            or not specified, and the supplied models constitute the full set of
-            roots of a document, applies the theme of that document to the components.
-            Otherwise applies the default theme.
+            or not specified, and the supplied models constitute the full set
+            of roots of a document, applies the theme of that document to the
+            components. Otherwise applies the default theme.
 
     Returns:
         UTF-8 encoded *(script, div[s])* or *(raw_script, plot_info[s])*
@@ -234,13 +226,13 @@ def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: 
         .. code-block:: python
 
             components(plot, wrap_script=False, wrap_plot_info=False)
-            # => (javascript, plot_dict)
+            # => (javascript, plot_root)
 
             components((plot1, plot2), wrap_script=False, wrap_plot_info=False)
-            # => (javascript, (plot1_dict, plot2_dict))
+            # => (javascript, (plot1_root, plot2_root))
 
             components({"Plot 1": plot1, "Plot 2": plot2}, wrap_script=False, wrap_plot_info=False)
-            # => (javascript, {"Plot 1": plot1_dict, "Plot 2": plot2_dict})
+            # => (javascript, {"Plot 1": plot1_root, "Plot 2": plot2_root})
 
     '''
     # 1) Convert single items and dicts into list
@@ -257,10 +249,9 @@ def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: 
     model_keys = None
     dict_type: Type[Dict[Any, Any]] = dict
     if isinstance(models, dict):
-        model_keys = models.keys()
         dict_type = models.__class__
-        # don't just use .values() to ensure we are in the same order as key list
-        models = [ models[k] for k in model_keys ]
+        model_keys = models.keys()
+        models = list(models.values())
 
     # 2) Append models to one document. Either pre-existing or new and render
     with OutputDocumentFor(models, apply_theme=theme):
