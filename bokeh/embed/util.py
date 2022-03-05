@@ -227,10 +227,23 @@ class RenderItem:
 
 
 class RenderRoot:
+    """ Encapsulate data needed for embedding a Bokeh document root.
+
+    Values for ``name`` or ``tags`` are optional. They may be useful for
+    querying a collection of roots to find a specific one to embed.
+
+    """
     def __init__(self, elementid: ID, id: ID, name: str | None = None, tags: List[Any] | None = None) -> None:
+        #: A unique ID to use for the DOM element
         self.elementid = elementid
+
+        #: The Bokeh model ID for this root
         self.id = id
+
+        #: An optional user-supplied name for this root
         self.name = name or ""
+
+        #: A list of any ser-supplied tag values for this root
         self.tags = tags or []
 
     def __eq__(self, other: Any) -> bool:
@@ -238,6 +251,9 @@ class RenderRoot:
             return False
         else:
             return self.elementid == other.elementid
+
+    def __repr__(self) -> str:
+        return f"RenderRoot(elementid={self.elementid}, id={self.id}, name={self.name}, tags={self.tags})"
 
 
 class RenderRoots:
@@ -268,6 +284,9 @@ class RenderRoots:
 
     def to_json(self) -> Dict[ID, ID]:
         return {root.id: elementid for root, elementid in self._roots.items()}
+
+    def __repr__(self) -> str:
+        return repr(self._roots)
 
 def standalone_docs_json(models: Sequence[Model | Document]) -> Dict[ID, DocJson]:
     '''
