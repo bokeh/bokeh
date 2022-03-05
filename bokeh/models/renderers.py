@@ -34,6 +34,7 @@ from ..core.properties import (
     Enum,
     Float,
     Instance,
+    InstanceDefault,
     Nullable,
     Override,
     String,
@@ -47,7 +48,6 @@ from ..core.validation.errors import (
     NO_SOURCE_FOR_GLYPH,
 )
 from ..model import Model
-from ..model.util import InstanceDefault
 from .canvas import CoordinateMapping
 from .glyphs import (
     Circle,

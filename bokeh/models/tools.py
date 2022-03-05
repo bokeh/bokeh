@@ -70,6 +70,7 @@ from ..core.properties import (
     Float,
     Image,
     Instance,
+    InstanceDefault,
     Int,
     List,
     NonNullable,
@@ -94,7 +95,6 @@ from ..core.validation.errors import (
     NO_RANGE_TOOL_RANGES,
 )
 from ..model import Model
-from ..model.util import InstanceDefault
 from ..util.string import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback

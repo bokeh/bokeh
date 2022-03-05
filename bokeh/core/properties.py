@@ -89,7 +89,6 @@ Basic Properties
 .. autoclass:: Float
 .. autoclass:: FontSize
 .. autoclass:: Image
-.. autoclass:: Instance
 .. autoclass:: Int
 .. autoclass:: Interval
 .. autoclass:: JSON
@@ -144,6 +143,8 @@ Helpers
 Special Properties
 ------------------
 
+.. autoclass:: Instance
+.. autoclass:: InstanceDefault
 .. autoclass:: Include
 .. autoclass:: Nullable
 .. autoclass:: NonNullable
@@ -222,6 +223,7 @@ __all__ = (
     'Image',
     'Include',
     'Instance',
+    'InstanceDefault',
     'Int',
     'Interval',
     'JSON',
@@ -327,6 +329,7 @@ from .property.factors import FactorSeq; FactorSeq
 from .property.include import Include ; Include
 
 from .property.instance import Instance; Instance
+from .property.instance import InstanceDefault; InstanceDefault
 
 from .property.json import JSON; JSON
 

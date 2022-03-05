@@ -36,6 +36,7 @@ from ...core.properties import (
     Float,
     Include,
     Instance,
+    InstanceDefault,
     Int,
     List,
     Nullable,
@@ -51,7 +52,6 @@ from ...core.property_mixins import ScalarFillProps, ScalarLineProps, ScalarText
 from ...core.validation import error
 from ...core.validation.errors import BAD_COLUMN_NAME, NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
 from ...model import Model
-from ...model.util import InstanceDefault
 from ..formatters import TickFormatter
 from ..labeling import LabelingPolicy, NoOverlap
 from ..mappers import ColorMapper

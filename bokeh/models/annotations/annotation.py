@@ -22,8 +22,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Instance, Override
-from ...model.util import InstanceDefault
+from ...core.properties import Instance, InstanceDefault, Override
 from ..renderers import Renderer
 from ..sources import ColumnDataSource, DataSource
 

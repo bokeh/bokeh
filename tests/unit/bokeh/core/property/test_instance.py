@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
+from bokeh.core.has_props import HasProps
 
 from _util_property import _TestHasProps, _TestModel, _TestModel2
 
@@ -30,12 +31,34 @@ import bokeh.core.property.instance as bcpi # isort:skip
 
 ALL = (
     'Instance',
+    'InstanceDefault',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
+
+class Test_InstanceDefault:
+    def test_init(self) -> None:
+        with pytest.raises(TypeError):
+            bcpi.InstanceDefault()
+
+        bcpi.InstanceDefault(_TestModel)
+        bcpi.InstanceDefault(_TestModel, x=10)
+        bcpi.InstanceDefault(_TestModel, x=10, z=[10])
+
+    @pytest.mark.parametrize('kwargs', [{}, {'x': 10}, {'x': 10, 'z': [10]}])
+    def test___call__(self, kwargs) -> None:
+        default  =_TestModel()
+
+        m = bcpi.InstanceDefault(_TestModel, **kwargs)()
+        for prop in m.properties():
+            assert getattr(m, prop) == kwargs.get(prop, getattr(default, prop))
+
+    def test___repr__(self) -> None:
+        m = bcpi.InstanceDefault(_TestModel, x=10, z=[10])
+        assert repr(m) == "<Instance: _TestModel(x=10, z=[10])>"
 
 class Test_Instance:
     def test_init(self) -> None:
@@ -78,6 +101,36 @@ class Test_Instance:
     def test_str(self) -> None:
         prop = bcpi.Instance(_TestModel)
         assert str(prop) == "Instance(_TestModel)"
+
+    def test_explicit_default(self) -> None:
+        default =_TestModel(x=10)
+        class ExplicitDefault(HasProps):
+            m = bcpi.Instance(_TestModel, default=default)
+
+        obj = ExplicitDefault()
+        assert isinstance(obj.m, _TestModel)
+        for prop in default.properties():
+            assert getattr(obj.m, prop) == getattr(default, prop)
+
+    def test_instance_default(self) -> None:
+        default =_TestModel(x=10)
+        class ExplicitDefault(HasProps):
+            m = bcpi.Instance(_TestModel, default=bcpi.InstanceDefault(_TestModel, x=10))
+
+        obj = ExplicitDefault()
+        assert isinstance(obj.m, _TestModel)
+        for prop in default.properties():
+            assert getattr(obj.m, prop) == getattr(default, prop)
+
+    def test_lambda_default(self) -> None:
+        default =_TestModel(x=10)
+        class ExplicitDefault(HasProps):
+            m = bcpi.Instance(_TestModel, default=lambda: _TestModel(x=10))
+
+        obj = ExplicitDefault()
+        assert isinstance(obj.m, _TestModel)
+        for prop in default.properties():
+            assert getattr(obj.m, prop) == getattr(default, prop)
 
 #-----------------------------------------------------------------------------
 # Dev API

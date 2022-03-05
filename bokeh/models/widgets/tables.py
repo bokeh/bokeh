@@ -37,6 +37,7 @@ from ...core.properties import (
     Enum,
     Float,
     Instance,
+    InstanceDefault,
     Int,
     List,
     NonNullable,
@@ -45,7 +46,6 @@ from ...core.properties import (
     String,
 )
 from ...model import Model
-from ...model.util import InstanceDefault
 from ..sources import CDSView, ColumnDataSource, DataSource
 from .widget import Widget
 

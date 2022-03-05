@@ -30,6 +30,7 @@ from ...core.properties import (
     Float,
     Include,
     Instance,
+    InstanceDefault,
     Null,
     Nullable,
     NumberSpec,
@@ -44,7 +45,6 @@ from ...core.property_mixins import (
     ScalarHatchProps,
     ScalarLineProps,
 )
-from ...model.util import InstanceDefault
 from ...util.serialization import convert_datetime_type
 from .annotation import Annotation, DataAnnotation
 from .arrows import ArrowHead, TeeHead

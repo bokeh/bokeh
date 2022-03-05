@@ -80,6 +80,7 @@ ALL = (
     'Image',
     'Include',
     'Instance',
+    'InstanceDefault',
     'Int',
     'Interval',
     'JSON',

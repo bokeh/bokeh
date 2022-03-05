@@ -27,11 +27,15 @@ log = logging.getLogger(__name__)
 import types
 from importlib import import_module
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Type,
     TypeVar,
 )
+
+if TYPE_CHECKING:
+    from ..model import Model
 
 # Bokeh imports
 from ..serialization import Serializable
@@ -45,6 +49,7 @@ from .singletons import Undefined
 
 __all__ = (
     'Instance',
+    'InstanceDefault'
 )
 
 T = TypeVar("T", bound=Serializable)
@@ -121,6 +126,25 @@ class Instance(Property[T]):
     def _may_have_unstable_default(self):
         # because the instance value is mutable
         return self._default is not Undefined
+
+class InstanceDefault:
+    """ Provide a deferred initializer for Instance defaults.
+
+    This is useful for Bokeh models with Instance properties that should have
+    unique default values for every model instance. Using an InstanceDefault
+    will afford better user-facing documentation than a lambda initializer.
+
+    """
+    def __init__(self, model: Type[Model], **kwargs: Any) -> None:
+        self._model = model
+        self._kwargs = kwargs
+
+    def __call__(self) -> Model:
+        return self._model(**self._kwargs)
+
+    def __repr__(self) -> str:
+        return f"<Instance: {self._model.__name__}(" + ", ".join(f"{key}={val}" for key, val in self._kwargs.items()) +  ")>"
+
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -34,6 +34,7 @@ from ..core.properties import (
     Float,
     Include,
     Instance,
+    InstanceDefault,
     Int,
     Null,
     Nullable,
@@ -44,7 +45,6 @@ from ..core.properties import (
     Tuple,
 )
 from ..core.property_mixins import ScalarLineProps, ScalarTextProps
-from ..model.util import InstanceDefault
 from .formatters import (
     BasicTickFormatter,
     CategoricalTickFormatter,

@@ -27,13 +27,13 @@ from ...core.properties import (
     Enum,
     Include,
     Instance,
+    InstanceDefault,
     Nullable,
     NumberSpec,
     Override,
     field,
 )
 from ...core.property_mixins import FillProps, LineProps
-from ...model.util import InstanceDefault
 from ..graphics import Marking
 from .annotation import DataAnnotation
 

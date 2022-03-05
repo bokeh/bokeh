@@ -48,6 +48,7 @@ from ..core.properties import (
     Float,
     Include,
     Instance,
+    InstanceDefault,
     Int,
     List,
     Null,
@@ -69,7 +70,6 @@ from ..core.validation.errors import (
 )
 from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
-from ..model.util import InstanceDefault
 from ..util.string import nice_join
 from .annotations import Annotation, Legend, Title
 from .axes import Axis

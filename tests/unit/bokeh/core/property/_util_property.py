@@ -20,7 +20,7 @@ import pytest ; pytest
 from bokeh.core.has_props import HasProps
 
 # Module under test
-from bokeh.core.properties import Dict, Int, List, String # isort:skip
+from bokeh.core.properties import Dict, Int, List, Nullable, String # isort:skip
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -50,14 +50,14 @@ class _TestModel(HasProps):
     y = String("hello")
     z = List(Int, [1, 2, 3])
     zz = Dict(String, Int)
-    s = String(None)
+    s = Nullable(String ,default=None)
 
 class _TestModel2(HasProps):
     x = Int(12)
     y = String("hello")
     z = List(Int, [1, 2, 3])
     zz = Dict(String, Int)
-    s = String(None)
+    s = Nullable(String, default=None)
 
 #-----------------------------------------------------------------------------
 # Code

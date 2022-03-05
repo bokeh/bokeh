@@ -41,6 +41,7 @@ from ..core.properties import (
     Dict,
     Enum,
     Instance,
+    InstanceDefault,
     Int,
     List,
     NonNullable,
@@ -52,7 +53,6 @@ from ..core.properties import (
     String,
 )
 from ..model import Model
-from ..model.util import InstanceDefault
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
 from ..util.serialization import convert_datetime_array
