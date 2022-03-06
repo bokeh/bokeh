@@ -87,13 +87,11 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     def __init_subclass__(cls):
         super().__init_subclass__()
 
-        # in order to add an __init__ signature, the cls has to actually have an __init__ of its own. . .
-        # assert "__init__" in cls.__dict__, str(cls)
-
-        parameters = [x[0] for x in  cls.parameters()]
-        cls.__init__.__signature__ = Signature(parameters=parameters)
-
-        process_example(cls)
+        if cls.__module__.startswith("bokeh.models"):
+            assert "__init__" in cls.__dict__, str(cls)
+            parameters = [x[0] for x in  cls.parameters()]
+            cls.__init__.__signature__ = Signature(parameters=parameters)
+            process_example(cls)
 
     _id: ID
 
@@ -250,8 +248,9 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             if isinstance(default, dict) and set(default) == {"field"}:
                 default = default["field"]
 
-            # make sure we don't hold on to references to actual Models
-            # assert not isinstance(default, Model)
+            # make sure built-ins don't hold on to references to actual Models
+            if cls.__module__.startswith("bokeh.models"):
+                assert not isinstance(default, Model)
 
             param = Parameter(
                 name=arg,
@@ -278,8 +277,9 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             if isinstance(default, dict) and set(default) == {"field"}:
                 default = default["field"]
 
-            # make sure we don't hold on to references to actual Models
-            # assert not isinstance(default, Model)
+            # make sure built-ins don't hold on to references to actual Models
+            if cls.__module__.startswith("bokeh.models"):
+                assert not isinstance(default, Model)
 
             param = Parameter(
                 name=kw,
