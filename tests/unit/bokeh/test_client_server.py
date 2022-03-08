@@ -36,6 +36,7 @@ from bokeh.client import ClientSession, pull_session, push_session
 from bokeh.core.properties import (
     AngleSpec,
     Any,
+    Bytes,
     Dict,
     DistanceSpec,
     Instance,
@@ -73,6 +74,7 @@ class AnotherModelInTestClientServer(Model):
 class SomeModelInTestClientServer(Model):
     foo = Int(2)
     child = Nullable(Instance(Model))
+    data = Bytes()
 
 
 class DictModel(Model):
@@ -238,7 +240,7 @@ class TestClientServer:
         with ManagedServerLoop(application) as server:
             doc = document.Document()
             doc.add_root(AnotherModelInTestClientServer(bar=43))
-            doc.add_root(SomeModelInTestClientServer(foo=42))
+            doc.add_root(SomeModelInTestClientServer(foo=42, data=bytes([0x00, 0x01, 0xFE, 0xFF])))
 
             client_session = push_session(doc,
                                           session_id=ID("test_push_document"),
@@ -266,9 +268,9 @@ class TestClientServer:
 
     def test_pull_document(self, ManagedServerLoop: MSL) -> None:
         application = Application()
-        def add_roots(doc):
+        def add_roots(doc: Document):
             doc.add_root(AnotherModelInTestClientServer(bar=43))
-            doc.add_root(SomeModelInTestClientServer(foo=42))
+            doc.add_root(SomeModelInTestClientServer(foo=42, data=bytes([0x00, 0x01, 0xFE, 0xFF])))
         handler = FunctionHandler(add_roots)
         application.add(handler)
 
@@ -389,7 +391,7 @@ class TestClientServer:
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
-            client_root = SomeModelInTestClientServer(foo=42)
+            client_root = SomeModelInTestClientServer(foo=42, data=bytes([0x00, 0x01, 0xFE, 0xFF]))
 
             client_session = push_session(doc, session_id=ID("test_client_changes_go_to_server"),
                                           url=url(server),
@@ -445,7 +447,7 @@ class TestClientServer:
             server_session = server.get_session('/', client_session.id)
 
             assert len(client_session.document.roots) == 0
-            server_root = SomeModelInTestClientServer(foo=42)
+            server_root = SomeModelInTestClientServer(foo=42, data=bytes([0x00, 0x01, 0xFE, 0xFF]))
 
             def do_add_server_root():
                 server_session.document.add_root(server_root)
@@ -799,8 +801,8 @@ class TestClientServer:
         application = Application()
         def setup_stuff(doc):
             m1 = AnotherModelInTestClientServer(bar=43, name='m1')
-            m2 = SomeModelInTestClientServer(foo=42, name='m2')
-            m3 = SomeModelInTestClientServer(foo=68, name='m3')
+            m2 = SomeModelInTestClientServer(foo=42, name='m2', data=bytes([0x00, 0x01, 0xFE, 0xFF]))
+            m3 = SomeModelInTestClientServer(foo=68, name='m3', data=bytes([0x00, 0x01, 0xFE, 0xFF]))
             doc.add_root(m1)
             doc.add_root(m2)
             doc.add_root(m3)
@@ -888,7 +890,7 @@ def test_client_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Manage
     application = Application()
     with ManagedServerLoop(application) as server:
         doc = document.Document()
-        client_root = SomeModelInTestClientServer(foo=42)
+        client_root = SomeModelInTestClientServer(foo=42, data=bytes([0x00, 0x01, 0xFE, 0xFF]))
         doc.add_root(client_root)
 
         client_session = push_session(doc,
@@ -934,7 +936,7 @@ def test_server_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Manage
     application = Application()
     with ManagedServerLoop(application) as server:
         doc = document.Document()
-        client_root = SomeModelInTestClientServer(foo=42)
+        client_root = SomeModelInTestClientServer(foo=42, data=bytes([0x00, 0x01, 0xFE, 0xFF]))
         doc.add_root(client_root)
 
         client_session = push_session(doc,
