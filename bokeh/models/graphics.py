@@ -42,10 +42,18 @@ class Marking(Model):
 
     """
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class Decoration(Model):
     """ Indicates a positioned marker, e.g. at a node of a glyph.
 
     """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     marking = Instance(Marking, help="""
     The graphical marking associated with this decoration, e.g. an arrow head.

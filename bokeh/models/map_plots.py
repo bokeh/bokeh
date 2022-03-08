@@ -30,6 +30,7 @@ from ..core.properties import (
     Enum,
     Float,
     Instance,
+    InstanceDefault,
     Int,
     NonNullable,
     Nullable,
@@ -64,6 +65,10 @@ class MapOptions(Model):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     lat = NonNullable(Float, help="""
     The latitude where the map should be centered.
     """)
@@ -82,12 +87,12 @@ class MapPlot(Plot):
 
     '''
 
-    def __init__(self, *args, **kw) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         from ..models.ranges import Range1d
         for r in ('x_range', 'y_range'):
-            if r in kw and not isinstance(kw.get(r), Range1d):
-                raise ValueError('Invalid value for %r, MapPlot ranges may only be Range1d, not data ranges' % r)
-        super().__init__(*args, **kw)
+            if r in kwargs and not isinstance(kwargs.get(r), Range1d):
+                raise ValueError(f"Invalid value for {r!r}, MapPlot ranges may only be Range1d, not data ranges")
+        super().__init__(*args, **kwargs)
 
     @error(INCOMPATIBLE_MAP_RANGE_TYPE)
     def _check_incompatible_map_range_type(self):
@@ -101,6 +106,10 @@ class GMapOptions(MapOptions):
     ''' Options for ``GMapPlot`` objects.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     map_type = Enum(MapType, default="roadmap", help="""
     The `map type`_ to use for the ``GMapPlot``.
@@ -156,6 +165,10 @@ class GMapPlot(MapPlot):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     # TODO (bev) map plot might not have these
     @error(REQUIRED_RANGE)
     def _check_required_range(self):
@@ -192,9 +205,9 @@ class GMapPlot(MapPlot):
 
     """)
 
-    x_range = Override(default=lambda: Range1d())
+    x_range = Override(default=InstanceDefault(Range1d))
 
-    y_range = Override(default=lambda: Range1d())
+    y_range = Override(default=InstanceDefault(Range1d))
 
 #-----------------------------------------------------------------------------
 # Dev API

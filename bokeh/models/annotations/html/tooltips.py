@@ -44,6 +44,11 @@ class Tooltip(HTMLAnnotation):
         directly from python.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     level = Override(default="overlay")
 
     attachment = Enum(TooltipAttachment, help="""

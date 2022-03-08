@@ -48,6 +48,7 @@ from ..core.properties import (
     Float,
     Include,
     Instance,
+    InstanceDefault,
     Int,
     List,
     Null,
@@ -120,6 +121,10 @@ class Plot(LayoutDOM):
     ''' Model representing a plot, containing glyphs, guides, annotations.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
@@ -494,11 +499,11 @@ class Plot(LayoutDOM):
         if msg:
             return msg
 
-    x_range = Instance(Range, default=lambda: DataRange1d(), help="""
+    x_range = Instance(Range, default=InstanceDefault(DataRange1d), help="""
     The (default) data range of the horizontal dimension of the plot.
     """)
 
-    y_range = Instance(Range, default=lambda: DataRange1d(), help="""
+    y_range = Instance(Range, default=InstanceDefault(DataRange1d), help="""
     The (default) data range of the vertical dimension of the plot.
     """)
 
@@ -513,12 +518,12 @@ class Plot(LayoutDOM):
         else:
             raise ValueError(f"Unknown mapper_type: {scale}")
 
-    x_scale = Instance(Scale, default=lambda: LinearScale(), help="""
+    x_scale = Instance(Scale, default=InstanceDefault(LinearScale), help="""
     What kind of scale to use to convert x-coordinates in data space
     into x-coordinates in screen space.
     """)
 
-    y_scale = Instance(Scale, default=lambda: LinearScale(), help="""
+    y_scale = Instance(Scale, default=InstanceDefault(LinearScale), help="""
     What kind of scale to use to convert y-coordinates in data space
     into y-coordinates in screen space.
     """)
@@ -555,7 +560,7 @@ class Plot(LayoutDOM):
     Whether to use HiDPI mode when available.
     """)
 
-    title = Either(Null, Instance(Title), default=lambda: Title(text=""), help="""
+    title = Either(Null, Instance(Title), default=InstanceDefault(Title, text=""), help="""
     A title for the plot. Can be a text string or a Title annotation.
     """).accepts(String, lambda text: Title(text=text))
 
@@ -579,7 +584,7 @@ class Plot(LayoutDOM):
     setup is performed.
     """)
 
-    toolbar = Instance(Toolbar, default=lambda: Toolbar(), help="""
+    toolbar = Instance(Toolbar, default=InstanceDefault(Toolbar), help="""
     The toolbar associated with this plot which holds all the tools. It is
     automatically created with the plot if necessary.
     """)
@@ -810,9 +815,15 @@ class Plot(LayoutDOM):
     """)
 
 class GridPlot(LayoutDOM):
-    """ """
+    """
 
-    toolbar = Instance(ToolbarBase, default=lambda: Toolbar(), help="""
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    toolbar = Instance(ToolbarBase, default=InstanceDefault(Toolbar), help="""
     The toolbar associated with this grid plot, which holds all the tools.
     It is automatically created with the plot if necessary.
     """)

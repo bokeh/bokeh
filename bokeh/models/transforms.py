@@ -75,7 +75,10 @@ class Transform(Model):
         }
 
     '''
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 
 class CustomJSTransform(Transform):
@@ -88,6 +91,10 @@ class CustomJSTransform(Transform):
         sanitize the user input prior to passing to Bokeh.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     args = Dict(String, AnyRef, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
@@ -139,6 +146,10 @@ class Dodge(Transform):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     value = Float(default=0, help="""
     The amount to dodge the input data.
     """)
@@ -153,6 +164,10 @@ class Jitter(Transform):
     ''' Apply either a uniform or normally sampled random jitter to data.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     mean = Float(default=0, help="""
     The central value for the random sample
@@ -203,6 +218,11 @@ class Interpolator(Transform):
     interpolation.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     x = NonNullable(Either(String, Seq(Float)), help="""
     Independent coordinate denoting the location of a point.
     """)
@@ -220,17 +240,16 @@ class Interpolator(Transform):
     If this is set to False, it will return the most value of the closest point.
     """)
 
-    # Define an initialization routine to do some cross checking of input values
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-
 
 class LinearInterpolator(Interpolator):
     ''' Compute a linear interpolation between the control points provided through
     the ``x``, ``y``, and ``data`` parameters.
 
     '''
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 
 class StepInterpolator(Interpolator):
@@ -238,6 +257,10 @@ class StepInterpolator(Interpolator):
     the ``x``, ``y``, and ``data`` parameters.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     mode = Enum(StepMode, default="after", help="""
     Adjust the behavior of the returned value in relation to the control points.  The parameter can assume one of three values:

@@ -68,7 +68,7 @@ __all__ = (
 class AbstractSlider(Widget):
     """ """
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         if 'start' in kwargs and 'end' in kwargs:
             if kwargs['start'] == kwargs['end']:
                 raise ValueError("Slider 'start' and 'end' cannot be equal.")
@@ -76,7 +76,7 @@ class AbstractSlider(Widget):
         if "value" in kwargs and "value_throttled" not in kwargs:
             kwargs["value_throttled"] = kwargs["value"]
 
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
     orientation = Enum("horizontal", "vertical", help="""
     Orient the slider either horizontally (default) or vertically.
@@ -115,6 +115,10 @@ class AbstractSlider(Widget):
 class Slider(AbstractSlider):
     """ Slider-based number selection widget. """
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     start = NonNullable(Float, help="""
     The minimum allowable value.
     """)
@@ -140,6 +144,10 @@ class Slider(AbstractSlider):
 class RangeSlider(AbstractSlider):
     """ Range-slider based number range selection widget. """
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     value = NonNullable(Tuple(Float, Float), help="""
     Initial or selected range.
     """)
@@ -164,6 +172,10 @@ class RangeSlider(AbstractSlider):
 
 class DateSlider(AbstractSlider):
     """ Slider-based date selection widget. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     @property
     def value_as_datetime(self) -> datetime | None:
@@ -218,6 +230,10 @@ class DateSlider(AbstractSlider):
 
 class DateRangeSlider(AbstractSlider):
     """ Slider-based date range selection widget. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     @property
     def value_as_datetime(self) -> tp.Tuple[datetime, datetime] | None:

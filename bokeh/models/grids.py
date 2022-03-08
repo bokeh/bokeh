@@ -55,6 +55,11 @@ class Grid(GuideRenderer):
     given by a supplied ``Ticker``.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     dimension = Int(0, help="""
     Which dimension the Axis Grid lines will intersect. The
     x-axis is dimension 0 (vertical Grid lines) and the y-axis

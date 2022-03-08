@@ -57,29 +57,54 @@ __all__ = (
 class DOMNode(Model, Qualified):
     """ Base class for DOM nodes. """
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class Text(DOMNode):
     """ DOM text node. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     content = String("")
 
 @abstract
 class DOMElement(DOMNode):
     """ Base class for DOM elements. """
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     style = Nullable(Either(Instance(Styles), Dict(String, String)))
 
     children = List(Either(String, Instance(DOMNode), Instance(LayoutDOM)), default=[])
 
 class Span(DOMElement):
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class Div(DOMElement):
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class Table(DOMElement):
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class TableRow(DOMElement):
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 def vbox(children: List[DOMNode]) -> Div:
     return Div(style=Styles(display="flex", flex_direction="column"), children=children)
@@ -89,25 +114,54 @@ def hbox(children: List[DOMNode]) -> Div:
 
 @abstract
 class Action(Model, Qualified):
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class Template(DOMElement):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     actions = List(Instance(Action))
 
 class ToggleGroup(Action):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     groups = List(Instance(RendererGroup))
 
 @abstract
 class Placeholder(DOMNode):
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class Index(Placeholder):
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class ValueRef(Placeholder):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     field = NonNullable(String)
 
 class ColorRef(ValueRef):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     hex = Bool(default=True)
     swatch = Bool(default=True)
 

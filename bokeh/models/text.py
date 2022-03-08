@@ -66,28 +66,41 @@ class BaseText(Model):
 
 @abstract
 class MathText(BaseText):
+    """ Base class for renderers of mathematical content.
+
     """
-    Base class for renderers of mathematical content.
-    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class Ascii(MathText):
-    """
-    Render mathematical content using `AsciiMath <http://asciimath.org/>`_
+    """ Render mathematical content using `AsciiMath <http://asciimath.org/>`_
     notation.
+
     """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class MathML(MathText):
-    """
-    Render mathematical content using `MathML <https://www.w3.org/Math/>`_
-    notation. See :ref:`userguide_styling_math` in the |user guide| for more
-    information.
+    """ Render mathematical content using `MathML <https://www.w3.org/Math/>`_
+    notation.
+
+    See :ref:`userguide_styling_math` in the |user guide| for more information.
+
     """
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class TeX(MathText):
-    """
-    Render mathematical content using `LaTeX <https://www.latex-project.org/>`_
-    notation. See :ref:`userguide_styling_math` in the |user guide| for more
-    information.
+    """ Render mathematical content using `LaTeX <https://www.latex-project.org/>`_
+    notation.
+
+    See :ref:`userguide_styling_math` in the |user guide| for more information.
 
     .. note::
         Bokeh uses `MathJax <https://www.mathjax.org>`_ to render text
@@ -96,7 +109,12 @@ class TeX(MathText):
         MathJax only supports math-mode macros (no text-mode macros). You
         can see more about differences between standard TeX/LaTeX and MathJax
         here: https://docs.mathjax.org/en/latest/input/tex/differences.html
+
     """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     macros = Dict(String, Either(String, Tuple(String, Int)), help="""
     User defined TeX macros.
@@ -118,9 +136,13 @@ class TeX(MathText):
     """)
 
 class PlainText(BaseText):
+    """ Represents plain text in contexts where text parsing is allowed.
+
     """
-    Represents plain text in contexts where text parsing is allowed.
-    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 #-----------------------------------------------------------------------------
 # Dev API

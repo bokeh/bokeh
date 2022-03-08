@@ -65,33 +65,50 @@ class Scale(Transform):
         }
 
     '''
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 class ContinuousScale(Scale):
     ''' Represent a scale transformation between continuous ranges.
 
     '''
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 
 class LinearScale(ContinuousScale):
     ''' Represent a linear scale transformation between continuous ranges.
 
     '''
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class LogScale(ContinuousScale):
     ''' Represent a log scale transformation between continuous ranges.
 
     '''
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class CategoricalScale(Scale):
     ''' Represent a scale transformation between a categorical source range and
     continuous target range.
 
     '''
-    pass
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 #-----------------------------------------------------------------------------
 # Dev API

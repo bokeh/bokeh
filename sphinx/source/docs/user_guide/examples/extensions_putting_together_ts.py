@@ -96,7 +96,7 @@ class Custom(HTMLBox):
 
     slider = Instance(Slider)
 
-    margin = Override(default=5)
+    margin = Override(default=(5, 5, 5, 5))
 
 
 

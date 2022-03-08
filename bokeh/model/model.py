@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from inspect import isclass
+from inspect import Parameter, Signature, isclass
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -35,6 +35,8 @@ from typing import (
 # Bokeh imports
 from ..core import properties as p
 from ..core.has_props import HasProps, abstract
+from ..core.property._sphinx import type_link
+from ..core.property.validation import without_property_validation
 from ..core.serialization import ObjectRefRep, Ref, Serializer
 from ..core.types import ID, Unknown
 from ..events import Event
@@ -74,10 +76,22 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     '''
 
+
+    # a canonical order for positional args that can be
+    # used for any functions derived from this class
+    _args = ()
+
+    _extra_kws = {}
+
     @classmethod
     def __init_subclass__(cls):
         super().__init_subclass__()
-        process_example(cls)
+
+        if cls.__module__.startswith("bokeh.models"):
+            assert "__init__" in cls.__dict__, str(cls)
+            parameters = [x[0] for x in  cls.parameters()]
+            cls.__init__.__signature__ = Signature(parameters=parameters)
+            process_example(cls)
 
     _id: ID
 
@@ -86,7 +100,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         obj._id = kwargs.pop("id", make_id())
         return obj
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, *args, **kwargs: Any) -> None:
 
         # "id" is popped from **kw in __new__, so in an ideal world I don't
         # think it should be here too. But Python has subtle behavior here, so
@@ -210,6 +224,82 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         return Ref(id=self._id)
 
     # Public methods ----------------------------------------------------------
+
+    @classmethod
+    @without_property_validation
+    def parameters(cls):
+        ''' Generate Python ``Parameter`` values suitable for functions that are
+        derived from the glyph.
+
+        Returns:
+            list(Parameter)
+
+        '''
+        arg_params = []
+        no_more_defaults = False
+
+        for arg in reversed(cls._args):
+            descriptor = cls.lookup(arg)
+            default = descriptor.class_default(cls, no_eval=True)
+            if default is None:
+                no_more_defaults = True
+
+            # simplify field(x) defaults to just present the column name
+            if isinstance(default, dict) and set(default) == {"field"}:
+                default = default["field"]
+
+            # make sure built-ins don't hold on to references to actual Models
+            if cls.__module__.startswith("bokeh.models"):
+                assert not isinstance(default, Model)
+
+            param = Parameter(
+                name=arg,
+                kind=Parameter.POSITIONAL_OR_KEYWORD,
+                # For positional arg properties, default=None means no default.
+                default=Parameter.empty if no_more_defaults else default
+            )
+            if default:
+                del default
+            typ = type_link(descriptor.property)
+            arg_params.insert(0, (param, typ, descriptor.__doc__))
+
+        # these are not really useful, and should also really be private, just skip them
+        omissions = {'js_event_callbacks', 'js_property_callbacks', 'subscribed_events'}
+
+        kwarg_params = []
+
+        kws = set(cls.properties()) - set(cls._args) - omissions
+        for kw in kws:
+            descriptor = cls.lookup(kw)
+            default = descriptor.class_default(cls, no_eval=True)
+
+            # simplify field(x) defaults to just present the column name
+            if isinstance(default, dict) and set(default) == {"field"}:
+                default = default["field"]
+
+            # make sure built-ins don't hold on to references to actual Models
+            if cls.__module__.startswith("bokeh.models"):
+                assert not isinstance(default, Model)
+
+            param = Parameter(
+                name=kw,
+                kind=Parameter.KEYWORD_ONLY,
+                default=default
+            )
+            del default
+            typ = type_link(descriptor.property)
+            kwarg_params.append((param, typ, descriptor.__doc__))
+
+        for kw, (typ, doc) in cls._extra_kws.items():
+            param = Parameter(
+                name=kw,
+                kind=Parameter.KEYWORD_ONLY,
+            )
+            kwarg_params.append((param, typ, doc))
+
+        kwarg_params.sort(key=lambda x: x[0].name)
+
+        return arg_params + kwarg_params
 
     def js_on_event(self, event: str | Type[Event], *callbacks: JSEventCallback) -> None:
         if isinstance(event, str):

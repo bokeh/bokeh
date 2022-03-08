@@ -39,6 +39,10 @@ __all__ = (
 class Styles(Model, Qualified):
     """ Allows to configure style attribute of DOM elements. """
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     align_content = Nullable(String)
     align_items = Nullable(String)
     align_self = Nullable(String)

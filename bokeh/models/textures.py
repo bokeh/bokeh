@@ -46,6 +46,10 @@ class Texture(Model):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     repetition = Enum(TextureRepetition, default="repeat", help="""
 
     """)
@@ -54,6 +58,10 @@ class CanvasTexture(Texture):
     '''
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     code = NonNullable(String, help="""
     A snippet of JavaScript code to execute in the browser.
@@ -64,6 +72,10 @@ class ImageURLTexture(Texture):
     '''
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     url = NonNullable(String, help="""
     A URL to a drawable resource like image, video, etc.

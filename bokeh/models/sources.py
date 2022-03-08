@@ -41,6 +41,7 @@ from ..core.properties import (
     Dict,
     Enum,
     Instance,
+    InstanceDefault,
     Int,
     List,
     NonNullable,
@@ -99,7 +100,11 @@ class DataSource(Model):
 
     '''
 
-    selected = Readonly(Instance(Selection), default=lambda: Selection(), help="""
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    selected = Readonly(Instance(Selection), default=InstanceDefault(Selection), help="""
     An instance of a ``Selection`` that indicates selected indices on this ``DataSource``.
     This is a read-only property. You may only change the attributes of this object
     to change the selection (e.g., ``selected.indices``).
@@ -112,7 +117,11 @@ class ColumnarDataSource(DataSource):
 
     '''
 
-    selection_policy = Instance(SelectionPolicy, default=lambda: UnionRenderers(), help="""
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    selection_policy = Instance(SelectionPolicy, default=InstanceDefault(UnionRenderers), help="""
     An instance of a ``SelectionPolicy`` that determines how selections are set.
     """)
 
@@ -742,6 +751,10 @@ class GeoJSONDataSource(ColumnarDataSource):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     geojson = NonNullable(JSON, help="""
     GeoJSON that contains features for plotting. Currently
     ``GeoJSONDataSource`` can only process a ``FeatureCollection`` or
@@ -757,6 +770,10 @@ class WebDataSource(ColumnDataSource):
         This base class is typically not useful to instantiate on its own.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     adapter = Nullable(Instance(CustomJS), help="""
     A JavaScript callback to adapt raw JSON responses to Bokeh ``ColumnDataSource``
@@ -790,6 +807,10 @@ class ServerSentDataSource(WebDataSource):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class AjaxDataSource(WebDataSource):
     ''' A data source that can populate columns by making Ajax calls to REST
     endpoints.
@@ -820,6 +841,10 @@ class AjaxDataSource(WebDataSource):
     A full example can be seen at :bokeh-tree:`examples/howto/ajax_source.py`
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     polling_interval = Nullable(Int, help="""
     A polling interval (in milliseconds) for updating data source.

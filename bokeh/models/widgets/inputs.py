@@ -78,6 +78,10 @@ class InputWidget(Widget):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     title = String(default="", help="""
     Widget's label.
     """)
@@ -102,6 +106,10 @@ class FileInput(Widget):
     ''' Present a file-chooser dialog to users and return the contents of the
     selected files.
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     value = Readonly(Either(String, List(String)), default="", help='''
     The base64-enconded contents of the file or files that were loaded.
@@ -184,6 +192,10 @@ class NumericInput(InputWidget):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     value = Either(Null, Float, Int, help="""
     Initial or entered value.
 
@@ -219,11 +231,11 @@ class Spinner(NumericInput):
 
     '''
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         if "value" in kwargs and "value_throttled" not in kwargs:
             kwargs["value_throttled"] = kwargs["value"]
 
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
     value_throttled = Readonly(Either(Null, Float, Int), help="""
     value reported at the end of interactions
@@ -248,6 +260,10 @@ class Spinner(NumericInput):
 class Switch(Widget):
     """ A checkbox-like widget. """
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     active = Bool(default=False, help="""
     The state of the widget.
     """)
@@ -258,6 +274,10 @@ class TextLikeInput(InputWidget):
     ''' Base class for text-like input widgets.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     value = String(default="", help="""
     Initial or entered text value.
@@ -285,11 +305,19 @@ class TextInput(TextLikeInput):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 class TextAreaInput(TextLikeInput):
     ''' Multi-line input widget.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     cols = Int(default=20, help="""
     Specifies the width of the text area (in average character width). Default: 20
@@ -313,11 +341,19 @@ class PasswordInput(TextInput):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 class AutocompleteInput(TextInput):
     ''' Single-line input widget with auto-completion.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     completions = List(String, help="""
     A list of completion strings. This will be used to guide the
@@ -339,6 +375,11 @@ class Select(InputWidget):
     ''' Single-select widget.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     options = Either(List(Either(String, Tuple(String, String))),
         Dict(String, List(Either(String, Tuple(String, String)))), help="""
     Available selection options. Options may be provided either as a list of
@@ -357,6 +398,10 @@ class MultiSelect(InputWidget):
     ''' Multi-select widget.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     options = List(Either(String, Tuple(String, String)), help="""
     Available selection options. Options may be provided either as a list of
@@ -380,6 +425,10 @@ class MultiChoice(InputWidget):
     ''' MultiChoice widget.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     options = List(Either(String, Tuple(String, String)), help="""
     Available selection options. Options may be provided either as a list of
@@ -421,6 +470,10 @@ class DatePicker(InputWidget):
     ''' Calendar-based date picker widget.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     value = Date(help="""
     The initial or picked date.
@@ -466,6 +519,10 @@ class ColorPicker(InputWidget):
         as a simple text input).
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     color = ColorHex(default='#000000', help="""
     The initial color of the picked color (named or hexadecimal)

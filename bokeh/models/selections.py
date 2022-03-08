@@ -54,6 +54,10 @@ class Selection(Model):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     indices = Seq(Int, default=[], help="""
     The "scatter" level indices included in a selection. For example, for a
     selection on a ``Circle`` glyph, this list records the indices of which
@@ -91,7 +95,10 @@ class SelectionPolicy(Model):
 
     '''
 
-    pass
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 class IntersectRenderers(SelectionPolicy):
     '''
@@ -101,7 +108,10 @@ class IntersectRenderers(SelectionPolicy):
 
     '''
 
-    pass
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 class UnionRenderers(SelectionPolicy):
     '''
@@ -111,7 +121,10 @@ class UnionRenderers(SelectionPolicy):
 
     '''
 
-    pass
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 #-----------------------------------------------------------------------------
 # Dev API

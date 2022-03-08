@@ -84,6 +84,10 @@ class LayoutDOM(Model):
 
     """
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     disabled = Bool(False, help="""
     Whether the widget will be disabled when rendered.
 
@@ -321,10 +325,20 @@ class HTMLBox(LayoutDOM):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+
 class Spacer(LayoutDOM):
     ''' A container for space used to fill an empty spot in a row or column.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 QuickTrackSizing = Either(Enum("auto", "min", "fit", "max"), Int)
 
@@ -345,6 +359,10 @@ ColSizing = Either(
 IntOrString = Either(Int, String) # XXX: work around issue #8166
 
 class GridBox(LayoutDOM):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     children = List(Either(
         Tuple(Instance(LayoutDOM), Int, Int),
@@ -437,6 +455,10 @@ class Row(Box):
     that is a sequence, or using the ``children`` keyword argument.
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
     Describes how the component should maintain its columns' widths.
 
@@ -458,6 +480,10 @@ class Column(Box):
     that is a sequence, or using the ``children`` keyword argument.
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
     Describes how the component should maintain its rows' heights.
 
@@ -476,6 +502,10 @@ class Panel(Model):
     ''' A single-widget container with title bar and controls.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     title = String(default="", help="""
     The text title of the panel.
@@ -499,6 +529,10 @@ class Tabs(LayoutDOM):
     ''' A panel widget with navigation tabs.
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     __example__ = "sphinx/source/docs/user_guide/examples/interaction_tab_panes.py"
 

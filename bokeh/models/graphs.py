@@ -61,6 +61,10 @@ class LayoutProvider(Model):
 
     '''
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     @property
     def node_coordinates(self) -> NodeCoordinates:
         return NodeCoordinates(layout=self)
@@ -73,6 +77,10 @@ class StaticLayoutProvider(LayoutProvider):
     '''
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     # TODO: Seq(Any).length == 2
     graph_layout = Dict(Int, Seq(Any), default={}, help="""
@@ -95,6 +103,11 @@ class GraphCoordinates(CoordinateTransform):
     Abstract class for coordinate transform expression obtained from ``LayoutProvider``
 
     '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     layout = Instance(LayoutProvider)
 
 class NodeCoordinates(GraphCoordinates):
@@ -103,7 +116,10 @@ class NodeCoordinates(GraphCoordinates):
 
     '''
 
-    pass
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 class EdgeCoordinates(GraphCoordinates):
     '''
@@ -111,7 +127,10 @@ class EdgeCoordinates(GraphCoordinates):
 
     '''
 
-    pass
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 @abstract
 class GraphHitTestPolicy(Model):
@@ -119,7 +138,10 @@ class GraphHitTestPolicy(Model):
 
     '''
 
-    pass
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 class EdgesOnly(GraphHitTestPolicy):
     '''
@@ -128,7 +150,10 @@ class EdgesOnly(GraphHitTestPolicy):
 
     '''
 
-    pass
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 class NodesOnly(GraphHitTestPolicy):
     '''
@@ -137,7 +162,10 @@ class NodesOnly(GraphHitTestPolicy):
 
     '''
 
-    pass
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 class NodesAndLinkedEdges(GraphHitTestPolicy):
     '''
@@ -148,7 +176,10 @@ class NodesAndLinkedEdges(GraphHitTestPolicy):
 
     '''
 
-    pass
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 class EdgesAndLinkedNodes(GraphHitTestPolicy):
     '''
@@ -159,7 +190,10 @@ class EdgesAndLinkedNodes(GraphHitTestPolicy):
 
     '''
 
-    pass
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 class NodesAndAdjacentNodes(GraphHitTestPolicy):
     '''
@@ -171,7 +205,10 @@ class NodesAndAdjacentNodes(GraphHitTestPolicy):
 
     '''
 
-    pass
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 
 #-----------------------------------------------------------------------------
 # Private API
