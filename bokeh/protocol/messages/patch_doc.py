@@ -65,7 +65,7 @@ class patch_doc(Message[PatchJson]):
     msgtype = 'PATCH-DOC'
 
     @classmethod
-    def create(cls, events: List[DocumentPatchedEvent], use_buffers: bool = True, **metadata: Any) -> patch_doc:
+    def create(cls, events: List[DocumentPatchedEvent], **metadata: Any) -> patch_doc:
         ''' Create a ``PATCH-DOC`` message
 
         Args:
@@ -92,9 +92,8 @@ class patch_doc(Message[PatchJson]):
 
         msg = cls(header, metadata, patch_json)
 
-        if use_buffers:
-            for buffer in serializer.buffers:
-                msg.add_buffer(buffer)
+        for buffer in serializer.buffers:
+            msg.add_buffer(buffer)
 
         return msg
 

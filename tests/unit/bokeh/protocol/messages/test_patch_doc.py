@@ -155,24 +155,15 @@ class TestPatchDocument:
         msg5.apply_to_document(sample, mock_session)
         assert msg5.buffers == []
 
-        # ColumnDataChanged, use_buffers=False
-        event6 = ColumnDataChangedEvent(sample, cds, "data")
-        msg6 = proto.create("PATCH-DOC", [event6], use_buffers=False)
-        msg6.apply_to_document(sample, mock_session)
-        assert msg6.buffers == []
-
-        print(cds.data)
-        # ColumnDataChanged, use_buffers=True
+        # ColumnDataChanged
         event7 = ColumnDataChangedEvent(sample, cds, "data")
         msg7 = proto.create("PATCH-DOC", [event7])
-
-        # can't test apply, doc not set up to *receive* binary buffers
-        # msg7.apply_to_document(sample, mock_session)
+        msg7.apply_to_document(sample, mock_session)
         assert len(msg7.buffers) == 1
-        [buf] = msg7.buffers
 
         # reports CDS buffer *as it is* Normally events called by setter and
         # value in local object would have been already mutated.
+        [buf] = msg7.buffers
         assert bytes(buf.data) == np.array([11., 1., 2., 3]).tobytes()
 
 #-----------------------------------------------------------------------------

@@ -387,15 +387,7 @@ class ClientConnection:
         return waiter.reply
 
     def _send_patch_document(self, session_id: ID, event: DocumentChangedEvent) -> None:
-        # XXX This will cause the client to always send all columns when a CDS
-        # is mutated in place. Additionally we set use_buffers=False below as
-        # well, to suppress using the binary array transport. Real Bokeh server
-        # apps running inside a server can handle these updates much more
-        # efficiently
-        from bokeh.document.events import ColumnDataChangedEvent
-        if isinstance(event, ColumnDataChangedEvent):
-            event.cols = None
-        msg = self._protocol.create('PATCH-DOC', [event], use_buffers=False)
+        msg = self._protocol.create('PATCH-DOC', [event])
         self._loop.add_callback(self.send_message, msg)
 
     def _send_request_server_info(self) -> ServerInfo:
