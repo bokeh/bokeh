@@ -19,6 +19,7 @@ dependencies:
   - tornado>=5
   - typing_extensions>=3.10.0
   - xyzservices>=2021.09.1
+  - msgpack-python>=1.0
 
   # docs
   - colorcet

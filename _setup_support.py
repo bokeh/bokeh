@@ -51,6 +51,7 @@ INSTALL_REQUIRES = [
     'tornado >=5.1',
     'typing_extensions >=3.10.0',
     'xyzservices >=2021.09.1',
+    'msgpack-python >=1.0',
 ]
 
 BUILD_JS = "--build-js"

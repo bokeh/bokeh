@@ -11,6 +11,7 @@
   "devDependencies": {
     "@bokeh/numbro": "^1.6.2",
     "@bokeh/slickgrid": "~2.4.4102",
+    "@msgpack/msgpack": "^2.7.2",
     "@types/flatbush": "^3.3.0",
     "@types/geojson": "^7946.0.8",
     "@types/google.maps": "^3.47.3",
