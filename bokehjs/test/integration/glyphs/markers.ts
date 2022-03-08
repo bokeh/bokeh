@@ -1,5 +1,6 @@
 import {display, fig, row} from "../_util"
 
+import {HatchPattern} from "@bokehjs/core/property_mixins"
 import {MarkerType, OutputBackend} from "@bokehjs/core/enums"
 import {Random} from "@bokehjs/core/util/random"
 import {assert} from "@bokehjs/core/util/assert"
@@ -103,6 +104,41 @@ describe("Marker glyph", () => {
         x, y, marker, size: 14,
         line_color: "navy", fill_color: "orange", alpha: 0.5,
       })
+      return p
+    }
+
+    const p0 = make_plot("canvas")
+    const p1 = make_plot("svg")
+    const p2 = make_plot("webgl")
+
+    await display(row([p0, p1, p2]))
+  })
+
+  it("should support hatch", async () => {
+    const hatch_patterns: HatchPattern[] = [
+      "dot", "ring", "horizontal_line", "vertical_line", "cross", "horizontal_dash",
+      "vertical_dash", "spiral", "right_diagonal_line", "left_diagonal_line", "diagonal_cross",
+      "right_diagonal_dash", "left_diagonal_dash", "horizontal_wave", "vertical_wave",
+      "criss_cross", "dot", "ring", "horizontal_line", "vertical_line", "cross",
+    ]
+
+    const markers: MarkerType[] = [
+      "circle", "circle_cross", "circle_dot", "circle_x", "circle_y", "diamond", "diamond_cross",
+      "diamond_dot", "hex", "hex_dot", "inverted_triangle", "square", "square_cross", "square_dot",
+      "square_pin", "square_x", "star", "star_dot", "triangle", "triangle_dot", "triangle_pin",
+    ]
+
+    function make_plot(output_backend: OutputBackend) {
+      const p = fig([300, 300],
+        {output_backend, title: output_backend, x_range: [-0.5, 4.5], y_range: [-0.6, 4.6]})
+      const n = hatch_patterns.length
+      for (let i = 0; i < n; i++) {
+        p.scatter({
+          x: i / 5, y: i % 5, marker: markers[i], size: 45, hatch_pattern: hatch_patterns[i],
+          line_color: "red", line_alpha: 0.5, line_width: 2, fill_color: "gainsboro",
+          hatch_color: "blue",
+        })
+      }
       return p
     }
 
