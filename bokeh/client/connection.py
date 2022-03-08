@@ -387,11 +387,6 @@ class ClientConnection:
         return waiter.reply
 
     def _send_patch_document(self, session_id: ID, event: DocumentChangedEvent) -> None:
-        # XXX This will cause the client to always send all columns when a CDS
-        # is mutated in place.
-        from bokeh.document.events import ColumnDataChangedEvent
-        if isinstance(event, ColumnDataChangedEvent):
-            event.cols = None
         msg = self._protocol.create('PATCH-DOC', [event])
         self._loop.add_callback(self.send_message, msg)
 
