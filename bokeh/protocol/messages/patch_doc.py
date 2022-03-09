@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING, Any, List
 
 # Bokeh imports
-from ...core.serialization import Serializer
+from ...core.serialization import IRSerializer
 from ...document.callbacks import invoke_with_curdoc
 from ...document.json import PatchJson
 from ..message import Message
@@ -86,7 +86,7 @@ class patch_doc(Message[PatchJson]):
             raise ValueError("PATCH-DOC message configured with events for more than one document")
 
         [doc] = docs
-        serializer = Serializer(references=doc.models.synced_references)
+        serializer = IRSerializer(references=doc.models.synced_references)
         patch_json = PatchJson(events=serializer.encode(events))
         doc.models.flush()
 

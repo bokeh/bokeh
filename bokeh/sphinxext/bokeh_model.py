@@ -64,7 +64,7 @@ from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
 # Bokeh imports
-from bokeh.core.serialization import AnyRep, Serializer
+from bokeh.core.serialization import AnyRep, IRSerializer
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
@@ -152,7 +152,7 @@ def setup(app):
 # -----------------------------------------------------------------------------
 
 def to_json_rep(obj: Model) -> Dict[str, AnyRep]:
-    serializer = Serializer()
+    serializer = IRSerializer()
 
     properties = obj.properties_with_values(include_defaults=True)
     attributes = {key: serializer.encode(val) for key, val in properties.items()}

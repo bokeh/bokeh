@@ -18,7 +18,7 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.core.json_encoder import serialize_json
-from bokeh.core.serialization import Serializer
+from bokeh.core.serialization import IRSerializer
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -30,7 +30,7 @@ from bokeh.core.serialization import Serializer
 
 def test_json_encoder():
     val0 = [None, True, False, -128, -1, 0, 1, 128, float("nan"), {"key_0": b"uvw"}]
-    rep0 = Serializer().serialize(val0)
+    rep0 = IRSerializer().serialize(val0)
 
     assert rep0.buffers is not None and len(rep0.buffers) == 1
 
@@ -104,7 +104,7 @@ def test_json_encoder():
 
 def test_json_encoder_dict_no_sort():
     val0 = {float("nan"): 0, "key_1": 1, "abc": 2, "key_0": 3}
-    rep0 = Serializer().serialize(val0)
+    rep0 = IRSerializer().serialize(val0)
 
     assert serialize_json(rep0) == """\
 {"type":"map","entries":[[{"type":"number","value":"nan"},0],["key_1",1],["abc",2],["key_0",3]]}\

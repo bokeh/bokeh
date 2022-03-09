@@ -54,7 +54,7 @@ from jinja2 import Template
 from ..core.enums import HoldPolicyType
 from ..core.has_props import is_DataModel
 from ..core.query import find, is_single_string_selector
-from ..core.serialization import Deserializer, Serialized, Serializer
+from ..core.serialization import Deserializer, IRSerializer, Serialized
 from ..core.templates import FILE
 from ..core.types import ID, Unknown
 from ..core.validation import check_integrity, process_validation_issues
@@ -731,7 +731,7 @@ class Document:
         '''
         data_models = [ model for model in Model.model_class_reverse_map.values() if is_DataModel(model) ]
 
-        serializer = Serializer()
+        serializer = IRSerializer()
         defs = serializer.encode(data_models)
         roots = serializer.encode(self._roots)
 

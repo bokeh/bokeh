@@ -46,6 +46,7 @@ from typing import (
 )
 
 # External imports
+import msgpack
 import numpy as np
 from typing_extensions import TypeAlias
 
@@ -104,6 +105,8 @@ class Ref(TypedDict):
 class RefRep(TypedDict):
     type: Literal["ref"]
     id: ID
+
+RefRepLike: TypeAlias = Union[RefRep, Ref]
 
 class SymbolRep(TypedDict):
     type: Literal["symbol"]
@@ -170,6 +173,20 @@ class NDArrayRep(TypedDict):
     dtype: NDDataType
     shape: List[int]
 
+BuiltinTypes: TypeAlias = Literal[
+    "ref",
+    "symbol",
+    "number",
+    "array",
+    "set",
+    "map",
+    "bytes",
+    "slice",
+    "object",
+    "typed_array",
+    "ndarray",
+]
+
 @dataclass
 class Buffer:
     id: ID
@@ -219,14 +236,19 @@ class Serializer:
 
     _references: Dict[ObjID, Ref]
     _deferred: bool
+    _verbose: bool
     _circular: Dict[ObjID, Any]
     _buffers: List[Buffer]
 
-    def __init__(self, *, references: Set[Model] = set(), deferred: bool = True) -> None:
+    def __init__(self, *, references: Set[Model] = set(), deferred: bool = True, verbose: bool = False) -> None:
         self._references = {id(obj): obj.ref for obj in references}
         self._deferred = deferred
+        self._verbose = verbose
         self._circular = {}
         self._buffers = []
+
+    def error(self, message: str) -> NoReturn:
+        raise SerializationError(message)
 
     def has_ref(self, obj: Any) -> bool:
         return id(obj) in self._references
@@ -248,7 +270,7 @@ class Serializer:
     def encode(self, obj: Any) -> AnyRep:
         ref = self.get_ref(obj)
         if ref is not None:
-            return ref
+            return self._encode_ref(ref)
 
         ident = id(obj)
         if ident in self._circular:
@@ -269,7 +291,7 @@ class Serializer:
         elif (encoder := self._encoders.get(type(obj))) is not None:
             return encoder(obj, self)
         elif obj is None:
-            return None
+            return self._encode_none(obj)
         elif isinstance(obj, bool):
             return self._encode_bool(obj)
         elif isinstance(obj, str):
@@ -297,6 +319,120 @@ class Serializer:
         else:
             return self._encode_other(obj)
 
+    def _encode_ref(self, obj: Ref) -> Any:
+        raise NotImplementedError()
+
+    def _encode_none(self, obj: Literal[None]) -> Any:
+        raise NotImplementedError()
+
+    def _encode_bool(self, obj: bool) -> Any:
+        raise NotImplementedError()
+
+    def _encode_str(self, obj: str) -> Any:
+        raise NotImplementedError()
+
+    def _encode_int(self, obj: int) -> Any:
+        raise NotImplementedError()
+
+    def _encode_float(self, obj: float) -> Any:
+        raise NotImplementedError()
+
+    def _encode_tuple(self, obj: Tuple[Any, ...]) -> Any:
+        raise NotImplementedError()
+
+    def _encode_list(self, obj: List[Any]) -> Any:
+        raise NotImplementedError()
+
+    def _encode_dict(self, obj: Dict[Any, Any]) -> Any:
+        raise NotImplementedError()
+
+    def _encode_dataclass(self, obj: Any) -> Any:
+        raise NotImplementedError()
+
+    def _encode_bytes(self, obj: bytes | memoryview) -> Any:
+        raise NotImplementedError()
+
+    def _encode_slice(self, obj: slice) -> Any:
+        raise NotImplementedError()
+
+    def _encode_typed_array(self, obj: TypedArray[Any]) -> Any:
+        raise NotImplementedError()
+
+    def _encode_ndarray(self, obj: npt.NDArray[Any]) -> Any:
+        raise NotImplementedError()
+
+    def _encode_other(self, obj: Any) -> Any:
+        # date/time values that get serialized as milliseconds
+        if is_datetime_type(obj):
+            return convert_datetime_type(obj)
+
+        if is_timedelta_type(obj):
+            return convert_timedelta_type(obj)
+
+        if isinstance(obj, dt.date):
+            return obj.isoformat()
+
+        # NumPy scalars
+        if np.issubdtype(type(obj), np.floating):
+            return self._encode_float(float(obj))
+        if np.issubdtype(type(obj), np.integer):
+            return self._encode_int(int(obj))
+        if np.issubdtype(type(obj), np.bool_):
+            return self._encode_bool(bool(obj))
+
+        if _HAS_PANDAS and obj.__module__ is not None and obj.__module__.startswith("pandas"):
+            pd = import_optional("pandas")
+            if pd and isinstance(obj, (pd.Series, pd.Index)):
+                return self._encode_ndarray(transform_series(obj))
+
+        self.error(f"can't serialize {type(obj)}")
+
+    def _fully_qualified(self, obj: Any) -> str:
+        cls = type(obj)
+        module = cls.__module__
+        name = cls.__qualname__.replace("<locals>.", "")
+        return f"{module}.{name}"
+
+    def _resolve_dtype(self, obj: TypedArray[Any]) -> DataType:
+        typecode = obj.typecode
+        itemsize = obj.itemsize
+
+        if typecode == "f":
+            return "float32"
+        elif typecode == "d":
+            return "float64"
+        elif typecode in {"B", "H", "I", "L", "Q"}:
+            if obj.itemsize == 1:
+                return "uint8"
+            elif obj.itemsize == 2:
+                return "uint16"
+            elif obj.itemsize == 4:
+                return "uint32"
+            #elif obj.itemsize == 8:
+            #    return "uint64"
+        elif typecode in {"b", "h", "i", "l", "q"}:
+            if obj.itemsize == 1:
+                return "int8"
+            elif obj.itemsize == 2:
+                return "int16"
+            elif obj.itemsize == 4:
+                return "int32"
+            #elif obj.itemsize == 8:
+            #    return "int64"
+        self.error(f"can't serialize array with items of type '{typecode}@{itemsize}'")
+
+class IRSerializer(Serializer):
+    """ Serialize to an intermediate representation (IR). """
+
+    def _encode_ref(self, obj: Ref) -> RefRepLike:
+        if self._verbose:
+            return RefRep(type="ref", **obj)
+        else:
+            return obj
+
+    def _encode_none(self, obj: Literal[None]) -> AnyRep:
+        return None
+
     def _encode_bool(self, obj: bool) -> AnyRep:
         return obj
 
@@ -322,7 +458,13 @@ class Serializer:
         return self._encode_list(list(obj))
 
     def _encode_list(self, obj: List[Any]) -> ArrayRepLike:
-        return [self.encode(item) for item in obj]
+        if self._verbose:
+            return ArrayRep(
+                type="array",
+                entries=[self.encode(val) for val in obj],
+            )
+        else:
+            return [self.encode(item) for item in obj]
 
     def _encode_dict(self, obj: Dict[Any, Any]) -> MapRep:
         return MapRep(
@@ -331,14 +473,9 @@ class Serializer:
         )
 
     def _encode_dataclass(self, obj: Any) -> ObjectRep:
-        cls = type(obj)
-
-        module = cls.__module__
-        name = cls.__qualname__.replace("<locals>.", "")
-
         rep = ObjectRep(
             type="object",
-            name=f"{module}.{name}",
+            name=self._fully_qualified(obj),
         )
 
         attributes = list(entries(obj))
@@ -368,41 +505,14 @@ class Serializer:
         )
 
     def _encode_typed_array(self, obj: TypedArray[Any]) -> TypedArrayRep:
+        dtype = self._resolve_dtype(obj)
         array = self._encode_bytes(memoryview(obj))
-
-        typecode = obj.typecode
-        itemsize = obj.itemsize
-
-        def dtype() -> DataType:
-            if typecode == "f":
-                return "float32"
-            elif typecode == "d":
-                return "float64"
-            elif typecode in {"B", "H", "I", "L", "Q"}:
-                if obj.itemsize == 1:
-                    return "uint8"
-                elif obj.itemsize == 2:
-                    return "uint16"
-                elif obj.itemsize == 4:
-                    return "uint32"
-                #elif obj.itemsize == 8:
-                #    return "uint64"
-            elif typecode in {"b", "h", "i", "l", "q"}:
-                if obj.itemsize == 1:
-                    return "int8"
-                elif obj.itemsize == 2:
-                    return "int16"
-                elif obj.itemsize == 4:
-                    return "int32"
-                #elif obj.itemsize == 8:
-                #    return "int64"
-            self.error(f"can't serialize array with items of type '{typecode}@{itemsize}'")
 
         return TypedArrayRep(
             type="typed_array",
             array=array,
             order=sys.byteorder,
-            dtype=dtype(),
+            dtype=dtype,
         )
 
     def _encode_ndarray(self, obj: npt.NDArray[Any]) -> NDArrayRep:
@@ -420,39 +530,166 @@ class Serializer:
         return NDArrayRep(
             type="ndarray",
             array=data,
-            shape=list(array.shape),
-            dtype=dtype,
             order=sys.byteorder,
+            dtype=dtype,
+            shape=list(array.shape),
         )
 
-    def _encode_other(self, obj: Any) -> AnyRep:
-        # date/time values that get serialized as milliseconds
-        if is_datetime_type(obj):
-            return convert_datetime_type(obj)
+class TypeCode:
+    ref = 0
+    symbol = 1
+    number = 2
+    array = 3
+    set = 4
+    map = 5
+    bytes = 6
+    slice = 7
+    object = 8
+    typed_array = 9
+    ndarray = 10
 
-        if is_timedelta_type(obj):
-            return convert_timedelta_type(obj)
+class EndianessCode:
+    little = 0
+    big = 1
 
-        if isinstance(obj, dt.date):
-            return obj.isoformat()
+class DTypeCode:
+    uint8 = 0
+    uint16 = 1
+    uint32 = 2
+    uint64 = 3
+    int8 = 4
+    int16 = 5
+    int32 = 6
+    int64 = 7
+    float32 = 8
+    float64 = 9
 
-        # NumPy scalars
-        if np.issubdtype(type(obj), np.floating):
+class NDDTypeCode(DTypeCode):
+    bool = 10
+    object = 11
+
+class BinarySerializer(Serializer):
+    """ Serialize to a binary representation (msgpack). """
+
+    _encoding: bool
+    _packer: msgpack.Packer
+
+    def __init__(self, *, references: Set[Model] = set(), deferred: bool = True) -> None:
+        super().__init__(references=references, deferred=deferred)
+        self._encoding = False
+        self._packer = msgpack.Packer(autoreset=False)
+
+    def encode(self, obj: Any) -> bytes:
+        if self._encoding:
+            super().encode(obj)
+            return self._packer.bytes()
+        else:
+            try:
+                super().encode(obj)
+                return self._packer.bytes()
+            finally:
+                self._packer.reset()
+
+    def _pack(self, obj: Any) -> None:
+        self._packer.pack(obj)
+
+    def _pack_list(self, n_items: int) -> None:
+        self._packer.pack_array_header(n_items)
+
+    def _pack_map(self, n_items: int) -> None:
+        self._packer.pack_map_header(n_items)
+
+    def _pack_struct(self, type: int, n_fields: int) -> None:
+        self._packer.pack_array_header(n_fields + 1)
+        self._pack(type)
+
+    def _encode_ref(self, obj: Ref) -> None:
+        self._pack_struct(TypeCode.ref, 1)
+        self._pack(obj["id"])
+
+    def _encode_none(self, obj: Literal[None]) -> None:
+        self._pack(obj)
+
+    def _encode_bool(self, obj: bool) -> None:
+        self._pack(obj)
+
+    def _encode_str(self, obj: str) -> None:
+        self._pack(obj)
+
+    def _encode_int(self, obj: int) -> None:
+        if -_MAX_SAFE_INT < obj <= _MAX_SAFE_INT:
+            self._pack(obj)
+        else:
+            log.warning("out of range integer may result in loss of precision")
             return self._encode_float(float(obj))
-        if np.issubdtype(type(obj), np.integer):
-            return self._encode_int(int(obj))
-        if np.issubdtype(type(obj), np.bool_):
-            return self._encode_bool(bool(obj))
 
-        if _HAS_PANDAS and obj.__module__ is not None and obj.__module__.startswith("pandas"):
-            pd = import_optional("pandas")
-            if pd and isinstance(obj, (pd.Series, pd.Index)):
-                return self._encode_ndarray(transform_series(obj))
+    def _encode_float(self, obj: float) -> None:
+        self._pack(obj)
 
-        self.error(f"can't serialize {type(obj)}")
+    def _encode_tuple(self, obj: Tuple[Any, ...]) -> None:
+        return self._encode_list(list(obj))
 
-    def error(self, message: str) -> NoReturn:
-        raise SerializationError(message)
+    def _encode_list(self, obj: List[Any]) -> None:
+        self._pack_struct(TypeCode.array, 1)
+        self._pack_list(len(obj))
+        for item in obj:
+            self.encode(item)
+
+    def _encode_dict(self, obj: Dict[Any, Any]) -> None:
+        self._pack_struct(TypeCode.map, 1)
+        self._pack_map(1)
+        for key, val in obj.items():
+            self.encode(key)
+            self.encode(val)
+
+    def _encode_dataclass(self, obj: Any) -> None:
+        self._pack_struct(TypeCode.object, 2)
+        self._pack(self._fully_qualified(obj))
+        attributes = list(entries(obj))
+        self._pack_map(len(attributes))
+        for key, val in attributes:
+            self._pack(key)
+            self.encode(val)
+
+    def _encode_bytes(self, obj: bytes | memoryview) -> None:
+        self._pack_struct(TypeCode.bytes, 1)
+
+        buffer = Buffer(make_id(), obj)
+        if self._deferred:
+            self._buffers.append(buffer)
+            self._encode_ref(buffer.ref)
+        else:
+            self._pack(buffer.to_bytes())
+
+    def _encode_slice(self, obj: slice) -> None:
+        self._pack_struct(TypeCode.slice, 3)
+        self.encode(obj.start)
+        self.encode(obj.stop)
+        self.encode(obj.step)
+
+    def _encode_typed_array(self, obj: TypedArray[Any]) -> None:
+        self._pack_struct(TypeCode.typed_array, 3)
+        self._encode_bytes(memoryview(obj))
+        self._pack(getattr(EndianessCode, sys.byteorder))
+        self._pack(getattr(DTypeCode, self._resolve_dtype(obj)))
+
+    def _encode_ndarray(self, obj: npt.NDArray[Any]) -> None:
+        self._pack_struct(TypeCode.ndarray, 4)
+        array = transform_array(obj)
+
+        dtype: NDDataType
+        if array_encoding_disabled(array):
+            self._encode_list(array.flatten().tolist())
+            dtype = "object"
+        else:
+            self._encode_bytes(array.data)
+            dtype = cast(NDDataType, array.dtype.name)
+
+        self._pack(getattr(EndianessCode, sys.byteorder))
+        self._pack(getattr(NDDTypeCode, dtype))
+        self._pack_list(len(array.shape))
+        for item in array.shape:
+            self._pack(item)
 
 class DeserializationError(ValueError):
     pass
@@ -478,6 +715,9 @@ class Deserializer:
         self._setter = setter
         self._decoding = False
         self._buffers = {}
+
+    def error(self, message: str) -> NoReturn:
+        raise DeserializationError(message)
 
     def deserialize(self, obj: Any | Serialized[Any]) -> Any:
         if isinstance(obj, Serialized):
@@ -694,9 +934,6 @@ class Deserializer:
                 return figure # XXX: helps with push_session(); this needs a better resolution scheme
             else:
                 self.error(f"can't resolve type '{type}'")
-
-    def error(self, message: str) -> NoReturn:
-        raise DeserializationError(message)
 
 #-----------------------------------------------------------------------------
 # Dev API
