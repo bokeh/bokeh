@@ -129,8 +129,9 @@ describe("Marker glyph", () => {
     ]
 
     function make_plot(output_backend: OutputBackend) {
-      const p = fig([300, 300],
-        {output_backend, title: output_backend, x_range: [-0.5, 4.5], y_range: [-0.6, 4.6]})
+      const p = fig([300, 300], {
+        output_backend, title: output_backend, x_range: [-0.5, 4.5], y_range: [-0.6, 4.6],
+      })
       const n = hatch_patterns.length
       for (let i = 0; i < n; i++) {
         p.scatter({
