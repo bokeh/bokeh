@@ -53,6 +53,8 @@ from ._figure import figure; figure
 from ._figure import markers; markers
 from ._figure import DEFAULT_TOOLS; DEFAULT_TOOLS
 
+from .contour import from_contour; from_contour
+
 from .gmap import GMap; GMap
 from .gmap import gmap; gmap
 

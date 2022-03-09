@@ -17,8 +17,14 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any, Dict, Optional, Sequence, Tuple, Union
+
 # External imports
 import numpy as np
+
+# Bokeh imports
+from ..models.renderers import ContourRenderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -27,13 +33,57 @@ import numpy as np
 __all__ = (
     'contour_data_dicts',
     'contour_coords',
+    'from_contour',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def contour_coords(x, y, z, levels, want_fill, want_line):
+def from_contour(
+    x: Optional[np.ndarray],
+    y: Optional[np.ndarray],
+    z: Union[np.ndarray, np.ma.MaskedArray],
+    levels: Sequence[float],
+    fill_color=None,
+    line_color=None,
+) -> ContourRenderer:
+    if fill_color is None and line_color is None:
+        raise RuntimeError("Neither fill nor line requested in from_contour")
+
+    fill_data_dict, line_data_dict = contour_data_dicts(x, y, z, levels, fill_color, line_color)
+
+    contour_renderer = ContourRenderer()
+
+    if fill_data_dict:
+        glyph = contour_renderer.fill_renderer.glyph
+        glyph.line_width = 0
+        scalar_fill = isinstance(fill_color, str)
+        if scalar_fill:
+            glyph.fill_color = fill_color
+        else:
+            glyph.fill_color = "fill_color"
+        contour_renderer.fill_renderer.data_source.data = fill_data_dict
+
+    if line_data_dict:
+        glyph = contour_renderer.line_renderer.glyph
+        scalar_line = isinstance(line_color, str)
+        if scalar_line:
+            glyph.line_color = line_color
+        else:
+            glyph.line_color = "line_color"
+        contour_renderer.line_renderer.data_source.data = line_data_dict
+
+    return contour_renderer
+
+def contour_coords(
+    x: Optional[np.ndarray],
+    y: Optional[np.ndarray],
+    z: Union[np.ndarray, np.ma.MaskedArray],
+    levels: Sequence[float],
+    want_fill: bool,
+    want_line: bool,
+) -> Tuple[Optional[Tuple[np.ndarray, np.ndarray]], Optional[Tuple[np.ndarray, np.ndarray]]]:
     '''
     Return the (xs, ys) coords of filled and/or line contours.
     '''
@@ -43,8 +93,7 @@ def contour_coords(x, y, z, levels, want_fill, want_line):
     from contourpy import contour_generator, LineType
     cont_gen = contour_generator(x, y, z, line_type=LineType.ChunkCombinedOffset)
 
-    coords = {}  # To return.
-
+    fill_coords = None
     if want_fill:
         all_xs = []
         all_ys = []
@@ -53,8 +102,9 @@ def contour_coords(x, y, z, levels, want_fill, want_line):
             xs, ys = _filled_to_xs_and_ys(filled)
             all_xs.append(xs)
             all_ys.append(ys)
-        coords["fill"] = (all_xs, all_ys)
+        fill_coords = (all_xs, all_ys)
 
+    line_coords = None
     if want_line:
         all_xs = []
         all_ys = []
@@ -63,11 +113,18 @@ def contour_coords(x, y, z, levels, want_fill, want_line):
             xs, ys = _lines_to_xs_and_ys(lines)
             all_xs.append(xs)
             all_ys.append(ys)
-        coords["line"] = (all_xs, all_ys)
+        line_coords = (all_xs, all_ys)
 
-    return coords
+    return fill_coords, line_coords
 
-def contour_data_dicts(x, y, z, levels, fill_color=None, line_color=None):
+def contour_data_dicts(
+    x: Optional[np.ndarray],
+    y: Optional[np.ndarray],
+    z: Union[np.ndarray, np.ma.MaskedArray],
+    levels: Sequence[float],
+    fill_color=None,
+    line_color=None,
+) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     '''
     Return the data dicts of filled and/or line contours that can be used to set or update
     ColumnDataSources.
@@ -88,25 +145,23 @@ def contour_data_dicts(x, y, z, levels, fill_color=None, line_color=None):
         if not scalar_line and len(line_color) != nlevels:
             raise RuntimeError("Inconsistent number of line_color and number of levels")
 
-    coords = contour_coords(x, y, z, levels, want_fill, want_line)
+    fill_coords, line_coords = contour_coords(x, y, z, levels, want_fill, want_line)
 
-    data_dicts = {}  # To return.
-
-    if want_fill:
-        xs, ys = coords["fill"]
-        data_dict = dict(xs=xs, ys=ys)
+    fill_data_dict = None
+    if fill_coords:
+        xs, ys = fill_coords
+        fill_data_dict = dict(xs=xs, ys=ys)
         if not scalar_fill:
-            data_dict["fill_color"] = fill_color
-        data_dicts["fill"] = data_dict
+            fill_data_dict["fill_color"] = fill_color
 
-    if want_line:
-        xs, ys = coords["line"]
-        data_dict = dict(xs=xs, ys=ys)
+    line_data_dict = None
+    if line_coords:
+        xs, ys = line_coords
+        line_data_dict = dict(xs=xs, ys=ys)
         if not scalar_line:
-            data_dict["line_color"] = line_color
-        data_dicts["line"] = data_dict
+            line_data_dict["line_color"] = line_color
 
-    return data_dicts
+    return fill_data_dict, line_data_dict
 
 #-----------------------------------------------------------------------------
 # Dev API
