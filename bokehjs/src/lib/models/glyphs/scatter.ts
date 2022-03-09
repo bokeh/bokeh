@@ -15,14 +15,14 @@ export class ScatterView extends MarkerView {
   override model: Scatter
 
   /** @internal */
-  override glglyph?: import("./webgl/markers").MarkerGL
+  override glglyph?: import("./webgl/marker").MarkerGL
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
     const {webgl} = this.renderer.plot_view.canvas_view
     if (webgl != null && webgl.regl_wrapper.has_webgl) {
-      const {MarkerGL} = await import("./webgl/markers")
+      const {MarkerGL} = await import("./webgl/marker")
       this.glglyph = new MarkerGL(webgl.regl_wrapper, this)
     }
   }

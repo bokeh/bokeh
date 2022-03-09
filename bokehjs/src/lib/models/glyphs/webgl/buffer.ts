@@ -1,6 +1,6 @@
 import {ReglWrapper} from "./regl_wrap"
-import {hatch_pattern_to_index, join_lookup} from "./webgl_utils"
-import {LineJoin} from "core/enums"
+import {cap_lookup, hatch_pattern_to_index, join_lookup} from "./webgl_utils"
+import {LineCap, LineJoin} from "core/enums"
 import {HatchPattern} from "core/property_mixins"
 import {uint32} from "core/types"
 import {Uniform} from "core/uniforms"
@@ -133,6 +133,16 @@ export class Uint8Buffer extends WrappedBuffer<Uint8Array> {
       array[i] = hatch_pattern_to_index(hatch_pattern_prop.get(i))
 
     this.update(hatch_pattern_prop.is_Scalar())
+  }
+
+  set_from_line_cap(line_cap_prop: Uniform<LineCap>, length_if_scalar = 4): void {
+    const len = line_cap_prop.is_Scalar() ? length_if_scalar : line_cap_prop.length
+    const array = this.get_sized_array(len)
+
+    for (let i = 0; i < len; i++)
+      array[i] = cap_lookup[line_cap_prop.get(i)]
+
+    this.update(line_cap_prop.is_Scalar())
   }
 
   set_from_line_join(line_join_prop: Uniform<LineJoin>, length_if_scalar = 4): void {

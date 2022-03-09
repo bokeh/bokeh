@@ -8,6 +8,7 @@ attribute float a_angle; // In radians
 attribute float a_linewidth;
 attribute vec4 a_line_color;
 attribute vec4 a_fill_color;
+attribute float a_line_cap;
 attribute float a_line_join;
 attribute float a_show;
 #ifdef HATCH
@@ -20,11 +21,13 @@ attribute vec4 a_hatch_color;
 uniform float u_pixel_ratio;
 uniform vec2 u_canvas_size;
 uniform float u_antialias;
+uniform float u_size_hint;
 
 varying float v_linewidth;
 varying vec2 v_size; // 2D size for rects compared to 1D for markers.
 varying vec4 v_line_color;
 varying vec4 v_fill_color;
+varying float v_line_cap;
 varying float v_line_join;
 varying vec2 v_coords;
 #ifdef HATCH
@@ -47,6 +50,7 @@ void main()
   v_linewidth = a_linewidth;
   v_line_color = a_line_color;
   v_fill_color = a_fill_color;
+  v_line_cap = a_line_cap;
   v_line_join = a_line_join;
 
   if (v_linewidth < 1.0) {
@@ -62,7 +66,20 @@ void main()
   v_hatch_color = a_hatch_color;
 #endif
 
-  vec2 enclosing_size = v_size + v_linewidth + u_antialias;
+  vec2 enclosing_size;
+  int size_hint = int(u_size_hint + 0.5);
+  if (size_hint == 1)  // Dash
+    enclosing_size = vec2(v_size.x + v_linewidth + u_antialias,
+                          v_linewidth + u_antialias);
+  else if (size_hint == 2)  // Dot
+    enclosing_size = 0.25*v_size + u_antialias;
+  else if (size_hint == 3)  // Diamond
+    enclosing_size = vec2(v_size.x*0.67 + v_linewidth + u_antialias,
+                          v_size.y + 3.0*v_linewidth + u_antialias);
+  else if (size_hint == 4)  // Non-diamond pointed markers
+    enclosing_size = v_size + 4.0*v_linewidth + u_antialias;
+  else
+    enclosing_size = v_size + v_linewidth + u_antialias;
 
   // Coordinates in rotated frame with respect to center of marker, used for
   // distance functions in fragment shader.
