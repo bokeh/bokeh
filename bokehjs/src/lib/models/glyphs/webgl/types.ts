@@ -13,12 +13,8 @@ type CommonProps = {
 type LineProps = {
   linewidth: Float32Buffer
   line_color: NormalizedUint8Buffer
+  line_cap: Uint8Buffer
   line_join: Uint8Buffer
-}
-
-type LinePropsNoJoin = { // Only needed until Markers support line joins.
-  linewidth: Float32Buffer
-  line_color: NormalizedUint8Buffer
 }
 
 type FillProps = {
@@ -53,24 +49,17 @@ export type LineGlyphProps = CommonProps & {
 
 export type LineDashGlyphProps = LineGlyphProps & DashProps
 
-export type MarkerGlyphProps = CommonProps & LinePropsNoJoin & FillProps & {
-  center: Float32Buffer
-  nmarkers: number
-  size: Float32Buffer
-  angle: Float32Buffer
-  show: Uint8Buffer
-}
-
-export type RectGlyphProps = CommonProps & LineProps & FillProps & {
+export type MarkerGlyphProps = CommonProps & LineProps & FillProps & {
   center: Float32Buffer
   nmarkers: number
   width: Float32Buffer
   height: Float32Buffer
   angle: Float32Buffer
+  size_hint: number
   show: Uint8Buffer
 }
 
-export type RectHatchGlyphProps = RectGlyphProps & HatchProps
+export type MarkerHatchGlyphProps = MarkerGlyphProps & HatchProps
 
 // Uniforms are used to pass GLSL uniform values from ReGL functions to shaders.
 export type CommonUniforms = {
@@ -96,16 +85,16 @@ export type LineGlyphUniforms = CommonUniforms & {
 
 export type LineDashGlyphUniforms = LineGlyphUniforms & DashUniforms
 
+export type MarkerGlyphUniforms = CommonUniforms & {
+  u_size_hint: number
+}
+
 // Attributes are used to pass GLSL attribute values from ReGL functions to shaders.
 type LineAttributes = {
   a_linewidth: AttributeConfig
   a_line_color: AttributeConfig
+  a_line_cap: AttributeConfig
   a_line_join: AttributeConfig
-}
-
-type LineAttributesNoJoin = { // Only needed until Markers support line joins.
-  a_linewidth: AttributeConfig
-  a_line_color: AttributeConfig
 }
 
 type FillAttributes = {
@@ -134,15 +123,7 @@ export type LineDashGlyphAttributes = LineGlyphAttributes & {
   a_length_so_far: AttributeConfig
 }
 
-export type MarkerGlyphAttributes = LineAttributesNoJoin & FillAttributes & {
-  a_position: AttributeConfig
-  a_center: AttributeConfig
-  a_size: AttributeConfig
-  a_angle: AttributeConfig
-  a_show: AttributeConfig
-}
-
-export type RectGlyphAttributes = LineAttributes & FillAttributes & {
+export type MarkerGlyphAttributes = LineAttributes & FillAttributes & {
   a_center: AttributeConfig
   a_show: AttributeConfig
   a_position: AttributeConfig
@@ -151,4 +132,4 @@ export type RectGlyphAttributes = LineAttributes & FillAttributes & {
   a_angle: AttributeConfig
 }
 
-export type RectHatchGlyphAttributes = RectGlyphAttributes & HatchAttributes
+export type MarkerHatchGlyphAttributes = MarkerGlyphAttributes & HatchAttributes

@@ -1,7 +1,8 @@
 import {BaseGLGlyph, Transform} from "./base"
 import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
-import {RectGlyphProps, RectHatchGlyphProps} from "./types"
+import {MarkerGlyphProps, MarkerHatchGlyphProps} from "./types"
+import {marker_type_to_size_hint} from "./webgl_utils"
 import type {RectView} from "../rect"
 
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
@@ -22,6 +23,7 @@ export class RectGL extends BaseGLGlyph {
   protected _linewidths: Float32Buffer
   protected _line_rgba: NormalizedUint8Buffer
   protected _fill_rgba: NormalizedUint8Buffer
+  protected _line_caps: Uint8Buffer
   protected _line_joins: Uint8Buffer
 
   // indices properties.
@@ -39,6 +41,7 @@ export class RectGL extends BaseGLGlyph {
     super(regl_wrapper, glyph)
 
     this._antialias = 1.5
+    this._show_all = false
   }
 
   draw(indices: number[], main_glyph: RectView, transform: Transform): void {
@@ -81,20 +84,22 @@ export class RectGL extends BaseGLGlyph {
     this._show.update()
 
     if (this._have_hatch) {
-      const props: RectHatchGlyphProps = {
+      const props: MarkerHatchGlyphProps = {
         scissor: this.regl_wrapper.scissor,
         viewport: this.regl_wrapper.viewport,
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
-        center: mainGlGlyph._centers,
-        width: mainGlGlyph._widths,
-        height: mainGlGlyph._heights,
-        angle: mainGlGlyph._angles,
+        center: mainGlGlyph._centers!,
+        width: mainGlGlyph._widths!,
+        height: mainGlGlyph._heights!,
+        angle: mainGlGlyph._angles!,
+        size_hint: marker_type_to_size_hint("square"),
         nmarkers,
         antialias: this._antialias,
         linewidth: this._linewidths,
         line_color: this._line_rgba,
         fill_color: this._fill_rgba,
+        line_cap: this._line_caps,
         line_join: this._line_joins,
         show: this._show,
         hatch_pattern: this._hatch_patterns!,
@@ -102,26 +107,28 @@ export class RectGL extends BaseGLGlyph {
         hatch_weight: this._hatch_weights!,
         hatch_color: this._hatch_rgba!,
       }
-      this.regl_wrapper.rect_hatch()(props)
+      this.regl_wrapper.marker_hatch("square")(props)
     } else {
-      const props: RectGlyphProps = {
+      const props: MarkerGlyphProps = {
         scissor: this.regl_wrapper.scissor,
         viewport: this.regl_wrapper.viewport,
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
-        center: mainGlGlyph._centers,
-        width: mainGlGlyph._widths,
-        height: mainGlGlyph._heights,
-        angle: mainGlGlyph._angles,
+        center: mainGlGlyph._centers!,
+        width: mainGlGlyph._widths!,
+        height: mainGlGlyph._heights!,
+        angle: mainGlGlyph._angles!,
+        size_hint: marker_type_to_size_hint("square"),
         nmarkers,
         antialias: this._antialias,
         linewidth: this._linewidths,
         line_color: this._line_rgba,
         fill_color: this._fill_rgba,
+        line_cap: this._line_caps,
         line_join: this._line_joins,
         show: this._show,
       }
-      this.regl_wrapper.rect_no_hatch()(props)
+      this.regl_wrapper.marker_no_hatch("square")(props)
     }
   }
 
@@ -160,12 +167,14 @@ export class RectGL extends BaseGLGlyph {
     if (this._linewidths == null) {
       // Either all or none are set.
       this._linewidths = new Float32Buffer(this.regl_wrapper)
+      this._line_caps = new Uint8Buffer(this.regl_wrapper)
       this._line_joins = new Uint8Buffer(this.regl_wrapper)
       this._line_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
       this._fill_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
     }
 
     this._linewidths.set_from_prop(line.line_width)
+    this._line_caps.set_from_line_cap(line.line_cap)
     this._line_joins.set_from_line_join(line.line_join)
     this._line_rgba.set_from_color(line.line_color, line.line_alpha)
     this._fill_rgba.set_from_color(fill.fill_color, fill.fill_alpha)
