@@ -142,10 +142,6 @@ export class HTMLPrinter {
 export class InspectorView extends UIElementView {
   override model: Inspector
 
-  override initialize(): void {
-    super.initialize()
-  }
-
   override styles(): StyleSheetLike[] {
     return [...super.styles(), inspector_css]
   }
