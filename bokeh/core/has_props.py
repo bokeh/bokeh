@@ -301,7 +301,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
         self._raise_attribute_error_with_matches(name, properties)
 
-    def __getattr__(self, name: str) -> Unknown:
+    def __getattr__(self, name: str) -> Any:
         ''' Intercept attribute setting on HasProps in order to special case
         a few situations:
 
@@ -310,22 +310,21 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
         Args:
             name (str) : the name of the attribute to set on this object
-            value (obj) : the value to set
 
         Returns:
-            None
+            Any
 
         '''
         if name.startswith("_"):
-            return super().__getattr__(name)
+            return super().__getattribute__(name)
 
         properties = self.properties(_with_props=True)
         if name in properties:
-            return super().__getattr__(name)
+            return super().__getattribute__(name)
 
         descriptor = getattr(self.__class__, name, None)
         if isinstance(descriptor, property): # Python property
-            return super().__getattr__(name)
+            return super().__getattribute__(name)
 
         self._raise_attribute_error_with_matches(name, properties)
 

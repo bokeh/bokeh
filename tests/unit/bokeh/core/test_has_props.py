@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from types import MethodType
+
 # Bokeh imports
 from bokeh.core.properties import (
     Alias,
@@ -52,6 +55,20 @@ class Parent(hp.HasProps):
     ds1 = NumberSpec(default=field("x"))
     lst1 = List(String)
 
+    @property
+    def foo_prop(self) -> int:
+        return 110
+
+    def foo_func(self) -> int:
+        return 111
+
+    @property
+    def _foo_prop(self) -> int:
+        return 1100
+
+    def _foo_func(self) -> int:
+        return 1110
+
 class Child(Parent):
     int2 = Nullable(Int())
     str2 = String(default="foo")
@@ -71,6 +88,50 @@ class OverrideChild(Parent):
 class AliasedChild(Child):
     aliased_int1 = Alias("int1")
     aliased_int2 = Alias("int2")
+
+def test_HasProps_getattr() -> None:
+    p = Parent()
+
+    assert getattr(p, "int1") == 10
+    assert p.int1 == 10
+
+    assert getattr(p, "foo_prop") == 110
+    assert p.foo_prop == 110
+
+    assert isinstance(getattr(p, "foo_func"), MethodType)
+    assert isinstance(p.foo_func, MethodType)
+
+    assert getattr(p, "foo_func")() == 111
+    assert p.foo_func() == 111
+
+    assert getattr(p, "_foo_prop") == 1100
+    assert p._foo_prop == 1100
+
+    assert isinstance(getattr(p, "_foo_func"), MethodType)
+    assert isinstance(p._foo_func, MethodType)
+
+    assert getattr(p, "_foo_func")() == 1110
+    assert p._foo_func() == 1110
+
+    with pytest.raises(AttributeError):
+        getattr(p, "foo_prop2")
+    with pytest.raises(AttributeError):
+        p.foo_prop2
+
+    with pytest.raises(AttributeError):
+        getattr(p, "foo_func2")
+    with pytest.raises(AttributeError):
+        p.foo_func2
+
+    with pytest.raises(AttributeError):
+        getattr(p, "_foo_prop2")
+    with pytest.raises(AttributeError):
+        p._foo_prop2
+
+    with pytest.raises(AttributeError):
+        getattr(p, "_foo_func2")
+    with pytest.raises(AttributeError):
+        p._foo_func2
 
 def test_HasProps_default_init() -> None:
     p = Parent()
