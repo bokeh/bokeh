@@ -54,6 +54,7 @@ from ..core.properties import (
     Float,
     Include,
     Instance,
+    InstanceDefault,
     Int,
     MarkerSpec,
     NullDistanceSpec,
@@ -688,7 +689,7 @@ class ImageBase(XYGlyph):
     Defines the coordinate space of an image.
     """)
 
-    anchor = Enum(Anchor, help="""
+    anchor = Enum(Anchor, default="top_left", help="""
     Position of the image should be anchored at the `x`, `y` coordinates.
     """)
 
@@ -732,7 +733,7 @@ class Image(ImageBase):
     The arrays of scalar data for the images to be colormapped.
     """)
 
-    color_mapper = Instance(ColorMapper, lambda: LinearColorMapper(palette="Greys9"), help="""
+    color_mapper = Instance(ColorMapper, default=InstanceDefault(LinearColorMapper, palette="Greys9"), help="""
     A ``ColorMapper`` to use to map the scalar data from ``image``
     into RGBA values for display.
 
@@ -819,7 +820,7 @@ class ImageURL(XYGlyph):
     images to have a gap between them, when they should appear flush.
     """)
 
-    anchor = Enum(Anchor, help="""
+    anchor = Enum(Anchor, default="top_left", help="""
     What position of the image should be anchored at the `x`, `y`
     coordinates.
     """)

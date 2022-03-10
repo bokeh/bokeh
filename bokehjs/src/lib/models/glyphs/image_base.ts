@@ -316,7 +316,7 @@ export abstract class ImageBase extends XYGlyph {
       global_alpha: [ p.NumberSpec, {value: 1.0} ],
       dilate:       [ Boolean, false ],
       origin:       [ ImageOrigin, "bottom_left" ],
-      anchor:       [ Anchor, "bottom_left" ],
+      anchor:       [ Anchor, "top_left" ],
     }))
   }
 }
