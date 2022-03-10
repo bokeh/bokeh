@@ -1,7 +1,6 @@
 import {Document} from "./document"
 import {Data} from "core/types"
 import {HasProps} from "core/has_props"
-import {Model} from "../model"
 import {Ref} from "core/util/refs"
 import {PatchSet} from "core/patching"
 import {equals, Equatable, Comparator} from "core/util/eq"
