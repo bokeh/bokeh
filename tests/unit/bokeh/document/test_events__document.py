@@ -48,10 +48,13 @@ class FakeFullDispatcher:
     def _session_callback_added(self, event):   self.called.append('_session_callback_added')
     def _session_callback_removed(self, event): self.called.append('_session_callback_removed')
 
+class OtherModel(Model):
+    data = ColumnData(Any, Any, default={})
+
 class SomeModel(Model):
     data = ColumnData(Any, Any, default={})
-    ref1 = Instance(Model, default=lambda: SomeModel())
-    ref2 = Instance(Model, default=lambda: SomeModel())
+    ref1 = Instance(OtherModel, default=lambda: OtherModel())
+    ref2 = Instance(OtherModel, default=lambda: OtherModel())
 
 #-----------------------------------------------------------------------------
 # General API
@@ -440,8 +443,8 @@ class TestRootAddedEvent:
 
     def test_to_serializable(self) -> None:
         doc = Document()
-        ref1 = SomeModel()
-        ref2 = SomeModel()
+        ref1 = OtherModel()
+        ref2 = OtherModel()
         m = SomeModel(ref1=ref1, ref2=ref2)
         e = bde.RootAddedEvent(doc, m, "setter", "invoker")
         s = Serializer()
@@ -455,12 +458,12 @@ class TestRootAddedEvent:
                 attributes=dict(
                     ref1=ObjectRefRep(
                         type="object",
-                        name="test_events__document.SomeModel",
+                        name="test_events__document.OtherModel",
                         id=ref1.id,
                     ),
                     ref2=ObjectRefRep(
                         type="object",
-                        name="test_events__document.SomeModel",
+                        name="test_events__document.OtherModel",
                         id=ref2.id,
                     ),
                 ),
