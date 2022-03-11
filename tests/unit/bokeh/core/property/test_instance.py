@@ -58,7 +58,7 @@ class Test_InstanceDefault:
 
     def test___repr__(self) -> None:
         m = bcpi.InstanceDefault(_TestModel, x=10, z=[10])
-        assert repr(m) == "<Instance: _TestModel(x=10, z=[10])>"
+        assert repr(m) == "<Instance: _util_property._TestModel(x=10, z=[10])>"
 
 class Test_Instance:
     def test_init(self) -> None:

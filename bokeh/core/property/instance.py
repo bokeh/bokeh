@@ -27,17 +27,15 @@ log = logging.getLogger(__name__)
 import types
 from importlib import import_module
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
+    Generic,
     Type,
     TypeVar,
 )
 
-if TYPE_CHECKING:
-    from ..model import Model
-
 # Bokeh imports
+from ..has_props import HasProps
 from ..serialization import Serializable
 from ._sphinx import model_link, property_link, register_type_link
 from .bases import Init, Property
@@ -127,7 +125,9 @@ class Instance(Property[T]):
         # because the instance value is mutable
         return self._default is not Undefined
 
-class InstanceDefault:
+I = TypeVar("I", bound=HasProps)
+
+class InstanceDefault(Generic[I]):
     """ Provide a deferred initializer for Instance defaults.
 
     This is useful for Bokeh models with Instance properties that should have
@@ -135,16 +135,16 @@ class InstanceDefault:
     will afford better user-facing documentation than a lambda initializer.
 
     """
-    def __init__(self, model: Type[Model], **kwargs: Any) -> None:
+    def __init__(self, model: Type[I], **kwargs: Any) -> None:
         self._model = model
         self._kwargs = kwargs
 
-    def __call__(self) -> Model:
+    def __call__(self) -> I:
         return self._model(**self._kwargs)
 
     def __repr__(self) -> str:
-        return f"<Instance: {self._model.__name__}(" + ", ".join(f"{key}={val}" for key, val in self._kwargs.items()) +  ")>"
-
+        kwargs = ", ".join(f"{key}={val}" for key, val in self._kwargs.items())
+        return f"<Instance: {self._model.__qualified_model__}({kwargs})>"
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -159,8 +159,7 @@ class InstanceDefault:
 #-----------------------------------------------------------------------------
 
 @register_type_link(Instance)
-def _sphinx_type_link(obj):
-
+def _sphinx_type_link(obj: Instance[Any]) -> str:
     # Sphinx links may be generated during docstring processing which means
     # we can't necessarily evaluate pure function (e.g. lambda) Instance
     # initializers, since they may contain circular references to the (not
