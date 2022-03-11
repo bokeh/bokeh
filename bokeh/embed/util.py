@@ -236,10 +236,18 @@ class RenderRoot:
 
     """
 
+    #: A unique ID to use for the DOM element
     elementid: ID
+
+    #: The Bokeh model ID for this root
     id: ID = field(compare=False)
+
+    #: An optional user-supplied name for this root
     name: str = field(default='', compare=False)
+
+    #: A list of any user-supplied tag values for this root
     tags: List[Any] = field(default_factory=list, compare=False)
+
 
 class RenderRoots:
     def __init__(self, roots: Dict[Model, ID]) -> None:
