@@ -238,8 +238,8 @@ class RenderRoot:
 
     elementid: ID
     id: ID = field(compare=False)
-    name: str = field(default='', init=True, compare=False)
-    tags: List[Any] = field(default_factory=list, init=True, compare=False)
+    name: str = field(default='', compare=False)
+    tags: List[Any] = field(default_factory=list, compare=False)
 
 class RenderRoots:
     def __init__(self, roots: Dict[Model, ID]) -> None:
