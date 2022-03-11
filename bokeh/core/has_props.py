@@ -698,7 +698,8 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         Values that are containers are shallow-copied.
 
         '''
-        return self.__class__(**self._property_values)
+        attrs = self.properties_with_values(include_defaults=False, include_undefined=True)
+        return self.__class__(**{key: val for key, val in attrs.items() if val is not Undefined})
 
 KindRef = Any # TODO
 
