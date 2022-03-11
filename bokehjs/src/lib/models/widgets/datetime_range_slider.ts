@@ -30,7 +30,7 @@ export class DatetimeRangeSlider extends AbstractSlider {
 
     this.override<DatetimeRangeSlider.Props>({
       format: "%d %b %Y %H:%M:%S",
-      step: 3600000,  // 1 hour.
+      step: 3_600_000,  // 1 hour.
     })
   }
 

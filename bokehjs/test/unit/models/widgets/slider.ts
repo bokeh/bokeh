@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {Slider, RangeSlider, DateSlider, DateRangeSlider} from "@bokehjs/models/widgets"
+import {Slider, RangeSlider, DateSlider, DateRangeSlider, DatetimeRangeSlider} from "@bokehjs/models/widgets"
 import {CustomJSTickFormatter} from "@bokehjs/models/formatters"
 import {isInteger} from "@bokehjs/core/util/types"
 import {build_view} from "@bokehjs/core/build_views"
@@ -66,5 +66,21 @@ describe("DateRangeSlider", () => {
     const format = new CustomJSTickFormatter({code: "return Math.floor(1970 + tick/(1000*60*60*24*365)).toFixed(0)"})
     const slider = new DateRangeSlider({format})
     expect(slider.pretty(1599402993268)).to.be.equal("2020")
+  })
+})
+
+describe("DatetimeRangeSlider", () => {
+  it("should support string format", () => {
+    const slider = new DatetimeRangeSlider({format: "%Y %B %d"})
+    const datetime = 1648211696000  // 2022-03-25 12:34:56
+    expect(slider.pretty(datetime)).to.be.equal("2022 March 25")
+    slider.format = "%H:%M:%S"
+    expect(slider.pretty(datetime)).to.be.equal("12:34:56")
+  })
+
+  it("should support TickFormatter format", () => {
+    const format = new CustomJSTickFormatter({code: "return Math.floor(1970 + tick/(1000*60*60*24*365)).toFixed(0)"})
+    const slider = new DatetimeRangeSlider({format})
+    expect(slider.pretty(1648211696000)).to.be.equal("2022")
   })
 })
