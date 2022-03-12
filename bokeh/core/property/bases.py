@@ -325,7 +325,6 @@ class Property(PropertyDescriptorFactory[T]):
         if value is Undefined:
             return value
 
-
         error = None
         try:
             if validation_on():

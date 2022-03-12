@@ -24,6 +24,7 @@ from bokeh.core.properties import (
     Alias,
     AngleSpec,
     Either,
+    Instance,
     Int,
     List,
     Nullable,
@@ -548,6 +549,31 @@ def test_qualified() -> None:
     assert TopLevelNonQualified.__qualified_model__ == "TopLevelNonQualified"
     assert InnerQualified.__qualified_model__ == "test_has_props.test_qualified.InnerQualified"
     assert InnerNonQualified.__qualified_model__ == "test_qualified.InnerNonQualified"
+
+def test_HasProps_properties_with_values_unstable():
+    class Some0HasProps(hp.HasProps, hp.Local):
+        f0 = Int(default=3)
+        f1 = List(Int, default=[3, 4, 5])
+
+    class Some1HasProps(hp.HasProps, hp.Local):
+        f0 = String(default="xyz")
+        f1 = List(String, default=["x", "y", "z"])
+
+    class Some2HasProps(hp.HasProps, hp.Local):
+        f0 = Instance(Some0HasProps, lambda: Some0HasProps())
+        f1 = Instance(Some1HasProps, lambda: Some1HasProps())
+        f2 = Int(default=1)
+        f3 = String(default="xyz")
+        f4 = List(Int, default=[1, 2, 3])
+
+    v0 = Some0HasProps()
+    assert v0.properties_with_values(include_defaults=False) == {}
+
+    v1 = Some1HasProps()
+    assert v1.properties_with_values(include_defaults=False) == {}
+
+    v2 = Some2HasProps()
+    assert v2.properties_with_values(include_defaults=False) == {"f0": v2.f0, "f1": v2.f1}
 
 #-----------------------------------------------------------------------------
 # Private API
