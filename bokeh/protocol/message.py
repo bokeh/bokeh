@@ -104,6 +104,7 @@ class _Header(TypedDict):
 
 class Header(_Header, total=False):
     reqid: ID
+    binary: bool
     num_buffers: int
 
 class BufferHeader(TypedDict):
@@ -275,7 +276,7 @@ class Message(Generic[Content]):
         return sent
 
     @classmethod
-    def create_header(cls, request_id: ID | None = None) -> Header:
+    def create_header(cls, *, request_id: ID | None = None, binary: bool = False) -> Header:
         ''' Return a message header fragment dict.
 
         Args:
@@ -292,6 +293,8 @@ class Message(Generic[Content]):
         )
         if request_id is not None:
             header['reqid'] = request_id
+        if binary:
+            header["binary"] = binary
         return header
 
     async def send(self, conn: WebSocketClientConnectionWrapper) -> int:
