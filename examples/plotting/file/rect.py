@@ -1,3 +1,13 @@
+'''This example shows how to plot rectangles. The first figure uses a static
+width and height. The second applies a variable configuration for each rect 
+and the third plot adds an angle to each rect.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.rect
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting__bars_and_rectanglesrectangles`> :ref:`userguide_plotting_bars_and_rectangles_rectangles`
+    :keywords: rect
+
+'''
 import numpy as np
 
 from bokeh.layouts import gridplot
