@@ -1,6 +1,6 @@
 '''This example shows the same data on two separate tile plots.
 The left plot uses the built-in CartoDB tile source, and the right plot uses
-a customized tile source configured for OpenStreetMap
+a customized tile source configured for OpenStreetMap.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.add_tile, bokeh.plotting.figure.circle
@@ -51,9 +51,9 @@ mq.x_range = carto.x_range
 mq.y_range = carto.y_range
 
 div = Div(text="""
-<p>This example shows the same data on two separate tile plots. The left plot
-is using a built-in CartoDB tile source, and is using  a customized tile source
-configured for OpenStreetMap.</p>
+<p>This example shows the same data on two separate tile plots.
+The left plot uses the built-in CartoDB tile source, and the right plot uses
+a customized tile source configured for OpenStreetMap.</p>
 """, width=800)
 
 layout = column(div, gridplot([[carto, mq]], toolbar_location="right"))
