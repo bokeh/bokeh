@@ -31,8 +31,8 @@ from ..models.renderers import ContourRenderer
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'contour_data_dicts',
     'contour_coords',
+    'contour_data',
     'from_contour',
 )
 
@@ -51,11 +51,12 @@ def from_contour(
     if fill_color is None and line_color is None:
         raise RuntimeError("Neither fill nor line requested in from_contour")
 
-    fill_data_dict, line_data_dict = contour_data_dicts(x, y, z, levels, fill_color, line_color)
+    new_contour_data = contour_data(x, y, z, levels, fill_color, line_color)
 
     contour_renderer = ContourRenderer()
+    contour_renderer.data = new_contour_data
 
-    if fill_data_dict:
+    if new_contour_data["fill_data"]:
         glyph = contour_renderer.fill_renderer.glyph
         glyph.line_width = 0
         scalar_fill = isinstance(fill_color, str)
@@ -63,18 +64,17 @@ def from_contour(
             glyph.fill_color = fill_color
         else:
             glyph.fill_color = "fill_color"
-        contour_renderer.fill_renderer.data_source.data = fill_data_dict
 
-    if line_data_dict:
+    if new_contour_data["line_data"]:
         glyph = contour_renderer.line_renderer.glyph
         scalar_line = isinstance(line_color, str)
         if scalar_line:
             glyph.line_color = line_color
         else:
             glyph.line_color = "line_color"
-        contour_renderer.line_renderer.data_source.data = line_data_dict
 
     return contour_renderer
+
 
 def contour_coords(
     x: Optional[np.ndarray],
@@ -117,17 +117,18 @@ def contour_coords(
 
     return fill_coords, line_coords
 
-def contour_data_dicts(
+
+def contour_data(
     x: Optional[np.ndarray],
     y: Optional[np.ndarray],
     z: Union[np.ndarray, np.ma.MaskedArray],
     levels: Sequence[float],
     fill_color=None,
     line_color=None,
-) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+) -> Dict[str, Dict[str, Any]]:
     '''
-    Return the data dicts of filled and/or line contours that can be used to set or update
-    ColumnDataSources.
+    Return the contour data of filled and/or line contours that can be used to set
+    ContourRenderer.data
     '''
     if fill_color is None and line_color is None:
         raise RuntimeError("Neither fill nor line requested in contour_data_dicts")
@@ -161,7 +162,7 @@ def contour_data_dicts(
         if not scalar_line:
             line_data_dict["line_color"] = line_color
 
-    return fill_data_dict, line_data_dict
+    return dict(fill_data=fill_data_dict, line_data=line_data_dict)
 
 #-----------------------------------------------------------------------------
 # Dev API

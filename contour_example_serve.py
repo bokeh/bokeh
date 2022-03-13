@@ -1,7 +1,7 @@
 from bokeh.driving import count
 from bokeh.palettes import RdYlGn
 from bokeh.plotting import figure, curdoc, from_contour
-from bokeh.plotting.contour import contour_data_dicts
+from bokeh.plotting.contour import contour_data
 import numpy as np
 
 def calc_z(timestep):
@@ -18,13 +18,8 @@ line_color = "black"
 def callback(timestep):
     timestep += 1
     z = calc_z(timestep)
-    fill_data_dict, line_data_dict = contour_data_dicts(
-        x, y, z, levels, fill_color=fill_color, line_color=line_color,
-    )
-    if fill_data_dict:
-        contour_renderer.fill_renderer.data_source.data = fill_data_dict
-    if line_data_dict:
-        contour_renderer.line_renderer.data_source.data = line_data_dict
+    new_contour_data = contour_data(x, y, z, levels, fill_color=fill_color, line_color=line_color)
+    contour_renderer.data = new_contour_data
 
 fig = figure()
 contour_renderer = from_contour(x, y, z, levels, fill_color=fill_color, line_color=line_color)

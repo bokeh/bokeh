@@ -52,6 +52,7 @@ export namespace ContourRenderer {
   export type Props = DataRenderer.Props & {
     fill_renderer: p.Property<GlyphRenderer>
     line_renderer: p.Property<GlyphRenderer>
+    data: p.Property<{[key: string]: any}>
   }
 }
 
@@ -68,9 +69,10 @@ export class ContourRenderer extends DataRenderer {
   static {
     this.prototype.default_view = ContourRendererView
 
-    this.define<ContourRenderer.Props>(({Ref}) => ({
+    this.define<ContourRenderer.Props>(({Any, Dict, Ref}) => ({
       fill_renderer: [ Ref(GlyphRenderer) ],
       line_renderer: [ Ref(GlyphRenderer) ],
+      data: [ Dict(Any), {} ],
     }))
   }
 
