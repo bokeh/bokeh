@@ -1,3 +1,12 @@
+'''This example shows how to plot multiple lines with the `multi_line` call.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.multi_line, bokeh.models.HoverTool, bokeh.models.TapTool
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_multi_lines`
+    :keywords: multi_line, HoverTool, TapTool
+
+'''
+
 from collections import defaultdict
 
 import numpy as np
@@ -6,7 +15,7 @@ from scipy.stats import norm
 from bokeh.layouts import gridplot
 from bokeh.models import HoverTool, TapTool
 from bokeh.palettes import Viridis6
-from bokeh.plotting import figure, show
+from bokeh.plotting import figure, output_file, show
 
 mass_spec = defaultdict(list)
 
@@ -46,5 +55,7 @@ mz_plot.multi_line(xs='MZ', ys='MZ_intensity', legend_field="Intensity_tip", **l
 mz_plot.legend.location = "top_center"
 mz_plot.xaxis.axis_label = "MZ"
 mz_plot.yaxis.axis_label = "Intensity"
+
+output_file("multi_line.html", title="multi_line.py example")
 
 show(gridplot([[rt_plot, mz_plot]]))
