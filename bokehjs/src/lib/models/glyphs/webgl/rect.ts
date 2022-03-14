@@ -1,10 +1,11 @@
 import {Transform} from "./base"
-import {BaseMarkerGL, MarkerVisuals} from "./base_marker"
+import {MarkerVisuals} from "./base_marker"
 import {Float32Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
+import {SingleMarkerGL} from "./single_marker"
 import type {RectView} from "../rect"
 
-export class RectGL extends BaseMarkerGL {
+export class RectGL extends SingleMarkerGL {
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: RectView) {
     super(regl_wrapper, glyph)
   }
@@ -34,8 +35,8 @@ export class RectGL extends BaseMarkerGL {
         centers_array[2*i  ] = this.glyph.sx[i]
         centers_array[2*i+1] = this.glyph.sy[i]
       } else {
-        centers_array[2*i  ] = BaseMarkerGL.missing_point
-        centers_array[2*i+1] = BaseMarkerGL.missing_point
+        centers_array[2*i  ] = SingleMarkerGL.missing_point
+        centers_array[2*i+1] = SingleMarkerGL.missing_point
       }
     }
     this._centers.update()

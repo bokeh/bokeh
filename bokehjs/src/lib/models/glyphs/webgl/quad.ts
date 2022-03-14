@@ -1,10 +1,11 @@
 import {Transform} from "./base"
-import {BaseMarkerGL, MarkerVisuals} from "./base_marker"
+import {MarkerVisuals} from "./base_marker"
 import {Float32Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
+import {SingleMarkerGL} from "./single_marker"
 import type {QuadView} from "../quad"
 
-export class QuadGL extends BaseMarkerGL {
+export class QuadGL extends SingleMarkerGL {
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: QuadView) {
     super(regl_wrapper, glyph)
   }
@@ -45,10 +46,10 @@ export class QuadGL extends BaseMarkerGL {
         heights_array[i] = Math.abs(t-b)
         widths_array[i] = Math.abs(r-l)
       } else {
-        centers_array[2*i] = BaseMarkerGL.missing_point
-        centers_array[2*i+1] = BaseMarkerGL.missing_point
-        heights_array[i] = BaseMarkerGL.missing_point
-        widths_array[i] = BaseMarkerGL.missing_point
+        centers_array[2*i] = SingleMarkerGL.missing_point
+        centers_array[2*i+1] = SingleMarkerGL.missing_point
+        heights_array[i] = SingleMarkerGL.missing_point
+        widths_array[i] = SingleMarkerGL.missing_point
       }
     }
     this._centers.update()

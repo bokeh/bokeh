@@ -15,7 +15,7 @@ function is_CircleView(glyph_view: GlyphView): glyph_view is CircleView {
   return glyph_view.model.type == "Circle"
 }
 
-export class MarkerGL extends BaseMarkerGL {
+export class MultiMarkerGL extends BaseMarkerGL {
 
   // data properties, either all or none are set.
   protected _marker_types?: Uniform<MarkerType | null>
@@ -24,7 +24,7 @@ export class MarkerGL extends BaseMarkerGL {
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: MarkerLikeView) {
     super(regl_wrapper, glyph)
 
-    // Should not overwrite this._antialias, but this will change all webgl baseline
+    // Should not overwrite _antialias, but this will change all webgl baseline
     // test images for markers so only do when the images next change anyway.
     this._antialias = 0.8
   }
