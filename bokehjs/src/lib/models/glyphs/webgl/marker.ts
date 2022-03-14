@@ -1,18 +1,12 @@
-import {BaseGLGlyph, Transform} from "./base"
-import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
+import {Transform} from "./base"
+import {BaseMarkerGL, MarkerVisuals} from "./base_marker"
+import {Float32Buffer, Uint8Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
-import {MarkerGlyphProps, MarkerHatchGlyphProps} from "./types"
-import {marker_type_to_size_hint} from "./webgl_utils"
 import type {GlyphView} from "../glyph"
 import type {ScatterView} from "../scatter"
 import type {CircleView} from "../circle"
 import {MarkerType} from "core/enums"
 import {Uniform, UniformScalar} from "core/uniforms"
-
-// Avoiding use of nan or inf to represent missing data in webgl as shaders may
-// have reduced floating point precision.  So here using a large-ish negative
-// value instead.
-const missing_point = -10000
 
 type MarkerLikeView = ScatterView | CircleView
 
@@ -21,51 +15,27 @@ function is_CircleView(glyph_view: GlyphView): glyph_view is CircleView {
   return glyph_view.model.type == "Circle"
 }
 
-// Base class for markers. All markers share the same GLSL, except for one
-// function in the fragment shader that defines the marker geometry and is
-// enabled through a #define.
-export class MarkerGL extends BaseGLGlyph {
-  protected _antialias: number
+export class MarkerGL extends BaseMarkerGL {
 
   // data properties, either all or none are set.
   protected _marker_types?: Uniform<MarkerType | null>
   protected _unique_marker_types: (MarkerType | null)[]
-  protected _centers?: Float32Buffer
-  protected _sizes?: Float32Buffer
-  protected _angles?: Float32Buffer
-
-  // visual properties, either all or none are set.
-  protected _linewidths?: Float32Buffer
-  protected _line_rgba: NormalizedUint8Buffer
-  protected _fill_rgba: NormalizedUint8Buffer
-  protected _line_caps: Uint8Buffer
-  protected _line_joins: Uint8Buffer
-
-  // indices properties.
-  protected _show?: Uint8Buffer
-  protected _show_all: boolean
-
-  // Only needed if have hatch pattern, either all or none of the buffers are set.
-  protected _have_hatch: boolean
-  protected _hatch_patterns?: Uint8Buffer
-  protected _hatch_scales?: Float32Buffer
-  protected _hatch_weights?: Float32Buffer
-  protected _hatch_rgba?: NormalizedUint8Buffer
 
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: MarkerLikeView) {
     super(regl_wrapper, glyph)
 
+    // Should not overwrite this._antialias, but this will change all webgl baseline
+    // test images for markers so only do when the images next change anyway.
     this._antialias = 0.8
-    this._show_all = false
   }
 
-  draw(indices: number[], main_glyph: MarkerLikeView, transform: Transform): void {
+  override draw(indices: number[], main_glyph: MarkerLikeView, transform: Transform): void {
     // The main glyph has the data, this glyph has the visuals.
-    const mainGlGlyph = main_glyph.glglyph!
+    const main_gl_glyph = main_glyph.glglyph!
 
-    if (mainGlGlyph.data_changed) {
-      mainGlGlyph._set_data()
-      mainGlGlyph.data_changed = false
+    if (main_gl_glyph.data_changed) {
+      main_gl_glyph._set_data()
+      main_gl_glyph.data_changed = false
     }
 
     if (this.visuals_changed) {
@@ -73,13 +43,13 @@ export class MarkerGL extends BaseGLGlyph {
       this.visuals_changed = false
     }
 
-    const nmarkers = mainGlGlyph._centers!.length / 2
+    const nmarkers = main_gl_glyph.nvertices
 
     if (this._show == null)
       this._show = new Uint8Buffer(this.regl_wrapper)
 
-    const ntypes = mainGlGlyph._unique_marker_types.length
-    for (const marker_type of mainGlGlyph._unique_marker_types) {
+    const ntypes = main_gl_glyph._unique_marker_types.length
+    for (const marker_type of main_gl_glyph._unique_marker_types) {
       if (marker_type == null)
         continue
 
@@ -95,7 +65,7 @@ export class MarkerGL extends BaseGLGlyph {
         // Set show values of markers to render to 255.
         nshow = 0
         for (const k of indices) {  // Marker index.
-          if (ntypes == 1 || mainGlGlyph._marker_types!.get(k) == marker_type) {
+          if (ntypes == 1 || main_gl_glyph._marker_types!.get(k) == marker_type) {
             show_array[k] = 255
             nshow++
           }
@@ -109,63 +79,22 @@ export class MarkerGL extends BaseGLGlyph {
       if (nshow == 0)
         continue
 
-      if (this._have_hatch) {
-        const props: MarkerHatchGlyphProps = {
-          scissor: this.regl_wrapper.scissor,
-          viewport: this.regl_wrapper.viewport,
-          canvas_size: [transform.width, transform.height],
-          pixel_ratio: transform.pixel_ratio,
-          center: mainGlGlyph._centers!,
-          width: mainGlGlyph._sizes!,
-          height: mainGlGlyph._sizes!,
-          angle: mainGlGlyph._angles!,
-          size_hint: marker_type_to_size_hint(marker_type),
-          nmarkers,
-          antialias: this._antialias,
-          linewidth: this._linewidths!,
-          line_color: this._line_rgba,
-          fill_color: this._fill_rgba,
-          line_cap: this._line_caps,
-          line_join: this._line_joins,
-          show: this._show,
-          hatch_pattern: this._hatch_patterns!,
-          hatch_scale: this._hatch_scales!,
-          hatch_weight: this._hatch_weights!,
-          hatch_color: this._hatch_rgba!,
-        }
-        this.regl_wrapper.marker_hatch(marker_type)(props)
-      } else {
-        const props: MarkerGlyphProps = {
-          scissor: this.regl_wrapper.scissor,
-          viewport: this.regl_wrapper.viewport,
-          canvas_size: [transform.width, transform.height],
-          pixel_ratio: transform.pixel_ratio,
-          center: mainGlGlyph._centers!,
-          width: mainGlGlyph._sizes!,
-          height: mainGlGlyph._sizes!,
-          angle: mainGlGlyph._angles!,
-          size_hint: marker_type_to_size_hint(marker_type),
-          nmarkers,
-          antialias: this._antialias,
-          linewidth: this._linewidths!,
-          line_color: this._line_rgba,
-          fill_color: this._fill_rgba,
-          line_cap: this._line_caps,
-          line_join: this._line_joins,
-          show: this._show,
-        }
-        this.regl_wrapper.marker_no_hatch(marker_type)(props)
-      }
+      this._draw_one_marker_type(marker_type, transform, main_gl_glyph)
     }
   }
 
+  protected override _get_visuals(): MarkerVisuals {
+    return this.glyph.visuals
+  }
+
   protected _set_data(): void {
-    const nmarkers = this.glyph.sx.length
+    const nmarkers = this.nvertices
 
     if (this._centers == null) {
       // Either all or none are set.
       this._centers = new Float32Buffer(this.regl_wrapper)
-      this._sizes = new Float32Buffer(this.regl_wrapper)
+      this._widths = new Float32Buffer(this.regl_wrapper)
+      this._heights = this._widths
       this._angles = new Float32Buffer(this.regl_wrapper)
     }
 
@@ -175,19 +104,19 @@ export class MarkerGL extends BaseGLGlyph {
         centers_array[2*i  ] = this.glyph.sx[i]
         centers_array[2*i+1] = this.glyph.sy[i]
       } else {
-        centers_array[2*i  ] = missing_point
-        centers_array[2*i+1] = missing_point
+        centers_array[2*i  ] = BaseMarkerGL.missing_point
+        centers_array[2*i+1] = BaseMarkerGL.missing_point
       }
     }
     this._centers.update()
 
     if (is_CircleView(this.glyph) && this.glyph.use_radius) {
-      const sizes_array = this._sizes!.get_sized_array(nmarkers)
+      const widths_array = this._widths!.get_sized_array(nmarkers)
       for (let i = 0; i < nmarkers; i++)
-        sizes_array[i] = this.glyph.sradius[i]*2
-      this._sizes!.update()
+        widths_array[i] = this.glyph.sradius[i]*2
+      this._widths!.update()
     } else {
-      this._sizes!.set_from_prop(this.glyph.size)
+      this._widths!.set_from_prop(this.glyph.size)
     }
 
     this._angles!.set_from_prop(this.glyph.angle)
@@ -201,44 +130,6 @@ export class MarkerGL extends BaseGLGlyph {
     } else {
       this._marker_types = this.glyph.marker
       this._unique_marker_types = [...new Set(this._marker_types)]
-    }
-  }
-
-  protected _set_visuals(): void {
-    const fill = this.glyph.visuals.fill
-    const line = this.glyph.visuals.line
-
-    if (this._linewidths == null) {
-      // Either all or none are set.
-      this._linewidths = new Float32Buffer(this.regl_wrapper)
-      this._line_caps = new Uint8Buffer(this.regl_wrapper)
-      this._line_joins = new Uint8Buffer(this.regl_wrapper)
-      this._line_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
-      this._fill_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
-    }
-
-    this._linewidths.set_from_prop(line.line_width)
-    this._line_caps.set_from_line_cap(line.line_cap)
-    this._line_joins.set_from_line_join(line.line_join)
-    this._line_rgba.set_from_color(line.line_color, line.line_alpha)
-    this._fill_rgba.set_from_color(fill.fill_color, fill.fill_alpha)
-
-    this._have_hatch = this.glyph.visuals.hatch.doit
-    if (this._have_hatch) {
-      const hatch = this.glyph.visuals.hatch
-
-      if (this._hatch_patterns == null) {
-        // Either all or none are set.
-        this._hatch_patterns = new Uint8Buffer(this.regl_wrapper)
-        this._hatch_scales = new Float32Buffer(this.regl_wrapper)
-        this._hatch_weights = new Float32Buffer(this.regl_wrapper)
-        this._hatch_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
-      }
-
-      this._hatch_patterns.set_from_hatch_pattern(hatch.hatch_pattern)
-      this._hatch_scales!.set_from_prop(hatch.hatch_scale)
-      this._hatch_weights!.set_from_prop(hatch.hatch_weight)
-      this._hatch_rgba!.set_from_color(hatch.hatch_color, hatch.hatch_alpha)
     }
   }
 }

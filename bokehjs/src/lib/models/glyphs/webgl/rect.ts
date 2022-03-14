@@ -9,8 +9,8 @@ export class RectGL extends BaseMarkerGL {
     super(regl_wrapper, glyph)
   }
 
-  draw(indices: number[], main_glyph: RectView, transform: Transform): void {
-    this._draw(indices, transform, main_glyph.glglyph!, "square")
+  override draw(indices: number[], main_glyph: RectView, transform: Transform): void {
+    this._draw_impl(indices, transform, main_glyph.glglyph!, "square")
   }
 
   protected override _get_visuals(): MarkerVisuals {

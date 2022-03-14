@@ -13,8 +13,11 @@ export type MarkerVisuals = {
   readonly hatch: visuals.HatchVector,
 }
 
+// Abstract base class for markers. All markers share the same GLSL, except for
+// one function in the fragment shader that defines the marker geometry and is
+// enabled through a #define.
 export abstract class BaseMarkerGL extends BaseGLGlyph {
-  private _antialias: number
+  protected _antialias: number  // Change to private when MarkerGL not overwriting it.
 
   // data properties, either all or none are set.
   protected _centers?: Float32Buffer
@@ -23,8 +26,8 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   protected _angles?: Float32Buffer
 
   // indices properties.
-  private _show?: Uint8Buffer
-  private _show_all: boolean
+  protected _show?: Uint8Buffer
+  protected _show_all: boolean
 
   // visual properties, either all or none are set.
   private _linewidths?: Float32Buffer
@@ -54,7 +57,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
 
   abstract override draw(indices: number[], mainglyph: any, trans: Transform): void
 
-  protected _draw(indices: number[], transform: Transform, main_gl_glyph: BaseMarkerGL, marker_type: MarkerType): void {
+  protected _draw_impl(indices: number[], transform: Transform, main_gl_glyph: BaseMarkerGL, marker_type: MarkerType): void {
     if (main_gl_glyph.data_changed) {
       main_gl_glyph._set_data()
       main_gl_glyph.data_changed = false
@@ -65,7 +68,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
       this.visuals_changed = false
     }
 
-    const nmarkers = this.nvertices
+    const nmarkers = main_gl_glyph.nvertices
 
     if (this._show == null)
       this._show = new Uint8Buffer(this.regl_wrapper)
@@ -105,7 +108,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
         height: main_gl_glyph._heights!,
         angle: main_gl_glyph._angles!,
         size_hint: marker_type_to_size_hint(marker_type),
-        nmarkers: this.nvertices,
+        nmarkers: main_gl_glyph.nvertices,
         antialias: this._antialias,
         linewidth: this._linewidths!,
         line_color: this._line_rgba,
@@ -130,7 +133,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
         height: main_gl_glyph._heights!,
         angle: main_gl_glyph._angles!,
         size_hint: marker_type_to_size_hint(marker_type),
-        nmarkers: this.nvertices,
+        nmarkers: main_gl_glyph.nvertices,
         antialias: this._antialias,
         linewidth: this._linewidths!,
         line_color: this._line_rgba,
