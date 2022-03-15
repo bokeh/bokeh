@@ -10,7 +10,7 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
     super(regl_wrapper, glyph)
   }
 
-  abstract override draw(indices: number[], mainglyph: any, trans: Transform): void
+  abstract override draw(indices: number[], mainglyph: GlyphView, trans: Transform): void
 
   protected _draw_impl(indices: number[], transform: Transform, main_gl_glyph: SingleMarkerGL, marker_type: MarkerType): void {
     if (main_gl_glyph.data_changed) {

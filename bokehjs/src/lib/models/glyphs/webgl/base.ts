@@ -42,7 +42,7 @@ export abstract class BaseGLGlyph {
     return true
   }
 
-  abstract draw(indices: number[], mainglyph: any, trans: Transform): void
+  abstract draw(indices: number[], mainglyph: GlyphView, trans: Transform): void
 }
 
 export type Transform = {

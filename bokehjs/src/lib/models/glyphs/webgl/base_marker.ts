@@ -8,9 +8,9 @@ import {MarkerType} from "core/enums"
 import * as visuals from "core/visuals"
 
 export type MarkerVisuals = {
-  readonly line: visuals.LineVector,
-  readonly fill: visuals.FillVector,
-  readonly hatch: visuals.HatchVector,
+  readonly line: visuals.LineVector
+  readonly fill: visuals.FillVector
+  readonly hatch: visuals.HatchVector
 }
 
 // Abstract base class for markers. All markers share the same GLSL, except for
@@ -55,7 +55,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
     this._show_all = false
   }
 
-  abstract override draw(indices: number[], mainglyph: any, trans: Transform): void
+  abstract override draw(indices: number[], mainglyph: GlyphView, trans: Transform): void
 
   protected _draw_one_marker_type(marker_type: MarkerType, transform: Transform, main_gl_glyph: BaseMarkerGL): void {
     if (this._have_hatch) {
