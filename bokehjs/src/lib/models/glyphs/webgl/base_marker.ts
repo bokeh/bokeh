@@ -17,7 +17,7 @@ export type MarkerVisuals = {
 // one function in the fragment shader that defines the marker geometry and is
 // enabled through a #define.
 export abstract class BaseMarkerGL extends BaseGLGlyph {
-  protected _antialias: number  // Change to private when MarkerGL not overwriting it.
+  protected _antialias: number  // Change to private when CircleGL/MarkerGL not overwriting it.
 
   // data properties, either all or none are set.
   protected _centers?: Float32Buffer

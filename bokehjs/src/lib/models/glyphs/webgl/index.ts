@@ -1,5 +1,6 @@
 export {get_regl} from "./regl_wrap"
 export * from "./base_marker"
+export * from "./circle"
 export * from "./line_gl"
 export * from "./quad"
 export * from "./multi_marker"

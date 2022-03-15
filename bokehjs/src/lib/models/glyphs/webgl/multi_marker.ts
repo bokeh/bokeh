@@ -2,18 +2,9 @@ import {Transform} from "./base"
 import {BaseMarkerGL, MarkerVisuals} from "./base_marker"
 import {Float32Buffer, Uint8Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
-import type {GlyphView} from "../glyph"
 import type {ScatterView} from "../scatter"
-import type {CircleView} from "../circle"
 import {MarkerType} from "core/enums"
-import {Uniform, UniformScalar} from "core/uniforms"
-
-type MarkerLikeView = ScatterView | CircleView
-
-// XXX: this is needed to cut circular dependency between this and models/glyphs/circle
-function is_CircleView(glyph_view: GlyphView): glyph_view is CircleView {
-  return glyph_view.model.type == "Circle"
-}
+import {Uniform} from "core/uniforms"
 
 export class MultiMarkerGL extends BaseMarkerGL {
 
@@ -21,7 +12,7 @@ export class MultiMarkerGL extends BaseMarkerGL {
   protected _marker_types?: Uniform<MarkerType | null>
   protected _unique_marker_types: (MarkerType | null)[]
 
-  constructor(regl_wrapper: ReglWrapper, override readonly glyph: MarkerLikeView) {
+  constructor(regl_wrapper: ReglWrapper, override readonly glyph: ScatterView) {
     super(regl_wrapper, glyph)
 
     // Should not overwrite _antialias, but this will change all webgl baseline
@@ -29,7 +20,7 @@ export class MultiMarkerGL extends BaseMarkerGL {
     this._antialias = 0.8
   }
 
-  override draw(indices: number[], main_glyph: MarkerLikeView, transform: Transform): void {
+  override draw(indices: number[], main_glyph: ScatterView, transform: Transform): void {
     // The main glyph has the data, this glyph has the visuals.
     const main_gl_glyph = main_glyph.glglyph!
 
@@ -109,27 +100,10 @@ export class MultiMarkerGL extends BaseMarkerGL {
       }
     }
     this._centers.update()
-
-    if (is_CircleView(this.glyph) && this.glyph.use_radius) {
-      const widths_array = this._widths!.get_sized_array(nmarkers)
-      for (let i = 0; i < nmarkers; i++)
-        widths_array[i] = this.glyph.sradius[i]*2
-      this._widths!.update()
-    } else {
-      this._widths!.set_from_prop(this.glyph.size)
-    }
-
+    this._widths!.set_from_prop(this.glyph.size)
     this._angles!.set_from_prop(this.glyph.angle)
 
-    if (is_CircleView(this.glyph)) {
-      if (this._marker_types == null) {
-        // Circle glyph is always a circle.
-        this._marker_types = new UniformScalar("circle", 1)
-        this._unique_marker_types = ["circle"]
-      }
-    } else {
-      this._marker_types = this.glyph.marker
-      this._unique_marker_types = [...new Set(this._marker_types)]
-    }
+    this._marker_types = this.glyph.marker
+    this._unique_marker_types = [...new Set(this._marker_types)]
   }
 }

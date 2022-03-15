@@ -31,15 +31,15 @@ export class CircleView extends XYGlyphView {
   override visuals: Circle.Visuals
 
   /** @internal */
-  override glglyph?: import("./webgl/multi_marker").MultiMarkerGL
+  override glglyph?: import("./webgl/circle").CircleGL
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
     const {webgl} = this.renderer.plot_view.canvas_view
     if (webgl != null && webgl.regl_wrapper.has_webgl) {
-      const {MultiMarkerGL} = await import("./webgl/multi_marker")
-      this.glglyph = new MultiMarkerGL(webgl.regl_wrapper, this)
+      const {CircleGL} = await import("./webgl/circle")
+      this.glglyph = new CircleGL(webgl.regl_wrapper, this)
     }
   }
 
