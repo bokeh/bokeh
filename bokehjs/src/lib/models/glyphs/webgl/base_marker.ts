@@ -58,52 +58,37 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   abstract override draw(indices: number[], mainglyph: GlyphView, trans: Transform): void
 
   protected _draw_one_marker_type(marker_type: MarkerType, transform: Transform, main_gl_glyph: BaseMarkerGL): void {
+    const props_no_hatch: MarkerGlyphProps = {
+      scissor: this.regl_wrapper.scissor,
+      viewport: this.regl_wrapper.viewport,
+      canvas_size: [transform.width, transform.height],
+      pixel_ratio: transform.pixel_ratio,
+      center: main_gl_glyph._centers!,
+      width: main_gl_glyph._widths!,
+      height: main_gl_glyph._heights!,
+      angle: main_gl_glyph._angles!,
+      size_hint: marker_type_to_size_hint(marker_type),
+      nmarkers: main_gl_glyph.nvertices,
+      antialias: this._antialias,
+      linewidth: this._linewidths!,
+      line_color: this._line_rgba,
+      fill_color: this._fill_rgba,
+      line_cap: this._line_caps,
+      line_join: this._line_joins,
+      show: this._show!,
+    }
+
     if (this._have_hatch) {
-      const props: MarkerHatchGlyphProps = {
-        scissor: this.regl_wrapper.scissor,
-        viewport: this.regl_wrapper.viewport,
-        canvas_size: [transform.width, transform.height],
-        pixel_ratio: transform.pixel_ratio,
-        center: main_gl_glyph._centers!,
-        width: main_gl_glyph._widths!,
-        height: main_gl_glyph._heights!,
-        angle: main_gl_glyph._angles!,
-        size_hint: marker_type_to_size_hint(marker_type),
-        nmarkers: main_gl_glyph.nvertices,
-        antialias: this._antialias,
-        linewidth: this._linewidths!,
-        line_color: this._line_rgba,
-        fill_color: this._fill_rgba,
-        line_cap: this._line_caps,
-        line_join: this._line_joins,
-        show: this._show!,
+      const props_hatch: MarkerHatchGlyphProps = {
+        ...props_no_hatch,
         hatch_pattern: this._hatch_patterns!,
         hatch_scale: this._hatch_scales!,
         hatch_weight: this._hatch_weights!,
         hatch_color: this._hatch_rgba!,
       }
-      this.regl_wrapper.marker_hatch(marker_type)(props)
+      this.regl_wrapper.marker_hatch(marker_type)(props_hatch)
     } else {
-      const props: MarkerGlyphProps = {
-        scissor: this.regl_wrapper.scissor,
-        viewport: this.regl_wrapper.viewport,
-        canvas_size: [transform.width, transform.height],
-        pixel_ratio: transform.pixel_ratio,
-        center: main_gl_glyph._centers!,
-        width: main_gl_glyph._widths!,
-        height: main_gl_glyph._heights!,
-        angle: main_gl_glyph._angles!,
-        size_hint: marker_type_to_size_hint(marker_type),
-        nmarkers: main_gl_glyph.nvertices,
-        antialias: this._antialias,
-        linewidth: this._linewidths!,
-        line_color: this._line_rgba,
-        fill_color: this._fill_rgba,
-        line_cap: this._line_caps,
-        line_join: this._line_joins,
-        show: this._show!,
-      }
-      this.regl_wrapper.marker_no_hatch(marker_type)(props)
+      this.regl_wrapper.marker_no_hatch(marker_type)(props_no_hatch)
     }
   }
 
