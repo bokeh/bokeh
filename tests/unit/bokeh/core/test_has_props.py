@@ -16,11 +16,15 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from types import MethodType
+
 # Bokeh imports
 from bokeh.core.properties import (
     Alias,
     AngleSpec,
     Either,
+    Instance,
     Int,
     List,
     Nullable,
@@ -52,6 +56,20 @@ class Parent(hp.HasProps):
     ds1 = NumberSpec(default=field("x"))
     lst1 = List(String)
 
+    @property
+    def foo_prop(self) -> int:
+        return 110
+
+    def foo_func(self) -> int:
+        return 111
+
+    @property
+    def _foo_prop(self) -> int:
+        return 1100
+
+    def _foo_func(self) -> int:
+        return 1110
+
 class Child(Parent):
     int2 = Nullable(Int())
     str2 = String(default="foo")
@@ -71,6 +89,50 @@ class OverrideChild(Parent):
 class AliasedChild(Child):
     aliased_int1 = Alias("int1")
     aliased_int2 = Alias("int2")
+
+def test_HasProps_getattr() -> None:
+    p = Parent()
+
+    assert getattr(p, "int1") == 10
+    assert p.int1 == 10
+
+    assert getattr(p, "foo_prop") == 110
+    assert p.foo_prop == 110
+
+    assert isinstance(getattr(p, "foo_func"), MethodType)
+    assert isinstance(p.foo_func, MethodType)
+
+    assert getattr(p, "foo_func")() == 111
+    assert p.foo_func() == 111
+
+    assert getattr(p, "_foo_prop") == 1100
+    assert p._foo_prop == 1100
+
+    assert isinstance(getattr(p, "_foo_func"), MethodType)
+    assert isinstance(p._foo_func, MethodType)
+
+    assert getattr(p, "_foo_func")() == 1110
+    assert p._foo_func() == 1110
+
+    with pytest.raises(AttributeError):
+        getattr(p, "foo_prop2")
+    with pytest.raises(AttributeError):
+        p.foo_prop2
+
+    with pytest.raises(AttributeError):
+        getattr(p, "foo_func2")
+    with pytest.raises(AttributeError):
+        p.foo_func2
+
+    with pytest.raises(AttributeError):
+        getattr(p, "_foo_prop2")
+    with pytest.raises(AttributeError):
+        p._foo_prop2
+
+    with pytest.raises(AttributeError):
+        getattr(p, "_foo_func2")
+    with pytest.raises(AttributeError):
+        p._foo_func2
 
 def test_HasProps_default_init() -> None:
     p = Parent()
@@ -487,6 +549,31 @@ def test_qualified() -> None:
     assert TopLevelNonQualified.__qualified_model__ == "TopLevelNonQualified"
     assert InnerQualified.__qualified_model__ == "test_has_props.test_qualified.InnerQualified"
     assert InnerNonQualified.__qualified_model__ == "test_qualified.InnerNonQualified"
+
+def test_HasProps_properties_with_values_unstable():
+    class Some0HasProps(hp.HasProps, hp.Local):
+        f0 = Int(default=3)
+        f1 = List(Int, default=[3, 4, 5])
+
+    class Some1HasProps(hp.HasProps, hp.Local):
+        f0 = String(default="xyz")
+        f1 = List(String, default=["x", "y", "z"])
+
+    class Some2HasProps(hp.HasProps, hp.Local):
+        f0 = Instance(Some0HasProps, lambda: Some0HasProps())
+        f1 = Instance(Some1HasProps, lambda: Some1HasProps())
+        f2 = Int(default=1)
+        f3 = String(default="xyz")
+        f4 = List(Int, default=[1, 2, 3])
+
+    v0 = Some0HasProps()
+    assert v0.properties_with_values(include_defaults=False) == {}
+
+    v1 = Some1HasProps()
+    assert v1.properties_with_values(include_defaults=False) == {}
+
+    v2 = Some2HasProps()
+    assert v2.properties_with_values(include_defaults=False) == {"f0": v2.f0, "f1": v2.f1}
 
 #-----------------------------------------------------------------------------
 # Private API

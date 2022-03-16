@@ -85,7 +85,7 @@ class DerivedDataModel(SomeDataModel):
     prop6 = Instance(SomeDataModel)
     prop7 = Nullable(Instance(SomeDataModel))
 
-    prop2 = Override(default=119)
+    prop2 = Override(default=[4, 5, 6])
 
 class CDSDerivedDataModel(ColumnDataSource, DataModel):
     prop0 = Int()
@@ -754,7 +754,7 @@ class TestDocument:
                     PropertyDef(name="prop7", kind="Any", default=None),
                 ],
                 overrides=[
-                    OverrideDef(name="prop2", default=119),
+                    OverrideDef(name="prop2", default=[4, 5, 6]),
                 ],
             ),
             ModelDef(

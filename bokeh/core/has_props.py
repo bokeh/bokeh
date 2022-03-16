@@ -266,6 +266,11 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         for name, value in properties.items():
             setattr(self, name, value)
 
+        for name in self.properties() - set(properties.keys()):
+            desc = self.lookup(name)
+            if desc.has_unstable_default(self):
+                desc._get(self) # this fills-in `_unstable_*_values`
+
         self._initialized = True
 
     def __setattr__(self, name: str, value: Unknown) -> None:
@@ -296,7 +301,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
         self._raise_attribute_error_with_matches(name, properties)
 
-    def __getattr__(self, name: str) -> Unknown:
+    def __getattr__(self, name: str) -> Any:
         ''' Intercept attribute setting on HasProps in order to special case
         a few situations:
 
@@ -305,22 +310,21 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
         Args:
             name (str) : the name of the attribute to set on this object
-            value (obj) : the value to set
 
         Returns:
-            None
+            Any
 
         '''
         if name.startswith("_"):
-            return super().__getattr__(name)
+            return super().__getattribute__(name)
 
         properties = self.properties(_with_props=True)
         if name in properties:
-            return super().__getattr__(name)
+            return super().__getattribute__(name)
 
         descriptor = getattr(self.__class__, name, None)
         if isinstance(descriptor, property): # Python property
-            return super().__getattr__(name)
+            return super().__getattribute__(name)
 
         self._raise_attribute_error_with_matches(name, properties)
 
@@ -694,7 +698,8 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         Values that are containers are shallow-copied.
 
         '''
-        return self.__class__(**self._property_values)
+        attrs = self.properties_with_values(include_defaults=False, include_undefined=True)
+        return self.__class__(**{key: val for key, val in attrs.items() if val is not Undefined})
 
 KindRef = Any # TODO
 
@@ -747,7 +752,7 @@ def _HasProps_to_serializable(cls: Type[HasProps], serializer: Serializer) -> Re
         if default is Undefined:
             prop_def = PropertyDef(name=prop_name, kind=kind)
         else:
-            if callable(default):
+            if descriptor.is_unstable(default):
                 default = default()
 
             prop_def = PropertyDef(name=prop_name, kind=kind, default=serializer.encode(default))

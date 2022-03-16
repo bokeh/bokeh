@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import typing as tp
+
 # External imports
 from mock import MagicMock, patch
 
@@ -103,50 +106,86 @@ class Test_PropertyDescriptor:
         f.baz
         f.quux
 
-        calls = []
+        calls: tp.List[str] = []
 
-        def cb(attr, old, new):
+        def cb(attr: str, old: tp.Any, new: tp.Any) -> None:
             calls.append(attr)
 
         for name in ['foo', 'bar', 'baz', 'quux']:
             f.on_change(name, cb)
 
+        model_unstable_default_values = dict(
+            js_event_callbacks={},
+            js_property_callbacks={},
+            subscribed_events=[],
+            tags=[],
+        )
+
         assert f._property_values == {}
-        assert f._unstable_default_values == dict(bar=[10], quux=[30])
+        assert f._unstable_default_values == dict(
+            **model_unstable_default_values,
+            bar=[10],
+            quux=[30],
+        )
 
         del f.foo
         assert f._property_values == {}
-        assert f._unstable_default_values == dict(bar=[10], quux=[30])
+        assert f._unstable_default_values == dict(
+            **model_unstable_default_values,
+            bar=[10],
+            quux=[30],
+        )
         assert calls == []
 
         f.baz = 50
 
         assert f.baz == 50
-        assert f._unstable_default_values == dict(bar=[10], quux=[30])
+        assert f._unstable_default_values == dict(
+            **model_unstable_default_values,
+            bar=[10],
+            quux=[30],
+        )
         assert calls == ['baz']
 
         del f.baz
         assert f.baz == 20
-        assert f._unstable_default_values == dict(bar=[10], quux=[30])
+        assert f._unstable_default_values == dict(
+            **model_unstable_default_values,
+            bar=[10],
+            quux=[30],
+        )
         assert calls == ['baz', 'baz']
 
         del f.bar
         assert f._property_values == {}
-        assert f._unstable_default_values == dict(quux=[30])
+        assert f._unstable_default_values == dict(
+            **model_unstable_default_values,
+            quux=[30],
+        )
         assert calls == ['baz', 'baz']
 
         f.bar = [60]
         assert f.bar == [60]
-        assert f._unstable_default_values == dict(quux=[30])
+        assert f._unstable_default_values == dict(
+            **model_unstable_default_values,
+            quux=[30],
+        )
         assert calls == ['baz', 'baz', 'bar']
 
         del f.bar
         assert f.bar == [10]
-        assert f._unstable_default_values == dict(bar=[10], quux=[30])
+        assert f._unstable_default_values == dict(
+            **model_unstable_default_values,
+            bar=[10],
+            quux=[30],
+        )
         assert calls == ['baz', 'baz', 'bar', 'bar']
 
         del f.quux
-        assert f._unstable_default_values == dict(bar=[10])
+        assert f._unstable_default_values == dict(
+            **model_unstable_default_values,
+            bar=[10],
+        )
         assert calls == ['baz', 'baz', 'bar', 'bar']
 
     def test_class_default(self) -> None:

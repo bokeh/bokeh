@@ -227,7 +227,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     @classmethod
     @without_property_validation
-    def parameters(cls):
+    def parameters(cls: Type[Model]) -> List[Parameter]:
         ''' Generate Python ``Parameter`` values suitable for functions that are
         derived from the glyph.
 

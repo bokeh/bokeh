@@ -20,6 +20,14 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Type,
+)
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -31,29 +39,29 @@ __all__ = (
     'type_link',
 )
 
-_type_links = {}
+_type_links: Dict[Type[Any], Callable[[Any], str]] = {}
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def model_link(fullname):
+def model_link(fullname: str) -> str:
     # (double) escaped space at the end is to appease Sphinx
     # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
     return f":class:`~{fullname}`\\ "
 
-def property_link(obj):
+def property_link(obj: Any) -> str:
     # (double) escaped space at the end is to appease Sphinx
     # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
     return f":class:`~bokeh.core.properties.{obj.__class__.__name__}`\\ "
 
-def register_type_link(cls):
-    def decorator(func):
+def register_type_link(cls: Type[Any]):
+    def decorator(func: Callable[[Any], str]):
         _type_links[cls] = func
         return func
     return decorator
 
-def type_link(obj):
+def type_link(obj: Any) -> str:
     return _type_links.get(obj.__class__, property_link)(obj)
 
 #-----------------------------------------------------------------------------
