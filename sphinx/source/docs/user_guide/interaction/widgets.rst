@@ -150,6 +150,17 @@ values, a ``step`` size, an initial ``value``, and a ``title``:
 
 More information can be found in the Reference for |DateRangeSlider|.
 
+DatetimeRangeSlider
+~~~~~~~~~~~~~~~~~~~
+
+The Bokeh datetime range slider is the same as the date range slider except
+that it uses datetimes that include hours, minutes and seconds:
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_datetimerangeslider.py
+    :source-position: below
+
+More information can be found in the Reference for |DatetimeRangeSlider|.
+
 .. _userguide_interaction_widgets_div:
 
 Div
@@ -349,6 +360,7 @@ More information can be found in the Reference for |Toggle|.
 .. |DataTable|              replace:: :class:`~bokeh.models.widgets.tables.DataTable`
 .. |DatePicker|             replace:: :class:`~bokeh.models.widgets.inputs.DatePicker`
 .. |DateRangeSlider|        replace:: :class:`~bokeh.models.widgets.sliders.DateRangeSlider`
+.. |DatetimeRangeSlider|    replace:: :class:`~bokeh.models.widgets.sliders.DatetimeRangeSlider`
 .. |Div|                    replace:: :class:`~bokeh.models.widgets.markups.Div`
 .. |Dropdown|               replace:: :class:`~bokeh.models.widgets.buttons.Dropdown`
 .. |FileInput|              replace:: :class:`~bokeh.models.widgets.inputs.FileInput`
