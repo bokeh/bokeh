@@ -216,7 +216,7 @@ describe("Glyph models", () => {
       p.quad({left: x, right: 1, bottom: y, top: 1})
       return p
     }
-    await display(row([p("canvas"), p("svg")]))
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   it("should support Quadratic", async () => {

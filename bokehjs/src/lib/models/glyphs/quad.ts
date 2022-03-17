@@ -20,6 +20,19 @@ export class QuadView extends BoxView {
   override model: Quad
   override visuals: Quad.Visuals
 
+  /** @internal */
+  override glglyph?: import("./webgl/quad").QuadGL
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {webgl} = this.renderer.plot_view.canvas_view
+    if (webgl != null && webgl.regl_wrapper.has_webgl) {
+      const {QuadGL} = await import("./webgl/quad")
+      this.glglyph = new QuadGL(webgl.regl_wrapper, this)
+    }
+  }
+
   scenterxy(i: number): [number, number] {
     const scx = this.sleft[i]/2 + this.sright[i]/2
     const scy = this.stop[i]/2 + this.sbottom[i]/2
