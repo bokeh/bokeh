@@ -3,15 +3,19 @@ import {MarkerVisuals} from "./base_marker"
 import {Float32Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import {SingleMarkerGL} from "./single_marker"
-import type {RectView} from "../rect"
+import type {CircleView} from "../circle"
 
-export class RectGL extends SingleMarkerGL {
-  constructor(regl_wrapper: ReglWrapper, override readonly glyph: RectView) {
+export class CircleGL extends SingleMarkerGL {
+  constructor(regl_wrapper: ReglWrapper, override readonly glyph: CircleView) {
     super(regl_wrapper, glyph)
+
+    // Should not overwrite _antialias, but this will change all webgl baseline
+    // test images for markers so only do when the images next change anyway.
+    this._antialias = 0.8
   }
 
-  override draw(indices: number[], main_glyph: RectView, transform: Transform): void {
-    this._draw_impl(indices, transform, main_glyph.glglyph!, "square")
+  override draw(indices: number[], main_glyph: CircleView, transform: Transform): void {
+    this._draw_impl(indices, transform, main_glyph.glglyph!, "circle")
   }
 
   protected override _get_visuals(): MarkerVisuals {
@@ -25,11 +29,12 @@ export class RectGL extends SingleMarkerGL {
       // Either all or none are set.
       this._centers = new Float32Buffer(this.regl_wrapper)
       this._widths = new Float32Buffer(this.regl_wrapper)
-      this._heights = new Float32Buffer(this.regl_wrapper)
+      this._heights = this._widths
       this._angles = new Float32Buffer(this.regl_wrapper)
     }
 
     const centers_array = this._centers.get_sized_array(nmarkers*2)
+    const widths_array = this._widths!.get_sized_array(nmarkers)
     for (let i = 0; i < nmarkers; i++) {
       if (isFinite(this.glyph.sx[i]) && isFinite(this.glyph.sy[i])) {
         centers_array[2*i  ] = this.glyph.sx[i]
@@ -38,11 +43,11 @@ export class RectGL extends SingleMarkerGL {
         centers_array[2*i  ] = SingleMarkerGL.missing_point
         centers_array[2*i+1] = SingleMarkerGL.missing_point
       }
+      widths_array[i] = this.glyph.sradius[i]*2
     }
     this._centers.update()
+    this._widths!.update()
 
-    this._widths!.set_from_array(this.glyph.sw)
-    this._heights!.set_from_array(this.glyph.sh)
     this._angles!.set_from_prop(this.glyph.angle)
   }
 }
