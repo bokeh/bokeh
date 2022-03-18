@@ -3,14 +3,18 @@ import {MarkerVisuals} from "./base_marker"
 import {Float32Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import {SingleMarkerGL} from "./single_marker"
+import type {HBarView} from "../hbar"
 import type {QuadView} from "../quad"
+import type {VBarView} from "../vbar"
 
-export class QuadGL extends SingleMarkerGL {
-  constructor(regl_wrapper: ReglWrapper, override readonly glyph: QuadView) {
+type BarOrQuadView = HBarView | QuadView | VBarView
+
+export class LRTBGL extends SingleMarkerGL {
+  constructor(regl_wrapper: ReglWrapper, override readonly glyph: BarOrQuadView) {
     super(regl_wrapper, glyph)
   }
 
-  override draw(indices: number[], main_glyph: QuadView, transform: Transform): void {
+  override draw(indices: number[], main_glyph: BarOrQuadView, transform: Transform): void {
     this._draw_impl(indices, transform, main_glyph.glglyph!, "square")
   }
 
