@@ -167,7 +167,7 @@ def convert_timedelta_type(obj: dt.timedelta | np.timedelta64) -> float:
     elif isinstance(obj, np.timedelta64):
         return float(obj / NP_MS_DELTA)
 
-    raise ValueError(f"unknonw timedelta object: {obj!r}")
+    raise ValueError(f"Unknown timedelta object: {obj!r}")
 
 # The Any here should be pd.NaT | pd.Period but mypy chokes on that for some reason
 def convert_datetime_type(obj: Any | pd.Timestamp | pd.Timedelta | dt.datetime | dt.date | dt.time | np.datetime64) -> float:
