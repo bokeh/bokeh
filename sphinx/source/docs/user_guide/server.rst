@@ -839,7 +839,7 @@ Run the server as usual on the **remote host**.
 
 .. code-block:: sh
 
-    bokeh server
+    bokeh serve
 
 Next, issue the following command on the **local machine** to establish an SSH
 tunnel to the remote host:
