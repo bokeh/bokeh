@@ -243,10 +243,14 @@ class RenderRoot:
     id: ID = field(compare=False)
 
     #: An optional user-supplied name for this root
-    name: str = field(default='', compare=False)
+    name: str | None = field(default="", compare=False)
 
     #: A list of any user-supplied tag values for this root
     tags: List[Any] = field(default_factory=list, compare=False)
+
+    def __post_init__(self):
+        # Model.name is nullable, and field() won't enforce the default when name=None
+        self.name = self.name or ""
 
 
 class RenderRoots:
