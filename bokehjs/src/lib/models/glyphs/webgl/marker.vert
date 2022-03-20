@@ -74,7 +74,7 @@ void main()
   else if (size_hint == 2)  // Dot
     enclosing_size = 0.25*v_size + u_antialias;
   else if (size_hint == 3)  // Diamond
-    enclosing_size = vec2(v_size.x*0.67 + v_linewidth + u_antialias,
+    enclosing_size = vec2(v_size.x*0.8 + v_linewidth + u_antialias,
                           v_size.y + 3.0*v_linewidth + u_antialias);
   else if (size_hint == 4)  // Non-diamond pointed markers
     enclosing_size = v_size + 4.0*v_linewidth + u_antialias;
