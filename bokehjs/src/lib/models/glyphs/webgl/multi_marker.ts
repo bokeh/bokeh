@@ -14,10 +14,6 @@ export class MultiMarkerGL extends BaseMarkerGL {
 
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: ScatterView) {
     super(regl_wrapper, glyph)
-
-    // Should not overwrite _antialias, but this will change all webgl baseline
-    // test images for markers so only do when the images next change anyway.
-    this._antialias = 0.8
   }
 
   override draw(indices: number[], main_glyph: ScatterView, transform: Transform): void {
