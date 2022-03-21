@@ -4,6 +4,7 @@ import {Selection} from "../selections/selection"
 import {View} from "core/view"
 import {Indices} from "core/types"
 import {Filter} from "../filters/filter"
+import {AllIndices} from "../filters/all_indices"
 import {ColumnarDataSource} from "./columnar_data_source"
 
 export class CDSViewView extends View {
@@ -18,8 +19,8 @@ export class CDSViewView extends View {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {filters} = this.model.properties
-    this.on_change(filters, () => this.compute_indices())
+    const {filter} = this.model.properties
+    this.on_change(filter, () => this.compute_indices())
 
     const connect_listeners = () => {
       const fn = () => this.compute_indices()
@@ -46,9 +47,8 @@ export class CDSViewView extends View {
     const size = source.get_length() ?? 1
     const indices = Indices.all_set(size)
 
-    for (const filter of this.model.filters) {
-      indices.intersect(filter.compute_indices(source))
-    }
+    const filtered = this.model.filter.compute_indices(source)
+    indices.intersect(filtered)
 
     this.model.indices = indices
     this.model._indices_map_to_subset()
@@ -59,7 +59,7 @@ export namespace CDSView {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    filters: p.Property<Filter[]>
+    filter: p.Property<Filter>
     // internal
     indices: p.Property<Indices>
     indices_map: p.Property<{[key: string]: number}>
@@ -80,8 +80,8 @@ export class CDSView extends Model {
   static {
     this.prototype.default_view = CDSViewView
 
-    this.define<CDSView.Props>(({Array, Ref}) => ({
-      filters: [ Array(Ref(Filter)), [] ],
+    this.define<CDSView.Props>(({Ref}) => ({
+      filter: [ Ref(Filter), () => new AllIndices() ],
     }))
 
     this.internal<CDSView.Props>(({Int, Dict, Ref, Nullable}) => ({

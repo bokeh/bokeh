@@ -22,7 +22,9 @@ from ..core.has_props import abstract
 from ..core.properties import (
     AnyRef,
     Bool,
+    Instance,
     Int,
+    NonEmpty,
     NonNullable,
     Nullable,
     RestrictedDict,
@@ -36,11 +38,17 @@ from ..model import Model
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'BooleanFilter',
-    'CustomJSFilter',
-    'Filter',
-    'GroupFilter',
-    'IndexFilter',
+    "AllIndices",
+    "BooleanFilter",
+    "CustomJSFilter",
+    "DifferenceFilter",
+    "Filter",
+    "GroupFilter",
+    "IndexFilter",
+    "IntersectionFilter",
+    "InversionFilter",
+    "SymmetricDifferenceFilter",
+    "UnionFilter",
 )
 
 #-----------------------------------------------------------------------------
@@ -56,6 +64,83 @@ class Filter(Model):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+    def __invert__(self) -> Filter:
+        return InversionFilter(operand=self)
+
+    def __and__(self, other: Filter) -> Filter:
+        return IntersectionFilter(operands=[self, other])
+
+    def __or__(self, other: Filter) -> Filter:
+        return UnionFilter(operands=[self, other])
+
+    def __sub__(self, other: Filter) -> Filter:
+        return DifferenceFilter(operands=[self, other])
+
+    def __xor__(self, other: Filter) -> Filter:
+        return SymmetricDifferenceFilter(operands=[self, other])
+
+class AllIndices(Filter):
+    """ Trivial filter that includes all indices in a dataset. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+class InversionFilter(Filter):
+    """ Inverts indices resulting from another filter. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    operand = NonNullable(Instance(Filter), help="""
+    Indices produced by this filter will be inverted.
+    """)
+
+class IntersectionFilter(Filter):
+    """ Computes intersection of indices resulting from other filters. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    operands = NonNullable(NonEmpty(Seq(Instance(Filter))), help="""
+    Indices produced by a collection of these filters will be intersected.
+    """)
+
+class UnionFilter(Filter):
+    """ Computes union of indices resulting from other filters. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    operands = NonNullable(NonEmpty(Seq(Instance(Filter))), help="""
+    Indices produced by a collection of these filters will be unioned.
+    """)
+
+class DifferenceFilter(Filter):
+    """ Computes union of indices resulting from other filters. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    operands = NonNullable(NonEmpty(Seq(Instance(Filter))), help="""
+    Indices produced by a collection of these filters will be subtracted.
+    """)
+
+class SymmetricDifferenceFilter(Filter):
+    """ Computes symmetric difference of indices resulting from other filters. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    operands = NonNullable(NonEmpty(Seq(Instance(Filter))), help="""
+    Indices produced by a collection of these filters will be xored.
+    """)
 
 class IndexFilter(Filter):
     ''' An ``IndexFilter`` filters data by returning the subset of data at a given set of indices.

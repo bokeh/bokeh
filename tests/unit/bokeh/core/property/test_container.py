@@ -46,6 +46,7 @@ ALL = (
     'ColumnData',
     'Dict',
     'List',
+    'NonEmpty',
     'RelativeDelta',
     'RestrictedDict',
     'Seq',

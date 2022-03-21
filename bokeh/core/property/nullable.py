@@ -19,11 +19,16 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
+from typing import Any, TypeVar, Union
 
 # Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
-from .bases import SingleParameterizedProperty
+from .bases import (
+    Init,
+    Property,
+    SingleParameterizedProperty,
+    TypeOrInst,
+)
 from .singletons import Undefined
 
 #-----------------------------------------------------------------------------
@@ -35,20 +40,23 @@ __all__ = (
     "Nullable",
 )
 
+T = TypeVar("T")
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Nullable(SingleParameterizedProperty):
+class Nullable(SingleParameterizedProperty[Union[T, None]]):
     """ A property accepting ``None`` or a value of some other type. """
 
-    def __init__(self, type_param, *, default=None, help=None, serialized=None, readonly=False) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T | None] = None,
+            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
         super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
 
-    def transform(self, value):
+    def transform(self, value: Any) -> T | None:
         return None if value is None else super().transform(value)
 
-    def wrap(self, value):
+    def wrap(self, value: Any):
         return None if value is None else super().wrap(value)
 
     def validate(self, value: Any, detail: bool = True) -> None:
@@ -65,10 +73,11 @@ class Nullable(SingleParameterizedProperty):
         msg = "" if not detail else f"expected either None or a value of type {self.type_param}, got {value!r}"
         raise ValueError(msg)
 
-class NonNullable(SingleParameterizedProperty):
+class NonNullable(SingleParameterizedProperty[T]):
     """ A property accepting a value of some other type while having undefined default. """
 
-    def __init__(self, type_param, *, default=Undefined, help=None, serialized=None, readonly=False) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Undefined,
+            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
         super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
 
 #-----------------------------------------------------------------------------
@@ -85,5 +94,5 @@ class NonNullable(SingleParameterizedProperty):
 
 @register_type_link(Nullable)
 @register_type_link(NonNullable)
-def _sphinx_type_link(obj):
+def _sphinx_type_link(obj: SingleParameterizedProperty[Any]):
     return f"{property_link(obj)}({type_link(obj.type_param)})"

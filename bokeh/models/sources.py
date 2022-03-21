@@ -24,6 +24,7 @@ from typing import (
     Any as TAny,
     Dict as TDict,
     List as TList,
+    NoReturn,
     Sequence,
     Set,
     Tuple,
@@ -43,7 +44,6 @@ from ..core.properties import (
     Instance,
     InstanceDefault,
     Int,
-    List,
     NonNullable,
     Nullable,
     PandasDataFrame,
@@ -58,7 +58,7 @@ from ..util.deprecation import deprecated
 from ..util.serialization import convert_datetime_array
 from ..util.warnings import BokehUserWarning
 from .callbacks import CustomJS
-from .filters import Filter
+from .filters import AllIndices, Filter, IntersectionFilter
 from .selections import Selection, SelectionPolicy, UnionRenderers
 
 if TYPE_CHECKING:
@@ -742,9 +742,34 @@ class CDSView(Model):
             deprecated("CDSView.source is no longer needed, and is now ignored. In a future release, passing source will result an error.")
         super().__init__(*args, **kwargs)
 
-    filters = List(Instance(Filter), default=[], help="""
-    List of filters that the view comprises.
+    filter = Instance(Filter, default=InstanceDefault(AllIndices), help="""
+    Defines the subset of indices to use from the data source this view applies to.
+
+    By default all indices are used (``AllIndices`` filter). This can be changed by
+    using specialized filters like ``IndexFilter``, ``BooleanFilter``, etc. Filters
+    can be composed using set operations to create non-trivial data masks. This can
+    be accomplished by directly using models like ``InversionFilter``, ``UnionFilter``,
+    etc., or by using set operators on filters, e.g.:
+
+    .. code-block:: python
+
+        # filters everything but indexes 10 and 11
+        cds_view.filter &= ~IndexFilter(indices=[10, 11])
     """)
+
+    @property
+    def filters(self) -> NoReturn:
+        raise RuntimeError("can't retrieve CDSView.filters")
+
+    @filters.setter
+    def filters(self, filters: TList[Filter]) -> None:
+        deprecated("CDSView.filters was deprecated in bokeh 3.0. Use CDSView.filter instead.")
+        if len(filters) == 0:
+            self.filter = AllIndices()
+        elif len(filters) == 1:
+            self.filter = filters[0]
+        else:
+            self.filter = IntersectionFilter(operands=filters)
 
 class GeoJSONDataSource(ColumnarDataSource):
     '''

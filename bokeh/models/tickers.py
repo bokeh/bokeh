@@ -141,7 +141,7 @@ class AdaptiveTicker(ContinuousTicker):
     The multiplier to use for scaling mantissas.
     """)
 
-    mantissas = Seq(Float, [1, 2, 5], help="""
+    mantissas = Seq(Float, default=[1, 2, 5], help="""
     The acceptable list numbers to generate multiples of.
     """)
 

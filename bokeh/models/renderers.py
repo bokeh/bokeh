@@ -49,6 +49,7 @@ from ..core.validation.errors import (
 )
 from ..model import Model
 from .canvas import CoordinateMapping
+from .filters import AllIndices
 from .glyphs import (
     Circle,
     ConnectedXYGlyph,
@@ -182,7 +183,7 @@ class GlyphRenderer(DataRenderer):
 
     @error(CDSVIEW_FILTERS_WITH_CONNECTED)
     def _check_cdsview_filters_with_connected(self):
-        if isinstance(self.glyph, ConnectedXYGlyph) and len(self.view.filters) > 0:
+        if isinstance(self.glyph, ConnectedXYGlyph) and not isinstance(self.view.filter, AllIndices):
             return str(self)
 
     @error(MISSING_GLYPH)

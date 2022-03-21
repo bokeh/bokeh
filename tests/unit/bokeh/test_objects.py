@@ -44,6 +44,7 @@ from bokeh.model import Model
 
 def large_plot(n: int) -> Tuple[Model, Set[Model]]:
     from bokeh.models import (
+        AllIndices,
         BoxSelectTool,
         BoxZoomTool,
         Column,
@@ -97,7 +98,7 @@ def large_plot(n: int) -> Tuple[Model, Set[Model]]:
             xdr, ydr,
             xaxis, xaxis.major_label_policy, yaxis, yaxis.major_label_policy,
             xgrid, ygrid,
-            renderer, renderer.view, glyph,
+            renderer, renderer.view, renderer.view.filter, glyph,
             source, source.selected, source.selection_policy,
             plot, plot.x_scale, plot.y_scale, plot.toolbar, plot.title,
             box_zoom.overlay, box_select.overlay,
