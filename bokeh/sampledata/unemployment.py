@@ -35,6 +35,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import csv
+from typing import Dict, Tuple
+
+# External imports
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..util.sampledata import external_path, open_csv
@@ -59,7 +63,10 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _read_data():
+State: TypeAlias = str
+County: TypeAlias = str
+
+def _read_data() -> Dict[Tuple[State, County], float]:
     '''
 
     '''
@@ -67,7 +74,7 @@ def _read_data():
     with open_csv(external_path("unemployment09.csv")) as f:
         reader = csv.reader(f, delimiter=",", quotechar='"')
         for row in reader:
-            dummy, state_id, county_id, dumm, dummy, dummy, dummy, dummy, rate = row
+            _, state_id, county_id, _, _, _, _, _, rate = row
             data[(int(state_id), int(county_id))] = float(rate)
     return data
 
