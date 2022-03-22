@@ -32,7 +32,7 @@ export class LRTBGL extends SingleMarkerGL {
       this._heights = new Float32Buffer(this.regl_wrapper)
 
       this._angles = new Float32Buffer(this.regl_wrapper)
-      this._angles.set_from_array([0, 0, 0, 0])  // WebGL primitive has 4 vertices.
+      this._angles.set_from_scalar(0)
     }
 
     const centers_array = this._centers.get_sized_array(nmarkers*2)

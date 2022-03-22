@@ -274,26 +274,29 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
 #if defined(USE_HEX) || defined(USE_HEX_DOT)
 float marker_distance(in vec2 p, in int line_cap, in int line_join)
 {
-  // Assuming v_size.x == v.size_y
-  // Only need to consider +ve quadrant, the 3 corners are at (0, h), (r2, h), (r, 0)
-  // where r = radius = v_size.x/2, r2 = r/2, h = SQRT3*r2 = r*SQRT3/2.
-  // Sloping line has outward-facing unit normal vec2(h, r2)/r = vec2(SQRT3, 1)/2
-  // and distance from origin of h.  Horizontal line has outward-facing unit normal
-  // vec2(0, 1) and distance from origin of h.
+  // A regular hexagon has v_size.x == v.size_y = r where r is the length of
+  // each of the 3 sides of the 6 equilateral triangles that comprise the hex.
+  // Only consider +ve quadrant, the 3 corners are at (0, h), (rx/2, h), (rx, 0)
+  // where rx = 0.5*v_size.x, ry = 0.5*v_size.y and h = ry*SQRT3/2.
+  // Sloping line has outward normal vec2(h, rx/2).  Length of this is
+  // len = sqrt(h**2 + rx**2/4) to give unit normal (h, rx/2)/len and distance
+  // from origin of this line is rx*h/len.
   p = abs(p);
-  float r = 0.5*v_size.x;
-  float h = r*(SQRT3/2.0);
-  float dist = max(0.5*dot(p, vec2(SQRT3, 1.0)) - h,  // Distance from sloping line.
+  float rx = v_size.x/2.0;
+  float h = v_size.y*(SQRT3/4.0);
+  float len_normal = sqrt(h*h + 0.25*rx*rx);
+  vec2 unit_normal = vec2(h, 0.5*rx) / len_normal;
+  float dist = max(dot(p, unit_normal) - rx*h/len_normal,  // Distance from sloping line.
                    p.y - h);  // Distance from horizontal line.
 
   if (line_join != miter_join) {
     dist = max(dist, line_join_distance_no_miter(
-      p, vec2(r, 0.0), vec2(1.0, 0.0), v_linewidth*(SQRT3/4.0), line_join));
+      p, vec2(rx, 0.0), vec2(1.0, 0.0), 0.5*v_linewidth*unit_normal.x, line_join));
 
+    unit_normal = normalize(unit_normal + vec2(0.0, 1.0));  // At (rx/2, h) corner.
     dist = max(dist, line_join_distance_no_miter(
-      p, vec2(0.5*r, h), vec2(0.5, SQRT3/2.0), v_linewidth*(SQRT3/4.0), line_join));
+      p, vec2(0.5*rx, h), unit_normal, 0.5*v_linewidth*unit_normal.y, line_join));
   }
-
   return dist;
 }
 #endif
