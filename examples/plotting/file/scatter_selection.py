@@ -1,3 +1,12 @@
+'''This example shows how to select different behaviours of a selection tool.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.circle, bokeh.plotting.figure.square, bokeh.model.select_one, bokeh.model.BoxSelectTool
+    :refs: :ref:`userguide_tools` > :ref:`userguide_tools_boxselecttool`
+    :keywords: selection, tool, BoxSelectTool
+
+'''
+
 import numpy as np
 
 from bokeh.layouts import column, gridplot

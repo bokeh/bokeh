@@ -1,3 +1,12 @@
+'''This example shows how to activate a toolbar that disappears if the cursor
+leaves a canvas.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.scatter, bokeh.models.tools.Toolbar.autohide
+    :refs: :ref:`reference` > :ref:`reference_models` > :ref:'reference_models_tools` > :ref:'reference_models_tools_Toolbar` > :ref:'reference_models_tools_Toolbar_autohide`, :ref:`first_steps` > :ref:`first_steps_first_steps_4` > `first_steps_first_steps_4_deactivating_and_hiding_the_toolbar`# noqa: E501
+    :keywords: autohide, Toolbar
+
+'''
 import numpy as np
 
 from bokeh.layouts import row
