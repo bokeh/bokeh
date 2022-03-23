@@ -37,6 +37,12 @@ export abstract class Layoutable {
   }
 
   private _dirty: boolean = false
+  set dirty(dirty: boolean) {
+    this._dirty = dirty
+  }
+  get dirty(): boolean {
+    return this._dirty
+  }
 
   get visible(): boolean {
     return this.sizing.visible

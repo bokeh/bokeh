@@ -110,6 +110,9 @@ export abstract class BaseColorBarView extends AnnotationView {
         return self.parent.canvas_view
       },
       request_layout() {
+        // force re-layout; not ideal but ColorBar's layout doesn't fully
+        // participate in has_size_changed to detect if layout is needed
+        self.layout.dirty = true
         self.parent.request_layout()
       },
       request_paint() {
@@ -117,6 +120,9 @@ export abstract class BaseColorBarView extends AnnotationView {
       },
       request_render() {
         self.request_paint()
+      },
+      notify_finished_after_paint() {
+        self.parent.notify_finished_after_paint()
       },
     }
 
@@ -518,7 +524,7 @@ export namespace BaseColorBar {
   export type Props = Annotation.Props & {
     location: p.Property<Anchor | [number, number]>
     orientation: p.Property<Orientation | "auto">
-    title: p.Property<string | null>
+    title: p.Property<string | BaseText | null>
     title_standoff: p.Property<number>
     width: p.Property<number | "auto">
     height: p.Property<number | "auto">
@@ -580,7 +586,7 @@ export class BaseColorBar extends Annotation {
     this.define<BaseColorBar.Props>(({Alpha, Number, String, Tuple, Map, Or, Ref, Auto, Nullable}) => ({
       location:              [ Or(Anchor, Tuple(Number, Number)), "top_right" ],
       orientation:           [ Or(Orientation, Auto), "auto" ],
-      title:                 [ Nullable(String), null ],
+      title:                 [ Nullable(Or(String, Ref(BaseText))), null ],
       title_standoff:        [ Number, 2 ],
       width:                 [ Or(Number, Auto), "auto" ],
       height:                [ Or(Number, Auto), "auto" ],
