@@ -86,12 +86,12 @@ describe("AnnotationView", () => {
     })
 
     it("should collect shapes when they are present", async () => {
-      const array = ndarray([1, 2, 3, 4], {shape: [2, 2]})
+      const array = ndarray([1, 2, 3, 4], {dtype: "float64", shape: [2, 2]})
       const ds = new ColumnDataSource({data: {colname: array}})
       const obj = new SubclassWithNumberSpec()
       const view = await build_view(obj, {parent: await plot()})
       view.set_data(ds)
-      expect(view.foo).to.be.equal(new p.UniformVector(ndarray([1, 2, 3, 4], {shape: [2, 2]})))
+      expect(view.foo).to.be.equal(new p.UniformVector(ndarray([1, 2, 3, 4], {dtype: "float64", shape: [2, 2]})))
     })
   })
 })

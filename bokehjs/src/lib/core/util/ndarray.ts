@@ -1,5 +1,5 @@
-import {NDDataType, TypedArray} from "../types"
-import {isObject, isArray} from "./types"
+import {NDDataType} from "../types"
+import {isObject, isNumber} from "./types"
 import {BYTE_ORDER} from "./platform"
 import {equals, Equatable, Comparator} from "./eq"
 import {serialize, Serializable, Serializer, ArrayRep, BytesRep, NDArrayRep} from "../serialization"
@@ -24,15 +24,7 @@ export interface NDArrayType extends Equatable, Serializable {
   readonly dimension: number
 }
 
-type Array1d = {dimension: 1, shape: [number]}
-type Array2d = {dimension: 2, shape: [number, number]}
-
-export type Uint32Array1d  = Uint32NDArray  & Array1d
-export type Uint8Array1d   = Uint8NDArray   & Array1d
-export type Uint8Array2d   = Uint8NDArray   & Array2d
-export type Float32Array2d = Float32NDArray & Array2d
-export type Float64Array2d = Float64NDArray & Array2d
-export type FloatArray2d   = Float32Array2d | Float64Array2d
+type Init<T> = number | ArrayBuffer | ArrayLike<T>
 
 export class BoolNDArray extends Uint8Array implements NDArrayType {
   readonly [__ndarray__] = true
@@ -40,9 +32,9 @@ export class BoolNDArray extends Uint8Array implements NDArrayType {
   readonly shape: number[]
   readonly dimension: number
 
-  constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
-    super(seq)
-    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
+  constructor(init: Init<number>, shape?: number[]) {
+    super(init as any) // XXX: typescript bug?
+    this.shape = shape ?? (is_NDArray(init) ? init.shape : [this.length])
     this.dimension = this.shape.length
   }
 
@@ -61,9 +53,9 @@ export class Uint8NDArray extends Uint8Array implements NDArrayType {
   readonly shape: number[]
   readonly dimension: number
 
-  constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
-    super(seq)
-    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
+  constructor(init: Init<number>, shape?: number[]) {
+    super(init as any) // XXX: typescript bug?
+    this.shape = shape ?? (is_NDArray(init) ? init.shape : [this.length])
     this.dimension = this.shape.length
   }
 
@@ -82,9 +74,9 @@ export class Int8NDArray extends Int8Array implements NDArrayType {
   readonly shape: number[]
   readonly dimension: number
 
-  constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
-    super(seq)
-    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
+  constructor(init: Init<number>, shape?: number[]) {
+    super(init as any) // XXX: typescript bug?
+    this.shape = shape ?? (is_NDArray(init) ? init.shape : [this.length])
     this.dimension = this.shape.length
   }
 
@@ -103,9 +95,9 @@ export class Uint16NDArray extends Uint16Array implements NDArrayType {
   readonly shape: number[]
   readonly dimension: number
 
-  constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
-    super(seq)
-    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
+  constructor(init: Init<number>, shape?: number[]) {
+    super(init as any) // XXX: typescript bug?
+    this.shape = shape ?? (is_NDArray(init) ? init.shape : [this.length])
     this.dimension = this.shape.length
   }
 
@@ -124,9 +116,9 @@ export class Int16NDArray extends Int16Array implements NDArrayType {
   readonly shape: number[]
   readonly dimension: number
 
-  constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
-    super(seq)
-    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
+  constructor(init: Init<number>, shape?: number[]) {
+    super(init as any) // XXX: typescript bug?
+    this.shape = shape ?? (is_NDArray(init) ? init.shape : [this.length])
     this.dimension = this.shape.length
   }
 
@@ -145,9 +137,9 @@ export class Uint32NDArray extends Uint32Array implements NDArrayType {
   readonly shape: number[]
   readonly dimension: number
 
-  constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
-    super(seq)
-    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
+  constructor(init: Init<number>, shape?: number[]) {
+    super(init as any) // XXX: typescript bug?
+    this.shape = shape ?? (is_NDArray(init) ? init.shape : [this.length])
     this.dimension = this.shape.length
   }
 
@@ -166,9 +158,9 @@ export class Int32NDArray extends Int32Array implements NDArrayType {
   readonly shape: number[]
   readonly dimension: number
 
-  constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
-    super(seq)
-    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
+  constructor(init: Init<number>, shape?: number[]) {
+    super(init as any) // XXX: typescript bug?
+    this.shape = shape ?? (is_NDArray(init) ? init.shape : [this.length])
     this.dimension = this.shape.length
   }
 
@@ -187,9 +179,9 @@ export class Float32NDArray extends Float32Array implements NDArrayType {
   readonly shape: number[]
   readonly dimension: number
 
-  constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
-    super(seq)
-    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
+  constructor(init: Init<number>, shape?: number[]) {
+    super(init as any) // XXX: typescript bug?
+    this.shape = shape ?? (is_NDArray(init) ? init.shape : [this.length])
     this.dimension = this.shape.length
   }
 
@@ -208,9 +200,9 @@ export class Float64NDArray extends Float64Array implements NDArrayType {
   readonly shape: number[]
   readonly dimension: number
 
-  constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
-    super(seq)
-    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
+  constructor(init: Init<number>, shape?: number[]) {
+    super(init as any) // XXX: typescript bug?
+    this.shape = shape ?? (is_NDArray(init) ? init.shape : [this.length])
     this.dimension = this.shape.length
   }
 
@@ -229,17 +221,19 @@ export class ObjectNDArray extends Array implements NDArrayType {
   readonly shape: number[]
   readonly dimension: number
 
-  constructor(seq: ArrayLike<number>/* | ArrayBufferLike*/, shape?: number[]) {
-    /* TODO: TS 4.6
-    if (seq instanceof ArrayBuffer) {
-      throw new Error("not supported with dtype='object'")
+  constructor(init_: Init<unknown>, shape?: number[]) {
+    const init = init_ instanceof ArrayBuffer ? new Float64Array(init_) : init_
+    const size = isNumber(init) ? init : init.length
+
+    super(size)
+
+    if (!isNumber(init)) {
+      for (let i = 0; i < init.length; i++) {
+        this[i] = init[i]
+      }
     }
-    */
-    super(seq.length)
-    for (let i = 0; i < seq.length; i++) {
-      this[i] = seq[i]
-    }
-    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
+
+    this.shape = shape ?? (is_NDArray(init) ? init.shape : [this.length])
     this.dimension = this.shape.length
   }
 
@@ -265,64 +259,62 @@ export function is_NDArray(v: unknown): v is NDArray {
 }
 
 export type NDArrayTypes = {
-  "bool":    {typed: Uint8Array,   ndarray: BoolNDArray}
-  "uint8":   {typed: Uint8Array,   ndarray: Uint8NDArray}
-  "int8":    {typed: Int8Array,    ndarray: Int8NDArray}
-  "uint16":  {typed: Uint16Array,  ndarray: Uint16NDArray}
-  "int16":   {typed: Int16Array,   ndarray: Int16NDArray}
-  "uint32":  {typed: Uint32Array,  ndarray: Uint32NDArray}
-  "int32":   {typed: Int32Array,   ndarray: Int32NDArray}
-  "float32": {typed: Float32Array, ndarray: Float32NDArray}
-  "float64": {typed: Float64Array, ndarray: Float64NDArray}
-  "object":  {typed: unknown[],    ndarray: ObjectNDArray}
+  bool:    {array: Uint8Array,   ndarray: BoolNDArray}
+  uint8:   {array: Uint8Array,   ndarray: Uint8NDArray}
+  int8:    {array: Int8Array,    ndarray: Int8NDArray}
+  uint16:  {array: Uint16Array,  ndarray: Uint16NDArray}
+  int16:   {array: Int16Array,   ndarray: Int16NDArray}
+  uint32:  {array: Uint32Array,  ndarray: Uint32NDArray}
+  int32:   {array: Int32Array,   ndarray: Int32NDArray}
+  float32: {array: Float32Array, ndarray: Float32NDArray}
+  float64: {array: Float64Array, ndarray: Float64NDArray}
+  object:  {array: unknown[],    ndarray: ObjectNDArray}
 }
 
-export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "bool", shape: [number]}): BoolNDArray & Array1d
-export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "uint8", shape: [number]}): Uint8NDArray & Array1d
-export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "uint8", shape: [number, number]}): Uint8NDArray & Array2d
-export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "uint32", shape: [number]}): Uint32NDArray & Array1d
-export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "uint32", shape: [number, number]}): Uint32NDArray & Array2d
-export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "float32", shape: [number]}): Float32NDArray & Array1d
-export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "float32", shape: [number, number]}): Float32NDArray & Array2d
-export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "float64", shape: [number]}): Float64NDArray & Array1d
-export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "float64", shape: [number, number]}): Float64NDArray & Array2d
-export function ndarray(array: ArrayBuffer | ArrayLike<number>, options: {dtype: "object", shape: [number, number]}): ObjectNDArray & Array2d
+type ArrayNd<S extends number[]> = {dimension: S["length"], shape: S}
 
-export function ndarray<K extends NDDataType = "float64">(array: ArrayBuffer | ArrayLike<number>, options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
-export function ndarray<K extends NDDataType>(array: NDArrayTypes[K]["typed"], options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
+type Array1d = ArrayNd<[number]>
+type Array2d = ArrayNd<[number, number]>
 
-export function ndarray(array: ArrayBuffer | TypedArray | ArrayLike<number>, options: {dtype?: NDDataType, shape?: number[]} = {}): NDArray {
-  let {dtype} = options
+export type Uint32Array1d  = Uint32NDArray  & Array1d
+export type Uint8Array1d   = Uint8NDArray   & Array1d
+export type Uint8Array2d   = Uint8NDArray   & Array2d
+export type Float32Array2d = Float32NDArray & Array2d
+export type Float64Array2d = Float64NDArray & Array2d
+export type FloatArray2d   = Float32Array2d | Float64Array2d
+
+export function ndarray<S extends number[]>(init: number | ArrayBuffer | ArrayLike<unknown>, options?: {shape?: S}): NDArrayTypes["object"]["ndarray"] & ArrayNd<S>
+export function ndarray<K extends NDDataType, S extends number[]>(init: number | ArrayBuffer | ArrayLike<number>, options?: {dtype: K, shape?: S}): NDArrayTypes[K]["ndarray"] & ArrayNd<S>
+export function ndarray<S extends number[]>(init: ArrayLike<unknown>, options?: {dtype: "object", shape?: S}): NDArrayTypes["object"]["ndarray"] & ArrayNd<S>
+
+export function ndarray(init: number | ArrayBuffer | ArrayLike<unknown>, {dtype, shape}: {dtype?: NDDataType, shape?: number[]} = {}): NDArray {
   if (dtype == null) {
-    if (array instanceof ArrayBuffer || isArray(array)) {
-      dtype = "float64"
-    } else {
-      dtype = (() => {
-        switch (true) {
-          case array instanceof Uint8Array:   return "uint8"
-          case array instanceof Int8Array:    return "int8"
-          case array instanceof Uint16Array:  return "uint16"
-          case array instanceof Int16Array:   return "int16"
-          case array instanceof Uint32Array:  return "uint32"
-          case array instanceof Int32Array:   return "int32"
-          case array instanceof Float32Array: return "float32"
-          case array instanceof Float64Array: return "float64"
-          default:                            return "object"
-        }
-      })()
-    }
+    dtype = (() => {
+      switch (true) {
+        case init instanceof Uint8Array:   return "uint8"
+        case init instanceof Int8Array:    return "int8"
+        case init instanceof Uint16Array:  return "uint16"
+        case init instanceof Int16Array:   return "int16"
+        case init instanceof Uint32Array:  return "uint32"
+        case init instanceof Int32Array:   return "int32"
+        case init instanceof Float32Array: return "float32"
+        case init instanceof ArrayBuffer:
+        case init instanceof Float64Array: return "float64"
+        default:                           return "object"
+      }
+    })()
   }
-  const {shape} = options
+
   switch (dtype) {
-    case "bool":    return new BoolNDArray(array, shape)
-    case "uint8":   return new Uint8NDArray(array, shape)
-    case "int8":    return new Int8NDArray(array, shape)
-    case "uint16":  return new Uint16NDArray(array, shape)
-    case "int16":   return new Int16NDArray(array, shape)
-    case "uint32":  return new Uint32NDArray(array, shape)
-    case "int32":   return new Int32NDArray(array, shape)
-    case "float32": return new Float32NDArray(array, shape)
-    case "float64": return new Float64NDArray(array, shape)
-    default:        return new ObjectNDArray(array as any, shape) // TODO: TS 4.6
+    case "bool":    return new BoolNDArray(init as Init<number>, shape)
+    case "uint8":   return new Uint8NDArray(init as Init<number>, shape)
+    case "int8":    return new Int8NDArray(init as Init<number>, shape)
+    case "uint16":  return new Uint16NDArray(init as Init<number>, shape)
+    case "int16":   return new Int16NDArray(init as Init<number>, shape)
+    case "uint32":  return new Uint32NDArray(init as Init<number>, shape)
+    case "int32":   return new Int32NDArray(init as Init<number>, shape)
+    case "float32": return new Float32NDArray(init as Init<number>, shape)
+    case "float64": return new Float64NDArray(init as Init<number>, shape)
+    case "object":  return new ObjectNDArray(init, shape)
   }
 }
