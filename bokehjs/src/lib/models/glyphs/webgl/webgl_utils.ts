@@ -42,14 +42,19 @@ export function marker_type_to_size_hint(marker_type: MarkerType): number {
     case "diamond_cross":
     case "diamond_dot":
       return 3
-    case "inverted_triangle":
+    case "hex":
+      return 4
     case "square_pin":
-    case "star":
-    case "star_dot":
+      return 5
+    case "inverted_triangle":
     case "triangle":
     case "triangle_dot":
+      return 6
     case "triangle_pin":
-      return 4
+      return 7
+    case "star":
+    case "star_dot":
+      return 8
     default:
       return 0
   }
