@@ -316,7 +316,7 @@ class _BokehStructureGraph:
             Z["model"] = str(M)
             Z["values"] = Z["values"].map(lambda x: str(x))
             Z["types"] = Z["types"].map(lambda x: str(x))
-            df = df.append(Z)
+            df = pd.concat([df, Z])
         return df
 
     def _make_data_table(self) -> DataTable:
