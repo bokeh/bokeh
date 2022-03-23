@@ -342,18 +342,6 @@ export class Toolbar extends Model {
   }
 
   protected _init_tools(): void {
-    // The only purpose of this function is to avoid unnecessary property churning.
-    const tools_changed = function(_old_tools: ToolLike<Tool>[], _new_tools: ToolLike<Tool>[]) {
-      return true
-      /*
-      if (old_tools.length != new_tools.length) {
-        return true
-      }
-      const new_ids = new Set(new_tools.map(t => t.id))
-      return some(old_tools, t => !new_ids.has(t.id))
-      */
-    }
-
     type AbstractConstructor<T, Args extends any[] = any[]> = abstract new (...args: Args) => T
 
     function isa<A extends Tool>(tool: unknown, type: AbstractConstructor<A>): tool is ToolLike<A> {
@@ -361,22 +349,20 @@ export class Toolbar extends Model {
     }
 
     const new_inspectors = this.tools.filter(t => isa(t, InspectTool)) as ToolLike<InspectTool>[]
-    if (tools_changed(this.inspectors, new_inspectors)) {
-      this.inspectors = new_inspectors
-    }
+    this.inspectors = new_inspectors
+
     const new_help = this.tools.filter(t => isa(t, HelpTool)) as ToolLike<HelpTool>[]
-    if (tools_changed(this.help, new_help)) {
-      this.help = new_help
-    }
+    this.help = new_help
+
     const new_actions = this.tools.filter(t => isa(t, ActionTool)) as ToolLike<ActionTool>[]
-    if (tools_changed(this.actions, new_actions)) {
-      this.actions = new_actions
-    }
+    this.actions = new_actions
+
     const check_event_type = (et: EventType, tool: ToolLike<Tool>) => {
       if (!(et in this.gestures)) {
         logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool}`)
       }
     }
+
     const new_gestures = create_gesture_map()
     for (const tool of this.tools) {
       if (isa(tool, GestureTool)) {
@@ -393,10 +379,9 @@ export class Toolbar extends Model {
     }
     for (const et of Object.keys(new_gestures) as GestureType[]) {
       const gm = this.gestures[et]
-      if (tools_changed(gm.tools, new_gestures[et].tools)) {
-        gm.tools = new_gestures[et].tools
-      }
-      if (gm.active && every(gm.tools, t => t.id != gm.active!.id)) {
+      gm.tools = new_gestures[et].tools
+
+      if (gm.active && every(gm.tools, t => t.id != gm.active?.id)) {
         gm.active = null
       }
     }
