@@ -132,6 +132,14 @@ implementation, then use data models (e.g. extend from ``DataModel``).
 as assigned to. Previously providing a data source in both a glyph renderer
 and a source view was redundant.
 
+``CDSView.filters``
+...................
+
+``filters`` property was deprecated and replaced with ``filter`` property. The
+original behavior of ``filters`` can be replicated with setting ``filter`` to
+``IntersectionFilter(operands=filters)``, or preferably using ``&`` operator
+like ``cds_view.filter &= other_filter``.
+
 ``RadioGroup / CheckboxGroup on_click``
 .......................................
 
