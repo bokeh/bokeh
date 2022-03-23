@@ -320,14 +320,14 @@ describe("core/util/ndarray module", () => {
     expect(nd4.length).to.be.equal(6)
   })
 
-  it("should support ndarray() function", () => {
+  it("should support ndarray() function widthout dtype", () => {
     const nd0 = ndarray([1, 2, 3, 4, 5, 6])
     expect(is_NDArray(nd0)).to.be.true
-    expect(nd0.dtype).to.be.equal("float64")
+    expect(nd0.dtype).to.be.equal("object")
     expect(nd0.shape).to.be.equal([6])
   })
 
-  it("should support ndarray() function's dtype argument", () => {
+  it("should support ndarray() width dtype", () => {
     const nd0 = ndarray([1, 0, 0, 1, 1, 1], {dtype: "bool"})
     expect(is_NDArray(nd0)).to.be.true
     expect(nd0.dtype).to.be.equal("bool")
@@ -380,7 +380,7 @@ describe("core/util/ndarray module", () => {
     expect(nd9.shape).to.be.equal([2, 3])
   })
 
-  it("should support ndarray() function's shape argument", () => {
+  it("should support ndarray() with dtype and shape", () => {
     const nd0 = ndarray([1, 0, 0, 1, 1, 1], {dtype: "bool", shape: [2, 3]})
     expect(is_NDArray(nd0)).to.be.true
     expect(nd0.dtype).to.be.equal("bool")
@@ -431,5 +431,67 @@ describe("core/util/ndarray module", () => {
     expect(is_NDArray(nd9)).to.be.true
     expect(nd9.dtype).to.be.equal("object")
     expect(nd9.shape).to.be.equal([2, 3])
+  })
+
+  it("should support ndarray() with dtype and shape, and size initializer", () => {
+    const nd0 = ndarray(6, {dtype: "bool", shape: [2, 3]})
+    expect(is_NDArray(nd0)).to.be.true
+    expect(nd0.dtype).to.be.equal("bool")
+    expect(nd0.shape).to.be.equal([2, 3])
+    expect(nd0.length).to.be.equal(6)
+
+    const nd1 = ndarray(6, {dtype: "uint8", shape: [2, 3]})
+    expect(is_NDArray(nd1)).to.be.true
+    expect(nd1.dtype).to.be.equal("uint8")
+    expect(nd1.shape).to.be.equal([2, 3])
+    expect(nd1.length).to.be.equal(6)
+
+    const nd2 = ndarray(6, {dtype: "uint16", shape: [2, 3]})
+    expect(is_NDArray(nd2)).to.be.true
+    expect(nd2.dtype).to.be.equal("uint16")
+    expect(nd2.shape).to.be.equal([2, 3])
+    expect(nd2.length).to.be.equal(6)
+
+    const nd3 = ndarray(6, {dtype: "uint32", shape: [2, 3]})
+    expect(is_NDArray(nd3)).to.be.true
+    expect(nd3.dtype).to.be.equal("uint32")
+    expect(nd3.shape).to.be.equal([2, 3])
+    expect(nd3.length).to.be.equal(6)
+
+    const nd4 = ndarray(6, {dtype: "int8", shape: [2, 3]})
+    expect(is_NDArray(nd4)).to.be.true
+    expect(nd4.dtype).to.be.equal("int8")
+    expect(nd4.shape).to.be.equal([2, 3])
+    expect(nd4.length).to.be.equal(6)
+
+    const nd5 = ndarray(6, {dtype: "int16", shape: [2, 3]})
+    expect(is_NDArray(nd5)).to.be.true
+    expect(nd5.dtype).to.be.equal("int16")
+    expect(nd5.shape).to.be.equal([2, 3])
+    expect(nd5.length).to.be.equal(6)
+
+    const nd6 = ndarray(6, {dtype: "int32", shape: [2, 3]})
+    expect(is_NDArray(nd6)).to.be.true
+    expect(nd6.dtype).to.be.equal("int32")
+    expect(nd6.shape).to.be.equal([2, 3])
+    expect(nd6.length).to.be.equal(6)
+
+    const nd7 = ndarray(6, {dtype: "float32", shape: [2, 3]})
+    expect(is_NDArray(nd7)).to.be.true
+    expect(nd7.dtype).to.be.equal("float32")
+    expect(nd7.shape).to.be.equal([2, 3])
+    expect(nd7.length).to.be.equal(6)
+
+    const nd8 = ndarray(6, {dtype: "float64", shape: [2, 3]})
+    expect(is_NDArray(nd8)).to.be.true
+    expect(nd8.dtype).to.be.equal("float64")
+    expect(nd8.shape).to.be.equal([2, 3])
+    expect(nd8.length).to.be.equal(6)
+
+    const nd9 = ndarray(6, {dtype: "object", shape: [2, 3]})
+    expect(is_NDArray(nd9)).to.be.true
+    expect(nd9.dtype).to.be.equal("object")
+    expect(nd9.shape).to.be.equal([2, 3])
+    expect(nd9.length).to.be.equal(6)
   })
 })
