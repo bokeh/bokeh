@@ -3,7 +3,7 @@ from bokeh.models import CDSView, ColumnDataSource, IndexFilter
 from bokeh.plotting import figure, show
 
 source = ColumnDataSource(data=dict(x=[1, 2, 3, 4, 5], y=[1, 2, 3, 4, 5]))
-view = CDSView(filters=[IndexFilter([0, 2, 4])])
+view = CDSView(filter=IndexFilter([0, 2, 4]))
 
 tools = ["box_select", "hover", "reset"]
 p = figure(height=300, width=300, tools=tools)

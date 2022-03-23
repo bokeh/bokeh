@@ -48,7 +48,7 @@ class TestGlyphRenderer:
         check = renderer._check_cdsview_filters_with_connected()
         assert check == []
 
-        renderer.view.filters = [IndexFilter()]
+        renderer.view.filter = IndexFilter()
         check = renderer._check_cdsview_filters_with_connected()
         assert check != []
 
