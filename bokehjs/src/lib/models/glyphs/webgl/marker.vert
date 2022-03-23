@@ -67,6 +67,9 @@ void main()
 #endif
 
   vec2 enclosing_size;
+  // Need extra size of (v_linewidth+u_antialias) if edge of marker parallel to
+  // edge of bounding box.  If symmetric spike towards edge then multiply by
+  // 1/cos(theta) where theta is angle between spike and bbox edges.
   int size_hint = int(u_size_hint + 0.5);
   if (size_hint == 1)  // Dash
     enclosing_size = vec2(v_size.x + v_linewidth + u_antialias,
@@ -74,10 +77,20 @@ void main()
   else if (size_hint == 2)  // Dot
     enclosing_size = 0.25*v_size + u_antialias;
   else if (size_hint == 3)  // Diamond
-    enclosing_size = vec2(v_size.x*0.67 + v_linewidth + u_antialias,
-                          v_size.y + 3.0*v_linewidth + u_antialias);
-  else if (size_hint == 4)  // Non-diamond pointed markers
-    enclosing_size = v_size + 4.0*v_linewidth + u_antialias;
+    enclosing_size = vec2(v_size.x*(2.0/3.0) + (v_linewidth + u_antialias)*1.20185,
+                          v_size.y + (v_linewidth + u_antialias)*1.80278);
+  else if (size_hint == 4)  // Hex
+    enclosing_size = v_size + (v_linewidth + u_antialias)*vec2(2.0/sqrt(3.0), 1.0);
+  else if (size_hint == 5)  // Square pin
+    enclosing_size = v_size + (v_linewidth + u_antialias)*3.1;
+  else if (size_hint == 6)  // Triangle
+    enclosing_size = vec2(v_size.x + (v_linewidth + u_antialias)*sqrt(3.0),
+                          v_size.y*(2.0/sqrt(3.0)) + (v_linewidth + u_antialias)*2.0);
+  else if (size_hint == 7)  // Triangle pin
+    enclosing_size = v_size + (v_linewidth + u_antialias)*vec2(4.8, 6.0);
+  else if (size_hint == 8)  // Star
+    enclosing_size = vec2(v_size.x*0.95106 + (v_linewidth + u_antialias)*3.0,
+                          v_size.y + (v_linewidth + u_antialias)*3.2);
   else
     enclosing_size = v_size + v_linewidth + u_antialias;
 

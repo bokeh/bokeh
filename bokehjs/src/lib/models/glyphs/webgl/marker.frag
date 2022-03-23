@@ -102,6 +102,52 @@ float end_cap_distance(in vec2 p, in vec2 end_point, in vec2 unit_direction, in 
 }
 #endif
 
+#if !(defined(LINE_ONLY) || defined(USE_SQUARE_PIN) || defined(USE_TRIANGLE_PIN))
+// For line join at a vec2 corner where 2 line segments meet, consider bevel points which are the 2
+// points obtained by moving half a linewidth away from the corner point in the directions normal to
+// the line segments.  The line through these points is the bevel line, characterised by a vec2
+// unit_normal and offset distance from the corner point.  Edge of bevel join straddles this line,
+// round join occurs outside of this line centred on the corner point.  In general
+//   offset = (linewidth/2)*sin(alpha/2)
+// where alpha is the angle between the 2 line segments at the corner.
+float line_join_distance_no_miter(
+  in vec2 p, in vec2 corner, in vec2 unit_normal, in float offset, in int line_join)
+{
+  // Simplified version of line_join_distance ignoring miter which most markers do implicitly
+  // as they are composed of straight line segments.
+  float dist_outside = dot((p - corner), unit_normal) - offset;
+
+  if (line_join == bevel_join && dist_outside > -0.5*u_antialias)
+    return dist_outside + 0.5*v_linewidth;
+  else if (dist_outside > 0.0)  // round_join
+    return distance(p, corner);
+  else
+    // Default is outside of line and should be -0.5*(v_linewidth+u_antialias) or less,
+    // so here avoid the multiplication.
+    return -v_linewidth-u_antialias;
+}
+#endif
+
+#if defined(USE_SQUARE_PIN) || defined(USE_TRIANGLE_PIN)
+// Line join distance including miter but only one-sided check as assuming use of symmetry in
+// calling function.
+float line_join_distance_incl_miter(
+  in vec2 p, in vec2 corner, in vec2 unit_normal, in float offset, in int line_join,
+  vec2 miter_unit_normal)
+{
+  float dist_outside = dot((p - corner), unit_normal) - offset;
+
+  if (line_join == miter_join && dist_outside > 0.0)
+    return dot((p - corner), miter_unit_normal);
+  else if (line_join == bevel_join && dist_outside > -0.5*u_antialias)
+    return dist_outside + 0.5*v_linewidth;
+  else if (dist_outside > 0.0)  // round_join
+    return distance(p, corner);
+  else
+    return -v_linewidth-u_antialias;
+}
+#endif
+
 #if defined(APPEND_CROSS) || defined(APPEND_X) || defined(USE_ASTERISK) || \
     defined(USE_CROSS) || defined(USE_X)
 float one_cross(in vec2 p, in int line_cap, in float len)
@@ -203,7 +249,17 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
   p = abs(p);
   float r = 0.5*v_size.x;
   const float SQRT13 = sqrt(13.0);
-  return dot(p, vec2(3.0, 2.0))/SQRT13 - 2.0*r/SQRT13;
+  float dist = dot(p, vec2(3.0, 2.0))/SQRT13 - 2.0*r/SQRT13;
+
+  if (line_join != miter_join) {
+    dist = max(dist, line_join_distance_no_miter(
+      p, vec2(0.0, r), vec2(0.0, 1.0), v_linewidth/SQRT13, line_join));
+
+    dist = max(dist, line_join_distance_no_miter(
+      p, vec2(r*2.0/3.0, 0.0), vec2(1.0, 0.0), v_linewidth*(1.5/SQRT13), line_join));
+  }
+
+  return dist;
 }
 #endif
 
@@ -222,13 +278,23 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
   // Only need to consider +ve quadrant, the 3 corners are at (0, h), (r2, h), (r, 0)
   // where r = radius = v_size.x/2, r2 = r/2, h = SQRT3*r2 = r*SQRT3/2.
   // Sloping line has outward-facing unit normal vec2(h, r2)/r = vec2(SQRT3, 1)/2
-  // and distance from origin of h.  Horizontal line has outward-facing unit norml
+  // and distance from origin of h.  Horizontal line has outward-facing unit normal
   // vec2(0, 1) and distance from origin of h.
   p = abs(p);
   float r = 0.5*v_size.x;
   float h = r*(SQRT3/2.0);
-  return max(0.5*dot(p, vec2(SQRT3, 1.0)) - h,  // Distance from sloping line.
-             p.y - h);  // Distance from horizontal line.
+  float dist = max(0.5*dot(p, vec2(SQRT3, 1.0)) - h,  // Distance from sloping line.
+                   p.y - h);  // Distance from horizontal line.
+
+  if (line_join != miter_join) {
+    dist = max(dist, line_join_distance_no_miter(
+      p, vec2(r, 0.0), vec2(1.0, 0.0), v_linewidth*(SQRT3/4.0), line_join));
+
+    dist = max(dist, line_join_distance_no_miter(
+      p, vec2(0.5*r, h), vec2(0.5, SQRT3/2.0), v_linewidth*(SQRT3/4.0), line_join));
+  }
+
+  return dist;
 }
 #endif
 
@@ -242,8 +308,20 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
 
   // 3 corners are (r, 0), (r, 3r/8) and (3r/8, 3r/8).
   float r = 0.5*v_size.x;
-  return max(p.x - r,  // Distance from vertical line at x = r.
-             p.y - r*0.375);  // Distance from horizontal line at y = 3r/8.
+  p = p - vec2(r, 0.375*r);  // Distance with respect to outside corner
+  float dist = max(p.x, p.y);
+
+  if (line_join != miter_join) {
+    // Outside corner
+    dist = max(dist, line_join_distance_no_miter(
+      p, vec2(0.0, 0.0), vec2(1.0/SQRT2, 1.0/SQRT2), v_linewidth/(2.0*SQRT2), line_join));
+
+    // Inside corner
+    dist = min(dist, -line_join_distance_no_miter(
+      p, vec2(-5.0*r/8.0, 0.0), vec2(-1.0/SQRT2, -1.0/SQRT2), v_linewidth/(2.0*SQRT2), line_join));
+  }
+
+  return dist;
 }
 #endif
 
@@ -251,18 +329,12 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
     defined(USE_SQUARE_X)
 float marker_distance(in vec2 p, in int line_cap, in int line_join)
 {
-  vec2 dist2 = abs(p) - v_size/2.0;
-  float dist = max(dist2.x, dist2.y);
+  vec2 p2 = abs(p) - v_size/2.0;  // Offset from corner
+  float dist = max(p2.x, p2.y);
 
-  if (dist2.x > 0.0 && dist2.y > 0.0) {
-    // Outside of corner needs correct join, default is miter.
-    if (line_join == round_join)
-      dist = length(dist2);
-    else if (line_join == bevel_join) {
-      vec2 normal = vec2(1.0/SQRT2, 1.0/SQRT2);
-      dist = dot(dist2, normal) + 0.5*v_linewidth*(1.0 - 1.0/SQRT2);
-    }
-  }
+  if (line_join != miter_join)
+    dist = max(dist, line_join_distance_no_miter(
+      p2, vec2(0.0, 0.0), vec2(1.0/SQRT2, 1.0/SQRT2), v_linewidth/(2.0*SQRT2), line_join));
 
   return dist;
 }
@@ -283,9 +355,13 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
   float center_x = r*2.44375;
   float radius = r*1.75626;
   float dist = radius - distance(p, vec2(center_x, 0.0));
-  // Apply bevel join to limit spikes.
-  float bevel = dot(p, vec2(1.0/SQRT2, 1.0/SQRT2)) - r*SQRT2;
-  return max(dist, bevel);
+
+  // Magic number is 0.5*sin(atan(8/5) - pi/4)
+  dist = max(dist, line_join_distance_incl_miter(
+    p, vec2(r, r), vec2(1.0/SQRT2, 1.0/SQRT2), v_linewidth*0.1124297533493792, line_join,
+    vec2(8.0/sqrt(89.0), -5.0/sqrt(89.0))));
+
+  return dist;
 }
 #endif
 
@@ -295,17 +371,32 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
   // Assuming v_size.x == v.size_y
   const float SQRT5 = sqrt(5.0);
   const float COS72 = 0.25*(SQRT5 - 1.0);
-  const float SIN72 = sqrt( (5.0+SQRT5) / 8.0 );
+  const float SIN72 = sqrt((5.0+SQRT5) / 8.0);
 
   float angle = atan(p.x, p.y);  // In range -pi to +pi clockwise from +y direction.
   angle = mod(angle, 0.4*PI) - 0.2*PI;  // In range -pi/5 to +pi/5 clockwise from +y direction.
-  p = length(p)*vec2(cos(angle), abs(sin(angle)));  // (x,y) in pi/10 (72 degree) sector.
+  p = length(p)*vec2(cos(angle), abs(sin(angle)));  // (x,y) in pi/10 (36 degree) sector.
 
-  // 2 corners are at (r, 0) and (r-a.SIN72, a.COS72).
+  // 2 corners are at (r, 0) and (r-a*SIN72, a*COS72) where a = r sqrt(5-2*sqrt(5)).
   // Line has outward-facing unit normal vec2(COS72, SIN72) and distance from
-  // origin of dot(vec2(r, 0), vec2(COS72, SIN72)) = r.COS72
+  // origin of dot(vec2(r, 0), vec2(COS72, SIN72)) = r*COS72
   float r = 0.5*v_size.x;
-  return dot(p, vec2(COS72, SIN72)) - r*COS72;
+  float a = r*sqrt(5.0 - 2.0*SQRT5);
+  float dist = dot(p, vec2(COS72, SIN72)) - r*COS72;
+
+  if (line_join != miter_join) {
+    // Outside corner
+    dist = max(dist, line_join_distance_no_miter(
+      p, vec2(r, 0.0), vec2(1.0, 0.0), v_linewidth*(0.5*COS72), line_join));
+
+    // Inside corner
+    const float COS36 = sqrt(0.5 + COS72/2.0);
+    const float SIN36 = sqrt(0.5 - COS72/2.0);
+    dist = min(dist, -line_join_distance_no_miter(
+      p, vec2(r-a*SIN72, a*COS72), vec2(-COS36, -SIN36), v_linewidth*(0.5*COS36), line_join));
+  }
+
+  return dist;
 }
 #endif
 
@@ -313,7 +404,7 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
 float marker_distance(in vec2 p, in int line_cap, in int line_join)
 {
   // Assuming v_size.x == v.size_y
-  // For normal triangle 3 corners are at (-r, a), (r, a), (0, a-h)
+  // For normal triangle 3 corners are at (-r, a), (r, a), (0, a-h)=(0, -2h/3)
   // given r = radius = v_size.x/2, h = SQRT3*r, a = h/3.
   // Sloping line has outward-facing unit normal vec2(h, -r)/2r = vec2(SQRT3, -1)/2
   // and distance from origin of a.  Horizontal line has outward-facing unit normal
@@ -328,8 +419,18 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
   p = vec2(abs(p.x), p.y);
 #endif
 
-  return max(0.5*dot(p, vec2(SQRT3, -1.0)) - a,  // Distance from sloping line.
-             p.y - a);  // Distance from horizontal line.
+  float dist = max(0.5*dot(p, vec2(SQRT3, -1.0)) - a,  // Distance from sloping line.
+                   p.y - a);  // Distance from horizontal line.
+
+  if (line_join != miter_join) {
+    dist = max(dist, line_join_distance_no_miter(
+      p, vec2(0.0, -(2.0/SQRT3)*r), vec2(0.0, -1.0), v_linewidth*0.25, line_join));
+
+    dist = max(dist, line_join_distance_no_miter(
+      p, vec2(r, a), vec2(SQRT3/2.0, 0.5), v_linewidth*0.25, line_join));
+  }
+
+  return dist;
 }
 #endif
 
@@ -340,7 +441,7 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
   float angle = atan(p.x, -p.y);  // In range -pi to +pi.
   angle = mod(angle, PI*2.0/3.0) - PI/3.0;  // In range -pi/3 to pi/3.
   p = length(p)*vec2(cos(angle), abs(sin(angle)));  // (x,y) in range 0 to pi/3.
-  // Quadratic bezier curve passes through (a, r), ((a-b)/2, r) and (a, -r) where
+  // Quadratic bezier curve passes through (a, r), ((a+b)/2, 0) and (a, -r) where
   // a = r/SQRT3, b = 3a/8 = r SQRT3/8.  Circular arc that passes through the same points has
   // center at (a+x, 0) and radius x+c where c = (a-b)/2 and x = (r**2 - c**2) / (2c).
   // Ignore r factor until the end so can use const.
@@ -352,9 +453,13 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
   const float radius = x + c;
   float r = 0.5*v_size.x;
   float dist = r*radius - distance(p, vec2(r*center_x, 0.0));
-  // Apply bevel join to limit spikes.
-  float bevel = dot(p, vec2(0.5, 0.5*SQRT3)) - r - v_linewidth;
-  return max(dist, bevel);
+
+  // Magic number is 0.5*sin(atan(8*sqrt(3)/5) - pi/3)
+  dist = max(dist, line_join_distance_incl_miter(
+    p, vec2(a*r, r), vec2(0.5, 0.5*SQRT3), v_linewidth*0.0881844526878324, line_join,
+    vec2(8.0*SQRT3, -5.0)/sqrt(217.0)));
+
+  return dist;
 }
 #endif
 

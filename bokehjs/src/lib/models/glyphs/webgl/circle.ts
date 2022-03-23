@@ -8,10 +8,6 @@ import type {CircleView} from "../circle"
 export class CircleGL extends SingleMarkerGL {
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: CircleView) {
     super(regl_wrapper, glyph)
-
-    // Should not overwrite _antialias, but this will change all webgl baseline
-    // test images for markers so only do when the images next change anyway.
-    this._antialias = 0.8
   }
 
   override draw(indices: number[], main_glyph: CircleView, transform: Transform): void {
