@@ -41,6 +41,7 @@ from ..document.document import Document
 from ..model import Model, collect_models
 from ..settings import settings
 from ..themes.theme import Theme
+from ..util.dataclasses import dataclass, field
 from ..util.serialization import make_globally_unique_id
 
 if TYPE_CHECKING:
@@ -226,6 +227,7 @@ class RenderItem:
             return self.to_json() == other.to_json()
 
 
+@dataclass
 class RenderRoot:
     """ Encapsulate data needed for embedding a Bokeh document root.
 
@@ -233,27 +235,22 @@ class RenderRoot:
     querying a collection of roots to find a specific one to embed.
 
     """
-    def __init__(self, elementid: ID, id: ID, name: str | None = None, tags: List[Any] | None = None) -> None:
-        #: A unique ID to use for the DOM element
-        self.elementid = elementid
 
-        #: The Bokeh model ID for this root
-        self.id = id
+    #: A unique ID to use for the DOM element
+    elementid: ID
 
-        #: An optional user-supplied name for this root
-        self.name = name or ""
+    #: The Bokeh model ID for this root
+    id: ID = field(compare=False)
 
-        #: A list of any ser-supplied tag values for this root
-        self.tags = tags or []
+    #: An optional user-supplied name for this root
+    name: str | None = field(default="", compare=False)
 
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, self.__class__):
-            return False
-        else:
-            return self.elementid == other.elementid
+    #: A list of any user-supplied tag values for this root
+    tags: List[Any] = field(default_factory=list, compare=False)
 
-    def __repr__(self) -> str:
-        return f"RenderRoot(elementid={self.elementid}, id={self.id}, name={self.name}, tags={self.tags})"
+    def __post_init__(self):
+        # Model.name is nullable, and field() won't enforce the default when name=None
+        self.name = self.name or ""
 
 
 class RenderRoots:
