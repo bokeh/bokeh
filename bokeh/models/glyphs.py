@@ -598,7 +598,11 @@ class HexTile(LineGlyph, FillGlyph, HatchGlyph):
     the plot to True.
     """)
 
-    aspect_scale = Float(1.0, help="""
+    aspect_scale = Float(default=1.0, help="""
+    Match a plot's aspect ratio scaling.
+
+    Use this parameter to match the aspect ratio scaling of a plot when using
+    :class:`~bokeh.models.Plot.aspect_scale` with a value other than ``1.0``.
 
     """)
 
@@ -614,8 +618,11 @@ class HexTile(LineGlyph, FillGlyph, HatchGlyph):
     A scale factor for individual tiles.
     """)
 
-    orientation = String("pointytop", help="""
+    orientation = String(default="pointytop", help="""
+    The orientation of the hex tiles.
 
+    Use ``"pointytop"`` to orient the tile so that a pointed corner is at the top. Use
+    ``"flattop"`` to orient the tile so that a flat side is at the top.
     """)
 
     line_props = Include(LineProps, help="""
