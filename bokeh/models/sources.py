@@ -24,7 +24,6 @@ from typing import (
     Any as TAny,
     Dict as TDict,
     List as TList,
-    NoReturn,
     Sequence,
     Set,
     Tuple,
@@ -758,8 +757,15 @@ class CDSView(Model):
     """)
 
     @property
-    def filters(self) -> NoReturn:
-        raise RuntimeError("can't retrieve CDSView.filters")
+    def filters(self) -> TList[Filter]:
+        deprecated("CDSView.filters was deprecated in bokeh 3.0. Use CDSView.filter instead.")
+        filter = self.filter
+        if isinstance(filter, IntersectionFilter):
+            return filter.operands
+        elif isinstance(filter, AllIndices):
+            return []
+        else:
+            return [filter]
 
     @filters.setter
     def filters(self, filters: TList[Filter]) -> None:

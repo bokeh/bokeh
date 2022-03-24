@@ -5,6 +5,7 @@ import {View} from "core/view"
 import {Indices} from "core/types"
 import {Filter} from "../filters/filter"
 import {AllIndices} from "../filters/all_indices"
+import {IntersectionFilter} from "../filters/intersection_filter"
 import {ColumnarDataSource} from "./columnar_data_source"
 
 export class CDSViewView extends View {
@@ -111,5 +112,28 @@ export class CDSView extends Model {
 
   convert_indices_from_subset(indices: number[]): number[] {
     return indices.map((i) => this._indices[i])
+  }
+
+  /** @deprecated */
+  get filters(): Filter[] {
+    const {filter} = this
+    if (filter instanceof IntersectionFilter) {
+      return filter.operands
+    } else if (filter instanceof AllIndices) {
+      return []
+    } else {
+      return [filter]
+    }
+  }
+
+  /** @deprecated */
+  set filters(filters: Filter[]) {
+    if (filters.length == 0) {
+      this.filter = new AllIndices()
+    } else if (filters.length == 1) {
+      this.filter = filters[0]
+    } else {
+      this.filter = new IntersectionFilter({operands: filters})
+    }
   }
 }
