@@ -250,7 +250,7 @@ describe("Glyph models", () => {
   it("should support Rect", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {output_backend, title: output_backend})
-      p.rect({x, y, width: 1, height: 2})
+      p.rect({x, y, width: 1, height: 2, angle: [0, 90, -15], angle_units: "deg", alpha: 0.7})
       return p
     }
     await display(row([p("canvas"), p("svg"), p("webgl")]))
