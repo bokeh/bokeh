@@ -237,7 +237,7 @@ describe("Bug", () => {
       const y = [0, 1, 2, 3]
       const c = ["black", "red", "green", "blue"]
       const source = new ColumnDataSource({data: {x, y, c}, selected})
-      const view = new CDSView({filters: [new BooleanFilter({booleans: [false, true, true, true]})]})
+      const view = new CDSView({filter: new BooleanFilter({booleans: [false, true, true, true]})})
       p.circle({field: "x"}, {field: "y"}, {source, view, color: {field: "c"}, size: 20})
       return p
     }
@@ -867,7 +867,7 @@ describe("Bug", () => {
         ys: [[0, 1], [0, 1], [0, 1]],
       }})
       const filter = new IndexFilter({indices: [0, 2]})
-      const view = new CDSView({filters: [filter]})
+      const view = new CDSView({filter})
 
       const p = fig([200, 200])
       p.multi_line({field: "xs"}, {field: "ys"}, {view, source})
@@ -1205,7 +1205,7 @@ describe("Bug", () => {
           },
         })
         const color_mapper = new LinearColorMapper({low: 0, high: 6, palette: Spectral11})
-        const cds_view = new CDSView({filters: [new IndexFilter({indices})]})
+        const cds_view = new CDSView({filter: new IndexFilter({indices})})
         const ir = p.image({
           image: {field: "image"},
           x: {field: "x"},

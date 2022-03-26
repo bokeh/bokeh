@@ -4,56 +4,48 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Per-county unemployment data for Unites States in 2009.
 
-This module contains one dict: ``data``.
-
-
-The dict is indexed by the two-tuples containing ``(state_id, county_id)`` and
-has the unemployment rate (2009) as the value.
-
-.. code-block:: ipython
-
-    {
-        (1, 1): 9.7,
-        (1, 3): 9.1,
-        ...
-    }
-
-'''
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations
+from __future__ import annotations # isort:skip
 
-import logging # isort:skip
-log = logging.getLogger(__name__)
+import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-import csv
-from typing import Dict, Tuple
-
-# External imports
-from typing_extensions import TypeAlias
-
-# Bokeh imports
-from ..util.sampledata import external_path, open_csv
+# Module under test
+import bokeh.models.filters as bmf # isort:skip
 
 #-----------------------------------------------------------------------------
-# Globals and constants
+# Setup
 #-----------------------------------------------------------------------------
-
-__all__ = (
-    'data',
-)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+def test_Filter_set_operators() -> None:
+    f0 = ~bmf.BooleanFilter()
+    assert isinstance(f0, bmf.InversionFilter)
+
+    f1 = bmf.BooleanFilter() & bmf.IndexFilter()
+    assert isinstance(f1, bmf.IntersectionFilter)
+    assert len(f1.operands) == 2
+
+    f2 = bmf.BooleanFilter() | bmf.IndexFilter()
+    assert isinstance(f2, bmf.UnionFilter)
+    assert len(f2.operands) == 2
+
+    f3 = bmf.BooleanFilter() - bmf.IndexFilter()
+    assert isinstance(f3, bmf.DifferenceFilter)
+    assert len(f3.operands) == 2
+
+    f4 = bmf.BooleanFilter() ^ bmf.IndexFilter()
+    assert isinstance(f4, bmf.SymmetricDifferenceFilter)
+    assert len(f4.operands) == 2
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -63,23 +55,6 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-State: TypeAlias = str
-County: TypeAlias = str
-
-def _read_data() -> Dict[Tuple[State, County], float]:
-    '''
-
-    '''
-    data = {}
-    with open_csv(external_path("unemployment09.csv")) as f:
-        reader = csv.reader(f, delimiter=",", quotechar='"')
-        for row in reader:
-            _, state_id, county_id, _, _, _, _, _, rate = row
-            data[(int(state_id), int(county_id))] = float(rate)
-    return data
-
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-
-data = _read_data()

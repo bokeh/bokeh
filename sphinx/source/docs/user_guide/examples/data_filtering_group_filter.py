@@ -4,7 +4,7 @@ from bokeh.plotting import figure, show
 from bokeh.sampledata.iris import flowers
 
 source = ColumnDataSource(flowers)
-view1 = CDSView(filters=[GroupFilter(column_name='species', group='versicolor')])
+view1 = CDSView(filter=GroupFilter(column_name='species', group='versicolor'))
 
 plot_size_and_tools = {'height': 300, 'width': 300,
                         'tools':['box_select', 'reset', 'help']}

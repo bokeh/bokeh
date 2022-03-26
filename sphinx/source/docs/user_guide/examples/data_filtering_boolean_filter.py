@@ -4,7 +4,7 @@ from bokeh.plotting import figure, show
 
 source = ColumnDataSource(data=dict(x=[1, 2, 3, 4, 5], y=[1, 2, 3, 4, 5]))
 booleans = [True if y_val > 2 else False for y_val in source.data['y']]
-view = CDSView(filters=[BooleanFilter(booleans)])
+view = CDSView(filter=BooleanFilter(booleans))
 
 tools = ["box_select", "hover", "reset"]
 p = figure(height=300, width=300, tools=tools)

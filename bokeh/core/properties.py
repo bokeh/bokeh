@@ -232,6 +232,7 @@ __all__ = (
     'MarkerType',
     'MathString',
     'MinMaxBounds',
+    'NonEmpty',
     'NonNegativeInt',
     'NonNullable',
     'Nothing',
@@ -286,6 +287,7 @@ from .property.container import Array; Array
 from .property.container import ColumnData; ColumnData
 from .property.container import Dict; Dict
 from .property.container import List; List
+from .property.container import NonEmpty; NonEmpty
 from .property.container import Seq; Seq
 from .property.container import Tuple; Tuple
 from .property.container import RelativeDelta; RelativeDelta

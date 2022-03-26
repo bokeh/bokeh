@@ -41,6 +41,10 @@ import codecs
 import csv
 import gzip
 import xml.etree.ElementTree as et
+from typing import Dict, List, TypedDict
+
+# External imports
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..util.sampledata import package_path
@@ -65,7 +69,15 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _read_data():
+State: TypeAlias = str
+
+class StateData(TypedDict):
+    name: str
+    region: str
+    lats: List[float]
+    lons: List[float]
+
+def _read_data() -> Dict[State, StateData]:
     '''
 
     '''
@@ -78,25 +90,24 @@ def _read_data():
         next(decoded)
         reader = csv.reader(decoded, delimiter=",", quotechar='"')
         for row in reader:
-            region, name, code, geometry, dummy = row
+            region, name, code, geometry, _ = row
             xml = et.fromstring(geometry)
-            lats = []
-            lons = []
+            lats: List[float] = []
+            lons: List[float] = []
             for i, poly in enumerate(xml.findall('.//outerBoundaryIs/LinearRing/coordinates')):
                 if i > 0:
                     lats.append(nan)
                     lons.append(nan)
                 coords = (c.split(',')[:2] for c in poly.text.split())
-                lat, lon = list(zip(*[(float(lat), float(lon)) for lon, lat in
-                    coords]))
+                lat, lon = list(zip(*[(float(lat), float(lon)) for lon, lat in coords]))
                 lats.extend(lat)
                 lons.extend(lon)
-            data[code] = {
-                'name'   : name,
-                'region' : region,
-                'lats'   : lats,
-                'lons'   : lons,
-            }
+            data[code] = dict(
+                name   = name,
+                region = region,
+                lats   = lats,
+                lons   = lons,
+            )
 
     return data
 

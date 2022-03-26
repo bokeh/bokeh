@@ -89,6 +89,7 @@ ALL = (
     'MarkerType',
     'MathString',
     'MinMaxBounds',
+    'NonEmpty',
     'NonNegativeInt',
     'NonNullable',
     'Nothing',

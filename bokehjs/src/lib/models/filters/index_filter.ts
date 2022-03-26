@@ -27,7 +27,7 @@ export class IndexFilter extends Filter {
   }
 
   compute_indices(source: ColumnarDataSource): Indices {
-    const size = source.length
+    const size = source.get_length() ?? 1
     const {indices} = this
     if (indices == null) {
       return Indices.all_set(size)

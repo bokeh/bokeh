@@ -316,7 +316,7 @@ class _BokehStructureGraph:
             Z["model"] = str(M)
             Z["values"] = Z["values"].map(lambda x: str(x))
             Z["types"] = Z["types"].map(lambda x: str(x))
-            df = df.append(Z)
+            df = pd.concat([df, Z])
         return df
 
     def _make_data_table(self) -> DataTable:
@@ -331,7 +331,7 @@ class _BokehStructureGraph:
         model_id = self._node_source.data["index"][0]
         groupfilter = GroupFilter(column_name="id", group=model_id)
 
-        data_table2_view = CDSView(filters=[groupfilter])
+        data_table2_view = CDSView(filter=groupfilter)
         data_table2 = DataTable(
             source=prop_source,
             view=data_table2_view,

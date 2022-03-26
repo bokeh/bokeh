@@ -28,15 +28,21 @@ from collections.abc import (
     Sequence,
     Sized,
 )
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeVar
 
 # Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
-from .bases import ContainerProperty
+from .bases import (
+    ContainerProperty,
+    Init,
+    Property,
+    SingleParameterizedProperty,
+    TypeOrInst,
+)
 from .descriptors import ColumnDataPropertyDescriptor
 from .enum import Enum
 from .numeric import Int
-from .singletons import Undefined
+from .singletons import Intrinsic, Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
 
 if TYPE_CHECKING:
@@ -51,24 +57,28 @@ __all__ = (
     'ColumnData',
     'Dict',
     'List',
+    'NonEmpty',
     'RelativeDelta',
     'RestrictedDict',
     'Seq',
     'Tuple',
 )
 
+T = TypeVar("T")
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Seq(ContainerProperty):
+class Seq(ContainerProperty[T]):
     """ Accept non-string ordered sequences of values, e.g. list, tuple, array.
 
     """
 
-    def __init__(self, item_type, default=Undefined, help=None) -> None:
+    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[T] = Undefined,
+            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
         self.item_type = self._validate_type_param(item_type)
-        super().__init__(default=default, help=help)
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}({self.item_type})"
@@ -77,7 +87,7 @@ class Seq(ContainerProperty):
     def type_params(self):
         return [self.item_type]
 
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, True)
 
         if self._is_seq(value) and all(self.item_type.is_valid(item) for item in value):
@@ -95,12 +105,12 @@ class Seq(ContainerProperty):
         raise ValueError(msg)
 
     @classmethod
-    def _is_seq(cls, value):
+    def _is_seq(cls, value: Any) -> bool:
         return ((isinstance(value, Sequence) or cls._is_seq_like(value)) and
                 not isinstance(value, str))
 
     @classmethod
-    def _is_seq_like(cls, value):
+    def _is_seq_like(cls, value: Any) -> bool:
         return (isinstance(value, (Container, Sized, Iterable))
                 and hasattr(value, "__getitem__") # NOTE: this is what makes it disallow set type
                 and not isinstance(value, Mapping))
@@ -108,7 +118,7 @@ class Seq(ContainerProperty):
     def _new_instance(self, value):
         return value
 
-class List(Seq):
+class List(Seq[T]):
     """ Accept Python list values.
 
     """
@@ -135,7 +145,7 @@ class List(Seq):
     def _is_seq(cls, value):
         return isinstance(value, list)
 
-class Array(Seq):
+class Array(Seq[T]):
     """ Accept NumPy array values.
 
     """
@@ -299,6 +309,22 @@ class RestrictedDict(Dict):
 
         if error_keys:
             msg = "" if not detail else f"Disallowed keys: {error_keys!r}"
+            raise ValueError(msg)
+
+TSeq = TypeVar("TSeq", bound=Seq[Any])
+
+class NonEmpty(SingleParameterizedProperty[TSeq]):
+    """ Allows only non-empty containers. """
+
+    def __init__(self, type_param: TypeOrInst[TSeq], *, default: Init[TSeq] = Intrinsic,
+            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
+        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
+
+    def validate(self, value: Any, detail: bool = True) -> None:
+        super().validate(value, detail)
+
+        if not value:
+            msg = "" if not detail else "Expected a non-empty container"
             raise ValueError(msg)
 
 #-----------------------------------------------------------------------------

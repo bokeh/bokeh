@@ -69,13 +69,12 @@ yticker = SingleIntervalTicker(interval=12, num_minor_ticks=0)
 yaxis = LinearAxis(ticker=yticker, major_tick_in=-5, major_tick_out=10)
 plot.add_layout(yaxis, "right")
 
-filters = [IndexFilter(list(sprint.query('Medal == "gold" and Year in [1988, 1968, 1936, 1896]').index))]
-
 medal = Circle(x="MetersBack", y="Year", size=10, fill_color="MedalFill", line_color="MedalLine", fill_alpha=0.5)
 medal_renderer = plot.add_glyph(source, medal)
 
 #sprint[sprint.Medal=="gold" * sprint.Year in [1988, 1968, 1936, 1896]]
-plot.add_glyph(source, Text(x="MetersBack", y="Year", x_offset=10, text="Name"), view=CDSView(filters=filters))
+view = CDSView(filter=IndexFilter(list(sprint.query('Medal == "gold" and Year in [1988, 1968, 1936, 1896]').index)))
+plot.add_glyph(source, Text(x="MetersBack", y="Year", x_offset=10, text="Name"), view=view)
 
 plot.add_glyph(source, Text(x=7.5, y=1942, text=value("No Olympics in 1940 or 1944"),
                             text_font_style="italic", text_color="silver"))

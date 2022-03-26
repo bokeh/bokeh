@@ -156,7 +156,13 @@ export class BitSet implements Equatable {
   }
 
   private _check_size(other: BitSet): void {
-    assert(this.size == other.size, "Size mismatch")
+    assert(this.size == other.size, `Size mismatch (${this.size} != ${other.size})`)
+  }
+
+  invert(): void {
+    for (let i = 0; i < this._nwords; i++) {
+      this._array[i] = ~this._array[i] >>> 0
+    }
   }
 
   add(other: BitSet): void {
@@ -182,32 +188,40 @@ export class BitSet implements Equatable {
     }
   }
 
-  union(other: BitSet): BitSet {
+  symmetric_subtract(other: BitSet): void {
     this._check_size(other)
-    const result = this.clone()
     for (let i = 0; i < this._nwords; i++) {
-      result._array[i] |= other._array[i]
+      this._array[i] ^= other._array[i]
     }
+  }
+
+  inversion(): BitSet {
+    const result = this.clone()
+    result.invert()
+    return result
+  }
+
+  union(other: BitSet): BitSet {
+    const result = this.clone()
+    result.add(other)
     return result
   }
 
   intersection(other: BitSet): BitSet {
-    this._check_size(other)
     const result = this.clone()
-    for (let i = 0; i < this._nwords; i++) {
-      result._array[i] &= other._array[i]
-    }
+    result.intersect(other)
     return result
   }
 
   difference(other: BitSet): BitSet {
-    this._check_size(other)
     const result = this.clone()
-    for (let i = 0; i < this._nwords; i++) {
-      const a = this._array[i]
-      const b = other._array[i]
-      result._array[i] = (a ^ b) & a
-    }
+    result.subtract(other)
+    return result
+  }
+
+  symmetric_difference(other: BitSet): BitSet {
+    const result = this.clone()
+    result.symmetric_subtract(other)
     return result
   }
 

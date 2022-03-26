@@ -45,7 +45,7 @@ export class CustomJSFilter extends Filter {
   }
 
   compute_indices(source: ColumnarDataSource): Indices {
-    const size = source.length
+    const size = source.get_length() ?? 1
     const filter = this.func(...this.values, source)
     if (filter == null)
       return Indices.all_set(size)

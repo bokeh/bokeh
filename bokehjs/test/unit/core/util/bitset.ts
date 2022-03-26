@@ -55,11 +55,28 @@ describe("core/util/bitset module", () => {
       ])
     })
 
+    it("should suppport count getter", () => {
+      expect(bs0.count).to.be.equal(8)
+      expect(bs1.count).to.be.equal(8)
+    })
+
+    it("should suppport ~a", () => {
+      const bs = bs0.inversion()
+      expect(bs).to.be.instanceof(BitSet)
+      expect(bs.size).to.be.equal(39)
+      expect([...bs.ones()]).to.be.equal([
+        2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 34, 35, 36, 37,
+      ])
+      expect(bs.count).to.be.equal(31)
+    })
+
     it("should suppport a | b operation", () => {
       const bs = bs0.union(bs1)
       expect(bs).to.be.instanceof(BitSet)
       expect(bs.size).to.be.equal(39)
       expect([...bs.ones()]).to.be.equal([0, 1, 6, 15, 16, 31, 32, 33, 34, 35, 38])
+      expect(bs.count).to.be.equal(11)
     })
 
     it("should suppport a & b operation", () => {
@@ -67,6 +84,7 @@ describe("core/util/bitset module", () => {
       expect(bs).to.be.instanceof(BitSet)
       expect(bs.size).to.be.equal(39)
       expect([...bs.ones()]).to.be.equal([1, 15, 31, 32, 38])
+      expect(bs.count).to.be.equal(5)
     })
 
     it("should suppport a - b operation", () => {
@@ -74,6 +92,59 @@ describe("core/util/bitset module", () => {
       expect(bs).to.be.instanceof(BitSet)
       expect(bs.size).to.be.equal(39)
       expect([...bs.ones()]).to.be.equal([0, 16, 33])
+      expect(bs.count).to.be.equal(3)
+    })
+
+    it("should suppport a ^ b operation", () => {
+      const bs = bs0.symmetric_difference(bs1)
+      expect(bs).to.be.instanceof(BitSet)
+      expect(bs.size).to.be.equal(39)
+      expect([...bs.ones()]).to.be.equal([0, 6, 16, 33, 34, 35])
+      expect(bs.count).to.be.equal(6)
+    })
+
+    it("should suppport inplace ~a", () => {
+      const bs = bs0.clone()
+      bs.invert()
+      expect(bs).to.be.instanceof(BitSet)
+      expect(bs.size).to.be.equal(39)
+      expect([...bs.ones()]).to.be.equal([
+        2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 34, 35, 36, 37,
+      ])
+      expect(bs.count).to.be.equal(31)
+    })
+
+    it("should suppport inplace a | b operation", () => {
+      const bs = bs0.clone()
+      bs.add(bs1)
+      expect(bs.size).to.be.equal(39)
+      expect([...bs.ones()]).to.be.equal([0, 1, 6, 15, 16, 31, 32, 33, 34, 35, 38])
+      expect(bs.count).to.be.equal(11)
+    })
+
+    it("should suppport inplace a & b operation", () => {
+      const bs = bs0.clone()
+      bs.intersect(bs1)
+      expect(bs.size).to.be.equal(39)
+      expect([...bs.ones()]).to.be.equal([1, 15, 31, 32, 38])
+      expect(bs.count).to.be.equal(5)
+    })
+
+    it("should suppport inplace a - b operation", () => {
+      const bs = bs0.clone()
+      bs.subtract(bs1)
+      expect(bs.size).to.be.equal(39)
+      expect([...bs.ones()]).to.be.equal([0, 16, 33])
+      expect(bs.count).to.be.equal(3)
+    })
+
+    it("should suppport inplace a ^ b operation", () => {
+      const bs = bs0.clone()
+      bs.symmetric_subtract(bs1)
+      expect(bs.size).to.be.equal(39)
+      expect([...bs.ones()]).to.be.equal([0, 6, 16, 33, 34, 35])
+      expect(bs.count).to.be.equal(6)
     })
 
     it("should support selection from an array", () => {

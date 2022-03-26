@@ -42,6 +42,12 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import csv
 import xml.etree.ElementTree as et
+from typing import (
+    Dict,
+    List,
+    Tuple,
+    TypedDict,
+)
 
 # Bokeh imports
 from ..util.sampledata import external_path, open_csv
@@ -66,7 +72,14 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _read_data():
+class CountyData(TypedDict):
+    name: str
+    detailed_name: str
+    state: str
+    lats: List[float]
+    lons: List[float]
+
+def _read_data() -> Dict[Tuple[int, int], CountyData]:
     '''
 
     '''
@@ -78,26 +91,25 @@ def _read_data():
         next(f)
         reader = csv.reader(f, delimiter=",", quotechar='"')
         for row in reader:
-            name, dummy, state, dummy, geometry, dummy, dummy, dummy, det_name, state_id, county_id, dummy, dummy = row
+            name, _, state, _, geometry, _, _, _, det_name, state_id, county_id, _, _ = row
             xml = et.fromstring(geometry)
-            lats = []
-            lons = []
+            lats: List[float] = []
+            lons: List[float] = []
             for i, poly in enumerate(xml.findall('.//outerBoundaryIs/LinearRing/coordinates')):
                 if i > 0:
                     lats.append(nan)
                     lons.append(nan)
                 coords = (c.split(',')[:2] for c in poly.text.split())
-                lat, lon = list(zip(*[(float(lat), float(lon)) for lon, lat in
-                    coords]))
+                lat, lon = list(zip(*[(float(lat), float(lon)) for lon, lat in coords]))
                 lats.extend(lat)
                 lons.extend(lon)
-            data[(int(state_id), int(county_id))] = {
-                'name' : name,
-                'detailed name' : det_name,
-                'state' : state,
-                'lats' : lats,
-                'lons' : lons,
-            }
+            data[(int(state_id), int(county_id))] = dict(
+                name = name,
+                detailed_name = det_name,
+                state = state,
+                lats = lats,
+                lons = lons
+            )
 
     return data
 
