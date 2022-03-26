@@ -38,6 +38,19 @@ export class HexTileView extends GlyphView {
   override model: HexTile
   override visuals: HexTile.Visuals
 
+  /** @internal */
+  override glglyph?: import("./webgl/hex_tile").HexTileGL
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {webgl} = this.renderer.plot_view.canvas_view
+    if (webgl != null && webgl.regl_wrapper.has_webgl) {
+      const {HexTileGL} = await import("./webgl/hex_tile")
+      this.glglyph = new HexTileGL(webgl.regl_wrapper, this)
+    }
+  }
+
   scenterxy(i: number): [number, number] {
     const scx = this.sx[i]
     const scy = this.sy[i]
@@ -99,6 +112,9 @@ export class HexTileView extends GlyphView {
   override map_data(): void {
     [this.sx, this.sy] = this.renderer.coordinates.map_to_screen(this._x, this._y)
     ;[this.svx, this.svy] = this._get_unscaled_vertices()
+
+    // From overridden GlyphView.map_data()
+    this.glglyph?.set_data_changed()
   }
 
   protected _get_unscaled_vertices(): [[number, number, number, number, number, number], [number, number, number, number, number, number]] {

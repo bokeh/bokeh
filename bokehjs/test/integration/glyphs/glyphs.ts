@@ -76,7 +76,7 @@ describe("Glyph models", () => {
       p.circle({x: [3, 4, 5], y, radius: [0.5, 1, 1.5], fill_color, alpha: 0.6, hatch_pattern})
       return p
     }
-    await display(row([p("canvas"), p("svg")]))
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   it("should support Ellipse", async () => {
@@ -104,7 +104,7 @@ describe("Glyph models", () => {
       p.hbar({y: 1, height: [1, 2, 3], left: [1, 2, 3], right: [4, 5, 6]})
       return p
     }
-    await display(row([p("canvas"), p("svg")]))
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   /*
@@ -250,10 +250,10 @@ describe("Glyph models", () => {
   it("should support Rect", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {output_backend, title: output_backend})
-      p.rect({x, y, width: 1, height: 2})
+      p.rect({x, y, width: 1, height: 2, angle: [0, 90, -15], angle_units: "deg", alpha: 0.7})
       return p
     }
-    await display(row([p("canvas"), p("svg")]))
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   it("should support Segment", async () => {
@@ -298,7 +298,7 @@ describe("Glyph models", () => {
       p.vbar({x, width: [1, 2, 3], bottom: [1, 2, 3], top: [4, 5, 6]})
       return p
     }
-    await display(row([p("canvas"), p("svg")]))
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   it("should support Wedge", async () => {
@@ -344,7 +344,7 @@ describe("Glyph models", () => {
       }
       return p
     }
-    await display(row([p("canvas"), p("svg")]))
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   it("should support rotation with all angle units", async () => {
