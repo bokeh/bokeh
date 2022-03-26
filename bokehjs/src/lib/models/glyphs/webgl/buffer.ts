@@ -63,6 +63,13 @@ abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
     this.update(prop.is_Scalar())
   }
 
+  // length_if_scalar is the number of vertices in the WebGL primitive used to
+  // render the glyph; usually this is a rectangle with 4 vertices.
+  set_from_scalar(scalar: number, length_if_scalar = 4): void {
+    this.get_sized_array(length_if_scalar).fill(scalar)
+    this.update(true)
+  }
+
   // Return a ReGL AttributeConfig that corresponds to one value for each glyph
   // or the same value for all glyphs.  Instanced rendering supports the former
   // using 'divisor = 1', but does not support the latter directly.  We have to
