@@ -3,8 +3,11 @@ import {Enum} from "./kinds"
 export type Align = "start" | "center" | "end"
 export const Align = Enum("start", "center", "end")
 
-type HAlign = "left" | "center" | "right"
-type VAlign = "top"  | "center" | "bottom"
+export type HAlign = "left" | "center" | "right"
+export const HAlign = Enum("left", "center", "right")
+
+export type VAlign = "top" | "center" | "bottom"
+export const VAlign = Enum("top", "center", "bottom")
 
 export type Anchor = `${VAlign}_${HAlign}` | HAlign | VAlign
 export const Anchor = Enum(

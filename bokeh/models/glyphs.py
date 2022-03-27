@@ -38,11 +38,14 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.enums import (
+    Align,
     Anchor,
     Direction,
+    HAlign,
     ImageOrigin,
     Palette,
     StepMode,
+    VAlign,
     enumeration,
 )
 from ..core.has_props import abstract
@@ -50,6 +53,7 @@ from ..core.properties import (
     AngleSpec,
     Bool,
     DistanceSpec,
+    Either,
     Enum,
     Float,
     Include,
@@ -60,10 +64,12 @@ from ..core.properties import (
     NullDistanceSpec,
     NumberSpec,
     Override,
+    Percent,
     Size,
     SizeSpec,
     String,
     StringSpec,
+    Tuple,
     field,
 )
 from ..core.property_mixins import (
@@ -689,7 +695,10 @@ class ImageBase(XYGlyph):
     Defines the coordinate space of an image.
     """)
 
-    anchor = Enum(Anchor, default="top_left", help="""
+    anchor = Either(
+        Enum(Anchor),
+        Tuple(Either(Enum(Align), Enum(HAlign), Percent),
+              Either(Enum(Align), Enum(VAlign), Percent)), default="bottom_left", help="""
     Position of the image should be anchored at the `x`, `y` coordinates.
     """)
 
@@ -759,7 +768,6 @@ class ImageRGBA(ImageBase):
     The arrays of RGBA data for the images.
     """)
 
-
 class ImageURL(XYGlyph):
     ''' Render images loaded from given URLs.
 
@@ -821,8 +829,7 @@ class ImageURL(XYGlyph):
     """)
 
     anchor = Enum(Anchor, default="top_left", help="""
-    What position of the image should be anchored at the `x`, `y`
-    coordinates.
+    Position of the image should be anchored at the `x`, `y` coordinates.
     """)
 
     retry_attempts = Int(0, help="""

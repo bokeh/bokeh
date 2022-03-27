@@ -106,6 +106,7 @@ __all__ = (
     'Enumeration',
     'enumeration',
     'FontStyle',
+    'HAlign',
     'HatchPattern',
     'HatchPatternAbbreviation',
     'HoldPolicy',
@@ -146,6 +147,7 @@ __all__ = (
     'TooltipAttachment',
     'TooltipFieldFormatter',
     'TrackPolicy',
+    'VAlign',
     'VerticalAlign',
     'VerticalLocation',
 )
@@ -244,6 +246,12 @@ def enumeration(*values: Any, case_sensitive: bool = True, quote: bool = False) 
 
 #: Alignment (vertical or horizontal) of a child item
 Align = enumeration("start", "center", "end")
+
+#: Horizontal alignment of a child item
+HAlign = enumeration("top", "center", "bottom")
+
+#: Vertical alignment of a child item
+VAlign = enumeration("left", "center", "right")
 
 #: Specify an anchor position on a box/frame
 Anchor = enumeration(

@@ -44,6 +44,7 @@ ALL  = (
     'Enumeration',
     'enumeration',
     'FontStyle',
+    'HAlign',
     'HatchPattern',
     'HatchPatternAbbreviation',
     'HoldPolicy',
@@ -84,6 +85,7 @@ ALL  = (
     'TooltipAttachment',
     'TooltipFieldFormatter',
     'TrackPolicy',
+    'VAlign',
     'VerticalAlign',
     'VerticalLocation',
 )
@@ -332,6 +334,7 @@ def test_enums_contents() -> None:
         'Dimensions',
         'Direction',
         'FontStyle',
+        'HAlign',
         'HatchPattern',
         'HatchPatternAbbreviation',
         'HoldPolicy',
@@ -372,6 +375,7 @@ def test_enums_contents() -> None:
         'TooltipAttachment',
         'TooltipFieldFormatter',
         'TrackPolicy',
+        'VAlign',
         'VerticalAlign',
         'VerticalLocation',
     ]

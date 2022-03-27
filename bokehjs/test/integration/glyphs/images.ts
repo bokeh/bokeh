@@ -3,7 +3,7 @@ import {display, fig, row} from "../_util"
 import {Anchor, ImageOrigin} from "@bokehjs/core/enums"
 import {load_image} from "@bokehjs/core/util/image"
 import {ndarray} from "@bokehjs/core/util/ndarray"
-import {DataRange1d} from "@bokehjs/models"
+import {DataRange1d, ImageRGBA} from "@bokehjs/models"
 
 function get_image_data(image: HTMLImageElement): ImageData {
   const {width, height} = image
@@ -13,6 +13,24 @@ function get_image_data(image: HTMLImageElement): ImageData {
   const ctx = canvas.getContext("2d")!
   ctx.drawImage(image, 0, 0, width, height)
   return ctx.getImageData(0, 0, width, height)
+}
+
+async function plot(anchor: ImageRGBA["anchor"], x_flipped: boolean = false, y_flipped: boolean = false) {
+  const {data, width, height} = get_image_data(await load_image("/assets/images/logo.svg"))
+  const image = ndarray(data.buffer, {dtype: "uint32", shape: [width, height]})
+
+  const plots = []
+  for (const origin of ImageOrigin) {
+    const x_range = new DataRange1d({flipped: x_flipped})
+    const y_range = new DataRange1d({flipped: y_flipped})
+
+    const p = fig([200, 200], {title: `Origin: ${origin}`, x_range, y_range})
+    p.image_rgba({image: {value: image}, x: 0, y: 0, dw: 10, dh: 10, origin, anchor})
+
+    plots.push(p)
+  }
+
+  await display(row(plots))
 }
 
 describe("ImageRGBA glyph", () => { // TODO: async describe
@@ -25,22 +43,16 @@ describe("ImageRGBA glyph", () => { // TODO: async describe
         continue
 
       it(`should support ${anchor} anchor with all origins${xf}${yf}`, async () => {
-        const {data, width, height} = get_image_data(await load_image("/assets/images/logo.svg"))
-        const image = ndarray(data.buffer, {dtype: "uint32", shape: [width, height]})
-
-        const plots = []
-        for (const origin of ImageOrigin) {
-          const x_range = new DataRange1d({flipped: x_flipped})
-          const y_range = new DataRange1d({flipped: y_flipped})
-
-          const p = fig([200, 200], {title: `Origin: ${origin}`, x_range, y_range})
-          p.image_rgba({image: {value: image}, x: 0, y: 0, dw: 10, dh: 10, origin, anchor})
-
-          plots.push(p)
-        }
-
-        await display(row(plots))
+        await plot(anchor, x_flipped, y_flipped)
       })
     }
+
+    it(`should support [40%, 20%] anchor with all origins${xf}${yf}`, async () => {
+      await plot([0.4, 0.2], x_flipped, y_flipped)
+    })
+
+    it(`should support [center, 20%] anchor with all origins${xf}${yf}`, async () => {
+      await plot(["center", 0.2], x_flipped, y_flipped)
+    })
   }
 })
