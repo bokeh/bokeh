@@ -6,6 +6,8 @@
 #-----------------------------------------------------------------------------
 ''' Provide historical ticker data for selected stocks.
 
+Sourced from public news sources.
+
 This module contains five dicts: ``AAPL``, ``FB``, ``GOOG``, ``IBM``, and ``MSFT``.
 
 Each dictionary has the structure:

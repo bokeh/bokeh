@@ -6,6 +6,8 @@
 #-----------------------------------------------------------------------------
 ''' Airport routes data from OpenFlights.org.
 
+License: `ODbL 1.0`_
+
 Sourced from https://openflights.org/data.html on September 07, 2017.
 
 This module contains two pandas Dataframes: ``airports`` and ``routes``.

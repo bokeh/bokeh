@@ -6,10 +6,9 @@
 #-----------------------------------------------------------------------------
 ''' Provide U.S. marriage and divorce statistics between 1867 and 2014
 
-Data from the CDC's National Center for Health Statistics (NHCS) database
-(http://www.cdc.gov/nchs/).
+License: `Public Domain`_
 
-Data organized by Randal S. Olson (http://www.randalolson.com)
+Sourced from http://www.cdc.gov/nchs/
 
 This module contains one pandas Dataframe: ``data``.
 

@@ -6,7 +6,9 @@
 #-----------------------------------------------------------------------------
 ''' Browser market share by version from November 2013.
 
-Data sourced from http://gs.statcounter.com/#browser_version-ww-monthly-201311-201311-bar
+License: `CC BY-SA 3.0`_
+
+Sourced from http://gs.statcounter.com/#browser_version-ww-monthly-201311-201311-bar
 
 Icon images sourced from https://github.com/alrra/browser-logos
 

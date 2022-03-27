@@ -6,6 +6,10 @@
 #-----------------------------------------------------------------------------
 ''' The four data series that comprise `Anscombe's Quartet`_.
 
+License: `CC BY-SA 3.0`_
+
+Sourced from: https://en.wikipedia.org/wiki/Anscombe%27s_quartet
+
 This module contains one pandas Dataframe: ``data``.
 
 .. rubric:: ``data``

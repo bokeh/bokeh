@@ -6,9 +6,9 @@
 #-----------------------------------------------------------------------------
 ''' Provide data from the `Palmer Archipelago (Antarctica) penguin dataset`_.
 
-Derived from https://github.com/mwaskom/seaborn-data/blob/master/penguins.csv
+License: `CC0`_
 
-Data distributed under the `CC-0`_ license.
+Sourced from https://github.com/mwaskom/seaborn-data/blob/master/penguins.csv
 
 This module contains one pandas Dataframe: ``data``.
 
@@ -16,7 +16,6 @@ This module contains one pandas Dataframe: ``data``.
 
 :bokeh-dataframe:`bokeh.sampledata.penguins.data`
 
-.. _CC-0: https://creativecommons.org/share-your-work/public-domain/cc0/
 .. _Palmer Archipelago (Antarctica) penguin dataset: https://github.com/allisonhorst/palmerpenguins
 
 '''

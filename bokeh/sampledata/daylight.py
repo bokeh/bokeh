@@ -6,6 +6,8 @@
 #-----------------------------------------------------------------------------
 ''' Provide 2013 Warsaw daylight hours.
 
+License: free to use and redistribute (see `this FAQ`_ for details).
+
 Sourced from http://www.sunrisesunset.com
 
 This module contains one pandas Dataframe: ``daylight_warsaw_2013``.
@@ -13,6 +15,8 @@ This module contains one pandas Dataframe: ``daylight_warsaw_2013``.
 .. rubric:: ``daylight_warsaw_2013``
 
 :bokeh-dataframe:`bokeh.sampledata.daylight.daylight_warsaw_2013`
+
+.. _this FAQ: https://www.sunrisesunset.com/faqs.asp#other_usage
 
 '''
 

@@ -6,9 +6,9 @@
 #-----------------------------------------------------------------------------
 ''' Provides access to ``probly.csv`` and ``numberly.csv``.
 
-Sourced from: https://github.com/zonination/perceptions
+License: `MIT license`_
 
-Data distributed under the `MIT license`_.
+Sourced from: https://github.com/zonination/perceptions
 
 This module contains two pandas Dataframes: ``probly`` and ``numberly``.
 
@@ -19,8 +19,6 @@ This module contains two pandas Dataframes: ``probly`` and ``numberly``.
 .. rubric:: ``numberly``
 
 :bokeh-dataframe:`bokeh.sampledata.perceptions.numberly`
-
-.. _MIT license: https://opensource.org/licenses/MIT
 
 '''
 

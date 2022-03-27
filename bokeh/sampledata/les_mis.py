@@ -6,7 +6,9 @@
 #-----------------------------------------------------------------------------
 ''' Provide JSON data for co-occurrence of characters in Les Miserables.
 
-Derived from http://ftp.cs.stanford.edu/pub/sgb/jean.dat
+License: `CC BY-ND 4.0`_
+
+Source from http://ftp.cs.stanford.edu/pub/sgb/jean.dat
 
 This module contains one dictionary: ``data``.
 

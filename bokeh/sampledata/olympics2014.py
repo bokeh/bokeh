@@ -6,6 +6,8 @@
 #-----------------------------------------------------------------------------
 ''' Provide medal counts by country for the 2014 Olympics.
 
+Sourced from public news sources in 2014.
+
 This module contains a single dict: ``data``.
 
 The dictionary has a key ``"data"`` that lists sub-dictionaries, one for each

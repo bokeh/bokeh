@@ -6,6 +6,8 @@
 #-----------------------------------------------------------------------------
 ''' Historical results for Olympic sprints by year.
 
+Sourced from public news sources.
+
 This module contains one pandas Dataframe: ``sprint``.
 
 .. rubric:: ``sprint``
