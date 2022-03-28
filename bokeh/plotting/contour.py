@@ -18,13 +18,23 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Dict, Optional, Sequence, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 # External imports
 import numpy as np
 
 # Bokeh imports
 from ..models.renderers import ContourRenderer
+from ..palettes import linear_palette
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -40,16 +50,32 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+if TYPE_CHECKING:
+    from ..palettes import Palette, PaletteCollection
+    from ..transform import ColorLike
+
+    ContourColor: Union[ColorLike, Sequence[ColorLike]]
+    ContourColorOrPalette: Union[ContourColor, Palette, PaletteCollection, Callable[[int], ContourColor]]
+
+
 def from_contour(
-    x: Optional[np.ndarray],
-    y: Optional[np.ndarray],
-    z: Union[np.ndarray, np.ma.MaskedArray],
+    x: Optional[np.ndarray],  # Really optional?
+    y: Optional[np.ndarray],  # Really optional?
+    z: Union[np.ndarray, np.ma.MaskedArray],  # Should be ArrayType | MaskedArray
     levels: Sequence[float],
-    fill_color=None,
-    line_color=None,
+    fill_color: Optional[ContourColorOrPalette]=None,
+    line_color: Optional[ContourColorOrPalette]=None,
 ) -> ContourRenderer:
     if fill_color is None and line_color is None:
         raise RuntimeError("Neither fill nor line requested in from_contour")
+
+    # May need to determine nlevels, or levels from nlevels.
+    nlevels = len(levels)
+
+    if fill_color is not None:
+        fill_color = _color(fill_color, nlevels-1)
+    if line_color is not None:
+        line_color = _color(line_color, nlevels)
 
     new_contour_data = contour_data(x, y, z, levels, fill_color, line_color)
 
@@ -90,7 +116,7 @@ def contour_coords(
     if not want_fill and not want_line:
         raise RuntimeError("Neither fill nor line requested in contour_coords")
 
-    from contourpy import contour_generator, LineType
+    from contourpy import LineType, contour_generator
     cont_gen = contour_generator(x, y, z, line_type=LineType.ChunkCombinedOffset)
 
     fill_coords = None
@@ -172,6 +198,23 @@ def contour_data(
 # Private API
 #-----------------------------------------------------------------------------
 
+def _color(color: ContourColorOrPalette, n: int) -> ContourColor:
+    # Callable or Dict to sequence of colors
+    if callable(color):
+        color = color(n)
+    elif isinstance(color, Dict):
+        color = color.get(n, False) or color.get(max(color.keys()))
+
+    if isinstance(color, Sequence) and not isinstance(color, str):
+        # Get sequence of required number of colors
+        if len(color) < n:
+            raise ValueError("Insufficient number of colors")
+        elif len(color) > n:
+            color = linear_palette(color, n)
+
+    return color
+
+
 def _filled_to_xs_and_ys(filled):
     # Processes polygon data returned from a single call to
     # contourpy.ContourGenerator.filled(lower_level, upper_level)
@@ -184,6 +227,7 @@ def _filled_to_xs_and_ys(filled):
         xs.append([points[offsets[i]:offsets[i+1], 0] for i in range(n)])
         ys.append([points[offsets[i]:offsets[i+1], 1] for i in range(n)])
     return xs, ys
+
 
 def _lines_to_xs_and_ys(lines):
     # Processes line data returned from a single call to
