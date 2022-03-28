@@ -286,42 +286,8 @@ def gridplot(
                 items.append((item, y, x))
             else:
                 raise ValueError("Only LayoutDOM items can be inserted into a grid")
-    def merge(tools: List[Tool | ToolProxy]) -> List[Tool | ToolProxy]:
-        @dataclass
-        class ToolEntry:
-            tool: Tool
-            props: Any
 
-        by_type: defaultdict[Type[Tool], List[ToolEntry]] = defaultdict(list)
-        computed: List[Tool | ToolProxy] = []
-
-        for tool in tools:
-            if isinstance(tool, ToolProxy):
-                computed.append(tool)
-            else:
-                props = tool.properties_with_values()
-                if "overlay" in props:
-                    del props["overlay"]
-                by_type[tool.__class__].append(ToolEntry(tool, props))
-
-        for tools_ in by_type.values():
-            while tools_:
-                head, *tail = tools_
-                group: List[Tool] = [head.tool]
-                for item in list(tail):
-                    if item.props == head.props:
-                        group.append(item.tool)
-                        tools_.remove(item)
-                tools_.remove(head)
-
-                if len(group) == 1:
-                    computed.append(group[0])
-                else:
-                    computed.append(ToolProxy(tools=group))
-
-        return computed
-
-    toolbar = Toolbar(tools=tools if not merge_tools else merge(tools), **toolbar_options)
+    toolbar = Toolbar(tools=tools if not merge_tools else group_tools(tools), **toolbar_options)
     return GridPlot(children=items, toolbar=toolbar, toolbar_location=toolbar_location, sizing_mode=sizing_mode)
 
 # XXX https://github.com/python/mypy/issues/731
@@ -522,6 +488,42 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def group_tools(tools: List[Tool | ToolProxy]) -> List[Tool | ToolProxy]:
+    """ Group common tools into tool proxies. """
+    @dataclass
+    class ToolEntry:
+        tool: Tool
+        props: Any
+
+    by_type: defaultdict[Type[Tool], List[ToolEntry]] = defaultdict(list)
+    computed: List[Tool | ToolProxy] = []
+
+    for tool in tools:
+        if isinstance(tool, ToolProxy):
+            computed.append(tool)
+        else:
+            props = tool.properties_with_values()
+            if "overlay" in props:
+                del props["overlay"]
+            by_type[tool.__class__].append(ToolEntry(tool, props))
+
+    for tools_ in by_type.values():
+        while tools_:
+            head, *tail = tools_
+            group: List[Tool] = [head.tool]
+            for item in list(tail):
+                if item.props == head.props:
+                    group.append(item.tool)
+                    tools_.remove(item)
+            tools_.remove(head)
+
+            if len(group) == 1:
+                computed.append(group[0])
+            else:
+                computed.append(ToolProxy(tools=group))
+
+    return computed
 
 #-----------------------------------------------------------------------------
 # Private API

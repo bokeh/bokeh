@@ -16,7 +16,7 @@ export type GridPlotOpts = {
   height?: number
 }
 
-function merge(tools: ToolLike<Tool>[]): ToolLike<Tool>[] {
+export function group_tools(tools: ToolLike<Tool>[]): ToolLike<Tool>[] {
   type ToolEntry = {tool: Tool, attrs: Attrs}
   const by_type: Map<typeof Tool, Set<ToolEntry>> = new Map()
 
@@ -89,6 +89,6 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
     items.push([item, row, col])
   }
 
-  const toolbar = new Toolbar({tools: !merge_tools ? tools : merge(tools)})
+  const toolbar = new Toolbar({tools: !merge_tools ? tools : group_tools(tools)})
   return new GridPlot({children: items, toolbar, toolbar_location, sizing_mode})
 }

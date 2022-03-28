@@ -25,6 +25,7 @@ from bokeh.layouts import (
     column,
     grid,
     gridplot,
+    group_tools,
     layout,
     row,
 )
@@ -33,8 +34,11 @@ from bokeh.models import (
     GridBox,
     GridPlot,
     LayoutDOM,
+    PanTool,
     Row,
     Spacer,
+    TapTool,
+    ToolProxy,
 )
 from bokeh.plotting import figure
 
@@ -196,6 +200,32 @@ def test_repeated_children() -> None:
 
     test(GridBox(children=[(p0, 0, 0), (p1, 1, 0), (p0, 2, 0)]))
     test(gridplot([[p0], [p1], [p0]], toolbar_location=None))
+
+def test_group_tools() -> None:
+    pan0 = PanTool(dimensions="both")
+    pan1 = PanTool(dimensions="both")
+    pan2 = PanTool(dimensions="width")
+    pan3 = PanTool(dimensions="width")
+    pan4 = PanTool(dimensions="width")
+    pan5 = PanTool(dimensions="height")
+    tap0 = TapTool(behavior="select")
+    tap1 = TapTool(behavior="select")
+    tap2 = TapTool(behavior="inspect")
+
+    tools = group_tools([pan0, tap0, pan2, pan1, tap1, pan5, pan4, pan3, tap2])
+
+    assert len(tools) == 5
+    t0, t1, t2, t3, t4 = tools
+
+    assert isinstance(t0, ToolProxy)
+    assert isinstance(t1, ToolProxy)
+    assert isinstance(t3, ToolProxy)
+
+    assert t0.tools == [pan0, pan1]
+    assert t1.tools == [pan2, pan4, pan3]
+    assert t2 == pan5
+    assert t3.tools == [tap0, tap1]
+    assert t4 == tap2
 
 #-----------------------------------------------------------------------------
 # Dev API
