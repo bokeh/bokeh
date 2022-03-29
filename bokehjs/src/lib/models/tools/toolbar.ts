@@ -427,11 +427,12 @@ export class Toolbar extends Model {
     for (const gesture of values(this.gestures)) {
       gesture.tools = sort_by(gesture.tools, (tool) => tool.default_order)
       for (const tool of gesture.tools) {
+        // XXX: connect once
         this.connect(tool.properties.active.change, () => this._active_change(tool))
       }
     }
 
-    function _get_active_attr(et: string): keyof ActiveGestureToolsProps | null {
+    function _get_active_attr(et: EventType | "multi"): keyof ActiveGestureToolsProps | null {
       switch (et) {
         case "tap": return "active_tap"
         case "pan": return "active_drag"
@@ -446,7 +447,8 @@ export class Toolbar extends Model {
       return et == "tap" || et == "pan"
     }
 
-    for (const [et, gesture] of entries(this.gestures)) {
+    for (const [event_type, gesture] of entries(this.gestures)) {
+      const et = event_type as EventType | "multi"
       const active_attr = _get_active_attr(et)
       if (active_attr) {
         const active_tool = this[active_attr]
@@ -455,10 +457,16 @@ export class Toolbar extends Model {
             _activate_gesture(gesture.tools[0])
           }
         } else if (active_tool != null) {
+          // TODO: allow to activate a proxy of tools with any child?
           if (includes(this.tools, active_tool)) {
             _activate_gesture(active_tool as ToolLike<GestureTool>) // XXX: remove this cast
           } else {
             this[active_attr] = null
+          }
+        } else {
+          this.gestures[et].active = null
+          for (const tool of this.gestures[et].tools) {
+            tool.active = false
           }
         }
       }
@@ -467,7 +475,6 @@ export class Toolbar extends Model {
 
   _active_change(tool: ToolLike<GestureTool>): void {
     const {event_type} = tool
-
     const event_types = isString(event_type) ? [event_type] : event_type
 
     for (const et of event_types) {
