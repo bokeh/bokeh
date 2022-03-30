@@ -1524,4 +1524,13 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #12058", () => {
+    it("renders gaps in straight bevel-joined webgl lines", async () => {
+      const p = fig([150, 150], {output_backend: "webgl", x_range: [0, 2.4], y_range: [0, 2.4]})
+      p.xgrid[0].grid_line_color = null
+      p.ygrid[0].grid_line_color = null
+      p.line([0, 1, 2, 2, 2], [2, 2, 2, 1, 0], {line_width: 30, line_join: "bevel"})
+      await display(p)
+    })
+  })
 })
