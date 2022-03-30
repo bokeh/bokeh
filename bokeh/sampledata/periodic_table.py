@@ -6,6 +6,8 @@
 #-----------------------------------------------------------------------------
 ''' Provide a periodic table data set.
 
+License: `Public Domain`_
+
 This module contains one pandas Dataframe: ``elements``.
 
 .. rubric:: ``elements``

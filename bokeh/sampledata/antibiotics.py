@@ -7,6 +7,10 @@
 ''' A table of `Will Burtin's historical data`_ regarding antibiotic
 efficacies.
 
+License: `MIT license`_
+
+Sourced from: https://bl.ocks.org/borgar/cd32f1d804951034b224
+
 This module contains one pandas Dataframe: ``data``.
 
 .. rubric:: ``data``

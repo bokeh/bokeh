@@ -6,8 +6,11 @@
 #-----------------------------------------------------------------------------
 ''' Per-county unemployment data for Unites States in 2009.
 
-This module contains one dict: ``data``.
+License: `Public Domain`_
 
+Sourced from: https://www.bls.gov
+
+This module contains one dict: ``data``.
 
 The dict is indexed by the two-tuples containing ``(state_id, county_id)`` and
 has the unemployment rate (2009) as the value.

@@ -6,6 +6,8 @@
 #-----------------------------------------------------------------------------
 ''' Calendar file of US Holidays from Mozilla provided by `icalendar`_.
 
+License `CC BY-SA 3.0`_
+
 Sourced from: https://www.mozilla.org/en-US/projects/calendar/holidays/
 
 This module contains one list: ``us_holidays``.
