@@ -56,6 +56,11 @@ vec2 line_intersection(in vec2 point0, in vec2 dir0,
     return point0 + lambda0*dir0;
 }
 
+float sign_no_zero(in float x)
+{
+    return x >= 0.0 ? 1.0 : -1.0;
+}
+
 void main()
 {
     if (a_show_curr < 0.5) {
@@ -91,7 +96,7 @@ void main()
         vec2 prev_right = right_vector(normalize(a_point_start - a_point_prev));
         point_normal_start = normalize(segment_right + prev_right);
         cos_theta_start = dot(segment_right, point_normal_start);  // Always +ve
-        turn_right_start = sign(dot(segment_right, a_point_prev - a_point_start));
+        turn_right_start = sign_no_zero(dot(segment_right, a_point_prev - a_point_start));
     }
 
     vec2 point_normal_end;
@@ -103,7 +108,7 @@ void main()
         vec2 next_right = right_vector(normalize(a_point_next - a_point_end));
         point_normal_end = normalize(segment_right + next_right);
         cos_theta_end = dot(segment_right, point_normal_end);  // Always +ve
-        turn_right_end = sign(dot(segment_right, a_point_next - a_point_end));
+        turn_right_end = sign_no_zero(dot(segment_right, a_point_next - a_point_end));
     }
 
     float miter_factor_start = 1.0 / dot(segment_right, point_normal_start);
