@@ -6,6 +6,8 @@
 #-----------------------------------------------------------------------------
 ''' Route data (including altitude) for a bike race in Eastern Europe.
 
+Sourced from https://bikemaraton.com.pl
+
 This module contains one pandas Dataframe: ``obiszow_mtb_xcm``.
 
 .. rubric:: ``obiszow_mtb_xcm``
