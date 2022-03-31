@@ -6,17 +6,15 @@
 #-----------------------------------------------------------------------------
 ''' Names and locations of world cities with at least 5000 inhabitants.
 
-Derived from ``cities5000.zip`` file downloaded from http://www.geonames.org/export/
+License: `CC BY 2.0`_
 
-Licensed under `CC-BY`_.
+Sourced from http://www.geonames.org/export/ (*cities5000.zip*)
 
 This module contains one pandas Dataframe: ``data``.
 
 .. rubric:: ``data``
 
 :bokeh-dataframe:`bokeh.sampledata.world_cities.data`
-
-.. _CC-BY: https://creativecommons.org/licenses/by/2.0/
 
 '''
 

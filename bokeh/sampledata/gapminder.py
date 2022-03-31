@@ -6,9 +6,9 @@
 #-----------------------------------------------------------------------------
 ''' Four of the datasets from Gapminder.
 
-Sourced from https://www.gapminder.org/data/
+License: `CC BY 2.0`_
 
-Licensed under `CC-BY`_.
+Sourced from https://www.gapminder.org/data/
 
 This module contains four pandas Dataframes: ``fertility``, ``life_expectancy``,
 ``population``, and ``regions``.
@@ -28,8 +28,6 @@ This module contains four pandas Dataframes: ``fertility``, ``life_expectancy``,
 .. rubric:: ``regions``
 
 :bokeh-dataframe:`bokeh.sampledata.gapminder.regions`
-
-.. _CC-BY: https://creativecommons.org/licenses/by/2.0/
 
 '''
 

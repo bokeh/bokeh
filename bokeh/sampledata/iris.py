@@ -6,6 +6,10 @@
 #-----------------------------------------------------------------------------
 ''' Provide `Fisher's Iris dataset`_.
 
+License: `CC0`_
+
+Sourced from: https://www.kaggle.com/datasets/arshid/iris-flower-dataset
+
 This module contains one pandas Dataframe: ``flowers``.
 
 .. note::

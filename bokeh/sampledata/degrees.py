@@ -8,6 +8,10 @@
 
 The data is broken down by field for any given year.
 
+Licence: `CC0`_
+
+Sourced from: https://www.kaggle.com/datasets/sureshsrinivas/bachelorsdegreewomenusa
+
 This module contains one pandas Dataframe: ``data``.
 
 .. rubric:: ``data``

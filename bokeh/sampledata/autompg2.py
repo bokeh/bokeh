@@ -6,7 +6,9 @@
 #-----------------------------------------------------------------------------
 ''' A version of the Auto MPG data set.
 
-Derived from https://archive.ics.uci.edu/ml/datasets/auto+mpg
+License: `CC0`_
+
+Sourced from https://archive.ics.uci.edu/ml/datasets/auto+mpg
 
 This module contains one pandas Dataframe: ``autompg``.
 

@@ -6,6 +6,10 @@
 #-----------------------------------------------------------------------------
 ''' Locations of US cities with more than 5000 residents.
 
+License: `CC BY 2.0`_
+
+Sourced from http://www.geonames.org/export/ (subset of *cities5000.zip*)
+
 This module contains one dict: ``data``.
 
 .. code-block:: python

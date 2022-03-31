@@ -6,6 +6,8 @@
 #-----------------------------------------------------------------------------
 ''' Time series of commits for a GitHub user between 2012 and 2016.
 
+License: `Public Domain`_
+
 This module contains one pandas Dataframe: ``data``.
 
 .. rubric:: ``data``

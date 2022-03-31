@@ -45,3 +45,14 @@
 
 .. |named CSS colors| replace:: `named CSS colors`_
 .. _`named CSS colors`: https://www.w3.org/TR/css-color-4/#named-colors
+
+.. _CC BY 2.0: https://creativecommons.org/licenses/by/2.0/
+.. _CC BY 3.0 IGO: https://creativecommons.org/licenses/by/3.0/igo/
+.. _CC BY-NC 4.0: https://creativecommons.org/licenses/by-nc/4.0/
+.. _CC BY-ND 4.0: https://creativecommons.org/licenses/by-nd/4.0/
+.. _CC BY-SA 3.0: https://creativecommons.org/licenses/by-sa/3.0/
+.. _CC0: https://creativecommons.org/share-your-work/public-domain/cc0/
+.. _MIT license: https://opensource.org/licenses/MIT
+.. _ODbL 1.0: https://opendatacommons.org/licenses/odbl/1-0/
+.. _Open Government Licence: http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/
+.. _Public Domain: https://wiki.creativecommons.org/wiki/public_domain

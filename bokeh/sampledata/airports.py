@@ -6,7 +6,9 @@
 #-----------------------------------------------------------------------------
 ''' US airports with field elevations > 1500 meters.
 
-Sourced from http://services.nationalmap.gov on October 15, 2015.
+License: `Public Domain`_
+
+Sourced from USGS service http://services.nationalmap.gov on October 15, 2015.
 
 This module contains one pandas Dataframe: ``data``.
 
