@@ -146,6 +146,22 @@ like ``cds_view.filter &= other_filter``.
 ``RadioGroup`` and ``CheckboxGroup`` no longer supports ``on_click`` event handlers.
 Use ``on_change('active', cb)`` instead.
 
+``ToolbarProxy``
+................
+
+``ToolbarProxy`` was removed. To replicate the original behavior, use ``ToolProxy``
+in ``Toolbar`` model.
+
+``ToolbarBase``
+...............
+
+``ToolbarBase`` abstract base class was merged into ``Toolbar`` model.
+
+``ToolButton``
+..............
+
+``ToolButton`` abstract base class was merged into ``Tool`` model.
+
 Renames
 ~~~~~~~
 

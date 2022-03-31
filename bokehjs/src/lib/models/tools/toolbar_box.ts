@@ -1,6 +1,6 @@
 import * as p from "core/properties"
 import {Location} from "core/enums"
-import {ToolbarBase, ToolbarBaseView} from "./toolbar_base"
+import {Toolbar, ToolbarView} from "./toolbar"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {ContentBox} from "core/layout"
@@ -13,7 +13,7 @@ export class ToolbarBoxView extends LayoutDOMView {
     super.initialize()
   }
 
-  get toolbar_view(): ToolbarBaseView {
+  get toolbar_view(): ToolbarView {
     return this.child_views[0] as any
   }
 
@@ -66,7 +66,7 @@ export namespace ToolbarBox {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutDOM.Props & {
-    toolbar: p.Property<ToolbarBase>
+    toolbar: p.Property<Toolbar>
     toolbar_location: p.Property<Location>
   }
 }
@@ -85,7 +85,7 @@ export class ToolbarBox extends LayoutDOM {
     this.prototype.default_view = ToolbarBoxView
 
     this.define<ToolbarBox.Props>(({Ref}) => ({
-      toolbar:          [ Ref(ToolbarBase) ],
+      toolbar:          [ Ref(Toolbar) ],
       toolbar_location: [ Location, "right" ],
     }))
   }

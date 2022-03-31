@@ -1,8 +1,8 @@
-import {ButtonToolButtonView} from "./button_tool"
+import {ToolButtonView} from "./tool_button"
 import * as tools from "styles/tool_button.css"
 import {classes} from "core/dom"
 
-export class OnOffButtonView extends ButtonToolButtonView {
+export class OnOffButtonView extends ToolButtonView {
   override render(): void {
     super.render()
     classes(this.el).toggle(tools.active, this.model.active)

@@ -3,6 +3,7 @@ import {Canvas, CanvasView, FrameBox} from "../canvas/canvas"
 import {Renderer, RendererView} from "../renderers/renderer"
 import {DataRenderer} from "../renderers/data_renderer"
 import {Tool, ToolView} from "../tools/tool"
+import {ToolProxy} from "../tools/tool_proxy"
 import {Selection} from "../selections/selection"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {Plot} from "./plot"
@@ -22,6 +23,7 @@ import {SerializableState} from "core/view"
 import {throttle} from "core/util/throttle"
 import {isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
+import {flat_map} from "core/util/iterator"
 import {Context2d, CanvasLayer} from "core/util/canvas"
 import {SizingPolicy, Layoutable} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
@@ -539,10 +541,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
       yield this._toolbar
 
     for (const tool of this.model.toolbar.tools) {
-      if (tool.overlay != null)
-        yield tool.overlay
-
-      yield* tool.synthetic_renderers
+      yield* tool.computed_overlays
     }
   }
 
@@ -552,8 +551,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   async build_tool_views(): Promise<void> {
-    const tool_models = this.model.toolbar.tools
-    const new_tool_views = await build_views(this.tool_views, tool_models, {parent: this})
+    const tool_models = flat_map(this.model.toolbar.tools, (item) => item instanceof ToolProxy ? item.tools : [item])
+    const new_tool_views = await build_views(this.tool_views, [...tool_models], {parent: this})
     new_tool_views.map((tool_view) => this.canvas_view.ui_event_bus.register_tool(tool_view))
   }
 

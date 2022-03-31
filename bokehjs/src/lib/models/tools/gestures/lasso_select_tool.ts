@@ -107,4 +107,8 @@ export class LassoSelectTool extends SelectTool {
   override tool_icon = tool_icon_lasso_select
   override event_type = "pan" as "pan"
   override default_order = 12
+
+  override get computed_overlays() {
+    return [...super.computed_overlays, this.overlay]
+  }
 }

@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import math
+from collections import defaultdict
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -30,6 +31,7 @@ from typing import (
     List,
     Sequence,
     Tuple,
+    Type,
     TypeVar,
     overload,
 )
@@ -43,10 +45,10 @@ from .models import (
     GridPlot,
     LayoutDOM,
     Plot,
-    ProxyToolbar,
     Row,
     Spacer,
     Toolbar,
+    ToolProxy,
 )
 from .util.dataclasses import dataclass
 
@@ -260,7 +262,7 @@ def gridplot(
         children = []
 
     # Make the grid
-    tools: List[Tool] = []
+    tools: List[Tool | ToolProxy] = []
     items: List[Tuple[LayoutDOM, int, int]] = []
 
     for y, row in enumerate(children):
@@ -285,11 +287,7 @@ def gridplot(
             else:
                 raise ValueError("Only LayoutDOM items can be inserted into a grid")
 
-    if not merge_tools or not toolbar_location:
-        toolbar = Toolbar(tools=tools, **toolbar_options)
-    else:
-        toolbar = ProxyToolbar(tools=tools, **toolbar_options)
-
+    toolbar = Toolbar(tools=tools if not merge_tools else group_tools(tools), **toolbar_options)
     return GridPlot(children=items, toolbar=toolbar, toolbar_location=toolbar_location, sizing_mode=sizing_mode)
 
 # XXX https://github.com/python/mypy/issues/731
@@ -490,6 +488,42 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def group_tools(tools: List[Tool | ToolProxy]) -> List[Tool | ToolProxy]:
+    """ Group common tools into tool proxies. """
+    @dataclass
+    class ToolEntry:
+        tool: Tool
+        props: Any
+
+    by_type: defaultdict[Type[Tool], List[ToolEntry]] = defaultdict(list)
+    computed: List[Tool | ToolProxy] = []
+
+    for tool in tools:
+        if isinstance(tool, ToolProxy):
+            computed.append(tool)
+        else:
+            props = tool.properties_with_values()
+            if "overlay" in props:
+                del props["overlay"]
+            by_type[tool.__class__].append(ToolEntry(tool, props))
+
+    for tools_ in by_type.values():
+        while tools_:
+            head, *tail = tools_
+            group: List[Tool] = [head.tool]
+            for item in list(tail):
+                if item.props == head.props:
+                    group.append(item.tool)
+                    tools_.remove(item)
+            tools_.remove(head)
+
+            if len(group) == 1:
+                computed.append(group[0])
+            else:
+                computed.append(ToolProxy(tools=group))
+
+    return computed
 
 #-----------------------------------------------------------------------------
 # Private API

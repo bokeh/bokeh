@@ -1,6 +1,6 @@
 GridPlot bbox=[0, 0, 200, 230]
   ToolbarBox bbox=[0, 200, 200, 30]
-    ProxyToolbar
+    Toolbar
   Plot bbox=[0, 0, 100, 100]
     LinearAxis bbox=[29, 78, 66, 22]
     LinearAxis bbox=[0, 5, 29, 73]

@@ -45,6 +45,22 @@ export function* interleave<T>(seq: Iterable<T>, separator: () => T): Iterable<T
   }
 }
 
+export function every<T>(iterable: Iterable<T>, predicate: (item: T) => boolean): boolean {
+  for (const item of iterable) {
+    if (!predicate(item))
+      return false
+  }
+  return true
+}
+
+export function some<T>(iterable: Iterable<T>, predicate: (item: T) => boolean): boolean {
+  for (const item of iterable) {
+    if (predicate(item))
+      return true
+  }
+  return false
+}
+
 // https://docs.python.org/3.8/library/itertools.html#itertools.combinations
 export function* combinations<T>(seq: T[], r: number): Iterable<T[]> {
   const n = seq.length

@@ -1791,6 +1791,44 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #9763", () => {
+    it("incorrectly merges dissimilar tools of the same type", async () => {
+      const tools = "xpan,ypan,xwheel_zoom,ywheel_zoom"
+
+      const f0 = fig([100, 100], {tools})
+      f0.circle([0, 1, 2], [0, 1, 2])
+      const f1 = fig([100, 100], {tools})
+      f1.circle([3, 4, 5], [3, 4, 5])
+      const f2 = fig([100, 100], {tools})
+      f2.circle([6, 7, 8], [6, 7, 8])
+      const f3 = fig([100, 100], {tools})
+      f3.circle([9, 10, 11], [9, 10, 11])
+
+      const gp = gridplot([[f0, f1], [f2, f3]], {toolbar_location: "right", merge_tools: true})
+      await display(gp)
+    })
+  })
+
+  describe("in issue #11839", () => {
+    it("doesn't allow to use active_ properties with tool proxies", async () => {
+      const tools = "xpan,ypan,xwheel_zoom,ywheel_zoom"
+
+      const f0 = fig([100, 100], {tools})
+      f0.circle([0, 1, 2], [0, 1, 2])
+      const f1 = fig([100, 100], {tools})
+      f1.circle([3, 4, 5], [3, 4, 5])
+      const f2 = fig([100, 100], {tools})
+      f2.circle([6, 7, 8], [6, 7, 8])
+      const f3 = fig([100, 100], {tools})
+      f3.circle([9, 10, 11], [9, 10, 11])
+
+      const gp = gridplot([[f0, f1], [f2, f3]], {toolbar_location: "right", merge_tools: true})
+      gp.toolbar.active_drag = null
+
+      await display(gp)
+    })
+  })
+
   describe("in issue #12058", () => {
     it("renders gaps in straight bevel-joined webgl lines", async () => {
       const p = fig([150, 150], {output_backend: "webgl", x_range: [0, 2.4], y_range: [0, 2.4]})

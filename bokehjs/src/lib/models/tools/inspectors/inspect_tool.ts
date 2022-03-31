@@ -1,23 +1,23 @@
-import {ButtonTool, ButtonToolView} from "../button_tool"
+import {Tool, ToolView} from "../tool"
 import {OnOffButtonView} from "../on_off_button"
 
 import * as p from "core/properties"
 
-export abstract class InspectToolView extends ButtonToolView {
+export abstract class InspectToolView extends ToolView {
   override model: InspectTool
 }
 
 export namespace InspectTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ButtonTool.Props & {
+  export type Props = Tool.Props & {
     toggleable: p.Property<boolean>
   }
 }
 
 export interface InspectTool extends InspectTool.Attrs {}
 
-export abstract class InspectTool extends ButtonTool {
+export abstract class InspectTool extends Tool {
   override properties: InspectTool.Props
   override __view_type__: InspectToolView
 

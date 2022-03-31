@@ -97,12 +97,7 @@ from .scales import (
 )
 from .sources import ColumnarDataSource, ColumnDataSource, DataSource
 from .tiles import TileSource, WMTSTileSource
-from .tools import (
-    HoverTool,
-    Tool,
-    Toolbar,
-    ToolbarBase,
-)
+from .tools import HoverTool, Tool, Toolbar
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -823,7 +818,7 @@ class GridPlot(LayoutDOM):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    toolbar = Instance(ToolbarBase, default=InstanceDefault(Toolbar), help="""
+    toolbar = Instance(Toolbar, default=InstanceDefault(Toolbar), help="""
     The toolbar associated with this grid plot, which holds all the tools.
     It is automatically created with the plot if necessary.
     """)

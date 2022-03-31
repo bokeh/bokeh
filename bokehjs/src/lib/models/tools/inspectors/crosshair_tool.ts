@@ -101,7 +101,7 @@ export class CrosshairTool extends InspectTool {
     return this._get_dim_tooltip(this.dimensions)
   }
 
-  override get synthetic_renderers(): Renderer[] {
+  override get computed_overlays(): Renderer[] {
     return values(this.spans)
   }
 }

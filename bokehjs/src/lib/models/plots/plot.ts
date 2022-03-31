@@ -4,6 +4,7 @@ import * as p from "core/properties"
 import {Signal0} from "core/signaling"
 import {Location, OutputBackend, Place, ResetPolicy} from "core/enums"
 import {concat, remove_by} from "core/util/array"
+import {difference} from "core/util/set"
 import {isString} from "core/util/types"
 
 import {LayoutDOM} from "../layouts/layout_dom"
@@ -231,7 +232,7 @@ export class Plot extends LayoutDOM {
   }
 
   remove_tools(...tools: Tool[]): void {
-    remove_by(this.toolbar.tools, (t) => tools.includes(t))
+    this.toolbar.tools = [...difference(new Set(this.toolbar.tools), new Set(tools))]
   }
 
   get panels(): (Annotation | Axis | Grid)[] {
