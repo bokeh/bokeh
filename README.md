@@ -368,11 +368,12 @@ If your company uses Bokeh and is able to sponsor the project, please contact <a
 
 ### In-kind Support
 
-The Bokeh project is also grateful for the donation of services from the following companies:
+The Bokeh project is grateful for the donation of services supporting our collaboration, infrastructure, security, and vulnerability management from the following companies:
 
 * [Amazon Web Services](https://aws.amazon.com/)
 * [GitGuardian](https://gitguardian.com/)
 * [GitHub](https://github.com/)
+* [Pentest Tools](https://pentest-tools.com)
 * [Pingdom](https://www.pingdom.com/website-monitoring)
 * [Slack](https://slack.com)
 * [QuestionScout](https://www.questionscout.com/)
