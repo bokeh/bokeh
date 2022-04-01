@@ -202,7 +202,7 @@ describe("range_tool module", () => {
 
       it("should set overlay in_cursor", () => {
         const rt = new RangeTool()
-        expect(rt.overlay.in_cursor).to.be.equal("grab")
+        expect(rt.overlay.in_cursor).to.be.equal("move")
       })
 
       it("should set overlay ns_cursor", () => {

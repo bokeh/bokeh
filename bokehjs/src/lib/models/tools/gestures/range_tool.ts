@@ -260,9 +260,11 @@ export class RangeTool extends GestureTool {
 
   override initialize(): void {
     super.initialize()
-    this.overlay.in_cursor = "grab"
-    this.overlay.ew_cursor = this.x_range != null && this.x_interaction ? "ew-resize" : null
-    this.overlay.ns_cursor = this.y_range != null && this.y_interaction ? "ns-resize" : null
+    const has_x = this.x_range != null && this.x_interaction
+    const has_y = this.y_range != null && this.y_interaction
+    this.overlay.in_cursor = has_x && has_y ? "move" : (has_x ? "ew-resize" : (has_y ? "ns-resize" : "default"))
+    this.overlay.ew_cursor = has_x ? "ew-resize" : "default"
+    this.overlay.ns_cursor = has_y ? "ns-resize" : "default"
   }
 
   update_overlay_from_ranges(): void {

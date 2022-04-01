@@ -5,10 +5,19 @@ import * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
 import * as p from "core/properties"
 import {BBox, LRTB, CoordinateMapper} from "core/util/bbox"
+import {PanEvent, Pannable} from "core/ui_events"
+import {Signal} from "core/signaling"
+import {assert} from "core/util/assert"
 
 export const EDGE_TOLERANCE = 2.5
 
-export class BoxAnnotationView extends AnnotationView {
+const {abs} = Math
+
+type Corner = "top_left" | "top_right" | "bottom_left" | "bottom_right"
+type Edge = "left" | "right" | "top" | "bottom"
+type HitTarget = Corner | Edge | "box"
+
+export class BoxAnnotationView extends AnnotationView implements Pannable {
   declare model: BoxAnnotation
   declare visuals: BoxAnnotation.Visuals
 
@@ -22,17 +31,14 @@ export class BoxAnnotationView extends AnnotationView {
   protected _render(): void {
     const {left, right, top, bottom} = this.model
 
-    const {frame} = this.plot_view
-    const xscale = this.coordinates.x_scale
-    const yscale = this.coordinates.y_scale
-
-    const _calc_dim = (dim: number | null, dim_units: CoordinateUnits, scale: Scale, view: CoordinateMapper, frame_extrema: number): number => {
+    const _calc_dim = (dim: number | null, dim_units: CoordinateUnits, scale: Scale,
+        view: CoordinateMapper, canvas: CoordinateMapper, frame_extrema: number): number => {
       if (dim == null)
         return frame_extrema
       else {
         switch (dim_units) {
           case "canvas":
-            return dim
+            return canvas.compute(dim)
           case "screen":
             return view.compute(dim)
           case "data":
@@ -41,11 +47,16 @@ export class BoxAnnotationView extends AnnotationView {
       }
     }
 
+    const {frame, canvas} = this.plot_view
+    const {x_scale, y_scale} = this.coordinates
+    const {x_view, y_view} = frame.bbox
+    const {x_screen, y_screen} = canvas.bbox
+
     this.bbox = BBox.from_lrtb({
-      left:   _calc_dim(left,   this.model.left_units,   xscale, frame.bbox.xview, frame.bbox.left),
-      right:  _calc_dim(right,  this.model.right_units,  xscale, frame.bbox.xview, frame.bbox.right),
-      top:    _calc_dim(top,    this.model.top_units,    yscale, frame.bbox.yview, frame.bbox.top),
-      bottom: _calc_dim(bottom, this.model.bottom_units, yscale, frame.bbox.yview, frame.bbox.bottom),
+      left:   _calc_dim(left,   this.model.left_units,   x_scale, x_view, x_screen, frame.bbox.left),
+      right:  _calc_dim(right,  this.model.right_units,  x_scale, x_view, x_screen, frame.bbox.right),
+      top:    _calc_dim(top,    this.model.top_units,    y_scale, y_view, y_screen, frame.bbox.top),
+      bottom: _calc_dim(bottom, this.model.bottom_units, y_scale, y_view, y_screen, frame.bbox.bottom),
     })
 
     this._paint_box()
@@ -72,24 +83,135 @@ export class BoxAnnotationView extends AnnotationView {
   }
 
   override interactive_hit(sx: number, sy: number): boolean {
-    if (this.model.in_cursor == null)
+    if (!this.model.visible || !this.model.editable)
       return false
     const bbox = this.interactive_bbox()
     return bbox.contains(sx, sy)
   }
 
-  override cursor(sx: number, sy: number): string | null {
-    const tol = 3
-
+  private _hit_test(sx: number, sy: number): HitTarget | null {
     const {left, right, bottom, top} = this.bbox
-    if (Math.abs(sx-left) < tol || Math.abs(sx-right) < tol)
-      return this.model.ew_cursor
-    else if (Math.abs(sy-bottom) < tol || Math.abs(sy-top) < tol)
-      return this.model.ns_cursor
-    else if (this.bbox.contains(sx, sy))
-      return this.model.in_cursor
-    else
-      return null
+    const tolerance = Math.max(EDGE_TOLERANCE, this.model.line_width/2)
+
+    const hits_left = abs(left - sx) < tolerance
+    const hits_right = abs(right - sx) < tolerance
+    const hits_top = abs(top - sy) < tolerance
+    const hits_bottom = abs(bottom - sy) < tolerance
+
+    if (hits_top && hits_left)
+      return "top_left"
+    if (hits_top && hits_right)
+      return "top_right"
+    if (hits_bottom && hits_left)
+      return "bottom_left"
+    if (hits_bottom && hits_right)
+      return "bottom_right"
+
+    if (hits_left)
+      return "left"
+    if (hits_right)
+      return "right"
+    if (hits_top)
+      return "top"
+    if (hits_bottom)
+      return "bottom"
+
+    if (this.bbox.contains(sx, sy))
+      return "box"
+
+    return null
+  }
+
+  private _pan_state: {bbox: BBox, target: HitTarget} | null = null
+
+  _pan_start(ev: PanEvent): boolean {
+    if (this.model.visible && this.model.editable) {
+      const {sx, sy} = ev
+      const target = this._hit_test(sx, sy)
+      if (target != null) {
+        this._pan_state = {
+          bbox: this.bbox.clone(),
+          target,
+        }
+        this.model.pan.emit("pan:start")
+        return true
+      }
+    }
+    return false
+  }
+
+  _pan(ev: PanEvent): void {
+    assert(this._pan_state != null)
+    const {dx, dy} = ev
+
+    const sltrb = (() => {
+      const {bbox, target} = this._pan_state
+      const {left, top, right, bottom} = bbox
+
+      switch (target) {
+        case "top_left":
+          return {left: left + dx, top: top + dy, right, bottom}
+        case "top_right":
+          return {left, top: top + dy, right: right + dx, bottom}
+        case "bottom_left":
+          return {left: left + dx, top, right, bottom: bottom + dy}
+        case "bottom_right":
+          return {left, top, right: right + dx, bottom: bottom + dy}
+        case "left":
+          return {left: left + dx, top, right, bottom}
+        case "right":
+          return {left, top, right: right + dx, bottom}
+        case "top":
+          return {left, top: top + dy, right, bottom}
+        case "bottom":
+          return {left, top, right, bottom: bottom + dy}
+        case "box":
+          return {left: left + dx, top: top + dy, right: right + dx, bottom: bottom + dy}
+      }
+    })()
+
+    const invert = (sv: number, units: CoordinateUnits, scale: Scale, view: CoordinateMapper, canvas: CoordinateMapper): number => {
+      switch (units) {
+        case "canvas": return canvas.invert(sv)
+        case "screen": return view.invert(sv)
+        case "data":   return scale.invert(sv)
+      }
+    }
+
+    const {x_scale, y_scale} = this.coordinates
+    const {x_view, y_view} = this.plot_view.frame.bbox
+    const {x_screen, y_screen} = this.plot_view.canvas.bbox
+
+    const ltrb = {
+      left:   invert(sltrb.left,   this.model.left_units,   x_scale, x_view, x_screen),
+      right:  invert(sltrb.right,  this.model.right_units,  x_scale, x_view, x_screen),
+      top:    invert(sltrb.top,    this.model.top_units,    y_scale, y_view, y_screen),
+      bottom: invert(sltrb.bottom, this.model.bottom_units, y_scale, y_view, y_screen),
+    }
+
+    this.model.update(ltrb)
+    this.model.pan.emit("pan")
+  }
+
+  _pan_end(_ev: PanEvent): void {
+    this._pan_state = null
+    this.model.pan.emit("pan:end")
+  }
+
+  override cursor(sx: number, sy: number): string | null {
+    const target = this._pan_state?.target ?? this._hit_test(sx, sy)
+    switch (target) {
+      case "top_left":     return this.model.tl_cursor
+      case "top_right":    return this.model.tr_cursor
+      case "bottom_left":  return this.model.bl_cursor
+      case "bottom_right": return this.model.br_cursor
+      case "left":         return this.model.ew_cursor
+      case "right":        return this.model.ew_cursor
+      case "top":          return this.model.ns_cursor
+      case "bottom":       return this.model.ns_cursor
+      case "box":          return this.model.in_cursor
+      default:             return null
+    }
   }
 }
 
@@ -107,9 +229,15 @@ export namespace BoxAnnotation {
     left_units: p.Property<CoordinateUnits>
     right_units: p.Property<CoordinateUnits>
 
-    ew_cursor: p.Property<string | null>
-    ns_cursor: p.Property<string | null>
-    in_cursor: p.Property<string | null>
+    editable: p.Property<boolean>
+
+    tl_cursor: p.Property<string>
+    tr_cursor: p.Property<string>
+    bl_cursor: p.Property<string>
+    br_cursor: p.Property<string>
+    ew_cursor: p.Property<string>
+    ns_cursor: p.Property<string>
+    in_cursor: p.Property<string>
   } & Mixins
 
   export type Mixins = mixins.Line & mixins.Fill & mixins.Hatch
@@ -132,7 +260,7 @@ export class BoxAnnotation extends Annotation {
 
     this.mixins<BoxAnnotation.Mixins>([mixins.Line, mixins.Fill, mixins.Hatch])
 
-    this.define<BoxAnnotation.Props>(({Number, Nullable}) => ({
+    this.define<BoxAnnotation.Props>(({Boolean, Number, Nullable}) => ({
       top:          [ Nullable(Number), null ],
       bottom:       [ Nullable(Number), null ],
       left:         [ Nullable(Number), null ],
@@ -142,12 +270,18 @@ export class BoxAnnotation extends Annotation {
       bottom_units: [ CoordinateUnits, "data" ],
       left_units:   [ CoordinateUnits, "data" ],
       right_units:  [ CoordinateUnits, "data" ],
+
+      editable:     [ Boolean, false ],
     }))
 
-    this.internal<BoxAnnotation.Props>(({String, Nullable}) => ({
-      ew_cursor: [ Nullable(String), null ],
-      ns_cursor: [ Nullable(String), null ],
-      in_cursor: [ Nullable(String), null ],
+    this.internal<BoxAnnotation.Props>(({String}) => ({
+      tl_cursor: [ String, "nwse-resize" ],
+      tr_cursor: [ String, "nesw-resize" ],
+      bl_cursor: [ String, "nesw-resize" ],
+      br_cursor: [ String, "nwse-resize" ],
+      ew_cursor: [ String, "ew-resize" ],
+      ns_cursor: [ String, "ns-resize" ],
+      in_cursor: [ String, "move" ],
     }))
 
     this.override<BoxAnnotation.Props>({
@@ -157,6 +291,8 @@ export class BoxAnnotation extends Annotation {
       line_alpha: 0.3,
     })
   }
+
+  readonly pan = new Signal<"pan:start" | "pan" | "pan:end", this>(this, "pan")
 
   update({left, right, top, bottom}: LRTB): void {
     this.setv({left, right, top, bottom, visible: true})

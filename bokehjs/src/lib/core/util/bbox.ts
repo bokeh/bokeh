@@ -1,6 +1,7 @@
 import {Arrayable, ScreenArray, Rect, Box, Interval, Size} from "../types"
 import {equals, Equatable, Comparator} from "./eq"
 import * as affine from "./affine"
+import {map} from "./arrayable"
 
 const {min, max, round} = Math
 
@@ -73,10 +74,12 @@ export type VerticalPosition =
 export type Position = HorizontalPosition & VerticalPosition
 
 export type CoordinateMapper = {
-  compute: (v: number) => number
-  v_compute: (vv: Arrayable<number>) => ScreenArray
-  invert: (sv: number) => number
-  v_invert: (svv: ScreenArray) => Arrayable<number>
+  compute(v: number): number
+  invert(sv: number): number
+  v_compute(vs: Arrayable<number>): ScreenArray
+  v_invert(svs: Arrayable<number>): Arrayable<number>
+  readonly source_range: Interval
+  readonly target_range: Interval
 }
 
 export class BBox implements Rect, Equatable {
@@ -229,6 +232,9 @@ export class BBox implements Rect, Equatable {
     return {left, right, top, bottom}
   }
 
+  get x_range(): Interval { return {start: this.x0, end: this.x1} }
+  get y_range(): Interval { return {start: this.y0, end: this.y1} }
+
   get h_range(): Interval { return {start: this.x0, end: this.x1} }
   get v_range(): Interval { return {start: this.y0, end: this.y1} }
 
@@ -327,57 +333,119 @@ export class BBox implements Rect, Equatable {
              that.y1 < this.y0 || that.y0 > this.y1)
   }
 
+  private _x_screen?: CoordinateMapper
+  get x_screen(): CoordinateMapper {
+    const self = this
+    return this._x_screen ?? (this._x_screen = {
+      compute(x: number): number {
+        return self.left + x
+      },
+      invert(sx: number): number {
+        return sx - self.left
+      },
+      v_compute(xs: Arrayable<number>): ScreenArray {
+        const {left} = self
+        return new ScreenArray(map(xs, (x) => left + x))
+      },
+      v_invert(sxs: Arrayable<number>): Arrayable<number> {
+        const {left} = self
+        return map(sxs, (sx) => sx - left)
+      },
+      get source_range(): Interval {
+        return self.x_range
+      },
+      get target_range(): Interval {
+        return self.x_range
+      },
+    })
+  }
+
+  private _y_screen?: CoordinateMapper
+  get y_screen(): CoordinateMapper {
+    const self = this
+    return this._y_screen ?? (this._y_screen = {
+      compute(y: number): number {
+        return self.top + y
+      },
+      invert(sy: number): number {
+        return sy - self.top
+      },
+      v_compute(ys: Arrayable<number>): ScreenArray {
+        const {top} = self
+        return new ScreenArray(map(ys, (y) => top + y))
+      },
+      v_invert(sys: Arrayable<number>): Arrayable<number> {
+        const {top} = self
+        return map(sys, (sy) => sy - top)
+      },
+      get source_range(): Interval {
+        return self.y_range
+      },
+      get target_range(): Interval {
+        return self.y_range
+      },
+    })
+  }
+
+  private _x_view?: CoordinateMapper
+  get x_view(): CoordinateMapper {
+    const self = this
+    return this._x_view ?? (this._x_view = {
+      compute(x: number): number {
+        return self.left + x
+      },
+      invert(sx: number): number {
+        return sx - self.left
+      },
+      v_compute(xs: Arrayable<number>): ScreenArray {
+        const {left} = self
+        return new ScreenArray(map(xs, (x) => left + x))
+      },
+      v_invert(sxs: Arrayable<number>): Arrayable<number> {
+        const {left} = self
+        return map(sxs, (sx) => sx - left)
+      },
+      get source_range(): Interval {
+        return self.x_range
+      },
+      get target_range(): Interval {
+        return self.x_range
+      },
+    })
+  }
+
+  private _y_view?: CoordinateMapper
+  get y_view(): CoordinateMapper {
+    const self = this
+    return this._y_view ?? (this._y_view = {
+      compute(y: number): number {
+        return self.bottom - y
+      },
+      invert(sy: number): number {
+        return self.bottom - sy
+      },
+      v_compute(ys: Arrayable<number>): ScreenArray {
+        const {bottom} = self
+        return new ScreenArray(map(ys, (y) => bottom - y))
+      },
+      v_invert(sys: Arrayable<number>): Arrayable<number> {
+        const {bottom} = self
+        return map(sys, (sy) => bottom - sy)
+      },
+      get source_range(): Interval {
+        return self.y_range
+      },
+      get target_range(): Interval {
+        return {start: self.bottom, end: self.top}
+      },
+    })
+  }
+
   get xview(): CoordinateMapper {
-    return {
-      compute: (x: number): number => {
-        return this.left + x
-      },
-      v_compute: (xx: Arrayable<number>): ScreenArray => {
-        const sxx = new ScreenArray(xx.length)
-        const left = this.left
-        for (let i = 0; i < xx.length; i++) {
-          sxx[i] = left + xx[i]
-        }
-        return sxx
-      },
-      invert: (sx: number): number => {
-        return sx - this.left
-      },
-      v_invert: (sxx: ScreenArray): Arrayable<number> => {
-        const xx = new ScreenArray(sxx.length)
-        const left = this.left
-        for (let i = 0; i < sxx.length; i++) {
-          xx[i] = sxx[i] - left
-        }
-        return xx
-      },
-    }
+    return this.x_view
   }
 
   get yview(): CoordinateMapper {
-    return {
-      compute: (y: number): number => {
-        return this.bottom - y
-      },
-      v_compute: (yy: Arrayable<number>): ScreenArray => {
-        const syy = new ScreenArray(yy.length)
-        const bottom = this.bottom
-        for (let i = 0; i < yy.length; i++) {
-          syy[i] = bottom - yy[i]
-        }
-        return syy
-      },
-      invert: (sy: number): number => {
-        return this.bottom - sy
-      },
-      v_invert: (syy: ScreenArray): Arrayable<number> => {
-        const yy = new ScreenArray(syy.length)
-        const bottom = this.bottom
-        for (let i = 0; i < syy.length; i++) {
-          yy[i] = bottom - syy[i]
-        }
-        return yy
-      },
-    }
+    return this.y_view
   }
 }

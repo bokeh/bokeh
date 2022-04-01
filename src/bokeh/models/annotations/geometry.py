@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.enums import CoordinateUnits, Dimension
 from ...core.properties import (
+    Bool,
     CoordinateLike,
     Either,
     Enum,
@@ -109,6 +110,13 @@ class BoxAnnotation(Annotation):
     top_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the top attribute. Interpreted as |data units| by
     default.
+    """)
+
+    editable = Bool(default=False, help="""
+    Allows to interactively modify the geometry of this box.
+
+    .. note::
+        This property is experimental and may change at any point.
     """)
 
     line_props = Include(ScalarLineProps, help="""

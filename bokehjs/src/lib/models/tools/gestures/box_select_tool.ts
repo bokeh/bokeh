@@ -2,7 +2,7 @@ import {SelectTool, SelectToolView} from "./select_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import * as p from "core/properties"
 import {Dimensions, BoxOrigin, SelectionMode} from "core/enums"
-import {PanEvent} from "core/ui_events"
+import {PanEvent, KeyEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
 import * as icons from "styles/icons.css"
 
@@ -11,6 +11,25 @@ export class BoxSelectToolView extends SelectToolView {
 
   override get overlays() {
     return [...super.overlays, this.model.overlay]
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {pan} = this.model.overlay
+    this.connect(pan, (phase) => {
+      if ((phase == "pan" && this.model.select_every_mousemove) || phase == "pan:end") {
+        const {left, top, right, bottom} = this.model.overlay
+        if (left != null && top != null && right != null && bottom != null)
+          this._do_select([left, right], [top, bottom], false, this.model.mode)
+      }
+    })
+
+    const {active} = this.model.properties
+    this.on_change(active, () => {
+      if (!this.model.active)
+        this._clear_overlay()
+    })
   }
 
   protected _base_point: [number, number] | null
@@ -55,14 +74,27 @@ export class BoxSelectToolView extends SelectToolView {
       return
 
     const {sx, sy} = ev
-
     const [sxlim, sylim] = this._compute_limits([sx, sy])
     this._do_select(sxlim, sylim, true, this._select_mode(ev))
 
-    this.model.overlay.clear()
-    this._base_point = null
+    if (!this.model.overlay.editable) {
+      this._clear_overlay()
+    }
 
+    this._base_point = null
     this.plot_view.state.push("box_select", {selection: this.plot_view.get_selection()})
+  }
+
+  override _keyup(ev: KeyEvent): void {
+    super._keyup(ev)
+
+    if (this.model.overlay.editable && ev.key == "Escape") {
+      this._clear_overlay()
+    }
+  }
+
+  _clear_overlay(): void {
+    this.model.overlay.clear()
   }
 
   _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], final: boolean, mode: SelectionMode = "replace"): void {
