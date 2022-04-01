@@ -9,10 +9,12 @@ import * as p from "core/properties"
 import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
+import {max} from "../../core/util/arrayable"
 
 export type WedgeData = XYGlyphData & p.UniformsOf<Wedge.Mixins> & {
   readonly radius: p.Uniform<number>
   sradius: ScreenArray
+  max_sradius: number
   readonly max_radius: number
 
   readonly start_angle: p.Uniform<number>
@@ -30,6 +32,7 @@ export class WedgeView extends XYGlyphView {
       this.sradius = this.sdist(this.renderer.xscale, this._x, this.radius)
     else
       this.sradius = to_screen(this.radius)
+    this.max_sradius = max(this.sradius)
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: WedgeData): void {
@@ -58,28 +61,18 @@ export class WedgeView extends XYGlyphView {
   }
 
   protected override _hit_point(geometry: PointGeometry): Selection {
-    let dist, sx0, sx1, sy0, sy1, x0, x1, y0, y1
+    let dist, sx0, sx1, sy0, sy1
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
 
     // check diameter first
-    const max_diameter = 2 * this.max_radius
-    if (this.model.properties.radius.units === "data") {
-      x0 = x - max_diameter
-      x1 = x + max_diameter
-
-      y0 = y - max_diameter
-      y1 = y + max_diameter
-    } else {
-      sx0 = sx - max_diameter
-      sx1 = sx + max_diameter
-      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-
-      sy0 = sy - max_diameter
-      sy1 = sy + max_diameter
-      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    }
+    sx0 = sx - this.max_sradius
+    sx1 = sx + this.max_sradius
+    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+    sy0 = sy - this.max_sradius
+    sy1 = sy + this.max_sradius
+    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
 
     const candidates: number[] = []
 
