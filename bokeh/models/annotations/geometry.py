@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 from ...core.enums import Dimension, SpatialUnits
 from ...core.properties import (
     Auto,
+    Bool,
     Datetime,
     Either,
     Enum,
@@ -123,6 +124,10 @@ class BoxAnnotation(Annotation):
     top_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the top attribute. Interpreted as |data units| by
     default.
+    """)
+
+    editable = Bool(default=False, help="""
+    Allows to interactively modify the geometry of this box.
     """)
 
     line_props = Include(ScalarLineProps, help="""

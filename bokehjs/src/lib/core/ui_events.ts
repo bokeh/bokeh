@@ -6,13 +6,23 @@ import {offset, Keys} from "./dom"
 import * as events from "./bokeh_events"
 import {getDeltaY} from "./util/wheel"
 import {reversed, is_empty} from "./util/array"
-import {isString} from "./util/types"
+import {isString, isObject} from "./util/types"
 import {is_mobile} from "./util/platform"
 import {PlotView} from "../models/plots/plot"
 import {ToolView} from "../models/tools/tool"
 import {ContextMenu} from "./util/menus"
 import {RendererView} from "../models/renderers/renderer"
 import type {CanvasView} from "../models/canvas/canvas"
+
+export interface Pannable {
+  _pan_start(ev: PanEvent): boolean
+  _pan(ev: PanEvent): void
+  _pan_end(ev: PanEvent): void
+}
+
+export function is_Pannable(obj: unknown): obj is Pannable {
+  return isObject(obj) && "_pan_start" in obj
+}
 
 function is_touch(event: unknown): event is TouchEvent {
   return typeof TouchEvent !== "undefined" && event instanceof TouchEvent
@@ -413,6 +423,8 @@ export class UIEventBus implements EventListenerObject {
     }
   }
 
+  private _current_pan_view: (RendererView & Pannable) | null = null
+
   __trigger<E extends UIEvent>(plot_view: PlotView, signal: UISignal<E>, e: E, srcEvent: Event): void {
     const gestures = plot_view.model.toolbar.gestures
     type BaseType = keyof typeof gestures
@@ -420,6 +432,27 @@ export class UIEventBus implements EventListenerObject {
     const event_type = signal.name
     const base_type = event_type.split(":")[0] as BaseType
     const view = this._hit_test_renderers(plot_view, e.sx, e.sy)
+
+    if (base_type == "pan") {
+      if (this._current_pan_view == null) {
+        if (view != null) {
+          if (event_type == "pan:start" && is_Pannable(view)) {
+            if (view._pan_start(e as PanEvent)) {
+              this._current_pan_view = view
+              return
+            }
+          }
+        }
+      } else {
+        if (event_type == "pan")
+          this._current_pan_view._pan(e as PanEvent)
+        else if (event_type == "pan:end") {
+          this._current_pan_view._pan_end(e as PanEvent)
+          this._current_pan_view = null
+        }
+        return
+      }
+    }
 
     switch (base_type) {
       case "move": {
