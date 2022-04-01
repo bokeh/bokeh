@@ -2,12 +2,32 @@ import {SelectTool, SelectToolView} from "./select_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import * as p from "core/properties"
 import {Dimensions, BoxOrigin, SelectionMode} from "core/enums"
-import {PanEvent} from "core/ui_events"
+import {PanEvent, KeyEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
+import {Keys} from "core/dom"
 import {tool_icon_box_select} from "styles/icons.css"
 
 export class BoxSelectToolView extends SelectToolView {
   override model: BoxSelectTool
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {pan} = this.model.overlay
+    this.connect(pan, (phase) => {
+      if ((phase == "pan" && this.model.select_every_mousemove) || phase == "pan:end") {
+        const {left, top, right, bottom} = this.model.overlay
+        if (left != null && top != null && right != null && bottom != null)
+          this._do_select([left, right], [top, bottom], false, this.model.mode)
+      }
+    })
+
+    const {active} = this.model.properties
+    this.on_change(active, () => {
+      if (!this.model.active)
+        this._clear_overlay()
+    })
+  }
 
   protected _base_point: [number, number] | null
 
@@ -32,10 +52,11 @@ export class BoxSelectToolView extends SelectToolView {
 
   override _pan(ev: PanEvent): void {
     const {sx, sy} = ev
-    const curpoint: [number, number] = [sx, sy]
+    const [sxlim, sylim] = this._compute_limits([sx, sy])
 
-    const [sxlim, sylim] = this._compute_limits(curpoint)
-    this.model.overlay.update({left: sxlim[0], right: sxlim[1], top: sylim[0], bottom: sylim[1]})
+    const [left, right] = sxlim
+    const [top, bottom] = sylim
+    this.model.overlay.update({left, right, top, bottom})
 
     if (this.model.select_every_mousemove) {
       this._do_select(sxlim, sylim, false, this._select_mode(ev))
@@ -44,16 +65,28 @@ export class BoxSelectToolView extends SelectToolView {
 
   override _pan_end(ev: PanEvent): void {
     const {sx, sy} = ev
-    const curpoint: [number, number] = [sx, sy]
-
-    const [sxlim, sylim] = this._compute_limits(curpoint)
+    const [sxlim, sylim] = this._compute_limits([sx, sy])
     this._do_select(sxlim, sylim, true, this._select_mode(ev))
 
-    this.model.overlay.update({left: null, right: null, top: null, bottom: null})
+    if (!this.model.overlay.editable) {
+      this._clear_overlay()
+    }
 
     this._base_point = null
-
     this.plot_view.state.push("box_select", {selection: this.plot_view.get_selection()})
+  }
+
+  override _keyup(ev: KeyEvent): void {
+    super._keyup(ev)
+
+    // TODO: only if overlay is visible
+    if (this.model.overlay.editable && ev.keyCode == Keys.Esc) {
+      this._clear_overlay()
+    }
+  }
+
+  _clear_overlay(): void {
+    this.model.overlay.update({left: null, right: null, top: null, bottom: null})
   }
 
   _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], final: boolean, mode: SelectionMode = "replace"): void {
