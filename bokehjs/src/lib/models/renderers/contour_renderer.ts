@@ -2,6 +2,8 @@ import {DataRenderer, DataRendererView} from "./data_renderer"
 import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
 import {Renderer} from "./renderer"
 import {GlyphView} from "../glyphs/glyph"
+import {ColorMapper} from "../mappers/color_mapper"
+import {Ticker} from "../tickers/ticker"
 import * as p from "core/properties"
 import {build_view} from "core/build_views"
 import {SelectionManager} from "core/selection_manager"
@@ -72,7 +74,9 @@ export class ContourRenderer extends DataRenderer {
     this.define<ContourRenderer.Props>(({Any, Dict, Ref}) => ({
       fill_renderer: [ Ref(GlyphRenderer) ],
       line_renderer: [ Ref(GlyphRenderer) ],
-      data: [ Dict(Any), {} ],
+      data:          [ Dict(Any), {} ],
+      ticker:        [ Ref(Ticker) ],
+      color_mapper:  [ Ref(ColorMapper) ],
     }))
   }
 

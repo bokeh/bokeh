@@ -33,7 +33,9 @@ from typing import (
 import numpy as np
 
 # Bokeh imports
-from ..models.renderers import ContourRenderer
+from ..models.mappers import LinearColorMapper
+from ..models.contour_renderer import ContourRenderer
+from ..models.tickers import FixedTicker
 from ..palettes import linear_palette
 
 #-----------------------------------------------------------------------------
@@ -73,14 +75,20 @@ def from_contour(
     nlevels = len(levels)
 
     if fill_color is not None:
-        fill_color = _color(fill_color, nlevels-1)
+        fill_color = _color(fill_color, nlevels-1) ########## always vector for LinearColorMapper???
     if line_color is not None:
         line_color = _color(line_color, nlevels)
 
     new_contour_data = contour_data(x, y, z, levels, fill_color, line_color)
+    # With be other possibilities here like logarithmic....
+    ticker = FixedTicker(ticks=levels)
+    color_mapper = LinearColorMapper(palette=fill_color, low=levels[0], high=levels[-1])
 
-    contour_renderer = ContourRenderer()
-    contour_renderer.data = new_contour_data
+    contour_renderer = ContourRenderer(
+        data=new_contour_data,
+        ticker=ticker,
+        color_mapper=color_mapper,
+    )
 
     if new_contour_data["fill_data"]:
         glyph = contour_renderer.fill_renderer.glyph

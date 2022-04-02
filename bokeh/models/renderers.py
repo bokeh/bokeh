@@ -28,11 +28,8 @@ from typing import Literal
 from ..core.enums import RenderLevel
 from ..core.has_props import abstract
 from ..core.properties import (
-    Any,
     Auto,
     Bool,
-    ColumnData,
-    Dict,
     Either,
     Enum,
     Float,
@@ -42,7 +39,6 @@ from ..core.properties import (
     Override,
     String,
 )
-from ..core.types import Unknown
 from ..core.validation import error
 from ..core.validation.errors import (
     BAD_COLUMN_NAME,
@@ -59,7 +55,6 @@ from .glyphs import (
     ConnectedXYGlyph,
     Glyph,
     MultiLine,
-    MultiPolygons,
 )
 from .graphics import Decoration, Marking
 from .graphs import GraphHitTestPolicy, LayoutProvider, NodesOnly
@@ -76,7 +71,6 @@ from .tiles import TileSource, WMTSTileSource
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'ContourRenderer',
     'DataRenderer',
     'GlyphRenderer',
     'GraphRenderer',
@@ -281,39 +275,6 @@ class GlyphRenderer(DataRenderer):
 
 # TODO: (bev) InstanceDefault woudl be better for these but the property
 # values are also model instances and that is too complicated for now
-
-_DEFAULT_CONTOUR_LINE_RENDERER = lambda: GlyphRenderer(
-    glyph=MultiLine(), data_source=ColumnDataSource(data=dict())
-)
-
-_DEFAULT_CONTOUR_FILL_RENDERER = lambda: GlyphRenderer(
-    glyph=MultiPolygons(), data_source=ColumnDataSource(data=dict())
-)
-
-class ContourRenderer(DataRenderer):
-    '''
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    line_renderer = Instance(GlyphRenderer, default=_DEFAULT_CONTOUR_LINE_RENDERER, help="""
-    """)
-
-    fill_renderer = Instance(GlyphRenderer, default=_DEFAULT_CONTOUR_FILL_RENDERER, help="""
-    """)
-
-    data = Dict(String, ColumnData(keys_type=String, values_type=Any))
-
-    def __setattr__(self, name: str, value: Unknown) -> None:
-        super().__setattr__(name, value)
-
-        if name == "data":
-            # Should check these are set first.
-            self.fill_renderer.data_source.data = value["fill_data"]
-            self.line_renderer.data_source.data = value["line_data"]
-
 
 _DEFAULT_NODE_RENDERER = lambda: GlyphRenderer(
     glyph=Circle(), data_source=ColumnDataSource(data=dict(index=[]))
