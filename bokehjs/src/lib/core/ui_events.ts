@@ -13,14 +13,72 @@ import {ToolView} from "../models/tools/tool"
 import {RendererView} from "../models/renderers/renderer"
 import type {CanvasView} from "../models/canvas/canvas"
 
+export interface Moveable {
+  _move_start(ev: MoveEvent): boolean
+  _move(ev: MoveEvent): void
+  _move_end(ev: MoveEvent): void
+}
+
 export interface Pannable {
   _pan_start(ev: PanEvent): boolean
   _pan(ev: PanEvent): void
   _pan_end(ev: PanEvent): void
 }
 
+export interface Pinchable {
+  _pinch_start(ev: PinchEvent): void
+  _pinch(ev: PinchEvent): void
+  _pinch_end(ev: PinchEvent): void
+}
+
+export interface Rotatable {
+  _rotate_start(ev: RotateEvent): void
+  _rotate(ev: RotateEvent): void
+  _rotate_end(ev: RotateEvent): void
+}
+
+export interface Scrollable {
+  _scroll(ev: ScrollEvent): void
+}
+
+export interface Keyable {
+  _keydown(ev: KeyEvent): void
+  _keyup(ev: KeyEvent): void
+}
+
+export interface Tapable {
+  _tap(ev: TapEvent): void
+  _doubletap?(ev: TapEvent): void
+  _press?(ev: TapEvent): void
+  _pressup?(ev: TapEvent): void
+}
+
+export function is_Moveable(obj: unknown): obj is Moveable {
+  return isObject(obj) && "_move_start" in obj && "_move" in obj && "_move_end" in obj
+}
+
 export function is_Pannable(obj: unknown): obj is Pannable {
-  return isObject(obj) && "_pan_start" in obj
+  return isObject(obj) && "_pan_start" in obj && "_pan" in obj && "_pan_end" in obj
+}
+
+export function is_Pinchable(obj: unknown): obj is Pinchable {
+  return isObject(obj) && "_pinch_start" in obj && "_pinch" in obj && "_pinch_end" in obj
+}
+
+export function is_Rotatable(obj: unknown): obj is Rotatable {
+  return isObject(obj) && "_rotate_start" in obj && "_rotate" in obj && "_rotate_end" in obj
+}
+
+export function is_Scrollable(obj: unknown): obj is Scrollable {
+  return isObject(obj) && "_scroll" in obj
+}
+
+export function is_Keyable(obj: unknown): obj is Keyable {
+  return isObject(obj) && "_keydown" in obj && "_keyup" in obj
+}
+
+export function is_Tapable(obj: unknown): obj is Keyable {
+  return isObject(obj) && "_tap" in obj
 }
 
 function is_touch(event: unknown): event is TouchEvent {
@@ -420,6 +478,7 @@ export class UIEventBus implements EventListenerObject {
   }
 
   private _current_pan_view: (RendererView & Pannable) | null = null
+  private _current_move_view: (RendererView & Moveable) | null = null
 
   __trigger<E extends UIEvent>(plot_view: PlotView, signal: UISignal<E>, e: E, srcEvent: Event): void {
     const gestures = plot_view.model.toolbar.gestures
@@ -447,6 +506,23 @@ export class UIEventBus implements EventListenerObject {
           this._current_pan_view = null
         }
         return
+      }
+    } else if (base_type == "pinch") {
+      // TODO: same logic as pan
+    } else if (base_type == "rotate") {
+      // TODO: same logic as pan
+    } else if (base_type == "move") {
+      if (this._current_move_view == view) {
+        this._current_move_view?._move(e as MoveEvent)
+      } else {
+        this._current_move_view?._move_end(e as MoveEvent)
+        this._current_move_view = null
+
+        if (view != null && is_Moveable(view)) {
+          if (view._move_start(e as MoveEvent)) {
+            this._current_move_view = view
+          }
+        }
       }
     }
 
