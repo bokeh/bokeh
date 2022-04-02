@@ -3,7 +3,7 @@ import {Scale} from "../scales/scale"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
-import {PanEvent, Pannable} from "core/ui_events"
+import {PanEvent, Pannable, MoveEvent, Moveable} from "core/ui_events"
 import {Signal} from "core/signaling"
 import * as p from "core/properties"
 import {assert} from "core/util/assert"
@@ -17,7 +17,7 @@ type Corner = "top_left" | "top_right" | "bottom_left" | "bottom_right"
 type Edge = "left" | "right" | "top" | "bottom"
 type HitTarget = Corner | Edge | "box"
 
-export class BoxAnnotationView extends AnnotationView implements Pannable {
+export class BoxAnnotationView extends AnnotationView implements Pannable, Moveable {
   override model: BoxAnnotation
   override visuals: BoxAnnotation.Visuals
 
@@ -75,9 +75,13 @@ export class BoxAnnotationView extends AnnotationView implements Pannable {
     ctx.beginPath()
     ctx.rect(left, top, width, height)
 
-    this.visuals.fill.apply(ctx)
-    this.visuals.hatch.apply(ctx)
-    this.visuals.line.apply(ctx)
+    const fill = this._is_hovered && this.visuals.hover_fill.doit ? this.visuals.hover_fill : this.visuals.fill
+    const hatch = this._is_hovered && this.visuals.hover_hatch.doit ? this.visuals.hover_hatch : this.visuals.hatch
+    const line = this._is_hovered && this.visuals.hover_line.doit ? this.visuals.hover_line : this.visuals.line
+
+    fill.apply(ctx)
+    hatch.apply(ctx)
+    line.apply(ctx)
 
     ctx.restore()
   }
@@ -186,6 +190,31 @@ export class BoxAnnotationView extends AnnotationView implements Pannable {
     this.model.pan.emit("pan:end")
   }
 
+  private get _has_hover(): boolean {
+    const {hover_line, hover_fill, hover_hatch} = this.visuals
+    return hover_line.doit || hover_fill.doit || hover_hatch.doit
+  }
+
+  private _is_hovered: boolean = false
+
+  _move_start(_ev: MoveEvent): boolean {
+    const {_has_hover} = this
+    if (_has_hover) {
+      this._is_hovered = true
+      this.request_paint()
+    }
+    return _has_hover
+  }
+
+  _move(_ev: MoveEvent): void {}
+
+  _move_end(_ev: MoveEvent): void {
+    if (this._has_hover) {
+      this._is_hovered = false
+      this.request_paint()
+    }
+  }
+
   override cursor(sx: number, sy: number): string | null {
     const target = this._pan_state?.target ?? this._hit_test(sx, sy)
     switch (target) {
@@ -226,9 +255,18 @@ export namespace BoxAnnotation {
     in_cursor: p.Property<string>
   } & Mixins
 
-  export type Mixins = mixins.Line & mixins.Fill & mixins.Hatch
+  export type Mixins =
+    mixins.Line & mixins.Fill & mixins.Hatch &
+    mixins.HoverLine & mixins.HoverFill & mixins.HoverHatch
 
-  export type Visuals = Annotation.Visuals & {line: visuals.Line, fill: visuals.Fill, hatch: visuals.Hatch}
+  export type Visuals = Annotation.Visuals & {
+    line: visuals.Line
+    fill: visuals.Fill
+    hatch: visuals.Hatch
+    hover_line: visuals.Line
+    hover_fill: visuals.Fill
+    hover_hatch: visuals.Hatch
+  }
 }
 
 export interface BoxAnnotation extends BoxAnnotation.Attrs {}
@@ -244,7 +282,14 @@ export class BoxAnnotation extends Annotation {
   static {
     this.prototype.default_view = BoxAnnotationView
 
-    this.mixins<BoxAnnotation.Mixins>([mixins.Line, mixins.Fill, mixins.Hatch])
+    this.mixins<BoxAnnotation.Mixins>([
+      mixins.Line,
+      mixins.Fill,
+      mixins.Hatch,
+      ["hover_", mixins.Line],
+      ["hover_", mixins.Fill],
+      ["hover_", mixins.Hatch],
+    ])
 
     this.define<BoxAnnotation.Props>(({Boolean, Number, Nullable}) => ({
       top:          [ Nullable(Number), null ],
@@ -274,6 +319,10 @@ export class BoxAnnotation extends Annotation {
       fill_alpha: 0.4,
       line_color: "#cccccc",
       line_alpha: 0.3,
+      hover_fill_color: null,
+      hover_fill_alpha: 0.4,
+      hover_line_color: null,
+      hover_line_alpha: 0.3,
     })
   }
 

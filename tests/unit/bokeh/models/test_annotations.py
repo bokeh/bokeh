@@ -49,6 +49,9 @@ from _util_models import (
     ANGLE,
     FILL,
     HATCH,
+    HOVER_FILL,
+    HOVER_HATCH,
+    HOVER_LINE,
     LINE,
     TEXT,
     check_fill_properties,
@@ -227,8 +230,12 @@ def test_BoxAnnotation() -> None:
     assert box.x_range_name == "default"
     assert box.y_range_name == "default"
     assert box.level == "annotation"
+    assert box.editable == False
     check_line_properties(box, "", "#cccccc", 1, 0.3)
     check_fill_properties(box, "", "#fff9ba", 0.4)
+    check_hatch_properties(box)
+    check_line_properties(box, "hover_", None, 1, 0.3)
+    check_fill_properties(box, "hover_", None, 0.4)
     check_hatch_properties(box)
     check_properties_existence(box, ANNOTATION + [
         "left",
@@ -239,7 +246,8 @@ def test_BoxAnnotation() -> None:
         "bottom_units",
         "top",
         "top_units",
-    ], LINE, FILL, HATCH)
+        "editable",
+    ], LINE, FILL, HATCH, HOVER_LINE, HOVER_FILL, HOVER_HATCH)
 
 
 def test_Band() -> None:

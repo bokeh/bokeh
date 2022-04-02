@@ -150,6 +150,26 @@ class BoxAnnotation(Annotation):
 
     fill_color = Override(default="#fff9ba")
 
+    hover_line_props = Include(ScalarLineProps, prefix="hover", help="""
+    The {prop} values for the box when hovering over.
+    """)
+
+    hover_fill_props = Include(ScalarFillProps, prefix="hover", help="""
+    The {prop} values for the box when hovering over.
+    """)
+
+    hover_hatch_props = Include(ScalarHatchProps, prefix="hover", help="""
+    The {prop} values for the box when hovering over.
+    """)
+
+    hover_line_alpha = Override(default=0.3)
+
+    hover_line_color = Override(default=None)
+
+    hover_fill_alpha = Override(default=0.4)
+
+    hover_fill_color = Override(default=None)
+
 class Band(DataAnnotation):
     ''' Render a filled area band along a dimension.
 
