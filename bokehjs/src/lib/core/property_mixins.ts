@@ -227,6 +227,10 @@ export const TextVector: p.DefineOf<TextVector> = {
 
 export type Prefixed<P extends string, T> = {[key in keyof T & string as `${P}_${key}`]: T[key]}
 
+export type HoverLine = Prefixed<"hover", Line>
+export type HoverFill = Prefixed<"hover", Fill>
+export type HoverHatch = Prefixed<"hover", Hatch>
+
 export type AxisLabelText = Prefixed<"axis_label", Text>
 export type AxisLine = Prefixed<"axis", Line>
 export type BackgroundFill = Prefixed<"background", Fill>
