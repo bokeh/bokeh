@@ -97,6 +97,7 @@ __all__ = (
     'AutosizeMode',
     'ButtonType',
     'CalendarPosition',
+    'CoordinateUnits',
     'DashPattern',
     'DateFormat',
     'DatetimeUnits',
@@ -263,6 +264,9 @@ ButtonType = enumeration("default", "primary", "success", "warning", "danger", "
 
 #: Specify a position for the DatePicker calendar to display
 CalendarPosition = enumeration("auto", "above", "below")
+
+#: Specify units for mapping coordinates
+CoordinateUnits = enumeration("canvas", "screen", "data")
 
 #: Specify a named dashing patter for stroking lines
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")

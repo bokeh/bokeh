@@ -71,9 +71,8 @@ export class CrosshairTool extends InspectTool {
 
     function span(self: CrosshairTool, dimension: Dimension) {
       return new Span({
-        for_hover: true,
         dimension,
-        location_units: "screen",
+        location_units: "canvas",
         level: "overlay",
         line_color: self.line_color,
         line_width: self.line_width,
