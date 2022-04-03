@@ -104,6 +104,10 @@ export class PolyAnnotation extends Annotation {
   }
 
   update({xs, ys}: {xs: number[], ys: number[]}): void {
-    this.setv({xs, ys}, {check_eq: false}) // XXX: because of inplace updates in tools
+    this.setv({xs, ys, visible: true})
+  }
+
+  clear(): void {
+    this.setv({xs: [], ys: [], visible: false})
   }
 }

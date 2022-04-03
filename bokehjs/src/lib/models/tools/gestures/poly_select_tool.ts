@@ -41,7 +41,7 @@ export class PolySelectToolView extends SelectToolView {
 
   _clear_data(): void {
     this.data = {sx: [], sy: []}
-    this.model.overlay.update({xs: [], ys: []})
+    this.model.overlay.clear()
   }
 
   override _tap(ev: TapEvent): void {
@@ -66,6 +66,7 @@ export class PolySelectToolView extends SelectToolView {
 export const DEFAULT_POLY_OVERLAY = () => {
   return new PolyAnnotation({
     level: "overlay",
+    visible: false,
     xs_units: "canvas",
     ys_units: "canvas",
     fill_color: "lightgrey",

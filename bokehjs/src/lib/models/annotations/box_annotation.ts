@@ -4,7 +4,7 @@ import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
 import * as p from "core/properties"
-import {BBox, CoordinateMapper} from "core/util/bbox"
+import {BBox, LTRB, CoordinateMapper} from "core/util/bbox"
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -21,10 +21,6 @@ export class BoxAnnotationView extends AnnotationView {
 
   protected _render(): void {
     const {left, right, top, bottom} = this.model
-
-    // don't render if *all* position are null
-    if (left == null && right == null && top == null && bottom == null)
-      return
 
     const {frame} = this.plot_view
     const xscale = this.coordinates.x_scale
@@ -162,7 +158,7 @@ export class BoxAnnotation extends Annotation {
     })
   }
 
-  update({left, right, top, bottom}: {left: number | null, right: number | null, top: number | null, bottom: number | null}): void {
+  update({left, right, top, bottom}: LTRB): void {
     this.setv({left, right, top, bottom, visible: true})
   }
 
