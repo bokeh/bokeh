@@ -95,6 +95,7 @@ __all__ = (
     'AutosizeMode',
     'ButtonType',
     'CalendarPosition',
+    'CoordinateUnits',
     'ContextWhich',
     'DashPattern',
     'DateFormat',
@@ -271,6 +272,9 @@ ButtonType = enumeration("default", "primary", "success", "warning", "danger", "
 
 #: Specify a position for the DatePicker calendar to display
 CalendarPosition = enumeration("auto", "above", "below")
+
+#: Specify units for mapping coordinates
+CoordinateUnits = enumeration("canvas", "screen", "data")
 
 #: Specify which tick to add additional context to
 ContextWhich = enumeration("start", "center", "end", "all")

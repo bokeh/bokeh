@@ -66,8 +66,8 @@ export class PolySelectToolView extends SelectToolView {
 export const DEFAULT_POLY_OVERLAY = () => {
   return new PolyAnnotation({
     level: "overlay",
-    xs_units: "screen",
-    ys_units: "screen",
+    xs_units: "canvas",
+    ys_units: "canvas",
     fill_color: "lightgrey",
     fill_alpha: 0.5,
     line_color: "black",

@@ -98,10 +98,10 @@ export class BoxSelectToolView extends SelectToolView {
 const DEFAULT_BOX_OVERLAY = () => {
   return new BoxAnnotation({
     level: "overlay",
-    top_units: "screen",
-    left_units: "screen",
-    bottom_units: "screen",
-    right_units: "screen",
+    top_units: "canvas",
+    left_units: "canvas",
+    bottom_units: "canvas",
+    right_units: "canvas",
     fill_color: "lightgrey",
     fill_alpha: 0.5,
     line_color: "black",
