@@ -107,8 +107,8 @@ export class BoxZoomToolView extends GestureToolView {
 
   override _pan(ev: PanEvent): void {
     const curpoint: [number, number] = [ev.sx, ev.sy]
-    const [sx, sy] = this._compute_limits(curpoint)
-    this.model.overlay.update({left: sx[0], right: sx[1], top: sy[0], bottom: sy[1]})
+    const [[left, right], [top, bottom]] = this._compute_limits(curpoint)
+    this.model.overlay.update({left, right, top, bottom})
   }
 
   override _pan_end(ev: PanEvent): void {
@@ -116,7 +116,7 @@ export class BoxZoomToolView extends GestureToolView {
     const [sx, sy] = this._compute_limits(curpoint)
     this._update(sx, sy)
 
-    this.model.overlay.update({left: null, right: null, top: null, bottom: null})
+    this.model.overlay.clear()
     this._base_point = null
 
     this.plot_view.trigger_ranges_update_event()
@@ -153,6 +153,7 @@ export class BoxZoomToolView extends GestureToolView {
 const DEFAULT_BOX_OVERLAY = () => {
   return new BoxAnnotation({
     level: "overlay",
+    visible: false,
     top_units: "canvas",
     left_units: "canvas",
     bottom_units: "canvas",

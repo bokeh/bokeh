@@ -86,7 +86,7 @@ export class BoxSelectToolView extends SelectToolView {
   }
 
   _clear_overlay(): void {
-    this.model.overlay.update({left: null, right: null, top: null, bottom: null})
+    this.model.overlay.clear()
   }
 
   _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], final: boolean, mode: SelectionMode = "replace"): void {
@@ -98,6 +98,7 @@ export class BoxSelectToolView extends SelectToolView {
 const DEFAULT_BOX_OVERLAY = () => {
   return new BoxAnnotation({
     level: "overlay",
+    visible: false,
     top_units: "canvas",
     left_units: "canvas",
     bottom_units: "canvas",

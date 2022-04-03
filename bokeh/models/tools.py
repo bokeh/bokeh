@@ -731,6 +731,7 @@ class CrosshairTool(InspectTool):
 DEFAULT_BOX_OVERLAY = InstanceDefault(BoxAnnotation,
     syncable=False,
     level="overlay",
+    visible=False,
     top_units="canvas",
     left_units="canvas",
     bottom_units="canvas",
