@@ -99,12 +99,12 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
 
   private _hit_test(sx: number, sy: number): HitTarget | null {
     const {left, right, bottom, top} = this.bbox
+    const tolerance = Math.max(EDGE_TOLERANCE, this.model.line_width/2)
 
-    // consider null as non-editable
-    const hits_left = abs(left - sx) < EDGE_TOLERANCE
-    const hits_right = abs(right - sx) < EDGE_TOLERANCE
-    const hits_top = abs(top - sy) < EDGE_TOLERANCE
-    const hits_bottom = abs(bottom - sy) < EDGE_TOLERANCE
+    const hits_left = abs(left - sx) < tolerance
+    const hits_right = abs(right - sx) < tolerance
+    const hits_top = abs(top - sy) < tolerance
+    const hits_bottom = abs(bottom - sy) < tolerance
 
     if (hits_top && hits_left)
       return "top_left"
