@@ -3,7 +3,11 @@ import {type HasProps} from "./has_props"
 export class ModelResolver {
   protected _known_models: Map<string, typeof HasProps> = new Map()
 
-  constructor(readonly parent: ModelResolver | null) {}
+  constructor(readonly parent: ModelResolver | null, models: (typeof HasProps)[] = []) {
+    for (const model of models) {
+      this.register(model)
+    }
+  }
 
   get(name: string): typeof HasProps | null
   get<M extends typeof HasProps>(name: string): M | null
