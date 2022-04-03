@@ -7,7 +7,7 @@ import {Signal} from "core/signaling"
 import {CoordinateUnits} from "core/enums"
 import * as p from "core/properties"
 import {assert} from "core/util/assert"
-import {BBox, CoordinateMapper} from "core/util/bbox"
+import {BBox, LTRB, CoordinateMapper} from "core/util/bbox"
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -30,12 +30,6 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
 
   protected _render(): void {
     const {left, right, top, bottom} = this.model
-
-    // don't render if *all* position are null
-    if (left == null && right == null && top == null && bottom == null) {
-      this.bbox = new BBox()
-      return
-    }
 
     const {frame} = this.plot_view
     const xscale = this.coordinates.x_scale
@@ -325,7 +319,7 @@ export class BoxAnnotation extends Annotation {
 
   readonly pan = new Signal<"pan:start" | "pan" | "pan:end", this>(this, "pan")
 
-  update({left, right, top, bottom}: {left: number | null, right: number | null, top: number | null, bottom: number | null}): void {
+  update({left, right, top, bottom}: LTRB): void {
     this.setv({left, right, top, bottom, visible: true})
   }
 
