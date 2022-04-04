@@ -321,9 +321,9 @@ export class BoxAnnotation extends Annotation {
       tr_cursor: [ String, "nesw-resize" ],
       bl_cursor: [ String, "nesw-resize" ],
       br_cursor: [ String, "nwse-resize" ],
-      ew_cursor: [ String, "ew-resize" ],
-      ns_cursor: [ String, "ns-resize" ],
-      in_cursor: [ String, "move" ],
+      ew_cursor: [ String, "var(--bokeh-cursor-x-pan) 12 12, ew-resize" ],
+      ns_cursor: [ String, "var(--bokeh-cursor-y-pan) 12 12, ns-resize" ],
+      in_cursor: [ String, "var(--bokeh-cursor-pan) 12 12, move" ],
     }))
 
     this.override<BoxAnnotation.Props>({
