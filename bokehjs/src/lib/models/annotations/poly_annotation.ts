@@ -175,7 +175,14 @@ export class PolyAnnotationView extends AnnotationView implements Pannable {
 
   override cursor(sx: number, sy: number): string | null {
     const target = this._pan_state?.target ?? this._hit_test(sx, sy)
-    return target == null ? null : "move"
+    if (target == null)
+      return null
+    else {
+      switch (target.type) {
+        case "node": return "var(--bokeh-cursor-pan-node) 12 12, move"
+        case "poly": return "var(--bokeh-cursor-pan) 12 12, move"
+      }
+    }
   }
 }
 

@@ -35,6 +35,8 @@ import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
 import {StateInfo, StateManager} from "./state_manager"
 import {settings} from "core/settings"
 
+import icons_css from "styles/icons.css"
+
 export class PlotView extends LayoutDOMView implements Renderable {
   override model: Plot
   visuals: Plot.Visuals
@@ -176,6 +178,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     this.canvas_view.remove()
     super.remove()
+  }
+
+  override styles(): string[] {
+    return [...super.styles(), icons_css] // TODO: move icons_css to canvas
   }
 
   override render(): void {
