@@ -31,17 +31,14 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
   protected _render(): void {
     const {left, right, top, bottom} = this.model
 
-    const {frame} = this.plot_view
-    const xscale = this.coordinates.x_scale
-    const yscale = this.coordinates.y_scale
-
-    const _calc_dim = (dim: number | null, dim_units: CoordinateUnits, scale: Scale, view: CoordinateMapper, frame_extrema: number): number => {
+    const _calc_dim = (dim: number | null, dim_units: CoordinateUnits, scale: Scale,
+        view: CoordinateMapper, canvas: CoordinateMapper, frame_extrema: number): number => {
       if (dim == null)
         return frame_extrema
       else {
         switch (dim_units) {
           case "canvas":
-            return dim
+            return canvas.compute(dim)
           case "screen":
             return view.compute(dim)
           case "data":
@@ -50,11 +47,16 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
       }
     }
 
+    const {frame, canvas} = this.plot_view
+    const {x_scale, y_scale} = this.coordinates
+    const {xview, yview} = frame.bbox
+    const {xscreen, yscreen} = canvas.bbox
+
     this.bbox = BBox.from_rect({
-      left:   _calc_dim(left,   this.model.left_units,   xscale, frame.bbox.xview, frame.bbox.left),
-      right:  _calc_dim(right,  this.model.right_units,  xscale, frame.bbox.xview, frame.bbox.right),
-      top:    _calc_dim(top,    this.model.top_units,    yscale, frame.bbox.yview, frame.bbox.top),
-      bottom: _calc_dim(bottom, this.model.bottom_units, yscale, frame.bbox.yview, frame.bbox.bottom),
+      left:   _calc_dim(left,   this.model.left_units,   x_scale, xview, xscreen, frame.bbox.left),
+      right:  _calc_dim(right,  this.model.right_units,  x_scale, xview, xscreen, frame.bbox.right),
+      top:    _calc_dim(top,    this.model.top_units,    y_scale, yview, yscreen, frame.bbox.top),
+      bottom: _calc_dim(bottom, this.model.bottom_units, y_scale, yview, yscreen, frame.bbox.bottom),
     })
 
     this._paint_box()
@@ -148,10 +150,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     const dx = ev.deltaX
     const dy = ev.deltaY
 
-    const {bbox, target} = this._pan_state
-    const {left, top, right, bottom} = bbox
+    const sltrb = (() => {
+      const {bbox, target} = this._pan_state
+      const {left, top, right, bottom} = bbox
 
-    const ltrb = (() => {
       switch (target) {
         case "top_left":
           return {left: left + dx, top: top + dy, right, bottom}
@@ -173,6 +175,25 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
           return {left: left + dx, top: top + dy, right: right + dx, bottom: bottom + dy}
       }
     })()
+
+    const invert = (sv: number, units: CoordinateUnits, scale: Scale, view: CoordinateMapper, canvas: CoordinateMapper): number => {
+      switch (units) {
+        case "canvas": return canvas.invert(sv)
+        case "screen": return view.invert(sv)
+        case "data":   return scale.invert(sv)
+      }
+    }
+
+    const {x_scale, y_scale} = this.coordinates
+    const {xview, yview} = this.plot_view.frame.bbox
+    const {xscreen, yscreen} = this.plot_view.canvas.bbox
+
+    const ltrb = {
+      left:   invert(sltrb.left,   this.model.left_units,   x_scale, xview, xscreen),
+      right:  invert(sltrb.right,  this.model.right_units,  x_scale, xview, xscreen),
+      top:    invert(sltrb.top,    this.model.top_units,    y_scale, yview, yscreen),
+      bottom: invert(sltrb.bottom, this.model.bottom_units, y_scale, yview, yscreen),
+    }
 
     this.model.update(ltrb)
     this.model.pan.emit("pan")
