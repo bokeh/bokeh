@@ -4,28 +4,28 @@ import {SelectionMode} from "core/enums"
 import {PolyGeometry} from "core/geometry"
 import {TapEvent, KeyEvent} from "core/ui_events"
 import {Keys} from "core/dom"
+import {Arrayable} from "core/types"
 import * as p from "core/properties"
-import {copy} from "core/util/array"
 import {tool_icon_polygon_select} from "styles/icons.css"
 
 export class PolySelectToolView extends SelectToolView {
   override model: PolySelectTool
 
-  protected data: {sx: number[], sy: number[]}
-
-  override initialize(): void {
-    super.initialize()
-    this.data = {sx: [], sy: []}
-  }
-
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.active.change, () => this._active_change())
-  }
 
-  _active_change(): void {
-    if (!this.model.active)
-      this._clear_data()
+    this.connect(this.model.properties.active.change, () => {
+      if (!this.model.active)
+        this._clear_data()
+    })
+
+    const {pan} = this.model.overlay
+    this.connect(pan, (phase) => {
+      if (/*(phase == "pan" && this.model.select_every_mousemove) ||*/ phase == "pan:end") {
+        const {xs, ys} = this.model.overlay
+        this._do_select(xs, ys, false, this.model.mode)
+      }
+    })
   }
 
   override _keyup(ev: KeyEvent): void {
@@ -34,14 +34,14 @@ export class PolySelectToolView extends SelectToolView {
   }
 
   override _doubletap(ev: TapEvent): void {
-    this._do_select(this.data.sx, this.data.sy, true, this._select_mode(ev))
+    const {xs, ys} = this.model.overlay
+    this._do_select(xs, ys, true, this._select_mode(ev))
     this.plot_view.state.push("poly_select", {selection: this.plot_view.get_selection()})
     this._clear_data()
   }
 
   _clear_data(): void {
-    this.data = {sx: [], sy: []}
-    this.model.overlay.update({xs: [], ys: []})
+    this.model.overlay.clear()
   }
 
   override _tap(ev: TapEvent): void {
@@ -51,14 +51,14 @@ export class PolySelectToolView extends SelectToolView {
     if (!frame.bbox.contains(sx, sy))
       return
 
-    this.data.sx.push(sx)
-    this.data.sy.push(sy)
+    const {overlay} = this.model
+    const {xs, ys} = overlay
 
-    this.model.overlay.update({xs: copy(this.data.sx), ys: copy(this.data.sy)})
+    this.model.overlay.update({xs: [...xs, sx], ys: [...ys, sy]})
   }
 
-  _do_select(sx: number[], sy: number[], final: boolean, mode: SelectionMode): void {
-    const geometry: PolyGeometry = {type: "poly", sx, sy}
+  _do_select(xs: Arrayable<number>, ys: Arrayable<number>, final: boolean, mode: SelectionMode): void {
+    const geometry: PolyGeometry = {type: "poly", sx: xs, sy: ys}
     this._select(geometry, final, mode)
   }
 }

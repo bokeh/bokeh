@@ -192,7 +192,7 @@ export namespace Kinds {
     }
 
     valid(value: unknown): value is types.Arrayable {
-      return tp.isArray(value) || tp.isTypedArray(value) // TODO: too specific
+      return tp.isArrayable(value)
     }
 
     override toString(): string {

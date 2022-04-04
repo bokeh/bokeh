@@ -5,7 +5,7 @@ import {Context2d} from "core/util/canvas"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
-import {FloatArray, ScreenArray} from "core/types"
+import {Arrayable, ScreenArray} from "core/types"
 import {build_view} from "core/build_views"
 import {Indices} from "core/types"
 import * as p from "core/properties"
@@ -18,17 +18,17 @@ export class ArrowView extends DataAnnotationView {
   protected start: ArrowHeadView | null
   protected end: ArrowHeadView | null
 
-  protected _x_start: FloatArray
-  protected _y_start: FloatArray
-  protected _x_end: FloatArray
-  protected _y_end: FloatArray
+  protected _x_start: Arrayable<number>
+  protected _y_start: Arrayable<number>
+  protected _x_end: Arrayable<number>
+  protected _y_end: Arrayable<number>
 
-  protected _sx_start: ScreenArray
-  protected _sy_start: ScreenArray
-  protected _sx_end: ScreenArray
-  protected _sy_end: ScreenArray
+  protected _sx_start: Arrayable<number>
+  protected _sy_start: Arrayable<number>
+  protected _sx_end: Arrayable<number>
+  protected _sy_end: Arrayable<number>
 
-  protected _angles: ScreenArray
+  protected _angles: Arrayable<number>
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
