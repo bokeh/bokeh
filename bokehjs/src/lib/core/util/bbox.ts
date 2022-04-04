@@ -1,6 +1,7 @@
 import {Arrayable, ScreenArray, Rect, Box, Interval, Size} from "../types"
 import {equals, Equatable, Comparator} from "./eq"
 import {Rect as GraphicsRect} from "./affine"
+import {map} from "./arrayable"
 
 const {min, max} = Math
 
@@ -61,8 +62,10 @@ export type VerticalPosition =
 export type Position = HorizontalPosition & VerticalPosition
 
 export type CoordinateMapper = {
-  compute: (v: number) => number
-  v_compute: (vv: Arrayable<number>) => ScreenArray
+  compute(v: number): number
+  invert(sv: number): number
+  v_compute(vs: Arrayable<number>): Arrayable<number>
+  v_invert(svs: Arrayable<number>): Arrayable<number>
 }
 
 export class BBox implements Rect, Equatable {
@@ -298,35 +301,83 @@ export class BBox implements Rect, Equatable {
              that.y1 < this.y0 || that.y0 > this.y1)
   }
 
-  get xview(): CoordinateMapper {
-    return {
+  private _xscreen?: CoordinateMapper
+  get xscreen(): CoordinateMapper {
+    return this._xscreen ?? (this._xscreen = {
       compute: (x: number): number => {
         return this.left + x
       },
-      v_compute: (xx: Arrayable<number>): ScreenArray => {
-        const _xx = new ScreenArray(xx.length)
-        const left = this.left
-        for (let i = 0; i < xx.length; i++) {
-          _xx[i] = left + xx[i]
-        }
-        return _xx
+      invert: (sx: number): number => {
+        return sx - this.left
       },
-    }
+      v_compute: (xs: Arrayable<number>): Arrayable<number> => {
+        const {left} = this
+        return new ScreenArray(map(xs, (x) => left + x))
+      },
+      v_invert: (sxs: Arrayable<number>): Arrayable<number> => {
+        const {left} = this
+        return map(sxs, (sx) => sx - left)
+      },
+    })
   }
 
+  private _yscreen?: CoordinateMapper
+  get yscreen(): CoordinateMapper {
+    return this._yscreen ?? (this._yscreen = {
+      compute: (y: number): number => {
+        return this.top + y
+      },
+      invert: (sy: number): number => {
+        return sy - this.top
+      },
+      v_compute: (ys: Arrayable<number>): Arrayable<number> => {
+        const {top} = this
+        return new ScreenArray(map(ys, (y) => top + y))
+      },
+      v_invert: (sys: Arrayable<number>): Arrayable<number> => {
+        const {top} = this
+        return map(sys, (sy) => sy - top)
+      },
+    })
+  }
+
+  private _xview?: CoordinateMapper
+  get xview(): CoordinateMapper {
+    return this._xview ?? (this._xview = {
+      compute: (x: number): number => {
+        return this.left + x
+      },
+      invert: (sx: number): number => {
+        return sx - this.left
+      },
+      v_compute: (xs: Arrayable<number>): Arrayable<number> => {
+        const {left} = this
+        return new ScreenArray(map(xs, (x) => left + x))
+      },
+      v_invert: (sxs: Arrayable<number>): Arrayable<number> => {
+        const {left} = this
+        return map(sxs, (sx) => sx - left)
+      },
+    })
+  }
+
+  private _yview?: CoordinateMapper
   get yview(): CoordinateMapper {
-    return {
+    return this._yview ?? (this._yview = {
       compute: (y: number): number => {
         return this.bottom - y
       },
-      v_compute: (yy: Arrayable<number>): ScreenArray => {
-        const _yy = new ScreenArray(yy.length)
-        const bottom = this.bottom
-        for (let i = 0; i < yy.length; i++) {
-          _yy[i] = bottom - yy[i]
-        }
-        return _yy
+      invert: (sy: number): number => {
+        return this.bottom - sy
       },
-    }
+      v_compute: (ys: Arrayable<number>): Arrayable<number> => {
+        const {bottom} = this
+        return new ScreenArray(map(ys, (y) => bottom - y))
+      },
+      v_invert: (sys: Arrayable<number>): Arrayable<number> => {
+        const {bottom} = this
+        return map(sys, (sy) => bottom - sy)
+      },
+    })
   }
 }
