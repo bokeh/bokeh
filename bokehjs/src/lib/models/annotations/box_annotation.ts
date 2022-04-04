@@ -82,7 +82,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
   }
 
   interactive_bbox(): BBox {
-    const tolerance = this.model.line_width + EDGE_TOLERANCE
+    const tolerance = Math.max(EDGE_TOLERANCE, this.model.line_width/2)
     return this.bbox.grow_by(tolerance)
   }
 

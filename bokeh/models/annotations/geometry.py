@@ -231,18 +231,22 @@ class PolyAnnotation(Annotation):
     The x-coordinates of the region to draw.
     """)
 
+    ys = Seq(Float, default=[], help="""
+    The y-coordinates of the region to draw.
+    """)
+
     xs_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the ``xs`` attribute. Interpreted as |data units| by
     default.
     """)
 
-    ys = Seq(Float, default=[], help="""
-    The y-coordinates of the region to draw.
-    """)
-
     ys_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the ``ys`` attribute. Interpreted as |data units| by
     default.
+    """)
+
+    editable = Bool(default=False, help="""
+    Allows to interactively modify the geometry of this polygon.
     """)
 
     line_props = Include(ScalarLineProps, help="""

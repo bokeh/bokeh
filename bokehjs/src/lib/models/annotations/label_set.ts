@@ -4,17 +4,17 @@ import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
 import {TextBox} from "core/graphics"
 import * as p from "core/properties"
-import {FloatArray, ScreenArray} from "core/types"
+import {Arrayable} from "core/types"
 import {Context2d} from "core/util/canvas"
 
 export class LabelSetView extends DataAnnotationView {
   override model: LabelSet
   override visuals: LabelSet.Visuals
 
-  protected _x: FloatArray
-  protected _y: FloatArray
-  protected sx: ScreenArray
-  protected sy: ScreenArray
+  protected _x: Arrayable<number>
+  protected _y: Arrayable<number>
+  protected sx: Arrayable<number>
+  protected sy: Arrayable<number>
   protected text: p.Uniform<string | null>
   protected angle: p.Uniform<number>
   protected x_offset: p.Uniform<number>

@@ -5,6 +5,7 @@ import {Dimensions, BoxOrigin, SelectionMode} from "core/enums"
 import {PanEvent, KeyEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
 import {Keys} from "core/dom"
+import {assert} from "core/util/assert"
 import {tool_icon_box_select} from "styles/icons.css"
 
 export class BoxSelectToolView extends SelectToolView {
@@ -29,19 +30,19 @@ export class BoxSelectToolView extends SelectToolView {
     })
   }
 
-  protected _base_point: [number, number] | null
+  protected _base_point: [number, number] | null = null
 
   protected _compute_limits(curpoint: [number, number]): [[number, number], [number, number]] {
-    const frame = this.plot_view.frame
-    const dims = this.model.dimensions
-
-    let base_point = this._base_point!
+    assert(this._base_point != null)
+    let base_point = this._base_point
     if (this.model.origin == "center") {
       const [cx, cy] = base_point
       const [dx, dy] = curpoint
       base_point = [cx - (dx - cx), cy - (dy - cy)]
     }
 
+    const {frame} = this.plot_view
+    const dims = this.model.dimensions
     return this.model._get_dim_limits(base_point, curpoint, frame, dims)
   }
 

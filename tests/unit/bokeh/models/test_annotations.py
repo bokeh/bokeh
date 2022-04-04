@@ -357,14 +357,16 @@ def test_PolyAnnotation() -> None:
     assert poly.x_range_name == "default"
     assert poly.y_range_name == "default"
     assert poly.level == "annotation"
+    assert poly.editable == False
     check_line_properties(poly, "", "#cccccc", 1, 0.3)
     check_fill_properties(poly, "", "#fff9ba", 0.4)
     check_hatch_properties(poly)
     check_properties_existence(poly, ANNOTATION + [
         "xs",
-        "xs_units",
         "ys",
+        "xs_units",
         "ys_units",
+        "editable",
     ], LINE, FILL, HATCH)
 
 def test_Slope() -> None:
