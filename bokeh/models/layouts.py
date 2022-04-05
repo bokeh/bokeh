@@ -37,11 +37,13 @@ from ..core.properties import (
     Enum,
     Float,
     Instance,
+    InstanceDefault,
     Int,
     List,
     NonNegative,
     Null,
     Nullable,
+    Override,
     Seq,
     String,
     Struct,
@@ -57,6 +59,7 @@ from ..core.validation.warnings import (
     FIXED_WIDTH_POLICY,
 )
 from ..model import Model
+from .canvas import Canvas
 from .ui.menus import Menu
 from .ui.ui_element import UIElement
 
@@ -66,6 +69,7 @@ from .ui.ui_element import UIElement
 
 __all__ = (
     'Box',
+    'CanvasBox',
     'Column',
     'GridBox',
     'HTMLBox',
@@ -555,6 +559,20 @@ class Tabs(LayoutDOM):
     active = Int(0, help="""
     The index of the active tab.
     """)
+
+class CanvasBox(LayoutDOM):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    canvas = Instance(Canvas, default=InstanceDefault(Canvas), help="""
+    """)
+
+    width = Override(default=600)
+
+    height = Override(default=600)
 
 #-----------------------------------------------------------------------------
 # Dev API
