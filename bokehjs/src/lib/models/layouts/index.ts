@@ -1,4 +1,5 @@
 export {Box}       from "./box"
+export {CanvasBox} from "./canvas_box"
 export {Column}    from "./column"
 export {GridBox}   from "./grid_box"
 export {HTMLBox}   from "./html_box"
