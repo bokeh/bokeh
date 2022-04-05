@@ -11,6 +11,7 @@ import {CoordinateMapper} from "core/util/bbox"
 import {zip, enumerate} from "core/util/iterator"
 import {copy, map} from "core/util/arrayable"
 import {assert} from "core/util/assert"
+import * as cursors from "core/util/cursors"
 import * as p from "core/properties"
 
 export type Node = {
@@ -42,29 +43,31 @@ export class PolyAnnotationView extends AnnotationView implements Pannable {
     if (xs.length != ys.length)
       return
 
-    const {frame} = this.plot_view
-    const {ctx} = this.layer
+    const {frame, canvas} = this.plot_view
 
     const xscale = this.coordinates.x_scale
     const yscale = this.coordinates.y_scale
 
-    function _calc_dim(values: Arrayable<number>, units: CoordinateUnits, scale: Scale, view: CoordinateMapper): Arrayable<number> {
+    function _calc_dim(vs: Arrayable<number>, units: CoordinateUnits, scale: Scale,
+        view: CoordinateMapper, canvas: CoordinateMapper): Arrayable<number> {
       switch (units) {
         case "canvas":
-          return values
+          return canvas.v_compute(vs)
         case "screen":
-          return view.v_compute(values)
+          return view.v_compute(vs)
         case "data":
-          return scale.v_compute(values)
+          return scale.v_compute(vs)
       }
     }
 
-    this.sxs = _calc_dim(xs, this.model.xs_units, xscale, frame.bbox.xview)
-    this.sys = _calc_dim(ys, this.model.ys_units, yscale, frame.bbox.yview)
+    this.sxs = _calc_dim(xs, this.model.xs_units, xscale, frame.bbox.xview, canvas.bbox.xscreen)
+    this.sys = _calc_dim(ys, this.model.ys_units, yscale, frame.bbox.yview, canvas.bbox.yscreen)
 
     const n = xs.length
 
+    const {ctx} = this.layer
     ctx.beginPath()
+
     for (let i = 0; i < n; i++) {
       ctx.lineTo(this.sxs[i], this.sys[i])
     }
@@ -179,8 +182,8 @@ export class PolyAnnotationView extends AnnotationView implements Pannable {
       return null
     else {
       switch (target.type) {
-        case "node": return "var(--bokeh-cursor-pan-node) 12 12, move"
-        case "poly": return "var(--bokeh-cursor-pan) 12 12, move"
+        case "node": return cursors.pan_node
+        case "poly": return cursors.pan
       }
     }
   }

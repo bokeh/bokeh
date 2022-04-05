@@ -320,6 +320,10 @@ class Span(Annotation):
     to "height" (``y`` direction) or "width" (``x`` direction).
     """)
 
+    editable = Bool(default=False, help="""
+    Allows to interactively modify the geometry of this span.
+    """)
+
     line_props = Include(ScalarLineProps, help="""
     The {prop} values for the span.
     """)

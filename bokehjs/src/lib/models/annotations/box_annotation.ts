@@ -6,6 +6,7 @@ import {PanEvent, Pannable, MoveEvent, Moveable} from "core/ui_events"
 import {Signal} from "core/signaling"
 import {CoordinateUnits} from "core/enums"
 import * as p from "core/properties"
+import * as cursors from "core/util/cursors"
 import {assert} from "core/util/assert"
 import {BBox, LTRB, CoordinateMapper} from "core/util/bbox"
 
@@ -321,9 +322,9 @@ export class BoxAnnotation extends Annotation {
       tr_cursor: [ String, "nesw-resize" ],
       bl_cursor: [ String, "nesw-resize" ],
       br_cursor: [ String, "nwse-resize" ],
-      ew_cursor: [ String, "var(--bokeh-cursor-x-pan) 12 12, ew-resize" ],
-      ns_cursor: [ String, "var(--bokeh-cursor-y-pan) 12 12, ns-resize" ],
-      in_cursor: [ String, "var(--bokeh-cursor-pan) 12 12, move" ],
+      ew_cursor: [ String, cursors.x_pan ],
+      ns_cursor: [ String, cursors.y_pan ],
+      in_cursor: [ String, cursors.pan ],
     }))
 
     this.override<BoxAnnotation.Props>({
