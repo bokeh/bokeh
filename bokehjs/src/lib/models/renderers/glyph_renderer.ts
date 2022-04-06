@@ -237,7 +237,7 @@ export class GlyphRendererView extends DataRendererView {
 
     this._update_masked_indices()
 
-    const {lod_factor} = this.plot_model
+    const {lod_factor} = this.plot_view.model
     const n = this.all_indices.count
     this.decimated = new Indices(n)
     for (let i = 0; i < n; i += lod_factor) {
@@ -316,7 +316,7 @@ export class GlyphRendererView extends DataRendererView {
     // inspected is transformed to subset space
     const inspected_subset_indices = filter(indices, (i) => inspected_full_indices.has(all_indices[i]))
 
-    const {lod_threshold} = this.plot_model
+    const {lod_threshold} = this.plot_view.model
     let glyph: GlyphView
     let nonselection_glyph: GlyphView
     let selection_glyph: GlyphView

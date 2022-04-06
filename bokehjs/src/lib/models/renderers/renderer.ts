@@ -4,7 +4,7 @@ import {RenderLevel} from "core/enums"
 import * as p from "core/properties"
 import {Model} from "../../model"
 import {CanvasLayer} from "core/util/canvas"
-import type {Plot, PlotView} from "../plots/plot"
+import type {PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform, CoordinateMapping} from "../canvas/coordinates"
 
@@ -81,10 +81,6 @@ export abstract class RendererView extends View implements visuals.Renderable {
 
   get plot_view(): PlotView {
     return this.parent
-  }
-
-  get plot_model(): Plot {
-    return this.parent.model
   }
 
   get layer(): CanvasLayer {

@@ -33,7 +33,7 @@ export abstract class AnnotationView extends RendererView {
     this.on_change(p.visible, () => {
       if (this.layout != null) {
         this.layout.visible = this.model.visible
-        this.plot_view.request_layout()
+        this.request_layout()
       }
     })
   }
