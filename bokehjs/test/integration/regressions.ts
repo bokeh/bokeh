@@ -1181,7 +1181,7 @@ describe("Bug", () => {
       const crv = view.renderer_views.get(cr)!
       const [[sx], [sy]] = crv.coordinates.map_to_screen([2], [1.5])
 
-      const ui = view.canvas_view.ui_event_bus
+      const ui = view.canvas.ui_event_bus
       const {left, top} = offset(ui.hit_area)
 
       const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
@@ -1236,7 +1236,7 @@ describe("Bug", () => {
         const crv = plot_view.renderer_views.get(r)!
         const [[sx], [sy]] = crv.coordinates.map_to_screen([x], [y])
 
-        const ui = plot_view.canvas_view.ui_event_bus
+        const ui = plot_view.canvas.ui_event_bus
         const {left, top} = offset(ui.hit_area)
 
         const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})

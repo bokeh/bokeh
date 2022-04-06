@@ -89,7 +89,7 @@ export abstract class RendererView extends View implements visuals.Renderable {
   }
 
   get canvas(): CanvasView {
-    return this.plot_view.canvas_view
+    return this.parent.canvas
   }
 
   request_render(): void {

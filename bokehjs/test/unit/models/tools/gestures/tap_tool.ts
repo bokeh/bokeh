@@ -32,13 +32,13 @@ describe("TapTool", () => {
 
   function tap(plot_view: PlotView, sx: number, sy: number) {
     const event: TapEvent = {type: "tap", sx, sy, ctrlKey: false, shiftKey: false}
-    const {ui_event_bus} = plot_view.canvas_view
+    const {ui_event_bus} = plot_view.canvas
     ui_event_bus._trigger(ui_event_bus.tap, event, new Event("mousemove"))
   }
 
   function doubletap(plot_view: PlotView, sx: number, sy: number) {
     const event: TapEvent = {type: "tap", sx, sy, ctrlKey: false, shiftKey: false}
-    const {ui_event_bus} = plot_view.canvas_view
+    const {ui_event_bus} = plot_view.canvas
     ui_event_bus._trigger(ui_event_bus.doubletap, event, new Event("mousemove"))
   }
 

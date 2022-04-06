@@ -145,7 +145,7 @@ describe("Bug", () => {
 
         const lnv = view.renderer_views.get(renderer)!
         const ln_spy = sinon.spy(lnv, "request_render")
-        const ui = view.canvas_view.ui_event_bus
+        const ui = view.canvas.ui_event_bus
         const {left, top} = offset(ui.hit_area)
 
         for (let i = 0; i <= 1; i += 0.2) {
@@ -175,7 +175,7 @@ describe("Bug", () => {
 
       const gv = view.renderer_views.get(renderer)!
       const gv_spy = sinon.spy(gv, "request_render")
-      const ui = view.canvas_view.ui_event_bus
+      const ui = view.canvas.ui_event_bus
       const {left, top} = offset(ui.hit_area)
 
       for (let i = 0; i <= 1; i += 0.2) {
@@ -381,7 +381,7 @@ describe("Bug", () => {
       expect(r.data_source.selected.indices).to.be.equal([])
 
       async function tap(sx: number, sy: number) {
-        const ui = view.canvas_view.ui_event_bus
+        const ui = view.canvas.ui_event_bus
         const {left, top} = offset(ui.hit_area)
         const ev = new MouseEvent("click", {clientX: left + sx, clientY: top + sy})
         const hev = {

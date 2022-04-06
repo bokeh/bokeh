@@ -23,7 +23,7 @@ export class ToolbarPanelView extends AnnotationView {
   override initialize(): void {
     super.initialize()
     this.el = div()
-    this.plot_view.canvas_view.add_event(this.el)
+    this.canvas.add_event(this.el)
   }
 
   override async lazy_initialize(): Promise<void> {

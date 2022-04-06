@@ -117,7 +117,7 @@ export class TileRendererView extends RendererView {
       shadow_el.appendChild(contents_el)
 
       this.attribution_el.title = contents_el.textContent!.replace(/\s*\n\s*/g, " ")
-      this.plot_view.canvas_view.add_event(this.attribution_el)
+      this.canvas.add_event(this.attribution_el)
     }
     // TODO: add support for DOMElement
   }

@@ -26,7 +26,7 @@ export class QuadView extends LRTBView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
-    const {webgl} = this.renderer.plot_view.canvas_view
+    const {webgl} = this.renderer.canvas
     if (webgl != null && webgl.regl_wrapper.has_webgl) {
       const {LRTBGL} = await import("./webgl/lrtb")
       this.glglyph = new LRTBGL(webgl.regl_wrapper, this)

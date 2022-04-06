@@ -45,7 +45,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   frame: CartesianFrame
 
-  canvas_view: CanvasView
+  private canvas_view: CanvasView
   get canvas(): CanvasView {
     return this.canvas_view
   }

@@ -75,7 +75,7 @@ export class GMapPlotView extends PlotView {
     await super.lazy_initialize()
 
     this.map_el = div({style: {position: "absolute"}})
-    this.canvas_view.add_underlay(this.map_el)
+    this.canvas.add_underlay(this.map_el)
 
     if (!has_maps_API()) {
       if (typeof window._bokeh_gmaps_callback === "undefined") {

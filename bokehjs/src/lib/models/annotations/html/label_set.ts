@@ -31,7 +31,7 @@ export class HTMLLabelSetView extends DataAnnotationView {
 
     for (const _ of this.text) {
       const el = div({style: {display: "none"}})
-      this.plot_view.canvas_view.add_overlay(el)
+      this.canvas.add_overlay(el)
       this.els.push(el)
     }
   }

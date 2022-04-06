@@ -92,8 +92,8 @@ export abstract class BaseColorBarView extends AnnotationView {
       get frame() {
         return self._frame
       },
-      get canvas_view() {
-        return self.parent.canvas_view
+      get canvas() {
+        return self.parent.canvas
       },
       request_layout() {
         self.parent.request_layout()
@@ -463,10 +463,10 @@ export abstract class BaseColorBarView extends AnnotationView {
 
     // XXX: shrink outline region by 1px to make right and bottom lines visible
     // if they are on the edge of the canvas.
-    if (x + width >= this.parent.canvas_view.bbox.width) {
+    if (x + width >= this.parent.canvas.bbox.width) {
       width -= 1
     }
-    if (y + height >= this.parent.canvas_view.bbox.height) {
+    if (y + height >= this.parent.canvas.bbox.height) {
       height -= 1
     }
 

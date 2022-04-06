@@ -22,7 +22,7 @@ export abstract class TextAnnotationView extends AnnotationView {
   override initialize(): void {
     super.initialize()
     this.el = div()
-    this.plot_view.canvas_view.add_overlay(this.el)
+    this.canvas.add_overlay(this.el)
   }
 
   override remove(): void {

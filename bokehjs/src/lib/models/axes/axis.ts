@@ -327,7 +327,7 @@ export class AxisView extends GuideRendererView {
 
     const ids = [...selected.ones()]
     if (ids.length != 0) {
-      const cbox = this.parent.canvas_view.bbox
+      const cbox = this.parent.canvas.bbox
 
       const correct_x = (k: number) => {
         const bbox = bboxes[k]
