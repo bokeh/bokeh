@@ -20,6 +20,15 @@ export class CartesianFrame {
     return this._bbox
   }
 
+  protected readonly _x_target: Range1d = new Range1d()
+  protected readonly _y_target: Range1d = new Range1d()
+
+  protected readonly _x_ranges: Map<string, Range>
+  protected readonly _y_ranges: Map<string, Range>
+
+  protected readonly _x_scales: Map<string, Scale>
+  protected readonly _y_scales: Map<string, Scale>
+
   constructor(private readonly in_x_scale: Scale,
               private readonly in_y_scale: Scale,
               readonly x_range: Range,
@@ -30,23 +39,19 @@ export class CartesianFrame {
               private readonly extra_y_scales: Scales = {}) {
     assert(in_x_scale.properties.source_range.is_unset && in_x_scale.properties.target_range.is_unset)
     assert(in_y_scale.properties.source_range.is_unset && in_y_scale.properties.target_range.is_unset)
-    this._configure_scales()
+
+    this._x_ranges = this._get_ranges(this.x_range, this.extra_x_ranges)
+    this._y_ranges = this._get_ranges(this.y_range, this.extra_y_ranges)
+
+    this._x_scales = this._get_scales(this.in_x_scale, this.extra_x_scales, this._x_ranges, this._x_target)
+    this._y_scales = this._get_scales(this.in_y_scale, this.extra_y_scales, this._y_ranges, this._y_target)
   }
-
-  protected _x_target: Range1d
-  protected _y_target: Range1d
-
-  protected _x_ranges: Map<string, Range>
-  protected _y_ranges: Map<string, Range>
-
-  protected _x_scales: Map<string, Scale>
-  protected _y_scales: Map<string, Scale>
 
   protected _get_ranges(range: Range, extra_ranges: Ranges): Map<string, Range> {
     return new Map(entries({...extra_ranges, default: range}))
   }
 
-  /*protected*/ _get_scales(scale: Scale, extra_scales: Scales, ranges: Map<string, Range>, frame_range: Range): Map<string, Scale> {
+  protected _get_scales(scale: Scale, extra_scales: Scales, ranges: Map<string, Range>, frame_range: Range): Map<string, Scale> {
     const in_scales = new Map(entries({...extra_scales, default: scale}))
     const scales: Map<string, Scale> = new Map()
 
@@ -69,38 +74,16 @@ export class CartesianFrame {
     return scales
   }
 
-  protected _configure_frame_ranges(): void {
+  protected _update_frame_ranges(): void {
     // data to/from screen space transform (left-bottom <-> left-top origin)
     const {bbox} = this
-    this._x_target = new Range1d({start: bbox.left, end: bbox.right})
-    this._y_target = new Range1d({start: bbox.bottom, end: bbox.top})
-  }
-
-  protected _configure_scales(): void {
-    this._configure_frame_ranges()
-
-    this._x_ranges = this._get_ranges(this.x_range, this.extra_x_ranges)
-    this._y_ranges = this._get_ranges(this.y_range, this.extra_y_ranges)
-
-    this._x_scales = this._get_scales(this.in_x_scale, this.extra_x_scales, this._x_ranges, this._x_target)
-    this._y_scales = this._get_scales(this.in_y_scale, this.extra_y_scales, this._y_ranges, this._y_target)
-  }
-
-  protected _update_scales(): void {
-    this._configure_frame_ranges()
-
-    for (const [, scale] of this._x_scales) {
-      scale.target_range = this._x_target
-    }
-
-    for (const [, scale] of this._y_scales) {
-      scale.target_range = this._y_target
-    }
+    this._x_target.setv({start: bbox.left, end: bbox.right})
+    this._y_target.setv({start: bbox.bottom, end: bbox.top})
   }
 
   set_geometry(bbox: BBox): void {
     this._bbox = bbox
-    this._update_scales()
+    this._update_frame_ranges()
   }
 
   get x_target(): Range1d {

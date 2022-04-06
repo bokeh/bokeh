@@ -12,18 +12,13 @@ import {CartesianFrame} from "./cartesian_frame"
 import * as p from "core/properties"
 
 export class CoordinateTransform {
-  readonly x_scale: Scale
-  readonly y_scale: Scale
-
   readonly x_source: Range
   readonly y_source: Range
 
   readonly ranges: readonly [Range, Range]
   readonly scales: readonly [Scale, Scale]
 
-  constructor(x_scale: Scale, y_scale: Scale) {
-    this.x_scale = x_scale
-    this.y_scale = y_scale
+  constructor(readonly x_scale: Scale, readonly y_scale: Scale) {
     this.x_source = this.x_scale.source_range
     this.y_source = this.y_scale.source_range
     this.ranges = [this.x_source, this.y_source]
