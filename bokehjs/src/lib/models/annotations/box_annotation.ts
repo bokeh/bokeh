@@ -50,14 +50,14 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
 
     const {frame, canvas} = this.plot_view
     const {x_scale, y_scale} = this.coordinates
-    const {xview, yview} = frame.bbox
-    const {xscreen, yscreen} = canvas.bbox
+    const {x_view, y_view} = frame.bbox
+    const {x_screen, y_screen} = canvas.bbox
 
     this.bbox = BBox.from_rect({
-      left:   _calc_dim(left,   this.model.left_units,   x_scale, xview, xscreen, frame.bbox.left),
-      right:  _calc_dim(right,  this.model.right_units,  x_scale, xview, xscreen, frame.bbox.right),
-      top:    _calc_dim(top,    this.model.top_units,    y_scale, yview, yscreen, frame.bbox.top),
-      bottom: _calc_dim(bottom, this.model.bottom_units, y_scale, yview, yscreen, frame.bbox.bottom),
+      left:   _calc_dim(left,   this.model.left_units,   x_scale, x_view, x_screen, frame.bbox.left),
+      right:  _calc_dim(right,  this.model.right_units,  x_scale, x_view, x_screen, frame.bbox.right),
+      top:    _calc_dim(top,    this.model.top_units,    y_scale, y_view, y_screen, frame.bbox.top),
+      bottom: _calc_dim(bottom, this.model.bottom_units, y_scale, y_view, y_screen, frame.bbox.bottom),
     })
 
     this._paint_box()
@@ -186,14 +186,14 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     }
 
     const {x_scale, y_scale} = this.coordinates
-    const {xview, yview} = this.plot_view.frame.bbox
-    const {xscreen, yscreen} = this.plot_view.canvas.bbox
+    const {x_view, y_view} = this.plot_view.frame.bbox
+    const {x_screen, y_screen} = this.plot_view.canvas.bbox
 
     const ltrb = {
-      left:   invert(sltrb.left,   this.model.left_units,   x_scale, xview, xscreen),
-      right:  invert(sltrb.right,  this.model.right_units,  x_scale, xview, xscreen),
-      top:    invert(sltrb.top,    this.model.top_units,    y_scale, yview, yscreen),
-      bottom: invert(sltrb.bottom, this.model.bottom_units, y_scale, yview, yscreen),
+      left:   invert(sltrb.left,   this.model.left_units,   x_scale, x_view, x_screen),
+      right:  invert(sltrb.right,  this.model.right_units,  x_scale, x_view, x_screen),
+      top:    invert(sltrb.top,    this.model.top_units,    y_scale, y_view, y_screen),
+      bottom: invert(sltrb.bottom, this.model.bottom_units, y_scale, y_view, y_screen),
     }
 
     this.model.update(ltrb)

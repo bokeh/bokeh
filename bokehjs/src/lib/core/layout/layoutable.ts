@@ -193,11 +193,11 @@ export abstract class Layoutable {
   }
 
   get xview(): CoordinateMapper {
-    return this.bbox.xview
+    return this.bbox.x_view
   }
 
   get yview(): CoordinateMapper {
-    return this.bbox.yview
+    return this.bbox.y_view
   }
 
   clip_size(size: Size, viewport: Size): Size {

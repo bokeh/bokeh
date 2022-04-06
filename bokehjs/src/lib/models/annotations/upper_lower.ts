@@ -27,8 +27,8 @@ export abstract class UpperLowerView extends DataAnnotationView {
     const limit_scale = dim == "height" ? yscale : xscale
     const base_scale  = dim == "height" ? xscale : yscale
 
-    const limit_view = dim == "height" ? frame.bbox.yview : frame.bbox.xview
-    const base_view  = dim == "height" ? frame.bbox.xview : frame.bbox.yview
+    const limit_view = dim == "height" ? frame.bbox.y_view : frame.bbox.x_view
+    const base_view  = dim == "height" ? frame.bbox.x_view : frame.bbox.y_view
 
     let _lower_sx
     if (this.model.properties.lower.units == "data")

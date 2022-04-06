@@ -60,16 +60,16 @@ export class ArrowView extends DataAnnotationView {
       this._sx_start = this.coordinates.x_scale.v_compute(this._x_start)
       this._sy_start = this.coordinates.y_scale.v_compute(this._y_start)
     } else {
-      this._sx_start = frame.bbox.xview.v_compute(this._x_start)
-      this._sy_start = frame.bbox.yview.v_compute(this._y_start)
+      this._sx_start = frame.bbox.x_view.v_compute(this._x_start)
+      this._sy_start = frame.bbox.y_view.v_compute(this._y_start)
     }
 
     if (this.model.end_units == "data") {
       this._sx_end = this.coordinates.x_scale.v_compute(this._x_end)
       this._sy_end = this.coordinates.y_scale.v_compute(this._y_end)
     } else {
-      this._sx_end = frame.bbox.xview.v_compute(this._x_end)
-      this._sy_end = frame.bbox.yview.v_compute(this._y_end)
+      this._sx_end = frame.bbox.x_view.v_compute(this._x_end)
+      this._sy_end = frame.bbox.y_view.v_compute(this._y_end)
     }
 
     const {_sx_start, _sy_start, _sx_end, _sy_end} = this

@@ -46,13 +46,13 @@ export class SpanView extends AnnotationView implements Pannable {
 
     let height: number, sleft: number, stop: number, width: number
     if (this.model.dimension == "width") {
-      this.sloc = stop = _calc_dim(yscale, frame.bbox.yview, canvas.bbox.yscreen)
+      this.sloc = stop = _calc_dim(yscale, frame.bbox.y_view, canvas.bbox.y_screen)
       sleft = frame.bbox.left
       width = frame.bbox.width
       height = this.model.line_width
     } else {
       stop = frame.bbox.top
-      this.sloc = sleft = _calc_dim(xscale, frame.bbox.xview, canvas.bbox.xscreen)
+      this.sloc = sleft = _calc_dim(xscale, frame.bbox.x_view, canvas.bbox.x_screen)
       width = this.model.line_width
       height = frame.bbox.height
     }
@@ -127,14 +127,14 @@ export class SpanView extends AnnotationView implements Pannable {
     }
 
     const {x_scale, y_scale} = this.coordinates
-    const {xview, yview} = this.plot_view.frame.bbox
-    const {xscreen, yscreen} = this.plot_view.canvas.bbox
+    const {x_view, y_view} = this.plot_view.frame.bbox
+    const {x_screen, y_screen} = this.plot_view.canvas.bbox
 
     const loc = (() => {
       if (this.model.dimension == "width")
-        return invert(sloc, this.model.location_units, y_scale, yview, yscreen)
+        return invert(sloc, this.model.location_units, y_scale, y_view, y_screen)
       else
-        return invert(sloc, this.model.location_units, x_scale, xview, xscreen)
+        return invert(sloc, this.model.location_units, x_scale, x_view, x_screen)
     })()
     this.model.location = loc
 

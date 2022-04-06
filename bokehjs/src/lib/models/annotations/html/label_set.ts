@@ -50,8 +50,8 @@ export class HTMLLabelSetView extends DataAnnotationView {
     const {x_scale, y_scale} = this.coordinates
     const panel = this.layout != null ? this.layout : this.plot_view.frame
 
-    this.sx = this.model.x_units == "data" ? x_scale.v_compute(this._x) : panel.bbox.xview.v_compute(this._x)
-    this.sy = this.model.y_units == "data" ? y_scale.v_compute(this._y) : panel.bbox.yview.v_compute(this._y)
+    this.sx = this.model.x_units == "data" ? x_scale.v_compute(this._x) : panel.bbox.x_view.v_compute(this._x)
+    this.sy = this.model.y_units == "data" ? y_scale.v_compute(this._y) : panel.bbox.y_view.v_compute(this._y)
   }
 
   paint(): void {

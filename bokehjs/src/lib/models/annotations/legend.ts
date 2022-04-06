@@ -146,8 +146,8 @@ export class LegendView extends AnnotationView {
       }
     } else {
       const [vx, vy] = location
-      sx = panel.bbox.xview.compute(vx)
-      sy = panel.bbox.yview.compute(vy) - legend_height
+      sx = panel.bbox.x_view.compute(vx)
+      sy = panel.bbox.y_view.compute(vy) - legend_height
     }
 
     return new BBox({left: sx, top: sy, width: legend_width, height: legend_height})

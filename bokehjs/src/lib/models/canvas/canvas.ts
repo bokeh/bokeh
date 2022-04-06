@@ -173,9 +173,9 @@ export class CanvasView extends DOMView {
       webgl.canvas.width = this.pixel_ratio*width
       webgl.canvas.height = this.pixel_ratio*height
       const [sx, sy, w, h] = frame_box
-      const {xview, yview} = this.bbox
-      const vx = xview.compute(sx)
-      const vy = yview.compute(sy + h)
+      const {x_view, y_view} = this.bbox
+      const vx = x_view.compute(sx)
+      const vy = y_view.compute(sy + h)
       const ratio = this.pixel_ratio
       webgl.regl_wrapper.set_scissor(ratio*vx, ratio*vy, ratio*w, ratio*h)
       this._clear_webgl()

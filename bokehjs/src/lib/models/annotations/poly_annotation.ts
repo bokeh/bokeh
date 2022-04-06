@@ -60,8 +60,8 @@ export class PolyAnnotationView extends AnnotationView implements Pannable {
       }
     }
 
-    this.sxs = _calc_dim(xs, this.model.xs_units, xscale, frame.bbox.xview, canvas.bbox.xscreen)
-    this.sys = _calc_dim(ys, this.model.ys_units, yscale, frame.bbox.yview, canvas.bbox.yscreen)
+    this.sxs = _calc_dim(xs, this.model.xs_units, xscale, frame.bbox.x_view, canvas.bbox.x_screen)
+    this.sys = _calc_dim(ys, this.model.ys_units, yscale, frame.bbox.y_view, canvas.bbox.y_screen)
 
     const n = xs.length
 
@@ -161,11 +161,11 @@ export class PolyAnnotationView extends AnnotationView implements Pannable {
     }
 
     const {x_scale, y_scale} = this.coordinates
-    const {xview, yview} = this.plot_view.frame.bbox
-    const {xscreen, yscreen} = this.plot_view.canvas.bbox
+    const {x_view, y_view} = this.plot_view.frame.bbox
+    const {x_screen, y_screen} = this.plot_view.canvas.bbox
 
-    const xs = invert(sxs, this.model.xs_units, x_scale, xview, xscreen)
-    const ys = invert(sys, this.model.ys_units, y_scale, yview, yscreen)
+    const xs = invert(sxs, this.model.xs_units, x_scale, x_view, x_screen)
+    const ys = invert(sys, this.model.ys_units, y_scale, y_view, y_screen)
 
     this.model.update({xs, ys})
     this.model.pan.emit("pan")
