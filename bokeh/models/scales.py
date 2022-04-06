@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.has_props import abstract
+from ..core.properties import Instance
 from .transforms import Transform
 
 #-----------------------------------------------------------------------------
@@ -30,6 +31,7 @@ from .transforms import Transform
 
 __all__ = (
     'CategoricalScale',
+    'CompositeScale',
     'LinearScale',
     'LogScale',
     'Scale',
@@ -98,6 +100,23 @@ class LogScale(ContinuousScale):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+class CompositeScale(Scale):
+    ''' Represent a composite scale transformation of two scales.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    source_scale = Instance(Scale, help="""
+    Map from this scale.
+    """)
+
+    target_scale = Instance(Scale, help="""
+    Map onto this scale.
+    """)
 
 class CategoricalScale(Scale):
     ''' Represent a scale transformation between a categorical source range and
