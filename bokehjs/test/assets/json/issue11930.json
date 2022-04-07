@@ -1,12 +1,12 @@
 {
-  "version": "3.0.0dev4+91.gd6beb3c84",
+  "version": "3.0.0dev5+43.g8855a0f82",
   "title": "Bokeh Application",
   "defs": [],
   "roots": [
     {
       "type": "object",
       "name": "Row",
-      "id": "1081",
+      "id": "1113",
       "attributes": {
         "children": [
           {
@@ -14,36 +14,27 @@
             "name": "Figure",
             "id": "1001",
             "attributes": {
-              "title": {
-                "type": "object",
-                "name": "Title",
-                "id": "1002",
-                "attributes": {
-                  "text": "int overrides"
-                }
-              },
-              "y_range": {
+              "x_range": {
                 "type": "object",
                 "name": "DataRange1d",
-                "id": "1006"
+                "id": "1009"
               },
+              "width": 200,
               "below": [
                 {
                   "type": "object",
                   "name": "LinearAxis",
-                  "id": "1012",
+                  "id": "1017",
                   "attributes": {
-                    "ticker": {
+                    "formatter": {
                       "type": "object",
-                      "name": "FixedTicker",
-                      "id": "1039",
-                      "attributes": {
-                        "ticks": [
-                          1,
-                          2,
-                          3
-                        ]
-                      }
+                      "name": "BasicTickFormatter",
+                      "id": "1018"
+                    },
+                    "major_label_policy": {
+                      "type": "object",
+                      "name": "AllLabels",
+                      "id": "1019"
                     },
                     "major_label_overrides": {
                       "type": "map",
@@ -58,15 +49,18 @@
                         ]
                       ]
                     },
-                    "major_label_policy": {
+                    "ticker": {
                       "type": "object",
-                      "name": "AllLabels",
-                      "id": "1089"
-                    },
-                    "formatter": {
-                      "type": "object",
-                      "name": "BasicTickFormatter",
-                      "id": "1088"
+                      "name": "FixedTicker",
+                      "id": "1055",
+                      "attributes": {
+                        "ticks": [
+                          1,
+                          2,
+                          3
+                        ],
+                        "minor_ticks": []
+                      }
                     }
                   }
                 }
@@ -75,99 +69,111 @@
                 {
                   "type": "object",
                   "name": "Grid",
-                  "id": "1015",
+                  "id": "1023",
                   "attributes": {
                     "axis": {
-                      "id": "1012"
+                      "id": "1017"
                     }
                   }
                 },
                 {
                   "type": "object",
                   "name": "Grid",
-                  "id": "1019",
+                  "id": "1030",
                   "attributes": {
                     "dimension": 1,
                     "axis": {
                       "type": "object",
                       "name": "LinearAxis",
-                      "id": "1016",
+                      "id": "1024",
                       "attributes": {
-                        "ticker": {
+                        "formatter": {
                           "type": "object",
-                          "name": "BasicTicker",
-                          "id": "1017"
+                          "name": "BasicTickFormatter",
+                          "id": "1025"
                         },
                         "major_label_policy": {
                           "type": "object",
                           "name": "AllLabels",
-                          "id": "1087"
+                          "id": "1026"
                         },
-                        "formatter": {
+                        "ticker": {
                           "type": "object",
-                          "name": "BasicTickFormatter",
-                          "id": "1086"
+                          "name": "BasicTicker",
+                          "id": "1027",
+                          "attributes": {
+                            "mantissas": [
+                              1,
+                              2,
+                              5
+                            ]
+                          }
                         }
                       }
                     }
                   }
                 }
               ],
-              "left": [
-                {
-                  "id": "1016"
-                }
-              ],
-              "y_scale": {
-                "type": "object",
-                "name": "LinearScale",
-                "id": "1010"
-              },
-              "x_range": {
-                "type": "object",
-                "name": "DataRange1d",
-                "id": "1004"
-              },
-              "width": 200,
-              "height": 200,
-              "x_scale": {
-                "type": "object",
-                "name": "LinearScale",
-                "id": "1008"
-              },
-              "toolbar_location": null,
               "renderers": [
                 {
                   "type": "object",
                   "name": "GlyphRenderer",
-                  "id": "1038",
+                  "id": "1052",
                   "attributes": {
                     "muted_glyph": {
                       "type": "object",
                       "name": "Line",
-                      "id": "1037",
+                      "id": "1051",
                       "attributes": {
+                        "line_color": "#1f77b4",
                         "x": {
                           "type": "field",
                           "field": "x"
                         },
                         "line_alpha": 0.2,
-                        "line_color": "#1f77b4",
                         "y": {
                           "type": "field",
                           "field": "y"
                         }
                       }
                     },
+                    "glyph": {
+                      "type": "object",
+                      "name": "Line",
+                      "id": "1049",
+                      "attributes": {
+                        "line_color": "#1f77b4",
+                        "x": {
+                          "type": "field",
+                          "field": "x"
+                        },
+                        "y": {
+                          "type": "field",
+                          "field": "y"
+                        }
+                      }
+                    },
+                    "view": {
+                      "type": "object",
+                      "name": "CDSView",
+                      "id": "1053",
+                      "attributes": {
+                        "filter": {
+                          "type": "object",
+                          "name": "AllIndices",
+                          "id": "1054"
+                        }
+                      }
+                    },
                     "data_source": {
                       "type": "object",
                       "name": "ColumnDataSource",
-                      "id": "1034",
+                      "id": "1046",
                       "attributes": {
-                        "selected": {
+                        "selection_policy": {
                           "type": "object",
-                          "name": "Selection",
-                          "id": "1096"
+                          "name": "UnionRenderers",
+                          "id": "1047"
                         },
                         "data": {
                           "type": "map",
@@ -190,45 +196,28 @@
                             ]
                           ]
                         },
-                        "selection_policy": {
+                        "selected": {
                           "type": "object",
-                          "name": "UnionRenderers",
-                          "id": "1097"
-                        }
-                      }
-                    },
-                    "view": {
-                      "type": "object",
-                      "name": "CDSView",
-                      "id": "1084"
-                    },
-                    "glyph": {
-                      "type": "object",
-                      "name": "Line",
-                      "id": "1035",
-                      "attributes": {
-                        "line_color": "#1f77b4",
-                        "x": {
-                          "type": "field",
-                          "field": "x"
-                        },
-                        "y": {
-                          "type": "field",
-                          "field": "y"
+                          "name": "Selection",
+                          "id": "1048",
+                          "attributes": {
+                            "line_indices": [],
+                            "indices": []
+                          }
                         }
                       }
                     },
                     "nonselection_glyph": {
                       "type": "object",
                       "name": "Line",
-                      "id": "1036",
+                      "id": "1050",
                       "attributes": {
+                        "line_color": "#1f77b4",
                         "x": {
                           "type": "field",
                           "field": "x"
                         },
                         "line_alpha": 0.1,
-                        "line_color": "#1f77b4",
                         "y": {
                           "type": "field",
                           "field": "y"
@@ -238,47 +227,72 @@
                   }
                 }
               ],
+              "title": {
+                "type": "object",
+                "name": "Title",
+                "id": "1002",
+                "attributes": {
+                  "text": "int overrides"
+                }
+              },
+              "y_scale": {
+                "type": "object",
+                "name": "LinearScale",
+                "id": "1015"
+              },
+              "toolbar_location": null,
+              "y_range": {
+                "type": "object",
+                "name": "DataRange1d",
+                "id": "1011"
+              },
+              "left": [
+                {
+                  "id": "1024"
+                }
+              ],
               "toolbar": {
                 "type": "object",
                 "name": "Toolbar",
-                "id": "1027",
+                "id": "1005",
                 "attributes": {
                   "tools": [
                     {
                       "type": "object",
                       "name": "PanTool",
-                      "id": "1020"
+                      "id": "1031"
                     },
                     {
                       "type": "object",
                       "name": "WheelZoomTool",
-                      "id": "1021"
+                      "id": "1032"
                     },
                     {
                       "type": "object",
                       "name": "BoxZoomTool",
-                      "id": "1022",
+                      "id": "1033",
                       "attributes": {
                         "overlay": {
                           "type": "object",
                           "name": "BoxAnnotation",
-                          "id": "1026",
+                          "id": "1034",
                           "attributes": {
-                            "right_units": "screen",
-                            "line_width": 2,
+                            "line_alpha": 1.0,
+                            "fill_color": "lightgrey",
+                            "right_units": "canvas",
+                            "bottom_units": "canvas",
+                            "left_units": "canvas",
+                            "line_color": "black",
+                            "level": "overlay",
+                            "fill_alpha": 0.5,
+                            "visible": false,
+                            "top_units": "canvas",
                             "line_dash": [
                               4,
                               4
                             ],
-                            "fill_alpha": 0.5,
                             "syncable": false,
-                            "level": "overlay",
-                            "line_alpha": 1.0,
-                            "top_units": "screen",
-                            "left_units": "screen",
-                            "line_color": "black",
-                            "fill_color": "lightgrey",
-                            "bottom_units": "screen"
+                            "line_width": 2
                           }
                         }
                       }
@@ -286,58 +300,55 @@
                     {
                       "type": "object",
                       "name": "SaveTool",
-                      "id": "1023"
+                      "id": "1035"
                     },
                     {
                       "type": "object",
                       "name": "ResetTool",
-                      "id": "1024"
+                      "id": "1036"
                     },
                     {
                       "type": "object",
                       "name": "HelpTool",
-                      "id": "1025"
+                      "id": "1037"
                     }
                   ]
                 }
+              },
+              "height": 200,
+              "x_scale": {
+                "type": "object",
+                "name": "LinearScale",
+                "id": "1013"
               }
             }
           },
           {
             "type": "object",
             "name": "Figure",
-            "id": "1041",
+            "id": "1057",
             "attributes": {
-              "title": {
-                "type": "object",
-                "name": "Title",
-                "id": "1042",
-                "attributes": {
-                  "text": "float overrides"
-                }
-              },
-              "y_range": {
+              "x_range": {
                 "type": "object",
                 "name": "DataRange1d",
-                "id": "1046"
+                "id": "1065"
               },
+              "width": 200,
               "below": [
                 {
                   "type": "object",
                   "name": "LinearAxis",
-                  "id": "1052",
+                  "id": "1073",
                   "attributes": {
-                    "ticker": {
+                    "formatter": {
                       "type": "object",
-                      "name": "FixedTicker",
-                      "id": "1079",
-                      "attributes": {
-                        "ticks": [
-                          1,
-                          2,
-                          3
-                        ]
-                      }
+                      "name": "BasicTickFormatter",
+                      "id": "1074"
+                    },
+                    "major_label_policy": {
+                      "type": "object",
+                      "name": "AllLabels",
+                      "id": "1075"
                     },
                     "major_label_overrides": {
                       "type": "map",
@@ -352,15 +363,18 @@
                         ]
                       ]
                     },
-                    "major_label_policy": {
+                    "ticker": {
                       "type": "object",
-                      "name": "AllLabels",
-                      "id": "1095"
-                    },
-                    "formatter": {
-                      "type": "object",
-                      "name": "BasicTickFormatter",
-                      "id": "1094"
+                      "name": "FixedTicker",
+                      "id": "1111",
+                      "attributes": {
+                        "ticks": [
+                          1,
+                          2,
+                          3
+                        ],
+                        "minor_ticks": []
+                      }
                     }
                   }
                 }
@@ -369,99 +383,111 @@
                 {
                   "type": "object",
                   "name": "Grid",
-                  "id": "1055",
+                  "id": "1079",
                   "attributes": {
                     "axis": {
-                      "id": "1052"
+                      "id": "1073"
                     }
                   }
                 },
                 {
                   "type": "object",
                   "name": "Grid",
-                  "id": "1059",
+                  "id": "1086",
                   "attributes": {
                     "dimension": 1,
                     "axis": {
                       "type": "object",
                       "name": "LinearAxis",
-                      "id": "1056",
+                      "id": "1080",
                       "attributes": {
-                        "ticker": {
+                        "formatter": {
                           "type": "object",
-                          "name": "BasicTicker",
-                          "id": "1057"
+                          "name": "BasicTickFormatter",
+                          "id": "1081"
                         },
                         "major_label_policy": {
                           "type": "object",
                           "name": "AllLabels",
-                          "id": "1093"
+                          "id": "1082"
                         },
-                        "formatter": {
+                        "ticker": {
                           "type": "object",
-                          "name": "BasicTickFormatter",
-                          "id": "1092"
+                          "name": "BasicTicker",
+                          "id": "1083",
+                          "attributes": {
+                            "mantissas": [
+                              1,
+                              2,
+                              5
+                            ]
+                          }
                         }
                       }
                     }
                   }
                 }
               ],
-              "left": [
-                {
-                  "id": "1056"
-                }
-              ],
-              "y_scale": {
-                "type": "object",
-                "name": "LinearScale",
-                "id": "1050"
-              },
-              "x_range": {
-                "type": "object",
-                "name": "DataRange1d",
-                "id": "1044"
-              },
-              "width": 200,
-              "height": 200,
-              "x_scale": {
-                "type": "object",
-                "name": "LinearScale",
-                "id": "1048"
-              },
-              "toolbar_location": null,
               "renderers": [
                 {
                   "type": "object",
                   "name": "GlyphRenderer",
-                  "id": "1078",
+                  "id": "1108",
                   "attributes": {
                     "muted_glyph": {
                       "type": "object",
                       "name": "Line",
-                      "id": "1077",
+                      "id": "1107",
                       "attributes": {
+                        "line_color": "#1f77b4",
                         "x": {
                           "type": "field",
                           "field": "x"
                         },
                         "line_alpha": 0.2,
-                        "line_color": "#1f77b4",
                         "y": {
                           "type": "field",
                           "field": "y"
                         }
                       }
                     },
+                    "glyph": {
+                      "type": "object",
+                      "name": "Line",
+                      "id": "1105",
+                      "attributes": {
+                        "line_color": "#1f77b4",
+                        "x": {
+                          "type": "field",
+                          "field": "x"
+                        },
+                        "y": {
+                          "type": "field",
+                          "field": "y"
+                        }
+                      }
+                    },
+                    "view": {
+                      "type": "object",
+                      "name": "CDSView",
+                      "id": "1109",
+                      "attributes": {
+                        "filter": {
+                          "type": "object",
+                          "name": "AllIndices",
+                          "id": "1110"
+                        }
+                      }
+                    },
                     "data_source": {
                       "type": "object",
                       "name": "ColumnDataSource",
-                      "id": "1074",
+                      "id": "1102",
                       "attributes": {
-                        "selected": {
+                        "selection_policy": {
                           "type": "object",
-                          "name": "Selection",
-                          "id": "1099"
+                          "name": "UnionRenderers",
+                          "id": "1103"
                         },
                         "data": {
                           "type": "map",
@@ -484,45 +510,28 @@
                             ]
                           ]
                         },
-                        "selection_policy": {
+                        "selected": {
                           "type": "object",
-                          "name": "UnionRenderers",
-                          "id": "1100"
-                        }
-                      }
-                    },
-                    "view": {
-                      "type": "object",
-                      "name": "CDSView",
-                      "id": "1090"
-                    },
-                    "glyph": {
-                      "type": "object",
-                      "name": "Line",
-                      "id": "1075",
-                      "attributes": {
-                        "line_color": "#1f77b4",
-                        "x": {
-                          "type": "field",
-                          "field": "x"
-                        },
-                        "y": {
-                          "type": "field",
-                          "field": "y"
+                          "name": "Selection",
+                          "id": "1104",
+                          "attributes": {
+                            "line_indices": [],
+                            "indices": []
+                          }
                         }
                       }
                     },
                     "nonselection_glyph": {
                       "type": "object",
                       "name": "Line",
-                      "id": "1076",
+                      "id": "1106",
                       "attributes": {
+                        "line_color": "#1f77b4",
                         "x": {
                           "type": "field",
                           "field": "x"
                         },
                         "line_alpha": 0.1,
-                        "line_color": "#1f77b4",
                         "y": {
                           "type": "field",
                           "field": "y"
@@ -532,47 +541,72 @@
                   }
                 }
               ],
+              "title": {
+                "type": "object",
+                "name": "Title",
+                "id": "1058",
+                "attributes": {
+                  "text": "float overrides"
+                }
+              },
+              "y_scale": {
+                "type": "object",
+                "name": "LinearScale",
+                "id": "1071"
+              },
+              "toolbar_location": null,
+              "y_range": {
+                "type": "object",
+                "name": "DataRange1d",
+                "id": "1067"
+              },
+              "left": [
+                {
+                  "id": "1080"
+                }
+              ],
               "toolbar": {
                 "type": "object",
                 "name": "Toolbar",
-                "id": "1067",
+                "id": "1061",
                 "attributes": {
                   "tools": [
                     {
                       "type": "object",
                       "name": "PanTool",
-                      "id": "1060"
+                      "id": "1087"
                     },
                     {
                       "type": "object",
                       "name": "WheelZoomTool",
-                      "id": "1061"
+                      "id": "1088"
                     },
                     {
                       "type": "object",
                       "name": "BoxZoomTool",
-                      "id": "1062",
+                      "id": "1089",
                       "attributes": {
                         "overlay": {
                           "type": "object",
                           "name": "BoxAnnotation",
-                          "id": "1066",
+                          "id": "1090",
                           "attributes": {
-                            "right_units": "screen",
-                            "line_width": 2,
+                            "line_alpha": 1.0,
+                            "fill_color": "lightgrey",
+                            "right_units": "canvas",
+                            "bottom_units": "canvas",
+                            "left_units": "canvas",
+                            "line_color": "black",
+                            "level": "overlay",
+                            "fill_alpha": 0.5,
+                            "visible": false,
+                            "top_units": "canvas",
                             "line_dash": [
                               4,
                               4
                             ],
-                            "fill_alpha": 0.5,
                             "syncable": false,
-                            "level": "overlay",
-                            "line_alpha": 1.0,
-                            "top_units": "screen",
-                            "left_units": "screen",
-                            "line_color": "black",
-                            "fill_color": "lightgrey",
-                            "bottom_units": "screen"
+                            "line_width": 2
                           }
                         }
                       }
@@ -580,24 +614,31 @@
                     {
                       "type": "object",
                       "name": "SaveTool",
-                      "id": "1063"
+                      "id": "1091"
                     },
                     {
                       "type": "object",
                       "name": "ResetTool",
-                      "id": "1064"
+                      "id": "1092"
                     },
                     {
                       "type": "object",
                       "name": "HelpTool",
-                      "id": "1065"
+                      "id": "1093"
                     }
                   ]
                 }
+              },
+              "height": 200,
+              "x_scale": {
+                "type": "object",
+                "name": "LinearScale",
+                "id": "1069"
               }
             }
           }
-        ]
+        ],
+        "cols": "auto"
       }
     }
   ]
