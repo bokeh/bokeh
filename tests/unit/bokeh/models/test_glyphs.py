@@ -230,6 +230,14 @@ def test_Image() -> None:
         "color_mapper",
     ], GLYPH)
 
+def test_Image_kwargs() -> None:
+    glyph = Image(x=0, y=0, dw=10, dh=10)
+    assert glyph.image == field("image")
+    assert glyph.x == 0
+    assert glyph.y == 0
+    assert glyph.dw == 10
+    assert glyph.dh == 10
+    assert glyph.dilate is False
 
 def test_ImageRGBA() -> None:
     glyph = ImageRGBA()
