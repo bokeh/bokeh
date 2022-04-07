@@ -25,10 +25,12 @@ from ..core.properties import (
     Enum,
     Instance,
     InstanceDefault,
+    List,
     String,
 )
 from ..model import Model
 from .ranges import DataRange1d, Range
+from .renderers import Renderer
 from .scales import LinearScale, Scale
 
 #-----------------------------------------------------------------------------
@@ -103,6 +105,10 @@ class Canvas(Model):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+    renderers = List(Instance(Renderer), default=[], help="""
+    Collection of objects to paint onto this canvas.
+    """)
 
     hidpi = Bool(default=True, help="""
     Whether to use HiDPI mode when available.

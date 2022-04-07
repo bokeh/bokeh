@@ -356,9 +356,15 @@ export class UIEventBus implements EventListenerObject {
   }
 
   protected _hit_test_renderers(plot_view: PlotView, sx: number, sy: number): RendererView | null {
-    const views = plot_view.get_renderer_views()
+    const cviews = this.canvas_view.renderer_views.values()
+    for (const view of reversed([...cviews])) {
+      if (view.interactive_hit?.(sx, sy) ?? false)
+        return view
+    }
 
-    for (const view of reversed(views)) {
+    const pviews = plot_view.get_renderer_views()
+
+    for (const view of reversed(pviews)) {
       if (view.interactive_hit?.(sx, sy) ?? false)
         return view
     }

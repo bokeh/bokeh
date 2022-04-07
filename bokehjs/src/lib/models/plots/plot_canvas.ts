@@ -1,6 +1,7 @@
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Canvas, CanvasView, FrameBox} from "../canvas/canvas"
-import {Renderer, RendererView} from "../renderers/renderer"
+import {Renderer, RendererView, RenderingTarget} from "../renderers/renderer"
+import {CoordinateSystem} from "../canvas/coordinates"
 import {DataRenderer} from "../renderers/data_renderer"
 import {Tool, ToolView} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
@@ -11,6 +12,8 @@ import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {Axis, AxisView} from "../axes/axis"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
+import {LinearScale} from "../scales/linear_scale"
+import {Range1d} from "../ranges/range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 
 import {Reset} from "core/bokeh_events"
@@ -37,7 +40,7 @@ import {settings} from "core/settings"
 
 import icons_css from "styles/icons.css"
 
-export class PlotView extends LayoutDOMView implements Renderable {
+export class PlotView extends LayoutDOMView implements Renderable, RenderingTarget {
   override model: Plot
   visuals: Plot.Visuals
 
@@ -49,6 +52,38 @@ export class PlotView extends LayoutDOMView implements Renderable {
   get canvas(): CanvasView {
     return this.canvas_view
   }
+
+  get bbox(): BBox {
+    return this.layout?.bbox ?? new BBox()
+  }
+
+  readonly screen: CoordinateSystem = (() => {
+    const {left, right, top, bottom} = this.bbox
+
+    const x_source = new Range1d({start: left, end: right})
+    const y_source = new Range1d({start: top, end: bottom})
+    const x_target = new Range1d({start: left, end: right})
+    const y_target = new Range1d({start: top, end: bottom})
+
+    return {
+      x_scale: new LinearScale({source_range: x_source, target_range: x_target}),
+      y_scale: new LinearScale({source_range: y_source, target_range: y_target}),
+    }
+  })()
+
+  readonly view: CoordinateSystem = (() => {
+    const {left, right, top, bottom} = this.bbox
+
+    const x_source = new Range1d({start: left, end: right})
+    const y_source = new Range1d({start: top, end: bottom})
+    const x_target = new Range1d({start: left, end: right})
+    const y_target = new Range1d({start: bottom, end: top})
+
+    return {
+      x_scale: new LinearScale({source_range: x_source, target_range: x_target}),
+      y_scale: new LinearScale({source_range: y_source, target_range: y_target}),
+    }
+  })()
 
   protected _title?: Title
   protected _toolbar?: ToolbarPanel
@@ -627,6 +662,18 @@ export class PlotView extends LayoutDOMView implements Renderable {
   override after_layout(): void {
     super.after_layout()
     this.unpause(true)
+
+    const {left, right, top, bottom} = this.bbox
+
+    this.screen.x_scale.source_range.setv({start: left, end: right})
+    this.screen.y_scale.source_range.setv({start: top, end: bottom})
+    this.screen.x_scale.target_range.setv({start: left, end: right})
+    this.screen.y_scale.target_range.setv({start: top, end: bottom})
+
+    this.view.x_scale.source_range.setv({start: left, end: right})
+    this.view.y_scale.source_range.setv({start: top, end: bottom})
+    this.view.x_scale.target_range.setv({start: left, end: right})
+    this.view.y_scale.target_range.setv({start: bottom, end: top})
 
     for (const [, child_view] of this.renderer_views) {
       if (child_view instanceof AnnotationView)

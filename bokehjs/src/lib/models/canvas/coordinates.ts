@@ -8,7 +8,6 @@ import {CategoricalScale} from "../scales/categorical_scale"
 import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
-import {CartesianFrame} from "./cartesian_frame"
 import * as p from "core/properties"
 
 export class CoordinateTransform {
@@ -38,6 +37,11 @@ export class CoordinateTransform {
   }
 }
 
+export type CoordinateSystem = {
+  readonly x_scale: Scale
+  readonly y_scale: Scale
+}
+
 export namespace CoordinateMapping {
   export type Attrs = p.AttrsOf<Props>
 
@@ -46,14 +50,14 @@ export namespace CoordinateMapping {
     y_source: p.Property<Range>
     x_scale: p.Property<Scale>
     y_scale: p.Property<Scale>
-    x_target: p.Property<Range>
-    y_target: p.Property<Range>
+    x_target: p.Property<Range | "auto">
+    y_target: p.Property<Range | "auto">
   }
 }
 
 export interface CoordinateMapping extends CoordinateMapping.Attrs {}
 
-export class CoordinateMapping extends Model {
+export class CoordinateMapping extends Model implements CoordinateSystem {
   override properties: CoordinateMapping.Props
 
   constructor(attrs?: Partial<CoordinateMapping.Attrs>) {
@@ -61,13 +65,13 @@ export class CoordinateMapping extends Model {
   }
 
   static {
-    this.define<CoordinateMapping.Props>(({Ref}) => ({
+    this.define<CoordinateMapping.Props>(({Ref, Or, Auto}) => ({
       x_source: [ Ref(Range), () => new DataRange1d() ],
       y_source: [ Ref(Range), () => new DataRange1d() ],
       x_scale: [ Ref(Scale), () => new LinearScale() ],
       y_scale: [ Ref(Scale), () => new LinearScale() ],
-      x_target: [ Ref(Range) ],
-      y_target: [ Ref(Range) ],
+      x_target: [ Or(Auto, Ref(Range)), "auto" ],
+      y_target: [ Or(Auto, Ref(Range)), "auto" ],
     }))
   }
 
@@ -95,15 +99,15 @@ export class CoordinateMapping extends Model {
     return derived_scale
   }
 
-  get_transform(target: CartesianFrame /*CoordinateMapping*/): CoordinateTransform {
+  get_transform(target: CoordinateSystem): CoordinateTransform {
     const x_source = (() => {
       const {x_source, x_scale, x_target} = this
-      return this._get_scale(x_source, x_scale, x_target)
+      return this._get_scale(x_source, x_scale, x_target == "auto" ? target.x_scale.source_range : x_target)
     })()
 
     const y_source = (() => {
       const {y_source, y_scale, y_target} = this
-      return this._get_scale(y_source, y_scale, y_target)
+      return this._get_scale(y_source, y_scale, y_target == "auto" ? target.y_scale.source_range : y_target)
     })()
 
     const x_target = target.x_scale

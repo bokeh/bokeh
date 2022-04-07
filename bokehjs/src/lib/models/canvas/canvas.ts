@@ -7,10 +7,15 @@ import {div, append} from "core/dom"
 import {OutputBackend} from "core/enums"
 import {extend} from "core/util/object"
 import {UIEventBus} from "core/ui_events"
+import {build_views, remove_views} from "core/build_views"
 import {BBox} from "core/util/bbox"
 import {load_module} from "core/util/modules"
 import {Context2d, CanvasLayer} from "core/util/canvas"
 import {PlotView} from "../plots/plot"
+import {Renderer, RenderingTarget} from "../renderers/renderer"
+import {Range1d} from "../ranges/range1d"
+import {LinearScale} from "../scales/linear_scale"
+import {CoordinateSystem} from "./coordinates"
 import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
 
 export type FrameBox = [number, number, number, number]
@@ -74,11 +79,14 @@ const style = {
   left: "0",
 }
 
-export class CanvasView extends DOMView {
+export class CanvasView extends DOMView implements RenderingTarget {
   override model: Canvas
   override el: HTMLElement
 
-  bbox: BBox = new BBox()
+  private _bbox = new BBox()
+  get bbox(): BBox {
+    return this._bbox
+  }
 
   webgl: WebGLState | null = null
 
@@ -89,6 +97,39 @@ export class CanvasView extends DOMView {
   events_el: HTMLElement
 
   ui_event_bus: UIEventBus
+  paint_engine: PaintEngine
+
+  readonly screen: CoordinateSystem = (() => {
+    const {left, right, top, bottom} = this._bbox
+
+    const x_source = new Range1d({start: left, end: right})
+    const y_source = new Range1d({start: top, end: bottom})
+    const x_target = new Range1d({start: left, end: right})
+    const y_target = new Range1d({start: top, end: bottom})
+
+    return {
+      x_scale: new LinearScale({source_range: x_source, target_range: x_target}),
+      y_scale: new LinearScale({source_range: y_source, target_range: y_target}),
+    }
+  })()
+
+  readonly view: CoordinateSystem = (() => {
+    const {left, right, top, bottom} = this._bbox
+
+    const x_source = new Range1d({start: left, end: right})
+    const y_source = new Range1d({start: top, end: bottom})
+    const x_target = new Range1d({start: left, end: right})
+    const y_target = new Range1d({start: bottom, end: top})
+
+    return {
+      x_scale: new LinearScale({source_range: x_source, target_range: x_target}),
+      y_scale: new LinearScale({source_range: y_source, target_range: y_target}),
+    }
+  })()
+
+  get canvas(): CanvasView {
+    return this
+  }
 
   override initialize(): void {
     super.initialize()
@@ -110,7 +151,10 @@ export class CanvasView extends DOMView {
     this.el.style.position = "relative"
     append(this.el, ...elements)
 
+    this.renderer_views = new Map()
+
     this.ui_event_bus = new UIEventBus(this)
+    this.paint_engine = new PaintEngine(this)
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -121,15 +165,33 @@ export class CanvasView extends DOMView {
       if (settings.force_webgl && this.webgl == null)
         throw new Error("webgl is not available")
     }
+
+    await this.build_renderer_views()
+  }
+
+  renderer_views: Map<Renderer, RendererView>
+
+  async build_renderer_views(): Promise<void> {
+    await build_views(this.renderer_views, this.model.renderers, {parent: this})
   }
 
   override remove(): void {
+    remove_views(this.renderer_views)
+    this.paint_engine.destroy()
     this.ui_event_bus.destroy()
     super.remove()
   }
 
   override render(): void {
     // TODO
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    const {renderers} = this.model.properties
+    this.on_change(renderers, async () => {
+      await this.build_renderer_views()
+    })
   }
 
   add_underlay(el: HTMLElement): void {
@@ -149,7 +211,18 @@ export class CanvasView extends DOMView {
   }
 
   resize(width: number, height: number): void {
-    this.bbox = new BBox({left: 0, top: 0, width, height})
+    this._bbox = new BBox({left: 0, top: 0, width, height})
+    const {left, right, top, bottom} = this._bbox
+
+    this.screen.x_scale.source_range.setv({start: left, end: right})
+    this.screen.y_scale.source_range.setv({start: top, end: bottom})
+    this.screen.x_scale.target_range.setv({start: left, end: right})
+    this.screen.y_scale.target_range.setv({start: top, end: bottom})
+
+    this.view.x_scale.source_range.setv({start: left, end: right})
+    this.view.y_scale.source_range.setv({start: top, end: bottom})
+    this.view.x_scale.target_range.setv({start: left, end: right})
+    this.view.y_scale.target_range.setv({start: bottom, end: top})
 
     const style = {
       width: `${width}px`,
@@ -230,7 +303,7 @@ export class CanvasView extends DOMView {
     return this.compose().to_blob()
   }
 
-  plot_views: PlotView[]
+  plot_views: PlotView[] = []
   /*
   get plot_views(): PlotView[] {
     return [] // XXX
@@ -242,6 +315,7 @@ export namespace Canvas {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = HasProps.Props & {
+    renderers: p.Property<Renderer[]>
     hidpi: p.Property<boolean>
     output_backend: p.Property<OutputBackend>
   }
@@ -260,9 +334,160 @@ export class Canvas extends HasProps {
   static {
     this.prototype.default_view = CanvasView
 
-    this.internal<Canvas.Props>(({Boolean}) => ({
+    this.internal<Canvas.Props>(({Boolean, Array, Ref}) => ({
+      renderers:      [ Array(Ref(Renderer)), [] ],
       hidpi:          [ Boolean, true ],
       output_backend: [ OutputBackend, "canvas" ],
     }))
+  }
+}
+
+import {RenderLevel} from "core/enums"
+import {throttle, ThrottledFn} from "core/util/throttle"
+import {assert} from "core/util/assert"
+import {RendererView} from "../renderers/renderer"
+
+export class PaintEngine {
+
+  protected _ready: Promise<void> = Promise.resolve(undefined)
+  get ready(): Promise<void> {
+    return this._ready
+  }
+
+  protected throttled_paint: ThrottledFn
+
+  protected _invalidated_painters: Set<RendererView> = new Set()
+  protected _invalidate_all: boolean = true
+
+  get renderers(): Renderer[] {
+    return this.canvas.model.renderers
+  }
+
+  get renderer_views(): Map<Renderer, RendererView> {
+    return this.canvas.renderer_views
+  }
+
+  constructor(readonly canvas: CanvasView) {
+    this.throttled_paint = throttle(() => this.paint(), 1000/60)
+  }
+
+  destroy(): void {
+    this.throttled_paint.stop()
+  }
+
+  protected _is_paused = 0
+
+  get is_paused(): boolean {
+    return this._is_paused > 0
+  }
+
+  pause(): void {
+    this._is_paused += 1
+  }
+
+  unpause(): void {
+    assert(this._is_paused >= 1)
+    this._is_paused -= 1
+    if (this._is_paused == 0)
+      this.schedule_paint()
+  }
+
+  request_paint(to_invalidate: RendererView[] | RendererView | "everything"): void {
+    this.invalidate_painters(to_invalidate)
+    this.schedule_paint()
+  }
+
+  invalidate_painters(to_invalidate: RendererView[] | RendererView | "everything"): void {
+    if (to_invalidate == "everything")
+      this._invalidate_all = true
+    else if (to_invalidate instanceof RendererView)
+      this._invalidated_painters.add(to_invalidate)
+    else {
+      for (const renderer_view of to_invalidate)
+        this._invalidated_painters.add(renderer_view)
+    }
+  }
+
+  schedule_paint(): void {
+    if (!this.is_paused) {
+      const promise = this.throttled_paint()
+      this._ready = this._ready.then(() => promise)
+    }
+  }
+
+  paint(): void {
+    let do_primary = false
+    let do_overlays = false
+
+    if (this._invalidate_all) {
+      do_primary = true
+      do_overlays = true
+    } else {
+      for (const painter of this._invalidated_painters) {
+        const {level} = painter.model
+        if (level != "overlay")
+          do_primary = true
+        else
+          do_overlays = true
+        if (do_primary && do_overlays)
+          break
+      }
+    }
+
+    if (!do_primary && !do_overlays)
+      return
+
+    this._invalidated_painters.clear()
+    this._invalidate_all = false
+
+    const frame_box: FrameBox = [
+      this.canvas.bbox.left,
+      this.canvas.bbox.top,
+      this.canvas.bbox.width,
+      this.canvas.bbox.height,
+    ]
+
+    const {primary, overlays} = this.canvas
+
+    if (do_primary) {
+      primary.prepare()
+      this.canvas.prepare_webgl(frame_box)
+
+      this._paint_levels(primary.ctx, "image", frame_box, true)
+      this._paint_levels(primary.ctx, "underlay", frame_box, true)
+      this._paint_levels(primary.ctx, "glyph", frame_box, true)
+      this._paint_levels(primary.ctx, "guide", frame_box, false)
+      this._paint_levels(primary.ctx, "annotation", frame_box, false)
+      primary.finish()
+    }
+
+    if (do_overlays) {
+      overlays.prepare()
+      this._paint_levels(overlays.ctx, "overlay", frame_box, false)
+      overlays.finish()
+    }
+  }
+
+  protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_region: FrameBox, global_clip: boolean): void {
+    for (const renderer of this.renderers) {
+      if (renderer.level != level)
+        continue
+
+      const renderer_view = this.renderer_views.get(renderer)!
+
+      ctx.save()
+      if (global_clip || renderer_view.needs_clip) {
+        ctx.beginPath()
+        ctx.rect(...clip_region)
+        ctx.clip()
+      }
+
+      renderer_view.render()
+      ctx.restore()
+
+      if (renderer_view.has_webgl && renderer_view.needs_webgl_blit) {
+        this.canvas.blit_webgl(ctx)
+      }
+    }
   }
 }

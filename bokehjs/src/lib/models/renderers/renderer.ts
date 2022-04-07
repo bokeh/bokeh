@@ -2,11 +2,13 @@ import {View} from "core/view"
 import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
 import * as p from "core/properties"
+import {BBox} from "core/util/bbox"
 import {Model} from "../../model"
 import {CanvasLayer} from "core/util/canvas"
 import type {PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
-import {CoordinateTransform, CoordinateMapping} from "../canvas/coordinates"
+import {CoordinateTransform, CoordinateSystem, CoordinateMapping} from "../canvas/coordinates"
+import {CartesianFrame} from "../canvas/cartesian_frame"
 
 export namespace RendererGroup {
   export type Attrs = p.AttrsOf<Props>
@@ -31,11 +33,19 @@ export class RendererGroup extends Model {
   }
 }
 
+export interface RenderingTarget {
+  readonly canvas: CanvasView
+  readonly bbox: BBox
+  readonly screen: CoordinateSystem
+  readonly view: CoordinateSystem
+  readonly frame?: CartesianFrame
+}
+
 export abstract class RendererView extends View implements visuals.Renderable {
   override model: Renderer
   visuals: Renderer.Visuals
 
-  override readonly parent: PlotView
+  override readonly parent: View & RenderingTarget
 
   needs_webgl_blit: boolean
 
@@ -68,19 +78,26 @@ export abstract class RendererView extends View implements visuals.Renderable {
 
   protected _initialize_coordinates(): CoordinateTransform {
     const {coordinates} = this.model
-    const {frame} = this.plot_view
+    const {frame} = this.parent
     if (coordinates != null) {
-      return coordinates.get_transform(frame)
+      return coordinates.get_transform(frame ?? this.canvas.screen)
     } else {
       const {x_range_name, y_range_name} = this.model
-      const x_scale = frame.x_scales.get(x_range_name)!
-      const y_scale = frame.y_scales.get(y_range_name)!
-      return new CoordinateTransform(x_scale, y_scale)
+      if (frame != null) {
+        const x_scale = frame.x_scales.get(x_range_name)!
+        const y_scale = frame.y_scales.get(y_range_name)!
+        return new CoordinateTransform(x_scale, y_scale)
+      } else if (x_range_name != "default" || y_range_name != "default") {
+        throw new Error("frame is required to resolve non-default ranges/scales")
+      } else {
+        const {x_scale, y_scale} = this.canvas.screen
+        return new CoordinateTransform(x_scale, y_scale)
+      }
     }
   }
 
   get plot_view(): PlotView {
-    return this.parent
+    return this.parent as PlotView
   }
 
   get layer(): CanvasLayer {
@@ -97,7 +114,10 @@ export abstract class RendererView extends View implements visuals.Renderable {
   }
 
   request_paint(): void {
-    this.plot_view.request_paint(this)
+    if (typeof this.plot_view.request_paint !== "undefined")
+      this.plot_view.request_paint(this)
+    else
+      this.canvas.paint_engine.request_paint(this)
   }
 
   request_layout(): void {

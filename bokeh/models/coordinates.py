@@ -18,7 +18,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.properties import Instance, InstanceDefault
+from ..core.properties import (
+    Auto,
+    Either,
+    Instance,
+    InstanceDefault,
+)
 from ..model import Model
 from .ranges import DataRange1d, Range
 from .scales import LinearScale, Scale
@@ -60,11 +65,11 @@ class CoordinateMapping(Model):
     space into y-coordinates in the target (possibly screen) coordinate space.
     """)
 
-    x_target = Instance(Range, help="""
+    x_target = Either(Auto, Instance(Range), default="auto", help="""
     The horizontal range to map x-coordinates in the target coordinate space.
     """)
 
-    y_target = Instance(Range, help="""
+    y_target = Either(Auto, Instance(Range), default="auto", help="""
     The vertical range to map y-coordinates in the target coordinate space.
     """)
 

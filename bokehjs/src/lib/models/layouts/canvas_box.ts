@@ -5,6 +5,8 @@ import {LayoutItem} from "core/layout"
 import * as p from "core/properties"
 import {CanvasLayer} from "core/util/canvas"
 
+import icons_css from "styles/icons.css"
+
 export class CanvasBoxView extends LayoutDOMView {
   override model: CanvasBox
   override layout: LayoutItem
@@ -37,12 +39,18 @@ export class CanvasBoxView extends LayoutDOMView {
   override after_layout(): void {
     const {width, height} = this.layout.bbox
     this.canvas_view.resize(width, height)
+    this.canvas_view.paint_engine.request_paint("everything")
     super.after_layout()
+  }
+
+  override styles(): string[] {
+    return [...super.styles(), icons_css]
   }
 
   override render(): void {
     super.render()
-    this.el.appendChild(this.canvas_view.el)
+    this.shadow_el.appendChild(this.canvas_view.el)
+    this.canvas_view.render()
   }
 
   to_blob(): Promise<Blob> {
