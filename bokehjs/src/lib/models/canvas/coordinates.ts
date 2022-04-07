@@ -95,22 +95,29 @@ export class CoordinateMapping extends Model {
     return derived_scale
   }
 
-  get_transform(frame: CartesianFrame): CoordinateTransform {
-    const {x_source, x_scale, x_target} = this
-    const x_source_scale = this._get_scale(x_source, x_scale, x_target)
+  get_transform(target: CartesianFrame /*CoordinateMapping*/): CoordinateTransform {
+    const x_source = (() => {
+      const {x_source, x_scale, x_target} = this
+      return this._get_scale(x_source, x_scale, x_target)
+    })()
 
-    const {y_source, y_scale, y_target} = this
-    const y_source_scale = this._get_scale(y_source, y_scale, y_target)
+    const y_source = (() => {
+      const {y_source, y_scale, y_target} = this
+      return this._get_scale(y_source, y_scale, y_target)
+    })()
 
-    const xscale = new CompositeScale({
-      source_scale: x_source_scale, source_range: x_source_scale.source_range,
-      target_scale: frame.x_scale, target_range: frame.x_target,
+    const x_target = target.x_scale
+    const y_target = target.y_scale
+
+    const x_scale = new CompositeScale({
+      source_scale: x_source, source_range: x_source.source_range,
+      target_scale: x_target, target_range: y_target.target_range,
     })
-    const yscale = new CompositeScale({
-      source_scale: y_source_scale, source_range: y_source_scale.source_range,
-      target_scale: frame.y_scale, target_range: frame.y_target,
+    const y_scale = new CompositeScale({
+      source_scale: y_source, source_range: y_source.source_range,
+      target_scale: y_target, target_range: y_target.target_range,
     })
 
-    return new CoordinateTransform(xscale, yscale)
+    return new CoordinateTransform(x_scale, y_scale)
   }
 }
