@@ -1,5 +1,4 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {Scale} from "../scales/scale"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
@@ -29,6 +28,22 @@ export class PolyAnnotationView extends AnnotationView implements Pannable {
   override model: PolyAnnotation
   override visuals: PolyAnnotation.Visuals
 
+  get xs_coordinates(): CoordinateMapper {
+    switch (this.model.xs_units) {
+      case "canvas": return this.canvas.screen.x_scale
+      case "screen": return this.parent.view.x_scale
+      case "data":   return this.coordinates.x_scale
+    }
+  }
+
+  get ys_coordinates(): CoordinateMapper {
+    switch (this.model.ys_units) {
+      case "canvas": return this.canvas.screen.y_scale
+      case "screen": return this.parent.view.y_scale
+      case "data":   return this.coordinates.y_scale
+    }
+  }
+
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
@@ -43,25 +58,8 @@ export class PolyAnnotationView extends AnnotationView implements Pannable {
     if (xs.length != ys.length)
       return
 
-    const {frame, canvas} = this.plot_view
-
-    const xscale = this.coordinates.x_scale
-    const yscale = this.coordinates.y_scale
-
-    function _calc_dim(vs: Arrayable<number>, units: CoordinateUnits, scale: Scale,
-        view: CoordinateMapper, canvas: CoordinateMapper): Arrayable<number> {
-      switch (units) {
-        case "canvas":
-          return canvas.v_compute(vs)
-        case "screen":
-          return view.v_compute(vs)
-        case "data":
-          return scale.v_compute(vs)
-      }
-    }
-
-    this.sxs = _calc_dim(xs, this.model.xs_units, xscale, frame.bbox.x_view, canvas.bbox.x_screen)
-    this.sys = _calc_dim(ys, this.model.ys_units, yscale, frame.bbox.y_view, canvas.bbox.y_screen)
+    this.sxs = this.xs_coordinates.v_compute(xs)
+    this.sys = this.ys_coordinates.v_compute(ys)
 
     const n = xs.length
 
@@ -152,20 +150,8 @@ export class PolyAnnotationView extends AnnotationView implements Pannable {
       }
     })()
 
-    const invert = (svs: Arrayable<number>, units: CoordinateUnits, scale: Scale, view: CoordinateMapper, canvas: CoordinateMapper) => {
-      switch (units) {
-        case "canvas": return canvas.v_invert(svs)
-        case "screen": return view.v_invert(svs)
-        case "data":   return scale.v_invert(svs)
-      }
-    }
-
-    const {x_scale, y_scale} = this.coordinates
-    const {x_view, y_view} = this.plot_view.frame.bbox
-    const {x_screen, y_screen} = this.plot_view.canvas.bbox
-
-    const xs = invert(sxs, this.model.xs_units, x_scale, x_view, x_screen)
-    const ys = invert(sys, this.model.ys_units, y_scale, y_view, y_screen)
+    const xs = this.xs_coordinates.v_invert(sxs)
+    const ys = this.ys_coordinates.v_invert(sys)
 
     this.model.update({xs, ys})
     this.model.pan.emit("pan")

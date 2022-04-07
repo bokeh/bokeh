@@ -1,5 +1,4 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {Scale} from "../scales/scale"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {CoordinateUnits, Dimension} from "core/enums"
@@ -16,6 +15,22 @@ export class SpanView extends AnnotationView implements Pannable {
   override model: Span
   override visuals: Span.Visuals
 
+  get x_coordinates(): CoordinateMapper {
+    switch (this.model.location_units) {
+      case "canvas": return this.canvas.screen.x_scale
+      case "screen": return this.parent.view.x_scale
+      case "data":   return this.coordinates.x_scale
+    }
+  }
+
+  get y_coordinates(): CoordinateMapper {
+    switch (this.model.location_units) {
+      case "canvas": return this.canvas.screen.y_scale
+      case "screen": return this.parent.view.y_scale
+      case "data":   return this.coordinates.y_scale
+    }
+  }
+
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.plot_view.request_paint(this))
@@ -28,33 +43,19 @@ export class SpanView extends AnnotationView implements Pannable {
     if (location == null)
       return
 
-    const {frame, canvas} = this.plot_view
-
-    const xscale = this.coordinates.x_scale
-    const yscale = this.coordinates.y_scale
-
-    const _calc_dim = (scale: Scale, view: CoordinateMapper, canvas: CoordinateMapper): number => {
-      switch (this.model.location_units) {
-        case "canvas":
-          return canvas.compute(location)
-        case "screen":
-          return view.compute(location)
-        case "data":
-          return scale.compute(location)
-      }
-    }
+    const {parent} = this
 
     let height: number, sleft: number, stop: number, width: number
     if (this.model.dimension == "width") {
-      this.sloc = stop = _calc_dim(yscale, frame.bbox.y_view, canvas.bbox.y_screen)
-      sleft = frame.bbox.left
-      width = frame.bbox.width
+      this.sloc = stop = this.y_coordinates.compute(location)
+      sleft = parent.bbox.left
+      width = parent.bbox.width
       height = this.model.line_width
     } else {
-      stop = frame.bbox.top
-      this.sloc = sleft = _calc_dim(xscale, frame.bbox.x_view, canvas.bbox.x_screen)
+      stop = parent.bbox.top
+      this.sloc = sleft = this.x_coordinates.compute(location)
       width = this.model.line_width
-      height = frame.bbox.height
+      height = parent.bbox.height
     }
 
     const {ctx} = this.layer
@@ -118,25 +119,8 @@ export class SpanView extends AnnotationView implements Pannable {
       return sloc + (this.model.dimension == "width" ? dy : dx)
     })()
 
-    const invert = (sloc: number, units: CoordinateUnits, scale: Scale, view: CoordinateMapper, canvas: CoordinateMapper) => {
-      switch (units) {
-        case "canvas": return canvas.invert(sloc)
-        case "screen": return view.invert(sloc)
-        case "data":   return scale.invert(sloc)
-      }
-    }
-
-    const {x_scale, y_scale} = this.coordinates
-    const {x_view, y_view} = this.plot_view.frame.bbox
-    const {x_screen, y_screen} = this.plot_view.canvas.bbox
-
-    const loc = (() => {
-      if (this.model.dimension == "width")
-        return invert(sloc, this.model.location_units, y_scale, y_view, y_screen)
-      else
-        return invert(sloc, this.model.location_units, x_scale, x_view, x_screen)
-    })()
-    this.model.location = loc
+    const coordinates = this.model.dimension == "width" ? this.y_coordinates : this.x_coordinates
+    this.model.location = coordinates.invert(sloc)
 
     this.model.pan.emit("pan")
   }

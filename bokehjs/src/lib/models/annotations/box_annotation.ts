@@ -1,5 +1,4 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {Scale} from "../scales/scale"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {PanEvent, Pannable, MoveEvent, Moveable} from "core/ui_events"
@@ -24,6 +23,38 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
 
   protected bbox: BBox = new BBox()
 
+  get left_coordinates(): CoordinateMapper {
+    switch (this.model.left_units) {
+      case "canvas": return this.canvas.screen.x_scale
+      case "screen": return this.parent.view.x_scale
+      case "data":   return this.coordinates.x_scale
+    }
+  }
+
+  get right_coordinates(): CoordinateMapper {
+    switch (this.model.right_units) {
+      case "canvas": return this.canvas.screen.x_scale
+      case "screen": return this.parent.view.x_scale
+      case "data":   return this.coordinates.x_scale
+    }
+  }
+
+  get top_coordinates(): CoordinateMapper {
+    switch (this.model.top_units) {
+      case "canvas": return this.canvas.screen.y_scale
+      case "screen": return this.parent.view.y_scale
+      case "data":   return this.coordinates.y_scale
+    }
+  }
+
+  get bottom_coordinates(): CoordinateMapper {
+    switch (this.model.bottom_units) {
+      case "canvas": return this.canvas.screen.y_scale
+      case "screen": return this.parent.view.y_scale
+      case "data":   return this.coordinates.y_scale
+    }
+  }
+
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
@@ -32,32 +63,11 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
   protected _render(): void {
     const {left, right, top, bottom} = this.model
 
-    const _calc_dim = (dim: number | null, dim_units: CoordinateUnits, scale: Scale,
-        view: CoordinateMapper, canvas: CoordinateMapper, frame_extrema: number): number => {
-      if (dim == null)
-        return frame_extrema
-      else {
-        switch (dim_units) {
-          case "canvas":
-            return canvas.compute(dim)
-          case "screen":
-            return view.compute(dim)
-          case "data":
-            return scale.compute(dim)
-        }
-      }
-    }
-
-    const {frame, canvas} = this.plot_view
-    const {x_scale, y_scale} = this.coordinates
-    const {x_view, y_view} = frame.bbox
-    const {x_screen, y_screen} = canvas.bbox
-
     this.bbox = BBox.from_rect({
-      left:   _calc_dim(left,   this.model.left_units,   x_scale, x_view, x_screen, frame.bbox.left),
-      right:  _calc_dim(right,  this.model.right_units,  x_scale, x_view, x_screen, frame.bbox.right),
-      top:    _calc_dim(top,    this.model.top_units,    y_scale, y_view, y_screen, frame.bbox.top),
-      bottom: _calc_dim(bottom, this.model.bottom_units, y_scale, y_view, y_screen, frame.bbox.bottom),
+      left:   left != null ? this.left_coordinates.compute(left) : this.parent.bbox.left,
+      right:  right != null ? this.right_coordinates.compute(right) : this.parent.bbox.right,
+      top:    top != null ? this.top_coordinates.compute(top) : this.parent.bbox.top,
+      bottom: bottom != null ? this.bottom_coordinates.compute(bottom) : this.parent.bbox.bottom,
     })
 
     this._paint_box()
@@ -177,23 +187,11 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
       }
     })()
 
-    const invert = (sv: number, units: CoordinateUnits, scale: Scale, view: CoordinateMapper, canvas: CoordinateMapper): number => {
-      switch (units) {
-        case "canvas": return canvas.invert(sv)
-        case "screen": return view.invert(sv)
-        case "data":   return scale.invert(sv)
-      }
-    }
-
-    const {x_scale, y_scale} = this.coordinates
-    const {x_view, y_view} = this.plot_view.frame.bbox
-    const {x_screen, y_screen} = this.plot_view.canvas.bbox
-
     const ltrb = {
-      left:   invert(sltrb.left,   this.model.left_units,   x_scale, x_view, x_screen),
-      right:  invert(sltrb.right,  this.model.right_units,  x_scale, x_view, x_screen),
-      top:    invert(sltrb.top,    this.model.top_units,    y_scale, y_view, y_screen),
-      bottom: invert(sltrb.bottom, this.model.bottom_units, y_scale, y_view, y_screen),
+      left:   this.left_coordinates.invert(sltrb.left),
+      right:  this.right_coordinates.invert(sltrb.right),
+      top:    this.top_coordinates.invert(sltrb.top),
+      bottom: this.bottom_coordinates.invert(sltrb.bottom),
     }
 
     this.model.update(ltrb)
