@@ -663,7 +663,7 @@ class Image(XYGlyph):
             mapper = LinearColorMapper(palette)
             kwargs['color_mapper'] = mapper
 
-        super().__init__(*args, *kwargs)
+        super().__init__(*args, **kwargs)
 
     _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
 
