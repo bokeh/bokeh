@@ -475,6 +475,12 @@ export class UIEventBus implements EventListenerObject {
       case "mouseenter":
       case "mousemove":
       case "mouseleave": {
+        const cursor = (() => {
+          const target = view ?? this._hit_test_plot(e.sx, e.sy)
+          return target?.cursor(e.sx, e.sy) ?? undefined
+        })()
+        this.set_cursor(cursor)
+
         if (this._current_move_view == view) {
           this._current_move_view?._move(e)
         } else {
@@ -584,25 +590,14 @@ export class UIEventBus implements EventListenerObject {
           this.trigger(signal, e, active_gesture.id)
 
         const active_inspectors = plot_view.model.toolbar.inspectors.filter(t => t.active)
-        let cursor = "default"
 
         // the event happened on a renderer
         if (view != null) {
-          cursor = view.cursor(e.sx, e.sy) ?? cursor
-
           if (!is_empty(active_inspectors)) {
             // override event_type to cause inspectors to clear overlays
             signal = this.move_exit as any // XXX
           }
-
-        // the event happened on the plot frame but off a renderer
-        } else if (this._hit_test_frame(plot_view, e.sx, e.sy)) {
-          if (!is_empty(active_inspectors)) {
-            cursor = "crosshair"
-          }
         }
-
-        this.set_cursor(cursor)
 
         active_inspectors.map((inspector) => this.trigger(signal, e, inspector.id))
         break

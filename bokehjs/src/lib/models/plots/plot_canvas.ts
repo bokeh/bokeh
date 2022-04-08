@@ -503,6 +503,11 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
       this.layout.inner_right_panel = inner_right_panel
   }
 
+  override cursor(sx: number, sy: number): string | null {
+    const active_inspect = this.model.toolbar.inspectors.some((tool) => tool.active)
+    return this.frame.bbox.contains(sx, sy) && active_inspect ? "crosshair" : super.cursor(sx, sy)
+  }
+
   get axis_views(): AxisView[] {
     const views = []
     for (const [, renderer_view] of this.renderer_views) {
