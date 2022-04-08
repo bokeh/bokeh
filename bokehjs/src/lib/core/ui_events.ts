@@ -482,84 +482,102 @@ export class UIEventBus implements EventListenerObject {
   private _current_move_view: (RendererView & Moveable) | null = null
 
   __trigger<E extends UIEvent>(plot_view: PlotView, signal: UISignal<E>, e: E, srcEvent: Event): void {
+    const view = this._hit_test_renderers(plot_view, e.sx, e.sy)
+
+    switch (e.type) {
+      case "panstart":
+      case "pan":
+      case "panend": {
+        if (this._current_pan_view == null) {
+          if (view != null) {
+            if (e.type == "panstart" && is_Pannable(view)) {
+              if (view._pan_start(e)) {
+                this._current_pan_view = view
+                return
+              }
+            }
+          }
+        } else {
+          if (e.type == "pan")
+            this._current_pan_view._pan(e)
+          else if (e.type == "panend") {
+            this._current_pan_view._pan_end(e)
+            this._current_pan_view = null
+          }
+          return
+        }
+        break
+      }
+      case "pinchstart":
+      case "pinch":
+      case "pinchend": {
+        if (this._current_pinch_view == null) {
+          if (view != null) {
+            if (e.type == "pinchstart" && is_Pinchable(view)) {
+              if (view._pinch_start(e)) {
+                this._current_pinch_view = view
+                return
+              }
+            }
+          }
+        } else {
+          if (e.type == "pinch")
+            this._current_pinch_view._pinch(e)
+          else if (e.type == "pinchend") {
+            this._current_pinch_view._pinch_end(e)
+            this._current_pinch_view = null
+          }
+          return
+        }
+        break
+      }
+      case "rotatestart":
+      case "rotate":
+      case "rotateend": {
+        if (this._current_rotate_view == null) {
+          if (view != null) {
+            if (e.type == "rotatestart" && is_Rotatable(view)) {
+              if (view._rotate_start(e)) {
+                this._current_rotate_view = view
+                return
+              }
+            }
+          }
+        } else {
+          if (e.type == "rotate")
+            this._current_rotate_view._rotate(e)
+          else if (e.type == "rotateend") {
+            this._current_rotate_view._rotate_end(e)
+            this._current_rotate_view = null
+          }
+          return
+        }
+        break
+      }
+      case "mouseenter":
+      case "mousemove":
+      case "mouseleave": {
+        if (this._current_move_view == view) {
+          this._current_move_view?._move(e)
+        } else {
+          this._current_move_view?._move_end(e)
+          this._current_move_view = null
+
+          if (view != null && is_Moveable(view)) {
+            if (view._move_start(e)) {
+              this._current_move_view = view
+            }
+          }
+        }
+        break
+      }
+    }
+
     const gestures = plot_view.model.toolbar.gestures
     type BaseType = keyof typeof gestures
 
     const event_type = signal.name
     const base_type = event_type.split(":")[0] as BaseType
-    const view = this._hit_test_renderers(plot_view, e.sx, e.sy)
-
-    if (base_type == "pan") {
-      if (this._current_pan_view == null) {
-        if (view != null) {
-          if (event_type == "pan:start" && is_Pannable(view)) {
-            if (view._pan_start(e as PanEvent)) {
-              this._current_pan_view = view
-              return
-            }
-          }
-        }
-      } else {
-        if (event_type == "pan")
-          this._current_pan_view._pan(e as PanEvent)
-        else if (event_type == "pan:end") {
-          this._current_pan_view._pan_end(e as PanEvent)
-          this._current_pan_view = null
-        }
-        return
-      }
-    } else if (base_type == "pinch") {
-      if (this._current_pinch_view == null) {
-        if (view != null) {
-          if (event_type == "pinch:start" && is_Pinchable(view)) {
-            if (view._pinch_start(e as PinchEvent)) {
-              this._current_pinch_view = view
-              return
-            }
-          }
-        }
-      } else {
-        if (event_type == "pinch")
-          this._current_pinch_view._pinch(e as PinchEvent)
-        else if (event_type == "pinch:end") {
-          this._current_pinch_view._pinch_end(e as PinchEvent)
-          this._current_pinch_view = null
-        }
-        return
-      }
-    } else if (base_type == "rotate") {
-      if (this._current_rotate_view == null) {
-        if (view != null) {
-          if (event_type == "rotate:start" && is_Rotatable(view)) {
-            if (view._rotate_start(e as RotateEvent)) {
-              this._current_rotate_view = view
-              return
-            }
-          }
-        }
-      } else {
-        if (event_type == "rotate")
-          this._current_rotate_view._rotate(e as RotateEvent)
-        else if (event_type == "rotate:end") {
-          this._current_rotate_view._rotate_end(e as RotateEvent)
-          this._current_rotate_view = null
-        }
-        return
-      }
-    } else if (base_type == "move") {
-      if (this._current_move_view == view) {
-        this._current_move_view?._move(e as MoveEvent)
-      } else {
-        this._current_move_view?._move_end(e as MoveEvent)
-        this._current_move_view = null
-
-        if (view != null && is_Moveable(view)) {
-          if (view._move_start(e as MoveEvent)) {
-            this._current_move_view = view
-          }
-        }
-      }
-    }
 
     switch (base_type) {
       case "move": {
