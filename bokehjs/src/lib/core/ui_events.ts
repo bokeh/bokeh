@@ -355,25 +355,29 @@ export class UIEventBus implements EventListenerObject {
     }
   }
 
-  protected _hit_test_renderers(plot_view: PlotView, sx: number, sy: number): RendererView | null {
+  set_cursor(cursor: string = "default"): void {
+    this.hit_area.style.cursor = cursor
+  }
+
+  protected _hit_test(sx: number, sy: number): RendererView | null {
     const cviews = this.canvas_view.renderer_views.values()
     for (const view of reversed([...cviews])) {
       if (view.interactive_hit?.(sx, sy) ?? false)
         return view
     }
 
-    const pviews = plot_view.get_renderer_views()
+    const plot_view = this.canvas_view.plot_views.find((pv) => pv.bbox.contains(sx, sy))
 
-    for (const view of reversed(pviews)) {
-      if (view.interactive_hit?.(sx, sy) ?? false)
-        return view
+    if (plot_view != null) {
+      const pviews = plot_view.get_renderer_views()
+
+      for (const view of reversed(pviews)) {
+        if (view.interactive_hit?.(sx, sy) ?? false)
+          return view
+      }
     }
 
     return null
-  }
-
-  set_cursor(cursor: string = "default"): void {
-    this.hit_area.style.cursor = cursor
   }
 
   protected _hit_test_frame(plot_view: PlotView, sx: number, sy: number): boolean {
@@ -381,13 +385,7 @@ export class UIEventBus implements EventListenerObject {
   }
 
   protected _hit_test_plot(sx: number, sy: number): PlotView | null {
-    // TODO: z-index
-    for (const plot_view of this.canvas_view.plot_views) {
-      if (plot_view.layout.bbox.relative()/*XXX*/.contains(sx, sy))
-        return plot_view
-    }
-
-    return null
+    return this.canvas_view.plot_views.find((pv) => pv.bbox.contains(sx, sy)) ?? null
   }
 
   protected _prev_move: {sx: number, sy: number, plot_view: PlotView | null} | null = null
@@ -396,93 +394,13 @@ export class UIEventBus implements EventListenerObject {
   protected _curr_pinch: {plot_view: PlotView} | null = null
   protected _curr_rotate: {plot_view: PlotView} | null = null
 
-  _trigger<E extends UIEvent>(signal: UISignal<E>, e: E, srcEvent: Event): void {
-    const event = e
-    const {sx, sy} = e
-    const plot_view = this._hit_test_plot(sx, sy)
-    const curr_view = plot_view
-
-    if (e.type == "panstart" || e.type == "pan" || e.type == "panend") {
-      let pan_view: PlotView | null
-      if (e.type == "panstart" && curr_view != null) {
-        this._curr_pan = {plot_view: curr_view}
-        pan_view = curr_view
-      } else if (e.type == "pan" && this._curr_pan != null) {
-        pan_view = this._curr_pan.plot_view
-      } else if (e.type == "panend" && this._curr_pan != null) {
-        pan_view = this._curr_pan.plot_view
-        this._curr_pan = null
-      } else {
-        pan_view = null
-      }
-
-      if (pan_view != null) {
-        this.__trigger(pan_view, signal, event, srcEvent)
-      }
-    } else if (e.type == "pinchstart" || e.type == "pinch" || e.type == "pinchend") {
-      let pinch_view: PlotView | null
-      if (e.type == "pinchstart" && curr_view != null) {
-        this._curr_pinch = {plot_view: curr_view}
-        pinch_view = curr_view
-      } else if (e.type == "pinch" && this._curr_pinch != null) {
-        pinch_view = this._curr_pinch.plot_view
-      } else if (e.type == "pinchend" && this._curr_pinch != null) {
-        pinch_view = this._curr_pinch.plot_view
-        this._curr_pinch = null
-      } else {
-        pinch_view = null
-      }
-
-      if (pinch_view != null) {
-        this.__trigger(pinch_view, signal, event, srcEvent)
-      }
-    } else if (e.type == "rotatestart" || e.type == "rotate" || e.type == "rotateend") {
-      let rotate_view: PlotView | null
-      if (e.type == "rotatestart" && curr_view != null) {
-        this._curr_rotate = {plot_view: curr_view}
-        rotate_view = curr_view
-      } else if (e.type == "rotate" && this._curr_rotate != null) {
-        rotate_view = this._curr_rotate.plot_view
-      } else if (e.type == "rotateend" && this._curr_rotate != null) {
-        rotate_view = this._curr_rotate.plot_view
-        this._curr_rotate = null
-      } else {
-        rotate_view = null
-      }
-
-      if (rotate_view != null) {
-        this.__trigger(rotate_view, signal, event, srcEvent)
-      }
-    } else if (e.type == "mouseenter" || e.type == "mousemove" || e.type == "mouseleave") {
-      const prev_view = this._prev_move?.plot_view
-
-      if (prev_view != null && (e.type == "mouseleave" || prev_view != curr_view)) {
-        this.__trigger(prev_view, this.move_exit, {type: "mouseleave", sx, sy, shiftKey: false, ctrlKey: false}, srcEvent)
-      }
-
-      if (curr_view != null && (e.type == "mouseenter" || prev_view != curr_view)) {
-        this.__trigger(curr_view, this.move_enter, {type: "mouseenter", sx, sy, shiftKey: false, ctrlKey: false}, srcEvent)
-      }
-
-      if (curr_view != null && e.type == "mousemove") {
-        this.__trigger(curr_view, signal, event, srcEvent)
-      }
-
-      this._prev_move = {sx, sy, plot_view: curr_view}
-    } else {
-      if (curr_view != null) {
-        this.__trigger(curr_view, signal, event, srcEvent)
-      }
-    }
-  }
-
   private _current_pan_view: (RendererView & Pannable) | null = null
   private _current_pinch_view: (RendererView & Pinchable) | null = null
   private _current_rotate_view: (RendererView & Rotatable) | null = null
   private _current_move_view: (RendererView & Moveable) | null = null
 
-  __trigger<E extends UIEvent>(plot_view: PlotView, signal: UISignal<E>, e: E, srcEvent: Event): void {
-    const view = this._hit_test_renderers(plot_view, e.sx, e.sy)
+  _trigger<E extends UIEvent>(signal: UISignal<E>, e: E, srcEvent: Event): void {
+    const view = this._hit_test(e.sx, e.sy)
 
     switch (e.type) {
       case "panstart":
@@ -573,6 +491,86 @@ export class UIEventBus implements EventListenerObject {
       }
     }
 
+    const event = e
+    const {sx, sy} = e
+    const plot_view = this._hit_test_plot(sx, sy)
+    const curr_view = plot_view
+
+    if (e.type == "panstart" || e.type == "pan" || e.type == "panend") {
+      let pan_view: PlotView | null
+      if (e.type == "panstart" && curr_view != null) {
+        this._curr_pan = {plot_view: curr_view}
+        pan_view = curr_view
+      } else if (e.type == "pan" && this._curr_pan != null) {
+        pan_view = this._curr_pan.plot_view
+      } else if (e.type == "panend" && this._curr_pan != null) {
+        pan_view = this._curr_pan.plot_view
+        this._curr_pan = null
+      } else {
+        pan_view = null
+      }
+
+      if (pan_view != null) {
+        this.__trigger(pan_view, view, signal, event, srcEvent)
+      }
+    } else if (e.type == "pinchstart" || e.type == "pinch" || e.type == "pinchend") {
+      let pinch_view: PlotView | null
+      if (e.type == "pinchstart" && curr_view != null) {
+        this._curr_pinch = {plot_view: curr_view}
+        pinch_view = curr_view
+      } else if (e.type == "pinch" && this._curr_pinch != null) {
+        pinch_view = this._curr_pinch.plot_view
+      } else if (e.type == "pinchend" && this._curr_pinch != null) {
+        pinch_view = this._curr_pinch.plot_view
+        this._curr_pinch = null
+      } else {
+        pinch_view = null
+      }
+
+      if (pinch_view != null) {
+        this.__trigger(pinch_view, view, signal, event, srcEvent)
+      }
+    } else if (e.type == "rotatestart" || e.type == "rotate" || e.type == "rotateend") {
+      let rotate_view: PlotView | null
+      if (e.type == "rotatestart" && curr_view != null) {
+        this._curr_rotate = {plot_view: curr_view}
+        rotate_view = curr_view
+      } else if (e.type == "rotate" && this._curr_rotate != null) {
+        rotate_view = this._curr_rotate.plot_view
+      } else if (e.type == "rotateend" && this._curr_rotate != null) {
+        rotate_view = this._curr_rotate.plot_view
+        this._curr_rotate = null
+      } else {
+        rotate_view = null
+      }
+
+      if (rotate_view != null) {
+        this.__trigger(rotate_view, view, signal, event, srcEvent)
+      }
+    } else if (e.type == "mouseenter" || e.type == "mousemove" || e.type == "mouseleave") {
+      const prev_view = this._prev_move?.plot_view
+
+      if (prev_view != null && (e.type == "mouseleave" || prev_view != curr_view)) {
+        this.__trigger(prev_view, view, this.move_exit, {type: "mouseleave", sx, sy, shiftKey: false, ctrlKey: false}, srcEvent)
+      }
+
+      if (curr_view != null && (e.type == "mouseenter" || prev_view != curr_view)) {
+        this.__trigger(curr_view, view, this.move_enter, {type: "mouseenter", sx, sy, shiftKey: false, ctrlKey: false}, srcEvent)
+      }
+
+      if (curr_view != null && e.type == "mousemove") {
+        this.__trigger(curr_view, view, signal, event, srcEvent)
+      }
+
+      this._prev_move = {sx, sy, plot_view: curr_view}
+    } else {
+      if (curr_view != null) {
+        this.__trigger(curr_view, view, signal, event, srcEvent)
+      }
+    }
+  }
+
+  __trigger<E extends UIEvent>(plot_view: PlotView, view: RendererView | null, signal: UISignal<E>, e: E, srcEvent: Event): void {
     const gestures = plot_view.model.toolbar.gestures
     type BaseType = keyof typeof gestures
 
