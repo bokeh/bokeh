@@ -397,14 +397,10 @@ export class UIEventBus implements EventListenerObject {
   protected _curr_rotate: {plot_view: PlotView} | null = null
 
   _trigger<E extends UIEvent>(signal: UISignal<E>, e: E, srcEvent: Event): void {
+    const event = e
     const {sx, sy} = e
     const plot_view = this._hit_test_plot(sx, sy)
     const curr_view = plot_view
-
-    const relativize_event = (_plot_view: PlotView): E => {
-      const [rel_sx, rel_sy] = [sx, sy] // plot_view.layout.bbox.relativize(sx, sy)
-      return {...e, sx: rel_sx, sy: rel_sy} as E
-    }
 
     if (e.type == "panstart" || e.type == "pan" || e.type == "panend") {
       let pan_view: PlotView | null
@@ -421,7 +417,6 @@ export class UIEventBus implements EventListenerObject {
       }
 
       if (pan_view != null) {
-        const event = relativize_event(pan_view)
         this.__trigger(pan_view, signal, event, srcEvent)
       }
     } else if (e.type == "pinchstart" || e.type == "pinch" || e.type == "pinchend") {
@@ -439,7 +434,6 @@ export class UIEventBus implements EventListenerObject {
       }
 
       if (pinch_view != null) {
-        const event = relativize_event(pinch_view)
         this.__trigger(pinch_view, signal, event, srcEvent)
       }
     } else if (e.type == "rotatestart" || e.type == "rotate" || e.type == "rotateend") {
@@ -457,31 +451,26 @@ export class UIEventBus implements EventListenerObject {
       }
 
       if (rotate_view != null) {
-        const event = relativize_event(rotate_view)
         this.__trigger(rotate_view, signal, event, srcEvent)
       }
     } else if (e.type == "mouseenter" || e.type == "mousemove" || e.type == "mouseleave") {
       const prev_view = this._prev_move?.plot_view
 
       if (prev_view != null && (e.type == "mouseleave" || prev_view != curr_view)) {
-        const {sx, sy} = relativize_event(prev_view)
         this.__trigger(prev_view, this.move_exit, {type: "mouseleave", sx, sy, shiftKey: false, ctrlKey: false}, srcEvent)
       }
 
       if (curr_view != null && (e.type == "mouseenter" || prev_view != curr_view)) {
-        const {sx, sy} = relativize_event(curr_view)
         this.__trigger(curr_view, this.move_enter, {type: "mouseenter", sx, sy, shiftKey: false, ctrlKey: false}, srcEvent)
       }
 
       if (curr_view != null && e.type == "mousemove") {
-        const event = relativize_event(curr_view)
         this.__trigger(curr_view, signal, event, srcEvent)
       }
 
       this._prev_move = {sx, sy, plot_view: curr_view}
     } else {
       if (curr_view != null) {
-        const event = relativize_event(curr_view)
         this.__trigger(curr_view, signal, event, srcEvent)
       }
     }
