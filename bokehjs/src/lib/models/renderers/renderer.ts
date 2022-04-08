@@ -39,6 +39,8 @@ export interface RenderingTarget {
   readonly screen: CoordinateSystem
   readonly view: CoordinateSystem
   readonly frame?: CartesianFrame
+  request_repaint(): void
+  request_paint(to_invalidate: RendererView | RendererView[]): void
 }
 
 export abstract class RendererView extends View implements visuals.Renderable {

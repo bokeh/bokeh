@@ -84,7 +84,7 @@ export class GMapPlotView extends PlotView {
       }
       gmaps_ready.connect(() => {
         this._build_map()
-        this.request_paint("everything")
+        this.request_repaint()
       })
     } else
       this._build_map()

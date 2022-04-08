@@ -39,7 +39,6 @@ export class CanvasBoxView extends LayoutDOMView {
   override after_layout(): void {
     const {width, height} = this.layout.bbox
     this.canvas_view.resize(width, height)
-    this.canvas_view.paint_engine.request_paint("everything")
     super.after_layout()
   }
 

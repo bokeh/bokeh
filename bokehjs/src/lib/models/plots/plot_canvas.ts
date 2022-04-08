@@ -156,7 +156,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
 
     this._is_paused = Math.max(this._is_paused - 1, 0)
     if (this._is_paused == 0 && !no_render)
-      this.request_paint("everything")
+      this.request_repaint()
   }
 
   private _needs_notify: boolean = false
@@ -166,10 +166,15 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
 
   // TODO: this needs to be removed
   request_render(): void {
-    this.request_paint("everything")
+    this.request_repaint()
   }
 
-  request_paint(to_invalidate: RendererView[] | RendererView | "everything"): void {
+  request_repaint(): void {
+    this.invalidate_painters("everything")
+    this.schedule_paint()
+  }
+
+  request_paint(to_invalidate: RendererView | RendererView[]): void {
     this.invalidate_painters(to_invalidate)
     this.schedule_paint()
   }
@@ -193,7 +198,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
 
   request_layout(): void {
     this._needs_layout = true
-    this.request_paint("everything")
+    this.request_repaint()
   }
 
   reset(): void {
@@ -607,10 +612,10 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
     const {x_ranges, y_ranges} = this.frame
 
     for (const [, range] of x_ranges) {
-      this.connect(range.change, () => { this._needs_layout = true; this.request_paint("everything") })
+      this.connect(range.change, () => { this._needs_layout = true; this.request_repaint() })
     }
     for (const [, range] of y_ranges) {
-      this.connect(range.change, () => { this._needs_layout = true; this.request_paint("everything") })
+      this.connect(range.change, () => { this._needs_layout = true; this.request_repaint() })
     }
 
     const {above, below, left, right, center, renderers} = this.model.properties
@@ -621,7 +626,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
       await this.build_tool_views()
     })
 
-    this.connect(this.model.change, () => this.request_paint("everything"))
+    this.connect(this.model.change, () => this.request_repaint())
     this.connect(this.model.reset, () => this.reset())
 
     const {toolbar_location} = this.model.properties
@@ -751,7 +756,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
           if (document.interactive_duration() > this.model.lod_timeout) {
             document.interactive_stop()
           }
-          this.request_paint("everything") // TODO: this.schedule_paint()
+          this.request_repaint() // TODO: this.schedule_paint()
         }, this.model.lod_timeout)
       } else
         document.interactive_stop()
