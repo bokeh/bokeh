@@ -54,7 +54,11 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
   }
 
   get bbox(): BBox {
-    return this.layout?.bbox ?? new BBox()
+    const {layout} = this
+    if (typeof layout === "undefined")
+      return new BBox()
+    else
+      return layout.bbox.relative()
   }
 
   readonly screen: CoordinateSystem = (() => {
