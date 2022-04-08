@@ -63,9 +63,7 @@ class BokehExampleSampledataDirective(BokehDirective):
     required_arguments = 1
 
     def run(self):
-        
         standalone_path, example_path = _sampledata(self.arguments[0])
-        
         rst_text = EXAMPLE_METADATA.render(
             standalone_path=standalone_path,
             example_path=example_path
@@ -90,9 +88,9 @@ def _sampledata(mods: str | None) -> str | None:
 
     def _join(_s:list, f:str):
         return " and ".join(", ".join(f"{f}`{s}`" for s in _s[:-1] + _s[-1])
-    
+
     mods = (mod.strip() for mod in mods.split(","))
-    
+
     standalones = []
     examples = []
     for mod in mods:
@@ -100,7 +98,7 @@ def _sampledata(mods: str | None) -> str | None:
         df = df[df['keyword']==mod]
         examples.extend(df['path'].to_list())
         standalone.extend([])
-    
+
     example = _join(_s=examples, f=':bokeh-tree:')
     standalone = _join(standalone, f='')
 

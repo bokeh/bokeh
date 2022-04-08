@@ -25,6 +25,6 @@ for p in path:
                 print(m[0].group(0))
                 notdoc.append(m[0].group(1) == 'bokeh.')
                 key.append([n.group(3) for n in m])
-                
+
 df = pd.DataFrame({'path':paths, 'keyword':key, 'not documented':notdoc})
 df.to_csv('./bokeh/sphinxext/sampledata.csv', index=False)
