@@ -1,9 +1,8 @@
 import {ScanningColorMapper} from "./scanning_color_mapper"
 import {Arrayable} from "core/types"
-import {min, max, bin_counts, map, interpolate} from "core/util/arrayable"
-import {linspace, range, cumsum, uniq} from "core/util/array"
+import {min, max, bin_counts, interpolate} from "core/util/arrayable"
+import {linspace, cumsum} from "core/util/array"
 import * as p from "core/properties"
-import {logger} from "core/logging"
 
 export namespace EqHistColorMapper {
   export type Attrs = p.AttrsOf<Props>
@@ -43,45 +42,14 @@ export class EqHistColorMapper extends ScanningColorMapper {
       eq_bin_centers[i] = (left+right)/2
     }
 
-    // CDFs
+    // CDF
     const cdf = cumsum(hist)
-    const cdf_max = cdf[cdf.length - 1]
-    const norm_cdf = map(cdf, (x) => x / cdf_max)
 
-    // Iteratively find as many finite bins as there are colors
-    let finite_bins = n-1
-    let binning: number[] = []
-    let iterations = 0
-    let guess = n*2
-    while ((finite_bins != n) && (iterations < 4) && (finite_bins != 0)) {
-      const ratio = guess/finite_bins
-      if (ratio > 1000) {
-        // Abort if distribution is extremely skewed
-        break
-      }
-      guess = Math.round(Math.max(n*ratio, n))
+    // Color bin boundaries are equally spaced in CDF
+    const cdf_bins = linspace(cdf[0], cdf[nbins-1], n+1)
+    const binning = interpolate(cdf_bins, cdf, eq_bin_centers)
 
-      // Interpolate
-      const palette_edges = range(0, guess)
-      const palette_cdf = map(norm_cdf, (x) => x*(guess-1))
-      binning = (interpolate(palette_edges, palette_cdf, eq_bin_centers) as number[])
-
-      // Evaluate binning
-      const uniq_bins = uniq(binning)
-      finite_bins = uniq_bins.length-1
-      iterations++
-    }
-    if (finite_bins == 0) {
-      binning = [low, high]
-      for (let j = 0; j < n-1; j++)
-        binning.push(high)
-    } else {
-      binning = binning.slice(binning.length - n - 1)
-      if (finite_bins != n)
-        logger.warn("EqHistColorMapper warning: Histogram equalization did not converge.")
-    }
-
-    // XXX: should this be guaranteed by the above algorithm?
+    // Ensure bin limits exactly match low and high values
     binning[0] = low
     binning[binning.length-1] = high
 
