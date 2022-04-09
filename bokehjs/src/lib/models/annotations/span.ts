@@ -94,7 +94,7 @@ export class SpanView extends AnnotationView implements Pannable {
 
   private _pan_state: {sloc: number, target: HitTarget} | null = null
 
-  _pan_start(ev: PanEvent): boolean {
+  on_pan_start(ev: PanEvent): boolean {
     if (this.model.visible && this.model.editable) {
       const {sx, sy} = ev
       const target = this._hit_test(sx, sy)
@@ -108,7 +108,7 @@ export class SpanView extends AnnotationView implements Pannable {
     return false
   }
 
-  _pan(ev: PanEvent): void {
+  on_pan(ev: PanEvent): void {
     assert(this._pan_state != null)
 
     const dx = ev.deltaX
@@ -125,7 +125,7 @@ export class SpanView extends AnnotationView implements Pannable {
     this.model.pan.emit("pan")
   }
 
-  _pan_end(_ev: PanEvent): void {
+  on_pan_end(_ev: PanEvent): void {
     this._pan_state = null
     this.model.pan.emit("pan:end")
   }
