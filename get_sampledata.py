@@ -1,30 +1,40 @@
 import os
 import re
-from os.path import join, isdir
+from os.path import join, isdir, isfile
 
-import pandas as pd
+regex = "(:|bokeh\.)sampledata(:|\.| import )\s*(\w+(\,\s*\w+)*)"
+folders = ["plotting","models"]
 
-regex = '(\:|bokeh\.])?sampledata([\:\.]\s*(\w+(\s+\w+)?))?'
-path = ['plotting','models']
-
+csv_dirs = ["bokeh","sphinxext","sampledata.csv"]
 cwd = os.getcwd()
-paths = []
-notdoc = []
-key = []
-for p in path:
-    #  print(join(cwd,p))
-    for file in os.listdir(join(cwd,'examples', p, 'file')):
-        _lp = join('examples', p, 'file', file)
-        pp  = join(cwd,_lp)
-        if isdir(pp) or file.startswith('.') or file.startswith('__'):
-            continue
-        with open(pp, 'r') as f:
-            m = re.findall(regex, f.read())
-            if m:
-                paths.append(_lp)
-                print(m[0].group(0))
-                notdoc.append(m[0].group(1) == 'bokeh.')
-                key.append([n.group(3) for n in m])
 
-df = pd.DataFrame({'path':paths, 'keyword':key, 'not documented':notdoc})
-df.to_csv('./bokeh/sphinxext/sampledata.csv', index=False)
+csv_path = join(cwd, *csv_dirs)
+if isfile(csv_path):
+    os.remove(csv_path)
+    with open(csv_path, "a") as csv:
+        csv.write("path;imported sampledata;documented sampledata;missing documentation\n")
+
+for p in path:
+    for file in os.listdir(join(cwd,"examples", p, "file")):
+        _lp = join("examples", p, "file", file)
+        pp  = join(cwd,_lp)
+        if isdir(pp) or file.startswith(".") or file.startswith("__"):
+            continue
+
+        with open(pp, "r") as f:
+            matches = re.findall(regex, f.read())
+            
+        if matches:
+            documented = []
+            imported = []
+            for m in matches:
+                keywords = m[2].replace(" ","")
+                if m[0] == "bokeh.":
+                    imported.extend(keywords.split(","))
+                else:
+                    documented.extend(keywords.split(","))
+            imported = sorted(imported)
+            documented = sorted(documented)
+            missing = imported != documented
+            with open(csv_path, "a") as csv:
+                csv.write(f"{_lp};{imported};{documented};{missing}\n")

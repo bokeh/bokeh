@@ -8,8 +8,7 @@
 
 The ``bokeh-example-sampledata`` directive can be used by supplying:
 
-    .. bokeh-example-sampledata::
-        :sampledata: `sampledata_iris`
+    .. bokeh-example-sampledata:: sampledata_iris
 
 """
 
@@ -27,7 +26,6 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # External imports
-import pandas as pd
 from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
@@ -87,22 +85,30 @@ def _sampledata(mods: str | None) -> str | None:
         return
 
     def _join(_s:list, f:str):
-        return " and ".join(", ".join(f"{f}`{s}`" for s in _s[:-1] + _s[-1])
+        if _s == []:
+            return None
+        elif len(_s) == 1:
+            
+        return " and ".join(", ".join(f"{f}`{s}`" for s in _s[:-1] + _s[-1]))
 
     mods = (mod.strip() for mod in mods.split(","))
 
     standalones = []
     examples = []
     for mod in mods:
-        df = pd.read_csv('sampledata.csv')
-        df = df[df['keyword']==mod]
-        examples.extend(df['path'].to_list())
-        standalone.extend([])
+        with open("sampledata.csv","r") as f:
+            lines = f.readlines()
+                            
+        for line in lines:
+            sp = line.split(";")
+            if mod in sp[1]:
+                examples.extend(sp[0])
+                standalone.extend([])
 
-    example = _join(_s=examples, f=':bokeh-tree:')
-    standalone = _join(standalone, f='')
+    example = _join(_s=examples, f=":bokeh-tree:")
+    standalone = _join(standalone, f="")
 
-    return standalone or None, example or None
+    return standalone, example
 
 # -----------------------------------------------------------------------------
 # Code
