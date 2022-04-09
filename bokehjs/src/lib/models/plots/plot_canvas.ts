@@ -112,8 +112,6 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
 
   protected _is_paused?: number
 
-  protected lod_started: boolean
-
   protected _initial_state: StateInfo
 
   protected throttled_paint: () => void
@@ -240,7 +238,6 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
 
     super.initialize()
 
-    this.lod_started = false
     this.visuals = new Visuals(this) as Plot.Visuals
 
     this._initial_state = {
