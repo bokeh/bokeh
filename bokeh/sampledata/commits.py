@@ -14,6 +14,7 @@ This module contains one pandas Dataframe: ``data``.
 
 :bokeh-dataframe:`bokeh.sampledata.commits.data`
 
+.. bokeh-example-sampledata:: commits
 '''
 
 #-----------------------------------------------------------------------------

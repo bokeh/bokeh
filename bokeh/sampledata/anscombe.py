@@ -18,6 +18,7 @@ This module contains one pandas Dataframe: ``data``.
 
 .. _Anscombe's Quartet: https://en.wikipedia.org/wiki/Anscombe%27s_quartet
 
+.. bokeh-example-sampledata:: anscombe
 '''
 
 #-----------------------------------------------------------------------------

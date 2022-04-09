@@ -26,6 +26,7 @@ have the following dictionaries as values:
 Entries for ``'name'`` can have duplicates for certain states (e.g. Virginia).
 The combination of ``'detailed name'`` and ``'state'`` will always be unique.
 
+.. bokeh-example-sampledata:: us_counties
 '''
 #-----------------------------------------------------------------------------
 # Boilerplate

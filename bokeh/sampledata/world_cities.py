@@ -16,6 +16,7 @@ This module contains one pandas Dataframe: ``data``.
 
 :bokeh-dataframe:`bokeh.sampledata.world_cities.data`
 
+.. bokeh-example-sampledata:: world_cities
 '''
 
 #-----------------------------------------------------------------------------

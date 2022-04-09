@@ -15,6 +15,7 @@ to a SQLite database with the data.
 
 .. _Open Movie Database: http://www.omdbapi.com
 
+.. bokeh-example-sampledata:: movies_data
 '''
 
 #-----------------------------------------------------------------------------

@@ -12,6 +12,7 @@ This module contains one pandas Dataframe: ``data``.
 
 :bokeh-dataframe:`bokeh.sampledata.glucose.data`
 
+.. bokeh-example-sampledata:: glucose
 '''
 
 #-----------------------------------------------------------------------------

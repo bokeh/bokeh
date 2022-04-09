@@ -16,6 +16,7 @@ This module contains one pandas Dataframe: ``data``.
 
 :bokeh-dataframe:`bokeh.sampledata.population.data`
 
+.. bokeh-example-sampledata:: population
 '''
 
 #-----------------------------------------------------------------------------

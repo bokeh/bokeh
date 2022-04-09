@@ -19,6 +19,7 @@ This module contains one pandas Dataframe: ``data``.
 
 .. _Will Burtin's historical data: https://medium.com/@harshdev_41068/burtins-legendary-data-on-antibiotics-9b32ecd5943f
 
+.. bokeh-example-sampledata:: antibiotics
 '''
 
 #-----------------------------------------------------------------------------

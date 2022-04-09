@@ -23,6 +23,7 @@ has the unemployment rate (2009) as the value.
         ...
     }
 
+.. bokeh-example-sampledata:: unemployment
 '''
 #-----------------------------------------------------------------------------
 # Boilerplate

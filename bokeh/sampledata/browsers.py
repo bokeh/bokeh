@@ -21,6 +21,7 @@ This module contains one pandas Dataframe: ``browsers_nov_2013``.
 The module also contains a dictionary ``icons`` with base64-encoded PNGs of the
 logos for Chrome, Firefox, Safari, Opera, and IE.
 
+.. bokeh-example-sampledata:: browsers
 '''
 
 #-----------------------------------------------------------------------------

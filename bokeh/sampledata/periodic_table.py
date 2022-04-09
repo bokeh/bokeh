@@ -14,6 +14,7 @@ This module contains one pandas Dataframe: ``elements``.
 
 :bokeh-dataframe:`bokeh.sampledata.periodic_table.elements`
 
+.. bokeh-example-sampledata:: periodic_table
 '''
 
 #-----------------------------------------------------------------------------

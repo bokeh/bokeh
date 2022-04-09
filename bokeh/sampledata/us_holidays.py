@@ -25,6 +25,7 @@ This module contains one list: ``us_holidays``.
 
 .. _icalendar: https://pypi.org/project/icalendar/
 
+.. bokeh-example-sampledata:: us_holidays
 '''
 
 #-----------------------------------------------------------------------------

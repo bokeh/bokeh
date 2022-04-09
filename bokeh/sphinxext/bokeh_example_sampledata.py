@@ -77,18 +77,17 @@ def setup(app):
 # -----------------------------------------------------------------------------
 
 def _sampledata(mods: str | None) -> str | None:
+    
     if mods is None:
         return
 
     def _join(_s:list, f:str):
-        def comma(__s):
-            return ", ".join(f"{f}`{s}`" for s in __s)
         if _s == []:
             return None
         elif len(_s) == 1:
-            return comma(_s)
+            return f"{f}`{_s[-1]}`"
         else:
-            return " and ".join([comma(_s[:-1]), comma(_s[-1])])
+            return " and ".join([", ".join(f"{f}`{s}`" for s in _s), f"{f}`{_s[-1]}`"])
 
     mods = (mod.strip() for mod in mods.split(","))
 
@@ -101,8 +100,8 @@ def _sampledata(mods: str | None) -> str | None:
         for line in lines:
             sp = line.split(";")
             if mod in sp[1]:
-                examples.extend(sp[0])
-                standalones.extend([])
+                examples.append(sp[0])
+                #standalones.append([])
 
     example = _join(_s=examples, f=":bokeh-tree:")
     standalone = _join(standalones, f="")

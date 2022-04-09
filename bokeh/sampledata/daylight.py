@@ -18,6 +18,7 @@ This module contains one pandas Dataframe: ``daylight_warsaw_2013``.
 
 .. _this FAQ: https://www.sunrisesunset.com/faqs.asp#other_usage
 
+.. bokeh-example-sampledata:: daylight
 '''
 
 #-----------------------------------------------------------------------------

@@ -16,6 +16,7 @@ recognition that can be used by OpenCV.
 
 .. _OpenCV: https://opencv.org
 
+.. bokeh-example-sampledata:: haar_cascade
 '''
 
 #-----------------------------------------------------------------------------
