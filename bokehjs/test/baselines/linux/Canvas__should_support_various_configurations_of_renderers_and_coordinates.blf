@@ -1,0 +1,14 @@
+CanvasBox bbox=[0, 0, 600, 600]
+  Canvas
+    Grid
+    Grid
+    Grid
+    Grid
+    Span
+    Span
+    Span
+    Span
+    BoxAnnotation
+    BoxAnnotation
+    BoxAnnotation
+    PolyAnnotation
