@@ -1,5 +1,6 @@
 import {HasProps} from "core/has_props"
 import {settings} from "core/settings"
+import {ViewOf, SerializableState} from "core/view"
 import {DOMView} from "core/dom_view"
 import {logger} from "core/logging"
 import * as p from "core/properties"
@@ -152,7 +153,7 @@ export class CanvasView extends DOMView implements RenderingTarget {
     this.el.style.position = "relative"
     append(this.el, ...elements)
 
-    this.renderer_views = new Map()
+    this._renderer_views = new Map()
 
     this.ui_event_bus = new UIEventBus(this)
     this.paint_engine = new PaintEngine(this)
@@ -170,14 +171,24 @@ export class CanvasView extends DOMView implements RenderingTarget {
     await this.build_renderer_views()
   }
 
-  renderer_views: Map<Renderer, RendererView>
+  protected _renderer_views: Map<Renderer, RendererView>
 
   async build_renderer_views(): Promise<void> {
-    await build_views(this.renderer_views, this.model.renderers, {parent: this})
+    await build_views(this._renderer_views, this.model.renderers, {parent: this})
+  }
+
+  get renderer_views(): RendererView[] {
+    return this.model.renderers.map((r) => this._renderer_views.get(r)!)
+  }
+
+  view_for<T extends Renderer>(model: T): ViewOf<T> {
+    const view = this._renderer_views.get(model)
+    assert(view != null, "internal error")
+    return view
   }
 
   override remove(): void {
-    remove_views(this.renderer_views)
+    remove_views(this._renderer_views)
     this.paint_engine.destroy()
     this.ui_event_bus.destroy()
     super.remove()
@@ -337,6 +348,12 @@ export class CanvasView extends DOMView implements RenderingTarget {
   request_paint(to_invalidate: RendererView | RendererView[]): void {
     this.paint_engine.request_paint(to_invalidate)
   }
+
+  override serializable_state(): SerializableState {
+    const {children, ...state} = super.serializable_state()
+    const renderers = this.renderer_views.map((view) => view.serializable_state())
+    return {...state, children: [...children ?? [], ...renderers]}
+  }
 }
 
 export namespace Canvas {
@@ -389,10 +406,6 @@ export class PaintEngine {
 
   get renderers(): Renderer[] {
     return this.canvas.model.renderers
-  }
-
-  get renderer_views(): Map<Renderer, RendererView> {
-    return this.canvas.renderer_views
   }
 
   constructor(readonly canvas: CanvasView) {
@@ -506,7 +519,7 @@ export class PaintEngine {
       if (renderer.level != level)
         continue
 
-      const renderer_view = this.renderer_views.get(renderer)!
+      const renderer_view = this.canvas.view_for(renderer)
 
       ctx.save()
       if (global_clip || renderer_view.needs_clip) {

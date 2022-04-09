@@ -2,6 +2,7 @@ import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {Canvas, CanvasView} from "../canvas/canvas"
 import {build_view} from "core/build_views"
 import {LayoutItem} from "core/layout"
+import {SerializableState} from "core/view"
 import * as p from "core/properties"
 import {CanvasLayer} from "core/util/canvas"
 
@@ -67,6 +68,12 @@ export class CanvasBoxView extends LayoutDOMView {
     composite.ctx.drawImage(canvas, 0, 0)
 
     return composite
+  }
+
+  override serializable_state(): SerializableState {
+    const {children, ...state} = super.serializable_state()
+    const canvas = this.canvas_view.serializable_state()
+    return {...state, children: [...children ?? [], canvas]}
   }
 }
 
