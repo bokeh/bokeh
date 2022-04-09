@@ -77,7 +77,7 @@ def setup(app):
 # -----------------------------------------------------------------------------
 
 def _sampledata(mods: str | None) -> str | None:
-    
+
     if mods is None:
         return
 
