@@ -23,7 +23,7 @@ for p in path:
 
         with open(pp, "r") as f:
             matches = re.findall(regex, f.read())
-            
+
         if matches:
             documented = []
             imported = []

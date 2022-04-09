@@ -25,14 +25,10 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# External imports
-from docutils.parsers.rst.directives import unchanged
-from sphinx.errors import SphinxError
-
 # Bokeh imports
 from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective
-from .templates import EXAMPLE_METADATA
+from .templates import EXAMPLE_SAMPLEDATA
 from .util import get_sphinx_resources
 
 # -----------------------------------------------------------------------------
@@ -40,7 +36,7 @@ from .util import get_sphinx_resources
 # -----------------------------------------------------------------------------
 
 __all__ = (
-    "BokehExampleMetadataDirective",
+    "BokehExampleSampledataDirective",
     "setup",
 )
 
@@ -62,7 +58,7 @@ class BokehExampleSampledataDirective(BokehDirective):
 
     def run(self):
         standalone_path, example_path = _sampledata(self.arguments[0])
-        rst_text = EXAMPLE_METADATA.render(
+        rst_text = EXAMPLE_SAMPLEDATA.render(
             standalone_path=standalone_path,
             example_path=example_path
         )
@@ -101,15 +97,15 @@ def _sampledata(mods: str | None) -> str | None:
     for mod in mods:
         with open("sampledata.csv","r") as f:
             lines = f.readlines()
-                            
+
         for line in lines:
             sp = line.split(";")
             if mod in sp[1]:
                 examples.extend(sp[0])
-                standalone.extend([])
+                standalones.extend([])
 
     example = _join(_s=examples, f=":bokeh-tree:")
-    standalone = _join(standalone, f="")
+    standalone = _join(standalones, f="")
 
     return standalone, example
 
