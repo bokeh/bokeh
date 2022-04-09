@@ -128,8 +128,6 @@ export class View implements ISignalable {
     return null
   }
 
-  on_hit?(sx: number, sy: number): boolean
-
   private _idle_notified: boolean = false
   notify_finished(): void {
     if (!this.is_root)

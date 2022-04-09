@@ -6,6 +6,7 @@ import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Signal0} from "core/signaling"
 import {Size} from "core/layout"
+import {TapEvent, Tapable} from "core/ui_events"
 import {SideLayout} from "core/layout/side_panel"
 import {font_metrics} from "core/util/text"
 import {BBox} from "core/util/bbox"
@@ -13,7 +14,7 @@ import {max, every, some} from "core/util/array"
 import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 
-export class LegendView extends AnnotationView {
+export class LegendView extends AnnotationView implements Tapable {
   override model: Legend
   override visuals: Legend.Visuals
 
@@ -162,7 +163,7 @@ export class LegendView extends AnnotationView {
     return bbox.contains(sx, sy)
   }
 
-  override on_hit(sx: number, sy: number): boolean {
+  on_tap(ev: TapEvent): boolean {
     let yoffset
     const {glyph_width} = this.model
     const {legend_padding} = this
@@ -189,6 +190,7 @@ export class LegendView extends AnnotationView {
 
         const bbox = new BBox({left: x1, top: y1, width: w, height: h})
 
+        const {sx, sy} = ev
         if (bbox.contains(sx, sy)) {
           switch (this.model.click_policy) {
             case "hide": {
@@ -212,7 +214,7 @@ export class LegendView extends AnnotationView {
       }
     }
 
-    return false
+    return true
   }
 
   protected _render(): void {

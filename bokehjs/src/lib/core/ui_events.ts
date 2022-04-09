@@ -10,7 +10,6 @@ import {isString, isObject} from "./util/types"
 import {is_mobile} from "./util/platform"
 import {PlotView} from "../models/plots/plot"
 import {ToolView} from "../models/tools/tool"
-import {ContextMenu} from "./util/menus"
 import {RendererView} from "../models/renderers/renderer"
 import type {CanvasView} from "../models/canvas/canvas"
 
@@ -43,15 +42,16 @@ export interface Scrollable {
 }
 
 export interface Keyable {
-  on_keydown(ev: KeyEvent): void
-  on_keyup(ev: KeyEvent): void
+  on_keydown?(ev: KeyEvent): void
+  on_keyup?(ev: KeyEvent): void
 }
 
 export interface Tapable {
-  on_tap(ev: TapEvent): void
-  on_doubletap?(ev: TapEvent): void
-  on_press?(ev: TapEvent): void
-  on_pressup?(ev: TapEvent): void
+  on_tap?(ev: TapEvent): boolean
+  on_doubletap?(ev: TapEvent): boolean
+  on_press?(ev: TapEvent): boolean
+  on_pressup?(ev: TapEvent): boolean
+  on_context_menu?(ev: TapEvent): boolean
 }
 
 export function is_Moveable(obj: unknown): obj is Moveable {
@@ -75,11 +75,11 @@ export function is_Scrollable(obj: unknown): obj is Scrollable {
 }
 
 export function is_Keyable(obj: unknown): obj is Keyable {
-  return isObject(obj) && "on_keydown" in obj && "on_keyup" in obj
+  return isObject(obj) && ("on_keydown" in obj || "on_keyup" in obj)
 }
 
-export function is_Tapable(obj: unknown): obj is Keyable {
-  return isObject(obj) && "on_tap" in obj
+export function is_Tapable(obj: unknown): obj is Tapable {
+  return isObject(obj) && ("on_tap" in obj || "on_doubletap" in obj || "on_press" in obj || "on_pressup" in obj)
 }
 
 function is_touch(event: unknown): event is TouchEvent {
@@ -180,6 +180,7 @@ export class UIEventBus implements EventListenerObject {
   readonly doubletap:    UISignal<TapEvent>     = new Signal(this, "doubletap")
   readonly press:        UISignal<TapEvent>     = new Signal(this, "press")
   readonly pressup:      UISignal<TapEvent>     = new Signal(this, "pressup")
+  readonly context_menu: UISignal<TapEvent>     = new Signal(this, "context_menu")
 
   readonly move_enter:   UISignal<MoveEvent>    = new Signal(this, "move:enter")
   readonly move:         UISignal<MoveEvent>    = new Signal(this, "move")
@@ -194,8 +195,6 @@ export class UIEventBus implements EventListenerObject {
     touchAction: "auto",
     inputClass: Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
   })
-
-  private menu: ContextMenu
 
   get hit_area(): HTMLElement {
     return this.canvas_view.events_el
@@ -219,15 +218,9 @@ export class UIEventBus implements EventListenerObject {
     // instead of an anonymous function so we can easily refer back to it for removing
     document.addEventListener("keydown", this)
     document.addEventListener("keyup", this)
-
-    this.menu = new ContextMenu([], {
-      prevent_hide: (event) => event.button == 2 && event.composedPath().includes(this.hit_area),
-    })
-    this.hit_area.appendChild(this.menu.el)
   }
 
   destroy(): void {
-    this.menu.remove()
     this.hammer.destroy()
     document.removeEventListener("keydown", this)
     document.removeEventListener("keyup", this)
@@ -501,6 +494,41 @@ export class UIEventBus implements EventListenerObject {
         }
         break
       }
+      case "wheel": {
+        if (view != null && is_Scrollable(view)) {
+          view.on_scroll(e)
+        }
+        break
+      }
+      case "tap":
+      case "doubletap":
+      case "press":
+      case "pressup":
+      case "contextmenu": {
+        if (view != null && is_Tapable(view)) {
+          let stop: boolean = false
+          stop ||= view.on_tap?.(e) ?? false
+          stop ||= view.on_doubletap?.(e) ?? false
+          stop ||= view.on_press?.(e) ?? false
+          stop ||= view.on_pressup?.(e) ?? false
+          stop ||= view.on_context_menu?.(e) ?? false
+          if (stop)
+            return
+        }
+        break
+      }
+      /*
+      case "keyup":
+      case "keydown": {
+        if (view != null && is_Tapable(view)) {
+          view.on_tap?.(e)
+          view.on_doubletap?.(e)
+          view.on_press?.(e)
+          view.on_pressup?.(e)
+        }
+        break
+      }
+      */
     }
 
     const event = e
@@ -613,8 +641,6 @@ export class UIEventBus implements EventListenerObject {
         const path: EventTarget[] = (srcEvent as any).path ?? srcEvent.composedPath()
         if (path.length != 0 && path[0] != this.hit_area)
           return // don't trigger bokeh events
-
-        view?.on_hit?.(e.sx, e.sy)
 
         if (this._hit_test_frame(plot_view, e.sx, e.sy)) {
           const active_gesture = gestures.tap.active
@@ -860,17 +886,12 @@ export class UIEventBus implements EventListenerObject {
     this._trigger(this.move_exit, this._move_event(e), e)
   }
 
-  /*private*/ _mouse_wheel(e: WheelEvent): void {
-    this._trigger(this.scroll, this._scroll_event(e), e)
+  /*private*/ _context_menu(e: MouseEvent): void {
+    this._trigger(this.context_menu, {...this._move_event(e), type: "contextmenu"}, e)
   }
 
-  /*private*/ _context_menu(e: MouseEvent): void {
-    if (!this.menu.is_open && this.menu.can_open) {
-      e.preventDefault()
-    }
-
-    const {sx, sy} = this._get_sxy(e)
-    this.menu.toggle({left: sx, top: sy})
+  /*private*/ _mouse_wheel(e: WheelEvent): void {
+    this._trigger(this.scroll, this._scroll_event(e), e)
   }
 
   /*private*/ _key_down(e: KeyboardEvent): void {
