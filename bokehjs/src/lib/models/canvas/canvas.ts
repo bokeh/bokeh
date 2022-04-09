@@ -10,6 +10,7 @@ import {UIEventBus} from "core/ui_events"
 import {build_views, remove_views} from "core/build_views"
 import {BBox} from "core/util/bbox"
 import {load_module} from "core/util/modules"
+import {parse_css_font_size} from "core/util/text"
 import {Context2d, CanvasLayer} from "core/util/canvas"
 import {PlotView} from "../plots/plot"
 import {Renderer, RenderingTarget} from "../renderers/renderer"
@@ -192,6 +193,19 @@ export class CanvasView extends DOMView implements RenderingTarget {
     this.on_change(renderers, async () => {
       await this.build_renderer_views()
     })
+  }
+
+  get base_font_size(): number | null {
+    const font_size = getComputedStyle(this.el).fontSize
+    const result = parse_css_font_size(font_size)
+
+    if (result != null) {
+      const {value, unit} = result
+      if (unit == "px")
+        return value
+    }
+
+    return null
   }
 
   add_underlay(el: HTMLElement): void {
