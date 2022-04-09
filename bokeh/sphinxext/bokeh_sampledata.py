@@ -85,11 +85,14 @@ def _sampledata(mods: str | None) -> str | None:
         return
 
     def _join(_s:list, f:str):
+        def comma(__s):
+            return ", ".join(f"{f}`{s}`" for s in __s)
         if _s == []:
             return None
         elif len(_s) == 1:
-            
-        return " and ".join(", ".join(f"{f}`{s}`" for s in _s[:-1] + _s[-1]))
+            return comma(_s)
+        else:
+            return " and ".join([comma(_s[:-1]), comma(_s[-1])])
 
     mods = (mod.strip() for mod in mods.split(","))
 
