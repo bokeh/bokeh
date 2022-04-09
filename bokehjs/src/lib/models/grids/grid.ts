@@ -106,11 +106,14 @@ export class GridView extends GuideRendererView {
       //  end = null
     } else {
       [start, end] = range_bounds
-      for (const axis_view of this.plot_view.axis_views) {
-        if (axis_view.dimension == this.model.dimension
-            && axis_view.model.x_range_name == this.model.x_range_name
-            && axis_view.model.y_range_name == this.model.y_range_name) {
-          [start, end] = axis_view.computed_bounds
+      // XXX: there needs to be a better way to discover the axis
+      if (typeof this.plot_view.axis_views !== "undefined") {
+        for (const axis_view of this.plot_view.axis_views) {
+          if (axis_view.dimension == this.model.dimension
+              && axis_view.model.x_range_name == this.model.x_range_name
+              && axis_view.model.y_range_name == this.model.y_range_name) {
+            [start, end] = axis_view.computed_bounds
+          }
         }
       }
     }
