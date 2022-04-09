@@ -399,7 +399,7 @@ export class UIEventBus implements EventListenerObject {
   private _current_rotate_view: (RendererView & Rotatable) | null = null
   private _current_move_view: (RendererView & Moveable) | null = null
 
-  _trigger<E extends UIEvent>(signal: UISignal<E>, e: E, srcEvent: Event): void {
+  _trigger<E extends UIEvent>(signal: UISignal<E>, e: E, src_event: Event): void {
     const view = this._hit_test(e.sx, e.sy)
 
     switch (e.type) {
@@ -411,6 +411,7 @@ export class UIEventBus implements EventListenerObject {
             if (e.type == "panstart" && is_Pannable(view)) {
               if (view._pan_start(e)) {
                 this._current_pan_view = view
+                src_event.preventDefault()
                 return
               }
             }
@@ -422,6 +423,7 @@ export class UIEventBus implements EventListenerObject {
             this._current_pan_view._pan_end(e)
             this._current_pan_view = null
           }
+          src_event.preventDefault()
           return
         }
         break
@@ -434,6 +436,7 @@ export class UIEventBus implements EventListenerObject {
             if (e.type == "pinchstart" && is_Pinchable(view)) {
               if (view._pinch_start(e)) {
                 this._current_pinch_view = view
+                src_event.preventDefault()
                 return
               }
             }
@@ -445,6 +448,7 @@ export class UIEventBus implements EventListenerObject {
             this._current_pinch_view._pinch_end(e)
             this._current_pinch_view = null
           }
+          src_event.preventDefault()
           return
         }
         break
@@ -457,6 +461,7 @@ export class UIEventBus implements EventListenerObject {
             if (e.type == "rotatestart" && is_Rotatable(view)) {
               if (view._rotate_start(e)) {
                 this._current_rotate_view = view
+                src_event.preventDefault()
                 return
               }
             }
@@ -468,6 +473,7 @@ export class UIEventBus implements EventListenerObject {
             this._current_rotate_view._rotate_end(e)
             this._current_rotate_view = null
           }
+          src_event.preventDefault()
           return
         }
         break
@@ -517,7 +523,7 @@ export class UIEventBus implements EventListenerObject {
       }
 
       if (pan_view != null) {
-        this.__trigger(pan_view, view, signal, event, srcEvent)
+        this.__trigger(pan_view, view, signal, event, src_event)
       }
     } else if (e.type == "pinchstart" || e.type == "pinch" || e.type == "pinchend") {
       let pinch_view: PlotView | null
@@ -534,7 +540,7 @@ export class UIEventBus implements EventListenerObject {
       }
 
       if (pinch_view != null) {
-        this.__trigger(pinch_view, view, signal, event, srcEvent)
+        this.__trigger(pinch_view, view, signal, event, src_event)
       }
     } else if (e.type == "rotatestart" || e.type == "rotate" || e.type == "rotateend") {
       let rotate_view: PlotView | null
@@ -551,27 +557,27 @@ export class UIEventBus implements EventListenerObject {
       }
 
       if (rotate_view != null) {
-        this.__trigger(rotate_view, view, signal, event, srcEvent)
+        this.__trigger(rotate_view, view, signal, event, src_event)
       }
     } else if (e.type == "mouseenter" || e.type == "mousemove" || e.type == "mouseleave") {
       const prev_view = this._prev_move?.plot_view
 
       if (prev_view != null && (e.type == "mouseleave" || prev_view != curr_view)) {
-        this.__trigger(prev_view, view, this.move_exit, {type: "mouseleave", sx, sy, shiftKey: false, ctrlKey: false}, srcEvent)
+        this.__trigger(prev_view, view, this.move_exit, {type: "mouseleave", sx, sy, shiftKey: false, ctrlKey: false}, src_event)
       }
 
       if (curr_view != null && (e.type == "mouseenter" || prev_view != curr_view)) {
-        this.__trigger(curr_view, view, this.move_enter, {type: "mouseenter", sx, sy, shiftKey: false, ctrlKey: false}, srcEvent)
+        this.__trigger(curr_view, view, this.move_enter, {type: "mouseenter", sx, sy, shiftKey: false, ctrlKey: false}, src_event)
       }
 
       if (curr_view != null && e.type == "mousemove") {
-        this.__trigger(curr_view, view, signal, event, srcEvent)
+        this.__trigger(curr_view, view, signal, event, src_event)
       }
 
       this._prev_move = {sx, sy, plot_view: curr_view}
     } else {
       if (curr_view != null) {
-        this.__trigger(curr_view, view, signal, event, srcEvent)
+        this.__trigger(curr_view, view, signal, event, src_event)
       }
     }
   }
