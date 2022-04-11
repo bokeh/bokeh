@@ -348,7 +348,7 @@ export class UIEventBus implements EventListenerObject {
     }
   }
 
-  set_cursor(cursor: string = "default"): void {
+  set_cursor(cursor: string): void {
     this.hit_area.style.cursor = cursor
   }
 
@@ -476,7 +476,7 @@ export class UIEventBus implements EventListenerObject {
       case "mouseleave": {
         const cursor = (() => {
           const target = view ?? this._hit_test_plot(e.sx, e.sy)
-          return target?.cursor(e.sx, e.sy) ?? undefined
+          return target?.cursor(e.sx, e.sy) ?? "default"
         })()
         this.set_cursor(cursor)
 

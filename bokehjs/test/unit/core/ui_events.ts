@@ -35,7 +35,7 @@ describe("ui_event_bus module", () => {
     hammer_stub = sinon.stub(UIEventBus.prototype as any, "_configure_hammerjs") // XXX: protected
 
     plot_view = await new_plot()
-    ui_event_bus = plot_view.canvas_view.ui_event_bus
+    ui_event_bus = plot_view.canvas.ui_event_bus
   })
 
   after_each(() => {
@@ -90,7 +90,7 @@ describe("ui_event_bus module", () => {
       it("should use default cursor no active inspector", () => {
         ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
 
-        expect(spy_cursor.calledTwice).to.be.true
+        expect(spy_cursor.calledOnce).to.be.true
         expect(spy_cursor.calledWith("default")).to.be.true
       })
 
@@ -99,13 +99,9 @@ describe("ui_event_bus module", () => {
         plot_view.model.add_tools(inspector)
         await plot_view.ready
 
-        const ss = sinon.stub(ui_event_bus as any, "_hit_test_frame").returns(false) // XXX: protected
-
         ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
-        expect(spy_cursor.calledTwice).to.be.true
+        expect(spy_cursor.calledOnce).to.be.true
         expect(spy_cursor.calledWith("default")).to.be.true
-
-        ss.restore()
       })
 
       it("should change cursor if active inspector is present and over frame", async () => {
@@ -113,23 +109,20 @@ describe("ui_event_bus module", () => {
         plot_view.model.add_tools(inspector)
         await plot_view.ready
 
-        const ss = sinon.stub(ui_event_bus as any, "_hit_test_frame").returns(true) // XXX: protected
-
-        ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
-        expect(spy_cursor.calledTwice).to.be.true
+        const {left, top} = plot_view.frame.bbox
+        ui_event_bus._trigger(ui_event_bus.move, {...e, sx: left, sy: top}, new Event("mousemove"))
+        expect(spy_cursor.calledOnce).to.be.true
         expect(spy_cursor.calledWith("crosshair")).to.be.true
-
-        ss.restore()
       })
 
       it("should change cursor on view_renderer with cursor method", async () => {
         const legend = new Legend({click_policy: "mute"})
         const legend_view = await build_view(legend, {parent: plot_view})
 
-        const ss = sinon.stub(ui_event_bus as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
+        const ss = sinon.stub(ui_event_bus as any, "_hit_test").returns(legend_view) // XXX: protected
 
         ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
-        expect(spy_cursor.calledTwice).to.be.true
+        expect(spy_cursor.calledOnce).to.be.true
         expect(spy_cursor.calledWith("pointer")).to.be.true
 
         ss.restore()
@@ -143,13 +136,13 @@ describe("ui_event_bus module", () => {
         const legend = new Legend({click_policy: "mute"})
         const legend_view = await build_view(legend, {parent: plot_view})
 
-        const ss = sinon.stub(ui_event_bus as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
+        const ss = sinon.stub(ui_event_bus as any, "_hit_test").returns(legend_view) // XXX: protected
 
         ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
         expect(spy_trigger.calledTwice).to.be.true
         expect(spy_trigger.args[1]).to.be.equal([ui_event_bus.move_exit, e, inspector.id])
         // should also use view renderer cursor and not inspector cursor
-        expect(spy_cursor.calledTwice).to.be.true
+        expect(spy_cursor.calledOnce).to.be.true
         expect(spy_cursor.calledWith("pointer")).to.be.true
 
         ss.restore()
@@ -178,18 +171,18 @@ describe("ui_event_bus module", () => {
         expect(spy_trigger.args[0]).to.be.equal([ui_event_bus.tap, e, gesture.id])
       })
 
-      it("should call on_hit method on view renderer if exists", async () => {
+      it("should call on_tap method on view renderer if exists", async () => {
         const legend = new Legend({click_policy: "mute"})
         const legend_view = await build_view(legend, {parent: plot_view})
 
-        const ss = sinon.stub(ui_event_bus as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
-        const on_hit = sinon.stub(legend_view, "on_hit")
+        const ss = sinon.stub(ui_event_bus as any, "_hit_test").returns(legend_view) // XXX: protected
+        const on_tap = sinon.stub(legend_view, "on_tap")
 
         ui_event_bus._trigger(ui_event_bus.tap, e, new Event("mousemove"))
-        expect(on_hit.calledOnce).to.be.true
-        expect(on_hit.args[0]).to.be.equal([10, 15])
+        expect(on_tap.calledOnce).to.be.true
+        expect(on_tap.args[0]).to.be.equal([{type: "tap", sx: 10, sy: 15, shiftKey: false, ctrlKey: false}])
 
-        on_hit.restore()
+        on_tap.restore()
         ss.restore()
       })
     })
