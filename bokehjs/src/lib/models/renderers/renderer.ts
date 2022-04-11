@@ -8,7 +8,7 @@ import {CanvasLayer} from "core/util/canvas"
 import type {PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform, CoordinateSystem, CoordinateMapping} from "../canvas/coordinates"
-import {CartesianFrame} from "../canvas/cartesian_frame"
+import {CartesianFrameView} from "../canvas/cartesian_frame"
 
 export namespace RendererGroup {
   export type Attrs = p.AttrsOf<Props>
@@ -38,7 +38,7 @@ export interface RenderingTarget {
   readonly bbox: BBox
   readonly screen: CoordinateSystem
   readonly view: CoordinateSystem
-  readonly frame?: CartesianFrame
+  readonly frame?: CartesianFrameView
   request_repaint(): void
   request_paint(to_invalidate: RendererView | RendererView[]): void
 }

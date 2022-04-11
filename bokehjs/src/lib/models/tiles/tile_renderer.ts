@@ -4,7 +4,7 @@ import {TileSource} from "./tile_source"
 import {WMTSTileSource} from "./wmts_tile_source"
 import {Renderer, RendererView} from "../renderers/renderer"
 import {Plot} from "../plots/plot"
-import {CartesianFrame} from "../canvas/cartesian_frame"
+import {CartesianFrameView} from "../canvas/cartesian_frame"
 import {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
 import {div, style, remove} from "core/dom"
@@ -70,7 +70,7 @@ export class TileRendererView extends RendererView {
     return this.layer.ctx
   }
 
-  private get map_frame(): CartesianFrame {
+  private get map_frame(): CartesianFrameView {
     return this.plot_view.frame
   }
 

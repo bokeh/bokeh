@@ -1,6 +1,6 @@
 import {Interval} from "../types"
 
-import {CartesianFrame} from "models/canvas/cartesian_frame"
+import {CartesianFrameView} from "models/canvas/cartesian_frame"
 import {Scale} from "models/scales/scale"
 
 // Module for zoom-related functions
@@ -28,14 +28,14 @@ export type ScaleRange = {
   factor: number
 }
 
-export function scale_range(frame: CartesianFrame, factor: number,
+export function scale_range(frame: CartesianFrameView, factor: number,
     h_axis: boolean = true, v_axis: boolean = true, center?: {x: number, y: number}): ScaleRange {
   /*
    * Utility function for zoom tools to calculate/create the zoom_info object
    * of the form required by ``PlotView.update_range``
    *
    * Parameters:
-   *   frame : CartesianFrame
+   *   frame : CartesianFrameView
    *   factor : Number
    *   h_axis : Boolean, optional
    *     whether to zoom the horizontal axis (default = true)

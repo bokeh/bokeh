@@ -1,6 +1,6 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
-import {CartesianFrame} from "../../canvas/cartesian_frame"
+import {CartesianFrameView} from "../../canvas/cartesian_frame"
 import * as p from "core/properties"
 import {PanEvent} from "core/ui_events"
 import {Dimensions, BoxOrigin} from "core/enums"
@@ -13,7 +13,7 @@ export class BoxZoomToolView extends GestureToolView {
   protected _base_point: [number, number] | null
 
   _match_aspect(base_point: [number, number], curpoint: [number, number],
-                frame: CartesianFrame): [[number, number], [number, number]] {
+                frame: CartesianFrameView): [[number, number], [number, number]] {
     // aspect ratio of plot frame
     const a = frame.bbox.aspect
     const hend = frame.bbox.h_range.end

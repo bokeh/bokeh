@@ -1,7 +1,6 @@
 import {Range} from "../ranges/range"
 import {DataRange1d, Bounds} from "../ranges/data_range1d"
-import {CartesianFrame} from "../canvas/cartesian_frame"
-import {CoordinateMapping} from "../canvas/coordinates"
+import {CartesianFrameView} from "../canvas/cartesian_frame"
 import type {PlotView} from "./plot_canvas"
 import {Interval} from "core/types"
 import {logger} from "core/logging"
@@ -20,7 +19,7 @@ export type RangeOptions = {
 export class RangeManager {
   constructor(readonly parent: PlotView) {}
 
-  get frame(): CartesianFrame {
+  get frame(): CartesianFrameView {
     return this.parent.frame
   }
 
@@ -55,7 +54,7 @@ export class RangeManager {
     this.update(null)
   }
 
-  protected _update_dataranges(frame: CartesianFrame | CoordinateMapping): void {
+  protected _update_dataranges(frame: CartesianFrameView): void {
     // Update any DataRange1ds here
     const bounds: Bounds = new Map()
     const log_bounds: Bounds = new Map()

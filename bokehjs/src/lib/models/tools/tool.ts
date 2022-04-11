@@ -6,7 +6,7 @@ import {min, max} from "core/util/array"
 import {MenuItem} from "core/util/menus"
 import {Model} from "../../model"
 import {Renderer} from "../renderers/renderer"
-import {CartesianFrame} from "../canvas/cartesian_frame"
+import {CartesianFrameView} from "../canvas/cartesian_frame"
 import {Annotation} from "../annotations/annotation"
 import {EventType, PanEvent, PinchEvent, RotateEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 
@@ -173,7 +173,7 @@ export abstract class Tool extends Model {
   // utility function to get limits along both dimensions, given
   // optional dimensional constraints
   _get_dim_limits([sx0, sy0]: [number, number], [sx1, sy1]: [number, number],
-      frame: CartesianFrame, dims: Dimensions): [[number, number], [number, number]] {
+      frame: CartesianFrameView, dims: Dimensions): [[number, number], [number, number]] {
 
     const hr = frame.bbox.h_range
     let sxlim: [number, number]

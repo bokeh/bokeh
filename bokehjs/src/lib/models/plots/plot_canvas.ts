@@ -1,4 +1,4 @@
-import {CartesianFrame} from "../canvas/cartesian_frame"
+import {CartesianFrame, CartesianFrameView} from "../canvas/cartesian_frame"
 import {Canvas, CanvasView, FrameBox} from "../canvas/canvas"
 import {Renderer, RendererView, RenderingTarget} from "../renderers/renderer"
 import {CoordinateSystem} from "../canvas/coordinates"
@@ -46,11 +46,14 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
 
   override layout: BorderLayout
 
-  frame: CartesianFrame
-
   private canvas_view: CanvasView
   get canvas(): CanvasView {
     return this.canvas_view
+  }
+
+  private frame_view: CartesianFrameView
+  get frame(): CartesianFrameView {
+    return this.frame_view
   }
 
   get bbox(): BBox {
@@ -218,6 +221,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
     remove_views(this.renderer_views)
     remove_views(this.tool_views)
 
+    this.frame_view.remove()
     this.canvas_view.remove()
     super.remove()
   }
@@ -248,23 +252,6 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
     this.renderer_views = new Map()
     this.tool_views = new Map()
 
-    this.frame = new CartesianFrame(
-      this.model.x_scale,
-      this.model.y_scale,
-      this.model.x_range,
-      this.model.y_range,
-      this.model.extra_x_ranges,
-      this.model.extra_y_ranges,
-      this.model.extra_x_scales,
-      this.model.extra_y_scales,
-    )
-
-    for (const r of this.frame.ranges.values()) {
-      if (r instanceof DataRange1d) {
-        r.plots.add(this.model)
-      }
-    }
-
     this._range_manager = new RangeManager(this)
     this._state_manager = new StateManager(this, this._initial_state)
 
@@ -289,6 +276,24 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
     const canvas = new Canvas({hidpi, output_backend})
     this.canvas_view = await build_view(canvas, {parent: this})
     this.canvas_view.plot_views = [this]
+
+    const frame = new CartesianFrame({
+      x_scale: this.model.x_scale,
+      y_scale: this.model.y_scale,
+      x_range: this.model.x_range,
+      y_range: this.model.y_range,
+      extra_x_ranges: this.model.extra_x_ranges,
+      extra_y_ranges: this.model.extra_y_ranges,
+      extra_x_scales: this.model.extra_x_scales,
+      extra_y_scales: this.model.extra_y_scales,
+    })
+    this.frame_view = await build_view(frame, {parent: this})
+
+    for (const r of this.frame.ranges.values()) {
+      if (r instanceof DataRange1d) {
+        r.plots.add(this.model)
+      }
+    }
 
     await this.build_renderer_views()
     await this.build_tool_views()
