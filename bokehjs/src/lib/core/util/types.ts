@@ -47,7 +47,8 @@ export function isPrimitive(obj: unknown): obj is Primitive {
 }
 
 export function isFunction(obj: unknown): obj is Function {
-  return toString.call(obj) === "[object Function]"
+  const rep = toString.call(obj)
+  return rep === "[object Function]" || rep === "[object AsyncFunction]"
 }
 
 export function isArray<T>(obj: unknown): obj is T[] {

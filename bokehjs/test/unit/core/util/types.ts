@@ -77,6 +77,8 @@ describe("core/util/types module", () => {
     expect(isFunction(() => 0)).to.be.true
     expect(isFunction(new Function("return 1"))).to.be.true
     expect(isFunction(new X())).to.be.false
+    expect(isFunction(() => new Promise(() => {}))).to.be.true
+    expect(isFunction(async () => 0)).to.be.true
   })
 
   it("should support isArray() function", () => {
