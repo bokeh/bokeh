@@ -9,6 +9,7 @@ import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
 import * as p from "core/properties"
+import {BBox} from "core/util/bbox"
 
 export class CoordinateTransform {
   readonly x_source: Range
@@ -40,6 +41,7 @@ export class CoordinateTransform {
 export type CoordinateSystem = {
   readonly x_scale: Scale
   readonly y_scale: Scale
+  update(bbox: BBox): void
 }
 
 export namespace CoordinateMapping {
@@ -57,7 +59,7 @@ export namespace CoordinateMapping {
 
 export interface CoordinateMapping extends CoordinateMapping.Attrs {}
 
-export class CoordinateMapping extends Model implements CoordinateSystem {
+export class CoordinateMapping extends Model {
   override properties: CoordinateMapping.Props
 
   constructor(attrs?: Partial<CoordinateMapping.Attrs>) {

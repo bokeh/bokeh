@@ -43,6 +43,51 @@ export interface RenderingTarget {
   request_paint(to_invalidate: RendererView | RendererView[]): void
 }
 
+import {Range1d} from "../ranges/range1d"
+import {LinearScale} from "../scales/linear_scale"
+
+export function screen(bbox: BBox): CoordinateSystem {
+  const {left, right, top, bottom} = bbox
+
+  const x_source = new Range1d({start: left, end: right})
+  const y_source = new Range1d({start: top, end: bottom})
+  const x_target = new Range1d({start: left, end: right})
+  const y_target = new Range1d({start: top, end: bottom})
+
+  return {
+    x_scale: new LinearScale({source_range: x_source, target_range: x_target}),
+    y_scale: new LinearScale({source_range: y_source, target_range: y_target}),
+    update(bbox: BBox) {
+      const {left, right, top, bottom} = bbox
+      this.x_scale.source_range.setv({start: left, end: right})
+      this.y_scale.source_range.setv({start: top, end: bottom})
+      this.x_scale.target_range.setv({start: left, end: right})
+      this.y_scale.target_range.setv({start: top, end: bottom})
+    },
+  }
+}
+
+export function view(bbox: BBox): CoordinateSystem {
+  const {left, right, top, bottom} = bbox
+
+  const x_source = new Range1d({start: left, end: right})
+  const y_source = new Range1d({start: top, end: bottom})
+  const x_target = new Range1d({start: left, end: right})
+  const y_target = new Range1d({start: bottom, end: top})
+
+  return {
+    x_scale: new LinearScale({source_range: x_source, target_range: x_target}),
+    y_scale: new LinearScale({source_range: y_source, target_range: y_target}),
+    update(bbox: BBox) {
+      const {left, right, top, bottom} = bbox
+      this.x_scale.source_range.setv({start: left, end: right})
+      this.y_scale.source_range.setv({start: top, end: bottom})
+      this.x_scale.target_range.setv({start: left, end: right})
+      this.y_scale.target_range.setv({start: bottom, end: top})
+    },
+  }
+}
+
 export abstract class RendererView extends View implements visuals.Renderable {
   override model: Renderer
   visuals: Renderer.Visuals

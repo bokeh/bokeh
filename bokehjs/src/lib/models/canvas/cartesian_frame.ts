@@ -7,6 +7,7 @@ import {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
+import {type RendererView, type RenderingTarget, screen, view} from "../renderers/renderer"
 
 import {BBox} from "core/util/bbox"
 import {entries} from "core/util/object"
@@ -17,12 +18,32 @@ import * as p from "core/properties"
 type Ranges = {[key: string]: Range}
 type Scales = {[key: string]: Scale}
 
-export class CartesianFrameView extends View {
+export class CartesianFrameView extends View implements RenderingTarget {
   override model: CartesianFrame
+  override parent: View & RenderingTarget
 
   private _bbox: BBox = new BBox()
   get bbox(): BBox {
     return this._bbox
+  }
+
+  readonly screen = screen(this.bbox)
+  readonly view = view(this.bbox)
+
+  get canvas() {
+    return this.parent.canvas
+  }
+
+  get frame() {
+    return this
+  }
+
+  request_repaint(): void {
+    this.parent.request_repaint()
+  }
+
+  request_paint(to_invalidate: RendererView | RendererView[]): void {
+    this.parent.request_paint(to_invalidate)
   }
 
   protected _x_target: Range1d = new Range1d()
@@ -112,6 +133,8 @@ export class CartesianFrameView extends View {
   set_geometry(bbox: BBox): void {
     this._bbox = bbox
     this._update_frame_ranges()
+    this.screen.update(bbox)
+    this.view.update(bbox)
   }
 
   get x_target(): Range1d {

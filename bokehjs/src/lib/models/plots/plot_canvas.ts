@@ -1,7 +1,6 @@
 import {CartesianFrame, CartesianFrameView} from "../canvas/cartesian_frame"
 import {Canvas, CanvasView, FrameBox} from "../canvas/canvas"
-import {Renderer, RendererView, RenderingTarget} from "../renderers/renderer"
-import {CoordinateSystem} from "../canvas/coordinates"
+import {Renderer, RendererView, RenderingTarget, screen, view} from "../renderers/renderer"
 import {DataRenderer} from "../renderers/data_renderer"
 import {Tool, ToolView} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
@@ -12,8 +11,6 @@ import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {Axis, AxisView} from "../axes/axis"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
-import {LinearScale} from "../scales/linear_scale"
-import {Range1d} from "../ranges/range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 
 import {Reset} from "core/bokeh_events"
@@ -64,33 +61,8 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
       return layout.bbox.relative()
   }
 
-  readonly screen: CoordinateSystem = (() => {
-    const {left, right, top, bottom} = this.bbox
-
-    const x_source = new Range1d({start: left, end: right})
-    const y_source = new Range1d({start: top, end: bottom})
-    const x_target = new Range1d({start: left, end: right})
-    const y_target = new Range1d({start: top, end: bottom})
-
-    return {
-      x_scale: new LinearScale({source_range: x_source, target_range: x_target}),
-      y_scale: new LinearScale({source_range: y_source, target_range: y_target}),
-    }
-  })()
-
-  readonly view: CoordinateSystem = (() => {
-    const {left, right, top, bottom} = this.bbox
-
-    const x_source = new Range1d({start: left, end: right})
-    const y_source = new Range1d({start: top, end: bottom})
-    const x_target = new Range1d({start: left, end: right})
-    const y_target = new Range1d({start: bottom, end: top})
-
-    return {
-      x_scale: new LinearScale({source_range: x_source, target_range: x_target}),
-      y_scale: new LinearScale({source_range: y_source, target_range: y_target}),
-    }
-  })()
+  readonly screen = screen(this.bbox)
+  readonly view = view(this.bbox)
 
   protected _title?: Title
   protected _toolbar?: ToolbarPanel
@@ -119,12 +91,12 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
 
   protected throttled_paint: () => void
 
-  computed_renderers: Renderer[]
+  protected computed_renderers: Renderer[]
 
   renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
-    const view = this.renderer_views.get(renderer)
+    const view = this.renderer_views.get(renderer) ?? this.frame_renderer_views.get(renderer)
     if (view == null) {
-      for (const [, renderer_view] of this.renderer_views) {
+      for (const renderer_view of this.get_renderer_views()) {
         const view = renderer_view.renderer_view(renderer)
         if (view != null)
           return view
@@ -134,6 +106,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
   }
 
   /*protected*/ renderer_views: Map<Renderer, RendererView>
+  /*protected*/ frame_renderer_views: Map<Renderer, RendererView>
   /*protected*/ tool_views: Map<Tool, ToolView>
 
   get is_paused(): boolean {
@@ -218,6 +191,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
       }
     }
 
+    remove_views(this.frame_renderer_views)
     remove_views(this.renderer_views)
     remove_views(this.tool_views)
 
@@ -250,6 +224,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
     }
 
     this.renderer_views = new Map()
+    this.frame_renderer_views = new Map()
     this.tool_views = new Map()
 
     this._range_manager = new RangeManager(this)
@@ -512,7 +487,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
 
   get axis_views(): AxisView[] {
     const views = []
-    for (const [, renderer_view] of this.renderer_views) {
+    for (const renderer_view of this.get_renderer_views()) {
       if (renderer_view instanceof AxisView)
         views.push(renderer_view)
     }
@@ -564,7 +539,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
   protected _invalidate_layout(): void {
     const needs_layout = () => {
       for (const panel of this.model.side_panels) {
-        const view = this.renderer_views.get(panel)! as AnnotationView | AxisView
+        const view = this.renderer_view(panel)!
         if (view.layout?.has_size_changed() ?? false) {
           this.invalidate_painters(view)
           return true
@@ -578,33 +553,39 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
   }
 
   get_renderer_views(): RendererView[] {
-    return this.computed_renderers.map((r) => this.renderer_views.get(r)!)
+    return this.computed_renderers.map((r) => this.renderer_views.get(r) ?? this.frame_renderer_views.get(r)!)
   }
 
-  protected *_compute_renderers(): Generator<Renderer, void, undefined> {
-    const {above, below, left, right, center, renderers} = this.model
-
-    yield* renderers
-    yield* above
-    yield* below
-    yield* left
-    yield* right
-    yield* center
-
-    if (this._title != null)
-      yield this._title
-
-    if (this._toolbar != null)
-      yield this._toolbar
+  protected *_compute_frame_renderers(): Generator<Renderer, void, undefined> {
+    yield* this.model.renderers
+    yield* this.model.center
 
     for (const tool of this.model.toolbar.tools) {
       yield* tool.computed_overlays
     }
   }
 
+  protected *_compute_renderers(): Generator<Renderer, void, undefined> {
+    const {above, below, left, right} = this.model
+
+    yield* above
+    yield* below
+    yield* left
+    yield* right
+
+    if (this._title != null)
+      yield this._title
+
+    if (this._toolbar != null)
+      yield this._toolbar
+  }
+
   async build_renderer_views(): Promise<void> {
-    this.computed_renderers = [...this._compute_renderers()]
-    await build_views(this.renderer_views, this.computed_renderers, {parent: this})
+    const renderers = [...this._compute_renderers()]
+    const frame_renderers = [...this._compute_frame_renderers()]
+    this.computed_renderers = [...renderers, ...frame_renderers]
+    await build_views(this.renderer_views, renderers, {parent: this})
+    await build_views(this.frame_renderer_views, frame_renderers, {parent: this.frame})
   }
 
   async build_tool_views(): Promise<void> {
@@ -666,7 +647,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
       return false
 
     if (this.model.visible) {
-      for (const [, renderer_view] of this.renderer_views) {
+      for (const renderer_view of this.get_renderer_views()) {
         if (!renderer_view.has_finished())
           return false
       }
@@ -679,19 +660,10 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
     super.after_layout()
     this.unpause(true)
 
-    const {left, right, top, bottom} = this.bbox
+    this.screen.update(this.bbox)
+    this.view.update(this.bbox)
 
-    this.screen.x_scale.source_range.setv({start: left, end: right})
-    this.screen.y_scale.source_range.setv({start: top, end: bottom})
-    this.screen.x_scale.target_range.setv({start: left, end: right})
-    this.screen.y_scale.target_range.setv({start: top, end: bottom})
-
-    this.view.x_scale.source_range.setv({start: left, end: right})
-    this.view.y_scale.source_range.setv({start: top, end: bottom})
-    this.view.x_scale.target_range.setv({start: left, end: right})
-    this.view.y_scale.target_range.setv({start: bottom, end: top})
-
-    for (const [, child_view] of this.renderer_views) {
+    for (const child_view of this.get_renderer_views()) {
       if (child_view instanceof AnnotationView)
         child_view.after_layout?.()
     }
@@ -838,7 +810,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
       if (renderer.level != level)
         continue
 
-      const renderer_view = this.renderer_views.get(renderer)!
+      const renderer_view = this.renderer_view(renderer)!
 
       ctx.save()
       if (global_clip || renderer_view.needs_clip) {

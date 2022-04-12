@@ -14,9 +14,7 @@ import {load_module} from "core/util/modules"
 import {parse_css_font_size} from "core/util/text"
 import {Context2d, CanvasLayer} from "core/util/canvas"
 import {PlotView} from "../plots/plot"
-import {Renderer, RenderingTarget} from "../renderers/renderer"
-import {Range1d} from "../ranges/range1d"
-import {LinearScale} from "../scales/linear_scale"
+import {Renderer, RenderingTarget, screen, view} from "../renderers/renderer"
 import {CoordinateSystem} from "./coordinates"
 import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
 
@@ -101,33 +99,8 @@ export class CanvasView extends DOMView implements RenderingTarget {
   ui_event_bus: UIEventBus
   paint_engine: PaintEngine
 
-  readonly screen: CoordinateSystem = (() => {
-    const {left, right, top, bottom} = this._bbox
-
-    const x_source = new Range1d({start: left, end: right})
-    const y_source = new Range1d({start: top, end: bottom})
-    const x_target = new Range1d({start: left, end: right})
-    const y_target = new Range1d({start: top, end: bottom})
-
-    return {
-      x_scale: new LinearScale({source_range: x_source, target_range: x_target}),
-      y_scale: new LinearScale({source_range: y_source, target_range: y_target}),
-    }
-  })()
-
-  readonly view: CoordinateSystem = (() => {
-    const {left, right, top, bottom} = this._bbox
-
-    const x_source = new Range1d({start: left, end: right})
-    const y_source = new Range1d({start: top, end: bottom})
-    const x_target = new Range1d({start: left, end: right})
-    const y_target = new Range1d({start: bottom, end: top})
-
-    return {
-      x_scale: new LinearScale({source_range: x_source, target_range: x_target}),
-      y_scale: new LinearScale({source_range: y_source, target_range: y_target}),
-    }
-  })()
+  readonly screen: CoordinateSystem = screen(this.bbox)
+  readonly view: CoordinateSystem = view(this.bbox)
 
   get canvas(): CanvasView {
     return this
@@ -240,17 +213,9 @@ export class CanvasView extends DOMView implements RenderingTarget {
       return
 
     this._bbox = new BBox({left: 0, top: 0, width, height})
-    const {left, right, top, bottom} = this._bbox
 
-    this.screen.x_scale.source_range.setv({start: left, end: right})
-    this.screen.y_scale.source_range.setv({start: top, end: bottom})
-    this.screen.x_scale.target_range.setv({start: left, end: right})
-    this.screen.y_scale.target_range.setv({start: top, end: bottom})
-
-    this.view.x_scale.source_range.setv({start: left, end: right})
-    this.view.y_scale.source_range.setv({start: top, end: bottom})
-    this.view.x_scale.target_range.setv({start: left, end: right})
-    this.view.y_scale.target_range.setv({start: bottom, end: top})
+    this.screen.update(this.bbox)
+    this.view.update(this.bbox)
 
     const style = {
       width: `${width}px`,
