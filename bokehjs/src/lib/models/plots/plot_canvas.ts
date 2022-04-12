@@ -53,6 +53,8 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
     return this.frame_view
   }
 
+  readonly __plot__ = true // HACK
+
   get bbox(): BBox {
     const {layout} = this
     if (typeof layout === "undefined")

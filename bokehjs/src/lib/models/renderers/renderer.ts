@@ -144,7 +144,15 @@ export abstract class RendererView extends View implements visuals.Renderable {
   }
 
   get plot_view(): PlotView {
-    return this.parent as PlotView
+    const {parent} = this
+    if (parent == null)
+      throw new Error("internal error")
+    else if ("__plot__" in parent)
+      return parent as PlotView
+    else if ("plot_view" in parent)
+      return parent.plot_view
+    else
+      return parent.parent
   }
 
   get layer(): CanvasLayer {
@@ -161,7 +169,7 @@ export abstract class RendererView extends View implements visuals.Renderable {
   }
 
   request_paint(): void {
-    if (typeof this.plot_view.request_paint !== "undefined")
+    if (typeof this.plot_view?.request_paint !== "undefined")
       this.plot_view.request_paint(this)
     else
       this.canvas.paint_engine.request_paint(this)

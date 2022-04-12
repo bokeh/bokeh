@@ -305,11 +305,9 @@ export abstract class GlyphView extends View {
       }
     }
 
-    /*
     if (this.renderer.plot_view.model.use_map) {
       this._project_data()
     }
-    */
 
     this._set_data(indices_to_update ?? null)  // TODO doesn't take subset indices into account
 
