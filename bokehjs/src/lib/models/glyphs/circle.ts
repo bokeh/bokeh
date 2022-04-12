@@ -98,10 +98,10 @@ export class CircleView extends XYGlyphView {
   }
 
   protected override _mask_data(): Indices {
-    const {frame} = this.renderer.plot_view
+    const {bbox} = this.renderer.parent
 
-    const shr = frame.x_target
-    const svr = frame.y_target
+    const shr = new Range1d(bbox.x_range)
+    const svr = new Range1d(bbox.y_range)
 
     let hr: Range1d
     let vr: Range1d

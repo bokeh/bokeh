@@ -180,8 +180,8 @@ export class ImageURLView extends XYGlyphView {
     const {image, sx, sy, sw, sh, angle, global_alpha} = data ?? this
 
     // TODO (bev): take actual border width into account when clipping
-    const {frame} = this.renderer.plot_view
-    const {left, top, width, height} = frame.bbox
+    const {bbox} = this.renderer.parent
+    const {left, top, width, height} = bbox
     ctx.beginPath()
     ctx.rect(left + 1, top + 1, width - 2, height - 2)
     ctx.clip()

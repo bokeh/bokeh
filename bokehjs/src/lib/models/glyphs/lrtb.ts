@@ -91,8 +91,8 @@ export abstract class LRTBView extends GlyphView {
   // We need to clamp the endpoints inside the viewport, because various browser canvas
   // implementations have issues drawing rects with enpoints far outside the viewport
   protected _clamp_viewport(): void {
-    const hr = this.renderer.plot_view.frame.bbox.h_range
-    const vr = this.renderer.plot_view.frame.bbox.v_range
+    const hr = this.renderer.parent.bbox.h_range
+    const vr = this.renderer.parent.bbox.v_range
     const n = this.stop.length
     for (let i = 0; i < n; i++) {
       this.stop[i] = Math.max(this.stop[i], vr.start)
@@ -121,12 +121,12 @@ export abstract class LRTBView extends GlyphView {
     let indices: number[]
     if (geometry.direction == "v") {
       const y = this.renderer.yscale.invert(sy)
-      const hr = this.renderer.plot_view.frame.bbox.h_range
+      const hr = this.renderer.parent.bbox.h_range
       const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
       indices = [...this.index.indices({x0, y0: y, x1, y1: y})]
     } else {
       const x = this.renderer.xscale.invert(sx)
-      const vr = this.renderer.plot_view.frame.bbox.v_range
+      const vr = this.renderer.parent.bbox.v_range
       const [y0, y1] = this.renderer.yscale.r_invert(vr.start, vr.end)
       indices = [...this.index.indices({x0: x, y0, x1: x, y1})]
     }

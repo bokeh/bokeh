@@ -1,12 +1,19 @@
 import {Renderer, RendererView} from "./renderer"
 import {GlyphView} from "../glyphs/glyph"
 import {Scale} from "../scales/scale"
+import {type CartesianFrameView} from "../canvas/cartesian_frame"
+import {type PlotView} from "../plots/plot"
 import {SelectionManager} from "core/selection_manager"
 import * as p from "core/properties"
 
 export abstract class DataRendererView extends RendererView {
   override model: DataRenderer
+  override parent: CartesianFrameView
   override visuals: DataRenderer.Visuals
+
+  override get plot_view(): PlotView {
+    return this.parent.parent as PlotView
+  }
 
   get xscale(): Scale {
     return this.coordinates.x_scale

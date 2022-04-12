@@ -196,7 +196,7 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.model.view.properties.masked.change, () => this.set_visuals())
     this.connect(this.model.properties.visible.change, () => this.plot_view.invalidate_dataranges = true)
 
-    const {x_ranges, y_ranges} = this.plot_view.frame
+    const {x_ranges, y_ranges} = this.parent
 
     for (const [, range] of x_ranges) {
       if (range instanceof FactorRange)

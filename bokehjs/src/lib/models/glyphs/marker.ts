@@ -9,6 +9,7 @@ import * as p from "core/properties"
 import {range} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
+import {Range1d} from "../ranges/range1d"
 
 export type MarkerData = XYGlyphData & p.UniformsOf<Marker.Mixins> & {
   readonly size: p.Uniform<number>
@@ -56,7 +57,9 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected override _mask_data(): Indices {
     // dilate the inner screen region by max_size and map back to data space for use in spatial query
-    const {x_target, y_target} = this.renderer.plot_view.frame
+    const {bbox} = this.renderer.parent
+    const x_target = new Range1d(bbox.x_range)
+    const y_target = new Range1d(bbox.y_range)
 
     const hr = x_target.widen(this.max_size).map((x) => this.renderer.xscale.invert(x))
     const vr = y_target.widen(this.max_size).map((y) => this.renderer.yscale.invert(y))

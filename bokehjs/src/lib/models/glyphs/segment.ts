@@ -119,7 +119,7 @@ export class SegmentView extends GlyphView {
   }
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
-    const [hr, vr] = this.renderer.plot_view.frame.bbox.ranges
+    const [hr, vr] = this.renderer.parent.bbox.ranges
     const {sx, sy} = geometry
 
     let v0: Arrayable<number>

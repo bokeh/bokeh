@@ -25,7 +25,7 @@ export class RayView extends XYGlyphView {
     else
       this.slength = to_screen(this.length)
 
-    const {width, height} = this.renderer.plot_view.frame.bbox
+    const {width, height} = this.renderer.parent.bbox
     const inf_len = 2*(width + height)
 
     const {slength} = this
