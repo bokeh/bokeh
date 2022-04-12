@@ -356,20 +356,7 @@ export namespace np {
       }
 
       normal(loc: number, scale: number, size: number): NDArray {
-        const array = new Float64Array(size)
-
-        const [mu, sigma] = [loc, scale]
-
-        for (let i = 0; i < size; i += 2) {
-          // Box-Muller transform from uniform to normal distribution.
-          const u = this._random.float()
-          const v = this._random.float()
-          const common = Math.sqrt(-2.0*Math.log(u))
-          array[i] = mu + sigma*(common*Math.cos(2.0*np.pi*v))
-          if (i+1 < size)
-            array[i+1] = mu + sigma*(common*Math.sin(2.0*np.pi*v))
-        }
-
+        const array = this._random.normal(loc, scale, size)
         return ndarray(array.buffer, {shape: [size], dtype: "float64"})
       }
     }
