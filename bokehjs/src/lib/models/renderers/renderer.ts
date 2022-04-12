@@ -47,10 +47,10 @@ import {Range1d} from "../ranges/range1d"
 import {LinearScale} from "../scales/linear_scale"
 
 export function screen(bbox: BBox): CoordinateSystem {
-  const {left, right, top, bottom} = bbox
+  const {left, right, top, bottom, width, height} = bbox
 
-  const x_source = new Range1d({start: left, end: right})
-  const y_source = new Range1d({start: top, end: bottom})
+  const x_source = new Range1d({start: 0, end: width})
+  const y_source = new Range1d({start: 0, end: height})
   const x_target = new Range1d({start: left, end: right})
   const y_target = new Range1d({start: top, end: bottom})
 
@@ -58,9 +58,9 @@ export function screen(bbox: BBox): CoordinateSystem {
     x_scale: new LinearScale({source_range: x_source, target_range: x_target}),
     y_scale: new LinearScale({source_range: y_source, target_range: y_target}),
     update(bbox: BBox) {
-      const {left, right, top, bottom} = bbox
-      this.x_scale.source_range.setv({start: left, end: right})
-      this.y_scale.source_range.setv({start: top, end: bottom})
+      const {left, right, top, bottom, width, height} = bbox
+      this.x_scale.source_range.setv({start: 0, end: width})
+      this.y_scale.source_range.setv({start: 0, end: height})
       this.x_scale.target_range.setv({start: left, end: right})
       this.y_scale.target_range.setv({start: top, end: bottom})
     },
@@ -68,10 +68,10 @@ export function screen(bbox: BBox): CoordinateSystem {
 }
 
 export function view(bbox: BBox): CoordinateSystem {
-  const {left, right, top, bottom} = bbox
+  const {left, right, top, bottom, width, height} = bbox
 
-  const x_source = new Range1d({start: left, end: right})
-  const y_source = new Range1d({start: top, end: bottom})
+  const x_source = new Range1d({start: 0, end: width})
+  const y_source = new Range1d({start: 0, end: height})
   const x_target = new Range1d({start: left, end: right})
   const y_target = new Range1d({start: bottom, end: top})
 
@@ -79,9 +79,9 @@ export function view(bbox: BBox): CoordinateSystem {
     x_scale: new LinearScale({source_range: x_source, target_range: x_target}),
     y_scale: new LinearScale({source_range: y_source, target_range: y_target}),
     update(bbox: BBox) {
-      const {left, right, top, bottom} = bbox
-      this.x_scale.source_range.setv({start: left, end: right})
-      this.y_scale.source_range.setv({start: top, end: bottom})
+      const {left, right, top, bottom, width, height} = bbox
+      this.x_scale.source_range.setv({start: 0, end: width})
+      this.y_scale.source_range.setv({start: 0, end: height})
       this.x_scale.target_range.setv({start: left, end: right})
       this.y_scale.target_range.setv({start: bottom, end: top})
     },
