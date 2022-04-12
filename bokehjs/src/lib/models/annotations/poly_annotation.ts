@@ -1,4 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
+import {Scale} from "../scales/scale"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
@@ -6,7 +7,6 @@ import {Arrayable} from "core/types"
 import {point_in_poly} from "core/hittest"
 import {Signal} from "core/signaling"
 import {PanEvent, Pannable} from "core/ui_events"
-import {CoordinateMapper} from "core/util/bbox"
 import {zip, enumerate} from "core/util/iterator"
 import {copy, map} from "core/util/arrayable"
 import {assert} from "core/util/assert"
@@ -28,7 +28,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable {
   override model: PolyAnnotation
   override visuals: PolyAnnotation.Visuals
 
-  get xs_coordinates(): CoordinateMapper {
+  get xs_coordinates(): Scale {
     switch (this.model.xs_units) {
       case "canvas": return this.canvas.screen.x_scale
       case "screen": return this.parent.view.x_scale
@@ -36,7 +36,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable {
     }
   }
 
-  get ys_coordinates(): CoordinateMapper {
+  get ys_coordinates(): Scale {
     switch (this.model.ys_units) {
       case "canvas": return this.canvas.screen.y_scale
       case "screen": return this.parent.view.y_scale

@@ -33,7 +33,7 @@ export class SpanView extends AnnotationView implements Pannable {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.plot_view.request_paint(this))
+    this.connect(this.model.change, () => this.request_paint())
   }
 
   protected sloc: number

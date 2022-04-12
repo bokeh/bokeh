@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ...core.enums import CoordinateUnits, Dimension, SpatialUnits
+from ...core.enums import CoordinateUnits, Dimension
 from ...core.properties import (
     Auto,
     Bool,
@@ -181,15 +181,15 @@ class Band(DataAnnotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    lower = UnitsSpec(default=field("lower"), units_enum=SpatialUnits, units_default="data", help="""
+    lower = UnitsSpec(default=field("lower"), units_enum=CoordinateUnits, units_default="data", help="""
     The coordinates of the lower portion of the filled area band.
     """)
 
-    upper = UnitsSpec(default=field("upper"), units_enum=SpatialUnits, units_default="data", help="""
+    upper = UnitsSpec(default=field("upper"), units_enum=CoordinateUnits, units_default="data", help="""
     The coordinates of the upper portion of the filled area band.
     """)
 
-    base = UnitsSpec(default=field("base"), units_enum=SpatialUnits, units_default="data", help="""
+    base = UnitsSpec(default=field("base"), units_enum=CoordinateUnits, units_default="data", help="""
     The orthogonal coordinates of the upper and lower values.
     """)
 
@@ -339,7 +339,7 @@ class Whisker(DataAnnotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    lower = UnitsSpec(default=field("lower"), units_enum=SpatialUnits, units_default="data", help="""
+    lower = UnitsSpec(default=field("lower"), units_enum=CoordinateUnits, units_default="data", help="""
     The coordinates of the lower end of the whiskers.
     """)
 
@@ -347,7 +347,7 @@ class Whisker(DataAnnotation):
     Instance of ``ArrowHead``.
     """)
 
-    upper = UnitsSpec(default=field("upper"), units_enum=SpatialUnits, units_default="data", help="""
+    upper = UnitsSpec(default=field("upper"), units_enum=CoordinateUnits, units_default="data", help="""
     The coordinates of the upper end of the whiskers.
     """)
 
@@ -355,7 +355,7 @@ class Whisker(DataAnnotation):
     Instance of ``ArrowHead``.
     """)
 
-    base = UnitsSpec(default=field("base"), units_enum=SpatialUnits, units_default="data", help="""
+    base = UnitsSpec(default=field("base"), units_enum=CoordinateUnits, units_default="data", help="""
     The orthogonal coordinates of the upper and lower values.
     """)
 

@@ -96,7 +96,7 @@ export class LegendView extends AnnotationView implements Tapable {
       legend_height = this.max_label_height + this.title_height + 2*legend_padding
     }
 
-    const panel = this.layout != null ? this.layout : this.plot_view.frame
+    const panel = this.layout != null ? this.layout : this.parent
     const [hr, vr] = panel.bbox.ranges
 
     const {location} = this.model

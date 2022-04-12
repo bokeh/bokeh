@@ -17,30 +17,28 @@ export class SlopeView extends AnnotationView {
     if (gradient == null || y_intercept == null)
       return
 
-    const {frame} = this.plot_view
-
-    const xscale = this.coordinates.x_scale
-    const yscale = this.coordinates.y_scale
+    const {x_scale, y_scale} = this.coordinates
+    const {bbox} = this.parent
 
     let sy_start, sy_end, sx_start, sx_end
     if (gradient == 0) {
-      sy_start = yscale.compute(y_intercept)
+      sy_start = y_scale.compute(y_intercept)
       sy_end = sy_start
 
-      sx_start = frame.bbox.left
-      sx_end = sx_start + frame.bbox.width
+      sx_start = bbox.left
+      sx_end = sx_start + bbox.width
     } else {
-      sy_start = frame.bbox.top
-      sy_end = sy_start + frame.bbox.height
+      sy_start = bbox.top
+      sy_end = sy_start + bbox.height
 
-      const y_start = yscale.invert(sy_start)
-      const y_end = yscale.invert(sy_end)
+      const y_start = y_scale.invert(sy_start)
+      const y_end = y_scale.invert(sy_end)
 
       const x_start = (y_start - y_intercept) / gradient
       const x_end = (y_end - y_intercept) / gradient
 
-      sx_start = xscale.compute(x_start)
-      sx_end = xscale.compute(x_end)
+      sx_start = x_scale.compute(x_start)
+      sx_end = x_scale.compute(x_end)
     }
 
     const {ctx} = this.layer

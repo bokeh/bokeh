@@ -1,10 +1,11 @@
 import {DataAnnotation, DataAnnotationView} from "./data_annotation"
 import {ArrowHead, ArrowHeadView, OpenHead} from "./arrow_head"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
+import {Scale} from "../scales/scale"
 import {Context2d} from "core/util/canvas"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {SpatialUnits} from "core/enums"
+import {CoordinateUnits} from "core/enums"
 import {Arrayable, ScreenArray} from "core/types"
 import {build_view} from "core/build_views"
 import {Indices} from "core/types"
@@ -30,6 +31,38 @@ export class ArrowView extends DataAnnotationView {
 
   protected _angles: Arrayable<number>
 
+  get x_start_coordinates(): Scale {
+    switch (this.model.start_units) {
+      case "canvas": return this.canvas.screen.x_scale
+      case "screen": return this.parent.view.x_scale
+      case "data":   return this.coordinates.x_scale
+    }
+  }
+
+  get y_start_coordinates(): Scale {
+    switch (this.model.start_units) {
+      case "canvas": return this.canvas.screen.y_scale
+      case "screen": return this.parent.view.y_scale
+      case "data":   return this.coordinates.y_scale
+    }
+  }
+
+  get x_end_coordinates(): Scale {
+    switch (this.model.end_units) {
+      case "canvas": return this.canvas.screen.x_scale
+      case "screen": return this.parent.view.x_scale
+      case "data":   return this.coordinates.x_scale
+    }
+  }
+
+  get y_end_coordinates(): Scale {
+    switch (this.model.end_units) {
+      case "canvas": return this.canvas.screen.y_scale
+      case "screen": return this.parent.view.y_scale
+      case "data":   return this.coordinates.y_scale
+    }
+  }
+
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
@@ -54,23 +87,11 @@ export class ArrowView extends DataAnnotationView {
   }
 
   map_data(): void {
-    const {frame} = this.plot_view
+    this._sx_start = this.x_start_coordinates.v_compute(this._x_start)
+    this._sy_start = this.y_start_coordinates.v_compute(this._y_start)
 
-    if (this.model.start_units == "data") {
-      this._sx_start = this.coordinates.x_scale.v_compute(this._x_start)
-      this._sy_start = this.coordinates.y_scale.v_compute(this._y_start)
-    } else {
-      this._sx_start = frame.bbox.x_view.v_compute(this._x_start)
-      this._sy_start = frame.bbox.y_view.v_compute(this._y_start)
-    }
-
-    if (this.model.end_units == "data") {
-      this._sx_end = this.coordinates.x_scale.v_compute(this._x_end)
-      this._sy_end = this.coordinates.y_scale.v_compute(this._y_end)
-    } else {
-      this._sx_end = frame.bbox.x_view.v_compute(this._x_end)
-      this._sy_end = frame.bbox.y_view.v_compute(this._y_end)
-    }
+    this._sx_end = this.x_end_coordinates.v_compute(this._x_end)
+    this._sy_end = this.y_end_coordinates.v_compute(this._y_end)
 
     const {_sx_start, _sy_start, _sx_end, _sy_end} = this
 
@@ -87,7 +108,7 @@ export class ArrowView extends DataAnnotationView {
     const {start, end} = this
 
     const {_sx_start, _sy_start, _sx_end, _sy_end, _angles} = this
-    const {x, y, width, height} = this.plot_view.frame.bbox
+    const {x, y, width, height} = this.parent.bbox
 
     for (let i = 0, n = _sx_start.length; i < n; i++) {
       if (end != null) {
@@ -151,11 +172,11 @@ export namespace Arrow {
   export type Props = DataAnnotation.Props & {
     x_start: p.XCoordinateSpec
     y_start: p.YCoordinateSpec
-    start_units: p.Property<SpatialUnits>
+    start_units: p.Property<CoordinateUnits>
     start: p.Property<ArrowHead | null>
     x_end: p.XCoordinateSpec
     y_end: p.YCoordinateSpec
-    end_units: p.Property<SpatialUnits>
+    end_units: p.Property<CoordinateUnits>
     end: p.Property<ArrowHead | null>
   } & Mixins
 
@@ -182,11 +203,11 @@ export class Arrow extends DataAnnotation {
     this.define<Arrow.Props>(({Ref, Nullable}) => ({
       x_start:     [ p.XCoordinateSpec, {field: "x_start"} ],
       y_start:     [ p.YCoordinateSpec, {field: "y_start"} ],
-      start_units: [ SpatialUnits, "data" ],
+      start_units: [ CoordinateUnits, "data" ],
       start:       [ Nullable(Ref(ArrowHead)), null ],
       x_end:       [ p.XCoordinateSpec, {field: "x_end"} ],
       y_end:       [ p.YCoordinateSpec, {field: "y_end"} ],
-      end_units:   [ SpatialUnits, "data" ],
+      end_units:   [ CoordinateUnits, "data" ],
       end:         [ Nullable(Ref(ArrowHead)), () => new OpenHead() ],
     }))
   }

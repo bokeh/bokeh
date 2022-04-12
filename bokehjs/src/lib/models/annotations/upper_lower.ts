@@ -1,6 +1,7 @@
 import {DataAnnotation, DataAnnotationView} from "./data_annotation"
+import {Scale} from "../scales/scale"
 import {Arrayable} from "core/types"
-import {Dimension, SpatialUnits} from "core/enums"
+import {Dimension, CoordinateUnits} from "core/enums"
 import {Dimensional} from "core/vectorization"
 import * as p from "core/properties"
 
@@ -17,36 +18,40 @@ export abstract class UpperLowerView extends DataAnnotationView {
   protected _upper_sx: Arrayable<number>
   protected _upper_sy: Arrayable<number>
 
+  get lower_coordinates(): {x_scale: Scale, y_scale: Scale} {
+    switch (this.model.properties.lower.units) {
+      case "canvas": return this.canvas.screen
+      case "screen": return this.parent.view
+      case "data":   return this.coordinates
+    }
+  }
+
+  get upper_coordinates(): {x_scale: Scale, y_scale: Scale} {
+    switch (this.model.properties.upper.units) {
+      case "canvas": return this.canvas.screen
+      case "screen": return this.parent.view
+      case "data":   return this.coordinates
+    }
+  }
+
+  get base_coordinates(): {x_scale: Scale, y_scale: Scale} {
+    switch (this.model.properties.base.units) {
+      case "canvas": return this.canvas.screen
+      case "screen": return this.parent.view
+      case "data":   return this.coordinates
+    }
+  }
+
   map_data(): void {
-    const {frame} = this.plot_view
     const dim = this.model.dimension
 
-    const xscale = this.coordinates.x_scale
-    const yscale = this.coordinates.y_scale
+    const lower_scale = dim == "height" ? this.lower_coordinates.y_scale : this.lower_coordinates.x_scale
+    const upper_scale = dim == "height" ? this.upper_coordinates.y_scale : this.upper_coordinates.x_scale
+    const base_scale  = dim == "height" ? this.base_coordinates.x_scale : this.base_coordinates.y_scale
 
-    const limit_scale = dim == "height" ? yscale : xscale
-    const base_scale  = dim == "height" ? xscale : yscale
-
-    const limit_view = dim == "height" ? frame.bbox.y_view : frame.bbox.x_view
-    const base_view  = dim == "height" ? frame.bbox.x_view : frame.bbox.y_view
-
-    let _lower_sx
-    if (this.model.properties.lower.units == "data")
-      _lower_sx = limit_scale.v_compute(this._lower)
-    else
-      _lower_sx = limit_view.v_compute(this._lower)
-
-    let _upper_sx
-    if (this.model.properties.upper.units == "data")
-      _upper_sx = limit_scale.v_compute(this._upper)
-    else
-      _upper_sx = limit_view.v_compute(this._upper)
-
-    let _base_sx
-    if (this.model.properties.base.units == "data")
-      _base_sx  = base_scale.v_compute(this._base)
-    else
-      _base_sx  = base_view.v_compute(this._base)
+    const _lower_sx = lower_scale.v_compute(this._lower)
+    const _upper_sx = upper_scale.v_compute(this._upper)
+    const _base_sx = base_scale.v_compute(this._base)
 
     const [i, j] = dim == "height" ? [1, 0] : [0, 1]
 
@@ -64,14 +69,14 @@ export abstract class UpperLowerView extends DataAnnotationView {
 export class XOrYCoordinateSpec extends p.CoordinateSpec {
   override readonly obj: UpperLower
 
-  protected override _value: Dimensional<this["__vector__"], SpatialUnits> | p.Unset = p.unset
+  protected override _value: Dimensional<this["__vector__"], CoordinateUnits> | p.Unset = p.unset
 
   get dimension(): "x" | "y" {
     return this.obj.dimension == "width" ? "x" : "y"
   }
 
   // XXX: a hack to make a coordinate & unit spec
-  get units(): SpatialUnits {
+  get units(): CoordinateUnits {
     return this._value === p.unset ? "data" : this._value.units ?? "data"
   }
 }

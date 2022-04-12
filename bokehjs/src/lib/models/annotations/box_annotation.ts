@@ -1,4 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
+import {Scale} from "../scales/scale"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {PanEvent, Pannable, MoveEvent, Moveable} from "core/ui_events"
@@ -7,7 +8,7 @@ import {CoordinateUnits} from "core/enums"
 import * as p from "core/properties"
 import * as cursors from "core/util/cursors"
 import {assert} from "core/util/assert"
-import {BBox, LTRB, CoordinateMapper} from "core/util/bbox"
+import {BBox, LTRB} from "core/util/bbox"
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -23,7 +24,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
 
   protected bbox: BBox = new BBox()
 
-  get left_coordinates(): CoordinateMapper {
+  get left_coordinates(): Scale {
     switch (this.model.left_units) {
       case "canvas": return this.canvas.screen.x_scale
       case "screen": return this.parent.view.x_scale
@@ -31,7 +32,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     }
   }
 
-  get right_coordinates(): CoordinateMapper {
+  get right_coordinates(): Scale {
     switch (this.model.right_units) {
       case "canvas": return this.canvas.screen.x_scale
       case "screen": return this.parent.view.x_scale
@@ -39,7 +40,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     }
   }
 
-  get top_coordinates(): CoordinateMapper {
+  get top_coordinates(): Scale {
     switch (this.model.top_units) {
       case "canvas": return this.canvas.screen.y_scale
       case "screen": return this.parent.view.y_scale
@@ -47,7 +48,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     }
   }
 
-  get bottom_coordinates(): CoordinateMapper {
+  get bottom_coordinates(): Scale {
     switch (this.model.bottom_units) {
       case "canvas": return this.canvas.screen.y_scale
       case "screen": return this.parent.view.y_scale
