@@ -66,7 +66,7 @@ describe("Toolbar", () => {
       p.rect({x: [0, 1], y: [0, 1], width: 1, height: 1, color: ["red", "blue"]})
 
       const {view} = await display(p)
-      const tpv = [...view.renderer_views.values()].find((rv): rv is ToolbarPanelView => rv instanceof ToolbarPanelView)!
+      const tpv = view.get_renderer_views().find((rv): rv is ToolbarPanelView => rv instanceof ToolbarPanelView)!
 
       expect(tpv.toolbar_view.visible).to.be.false
       expect(tpv.toolbar_view.el.classList.contains("bk-hidden")).to.be.true

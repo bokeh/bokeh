@@ -158,7 +158,7 @@ describe("Plot module", () => {
         // even if only e.g. `center.change` is connected, all other changes
         // will be taken into account by `build_renderer_views`.
         await view.ready
-        expect(view.renderer_views.get(label)).to.be.instanceof(LabelView)
+        expect(view.renderer_view(label)).to.be.instanceof(LabelView)
       }
     })
 
