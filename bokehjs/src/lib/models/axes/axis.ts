@@ -11,6 +11,7 @@ import {Side, TickLabelOrientation} from "core/enums"
 import {Size, Layoutable} from "core/layout"
 import {Indices} from "core/types"
 import {Panel, SideLayout, Orient} from "core/layout/side_panel"
+import {assert} from "core/util/assert"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
 import {Dict} from "core/util/object"
@@ -455,9 +456,10 @@ export class AxisView extends GuideRendererView {
     if (this.model.fixed_location != null)
       return [0, 0]
 
-    const {frame} = this.plot_view
-    let [xoff, yoff] = [0, 0]
+    const {frame} = this.parent
+    assert(frame != null)
 
+    let [xoff, yoff] = [0, 0]
     switch (this.panel.side) {
       case "below":
         yoff = abs(this.layout.bbox.top - frame.bbox.bottom)

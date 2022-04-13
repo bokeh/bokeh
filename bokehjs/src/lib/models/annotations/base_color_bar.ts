@@ -25,6 +25,9 @@ import {isString, isPlainObject} from "core/util/types"
 import {Dict} from "core/util/object"
 import {SerializableState} from "core/view"
 
+import {View} from "core/view"
+import {RenderingTarget} from "models/renderers/renderer"
+
 const MINOR_DIM = 25
 const MAJOR_DIM_MIN_SCALAR = 0.3
 const MAJOR_DIM_MAX_SCALAR = 0.8
@@ -100,7 +103,7 @@ export abstract class BaseColorBarView extends AnnotationView {
     await super.lazy_initialize()
 
     const self = this
-    const parent: any = {
+    const parent: View & RenderingTarget = {
       get parent() {
         return self.parent
       },
