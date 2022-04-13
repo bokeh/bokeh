@@ -115,7 +115,7 @@ export class MultiPolygonsView extends GlyphView {
   }
 
   protected override _mask_data(): Indices {
-    const {x_range, y_range} = this.renderer.plot_view.frame
+    const {x_range, y_range} = this.renderer.parent.frame
     return this.index.indices({
       x0: x_range.min, x1: x_range.max,
       y0: y_range.min, y1: y_range.max,
