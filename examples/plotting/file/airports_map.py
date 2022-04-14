@@ -3,7 +3,7 @@ The left plot uses the built-in CartoDB tile source, and the right plot uses
 a customized tile source configured for OpenStreetMap.
 
 .. bokeh-example-metadata::
-    :sampledata: airport
+    :sampledata: airports
     :apis: bokeh.plotting.figure.add_tile, bokeh.plotting.figure.circle
     :refs: :ref:`userguide_geo` > :ref:`userguide_geo_gmap`, :ref:`userguide_geo` > :ref:`userguide_geo_tile` > :ref:`userguide_geo_tile_source`
     :keywords: tile, map, field, elevation, geo

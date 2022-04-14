@@ -1,3 +1,14 @@
+'''This example shows the number of marriages and divorces in the USA from 1867 to 2011
+as a basic line plot. Furthermore a custom tooltip is defined using the Arial font.
+
+.. bokeh-example-metadata::
+    :sampledata: us_marriages_divorces
+    :apis: bokeh.plotting.figure.line
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_line_glyphs`
+    :keywords: line, NumeralTickFormatter, SingleIntervalTicker
+
+'''
+
 from bokeh.models import ColumnDataSource, NumeralTickFormatter, SingleIntervalTicker
 from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.us_marriages_divorces import data

@@ -1,3 +1,14 @@
+'''This example creates a periodic table of elements with a custom tooltip. The tooltip
+includes multiple chemical data as well as a bohr diagram for each element.
+
+.. bokeh-example-metadata::
+    :sampledata: periodic_table
+    :apis: bokeh.plotting.figure.circle, bokeh.transform.dodge, bokeh.transform.factor_cmap
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter`
+    :keywords: circle, RendererGroup, Template, ToggleGroup
+
+'''
+
 import re
 
 import numpy as np
@@ -69,11 +80,10 @@ def bohr_diagram():
     plot = figure(
         width=150, height=150,
         x_axis_type=None, y_axis_type=None,
+        x_range = (-8,8), y_range = (-8,8), 
         toolbar_location=None, outline_line_color=None,
         match_aspect=True,
     )
-    plot.x_range.only_visible = True
-    plot.y_range.only_visible = True
     groups = []
     for sc in df["electron shells"]:
         n = len(sc)

@@ -47,8 +47,7 @@ process-docstring (bool):
     separate from the source.
 
 source-position (enum('above', 'below', 'none')):
-    Where to locate the the block of formatted source
-    code (if anywhere).
+    Where to locate the block of formatted source code (if anywhere).
 
 linenos (bool):
     Whether to display line numbers along with the source.
