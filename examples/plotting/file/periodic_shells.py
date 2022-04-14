@@ -80,7 +80,7 @@ def bohr_diagram():
     plot = figure(
         width=150, height=150,
         x_axis_type=None, y_axis_type=None,
-        x_range = (-8,8), y_range = (-8,8), 
+        x_range = (-8,8), y_range = (-8,8),
         toolbar_location=None, outline_line_color=None,
         match_aspect=True,
     )
