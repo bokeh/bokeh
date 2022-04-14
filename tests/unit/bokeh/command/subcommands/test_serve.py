@@ -138,6 +138,13 @@ def test_args() -> None:
             default = None,
         )),
 
+        ('--unix-socket', Argument(
+            metavar = 'UNIX-SOCKET',
+            type    = str,
+            help    = "Unix socket to bind",
+            default = None
+        )),
+
         ('--log-level', Argument(
             metavar = 'LOG-LEVEL',
             action  = 'store',
