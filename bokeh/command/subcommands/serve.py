@@ -466,6 +466,13 @@ base_serve_args = (
         default = None,
     )),
 
+    ('--unix-socket', Argument(
+        metavar = 'UNIX-SOCKET',
+        type    = str,
+        help    = "Unix socket to bind",
+        default = None
+    )),
+
     ('--log-level', Argument(
         metavar = 'LOG-LEVEL',
         action  = 'store',
@@ -830,6 +837,7 @@ class Serve(Subcommand):
 
         server_kwargs = { key: getattr(args, key) for key in ['port',
                                                               'address',
+                                                              'unix_socket',
                                                               'allow_websocket_origin',
                                                               'num_procs',
                                                               'prefix',
@@ -933,21 +941,23 @@ class Serve(Subcommand):
                         server.show(route)
 
                 server.io_loop.add_callback(show_callback)
+                
+            # Server may not have a port when bound to a unix socket
+            if server.port:
+                address_string = 'localhost'
+                if server.address is not None and server.address != '':
+                    address_string = server.address
 
-            address_string = 'localhost'
-            if server.address is not None and server.address != '':
-                address_string = server.address
+                if server_kwargs['ssl_certfile'] and (server_kwargs['ssl_certfile'].endswith('.pem') or server_kwargs['ssl_keyfile']):
+                    protocol = 'https'
+                else:
+                    protocol = 'http'
 
-            if server_kwargs['ssl_certfile'] and (server_kwargs['ssl_certfile'].endswith('.pem') or server_kwargs['ssl_keyfile']):
-                protocol = 'https'
-            else:
-                protocol = 'http'
+                for route in sorted(applications.keys()):
+                    url = f"{protocol}://{address_string}:{server.port}{server.prefix}{route}"
+                    log.info("Bokeh app running at: %s" % url)
 
-            for route in sorted(applications.keys()):
-                url = f"{protocol}://{address_string}:{server.port}{server.prefix}{route}"
-                log.info("Bokeh app running at: %s" % url)
-
-            log.info("Starting Bokeh server with process id: %d" % os.getpid())
+                log.info("Starting Bokeh server with process id: %d" % os.getpid())
             server.run_until_shutdown()
 
 #-----------------------------------------------------------------------------

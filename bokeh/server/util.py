@@ -41,6 +41,7 @@ from tornado import netutil
 
 __all__ = (
     'bind_sockets',
+    'bind_unix_sockets',
     'check_allowlist',
     'create_hosts_allowlist',
     'match_host',
@@ -78,6 +79,21 @@ def bind_sockets(address: str | None, port: int) -> Tuple[List[socket], int]:
     if port:
         assert actual_port == port
     return ss, actual_port
+
+def bind_unix_socket(unix_socket: str) -> socket:
+    ''' Bind a unix socket file to a socket.
+
+    Args:
+        unix_socket (str) :
+            A socket file to bind the socket to
+
+    This function returns a new socket that binds to the given unix socket
+
+    Returns:
+        socket
+    '''    
+    ss = netutil.bind_unix_socket(unix_socket)
+    return ss
 
 def check_allowlist(host: str, allowlist: Sequence[str]) -> bool:
     ''' Check a given request host against a allowlist.
