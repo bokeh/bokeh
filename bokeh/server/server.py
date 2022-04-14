@@ -63,7 +63,7 @@ from ..core.properties import (
 from ..resources import DEFAULT_SERVER_PORT
 from ..util.options import Options
 from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
-from .util import bind_sockets, create_hosts_allowlist, bind_unix_socket
+from .util import bind_sockets, bind_unix_socket, create_hosts_allowlist
 
 if TYPE_CHECKING:
     from ..application.application import Application
@@ -422,7 +422,7 @@ class Server(BaseServer):
             context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
             context.load_cert_chain(certfile=opts.ssl_certfile, keyfile=opts.ssl_keyfile, password=opts.ssl_password)
             http_server_kwargs['ssl_options'] = context
-        
+
         if opts.unix_socket:
             sockets = [bind_unix_socket(opts.unix_socket)]
             self._unix_socket = opts.unix_socket
@@ -475,7 +475,7 @@ class Server(BaseServer):
         ''' The configured unix socket that the server listens to.
 
         '''
-        return self._unix_socket        
+        return self._unix_socket
 
     @property
     def address(self) -> str | None:

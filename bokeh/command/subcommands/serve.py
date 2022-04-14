@@ -941,7 +941,7 @@ class Serve(Subcommand):
                         server.show(route)
 
                 server.io_loop.add_callback(show_callback)
-                
+
             # Server may not have a port when bound to a unix socket
             if server.port:
                 address_string = 'localhost'

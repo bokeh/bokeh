@@ -41,7 +41,7 @@ from tornado import netutil
 
 __all__ = (
     'bind_sockets',
-    'bind_unix_sockets',
+    'bind_unix_socket',
     'check_allowlist',
     'create_hosts_allowlist',
     'match_host',
@@ -91,7 +91,7 @@ def bind_unix_socket(unix_socket: str) -> socket:
 
     Returns:
         socket
-    '''    
+    '''
     ss = netutil.bind_unix_socket(unix_socket)
     return ss
 
