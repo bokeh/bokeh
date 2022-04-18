@@ -142,7 +142,7 @@ def test_args() -> None:
             metavar = 'UNIX-SOCKET',
             type    = str,
             help    = "Unix socket to bind",
-            default = None
+            default = None,
         )),
 
         ('--log-level', Argument(
@@ -477,6 +477,20 @@ def check_error(args):
     else:
         pytest.fail(f"command {cmd} unexpected successful")
     return out
+
+def test_unix_socket_with_port() -> None:
+    unix_socket = "test.sock"
+    out = check_error(["--unix-socket", unix_socket, "--port", "5000"])
+    expected = "--port arg is not supported with a unix socket\n"
+    assert expected == out
+
+def test_unix_socket_with_invalid_args() -> None:
+    invalid_args = ["address", "allow-websocket-origin"]
+    for arg in invalid_args:
+        unix_socket = "test.sock"
+        out = check_error(["--unix-socket", unix_socket, f"--{arg}", "value"])
+        expected = "['address', 'allow_websocket_origin', 'port'] args are not supported with a unix socket\n"
+        assert expected == out
 
 def test_host_not_available() -> None:
     host = "8.8.8.8"

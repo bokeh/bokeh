@@ -470,7 +470,7 @@ base_serve_args = (
         metavar = 'UNIX-SOCKET',
         type    = str,
         help    = "Unix socket to bind",
-        default = None
+        default = None,
     )),
 
     ('--log-level', Argument(
@@ -882,6 +882,13 @@ class Serve(Subcommand):
         if server_kwargs['sign_sessions'] and not server_kwargs['secret_key']:
             die("To sign sessions, the BOKEH_SECRET_KEY environment variable must be set; " +
                 "the `bokeh secret` command can be used to generate a new key.")
+
+        if 'unix_socket' in server_kwargs:
+            if server_kwargs['port'] != DEFAULT_SERVER_PORT:
+                die("--port arg is not supported with a unix socket")
+            invalid_args = ['address', 'allow_websocket_origin']
+            if any(x in server_kwargs for x in invalid_args):
+                die(f"{invalid_args + ['port']} args are not supported with a unix socket")
 
         auth_module_path = settings.auth_module(getattr(args, 'auth_module', None))
         if auth_module_path:

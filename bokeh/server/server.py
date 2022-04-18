@@ -463,10 +463,11 @@ class Server(BaseServer):
         super().__init__(io_loop, tornado_app, http_server)
 
     @property
-    def port(self) -> int:
+    def port(self) -> int | None:
         ''' The configured port number that the server listens on for HTTP
         requests.
-
+        
+        Returns None when the server binds with a unix socket
         '''
         return self._port
 
