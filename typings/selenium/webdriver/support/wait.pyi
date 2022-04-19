@@ -1,4 +1,5 @@
-from typing import Callable, Sequence, TypeVar
+from collections.abc import Callable, Sequence
+from typing import TypeVar
 
 from ..remote.webdriver import WebDriver
 
