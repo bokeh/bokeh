@@ -24,12 +24,14 @@ import re
 import socket
 import subprocess
 import sys
+import time
 from os.path import join, split
 from queue import Empty, Queue
 from threading import Thread
 
 # External imports
 import requests
+import requests_unixsocket
 
 # Bokeh imports
 from bokeh._testing.util.env import envset
@@ -491,6 +493,18 @@ def test_unix_socket_with_invalid_args() -> None:
         out = check_error(["--unix-socket", unix_socket, f"--{arg}", "value"])
         expected = "['address', 'allow_websocket_origin', 'port'] args are not supported with a unix socket\n"
         assert expected == out
+
+def test_unix_socket() -> None:
+    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    file_name = join(HERE, "test.socket")
+    sock.bind(file_name)
+    with run_bokeh_serve(["--unix-socket", file_name, "--glob", APPS]) as (p, nbsr):
+        # The server is not ready is binds to the unix socket 
+        # very quickly, having some sleep helps
+        time.sleep(1)
+        with requests_unixsocket.monkeypatch():
+            print(f"http+unix://{file_name.replace('/', '%2F')}/line_on_off")
+    os.remove(file_name)
 
 def test_host_not_available() -> None:
     host = "8.8.8.8"
