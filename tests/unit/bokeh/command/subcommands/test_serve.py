@@ -503,7 +503,8 @@ def test_unix_socket() -> None:
         # very quickly, having some sleep helps
         time.sleep(1)
         with requests_unixsocket.monkeypatch():
-            print(f"http+unix://{file_name.replace('/', '%2F')}/line_on_off")
+            r = requests.get(f"http+unix://{file_name.replace('/', '%2F')}/line_on_off")
+            assert r.status_code == 200
     os.remove(file_name)
 
 def test_host_not_available() -> None:
