@@ -499,7 +499,7 @@ def test_unix_socket() -> None:
     file_name = join(HERE, "test.socket")
     sock.bind(file_name)
     with run_bokeh_serve(["--unix-socket", file_name, "--glob", APPS]) as (p, nbsr):
-        # The server is not ready is binds to the unix socket 
+        # The server is not ready is binds to the unix socket
         # very quickly, having some sleep helps
         time.sleep(1)
         with requests_unixsocket.monkeypatch():
