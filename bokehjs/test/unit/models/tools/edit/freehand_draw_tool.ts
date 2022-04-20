@@ -43,7 +43,7 @@ async function make_testcase(): Promise<FreehandDrawTestCase> {
   })
 
   const glyph_renderer = new GlyphRenderer({glyph, data_source})
-  const glyph_renderer_view = await build_view(glyph_renderer, {parent: plot_view})
+  const glyph_renderer_view = await build_view(glyph_renderer, {parent: plot_view.frame})
 
   const draw_tool = new FreehandDrawTool({
     active: true,

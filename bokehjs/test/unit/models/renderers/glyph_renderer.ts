@@ -22,10 +22,8 @@ describe("GlyphRendererView", async () => {
 
   const basic_circle = new Circle({fill_color: "red"})
   const glyph_renderer = mkrenderer(basic_circle)
-  const grv = await build_view(
-    glyph_renderer,
-    {parent: await build_view(new Plot())},
-  )
+  const plot_view = await build_view(new Plot())
+  const grv = await build_view(glyph_renderer, {parent: plot_view.frame})
 
   const {glyph, selection_glyph, nonselection_glyph, muted_glyph, decimated_glyph} = grv
 

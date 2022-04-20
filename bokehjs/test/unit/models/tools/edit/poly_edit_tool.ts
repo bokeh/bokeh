@@ -54,11 +54,11 @@ async function make_testcase(): Promise<PolyEditTestCase> {
   })
 
   const glyph_renderer = new GlyphRenderer({glyph, data_source})
-  const glyph_renderer_view = await build_view(glyph_renderer, {parent: plot_view})
+  const glyph_renderer_view = await build_view(glyph_renderer, {parent: plot_view.frame})
   sinon.stub(glyph_renderer_view, "set_data")
 
   const vertex_renderer = new GlyphRenderer({glyph: vertex_glyph, data_source: vertex_source})
-  const vertex_renderer_view = await build_view(vertex_renderer, {parent: plot_view})
+  const vertex_renderer_view = await build_view(vertex_renderer, {parent: plot_view.frame})
 
   const draw_tool = new PolyEditTool({
     active: true,

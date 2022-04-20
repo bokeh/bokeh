@@ -71,7 +71,7 @@ describe("GraphHitTestPolicy", () => {
       layout_provider: new TrivialLayoutProvider(),
     })
 
-    gv = await build_view(gr, {parent: plot_view})
+    gv = await build_view(gr, {parent: plot_view.frame})
 
     node_stub = sinon.stub(gv.node_view.glyph, "hit_test")
     edge_stub = sinon.stub(gv.edge_view.glyph, "hit_test")
