@@ -78,6 +78,15 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     const {ctx} = this.layer
     ctx.save()
 
+    if (this.model.highlight) {
+      ctx.beginPath()
+      ctx.rect(this.parent.bbox)
+      ctx.rect(this.bbox)
+
+      this.visuals.highlight_fill.apply(ctx, "evenodd")
+      this.visuals.highlight_hatch.apply(ctx, "evenodd")
+    }
+
     const {left, top, width, height} = this.bbox
     ctx.beginPath()
     ctx.rect(left, top, width, height)
@@ -259,6 +268,7 @@ export namespace BoxAnnotation {
     left_units: p.Property<CoordinateUnits>
     right_units: p.Property<CoordinateUnits>
     editable: p.Property<boolean>
+    highlight: p.Property<boolean>
     tl_cursor: p.Property<string>
     tr_cursor: p.Property<string>
     bl_cursor: p.Property<string>
@@ -270,7 +280,8 @@ export namespace BoxAnnotation {
 
   export type Mixins =
     mixins.Line & mixins.Fill & mixins.Hatch &
-    mixins.HoverLine & mixins.HoverFill & mixins.HoverHatch
+    mixins.HoverLine & mixins.HoverFill & mixins.HoverHatch &
+    mixins.HighlightFill & mixins.HighlightHatch
 
   export type Visuals = Annotation.Visuals & {
     line: visuals.Line
@@ -279,6 +290,8 @@ export namespace BoxAnnotation {
     hover_line: visuals.Line
     hover_fill: visuals.Fill
     hover_hatch: visuals.Hatch
+    highlight_fill: visuals.Fill
+    highlight_hatch: visuals.Hatch
   }
 }
 
@@ -302,6 +315,8 @@ export class BoxAnnotation extends Annotation {
       ["hover_", mixins.Line],
       ["hover_", mixins.Fill],
       ["hover_", mixins.Hatch],
+      ["highlight_", mixins.Fill],
+      ["highlight_", mixins.Hatch],
     ])
 
     this.define<BoxAnnotation.Props>(({Boolean, Number, Nullable}) => ({
@@ -314,6 +329,7 @@ export class BoxAnnotation extends Annotation {
       left_units:   [ CoordinateUnits, "data" ],
       right_units:  [ CoordinateUnits, "data" ],
       editable:     [ Boolean, false ],
+      highlight:    [ Boolean, false ],
     }))
 
     this.internal<BoxAnnotation.Props>(({String}) => ({
@@ -335,6 +351,8 @@ export class BoxAnnotation extends Annotation {
       hover_fill_alpha: 0.4,
       hover_line_color: null,
       hover_line_alpha: 0.3,
+      highlight_fill_color: "#7f7f7f",
+      highlight_fill_alpha: 0.4,
     })
   }
 

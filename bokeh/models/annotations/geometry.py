@@ -130,6 +130,10 @@ class BoxAnnotation(Annotation):
     Allows to interactively modify the geometry of this box.
     """)
 
+    highlight = Bool(default=False, help="""
+    Fill the parent area around the box to make it stand out.
+    """)
+
     line_props = Include(ScalarLineProps, help="""
     The {prop} values for the box.
     """)
@@ -169,6 +173,18 @@ class BoxAnnotation(Annotation):
     hover_fill_alpha = Override(default=0.4)
 
     hover_fill_color = Override(default=None)
+
+    highlight_fill_props = Include(ScalarFillProps, prefix="highlight", help="""
+    The {prop} values for the box's highlight outline.
+    """)
+
+    highlight_hatch_props = Include(ScalarHatchProps, prefix="highlight", help="""
+    The {prop} values for the box's highlight outline.
+    """)
+
+    highlight_fill_alpha = Override(default=0.4)
+
+    highlight_fill_color = Override(default="#7f7f7f")
 
 class Band(DataAnnotation):
     ''' Render a filled area band along a dimension.

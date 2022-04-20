@@ -40,6 +40,11 @@ HOVER_HATCH = [ f"hover_{name}" for name in HATCH ]
 HOVER_LINE  = [ f"hover_{name}" for name in LINE ]
 HOVER_TEXT  = [ f"hover_{name}" for name in TEXT ]
 
+HIGHLIGHT_FILL  = [ f"highlight_{name}" for name in FILL ]
+HIGHLIGHT_HATCH = [ f"highlight_{name}" for name in HATCH ]
+HIGHLIGHT_LINE  = [ f"highlight_{name}" for name in LINE ]
+HIGHLIGHT_TEXT  = [ f"highlight_{name}" for name in TEXT ]
+
 ANGLE = ["angle", "angle_units"]
 
 PROPS = ["name", "tags", "js_property_callbacks", "js_event_callbacks", "subscribed_events", "syncable"]

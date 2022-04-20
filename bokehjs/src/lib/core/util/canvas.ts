@@ -11,7 +11,9 @@ export type Context2d = {
   setImageSmoothingEnabled(value: boolean): void
   getImageSmoothingEnabled(): boolean
   lineDash: number[]
-  readonly layer: CanvasLayer
+  layer: CanvasLayer
+  rect(bbox: BBox): void
+  rect(x: number, y: number, w: number, h: number): void
 } & CanvasRenderingContext2D
 
 function fixup_line_dash(ctx: any): void {
@@ -69,10 +71,20 @@ function fixup_ellipse(ctx: any): void {
     ctx.ellipse = ellipse_bezier
 }
 
-function fixup_ctx(ctx: any): void {
+function fixup_ctx(ctx: CanvasRenderingContext2D): void {
   fixup_line_dash(ctx)
   fixup_image_smoothing(ctx)
   fixup_ellipse(ctx)
+
+  const rect = ctx.rect.bind(ctx)
+  ctx.rect = function(...args: [BBox] | [number, number, number, number]) {
+    if (args.length == 1) {
+      const {x, y, width, height} = args[0]
+      rect(x, y, width, height)
+    } else {
+      rect(...args)
+    }
+  }
 }
 
 const style = {
@@ -128,8 +140,8 @@ export class CanvasLayer {
       }
     }
 
-    (this._ctx as any).layer = this
-    fixup_ctx(this._ctx)
+    (this._ctx as Context2d).layer = this
+    fixup_ctx(this._ctx as CanvasRenderingContext2D)
   }
 
   resize(width: number, height: number): void {

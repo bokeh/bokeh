@@ -255,6 +255,10 @@ export type HoverLine = Prefixed<"hover", Line>
 export type HoverFill = Prefixed<"hover", Fill>
 export type HoverHatch = Prefixed<"hover", Hatch>
 
+export type HighlightLine = Prefixed<"highlight", Line>
+export type HighlightFill = Prefixed<"highlight", Fill>
+export type HighlightHatch = Prefixed<"highlight", Hatch>
+
 export type AxisLabelText = Prefixed<"axis_label", Text>
 export type AxisLine = Prefixed<"axis", Line>
 export type BackgroundFill = Prefixed<"background", Fill>
