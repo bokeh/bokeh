@@ -41,11 +41,11 @@ export function union(a: Rect, b: Rect): Rect {
   }
 }
 
-export type LTRB = {
-  left: number
-  top: number
-  right: number
-  bottom: number
+export type LTRB<T = number> = {
+  left: T
+  top: T
+  right: T
+  bottom: T
 }
 
 export type HorizontalPosition =

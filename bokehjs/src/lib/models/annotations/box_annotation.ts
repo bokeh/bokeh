@@ -4,12 +4,11 @@ import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {PanEvent, Pannable, MoveEvent, Moveable} from "core/ui_events"
 import {Signal} from "core/signaling"
-import {CoordinateUnits, BoxEdges} from "core/enums"
+import {CoordinateUnits} from "core/enums"
 import * as p from "core/properties"
 import * as cursors from "core/util/cursors"
-import {assert} from "core/util/assert"
+import {assert, unreachable} from "core/util/assert"
 import {BBox, LTRB} from "core/util/bbox"
-import {isString} from "core/util/types"
 import {clamp, sign, absmin} from "core/util/math"
 
 export const EDGE_TOLERANCE = 2.5
@@ -19,6 +18,24 @@ const {abs} = Math
 type Corner = "top_left" | "top_right" | "bottom_left" | "bottom_right"
 type Edge = "left" | "right" | "top" | "bottom"
 type HitTarget = Corner | Edge | "box"
+
+export enum Directions {
+  None   = 0b00,
+  X      = 0b01,
+  Y      = 0b10,
+  All    = X | Y,
+}
+
+export enum Edges {
+  None   = 0b0000,
+  Left   = 0b0001,
+  Right  = 0b0010,
+  Top    = 0b0100,
+  Bottom = 0b1000,
+  X      = Left | Right,
+  Y      = Top | Bottom,
+  All    = X | Y,
+}
 
 export class BoxAnnotationView extends AnnotationView implements Pannable, Moveable {
   override model: BoxAnnotation
@@ -167,26 +184,13 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     return null
   }
 
-  get resizable(): {left: boolean, right: boolean, top: boolean, bottom: boolean} {
+  get resizable(): LTRB<boolean> {
     const {resizable} = this.model
-    if (resizable === false)
-      return {left: false, right: false, top: false, bottom: false}
-    else if (resizable === true)
-      return {left: true, right: true, top: true, bottom: true}
-    else if (isString(resizable)) {
-      return {
-        left: resizable == "left" || resizable == "x",
-        right: resizable == "right" || resizable == "x",
-        top: resizable == "top" || resizable == "y",
-        bottom: resizable == "bottom" || resizable == "y",
-      }
-    } else {
-      return {
-        left: resizable.has("left"),
-        right: resizable.has("right"),
-        top: resizable.has("top"),
-        bottom: resizable.has("bottom"),
-      }
+    return {
+      left: (resizable & Edges.Left) != 0,
+      right: (resizable & Edges.Right) != 0,
+      top: (resizable & Edges.Top) != 0,
+      bottom: (resizable & Edges.Bottom) != 0,
     }
   }
 
@@ -201,7 +205,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
       case "right":        return right
       case "top":          return top
       case "bottom":       return bottom
-      case "box":          return this.model.movable !== false
+      case "box":          return this.model.movable != Directions.None
     }
   }
 
@@ -237,10 +241,11 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
       if (target == "box") {
         const [fdx, fdy] = (() => {
           switch (this.model.movable) {
-            case true:  return [dx, dy]
-            case "x":   return [dx, 0]
-            case "y":   return [0, dy]
-            case false: return [0, 0]
+            case Directions.All:  return [dx, dy]
+            case Directions.X:    return [dx, 0]
+            case Directions.Y:    return [0, dy]
+            case Directions.None: return [0, 0]
+            default:              unreachable() // XXX: TypeScript limitation
           }
         })()
 
@@ -349,11 +354,13 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
       case "top":
       case "bottom":       return this.model.ns_cursor
       case "box": {
-        switch (this.model.movable) {
-          case true:  return this.model.in_cursor
-          case "x":   return this.model.ew_cursor
-          case "y":   return this.model.ns_cursor
-          case false: return null
+        const x = this.model.movable
+        switch (x) {
+          case Directions.All:  return this.model.in_cursor
+          case Directions.X:    return this.model.ew_cursor
+          case Directions.Y:    return this.model.ns_cursor
+          case Directions.None: return null
+          default:              unreachable() // XXX: TypeScript limitation
         }
       }
     }
@@ -377,8 +384,8 @@ export namespace BoxAnnotation {
     highlight: p.Property<boolean>
 
     editable: p.Property<boolean>
-    movable: p.Property<false | "x" | "y" | true> // Path
-    resizable: p.Property<false | BoxEdges | Set<BoxEdges> | "x" | "y" | true>
+    movable: p.Property<Directions> // Path
+    resizable: p.Property<Edges>
     min_width: p.Property<number>
     max_width: p.Property<number>
     min_height: p.Property<number>
@@ -443,7 +450,7 @@ export class BoxAnnotation extends Annotation {
       ["highlight_", mixins.Hatch],
     ])
 
-    this.define<BoxAnnotation.Props>(({Boolean, Number, Enum, Set, Nullable, Or}) => ({
+    this.define<BoxAnnotation.Props>(({Boolean, Number, Nullable}) => ({
       top:          [ Nullable(Number), null ],
       bottom:       [ Nullable(Number), null ],
       left:         [ Nullable(Number), null ],
@@ -454,8 +461,8 @@ export class BoxAnnotation extends Annotation {
       right_units:  [ CoordinateUnits, "data" ],
       highlight:    [ Boolean, false ],
       editable:     [ Boolean, false ],
-      movable:      [ Or(Boolean, Enum("x", "y")), true ],
-      resizable:    [ Or(Boolean, BoxEdges, Set(BoxEdges), Enum("x", "y")), true ],
+      movable:      [ Number /*Flags(Directions)*/, Directions.All ],
+      resizable:    [ Number /*Flags(Edges)*/, Edges.All ],
       min_width:    [ Number, 0 ],
       max_width:    [ Number, Infinity ],
       min_height:   [ Number, 0 ],
@@ -497,7 +504,7 @@ export class BoxAnnotation extends Annotation {
 
   readonly pan = new Signal<"pan:start" | "pan" | "pan:end", this>(this, "pan")
 
-  update({left, right, top, bottom}: LTRB): void {
+  update({left, right, top, bottom}: LTRB<number | null>): void {
     this.setv({left, right, top, bottom, visible: true})
   }
 

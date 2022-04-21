@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from enum import IntFlag
 from math import inf
 
 # Bokeh imports
@@ -35,12 +36,13 @@ from ...core.properties import (
     Include,
     Instance,
     InstanceDefault,
+    Int,
     Null,
     Nullable,
     NumberSpec,
     Override,
     Seq,
-    Set,
+    String,
     UnitsSpec,
     field,
 )
@@ -67,7 +69,21 @@ __all__ = (
     "Whisker",
 )
 
-BoxEdges = Enum("left", "right", "top", "bottom")
+class Directions(IntFlag):
+    none = 0b00
+    x = 0b01
+    y = 0b10
+    all = x | y
+
+class Edges(IntFlag):
+    none = 0b0000
+    left = 0b0001
+    right = 0b0010
+    top = 0b0100
+    bottom = 0b1000
+    x = left | right
+    y = top | bottom
+    all = x | y
 
 #-----------------------------------------------------------------------------
 # General API
@@ -140,8 +156,8 @@ class BoxAnnotation(Annotation):
     Allows to interactively modify the geometry of this box.
     """)
 
-    movable = Either(Bool, Enum("x", "y"), default=True)
-    resizable = Either(Bool, BoxEdges, Set(BoxEdges), Enum("x", "y"), default=True)
+    movable = Int(default=Directions.all).accepts(String, lambda key: getattr(Directions, key)) # TODO: Flags(Directions)
+    resizable = Int(default=Edges.all).accepts(String, lambda key: getattr(Edges, key)) # TODO: Flags(Edges)
     min_width = Float(default=0)
     max_width = Float(default=inf)
     min_height = Float(default=0)
