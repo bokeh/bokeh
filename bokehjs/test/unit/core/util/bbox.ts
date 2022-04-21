@@ -54,20 +54,20 @@ describe("bbox module", () => {
   })
 
   describe("BBox class", () => {
-    it("should support from_ltrb() static method", () => {
-      const bbox0 = BBox.from_ltrb({left: 0, right: 1, top: 2, bottom: 3})
+    it("should support from_lrtb() static method", () => {
+      const bbox0 = BBox.from_lrtb({left: 0, right: 1, top: 2, bottom: 3})
       expect(bbox0.left).to.be.equal(0)
       expect(bbox0.right).to.be.equal(1)
       expect(bbox0.top).to.be.equal(2)
       expect(bbox0.bottom).to.be.equal(3)
 
-      const bbox1 = BBox.from_ltrb({left: 1, right: 0, top: 2, bottom: 3})
+      const bbox1 = BBox.from_lrtb({left: 1, right: 0, top: 2, bottom: 3})
       expect(bbox1.left).to.be.equal(0)
       expect(bbox1.right).to.be.equal(1)
       expect(bbox1.top).to.be.equal(2)
       expect(bbox1.bottom).to.be.equal(3)
 
-      const bbox2 = BBox.from_ltrb({left: 1, right: 0, top: 3, bottom: 2})
+      const bbox2 = BBox.from_lrtb({left: 1, right: 0, top: 3, bottom: 2})
       expect(bbox2.left).to.be.equal(0)
       expect(bbox2.right).to.be.equal(1)
       expect(bbox2.top).to.be.equal(2)

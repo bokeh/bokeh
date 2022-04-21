@@ -41,10 +41,10 @@ export function union(a: Rect, b: Rect): Rect {
   }
 }
 
-export type LTRB<T = number> = {
+export type LRTB<T = number> = {
   left: T
-  top: T
   right: T
+  top: T
   bottom: T
 }
 
@@ -153,7 +153,7 @@ export class BBox implements Rect, Equatable {
     }
   }
 
-  static from_ltrb({left, right, top, bottom}: LTRB): BBox {
+  static from_lrtb({left, right, top, bottom}: LRTB): BBox {
     return new BBox({
       x0: Math.min(left, right),
       y0: Math.min(top, bottom),
@@ -210,8 +210,9 @@ export class BBox implements Rect, Equatable {
     return {x, y, width, height}
   }
 
-  get ltrb(): LTRB {
-    return {left: this.left, top: this.top, right: this.right, bottom: this.bottom}
+  get lrtb(): LRTB {
+    const {left, right, top, bottom} = this
+    return {left, right, top, bottom}
   }
 
   get x_range(): Interval { return {start: this.x0, end: this.x1} }

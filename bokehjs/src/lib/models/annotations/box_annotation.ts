@@ -8,7 +8,7 @@ import {CoordinateUnits} from "core/enums"
 import * as p from "core/properties"
 import * as cursors from "core/util/cursors"
 import {assert, unreachable} from "core/util/assert"
-import {BBox, LTRB} from "core/util/bbox"
+import {BBox, LRTB} from "core/util/bbox"
 import {clamp, sign, absmin} from "core/util/math"
 
 export const EDGE_TOLERANCE = 2.5
@@ -85,7 +85,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
   protected _render(): void {
     const {left, right, top, bottom} = this.model
 
-    this.bbox = BBox.from_ltrb({
+    this.bbox = BBox.from_lrtb({
       left:   left != null ? this.left_coordinates.compute(left) : this.parent.bbox.left,
       right:  right != null ? this.right_coordinates.compute(right) : this.parent.bbox.right,
       top:    top != null ? this.top_coordinates.compute(top) : this.parent.bbox.top,
@@ -93,7 +93,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     })
 
     const {min_left, min_right, min_top, min_bottom} = this.model
-    this.min_bbox = BBox.from_ltrb({
+    this.min_bbox = BBox.from_lrtb({
       left:   min_left != null ? this.left_coordinates.compute(min_left) : this.parent.bbox.left,
       right:  min_right != null ? this.right_coordinates.compute(min_right) : this.parent.bbox.left,
       top:    min_top != null ? this.top_coordinates.compute(min_top) : this.parent.bbox.top,
@@ -101,7 +101,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     })
 
     const {max_left, max_right, max_top, max_bottom} = this.model
-    this.max_bbox = BBox.from_ltrb({
+    this.max_bbox = BBox.from_lrtb({
       left:   max_left != null ? this.left_coordinates.compute(max_left) : this.parent.bbox.right,
       right:  max_right != null ? this.right_coordinates.compute(max_right) : this.parent.bbox.right,
       top:    max_top != null ? this.top_coordinates.compute(max_top) : this.parent.bbox.bottom,
@@ -152,7 +152,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
   }
 
   private _hit_test(sx: number, sy: number): HitTarget | null {
-    const {left, right, bottom, top} = this.bbox
+    const {left, right, top, bottom} = this.bbox
     const tolerance = Math.max(EDGE_TOLERANCE, this.model.line_width/2)
 
     const hits_left = abs(left - sx) < tolerance
@@ -184,7 +184,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     return null
   }
 
-  get resizable(): LTRB<boolean> {
+  get resizable(): LRTB<boolean> {
     const {resizable} = this.model
     return {
       left: (resizable & Edges.Left) != 0,
@@ -233,9 +233,9 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     const dx = ev.deltaX
     const dy = ev.deltaY
 
-    const sltrb = BBox.from_ltrb((() => {
+    const slrtb = BBox.from_lrtb((() => {
       const {bbox, target} = this._pan_state
-      const {left, top, right, bottom} = bbox
+      const {left, right, top, bottom} = bbox
       const {min_bbox: min, max_bbox: max} = this
 
       if (target == "box") {
@@ -266,46 +266,46 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
         const ffdx = absmin(dl, dr)
         const ffdy = absmin(dt, db)
 
-        return {left: left + ffdx, top: top + ffdy, right: right + ffdx, bottom: bottom + ffdy}
+        return {left: left + ffdx, right: right + ffdx, top: top + ffdy, bottom: bottom + ffdy}
       } else {
-        const ltrb = (() => {
+        const lrtb = (() => {
           switch (target) {
             case "top_left":
-              return {left: left + dx, top: top + dy, right, bottom}
+              return {left: left + dx, right, top: top + dy, bottom}
             case "top_right":
-              return {left, top: top + dy, right: right + dx, bottom}
+              return {left, right: right + dx, top: top + dy, bottom}
             case "bottom_left":
-              return {left: left + dx, top, right, bottom: bottom + dy}
+              return {left: left + dx, right, top, bottom: bottom + dy}
             case "bottom_right":
-              return {left, top, right: right + dx, bottom: bottom + dy}
+              return {left, right: right + dx, top, bottom: bottom + dy}
             case "left":
-              return {left: left + dx, top, right, bottom}
+              return {left: left + dx, right, top, bottom}
             case "right":
-              return {left, top, right: right + dx, bottom}
+              return {left, right: right + dx, top, bottom}
             case "top":
-              return {left, top: top + dy, right, bottom}
+              return {left, right, top: top + dy, bottom}
             case "bottom":
-              return {left, top, right, bottom: bottom + dy}
+              return {left, right, top, bottom: bottom + dy}
           }
         })()
 
         return {
-          left: clamp(ltrb.left, min.left, max.left),
-          right: clamp(ltrb.right, min.right, max.right),
-          top: clamp(ltrb.top, min.top, max.top),
-          bottom: clamp(ltrb.bottom, min.bottom, max.bottom),
+          left: clamp(lrtb.left, min.left, max.left),
+          right: clamp(lrtb.right, min.right, max.right),
+          top: clamp(lrtb.top, min.top, max.top),
+          bottom: clamp(lrtb.bottom, min.bottom, max.bottom),
         }
       }
     })())
 
-    const ltrb = {
-      left:   this.left_coordinates.invert(sltrb.left),
-      right:  this.right_coordinates.invert(sltrb.right),
-      top:    this.top_coordinates.invert(sltrb.top),
-      bottom: this.bottom_coordinates.invert(sltrb.bottom),
+    const lrtb = {
+      left:   this.left_coordinates.invert(slrtb.left),
+      right:  this.right_coordinates.invert(slrtb.right),
+      top:    this.top_coordinates.invert(slrtb.top),
+      bottom: this.bottom_coordinates.invert(slrtb.bottom),
     }
 
-    this.model.update(ltrb)
+    this.model.update(lrtb)
     this.model.pan.emit("pan")
   }
 
@@ -371,15 +371,15 @@ export namespace BoxAnnotation {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
-    top: p.Property<number | null>
-    bottom: p.Property<number | null>
     left: p.Property<number | null>
     right: p.Property<number | null>
+    top: p.Property<number | null>
+    bottom: p.Property<number | null>
 
-    top_units: p.Property<CoordinateUnits>
-    bottom_units: p.Property<CoordinateUnits>
     left_units: p.Property<CoordinateUnits>
     right_units: p.Property<CoordinateUnits>
+    top_units: p.Property<CoordinateUnits>
+    bottom_units: p.Property<CoordinateUnits>
 
     highlight: p.Property<boolean>
 
@@ -451,14 +451,14 @@ export class BoxAnnotation extends Annotation {
     ])
 
     this.define<BoxAnnotation.Props>(({Boolean, Number, BitFlags, Nullable}) => ({
-      top:          [ Nullable(Number), null ],
-      bottom:       [ Nullable(Number), null ],
       left:         [ Nullable(Number), null ],
       right:        [ Nullable(Number), null ],
-      top_units:    [ CoordinateUnits, "data" ],
-      bottom_units: [ CoordinateUnits, "data" ],
+      top:          [ Nullable(Number), null ],
+      bottom:       [ Nullable(Number), null ],
       left_units:   [ CoordinateUnits, "data" ],
       right_units:  [ CoordinateUnits, "data" ],
+      top_units:    [ CoordinateUnits, "data" ],
+      bottom_units: [ CoordinateUnits, "data" ],
       highlight:    [ Boolean, false ],
       editable:     [ Boolean, false ],
       movable:      [ BitFlags(Directions), Directions.All ],
@@ -504,7 +504,7 @@ export class BoxAnnotation extends Annotation {
 
   readonly pan = new Signal<"pan:start" | "pan" | "pan:end", this>(this, "pan")
 
-  update({left, right, top, bottom}: LTRB<number | null>): void {
+  update({left, right, top, bottom}: LRTB<number | null>): void {
     this.setv({left, right, top, bottom, visible: true})
   }
 
