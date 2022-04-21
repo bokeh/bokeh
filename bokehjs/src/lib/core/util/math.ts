@@ -4,6 +4,16 @@ import {assert} from "./assert"
 
 const {PI, abs, sign} = Math
 
+export {sign}
+
+export function absmin(a: number, b: number): number {
+  return abs(a) <= abs(b) ? a : b
+}
+
+export function absmax(a: number, b: number): number {
+  return abs(a) >= abs(b) ? a : b
+}
+
 export function angle_norm(angle: number): number {
   if (angle == 0) {
     return 0

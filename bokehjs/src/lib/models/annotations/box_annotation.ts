@@ -4,11 +4,13 @@ import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {PanEvent, Pannable, MoveEvent, Moveable} from "core/ui_events"
 import {Signal} from "core/signaling"
-import {CoordinateUnits} from "core/enums"
+import {CoordinateUnits, BoxEdges} from "core/enums"
 import * as p from "core/properties"
 import * as cursors from "core/util/cursors"
 import {assert} from "core/util/assert"
 import {BBox, LTRB} from "core/util/bbox"
+import {isString} from "core/util/types"
+import {clamp, sign, absmin} from "core/util/math"
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -23,6 +25,8 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
   override visuals: BoxAnnotation.Visuals
 
   protected bbox: BBox = new BBox()
+  protected min_bbox: BBox = new BBox()
+  protected max_bbox: BBox = new BBox()
 
   get left_coordinates(): Scale {
     switch (this.model.left_units) {
@@ -69,6 +73,22 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
       right:  right != null ? this.right_coordinates.compute(right) : this.parent.bbox.right,
       top:    top != null ? this.top_coordinates.compute(top) : this.parent.bbox.top,
       bottom: bottom != null ? this.bottom_coordinates.compute(bottom) : this.parent.bbox.bottom,
+    })
+
+    const {min_left, min_right, min_top, min_bottom} = this.model
+    this.min_bbox = BBox.from_rect({
+      left:   min_left != null ? this.left_coordinates.compute(min_left) : this.parent.bbox.left,
+      right:  min_right != null ? this.right_coordinates.compute(min_right) : this.parent.bbox.left,
+      top:    min_top != null ? this.top_coordinates.compute(min_top) : this.parent.bbox.top,
+      bottom: min_bottom != null ? this.bottom_coordinates.compute(min_bottom) : this.parent.bbox.top,
+    })
+
+    const {max_left, max_right, max_top, max_bottom} = this.model
+    this.max_bbox = BBox.from_rect({
+      left:   max_left != null ? this.left_coordinates.compute(max_left) : this.parent.bbox.right,
+      right:  max_right != null ? this.right_coordinates.compute(max_right) : this.parent.bbox.right,
+      top:    max_top != null ? this.top_coordinates.compute(max_top) : this.parent.bbox.bottom,
+      bottom: max_bottom != null ? this.bottom_coordinates.compute(max_bottom) : this.parent.bbox.bottom,
     })
 
     this._paint_box()
@@ -147,13 +167,51 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     return null
   }
 
+  get resizable(): {left: boolean, right: boolean, top: boolean, bottom: boolean} {
+    const {resizable} = this.model
+    if (resizable === false)
+      return {left: false, right: false, top: false, bottom: false}
+    else if (resizable === true)
+      return {left: true, right: true, top: true, bottom: true}
+    else if (isString(resizable)) {
+      return {
+        left: resizable == "left" || resizable == "x",
+        right: resizable == "right" || resizable == "x",
+        top: resizable == "top" || resizable == "y",
+        bottom: resizable == "bottom" || resizable == "y",
+      }
+    } else {
+      return {
+        left: resizable.has("left"),
+        right: resizable.has("right"),
+        top: resizable.has("top"),
+        bottom: resizable.has("bottom"),
+      }
+    }
+  }
+
+  private _can_hit(target: HitTarget): boolean {
+    const {left, right, top, bottom} = this.resizable
+    switch (target) {
+      case "top_left":     return top && left
+      case "top_right":    return top && right
+      case "bottom_left":  return bottom && left
+      case "bottom_right": return bottom && right
+      case "left":         return left
+      case "right":        return right
+      case "top":          return top
+      case "bottom":       return bottom
+      case "box":          return this.model.movable !== false
+    }
+  }
+
   private _pan_state: {bbox: BBox, target: HitTarget} | null = null
 
   on_pan_start(ev: PanEvent): boolean {
     if (this.model.visible && this.model.editable) {
       const {sx, sy} = ev
       const target = this._hit_test(sx, sy)
-      if (target != null) {
+      if (target != null && this._can_hit(target)) {
         this._pan_state = {
           bbox: this.bbox.clone(),
           target,
@@ -174,26 +232,64 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     const sltrb = (() => {
       const {bbox, target} = this._pan_state
       const {left, top, right, bottom} = bbox
+      const {min_bbox: min, max_bbox: max} = this
 
-      switch (target) {
-        case "top_left":
-          return {left: left + dx, top: top + dy, right, bottom}
-        case "top_right":
-          return {left, top: top + dy, right: right + dx, bottom}
-        case "bottom_left":
-          return {left: left + dx, top, right, bottom: bottom + dy}
-        case "bottom_right":
-          return {left, top, right: right + dx, bottom: bottom + dy}
-        case "left":
-          return {left: left + dx, top, right, bottom}
-        case "right":
-          return {left, top, right: right + dx, bottom}
-        case "top":
-          return {left, top: top + dy, right, bottom}
-        case "bottom":
-          return {left, top, right, bottom: bottom + dy}
-        case "box":
-          return {left: left + dx, top: top + dy, right: right + dx, bottom: bottom + dy}
+      if (target == "box") {
+        const [fdx, fdy] = (() => {
+          switch (this.model.movable) {
+            case true:  return [dx, dy]
+            case "x":   return [dx, 0]
+            case "y":   return [0, dy]
+            case false: return [0, 0]
+          }
+        })()
+
+        function limit(v: number, d: number, min: number, max: number) {
+          if (v + d < min)
+            return sign(d)*(v - min)
+          else if (v + d > max)
+            return sign(d)*(max - v)
+          else
+            return d
+        }
+
+        const dl = limit(left, fdx, min.left, max.left)
+        const dr = limit(right, fdx, min.right, max.right)
+        const dt = limit(top, fdy, min.top, max.top)
+        const db = limit(bottom, fdy, min.bottom, max.bottom)
+
+        const ffdx = absmin(dl, dr)
+        const ffdy = absmin(dt, db)
+
+        return {left: left + ffdx, top: top + ffdy, right: right + ffdx, bottom: bottom + ffdy}
+      } else {
+        const ltrb = (() => {
+          switch (target) {
+            case "top_left":
+              return {left: left + dx, top: top + dy, right, bottom}
+            case "top_right":
+              return {left, top: top + dy, right: right + dx, bottom}
+            case "bottom_left":
+              return {left: left + dx, top, right, bottom: bottom + dy}
+            case "bottom_right":
+              return {left, top, right: right + dx, bottom: bottom + dy}
+            case "left":
+              return {left: left + dx, top, right, bottom}
+            case "right":
+              return {left, top, right: right + dx, bottom}
+            case "top":
+              return {left, top: top + dy, right, bottom}
+            case "bottom":
+              return {left, top, right, bottom: bottom + dy}
+          }
+        })()
+
+        return {
+          left: clamp(ltrb.left, min.left, max.left),
+          right: clamp(ltrb.right, min.right, max.right),
+          top: clamp(ltrb.top, min.top, max.top),
+          bottom: clamp(ltrb.bottom, min.bottom, max.bottom),
+        }
       }
     })()
 
@@ -240,17 +336,26 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
 
   override cursor(sx: number, sy: number): string | null {
     const target = this._pan_state?.target ?? this._hit_test(sx, sy)
+    if (target == null || !this._can_hit(target))
+      return null
+
     switch (target) {
       case "top_left":     return this.model.tl_cursor
       case "top_right":    return this.model.tr_cursor
       case "bottom_left":  return this.model.bl_cursor
       case "bottom_right": return this.model.br_cursor
-      case "left":         return this.model.ew_cursor
+      case "left":
       case "right":        return this.model.ew_cursor
-      case "top":          return this.model.ns_cursor
+      case "top":
       case "bottom":       return this.model.ns_cursor
-      case "box":          return this.model.in_cursor
-      default:             return null
+      case "box": {
+        switch (this.model.movable) {
+          case true:  return this.model.in_cursor
+          case "x":   return this.model.ew_cursor
+          case "y":   return this.model.ns_cursor
+          case false: return null
+        }
+      }
     }
   }
 }
@@ -263,12 +368,31 @@ export namespace BoxAnnotation {
     bottom: p.Property<number | null>
     left: p.Property<number | null>
     right: p.Property<number | null>
+
     top_units: p.Property<CoordinateUnits>
     bottom_units: p.Property<CoordinateUnits>
     left_units: p.Property<CoordinateUnits>
     right_units: p.Property<CoordinateUnits>
-    editable: p.Property<boolean>
+
     highlight: p.Property<boolean>
+
+    editable: p.Property<boolean>
+    movable: p.Property<false | "x" | "y" | true> // Path
+    resizable: p.Property<false | BoxEdges | Set<BoxEdges> | "x" | "y" | true>
+    min_width: p.Property<number>
+    max_width: p.Property<number>
+    min_height: p.Property<number>
+    max_height: p.Property<number>
+    aspect: p.Property<number | null>
+    min_left: p.Property<number | null>
+    max_left: p.Property<number | null>
+    min_right: p.Property<number | null>
+    max_right: p.Property<number | null>
+    min_top: p.Property<number | null>
+    max_top: p.Property<number | null>
+    min_bottom: p.Property<number | null>
+    max_bottom: p.Property<number | null>
+
     tl_cursor: p.Property<string>
     tr_cursor: p.Property<string>
     bl_cursor: p.Property<string>
@@ -319,7 +443,7 @@ export class BoxAnnotation extends Annotation {
       ["highlight_", mixins.Hatch],
     ])
 
-    this.define<BoxAnnotation.Props>(({Boolean, Number, Nullable}) => ({
+    this.define<BoxAnnotation.Props>(({Boolean, Number, Enum, Set, Nullable, Or}) => ({
       top:          [ Nullable(Number), null ],
       bottom:       [ Nullable(Number), null ],
       left:         [ Nullable(Number), null ],
@@ -328,8 +452,23 @@ export class BoxAnnotation extends Annotation {
       bottom_units: [ CoordinateUnits, "data" ],
       left_units:   [ CoordinateUnits, "data" ],
       right_units:  [ CoordinateUnits, "data" ],
-      editable:     [ Boolean, false ],
       highlight:    [ Boolean, false ],
+      editable:     [ Boolean, false ],
+      movable:      [ Or(Boolean, Enum("x", "y")), true ],
+      resizable:    [ Or(Boolean, BoxEdges, Set(BoxEdges), Enum("x", "y")), true ],
+      min_width:    [ Number, 0 ],
+      max_width:    [ Number, Infinity ],
+      min_height:   [ Number, 0 ],
+      max_height:   [ Number, Infinity ],
+      aspect:       [ Nullable(Number), null ],
+      min_left:     [ Nullable(Number), null ],
+      max_left:     [ Nullable(Number), null ],
+      min_right:    [ Nullable(Number), null ],
+      max_right:    [ Nullable(Number), null ],
+      min_top:      [ Nullable(Number), null ],
+      max_top:      [ Nullable(Number), null ],
+      min_bottom:   [ Nullable(Number), null ],
+      max_bottom:   [ Nullable(Number), null ],
     }))
 
     this.internal<BoxAnnotation.Props>(({String}) => ({

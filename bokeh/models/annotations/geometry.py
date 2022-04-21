@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from math import inf
+
 # Bokeh imports
 from ...core.enums import CoordinateUnits, Dimension
 from ...core.properties import (
@@ -37,6 +40,7 @@ from ...core.properties import (
     NumberSpec,
     Override,
     Seq,
+    Set,
     UnitsSpec,
     field,
 )
@@ -62,6 +66,8 @@ __all__ = (
     "Span",
     "Whisker",
 )
+
+BoxEdges = Enum("left", "right", "top", "bottom")
 
 #-----------------------------------------------------------------------------
 # General API
@@ -126,13 +132,29 @@ class BoxAnnotation(Annotation):
     default.
     """)
 
+    highlight = Bool(default=False, help="""
+    Fill the parent area around the box to make it stand out.
+    """)
+
     editable = Bool(default=False, help="""
     Allows to interactively modify the geometry of this box.
     """)
 
-    highlight = Bool(default=False, help="""
-    Fill the parent area around the box to make it stand out.
-    """)
+    movable = Either(Bool, Enum("x", "y"), default=True)
+    resizable = Either(Bool, BoxEdges, Set(BoxEdges), Enum("x", "y"), default=True)
+    min_width = Float(default=0)
+    max_width = Float(default=inf)
+    min_height = Float(default=0)
+    max_height = Float(default=inf)
+    aspect = Nullable(Float)
+    min_left = Nullable(Float)
+    max_left = Nullable(Float)
+    min_right = Nullable(Float)
+    max_right = Nullable(Float)
+    min_top = Nullable(Float)
+    max_top = Nullable(Float)
+    min_bottom = Nullable(Float)
+    max_bottom = Nullable(Float)
 
     line_props = Include(ScalarLineProps, help="""
     The {prop} values for the box.

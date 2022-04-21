@@ -23,6 +23,9 @@ export const AngleUnits = Enum("deg", "rad", "grad", "turn")
 export type BoxOrigin = "corner" | "center"
 export const BoxOrigin = Enum("corner", "center")
 
+export type BoxEdges = "left" | "right" | "top" | "bottom"
+export const BoxEdges = Enum("left", "right", "top", "bottom")
+
 export type ButtonType = "default" | "primary" | "success" | "warning" | "danger" | "light"
 export const ButtonType = Enum("default", "primary", "success", "warning", "danger", "light")
 
