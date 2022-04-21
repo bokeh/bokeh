@@ -450,7 +450,7 @@ export class BoxAnnotation extends Annotation {
       ["highlight_", mixins.Hatch],
     ])
 
-    this.define<BoxAnnotation.Props>(({Boolean, Number, Nullable}) => ({
+    this.define<BoxAnnotation.Props>(({Boolean, Number, BitFlags, Nullable}) => ({
       top:          [ Nullable(Number), null ],
       bottom:       [ Nullable(Number), null ],
       left:         [ Nullable(Number), null ],
@@ -461,8 +461,8 @@ export class BoxAnnotation extends Annotation {
       right_units:  [ CoordinateUnits, "data" ],
       highlight:    [ Boolean, false ],
       editable:     [ Boolean, false ],
-      movable:      [ Number /*Flags(Directions)*/, Directions.All ],
-      resizable:    [ Number /*Flags(Edges)*/, Edges.All ],
+      movable:      [ BitFlags(Directions), Directions.All ],
+      resizable:    [ BitFlags(Edges), Edges.All ],
       min_width:    [ Number, 0 ],
       max_width:    [ Number, Infinity ],
       min_height:   [ Number, 0 ],

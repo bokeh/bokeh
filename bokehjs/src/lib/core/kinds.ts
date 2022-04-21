@@ -424,6 +424,34 @@ export namespace Kinds {
       return `NonNegative(${this.base_type.toString()})`
     }
   }
+
+  export class BitFlags<T extends object> extends Kind<number> {
+
+    private readonly _combined_value: number
+
+    constructor(readonly enum_type: T) {
+      super()
+      let value = 0
+      for (const v of Object.values(enum_type).filter(tp.isInteger)) {
+        value |= v
+      }
+      this._combined_value = value
+    }
+
+    valid(value: unknown): value is this["__type__"] {
+      return tp.isInteger(value) && (value in this.enum_type || (this._combined_value & value) != 0)
+    }
+
+    override toString(): string {
+      const args = []
+      for (const [key, val] of Object.entries(this.enum_type)) {
+        if (tp.isString(key) && tp.isInteger(val)) {
+          args.push(`${key}=0b${val.toString(2)}`)
+        }
+      }
+      return `BitFlags(${args.join(", ")})`
+    }
+  }
 }
 
 export const Any = new Kinds.Any()
@@ -449,6 +477,7 @@ export const Enum = <T extends string | number>(...values: T[]) => new Kinds.Enu
 export const Ref = <ObjType extends object>(obj_type: Constructor<ObjType>) => new Kinds.Ref<ObjType>(obj_type)
 export const AnyRef = <ObjType extends object>() => new Kinds.AnyRef<ObjType>()
 export const Function = <Args extends unknown[], Ret>() => new Kinds.Function<Args, Ret>()
+export const BitFlags = <T extends object>(enum_type: T) => new Kinds.BitFlags<T>(enum_type)
 
 export const NonNegative = <BaseType extends number>(base_type: Kind<BaseType>) => new Kinds.NonNegative(base_type)
 
