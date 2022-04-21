@@ -153,7 +153,7 @@ export class BBox implements Rect, Equatable {
     }
   }
 
-  static from_rect({left, right, top, bottom}: {left: number, right: number, top: number, bottom: number}): BBox {
+  static from_ltrb({left, right, top, bottom}: LTRB): BBox {
     return new BBox({
       x0: Math.min(left, right),
       y0: Math.min(top, bottom),

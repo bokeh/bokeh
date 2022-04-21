@@ -85,7 +85,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
   protected _render(): void {
     const {left, right, top, bottom} = this.model
 
-    this.bbox = BBox.from_rect({
+    this.bbox = BBox.from_ltrb({
       left:   left != null ? this.left_coordinates.compute(left) : this.parent.bbox.left,
       right:  right != null ? this.right_coordinates.compute(right) : this.parent.bbox.right,
       top:    top != null ? this.top_coordinates.compute(top) : this.parent.bbox.top,
@@ -93,7 +93,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     })
 
     const {min_left, min_right, min_top, min_bottom} = this.model
-    this.min_bbox = BBox.from_rect({
+    this.min_bbox = BBox.from_ltrb({
       left:   min_left != null ? this.left_coordinates.compute(min_left) : this.parent.bbox.left,
       right:  min_right != null ? this.right_coordinates.compute(min_right) : this.parent.bbox.left,
       top:    min_top != null ? this.top_coordinates.compute(min_top) : this.parent.bbox.top,
@@ -101,7 +101,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     })
 
     const {max_left, max_right, max_top, max_bottom} = this.model
-    this.max_bbox = BBox.from_rect({
+    this.max_bbox = BBox.from_ltrb({
       left:   max_left != null ? this.left_coordinates.compute(max_left) : this.parent.bbox.right,
       right:  max_right != null ? this.right_coordinates.compute(max_right) : this.parent.bbox.right,
       top:    max_top != null ? this.top_coordinates.compute(max_top) : this.parent.bbox.bottom,
@@ -233,7 +233,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     const dx = ev.deltaX
     const dy = ev.deltaY
 
-    const sltrb = (() => {
+    const sltrb = BBox.from_ltrb((() => {
       const {bbox, target} = this._pan_state
       const {left, top, right, bottom} = bbox
       const {min_bbox: min, max_bbox: max} = this
@@ -296,7 +296,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
           bottom: clamp(ltrb.bottom, min.bottom, max.bottom),
         }
       }
-    })()
+    })())
 
     const ltrb = {
       left:   this.left_coordinates.invert(sltrb.left),
