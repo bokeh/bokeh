@@ -62,6 +62,12 @@ export type Arrayable<T = any> = {
   // TODO: constructor: ArrayableNew
 }
 
+export type Seq<T = number> = {
+  readonly length: number
+  [n: number]: T
+  [Symbol.iterator](): IterableIterator<T>
+}
+
 export type ArrayableNew = {new <T>(n: number): Arrayable<T>}
 
 export type ArrayableOf<T> = T extends unknown ? Arrayable<T> : never

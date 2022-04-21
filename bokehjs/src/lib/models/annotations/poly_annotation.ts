@@ -3,7 +3,7 @@ import {Scale} from "../scales/scale"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
-import {Arrayable} from "core/types"
+import {Seq} from "core/types"
 import {point_in_poly} from "core/hittest"
 import {Signal} from "core/signaling"
 import {PanEvent, Pannable} from "core/ui_events"
@@ -49,8 +49,8 @@ export class PolyAnnotationView extends AnnotationView implements Pannable {
     this.connect(this.model.change, () => this.request_render())
   }
 
-  protected sxs: Arrayable<number> = []
-  protected sys: Arrayable<number> = []
+  protected sxs: Seq<number> = []
+  protected sys: Seq<number> = []
 
   protected _render(): void {
     const {xs, ys} = this.model
@@ -102,8 +102,8 @@ export class PolyAnnotationView extends AnnotationView implements Pannable {
   }
 
   private _pan_state: {
-    sxs: Arrayable<number>
-    sys: Arrayable<number>
+    sxs: Seq<number>
+    sys: Seq<number>
     target: HitTarget
   } | null = null
 
@@ -179,8 +179,8 @@ export namespace PolyAnnotation {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
-    xs: p.Property<Arrayable<number>>
-    ys: p.Property<Arrayable<number>>
+    xs: p.Property<Seq<number>>
+    ys: p.Property<Seq<number>>
     xs_units: p.Property<CoordinateUnits>
     ys_units: p.Property<CoordinateUnits>
     editable: p.Property<boolean>
@@ -206,9 +206,9 @@ export class PolyAnnotation extends Annotation {
 
     this.mixins<PolyAnnotation.Mixins>([mixins.Line, mixins.Fill, mixins.Hatch])
 
-    this.define<PolyAnnotation.Props>(({Boolean, Number, Arrayable}) => ({
-      xs:       [ Arrayable(Number), [] ],
-      ys:       [ Arrayable(Number), [] ],
+    this.define<PolyAnnotation.Props>(({Boolean, Number, Seq}) => ({
+      xs:       [ Seq(Number), [] ],
+      ys:       [ Seq(Number), [] ],
       xs_units: [ CoordinateUnits, "data" ],
       ys_units: [ CoordinateUnits, "data" ],
       editable: [ Boolean, false ],
@@ -224,7 +224,7 @@ export class PolyAnnotation extends Annotation {
 
   readonly pan = new Signal<"pan:start" | "pan" | "pan:end", this>(this, "pan")
 
-  update({xs, ys}: {xs: Arrayable<number>, ys: Arrayable<number>}): void {
+  update({xs, ys}: {xs: Seq<number>, ys: Seq<number>}): void {
     this.setv({xs, ys, visible: true})
   }
 

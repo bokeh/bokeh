@@ -2,9 +2,8 @@ import {AngleUnits} from "../enums"
 import {isObject} from "./types"
 import {assert} from "./assert"
 
-const {PI, abs, sign} = Math
-
-export {sign}
+const {PI, abs, floor, ceil, sign, min, max} = Math
+export {PI, abs, floor, ceil, sign, min, max}
 
 export function absmin(a: number, b: number): number {
   return abs(a) <= abs(b) ? a : b
@@ -71,10 +70,12 @@ export function degrees(radians: number): number {
   return radians/(PI/180)
 }
 
-export function resolve_angle(angle: number, units: AngleUnits): number {
+export function compute_angle(angle: number, units: AngleUnits): number {
   /** Convert CCW angle with units to CW radians (canvas). */
   return -to_radians_coeff(units)*angle
 }
+
+export const resolve_angle = compute_angle
 
 export function to_radians_coeff(units: AngleUnits): number {
   switch (units) {

@@ -31,6 +31,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..model import Model
+from . import shapes
 from .annotations import *  # lgtm [py/polluting-import]
 from .axes import *
 from .callbacks import *
