@@ -50,6 +50,7 @@ ALL = (
     'RelativeDelta',
     'RestrictedDict',
     'Seq',
+    'Set',
     'Tuple',
 )
 

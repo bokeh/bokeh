@@ -111,6 +111,7 @@ ALL = (
     'Required',
     'RestrictedDict',
     'Seq',
+    'Set',
     'Size',
     'SizeSpec',
     'String',

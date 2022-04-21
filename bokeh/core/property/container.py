@@ -61,6 +61,7 @@ __all__ = (
     'RelativeDelta',
     'RestrictedDict',
     'Seq',
+    'Set',
     'Tuple',
 )
 
@@ -159,6 +160,17 @@ class Array(Seq[T]):
         import numpy as np
         return np.array(value)
 
+class Set(Seq[T]):
+    """ Accept NumPy array values.
+
+    """
+
+    @classmethod
+    def _is_seq(cls, value: Any):
+        return isinstance(value, set)
+
+    def _new_instance(self, value: Any):
+        return set(value)
 
 class Dict(ContainerProperty):
     """ Accept Python dict values.
