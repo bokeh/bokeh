@@ -41,7 +41,6 @@ from tornado import netutil
 
 __all__ = (
     'bind_sockets',
-    'bind_unix_socket',
     'check_allowlist',
     'create_hosts_allowlist',
     'match_host',

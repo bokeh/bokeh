@@ -469,7 +469,7 @@ base_serve_args = (
     ('--unix-socket', Argument(
         metavar = 'UNIX-SOCKET',
         type    = str,
-        help    = "Unix socket to bind. Network options such as port, address, ssl options are incompatible with unix socket.",
+        help    = "Unix socket to bind. Network options such as port, address, ssl options are incompatible with unix socket",
         default = None,
     )),
 
@@ -888,7 +888,7 @@ class Serve(Subcommand):
             if server_kwargs['port'] != DEFAULT_SERVER_PORT:
                 die("--port arg is not supported with a unix socket")
             invalid_args = ['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile']
-            if any(x in server_kwargs for x in invalid_args):
+            if any(server_kwargs.get(x) for x in invalid_args):
                 die(f"{invalid_args + ['port']} args are not supported with a unix socket")
 
         auth_module_path = settings.auth_module(getattr(args, 'auth_module', None))

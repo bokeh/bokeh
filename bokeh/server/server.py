@@ -47,7 +47,7 @@ from typing import (
 )
 
 # External imports
-from tornado import version as tornado_version
+from tornado import netutil, version as tornado_version
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
@@ -64,7 +64,6 @@ from ..resources import DEFAULT_SERVER_PORT
 from ..util.options import Options
 from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
 from .util import bind_sockets, create_hosts_allowlist
-from tornado import netutil
 
 if TYPE_CHECKING:
     from ..application.application import Application

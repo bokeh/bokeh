@@ -493,7 +493,7 @@ def test_unix_socket_with_invalid_args() -> None:
     for arg in invalid_args:
         unix_socket = "test.sock"
         out = check_error(["--unix-socket", unix_socket, f"--{arg}", "value"])
-        expected = f"['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile', 'port'] args are not supported with a unix socket\n"
+        expected = "['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile', 'port'] args are not supported with a unix socket\n"
         assert expected == out
 
 @flaky(max_runs=10)
