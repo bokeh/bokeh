@@ -25,7 +25,6 @@ import socket
 import subprocess
 import sys
 import time
-from flaky import flaky
 from os.path import join, split
 from queue import Empty, Queue
 from threading import Thread
@@ -33,6 +32,7 @@ from threading import Thread
 # External imports
 import requests
 import requests_unixsocket
+from flaky import flaky
 
 # Bokeh imports
 from bokeh._testing.util.env import envset
@@ -144,7 +144,7 @@ def test_args() -> None:
         ('--unix-socket', Argument(
             metavar = 'UNIX-SOCKET',
             type    = str,
-            help    = "Unix socket to bind",
+            help    = "Unix socket to bind. Network options such as port, address, ssl options are incompatible with unix socket",
             default = None,
         )),
 
@@ -220,7 +220,8 @@ def test_args() -> None:
             metavar = 'HOST[:PORT]',
             action  = 'append',
             type    = str,
-            help    = "Public hostnames which may connect to the Bokeh websocket",
+            help    = "Public hostnames which may connect to the Bokeh websocket "
+                      "With unix socket, the websocket origin restrictions should be enforced by the proxy.",
         )),
 
         ('--prefix', Argument(
@@ -488,17 +489,21 @@ def test_unix_socket_with_port() -> None:
     assert expected == out
 
 def test_unix_socket_with_invalid_args() -> None:
-    invalid_args = ['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile']
+    invalid_args = ['address', 'allow-websocket-origin', 'ssl-certfile', 'ssl-keyfile']
     for arg in invalid_args:
         unix_socket = "test.sock"
         out = check_error(["--unix-socket", unix_socket, f"--{arg}", "value"])
-        expected = f"{invalid_args + ['port']} args are not supported with a unix socket\n"
+        expected = f"['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile', 'port'] args are not supported with a unix socket\n"
         assert expected == out
 
 @flaky(max_runs=10)
 def test_unix_socket() -> None:
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     file_name = join(HERE, "test.socket")
+
+    if os.path.exists(file_name):
+        os.remove(file_name)
+
     sock.bind(file_name)
     with run_bokeh_serve(["--unix-socket", file_name, "--glob", APPS]) as (p, nbsr):
         # The server is not ready is binds to the unix socket
