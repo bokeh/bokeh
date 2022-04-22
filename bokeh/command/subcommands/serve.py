@@ -469,7 +469,7 @@ base_serve_args = (
     ('--unix-socket', Argument(
         metavar = 'UNIX-SOCKET',
         type    = str,
-        help    = "Unix socket to bind",
+        help    = "Unix socket to bind. Network options such as port, address, ssl options are incompatible with unix socket.",
         default = None,
     )),
 
@@ -566,7 +566,8 @@ class Serve(Subcommand):
             metavar = 'HOST[:PORT]',
             action  = 'append',
             type    = str,
-            help    = "Public hostnames which may connect to the Bokeh websocket",
+            help    = "Public hostnames which may connect to the Bokeh websocket "
+                      "With unix socket, the websocket origin restrictions should be enforced by the proxy.",
         )),
 
         ('--prefix', Argument(
@@ -886,7 +887,7 @@ class Serve(Subcommand):
         if 'unix_socket' in server_kwargs:
             if server_kwargs['port'] != DEFAULT_SERVER_PORT:
                 die("--port arg is not supported with a unix socket")
-            invalid_args = ['address', 'allow_websocket_origin']
+            invalid_args = ['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile']
             if any(x in server_kwargs for x in invalid_args):
                 die(f"{invalid_args + ['port']} args are not supported with a unix socket")
 

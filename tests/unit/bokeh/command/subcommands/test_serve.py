@@ -25,6 +25,7 @@ import socket
 import subprocess
 import sys
 import time
+from flaky import flaky
 from os.path import join, split
 from queue import Empty, Queue
 from threading import Thread
@@ -487,13 +488,14 @@ def test_unix_socket_with_port() -> None:
     assert expected == out
 
 def test_unix_socket_with_invalid_args() -> None:
-    invalid_args = ["address", "allow-websocket-origin"]
+    invalid_args = ['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile']
     for arg in invalid_args:
         unix_socket = "test.sock"
         out = check_error(["--unix-socket", unix_socket, f"--{arg}", "value"])
-        expected = "['address', 'allow_websocket_origin', 'port'] args are not supported with a unix socket\n"
+        expected = f"{invalid_args + ['port']} args are not supported with a unix socket\n"
         assert expected == out
 
+@flaky(max_runs=10)
 def test_unix_socket() -> None:
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     file_name = join(HERE, "test.socket")

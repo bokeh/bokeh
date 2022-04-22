@@ -42,6 +42,7 @@ dependencies:
   - pytest-html
   - pytest-xdist
   - requests >=1.2.3
+  - requests-unixsocket >= 0.3.0
   - selenium >=3.8
   - pre-commit
 

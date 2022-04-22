@@ -63,7 +63,8 @@ from ..core.properties import (
 from ..resources import DEFAULT_SERVER_PORT
 from ..util.options import Options
 from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
-from .util import bind_sockets, bind_unix_socket, create_hosts_allowlist
+from .util import bind_sockets, create_hosts_allowlist
+from tornado import netutil
 
 if TYPE_CHECKING:
     from ..application.application import Application
@@ -424,7 +425,7 @@ class Server(BaseServer):
             http_server_kwargs['ssl_options'] = context
 
         if opts.unix_socket:
-            sockets = [bind_unix_socket(opts.unix_socket)]
+            sockets = [netutil.bind_unix_socket(opts.unix_socket)]
             self._unix_socket = opts.unix_socket
             self._address, self._port = None, None
             extra_websocket_origins = []
@@ -514,7 +515,8 @@ class _ServerOpts(Options):
     """)  # type: ignore[assignment]
 
     unix_socket : str | None = Nullable(String, help="""
-    The unix socket the server should bind to.
+    The unix socket the server should bind to. Other network args
+    such as port, address, ssl options etc are incompatible with unix sockets.
     """)  # type: ignore[assignment]
 
     prefix: str = String(default="", help="""
