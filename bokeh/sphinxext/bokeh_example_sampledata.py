@@ -10,6 +10,8 @@ The ``bokeh-example-sampledata`` directive can be used by supplying:
 
     .. bokeh-example-sampledata:: sampledata_iris
 
+This can be used to add links to all existing standalone examples in the documentation.
+
 """
 
 #-----------------------------------------------------------------------------
@@ -24,11 +26,15 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 # Imports
 # -----------------------------------------------------------------------------
+from os.path import basename
+
+# External imports
+from docutils import nodes
+from sphinx.locale import _
 
 # Bokeh imports
 from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective
-from .templates import EXAMPLE_SAMPLEDATA
 from .util import get_sphinx_resources
 
 # -----------------------------------------------------------------------------
@@ -50,64 +56,93 @@ RESOURCES = get_sphinx_resources()
 # Dev API
 # -----------------------------------------------------------------------------
 
+class sampledata_list(nodes.General, nodes.Element):
+    def __init__(self, *args, **kwargs):
+        self.sampledata_key = kwargs.pop("sampledata_key")
+        super().__init__(*args, **kwargs)
 
 class BokehExampleSampledataDirective(BokehDirective):
-
     has_content = False
     required_arguments = 1
 
     def run(self):
-        standalone_path, example_path = _sampledata(self.arguments[0])
-        rst_text = EXAMPLE_SAMPLEDATA.render(
-            standalone_path=standalone_path,
-            example_path=example_path
-        )
-
-        return self.parse(rst_text, "<bokeh-example-sampledata>")
+        return [sampledata_list('', sampledata_key=self.arguments[0])]
 
 
 def setup(app):
     """ Required Sphinx extension setup function. """
+    app.add_node(sampledata_list)
     app.add_directive("bokeh-example-sampledata", BokehExampleSampledataDirective)
-
+    app.connect('doctree-resolved', process_sampledata_xrefs)
+    app.connect('env-purge-doc', purge_xrefs)
+    app.connect('env-merge-info', merge_xrefs)
     return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
 
-def _sampledata(mods: str | None) -> str | None:
-
-    if mods is None:
+def purge_xrefs(app, env, docname):
+    if not hasattr(env, 'all_sampledata_xrefs'):
         return
 
-    def _join(_s:list, f:str):
-        if _s == []:
-            return None
-        elif len(_s) == 1:
-            return f"{f}`{_s[-1]}`"
+    env.all_sampledata_xrefs = [xref for xref in env.all_sampledata_xrefs if xref['docname'] != docname]
+
+def merge_xrefs(app, env, docnames, other):
+    if not hasattr(env, 'all_sampledata_xrefs'):
+        env.all_sampledata_xrefs = []
+
+    if hasattr(other, 'all_sampledata_xrefs'):
+        env.all_sampledata_xrefs.extend(other.all_sampledata_xrefs)
+
+def process_sampledata_xrefs(app, doctree, fromdocname):
+
+    env = app.builder.env
+
+    if not hasattr(env, 'all_sampledata_xrefs'):
+        env.all_sampledata_xrefs = []
+
+    for node in doctree.traverse(sampledata_list):
+        sampladata_key = node.sampledata_key
+        content = []
+
+        this_sampladata_refs = []
+        for sample_info in env.all_sampledata_xrefs:
+            if sample_info['keyword'] == sampladata_key:
+                this_sampladata_refs.append(sample_info)
+
+        _len = len(this_sampladata_refs)
+        para = nodes.paragraph()
+        filename = env.doc2path(sample_info['docname'], base=None)
+        if _len:
+            s = '' if _len==1 else 's'
+            description = (
+            _(f'Check out the demonstration{s} for the ``{sampladata_key}`` sampledata. See the example{s} '))
         else:
-            return " and ".join([", ".join(f"{f}`{s}`" for s in _s), f"{f}`{_s[-1]}`"])
+            description = (
+            _(f'Well, there is no documented standalone example with the ``{sampladata_key}`` sampledata'))
+        para += nodes.Text(description, description)
+        for i, sample_info in enumerate(this_sampladata_refs):
+            # Create all references
+            newnode = nodes.reference('', '')
+            ref_name = basename(sample_info['docname'])
+            innernode = nodes.emphasis(_(ref_name), _(ref_name))
+            newnode['refdocname'] = sample_info['docname']
+            newnode['refuri'] = app.builder.get_relative_uri(
+                fromdocname, sample_info['docname'])
+            # TODO missing tags for references in user_guide
+            newnode.append(innernode)
+            para += newnode
+            if 1<_len:
+                _l =  _len-2
+                if i == _l:
+                    para += nodes.Text(' and ', ' and ')
+                elif i < _l:
+                    para += nodes.Text(', ', ', ')
 
-    mods = (mod.strip() for mod in mods.split(","))
-
-    standalones = []
-    examples = []
-    for mod in mods:
-        with open("sampledata.csv","r") as f:
-            lines = f.readlines()
-
-        for line in lines:
-            sp = line.split(";")
-            if mod in sp[1]:
-                examples.append(sp[0])
-                #standalones.append([])
-
-    example = _join(_s=examples, f=":bokeh-tree:")
-    standalone = _join(standalones, f="")
-
-    return standalone, example
-
+        para += nodes.Text('.', '.')
+        content.append(para)
+        node.replace_self(content)
 # -----------------------------------------------------------------------------
 # Code
 # -----------------------------------------------------------------------------
