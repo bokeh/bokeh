@@ -26,6 +26,8 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 # Imports
 # -----------------------------------------------------------------------------
+
+# Standard library imports
 from os.path import basename
 
 # External imports
