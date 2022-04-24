@@ -49,7 +49,7 @@ export class PanToolView extends GestureToolView {
   }
 
   override _pan(ev: PanEvent): void {
-    this._update(ev.deltaX, ev.deltaY)
+    this._update(ev.dx, ev.dy)
     this.model.document?.interactive_start(this.plot_view.model)
   }
 

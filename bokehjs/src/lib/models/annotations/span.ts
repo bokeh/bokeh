@@ -111,12 +111,9 @@ export class SpanView extends AnnotationView implements Pannable {
   on_pan(ev: PanEvent): void {
     assert(this._pan_state != null)
 
-    const dx = ev.deltaX
-    const dy = ev.deltaY
-
     const sloc = (() => {
       const {sloc} = this._pan_state
-      return sloc + (this.model.dimension == "width" ? dy : dx)
+      return sloc + (this.model.dimension == "width" ? ev.dy : ev.dx)
     })()
 
     const coordinates = this.model.dimension == "width" ? this.y_coordinates : this.x_coordinates

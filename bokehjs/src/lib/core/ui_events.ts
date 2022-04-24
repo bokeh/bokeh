@@ -101,8 +101,8 @@ export type PanEvent = {
   type: "pan" | "panstart" | "panend"
   sx: number
   sy: number
-  deltaX: number
-  deltaY: number
+  dx: number
+  dy: number
   shiftKey: boolean
   ctrlKey: boolean
 }
@@ -717,7 +717,7 @@ export class UIEventBus implements EventListenerObject {
         case "pressup":
           return new events.PressUp(sx, sy, x, y)
         case "pan":
-          return new events.Pan(sx, sy, x, y, e.deltaX, e.deltaY)
+          return new events.Pan(sx, sy, x, y, e.dx, e.dy)
         case "panstart":
           return new events.PanStart(sx, sy, x, y)
         case "panend":
@@ -756,8 +756,8 @@ export class UIEventBus implements EventListenerObject {
     return {
       type: e.type as PanEvent["type"],
       ...this._get_sxy(e.srcEvent),
-      deltaX: e.deltaX,
-      deltaY: e.deltaY,
+      dx: e.deltaX,
+      dy: e.deltaY,
       shiftKey: e.srcEvent.shiftKey,
       ctrlKey: e.srcEvent.ctrlKey,
     }
@@ -821,8 +821,8 @@ export class UIEventBus implements EventListenerObject {
   /*private*/ _pan_start(e: HammerEvent): void {
     const ev = this._pan_event(e)
     // back out delta to get original center point
-    ev.sx -= e.deltaX
-    ev.sy -= e.deltaY
+    ev.sx -= ev.dx
+    ev.sy -= ev.dy
     this._trigger(this.pan_start, ev, e.srcEvent)
   }
 

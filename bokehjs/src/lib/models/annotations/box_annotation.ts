@@ -230,10 +230,8 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
   on_pan(ev: PanEvent): void {
     assert(this._pan_state != null)
 
-    const dx = ev.deltaX
-    const dy = ev.deltaY
-
     const slrtb = BBox.from_lrtb((() => {
+      const {dx, dy} = ev
       const {bbox, target} = this._pan_state
       const {left, right, top, bottom} = bbox
       const {min_bbox: min, max_bbox: max} = this

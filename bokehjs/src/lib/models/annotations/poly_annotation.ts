@@ -127,10 +127,8 @@ export class PolyAnnotationView extends AnnotationView implements Pannable {
   on_pan(ev: PanEvent): void {
     assert(this._pan_state != null)
 
-    const dx = ev.deltaX
-    const dy = ev.deltaY
-
     const [sxs, sys] = (() => {
+      const {dx, dy} = ev
       const {sxs, sys, target} = this._pan_state
 
       switch (target.type) {

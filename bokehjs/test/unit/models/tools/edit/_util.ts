@@ -2,7 +2,7 @@ import {PanEvent, TapEvent, MoveEvent, KeyEvent} from "@bokehjs/core/ui_events"
 import {Keys} from "@bokehjs/core/dom"
 
 export function make_pan_event(sx: number, sy: number, shift: boolean = false): PanEvent {
-  return {type: "pan", sx, sy, ctrlKey: false, shiftKey: shift, deltaX: 0, deltaY: 0}
+  return {type: "pan", sx, sy, ctrlKey: false, shiftKey: shift, dx: 0, dy: 0}
 }
 
 export function make_tap_event(sx: number, sy: number, shift: boolean = false): TapEvent {
