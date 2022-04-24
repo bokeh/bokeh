@@ -49,8 +49,6 @@ export class BezierView extends ShapeView {
 
   paint(ctx: Context2d): void {
     const {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1} = this.geometry
-    if (!isFinite(sx0 + sy0 + sx1 + sy1 + scx0 + scy0 + (scx1 ?? 0) + (scy1 ?? 0)))
-      return
 
     ctx.beginPath()
     ctx.moveTo(sx0, sy0)

@@ -7,7 +7,7 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {assert} from "core/util/assert"
 import {Context2d} from "core/util/canvas"
-import {min, max} from "core/util/math"
+import {pi, min, max} from "core/util/math"
 
 type HitTarget = "edge" | "area"
 
@@ -63,11 +63,9 @@ export class CircleView extends ShapeView {
 
   paint(ctx: Context2d): void {
     const {sx, sy, sradius} = this.geometry
-    if (!isFinite(sx + sy + sradius))
-      return
 
     ctx.beginPath()
-    ctx.arc(sx, sy, sradius, 0, 2*Math.PI, false)
+    ctx.arc(sx, sy, sradius, 0, 2*pi, false)
 
     this.visuals.fill.apply(ctx)
     this.visuals.hatch.apply(ctx)

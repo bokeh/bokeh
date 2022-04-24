@@ -1,12 +1,13 @@
-import {Annotation, AnnotationView} from "./annotation"
+import {Shape, ShapeView} from "./shape"
 import {Scale} from "../scales/scale"
+import {CoordinateUnits} from "core/enums"
+import {PanEvent, Pannable} from "core/ui_events"
+import {Signal} from "core/signaling"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {PanEvent, Pannable, MoveEvent, Moveable} from "core/ui_events"
-import {Signal} from "core/signaling"
-import {CoordinateUnits} from "core/enums"
 import * as p from "core/properties"
 import * as cursors from "core/util/cursors"
+import {Context2d} from "core/util/canvas"
 import {assert, unreachable} from "core/util/assert"
 import {BBox, LRTB} from "core/util/bbox"
 import {clamp, sign, absmin, abs, max} from "core/util/math"
@@ -35,9 +36,9 @@ export enum Edges {
   All    = X | Y,
 }
 
-export class BoxAnnotationView extends AnnotationView implements Pannable, Moveable {
-  override model: BoxAnnotation
-  override visuals: BoxAnnotation.Visuals
+export class BoxView extends ShapeView implements Pannable {
+  override model: Box
+  override visuals: Box.Visuals
 
   protected bbox: BBox = new BBox()
   protected min_bbox: BBox = new BBox()
@@ -75,12 +76,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     }
   }
 
-  override connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.change, () => this.request_render())
-  }
-
-  protected _render(): void {
+  private _geometry(): void {
     const {left, right, top, bottom} = this.model
 
     this.bbox = BBox.from_lrtb({
@@ -105,36 +101,18 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
       top:    max_top != null ? this.top_coordinates.compute(max_top) : this.parent.bbox.bottom,
       bottom: max_bottom != null ? this.bottom_coordinates.compute(max_bottom) : this.parent.bbox.bottom,
     })
-
-    this._paint_box()
   }
 
-  protected _paint_box(): void {
-    const {ctx} = this.layer
-    ctx.save()
-
-    if (this.model.highlight) {
-      ctx.beginPath()
-      ctx.rect(this.parent.bbox)
-      ctx.rect(this.bbox)
-
-      this.visuals.highlight_fill.apply(ctx, "evenodd")
-      this.visuals.highlight_hatch.apply(ctx, "evenodd")
-    }
+  paint(ctx: Context2d): void {
+    this._geometry()
 
     const {left, top, width, height} = this.bbox
     ctx.beginPath()
     ctx.rect(left, top, width, height)
 
-    const fill = this._is_hovered && this.visuals.hover_fill.doit ? this.visuals.hover_fill : this.visuals.fill
-    const hatch = this._is_hovered && this.visuals.hover_hatch.doit ? this.visuals.hover_hatch : this.visuals.hatch
-    const line = this._is_hovered && this.visuals.hover_line.doit ? this.visuals.hover_line : this.visuals.line
-
-    fill.apply(ctx)
-    hatch.apply(ctx)
-    line.apply(ctx)
-
-    ctx.restore()
+    this.visuals.fill.apply(ctx)
+    this.visuals.hatch.apply(ctx)
+    this.visuals.line.apply(ctx)
   }
 
   interactive_bbox(): BBox {
@@ -301,38 +279,13 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
       bottom: this.bottom_coordinates.invert(slrtb.bottom),
     }
 
-    this.model.update(lrtb)
+    this.model.setv(lrtb)
     this.model.pan.emit("pan")
   }
 
   on_pan_end(_ev: PanEvent): void {
     this._pan_state = null
     this.model.pan.emit("pan:end")
-  }
-
-  private get _has_hover(): boolean {
-    const {hover_line, hover_fill, hover_hatch} = this.visuals
-    return hover_line.doit || hover_fill.doit || hover_hatch.doit
-  }
-
-  private _is_hovered: boolean = false
-
-  on_move_start(_ev: MoveEvent): boolean {
-    const {_has_hover} = this
-    if (_has_hover) {
-      this._is_hovered = true
-      this.request_paint()
-    }
-    return _has_hover
-  }
-
-  on_move(_ev: MoveEvent): void {}
-
-  on_move_end(_ev: MoveEvent): void {
-    if (this._has_hover) {
-      this._is_hovered = false
-      this.request_paint()
-    }
   }
 
   override cursor(sx: number, sy: number): string | null {
@@ -363,10 +316,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
   }
 }
 
-export namespace BoxAnnotation {
+export namespace Box {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Annotation.Props & {
+  export type Props = Shape.Props & {
     left: p.Property<number | null>
     right: p.Property<number | null>
     top: p.Property<number | null>
@@ -376,8 +329,6 @@ export namespace BoxAnnotation {
     right_units: p.Property<CoordinateUnits>
     top_units: p.Property<CoordinateUnits>
     bottom_units: p.Property<CoordinateUnits>
-
-    highlight: p.Property<boolean>
 
     editable: p.Property<boolean>
     movable: p.Property<Directions> // Path
@@ -405,48 +356,35 @@ export namespace BoxAnnotation {
     in_cursor: p.Property<string>
   } & Mixins
 
-  export type Mixins =
-    mixins.Line & mixins.Fill & mixins.Hatch &
-    mixins.HoverLine & mixins.HoverFill & mixins.HoverHatch &
-    mixins.HighlightFill & mixins.HighlightHatch
+  export type Mixins = mixins.Line & mixins.Fill & mixins.Hatch
 
-  export type Visuals = Annotation.Visuals & {
+  export type Visuals = Shape.Visuals & {
     line: visuals.Line
     fill: visuals.Fill
     hatch: visuals.Hatch
-    hover_line: visuals.Line
-    hover_fill: visuals.Fill
-    hover_hatch: visuals.Hatch
-    highlight_fill: visuals.Fill
-    highlight_hatch: visuals.Hatch
   }
 }
 
-export interface BoxAnnotation extends BoxAnnotation.Attrs {}
+export interface Box extends Box.Attrs {}
 
-export class BoxAnnotation extends Annotation {
-  override properties: BoxAnnotation.Props
-  override __view_type__: BoxAnnotationView
+export class Box extends Shape {
+  override properties: Box.Props
+  override __view_type__: BoxView
 
-  constructor(attrs?: Partial<BoxAnnotation.Attrs>) {
+  constructor(attrs?: Partial<Box.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.prototype.default_view = BoxAnnotationView
+    this.prototype.default_view = BoxView
 
-    this.mixins<BoxAnnotation.Mixins>([
+    this.mixins<Box.Mixins>([
       mixins.Line,
       mixins.Fill,
       mixins.Hatch,
-      ["hover_", mixins.Line],
-      ["hover_", mixins.Fill],
-      ["hover_", mixins.Hatch],
-      ["highlight_", mixins.Fill],
-      ["highlight_", mixins.Hatch],
     ])
 
-    this.define<BoxAnnotation.Props>(({Boolean, Number, BitFlags, Nullable}) => ({
+    this.define<Box.Props>(({Boolean, Number, BitFlags, Nullable}) => ({
       left:         [ Nullable(Number), null ],
       right:        [ Nullable(Number), null ],
       top:          [ Nullable(Number), null ],
@@ -455,7 +393,6 @@ export class BoxAnnotation extends Annotation {
       right_units:  [ CoordinateUnits, "data" ],
       top_units:    [ CoordinateUnits, "data" ],
       bottom_units: [ CoordinateUnits, "data" ],
-      highlight:    [ Boolean, false ],
       editable:     [ Boolean, false ],
       movable:      [ BitFlags(Directions), Directions.All ],
       resizable:    [ BitFlags(Edges), Edges.All ],
@@ -474,7 +411,7 @@ export class BoxAnnotation extends Annotation {
       max_bottom:   [ Nullable(Number), null ],
     }))
 
-    this.internal<BoxAnnotation.Props>(({String}) => ({
+    this.internal<Box.Props>(({String}) => ({
       tl_cursor: [ String, "nwse-resize" ],
       tr_cursor: [ String, "nesw-resize" ],
       bl_cursor: [ String, "nesw-resize" ],
@@ -483,28 +420,7 @@ export class BoxAnnotation extends Annotation {
       ns_cursor: [ String, cursors.y_pan ],
       in_cursor: [ String, cursors.pan ],
     }))
-
-    this.override<BoxAnnotation.Props>({
-      fill_color: "#fff9ba",
-      fill_alpha: 0.4,
-      line_color: "#cccccc",
-      line_alpha: 0.3,
-      hover_fill_color: null,
-      hover_fill_alpha: 0.4,
-      hover_line_color: null,
-      hover_line_alpha: 0.3,
-      highlight_fill_color: "#7f7f7f",
-      highlight_fill_alpha: 0.4,
-    })
   }
 
   readonly pan = new Signal<"pan:start" | "pan" | "pan:end", this>(this, "pan")
-
-  update({left, right, top, bottom}: LRTB<number | null>): void {
-    this.setv({left, right, top, bottom, visible: true})
-  }
-
-  clear(): void {
-    this.visible = false
-  }
 }

@@ -47,8 +47,6 @@ export class SplineView extends ShapeView {
 
     ctx.beginPath()
     for (const [sx, sy] of zip(sxst, syst)) {
-      if (!isFinite(sx + sy))
-        break
       ctx.lineTo(sx, sy)
     }
 

@@ -79,8 +79,6 @@ export class WedgeView extends ShapeView {
 
   paint(ctx: Context2d): void {
     const {sx, sy, sradius, start_angle, end_angle, anticlock} = this.geometry
-    if (!isFinite(sx + sy + sradius + start_angle + end_angle))
-      return
 
     ctx.beginPath()
     ctx.arc(sx, sy, sradius, start_angle, end_angle, anticlock)

@@ -82,9 +82,6 @@ export class AnnularWedgeView extends ShapeView {
 
   paint(ctx: Context2d): void {
     const {sx, sy, start_angle, end_angle, sinner_radius, souter_radius, anticlock} = this.geometry
-    if (!isFinite(sx + sy + sinner_radius + souter_radius + start_angle + end_angle))
-      return
-
     const angle = end_angle - start_angle
 
     ctx.translate(sx, sy)

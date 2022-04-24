@@ -80,14 +80,11 @@ export class ArcView extends ShapeView {
 
   paint(ctx: Context2d): void {
     const {sx, sy, sradius, start_angle, end_angle, anticlock} = this.geometry
-    if (!isFinite(sx + sy + sradius + start_angle + end_angle))
-      return
 
     ctx.beginPath()
     ctx.arc(sx, sy, sradius, start_angle, end_angle, anticlock)
 
-    if (!this.visuals.line.apply(ctx))
-      return
+    this.visuals.line.apply(ctx)
 
     //this.paint_decorations(ctx, sx, sy, sradius, start_angle, end_angle, anticlock)
   }
@@ -107,8 +104,8 @@ export class ArcView extends ShapeView {
         ctx.translate(x, y)
         ctx.rotate(start_angle + PI)
       } else if (decoration.model.node == "end") {
-        const x = sradius*Math.cos(end_angle) + sx
-        const y = sradius*Math.sin(end_angle) + sy
+        const x = sradius*cos(end_angle) + sx
+        const y = sradius*sin(end_angle) + sy
         ctx.translate(x, y)
         ctx.rotate(end_angle)
       }

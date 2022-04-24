@@ -7,7 +7,7 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {assert} from "core/util/assert"
 import {Context2d} from "core/util/canvas"
-import {min, max} from "core/util/math"
+import {pi, min, max} from "core/util/math"
 
 export class AnnulusView extends ShapeView {
   override model: Annulus
@@ -65,13 +65,11 @@ export class AnnulusView extends ShapeView {
 
   paint(ctx: Context2d): void {
     const {sx, sy, sinner_radius, souter_radius} = this.geometry
-    if (!isFinite(sx + sy + sinner_radius + souter_radius))
-      return
 
     ctx.beginPath()
-    ctx.arc(sx, sy, sinner_radius, 0, 2*Math.PI, true)
+    ctx.arc(sx, sy, sinner_radius, 0, 2*pi, true)
     ctx.moveTo(sx + souter_radius, sy)
-    ctx.arc(sx, sy, souter_radius, 2*Math.PI, 0, false)
+    ctx.arc(sx, sy, souter_radius, 2*pi, 0, false)
 
     this.visuals.fill.apply(ctx)
     this.visuals.hatch.apply(ctx)
