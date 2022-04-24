@@ -121,7 +121,7 @@ class BokehPropDirective(BokehDirective):
         try:
             descriptor = model_obj.lookup(prop_name)
         except AttributeError:
-            raise SphinxError("Unable to generate reference docs for {full_name}: no property {prop_name} on model {model_name}")
+            raise SphinxError(f"Unable to generate reference docs for {full_name}: no property {prop_name} on model {model_name}")
 
         rst_text = PROP_DETAIL.render(
             name=prop_name,

@@ -58,7 +58,7 @@ def commit_staging_branch(config: Config, system: System) -> ActionReturn:
         try:
             system.run(f"git add {path}")
         except RuntimeError as e:
-            return FAILED("Could not git add {path!r}", details=e.args)
+            return FAILED(f"Could not git add {path!r}", details=e.args)
     try:
         system.run(f"git commit -m'Deployment updates for release {config.version}'")
     except RuntimeError as e:
