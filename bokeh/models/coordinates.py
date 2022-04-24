@@ -18,11 +18,16 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from ..core.enums import CoordinateUnits
+from ..core.has_props import abstract
 from ..core.properties import (
     Auto,
     Either,
+    Enum,
+    Float,
     Instance,
     InstanceDefault,
+    NonNullable as Required,
 )
 from ..model import Model
 from .ranges import DataRange1d, Range
@@ -33,12 +38,33 @@ from .scales import LinearScale, Scale
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    "Coordinate",
     "CoordinateMapping",
+    "XY",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+@abstract
+class Coordinate(Model):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+class XY(Coordinate):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    x = Required(Float)
+    y = Required(Float)
+
+    x_units = Enum(CoordinateUnits, default="data")
+    y_units = Enum(CoordinateUnits, default="data")
 
 class CoordinateMapping(Model):
     """ A mapping between two coordinate systems. """

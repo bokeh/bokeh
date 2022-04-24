@@ -44,6 +44,7 @@ from ..core.properties import (
 from ..core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
 from .graphics import Decoration
 from .renderers import Renderer
+from .coordinates import Coordinate
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -98,13 +99,12 @@ class AnnularWedge(Shape, Area):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    x = Required(Float)
-    y = Required(Float)
-    x_units = Enum(CoordinateUnits, default="data")
-    y_units = Enum(CoordinateUnits, default="data")
+    center = Required(Instance(Coordinate))
+
     inner_radius = Required(NonNegative(Float))
     outer_radius = Required(NonNegative(Float))
     radius_dimension = Enum(RadiusDimension, default="x")
+
     start_angle = Required(Angle)
     end_angle = Required(Angle)
     angle_units = Enum(AngleUnits, default="rad")
@@ -117,10 +117,8 @@ class Annulus(Shape, Area):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    x = Required(Float)
-    y = Required(Float)
-    x_units = Enum(CoordinateUnits, default="data")
-    y_units = Enum(CoordinateUnits, default="data")
+    center = Required(Instance(Coordinate))
+
     inner_radius = Required(NonNegative(Float))
     outer_radius = Required(NonNegative(Float))
     radius_dimension = Enum(RadiusDimension, default="x")
@@ -132,16 +130,16 @@ class Arc(Shape, Path):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    x = Required(Float)
-    y = Required(Float)
-    x_units = Enum(CoordinateUnits, default="data")
-    y_units = Enum(CoordinateUnits, default="data")
+    center = Required(Instance(Coordinate))
+
     radius = Required(NonNegative(Float))
     radius_dimension = Enum(RadiusDimension, default="x")
+
     start_angle = Required(Angle)
     end_angle = Required(Angle)
     angle_units = Enum(AngleUnits, default="rad")
     direction = Enum(Direction, default="anticlock")
+
     decorations = List(Instance(Decoration), default=[])
 
 class Bezier(Shape, Path):
@@ -151,16 +149,11 @@ class Bezier(Shape, Path):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    x0 = Required(Float)
-    y0 = Required(Float)
-    x1 = Required(Float)
-    y1 = Required(Float)
-    cx0 = Required(Float)
-    cy0 = Required(Float)
-    cx1 = Nullable(Float, default=None)
-    cy1 = Nullable(Float, default=None)
-    x_units = Enum(CoordinateUnits, default="data")
-    y_units = Enum(CoordinateUnits, default="data")
+    p0 = Required(Instance(Coordinate))
+    p1 = Required(Instance(Coordinate))
+
+    cp0 = Required(Instance(Coordinate))
+    cp1 = Nullable(Instance(Coordinate), default=None)
 
 class Circle(Shape, Area):
     """ """
@@ -169,10 +162,8 @@ class Circle(Shape, Area):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    x = Required(Float)
-    y = Required(Float)
-    x_units = Enum(CoordinateUnits, default="data")
-    y_units = Enum(CoordinateUnits, default="data")
+    center = Required(Instance(Coordinate))
+
     radius = Required(NonNegative(Float))
     radius_dimension = Enum(RadiusDimension, default="x")
 
@@ -187,6 +178,7 @@ class Spline(Shape, Path):
     ys = Seq(Float, default=[])
     xs_units = Enum(CoordinateUnits, default="data")
     ys_units = Enum(CoordinateUnits, default="data")
+
     tension = Float(default=0.5)
     closed = Bool(default=False)
 
@@ -197,16 +189,16 @@ class Wedge(Shape, Area):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    x = Required(Float)
-    y = Required(Float)
-    x_units = Enum(CoordinateUnits, default="data")
-    y_units = Enum(CoordinateUnits, default="data")
+    center = Required(Instance(Coordinate))
+
     radius = Required(NonNegative(Float))
     radius_dimension = Enum(RadiusDimension, default="x")
+
     start_angle = Required(Angle)
     end_angle = Required(Angle)
     angle_units = Enum(AngleUnits, default="rad")
     direction = Enum(Direction, default="anticlock")
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

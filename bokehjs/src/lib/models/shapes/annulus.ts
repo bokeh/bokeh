@@ -1,9 +1,11 @@
 import {Shape, ShapeView} from "./shape"
+import {Coordinate, XY} from "../coordinates"
 import {Scale} from "../scales/scale"
 import {Fill, Hatch, Line} from "core/property_mixins"
-import {CoordinateUnits, RadiusDimension} from "core/enums"
+import {RadiusDimension} from "core/enums"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
+import {assert} from "core/util/assert"
 import {Context2d} from "core/util/canvas"
 import {min, max} from "core/util/math"
 
@@ -11,28 +13,28 @@ export class AnnulusView extends ShapeView {
   override model: Annulus
   override visuals: Annulus.Visuals
 
-  get x_coordinates(): Scale {
-    switch (this.model.x_units) {
+  x_coordinates(coord: XY): Scale {
+    switch (coord.x_units) {
       case "canvas": return this.canvas.screen.x_scale
       case "screen": return this.parent.view.x_scale
       case "data":   return this.coordinates.x_scale
     }
   }
 
-  get y_coordinates(): Scale {
-    switch (this.model.y_units) {
+  y_coordinates(coord: XY): Scale {
+    switch (coord.y_units) {
       case "canvas": return this.canvas.screen.y_scale
       case "screen": return this.parent.view.y_scale
       case "data":   return this.coordinates.y_scale
     }
   }
 
-  sradius(radius: number): number {
-    const x_scale = this.x_coordinates
-    const y_scale = this.y_coordinates
+  sradius(coord: XY, radius: number): number {
+    const x_scale = this.x_coordinates(coord)
+    const y_scale = this.y_coordinates(coord)
 
-    const srx = this.sdist(x_scale, this.model.x, radius)
-    const sry = this.sdist(y_scale, this.model.y, radius)
+    const srx = this.sdist(x_scale, coord.x, radius)
+    const sry = this.sdist(y_scale, coord.y, radius)
 
     const sradius = (() => {
       switch (this.model.radius_dimension) {
@@ -47,11 +49,17 @@ export class AnnulusView extends ShapeView {
   }
 
   get geometry() {
+    const {center, inner_radius, outer_radius} = this.model
+    assert(center instanceof XY)
+
+    const xc = this.x_coordinates(center)
+    const yc = this.y_coordinates(center)
+
     return {
-      sx: this.x_coordinates.compute(this.model.x),
-      sy: this.y_coordinates.compute(this.model.y),
-      sinner_radius: this.sradius(this.model.inner_radius),
-      souter_radius: this.sradius(this.model.outer_radius),
+      sx: xc.compute(center.x),
+      sy: yc.compute(center.y),
+      sinner_radius: this.sradius(center, inner_radius),
+      souter_radius: this.sradius(center, outer_radius),
     }
   }
 
@@ -75,10 +83,7 @@ export namespace Annulus {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Shape.Props & {
-    x: p.Property<number>
-    y: p.Property<number>
-    x_units: p.Property<CoordinateUnits>
-    y_units: p.Property<CoordinateUnits>
+    center: p.Property<Coordinate>
     inner_radius: p.Property<number>
     outer_radius: p.Property<number>
     radius_dimension: p.Property<RadiusDimension>
@@ -108,11 +113,8 @@ export class Annulus extends Shape {
 
     this.mixins<Annulus.Mixins>([Fill, Hatch, Line])
 
-    this.define<Annulus.Props>(({Number, NonNegative}) => ({
-      x:                [ Number ],
-      y:                [ Number ],
-      x_units:          [ CoordinateUnits, "data" ],
-      y_units:          [ CoordinateUnits, "data" ],
+    this.define<Annulus.Props>(({Number, NonNegative, Ref}) => ({
+      center:           [ Ref(Coordinate) ],
       inner_radius:     [ NonNegative(Number) ],
       outer_radius:     [ NonNegative(Number) ],
       radius_dimension: [ RadiusDimension, "x" ],

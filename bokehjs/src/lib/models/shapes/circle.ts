@@ -1,9 +1,11 @@
 import {Shape, ShapeView} from "./shape"
+import {Coordinate, XY} from "../coordinates"
 import {Scale} from "../scales/scale"
 import {Fill, Hatch, Line} from "core/property_mixins"
-import {RadiusDimension, CoordinateUnits} from "core/enums"
+import {RadiusDimension} from "core/enums"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
+import {assert} from "core/util/assert"
 import {Context2d} from "core/util/canvas"
 import {min, max} from "core/util/math"
 
@@ -13,28 +15,30 @@ export class CircleView extends ShapeView {
   override model: Circle
   override visuals: Circle.Visuals
 
-  get x_coordinates(): Scale {
-    switch (this.model.x_units) {
+  x_coordinates(coord: XY): Scale {
+    switch (coord.x_units) {
       case "canvas": return this.canvas.screen.x_scale
       case "screen": return this.parent.view.x_scale
       case "data":   return this.coordinates.x_scale
     }
   }
 
-  get y_coordinates(): Scale {
-    switch (this.model.y_units) {
+  y_coordinates(coord: XY): Scale {
+    switch (coord.y_units) {
       case "canvas": return this.canvas.screen.y_scale
       case "screen": return this.parent.view.y_scale
       case "data":   return this.coordinates.y_scale
     }
   }
 
-  get sradius(): number {
-    const x_scale = this.x_coordinates
-    const y_scale = this.y_coordinates
+  sradius(coord: XY): number {
+    const {radius} = this.model
 
-    const srx = this.sdist(x_scale, this.model.x, this.model.radius)
-    const sry = this.sdist(y_scale, this.model.y, this.model.radius)
+    const x_scale = this.x_coordinates(coord)
+    const y_scale = this.y_coordinates(coord)
+
+    const srx = this.sdist(x_scale, coord.x, radius)
+    const sry = this.sdist(y_scale, coord.y, radius)
 
     const sradius = (() => {
       switch (this.model.radius_dimension) {
@@ -49,9 +53,11 @@ export class CircleView extends ShapeView {
   }
 
   get geometry(): {sx: number, sy: number, sradius: number} {
-    const sx = this.x_coordinates.compute(this.model.x)
-    const sy = this.y_coordinates.compute(this.model.y)
-    const {sradius} = this
+    const {center} = this.model
+    assert(center instanceof XY)
+    const sx = this.x_coordinates(center).compute(center.x)
+    const sy = this.y_coordinates(center).compute(center.y)
+    const sradius = this.sradius(center)
     return {sx, sy, sradius}
   }
 
@@ -87,10 +93,7 @@ export namespace Circle {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Shape.Props & {
-    x: p.Property<number>
-    y: p.Property<number>
-    x_units: p.Property<CoordinateUnits>
-    y_units: p.Property<CoordinateUnits>
+    center: p.Property<Coordinate>
     radius: p.Property<number>
     radius_dimension: p.Property<RadiusDimension>
   } & Mixins
@@ -119,11 +122,8 @@ export class Circle extends Shape {
 
     this.mixins<Circle.Mixins>([Fill, Hatch, Line])
 
-    this.define<Circle.Props>(({Number, NonNegative}) => ({
-      x:                [ Number ],
-      y:                [ Number ],
-      x_units:          [ CoordinateUnits, "data" ],
-      y_units:          [ CoordinateUnits, "data" ],
+    this.define<Circle.Props>(({Number, NonNegative, Ref}) => ({
+      center:           [ Ref(Coordinate) ],
       radius:           [ NonNegative(Number) ],
       radius_dimension: [ RadiusDimension, "x" ],
     }))
