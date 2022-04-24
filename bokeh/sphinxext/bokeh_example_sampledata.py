@@ -113,7 +113,6 @@ def process_sampledata_xrefs(app, doctree, fromdocname):
 
         _len = len(this_sampladata_refs)
         para = nodes.paragraph()
-        filename = env.doc2path(sample_info['docname'], base=None)
         if _len:
             s = '' if _len==1 else 's'
             description = (

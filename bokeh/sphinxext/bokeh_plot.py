@@ -101,7 +101,6 @@ from docutils.parsers.rst.directives import choice, flag
 from sphinx.errors import SphinxError
 from sphinx.util import copyfile, ensuredir, status_iterator
 from sphinx.util.nodes import set_source_info
-from sphinx.locale import _
 
 # Bokeh imports
 from bokeh.document import Document
@@ -170,7 +169,6 @@ class BokehPlotDirective(BokehDirective):
 
     def run(self):
         source, path = self.process_args_or_content()
-        filename = basename(path)
         dashed_docname = self.env.docname.replace("/", "-")
 
         js_filename = f"bokeh-content-{uuid4().hex}-{dashed_docname}.js"
