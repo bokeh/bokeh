@@ -156,8 +156,10 @@ export class CanvasView extends DOMView implements RenderingTarget {
 
   view_for<T extends Renderer>(model: T): ViewOf<T> {
     const view = this._renderer_views.get(model)
-    assert(view != null, "internal error")
-    return view
+    if (view != null)
+      return view
+    else
+      throw new Error(`${model} doesn't belong to ${this}`)
   }
 
   override remove(): void {

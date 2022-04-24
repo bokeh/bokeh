@@ -1,5 +1,5 @@
 import {Shape, ShapeView} from "./shape"
-import {Coordinate, XY} from "../coordinates"
+import {Coordinate, Node, XY} from "../coordinates"
 import {Scale} from "../scales/scale"
 import {Decoration} from "../graphics/decoration"
 import {Line} from "core/property_mixins"
@@ -8,7 +8,7 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {assert} from "core/util/assert"
 import {Context2d} from "core/util/canvas"
-import {min, max, compute_angle} from "core/util/math"
+import {sin, cos, min, max, compute_angle} from "core/util/math"
 
 export class ArcView extends ShapeView {
   override model: Arc
@@ -87,6 +87,28 @@ export class ArcView extends ShapeView {
     this.visuals.line.apply(ctx)
 
     //this.paint_decorations(ctx, sx, sy, sradius, start_angle, end_angle, anticlock)
+  }
+
+  protected override _resolve_node(node: Node): Coordinate | null {
+    const {sx, sy, sradius, start_angle, end_angle} = this.geometry
+
+    function compute(angle: number) {
+      return new XY({
+        x: sx + sradius*cos(angle),
+        y: sy + sradius*sin(angle),
+        x_units: "canvas",
+        y_units: "canvas",
+      })
+    }
+
+    switch (node.term) {
+      case "start":
+        return compute(start_angle)
+      case "end":
+        return compute(end_angle)
+      default:
+        return null
+    }
   }
 
   /*

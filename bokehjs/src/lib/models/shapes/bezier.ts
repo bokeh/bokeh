@@ -28,7 +28,10 @@ export class BezierView extends ShapeView {
   }
 
   get geometry() {
-    const {p0, p1, cp0, cp1} = this.model
+    const p0 = this.resolve(this.model.p0)
+    const p1 = this.resolve(this.model.p1)
+    const cp0 = this.resolve(this.model.cp0)
+    const cp1 = this.model.cp1 == null ? null : this.resolve(this.model.cp1)
 
     assert(p0 instanceof XY)
     assert(p1 instanceof XY)

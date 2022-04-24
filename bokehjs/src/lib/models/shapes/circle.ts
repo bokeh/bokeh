@@ -1,5 +1,5 @@
 import {Shape, ShapeView} from "./shape"
-import {Coordinate, XY} from "../coordinates"
+import {Coordinate, Node, XY} from "../coordinates"
 import {Scale} from "../scales/scale"
 import {Fill, Hatch, Line} from "core/property_mixins"
 import {RadiusDimension} from "core/enums"
@@ -53,7 +53,7 @@ export class CircleView extends ShapeView {
   }
 
   get geometry(): {sx: number, sy: number, sradius: number} {
-    const {center} = this.model
+    const center = this.resolve(this.model.center)
     assert(center instanceof XY)
     const sx = this.x_coordinates(center).compute(center.x)
     const sy = this.y_coordinates(center).compute(center.y)
@@ -70,6 +70,17 @@ export class CircleView extends ShapeView {
     this.visuals.fill.apply(ctx)
     this.visuals.hatch.apply(ctx)
     this.visuals.line.apply(ctx)
+  }
+
+  protected override _resolve_node(node: Node): Coordinate | null {
+    const {sx, sy} = this.geometry
+
+    switch (node.term) {
+      case "center":
+        return new XY({x: sx, y: sy, x_units: "canvas", y_units: "canvas"})
+      default:
+        return null
+    }
   }
 
   _hit_test(csx: number, csy: number): HitTarget | null {

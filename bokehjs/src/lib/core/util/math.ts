@@ -2,8 +2,8 @@ import {AngleUnits} from "../enums"
 import {isObject} from "./types"
 import {assert} from "./assert"
 
-const {PI, abs, floor, ceil, sign, min, max} = Math
-export {PI as pi, abs, floor, ceil, sign, min, max}
+const {PI, abs, floor, ceil, sign, min, max, sin, cos} = Math
+export {PI as pi, abs, floor, ceil, sign, min, max, sin, cos}
 
 export function absmin(a: number, b: number): number {
   return abs(a) <= abs(b) ? a : b

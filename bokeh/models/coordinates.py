@@ -18,9 +18,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.enums import CoordinateUnits
+from ..core.enums import AngleUnits, CoordinateUnits
 from ..core.has_props import abstract
 from ..core.properties import (
+    Angle,
     Auto,
     Either,
     Enum,
@@ -28,6 +29,7 @@ from ..core.properties import (
     Instance,
     InstanceDefault,
     NonNullable as Required,
+    String,
 )
 from ..model import Model
 from .ranges import DataRange1d, Range
@@ -40,6 +42,8 @@ from .scales import LinearScale, Scale
 __all__ = (
     "Coordinate",
     "CoordinateMapping",
+    "Node",
+    "Polar",
     "XY",
 )
 
@@ -65,6 +69,27 @@ class XY(Coordinate):
 
     x_units = Enum(CoordinateUnits, default="data")
     y_units = Enum(CoordinateUnits, default="data")
+
+class Polar(Coordinate):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    radius = Required(Float)
+
+    angle = Required(Angle)
+    angle_units = Enum(AngleUnits, default="rad")
+
+class Node(Coordinate):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    target = Required(Instance(Model)) # needs a base model or a trait
+    term = Required(String)
 
 class CoordinateMapping(Model):
     """ A mapping between two coordinate systems. """

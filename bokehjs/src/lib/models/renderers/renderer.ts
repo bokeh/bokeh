@@ -9,6 +9,7 @@ import type {PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform, CoordinateSystem, CoordinateMapping} from "../canvas/coordinates"
 import {CartesianFrameView} from "../canvas/cartesian_frame"
+import {Coordinate, Node} from "../coordinates"
 
 export namespace RendererGroup {
   export type Attrs = p.AttrsOf<Props>
@@ -186,6 +187,21 @@ export abstract class RendererView extends View implements visuals.Renderable {
   notify_finished_after_paint(): void {
     this.plot_view.notify_finished_after_paint()
   }
+
+  resolve(coord: Coordinate): Coordinate {
+    if (coord instanceof Node) {
+      const target = this.canvas.view_for(coord.target)
+      const resolved = target._resolve_node?.(coord)
+
+      if (resolved != null)
+        return resolved
+      else
+        throw new Error(`can't resolve '${coord.term}' node of ${coord.target}`)
+    } else
+      return coord
+  }
+
+  protected _resolve_node?(node: Node): Coordinate | null
 
   interactive_hit?(sx: number, sy: number): boolean
 
