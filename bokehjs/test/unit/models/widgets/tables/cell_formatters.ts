@@ -123,6 +123,11 @@ describe("cell_formatters module", () => {
         expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
       })
 
+      it("should apply nan_format to null with nan_format is null", () => {
+        const df = new ScientificFormatter()
+        expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;"></div>')
+      })
+
       it("should apply to_fixed if value is zero", () => {
         const df = new ScientificFormatter({precision: 3})
         expect(df.doFormat(0, 0, 0, {}, {})).to.be.equal('<div style="text-align: left;">0</div>')

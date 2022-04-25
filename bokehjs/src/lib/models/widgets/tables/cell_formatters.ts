@@ -129,8 +129,11 @@ export class ScientificFormatter extends StringFormatter {
       precision = 1
     }
 
-    if ((value == null || isNaN(value)) && this.nan_format != null)
-      value = this.nan_format
+    if (value == null || isNaN(value))
+      if (this.nan_format != null)
+        value = this.nan_format
+      else
+        value = ''
     else if (value == 0)
       value = to_fixed(value, 1)
     else if (need_sci)
