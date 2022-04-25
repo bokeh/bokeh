@@ -121,7 +121,7 @@ class Test_DirectoryHandler:
         }, load)
 
         assert len(doc.roots) == 2
-        assert results['package'] == True
+        assert results['package'] is True
 
     def test_directory_mainpy_adds_roots(self) -> None:
         doc = Document()

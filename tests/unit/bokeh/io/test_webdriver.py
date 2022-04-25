@@ -66,13 +66,13 @@ class Test_webdriver_control:
         # other tests may have interacted with the global biw.webdriver_control,
         # so create a new instance only to check default values
         wc = biw._WebdriverState()
-        assert wc.reuse == True
-        assert wc.kind == None
+        assert wc.reuse is True
+        assert wc.kind is None
         assert wc.current is None
 
     def test_get_with_reuse(self) -> None:
         biw.webdriver_control.reuse = True
-        assert biw.webdriver_control.reuse == True
+        assert biw.webdriver_control.reuse is True
         d1 = biw.webdriver_control.get()
         d2 = biw.webdriver_control.get()
         assert d1 is d2
@@ -80,7 +80,7 @@ class Test_webdriver_control:
 
     def test_get_with_reuse_and_reset(self) -> None:
         biw.webdriver_control.reuse = True
-        assert biw.webdriver_control.reuse == True
+        assert biw.webdriver_control.reuse is True
         d1 = biw.webdriver_control.get()
         biw.webdriver_control.reset()
         d2 = biw.webdriver_control.get()
@@ -91,7 +91,7 @@ class Test_webdriver_control:
 
     def test_get_without_reuse(self) -> None:
         biw.webdriver_control.reuse = False
-        assert biw.webdriver_control.reuse == False
+        assert biw.webdriver_control.reuse is False
         d1 = biw.webdriver_control.get()
         d2 = biw.webdriver_control.get()
         assert d1 is not d2

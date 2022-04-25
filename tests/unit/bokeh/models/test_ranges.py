@@ -208,9 +208,9 @@ class Test_FactorRange:
         assert factor_range.factor_padding == 0
         assert factor_range.group_padding == 1.4
         assert factor_range.subgroup_padding == 0.8
-        assert factor_range.bounds == None
-        assert factor_range.min_interval == None
-        assert factor_range.max_interval == None
+        assert factor_range.bounds is None
+        assert factor_range.min_interval is None
+        assert factor_range.max_interval is None
 
     def test_init_with_positional_arguments(self) -> None:
         factor_range = FactorRange("a", "b")

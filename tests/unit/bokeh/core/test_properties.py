@@ -342,7 +342,7 @@ class TestBasic:
 
         o = Readonly()
         assert o.x == 12
-        assert o.y == None
+        assert o.y is None
         assert o.z == 'hello'
 
         # readonly props are still in the list of props
@@ -365,7 +365,7 @@ class TestBasic:
         o.z = "xyz"
 
         assert o.x == 12
-        assert o.y == None
+        assert o.y is None
         assert o.z == 'xyz'
 
     def test_include_defaults(self) -> None:

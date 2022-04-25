@@ -90,7 +90,7 @@ async def test_DISCONNECTED() -> None:
 
 async def test_WAITING_FOR_REPLY() -> None:
     s = bcs.WAITING_FOR_REPLY("reqid")
-    assert s.reply == None
+    assert s.reply is None
     assert s.reqid == "reqid"
 
     c = MockConnection()

@@ -118,7 +118,7 @@ class Test_autoload_static:
         scripts = driver.find_elements(By.CSS_SELECTOR, 'head script')
         assert len(scripts) == 5
         for script in scripts:
-            assert script.get_attribute("crossorigin") == None
+            assert script.get_attribute("crossorigin") is None
             assert script.get_attribute("integrity") == ""
 
     @pytest.mark.selenium
@@ -144,7 +144,7 @@ class Test_autoload_static:
             print(x.get_attribute("src"))
         assert len(scripts) == 4
         for script in scripts:
-            assert script.get_attribute("crossorigin") == None
+            assert script.get_attribute("crossorigin") is None
             assert script.get_attribute("integrity") == ""
 
     @pytest.mark.selenium
@@ -167,7 +167,7 @@ class Test_autoload_static:
             print(x.get_attribute("src"))
         assert len(scripts) == 5
         for script in scripts:
-            assert script.get_attribute("crossorigin") == None
+            assert script.get_attribute("crossorigin") is None
             assert script.get_attribute("integrity") == ""
 
     @pytest.mark.selenium
@@ -188,7 +188,7 @@ class Test_autoload_static:
         scripts = driver.find_elements(By.CSS_SELECTOR, 'head script')
         assert len(scripts) == 5
         for script in scripts:
-            assert script.get_attribute("crossorigin") == None
+            assert script.get_attribute("crossorigin") is None
             assert script.get_attribute("integrity") == ""
 
 
@@ -387,7 +387,7 @@ class Test_json_item:
     def test_without_target_id(self, test_plot: figure) -> None:
         out = bes.json_item(test_plot)
         assert set(out.keys()) == JSON_ITEMS_KEYS
-        assert out['target_id'] == None
+        assert out['target_id'] is None
 
     def test_doc_json(self, test_plot: figure) -> None:
         out = bes.json_item(test_plot, target=ID("foo"))

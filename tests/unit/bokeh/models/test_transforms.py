@@ -55,7 +55,7 @@ def test_Jitter() -> None:
 
 def test_Interpolator() -> None:
     interpolator = Interpolator()
-    assert interpolator.clip == True
+    assert interpolator.clip is True
 
 
 def test_StepInterpolator() -> None:

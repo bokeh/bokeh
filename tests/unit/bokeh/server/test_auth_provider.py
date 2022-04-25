@@ -54,25 +54,25 @@ class TestNullAuth:
         assert null_auth.endpoints == []
 
     def test_get_user(self, null_auth: bsa.NullAuth) -> None:
-        assert null_auth.get_user == None
+        assert null_auth.get_user is None
 
     async def test_get_user_async(self, null_auth: bsa.NullAuth) -> None:
-        assert null_auth.get_user_async == None
+        assert null_auth.get_user_async is None
 
     def test_login_url(self, null_auth: bsa.NullAuth) -> None:
-        assert null_auth.login_url == None
+        assert null_auth.login_url is None
 
     def test_get_login_url(self, null_auth: bsa.NullAuth) -> None:
-        assert null_auth.get_login_url == None
+        assert null_auth.get_login_url is None
 
     def test_login_handler(self, null_auth: bsa.NullAuth) -> None:
-        assert null_auth.login_handler == None
+        assert null_auth.login_handler is None
 
     def test_logout_url(self, null_auth: bsa.NullAuth) -> None:
-        assert null_auth.logout_url == None
+        assert null_auth.logout_url is None
 
     def test_logout_handler(self, null_auth: bsa.NullAuth) -> None:
-        assert null_auth.logout_handler == None
+        assert null_auth.logout_handler is None
 
 class TestAuthModule_properties:
     def test_no_endpoints(self) -> None:

@@ -60,7 +60,7 @@ class TestColumnDataSource:
     def test_selected_serialized(self) -> None:
         ds = bms.ColumnDataSource()
         prop = ds.lookup('selected')
-        assert prop.serialized == True
+        assert prop.serialized is True
 
     def test_init_dict_arg(self) -> None:
         data = dict(a=[1], b=[2])

@@ -66,7 +66,7 @@ def test_without_document_lock() -> None:
         curdoc_from_cb.append(curdoc())
     callback_obj = d.add_next_tick_callback(cb)
     callback_obj.callback()
-    assert callback_obj.callback.nolock == True
+    assert callback_obj.callback.nolock is True
     assert len(curdoc_from_cb) == 1
     assert curdoc_from_cb[0]._doc is d
     assert isinstance(curdoc_from_cb[0], locking.UnlockedDocumentProxy)
@@ -85,7 +85,7 @@ def test_without_document_lock_accepts_async_function() -> None:
     loop = asyncio.get_event_loop()
     loop.run_until_complete(callback_obj.callback())
 
-    assert callback_obj.callback.nolock == True
+    assert callback_obj.callback.nolock is True
     assert i == 1
 
 #-----------------------------------------------------------------------------

@@ -78,11 +78,11 @@ def select_movies():
         (movies.Oscars >= oscars.value)
     ]
     if (genre_val != "All"):
-        selected = selected[selected.Genre.str.contains(genre_val)==True]
+        selected = selected[selected.Genre.str.contains(genre_val) is True]
     if (director_val != ""):
-        selected = selected[selected.Director.str.contains(director_val)==True]
+        selected = selected[selected.Director.str.contains(director_val) is True]
     if (cast_val != ""):
-        selected = selected[selected.Cast.str.contains(cast_val)==True]
+        selected = selected[selected.Cast.str.contains(cast_val) is True]
     return selected
 
 

@@ -188,7 +188,7 @@ def test_PropertyValueColumnData__stream_list_to_list(mock_notify: MagicMock) ->
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsStreamedEvent)
     assert event.setter == 'setter'
-    assert event.rollover == None
+    assert event.rollover is None
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_list_to_array(mock_notify: MagicMock) -> None:
@@ -207,7 +207,7 @@ def test_PropertyValueColumnData__stream_list_to_array(mock_notify: MagicMock) -
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsStreamedEvent)
     assert event.setter == 'setter'
-    assert event.rollover == None
+    assert event.rollover is None
 
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
@@ -246,7 +246,7 @@ def test_PropertyValueColumnData__stream_array_to_array(mock_notify: MagicMock) 
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsStreamedEvent)
     assert event.setter == 'setter'
-    assert event.rollover == None
+    assert event.rollover is None
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_array_to_list(mock_notify: MagicMock) -> None:
@@ -265,7 +265,7 @@ def test_PropertyValueColumnData__stream_array_to_list(mock_notify: MagicMock) -
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsStreamedEvent)
     assert event.setter == 'setter'
-    assert event.rollover == None
+    assert event.rollover is None
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_array_with_rollover(mock_notify: MagicMock) -> None:
