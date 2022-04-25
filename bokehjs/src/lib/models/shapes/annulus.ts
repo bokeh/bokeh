@@ -1,15 +1,27 @@
 import {Shape, ShapeView} from "./shape"
 import {Coordinate, XY} from "../coordinates"
 import {Scale} from "../scales/scale"
+import {PanEvent, Pannable} from "core/ui_events"
+import {Signal} from "core/signaling"
 import {Fill, Hatch, Line} from "core/property_mixins"
 import {RadiusDimension} from "core/enums"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
+import * as cursors from "core/util/cursors"
 import {assert} from "core/util/assert"
 import {Context2d} from "core/util/canvas"
 import {pi, min, max} from "core/util/math"
 
-export class AnnulusView extends ShapeView {
+type Geometry = {
+  sx: number
+  sy: number
+  sinner_radius: number
+  souter_radius: number
+}
+
+type HitTarget = "outer_edge" | "inner_edge" | "area"
+
+export class AnnulusView extends ShapeView implements Pannable {
   override model: Annulus
   override visuals: Annulus.Visuals
 
@@ -48,7 +60,7 @@ export class AnnulusView extends ShapeView {
     return sradius
   }
 
-  get geometry() {
+  get geometry(): Geometry {
     const {center, inner_radius, outer_radius} = this.model
     assert(center instanceof XY)
 
@@ -75,6 +87,77 @@ export class AnnulusView extends ShapeView {
     this.visuals.hatch.apply(ctx)
     this.visuals.line.apply(ctx)
   }
+
+  protected _hit_test(csx: number, csy: number): HitTarget | null {
+    const {sx, sy, sinner_radius, souter_radius} = this.geometry
+
+    const dist = (sx - csx)**2 + (sy - csy)**2
+
+    const or2 = souter_radius**2
+    const ir2 = sinner_radius**2
+
+    if (ir2 <= dist && dist <= or2)
+      return "area"
+
+    return null
+  }
+
+  protected _can_hit(target: HitTarget): boolean {
+    return target == "area"
+  }
+
+  protected _pan_state: {geometry: Geometry, target: HitTarget} | null = null
+
+  on_pan_start(ev: PanEvent): boolean {
+    if (this.model.visible && this.model.editable) {
+      const {sx, sy} = ev
+      const target = this._hit_test(sx, sy)
+      if (target != null && this._can_hit(target)) {
+        this._pan_state = {geometry: this.geometry, target}
+        this.model.pan.emit("pan:start")
+        return true
+      }
+    }
+    return false
+  }
+
+  on_pan(ev: PanEvent): void {
+    assert(this._pan_state != null)
+
+    const [sx, sy] = (() => {
+      const {dx, dy} = ev
+      const {sx, sy} = this._pan_state.geometry
+      return [sx + dx, sy + dy]
+    })()
+
+    const {center} = this.model
+    assert(center instanceof XY)
+    const x = this.x_coordinates(center).invert(sx)
+    const y = this.y_coordinates(center).invert(sy)
+    center.setv({x, y})
+    this.request_paint()
+
+    this.model.pan.emit("pan")
+  }
+
+  on_pan_end(_ev: PanEvent): void {
+    this._pan_state = null
+    this.model.pan.emit("pan:end")
+  }
+
+  override cursor(sx: number, sy: number): string | null {
+    const target = this._pan_state?.target ?? this._hit_test(sx, sy)
+    if (target == null || !this._can_hit(target))
+      return null
+
+    switch (target) {
+      case "outer_edge":
+      case "inner_edge":
+        return cursors.x_pan
+      case "area":
+        return cursors.pan
+    }
+  }
 }
 
 export namespace Annulus {
@@ -85,6 +168,7 @@ export namespace Annulus {
     inner_radius: p.Property<number>
     outer_radius: p.Property<number>
     radius_dimension: p.Property<RadiusDimension>
+    editable: p.Property<boolean>
   } & Mixins
 
   export type Mixins = Fill & Hatch & Line
@@ -111,11 +195,14 @@ export class Annulus extends Shape {
 
     this.mixins<Annulus.Mixins>([Fill, Hatch, Line])
 
-    this.define<Annulus.Props>(({Number, NonNegative, Ref}) => ({
+    this.define<Annulus.Props>(({Boolean, Number, NonNegative, Ref}) => ({
       center:           [ Ref(Coordinate) ],
       inner_radius:     [ NonNegative(Number) ],
       outer_radius:     [ NonNegative(Number) ],
       radius_dimension: [ RadiusDimension, "x" ],
+      editable:         [ Boolean, false ],
     }))
   }
+
+  readonly pan = new Signal<"pan:start" | "pan" | "pan:end", this>(this, "pan")
 }

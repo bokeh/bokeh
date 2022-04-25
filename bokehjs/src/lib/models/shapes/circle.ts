@@ -1,17 +1,22 @@
 import {Shape, ShapeView} from "./shape"
 import {Coordinate, Node, XY} from "../coordinates"
 import {Scale} from "../scales/scale"
+import {PanEvent, Pannable} from "core/ui_events"
+import {Signal} from "core/signaling"
 import {Fill, Hatch, Line} from "core/property_mixins"
 import {RadiusDimension} from "core/enums"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
+import * as cursors from "core/util/cursors"
 import {assert} from "core/util/assert"
 import {Context2d} from "core/util/canvas"
 import {pi, min, max} from "core/util/math"
 
 type HitTarget = "edge" | "area"
 
-export class CircleView extends ShapeView {
+type Geometry = {sx: number, sy: number, sradius: number}
+
+export class CircleView extends ShapeView implements Pannable {
   override model: Circle
   override visuals: Circle.Visuals
 
@@ -52,7 +57,7 @@ export class CircleView extends ShapeView {
     return sradius
   }
 
-  get geometry(): {sx: number, sy: number, sradius: number} {
+  get geometry(): Geometry {
     const center = this.resolve(this.model.center)
     assert(center instanceof XY)
     const sx = this.x_coordinates(center).compute(center.x)
@@ -83,18 +88,77 @@ export class CircleView extends ShapeView {
     }
   }
 
-  _hit_test(csx: number, csy: number): HitTarget | null {
+  override interactive_hit(sx: number, sy: number): boolean {
+    if (!this.model.visible || !this.model.editable)
+      return false
+    return this._hit_test(sx, sy) != null
+  }
+
+  protected _hit_test(csx: number, csy: number): HitTarget | null {
     const {sx, sy, sradius} = this.geometry
-    const r2 = (sradius/**hit_dilation*/)**2
+
     const dist = (sx - csx)**2 + (sy - csy)**2
+    const sradius2 = sradius**2
 
-    //const tolerance = Math.max(EDGE_TOLERANCE, this.model.line_width/2)
-
-    if (dist <= r2) {
+    if (dist <= sradius2) {
       return "area"
     }
 
     return null
+  }
+
+  protected _can_hit(target: HitTarget): boolean {
+    return target == "area"
+  }
+
+  protected _pan_state: {geometry: Geometry, target: HitTarget} | null = null
+
+  on_pan_start(ev: PanEvent): boolean {
+    if (this.model.visible && this.model.editable) {
+      const {sx, sy} = ev
+      const target = this._hit_test(sx, sy)
+      if (target != null && this._can_hit(target)) {
+        this._pan_state = {geometry: this.geometry, target}
+        this.model.pan.emit("pan:start")
+        return true
+      }
+    }
+    return false
+  }
+
+  on_pan(ev: PanEvent): void {
+    assert(this._pan_state != null)
+
+    const [sx, sy] = (() => {
+      const {dx, dy} = ev
+      const {sx, sy} = this._pan_state.geometry
+      return [sx + dx, sy + dy]
+    })()
+
+    const {center} = this.model
+    assert(center instanceof XY)
+    const x = this.x_coordinates(center).invert(sx)
+    const y = this.y_coordinates(center).invert(sy)
+    center.setv({x, y})
+    this.request_paint()
+
+    this.model.pan.emit("pan")
+  }
+
+  on_pan_end(_ev: PanEvent): void {
+    this._pan_state = null
+    this.model.pan.emit("pan:end")
+  }
+
+  override cursor(sx: number, sy: number): string | null {
+    const target = this._pan_state?.target ?? this._hit_test(sx, sy)
+    if (target == null || !this._can_hit(target))
+      return null
+
+    switch (target) {
+      case "edge": return cursors.x_pan
+      case "area": return cursors.pan
+    }
   }
 }
 
@@ -105,6 +169,7 @@ export namespace Circle {
     center: p.Property<Coordinate>
     radius: p.Property<number>
     radius_dimension: p.Property<RadiusDimension>
+    editable: p.Property<boolean>
   } & Mixins
 
   export type Mixins = Fill & Hatch & Line
@@ -131,10 +196,13 @@ export class Circle extends Shape {
 
     this.mixins<Circle.Mixins>([Fill, Hatch, Line])
 
-    this.define<Circle.Props>(({Number, NonNegative, Ref}) => ({
+    this.define<Circle.Props>(({Boolean, Number, NonNegative, Ref}) => ({
       center:           [ Ref(Coordinate) ],
       radius:           [ NonNegative(Number) ],
       radius_dimension: [ RadiusDimension, "x" ],
+      editable:         [ Boolean, false ],
     }))
   }
+
+  readonly pan = new Signal<"pan:start" | "pan" | "pan:end", this>(this, "pan")
 }

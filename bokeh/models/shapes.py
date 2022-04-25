@@ -119,6 +119,8 @@ class AnnularWedge(Shape, Area):
     angle_units = Enum(AngleUnits, default="rad")
     direction = Enum(Direction, default="anticlock")
 
+    editable = Bool(default=False)
+
     @property
     def nodes(self) -> AnnularWedgeNodes:
         return self._nodes
@@ -136,6 +138,8 @@ class Annulus(Shape, Area):
     inner_radius = Required(NonNegative(Float))
     outer_radius = Required(NonNegative(Float))
     radius_dimension = Enum(RadiusDimension, default="x")
+
+    editable = Bool(default=False)
 
     @property
     def nodes(self) -> AnnulusNodes:
@@ -238,6 +242,8 @@ class Circle(Shape, Area):
     radius = Required(NonNegative(Float))
     radius_dimension = Enum(RadiusDimension, default="x")
 
+    editable = Bool(default=False)
+
     @property
     def nodes(self) -> CircleNodes:
         return self._nodes
@@ -315,6 +321,8 @@ class Wedge(Shape, Area):
     end_angle = Required(Angle)
     angle_units = Enum(AngleUnits, default="rad")
     direction = Enum(Direction, default="anticlock")
+
+    editable = Bool(default=False)
 
     @property
     def nodes(self) -> WedgeNodes:

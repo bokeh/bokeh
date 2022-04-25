@@ -1,17 +1,30 @@
 import {Shape, ShapeView} from "./shape"
 import {Coordinate, XY} from "../coordinates"
 import {Scale} from "../scales/scale"
+import {PanEvent, Pannable} from "core/ui_events"
+import {Signal} from "core/signaling"
 import {Fill, Hatch, Line} from "core/property_mixins"
 import {AngleUnits, Direction, RadiusDimension} from "core/enums"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
+import * as cursors from "core/util/cursors"
 import {assert} from "core/util/assert"
 import {Context2d} from "core/util/canvas"
-import {min, max, compute_angle} from "core/util/math"
+import {min, max, compute_angle, angle_between} from "core/util/math"
 
-type HitTarget = "outer_edge" | "inner_edge" | "area"
+type Geometry = {
+  sx: number
+  sy: number
+  sinner_radius: number
+  souter_radius: number
+  start_angle: number
+  end_angle: number
+  anticlock: boolean
+}
 
-export class AnnularWedgeView extends ShapeView {
+type HitTarget = "outer_edge" | "inner_edge" | "start_edge" | "end_edge" | "area"
+
+export class AnnularWedgeView extends ShapeView implements Pannable {
   override model: AnnularWedge
   override visuals: AnnularWedge.Visuals
 
@@ -62,7 +75,7 @@ export class AnnularWedgeView extends ShapeView {
     return this.model.direction == "anticlock"
   }
 
-  get geometry() {
+  get geometry(): Geometry {
     const {center, inner_radius, outer_radius} = this.model
     assert(center instanceof XY)
 
@@ -102,6 +115,84 @@ export class AnnularWedgeView extends ShapeView {
     this.visuals.hatch.apply(ctx)
     this.visuals.line.apply(ctx)
   }
+
+  protected _hit_test(csx: number, csy: number): HitTarget | null {
+    const {sx, sy, sinner_radius, souter_radius, start_angle, end_angle, anticlock} = this.geometry
+
+    const dist = (sx - csx)**2 + (sy - csy)**2
+
+    const or2 = souter_radius**2
+    const ir2 = sinner_radius**2
+
+    if (ir2 <= dist && dist <= or2) {
+      // NOTE: minus the angle because JS uses non-mathy convention for angles
+      const angle = Math.atan2(csy - sy, csx - sx)
+      if (angle_between(-angle, -start_angle, -end_angle, anticlock)) {
+        return "area"
+      }
+    }
+
+    return null
+  }
+
+  protected _can_hit(target: HitTarget): boolean {
+    return target == "area"
+  }
+
+  protected _pan_state: {geometry: Geometry, target: HitTarget} | null = null
+
+  on_pan_start(ev: PanEvent): boolean {
+    if (this.model.visible && this.model.editable) {
+      const {sx, sy} = ev
+      const target = this._hit_test(sx, sy)
+      if (target != null && this._can_hit(target)) {
+        this._pan_state = {geometry: this.geometry, target}
+        this.model.pan.emit("pan:start")
+        return true
+      }
+    }
+    return false
+  }
+
+  on_pan(ev: PanEvent): void {
+    assert(this._pan_state != null)
+
+    const [sx, sy] = (() => {
+      const {dx, dy} = ev
+      const {sx, sy} = this._pan_state.geometry
+      return [sx + dx, sy + dy]
+    })()
+
+    const {center} = this.model
+    assert(center instanceof XY)
+    const x = this.x_coordinates(center).invert(sx)
+    const y = this.y_coordinates(center).invert(sy)
+    center.setv({x, y})
+    this.request_paint()
+
+    this.model.pan.emit("pan")
+  }
+
+  on_pan_end(_ev: PanEvent): void {
+    this._pan_state = null
+    this.model.pan.emit("pan:end")
+  }
+
+  override cursor(sx: number, sy: number): string | null {
+    const target = this._pan_state?.target ?? this._hit_test(sx, sy)
+    if (target == null || !this._can_hit(target))
+      return null
+
+    switch (target) {
+      case "outer_edge":
+      case "inner_edge":
+      case "start_edge":
+      case "end_edge":
+        return cursors.x_pan
+      case "area":
+        return cursors.pan
+    }
+  }
 }
 
 export namespace AnnularWedge {
@@ -116,6 +207,7 @@ export namespace AnnularWedge {
     end_angle: p.Property<number>
     angle_units: p.Property<AngleUnits>
     direction: p.Property<Direction>
+    editable: p.Property<boolean>
   } & Mixins
 
   export type Mixins = Fill & Hatch & Line
@@ -142,7 +234,7 @@ export class AnnularWedge extends Shape {
 
     this.mixins<AnnularWedge.Mixins>([Fill, Hatch, Line])
 
-    this.define<AnnularWedge.Props>(({Number, NonNegative, Ref}) => ({
+    this.define<AnnularWedge.Props>(({Boolean, Number, NonNegative, Ref}) => ({
       center:           [ Ref(Coordinate) ],
       inner_radius:     [ NonNegative(Number) ],
       outer_radius:     [ NonNegative(Number) ],
@@ -151,6 +243,9 @@ export class AnnularWedge extends Shape {
       end_angle:        [ Number ],
       angle_units:      [ AngleUnits, "rad" ],
       direction:        [ Direction, "anticlock" ],
+      editable:         [ Boolean, false ],
     }))
   }
+
+  readonly pan = new Signal<"pan:start" | "pan" | "pan:end", this>(this, "pan")
 }
