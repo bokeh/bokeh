@@ -89,6 +89,12 @@ export class AnnulusView extends ShapeView implements Pannable {
     this.visuals.line.apply(ctx)
   }
 
+  override interactive_hit(sx: number, sy: number): boolean {
+    if (!this.model.visible || !this.model.editable)
+      return false
+    return this._hit_test(sx, sy) != null
+  }
+
   protected _hit_test(csx: number, csy: number): HitTarget | null {
     const {sx, sy, sinner_radius, souter_radius} = this.geometry
 
@@ -104,7 +110,7 @@ export class AnnulusView extends ShapeView implements Pannable {
   }
 
   protected _can_hit(target: HitTarget): boolean {
-    return target == "area"
+    return this.model.center instanceof XY && target == "area"
   }
 
   protected _pan_state: {geometry: Geometry, target: HitTarget} | null = null
@@ -135,6 +141,7 @@ export class AnnulusView extends ShapeView implements Pannable {
     assert(center instanceof XY)
     const x = this.x_coordinates(center).invert(sx)
     const y = this.y_coordinates(center).invert(sy)
+
     center.setv({x, y})
     this.request_paint()
 

@@ -286,6 +286,8 @@ export class BoxView extends ShapeView implements Pannable {
     }
 
     this.model.setv(lrtb)
+    this.request_paint()
+
     this.model.pan.emit("pan")
   }
 

@@ -108,7 +108,7 @@ export class CircleView extends ShapeView implements Pannable {
   }
 
   protected _can_hit(target: HitTarget): boolean {
-    return target == "area"
+    return this.model.center instanceof XY && target == "area"
   }
 
   protected _pan_state: {geometry: Geometry, target: HitTarget} | null = null
@@ -139,6 +139,7 @@ export class CircleView extends ShapeView implements Pannable {
     assert(center instanceof XY)
     const x = this.x_coordinates(center).invert(sx)
     const y = this.y_coordinates(center).invert(sy)
+
     center.setv({x, y})
     this.request_paint()
 
