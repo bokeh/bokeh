@@ -133,7 +133,7 @@ export class ScientificFormatter extends StringFormatter {
       if (this.nan_format != null)
         value = this.nan_format
       else
-        value = ''
+        value = ""
     else if (value == 0)
       value = to_fixed(value, 1)
     else if (need_sci)
