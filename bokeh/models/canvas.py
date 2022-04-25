@@ -20,11 +20,14 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import OutputBackend
 from ..core.properties import (
+    Auto,
     Bool,
     Dict,
+    Either,
     Enum,
     Instance,
     InstanceDefault,
+    Int,
     List,
     String,
 )
@@ -40,6 +43,7 @@ from .scales import LinearScale, Scale
 __all__ = (
     "Canvas",
     "CartesianFrame",
+    "Layer",
 )
 
 #-----------------------------------------------------------------------------
@@ -99,6 +103,23 @@ class CartesianFrame(Model):
     .. note:: This feature is experimental and may change in the short term.
     """)
 
+class Layer(Model):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    renderers = List(Instance(Renderer), default=[], help="""
+    Collection of objects to paint onto this canvas layer.
+    """)
+
+    z_index = Either(Auto, Int, default="auto", help="""
+    Allows to override the default order of layers.
+
+    This doesn't affect z-ordering of individual renderers within a layer.
+    """)
+
 class Canvas(Model):
     """ """
 
@@ -108,6 +129,14 @@ class Canvas(Model):
 
     renderers = List(Instance(Renderer), default=[], help="""
     Collection of objects to paint onto this canvas.
+    """)
+
+    layers = List(Instance(Layer), default=[], help="""
+    Collection of customized canvas layers.
+
+    Each leayer is a separate HTML5 canvas and introduces an new stacking
+    context for renderers. All layers, including the implicit ones, are
+    composed together in the approriate order to form the final rendering.
     """)
 
     hidpi = Bool(default=True, help="""

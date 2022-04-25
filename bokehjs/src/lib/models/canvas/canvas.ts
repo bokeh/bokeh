@@ -1,4 +1,4 @@
-import {HasProps} from "core/has_props"
+import {Model} from "../../model"
 import {settings} from "core/settings"
 import {ViewOf, SerializableState} from "core/view"
 import {DOMView} from "core/dom_view"
@@ -106,6 +106,10 @@ export class CanvasView extends DOMView implements RenderingTarget {
     return this
   }
 
+  get layers(): CanvasLayer[] {
+    return [this.primary, this.overlays]
+  }
+
   override initialize(): void {
     super.initialize()
 
@@ -117,8 +121,7 @@ export class CanvasView extends DOMView implements RenderingTarget {
 
     const elements = [
       this.underlays_el,
-      this.primary.el,
-      this.overlays.el,
+      ...this.layers.map((layer) => layer.el),
       this.overlays_el,
       this.events_el,
     ]
@@ -226,10 +229,12 @@ export class CanvasView extends DOMView implements RenderingTarget {
 
     extend(this.el.style, style)
     extend(this.underlays_el.style, style)
-    this.primary.resize(width, height)
-    this.overlays.resize(width, height)
     extend(this.overlays_el.style, style)
     extend(this.events_el.style, style)
+
+    for (const layer of this.layers) {
+      layer.resize(width, height)
+    }
 
     if (this.plot_views.length == 0) // REMOVE
       this.paint_engine.request_repaint()
@@ -287,8 +292,9 @@ export class CanvasView extends DOMView implements RenderingTarget {
     const composite = this.create_layer()
     const {width, height} = this.bbox
     composite.resize(width, height)
-    composite.ctx.drawImage(this.primary.canvas, 0, 0)
-    composite.ctx.drawImage(this.overlays.canvas, 0, 0)
+    for (const layer of this.layers) {
+      composite.ctx.drawImage(layer.canvas, 0, 0)
+    }
     return composite
   }
 
@@ -326,7 +332,7 @@ export class CanvasView extends DOMView implements RenderingTarget {
 export namespace Canvas {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = HasProps.Props & {
+  export type Props = Model.Props & {
     renderers: p.Property<Renderer[]>
     hidpi: p.Property<boolean>
     output_backend: p.Property<OutputBackend>
@@ -335,7 +341,7 @@ export namespace Canvas {
 
 export interface Canvas extends Canvas.Attrs {}
 
-export class Canvas extends HasProps {
+export class Canvas extends Model {
   override properties: Canvas.Props
   override __view_type__: CanvasView
 
@@ -346,7 +352,7 @@ export class Canvas extends HasProps {
   static {
     this.prototype.default_view = CanvasView
 
-    this.internal<Canvas.Props>(({Boolean, Array, Ref}) => ({
+    this.define<Canvas.Props>(({Boolean, Array, Ref}) => ({
       renderers:      [ Array(Ref(Renderer)), [] ],
       hidpi:          [ Boolean, true ],
       output_backend: [ OutputBackend, "canvas" ],
