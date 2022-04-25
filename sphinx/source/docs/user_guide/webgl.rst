@@ -23,44 +23,48 @@ To enable WebGL in Bokeh, set the plot's ``output_backend`` property to
 
     p = figure(output_backend="webgl")
 
+Only a subset of Bokeh's glyphs have WebGL support. When you enable WebGL you
+are requesting that it is used if available, and those glyphs that do not yet
+support it will be rendered using the canvas backend as normal.
+
 Support
 -------
 
-Bokeh's WebGL support covers a subset of glyphs. This includes the :func:`~bokeh.plotting.figure.line`
-glyph, and most markers:
+Bokeh's WebGL support covers the following fixed-shape glyphs:
 
-* :func:`~bokeh.plotting.figure.asterisk`
+* :func:`~bokeh.plotting.figure.block`
 
 * :func:`~bokeh.plotting.figure.circle`
 
-* :func:`~bokeh.plotting.figure.circle_cross`
+* :func:`~bokeh.plotting.figure.hbar`
 
-* :func:`~bokeh.plotting.figure.circle_x`
+* :func:`~bokeh.plotting.figure.hex_tile`
 
-* :func:`~bokeh.plotting.figure.cross`
+* :func:`~bokeh.plotting.figure.quad`
 
-* :func:`~bokeh.plotting.figure.diamond`
+* :func:`~bokeh.plotting.figure.rect`
 
-* :func:`~bokeh.plotting.figure.diamond_cross`
+* :func:`~bokeh.plotting.figure.scatter`
 
-* :func:`~bokeh.plotting.figure.hex`
+* :func:`~bokeh.plotting.figure.vbar`
 
-* :func:`~bokeh.plotting.figure.inverted_triangle`
+For these fixed-shape glyphs there is WebGL support for all fill properties,
+all line properties except for dashed lines which are silently ignored, and
+all hatch properties except for hatch images (the ``hatch_extra`` property)
+which are silently ignored.
 
-* :func:`~bokeh.plotting.figure.square`
+There is also full WebGL support for :func:`~bokeh.plotting.figure.line`
+glyphs, although the appearance of dashed lines with round and square end caps
+needs improvement.
 
-* :func:`~bokeh.plotting.figure.square_cross`
+When should you use WebGL?
+--------------------------
 
-* :func:`~bokeh.plotting.figure.square_x`
-
-* :func:`~bokeh.plotting.figure.star`
-
-* :func:`~bokeh.plotting.figure.triangle`
-
-* :func:`~bokeh.plotting.figure.x`
-
-You can combine multiple glyphs in a plot, even if some are rendered in WebGL,
-and some are not.
+A general rule of thumb is that if you are rendering fewer than 10 thousand
+markers or lines with fewer than 10 thousand points then canvas is perfectly
+adequate. Above 10 thousand markers or points WebGL will usually give
+noticably better performance, and this will certainly be the case for 100
+thousand markers or points.
 
 Examples
 --------
