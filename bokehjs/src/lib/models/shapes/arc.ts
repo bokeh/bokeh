@@ -10,6 +10,15 @@ import {assert} from "core/util/assert"
 import {Context2d} from "core/util/canvas"
 import {sin, cos, min, max, compute_angle} from "core/util/math"
 
+type Geometry = {
+  sx: number
+  sy: number
+  sradius: number
+  start_angle: number
+  end_angle: number
+  anticlock: boolean
+}
+
 export class ArcView extends ShapeView {
   override model: Arc
   override visuals: Arc.Visuals
@@ -61,8 +70,8 @@ export class ArcView extends ShapeView {
     return this.model.direction == "anticlock"
   }
 
-  get geometry() {
-    const {center, radius} = this.model
+  get geometry(): Geometry {
+    const center = this.resolve(this.model.center)
     assert(center instanceof XY)
 
     const xc = this.x_coordinates(center)
@@ -71,7 +80,7 @@ export class ArcView extends ShapeView {
     return {
       sx: xc.compute(center.x),
       sy: yc.compute(center.y),
-      sradius: this.sradius(center, radius),
+      sradius: this.sradius(center, this.model.radius),
       start_angle: this.start_angle,
       end_angle: this.end_angle,
       anticlock: this.anticlock,

@@ -12,6 +12,8 @@ import {assert, unreachable} from "core/util/assert"
 import {BBox, LRTB} from "core/util/bbox"
 import {clamp, sign, absmin, abs, max} from "core/util/math"
 
+type Geometry = {}
+
 export const EDGE_TOLERANCE = 2.5
 
 type Corner = "top_left" | "top_right" | "bottom_left" | "bottom_right"
@@ -74,6 +76,10 @@ export class BoxView extends ShapeView implements Pannable {
       case "screen": return this.parent.view.y_scale
       case "data":   return this.coordinates.y_scale
     }
+  }
+
+  get geometry(): Geometry {
+    return {}
   }
 
   private _geometry(): void {

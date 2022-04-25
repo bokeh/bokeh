@@ -8,6 +8,11 @@ import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 import {assert} from "core/util/assert"
 
+type Geometry = {
+  sx: number
+  sy: number
+}
+
 export class RectView extends ShapeView {
   override model: Rect
   override visuals: Rect.Visuals
@@ -28,11 +33,13 @@ export class RectView extends ShapeView {
     }
   }
 
-  get geometry(): {sx: number, sy: number} {
-    const {center} = this.model
+  get geometry(): Geometry {
+    const center = this.resolve(this.model.center)
     assert(center instanceof XY)
+
     const sx = this.x_coordinates(center).compute(center.x)
     const sy = this.y_coordinates(center).compute(center.y)
+
     // TODO
     return {sx, sy}
   }

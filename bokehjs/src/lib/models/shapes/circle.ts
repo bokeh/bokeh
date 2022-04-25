@@ -36,9 +36,7 @@ export class CircleView extends ShapeView implements Pannable {
     }
   }
 
-  sradius(coord: XY): number {
-    const {radius} = this.model
-
+  sradius(coord: XY, radius: number): number {
     const x_scale = this.x_coordinates(coord)
     const y_scale = this.y_coordinates(coord)
 
@@ -60,9 +58,11 @@ export class CircleView extends ShapeView implements Pannable {
   get geometry(): Geometry {
     const center = this.resolve(this.model.center)
     assert(center instanceof XY)
+
     const sx = this.x_coordinates(center).compute(center.x)
     const sy = this.y_coordinates(center).compute(center.y)
-    const sradius = this.sradius(center)
+
+    const sradius = this.sradius(center, this.model.radius)
     return {sx, sy, sradius}
   }
 

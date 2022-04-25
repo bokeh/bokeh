@@ -76,12 +76,13 @@ export class AnnularWedgeView extends ShapeView implements Pannable {
   }
 
   get geometry(): Geometry {
-    const {center, inner_radius, outer_radius} = this.model
+    const center = this.resolve(this.model.center)
     assert(center instanceof XY)
 
     const xc = this.x_coordinates(center)
     const yc = this.y_coordinates(center)
 
+    const {inner_radius, outer_radius} = this.model
     return {
       sx: xc.compute(center.x),
       sy: yc.compute(center.y),

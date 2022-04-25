@@ -75,7 +75,7 @@ export class WedgeView extends ShapeView implements Pannable {
   }
 
   get geometry(): Geometry {
-    const {center, radius} = this.model
+    const center = this.resolve(this.model.center)
     assert(center instanceof XY)
 
     const xc = this.x_coordinates(center)
@@ -84,7 +84,7 @@ export class WedgeView extends ShapeView implements Pannable {
     return {
       sx: xc.compute(center.x),
       sy: yc.compute(center.y),
-      sradius: this.sradius(center, radius),
+      sradius: this.sradius(center, this.model.radius),
       start_angle: this.start_angle,
       end_angle: this.end_angle,
       anticlock: this.anticlock,

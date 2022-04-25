@@ -4,6 +4,8 @@ import {Context2d} from "core/util/canvas"
 import {abs, ceil} from "core/util/math"
 import * as p from "core/properties"
 
+export type Geometry = {}
+
 export abstract class ShapeView extends RendererView {
   override model: Shape
 
@@ -12,7 +14,9 @@ export abstract class ShapeView extends RendererView {
     this.paint(ctx)
   }
 
-  protected abstract paint(ctx: Context2d): void
+  abstract get geometry(): Geometry
+
+  abstract paint(ctx: Context2d): void
 
   sdist(scale: Scale, pt: number, span: number, loc: "center" | "edge" = "edge", dilate: boolean = false): number {
     const sd = (() => {

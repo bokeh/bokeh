@@ -9,6 +9,13 @@ import {Context2d} from "core/util/canvas"
 import {catmullrom_spline} from "core/util/interpolation"
 import {zip} from "core/util/iterator"
 
+type Geometry = {
+  sxs: Seq<number>
+  sys: Seq<number>
+  sxst: Seq<number>
+  syst: Seq<number>
+}
+
 export class SplineView extends ShapeView {
   override model: Spline
   override visuals: Spline.Visuals
@@ -29,7 +36,7 @@ export class SplineView extends ShapeView {
     }
   }
 
-  get geometry() {
+  get geometry(): Geometry {
     const {xs, ys, tension, closed} = this.model
     const [xst, yst] = catmullrom_spline(xs, ys, 20, tension, closed)
 

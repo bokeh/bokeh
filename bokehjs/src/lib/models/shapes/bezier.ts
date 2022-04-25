@@ -7,6 +7,17 @@ import * as p from "core/properties"
 import {assert} from "core/util/assert"
 import {Context2d} from "core/util/canvas"
 
+type Geometry = {
+  sx0: number
+  sy0: number
+  sx1: number
+  sy1: number
+  scx0: number
+  scy0: number
+  scx1: number | null
+  scy1: number | null
+}
+
 export class BezierView extends ShapeView {
   override model: Bezier
   override visuals: Bezier.Visuals
@@ -27,7 +38,7 @@ export class BezierView extends ShapeView {
     }
   }
 
-  get geometry() {
+  get geometry(): Geometry {
     const p0 = this.resolve(this.model.p0)
     const p1 = this.resolve(this.model.p1)
     const cp0 = this.resolve(this.model.cp0)

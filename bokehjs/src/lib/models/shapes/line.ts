@@ -7,6 +7,13 @@ import * as p from "core/properties"
 import {assert} from "core/util/assert"
 import {Context2d} from "core/util/canvas"
 
+type Geometry = {
+  sx0: number
+  sy0: number
+  sx1: number
+  sy1: number
+}
+
 export class LineView extends ShapeView {
   override model: Line
   override visuals: Line.Visuals
@@ -27,8 +34,9 @@ export class LineView extends ShapeView {
     }
   }
 
-  get geometry() {
-    const {p0, p1} = this.model
+  get geometry(): Geometry {
+    const p0 = this.resolve(this.model.p0)
+    const p1 = this.resolve(this.model.p1)
 
     assert(p0 instanceof XY)
     assert(p1 instanceof XY)
