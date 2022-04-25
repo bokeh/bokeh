@@ -237,15 +237,15 @@ def test_select() -> None:
 
     # select_one()
     assert root3 == root3.select_one(dict(name='d'))
-    assert None is root1.select_one(dict(name='nope'))
+    assert root1.select_one(dict(name='nope')) is None
 
     with pytest.raises(ValueError) as e:
         d.select_one(dict(name='d'))
     assert 'Found more than one' in repr(e)
 
     # select_one() on object
-    assert None is root3.select_one(dict(name='a'))
-    assert None is root3.select_one(dict(name='c'))
+    assert root3.select_one(dict(name='a')) is None
+    assert root3.select_one(dict(name='c')) is None
 
     # set_select()
     root1.set_select(dict(a=42), dict(name="c", a=44))
