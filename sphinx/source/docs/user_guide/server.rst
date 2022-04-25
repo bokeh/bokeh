@@ -1055,9 +1055,11 @@ As before, run the Bokeh server with the following command:
 .. _userguide_server_deployment_unix_socket:
 
 Restricting access to proxied server using unix socket
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In some cases, you might want to restrict the access to the proxied bokeh server. You can bind the bokeh server to a unix socket and use nginx or apache to proxy to a unix domain socket.
+In some cases, you might want to restrict the access to the proxied bokeh 
+server. You can bind the bokeh server to a unix socket and use nginx or 
+apache to proxy to a unix domain socket.
 
 .. code-block:: sh
 
@@ -1084,9 +1086,12 @@ A sample nginx config would look like:
 
     }
 
-It should be noted that the network options such as websocket origins and ssl options are incompatible with unix socket. It would be upto the proxy to enforce these restrictions.
+It should be noted that the network options such as websocket origins and 
+ssl options are incompatible with unix socket. It would be upto the proxy 
+to enforce these restrictions.
 
-If there are multiple users who share the host, you can restrict the file permissions on the socket to restrict the access to the proxied server.
+If there are multiple users who share the host, you can restrict the file 
+permissions on the socket to restrict the access to the proxied server.
 
 .. _userguide_server_deployment_nginx_proxy_ssl:
 
