@@ -290,7 +290,7 @@ class TestDocument:
 
         # select_one()
         assert root3 == d.select_one(dict(name='d'))
-        assert None is d.select_one(dict(name='nope'))
+        assert d.select_one(dict(name='nope')) is None
         got_error = False
         try:
             d.select_one(dict(name='c'))
@@ -300,7 +300,7 @@ class TestDocument:
         assert got_error
 
         # select_one() on object
-        assert None is root3.select_one(dict(name='a'))
+        assert root3.select_one(dict(name='a')) is None
         assert child3 == root3.select_one(dict(name='c'))
 
         # set_select()
