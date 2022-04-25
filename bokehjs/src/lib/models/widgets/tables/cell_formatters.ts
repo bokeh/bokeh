@@ -59,7 +59,7 @@ export class StringFormatter extends CellFormatter {
       font_style: [ FontStyle, "normal" ],
       text_align: [ TextAlign, "left"   ],
       text_color: [ Nullable(Color), null ],
-      nan_format: [ String, ""],
+      nan_format: [ String, "NaN"],
     }))
   }
 

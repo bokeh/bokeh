@@ -96,6 +96,10 @@ describe("cell_formatters module", () => {
   describe("NumberFormatter", () => {
 
     describe("doFormat method", () => {
+      it("should apply default nan_format to null", () => {
+        const df = new NumberFormatter()
+        expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">NaN</div>')
+      })
 
       it("should apply nan_format to null", () => {
         const df = new NumberFormatter({nan_format: "-"})
