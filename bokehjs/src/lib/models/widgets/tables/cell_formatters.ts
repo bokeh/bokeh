@@ -41,6 +41,7 @@ export namespace StringFormatter {
     font_style: p.Property<FontStyle>
     text_align: p.Property<TextAlign>
     text_color: p.Property<Color | null>
+    nan_format: p.Property<string>
   }
 }
 
@@ -54,10 +55,11 @@ export class StringFormatter extends CellFormatter {
   }
 
   static {
-    this.define<StringFormatter.Props>(({Color, Nullable}) => ({
+    this.define<StringFormatter.Props>(({Color, Nullable, String}) => ({
       font_style: [ FontStyle, "normal" ],
       text_align: [ TextAlign, "left"   ],
       text_color: [ Nullable(Color), null ],
+      nan_format: [ String, ""],
     }))
   }
 
@@ -87,7 +89,7 @@ export namespace ScientificFormatter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = StringFormatter.Props & {
-    nan_format: p.Property<string | null>
+
     precision: p.Property<number>
     power_limit_high: p.Property<number>
     power_limit_low: p.Property<number>
@@ -104,8 +106,7 @@ export class ScientificFormatter extends StringFormatter {
   }
 
   static {
-    this.define<ScientificFormatter.Props>(({Number, String, Nullable}) => ({
-      nan_format:       [ Nullable(String), null ],
+    this.define<ScientificFormatter.Props>(({Number}) => ({
       precision:        [ Number, 10 ],
       power_limit_high: [ Number, 5 ],
       power_limit_low:  [ Number, -3 ],
@@ -130,10 +131,7 @@ export class ScientificFormatter extends StringFormatter {
     }
 
     if (value == null || isNaN(value))
-      if (this.nan_format != null)
-        value = this.nan_format
-      else
-        value = ""
+      value = this.nan_format
     else if (value == 0)
       value = to_fixed(value, 1)
     else if (need_sci)
@@ -153,7 +151,6 @@ export namespace NumberFormatter {
     format: p.Property<string>
     language: p.Property<string>
     rounding: p.Property<RoundingFunction>
-    nan_format: p.Property<string | null>
   }
 }
 
@@ -167,11 +164,11 @@ export class NumberFormatter extends StringFormatter {
   }
 
   static {
-    this.define<NumberFormatter.Props>(({String, Nullable}) => ({
+    this.define<NumberFormatter.Props>(({String}) => ({
       format:     [ String,           "0,0"   ],
       language:   [ String,           "en"    ],
       rounding:   [ RoundingFunction, "round" ],
-      nan_format: [ Nullable(String), null    ],
+
     }))
   }
 
@@ -184,7 +181,7 @@ export class NumberFormatter extends StringFormatter {
         case "ceil":  case "roundup":   return Math.ceil
       }
     })()
-    if ((value == null || isNaN(value)) && nan_format != null)
+    if (value == null || isNaN(value))
       value = nan_format
     else
       value = Numbro.format(value, format, language, rounding)
@@ -225,7 +222,6 @@ export namespace DateFormatter {
 
   export type Props = StringFormatter.Props & {
     format: p.Property<string> // XXX: enum
-    nan_format: p.Property<string | null>
   }
 }
 
@@ -239,9 +235,8 @@ export class DateFormatter extends StringFormatter {
   }
 
   static {
-    this.define<DateFormatter.Props>(({String, Nullable}) => ({
+    this.define<DateFormatter.Props>(({String}) => ({
       format:     [ String,           "ISO-8601" ],
-      nan_format: [ Nullable(String), null       ],
     }))
   }
 
@@ -277,10 +272,10 @@ export class DateFormatter extends StringFormatter {
     value = isString(value) ? parseInt(value, 10) : value
     let date: string
     // Handle null, NaN and NaT
-    if ((value == null || isNaN(value) || value === -9223372036854776) && nan_format != null)
+    if ((value == null || isNaN(value) || value === -9223372036854776))
       date = nan_format
     else
-      date = value == null ? "" : tz(value, this.getFormat())
+      date = tz(value, this.getFormat())
     return super.doFormat(row, cell, date, columnDef, dataContext)
   }
 }
