@@ -27,7 +27,8 @@ export class EqHistColorMapper extends ScanningColorMapper {
     }))
   }
 
-  protected scan(data: Arrayable<number>, n: number): {min: number, max: number, binning: Arrayable<number>} {
+  // Public for unit tests
+  /*protected*/ scan(data: Arrayable<number>, n: number): {min: number, max: number, binning: Arrayable<number>} {
     const low = this.low != null ? this.low : min(data)
     const high = this.high != null ? this.high : max(data)
 
@@ -49,7 +50,7 @@ export class EqHistColorMapper extends ScanningColorMapper {
     const cdf_bins = linspace(cdf[0], cdf[nbins-1], n+1)
     const binning = interpolate(cdf_bins, cdf, eq_bin_centers)
 
-    // Ensure bin limits exactly match low and high values
+    // Extend bin limits to low and high values
     binning[0] = low
     binning[binning.length-1] = high
 
