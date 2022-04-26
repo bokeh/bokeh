@@ -263,7 +263,7 @@ def _query_extensions(objs: Sequence[Model | Document], query: Callable[[Type[Mo
 
 _default_cdn_host = "https://unpkg.com"
 
-@dataclass
+@dataclass(frozen=True)
 class ExtensionEmbed:
     artifact_path: str
     server_url: str

@@ -70,11 +70,12 @@ def test__get_save_args_explicit_resources() -> None:
 def test__get_save_args_default_resources() -> None:
     state = curstate()
     state.reset()
-    state.output_file("filename")
+    state.output_file("filename", mode="inline")
     assert state.file is not None
-    state.file.resources = INLINE
+    assert state.file.resources.mode == "inline"
+    r = state.file.resources
     _, resources, _ = bis._get_save_args(curstate(), "filename", None, "title")
-    assert resources == INLINE
+    assert resources == r
 
 @patch('bokeh.io.saving.warn')
 def test__get_save_args_missing_resources(mock_warn: MagicMock) -> None:
@@ -94,9 +95,9 @@ def test__get_save_args_explicit_title() -> None:
 def test__get_save_args_default_title() -> None:
     state = curstate()
     state.reset()
-    state.output_file("filename")
+    state.output_file("filename", title="title")
     assert state.file is not None
-    state.file.title = "title"
+    assert state.file.title == "title"
     _, _, title = bis._get_save_args(curstate(), "filename", "inline", None)
     assert title == "title"
 

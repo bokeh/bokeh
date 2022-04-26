@@ -238,7 +238,7 @@ def curstate() -> State:
 # Dev API
 #-----------------------------------------------------------------------------
 
-@dataclass
+@dataclass(frozen=True)
 class FileConfig:
     filename: PathLike
     resources: Resources
