@@ -128,10 +128,10 @@ def process_sampledata_xrefs(app, doctree, fromdocname):
         if _len:
             s = '' if _len==1 else 's'
             description = (
-            _(f'See the following example{s} that use this sample data set: '))
+                _(f'See the following example{s} that use this sample data set: ')
+            )
         else:
-            description = (
-            _(f'There are no references for this sample data set'))
+            description = (_('There are no references for this sample data set'))
         para += nodes.Text(description, description)
         for i, (sample_info, refuri) in enumerate(zip(sampledata_refs, refuris)):
             # Create references
