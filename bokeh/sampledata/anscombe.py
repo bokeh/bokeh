@@ -16,9 +16,9 @@ This module contains one pandas Dataframe: ``data``.
 
 :bokeh-dataframe:`bokeh.sampledata.anscombe.data`
 
-.. _Anscombe's Quartet: https://en.wikipedia.org/wiki/Anscombe%27s_quartet
+.. bokeh-sampledata-xref:: anscombe
 
-.. bokeh-example-sampledata:: anscombe
+.. _Anscombe's Quartet: https://en.wikipedia.org/wiki/Anscombe%27s_quartet
 '''
 
 #-----------------------------------------------------------------------------

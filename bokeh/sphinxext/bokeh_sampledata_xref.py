@@ -6,9 +6,9 @@
 # -----------------------------------------------------------------------------
 """ Include link from sampledata to gallery.
 
-The ``bokeh-example-sampledata`` directive can be used by supplying:
+The ``bokeh-sampledata-xref`` directive can be used by supplying:
 
-    .. bokeh-example-sampledata:: sampledata_iris
+    .. bokeh-sampledata-xref:: sampledata_iris
 
 This can be used to add links to all existing standalone examples in the documentation.
 
@@ -44,7 +44,7 @@ from .util import get_sphinx_resources
 # -----------------------------------------------------------------------------
 
 __all__ = (
-    "BokehExampleSampledataDirective",
+    "BokehSampledataXrefDirective",
     "setup",
 )
 
@@ -63,7 +63,8 @@ class sampledata_list(nodes.General, nodes.Element):
         self.sampledata_key = kwargs.pop("sampledata_key")
         super().__init__(*args, **kwargs)
 
-class BokehExampleSampledataDirective(BokehDirective):
+class BokehSampledataXrefDirective(BokehDirective):
+
     has_content = False
     required_arguments = 1
 
@@ -74,7 +75,7 @@ class BokehExampleSampledataDirective(BokehDirective):
 def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_node(sampledata_list)
-    app.add_directive("bokeh-example-sampledata", BokehExampleSampledataDirective)
+    app.add_directive("bokeh-sampledata-xref", BokehSampledataXrefDirective)
     app.connect('doctree-resolved', process_sampledata_xrefs)
     app.connect('env-purge-doc', purge_xrefs)
     app.connect('env-merge-info', merge_xrefs)
@@ -88,7 +89,9 @@ def purge_xrefs(app, env, docname):
     if not hasattr(env, 'all_sampledata_xrefs'):
         return
 
-    env.all_sampledata_xrefs = [xref for xref in env.all_sampledata_xrefs if xref['docname'] != docname]
+    env.all_sampledata_xrefs = [
+        xref for xref in env.all_sampledata_xrefs if xref['docname'] != docname
+    ]
 
 def merge_xrefs(app, env, docnames, other):
     if not hasattr(env, 'all_sampledata_xrefs'):
@@ -105,33 +108,38 @@ def process_sampledata_xrefs(app, doctree, fromdocname):
         env.all_sampledata_xrefs = []
 
     for node in doctree.traverse(sampledata_list):
-        sampladata_key = node.sampledata_key
+
         content = []
 
-        this_sampladata_refs = []
-        for sample_info in env.all_sampledata_xrefs:
-            if sample_info['keyword'] == sampladata_key:
-                this_sampladata_refs.append(sample_info)
+        # TODO add missing tags for references in user_guide
+        # only add links to the gallery at the moment
+        sampledata_refs = []
+        refuris = []
+        for s in env.all_sampledata_xrefs:
+            refuri = app.builder.get_relative_uri(
+                fromdocname, s['docname']
+            )
+            if s["keyword"] == node.sampledata_key and "gallery" in refuri:
+                sampledata_refs.append(s)
+                refuris.append(refuri)
 
-        _len = len(this_sampladata_refs)
+        _len = len(sampledata_refs)
         para = nodes.paragraph()
         if _len:
             s = '' if _len==1 else 's'
             description = (
-            _(f'Check out the demonstration{s} for the ``{sampladata_key}`` sampledata. See the example{s} '))
+            _(f'See the following example{s} that use this sample data set: '))
         else:
             description = (
-            _(f'Well, there is no documented standalone example with the ``{sampladata_key}`` sampledata'))
+            _(f'There are no references for this sample data set'))
         para += nodes.Text(description, description)
-        for i, sample_info in enumerate(this_sampladata_refs):
-            # Create all references
+        for i, (sample_info, refuri) in enumerate(zip(sampledata_refs, refuris)):
+            # Create references
             newnode = nodes.reference('', '')
             ref_name = basename(sample_info['docname'])
             innernode = nodes.emphasis(_(ref_name), _(ref_name))
             newnode['refdocname'] = sample_info['docname']
-            newnode['refuri'] = app.builder.get_relative_uri(
-                fromdocname, sample_info['docname'])
-            # TODO missing tags for references in user_guide
+            newnode['refuri'] = refuri
             newnode.append(innernode)
             para += newnode
             if 1<_len:
@@ -144,6 +152,7 @@ def process_sampledata_xrefs(app, doctree, fromdocname):
         para += nodes.Text('.', '.')
         content.append(para)
         node.replace_self(content)
+
 # -----------------------------------------------------------------------------
 # Code
 # -----------------------------------------------------------------------------

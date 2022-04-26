@@ -21,7 +21,7 @@ country:
         'name': 'Germany'
     }
 
-.. bokeh-example-sampledata:: olympics2014
+.. bokeh-sampledata-xref:: olympics2014
 '''
 
 #-----------------------------------------------------------------------------

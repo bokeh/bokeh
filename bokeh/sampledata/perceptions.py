@@ -20,7 +20,7 @@ This module contains two pandas Dataframes: ``probly`` and ``numberly``.
 
 :bokeh-dataframe:`bokeh.sampledata.perceptions.numberly`
 
-.. bokeh-example-sampledata:: perceptions
+.. bokeh-sampledata-xref:: perceptions
 '''
 
 #-----------------------------------------------------------------------------

@@ -22,7 +22,7 @@ following structure:
         'lons': [-124.03622, ..., -124.15935]
     }
 
-.. bokeh-example-sampledata:: us_states
+.. bokeh-sampledata-xref:: us_states
 '''
 
 #-----------------------------------------------------------------------------

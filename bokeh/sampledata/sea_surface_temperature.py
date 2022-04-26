@@ -16,9 +16,9 @@ This module contains one pandas Dataframe: ``sea_surface_temperature``.
 
 :bokeh-dataframe:`bokeh.sampledata.sea_surface_temperature.sea_surface_temperature`
 
-.. _this table: http://www.neracoos.org/erddap/info/B01_sbe37_all/index.html
+.. bokeh-sampledata-xref:: sea_surface_temperature
 
-.. bokeh-example-sampledata:: sea_surface_temperature
+.. _this table: http://www.neracoos.org/erddap/info/B01_sbe37_all/index.html
 '''
 
 #-----------------------------------------------------------------------------

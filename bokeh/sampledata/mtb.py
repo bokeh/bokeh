@@ -14,7 +14,7 @@ This module contains one pandas Dataframe: ``obiszow_mtb_xcm``.
 
 :bokeh-dataframe:`bokeh.sampledata.mtb.obiszow_mtb_xcm`
 
-.. bokeh-example-sampledata:: mtb
+.. bokeh-sampledata-xref:: mtb
 '''
 
 #-----------------------------------------------------------------------------

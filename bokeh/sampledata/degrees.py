@@ -18,7 +18,7 @@ This module contains one pandas Dataframe: ``data``.
 
 :bokeh-dataframe:`bokeh.sampledata.degrees.data`
 
-.. bokeh-example-sampledata:: degrees
+.. bokeh-sampledata-xref:: degrees
 '''
 
 #-----------------------------------------------------------------------------

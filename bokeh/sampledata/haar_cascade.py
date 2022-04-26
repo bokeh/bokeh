@@ -14,9 +14,9 @@ This module contains an attribute ``frontalface_default_path`` . Use this
 attribute to obtain the path to a Haar cascade file for frontal face
 recognition that can be used by OpenCV.
 
-.. _OpenCV: https://opencv.org
+.. bokeh-sampledata-xref:: haar_cascade
 
-.. bokeh-example-sampledata:: haar_cascade
+.. _OpenCV: https://opencv.org
 '''
 
 #-----------------------------------------------------------------------------

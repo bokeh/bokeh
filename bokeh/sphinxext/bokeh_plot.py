@@ -147,14 +147,8 @@ class autoload_script(nodes.General, nodes.Element):
 
     html = visit_html.__func__, None
 
-class sampledata_node(nodes.Admonition, nodes.Element):
+class sampledata_node(nodes.General, nodes.Element):
     pass
-
-def visit_sampledate_node(self, node):
-    self.visit_admonition(node)
-
-def depart_sampledate_node(self, node):
-    self.depart_admonition(node)
 
 class BokehPlotDirective(BokehDirective):
 
@@ -177,13 +171,13 @@ class BokehPlotDirective(BokehDirective):
             (script_tag, js_path, source, docstring, height_hint) = self.process_source(source, path, js_filename)
         except Exception as e:
             raise SphinxError(f"Error generating {js_filename}: \n\n{e}")
-
         self.env.bokeh_plot_files.add((js_path, dirname(self.env.docname)))
+
         # use the source file name to construct a friendly target_id
         target_id = f"{dashed_docname}.{basename(js_path)}"
         target = [nodes.target("", "", ids=[target_id])]
 
-        sampledata = self.process_sampledata(target, source)
+        self.process_sampledata(target, source)
 
         process_docstring = self.options.get("process-docstring", False)
         intro = self.parse(docstring, '<bokeh-content>') if docstring and process_docstring else []
@@ -192,7 +186,7 @@ class BokehPlotDirective(BokehDirective):
 
         autoload = [autoload_script(height_hint=height_hint, script_tag=script_tag)]
 
-        return target + intro + above + autoload + below + sampledata
+        return target + intro + above + autoload + below
 
     def process_code_block(self, source: str, docstring: str|None):
         source_position = self.options.get("source-position", "below")
@@ -254,23 +248,19 @@ class BokehPlotDirective(BokehDirective):
 
         regex = "(:|bokeh\.)sampledata(:|\.| import )\s*(\w+(\,\s*\w+)*)"
         matches = re.findall(regex, source)
-        xref_nodes = []
         if matches:
             keywords = set()
             for m in matches:
                 keywords.update(m[2].replace(" ","").split(','))
             for keyword in keywords:
                 xref_node = sampledata_node('')
-                xref_nodes.append(xref_node)
                 self.state.nested_parse(self.content, self.content_offset, xref_node)
 
                 self.env.all_sampledata_xrefs.append({
                     'docname': self.env.docname,
-                    'todo': xref_node.deepcopy(),
                     'target': targetnode,
                     'keyword': keyword
                 })
-        return xref_nodes
 # -----------------------------------------------------------------------------
 # Dev API
 # -----------------------------------------------------------------------------
@@ -301,10 +291,7 @@ def env_merge_info(app, env, docnames, other):
 
 def setup(app):
     """ Required Sphinx extension setup function. """
-    app.add_node(sampledata_node,
-                 html=(visit_sampledate_node, depart_sampledate_node),
-                 latex=(visit_sampledate_node, depart_sampledate_node),
-                 text=(visit_sampledate_node, depart_sampledate_node))
+    app.add_node(sampledata_node)
     app.add_directive("bokeh-plot", BokehPlotDirective)
     app.add_node(autoload_script, html=autoload_script.html)
     app.add_config_value("bokeh_missing_google_api_key_ok", True, "html")

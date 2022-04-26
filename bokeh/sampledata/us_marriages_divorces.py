@@ -16,7 +16,7 @@ This module contains one pandas Dataframe: ``data``.
 
 :bokeh-dataframe:`bokeh.sampledata.us_marriages_divorces.data`
 
-.. bokeh-example-sampledata:: us_marriages_divorces
+.. bokeh-sampledata-xref:: us_marriages_divorces
 '''
 
 #-----------------------------------------------------------------------------

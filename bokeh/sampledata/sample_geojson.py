@@ -12,7 +12,7 @@ Sourced from https://github.com/JeniT/nhs-choices
 
 A snapshot of data available from NHS Choices on November 14th, 2015.
 
-.. bokeh-example-sampledata:: sample_geojson
+.. bokeh-sampledata-xref:: sample_geojson
 '''
 
 #-----------------------------------------------------------------------------

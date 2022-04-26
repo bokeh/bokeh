@@ -16,9 +16,9 @@ This module contains one pandas Dataframe: ``data``.
 
 :bokeh-dataframe:`bokeh.sampledata.penguins.data`
 
-.. _Palmer Archipelago (Antarctica) penguin dataset: https://github.com/allisonhorst/palmerpenguins
+.. bokeh-sampledata-xref:: penguins
 
-.. bokeh-example-sampledata:: penguins
+.. _Palmer Archipelago (Antarctica) penguin dataset: https://github.com/allisonhorst/palmerpenguins
 '''
 
 #-----------------------------------------------------------------------------

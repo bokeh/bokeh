@@ -14,7 +14,7 @@ This module contains one pandas Dataframe: ``sprint``.
 
 :bokeh-dataframe:`bokeh.sampledata.sprint.sprint`
 
-.. bokeh-example-sampledata:: sprint
+.. bokeh-sampledata-xref:: sprint
 '''
 
 #-----------------------------------------------------------------------------

@@ -29,7 +29,7 @@ This module contains four pandas Dataframes: ``fertility``, ``life_expectancy``,
 
 :bokeh-dataframe:`bokeh.sampledata.gapminder.regions`
 
-.. bokeh-example-sampledata:: gapminder
+.. bokeh-sampledata-xref:: gapminder
 '''
 
 
