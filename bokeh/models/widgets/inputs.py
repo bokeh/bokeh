@@ -379,9 +379,14 @@ class Select(InputWidget):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self.init_value(**kwargs)
 
+    def init_value(self, **kwargs):
+        """Initializes value as first option when it is not specified"""
         if not self.value and self.options and 'value' not in kwargs:
-            self.value = self.options[0]
+            opts = self.options
+            item = opts[0] if isinstance(opts, list) else list(opts.values())[0][0]
+            self.value = item if isinstance(item, str) else item[0]
 
     options = Either(List(Either(String, Tuple(String, String))),
         Dict(String, List(Either(String, Tuple(String, String)))), help="""

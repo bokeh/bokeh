@@ -47,6 +47,18 @@ class Test_Select_Python():
         select = Select(options=["Option 1", "Option 2", "Option 3"])
         assert select.value == "Option 1"
 
+    def test_without_specified_value_initialize_first_tuple_option_as_default_value(self) -> None:
+        select = Select(options=[("1", "Option 1"), ("2", "Option 2"), ("3", "Option 3")])
+        assert select.value == "1"
+
+    def test_without_specified_value_initialize_first_dict_option_as_default_value(self) -> None:
+        select = Select(options=dict(g1=["Option 11"], g2=["Option 21", "Option 22"]))
+        assert select.value == "Option 11"
+
+    def test_without_specified_value_initialize_first_dict_tuple_option_as_default_value(self) -> None:
+        select = Select(options=dict(g1=[("11", "Option 11")], g2=[("21", "Option 21"), ("22", "Option 22")]))
+        assert select.value == "11"
+
 @pytest.mark.selenium
 class Test_Select:
     def test_displays_title(self, bokeh_model_page: BokehModelPage) -> None:
@@ -77,21 +89,6 @@ class Test_Select:
 
         assert page.has_no_console_errors()
 
-    def test_without_specified_value_has_first_option_as_default_value(self, bokeh_model_page: BokehModelPage) -> None:
-        select = Select(options=["Option 1", "Option 2", "Option 3"])
-
-        page = bokeh_model_page(select)
-
-        el = find_element_for(page.driver, select, "label")
-        assert el.text == ""
-
-        el = find_element_for(page.driver, select, "select")
-        value = el.find_elements(By.TAG_NAME, 'value')
-
-        assert value == "Option 1"
-
-        assert page.has_no_console_errors()
-
     def test_displays_options_list_of_string_options_with_default_value(self, bokeh_model_page: BokehModelPage) -> None:
         select = Select(options=["Option 1", "Option 2", "Option 3"], value="Option 3")
 
@@ -109,7 +106,6 @@ class Test_Select:
             assert opt.get_attribute('value') == "Option %d" % i
 
         assert page.has_no_console_errors()
-
 
     def test_displays_list_of_tuple_options(self, bokeh_model_page: BokehModelPage) -> None:
         select = Select(options=[("1", "Option 1"), ("2", "Option 2"), ("3", "Option 3")])
@@ -263,7 +259,7 @@ class Test_Select:
         page.eval_custom_action()
 
         results = page.results
-        assert results['data']['val'] == ["", "Option 3"]
+        assert results['data']['val'] == ["Option 1", "Option 3"]
 
         el = find_element_for(page.driver, select, "select")
         el.click()
