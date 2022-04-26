@@ -34,6 +34,7 @@ from ..core.has_props import HasProps, Qualified, abstract
 from ..core.properties import (
     Angle,
     Bool,
+    Either,
     Enum,
     Float,
     Include,
@@ -49,7 +50,7 @@ from ..core.properties import (
 )
 from ..core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
 from .annotations.geometry import Directions, Edges
-from .coordinates import Coordinate, Node
+from .coordinates import Coordinate, Distance, Node
 from .graphics import Decoration
 from .renderers import Renderer
 
@@ -239,7 +240,7 @@ class Circle(Shape, Area):
 
     center = Required(Instance(Coordinate))
 
-    radius = Required(NonNegative(Float))
+    radius = Required(Either(NonNegative(Float), Instance(Distance)))
     radius_dimension = Enum(RadiusDimension, default="x")
 
     editable = Bool(default=False)

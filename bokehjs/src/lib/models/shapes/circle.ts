@@ -1,5 +1,5 @@
 import {Shape, ShapeView} from "./shape"
-import {Coordinate, Node, XY} from "../coordinates"
+import {Coordinate, Distance, Node, XY} from "../coordinates"
 import {Scale} from "../scales/scale"
 import {PanEvent, Pannable} from "core/ui_events"
 import {Signal} from "core/signaling"
@@ -10,7 +10,7 @@ import * as p from "core/properties"
 import * as cursors from "core/util/cursors"
 import {assert} from "core/util/assert"
 import {Context2d} from "core/util/canvas"
-import {pi, min, max} from "core/util/math"
+import {pi, min, max, sqrt} from "core/util/math"
 
 type HitTarget = "edge" | "area"
 
@@ -62,7 +62,17 @@ export class CircleView extends ShapeView implements Pannable {
     const sx = this.x_coordinates(center).compute(center.x)
     const sy = this.y_coordinates(center).compute(center.y)
 
-    const sradius = this.sradius(center, this.model.radius)
+    const sradius = (() => {
+      const {radius} = this.model
+      if (radius instanceof Distance) {
+        const p0 = this.resolve(radius.p0)
+        const p1 = this.resolve(radius.p1)
+        assert(p0 instanceof XY)
+        assert(p1 instanceof XY)
+        return sqrt((p0.x - p1.x)**2 + (p0.y - p1.y)**2)
+      } else
+        return this.sradius(center, radius)
+    })()
     return {sx, sy, sradius}
   }
 
@@ -168,7 +178,7 @@ export namespace Circle {
 
   export type Props = Shape.Props & {
     center: p.Property<Coordinate>
-    radius: p.Property<number>
+    radius: p.Property<number | Distance>
     radius_dimension: p.Property<RadiusDimension>
     editable: p.Property<boolean>
   } & Mixins
@@ -197,9 +207,9 @@ export class Circle extends Shape {
 
     this.mixins<Circle.Mixins>([Fill, Hatch, Line])
 
-    this.define<Circle.Props>(({Boolean, Number, NonNegative, Ref}) => ({
+    this.define<Circle.Props>(({Boolean, Number, NonNegative, Ref, Or}) => ({
       center:           [ Ref(Coordinate) ],
-      radius:           [ NonNegative(Number) ],
+      radius:           [ Or(NonNegative(Number), Ref(Distance)) ],
       radius_dimension: [ RadiusDimension, "x" ],
       editable:         [ Boolean, false ],
     }))
