@@ -36,13 +36,8 @@ def compute_hashes_for_paths(paths, version):
 
 def get_current_package_json():
     tmp = json.load(open(join(TOP, "bokeh", "_sri.json")))
-    results = dict(
-        (key, dict(val))
-        for key, val in sorted(
-            tmp.items(), key=lambda item: StrictVersion(item[0]), reverse=True
-        )
-    )
-    return results
+    items = sorted(tmp.items(), key=lambda item: StrictVersion(item[0]), reverse=True)
+    return {key: dict(val) for key, val in items}
 
 
 def write_package_json(data):
