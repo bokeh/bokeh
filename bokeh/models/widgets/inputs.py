@@ -380,6 +380,9 @@ class Select(InputWidget):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+        if not self.value and self.options and 'value' not in kwargs:
+            self.value = self.options[0]
+
     options = Either(List(Either(String, Tuple(String, String))),
         Dict(String, List(Either(String, Tuple(String, String)))), help="""
     Available selection options. Options may be provided either as a list of
@@ -390,8 +393,8 @@ class Select(InputWidget):
     list format
     """).accepts(List(Either(Null, String)), lambda v: [ "" if item is None else item for item in v ])
 
-    value = String(default="", help="""
-    Initial or selected value.
+    value = String(default=None, help="""
+    Initial or selected value. Defaults to the first item in options.
     """).accepts(Null, lambda _: "")
 
 class MultiSelect(InputWidget):

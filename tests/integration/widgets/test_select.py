@@ -42,6 +42,11 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
+class Test_Select_Python():
+    def test_without_specified_value_initialize_first_option_as_default_value(self) -> None:
+        select = Select(options=["Option 1", "Option 2", "Option 3"])
+        assert select.value == "Option 1"
+
 @pytest.mark.selenium
 class Test_Select:
     def test_displays_title(self, bokeh_model_page: BokehModelPage) -> None:
@@ -69,6 +74,21 @@ class Test_Select:
         for i, opt in enumerate(opts, 1):
             assert opt.text == "Option %d" % i
             assert opt.get_attribute('value') == "Option %d" % i
+
+        assert page.has_no_console_errors()
+
+    def test_without_specified_value_has_first_option_as_default_value(self, bokeh_model_page: BokehModelPage) -> None:
+        select = Select(options=["Option 1", "Option 2", "Option 3"])
+
+        page = bokeh_model_page(select)
+
+        el = find_element_for(page.driver, select, "label")
+        assert el.text == ""
+
+        el = find_element_for(page.driver, select, "select")
+        value = el.find_elements(By.TAG_NAME, 'value')
+
+        assert value == "Option 1"
 
         assert page.has_no_console_errors()
 
