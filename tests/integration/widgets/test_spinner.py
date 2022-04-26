@@ -65,7 +65,7 @@ def mk_modify_doc(spinner: Spinner):
     return modify_doc
 
 @pytest.mark.selenium
-class Test_Spinner(object):
+class Test_Spinner:
 
     def test_spinner_display(self, bokeh_model_page: BokehModelPage) -> None:
         spinner = Spinner()

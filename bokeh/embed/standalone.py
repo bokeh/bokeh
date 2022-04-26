@@ -268,7 +268,7 @@ def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: 
 
     results: List[str] | List[RenderRoot]
     if wrap_plot_info:
-        results = list(div_for_root(root) for root in render_item.roots)
+        results = [div_for_root(root) for root in render_item.roots]
     else:
         results = list(render_item.roots)
 

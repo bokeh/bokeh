@@ -62,7 +62,7 @@ def mk_modify_doc(num_input: NumericInput) -> Tuple[ModifyDoc, Plot]:
     return modify_doc, plot
 
 @pytest.mark.selenium
-class Test_NumericInput(object):
+class Test_NumericInput:
 
     def test_display_number_input(self, bokeh_model_page: BokehModelPage) -> None:
         num_input = NumericInput()

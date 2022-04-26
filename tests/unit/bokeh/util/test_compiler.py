@@ -136,7 +136,7 @@ def test_jsons() -> None:
     for file in os.listdir(os.path.join(buc.bokehjs_dir, "js")):
         if file.endswith('.json'):
             with open(os.path.join(buc.bokehjs_dir, "js", file), encoding="utf-8") as f:
-                assert all(['\\' not in mod for mod in json.loads(f.read())])
+                assert all('\\' not in mod for mod in json.load(f))
 
 def test_inline_extension() -> None:
     from bokeh.io import save

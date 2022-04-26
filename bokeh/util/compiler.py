@@ -510,7 +510,7 @@ def _bundle_models(custom_models: Dict[str, CustomModel]) -> str:
     modules = []
 
     with open(join(bokehjs_dir, "js", "bokeh.json"), encoding="utf-8") as f:
-        bokeh = json.loads(f.read())
+        bokeh = json.load(f)
 
     known_modules = set()
     for artifact in bokeh["artifacts"]:

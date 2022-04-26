@@ -194,7 +194,7 @@ def _resolve_tools(tools: str | Sequence[Tool | str]) -> Tuple[List[Tool], Dict[
     return tool_objs, tool_map
 
 def _collect_repeated_tools(tool_objs: List[Tool]) -> Iterator[Tool]:
-    @dataclass
+    @dataclass(frozen=True)
     class Item:
         obj: Tool
         properties: Dict[str, Any]
