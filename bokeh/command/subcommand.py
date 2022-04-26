@@ -152,7 +152,7 @@ class Subcommand(metaclass=ABCMeta):
             self.parser.add_argument(*flags, **kwargs)
 
     @abstractmethod
-    def invoke(self, args: Namespace) -> Union[bool, None]:
+    def invoke(self, args: Namespace) -> bool | None:
         ''' Takes over main program flow to perform the subcommand.
 
         *This method must be implemented by subclasses.*
