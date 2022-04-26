@@ -217,14 +217,14 @@ class TestDocument:
         d.add_root(m)
         assert d.get_model_by_name("foo") == m
         m.name = "bar"
-        assert d.get_model_by_name("foo") == None
+        assert d.get_model_by_name("foo") is None
         assert d.get_model_by_name("bar") == m
 
     def test_get_model_by_changed_from_none_name(self) -> None:
         d = document.Document()
         m = SomeModelInTestDocument(name=None)
         d.add_root(m)
-        assert d.get_model_by_name("bar") == None
+        assert d.get_model_by_name("bar") is None
         m.name = "bar"
         assert d.get_model_by_name("bar") == m
 
@@ -234,7 +234,7 @@ class TestDocument:
         d.add_root(m)
         assert d.get_model_by_name("bar") == m
         m.name = None
-        assert d.get_model_by_name("bar") == None
+        assert d.get_model_by_name("bar") is None
 
     def test_can_get_name_overriding_model_by_name(self) -> None:
         d = document.Document()
@@ -290,7 +290,7 @@ class TestDocument:
 
         # select_one()
         assert root3 == d.select_one(dict(name='d'))
-        assert None == d.select_one(dict(name='nope'))
+        assert d.select_one(dict(name='nope')) is None
         got_error = False
         try:
             d.select_one(dict(name='c'))
@@ -300,7 +300,7 @@ class TestDocument:
         assert got_error
 
         # select_one() on object
-        assert None == root3.select_one(dict(name='a'))
+        assert root3.select_one(dict(name='a')) is None
         assert child3 == root3.select_one(dict(name='c'))
 
         # set_select()

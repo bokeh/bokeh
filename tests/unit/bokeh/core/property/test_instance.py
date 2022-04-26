@@ -67,11 +67,11 @@ class Test_Instance:
 
     def test_serialized(self) -> None:
         prop = bcpi.Instance(_TestModel)
-        assert prop.serialized == True
+        assert prop.serialized is True
 
     def test_readonly(self) -> None:
         prop = bcpi.Instance(_TestModel)
-        assert prop.readonly == False
+        assert prop.readonly is False
 
     def test_valid(self) -> None:
         prop = bcpi.Instance(_TestModel)

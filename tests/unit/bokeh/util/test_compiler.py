@@ -83,12 +83,12 @@ def test_nodejs_compile_less() -> None:
 
 def test_Implementation() -> None:
     obj = buc.Implementation()
-    assert obj.file == None
+    assert obj.file is None
 
 def test_Inline() -> None:
     obj = buc.Inline("code")
     assert obj.code == "code"
-    assert obj.file == None
+    assert obj.file is None
 
     obj = buc.Inline("code", "file")
     assert obj.code == "code"
@@ -98,21 +98,21 @@ def test_TypeScript() -> None:
     obj = buc.TypeScript("code")
     assert isinstance(obj, buc.Inline)
     assert obj.code == "code"
-    assert obj.file == None
+    assert obj.file is None
     assert obj.lang == "typescript"
 
 def test_JavaScript() -> None:
     obj = buc.JavaScript("code")
     assert isinstance(obj, buc.Inline)
     assert obj.code == "code"
-    assert obj.file == None
+    assert obj.file is None
     assert obj.lang == "javascript"
 
 def test_Less() -> None:
     obj = buc.Less("code")
     assert isinstance(obj, buc.Inline)
     assert obj.code == "code"
-    assert obj.file == None
+    assert obj.file is None
     assert obj.lang == "less"
 
 @patch("builtins.open")

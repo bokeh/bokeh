@@ -40,7 +40,7 @@ class Test_ClientConnection:
     def test_creation(self) -> None:
         c = bcc.ClientConnection("session", "wsurl")
         assert c.url == "wsurl"
-        assert c.connected == False
+        assert c.connected is False
         assert isinstance(c.io_loop, IOLoop)
 
         assert c._session == "session"
@@ -52,7 +52,7 @@ class Test_ClientConnection:
     def test_creation_with_arguments(self) -> None:
         c = bcc.ClientConnection("session", "wsurl", arguments=dict(foo="bar"))
         assert c.url == "wsurl"
-        assert c.connected == False
+        assert c.connected is False
         assert isinstance(c.io_loop, IOLoop)
 
         assert c._session == "session"

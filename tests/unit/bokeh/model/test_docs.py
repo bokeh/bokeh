@@ -37,9 +37,9 @@ def test_html_repr() -> None:
     elts = list(html.children)
     assert len(elts) == 4
     assert elts[0].name == "div"
-    assert elts[1].name == None
+    assert elts[1].name is None
     assert elts[2].name == "script"
-    assert elts[3].name == None
+    assert elts[3].name is None
 
 def test_process_example() -> None:
     class Foo:

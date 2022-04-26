@@ -146,13 +146,13 @@ class TestConverters:
         assert bs.convert_logging(value.lower()) == getattr(logging, value)
 
     def test_convert_logging_none(self) -> None:
-        assert bs.convert_logging("NONE") == None
+        assert bs.convert_logging("NONE") is None
 
         # check lowercase works
-        assert bs.convert_logging("none") == None
+        assert bs.convert_logging("none") is None
 
         # check value works
-        assert bs.convert_logging(None) == None
+        assert bs.convert_logging(None) is None
 
     @pytest.mark.parametrize("value", ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"])
     def test_convert_logging_identity(self, value) -> None:
@@ -334,46 +334,46 @@ class TestDefaults:
         assert bs.settings.allowed_ws_origin.default == []
 
     def test_auth_module(self):
-        assert bs.settings.auth_module.default == None
+        assert bs.settings.auth_module.default is None
 
     def test_browser(self):
-        assert bs.settings.browser.default == None
+        assert bs.settings.browser.default is None
 
     def test_cdn_version(self):
-        assert bs.settings.cdn_version.default == None
+        assert bs.settings.cdn_version.default is None
 
     def test_cookie_secret(self):
-        assert bs.settings.cookie_secret.default == None
+        assert bs.settings.cookie_secret.default is None
 
     def test_docs_alert(self):
-        assert bs.settings.docs_alert.default == None
+        assert bs.settings.docs_alert.default is None
 
     def test_docs_cdn(self):
-        assert bs.settings.docs_cdn.default == None
+        assert bs.settings.docs_cdn.default is None
 
     def test_docs_version(self):
-        assert bs.settings.docs_version.default == None
+        assert bs.settings.docs_version.default is None
 
     def test_ico_path(self):
         assert bs.settings.ico_path.default == "default"
 
     def test_ignore_filename(self):
-        assert bs.settings.ignore_filename.default == False
+        assert bs.settings.ignore_filename.default is False
 
     def test_log_level(self):
         assert bs.settings.log_level.default == "info"
 
     def test_minified(self):
-        assert bs.settings.minified.default == True
+        assert bs.settings.minified.default is True
 
     def test_nodejs_path(self):
-        assert bs.settings.nodejs_path.default == None
+        assert bs.settings.nodejs_path.default is None
 
     def test_perform_document_validation(self):
-        assert bs.settings.perform_document_validation.default == True
+        assert bs.settings.perform_document_validation.default is True
 
     def test_pretty(self):
-        assert bs.settings.pretty.default == False
+        assert bs.settings.pretty.default is False
 
     def test_py_log_level(self):
         assert bs.settings.py_log_level.default == "none"
@@ -382,31 +382,31 @@ class TestDefaults:
         assert bs.settings.resources.default == "cdn"
 
     def test_rootdir(self):
-        assert bs.settings.rootdir.default == None
+        assert bs.settings.rootdir.default is None
 
     def test_secret_key(self):
-        assert bs.settings.secret_key.default == None
+        assert bs.settings.secret_key.default is None
 
     def test_sign_sessions(self):
-        assert bs.settings.sign_sessions.default == False
+        assert bs.settings.sign_sessions.default is False
 
     def test_simple_ids(self):
-        assert bs.settings.simple_ids.default == True
+        assert bs.settings.simple_ids.default is True
 
     def test_ssl_certfile(self):
-        assert bs.settings.ssl_certfile.default == None
+        assert bs.settings.ssl_certfile.default is None
 
     def test_ssl_keyfile(self):
-        assert bs.settings.ssl_keyfile.default == None
+        assert bs.settings.ssl_keyfile.default is None
 
     def test_ssl_password(self):
-        assert bs.settings.ssl_password.default == None
+        assert bs.settings.ssl_password.default is None
 
     def test_validation_level(self):
         assert bs.settings.validation_level.default == "none"
 
     def test_xsrf_cookies(self):
-        assert bs.settings.xsrf_cookies.default == False
+        assert bs.settings.xsrf_cookies.default is False
 
 
 #-----------------------------------------------------------------------------

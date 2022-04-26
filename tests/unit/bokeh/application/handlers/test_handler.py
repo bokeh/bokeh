@@ -38,7 +38,7 @@ class Test_Handler:
 
     def test_create(self) -> None:
         h = bahh.Handler()
-        assert h.failed == False
+        assert h.failed is False
         assert h.url_path() is None
         assert h.static_path() is None
         assert h.error is None

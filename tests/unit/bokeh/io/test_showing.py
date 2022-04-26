@@ -144,7 +144,7 @@ def test__show_with_state_with_no_notebook(
 
     s.output_file("foo.html")
     bis._show_with_state("obj", s, "browser", "new")
-    assert s.notebook_type == None
+    assert s.notebook_type is None
 
     assert mock_show_doc.call_count == 0
 

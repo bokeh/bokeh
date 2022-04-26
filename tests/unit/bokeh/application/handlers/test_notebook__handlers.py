@@ -59,7 +59,7 @@ class Test_NotebookHandler:
         def load(filename):
             handler = bahn.NotebookHandler(filename=filename)
             handler.modify_document(doc)
-            assert handler._runner.failed == False
+            assert handler._runner.failed is False
 
         with_script_contents(source, load)
 
@@ -71,7 +71,7 @@ class Test_NotebookHandler:
         def load(filename):
             handler = bahn.NotebookHandler(filename=filename)
             handler.modify_document(doc)
-            assert handler._runner.failed == False
+            assert handler._runner.failed is False
 
         with_script_contents(source, load)
 

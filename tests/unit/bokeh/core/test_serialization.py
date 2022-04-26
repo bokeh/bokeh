@@ -95,8 +95,8 @@ class TestSerializer:
         encoder = Serializer()
 
         assert encoder.encode(None) is None
-        assert encoder.encode(False) == False
-        assert encoder.encode(True) == True
+        assert encoder.encode(False) is False
+        assert encoder.encode(True) is True
         assert encoder.encode("abc") == "abc"
 
         assert encoder.encode(1) == 1
@@ -729,7 +729,7 @@ class TestSerializer:
         encoder = Serializer()
         val = np.bool_(True)
         rep = encoder.encode(val)
-        assert rep == True
+        assert rep is True
         assert isinstance(rep, bool)
 
     def test_np_datetime64(self) -> None:

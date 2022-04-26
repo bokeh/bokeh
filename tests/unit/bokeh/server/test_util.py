@@ -38,39 +38,39 @@ def test_bind_sockets_with_zero_port() -> None:
     assert isinstance(port, int)
 
 def test_check_allowlist_rejects_port_mismatch() -> None:
-    assert False == util.check_allowlist("foo:100", ["foo:101", "foo:102"])
+    assert util.check_allowlist("foo:100", ["foo:101", "foo:102"]) is False
 
 def test_check_allowlist_rejects_name_mismatch() -> None:
-    assert False == util.check_allowlist("foo:100", ["bar:100", "baz:100"])
+    assert util.check_allowlist("foo:100", ["bar:100", "baz:100"]) is False
 
 def test_check_allowlist_accepts_name_port_match() -> None:
-    assert True == util.check_allowlist("foo:100", ["foo:100", "baz:100"])
+    assert util.check_allowlist("foo:100", ["foo:100", "baz:100"]) is True
 
 def test_check_allowlist_accepts_implicit_port_80() -> None:
-    assert True == util.check_allowlist("foo", ["foo:80"])
+    assert util.check_allowlist("foo", ["foo:80"]) is True
 
 def test_check_allowlist_accepts_all_on_star() -> None:
-    assert True == util.check_allowlist("192.168.0.1", ['*'])
-    assert True == util.check_allowlist("192.168.0.1:80", ['*'])
-    assert True == util.check_allowlist("192.168.0.1:5006", ['*'])
-    assert True == util.check_allowlist("192.168.0.1:80", ['*:80'])
-    assert False == util.check_allowlist("192.168.0.1:80", ['*:81'])
-    assert True == util.check_allowlist("192.168.0.1:5006", ['*:*'])
-    assert True == util.check_allowlist("192.168.0.1", ['192.168.0.*'])
-    assert True == util.check_allowlist("192.168.0.1:5006", ['192.168.0.*'])
-    assert False == util.check_allowlist("192.168.1.1", ['192.168.0.*'])
-    assert True == util.check_allowlist("foobarbaz", ['*'])
-    assert True == util.check_allowlist("192.168.0.1", ['192.168.0.*'])
-    assert False == util.check_allowlist("192.168.1.1", ['192.168.0.*'])
-    assert False == util.check_allowlist("192.168.0.1", ['192.168.0.*:5006'])
-    assert True == util.check_allowlist("192.168.0.1", ['192.168.0.*:80'])
-    assert True == util.check_allowlist("foobarbaz", ['*'])
-    assert True == util.check_allowlist("foobarbaz", ['*:*'])
-    assert True == util.check_allowlist("foobarbaz", ['*:80'])
-    assert False == util.check_allowlist("foobarbaz", ['*:5006'])
-    assert True == util.check_allowlist("foobarbaz:5006", ['*'])
-    assert True == util.check_allowlist("foobarbaz:5006", ['*:*'])
-    assert True == util.check_allowlist("foobarbaz:5006", ['*:5006'])
+    assert util.check_allowlist("192.168.0.1", ['*']) is True
+    assert util.check_allowlist("192.168.0.1:80", ['*']) is True
+    assert util.check_allowlist("192.168.0.1:5006", ['*']) is True
+    assert util.check_allowlist("192.168.0.1:80", ['*:80']) is True
+    assert util.check_allowlist("192.168.0.1:80", ['*:81']) is False
+    assert util.check_allowlist("192.168.0.1:5006", ['*:*']) is True
+    assert util.check_allowlist("192.168.0.1", ['192.168.0.*']) is True
+    assert util.check_allowlist("192.168.0.1:5006", ['192.168.0.*']) is True
+    assert util.check_allowlist("192.168.1.1", ['192.168.0.*']) is False
+    assert util.check_allowlist("foobarbaz", ['*']) is True
+    assert util.check_allowlist("192.168.0.1", ['192.168.0.*']) is True
+    assert util.check_allowlist("192.168.1.1", ['192.168.0.*']) is False
+    assert util.check_allowlist("192.168.0.1", ['192.168.0.*:5006']) is False
+    assert util.check_allowlist("192.168.0.1", ['192.168.0.*:80']) is True
+    assert util.check_allowlist("foobarbaz", ['*']) is True
+    assert util.check_allowlist("foobarbaz", ['*:*']) is True
+    assert util.check_allowlist("foobarbaz", ['*:80']) is True
+    assert util.check_allowlist("foobarbaz", ['*:5006']) is False
+    assert util.check_allowlist("foobarbaz:5006", ['*']) is True
+    assert util.check_allowlist("foobarbaz:5006", ['*:*']) is True
+    assert util.check_allowlist("foobarbaz:5006", ['*:5006']) is True
 
 def test_create_hosts_allowlist_no_host() -> None:
     hosts = util.create_hosts_allowlist(None, 1000)
@@ -108,20 +108,20 @@ def test_create_hosts_allowlist_bad_host_raises() -> None:
         util.create_hosts_allowlist([":80"], 1000)
 
 def test_match_host() -> None:
-        assert util.match_host('192.168.0.1:80', '192.168.0.1:80') == True
-        assert util.match_host('192.168.0.1:80', '192.168.0.1') == True
-        assert util.match_host('192.168.0.1:80', '192.168.0.1:8080') == False
-        assert util.match_host('192.168.0.1', '192.168.0.2') == False
-        assert util.match_host('192.168.0.1', '192.168.*.*') == True
-        assert util.match_host('alice', 'alice') == True
-        assert util.match_host('alice:80', 'alice') == True
-        assert util.match_host('alice', 'bob') == False
-        assert util.match_host('foo.example.com', 'foo.example.com.net') == False
-        assert util.match_host('alice', '*') == True
-        assert util.match_host('alice', '*:*') == True
-        assert util.match_host('alice:80', '*') == True
-        assert util.match_host('alice:80', '*:80') == True
-        assert util.match_host('alice:8080', '*:80') == False
+        assert util.match_host('192.168.0.1:80', '192.168.0.1:80') is True
+        assert util.match_host('192.168.0.1:80', '192.168.0.1') is True
+        assert util.match_host('192.168.0.1:80', '192.168.0.1:8080') is False
+        assert util.match_host('192.168.0.1', '192.168.0.2') is False
+        assert util.match_host('192.168.0.1', '192.168.*.*') is True
+        assert util.match_host('alice', 'alice') is True
+        assert util.match_host('alice:80', 'alice') is True
+        assert util.match_host('alice', 'bob') is False
+        assert util.match_host('foo.example.com', 'foo.example.com.net') is False
+        assert util.match_host('alice', '*') is True
+        assert util.match_host('alice', '*:*') is True
+        assert util.match_host('alice:80', '*') is True
+        assert util.match_host('alice:80', '*:80') is True
+        assert util.match_host('alice:8080', '*:80') is False
 
 #-----------------------------------------------------------------------------
 # Dev API

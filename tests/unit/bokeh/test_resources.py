@@ -175,7 +175,7 @@ class TestResources:
     def test_inline(self) -> None:
         r = resources.Resources(mode="inline")
         assert r.mode == "inline"
-        assert r.dev == False
+        assert r.dev is False
 
         assert len(r.js_raw) == 6
         assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
@@ -192,7 +192,7 @@ class TestResources:
         monkeypatch.setattr(resources, "__version__", "1.0")
         r = resources.Resources(mode="cdn", version="1.0")
         assert r.mode == "cdn"
-        assert r.dev == False
+        assert r.dev is False
 
         assert r.js_raw == [DEFAULT_LOG_JS_RAW]
         assert r.css_raw == []
@@ -210,7 +210,7 @@ class TestResources:
     def test_server_default(self) -> None:
         r = resources.Resources(mode="server")
         assert r.mode == "server"
-        assert r.dev == False
+        assert r.dev is False
 
         assert r.js_raw == [DEFAULT_LOG_JS_RAW]
         assert r.css_raw == []
@@ -271,7 +271,7 @@ class TestResources:
     def test_server_dev(self) -> None:
         r = resources.Resources(mode="server-dev")
         assert r.mode == "server"
-        assert r.dev == True
+        assert r.dev is True
 
         assert len(r.js_raw) == 2
         assert r.css_raw == []
@@ -286,7 +286,7 @@ class TestResources:
     def test_relative(self) -> None:
         r = resources.Resources(mode="relative")
         assert r.mode == "relative"
-        assert r.dev == False
+        assert r.dev is False
 
         assert r.js_raw == [DEFAULT_LOG_JS_RAW]
         assert r.css_raw == []
@@ -295,7 +295,7 @@ class TestResources:
     def test_relative_dev(self) -> None:
         r = resources.Resources(mode="relative-dev")
         assert r.mode == "relative"
-        assert r.dev == True
+        assert r.dev is True
 
         assert r.js_raw == [DEFAULT_LOG_JS_RAW, "Bokeh.settings.dev = true"]
         assert r.css_raw == []
@@ -304,7 +304,7 @@ class TestResources:
     def test_absolute(self) -> None:
         r = resources.Resources(mode="absolute")
         assert r.mode == "absolute"
-        assert r.dev == False
+        assert r.dev is False
 
         assert r.js_raw == [DEFAULT_LOG_JS_RAW]
         assert r.css_raw == []
@@ -313,7 +313,7 @@ class TestResources:
     def test_absolute_dev(self) -> None:
         r = resources.Resources(mode="absolute-dev")
         assert r.mode == "absolute"
-        assert r.dev == True
+        assert r.dev is True
 
         assert r.js_raw == [DEFAULT_LOG_JS_RAW, "Bokeh.settings.dev = true"]
         assert r.css_raw == []

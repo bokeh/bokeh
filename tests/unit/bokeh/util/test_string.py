@@ -42,19 +42,19 @@ class Test_format_docstring:
         doc__ = "hello world"
         assert bus.format_docstring(doc__) == doc__
         doc__ = None
-        assert bus.format_docstring(doc__) == None
+        assert bus.format_docstring(doc__) is None
 
     def test_arguments_unused(self) -> None:
         doc__ = "hello world"
         assert bus.format_docstring(doc__, 'hello ', not_used='world') == doc__
         doc__ = None
-        assert bus.format_docstring(doc__, 'hello ', not_used='world') == None
+        assert bus.format_docstring(doc__, 'hello ', not_used='world') is None
 
     def test_arguments(self) -> None:
         doc__ = "-- {}{as_parameter} --"
         assert bus.format_docstring(doc__, 'hello ', as_parameter='world') == "-- hello world --"
         doc__ = None
-        assert bus.format_docstring(doc__, 'hello ', as_parameter='world') == None
+        assert bus.format_docstring(doc__, 'hello ', as_parameter='world') is None
 
 class Test_format_url_query_arguments:
     def test_no_arguments(self) -> None:

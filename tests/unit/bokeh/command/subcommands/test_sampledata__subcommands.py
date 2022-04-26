@@ -57,7 +57,7 @@ def test_args() -> None:
 
 def test_run(capsys: Capture) -> None:
     main(["bokeh", "sampledata"])
-    assert did_call_download == True
+    assert did_call_download is True
 
 #-----------------------------------------------------------------------------
 # Private API

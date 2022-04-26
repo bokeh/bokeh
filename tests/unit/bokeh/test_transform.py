@@ -65,14 +65,14 @@ class Test_cumsum:
         assert isinstance(val, Expr)
         assert isinstance(val.expr, CumSum)
         assert val.expr.field == 'foo'
-        assert val.expr.include_zero == False
+        assert val.expr.include_zero is False
 
     def test_include_zero(object) -> None:
         val = bt.cumsum("foo", include_zero=True)
         assert isinstance(val, Expr)
         assert isinstance(val.expr, CumSum)
         assert val.expr.field == 'foo'
-        assert val.expr.include_zero == True
+        assert val.expr.include_zero is True
 
 
 class Test_dodge:

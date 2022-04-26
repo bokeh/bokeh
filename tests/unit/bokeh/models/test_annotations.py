@@ -119,11 +119,11 @@ def test_Legend() -> None:
 
 def test_LegendItem() -> None:
     item = LegendItem()
-    assert item.index== None
-    assert item.label == None
+    assert item.index is None
+    assert item.label is None
     assert item.name is None
     assert item.renderers == []
-    assert item.visible == True
+    assert item.visible is True
 
 def test_ColorBar() -> None:
     color_mapper = LinearColorMapper()

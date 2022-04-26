@@ -53,18 +53,18 @@ class TestProperty:
 
     def test_serialized_default(self) -> None:
         p = bcpb.Property()
-        assert p.serialized == True
-        assert p.readonly == False
+        assert p.serialized is True
+        assert p.readonly is False
 
         # readonly=True sets serialized=False if unspecified
         p = bcpb.Property(readonly=True)
-        assert p.serialized == False
-        assert p.readonly == True
+        assert p.serialized is False
+        assert p.readonly is True
 
         # explicit serialized value always respected
         p = bcpb.Property(readonly=True, serialized=True)
-        assert p.serialized == True
-        assert p.readonly == True
+        assert p.serialized is True
+        assert p.readonly is True
 
 
     def test_assert_bools(self) -> None:
@@ -202,7 +202,7 @@ class TestProperty:
         assert err == ""
 
     def test_validation_on(self) -> None:
-        assert bcpb.Property._should_validate == True
+        assert bcpb.Property._should_validate is True
         assert bcpb.validation_on()
 
         bcpb.Property._should_validate = False

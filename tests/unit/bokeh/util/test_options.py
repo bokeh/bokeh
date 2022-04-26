@@ -38,7 +38,7 @@ def test_empty() -> None:
     empty = dict()
     o = DummyOpts(empty)
     assert o.foo == "thing"
-    assert o.bar == None
+    assert o.bar is None
     assert empty == {}
 
 def test_exact() -> None:
@@ -59,7 +59,7 @@ def test_mixed() -> None:
     mixed = dict(foo="stuff", baz=22.2)
     o = DummyOpts(mixed)
     assert o.foo == "stuff"
-    assert o.bar == None
+    assert o.bar is None
     assert mixed == {'baz': 22.2}
 
 #-----------------------------------------------------------------------------

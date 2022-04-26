@@ -155,7 +155,7 @@ class Test_Application:
         a.add(handler)
         handler2 = FunctionHandler(add_one_root)
         a.add(handler2)
-        assert a.static_path == None
+        assert a.static_path is None
 
     def test_static_path(self) -> None:
         a = baa.Application()

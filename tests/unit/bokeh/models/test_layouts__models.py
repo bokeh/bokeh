@@ -40,7 +40,7 @@ def check_props_with_sizing_mode(layout):
     assert layout.width is None
     assert layout.height is None
     assert layout.children == []
-    assert layout.sizing_mode == None
+    assert layout.sizing_mode is None
 
 
 def check_children_prop(layout_callable):

@@ -244,7 +244,7 @@ def resource_files_requested(response, requested=True):
 def test_use_xheaders(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, use_xheaders=True) as server:
-        assert server._http.xheaders == True
+        assert server._http.xheaders is True
 
 def test_ssl_args_plumbing(ManagedServerLoop: MSL) -> None:
     with mock.patch.object(ssl, 'SSLContext'):

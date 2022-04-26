@@ -122,11 +122,11 @@ def test__shares_exec_prefix() -> None:
     old_ex = sys.exec_prefix
     try:
         sys.exec_prefix = "/foo/bar"
-        assert biu._shares_exec_prefix("/foo/bar") == True
+        assert biu._shares_exec_prefix("/foo/bar") is True
         sys.exec_prefix = "/baz/bar"
-        assert biu._shares_exec_prefix("/foo/bar") == False
+        assert biu._shares_exec_prefix("/foo/bar") is False
         sys.exec_prefix = None
-        assert biu._shares_exec_prefix("/foo/bar") == False
+        assert biu._shares_exec_prefix("/foo/bar") is False
     finally:
         sys.exec_prefix = old_ex
 

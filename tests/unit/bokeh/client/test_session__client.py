@@ -40,7 +40,7 @@ def test_DEFAULT_SERVER_WEBSOCKET_URL() -> None:
 class Test_ClientSession:
     def test_creation_defaults(self) -> None:
         s = bcs.ClientSession()
-        assert s.connected == False
+        assert s.connected is False
         assert s.document is None
         assert s._connection._arguments is None
         assert isinstance(s.id, str)
@@ -48,14 +48,14 @@ class Test_ClientSession:
 
     def test_creation_with_session_id(self) -> None:
         s = bcs.ClientSession("sid")
-        assert s.connected == False
+        assert s.connected is False
         assert s.document is None
         assert s._connection._arguments is None
         assert s.id == "sid"
 
     def test_creation_with_ws_url(self) -> None:
         s = bcs.ClientSession(websocket_url="wsurl")
-        assert s.connected == False
+        assert s.connected is False
         assert s.document is None
         assert s._connection._arguments is None
         assert s._connection.url == "wsurl"
@@ -64,7 +64,7 @@ class Test_ClientSession:
 
     def test_creation_with_ioloop(self) -> None:
         s = bcs.ClientSession(io_loop="io_loop")
-        assert s.connected == False
+        assert s.connected is False
         assert s.document is None
         assert s._connection._arguments is None
         assert s._connection.io_loop == "io_loop"
@@ -73,7 +73,7 @@ class Test_ClientSession:
 
     def test_creation_with_arguments(self) -> None:
         s = bcs.ClientSession(arguments="args")
-        assert s.connected == False
+        assert s.connected is False
         assert s.document is None
         assert s._connection._arguments == "args"
         assert len(s.id) == 44

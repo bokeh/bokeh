@@ -144,7 +144,7 @@ def test_HasProps_default_init() -> None:
     assert c.int1 == 10
     assert c.ds1 == field("x")
     assert c.lst1 == []
-    assert c.int2 == None
+    assert c.int2 is None
     assert c.str2 == "foo"
     assert c.ds2 == field("y")
     assert c.lst2 == [1,2,3]
@@ -159,7 +159,7 @@ def test_HasProps_kw_init() -> None:
     assert c.int1 == 10
     assert c.ds1 == field("x")
     assert c.lst1 == []
-    assert c.int2 == None
+    assert c.int2 is None
     assert c.str2 == "bar"
     assert c.ds2 == 10
     assert c.lst2 == [2,3,4]
@@ -269,7 +269,7 @@ def test_HasProps_update() -> None:
     assert c.int1 == 25
     assert c.ds1 == value(123)
     assert c.lst1 == []
-    assert c.int2 == None
+    assert c.int2 is None
     assert c.str2 == "baz"
     assert c.ds2 == field("y")
     assert c.lst2 == [1,2]
@@ -280,7 +280,7 @@ def test_HasProps_set_from_json() -> None:
     assert c.int1 == 10
     assert c.ds1 == field("x")
     assert c.lst1 == []
-    assert c.int2 == None
+    assert c.int2 is None
     assert c.str2 == "foo"
     assert c.ds2 == field("y")
     assert c.lst2 == [1,2]
@@ -289,7 +289,7 @@ def test_HasProps_set_from_json() -> None:
     assert c.int1 == 10
     assert c.ds1 == "foo"
     assert c.lst1 == []
-    assert c.int2 == None
+    assert c.int2 is None
     assert c.str2 == "foo"
     assert c.ds2 == field("y")
     assert c.lst2 == [1,2]
@@ -310,7 +310,7 @@ def test_HasProps_set() -> None:
     assert c.int1 == 25
     assert c.ds1 == field("foo")
     assert c.lst1 == []
-    assert c.int2 == None
+    assert c.int2 is None
     assert c.str2 == "baz"
     assert c.ds2 == field("y")
     assert c.lst2 == [1,2]
@@ -392,7 +392,7 @@ def test_HasProps_unapply_theme() -> None:
     assert c.lst2 == [1,2,3]
 
     c.unapply_theme()
-    assert c.int2 == None
+    assert c.int2 is None
     assert c.lst1 == []
 
     assert c.int1 == 10
@@ -401,7 +401,7 @@ def test_HasProps_unapply_theme() -> None:
     assert c.ds2 == field("y")
     assert c.lst2 == [1,2,3]
 
-    assert c.themed_values() == None
+    assert c.themed_values() is None
 
 class EitherSimpleDefault(hp.HasProps):
     foo = Either(List(Int), Int, default=10)
