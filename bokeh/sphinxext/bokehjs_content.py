@@ -76,19 +76,6 @@ from .templates import (
 )
 from .util import get_sphinx_resources
 
-if False:
-    # For type annotation
-    # from directives.code.CodeBlock.run
-    from typing import (  # NOQA
-        Any,
-        Dict,
-        List,
-        Tuple,
-    )
-
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.config import Config  # NOQA
-
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
