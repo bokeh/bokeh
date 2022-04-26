@@ -47,7 +47,7 @@ def get_current_package_json():
 
 def write_package_json(data):
     with open(join(TOP, "bokeh", "_sri.json"), "w") as f:
-        f.write(json.dumps(data, indent=2))
+        json.dump(data, f, indent=2)
         f.write("\n")
 
 
