@@ -163,6 +163,7 @@ class BokehPlotDirective(BokehDirective):
 
     def run(self):
         source, path = self.process_args_or_content()
+
         dashed_docname = self.env.docname.replace("/", "-")
 
         js_filename = f"bokeh-content-{uuid4().hex}-{dashed_docname}.js"
