@@ -9,6 +9,7 @@ import * as p from "core/properties"
 import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
+import {max} from "../../core/util/arrayable"
 
 export type AnnularWedgeData = XYGlyphData & p.UniformsOf<AnnularWedge.Mixins> & {
   readonly inner_radius: p.Uniform<number>
@@ -19,6 +20,7 @@ export type AnnularWedgeData = XYGlyphData & p.UniformsOf<AnnularWedge.Mixins> &
 
   sinner_radius: ScreenArray
   souter_radius: ScreenArray
+  max_souter_radius: number
 
   readonly max_inner_radius: number
   readonly max_outer_radius: number
@@ -40,6 +42,7 @@ export class AnnularWedgeView extends XYGlyphView {
       this.souter_radius = this.sdist(this.renderer.xscale, this._x, this.outer_radius)
     else
       this.souter_radius = to_screen(this.outer_radius)
+    this.max_souter_radius = max(this.souter_radius)
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: AnnularWedgeData): void {
@@ -85,23 +88,12 @@ export class AnnularWedgeView extends XYGlyphView {
     const y = this.renderer.yscale.invert(sy)
 
     // check radius first
-    let x0: number, y0: number
-    let x1: number, y1: number
-    if (this.model.properties.outer_radius.units == "data") {
-      x0 = x - this.max_outer_radius
-      x1 = x + this.max_outer_radius
-
-      y0 = y - this.max_outer_radius
-      y1 = y + this.max_outer_radius
-    } else {
-      const sx0 = sx - this.max_outer_radius
-      const sx1 = sx + this.max_outer_radius
-      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-
-      const sy0 = sy - this.max_outer_radius
-      const sy1 = sy + this.max_outer_radius
-      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    }
+    const sx0 = sx - this.max_souter_radius
+    const sx1 = sx + this.max_souter_radius
+    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+    const sy0 = sy - this.max_souter_radius
+    const sy1 = sy + this.max_souter_radius
+    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
 
     const candidates: number[] = []
 
