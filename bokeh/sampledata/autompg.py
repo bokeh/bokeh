@@ -21,6 +21,7 @@ The "clean" version has cleaned up the ``"mfr"`` and ``"origin"`` fields.
 
 :bokeh-dataframe:`bokeh.sampledata.autompg.autompg_clean`
 
+.. bokeh-sampledata-xref:: autompg
 '''
 
 #-----------------------------------------------------------------------------

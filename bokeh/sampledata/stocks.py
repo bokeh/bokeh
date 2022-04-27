@@ -22,6 +22,7 @@ Each dictionary has the structure:
     AAPL['volume']     # list of int
     AAPL['adj_close']  # list of float
 
+.. bokeh-sampledata-xref:: stocks
 '''
 
 #-----------------------------------------------------------------------------

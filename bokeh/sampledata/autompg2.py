@@ -16,6 +16,7 @@ This module contains one pandas Dataframe: ``autompg``.
 
 :bokeh-dataframe:`bokeh.sampledata.autompg2.autompg2`
 
+.. bokeh-sampledata-xref:: autompg2
 '''
 
 #-----------------------------------------------------------------------------

@@ -17,8 +17,9 @@ This module contains one pandas Dataframe: ``data``.
 
 :bokeh-dataframe:`bokeh.sampledata.antibiotics.data`
 
-.. _Will Burtin's historical data: https://medium.com/@harshdev_41068/burtins-legendary-data-on-antibiotics-9b32ecd5943f
+.. bokeh-sampledata-xref:: antibiotics
 
+.. _Will Burtin's historical data: https://medium.com/@harshdev_41068/burtins-legendary-data-on-antibiotics-9b32ecd5943f
 '''
 
 #-----------------------------------------------------------------------------

@@ -146,6 +146,8 @@ class autoload_script(nodes.General, nodes.Element):
 
     html = visit_html.__func__, None
 
+class sampledata_node(nodes.General, nodes.Element):
+    pass
 
 class BokehPlotDirective(BokehDirective):
 
@@ -174,6 +176,8 @@ class BokehPlotDirective(BokehDirective):
         # use the source file name to construct a friendly target_id
         target_id = f"{dashed_docname}.{basename(js_path)}"
         target = [nodes.target("", "", ids=[target_id])]
+
+        self.process_sampledata(target, source)
 
         process_docstring = self.options.get("process-docstring", False)
         intro = self.parse(docstring, '<bokeh-content>') if docstring and process_docstring else []
@@ -237,6 +241,26 @@ class BokehPlotDirective(BokehDirective):
 
         return (script_tag, js_path, source, docstring, height_hint)
 
+    def process_sampledata(self, targetnode, source):
+
+        if not hasattr(self.env, 'all_sampledata_xrefs'):
+            self.env.all_sampledata_xrefs = []
+
+        regex = "(:|bokeh\.)sampledata(:|\.| import )\s*(\w+(\,\s*\w+)*)"
+        matches = re.findall(regex, source)
+        if matches:
+            keywords = set()
+            for m in matches:
+                keywords.update(m[2].replace(" ","").split(','))
+            for keyword in keywords:
+                xref_node = sampledata_node('')
+                self.state.nested_parse(self.content, self.content_offset, xref_node)
+
+                self.env.all_sampledata_xrefs.append({
+                    'docname': self.env.docname,
+                    'target': targetnode,
+                    'keyword': keyword
+                })
 # -----------------------------------------------------------------------------
 # Dev API
 # -----------------------------------------------------------------------------
@@ -267,6 +291,7 @@ def env_merge_info(app, env, docnames, other):
 
 def setup(app):
     """ Required Sphinx extension setup function. """
+    app.add_node(sampledata_node)
     app.add_directive("bokeh-plot", BokehPlotDirective)
     app.add_node(autoload_script, html=autoload_script.html)
     app.add_config_value("bokeh_missing_google_api_key_ok", True, "html")

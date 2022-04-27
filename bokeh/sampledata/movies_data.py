@@ -13,8 +13,9 @@ Sourced from http://www.omdbapi.com
 This modules has an attribute ``movie_path``. This attribute contains the path
 to a SQLite database with the data.
 
-.. _Open Movie Database: http://www.omdbapi.com
+.. bokeh-sampledata-xref:: movies_data
 
+.. _Open Movie Database: http://www.omdbapi.com
 '''
 
 #-----------------------------------------------------------------------------

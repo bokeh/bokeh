@@ -29,6 +29,7 @@ This module contains one dictionary: ``data``.
         ]
     }
 
+.. bokeh-sampledata-xref:: les_mis
 '''
 
 #-----------------------------------------------------------------------------

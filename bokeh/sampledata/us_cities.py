@@ -17,6 +17,7 @@ This module contains one dict: ``data``.
     data['lat']  # list of float
     data['lon']  # list of float
 
+.. bokeh-sampledata-xref:: us_cities
 '''
 
 #-----------------------------------------------------------------------------

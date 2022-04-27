@@ -16,6 +16,7 @@ This module contains one pandas Dataframe: ``data``.
 
 :bokeh-dataframe:`bokeh.sampledata.unemployment1948.data`
 
+.. bokeh-sampledata-xref:: unemployment1948
 '''
 
 #-----------------------------------------------------------------------------

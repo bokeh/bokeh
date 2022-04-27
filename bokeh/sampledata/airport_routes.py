@@ -20,6 +20,7 @@ This module contains two pandas Dataframes: ``airports`` and ``routes``.
 
 :bokeh-dataframe:`bokeh.sampledata.airport_routes.routes`
 
+.. bokeh-sampledata-xref:: airport_routes
 '''
 
 #-----------------------------------------------------------------------------

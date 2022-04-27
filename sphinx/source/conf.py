@@ -58,6 +58,7 @@ extensions = [
     'bokeh.sphinxext.bokeh_prop',
     'bokeh.sphinxext.bokeh_releases',
     'bokeh.sphinxext.bokeh_roles',
+    'bokeh.sphinxext.bokeh_sampledata_xref',
     'bokeh.sphinxext.bokeh_settings',
     'bokeh.sphinxext.bokeh_sitemap',
     'bokeh.sphinxext.bokehjs_content',

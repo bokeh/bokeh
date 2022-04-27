@@ -23,8 +23,9 @@ This module contains one list: ``us_holidays``.
         (datetime.date(2020, 12, 25), 'Christmas Day (US-OPM)')
     ]
 
-.. _icalendar: https://pypi.org/project/icalendar/
+.. bokeh-sampledata-xref:: us_holidays
 
+.. _icalendar: https://pypi.org/project/icalendar/
 '''
 
 #-----------------------------------------------------------------------------
