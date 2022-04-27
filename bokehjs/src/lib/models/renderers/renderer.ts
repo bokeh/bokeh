@@ -8,7 +8,7 @@ import {CanvasLayer} from "core/util/canvas"
 import type {PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform, CoordinateSystem, CoordinateMapping} from "../canvas/coordinates"
-import {CartesianFrameView} from "../canvas/cartesian_frame"
+import {type CartesianFrameView} from "../canvas/cartesian_frame"
 import {Coordinate, Node} from "../coordinates"
 
 export namespace RendererGroup {
@@ -232,10 +232,6 @@ export abstract class RendererView extends View implements visuals.Renderable {
   }
 
   protected abstract _render(): void
-
-  renderer_view<T extends Renderer>(_renderer: T): T["__view_type__"] | undefined {
-    return undefined
-  }
 }
 
 export namespace Renderer {

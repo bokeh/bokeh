@@ -1,5 +1,5 @@
 import {DataRange} from "./data_range"
-import type {Renderer} from "../renderers/renderer"
+import type {Renderer, RendererView} from "../renderers/renderer"
 import type {DataRenderer} from "../renderers/data_renderer"
 import {PaddingUnits, StartEnd} from "core/enums"
 import {Rect} from "core/types"
@@ -7,11 +7,11 @@ import {flat_map} from "core/util/iterator"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
-import type {Plot} from "../plots/plot"
+import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import {compute_renderers} from "../util"
 
 export type Dim = 0 | 1
-export type Bounds = Map<Renderer, Rect>
+export type Bounds = Map<RendererView, Rect>
 
 export namespace DataRange1d {
   export type Attrs = p.AttrsOf<Props>
@@ -58,7 +58,7 @@ export class DataRange1d extends DataRange {
     }))
   }
 
-  readonly plots = new Set<Plot>()
+  readonly frames = new Set<CartesianFrameView>()
 
   protected _initial_start: number | null
   protected _initial_end: number | null
@@ -68,7 +68,7 @@ export class DataRange1d extends DataRange {
   protected _initial_follow_interval: number | null
   protected _initial_default_span: number
 
-  protected _plot_bounds: Map<Plot, Rect>
+  protected _bounds: Map<CartesianFrameView, Rect>
 
   override have_updated_interactively: boolean = false
 
@@ -83,7 +83,7 @@ export class DataRange1d extends DataRange {
     this._initial_follow_interval = this.follow_interval
     this._initial_default_span = this.default_span
 
-    this._plot_bounds = new Map()
+    this._bounds = new Map()
   }
 
   get min(): number {
@@ -97,17 +97,21 @@ export class DataRange1d extends DataRange {
   computed_renderers(): DataRenderer[] {
     // TODO (bev) check that renderers actually configured with this range
     const {renderers} = this
-    const all_renderers = flat_map(this.plots, (plot) => plot.data_renderers)
-    return compute_renderers(renderers.length == 0 ? "auto" : renderers, [...all_renderers])
+    const all_renderers = [...flat_map(this.frames, (frame) => frame.data_renderers)].map((rv) => rv.model)
+    return compute_renderers(renderers.length == 0 ? "auto" : renderers, all_renderers)
   }
 
   /*protected*/ _compute_plot_bounds(renderers: Renderer[], bounds: Bounds): Rect {
     let result = bbox.empty()
 
     for (const r of renderers) {
-      const rect = bounds.get(r)
-      if (rect != null && (r.visible || !this.only_visible)) {
-        result = bbox.union(result, rect)
+      if (r.visible || !this.only_visible) {
+        for (const [rv, bound] of bounds) {
+          if (rv.model == r) {
+            result = bbox.union(result, bound)
+            break
+          }
+        }
       }
     }
 
@@ -140,7 +144,7 @@ export class DataRange1d extends DataRange {
     return result
   }
 
-  /*protected*/ _compute_min_max(plot_bounds: Iterable<[Plot, Rect]>, dimension: Dim): [number, number] {
+  /*protected*/ _compute_min_max(plot_bounds: Iterable<[CartesianFrameView, Rect]>, dimension: Dim): [number, number] {
     let overall = bbox.empty()
     for (const [plot, rect] of plot_bounds) {
       if (plot.visible)
@@ -233,7 +237,7 @@ export class DataRange1d extends DataRange {
     return [start, end]
   }
 
-  update(bounds: Bounds, dimension: Dim, plot: Plot, ratio?: number): void {
+  update(bounds: Bounds, dimension: Dim, frame: CartesianFrameView, ratio?: number): void {
     if (this.have_updated_interactively)
       return
 
@@ -245,10 +249,10 @@ export class DataRange1d extends DataRange {
     if (ratio != null)
       total_bounds = this.adjust_bounds_for_aspect(total_bounds, ratio)
 
-    this._plot_bounds.set(plot, total_bounds)
+    this._bounds.set(frame, total_bounds)
 
     // compute the min/mix for our specified dimension
-    const [min, max] = this._compute_min_max(this._plot_bounds.entries(), dimension)
+    const [min, max] = this._compute_min_max(this._bounds.entries(), dimension)
 
     // derive start, end from bounds and data range config
     let [start, end] = this._compute_range(min, max)

@@ -194,7 +194,7 @@ export class GlyphRendererView extends DataRendererView {
     })
     this.connect(this.model.view.properties.indices.change, update)
     this.connect(this.model.view.properties.masked.change, () => this.set_visuals())
-    this.connect(this.model.properties.visible.change, () => this.plot_view.invalidate_dataranges = true)
+    this.connect(this.model.properties.visible.change, () => this.parent.range_manager.invalidate())
 
     const {x_ranges, y_ranges} = this.parent
 
@@ -244,7 +244,7 @@ export class GlyphRendererView extends DataRendererView {
       this.decimated.set(i)
     }
 
-    this.plot_view.invalidate_dataranges = true
+    this.parent.range_manager.invalidate()
   }
 
   set_visuals(): void {

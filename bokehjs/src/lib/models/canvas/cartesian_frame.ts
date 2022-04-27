@@ -7,12 +7,14 @@ import {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
-import {type RendererView, type RenderingTarget, screen, view} from "../renderers/renderer"
+import {type RendererView, type RenderingTarget, Renderer, screen, view} from "../renderers/renderer"
+import {DataRenderer, DataRendererView} from "../renderers/data_renderer"
+import {RangeManager} from "../plots/range_manager"
 
 import {BBox} from "core/util/bbox"
 import {entries} from "core/util/object"
-import {assert} from "core/util/assert"
 import {View} from "core/view"
+import {build_views, remove_views} from "core/build_views"
 import * as p from "core/properties"
 
 type Ranges = {[key: string]: Range}
@@ -46,6 +48,8 @@ export class CartesianFrameView extends View implements RenderingTarget {
     this.parent.request_paint(to_invalidate)
   }
 
+  readonly range_manager: RangeManager = new RangeManager(this)
+
   protected _x_target: Range1d = new Range1d()
   protected _y_target: Range1d = new Range1d()
 
@@ -55,44 +59,71 @@ export class CartesianFrameView extends View implements RenderingTarget {
   protected _x_scales: Map<string, Scale>
   protected _y_scales: Map<string, Scale>
 
-  override initialize(): void {
-    super.initialize()
-
+  protected _setup(): void {
     const {
-      x_range, y_range,
-      x_scale, y_scale,
-      extra_x_ranges, extra_y_ranges,
-      extra_x_scales, extra_y_scales,
+      x_range, y_range, extra_x_ranges, extra_y_ranges,
+      x_scale, y_scale, extra_x_scales, extra_y_scales,
     } = this.model
-
-    assert(x_scale.properties.source_range.is_unset && x_scale.properties.target_range.is_unset)
-    assert(y_scale.properties.source_range.is_unset && y_scale.properties.target_range.is_unset)
 
     this._x_ranges = this._get_ranges(x_range, extra_x_ranges)
     this._y_ranges = this._get_ranges(y_range, extra_y_ranges)
 
     this._x_scales = this._get_scales(x_scale, extra_x_scales, this._x_ranges, this._x_target)
     this._y_scales = this._get_scales(y_scale, extra_y_scales, this._y_ranges, this._y_target)
+
+    for (const range of this.ranges.values()) {
+      if (range instanceof DataRange1d) {
+        range.frames.add(this)
+      }
+    }
+  }
+
+  override initialize(): void {
+    super.initialize()
+    this._setup()
+  }
+
+  /*protected*/ _renderer_views: Map<Renderer, RendererView>
+
+  get renderer_views(): RendererView[] {
+    return this.model.renderers.map((r) => this._renderer_views.get(r)!)
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    this._renderer_views = new Map()
+    await build_views(this._renderer_views, this.model.renderers, {parent: this})
+  }
+
+  override remove(): void {
+    super.remove()
+
+    for (const range of this.ranges.values()) {
+      if (range instanceof DataRange1d) {
+        range.frames.delete(this)
+      }
+    }
+
+    remove_views(this._renderer_views)
   }
 
   override connect_signals(): void {
     super.connect_signals()
 
     const {
-      x_range, y_range,
-      x_scale, y_scale,
-      extra_x_ranges, extra_y_ranges,
-      extra_x_scales, extra_y_scales,
+      x_range, y_range, extra_x_ranges, extra_y_ranges,
+      x_scale, y_scale, extra_x_scales, extra_y_scales,
     } = this.model.properties
 
-    this.on_change([x_range, y_range, x_scale, y_scale, extra_x_ranges, extra_y_ranges, extra_x_scales, extra_y_scales], () => {
-      const {x_range, y_range, x_scale, y_scale, extra_x_ranges, extra_y_ranges, extra_x_scales, extra_y_scales} = this.model
+    this.on_change([
+      x_range, y_range, extra_x_ranges, extra_y_ranges,
+      x_scale, y_scale, extra_x_scales, extra_y_scales,
+    ], () => this._setup())
 
-      this._x_ranges = this._get_ranges(x_range, extra_x_ranges)
-      this._y_ranges = this._get_ranges(y_range, extra_y_ranges)
-
-      this._x_scales = this._get_scales(x_scale, extra_x_scales, this._x_ranges, this._x_target)
-      this._y_scales = this._get_scales(y_scale, extra_y_scales, this._y_ranges, this._y_target)
+    const {renderers} = this.model.properties
+    this.on_change(renderers, async () => {
+      await build_views(this._renderer_views, this.model.renderers, {parent: this})
     })
   }
 
@@ -184,6 +215,16 @@ export class CartesianFrameView extends View implements RenderingTarget {
   get y_scale(): Scale {
     return this._y_scales.get("default")!
   }
+
+  get data_renderers(): DataRendererView[] {
+    return this.model.renderers
+      .filter((r) => r instanceof DataRenderer)
+      .map((r) => this._renderer_views.get(r)!) as DataRendererView[]
+  }
+
+  get visible(): boolean {
+    return true // TODO
+  }
 }
 
 export namespace CartesianFrame {
@@ -201,6 +242,11 @@ export namespace CartesianFrame {
 
     extra_x_scales: p.Property<{[key: string]: Scale}>
     extra_y_scales: p.Property<{[key: string]: Scale}>
+
+    match_aspect: p.Property<boolean>
+    aspect_scale: p.Property<number>
+
+    renderers: p.Property<Renderer[]>
   }
 }
 
@@ -217,7 +263,7 @@ export class CartesianFrame extends Model {
   static {
     this.prototype.default_view = CartesianFrameView
 
-    this.define<CartesianFrame.Props>(({Dict, Ref}) => ({
+    this.define<CartesianFrame.Props>(({Boolean, Number, Array, Dict, Ref}) => ({
       x_range:        [ Ref(Range), () => new DataRange1d() ],
       y_range:        [ Ref(Range), () => new DataRange1d() ],
 
@@ -229,6 +275,11 @@ export class CartesianFrame extends Model {
 
       extra_x_scales: [ Dict(Ref(Scale)), {} ],
       extra_y_scales: [ Dict(Ref(Scale)), {} ],
+
+      match_aspect:   [ Boolean, false ],
+      aspect_scale:   [ Number, 1 ],
+
+      renderers:      [ Array(Ref(Renderer)), [] ],
     }))
   }
 }

@@ -1,7 +1,6 @@
 import {Range} from "../ranges/range"
 import {DataRange1d, Bounds} from "../ranges/data_range1d"
 import {CartesianFrameView} from "../canvas/cartesian_frame"
-import type {PlotView} from "./plot_canvas"
 import {Interval} from "core/types"
 import {logger} from "core/logging"
 
@@ -17,13 +16,17 @@ export type RangeOptions = {
 }
 
 export class RangeManager {
-  constructor(readonly parent: PlotView) {}
+  constructor(readonly frame: CartesianFrameView) {}
 
-  get frame(): CartesianFrameView {
-    return this.parent.frame
+  protected _invalidate_dataranges: boolean = true
+
+  get invalidate_dataranges(): boolean {
+    return this._invalidate_dataranges
   }
 
-  invalidate_dataranges: boolean = true
+  invalidate(): void {
+    this._invalidate_dataranges = true
+  }
 
   update(range_info: RangeInfo | null, options: RangeOptions = {}): void {
     const {x_ranges, y_ranges} = this.frame
@@ -69,17 +72,13 @@ export class RangeManager {
         calculate_log_bounds = true
     }
 
-    for (const renderer of this.parent.model.data_renderers) {
-      const renderer_view = this.parent.renderer_view(renderer)
-      if (renderer_view == null)
-        continue
-
+    for (const renderer_view of this.frame.data_renderers) {
       const bds = renderer_view.glyph_view.bounds()
-      bounds.set(renderer, bds)
+      bounds.set(renderer_view, bds)
 
       if (calculate_log_bounds) {
         const log_bds = renderer_view.glyph_view.log_bounds()
-        log_bounds.set(renderer, log_bds)
+        log_bounds.set(renderer_view, log_bds)
       }
     }
 
@@ -90,14 +89,17 @@ export class RangeManager {
     const width = frame.x_target.span
     const height = frame.y_target.span
 
-    let r: number | undefined
-    if (this.parent.model.match_aspect !== false && width != 0 && height != 0)
-      r = (1/this.parent.model.aspect_scale)*(width/height)
+    const r = (() => {
+      if (this.frame.model.match_aspect && width != 0 && height != 0)
+        return (1/this.frame.model.aspect_scale)*(width/height)
+      else
+        return undefined
+    })()
 
     for (const [, xr] of frame.x_ranges) {
       if (xr instanceof DataRange1d) {
         const bounds_to_use = xr.scale_hint == "log" ? log_bounds : bounds
-        xr.update(bounds_to_use, 0, this.parent.model, r)
+        xr.update(bounds_to_use, 0, this.frame, r)
         if (xr.follow) {
           follow_enabled = true
         }
@@ -109,7 +111,7 @@ export class RangeManager {
     for (const [, yr] of frame.y_ranges) {
       if (yr instanceof DataRange1d) {
         const bounds_to_use = yr.scale_hint == "log" ? log_bounds : bounds
-        yr.update(bounds_to_use, 1, this.parent.model, r)
+        yr.update(bounds_to_use, 1, this.frame, r)
         if (yr.follow) {
           follow_enabled = true
         }
@@ -132,14 +134,14 @@ export class RangeManager {
   update_dataranges(): void {
     this._update_dataranges(this.frame)
 
-    for (const renderer of this.parent.model.renderers) {
+    for (const renderer of this.frame.model.renderers) {
       const {coordinates} = renderer
       if (coordinates != null)
         this._update_dataranges(coordinates)
     }
 
     if (this.compute_initial() != null)
-      this.invalidate_dataranges = false
+      this._invalidate_dataranges = false
   }
 
   compute_initial(): RangeInfo | null {

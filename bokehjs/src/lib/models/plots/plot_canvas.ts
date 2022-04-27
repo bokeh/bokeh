@@ -11,7 +11,6 @@ import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {Axis, AxisView} from "../axes/axis"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
-import {DataRange1d} from "../ranges/data_range1d"
 
 import {Reset} from "core/bokeh_events"
 import {build_view, build_views, remove_views} from "core/build_views"
@@ -31,7 +30,7 @@ import {BorderLayout} from "core/layout/border"
 import {Row, Column} from "core/layout/grid"
 import {Panel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
-import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
+import {RangeInfo, RangeOptions} from "./range_manager"
 import {StateInfo, StateManager} from "./state_manager"
 import {settings} from "core/settings"
 
@@ -77,14 +76,9 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
   protected _invalidate_all: boolean = true
 
   protected _state_manager: StateManager
-  protected _range_manager: RangeManager
 
   get state(): StateManager {
     return this._state_manager
-  }
-
-  set invalidate_dataranges(value: boolean) {
-    this._range_manager.invalidate_dataranges = value
   }
 
   protected _is_paused?: number
@@ -96,19 +90,10 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
   protected computed_renderers: Renderer[]
 
   renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
-    const view = this.renderer_views.get(renderer) ?? this.frame_renderer_views.get(renderer)
-    if (view == null) {
-      for (const renderer_view of this.get_renderer_views()) {
-        const view = renderer_view.renderer_view(renderer)
-        if (view != null)
-          return view
-      }
-    }
-    return view
+    return this._renderer_views.get(renderer) ?? this.frame._renderer_views.get(renderer)
   }
 
-  /*protected*/ renderer_views: Map<Renderer, RendererView>
-  /*protected*/ frame_renderer_views: Map<Renderer, RendererView>
+  protected _renderer_views: Map<Renderer, RendererView>
   /*protected*/ tool_views: Map<Tool, ToolView>
 
   get is_paused(): boolean {
@@ -187,14 +172,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
   }
 
   override remove(): void {
-    for (const r of this.frame.ranges.values()) {
-      if (r instanceof DataRange1d) {
-        r.plots.delete(this.model)
-      }
-    }
-
-    remove_views(this.frame_renderer_views)
-    remove_views(this.renderer_views)
+    remove_views(this._renderer_views)
     remove_views(this.tool_views)
 
     this.frame_view.remove()
@@ -225,12 +203,8 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
       dimensions: {width: 0, height: 0},  // XXX: initial dimensions
     }
 
-    this.renderer_views = new Map()
-    this.frame_renderer_views = new Map()
+    this._renderer_views = new Map()
     this.tool_views = new Map()
-
-    this._range_manager = new RangeManager(this)
-    this._state_manager = new StateManager(this, this._initial_state)
 
     this.throttled_paint = throttle(() => { if (!this._removed) this.repaint() }, 1000/60)
 
@@ -249,6 +223,8 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
+    this._state_manager = new StateManager(this, this._initial_state)
+
     const {hidpi, output_backend} = this.model
     const canvas = new Canvas({hidpi, output_backend})
     this.canvas_view = await build_view(canvas, {parent: this})
@@ -263,19 +239,15 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
       extra_y_ranges: this.model.extra_y_ranges,
       extra_x_scales: this.model.extra_x_scales,
       extra_y_scales: this.model.extra_y_scales,
+      match_aspect: this.model.match_aspect,
+      aspect_scale: this.model.aspect_scale,
     })
     this.frame_view = await build_view(frame, {parent: this})
-
-    for (const r of this.frame.ranges.values()) {
-      if (r instanceof DataRange1d) {
-        r.plots.add(this.model)
-      }
-    }
 
     await this.build_renderer_views()
     await this.build_tool_views()
 
-    this._range_manager.update_dataranges()
+    this.frame.range_manager.update_dataranges()
   }
 
   protected override _width_policy(): SizingPolicy {
@@ -498,7 +470,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
 
   update_range(range_info: RangeInfo | null, options?: RangeOptions): void {
     this.pause()
-    this._range_manager.update(range_info, options)
+    this.frame.range_manager.update(range_info, options)
     this.unpause()
   }
 
@@ -514,18 +486,18 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
 
   get_selection(): Map<DataRenderer, Selection> {
     const selection = new Map<DataRenderer, Selection>()
-    for (const renderer of this.model.data_renderers) {
-      const {selected} = renderer.selection_manager.source
-      selection.set(renderer, selected)
+    for (const renderer of this.frame.data_renderers) {
+      const {selected} = renderer.model.selection_manager.source
+      selection.set(renderer.model, selected)
     }
     return selection
   }
 
   update_selection(selections: Map<DataRenderer, Selection> | null): void {
-    for (const renderer of this.model.data_renderers) {
-      const ds = renderer.selection_manager.source
+    for (const renderer of this.frame.data_renderers) {
+      const ds = renderer.model.selection_manager.source
       if (selections != null) {
-        const selection = selections.get(renderer)
+        const selection = selections.get(renderer.model)
         if (selection != null) {
           ds.selected.update(selection, true)
         }
@@ -555,7 +527,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
   }
 
   get_renderer_views(): RendererView[] {
-    return this.computed_renderers.map((r) => this.renderer_views.get(r) ?? this.frame_renderer_views.get(r)!)
+    return this.computed_renderers.map((r) => this.renderer_view(r)!)
   }
 
   protected *_compute_frame_renderers(): Generator<Renderer, void, undefined> {
@@ -585,9 +557,13 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
   async build_renderer_views(): Promise<void> {
     const renderers = [...this._compute_renderers()]
     const frame_renderers = [...this._compute_frame_renderers()]
+
     this.computed_renderers = [...renderers, ...frame_renderers]
-    await build_views(this.renderer_views, renderers, {parent: this})
-    await build_views(this.frame_renderer_views, frame_renderers, {parent: this.frame})
+
+    this.frame.model.renderers = frame_renderers
+    await this.frame.ready
+
+    await build_views(this._renderer_views, renderers, {parent: this})
   }
 
   async build_tool_views(): Promise<void> {
@@ -681,7 +657,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
 
     if (this.model.match_aspect !== false) {
       this.pause()
-      this._range_manager.update_dataranges()
+      this.frame.range_manager.update_dataranges()
       this.unpause(true)
     }
 
@@ -743,8 +719,8 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
         document.interactive_stop()
     }
 
-    if (this._range_manager.invalidate_dataranges) {
-      this._range_manager.update_dataranges()
+    if (this.frame.range_manager.invalidate_dataranges) {
+      this.frame.range_manager.update_dataranges()
       this._invalidate_layout()
     }
 
@@ -801,7 +777,7 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
     }
 
     if (this._initial_state.range == null) {
-      this._initial_state.range = this._range_manager.compute_initial() ?? undefined
+      this._initial_state.range = this.frame.range_manager.compute_initial() ?? undefined
     }
 
     this._needs_paint = false
