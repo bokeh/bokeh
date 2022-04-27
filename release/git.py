@@ -92,6 +92,6 @@ def push_to_github(config: Config, system: System) -> ActionReturn:
 def tag_release_version(config: Config, system: System) -> ActionReturn:
     try:
         system.run(f"git tag -a {config.version} -m 'Release {config.version}'")
-        return PASSED(f"Tagged release verison {config.version!r}")
+        return PASSED(f"Tagged release version {config.version!r}")
     except RuntimeError as e:
         return FAILED(f"Could NOT tag release version {config.version!r}", details=e.args)
