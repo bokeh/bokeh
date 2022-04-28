@@ -1,3 +1,4 @@
+export {Layout}    from "./layout"
 export {Box}       from "./box"
 export {CanvasBox} from "./canvas_box"
 export {Column}    from "./column"

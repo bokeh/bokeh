@@ -41,7 +41,6 @@ from ..core.properties import (
     Int,
     List,
     NonNegative,
-    Null,
     Nullable,
     Override,
     Seq,
@@ -85,20 +84,12 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class LayoutDOM(UIElement):
-    """ The base class for layoutable components.
-
-    """
+class Layout(UIElement):
+    """ """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    disabled = Bool(False, help="""
-    Whether the widget will be disabled when rendered.
-
-    If ``True``, the widget will be greyed-out and not responsive to UI events.
-    """)
 
     width: int | None = Nullable(NonNegative(Int), help="""
     The width of the component (in pixels).
@@ -128,7 +119,7 @@ class LayoutDOM(UIElement):
     Maximal height of the component (in pixels) if height is adjustable.
     """)
 
-    margin = Nullable(Tuple(Int, Int, Int, Int), default=(0, 0, 0, 0), help="""
+    margin = Tuple(Int, Int, Int, Int, default=(0, 0, 0, 0), help="""
     Allows to create additional space around the component.
     The values in the tuple are ordered as follows - Margin-Top, Margin-Right, Margin-Bottom and Margin-Left,
     similar to CSS standards.
@@ -200,7 +191,7 @@ class LayoutDOM(UIElement):
 
     """)
 
-    aspect_ratio = Either(Null, Auto, Float, help="""
+    aspect_ratio = Nullable(Either(Auto, NonNegative(Float)), help="""
     Describes the proportional relationship between component's width and height.
 
     This works if any of component's dimensions are flexible in size. If set to
@@ -258,6 +249,22 @@ class LayoutDOM(UIElement):
     This property is useful only if this component is a child element of a layout
     (e.g. a grid). Self alignment can be overridden by the parent container (e.g.
     grid track align).
+    """)
+
+@abstract
+class LayoutDOM(Layout):
+    """ The base class for layoutable components.
+
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    disabled = Bool(False, help="""
+    Whether the widget will be disabled when rendered.
+
+    If ``True``, the widget will be greyed-out and not responsive to UI events.
     """)
 
     background = Nullable(Color, help="""
