@@ -510,7 +510,7 @@ def test_unix_socket() -> None:
         # very quickly, having some sleep helps
         with requests_unixsocket.monkeypatch():
             for t in range(1, 11):
-                time.sleep(t)
+                time.sleep(1)
                 try:
                     r = requests.get(f"http+unix://{file_name.replace('/', '%2F')}/line_on_off")
                     assert r.status_code == 200
