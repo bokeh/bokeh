@@ -484,20 +484,25 @@ def check_error(args):
 
 def test_unix_socket_with_port() -> None:
     unix_socket = "test.sock"
-    out = check_error(["--unix-socket", unix_socket, "--port", "5000"])
-    expected = "--port arg is not supported with a unix socket\n"
+    out = check_error(["--unix-socket", unix_socket, "--port", "5000"]).strip()
+    expected = "--port arg is not supported with a unix socket"
     assert expected == out
 
 def test_unix_socket_with_invalid_args() -> None:
     invalid_args = ['address', 'allow-websocket-origin', 'ssl-certfile', 'ssl-keyfile']
     for arg in invalid_args:
         unix_socket = "test.sock"
-        out = check_error(["--unix-socket", unix_socket, f"--{arg}", "value"])
-        expected = "['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile', 'port'] args are not supported with a unix socket\n"
+        out = check_error(["--unix-socket", unix_socket, f"--{arg}", "value"]).strip()
+        expected = "['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile', 'port'] args are not supported with a unix socket"
         assert expected == out
 
 @flaky(max_runs=10)
 def test_unix_socket() -> None:
+    # Unix sockets can not be bind to a file 
+    # via python in windows currently
+    # Reference: https://github.com/python/cpython/issues/77589 
+    if "win" in sys.platform:
+        return    
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     file_name = "test.socket"
 
