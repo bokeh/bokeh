@@ -498,13 +498,8 @@ def test_unix_socket_with_invalid_args() -> None:
 
 @flaky(max_runs=10)
 def test_unix_socket() -> None:
-    try:
-        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    # For windows, we need to use internet address
-    except:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    file_name = join(HERE, "test.socket")
+    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    file_name = "test.socket"
 
     if os.path.exists(file_name):
         os.remove(file_name)
