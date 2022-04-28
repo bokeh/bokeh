@@ -508,10 +508,17 @@ def test_unix_socket() -> None:
     with run_bokeh_serve(["--unix-socket", file_name, "--glob", APPS]) as (p, nbsr):
         # The server is not ready is binds to the unix socket
         # very quickly, having some sleep helps
-        time.sleep(1)
         with requests_unixsocket.monkeypatch():
-            r = requests.get(f"http+unix://{file_name.replace('/', '%2F')}/line_on_off")
-            assert r.status_code == 200
+            for t in range(1, 11):
+                time.sleep(t)
+                try:
+                    r = requests.get(f"http+unix://{file_name.replace('/', '%2F')}/line_on_off")
+                    assert r.status_code == 200
+                    break
+                except:
+                    if t == 10:
+                        assert False
+                    pass
     os.remove(file_name)
 
 def test_host_not_available() -> None:
