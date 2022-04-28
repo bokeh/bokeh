@@ -498,11 +498,11 @@ def test_unix_socket_with_invalid_args() -> None:
 
 @flaky(max_runs=10)
 def test_unix_socket() -> None:
-    # Unix sockets can not be bind to a file 
+    # Unix sockets can not be bind to a file
     # via python in windows currently
-    # Reference: https://github.com/python/cpython/issues/77589 
+    # Reference: https://github.com/python/cpython/issues/77589
     if "win" in sys.platform:
-        return    
+        return
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     file_name = "test.socket"
 
