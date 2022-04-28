@@ -88,13 +88,11 @@ export abstract class GlyphView extends View {
   }
 
   render(ctx: Context2d, indices: number[], data?: GlyphData): void {
-    if (this.glglyph != null) {
-      this.renderer.needs_webgl_blit = this.glglyph.render(ctx, indices, this.base ?? this)
-      if (this.renderer.needs_webgl_blit)
-        return
+    if (this.glglyph == null) {
+      this._render(ctx, indices, data ?? this.base)
+    } else {
+      this.glglyph.render(ctx, indices, this.base ?? this)
     }
-
-    this._render(ctx, indices, data ?? this.base)
   }
 
   protected abstract _render(ctx: Context2d, indices: number[], data?: GlyphData): void

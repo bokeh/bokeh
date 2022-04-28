@@ -28,18 +28,18 @@ export abstract class BaseGLGlyph {
     this.visuals_changed = true
   }
 
-  render(_ctx: Context2d, indices: number[], mainglyph: GlyphView): boolean {
-    if (indices.length == 0) {
-      return true
-    }
+  render(_ctx: Context2d, indices: number[], mainglyph: GlyphView): void {
+    if (indices.length == 0)
+      return
+
     const {width, height} = this.glyph.renderer.canvas.webgl!.canvas
     const trans = {
       pixel_ratio: this.glyph.renderer.canvas.pixel_ratio,  // pass pixel_ratio to webgl
       width,
       height,
     }
+
     this.draw(indices, mainglyph, trans)
-    return true
   }
 
   abstract draw(indices: number[], mainglyph: GlyphView, trans: Transform): void

@@ -1,5 +1,5 @@
 import {CartesianFrame, CartesianFrameView} from "../canvas/cartesian_frame"
-import {Canvas, CanvasView, FrameBox} from "../canvas/canvas"
+import {Canvas, CanvasView} from "../canvas/canvas"
 import {Renderer, RendererView, RenderingTarget, screen, view} from "../renderers/renderer"
 import {DataRenderer} from "../renderers/data_renderer"
 import {Tool, ToolView} from "../tools/tool"
@@ -23,7 +23,7 @@ import {throttle} from "core/util/throttle"
 import {isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {flat_map} from "core/util/iterator"
-import {Context2d, CanvasLayer} from "core/util/canvas"
+import {CanvasLayer} from "core/util/canvas"
 import {SizingPolicy, Layoutable} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
@@ -744,35 +744,25 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
     this._invalidated_painters.clear()
     this._invalidate_all = false
 
-    const frame_box: FrameBox = [
-      this.frame.bbox.left,
-      this.frame.bbox.top,
-      this.frame.bbox.width,
-      this.frame.bbox.height,
-    ]
-
     const {primary, overlays} = this.canvas_view
 
     if (do_primary) {
       primary.prepare()
-      this.canvas_view.prepare_webgl(frame_box)
-
-      this._paint_empty(primary.ctx, frame_box)
-      this._paint_outline(primary.ctx, frame_box)
-
-      this._paint_levels(primary.ctx, "image", frame_box, true)
-      this._paint_levels(primary.ctx, "underlay", frame_box, true)
-      this._paint_levels(primary.ctx, "glyph", frame_box, true)
-      this._paint_levels(primary.ctx, "guide", frame_box, false)
-      this._paint_levels(primary.ctx, "annotation", frame_box, false)
+      this._paint_empty(primary)
+      this._paint_outline(primary)
+      this._paint_levels(primary, "image", true)
+      this._paint_levels(primary, "underlay", true)
+      this._paint_levels(primary, "glyph", true)
+      this._paint_levels(primary, "guide", false)
+      this._paint_levels(primary, "annotation", false)
       primary.finish()
     }
 
     if (do_overlays || settings.wireframe) {
       overlays.prepare()
-      this._paint_levels(overlays.ctx, "overlay", frame_box, false)
+      this._paint_levels(overlays, "overlay", false)
       if (settings.wireframe)
-        this._paint_layout(overlays.ctx, this.layout)
+        this._paint_layout(overlays, this.layout)
       overlays.finish()
     }
 
@@ -783,45 +773,54 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
     this._needs_paint = false
   }
 
-  protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_region: FrameBox, global_clip: boolean): void {
+  protected _paint_levels(layer: CanvasLayer, level: RenderLevel, global_clip: boolean): void {
     for (const renderer of this.computed_renderers) {
       if (renderer.level != level)
         continue
 
       const renderer_view = this.renderer_view(renderer)!
+      const {has_webgl, clip_box} = renderer_view
 
+      if (has_webgl) {
+        this.canvas.prepare_webgl(clip_box)
+      }
+
+      const {ctx} = layer
       ctx.save()
+
       if (global_clip || renderer_view.needs_clip) {
         ctx.beginPath()
-        ctx.rect(...clip_region)
+        ctx.rect(clip_box)
         ctx.clip()
       }
 
       renderer_view.render()
       ctx.restore()
 
-      if (renderer_view.has_webgl && renderer_view.needs_webgl_blit) {
-        this.canvas_view.blit_webgl(ctx)
+      if (has_webgl) {
+        this.canvas.blit_webgl(layer)
       }
     }
   }
 
-  protected _paint_layout(ctx: Context2d, layout: Layoutable) {
+  protected _paint_layout(layer: CanvasLayer, layout: Layoutable) {
     const {x, y, width, height} = layout.bbox
+    const {ctx} = layer
     ctx.strokeStyle = "blue"
     ctx.strokeRect(x, y, width, height)
     for (const child of layout) {
       ctx.save()
       if (!layout.absolute)
         ctx.translate(x, y)
-      this._paint_layout(ctx, child)
+      this._paint_layout(layer, child)
       ctx.restore()
     }
   }
 
-  protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
+  protected _paint_empty(layer: CanvasLayer): void {
     const [cx, cy, cw, ch] = [0, 0, this.layout.bbox.width, this.layout.bbox.height]
-    const [fx, fy, fw, fh] = frame_box
+    const {x: fx, y: fy, width: fw, height: fh} = this.frame.bbox
+    const {ctx} = layer
 
     if (this.visuals.border_fill.doit) {
       this.visuals.border_fill.set_value(ctx)
@@ -835,20 +834,21 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
     }
   }
 
-  protected _paint_outline(ctx: Context2d, frame_box: FrameBox): void {
+  protected _paint_outline(layer: CanvasLayer): void {
     if (this.visuals.outline_line.doit) {
+      const {ctx} = layer
       ctx.save()
       this.visuals.outline_line.set_value(ctx)
-      let [x0, y0, w, h] = frame_box
+      let {x, y, width: w, height: h} = this.frame.bbox
       // XXX: shrink outline region by 1px to make right and bottom lines visible
       // if they are on the edge of the canvas.
-      if (x0 + w == this.layout.bbox.width) {
+      if (x + w == this.layout.bbox.width) {
         w -= 1
       }
-      if (y0 + h == this.layout.bbox.height) {
+      if (y + h == this.layout.bbox.height) {
         h -= 1
       }
-      ctx.strokeRect(x0, y0, w, h)
+      ctx.strokeRect(x, y, w, h)
       ctx.restore()
     }
   }

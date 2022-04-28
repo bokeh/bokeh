@@ -12,13 +12,11 @@ import {build_views, remove_views} from "core/build_views"
 import {BBox} from "core/util/bbox"
 import {load_module} from "core/util/modules"
 import {parse_css_font_size} from "core/util/text"
-import {Context2d, CanvasLayer} from "core/util/canvas"
+import {CanvasLayer} from "core/util/canvas"
 import {PlotView} from "../plots/plot"
 import {Renderer, RenderingTarget, screen, view} from "../renderers/renderer"
 import {CoordinateSystem} from "./coordinates"
 import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
-
-export type FrameBox = [number, number, number, number]
 
 // Notes on WebGL support:
 // Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -236,55 +234,44 @@ export class CanvasView extends DOMView implements RenderingTarget {
       layer.resize(width, height)
     }
 
+    if (this.webgl != null) {
+      const {canvas} = this.webgl
+      canvas.width = this.pixel_ratio*width
+      canvas.height = this.pixel_ratio*height
+    }
+
     if (this.plot_views.length == 0) // REMOVE
       this.paint_engine.request_repaint()
   }
 
-  prepare_webgl(frame_box: FrameBox): void {
+  prepare_webgl(clip_box: BBox): void {
     // Prepare WebGL for a drawing pass
     const {webgl} = this
     if (webgl != null) {
-      // Sync canvas size
-      const {width, height} = this.bbox
-      webgl.canvas.width = this.pixel_ratio*width
-      webgl.canvas.height = this.pixel_ratio*height
-      const [sx, sy, w, h] = frame_box
+      const {x: sx, y: sy, width: vw, height: vh} = clip_box
       const {x_view, y_view} = this.bbox
       const vx = x_view.compute(sx)
-      const vy = y_view.compute(sy + h)
+      const vy = y_view.compute(sy + vh)
+
+      const {regl_wrapper} = webgl
       const ratio = this.pixel_ratio
-      webgl.regl_wrapper.set_scissor(ratio*vx, ratio*vy, ratio*w, ratio*h)
-      this._clear_webgl()
+
+      regl_wrapper.set_scissor(ratio*vx, ratio*vy, ratio*vw, ratio*vh)
+
+      const {width: cw, height: ch} = this.bbox
+      regl_wrapper.clear(ratio*cw, ratio*ch)
     }
   }
 
-  blit_webgl(ctx: Context2d): void {
-    // This should be called when the ctx has no state except the HIDPI transform
+  blit_webgl(layer: CanvasLayer): void {
     const {webgl} = this
     if (webgl != null) {
       // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
       // to remove the hidpi transform, then blit, then restore.
       // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
-      logger.debug("Blitting WebGL canvas")
-      ctx.restore()
-      ctx.drawImage(webgl.canvas, 0, 0)
-      // Set back hidpi transform
-      ctx.save()
-      if (this.model.hidpi) {
-        const ratio = this.pixel_ratio
-        ctx.scale(ratio, ratio)
-        ctx.translate(0.5, 0.5)
-      }
-      this._clear_webgl()
-    }
-  }
-
-  protected _clear_webgl(): void {
-    const {webgl} = this
-    if (webgl != null) {
-      // Prepare GL for drawing
-      const {regl_wrapper, canvas} = webgl
-      regl_wrapper.clear(canvas.width, canvas.height)
+      layer.revert_to("init", (ctx) => {
+        ctx.drawImage(webgl.canvas, 0, 0)
+      })
     }
   }
 
@@ -377,8 +364,8 @@ export class PaintEngine {
   protected _invalidated_painters: Set<RendererView> = new Set()
   protected _invalidate_all: boolean = true
 
-  get renderers(): Renderer[] {
-    return this.canvas.model.renderers
+  get renderers(): RendererView[] {
+    return this.canvas.model.renderers.map((r) => this.canvas.view_for(r))
   }
 
   constructor(readonly canvas: CanvasView) {
@@ -459,53 +446,50 @@ export class PaintEngine {
     this._invalidated_painters.clear()
     this._invalidate_all = false
 
-    const frame_box: FrameBox = [
-      this.canvas.bbox.left,
-      this.canvas.bbox.top,
-      this.canvas.bbox.width,
-      this.canvas.bbox.height,
-    ]
-
     const {primary, overlays} = this.canvas
 
     if (do_primary) {
       primary.prepare()
-      this.canvas.prepare_webgl(frame_box)
-
-      this._paint_levels(primary.ctx, "image", frame_box, true)
-      this._paint_levels(primary.ctx, "underlay", frame_box, true)
-      this._paint_levels(primary.ctx, "glyph", frame_box, true)
-      this._paint_levels(primary.ctx, "guide", frame_box, false)
-      this._paint_levels(primary.ctx, "annotation", frame_box, false)
+      this._paint_levels(primary, "image", true)
+      this._paint_levels(primary, "underlay", true)
+      this._paint_levels(primary, "glyph", true)
+      this._paint_levels(primary, "guide", false)
+      this._paint_levels(primary, "annotation", false)
       primary.finish()
     }
 
     if (do_overlays) {
       overlays.prepare()
-      this._paint_levels(overlays.ctx, "overlay", frame_box, false)
+      this._paint_levels(overlays, "overlay", false)
       overlays.finish()
     }
   }
 
-  protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_region: FrameBox, global_clip: boolean): void {
+  protected _paint_levels(layer: CanvasLayer, level: RenderLevel, global_clip: boolean): void {
     for (const renderer of this.renderers) {
-      if (renderer.level != level)
+      if (renderer.model.level != level)
         continue
 
-      const renderer_view = this.canvas.view_for(renderer)
+      const {has_webgl, clip_box} = renderer
 
+      if (has_webgl) {
+        this.canvas.prepare_webgl(clip_box)
+      }
+
+      const {ctx} = layer
       ctx.save()
-      if (global_clip || renderer_view.needs_clip) {
+
+      if (global_clip || renderer.needs_clip) {
         ctx.beginPath()
-        ctx.rect(...clip_region)
+        ctx.rect(clip_box)
         ctx.clip()
       }
 
-      renderer_view.render()
+      renderer.render()
       ctx.restore()
 
-      if (renderer_view.has_webgl && renderer_view.needs_webgl_blit) {
-        this.canvas.blit_webgl(ctx)
+      if (has_webgl) {
+        this.canvas.blit_webgl(layer)
       }
     }
   }

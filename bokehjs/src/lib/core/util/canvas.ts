@@ -158,12 +158,16 @@ export class CanvasLayer {
     extend(this._el.style, style)
   }
 
+  private _init_transform: DOMMatrix
   private _base_transform: DOMMatrix
 
-  undo_transform(fn: (ctx: Context2d) => void) {
+  revert_to(state: "init" | "base", fn: (ctx: Context2d) => void) {
     const {ctx} = this
+
     const current_transform = ctx.getTransform()
-    ctx.setTransform(this._base_transform)
+    const chosen_transform = state == "init" ? this._init_transform : this._base_transform
+
+    ctx.setTransform(chosen_transform)
     try {
       fn(ctx)
     } finally {
@@ -173,6 +177,7 @@ export class CanvasLayer {
 
   prepare(): void {
     const {ctx, hidpi, pixel_ratio} = this
+    this._init_transform = ctx.getTransform()
     ctx.save()
     if (hidpi) {
       ctx.scale(pixel_ratio, pixel_ratio)

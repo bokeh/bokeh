@@ -95,8 +95,6 @@ export abstract class RendererView extends View implements visuals.Renderable {
 
   override readonly parent: View & RenderingTarget
 
-  needs_webgl_blit: boolean
-
   protected _coordinates?: CoordinateTransform
   get coordinates(): CoordinateTransform {
     const {_coordinates} = this
@@ -109,7 +107,6 @@ export abstract class RendererView extends View implements visuals.Renderable {
   override initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this)
-    this.needs_webgl_blit = false
   }
 
   override connect_signals(): void {
@@ -204,6 +201,10 @@ export abstract class RendererView extends View implements visuals.Renderable {
   protected _resolve_node?(node: Node): Coordinate | null
 
   interactive_hit?(sx: number, sy: number): boolean
+
+  get clip_box(): BBox {
+    return this.parent.bbox
+  }
 
   get needs_clip(): boolean {
     return false

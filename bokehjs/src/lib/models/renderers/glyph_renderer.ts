@@ -264,7 +264,7 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   protected _render(): void {
-    const glsupport = this.has_webgl
+    const {has_webgl} = this
 
     this.glyph.map_data()
 
@@ -321,7 +321,7 @@ export class GlyphRendererView extends DataRendererView {
     let nonselection_glyph: GlyphView
     let selection_glyph: GlyphView
     if ((this.model.document != null ? this.model.document.interactive_duration() > 0 : false)
-        && !glsupport && lod_threshold != null && all_indices.length > lod_threshold) {
+        && !has_webgl && lod_threshold != null && all_indices.length > lod_threshold) {
       // Render decimated during interaction if too many elements and not using GL
       indices = [...this.decimated]
       glyph = this.decimated_glyph
