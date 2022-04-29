@@ -496,13 +496,17 @@ def test_unix_socket_with_invalid_args() -> None:
         expected = "['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile', 'port'] args are not supported with a unix socket"
         assert expected == out
 
+@pytest.mark.skipif(sys.platform != "win32", reason="Unix sockets not available on windows")
+def test_unix_socket_on_windows() -> None:
+    unix_socket = "test.sock"
+    out = check_error(["--unix-socket", unix_socket]).strip()
+    expected = "Unix socket support is not available on windows."
+    assert expected == out
+
+
 @flaky(max_runs=10)
+@pytest.mark.skipif(sys.platform == "win32", reason="Unix sockets not available on windows")
 def test_unix_socket() -> None:
-    # Unix sockets can not be bind to a file
-    # via python in windows currently
-    # Reference: https://github.com/python/cpython/issues/77589
-    if "win" in sys.platform:
-        return
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     file_name = "test.socket"
 

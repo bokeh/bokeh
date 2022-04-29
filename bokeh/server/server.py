@@ -516,6 +516,7 @@ class _ServerOpts(Options):
     unix_socket : str | None = Nullable(String, help="""
     The unix socket the server should bind to. Other network args
     such as port, address, ssl options etc are incompatible with unix sockets.
+    Unix socket support is not available on windows.
     """)  # type: ignore[assignment]
 
     prefix: str = String(default="", help="""

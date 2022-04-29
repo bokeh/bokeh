@@ -423,6 +423,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import argparse
 import os
+import sys
 from fnmatch import fnmatch
 from glob import glob
 from typing import Any, Dict, List
@@ -885,9 +886,13 @@ class Serve(Subcommand):
                 "the `bokeh secret` command can be used to generate a new key.")
 
         if 'unix_socket' in server_kwargs:
+            if sys.platform == "win32":
+                die("Unix socket support is not available on windows.")
+
             if server_kwargs['port'] != DEFAULT_SERVER_PORT:
                 die("--port arg is not supported with a unix socket")
             invalid_args = ['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile']
+
             if any(server_kwargs.get(x) for x in invalid_args):
                 die(f"{invalid_args + ['port']} args are not supported with a unix socket")
 

@@ -1061,6 +1061,8 @@ In some cases, you might want to restrict the access to the proxied bokeh
 server. You can bind the bokeh server to a unix socket and use nginx or
 apache to proxy to a unix domain socket.
 
+Note that binding to a unix socket is not supported on windows.
+
 .. code-block:: sh
 
     bokeh serve --unix-socket /path/to/socket.sock
