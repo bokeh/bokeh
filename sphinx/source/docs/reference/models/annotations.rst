@@ -4,5 +4,5 @@ annotations
 -----------
 
 .. automodule:: bokeh.models.annotations
-   :members:
+   :imported-members:
    :undoc-members:
