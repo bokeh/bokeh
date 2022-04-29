@@ -480,21 +480,7 @@ def check_error(args):
         out = e.output.decode()
     else:
         pytest.fail(f"command {cmd} unexpected successful")
-    return out
-
-def test_unix_socket_with_port() -> None:
-    unix_socket = "test.sock"
-    out = check_error(["--unix-socket", unix_socket, "--port", "5000"]).strip()
-    expected = "--port arg is not supported with a unix socket"
-    assert expected == out
-
-def test_unix_socket_with_invalid_args() -> None:
-    invalid_args = ['address', 'allow-websocket-origin', 'ssl-certfile', 'ssl-keyfile']
-    for arg in invalid_args:
-        unix_socket = "test.sock"
-        out = check_error(["--unix-socket", unix_socket, f"--{arg}", "value"]).strip()
-        expected = "['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile', 'port'] args are not supported with a unix socket"
-        assert expected == out
+    return out    
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Unix sockets not available on windows")
 def test_unix_socket_on_windows() -> None:
@@ -503,6 +489,21 @@ def test_unix_socket_on_windows() -> None:
     expected = "Unix socket support is not available on windows."
     assert expected == out
 
+@pytest.mark.skipif(sys.platform == "win32", reason="Unix sockets not available on windows")
+def test_unix_socket_with_port() -> None:
+    unix_socket = "test.sock"
+    out = check_error(["--unix-socket", unix_socket, "--port", "5000"]).strip()
+    expected = "--port arg is not supported with a unix socket"
+    assert expected == out
+
+@pytest.mark.skipif(sys.platform == "win32", reason="Unix sockets not available on windows")
+def test_unix_socket_with_invalid_args() -> None:
+    invalid_args = ['address', 'allow-websocket-origin', 'ssl-certfile', 'ssl-keyfile']
+    for arg in invalid_args:
+        unix_socket = "test.sock"
+        out = check_error(["--unix-socket", unix_socket, f"--{arg}", "value"]).strip()
+        expected = "['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile', 'port'] args are not supported with a unix socket"
+        assert expected == out
 
 @flaky(max_runs=10)
 @pytest.mark.skipif(sys.platform == "win32", reason="Unix sockets not available on windows")
