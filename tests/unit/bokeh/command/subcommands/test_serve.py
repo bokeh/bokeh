@@ -480,7 +480,7 @@ def check_error(args):
         out = e.output.decode()
     else:
         pytest.fail(f"command {cmd} unexpected successful")
-    return out    
+    return out
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Unix sockets not available on windows")
 def test_unix_socket_on_windows() -> None:
