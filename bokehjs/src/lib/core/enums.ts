@@ -3,11 +3,13 @@ import {Enum} from "./kinds"
 export type Align = "start" | "center" | "end"
 export const Align = Enum("start", "center", "end")
 
-export type Anchor =
-  "top_left"    | "top_center"    | "top_right"    |
-  "center_left" | "center_center" | "center_right" |
-  "bottom_left" | "bottom_center" | "bottom_right" |
-  "top" | "left" | "center" | "right" | "bottom"
+export type HAlign = "left" | "center" | "right"
+export const HAlign = Enum("left", "center", "right")
+
+export type VAlign = "top" | "center" | "bottom"
+export const VAlign = Enum("top", "center", "bottom")
+
+export type Anchor = `${VAlign}_${HAlign}` | HAlign | VAlign
 export const Anchor = Enum(
   "top_left",    "top_center",    "top_right",
   "center_left", "center_center", "center_right",
@@ -62,6 +64,9 @@ export const HexTileOrientation = Enum("pointytop", "flattop")
 
 export type HoverMode = "mouse" | "hline" | "vline"
 export const HoverMode = Enum("mouse", "hline", "vline")
+
+export type ImageOrigin = "bottom_left" | "top_left" | "bottom_right" | "top_right"
+export const ImageOrigin = Enum("bottom_left", "top_left", "bottom_right", "top_right")
 
 export type LatLon = "lat" | "lon"
 export const LatLon = Enum("lat", "lon")

@@ -44,10 +44,12 @@ ALL  = (
     'Enumeration',
     'enumeration',
     'FontStyle',
+    'HAlign',
     'HatchPattern',
     'HatchPatternAbbreviation',
     'HoldPolicy',
     'HorizontalLocation',
+    'ImageOrigin',
     'JitterRandomDistribution',
     'LatLon',
     'LegendClickPolicy',
@@ -83,6 +85,7 @@ ALL  = (
     'TooltipAttachment',
     'TooltipFieldFormatter',
     'TrackPolicy',
+    'VAlign',
     'VerticalAlign',
     'VerticalLocation',
 )
@@ -193,6 +196,9 @@ class Test_bce:
 
     def test_HorizontalLocation(self) -> None:
         assert tuple(bce.HorizontalLocation) == ("left", "right")
+
+    def test_ImageOrigin(self) -> None:
+        assert tuple(bce.ImageOrigin) == ("bottom_left", "top_left", "bottom_right", "top_right")
 
     def test_JitterRandomDistribution(self) -> None:
         assert tuple(bce.JitterRandomDistribution) == ("uniform", "normal")
@@ -328,10 +334,12 @@ def test_enums_contents() -> None:
         'Dimensions',
         'Direction',
         'FontStyle',
+        'HAlign',
         'HatchPattern',
         'HatchPatternAbbreviation',
         'HoldPolicy',
         'HorizontalLocation',
+        'ImageOrigin',
         'JitterRandomDistribution',
         'LatLon',
         'LegendClickPolicy',
@@ -367,6 +375,7 @@ def test_enums_contents() -> None:
         'TooltipAttachment',
         'TooltipFieldFormatter',
         'TrackPolicy',
+        'VAlign',
         'VerticalAlign',
         'VerticalLocation',
     ]

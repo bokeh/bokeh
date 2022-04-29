@@ -106,10 +106,12 @@ __all__ = (
     'Enumeration',
     'enumeration',
     'FontStyle',
+    'HAlign',
     'HatchPattern',
     'HatchPatternAbbreviation',
     'HoldPolicy',
     'HorizontalLocation',
+    'ImageOrigin',
     'JitterRandomDistribution',
     'LatLon',
     'LegendClickPolicy',
@@ -145,6 +147,7 @@ __all__ = (
     'TooltipAttachment',
     'TooltipFieldFormatter',
     'TrackPolicy',
+    'VAlign',
     'VerticalAlign',
     'VerticalLocation',
 )
@@ -244,6 +247,12 @@ def enumeration(*values: Any, case_sensitive: bool = True, quote: bool = False) 
 #: Alignment (vertical or horizontal) of a child item
 Align = enumeration("start", "center", "end")
 
+#: Horizontal alignment of a child item
+HAlign = enumeration("top", "center", "bottom")
+
+#: Vertical alignment of a child item
+VAlign = enumeration("left", "center", "right")
+
 #: Specify an anchor position on a box/frame
 Anchor = enumeration(
     "top_left",    "top_center",    "top_right",
@@ -341,6 +350,9 @@ HoldPolicy = enumeration(HoldPolicyType)
 
 #: Specify a horizontal location in plot layouts
 HorizontalLocation = enumeration("left", "right")
+
+#: Defines the coordinate space within an image
+ImageOrigin = enumeration("bottom_left", "top_left", "bottom_right", "top_right")
 
 #: Specify a distribution to use for the Jitter class
 JitterRandomDistributionType = Literal["uniform", "normal"]

@@ -408,6 +408,32 @@ Note that this example sets the render level to ``"image"``. Normally, Bokeh
 draws all glyphs *above* grid lines, but with this render level they appear
 *below* the grid lines.
 
+.. _userguide_plotting_images_anchor_origin:
+
+Origin and Anchor
+'''''''''''''''''
+
+The |image| and |image_rgba| glyphs provide ``origin`` and ``anchor``
+properties for controlling the relative position and orientation of the
+image.
+
+When drawn, the image will cover a rectangular drawing region of size
+``dw`` by ``dh``.
+
+The ``anchor`` property specifies where that rectangular drawing region
+is located, relative to the glyph coordinates ``x`` and ``y``. It can be
+used to shift the image vertically or horizontally from ``x`` and ``y``.
+
+The ``origin`` property specifies which corner of the rectangular drawing
+region corresponds to the ``[0, 0]`` pixel of the image array. It can be
+used to flip the image vertically or horizontally within its drawing region.
+
+The example below lets you explore all the different combinations of
+``anchor`` an ``origin`` for a simple 2x2 image.
+
+.. bokeh-plot:: ../../examples/plotting/file/image_origin_anchor.py
+    :source-position: none
+
 .. _userguide_plotting_segments_rays:
 
 Segments and rays

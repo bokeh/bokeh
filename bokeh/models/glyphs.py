@@ -38,10 +38,14 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.enums import (
+    Align,
     Anchor,
     Direction,
+    HAlign,
+    ImageOrigin,
     Palette,
     StepMode,
+    VAlign,
     enumeration,
 )
 from ..core.has_props import abstract
@@ -49,19 +53,23 @@ from ..core.properties import (
     AngleSpec,
     Bool,
     DistanceSpec,
+    Either,
     Enum,
     Float,
     Include,
     Instance,
+    InstanceDefault,
     Int,
     MarkerSpec,
     NullDistanceSpec,
     NumberSpec,
     Override,
+    Percent,
     Size,
     SizeSpec,
     String,
     StringSpec,
+    Tuple,
     field,
 )
 from ..core.property_mixins import (
@@ -639,7 +647,62 @@ class HexTile(LineGlyph, FillGlyph, HatchGlyph):
     The {prop} values for the hex tiles.
     """)
 
-class Image(XYGlyph):
+@abstract
+class ImageBase(XYGlyph):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    x = NumberSpec(default=field("x"), help="""
+    The x-coordinates to locate the image anchors.
+    """)
+
+    y = NumberSpec(default=field("y"), help="""
+    The y-coordinates to locate the image anchors.
+    """)
+
+    dw = DistanceSpec(default=field("dw"), help="""
+    The widths of the plot regions that the images will occupy.
+
+    .. note::
+        This is not the number of pixels that an image is wide.
+        That number is fixed by the image itself.
+    """)
+
+    dh = DistanceSpec(default=field("dh"), help="""
+    The height of the plot region that the image will occupy.
+
+    .. note::
+        This is not the number of pixels that an image is tall.
+        That number is fixed by the image itself.
+    """)
+
+    global_alpha = NumberSpec(1.0, help="""
+    An overall opacity that each image is rendered with (in addition
+    to any inherent alpha values in the image itself).
+    """)
+
+    dilate = Bool(False, help="""
+    Whether to always round fractional pixel locations in such a way
+    as to make the images bigger.
+
+    This setting may be useful if pixel rounding errors are causing
+    images to have a gap between them, when they should appear flush.
+    """)
+
+    origin = Enum(ImageOrigin, default="bottom_left", help="""
+    Defines the coordinate space of an image.
+    """)
+
+    anchor = Either(
+        Enum(Anchor),
+        Tuple(Either(Enum(Align), Enum(HAlign), Percent),
+              Either(Enum(Align), Enum(VAlign), Percent)), default="bottom_left", help="""
+    Position of the image should be anchored at the `x`, `y` coordinates.
+    """)
+
+class Image(ImageBase):
     ''' Render images given as scalar data together with a color mapper.
 
     In addition to the defined model properties, ``Image`` also can accept
@@ -679,44 +742,7 @@ class Image(XYGlyph):
     The arrays of scalar data for the images to be colormapped.
     """)
 
-    x = NumberSpec(default=field("x"), help="""
-    The x-coordinates to locate the image anchors.
-    """)
-
-    y = NumberSpec(default=field("y"), help="""
-    The y-coordinates to locate the image anchors.
-    """)
-
-    dw = DistanceSpec(default=field("dw"), help="""
-    The widths of the plot regions that the images will occupy.
-
-    .. note::
-        This is not the number of pixels that an image is wide.
-        That number is fixed by the image itself.
-    """)
-
-    dh = DistanceSpec(default=field("dh"), help="""
-    The height of the plot region that the image will occupy.
-
-    .. note::
-        This is not the number of pixels that an image is tall.
-        That number is fixed by the image itself.
-    """)
-
-    global_alpha = NumberSpec(1.0, help="""
-    An overall opacity that each image is rendered with (in addition
-    to any alpha values applied explicitly in a color mapper).
-    """)
-
-    dilate = Bool(False, help="""
-    Whether to always round fractional pixel locations in such a way
-    as to make the images bigger.
-
-    This setting may be useful if pixel rounding errors are causing
-    images to have a gap between them, when they should appear flush.
-    """)
-
-    color_mapper = Instance(ColorMapper, default="Greys9", help="""
+    color_mapper = Instance(ColorMapper, default=InstanceDefault(LinearColorMapper, palette="Greys9"), help="""
     A ``ColorMapper`` to use to map the scalar data from ``image``
     into RGBA values for display.
 
@@ -727,7 +753,7 @@ class Image(XYGlyph):
         The color mapping step happens on the client.
     """).accepts(Enum(Palette), lambda pal: LinearColorMapper(palette=pal))
 
-class ImageRGBA(XYGlyph):
+class ImageRGBA(ImageBase):
     ''' Render images given as RGBA data.
 
     '''
@@ -741,46 +767,6 @@ class ImageRGBA(XYGlyph):
     image = NumberSpec(default=field("image"), help="""
     The arrays of RGBA data for the images.
     """)
-
-    x = NumberSpec(default=field("x"), help="""
-    The x-coordinates to locate the image anchors.
-    """)
-
-    y = NumberSpec(default=field("y"), help="""
-    The y-coordinates to locate the image anchors.
-    """)
-
-    dw = DistanceSpec(default=field("dw"), help="""
-    The widths of the plot regions that the images will occupy.
-
-    .. note::
-        This is not the number of pixels that an image is wide.
-        That number is fixed by the image itself.
-    """)
-
-    dh = DistanceSpec(default=field("dh"), help="""
-    The height of the plot region that the image will occupy.
-
-    .. note::
-        This is not the number of pixels that an image is tall.
-        That number is fixed by the image itself.
-    """)
-
-    global_alpha = NumberSpec(1.0, help="""
-    An overall opacity that each image is rendered with (in addition
-    to any inherent alpha values in the image itself).
-    """)
-
-    dilate = Bool(False, help="""
-    Whether to always round fractional pixel locations in such a way
-    as to make the images bigger.
-
-    This setting may be useful if pixel rounding errors are causing
-    images to have a gap between them, when they should appear flush.
-    """)
-
-    # TODO: (bev) support anchor property for ImageRGBA
-    # ref: https://github.com/bokeh/bokeh/issues/1763
 
 class ImageURL(XYGlyph):
     ''' Render images loaded from given URLs.
@@ -842,9 +828,8 @@ class ImageURL(XYGlyph):
     images to have a gap between them, when they should appear flush.
     """)
 
-    anchor = Enum(Anchor, help="""
-    What position of the image should be anchored at the `x`, `y`
-    coordinates.
+    anchor = Enum(Anchor, default="top_left", help="""
+    Position of the image should be anchored at the `x`, `y` coordinates.
     """)
 
     retry_attempts = Int(0, help="""
