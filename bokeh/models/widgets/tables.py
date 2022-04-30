@@ -145,6 +145,12 @@ class StringFormatter(CellFormatter):
     An optional text color.
     """)
 
+    nan_format = String("-", help="""
+    Formatting to apply to NaN and None values.
+    """)
+
+
+
 class ScientificFormatter(StringFormatter):
     ''' Display numeric values from continuous ranges as "basic numbers",
     using scientific notation when appropriate by default.
@@ -153,10 +159,6 @@ class ScientificFormatter(StringFormatter):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    nan_format = Nullable(String, help="""
-    Formatting to apply to NaN and None values (falls back to scientific formatting if not set).
-    """)
 
     precision = Int(10, help="""
     How many digits of precision to display.
@@ -259,10 +261,6 @@ class NumberFormatter(StringFormatter):
 
     language = Enum(NumeralLanguage, default="en", help="""
     The language to use for formatting language-specific features (e.g. thousands separator).
-    """)
-
-    nan_format = Nullable(String, help="""
-    Formatting to apply to NaN and None values (falls back to Numbro formatting if not set).
     """)
 
     rounding = Enum(RoundingFunction, help="""
@@ -494,10 +492,6 @@ class DateFormatter(StringFormatter):
     .. _timezone: http://bigeasy.github.io/timezone/
     .. _github issue: https://github.com/bokeh/bokeh/issues
 
-    """)
-
-    nan_format = Nullable(String, help="""
-    Formatting to apply to NaN and None values (falls back to regular date formatting if not set).
     """)
 
 
