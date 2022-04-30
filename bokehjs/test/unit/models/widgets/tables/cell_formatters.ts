@@ -75,20 +75,24 @@ describe("cell_formatters module", () => {
     })
 
     describe("doFormat method", () => {
-
-      it("should apply nan_format to null", () => {
-        const df = new DateFormatter({nan_format: "-"})
+      it("should apply default nan_format to null", () => {
+        const df = new DateFormatter()
         expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
       })
 
+      it("should apply nan_format to null", () => {
+        const df = new DateFormatter({nan_format: "--"})
+        expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
+      })
+
       it("should apply nan_format to nan", () => {
-        const df = new DateFormatter({nan_format: "-"})
-        expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
+        const df = new DateFormatter({nan_format: "--"})
+        expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
 
       it("should apply nan_format to NaT", () => {
-        const df = new DateFormatter({nan_format: "-"})
-        expect(df.doFormat(0, 0, -9223372036854776, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
+        const df = new DateFormatter({nan_format: "--"})
+        expect(df.doFormat(0, 0, -9223372036854776, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
     })
   })
@@ -98,17 +102,17 @@ describe("cell_formatters module", () => {
     describe("doFormat method", () => {
       it("should apply default nan_format to null", () => {
         const df = new NumberFormatter()
-        expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">NaN</div>')
-      })
-
-      it("should apply nan_format to null", () => {
-        const df = new NumberFormatter({nan_format: "-"})
         expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
       })
 
+      it("should apply nan_format to null", () => {
+        const df = new NumberFormatter({nan_format: "--"})
+        expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
+      })
+
       it("should apply nan_format to nan", () => {
-        const df = new NumberFormatter({nan_format: "-"})
-        expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
+        const df = new NumberFormatter({nan_format: "--"})
+        expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
     })
   })
@@ -116,20 +120,19 @@ describe("cell_formatters module", () => {
   describe("ScientificFormatter", () => {
 
     describe("doFormat method", () => {
-
-      it("should apply nan_format to null", () => {
-        const df = new ScientificFormatter({nan_format: "-"})
+      it("should apply default nan_format to null", () => {
+        const df = new ScientificFormatter()
         expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
       })
 
-      it("should apply nan_format to nan", () => {
-        const df = new ScientificFormatter({nan_format: "-"})
-        expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
+      it("should apply nan_format to null", () => {
+        const df = new ScientificFormatter({nan_format: "--"})
+        expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
 
-      it("should apply nan_format to null with nan_format is null", () => {
-        const df = new ScientificFormatter()
-        expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;"></div>')
+      it("should apply nan_format to nan", () => {
+        const df = new ScientificFormatter({nan_format: "--"})
+        expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
 
       it("should apply to_fixed if value is zero", () => {

@@ -145,7 +145,7 @@ class StringFormatter(CellFormatter):
     An optional text color.
     """)
 
-    nan_format = String("", help="""
+    nan_format = String("-", help="""
     Formatting to apply to NaN and None values.
     """)
 
