@@ -196,7 +196,7 @@ class GMapPlot(MapPlot):
     for more information on how to obtain your own.
     """).accepts(String, lambda val: val.encode("utf-8"))
 
-    api_version = String(default="3.47", help="""
+    api_version = String(default="weekly", help="""
     The version of Google Maps API to use. See https://developers.google.com/maps/documentation/javascript/versions
     for more information.
 
