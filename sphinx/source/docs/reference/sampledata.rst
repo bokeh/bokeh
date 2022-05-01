@@ -29,10 +29,10 @@ airport_routes
 
 .. automodule:: bokeh.sampledata.airport_routes
 
-.. _sampledata_airport:
+.. _sampledata_airports:
 
-airport
--------
+airports
+--------
 
 .. automodule:: bokeh.sampledata.airports
 

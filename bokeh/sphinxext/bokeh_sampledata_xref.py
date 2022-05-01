@@ -126,9 +126,9 @@ def process_sampledata_xrefs(app, doctree, fromdocname):
         _len = len(sampledata_refs)
         para = nodes.paragraph()
         if _len:
-            s = '' if _len==1 else 's'
+            p, s = ('','s') if _len==1 else ('s','')
             description = (
-                _(f'See the following example{s} that use this sample data set: ')
+                _(f'See the following example{p} that use{s} this sample data set: ')
             )
         else:
             description = (_('There are no references for this sample data set'))
