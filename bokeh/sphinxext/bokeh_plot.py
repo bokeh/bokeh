@@ -249,6 +249,18 @@ class BokehPlotDirective(BokehDirective):
         regex = "(:|bokeh\.)sampledata(:|\.| import )\s*(\w+(\,\s*\w+)*)"
         matches = re.findall(regex, source)
         if matches:
+            href = ''
+            file, lineno =  self.get_source_info()
+            # extend href with (sub-)headline if source is not "gallery"
+            if file.endswith(('.py','.rst')) and 'gallery' not in file:
+                with open(file, 'r') as fp:
+                    lines = fp.readlines()[:lineno][::-1]
+
+                for i, line in enumerate(lines):
+                    if re.match(r"""^(?P<reST>=|-|~|\"|')(?P=reST)+$""", line):
+                        href = '#'+lines[i+1].lower().replace(' ', '-').replace(',','')
+                        break
+
             keywords = set()
             for m in matches:
                 keywords.update(m[2].replace(" ","").split(','))
@@ -259,7 +271,8 @@ class BokehPlotDirective(BokehDirective):
                 self.env.all_sampledata_xrefs.append({
                     'docname': self.env.docname,
                     'target': targetnode,
-                    'keyword': keyword
+                    'keyword': keyword,
+                    'href': href
                 })
 # -----------------------------------------------------------------------------
 # Dev API

@@ -110,16 +110,13 @@ def process_sampledata_xrefs(app, doctree, fromdocname):
     for node in doctree.traverse(sampledata_list):
 
         content = []
-
-        # TODO add missing tags for references in user_guide
-        # only add links to the gallery at the moment
         sampledata_refs = []
         refuris = []
         for s in env.all_sampledata_xrefs:
             refuri = app.builder.get_relative_uri(
                 fromdocname, s['docname']
-            )
-            if s["keyword"] == node.sampledata_key and "gallery" in refuri:
+            ) + s['href']
+            if s["keyword"] == node.sampledata_key and refuri not in refuris:
                 sampledata_refs.append(s)
                 refuris.append(refuri)
 
@@ -136,7 +133,7 @@ def process_sampledata_xrefs(app, doctree, fromdocname):
         for i, (sample_info, refuri) in enumerate(zip(sampledata_refs, refuris)):
             # Create references
             newnode = nodes.reference('', '')
-            ref_name = basename(sample_info['docname'])
+            ref_name = basename(sample_info['docname']) + sample_info['href']
             innernode = nodes.emphasis(_(ref_name), _(ref_name))
             newnode['refdocname'] = sample_info['docname']
             newnode['refuri'] = refuri
