@@ -6,20 +6,17 @@ Accelerating with WebGL
 Bokeh provides limited support for WebGL to render plots in a web browser. Using
 WebGL in Bokeh can be useful when visualizing larger data sets, for example.
 
+`WebGL`_ is a JavaScript API that allows rendering content in the browser
+using hardware acceleration from a Graphics Processing Unit (GPU).
+WebGL is standardized and available in all modern browsers.
+
 If you use Bokeh's WebGL output backend, Bokeh will automatically detect if the
 browser supports WebGL. When you use WebGL-enabled elements in your Bokeh plot
 but the browser doesn't support WebGL, Bokeh will automatically use the default
 canvas renderer instead.
 
-What is WebGL?
+Enabling WebGL
 --------------
-
-`WebGL`_ is a JavaScript API that allows rendering content in the browser
-using hardware acceleration from a Graphics Processing Unit (GPU).
-WebGL is standardized and available in all modern browsers.
-
-How to enable WebGL
--------------------
 
 To enable WebGL in Bokeh, set the plot's ``output_backend`` property to
 ``"webgl"``:
