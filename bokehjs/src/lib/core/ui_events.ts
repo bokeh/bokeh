@@ -406,11 +406,11 @@ export class UIEventBus implements EventListenerObject {
     switch (e.type) {
       case "mouseenter":
       case "mousemove": {
-        this.canvas.update_cursor({sx: e.sx, sy: e.sy})
+        this._cursor_position = {sx: e.sx, sy: e.sy}
         break
       }
       case "mouseleave": {
-        this.canvas.update_cursor({sx: NaN, sy: NaN})
+        this._cursor_position = {sx: NaN, sy: NaN}
         break
       }
     }

@@ -7,7 +7,7 @@ import * as p from "core/properties"
 import {div, append} from "core/dom"
 import {OutputBackend} from "core/enums"
 import {extend} from "core/util/object"
-import {UIEventBus, Position} from "core/ui_events"
+import {UIEventBus} from "core/ui_events"
 import {build_views, remove_views} from "core/build_views"
 import {BBox} from "core/util/bbox"
 import {load_module} from "core/util/modules"
@@ -339,16 +339,24 @@ export class CanvasView extends DOMView implements RenderingTarget {
       return coord
   }
 
-  private readonly _cursor_node = new XY({x: NaN, y: NaN, x_units: "canvas", y_units: "canvas"})
-
-  update_cursor({sx, sy}: Position): void {
-    this._cursor_node.setv({x: sx, y: sy})
-  }
-
   resolve_node(node: Node): Coordinate | null {
+    const {left, right, top, bottom} = this.bbox
+
     switch (node.term) {
-      case "cursor": return this._cursor_node
-      default:       return null
+      case "cursor": {
+        const {sx, sy} = this.ui_event_bus.cursor_position
+        return new XY({x: sx, y: sy, x_units: "canvas", y_units: "canvas"})
+      }
+      case "top_left":
+        return new XY({x: left, y: top, x_units: "canvas", y_units: "canvas"})
+      case "top_right":
+        return new XY({x: right, y: top, x_units: "canvas", y_units: "canvas"})
+      case "bottom_left":
+        return new XY({x: left, y: bottom, x_units: "canvas", y_units: "canvas"})
+      case "bottom_right":
+        return new XY({x: right, y: bottom, x_units: "canvas", y_units: "canvas"})
+      default:
+        return null
     }
   }
 }

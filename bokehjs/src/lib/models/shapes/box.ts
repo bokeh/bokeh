@@ -1,5 +1,6 @@
 import {Shape, ShapeView} from "./shape"
 import {Scale} from "../scales/scale"
+import {Coordinate, Node, XY} from "../coordinates"
 import {CoordinateUnits} from "core/enums"
 import {PanEvent, Pannable} from "core/ui_events"
 import {Signal} from "core/signaling"
@@ -12,7 +13,13 @@ import {assert, unreachable} from "core/util/assert"
 import {BBox, LRTB} from "core/util/bbox"
 import {clamp, sign, absmin, abs, max} from "core/util/math"
 
-type Geometry = {}
+type Geometry = {
+  sleft: number
+  sright: number
+  stop: number
+  sbottom: number
+  bbox: BBox
+}
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -79,7 +86,14 @@ export class BoxView extends ShapeView implements Pannable {
   }
 
   get geometry(): Geometry {
-    return {}
+    const {left, right, top, bottom} = this.bbox
+    return {
+      sleft: left,
+      sright: right,
+      stop: top,
+      sbottom: bottom,
+      bbox: this.bbox,
+    }
   }
 
   private _geometry(): void {
@@ -119,6 +133,23 @@ export class BoxView extends ShapeView implements Pannable {
     this.visuals.fill.apply(ctx)
     this.visuals.hatch.apply(ctx)
     this.visuals.line.apply(ctx)
+  }
+
+  override resolve_node(node: Node): Coordinate | null {
+    const {sleft, sright, stop, sbottom} = this.geometry
+
+    switch (node.term) {
+      case "top_left":
+        return new XY({x: sleft, y: stop, x_units: "canvas", y_units: "canvas"})
+      case "top_right":
+        return new XY({x: sright, y: stop, x_units: "canvas", y_units: "canvas"})
+      case "bottom_left":
+        return new XY({x: sleft, y: sbottom, x_units: "canvas", y_units: "canvas"})
+      case "bottom_right":
+        return new XY({x: sright, y: sbottom, x_units: "canvas", y_units: "canvas"})
+      default:
+        return null
+    }
   }
 
   interactive_bbox(): BBox {

@@ -209,16 +209,48 @@ class Canvas(Model):
 class CanvasNodes:
 
     _cursor: Node | None
+    _top_left: Node | None
+    _top_right: Node | None
+    _bottom_left: Node | None
+    _bottom_right: Node | None
 
     def __init__(self, target: Canvas) -> None:
         self.target = target
         self._cursor = None
+        self._top_left = None
+        self._top_right = None
+        self._bottom_left = None
+        self._bottom_right = None
 
     @property
     def cursor(self) -> Node:
         if self._cursor is None:
             self._cursor = Node(target=self.target, term="cursor")
         return self._cursor
+
+    @property
+    def top_left(self) -> Node:
+        if self._top_left is None:
+            self._top_left = Node(target=self.target, term="top_left")
+        return self._top_left
+
+    @property
+    def top_right(self) -> Node:
+        if self._top_right is None:
+            self._top_right = Node(target=self.target, term="top_right")
+        return self._top_right
+
+    @property
+    def bottom_left(self) -> Node:
+        if self._bottom_left is None:
+            self._bottom_left = Node(target=self.target, term="bottom_left")
+        return self._bottom_left
+
+    @property
+    def bottom_right(self) -> Node:
+        if self._bottom_right is None:
+            self._bottom_right = Node(target=self.target, term="bottom_right")
+        return self._bottom_right
 
 #-----------------------------------------------------------------------------
 # Code
