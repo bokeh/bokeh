@@ -6,6 +6,11 @@ Accelerating with WebGL
 Bokeh provides limited support for WebGL to render plots in a web browser. Using
 WebGL in Bokeh can be useful when visualizing larger data sets, for example.
 
+If you use Bokeh's WebGL output backend, Bokeh will automatically detect if the
+browser supports WebGL. When you use WebGL-enabled elements in your Bokeh plot
+but the browser doesn't support WebGL, Bokeh will automatically use the default
+canvas renderer instead.
+
 What is WebGL?
 --------------
 
@@ -16,9 +21,8 @@ WebGL is standardized and available in all modern browsers.
 How to enable WebGL
 -------------------
 
-To enable WebGL in Bokeh, set the plot's :class:`~bokeh.plotting.Figure.output_backend`
-
- ``output_backend`` property to ``"webgl"``:
+To enable WebGL in Bokeh, set the plot's ``output_backend`` property to
+``"webgl"``:
 
 .. code-block:: python
 
@@ -63,6 +67,14 @@ WebGL support for these fixed-shape glyphs covers the following properties:
 There is also full WebGL support for :func:`~bokeh.plotting.figure.line`
 glyphs, although the appearance of dashed lines with round and square end caps
 needs improvement.
+
+If you enable Bokeh's webGL output backend, WebGL will be used whenever
+supported by a browser. This includes output in :ref:`Jupyter notebooks or
+Jupyter lab <userguide_jupyter>` and when :ref:`exporting Bokeh plots to PNG
+<userguide_export>` if the underlying browser (including headless browsers)
+supports WebGL. In case a browser does not support WebGL, Bokeh automatically
+falls back to the standard canvas output backend.
+
 
 When to use WebGL
 -----------------
