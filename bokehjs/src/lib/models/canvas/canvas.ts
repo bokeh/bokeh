@@ -7,7 +7,7 @@ import * as p from "core/properties"
 import {div, append} from "core/dom"
 import {OutputBackend} from "core/enums"
 import {extend} from "core/util/object"
-import {UIEventBus} from "core/ui_events"
+import {UIEventBus, Position} from "core/ui_events"
 import {build_views, remove_views} from "core/build_views"
 import {BBox} from "core/util/bbox"
 import {load_module} from "core/util/modules"
@@ -15,7 +15,8 @@ import {parse_css_font_size} from "core/util/text"
 import {CanvasLayer} from "core/util/canvas"
 import {PlotView} from "../plots/plot"
 import {Renderer, RenderingTarget, screen, view} from "../renderers/renderer"
-import {CoordinateSystem} from "./coordinates"
+import {CoordinateSystem} from "./coordinates" // TODO: rename this
+import {Coordinate, Node, XY} from "../coordinates"
 import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
 
 // Notes on WebGL support:
@@ -313,6 +314,42 @@ export class CanvasView extends DOMView implements RenderingTarget {
     const {children, ...state} = super.serializable_state()
     const renderers = this.renderer_views.map((view) => view.serializable_state())
     return {...state, children: [...children ?? [], ...renderers]}
+  }
+
+  resolve(coord: Coordinate): Coordinate {
+    if (coord instanceof Node) {
+      const target = (() => {
+        const {target} = coord
+        if (target instanceof Canvas) {
+          if (target == this.model)
+            return this
+          else
+            throw new Error("attempted to resolve a canvas node from another canvas")
+        } else
+          return this.view_for(target)
+      })()
+
+      const resolved = target.resolve_node?.(coord)
+
+      if (resolved != null)
+        return resolved
+      else
+        throw new Error(`can't resolve '${coord.term}' node of ${coord.target}`)
+    } else
+      return coord
+  }
+
+  private readonly _cursor_node = new XY({x: NaN, y: NaN, x_units: "canvas", y_units: "canvas"})
+
+  update_cursor({sx, sy}: Position): void {
+    this._cursor_node.setv({x: sx, y: sy})
+  }
+
+  resolve_node(node: Node): Coordinate | null {
+    switch (node.term) {
+      case "cursor": return this._cursor_node
+      default:       return null
+    }
   }
 }
 

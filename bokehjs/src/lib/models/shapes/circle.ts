@@ -79,6 +79,9 @@ export class CircleView extends ShapeView implements Pannable {
   paint(ctx: Context2d): void {
     const {sx, sy, sradius} = this.geometry
 
+    if (!isFinite(sx + sy + sradius))
+      return
+
     ctx.beginPath()
     ctx.arc(sx, sy, sradius, 0, 2*pi, false)
 
@@ -87,7 +90,7 @@ export class CircleView extends ShapeView implements Pannable {
     this.visuals.line.apply(ctx)
   }
 
-  protected override _resolve_node(node: Node): Coordinate | null {
+  override resolve_node(node: Node): Coordinate | null {
     const {sx, sy} = this.geometry
 
     switch (node.term) {

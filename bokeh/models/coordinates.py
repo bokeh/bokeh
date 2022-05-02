@@ -89,7 +89,10 @@ class Node(Coordinate):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    target = Required(Instance(Model)) # needs a base model or a trait
+    # needs a base model or a trait (e.g. CoordinatesSource); currently renderers
+    # and canvas can be such source, however due to import restrictions can't be
+    # used here
+    target = Required(Instance(Model))
     term = Required(String)
 
 class Distance(Model):

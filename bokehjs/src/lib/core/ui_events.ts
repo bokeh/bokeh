@@ -13,6 +13,8 @@ import {ToolView} from "../models/tools/tool"
 import {RendererView} from "../models/renderers/renderer"
 import type {CanvasView} from "../models/canvas/canvas"
 
+export type Position = {sx: number, sy: number}
+
 export interface Moveable {
   on_move_start(ev: MoveEvent): boolean
   on_move(ev: MoveEvent): void
@@ -197,10 +199,10 @@ export class UIEventBus implements EventListenerObject {
   })
 
   get hit_area(): HTMLElement {
-    return this.canvas_view.events_el
+    return this.canvas.events_el
   }
 
-  constructor(readonly canvas_view: CanvasView) {
+  constructor(readonly canvas: CanvasView) {
     this._configure_hammerjs()
 
     // Mouse & keyboard events not handled through hammerjs
@@ -353,13 +355,13 @@ export class UIEventBus implements EventListenerObject {
   }
 
   protected _hit_test(sx: number, sy: number): RendererView | null {
-    const cviews = this.canvas_view.renderer_views.values()
+    const cviews = this.canvas.renderer_views.values()
     for (const view of reversed([...cviews])) {
       if (view.interactive_hit?.(sx, sy) ?? false)
         return view
     }
 
-    const plot_view = this.canvas_view.plot_views.find((pv) => pv.bbox.contains(sx, sy))
+    const plot_view = this.canvas.plot_views.find((pv) => pv.bbox.contains(sx, sy))
 
     if (plot_view != null) {
       const pviews = plot_view.get_renderer_views()
@@ -378,7 +380,13 @@ export class UIEventBus implements EventListenerObject {
   }
 
   protected _hit_test_plot(sx: number, sy: number): PlotView | null {
-    return this.canvas_view.plot_views.find((pv) => pv.bbox.contains(sx, sy)) ?? null
+    return this.canvas.plot_views.find((pv) => pv.bbox.contains(sx, sy)) ?? null
+  }
+
+  private _cursor_position: Position = {sx: NaN, sy: NaN}
+
+  get cursor_position(): Position {
+    return this._cursor_position
   }
 
   protected _prev_move: {sx: number, sy: number, plot_view: PlotView | null} | null = null
@@ -394,6 +402,18 @@ export class UIEventBus implements EventListenerObject {
 
   _trigger<E extends UIEvent>(signal: UISignal<E>, e: E, src_event: Event): void {
     const view = this._hit_test(e.sx, e.sy)
+
+    switch (e.type) {
+      case "mouseenter":
+      case "mousemove": {
+        this.canvas.update_cursor({sx: e.sx, sy: e.sy})
+        break
+      }
+      case "mouseleave": {
+        this.canvas.update_cursor({sx: NaN, sy: NaN})
+        break
+      }
+    }
 
     switch (e.type) {
       case "panstart":

@@ -98,7 +98,7 @@ export class ArcView extends ShapeView {
     //this.paint_decorations(ctx, sx, sy, sradius, start_angle, end_angle, anticlock)
   }
 
-  protected override _resolve_node(node: Node): Coordinate | null {
+  override resolve_node(node: Node): Coordinate | null {
     const {sx, sy, sradius, start_angle, end_angle} = this.geometry
 
     function compute(angle: number) {

@@ -33,6 +33,7 @@ from ..core.properties import (
     String,
 )
 from ..model import Model
+from .coordinates import Node
 from .ranges import DataRange1d, Range
 from .renderers import Renderer
 from .scales import LinearScale, Scale
@@ -167,6 +168,7 @@ class Canvas(Model):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self._nodes = CanvasNodes(self)
 
     renderers = List(Instance(Renderer), default=[], help="""
     Collection of objects to paint onto this canvas.
@@ -192,6 +194,10 @@ class Canvas(Model):
         will fall back to rendering onto 2D canvas.
     """)
 
+    @property
+    def nodes(self) -> CanvasNodes:
+        return self._nodes
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -199,6 +205,20 @@ class Canvas(Model):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+class CanvasNodes:
+
+    _cursor: Node | None
+
+    def __init__(self, target: Canvas) -> None:
+        self.target = target
+        self._cursor = None
+
+    @property
+    def cursor(self) -> Node:
+        if self._cursor is None:
+            self._cursor = Node(target=self.target, term="cursor")
+        return self._cursor
 
 #-----------------------------------------------------------------------------
 # Code

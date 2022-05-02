@@ -1,11 +1,12 @@
 import {Coordinate} from "./coordinate"
 import {type Renderer} from "../renderers/renderer"
+import {type Canvas} from "../canvas/canvas"
 import * as p from "core/properties"
 
 export namespace Node {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Coordinate.Props & {
-    target: p.Property<Renderer>
+    target: p.Property<Renderer | Canvas>
     term: p.Property<string>
   }
 }
