@@ -77,8 +77,8 @@ When to use WebGL
 -----------------
 
 A general rule of thumb is that Bokeh's default canvas output backend works well
-if you are rendering less than 10.000 markers or points. For plots with more
-than 10.000 markers or points, WebGL will usually give noticeably better
+if you are rendering fewer than 10,000 markers or points. For plots with more
+than 10,000 markers or points, WebGL will usually give noticeably better
 performance. Generally, the more markers or points to render, the more efficient
 WebGL will be compared to the default canvas output backend.
 
@@ -86,14 +86,14 @@ WebGL will be compared to the default canvas output backend.
 WebGL examples
 --------------
 
-The following example is a plot with 10.000 scatter circles with WebGL enabled.
+The following example is a plot with 10,000 scatter circles with WebGL enabled.
 Notice that the plot can be panned and zoomed smoothly, even without
 downsampling the data.
 
 .. bokeh-plot:: ../../examples/webgl/scatter10k.py
     :source-position: above
 
-Similarly, the plot below demonstrates plotting a single line with 10.000
+Similarly, the plot below demonstrates plotting a single line with 10,000
 points.
 
 .. bokeh-plot:: ../../examples/webgl/line10k.py
