@@ -486,17 +486,15 @@ def check_error(args):
 def test_unix_socket_on_windows() -> None:
     unix_socket = "test.sock"
     out = check_error(["--unix-socket", unix_socket]).strip()
-    expected = "Unix socket support is not available on windows."
-    assert expected == out
+    expected = "ERROR: Unix sockets are not supported on windows."
+    assert expected in out
 
-@pytest.mark.skipif(sys.platform == "win32", reason="Unix sockets not available on windows")
 def test_unix_socket_with_port() -> None:
     unix_socket = "test.sock"
     out = check_error(["--unix-socket", unix_socket, "--port", "5000"]).strip()
     expected = "--port arg is not supported with a unix socket"
     assert expected == out
 
-@pytest.mark.skipif(sys.platform == "win32", reason="Unix sockets not available on windows")
 def test_unix_socket_with_invalid_args() -> None:
     invalid_args = ['address', 'allow-websocket-origin', 'ssl-certfile', 'ssl-keyfile']
     for arg in invalid_args:

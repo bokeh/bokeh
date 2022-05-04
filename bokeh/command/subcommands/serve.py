@@ -886,9 +886,6 @@ class Serve(Subcommand):
                 "the `bokeh secret` command can be used to generate a new key.")
 
         if 'unix_socket' in server_kwargs:
-            if sys.platform == "win32":
-                die("Unix socket support is not available on windows.")
-
             if server_kwargs['port'] != DEFAULT_SERVER_PORT:
                 die("--port arg is not supported with a unix socket")
             invalid_args = ['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile']

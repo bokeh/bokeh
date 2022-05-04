@@ -424,6 +424,8 @@ class Server(BaseServer):
             http_server_kwargs['ssl_options'] = context
 
         if opts.unix_socket:
+            if sys.platform == "win32":
+                raise RuntimeError("Unix sockets are not supported on windows.")
             sockets = [netutil.bind_unix_socket(opts.unix_socket)]
             self._unix_socket = opts.unix_socket
             self._address, self._port = None, None
