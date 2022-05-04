@@ -12,6 +12,7 @@ import {Side, TickLabelOrientation} from "core/enums"
 import {Size, Layoutable} from "core/layout"
 import {Indices} from "core/types"
 import {Panel, SideLayout, Orient} from "core/layout/side_panel"
+import {BBox} from "core/util/bbox"
 import {assert} from "core/util/assert"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
@@ -48,6 +49,10 @@ export class AxisView extends GuideRendererView {
 
   panel: Panel
   layout: Layoutable
+
+  get bbox(): BBox {
+    return this.layout.bbox
+  }
 
   /*private*/ _axis_label_view: BaseTextView | null = null
   /*private*/ _major_label_views: Map<string | number, BaseTextView> = new Map()
@@ -206,7 +211,7 @@ export class AxisView extends GuideRendererView {
       return
 
     const [sx, sy] = (() => {
-      const {bbox} = this.layout
+      const {bbox} = this
       switch (this.panel.side) {
         case "above":
           return [bbox.hcenter, bbox.bottom]
@@ -457,16 +462,16 @@ export class AxisView extends GuideRendererView {
     let [xoff, yoff] = [0, 0]
     switch (this.panel.side) {
       case "below":
-        yoff = abs(this.layout.bbox.top - frame.bbox.bottom)
+        yoff = abs(this.bbox.top - frame.bbox.bottom)
         break
       case "above":
-        yoff = abs(this.layout.bbox.bottom - frame.bbox.top)
+        yoff = abs(this.bbox.bottom - frame.bbox.top)
         break
       case "right":
-        xoff = abs(this.layout.bbox.left - frame.bbox.right)
+        xoff = abs(this.bbox.left - frame.bbox.right)
         break
       case "left":
-        xoff = abs(this.layout.bbox.right - frame.bbox.left)
+        xoff = abs(this.bbox.right - frame.bbox.left)
         break
     }
 
@@ -613,7 +618,7 @@ export class AxisView extends GuideRendererView {
   override serializable_state(): SerializableState {
     return {
       ...super.serializable_state(),
-      bbox: this.layout.bbox.box,
+      bbox: this.bbox.box,
     }
   }
 
