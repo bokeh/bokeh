@@ -97,7 +97,7 @@ export class CircleView extends ShapeView implements Pannable {
       case "center":
         return new XY({x: sx, y: sy, x_units: "canvas", y_units: "canvas"})
       default:
-        return null
+        return super.resolve_node(node)
     }
   }
 

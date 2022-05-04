@@ -148,7 +148,7 @@ export class BoxView extends ShapeView implements Pannable {
       case "bottom_right":
         return new XY({x: sright, y: sbottom, x_units: "canvas", y_units: "canvas"})
       default:
-        return null
+        return super.resolve_node(node)
     }
   }
 

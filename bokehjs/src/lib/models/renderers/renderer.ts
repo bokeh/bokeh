@@ -189,7 +189,9 @@ export abstract class RendererView extends View implements visuals.Renderable {
     return this.canvas.resolve(coord)
   }
 
-  resolve_node?(node: Node): Coordinate | null
+  resolve_node(_node: Node): Coordinate | null {
+    return null
+  }
 
   interactive_hit?(sx: number, sy: number): boolean
 

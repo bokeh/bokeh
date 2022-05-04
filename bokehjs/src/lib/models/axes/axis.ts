@@ -1,4 +1,5 @@
 import {GuideRenderer, GuideRendererView} from "../renderers/guide_renderer"
+import {Coordinate, Node, XY} from "../coordinates"
 import {Ticker} from "../tickers/ticker"
 import {TickFormatter} from "../formatters/tick_formatter"
 import {LabelingPolicy, AllLabels, DistanceMeasure} from "../policies/labeling"
@@ -143,19 +144,13 @@ export class AxisView extends GuideRendererView {
     if (!this.visuals.axis_line.doit)
       return
 
-    const [xs, ys]     = this.rule_coords
-    const [sxs, sys]   = this.coordinates.map_to_screen(xs, ys)
-    const [nx, ny]     = this.normals
-    const [xoff, yoff] = this.offsets
-
-    this.visuals.axis_line.set_value(ctx)
+    const {sx0, sy0, sx1, sy1} = this.rule_scoords
 
     ctx.beginPath()
-    for (let i = 0; i < sxs.length; i++) {
-      const sx = Math.round(sxs[i] + nx*xoff)
-      const sy = Math.round(sys[i] + ny*yoff)
-      ctx.lineTo(sx, sy)
-    }
+    ctx.moveTo(sx0, sy0)
+    ctx.lineTo(sx1, sy1)
+
+    this.visuals.axis_line.set_value(ctx)
     ctx.stroke()
   }
 
@@ -534,6 +529,21 @@ export class AxisView extends GuideRendererView {
     return coords
   }
 
+  get rule_scoords(): {sx0: number, sy0: number, sx1: number, sy1: number} {
+    const [xs, ys] = this.rule_coords
+    const [[sx0, sx1], [sy0, sy1]] = this.coordinates.map_to_screen(xs, ys)
+
+    const [nx, ny] = this.normals
+    const [xoff, yoff] = this.offsets
+
+    return {
+      sx0: Math.round(sx0 + nx*xoff),
+      sy0: Math.round(sy0 + ny*yoff),
+      sx1: Math.round(sx1 + nx*xoff),
+      sy1: Math.round(sy1 + ny*yoff),
+    }
+  }
+
   get tick_coords(): TickCoords {
     const i = this.dimension
     const j = (i + 1) % 2
@@ -632,6 +642,19 @@ export class AxisView extends GuideRendererView {
     }
 
     return true
+  }
+
+  override resolve_node(node: Node): Coordinate | null {
+    const {sx0, sy0, sx1, sy1} = this.rule_scoords
+
+    switch (node.term) {
+      case "start":
+        return new XY({x: sx0, y: sy0, x_units: "canvas", y_units: "canvas"})
+      case "end":
+        return new XY({x: sx1, y: sy1, x_units: "canvas", y_units: "canvas"})
+      default:
+        return super.resolve_node(node)
+    }
   }
 }
 

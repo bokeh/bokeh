@@ -329,7 +329,7 @@ export class CanvasView extends DOMView implements RenderingTarget {
           return this.view_for(target)
       })()
 
-      const resolved = target.resolve_node?.(coord)
+      const resolved = target.resolve_node(coord)
 
       if (resolved != null)
         return resolved

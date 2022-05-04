@@ -52,7 +52,7 @@ from ..core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLine
 from .annotations.geometry import Directions, Edges
 from .coordinates import Coordinate, Distance, Node
 from .graphics import Decoration
-from .renderers import Renderer
+from .renderers import Nodes, Renderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -332,11 +332,6 @@ class Wedge(Shape, Area):
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-class Nodes:
-
-    def __init__(self, target: Renderer) -> None:
-        self.target = target
 
 class AnnularWedgeNodes(Nodes):
 

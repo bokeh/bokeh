@@ -116,7 +116,7 @@ export class ArcView extends ShapeView {
       case "end":
         return compute(end_angle)
       default:
-        return null
+        return super.resolve_node(node)
     }
   }
 

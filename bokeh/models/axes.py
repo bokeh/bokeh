@@ -45,6 +45,7 @@ from ..core.properties import (
     Tuple,
 )
 from ..core.property_mixins import ScalarLineProps, ScalarTextProps
+from .coordinates import Node
 from .formatters import (
     BasicTickFormatter,
     CategoricalTickFormatter,
@@ -54,7 +55,7 @@ from .formatters import (
     TickFormatter,
 )
 from .labeling import AllLabels, LabelingPolicy
-from .renderers import GuideRenderer
+from .renderers import Nodes, GuideRenderer
 from .tickers import (
     BasicTicker,
     CategoricalTicker,
@@ -92,6 +93,7 @@ class Axis(GuideRenderer):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self._nodes = AxisNodes(self)
 
     bounds = Either(Auto, Tuple(Float, Float), Tuple(Datetime, Datetime), help="""
     Bounds for the rendered axis. If unset, the axis will span the
@@ -216,6 +218,10 @@ class Axis(GuideRenderer):
         Axes labels are suppressed when axes are positioned at fixed locations
         inside the central plot area.
     """)
+
+    @property
+    def nodes(self) -> AxisNodes:
+        return self._nodes
 
 @abstract
 class ContinuousAxis(Axis):
@@ -366,6 +372,28 @@ class MercatorAxis(LinearAxis):
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+class AxisNodes(Nodes):
+
+    _start: Node | None
+    _end: Node | None
+
+    def __init__(self, target: Axis) -> None:
+        super().__init__(target)
+        self._start = None
+        self._end = None
+
+    @property
+    def start(self) -> Node:
+        if self._start is None:
+            self._start = Node(target=self.target, term="start")
+        return self._start
+
+    @property
+    def end(self) -> Node:
+        if self._end is None:
+            self._end = Node(target=self.target, term="end")
+        return self._end
 
 #-----------------------------------------------------------------------------
 # Private API
