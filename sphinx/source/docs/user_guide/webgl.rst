@@ -63,7 +63,7 @@ WebGL support for these fixed-shape glyphs covers the following properties:
 
 There is also full WebGL support for :func:`~bokeh.plotting.figure.line`
 glyphs, although the appearance of dashed lines with round and square end caps
-needs improvement.
+may differ slightly from the default HTML canvas rendering.
 
 If you enable Bokeh's webGL output backend, WebGL will be used whenever
 supported by a browser. This includes output in :ref:`Jupyter notebooks or
@@ -78,9 +78,12 @@ When to use WebGL
 
 A general rule of thumb is that Bokeh's default canvas output backend works well
 if you are rendering fewer than 10,000 markers or points. For plots with more
-than 10,000 markers or points, WebGL will usually give noticeably better
+than 25,000 markers or points, WebGL will usually give noticeably better
 performance. Generally, the more markers or points to render, the more efficient
-WebGL will be compared to the default canvas output backend.
+WebGL will be compared to the default canvas output backend. The number of
+markers or points at which WebGL performance exceeds canvas depends on the
+hardware available, so you will need to try it out on your own hardware to see
+what is best for you.
 
 
 WebGL examples
