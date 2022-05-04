@@ -423,7 +423,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import argparse
 import os
-import sys
 from fnmatch import fnmatch
 from glob import glob
 from typing import Any, Dict, List
