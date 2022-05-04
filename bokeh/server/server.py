@@ -412,7 +412,7 @@ class Server(BaseServer):
         if opts.num_procs > 1 and sys.platform == "win32":
             raise RuntimeError("num_procs > 1 not supported on Windows")
 
-        if opts.unix_socket and sys.platform == "linux":
+        if opts.unix_socket and sys.platform == "win32":
             raise RuntimeError("Unix sockets are not supported on windows.")
 
         if http_server_kwargs is None:
