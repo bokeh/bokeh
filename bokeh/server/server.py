@@ -412,6 +412,9 @@ class Server(BaseServer):
         if opts.num_procs > 1 and sys.platform == "win32":
             raise RuntimeError("num_procs > 1 not supported on Windows")
 
+        if opts.unix_socket and sys.platform == "linux":
+            raise RuntimeError("Unix sockets are not supported on windows.")
+
         if http_server_kwargs is None:
             http_server_kwargs = {}
         http_server_kwargs.setdefault('xheaders', opts.use_xheaders)
@@ -424,8 +427,6 @@ class Server(BaseServer):
             http_server_kwargs['ssl_options'] = context
 
         if opts.unix_socket:
-            if sys.platform == "win32":
-                raise RuntimeError("Unix sockets are not supported on windows.")
             sockets = [netutil.bind_unix_socket(opts.unix_socket)]
             self._unix_socket = opts.unix_socket
             self._address, self._port = None, None
