@@ -47,7 +47,7 @@ from typing import (
 )
 
 # External imports
-from tornado import version as tornado_version
+from tornado import netutil, version as tornado_version
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
@@ -301,7 +301,7 @@ class BaseServer:
         self._loop.add_callback_from_signal(self._loop.stop)
 
     @property
-    def port(self) -> int:
+    def port(self) -> int | None:
         ''' The configured port number that the server listens on for HTTP requests
         '''
         sock = next(
@@ -412,6 +412,9 @@ class Server(BaseServer):
         if opts.num_procs > 1 and sys.platform == "win32":
             raise RuntimeError("num_procs > 1 not supported on Windows")
 
+        if opts.unix_socket and sys.platform == "win32":
+            raise RuntimeError("Unix sockets are not supported on windows.")
+
         if http_server_kwargs is None:
             http_server_kwargs = {}
         http_server_kwargs.setdefault('xheaders', opts.use_xheaders)
@@ -423,10 +426,16 @@ class Server(BaseServer):
             context.load_cert_chain(certfile=opts.ssl_certfile, keyfile=opts.ssl_keyfile, password=opts.ssl_password)
             http_server_kwargs['ssl_options'] = context
 
-        sockets, self._port = bind_sockets(opts.address, opts.port)
-        self._address = opts.address
+        if opts.unix_socket:
+            sockets = [netutil.bind_unix_socket(opts.unix_socket)]
+            self._unix_socket = opts.unix_socket
+            self._address, self._port = None, None
+            extra_websocket_origins = []
+        else:
+            sockets, self._port = bind_sockets(opts.address, opts.port)
+            self._address = opts.address
 
-        extra_websocket_origins = create_hosts_allowlist(opts.allow_websocket_origin, self.port)
+            extra_websocket_origins = create_hosts_allowlist(opts.allow_websocket_origin, self.port)
         try:
             tornado_app = BokehTornado(applications,
                                        extra_websocket_origins=extra_websocket_origins,
@@ -457,12 +466,18 @@ class Server(BaseServer):
         super().__init__(io_loop, tornado_app, http_server)
 
     @property
-    def port(self) -> int:
+    def port(self) -> int | None:
         ''' The configured port number that the server listens on for HTTP
         requests.
-
         '''
         return self._port
+
+    @property
+    def unix_socket(self) -> str:
+        ''' The configured unix socket that the server listens to.
+
+        '''
+        return self._unix_socket
 
     @property
     def address(self) -> str | None:
@@ -499,6 +514,12 @@ class _ServerOpts(Options):
 
     port: int = Int(default=DEFAULT_SERVER_PORT, help="""
     The port number the server should listen on for HTTP requests.
+    """)  # type: ignore[assignment]
+
+    unix_socket : str | None = Nullable(String, help="""
+    The unix socket the server should bind to. Other network args
+    such as port, address, ssl options etc are incompatible with unix sockets.
+    Unix socket support is not available on windows.
     """)  # type: ignore[assignment]
 
     prefix: str = String(default="", help="""

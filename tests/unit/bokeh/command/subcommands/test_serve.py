@@ -24,12 +24,15 @@ import re
 import socket
 import subprocess
 import sys
+import time
 from os.path import join, split
 from queue import Empty, Queue
 from threading import Thread
 
 # External imports
 import requests
+import requests_unixsocket
+from flaky import flaky
 
 # Bokeh imports
 from bokeh._testing.util.env import envset
@@ -138,6 +141,13 @@ def test_args() -> None:
             default = None,
         )),
 
+        ('--unix-socket', Argument(
+            metavar = 'UNIX-SOCKET',
+            type    = str,
+            help    = "Unix socket to bind. Network options such as port, address, ssl options are incompatible with unix socket",
+            default = None,
+        )),
+
         ('--log-level', Argument(
             metavar = 'LOG-LEVEL',
             action  = 'store',
@@ -210,7 +220,8 @@ def test_args() -> None:
             metavar = 'HOST[:PORT]',
             action  = 'append',
             type    = str,
-            help    = "Public hostnames which may connect to the Bokeh websocket",
+            help    = "Public hostnames which may connect to the Bokeh websocket "
+                      "With unix socket, the websocket origin restrictions should be enforced by the proxy.",
         )),
 
         ('--prefix', Argument(
@@ -470,6 +481,53 @@ def check_error(args):
     else:
         pytest.fail(f"command {cmd} unexpected successful")
     return out
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Unix sockets not available on windows")
+def test_unix_socket_on_windows() -> None:
+    unix_socket = "test.sock"
+    out = check_error(["--unix-socket", unix_socket]).strip()
+    expected = "ERROR: Unix sockets are not supported on windows."
+    assert expected in out
+
+def test_unix_socket_with_port() -> None:
+    unix_socket = "test.sock"
+    out = check_error(["--unix-socket", unix_socket, "--port", "5000"]).strip()
+    expected = "--port arg is not supported with a unix socket"
+    assert expected == out
+
+def test_unix_socket_with_invalid_args() -> None:
+    invalid_args = ['address', 'allow-websocket-origin', 'ssl-certfile', 'ssl-keyfile']
+    for arg in invalid_args:
+        unix_socket = "test.sock"
+        out = check_error(["--unix-socket", unix_socket, f"--{arg}", "value"]).strip()
+        expected = "['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile', 'port'] args are not supported with a unix socket"
+        assert expected == out
+
+@flaky(max_runs=10)
+@pytest.mark.skipif(sys.platform == "win32", reason="Unix sockets not available on windows")
+def test_unix_socket() -> None:
+    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    file_name = "test.socket"
+
+    if os.path.exists(file_name):
+        os.remove(file_name)
+
+    sock.bind(file_name)
+    with run_bokeh_serve(["--unix-socket", file_name, "--glob", APPS]) as (p, nbsr):
+        # The server is not ready is binds to the unix socket
+        # very quickly, having some sleep helps
+        with requests_unixsocket.monkeypatch():
+            for t in range(1, 11):
+                time.sleep(1)
+                try:
+                    r = requests.get(f"http+unix://{file_name.replace('/', '%2F')}/line_on_off")
+                    assert r.status_code == 200
+                    break
+                except:
+                    if t == 10:
+                        assert False
+                    pass
+    os.remove(file_name)
 
 def test_host_not_available() -> None:
     host = "8.8.8.8"
