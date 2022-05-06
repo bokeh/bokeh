@@ -9,7 +9,6 @@ import {Float32Buffer, Uint8Buffer} from "./buffer"
 import {LineGlyphProps, LineDashGlyphProps} from "./types"
 
 export class LineGL extends BaseGLGlyph {
-  protected _nsegments: number
   protected _points?: Float32Buffer
   protected _show?: Uint8Buffer  // Applies to segments not points.
 
@@ -51,46 +50,35 @@ export class LineGL extends BaseGLGlyph {
     const line_visuals = this.glyph.visuals.line
     const line_cap = cap_lookup[line_visuals.line_cap.value]
     const line_join = join_lookup[line_visuals.line_join.value]
+    const points = mainGlGlyph._points!
 
+    const solid_props: LineGlyphProps = {
+      scissor: this.regl_wrapper.scissor,
+      viewport: this.regl_wrapper.viewport,
+      canvas_size: [transform.width, transform.height],
+      pixel_ratio: transform.pixel_ratio,
+      line_color: this._color,
+      linewidth: this._linewidth,
+      antialias: this._antialias,
+      miter_limit: this._miter_limit,
+      points,
+      show: mainGlGlyph._show!,
+      nsegments: points.length/2 - 3,  // Points array includes extra points at each end
+      line_join,
+      line_cap,
+    }
     if (this._is_dashed()) {
-      const props: LineDashGlyphProps = {
-        scissor: this.regl_wrapper.scissor,
-        viewport: this.regl_wrapper.viewport,
-        canvas_size: [transform.width, transform.height],
-        pixel_ratio: transform.pixel_ratio,
-        line_color: this._color,
-        linewidth: this._linewidth,
-        antialias: this._antialias,
-        miter_limit: this._miter_limit,
-        points: mainGlGlyph._points!,
-        show: mainGlGlyph._show!,
-        nsegments: mainGlGlyph._nsegments,
-        line_join,
-        line_cap,
-        length_so_far: mainGlGlyph._length_so_far!,
+      const dashed_props: LineDashGlyphProps = {
+        ...solid_props,
+        length_so_far: this._length_so_far!,
         dash_tex: this._dash_tex!,
         dash_tex_info: this._dash_tex_info!,
         dash_scale: this._dash_scale!,
         dash_offset: this._dash_offset!,
       }
-      this.regl_wrapper.dashed_line()(props)
+      this.regl_wrapper.dashed_line()(dashed_props)
     } else {
-      const props: LineGlyphProps = {
-        scissor: this.regl_wrapper.scissor,
-        viewport: this.regl_wrapper.viewport,
-        canvas_size: [transform.width, transform.height],
-        pixel_ratio: transform.pixel_ratio,
-        line_color: this._color,
-        linewidth: this._linewidth,
-        antialias: this._antialias,
-        miter_limit: this._miter_limit,
-        points: mainGlGlyph._points!,
-        show: mainGlGlyph._show!,
-        nsegments: mainGlGlyph._nsegments,
-        line_join,
-        line_cap,
-      }
-      this.regl_wrapper.solid_line()(props)
+      this.regl_wrapper.solid_line()(solid_props)
     }
   }
 
@@ -100,7 +88,7 @@ export class LineGL extends BaseGLGlyph {
 
   protected _set_data(): void {
     const npoints = this.glyph.sx.length
-    this._nsegments = npoints-1
+    const nsegments = npoints-1
 
     this._is_closed = (npoints > 2 &&
                        this.glyph.sx[0] == this.glyph.sx[npoints-1] &&
@@ -156,10 +144,10 @@ export class LineGL extends BaseGLGlyph {
     if (this._is_dashed()) {
       if (this._length_so_far == null)
         this._length_so_far = new Float32Buffer(this.regl_wrapper)
-      const lengths_array = this._length_so_far.get_sized_array(this._nsegments)
+      const lengths_array = this._length_so_far.get_sized_array(nsegments)
 
       let length = 0.0
-      for (let i = 0; i < this._nsegments; i++) {
+      for (let i = 0; i < nsegments; i++) {
         lengths_array[i] = length
         if (show_array[i+1] == 1)
           length += Math.sqrt((points_array[2*i+4] - points_array[2*i+2])**2 +
