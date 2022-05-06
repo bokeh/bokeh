@@ -35,7 +35,7 @@ export class GraphRendererView extends DataRendererView {
       this.apply_coordinates()
       this.edge_view.set_data()
       this.node_view.set_data()
-      this.request_render()
+      this.request_paint()
     })
   }
 

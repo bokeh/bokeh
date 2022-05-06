@@ -79,8 +79,8 @@ export abstract class GlyphView extends View {
     await build_views(this.decorations, this.model.decorations, {parent: this.parent})
   }
 
-  request_render(): void {
-    this.parent.request_render()
+  request_paint(): void {
+    this.parent.request_paint()
   }
 
   get canvas() {

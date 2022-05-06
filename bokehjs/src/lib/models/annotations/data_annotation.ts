@@ -22,7 +22,7 @@ export abstract class DataAnnotationView extends AnnotationView {
   }
 
   protected _rerender(): void {
-    this.request_render()
+    this.request_paint()
   }
 
   set_data(source: ColumnarDataSource): void {

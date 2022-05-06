@@ -125,18 +125,13 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
     this._needs_notify = true
   }
 
-  // TODO: this needs to be removed
-  request_render(): void {
-    this.request_repaint()
-  }
-
   request_repaint(): void {
     this.invalidate_painters("everything")
     this.schedule_paint()
   }
 
-  request_paint(to_invalidate: RendererView | RendererView[]): void {
-    this.invalidate_painters(to_invalidate)
+  request_paint(to_invalidate?: RendererView | RendererView[]): void {
+    this.invalidate_painters(to_invalidate ?? "everything")
     this.schedule_paint()
   }
 

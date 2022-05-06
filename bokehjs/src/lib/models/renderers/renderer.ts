@@ -162,15 +162,18 @@ export abstract class RendererView extends View implements visuals.Renderable {
     return this.parent.canvas
   }
 
-  request_render(): void {
-    this.request_paint()
+  request_paint(to_invalidate: RendererView | RendererView[] = this): void {
+    if (typeof this.plot_view?.request_paint !== "undefined")
+      this.plot_view.request_paint(to_invalidate)
+    else
+      this.canvas.paint_engine.request_paint(to_invalidate)
   }
 
-  request_paint(): void {
+  request_repaint(): void {
     if (typeof this.plot_view?.request_paint !== "undefined")
-      this.plot_view.request_paint(this)
+      this.plot_view.request_repaint()
     else
-      this.canvas.paint_engine.request_paint(this)
+      this.canvas.paint_engine.request_repaint()
   }
 
   request_layout(): void {

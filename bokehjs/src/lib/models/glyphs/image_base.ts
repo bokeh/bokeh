@@ -34,7 +34,7 @@ export abstract class ImageBaseView extends XYGlyphView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
+    this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_paint())
   }
 
   get xy_scale(): [number, number] {

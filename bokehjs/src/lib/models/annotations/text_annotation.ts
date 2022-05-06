@@ -44,7 +44,7 @@ export abstract class TextAnnotationView extends AnnotationView {
       await this._init_text()
     })
 
-    this.connect(this.model.change, () => this.request_render())
+    this.connect(this.model.change, () => this.request_paint())
   }
 
   override remove(): void {

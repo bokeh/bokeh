@@ -41,8 +41,8 @@ export class LegendView extends AnnotationView implements Tapable {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.request_render())
-    this.connect(this.model.item_change, () => this.request_render())
+    this.connect(this.model.change, () => this.request_paint())
+    this.connect(this.model.item_change, () => this.request_paint())
   }
 
   compute_legend_bbox(): BBox {

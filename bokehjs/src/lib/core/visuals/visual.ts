@@ -6,7 +6,7 @@ export type NameOf<Key extends string> = Key extends `text_${infer Name}` ? Name
 export type ValuesOf<T> = {[Key in keyof T & string as NameOf<Key>]: T[Key] extends p.Property<infer V> ? V : never}
 
 export interface Renderable {
-  request_render(): void
+  request_paint(): void
   readonly canvas: {
     create_layer(): CanvasLayer
   }

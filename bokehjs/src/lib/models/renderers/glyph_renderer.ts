@@ -153,7 +153,7 @@ export class GlyphRendererView extends DataRendererView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const render = () => this.request_render()
+    const render = () => this.request_paint()
     const update = () => this.update_data()
 
     this.connect(this.model.change, render)
@@ -221,7 +221,7 @@ export class GlyphRendererView extends DataRendererView {
 
   update_data(indices?: number[]): void {
     this.set_data(indices)
-    this.request_render()
+    this.request_paint()
   }
 
   // in case of partial updates like patching, the list of indices that actually

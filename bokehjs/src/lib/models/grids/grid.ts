@@ -23,7 +23,7 @@ export class GridView extends GuideRendererView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.request_render())
+    this.connect(this.model.change, () => this.request_paint())
   }
 
   protected _draw_regions(ctx: Context2d): void {

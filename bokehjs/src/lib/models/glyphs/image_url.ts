@@ -38,7 +38,7 @@ export class ImageURLView extends XYGlyphView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
+    this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_paint())
   }
 
   protected override _index_data(index: SpatialIndex): void {
@@ -71,7 +71,7 @@ export class ImageURLView extends XYGlyphView {
       const loader = new ImageLoader(url, {
         loaded: () => {
           if (this._set_data_iteration == _set_data_iteration && !this.rendered.get(i)) {
-            this.renderer.request_render()
+            this.renderer.request_paint()
           }
         },
         failed: () => {

@@ -37,7 +37,7 @@ export class Hatch extends VisualProperties {
         image.then((image) => {
           if (this._update_iteration == _update_iteration) {
             finalize(image)
-            this.obj.request_render()
+            this.obj.request_paint()
           }
         })
       } else {
@@ -147,7 +147,7 @@ export class HatchScalar extends VisualUniforms {
         image.then((image) => {
           if (this._update_iteration == _update_iteration) {
             finalize(image)
-            this.obj.request_render()
+            this.obj.request_paint()
           }
         })
       } else {
@@ -252,7 +252,7 @@ export class HatchVector extends VisualUniforms {
           image.then((image) => {
             if (this._update_iteration == _update_iteration) {
               finalize(image)
-              this.obj.request_render()
+              this.obj.request_paint()
             }
           })
         } else {

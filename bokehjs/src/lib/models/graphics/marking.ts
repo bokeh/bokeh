@@ -19,8 +19,8 @@ export abstract class MarkingView extends View implements visuals.Renderable {
     this.visuals = new visuals.Visuals(this)
   }
 
-  request_render(): void {
-    this.parent.request_render()
+  request_paint(): void {
+    this.parent.request_paint()
   }
 
   get canvas() {

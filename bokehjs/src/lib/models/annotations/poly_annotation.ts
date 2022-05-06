@@ -46,7 +46,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.request_render())
+    this.connect(this.model.change, () => this.request_paint())
   }
 
   protected sxs: Seq<number> = []

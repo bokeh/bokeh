@@ -144,7 +144,7 @@ describe("Bug", () => {
         const {view} = await display(plot)
 
         const lnv = view.renderer_view(renderer)!
-        const ln_spy = sinon.spy(lnv, "request_render")
+        const ln_spy = sinon.spy(lnv, "request_paint")
         const ui = view.canvas.ui_event_bus
         const {left, top} = offset(ui.hit_area)
 
@@ -174,7 +174,7 @@ describe("Bug", () => {
       const {view} = await display(plot)
 
       const gv = view.renderer_view(renderer)!
-      const gv_spy = sinon.spy(gv, "request_render")
+      const gv_spy = sinon.spy(gv, "request_paint")
       const ui = view.canvas.ui_event_bus
       const {left, top} = offset(ui.hit_area)
 
