@@ -30,12 +30,14 @@ from ..core.properties import (
     InstanceDefault,
     Int,
     List,
+    NonNullable as Required,
     String,
 )
 from ..model import Model
 from .coordinates import Node
+from .positioning import Position
 from .ranges import DataRange1d, Range
-from .renderers import Renderer
+from .renderers import Nodes, Renderer
 from .scales import LinearScale, Scale
 
 #-----------------------------------------------------------------------------
@@ -52,7 +54,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class CartesianFrame(Model):
+class CartesianFrame(Renderer):
     """ """
 
     # explicit __init__ to support Init signatures
@@ -141,9 +143,15 @@ class CartesianFrame(Model):
         This setting only takes effect if ``match_aspect`` is set to ``True``.
     """)
 
+    position = Required(Instance(Position))
+
     renderers = List(Instance(Renderer), default=[], help="""
     Collection of objects to paint onto this frame.
     """)
+
+    @property
+    def nodes(self) -> CartesianFrameNodes:
+        return self._nodes
 
 class Layer(Model):
     """ """
@@ -202,9 +210,10 @@ class Canvas(Model):
 # Dev API
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
+class CartesianFrameNodes(Nodes): # TODO: BoxNodes
+
+    def __init__(self, target: CartesianFrame) -> None:
+        super().__init__(target)
 
 class CanvasNodes:
 
@@ -251,6 +260,10 @@ class CanvasNodes:
         if self._bottom_right is None:
             self._bottom_right = Node(target=self.target, term="bottom_right")
         return self._bottom_right
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Code

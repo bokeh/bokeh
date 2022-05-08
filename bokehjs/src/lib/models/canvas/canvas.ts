@@ -146,14 +146,15 @@ export class CanvasView extends DOMView implements RenderingTarget {
     await this.build_renderer_views()
   }
 
-  protected _renderer_views: Map<Renderer, RendererView>
-
+  private _renderer_views: Map<Renderer, RendererView>
   async build_renderer_views(): Promise<void> {
     await build_views(this._renderer_views, this.model.renderers, {parent: this})
+    this._renderers = this.model.renderers.map((r) => this._renderer_views.get(r)!)
   }
 
-  get renderer_views(): RendererView[] {
-    return this.model.renderers.map((r) => this._renderer_views.get(r)!)
+  private _renderers: RendererView[] = []
+  get renderers(): RendererView[] {
+    return this._renderers
   }
 
   view_for<T extends Renderer>(model: T): ViewOf<T> {
@@ -312,7 +313,7 @@ export class CanvasView extends DOMView implements RenderingTarget {
 
   override serializable_state(): SerializableState {
     const {children, ...state} = super.serializable_state()
-    const renderers = this.renderer_views.map((view) => view.serializable_state())
+    const renderers = this.renderers.map((view) => view.serializable_state())
     return {...state, children: [...children ?? [], ...renderers]}
   }
 
@@ -410,7 +411,7 @@ export class PaintEngine {
   protected _invalidate_all: boolean = true
 
   get renderers(): RendererView[] {
-    return this.canvas.model.renderers.map((r) => this.canvas.view_for(r))
+    return this.canvas.renderers
   }
 
   constructor(readonly canvas: CanvasView) {
@@ -495,47 +496,48 @@ export class PaintEngine {
 
     if (do_primary) {
       primary.prepare()
-      this._paint_levels(primary, "image", true)
-      this._paint_levels(primary, "underlay", true)
-      this._paint_levels(primary, "glyph", true)
-      this._paint_levels(primary, "guide", false)
-      this._paint_levels(primary, "annotation", false)
+      this._paint_levels(primary, this.renderers, "image", true)
+      this._paint_levels(primary, this.renderers, "underlay", true)
+      this._paint_levels(primary, this.renderers, "glyph", true)
+      this._paint_levels(primary, this.renderers, "guide", false)
+      this._paint_levels(primary, this.renderers, "annotation", false)
       primary.finish()
     }
 
     if (do_overlays) {
       overlays.prepare()
-      this._paint_levels(overlays, "overlay", false)
+      this._paint_levels(overlays, this.renderers, "overlay", false)
       overlays.finish()
     }
   }
 
-  protected _paint_levels(layer: CanvasLayer, level: RenderLevel, global_clip: boolean): void {
-    for (const renderer of this.renderers) {
-      if (renderer.model.level != level)
-        continue
+  protected _paint_levels(layer: CanvasLayer, renderers: RendererView[], level: RenderLevel, global_clip: boolean): void {
+    for (const renderer of renderers) {
+      if (renderer.model.level == level) {
+        const {has_webgl, clip_box} = renderer
 
-      const {has_webgl, clip_box} = renderer
+        if (has_webgl) {
+          this.canvas.prepare_webgl(clip_box)
+        }
 
-      if (has_webgl) {
-        this.canvas.prepare_webgl(clip_box)
+        const {ctx} = layer
+        ctx.save()
+
+        if (global_clip || renderer.needs_clip) {
+          ctx.beginPath()
+          ctx.rect(clip_box)
+          ctx.clip()
+        }
+
+        renderer.render()
+        ctx.restore()
+
+        if (has_webgl) {
+          this.canvas.blit_webgl(layer)
+        }
       }
 
-      const {ctx} = layer
-      ctx.save()
-
-      if (global_clip || renderer.needs_clip) {
-        ctx.beginPath()
-        ctx.rect(clip_box)
-        ctx.clip()
-      }
-
-      renderer.render()
-      ctx.restore()
-
-      if (has_webgl) {
-        this.canvas.blit_webgl(layer)
-      }
+      this._paint_levels(layer, renderer.renderers, level, global_clip)
     }
   }
 }

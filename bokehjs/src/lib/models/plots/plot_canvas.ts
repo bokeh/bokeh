@@ -241,8 +241,6 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
 
     await this.build_renderer_views()
     await this.build_tool_views()
-
-    this.frame.range_manager.update_dataranges()
   }
 
   protected override _width_policy(): SizingPolicy {
@@ -649,12 +647,6 @@ export class PlotView extends LayoutDOMView implements Renderable, RenderingTarg
       outer_width: Math.round(this.layout.bbox.width),
       outer_height: Math.round(this.layout.bbox.height),
     }, {no_change: true})
-
-    if (this.model.match_aspect !== false) {
-      this.pause()
-      this.frame.range_manager.update_dataranges()
-      this.unpause(true)
-    }
 
     if (!this._outer_bbox.equals(this.layout.bbox)) {
       const {width, height} = this.layout.bbox

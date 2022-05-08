@@ -1,4 +1,6 @@
-import {Model} from "../../model"
+import {Position} from "../positioning/position"
+import {At} from "../positioning/at"
+import {XY} from "../coordinates/xy"
 import {CategoricalScale} from "../scales/categorical_scale"
 import {Scale} from "../scales/scale"
 import {LinearScale} from "../scales/linear_scale"
@@ -7,12 +9,13 @@ import {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
-import {type RendererView, type RenderingTarget, Renderer, screen, view} from "../renderers/renderer"
+import {RendererView, type RenderingTarget, Renderer, screen, view} from "../renderers/renderer"
 import {DataRenderer, DataRendererView} from "../renderers/data_renderer"
 import {RangeManager} from "../plots/range_manager"
 
 import {BBox} from "core/util/bbox"
 import {entries} from "core/util/object"
+import {assert} from "core/util/assert"
 import {View} from "core/view"
 import {build_views, remove_views} from "core/build_views"
 import * as p from "core/properties"
@@ -20,7 +23,7 @@ import * as p from "core/properties"
 type Ranges = {[key: string]: Range}
 type Scales = {[key: string]: Scale}
 
-export class CartesianFrameView extends View implements RenderingTarget {
+export class CartesianFrameView extends RendererView implements RenderingTarget {
   override model: CartesianFrame
   override parent: View & RenderingTarget
 
@@ -32,20 +35,8 @@ export class CartesianFrameView extends View implements RenderingTarget {
   readonly screen = screen(this.bbox)
   readonly view = view(this.bbox)
 
-  get canvas() {
-    return this.parent.canvas
-  }
-
   get frame() {
     return this
-  }
-
-  request_repaint(): void {
-    this.parent.request_repaint()
-  }
-
-  request_paint(to_invalidate: RendererView | RendererView[]): void {
-    this.parent.request_paint(to_invalidate)
   }
 
   readonly range_manager: RangeManager = new RangeManager(this)
@@ -83,22 +74,26 @@ export class CartesianFrameView extends View implements RenderingTarget {
     this._setup()
   }
 
-  /*protected*/ _renderer_views: Map<Renderer, RendererView>
-
-  get renderer_views(): RendererView[] {
-    return this.model.renderers.map((r) => this._renderer_views.get(r)!)
-  }
-
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
+    await this.build_renderer_views()
+  }
 
-    this._renderer_views = new Map()
+  /**XXX private*/ _renderer_views: Map<Renderer, RendererView> = new Map()
+  async build_renderer_views(): Promise<void> {
     await build_views(this._renderer_views, this.model.renderers, {parent: this})
+    this._renderers = this.model.renderers.map((r) => this._renderer_views.get(r)!)
+
+    if (this._renderers.length != 0)
+      this.range_manager.update_dataranges()
+  }
+
+  private _renderers: RendererView[] = []
+  override get renderers(): RendererView[] {
+    return [...super.renderers, ...this._renderers]
   }
 
   override remove(): void {
-    super.remove()
-
     for (const range of this.ranges.values()) {
       if (range instanceof DataRange1d) {
         range.frames.delete(this)
@@ -106,6 +101,7 @@ export class CartesianFrameView extends View implements RenderingTarget {
     }
 
     remove_views(this._renderer_views)
+    super.remove()
   }
 
   override connect_signals(): void {
@@ -123,8 +119,44 @@ export class CartesianFrameView extends View implements RenderingTarget {
 
     const {renderers} = this.model.properties
     this.on_change(renderers, async () => {
-      await build_views(this._renderer_views, this.model.renderers, {parent: this})
+      await this.build_renderer_views()
     })
+  }
+
+  protected _render(): void {
+    const {position} = this.model
+    assert(position instanceof At)
+
+    const loc = this.resolve(position.loc)
+    assert(loc instanceof XY)
+
+    const x_coordinates = (coord: XY): Scale => {
+      switch (coord.x_units) {
+        case "canvas": return this.canvas.screen.x_scale
+        case "screen": return this.parent.view.x_scale
+        case "data":   return this.coordinates.x_scale
+      }
+    }
+
+    const y_coordinates = (coord: XY): Scale => {
+      switch (coord.y_units) {
+        case "canvas": return this.canvas.screen.y_scale
+        case "screen": return this.parent.view.y_scale
+        case "data":   return this.coordinates.y_scale
+      }
+    }
+
+    const {width, height} = position.size
+
+    const sx = x_coordinates(loc).compute(loc.x)
+    const sy = y_coordinates(loc).compute(loc.y)
+
+    this.set_geometry(new BBox({x: sx, y: sy, width, height}))
+
+    // XXX: replicating PlotCanvasView._actual_paint() for now
+    if (this.model.match_aspect || this.range_manager.invalidate_dataranges) {
+      this.range_manager.update_dataranges()
+    }
   }
 
   protected _get_ranges(range: Range, extra_ranges: Ranges): Map<string, Range> {
@@ -230,7 +262,7 @@ export class CartesianFrameView extends View implements RenderingTarget {
 export namespace CartesianFrame {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {
+  export type Props = Renderer.Props & {
     x_range: p.Property<Range>
     y_range: p.Property<Range>
 
@@ -246,13 +278,14 @@ export namespace CartesianFrame {
     match_aspect: p.Property<boolean>
     aspect_scale: p.Property<number>
 
+    position: p.Property<Position>
     renderers: p.Property<Renderer[]>
   }
 }
 
 export interface CartesianFrame extends CartesianFrame.Attrs {}
 
-export class CartesianFrame extends Model {
+export class CartesianFrame extends Renderer {
   override properties: CartesianFrame.Props
   override __view_type__: CartesianFrameView
 
@@ -279,6 +312,7 @@ export class CartesianFrame extends Model {
       match_aspect:   [ Boolean, false ],
       aspect_scale:   [ Number, 1 ],
 
+      position:       [ Ref(Position) ],
       renderers:      [ Array(Ref(Renderer)), [] ],
     }))
   }

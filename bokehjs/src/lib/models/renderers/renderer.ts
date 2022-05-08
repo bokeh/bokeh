@@ -104,6 +104,10 @@ export abstract class RendererView extends View implements visuals.Renderable {
       return this._coordinates = this._initialize_coordinates()
   }
 
+  get renderers(): RendererView[] {
+    return []
+  }
+
   override initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this)
