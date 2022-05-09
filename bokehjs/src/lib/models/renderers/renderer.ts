@@ -1,4 +1,4 @@
-import {View} from "core/view"
+import {View, SerializableState} from "core/view"
 import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
 import * as p from "core/properties"
@@ -233,6 +233,12 @@ export abstract class RendererView extends View implements visuals.Renderable {
   }
 
   protected abstract _render(): void
+
+  override serializable_state(): SerializableState {
+    const {children, ...state} = super.serializable_state()
+    const renderers = this.renderers.map((view) => view.serializable_state())
+    return {...state, children: [...children ?? [], ...renderers]}
+  }
 }
 
 export namespace Renderer {

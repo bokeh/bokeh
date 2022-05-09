@@ -3,5 +3,11 @@ CanvasBox bbox=[0, 0, 400, 400]
     Grid
     Grid
     CartesianFrame
+      GlyphRenderer
+      LinearAxis bbox=[55, 50, 33, 100]
     CartesianFrame
+      GlyphRenderer
+      LinearAxis bbox=[167, 150, 33, 100]
     CartesianFrame
+      GlyphRenderer
+      LinearAxis bbox=[313, 250, 33, 100]
