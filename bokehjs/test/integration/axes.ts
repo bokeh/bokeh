@@ -1,4 +1,4 @@
-import {display, row, with_internal} from "./_util"
+import {display, fig, row, with_internal} from "./_util"
 
 import {
   Axis, LinearAxis, LogAxis, CategoricalAxis,
@@ -12,6 +12,7 @@ import {
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 import {OutputBackend, Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
+import {linspace} from "@bokehjs/core/util/array"
 
 (() => {
   type PlotFn = (attrs: Partial<Axis.Attrs>, options?: {minor_size?: number, num_ticks?: number}) => Promise<void>
@@ -364,5 +365,24 @@ describe("CategoricalAxis", () => {
   describe("in vertical orientation", () => {
     describe("left of a plot", () => test(vplot("left")))
     describe("right of a plot", () => test(vplot("right")))
+  })
+})
+
+describe("LinearAxis", () => {
+  it("should support manual placement", async () => {
+    const {sin} = Math
+
+    const x = linspace(-6, 6, 100)
+    const y = x.map((xi) => 8*sin(xi))
+
+    const p = fig([600, 300], {match_aspect: true})
+    p.line(x, y, {color: "navy", alpha: 0.4, line_width: 4})
+
+    p.xaxis.fixed_location = 0
+    p.yaxis.fixed_location = 0
+    p.xaxis.axis_label = "X-axis"
+    p.yaxis.axis_label = "Y-axis"
+
+    await display(p)
   })
 })
