@@ -67,7 +67,7 @@ export class CategoricalAxisView extends AxisView {
     let standoff = extents.tick + this.model.major_label_standoff
     for (let i = 0; i < info.length; i++) {
       const [labels, coords, orient, visuals] = info[i]
-      this._draw_oriented_labels(ctx, labels, coords, orient, this.panel.side, standoff, visuals)
+      this._draw_oriented_labels(ctx, labels, coords, orient, standoff, visuals)
       standoff += extents.tick_labels[i]
     }
   }

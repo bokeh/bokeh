@@ -116,7 +116,7 @@ export abstract class RendererView extends View implements visuals.Renderable {
   override connect_signals(): void {
     super.connect_signals()
     const {x_range_name, y_range_name} = this.model.properties
-    this.on_change([x_range_name, y_range_name], () => this._initialize_coordinates())
+    this.on_change([x_range_name, y_range_name], () => this._coordinates = this._initialize_coordinates())
     const {group} = this.model
     if (group != null) {
       this.on_change(group.properties.visible, () => {
@@ -129,7 +129,7 @@ export abstract class RendererView extends View implements visuals.Renderable {
     const {coordinates} = this.model
     const {frame} = this.parent
     if (coordinates != null) {
-      return coordinates.get_transform(frame ?? this.canvas.screen)
+      return coordinates.get_transform(frame ?? this.canvas.screen) // XXX: parent!!!
     } else {
       const {x_range_name, y_range_name} = this.model
       if (frame != null) {

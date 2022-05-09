@@ -8,7 +8,7 @@ import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {SerializableState} from "core/view"
-import {Side, TickLabelOrientation} from "core/enums"
+import {Align, HAlign, VAlign, TickLabelOrientation} from "core/enums"
 import {Size, Layoutable} from "core/layout"
 import {Indices} from "core/types"
 import {Panel, SideLayout, Orient} from "core/layout/side_panel"
@@ -48,14 +48,50 @@ export class AxisView extends GuideRendererView {
   override visuals: Axis.Visuals
 
   panel: Panel
-  layout: Layoutable
+  layout?: Layoutable
 
   get bbox(): BBox {
-    return this.layout.bbox
+    if (this.layout != null)
+      return this.layout.bbox
+    else if (this.is_renderable) {
+      const {extents} = this
+      const depth = Math.round(extents.tick + extents.tick_label + extents.axis_label)
+
+      let {sx0, sy0, sx1, sy1} = this.rule_scoords
+      const {dimension, face} = this
+      if (dimension == 0) {
+        if (face == "front")
+          sy0 -= depth
+        else
+          sy1 += depth
+      } else {
+        if (face == "front")
+          sx0 -= depth
+        else
+          sx1 += depth
+      }
+
+      return BBox.from_lrtb({left: sx0, top: sy0, right: sx1, bottom: sy1})
+    } else
+      return new BBox()
   }
 
   /*private*/ _axis_label_view: BaseTextView | null = null
   /*private*/ _major_label_views: Map<string | number, BaseTextView> = new Map()
+
+  override initialize(): void {
+    super.initialize()
+    const {dimension, face} = this.model
+    if (dimension != "auto") {
+      const side = (() => {
+        if (dimension == 0)
+          return face == "front" ? "above" : "below"
+        else
+          return face == "back" ? "right" : "left"
+      })()
+      this.panel = new Panel(side)
+    }
+  }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -81,6 +117,8 @@ export class AxisView extends GuideRendererView {
   }
 
   update_layout(): void {
+    if (this.model.fixed_location != null)
+      return
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
     this.layout.on_resize(() => this._coordinates = undefined)
   }
@@ -182,7 +220,7 @@ export class AxisView extends GuideRendererView {
     const standoff = extents.tick + this.model.major_label_standoff
     const visuals  = this.visuals.major_label_text
 
-    this._draw_oriented_labels(ctx, labels, coords, orient, this.panel.side, standoff, visuals)
+    this._draw_oriented_labels(ctx, labels, coords, orient, standoff, visuals)
   }
 
   protected _axis_label_extent(): number {
@@ -207,20 +245,46 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _draw_axis_label(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
-    if (this._axis_label_view == null || this.model.fixed_location != null)
+    if (this._axis_label_view == null)
       return
 
-    const [sx, sy] = (() => {
+    const [sx, sy, _x_anchor, _y_anchor] = (() => {
       const {bbox} = this
+      const {side} = this.panel
+      const [range] = this.ranges
+      const {axis_label_align} = this.model
+
       switch (this.panel.side) {
         case "above":
-          return [bbox.hcenter, bbox.bottom]
-        case "below":
-          return [bbox.hcenter, bbox.top]
+        case "below": {
+          const [sx, x_anchor]: [number, HAlign] = (() => {
+            switch (axis_label_align) {
+              case "start":
+                return !range.is_reversed ? [bbox.left, "left"] : [bbox.right, "right"]
+              case "center":
+                return [bbox.hcenter, "center"]
+              case "end":
+                return !range.is_reversed ? [bbox.right, "right"] : [bbox.left, "left"]
+            }
+          })()
+          const [sy, y_anchor]: [number, VAlign] = side == "above" ? [bbox.bottom, "bottom"] : [bbox.top, "top"]
+          return [sx, sy, x_anchor, y_anchor]
+        }
         case "left":
-          return [bbox.right, bbox.vcenter]
-        case "right":
-          return [bbox.left, bbox.vcenter]
+        case "right": {
+          const [sy, y_anchor]: [number, VAlign] = (() => {
+            switch (axis_label_align) {
+              case "start":
+                return !range.is_reversed ? [bbox.bottom, "bottom"] : [bbox.top, "top"]
+              case "center":
+                return [bbox.vcenter, "center"]
+              case "end":
+                return !range.is_reversed ? [bbox.top, "top"] : [bbox.bottom, "bottom"]
+            }
+          })()
+          const [sx, x_anchor]: [number, HAlign] = side == "left" ? [bbox.right, "right"] : [bbox.left, "left"]
+          return [sx, sy, x_anchor, y_anchor]
+        }
       }
     })()
 
@@ -275,8 +339,7 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _draw_oriented_labels(ctx: Context2d, labels: GraphicsBoxes, coords: Coords,
-                                  orient: Orient | number, _side: Side, standoff: number,
-                                  visuals: visuals.Text): void {
+      orient: Orient | number, standoff: number, visuals: visuals.Text): void {
     if (!visuals.doit || labels.length == 0)
       return
 
@@ -425,6 +488,22 @@ export class AxisView extends GuideRendererView {
 
   get dimension(): 0 | 1 {
     return this.panel.dimension
+  }
+
+  get face(): "front" | "back" {
+    const {face} = this.model
+    if (face != "auto")
+      return face
+    else {
+      switch (this.panel.side) {
+        case "left":
+        case "above":
+          return "front"
+        case "right":
+        case "below":
+          return "back"
+      }
+    }
   }
 
   compute_labels(ticks: number[]): GraphicsBoxes {
@@ -667,11 +746,14 @@ export namespace Axis {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = GuideRenderer.Props & {
+    dimension: p.Property<0 | 1 | "auto">
+    face:  p.Property<"front" | "back" | "auto">
     bounds: p.Property<[number, number] | "auto">
     ticker: p.Property<Ticker>
     formatter: p.Property<TickFormatter>
     axis_label: p.Property<string | BaseText | null>
     axis_label_standoff: p.Property<number>
+    axis_label_align: p.Property<Align>
     major_label_standoff: p.Property<number>
     major_label_orientation: p.Property<TickLabelOrientation | number>
     major_label_overrides: p.Property<Map<string /*Cat*/ | number, string | BaseText>>
@@ -720,12 +802,15 @@ export class Axis extends GuideRenderer {
       ["axis_label_",  mixins.Text],
     ])
 
-    this.define<Axis.Props>(({Any, Int, Number, String, Ref, Map, Tuple, Or, Nullable, Auto}) => ({
+    this.define<Axis.Props>(({Any, Int, Number, String, Ref, Map, Tuple, Or, Nullable, Auto, Enum}) => ({
+      dimension:               [ Or(Enum(0, 1), Auto), "auto" ],
+      face:                    [ Or(Enum("front", "back"), Auto), "auto" ],
       bounds:                  [ Or(Tuple(Number, Number), Auto), "auto" ],
       ticker:                  [ Ref(Ticker) ],
       formatter:               [ Ref(TickFormatter) ],
       axis_label:              [ Nullable(Or(String, Ref(BaseText))), null],
       axis_label_standoff:     [ Int, 5 ],
+      axis_label_align:        [ Align, "center" ],
       major_label_standoff:    [ Int, 5 ],
       major_label_orientation: [ Or(TickLabelOrientation, Number), "horizontal" ],
       major_label_overrides:   [ Map(Or(String, Number), Or(String, Ref(BaseText))), new globalThis.Map(), {

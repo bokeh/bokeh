@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.enums import TickLabelOrientation
+from ..core.enums import Align, TickLabelOrientation
 from ..core.has_props import abstract
 from ..core.properties import (
     Auto,
@@ -95,6 +95,10 @@ class Axis(GuideRenderer):
         super().__init__(*args, **kwargs)
         self._nodes = AxisNodes(self)
 
+    dimension = Either(Auto, Int, default="auto")
+
+    face = Either(Auto, Enum("front", "back"), default="auto")
+
     bounds = Either(Auto, Tuple(Float, Float), Tuple(Datetime, Datetime), help="""
     Bounds for the rendered axis. If unset, the axis will span the
     entire plot in the given dimension.
@@ -138,6 +142,10 @@ class Axis(GuideRenderer):
     axis_label_standoff = Int(default=5, help="""
     The distance in pixels that the axis labels should be offset
     from the tick labels.
+    """)
+
+    axis_label_align = Enum(Align, default="center", help="""
+    The alignment of axis label along the axis.
     """)
 
     axis_label_props = Include(ScalarTextProps, prefix="axis_label", help="""
