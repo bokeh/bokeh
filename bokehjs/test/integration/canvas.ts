@@ -12,6 +12,7 @@ import {
   CoordinateMapping,
   GlyphRenderer,
   Grid,
+  LinearAxis,
   LinearColorMapper,
   PolyAnnotation,
   Range1d,
@@ -114,12 +115,18 @@ describe("Canvas", () => {
 
     const at0 = new At({loc: new XY({x: 50, y: 50}), size: new Size({width: 100, height: 100})})
     const cf0 = new CartesianFrame({position: at0, renderers: [circles({R: 3.0})]})
+    const la0 = new LinearAxis({dimension: 1, face: "back", fixed_location: 0/*, coordinates: cm0*/}) // cf0.x_range.nodes.start
+    cf0.renderers.push(la0)
 
     const at1 = new At({loc: new XY({x: 150, y: 150}), size: new Size({width: 100, height: 100})})
     const cf1 = new CartesianFrame({position: at1, renderers: [circles({R: 4.5})]})
+    const la1 = new LinearAxis({dimension: 1, face: "front", fixed_location: 50/*, coordinates: cm1*/}) // cf1.x_range.nodes.center
+    cf1.renderers.push(la1)
 
     const at2 = new At({loc: new XY({x: 250, y: 250}), size: new Size({width: 100, height: 100})})
     const cf2 = new CartesianFrame({position: at2, renderers: [circles({R: 6.0})]})
+    const la2 = new LinearAxis({dimension: 1, face: "front", fixed_location: 100/*, coordinates: cm2*/}) // cf2.x_range.nodes.end
+    cf2.renderers.push(la2)
 
     cb.canvas.renderers.push(cf0, cf1, cf2)
     return cb
