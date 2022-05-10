@@ -92,7 +92,8 @@ export class WedgeView extends XYGlyphView {
     for (const i of candidates) {
       // NOTE: minus the angle because JS uses non-mathy convention for angles
       const angle = Math.atan2(sy - this.sy[i], sx - this.sx[i])
-      if (angle_between(-angle, -this.start_angle.get(i), -this.end_angle.get(i), anticlock)) {
+      const is_full_circle = Math.abs(this.start_angle.get(i) - this.end_angle.get(i)) >= 2*Math.PI
+      if (is_full_circle || angle_between(-angle, -this.start_angle.get(i), -this.end_angle.get(i), anticlock)) {
         indices.push(i)
       }
     }
