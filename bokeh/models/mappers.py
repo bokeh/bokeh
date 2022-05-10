@@ -27,6 +27,7 @@ from .. import palettes
 from ..core.enums import Palette
 from ..core.has_props import abstract
 from ..core.properties import (
+    Bool,
     Color,
     Either,
     Enum,
@@ -262,6 +263,13 @@ class ScanningColorMapper(ContinuousColorMapper):
 
 class EqHistColorMapper(ScanningColorMapper):
     bins = Int(default=256*256, help="Number of histogram bins")
+
+    rescale_discrete_levels = Bool(default=False, help="""
+    If there are only a few discrete levels in the values that are color
+    mapped then ``rescale_discrete_levels=True`` decreases the lower limit of
+    the span so that the values are rendered towards the top end of the
+    palette.
+    """)
 
 #-----------------------------------------------------------------------------
 # Dev API
