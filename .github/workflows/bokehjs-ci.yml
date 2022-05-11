@@ -36,11 +36,17 @@ jobs:
         run: |
           npm install -g npm@7
 
-      - name: Upgrade chromium
+      - name: Install chromium
         if: runner.os == 'Linux'
         shell: bash
         run: |
-          sudo snap install chromium
+          VER=95.0.4638.69
+          REV=chromium_1810
+          URL=https://github.com/bokeh/chromium/raw/main/linux/$VER
+          wget --no-verbose $URL/$REV.assert
+          wget --no-verbose $URL/$REV.snap
+          sudo snap ack $REV.assert
+          sudo snap install $REV.snap
 
       - name: Install dependencies
         working-directory: ./bokehjs
@@ -72,12 +78,17 @@ jobs:
         run: |
           node make lint
 
-      - name: Collect results
-        if: always()
+      - name: Check repository status
         shell: bash
         run: |
-          OS=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
-          SRC="bokehjs/test/baselines/${OS}"
+          OUTPUT=$(git status --short bokehjs -- ':!bokehjs/test/baselines')
+          if [[ ! -z "$OUTPUT" ]]; then echo $OUTPUT; exit 1; fi
+
+      - name: Collect results
+        if: runner.os == 'Linux' && always()
+        shell: bash
+        run: |
+          SRC="bokehjs/test/baselines/linux"
           DST="bokehjs-report/${SRC}"
           mkdir -p ${DST}
           if [[ -e ${SRC}/report.json ]];
@@ -87,7 +98,7 @@ jobs:
           fi
 
       - name: Upload report
-        if: always()
+        if: runner.os == 'Linux' && always()
         uses: actions/upload-artifact@v1
         with:
           name: bokehjs-report
