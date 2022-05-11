@@ -19,17 +19,26 @@ export async function build_view<T extends HasProps>(model: T, options: Options<
   return view
 }
 
-export async function build_views<T extends HasProps>(view_storage: ViewStorage<T>, models: T[],
-    options: Options<ViewOf<T>> = {parent: null}, cls: (model: T) => T["default_view"] = (model) => model.default_view): Promise<ViewOf<T>[]> {
+export async function build_views<T extends HasProps>(
+  view_storage: ViewStorage<T>,
+  models: T[],
+  options: Options<ViewOf<T>> = {parent: null},
+  cls: (model: T) => T["default_view"] = (model) => model.default_view,
+): Promise<{created: ViewOf<T>[], removed: ViewOf<T>[]}> {
 
   const to_remove = difference([...view_storage.keys()], models)
 
+  const removed_views: ViewOf<T>[] = []
   for (const model of to_remove) {
-    view_storage.get(model)!.remove()
-    view_storage.delete(model)
+    const view = view_storage.get(model)
+    if (view != null) {
+      view_storage.delete(model)
+      removed_views.push(view)
+      view.remove()
+    }
   }
 
-  const created_views = []
+  const created_views: ViewOf<T>[] = []
   const new_models = models.filter((model) => !view_storage.has(model))
 
   for (const model of new_models) {
@@ -41,7 +50,10 @@ export async function build_views<T extends HasProps>(view_storage: ViewStorage<
   for (const view of created_views)
     view.connect_signals()
 
-  return created_views
+  return {
+    created: created_views,
+    removed: removed_views,
+  }
 }
 
 export function remove_views(view_storage: ViewStorage<HasProps>): void {

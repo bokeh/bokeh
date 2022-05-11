@@ -75,8 +75,8 @@ export class TabsView extends LayoutDOMView {
   }
 
 
-  override update_position(): void {
-    super.update_position()
+  override _after_layout(): void {
+    super._after_layout()
 
     /*
     const loc = this.model.tabs_location

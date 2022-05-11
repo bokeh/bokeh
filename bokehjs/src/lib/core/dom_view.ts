@@ -10,6 +10,8 @@ export interface DOMView extends View {
 }
 
 export abstract class DOMView extends View {
+  override parent: DOMView | null
+
   static tag_name: keyof HTMLElementTagNameMap = "div"
 
   el: Node

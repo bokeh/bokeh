@@ -174,8 +174,8 @@ export class DataTableView extends WidgetView {
     return [...super.styles(), slickgrid_css, tables_css]
   }
 
-  override update_position(): void {
-    super.update_position()
+  override _after_layout(): void {
+    super._after_layout()
     const style = getComputedStyle(this.el)
     const width = parseFloat(style.width)
     const height = parseFloat(style.height)
@@ -189,7 +189,7 @@ export class DataTableView extends WidgetView {
     this.updateLayout(true, false)
   }
 
-  override box_sizing(): Partial<BoxSizing> {
+  override box_sizing(): BoxSizing {
     const sizing = super.box_sizing()
     if (this.model.autosize_mode === "fit_viewport" && this._width != null)
       sizing.width = this._width

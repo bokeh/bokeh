@@ -10,7 +10,6 @@ import * as tables from "styles/widgets/tables.css"
 
 export abstract class CellEditorView extends DOMComponentView {
   override model: CellEditor
-  override el: HTMLElement
 
   defaultValue: any
 

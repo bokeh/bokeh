@@ -1,10 +1,15 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
-import {Grid, RowsSizing, ColsSizing} from "core/layout/grid"
+import {RowsSizing, ColsSizing} from "core/layout/grid"
+import {enumerate} from "core/util/iterator"
+import {keys} from "core/util/object"
+import {isNumber, isPlainObject} from "core/util/types"
+import {px} from "core/dom"
 import * as p from "core/properties"
+
+const {max} = Math
 
 export class GridBoxView extends LayoutDOMView {
   override model: GridBox
-  override layout: Grid
 
   override connect_signals(): void {
     super.connect_signals()
@@ -17,17 +22,45 @@ export class GridBoxView extends LayoutDOMView {
   }
 
   override _update_layout(): void {
-    this.layout = new Grid()
-    this.layout.rows = this.model.rows
-    this.layout.cols = this.model.cols
-    this.layout.spacing = this.model.spacing
+    super._update_layout()
 
-    for (const [child, row, col, row_span, col_span] of this.model.children) {
-      const child_view = this._child_views.get(child)!
-      this.layout.items.push({layout: child_view.layout, row, col, row_span, col_span})
+    const {style} = this.el
+    style.display = "grid"
+
+    const [row_gap, column_gap] = (() => {
+      const {spacing} = this.model
+      return isNumber(spacing) ? [spacing, spacing] : spacing
+    })()
+
+    style.rowGap = px(row_gap)
+    style.columnGap = px(column_gap)
+
+    let nrows = 0
+    let ncols = 0
+
+    for (const [[, row, col, row_span = 1, col_span = 1], i] of enumerate(this.model.children)) {
+      const view = this.child_views[i]
+
+      nrows = max(nrows, row + row_span)
+      ncols = max(ncols, col + col_span)
+
+      // CSS grid is 1-based, but layout is 0-based
+      view.el.style.gridRowStart = `${row + 1}`
+      view.el.style.gridRowEnd = `span ${row_span}`
+      view.el.style.gridColumnStart = `${col + 1}`
+      view.el.style.gridColumnEnd = `span ${col_span}`
     }
 
-    this.layout.set_sizing(this.box_sizing())
+    const {rows, cols} = this.model
+    if (isPlainObject(rows)) {
+      nrows = max(nrows, ...keys(rows).map((i) => parseInt(i)))
+    }
+    if (isPlainObject(cols)) {
+      ncols = max(ncols, ...keys(cols).map((i) => parseInt(i)))
+    }
+
+    style.gridTemplateRows = `repeat(${nrows}, max-content)`    // TODO: this.model.rows
+    style.gridTemplateColumns = `repeat(${ncols}, max-content)` // TODO: this.model.cols
   }
 }
 

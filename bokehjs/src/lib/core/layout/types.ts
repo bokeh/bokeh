@@ -91,6 +91,7 @@ export type BoxSizing = {
   aspect?: number
   margin: Margin
   visible: boolean
-  halign: Align
-  valign: Align
+
+  halign?: Align
+  valign?: Align
 }

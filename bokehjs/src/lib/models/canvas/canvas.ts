@@ -1,6 +1,6 @@
 import {HasProps} from "core/has_props"
 import {settings} from "core/settings"
-import {DOMView} from "core/dom_view"
+import {DOMElementView} from "core/dom_view"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {div, append} from "core/dom"
@@ -75,9 +75,8 @@ const style = {
   zIndex: "0", // establish a stacking context
 }
 
-export class CanvasView extends DOMView {
+export class CanvasView extends DOMElementView {
   override model: Canvas
-  override el: HTMLElement
 
   bbox: BBox = new BBox()
 

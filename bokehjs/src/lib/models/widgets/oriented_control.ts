@@ -18,7 +18,7 @@ export abstract class OrientedControlView extends ControlView {
     return this.model.orientation == "horizontal" ? "fixed" : super._height_policy()
   }
 
-  override box_sizing(): Partial<BoxSizing> {
+  override box_sizing(): BoxSizing {
     const sizing = super.box_sizing()
     if (this.model.orientation == "horizontal") {
       if (sizing.width == null)

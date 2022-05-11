@@ -129,7 +129,7 @@ export class NodeLayout extends Layoutable {
     const hcenter = Math.round(bbox.hcenter)
 
     for (const layout of this.children) {
-      const {margin, halign, valign} = layout.sizing
+      const {margin, halign = "start", valign = "start"} = layout.sizing
       const {width, height, inner} = layout.measure(outer)
 
       const bbox = (() => {

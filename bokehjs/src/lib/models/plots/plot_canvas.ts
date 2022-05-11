@@ -282,12 +282,12 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this._invalidate_all = true
     this._needs_paint = true
 
-    this.layout = new BorderLayout()
-    this.layout.set_sizing(this.box_sizing())
+    const layout = new BorderLayout()
+    layout.set_sizing({width_policy: "max", height_policy: "max"})
 
     if (this.visuals.outline_line.doit) {
       const width = this.visuals.outline_line.line_width.get_value()
-      this.layout.center_border_width = width
+      layout.center_border_width = width
     }
 
     type Panels = (Axis | Annotation | Annotation[])[]
@@ -386,7 +386,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
 
     const min_border = this.model.min_border ?? 0
-    this.layout.min_border = {
+    layout.min_border = {
       left:   this.model.min_border_left   ?? min_border,
       top:    this.model.min_border_top    ?? min_border,
       right:  this.model.min_border_right  ?? min_border,
@@ -446,31 +446,33 @@ export class PlotView extends LayoutDOMView implements Renderable {
     inner_left_panel.children   = set_layouts("left",  inner_left)
     inner_right_panel.children  = set_layouts("right", inner_right)
 
-    top_panel.set_sizing({width_policy: "fit", height_policy: "min"/*, min_height: this.layout.min_border.top*/})
-    bottom_panel.set_sizing({width_policy: "fit", height_policy: "min"/*, min_height: this.layout.min_width.bottom*/})
-    left_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: this.layout.min_width.left*/})
-    right_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: this.layout.min_width.right*/})
+    top_panel.set_sizing({width_policy: "fit", height_policy: "min"/*, min_height: layout.min_border.top*/})
+    bottom_panel.set_sizing({width_policy: "fit", height_policy: "min"/*, min_height: layout.min_width.bottom*/})
+    left_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: layout.min_width.left*/})
+    right_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: layout.min_width.right*/})
 
     inner_top_panel.set_sizing({width_policy: "fit", height_policy: "min"})
     inner_bottom_panel.set_sizing({width_policy: "fit", height_policy: "min"})
     inner_left_panel.set_sizing({width_policy: "min", height_policy: "fit"})
     inner_right_panel.set_sizing({width_policy: "min", height_policy: "fit"})
 
-    this.layout.center_panel = center_panel
+    layout.center_panel = center_panel
 
-    this.layout.top_panel = top_panel
-    this.layout.bottom_panel = bottom_panel
-    this.layout.left_panel = left_panel
-    this.layout.right_panel = right_panel
+    layout.top_panel = top_panel
+    layout.bottom_panel = bottom_panel
+    layout.left_panel = left_panel
+    layout.right_panel = right_panel
 
     if (inner_top_panel.children.length != 0)
-      this.layout.inner_top_panel = inner_top_panel
+      layout.inner_top_panel = inner_top_panel
     if (inner_bottom_panel.children.length != 0)
-      this.layout.inner_bottom_panel = inner_bottom_panel
+      layout.inner_bottom_panel = inner_bottom_panel
     if (inner_left_panel.children.length != 0)
-      this.layout.inner_left_panel = inner_left_panel
+      layout.inner_left_panel = inner_left_panel
     if (inner_right_panel.children.length != 0)
-      this.layout.inner_right_panel = inner_right_panel
+      layout.inner_right_panel = inner_right_panel
+
+    this.layout = layout
   }
 
   get axis_views(): AxisView[] {
@@ -572,8 +574,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   async build_tool_views(): Promise<void> {
     const tool_models = flat_map(this.model.toolbar.tools, (item) => item instanceof ToolProxy ? item.tools : [item])
-    const new_tool_views = await build_views(this.tool_views, [...tool_models], {parent: this})
-    new_tool_views.map((tool_view) => this.canvas_view.ui_event_bus.register_tool(tool_view))
+    const {created} = await build_views(this.tool_views, [...tool_models], {parent: this})
+    created.map((tool_view) => this.canvas_view.ui_event_bus.register_tool(tool_view))
   }
 
   override connect_signals(): void {
@@ -657,8 +659,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
     return true
   }
 
-  override after_layout(): void {
-    super.after_layout()
+  override _after_layout(): void {
+    super._after_layout()
     this.unpause(true)
 
     for (const [, child_view] of this.renderer_views) {

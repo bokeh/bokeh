@@ -108,7 +108,7 @@ export class HoverToolView extends InspectToolView {
 
     const {tooltips} = this.model
     if (tooltips instanceof Template) {
-      this._template_view = await build_view(tooltips, {parent: this.plot_view})
+      this._template_view = await build_view(tooltips, {parent: this.plot_view.canvas})
       this._template_view.render()
     }
   }

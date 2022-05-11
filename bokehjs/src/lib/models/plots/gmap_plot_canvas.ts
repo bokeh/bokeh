@@ -265,8 +265,8 @@ export class GMapPlotView extends PlotView {
     this._set_bokeh_ranges()
   }
 
-  override update_position(): void {
-    super.update_position()
+  override _after_layout(): void {
+    super._after_layout()
 
     const {left, top, width, height} = this.frame.bbox
     this.map_el.style.top    = `${top}px`

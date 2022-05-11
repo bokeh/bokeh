@@ -28,7 +28,6 @@ import icons_css from "styles/icons.css"
 
 export class ToolbarView extends DOMComponentView {
   override model: Toolbar
-  override el: HTMLElement
 
   readonly tool_button_views: Map<ToolLike<Tool>, ToolButtonView> = new Map()
   protected _overflow_menu: ContextMenu
@@ -186,8 +185,6 @@ export class ToolbarView extends DOMComponentView {
   layout = {bbox: new BBox()}
 
   update_layout(): void {}
-
-  update_position(): void {}
 
   after_layout(): void {
     this._has_finished = true
