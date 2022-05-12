@@ -31,9 +31,9 @@ from os.path import (
 )
 from types import FrameType
 from typing import (
+    Any,
     Iterator,
     List,
-    NoReturn,
     Tuple,
     Union,
 )
@@ -279,7 +279,7 @@ with open(filename, 'rb') as example:
         pass
 
     if sys.platform != "win32":
-        def alarm_handler(sig: int, frame: FrameType) -> NoReturn:
+        def alarm_handler(sig: int, frame: FrameType | None) -> Any:
             raise Timeout
 
         signal.signal(signal.SIGALRM, alarm_handler)

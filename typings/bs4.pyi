@@ -1,7 +1,7 @@
 # Standard library imports
-from typing import IO, Any, Literal
+from typing import IO, Any
 
-from typing_extensions import TypeAlias
+from typing_extensions import Literal, TypeAlias
 
 # XXX: this is incorrect
 class PageElement:
