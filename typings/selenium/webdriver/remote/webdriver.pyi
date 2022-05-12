@@ -1,6 +1,6 @@
-from typing import Any, Literal, TypedDict
+from typing import Any
 
-from typing_extensions import TypeAlias
+from typing_extensions import Literal, TypeAlias, TypedDict
 
 from .webelement import WebElement
 

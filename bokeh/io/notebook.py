@@ -322,12 +322,12 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
     handle.doc.callbacks._held_events = []
     msg = BokehProtocol().create("PATCH-DOC", cast(List["DocumentPatchedEvent"], events)) # XXX: either fix types or filter events
 
-    handle.comms.send(msg.header_json)
-    handle.comms.send(msg.metadata_json)
-    handle.comms.send(msg.content_json)
+    handle.comms.send(msg.header_json)  # type: ignore[no-untyped-call]
+    handle.comms.send(msg.metadata_json)  # type: ignore[no-untyped-call]
+    handle.comms.send(msg.content_json)  # type: ignore[no-untyped-call]
     for header, payload in msg.buffers:
-        handle.comms.send(json.dumps(header))
-        handle.comms.send(buffers=[payload])
+        handle.comms.send(json.dumps(header))   # type: ignore[no-untyped-call]
+        handle.comms.send(buffers=[payload])   # type: ignore[no-untyped-call]
 
 def run_notebook_hook(notebook_type: NotebookType, action: Literal["load", "doc", "app"], *args: Any, **kwargs: Any) -> Any:
     ''' Run an installed notebook hook with supplied arguments.
@@ -392,7 +392,7 @@ def get_comms(target_name: str) -> Comm:
     '''
     # NOTE: must defer all IPython imports inside functions
     from ipykernel.comm import Comm
-    return Comm(target_name=target_name, data={})
+    return Comm(target_name=target_name, data={})  # type: ignore[no-untyped-call]
 
 def install_jupyter_hooks() -> None:
     '''

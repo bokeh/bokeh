@@ -1,5 +1,7 @@
 # Standard librarary imports
-from typing import Any, TypedDict
+from typing import Any
+
+from typing_extensions import TypedDict
 
 from ..common.keys import _KeySeq
 from ..remote.webdriver import WebDriver
