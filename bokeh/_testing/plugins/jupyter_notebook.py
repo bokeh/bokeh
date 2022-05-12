@@ -75,7 +75,7 @@ def jupyter_notebook(request: pytest.FixtureRequest, log_file: IO[str]) -> str:
     # Can be cleaned up further to remember the user's existing customJS
     # and then restore it after the test run.
     from jupyter_core import paths
-    config_dir = paths.jupyter_config_dir()
+    config_dir = paths.jupyter_config_dir()  # type: ignore
 
     body = """
 require(["base/js/namespace", "base/js/events"], function (IPython, events) {
