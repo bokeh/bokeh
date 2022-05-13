@@ -180,7 +180,7 @@ class GMapPlot(MapPlot):
     for more information on how to obtain your own.
     """)
 
-    api_version = String(default="3.43", help="""
+    api_version = String(default="weekly", help="""
     The version of Google Maps API to use. See https://developers.google.com/maps/documentation/javascript/versions
     for more information.
 

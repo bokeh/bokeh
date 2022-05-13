@@ -80,7 +80,7 @@ class EventCallbackManager:
     _event_callbacks: Dict[str, List[EventCallback]]
 
     def __init__(self, *args: Any, **kw: Any) -> None:
-        super().__init__(*args, **kw)  # type: ignore[call-arg] # https://github.com/python/mypy/issues/5887
+        super().__init__(*args, **kw)
         self._event_callbacks = {}
 
     def on_event(self, event: str | Type[Event], *callbacks: EventCallback) -> None:
@@ -138,7 +138,7 @@ class PropertyCallbackManager:
     _callbacks: Dict[str, List[PropertyCallback]]
 
     def __init__(self, *args: Any, **kw: Any) -> None:
-        super().__init__(*args, **kw)  # type: ignore[call-arg] # https://github.com/python/mypy/issues/5887
+        super().__init__(*args, **kw)
         self._callbacks = {}
 
     def on_change(self, attr: str, *callbacks: PropertyCallback) -> None:

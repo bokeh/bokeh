@@ -1,4 +1,5 @@
 import {HasProps} from "core/has_props"
+import {settings} from "core/settings"
 import {DOMView} from "core/dom_view"
 import {logger} from "core/logging"
 import * as p from "core/properties"
@@ -119,6 +120,8 @@ export class CanvasView extends DOMView {
 
     if (this.model.output_backend == "webgl") {
       this.webgl = await global_webgl()
+      if (settings.force_webgl && this.webgl == null)
+        throw new Error("webgl is not available")
     }
   }
 

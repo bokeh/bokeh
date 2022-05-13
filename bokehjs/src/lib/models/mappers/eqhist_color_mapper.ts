@@ -1,15 +1,15 @@
 import {ScanningColorMapper} from "./scanning_color_mapper"
 import {Arrayable} from "core/types"
-import {min, max, bin_counts, map, interpolate} from "core/util/arrayable"
-import {linspace, range, cumsum, uniq} from "core/util/array"
+import {min, max, bin_counts, interpolate} from "core/util/arrayable"
+import {linspace, cumsum} from "core/util/array"
 import * as p from "core/properties"
-import {logger} from "core/logging"
 
 export namespace EqHistColorMapper {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ScanningColorMapper.Props & {
     bins: p.Property<number>
+    rescale_discrete_levels: p.Property<boolean>
   }
 }
 
@@ -23,66 +23,73 @@ export class EqHistColorMapper extends ScanningColorMapper {
   }
 
   static {
-    this.define<EqHistColorMapper.Props>(({Int}) => ({
-      bins: [ Int, 256*256 ],
+    this.define<EqHistColorMapper.Props>(({Boolean, Int}) => ({
+      bins:                    [ Int, 256*256 ],
+      rescale_discrete_levels: [ Boolean, false ],
     }))
   }
 
-  protected scan(data: Arrayable<number>, n: number): {min: number, max: number, binning: Arrayable<number>} {
-    const low = this.low != null ? this.low : min(data)
+  // Public for unit tests
+  /*protected*/ scan(data: Arrayable<number>, n: number): {min: number, max: number, binning: Arrayable<number>} {
+    let low = this.low != null ? this.low : min(data)
     const high = this.high != null ? this.high : max(data)
 
     const nbins = this.bins
     const eq_bin_edges = linspace(low, high, nbins+1)
-    const hist = bin_counts(data, eq_bin_edges)
+    const full_hist = bin_counts(data, eq_bin_edges)
 
-    const eq_bin_centers = new Array(nbins)
-    for (let i = 0, length = eq_bin_edges.length; i < length-1; i++) {
-      const left = eq_bin_edges[i]
-      const right = eq_bin_edges[i+1]
-      eq_bin_centers[i] = (left+right)/2
+    // Remove empty bins from histogram to make interpolation more accurate and faster
+    // 1) Count non-zeros
+    let nhist = 0
+    for (let i = 0; i < nbins; i++) {
+      if (full_hist[i] != 0)
+        nhist++
     }
 
-    // CDFs
-    const cdf = cumsum(hist)
-    const cdf_max = cdf[cdf.length - 1]
-    const norm_cdf = map(cdf, (x) => x / cdf_max)
-
-    // Iteratively find as many finite bins as there are colors
-    let finite_bins = n-1
-    let binning: number[] = []
-    let iterations = 0
-    let guess = n*2
-    while ((finite_bins != n) && (iterations < 4) && (finite_bins != 0)) {
-      const ratio = guess/finite_bins
-      if (ratio > 1000) {
-        // Abort if distribution is extremely skewed
-        break
+    // 2) Remove zeros, leaving extra element at beginning for rescale_discrete_levels
+    const hist = new Array(nhist+1)
+    const eq_bin_centers = new Array(nhist+1)
+    for (let i = 0, j = 1; i < nbins; i++) {
+      if (full_hist[i] != 0) {
+        hist[j] = full_hist[i]
+        eq_bin_centers[j] = (eq_bin_edges[i] + eq_bin_edges[i+1])/2
+        j++
       }
-      guess = Math.round(Math.max(n*ratio, n))
-
-      // Interpolate
-      const palette_edges = range(0, guess)
-      const palette_cdf = map(norm_cdf, (x) => x*(guess-1))
-      binning = (interpolate(palette_edges, palette_cdf, eq_bin_centers) as number[])
-
-      // Evaluate binning
-      const uniq_bins = uniq(binning)
-      finite_bins = uniq_bins.length-1
-      iterations++
     }
-    if (finite_bins == 0) {
-      binning = [low, high]
-      for (let j = 0; j < n-1; j++)
-        binning.push(high)
-    } else {
-      binning = binning.slice(binning.length - n - 1)
-      if (finite_bins != n)
-        logger.warn("EqHistColorMapper warning: Histogram equalization did not converge.")
+    hist[0] = 0
+    eq_bin_centers[0] = 2*eq_bin_centers[1] - eq_bin_centers[nhist]
+
+    // CDF scaled from 0 to 1 except for first value
+    const cdf = cumsum(hist)
+    const lo = cdf[1]
+    const diff = cdf[nhist] - lo
+    for (let i = 1; i <= nhist; i++)
+      cdf[i] = (cdf[i] - lo) / diff
+    cdf[0] = -1.0
+
+    let lower_span = 0
+    if (this.rescale_discrete_levels) {
+      const discrete_levels = nhist
+
+      // Straight line y = mx + c through (2, 1.5) and (100, 1) where
+      // x is number of discrete_levels and y is lower span limit.
+      const m = -0.5/98.0  // (y[1] - y[0]) / (x[1] - x[0])
+      const c = 1.5 - 2*m  // y[0] - m*x[0]
+      const multiple = m*discrete_levels + c
+
+      if (multiple > 1)
+        lower_span = 1 - multiple
     }
 
-    // XXX: should this be guaranteed by the above algorithm?
-    binning[0] = low
+    // Color bin boundaries are equally spaced in CDF
+    const cdf_bins = linspace(lower_span, 1, n+1)
+    const binning = interpolate(cdf_bins, cdf, eq_bin_centers)
+
+    // Extend limits to low and high values
+    if (this.rescale_discrete_levels)
+      low = binning[0]
+    else
+      binning[0] = low
     binning[binning.length-1] = high
 
     return {min: low, max: high, binning}

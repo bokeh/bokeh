@@ -94,7 +94,7 @@ export class GMapPlot extends Plot {
     this.define<GMapPlot.Props>(({String, Ref}) => ({
       map_options: [ Ref(GMapOptions) ],
       api_key:     [ String ],
-      api_version: [ String, "3.43" ],
+      api_version: [ String, "weekly" ],
     }))
 
     this.override<GMapPlot.Props>({

@@ -204,7 +204,7 @@ class BaseServer:
             self.start()
         # Install shutdown hooks
         atexit.register(self._atexit)
-        signal.signal(signal.SIGTERM, self._sigterm)
+        signal.signal(signal.SIGTERM, self._sigterm)   # type: ignore[arg-type]
         try:
             self._loop.start()
         except KeyboardInterrupt:

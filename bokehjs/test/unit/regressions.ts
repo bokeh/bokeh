@@ -303,4 +303,47 @@ describe("Bug", () => {
       ])
     })
   })
+
+  describe("in issue #7390", () => {
+    it("allows to trigger tap events when clicking outside the frame area", async () => {
+      const p = fig([100, 100], {
+        x_range: [0, 2], y_range: [0, 2],
+        x_axis_type: null, y_axis_type: null,
+        tools: "tap",
+        min_border: 10,
+      })
+      const r = p.rect({x: [0.5, 1.5], y: [0.5, 1.5], width: 1, height: 1})
+
+      const {view} = await display(p)
+      expect(r.data_source.selected.indices).to.be.equal([])
+
+      async function tap(sx: number, sy: number) {
+        const ui = view.canvas_view.ui_event_bus
+        const {left, top} = offset(ui.hit_area)
+        const ev = new MouseEvent("click", {clientX: left + sx, clientY: top + sy})
+        const hev = {
+          type: "tap",
+          deltaX: 0,
+          deltaY: 0,
+          scale: 1,
+          rotation: 0,
+          srcEvent: ev,
+        }
+        ui._tap(hev) // can't use dispatchEvent(), becuase of doubletap recognizer
+        await view.ready
+      }
+
+      await tap(30, 70) // click on 0
+      expect(r.data_source.selected.indices).to.be.equal([0])
+
+      await tap(30, 30) // click on empty
+      expect(r.data_source.selected.indices).to.be.equal([])
+
+      await tap(70, 30) // click on 1
+      expect(r.data_source.selected.indices).to.be.equal([1])
+
+      await tap(5, 5)   // click off frame
+      expect(r.data_source.selected.indices).to.be.equal([1])
+    })
+  })
 })

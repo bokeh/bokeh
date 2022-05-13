@@ -14,6 +14,20 @@
     <link rel="icon" type="image/png" sizes="16x16" href="https://static.bokeh.org/favicon/favicon-16x16.png">
 {%- endblock %}
 
+{% block docs_toc %}
+{% if sidebars %}
+  <div class="d-none d-xl-block col-xl-2 bd-toc">
+    {% if meta is defined and not (meta is not none and 'notoc' in meta) %}
+      {% for toc_item in theme_page_sidebar_items %}
+      <div class="toc-item">
+        {% include toc_item %}
+      </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}
+
 {% block docs_main %}
 {% if sidebars %}
   {% set content_col_class = "col-md-9 col-xl-7" %}
