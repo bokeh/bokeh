@@ -109,45 +109,25 @@ def process_sampledata_xrefs(app, doctree, fromdocname):
 
     for node in doctree.traverse(sampledata_list):
 
+        refs = [s for s in env.all_sampledata_xrefs if s["keyword"] == node.sampledata_key]
         content = []
-        sampledata_refs = []
-        refuris = []
-        for s in env.all_sampledata_xrefs:
-            refuri = app.builder.get_relative_uri(
-                fromdocname, s['docname']
-            ) + s['href']
-            if s["keyword"] == node.sampledata_key and refuri not in refuris:
-                sampledata_refs.append(s)
-                refuris.append(refuri)
-
-        _len = len(sampledata_refs)
-        para = nodes.paragraph()
-        if _len:
-            p, s = ('','s') if _len==1 else ('s','')
-            description = (
-                _(f'See the following example{p} that use{s} this sample data set: ')
-            )
-        else:
-            description = (_('There are no references for this sample data set'))
-        para += nodes.Text(description, description)
-        for i, (sample_info, refuri) in enumerate(zip(sampledata_refs, refuris)):
-            # Create references
-            newnode = nodes.reference('', '')
-            ref_name = basename(sample_info['docname']) + sample_info['href']
-            innernode = nodes.emphasis(_(ref_name), _(ref_name))
-            newnode['refdocname'] = sample_info['docname']
-            newnode['refuri'] = refuri
-            newnode.append(innernode)
-            para += newnode
-            if 1<_len:
-                _l =  _len-2
-                if i == _l:
-                    para += nodes.Text(' and ', ' and ')
-                elif i < _l:
-                    para += nodes.Text(', ', ', ')
-
-        para += nodes.Text('.', '.')
-        content.append(para)
+        if refs:
+            para = nodes.paragraph()
+            description = (_(f'Example{"" if 1==len(refs) else "s"}'))
+            para += nodes.rubric(description, description)
+            for i, s in enumerate(refs):
+                # Create references
+                line = nodes.line()
+                line += nodes.Text('  • ','  • ')
+                newnode = nodes.reference('', '')
+                ref_name = basename(s['docname'])
+                innernode = nodes.emphasis(_(ref_name), _(ref_name))
+                newnode['refdocname'] = s['docname']
+                newnode['refuri'] = app.builder.get_relative_uri(fromdocname, s['docname'])
+                newnode.append(innernode)
+                line += newnode
+                para += line
+            content.append(para)
         node.replace_self(content)
 
 # -----------------------------------------------------------------------------

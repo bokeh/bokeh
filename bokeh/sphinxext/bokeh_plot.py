@@ -146,9 +146,6 @@ class autoload_script(nodes.General, nodes.Element):
 
     html = visit_html.__func__, None
 
-class sampledata_node(nodes.General, nodes.Element):
-    pass
-
 class BokehPlotDirective(BokehDirective):
 
     has_content = True
@@ -243,37 +240,23 @@ class BokehPlotDirective(BokehDirective):
 
     def process_sampledata(self, targetnode, source):
 
-        if not hasattr(self.env, 'all_sampledata_xrefs'):
-            self.env.all_sampledata_xrefs = []
-
-        regex = "(:|bokeh\.)sampledata(:|\.| import )\s*(\w+(\,\s*\w+)*)"
-        matches = re.findall(regex, source)
-        if matches:
-            href = ''
-            file, lineno =  self.get_source_info()
-            # extend href with (sub-)headline if source is not "gallery"
-            if file.endswith(('.py','.rst')) and 'gallery' not in file:
-                with open(file, 'r') as fp:
-                    lines = fp.readlines()[:lineno][::-1]
-
-                for i, line in enumerate(lines):
-                    if re.match(r"""^(?P<reST>=|-|~|\"|')(?P=reST)+$""", line):
-                        href = '#'+lines[i+1].lower().replace(' ', '-').replace(',','')
-                        break
-
-            keywords = set()
-            for m in matches:
-                keywords.update(m[2].replace(" ","").split(','))
-            for keyword in keywords:
-                xref_node = sampledata_node('')
-                self.state.nested_parse(self.content, self.content_offset, xref_node)
-
-                self.env.all_sampledata_xrefs.append({
-                    'docname': self.env.docname,
-                    'target': targetnode,
-                    'keyword': keyword,
-                    'href': href
-                })
+        file, lineno =  self.get_source_info()
+        # at the moment only links to the gallery are wanted
+        if 'gallery' in file:
+            if not hasattr(self.env, 'all_sampledata_xrefs'):
+                self.env.all_sampledata_xrefs = []
+            regex = "(:|bokeh\.)sampledata(:|\.| import )\s*(\w+(\,\s*\w+)*)"
+            matches = re.findall(regex, source)
+            if matches:
+                keywords = set()
+                for m in matches:
+                    keywords.update(m[2].replace(" ","").split(','))
+                for keyword in keywords:
+                    self.env.all_sampledata_xrefs.append({
+                        'docname': self.env.docname,
+                        'target': targetnode,
+                        'keyword': keyword,
+                    })
 # -----------------------------------------------------------------------------
 # Dev API
 # -----------------------------------------------------------------------------
@@ -304,7 +287,6 @@ def env_merge_info(app, env, docnames, other):
 
 def setup(app):
     """ Required Sphinx extension setup function. """
-    app.add_node(sampledata_node)
     app.add_directive("bokeh-plot", BokehPlotDirective)
     app.add_node(autoload_script, html=autoload_script.html)
     app.add_config_value("bokeh_missing_google_api_key_ok", True, "html")
