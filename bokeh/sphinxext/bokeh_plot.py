@@ -174,7 +174,7 @@ class BokehPlotDirective(BokehDirective):
         target_id = f"{dashed_docname}.{basename(js_path)}"
         target = [nodes.target("", "", ids=[target_id])]
 
-        self.process_sampledata(target, source)
+        self.process_sampledata(source)
 
         process_docstring = self.options.get("process-docstring", False)
         intro = self.parse(docstring, '<bokeh-content>') if docstring and process_docstring else []
@@ -238,13 +238,20 @@ class BokehPlotDirective(BokehDirective):
 
         return (script_tag, js_path, source, docstring, height_hint)
 
-    def process_sampledata(self, targetnode, source):
+    def process_sampledata(self, source):
 
         file, lineno =  self.get_source_info()
         # at the moment only links to the gallery are wanted
-        if 'gallery' in file:
+        if '/docs/gallery/' in file:
             if not hasattr(self.env, 'all_sampledata_xrefs'):
                 self.env.all_sampledata_xrefs = []
+            if not hasattr(self.env, 'all_gallery_overview'):
+                self.env.all_gallery_overview = []
+
+            self.env.all_gallery_overview.append({
+                'docname': self.env.docname,
+            })
+
             regex = "(:|bokeh\.)sampledata(:|\.| import )\s*(\w+(\,\s*\w+)*)"
             matches = re.findall(regex, source)
             if matches:
@@ -254,7 +261,6 @@ class BokehPlotDirective(BokehDirective):
                 for keyword in keywords:
                     self.env.all_sampledata_xrefs.append({
                         'docname': self.env.docname,
-                        'target': targetnode,
                         'keyword': keyword,
                     })
 # -----------------------------------------------------------------------------

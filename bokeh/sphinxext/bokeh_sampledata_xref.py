@@ -58,6 +58,16 @@ RESOURCES = get_sphinx_resources()
 # Dev API
 # -----------------------------------------------------------------------------
 
+class gallery_xrefs(nodes.General, nodes.Element):
+    pass
+
+class BokehGalleryOverviewDirective(BokehDirective):
+
+    has_content = True
+
+    def run(self):
+        return [gallery_xrefs('')]
+
 class sampledata_list(nodes.General, nodes.Element):
     def __init__(self, *args, **kwargs):
         self.sampledata_key = kwargs.pop("sampledata_key")
@@ -75,10 +85,14 @@ class BokehSampledataXrefDirective(BokehDirective):
 def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_node(sampledata_list)
+    app.add_directive("bokeh-gallery-overview", BokehGalleryOverviewDirective)
     app.add_directive("bokeh-sampledata-xref", BokehSampledataXrefDirective)
     app.connect('doctree-resolved', process_sampledata_xrefs)
     app.connect('env-purge-doc', purge_xrefs)
     app.connect('env-merge-info', merge_xrefs)
+    app.connect('doctree-resolved', process_gallery_overview)
+    app.connect('env-purge-doc', purge_gallery_xrefs)
+    app.connect('env-merge-info', merge_gallery_xrefs)
     return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
@@ -115,21 +129,64 @@ def process_sampledata_xrefs(app, doctree, fromdocname):
             para = nodes.paragraph()
             description = (_(f'Example{"" if 1==len(refs) else "s"}'))
             para += nodes.rubric(description, description)
-            for i, s in enumerate(refs):
-                # Create references
-                line = nodes.line()
-                line += nodes.Text('  • ','  • ')
-                newnode = nodes.reference('', '')
-                ref_name = basename(s['docname'])
-                innernode = nodes.emphasis(_(ref_name), _(ref_name))
-                newnode['refdocname'] = s['docname']
-                newnode['refuri'] = app.builder.get_relative_uri(fromdocname, s['docname'])
-                newnode.append(innernode)
-                line += newnode
-                para += line
+            for ref in refs:
+                para += add_bullet_point(app, fromdocname, ref)
             content.append(para)
         node.replace_self(content)
 
+def purge_gallery_xrefs(app, env, docname):
+    if not hasattr(env, 'all_gallery_overview'):
+        return
+
+    env.all_gallery_overview = [
+        xref for xref in env.all_gallery_overview if xref['docname'] != docname
+    ]
+
+def merge_gallery_xrefs(app, env, docnames, other):
+    if not hasattr(env, 'all_gallery_overview'):
+        env.all_gallery_overview = []
+
+    if hasattr(other, 'all_gallery_overview'):
+        env.all_gallery_overview.extend(other.all_gallery_overview)
+
+def process_gallery_overview(app, doctree, fromdocname):
+
+    env = app.builder.env
+
+    if not hasattr(env, 'all_gallery_overview'):
+        env.all_gallery_overview = []
+
+    for node in doctree.traverse(gallery_xrefs):
+
+        ref_dict = {}
+        for s in env.all_gallery_overview:
+            letter = s['docname'].split('/')[-1][0].upper()
+            if letter in ref_dict:
+                ref_dict[letter].append(s)
+            else:
+                ref_dict[letter] = [s]
+
+        content = []
+        for letter, refs in ref_dict.items():
+            para = nodes.paragraph()
+            para += nodes.rubric((_(letter)), (_(letter)))
+            for ref in refs:
+                para += add_bullet_point(app, fromdocname, ref)
+            content.append(para)
+        node.replace_self(content)
+
+def add_bullet_point(app, fromdocname, ref):
+    # Create references
+    line = nodes.line()
+    line += nodes.Text('  • ','  • ')
+    newnode = nodes.reference('', '')
+    ref_name = basename(ref['docname'])
+    innernode = nodes.emphasis(_(ref_name), _(ref_name))
+    newnode['refdocname'] = ref['docname']
+    newnode['refuri'] = app.builder.get_relative_uri(fromdocname, ref['docname'])
+    newnode.append(innernode)
+    line += newnode
+    return line
 # -----------------------------------------------------------------------------
 # Code
 # -----------------------------------------------------------------------------
