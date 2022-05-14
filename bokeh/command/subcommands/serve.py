@@ -466,6 +466,13 @@ base_serve_args = (
         default = None,
     )),
 
+    ('--unix-socket', Argument(
+        metavar = 'UNIX-SOCKET',
+        type    = str,
+        help    = "Unix socket to bind. Network options such as port, address, ssl options are incompatible with unix socket",
+        default = None,
+    )),
+
     ('--log-level', Argument(
         metavar = 'LOG-LEVEL',
         action  = 'store',
@@ -559,7 +566,8 @@ class Serve(Subcommand):
             metavar = 'HOST[:PORT]',
             action  = 'append',
             type    = str,
-            help    = "Public hostnames which may connect to the Bokeh websocket",
+            help    = "Public hostnames which may connect to the Bokeh websocket "
+                      "With unix socket, the websocket origin restrictions should be enforced by the proxy.",
         )),
 
         ('--prefix', Argument(
@@ -830,6 +838,7 @@ class Serve(Subcommand):
 
         server_kwargs = { key: getattr(args, key) for key in ['port',
                                                               'address',
+                                                              'unix_socket',
                                                               'allow_websocket_origin',
                                                               'num_procs',
                                                               'prefix',
@@ -874,6 +883,14 @@ class Serve(Subcommand):
         if server_kwargs['sign_sessions'] and not server_kwargs['secret_key']:
             die("To sign sessions, the BOKEH_SECRET_KEY environment variable must be set; " +
                 "the `bokeh secret` command can be used to generate a new key.")
+
+        if 'unix_socket' in server_kwargs:
+            if server_kwargs['port'] != DEFAULT_SERVER_PORT:
+                die("--port arg is not supported with a unix socket")
+            invalid_args = ['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile']
+
+            if any(server_kwargs.get(x) for x in invalid_args):
+                die(f"{invalid_args + ['port']} args are not supported with a unix socket")
 
         auth_module_path = settings.auth_module(getattr(args, 'auth_module', None))
         if auth_module_path:
@@ -934,20 +951,22 @@ class Serve(Subcommand):
 
                 server.io_loop.add_callback(show_callback)
 
-            address_string = 'localhost'
-            if server.address is not None and server.address != '':
-                address_string = server.address
+            # Server may not have a port when bound to a unix socket
+            if server.port:
+                address_string = 'localhost'
+                if server.address is not None and server.address != '':
+                    address_string = server.address
 
-            if server_kwargs['ssl_certfile'] and (server_kwargs['ssl_certfile'].endswith('.pem') or server_kwargs['ssl_keyfile']):
-                protocol = 'https'
-            else:
-                protocol = 'http'
+                if server_kwargs['ssl_certfile'] and (server_kwargs['ssl_certfile'].endswith('.pem') or server_kwargs['ssl_keyfile']):
+                    protocol = 'https'
+                else:
+                    protocol = 'http'
 
-            for route in sorted(applications.keys()):
-                url = f"{protocol}://{address_string}:{server.port}{server.prefix}{route}"
-                log.info("Bokeh app running at: %s" % url)
+                for route in sorted(applications.keys()):
+                    url = f"{protocol}://{address_string}:{server.port}{server.prefix}{route}"
+                    log.info("Bokeh app running at: %s" % url)
 
-            log.info("Starting Bokeh server with process id: %d" % os.getpid())
+                log.info("Starting Bokeh server with process id: %d" % os.getpid())
             server.run_until_shutdown()
 
 #-----------------------------------------------------------------------------

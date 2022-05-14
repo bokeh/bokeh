@@ -105,7 +105,7 @@ def check_allowlist(host: str, allowlist: Sequence[str]) -> bool:
 
     return any(match_host(host, pattern) for pattern in allowlist)
 
-def create_hosts_allowlist(host_list: Sequence[str] | None, port: int) -> List[str]:
+def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) -> List[str]:
     '''
 
     This allowlist can be used to restrict websocket or other connections to
