@@ -4,7 +4,7 @@ and the third plot adds an angle to each rect.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.rect
-    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_rectangles`
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_bars_rects`
     :keywords: rect
 
 '''

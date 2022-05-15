@@ -4,7 +4,7 @@ includes multiple chemical data as well as a bohr diagram for each element.
 .. bokeh-example-metadata::
     :sampledata: periodic_table
     :apis: bokeh.plotting.figure.circle, bokeh.transform.dodge, bokeh.transform.factor_cmap
-    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter`
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter_markers`
     :keywords: circle, RendererGroup, Template, ToggleGroup
 
 '''
