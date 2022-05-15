@@ -98,19 +98,25 @@ def config_inited_handler(app, config):
     # left at the end (and remove it in that case)
     extras = set(os.listdir(gallery_dir))
 
-    # app.env.note_dependency(specpath)
-    spec = json.load(open(gallery_file))
-    details = spec["details"]
-
-    names = {x["name"] for x in details}
-    if len(names) < len(details):
-        raise SphinxError(f"gallery file {gallery_file!r} has duplicate names")
+    basepath = app.srcdir.replace('/sphinx/source', '')
+    folder = ['plotting','models']
+    details = []
+    detail_names = []
+    for f in folder:
+        path = f'examples/{f}/file'
+        for name in os.listdir(join(basepath, path)):
+            if not name.startswith('_') and name.endswith('.py') and  not 'custom_layout' in name:
+                name = name.replace('.py', '')
+                detail_name = name + '.rst'
+                if detail_name in detail_names:
+                    detail_name = detail_name.replace('.rst', f'_{f}.rst')
+                details.append({"path": join(path,name+'.py'), "name":name, "detail_file_name":detail_name})
+                detail_names.append(detail_name)
 
     details_iter = status_iterator(details, "creating gallery file entries... ", "brown", len(details), app.verbosity, stringify_func=lambda x: x["name"] + ".rst")
 
     for detail in details_iter:
-        detail_file_name = detail["name"] + ".rst"
-        detail_file_path = join(gallery_dir, detail_file_name)
+        detail_file_path = join(gallery_dir, detail["detail_file_name"])
 
         if detail_file_path in extras:
             extras.remove(detail_file_path)
@@ -121,7 +127,7 @@ def config_inited_handler(app, config):
 
         with open(detail_file_path, "w") as f:
             source_path = abspath(join(app.srcdir, "..", "..", detail["path"]))
-            f.write(GALLERY_DETAIL.render(filename=detail["name"] + ".py", source_path=source_path))
+            f.write(GALLERY_DETAIL.render(filename=detail["name"], source_path=source_path))
 
     for extra_file in extras:
         os.remove(join(gallery_dir, extra_file))
