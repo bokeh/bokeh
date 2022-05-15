@@ -1,3 +1,18 @@
+''' A rendering of all button widgets.
+
+This example demonstrates the types of button widgets available
+along with radio buttons and checkboxes.
+
+The types include button with click event enabled and disabled,
+a toggle button with default active or inactive status, checkboxes,
+radio buttons, dropdown menu, checkbox and radio with groups.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.models.widgets.buttons.Button, bokeh.models.widgets.buttons.Dropdown, bokeh.models.widgets.buttons.Toggle, bokeh.models.widgets.groups.CheckBoxButtonGroup, bokeh.models.widgets.groups.CheckboxGroup, bokeh.models.widgets.groups.RadioButtonGroup, bokeh.models.widgets.groups.RadioGroup  # noqa: E501
+    :refs: :ref:`userguide_layout` > :ref:`userguide_layout_gridplot`, :ref:`userguide_tools` > :ref:`userguide_tools_hover_tool`
+    :keywords: buttons, radio button, checkboxes, toggle button, dropdown
+
+'''
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Button, CheckboxButtonGroup, CheckboxGroup, Column,
