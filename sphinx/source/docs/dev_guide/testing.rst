@@ -309,8 +309,8 @@ the BokehJS devtools server. This system requires the Chrome web browser to be
 available on your system. Use the BokehJS devtools server to run tests and
 review the visual tests' output.
 
-First, start the devtools server from the `bokehjs` subdirectory with the
-following command:
+First, start the devtools server from the :bokeh-tree:`bokehjs` subdirectory
+with the following command:
 
 .. code-block:: sh
 
@@ -318,6 +318,8 @@ following command:
     listening on 127.0.0.1:5777
 
 You can now use the devtools server for the following operations:
+
+.. _contributor_guide_testing_local_javascript_devtools_endpoints:
 
 Inspecting visual test results
     After running integration tests, you can use the devtools server to
@@ -371,9 +373,17 @@ will filter tests by keyword.
 To only run or view tests for a specific platform, append either
 ``platform=linux``, ``platform=macos``, or ``platform=windows`` to the URL.
 
-.. seealso::
-    For information on adding and updating BokehJS tests, see
-    :ref:`contributor_guide_writing_tests_bokehjs`.
+For information on adding and updating BokehJS tests, see
+:ref:`contributor_guide_writing_tests_bokehjs`.
+
+.. note::
+    In most cases, the results of running tests locally with the regular Chrome
+    GUI are the same as running them in :ref:`Bokeh's CI
+    <contributor_guide_testing_ci>` which uses a headless version of Chrome.
+    However, there are rare cases where headless and GUI Chrome generate
+    different results. In this situation, you can't use the GUI - instead, you
+    need to debug BokehJS' code directly in the headless browser. See
+    :ref:`contributor_guide_debug_headless` for more information.
 
 .. _contributor_guide_testing_local_examples:
 

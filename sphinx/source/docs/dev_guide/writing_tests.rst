@@ -39,7 +39,7 @@ These tests are located in the :bokeh-tree:`tests` folder. See
 them.
 
 General information on contributing to Bokeh's Python code and models is
-available in :ref:`contributor_guide_models`.
+available in :ref:`contributor_guide_python`.
 
 .. _contributor_guide_writing_tests_python_unit:
 
