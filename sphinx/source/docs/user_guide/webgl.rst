@@ -37,19 +37,19 @@ Supported glyphs
 
 Bokeh's WebGL support covers the following fixed-shape glyphs:
 
-* :func:`~bokeh.plotting.figure.circle`
+* :func:`~bokeh.plotting.Figure.circle`
 
-* :func:`~bokeh.plotting.figure.hbar`
+* :func:`~bokeh.plotting.Figure.hbar`
 
-* :func:`~bokeh.plotting.figure.hex_tile`
+* :func:`~bokeh.plotting.Figure.hex_tile`
 
-* :func:`~bokeh.plotting.figure.quad`
+* :func:`~bokeh.plotting.Figure.quad`
 
-* :func:`~bokeh.plotting.figure.rect`
+* :func:`~bokeh.plotting.Figure.rect`
 
-* :func:`~bokeh.plotting.figure.scatter`
+* :func:`~bokeh.plotting.Figure.scatter`
 
-* :func:`~bokeh.plotting.figure.vbar`
+* :func:`~bokeh.plotting.Figure.vbar`
 
 WebGL support for these fixed-shape glyphs covers the following properties:
 
