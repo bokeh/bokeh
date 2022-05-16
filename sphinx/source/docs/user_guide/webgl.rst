@@ -3,18 +3,20 @@
 Accelerating with WebGL
 =======================
 
-Bokeh provides limited support for rendering with WebGL. This can be useful
-when visualizing larger data sets.
-
-What is WebGL?
---------------
+Bokeh provides limited support for WebGL to render plots in a web browser. Using
+WebGL in Bokeh can be useful when visualizing larger data sets, for example.
 
 `WebGL`_ is a JavaScript API that allows rendering content in the browser
 using hardware acceleration from a Graphics Processing Unit (GPU).
 WebGL is standardized and available in all modern browsers.
 
-How to enable WebGL
--------------------
+If you use Bokeh's WebGL output backend, Bokeh will automatically detect if the
+browser supports WebGL. When you use WebGL-enabled elements in your Bokeh plot
+but the browser doesn't support WebGL, Bokeh will automatically use the default
+canvas renderer instead.
+
+Enabling WebGL
+--------------
 
 To enable WebGL in Bokeh, set the plot's ``output_backend`` property to
 ``"webgl"``:
@@ -23,56 +25,76 @@ To enable WebGL in Bokeh, set the plot's ``output_backend`` property to
 
     p = figure(output_backend="webgl")
 
-Support
--------
+The WebGL output backend only supports a :ref:`subset of Bokeh's glyphs
+<userguide_webgl_supported_glyphs>`. When you enable WebGL, you are requesting
+that WebGL rendering is used if available. Glyphs that are not available in the
+WebGL output backend are rendered with the default canvas backend.
 
-Bokeh's WebGL support covers a subset of glyphs. This includes the :func:`~bokeh.plotting.Figure.line`
-glyph, and most markers:
+.. _userguide_webgl_supported_glyphs:
 
-* :func:`~bokeh.plotting.Figure.asterisk`
+Supported glyphs
+----------------
 
-* :func:`~bokeh.plotting.Figure.circle`
+Bokeh's WebGL support covers the following fixed-shape glyphs:
 
-* :func:`~bokeh.plotting.Figure.circle_cross`
+* :func:`~bokeh.plotting.figure.circle`
 
-* :func:`~bokeh.plotting.Figure.circle_x`
+* :func:`~bokeh.plotting.figure.hbar`
 
-* :func:`~bokeh.plotting.Figure.cross`
+* :func:`~bokeh.plotting.figure.hex_tile`
 
-* :func:`~bokeh.plotting.Figure.diamond`
+* :func:`~bokeh.plotting.figure.quad`
 
-* :func:`~bokeh.plotting.Figure.diamond_cross`
+* :func:`~bokeh.plotting.figure.rect`
 
-* :func:`~bokeh.plotting.Figure.hex`
+* :func:`~bokeh.plotting.figure.scatter`
 
-* :func:`~bokeh.plotting.Figure.inverted_triangle`
+* :func:`~bokeh.plotting.figure.vbar`
 
-* :func:`~bokeh.plotting.Figure.square`
+WebGL support for these fixed-shape glyphs covers the following properties:
 
-* :func:`~bokeh.plotting.Figure.square_cross`
+* all :ref:`fill properties <userguide_styling_fill_properties>`
+* all :ref:`line properties <userguide_styling_line_properties>` except for
+  dashed lines (which will be ignored)
+* all :ref:`hatch properties <userguide_styling_hatch_properties>` except for
+  hatch images using the ``hatch_extra`` property (which will be ignored).
 
-* :func:`~bokeh.plotting.Figure.square_x`
+There is also full WebGL support for :func:`~bokeh.plotting.figure.line`
+glyphs, although the appearance of dashed lines with round and square end caps
+may differ slightly from the default HTML canvas rendering.
 
-* :func:`~bokeh.plotting.Figure.star`
+If you enable Bokeh's webGL output backend, WebGL will be used whenever
+supported by a browser. This includes output in :ref:`Jupyter notebooks or
+Jupyter lab <userguide_jupyter>` and when :ref:`exporting Bokeh plots to PNG
+<userguide_export>` if the underlying browser (including headless browsers)
+supports WebGL. In case a browser does not support WebGL, Bokeh automatically
+falls back to the standard canvas output backend.
 
-* :func:`~bokeh.plotting.Figure.triangle`
 
-* :func:`~bokeh.plotting.Figure.x`
+When to use WebGL
+-----------------
 
-You can combine multiple glyphs in a plot, even if some are rendered in WebGL,
-and some are not.
+A general rule of thumb is that Bokeh's default canvas output backend works well
+if you are rendering fewer than 10,000 markers or points. For plots with more
+than 25,000 markers or points, WebGL will usually give noticeably better
+performance. Generally, the more markers or points to render, the more efficient
+WebGL will be compared to the default canvas output backend. The number of
+markers or points at which WebGL performance exceeds canvas depends on the
+hardware available, so you will need to try it out on your own hardware to see
+what is best for you.
 
-Examples
---------
 
-Here is an example of plotting ten thousand scatter circles with WebGL enabled.
-Notice that the plot can be panned and zoomed smoothly, even without any
-Level-of-Detail downsampling.
+WebGL examples
+--------------
+
+The following example is a plot with 10,000 scatter circles with WebGL enabled.
+Notice that the plot can be panned and zoomed smoothly, even without
+downsampling the data.
 
 .. bokeh-plot:: ../../examples/webgl/scatter10k.py
     :source-position: above
 
-Similarly, the plot below demonstrates plotting a single line with ten thousand
+Similarly, the plot below demonstrates plotting a single line with 10,000
 points.
 
 .. bokeh-plot:: ../../examples/webgl/line10k.py
