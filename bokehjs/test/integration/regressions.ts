@@ -1524,6 +1524,21 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #8346", () => {
+    it("should support updating line", async () => {
+      const p0 = fig([200, 200], {output_backend: "webgl"})
+      const p1 = fig([200, 200], {output_backend: "webgl"})
+
+      const source = new ColumnDataSource({data: {x0: [0, 1], y0: [0, 1], x1: [5, 6], y1: [5, 6]}})
+      p0.line({x: {field: "x0"}, y: {field: "y0"}, source})
+      p1.line({x: {field: "x1"}, y: {field: "y1"}, source})
+      const {view} = await display(row([p0, p1]))
+
+      source.data = {x0: [0, 1], y0: [1, 0], x1: [5, 6], y1: [6, 5]}
+      await view.ready
+    })
+  })
+
   describe("in issue #12058", () => {
     it("renders gaps in straight bevel-joined webgl lines", async () => {
       const p = fig([150, 150], {output_backend: "webgl", x_range: [0, 2.4], y_range: [0, 2.4]})

@@ -15,44 +15,16 @@ export class ScatterView extends MarkerView {
   override model: Scatter
 
   /** @internal */
-  override glglyph?: import("./webgl/markers").MarkerGL
-  private glcls?: typeof import("./webgl/markers").MarkerGL
+  override glglyph?: import("./webgl/multi_marker").MultiMarkerGL
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
     const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl?.regl_wrapper.has_webgl) {
-      const {MarkerGL} = await import("./webgl/markers")
-      this.glcls = MarkerGL
+    if (webgl != null && webgl.regl_wrapper.has_webgl) {
+      const {MultiMarkerGL} = await import("./webgl/multi_marker")
+      this.glglyph = new MultiMarkerGL(webgl.regl_wrapper, this)
     }
-  }
-
-  protected _init_webgl(): void {
-    const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl != null) {
-      const {regl_wrapper} = webgl
-      if (regl_wrapper.has_webgl) {
-        const marker_types = new Set(this.base != null ? this.base.marker : this.marker)
-        if (marker_types.size == 1) {
-          const [marker_type] = [...marker_types]
-
-          const MarkerGL = this.glcls
-          if (MarkerGL?.is_supported(marker_type)) {
-            const {glglyph} = this
-            if (glglyph == null || glglyph.marker_type != marker_type) {
-              this.glglyph = new MarkerGL(regl_wrapper, this, marker_type)
-              return
-            }
-          }
-        }
-      }
-    }
-    delete this.glglyph
-  }
-
-  protected override _set_visuals(): void {
-    this._init_webgl()
   }
 
   protected override _render(ctx: Context2d, indices: number[], data?: ScatterData): void {

@@ -1,5 +1,6 @@
-import {display, fig} from "../_util"
+import {display, fig, row} from "../_util"
 
+import {OutputBackend} from "@bokehjs/core/enums"
 import {repeat} from "@bokehjs/core/util/array"
 
 describe("HexTile glyph", () => {
@@ -76,9 +77,14 @@ describe("HexTile glyph", () => {
   })
 
   it("should support 'pointytop' orientation with hatch patterns", async () => {
-    const p1 = fig([300, 300], {match_aspect: true, title: "pointytop, hatch"})
-    p1.hex_tile(pr, pq, {line_color: "white", fill_color: colors, orientation: "pointytop", hatch_pattern: hatches})
-    await display(p1)
+    function p(output_backend: OutputBackend) {
+      const p = fig([300, 300], {
+        match_aspect: true, output_backend, title: `${output_backend}: pointytop, hatch`,
+      })
+      p.hex_tile(pr, pq, {line_color: "white", fill_color: colors, orientation: "pointytop", hatch_pattern: hatches})
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   it("should support 'pointytop' orientation and aspect_scale=2", async () => {
@@ -106,9 +112,14 @@ describe("HexTile glyph", () => {
   })
 
   it("should support 'flattop' orientation with hatch patterns", async () => {
-    const f1 = fig([300, 300], {match_aspect: true, title: "flattop, hatch"})
-    f1.hex_tile(fr, fq, {line_color: "white", fill_color: colors, orientation: "flattop", hatch_pattern: hatches})
-    await display(f1)
+    function p(output_backend: OutputBackend) {
+      const p = fig([300, 300], {
+        match_aspect: true, output_backend, title: `${output_backend}: flattop, hatch`,
+      })
+      p.hex_tile(fr, fq, {line_color: "white", fill_color: colors, orientation: "flattop", hatch_pattern: hatches})
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   it("should support 'flattop' orientation and aspect_scale=2", async () => {
