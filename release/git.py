@@ -54,7 +54,7 @@ def commit_staging_branch(config: Config, system: System) -> ActionReturn:
         try:
             system.run(f"git ls-files --error-unmatch {path}")
         except RuntimeError:
-            return FAILED("File {path!r} marked modified does not exist in the repo")
+            return FAILED(f"File {path!r} marked modified does not exist in the repo")
         try:
             system.run(f"git add {path}")
         except RuntimeError as e:
