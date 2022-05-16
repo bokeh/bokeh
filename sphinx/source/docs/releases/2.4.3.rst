@@ -9,7 +9,7 @@ minor bugs/regressions and build issues.
 This release also includes several improvements to Bokeh's
 :ref:`WebGL output backend <userguide_webgl>`. Updates include newly added WebGL
 support for hbar, quad, vbar and hex_tile glyphs, as well as improvements and
-bug fixes for line, scatter, circle and rect glyphs):
+bug fixes for line, scatter, circle and rect glyphs:
 
 * Support multiple marker types in WebGL scatter (:bokeh-issue:`11840`)
 * Fix webgl line NaN handling (:bokeh-issue:`11829`)
