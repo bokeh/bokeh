@@ -147,11 +147,4 @@ plot.
 
 .. _live tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
 
-.. _gallery_overview:
-
-Gallery Overview
-================
-
-Below are all standalone examples listed in alphabetical order.
-
-.. bokeh-gallery-overview::
+In addition to the gallery here, there are more examples from GitHub repository. To see a complete list with links to rendered plots, see the :ref:`example_index`

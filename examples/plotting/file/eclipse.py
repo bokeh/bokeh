@@ -19,11 +19,11 @@ import shapefile as shp
 from bokeh.models import ColorBar, ColumnDataSource, Label, LinearColorMapper
 from bokeh.palettes import TolYlOrBr5
 from bokeh.plotting import figure, show
-from bokeh.sampledata.us_states import data as _states
+from bokeh.sampledata.us_states import data
 
 ROOT = dirname(realpath(__file__))
 
-states = pd.DataFrame.from_dict(_states.copy(), orient="index")
+states = pd.DataFrame.from_dict(data.copy(), orient="index")
 states.drop(["AK", "HI"], inplace=True)
 
 trends = pd.read_csv(join(ROOT, "eclipse_data/trends.csv"))

@@ -63,8 +63,6 @@ class gallery_xrefs(nodes.General, nodes.Element):
 
 class BokehGalleryOverviewDirective(BokehDirective):
 
-    has_content = True
-
     def run(self):
         return [gallery_xrefs('')]
 
@@ -85,7 +83,7 @@ class BokehSampledataXrefDirective(BokehDirective):
 def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_node(sampledata_list)
-    app.add_directive("bokeh-gallery-overview", BokehGalleryOverviewDirective)
+    app.add_directive("bokeh-example-index", BokehGalleryOverviewDirective)
     app.add_directive("bokeh-sampledata-xref", BokehSampledataXrefDirective)
     app.connect('doctree-resolved', process_sampledata_xrefs)
     app.connect('env-purge-doc', purge_xrefs)

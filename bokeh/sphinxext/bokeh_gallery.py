@@ -33,6 +33,7 @@ from os.path import (
     isfile,
     join,
 )
+from typing import TypedDict
 
 # External imports
 from sphinx.errors import SphinxError
@@ -41,7 +42,8 @@ from sphinx.util import ensuredir, status_iterator
 # Bokeh imports
 from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective
-from .templates import GALLERY_DETAIL, GALLERY_PAGE
+from .templates import EXAMPLE_INDEX, GALLERY_DETAIL, GALLERY_PAGE
+from .util import TOP_PATH
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -59,7 +61,10 @@ __all__ = (
 # -----------------------------------------------------------------------------
 # Dev API
 # -----------------------------------------------------------------------------
-
+class GalleryDetail(TypedDict):
+    path: str
+    name: str
+    detail_file_name: str
 
 class BokehGalleryDirective(BokehDirective):
 
@@ -98,21 +103,7 @@ def config_inited_handler(app, config):
     # left at the end (and remove it in that case)
     extras = set(os.listdir(gallery_dir))
 
-    basepath = app.srcdir.replace('/sphinx/source', '')
-    folder = ['plotting','models']
-    details = []
-    detail_names = []
-    for f in folder:
-        path = f'examples/{f}/file'
-        for name in os.listdir(join(basepath, path)):
-            if not name.startswith('_') and name.endswith('.py') and  not 'custom_layout' in name:
-                name = name.replace('.py', '')
-                detail_name = name + '.rst'
-                if detail_name in detail_names:
-                    detail_name = detail_name.replace('.rst', f'_{f}.rst')
-                details.append({"path": join(path,name+'.py'), "name":name, "detail_file_name":detail_name})
-                detail_names.append(detail_name)
-
+    details = get_details(app)
     details_iter = status_iterator(details, "creating gallery file entries... ", "brown", len(details), app.verbosity, stringify_func=lambda x: x["name"] + ".rst")
 
     for detail in details_iter:
@@ -132,10 +123,33 @@ def config_inited_handler(app, config):
     for extra_file in extras:
         os.remove(join(gallery_dir, extra_file))
 
+    with open(join(gallery_dir, "example_index.rst"), "w") as f:
+        f.write(EXAMPLE_INDEX.render())
+
+def get_details(app):
+    details = []
+    detail_names = []
+    for f_path in app.config.bokeh_example_dirs:
+        for name in os.listdir(join(TOP_PATH, f_path)):
+            path = join(f_path, name)
+            if path in app.config.bokeh_example_blacklist:
+                print(path)
+            if not name.startswith('_') and name.endswith('.py') and not path in app.config.bokeh_example_blacklist:
+                name = name.replace('.py', '')
+                detail_name = name + '.rst'
+                if detail_name in detail_names:
+                    f = f_path.split('/')[1]
+                    detail_name = detail_name.replace('.rst', f'_{f}.rst')
+                detail: GalleryDetail = {"path": path, "name": name, "detail_file_name": detail_name}
+                details.append(detail)
+                detail_names.append(detail_name)
+    return details
 
 def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_config_value("bokeh_gallery_dir", join("docs", "gallery"), "html")
+    app.add_config_value("bokeh_example_dirs", [], "html")
+    app.add_config_value("bokeh_example_blacklist", [], "html")
     app.connect("config-inited", config_inited_handler)
     app.add_directive("bokeh-gallery", BokehGalleryDirective)
 
