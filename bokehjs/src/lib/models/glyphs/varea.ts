@@ -60,21 +60,18 @@ export class VAreaView extends AreaView {
 
   protected override _hit_point(geometry: PointGeometry): Selection {
     const L = this.sx.length
-    const sx = new ScreenArray(2*L)
-    const sy = new ScreenArray(2*L)
-
-    for (let i = 0, end = L; i < end; i++) {
-      sx[i] = this.sx[i]
-      sy[i] = this.sy1[i]
-      sx[L+i] = this.sx[L-i-1]
-      sy[L+i] = this.sy2[L-i-1]
-    }
-
     const result = new Selection()
 
-    if (hittest.point_in_poly(geometry.sx, geometry.sy, sx, sy)) {
-      result.add_to_selected_glyphs(this.model)
-      result.view = this
+    for (let i = 0, end = L-1; i < end; i++) {
+      const sx = [this.sx[i], this.sx[i+1], this.sx[i+1], this.sx[i]]
+      const sy = [this.sy1[i], this.sy1[i+1], this.sy2[i+1], this.sy2[i]]
+
+      if (hittest.point_in_poly(geometry.sx, geometry.sy, sx, sy)) {
+        result.add_to_selected_glyphs(this.model)
+        result.view = this
+        result.line_indices = [i]
+        break
+      }
     }
 
     return result

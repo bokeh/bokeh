@@ -236,7 +236,7 @@ class Tap(GestureTool):
 
 @abstract
 class SelectTool(GestureTool):
-    ''' A base class for tools that perfrom "selections", e.g. ``BoxSelectTool``.
+    ''' A base class for tools that perform "selections", e.g. ``BoxSelectTool``.
 
     '''
 

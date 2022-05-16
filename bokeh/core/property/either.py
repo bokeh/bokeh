@@ -98,7 +98,7 @@ class Either(ParameterizedProperty):
             except ValueError:
                 pass
 
-        raise ValueError("Could not transform {value!r}")
+        raise ValueError(f"Could not transform {value!r}")
 
     def validate(self, value, detail=True):
         super().validate(value, detail)

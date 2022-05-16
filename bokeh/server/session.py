@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 import inspect
 import time
 from copy import copy
+from functools import wraps
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -74,6 +75,7 @@ def _needs_document_lock(func: F) -> F:
        method on ServerSession and transforms it into a coroutine
        if it wasn't already.
     '''
+    @wraps(func)
     async def _needs_document_lock_wrapper(self: ServerSession, *args, **kwargs):
         # while we wait for and hold the lock, prevent the session
         # from being discarded. This avoids potential weirdness

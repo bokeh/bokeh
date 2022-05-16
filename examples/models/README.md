@@ -1,3 +1,5 @@
+# Bokeh Models Examples
+
 This directory contains examples that use the lowest-level
 [`bokeh.models`](https://docs.bokeh.org/en/latest/docs/user_guide/concepts.html#bokeh-models)
 interface. This interface mirrors the models found in the BokehJS browser
