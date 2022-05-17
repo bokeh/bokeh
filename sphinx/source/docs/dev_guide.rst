@@ -13,9 +13,9 @@ Contribute
     dev_guide/documentation
     dev_guide/testing
     dev_guide/writing_tests
-    dev_guide/models
-    dev_guide/server
+    dev_guide/python
     dev_guide/bokehjs
+    dev_guide/server
 
 Bokeh is an open source project and only exists because of contributors like
 you. Bokeh is made possible by a diverse group of software developers, testers,
@@ -49,7 +49,7 @@ You can then contribute to Bokeh's codebase in many ways:
     ^^^^^^^^^^^^^^^^^^^^^^^
     If you would like to help with Bokeh's Python code:
 
-    * :ref:`contributor_guide_models`
+    * :ref:`contributor_guide_python`
     * :ref:`contributor_guide_testing`
     * :ref:`contributor_guide_writing_tests`
     * :ref:`contributor_guide_issues`
@@ -224,6 +224,14 @@ bindings or checking existing bindings for completeness, for example.
 If you would like to start working on a new binding or have a new binding added
 to this list, please contact the Bokeh core team through `Slack`_.
 
+.. _contributor_guide_vulnerability:
+
+Report a vulnerability
+^^^^^^^^^^^^^^^^^^^^^^
+
+To report a security vulnerability, please use the `Tidelift security contact`_.
+Tidelift will coordinate the fix and disclosure.
+
 .. _contributor_guide_spread_the_word:
 
 Spread the word
@@ -263,5 +271,6 @@ accounts when you talk about anything that you made with Bokeh!
 .. _samuelcolvin: https://github.com/samuelcolvin
 .. _bokeh_scala: https://github.com/bokeh/bokeh-scala
 .. _mattpap: https://github.com/mattpap
+.. _Tidelift security contact: https://tidelift.com/security
 .. _Twitter: https://twitter.com/bokeh
 .. _LinkedIn: https://www.linkedin.com/company/project-bokeh/
