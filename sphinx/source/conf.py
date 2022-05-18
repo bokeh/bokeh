@@ -142,6 +142,23 @@ html_theme_options = {
     "navbar_align": "left",
     'show_toc_level': 2,
     'twitter_url': 'https://twitter.com/bokeh',
+    "favicons": [
+        {
+            "rel": "icon",
+            "sizes": "16x16",
+            "href": "https://static.bokeh.org/favicon/favicon-16x16.png",
+        },
+        {
+            "rel": "icon",
+            "sizes": "32x32",
+            "href": "https://static.bokeh.org/favicon/favicon-32x32.png",
+        },
+        {
+            "rel": "apple-touch-icon",
+            "sizes": "180x180",
+            "href": "https://static.bokeh.org/favicon/apple-touch-icon.png"
+        },
+    ]
 }
 
 html_sidebars = {
