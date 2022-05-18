@@ -59,14 +59,21 @@ RESOURCES = get_sphinx_resources()
 # -----------------------------------------------------------------------------
 
 class gallery_xrefs(nodes.General, nodes.Element):
-    pass
+
+    def __init__(self, *args, **kwargs):
+        self.subfolder = kwargs.pop("subfolder", None)
+        super().__init__(*args, **kwargs)
 
 class BokehGalleryOverviewDirective(BokehDirective):
 
+    has_content = False
+    required_arguments = 1
+
     def run(self):
-        return [gallery_xrefs('')]
+        return [gallery_xrefs('', subfolder=self.arguments[0])]
 
 class sampledata_list(nodes.General, nodes.Element):
+
     def __init__(self, *args, **kwargs):
         self.sampledata_key = kwargs.pop("sampledata_key")
         super().__init__(*args, **kwargs)
@@ -128,7 +135,7 @@ def process_sampledata_xrefs(app, doctree, fromdocname):
             description = (_(f'Example{"" if 1==len(refs) else "s"}'))
             para += nodes.rubric(description, description)
             for ref in refs:
-                para += add_bullet_point(app, fromdocname, ref)
+                para += add_bullet_point(app, fromdocname, ref, basename(ref['docname']))
             content.append(para)
         node.replace_self(content)
 
@@ -158,27 +165,31 @@ def process_gallery_overview(app, doctree, fromdocname):
 
         ref_dict = {}
         for s in env.all_gallery_overview:
-            letter = s['docname'].split('/')[-1][0].upper()
-            if letter in ref_dict:
-                ref_dict[letter].append(s)
-            else:
-                ref_dict[letter] = [s]
+            sp = s['docname'].split('/')
+            if node.subfolder == 'all' or sp[-2] == node.subfolder:
+                letter = sp[-1][0].upper()
+                if letter in ref_dict:
+                    ref_dict[letter].append(s)
+                else:
+                    ref_dict[letter] = [s]
 
         content = []
         for letter, refs in ref_dict.items():
             para = nodes.paragraph()
             para += nodes.rubric((_(letter)), (_(letter)))
             for ref in refs:
-                para += add_bullet_point(app, fromdocname, ref)
+                ref_name = basename(ref['docname'])
+                if node.subfolder == 'all':
+                    ref_name += f" ({ref['docname'].split('/')[-2]})"
+                para += add_bullet_point(app, fromdocname, ref, ref_name)
             content.append(para)
         node.replace_self(content)
 
-def add_bullet_point(app, fromdocname, ref):
+def add_bullet_point(app, fromdocname, ref, ref_name):
     # Create references
     line = nodes.line()
     line += nodes.Text('  • ','  • ')
     newnode = nodes.reference('', '')
-    ref_name = basename(ref['docname'])
     innernode = nodes.emphasis(_(ref_name), _(ref_name))
     newnode['refdocname'] = ref['docname']
     newnode['refuri'] = app.builder.get_relative_uri(fromdocname, ref['docname'])

@@ -1,9 +1,9 @@
-{% for name in names %}
-* |{{ name }}|
+{% for opt in opts %}
+* |{{ opt['name'] }}|
 {% endfor %}
 
-{% for name in names %}
-.. |{{ name }}| image:: /_images/gallery/{{ name }}.png
-    :target: gallery/{{ name }}.html
+{% for opt in opts %}
+.. |{{ opt['name'] }}| image:: /_images/gallery/{{ opt['name'] }}.png
+    :target: {{ opt['ref'] }}
     :class: gallery
 {% endfor %}

@@ -240,9 +240,13 @@ class BokehPlotDirective(BokehDirective):
 
     def process_sampledata(self, source):
 
+        if not hasattr(self.env, 'solved_sampledata'):
+            self.env.solved_sampledata = []
+
         file, lineno =  self.get_source_info()
-        # at the moment only links to the gallery are wanted
-        if '/docs/gallery/' in file:
+        # collect links to all standalone examples
+        if '/docs/examples/' in file and not file in self.env.solved_sampledata:
+            self.env.solved_sampledata.append(file)
             if not hasattr(self.env, 'all_sampledata_xrefs'):
                 self.env.all_sampledata_xrefs = []
             if not hasattr(self.env, 'all_gallery_overview'):
