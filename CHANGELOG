@@ -1,3 +1,62 @@
+2022-05-18    2.4.3:
+--------------------
+  * bugfixes:
+    - #7390 [component: bokehjs] Tap events respond outside plot area
+    - #11744 [component: docs] BokehJS example in docs is broken
+    - #11832 [component: bokehjs] [BUG] Zoom-in failing with the `xzoom_in` tool
+    - #11965 [component: bokehjs] [BUG] Table formatting causes layout crash/collapse
+    - #11987 [component: docs] Docs: extra whitespace on non-sidebar pages
+    - #11995 [component: docs] [Docs] his must be replaced by This
+    - #12058 [BUG] webgl backend results in dashed lines
+    - #12070 [component: bokehjs] [BUG] Wedge/AnnularWedge hit testing cuts off top/bottom
+    - #12096 Missing `f` prefix on f-strings
+    - #11819 [component: bokehjs] Correctly handle odd-length dash patterns in WebGL
+    - #11829 [component: bokehjs] Fix webgl line NaN handling
+    - #12051 [component: docs] Fixed typo: s/server/serve/
+    - #12106 Fix typo in git.py
+
+  * features:
+    - #9182 [component: bokehjs] Add hover tooltip support for Patch, HArea, and VArea
+    - #10525 [component: bokehjs] [Feature] Support full text search for MultiChoice and  auto complete input 
+    - #11840 [component: bokehjs] Support multiple marker types in WebGL scatter
+    - #12034 Add DatetimeRangeSlider
+    - #12121 Support rescale_discrete_levels in EqHistColorMapper
+
+  * tasks:
+    - #8851 [component: docs] [BUG] components() does not return dict with wrap_plot_info=False
+    - #11707 [component: bokehjs] Avoid expensive over-computing "all models" on Document init
+    - #11716 [component: docs] [BUG] Docs still mention @gen.coroutine
+    - #11726 [component: docs] [BUG] Update links in example app surface3d to point to new location on visjs.org
+    - #11757 [component: docs] [FEATURE] Elaborate on branch creation and git commits in docs
+    - #11811 Remove unnecessary whitespace from rendered templates
+    - #11868 [component: examples] Examples README.md files needs checking and updating
+    - #11870 [component: docs] Remove katex example, test and docs
+    - #11875 [component: build] Make release build more robust to commit files
+    - #11956 [component: docs] Use CONTRIBUTING.md to point to developers guide
+    - #11977 [BUG] missing functools.wraps makes debugging unawaited _needs_document_lock_wrapper methods difficult
+    - #12093 [BUG] Flake8 pre-push test failure
+    - #12112 Use channel instead of explicit version for GMap API?
+    - #11698 [component: docs] Fixed some typos and changed wording for better tone
+    - #11814 Fix webgl dashed line joins with butt end caps
+    - #11823 [component: tests] Force webgl backend when requested for testing
+    - #11833 simplify CI jobs with composite action
+    - #11849 [component: bokehjs] Remove temporary WebGL circle fix
+    - #11867 [component: build] Pin to django 3.x
+    - #11906 [component: tests] Drop baseline testing on MacOS and Windows
+    - #11922 Update copyright statements to 2022
+    - #11935 Fix typo in tools.py
+    - #11971 [component: build] Fix new typings failures
+    - #11993 [component: docs] Add sphinx_copybutton
+    - #12040 [component: bokehjs] Unify WebGL markers and rects
+    - #12046 [component: bokehjs] WebGL typescript refactor and add quad glyph
+    - #12055 [component: bokehjs] Implement WebGL marker line joins
+    - #12061 [component: bokehjs] WebGL support for HBar VBar and HexTile glyphs
+    - #12084 [component: bokehjs] Simplify EqHistColorMapper calculations
+    - #12120 [component: bokehjs] WebGL line refactor
+    - #12126 3.0 -> 2.4.3 backports
+    - #12130 More 2.4.3 backports
+    - #12131 Yet more 2.4.3 backports
+
 2021-11-22    2.4.2:
 --------------------
   * bugfixes:
