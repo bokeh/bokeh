@@ -3,8 +3,10 @@
 set -x #echo on
 
 cd sphinx
-export GOOGLE_API_KEY=${GOOGLE_API_KEY:-"unset"}
-make SPHINXOPTS=-v all
+# export GOOGLE_API_KEY=${GOOGLE_API_KEY:-"unset"}
+# make SPHINXOPTS=-v all
+
+{ set +x ;} 2> /dev/null #echo off
 
 if grep -e 'src="https://www.google-analytics.com' build/html/index.html > /dev/null; then
     echo "Expected Google Analytics script source found in built documentation"
