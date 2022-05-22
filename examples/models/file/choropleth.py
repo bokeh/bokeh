@@ -1,3 +1,12 @@
+'''This example shows an unemployment map by county of the United States of America in 2009.
+It demonstrates the use of models such as a color bar, linear color mapper, and patches.
+
+.. bokeh-example-metadata::
+    :sampledata: us_counties, us_states, unemployment
+    :apis: bokeh.models.ColorBar, bokeh.models.ColumnDataSource, bokeh.models.LinearColorMapper, bokeh.models.Patches, bokeh.models.Plot, bokeh.palettes.Viridis11, bokeh.embed.file_html, bokeh.document.document, bokeh.resources.INLINE, bokeh.transform.transform, bokeh.util.browser.view # noqa: E501
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_patches`
+    :keywords: colormap, shapes, vector, polygon, colorbar, patches
+'''
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import ColorBar, ColumnDataSource, LinearColorMapper, Patches, Plot
