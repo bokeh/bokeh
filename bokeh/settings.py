@@ -774,7 +774,8 @@ class Settings:
 
         '''
         try:
-            self._config_override = yaml.load(open(abspath(location)), Loader=yaml.SafeLoader)
+            with open(abspath(expanduser(location))) as fh:
+                self._config_override = yaml.load(fh, Loader=yaml.SafeLoader)
         except Exception:
             raise RuntimeError(f"Could not load Bokeh config file: {location}")
 

@@ -30,6 +30,7 @@ from os.path import (
     abspath,
     dirname,
     exists,
+    expanduser,
     isabs,
     join,
 )
@@ -527,7 +528,7 @@ def _bundle_models(custom_models: Dict[str, CustomModel]) -> str:
         for module in to_resolve:
             if module.startswith(("./", "../")):
                 def mkpath(module: str, ext: str = "") -> str:
-                    return abspath(join(root, *module.split("/")) + ext)
+                    return abspath(expanduser(join(root, *module.split("/")) + ext))
 
                 if module.endswith(exts):
                     path = mkpath(module)
