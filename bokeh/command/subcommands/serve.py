@@ -906,7 +906,7 @@ class Serve(Subcommand):
         server_kwargs['ico_path'] = settings.ico_path(getattr(args, 'ico_path', None))
 
         def find_autoreload_targets(app_path: str) -> None:
-            path = os.path.abspath(os.path.expanduser(app_path))
+            path = os.path.abspath(app_path)
             if not os.path.isdir(path):
                 return
 

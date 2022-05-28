@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import webbrowser
-from os.path import abspath, expanduser
+from os.path import abspath
 from typing import (
     Dict,
     Literal,
@@ -125,7 +125,7 @@ def view(location: str, browser: str | None = None, new: BrowserTarget = "same",
     if location.startswith("http"):
         url = location
     else:
-        url = "file://" + abspath(expanduser(location))
+        url = "file://" + abspath(location)
 
     try:
         controller = get_browser_controller(browser)
