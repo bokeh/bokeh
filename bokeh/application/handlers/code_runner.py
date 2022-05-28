@@ -181,7 +181,7 @@ class CodeRunner:
 
         module_name = 'bokeh_app_' + make_globally_unique_id().replace('-', '')
         module = ModuleType(module_name)
-        module.__dict__['__file__'] = os.path.abspath(os.path.expanduser(self._path))
+        module.__dict__['__file__'] = os.path.abspath(self._path)
         if self._package:
             module.__package__ = self._package.__name__
             module.__path__ = [os.path.dirname(self._path)]

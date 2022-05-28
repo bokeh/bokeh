@@ -26,7 +26,7 @@ def extract_hosted_zip(data_url, save_dir, exclude_term=None):
 def extract_zip(zip_name, exclude_term=None):
     """Extracts a zip file to its containing directory."""
 
-    zip_dir = os.path.dirname(os.path.abspath(os.path.expanduser(zip_name)))
+    zip_dir = os.path.dirname(os.path.abspath(zip_name))
 
     try:
         with zipfile.ZipFile(zip_name) as z:
