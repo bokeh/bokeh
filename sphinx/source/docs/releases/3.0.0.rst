@@ -194,6 +194,14 @@ depending on the supplied arguments. Additionally, setting ``merge_tools`` now t
 grid plots to actually merge tools instead of hidding the toolbar. To hide a toolbar,
 use ``toolbar_location=None``.
 
+``Tooltip`` is not an ``Annotation`` anymore
+............................................
+
+``Tooltip`` model was previously exposed to the user, but it wasn't useful on its own.
+This changed and now ``Tooltip`` can be used in various places in bokeh. This required
+changing its type from ``Annotation`` (annotations are canvas specific models) to new
+``UIElement``, which is a base class for all user interface related models.
+
 bokehjs changes
 ~~~~~~~~~~~~~~~
 

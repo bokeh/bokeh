@@ -43,7 +43,6 @@ export class TextView extends DOMNodeView {
   override el: globalThis.Text
 
   override render(): void {
-    super.render()
     this.el.textContent = this.model.content
   }
 
@@ -80,6 +79,10 @@ export class Text extends DOMNode {
 export abstract class PlaceholderView extends DOMNodeView {
   override model: Placeholder
   static override tag_name = "span" as const
+
+  override render(): void {
+    // XXX: no implementation?
+  }
 
   abstract update(source: ColumnarDataSource, i: DataIndex | null, vars: object/*, formatters?: Formatters*/): void
 }
@@ -231,8 +234,6 @@ export abstract class DOMElementView extends DOMNodeView {
   }
 
   override render(): void {
-    super.render()
-
     const {style} = this.model
     if (style != null) {
       /*

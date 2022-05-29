@@ -13,6 +13,7 @@
 }
 
 :host {
+  // TODO: contain: layout style paint;
   width: max-content;
   font-weight: 300;
   font-size: 12px;
@@ -21,15 +22,12 @@
   border: 1px solid var(--tooltip-border);
   color: var(--tooltip-text);
   background-color: var(--tooltip-color);
-  pointer-events: none;
   opacity: 0.95;
   .bring-to-front();
 }
 
-.bk-tooltip-contents > div:not(:first-child) {
-  // gives space when multiple elements are being hovered over
-  margin-top: 5px;
-  border-top: var(--tooltip-border) 1px dashed;
+.bk-non-interactive {
+  pointer-events: none;
 }
 
 .tooltip-arrow-horizontal() {
@@ -56,6 +54,12 @@
   border-color: transparent;
   content: " ";
   display: block;
+}
+
+.bk-tooltip-content > div:not(:first-child) {
+  // gives space when multiple elements are being hovered over
+  margin-top: 5px;
+  border-top: var(--tooltip-border) 1px dashed;
 }
 
 :host(.bk-left.bk-tooltip-arrow) .bk-tooltip-content::before {
@@ -114,4 +118,19 @@
   margin-right: 5px;
   outline: #dddddd solid 1px;
   display: inline-block;
+}
+
+.bk-close {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  cursor: pointer;
+
+  .icon-mask(var(--bokeh-icon-x), gray);
+
+  &:hover {
+    background-color: red;
+  }
 }

@@ -439,8 +439,6 @@ export class Inspector extends HTMLBox {
   override properties: Inspector.Props
   override __view_type__: InspectorView
 
-  static override __module__ = "bokeh.models.ui"
-
   constructor(attrs?: Partial<Inspector.Attrs>) {
     super(attrs)
   }

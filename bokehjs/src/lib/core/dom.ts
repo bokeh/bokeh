@@ -1,5 +1,6 @@
 import {isBoolean, isString, isArray, isPlainObject} from "./util/types"
 import {entries} from "./util/object"
+import {BBox} from "./util/bbox"
 import {Size, Box, Extents} from "./types"
 
 export type HTMLAttrs = {[name: string]: unknown}
@@ -287,6 +288,11 @@ export function content_size(el: HTMLElement): Size {
     height = Math.max(height, Math.ceil(rect.top - top - padding.top + rect.height))
   }
   return {width, height}
+}
+
+export function bounding_box(el: Element): BBox {
+  const {x, y, width, height} = el.getBoundingClientRect()
+  return new BBox({x, y, width, height})
 }
 
 export function position(el: HTMLElement, box: Box, margin?: Extents): void {

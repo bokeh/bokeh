@@ -20,7 +20,7 @@ from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup,
                           NumberFormatter, Panel, Paragraph, PreText, RadioButtonGroup,
                           RadioGroup, RangeSlider, Row, Select, SelectEditor, Slider,
                           Spinner, StringEditor, StringFormatter, Switch, TableColumn,
-                          Tabs, TextAreaInput, TextInput, Toggle)
+                          Tabs, TextAreaInput, TextInput, Toggle, Tooltip)
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
 from bokeh.sampledata.autompg2 import autompg2 as mpg
@@ -70,7 +70,11 @@ date_range_slider = DateRangeSlider(value=(date(2016, 1, 1), date(2016, 12, 31))
 
 spinner = Spinner(value=100)
 
-color_picker = ColorPicker(color="red", title="Choose color:")
+tooltip = Tooltip(content="""\
+Your <b>choice</b> of color.<br>See more in bokeh's <a href="https://docs.bokeh.org/en/latest/">docs</a>.
+""", position="right")
+
+color_picker = ColorPicker(color="red", title="Choose color:", description=tooltip)
 
 date_picker = DatePicker(value=date(2017, 8, 1))
 
@@ -84,10 +88,10 @@ div = Div(text="some <b>text</b>")
 
 pre_text = PreText(text="some text")
 
-def mk_tab(color):
+def mk_tab(color: str):
     plot = figure(width=300, height=300)
     plot.scatter(flowers["petal_length"], flowers["petal_width"], color=color, fill_alpha=0.2, size=12)
-    return Panel(title="Tab 1: %s" % color.capitalize(), child=plot)
+    return Panel(title=f"Tab 1: {color.capitalize()}", child=plot, closable=True)
 
 tabs = Tabs(tabs=[mk_tab("red"), mk_tab("green"), mk_tab("blue")])
 

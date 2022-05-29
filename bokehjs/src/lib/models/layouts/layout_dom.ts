@@ -148,8 +148,7 @@ export abstract class LayoutDOMView extends DOMComponentView {
   }
 
   override render(): void {
-    super.render()
-    this.empty() // XXX: this should be in super
+    this.empty()
 
     assign(this.el.style, this.model.style)
 

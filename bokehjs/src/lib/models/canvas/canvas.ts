@@ -128,6 +128,10 @@ export class CanvasView extends DOMView {
     super.remove()
   }
 
+  override render(): void {
+    // TODO
+  }
+
   add_underlay(el: HTMLElement): void {
     this.underlays_el.appendChild(el)
   }

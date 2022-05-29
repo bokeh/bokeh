@@ -38,7 +38,7 @@ export abstract class DOMView extends View {
     return []
   }
 
-  render(): void {}
+  abstract render(): void
 
   renderTo(element: Node): void {
     element.appendChild(this.el)
@@ -80,7 +80,7 @@ export abstract class DOMComponentView extends DOMView {
   }
 
   override styles(): string[] {
-    return [base_css]
+    return [...super.styles(), base_css]
   }
 
   empty(): void {

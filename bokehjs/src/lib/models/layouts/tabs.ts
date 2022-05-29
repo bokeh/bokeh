@@ -11,6 +11,7 @@ import {Panel} from "./panel"
 import tabs_css, * as tabs from "styles/tabs.css"
 import buttons_css, * as buttons from "styles/buttons.css"
 import caret_css, * as caret from "styles/caret.css"
+import icons_css from "styles/icons.css"
 
 export class TabsView extends LayoutDOMView {
   override model: Tabs
@@ -31,7 +32,7 @@ export class TabsView extends LayoutDOMView {
   }
 
   override styles(): string[] {
-    return [...super.styles(), tabs_css, buttons_css, caret_css]
+    return [...super.styles(), tabs_css, buttons_css, caret_css, icons_css]
   }
 
   get child_models(): LayoutDOM[] {

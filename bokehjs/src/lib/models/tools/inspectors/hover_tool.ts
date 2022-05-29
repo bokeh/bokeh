@@ -7,6 +7,7 @@ import * as p from "core/properties"
 import {Signal} from "core/signaling"
 import {Arrayable, Color} from "core/types"
 import {MoveEvent} from "core/ui_events"
+import {assert} from "core/util/assert"
 import {color2css, color2hex} from "core/util/color"
 import {enumerate} from "core/util/iterator"
 import {is_empty} from "core/util/object"
@@ -14,7 +15,7 @@ import {Formatters, FormatterType, replace_placeholders} from "core/util/templat
 import {isFunction, isNumber, isString, is_undefined} from "core/util/types"
 import {tool_icon_hover} from "styles/icons.css"
 import * as styles from "styles/tooltips.css"
-import {Tooltip, TooltipView} from "../../annotations/tooltip"
+import {Tooltip, TooltipView} from "../../ui/tooltip"
 import {CallbackLike1} from "../../callbacks/callback"
 import {Template, TemplateView} from "../../dom"
 import {GlyphView} from "../../glyphs/glyph"
@@ -106,7 +107,7 @@ export class HoverToolView extends InspectToolView {
 
     const {tooltips} = this.model
     if (tooltips instanceof Template) {
-      this._template_view = await build_view(tooltips, {parent: this})
+      this._template_view = await build_view(tooltips, {parent: this.plot_view})
       this._template_view.render()
     }
   }
@@ -137,9 +138,13 @@ export class HoverToolView extends InspectToolView {
     const {computed_renderers} = this
     for (const r of computed_renderers) {
       const tooltip = new Tooltip({
-        custom: isString(tooltips) || isFunction(tooltips),
+        content: document.createElement("div"),
         attachment: this.model.attachment,
         show_arrow: this.model.show_arrow,
+        interactive: false,
+        visible: true,
+        position: null,
+        target: this.parent.canvas.overlays_el,
       })
 
       if (r instanceof GlyphRenderer) {
@@ -407,7 +412,8 @@ export class HoverToolView extends InspectToolView {
       tooltip.clear()
     else {
       const {content} = tooltip
-      empty(tooltip.content)
+      assert(content instanceof Element)
+      empty(content)
       for (const [,, node] of tooltips) {
         if (node != null)
           content.appendChild(node)

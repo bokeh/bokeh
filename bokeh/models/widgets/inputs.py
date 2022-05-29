@@ -44,6 +44,7 @@ from ...core.properties import (
     Tuple,
 )
 from ..formatters import TickFormatter
+from ..ui import Tooltip
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -84,6 +85,10 @@ class InputWidget(Widget):
 
     title = String(default="", help="""
     Widget's label.
+    """)
+
+    description = Nullable(Either(String, Instance(Tooltip)), default=None, help="""
+    Rich text description of the function of this widget.
     """)
 
     @classmethod

@@ -4,9 +4,10 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Renderers for various kinds of HTML annotations that can be added to plots.
+"""
 
-'''
+"""
+
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
@@ -20,15 +21,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from .html_annotation import *
-from .labels import *
-from .toolbars import *
+from ..layouts import HTMLBox
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-# __all__ = include all explicit transitive imports above
+__all__ = (
+    "Inspector",
+)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -37,6 +38,13 @@ from .toolbars import *
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+class Inspector(HTMLBox):
+    """ A diagnostic and inspection tool for documents, models, properties, etc. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 #-----------------------------------------------------------------------------
 # Private API
