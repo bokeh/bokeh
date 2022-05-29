@@ -201,14 +201,14 @@ use cases:
 * The ``"bokeh-api"`` files are required to use the BokehJS API and must be
   loaded *after* the core BokehJS library.
 
-For example, the links for version ``2.0.1`` are:
+For example, the links for version ``2.4.3`` are:
 
-* https://cdn.bokeh.org/bokeh/release/bokeh-2.0.1.min.js
-* https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.0.1.min.js
-* https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.0.1.min.js
-* https://cdn.bokeh.org/bokeh/release/bokeh-api-2.0.1.min.js
-* https://cdn.bokeh.org/bokeh/release/bokeh-gl-2.0.1.min.js
-* https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-2.0.1.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-2.4.3.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.4.3.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.4.3.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-api-2.4.3.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-gl-2.4.3.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-2.4.3.min.js
 
 .. note::
     You should always set ``crossorigin="anonymous"`` on script tags that load
