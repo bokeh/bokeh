@@ -505,44 +505,7 @@ export class HoverToolView extends InspectToolView {
       const swatch_match = value.match(swatch_re)
       const color_match = value.match(color_re)
 
-      if (swatch_match != null || color_match != null) {
-        if (swatch_match != null) {
-          const [, colname] = swatch_match
-          const column = ds.get_column(colname)
-
-          if (column == null) {
-            value_els[j].textContent = `${colname} unknown`
-          } else {
-            const color = isNumber(i) ? column[i] : null
-
-            if (color != null) {
-              swatch_els[j].style.backgroundColor = color2css(color)
-              display(swatch_els[j])
-            }
-          }
-        }
-
-        if (color_match != null) {
-          const [, opts = "", colname] = color_match
-          const column = ds.get_column(colname) // XXX: change to columnar ds
-          if (column == null) {
-            value_els[j].textContent = `${colname} unknown`
-            continue
-          }
-          const hex = opts.indexOf("hex") >= 0
-          const swatch = opts.indexOf("swatch") >= 0
-          const color: Color | null = isNumber(i) ? column[i] : null
-          if (color == null) {
-            value_els[j].textContent = "(null)"
-            continue
-          }
-          value_els[j].textContent = hex ? color2hex(color) : color2css(color) // TODO: color2pretty
-          if (swatch) {
-            swatch_els[j].style.backgroundColor = color2css(color)
-            display(swatch_els[j])
-          }
-        }
-      } else {
+      if (swatch_match == null && color_match == null) {
         const content = replace_placeholders(value.replace("$~", "$data_"), ds, i, this.model.formatters, vars)
         if (isString(content)) {
           value_els[j].textContent = content
@@ -551,7 +514,46 @@ export class HoverToolView extends InspectToolView {
             value_els[j].appendChild(el)
           }
         }
+        continue
       }
+
+      if (swatch_match != null) {
+        const [, colname] = swatch_match
+        const column = ds.get_column(colname)
+
+        if (column == null) {
+          value_els[j].textContent = `${colname} unknown`
+        } else {
+          const color = isNumber(i) ? column[i] : null
+
+          if (color != null) {
+            swatch_els[j].style.backgroundColor = color2css(color)
+            display(swatch_els[j])
+          }
+        }
+      }
+
+      if (color_match != null) {
+        const [, opts = "", colname] = color_match
+        const column = ds.get_column(colname) // XXX: change to columnar ds
+        if (column == null) {
+          value_els[j].textContent = `${colname} unknown`
+          continue
+        }
+        const hex = opts.indexOf("hex") >= 0
+        const swatch = opts.indexOf("swatch") >= 0
+        const color: Color | null = isNumber(i) ? column[i] : null
+        if (color == null) {
+          value_els[j].textContent = "(null)"
+          continue
+        }
+        value_els[j].textContent = hex ? color2hex(color) : color2css(color) // TODO: color2pretty
+        if (swatch) {
+          swatch_els[j].style.backgroundColor = color2css(color)
+          display(swatch_els[j])
+        }
+      }
+
     }
 
     return el
