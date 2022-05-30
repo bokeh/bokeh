@@ -34,7 +34,7 @@ import {CustomJSHover} from "./customjs_hover"
 import {InspectTool, InspectToolView} from "./inspect_tool"
 
 export type TooltipVars = {
-    index: number | ImageIndex | null
+    index: number | null
     glyph: GlyphView
     x: number
     y: number
