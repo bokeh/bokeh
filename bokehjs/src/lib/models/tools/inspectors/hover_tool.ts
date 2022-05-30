@@ -49,42 +49,53 @@ export type TooltipVars = {
     segment_index?: any | undefined,
 }
 
-export function _nearest_line_hit(i: number, geometry: Geometry,
-    sx: number, sy: number, dx: Arrayable<number>, dy: Arrayable<number>): [[number, number], number] {
-  const d1 = {x: dx[i], y: dy[i]}
-  const d2 = {x: dx[i+1], y: dy[i+1]}
+export function _nearest_line_hit(
+    i: number,
+    geometry: PointGeometry | SpanGeometry,
+    dx: Arrayable<number>, dy: Arrayable<number>
+  ): [[number, number], number] {
 
-  const [dist1, dist2] = (function() {
+  const p1 = {x: dx[i], y: dy[i]}
+  const p2 = {x: dx[i+1], y: dy[i+1]}
+  const {sx, sy} = geometry
+
+  const [d1, d2] = (function() {
     if (geometry.type == "span") {
       if (geometry.direction == "h")
-        return [Math.abs(d1.x - sx), Math.abs(d2.x - sx)]
+        return [Math.abs(p1.x - sx), Math.abs(p2.x - sx)]
       else
-        return [Math.abs(d1.y - sy), Math.abs(d2.y - sy)]
+        return [Math.abs(p1.y - sy), Math.abs(p2.y - sy)]
     }
+
+    // point geometry case
     const s = {x: sx, y: sy}
-    const dist1 = hittest.dist_2_pts(d1, s)
-    const dist2 = hittest.dist_2_pts(d2, s)
-    return [dist1, dist2]
+    const d1 = hittest.dist_2_pts(p1, s)
+    const d2 = hittest.dist_2_pts(p2, s)
+    return [d1, d2]
   })()
 
-  return dist1 < dist2 ? [[d1.x, d1.y], i] : [[d2.x, d2.y], i+1]
+  return d1 < d2 ? [[p1.x, p1.y], i] : [[p2.x, p2.y], i+1]
 }
 
-export function _line_hit(xs: Arrayable<number>, ys: Arrayable<number>, ind: number): [[number, number], number] {
-  return [[xs[ind], ys[ind]], ind]
+export function _line_hit(
+    xs: Arrayable<number>,
+    ys: Arrayable<number>,
+    i: number
+  ): [[number, number], number] {
+  return [[xs[i], ys[i]], i]
 }
 
 export class HoverToolView extends InspectToolView {
   override model: HoverTool
 
+  public readonly ttmodels: Map<GlyphRenderer, Tooltip> = new Map()
+
   protected _ttviews: Map<Tooltip, TooltipView>
-  protected _ttmodels: Map<GlyphRenderer, Tooltip>
   protected _template_el?: HTMLElement
   protected _template_view?: TemplateView
 
   override initialize(): void {
     super.initialize()
-    this._ttmodels = new Map()
     this._ttviews = new Map()
   }
 
@@ -169,10 +180,6 @@ export class HoverToolView extends InspectToolView {
     const {renderers} = this.model
     const all_renderers = this.plot_model.data_renderers
     return compute_renderers(renderers, all_renderers)
-  }
-
-  get ttmodels(): Map<GlyphRenderer, Tooltip> {
-    return this._ttmodels
   }
 
   _clear(): void {
@@ -288,7 +295,7 @@ export class HoverToolView extends InspectToolView {
             return [[x[i+1], y[i+1]], tt_sxy, ii]
           }
           if (line_policy == "nearest") {
-            const [tt_sxy, ii] = _nearest_line_hit(i, geometry, sx, sy, glyph.sx, glyph.sy)
+            const [tt_sxy, ii] = _nearest_line_hit(i, geometry, glyph.sx, glyph.sy)
             return [[x[ii], y[ii]], tt_sxy, ii]
           }
           throw new Error("shouldn't have happened")
@@ -338,7 +345,7 @@ export class HoverToolView extends InspectToolView {
               return [[xs[j], ys[j]], tt_sxy, jj]
             }
             if (line_policy == "nearest") {
-              const [tt_sxy, jj] = _nearest_line_hit(j, geometry, sx, sy, glyph.sxs.get(i), glyph.sys.get(i))
+              const [tt_sxy, jj] = _nearest_line_hit(j, geometry, glyph.sxs.get(i), glyph.sys.get(i))
               return [[xs[jj], ys[jj]], tt_sxy, jj]
             }
             throw new Error("shouldn't have happened")
