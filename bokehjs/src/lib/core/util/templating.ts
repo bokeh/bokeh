@@ -1,11 +1,11 @@
 import * as Numbro from "@bokeh/numbro"
-import { ImageIndex } from "models/selections/selection"
-import { ColumnarDataSource } from "models/sources/columnar_data_source"
-import { CustomJSHover } from "models/tools/inspectors/customjs_hover"
-import { sprintf as sprintf_js } from "sprintf-js"
+import {ImageIndex} from "models/selections/selection"
+import {ColumnarDataSource} from "models/sources/columnar_data_source"
+import {CustomJSHover} from "models/tools/inspectors/customjs_hover"
+import {sprintf as sprintf_js} from "sprintf-js"
 import tz from "timezone"
-import { Enum } from "../kinds"
-import { isArray, isNumber, isString, isTypedArray } from "./types"
+import {Enum} from "../kinds"
+import {isArray, isNumber, isString, isTypedArray} from "./types"
 
 
 

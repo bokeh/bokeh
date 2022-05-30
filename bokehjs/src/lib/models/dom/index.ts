@@ -1,22 +1,22 @@
-import { build_views, remove_views } from "core/build_views"
-import { span } from "core/dom"
-import { DOMView } from "core/dom_view"
+import {build_views, remove_views} from "core/build_views"
+import {span} from "core/dom"
+import {DOMView} from "core/dom_view"
 import * as p from "core/properties"
-import { enumerate } from "core/util/iterator"
-import { entries } from "core/util/object"
-import { Index as DataIndex, _get_column_value } from "core/util/templating"
-import { isString } from "core/util/types"
-import { View } from "core/view"
+import {enumerate} from "core/util/iterator"
+import {entries} from "core/util/object"
+import {Index as DataIndex, _get_column_value} from "core/util/templating"
+import {isString} from "core/util/types"
+import {View} from "core/view"
 import * as styles from "styles/tooltips.css"
-import { Model } from "../../model"
-import { LayoutDOM, LayoutDOMView } from "../layouts/layout_dom"
+import {Model} from "../../model"
+import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 /////
-import { RendererGroup } from "../renderers/renderer"
-import { ColumnarDataSource } from "../sources/columnar_data_source"
-import { Styles } from "./styles"
+import {RendererGroup} from "../renderers/renderer"
+import {ColumnarDataSource} from "../sources/columnar_data_source"
+import {Styles} from "./styles"
 
 
-export { Styles }
+export {Styles}
 
 export abstract class DOMNodeView extends DOMView {
   override model: DOMNode
