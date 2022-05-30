@@ -47,6 +47,7 @@ export type TooltipVars = {
     name: string | null,
     indices?: any | undefined,
     segment_index?: any | undefined,
+    image_index?: ImageIndex | undefined,
 }
 
 export function _nearest_line_hit(
@@ -312,13 +313,14 @@ export class HoverToolView extends InspectToolView {
       }
     }
 
-    for (const index_struct of fullset_indices.image_indices) {
+    for (const image_index of fullset_indices.image_indices) {
       const [tt_sx, tt_sy] = [sx, sy]
       const [tt_x, tt_y] = [x, y]
       const vars = {
-        index: index_struct,
+        index: image_index.index,
         glyph, x, y, sx, sy, tt_x, tt_y, tt_sx, tt_sy,
         name: renderer.name,
+        image_index: image_index,
       }
       const rendered = this._render_tooltips(ds, vars)
       tooltips.push([tt_sx, tt_sy, rendered])
@@ -481,7 +483,8 @@ export class HoverToolView extends InspectToolView {
   _render_template(template: HTMLElement, tooltips: [string, string][], ds: ColumnarDataSource, vars: TooltipVars): HTMLElement {
     const el = template.cloneNode(true) as HTMLElement
 
-    const i = (vars.index==null || isNumber(vars.index)) ? vars.index: vars.index.index
+    // if we have an image_index, that is what replace_placeholders needs
+    const i = is_undefined(vars.image_index) ? vars.index : vars.image_index
 
     const value_els = el.querySelectorAll<HTMLElement>("[data-value]")
     const swatch_els = el.querySelectorAll<HTMLElement>("[data-swatch]")
@@ -549,7 +552,8 @@ export class HoverToolView extends InspectToolView {
 
   _render_tooltips(ds: ColumnarDataSource, vars: TooltipVars): HTMLElement | null {
     const {tooltips} = this.model
-    const i = (vars.index==null || isNumber(vars.index)) ? vars.index: vars.index.index
+    const i = vars.index
+
     if (isString(tooltips)) {
       const content = replace_placeholders({html: tooltips}, ds, i, this.model.formatters, vars)
       return div(content)
