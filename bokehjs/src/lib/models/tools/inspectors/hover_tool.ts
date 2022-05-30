@@ -27,14 +27,14 @@ import {DataRenderer} from "../../renderers/data_renderer"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
 import {Renderer} from "../../renderers/renderer"
-import {Selection} from "../../selections/selection"
+import {ImageIndex, Selection} from "../../selections/selection"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {compute_renderers} from "../../util"
 import {CustomJSHover} from "./customjs_hover"
 import {InspectTool, InspectToolView} from "./inspect_tool"
 
 export type TooltipVars = {
-    index: number | null,
+    index: number | ImageIndex | null,
     glyph: GlyphView,
     x: number,
     y: number,
@@ -123,7 +123,7 @@ export class HoverToolView extends InspectToolView {
       return
 
     const {computed_renderers} = this
-    for (const r of this.computed_renderers) {
+    for (const r of computed_renderers) {
       const tooltip = new Tooltip({
         custom: isString(tooltips) || isFunction(tooltips),
         attachment: this.model.attachment,
@@ -270,6 +270,7 @@ export class HoverToolView extends InspectToolView {
     }
 
     if (glyph instanceof LineView) {
+      const {line_policy} = this.model
       for (const i of subset_indices.line_indices) {
         const [[tt_x, tt_y], [tt_sx, tt_sy], ii] = (function() {
           if (line_policy == "interp") {
@@ -304,11 +305,11 @@ export class HoverToolView extends InspectToolView {
       }
     }
 
-    for (const struct of fullset_indices.image_indices) {
+    for (const index_struct of fullset_indices.image_indices) {
       const [tt_sx, tt_sy] = [sx, sy]
       const [tt_x, tt_y] = [x, y]
       const vars = {
-        index: struct.index,
+        index: index_struct,
         glyph, x, y, sx, sy, tt_x, tt_y, tt_sx, tt_sy,
         name: renderer.name,
       }
@@ -316,10 +317,10 @@ export class HoverToolView extends InspectToolView {
       tooltips.push([tt_sx, tt_sy, rendered])
     }
 
-    const {line_policy} = this.model
     for (const i of subset_indices.indices) {
       // multiglyphs set additional indices, e.g. multiline_indices for different tooltips
       if (glyph instanceof MultiLineView && !is_empty(subset_indices.multiline_indices)) {
+        const {line_policy} = this.model
         for (const j of subset_indices.multiline_indices[i.toString()]) { // TODO: subset_indices.multiline_indices.get(i)
           const [[tt_x, tt_y], [tt_sx, tt_sy], jj] = (function() {
             if (line_policy == "interp") {
@@ -473,7 +474,7 @@ export class HoverToolView extends InspectToolView {
   _render_template(template: HTMLElement, tooltips: [string, string][], ds: ColumnarDataSource, vars: TooltipVars): HTMLElement {
     const el = template.cloneNode(true) as HTMLElement
 
-    const i = vars.index
+    const i = (vars.index==null || isNumber(vars.index)) ? vars.index: vars.index.index
 
     const value_els = el.querySelectorAll<HTMLElement>("[data-value]")
     const swatch_els = el.querySelectorAll<HTMLElement>("[data-swatch]")
@@ -541,7 +542,7 @@ export class HoverToolView extends InspectToolView {
 
   _render_tooltips(ds: ColumnarDataSource, vars: TooltipVars): HTMLElement | null {
     const {tooltips} = this.model
-    const i = vars.index
+    const i = (vars.index==null || isNumber(vars.index)) ? vars.index: vars.index.index
     if (isString(tooltips)) {
       const content = replace_placeholders({html: tooltips}, ds, i, this.model.formatters, vars)
       return div(content)
