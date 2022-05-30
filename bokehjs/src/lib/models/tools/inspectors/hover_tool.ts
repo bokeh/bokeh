@@ -271,7 +271,8 @@ export class HoverToolView extends InspectToolView {
         glyph, x, y, sx, sy, tt_x, tt_y, tt_sx, tt_sy,
         name: renderer.name,
       }
-      tooltips.push([tt_sx, tt_sy, this._render_tooltips(ds, -1, vars)])
+      const rendered = this._render_tooltips(ds, -1, vars)
+      tooltips.push([tt_sx, tt_sy, rendered])
     }
 
     if (glyph instanceof VAreaView || glyph instanceof HAreaView) {
@@ -284,7 +285,8 @@ export class HoverToolView extends InspectToolView {
           name: renderer.name,
           indices: subset_indices.line_indices,
         }
-        tooltips.push([tt_sx, tt_sy, this._render_tooltips(ds, i, vars)])
+        const rendered = this._render_tooltips(ds, i, vars)
+        tooltips.push([tt_sx, tt_sy, rendered])
       }
     }
 
@@ -328,7 +330,8 @@ export class HoverToolView extends InspectToolView {
           name: renderer.name,
           indices: subset_indices.line_indices,
         }
-        tooltips.push([tt_sx, tt_sy, this._render_tooltips(ds, ii, vars)])
+        const rendered = this._render_tooltips(ds, ii, vars)
+        tooltips.push([tt_sx, tt_sy, rendered])
       }
     }
 
@@ -341,7 +344,7 @@ export class HoverToolView extends InspectToolView {
         name: renderer.name,
       }
       const rendered = this._render_tooltips(ds, struct, vars)
-      tooltips.push([sx, sy, rendered])
+      tooltips.push([tt_sx, tt_sy, rendered])
     }
 
     for (const i of subset_indices.indices) {
@@ -392,7 +395,8 @@ export class HoverToolView extends InspectToolView {
             indices: subset_indices.multiline_indices,
             segment_index: jj,
           }
-          tooltips.push([tt_sx, tt_sy, this._render_tooltips(ds, index, vars)])
+          const rendered = this._render_tooltips(ds, index, vars)
+          tooltips.push([tt_sx, tt_sy, rendered])
         }
       } else {
         // handle non-multiglyphs
@@ -428,7 +432,8 @@ export class HoverToolView extends InspectToolView {
           name: renderer.name,
           indices: subset_indices.indices,
         }
-        tooltips.push([tt_sx, tt_sy, this._render_tooltips(ds, index, vars)])
+        const rendered = this._render_tooltips(ds, index, vars)
+        tooltips.push([tt_sx, tt_sy, rendered])
       }
     }
 
