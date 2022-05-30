@@ -8,7 +8,7 @@ import {uniq} from "core/util/array"
 import {is_NDArray} from "core/util/ndarray"
 import {keys, values} from "core/util/object"
 import {isArray} from "core/util/types"
-import type {Renderer} from "../renderers/renderer"
+import type {GlyphRenderer} from "../renderers/glyph_renderer"
 import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 import {Selection} from "../selections/selection"
 import {DataSource} from "./data_source"
@@ -45,7 +45,7 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   _select: Signal0<this>
-  inspect: Signal<[Renderer, {geometry: Geometry}], this>
+  inspect: Signal<[GlyphRenderer, {geometry: Geometry}], this>
 
   readonly selection_manager = new SelectionManager(this)
 

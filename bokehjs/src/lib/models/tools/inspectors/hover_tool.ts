@@ -220,14 +220,11 @@ export class HoverToolView extends InspectToolView {
     this._emit_callback(geometry)
   }
 
-  _update([renderer, {geometry}]: [Renderer, {geometry: Geometry}]): void {
+  _update([renderer, {geometry}]: [GlyphRenderer, {geometry: Geometry}]): void {
     if (!this.model.active)
       return
 
     if (!(geometry.type == "point" || geometry.type == "span"))
-      return
-
-    if (!(renderer instanceof GlyphRenderer)) // || renderer instanceof GraphRenderer))
       return
 
     if (this.model.muted_policy == "ignore" && renderer.muted)
@@ -382,11 +379,7 @@ export class HoverToolView extends InspectToolView {
               throw new Error("shouldn't have happened")
           }
 
-          let index: number
-          if (renderer instanceof GlyphRenderer)
-            index = renderer.view.convert_indices_from_subset([i])[0]
-          else
-            index = i
+          const index = renderer.view.convert_indices_from_subset([i])[0]
 
           const vars = {
             index,
@@ -420,11 +413,7 @@ export class HoverToolView extends InspectToolView {
         } else
           [tt_sx, tt_sy] = [sx, sy]
 
-        let index: number
-        if (renderer instanceof GlyphRenderer)
-          index = renderer.view.convert_indices_from_subset([i])[0]
-        else
-          index = i
+        const index = renderer.view.convert_indices_from_subset([i])[0]
 
         const vars = {
           index,
