@@ -17,7 +17,7 @@ import * as styles from "styles/tooltips.css"
 import {Tooltip, TooltipView} from "../../annotations/tooltip"
 import {CallbackLike1} from "../../callbacks/callback"
 import {Template, TemplateView} from "../../dom"
-import {GlyphView} from '../../glyphs/glyph'
+import {GlyphView} from "../../glyphs/glyph"
 import {HAreaView} from "../../glyphs/harea"
 import {LineView} from "../../glyphs/line"
 import {MultiLineView} from "../../glyphs/multi_line"
@@ -34,27 +34,27 @@ import {CustomJSHover} from "./customjs_hover"
 import {InspectTool, InspectToolView} from "./inspect_tool"
 
 export type TooltipVars = {
-    index: number | ImageIndex | null,
-    glyph: GlyphView,
-    x: number,
-    y: number,
-    sx: number,
-    sy: number,
-    tt_x: number,
-    tt_y: number,
-    tt_sx: number,
-    tt_sy: number,
-    name: string | null,
-    indices?: any | undefined,
-    segment_index?: any | undefined,
-    image_index?: ImageIndex | undefined,
+    index: number | ImageIndex | null
+    glyph: GlyphView
+    x: number
+    y: number
+    sx: number
+    sy: number
+    tt_x: number
+    tt_y: number
+    tt_sx: number
+    tt_sy: number
+    name: string | null
+    indices?: any | undefined
+    segment_index?: any | undefined
+    image_index?: ImageIndex | undefined
 }
 
 export function _nearest_line_hit(
-    i: number,
-    geometry: PointGeometry | SpanGeometry,
-    dx: Arrayable<number>, dy: Arrayable<number>
-  ): [[number, number], number] {
+  i: number,
+  geometry: PointGeometry | SpanGeometry,
+  dx: Arrayable<number>, dy: Arrayable<number>
+): [[number, number], number] {
 
   const p1 = {x: dx[i], y: dy[i]}
   const p2 = {x: dx[i+1], y: dy[i+1]}
@@ -79,10 +79,10 @@ export function _nearest_line_hit(
 }
 
 export function _line_hit(
-    xs: Arrayable<number>,
-    ys: Arrayable<number>,
-    i: number
-  ): [[number, number], number] {
+  xs: Arrayable<number>,
+  ys: Arrayable<number>,
+  i: number
+): [[number, number], number] {
   return [[xs[i], ys[i]], i]
 }
 
@@ -320,7 +320,7 @@ export class HoverToolView extends InspectToolView {
         index: image_index.index,
         glyph, x, y, sx, sy, tt_x, tt_y, tt_sx, tt_sy,
         name: renderer.name,
-        image_index: image_index,
+        image_index,
       }
       const rendered = this._render_tooltips(ds, vars)
       tooltips.push([tt_sx, tt_sy, rendered])

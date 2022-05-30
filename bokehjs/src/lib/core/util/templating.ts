@@ -7,8 +7,6 @@ import tz from "timezone"
 import {Enum} from "../kinds"
 import {isArray, isNumber, isString, isTypedArray} from "./types"
 
-
-
 export const FormatterType = Enum("numeral", "printf", "datetime")
 export type FormatterType = "numeral" | "printf" | "datetime"
 
