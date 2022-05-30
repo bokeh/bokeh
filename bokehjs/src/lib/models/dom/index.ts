@@ -1,19 +1,22 @@
-import {Model} from "../../model"
-import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
-import {Styles} from "./styles"
-import {span} from "core/dom"
-import {View} from "core/view"
-import {DOMView} from "core/dom_view"
-import {build_views, remove_views} from "core/build_views"
+import { build_views, remove_views } from "core/build_views"
+import { span } from "core/dom"
+import { DOMView } from "core/dom_view"
 import * as p from "core/properties"
-import {isString} from "core/util/types"
-import {entries} from "core/util/object"
+import { enumerate } from "core/util/iterator"
+import { entries } from "core/util/object"
+import { Index as DataIndex, _get_column_value } from "core/util/templating"
+import { isString } from "core/util/types"
+import { View } from "core/view"
 import * as styles from "styles/tooltips.css"
+import { Model } from "../../model"
+import { LayoutDOM, LayoutDOMView } from "../layouts/layout_dom"
+/////
+import { RendererGroup } from "../renderers/renderer"
+import { ColumnarDataSource } from "../sources/columnar_data_source"
+import { Styles } from "./styles"
 
-import {Index as DataIndex, _get_column_value} from "core/util/templating"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
 
-export {Styles}
+export { Styles }
 
 export abstract class DOMNodeView extends DOMView {
   override model: DOMNode
@@ -79,7 +82,7 @@ export abstract class PlaceholderView extends DOMNodeView {
   override model: Placeholder
   static override tag_name = "span" as const
 
-  abstract update(source: ColumnarDataSource, i: DataIndex, vars: object/*, formatters?: Formatters*/): void
+  abstract update(source: ColumnarDataSource, i: DataIndex | null, vars: object/*, formatters?: Formatters*/): void
 }
 
 export namespace Placeholder {
@@ -105,8 +108,11 @@ export abstract class Placeholder extends DOMNode {
 export class IndexView extends PlaceholderView {
   override model: Index
 
-  update(_source: ColumnarDataSource, i: DataIndex, _vars: object/*, formatters?: Formatters*/): void {
-    this.el.textContent = i.toString()
+  update(_source: ColumnarDataSource, i: DataIndex | null, _vars: object/*, formatters?: Formatters*/): void {
+    if (i == null)
+      this.el.textContent = "(null)"
+    else
+      this.el.textContent = i.toString()
   }
 }
 
@@ -134,7 +140,7 @@ export class Index extends Placeholder {
 export class ValueRefView extends PlaceholderView {
   override model: ValueRef
 
-  update(source: ColumnarDataSource, i: DataIndex, _vars: object/*, formatters?: Formatters*/): void {
+  update(source: ColumnarDataSource, i: DataIndex | null, _vars: object/*, formatters?: Formatters*/): void {
     const value = _get_column_value(this.model.field, source, i)
     const text = value == null ? "???" : `${value}` //.toString()
     this.el.textContent = text
@@ -182,7 +188,7 @@ export class ColorRefView extends ValueRefView {
     this.el.appendChild(this.swatch_el)
   }
 
-  override update(source: ColumnarDataSource, i: DataIndex, _vars: object/*, formatters?: Formatters*/): void {
+  override update(source: ColumnarDataSource, i: DataIndex | null, _vars: object/*, formatters?: Formatters*/): void {
     const value = _get_column_value(this.model.field, source, i)
     const text = value == null ? "???" : `${value}` //.toString()
     this.el.textContent = text
@@ -301,7 +307,7 @@ export abstract class DOMElement extends DOMNode {
 export abstract class ActionView extends View {
   override model: Action
 
-  abstract update(source: ColumnarDataSource, i: DataIndex, vars: object/*, formatters?: Formatters*/): void
+  abstract update(source: ColumnarDataSource, i: DataIndex | null, vars: object/*, formatters?: Formatters*/): void
 }
 
 export namespace Action {
@@ -341,7 +347,7 @@ export class TemplateView extends DOMElementView {
     super.remove()
   }
 
-  update(source: ColumnarDataSource, i: DataIndex, vars: object = {}/*, formatters?: Formatters*/): void {
+  update(source: ColumnarDataSource, i: DataIndex | null, vars: object = {}/*, formatters?: Formatters*/): void {
     function descend(obj: DOMElementView): void {
       for (const child of obj.child_views.values()) {
         if (child instanceof PlaceholderView) {
@@ -425,15 +431,11 @@ export class TableRow extends DOMElement {
   }
 }
 
-/////
-
-import {RendererGroup} from "../renderers/renderer"
-import {enumerate} from "core/util/iterator"
 
 export class ToggleGroupView extends ActionView {
   override model: ToggleGroup
 
-  update(_source: ColumnarDataSource, i: DataIndex, _vars: object/*, formatters?: Formatters*/): void {
+  update(_source: ColumnarDataSource, i: DataIndex | null, _vars: object/*, formatters?: Formatters*/): void {
     for (const [group, j] of enumerate(this.model.groups)) {
       group.visible = i == j
     }

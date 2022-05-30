@@ -271,7 +271,7 @@ export class HoverToolView extends InspectToolView {
         glyph, x, y, sx, sy, tt_x, tt_y, tt_sx, tt_sy,
         name: renderer.name,
       }
-      const rendered = this._render_tooltips(ds, -1, vars)
+      const rendered = this._render_tooltips(ds, vars)
       tooltips.push([tt_sx, tt_sy, rendered])
     }
 
@@ -285,7 +285,7 @@ export class HoverToolView extends InspectToolView {
           name: renderer.name,
           indices: subset_indices.line_indices,
         }
-        const rendered = this._render_tooltips(ds, i, vars)
+        const rendered = this._render_tooltips(ds, vars)
         tooltips.push([tt_sx, tt_sy, rendered])
       }
     }
@@ -330,7 +330,7 @@ export class HoverToolView extends InspectToolView {
           name: renderer.name,
           indices: subset_indices.line_indices,
         }
-        const rendered = this._render_tooltips(ds, ii, vars)
+        const rendered = this._render_tooltips(ds, vars)
         tooltips.push([tt_sx, tt_sy, rendered])
       }
     }
@@ -343,7 +343,7 @@ export class HoverToolView extends InspectToolView {
         glyph, x, y, sx, sy, tt_x, tt_y, tt_sx, tt_sy,
         name: renderer.name,
       }
-      const rendered = this._render_tooltips(ds, struct, vars)
+      const rendered = this._render_tooltips(ds, vars)
       tooltips.push([tt_sx, tt_sy, rendered])
     }
 
@@ -395,7 +395,7 @@ export class HoverToolView extends InspectToolView {
             indices: subset_indices.multiline_indices,
             segment_index: jj,
           }
-          const rendered = this._render_tooltips(ds, index, vars)
+          const rendered = this._render_tooltips(ds, vars)
           tooltips.push([tt_sx, tt_sy, rendered])
         }
       } else {
@@ -432,7 +432,7 @@ export class HoverToolView extends InspectToolView {
           name: renderer.name,
           indices: subset_indices.indices,
         }
-        const rendered = this._render_tooltips(ds, index, vars)
+        const rendered = this._render_tooltips(ds, vars)
         tooltips.push([tt_sx, tt_sy, rendered])
       }
     }
@@ -503,7 +503,7 @@ export class HoverToolView extends InspectToolView {
     return rows
   }
 
-  _render_template(template: HTMLElement, tooltips: [string, string][], ds: ColumnarDataSource, i: number | ImageIndex, vars: TooltipVars): HTMLElement {
+  _render_template(template: HTMLElement, tooltips: [string, string][], ds: ColumnarDataSource, i: number | ImageIndex | null, vars: TooltipVars): HTMLElement {
     const el = template.cloneNode(true) as HTMLElement
 
     const value_els = el.querySelectorAll<HTMLElement>("[data-value]")
@@ -568,8 +568,9 @@ export class HoverToolView extends InspectToolView {
     return el
   }
 
-  _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: TooltipVars): HTMLElement | null {
+  _render_tooltips(ds: ColumnarDataSource, vars: TooltipVars): HTMLElement | null {
     const {tooltips} = this.model
+    const i = vars.index
     if (isString(tooltips)) {
       const content = replace_placeholders({html: tooltips}, ds, i, this.model.formatters, vars)
       return div(content)
