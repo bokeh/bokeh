@@ -1,15 +1,15 @@
+import {build_view} from "@bokehjs/core/build_views"
+import {assert} from "@bokehjs/core/util/assert"
+import {Circle} from "@bokehjs/models/glyphs/circle"
+import {Plot} from "@bokehjs/models/plots/plot"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {HoverTool, HoverToolView, TooltipVars} from "@bokehjs/models/tools/inspectors/hover_tool"
 import {expect} from "assertions"
 import {display, fig} from "_util"
 
-import {assert} from "@bokehjs/core/util/assert"
-import {build_view} from "@bokehjs/core/build_views"
-import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {Circle} from "@bokehjs/models/glyphs/circle"
-import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
-import {Plot} from "@bokehjs/models/plots/plot"
-import {Range1d} from "@bokehjs/models/ranges/range1d"
 
-import {HoverTool, HoverToolView} from "@bokehjs/models/tools/inspectors/hover_tool"
 
 async function make_testcase(): Promise<{hover_view: HoverToolView, data_source: ColumnDataSource}> {
   const plot = new Plot({
@@ -39,21 +39,21 @@ describe("HoverTool", () => {
     it("should invalidate tooltips' template when changing the tooltips property", async () => {
       const {hover_view, data_source} = await make_testcase()
 
-      const el0 = hover_view._render_tooltips(data_source, 0, {index: 0, x: 123, y: 456, sx: 0, sy: 0})
+      const el0 = hover_view._render_tooltips(data_source, ({index: 0, x: 123, y: 456, sx: 0, sy: 0} as TooltipVars))
       assert(el0 != null)
       expect(el0.childElementCount).to.be.equal(3)
 
       hover_view.model.tooltips = [["foo", "$x"]]
       await hover_view.ready
 
-      const el1 = hover_view._render_tooltips(data_source, 0, {index: 0, x: 123, y: 456})
+      const el1 = hover_view._render_tooltips(data_source, ({index: 0, x: 123, y: 456} as TooltipVars))
       assert(el1 != null)
       expect(el1.childElementCount).to.be.equal(1)
 
       hover_view.model.tooltips = "<b>foo</b> is <i>$x</i>"
       await hover_view.ready
 
-      const el2 = hover_view._render_tooltips(data_source, 0, {index: 0, x: 123, y: 456})
+      const el2 = hover_view._render_tooltips(data_source, ({index: 0, x: 123, y: 456} as TooltipVars))
       assert(el2 != null)
       expect(el2.childElementCount).to.be.equal(2)
     })
@@ -96,7 +96,7 @@ describe("HoverTool", () => {
     const {view} = await display(p)
 
     const hover_view = view.tool_views.get(hover)! as HoverTool["__view_type__"]
-    const el = hover_view._render_tooltips(r.data_source, 0, {index: 0, x: 10, y: 20})
+    const el = hover_view._render_tooltips(r.data_source, ({index: 0, x: 10, y: 20} as TooltipVars))
 
     const html =
 `
