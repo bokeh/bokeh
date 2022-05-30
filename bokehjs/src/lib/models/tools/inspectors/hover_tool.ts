@@ -274,21 +274,7 @@ export class HoverToolView extends InspectToolView {
       tooltips.push([tt_sx, tt_sy, this._render_tooltips(ds, -1, vars)])
     }
 
-    if (glyph instanceof HAreaView) {
-      for (const i of subset_indices.line_indices) {
-        const [tt_x, tt_y] = [x, y]
-        const [tt_sx, tt_sy] = [sx, sy]
-        const vars = {
-          index: i,
-          glyph, x, y, sx, sy, tt_x, tt_y, tt_sx, tt_sy,
-          name: renderer.name,
-          indices: subset_indices.line_indices,
-        }
-        tooltips.push([tt_sx, tt_sy, this._render_tooltips(ds, i, vars)])
-      }
-    }
-
-    if (glyph instanceof VAreaView) {
+    if (glyph instanceof VAreaView || glyph instanceof HAreaView) {
       for (const i of subset_indices.line_indices) {
         const [tt_x, tt_y] = [x, y]
         const [tt_sx, tt_sy] = [sx, sy]
