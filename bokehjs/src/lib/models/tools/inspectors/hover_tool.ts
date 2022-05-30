@@ -27,7 +27,7 @@ import {DataRenderer} from "../../renderers/data_renderer"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
 import {Renderer} from "../../renderers/renderer"
-import {ImageIndex, Selection} from "../../selections/selection"
+import {Selection} from "../../selections/selection"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {compute_renderers} from "../../util"
 import {CustomJSHover} from "./customjs_hover"
@@ -492,8 +492,10 @@ export class HoverToolView extends InspectToolView {
     return rows
   }
 
-  _render_template(template: HTMLElement, tooltips: [string, string][], ds: ColumnarDataSource, i: number | ImageIndex | null, vars: TooltipVars): HTMLElement {
+  _render_template(template: HTMLElement, tooltips: [string, string][], ds: ColumnarDataSource, vars: TooltipVars): HTMLElement {
     const el = template.cloneNode(true) as HTMLElement
+
+    const i = vars.index
 
     const value_els = el.querySelectorAll<HTMLElement>("[data-value]")
     const swatch_els = el.querySelectorAll<HTMLElement>("[data-swatch]")
@@ -572,7 +574,7 @@ export class HoverToolView extends InspectToolView {
       return this._template_view!.el
     } else if (tooltips != null) {
       const template = this._template_el ?? (this._template_el = this._create_template(tooltips))
-      return this._render_template(template, tooltips, ds, i, vars)
+      return this._render_template(template, tooltips, ds, vars)
     } else
       return null
   }
