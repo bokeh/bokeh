@@ -11,7 +11,7 @@ import {color2css, color2hex} from "core/util/color"
 import {enumerate} from "core/util/iterator"
 import {is_empty} from "core/util/object"
 import {Formatters, FormatterType, replace_placeholders} from "core/util/templating"
-import {isFunction, isNumber, isString} from "core/util/types"
+import {isFunction, isNumber, isString, is_undefined} from "core/util/types"
 import {tool_icon_hover} from "styles/icons.css"
 import * as styles from "styles/tooltips.css"
 import {Tooltip, TooltipView} from "../../annotations/tooltip"
@@ -157,14 +157,14 @@ export class HoverToolView extends InspectToolView {
       }
     })()]
 
-    const slot = this._slots.get(this._update)
+    const slot = this._slots.get(this.update)
     if (slot != null) {
       const except = new Set(glyph_renderers.map((r) => r.data_source))
       Signal.disconnect_receiver(this, slot, except)
     }
 
     for (const r of glyph_renderers) {
-      this.connect(r.data_source.inspect, this._update)
+      this.connect(r.data_source.inspect, this.update)
     }
   }
 
@@ -219,22 +219,8 @@ export class HoverToolView extends InspectToolView {
     this._emit_callback(geometry)
   }
 
-  _update([renderer, {geometry}]: [GlyphRenderer, {geometry: Geometry}]): void {
-    if (!this.model.active)
-      return
-
-    if (!(geometry.type == "point" || geometry.type == "span"))
-      return
-
-    if (this.model.muted_policy == "ignore" && renderer.muted)
-      return
-
-    const tooltip = this.ttmodels.get(renderer)
-    if (tooltip == null)
-      return
-
+  _update(renderer: GlyphRenderer, geometry: PointGeometry | SpanGeometry, tooltip: Tooltip): void {
     const selection_manager = renderer.get_selection_manager()
-
     const fullset_indices = selection_manager.inspectors.get(renderer)!
     const subset_indices = renderer.view.convert_selection_to_subset(fullset_indices)
 
@@ -438,6 +424,23 @@ export class HoverToolView extends InspectToolView {
       const [x, y] = tooltips[tooltips.length-1]
       tooltip.setv({position: [x, y]}, {check_eq: false}) // XXX: force update
     }
+  }
+
+  update([renderer, {geometry}]: [GlyphRenderer, {geometry: Geometry}]): void {
+    if (!this.model.active)
+      return
+
+    if (!(geometry.type == "point" || geometry.type == "span"))
+      return
+
+    if (this.model.muted_policy == "ignore" && renderer.muted)
+      return
+
+    const tooltip = this.ttmodels.get(renderer)
+    if (is_undefined(tooltip))
+      return
+
+    this._update(renderer, geometry, tooltip)
   }
 
   _emit_callback(geometry: PointGeometry | SpanGeometry): void {
