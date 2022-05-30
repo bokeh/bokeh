@@ -271,37 +271,27 @@ export class HoverToolView extends InspectToolView {
 
     if (glyph instanceof LineView) {
       for (const i of subset_indices.line_indices) {
-        let tt_x = glyph._x[i+1]
-        let tt_y = glyph._y[i+1]
-        let ii = i
-
-        let tt_sx: number
-        let tt_sy: number
-        switch (this.model.line_policy) {
-          case "interp": { // and renderer.get_interpolation_hit?
-            [tt_x, tt_y] = glyph.get_interpolation_hit(i, geometry)
-            tt_sx = xscale.compute(tt_x)
-            tt_sy = yscale.compute(tt_y)
-            break
+        const [[tt_x, tt_y], [tt_sx, tt_sy], ii] = (function() {
+          if (line_policy == "interp") {
+            const [tt_x, tt_y] = glyph.get_interpolation_hit(i, geometry)
+            const tt_sxy = [xscale.compute(tt_x), yscale.compute(tt_y)]
+            return [[tt_x, tt_y], tt_sxy, i]
           }
-          case "prev": {
-            [[tt_sx, tt_sy], ii] = _line_hit(glyph.sx, glyph.sy, i)
-            break
+          const [x, y] = [glyph._x, glyph._y]
+          if (line_policy == "prev") {
+            const [tt_sxy, ii] = _line_hit(glyph.sx, glyph.sy, i)
+            return [[x[i+1], y[i+1]], tt_sxy, ii]
           }
-          case "next": {
-            [[tt_sx, tt_sy], ii] = _line_hit(glyph.sx, glyph.sy, i+1)
-            break
+          if (line_policy=="next") {
+            const [tt_sxy, ii] = _line_hit(glyph.sx, glyph.sy, i+1)
+            return [[x[i+1], y[i+1]], tt_sxy, ii]
           }
-          case "nearest": {
-            [[tt_sx, tt_sy], ii] = _nearest_line_hit(i, geometry, sx, sy, glyph.sx, glyph.sy)
-            tt_x = glyph._x[ii]
-            tt_y = glyph._y[ii]
-            break
+          if (line_policy == "nearest") {
+            const [tt_sxy, ii] = _nearest_line_hit(i, geometry, sx, sy, glyph.sx, glyph.sy)
+            return [[x[ii], y[ii]], tt_sxy, ii]
           }
-          default: {
-            [tt_sx, tt_sy] = [sx, sy]
-          }
-        }
+          throw new Error("shouldn't have happened")
+        })()
 
         const vars = {
           index: ii,
@@ -326,40 +316,32 @@ export class HoverToolView extends InspectToolView {
       tooltips.push([tt_sx, tt_sy, rendered])
     }
 
+    const {line_policy} = this.model
     for (const i of subset_indices.indices) {
       // multiglyphs set additional indices, e.g. multiline_indices for different tooltips
       if (glyph instanceof MultiLineView && !is_empty(subset_indices.multiline_indices)) {
         for (const j of subset_indices.multiline_indices[i.toString()]) { // TODO: subset_indices.multiline_indices.get(i)
-          let tt_x = glyph._xs.get(i)[j]
-          let tt_y = glyph._ys.get(i)[j]
-          let jj = j
-
-          let tt_sx: number
-          let tt_sy: number
-          switch (this.model.line_policy) {
-            case "interp": { // and renderer.get_interpolation_hit?
-              [tt_x, tt_y] = glyph.get_interpolation_hit(i, j, geometry)
-              tt_sx = xscale.compute(tt_x)
-              tt_sy = yscale.compute(tt_y)
-              break
+          const [[tt_x, tt_y], [tt_sx, tt_sy], jj] = (function() {
+            if (line_policy == "interp") {
+              const [tt_x, tt_y] = glyph.get_interpolation_hit(i, j, geometry)
+              const tt_sxy = [xscale.compute(tt_x), yscale.compute(tt_y)]
+              return [[tt_x, tt_y], tt_sxy, j]
             }
-            case "prev": {
-              [[tt_sx, tt_sy], jj] = _line_hit(glyph.sxs.get(i), glyph.sys.get(i), j)
-              break
+            const [xs, ys] = [glyph._xs.get(i), glyph._ys.get(i)]
+            if (line_policy == "prev") {
+              const [tt_sxy, jj] = _line_hit(glyph.sxs.get(i), glyph.sys.get(i), j)
+              return [[xs[j], ys[j]], tt_sxy, jj]
             }
-            case "next": {
-              [[tt_sx, tt_sy], jj] = _line_hit(glyph.sxs.get(i), glyph.sys.get(i), j+1)
-              break
+            if (line_policy=="next") {
+              const [tt_sxy, jj] = _line_hit(glyph.sxs.get(i), glyph.sys.get(i), j+1)
+              return [[xs[j], ys[j]], tt_sxy, jj]
             }
-            case "nearest": {
-              [[tt_sx, tt_sy], jj] = _nearest_line_hit(j, geometry, sx, sy, glyph.sxs.get(i), glyph.sys.get(i))
-              tt_x = glyph._xs.get(i)[jj]
-              tt_y = glyph._ys.get(i)[jj]
-              break
+            if (line_policy == "nearest") {
+              const [tt_sxy, jj] = _nearest_line_hit(j, geometry, sx, sy, glyph.sxs.get(i), glyph.sys.get(i))
+              return [[xs[jj], ys[jj]], tt_sxy, jj]
             }
-            default:
-              throw new Error("shouldn't have happened")
-          }
+            throw new Error("shouldn't have happened")
+          })()
 
           const index = renderer.view.convert_indices_from_subset([i])[0]
 
