@@ -121,8 +121,8 @@ export class HoverToolView extends InspectToolView {
   }
 
   protected async _update_ttmodels(): Promise<void> {
-    const {_ttmodels, computed_renderers} = this
-    _ttmodels.clear()
+    const {ttmodels, computed_renderers} = this
+    ttmodels.clear()
 
     const {tooltips} = this.model
     if (tooltips != null) {
@@ -134,15 +134,15 @@ export class HoverToolView extends InspectToolView {
         })
 
         if (r instanceof GlyphRenderer) {
-          _ttmodels.set(r, tooltip)
+          ttmodels.set(r, tooltip)
         } else if (r instanceof GraphRenderer) {
-          _ttmodels.set(r.node_renderer, tooltip)
-          _ttmodels.set(r.edge_renderer, tooltip)
+          ttmodels.set(r.node_renderer, tooltip)
+          ttmodels.set(r.edge_renderer, tooltip)
         }
       }
     }
 
-    const views = await build_views(this._ttviews, [..._ttmodels.values()], {parent: this.plot_view})
+    const views = await build_views(this._ttviews, [...ttmodels.values()], {parent: this.plot_view})
     for (const ttview of views) {
       ttview.render()
     }
