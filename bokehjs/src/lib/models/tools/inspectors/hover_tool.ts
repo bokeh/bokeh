@@ -70,10 +70,7 @@ export function _nearest_line_hit(i: number, geometry: Geometry,
     dist2 = hittest.dist_2_pts(d2, s)
   }
 
-  if (dist1 < dist2)
-    return [[d1.x, d1.y], i]
-  else
-    return [[d2.x, d2.y], i+1]
+  return dist1 < dist2 ? [[d1.x, d1.y], i] : [[d2.x, d2.y], i+1]
 }
 
 export function _line_hit(xs: Arrayable<number>, ys: Arrayable<number>, ind: number): [[number, number], number] {
