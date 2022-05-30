@@ -54,21 +54,18 @@ export function _nearest_line_hit(i: number, geometry: Geometry,
   const d1 = {x: dx[i], y: dy[i]}
   const d2 = {x: dx[i+1], y: dy[i+1]}
 
-  let dist1: number
-  let dist2: number
-  if (geometry.type == "span") {
-    if (geometry.direction == "h") {
-      dist1 = Math.abs(d1.x - sx)
-      dist2 = Math.abs(d2.x - sx)
-    } else {
-      dist1 = Math.abs(d1.y - sy)
-      dist2 = Math.abs(d2.y - sy)
+  const [dist1, dist2] = (function() {
+    if (geometry.type == "span") {
+      if (geometry.direction == "h")
+        return [Math.abs(d1.x - sx), Math.abs(d2.x - sx)]
+      else
+        return [Math.abs(d1.y - sy), Math.abs(d2.y - sy)]
     }
-  } else {
     const s = {x: sx, y: sy}
-    dist1 = hittest.dist_2_pts(d1, s)
-    dist2 = hittest.dist_2_pts(d2, s)
-  }
+    const dist1 = hittest.dist_2_pts(d1, s)
+    const dist2 = hittest.dist_2_pts(d2, s)
+    return [dist1, dist2]
+  })()
 
   return dist1 < dist2 ? [[d1.x, d1.y], i] : [[d2.x, d2.y], i+1]
 }
@@ -381,22 +378,19 @@ export class HoverToolView extends InspectToolView {
         const tt_x = (glyph as any)._x?.[i]
         const tt_y = (glyph as any)._y?.[i]
 
-        let tt_sx: number
-        let tt_sy: number
-        if (this.model.point_policy == "snap_to_data") { // and renderer.glyph.sx? and renderer.glyph.sy?
-          // Pass in our screen position so we can determine which patch we're
-          // over if there are discontinuous patches.
-          let pt = glyph.get_anchor_point(this.model.anchor, i, [sx, sy])
-          if (pt == null) {
-            pt = glyph.get_anchor_point("center", i, [sx, sy])
-            if (pt == null)
-              continue // TODO?
+        const {point_policy, anchor}  = this.model
+        const [tt_sx, tt_sy] = (function() {
+          if (point_policy == "snap_to_data") {
+            const pt = glyph.get_anchor_point(anchor, i, [sx, sy])
+            if (pt != null)
+              return [pt.x,  pt.y]
+            const ptc = glyph.get_anchor_point("center", i, [sx, sy])
+            if (ptc != null)
+              return [ptc.x,  ptc.y]
+            return [sx, sy]
           }
-
-          tt_sx = pt.x
-          tt_sy = pt.y
-        } else
-          [tt_sx, tt_sy] = [sx, sy]
+          return [sx, sy]
+        })()
 
         const index = renderer.view.convert_indices_from_subset([i])[0]
 
