@@ -10,7 +10,6 @@ import {expect} from "assertions"
 import {display, fig} from "_util"
 
 
-
 async function make_testcase(): Promise<{hover_view: HoverToolView, data_source: ColumnDataSource}> {
   const plot = new Plot({
     x_range: new Range1d({start: -1, end: 1}),
