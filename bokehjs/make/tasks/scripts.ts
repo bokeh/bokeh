@@ -125,6 +125,13 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
     target: "ES2017",
     exports: ["tslib"],
     detect_cycles: argv.detectCycles as boolean | undefined,
+    overrides: {
+      // https://github.com/bokeh/bokeh/issues/12142
+      "mathjax-full/js/components/version.js": `\
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.VERSION = "0.0.0";
+`,
+    },
   })
 
   if (!argv.rebuild) linker.load_cache()

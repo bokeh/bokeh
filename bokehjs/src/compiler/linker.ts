@@ -236,6 +236,7 @@ export interface LinkerOpts {
   exports?: string[]
   shims?: string[]
   detect_cycles?: boolean
+  overrides?: {[key: string]: string}
 }
 
 export class Linker {
@@ -255,6 +256,7 @@ export class Linker {
   readonly exports: Set<string>
   readonly shims: Set<string>
   readonly detect_cycles: boolean
+  readonly overrides: Map<string, string>
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries.map((path) => resolve(path))
@@ -295,6 +297,8 @@ export class Linker {
 
     this.shims = new Set(opts.shims ?? [])
     this.detect_cycles = opts.detect_cycles ?? true
+
+    this.overrides = new Map(Object.entries(opts.overrides ?? {}))
   }
 
   is_external(dep: string): boolean {
@@ -661,6 +665,14 @@ export class Linker {
     if (source == null) {
       throw new BuildError("linker", `'${file} doesn't exist`)
     }
+
+    for (const [path, override] of this.overrides) {
+      if (file.endsWith(normalize(path))) {
+        source = override
+        break
+      }
+    }
+
     const hash = crypto.createHash("sha256").update(source).digest("hex")
     const type = (() => {
       switch (extname(file)) {
