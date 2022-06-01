@@ -1,10 +1,29 @@
-import {VisualProperties, VisualUniforms, ValuesOf} from "./visual"
+import {VisualProperties, VisualUniforms, ValuesOf, Renderable} from "./visual"
 import {uint32} from "../types"
 import * as p from "../properties"
 import * as mixins from "../property_mixins"
 import {FontStyle, TextAlign, TextBaseline} from "../enums"
 import {color2css} from "../util/color"
 import {Context2d} from "../util/canvas"
+
+const _font_cache: Map<string, WeakSet<Renderable>> = new Map()
+
+function load_font(font: string, obj: Renderable): void {
+  const objs = _font_cache.get(font)
+  if (objs == null) {
+    const objs = new WeakSet([obj])
+    _font_cache.set(font, objs)
+  } else if (!objs.has(obj)) {
+    objs.add(obj)
+  } else {
+    return
+  }
+
+  const {fonts} = document
+  if (!fonts.check(font)) {
+    fonts.load(font).then(() => obj.request_render())
+  }
+}
 
 export interface Text extends Readonly<mixins.Text> {}
 export class Text extends VisualProperties {
@@ -19,12 +38,8 @@ export class Text extends VisualProperties {
     if (!this.doit)
       return
 
-    const {fonts} = document
     const font = this.font_value()
-
-    if (!fonts.check(font)) {
-      fonts.load(font).then(() => this.obj.request_render())
-    }
+    load_font(font, this.obj)
   }
 
   Values: ValuesOf<mixins.Text>
@@ -80,12 +95,8 @@ export class TextScalar extends VisualUniforms {
     if (!this.doit)
       return
 
-    const {fonts} = document
     const font = this.font_value()
-
-    if (!fonts.check(font)) {
-      fonts.load(font).then(() => this.obj.request_render())
-    }
+    load_font(font, this.obj)
   }
 
   Values: ValuesOf<mixins.Text>
@@ -134,12 +145,8 @@ export class TextVector extends VisualUniforms {
   readonly text_line_height: p.Uniform<number>
 
   private _assert_font(i: number): void {
-    const {fonts} = document
     const font = this.font_value(i)
-
-    if (!fonts.check(font)) {
-      fonts.load(font).then(() => this.obj.request_render())
-    }
+    load_font(font, this.obj)
   }
 
   Values: ValuesOf<mixins.Text>
