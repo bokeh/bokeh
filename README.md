@@ -22,13 +22,13 @@
   <td>Downloads</td>
   <td>
     <div>
-    <a href="https://docs.bokeh.org/en/latest/docs/installation.html">
+    <a href="https://docs.bokeh.org/en/latest/docs/first_steps/installation.html">
     <img src="https://pyviz.org/_static/cache/bokeh_conda_downloads_badge.svg"
          alt="Conda downloads per month" />
     </a>
     </div>
     <div>
-    <a href="https://docs.bokeh.org/en/latest/docs/installation.html">
+    <a href="https://docs.bokeh.org/en/latest/docs/first_steps/installation.html">
     <img src="https://img.shields.io/pypi/dm/bokeh?label=PyPI&style=flat"
          alt="PyPI downloads per month" />
     </a>
