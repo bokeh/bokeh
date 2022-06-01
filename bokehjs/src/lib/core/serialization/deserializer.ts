@@ -3,7 +3,7 @@ import {type ModelResolver} from "../resolvers"
 import {ID, Attrs, PlainObject, TypedArray} from "../types"
 import {Ref, is_ref} from "../util/refs"
 import {ndarray, NDArray} from "../util/ndarray"
-import {entries} from "../util/object"
+import {entries, Dict} from "../util/object"
 import {map, every} from "../util/array"
 import {BYTE_ORDER} from "../util/platform"
 import {base64_to_buffer, swap} from "../util/buffer"
@@ -66,7 +66,6 @@ export class Deserializer {
     })()
 
     for (const instance of finalizable) {
-      instance.finalize_props()
       this.finalize?.(instance)
       instance.finalize()
     }
@@ -300,13 +299,11 @@ export class Deserializer {
     const {id, name: type, attributes} = obj
 
     const cls = this._resolve_type(type)
-    const instance = new cls({id})
+    const instance: HasProps = new cls({id})
     this.references.set(id, instance)
 
-    if (attributes != null) {
-      const decoded_attributes = this._decode(attributes) as Attrs
-      instance.setv(decoded_attributes, {silent: true})
-    }
+    const decoded_attributes = this._decode(attributes ?? {}) as Attrs
+    instance.initialize_props(new Dict(decoded_attributes))
 
     this._finalizable.add(instance)
     return instance
