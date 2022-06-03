@@ -12,8 +12,6 @@ export class FontAwesomeIconView extends AbstractIconView {
   }
 
   render(): void {
-    super.render()
-
     this.el.style.display = "inline"
     this.el.style.verticalAlign = "middle"
     this.el.style.fontSize = `${this.model.size}em`
