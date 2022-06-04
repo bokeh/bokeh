@@ -1195,7 +1195,7 @@ suppose that you have three Bokeh servers running on separate ports:
 The sections below propose basic configurations, but please also refer to the
 `Nginx load balancer documentation`_ or the `Apache proxy balancer module
 documentation`_. For instance, there are different strategies available for
-choosing how incoming connexions are distributed among instances.
+choosing how incoming connections are distributed among instances.
 
 Nginx
 '''''
@@ -1215,7 +1215,7 @@ following:
 
 The rest of the configuration uses the name ``myapp`` to refer to the above
 ``upstream`` stanza, which lists the internal connection information for the
-three Bokeh server instances (each running on a different port).
+three Bokeh server instances.
 
 Next, in the ``location`` stanza for the Bokeh server, change the
 ``proxy_pass`` value to refer to the ``upstream`` stanza above. The
@@ -1242,8 +1242,8 @@ code below uses ``proxy_pass http://myapp;``.
 Apache
 ''''''
 
-First make sure you have enabled the ``proxy_balancer`` module. Then you need to
-add balancers for both http and websocket protocols.
+First make sure you have enabled the ``proxy_balancer`` and ``rewrite``
+modules. Then you need to add balancers for both http and websocket protocols.
 
 .. code-block :: apache
 
@@ -1261,7 +1261,7 @@ add balancers for both http and websocket protocols.
         ProxySet lbmethod=byrequests
     </Proxy>
 
-Finally you can proxy connexions to the two balancers:
+Finally you can proxy connections to the two balancers:
 
 .. code-block:: apache
 
