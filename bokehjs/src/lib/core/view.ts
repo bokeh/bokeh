@@ -16,8 +16,11 @@ export namespace View {
   export type Options = {
     model: HasProps
     parent: View | null
+    owner?: ViewManager
   }
 }
+
+export type IterViews<T extends View = View> = Generator<T, void, undefined>
 
 export class View implements ISignalable {
   readonly removed = new Signal0<this>(this, "removed")
@@ -27,10 +30,14 @@ export class View implements ISignalable {
   readonly parent: View | null
   readonly root: View
 
+  readonly owner: ViewManager
+
   protected _ready: Promise<void> = Promise.resolve(undefined)
   get ready(): Promise<void> {
     return this._ready
   }
+
+  *children(): IterViews {}
 
   protected _has_finished: boolean
 
@@ -58,10 +65,18 @@ export class View implements ISignalable {
   }
 
   constructor(options: View.Options) {
-    const {model, parent} = options
+    const {model, parent, owner} = options
+
     this.model = model
     this.parent = parent
-    this.root = parent == null ? this : parent.root
+
+    if (parent == null) {
+      this.root = this
+      this.owner = owner ?? new ViewManager([this])
+    } else {
+      this.root = parent.root
+      this.owner = this.root.owner
+    }
   }
 
   initialize(): void {
@@ -127,5 +142,36 @@ export class View implements ISignalable {
         }
       }
     }
+  }
+}
+
+export class ViewManager {
+  constructor(readonly roots: View[]) {}
+
+  *find<T extends HasProps>(model: T): IterViews<ViewOf<T>> {
+    function *descend(view: View): IterViews {
+      if (view.model == model) {
+        yield view
+      } else {
+        for (const child of view.children()) {
+          yield* descend(child)
+        }
+      }
+    }
+
+    for (const root of this.roots) {
+      yield* descend(root)
+    }
+  }
+
+  find_one<T extends HasProps>(model: T): ViewOf<T> | null {
+    for (const view of this.find(model)) {
+      return view
+    }
+    return null
+  }
+
+  find_all<T extends HasProps>(model: T): ViewOf<T>[] {
+    return [...this.find(model)]
   }
 }
