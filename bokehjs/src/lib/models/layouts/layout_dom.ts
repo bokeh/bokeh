@@ -1,4 +1,5 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
+import {IterViews} from "core/view"
 import {Signal} from "core/signaling"
 import {Color} from "core/types"
 import {Align, SizingMode} from "core/enums"
@@ -135,6 +136,11 @@ export abstract class LayoutDOMView extends UIElementView {
 
   override styles(): string[] {
     return [...super.styles(), ...this.model.stylesheets]
+  }
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield* this.child_views
   }
 
   abstract get child_models(): LayoutDOM[]

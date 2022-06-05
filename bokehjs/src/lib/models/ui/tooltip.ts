@@ -4,6 +4,7 @@ import {Anchor, VAlign, HAlign, TooltipAttachment} from "core/enums"
 import {div, bounding_box} from "core/dom"
 import {DOMElementView} from "core/dom_view"
 import {isString} from "core/util/types"
+import {logger} from "core/logging"
 import * as p from "core/properties"
 
 import tooltips_css, * as tooltips from "styles/tooltips.css"
@@ -26,7 +27,7 @@ export class TooltipView extends UIElementView {
     const {target} = this.model
     const el = (() => {
       if (target instanceof UIElement) {
-        return this.owner.find_one(target)?.el
+        return this.owner.find_one(target)?.el ?? null
       } else if (target instanceof Selector) {
         return target.find_one(document)
       } else if (target instanceof Node) {
@@ -39,8 +40,10 @@ export class TooltipView extends UIElementView {
 
     if (el instanceof Element)
       this._target = el
-    else
-      this._target = document.documentElement
+    else {
+      logger.warn(`unable to resolve target '${target}' for '${this}'`)
+      this._target = document.body
+    }
   }
 
   override initialize(): void {
@@ -143,7 +146,8 @@ export class TooltipView extends UIElementView {
       return
     }
 
-    this.target.appendChild(this.el)
+    const target_el = this.target.shadowRoot ?? this.target
+    target_el.appendChild(this.el)
 
     const bbox = bounding_box(this.target).relative()
     const [sx, sy] = (() => {

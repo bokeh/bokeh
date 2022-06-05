@@ -71,10 +71,16 @@ date_range_slider = DateRangeSlider(value=(date(2016, 1, 1), date(2016, 12, 31))
 spinner = Spinner(value=100)
 
 tooltip_0 = Tooltip(content="""\
+<b>Click</b> on arrows to increment/decrement the value or
+<br>
+<b>press</b> for quicker updates with a value multiplier (currently ???).
+""", position="right", target=spinner, closable=True, visible=True)
+
+tooltip_1 = Tooltip(content="""\
 Your <b>choice</b> of color.<br>See more in bokeh's <a href="https://docs.bokeh.org/en/latest/">docs</a>.
 """, position="right")
 
-color_picker = ColorPicker(color="red", title="Choose color:", description=tooltip_0)
+color_picker = ColorPicker(color="red", title="Choose color:", description=tooltip_1)
 
 date_picker = DatePicker(value=date(2017, 8, 1))
 
@@ -153,7 +159,7 @@ widgets = Column(children=[
     table,
 ])
 
-tooltip_1 = Tooltip(content="""\
+tooltip_2 = Tooltip(content="""\
 This example shows all widgets available in bokeh.<br>To learn more about using widgets, see bokeh's
 <a href="https://docs.bokeh.org/en/latest/docs/user_guide/interaction/widgets.html">documentation</a>
 regarding this topic.
@@ -161,7 +167,8 @@ regarding this topic.
 
 doc = Document()
 doc.add_root(widgets)
-doc.add_root(tooltip_1)
+doc.add_root(tooltip_0)
+doc.add_root(tooltip_2)
 
 if __name__ == "__main__":
     doc.validate()
