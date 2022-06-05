@@ -58,7 +58,7 @@ from .tickers import *
 from .tiles import *
 from .tools import *
 from .transforms import *
-from .ui import *  # lgtm [py/polluting-import]
+from .ui import *
 from .widgets import *  # lgtm [py/polluting-import]
 
 #-----------------------------------------------------------------------------
