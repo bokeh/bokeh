@@ -16,6 +16,19 @@ export class StepView extends XYGlyphView {
   override model: Step
   override visuals: Step.Visuals
 
+  /** @internal */
+  override glglyph?: import("./webgl/step").StepGL
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {webgl} = this.renderer.plot_view.canvas_view
+    if (webgl != null && webgl.regl_wrapper.has_webgl) {
+      const {StepGL} = await import("./webgl/step")
+      this.glglyph = new StepGL(webgl.regl_wrapper, this)
+    }
+  }
+
   protected _render(ctx: Context2d, indices: number[], data?: StepData): void {
     const {sx, sy} = data ?? this
 
