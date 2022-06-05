@@ -244,6 +244,13 @@ This static initializer was added automatically by bokehjs' build system and
 extensions' compiler. This isn't needed anymore as TypeScript supports ES2022
 static initialization blocks (``static {}``).
 
+``embed_items()`` and related functions
+.......................................
+
+Embedding functions now return an instance of ``ViewManager``, instead of a
+list of constructed views. For backwards compatibility, ``ViewManager``
+supports iterator protocol.
+
 Protocol changes
 ~~~~~~~~~~~~~~~~
 

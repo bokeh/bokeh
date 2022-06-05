@@ -146,7 +146,31 @@ export class View implements ISignalable {
 }
 
 export class ViewManager {
-  constructor(readonly roots: View[]) {}
+  readonly roots: Set<View>
+
+  constructor(roots: View[] = []) {
+    this.roots = new Set(roots)
+  }
+
+  get<T extends HasProps>(model: T): ViewOf<T> | null {
+    for (const view of this.roots) {
+      if (view.model == model)
+        return view
+    }
+    return null
+  }
+
+  add(view: View): void {
+    this.roots.add(view)
+  }
+
+  delete(view: View): void {
+    this.roots.delete(view)
+  }
+
+  *[Symbol.iterator](): IterViews {
+    yield* this.roots
+  }
 
   *find<T extends HasProps>(model: T): IterViews<ViewOf<T>> {
     function *descend(view: View): IterViews {
