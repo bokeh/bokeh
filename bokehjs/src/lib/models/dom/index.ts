@@ -10,7 +10,6 @@ import {View} from "core/view"
 import * as styles from "styles/tooltips.css"
 import {Model} from "../../model"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
-/////
 import {RendererGroup} from "../renderers/renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Styles} from "./styles"
