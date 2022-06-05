@@ -99,7 +99,7 @@ export abstract class InputWidgetView extends ControlView {
           const path = event.composedPath()
           if (path.includes(description.el)) {
             return
-          } else if (path.includes(this.el)) {
+          } else if (path.includes(desc_el)) {
             persistent = !persistent
             toggle(persistent)
           } else {
