@@ -109,10 +109,7 @@ export class IndexView extends PlaceholderView {
   override model: Index
 
   update(_source: ColumnarDataSource, i: DataIndex | null, _vars: object/*, formatters?: Formatters*/): void {
-    if (i == null)
-      this.el.textContent = "(null)"
-    else
-      this.el.textContent = i.toString()
+    this.el.textContent = i == null ? "(null)" : i.toString()
   }
 }
 
