@@ -13,7 +13,7 @@ from datetime import date
 
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup,
+from bokeh.models import (AutocompleteInput, Button, ByCSS, CheckboxButtonGroup,
                           CheckboxGroup, ColorPicker, Column, ColumnDataSource,
                           DataTable, DatePicker, DateRangeSlider, DateSlider, Div,
                           Dropdown, IntEditor, MultiChoice, MultiSelect, NumberEditor,
@@ -70,11 +70,11 @@ date_range_slider = DateRangeSlider(value=(date(2016, 1, 1), date(2016, 12, 31))
 
 spinner = Spinner(value=100)
 
-tooltip = Tooltip(content="""\
+tooltip_0 = Tooltip(content="""\
 Your <b>choice</b> of color.<br>See more in bokeh's <a href="https://docs.bokeh.org/en/latest/">docs</a>.
 """, position="right")
 
-color_picker = ColorPicker(color="red", title="Choose color:", description=tooltip)
+color_picker = ColorPicker(color="red", title="Choose color:", description=tooltip_0)
 
 date_picker = DatePicker(value=date(2017, 8, 1))
 
@@ -153,8 +153,15 @@ widgets = Column(children=[
     table,
 ])
 
+tooltip_1 = Tooltip(content="""\
+This example shows all widgets available in bokeh.<br>To learn more about using widgets, see bokeh's
+<a href="https://docs.bokeh.org/en/latest/docs/user_guide/interaction/widgets.html">documentation</a>
+regarding this topic.
+""", position="top", attachment="below", target=ByCSS("body"), closable=True, visible=True)
+
 doc = Document()
 doc.add_root(widgets)
+doc.add_root(tooltip_1)
 
 if __name__ == "__main__":
     doc.validate()

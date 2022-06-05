@@ -1,20 +1,52 @@
 import {UIElement, UIElementView} from "./ui_element"
+import {Selector} from "../selectors/selector"
 import {Anchor, VAlign, HAlign, TooltipAttachment} from "core/enums"
 import {div, bounding_box} from "core/dom"
-import {DOMView} from "core/dom_view"
+import {DOMElementView} from "core/dom_view"
 import {isString} from "core/util/types"
 import * as p from "core/properties"
 
 import tooltips_css, * as tooltips from "styles/tooltips.css"
+import icons_css from "styles/icons.css"
 
 const arrow_size = 10  // XXX: keep in sync with less
 
 export class TooltipView extends UIElementView {
   override model: Tooltip
-  override parent: DOMView
 
   protected content_el: HTMLElement
   protected _observer: ResizeObserver
+
+  private _target: Element
+  get target(): Element {
+    return this._target
+  }
+
+  protected _init_target(): void {
+    const {target} = this.model
+    const el = (() => {
+      if (target instanceof UIElement) {
+        return this.owner.find_one(target)?.el
+      } else if (target instanceof Selector) {
+        return target.find_one(document)
+      } else if (target instanceof Node) {
+        return target
+      } else {
+        const {parent} = this
+        return parent instanceof DOMElementView ? parent.el : null
+      }
+    })()
+
+    if (el instanceof Element)
+      this._target = el
+    else
+      this._target = document.documentElement
+  }
+
+  override initialize(): void {
+    super.initialize()
+    this._init_target()
+  }
 
   override connect_signals(): void {
     super.connect_signals()
@@ -22,9 +54,11 @@ export class TooltipView extends UIElementView {
     this._observer = new ResizeObserver(() => {
       this._reposition()
     })
+    this._observer.observe(this.target)
 
     const {target, content, closable, interactive, position, attachment, visible} = this.model.properties
     this.on_change(target, () => {
+      this._init_target()
       this._observer.disconnect()
       this._observer.observe(this.target)
       this.render()
@@ -39,11 +73,7 @@ export class TooltipView extends UIElementView {
   }
 
   override styles(): string[] {
-    return [...super.styles(), tooltips_css]
-  }
-
-  get target(): Element {
-    return this.model.target ?? (this.parent.el as any) // TODO: parent: DOMElementView from PR #11915
+    return [...super.styles(), tooltips_css, icons_css]
   }
 
   override render(): void {
@@ -175,26 +205,27 @@ export class TooltipView extends UIElementView {
     let left: number | null = null
     let right: number | null = null
 
+    const {width, height} = bounding_box(this.el)
     switch (side) {
       case "right":
         this.el.classList.add(tooltips.left)
-        left = sx + (this.el.offsetWidth - this.el.clientWidth) + arrow_size
-        top = sy - this.el.offsetHeight/2
+        left = sx + (width - this.el.clientWidth) + arrow_size
+        top = sy - height/2
         break
       case "left":
         this.el.classList.add(tooltips.right)
         right = (bbox.width - sx) + arrow_size
-        top = sy - this.el.offsetHeight/2
+        top = sy - height/2
         break
       case "below":
         this.el.classList.add(tooltips.above)
-        top = sy + (this.el.offsetHeight - this.el.clientHeight) + arrow_size
-        left = Math.round(sx - this.el.offsetWidth/2)
+        top = sy + (height - this.el.clientHeight) + arrow_size
+        left = Math.round(sx - width/2)
         break
       case "above":
         this.el.classList.add(tooltips.below)
-        top = sy - this.el.offsetHeight - arrow_size
-        left = Math.round(sx - this.el.offsetWidth/2)
+        top = sy - height - arrow_size
+        left = Math.round(sx - width/2)
         break
     }
 
@@ -208,14 +239,13 @@ export namespace Tooltip {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = UIElement.Props & {
+    target: p.Property<UIElement | Selector | Node | "auto">
     position: p.Property<Anchor | [number, number] | null>
     content: p.Property<string | Node>
     attachment: p.Property<TooltipAttachment | "auto">
     show_arrow: p.Property<boolean>
     closable: p.Property<boolean>
     interactive: p.Property<boolean>
-    /** @internal */
-    target: p.Property<Node | null>
   }
 }
 
@@ -233,16 +263,13 @@ export class Tooltip extends UIElement {
     this.prototype.default_view = TooltipView
 
     this.define<Tooltip.Props>(({Boolean, Number, String, Tuple, Or, Ref, Nullable, Auto}) => ({
+      target: [ Or(Ref(UIElement), Ref(Selector), Ref(Node), Auto), "auto" ],
       position: [ Nullable(Or(Anchor, Tuple(Number, Number))), null ],
       content: [ Or(String, Ref(Node)) ],
       attachment: [ Or(TooltipAttachment, Auto), "auto" ],
       show_arrow: [ Boolean, true ],
       closable: [ Boolean, false ],
       interactive: [ Boolean, true ],
-    }))
-
-    this.internal<Tooltip.Props>(({Ref, Nullable}) => ({
-      target: [ Nullable(Ref(Node)), null ],
     }))
 
     this.override<Tooltip.Props>({

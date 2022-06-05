@@ -28,12 +28,14 @@ from ...core.properties import (
     Either,
     Enum,
     Float,
+    Instance,
     NonNullable as Required,
     Nullable,
     Override,
     String,
     Tuple,
 )
+from ..selectors import Selector
 from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------
@@ -63,6 +65,12 @@ class Tooltip(UIElement):
     The position of the tooltip with respect to its parent. It can be either
     an absolute position within the parent or an anchor point for symbolic
     positioning.
+    """)
+
+    target = Either(Instance(UIElement), Instance(Selector), Auto, default="auto", help="""
+    Tooltip can be manually attached to a target UI element or a DOM node
+    (referred to by a selector, e.g. CSS selector or XPath), or it's
+    attachment can be inferred from its parent in ``"auto"`` mode.
     """)
 
     content = Required(String, help="""
