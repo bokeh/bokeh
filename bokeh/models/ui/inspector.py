@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..layouts import HTMLBox
+from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -39,7 +39,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Inspector(HTMLBox):
+class Inspector(UIElement):
     """ A diagnostic and inspection tool for documents, models, properties, etc. """
 
     # explicit __init__ to support Init signatures

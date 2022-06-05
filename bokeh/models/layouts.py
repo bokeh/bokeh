@@ -57,6 +57,7 @@ from ..core.validation.warnings import (
     FIXED_WIDTH_POLICY,
 )
 from ..model import Model
+from .ui.ui_element import UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -79,7 +80,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class LayoutDOM(Model):
+class LayoutDOM(UIElement):
     """ The base class for layoutable components.
 
     """
@@ -92,10 +93,6 @@ class LayoutDOM(Model):
     Whether the widget will be disabled when rendered.
 
     If ``True``, the widget will be greyed-out and not responsive to UI events.
-    """)
-
-    visible = Bool(True, help="""
-    Whether the component will be visible and a part of a layout.
     """)
 
     width: int | None = Nullable(NonNegativeInt, help="""

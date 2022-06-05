@@ -1,4 +1,4 @@
-import {HTMLBox, HTMLBoxView} from "../layouts/html_box"
+import {UIElement, UIElementView} from "./ui_element"
 import * as p from "core/properties"
 import {HasProps} from "core/has_props"
 import {div, span, input, empty, Keys} from "core/dom"
@@ -139,7 +139,7 @@ export class HTMLPrinter {
   }
 }
 
-export class InspectorView extends HTMLBoxView {
+export class InspectorView extends UIElementView {
   override model: Inspector
 
   override initialize(): void {
@@ -155,7 +155,6 @@ export class InspectorView extends HTMLBoxView {
   private watched_props: Set<p.Property> = new Set()
 
   override render(): void {
-    super.render()
     this.empty()
 
     if (this.prev_listener != null)
@@ -428,14 +427,12 @@ export class InspectorView extends HTMLBoxView {
 
 export namespace Inspector {
   export type Attrs = p.AttrsOf<Props>
-
-  export type Props = HTMLBox.Props & {
-  }
+  export type Props = UIElement.Props
 }
 
 export interface Inspector extends Inspector.Attrs {}
 
-export class Inspector extends HTMLBox {
+export class Inspector extends UIElement {
   override properties: Inspector.Props
   override __view_type__: InspectorView
 

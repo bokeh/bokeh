@@ -28,7 +28,7 @@ from ..core.properties import (
     Either,
     Instance,
     List,
-    NonNullable,
+    NonNullable as Required,
     Nullable,
     String,
 )
@@ -154,7 +154,7 @@ class ValueRef(Placeholder):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    field = NonNullable(String)
+    field = Required(String)
 
 class ColorRef(ValueRef):
 

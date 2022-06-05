@@ -1,4 +1,4 @@
-import {Model} from "../../model"
+import {UIElement, UIElementView} from "../ui/ui_element"
 import {Signal} from "core/signaling"
 import {Color} from "core/types"
 import {Align, SizingMode} from "core/enums"
@@ -16,7 +16,7 @@ import {SizingPolicy, BoxSizing, Size, Layoutable} from "core/layout"
 import {CanvasLayer} from "core/util/canvas"
 import {SerializableState} from "core/view"
 
-export abstract class LayoutDOMView extends DOMComponentView {
+export abstract class LayoutDOMView extends UIElementView {
   override model: LayoutDOM
 
   override root: LayoutDOMView
@@ -415,7 +415,7 @@ export type CSSInlineStyle = FilterStrings<CSSStyleDeclaration>
 export namespace LayoutDOM {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {
+  export type Props = UIElement.Props & {
     width: p.Property<number | null>
     height: p.Property<number | null>
     min_width: p.Property<number | null>
@@ -427,7 +427,6 @@ export namespace LayoutDOM {
     height_policy: p.Property<SizingPolicy | "auto">
     aspect_ratio: p.Property<number | "auto" | null>
     sizing_mode: p.Property<SizingMode | null>
-    visible: p.Property<boolean>
     disabled: p.Property<boolean>
     align: p.Property<Align | [Align, Align]>
     background: p.Property<Color | null>
@@ -439,7 +438,7 @@ export namespace LayoutDOM {
 
 export interface LayoutDOM extends LayoutDOM.Attrs {}
 
-export abstract class LayoutDOM extends Model {
+export abstract class LayoutDOM extends UIElement {
   override properties: LayoutDOM.Props
   override __view_type__: LayoutDOMView
 
@@ -464,7 +463,6 @@ export abstract class LayoutDOM extends Model {
         height_policy: [ Or(SizingPolicy, Auto), "auto" ],
         aspect_ratio:  [ Or(Number, Auto, Null), null ],
         sizing_mode:   [ Nullable(SizingMode), null ],
-        visible:       [ Boolean, true ],
         disabled:      [ Boolean, false ],
         align:         [ Or(Align, Tuple(Align, Align)), "start" ],
         background:    [ Nullable(Color), null ],

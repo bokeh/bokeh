@@ -14,6 +14,8 @@ export namespace UIElement {
   }
 }
 
+export interface UIElement extends UIElement.Attrs {}
+
 export abstract class UIElement extends Model {
   override properties: UIElement.Props
   override __view_type__: UIElementView
