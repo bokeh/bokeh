@@ -1265,7 +1265,7 @@ Add balancers for both http and websocket protocols:
         ProxySet lbmethod=byrequests
     </Proxy>
 
-Finally you can proxy connections to the two balancers:
+Finally, you can proxy connections to the two balancers:
 
 .. code-block:: apache
 
