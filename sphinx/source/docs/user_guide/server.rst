@@ -1183,8 +1183,9 @@ distributed among individual servers.
     The Bokeh server is horizontally scalable. To add more capacity, you
     can run more servers behind a load balancer.
 
-You can run as many Bokeh servers as you need. In the following, let us
-suppose that you have three Bokeh servers running on separate ports:
+You can run as many Bokeh servers as you need. The following examples
+are based on a setup with three Bokeh servers running on three different
+ports:
 
 .. code-block:: sh
 
