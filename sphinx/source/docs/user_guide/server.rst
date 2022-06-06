@@ -1245,7 +1245,9 @@ Apache
 ''''''
 
 First, make sure you have enabled the ``proxy_balancer`` and ``rewrite``
-modules. Then you need to add balancers for both http and websocket protocols.
+modules. 
+
+Add balancers for both http and websocket protocols:
 
 .. code-block :: apache
 
