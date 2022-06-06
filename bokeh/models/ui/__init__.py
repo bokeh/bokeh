@@ -20,15 +20,20 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from . import inspector, tooltips
+from . import inspector, menus, tooltips
 from .inspector import *
+from .menus import *
 from .tooltips import *
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-__all__ = inspector.__all__ + tooltips.__all__
+__all__ = (
+    inspector.__all__ +
+    menus.__all__ +
+    tooltips.__all__
+)
 
 #-----------------------------------------------------------------------------
 # General API

@@ -1,4 +1,12 @@
-import {range, reversed} from "./array"
+import {range} from "./array"
+
+export function *reverse<T>(array: T[]): Iterable<T> {
+  const n = array.length
+
+  for (let i = 0; i < n; i++) {
+    yield array[n - i - 1]
+  }
+}
 
 export function* enumerate<T>(seq: Iterable<T>): Iterable<[T, number]> {
   let i = 0
@@ -71,7 +79,7 @@ export function* combinations<T>(seq: T[], r: number): Iterable<T[]> {
   yield indices.map((i) => seq[i])
   while (true) {
     let k: number | undefined
-    for (const i of reversed(range(r))) {
+    for (const i of reverse(range(r))) {
       if (indices[i] != i + n - r) {
         k = i
         break
