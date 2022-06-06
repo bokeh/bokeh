@@ -1193,10 +1193,11 @@ ports:
     bokeh serve myapp.py --port 5101
     bokeh serve myapp.py --port 5102
 
-The sections below propose basic configurations, but please also refer to the
+The sections below propose basic configurations based on this setup. See the
 `Nginx load balancer documentation`_ or the `Apache proxy balancer module
-documentation`_. For instance, there are different strategies available for
-choosing how incoming connections are distributed among instances.
+documentation`_ for more detailed information. For instance, there are
+different strategies available to define how incoming connections are
+distributed among server instances.
 
 Nginx
 '''''
