@@ -8,7 +8,7 @@
 
 License: `CC BY-ND 4.0`_
 
-Source from http://ftp.cs.stanford.edu/pub/sgb/jean.dat
+Sourced from http://ftp.cs.stanford.edu/pub/sgb/jean.dat
 
 This module contains one dictionary: ``data``.
 
