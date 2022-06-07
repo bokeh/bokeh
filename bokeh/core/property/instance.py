@@ -166,6 +166,8 @@ def _sphinx_type_link(obj: Instance[Any]) -> str:
     # yet fully defined at this point) Model
     if isinstance(obj._instance_type, types.FunctionType):
         return f"{property_link(obj)}"
+    if isinstance(obj._instance_type, str):
+        return f"{property_link(obj)}({obj._instance_type!r})"
 
     model = obj.instance_type
     model_name = f"{model.__module__}.{model.__name__}"
