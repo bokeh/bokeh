@@ -155,10 +155,7 @@ export class HoverToolView extends InspectToolView {
       }
     }
 
-    const views = await build_views(this._ttviews, [...ttmodels.values()], {parent: this.plot_view})
-    for (const ttview of views) {
-      ttview.render()
-    }
+    await build_views(this._ttviews, [...ttmodels.values()], {parent: this.plot_view})
 
     const glyph_renderers = [...(function* () {
       for (const r of computed_renderers) {

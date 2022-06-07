@@ -49,6 +49,7 @@ export class TooltipView extends UIElementView {
   override initialize(): void {
     super.initialize()
     this._init_target()
+    this.render()
   }
 
   override connect_signals(): void {
