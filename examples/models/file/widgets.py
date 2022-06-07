@@ -22,6 +22,7 @@ from bokeh.models import (AutocompleteInput, Button, ByCSS, CheckboxButtonGroup,
                           RangeSlider, Row, Select, SelectEditor, Slider, Spinner,
                           StringEditor, StringFormatter, Switch, TableColumn,
                           Tabs, TextAreaInput, TextInput, Toggle, Tooltip)
+from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
 from bokeh.sampledata.autompg2 import autompg2 as mpg
@@ -71,15 +72,17 @@ date_range_slider = DateRangeSlider(value=(date(2016, 1, 1), date(2016, 12, 31))
 
 spinner = Spinner(value=100)
 
-tooltip_0 = Tooltip(content="""\
+page_step_multiplier = ValueOf(obj=spinner, attr="page_step_multiplier")
+
+tooltip_0 = Tooltip(content=HTML(f"""\
 <b>Click</b> on arrows to increment/decrement the value or
 <br>
-<b>press</b> for quicker updates with a value multiplier (currently ???).
-""", position="right", target=spinner, closable=True, visible=True)
+<b>press</b> for quicker updates with a value multiplier (currently <ref id="{page_step_multiplier.id}"></ref>).
+""", refs=[page_step_multiplier]), position="right", target=spinner, closable=True, visible=True)
 
-tooltip_1 = Tooltip(content="""\
+tooltip_1 = Tooltip(content=HTML("""\
 Your <b>choice</b> of color.<br>See more in bokeh's <a href="https://docs.bokeh.org/en/latest/">docs</a>.
-""", position="right")
+"""), position="right")
 
 color_picker = ColorPicker(color="red", title="Choose color:", description=tooltip_1)
 
@@ -89,11 +92,11 @@ switch_0 = Switch(active=False)
 
 switch_1 = Switch(active=True, context_menu=Menu())
 
-switch_help = HelpButton(tooltip=Tooltip(content="""
+switch_help = HelpButton(tooltip=Tooltip(content=HTML("""
 This is an <b>on</b> or <b>off</b> style of widget.
 <br>
 Right click on the widget to display the context menu.
-""", position="right"))
+"""), position="right"))
 
 paragraph = Paragraph(text="some text")
 
@@ -166,11 +169,11 @@ widgets = Column(children=[
     table,
 ])
 
-tooltip_2 = Tooltip(content="""\
+tooltip_2 = Tooltip(content=HTML("""\
 This example shows all widgets available in bokeh.<br>To learn more about using widgets, see bokeh's
 <a href="https://docs.bokeh.org/en/latest/docs/user_guide/interaction/widgets.html">documentation</a>
 regarding this topic.
-""", position="top", attachment="below", target=ByCSS("body"), closable=True, visible=True)
+"""), position="top", attachment="below", target=ByCSS("body"), closable=True, visible=True)
 
 doc = Document()
 doc.add_root(widgets)

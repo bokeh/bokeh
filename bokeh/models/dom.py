@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.has_props import abstract
+from ..core.has_props import HasProps, abstract
 from ..core.properties import (
     Bool,
     Dict,
@@ -32,21 +32,24 @@ from ..core.properties import (
     Nullable,
     String,
 )
+from ..core.property.bases import Init
+from ..core.property.singletons import Intrinsic
 from ..model import Model, Qualified
 from .css import Styles
-from .layouts import LayoutDOM
 from .renderers import RendererGroup
+from .ui.ui_element import UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "Text",
-    "Span",
     "Div",
+    "HTML",
+    "Span",
     "Table",
     "TableRow",
+    "Text",
 )
 
 #-----------------------------------------------------------------------------
@@ -80,7 +83,7 @@ class DOMElement(DOMNode):
 
     style = Nullable(Either(Instance(Styles), Dict(String, String)))
 
-    children = List(Either(String, Instance(DOMNode), Instance(LayoutDOM)), default=[])
+    children = List(Either(String, Instance(DOMNode), Instance(UIElement)), default=[])
 
 class Span(DOMElement):
 
@@ -142,6 +145,21 @@ class Placeholder(DOMNode):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+class ValueOf(Placeholder):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    obj = Required(Instance(HasProps), help="""
+    """)
+
+    attr = Required(String, help="""
+    """)
+
+    # TODO: validation
+
 class Index(Placeholder):
 
     # explicit __init__ to support Init signatures
@@ -164,6 +182,25 @@ class ColorRef(ValueRef):
 
     hex = Bool(default=True)
     swatch = Bool(default=True)
+
+class HTML(Model, Qualified):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, html: Init[str | list[str | DOMNode | UIElement]] = Intrinsic, **kwargs) -> None:
+        super().__init__(html=html, **kwargs)
+
+    html = Required(Either(String, List(Either(String, Instance(DOMNode), Instance(UIElement)))), help="""
+    Either a parsed HTML string with optional refereces to bokeh objects using
+    ``<ref id="..."></ref>`` syntax. Or a list of parsed HTML interleaved with
+    bokeh's objects. Any DOM node or UI element (event a plot) can be referenced
+    here.
+    """)
+
+    refs = List(Either(String, Instance(DOMNode), Instance(UIElement)), default=[], help="""
+    A collection of objected refereced by ``<ref id="..."></ref>`` from ``html`` property.
+    Object already included by instance in ``html`` don't have to be repreated here.
+    """)
 
 #-----------------------------------------------------------------------------
 # Dev API

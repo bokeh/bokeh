@@ -94,7 +94,7 @@ class Instance(Property[T]):
         return True
 
     @property
-    def instance_type(self) -> Type[Serializable]:
+    def instance_type(self) -> Type[T]:
         instance_type: Type[Serializable]
         if isinstance(self._instance_type, type):
             instance_type = self._instance_type

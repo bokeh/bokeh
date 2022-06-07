@@ -1,19 +1,21 @@
-import {build_views, remove_views} from "core/build_views"
-import {span} from "core/dom"
+import {Model} from "../../model"
+import {UIElement, UIElementView} from "../ui/ui_element"
+import {Styles} from "./styles"
+import {HasProps} from "core/has_props"
+import {span, empty} from "core/dom"
+import {View} from "core/view"
 import {DOMView} from "core/dom_view"
+import {build_views, remove_views, ViewStorage} from "core/build_views"
 import * as p from "core/properties"
 import {enumerate} from "core/util/iterator"
 import {entries} from "core/util/object"
 import {Index as DataIndex, _get_column_value} from "core/util/templating"
 import {isString} from "core/util/types"
-import {View} from "core/view"
-import * as styles from "styles/tooltips.css"
-import {Model} from "../../model"
-import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {RendererGroup} from "../renderers/renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Styles} from "./styles"
-
+import {to_string} from "core/util/pretty"
+import {assert} from "core/util/assert"
+import * as styles from "styles/tooltips.css"
 
 export {Styles}
 
@@ -225,11 +227,11 @@ export abstract class DOMElementView extends DOMNodeView {
   override model: DOMElement
   override el: HTMLElement
 
-  child_views: Map<DOMNode | LayoutDOM, DOMNodeView | LayoutDOMView> = new Map()
+  child_views: Map<DOMNode | UIElement, DOMNodeView | UIElementView> = new Map()
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    const children = this.model.children.filter((obj): obj is DOMNode | LayoutDOM => obj instanceof Model)
+    const children = this.model.children.filter((obj): obj is DOMNode | UIElement => obj instanceof Model)
     await build_views(this.child_views, children, {parent: this})
   }
 
@@ -279,7 +281,7 @@ export namespace DOMElement {
   export type Attrs = p.AttrsOf<Props>
   export type Props = DOMNode.Props & {
     style: p.Property<Styles | {[key: string]: string} | null>
-    children: p.Property<(string | DOMNode | LayoutDOM)[]>
+    children: p.Property<(string | DOMNode | UIElement)[]>
   }
 }
 
@@ -296,7 +298,7 @@ export abstract class DOMElement extends DOMNode {
   static {
     this.define<DOMElement.Props>(({String, Array, Dict, Or, Nullable, Ref}) => ({
       style: [ Nullable(Or(Ref(Styles), Dict(String))), null ],
-      children: [ Array(Or(String, Ref(DOMNode), Ref(LayoutDOM))), [] ],
+      children: [ Array(Or(String, Ref(DOMNode), Ref(UIElement))), [] ],
     }))
   }
 }
@@ -486,3 +488,144 @@ export class X extends Y {
   }
 }
 */
+
+export class HTMLView extends DOMNodeView {
+  override model: HTML
+  override el: HTMLElement
+
+  protected _refs: ViewStorage<DOMNode | UIElement> = new Map()
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    await build_views(this._refs, this.model.refs)
+  }
+
+  render(): void {
+    empty(this.el)
+    this.el.style.display = "contents"
+
+    const parser = new DOMParser()
+
+    const nodes = (() => {
+      const {html} = this.model
+      if (isString(html)) {
+        const document = parser.parseFromString(html, "text/html")
+
+        const iter = document.createNodeIterator(document, NodeFilter.SHOW_ELEMENT, (node) => {
+          return node.nodeName.toLowerCase() == "ref" ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+        })
+
+        let node: Node | null
+        while (node = iter.nextNode()) {
+          assert(node instanceof Element)
+
+          const id = node.getAttribute("id")
+          if (id != null) {
+            for (const [model, view] of this._refs) {
+              if (model.id == id) {
+                view.render()
+                node.replaceWith(view.el)
+                break
+              }
+            }
+          }
+        }
+
+        return [...document.body.childNodes]
+      } else {
+        return [] // TODO
+      }
+    })()
+
+    for (const node of nodes) {
+      this.el.appendChild(node)
+    }
+  }
+}
+
+export namespace HTML {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = DOMNode.Props & {
+    html: p.Property<string | (string | DOMNode | UIElement)[]>
+    refs: p.Property<(DOMNode | UIElement)[]>
+  }
+}
+
+export interface HTML extends HTML.Attrs {}
+
+export class HTML extends DOMNode {
+  override properties: HTML.Props
+  override __view_type__: HTMLView
+
+  constructor(attrs?: Partial<HTML.Attrs>) {
+    super(attrs)
+  }
+
+  static {
+    this.prototype.default_view = HTMLView
+
+    this.define<HTML.Props>(({String, Array, Or, Ref}) => ({
+      html: [ Or(String, Array(Or(String, Ref(DOMNode), Ref(UIElement)))) ],
+      refs: [ Array(Or(Ref(DOMNode), Ref(UIElement))), [] ],
+    }))
+  }
+}
+
+export class ValueOfView extends DOMNodeView {
+  override model: ValueOf
+  override el: HTMLElement
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {obj, attr} = this.model
+    if (attr in obj.properties) {
+      this.on_change(obj.properties[attr], () => this.render())
+    }
+  }
+
+  render(): void {
+    empty(this.el)
+    this.el.style.display = "contents"
+
+    const text = (() => {
+      const {obj, attr} = this.model
+      if (attr in obj.properties) {
+        const value = obj.properties[attr].get_value()
+        return to_string(value)
+      } else
+        return `<not found: ${obj.type}.${attr}>`
+    })()
+
+    this.el.textContent = text
+  }
+}
+
+export namespace ValueOf {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = DOMNode.Props & {
+    obj: p.Property<HasProps>
+    attr: p.Property<string>
+  }
+}
+
+export interface ValueOf extends ValueOf.Attrs {}
+
+export class ValueOf extends DOMNode {
+  override properties: ValueOf.Props
+  override __view_type__: ValueOfView
+
+  constructor(attrs?: Partial<ValueOf.Attrs>) {
+    super(attrs)
+  }
+
+  static {
+    this.prototype.default_view = ValueOfView
+
+    this.define<ValueOf.Props>(({AnyRef, String}) => ({
+      obj: [ AnyRef() ],
+      attr: [ String ],
+    }))
+  }
+}

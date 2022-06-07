@@ -1,10 +1,13 @@
 import {UIElement, UIElementView} from "./ui_element"
 import {Selector} from "../selectors/selector"
+import {HTML, HTMLView} from "../dom"
 import {Anchor, VAlign, HAlign, TooltipAttachment} from "core/enums"
 import {div, bounding_box} from "core/dom"
 import {DOMElementView} from "core/dom_view"
 import {isString} from "core/util/types"
+import {assert} from "core/util/assert"
 import {logger} from "core/logging"
+import {build_view} from "core/build_views"
 import * as p from "core/properties"
 
 import tooltips_css, * as tooltips from "styles/tooltips.css"
@@ -49,6 +52,18 @@ export class TooltipView extends UIElementView {
   override initialize(): void {
     super.initialize()
     this._init_target()
+  }
+
+  protected _html: HTMLView | null = null
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {content} = this.model
+    if (content instanceof HTML) {
+      this._html = await build_view(content, {parent: this})
+    }
+
     this.render()
   }
 
@@ -72,6 +87,7 @@ export class TooltipView extends UIElementView {
   }
 
   override remove(): void {
+    this._html?.remove()
     this._observer.disconnect()
     super.remove()
   }
@@ -80,20 +96,22 @@ export class TooltipView extends UIElementView {
     return [...super.styles(), tooltips_css, icons_css]
   }
 
+  get content(): Node {
+    const {content} = this.model
+    if (isString(content)) {
+      return document.createTextNode(content)
+    } else if (content instanceof HTML) {
+      assert(this._html != null)
+      return this._html.el
+    } else
+      return content
+  }
+
   override render(): void {
     this.empty()
 
-    const content = (() => {
-      const {content} = this.model
-      if (isString(content)) {
-        const parser = new DOMParser()
-        const document = parser.parseFromString(content, "text/html")
-        return [...document.body.childNodes]
-      } else
-        return [content]
-    })()
-
-    this.content_el = div({class: tooltips.tooltip_content}, content)
+    this._html?.render()
+    this.content_el = div({class: tooltips.tooltip_content}, this.content)
     this.shadow_el.appendChild(this.content_el)
 
     if (this.model.closable) {
@@ -246,7 +264,7 @@ export namespace Tooltip {
   export type Props = UIElement.Props & {
     target: p.Property<UIElement | Selector | Node | "auto">
     position: p.Property<Anchor | [number, number] | null>
-    content: p.Property<string | Node>
+    content: p.Property<string | HTML | Node>
     attachment: p.Property<TooltipAttachment | "auto">
     show_arrow: p.Property<boolean>
     closable: p.Property<boolean>
@@ -270,7 +288,7 @@ export class Tooltip extends UIElement {
     this.define<Tooltip.Props>(({Boolean, Number, String, Tuple, Or, Ref, Nullable, Auto}) => ({
       target: [ Or(Ref(UIElement), Ref(Selector), Ref(Node), Auto), "auto" ],
       position: [ Nullable(Or(Anchor, Tuple(Number, Number))), null ],
-      content: [ Or(String, Ref(Node)) ],
+      content: [ Or(String, Ref(HTML), Ref(Node)) ],
       attachment: [ Or(TooltipAttachment, Auto), "auto" ],
       show_arrow: [ Boolean, true ],
       closable: [ Boolean, false ],

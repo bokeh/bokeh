@@ -35,6 +35,7 @@ from ...core.properties import (
     String,
     Tuple,
 )
+from ..dom import HTML
 from ..selectors import Selector
 from .ui_element import UIElement
 
@@ -73,8 +74,8 @@ class Tooltip(UIElement):
     attachment can be inferred from its parent in ``"auto"`` mode.
     """)
 
-    content = Required(String, help="""
-    Rich HTML contents of this tooltip.
+    content = Required(Either(String, Instance(HTML)), help="""
+    Either plain text or rich HTML tooltip's contents.
     """)
 
     attachment = Either(Enum(TooltipAttachment), Auto, default="auto", help="""
