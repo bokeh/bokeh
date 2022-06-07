@@ -20,23 +20,14 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# NOTE: since downloading sampledata is not a common occurrnce, non-stdlib
+# NOTE: since downloading sampledata is not a common occurrence, non-stdlib
 # imports are generally deferrered in this module
 
 # Standard library imports
 import hashlib
 import json
-from os import mkdir, remove
-from os.path import (
-    abspath,
-    dirname,
-    exists,
-    expanduser,
-    isdir,
-    isfile,
-    join,
-    splitext,
-)
+from dataclasses import dataclass
+from pathlib import Path
 from sys import stdout
 from typing import Any, TextIO, cast
 from urllib.parse import urljoin
@@ -47,10 +38,21 @@ from urllib.request import urlopen
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'download',
+    "download",
 )
 
 DataFrame = Any
+
+BLOCK_SIZE = 16384
+
+# HTTP requests are cheaper for us, and there is nothing private to protect
+S3 = "http://sampledata.bokeh.org"
+
+@dataclass
+class FileSpec:
+    remote: str
+    local: str
+    md5: str
 
 #-----------------------------------------------------------------------------
 # General API
@@ -61,30 +63,21 @@ def download(progress: bool = True) -> None:
 
     '''
     data_dir = external_data_dir(create=True)
-    print("Using data directory: %s" % data_dir)
+    print(f"Using data directory: {data_dir}")
 
-    # HTTP requests are cheaper for us, and there is nothing private to protect
-    s3 = 'http://sampledata.bokeh.org'
-    files = json.load(open(join(dirname(__file__), "sampledata.json")))
+    for spec in _load_config():
+        local_path = data_dir / spec.local
 
-    for filename, md5 in files:
-        real_name, ext = splitext(filename)
-        if ext == '.zip':
-            if not splitext(real_name)[1]:
-                real_name += ".csv"
+        if local_path.exists():
+            with open(local_path, 'rb') as f:
+                if hashlib.md5(f.read()).hexdigest() == spec.md5:
+                    print(f"Skipping {spec.local!r} (checksum match)")
+                    continue
+            print(f"Re-fetching {spec.local!r} (checksum mismatch)")
         else:
-            real_name += ext
-        real_path = join(data_dir, real_name)
+            print(f"Fetching {spec.local!r} (no local file)")
 
-        if exists(real_path):
-            local_md5 = hashlib.md5(open(real_path,'rb').read()).hexdigest()
-            if local_md5 == md5:
-                print(f"Skipping {filename!r} (checksum match)")
-                continue
-            else:
-                print(f"Re-fetching {filename!r} (checksum mismatch)")
-
-        _download_file(s3, filename, data_dir, progress=progress)
+        _download_file(spec, data_dir, progress=progress)
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -95,10 +88,10 @@ def external_csv(module: str, name: str, **kw: Any) -> DataFrame:
 
     '''
     from .dependencies import import_required
-    pd = import_required('pandas', '%s sample data requires Pandas (http://pandas.pydata.org) to be installed' % module)
+    pd = import_required("pandas", "{module} sample data requires Pandas (http://pandas.pydata.org) to be installed")
     return cast(Any, pd).read_csv(external_path(name), **kw)
 
-def external_data_dir(create: bool = False) -> str:
+def external_data_dir(create: bool = False) -> Path:
     '''
 
     '''
@@ -108,55 +101,55 @@ def external_data_dir(create: bool = False) -> str:
         raise RuntimeError("'yaml' and 'pyyaml' are required to use bokeh.sampledata functions")
 
     bokeh_dir = _bokeh_dir(create=create)
-    data_dir = join(bokeh_dir, "data")
 
     try:
-        config = yaml.safe_load(open(join(bokeh_dir, 'config')))
-        data_dir = expanduser(config['sampledata_dir'])
-    except (OSError, TypeError):
-        pass
+        with open(open(bokeh_dir / "config")) as f:
+            config = yaml.safe_load(f)
+            data_dir = Path(config["sampledata_dir"]).expanduser()
+    except (OSError, TypeError, KeyError):
+        data_dir = bokeh_dir / "data"
 
-    if not exists(data_dir):
+    if not data_dir.exists():
         if not create:
-            raise RuntimeError('bokeh sample data directory does not exist, please execute bokeh.sampledata.download()')
-        print("Creating %s directory" % data_dir)
+            raise RuntimeError("bokeh sample data directory does not exist, please execute bokeh.sampledata.download()")
+        print(f"Creating {data_dir} directory")
         try:
-            mkdir(data_dir)
+            data_dir.mkdir()
         except OSError:
-            raise RuntimeError("could not create bokeh data directory at %s" % data_dir)
+            raise RuntimeError(f"could not create bokeh data directory at {data_dir}")
     else:
-        if not isdir(data_dir):
-            raise RuntimeError("%s exists but is not a directory" % data_dir)
+        if not data_dir.is_dir():
+            raise RuntimeError(f"{data_dir} exists but is not a directory")
 
     return data_dir
 
-def external_path(filename: str) -> str:
+def external_path(filename: str) -> Path:
     data_dir = external_data_dir()
-    fn = join(data_dir, filename)
-    if not exists(fn) and isfile(fn):
-        raise RuntimeError('Could not locate external data file %s. Please execute bokeh.sampledata.download()' % fn)
-    return fn
+    path = data_dir / filename
+    if not (path.exists() and path.is_file()):
+        raise RuntimeError(f"Could not locate external data file {filename}. Please execute bokeh.sampledata.download()")
+    return path
 
 def package_csv(module: str, name: str, **kw: Any) -> DataFrame:
     '''
 
     '''
     from .dependencies import import_required
-    pd = import_required('pandas', '%s sample data requires Pandas (http://pandas.pydata.org) to be installed' % module)
+    pd = import_required("pandas", "{module} sample data requires Pandas (http://pandas.pydata.org) to be installed")
     return cast(Any, pd).read_csv(package_path(name), **kw)
 
 
-def package_dir() -> str:
+def package_dir() -> Path:
     '''
 
     '''
-    return abspath(join(dirname(__file__), "..", "sampledata", "_data"))
+    return Path(__file__).parents[1] / "sampledata" / "_data"
 
 def package_path(filename: str) -> str:
     '''
 
     '''
-    return join(package_dir(), filename)
+    return package_dir() / filename
 
 def open_csv(filename: str) -> TextIO:
     '''
@@ -168,24 +161,24 @@ def open_csv(filename: str) -> TextIO:
 # Private API
 #-----------------------------------------------------------------------------
 
-def _bokeh_dir(create: bool = False) -> str:
+def _bokeh_dir(create: bool = False) -> Path:
     '''
 
     '''
-    bokeh_dir = join(expanduser("~"), ".bokeh")
-    if not exists(bokeh_dir):
-        if not create: return bokeh_dir
-        print("Creating %s directory" % bokeh_dir)
+    dot_bokeh = Path.home() / ".bokeh"
+    if not dot_bokeh.exists():
+        if not create: return dot_bokeh
+        print(f"Creating {dot_bokeh} directory")
         try:
-            mkdir(bokeh_dir)
+            dot_bokeh.mkdir()
         except OSError:
-            raise RuntimeError("could not create bokeh config directory at %s" % bokeh_dir)
+            raise RuntimeError(f"could not create bokeh config directory at {dot_bokeh}")
     else:
-        if not isdir(bokeh_dir):
-            raise RuntimeError("%s exists but is not a directory" % bokeh_dir)
-    return bokeh_dir
+        if not dot_bokeh.is_dir():
+            raise RuntimeError(f"{dot_bokeh} exists but is not a directory")
+    return dot_bokeh
 
-def _download_file(base_url: str, filename: str, data_dir: str, progress: bool = True) -> None:
+def _download_file(spec: FileSpec, data_dir: Path, progress: bool = True) -> None:
     '''
 
     '''
@@ -194,46 +187,46 @@ def _download_file(base_url: str, filename: str, data_dir: str, progress: bool =
     # action, we defer them to inside this function.
     from zipfile import ZipFile
 
-    file_url = urljoin(base_url, filename)
-    file_path = join(data_dir, filename)
+    download_path = data_dir / spec.remote
 
-    url = urlopen(file_url)
+    remote = urlopen(urljoin(S3, spec.remote))
 
-    with open(file_path, 'wb') as file:
-        file_size = int(url.headers["Content-Length"])
-        print("Downloading: %s (%d bytes)" % (filename, file_size))
+    with open(download_path, 'wb') as f:
+        file_size = int(remote.headers["Content-Length"])
+        print(f"Downloading: {spec.remote} ({file_size} bytes)")
 
-        fetch_size = 0
-        block_size = 16384
-
-        while True:
-            data = url.read(block_size)
-            if not data:
-                break
-
-            fetch_size += len(data)
-            file.write(data)
+        fetched = 0
+        while data := remote.read(BLOCK_SIZE):
+            fetched += len(data)
+            f.write(data)
 
             if progress:
-                status = "\r%10d [%6.2f%%]" % (fetch_size, fetch_size*100.0/file_size)
+                status = f"\r{fetched:10d} [{fetched*100.0/file_size:6.2f}%]"
                 stdout.write(status)
                 stdout.flush()
 
     if progress:
         print()
 
-    real_name, ext = splitext(filename)
+    if download_path.suffix == ".zip":
+        print(f"Unpacking: {spec.remote}")
 
-    if ext == '.zip':
-        if not splitext(real_name)[1]:
-            real_name += ".csv"
+        with ZipFile(download_path, "r") as zip_file:
+            zip_file.extract(spec.local, data_dir)
 
-        print("Unpacking: %s" % real_name)
+        download_path.unlink()
 
-        with ZipFile(file_path, 'r') as zip_file:
-            zip_file.extract(real_name, data_dir)
+def _load_config() -> tuple(FileSpec):
+    specs = []
+    with open(Path(__file__).parent / "sampledata.json") as f:
+        entries = json.load(f)
+        for entry in entries:
+            remote=entry["s3name"]
+            md5=entry["md5"]
+            spec = FileSpec(remote=remote, md5=md5, local=entry.get("name", remote))
+            specs.append(spec)
 
-        remove(file_path)
+    return tuple(specs)
 
 #-----------------------------------------------------------------------------
 # Code

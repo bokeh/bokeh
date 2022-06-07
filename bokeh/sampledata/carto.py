@@ -4,47 +4,44 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+''' Provide JSON data for co-occurrence of characters in Les Miserables.
+
+Sourced from public domain data:
+
+* https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html
+* https://www.weather.gov/gis/USStates
+
+This module contains the following : ``us``.
+
+.. bokeh-sampledata-xref:: carto
+'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
+from __future__ import annotations
 
-import pytest ; pytest
+import logging # isort:skip
+log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from pathlib import Path
-
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
-
-# Module under test
-#import bokeh.sampledata.haar_cascade as bsh # isort:skip
+from ..util.sampledata import external_path
 
 #-----------------------------------------------------------------------------
-# Setup
+# Globals and constants
 #-----------------------------------------------------------------------------
 
-ALL = (
-    'frontalface_default_path',
+__all__ = (
+    'us',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.haar_cascade", ALL))
-
-@pytest.mark.sampledata
-def test_data(pd) -> None:
-    import bokeh.sampledata.haar_cascade as bsh
-    assert isinstance(bsh.frontalface_default_path, Path)
-
-    # don't check detail for external data
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -57,3 +54,5 @@ def test_data(pd) -> None:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+us = open(external_path('carto_us.geojson')).read()
