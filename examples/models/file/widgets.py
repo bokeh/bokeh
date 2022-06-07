@@ -93,7 +93,7 @@ switch_help = HelpButton(tooltip=Tooltip(content="""
 This is an <b>on</b> or <b>off</b> style of widget.
 <br>
 Right click on the widget to display the context menu.
-"""))
+""", position="right"))
 
 paragraph = Paragraph(text="some text")
 
