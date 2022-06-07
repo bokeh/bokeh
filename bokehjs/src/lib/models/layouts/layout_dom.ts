@@ -1,4 +1,5 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
+import {Menu} from "../menus/menu"
 import {IterViews} from "core/view"
 import {Signal} from "core/signaling"
 import {Color} from "core/types"
@@ -83,6 +84,12 @@ export abstract class LayoutDOMView extends UIElementView {
     })
     this.el.addEventListener("mouseleave", (event) => {
       this.mouseleave.emit(event)
+    })
+    this.el.addEventListener("contextmenu", (event) => {
+      if (this.model.context_menu != null) {
+        console.log("context menu")
+        event.preventDefault()
+      }
     })
 
     if (this.is_layout_root) {
@@ -439,6 +446,7 @@ export namespace LayoutDOM {
     css_classes: p.Property<string[]>
     style: p.Property<CSSInlineStyle>
     stylesheets: p.Property<string[]>
+    context_menu: p.Property<Menu | null>
   }
 }
 
@@ -454,7 +462,7 @@ export abstract class LayoutDOM extends UIElement {
 
   static {
     this.define<LayoutDOM.Props>((types) => {
-      const {Boolean, Number, String, Auto, Color, Array, Tuple, Dict, Or, Null, Nullable} = types
+      const {Boolean, Number, String, Auto, Color, Array, Tuple, Dict, Or, Null, Nullable, Ref} = types
       const Number2 = Tuple(Number, Number)
       const Number4 = Tuple(Number, Number, Number, Number)
       return {
@@ -475,6 +483,7 @@ export abstract class LayoutDOM extends UIElement {
         css_classes:   [ Array(String), [] ],
         style:         [ Dict(String), {} ], // TODO: add validation for CSSInlineStyle
         stylesheets:   [ Array(String), [] ],
+        context_menu:  [ Nullable(Ref(Menu)), null ],
       }
     })
   }

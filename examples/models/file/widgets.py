@@ -16,7 +16,7 @@ from bokeh.embed import file_html
 from bokeh.models import (AutocompleteInput, Button, ByCSS, CheckboxButtonGroup,
                           CheckboxGroup, ColorPicker, Column, ColumnDataSource,
                           DataTable, DatePicker, DateRangeSlider, DateSlider, Div,
-                          Dropdown, HelpButton, IntEditor, MultiChoice,
+                          Dropdown, HelpButton, IntEditor, Menu, MultiChoice,
                           MultiSelect, NumberEditor, NumberFormatter, Panel,
                           Paragraph, PreText, RadioButtonGroup, RadioGroup,
                           RangeSlider, Row, Select, SelectEditor, Slider, Spinner,
@@ -87,9 +87,13 @@ date_picker = DatePicker(value=date(2017, 8, 1))
 
 switch_0 = Switch(active=False)
 
-switch_1 = Switch(active=True)
+switch_1 = Switch(active=True, context_menu=Menu())
 
-switch_help = HelpButton(tooltip=Tooltip(content="This is an <b>on</b> or <b>off</b> style of widget."))
+switch_help = HelpButton(tooltip=Tooltip(content="""
+This is an <b>on</b> or <b>off</b> style of widget.
+<br>
+Right click on the widget to display the context menu.
+"""))
 
 paragraph = Paragraph(text="some text")
 

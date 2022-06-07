@@ -57,6 +57,7 @@ from ..core.validation.warnings import (
     FIXED_WIDTH_POLICY,
 )
 from ..model import Model
+from .ui.menus import Menu
 from .ui.ui_element import UIElement
 
 #-----------------------------------------------------------------------------
@@ -276,6 +277,15 @@ class LayoutDOM(UIElement):
     Additional style sheets to use for this DOM element. Note that all bokeh's components
     use shadow DOM, thus any included style sheets must reflect that, e.g. use ``:host``
     CSS pseudo selector to access the root DOM element.
+    """)
+
+    context_menu = Nullable(Instance(Menu), default=None, help="""
+    The menu to display when user right clicks on the component.
+
+    .. note::
+        To display the native context menu, the user needs to right
+        click twice. The second click closes the user-defined menu
+        and falls back to the native one.
     """)
 
     @warning(FIXED_SIZING_MODE)
