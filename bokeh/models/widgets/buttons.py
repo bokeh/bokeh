@@ -41,8 +41,8 @@ from ...core.properties import (
 from ...events import ButtonClick, MenuItemClick
 from ...util.deprecation import deprecated
 from ..callbacks import Callback
+from ..ui.icons import BuiltinIcon, Icon
 from ..ui.tooltips import Tooltip
-from .icons import AbstractIcon, BuiltinIcon
 from .widget import Widget
 
 if TYPE_CHECKING:
@@ -93,7 +93,7 @@ class AbstractButton(Widget, ButtonLike):
     The text label for the button to display.
     """)
 
-    icon = Nullable(Instance(AbstractIcon), help="""
+    icon = Nullable(Instance(Icon), help="""
     An optional image appearing to the left of button's text.
     """)
 

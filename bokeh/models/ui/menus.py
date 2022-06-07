@@ -34,6 +34,7 @@ from ...core.properties import (
 )
 from ...model import Model
 from .ui_element import UIElement
+from .icons import Icon
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -53,13 +54,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-class Icon(Model):
-    """ """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
 
 @abstract
 class MenuItem(Model):

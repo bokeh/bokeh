@@ -1,9 +1,9 @@
-import {AbstractIcon, AbstractIconView} from "models/widgets/abstract_icon"
+import {Icon, IconView} from "models/ui/icons/icon"
 import * as p from "core/properties"
 
 import "./fontawesome.less"
 
-export class FontAwesomeIconView extends AbstractIconView {
+export class FontAwesomeIconView extends IconView {
   model: FontAwesomeIcon
 
   connect_signals(): void {
@@ -30,7 +30,7 @@ export class FontAwesomeIconView extends AbstractIconView {
 export namespace FontAwesomeIcon {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = AbstractIcon.Props & {
+  export type Props = Icon.Props & {
     icon_name: p.Property<string>
     size: p.Property<number>
     flip: p.Property<"horizontal" | "vertical" | null>
@@ -40,7 +40,7 @@ export namespace FontAwesomeIcon {
 
 export interface FontAwesomeIcon extends FontAwesomeIcon.Attrs {}
 
-export class FontAwesomeIcon extends AbstractIcon {
+export class FontAwesomeIcon extends Icon {
   properties: FontAwesomeIcon.Props
   __view_type__: FontAwesomeIconView
 

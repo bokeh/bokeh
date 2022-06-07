@@ -1,5 +1,6 @@
 import {MenuItem, MenuItemView} from "./menu_item"
 import {Menu} from "./menu"
+import {Icon} from "../ui/icons/icon"
 import {Keys, span} from "core/dom"
 import * as p from "core/properties"
 
@@ -37,8 +38,8 @@ export namespace Action {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = MenuItem.Props & {
-    //icon: p.Property<Icon | null>
-    label: p.Property<string | null>
+    icon: p.Property<Icon | null>
+    label: p.Property<string>
     description: p.Property<string | null>
     menu: p.Property<Menu | null>
   }
@@ -58,7 +59,7 @@ export class Action extends MenuItem {
     this.prototype.default_view = ActionView
 
     this.define<Action.Props>(({String, Nullable, Ref}) => ({
-      //icon: [ Nullable(Ref(Icon)), null ],
+      icon: [ Nullable(Ref(Icon)), null ],
       label: [ String ],
       description: [ Nullable(String), null ],
       menu: [ Nullable(Ref(Menu)), null ],

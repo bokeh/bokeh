@@ -1,6 +1,6 @@
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
 import {Tooltip, TooltipView} from "../ui/tooltip"
-import {BuiltinIcon} from "./builtin_icon"
+import {BuiltinIcon} from "../ui/icons/builtin_icon"
 import {build_view} from "core/build_views"
 import * as p from "core/properties"
 

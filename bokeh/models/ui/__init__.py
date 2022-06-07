@@ -20,7 +20,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from . import inspector, menus, tooltips
+from . import (
+    icons,
+    inspector,
+    menus,
+    tooltips,
+)
+from .icons import *
 from .inspector import *
 from .menus import *
 from .tooltips import *
@@ -30,6 +36,7 @@ from .tooltips import *
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    icons.__all__ +
     inspector.__all__ +
     menus.__all__ +
     tooltips.__all__

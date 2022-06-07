@@ -1,4 +1,4 @@
-import {AbstractIcon, AbstractIconView} from "./abstract_icon"
+import {Icon, IconView} from "./icon"
 import {Color} from "core/types"
 import {color2css} from "core/util/color"
 import {assign} from "core/util/object"
@@ -6,7 +6,7 @@ import * as p from "core/properties"
 
 import icons_css from "styles/icons.css"
 
-export class BuiltinIconView extends AbstractIconView {
+export class BuiltinIconView extends IconView {
   override model: BuiltinIcon
   override el: HTMLElement
 
@@ -17,7 +17,7 @@ export class BuiltinIconView extends AbstractIconView {
   render(): void {
     this.empty()
 
-    const icon = `var(--bokeh-icon-${this.model.identifier}`
+    const icon = `var(--bokeh-icon-${this.model.identifier})`
     const color = color2css(this.model.color)
 
     assign(this.el.style, {
@@ -37,7 +37,7 @@ export class BuiltinIconView extends AbstractIconView {
 export namespace BuiltinIcon {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = AbstractIcon.Props & {
+  export type Props = Icon.Props & {
     identifier: p.Property<string>
     color: p.Property<Color>
   }
@@ -45,7 +45,7 @@ export namespace BuiltinIcon {
 
 export interface BuiltinIcon extends BuiltinIcon.Attrs {}
 
-export class BuiltinIcon extends AbstractIcon {
+export class BuiltinIcon extends Icon {
   override properties: BuiltinIcon.Props
   override __view_type__: BuiltinIconView
 

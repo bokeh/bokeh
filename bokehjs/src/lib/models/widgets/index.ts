@@ -1,7 +1,5 @@
 export {AbstractButton}      from "./abstract_button"
-export {AbstractIcon}        from "./abstract_icon"
 export {AutocompleteInput}   from "./autocomplete_input"
-export {BuiltinIcon}         from "./builtin_icon"
 export {Button}              from "./button"
 export {CheckboxButtonGroup} from "./checkbox_button_group"
 export {CheckboxGroup}       from "./checkbox_group"

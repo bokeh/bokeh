@@ -4,14 +4,14 @@ import {prepend, nbsp, button, div} from "core/dom"
 import {build_view} from "core/build_views"
 
 import {Control, ControlView} from "./control"
-import {AbstractIcon, AbstractIconView} from "./abstract_icon"
+import {Icon, IconView} from "../ui/icons/icon"
 
 import buttons_css, * as buttons from "styles/buttons.css"
 
 export abstract class AbstractButtonView extends ControlView {
   override model: AbstractButton
 
-  protected icon_view?: AbstractIconView
+  protected icon_view?: IconView
 
   protected button_el: HTMLButtonElement
   protected group_el: HTMLElement
@@ -78,7 +78,7 @@ export namespace AbstractButton {
 
   export type Props = Control.Props & {
     label: p.Property<string>
-    icon: p.Property<AbstractIcon | null>
+    icon: p.Property<Icon | null>
     button_type: p.Property<ButtonType>
   }
 }
@@ -96,7 +96,7 @@ export abstract class AbstractButton extends Control {
   static {
     this.define<AbstractButton.Props>(({String, Ref, Nullable}) => ({
       label:       [ String, "Button" ],
-      icon:        [ Nullable(Ref(AbstractIcon)), null ],
+      icon:        [ Nullable(Ref(Icon)), null ],
       button_type: [ ButtonType, "default" ],
     }))
   }

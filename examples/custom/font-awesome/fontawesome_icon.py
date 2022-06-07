@@ -1,10 +1,10 @@
 from bokeh.core.properties import Bool, Enum, Float
-from bokeh.models import AbstractIcon
+from bokeh.models import Icon
 
 from named_icon import NamedIcon
 
 
-class FontAwesomeIcon(AbstractIcon):
+class FontAwesomeIcon(Icon):
     """ A "stock" icon based on FontAwesome. """
 
     __implementation__ = "fontawesome_icon.ts"

@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Various kinds of icon widgets.
+""" Various kinds of icon widgets.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -30,8 +30,8 @@ from ...model import Model
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'AbstractIcon',
-    'BuiltinIcon',
+    "Icon",
+    "BuiltinIcon",
 )
 
 #-----------------------------------------------------------------------------
@@ -43,16 +43,16 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class AbstractIcon(Model):
-    ''' An abstract base class for icon widgets.
+class Icon(Model):
+    """ An abstract base class for icon widgets.
 
-    '''
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-class BuiltinIcon(AbstractIcon):
+class BuiltinIcon(Icon):
     """ """
 
     # explicit __init__ to support Init signatures
