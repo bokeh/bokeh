@@ -11,7 +11,10 @@ export class SectionView extends MenuItemView {
 
 export namespace Section {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = MenuItem.Props
+
+  export type Props = MenuItem.Props & {
+    items: p.Property<MenuItem[]>
+  }
 }
 
 export interface Section extends Section.Attrs {}
@@ -26,5 +29,9 @@ export class Section extends MenuItem {
 
   static {
     this.prototype.default_view = SectionView
+
+    this.define<Section.Props>(({Array, Ref}) => ({
+      items: [ Array(Ref(MenuItem)), [] ],
+    }))
   }
 }

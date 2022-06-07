@@ -32,9 +32,8 @@ from ...core.properties import (
     Nullable,
     String,
 )
-from ...model import Model
-from .ui_element import UIElement
 from .icons import Icon
+from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -56,7 +55,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class MenuItem(Model):
+class MenuItem(UIElement):
     """ """
 
     # explicit __init__ to support Init signatures

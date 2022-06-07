@@ -9,6 +9,7 @@ export namespace CheckAction {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Action.Props & {
+    checked: p.Property<boolean>
   }
 }
 
@@ -25,7 +26,8 @@ export class CheckAction extends Action {
   static {
     this.prototype.default_view = CheckActionView
 
-    this.define<CheckAction.Props>(({}) => ({
+    this.define<CheckAction.Props>(({Boolean}) => ({
+      checked: [ Boolean, false ],
     }))
   }
 }
