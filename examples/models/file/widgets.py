@@ -16,10 +16,11 @@ from bokeh.embed import file_html
 from bokeh.models import (AutocompleteInput, Button, ByCSS, CheckboxButtonGroup,
                           CheckboxGroup, ColorPicker, Column, ColumnDataSource,
                           DataTable, DatePicker, DateRangeSlider, DateSlider, Div,
-                          Dropdown, IntEditor, MultiChoice, MultiSelect, NumberEditor,
-                          NumberFormatter, Panel, Paragraph, PreText, RadioButtonGroup,
-                          RadioGroup, RangeSlider, Row, Select, SelectEditor, Slider,
-                          Spinner, StringEditor, StringFormatter, Switch, TableColumn,
+                          Dropdown, HelpButton, IntEditor, MultiChoice,
+                          MultiSelect, NumberEditor, NumberFormatter, Panel,
+                          Paragraph, PreText, RadioButtonGroup, RadioGroup,
+                          RangeSlider, Row, Select, SelectEditor, Slider, Spinner,
+                          StringEditor, StringFormatter, Switch, TableColumn,
                           Tabs, TextAreaInput, TextInput, Toggle, Tooltip)
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
@@ -88,6 +89,8 @@ switch_0 = Switch(active=False)
 
 switch_1 = Switch(active=True)
 
+switch_help = HelpButton(tooltip=Tooltip(content="This is an <b>on</b> or <b>off</b> style of widget."))
+
 paragraph = Paragraph(text="some text")
 
 div = Div(text="some <b>text</b>")
@@ -151,7 +154,7 @@ widgets = Column(children=[
             select, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider,
             spinner, color_picker, date_picker,
-            Row(children=[switch_0, switch_1]),
+            Row(children=[switch_0, switch_1, switch_help]),
             paragraph, div, pre_text,
         ]),
         tabs,

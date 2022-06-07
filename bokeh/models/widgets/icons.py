@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
+from ...core.properties import Color, NonNullable as Required, String
 from ...model import Model
 
 #-----------------------------------------------------------------------------
@@ -30,6 +31,7 @@ from ...model import Model
 
 __all__ = (
     'AbstractIcon',
+    'BuiltinIcon',
 )
 
 #-----------------------------------------------------------------------------
@@ -49,6 +51,19 @@ class AbstractIcon(Model):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+class BuiltinIcon(AbstractIcon):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    identifier = Required(String, help="""
+    """)
+
+    color = Color(default="gray", help="""
+    """)
 
 #-----------------------------------------------------------------------------
 # Private API
