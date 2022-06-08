@@ -35,7 +35,7 @@ import {InspectTool, InspectToolView} from "./inspect_tool"
 
 export type TooltipVars = {
     index: number | null
-    glyph: GlyphView
+    glyph_view: GlyphView
     x: number
     y: number
     sx: number
@@ -255,7 +255,8 @@ export class HoverToolView extends InspectToolView {
       const [snap_x, snap_y] = [x, y]
       const vars = {
         index: null,
-        glyph, x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
+        glyph_view: glyph,
+        x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
         name: renderer.name,
       }
       const rendered = this._render_tooltips(ds, vars)
@@ -268,7 +269,8 @@ export class HoverToolView extends InspectToolView {
         const [snap_sx, snap_sy] = [sx, sy]
         const vars = {
           index: i,
-          glyph, x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
+          glyph_view: glyph,
+          x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
           name: renderer.name,
           indices: subset_indices.line_indices,
         }
@@ -304,7 +306,8 @@ export class HoverToolView extends InspectToolView {
 
         const vars = {
           index: ii,
-          glyph, x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
+          glyph_view: glyph,
+          x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
           name: renderer.name,
           indices: subset_indices.line_indices,
         }
@@ -318,7 +321,8 @@ export class HoverToolView extends InspectToolView {
       const [snap_x, snap_y] = [x, y]
       const vars = {
         index: image_index.index,
-        glyph, x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
+        glyph_view: glyph,
+        x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
         name: renderer.name,
         image_index,
       }
@@ -357,7 +361,8 @@ export class HoverToolView extends InspectToolView {
 
           const vars = {
             index,
-            glyph, x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
+            glyph_view: glyph,
+            x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
             name: renderer.name,
             indices: subset_indices.multiline_indices,
             segment_index: jj,
@@ -388,7 +393,8 @@ export class HoverToolView extends InspectToolView {
 
         const vars = {
           index,
-          glyph, x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
+          glyph_view: glyph,
+          x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
           name: renderer.name,
           indices: subset_indices.indices,
         }

@@ -41,7 +41,7 @@ describe("HoverTool", () => {
       const {hover_view, data_source, glyph_view} = await make_testcase()
 
       const vars: TooltipVars = {
-        glyph: glyph_view,
+        glyph_view,
         index: 0,
         x: 123,
         y: 456,
@@ -112,7 +112,7 @@ describe("HoverTool", () => {
 
     const hover_view = view.tool_views.get(hover)! as HoverTool["__view_type__"]
     const vars: TooltipVars = {
-      glyph: (view.renderer_view(r)!.glyph as unknown as CircleView),
+      glyph_view: (view.renderer_view(r)!.glyph as unknown as CircleView),
       index: 0,
       x: 10,
       y: 20,
