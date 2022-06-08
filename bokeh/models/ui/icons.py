@@ -34,6 +34,7 @@ from ...model import Model
 __all__ = (
     "Icon",
     "BuiltinIcon",
+    "TablerIcon",
 )
 
 #-----------------------------------------------------------------------------
@@ -65,6 +66,16 @@ class BuiltinIcon(Icon):
     """)
 
     color = Color(default="gray", help="""
+    """)
+
+class TablerIcon(Icon):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, icon_name: Init[str] = Intrinsic, **kwargs) -> None:
+        super().__init__(icon_name=icon_name, **kwargs)
+
+    icon_name = Required(String, help="""
     """)
 
 #-----------------------------------------------------------------------------

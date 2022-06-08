@@ -440,6 +440,14 @@ export class StyleSheet {
   }
 }
 
+export class GlobalStyleSheet extends StyleSheet {
+  initialize(): void {
+    if (!this.el.isConnected) {
+      document.head.appendChild(this.el)
+    }
+  }
+}
+
 export class ImportedStyleSheet {
   readonly el: HTMLLinkElement
 
@@ -453,6 +461,14 @@ export class ImportedStyleSheet {
 
   remove(): void {
     remove(this.el)
+  }
+}
+
+export class GlobalImportedStyleSheet extends StyleSheet {
+  initialize(): void {
+    if (!this.el.isConnected) {
+      document.head.appendChild(this.el)
+    }
   }
 }
 
