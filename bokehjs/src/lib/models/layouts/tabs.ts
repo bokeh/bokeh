@@ -1,5 +1,5 @@
 import {Grid, ContentBox, Layoutable, Sizeable} from "core/layout"
-import {div, position, size, scroll_size, show, hide, display, undisplay, children} from "core/dom"
+import {div, position, size, scroll_size, show, hide, display, undisplay, children, StyleSheetLike} from "core/dom"
 import {sum, remove_at} from "core/util/array"
 import {clamp} from "core/util/math"
 import {Location} from "core/enums"
@@ -31,7 +31,7 @@ export class TabsView extends LayoutDOMView {
     this.connect(this.model.properties.active.change, () => this.on_active_change())
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), tabs_css, buttons_css, caret_css, icons_css]
   }
 

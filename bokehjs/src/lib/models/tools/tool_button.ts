@@ -1,7 +1,7 @@
 import Hammer, {Manager} from "hammerjs"
 
 import {DOMView} from "core/dom_view"
-import {empty, Keys} from "core/dom"
+import {empty, Keys, StyleSheetLike} from "core/dom"
 import {ToolIcon} from "core/enums"
 import {ContextMenu} from "core/util/menus"
 import {startsWith} from "core/util/string"
@@ -64,7 +64,7 @@ export abstract class ToolButtonView extends DOMView {
     super.remove()
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), tools_css, icons_css]
   }
 

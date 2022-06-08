@@ -215,7 +215,7 @@ class HelpButton(AbstractButton):
 
     label = Override(default="")
 
-    icon = Override(default=lambda: BuiltinIcon(identifier="help2"))
+    icon = Override(default=lambda: BuiltinIcon("help"))
 
     button_type = Override(default="default")
 

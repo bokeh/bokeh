@@ -1,5 +1,5 @@
 import {Widget, WidgetView} from "./widget"
-import {div} from "core/dom"
+import {div, StyleSheetLike} from "core/dom"
 
 import * as p from "core/properties"
 import switch_css from "styles/widgets/switch.css"
@@ -24,7 +24,7 @@ export class SwitchView extends WidgetView {
     })
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), switch_css]
   }
 

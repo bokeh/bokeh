@@ -1,6 +1,6 @@
 import Choices from "choices.js"
 
-import {select} from "core/dom"
+import {select, StyleSheetLike} from "core/dom"
 import {isString} from "core/util/types"
 import {CachedVariadicBox} from "core/layout/html"
 import * as p from "core/properties"
@@ -24,7 +24,7 @@ export class MultiChoiceView extends InputWidgetView {
     this.on_change([value, max_items, option_limit, search_option_limit, delete_button, placeholder, options, name, title], () => this.render())
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), choices_css]
   }
 

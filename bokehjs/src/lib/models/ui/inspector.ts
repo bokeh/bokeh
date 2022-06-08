@@ -1,7 +1,7 @@
 import {UIElement, UIElementView} from "./ui_element"
 import * as p from "core/properties"
 import {HasProps} from "core/has_props"
-import {div, span, input, empty, Keys} from "core/dom"
+import {div, span, input, empty, Keys, StyleSheetLike} from "core/dom"
 import {assert} from "core/util/assert"
 import {to_string} from "core/util/pretty"
 import {Model} from "model"
@@ -146,7 +146,7 @@ export class InspectorView extends UIElementView {
     super.initialize()
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), inspector_css]
   }
 

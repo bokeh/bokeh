@@ -2,7 +2,7 @@ import {UIElement, UIElementView} from "./ui_element"
 import {Selector} from "../selectors/selector"
 import {HTML, HTMLView} from "../dom"
 import {Anchor, VAlign, HAlign, TooltipAttachment} from "core/enums"
-import {div, bounding_box} from "core/dom"
+import {div, bounding_box, StyleSheetLike} from "core/dom"
 import {DOMElementView} from "core/dom_view"
 import {isString} from "core/util/types"
 import {assert} from "core/util/assert"
@@ -92,7 +92,7 @@ export class TooltipView extends UIElementView {
     super.remove()
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), tooltips_css, icons_css]
   }
 

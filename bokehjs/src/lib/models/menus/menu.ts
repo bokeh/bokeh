@@ -1,5 +1,6 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {MenuItem, MenuItemView} from "./menu_item"
+import {StyleSheetLike} from "core/dom"
 import {Orientation} from "core/enums"
 import {build_views, remove_views} from "core/build_views"
 import {reverse, map} from "core/util/iterator"
@@ -10,7 +11,7 @@ import menus_css, * as menus from "styles/menus.css"
 export class MenuView extends UIElementView {
   override model: Menu
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), menus_css]
   }
 

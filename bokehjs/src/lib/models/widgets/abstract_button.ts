@@ -1,6 +1,6 @@
 import * as p from "core/properties"
 import {ButtonType} from "core/enums"
-import {prepend, nbsp, button, div} from "core/dom"
+import {prepend, nbsp, button, div, StyleSheetLike} from "core/dom"
 import {build_view} from "core/build_views"
 
 import {Control, ControlView} from "./control"
@@ -39,7 +39,7 @@ export abstract class AbstractButtonView extends ControlView {
     super.remove()
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), buttons_css]
   }
 

@@ -1,6 +1,6 @@
 import {TextInput, TextInputView} from "./text_input"
 
-import {empty, display, undisplay, div, Keys} from "core/dom"
+import {empty, display, undisplay, div, Keys, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 import {clamp} from "core/util/math"
 
@@ -17,7 +17,7 @@ export class AutocompleteInputView extends TextInputView {
 
   protected menu: HTMLElement
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), dropdown_css]
   }
 

@@ -4,7 +4,7 @@ import {CellExternalCopyManager} from "@bokeh/slickgrid/plugins/slick.cellextern
 
 import {Grid as SlickGrid, DataProvider, SortColumn, OnSortEventArgs, OnSelectedRowsChangedEventArgs} from "@bokeh/slickgrid"
 import * as p from "core/properties"
-import {div, position} from "core/dom"
+import {div, position, StyleSheetLike} from "core/dom"
 import {uniqueId} from "core/util/string"
 import {isString, isNumber, is_defined} from "core/util/types"
 import {some, range} from "core/util/array"
@@ -170,7 +170,7 @@ export class DataTableView extends WidgetView {
     }
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), slickgrid_css, tables_css]
   }
 

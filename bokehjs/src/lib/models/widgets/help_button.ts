@@ -94,7 +94,7 @@ export class HelpButton extends AbstractButton {
     this.override<HelpButton.Props>({
       width: 18,
       label: "",
-      icon: new BuiltinIcon({identifier: "help2"}),
+      icon: new BuiltinIcon({icon_name: "help"}),
       button_type: "default",
     })
   }

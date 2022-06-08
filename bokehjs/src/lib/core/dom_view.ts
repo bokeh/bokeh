@@ -1,8 +1,9 @@
 import {View} from "./view"
-import {createElement, remove, empty, style} from "./dom"
+import {createElement, remove, empty, StyleSheet, ImportedStyleSheet, StyleSheetLike} from "./dom"
+import {isString} from "./util/types"
 import base_css from "styles/base.css"
 
-const has_adopted_stylesheets = "adoptedStyleSheets" in ShadowRoot.prototype
+//const has_adopted_stylesheets = "adoptedStyleSheets" in ShadowRoot.prototype
 
 export interface DOMView extends View {
   constructor: Function & {tag_name: keyof HTMLElementTagNameMap}
@@ -34,7 +35,7 @@ export abstract class DOMView extends View {
     return []
   }
 
-  styles(): string[] {
+  styles(): StyleSheetLike[] {
     return []
   }
 
@@ -60,12 +61,13 @@ export abstract class DOMComponentView extends DOMElementView {
   override parent: DOMElementView | null
 
   override shadow_el: ShadowRoot
-  stylesheet_els: HTMLStyleElement[] = []
+  protected readonly _stylesheets: (StyleSheet | ImportedStyleSheet)[] = []
 
   override initialize(): void {
     super.initialize()
     this.shadow_el = this.el.attachShadow({mode: "open"})
 
+    /*
     if (has_adopted_stylesheets) {
       const sheets: CSSStyleSheet[] = []
       for (const style of this.styles()) {
@@ -75,22 +77,23 @@ export abstract class DOMComponentView extends DOMElementView {
       }
       this.shadow_el.adoptedStyleSheets = sheets
     } else {
-      for (const style_ of this.styles()) {
-        const stylesheet_el = style({}, style_)
-        this.stylesheet_els.push(stylesheet_el)
-        this.shadow_el.appendChild(stylesheet_el)
-      }
+    */
+    for (const style of this.styles()) {
+      const stylesheet = isString(style) ? new StyleSheet(style) : style
+      this._stylesheets.push(stylesheet)
+      this.shadow_el.appendChild(stylesheet.el)
     }
+    //}
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), base_css]
   }
 
   empty(): void {
     empty(this.shadow_el)
-    for (const stylesheet_el of this.stylesheet_els) {
-      this.shadow_el.appendChild(stylesheet_el)
+    for (const stylesheet of this._stylesheets) {
+      this.shadow_el.appendChild(stylesheet.el)
     }
   }
 }

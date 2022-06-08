@@ -425,27 +425,38 @@ export function sized<T>(el: HTMLElement, size: Partial<Size>, fn: () => T): T {
 }
 
 export class StyleSheet {
-  private readonly style: HTMLStyleElement
-  private readonly known: Set<string> = new Set()
+  readonly el: HTMLStyleElement
 
-  constructor(readonly root: HTMLElement = document.head) {
-    this.style = style({type: "text/css"})
-    prepend(root, this.style)
+  constructor(css?: string) {
+    this.el = style({type: "text/css"}, css)
   }
 
-  append(css: string): void {
-    if (!this.known.has(css)) {
-      this.style.appendChild(document.createTextNode(css))
-      this.known.add(css)
-    }
+  replace(css: string): void {
+    this.el.textContent = css
   }
 
   remove(): void {
-    remove(this.style)
+    remove(this.el)
   }
 }
 
-export const stylesheet = new StyleSheet()
+export class ImportedStyleSheet {
+  readonly el: HTMLLinkElement
+
+  constructor(url: string) {
+    this.el = link({rel: "stylesheet", href: url})
+  }
+
+  replace(url: string): void {
+    this.el.href = url
+  }
+
+  remove(): void {
+    remove(this.el)
+  }
+}
+
+export type StyleSheetLike = StyleSheet | ImportedStyleSheet | string
 
 export async function dom_ready(): Promise<void> {
   if (document.readyState == "loading") {

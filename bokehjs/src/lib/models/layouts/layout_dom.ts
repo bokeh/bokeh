@@ -4,7 +4,7 @@ import {IterViews} from "core/view"
 import {Signal} from "core/signaling"
 import {Color} from "core/types"
 import {Align, SizingMode} from "core/enums"
-import {position, classes, extents, undisplayed} from "core/dom"
+import {position, classes, extents, undisplayed, StyleSheetLike} from "core/dom"
 import {logger} from "core/logging"
 import {isNumber, isArray} from "core/util/types"
 import {color2css} from "core/util/color"
@@ -141,7 +141,7 @@ export abstract class LayoutDOMView extends UIElementView {
     return [...super.css_classes(), ...this.model.css_classes]
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), ...this.model.stylesheets]
   }
 

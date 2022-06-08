@@ -4,7 +4,7 @@ import {Tooltip, TooltipView} from "../ui/tooltip"
 import {assert} from "core/util/assert"
 import {isString} from "core/util/types"
 import {build_view} from "core/build_views"
-import {div, label} from "core/dom"
+import {div, label, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 
 import inputs_css, * as inputs from "styles/widgets/inputs.css"
@@ -47,7 +47,7 @@ export abstract class InputWidgetView extends ControlView {
     })
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), inputs_css, icons_css]
   }
 

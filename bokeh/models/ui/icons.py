@@ -23,6 +23,8 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import Color, NonNullable as Required, String
+from ...core.property.bases import Init
+from ...core.property.singletons import Intrinsic
 from ...model import Model
 
 #-----------------------------------------------------------------------------
@@ -56,10 +58,10 @@ class BuiltinIcon(Icon):
     """ """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self, icon_name: Init[str] = Intrinsic, **kwargs) -> None:
+        super().__init__(icon_name=icon_name, **kwargs)
 
-    identifier = Required(String, help="""
+    icon_name = Required(String, help="""
     """)
 
     color = Color(default="gray", help="""
