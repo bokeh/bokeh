@@ -27,7 +27,7 @@ import {DataRenderer} from "../../renderers/data_renderer"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
 import {Renderer} from "../../renderers/renderer"
-import {ImageIndex, Selection} from "../../selections/selection"
+import {ImageIndex, MultiIndices, OpaqueIndices, Selection} from "../../selections/selection"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {compute_renderers} from "../../util"
 import {CustomJSHover} from "./customjs_hover"
@@ -45,9 +45,9 @@ export type TooltipVars = {
     tt_sx: number
     tt_sy: number
     name: string | null
-    indices?: any | undefined
-    segment_index?: any | undefined
-    image_index?: ImageIndex | undefined
+    indices?: MultiIndices | OpaqueIndices
+    segment_index?: number
+    image_index?: ImageIndex
 }
 
 export function _nearest_line_hit(
@@ -81,7 +81,7 @@ export function _nearest_line_hit(
 export function _line_hit(
   xs: Arrayable<number>,
   ys: Arrayable<number>,
-  i: number
+  i: number,
 ): [[number, number], number] {
   return [[xs[i], ys[i]], i]
 }
@@ -280,7 +280,7 @@ export class HoverToolView extends InspectToolView {
     if (glyph instanceof LineView) {
       const {line_policy} = this.model
       for (const i of subset_indices.line_indices) {
-        const [[tt_x, tt_y], [tt_sx, tt_sy], ii] = (function() {
+        const [[tt_x, tt_y], [tt_sx, tt_sy], ii] = (() => {
           if (line_policy == "interp") {
             const [tt_x, tt_y] = glyph.get_interpolation_hit(i, geometry)
             const tt_sxy = [xscale.compute(tt_x), yscale.compute(tt_y)]
