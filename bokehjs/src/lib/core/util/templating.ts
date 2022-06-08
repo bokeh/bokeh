@@ -1,13 +1,11 @@
 import * as Numbro from "@bokeh/numbro"
-import {sprintf as sprintf_js} from "sprintf-js"
-import tz from "timezone"
-
-import {Enum} from "../kinds"
-import {isNumber, isString, isArray, isTypedArray} from "./types"
-
+import {ImageIndex} from "models/selections/selection"
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {CustomJSHover} from "models/tools/inspectors/customjs_hover"
-import {ImageIndex} from "models/selections/selection"
+import {sprintf as sprintf_js} from "sprintf-js"
+import tz from "timezone"
+import {Enum} from "../kinds"
+import {isArray, isNumber, isString, isTypedArray} from "./types"
 
 export const FormatterType = Enum("numeral", "printf", "datetime")
 export type FormatterType = "numeral" | "printf" | "datetime"
@@ -78,11 +76,15 @@ function  _get_special_value(name: string, special_vars: Vars) {
     throw new Error(`Unknown special variable '\$${name}'`)
 }
 
-export function _get_column_value(name: string, data_source: ColumnarDataSource, i: Index): unknown | null {
+export function _get_column_value(name: string, data_source: ColumnarDataSource, i: Index | null): unknown | null {
   const column = data_source.get_column(name)
 
   // missing column
   if (column == null)
+    return null
+
+  // null index (e.g for patch)
+  if (i == null)
     return null
 
   // typical (non-image) index
@@ -102,7 +104,7 @@ export function _get_column_value(name: string, data_source: ColumnarDataSource,
     return data // inspect per-image scalar data
 }
 
-export function get_value(raw_name: string, data_source: ColumnarDataSource, i: Index, special_vars: Vars) {
+export function get_value(raw_name: string, data_source: ColumnarDataSource, i: Index | null, special_vars: Vars) {
   if (raw_name[0] == "$") {
     const name = raw_name.substring(1)
     return _get_special_value(name, special_vars)
@@ -113,7 +115,7 @@ export function get_value(raw_name: string, data_source: ColumnarDataSource, i: 
 }
 
 export function replace_placeholders(content: string | {html: string}, data_source: ColumnarDataSource,
-    i: Index, formatters?: Formatters, special_vars: Vars = {}, encode?: (v: string) => string): string | Node[]  {
+    i: Index | null, formatters?: Formatters, special_vars: Vars = {}, encode?: (v: string) => string): string | Node[]  {
   let str: string
   let has_html: boolean
 

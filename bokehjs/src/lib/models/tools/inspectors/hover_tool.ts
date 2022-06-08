@@ -1,81 +1,102 @@
-import {InspectTool, InspectToolView} from "./inspect_tool"
-import {CustomJSHover} from "./customjs_hover"
-import {CallbackLike1} from "../../callbacks/callback"
+import {build_view, build_views, remove_views} from "core/build_views"
+import {display, div, empty, span, undisplay} from "core/dom"
+import {Anchor, HoverMode, LinePolicy, MutedPolicy, PointPolicy, TooltipAttachment} from "core/enums"
+import {Geometry, GeometryData, PointGeometry, SpanGeometry} from "core/geometry"
+import * as hittest from "core/hittest"
+import * as p from "core/properties"
+import {Signal} from "core/signaling"
+import {Arrayable, Color} from "core/types"
+import {MoveEvent} from "core/ui_events"
+import {color2css, color2hex} from "core/util/color"
+import {enumerate} from "core/util/iterator"
+import {is_empty} from "core/util/object"
+import {Formatters, FormatterType, replace_placeholders} from "core/util/templating"
+import {isFunction, isNumber, isString, is_undefined} from "core/util/types"
+import {tool_icon_hover} from "styles/icons.css"
+import * as styles from "styles/tooltips.css"
 import {Tooltip, TooltipView} from "../../annotations/tooltip"
-import {Renderer} from "../../renderers/renderer"
-import {GlyphRenderer} from "../../renderers/glyph_renderer"
-import {GraphRenderer} from "../../renderers/graph_renderer"
-import {DataRenderer} from "../../renderers/data_renderer"
+import {CallbackLike1} from "../../callbacks/callback"
+import {Template, TemplateView} from "../../dom"
+import {GlyphView} from "../../glyphs/glyph"
+import {HAreaView} from "../../glyphs/harea"
 import {LineView} from "../../glyphs/line"
 import {MultiLineView} from "../../glyphs/multi_line"
 import {PatchView} from "../../glyphs/patch"
-import {HAreaView} from "../../glyphs/harea"
 import {VAreaView} from "../../glyphs/varea"
-import * as hittest from "core/hittest"
-import {MoveEvent} from "core/ui_events"
-import {replace_placeholders, Formatters, FormatterType, Vars} from "core/util/templating"
-import {div, span, display, undisplay, empty} from "core/dom"
-import * as p from "core/properties"
-import {Arrayable, Color} from "core/types"
-import {color2hex, color2css} from "core/util/color"
-import {is_empty} from "core/util/object"
-import {enumerate} from "core/util/iterator"
-import {isString, isFunction, isNumber} from "core/util/types"
-import {build_view, build_views, remove_views} from "core/build_views"
-import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment, MutedPolicy} from "core/enums"
-import {Geometry, PointGeometry, SpanGeometry, GeometryData} from "core/geometry"
+import {DataRenderer} from "../../renderers/data_renderer"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
+import {GraphRenderer} from "../../renderers/graph_renderer"
+import {Renderer} from "../../renderers/renderer"
+import {ImageIndex, MultiIndices, OpaqueIndices, Selection} from "../../selections/selection"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
-import {ImageIndex, Selection} from "../../selections/selection"
-import {tool_icon_hover} from "styles/icons.css"
-import {Signal} from "core/signaling"
 import {compute_renderers} from "../../util"
-import * as styles from "styles/tooltips.css"
-import {Template, TemplateView} from "../../dom"
+import {CustomJSHover} from "./customjs_hover"
+import {InspectTool, InspectToolView} from "./inspect_tool"
 
-export type TooltipVars = {index?: number} & Vars
-
-export function _nearest_line_hit(i: number, geometry: Geometry,
-    sx: number, sy: number, dx: Arrayable<number>, dy: Arrayable<number>): [[number, number], number] {
-  const d1 = {x: dx[i], y: dy[i]}
-  const d2 = {x: dx[i+1], y: dy[i+1]}
-
-  let dist1: number
-  let dist2: number
-  if (geometry.type == "span") {
-    if (geometry.direction == "h") {
-      dist1 = Math.abs(d1.x - sx)
-      dist2 = Math.abs(d2.x - sx)
-    } else {
-      dist1 = Math.abs(d1.y - sy)
-      dist2 = Math.abs(d2.y - sy)
-    }
-  } else {
-    const s = {x: sx, y: sy}
-    dist1 = hittest.dist_2_pts(d1, s)
-    dist2 = hittest.dist_2_pts(d2, s)
-  }
-
-  if (dist1 < dist2)
-    return [[d1.x, d1.y], i]
-  else
-    return [[d2.x, d2.y], i+1]
+export type TooltipVars = {
+    index: number | null
+    glyph_view: GlyphView
+    x: number
+    y: number
+    sx: number
+    sy: number
+    snap_x: number
+    snap_y: number
+    snap_sx: number
+    snap_sy: number
+    name: string | null
+    indices?: MultiIndices | OpaqueIndices
+    segment_index?: number
+    image_index?: ImageIndex
 }
 
-export function _line_hit(xs: Arrayable<number>, ys: Arrayable<number>, ind: number): [[number, number], number] {
-  return [[xs[ind], ys[ind]], ind]
+export function _nearest_line_hit(
+  i: number,
+  geometry: PointGeometry | SpanGeometry,
+  dx: Arrayable<number>, dy: Arrayable<number>
+): [[number, number], number] {
+
+  const p1 = {x: dx[i], y: dy[i]}
+  const p2 = {x: dx[i+1], y: dy[i+1]}
+  const {sx, sy} = geometry
+
+  const [d1, d2] = (function() {
+    if (geometry.type == "span") {
+      if (geometry.direction == "h")
+        return [Math.abs(p1.x - sx), Math.abs(p2.x - sx)]
+      else
+        return [Math.abs(p1.y - sy), Math.abs(p2.y - sy)]
+    }
+
+    // point geometry case
+    const s = {x: sx, y: sy}
+    const d1 = hittest.dist_2_pts(p1, s)
+    const d2 = hittest.dist_2_pts(p2, s)
+    return [d1, d2]
+  })()
+
+  return d1 < d2 ? [[p1.x, p1.y], i] : [[p2.x, p2.y], i+1]
+}
+
+export function _line_hit(
+  xs: Arrayable<number>,
+  ys: Arrayable<number>,
+  i: number,
+): [[number, number], number] {
+  return [[xs[i], ys[i]], i]
 }
 
 export class HoverToolView extends InspectToolView {
   override model: HoverTool
 
+  public readonly ttmodels: Map<GlyphRenderer, Tooltip> = new Map()
+
   protected _ttviews: Map<Tooltip, TooltipView>
-  protected _ttmodels: Map<GlyphRenderer, Tooltip>
   protected _template_el?: HTMLElement
   protected _template_view?: TemplateView
 
   override initialize(): void {
     super.initialize()
-    this._ttmodels = new Map()
     this._ttviews = new Map()
   }
 
@@ -106,28 +127,30 @@ export class HoverToolView extends InspectToolView {
   }
 
   protected async _update_ttmodels(): Promise<void> {
-    const {_ttmodels, computed_renderers} = this
-    _ttmodels.clear()
+    const {ttmodels} = this
+    ttmodels.clear()
 
     const {tooltips} = this.model
-    if (tooltips != null) {
-      for (const r of this.computed_renderers) {
-        const tooltip = new Tooltip({
-          custom: isString(tooltips) || isFunction(tooltips),
-          attachment: this.model.attachment,
-          show_arrow: this.model.show_arrow,
-        })
+    if (tooltips == null)
+      return
 
-        if (r instanceof GlyphRenderer) {
-          _ttmodels.set(r, tooltip)
-        } else if (r instanceof GraphRenderer) {
-          _ttmodels.set(r.node_renderer, tooltip)
-          _ttmodels.set(r.edge_renderer, tooltip)
-        }
+    const {computed_renderers} = this
+    for (const r of computed_renderers) {
+      const tooltip = new Tooltip({
+        custom: isString(tooltips) || isFunction(tooltips),
+        attachment: this.model.attachment,
+        show_arrow: this.model.show_arrow,
+      })
+
+      if (r instanceof GlyphRenderer) {
+        ttmodels.set(r, tooltip)
+      } else if (r instanceof GraphRenderer) {
+        ttmodels.set(r.node_renderer, tooltip)
+        ttmodels.set(r.edge_renderer, tooltip)
       }
     }
 
-    const views = await build_views(this._ttviews, [..._ttmodels.values()], {parent: this.plot_view})
+    const views = await build_views(this._ttviews, [...ttmodels.values()], {parent: this.plot_view})
     for (const ttview of views) {
       ttview.render()
     }
@@ -143,14 +166,14 @@ export class HoverToolView extends InspectToolView {
       }
     })()]
 
-    const slot = this._slots.get(this._update)
+    const slot = this._slots.get(this.update)
     if (slot != null) {
       const except = new Set(glyph_renderers.map((r) => r.data_source))
       Signal.disconnect_receiver(this, slot, except)
     }
 
     for (const r of glyph_renderers) {
-      this.connect(r.data_source.inspect, this._update)
+      this.connect(r.data_source.inspect, this.update)
     }
   }
 
@@ -158,10 +181,6 @@ export class HoverToolView extends InspectToolView {
     const {renderers} = this.model
     const all_renderers = this.plot_model.data_renderers
     return compute_renderers(renderers, all_renderers)
-  }
-
-  get ttmodels(): Map<GlyphRenderer, Tooltip> {
-    return this._ttmodels
   }
 
   _clear(): void {
@@ -205,25 +224,8 @@ export class HoverToolView extends InspectToolView {
     this._emit_callback(geometry)
   }
 
-  _update([renderer, {geometry}]: [Renderer, {geometry: Geometry}]): void {
-    if (!this.model.active)
-      return
-
-    if (!(geometry.type == "point" || geometry.type == "span"))
-      return
-
-    if (!(renderer instanceof GlyphRenderer)) // || renderer instanceof GraphRenderer))
-      return
-
-    if (this.model.muted_policy == "ignore" && renderer.muted)
-      return
-
-    const tooltip = this.ttmodels.get(renderer)
-    if (tooltip == null)
-      return
-
+  _update(renderer: GlyphRenderer, geometry: PointGeometry | SpanGeometry, tooltip: Tooltip): void {
     const selection_manager = renderer.get_selection_manager()
-
     const fullset_indices = selection_manager.inspectors.get(renderer)!
     const subset_indices = renderer.view.convert_selection_to_subset(fullset_indices)
 
@@ -249,183 +251,155 @@ export class HoverToolView extends InspectToolView {
     const tooltips: [number, number, HTMLElement | null][] = []
 
     if (glyph instanceof PatchView) {
-      const [rx, ry] = [sx, sy]
+      const [snap_sx, snap_sy] = [sx, sy]
+      const [snap_x, snap_y] = [x, y]
       const vars = {
-        x, y, sx, sy, rx, ry,
+        index: null,
+        glyph_view: glyph,
+        x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
         name: renderer.name,
       }
-      tooltips.push([rx, ry, this._render_tooltips(ds, -1, vars)])
+      const rendered = this._render_tooltips(ds, vars)
+      tooltips.push([snap_sx, snap_sy, rendered])
     }
 
-    if (glyph instanceof HAreaView) {
+    if (glyph instanceof VAreaView || glyph instanceof HAreaView) {
       for (const i of subset_indices.line_indices) {
-        const data_x1 = glyph._x1
-        const data_x2 = glyph._x2
-        const data_y = glyph._y
-        const [rx, ry] = [sx, sy]
+        const [snap_x, snap_y] = [x, y]
+        const [snap_sx, snap_sy] = [sx, sy]
         const vars = {
           index: i,
-          x, y, sx, sy, data_x1, data_x2, data_y, rx, ry,
-          indices: subset_indices.line_indices,
+          glyph_view: glyph,
+          x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
           name: renderer.name,
-        }
-        tooltips.push([rx, ry, this._render_tooltips(ds, i, vars)])
-      }
-    }
-
-    if (glyph instanceof VAreaView) {
-      for (const i of subset_indices.line_indices) {
-        const data_x = glyph._x
-        const data_y1 = glyph._y1
-        const data_y2 = glyph._y2
-        const [rx, ry] = [sx, sy]
-        const vars = {
-          index: i,
-          x, y, sx, sy, data_x, data_y1, data_y2, rx, ry,
           indices: subset_indices.line_indices,
-          name: renderer.name,
         }
-        tooltips.push([rx, ry, this._render_tooltips(ds, i, vars)])
+        const rendered = this._render_tooltips(ds, vars)
+        tooltips.push([snap_sx, snap_sy, rendered])
       }
     }
 
     if (glyph instanceof LineView) {
+      const {line_policy} = this.model
       for (const i of subset_indices.line_indices) {
-        let data_x = glyph._x[i+1]
-        let data_y = glyph._y[i+1]
-        let ii = i
-
-        let rx: number
-        let ry: number
-        switch (this.model.line_policy) {
-          case "interp": { // and renderer.get_interpolation_hit?
-            [data_x, data_y] = glyph.get_interpolation_hit(i, geometry)
-            rx = xscale.compute(data_x)
-            ry = yscale.compute(data_y)
-            break
+        const [[snap_x, snap_y], [snap_sx, snap_sy], ii] = (() => {
+          if (line_policy == "interp") {
+            const [snap_x, snap_y] = glyph.get_interpolation_hit(i, geometry)
+            const snap_sxy = [xscale.compute(snap_x), yscale.compute(snap_y)]
+            return [[snap_x, snap_y], snap_sxy, i]
           }
-          case "prev": {
-            [[rx, ry], ii] = _line_hit(glyph.sx, glyph.sy, i)
-            break
+          const [x, y] = [glyph._x, glyph._y]
+          if (line_policy == "prev") {
+            const [snap_sxy, ii] = _line_hit(glyph.sx, glyph.sy, i)
+            return [[x[i+1], y[i+1]], snap_sxy, ii]
           }
-          case "next": {
-            [[rx, ry], ii] = _line_hit(glyph.sx, glyph.sy, i+1)
-            break
+          if (line_policy=="next") {
+            const [snap_sxy, ii] = _line_hit(glyph.sx, glyph.sy, i+1)
+            return [[x[i+1], y[i+1]], snap_sxy, ii]
           }
-          case "nearest": {
-            [[rx, ry], ii] = _nearest_line_hit(i, geometry, sx, sy, glyph.sx, glyph.sy)
-            data_x = glyph._x[ii]
-            data_y = glyph._y[ii]
-            break
+          if (line_policy == "nearest") {
+            const [snap_sxy, ii] = _nearest_line_hit(i, geometry, glyph.sx, glyph.sy)
+            return [[x[ii], y[ii]], snap_sxy, ii]
           }
-          default: {
-            [rx, ry] = [sx, sy]
-          }
-        }
+          throw new Error("shouldn't have happened")
+        })()
 
         const vars = {
           index: ii,
-          x, y, sx, sy, data_x, data_y, rx, ry,
-          indices: subset_indices.line_indices,
+          glyph_view: glyph,
+          x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
           name: renderer.name,
+          indices: subset_indices.line_indices,
         }
-        tooltips.push([rx, ry, this._render_tooltips(ds, ii, vars)])
+        const rendered = this._render_tooltips(ds, vars)
+        tooltips.push([snap_sx, snap_sy, rendered])
       }
     }
 
-    for (const struct of fullset_indices.image_indices) {
+    for (const image_index of fullset_indices.image_indices) {
+      const [snap_sx, snap_sy] = [sx, sy]
+      const [snap_x, snap_y] = [x, y]
       const vars = {
-        index: struct.index,
-        x, y, sx, sy,
+        index: image_index.index,
+        glyph_view: glyph,
+        x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
         name: renderer.name,
+        image_index,
       }
-      const rendered = this._render_tooltips(ds, struct, vars)
-      tooltips.push([sx, sy, rendered])
+      const rendered = this._render_tooltips(ds, vars)
+      tooltips.push([snap_sx, snap_sy, rendered])
     }
 
     for (const i of subset_indices.indices) {
       // multiglyphs set additional indices, e.g. multiline_indices for different tooltips
       if (glyph instanceof MultiLineView && !is_empty(subset_indices.multiline_indices)) {
+        const {line_policy} = this.model
         for (const j of subset_indices.multiline_indices[i.toString()]) { // TODO: subset_indices.multiline_indices.get(i)
-          let data_x = glyph._xs.get(i)[j]
-          let data_y = glyph._ys.get(i)[j]
-          let jj = j
+          const [[snap_x, snap_y], [snap_sx, snap_sy], jj] = (function() {
+            if (line_policy == "interp") {
+              const [snap_x, snap_y] = glyph.get_interpolation_hit(i, j, geometry)
+              const snap_sxy = [xscale.compute(snap_x), yscale.compute(snap_y)]
+              return [[snap_x, snap_y], snap_sxy, j]
+            }
+            const [xs, ys] = [glyph._xs.get(i), glyph._ys.get(i)]
+            if (line_policy == "prev") {
+              const [snap_sxy, jj] = _line_hit(glyph.sxs.get(i), glyph.sys.get(i), j)
+              return [[xs[j], ys[j]], snap_sxy, jj]
+            }
+            if (line_policy=="next") {
+              const [snap_sxy, jj] = _line_hit(glyph.sxs.get(i), glyph.sys.get(i), j+1)
+              return [[xs[j], ys[j]], snap_sxy, jj]
+            }
+            if (line_policy == "nearest") {
+              const [snap_sxy, jj] = _nearest_line_hit(j, geometry, glyph.sxs.get(i), glyph.sys.get(i))
+              return [[xs[jj], ys[jj]], snap_sxy, jj]
+            }
+            throw new Error("shouldn't have happened")
+          })()
 
-          let rx: number
-          let ry: number
-          switch (this.model.line_policy) {
-            case "interp": { // and renderer.get_interpolation_hit?
-              [data_x, data_y] = glyph.get_interpolation_hit(i, j, geometry)
-              rx = xscale.compute(data_x)
-              ry = yscale.compute(data_y)
-              break
-            }
-            case "prev": {
-              [[rx, ry], jj] = _line_hit(glyph.sxs.get(i), glyph.sys.get(i), j)
-              break
-            }
-            case "next": {
-              [[rx, ry], jj] = _line_hit(glyph.sxs.get(i), glyph.sys.get(i), j+1)
-              break
-            }
-            case "nearest": {
-              [[rx, ry], jj] = _nearest_line_hit(j, geometry, sx, sy, glyph.sxs.get(i), glyph.sys.get(i))
-              data_x = glyph._xs.get(i)[jj]
-              data_y = glyph._ys.get(i)[jj]
-              break
-            }
-            default:
-              throw new Error("shouldn't have happened")
-          }
-
-          let index: number
-          if (renderer instanceof GlyphRenderer)
-            index = renderer.view.convert_indices_from_subset([i])[0]
-          else
-            index = i
+          const index = renderer.view.convert_indices_from_subset([i])[0]
 
           const vars = {
-            index, x, y, sx, sy, data_x, data_y,
-            segment_index: jj,
-            indices: subset_indices.multiline_indices,
+            index,
+            glyph_view: glyph,
+            x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
             name: renderer.name,
+            indices: subset_indices.multiline_indices,
+            segment_index: jj,
           }
-          tooltips.push([rx, ry, this._render_tooltips(ds, index, vars)])
+          const rendered = this._render_tooltips(ds, vars)
+          tooltips.push([snap_sx, snap_sy, rendered])
         }
       } else {
         // handle non-multiglyphs
-        const data_x = (glyph as any)._x?.[i]
-        const data_y = (glyph as any)._y?.[i]
+        const snap_x = (glyph as any)._x?.[i]
+        const snap_y = (glyph as any)._y?.[i]
 
-        let rx: number
-        let ry: number
-        if (this.model.point_policy == "snap_to_data") { // and renderer.glyph.sx? and renderer.glyph.sy?
-          // Pass in our screen position so we can determine which patch we're
-          // over if there are discontinuous patches.
-          let pt = glyph.get_anchor_point(this.model.anchor, i, [sx, sy])
-          if (pt == null) {
-            pt = glyph.get_anchor_point("center", i, [sx, sy])
-            if (pt == null)
-              continue // TODO?
+        const {point_policy, anchor}  = this.model
+        const [snap_sx, snap_sy] = (function() {
+          if (point_policy == "snap_to_data") {
+            const pt = glyph.get_anchor_point(anchor, i, [sx, sy])
+            if (pt != null)
+              return [pt.x,  pt.y]
+            const ptc = glyph.get_anchor_point("center", i, [sx, sy])
+            if (ptc != null)
+              return [ptc.x,  ptc.y]
+            return [sx, sy]
           }
+          return [sx, sy]
+        })()
 
-          rx = pt.x
-          ry = pt.y
-        } else
-          [rx, ry] = [sx, sy]
-
-        let index: number
-        if (renderer instanceof GlyphRenderer)
-          index = renderer.view.convert_indices_from_subset([i])[0]
-        else
-          index = i
+        const index = renderer.view.convert_indices_from_subset([i])[0]
 
         const vars = {
-          index, x, y, sx, sy, data_x, data_y,
-          indices: subset_indices.indices,
+          index,
+          glyph_view: glyph,
+          x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
           name: renderer.name,
+          indices: subset_indices.indices,
         }
-        tooltips.push([rx, ry, this._render_tooltips(ds, index, vars)])
+        const rendered = this._render_tooltips(ds, vars)
+        tooltips.push([snap_sx, snap_sy, rendered])
       }
     }
 
@@ -442,6 +416,23 @@ export class HoverToolView extends InspectToolView {
       const [x, y] = tooltips[tooltips.length-1]
       tooltip.setv({position: [x, y]}, {check_eq: false}) // XXX: force update
     }
+  }
+
+  update([renderer, {geometry}]: [GlyphRenderer, {geometry: Geometry}]): void {
+    if (!this.model.active)
+      return
+
+    if (!(geometry.type == "point" || geometry.type == "span"))
+      return
+
+    if (this.model.muted_policy == "ignore" && renderer.muted)
+      return
+
+    const tooltip = this.ttmodels.get(renderer)
+    if (is_undefined(tooltip))
+      return
+
+    this._update(renderer, geometry, tooltip)
   }
 
   _emit_callback(geometry: PointGeometry | SpanGeometry): void {
@@ -495,8 +486,11 @@ export class HoverToolView extends InspectToolView {
     return rows
   }
 
-  _render_template(template: HTMLElement, tooltips: [string, string][], ds: ColumnarDataSource, i: number | ImageIndex, vars: TooltipVars): HTMLElement {
+  _render_template(template: HTMLElement, tooltips: [string, string][], ds: ColumnarDataSource, vars: TooltipVars): HTMLElement {
     const el = template.cloneNode(true) as HTMLElement
+
+    // if we have an image_index, that is what replace_placeholders needs
+    const i = is_undefined(vars.image_index) ? vars.index : vars.image_index
 
     const value_els = el.querySelectorAll<HTMLElement>("[data-value]")
     const swatch_els = el.querySelectorAll<HTMLElement>("[data-swatch]")
@@ -508,44 +502,7 @@ export class HoverToolView extends InspectToolView {
       const swatch_match = value.match(swatch_re)
       const color_match = value.match(color_re)
 
-      if (swatch_match != null || color_match != null) {
-        if (swatch_match != null) {
-          const [, colname] = swatch_match
-          const column = ds.get_column(colname)
-
-          if (column == null) {
-            value_els[j].textContent = `${colname} unknown`
-          } else {
-            const color = isNumber(i) ? column[i] : null
-
-            if (color != null) {
-              swatch_els[j].style.backgroundColor = color2css(color)
-              display(swatch_els[j])
-            }
-          }
-        }
-
-        if (color_match != null) {
-          const [, opts = "", colname] = color_match
-          const column = ds.get_column(colname) // XXX: change to columnar ds
-          if (column == null) {
-            value_els[j].textContent = `${colname} unknown`
-            continue
-          }
-          const hex = opts.indexOf("hex") >= 0
-          const swatch = opts.indexOf("swatch") >= 0
-          const color: Color | null = isNumber(i) ? column[i] : null
-          if (color == null) {
-            value_els[j].textContent = "(null)"
-            continue
-          }
-          value_els[j].textContent = hex ? color2hex(color) : color2css(color) // TODO: color2pretty
-          if (swatch) {
-            swatch_els[j].style.backgroundColor = color2css(color)
-            display(swatch_els[j])
-          }
-        }
-      } else {
+      if (swatch_match == null && color_match == null) {
         const content = replace_placeholders(value.replace("$~", "$data_"), ds, i, this.model.formatters, vars)
         if (isString(content)) {
           value_els[j].textContent = content
@@ -554,27 +511,74 @@ export class HoverToolView extends InspectToolView {
             value_els[j].appendChild(el)
           }
         }
+        continue
       }
+
+      if (swatch_match != null) {
+        const [, colname] = swatch_match
+        const column = ds.get_column(colname)
+
+        if (column == null) {
+          value_els[j].textContent = `${colname} unknown`
+        } else {
+          const color = isNumber(i) ? column[i] : null
+
+          if (color != null) {
+            swatch_els[j].style.backgroundColor = color2css(color)
+            display(swatch_els[j])
+          }
+        }
+      }
+
+      if (color_match != null) {
+        const [, opts = "", colname] = color_match
+        const column = ds.get_column(colname) // XXX: change to columnar ds
+        if (column == null) {
+          value_els[j].textContent = `${colname} unknown`
+          continue
+        }
+        const hex = opts.indexOf("hex") >= 0
+        const swatch = opts.indexOf("swatch") >= 0
+        const color: Color | null = isNumber(i) ? column[i] : null
+        if (color == null) {
+          value_els[j].textContent = "(null)"
+          continue
+        }
+        value_els[j].textContent = hex ? color2hex(color) : color2css(color) // TODO: color2pretty
+        if (swatch) {
+          swatch_els[j].style.backgroundColor = color2css(color)
+          display(swatch_els[j])
+        }
+      }
+
     }
 
     return el
   }
 
-  _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: TooltipVars): HTMLElement | null {
+  _render_tooltips(ds: ColumnarDataSource, vars: TooltipVars): HTMLElement | null {
     const {tooltips} = this.model
+    const i = vars.index
+
     if (isString(tooltips)) {
       const content = replace_placeholders({html: tooltips}, ds, i, this.model.formatters, vars)
       return div(content)
-    } else if (isFunction(tooltips)) {
+    }
+
+    if (isFunction(tooltips))
       return tooltips(ds, vars)
-    } else if (tooltips instanceof Template) {
+
+    if (tooltips instanceof Template) {
       this._template_view!.update(ds, i, vars)
       return this._template_view!.el
-    } else if (tooltips != null) {
+    }
+
+    if (tooltips != null) {
       const template = this._template_el ?? (this._template_el = this._create_template(tooltips))
-      return this._render_template(template, tooltips, ds, i, vars)
-    } else
-      return null
+      return this._render_template(template, tooltips, ds, vars)
+    }
+
+    return null
   }
 }
 
