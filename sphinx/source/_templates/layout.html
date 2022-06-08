@@ -28,7 +28,9 @@
     </div>
     {% endblock %}
     {% if theme_show_prev_next %}
-    {% include "prev-next.html" %}
+    <footer class="bd-footer-article">
+      {% include "sections/footer-article.html" %}
+    </footer>
     {% endif %}
 </main>
 {% endblock %}
