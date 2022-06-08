@@ -29,58 +29,27 @@ Once you have "npm" installed, this script can be used to build BokehJS
 from the ``bokehjs`` source subdirectory, and install Bokeh into the python
 source package by issuing the command:
 
-    python setup.py install --build-js
+    pip install .
 
-The script also supports the standard "develop" mode that setuptools offers:
+Bokeh also supports the standard "editable" installs for developmnet:
 
-    python setup.py develop --build-js
+    pip install -e .
 
 It can take a few minutes for BokehJS to build, if you are not making changes
 to the BokehJS source code, then you only need to build it once, the first
 time. Subsequence invocations can be made to install the previously built
-BokehJS from the ``bokehjs`` source subdirectory with the ``--install-js``
+BokehJS from the ``bokehjs`` source subdirectory with the ``install-js``
 option, e.g:
 
-    python setup.py develop --install-js
-
-It is also possible to build BokehJS "by hand" under the ``bokehjs`` source
-subdirectory. In this case, to simply install the build BokehJS quickly into
-the python source tree, the following command may be issued:
-
-    python setup.py --install-js
-
-This will copy BokehJS from the ``bokehjs`` source directory, into the python
-package directory, and perform no other actions.
-
-Note that source distributions (sdists) and wheels are published with a
-pre-built BokehJS included inside the python package, and do not include the
-``bokehjs`` source. The ``--build-js`` and ``-install-js`` options are not valid
-when running from an sdist. They will be ignored, and warning printed.
-
+    BOKEHJS_ACTION="install" pip install .
 '''
-import sys
-
 from setuptools import find_packages, setup
 
 import versioneer
-
-from _setup_support import ( # isort:skip
-    build_or_install_bokehjs, check_packaged, check_python, conda_rendering,
-    install_js, show_bokehjs, show_help, INSTALL_REQUIRES,
-)
+from _setup_support import INSTALL_REQUIRES, BuildJSCmd, check_python
 
 # bail on unsupported Python versions
 check_python()
-
-# immediately handle lightweight "python setup.py --install-js"
-if len(sys.argv) == 2 and sys.argv[-1] == '--install-js':
-    install_js()
-    sys.exit()
-
-# if this is just conda-build skimming information, skip all this actual work
-if not conda_rendering():
-    is_packaged = check_packaged()
-    bokehjs_action = "packaged" if is_packaged else build_or_install_bokehjs()
 
 setup(
     # basic package metadata
@@ -102,11 +71,5 @@ setup(
     include_package_data=True,
     entry_points={'console_scripts': ['bokeh = bokeh.__main__:main']},
     zip_safe=False,
-    cmdclass=versioneer.get_cmdclass(),
+    cmdclass=versioneer.get_cmdclass({"build_ext": BuildJSCmd}),
 )
-
-# if this is just conda-build skimming information, skip all this actual work
-if not conda_rendering():
-    if '--help'  in sys.argv: show_help(bokehjs_action)
-    if 'develop' in sys.argv: show_bokehjs(bokehjs_action, develop=True)
-    if 'install' in sys.argv: show_bokehjs(bokehjs_action)
