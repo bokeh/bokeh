@@ -43,7 +43,7 @@ __all__ = (
     "Action",
     "Menu",
     "Section",
-    "Separator",
+    "Divider",
 )
 
 #-----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ class Section(MenuItem):
     items = List(Instance(Action), default=[], help="""
     """)
 
-class Separator(MenuItem):
+class Divider(MenuItem):
     """ """
 
     # explicit __init__ to support Init signatures
