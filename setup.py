@@ -31,7 +31,7 @@ source package by issuing the command:
 
     pip install .
 
-Bokeh also supports the standard "editable" installs for developmnet:
+Bokeh also supports the standard "editable" installs for development:
 
     pip install -e .
 
@@ -43,10 +43,24 @@ option, e.g:
 
     BOKEHJS_ACTION="install" pip install .
 '''
-from setuptools import find_packages, setup
+from setuptools import find_namespace_packages, setup
 
+import sys
 import versioneer
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+sys.path.append(str(ROOT))  # avoid depending on `build_meta:__legacy__`
+
 from _setup_support import INSTALL_REQUIRES, BuildJSCmd, check_python
+
+try:
+    from setuptools.command.build import build  # future-proof
+except ImportError:
+    from distutils.command.build import build
+
+# run `build_js` first, so files are available as "data files" to `build_py`
+build.sub_commands.insert(0, ('build_js', None))
 
 check_python() # bail on unsupported Python versions
 
@@ -66,9 +80,9 @@ setup(
     # details needed by setup
     install_requires=INSTALL_REQUIRES,
     python_requires=">=3.8",
-    packages=find_packages(include=["bokeh", "bokeh.*"]),
+    packages=find_namespace_packages(include=["bokeh", "bokeh.*"]),
     include_package_data=True,
     entry_points={'console_scripts': ['bokeh = bokeh.__main__:main']},
     zip_safe=False,
-    cmdclass=versioneer.get_cmdclass({"build_ext": BuildJSCmd}),
+    cmdclass=versioneer.get_cmdclass({"build_js": BuildJSCmd}),
 )
