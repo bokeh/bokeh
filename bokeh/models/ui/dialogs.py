@@ -7,6 +7,7 @@
 """
 
 """
+
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
@@ -20,34 +21,58 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from . import (
-    dialogs,
-    icons,
-    inspector,
-    menus,
-    tooltips,
+from ...core.properties import (
+    Bool,
+    Either,
+    Instance,
+    List,
+    NonNullable as Required,
+    Nullable,
+    String,
 )
-from .dialogs import *
-from .icons import *
-from .inspector import *
-from .menus import *
-from .tooltips import *
+from ..dom import DOMNode
+from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    dialogs.__all__ +
-    icons.__all__ +
-    inspector.__all__ +
-    menus.__all__ +
-    tooltips.__all__
+    "Dialog",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+Button = UIElement # TODO
+
+class Dialog(UIElement):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+
+    title = Nullable(Either(String, Instance(DOMNode)), default=None, help="""
+    """)
+
+    content = Required(Either(String, Instance(DOMNode), Instance(UIElement)), help="""
+    """)
+
+    buttons = List(Instance(Button), default=[], help="""
+    """)
+
+    closable = Bool(default=False, help="""
+    """)
+
+    closable = Bool(default=True, help="""
+    Whether to show close (x) button in the title bar.
+    """)
+
+    draggable = Bool(default=True, help="""
+    """)
 
 #-----------------------------------------------------------------------------
 # Dev API
