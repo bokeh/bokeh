@@ -46,13 +46,13 @@ option, e.g:
 from setuptools import find_namespace_packages, setup
 
 import sys
-import versioneer
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 sys.path.append(str(ROOT))  # avoid depending on `build_meta:__legacy__`
 
-from _setup_support import INSTALL_REQUIRES, BuildJSCmd, check_python
+import versioneer
+from _setup_support import INSTALL_REQUIRES, BuildJSCmd, DevelopWithJs, check_python
 
 try:
     from setuptools.command.build import build  # future-proof
@@ -63,6 +63,9 @@ except ImportError:
 build.sub_commands.insert(0, ('build_js', None))
 
 check_python() # bail on unsupported Python versions
+
+
+commands = {"build_js": BuildJSCmd, "develop": DevelopWithJs}
 
 setup(
     # basic package metadata
@@ -84,5 +87,5 @@ setup(
     include_package_data=True,
     entry_points={'console_scripts': ['bokeh = bokeh.__main__:main']},
     zip_safe=False,
-    cmdclass=versioneer.get_cmdclass({"build_js": BuildJSCmd}),
+    cmdclass=versioneer.get_cmdclass(commands),
 )

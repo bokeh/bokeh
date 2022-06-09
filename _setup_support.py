@@ -17,6 +17,7 @@ from pathlib import Path
 from subprocess import PIPE, CompletedProcess, run
 
 from setuptools import Command
+from setuptools.command.develop import develop
 
 # -----------------------------------------------------------------------------
 # Module global variables
@@ -152,6 +153,12 @@ class BuildJSCmd(Command):
     def summarize(self) -> None:
         kind = "NEWLY BUILT" if self.action == "build" else "PREVIOUSLY BUILT"
         print(SUMMARY_MSG.format(kind=kind))
+
+class DevelopWithJs(develop):
+    def run(self):
+        super().run()
+        if not self.uninstall:
+            self.run_command("build_js")
 
 # -----------------------------------------------------------------------------
 # Status and error message strings
