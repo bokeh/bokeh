@@ -2,7 +2,7 @@
 
 package:
   name: bokeh
-  version: {{ data['version'] }}
+  version: {{ data.get('version') }}
 
 source:
   path: ..
@@ -37,14 +37,14 @@ requirements:
   run:
     - python >=3.8
 
-    {% for dep in data['install_requires'] %}
+    {% for dep in data.get('install_requires') %}
     - {{ dep.lower() }}
     {% endfor %}
 
 about:
   home: https://www.bokeh.org
-  license: {{ data['license'] }}
-  summary: {{ data['description'] }}
+  license: {{ data.get('license') }}
+  summary: {{ data.get('description') }}
   description: |
     Bokeh is a Python library for creating interactive visualizations
     for modern web browsers. It helps you build beautiful graphics,
@@ -52,4 +52,4 @@ about:
     datasets. With Bokeh, you can create JavaScript-powered visualizations
     without writing any JavaScript yourself.
   doc_url: https://docs.bokeh.org
-  dev_url: {{ data['url'] }}
+  dev_url: {{ data.get('url') }}

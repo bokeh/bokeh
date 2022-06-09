@@ -48,8 +48,7 @@ from setuptools import find_packages, setup
 import versioneer
 from _setup_support import INSTALL_REQUIRES, BuildJSCmd, check_python
 
-# bail on unsupported Python versions
-check_python()
+check_python() # bail on unsupported Python versions
 
 setup(
     # basic package metadata
