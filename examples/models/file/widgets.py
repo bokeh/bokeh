@@ -16,12 +16,12 @@ from bokeh.embed import file_html
 from bokeh.models import (AutocompleteInput, Button, ByCSS, CheckboxButtonGroup,
                           CheckboxGroup, ColorPicker, Column, ColumnDataSource,
                           DataTable, DatePicker, DateRangeSlider, DateSlider, Dialog,
-                          Div, Dropdown, HelpButton, IntEditor, Menu, MultiChoice,
-                          MultiSelect, NumberEditor, NumberFormatter, Panel, Paragraph,
-                          PreText, RadioButtonGroup, RadioGroup, RangeSlider, Row,
-                          Select, SelectEditor, SetValue, Slider, Spinner, StringEditor,
-                          StringFormatter, Switch, TableColumn, TablerIcon, Tabs,
-                          TextAreaInput, TextInput, Toggle, Tooltip)
+                          Div, Dropdown, HelpButton, Inspector, IntEditor, Menu,
+                          MultiChoice, MultiSelect, NumberEditor, NumberFormatter,
+                          Panel, Paragraph, PreText, RadioButtonGroup, RadioGroup,
+                          RangeSlider, Row, Select, SelectEditor, SetValue, Slider,
+                          Spinner, StringEditor, StringFormatter, Switch, TableColumn,
+                          TablerIcon, Tabs, TextAreaInput, TextInput, Toggle, Tooltip)
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
@@ -29,7 +29,7 @@ from bokeh.sampledata.autompg2 import autompg2 as mpg
 from bokeh.sampledata.iris import flowers
 from bokeh.util.browser import view
 
-dialog = Dialog(content="A dialog", visible=False)
+dialog = Dialog(content=Inspector(), visible=False)
 
 click_button = Button(icon=TablerIcon("alert-circle"), label="Open dialog box", button_type="success")
 click_button.js_on_event("button_click", SetValue(dialog, "visible", True))

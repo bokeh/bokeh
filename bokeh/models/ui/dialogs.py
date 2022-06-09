@@ -64,7 +64,7 @@ class Dialog(UIElement):
     buttons = List(Instance(Button), default=[], help="""
     """)
 
-    closable = Bool(default=False, help="""
+    modal = Bool(default=False, help="""
     """)
 
     closable = Bool(default=True, help="""

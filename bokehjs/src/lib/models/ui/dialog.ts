@@ -1,9 +1,12 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {DOMNode, DOMNodeView, Text} from "../dom/index"
-import {StyleSheetLike} from "core/dom"
+import {StyleSheetLike, div} from "core/dom"
 import {isString} from "core/util/types"
 import {build_view} from "core/build_views"
 import * as p from "core/properties"
+
+import dialogs_css, * as dialogs from "styles/dialogs.css"
+import icons_css from "styles/icons.css"
 
 type Button = UIElement
 const Button = UIElement
@@ -14,7 +17,7 @@ export class DialogView extends UIElementView {
   protected _content: DOMNodeView | UIElementView
 
   override styles(): StyleSheetLike[] {
-    return [...super.styles()]
+    return [...super.styles(), dialogs_css, icons_css]
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -47,10 +50,23 @@ export class DialogView extends UIElementView {
     }
 
     document.body.appendChild(this.el)
-
     this.empty()
+
     this._content.render()
-    this.shadow_el.appendChild(this._content.el)
+
+    const title = div({class: dialogs.title})
+    const content = div({class: dialogs.content}, this._content.el)
+    const buttons = div({class: dialogs.buttons})
+
+    this.shadow_el.appendChild(title)
+    this.shadow_el.appendChild(content)
+    this.shadow_el.appendChild(buttons)
+
+    if (this.model.closable) {
+      const close = div({class: dialogs.close})
+      close.addEventListener("click", () => this.model.visible = false)
+      this.shadow_el.appendChild(close)
+    }
   }
 }
 
