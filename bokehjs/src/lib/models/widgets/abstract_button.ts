@@ -1,6 +1,6 @@
 import * as p from "core/properties"
 import {ButtonType} from "core/enums"
-import {prepend, nbsp, button, div, StyleSheetLike} from "core/dom"
+import {prepend, nbsp, text, button, div, StyleSheetLike} from "core/dom"
 import {build_view} from "core/build_views"
 
 import {Control, ControlView} from "./control"
@@ -58,11 +58,8 @@ export abstract class AbstractButtonView extends ControlView {
     this.button_el.addEventListener("click", () => this.click())
 
     if (this.icon_view != null) {
-      if (this.model.label != "") {
-        prepend(this.button_el, this.icon_view.el, nbsp())
-      } else {
-        prepend(this.button_el, this.icon_view.el)
-      }
+      const separator = this.model.label != "" ? nbsp() : text("")
+      prepend(this.button_el, this.icon_view.el, separator)
       this.icon_view.render()
     }
 

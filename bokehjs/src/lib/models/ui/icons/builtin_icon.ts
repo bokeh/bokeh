@@ -2,6 +2,7 @@ import {Icon, IconView} from "./icon"
 import {Color} from "core/types"
 import {StyleSheet, StyleSheetLike} from "core/dom"
 import {color2css} from "core/util/color"
+import {isNumber} from "core/util/types"
 import * as p from "core/properties"
 
 import icons_css from "styles/icons.css"
@@ -27,10 +28,17 @@ export class BuiltinIconView extends IconView {
     const icon = `var(--bokeh-icon-${name})`
     const color = color2css(this.model.color)
 
+    const size = (() => {
+      const {size} = this.model
+      return isNumber(size) ? `${size}px` : size
+    })()
+
     this._style.replace(`
       :host {
-        width: 18px;
-        height: 18px;
+        display: inline-block;
+        vertical-align: middle;
+        width: ${size};
+        height: ${size};
         background-color: ${color};
         mask-image: ${icon};
         mask-size: contain;
@@ -69,5 +77,9 @@ export class BuiltinIcon extends Icon {
       icon_name: [ String ],
       color: [ Color, "gray" ],
     }))
+
+    this.override<BuiltinIcon.Props>({
+      size: 18,
+    })
   }
 }

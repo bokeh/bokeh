@@ -134,11 +134,15 @@ export function createSVGElement<T extends keyof SVGElementTagNameMap>(
   return element
 }
 
-export function nbsp(): Text {
-  return document.createTextNode("\u00a0")
+export function text(str: string): Text {
+  return document.createTextNode(str)
 }
 
-export function append(element: HTMLElement, ...children: Element[]): void {
+export function nbsp(): Text {
+  return text("\u00a0")
+}
+
+export function append(element: HTMLElement, ...children: Node[]): void {
   for (const child of children)
     element.appendChild(child)
 }
@@ -149,8 +153,6 @@ export function remove(element: Node): void {
     parent.removeChild(element)
   }
 }
-
-export const removeElement = remove
 
 export function replaceWith(element: HTMLElement, replacement: HTMLElement): void {
   const parent = element.parentNode

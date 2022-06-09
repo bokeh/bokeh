@@ -1,10 +1,10 @@
 import {Icon, IconView} from "./icon"
-import {span, GlobalStyleSheet, ImportedStyleSheet, StyleSheetLike} from "core/dom"
+import {span, StyleSheet, ImportedStyleSheet, GlobalStyleSheet, StyleSheetLike} from "core/dom"
+import {isNumber} from "core/util/types"
 import * as p from "core/properties"
 
 export class TablerIconView extends IconView {
   override model: TablerIcon
-  static override tag_name = "span" as const
 
   protected static readonly _url = "https://unpkg.com/@tabler/icons@latest/iconfont"
 
@@ -35,8 +35,10 @@ export class TablerIconView extends IconView {
 
   protected readonly _tabler = new ImportedStyleSheet(`${TablerIconView._url}/tabler-icons.min.css`)
 
+  protected readonly _style = new StyleSheet("")
+
   override styles(): StyleSheetLike[] {
-    return [...super.styles(), this._tabler]
+    return [...super.styles(), this._tabler, this._style]
   }
 
   override initialize(): void {
@@ -46,6 +48,17 @@ export class TablerIconView extends IconView {
 
   render(): void {
     this.empty()
+    const size = (() => {
+      const {size} = this.model
+      return isNumber(size) ? `${size}px` : size
+    })()
+    this._style.replace(`
+      :host {
+        display: inline-block;
+        vertical-align: middle;
+        font-size: ${size};
+      }
+    `)
     const icon = span({class: ["ti", `ti-${this.model.icon_name}`]})
     this.shadow_el.appendChild(icon)
   }

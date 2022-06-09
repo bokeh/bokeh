@@ -13,15 +13,16 @@ from datetime import date
 
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (AutocompleteInput, Button, ByCSS, CheckboxButtonGroup,
-                          CheckboxGroup, ColorPicker, Column, ColumnDataSource,
-                          DataTable, DatePicker, DateRangeSlider, DateSlider, Dialog,
-                          Div, Dropdown, HelpButton, Inspector, IntEditor, Menu,
-                          MultiChoice, MultiSelect, NumberEditor, NumberFormatter,
-                          Panel, Paragraph, PreText, RadioButtonGroup, RadioGroup,
-                          RangeSlider, Row, Select, SelectEditor, SetValue, Slider,
-                          Spinner, StringEditor, StringFormatter, Switch, TableColumn,
-                          TablerIcon, Tabs, TextAreaInput, TextInput, Toggle, Tooltip)
+from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS,
+                          CheckboxButtonGroup, CheckboxGroup, ColorPicker, Column,
+                          ColumnDataSource, DataTable, DatePicker, DateRangeSlider,
+                          DateSlider, Dialog, Div, Dropdown, HelpButton, Inspector,
+                          IntEditor, Menu, MultiChoice, MultiSelect, NumberEditor,
+                          NumberFormatter, Panel, Paragraph, PreText,
+                          RadioButtonGroup, RadioGroup, RangeSlider, Row, Select,
+                          SelectEditor, SetValue, Slider, Spinner, StringEditor,
+                          StringFormatter, Switch, TableColumn, TablerIcon, Tabs,
+                          TextAreaInput, TextInput, Toggle, Tooltip)
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
@@ -31,12 +32,12 @@ from bokeh.util.browser import view
 
 dialog = Dialog(content=Inspector(), visible=False)
 
-click_button = Button(icon=TablerIcon("alert-circle"), label="Open dialog box", button_type="success")
+click_button = Button(icon=TablerIcon("settings", size="14px"), label="Open inspector", button_type="success")
 click_button.js_on_event("button_click", SetValue(dialog, "visible", True))
 
 disabled_button = Button(label="Button (disabled) - still has click event", button_type="primary", disabled=True)
 
-toggle = Toggle(label="Toggle button", button_type="success")
+toggle = Toggle(icon=BuiltinIcon("settings", size="14px", color="white"), label="Toggle button", button_type="success")
 
 menu = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), None, ("Item 3", "item_3_value")]
 
