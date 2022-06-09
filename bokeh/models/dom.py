@@ -34,6 +34,8 @@ from ..core.properties import (
 )
 from ..core.property.bases import Init
 from ..core.property.singletons import Intrinsic
+from ..core.validation import error
+from ..core.validation.errors import NOT_A_PROPERTY_OF
 from ..model import Model, Qualified
 from .css import Styles
 from .renderers import RendererGroup
@@ -152,13 +154,20 @@ class ValueOf(Placeholder):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    obj = Required(Instance(HasProps), help="""
+    obj: HasProps = Required(Instance(HasProps), help="""
+    The object whose property will be observed.
     """)
 
-    attr = Required(String, help="""
+    attr: str = Required(String, help="""
+    The property whose value will be observerd.
     """)
 
-    # TODO: validation
+    @error(NOT_A_PROPERTY_OF)
+    def _check_if_an_attribute_is_a_property_of_a_model(self):
+        if self.obj.lookup(self.attr, raises=False):
+            return None
+        else:
+            return f"{self.attr} is not a property of {self.obj}"
 
 class Index(Placeholder):
 

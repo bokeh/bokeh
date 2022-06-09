@@ -222,6 +222,14 @@ REPEATED_LAYOUT_CHILD = Error(
     1027,
     "REPEATED_LAYOUT_CHILD",
     "The same model can't be used multiple times in a layout")
+NOT_A_PROPERTY_OF = Error(
+    1028,
+    "NOT_A_PROPERTY_OF",
+    "Invalid property name")
+INVALID_PROPERTY_VALUE = Error(
+    1029,
+    "INVALID_PROPERTY_VALUE",
+    "Invalid property value")
 EXT = Error(
     9999,
     "EXT",
