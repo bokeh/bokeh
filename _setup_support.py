@@ -24,7 +24,7 @@ from subprocess import PIPE, CompletedProcess, run
 MIN_PYTHON_VERSION = (3, 8)
 
 # state our runtime deps here, also used by meta.yaml (so KEEP the spaces)
-INSTALL_REQUIRES = (
+INSTALL_REQUIRES = [
     'Jinja2 >=2.9',
     'numpy >=1.11.3',
     'packaging >=16.8',
@@ -33,7 +33,7 @@ INSTALL_REQUIRES = (
     'tornado >=5.1',
     'typing_extensions >=3.10.0',
     'xyzservices >=2021.09.1',
-)
+]
 
 BOKEHJS_FILES = (
     "bokeh.js",
