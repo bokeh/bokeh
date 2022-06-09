@@ -22,6 +22,7 @@ include _setup_support.py
 
 # Package files and data
 include bokeh/LICENSE.txt
+graft bokehjs
 graft bokeh/core/_templates
 graft bokeh/sampledata/_data
 graft bokeh/sphinxext/_templates
