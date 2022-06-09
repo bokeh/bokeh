@@ -1,6 +1,6 @@
 #!/bin/bash
 
-$PYTHON setup.py --quiet install --install-js --single-version-externally-managed --record=record.txt
+BOKEHJS_ACTION=install $PYTHON -m pip install .
 
 cd $PREFIX
 echo $PREFIX

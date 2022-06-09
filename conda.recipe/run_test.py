@@ -1,4 +1,4 @@
 # Bokeh imports
 import bokeh
 
-print('bokeh.__version__: %s' % bokeh.__version__)
+print(f"bokeh.__version__: {bokeh.__version__}")
