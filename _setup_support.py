@@ -13,9 +13,10 @@ import re
 import shutil
 import sys
 import time
-from distutils.cmd import Command
 from pathlib import Path
 from subprocess import PIPE, CompletedProcess, run
+
+from setuptools import Command
 
 # -----------------------------------------------------------------------------
 # Module global variables
