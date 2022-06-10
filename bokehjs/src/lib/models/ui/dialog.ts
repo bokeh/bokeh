@@ -1,5 +1,6 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
-import {DOMNode, DOMNodeView, Text} from "../dom/index"
+import {DOMNode, DOMNodeView} from "../dom/dom_node"
+import {Text} from "../dom/text"
 import {StyleSheetLike, div} from "core/dom"
 import {isString} from "core/util/types"
 import {build_view} from "core/build_views"

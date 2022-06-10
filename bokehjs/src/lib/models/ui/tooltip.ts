@@ -1,6 +1,6 @@
 import {UIElement, UIElementView} from "./ui_element"
 import {Selector} from "../selectors/selector"
-import {HTML, HTMLView} from "../dom"
+import {HTML, HTMLView} from "../dom/html"
 import {Anchor, VAlign, HAlign, TooltipAttachment} from "core/enums"
 import {div, bounding_box, StyleSheetLike} from "core/dom"
 import {DOMElementView} from "core/dom_view"
