@@ -28,6 +28,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import json
+
 # Bokeh imports
 from ..util.sampledata import external_path
 
@@ -36,7 +39,7 @@ from ..util.sampledata import external_path
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'us',
+    'united_states',
 )
 
 #-----------------------------------------------------------------------------
@@ -55,4 +58,4 @@ __all__ = (
 # Code
 #-----------------------------------------------------------------------------
 
-us = open(external_path('carto_us.geojson')).read()
+united_states = json.load(open(external_path('carto_us.geojson')))

@@ -18,6 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import json
 import warnings
 from typing import (
     TYPE_CHECKING,
@@ -786,11 +787,11 @@ class GeoJSONDataSource(ColumnarDataSource):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    geojson = NonNullable(JSON, help="""
+    geojson = NonNullable(Dict(String, Any), help="""
     GeoJSON that contains features for plotting. Currently
     ``GeoJSONDataSource`` can only process a ``FeatureCollection`` or
     ``GeometryCollection``.
-    """)
+    """).accepts(JSON, lambda x: json.loads(x))
 
 @abstract
 class WebDataSource(ColumnDataSource):

@@ -27,7 +27,7 @@ export namespace GeoJSONDataSource {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ColumnarDataSource.Props & {
-    geojson: p.Property<string>
+    geojson: p.Property<{[key: string]: any}>
   }
 }
 
@@ -47,8 +47,8 @@ export class GeoJSONDataSource extends ColumnarDataSource {
   }
 
   static {
-    this.define<GeoJSONDataSource.Props>(({String}) => ({
-      geojson: [ String ],
+    this.define<GeoJSONDataSource.Props>(({Any, Dict}) => ({
+      geojson: [ Dict(Any) ],
     }))
 
     this.internal<GeoJSONDataSource.Props>(({Any, Dict, Arrayable}) => ({
@@ -161,7 +161,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
   }
 
   geojson_to_column_data(): GeoData {
-    const geojson = JSON.parse(this.geojson) as FeatureCollection<GeoItem> | GeometryCollection
+    const geojson = (this.geojson as FeatureCollection<GeoItem> | GeometryCollection)
 
     let items: (Feature<GeoItem> | GeoItem)[]
     switch (geojson.type) {
