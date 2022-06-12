@@ -4,8 +4,6 @@ import {TickFormatter} from "./tick_formatter"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {sprintf} from "core/util/templating"
-import {zip, unzip, sort_by} from "core/util/array"
-import {isFunction} from "core/util/types"
 
 function _us(t: number): number {
   // From double-precision unix (millisecond) timestamp get
@@ -20,48 +18,62 @@ function _array(t: number): number[] {
   return tz(t, "%Y %m %d %H %M %S").split(/\s+/).map(e => parseInt(e, 10))
 }
 
-function _strftime(t: number, format: string | ((t: number) => string)): string {
-  if (isFunction(format)) {
-    return format(t)
-  } else {
-    // Python's datetime library augments the microsecond directive %f, which is not
-    // supported by the javascript library timezone: http://bigeasy.github.io/timezone/.
-    // Use a regular expression to replace %f directive with microseconds.
-    // TODO: what should we do for negative microsecond strings?
-    const microsecond_replacement_string = sprintf("$1%06d", _us(t))
-    format = format.replace(/((^|[^%])(%%)*)%f/, microsecond_replacement_string)
+function _strftime(t: number, format: string): string {
+  // Python's datetime library augments the microsecond directive %f, which is not
+  // supported by the javascript library timezone: http://bigeasy.github.io/timezone/.
+  // Use a regular expression to replace %f directive with microseconds.
+  // TODO: what should we do for negative microsecond strings?
+  const microsecond_replacement_string = sprintf("$1%06d", _us(t))
+  format = format.replace(/((^|[^%])(%%)*)%f/, microsecond_replacement_string)
 
-    if (format.indexOf("%") == -1) {
-      // timezone seems to ignore any strings without any formatting directives,
-      // and just return the time argument back instead of the string argument.
-      // But we want the string argument, in case a user supplies a format string
-      // which doesn't contain a formatting directive or is only using %f.
-      return format
-    }
-
-    return tz(t, format)
+  if (format.indexOf("%") == -1) {
+    // timezone seems to ignore any strings without any formatting directives,
+    // and just return the time argument back instead of the string argument.
+    // But we want the string argument, in case a user supplies a format string
+    // which doesn't contain a formatting directive or is only using %f.
+    return format
   }
+
+  return tz(t, format)
 }
 
+type formatType = "microseconds" | "milliseconds" | "seconds" | "minsec" | "minutes" | "hourmin" | "hours" | "days" | "months" | "years"
+
 // Labels of time units, from finest to coarsest.
-const format_order = [
+const format_order: formatType[] = [
   "microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years",
 ]
+
+// This dictionary maps the name of a time resolution (in @format_order)
+// to its index in a time.localtime() timetuple.  The default is to map
+// everything to index 0, which is year.  This is not ideal; it might cause
+// a problem with the tick at midnight, january 1st, 0 a.d. being incorrectly
+// promoted at certain tick resolutions.
+const time_tuple_ndx_for_resol: {[key: string]: number} = {}
+for (const fmt of format_order) {
+  time_tuple_ndx_for_resol[fmt] = 0
+}
+time_tuple_ndx_for_resol.seconds = 5
+time_tuple_ndx_for_resol.minsec = 4
+time_tuple_ndx_for_resol.minutes = 4
+time_tuple_ndx_for_resol.hourmin = 3
+time_tuple_ndx_for_resol.hours = 3
 
 export namespace DatetimeTickFormatter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TickFormatter.Props & {
-    microseconds: p.Property<string[]>
-    milliseconds: p.Property<string[]>
-    seconds: p.Property<string[]>
-    minsec: p.Property<string[]>
-    minutes: p.Property<string[]>
-    hourmin: p.Property<string[]>
-    hours: p.Property<string[]>
-    days: p.Property<string[]>
-    months: p.Property<string[]>
-    years: p.Property<string[]>
+    microseconds: p.Property<string>
+    milliseconds: p.Property<string>
+    seconds: p.Property<string>
+    minsec: p.Property<string>
+    minutes: p.Property<string>
+    hourmin: p.Property<string>
+    hours: p.Property<string>
+    days: p.Property<string>
+    months: p.Property<string>
+    years: p.Property<string>
+    strip_leading_zeros: p.Property<boolean>
   }
 }
 
@@ -75,57 +87,26 @@ export class DatetimeTickFormatter extends TickFormatter {
   }
 
   static {
-    this.define<DatetimeTickFormatter.Props>(({String, Array}) => ({
-      microseconds: [ Array(String), ["%fus"] ],
-      milliseconds: [ Array(String), ["%3Nms", "%S.%3Ns"] ],
-      seconds:      [ Array(String), ["%Ss"] ],
-      minsec:       [ Array(String), [":%M:%S"] ],
-      minutes:      [ Array(String), [":%M", "%Mm"] ],
-      hourmin:      [ Array(String), ["%H:%M"] ],
-      hours:        [ Array(String), ["%Hh", "%H:%M"] ],
-      days:         [ Array(String), ["%m/%d", "%a%d"] ],
-      months:       [ Array(String), ["%m/%Y", "%b %Y"] ],
-      years:        [ Array(String), ["%Y"] ],
+    this.define<DatetimeTickFormatter.Props>(({Boolean, String}) => ({
+      microseconds: [ String, "%fus" ],
+      milliseconds: [ String, "%3Nms" ],
+      seconds: [ String, "%Ss" ],
+      minsec: [ String, ":%M:%S" ],
+      minutes: [ String, ":%M" ],
+      hourmin: [ String, "%H:%M" ],
+      hours: [ String, "%Hh" ],
+      days: [ String, "%m/%d" ],
+      months: [ String, "%m/%Y" ],
+      years: [ String, "%Y" ],
+      strip_leading_zeros: [Boolean, true],
     }))
   }
 
-  // Whether or not to strip the leading zeros on tick labels.
-  protected strip_leading_zeros = true
-  protected _width_formats: {[key: string]: [number[], string[]]}
-
   override initialize(): void {
     super.initialize()
-    // TODO (bev) trigger update on format change
-    this._update_width_formats()
   }
 
-  protected _update_width_formats(): void {
-    const now = +tz(new Date())
-
-    const _widths = function(fmt_strings: string[]): [number[], string[]] {
-      const sizes = fmt_strings.map((fmt_string) => _strftime(now, fmt_string).length)
-      const sorted = sort_by(zip(sizes, fmt_strings), ([size]) => size)
-      return unzip(sorted)
-    }
-
-    this._width_formats = {
-      microseconds: _widths(this.microseconds),
-      milliseconds: _widths(this.milliseconds),
-      seconds:      _widths(this.seconds),
-      minsec:       _widths(this.minsec),
-      minutes:      _widths(this.minutes),
-      hourmin:      _widths(this.hourmin),
-      hours:        _widths(this.hours),
-      days:         _widths(this.days),
-      months:       _widths(this.months),
-      years:        _widths(this.years),
-    }
-  }
-
-  // FIXME There is some unfortunate flicker when panning/zooming near the
-  // span boundaries.
-  // FIXME Rounding is weird at the 20-us scale and below.
-  protected _get_resolution_str(resolution_secs: number, span_secs: number): string {
+  protected _get_resolution_str(resolution_secs: number, span_secs: number): formatType {
     // Our resolution boundaries should not be round numbers, because we want
     // them to fall between the possible tick intervals (which *are* round
     // numbers, as we've worked hard to ensure).  Consequently, we adjust the
@@ -153,30 +134,12 @@ export class DatetimeTickFormatter extends TickFormatter {
     if (ticks.length == 0)
       return []
 
+    const labels: string[] = []
+
     const span = Math.abs(ticks[ticks.length-1] - ticks[0])/1000.0
     const r = span / (ticks.length - 1)
     const resol = this._get_resolution_str(r, span)
-
-    const [, [format]] = this._width_formats[resol]
-
-    // Apply the format to the tick values
-    const labels: string[] = []
     const resol_ndx = format_order.indexOf(resol)
-
-    // This dictionary maps the name of a time resolution (in @format_order)
-    // to its index in a time.localtime() timetuple.  The default is to map
-    // everything to index 0, which is year.  This is not ideal; it might cause
-    // a problem with the tick at midnight, january 1st, 0 a.d. being incorrectly
-    // promoted at certain tick resolutions.
-    const time_tuple_ndx_for_resol: {[key: string]: number} = {}
-    for (const fmt of format_order) {
-      time_tuple_ndx_for_resol[fmt] = 0
-    }
-    time_tuple_ndx_for_resol.seconds = 5
-    time_tuple_ndx_for_resol.minsec = 4
-    time_tuple_ndx_for_resol.minutes = 4
-    time_tuple_ndx_for_resol.hourmin = 3
-    time_tuple_ndx_for_resol.hours = 3
 
     // As we format each tick, check to see if we are at a boundary of the
     // next higher unit of time.  If so, replace the current format with one
@@ -187,10 +150,9 @@ export class DatetimeTickFormatter extends TickFormatter {
       let s, tm
       try {
         tm = _array(t)
-        s = _strftime(t, format)
+        s = _strftime(t, this[resol])
       } catch (error) {
-        logger.warn(`unable to format tick for timestamp value ${t}`)
-        logger.warn(` - ${error}`)
+        logger.warn(`unable to format tick for timestamp value ${t} - ${error}`)
         labels.push("ERR")
         continue
       }
@@ -203,7 +165,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       // we are at zero minutes, so display hours, or we are at zero seconds,
       // so display minutes (and if that is zero as well, then display hours).
       while (tm[time_tuple_ndx_for_resol[format_order[next_ndx]]] == 0) {
-        let next_format
+        let next_format: formatType
         next_ndx += 1
 
         if (next_ndx == format_order.length)
@@ -211,32 +173,34 @@ export class DatetimeTickFormatter extends TickFormatter {
 
         if ((resol == "minsec" || resol == "hourmin") && !hybrid_handled) {
           if ((resol == "minsec" && tm[4] == 0 && tm[5] != 0) || (resol == "hourmin" && tm[3] == 0 && tm[4] != 0)) {
-            next_format = this._width_formats[format_order[resol_ndx-1]][1][0]
-            s = _strftime(t, next_format)
+            next_format = format_order[resol_ndx-1]
+            s = _strftime(t, this[next_format])
             break
           } else {
             hybrid_handled = true
           }
         }
 
-        next_format = this._width_formats[format_order[next_ndx]][1][0]
-        s = _strftime(t, next_format)
+        next_format = format_order[next_ndx]
+        s = _strftime(t, this[next_format])
       }
 
-      // TODO: should expose this in api. %H, %d, etc use leading zeros and
-      // users might prefer to see them lined up correctly.
-      if (this.strip_leading_zeros) {
-        let ss = s.replace(/^0+/g, "")
-        if (ss != s && isNaN(parseInt(ss))) {
-          // If the string can now be parsed as starting with an integer, then
-          // leave all zeros stripped, otherwise start with a zero. Hence:
-          // A label such as '000ms' should leave one zero.
-          // A label such as '001ms' or '0-1ms' should not leave a leading zero.
-          ss = `0${ss}`
+      const final = (() => {
+        if (this.strip_leading_zeros) {
+          const ss = s.replace(/^0+/g, "")
+          if (ss != s && isNaN(parseInt(ss))) {
+            // If the string can now be parsed as starting with an integer, then
+            // leave all zeros stripped, otherwise start with a zero. Hence:
+            // A label such as '000ms' should leave one zero.
+            // A label such as '001ms' or '0-1ms' should not leave a leading zero.
+            return `0${ss}`
+          }
+          return ss
         }
-        labels.push(ss)
-      } else
-        labels.push(s)
+        return s
+      })()
+
+      labels.push(final)
     }
 
     return labels

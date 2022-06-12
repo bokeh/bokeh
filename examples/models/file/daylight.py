@@ -90,7 +90,7 @@ xaxis = DatetimeAxis(formatter=xformatter, ticker=xticker)
 plot.add_layout(xaxis, 'below')
 
 yaxis = DatetimeAxis()
-yaxis.formatter.hours = ['%H:%M']
+yaxis.formatter.hours = '%H:%M'
 plot.add_layout(yaxis, 'left')
 
 legend = Legend(items=[
