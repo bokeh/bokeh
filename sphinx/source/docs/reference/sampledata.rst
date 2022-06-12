@@ -57,6 +57,13 @@ browsers
 
 .. automodule:: bokeh.sampledata.browsers
 
+.. _sampledata_carto:
+
+carto
+-----
+
+.. automodule:: bokeh.sampledata.carto
+
 .. _sampledata_commits:
 
 commits
