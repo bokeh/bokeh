@@ -114,7 +114,7 @@ def build_single_handler_application(path: str, argv: List[str] | None = None) -
 
     '''
     argv = argv or []
-    path = os.path.abspath(path)
+    path = os.path.abspath(os.path.expanduser(path))
     handler: Handler
 
     # There are certainly race conditions here if the file/directory is deleted

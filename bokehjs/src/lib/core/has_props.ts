@@ -9,7 +9,7 @@ import * as k from "./kinds"
 import {Property} from "./properties"
 import {assert} from "./util/assert"
 import {uniqueId} from "./util/string"
-import {keys, values, entries, extend, is_empty} from "./util/object"
+import {keys, values, entries, extend, is_empty, Dict} from "./util/object"
 import {isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import {is_equal} from "./util/eq"
 import {serialize, Serializable, Serializer, ObjectRefRep, AnyVal} from "./serialization"
@@ -310,31 +310,30 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
     }
 
+    // allowing us to defer initialization when loading many models
+    // when loading a bunch of models, we want to do initialization as a second pass
+    // because other objects that this one depends on might not be loaded yet
     if (deferred) {
       assert(keys(attrs).length == 1)
     } else {
-      const items = attrs instanceof Map ? attrs.entries() : entries(attrs)
-
-      for (const [attr, value] of items) {
-        if (attr in this.properties)
-          this.properties[attr].set_value(value)
-        else
-          throw new Error(`unknown property ${this.type}.${attr}`)
-      }
-
-      // allowing us to defer initialization when loading many models
-      // when loading a bunch of models, we want to do initialization as a second pass
-      // because other objects that this one depends on might not be loaded yet
-      this.finalize_props()
+      const vals = attrs instanceof Map ? attrs : new Dict(attrs)
+      this.initialize_props(vals)
       this.finalize()
       this.connect_signals()
     }
   }
 
-  finalize_props(): void {
+  initialize_props(vals: Map<string, unknown>): void {
+    const visited = new Set<string>()
     for (const prop of this) {
-      if (!prop.initialized)
-        prop.initialize()
+      const val = vals.get(prop.attr)
+      prop.initialize(val)
+      visited.add(prop.attr)
+    }
+
+    for (const attr of vals.keys()) {
+      if (!visited.has(attr))
+        this.property(attr)
     }
   }
 

@@ -1,17 +1,17 @@
-import {DataSource} from "./data_source"
-import {Signal, Signal0} from "core/signaling"
-import {logger} from "core/logging"
-import {SelectionManager} from "core/selection_manager"
-import * as p from "core/properties"
-import {Arrayable, ArrayableNew} from "core/types"
-import {isArray} from "core/util/types"
-import {uniq} from "core/util/array"
-import {keys, values} from "core/util/object"
-import {Selection} from "../selections/selection"
-import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
-import type {Renderer} from "../renderers/renderer"
 import {Geometry} from "core/geometry"
+import {logger} from "core/logging"
+import * as p from "core/properties"
+import {SelectionManager} from "core/selection_manager"
+import {Signal, Signal0} from "core/signaling"
+import {Arrayable, ArrayableNew} from "core/types"
+import {uniq} from "core/util/array"
 import {is_NDArray} from "core/util/ndarray"
+import {keys, values} from "core/util/object"
+import {isArray} from "core/util/types"
+import type {GlyphRenderer} from "../renderers/glyph_renderer"
+import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
+import {Selection} from "../selections/selection"
+import {DataSource} from "./data_source"
 
 // Abstract baseclass for column based data sources, where the column
 // based data may be supplied directly or be computed from an attribute
@@ -45,7 +45,7 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   _select: Signal0<this>
-  inspect: Signal<[Renderer, {geometry: Geometry}], this>
+  inspect: Signal<[GlyphRenderer, {geometry: Geometry}], this>
 
   readonly selection_manager = new SelectionManager(this)
 

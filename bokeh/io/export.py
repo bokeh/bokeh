@@ -25,7 +25,7 @@ import io
 import os
 import warnings
 from contextlib import contextmanager
-from os.path import abspath, splitext
+from os.path import abspath, expanduser, splitext
 from tempfile import mkstemp
 from typing import (
     TYPE_CHECKING,
@@ -119,7 +119,7 @@ def export_png(obj: LayoutDOM | Document, *, filename: PathLike | None = None, w
     filename = os.fspath(filename) # XXX: Image.save() doesn't fully support PathLike
     image.save(filename)
 
-    return abspath(filename)
+    return abspath(expanduser(filename))
 
 def export_svg(obj: LayoutDOM | Document, *, filename: PathLike | None = None, width: int | None = None,
         height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5) -> List[str]:

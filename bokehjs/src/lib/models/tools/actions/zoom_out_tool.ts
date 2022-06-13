@@ -20,6 +20,8 @@ export class ZoomOutTool extends ZoomBaseTool {
   override properties: ZoomOutTool.Props
   override __view_type__: ZoomBaseToolView
 
+  maintain_focus: boolean
+
   constructor(attrs?: Partial<ZoomBaseTool.Attrs>) {
     super(attrs)
   }

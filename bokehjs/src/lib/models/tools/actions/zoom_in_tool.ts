@@ -11,6 +11,8 @@ export class ZoomInTool extends ZoomBaseTool {
   override properties: ZoomBaseTool.Props
   override __view_type__: ZoomBaseToolView
 
+  readonly maintain_focus: boolean = true
+
   constructor(attrs?: Partial<ZoomBaseTool.Attrs>) {
     super(attrs)
   }

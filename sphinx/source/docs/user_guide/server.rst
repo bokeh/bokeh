@@ -1014,8 +1014,8 @@ configuration for a Bokeh server running behind Apache:
         ProxyPass /myapp/ws ws://127.0.0.1:5100/myapp/ws
         ProxyPassReverse /myapp/ws ws://127.0.0.1:5100/myapp/ws
 
-        ProxyPass /myapp http://127.0.0.1:5100/myapp/
-        ProxyPassReverse /myapp http://127.0.0.1:5100/myapp/
+        ProxyPass /myapp http://127.0.0.1:5100/myapp
+        ProxyPassReverse /myapp http://127.0.0.1:5100/myapp
 
         <Directory />
             Require all granted
@@ -1168,8 +1168,8 @@ over to a Bokeh server running internally on ``http://127.0.0.1:5100``.
 
 .. _userguide_server_deployment_nginx_load_balance:
 
-Load balancing with Nginx
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Load balancing
+~~~~~~~~~~~~~~
 
 The Bokeh server is scalable by design. If you need more capacity, you can
 simply run additional servers. In this case, you'll generally want to run all
@@ -1183,10 +1183,24 @@ distributed among individual servers.
     The Bokeh server is horizontally scalable. To add more capacity, you
     can run more servers behind a load balancer.
 
-Nginx can help with load balancing. This section describes some of the basics
-of one possible configuration, but please also refer to the
-`Nginx load balancer documentation`_. For instance, there are different
-strategies available for choosing what server to connect to next.
+You can run as many Bokeh servers as you need. The following examples
+are based on a setup with three Bokeh servers running on three different
+ports:
+
+.. code-block:: sh
+
+    bokeh serve myapp.py --port 5100
+    bokeh serve myapp.py --port 5101
+    bokeh serve myapp.py --port 5102
+
+The sections below propose basic configurations based on this setup. See the
+`Nginx load balancer documentation`_ or the `Apache proxy balancer module
+documentation`_ for more detailed information. For instance, there are
+different strategies available to define how incoming connections are
+distributed among server instances.
+
+Nginx
+'''''
 
 First, you need to add an ``upstream`` stanza to the Nginx configuration.
 This typically goes above the ``server`` stanza and looks something like the
@@ -1195,27 +1209,15 @@ following:
 .. code-block:: nginx
 
     upstream myapp {
-        least_conn;                 # Use the least-connected strategy
-        server 127.0.0.1:5100;      # Bokeh Server 0
-        server 127.0.0.1:5101;      # Bokeh Server 1
-        server 127.0.0.1:5102;      # Bokeh Server 2
-        server 127.0.0.1:5103;      # Bokeh Server 3
-        server 127.0.0.1:5104;      # Bokeh Server 4
-        server 127.0.0.1:5105;      # Bokeh Server 5
+        least_conn;            # Use the least-connected strategy
+        server 127.0.0.1:5100;
+        server 127.0.0.1:5101;
+        server 127.0.0.1:5102;
     }
 
 The rest of the configuration uses the name ``myapp`` to refer to the above
-``upstream`` stanza, which lists the internal connection information for six
-different Bokeh server instances (each running on a different port). You can
-run and list as many Bokeh servers as you need.
-
-To run a Bokeh server instance, use commands similar to the following:
-
-.. code-block:: sh
-
-    serve myapp.py --port 5100
-    serve myapp.py --port 5101
-    ...
+``upstream`` stanza, which lists the internal connection information for the
+three Bokeh server instances.
 
 Next, in the ``location`` stanza for the Bokeh server, change the
 ``proxy_pass`` value to refer to the ``upstream`` stanza above. The
@@ -1238,6 +1240,40 @@ code below uses ``proxy_pass http://myapp;``.
         }
 
     }
+
+Apache
+''''''
+
+First, make sure you have enabled the ``proxy_balancer`` and ``rewrite``
+modules.
+
+Add balancers for both http and websocket protocols:
+
+.. code-block :: apache
+
+    <Proxy "balancer://myapp_http">
+        BalancerMember "http://127.0.0.1:5100/myapp"
+        BalancerMember "http://127.0.0.1:5101/myapp"
+        BalancerMember "http://127.0.0.1:5102/myapp"
+        ProxySet lbmethod=byrequests
+    </Proxy>
+
+    <Proxy "balancer://myapp_ws">
+        BalancerMember "ws://127.0.0.1:5100/myapp"
+        BalancerMember "ws://127.0.0.1:5101/myapp"
+        BalancerMember "ws://127.0.0.1:5102/myapp"
+        ProxySet lbmethod=byrequests
+    </Proxy>
+
+Finally, you can proxy connections to the two balancers:
+
+.. code-block:: apache
+
+    RewriteEngine On
+    RewriteCond %{HTTP:Upgrade} =websocket [NC]
+    RewriteRule /myapp(.*)    balancer://myapp_ws$1 [P,L]
+    RewriteCond %{HTTP:Upgrade} !=websocket [NC]
+    RewriteRule /myapp(.*)    balancer://myapp_http$1 [P,L]
 
 .. _userguide_server_deployment_auth:
 
@@ -1499,6 +1535,7 @@ in :ref:`contributor_guide_server`.
 .. _demo.bokeh.org: https://demo.bokeh.org
 .. _get_secure_cookie: https://www.tornadoweb.org/en/stable/web.html#tornado.web.RequestHandler.get_secure_cookie
 .. _Nginx load balancer documentation: http://nginx.org/en/docs/http/load_balancing.html
+.. _Apache proxy balancer module documentation: https://httpd.apache.org/docs/current/mod/mod_proxy_balancer.html
 .. _set_secure_cookie: https://www.tornadoweb.org/en/stable/web.html#tornado.web.RequestHandler.set_secure_cookie
 .. _XSRF Cookies:  https://www.tornadoweb.org/en/stable/guide/security.html#cross-site-request-forgery-protection
 .. _Jinja project documentation: https://jinja.palletsprojects.com/en/2.10.x/

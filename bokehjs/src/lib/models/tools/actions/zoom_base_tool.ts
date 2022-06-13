@@ -56,5 +56,6 @@ export abstract class ZoomBaseTool extends ActionTool {
   override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
   }
-  readonly maintain_focus: boolean = true
+
+  abstract readonly maintain_focus: boolean
 }

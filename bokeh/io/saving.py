@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os.path import abspath
+from os.path import abspath, expanduser
 from typing import Tuple
 from warnings import warn
 
@@ -96,7 +96,7 @@ def save(obj: LayoutDOM, filename: PathLike | None = None, resources: ResourcesL
 
     filename, resources, title = _get_save_args(state, filename, resources, title)
     _save_helper(obj, filename, resources, title, template, theme)
-    return abspath(filename)
+    return abspath(expanduser(filename))
 
 #-----------------------------------------------------------------------------
 # Dev API

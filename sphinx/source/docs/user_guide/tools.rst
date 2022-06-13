@@ -518,24 +518,44 @@ Field names that begin with ``$`` are "special fields". These often correspond
 to values that are part of the plot, such as the coordinates of the mouse
 in data or screen space. These special fields are listed here:
 
-:``$index``:
+``$index``
     index of selected point in the data source
-:``$name``:
+``$glyph_view``
+    a reference to the glyph view for the glyph that was hit
+``$name``
     value of the ``name`` property of the hovered glyph renderer
-:``$x``:
+``$x``
     x-coordinate under the cursor in data space
-:``$y``:
+``$y``
     y-coordinate under the cursor in data space
-:``$sx``:
+``$sx``
     x-coordinate under the cursor in screen (canvas) space
-:``$sy``:
+``$sy``
     y-coordinate under the cursor in screen (canvas) space
-:``$color``:
+``$snap_x``
+    x-coordinate where the tooltip is anchored in data space
+``$snap_y``
+    y-coordinate where the tooltip is anchored in data space
+``$snap_sx``
+    x-coordinate where the tooltip is anchored in screen (canvas) space
+``$snap_sy``
+    y-coordinate where the tooltip is anchored in screen (canvas) space
+``$color``
     colors from a data source, with the syntax: ``$color[options]:field_name``.
     The available options are: ``hex`` (to display the color as a hex value),
     ``swatch`` (color data from data source displayed as a small color box).
-:``$swatch``:
+``$swatch``
     color data from data source displayed as a small color box.
+
+Additionally, certain glyphs may report additional data that is specific to
+that glyph
+
+``$indices``
+    indices of all the selected points in the data source
+``$segment_index``
+    segment index of a selected sub-line (multi-line glyphs only)
+``$image_index``
+    pixel index into an image array (image glyphs only)
 
 Field names that begin with ``@`` are associated with columns in a
 ``ColumnDataSource``. For instance, the field name ``"@price"`` will display
