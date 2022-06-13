@@ -18,11 +18,11 @@ from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS,
                           ColumnDataSource, DataTable, DatePicker, DateRangeSlider,
                           DateSlider, Dialog, Div, Dropdown, HelpButton, Inspector,
                           IntEditor, Menu, MultiChoice, MultiSelect, NumberEditor,
-                          NumberFormatter, Panel, Paragraph, PreText,
-                          RadioButtonGroup, RadioGroup, RangeSlider, Row, Select,
-                          SelectEditor, SetValue, Slider, Spinner, StringEditor,
-                          StringFormatter, Switch, TableColumn, TablerIcon, Tabs,
-                          TextAreaInput, TextInput, Toggle, Tooltip)
+                          NumberFormatter, Panel, Paragraph, PreText, RadioButtonGroup,
+                          RadioGroup, RangeSlider, Row, Select, SelectEditor, SetValue,
+                          Slider, Spinner, StringEditor, StringFormatter, SVGIcon,
+                          Switch, TableColumn, TablerIcon, Tabs, TextAreaInput,
+                          TextInput, Toggle, Tooltip)
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
@@ -39,9 +39,20 @@ disabled_button = Button(label="Button (disabled) - still has click event", butt
 
 toggle = Toggle(icon=BuiltinIcon("settings", size="1.2em", color="white"), label="Toggle button", button_type="success")
 
+svg_icon = SVGIcon("""
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <desc>Download more icon variants from https://tabler-icons.io/i/arrow-bear-right-2</desc>
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M15 3h5v5"></path>
+    <path d="M20 3l-7.536 7.536a5 5 0 0 0 -1.464 3.534v6.93"></path>
+    <path d="M4 5l4.5 4.5"></path>
+</svg>
+""")
+
 menu = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), None, ("Item 3", "item_3_value")]
 
-dropdown = Dropdown(label="Dropdown button", button_type="warning", menu=menu)
+dropdown = Dropdown(icon=svg_icon, label="Dropdown button", button_type="warning", menu=menu)
 dropdown_split = Dropdown(label="Split button", button_type="danger", menu=menu, split=True)
 
 checkbox_group = CheckboxGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])

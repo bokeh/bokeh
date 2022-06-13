@@ -21,11 +21,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from ...core.enums import ToolIcon
 from ...core.has_props import abstract
 from ...core.properties import (
     Color,
     Either,
-    Float,
+    Enum,
+    FontSize,
+    Int,
     NonNullable as Required,
     String,
 )
@@ -40,6 +43,7 @@ from ...model import Model
 __all__ = (
     "Icon",
     "BuiltinIcon",
+    "SVGIcon",
     "TablerIcon",
 )
 
@@ -53,7 +57,7 @@ __all__ = (
 
 @abstract
 class Icon(Model):
-    """ An abstract base class for icon widgets.
+    """ An abstract base class for icon elements.
 
     """
 
@@ -61,26 +65,52 @@ class Icon(Model):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    size = Either(Float, String, default="1em", help="""
+    size = Either(Int, FontSize, default="1em", help="""
     The size of the icon. This can be either a number of pixels, or a CSS
     length string (see https://developer.mozilla.org/en-US/docs/Web/CSS/length).
     """)
 
 class BuiltinIcon(Icon):
-    """ """
+    """ Built-in icons included with bokehjs. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, icon_name: Init[str] = Intrinsic, **kwargs) -> None:
         super().__init__(icon_name=icon_name, **kwargs)
 
-    icon_name = Required(String, help="""
+    icon_name = Required(Either(Enum(ToolIcon), String), help="""
+    The name of a built-in icon to use.
     """)
 
     color = Color(default="gray", help="""
+    Built-in icons are color netural.
+    """)
+
+class SVGIcon(Icon):
+    """ SVG icons with inline definitions. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, svg: Init[str] = Intrinsic, **kwargs) -> None:
+        super().__init__(svg=svg, **kwargs)
+
+    svg = Required(String, help="""
+    The SVG definition of an icon.
     """)
 
 class TablerIcon(Icon):
-    """ """
+    """
+    Icons from an external icon provider (https://tabler-icons.io/).
+
+    .. note::
+        This icon set is MIT licensed (see https://github.com/tabler/tabler-icons/blob/master/LICENSE).
+
+    .. note::
+        External icons are loaded from thrid-party servers and may not be avilable
+        immediately (e.g. due to slow iternet connection) or not available at all.
+        It isn't possible to create a self-contained bundles with the use of
+        ``inline`` resources. To circumvent this, one use ``SVGIcon``, by copying
+        the SVG contents of an icon from Tabler's web site.
+
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, icon_name: Init[str] = Intrinsic, **kwargs) -> None:

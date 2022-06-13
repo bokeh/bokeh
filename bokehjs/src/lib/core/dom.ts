@@ -142,7 +142,7 @@ export function nbsp(): Text {
   return text("\u00a0")
 }
 
-export function append(element: HTMLElement, ...children: Node[]): void {
+export function append(element: Node, ...children: Node[]): void {
   for (const child of children)
     element.appendChild(child)
 }
