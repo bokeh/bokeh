@@ -148,7 +148,7 @@ class Placeholder(DOMNode):
         super().__init__(*args, **kwargs)
 
 class ValueOf(Placeholder):
-    """ """
+    """ A placeholder for the value of a model's property. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
@@ -159,7 +159,7 @@ class ValueOf(Placeholder):
     """)
 
     attr: str = Required(String, help="""
-    The property whose value will be observerd.
+    The name of the property whose value will be observerd.
     """)
 
     @error(NOT_A_PROPERTY_OF)
@@ -193,7 +193,7 @@ class ColorRef(ValueRef):
     swatch = Bool(default=True)
 
 class HTML(Model, Qualified):
-    """ """
+    """ A parsed HTML fragment with optional references to DOM nodes and UI elements. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, html: Init[str | list[str | DOMNode | UIElement]] = Intrinsic, **kwargs) -> None:
@@ -202,7 +202,7 @@ class HTML(Model, Qualified):
     html = Required(Either(String, List(Either(String, Instance(DOMNode), Instance(UIElement)))), help="""
     Either a parsed HTML string with optional refereces to bokeh objects using
     ``<ref id="..."></ref>`` syntax. Or a list of parsed HTML interleaved with
-    bokeh's objects. Any DOM node or UI element (event a plot) can be referenced
+    bokeh's objects. Any DOM node or UI element (even a plot) can be referenced
     here.
     """)
 
