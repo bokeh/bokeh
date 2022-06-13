@@ -88,7 +88,7 @@ class InputWidget(Widget):
     """)
 
     description = Nullable(Either(String, Instance(Tooltip)), default=None, help="""
-    Rich text description of the function of this widget.
+    Either a plain text or a tooltip with a rich HTML description of the function of this widget.
     """)
 
     @classmethod

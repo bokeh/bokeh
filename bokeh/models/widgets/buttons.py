@@ -209,6 +209,8 @@ class HelpButton(AbstractButton):
         super().__init__(*args, **kwargs)
 
     tooltip = Required(Instance(Tooltip), help="""
+    A tooltip with rich HTML contents, providing general help or description
+    of a widget's or component's function.
     """)
 
     width = Override(default=18)
