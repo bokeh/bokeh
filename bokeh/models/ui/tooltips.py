@@ -70,7 +70,7 @@ class Tooltip(UIElement):
 
     target = Either(Instance(UIElement), Instance(Selector), Auto, default="auto", help="""
     Tooltip can be manually attached to a target UI element or a DOM node
-    (referred to by a selector, e.g. CSS selector or XPath), or it's
+    (referred to by a selector, e.g. CSS selector or XPath), or its
     attachment can be inferred from its parent in ``"auto"`` mode.
     """)
 
@@ -89,7 +89,7 @@ class Tooltip(UIElement):
     """)
 
     closable = Bool(default=False, help="""
-    Allows to hide dismiss tooltip by clicking close (x) button. Useful when
+    Whether to allow dismissing a tooltip by clicking close (x) button. Useful when
     using this model for persistent tooltips.
     """)
 

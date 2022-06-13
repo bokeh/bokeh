@@ -280,12 +280,12 @@ class LayoutDOM(UIElement):
     """)
 
     context_menu = Nullable(Instance(Menu), default=None, help="""
-    The menu to display when user right clicks on the component.
+    A menu to display when user right clicks on the component.
 
     .. note::
-        To display the native context menu, the user needs to right
-        click twice. The second click closes the user-defined menu
-        and falls back to the native one.
+        To display a native context menu, the viewer will need to right-click
+        twice. The second click closes the Bokeh context menu and falls back
+        back the native one.
     """)
 
     @warning(FIXED_SIZING_MODE)

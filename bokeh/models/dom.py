@@ -207,8 +207,8 @@ class HTML(Model, Qualified):
     """)
 
     refs = List(Either(String, Instance(DOMNode), Instance(UIElement)), default=[], help="""
-    A collection of objected refereced by ``<ref id="..."></ref>`` from ``html`` property.
-    Object already included by instance in ``html`` don't have to be repreated here.
+    A collection of objects referenced by ``<ref id="..."></ref>`` from `the `html`` property.
+    Objects already included by instance in ``html`` don't have to be repeated here.
     """)
 
 #-----------------------------------------------------------------------------
