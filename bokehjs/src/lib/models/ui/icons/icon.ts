@@ -25,8 +25,8 @@ export abstract class Icon extends Model {
   }
 
   static {
-    this.define<Icon.Props>(({Number, String, Or}) => ({
-      size: [ Or(Number, String /* TODO: CSSLength */), "inherit" ],
+    this.define<Icon.Props>(({Number, Or, CSSLength}) => ({
+      size: [ Or(Number, CSSLength), "1em" ],
     }))
   }
 }

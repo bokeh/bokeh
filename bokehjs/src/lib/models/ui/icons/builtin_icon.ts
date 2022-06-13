@@ -77,9 +77,5 @@ export class BuiltinIcon extends Icon {
       icon_name: [ String ],
       color: [ Color, "gray" ],
     }))
-
-    this.override<BuiltinIcon.Props>({
-      size: 18,
-    })
   }
 }

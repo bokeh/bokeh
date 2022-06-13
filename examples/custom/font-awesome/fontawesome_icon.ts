@@ -1,4 +1,6 @@
 import {Icon, IconView} from "models/ui/icons/icon"
+import {isNumber} from "core/util/types"
+import {StyleSheet, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 
 import "./fontawesome.less"
@@ -6,15 +8,30 @@ import "./fontawesome.less"
 export class FontAwesomeIconView extends IconView {
   model: FontAwesomeIcon
 
+  protected readonly _style = new StyleSheet()
+
+  override styles(): StyleSheetLike[] {
+    return [...super.styles(), this._style]
+  }
+
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())
   }
 
   render(): void {
-    this.el.style.display = "inline"
-    this.el.style.verticalAlign = "middle"
-    this.el.style.fontSize = `${this.model.size}em`
+    const size = (() => {
+      const {size} = this.model
+      return isNumber(size) ? `${size}px` : size
+    })()
+
+    this._style.replace(`
+      :host {
+        display: inline-block;
+        vertical-align: middle;
+        font-size: ${size};
+      }
+    `)
 
     this.el.classList.add("bk-u-fa")
     this.el.classList.add(`bk-u-fa-${this.model.icon_name}`)
@@ -32,7 +49,6 @@ export namespace FontAwesomeIcon {
 
   export type Props = Icon.Props & {
     icon_name: p.Property<string>
-    size: p.Property<number>
     flip: p.Property<"horizontal" | "vertical" | null>
     spin: p.Property<boolean>
   }
@@ -51,9 +67,8 @@ export class FontAwesomeIcon extends Icon {
   static {
     this.prototype.default_view = FontAwesomeIconView
 
-    this.define<FontAwesomeIcon.Props>(({Boolean, String, Number, Enum, Nullable}) => ({
-      icon_name: [ String, "check" ],
-      size:      [ Number, 1 ],
+    this.define<FontAwesomeIcon.Props>(({Boolean, String, Enum, Nullable}) => ({
+      icon_name: [ String ],
       flip:      [ Nullable(Enum("horizontal", "vertical")), null ],
       spin:      [ Boolean, false ],
     }))

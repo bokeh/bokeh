@@ -32,12 +32,12 @@ from bokeh.util.browser import view
 
 dialog = Dialog(content=Inspector(), visible=False)
 
-click_button = Button(icon=TablerIcon("settings", size="14px"), label="Open inspector", button_type="success")
+click_button = Button(icon=TablerIcon("settings", size="1.2em"), label="Open inspector", button_type="success")
 click_button.js_on_event("button_click", SetValue(dialog, "visible", True))
 
 disabled_button = Button(label="Button (disabled) - still has click event", button_type="primary", disabled=True)
 
-toggle = Toggle(icon=BuiltinIcon("settings", size="14px", color="white"), label="Toggle button", button_type="success")
+toggle = Toggle(icon=BuiltinIcon("settings", size="1.2em", color="white"), label="Toggle button", button_type="success")
 
 menu = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), None, ("Item 3", "item_3_value")]
 

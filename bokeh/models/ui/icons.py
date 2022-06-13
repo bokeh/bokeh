@@ -27,7 +27,6 @@ from ...core.properties import (
     Either,
     Float,
     NonNullable as Required,
-    Override,
     String,
 )
 from ...core.property.bases import Init
@@ -62,7 +61,7 @@ class Icon(Model):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    size = Either(Float, String, default="inherit", help="""
+    size = Either(Float, String, default="1em", help="""
     The size of the icon. This can be either a number of pixels, or a CSS
     length string (see https://developer.mozilla.org/en-US/docs/Web/CSS/length).
     """)
@@ -79,8 +78,6 @@ class BuiltinIcon(Icon):
 
     color = Color(default="gray", help="""
     """)
-
-    size = Override(default=18)
 
 class TablerIcon(Icon):
     """ """

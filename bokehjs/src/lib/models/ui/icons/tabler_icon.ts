@@ -35,7 +35,7 @@ export class TablerIconView extends IconView {
 
   protected readonly _tabler = new ImportedStyleSheet(`${TablerIconView._url}/tabler-icons.min.css`)
 
-  protected readonly _style = new StyleSheet("")
+  protected readonly _style = new StyleSheet()
 
   override styles(): StyleSheetLike[] {
     return [...super.styles(), this._tabler, this._style]
