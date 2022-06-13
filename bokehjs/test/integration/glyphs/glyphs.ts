@@ -268,9 +268,9 @@ describe("Glyph models", () => {
   it("should support Step", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {output_backend, title: output_backend})
-      p.step({x, y: [1.2, 2.2, 3.2], line_width: 5, mode: "before", line_color: "red"})
-      p.step({x, y: [1.1, 2.1, 3.1], line_width: 5, mode: "center", line_color: "green"})
-      p.step({x, y: [1.0, 2.0, 3.0], line_width: 5, mode: "after", line_color: "blue"})
+      p.step({x, y: [1.2, 2.2, 3.2], line_width: 5, line_cap: "round", mode: "before", line_color: "red"})
+      p.step({x, y: [1.1, 2.1, 3.1], line_width: 5, line_cap: "round", mode: "center", line_color: "green"})
+      p.step({x, y: [1.0, 2.0, 3.0], line_width: 5, line_cap: "round", mode: "after", line_color: "blue"})
       return p
     }
     await display(row([p("canvas"), p("svg"), p("webgl")]))
@@ -281,9 +281,9 @@ describe("Glyph models", () => {
 
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {output_backend, title: output_backend})
-      p.step({x: x0, y: [0.2, 1.2, NaN, 1.0, 0.0], line_width: 5, mode: "before", line_color: "red"})
-      p.step({x: x0, y: [0.1, 1.1, NaN, 1.1, 0.1], line_width: 5, mode: "center", line_color: "green"})
-      p.step({x: x0, y: [0.0, 1.0, NaN, 1.2, 0.2], line_width: 5, mode: "after", line_color: "blue"})
+      p.step({x: x0, y: [0.2, 1.2, NaN, 1.0, 0.0], line_width: 5, line_cap: "round", mode: "before", line_color: "red"})
+      p.step({x: x0, y: [0.1, 1.1, NaN, 1.1, 0.1], line_width: 5, line_cap: "round", mode: "center", line_color: "green"})
+      p.step({x: x0, y: [0.0, 1.0, NaN, 1.2, 0.2], line_width: 5, line_cap: "round", mode: "after", line_color: "blue"})
       return p
     }
     await display(row([p("canvas"), p("svg"), p("webgl")]))
