@@ -1,7 +1,7 @@
 import {OrientedControl, OrientedControlView} from "./oriented_control"
 import {ButtonClick} from "core/bokeh_events"
 import {ButtonType} from "core/enums"
-import {div} from "core/dom"
+import {div, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 
 import buttons_css, * as buttons from "styles/buttons.css"
@@ -27,7 +27,7 @@ export abstract class ButtonGroupView extends OrientedControlView {
     this.on_change(p.active,      () => this._update_active())
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), buttons_css]
   }
 

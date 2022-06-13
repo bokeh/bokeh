@@ -32,7 +32,7 @@ from ...core.properties import (
     Enum,
     Instance,
     List,
-    Null,
+    NonNullable as Required,
     Nullable,
     Override,
     String,
@@ -41,7 +41,8 @@ from ...core.properties import (
 from ...events import ButtonClick, MenuItemClick
 from ...util.deprecation import deprecated
 from ..callbacks import Callback
-from .icons import AbstractIcon
+from ..ui.icons import BuiltinIcon, Icon
+from ..ui.tooltips import Tooltip
 from .widget import Widget
 
 if TYPE_CHECKING:
@@ -56,6 +57,7 @@ __all__ = (
     'Button',
     'ButtonLike',
     'Dropdown',
+    'HelpButton',
     'Toggle',
 )
 
@@ -91,7 +93,7 @@ class AbstractButton(Widget, ButtonLike):
     The text label for the button to display.
     """)
 
-    icon = Nullable(Instance(AbstractIcon), help="""
+    icon = Nullable(Instance(Icon), help="""
     An optional image appearing to the left of button's text.
     """)
 
@@ -174,7 +176,7 @@ class Dropdown(AbstractButton):
     split = Bool(default=False, help="""
     """)
 
-    menu = List(Either(Null, String, Tuple(String, Either(String, Instance(Callback)))), help="""
+    menu = List(Nullable(Either(String, Tuple(String, Either(String, Instance(Callback))))), help="""
     Button's dropdown menu consisting of entries containing item's text and
     value name. Use ``None`` as a menu separator.
     """)
@@ -198,6 +200,26 @@ class Dropdown(AbstractButton):
         deprecated((3, 0, 0), 'js_on_click(handler)', 'js_on_event("button_click", handler) OR js_on_event("menu_item_click", handler)')
         self.js_on_event(ButtonClick, handler)
         self.js_on_event(MenuItemClick, handler)
+
+class HelpButton(AbstractButton):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    tooltip = Required(Instance(Tooltip), help="""
+    A tooltip with rich HTML contents, providing general help or description
+    of a widget's or component's function.
+    """)
+
+    width = Override(default=18)
+
+    label = Override(default="")
+
+    icon = Override(default=lambda: BuiltinIcon("help", size=18))
+
+    button_type = Override(default="default")
 
 #-----------------------------------------------------------------------------
 # Private API

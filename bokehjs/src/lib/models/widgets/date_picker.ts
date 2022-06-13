@@ -1,7 +1,7 @@
 import flatpickr from "flatpickr"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
-import {input} from "core/dom"
+import {input, StyleSheetLike} from "core/dom"
 import {CalendarPosition} from "core/enums"
 import * as p from "core/properties"
 import {isString} from "core/util/types"
@@ -53,7 +53,7 @@ export class DatePickerView extends InputWidgetView {
     super.remove()
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), flatpickr_css]
   }
 

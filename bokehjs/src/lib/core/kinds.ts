@@ -389,6 +389,18 @@ export namespace Kinds {
     }
   }
 
+  export class CSSLength extends String {
+    /*
+    override valid(value: unknown): value is string {
+      return super.valid(value) // TODO: && this._parse(value)
+    }
+    */
+
+    override toString(): string {
+      return "CSSLength"
+    }
+  }
+
   export class Function<Args extends unknown[], Ret> extends Kind<(...args: Args) => Ret> {
     valid(value: unknown): value is this["__type__"] {
       return tp.isFunction(value)
@@ -428,6 +440,7 @@ export const Percent = new Kinds.Percent()
 export const Alpha = Percent
 export const Color = new Kinds.Color()
 export const Auto = Enum("auto")
+export const CSSLength = new Kinds.CSSLength()
 
 export const FontSize = String
 export const Font = String

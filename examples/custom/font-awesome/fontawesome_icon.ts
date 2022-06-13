@@ -1,10 +1,18 @@
-import {AbstractIcon, AbstractIconView} from "models/widgets/abstract_icon"
+import {Icon, IconView} from "models/ui/icons/icon"
+import {isNumber} from "core/util/types"
+import {StyleSheet, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 
 import "./fontawesome.less"
 
-export class FontAwesomeIconView extends AbstractIconView {
+export class FontAwesomeIconView extends IconView {
   model: FontAwesomeIcon
+
+  protected readonly _style = new StyleSheet()
+
+  override styles(): StyleSheetLike[] {
+    return [...super.styles(), this._style]
+  }
 
   connect_signals(): void {
     super.connect_signals()
@@ -12,11 +20,18 @@ export class FontAwesomeIconView extends AbstractIconView {
   }
 
   render(): void {
-    super.render()
+    const size = (() => {
+      const {size} = this.model
+      return isNumber(size) ? `${size}px` : size
+    })()
 
-    this.el.style.display = "inline"
-    this.el.style.verticalAlign = "middle"
-    this.el.style.fontSize = `${this.model.size}em`
+    this._style.replace(`
+      :host {
+        display: inline-block;
+        vertical-align: middle;
+        font-size: ${size};
+      }
+    `)
 
     this.el.classList.add("bk-u-fa")
     this.el.classList.add(`bk-u-fa-${this.model.icon_name}`)
@@ -32,9 +47,8 @@ export class FontAwesomeIconView extends AbstractIconView {
 export namespace FontAwesomeIcon {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = AbstractIcon.Props & {
+  export type Props = Icon.Props & {
     icon_name: p.Property<string>
-    size: p.Property<number>
     flip: p.Property<"horizontal" | "vertical" | null>
     spin: p.Property<boolean>
   }
@@ -42,7 +56,7 @@ export namespace FontAwesomeIcon {
 
 export interface FontAwesomeIcon extends FontAwesomeIcon.Attrs {}
 
-export class FontAwesomeIcon extends AbstractIcon {
+export class FontAwesomeIcon extends Icon {
   properties: FontAwesomeIcon.Props
   __view_type__: FontAwesomeIconView
 
@@ -53,9 +67,8 @@ export class FontAwesomeIcon extends AbstractIcon {
   static {
     this.prototype.default_view = FontAwesomeIconView
 
-    this.define<FontAwesomeIcon.Props>(({Boolean, String, Number, Enum, Nullable}) => ({
-      icon_name: [ String, "check" ],
-      size:      [ Number, 1 ],
+    this.define<FontAwesomeIcon.Props>(({Boolean, String, Enum, Nullable}) => ({
+      icon_name: [ String ],
       flip:      [ Nullable(Enum("horizontal", "vertical")), null ],
       spin:      [ Boolean, false ],
     }))

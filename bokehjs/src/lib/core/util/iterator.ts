@@ -1,4 +1,12 @@
-import {range, reversed} from "./array"
+import {range} from "./array"
+
+export function *reverse<T>(array: T[]): Iterable<T> {
+  const n = array.length
+
+  for (let i = 0; i < n; i++) {
+    yield array[n - i - 1]
+  }
+}
 
 export function* enumerate<T>(seq: Iterable<T>): Iterable<[T, number]> {
   let i = 0
@@ -19,6 +27,18 @@ export function* join<T>(seq: Iterable<Iterable<T>>, separator?: () => T): Itera
   }
 }
 
+export function* interleave<T>(seq: Iterable<T>, separator: () => T): Iterable<T> {
+  let first = true
+  for (const entry of seq) {
+    if (first)
+      first = false
+    else
+      yield separator()
+
+    yield entry
+  }
+}
+
 export function* map<T, U>(iterable: Iterable<T>, fn: (item: T, i: number) => U): Iterable<U> {
   let i = 0
   for (const item of iterable) {
@@ -30,18 +50,6 @@ export function* flat_map<T, U>(iterable: Iterable<T>, fn: (item: T, i: number) 
   let i = 0
   for (const item of iterable) {
     yield* fn(item, i++)
-  }
-}
-
-export function* interleave<T>(seq: Iterable<T>, separator: () => T): Iterable<T> {
-  let first = true
-  for (const entry of seq) {
-    if (first)
-      first = false
-    else
-      yield separator()
-
-    yield entry
   }
 }
 
@@ -71,7 +79,7 @@ export function* combinations<T>(seq: T[], r: number): Iterable<T[]> {
   yield indices.map((i) => seq[i])
   while (true) {
     let k: number | undefined
-    for (const i of reversed(range(r))) {
+    for (const i of reverse(range(r))) {
       if (indices[i] != i + n - r) {
         k = i
         break

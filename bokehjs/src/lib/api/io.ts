@@ -48,9 +48,10 @@ export async function show(obj: Document | LayoutDOM | LayoutDOM[], target?: HTM
     throw new Error("target should be HTMLElement, string selector, $ or null")
   }
 
-  const views = await embed.add_document_standalone(doc, element)
+  const view_manager = await embed.add_document_standalone(doc, element)
 
   return new Promise((resolve, _reject) => {
+    const views = [...view_manager]
     const result = isArray(obj) || obj instanceof Document ? views : views[0]
     if (doc.is_idle)
       resolve(result)

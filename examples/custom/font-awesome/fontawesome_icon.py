@@ -1,22 +1,18 @@
-from bokeh.core.properties import Bool, Enum, Float
-from bokeh.models import AbstractIcon
+from bokeh.core.properties import Bool, Enum, NonNullable as Required
+from bokeh.models import Icon
 
 from named_icon import NamedIcon
 
 
-class FontAwesomeIcon(AbstractIcon):
+class FontAwesomeIcon(Icon):
     """ A "stock" icon based on FontAwesome. """
 
     __implementation__ = "fontawesome_icon.ts"
     __dependencies__ = {"font-awesome": "^4.6.3"}
 
-    icon_name = Enum(NamedIcon, default="check", help="""
+    icon_name = Required(Enum(NamedIcon), help="""
     What icon to use. See http://fortawesome.github.io/Font-Awesome/icons/
     for the list of available icons.
-    """)
-
-    size = Float(1, help="""
-    The size multiplier (1x, 2x, ..., 5x).
     """)
 
     flip = Enum("horizontal", "vertical", default=None, help="""

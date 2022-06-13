@@ -1,5 +1,5 @@
 import {CachedVariadicBox} from "core/layout/html"
-import {div} from "core/dom"
+import {div, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 import {Widget, WidgetView} from "./widget"
 
@@ -38,7 +38,7 @@ export abstract class MarkupView extends WidgetView {
     })
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), clearfix_css, "p { margin: 0; }"]
   }
 

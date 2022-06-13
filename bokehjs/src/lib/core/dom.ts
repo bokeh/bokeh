@@ -1,5 +1,6 @@
 import {isBoolean, isString, isArray, isPlainObject} from "./util/types"
 import {entries} from "./util/object"
+import {BBox} from "./util/bbox"
 import {Size, Box, Extents} from "./types"
 
 export type HTMLAttrs = {[name: string]: unknown}
@@ -133,11 +134,15 @@ export function createSVGElement<T extends keyof SVGElementTagNameMap>(
   return element
 }
 
-export function nbsp(): Text {
-  return document.createTextNode("\u00a0")
+export function text(str: string): Text {
+  return document.createTextNode(str)
 }
 
-export function append(element: HTMLElement, ...children: Element[]): void {
+export function nbsp(): Text {
+  return text("\u00a0")
+}
+
+export function append(element: Node, ...children: Node[]): void {
   for (const child of children)
     element.appendChild(child)
 }
@@ -148,8 +153,6 @@ export function remove(element: Node): void {
     parent.removeChild(element)
   }
 }
-
-export const removeElement = remove
 
 export function replaceWith(element: HTMLElement, replacement: HTMLElement): void {
   const parent = element.parentNode
@@ -289,6 +292,11 @@ export function content_size(el: HTMLElement): Size {
   return {width, height}
 }
 
+export function bounding_box(el: Element): BBox {
+  const {x, y, width, height} = el.getBoundingClientRect()
+  return new BBox({x, y, width, height})
+}
+
 export function position(el: HTMLElement, box: Box, margin?: Extents): void {
   const {style} = el
 
@@ -419,27 +427,54 @@ export function sized<T>(el: HTMLElement, size: Partial<Size>, fn: () => T): T {
 }
 
 export class StyleSheet {
-  private readonly style: HTMLStyleElement
-  private readonly known: Set<string> = new Set()
+  readonly el: HTMLStyleElement
 
-  constructor(readonly root: HTMLElement = document.head) {
-    this.style = style({type: "text/css"})
-    prepend(root, this.style)
+  constructor(css?: string) {
+    this.el = style({type: "text/css"}, css)
   }
 
-  append(css: string): void {
-    if (!this.known.has(css)) {
-      this.style.appendChild(document.createTextNode(css))
-      this.known.add(css)
-    }
+  replace(css: string): void {
+    this.el.textContent = css
   }
 
   remove(): void {
-    remove(this.style)
+    remove(this.el)
   }
 }
 
-export const stylesheet = new StyleSheet()
+export class GlobalStyleSheet extends StyleSheet {
+  initialize(): void {
+    if (!this.el.isConnected) {
+      document.head.appendChild(this.el)
+    }
+  }
+}
+
+export class ImportedStyleSheet {
+  readonly el: HTMLLinkElement
+
+  constructor(url: string) {
+    this.el = link({rel: "stylesheet", href: url})
+  }
+
+  replace(url: string): void {
+    this.el.href = url
+  }
+
+  remove(): void {
+    remove(this.el)
+  }
+}
+
+export class GlobalImportedStyleSheet extends StyleSheet {
+  initialize(): void {
+    if (!this.el.isConnected) {
+      document.head.appendChild(this.el)
+    }
+  }
+}
+
+export type StyleSheetLike = StyleSheet | ImportedStyleSheet | string
 
 export async function dom_ready(): Promise<void> {
   if (document.readyState == "loading") {

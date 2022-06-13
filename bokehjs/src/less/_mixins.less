@@ -18,3 +18,13 @@
 .bring-to-front() {
   z-index: 100;
 }
+
+.icon-mask(@icon, @color) {
+  background-color: @color;
+  mask-image: @icon;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  -webkit-mask-image: @icon;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+}

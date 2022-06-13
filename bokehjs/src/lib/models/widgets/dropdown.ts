@@ -2,7 +2,7 @@ import {AbstractButton, AbstractButtonView} from "./abstract_button"
 import {CallbackLike1} from "../callbacks/callback"
 
 import {ButtonClick, MenuItemClick} from "core/bokeh_events"
-import {div, display, undisplay} from "core/dom"
+import {div, display, undisplay, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 import {isString} from "core/util/types"
 
@@ -17,7 +17,7 @@ export class DropdownView extends AbstractButtonView {
 
   protected menu: HTMLElement
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), dropdown_css, carets_css]
   }
 

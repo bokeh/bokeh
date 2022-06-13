@@ -1,4 +1,4 @@
-import {input} from "core/dom"
+import {input, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 import {Widget, WidgetView} from "models/widgets/widget"
 
@@ -14,7 +14,7 @@ export class FileInputView extends WidgetView { // TODO: InputWidgetView
     this.connect(this.model.change, () => this.render())
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), inputs_css]
   }
 

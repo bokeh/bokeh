@@ -1,5 +1,5 @@
 import {logger} from "core/logging"
-import {div, a, Keys} from "core/dom"
+import {div, a, Keys, StyleSheetLike} from "core/dom"
 import {build_views, remove_views} from "core/build_views"
 import * as p from "core/properties"
 import {DOMComponentView} from "core/dom_view"
@@ -70,7 +70,7 @@ export class ToolbarView extends DOMComponentView {
     this.connect(this.model.properties.autohide.change, () => this._on_visible_change())
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), toolbars_css, tools_css, logos_css, icons_css]
   }
 
