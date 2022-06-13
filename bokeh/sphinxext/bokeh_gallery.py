@@ -108,6 +108,9 @@ def config_inited_handler(app, config):
     gallery_file_mtime = getmtime(gallery_file)
 
     ensuredir(gallery_dir)
+    ensuredir(examples_dir)
+    ensuredir(join(examples_dir, 'models'))
+    ensuredir(join(examples_dir, 'plotting'))
 
     # we will remove each file we process from this set and see if anything is
     # left at the end (and remove it in that case)
