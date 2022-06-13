@@ -27,6 +27,18 @@ export function* join<T>(seq: Iterable<Iterable<T>>, separator?: () => T): Itera
   }
 }
 
+export function* interleave<T>(seq: Iterable<T>, separator: () => T): Iterable<T> {
+  let first = true
+  for (const entry of seq) {
+    if (first)
+      first = false
+    else
+      yield separator()
+
+    yield entry
+  }
+}
+
 export function* map<T, U>(iterable: Iterable<T>, fn: (item: T, i: number) => U): Iterable<U> {
   let i = 0
   for (const item of iterable) {
@@ -38,18 +50,6 @@ export function* flat_map<T, U>(iterable: Iterable<T>, fn: (item: T, i: number) 
   let i = 0
   for (const item of iterable) {
     yield* fn(item, i++)
-  }
-}
-
-export function* interleave<T>(seq: Iterable<T>, separator: () => T): Iterable<T> {
-  let first = true
-  for (const entry of seq) {
-    if (first)
-      first = false
-    else
-      yield separator()
-
-    yield entry
   }
 }
 
