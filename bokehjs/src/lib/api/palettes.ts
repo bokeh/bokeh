@@ -853,71 +853,20 @@ export type Sunset       = "Sunset3"       | "Sunset4"       | "Sunset5"       |
 export type BuRd         = "BuRd3"         | "BuRd4"         | "BuRd5"         | "BuRd6"         | "BuRd7"         | "BuRd8"         | "BuRd9"
 export type TolPRGn      = "TolPRGn3"      | "TolPRGn4"      | "TolPRGn5"      | "TolPRGn6"      | "TolPRGn7"      | "TolPRGn8"      | "TolPRGn9"
 export type TolYlOrBr    = "TolYlOrBr3"    | "TolYlOrBr4"    | "TolYlOrBr5"    | "TolYlOrBr6"    | "TolYlOrBr7"    | "TolYlOrBr8"    | "TolYlOrBr9"
-export type Iridescent   = "Iridescent3"   | "Iridescent4"   | "Iridescent5"   | "Iridescent6"   | "Iridescent7"   | "Iridescent8"   | "Iridescent9"   | "Iridescent10"
-                         | "Iridescent11"  | "Iridescent12"  | "Iridescent13"  | "Iridescent14"  | "Iridescent15"  | "Iridescent16" |  "Iridescent17"  | "Iridescent18"
-                         | "Iridescent19"  | "Iridescent20"  | "Iridescent21"  | "Iridescent22"  | "Iridescent23"
-export type TolRainbow = "TolRainbow3"  | "TolRainbow4"  | "TolRainbow5"  | "TolRainbow6"  | "TolRainbow7"  | "TolRainbow8"  | "TolRainbow9"  | "TolRainbow10"
-                            | "TolRainbow11" | "TolRainbow12" | "TolRainbow13" | "TolRainbow14" | "TolRainbow15" | "TolRainbow16" | "TolRainbow17" | "TolRainbow18"
-                            | "TolRainbow19" | "TolRainbow20" | "TolRainbow21" | "TolRainbow22" | "TolRainbow23"
+export type Iridescent   =
+  "Iridescent3"   | "Iridescent4"   | "Iridescent5"   | "Iridescent6"   | "Iridescent7"   | "Iridescent8"   | "Iridescent9"   | "Iridescent10" |
+  "Iridescent11"  | "Iridescent12"  | "Iridescent13"  | "Iridescent14"  | "Iridescent15"  | "Iridescent16" |  "Iridescent17"  | "Iridescent18" |
+  "Iridescent19"  | "Iridescent20"  | "Iridescent21"  | "Iridescent22"  | "Iridescent23"
+export type TolRainbow =
+  "TolRainbow3"  | "TolRainbow4"  | "TolRainbow5"  | "TolRainbow6"  | "TolRainbow7"  | "TolRainbow8"  | "TolRainbow9"  | "TolRainbow10" |
+  "TolRainbow11" | "TolRainbow12" | "TolRainbow13" | "TolRainbow14" | "TolRainbow15" | "TolRainbow16" | "TolRainbow17" | "TolRainbow18" |
+  "TolRainbow19" | "TolRainbow20" | "TolRainbow21" | "TolRainbow22" | "TolRainbow23"
 
-export type Palette = YlGn
-                    | YlGnBu
-                    | GnBu
-                    | BuGn
-                    | PuBuGn
-                    | PuBu
-                    | BuPu
-                    | RdPu
-                    | PuRd
-                    | OrRd
-                    | YlOrRd
-                    | YlOrBr
-                    | Purples
-                    | Blues
-                    | Greens
-                    | Oranges
-                    | Reds
-                    | Greys
-                    | PuOr
-                    | BrBG
-                    | PRGn
-                    | PiYG
-                    | RdBu
-                    | RdGy
-                    | RdYlBu
-                    | Spectral
-                    | RdYlGn
-                    | Accent
-                    | Dark2
-                    | Paired
-                    | Pastel1
-                    | Pastel2
-                    | Set1
-                    | Set2
-                    | Set3
-                    | Bokeh
-                    | Inferno
-                    | Magma
-                    | Plasma
-                    | Viridis
-                    | Cividis
-                    | Category10
-                    | Category20
-                    | Category20b
-                    | Category20c
-                    | Colorblind
-                    | Bright
-                    | HighContrast
-                    | Vibrant
-                    | Muted
-                    | MediumContrast
-                    | Light
-                    | Sunset
-                    | BuRd
-                    | TolPRGn
-                    | TolYlOrBr
-                    | Iridescent
-                    | TolRainbow
+export type Palette =
+  YlGn | YlGnBu | GnBu | BuGn | PuBuGn | PuBu | BuPu | RdPu | PuRd | OrRd | YlOrRd | YlOrBr | Purples | Blues | Greens | Oranges | Reds |
+  Greys | PuOr | BrBG | PRGn | PiYG | RdBu | RdGy | RdYlBu | Spectral | RdYlGn | Accent | Dark2 | Paired | Pastel1 | Pastel2 | Set1 |
+  Set2 | Set3 | Bokeh | Inferno | Magma | Plasma | Viridis | Cividis | Category10 | Category20 | Category20b | Category20c | Colorblind |
+  Bright | HighContrast | Vibrant | Muted | MediumContrast | Light | Sunset | BuRd | TolPRGn | TolYlOrBr | Iridescent | TolRainbow
 
 export const YlGn           = {YlGn3, YlGn4, YlGn5, YlGn6, YlGn7, YlGn8, YlGn9}
 export const YlGnBu         = {YlGnBu3, YlGnBu4, YlGnBu5, YlGnBu6, YlGnBu7, YlGnBu8, YlGnBu9}

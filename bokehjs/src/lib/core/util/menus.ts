@@ -7,8 +7,12 @@ import icons_css from "styles/icons.css"
 import base_css from "styles/base.css"
 
 export type ScreenPoint = {left?: number, right?: number, top?: number, bottom?: number}
-export type At = ScreenPoint |
-  {left_of:  HTMLElement} | {right_of: HTMLElement} | {below: HTMLElement} | {above: HTMLElement}
+export type At =
+  ScreenPoint |
+  {left_of:  HTMLElement} |
+  {right_of: HTMLElement} |
+  {below: HTMLElement} |
+  {above: HTMLElement}
 
 export type MenuEntry = {
   icon?: string

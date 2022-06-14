@@ -1,7 +1,7 @@
 import flatpickr from "flatpickr"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
-import {input, StyleSheetLike} from "core/dom"
+import {bounding_box, input, StyleSheetLike} from "core/dom"
 import {CalendarPosition} from "core/enums"
 import * as p from "core/properties"
 import {isString} from "core/util/types"
@@ -97,11 +97,7 @@ export class DatePickerView extends InputWidgetView {
   protected _position(self: flatpickr.Instance, custom_el: HTMLElement | undefined): void {
     const positionElement = custom_el ?? self._positionElement
 
-    const calendarHeight = Array.prototype.reduce.call(
-      self.calendarContainer.children,
-        ((acc: number, child: HTMLElement) => acc + child.offsetHeight) as any,
-        0
-    ) as number
+    const calendarHeight = [...self.calendarContainer.children].reduce((acc, child) => acc + bounding_box(child).height, 0)
     const calendarWidth = self.calendarContainer.offsetWidth
     const configPos = this.model.position.split(" ")
     const configPosVertical = configPos[0]

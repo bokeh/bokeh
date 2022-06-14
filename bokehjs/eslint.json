@@ -49,7 +49,8 @@
     "comma-spacing": ["error", {"before": false, "after": true}],
     "dot-notation": "error",
     "eol-last": ["error", "always"],
-    "indent": ["error", 2, {
+    "indent": "off",
+    "@typescript-eslint/indent": ["error", 2, {
       "SwitchCase": 1,
       "outerIIFEBody": 1,
       "ArrayExpression": "first",
