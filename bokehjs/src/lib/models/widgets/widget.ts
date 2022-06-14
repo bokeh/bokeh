@@ -36,7 +36,6 @@ export abstract class WidgetView extends HTMLBoxView {
     return sizing
   }
 
-
   get provider(): MathJaxProvider {
     return default_provider
   }

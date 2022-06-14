@@ -109,7 +109,6 @@ export class NumericInputView extends InputWidgetView {
   }
 }
 
-
 export namespace NumericInput {
   export type Attrs = p.AttrsOf<Props>
 

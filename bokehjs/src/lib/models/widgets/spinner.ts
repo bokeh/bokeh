@@ -3,7 +3,6 @@ import {NumericInputView, NumericInput} from "./numeric_input"
 import * as p from "core/properties"
 import {button, div, toggle_attribute, Keys} from "core/dom"
 
-
 const {min, max, floor, abs} = Math
 
 function precision(num: number): number { // get number of digits

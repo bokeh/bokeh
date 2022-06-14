@@ -71,7 +71,6 @@ describe("Plot module", () => {
     })
   })
 
-
   describe("PlotView", () => {
     it("should allow to resolve child renderers of its composite renderers", async () => {
       const graph = new GraphRenderer({

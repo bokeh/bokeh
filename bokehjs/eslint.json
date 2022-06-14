@@ -63,7 +63,7 @@
     }],
     "no-debugger": "error",
     "no-floating-decimal": ["error"],
-    "no-multiple-empty-lines": "error",
+    "no-multiple-empty-lines": ["error", {"max": 1, "maxBOF": 0, "maxEOF": 0}],
     "no-new-wrappers": "error",
     "no-template-curly-in-string": "error",
     "no-throw-literal": "error",

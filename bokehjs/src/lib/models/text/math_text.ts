@@ -453,7 +453,6 @@ export class AsciiView extends MathTextView {
     ctx.textBaseline = "alphabetic"
     ctx.fillText(this.text, x, y + font_metrics(this.font).ascent)
 
-
     ctx.restore()
     this._has_finished = true
     this.parent.notify_finished_after_paint()
