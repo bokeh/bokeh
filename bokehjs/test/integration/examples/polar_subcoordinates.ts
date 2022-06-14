@@ -19,7 +19,7 @@ describe("Examples", () => {
   it("should support PolarSubcoordinates", async () => {
     const color_map: Map<string, Color> = new Map()
 
-    const dark_colors = (function*() {
+    const dark_colors = (function* () {
       for (const color of values(named_colors))
         if (brightness(color) < 0.6)
           yield color
