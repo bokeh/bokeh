@@ -34,8 +34,10 @@ export const SEQUENCE = Symbol("SequenceExpression")
 export const ARRAY = Symbol("ArrayExpression")
 export const FAILURE = Symbol("Failure")
 
-export type Expression = Identifier | Literal | UnaryExpression | BinaryExpression | CallExpression |
-  MemberExpression | IndexExpression | SequenceExpression | ArrayExpression | CompoundExpression
+export type Expression =
+  Identifier | Literal | UnaryExpression | BinaryExpression |
+  CallExpression | MemberExpression | IndexExpression |
+  SequenceExpression | ArrayExpression | CompoundExpression
 
 export type Identifier = {
   type: typeof IDENT

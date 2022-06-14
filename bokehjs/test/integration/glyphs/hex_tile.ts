@@ -4,7 +4,7 @@ import {OutputBackend} from "@bokehjs/core/enums"
 import {repeat} from "@bokehjs/core/util/array"
 
 describe("HexTile glyph", () => {
-  /* eslint-disable indent */
+  /* eslint-disable @typescript-eslint/indent */
   const pq = [
           0,  1,  2,  3,
         -1,  0,  1,  2,  3,
@@ -42,7 +42,7 @@ describe("HexTile glyph", () => {
         -3, -2, -1,  0,  1,
           -3, -2, -1,  0,
   ]
-  /* eslint-enable indent */
+  /* eslint-enable @typescript-eslint/indent */
 
   const colors = [
     ...repeat("red",    4),

@@ -542,7 +542,6 @@ export class NullDistanceSpec extends DistanceSpec { // TODO: T = number | null
   }
 }
 
-
 export class BooleanSpec extends DataSpec<boolean> {
   override v_materialize(values: Arrayable<boolean>): Arrayable<boolean> /* Uint8Array */ {
     return new Uint8Array(values as any) as any

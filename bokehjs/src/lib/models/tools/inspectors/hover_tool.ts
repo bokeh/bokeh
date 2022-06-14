@@ -35,26 +35,26 @@ import {CustomJSHover} from "./customjs_hover"
 import {InspectTool, InspectToolView} from "./inspect_tool"
 
 export type TooltipVars = {
-    index: number | null
-    glyph_view: GlyphView
-    x: number
-    y: number
-    sx: number
-    sy: number
-    snap_x: number
-    snap_y: number
-    snap_sx: number
-    snap_sy: number
-    name: string | null
-    indices?: MultiIndices | OpaqueIndices
-    segment_index?: number
-    image_index?: ImageIndex
+  index: number | null
+  glyph_view: GlyphView
+  x: number
+  y: number
+  sx: number
+  sy: number
+  snap_x: number
+  snap_y: number
+  snap_sx: number
+  snap_sy: number
+  name: string | null
+  indices?: MultiIndices | OpaqueIndices
+  segment_index?: number
+  image_index?: ImageIndex
 }
 
 export function _nearest_line_hit(
   i: number,
   geometry: PointGeometry | SpanGeometry,
-  dx: Arrayable<number>, dy: Arrayable<number>
+  dx: Arrayable<number>, dy: Arrayable<number>,
 ): [[number, number], number] {
 
   const p1 = {x: dx[i], y: dy[i]}

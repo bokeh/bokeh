@@ -664,7 +664,6 @@ describe("properties module", () => {
         expect(new Uint8Array(output.buffer)).to.be.equal(new Uint8Array([0x11, 0x22, 0x33, 0x44, 0x22, 0x33, 0x44, 0x55]))
       })
 
-
       it("with dtype=float64 and dim=2 and shape=[_, 3]", () => {
         const array = new Float64Array([0.068, 0.135, 0.200, 0.135, 0.200, 0.268])
         const input = ndarray(array, {dtype: "float64", shape: [2, 3]})

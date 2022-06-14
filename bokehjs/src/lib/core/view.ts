@@ -173,7 +173,7 @@ export class ViewManager {
   }
 
   *find<T extends HasProps>(model: T): IterViews<ViewOf<T>> {
-    function *descend(view: View): IterViews {
+    function* descend(view: View): IterViews {
       if (view.model == model) {
         yield view
       } else {

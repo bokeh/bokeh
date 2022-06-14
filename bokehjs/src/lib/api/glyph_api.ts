@@ -88,12 +88,11 @@ export type AuxGlyph = {
   coordinates: CoordinateMapping | null
 }
 
-export type ArgsOf<P> = {
-  [K in keyof P]:
-    (P[K] extends ColorSpec                     ? ColorArg             :
-    (P[K] extends VectorSpec<infer T, infer V>  ? T | Arrayable<T> | V :
-    (P[K] extends ScalarSpec<infer T, infer S>  ? T |                S :
-    (P[K] extends Property  <infer T>           ? T                    : never))))
+export type ArgsOf<P> = { [K in keyof P]:
+  (P[K] extends ColorSpec                     ? ColorArg             :
+  (P[K] extends VectorSpec<infer T, infer V>  ? T | Arrayable<T> | V :
+  (P[K] extends ScalarSpec<infer T, infer S>  ? T |                S :
+  (P[K] extends Property  <infer T>           ? T                    : never))))
 }
 
 export type UnitsOf<P> = {

@@ -3,7 +3,6 @@ import {NumericInputView, NumericInput} from "./numeric_input"
 import * as p from "core/properties"
 import {button, div, toggle_attribute, Keys} from "core/dom"
 
-
 const {min, max, floor, abs} = Math
 
 function precision(num: number): number { // get number of digits
@@ -90,15 +89,15 @@ export class SpinnerView extends NumericInputView {
       btn.addEventListener("mouseup", () => this._btn_mouse_up())
       btn.addEventListener("mouseleave", () => this._btn_mouse_leave())
     }
-    this.input_el.addEventListener("keydown", (evt) =>
+    this.input_el.addEventListener("keydown", (evt) => {
       this._input_key_down(evt)
-    )
-    this.input_el.addEventListener("keyup", () =>
+    })
+    this.input_el.addEventListener("keyup", () => {
       this.model.value_throttled = this.model.value
-    )
-    this.input_el.addEventListener("wheel", (evt) =>
+    })
+    this.input_el.addEventListener("wheel", (evt) => {
       this._input_mouse_wheel(evt)
-    )
+    })
     this.input_el.addEventListener("wheel", debounce(() => {
       this.model.value_throttled = this.model.value
     }, this.model.wheel_wait, false))

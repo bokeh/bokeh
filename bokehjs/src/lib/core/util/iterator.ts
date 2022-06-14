@@ -1,6 +1,6 @@
 import {range} from "./array"
 
-export function *reverse<T>(array: T[]): Iterable<T> {
+export function* reverse<T>(array: T[]): Iterable<T> {
   const n = array.length
 
   for (let i = 0; i < n; i++) {

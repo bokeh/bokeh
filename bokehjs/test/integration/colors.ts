@@ -107,10 +107,10 @@ describe("Color support", () => {
 
   it("should allow uint8[N, 3] arrays", async () => {
     const colors = nd.ndarray([
-      255, 255,   0,
-      255,   0,   0,
-        0, 255,   0, // eslint-disable-line indent
-        0,   0, 255, // eslint-disable-line indent
+      255, 255, 0,
+      255, 0,   0,
+      0,   255, 0,
+      0,   0,   255,
     ], {dtype: "uint8", shape: [N, 3]})
 
     await display(plot(colors))
@@ -118,10 +118,10 @@ describe("Color support", () => {
 
   it("should allow uint8[N, 4] arrays", async () => {
     const colors = nd.ndarray([
-      255, 255,   0, 255,
-      255,   0,   0, 255,
-        0, 255,   0, 255, // eslint-disable-line indent
-        0,   0, 255, 255, // eslint-disable-line indent
+      255, 255, 0,   255,
+      255, 0,   0,   255,
+      0,   255, 0,   255,
+      0,   0,   255, 255,
     ], {dtype: "uint8", shape: [N, 4]})
 
     await display(plot(colors))
