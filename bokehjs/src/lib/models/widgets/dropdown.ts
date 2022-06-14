@@ -129,7 +129,7 @@ export class Dropdown extends AbstractButton {
 
     this.define<Dropdown.Props>(({Null, Boolean, String, Array, Tuple, Or}) => ({
       split: [ Boolean, false ],
-      menu:  [ Array(Or(String, Tuple(String, Or(String, /*TODO*/)), Null)), [] ],
+      menu:  [ Array(Or(String, Tuple(String, Or(String /*TODO*/)), Null)), [] ],
     }))
 
     this.override<Dropdown.Props>({

@@ -54,7 +54,7 @@ export type TooltipVars = {
 export function _nearest_line_hit(
   i: number,
   geometry: PointGeometry | SpanGeometry,
-  dx: Arrayable<number>, dy: Arrayable<number>
+  dx: Arrayable<number>, dy: Arrayable<number>,
 ): [[number, number], number] {
 
   const p1 = {x: dx[i], y: dy[i]}

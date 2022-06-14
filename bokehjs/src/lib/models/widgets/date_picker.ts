@@ -177,10 +177,7 @@ export class DatePickerView extends InputWidgetView {
       const centerStyle = `{left:${inputBounds.left}px;right:auto;}`
       self.calendarContainer.classList.toggle("rightMost", false)
       self.calendarContainer.classList.toggle("centerMost", true)
-      css.insertRule(
-        `${centerBefore},${centerAfter}${centerStyle}`,
-        centerIndex
-      )
+      css.insertRule(`${centerBefore},${centerAfter}${centerStyle}`, centerIndex)
       self.calendarContainer.style.left = `${centerLeft}px`
       self.calendarContainer.style.right = "auto"
     }

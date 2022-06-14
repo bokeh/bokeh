@@ -45,7 +45,17 @@
     "@typescript-eslint/no-unnecessary-type-constraint": ["error"],
     "no-self-assign": ["error", {"props": false}],
     "brace-style": ["error", "1tbs", {"allowSingleLine": true}],
-    "comma-dangle": ["error", "always-multiline"],
+    "comma-dangle": ["off"],
+    "@typescript-eslint/comma-dangle": ["error", {
+      "arrays": "always-multiline",
+      "objects": "always-multiline",
+      "imports": "always-multiline",
+      "exports": "always-multiline",
+      "functions": "always-multiline",
+      "enums": "always-multiline",
+      "generics": "always-multiline",
+      "tuples": "always-multiline"
+    }],
     "comma-spacing": ["error", {"before": false, "after": true}],
     "dot-notation": "error",
     "eol-last": ["error", "always"],

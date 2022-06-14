@@ -203,17 +203,9 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
   private get_image_dimensions(): Size {
     const fmetrics = font_metrics(this.font)
-    const heightEx = parseFloat(
-      this.svg_element
-        .getAttribute("height")
-        ?.replace(/([A-z])/g, "") ?? "0"
-    )
 
-    const widthEx = parseFloat(
-      this.svg_element
-        .getAttribute("width")
-        ?.replace(/([A-z])/g, "") ?? "0"
-    )
+    const heightEx = parseFloat(this.svg_element.getAttribute("height")?.replace(/([A-z])/g, "") ?? "0")
+    const widthEx = parseFloat(this.svg_element.getAttribute("width")?.replace(/([A-z])/g, "") ?? "0")
 
     const svg_styles = this.svg_element.getAttribute("style")?.split(";")
     if (svg_styles) {
@@ -490,8 +482,8 @@ export class MathMLView extends MathTextView {
 
     styled = insert_text_on_position(
       styled,
-      styled.indexOf(matchs[0]) +  matchs[0].length,
-      `<mstyle displaystyle="true" mathcolor="${color2hexrgb(this.color)}" ${this.font.includes("bold") ? 'mathvariant="bold"' : "" }>`
+      styled.indexOf(matchs[0]) + matchs[0].length,
+      `<mstyle displaystyle="true" mathcolor="${color2hexrgb(this.color)}" ${this.font.includes("bold") ? 'mathvariant="bold"' : "" }>`,
     )
 
     matchs = styled.match(/<\/[^>]*?math.*?>/s)

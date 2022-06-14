@@ -95,11 +95,12 @@ describe("Legend annotation", () => {
         ]
       }
 
-      const gls = glyphs.map(({x, y, type, options}) =>
-        type == "line"
-          ? p.line(x, y, options as Partial<LineArgs>)
-          : p.circle(x, y, options)
-      )
+      const gls = glyphs.map(({x, y, type, options}) => {
+        if (type == "line")
+          return p.line(x, y, options as Partial<LineArgs>)
+        else
+          return p.circle(x, y, options)
+      })
 
       if (legend_items == null) {
         legend_items = [
