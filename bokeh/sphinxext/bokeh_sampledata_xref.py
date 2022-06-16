@@ -128,14 +128,16 @@ def process_sampledata_xrefs(app, doctree, fromdocname):
 
     for node in doctree.traverse(sampledata_list):
 
-        refs = [s for s in env.all_sampledata_xrefs if s["keyword"] == node.sampledata_key]
+        refs = []
+        for s in env.all_sampledata_xrefs:
+            if s["keyword"] == node.sampledata_key and not s in refs:
+                refs.append(s)
         content = []
         if refs:
             para = nodes.paragraph()
-            description = (_(f'Example{"" if 1==len(refs) else "s"}'))
-            para += nodes.rubric(description, description)
-            for ref in refs:
-                para += add_bullet_point(app, fromdocname, ref, basename(ref['docname']))
+            para += nodes.rubric('Examples', 'Examples')
+            for ref in sort_by_basename(refs):
+                para += add_bullet_point(app, fromdocname, ref['docname'], ref['basename'])
             content.append(para)
         node.replace_self(content)
 
@@ -168,31 +170,41 @@ def process_gallery_overview(app, doctree, fromdocname):
             sp = s['docname'].split('/')
             if node.subfolder == 'all' or sp[-2] == node.subfolder:
                 letter = sp[-1][0].upper()
-                if letter in ref_dict:
+                if letter in ref_dict and not s in ref_dict[letter]:
                     ref_dict[letter].append(s)
                 else:
                     ref_dict[letter] = [s]
 
         content = []
-        for letter, refs in ref_dict.items():
+        for letter, refs in sorted(ref_dict.items()):
             para = nodes.paragraph()
             para += nodes.rubric((_(letter)), (_(letter)))
-            for ref in refs:
-                ref_name = basename(ref['docname'])
+            for ref in sort_by_basename(refs):
+                docname = ref['docname']
+                ref_name = basename(docname)
                 if node.subfolder == 'all':
-                    ref_name += f" ({ref['docname'].split('/')[-2]})"
-                para += add_bullet_point(app, fromdocname, ref, ref_name)
+                    ref_name += f" ({docname.split('/')[-2]})"
+                para += add_bullet_point(app, fromdocname, docname, ref_name)
             content.append(para)
         node.replace_self(content)
 
-def add_bullet_point(app, fromdocname, ref, ref_name):
+def sort_by_basename(refs):
+    refs = [{'basename':basename(ref['docname']), 'docname': ref['docname']} for ref in refs]
+    sorted_refs = []
+    for key in sorted([basename(ref['basename']) for ref in refs]):
+        for i, value in enumerate(refs):
+            if key == value['basename']:
+                sorted_refs.append(refs.pop(i))
+    return sorted_refs
+
+def add_bullet_point(app, fromdocname, docname, ref_name):
     # Create references
     line = nodes.line()
     line += nodes.Text('  • ','  • ')
     newnode = nodes.reference('', '')
     innernode = nodes.emphasis(_(ref_name), _(ref_name))
-    newnode['refdocname'] = ref['docname']
-    newnode['refuri'] = app.builder.get_relative_uri(fromdocname, ref['docname'])
+    newnode['refdocname'] = docname
+    newnode['refuri'] = app.builder.get_relative_uri(fromdocname, docname)
     newnode.append(innernode)
     line += newnode
     return line
