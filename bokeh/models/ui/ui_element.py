@@ -21,16 +21,16 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-#from ..core.properties import Nullable, String
-from ..model import Qualified
-from .layouts import HTMLBox
+from ...core.has_props import abstract
+from ...core.properties import Bool
+from ...model import Model
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "Inspector",
+    "UIElement",
 )
 
 #-----------------------------------------------------------------------------
@@ -41,12 +41,17 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Inspector(HTMLBox, Qualified):
-    """ A diagnostic and inspection tool for documents, models, properties, etc. """
+@abstract
+class UIElement(Model):
+    """ Base class for user interface elements. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+    visible = Bool(default=True, help="""
+    Whether the component should be displayed on screen.
+    """)
 
 #-----------------------------------------------------------------------------
 # Private API

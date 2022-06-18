@@ -4,7 +4,7 @@ import {unescape, uuid4} from "../core/util/string"
 import {entries} from "core/util/object"
 import {isString} from "../core/util/types"
 import {defer} from "core/util/defer"
-import {View} from "core/view"
+import {ViewManager} from "core/view"
 
 import {DocsJson, RenderItem} from "./json"
 import {add_document_standalone} from "./standalone"
@@ -20,7 +20,7 @@ export {BOKEH_ROOT} from "./dom"
 export type JsonItem = {doc: DocJson, root_id: string, target_id: string}
 type Roots = {[index: string]: string}
 
-export async function embed_item(item: JsonItem, target_id?: string): Promise<View[]> {
+export async function embed_item(item: JsonItem, target_id?: string): Promise<ViewManager> {
   const docs_json: DocsJson = {}
   const doc_id = uuid4()
   docs_json[doc_id] = item.doc
@@ -45,12 +45,12 @@ export async function embed_item(item: JsonItem, target_id?: string): Promise<Vi
 // the first two args, whereas server provide the app_app, and *may* prove and
 // absolute_url as well if non-relative links are needed for resources. This function
 // should probably be split in to two pieces to reflect the different usage patterns
-export async function embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string): Promise<View[][]> {
+export async function embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string): Promise<ViewManager[]> {
   await defer()
   return _embed_items(docs_json, render_items, app_path, absolute_url)
 }
 
-async function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string): Promise<View[][]> {
+async function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string): Promise<ViewManager[]> {
   if (isString(docs_json))
     docs_json = JSON.parse(unescape(docs_json)) as DocsJson
 
@@ -59,7 +59,7 @@ async function _embed_items(docs_json: string | DocsJson, render_items: RenderIt
     docs[docid] = Document.from_json(doc_json)
   }
 
-  const views: View[][] = []
+  const views: ViewManager[] = []
   for (const item of render_items) {
     const element = _resolve_element(item)
     const roots = _resolve_root_elements(item)

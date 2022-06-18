@@ -92,7 +92,6 @@ describe("step_interpolator_transform module", () => {
       })
     }
 
-
     describe("should step interpolate before", () => {
       const transform = step_interpolator("before")
 

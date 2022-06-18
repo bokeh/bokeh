@@ -1,17 +1,17 @@
 import * as p from "core/properties"
 import {ButtonType} from "core/enums"
-import {prepend, nbsp, button, div} from "core/dom"
+import {prepend, nbsp, text, button, div, StyleSheetLike} from "core/dom"
 import {build_view} from "core/build_views"
 
 import {Control, ControlView} from "./control"
-import {AbstractIcon, AbstractIconView} from "./abstract_icon"
+import {Icon, IconView} from "../ui/icons/icon"
 
 import buttons_css, * as buttons from "styles/buttons.css"
 
 export abstract class AbstractButtonView extends ControlView {
   override model: AbstractButton
 
-  protected icon_view?: AbstractIconView
+  protected icon_view?: IconView
 
   protected button_el: HTMLButtonElement
   protected group_el: HTMLElement
@@ -39,7 +39,7 @@ export abstract class AbstractButtonView extends ControlView {
     super.remove()
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), buttons_css]
   }
 
@@ -58,11 +58,8 @@ export abstract class AbstractButtonView extends ControlView {
     this.button_el.addEventListener("click", () => this.click())
 
     if (this.icon_view != null) {
-      if (this.model.label != "") {
-        prepend(this.button_el, this.icon_view.el, nbsp())
-      } else {
-        prepend(this.button_el, this.icon_view.el)
-      }
+      const separator = this.model.label != "" ? nbsp() : text("")
+      prepend(this.button_el, this.icon_view.el, separator)
       this.icon_view.render()
     }
 
@@ -78,7 +75,7 @@ export namespace AbstractButton {
 
   export type Props = Control.Props & {
     label: p.Property<string>
-    icon: p.Property<AbstractIcon | null>
+    icon: p.Property<Icon | null>
     button_type: p.Property<ButtonType>
   }
 }
@@ -96,7 +93,7 @@ export abstract class AbstractButton extends Control {
   static {
     this.define<AbstractButton.Props>(({String, Ref, Nullable}) => ({
       label:       [ String, "Button" ],
-      icon:        [ Nullable(Ref(AbstractIcon)), null ],
+      icon:        [ Nullable(Ref(Icon)), null ],
       button_type: [ ButtonType, "default" ],
     }))
   }

@@ -171,7 +171,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     """)
 
-    js_event_callbacks = p.Dict(p.String, p.List(p.Instance("bokeh.models.callbacks.CustomJS")),
+    js_event_callbacks = p.Dict(p.String, p.List(p.Instance("bokeh.models.callbacks.Callback")),
     help="""
     A mapping of event names to lists of ``CustomJS`` callbacks.
 
@@ -190,7 +190,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     Python for this model.
     """)
 
-    js_property_callbacks = p.Dict(p.String, p.List(p.Instance("bokeh.models.callbacks.CustomJS")), help="""
+    js_property_callbacks = p.Dict(p.String, p.List(p.Instance("bokeh.models.callbacks.Callback")), help="""
     A mapping of attribute names to lists of ``CustomJS`` callbacks, to be set up on
     BokehJS side when the document is created.
 

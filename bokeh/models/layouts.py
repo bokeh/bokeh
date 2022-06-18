@@ -57,6 +57,8 @@ from ..core.validation.warnings import (
     FIXED_WIDTH_POLICY,
 )
 from ..model import Model
+from .ui.menus import Menu
+from .ui.ui_element import UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -79,7 +81,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class LayoutDOM(Model):
+class LayoutDOM(UIElement):
     """ The base class for layoutable components.
 
     """
@@ -92,10 +94,6 @@ class LayoutDOM(Model):
     Whether the widget will be disabled when rendered.
 
     If ``True``, the widget will be greyed-out and not responsive to UI events.
-    """)
-
-    visible = Bool(True, help="""
-    Whether the component will be visible and a part of a layout.
     """)
 
     width: int | None = Nullable(NonNegativeInt, help="""
@@ -279,6 +277,15 @@ class LayoutDOM(Model):
     Additional style sheets to use for this DOM element. Note that all bokeh's components
     use shadow DOM, thus any included style sheets must reflect that, e.g. use ``:host``
     CSS pseudo selector to access the root DOM element.
+    """)
+
+    context_menu = Nullable(Instance(Menu), default=None, help="""
+    A menu to display when user right clicks on the component.
+
+    .. note::
+        To display a native context menu, the viewer will need to right-click
+        twice. The second click closes the Bokeh context menu and falls back
+        back the native one.
     """)
 
     @warning(FIXED_SIZING_MODE)

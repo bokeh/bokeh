@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Various kinds of icon widgets.
+"""
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -21,34 +21,62 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ...core.has_props import abstract
-from ...model import Model
+from ...core.properties import (
+    Bool,
+    Either,
+    Instance,
+    List,
+    NonNullable as Required,
+    Nullable,
+    String,
+)
+from ..dom import DOMNode
+from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'AbstractIcon',
+    "Dialog",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
+Button = UIElement # TODO
 
-@abstract
-class AbstractIcon(Model):
-    ''' An abstract base class for icon widgets.
-
-    '''
+class Dialog(UIElement):
+    """ """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+
+    title = Nullable(Either(String, Instance(DOMNode)), default=None, help="""
+    """)
+
+    content = Required(Either(String, Instance(DOMNode), Instance(UIElement)), help="""
+    """)
+
+    buttons = List(Instance(Button), default=[], help="""
+    """)
+
+    modal = Bool(default=False, help="""
+    """)
+
+    closable = Bool(default=True, help="""
+    Whether to show close (x) button in the title bar.
+    """)
+
+    draggable = Bool(default=True, help="""
+    """)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Private API

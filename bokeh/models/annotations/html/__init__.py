@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 from .html_annotation import *
 from .labels import *
 from .toolbars import *
-from .tooltips import *
 
 #-----------------------------------------------------------------------------
 # Globals and constants

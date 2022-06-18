@@ -2,7 +2,7 @@ import noUiSlider, {API} from "nouislider"
 
 import * as p from "core/properties"
 import {Color} from "core/types"
-import {div, span, empty} from "core/dom"
+import {div, span, empty, StyleSheetLike} from "core/dom"
 import {repeat} from "core/util/array"
 import {color2css} from "core/util/color"
 
@@ -58,7 +58,7 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
     this.on_change([value, title, show_value], () => this._update_title())
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), nouislider_css, sliders_css]
   }
 

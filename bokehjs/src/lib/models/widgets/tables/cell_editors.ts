@@ -47,7 +47,6 @@ export abstract class CellEditorView extends DOMComponentView {
   }
 
   override render(): void {
-    super.render()
     this.args.container.append(this.el)
     this.shadow_el.appendChild(this.inputEl)
     this.renderEditor()

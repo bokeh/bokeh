@@ -79,7 +79,7 @@ export class Document implements Equatable {
   private _idle_roots: WeakSet<HasProps>
   protected _interactive_timestamp: number | null
   protected _interactive_plot: Model | null
-  protected _interactive_finalize: (() => void)| null
+  protected _interactive_finalize: (() => void) | null
 
   constructor(options?: {resolver?: ModelResolver}) {
     documents.push(this)

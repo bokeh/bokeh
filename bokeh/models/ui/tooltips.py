@@ -4,9 +4,10 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+"""
 
-'''
+"""
+
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
@@ -20,9 +21,23 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ....core.enums import TooltipAttachment
-from ....core.properties import Bool, Enum, Override
-from .html_annotation import HTMLAnnotation
+from ...core.enums import Anchor, TooltipAttachment
+from ...core.properties import (
+    Auto,
+    Bool,
+    Either,
+    Enum,
+    Float,
+    Instance,
+    NonNullable as Required,
+    Nullable,
+    Override,
+    String,
+    Tuple,
+)
+from ..dom import HTML
+from ..selectors import Selector
+from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,37 +51,53 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Tooltip(HTMLAnnotation):
-    ''' Render a tooltip.
+class Tooltip(UIElement):
+    """ Render a tooltip.
 
-    .. note::
-        This model is currently managed by BokehJS and is not useful
-        directly from python.
-
-    '''
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    level = Override(default="overlay")
+    visible = Override(default=False)
 
-    attachment = Enum(TooltipAttachment, help="""
+    position = Nullable(Either(Enum(Anchor), Tuple(Float, Float)), default=None, help="""
+    The position of the tooltip with respect to its parent. It can be either
+    an absolute position within the parent or an anchor point for symbolic
+    positioning.
+    """)
+
+    target = Either(Instance(UIElement), Instance(Selector), Auto, default="auto", help="""
+    Tooltip can be manually attached to a target UI element or a DOM node
+    (referred to by a selector, e.g. CSS selector or XPath), or its
+    attachment can be inferred from its parent in ``"auto"`` mode.
+    """)
+
+    content = Required(Either(String, Instance(HTML)), help="""
+    Either plain text or rich HTML tooltip's contents.
+    """)
+
+    attachment = Either(Enum(TooltipAttachment), Auto, default="auto", help="""
     Whether the tooltip should be displayed to the left or right of the cursor
     position or above or below it, or if it should be automatically placed
     in the horizontal or vertical dimension.
     """)
 
-    inner_only = Bool(default=True, help="""
-    Whether to display outside a central plot frame area.
-
-    .. note:
-        This property is deprecated and will be removed in bokeh 3.0.
-
-    """)
-
     show_arrow = Bool(default=True, help="""
     Whether tooltip's arrow should be shown.
+    """)
+
+    closable = Bool(default=False, help="""
+    Whether to allow dismissing a tooltip by clicking close (x) button. Useful when
+    using this model for persistent tooltips.
+    """)
+
+    interactive = Bool(default=True, help="""
+    Whether to allow pointer events on the contents of this tooltip. Depending
+    on the use case, it may be necessary to disable interactions for better
+    user experience. This however will prevent the user from interacting with
+    the contents of this tooltip, e.g. clicking links.
     """)
 
 #-----------------------------------------------------------------------------

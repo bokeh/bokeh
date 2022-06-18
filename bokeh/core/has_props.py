@@ -60,7 +60,7 @@ from ..util.string import append_docstring, nice_join
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
-from .property.singletons import Undefined
+from .property.singletons import Intrinsic, Undefined
 from .property.wrappers import PropertyValueContainer
 from .serialization import (
     ObjectRep,
@@ -264,6 +264,9 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         self._unstable_themed_values = {}
 
         for name, value in properties.items():
+            # TODO: this would be better to handle in descriptors
+            if value is Undefined or value is Intrinsic:
+                continue
             setattr(self, name, value)
 
         for name in self.properties() - set(properties.keys()):

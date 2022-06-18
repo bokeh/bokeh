@@ -332,8 +332,7 @@ async function run_tests(): Promise<boolean> {
 
       progress.start(test_suite.length, 0, state())
 
-      type MetricKeys = "JSEventListeners" | "Nodes" | "Resources" | "LayoutCount" |
-        "RecalcStyleCount" | "JSHeapUsedSize" | "JSHeapTotalSize"
+      type MetricKeys = "JSEventListeners" | "Nodes" | "Resources" | "LayoutCount" | "RecalcStyleCount" | "JSHeapUsedSize" | "JSHeapTotalSize"
       const metrics: {[key in MetricKeys]: number[]} = {
         JSEventListeners: [],
         Nodes: [],

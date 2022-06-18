@@ -78,6 +78,6 @@ export abstract class ColorMapper extends Mapper<Color> {
     return {nan_color: conv(this.nan_color)}
   }
 
-  protected abstract _v_compute<T>(xs: ArrayableOf<uint32 | Factor>, values: Arrayable<T>,
-                                   palette: Arrayable<T>, colors: {nan_color: T}): void
+  protected abstract _v_compute<T>(xs: ArrayableOf<uint32 | Factor>,
+    values: Arrayable<T>, palette: Arrayable<T>, colors: {nan_color: T}): void
 }

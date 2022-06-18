@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from .buttons import *
 from .groups import *
-from .icons import *
 from .inputs import *
 from .markups import *
 from .panels import *

@@ -23,12 +23,14 @@ export function get_info(scales: Map<string, Scale>, [sxy0, sxy1]: [number, numb
   return info
 }
 
+export type ScaleRange = {
+  xrs: Map<string, Interval>
+  yrs: Map<string, Interval>
+  factor: number
+}
+
 export function scale_range(frame: CartesianFrame, factor: number,
-    h_axis: boolean = true, v_axis: boolean = true, center?: {x: number, y: number}): {
-      xrs: Map<string, Interval>
-      yrs: Map<string, Interval>
-      factor: number
-    } {
+    h_axis: boolean = true, v_axis: boolean = true, center?: {x: number, y: number}): ScaleRange {
   /*
    * Utility function for zoom tools to calculate/create the zoom_info object
    * of the form required by ``PlotView.update_range``
@@ -44,7 +46,7 @@ export function scale_range(frame: CartesianFrame, factor: number,
    *     of form {'x': Number, 'y', Number}
    *
    * Returns:
-   *   object:
+   *   ScaleRange
    */
 
   // clamp the  magnitude of factor, if it is > 1 bad things happen

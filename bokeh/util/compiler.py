@@ -499,6 +499,8 @@ def _compile_models(custom_models: Dict[str, CustomModel]) -> Dict[str, AttrDict
         compiled = _CACHING_IMPLEMENTATION(model, impl)
         if compiled is None:
             compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
+            if "error" in compiled:
+                raise CompilationError(compiled.error)
 
         custom_impls[model.full_name] = compiled
 

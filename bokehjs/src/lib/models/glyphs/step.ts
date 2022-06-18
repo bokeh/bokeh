@@ -30,73 +30,76 @@ export class StepView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: StepData): void {
-    const {sx, sy} = data ?? this
+    const npoints = indices.length
+    if (npoints < 2)
+      return
 
-    let drawing = false
-    let last_index: number | null = null
+    const {sx, sy} = data ?? this
+    const mode = this.model.mode
 
     this.visuals.line.set_value(ctx)
 
-    const L = indices.length
-    if (L < 2)
-      return
-
-    ctx.beginPath()
-    ctx.moveTo(sx[0], sy[0])
+    let drawing = false
+    let prev_finite = false
+    const i = indices[0]
+    let is_finite = isFinite(sx[i] + sy[i])
+    if (mode == "center")
+      drawing = this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])
 
     for (const i of indices) {
-      let x1: number, x2: number
-      let y1: number, y2: number
-      switch (this.model.mode) {
-        case "before": {
-          [x1, y1] = [sx[i-1], sy[i]]
-          ;[x2, y2] = [sx[i],   sy[i]]
+      const next_finite = isFinite(sx[i+1] + sy[i+1])
+      switch (mode) {
+        case "before":
+          drawing = this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])
+          if (i < sx.length-1)
+            drawing = this._render_xy(ctx, drawing, is_finite && next_finite ? sx[i] : NaN, sy[i+1])
           break
-        }
-        case "after": {
-          [x1, y1] = [sx[i], sy[i-1]]
-          ;[x2, y2] = [sx[i], sy[i]  ]
+        case "after":
+          drawing = this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])
+          if (i < sx.length-1)
+            drawing = this._render_xy(ctx, drawing, is_finite && next_finite ? sx[i+1] : NaN, sy[i])
           break
-        }
-        case "center": {
-          const xm = (sx[i-1] + sx[i])/2
-          ;[x1, y1] = [xm, sy[i-1]]
-          ;[x2, y2] = [xm, sy[i]  ]
+        case "center":
+          if (is_finite && next_finite) {
+            const midx = (sx[i] + sx[i+1])/2
+            drawing = this._render_xy(ctx, drawing, midx, sy[i])
+            drawing = this._render_xy(ctx, drawing, midx, sy[i+1])
+          } else {
+            if (prev_finite)
+              drawing = this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])
+            drawing = this._render_xy(ctx, drawing, next_finite ? sx[i+1] : NaN, sy[i+1])
+          }
           break
-        }
         default:
           unreachable()
       }
+      prev_finite = is_finite
+      is_finite = next_finite
+    }
+    if (drawing) {
+      const i = indices[npoints-1]
+      this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])
+      ctx.stroke()
+    }
+  }
 
+  protected _render_xy(ctx: Context2d, drawing: boolean, x: number, y: number): boolean {
+    if (isFinite(x + y)) {
       if (drawing) {
-        if (!isFinite(sx[i] + sy[i])) {
-          ctx.stroke()
-          ctx.beginPath()
-          drawing = false
-          last_index = i
-          continue
-        }
-
-        if (last_index != null && i - last_index > 1) {
-          ctx.stroke()
-          drawing = false
-        }
-      }
-
-      if (drawing) {
-        ctx.lineTo(x1, y1)
-        ctx.lineTo(x2, y2)
+        // Continue with current line
+        ctx.lineTo(x, y)
       } else {
+        // Start new line
         ctx.beginPath()
-        ctx.moveTo(sx[i], sy[i])
+        ctx.moveTo(x, y)
         drawing = true
       }
-
-      last_index = i
+    } else if (drawing) {
+      // End current line
+      ctx.stroke()
+      drawing = false
     }
-
-    ctx.lineTo(sx[L-1], sy[L-1])
-    ctx.stroke()
+    return drawing
   }
 
   override draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {

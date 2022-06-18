@@ -1,4 +1,5 @@
 import {Control, ControlView} from "./control"
+import {StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 
 import inputs_css from "styles/widgets/inputs.css"
@@ -16,7 +17,7 @@ export abstract class InputGroupView extends ControlView {
     this.connect(this.model.change, () => this.render())
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), inputs_css]
   }
 }

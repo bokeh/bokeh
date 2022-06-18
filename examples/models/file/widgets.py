@@ -13,29 +13,46 @@ from datetime import date
 
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup,
-                          CheckboxGroup, ColorPicker, Column, ColumnDataSource,
-                          DataTable, DatePicker, DateRangeSlider, DateSlider, Div,
-                          Dropdown, IntEditor, MultiChoice, MultiSelect, NumberEditor,
+from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS,
+                          CheckboxButtonGroup, CheckboxGroup, ColorPicker, Column,
+                          ColumnDataSource, DataTable, DatePicker, DateRangeSlider,
+                          DateSlider, Dialog, Div, Dropdown, HelpButton, Inspector,
+                          IntEditor, Menu, MultiChoice, MultiSelect, NumberEditor,
                           NumberFormatter, Panel, Paragraph, PreText, RadioButtonGroup,
-                          RadioGroup, RangeSlider, Row, Select, SelectEditor, Slider,
-                          Spinner, StringEditor, StringFormatter, Switch, TableColumn,
-                          Tabs, TextAreaInput, TextInput, Toggle)
+                          RadioGroup, RangeSlider, Row, Select, SelectEditor, SetValue,
+                          Slider, Spinner, StringEditor, StringFormatter, SVGIcon,
+                          Switch, TableColumn, TablerIcon, Tabs, TextAreaInput,
+                          TextInput, Toggle, Tooltip)
+from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
 from bokeh.sampledata.autompg2 import autompg2 as mpg
 from bokeh.sampledata.iris import flowers
 from bokeh.util.browser import view
 
-click_button = Button(label="Button still has click event", button_type="success")
+dialog = Dialog(content=Inspector(), visible=False)
+
+click_button = Button(icon=TablerIcon("settings", size="1.2em"), label="Open inspector", button_type="success")
+click_button.js_on_event("button_click", SetValue(dialog, "visible", True))
 
 disabled_button = Button(label="Button (disabled) - still has click event", button_type="primary", disabled=True)
 
-toggle = Toggle(label="Toggle button", button_type="success")
+toggle = Toggle(icon=BuiltinIcon("settings", size="1.2em", color="white"), label="Toggle button", button_type="success")
+
+svg_icon = SVGIcon("""
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <desc>Download more icon variants from https://tabler-icons.io/i/arrow-bear-right-2</desc>
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M15 3h5v5"></path>
+    <path d="M20 3l-7.536 7.536a5 5 0 0 0 -1.464 3.534v6.93"></path>
+    <path d="M4 5l4.5 4.5"></path>
+</svg>
+""")
 
 menu = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), None, ("Item 3", "item_3_value")]
 
-dropdown = Dropdown(label="Dropdown button", button_type="warning", menu=menu)
+dropdown = Dropdown(icon=svg_icon, label="Dropdown button", button_type="warning", menu=menu)
 dropdown_split = Dropdown(label="Split button", button_type="danger", menu=menu, split=True)
 
 checkbox_group = CheckboxGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
@@ -70,13 +87,31 @@ date_range_slider = DateRangeSlider(value=(date(2016, 1, 1), date(2016, 12, 31))
 
 spinner = Spinner(value=100)
 
-color_picker = ColorPicker(color="red", title="Choose color:")
+page_step_multiplier = ValueOf(obj=spinner, attr="page_step_multiplier")
+
+tooltip_0 = Tooltip(content=HTML(f"""\
+<b>Click</b> on arrows to increment/decrement the value or
+<br>
+<b>press</b> for quicker updates with a value multiplier (currently <ref id="{page_step_multiplier.id}"></ref>).
+""", refs=[page_step_multiplier]), position="right", target=spinner, closable=True, visible=True)
+
+tooltip_1 = Tooltip(content=HTML("""\
+Your <b>choice</b> of color.<br>See more in bokeh's <a href="https://docs.bokeh.org/en/latest/">docs</a>.
+"""), position="right")
+
+color_picker = ColorPicker(color="red", title="Choose color:", description=tooltip_1)
 
 date_picker = DatePicker(value=date(2017, 8, 1))
 
 switch_0 = Switch(active=False)
 
-switch_1 = Switch(active=True)
+switch_1 = Switch(active=True, context_menu=Menu())
+
+switch_help = HelpButton(tooltip=Tooltip(content=HTML("""
+This is an <b>on</b> or <b>off</b> style of widget.
+<br>
+Right click on the widget to display the context menu.
+"""), position="right"))
 
 paragraph = Paragraph(text="some text")
 
@@ -84,10 +119,10 @@ div = Div(text="some <b>text</b>")
 
 pre_text = PreText(text="some text")
 
-def mk_tab(color):
+def mk_tab(color: str):
     plot = figure(width=300, height=300)
     plot.scatter(flowers["petal_length"], flowers["petal_width"], color=color, fill_alpha=0.2, size=12)
-    return Panel(title="Tab 1: %s" % color.capitalize(), child=plot)
+    return Panel(title=f"Tab 1: {color.capitalize()}", child=plot, closable=True)
 
 tabs = Tabs(tabs=[mk_tab("red"), mk_tab("green"), mk_tab("blue")])
 
@@ -141,7 +176,7 @@ widgets = Column(children=[
             select, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider,
             spinner, color_picker, date_picker,
-            Row(children=[switch_0, switch_1]),
+            Row(children=[switch_0, switch_1, switch_help]),
             paragraph, div, pre_text,
         ]),
         tabs,
@@ -149,8 +184,17 @@ widgets = Column(children=[
     table,
 ])
 
+tooltip_2 = Tooltip(content=HTML("""\
+This example shows all widgets available in bokeh.<br>To learn more about using widgets, see bokeh's
+<a href="https://docs.bokeh.org/en/latest/docs/user_guide/interaction/widgets.html">documentation</a>
+regarding this topic.
+"""), position="top", attachment="below", target=ByCSS("body"), closable=True, visible=True)
+
 doc = Document()
 doc.add_root(widgets)
+doc.add_root(dialog)
+doc.add_root(tooltip_0)
+doc.add_root(tooltip_2)
 
 if __name__ == "__main__":
     doc.validate()

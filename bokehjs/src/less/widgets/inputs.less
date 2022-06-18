@@ -142,3 +142,23 @@ select[multiple], select[size], textarea {
     }
   }
 }
+
+.bk-description {
+  position: relative;
+  display: inline-block;
+  margin-left: 0.25em;
+  vertical-align: middle;
+  margin-top: -2px; // arbitrary, looks better
+  cursor: pointer;
+
+  &> .bk-icon {
+    visibility: hidden;
+    width: 18px;
+    height: 18px;
+    .icon-mask(var(--bokeh-icon-help2), gray);
+  }
+}
+
+label:hover > .bk-description > .bk-icon {
+  visibility: visible;
+}

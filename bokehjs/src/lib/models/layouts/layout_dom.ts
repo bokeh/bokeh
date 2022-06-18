@@ -1,8 +1,10 @@
-import {Model} from "../../model"
+import {UIElement, UIElementView} from "../ui/ui_element"
+import {Menu} from "../menus/menu"
+import {IterViews} from "core/view"
 import {Signal} from "core/signaling"
 import {Color} from "core/types"
 import {Align, SizingMode} from "core/enums"
-import {position, classes, extents, undisplayed} from "core/dom"
+import {position, classes, extents, undisplayed, StyleSheetLike} from "core/dom"
 import {logger} from "core/logging"
 import {isNumber, isArray} from "core/util/types"
 import {color2css} from "core/util/color"
@@ -16,7 +18,7 @@ import {SizingPolicy, BoxSizing, Size, Layoutable} from "core/layout"
 import {CanvasLayer} from "core/util/canvas"
 import {SerializableState} from "core/view"
 
-export abstract class LayoutDOMView extends DOMComponentView {
+export abstract class LayoutDOMView extends UIElementView {
   override model: LayoutDOM
 
   override root: LayoutDOMView
@@ -83,6 +85,12 @@ export abstract class LayoutDOMView extends DOMComponentView {
     this.el.addEventListener("mouseleave", (event) => {
       this.mouseleave.emit(event)
     })
+    this.el.addEventListener("contextmenu", (event) => {
+      if (this.model.context_menu != null) {
+        console.log("context menu")
+        event.preventDefault()
+      }
+    })
 
     if (this.is_layout_root) {
       this._on_resize = () => this.resize_layout()
@@ -133,8 +141,13 @@ export abstract class LayoutDOMView extends DOMComponentView {
     return [...super.css_classes(), ...this.model.css_classes]
   }
 
-  override styles(): string[] {
+  override styles(): StyleSheetLike[] {
     return [...super.styles(), ...this.model.stylesheets]
+  }
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield* this.child_views
   }
 
   abstract get child_models(): LayoutDOM[]
@@ -148,8 +161,7 @@ export abstract class LayoutDOMView extends DOMComponentView {
   }
 
   override render(): void {
-    super.render()
-    this.empty() // XXX: this should be in super
+    this.empty()
 
     assign(this.el.style, this.model.style)
 
@@ -416,7 +428,7 @@ export type CSSInlineStyle = FilterStrings<CSSStyleDeclaration>
 export namespace LayoutDOM {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {
+  export type Props = UIElement.Props & {
     width: p.Property<number | null>
     height: p.Property<number | null>
     min_width: p.Property<number | null>
@@ -428,19 +440,19 @@ export namespace LayoutDOM {
     height_policy: p.Property<SizingPolicy | "auto">
     aspect_ratio: p.Property<number | "auto" | null>
     sizing_mode: p.Property<SizingMode | null>
-    visible: p.Property<boolean>
     disabled: p.Property<boolean>
     align: p.Property<Align | [Align, Align]>
     background: p.Property<Color | null>
     css_classes: p.Property<string[]>
     style: p.Property<CSSInlineStyle>
     stylesheets: p.Property<string[]>
+    context_menu: p.Property<Menu | null>
   }
 }
 
 export interface LayoutDOM extends LayoutDOM.Attrs {}
 
-export abstract class LayoutDOM extends Model {
+export abstract class LayoutDOM extends UIElement {
   override properties: LayoutDOM.Props
   override __view_type__: LayoutDOMView
 
@@ -450,7 +462,7 @@ export abstract class LayoutDOM extends Model {
 
   static {
     this.define<LayoutDOM.Props>((types) => {
-      const {Boolean, Number, String, Auto, Color, Array, Tuple, Dict, Or, Null, Nullable} = types
+      const {Boolean, Number, String, Auto, Color, Array, Tuple, Dict, Or, Null, Nullable, Ref} = types
       const Number2 = Tuple(Number, Number)
       const Number4 = Tuple(Number, Number, Number, Number)
       return {
@@ -465,13 +477,13 @@ export abstract class LayoutDOM extends Model {
         height_policy: [ Or(SizingPolicy, Auto), "auto" ],
         aspect_ratio:  [ Or(Number, Auto, Null), null ],
         sizing_mode:   [ Nullable(SizingMode), null ],
-        visible:       [ Boolean, true ],
         disabled:      [ Boolean, false ],
         align:         [ Or(Align, Tuple(Align, Align)), "start" ],
         background:    [ Nullable(Color), null ],
         css_classes:   [ Array(String), [] ],
         style:         [ Dict(String), {} ], // TODO: add validation for CSSInlineStyle
         stylesheets:   [ Array(String), [] ],
+        context_menu:  [ Nullable(Ref(Menu)), null ],
       }
     })
   }
