@@ -16,8 +16,6 @@ def colors(n):
     return ret
 
 
-line_color = "black"
-
 # All of these work.
 #fill_color = "orange"  # Single color
 #fill_color = Cividis[nlevels-1]  # Correct number of colors
@@ -27,8 +25,21 @@ fill_color = cividis  # Function that takes an int and returns a Palette
 #fill_color = colors  # Callback that takes int and returns sequence of colors (or one color)
 
 
-fig = figure()
-contour_renderer = from_contour(x, y, z, levels, fill_color=fill_color, line_color=line_color)
+fig = figure(width=600, height=400)
+contour_renderer = from_contour(
+    x, y, z, levels,
+    fill_color=fill_color,
+    #fill_alpha=0.7,
+    #fill_color=["blue"]*(nlevels-1), fill_alpha=np.linspace(0.3, 1.0, nlevels-1).tolist(),
+    #line_color="green",
+    line_color=["oldlace"]*5 + ["black"] + ["red"]*5,
+    #line_color=colors(nlevels),
+    line_width=2,
+    line_dash=["solid"]*6 + ["dashed"]*5,
+    hatch_pattern=["x"]*5 + [""]*5,
+    hatch_color="white",
+    hatch_alpha=0.3,
+)
 fig.renderers.append(contour_renderer)
 
 colorbar = contour_renderer.color_bar() #extra kwargs?????)

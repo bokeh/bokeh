@@ -17,7 +17,7 @@ line_color = "blue"
 
 def slider_callback(_attr, _old, new_value):
     z = calc_z(new_value)
-    new_contour_data = contour_data(x, y, z, levels, fill_color=fill_color, line_color=line_color)
+    new_contour_data = contour_data(x, y, z, levels)
     contour_renderer.data = new_contour_data
 
 fig = figure()

@@ -18,12 +18,12 @@ line_color = "black"
 def callback(timestep):
     timestep += 1
     z = calc_z(timestep)
-    new_contour_data = contour_data(x, y, z, levels, fill_color=fill_color, line_color=line_color)
+    new_contour_data = contour_data(x, y, z, levels)
     contour_renderer.data = new_contour_data
 
 fig = figure()
 contour_renderer = from_contour(x, y, z, levels, fill_color=fill_color, line_color=line_color)
 fig.renderers.append(contour_renderer)
 doc = curdoc()
-doc.add_periodic_callback(callback, 100)
+doc.add_periodic_callback(callback, 10)
 doc.add_root(fig)

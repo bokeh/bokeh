@@ -29,7 +29,7 @@ from ..core.properties import (
     String,
 )
 from ..core.types import Unknown
-from .annotations import ColorBar
+from .annotations import ContourColorBar
 from .glyphs import (
     MultiLine,
     MultiPolygons,
@@ -79,21 +79,40 @@ class ContourRenderer(DataRenderer):
 
     data = Dict(String, ColumnData(keys_type=String, values_type=Any))
 
-    ticker = Instance(Ticker)
-
+    # Do not need these if subclass ContourColorBar correctly?  Do need ticker?
     color_mapper = Instance(ColorMapper)
+    ticker = Instance(Ticker)
 
     def __setattr__(self, name: str, value: Unknown) -> None:
         super().__setattr__(name, value)
 
         if name == "data":
             # Should check these are set first.
-            self.fill_renderer.data_source.data = value["fill_data"]
-            self.line_renderer.data_source.data = value["line_data"]
+            # Copy across line/fill/hatch properties?
+            if "fill_data" in value:
+                new_fill_data = value["fill_data"]
+                old_fill_data = self.fill_renderer.data_source.data
+                for name in old_fill_data.keys():
+                    if name not in ("xs", "ys"):
+                        new_fill_data[name] = old_fill_data[name]
+                self.fill_renderer.data_source.data = new_fill_data
 
-    def color_bar(self) -> ColorBar:
-        #### Should accept other kwargs?????
-        return ColorBar(color_mapper=self.color_mapper, ticker=self.ticker)
+            if "line_data" in value:
+                new_line_data = value["line_data"]
+                old_line_data = self.line_renderer.data_source.data
+                for name in old_line_data.keys():
+                    if name not in ("xs", "ys"):
+                        new_line_data[name] = old_line_data[name]
+                self.line_renderer.data_source.data = new_line_data
+
+    def color_bar(self) -> ContourColorBar:
+        #### Should accept other kwargs and pass them through?????
+        return ContourColorBar(
+            color_mapper=self.color_mapper,
+            ticker=self.ticker,
+            fill_renderer=self.fill_renderer,
+            line_renderer=self.line_renderer,   # Just send the glyph????  Or the line props?
+        )
 
 #-----------------------------------------------------------------------------
 # Private API

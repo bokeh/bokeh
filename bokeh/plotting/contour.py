@@ -33,10 +33,17 @@ from typing import (
 import numpy as np
 
 # Bokeh imports
-from ..models.mappers import LinearColorMapper
+from ..core.property_mixins import LineProps
 from ..models.contour_renderer import ContourRenderer
+from ..models.glyphs import (
+    MultiLine,
+    MultiPolygons,
+)
+from ..models.mappers import LinearColorMapper
+from ..models.sources import ColumnDataSource
 from ..models.tickers import FixedTicker
 from ..palettes import linear_palette
+from ..plotting._renderer import _process_sequence_literals
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -65,47 +72,68 @@ def from_contour(
     y: Optional[np.ndarray],  # Really optional?
     z: Union[np.ndarray, np.ma.MaskedArray],  # Should be ArrayType | MaskedArray
     levels: Sequence[float],
-    fill_color: Optional[ContourColorOrPalette]=None,
-    line_color: Optional[ContourColorOrPalette]=None,
+    **visuals,  # This is union of LineProps, FillProps and HatchProps
 ) -> ContourRenderer:
-    if fill_color is None and line_color is None:
-        raise RuntimeError("Neither fill nor line requested in from_contour")
-
     # May need to determine nlevels, or levels from nlevels.
     nlevels = len(levels)
 
-    if fill_color is not None:
-        fill_color = _color(fill_color, nlevels-1) ########## always vector for LinearColorMapper???
-    if line_color is not None:
-        line_color = _color(line_color, nlevels)
+    # Handle possible callbacks for fill_color and line_color.  Not sure I want to do this.
+    if visuals.get("fill_color", None):
+        visuals["fill_color"] = _color(visuals["fill_color"], nlevels-1)
+    if visuals.get("line_color", None):
+        visuals["line_color"] = _color(visuals["line_color"], nlevels)
 
-    new_contour_data = contour_data(x, y, z, levels, fill_color, line_color)
+    line_cds = ColumnDataSource()
+    _process_sequence_literals(MultiLine, visuals, line_cds, False)
+
+    # Remove line visuals identified from visuals dict.
+    line_visuals = {}
+    for name in LineProps.properties():
+        prop = visuals.pop(name, None)
+        if prop is not None:
+            line_visuals[name] = prop
+
+    fill_cds = ColumnDataSource()
+    _process_sequence_literals(MultiPolygons, visuals, fill_cds, False)
+
+    # Check for other kwargs that are not wanted...
+
+    # May not need line or fill, depends if values set or not
+    want_fill = True #len(visuals) > 0
+    want_line = True #len(line_visuals) > 0
+
+    new_contour_data = contour_data(x, y, z, levels, want_fill, want_line)
     # With be other possibilities here like logarithmic....
-    ticker = FixedTicker(ticks=levels)
-    color_mapper = LinearColorMapper(palette=fill_color, low=levels[0], high=levels[-1])
 
+
+    # ticker and colormapper only needed until refactor colorbar class hierarchy.
     contour_renderer = ContourRenderer(
         data=new_contour_data,
-        ticker=ticker,
-        color_mapper=color_mapper,
+        # ticker and colormapper may not be needed in the end...
+        ticker=FixedTicker(ticks=levels),
+        color_mapper=LinearColorMapper(palette=fill_cds.data["fill_color"], low=levels[0], high=levels[-1]),
     )
 
     if new_contour_data["fill_data"]:
         glyph = contour_renderer.fill_renderer.glyph
+        for name, value in visuals.items():
+            setattr(glyph, name, value)
+
+        cds = contour_renderer.fill_renderer.data_source
+        for name, value in fill_cds.data.items():
+            cds.add(value, name)
+
+        glyph.line_alpha = 0  # Don't display lines around fill.
         glyph.line_width = 0
-        scalar_fill = isinstance(fill_color, str)
-        if scalar_fill:
-            glyph.fill_color = fill_color
-        else:
-            glyph.fill_color = "fill_color"
 
     if new_contour_data["line_data"]:
         glyph = contour_renderer.line_renderer.glyph
-        scalar_line = isinstance(line_color, str)
-        if scalar_line:
-            glyph.line_color = line_color
-        else:
-            glyph.line_color = "line_color"
+        for name, value in line_visuals.items():
+            setattr(glyph, name, value)
+
+        cds = contour_renderer.line_renderer.data_source
+        for name, value in line_cds.data.items():
+            cds.add(value, name)
 
     return contour_renderer
 
@@ -157,28 +185,15 @@ def contour_data(
     y: Optional[np.ndarray],
     z: Union[np.ndarray, np.ma.MaskedArray],
     levels: Sequence[float],
-    fill_color=None,
-    line_color=None,
+    want_fill: bool = True,
+    want_line: bool = True,
 ) -> Dict[str, Dict[str, Any]]:
     '''
     Return the contour data of filled and/or line contours that can be used to set
     ContourRenderer.data
     '''
-    if fill_color is None and line_color is None:
-        raise RuntimeError("Neither fill nor line requested in contour_data_dicts")
-
-    want_fill = fill_color is not None
-    want_line = line_color is not None
-    nlevels = len(levels)
-    if want_fill:
-        scalar_fill = isinstance(fill_color, str)
-        if not scalar_fill and len(fill_color) != nlevels-1:
-            raise RuntimeError("Inconsistent number of fill_color and number of levels")
-
-    if want_line:
-        scalar_line = isinstance(line_color, str)
-        if not scalar_line and len(line_color) != nlevels:
-            raise RuntimeError("Inconsistent number of line_color and number of levels")
+    if not want_fill and not want_line is None:
+        raise RuntimeError("Neither fill nor line requested in contour_data")
 
     fill_coords, line_coords = contour_coords(x, y, z, levels, want_fill, want_line)
 
@@ -186,15 +201,11 @@ def contour_data(
     if fill_coords:
         xs, ys = fill_coords
         fill_data_dict = dict(xs=xs, ys=ys)
-        if not scalar_fill:
-            fill_data_dict["fill_color"] = fill_color
 
     line_data_dict = None
     if line_coords:
         xs, ys = line_coords
         line_data_dict = dict(xs=xs, ys=ys)
-        if not scalar_line:
-            line_data_dict["line_color"] = line_color
 
     return dict(fill_data=fill_data_dict, line_data=line_data_dict)
 

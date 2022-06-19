@@ -65,6 +65,7 @@ from .annotation import Annotation
 
 __all__ = (
     "ColorBar",
+    "ContourColorBar",
     "Legend",
     "LegendItem",
 )
@@ -224,6 +225,16 @@ class ColorBar(Annotation):
     background_fill_color = Override(default="#ffffff")
 
     background_fill_alpha = Override(default=0.95)
+
+class ContourColorBar(ColorBar):
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    #line_props = Include(LineProps)
+    line_renderer = Instance(GlyphRenderer)  # Maybe just want the line visuals?
+    fill_renderer = Instance(GlyphRenderer)
+
 
 class LegendItem(Model):
     '''
@@ -415,6 +426,9 @@ class Legend(Annotation):
     where each tuple is of the form: *(label, renderers)*.
 
     """).accepts(List(Tuple(String, List(Instance(GlyphRenderer)))), lambda items: [LegendItem(label=item[0], renderers=item[1]) for item in items])
+
+
+
 
 #-----------------------------------------------------------------------------
 # Dev API
