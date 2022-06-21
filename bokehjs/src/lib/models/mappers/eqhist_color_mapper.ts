@@ -94,8 +94,7 @@ export class EqHistColorMapper extends ScanningColorMapper {
         else
           break
       }
-    }
-    else
+    } else
       binning[0] = low
     binning[binning.length-1] = high
 

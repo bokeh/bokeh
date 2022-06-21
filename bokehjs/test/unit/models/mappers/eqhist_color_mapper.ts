@@ -35,7 +35,7 @@ describe("EqHistColorMapper module", () => {
     it("Should scan using rescale_discrete_levels", () => {
       const values = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10, 100]
       scan_check(values, [1, 6.999931, 39.999428, 100], false)
-      scan_check(values, [-47.993395, 1.061971, 10.305641, 100], true)
+      scan_check(values, [1, 1.061971, 10.305641, 100], true)
     })
   })
 })
