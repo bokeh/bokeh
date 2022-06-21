@@ -154,14 +154,14 @@ export function remove(element: Node): void {
   }
 }
 
-export function replaceWith(element: HTMLElement, replacement: HTMLElement): void {
+export function replaceWith(element: Node, replacement: Node): void {
   const parent = element.parentNode
   if (parent != null) {
     parent.replaceChild(replacement, element)
   }
 }
 
-export function prepend(element: HTMLElement, ...nodes: Node[]): void {
+export function prepend(element: Node, ...nodes: Node[]): void {
   const first = element.firstChild
   for (const node of nodes) {
     element.insertBefore(node, first)
