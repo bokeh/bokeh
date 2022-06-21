@@ -377,6 +377,29 @@ describe("ColorBar annotation", () => {
     await display(p)
   })
 
+  it("should support EqHistColorMapper with rescale discrete levels", async () => {
+    const random = new Random(1)
+
+    const color_mapper = new EqHistColorMapper({palette: Spectral11, rescale_discrete_levels: true})
+    const color_bar = new ColorBar({color_mapper, title: "Unspecified title", border_line_color: "black"})
+
+    const n = 30
+    const x = random.floats(n, 0, 10)
+    const y = random.floats(n, 0, 5)
+    const r = random.floats(n, 0.1, 0.5)
+    const v = [
+      ...random.floats(n/3, 7, 13),
+      ...random.floats(n/3, 70, 130),
+      ...random.floats(n/3, 700, 1300),
+    ]
+
+    const p = fig([500, 200], {border_fill_color: "lightgray"})
+    p.circle({x, y, radius: r, fill_color: {field: "values", transform: color_mapper}, source: {values: v}})
+    p.add_layout(color_bar, "below")
+
+    await display(p)
+  })
+
   it("should support CategoricalColorMapper", async () => {
     const random = new Random(1)
 
