@@ -7,7 +7,7 @@ def process_data():
 
     # Make the column names ints not strings for handling
     columns = list(fertility.columns)
-    years = list(range(int(columns[0]), int(columns[-1])))
+    years = [int(year) for year in columns]
     rename_dict = dict(zip(columns, years))
 
     fertility = fertility.rename(columns=rename_dict)
