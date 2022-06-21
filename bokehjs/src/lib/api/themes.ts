@@ -29,7 +29,7 @@ class Theme implements p.Theme {
   }
 }
 
-import {Plot, Grid, Axis, Legend, ColorBar, Title} from "./models"
+import {Plot, Grid, Axis, Legend, BaseColorBar, Title} from "./models"
 
 export const dark_minimal = new Theme([
   themed(Plot, {
@@ -75,7 +75,7 @@ export const dark_minimal = new Theme([
     background_fill_alpha: 0.25,
     background_fill_color: "#20262b",
   }),
-  themed(ColorBar, {
+  themed(BaseColorBar, {
     title_text_color: "#e0e0e0",
     title_text_font: "Helvetica",
     title_text_font_size: "1.025em",
@@ -129,7 +129,7 @@ export const light_minimal = new Theme([
     border_line_alpha: 0,
     background_fill_alpha: 0.25,
   }),
-  themed(ColorBar, {
+  themed(BaseColorBar, {
     title_text_color: "#5b5b5b",
     title_text_font: "Helvetica",
     title_text_font_size: "1.025em",
@@ -186,7 +186,7 @@ export const caliber = new Theme([
     border_line_alpha: 0,
     background_fill_alpha: 0.25,
   }),
-  themed(ColorBar, {
+  themed(BaseColorBar, {
     title_text_color: "#5b5b5b",
     title_text_font: "Calibri Light",
     title_text_font_size: "1.15em",
@@ -252,7 +252,7 @@ export const constrast = new Theme([
     background_fill_alpha: 0.25,
     background_fill_color: "#000000",
   }),
-  themed(ColorBar, {
+  themed(BaseColorBar, {
     title_text_color: "#e0e0e0",
     title_text_font: "Helvetica",
     title_text_font_size: "1.025em",
@@ -317,7 +317,7 @@ export const night_sky = new Theme([
     background_fill_alpha: 0.25,
     background_fill_color: "#2C001e",
   }),
-  themed(ColorBar, {
+  themed(BaseColorBar, {
     title_text_color: "#e0e0e0",
     title_text_font: "Helvetica",
     title_text_font_size: "1.025em",

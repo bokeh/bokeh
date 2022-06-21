@@ -39,7 +39,6 @@ from ..models.glyphs import (
     MultiLine,
     MultiPolygons,
 )
-from ..models.mappers import LinearColorMapper
 from ..models.sources import ColumnDataSource
 from ..models.tickers import FixedTicker
 from ..palettes import linear_palette
@@ -105,13 +104,9 @@ def from_contour(
     new_contour_data = contour_data(x, y, z, levels, want_fill, want_line)
     # With be other possibilities here like logarithmic....
 
-
-    # ticker and colormapper only needed until refactor colorbar class hierarchy.
     contour_renderer = ContourRenderer(
         data=new_contour_data,
-        # ticker and colormapper may not be needed in the end...
         ticker=FixedTicker(ticks=levels),
-        color_mapper=LinearColorMapper(palette=fill_cds.data["fill_color"], low=levels[0], high=levels[-1]),
     )
 
     if new_contour_data["fill_data"]:

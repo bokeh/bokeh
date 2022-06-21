@@ -2,7 +2,6 @@ import {DataRenderer, DataRendererView} from "./data_renderer"
 import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
 import {Renderer} from "./renderer"
 import {GlyphView} from "../glyphs/glyph"
-import {ColorMapper} from "../mappers/color_mapper"
 import {Ticker} from "../tickers/ticker"
 import * as p from "core/properties"
 import {build_view} from "core/build_views"
@@ -54,7 +53,7 @@ export namespace ContourRenderer {
   export type Props = DataRenderer.Props & {
     fill_renderer: p.Property<GlyphRenderer>
     line_renderer: p.Property<GlyphRenderer>
-    data: p.Property<{[key: string]: any}>
+    ticker: p.Property<Ticker>
   }
 }
 
@@ -71,12 +70,10 @@ export class ContourRenderer extends DataRenderer {
   static {
     this.prototype.default_view = ContourRendererView
 
-    this.define<ContourRenderer.Props>(({Any, Dict, Ref}) => ({
+    this.define<ContourRenderer.Props>(({Ref}) => ({
       fill_renderer: [ Ref(GlyphRenderer) ],
       line_renderer: [ Ref(GlyphRenderer) ],
-      data:          [ Dict(Any), {} ],
       ticker:        [ Ref(Ticker) ],
-      color_mapper:  [ Ref(ColorMapper) ],
     }))
   }
 
