@@ -102,10 +102,6 @@ export class DatetimeTickFormatter extends TickFormatter {
     }))
   }
 
-  override initialize(): void {
-    super.initialize()
-  }
-
   protected _get_resolution_str(resolution_secs: number, span_secs: number): FormatType {
     // Our resolution boundaries should not be round numbers, because we want
     // them to fall between the possible tick intervals (which *are* round
