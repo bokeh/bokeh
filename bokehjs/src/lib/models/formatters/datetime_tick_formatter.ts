@@ -37,10 +37,10 @@ function _strftime(t: number, format: string): string {
   return tz(t, format)
 }
 
-type formatType = "microseconds" | "milliseconds" | "seconds" | "minsec" | "minutes" | "hourmin" | "hours" | "days" | "months" | "years"
+type FormatType = "microseconds" | "milliseconds" | "seconds" | "minsec" | "minutes" | "hourmin" | "hours" | "days" | "months" | "years"
 
 // Labels of time units, from finest to coarsest.
-const format_order: formatType[] = [
+const format_order: FormatType[] = [
   "microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years",
 ]
 
@@ -106,7 +106,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     super.initialize()
   }
 
-  protected _get_resolution_str(resolution_secs: number, span_secs: number): formatType {
+  protected _get_resolution_str(resolution_secs: number, span_secs: number): FormatType {
     // Our resolution boundaries should not be round numbers, because we want
     // them to fall between the possible tick intervals (which *are* round
     // numbers, as we've worked hard to ensure).  Consequently, we adjust the
@@ -165,7 +165,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       // we are at zero minutes, so display hours, or we are at zero seconds,
       // so display minutes (and if that is zero as well, then display hours).
       while (tm[time_tuple_ndx_for_resol[format_order[next_ndx]]] == 0) {
-        let next_format: formatType
+        let next_format: FormatType
         next_ndx += 1
 
         if (next_ndx == format_order.length)
