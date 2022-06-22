@@ -49,15 +49,15 @@ const format_order: FormatType[] = [
 // everything to index 0, which is year.  This is not ideal; it might cause
 // a problem with the tick at midnight, january 1st, 0 a.d. being incorrectly
 // promoted at certain tick resolutions.
-const time_tuple_ndx_for_resol: {[key: string]: number} = {}
+const time_tuple_ndx_for_resol: Map<FormatType, number> = new Map()
 for (const fmt of format_order) {
-  time_tuple_ndx_for_resol[fmt] = 0
+  time_tuple_ndx_for_resol.set(fmt, 0)
 }
-time_tuple_ndx_for_resol.seconds = 5
-time_tuple_ndx_for_resol.minsec = 4
-time_tuple_ndx_for_resol.minutes = 4
-time_tuple_ndx_for_resol.hourmin = 3
-time_tuple_ndx_for_resol.hours = 3
+time_tuple_ndx_for_resol.set("seconds", 5)
+time_tuple_ndx_for_resol.set("minsec", 4)
+time_tuple_ndx_for_resol.set("minutes", 4)
+time_tuple_ndx_for_resol.set("hourmin", 3)
+time_tuple_ndx_for_resol.set("hours", 3)
 
 export namespace DatetimeTickFormatter {
   export type Attrs = p.AttrsOf<Props>
@@ -164,7 +164,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       // time is by checking that we have 0 units of the resolution, i.e.
       // we are at zero minutes, so display hours, or we are at zero seconds,
       // so display minutes (and if that is zero as well, then display hours).
-      while (tm[time_tuple_ndx_for_resol[format_order[next_ndx]]] == 0) {
+      while (tm[time_tuple_ndx_for_resol.get(format_order[next_ndx])!] == 0) {
         let next_format: FormatType
         next_ndx += 1
 
