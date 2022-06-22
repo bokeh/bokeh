@@ -98,7 +98,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       days: [ String, "%m/%d" ],
       months: [ String, "%m/%Y" ],
       years: [ String, "%Y" ],
-      strip_leading_zeros: [Boolean, true],
+      strip_leading_zeros: [ Boolean, true ],
     }))
   }
 
