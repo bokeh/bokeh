@@ -78,7 +78,7 @@ export abstract class InputWidgetView extends ControlView {
             visible,
             closable: persistent,
           })
-          icon_el.style.visibility = visible && persistent ? "visible" : ""
+          icon_el.classList.toggle(inputs.opaque, visible && persistent)
         }
 
         this.on_change(description.model.properties.visible, () => {
