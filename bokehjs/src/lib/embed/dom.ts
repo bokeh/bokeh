@@ -1,17 +1,19 @@
 import {div, replaceWith} from "../core/dom"
+import {ID} from "../core/types"
+import {isString} from "../core/util/types"
 import {RenderItem} from "./json"
 
 // Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 // with this var prevents user configurations where css styling is unset.
 export const BOKEH_ROOT = "bk-root"
 
-function _get_element(elementid: string): HTMLElement {
-  let element = document.getElementById(elementid)
+function _get_element(target: ID | HTMLElement): HTMLElement {
+  let element = isString(target) ? document.getElementById(target) : target
 
   if (element == null)
-    throw new Error(`Error rendering Bokeh model: could not find #${elementid} HTML tag`)
+    throw new Error(`Error rendering Bokeh model: could not find ${isString(target) ? `#${target}` : target} HTML tag`)
   if (!document.body.contains(element))
-    throw new Error(`Error rendering Bokeh model: element #${elementid} must be under <body>`)
+    throw new Error(`Error rendering Bokeh model: element ${isString(target) ? `#${target}` : target} must be under <body>`)
 
   // If autoload script, replace script tag with div for embedding.
   if (element.tagName == "SCRIPT") {
