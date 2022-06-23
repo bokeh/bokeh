@@ -38,7 +38,10 @@ export class ZoomOutTool extends ZoomBaseTool {
     this.register_alias("yzoom_out", () => new ZoomOutTool({dimensions: "height"}))
   }
 
-  override sign = -1 as -1
+  get_factor(): number {
+    return -this.factor / (1 - this.factor)
+  }
+
   override tool_name = "Zoom Out"
   override tool_icon = tool_icon_zoom_out
 }

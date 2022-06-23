@@ -34,6 +34,7 @@ describe("ZoomInTool", () => {
   })
 
   describe("View", () => {
+    // range values chosen to complement zoom_out test as inverse
     async function mkplot(tool: Tool): Promise<PlotView> {
       const plot = new Plot({
         x_range: new Range1d({start: -1, end: 1}),
@@ -55,10 +56,10 @@ describe("ZoomInTool", () => {
       zoom_in_tool_view.doit()
 
       const hr = plot_view.frame.x_range
-      expect([hr.start, hr.end]).to.be.equal([-0.9, 0.9])
+      expect([hr.start, hr.end]).to.be.similar([-0.9, 0.9])
 
       const vr = plot_view.frame.y_range
-      expect([vr.start, vr.end]).to.be.equal([-0.9, 0.9])
+      expect([vr.start, vr.end]).to.be.similar([-0.9, 0.9])
     })
 
     it("should zoom the x-axis only", async () => {
@@ -71,10 +72,10 @@ describe("ZoomInTool", () => {
       zoom_in_tool_view.doit()
 
       const hr = plot_view.frame.x_range
-      expect([hr.start, hr.end]).to.be.equal([-0.9, 0.9])
+      expect([hr.start, hr.end]).to.be.similar([-0.9, 0.9])
 
       const vr = plot_view.frame.y_range
-      expect([vr.start, vr.end]).to.be.equal([-1.0, 1.0])
+      expect([vr.start, vr.end]).to.be.similar([-1.0, 1.0])
     })
 
     it("should zoom the y-axis only", async () => {
@@ -87,10 +88,10 @@ describe("ZoomInTool", () => {
       zoom_in_tool_view.doit()
 
       const hr = plot_view.frame.x_range
-      expect([hr.start, hr.end]).to.be.equal([-1.0, 1.0])
+      expect([hr.start, hr.end]).to.be.similar([-1.0, 1.0])
 
       const vr = plot_view.frame.y_range
-      expect([vr.start, vr.end]).to.be.equal([-0.9, 0.9])
+      expect([vr.start, vr.end]).to.be.similar([-0.9, 0.9])
     })
   })
 })

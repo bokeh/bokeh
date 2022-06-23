@@ -25,7 +25,10 @@ export class ZoomInTool extends ZoomBaseTool {
     this.register_alias("yzoom_in", () => new ZoomInTool({dimensions: "height"}))
   }
 
-  override sign = 1 as 1
+  get_factor(): number {
+    return this.factor
+  }
+
   override tool_name = "Zoom In"
   override tool_icon = tool_icon_zoom_in
 }
