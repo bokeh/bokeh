@@ -152,13 +152,13 @@ select[multiple], select[size], textarea {
   cursor: pointer;
 
   &> .bk-icon {
-    visibility: hidden;
+    opacity: 0.5;
     width: 18px;
     height: 18px;
     .icon-mask(var(--bokeh-icon-help2), gray);
   }
 }
 
-label:hover > .bk-description > .bk-icon {
-  visibility: visible;
+label:hover > .bk-description > .bk-icon, .bk-icon.bk-opaque {
+  opacity: 1.0;
 }
