@@ -20,7 +20,7 @@ __all__ = (
 )
 
 CLOUDFRONT_ID = "E2OC6Q27H5UQ63"
-
+REGION = "--region us-east-1"
 
 def publish_npm_package(config: Config, system: System) -> ActionReturn:
     tarball = f"bokeh-bokehjs-{config.js_version}.tgz"
@@ -52,12 +52,12 @@ def publish_documentation(config: Config, system: System) -> ActionReturn:
     flags = "--acl bucket-owner-full-control --cache-control max-age=31536000,public"
     try:
         if config.prerelease:
-            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/dev-{release_level}/ {flags}")
-            system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/dev-{release_level}*"')
+            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/dev-{release_level}/ {flags} {REGION}")
+            system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/dev-{release_level}*" {REGION')
         else:
-            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/latest/ {flags}")
-            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/{version}/ {flags}")
-            system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/latest*" "/en/{version}*"')
+            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/latest/ {flags} {REGION}")
+            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/{version}/ {flags} {REGION")
+            system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/latest*" "/en/{version}*" {REGION}')
         return PASSED("Publish to documentation site succeeded")
     except RuntimeError as e:
         return FAILED("Could NOT publish to documentation site", details=e.args)

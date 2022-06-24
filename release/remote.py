@@ -37,7 +37,7 @@ def _upload_file_to_cdn(local_path: str, cdn_path: str, content_type: str, bucke
 
 def download_deployment_tarball(config: Config, system: System) -> ActionReturn:
     try:
-        system.run(f"aws s3 cp s3://bokeh-deployments/deployment-{config.version}.tgz .")
+        system.run(f"aws s3 cp s3://bokeh-deployments/deployment-{config.version}.tgz . --region us-east-1")
         return PASSED("Downloaded deployment tarball")
     except RuntimeError as e:
         return FAILED("Could NOT download deployment tarball", details=e.args)
@@ -75,7 +75,7 @@ def publish_bokehjs_to_cdn(config: Config, system: System) -> ActionReturn:
 
 def upload_deployment_tarball(config: Config, system: System) -> ActionReturn:
     try:
-        system.run(f"aws s3 cp deployment-{config.version}.tgz s3://bokeh-deployments/")
+        system.run(f"aws s3 cp deployment-{config.version}.tgz s3://bokeh-deployments/ --region us-east-1")
         return PASSED("Uploaded deployment tarball")
     except RuntimeError as e:
         return FAILED(f"Could NOT upload deployment tarball: {e}", details=e.args)
