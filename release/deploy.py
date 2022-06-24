@@ -53,10 +53,10 @@ def publish_documentation(config: Config, system: System) -> ActionReturn:
     try:
         if config.prerelease:
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/dev-{release_level}/ {flags} {REGION}")
-            system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/dev-{release_level}*" {REGION')
+            system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/dev-{release_level}*" {REGION}')
         else:
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/latest/ {flags} {REGION}")
-            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/{version}/ {flags} {REGION")
+            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/{version}/ {flags} {REGION}")
             system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/latest*" "/en/{version}*" {REGION}')
         return PASSED("Publish to documentation site succeeded")
     except RuntimeError as e:
