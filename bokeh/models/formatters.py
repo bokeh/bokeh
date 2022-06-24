@@ -21,6 +21,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import warnings
+
 # Bokeh imports
 from ..core.enums import LatLon, NumeralLanguage, RoundingFunction
 from ..core.has_props import abstract
@@ -40,6 +43,7 @@ from ..core.properties import (
 from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
+from ..util.deprecation import deprecated
 from ..util.string import format_docstring
 from .tickers import Ticker
 
@@ -374,6 +378,14 @@ class CustomJSTickFormatter(TickFormatter):
             '''
     """)
 
+def _deprecated_datetime_list_format(fmt: list[str]) -> str:
+    deprecated("Passing lists of formats for DatetimeTickFormatter scales was deprecated in Bokeh 3.0. Configure a single string format for each scale")
+    if len(fmt) == 0:
+        raise ValueError("Datetime format list must contain one element")
+    if len(fmt) > 1:
+        warnings.warn(f"DatetimeFormatter scales now only accept a single format. Using the first prodvided: {fmt[0]!r} ")
+    return fmt[0]
+
 class DatetimeTickFormatter(TickFormatter):
     ''' A ``TickFormatter`` for displaying datetime values nicely across a
     range of scales.
@@ -583,45 +595,37 @@ class DatetimeTickFormatter(TickFormatter):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    microseconds = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"),
-                        default=['%fus']).accepts(String, lambda fmt: [fmt])
+    microseconds = String(help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"),
+                        default="%fus").accepts(List(String), _deprecated_datetime_list_format)
 
-    milliseconds = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``milliseconds``"),
-                        default=['%3Nms', '%S.%3Ns']).accepts(String, lambda fmt: [fmt])
+    milliseconds = String(help=_DATETIME_TICK_FORMATTER_HELP("``milliseconds``"),
+                        default="%3Nms").accepts(List(String), _deprecated_datetime_list_format)
 
-    seconds      = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``seconds``"),
-                        default=['%Ss']).accepts(String, lambda fmt: [fmt])
+    seconds      = String(help=_DATETIME_TICK_FORMATTER_HELP("``seconds``"),
+                        default="%Ss").accepts(List(String), _deprecated_datetime_list_format)
 
-    minsec       = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``minsec`` (for combined minutes and seconds)"),
-                        default=[':%M:%S']).accepts(String, lambda fmt: [fmt])
+    minsec       = String(help=_DATETIME_TICK_FORMATTER_HELP("``minsec`` (for combined minutes and seconds)"),
+                        default=":%M:%S").accepts(List(String), _deprecated_datetime_list_format)
 
-    minutes      = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``minutes``"),
-                        default=[':%M', '%Mm']).accepts(String, lambda fmt: [fmt])
+    minutes      = String(help=_DATETIME_TICK_FORMATTER_HELP("``minutes``"),
+                        default=":%M").accepts(List(String), _deprecated_datetime_list_format)
 
-    hourmin      = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``hourmin`` (for combined hours and minutes)"),
-                        default=['%H:%M']).accepts(String, lambda fmt: [fmt])
+    hourmin      = String(help=_DATETIME_TICK_FORMATTER_HELP("``hourmin`` (for combined hours and minutes)"),
+                        default="%H:%M").accepts(List(String), _deprecated_datetime_list_format)
 
-    hours        = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``hours``"),
-                        default=['%Hh', '%H:%M']).accepts(String, lambda fmt: [fmt])
+    hours        = String(help=_DATETIME_TICK_FORMATTER_HELP("``hours``"),
+                        default="%Hh").accepts(List(String), _deprecated_datetime_list_format)
 
-    days         = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``days``"),
-                        default=['%m/%d', '%a%d']).accepts(String, lambda fmt: [fmt])
+    days         = String(help=_DATETIME_TICK_FORMATTER_HELP("``days``"),
+                        default="%m/%d").accepts(List(String), _deprecated_datetime_list_format)
 
-    months       = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``months``"),
-                        default=['%m/%Y', '%b %Y']).accepts(String, lambda fmt: [fmt])
+    months       = String(help=_DATETIME_TICK_FORMATTER_HELP("``months``"),
+                        default="%m/%Y").accepts(List(String), _deprecated_datetime_list_format)
 
-    years        = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``years``"),
-                        default=['%Y']).accepts(String, lambda fmt: [fmt])
+    years        = String(help=_DATETIME_TICK_FORMATTER_HELP("``years``"),
+                        default="%Y").accepts(List(String), _deprecated_datetime_list_format)
+
+    strip_leading_zeros = Bool(default=True, help="Whether to strip any leading zeros in the formatted ticks")
 
 #-----------------------------------------------------------------------------
 # Dev API
