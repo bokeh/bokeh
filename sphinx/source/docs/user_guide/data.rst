@@ -515,8 +515,9 @@ configurable ``max_size``). Replacing local data is the default setting. Pass
 either ``"replace"`` or ``"append"``as the AjaxDataSource's ``mode`` argument to
 control this behavior.
 
-The endpoint that you are using with your ``AjaxDataSource`` needs to return a
-JSON dict that matches the standard |ColumnDataSource| format:
+The endpoint that you are using with your ``AjaxDataSource`` should return a
+JSON dict that matches the standard |ColumnDataSource| format, i.e. a JSON dict
+that maps names to arrays of values:
 
 .. code-block:: python
 
@@ -524,6 +525,10 @@ JSON dict that matches the standard |ColumnDataSource| format:
         'x' : [1, 2, 3, ...],
         'y' : [9, 3, 2, ...]
     }
+
+Alternatively, if the REST API returns a different format, a ``CustomJS``
+callback can be provided to convert the REST response into Bokeh format, via
+the ``adapter`` property of this data source.
 
 Otherwise, using an ``AjaxDataSource`` is identical to using a standard
 ``ColumnDataSource``:
