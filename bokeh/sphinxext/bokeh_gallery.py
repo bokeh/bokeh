@@ -143,7 +143,7 @@ def get_details(app):
         for name in os.listdir(join(TOP_PATH, f_path)):
             subdir = f_path.split('/')[1]
             path = join(f_path, name)
-            if not name.startswith('_') and name.endswith('.py') and not path in app.config.bokeh_example_blacklist:
+            if not name.startswith('_') and name.endswith('.py') and not path in app.config.bokeh_sampledata_xref_skiplist:
                 name = name.replace('.py', '')
                 rst_file_path = join(subdir, f'{name}.rst')
                 ref = f'.. _example_{name}_{subdir}:'
@@ -156,7 +156,7 @@ def setup(app):
     app.add_config_value("bokeh_gallery_dir", join("docs", "gallery"), "html")
     app.add_config_value("bokeh_examples_dir", join("docs", "examples"), "html")
     app.add_config_value("bokeh_example_dirs", [], "html")
-    app.add_config_value("bokeh_example_blacklist", [], "html")
+    app.add_config_value("bokeh_sampledata_xref_skiplist", [], "html")
     app.connect("config-inited", config_inited_handler)
     app.add_directive("bokeh-gallery", BokehGalleryDirective)
 
