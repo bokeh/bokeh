@@ -14,7 +14,9 @@ export abstract class ZoomBaseToolView extends ActionToolView {
     const h_axis = dims == "width"  || dims == "both"
     const v_axis = dims == "height" || dims == "both"
 
-    const zoom_info = scale_range(frame, this.model.sign*this.model.factor, h_axis, v_axis)
+    const factor = this.model.get_factor()
+
+    const zoom_info = scale_range(frame, factor, h_axis, v_axis)
 
     this.plot_view.state.push("zoom_out", {range: zoom_info})
     this.plot_view.update_range(zoom_info, {scrolling: true, maintain_focus: this.model.maintain_focus})
@@ -51,11 +53,11 @@ export abstract class ZoomBaseTool extends ActionTool {
     }))
   }
 
-  readonly sign: -1 | 1
-
   override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
   }
 
   abstract readonly maintain_focus: boolean
+
+  abstract get_factor(): number
 }

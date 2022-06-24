@@ -1,5 +1,4 @@
 import {Interval} from "../types"
-import {clamp} from "./math"
 
 import {CartesianFrame} from "models/canvas/cartesian_frame"
 import {Scale} from "models/scales/scale"
@@ -48,9 +47,6 @@ export function scale_range(frame: CartesianFrame, factor: number,
    * Returns:
    *   ScaleRange
    */
-
-  // clamp the  magnitude of factor, if it is > 1 bad things happen
-  factor = clamp(factor, -0.9, 0.9)
 
   const hfactor = h_axis ? factor : 0
   const [sx0, sx1] = scale_highlow(frame.bbox.h_range, hfactor, center != null ? center.x : undefined)
