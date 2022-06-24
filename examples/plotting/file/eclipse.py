@@ -23,7 +23,7 @@ from bokeh.sampledata.us_states import data
 
 ROOT = dirname(realpath(__file__))
 
-states = pd.DataFrame.from_dict(data, orient="index")
+states = pd.DataFrame.from_dict(data.copy(), orient="index")
 states.drop(["AK", "HI"], inplace=True)
 
 trends = pd.read_csv(join(ROOT, "eclipse_data/trends.csv"))

@@ -58,7 +58,22 @@ RESOURCES = get_sphinx_resources()
 # Dev API
 # -----------------------------------------------------------------------------
 
+class gallery_xrefs(nodes.General, nodes.Element):
+
+    def __init__(self, *args, **kwargs):
+        self.subfolder = kwargs.pop("subfolder", None)
+        super().__init__(*args, **kwargs)
+
+class BokehGalleryOverviewDirective(BokehDirective):
+
+    has_content = False
+    required_arguments = 1
+
+    def run(self):
+        return [gallery_xrefs('', subfolder=self.arguments[0])]
+
 class sampledata_list(nodes.General, nodes.Element):
+
     def __init__(self, *args, **kwargs):
         self.sampledata_key = kwargs.pop("sampledata_key")
         super().__init__(*args, **kwargs)
@@ -75,10 +90,14 @@ class BokehSampledataXrefDirective(BokehDirective):
 def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_node(sampledata_list)
+    app.add_directive("bokeh-example-index", BokehGalleryOverviewDirective)
     app.add_directive("bokeh-sampledata-xref", BokehSampledataXrefDirective)
     app.connect('doctree-resolved', process_sampledata_xrefs)
     app.connect('env-purge-doc', purge_xrefs)
     app.connect('env-merge-info', merge_xrefs)
+    app.connect('doctree-resolved', process_gallery_overview)
+    app.connect('env-purge-doc', purge_gallery_xrefs)
+    app.connect('env-merge-info', merge_gallery_xrefs)
     return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
@@ -109,50 +128,91 @@ def process_sampledata_xrefs(app, doctree, fromdocname):
 
     for node in doctree.traverse(sampledata_list):
 
-        content = []
-
-        # TODO add missing tags for references in user_guide
-        # only add links to the gallery at the moment
-        sampledata_refs = []
-        refuris = []
+        refs = []
         for s in env.all_sampledata_xrefs:
-            refuri = app.builder.get_relative_uri(
-                fromdocname, s['docname']
-            )
-            if s["keyword"] == node.sampledata_key and "gallery" in refuri:
-                sampledata_refs.append(s)
-                refuris.append(refuri)
-
-        _len = len(sampledata_refs)
-        para = nodes.paragraph()
-        if _len:
-            s = '' if _len==1 else 's'
-            description = (
-                _(f'See the following example{s} that use this sample data set: ')
-            )
-        else:
-            description = (_('There are no references for this sample data set'))
-        para += nodes.Text(description, description)
-        for i, (sample_info, refuri) in enumerate(zip(sampledata_refs, refuris)):
-            # Create references
-            newnode = nodes.reference('', '')
-            ref_name = basename(sample_info['docname'])
-            innernode = nodes.emphasis(_(ref_name), _(ref_name))
-            newnode['refdocname'] = sample_info['docname']
-            newnode['refuri'] = refuri
-            newnode.append(innernode)
-            para += newnode
-            if 1<_len:
-                _l =  _len-2
-                if i == _l:
-                    para += nodes.Text(' and ', ' and ')
-                elif i < _l:
-                    para += nodes.Text(', ', ', ')
-
-        para += nodes.Text('.', '.')
-        content.append(para)
+            if s["keyword"] == node.sampledata_key and not s in refs:
+                refs.append(s)
+        content = []
+        if refs:
+            list_ref_names = []
+            para = nodes.paragraph()
+            para += nodes.rubric('Examples', 'Examples')
+            for ref in sort_by_basename(refs):
+                ref_name = ref['basename']
+                if ref_name in list_ref_names:
+                    ref_name += f" ({ref['docname'].split('/')[-2]})"
+                list_ref_names.append(ref_name)
+                para += add_bullet_point(app, fromdocname, ref['docname'], ref_name)
+            content.append(para)
         node.replace_self(content)
 
+def purge_gallery_xrefs(app, env, docname):
+    if not hasattr(env, 'all_gallery_overview'):
+        return
+
+    env.all_gallery_overview = [
+        xref for xref in env.all_gallery_overview if xref['docname'] != docname
+    ]
+
+def merge_gallery_xrefs(app, env, docnames, other):
+    if not hasattr(env, 'all_gallery_overview'):
+        env.all_gallery_overview = []
+
+    if hasattr(other, 'all_gallery_overview'):
+        env.all_gallery_overview.extend(other.all_gallery_overview)
+
+def process_gallery_overview(app, doctree, fromdocname):
+
+    env = app.builder.env
+
+    if not hasattr(env, 'all_gallery_overview'):
+        env.all_gallery_overview = []
+
+    for node in doctree.traverse(gallery_xrefs):
+
+        ref_dict = {}
+        for s in env.all_gallery_overview:
+            sp = s['docname'].split('/')
+            if node.subfolder == 'all' or sp[-2] == node.subfolder:
+                letter = sp[-1][0].upper()
+                if letter in ref_dict and not s in ref_dict[letter]:
+                    ref_dict[letter].append(s)
+                else:
+                    ref_dict[letter] = [s]
+
+        content = []
+        for letter, refs in sorted(ref_dict.items()):
+            para = nodes.paragraph()
+            para += nodes.rubric((_(letter)), (_(letter)))
+            for ref in sort_by_basename(refs):
+                docname = ref['docname']
+                ref_name = basename(docname)
+                if node.subfolder == 'all':
+                    ref_name += f" ({docname.split('/')[-2]})"
+                para += add_bullet_point(app, fromdocname, docname, ref_name)
+            content.append(para)
+        node.replace_self(content)
+
+def sort_by_basename(refs):
+    refs = [{'basename':basename(ref['docname']), 'docname': ref['docname']} for ref in refs]
+    sorted_refs = []
+    for key in sorted([basename(ref['basename']) for ref in refs]):
+        for i, value in enumerate(refs):
+            if key == value['basename']:
+                sorted_refs.append(refs.pop(i))
+    return sorted_refs
+
+def add_bullet_point(app, fromdocname, docname, ref_name):
+    # Create references
+    line = nodes.line()
+    line += nodes.Text('  • ','  • ')
+    newnode = nodes.reference('', '')
+    innernode = nodes.emphasis(_(ref_name), _(ref_name))
+    newnode['refdocname'] = docname
+    newnode['refuri'] = app.builder.get_relative_uri(fromdocname, docname)
+    newnode.append(innernode)
+    line += newnode
+    return line
 # -----------------------------------------------------------------------------
 # Code
 # -----------------------------------------------------------------------------

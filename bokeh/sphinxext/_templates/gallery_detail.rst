@@ -3,6 +3,8 @@
 .. index::
    single: examples; {{ filename }}
 
+{{ ref }}
+
 {{ filename }}
 {{ '-' * filename|length }}
 

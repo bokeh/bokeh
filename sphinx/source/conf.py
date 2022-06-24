@@ -24,6 +24,16 @@ project = 'Bokeh'
 
 version = settings.docs_version() or __version__
 
+bokeh_example_dirs = [
+    'examples/plotting/file',
+    'examples/models/file',
+]
+bokeh_sampledata_xref_skiplist = [
+    'examples/plotting/file/custom_layout.py',
+    'examples/plotting/file/css_classes.py',
+    'examples/models/file/donut.py',
+    'examples/models/file/widgets.py',
+]
 # -- Sphinx configuration -----------------------------------------------------
 
 add_module_names = False

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.circle, bokeh.plotting.figure.square, bokeh.model.select_one, bokeh.model.BoxSelectTool
-    :refs: :ref:`userguide_tools` > :ref:`userguide_tools_boxselecttool`
+    :refs: :ref:`userguide_tools` > :ref:`userguide_tools_pandrag`
     :keywords: selection, tool, BoxSelectTool
 
 '''
