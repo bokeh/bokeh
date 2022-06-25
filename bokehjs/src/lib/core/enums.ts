@@ -29,6 +29,9 @@ export const ButtonType = Enum("default", "primary", "success", "warning", "dang
 export type CalendarPosition = "auto" | "above" | "below"
 export const CalendarPosition = Enum("auto", "above", "below")
 
+export type ContextWhich = "start" | "center" | "end" | "all"
+export const ContextWhich = Enum("start", "center", "end", "all")
+
 export type Dimension = "width" | "height"
 export const Dimension = Enum("width", "height")
 

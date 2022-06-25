@@ -25,7 +25,13 @@ log = logging.getLogger(__name__)
 import warnings
 
 # Bokeh imports
-from ..core.enums import LatLon, NumeralLanguage, RoundingFunction
+from ..core.enums import (
+    ContextWhich,
+    LatLon,
+    LocationType,
+    NumeralLanguage,
+    RoundingFunction,
+)
 from ..core.has_props import abstract
 from ..core.properties import (
     AnyRef,
@@ -52,15 +58,16 @@ from .tickers import Ticker
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'TickFormatter',
-    'BasicTickFormatter',
-    'MercatorTickFormatter',
-    'NumeralTickFormatter',
-    'PrintfTickFormatter',
-    'LogTickFormatter',
-    'CategoricalTickFormatter',
-    'CustomJSTickFormatter',
-    'DatetimeTickFormatter',
+    "BASIC_DATETIME_CONTEXT",
+    "BasicTickFormatter",
+    "CategoricalTickFormatter",
+    "CustomJSTickFormatter",
+    "DatetimeTickFormatter",
+    "LogTickFormatter",
+    "MercatorTickFormatter",
+    "NumeralTickFormatter",
+    "PrintfTickFormatter",
+    "TickFormatter",
 )
 
 #-----------------------------------------------------------------------------
@@ -431,8 +438,8 @@ class DatetimeTickFormatter(TickFormatter):
         The day of the month as a decimal number (range 01 to 31).
 
     %D
-        Equivalent to %m/%d/%y.  (Americans should note that in many
-        other countries %d/%m/%y is rather common. This means that in
+        Equivalent to **%m/%d/%y**.  (Americans should note that in many
+        other countries **%d/%m/%y** is rather common. This means that in
         international context this format is ambiguous and should not
         be used.)
 
@@ -446,7 +453,7 @@ class DatetimeTickFormatter(TickFormatter):
         available to `timezone`_.
 
     %F
-        Equivalent to %Y-%m-%d (the ISO 8601 date format).
+        Equivalent to **%Y-%m-%d** (the ISO 8601 date format).
 
     %G
         The ISO 8601 week-based year with century as a decimal number.
@@ -456,10 +463,10 @@ class DatetimeTickFormatter(TickFormatter):
         is used instead.
 
     %g
-        Like %G, but without century, that is, with a 2-digit year (00-99).
+        Like **%G**, but without century, that is, with a 2-digit year (00-99).
 
     %h
-        Equivalent to %b.
+        Equivalent to **%b**.
 
     %H
         The hour as a decimal number using a 24-hour clock (range 00
@@ -474,11 +481,11 @@ class DatetimeTickFormatter(TickFormatter):
 
     %k
         The hour (24-hour clock) as a decimal number (range 0 to 23).
-        Single digits are preceded by a blank.  (See also %H.)
+        Single digits are preceded by a blank. See also **%H**.
 
     %l
         The hour (12-hour clock) as a decimal number (range 1 to 12).
-        Single digits are preceded by a blank.  (See also %I.)  (TZ)
+        Single digits are preceded by a blank. See also **%I**.
 
     %m
         The month as a decimal number (range 01 to 12).
@@ -508,11 +515,11 @@ class DatetimeTickFormatter(TickFormatter):
 
     %r
         The time in a.m. or p.m. notation.  In the POSIX locale this
-        is equivalent to %I:%M:%S %p.
+        is equivalent to **%I:%M:%S %p**.
 
     %R
-        The time in 24-hour notation (%H:%M). For a version including
-        the seconds, see %T below.
+        The time in 24-hour notation (**%H:%M**). For a version including
+        the seconds, see **%T** below.
 
     %s
         The number of seconds since the Epoch, 1970-01-01 00:00:00
@@ -527,7 +534,7 @@ class DatetimeTickFormatter(TickFormatter):
         characters.
 
     %T
-        The time in 24-hour notation (%H:%M:%S).
+        The time in 24-hour notation (**%H:%M:%S**).
 
     %u
         The day of the week as a decimal, range 1 to 7, Monday being 1.
@@ -536,7 +543,7 @@ class DatetimeTickFormatter(TickFormatter):
     %U
         The week number of the current year as a decimal number, range
         00 to 53, starting with the first Sunday as the first day of
-        week 01.  See also %V and %W.
+        week 01.  See also **%V** and **%W**.
 
     %V
         The ISO 8601 week number (see NOTES) of the current year as a
@@ -596,36 +603,63 @@ class DatetimeTickFormatter(TickFormatter):
         super().__init__(*args, **kwargs)
 
     microseconds = String(help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"),
-                        default="%fus").accepts(List(String), _deprecated_datetime_list_format)
+                          default="%fus").accepts(List(String), _deprecated_datetime_list_format)
 
     milliseconds = String(help=_DATETIME_TICK_FORMATTER_HELP("``milliseconds``"),
-                        default="%3Nms").accepts(List(String), _deprecated_datetime_list_format)
+                          default="%3Nms").accepts(List(String), _deprecated_datetime_list_format)
 
-    seconds      = String(help=_DATETIME_TICK_FORMATTER_HELP("``seconds``"),
-                        default="%Ss").accepts(List(String), _deprecated_datetime_list_format)
+    seconds = String(help=_DATETIME_TICK_FORMATTER_HELP("``seconds``"),
+                     default="%Ss").accepts(List(String), _deprecated_datetime_list_format)
 
-    minsec       = String(help=_DATETIME_TICK_FORMATTER_HELP("``minsec`` (for combined minutes and seconds)"),
-                        default=":%M:%S").accepts(List(String), _deprecated_datetime_list_format)
+    minsec = String(help=_DATETIME_TICK_FORMATTER_HELP("``minsec`` (for combined minutes and seconds)"),
+                    default=":%M:%S").accepts(List(String), _deprecated_datetime_list_format)
 
-    minutes      = String(help=_DATETIME_TICK_FORMATTER_HELP("``minutes``"),
-                        default=":%M").accepts(List(String), _deprecated_datetime_list_format)
+    minutes = String(help=_DATETIME_TICK_FORMATTER_HELP("``minutes``"),
+                     default=":%M").accepts(List(String), _deprecated_datetime_list_format)
 
-    hourmin      = String(help=_DATETIME_TICK_FORMATTER_HELP("``hourmin`` (for combined hours and minutes)"),
-                        default="%H:%M").accepts(List(String), _deprecated_datetime_list_format)
+    hourmin = String(help=_DATETIME_TICK_FORMATTER_HELP("``hourmin`` (for combined hours and minutes)"),
+                     default="%H:%M").accepts(List(String), _deprecated_datetime_list_format)
 
-    hours        = String(help=_DATETIME_TICK_FORMATTER_HELP("``hours``"),
-                        default="%Hh").accepts(List(String), _deprecated_datetime_list_format)
+    hours = String(help=_DATETIME_TICK_FORMATTER_HELP("``hours``"),
+                   default="%I %p").accepts(List(String), _deprecated_datetime_list_format)
 
-    days         = String(help=_DATETIME_TICK_FORMATTER_HELP("``days``"),
-                        default="%m/%d").accepts(List(String), _deprecated_datetime_list_format)
+    days = String(help=_DATETIME_TICK_FORMATTER_HELP("``days``"),
+                  default="%m/%d").accepts(List(String), _deprecated_datetime_list_format)
 
-    months       = String(help=_DATETIME_TICK_FORMATTER_HELP("``months``"),
-                        default="%m/%Y").accepts(List(String), _deprecated_datetime_list_format)
+    months = String(help=_DATETIME_TICK_FORMATTER_HELP("``months``"),
+                    default="%m/%Y").accepts(List(String), _deprecated_datetime_list_format)
 
-    years        = String(help=_DATETIME_TICK_FORMATTER_HELP("``years``"),
-                        default="%Y").accepts(List(String), _deprecated_datetime_list_format)
+    years = String(help=_DATETIME_TICK_FORMATTER_HELP("``years``"),
+                   default="%Y").accepts(List(String), _deprecated_datetime_list_format)
 
     strip_leading_zeros = Bool(default=True, help="Whether to strip any leading zeros in the formatted ticks")
+
+    context = Nullable(Either(String, Instance("bokeh.models.formatters.DatetimeTickFormatter")), default=None, help="""
+    A format for adding context to the tick or ticks specified by ``context_which``.
+    """)
+
+    context_which = Enum(ContextWhich, default="start", help="""
+    Which tick or ticks to add a formatted context string to.
+    """)
+
+    context_location = Enum(LocationType, default="below", help="""
+    Relative to the tick label text baseline, where the context should be
+    rendered.
+    """)
+
+def BASIC_DATETIME_CONTEXT() -> DatetimeTickFormatter:
+    return DatetimeTickFormatter(
+        microseconds = "%T",
+        milliseconds = "%T",
+        seconds = "%H:%M",
+        minsec = "%I %p",
+        minutes = "%I %p",
+        hourmin = "%F",
+        hours = "%F",
+        days = "%Y",
+        months = "",
+        years = "",
+    )
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -636,10 +670,10 @@ class DatetimeTickFormatter(TickFormatter):
 #-----------------------------------------------------------------------------
 
 # This is to automate documentation of DatetimeTickFormatter formats and their defaults
-_df = DatetimeTickFormatter()
-_df_fields = ['microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years']
-_df_defaults = _df.properties_with_values()
-_df_defaults_string = "\n\n        ".join("%s = %s" % (name, _df_defaults[name]) for name in _df_fields)
+_dttf = DatetimeTickFormatter()
+_dttf_fields = ('microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years')
+_dttf_defaults = _dttf.properties_with_values()
+_dttf_defaults_string = "\n\n        ".join(f"{name} = {_dttf_defaults[name]!r}" for name in _dttf_fields)
 
-DatetimeTickFormatter.__doc__ = format_docstring(DatetimeTickFormatter.__doc__, defaults=_df_defaults_string)
-del _df, _df_fields, _df_defaults, _df_defaults_string
+DatetimeTickFormatter.__doc__ = format_docstring(DatetimeTickFormatter.__doc__, defaults=_dttf_defaults_string)
+del _dttf, _dttf_fields, _dttf_defaults, _dttf_defaults_string

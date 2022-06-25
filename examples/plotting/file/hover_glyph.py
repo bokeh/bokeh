@@ -1,4 +1,4 @@
-from bokeh.models import HoverTool
+from bokeh.models import BASIC_DATETIME_CONTEXT, HoverTool
 from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.glucose import data
 
@@ -7,7 +7,8 @@ y = data.loc['2010-10-06']['glucose']
 
 # Basic plot setup
 p = figure(width=800, height=400, x_axis_type="datetime",
-           tools="", toolbar_location=None, title='Hover over points')
+           tools="pan,wheel_zoom", title='Hover over points')
+p.xaxis.formatter.context = BASIC_DATETIME_CONTEXT()
 p.ygrid.grid_line_color = None
 p.background_fill_color = "#fafafa"
 

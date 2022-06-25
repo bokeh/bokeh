@@ -97,6 +97,7 @@ __all__ = (
     'AutosizeMode',
     'ButtonType',
     'CalendarPosition',
+    'ContextWhich',
     'DashPattern',
     'DateFormat',
     'DatetimeUnits',
@@ -272,6 +273,9 @@ ButtonType = enumeration("default", "primary", "success", "warning", "danger", "
 
 #: Specify a position for the DatePicker calendar to display
 CalendarPosition = enumeration("auto", "above", "below")
+
+#: Specify which tick to add additional context to
+ContextWhich = enumeration("start", "center", "end", "all")
 
 #: Specify a named dashing patter for stroking lines
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
