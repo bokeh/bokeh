@@ -88,6 +88,6 @@ export function embed_items_notebook(docs_json: DocsJson, render_items: RenderIt
     const roots = _resolve_root_elements(item)
 
     add_document_standalone(document, element, roots)
-    roots[0].removeAttribute('id')
+    roots[0].removeAttribute("id")
   }
 }
