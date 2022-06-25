@@ -2,7 +2,6 @@ import {DataRenderer, DataRendererView} from "./data_renderer"
 import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
 import {Renderer} from "./renderer"
 import {GlyphView} from "../glyphs/glyph"
-import {Ticker} from "../tickers/ticker"
 import * as p from "core/properties"
 import {build_view} from "core/build_views"
 import {SelectionManager} from "core/selection_manager"
@@ -32,6 +31,7 @@ export class ContourRendererView extends DataRendererView {
   }
 
   protected _render(): void {
+    console.log("levels", this.model.levels)
     this.fill_view.render()
     this.line_view.render()
   }
@@ -53,7 +53,7 @@ export namespace ContourRenderer {
   export type Props = DataRenderer.Props & {
     fill_renderer: p.Property<GlyphRenderer>
     line_renderer: p.Property<GlyphRenderer>
-    ticker: p.Property<Ticker>
+    levels: p.Property<number[]>
   }
 }
 
@@ -70,10 +70,10 @@ export class ContourRenderer extends DataRenderer {
   static {
     this.prototype.default_view = ContourRendererView
 
-    this.define<ContourRenderer.Props>(({Ref}) => ({
+    this.define<ContourRenderer.Props>(({Array, Number, Ref}) => ({
       fill_renderer: [ Ref(GlyphRenderer) ],
       line_renderer: [ Ref(GlyphRenderer) ],
-      ticker:        [ Ref(Ticker) ],
+      levels:        [ Array(Number), [5] ],
     }))
   }
 

@@ -1,9 +1,11 @@
 import {BaseColorBar, BaseColorBarView} from "./base_color_bar"
 import {MultiLineView} from "../glyphs/multi_line"
 import {MultiPolygonsView} from "../glyphs/multi_polygons"
+import {Range, Range1d} from "../ranges"
 import {GlyphRenderer, GlyphRendererView} from "../renderers/glyph_renderer"
 import {build_view} from "core/build_views"
 import * as p from "core/properties"
+import {assert} from "core/util/assert"
 import {BBox} from "core/util/bbox"
 import {Context2d} from "core/util/canvas"
 
@@ -27,33 +29,54 @@ export class ContourColorBarView extends BaseColorBarView {
     super.remove()
   }
 
+  override _create_major_range(): Range {
+    const levels = this.model.levels
+    if (levels.length > 0) {
+      return new Range1d({start: levels[0], end: levels[levels.length-1]})
+    } else {
+      return new Range1d({start: 0, end: 1})
+    }
+  }
+
   protected _paint_colors(ctx: Context2d, bbox: BBox): void {
+    const levels = this.model.levels
+    const scale = this._major_scale
+    scale.source_range = this._major_range
+    scale.target_range = new Range1d({start: bbox.bottom, end: bbox.top})
+    const ys = scale.v_compute(levels)
+
     // Need to check this might be null
     const multi_polygons = this._fill_view.glyph as MultiPolygonsView
-    ctx.save()
     const nfill = multi_polygons.data_size
-    console.log(nfill)
-    for (let i = 0; i < nfill; i++) {
-      ctx.beginPath()
-      ctx.rect(bbox.left, bbox.bottom - bbox.height*i/nfill, bbox.width, -bbox.height/nfill)
-      multi_polygons.visuals.fill.apply(ctx, i)
-      multi_polygons.visuals.hatch.apply(ctx, i)
+    assert(levels.length == nfill+1, "Inconsistent number of filled contour levels")
+
+    if (nfill > 0) {
+      ctx.save()
+      for (let i = 0; i < nfill; i++) {
+        ctx.beginPath()
+        ctx.rect(bbox.left, ys[i], bbox.width, ys[i+1] - ys[i])
+        multi_polygons.visuals.fill.apply(ctx, i)
+        multi_polygons.visuals.hatch.apply(ctx, i)
+      }
+      ctx.restore()
     }
-    ctx.restore()
 
     // Need to check this might be null
     const multi_line = this._line_view.glyph as MultiLineView
-    ctx.save()
-    const nlines = multi_line.data_size
-    for (let i = 0; i < nlines; i++) {
-      const y = bbox.bottom - bbox.height*i / (nlines-1)
-      ctx.beginPath()
-      ctx.moveTo(bbox.left, y)
-      ctx.lineTo(bbox.right, y)
-      multi_line.visuals.line.set_vectorize(ctx, i)
-      ctx.stroke()
+    const nline = multi_line.data_size
+    assert(levels.length == nline, "Inconsistent number of line contour levels")
+
+    if (nline > 0) {
+      ctx.save()
+      for (let i = 0; i < nline; i++) {
+        ctx.beginPath()
+        ctx.moveTo(bbox.left, ys[i])
+        ctx.lineTo(bbox.right, ys[i])
+        multi_line.visuals.line.set_vectorize(ctx, i)
+        ctx.stroke()
+      }
+      ctx.restore()
     }
-    ctx.restore()
   }
 }
 
@@ -63,6 +86,7 @@ export namespace ContourColorBar {
   export type Props = BaseColorBar.Props & {
     fill_renderer: p.Property<GlyphRenderer>
     line_renderer: p.Property<GlyphRenderer>
+    levels: p.Property<number[]>
   }
 }
 
@@ -79,9 +103,10 @@ export class ContourColorBar extends BaseColorBar {
   static {
     this.prototype.default_view = ContourColorBarView
 
-    this.define<ContourColorBar.Props>(({Ref}) => ({
+    this.define<ContourColorBar.Props>(({Array, Number, Ref}) => ({
       fill_renderer: [ Ref(GlyphRenderer) ],
       line_renderer: [ Ref(GlyphRenderer) ],
+      levels:        [ Array(Number), [5] ],
     }))
   }
 }

@@ -43,6 +43,7 @@ from ...core.properties import (
     Nullable,
     NullStringSpec,
     Override,
+    Seq,
     String,
     TextLike,
     Tuple,
@@ -242,6 +243,9 @@ class ContourColorBar(BaseColorBar):
     fill_renderer = Instance(GlyphRenderer)
 
     line_renderer = Instance(GlyphRenderer)
+
+    levels = Seq(Float, default=[], help="""
+    """)
 
 
 class LegendItem(Model):

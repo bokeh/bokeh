@@ -22,11 +22,9 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.properties import (
-    Any,
-    ColumnData,
-    Dict,
+    Float,
     Instance,
-    String,
+    Seq,
 )
 from ..core.types import Unknown
 from .annotations import ContourColorBar
@@ -34,10 +32,9 @@ from .glyphs import (
     MultiLine,
     MultiPolygons,
 )
-from .mappers import ColorMapper
 from .renderers import DataRenderer, GlyphRenderer
 from .sources import ColumnDataSource
-from .tickers import Ticker
+from .tickers import FixedTicker
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -77,7 +74,8 @@ class ContourRenderer(DataRenderer):
     fill_renderer = Instance(GlyphRenderer, default=_DEFAULT_CONTOUR_FILL_RENDERER, help="""
     """)
 
-    ticker = Instance(Ticker)
+    levels = Seq(Float, default=[], help="""
+    """)
 
     def __setattr__(self, name: str, value: Unknown) -> None:
         if name == "data":
@@ -86,7 +84,7 @@ class ContourRenderer(DataRenderer):
                 new_fill_data = value["fill_data"]
                 old_fill_data = self.fill_renderer.data_source.data
                 for name in old_fill_data.keys():
-                    if name not in ("xs", "ys"):
+                    if name not in ("xs", "ys", "lower_levels", "upper_levels"):
                         new_fill_data[name] = old_fill_data[name]
                 self.fill_renderer.data_source.data = new_fill_data
 
@@ -94,7 +92,7 @@ class ContourRenderer(DataRenderer):
                 new_line_data = value["line_data"]
                 old_line_data = self.line_renderer.data_source.data
                 for name in old_line_data.keys():
-                    if name not in ("xs", "ys"):
+                    if name not in ("xs", "ys", "levels"):
                         new_line_data[name] = old_line_data[name]
                 self.line_renderer.data_source.data = new_line_data
         else:
@@ -103,9 +101,10 @@ class ContourRenderer(DataRenderer):
     def color_bar(self) -> ContourColorBar:
         # Should accept other kwargs and pass them through?
         return ContourColorBar(
-            ticker=self.ticker,
             fill_renderer=self.fill_renderer,
             line_renderer=self.line_renderer,
+            levels=self.levels,
+            ticker=FixedTicker(ticks=self.levels),
         )
 
 #-----------------------------------------------------------------------------

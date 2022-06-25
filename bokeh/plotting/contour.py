@@ -104,10 +104,7 @@ def from_contour(
     new_contour_data = contour_data(x, y, z, levels, want_fill, want_line)
     # With be other possibilities here like logarithmic....
 
-    contour_renderer = ContourRenderer(
-        data=new_contour_data,
-        ticker=FixedTicker(ticks=levels),
-    )
+    contour_renderer = ContourRenderer(data=new_contour_data, levels=list(levels))
 
     if new_contour_data["fill_data"]:
         glyph = contour_renderer.fill_renderer.glyph
@@ -195,12 +192,12 @@ def contour_data(
     fill_data_dict = None
     if fill_coords:
         xs, ys = fill_coords
-        fill_data_dict = dict(xs=xs, ys=ys)
+        fill_data_dict = dict(xs=xs, ys=ys, lower_levels=levels[:-1], upper_levels=levels[1:])
 
     line_data_dict = None
     if line_coords:
         xs, ys = line_coords
-        line_data_dict = dict(xs=xs, ys=ys)
+        line_data_dict = dict(xs=xs, ys=ys, levels=levels)
 
     return dict(fill_data=fill_data_dict, line_data=line_data_dict)
 
