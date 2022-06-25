@@ -221,7 +221,7 @@ export class DatetimeTickFormatter extends TickFormatter {
         (which == "all")) {
 
       const context = isString(this.context) ?
-        _strftime(tick, this.context) : this.context.doFormat([tick], {loc: 0}, resolution)
+        _strftime(tick, this.context) : this.context.doFormat([tick], {loc: 0}, resolution)[0]
 
       if (context == "")
         return label
