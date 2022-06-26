@@ -52,7 +52,7 @@ dependencies:
   - pytest-html
   - pytest-xdist
   - requests >=1.2.3
-  - selenium >=3.8
+  - selenium 4.2
   - scipy
   - pre-commit
 
