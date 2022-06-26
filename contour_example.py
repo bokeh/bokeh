@@ -45,5 +45,6 @@ fig.renderers.append(contour_renderer)
 
 colorbar = contour_renderer.color_bar() #extra kwargs?????)
 fig.add_layout(colorbar, 'right')
+#fig.add_layout(colorbar, 'above')
 
 show(fig)
