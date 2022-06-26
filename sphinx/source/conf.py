@@ -82,8 +82,8 @@ rst_epilog = open("rst_epilog.txt").read()
 # -- Extensions configuration --------------------------------------------------
 
 autoclasstoc_sections = [
-        'public-attrs',
-        'public-methods',
+    'public-attrs',
+    'public-methods',
 ]
 
 autodoc_member_order = 'groupwise'
@@ -143,14 +143,24 @@ html_static_path = ['_static']
 
 html_theme ='pydata_sphinx_theme'
 
+html_title = f"{project} {version} Documentation"
+
+# html_logo configured in navbar-logo.html
+
 html_theme_options = {
     'external_links': [
         {'name': 'Tutorial',  'url': 'https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb'},
         {'name': 'Community', 'url': 'https://discourse.bokeh.org'}
     ],
+    "switcher": {
+        "json_url": "https://docs.bokeh.org/switcher.json",
+        "version_match": version,
+    },
     'github_url': 'https://github.com/bokeh/bokeh',
     'google_analytics_id': 'UA-27761864-7',
     "navbar_align": "left",
+    "navbar_start": ["navbar-logo", "version-switcher"],
+    "navbar_end": ["navbar-icon-links"],
     'show_toc_level': 2,
     'twitter_url': 'https://twitter.com/bokeh',
     "favicons": [
@@ -174,11 +184,9 @@ html_theme_options = {
 
 html_sidebars = {
   "docs/gallery": [],
-  "docs/gallery/**": [],
+  "docs/examples/**": [],
   "index": [],
 }
-
-html_title = f"{project} {version} Documentation"
 
 templates_path = ['_templates']
 

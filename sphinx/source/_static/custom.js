@@ -7,16 +7,6 @@ window.addEventListener('DOMContentLoaded', function () {
   }
 })
 
-// Add alerts to the top of the page, if any are present
-$(document).ready(function () {
-  $.get('/alert.html', function (data) {
-      if (data.length > 0) {
-        const content = $('<div class="news-alert">' + data + '</div>')
-        $('#banner').prepend(content);
-      }
-  })
-})
-
 // Install listeners to handle collapsible blocks
 $(document).ready(function () {
   const coll = document.getElementsByClassName("bk-collapsible");
@@ -36,20 +26,16 @@ $(document).ready(function () {
 // Display a version warning banner if necessary
 $(document).ready(function () {
   const randid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  $.getJSON('/versions.json?v=' + randid , function (data) {
-    if (BOKEH_CURRENT_VERSION != data.latest) {
+  $.getJSON('/switcher.json?v=' + randid , function (data) {
+    if (BOKEH_CURRENT_VERSION != data[0].version) {
       let msg
-      if (data.all.indexOf(BOKEH_CURRENT_VERSION) < 0 ) {
+      if (data.findIndex((elt) => elt.version == BOKEH_CURRENT_VERSION) < 0 ) {
         msg = "DEVELOPMENT / PRE-RELEASE"
       } else {
         msg = "PREVIOUS RELEASE"
       }
       const content = $('<div class="version-alert">This page is documentation for a ' + msg + ' version. For the latest release, go to <a href="https://docs.bokeh.org/en/latest/">https://docs.bokeh.org/en/latest/</a></div>')
       $('#banner').append(content);
-    }
-    for (let i = 0; i < data.menu.length; i++) {
-      const link = "https://docs.bokeh.org/en/" + data.menu[i]
-      $('#version-menu').append('<a class="dropdown-item" href="' + link + '">' + data.menu[i] + '</a>')
     }
   })
 })

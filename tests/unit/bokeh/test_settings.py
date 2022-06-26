@@ -48,7 +48,6 @@ _expected_settings = (
     'browser',
     'cdn_version',
     'cookie_secret',
-    'docs_alert',
     'docs_cdn',
     'docs_version',
     'ico_path',
@@ -344,9 +343,6 @@ class TestDefaults:
 
     def test_cookie_secret(self):
         assert bs.settings.cookie_secret.default is None
-
-    def test_docs_alert(self):
-        assert bs.settings.docs_alert.default is None
 
     def test_docs_cdn(self):
         assert bs.settings.docs_cdn.default is None

@@ -571,11 +571,6 @@ class Settings:
     long, random sequence of bytes
     """)
 
-    docs_alert: PrioritizedSetting[str | None] = PrioritizedSetting("docs_alert", "BOKEH_DOCS_ALERT", default=None, help="""
-    Text for an alert banner to display when building the docs locally (for
-    testing the alert banner capability).
-    """)
-
     docs_cdn: PrioritizedSetting[str | None] = PrioritizedSetting("docs_cdn", "BOKEH_DOCS_CDN", default=None, help="""
     The version of BokehJS that should be use for loading CDN resources when
     building the docs.

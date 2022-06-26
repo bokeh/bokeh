@@ -1,36 +1,17 @@
 {% extends "pydata_sphinx_theme/layout.html" %}
 
-{% block docs_toc %}
-{% if sidebars %}
-  <div class="d-none d-xl-block col-xl-2 bd-toc">
-    {% if meta is defined and not (meta is not none and 'notoc' in meta) %}
-      {% for toc_item in theme_page_sidebar_items %}
-      <div class="toc-item">
-        {% include toc_item %}
-      </div>
-      {% endfor %}
-    {% endif %}
-  </div>
-{% endif %}
-{% endblock %}
-
 {% block docs_main %}
-{% if sidebars %}
-  {% set content_col_class = "col-md-9 col-xl-7" %}
-{% else %}
-  {# This customization to the no-sidebars case is why we override docs_main #}
-  {% set content_col_class = "col-md-12" %}
-{% endif %}
-<main class="col-12 {{ content_col_class }} py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
-    {% block docs_body %}
-    <div>
-      {% block body %} {% endblock %}
-    </div>
-    {% endblock %}
+
+{# This customization to the no-sidebars case is why we override docs_main #}
+{% set content_xl_width = "col-xl-7" if sidebars else "col-xl-12" %}
+
+<div class="bd-content col-12 col-md-9 {{ content_xl_width }}">
+    {% block docs_body %}{{ super() }}{% endblock %}
     {% if theme_show_prev_next %}
     <footer class="bd-footer-article">
-      {% include "sections/footer-article.html" %}
+        {% include "sections/footer-article.html" %}
     </footer>
     {% endif %}
-</main>
+</div>
+
 {% endblock %}

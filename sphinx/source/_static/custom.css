@@ -2,6 +2,10 @@
     font-variant-ligatures: none;
 }
 
+.bd-footer {
+    padding: 0 !important;
+}
+
 .version-alert a {
     text-decoration: underline;
     color: #ddd;
@@ -18,18 +22,6 @@
 .version-alert a {
     text-decoration: underline;
     color: #ddd;
-}
-
-#banner .news-alert {
-    background-color: #ECD078;
-    padding: 1em;
-    font-family: "Work Sans", sans-serif;
-    font-weight: 600; font-size: 16px;
-}
-
-.news-alert a {
-    text-decoration: underline;
-    color: #444;
 }
 
 .btn { font-family: "Lato", sans-serif; }

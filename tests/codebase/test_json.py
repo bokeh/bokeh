@@ -32,7 +32,7 @@ paths = [
     "bokeh/_sri.json",
     "bokeh/util/sampledata.json",
     "sphinx/source/docs/gallery.json",
-    "sphinx/versions.json",
+    "sphinx/switcher.json",
 ]
 
 def test_json() -> None:
