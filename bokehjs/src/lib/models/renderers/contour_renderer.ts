@@ -13,7 +13,10 @@ export class ContourRendererView extends DataRendererView {
   line_view: GlyphRendererView
 
   get glyph_view(): GlyphView {
-    return this.fill_view.glyph
+    if (this.fill_view.glyph.data_size > 0)
+      return this.fill_view.glyph
+    else
+      return this.line_view.glyph
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -31,7 +34,6 @@ export class ContourRendererView extends DataRendererView {
   }
 
   protected _render(): void {
-    console.log("levels", this.model.levels)
     this.fill_view.render()
     this.line_view.render()
   }

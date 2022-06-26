@@ -8,6 +8,8 @@ z = np.sin(x)*np.cos(y)
 nlevels = 11 #9
 levels = np.linspace(-1.0, 1.0, nlevels)
 
+#levels[1] = -0.9
+#levels[2] = -0.8
 
 
 def colors(n):

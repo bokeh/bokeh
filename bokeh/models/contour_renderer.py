@@ -79,22 +79,27 @@ class ContourRenderer(DataRenderer):
 
     def __setattr__(self, name: str, value: Unknown) -> None:
         if name == "data":
-            # Copy across line/fill/hatch properties.
-            if "fill_data" in value:
-                new_fill_data = value["fill_data"]
+            fill_data, line_data = value
+
+            if fill_data:
+                # Copy fill and hatch properties from old to new data source
                 old_fill_data = self.fill_renderer.data_source.data
                 for name in old_fill_data.keys():
                     if name not in ("xs", "ys", "lower_levels", "upper_levels"):
-                        new_fill_data[name] = old_fill_data[name]
-                self.fill_renderer.data_source.data = new_fill_data
+                        fill_data[name] = old_fill_data[name]
+                self.fill_renderer.data_source.data = fill_data
+            else:
+                self.fill_renderer.data_source.data = dict(xs=[], ys=[], lower_levels=[], upper_levels=[])
 
-            if "line_data" in value:
-                new_line_data = value["line_data"]
+            if line_data:
+                # Copy line properties from old to new data source
                 old_line_data = self.line_renderer.data_source.data
-                for name in old_line_data.keys():
+                for name in line_data.keys():
                     if name not in ("xs", "ys", "levels"):
-                        new_line_data[name] = old_line_data[name]
-                self.line_renderer.data_source.data = new_line_data
+                        line_data[name] = old_line_data[name]
+                self.line_renderer.data_source.data = line_data
+            else:
+                self.line_renderer.data_source.data = dict(xs=[], ys=[], levels=[])
         else:
             super().__setattr__(name, value)
 

@@ -49,12 +49,10 @@ export class ContourColorBarView extends BaseColorBarView {
       scale.target_range = new Range1d({start: bbox.left, end: bbox.right})
     const scaled_levels = scale.v_compute(levels)
 
-    // Need to check this might be null
     const multi_polygons = this._fill_view.glyph as MultiPolygonsView
     const nfill = multi_polygons.data_size
-    assert(levels.length == nfill+1, "Inconsistent number of filled contour levels")
-
     if (nfill > 0) {
+      assert(levels.length == nfill+1, "Inconsistent number of filled contour levels")
       ctx.save()
       for (let i = 0; i < nfill; i++) {
         ctx.beginPath()
@@ -68,12 +66,10 @@ export class ContourColorBarView extends BaseColorBarView {
       ctx.restore()
     }
 
-    // Need to check this might be null
     const multi_line = this._line_view.glyph as MultiLineView
     const nline = multi_line.data_size
-    assert(levels.length == nline, "Inconsistent number of line contour levels")
-
     if (nline > 0) {
+      assert(levels.length == nline, "Inconsistent number of line contour levels")
       ctx.save()
       for (let i = 0; i < nline; i++) {
         ctx.beginPath()
