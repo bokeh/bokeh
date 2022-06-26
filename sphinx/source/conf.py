@@ -156,6 +156,7 @@ html_theme_options = {
         "json_url": "https://docs.bokeh.org/switcher.json",
         "version_match": version,
     },
+    "pygment_light_style": "xcode",
     'github_url': 'https://github.com/bokeh/bokeh',
     'google_analytics_id': 'UA-27761864-7',
     "navbar_align": "left",
