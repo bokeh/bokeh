@@ -128,7 +128,7 @@ class MercatorTileSource(TileSource):
     Enables continuous horizontal panning by wrapping the x-axis based on
     bounds of map.
 
-    ..note::
+    .. note::
         Axis coordinates are not wrapped. To toggle axis label visibility,
         use ``plot.axis.visible = False``.
 
