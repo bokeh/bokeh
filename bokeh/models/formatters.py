@@ -58,7 +58,7 @@ from .tickers import Ticker
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "BASIC_DATETIME_CONTEXT",
+    "RELATIVE_DATETIME_CONTEXT",
     "BasicTickFormatter",
     "CategoricalTickFormatter",
     "CustomJSTickFormatter",
@@ -647,7 +647,7 @@ class DatetimeTickFormatter(TickFormatter):
     rendered.
     """)
 
-def BASIC_DATETIME_CONTEXT() -> DatetimeTickFormatter:
+def RELATIVE_DATETIME_CONTEXT() -> DatetimeTickFormatter:
     return DatetimeTickFormatter(
         microseconds = "%T",
         milliseconds = "%T",
