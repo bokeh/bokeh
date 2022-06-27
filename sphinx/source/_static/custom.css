@@ -1,6 +1,17 @@
 /* Customize theme font colors */
-:root {
+html[data-theme=light] {
   --pst-color-borders: 206, 212, 218;
+  --pst-color-primary: var(--pst-color-text-base);
+}
+
+a { color: #CF462A; }
+
+code {
+  font-family: SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
+  color: rgb(33, 37, 41);
+  padding: 2px 1px 0px 1px;
+  font-size: 80%;
+  background-color:#eef0f1;
 }
 
 /* WAR for https://github.com/pydata/pydata-sphinx-theme/issues/464 */
@@ -28,8 +39,9 @@ img.image-border {
 }
 
 /* Tweak panel appearance */
-.card-header p {
-  font-weight: 500;
+.card-header {
+  background-color: rgb(220, 220, 220);
+  font-weight: 700;
   font-size: 110%;
 }
 
