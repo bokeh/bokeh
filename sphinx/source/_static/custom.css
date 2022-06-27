@@ -1,17 +1,25 @@
 /* Customize theme font colors */
 html[data-theme=light] {
-  --pst-color-borders: 206, 212, 218;
+  --pst-color-borders: rgb(206, 212, 218);
   --pst-color-primary: var(--pst-color-text-base);
+  --pst-color-secondary: rgb(207, 70, 42);
+  --pst-color-link: var(--pst-color-secondary);
+  /* match color of "Tip" admonition to Bokeh color scheme */
+  --pst-color-success: rgb(165, 205, 57);
+  --pst-color-admonition-tip: var(--pst-color-success);
 }
 
-a { color: #CF462A; }
-
-code {
+.pre {
   font-family: SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
-  color: rgb(33, 37, 41);
+  color: var(--pst-color-text-base);
   padding: 2px 1px 0px 1px;
-  font-size: 80%;
+  font-size: 100%;
   background-color:#eef0f1;
+}
+
+/* Match color of RST :ref: to that of other clickable links */
+.xref .pre {
+  color: var(--pst-color-secondary);
 }
 
 /* WAR for https://github.com/pydata/pydata-sphinx-theme/issues/464 */
@@ -71,7 +79,7 @@ div.highlight pre {
 
 /* Customize search box */
 #search-input {
-  border: 1px solid rgba(var(--pst-color-borders),1);
+  border: 1px solid var(--pst-color-borders);
   border-radius: 1.5px;
 }
 
