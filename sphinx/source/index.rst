@@ -25,7 +25,6 @@ Bokeh's documentation consists of several components:
     :container: container-fluid pb-3
     :column: col-lg-4 col-md-4 col-sm-12 col-xs-12 p-2
 
-    :header: bg-bokeh-one
 
     If you are new to Bokeh
     ^^^^^^^^^^^^^^^^^^^^^^^
@@ -37,7 +36,6 @@ Bokeh's documentation consists of several components:
     * :ref:`userguide`: explanations of all key functionalities of Bokeh and how to use them. Includes several standalone examples.
 
     ---
-    :header: bg-bokeh-two
     If you have some basic knowledge of Bokeh
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -50,7 +48,6 @@ Bokeh's documentation consists of several components:
     * :ref:`userguide`: explanations of all key functionalities of Bokeh and how to use them, including examples.
 
     ---
-    :header: bg-bokeh-three
     If you need more advanced information
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
