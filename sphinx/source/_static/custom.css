@@ -9,7 +9,8 @@ html[data-theme=light] {
   --pst-color-admonition-tip: var(--pst-color-success);
 }
 
-.pre {
+/* customize display of inline pre elements */
+.literal .pre {
   font-family: SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
   color: var(--pst-color-text-base);
   padding: 2px 1px 0px 1px;
