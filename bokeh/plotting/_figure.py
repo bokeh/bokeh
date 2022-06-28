@@ -57,6 +57,7 @@ from ._graph import get_graph_kwargs
 from ._plot import get_range, get_scale, process_axis_and_grid
 from ._stack import double_stack, single_stack
 from ._tools import process_active_tools, process_tools_arg
+from .contour import from_contour
 from .glyph_api import _MARKER_SHORTCUTS, GlyphAPI
 
 #-----------------------------------------------------------------------------
@@ -647,6 +648,11 @@ class figure(Plot, GlyphAPI):
         graph_renderer = GraphRenderer(layout_provider=layout_provider, **kw)
         self.renderers.append(graph_renderer)
         return graph_renderer
+
+    def contour(self, x, y, z, levels, **visuals):
+        contour_renderer = from_contour(x, y, z, levels, **visuals)
+        self.renderers.append(contour_renderer)
+        return contour_renderer
 
 def markers():
     ''' Prints a list of valid marker types for scatter()

@@ -114,7 +114,7 @@ export class ContourColorBar extends BaseColorBar {
     this.define<ContourColorBar.Props>(({Array, Number, Ref}) => ({
       fill_renderer: [ Ref(GlyphRenderer) ],
       line_renderer: [ Ref(GlyphRenderer) ],
-      levels:        [ Array(Number), [5] ],
+      levels:        [ Array(Number), [] ],
     }))
   }
 }

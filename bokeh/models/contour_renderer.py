@@ -94,7 +94,7 @@ class ContourRenderer(DataRenderer):
             if line_data:
                 # Copy line properties from old to new data source
                 old_line_data = self.line_renderer.data_source.data
-                for name in line_data.keys():
+                for name in old_line_data.keys():
                     if name not in ("xs", "ys", "levels"):
                         line_data[name] = old_line_data[name]
                 self.line_renderer.data_source.data = line_data
