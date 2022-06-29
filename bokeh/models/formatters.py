@@ -621,7 +621,7 @@ class DatetimeTickFormatter(TickFormatter):
                      default="%H:%M").accepts(List(String), _deprecated_datetime_list_format)
 
     hours = String(help=_DATETIME_TICK_FORMATTER_HELP("``hours``"),
-                   default="%I %p").accepts(List(String), _deprecated_datetime_list_format)
+                   default="%Hh").accepts(List(String), _deprecated_datetime_list_format)
 
     days = String(help=_DATETIME_TICK_FORMATTER_HELP("``days``"),
                   default="%m/%d").accepts(List(String), _deprecated_datetime_list_format)
@@ -652,8 +652,8 @@ def RELATIVE_DATETIME_CONTEXT() -> DatetimeTickFormatter:
         microseconds = "%T",
         milliseconds = "%T",
         seconds = "%H:%M",
-        minsec = "%I %p",
-        minutes = "%I %p",
+        minsec = "%Hh",
+        minutes = "%Hh",
         hourmin = "%F",
         hours = "%F",
         days = "%Y",

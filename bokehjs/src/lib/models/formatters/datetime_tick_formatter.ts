@@ -131,7 +131,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       minsec: [ String, ":%M:%S" ],
       minutes: [ String, ":%M" ],
       hourmin: [ String, "%H:%M" ],
-      hours: [ String, "%I %p" ],
+      hours: [ String, "%Hh" ],
       days: [ String, "%m/%d" ],
       months: [ String, "%m/%Y" ],
       years: [ String, "%Y" ],
