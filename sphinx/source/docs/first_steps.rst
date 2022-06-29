@@ -24,7 +24,6 @@ You can install Bokeh with either ``conda`` or ``pip``:
     :container: container-fluid pb-3
     :column: col-lg-6 col-md-6 col-sm-12 col-xs-12 p-2
 
-    :header: bg-bokeh-one
 
     Installing with ``conda``
     ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -39,7 +38,6 @@ You can install Bokeh with either ``conda`` or ``pip``:
     system.
 
     ---
-    :header: bg-bokeh-two
 
     Installing with ``pip``
     ^^^^^^^^^^^^^^^^^^^^^^^
@@ -74,7 +72,6 @@ more about any of the topics covered in the first steps guides.
     :container: container-fluid pb-3
     :column: col-lg-4 col-md-6 col-sm-12 col-xs-12 p-2
 
-    :header: bg-bokeh-one
 
     Creating a simple line chart plot
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -91,7 +88,6 @@ more about any of the topics covered in the first steps guides.
         :classes: btn-info btn-block stretched-link
 
     ---
-    :header: bg-bokeh-two
 
     Adding and customizing renderers
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -108,7 +104,6 @@ more about any of the topics covered in the first steps guides.
         :classes: btn-info btn-block stretched-link
 
     ---
-    :header: bg-bokeh-three
 
     Adding legends, text, and annotations
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -125,7 +120,6 @@ more about any of the topics covered in the first steps guides.
         :classes: btn-info btn-block stretched-link
 
     ---
-    :header: bg-bokeh-four
 
     Customizing your plot
     ^^^^^^^^^^^^^^^^^^^^^
@@ -142,7 +136,6 @@ more about any of the topics covered in the first steps guides.
         :classes: btn-info btn-block stretched-link
 
     ---
-    :header: bg-bokeh-five
 
     Vectorizing glyph properties
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -158,7 +151,6 @@ more about any of the topics covered in the first steps guides.
         :type: ref
         :classes: btn-info btn-block stretched-link
     ---
-    :header: bg-bokeh-six
 
     Combining plots
     ^^^^^^^
@@ -175,7 +167,6 @@ more about any of the topics covered in the first steps guides.
         :classes: btn-info btn-block stretched-link
 
     ---
-    :header: bg-bokeh-seven
 
     Displaying and exporting
     ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -191,7 +182,6 @@ more about any of the topics covered in the first steps guides.
         :type: ref
         :classes: btn-info btn-block stretched-link
     ---
-    :header: bg-bokeh-one
 
     Providing and filtering data
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -208,7 +198,6 @@ more about any of the topics covered in the first steps guides.
         :classes: btn-info btn-block stretched-link
 
     ---
-    :header: bg-bokeh-two
 
     Using widgets
     ^^^^^^^^^^^^^

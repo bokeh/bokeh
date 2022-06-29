@@ -43,7 +43,6 @@ To work with Bokeh's code and documentation, you first need to
 You can then contribute to Bokeh's codebase in many ways:
 
 .. panels::
-    :header: bg-bokeh-one
 
     Bokeh's Python codebase
     ^^^^^^^^^^^^^^^^^^^^^^^
@@ -56,7 +55,6 @@ You can then contribute to Bokeh's codebase in many ways:
     * :ref:`contributor_guide_pull_requests`
 
     ---
-    :header: bg-bokeh-two
 
     BokehJS (TypeScript)
     ^^^^^^^^^^^^^^^^^^^^
@@ -68,7 +66,6 @@ You can then contribute to Bokeh's codebase in many ways:
     * :ref:`contributor_guide_issues`
     * :ref:`contributor_guide_pull_requests`
     ---
-    :header: bg-bokeh-three
 
     Bokeh Server
     ^^^^^^^^^^^^
@@ -80,7 +77,6 @@ You can then contribute to Bokeh's codebase in many ways:
     * :ref:`contributor_guide_issues`
     * :ref:`contributor_guide_pull_requests`
     ---
-    :header: bg-bokeh-four
 
     Bokeh documentation
     ^^^^^^^^^^^^^^^^^^^
