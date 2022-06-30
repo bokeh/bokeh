@@ -787,25 +787,31 @@ Datetime tick context
 Datetime tick formatters have additional properties for adding more context to
 ticks on datetime axes. For instance, a context format might show the year,
 month, and day on the first tick, while the regular ticks show an hour and
-minute. The context options are:
+minute.
+
+This is especially useful in cases where an axis is zoomable. For example: when
+zooming in to a level of seconds, the tick formatter context can provide
+additional information about broader units of time, such as day or month.
+
+The context options are:
 
 ``context``
     A format for adding context to the tick or ticks specified by
     ``context_which``. Values are:
 
     * None, no context is added
-    * A standard ``DatetimeTickFormatter`` format string, the single
+    * A standard  :class:`~bokeh.models.DatetimeTickFormatter` format string, this single
       format is used across all scales
-    * Another ``DatetimeTickFormetter`` instance, to have scale-dependent
+    * Another :class:`~bokeh.models.DatetimeTickFormatter` instance, to add scale-dependent
       context
 
 ``context_which``
     Which tick or ticks to add a formatted context string to. Values are:
-    "start", "end", "center", and  "all".
+    `"start"`, `"end"`, `"center"`, and `"all"`.
 
 ``context_location``
     Relative to the tick label text baseline, where the context should be
-    rendered. Values are: "below", "above", "left", and "right"
+    rendered. Values are: `"below"`, `"above"`, `"left"`, and `"right"`.
 
 There is a pre-defined ``RELATIVE_DATETIME_CONTEXT`` that adds context that
 is more or less a single scale higher. The example below demonstrates these

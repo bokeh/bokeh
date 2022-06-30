@@ -636,23 +636,23 @@ class DatetimeTickFormatter(TickFormatter):
 
     context = Nullable(Either(String, Instance("bokeh.models.formatters.DatetimeTickFormatter")), default=None, help="""
     A format for adding context to the tick or ticks specified by ``context_which``.
-    Valid vlues are:
+    Valid values are:
 
     * None, no context is added
-    * A standard ``DatetimeTickFormatter`` format string, the single format is
+    * A standard :class:`~bokeh.models.DatetimeTickFormatter` format string, the single format is
       used across all scales
-    * Another ``DatetimeTickFormetter`` instance, to have scale-dependent
+    * Another :class:`~bokeh.models.DatetimeTickFormatter` instance, to have scale-dependent
       context
     """)
 
     context_which = Enum(ContextWhich, default="start", help="""
     Which tick or ticks to add a formatted context string to. Valid values are:
-    "start", "end", "center", and  "all".
+    `"start"`, `"end"`, `"center"`, and  `"all"`.
     """)
 
     context_location = Enum(LocationType, default="below", help="""
     Relative to the tick label text baseline, where the context should be
-    rendered. Valid values are: "below", "above", "left", and "right".
+    rendered. Valid values are: `"below"`, `"above"`, `"left"`, and `"right"`.
     """)
 
 def RELATIVE_DATETIME_CONTEXT() -> DatetimeTickFormatter:
