@@ -82,6 +82,7 @@ div.highlight pre {
 #search-input {
   border: 1px solid var(--pst-color-borders);
   border-radius: 1.5px;
+  color: var(--pst-color-text-base);
 }
 
 /* More compact autoclasstoc tables */
