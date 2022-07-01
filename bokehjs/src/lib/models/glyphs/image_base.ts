@@ -251,13 +251,13 @@ export abstract class ImageBaseView extends XYGlyphView {
     const height = this._height[index]
     const dx = (r - l) / width
     const dy = (t - b) / height
-    let dim1 = Math.floor((x - l) / dx)
-    let dim2 = Math.floor((y - b) / dy)
+    let i = Math.floor((x - l) / dx)
+    let j = Math.floor((y - b) / dy)
     if (this.renderer.xscale.source_range.is_reversed)
-      dim1 = width-dim1-1
+      i = width-i-1
     if (this.renderer.yscale.source_range.is_reversed)
-      dim2 = height-dim2-1
-    return {index, dim1, dim2, flat_index: dim2*width + dim1}
+      j = height-j-1
+    return {index, i, j, flat_index: j*width + i}
   }
 
   override _hit_point(geometry: PointGeometry): Selection {
@@ -268,11 +268,14 @@ export abstract class ImageBaseView extends XYGlyphView {
     const candidates = this.index.indices({x0: x, x1: x, y0: y, y1: y})
     const result = new Selection()
 
+    const indices = []
     for (const index of candidates) {
       if (sx != Infinity && sy != Infinity) {
+        indices.push(index)
         result.image_indices.push(this._image_index(index, x, y))
       }
     }
+    result.indices = indices
 
     return result
   }

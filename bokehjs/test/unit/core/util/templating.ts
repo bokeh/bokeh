@@ -104,8 +104,8 @@ describe("templating module", () => {
         labels: ["test label"],
       },
     })
-    const imindex1 = {index: 0, dim1: 2, dim2: 1, flat_index: 5}
-    const imindex2 = {index: 0, dim1: 1, dim2: 0, flat_index: 1}
+    const imindex1 = {index: 0, i: 2, j: 1, flat_index: 5}
+    const imindex2 = {index: 0, i: 1, j: 0, flat_index: 1}
 
     it("should return $ values from special_vars", () => {
       const v = tmpl.get_value("$x", source, 0, {x: 99999})

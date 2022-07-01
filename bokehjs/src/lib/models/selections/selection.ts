@@ -11,8 +11,8 @@ export type MultiIndices = {[key: string]: OpaqueIndices}
 
 export type ImageIndex = {
   index: number
-  dim1: number
-  dim2: number
+  i: number
+  j: number
   flat_index: number
 }
 
@@ -43,17 +43,16 @@ export class Selection extends Model {
   }
 
   static {
-    this.define<Selection.Props>(({Int, Array, Dict}) => ({
+    this.define<Selection.Props>(({Int, Array, Dict, Struct}) => ({
       indices:           [ Array(Int), [] ],
       line_indices:      [ Array(Int), [] ],
       multiline_indices: [ Dict(Array(Int)), {} ],
+      image_indices:     [ Array(Struct({index: Int, i: Int, j: Int, flat_index: Int})), [] ],
     }))
 
-    this.internal<Selection.Props>(({Int, Array, AnyRef, Struct, Nullable}) => ({
+    this.internal<Selection.Props>(({Array, AnyRef, Nullable}) => ({
       selected_glyphs:   [ Array(AnyRef()), [] ],
       view:              [ Nullable(AnyRef()), null ],
-      // Used internally to support hover tool for now. Python API TBD
-      image_indices:     [ Array(Struct({index: Int, dim1: Int, dim2: Int, flat_index: Int})), [] ],
     }))
   }
 

@@ -22,8 +22,10 @@ from ..core.has_props import abstract
 from ..core.properties import (
     Dict,
     Int,
+    List,
     Seq,
     String,
+    Struct,
 )
 from ..model import Model
 
@@ -87,7 +89,9 @@ class Selection(Model):
     keys of this dictionary (converted to ints).
     """)
 
-    # TODO (bev) image_indicies
+    image_indices = List(Struct(index=Int, i=Int, j=Int, flat_index=Int), help="""
+
+    """)
 
 @abstract
 class SelectionPolicy(Model):
