@@ -10,12 +10,15 @@ html[data-theme=light] {
 }
 
 /* customize display of inline pre elements */
-.literal .pre {
+.literal .pre, span .pre {
   font-family: SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
   color: var(--pst-color-text-base);
   padding: 2px 1px 0px 1px;
   font-size: 100%;
-  background-color:#eef0f1;
+}
+
+code {
+background-color:#eef0f1;
 }
 
 /* Match color of RST :ref: to that of other clickable links */
@@ -82,6 +85,7 @@ div.highlight pre {
 #search-input {
   border: 1px solid var(--pst-color-borders);
   border-radius: 1.5px;
+  color: var(--pst-color-text-base);
 }
 
 /* More compact autoclasstoc tables */
