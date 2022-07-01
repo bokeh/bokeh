@@ -121,7 +121,7 @@ def generate_jwt_token(session_id: ID,
     if extra_payload:
         if "session_id" in extra_payload:
             raise RuntimeError("extra_payload for session tokens may not contain 'session_id'")
-        extra_payload_str = json.dumps(extra_payload).encode('utf-8')
+        extra_payload_str = json.dumps(extra_payload, cls=_BytesEncoder).encode('utf-8')
         compressed = zlib.compress(extra_payload_str, level=9)
         payload[_TOKEN_ZLIB_KEY] = _base64_encode(compressed)
     token = _base64_encode(json.dumps(payload))
@@ -157,7 +157,7 @@ def get_token_payload(token: str) -> TokenPayload:
     if _TOKEN_ZLIB_KEY in decoded:
         decompressed = zlib.decompress(_base64_decode(decoded[_TOKEN_ZLIB_KEY]))
         del decoded[_TOKEN_ZLIB_KEY]
-        decoded.update(json.loads(decompressed))
+        decoded.update(json.loads(decompressed, cls=_BytesDecoder))
     del decoded['session_id']
     return decoded
 
@@ -231,6 +231,21 @@ def check_session_id_signature(session_id: str,
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+class _BytesEncoder(json.JSONEncoder):
+    def default(self, x):
+        if isinstance(x, bytes):
+            return dict(bytes=_base64_encode(x))
+        return super().default(x)
+
+class _BytesDecoder(json.JSONDecoder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(object_hook=self.object_hook, *args, **kwargs)
+
+    def object_hook(self, obj):
+        if set(obj.keys()) == {"bytes"}:
+            return _base64_decode(obj["bytes"])
+        return obj
 
 def _get_sysrandom() -> Tuple[Any, bool]:
     # Use the system PRNG for session id generation (if possible)

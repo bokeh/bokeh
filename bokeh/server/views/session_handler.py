@@ -127,7 +127,7 @@ class SessionHandler(AuthRequestHandler):
                 # Do not include Cookie header since cookies can be restored from cookies dict
                 del headers['Cookie']
 
-            payload = {'headers': headers, 'cookies': cookies}
+            payload = {'headers': headers, 'cookies': cookies, 'arguments': self.request.arguments}
             payload.update(self.application_context.application.process_request(self.request))
             token = generate_jwt_token(session_id,
                                        secret_key=app.secret_key,
