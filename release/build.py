@@ -128,7 +128,7 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
         system.run(f"cp -r bokehjs/build {dirname}/bokehjs")
         system.run(f"mkdir -p {dirname}/sphinx/build")
         system.run(f"cp -r sphinx/build/html {dirname}/sphinx/build")
-        system.run(f"cp -r sphinx/versions.json {dirname}/sphinx")
+        system.run(f"cp -r sphinx/switcher.json {dirname}/sphinx")
         system.run(f"tar cvf {filename} {dirname}")
         return PASSED(f"Packed deployment tarball {filename!r}")
     except RuntimeError as e:

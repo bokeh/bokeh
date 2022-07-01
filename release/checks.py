@@ -131,7 +131,7 @@ def check_checkout_matches_remote(config: Config, system: System) -> ActionRetur
 @skip_for_prerelease
 def check_docs_version_config(config: Config, system: System) -> ActionReturn:
     try:
-        with open(Path("sphinx/versions.json")) as fp:
+        with open(Path("sphinx/switcher.json")) as fp:
             versions = json.load(fp)
             all_versions = versions["all"]
             latest_version = versions["latest"]
