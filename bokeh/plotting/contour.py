@@ -68,7 +68,13 @@ def from_contour(
     levels: Sequence[float],
     **visuals,  # This is union of LineProps, FillProps and HatchProps
 ) -> ContourRenderer:
-    # May need to determine nlevels, or levels from nlevels.
+    # Level validation.
+    levels = np.asarray(levels)
+    if len(levels) == 0:
+        raise ValueError("No contour levels specified")
+    if np.diff(levels).min() <= 0.0:
+        raise ValueError("Contour levels must be increasing")
+
     nlevels = len(levels)
 
     want_line = "line_color" in visuals
@@ -129,7 +135,60 @@ def from_contour(
 
     return contour_renderer
 
-def contour_coords(
+def contour_data(
+    x: Optional[np.ndarray],
+    y: Optional[np.ndarray],
+    z: Union[np.ndarray, np.ma.MaskedArray],
+    levels: Sequence[float],
+    want_fill: bool = True,
+    want_line: bool = True,
+) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
+    '''
+    Return the contour data of filled and/or line contours that can be used to set
+    ContourRenderer.data
+    '''
+    if not want_fill and not want_line:
+        raise RuntimeError("Neither fill nor line requested in contour_data")
+
+    fill_coords, line_coords = _contour_coords(x, y, z, levels, want_fill, want_line)
+
+    fill_data = None
+    if fill_coords:
+        xs, ys = fill_coords
+        fill_data = dict(xs=xs, ys=ys, lower_levels=levels[:-1], upper_levels=levels[1:])
+
+    line_data = None
+    if line_coords:
+        xs, ys = line_coords
+        line_data = dict(xs=xs, ys=ys, levels=levels)
+
+    return fill_data, line_data
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _color(color: ContourColorOrPalette, n: int) -> ContourColor:
+    # Callable or Dict to sequence of colors
+    if callable(color):
+        color = color(n)
+    elif isinstance(color, Dict):
+        color = color.get(n, False) or color.get(max(color.keys()))
+
+    if isinstance(color, Sequence) and not isinstance(color, str):
+        # Get sequence of required number of colors
+        if len(color) < n:
+            raise ValueError("Insufficient number of colors")
+        elif len(color) > n:
+            color = linear_palette(color, n)
+
+    return color
+
+def _contour_coords(
     x: Optional[np.ndarray],
     y: Optional[np.ndarray],
     z: Union[np.ndarray, np.ma.MaskedArray],
@@ -170,60 +229,6 @@ def contour_coords(
 
     return fill_coords, line_coords
 
-def contour_data(
-    x: Optional[np.ndarray],
-    y: Optional[np.ndarray],
-    z: Union[np.ndarray, np.ma.MaskedArray],
-    levels: Sequence[float],
-    want_fill: bool = True,
-    want_line: bool = True,
-) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
-    '''
-    Return the contour data of filled and/or line contours that can be used to set
-    ContourRenderer.data
-    '''
-    if not want_fill and not want_line:
-        raise RuntimeError("Neither fill nor line requested in contour_data")
-
-    fill_coords, line_coords = contour_coords(x, y, z, levels, want_fill, want_line)
-
-    fill_data = None
-    if fill_coords:
-        xs, ys = fill_coords
-        fill_data = dict(xs=xs, ys=ys, lower_levels=levels[:-1], upper_levels=levels[1:])
-
-    line_data = None
-    if line_coords:
-        xs, ys = line_coords
-        line_data = dict(xs=xs, ys=ys, levels=levels)
-
-    return fill_data, line_data
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-def _color(color: ContourColorOrPalette, n: int) -> ContourColor:
-    # Callable or Dict to sequence of colors
-    if callable(color):
-        color = color(n)
-    elif isinstance(color, Dict):
-        color = color.get(n, False) or color.get(max(color.keys()))
-
-    if isinstance(color, Sequence) and not isinstance(color, str):
-        # Get sequence of required number of colors
-        if len(color) < n:
-            raise ValueError("Insufficient number of colors")
-        elif len(color) > n:
-            color = linear_palette(color, n)
-
-    return color
-
-
 def _filled_to_xs_and_ys(filled):
     # Processes polygon data returned from a single call to
     # contourpy.ContourGenerator.filled(lower_level, upper_level)
@@ -236,7 +241,6 @@ def _filled_to_xs_and_ys(filled):
         xs.append([points[offsets[i]:offsets[i+1], 0] for i in range(n)])
         ys.append([points[offsets[i]:offsets[i+1], 1] for i in range(n)])
     return xs, ys
-
 
 def _lines_to_xs_and_ys(lines):
     # Processes line data returned from a single call to
