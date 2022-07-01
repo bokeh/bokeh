@@ -779,6 +779,55 @@ the snippet or function namespace at render time:
 .. bokeh-plot:: docs/user_guide/examples/styling_custom_js_tick_formatter.py
     :source-position: above
 
+.. _userguide_styling_axes_datetime_tick_context:
+
+Datetime tick context
+~~~~~~~~~~~~~~~~~~~~~
+
+Datetime tick formatters have additional properties for adding more context to
+ticks on datetime axes. For instance, a context format might show the year,
+month, and day on the first tick, while the regular ticks show an hour and
+minute.
+
+This is especially useful in cases where an axis is zoomable. For example: when
+zooming in to a level of seconds, the tick formatter context can provide
+additional information about broader units of time, such as day or month.
+
+The context options are:
+
+``context``
+    A format for adding context to the tick or ticks specified by
+    ``context_which``. Values are:
+
+    * None, no context is added
+    * A standard  :class:`~bokeh.models.DatetimeTickFormatter` format string, this single
+      format is used across all scales
+    * Another :class:`~bokeh.models.DatetimeTickFormatter` instance, to add scale-dependent
+      context
+
+``context_which``
+    Which tick or ticks to add a formatted context string to. Values are:
+    `"start"`, `"end"`, `"center"`, and `"all"`.
+
+``context_location``
+    Relative to the tick label text baseline, where the context should be
+    rendered. Values are: `"below"`, `"above"`, `"left"`, and `"right"`.
+
+There is a pre-defined ``RELATIVE_DATETIME_CONTEXT`` that adds context that
+is more or less a single scale higher. The example below demonstrates these
+options:
+
+.. bokeh-plot:: docs/user_guide/examples/styling_datetime_tick_context.py
+    :source-position: above
+
+It is possible to "chain" multiple ``DatetimeTickFomatter`` instances together,
+for as many levels of context as desired. For example:
+
+.. code-block:: python
+
+    p.xaxis.formatter.context = DatetimeTickFormatter(...)
+    p.xaxis.formatter.context.context = DatetimeTickFormatter(...)
+
 .. _userguide_styling_axes_tick_label_orientation:
 
 Tick label orientation

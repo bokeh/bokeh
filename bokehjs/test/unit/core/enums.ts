@@ -4,6 +4,18 @@ import * as enums from "@bokehjs/core/enums"
 
 describe("enums module", () => {
 
+  it("should have Align", () => {
+    expect([...enums.Align]).to.be.equal(["start", "center", "end"])
+  })
+
+  it("should have HAlign", () => {
+    expect([...enums.HAlign]).to.be.equal(["left", "center", "right"])
+  })
+
+  it("should have VAlign", () => {
+    expect([...enums.VAlign]).to.be.equal(["top", "center", "bottom"])
+  })
+
   it("should have Anchor", () => {
     expect([...enums.Anchor]).to.be.equal([
       "top_left",    "top_center",    "top_right",
@@ -23,6 +35,14 @@ describe("enums module", () => {
 
   it("should have ButtonType", () => {
     expect([...enums.ButtonType]).to.be.equal(["default", "primary", "success", "warning", "danger", "light"])
+  })
+
+  it("should have CalendarPosition", () => {
+    expect([...enums.CalendarPosition]).to.be.equal(["auto", "above", "below"])
+  })
+
+  it("should have ContextWhich", () => {
+    expect([...enums.ContextWhich]).to.be.equal(["start", "center", "end", "all"])
   })
 
   it("should have Dimension", () => {
@@ -66,6 +86,10 @@ describe("enums module", () => {
     expect([...enums.HoverMode]).to.be.equal(["mouse", "hline", "vline"])
   })
 
+  it("should have ImageOrigin", () => {
+    expect([...enums.ImageOrigin]).to.be.equal(["bottom_left", "top_left", "bottom_right", "top_right"])
+  })
+
   it("should have LatLon", () => {
     expect([...enums.LatLon]).to.be.equal(["lat", "lon"])
   })
@@ -85,6 +109,10 @@ describe("enums module", () => {
 
   it("should have LineCap", () => {
     expect([...enums.LineCap]).to.be.equal(["butt", "round", "square"])
+  })
+
+  it("should have LineDash", () => {
+    expect([...enums.LineDash]).to.be.equal(["solid", "dashed", "dotted", "dotdash", "dashdot"])
   })
 
   it("should have LineJoin", () => {
@@ -111,6 +139,10 @@ describe("enums module", () => {
       "square_pin", "square_x", "star", "star_dot", "triangle", "triangle_dot",
       "triangle_pin", "x", "y",
     ])
+  })
+
+  it("should have MutedPolicy", () => {
+    expect([...enums.MutedPolicy]).to.be.equal(["show", "ignore"])
   })
 
   it("should have Orientation", () => {
@@ -147,6 +179,10 @@ describe("enums module", () => {
 
   it("should have RoundingFunction", () => {
     expect([...enums.RoundingFunction]).to.be.equal(["round", "nearest", "floor", "rounddown", "ceil", "roundup"])
+  })
+
+  it("should have SelectionMode", () => {
+    expect([...enums.SelectionMode]).to.be.equal(["replace", "append", "intersect", "subtract"])
   })
 
   it("should have Side", () => {
@@ -203,5 +239,42 @@ describe("enums module", () => {
 
   it("should have VerticalAlign", () => {
     expect([...enums.VerticalAlign]).to.be.equal(["top", "middle", "bottom"])
+  })
+
+  it("should have ToolIcon", () => {
+    expect([...enums.ToolIcon]).to.be.equal([
+      "append_mode",
+      "box_edit",
+      "box_select",
+      "box_zoom",
+      "clear_selection",
+      "copy",
+      "crosshair",
+      "freehand_draw",
+      "help",
+      "hover",
+      "intersect_mode",
+      "lasso_select",
+      "line_edit",
+      "pan",
+      "point_draw",
+      "poly_draw",
+      "poly_edit",
+      "polygon_select",
+      "range",
+      "redo",
+      "replace_mode",
+      "reset",
+      "save",
+      "subtract_mode",
+      "tap_select",
+      "undo",
+      "wheel_pan",
+      "wheel_zoom",
+      "xpan",
+      "ypan",
+      "zoom_in",
+      "zoom_out",
+    ])
   })
 })

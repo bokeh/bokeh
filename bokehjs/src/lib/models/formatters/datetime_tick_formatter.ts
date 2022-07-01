@@ -1,5 +1,8 @@
+import {ContextWhich, Location} from "core/enums"
 import * as p from "core/properties"
+import {enumerate} from "core/util/iterator"
 import {sprintf} from "core/util/templating"
+import {isString, is_undefined} from "core/util/types"
 import {TickFormatter} from "models/formatters/tick_formatter"
 import {ONE_DAY, ONE_HOUR, ONE_MILLI, ONE_MINUTE, ONE_MONTH, ONE_SECOND, ONE_YEAR} from "models/tickers/util"
 import tz from "timezone"
@@ -25,59 +28,6 @@ tm_index_for_resolution.set("minsec", 4)
 tm_index_for_resolution.set("minutes", 4)
 tm_index_for_resolution.set("hourmin", 3)
 tm_index_for_resolution.set("hours", 3)
-
-export function _compute_label(t: number, resolution: ResolutionType,  model: DatetimeTickFormatter): string {
-  const s0 = _strftime(t, model[resolution])
-  const tm = _mktime(t)
-  const resolution_index = resolution_order.indexOf(resolution)
-
-  let s = s0
-  let hybrid_handled = false
-  let next_index = resolution_index
-  let next_resolution: ResolutionType
-
-  // As we format each tick, check to see if we are at a boundary of the
-  // next higher unit of time.  If so, replace the current format with one
-  // from that resolution.  This is not the best heuristic in the world,
-  // but it works!  There is some trickiness here due to having to deal
-  // with hybrid formats in a reasonable manner.
-  while (tm[tm_index_for_resolution.get(resolution_order[next_index])!] == 0) {
-    next_index += 1
-
-    if (next_index == resolution_order.length)
-      break
-
-    // The way to check that we are at the boundary of the next unit of
-    // time is by checking that we have 0 units of the resolution, i.e.
-    // we are at zero minutes, so display hours, or we are at zero seconds,
-    // so display minutes (and if that is zero as well, then display hours).
-    if ((resolution == "minsec" || resolution == "hourmin") && !hybrid_handled) {
-      if ((resolution == "minsec" && tm[4] == 0 && tm[5] != 0) || (resolution == "hourmin" && tm[3] == 0 && tm[4] != 0)) {
-        next_resolution = resolution_order[resolution_index-1]
-        s = _strftime(t, model[next_resolution])
-        break
-      } else {
-        hybrid_handled = true
-      }
-    }
-
-    next_resolution = resolution_order[next_index]
-    s = _strftime(t, model[next_resolution])
-  }
-
-  if (model.strip_leading_zeros) {
-    const ss = s.replace(/^0+/g, "")
-    if (ss != s && isNaN(parseInt(ss))) {
-      // If the string can now be parsed as starting with an integer, then
-      // leave all zeros stripped, otherwise start with a zero. Hence:
-      // A label such as '000ms' should leave one zero.
-      // A label such as '001ms' or '0-1ms' should not leave a leading zero.
-      return `0${ss}`
-    }
-    return ss
-  }
-  return s
-}
 
 export function _get_resolution(resolution_secs: number, span_secs: number): ResolutionType {
   // Our resolution boundaries should not be round numbers, because we want
@@ -158,6 +108,9 @@ export namespace DatetimeTickFormatter {
     months: p.Property<string>
     years: p.Property<string>
     strip_leading_zeros: p.Property<boolean>
+    context: p.Property<string | DatetimeTickFormatter | null>
+    context_which: p.Property<ContextWhich>
+    context_location: p.Property<Location>
   }
 }
 
@@ -171,7 +124,7 @@ export class DatetimeTickFormatter extends TickFormatter {
   }
 
   static {
-    this.define<DatetimeTickFormatter.Props>(({Boolean, String}) => ({
+    this.define<DatetimeTickFormatter.Props>(({Boolean, Nullable, Or, Ref, String}) => ({
       microseconds: [ String, "%fus" ],
       milliseconds: [ String, "%3Nms" ],
       seconds: [ String, "%Ss" ],
@@ -183,22 +136,106 @@ export class DatetimeTickFormatter extends TickFormatter {
       months: [ String, "%m/%Y" ],
       years: [ String, "%Y" ],
       strip_leading_zeros: [ Boolean, true ],
+      context: [ Nullable(Or(String, Ref(DatetimeTickFormatter))), null ],
+      context_which: [ ContextWhich, "start" ],
+      context_location: [ Location, "below" ],
     }))
   }
 
-  doFormat(ticks: number[], _opts: {loc: number}): string[] {
+  doFormat(ticks: number[], _opts: {loc: number}, _resolution?: ResolutionType): string[] {
     if (ticks.length == 0)
       return []
 
     const span = Math.abs(ticks[ticks.length-1] - ticks[0])/1000.0
     const r = span / (ticks.length - 1)
-    const resolution = _get_resolution(r, span)
+    const resolution = is_undefined(_resolution) ? _get_resolution(r, span) : _resolution
 
     const labels: string[] = []
-    for (const t of ticks) {
-      labels.push(_compute_label(t, resolution, this))
+    for (const [tick, i] of enumerate(ticks)) {
+      const base_label = this._compute_label(tick, resolution)
+      const full_label = this._add_context(tick, base_label, i, ticks.length, resolution)
+      labels.push(full_label)
     }
     return labels
+  }
+
+  _compute_label(t: number, resolution: ResolutionType): string {
+    const s0 = _strftime(t, this[resolution])
+    const tm = _mktime(t)
+    const resolution_index = resolution_order.indexOf(resolution)
+
+    let s = s0
+    let hybrid_handled = false
+    let next_index = resolution_index
+    let next_resolution: ResolutionType
+
+    // As we format each tick, check to see if we are at a boundary of the
+    // next higher unit of time. If so, replace the current format with one
+    // from that resolution. This is not the best heuristic but it works.
+    while (tm[tm_index_for_resolution.get(resolution_order[next_index])!] == 0) {
+      next_index += 1
+
+      if (next_index == resolution_order.length)
+        break
+
+      // The way to check that we are at the boundary of the next unit of
+      // time is by checking that we have 0 units of the resolution, i.e.
+      // we are at zero minutes, so display hours, or we are at zero seconds,
+      // so display minutes (and if that is zero as well, then display hours).
+      if ((resolution == "minsec" || resolution == "hourmin") && !hybrid_handled) {
+        if ((resolution == "minsec" && tm[4] == 0 && tm[5] != 0) || (resolution == "hourmin" && tm[3] == 0 && tm[4] != 0)) {
+          next_resolution = resolution_order[resolution_index-1]
+          s = _strftime(t, this[next_resolution])
+          break
+        } else {
+          hybrid_handled = true
+        }
+      }
+
+      next_resolution = resolution_order[next_index]
+      s = _strftime(t, this[next_resolution])
+    }
+
+    if (this.strip_leading_zeros) {
+      const ss = s.replace(/^0+/g, "")
+      if (ss != s && isNaN(parseInt(ss))) {
+        // If the string can now be parsed as starting with an integer, then
+        // leave all zeros stripped, otherwise start with a zero.
+        return `0${ss}`
+      }
+      return ss
+    }
+    return s
+  }
+
+  _add_context(tick: number, label: string, i: number, N: number, resolution: ResolutionType): string {
+    const loc = this.context_location
+    const which = this.context_which
+
+    if (this.context == null)
+      return label
+
+    if ((which == "start" && i == 0) ||
+        (which == "end" && i == N-1) ||
+        (which == "center" && i == Math.floor(N/2)) ||
+        (which == "all")) {
+
+      const context = isString(this.context) ?
+        _strftime(tick, this.context) : this.context.doFormat([tick], {loc: 0}, resolution)[0]
+
+      if (context == "")
+        return label
+
+      if (loc == "above")
+        return `${context}\n${label}`
+      if (loc == "below")
+        return `${label}\n${context}`
+      if (loc == "left")
+        return `${context} ${label}`
+      if (loc == "right")
+        return `${label} ${context}`
+    }
+    return label
   }
 
 }

@@ -35,6 +35,7 @@ ALL  = (
     'AutosizeMode',
     'ButtonType',
     'CalendarPosition',
+    'ContextWhich',
     'DashPattern',
     'DateFormat',
     'DatetimeUnits',
@@ -157,6 +158,9 @@ class Test_bce:
 
     def test_CalendarPosition(self) -> None:
         assert tuple(bce.CalendarPosition) == ("auto", "above", "below")
+
+    def test_ContextWhich(self) -> None:
+        assert tuple(bce.ContextWhich) == ("start", "center", "end", "all")
 
     def test_DashPattern(self) -> None:
         assert tuple(bce.DashPattern) ==("solid", "dashed", "dotted", "dotdash", "dashdot")
@@ -327,6 +331,7 @@ def test_enums_contents() -> None:
         'AutosizeMode',
         'ButtonType',
         'CalendarPosition',
+        'ContextWhich',
         'DashPattern',
         'DateFormat',
         'DatetimeUnits',
