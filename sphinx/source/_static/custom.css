@@ -50,13 +50,6 @@ img.image-border {
   box-shadow: 1px 1px 1px #d8d8d8;
 }
 
-/* Tweak panel appearance */
-.card-header {
-  background-color: rgb(220, 220, 220);
-  font-weight: 700;
-  font-size: 110%;
-}
-
 /* Thumbnails on the main index page */
 .bokeh-examples {
   padding: 0;
