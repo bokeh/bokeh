@@ -201,36 +201,54 @@ When building Bokeh's documentation, the most common options for ``make`` are:
 
 To build the docs, run the following command:
 
-.. .. tabs::
+.. tab-set::
 
-..   .. code-tab:: sh Linux/macOS
+    .. tab-item:: Linux/macOS
+        :sync: sh
 
-..       make html
+        .. code-block:: sh
 
-..   .. code-tab:: PowerShell Windows (PS)
+            make html
 
-..       .\make.bat html
+    .. tab-item:: Windows (PS)
+        :sync: ps
 
-..   .. code-tab:: doscon Windows (CMD)
+        .. code-block:: powershell
 
-..       make.bat html
+            .\make.bat html
+
+    .. tab-item:: Windows (CMD)
+        :sync: cmd
+
+        .. code-block:: doscon
+
+            make.bat html
 
 After building the docs, run the following command to start a server and display
 the docs in a web browser:
 
-.. .. tabs::
+.. tab-set::
 
-..   .. code-tab:: sh Linux/macOS
+    .. tab-item:: Linux/macOS
+        :sync: sh
 
-..       make serve
+        .. code-block:: sh
 
-..   .. code-tab:: PowerShell Windows (PS)
+            make serve
 
-..       .\make.bat serve
+    .. tab-item:: Windows (PS)
+        :sync: ps
 
-..   .. code-tab:: doscon Windows (CMD)
+        .. code-block:: powershell
 
-..       make.bat serve
+            .\make.bat serve
+
+    .. tab-item:: Windows (CMD)
+        :sync: cmd
+
+        .. code-block:: doscon
+
+            make.bat serve
 
 **Linux/macOS only:** You can combine multiple targets in one command (not
 supported by ``make.bat``). For example:
@@ -247,23 +265,32 @@ supported by ``make.bat``). For example:
     :ref:`environment variable <contributor_guide_setup_environment_variables>`
     ``BOKEH_DOCS_CDN`` to ``local`` before calling ``make``:
 
-    .. .. tabs::
+    .. tab-set::
 
-    ..   .. code-tab:: sh Linux/macOS
+        .. tab-item:: Linux/macOS
+            :sync: sh
 
-    ..       BOKEH_DOCS_CDN=local make clean html serve
+            .. code-block:: sh
 
-    ..   .. code-tab:: PowerShell Windows (PS)
+                BOKEH_DOCS_CDN=local make clean html serve
 
-    ..       $Env:BOKEH_DOCS_CDN = "local"
-    ..       .\make.bat html
-    ..       .\make.bat serve
+        .. tab-item:: Windows (PS)
+            :sync: ps
 
-    ..   .. code-tab:: doscon Windows (CMD)
+            .. code-block:: powershell
 
-    ..       set BOKEH_DOCS_CDN=local
-    ..       make.bat html
-    ..       make.bat serve
+                $Env:BOKEH_DOCS_CDN = "local"
+                .\make.bat html
+                .\make.bat serve
+
+        .. tab-item:: Windows (CMD)
+            :sync: cmd
+
+            .. code-block:: doscon
+
+                set BOKEH_DOCS_CDN=local
+                make.bat html
+                make.bat serve
 
 To speed up the build of your local documentation, you have the option to use
 an `experimental Sphinx feature`_ that distributes the build process over
