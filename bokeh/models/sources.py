@@ -405,7 +405,7 @@ class ColumnDataSource(ColumnarDataSource):
             name (str) : name of the column to remove
 
         Returns:
-            NoneLineProps
+            None
 
         .. note::
             If the column name does not exist, a warning is issued.

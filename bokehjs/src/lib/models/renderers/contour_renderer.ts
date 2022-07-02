@@ -2,6 +2,9 @@ import {DataRenderer, DataRendererView} from "./data_renderer"
 import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
 import {Renderer} from "./renderer"
 import {GlyphView} from "../glyphs/glyph"
+import {MultiLine} from "../glyphs/multi_line"
+import {MultiPolygons} from "../glyphs/multi_polygons"
+import {ColumnDataSource} from "../sources/column_data_source"
 import * as p from "core/properties"
 import {build_view} from "core/build_views"
 import {SelectionManager} from "core/selection_manager"
@@ -73,8 +76,8 @@ export class ContourRenderer extends DataRenderer {
     this.prototype.default_view = ContourRendererView
 
     this.define<ContourRenderer.Props>(({Array, Number, Ref}) => ({
-      fill_renderer: [ Ref(GlyphRenderer) ],
-      line_renderer: [ Ref(GlyphRenderer) ],
+      fill_renderer: [ Ref(GlyphRenderer), () => new GlyphRenderer({glyph: new MultiPolygons(), data_source: new ColumnDataSource()}) ],
+      line_renderer: [ Ref(GlyphRenderer), () => new GlyphRenderer({glyph: new MultiLine(), data_source: new ColumnDataSource()}) ],
       levels:        [ Array(Number), [] ],
     }))
   }
