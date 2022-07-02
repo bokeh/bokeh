@@ -172,7 +172,6 @@ class DataRenderer(Renderer):
 
     level = Override(default="glyph")
 
-
 class GlyphRenderer(DataRenderer):
     '''
 

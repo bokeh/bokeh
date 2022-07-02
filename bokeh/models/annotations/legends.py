@@ -236,15 +236,25 @@ class ColorBar(BaseColorBar):
 
 
 class ContourColorBar(BaseColorBar):
+    ''' Color bar used for contours.
+
+    Do not create these objects manually, instead use ``ContourRenderer.color_bar``.
+
+    '''
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    fill_renderer = Instance(GlyphRenderer)
+    fill_renderer = Instance(GlyphRenderer, help="""
+    Glyph renderer used for filled contour polygons.
+    """)
 
-    line_renderer = Instance(GlyphRenderer)
+    line_renderer = Instance(GlyphRenderer, help="""
+    Glyph renderer used for contour lines.
+    """)
 
     levels = Seq(Float, default=[], help="""
+    Levels at which the contours are calculated.
     """)
 
 

@@ -24,14 +24,12 @@ log = logging.getLogger(__name__)
 from ..core.properties import (
     Float,
     Instance,
+    InstanceDefault,
     Seq,
 )
 from ..core.types import Unknown
 from .annotations import ContourColorBar
-from .glyphs import (
-    MultiLine,
-    MultiPolygons,
-)
+from .glyphs import MultiLine, MultiPolygons
 from .renderers import DataRenderer, GlyphRenderer
 from .sources import ColumnDataSource
 from .tickers import FixedTicker
@@ -62,6 +60,9 @@ _DEFAULT_CONTOUR_FILL_RENDERER = lambda: GlyphRenderer(
 
 class ContourRenderer(DataRenderer):
     '''
+    Renderer for contour plots composed of filled polygons and/or lines.
+    Rather than create these manually it is usually better to use
+    ``figure.contour`` instead.
     '''
 
     # explicit __init__ to support Init signatures
@@ -69,12 +70,15 @@ class ContourRenderer(DataRenderer):
         super().__init__(*args, **kwargs)
 
     line_renderer = Instance(GlyphRenderer, default=_DEFAULT_CONTOUR_LINE_RENDERER, help="""
+    Glyph renderer used for contour lines.
     """)
 
     fill_renderer = Instance(GlyphRenderer, default=_DEFAULT_CONTOUR_FILL_RENDERER, help="""
+    Glyph renderer used for filled contour polygons.
     """)
 
     levels = Seq(Float, default=[], help="""
+    Levels at which the contours are calculated.
     """)
 
     def __setattr__(self, name: str, value: Unknown) -> None:

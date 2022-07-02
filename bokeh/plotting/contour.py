@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Dict,
     Optional,
     Sequence,
@@ -31,6 +30,7 @@ from typing import (
 
 # External imports
 import numpy as np
+from numpy.typing import ArrayLike
 
 # Bokeh imports
 from ..core.property_mixins import FillProps, HatchProps, LineProps
@@ -45,7 +45,6 @@ from ..plotting._renderer import _process_sequence_literals
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'contour_coords',
     'contour_data',
     'from_contour',
 )
@@ -54,32 +53,62 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-if TYPE_CHECKING:
-    from ..palettes import Palette, PaletteCollection
-    from ..transform import ColorLike
+def contour_data(
+    x: ArrayLike | None = None,
+    y: ArrayLike | None = None,
+    z: ArrayLike | np.ma.MaskedArray | None = None,
+    levels: Sequence[float] = [],
+    *,
+    want_fill: bool = True,
+    want_line: bool = True,
+) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
+    '''
+    Return the contour data of filled and/or line contours that can be used to set
+    ContourRenderer.data
+    '''
+    levels = _validate_levels(levels)
+    if len(levels) < 2:
+        want_fill = False
 
-    ContourColor: Union[ColorLike, Sequence[ColorLike]]
-    ContourColorOrPalette: Union[ContourColor, Palette, PaletteCollection, Callable[[int], ContourColor]]
+    if not want_fill and not want_line:
+        raise RuntimeError("Neither fill nor line requested in contour_data")
+
+    fill_coords, line_coords = _contour_coords(x, y, z, levels, want_fill, want_line)
+
+    fill_data = None
+    if fill_coords:
+        xs, ys = fill_coords
+        fill_data = dict(xs=xs, ys=ys, lower_levels=levels[:-1], upper_levels=levels[1:])
+
+    line_data = None
+    if line_coords:
+        xs, ys = line_coords
+        line_data = dict(xs=xs, ys=ys, levels=levels)
+
+    return fill_data, line_data
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def from_contour(
-    x: Optional[np.ndarray],  # Really optional?
-    y: Optional[np.ndarray],  # Really optional?
-    z: Union[np.ndarray, np.ma.MaskedArray],  # Should be ArrayType | MaskedArray
-    levels: Sequence[float],
+    x: ArrayLike | None = None,
+    y: ArrayLike | None = None,
+    z: ArrayLike | np.ma.MaskedArray | None = None,
+    levels: Sequence[float] = [],
     **visuals,  # This is union of LineProps, FillProps and HatchProps
 ) -> ContourRenderer:
-    # Level validation.
-    levels = np.asarray(levels)
-    if len(levels) == 0:
-        raise ValueError("No contour levels specified")
-    if np.diff(levels).min() <= 0.0:
-        raise ValueError("Contour levels must be increasing")
+    # Don't call this directly, use figure.contour instead.
+
+    levels = _validate_levels(levels)
+    if len(levels) < 2:
+        want_fill = False
 
     nlevels = len(levels)
 
     want_line = "line_color" in visuals
     if want_line:
-        # Handle possible callback for line_color.
+        # Handle possible callback or interpolation for line_color.
         visuals["line_color"] = _color(visuals["line_color"], nlevels)
 
         line_cds = ColumnDataSource()
@@ -94,7 +123,7 @@ def from_contour(
 
     want_fill = "fill_color" in visuals
     if want_fill:
-        # Handle possible callback for fill_color.
+        # Handle possible callback or interpolation for fill_color.
         visuals["fill_color"] = _color(visuals["fill_color"], nlevels-1)
 
         fill_cds = ColumnDataSource()
@@ -105,7 +134,7 @@ def from_contour(
     if unknown:
         raise ValueError(f"Unknown keyword arguments in 'from_contour': {', '.join(unknown)}")
 
-    new_contour_data = contour_data(x, y, z, levels, want_fill, want_line)
+    new_contour_data = contour_data(x=x, y=y, z=z, levels=levels, want_fill=want_fill, want_line=want_line)
 
     # Will be other possibilities here like logarithmic....
     contour_renderer = ContourRenderer(data=new_contour_data, levels=list(levels))
@@ -135,52 +164,25 @@ def from_contour(
 
     return contour_renderer
 
-def contour_data(
-    x: Optional[np.ndarray],
-    y: Optional[np.ndarray],
-    z: Union[np.ndarray, np.ma.MaskedArray],
-    levels: Sequence[float],
-    want_fill: bool = True,
-    want_line: bool = True,
-) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
-    '''
-    Return the contour data of filled and/or line contours that can be used to set
-    ContourRenderer.data
-    '''
-    if not want_fill and not want_line:
-        raise RuntimeError("Neither fill nor line requested in contour_data")
-
-    fill_coords, line_coords = _contour_coords(x, y, z, levels, want_fill, want_line)
-
-    fill_data = None
-    if fill_coords:
-        xs, ys = fill_coords
-        fill_data = dict(xs=xs, ys=ys, lower_levels=levels[:-1], upper_levels=levels[1:])
-
-    line_data = None
-    if line_coords:
-        xs, ys = line_coords
-        line_data = dict(xs=xs, ys=ys, levels=levels)
-
-    return fill_data, line_data
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
-def _color(color: ContourColorOrPalette, n: int) -> ContourColor:
-    # Callable or Dict to sequence of colors
-    if callable(color):
-        color = color(n)
-    elif isinstance(color, Dict):
-        color = color.get(n, False) or color.get(max(color.keys()))
+if TYPE_CHECKING:
+    from ..palettes import Palette, PaletteCollection
+    from ..transform import ColorLike
 
-    if isinstance(color, Sequence) and not isinstance(color, str):
-        # Get sequence of required number of colors
+    ContourColor: Union[ColorLike, Sequence[ColorLike]]
+    ContourColorOrPalette: Union[ContourColor, Palette, PaletteCollection, ContourColor]
+
+def _color(color: ContourColorOrPalette, n: int) -> ContourColor:
+    # Dict to sequence of colors such as palettes.cividis
+    if isinstance(color, Dict):
+        color = color.get(n, None)
+        if not color or len(color) != n:
+            raise ValueError(f"Dict of colors does not contain a key of {n}")
+
+    if isinstance(color, Sequence) and not isinstance(color, (bytes, str)):
         if len(color) < n:
             raise ValueError("Insufficient number of colors")
         elif len(color) > n:
@@ -189,9 +191,9 @@ def _color(color: ContourColorOrPalette, n: int) -> ContourColor:
     return color
 
 def _contour_coords(
-    x: Optional[np.ndarray],
-    y: Optional[np.ndarray],
-    z: Union[np.ndarray, np.ma.MaskedArray],
+    x: ArrayLike | None,
+    y: ArrayLike | None,
+    z: ArrayLike | np.ma.MaskedArray | None,
     levels: Sequence[float],
     want_fill: bool,
     want_line: bool,
@@ -202,8 +204,8 @@ def _contour_coords(
     if not want_fill and not want_line:
         raise RuntimeError("Neither fill nor line requested in contour_coords")
 
-    from contourpy import LineType, contour_generator
-    cont_gen = contour_generator(x, y, z, line_type=LineType.ChunkCombinedOffset)
+    from contourpy import FillType, LineType, contour_generator
+    cont_gen = contour_generator(x, y, z, line_type=LineType.ChunkCombinedOffset, fill_type=FillType.OuterOffset)
 
     fill_coords = None
     if want_fill:
@@ -265,3 +267,12 @@ def _lines_to_xs_and_ys(lines):
         xs[start+i:end+i] = points[start:end, 0]
         ys[start+i:end+i] = points[start:end, 1]
     return xs, ys
+
+def _validate_levels(levels: Sequence[float] | None):
+    levels = np.asarray(levels)
+    if len(levels) == 0:
+        raise ValueError("No contour levels specified")
+    if len(levels) > 1 and np.diff(levels).min() <= 0.0:
+        raise ValueError("Contour levels must be increasing")
+
+    return levels

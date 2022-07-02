@@ -649,7 +649,51 @@ class figure(Plot, GlyphAPI):
         self.renderers.append(graph_renderer)
         return graph_renderer
 
-    def contour(self, x, y, z, levels, **visuals):
+    def contour(self, x=None, y=None, z=None, levels=[], **visuals):
+        ''' Creates a contour plot of filled polygons and/or contour lines.
+
+        Filled contour polygons are calculated if ``fill_color`` is set,
+        contour lines if ``line_color`` is set.
+
+        Args:
+            x (array-like[float] of shape (ny, nx) or (nx,), optional) :
+                The x-coordinates of the ``z`` values. May be 2D with the same
+                shape as ``z.shape``, or 1D with length ``nx = z.shape[1]``.
+                If not specified are assumed to be ``np.arange(nx)``. Must be
+                ordered monotonically.
+
+            y (array-like[float] of shape (ny, nx) or (ny,), optional) :
+                The y-coordinates of the ``z`` values. May be 2D with the same
+                shape as ``z.shape``, or 1D with length ``ny = z.shape[0]``.
+                If not specified are assumed to be ``np.arange(ny)``. Must be
+                ordered monotonically.
+
+            z (array-like[float] of shape (ny, nx)) :
+                A 2D NumPy array of gridded values to calculate the contours
+                of.  May be a masked array, and any invalid values (``np.inf``
+                or ``np.nan``) will also be masked out.
+
+            levels (array-like[float]) :
+                The z-levels to calculate the contours at, must be increasing.
+                Contour lines are calculated at each level and filled contours
+                are calculated between each adjacent pair of levels so the
+                number of sets of contour lines is ``len(levels)`` and the
+                number of sets of filled contour polygons is ``len(levels)-1``.
+
+            **visuals: |fill properties|, |hatch properties| and |line properties|
+                Fill and hatch properties are used for filled contours, line
+                properties for line contours. If using vectorized properties
+                then the correct number must be used, ``len(levels)`` for line
+                properties and ``len(levels)-1`` for fill and hatch properties.
+
+                ``fill_color`` and ``line_color`` are more flexible in that
+                they will accept longer sequences and interpolate them to the
+                required number using :func:`~bokeh.palettes.linear_palette`,
+                and also accept palette collections (dictionaries mapping from
+                integer length to color sequence) such as
+                `bokeh.palettes.Cividis`.
+
+        '''
         contour_renderer = from_contour(x, y, z, levels, **visuals)
         self.renderers.append(contour_renderer)
         return contour_renderer
