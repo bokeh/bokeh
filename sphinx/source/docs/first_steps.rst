@@ -20,33 +20,33 @@ Bokeh is officially supported and tested on Python 3.8 and above (CPython).
 
 You can install Bokeh with either ``conda`` or ``pip``:
 
-.. panels::
-    :container: container-fluid pb-3
-    :column: col-lg-6 col-md-6 col-sm-12 col-xs-12 p-2
+.. .. panels::
+..     :container: container-fluid pb-3
+..     :column: col-lg-6 col-md-6 col-sm-12 col-xs-12 p-2
 
 
-    Installing with ``conda``
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
+..     Installing with ``conda``
+..     ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    Use this command to install Bokeh:
+..     Use this command to install Bokeh:
 
-    .. code-block:: sh
+..     .. code-block:: sh
 
-        conda install bokeh
+..         conda install bokeh
 
-    Conda requires either `Anaconda`_ or `Miniconda`_ to be installed on your
-    system.
+..     Conda requires either `Anaconda`_ or `Miniconda`_ to be installed on your
+..     system.
 
-    ---
+..     ---
 
-    Installing with ``pip``
-    ^^^^^^^^^^^^^^^^^^^^^^^
+..     Installing with ``pip``
+..     ^^^^^^^^^^^^^^^^^^^^^^^
 
-    Use this command to install Bokeh:
+..     Use this command to install Bokeh:
 
-    .. code-block:: sh
+..     .. code-block:: sh
 
-        pip install bokeh
+..         pip install bokeh
 
 For more detailed information on installing and potential problems you might
 encounter, go to the :ref:`installation` section.
@@ -68,150 +68,150 @@ development environment. There are also many links to the more in-depth
 resources of the |user guide| and |reference guide| in case you want to learn
 more about any of the topics covered in the first steps guides.
 
-.. panels::
-    :container: container-fluid pb-3
-    :column: col-lg-4 col-md-6 col-sm-12 col-xs-12 p-2
+.. .. panels::
+..     :container: container-fluid pb-3
+..     :column: col-lg-4 col-md-6 col-sm-12 col-xs-12 p-2
 
 
-    Creating a simple line chart plot
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..     Creating a simple line chart plot
+..     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    .. image:: /_images/first_steps_1.png
-        :align: center
-        :alt: A line chart
+..     .. image:: /_images/first_steps_1.png
+..         :align: center
+..         :alt: A line chart
 
-    +++
+..     +++
 
-    .. link-button:: first_steps/first_steps_1
-        :text: Go to section 1
-        :type: ref
-        :classes: btn-info btn-block stretched-link
+..     .. link-button:: first_steps/first_steps_1
+..         :text: Go to section 1
+..         :type: ref
+..         :classes: btn-info btn-block stretched-link
 
-    ---
+..     ---
 
-    Adding and customizing renderers
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..     Adding and customizing renderers
+..     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    .. image:: /_images/first_steps_2.png
-        :align: center
-        :alt: Several glyphs in one chart
+..     .. image:: /_images/first_steps_2.png
+..         :align: center
+..         :alt: Several glyphs in one chart
 
-    +++
+..     +++
 
-    .. link-button:: first_steps/first_steps_2
-        :text: Go to section 2
-        :type: ref
-        :classes: btn-info btn-block stretched-link
+..     .. link-button:: first_steps/first_steps_2
+..         :text: Go to section 2
+..         :type: ref
+..         :classes: btn-info btn-block stretched-link
 
-    ---
+..     ---
 
-    Adding legends, text, and annotations
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..     Adding legends, text, and annotations
+..     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    .. image:: /_images/first_steps_3.png
-        :align: center
-        :alt: A chart with a legend
+..     .. image:: /_images/first_steps_3.png
+..         :align: center
+..         :alt: A chart with a legend
 
-    +++
+..     +++
 
-    .. link-button:: first_steps/first_steps_3
-        :text: Go to section 3
-        :type: ref
-        :classes: btn-info btn-block stretched-link
+..     .. link-button:: first_steps/first_steps_3
+..         :text: Go to section 3
+..         :type: ref
+..         :classes: btn-info btn-block stretched-link
 
-    ---
+..     ---
 
-    Customizing your plot
-    ^^^^^^^^^^^^^^^^^^^^^
+..     Customizing your plot
+..     ^^^^^^^^^^^^^^^^^^^^^
 
-    .. image:: /_images/first_steps_4.png
-        :align: center
-        :alt: A chart with a tootip
+..     .. image:: /_images/first_steps_4.png
+..         :align: center
+..         :alt: A chart with a tootip
 
-    +++
+..     +++
 
-    .. link-button:: first_steps/first_steps_4
-        :text: Go to section 4
-        :type: ref
-        :classes: btn-info btn-block stretched-link
+..     .. link-button:: first_steps/first_steps_4
+..         :text: Go to section 4
+..         :type: ref
+..         :classes: btn-info btn-block stretched-link
 
-    ---
+..     ---
 
-    Vectorizing glyph properties
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..     Vectorizing glyph properties
+..     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    .. image:: /_images/first_steps_5.png
-        :align: center
-        :alt: A chart with different colors
+..     .. image:: /_images/first_steps_5.png
+..         :align: center
+..         :alt: A chart with different colors
 
-    +++
+..     +++
 
-    .. link-button:: first_steps/first_steps_5
-        :text: Go to section 5
-        :type: ref
-        :classes: btn-info btn-block stretched-link
-    ---
+..     .. link-button:: first_steps/first_steps_5
+..         :text: Go to section 5
+..         :type: ref
+..         :classes: btn-info btn-block stretched-link
+..     ---
 
-    Combining plots
-    ^^^^^^^
+..     Combining plots
+..     ^^^^^^^
 
-    .. image:: /_images/first_steps_6.png
-        :align: center
-        :alt: Three charts combined into one element
+..     .. image:: /_images/first_steps_6.png
+..         :align: center
+..         :alt: Three charts combined into one element
 
-    +++
+..     +++
 
-    .. link-button:: first_steps/first_steps_6
-        :text: Go to section 6
-        :type: ref
-        :classes: btn-info btn-block stretched-link
+..     .. link-button:: first_steps/first_steps_6
+..         :text: Go to section 6
+..         :type: ref
+..         :classes: btn-info btn-block stretched-link
 
-    ---
+..     ---
 
-    Displaying and exporting
-    ^^^^^^^^^^^^^^^^^^^^^^^^
+..     Displaying and exporting
+..     ^^^^^^^^^^^^^^^^^^^^^^^^
 
-    .. image:: /_images/first_steps_7.png
-        :align: center
-        :alt: Screenshot of a Bokeh plot in a Jupyter notebook
+..     .. image:: /_images/first_steps_7.png
+..         :align: center
+..         :alt: Screenshot of a Bokeh plot in a Jupyter notebook
 
-    +++
+..     +++
 
-    .. link-button:: first_steps/first_steps_7
-        :text: Go to section 7
-        :type: ref
-        :classes: btn-info btn-block stretched-link
-    ---
+..     .. link-button:: first_steps/first_steps_7
+..         :text: Go to section 7
+..         :type: ref
+..         :classes: btn-info btn-block stretched-link
+..     ---
 
-    Providing and filtering data
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..     Providing and filtering data
+..     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    .. image:: /_images/first_steps_8.png
-        :align: center
-        :alt: Two charts with different subsets of data
+..     .. image:: /_images/first_steps_8.png
+..         :align: center
+..         :alt: Two charts with different subsets of data
 
-    +++
+..     +++
 
-    .. link-button:: first_steps/first_steps_8
-        :text: Go to section 8
-        :type: ref
-        :classes: btn-info btn-block stretched-link
+..     .. link-button:: first_steps/first_steps_8
+..         :text: Go to section 8
+..         :type: ref
+..         :classes: btn-info btn-block stretched-link
 
-    ---
+..     ---
 
-    Using widgets
-    ^^^^^^^^^^^^^
+..     Using widgets
+..     ^^^^^^^^^^^^^
 
-    .. image:: /_images/first_steps_9.png
-        :align: center
-        :alt: Screenshot of a Bokeh server app
+..     .. image:: /_images/first_steps_9.png
+..         :align: center
+..         :alt: Screenshot of a Bokeh server app
 
-    +++
+..     +++
 
-    .. link-button:: first_steps/first_steps_9
-        :text: Go to section 9
-        :type: ref
-        :classes: btn-info btn-block stretched-link
+..     .. link-button:: first_steps/first_steps_9
+..         :text: Go to section 9
+..         :type: ref
+..         :classes: btn-info btn-block stretched-link
 
 .. _Anaconda: https://www.anaconda.com/products/individual#Downloads
 .. _Miniconda: https://docs.conda.io/en/latest/miniconda.html

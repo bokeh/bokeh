@@ -55,28 +55,28 @@ Enabling Bokeh visualizations in JupyterLab also requires the
 After installing JupyterLab, you can use either ``pip`` or ``conda`` to install
 jupyter_bokeh:
 
-.. panels::
+.. .. panels::
 
-    Installing with ``conda``
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
+..     Installing with ``conda``
+..     ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    Make sure you have either `Anaconda`_ or `Miniconda`_ installed. Use
-    this command to install jupyter_bokeh:
+..     Make sure you have either `Anaconda`_ or `Miniconda`_ installed. Use
+..     this command to install jupyter_bokeh:
 
-    .. code-block:: sh
+..     .. code-block:: sh
 
-        conda install jupyter_bokeh
+..         conda install jupyter_bokeh
 
-    ---
+..     ---
 
-    Installing with ``pip``
-    ^^^^^^^^^^^^^^^^^^^^^^^
+..     Installing with ``pip``
+..     ^^^^^^^^^^^^^^^^^^^^^^^
 
-    Use this command to install jupyter_bokeh:
+..     Use this command to install jupyter_bokeh:
 
-    .. code-block:: sh
+..     .. code-block:: sh
 
-        pip install jupyter_bokeh
+..         pip install jupyter_bokeh
 
 For instructions on installing jupyter_bokeh with versions of JupyterLab
 older than 3.0, see the `README`_ in the GitHub repository of `jupyter_bokeh`_.

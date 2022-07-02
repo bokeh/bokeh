@@ -201,36 +201,36 @@ When building Bokeh's documentation, the most common options for ``make`` are:
 
 To build the docs, run the following command:
 
-.. tabs::
+.. .. tabs::
 
-  .. code-tab:: sh Linux/macOS
+..   .. code-tab:: sh Linux/macOS
 
-      make html
+..       make html
 
-  .. code-tab:: PowerShell Windows (PS)
+..   .. code-tab:: PowerShell Windows (PS)
 
-      .\make.bat html
+..       .\make.bat html
 
-  .. code-tab:: doscon Windows (CMD)
+..   .. code-tab:: doscon Windows (CMD)
 
-      make.bat html
+..       make.bat html
 
 After building the docs, run the following command to start a server and display
 the docs in a web browser:
 
-.. tabs::
+.. .. tabs::
 
-  .. code-tab:: sh Linux/macOS
+..   .. code-tab:: sh Linux/macOS
 
-      make serve
+..       make serve
 
-  .. code-tab:: PowerShell Windows (PS)
+..   .. code-tab:: PowerShell Windows (PS)
 
-      .\make.bat serve
+..       .\make.bat serve
 
-  .. code-tab:: doscon Windows (CMD)
+..   .. code-tab:: doscon Windows (CMD)
 
-      make.bat serve
+..       make.bat serve
 
 **Linux/macOS only:** You can combine multiple targets in one command (not
 supported by ``make.bat``). For example:
@@ -247,23 +247,23 @@ supported by ``make.bat``). For example:
     :ref:`environment variable <contributor_guide_setup_environment_variables>`
     ``BOKEH_DOCS_CDN`` to ``local`` before calling ``make``:
 
-    .. tabs::
+    .. .. tabs::
 
-      .. code-tab:: sh Linux/macOS
+    ..   .. code-tab:: sh Linux/macOS
 
-          BOKEH_DOCS_CDN=local make clean html serve
+    ..       BOKEH_DOCS_CDN=local make clean html serve
 
-      .. code-tab:: PowerShell Windows (PS)
+    ..   .. code-tab:: PowerShell Windows (PS)
 
-          $Env:BOKEH_DOCS_CDN = "local"
-          .\make.bat html
-          .\make.bat serve
+    ..       $Env:BOKEH_DOCS_CDN = "local"
+    ..       .\make.bat html
+    ..       .\make.bat serve
 
-      .. code-tab:: doscon Windows (CMD)
+    ..   .. code-tab:: doscon Windows (CMD)
 
-          set BOKEH_DOCS_CDN=local
-          make.bat html
-          make.bat serve
+    ..       set BOKEH_DOCS_CDN=local
+    ..       make.bat html
+    ..       make.bat serve
 
 To speed up the build of your local documentation, you have the option to use
 an `experimental Sphinx feature`_ that distributes the build process over
