@@ -21,12 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.properties import (
-    Float,
-    Instance,
-    InstanceDefault,
-    Seq,
-)
+from ..core.properties import Float, Instance, Seq
 from ..core.types import Unknown
 from .annotations import ContourColorBar
 from .glyphs import MultiLine, MultiPolygons
