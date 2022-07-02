@@ -160,22 +160,22 @@ to add dynamic visual elements to your graph interactions.
 
 Below are examples of graphs with added node and edge interactions:
 
-.. .. tabs::
+.. tab-set::
 
-..    .. tab:: NodesAndLinkedEdges
+    .. tab-item:: NodesAndLinkedEdges
 
-..       .. bokeh-plot:: docs/user_guide/examples/graph_interaction_nodeslinkededges.py
-..         :source-position: above
+        .. bokeh-plot:: docs/user_guide/examples/graph_interaction_nodeslinkededges.py
+            :source-position: above
 
-..    .. tab:: EdgesAndLinkedNodes
+    .. tab-item:: EdgesAndLinkedNodes
 
-..       .. bokeh-plot:: docs/user_guide/examples/graph_interaction_edgeslinkednodes.py
-..         :source-position: above
+        .. bokeh-plot:: docs/user_guide/examples/graph_interaction_edgeslinkednodes.py
+            :source-position: above
 
-..    .. tab:: NodesAndAdjacentNodes
+    .. tab-item:: NodesAndAdjacentNodes
 
-..       .. bokeh-plot:: docs/user_guide/examples/graph_interaction_nodesadjacentnodes.py
-..         :source-position: above
+        .. bokeh-plot:: docs/user_guide/examples/graph_interaction_nodesadjacentnodes.py
+            :source-position: above
 
 Node and edge attributes
 ------------------------
