@@ -2,6 +2,8 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {Arrayable, ScreenArray, to_screen} from "core/types"
 import {Anchor, Align, HAlign, VAlign, ImageOrigin} from "core/enums"
 import * as p from "core/properties"
+import * as visuals from "core/visuals"
+import * as mixins from "core/property_mixins"
 import {Context2d} from "core/util/canvas"
 import {Selection, ImageIndex} from "../selections/selection"
 import {PointGeometry} from "core/geometry"
@@ -16,7 +18,6 @@ export type ImageDataBase = XYGlyphData & {
   readonly image: p.Uniform<NDArray>
   readonly dw: p.Uniform<number>
   readonly dh: p.Uniform<number>
-  readonly global_alpha: p.Uniform<number>
 
   sw: ScreenArray
   sh: ScreenArray
@@ -113,42 +114,37 @@ export abstract class ImageBaseView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: ImageDataBase): void {
-    const {image_data, sx, sy, sw, sh, global_alpha} = data ?? this
+    const {image_data, sx, sy, sw, sh} = data ?? this
 
     const old_smoothing = ctx.getImageSmoothingEnabled()
     ctx.setImageSmoothingEnabled(false)
-
-    const scalar_alpha = global_alpha.is_Scalar()
-    if (scalar_alpha)
-      ctx.globalAlpha = global_alpha.value
 
     const [x_sign, y_sign] = this.xy_sign
     const [x_scale, y_scale] = this.xy_scale
     const [x_offset, y_offset] = this.xy_offset
     const [x_anchor, y_anchor] = this.xy_anchor
 
-    for (const i of indices) {
-      const image_data_i = image_data[i]
-      const sx_i = sx[i]
-      const sy_i = sy[i]
-      const sw_i = sw[i]
-      const sh_i = sh[i]
-      const alpha_i = this.global_alpha.get(i)
+    if (this.visuals.image.doit) {
+      for (const i of indices) {
+        const image_data_i = image_data[i]
+        const sx_i = sx[i]
+        const sy_i = sy[i]
+        const sw_i = sw[i]
+        const sh_i = sh[i]
 
-      if (image_data_i == null || !isFinite(sx_i + sy_i + sw_i + sh_i + alpha_i))
-        continue
+        if (image_data_i == null || !isFinite(sx_i + sy_i + sw_i + sh_i))
+          continue
 
-      if (!scalar_alpha)
-        ctx.globalAlpha = alpha_i
+        const tx_i = x_sign*x_anchor*sw_i
+        const ty_i = y_sign*y_anchor*sh_i
 
-      const tx_i = x_sign*x_anchor*sw_i
-      const ty_i = y_sign*y_anchor*sh_i
-
-      ctx.save()
-      ctx.translate(sx_i - tx_i, sy_i - ty_i)
-      ctx.scale(x_sign*x_scale, y_sign*y_scale)
-      ctx.drawImage(image_data_i, -x_offset*sw_i, -y_offset*sh_i, sw_i, sh_i)
-      ctx.restore()
+        ctx.save()
+        ctx.translate(sx_i - tx_i, sy_i - ty_i)
+        ctx.scale(x_sign*x_scale, y_sign*y_scale)
+        this.visuals.image.set_vectorize(ctx, i)
+        ctx.drawImage(image_data_i, -x_offset*sw_i, -y_offset*sh_i, sw_i, sh_i)
+        ctx.restore()
+      }
     }
 
     ctx.setImageSmoothingEnabled(old_smoothing)
@@ -288,13 +284,14 @@ export namespace ImageBase {
     image: p.NDArraySpec
     dw: p.DistanceSpec
     dh: p.DistanceSpec
-    global_alpha: p.NumberSpec
     dilate: p.Property<boolean>
     origin: p.Property<ImageOrigin>
     anchor: p.Property<Anchor | [Align | HAlign | number, Align | VAlign | number]>
-  }
+  } & Mixins
 
-  export type Visuals = XYGlyph.Visuals
+  export type Mixins = mixins.ImageVector
+
+  export type Visuals = XYGlyph.Visuals & {image: visuals.ImageVector}
 }
 
 export interface ImageBase extends ImageBase.Attrs {}
@@ -308,11 +305,11 @@ export abstract class ImageBase extends XYGlyph {
   }
 
   static {
+    this.mixins<ImageBase.Mixins>(mixins.ImageVector)
     this.define<ImageBase.Props>(({Boolean, Number, Or, Tuple}) => ({
       image:        [ p.NDArraySpec, {field: "image"} ],
       dw:           [ p.DistanceSpec, {field: "dw"} ],
       dh:           [ p.DistanceSpec, {field: "dh"} ],
-      global_alpha: [ p.NumberSpec, {value: 1.0} ],
       dilate:       [ Boolean, false ],
       origin:       [ ImageOrigin, "bottom_left" ],
       anchor:       [ Or(Anchor, Tuple(Or(Align, HAlign, Number), Or(Align, VAlign, Number))), "bottom_left" ],
