@@ -18,7 +18,7 @@ html[data-theme=light] {
 }
 
 code {
-background-color:#eef0f1;
+  background-color:#eef0f1;
 }
 
 /* Match color of RST :ref: to that of other clickable links */
