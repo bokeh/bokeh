@@ -50,6 +50,13 @@ img.image-border {
   box-shadow: 1px 1px 1px #d8d8d8;
 }
 
+/* Style card headers */
+.sd-card-header {
+  background-color: rgb(220, 220, 220) !important;
+  font-weight: 700;
+  font-size: 110%;
+}
+
 /* Thumbnails on the main index page */
 .bokeh-examples {
   padding: 0;
