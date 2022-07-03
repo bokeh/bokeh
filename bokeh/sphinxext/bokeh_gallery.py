@@ -83,13 +83,18 @@ class BokehGalleryDirective(BokehDirective):
             raise SphinxError(f"gallery dir {gallery_dir!r} missing for gallery file {gallery_file!r}")
 
         spec = json.load(open(gallery_file))
-        names = [detail["path"] for detail in spec["details"]]
 
         opts = []
-        for example in names:
-            pp = PurePath(example).parts
-            name = pp[-1].replace('.py', '')
-            opts.append({"name": name, "ref": f'examples/{pp[1]}/{name}.html'})
+        for detail in spec["details"]:
+            name = detail["path"]
+            alt = detail.get("alt", None)
+            path = PurePath(name).parts
+            name = path[-1].replace('.py', '')
+            opts.append({
+                "name": name,
+                "ref": f"examples/{path[1]}/{name}.html",
+                "alt": alt,
+            })
 
         rst_text = GALLERY_PAGE.render(opts=opts)
 
