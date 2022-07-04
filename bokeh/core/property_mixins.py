@@ -48,17 +48,23 @@ specific to each property.
 
 .. |miter_join| image:: /_images/miter_join.png
     :height: 15
+    :alt:
 .. |round_join| image:: /_images/round_join.png
     :height: 15
+    :alt:
 .. |bevel_join| image:: /_images/bevel_join.png
     :height: 15
+    :alt:
 
 .. |butt_cap| image:: /_images/butt_cap.png
     :height: 12
+    :alt:
 .. |round_cap| image:: /_images/round_cap.png
     :height: 12
+    :alt:
 .. |square_cap| image:: /_images/square_cap.png
     :height: 12
+    :alt:
 
 '''
 #-----------------------------------------------------------------------------

@@ -56,7 +56,7 @@ in HoloViews.
  :width: 976 px
  :height: 510 px
  :scale: 80 %
- :alt: HoloViews Bokeh example
+ :alt:  HoloViews Bokeh example
  :align: center
 
 Adding overlaid plots, slider widgets, selector widgets, selection
@@ -85,7 +85,7 @@ web browsers.
     :width: 900 px
     :height: 670 px
     :scale: 70 %
-    :alt: Datashader Bokeh example
+    :alt:  Datashader Bokeh example
     :align: center
 
 Furthermore, Datashader works well with hvPlot and HoloViews.

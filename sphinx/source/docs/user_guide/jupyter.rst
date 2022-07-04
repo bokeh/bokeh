@@ -37,6 +37,7 @@ See a screenshot of Jupyter below:
 .. image:: /_images/notebook_inline.png
     :scale: 50 %
     :align: center
+    :alt:
 
 To have a single notebook output cell display multiple plots, call |show|
 multiple times in the input cell. The plots will display in order.
@@ -44,6 +45,7 @@ multiple times in the input cell. The plots will display in order.
 .. image:: /_images/notebook_inline_multiple.png
     :scale: 50 %
     :align: center
+    :alt:
 
 JupyterLab
 ''''''''''
@@ -89,6 +91,7 @@ with a :ref:`classic notebook <userguide_jupyter_notebook_inline_plots>`.
 .. image:: /_images/joyplot_jupyter_lab.png
     :scale: 25 %
     :align: center
+    :alt:
 
 .. _jupyter_bokeh: https://github.com/bokeh/jupyter_bokeh
 .. _Anaconda: https://www.anaconda.com/products/individual#Downloads
@@ -186,6 +189,7 @@ opened. The **Trust Notebook** option is typically located under the
 .. image:: /_images/notebook_trust.png
     :scale: 50 %
     :align: center
+    :alt:
 
 .. _userguide_jupyter_notebook_slides:
 
@@ -223,30 +227,35 @@ The following screenshots illustrate basic usage of notebook handles:
 .. image:: /_images/notebook_comms1.png
     :scale: 50 %
     :align: center
+    :alt:
 
 2. Create some plots and pass ``notebook_handle=True`` to |show|:
 
 .. image:: /_images/notebook_comms2.png
     :scale: 50 %
     :align: center
+    :alt:
 
 3. Check that the handle is associated with the output cell for ``In[2]`` just displayed:
 
 .. image:: /_images/notebook_comms3.png
     :scale: 50 %
     :align: center
+    :alt:
 
 4. Update some properties of the plot, then call |push_notebook| with the handle:
 
 .. image:: /_images/notebook_comms4.png
     :scale: 50 %
     :align: center
+    :alt:
 
 5. Note that the output cell for ``In[2]`` has changed (*without* being re-executed):
 
 .. image:: /_images/notebook_comms5.png
     :scale: 50 %
     :align: center
+    :alt:
 
 See the following notebooks for more detailed examples of notebook handle use:
 
@@ -270,7 +279,7 @@ notebook below:
 .. image:: /_images/notebook_interactors.png
     :scale: 50 %
     :align: center
-
+    :alt:
 
 .. |bokeh.io| replace:: :ref:`bokeh.io <bokeh.io>`
 

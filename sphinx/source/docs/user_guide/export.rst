@@ -133,6 +133,7 @@ Usage is similar to the |save| and |show| functions.
     export_png(plot, filename="plot.png")
 
 .. image:: /_images/unemployment.png
+    :alt:
 
 Image objects
 ~~~~~~~~~~~~~
@@ -207,6 +208,7 @@ You can export an SVG plot in several ways:
     was.
 
 .. image:: /_images/unemployment.svg
+    :alt:
 
 .. |export|          replace:: :func:`~bokeh.io.export`
 .. |export_png|      replace:: :func:`~bokeh.io.export_png`

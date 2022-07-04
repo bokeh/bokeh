@@ -546,6 +546,7 @@ This a preview of what a stream of live data in Bokeh can look like using
 ``AjaxDataSource``:
 
 .. image:: /_images/ajax_streaming.gif
+    :alt:
 
 For the full example, see :bokeh-tree:`examples/howto/ajax_source.py` in Bokeh's
 GitHub repository.

@@ -88,8 +88,7 @@ This produces the following layout:
 .. image:: /_images/dashboard.png
     :width: 500px
     :height: 397px
-
-|
+    :alt:
 
 For complete code see :bokeh-tree:`examples/howto/layouts/dashboard.py`.
 

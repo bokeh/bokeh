@@ -26,7 +26,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/movies">
-          <img src="https://static.bokeh.org/movies_t.png" class="img-responsive img-thumbnail">
+          <img src="https://static.bokeh.org/movies_t.png" class="img-responsive img-thumbnail" alt=" ">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
@@ -36,7 +36,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/selection_histogram">
-            <img src="https://static.bokeh.org/selection_histogram_t.png" class="img-responsive img-thumbnail">
+            <img src="https://static.bokeh.org/selection_histogram_t.png" class="img-responsive img-thumbnail" alt=" ">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
@@ -47,7 +47,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/weather">
-            <img src="https://static.bokeh.org/weather_t.png" class="img-responsive img-thumbnail">
+            <img src="https://static.bokeh.org/weather_t.png" class="img-responsive img-thumbnail" alt=" ">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
@@ -57,7 +57,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/sliders">
-            <img src="https://static.bokeh.org/sliders_t.png" class="img-responsive img-thumbnail"></img>
+            <img src="https://static.bokeh.org/sliders_t.png" class="img-responsive img-thumbnail"></img alt=" ">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
@@ -67,7 +67,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/crossfilter">
-            <img src="https://static.bokeh.org/crossfilter_t.png" class="img-responsive img-thumbnail">
+            <img src="https://static.bokeh.org/crossfilter_t.png" class="img-responsive img-thumbnail" alt=" ">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
@@ -77,7 +77,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/gapminder">
-            <img src="https://static.bokeh.org/gapminder_t.png" class="img-responsive img-thumbnail"></img>
+            <img src="https://static.bokeh.org/gapminder_t.png" class="img-responsive img-thumbnail"></img alt=" ">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
@@ -87,7 +87,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/stocks">
-            <img src="https://static.bokeh.org/stocks_t.png" class="img-responsive img-thumbnail"></img>
+            <img src="https://static.bokeh.org/stocks_t.png" class="img-responsive img-thumbnail"></img alt=" ">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
@@ -97,7 +97,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/surface3d">
-            <img src="https://static.bokeh.org/surface3d_t.png" class="img-responsive img-thumbnail"></img>
+            <img src="https://static.bokeh.org/surface3d_t.png" class="img-responsive img-thumbnail"></img alt=" ">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
@@ -107,7 +107,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/export_csv">
-            <img src="https://static.bokeh.org/export_csv_t.png" class="img-responsive img-thumbnail">
+            <img src="https://static.bokeh.org/export_csv_t.png" class="img-responsive img-thumbnail" alt=" ">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
