@@ -1,4 +1,4 @@
-import {ScanningColorMapper} from "./scanning_color_mapper"
+import {ScanningColorMapper, ScanningScanData} from "./scanning_color_mapper"
 import {Arrayable} from "core/types"
 import {min, max, bin_counts, interpolate} from "core/util/arrayable"
 import {linspace, cumsum} from "core/util/array"
@@ -30,7 +30,7 @@ export class EqHistColorMapper extends ScanningColorMapper {
   }
 
   // Public for unit tests
-  /*protected*/ scan(data: Arrayable<number>, n: number): {min: number, max: number, binning: Arrayable<number>} {
+  /*protected*/ scan(data: Arrayable<number>, n: number): ScanningScanData {
     let low = this.low != null ? this.low : min(data)
     const high = this.high != null ? this.high : max(data)
 

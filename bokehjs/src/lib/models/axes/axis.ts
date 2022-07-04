@@ -90,7 +90,7 @@ export class AxisView extends GuideRendererView {
 
   get is_renderable(): boolean {
     const [range, cross_range] = this.ranges
-    return range.is_valid && cross_range.is_valid
+    return range.is_valid && cross_range.is_valid && range.span > 0 && cross_range.span > 0
   }
 
   protected _render(): void {

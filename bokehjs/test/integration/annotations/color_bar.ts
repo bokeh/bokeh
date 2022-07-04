@@ -1,13 +1,14 @@
-import {display, fig} from "../_util"
+import {display, fig, column} from "../_util"
 
 import {
-  ColorBar, LinearAxis,
+  ColorBar, LinearAxis, Plot, Column,
   ColorMapper, LinearColorMapper, LogColorMapper, EqHistColorMapper, CategoricalColorMapper,
 } from "@bokehjs/models"
 
 import {Random} from "@bokehjs/core/util/random"
 import {range} from "@bokehjs/core/util/array"
 import {Side} from "@bokehjs/core/enums"
+import {np} from "@bokehjs/api/linalg"
 import {Spectral11} from "@bokehjs/api/palettes"
 
 describe("ColorBar annotation", () => {
@@ -395,5 +396,47 @@ describe("ColorBar annotation", () => {
     p.add_layout(color_bar, "below")
 
     await display(p)
+  })
+
+  describe("should support cutoffs", () => {
+    function make_plot(color_mapper: ColorMapper, title: string, low_cutoff: number | null, high_cutoff: number | null): Plot {
+      const color_bar = new ColorBar({color_mapper, low_cutoff, high_cutoff, title, bar_line_color: "black"})
+      const x = np.arange(11)
+      const values = np.linspace(10, 100, 11)
+
+      const p = fig([300, 150])
+      p.circle({x, y: 0, size: 15, fill_color: {field: "values", transform: color_mapper}, source: {values}})
+      p.add_layout(color_bar, "below")
+
+      return p
+    }
+
+    function make_cutoff_plots(low_cutoff: number | null, high_cutoff: number | null): Column {
+      const palette = Spectral11
+      const p0 = make_plot(new LinearColorMapper({palette}), "linear", low_cutoff, high_cutoff)
+      const p1 = make_plot(new LogColorMapper({palette}), "log", low_cutoff, high_cutoff)
+      const p2 = make_plot(new EqHistColorMapper({palette}), "eq hist", low_cutoff, high_cutoff)
+      return column([p0, p1, p2])
+    }
+
+    it("low only", async () => {
+      await display(make_cutoff_plots(40, null))
+    })
+
+    it("high only", async () => {
+      await display(make_cutoff_plots(null, 80))
+    })
+
+    it("low and high", async () => {
+      await display(make_cutoff_plots(40, 80))
+    })
+
+    it("out of bounds", async () => {
+      await display(make_cutoff_plots(200, null))
+    })
+
+    it("wrong way round", async () => {
+      await display(make_cutoff_plots(80, 40))
+    })
   })
 })

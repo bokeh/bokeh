@@ -1,6 +1,7 @@
 import {ContinuousColorMapper} from "./continuous_color_mapper"
 import {Arrayable} from "core/types"
 import {min, max} from "core/util/arrayable"
+import {clamp} from "core/util/math"
 import * as p from "core/properties"
 
 export namespace LinearColorMapper {
@@ -35,22 +36,21 @@ export class LinearColorMapper extends ContinuousColorMapper {
     return {max: high, min: low, norm_factor, normed_interval}
   }
 
-  protected cmap<T>(d: number, palette: Arrayable<T>, low_color: T, high_color: T, scan_data: LinearScanData): T {
-    // This handles the edge case where d == high, since the code below maps
-    // values exactly equal to high to palette.length, which is greater than
-    // max_key
-    const max_key = palette.length - 1
-    if (d == scan_data.max) {
-      return palette[max_key]
-    }
+  override index_to_value(index: number): number {
+    const scan_data = this._scan_data as LinearScanData
+    return scan_data.min + scan_data.normed_interval*index / scan_data.norm_factor
+  }
 
-    const normed_d = (d - scan_data.min) * scan_data.norm_factor
-    const key = Math.floor(normed_d / scan_data.normed_interval)
-    if (key < 0)
-      return low_color
-    else if (key > max_key)
-      return high_color
-    else
-      return palette[key]
+  override value_to_index(value: number, palette_length: number): number {
+    const scan_data = this._scan_data as LinearScanData
+
+    // This handles the edge case where value == high, since the code below maps
+    // values exactly equal to high to palette.length when it should be one less.
+    if (value == scan_data.max)
+      return palette_length - 1
+
+    const normed_value = (value - scan_data.min) * scan_data.norm_factor
+    const index = Math.floor(normed_value / scan_data.normed_interval)
+    return clamp(index, -1, palette_length)
   }
 }

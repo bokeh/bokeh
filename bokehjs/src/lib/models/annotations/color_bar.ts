@@ -10,6 +10,7 @@ import {Ticker} from "../tickers/ticker"
 import {BasicTicker, LogTicker, BinnedTicker, CategoricalTicker} from "../tickers"
 import * as p from "core/properties"
 import {Layoutable} from "core/layout"
+import {Arrayable} from "core/types"
 import {range, reversed} from "core/util/array"
 import {unreachable} from "core/util/assert"
 import {BBox} from "core/util/bbox"
@@ -19,11 +20,14 @@ export class ColorBarView extends BaseColorBarView {
   override model: ColorBar
   override layout: Layoutable
 
-  protected _image: HTMLCanvasElement
+  protected _image: HTMLCanvasElement | null
+
+  // Indices of displayed colors corresponding to low and high cutoffs.
+  protected _low_index: number | null
+  protected _high_index: number | null
 
   override connect_signals(): void {
     super.connect_signals()
-
     this.connect(this.model.properties.color_mapper.change, async () => {
       this._title_view.remove()
       this._axis_view.remove()
@@ -31,25 +35,9 @@ export class ColorBarView extends BaseColorBarView {
       await this.lazy_initialize()
       this.plot_view.invalidate_layout()
     })
-    this.connect(this.model.color_mapper.metrics_change, () => {
-      const range = this._major_range
-      const scale = this._major_scale
-
-      const {color_mapper} = this.model
-
-      if (color_mapper instanceof ContinuousColorMapper && range instanceof Range1d) {
-        const {min, max} = color_mapper.metrics
-        range.setv({start: min, end: max})
-      }
-
-      if (color_mapper instanceof ScanningColorMapper && scale instanceof LinearInterpolationScale) {
-        const {binning} = color_mapper.metrics
-        scale.binning = binning
-      }
-
-      this._set_canvas_image()
-      this.plot_view.request_layout() // this.request_render()
-    })
+    this.connect(this.model.color_mapper.metrics_change, () => this._metrics_changed())
+    this.connect(this.model.properties.low_cutoff.change, () => this._metrics_changed())
+    this.connect(this.model.properties.high_cutoff.change, () => this._metrics_changed())
   }
 
   override update_layout(): void {
@@ -94,9 +82,10 @@ export class ColorBarView extends BaseColorBarView {
 
     if (color_mapper instanceof CategoricalColorMapper)
       return new FactorRange({factors: color_mapper.factors})
-    else if (color_mapper instanceof ContinuousColorMapper)
-      return new Range1d({start: color_mapper.metrics.min, end: color_mapper.metrics.max})
-    else
+    else if (color_mapper instanceof ContinuousColorMapper) {
+      const {min, max} = this._continuous_metrics(color_mapper)
+      return new Range1d({start: min, end: max})
+    } else
       unreachable()
   }
 
@@ -108,7 +97,7 @@ export class ColorBarView extends BaseColorBarView {
     else if (color_mapper instanceof LogColorMapper)
       return new LogScale()
     else if (color_mapper instanceof ScanningColorMapper)
-      return new LinearInterpolationScale({binning: color_mapper.metrics.binning})
+      return new LinearInterpolationScale({binning: this._scanning_binning(color_mapper)})
     else if (color_mapper instanceof CategoricalColorMapper)
       return new CategoricalScale()
     else
@@ -128,16 +117,83 @@ export class ColorBarView extends BaseColorBarView {
       return new BasicTicker()
   }
 
+  // Return min and max metrics of ContinuousColorMapper, modified to account for low and high cutoffs.
+  protected _continuous_metrics(color_mapper: ContinuousColorMapper): {min: number, max: number} {
+    const {low_cutoff, high_cutoff} = this.model
+    let {min, max} = color_mapper.metrics
+
+    if (high_cutoff != null && low_cutoff != null && high_cutoff < low_cutoff) {
+      // Empty color bar.
+      this._low_index = 0
+      this._high_index = -1
+      return {min: NaN, max: NaN}
+    }
+
+    this._high_index = null
+    if (high_cutoff != null) {
+      const palette_length = color_mapper.palette.length
+      const high_index = color_mapper.value_to_index(high_cutoff, palette_length)
+      if (high_index < palette_length-1) {
+        this._high_index = high_index
+        max = color_mapper.index_to_value(high_index+1)
+      }
+    }
+
+    this._low_index = null
+    if (low_cutoff != null) {
+      const low_index = color_mapper.value_to_index(low_cutoff, color_mapper.palette.length)
+      if (low_index > 0) {
+        this._low_index = low_index
+        min = color_mapper.index_to_value(low_index)
+      }
+    }
+
+    return {min, max}
+  }
+
   override _get_major_size_factor(): number | null {
     return this.model.color_mapper.palette.length
+  }
+
+  protected _metrics_changed(): void {
+    const range = this._major_range
+    const scale = this._major_scale
+
+    const {color_mapper} = this.model
+
+    if (color_mapper instanceof ScanningColorMapper && scale instanceof LinearInterpolationScale) {
+      const binning = this._scanning_binning(color_mapper)
+      scale.binning = binning
+
+      // Update the frame's LinearInterpolationScale and Range1d as they are
+      // different objects to this._major_scale and this._major_range.
+      const frame_y_scale = this._frame.y_scale
+      if (frame_y_scale instanceof LinearInterpolationScale) {
+        frame_y_scale.binning = binning
+
+        const frame_y_range = this._frame.y_range
+        if (frame_y_range instanceof Range1d) {
+          frame_y_range.start = binning[0]
+          frame_y_range.end = binning[binning.length-1]
+        }
+      }
+    } else if (color_mapper instanceof ContinuousColorMapper && range instanceof Range1d) {
+      const {min, max} = this._continuous_metrics(color_mapper)
+      range.setv({start: min, end: max})
+    }
+
+    this._set_canvas_image()
+    this.plot_view.request_layout() // this.request_render()
   }
 
   override _paint_colors(ctx: Context2d, bbox: BBox): void {
     const {x, y, width, height} = bbox
     ctx.save()
-    ctx.setImageSmoothingEnabled(false)
     ctx.globalAlpha = this.model.scale_alpha
-    ctx.drawImage(this._image, x, y, width, height)
+    if (this._image != null) {
+      ctx.setImageSmoothingEnabled(false)
+      ctx.drawImage(this._image, x, y, width, height)
+    }
     if (this.visuals.bar_line.doit) {
       this.visuals.bar_line.set_value(ctx)
       ctx.strokeRect(x, y, width, height)
@@ -145,16 +201,69 @@ export class ColorBarView extends BaseColorBarView {
     ctx.restore()
   }
 
+  // Return binning array of ScanningColorMapper, modified to account for low and high cutoffs.
+  protected _scanning_binning(color_mapper: ScanningColorMapper): Arrayable<number> {
+    let {binning} = color_mapper.metrics
+    const {low_cutoff, high_cutoff} = this.model
+
+    if (high_cutoff != null && low_cutoff != null && high_cutoff < low_cutoff) {
+      // Empty color bar.
+      this._low_index = 0
+      this._high_index = -1
+      return [NaN]
+    }
+
+    this._high_index = null
+    if (high_cutoff != null) {
+      const high_index = color_mapper.value_to_index(high_cutoff, binning.length)
+      if (high_index < binning.length-1)
+        this._high_index = high_index
+    }
+
+    this._low_index = null
+    if (low_cutoff != null) {
+      const low_index = color_mapper.value_to_index(low_cutoff, binning.length)
+      if (low_index > 0) {
+        this._low_index = low_index
+      }
+    }
+
+    if (this._low_index != null || this._high_index != null) {
+      // Slice binning array.
+      const start = this._low_index != null ? this._low_index : 0
+      const end = this._high_index != null ? this._high_index + 1 : binning.length - 1
+      const n = end - start + 1
+      if (n > 0) {
+        const new_binning = new Array<number>(n)
+        for (let i = 0; i < n; i++)
+          new_binning[i] = binning[i + start]
+        binning = new_binning
+      } else
+        binning = [NaN]
+    }
+
+    return binning
+  }
+
   protected _set_canvas_image(): void {
     const {orientation} = this
 
-    const palette = (() => {
-      const {palette} = this.model.color_mapper
-      if (orientation == "vertical")
-        return reversed(palette)
-      else
-        return palette
-    })()
+    let {palette} = this.model.color_mapper
+
+    if (this._high_index != null || this._low_index != null) {
+      palette = palette.slice(
+        this._low_index != null ? this._low_index : 0,
+        this._high_index != null ? this._high_index + 1 : palette.length)
+    }
+
+    if (palette.length < 1) {
+      // Early exit for empty color bar.
+      this._image = null
+      return
+    }
+
+    if (orientation == "vertical")
+      palette = reversed(palette)
 
     const [w, h] = (() => {
       if (orientation == "vertical")
@@ -184,6 +293,8 @@ export namespace ColorBar {
 
   export type Props = BaseColorBar.Props & {
     color_mapper: p.Property<ColorMapper>
+    low_cutoff: p.Property<number | null>
+    high_cutoff: p.Property<number | null>
   }
 }
 
@@ -200,8 +311,10 @@ export class ColorBar extends BaseColorBar {
   static {
     this.prototype.default_view = ColorBarView
 
-    this.define<ColorBar.Props>(({Ref}) => ({
+    this.define<ColorBar.Props>(({Nullable, Number, Ref}) => ({
       color_mapper: [ Ref(ColorMapper) ],
+      low_cutoff:   [ Nullable(Number), null ],
+      high_cutoff:  [ Nullable(Number), null ],
     }))
   }
 }
