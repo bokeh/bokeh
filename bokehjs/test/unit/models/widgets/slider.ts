@@ -43,6 +43,20 @@ describe("RangeSlider", () => {
   })
 })
 
+describe("DateSliderView", () => {
+  it("should convert steps from 1 day in the model to 86_400_000 milliseconds in the slider element", async () => {
+    const start = 1451606400000 // 01 Jan 2016
+    const end = 1451952000000 // 05 Jan 2016
+    const value = 1451779200000 // 03 Jan 2016
+    const slider = new DateSlider({start, end, value, step: 1})
+    const view = (await build_view(slider)).build()
+
+    const [next_step] = view._steps()
+
+    expect(next_step).to.be.equal([86_400_000, 86_400_000])
+  })
+})
+
 describe("DateSlider", () => {
   it("should support string format", () => {
     const slider = new DateSlider({format: "%Y"})
