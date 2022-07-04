@@ -295,7 +295,7 @@ class DateRangeSlider(AbstractSlider):
     """)
 
     step = Int(default=1, help="""
-    The step between consecutive values.
+    The step between consecutive values, in units of days.
     """)
 
     format = Override(default="%d %b %Y")

@@ -143,7 +143,7 @@ DateRangeSlider
 ~~~~~~~~~~~~~~~
 
 The Bokeh date range-slider can be configured with ``start`` and ``end`` date
-values, a ``step`` size, an initial ``value``, and a ``title``:
+values, a ``step`` size in units of days, an initial ``value``, and a ``title``:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_daterangeslider.py
     :source-position: below
