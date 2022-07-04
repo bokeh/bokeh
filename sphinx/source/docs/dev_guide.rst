@@ -42,50 +42,53 @@ To work with Bokeh's code and documentation, you first need to
 
 You can then contribute to Bokeh's codebase in many ways:
 
-.. .. panels::
+.. grid:: 1 1 2 2
 
-..     Bokeh's Python codebase
-..     ^^^^^^^^^^^^^^^^^^^^^^^
-..     If you would like to help with Bokeh's Python code:
+    .. grid-item-card::
 
-..     * :ref:`contributor_guide_python`
-..     * :ref:`contributor_guide_testing`
-..     * :ref:`contributor_guide_writing_tests`
-..     * :ref:`contributor_guide_issues`
-..     * :ref:`contributor_guide_pull_requests`
+        Bokeh's Python codebase
+        ^^^
+        If you would like to help with Bokeh's Python code:
 
-..     ---
+        * :ref:`contributor_guide_python`
+        * :ref:`contributor_guide_testing`
+        * :ref:`contributor_guide_writing_tests`
+        * :ref:`contributor_guide_issues`
+        * :ref:`contributor_guide_pull_requests`
 
-..     BokehJS (TypeScript)
-..     ^^^^^^^^^^^^^^^^^^^^
-..     If you would like to help with anything related to :term:`BokehJS`:
+    .. grid-item-card::
 
-..     * :ref:`contributor_guide_bokehjs`
-..     * :ref:`contributor_guide_testing`
-..     * :ref:`contributor_guide_writing_tests`
-..     * :ref:`contributor_guide_issues`
-..     * :ref:`contributor_guide_pull_requests`
-..     ---
+        BokehJS (TypeScript)
+        ^^^
+        If you would like to help with anything related to :term:`BokehJS`:
 
-..     Bokeh Server
-..     ^^^^^^^^^^^^
-..     If you would like to help with the :term:`Server` component of Bokeh:
+        * :ref:`contributor_guide_bokehjs`
+        * :ref:`contributor_guide_testing`
+        * :ref:`contributor_guide_writing_tests`
+        * :ref:`contributor_guide_issues`
+        * :ref:`contributor_guide_pull_requests`
 
-..     * :ref:`contributor_guide_server`
-..     * :ref:`contributor_guide_testing`
-..     * :ref:`contributor_guide_writing_tests`
-..     * :ref:`contributor_guide_issues`
-..     * :ref:`contributor_guide_pull_requests`
-..     ---
+    .. grid-item-card::
 
-..     Bokeh documentation
-..     ^^^^^^^^^^^^^^^^^^^
-..     If you would like to help improving :ref:`Bokeh's documentation <about>`:
+        Bokeh Server
+        ^^^
+        If you would like to help with the :term:`Server` component of Bokeh:
 
-..     * :ref:`contributor_guide_documentation`
-..     * :ref:`contributor_guide_issues`
-..     * :ref:`contributor_guide_pull_requests`
+        * :ref:`contributor_guide_server`
+        * :ref:`contributor_guide_testing`
+        * :ref:`contributor_guide_writing_tests`
+        * :ref:`contributor_guide_issues`
+        * :ref:`contributor_guide_pull_requests`
 
+    .. grid-item-card::
+
+        Bokeh documentation
+        ^^^
+        If you would like to help improving :ref:`Bokeh's documentation <about>`:
+
+        * :ref:`contributor_guide_documentation`
+        * :ref:`contributor_guide_issues`
+        * :ref:`contributor_guide_pull_requests`
 
 .. _contributor_guide_resources:
 

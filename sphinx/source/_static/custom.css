@@ -57,9 +57,13 @@ img.image-border {
   font-size: 110%;
 }
 
-/* Thumbnails on the main index page */
-.bokeh-examples {
-  padding: 0;
+/* Tweak sphinx-design cards */
+.sd-container-fluid div {
+  margin-bottom: 15px;
+}
+.bokeh-examples div {
+  padding: 0px;
+  margin: 0px;
 }
 .bokeh-examples img {
   width: 100%;

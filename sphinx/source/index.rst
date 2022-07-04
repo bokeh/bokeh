@@ -73,7 +73,7 @@ You can also find more information about Bokeh on `Twitter`_, `Medium`_, and
 `LinkedIn`_.
 
 
-.. grid:: 2 4 3 12
+.. grid:: 3 4 6 12
     :class-container: bokeh-examples
 
     .. grid-item::
