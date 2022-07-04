@@ -9,11 +9,12 @@ export class DateRangeSliderView extends AbstractRangeSliderView {
   override model: DateRangeSlider
 
   protected override _calc_to(): SliderSpec {
+    const {start, end, value, step} = this.model
     return {
-      start: this.model.start,
-      end: this.model.end,
-      value: this.model.value,
-      step: this.model.step * 86_400_000,
+      start,
+      end,
+      value,
+      step: step * 86_400_000,
     }
   }
 
