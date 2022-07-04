@@ -54,8 +54,8 @@ _DEFAULT_CONTOUR_FILL_RENDERER = lambda: GlyphRenderer(
 )
 
 class ContourRenderer(DataRenderer):
-    '''
-    Renderer for contour plots composed of filled polygons and/or lines.
+    ''' Renderer for contour plots composed of filled polygons and/or lines.
+
     Rather than create these manually it is usually better to use
     ``figure.contour`` instead.
     '''
@@ -102,13 +102,19 @@ class ContourRenderer(DataRenderer):
         else:
             super().__setattr__(name, value)
 
-    def color_bar(self) -> ContourColorBar:
-        # Should accept other kwargs and pass them through?
+    def construct_color_bar(self, **kwargs) -> ContourColorBar:
+        ''' Construct and return a new ``ContourColorBar`` for this ``ContourRenderer``.
+
+        The color bar will use the same fill, hatch and line visual properties
+        as the ContourRenderer. Extra keyword arguments may be passed in to
+        control ``BaseColorBar`` properties such as `title`.
+        '''
         return ContourColorBar(
             fill_renderer=self.fill_renderer,
             line_renderer=self.line_renderer,
             levels=self.levels,
             ticker=FixedTicker(ticks=self.levels),
+            **kwargs,
         )
 
 #-----------------------------------------------------------------------------

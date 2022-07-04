@@ -22,7 +22,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
-    Optional,
+    List,
     Sequence,
     Tuple,
     Union,
@@ -39,6 +39,14 @@ from ..models.glyphs import MultiLine, MultiPolygons
 from ..models.sources import ColumnDataSource
 from ..palettes import linear_palette
 from ..plotting._renderer import _process_sequence_literals
+from ..util.dataclasses import dataclass
+
+if TYPE_CHECKING:
+    from ..palettes import Palette, PaletteCollection
+    from ..transform import ColorLike
+
+    ContourColor: Union[ColorLike, Sequence[ColorLike]]
+    ContourColorOrPalette: Union[ContourColor, Palette, PaletteCollection, ContourColor]
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -57,45 +65,38 @@ def contour_data(
     x: ArrayLike | None = None,
     y: ArrayLike | None = None,
     z: ArrayLike | np.ma.MaskedArray | None = None,
-    levels: Sequence[float] = [],
+    levels: ArrayLike | None = None,
     *,
     want_fill: bool = True,
     want_line: bool = True,
-) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
-    '''
-    Return the contour data of filled and/or line contours that can be used to set
-    ContourRenderer.data
+) -> Tuple[Dict[str, Any] | None, Dict[str, Any] | None]:
+    ''' Return the contour data of filled and/or line contours that can be
+    used to set ContourRenderer.data
     '''
     levels = _validate_levels(levels)
     if len(levels) < 2:
         want_fill = False
 
     if not want_fill and not want_line:
-        raise RuntimeError("Neither fill nor line requested in contour_data")
+        raise ValueError("Neither fill nor line requested in contour_data")
 
-    fill_coords, line_coords = _contour_coords(x, y, z, levels, want_fill, want_line)
+    coords = _contour_coords(x, y, z, levels, want_fill, want_line)
 
     fill_data = None
-    if fill_coords:
-        xs, ys = fill_coords
-        fill_data = dict(xs=xs, ys=ys, lower_levels=levels[:-1], upper_levels=levels[1:])
+    if coords.fill:
+        fill_data = dict(xs=coords.fill.xs, ys=coords.fill.ys, lower_levels=levels[:-1], upper_levels=levels[1:])
 
     line_data = None
-    if line_coords:
-        xs, ys = line_coords
-        line_data = dict(xs=xs, ys=ys, levels=levels)
+    if coords.line:
+        line_data = dict(xs=coords.line.xs, ys=coords.line.ys, levels=levels)
 
     return fill_data, line_data
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
 def from_contour(
     x: ArrayLike | None = None,
     y: ArrayLike | None = None,
     z: ArrayLike | np.ma.MaskedArray | None = None,
-    levels: Sequence[float] = [],
+    levels: ArrayLike | None = None,
     **visuals,  # This is union of LineProps, FillProps and HatchProps
 ) -> ContourRenderer:
     # Don't call this directly, use figure.contour instead.
@@ -168,12 +169,47 @@ def from_contour(
 # Private API
 #-----------------------------------------------------------------------------
 
-if TYPE_CHECKING:
-    from ..palettes import Palette, PaletteCollection
-    from ..transform import ColorLike
+@dataclass
+class SingleFillCoords:
+    ''' Coordinates for filled contour polygons between a lower and upper level.
 
-    ContourColor: Union[ColorLike, Sequence[ColorLike]]
-    ContourColorOrPalette: Union[ContourColor, Palette, PaletteCollection, ContourColor]
+    The first list contains a list for each polygon. The second list contains
+    a separate NumPy array for each boundary of that polygon; the first array
+    is always the outer boundary, subsequent arrays are holes.
+    '''
+    xs: List[List[np.ndarray]]
+    ys: List[List[np.ndarray]]
+
+@dataclass
+class SingleLineCoords:
+    ''' Coordinates for contour lines at a single contour level.
+
+    The x and y coordinates are stored in a single NumPy array each, with a
+    np.nan separating each line.
+    '''
+    xs: np.ndarray
+    ys: np.ndarray
+
+@dataclass
+class AllFillCoords:
+    ''' Coordinates for all filled polygons over a whole sequence of contour levels.
+    '''
+    xs: List[List[List[np.ndarray]]]
+    ys: List[List[List[np.ndarray]]]
+
+@dataclass
+class AllLineCoords:
+    ''' Coordinates for all contour lines over a whole sequence of contour levels.
+    '''
+    xs: List[np.ndarray]
+    ys: List[np.ndarray]
+
+@dataclass
+class ContourCoords:
+    ''' Combined filled and line contours over a whole sequence of contour levels.
+    '''
+    fill: AllFillCoords | None
+    line: AllLineCoords | None
 
 def _color(color: ContourColorOrPalette, n: int) -> ContourColor:
     # Dict to sequence of colors such as palettes.cividis
@@ -194,15 +230,15 @@ def _contour_coords(
     x: ArrayLike | None,
     y: ArrayLike | None,
     z: ArrayLike | np.ma.MaskedArray | None,
-    levels: Sequence[float],
+    levels: ArrayLike,
     want_fill: bool,
     want_line: bool,
-) -> Tuple[Optional[Tuple[np.ndarray, np.ndarray]], Optional[Tuple[np.ndarray, np.ndarray]]]:
+) -> ContourCoords:
     '''
     Return the (xs, ys) coords of filled and/or line contours.
     '''
     if not want_fill and not want_line:
-        raise RuntimeError("Neither fill nor line requested in contour_coords")
+        raise RuntimeError("Neither fill nor line requested in _contour_coords")
 
     from contourpy import FillType, LineType, contour_generator
     cont_gen = contour_generator(x, y, z, line_type=LineType.ChunkCombinedOffset, fill_type=FillType.OuterOffset)
@@ -213,10 +249,10 @@ def _contour_coords(
         all_ys = []
         for i in range(len(levels)-1):
             filled = cont_gen.filled(levels[i], levels[i+1])
-            xs, ys = _filled_to_xs_and_ys(filled)
-            all_xs.append(xs)
-            all_ys.append(ys)
-        fill_coords = (all_xs, all_ys)
+            coords = _filled_to_coords(filled)
+            all_xs.append(coords.xs)
+            all_ys.append(coords.ys)
+        fill_coords = AllFillCoords(all_xs, all_ys)
 
     line_coords = None
     if want_line:
@@ -224,17 +260,18 @@ def _contour_coords(
         all_ys = []
         for level in levels:
             lines = cont_gen.lines(level)
-            xs, ys = _lines_to_xs_and_ys(lines)
-            all_xs.append(xs)
-            all_ys.append(ys)
-        line_coords = (all_xs, all_ys)
+            coords = _lines_to_coords(lines)
+            all_xs.append(coords.xs)
+            all_ys.append(coords.ys)
+        line_coords = AllLineCoords(all_xs, all_ys)
 
-    return fill_coords, line_coords
+    return ContourCoords(fill_coords, line_coords)
 
-def _filled_to_xs_and_ys(filled):
+def _filled_to_coords(filled) -> SingleFillCoords:
     # Processes polygon data returned from a single call to
     # contourpy.ContourGenerator.filled(lower_level, upper_level)
     # ContourPy filled data format is FillType.OuterOffset.
+    # 'filled' type awaits type annotations in contourpy.
     xs = []
     ys = []
     for points, offsets in zip(*filled):
@@ -242,15 +279,17 @@ def _filled_to_xs_and_ys(filled):
         n = len(offsets) - 1
         xs.append([points[offsets[i]:offsets[i+1], 0] for i in range(n)])
         ys.append([points[offsets[i]:offsets[i+1], 1] for i in range(n)])
-    return xs, ys
+    return SingleFillCoords(xs, ys)
 
-def _lines_to_xs_and_ys(lines):
+def _lines_to_coords(lines) -> SingleLineCoords:
     # Processes line data returned from a single call to
     # contourpy.ContourGenerator.lines(level).
     # ContourPy line data format is LineType.ChunkCombinedOffset.
+    # 'lines' type awaits type annotations in contourpy.
     points = lines[0][0]
     if points is None:
-        return [], []
+        empty = np.empty(0)
+        return SingleLineCoords(empty, empty)
 
     offsets = lines[1][0]
     npoints = len(points)
@@ -266,9 +305,9 @@ def _lines_to_xs_and_ys(lines):
             ys[start+i-1] = np.nan
         xs[start+i:end+i] = points[start:end, 0]
         ys[start+i:end+i] = points[start:end, 1]
-    return xs, ys
+    return SingleLineCoords(xs, ys)
 
-def _validate_levels(levels: Sequence[float] | None):
+def _validate_levels(levels: ArrayLike | None):
     levels = np.asarray(levels)
     if len(levels) == 0:
         raise ValueError("No contour levels specified")

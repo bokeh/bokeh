@@ -238,6 +238,9 @@ class ColorBar(BaseColorBar):
 class ContourColorBar(BaseColorBar):
     ''' Color bar used for contours.
 
+    Supports displaying hatch patterns and line styles that contour plots may
+    have as well as the usual fill styles.
+
     Do not create these objects manually, instead use ``ContourRenderer.color_bar``.
 
     '''

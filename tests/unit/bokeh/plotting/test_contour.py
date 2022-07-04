@@ -203,7 +203,7 @@ class Test_from_contour:
 def test_contour_colorbar(xyz_levels):
     x, y, z, levels = xyz_levels
     cr = from_contour(x, y, z, levels, fill_color="red", line_color="black")
-    color_bar = cr.color_bar()
+    color_bar = cr.construct_color_bar()
     assert color_bar.levels == levels
     assert color_bar.fill_renderer == cr.fill_renderer
     assert color_bar.line_renderer == cr.line_renderer

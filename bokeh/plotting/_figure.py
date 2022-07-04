@@ -17,6 +17,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+import numpy as np
+from numpy.typing import ArrayLike
+
 # Bokeh imports
 from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
 from ..core.properties import (
@@ -57,7 +61,7 @@ from ._graph import get_graph_kwargs
 from ._plot import get_range, get_scale, process_axis_and_grid
 from ._stack import double_stack, single_stack
 from ._tools import process_active_tools, process_tools_arg
-from .contour import from_contour
+from .contour import ContourRenderer, from_contour
 from .glyph_api import _MARKER_SHORTCUTS, GlyphAPI
 
 #-----------------------------------------------------------------------------
@@ -649,7 +653,14 @@ class figure(Plot, GlyphAPI):
         self.renderers.append(graph_renderer)
         return graph_renderer
 
-    def contour(self, x=None, y=None, z=None, levels=[], **visuals):
+    def contour(
+        self,
+        x: ArrayLike | None = None,
+        y: ArrayLike | None = None,
+        z: ArrayLike | np.ma.MaskedArray | None = None,
+        levels: ArrayLike | None = None,
+        **visuals,
+    ) -> ContourRenderer:
         ''' Creates a contour plot of filled polygons and/or contour lines.
 
         Filled contour polygons are calculated if ``fill_color`` is set,
