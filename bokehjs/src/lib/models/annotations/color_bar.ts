@@ -61,27 +61,23 @@ export class ColorBarView extends BaseColorBarView {
   override _create_axis(): Axis {
     const {color_mapper} = this.model
 
-    switch (true) {
-      case color_mapper instanceof CategoricalColorMapper:
-        return new CategoricalAxis()
-      case color_mapper instanceof LogColorMapper:
-        return new LogAxis()
-      default:
-        return new LinearAxis()
-    }
+    if (color_mapper instanceof CategoricalColorMapper)
+      return new CategoricalAxis()
+    else if (color_mapper instanceof LogColorMapper)
+      return new LogAxis()
+    else
+      return new LinearAxis()
   }
 
   override _create_formatter(): TickFormatter {
     const {color_mapper} = this.model
 
-    switch (true) {
-      case this._ticker instanceof LogTicker:
-        return new LogTickFormatter()
-      case color_mapper instanceof CategoricalColorMapper:
-        return new CategoricalTickFormatter()
-      default:
-        return new BasicTickFormatter()
-    }
+    if (this._ticker instanceof LogTicker)
+      return new LogTickFormatter()
+    else if (color_mapper instanceof CategoricalColorMapper)
+      return new CategoricalTickFormatter()
+    else
+      return new BasicTickFormatter()
   }
 
   override _create_major_range(): Range {
@@ -96,49 +92,43 @@ export class ColorBarView extends BaseColorBarView {
     */
     const {color_mapper} = this.model
 
-    switch (true) {
-      case color_mapper instanceof CategoricalColorMapper:
-        const {factors} = color_mapper as CategoricalColorMapper
+    if (color_mapper instanceof CategoricalColorMapper) {
+      const {factors} = color_mapper as CategoricalColorMapper
         return new FactorRange({factors})
-      case color_mapper instanceof ContinuousColorMapper:
-        const {min, max} = (color_mapper as ContinuousColorMapper).metrics
-        return new Range1d({start: min, end: max})
-      default:
-        unreachable()
-    }
+    } else if (color_mapper instanceof ContinuousColorMapper) {
+      const {min, max} = (color_mapper as ContinuousColorMapper).metrics
+      return new Range1d({start: min, end: max})
+    } else
+      unreachable()
   }
 
   override _create_major_scale(): Scale {
     const {color_mapper} = this.model
 
-    switch (true) {
-      case color_mapper instanceof LinearColorMapper:
-        return new LinearScale()
-      case color_mapper instanceof LogColorMapper:
-        return new LogScale()
-      case color_mapper instanceof ScanningColorMapper:
-        const {binning} = (color_mapper as ScanningColorMapper).metrics
-        return new LinearInterpolationScale({binning})
-      case color_mapper instanceof CategoricalColorMapper:
-        return new CategoricalScale()
-      default:
-        unreachable()
-    }
+    if (color_mapper instanceof LinearColorMapper)
+      return new LinearScale()
+    else if (color_mapper instanceof LogColorMapper)
+      return new LogScale()
+    else if (color_mapper instanceof ScanningColorMapper) {
+      const {binning} = (color_mapper as ScanningColorMapper).metrics
+      return new LinearInterpolationScale({binning})
+    } else if (color_mapper instanceof CategoricalColorMapper)
+      return new CategoricalScale()
+    else
+      unreachable()
   }
 
   override _create_ticker(): Ticker {
     const {color_mapper} = this.model
 
-    switch (true) {
-      case color_mapper instanceof LogColorMapper:
-        return new LogTicker()
-      case color_mapper instanceof ScanningColorMapper:
-        return new BinnedTicker({mapper: color_mapper as ScanningColorMapper})
-      case color_mapper instanceof CategoricalColorMapper:
-        return new CategoricalTicker()
-      default:
-        return new BasicTicker()
-    }
+    if (color_mapper instanceof LogColorMapper)
+      return new LogTicker()
+    else if (color_mapper instanceof ScanningColorMapper)
+      return new BinnedTicker({mapper: color_mapper as ScanningColorMapper})
+    else if (color_mapper instanceof CategoricalColorMapper)
+      return new CategoricalTicker()
+    else
+      return new BasicTicker()
   }
 
   override _get_major_size_factor(): number | null {

@@ -79,7 +79,7 @@ class Test_contour_data:
 
     def test_neither(self, xyz_levels):
         _, _, z, levels = xyz_levels
-        with pytest.raises(RuntimeError):
+        with pytest.raises(ValueError, match="Neither fill nor line requested in contour_data"):
             contour_data(z=z, levels=levels, want_fill=False, want_line=False)
 
     def test_invalid_args(self):
@@ -146,7 +146,7 @@ class Test_from_contour:
 
     def test_neither(self, xyz_levels):
         _, _, z, levels = xyz_levels
-        with pytest.raises(RuntimeError):
+        with pytest.raises(ValueError, match="Neither fill nor line requested in contour_data"):
             from_contour(z=z, levels=levels)  # No fill_color or line_color specified
 
     def test_invalid_args(self, xyz_levels):

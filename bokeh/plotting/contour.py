@@ -20,11 +20,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import (
     TYPE_CHECKING,
-    Any,
     Dict,
     List,
     Sequence,
-    Tuple,
     Union,
 )
 
@@ -39,7 +37,7 @@ from ..models.glyphs import MultiLine, MultiPolygons
 from ..models.sources import ColumnDataSource
 from ..palettes import linear_palette
 from ..plotting._renderer import _process_sequence_literals
-from ..util.dataclasses import dataclass
+from ..util.dataclasses import dataclass, fields
 
 if TYPE_CHECKING:
     from ..palettes import Palette, PaletteCollection
@@ -61,6 +59,61 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+@dataclass(frozen=True)
+class FillCoords:
+    ''' Coordinates for all filled polygons over a whole sequence of contour levels.
+    '''
+    xs: List[List[List[np.ndarray]]]
+    ys: List[List[List[np.ndarray]]]
+
+@dataclass(frozen=True)
+class LineCoords:
+    ''' Coordinates for all contour lines over a whole sequence of contour levels.
+    '''
+    xs: List[np.ndarray]
+    ys: List[np.ndarray]
+
+@dataclass(frozen=True)
+class ContourCoords:
+    ''' Combined filled and line contours over a whole sequence of contour levels.
+    '''
+    fill_coords: FillCoords | None
+    line_coords: LineCoords | None
+
+@dataclass(frozen=True)
+class FillData(FillCoords):
+    ''' Complete geometry data for filled polygons over a whole sequence of contour levels.
+    '''
+    lower_levels: ArrayLike
+    upper_levels: ArrayLike
+
+    def asdict(self):
+        # Convert to dict using shallow copy.  dataclasses.asdict uses deep copy.
+        # Implementation as recommended in python dataclasses docs.
+        return dict((field.name, getattr(self, field.name)) for field in fields(self))
+
+@dataclass(frozen=True)
+class LineData(LineCoords):
+    ''' Complete geometry data for contour lines over a whole sequence of contour levels.
+    '''
+    levels: ArrayLike
+
+    def asdict(self):
+        # Convert to dict using shallow copy.  dataclasses.asdict uses deep copy.
+        # Implementation as recommended in python dataclasses docs.
+        return dict((field.name, getattr(self, field.name)) for field in fields(self))
+
+@dataclass(frozen=True)
+class ContourData:
+    ''' Complete geometry data for filled polygons and/or contour lines over a
+    whole sequence of contour levels.
+
+    ``contour_data`` returns an object of this class that is then passed to
+    ``ContourRenderer.set_data``.
+    '''
+    fill_data: FillData | None
+    line_data: LineData | None
+
 def contour_data(
     x: ArrayLike | None = None,
     y: ArrayLike | None = None,
@@ -69,9 +122,9 @@ def contour_data(
     *,
     want_fill: bool = True,
     want_line: bool = True,
-) -> Tuple[Dict[str, Any] | None, Dict[str, Any] | None]:
+) -> ContourData:
     ''' Return the contour data of filled and/or line contours that can be
-    used to set ContourRenderer.data
+    passed to ``ContourRenderer.set_data``.
     '''
     levels = _validate_levels(levels)
     if len(levels) < 2:
@@ -83,14 +136,16 @@ def contour_data(
     coords = _contour_coords(x, y, z, levels, want_fill, want_line)
 
     fill_data = None
-    if coords.fill:
-        fill_data = dict(xs=coords.fill.xs, ys=coords.fill.ys, lower_levels=levels[:-1], upper_levels=levels[1:])
+    if coords.fill_coords:
+        fill_coords = coords.fill_coords
+        fill_data = FillData(xs=fill_coords.xs, ys=fill_coords.ys, lower_levels=levels[:-1], upper_levels=levels[1:])
 
     line_data = None
-    if coords.line:
-        line_data = dict(xs=coords.line.xs, ys=coords.line.ys, levels=levels)
+    if coords.line_coords:
+        line_coords = coords.line_coords
+        line_data = LineData(xs=line_coords.xs, ys=line_coords.ys, levels=levels)
 
-    return fill_data, line_data
+    return ContourData(fill_data, line_data)
 
 def from_contour(
     x: ArrayLike | None = None,
@@ -138,11 +193,10 @@ def from_contour(
     new_contour_data = contour_data(x=x, y=y, z=z, levels=levels, want_fill=want_fill, want_line=want_line)
 
     # Will be other possibilities here like logarithmic....
-    contour_renderer = ContourRenderer(data=new_contour_data, levels=list(levels))
+    contour_renderer = ContourRenderer(levels=list(levels))
+    contour_renderer.set_data(new_contour_data)
 
-    fill_data, line_data = new_contour_data
-
-    if fill_data:
+    if new_contour_data.fill_data:
         glyph = contour_renderer.fill_renderer.glyph
         for name, value in visuals.items():
             setattr(glyph, name, value)
@@ -154,7 +208,7 @@ def from_contour(
         glyph.line_alpha = 0  # Don't display lines around fill.
         glyph.line_width = 0
 
-    if line_data:
+    if new_contour_data.line_data:
         glyph = contour_renderer.line_renderer.glyph
         for name, value in line_visuals.items():
             setattr(glyph, name, value)
@@ -169,7 +223,7 @@ def from_contour(
 # Private API
 #-----------------------------------------------------------------------------
 
-@dataclass
+@dataclass(frozen=True)
 class SingleFillCoords:
     ''' Coordinates for filled contour polygons between a lower and upper level.
 
@@ -180,7 +234,7 @@ class SingleFillCoords:
     xs: List[List[np.ndarray]]
     ys: List[List[np.ndarray]]
 
-@dataclass
+@dataclass(frozen=True)
 class SingleLineCoords:
     ''' Coordinates for contour lines at a single contour level.
 
@@ -189,27 +243,6 @@ class SingleLineCoords:
     '''
     xs: np.ndarray
     ys: np.ndarray
-
-@dataclass
-class AllFillCoords:
-    ''' Coordinates for all filled polygons over a whole sequence of contour levels.
-    '''
-    xs: List[List[List[np.ndarray]]]
-    ys: List[List[List[np.ndarray]]]
-
-@dataclass
-class AllLineCoords:
-    ''' Coordinates for all contour lines over a whole sequence of contour levels.
-    '''
-    xs: List[np.ndarray]
-    ys: List[np.ndarray]
-
-@dataclass
-class ContourCoords:
-    ''' Combined filled and line contours over a whole sequence of contour levels.
-    '''
-    fill: AllFillCoords | None
-    line: AllLineCoords | None
 
 def _color(color: ContourColorOrPalette, n: int) -> ContourColor:
     # Dict to sequence of colors such as palettes.cividis
@@ -252,7 +285,7 @@ def _contour_coords(
             coords = _filled_to_coords(filled)
             all_xs.append(coords.xs)
             all_ys.append(coords.ys)
-        fill_coords = AllFillCoords(all_xs, all_ys)
+        fill_coords = FillCoords(all_xs, all_ys)
 
     line_coords = None
     if want_line:
@@ -263,7 +296,7 @@ def _contour_coords(
             coords = _lines_to_coords(lines)
             all_xs.append(coords.xs)
             all_ys.append(coords.ys)
-        line_coords = AllLineCoords(all_xs, all_ys)
+        line_coords = LineCoords(all_xs, all_ys)
 
     return ContourCoords(fill_coords, line_coords)
 
@@ -309,7 +342,7 @@ def _lines_to_coords(lines) -> SingleLineCoords:
 
 def _validate_levels(levels: ArrayLike | None):
     levels = np.asarray(levels)
-    if len(levels) == 0:
+    if levels.ndim == 0 or len(levels) == 0:
         raise ValueError("No contour levels specified")
     if len(levels) > 1 and np.diff(levels).min() <= 0.0:
         raise ValueError("Contour levels must be increasing")

@@ -20,14 +20,19 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
 # Bokeh imports
 from ..core.properties import Float, Instance, Seq
-from ..core.types import Unknown
 from .annotations import ContourColorBar
 from .glyphs import MultiLine, MultiPolygons
 from .renderers import DataRenderer, GlyphRenderer
 from .sources import ColumnDataSource
 from .tickers import FixedTicker
+
+if TYPE_CHECKING:
+    from ..plotting.contour import ContourData
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -76,31 +81,30 @@ class ContourRenderer(DataRenderer):
     Levels at which the contours are calculated.
     """)
 
-    def __setattr__(self, name: str, value: Unknown) -> None:
-        if name == "data":
-            fill_data, line_data = value
-
-            if fill_data:
-                # Copy fill and hatch properties from old to new data source
-                old_fill_data = self.fill_renderer.data_source.data
-                for name in old_fill_data.keys():
-                    if name not in ("xs", "ys", "lower_levels", "upper_levels"):
-                        fill_data[name] = old_fill_data[name]
-                self.fill_renderer.data_source.data = fill_data
-            else:
-                self.fill_renderer.data_source.data = dict(xs=[], ys=[], lower_levels=[], upper_levels=[])
-
-            if line_data:
-                # Copy line properties from old to new data source
-                old_line_data = self.line_renderer.data_source.data
-                for name in old_line_data.keys():
-                    if name not in ("xs", "ys", "levels"):
-                        line_data[name] = old_line_data[name]
-                self.line_renderer.data_source.data = line_data
-            else:
-                self.line_renderer.data_source.data = dict(xs=[], ys=[], levels=[])
+    def set_data(self, data: ContourData) -> None:
+        if data.fill_data:
+            # Convert dataclass to dict to add new fields and put into CDS.
+            fill_data = data.fill_data.asdict()
+            # Copy fill and hatch properties from old to new data source
+            old_fill_data = self.fill_renderer.data_source.data
+            for name in old_fill_data.keys():
+                if name not in ("xs", "ys", "lower_levels", "upper_levels"):
+                    fill_data[name] = old_fill_data[name]
+            self.fill_renderer.data_source.data = fill_data
         else:
-            super().__setattr__(name, value)
+            self.fill_renderer.data_source.data = dict(xs=[], ys=[], lower_levels=[], upper_levels=[])
+
+        if data.line_data:
+            # Convert dataclass to dict to add new fields and put into CDS.
+            line_data = data.line_data.asdict()
+            # Copy line properties from old to new data source
+            old_line_data = self.line_renderer.data_source.data
+            for name in old_line_data.keys():
+                if name not in ("xs", "ys", "levels"):
+                    line_data[name] = old_line_data[name]
+            self.line_renderer.data_source.data = line_data
+        else:
+            self.line_renderer.data_source.data = dict(xs=[], ys=[], levels=[])
 
     def construct_color_bar(self, **kwargs) -> ContourColorBar:
         ''' Construct and return a new ``ContourColorBar`` for this ``ContourRenderer``.
