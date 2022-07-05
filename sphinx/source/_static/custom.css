@@ -18,7 +18,7 @@ html[data-theme=light] {
 }
 
 code {
-background-color:#eef0f1;
+  background-color:#eef0f1;
 }
 
 /* Match color of RST :ref: to that of other clickable links */
@@ -50,16 +50,20 @@ img.image-border {
   box-shadow: 1px 1px 1px #d8d8d8;
 }
 
-/* Tweak panel appearance */
-.card-header {
-  background-color: rgb(220, 220, 220);
+/* Style card headers */
+.sd-card-header {
+  background-color: rgb(220, 220, 220) !important;
   font-weight: 700;
   font-size: 110%;
 }
 
-/* Thumbnails on the main index page */
-.bokeh-examples {
-  padding: 0;
+/* Tweak sphinx-design cards */
+.sd-container-fluid div {
+  margin-bottom: 15px;
+}
+.bokeh-examples div {
+  padding: 0px;
+  margin: 0px;
 }
 .bokeh-examples img {
   width: 100%;

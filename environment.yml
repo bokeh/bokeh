@@ -82,9 +82,7 @@ dependencies:
     - sphinx >=5
     - sphinx-copybutton
     - sphinxext-opengraph
-    - sphinx-reredirects
-    - sphinx-panels
-    - sphinx-tabs
+    - sphinx-design
     # tests
     - types-boto
     - types-colorama

@@ -70,9 +70,7 @@ dependencies:
     - sphinx >=5
     - sphinx-copybutton
     - sphinxext-opengraph
-    - sphinx-panels
-    - sphinx-tabs
-    - sphinx-reredirects
+    - sphinx-design
     # tests
     - types-boto
     - types-colorama
