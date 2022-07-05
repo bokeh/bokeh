@@ -26,6 +26,10 @@ export type Fill = {
   fill_alpha: p.Property<number>
 }
 
+export type Image = {
+  global_alpha: p.Property<number>
+}
+
 export type Hatch = {
   hatch_color: p.Property<Color | null>
   hatch_alpha: p.Property<number>
@@ -59,6 +63,10 @@ export const Line: p.DefineOf<Line> = {
 export const Fill: p.DefineOf<Fill> = {
   fill_color:       [ k.Nullable(k.Color), "gray" ],
   fill_alpha:       [ k.Alpha, 1.0 ],
+}
+
+export const Image: p.DefineOf<Image> = {
+  global_alpha:     [ k.Alpha, 1.0 ],
 }
 
 export const Hatch: p.DefineOf<Hatch> = {
@@ -98,6 +106,10 @@ export type FillScalar = {
   fill_alpha: p.ScalarSpec<number>
 }
 
+export type ImageScalar = {
+  global_alpha: p.ScalarSpec<number>
+}
+
 export type HatchScalar = {
   hatch_color: p.ScalarSpec<Color | null>
   hatch_alpha: p.ScalarSpec<number>
@@ -131,6 +143,10 @@ export const LineScalar: p.DefineOf<LineScalar> = {
 export const FillScalar: p.DefineOf<FillScalar> = {
   fill_color:       [ p.ColorScalar,        "gray"      ],
   fill_alpha:       [ p.NumberScalar,       1.0         ],
+}
+
+export const ImageScalar: p.DefineOf<ImageScalar> = {
+  global_alpha:       [ p.NumberScalar,       1.0         ],
 }
 
 export const HatchScalar: p.DefineOf<HatchScalar> = {
@@ -170,6 +186,10 @@ export type FillVector = {
   fill_alpha: p.VectorSpec<number>
 }
 
+export type ImageVector = {
+  global_alpha: p.VectorSpec<number>
+}
+
 export type HatchVector = {
   hatch_color: p.ColorSpec
   hatch_alpha: p.VectorSpec<number>
@@ -203,6 +223,10 @@ export const LineVector: p.DefineOf<LineVector> = {
 export const FillVector: p.DefineOf<FillVector> = {
   fill_color:       [ p.ColorSpec,      "gray"      ],
   fill_alpha:       [ p.NumberSpec,     1.0         ],
+}
+
+export const ImageVector: p.DefineOf<ImageVector> = {
+  global_alpha:       [ p.NumberSpec,     1.0         ],
 }
 
 export const HatchVector: p.DefineOf<HatchVector> = {
@@ -248,7 +272,7 @@ export type SeparatorLine = Prefixed<"separator", Line>
 export type SubGroupText = Prefixed<"subgroup", Text>
 export type TitleText = Prefixed<"title", Text>
 
-type Mixins = Text | Line | Fill | Hatch
+type Mixins = Text | Line | Fill | Hatch | Image
 
 export function attrs_of<P extends string, T extends Mixins>(
     model: HasProps, prefix: P, mixin: p.DefineOf<T>, prefixed: boolean = false): {[key: string]: unknown} {
