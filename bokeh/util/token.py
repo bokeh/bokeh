@@ -101,11 +101,11 @@ def generate_jwt_token(session_id: ID,
             The session id to add to the token
 
         secret_key (str, optional) :
-            Secret key (default: value of BOKEH_SECRET_KEY environment varariable)
+            Secret key (default: value of BOKEH_SECRET_KEY environment variable)
 
         signed (bool, optional) :
             Whether to sign the session ID (default: value of BOKEH_SIGN_SESSIONS
-            envronment varariable)
+            envronment variable)
 
         extra_payload (dict, optional) :
             Extra key/value pairs to include in the Bokeh session token

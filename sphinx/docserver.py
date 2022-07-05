@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
-""" Basic webserver for developing Bokeh documention locally.
+""" Basic webserver for developing Bokeh documentation locally.
 
 Executing this script will automatically open a browser tab to the locally
 built documentation index page.
