@@ -34,10 +34,11 @@ from numpy.typing import ArrayLike
 from ..core.property_mixins import FillProps, HatchProps, LineProps
 from ..models.contour_renderer import ContourRenderer
 from ..models.glyphs import MultiLine, MultiPolygons
+from ..models.renderers import GlyphRenderer
 from ..models.sources import ColumnDataSource
 from ..palettes import linear_palette
 from ..plotting._renderer import _process_sequence_literals
-from ..util.dataclasses import dataclass, fields
+from ..util.dataclasses import dataclass, entries
 
 if TYPE_CHECKING:
     from ..palettes import Palette, PaletteCollection
@@ -89,8 +90,7 @@ class FillData(FillCoords):
 
     def asdict(self):
         # Convert to dict using shallow copy.  dataclasses.asdict uses deep copy.
-        # Implementation as recommended in python dataclasses docs.
-        return dict((field.name, getattr(self, field.name)) for field in fields(self))
+        return dict(entries(self))
 
 @dataclass(frozen=True)
 class LineData(LineCoords):
@@ -100,8 +100,7 @@ class LineData(LineCoords):
 
     def asdict(self):
         # Convert to dict using shallow copy.  dataclasses.asdict uses deep copy.
-        # Implementation as recommended in python dataclasses docs.
-        return dict((field.name, getattr(self, field.name)) for field in fields(self))
+        return dict(entries(self))
 
 @dataclass(frozen=True)
 class ContourData:
@@ -193,7 +192,10 @@ def from_contour(
     new_contour_data = contour_data(x=x, y=y, z=z, levels=levels, want_fill=want_fill, want_line=want_line)
 
     # Will be other possibilities here like logarithmic....
-    contour_renderer = ContourRenderer(levels=list(levels))
+    contour_renderer = ContourRenderer(
+        fill_renderer=GlyphRenderer(glyph=MultiPolygons(), data_source=ColumnDataSource()),
+        line_renderer=GlyphRenderer(glyph=MultiLine(), data_source=ColumnDataSource()),
+        levels=list(levels))
     contour_renderer.set_data(new_contour_data)
 
     if new_contour_data.fill_data:

@@ -92,13 +92,11 @@ export class ColorBarView extends BaseColorBarView {
     */
     const {color_mapper} = this.model
 
-    if (color_mapper instanceof CategoricalColorMapper) {
-      const {factors} = color_mapper as CategoricalColorMapper
-        return new FactorRange({factors})
-    } else if (color_mapper instanceof ContinuousColorMapper) {
-      const {min, max} = (color_mapper as ContinuousColorMapper).metrics
-      return new Range1d({start: min, end: max})
-    } else
+    if (color_mapper instanceof CategoricalColorMapper)
+      return new FactorRange({factors: color_mapper.factors})
+    else if (color_mapper instanceof ContinuousColorMapper)
+      return new Range1d({start: color_mapper.metrics.min, end: color_mapper.metrics.max})
+    else
       unreachable()
   }
 
@@ -109,10 +107,9 @@ export class ColorBarView extends BaseColorBarView {
       return new LinearScale()
     else if (color_mapper instanceof LogColorMapper)
       return new LogScale()
-    else if (color_mapper instanceof ScanningColorMapper) {
-      const {binning} = (color_mapper as ScanningColorMapper).metrics
-      return new LinearInterpolationScale({binning})
-    } else if (color_mapper instanceof CategoricalColorMapper)
+    else if (color_mapper instanceof ScanningColorMapper)
+      return new LinearInterpolationScale({binning: color_mapper.metrics.binning})
+    else if (color_mapper instanceof CategoricalColorMapper)
       return new CategoricalScale()
     else
       unreachable()
@@ -124,7 +121,7 @@ export class ColorBarView extends BaseColorBarView {
     if (color_mapper instanceof LogColorMapper)
       return new LogTicker()
     else if (color_mapper instanceof ScanningColorMapper)
-      return new BinnedTicker({mapper: color_mapper as ScanningColorMapper})
+      return new BinnedTicker({mapper: color_mapper})
     else if (color_mapper instanceof CategoricalColorMapper)
       return new CategoricalTicker()
     else

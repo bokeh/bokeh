@@ -26,9 +26,7 @@ from typing import TYPE_CHECKING
 # Bokeh imports
 from ..core.properties import Float, Instance, Seq
 from .annotations import ContourColorBar
-from .glyphs import MultiLine, MultiPolygons
 from .renderers import DataRenderer, GlyphRenderer
-from .sources import ColumnDataSource
 from .tickers import FixedTicker
 
 if TYPE_CHECKING:
@@ -50,14 +48,6 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-_DEFAULT_CONTOUR_LINE_RENDERER = lambda: GlyphRenderer(
-    glyph=MultiLine(), data_source=ColumnDataSource(data=dict())
-)
-
-_DEFAULT_CONTOUR_FILL_RENDERER = lambda: GlyphRenderer(
-    glyph=MultiPolygons(), data_source=ColumnDataSource(data=dict())
-)
-
 class ContourRenderer(DataRenderer):
     ''' Renderer for contour plots composed of filled polygons and/or lines.
 
@@ -69,11 +59,11 @@ class ContourRenderer(DataRenderer):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    line_renderer = Instance(GlyphRenderer, default=_DEFAULT_CONTOUR_LINE_RENDERER, help="""
+    line_renderer = Instance(GlyphRenderer, help="""
     Glyph renderer used for contour lines.
     """)
 
-    fill_renderer = Instance(GlyphRenderer, default=_DEFAULT_CONTOUR_FILL_RENDERER, help="""
+    fill_renderer = Instance(GlyphRenderer, help="""
     Glyph renderer used for filled contour polygons.
     """)
 
