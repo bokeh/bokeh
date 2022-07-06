@@ -229,16 +229,19 @@ export class DataTableView extends WidgetView {
   }
 
   updateSelection(): void {
-    if (this._in_selection_update)
+    if (this.model.selectable === false || this._in_selection_update)
       return
 
     const {selected} = this.model.source
 
-    const permuted_indices = selected.indices.map((x: number) => this.data.index.indexOf(x)).sort()
+    const permuted_indices = selected.indices.map((x) => this.data.index.indexOf(x)).sort()
 
     this._in_selection_update = true
-    this.grid.setSelectedRows(permuted_indices)
-    this._in_selection_update = false
+    try {
+      this.grid.setSelectedRows(permuted_indices)
+    } finally {
+      this._in_selection_update = false
+    }
     // If the selection is not in the current slickgrid viewport, scroll the
     // datatable to start at the row before the first selected row, so that
     // the selection is immediately brought into view. We don't scroll when
