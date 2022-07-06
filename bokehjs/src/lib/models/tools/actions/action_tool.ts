@@ -1,5 +1,6 @@
 import {Tool, ToolView} from "../tool"
 import {ToolButtonView} from "../tool_button"
+import {LayoutDOMView} from "../../layouts/layout_dom"
 import {Signal} from "core/signaling"
 import * as p from "core/properties"
 
@@ -13,6 +14,7 @@ export class ActionToolButtonView extends ToolButtonView {
 
 export abstract class ActionToolView extends ToolView {
   override model: ActionTool
+  override readonly parent: LayoutDOMView
 
   override connect_signals(): void {
     super.connect_signals()

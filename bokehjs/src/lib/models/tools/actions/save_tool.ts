@@ -7,13 +7,13 @@ export class SaveToolView extends ActionToolView {
   override model: SaveTool
 
   async copy(): Promise<void> {
-    const blob = await this.plot_view.to_blob()
+    const blob = await this.parent.export().to_blob()
     const item = new ClipboardItem({[blob.type]: blob})
     await navigator.clipboard.write([item])
   }
 
   async save(name: string): Promise<void> {
-    const blob = await this.plot_view.to_blob()
+    const blob = await this.parent.export().to_blob()
     const link = document.createElement("a")
     link.href = URL.createObjectURL(blob)
     link.download = name // + ".png" | "svg" (inferred from MIME type)
@@ -23,19 +23,17 @@ export class SaveToolView extends ActionToolView {
 
   doit(action: "save" | "copy" = "save"): void {
     switch (action) {
-      case "save":
-        if (this.model.filename == null) {
-          const filename = prompt("Enter filename", "bokeh_plot")
-          if (filename != null) {
-            this.save(filename)
-          }
-        } else {
-          this.save(this.model.filename)
+      case "save": {
+        const filename = this.model.filename ?? prompt("Enter filename", "bokeh_plot")
+        if (filename != null) {
+          this.save(filename)
         }
         break
-      case "copy":
+      }
+      case "copy": {
         this.copy()
         break
+      }
     }
   }
 }

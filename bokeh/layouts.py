@@ -44,6 +44,7 @@ from .models import (
     LayoutDOM,
     Plot,
     Row,
+    SaveTool,
     Spacer,
     Toolbar,
     ToolProxy,
@@ -487,7 +488,7 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
 # Dev API
 #-----------------------------------------------------------------------------
 
-def group_tools(tools: list[Tool | ToolProxy]) -> list[Tool | ToolProxy]:
+def group_tools(tools: list[Tool | ToolProxy], *, merge_save: bool = True) -> list[Tool | ToolProxy]:
     """ Group common tools into tool proxies. """
     @dataclass
     class ToolEntry:
@@ -506,7 +507,7 @@ def group_tools(tools: list[Tool | ToolProxy]) -> list[Tool | ToolProxy]:
                 del props["overlay"]
             by_type[tool.__class__].append(ToolEntry(tool, props))
 
-    for tools_ in by_type.values():
+    for cls, tools_ in by_type.items():
         while tools_:
             head, *tail = tools_
             group: list[Tool] = [head.tool]
@@ -518,6 +519,8 @@ def group_tools(tools: list[Tool | ToolProxy]) -> list[Tool | ToolProxy]:
 
             if len(group) == 1:
                 computed.append(group[0])
+            elif merge_save and issubclass(cls, SaveTool):
+                computed.append(cls(filename=group[0].filename))
             else:
                 computed.append(ToolProxy(tools=group))
 

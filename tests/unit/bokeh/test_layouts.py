@@ -36,6 +36,7 @@ from bokeh.models import (
     LayoutDOM,
     PanTool,
     Row,
+    SaveTool,
     Spacer,
     TapTool,
     ToolProxy,
@@ -211,21 +212,27 @@ def test_group_tools() -> None:
     tap0 = TapTool(behavior="select")
     tap1 = TapTool(behavior="select")
     tap2 = TapTool(behavior="inspect")
+    save0 = SaveTool()
+    save1 = SaveTool()
 
-    tools = group_tools([pan0, tap0, pan2, pan1, tap1, pan5, pan4, pan3, tap2])
+    tools = group_tools([pan0, tap0, pan2, pan1, tap1, pan5, pan4, pan3, tap2, save0, save1])
 
-    assert len(tools) == 5
-    t0, t1, t2, t3, t4 = tools
+    assert len(tools) == 6
+    t0, t1, t2, t3, t4, t5 = tools
 
     assert isinstance(t0, ToolProxy)
     assert isinstance(t1, ToolProxy)
+    assert isinstance(t2, PanTool)
     assert isinstance(t3, ToolProxy)
+    assert isinstance(t4, TapTool)
+    assert isinstance(t5, SaveTool)
 
     assert t0.tools == [pan0, pan1]
     assert t1.tools == [pan2, pan4, pan3]
     assert t2 == pan5
     assert t3.tools == [tap0, tap1]
     assert t4 == tap2
+    assert t5 != save0 and t5 != save1
 
 #-----------------------------------------------------------------------------
 # Dev API

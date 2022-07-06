@@ -834,12 +834,15 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
   }
 
-  to_blob(): Promise<Blob> {
-    return this.canvas_view.to_blob()
-  }
+  override export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
+    const output_backend = (() => {
+      switch (type) {
+        case "auto": return this.canvas_view.model.output_backend
+        case "png":  return "canvas"
+        case "svg":  return "svg"
+      }
+    })()
 
-  override export(type: "png" | "svg", hidpi: boolean = true): CanvasLayer {
-    const output_backend = type == "png" ? "canvas" : "svg"
     const composite = new CanvasLayer(output_backend, hidpi)
 
     const {width, height} = this.layout.bbox
