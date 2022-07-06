@@ -368,7 +368,7 @@ If your company uses Bokeh and is able to sponsor the project, please contact <a
 
 ### In-kind Support
 
-The Bokeh project is grateful for the donation of services and time supporting our development, collaboration, infrastructure, security, and vulnerability management from the following companies:
+The Bokeh project is grateful for the donation of services and time from the following companies, supporting development as well as our collaboration, infrastructure, security, and vulnerability management:
 
 * [Amazon Web Services](https://aws.amazon.com/)
 * [GitGuardian](https://gitguardian.com/)
