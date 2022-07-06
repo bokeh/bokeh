@@ -21,6 +21,7 @@ import base64
 import datetime
 from io import BytesIO
 from pathlib import Path
+from typing import Literal
 
 # External imports
 import numpy as np
@@ -284,12 +285,15 @@ class Test_Image:
         assert prop.transform(data) == expected
 
     @pytest.mark.parametrize('typ', ('png', 'gif', 'tiff'))
-    def test_transform_PIL(self, typ) -> None:
+    def test_transform_PIL(self, typ: Literal["png", "gif", "tiff"]) -> None:
         image = PIL.Image.new("RGBA", size=(50, 50), color=(155, 0, 0))
-        out = BytesIO()
-        image.save(out, typ)
-        value = PIL.Image.open(out)
-        expected = "data:image/%s;base64," % typ + base64.b64encode(out.getvalue()).decode('ascii')
+        out0 = BytesIO()
+        image.save(out0, typ)
+
+        value = PIL.Image.open(out0)
+        out1 = BytesIO()
+        value.save(out1, typ)
+        expected = "data:image/%s;base64," % typ + base64.b64encode(out1.getvalue()).decode('ascii')
 
         prop = bcpv.Image()
         assert prop.transform(value) == expected
