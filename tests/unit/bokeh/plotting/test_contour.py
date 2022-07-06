@@ -20,7 +20,7 @@ import pytest ; pytest
 import numpy as np
 
 # Bokeh imports
-from bokeh.plotting.contour import contour_data, from_contour
+from bokeh.plotting.contour import FillData, LineData, contour_data, from_contour
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -39,41 +39,44 @@ class Test_contour_data:
         elif xy_dim == 2:
             x, y = np.meshgrid(x, y)
 
-        fill, line = contour_data(x, y, z, levels)
+        data = contour_data(x, y, z, levels)
+        fill, line = data.fill_data, data.line_data
 
-        assert list(fill.keys()) == ["xs", "ys", "lower_levels", "upper_levels"]
-        assert np.allclose(fill["lower_levels"], [-0.5, 1.5])
-        assert np.allclose(fill["upper_levels"], [1.5, 3.5])
-        assert len(fill["xs"]) == 2
-        assert len(fill["ys"]) == 2
-        assert np.allclose(fill["xs"][0], [0, 1, 1.5, 1, 0.5, 0, 0])
-        assert np.allclose(fill["ys"][0], [0, 0, 0, 0.5, 1, 1, 0])
-        assert np.allclose(fill["xs"][1], [0.5, 1, 1.5, 2, 2, 1, 0.5])
-        assert np.allclose(fill["ys"][1], [1, 0.5, 0, 0, 1, 1, 1])
+        assert isinstance(fill, FillData)
+        assert np.allclose(fill.lower_levels, [-0.5, 1.5])
+        assert np.allclose(fill.upper_levels, [1.5, 3.5])
+        assert len(fill.xs) == 2
+        assert len(fill.ys) == 2
+        assert np.allclose(fill.xs[0], [0, 1, 1.5, 1, 0.5, 0, 0])
+        assert np.allclose(fill.ys[0], [0, 0, 0, 0.5, 1, 1, 0])
+        assert np.allclose(fill.xs[1], [0.5, 1, 1.5, 2, 2, 1, 0.5])
+        assert np.allclose(fill.ys[1], [1, 0.5, 0, 0, 1, 1, 1])
 
-        assert list(line.keys()) == ["xs", "ys", "levels"]
-        assert np.allclose(line["levels"], [-0.5, 1.5, 3.5])
-        assert len(line["xs"]) == 3
-        assert len(line["ys"]) == 3
-        assert np.allclose(line["xs"][0], [])
-        assert np.allclose(line["ys"][0], [])
-        assert np.allclose(line["xs"][1], [0.5, 1, 1.5])
-        assert np.allclose(line["ys"][1], [1, 0.5, 0])
-        assert np.allclose(line["xs"][2], [])
-        assert np.allclose(line["ys"][2], [])
+        assert isinstance(line, LineData)
+        assert np.allclose(line.levels, [-0.5, 1.5, 3.5])
+        assert len(line.xs) == 3
+        assert len(line.ys) == 3
+        assert np.allclose(line.xs[0], [])
+        assert np.allclose(line.ys[0], [])
+        assert np.allclose(line.xs[1], [0.5, 1, 1.5])
+        assert np.allclose(line.ys[1], [1, 0.5, 0])
+        assert np.allclose(line.xs[2], [])
+        assert np.allclose(line.ys[2], [])
 
     @pytest.mark.parametrize("want_fill,want_line", [(True, True), (True, False), (False, True)])
     def test_fill_line(self, xyz_levels, want_fill, want_line):
         x, y, z, levels = xyz_levels
-        fill, line = contour_data(x, y, z, levels, want_fill=want_fill, want_line=want_line)
+
+        data = contour_data(x, y, z, levels, want_fill=want_fill, want_line=want_line)
+        fill, line = data.fill_data, data.line_data
 
         if want_fill:
-            assert list(fill.keys()) == ["xs", "ys", "lower_levels", "upper_levels"]
+            assert isinstance(fill, FillData)
         else:
             assert fill is None
 
         if want_line:
-            assert list(line.keys()) == ["xs", "ys", "levels"]
+            assert isinstance(line, LineData)
         else:
             assert line is None
 
