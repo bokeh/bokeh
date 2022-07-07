@@ -235,9 +235,9 @@ class _BytesEncoder(json.JSONEncoder):
 
 class _BytesDecoder(json.JSONDecoder):
     def __init__(self, *args, **kwargs):
-        super().__init__(object_hook=self.object_hook, *args, **kwargs)
+        super().__init__(object_hook=self.bytes_object_hook, *args, **kwargs)
 
-    def object_hook(self, obj):
+    def bytes_object_hook(self, obj):
         if set(obj.keys()) == {"bytes"}:
             return _base64_decode(obj["bytes"])
         return obj
