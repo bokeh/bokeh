@@ -20,7 +20,12 @@ import pytest ; pytest
 import numpy as np
 
 # Bokeh imports
-from bokeh.plotting.contour import FillData, LineData, contour_data, from_contour
+from bokeh.plotting.contour import (
+    FillData,
+    LineData,
+    contour_data,
+    from_contour,
+)
 
 #-----------------------------------------------------------------------------
 # Setup
