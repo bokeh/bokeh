@@ -26,6 +26,14 @@ code {
   color: var(--pst-color-secondary);
 }
 
+/* Tweak search results appearance */
+#search-results .context {
+  padding-left: 1em;
+}
+#search-results li {
+  margin-bottom: 1em;
+}
+
 /* WAR for https://github.com/pydata/pydata-sphinx-theme/issues/464 */
 dl.py dl.field-list {
   display: grid;
