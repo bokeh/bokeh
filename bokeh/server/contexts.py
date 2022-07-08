@@ -227,6 +227,7 @@ class ApplicationContext:
                     ])
                 # using private attr so users only have access to a read-only property
                 session_context._request = _RequestProxy(request,
+                                                         arguments=payload.get('arguments'),
                                                          cookies=payload.get('cookies'),
                                                          headers=payload.get('headers'))
             session_context._token = token
@@ -331,14 +332,24 @@ class _RequestProxy:
     _cookies: Dict[str, str]
     _headers: Dict[str, str | List[str]]
 
-    def __init__(self, request: HTTPServerRequest, cookies: Dict[str, str] | None = None,
-            headers: Dict[str, str | List[str]] | None = None) -> None:
+    def __init__(
+        self,
+        request: HTTPServerRequest,
+        arguments: Dict[str, bytes | List[bytes]] | None = None,
+        cookies: Dict[str, str] | None = None,
+        headers: Dict[str, str | List[str]] | None = None,
+    ) -> None:
         self._request = request
 
-        arguments = dict(request.arguments)
-        if 'bokeh-session-id' in arguments:
-            del arguments['bokeh-session-id']
-        self._arguments = arguments
+        if arguments is not None:
+            self._arguments = arguments
+        elif hasattr(request, 'arguments'):
+            self._arguments = dict(request.arguments)
+        else:
+            self._arguments = {}
+        if 'bokeh-session-id' in self._arguments:
+            del self._arguments['bokeh-session-id']
+
         if cookies is not None:
             self._cookies = cookies
         elif hasattr(request, 'cookies'):

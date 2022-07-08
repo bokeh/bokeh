@@ -294,6 +294,16 @@ async def test_server_applications_callable_arg(ManagedServerLoop: MSL) -> None:
         session = server.get_sessions('/foo')[0]
         assert session.document.title == "Hello, world!"
 
+async def test__token_arguments(ManagedServerLoop: MSL) -> None:
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        response = await http_get(server.io_loop, url(server) + "?foo=10")
+        html = response.body
+        token = extract_token_from_json(html)
+        payload = get_token_payload(token)
+        assert 'arguments' in payload
+        assert payload['arguments'] == {'foo': [b'10']}
+
 async def test__include_headers(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, include_headers=['Custom']) as server:
