@@ -7,12 +7,12 @@ html[data-theme=light] {
   /* match color of "Tip" admonition to Bokeh color scheme */
   --pst-color-success: rgb(165, 205, 57);
   --pst-color-admonition-tip: var(--pst-color-success);
+  --pst-color-inline-code: var(--pst-color-text-base);
 }
 
 /* customize display of inline pre elements */
 .literal .pre, span .pre {
   font-family: SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
-  color: var(--pst-color-text-base);
   padding: 2px 1px 0px 1px;
   font-size: 100%;
 }
@@ -24,6 +24,11 @@ code {
 /* Match color of RST :ref: to that of other clickable links */
 .xref .pre {
   color: var(--pst-color-secondary);
+}
+
+/* Tweak appearance of args in reference guide */
+.class .sig, .function .sig, .sig .property {
+  font-weight: 400;
 }
 
 /* Tweak search results appearance */
