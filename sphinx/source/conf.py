@@ -120,6 +120,7 @@ pygments_style = 'sphinx'
 # -- Options for HTML output ---------------------------------------------------
 
 html_context = {
+    'default_mode': 'light',
     'AUTHOR': author,
     'DESCRIPTION': 'Bokeh visualization library, documentation site.',
     'SITEMAP_BASE_URL': 'https://docs.bokeh.org/en/', # Trailing slash is needed
