@@ -27,6 +27,7 @@ from ...core.enums import (
     LegendLocation,
     Orientation,
 )
+from ...core.has_props import abstract
 from ...core.properties import (
     Auto,
     Bool,
@@ -42,6 +43,7 @@ from ...core.properties import (
     Nullable,
     NullStringSpec,
     Override,
+    Seq,
     String,
     TextLike,
     Tuple,
@@ -65,6 +67,7 @@ from .annotation import Annotation
 
 __all__ = (
     "ColorBar",
+    "ContourColorBar",
     "Legend",
     "LegendItem",
 )
@@ -73,12 +76,11 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class ColorBar(Annotation):
-    ''' Render a color bar based on a color mapper.
-
-    See :ref:`userguide_annotations_color_bars` for information on plotting color bars.
-
-    '''
+@abstract
+class BaseColorBar(Annotation):
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     location = Either(Enum(Anchor), Tuple(Float, Float), default="top_right", help="""
     The location where the color bar should draw itself. It's either one of
@@ -90,10 +92,6 @@ class ColorBar(Annotation):
         If the color bar is placed in a side panel, the location will likely
         have to be set to `(0,0)`.
     """)
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
 
     orientation = Either(Enum(Orientation), Auto, default="auto", help="""
     Whether the color bar should be oriented vertically or horizontally.
@@ -142,17 +140,6 @@ class ColorBar(Annotation):
 
     major_label_policy = Instance(LabelingPolicy, default=InstanceDefault(NoOverlap), help="""
     Allows to filter out labels, e.g. declutter labels to avoid overlap.
-    """)
-
-    color_mapper = Instance(ColorMapper, help="""
-    A color mapper containing a color palette to render.
-
-    .. warning::
-        If the `low` and `high` attributes of the ``ColorMapper`` aren't set, ticks
-        and tick labels won't be rendered. Additionally, if a ``LogTicker`` is
-        passed to the `ticker` argument and either or both of the logarithms
-        of `low` and `high` values of the color_mapper are non-numeric
-        (i.e. `low=0`), the tick and tick labels won't be rendered.
     """)
 
     margin = Int(30, help="""
@@ -224,6 +211,55 @@ class ColorBar(Annotation):
     background_fill_color = Override(default="#ffffff")
 
     background_fill_alpha = Override(default=0.95)
+
+
+class ColorBar(BaseColorBar):
+    ''' Render a color bar based on a color mapper.
+
+    See :ref:`userguide_annotations_color_bars` for information on plotting color bars.
+
+    '''
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    color_mapper = Instance(ColorMapper, help="""
+    A color mapper containing a color palette to render.
+
+    .. warning::
+        If the `low` and `high` attributes of the ``ColorMapper`` aren't set, ticks
+        and tick labels won't be rendered. Additionally, if a ``LogTicker`` is
+        passed to the `ticker` argument and either or both of the logarithms
+        of `low` and `high` values of the color_mapper are non-numeric
+        (i.e. `low=0`), the tick and tick labels won't be rendered.
+    """)
+
+
+class ContourColorBar(BaseColorBar):
+    ''' Color bar used for contours.
+
+    Supports displaying hatch patterns and line styles that contour plots may
+    have as well as the usual fill styles.
+
+    Do not create these objects manually, instead use ``ContourRenderer.color_bar``.
+
+    '''
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    fill_renderer = Instance(GlyphRenderer, help="""
+    Glyph renderer used for filled contour polygons.
+    """)
+
+    line_renderer = Instance(GlyphRenderer, help="""
+    Glyph renderer used for contour lines.
+    """)
+
+    levels = Seq(Float, default=[], help="""
+    Levels at which the contours are calculated.
+    """)
+
 
 class LegendItem(Model):
     '''
@@ -415,6 +451,9 @@ class Legend(Annotation):
     where each tuple is of the form: *(label, renderers)*.
 
     """).accepts(List(Tuple(String, List(Instance(GlyphRenderer)))), lambda items: [LegendItem(label=item[0], renderers=item[1]) for item in items])
+
+
+
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -12,6 +12,7 @@ extraction:
     python_setup:
       requirements_files: false
       requirements:
+        - contourpy
         - PyYAML
         - python-dateutil
         - Jinja2
