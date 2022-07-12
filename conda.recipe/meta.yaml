@@ -19,6 +19,7 @@ extra:
 
 requirements:
   build:
+    - contourpy >=1
     - jinja2
     - nodejs 16.*
     - numpy

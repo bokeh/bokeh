@@ -44,9 +44,7 @@ extensions = [
     'autoclasstoc',
     'sphinxext.opengraph',
     'sphinx_copybutton',
-    'sphinx_panels',
-#    'sphinx_reredirects',
-    'sphinx_tabs.tabs',
+    'sphinx_design',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.ifconfig',
@@ -117,20 +115,12 @@ ogp_custom_meta_tags = [
     '<meta name="image" property="og:image" content="http://static.bokeh.org/og/logotype-on-hex.png">',
 ]
 
-panels_add_bootstrap_css = False
-
-sphinx_tabs_disable_tab_closing = True
-
 pygments_style = 'sphinx'
-
-redirects = {
-    "docs/installation": "first_steps/installation.html",
-    "docs/user_guide/quickstart": "../first_steps.html",
-}
 
 # -- Options for HTML output ---------------------------------------------------
 
 html_context = {
+    'default_mode': 'light',
     'AUTHOR': author,
     'DESCRIPTION': 'Bokeh visualization library, documentation site.',
     'SITEMAP_BASE_URL': 'https://docs.bokeh.org/en/', # Trailing slash is needed

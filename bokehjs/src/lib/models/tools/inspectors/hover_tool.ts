@@ -20,6 +20,7 @@ import {CallbackLike1} from "../../callbacks/callback"
 import {Template, TemplateView} from "../../dom/template"
 import {GlyphView} from "../../glyphs/glyph"
 import {HAreaView} from "../../glyphs/harea"
+import {ImageBaseView} from "../../glyphs/image_base"
 import {LineView} from "../../glyphs/line"
 import {MultiLineView} from "../../glyphs/multi_line"
 import {PatchView} from "../../glyphs/patch"
@@ -263,9 +264,7 @@ export class HoverToolView extends InspectToolView {
       }
       const rendered = this._render_tooltips(ds, vars)
       tooltips.push([snap_sx, snap_sy, rendered])
-    }
-
-    if (glyph instanceof VAreaView || glyph instanceof HAreaView) {
+    } else if (glyph instanceof VAreaView || glyph instanceof HAreaView) {
       for (const i of subset_indices.line_indices) {
         const [snap_x, snap_y] = [x, y]
         const [snap_sx, snap_sy] = [sx, sy]
@@ -279,9 +278,7 @@ export class HoverToolView extends InspectToolView {
         const rendered = this._render_tooltips(ds, vars)
         tooltips.push([snap_sx, snap_sy, rendered])
       }
-    }
-
-    if (glyph instanceof LineView) {
+    } else if (glyph instanceof LineView) {
       const {line_policy} = this.model
       for (const i of subset_indices.line_indices) {
         const [[snap_x, snap_y], [snap_sx, snap_sy], ii] = (() => {
@@ -316,47 +313,78 @@ export class HoverToolView extends InspectToolView {
         const rendered = this._render_tooltips(ds, vars)
         tooltips.push([snap_sx, snap_sy, rendered])
       }
-    }
-
-    for (const image_index of fullset_indices.image_indices) {
-      const [snap_sx, snap_sy] = [sx, sy]
-      const [snap_x, snap_y] = [x, y]
-      const vars = {
-        index: image_index.index,
-        glyph_view: glyph,
-        x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
-        name: renderer.name,
-        image_index,
+    } else if (glyph instanceof ImageBaseView) {
+      for (const image_index of fullset_indices.image_indices) {
+        const [snap_sx, snap_sy] = [sx, sy]
+        const [snap_x, snap_y] = [x, y]
+        const vars = {
+          index: image_index.index,
+          glyph_view: glyph,
+          x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
+          name: renderer.name,
+          image_index,
+        }
+        const rendered = this._render_tooltips(ds, vars)
+        tooltips.push([snap_sx, snap_sy, rendered])
       }
-      const rendered = this._render_tooltips(ds, vars)
-      tooltips.push([snap_sx, snap_sy, rendered])
-    }
+    } else {
+      for (const i of subset_indices.indices) {
+        // multiglyphs set additional indices, e.g. multiline_indices for different tooltips
+        if (glyph instanceof MultiLineView && !is_empty(subset_indices.multiline_indices)) {
+          const {line_policy} = this.model
+          for (const j of subset_indices.multiline_indices[i.toString()]) { // TODO: subset_indices.multiline_indices.get(i)
+            const [[snap_x, snap_y], [snap_sx, snap_sy], jj] = (function() {
+              if (line_policy == "interp") {
+                const [snap_x, snap_y] = glyph.get_interpolation_hit(i, j, geometry)
+                const snap_sxy = [xscale.compute(snap_x), yscale.compute(snap_y)]
+                return [[snap_x, snap_y], snap_sxy, j]
+              }
+              const [xs, ys] = [glyph._xs.get(i), glyph._ys.get(i)]
+              if (line_policy == "prev") {
+                const [snap_sxy, jj] = _line_hit(glyph.sxs.get(i), glyph.sys.get(i), j)
+                return [[xs[j], ys[j]], snap_sxy, jj]
+              }
+              if (line_policy=="next") {
+                const [snap_sxy, jj] = _line_hit(glyph.sxs.get(i), glyph.sys.get(i), j+1)
+                return [[xs[j], ys[j]], snap_sxy, jj]
+              }
+              if (line_policy == "nearest") {
+                const [snap_sxy, jj] = _nearest_line_hit(j, geometry, glyph.sxs.get(i), glyph.sys.get(i))
+                return [[xs[jj], ys[jj]], snap_sxy, jj]
+              }
+              throw new Error("shouldn't have happened")
+            })()
 
-    for (const i of subset_indices.indices) {
-      // multiglyphs set additional indices, e.g. multiline_indices for different tooltips
-      if (glyph instanceof MultiLineView && !is_empty(subset_indices.multiline_indices)) {
-        const {line_policy} = this.model
-        for (const j of subset_indices.multiline_indices[i.toString()]) { // TODO: subset_indices.multiline_indices.get(i)
-          const [[snap_x, snap_y], [snap_sx, snap_sy], jj] = (function() {
-            if (line_policy == "interp") {
-              const [snap_x, snap_y] = glyph.get_interpolation_hit(i, j, geometry)
-              const snap_sxy = [xscale.compute(snap_x), yscale.compute(snap_y)]
-              return [[snap_x, snap_y], snap_sxy, j]
+            const index = renderer.view.convert_indices_from_subset([i])[0]
+
+            const vars = {
+              index,
+              glyph_view: glyph,
+              x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
+              name: renderer.name,
+              indices: subset_indices.multiline_indices,
+              segment_index: jj,
             }
-            const [xs, ys] = [glyph._xs.get(i), glyph._ys.get(i)]
-            if (line_policy == "prev") {
-              const [snap_sxy, jj] = _line_hit(glyph.sxs.get(i), glyph.sys.get(i), j)
-              return [[xs[j], ys[j]], snap_sxy, jj]
+            const rendered = this._render_tooltips(ds, vars)
+            tooltips.push([snap_sx, snap_sy, rendered])
+          }
+        } else {
+          // handle non-multiglyphs
+          const snap_x = (glyph as any)._x?.[i]
+          const snap_y = (glyph as any)._y?.[i]
+
+          const {point_policy, anchor}  = this.model
+          const [snap_sx, snap_sy] = (function() {
+            if (point_policy == "snap_to_data") {
+              const pt = glyph.get_anchor_point(anchor, i, [sx, sy])
+              if (pt != null)
+                return [pt.x,  pt.y]
+              const ptc = glyph.get_anchor_point("center", i, [sx, sy])
+              if (ptc != null)
+                return [ptc.x,  ptc.y]
+              return [sx, sy]
             }
-            if (line_policy=="next") {
-              const [snap_sxy, jj] = _line_hit(glyph.sxs.get(i), glyph.sys.get(i), j+1)
-              return [[xs[j], ys[j]], snap_sxy, jj]
-            }
-            if (line_policy == "nearest") {
-              const [snap_sxy, jj] = _nearest_line_hit(j, geometry, glyph.sxs.get(i), glyph.sys.get(i))
-              return [[xs[jj], ys[jj]], snap_sxy, jj]
-            }
-            throw new Error("shouldn't have happened")
+            return [sx, sy]
           })()
 
           const index = renderer.view.convert_indices_from_subset([i])[0]
@@ -366,42 +394,11 @@ export class HoverToolView extends InspectToolView {
             glyph_view: glyph,
             x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
             name: renderer.name,
-            indices: subset_indices.multiline_indices,
-            segment_index: jj,
+            indices: subset_indices.indices,
           }
           const rendered = this._render_tooltips(ds, vars)
           tooltips.push([snap_sx, snap_sy, rendered])
         }
-      } else {
-        // handle non-multiglyphs
-        const snap_x = (glyph as any)._x?.[i]
-        const snap_y = (glyph as any)._y?.[i]
-
-        const {point_policy, anchor}  = this.model
-        const [snap_sx, snap_sy] = (function() {
-          if (point_policy == "snap_to_data") {
-            const pt = glyph.get_anchor_point(anchor, i, [sx, sy])
-            if (pt != null)
-              return [pt.x,  pt.y]
-            const ptc = glyph.get_anchor_point("center", i, [sx, sy])
-            if (ptc != null)
-              return [ptc.x,  ptc.y]
-            return [sx, sy]
-          }
-          return [sx, sy]
-        })()
-
-        const index = renderer.view.convert_indices_from_subset([i])[0]
-
-        const vars = {
-          index,
-          glyph_view: glyph,
-          x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
-          name: renderer.name,
-          indices: subset_indices.indices,
-        }
-        const rendered = this._render_tooltips(ds, vars)
-        tooltips.push([snap_sx, snap_sy, rendered])
       }
     }
 

@@ -10,6 +10,7 @@ dependencies:
   - yaml
 
   # runtime
+  - contourpy>=1
   - jinja2>=2.7
   - numpy>=1.11.3
   - packaging>=16.8
@@ -82,9 +83,7 @@ dependencies:
     - sphinx >=5
     - sphinx-copybutton
     - sphinxext-opengraph
-    - sphinx-reredirects
-    - sphinx-panels
-    - sphinx-tabs
+    - sphinx-design
     # tests
     - types-boto
     - types-colorama

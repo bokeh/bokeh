@@ -20,81 +20,81 @@ functions:
 You can install these dependencies in various ways. The recommended way is to
 use ``conda`` and install Selenium together with geckodriver.
 
-.. tabs::
+.. tab-set::
 
-  .. tab:: Install with ``conda``
+    .. tab-item:: install with ``conda``
 
-    .. tabs::
+        .. tab-set::
 
-      .. tab:: Selenium and geckodriver (Firefox):
+          .. tab-item:: Selenium and geckodriver (Firefox):
 
-        .. code-block:: sh
+              .. code-block:: sh
 
-          conda install selenium geckodriver -c conda-forge
+                  conda install selenium geckodriver -c conda-forge
 
-        In order for geckodriver to work, you also need to have Firefox
-        available on your system. See `Supported platforms`_ in the geckodriver
-        documentation to make sure your version of Firefox is compatible.
+              In order for geckodriver to work, you also need to have Firefox
+              available on your system. See `Supported platforms`_ in the geckodriver
+              documentation to make sure your version of Firefox is compatible.
 
-        You can also install Firefox from conda-forge:
+              You can also install Firefox from conda-forge:
 
-        .. code-block:: sh
+              .. code-block:: sh
 
-          conda install firefox -c conda-forge
+                  conda install firefox -c conda-forge
 
-        Installing Firefox with ``conda`` is helpful to make sure that you are
-        running compatible versions of geckodriver and Firefox.
+              Installing Firefox with ``conda`` is helpful to make sure that you are
+              running compatible versions of geckodriver and Firefox.
 
-      .. tab:: Selenium and ChromeDriver (Chrome):
+          .. tab-item:: Selenium and ChromeDriver (Chrome):
 
-        .. code-block:: sh
+            .. code-block:: sh
 
-          conda install selenium python-chromedriver-binary -c conda-forge
+                conda install selenium python-chromedriver-binary -c conda-forge
 
-        After downloading and installing with ``conda``, make sure that the
-        executable ``chromedriver`` (``chromedriver.exe`` on Windows) is
-        available in your PATH. See the `chromedriver-binary documentation`_ for
-        more information.
+            After downloading and installing with ``conda``, make sure that the
+            executable ``chromedriver`` (``chromedriver.exe`` on Windows) is
+            available in your PATH. See the `chromedriver-binary documentation`_ for
+            more information.
 
-        ChromeDriver requires a compatible version of Google Chrome or Chromium
-        to be available on your system. See the `ChromeDriver documentation`_
-        for details about which version of ChromeDriver works with which
-        version of Chrome or Chromium.
+            ChromeDriver requires a compatible version of Google Chrome or Chromium
+            to be available on your system. See the `ChromeDriver documentation`_
+            for details about which version of ChromeDriver works with which
+            version of Chrome or Chromium.
 
-  .. tab:: install with ``pip``
+    .. tab-item:: install with ``pip``
 
-    .. tabs::
+        .. tab-set::
 
-      .. tab:: Selenium and geckodriver (Firefox):
+          .. tab-item:: Selenium and geckodriver (Firefox):
 
-        .. code-block:: sh
+              .. code-block:: sh
 
-          pip install selenium
+                  pip install selenium
 
-        After installing Selenium, you need to download and install the
-        geckodriver binary from the `geckodriver repository on GitHub`_. Make
-        sure that geckodriver is available in your PATH. See the
-        `geckodriver documentation`_ for more information.
+              After installing Selenium, you need to download and install the
+              geckodriver binary from the `geckodriver repository on GitHub`_. Make
+              sure that geckodriver is available in your PATH. See the
+              `geckodriver documentation`_ for more information.
 
-        In order for geckodriver to work, you also need to have Firefox
-        available on your system. See `Supported platforms`_ in the geckodriver
-        documentation to make sure your version of Firefox is compatible.
+              In order for geckodriver to work, you also need to have Firefox
+              available on your system. See `Supported platforms`_ in the geckodriver
+              documentation to make sure your version of Firefox is compatible.
 
-      .. tab:: Selenium and ChromeDriver (Chrome):
+          .. tab-item:: Selenium and ChromeDriver (Chrome):
 
-        .. code-block:: sh
+              .. code-block:: sh
 
-          pip install selenium chromedriver-binary
+                  pip install selenium chromedriver-binary
 
-        After downloading and installing with ``pip``, make sure that the
-        executable ``chromedriver`` (``chromedriver.exe`` on Windows) is
-        available in your PATH. See the `chromedriver-binary documentation`_ for
-        more information.
+              After downloading and installing with ``pip``, make sure that the
+              executable ``chromedriver`` (``chromedriver.exe`` on Windows) is
+              available in your PATH. See the `chromedriver-binary documentation`_ for
+              more information.
 
-        ChromeDriver requires a compatible version of Google Chrome or Chromium
-        to be available on your system. See the `ChromeDriver documentation`_
-        for details about which version of ChromeDriver works with which
-        version of Chrome or Chromium.
+              ChromeDriver requires a compatible version of Google Chrome or Chromium
+              to be available on your system. See the `ChromeDriver documentation`_
+              for details about which version of ChromeDriver works with which
+              version of Chrome or Chromium.
 
 .. _userguide_export_png:
 

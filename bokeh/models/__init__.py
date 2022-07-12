@@ -35,6 +35,7 @@ from .annotations import *  # lgtm [py/polluting-import]
 from .axes import *
 from .callbacks import *
 from .canvas import *
+from .contour_renderer import *
 from .expressions import *
 from .filters import *
 from .formatters import *

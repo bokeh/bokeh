@@ -151,19 +151,28 @@ Some of most useful settings are:
     For example: ``chromium-browser`` or ``windows-default``. You can also set
     this variable to the full path of your browser. For example:
 
-    .. tabs::
+    .. tab-set::
 
-        .. code-tab:: sh Linux/macOS
+        .. tab-item:: Linux/macOS
+            :sync: sh
 
-            export BOKEH_BROWSER=/usr/bin/chromium-browser
+            .. code-block:: sh
 
-        .. code-tab:: PowerShell Windows (PS)
+                export BOKEH_BROWSER=/usr/bin/chromium-browser
 
-            $Env:BOKEH_BROWSER="C:/Program\ Files/Google/Chrome/Application/chrome.exe %s &"
+        .. tab-item:: Windows (PS)
+            :sync: ps
 
-        .. code-tab:: doscon Windows (CMD)
+            .. code-block:: powershell
 
-            set BOKEH_BROWSER="C:/Program\ Files/Google/Chrome/Application/chrome.exe %s &"
+                $Env:BOKEH_BROWSER="C:/Program\ Files/Google/Chrome/Application/chrome.exe %s &"
+
+        .. tab-item:: Windows (CMD)
+            :sync: cmd
+
+            .. code-block:: doscon
+
+                set BOKEH_BROWSER="C:/Program\ Files/Google/Chrome/Application/chrome.exe %s &"
 
 ``resources`` (environment variable ``BOKEH_RESOURCES``)
     To display interactive visualizations in a browser, Bokeh needs to load

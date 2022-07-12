@@ -7,23 +7,36 @@ html[data-theme=light] {
   /* match color of "Tip" admonition to Bokeh color scheme */
   --pst-color-success: rgb(165, 205, 57);
   --pst-color-admonition-tip: var(--pst-color-success);
+  --pst-color-inline-code: var(--pst-color-text-base);
 }
 
 /* customize display of inline pre elements */
 .literal .pre, span .pre {
   font-family: SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
-  color: var(--pst-color-text-base);
   padding: 2px 1px 0px 1px;
   font-size: 100%;
 }
 
 code {
-background-color:#eef0f1;
+  background-color:#eef0f1;
 }
 
 /* Match color of RST :ref: to that of other clickable links */
 .xref .pre {
   color: var(--pst-color-secondary);
+}
+
+/* Tweak appearance of args in reference guide */
+.class .sig, .function .sig, .sig .property {
+  font-weight: 400;
+}
+
+/* Tweak search results appearance */
+#search-results .context {
+  padding-left: 1em;
+}
+#search-results li {
+  margin-bottom: 1em;
 }
 
 /* WAR for https://github.com/pydata/pydata-sphinx-theme/issues/464 */
@@ -50,16 +63,20 @@ img.image-border {
   box-shadow: 1px 1px 1px #d8d8d8;
 }
 
-/* Tweak panel appearance */
-.card-header {
-  background-color: rgb(220, 220, 220);
+/* Style card headers */
+.sd-card-header {
+  background-color: rgb(220, 220, 220) !important;
   font-weight: 700;
   font-size: 110%;
 }
 
-/* Thumbnails on the main index page */
-.bokeh-examples {
-  padding: 0;
+/* Tweak sphinx-design cards */
+.sd-container-fluid div {
+  margin-bottom: 15px;
+}
+.bokeh-examples div {
+  padding: 0px;
+  margin: 0px;
 }
 .bokeh-examples img {
   width: 100%;

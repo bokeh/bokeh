@@ -16,6 +16,8 @@ of properties, use the mix-in classes in this module:
 
 * |HatchProps| --- properties for hatching pattern, color, alpha, etc.
 
+* |ImageProps| --- properties for global alpha on images
+
 * |LineProps| --- properties for line color, dashing, width, etc.
 
 * |TextProps| --- properties for text color, font, etc.
@@ -40,6 +42,7 @@ specific to each property.
 
 .. |FillProps| replace:: :class:`~bokeh.core.property_mixins.FillProps`
 .. |HatchProps| replace:: :class:`~bokeh.core.property_mixins.HatchProps`
+.. |ImageProps| replace:: :class:`~bokeh.core.property_mixins.ImageProps`
 .. |LineProps| replace:: :class:`~bokeh.core.property_mixins.LineProps`
 .. |TextProps| replace:: :class:`~bokeh.core.property_mixins.TextProps`
 
@@ -117,10 +120,12 @@ from .properties import (
 __all__ = (
     'FillProps',
     'HatchProps',
+    'ImageProps',
     'LineProps',
     'TextProps',
     'ScalarFillProps',
     'ScalarHatchProps',
+    'ScalarImageProps',
     'ScalarLineProps',
     'ScalarTextProps',
 )
@@ -253,7 +258,7 @@ class ScalarFillProps(HasProps):
     '''
 
     fill_color = Nullable(Color, default="gray", help=_color_help  % "fill paths")
-    fill_alpha = Alpha(help=_alpha_help)
+    fill_alpha = Alpha(help=_alpha_help % "fill paths")
 
 class HatchProps(HasProps):
     ''' Properties relevant to rendering fill regions.
@@ -282,6 +287,25 @@ class ScalarHatchProps(HasProps):
     hatch_pattern = Nullable(String, help=_hatch_pattern_help)  # String to accommodate user custom values
     hatch_weight = Size(default=1.0, help=_hatch_weight_help)
     hatch_extra = Dict(String, Instance("bokeh.models.textures.Texture"))
+
+class ImageProps(HasProps):
+    ''' Properties relevant to rendering images.
+
+    Mirrors the BokehJS ``properties.ImageVector`` class.
+
+    '''
+
+    global_alpha = AlphaSpec(help=_alpha_help % "images")
+
+class ScalarImageProps(HasProps):
+    ''' Properties relevant to rendering images.
+
+    Mirrors the BokehJS ``properties.Image`` class.
+
+    '''
+
+    global_alpha = Alpha(help=_alpha_help % "images")
+
 
 class LineProps(HasProps):
     ''' Properties relevant to rendering path operations.

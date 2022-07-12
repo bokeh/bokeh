@@ -75,6 +75,7 @@ from ..core.properties import (
 from ..core.property_mixins import (
     FillProps,
     HatchProps,
+    ImageProps,
     LineProps,
     ScalarFillProps,
     ScalarHatchProps,
@@ -678,9 +679,8 @@ class ImageBase(XYGlyph):
         That number is fixed by the image itself.
     """)
 
-    global_alpha = NumberSpec(1.0, help="""
-    An overall opacity that each image is rendered with (in addition
-    to any inherent alpha values in the image itself).
+    image_props = Include(ImageProps, help="""
+    The {prop} values for the images.
     """)
 
     dilate = Bool(False, help="""

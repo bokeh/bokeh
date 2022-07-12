@@ -76,7 +76,7 @@ function  _get_special_value(name: string, special_vars: Vars) {
     throw new Error(`Unknown special variable '\$${name}'`)
 }
 
-export function _get_column_value(name: string, data_source: ColumnarDataSource, i: Index | null): unknown | null {
+export function _get_column_value(name: string, data_source: ColumnarDataSource, ind: Index | null): unknown | null {
   const column = data_source.get_column(name)
 
   // missing column
@@ -84,22 +84,22 @@ export function _get_column_value(name: string, data_source: ColumnarDataSource,
     return null
 
   // null index (e.g for patch)
-  if (i == null)
+  if (ind == null)
     return null
 
   // typical (non-image) index
-  if (isNumber(i))
-    return column[i]
+  if (isNumber(ind))
+    return column[ind]
 
   // image index
-  const data = column[i.index]
+  const data = column[ind.index]
   if (isTypedArray(data) || isArray(data)) {
     // inspect array of arrays
     if (isArray(data[0])) {
-      const row: any = data[i.dim2]
-      return row[i.dim1]
+      const row: any = data[ind.j]
+      return row[ind.i]
     } else
-      return data[i.flat_index] // inspect flat array
+      return data[ind.flat_index] // inspect flat array
   } else
     return data // inspect per-image scalar data
 }

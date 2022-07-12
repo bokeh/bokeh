@@ -34,12 +34,7 @@ import hmac
 import json
 import time
 import zlib
-from typing import (
-    Any,
-    Dict,
-    Tuple,
-    Union,
-)
+from typing import Any, Dict
 
 # Bokeh imports
 from ..core.types import ID
@@ -94,7 +89,7 @@ def generate_jwt_token(session_id: ID,
                        signed: bool = settings.sign_sessions(),
                        extra_payload: TokenPayload | None = None,
                        expiration: int = 300) -> str:
-    """Generates a JWT token given a session_id and additional payload.
+    """ Generates a JWT token given a session_id and additional payload.
 
     Args:
         session_id (str):
@@ -121,7 +116,7 @@ def generate_jwt_token(session_id: ID,
     if extra_payload:
         if "session_id" in extra_payload:
             raise RuntimeError("extra_payload for session tokens may not contain 'session_id'")
-        extra_payload_str = json.dumps(extra_payload).encode('utf-8')
+        extra_payload_str = json.dumps(extra_payload, cls=_BytesEncoder).encode('utf-8')
         compressed = zlib.compress(extra_payload_str, level=9)
         payload[_TOKEN_ZLIB_KEY] = _base64_encode(compressed)
     token = _base64_encode(json.dumps(payload))
@@ -157,7 +152,7 @@ def get_token_payload(token: str) -> TokenPayload:
     if _TOKEN_ZLIB_KEY in decoded:
         decompressed = zlib.decompress(_base64_decode(decoded[_TOKEN_ZLIB_KEY]))
         del decoded[_TOKEN_ZLIB_KEY]
-        decoded.update(json.loads(decompressed))
+        decoded.update(json.loads(decompressed, cls=_BytesDecoder))
     del decoded['session_id']
     return decoded
 
@@ -232,7 +227,22 @@ def check_session_id_signature(session_id: str,
 # Private API
 #-----------------------------------------------------------------------------
 
-def _get_sysrandom() -> Tuple[Any, bool]:
+class _BytesEncoder(json.JSONEncoder):
+    def default(self, x):
+        if isinstance(x, bytes):
+            return dict(bytes=_base64_encode(x))
+        return super().default(x)
+
+class _BytesDecoder(json.JSONDecoder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(object_hook=self.bytes_object_hook, *args, **kwargs)
+
+    def bytes_object_hook(self, obj):
+        if set(obj.keys()) == {"bytes"}:
+            return _base64_decode(obj["bytes"])
+        return obj
+
+def _get_sysrandom() -> tuple[Any, bool]:
     # Use the system PRNG for session id generation (if possible)
     # NOTE: secure random string generation implementation is adapted
     #       from the Django project. Reference:
@@ -253,7 +263,7 @@ def _get_sysrandom() -> Tuple[Any, bool]:
         using_sysrandom = False
         return random, using_sysrandom
 
-def _ensure_bytes(secret_key: Union[str, bytes, None]) -> bytes | None:
+def _ensure_bytes(secret_key: str | bytes | None) -> bytes | None:
     if secret_key is None:
         return None
     elif isinstance(secret_key, bytes):
@@ -275,7 +285,7 @@ def _reseed_if_needed(using_sysrandom: bool, secret_key: bytes | None) -> None:
         random.seed(hashlib.sha256(data).digest())
 
 
-def _base64_encode(decoded: Union[bytes, str]) -> str:
+def _base64_encode(decoded: bytes | str) -> str:
     # base64 encode both takes and returns bytes, we want to work with strings.
     # If 'decoded' isn't bytes already, assume it's utf-8
     decoded_as_bytes = _ensure_bytes(decoded)
@@ -286,7 +296,7 @@ def _base64_encode(decoded: Union[bytes, str]) -> str:
     return str(encoded.rstrip('='))
 
 
-def _base64_decode(encoded: Union[bytes, str]) -> bytes:
+def _base64_decode(encoded: bytes | str) -> bytes:
     # base64 lib both takes and returns bytes, we want to work with strings
     encoded_as_bytes = codecs.encode(encoded, 'ascii') if isinstance(encoded, str) else encoded
     # put the padding back
@@ -307,11 +317,12 @@ def _get_random_string(
         length: int = 44,
         allowed_chars: str = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
         secret_key: bytes | None = settings.secret_key_bytes()) -> str:
-    """
-    Return a securely generated random string.
+    """ Return a securely generated random string.
+
     With the a-z, A-Z, 0-9 character set:
     Length 12 is a 71-bit value. log_2((26+26+10)^12) =~ 71
     Length 44 is a 261-bit value. log_2((26+26+10)^44) = 261
+
     """
     secret_key = _ensure_bytes(secret_key)
     _reseed_if_needed(using_sysrandom, secret_key)
