@@ -1338,7 +1338,7 @@ class EditTool(GestureTool):
 
     .. note::
         The kind of renderer will typically depend on the specific type of the
-        edit tool subclass. For instance,  ``PointDrawTool`` expects renderers
+        edit tool subclass. For instance, ``PointDrawTool`` expects renderers
         for ``Scatter`` glyphs, while ``BoxEditTool`` expects renderers for
         ``Rect`` glyphs, etc.
     """)
