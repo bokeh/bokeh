@@ -102,7 +102,7 @@ guide`_ for reference.
 Setting up and building Bokeh's documentation
 ---------------------------------------------
 
-Bokeh uses :doc:`Sphinx <sphinx:contents>` to generate the HTML files displayed
+Bokeh uses :doc:`Sphinx <sphinx:index>` to generate the HTML files displayed
 at docs.bokeh.org_. The documentation is written in
 :doc:`reStructuredText (ReST) <sphinx:usage/restructuredtext/index>`.
 
