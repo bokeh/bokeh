@@ -1,12 +1,22 @@
 import tz from "timezone"
 
-import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
+import {AbstractSlider, AbstractSliderView, SliderSpec} from "./abstract_slider"
 import {TickFormatter} from "../formatters/tick_formatter"
 import * as p from "core/properties"
 import {isString} from "core/util/types"
 
 export class DateSliderView extends AbstractSliderView {
   override model: DateSlider
+
+  protected override _calc_to(): SliderSpec {
+    const {start, end, value, step} = this.model
+    return {
+      start,
+      end,
+      value: [value],
+      step: step * 86_400_000,
+    }
+  }
 }
 
 export namespace DateSlider {

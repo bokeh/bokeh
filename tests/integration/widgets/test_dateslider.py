@@ -124,7 +124,7 @@ class Test_DateSlider:
 
     @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page: BokehServerPage) -> None:
-        slider = DateSlider(start=start, end=end, value=value, width=300, step=24*3600*1000)
+        slider = DateSlider(start=start, end=end, value=value, width=300, step=1)
 
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))

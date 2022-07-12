@@ -43,6 +43,20 @@ describe("RangeSlider", () => {
   })
 })
 
+describe("DateSliderView", () => {
+  it("should convert steps from 1 day in the model to 86_400_000 milliseconds in the slider element", async () => {
+    const start = 1451606400000 // 01 Jan 2016
+    const end = 1451952000000 // 05 Jan 2016
+    const value = 1451779200000 // 03 Jan 2016
+    const slider = new DateSlider({start, end, value, step: 1})
+    const view = (await build_view(slider)).build()
+
+    const [next_step] = view._steps()
+
+    expect(next_step).to.be.equal([86_400_000, 86_400_000])
+  })
+})
+
 describe("DateSlider", () => {
   it("should support string format", () => {
     const slider = new DateSlider({format: "%Y"})
@@ -53,6 +67,20 @@ describe("DateSlider", () => {
     const format = new CustomJSTickFormatter({code: "return Math.floor(1970 + tick/(1000*60*60*24*365)).toFixed(0)"})
     const slider = new DateSlider({format})
     expect(slider.pretty(1599402993268)).to.be.equal("2020")
+  })
+})
+
+describe("DateRangeSliderView", () => {
+  it("should convert steps from 1 day in the model to 86_400_000 milliseconds in the slider element", async () => {
+    const start = 1451606400000 // 01 Jan 2016
+    const end = 1451952000000 // 05 Jan 2016
+    const slider = new DateRangeSlider({start, end, value: [start, end], step: 1})
+    const view = (await build_view(slider)).build()
+
+    const [next_left_step, next_right_step] = view._steps()
+
+    expect(next_left_step).to.be.equal([null, 86_400_000])
+    expect(next_right_step).to.be.equal([86_400_000, null])
   })
 })
 

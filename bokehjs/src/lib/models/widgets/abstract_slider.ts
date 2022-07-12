@@ -33,6 +33,10 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
 
   private _noUiSlider: API
 
+  get _steps(): API["steps"] {
+    return this._noUiSlider.steps
+  }
+
   override connect_signals(): void {
     super.connect_signals()
 
