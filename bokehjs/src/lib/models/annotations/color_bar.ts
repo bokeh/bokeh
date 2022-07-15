@@ -22,9 +22,9 @@ export class ColorBarView extends BaseColorBarView {
 
   protected _image: HTMLCanvasElement | null
 
-  // Indices of displayed colors corresponding to low and high cutoffs.
-  protected _low_index: number | null
-  protected _high_index: number | null
+  // Indices of displayed colors corresponding to low and high display cutoffs.
+  protected _index_low: number | null
+  protected _index_high: number | null
 
   override connect_signals(): void {
     super.connect_signals()
@@ -36,8 +36,8 @@ export class ColorBarView extends BaseColorBarView {
       this.plot_view.invalidate_layout()
     })
     this.connect(this.model.color_mapper.metrics_change, () => this._metrics_changed())
-    this.connect(this.model.properties.low_cutoff.change, () => this._metrics_changed())
-    this.connect(this.model.properties.high_cutoff.change, () => this._metrics_changed())
+    this.connect(this.model.properties.display_low.change, () => this._metrics_changed())
+    this.connect(this.model.properties.display_high.change, () => this._metrics_changed())
   }
 
   override update_layout(): void {
@@ -117,34 +117,35 @@ export class ColorBarView extends BaseColorBarView {
       return new BasicTicker()
   }
 
-  // Return min and max metrics of ContinuousColorMapper, modified to account for low and high cutoffs.
+  // Return min and max metrics of ContinuousColorMapper, modified to account
+  // for low and high display cutoffs.
   protected _continuous_metrics(color_mapper: ContinuousColorMapper): {min: number, max: number} {
-    const {low_cutoff, high_cutoff} = this.model
+    const {display_low, display_high} = this.model
     let {min, max} = color_mapper.metrics
 
-    if (high_cutoff != null && low_cutoff != null && high_cutoff < low_cutoff) {
+    if (display_high != null && display_low != null && display_high < display_low) {
       // Empty color bar.
-      this._low_index = 0
-      this._high_index = -1
+      this._index_low = 0
+      this._index_high = -1
       return {min: NaN, max: NaN}
     }
 
-    this._high_index = null
-    if (high_cutoff != null) {
+    this._index_high = null
+    if (display_high != null) {
       const palette_length = color_mapper.palette.length
-      const high_index = color_mapper.value_to_index(high_cutoff, palette_length)
-      if (high_index < palette_length-1) {
-        this._high_index = high_index
-        max = color_mapper.index_to_value(high_index+1)
+      const index_high = color_mapper.value_to_index(display_high, palette_length)
+      if (index_high < palette_length-1) {
+        this._index_high = index_high
+        max = color_mapper.index_to_value(index_high+1)
       }
     }
 
-    this._low_index = null
-    if (low_cutoff != null) {
-      const low_index = color_mapper.value_to_index(low_cutoff, color_mapper.palette.length)
-      if (low_index > 0) {
-        this._low_index = low_index
-        min = color_mapper.index_to_value(low_index)
+    this._index_low = null
+    if (display_low != null) {
+      const index_low = color_mapper.value_to_index(display_low, color_mapper.palette.length)
+      if (index_low > 0) {
+        this._index_low = index_low
+        min = color_mapper.index_to_value(index_low)
       }
     }
 
@@ -201,37 +202,38 @@ export class ColorBarView extends BaseColorBarView {
     ctx.restore()
   }
 
-  // Return binning array of ScanningColorMapper, modified to account for low and high cutoffs.
+  // Return binning array of ScanningColorMapper, modified to account for low
+  // and high display cutoffs.
   protected _scanning_binning(color_mapper: ScanningColorMapper): Arrayable<number> {
     let {binning} = color_mapper.metrics
-    const {low_cutoff, high_cutoff} = this.model
+    const {display_low, display_high} = this.model
 
-    if (high_cutoff != null && low_cutoff != null && high_cutoff < low_cutoff) {
+    if (display_high != null && display_low != null && display_high < display_low) {
       // Empty color bar.
-      this._low_index = 0
-      this._high_index = -1
+      this._index_low = 0
+      this._index_high = -1
       return [NaN]
     }
 
-    this._high_index = null
-    if (high_cutoff != null) {
-      const high_index = color_mapper.value_to_index(high_cutoff, binning.length)
-      if (high_index < binning.length-1)
-        this._high_index = high_index
+    this._index_high = null
+    if (display_high != null) {
+      const index_high = color_mapper.value_to_index(display_high, binning.length)
+      if (index_high < binning.length-1)
+        this._index_high = index_high
     }
 
-    this._low_index = null
-    if (low_cutoff != null) {
-      const low_index = color_mapper.value_to_index(low_cutoff, binning.length)
-      if (low_index > 0) {
-        this._low_index = low_index
+    this._index_low = null
+    if (display_low != null) {
+      const index_low = color_mapper.value_to_index(display_low, binning.length)
+      if (index_low > 0) {
+        this._index_low = index_low
       }
     }
 
-    if (this._low_index != null || this._high_index != null) {
+    if (this._index_low != null || this._index_high != null) {
       // Slice binning array.
-      const start = this._low_index != null ? this._low_index : 0
-      const end = this._high_index != null ? this._high_index + 1 : binning.length - 1
+      const start = this._index_low != null ? this._index_low : 0
+      const end = this._index_high != null ? this._index_high + 1 : binning.length - 1
       const n = end - start + 1
       if (n > 0) {
         const new_binning = new Array<number>(n)
@@ -250,10 +252,10 @@ export class ColorBarView extends BaseColorBarView {
 
     let {palette} = this.model.color_mapper
 
-    if (this._high_index != null || this._low_index != null) {
+    if (this._index_high != null || this._index_low != null) {
       palette = palette.slice(
-        this._low_index != null ? this._low_index : 0,
-        this._high_index != null ? this._high_index + 1 : palette.length)
+        this._index_low != null ? this._index_low : 0,
+        this._index_high != null ? this._index_high + 1 : palette.length)
     }
 
     if (palette.length < 1) {
@@ -293,8 +295,8 @@ export namespace ColorBar {
 
   export type Props = BaseColorBar.Props & {
     color_mapper: p.Property<ColorMapper>
-    low_cutoff: p.Property<number | null>
-    high_cutoff: p.Property<number | null>
+    display_low: p.Property<number | null>
+    display_high: p.Property<number | null>
   }
 }
 
@@ -313,8 +315,8 @@ export class ColorBar extends BaseColorBar {
 
     this.define<ColorBar.Props>(({Nullable, Number, Ref}) => ({
       color_mapper: [ Ref(ColorMapper) ],
-      low_cutoff:   [ Nullable(Number), null ],
-      high_cutoff:  [ Nullable(Number), null ],
+      display_low:  [ Nullable(Number), null ],
+      display_high: [ Nullable(Number), null ],
     }))
   }
 }

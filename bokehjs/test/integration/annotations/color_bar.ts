@@ -398,9 +398,9 @@ describe("ColorBar annotation", () => {
     await display(p)
   })
 
-  describe("should support cutoffs", () => {
-    function make_plot(color_mapper: ColorMapper, title: string, low_cutoff: number | null, high_cutoff: number | null): Plot {
-      const color_bar = new ColorBar({color_mapper, low_cutoff, high_cutoff, title, bar_line_color: "black"})
+  describe("should support display cutoffs", () => {
+    function make_plot(color_mapper: ColorMapper, title: string, display_low: number | null, display_high: number | null): Plot {
+      const color_bar = new ColorBar({color_mapper, display_low, display_high, title, bar_line_color: "black"})
       const x = np.arange(11)
       const values = np.linspace(10, 100, 11)
 
@@ -411,11 +411,11 @@ describe("ColorBar annotation", () => {
       return p
     }
 
-    function make_cutoff_plots(low_cutoff: number | null, high_cutoff: number | null): Column {
+    function make_cutoff_plots(display_low: number | null, display_high: number | null): Column {
       const palette = Spectral11
-      const p0 = make_plot(new LinearColorMapper({palette}), "linear", low_cutoff, high_cutoff)
-      const p1 = make_plot(new LogColorMapper({palette}), "log", low_cutoff, high_cutoff)
-      const p2 = make_plot(new EqHistColorMapper({palette}), "eq hist", low_cutoff, high_cutoff)
+      const p0 = make_plot(new LinearColorMapper({palette}), "linear", display_low, display_high)
+      const p1 = make_plot(new LogColorMapper({palette}), "log", display_low, display_high)
+      const p2 = make_plot(new EqHistColorMapper({palette}), "eq hist", display_low, display_high)
       return column([p0, p1, p2])
     }
 

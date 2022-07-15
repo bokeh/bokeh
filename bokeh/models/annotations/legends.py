@@ -234,13 +234,13 @@ class ColorBar(BaseColorBar):
         (i.e. `low=0`), the tick and tick labels won't be rendered.
     """)
 
-    low_cutoff = Nullable(Float, help="""
-    The lowest value to show in the color bar. The whole of the color entry
+    display_low = Nullable(Float, help="""
+    The lowest value to display in the color bar. The whole of the color entry
     containing this value is shown.
     """)
 
-    high_cutoff = Nullable(Float, help="""
-    The highest value to show in the color bar. The whole of the color entry
+    display_high = Nullable(Float, help="""
+    The highest value to display in the color bar. The whole of the color entry
     containing this value is shown.
     """)
 
