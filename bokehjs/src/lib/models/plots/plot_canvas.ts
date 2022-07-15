@@ -592,6 +592,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   paint(): void {
+    if (this.model.hold_render) {
+      return
+    }
+
     if (this.is_paused)
       return
 

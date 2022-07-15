@@ -756,6 +756,29 @@ class Plot(LayoutDOM):
     suppress all of the actions except the Reset event.
     """)
 
+    hold_render = Bool(default=False, help="""
+    When set to True all requests to repaint the plot will be ignored.
+    This is useful when periodically updating many glyphs.
+    For example, let's assume we have 10 lines on a plot, each with its own datasource.
+    We stream to all of them every second in a for loop like so:
+
+    for line in lines:
+        line.stream(new_points())
+
+    The problem with this code is that every stream triggers a re-rendering of the plot.
+    Even tough repainting only on the last stream would produce almost identical visual effect.
+    Especially for lines with many points this becomes computationally expensive and can freeze your browser.
+    Using hold_render we can control when rendering is initiated like so:
+
+    plot.hold_render = True
+    for line in lines:
+        if is_last(line):
+            plot.hold_render = False
+        line.stream(new_points())
+
+    In this case we render newly appended points only after the last stream.
+    """)
+
     # XXX: override LayoutDOM's definitions because of plot_{width,height}.
     @error(FIXED_SIZING_MODE)
     def _check_fixed_sizing_mode(self):
