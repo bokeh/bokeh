@@ -97,7 +97,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/surface3d">
-            <img src="https://static.bokeh.org/surface3d_t.png" class="img-responsive img-thumbnail"></img alt=" ">
+            <img src="https://static.bokeh.org/surface3d_t.png" class="img-responsive img-thumbnail"></img alt="Thumbnail for surface3d example. Axes are rotated slightly and shown with perspective. A 3D surface is plotted, and colored with a heat map corresponding to z axis value.">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
@@ -107,7 +107,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/export_csv">
-            <img src="https://static.bokeh.org/export_csv_t.png" class="img-responsive img-thumbnail" alt=" ">
+            <img src="https://static.bokeh.org/export_csv_t.png" class="img-responsive img-thumbnail" alt="Thumbnail for export_csv example. Image shows an interface for filtering data with a slider widget, and writing the results by clicking a button.">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
