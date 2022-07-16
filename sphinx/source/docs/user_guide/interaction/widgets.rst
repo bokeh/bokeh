@@ -3,29 +3,89 @@
 Adding widgets
 ==============
 
-Widgets are interactive controls that can be added to Bokeh applications to
-provide a front end user interface to a visualization. They can drive new
-computations, update plots, and connect to other programmatic functionality.
-When used with the Bokeh server, widgets can run arbitrary Python code, enabling
-complex applications. Widgets can also be used without the Bokeh server in
-standalone HTML documents through the browser's JavaScript runtime.
+Widgets are interactive control and display elements that can be added to Bokeh
+documents to provide a front end user interface to a visualization. Widgets can
+be added directly to the document root or nested inside a layout.
+
+You can use widgets to drive new computations, update plots, and connect to
+other programmatic functionality. When used with the :ref:`Bokeh server
+<userguide_server>`, widgets can run arbitrary Python code, enabling complex
+applications. Widgets can also be used without the Bokeh server in standalone
+HTML documents through the browser's JavaScript runtime.
+
+Bokeh provides a simple :ref:`default set of widgets
+<userguide_interaction_widgets_examples>`. You can create your own
+custom widgets, or wrap different third party widget libraries by creating
+custom extensions as described in :ref:`userguide_extensions`.
 
 .. _userguide_interaction_widgets_callbacks:
 
-Callbacks
----------
+Widget interactivity
+--------------------
 
-To use widgets, you must add them to your document and define their callbacks.
-Widgets can be added directly to the document root or nested inside a layout.
-There are two ways to use a widget's functionality:
+While some widgets are only meant to display data, others can be used to
+interactively manipulate data and properties of objects in your visualization.
 
-    * A ``CustomJS`` callback (see :ref:`userguide_interaction_jscallbacks`).
-      This approach will work in standalone HTML documents or Bokeh server apps.
-    * Use ``bokeh serve`` to start a Bokeh server and set up event handlers with
-      ``.on_change`` or ``.on_event``.
+Bokeh uses callbacks to handle these interactions. There are two types of
+callbacks:
 
-Event handlers are Python functions that users can attach to widgets. These
-functions are then called when certain attributes on the widget are changed.
+* :ref:`userguide_interaction_widgets_callbacks_javascript`
+* :ref:`userguide_interaction_widgets_callbacks_python`
+
+Which one to use depends on whether you are using Bokeh server or are generating
+standalone HTML output:
+
+* If you want to use widgets to interact with Bokeh objects in a **standalone**
+    HTML document, the browser needs to handle all interactivity. Therefore,
+    you can only use :ref:`userguide_interaction_widgets_callbacks_javascript`.
+    You can write your own Javascript code, or use Bokeh's pre-defined Python
+    conveniences such as the :ref:`js_link <userguide_interaction_linked_properties>` function or a SetValue object
+    which generate the necessary JavaScript code for you.
+* If you want to use widgets in connection with a **Bokeh server**, the server
+    can handle some interactivity. This allows you to use :ref:`callbacks
+    written in Python <userguide_interaction_widgets_callbacks_python>`.
+    Additionally, since the visualization itself is displayed in a browser, you
+    still can use :ref:`userguide_interaction_widgets_callbacks_javascript` as
+    well!
+
+.. _userguide_interaction_widgets_callbacks_javascript:
+
+JavaScript callbacks
+~~~~~~~~~~~~~~~~~~~~
+
+The simplest version of interactive callbacks are JavaScript callbacks that run
+directly in the browser.
+
+There are three options for generating a JavaScript callback:
+
+* using the js_link Python convenience method
+* using the SetValue Python object
+* writing custom JavaScript code with the CustomJS objectg
+
+For more information about the attributes to watch using ``.js_on_change``, see the
+respective entry for a widget under |bokeh.models| in the |reference guide|.
+
+
+https://docs.bokeh.org/en/latest/docs/gallery/color_sliders.html
+
+.. Warning::
+    The explicit purpose of the ``CustomJS`` Model is to embed raw JavaScript
+    code for a browser to execute. If any part of the code is derived from
+    untrusted user inputs, then you must take appropriate care to sanitize the
+    user input prior to passing to Bokeh.
+
+
+.. _userguide_interaction_widgets_callbacks_python:
+
+Python callbacks
+~~~~~~~~~~~~~~~~
+
+Python callbacks (sometimes also called *event handlers*) are Python functions
+that you can attach to widgets. These callbacks are only available in connection
+with the :ref:`Bokeh server <userguide_server>`
+
+These
+functions are called when certain attributes on the widget are changed.
 The function signature of event handlers is determined by how they are attached
 to widgets (whether by ``.on_change`` or ``.on_event``, for example).
 
@@ -57,12 +117,31 @@ widgets with ``.on_event``, the handler is passed the new attribute value.
     radio_group = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
     radio_group.on_event('button_click', my_radio_handler)
 
-Bokeh provides a simple default set of widgets. Users can create their own
-custom widgets, or wrap different third party widget libraries by creating
-custom extensions as described in :ref:`userguide_extensions`.
+https://github.com/bokeh/bokeh/tree/master/examples/app/weather
+
+.. raw:: html
+
+    <div>
+    <iframe
+        src="https://demo.bokeh.org/sliders"
+        frameborder="0"
+        style="overflow:hidden;height:400px;width: 90%;
+
+        -moz-transform-origin: top left;
+        -webkit-transform-origin: top left;
+        -o-transform-origin: top left;
+        -ms-transform-origin: top left;
+        transform-origin: top left;"
+        height="460"
+    ></iframe>
+    </div>
+
+
+
 
 For more information about the attributes to watch using ``.on_change``, see the
-|reference guide|. (Information about widgets is found under |bokeh.models|.)
+respective entry for a widget under |bokeh.models| in the |reference guide|.
+
 
 .. _userguide_interaction_widgets_examples:
 
