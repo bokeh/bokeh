@@ -41,13 +41,19 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: |
-          VER=95.0.4638.69
-          REV=chromium_1810
+          VER=103.0.5060.53
+          REV=chromium_2020
           URL=https://github.com/bokeh/chromium/raw/main/linux/$VER
-          wget --no-verbose $URL/$REV.assert
-          wget --no-verbose $URL/$REV.snap
-          sudo snap ack $REV.assert
-          sudo snap install $REV.snap
+
+          if [[ "$(chromium --version | cut -d' ' -f2)" = "$VER" ]]; then
+            echo "Using pre-installed version of chromium"
+          else
+            wget --no-verbose $URL/$REV.assert
+            wget --no-verbose $URL/$REV.snap
+
+            sudo snap ack $REV.assert
+            sudo snap install $REV.snap
+          fi
 
       - name: Install dependencies
         working-directory: ./bokehjs
