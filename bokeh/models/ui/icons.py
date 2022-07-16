@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Various kinds of icon widgets.
+""" Various kinds of icons to be used with Button widgets.
 
 """
 

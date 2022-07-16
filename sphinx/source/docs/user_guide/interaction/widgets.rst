@@ -36,17 +36,17 @@ Which one to use depends on whether you are using Bokeh server or are generating
 standalone HTML output:
 
 * If you want to use widgets to interact with Bokeh objects in a **standalone**
-    HTML document, the browser needs to handle all interactivity. Therefore,
-    you can only use :ref:`userguide_interaction_widgets_callbacks_javascript`.
-    You can write your own Javascript code, or use Bokeh's pre-defined Python
-    conveniences such as the :ref:`js_link <userguide_interaction_linked_properties>` function or a SetValue object
-    which generate the necessary JavaScript code for you.
+  HTML document, the browser needs to handle all interactivity. Therefore,
+  you can only use :ref:`userguide_interaction_widgets_callbacks_javascript`.
+  You can write your own Javascript code, or use Bokeh's pre-defined Python
+  conveniences such as the :ref:`js_link <userguide_interaction_linked_properties>` function or a SetValue object
+  which generate the necessary JavaScript code for you.
 * If you want to use widgets in connection with a **Bokeh server**, the server
-    can handle some interactivity. This allows you to use :ref:`callbacks
-    written in Python <userguide_interaction_widgets_callbacks_python>`.
-    Additionally, since the visualization itself is displayed in a browser, you
-    still can use :ref:`userguide_interaction_widgets_callbacks_javascript` as
-    well!
+  can handle some interactivity. This allows you to use :ref:`callbacks
+  written in Python <userguide_interaction_widgets_callbacks_python>`.
+  Additionally, since the visualization itself is displayed in a browser, you
+  still can use :ref:`userguide_interaction_widgets_callbacks_javascript` as
+  well!
 
 .. _userguide_interaction_widgets_callbacks_javascript:
 
@@ -56,11 +56,25 @@ JavaScript callbacks
 The simplest version of interactive callbacks are JavaScript callbacks that run
 directly in the browser.
 
+Every widget has a ``.js_on_change`` property. The callback assigned to this
+property will be called whenever
+
+
+.js_on_event
+
 There are three options for generating a JavaScript callback:
 
-* using the js_link Python convenience method
+
+* Using the ``js_link`` Python convenience method:
+
 * using the SetValue Python object
-* writing custom JavaScript code with the CustomJS objectg
+    var
+
+* writing custom JavaScript code with the CustomJS object
+
+
+
+
 
 For more information about the attributes to watch using ``.js_on_change``, see the
 respective entry for a widget under |bokeh.models| in the |reference guide|.
@@ -142,15 +156,21 @@ https://github.com/bokeh/bokeh/tree/master/examples/app/weather
 For more information about the attributes to watch using ``.on_change``, see the
 respective entry for a widget under |bokeh.models| in the |reference guide|.
 
+.. _userguide_interaction_widgets_tootltips:
+
+Widget tooltips
+---------------
+
+[TBD]
 
 .. _userguide_interaction_widgets_examples:
 
-Examples
---------
+Bokeh's built-in widgets
+------------------------
 
-The sections below collect short but complete examples of using all the built-in
-widgets. Many of the examples print output that can be observed by looking at
-your browser JavaScript console log.
+The sections below are examples for all widgets available in Bokeh. Many of the
+examples print output that can be observed by looking at your browser's
+JavaScript console log.
 
 Button
 ~~~~~~
@@ -160,7 +180,21 @@ Bokeh provides a simple Button:
 .. bokeh-plot:: docs/user_guide/examples/interaction_button.py
     :source-position: below
 
-More information can be found in the Reference for |Button|.
+Use the button's ``button_type`` property to change the style of the button. See
+:class:`~bokeh.core.enums.ButtonType` for possible values.`
+
+Optionally, you can add an icon to a button by passing an Icon object to the
+button's ``icon`` parameter:
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_button_icon.py
+    :source-position: below
+
+Bokeh supports the following kinds of icons on buttons:
+* :class:`~bokeh.models.icons.BuiltinIcon`: A set of built-in icons provided by Bokeh (see :class:`~bokeh.core.enums.ToolIcon` for a list of available icons) [TBD that list does not match???!]
+* :class:`~bokeh.models.icons.SVGIcon`: An arbitrary SVG icon
+* :class:`~bokeh.models.icons.TablerIcon`: An icon from the `Tabler icon set <https://tabler-icons.io/>`_ (requires an acitve internet connection)
+
+More information about buttons can be found in the Reference for |Button|.
 
 CheckboxButtonGroup
 ~~~~~~~~~~~~~~~~~~~
