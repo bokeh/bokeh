@@ -184,9 +184,9 @@ Protected branches
 To uninstall the Git hooks, run the following command from the top level of your
 *source checkout* directory:
 
-    .. code-block:: sh
+.. code-block:: sh
 
-        python scripts/hooks/uninstall.py
+    python scripts/hooks/uninstall.py
 
 .. _contributor_guide_setup_install_locally:
 
