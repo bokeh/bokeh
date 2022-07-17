@@ -5,7 +5,7 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 """
-
+Various UI elements such as buttons, menus, and tooltips.
 """
 #-----------------------------------------------------------------------------
 # Boilerplate
