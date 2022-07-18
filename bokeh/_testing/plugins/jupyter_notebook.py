@@ -148,7 +148,7 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
             def helper() -> Any:
                 if proc.returncode is not None:
                     return True
-                try: # type: ignore[unreachable] # XXX: typeshed bug, proc.returncode: int
+                try:
                     return requests.get(jupter_notebook_url)
                 except ConnectionError:
                     return False
@@ -163,7 +163,7 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
             write(f"Jupyter notebook exited with code {proc.returncode}")
             sys.exit(1)
 
-        return jupter_notebook_url # type: ignore[unreachable] # XXX: typeshed bug, proc.returncode: int
+        return jupter_notebook_url
 
 #-----------------------------------------------------------------------------
 # Dev API
