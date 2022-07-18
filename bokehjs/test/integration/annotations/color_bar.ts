@@ -438,5 +438,46 @@ describe("ColorBar annotation", () => {
     it("wrong way round", async () => {
       await display(make_cutoff_plots(80, 40))
     })
+
+    function make_multi_cbar_plot(color_mapper: ColorMapper, vertical: boolean): {plot: Plot, cbars: ColorBar[]} {
+      const p = fig([400, 400])
+      const x = vertical ? 0 : np.arange(11)
+      const y = vertical ? np.arange(11) : 0
+      const values = np.linspace(0, 10, 11)
+      p.circle({x, y, size: 15, fill_color: {field: "values", transform: color_mapper}, source: {values}})
+      const cbars = [
+        new ColorBar({color_mapper, title: "Update low"}),
+        new ColorBar({color_mapper, title: "Update high"}),
+        new ColorBar({color_mapper, title: "Update both"}),
+        new ColorBar({color_mapper, title: "Reset", display_low: 3, display_high: 7}),
+      ]
+      const side = vertical ? "right" : "below"
+      for (const cbar of cbars)
+        p.add_layout(cbar, side)
+      return {plot: p, cbars}
+    }
+
+    function update_cbars(cbars: ColorBar[]): void {
+      cbars[0].display_low = 3
+      cbars[1].display_high = 7
+      cbars[2].display_low = 3
+      cbars[2].display_high = 7
+      cbars[3].display_low = null
+      cbars[3].display_high = null
+    }
+
+    it("update EqHist", async () => {
+      const {plot, cbars} = make_multi_cbar_plot(new EqHistColorMapper({palette: Spectral11}), false)
+      const {view} = await display(plot)
+      update_cbars(cbars)
+      await view.ready
+    })
+
+    it("update Linear", async () => {
+      const {plot, cbars} = make_multi_cbar_plot(new LinearColorMapper({palette: Spectral11}), true)
+      const {view} = await display(plot)
+      update_cbars(cbars)
+      await view.ready
+    })
   })
 })
