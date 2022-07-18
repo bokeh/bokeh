@@ -95,7 +95,7 @@ CustomJS for user interaction events
 
 In addition to responding to property change events using js_on_change, Bokeh
 allows CustomJS callbacks to be triggered by specific interaction events with
-the plot canvas, on button click events, and on LOD events.
+the plot canvas, on button click events, and on LOD (Level-of-Detail) events.
 
 These event callbacks are defined on models using the js_on_event method,
 with the callback receiving the event object as a locally defined cb_obj
