@@ -26,7 +26,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/movies">
-          <img src="https://static.bokeh.org/movies_t.png" class="img-responsive img-thumbnail" alt=" ">
+          <img src="https://static.bokeh.org/movies_t.png" class="img-responsive img-thumbnail" alt="Thumbnail featuring an interactive query tool for a set of IMDB data. Tool features a default graph of the Tomato Meter (x-axis) against the number of reviews (y-axis). Graph can be refined using multiple variables including cast names, director name, number of Oscar wins, year released, end year released, genre, dollar at the box office, and more.">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
@@ -36,7 +36,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/selection_histogram">
-            <img src="https://static.bokeh.org/selection_histogram_t.png" class="img-responsive img-thumbnail" alt=" ">
+            <img src="https://static.bokeh.org/selection_histogram_t.png" class="img-responsive img-thumbnail" alt="Thumbnail featuring axis histograms for selected and non-selected points in a scatter plot. Axes unlabeled.">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
@@ -47,7 +47,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/weather">
-            <img src="https://static.bokeh.org/weather_t.png" class="img-responsive img-thumbnail" alt=" ">
+            <img src="https://static.bokeh.org/weather_t.png" class="img-responsive img-thumbnail" alt="Thumbnail featuring interactive weather statistics for three cities. Features drop down for city and distribution. X-axis features date, the y-axis features temperature.">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
@@ -57,7 +57,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/sliders">
-            <img src="https://static.bokeh.org/sliders_t.png" class="img-responsive img-thumbnail"></img alt=" ">
+            <img src="https://static.bokeh.org/sliders_t.png" class="img-responsive img-thumbnail"></img alt="Thumbnail of plotted trigonometric function with sliders for offset, amplitude, phase, and frequency.">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
@@ -67,7 +67,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/crossfilter">
-            <img src="https://static.bokeh.org/crossfilter_t.png" class="img-responsive img-thumbnail" alt=" ">
+            <img src="https://static.bokeh.org/crossfilter_t.png" class="img-responsive img-thumbnail" alt="Thumbnail of example scatter plot with drop downs for x-axis, y-axis, color, and size. Default graph features mpg on the x-axis, hp on the y-axis, and shows a downward exponential trend.">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
@@ -77,7 +77,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/gapminder">
-            <img src="https://static.bokeh.org/gapminder_t.png" class="img-responsive img-thumbnail"></img alt=" ">
+            <img src="https://static.bokeh.org/gapminder_t.png" class="img-responsive img-thumbnail"></img alt="Thumbnail of a page featuring a reproduction of the Gapminder demo and containing an embedded TED talk video added using a custom page template. Gapminder demo shows children per woman (x-axis), life expectancy at birth in years (y-axis), by nation, over the years (slider), and a play button that allows data to play across slider range of 1964 - 2012.">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
@@ -87,7 +87,7 @@ can be processed to trigger more visual updates.
 
         <div class="col-lg-3 col-md-6 col-sm-6">
           <a target="_blank" href="//demo.bokeh.org/stocks">
-            <img src="https://static.bokeh.org/stocks_t.png" class="img-responsive img-thumbnail"></img alt=" ">
+            <img src="https://static.bokeh.org/stocks_t.png" class="img-responsive img-thumbnail"></img alt="A clickable image of linked plots, summary statistics, and correlations for market data. Contains two drop down selections for different investment options. Left features a scatterplot of option one's returns vs option two's returns. Below features a line plot of each individual option. Right shows basic statistics of each option and each option's returns.">
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
