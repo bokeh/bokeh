@@ -32,9 +32,9 @@ from ..core.properties import (
     Instance,
     InstanceDefault,
     Int,
-    NonNullable,
     Nullable,
     Override,
+    Required,
     String,
 )
 from ..core.validation import error, warning
@@ -69,11 +69,11 @@ class MapOptions(Model):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    lat = NonNullable(Float, help="""
+    lat = Required(Float, help="""
     The latitude where the map should be centered.
     """)
 
-    lng = NonNullable(Float, help="""
+    lng = Required(Float, help="""
     The longitude where the map should be centered.
     """)
 
@@ -191,7 +191,7 @@ class GMapPlot(MapPlot):
 
     background_fill_alpha = Override(default=0.0)
 
-    api_key = NonNullable(Bytes, help="""
+    api_key = Required(Bytes, help="""
     Google Maps API requires an API key. See https://developers.google.com/maps/documentation/javascript/get-api-key
     for more information on how to obtain your own.
     """).accepts(String, lambda val: val.encode("utf-8"))

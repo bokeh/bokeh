@@ -31,7 +31,7 @@ from ..core.properties import (
     Bool,
     Dict,
     Instance,
-    NonNullable as Required,
+    Required,
     String,
 )
 from ..core.property.bases import Init

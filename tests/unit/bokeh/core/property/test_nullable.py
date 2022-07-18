@@ -100,35 +100,6 @@ class Test_Nullable:
         assert prop.wrap(wrapped) is wrapped
 
 class Test_NonNullable:
-    def test_init(self) -> None:
-        with pytest.raises(TypeError):
-            bcpn.NonNullable()
-
-    def test_valid(self) -> None:
-        prop = bcpn.NonNullable(List(Int))
-
-        assert prop.is_valid([])
-        assert prop.is_valid([1, 2, 3])
-
-    def test_invalid(self) -> None:
-        prop = bcpn.NonNullable(List(Int))
-
-        assert not prop.is_valid(None)
-
-        assert not prop.is_valid(-100)
-        assert not prop.is_valid("yyy")
-        assert not prop.is_valid([1, 2, ""])
-
-        assert not prop.is_valid(())
-        assert not prop.is_valid({})
-        assert not prop.is_valid(_TestHasProps())
-        assert not prop.is_valid(_TestModel())
-
-    def test_has_ref(self) -> None:
-        prop0 = bcpn.NonNullable(Int)
-        assert not prop0.has_ref
-        prop1 = bcpn.NonNullable(Instance(_TestModel))
-        assert prop1.has_ref
 
     def test_str(self) -> None:
         prop = bcpn.NonNullable(List(Int))

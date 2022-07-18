@@ -28,8 +28,8 @@ from ..core.properties import (
     Either,
     Instance,
     List,
-    NonNullable as Required,
     Nullable,
+    Required,
     String,
 )
 from ..core.property.bases import Init

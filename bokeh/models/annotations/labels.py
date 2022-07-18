@@ -35,10 +35,10 @@ from ...core.properties import (
     Enum,
     Float,
     Include,
-    NonNullable,
     NullStringSpec,
     NumberSpec,
     Override,
+    Required,
     TextLike,
     field,
 )
@@ -122,7 +122,7 @@ class Label(TextAnnotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    x = NonNullable(Float, help="""
+    x = Required(Float, help="""
     The x-coordinate in screen coordinates to locate the text anchors.
 
     Datetime values are also accepted, but note that they are immediately
@@ -134,7 +134,7 @@ class Label(TextAnnotation):
     default.
     """)
 
-    y = NonNullable(Float, help="""
+    y = Required(Float, help="""
     The y-coordinate in screen coordinates to locate the text anchors.
 
     Datetime values are also accepted, but note that they are immediately

@@ -31,9 +31,9 @@ from ..core.properties import (
     Float,
     Instance,
     Int,
-    NonNullable,
     Nullable,
     Override,
+    Required,
     Seq,
 )
 from ..core.validation import error
@@ -188,7 +188,7 @@ class SingleIntervalTicker(ContinuousTicker):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    interval = NonNullable(Float, help="""
+    interval = Required(Float, help="""
     The interval between adjacent ticks.
     """)
 

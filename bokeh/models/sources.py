@@ -43,11 +43,11 @@ from ..core.properties import (
     Instance,
     InstanceDefault,
     Int,
-    NonNullable,
     Nullable,
     PandasDataFrame,
     PandasGroupBy,
     Readonly,
+    Required,
     Seq,
     String,
 )
@@ -786,7 +786,7 @@ class GeoJSONDataSource(ColumnarDataSource):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    geojson = NonNullable(JSON, help="""
+    geojson = Required(JSON, help="""
     GeoJSON that contains features for plotting. Currently
     ``GeoJSONDataSource`` can only process a ``FeatureCollection`` or
     ``GeometryCollection``.
@@ -828,7 +828,7 @@ class WebDataSource(ColumnDataSource):
     replace existing data entirely.
     """)
 
-    data_url = NonNullable(String, help="""
+    data_url = Required(String, help="""
     A URL to to fetch data from.
     """)
 

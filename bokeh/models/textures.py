@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import TextureRepetition
 from ..core.has_props import abstract
-from ..core.properties import Enum, NonNullable, String
+from ..core.properties import Enum, Required, String
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -63,7 +63,7 @@ class CanvasTexture(Texture):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    code = NonNullable(String, help="""
+    code = Required(String, help="""
     A snippet of JavaScript code to execute in the browser.
 
     """)
@@ -77,7 +77,7 @@ class ImageURLTexture(Texture):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    url = NonNullable(String, help="""
+    url = Required(String, help="""
     A URL to a drawable resource like image, video, etc.
 
     """)

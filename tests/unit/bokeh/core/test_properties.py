@@ -106,6 +106,7 @@ ALL = (
     'Readonly',
     'Regex',
     'RelativeDelta',
+    'Required',
     'RestrictedDict',
     'Seq',
     'Size',

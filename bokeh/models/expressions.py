@@ -51,9 +51,9 @@ from ..core.properties import (
     Enum,
     Float,
     Instance,
-    NonNullable,
     Nullable,
     NumberSpec,
+    Required,
     Seq,
     String,
     field,
@@ -144,7 +144,7 @@ class CumSum(Expression):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    field = NonNullable(String, help="""
+    field = Required(String, help="""
     The name of a ``ColumnDataSource`` column to cumulatively sum for new values.
     """)
 
@@ -209,7 +209,7 @@ class Minimum(ScalarExpression):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    field = NonNullable(String)
+    field = Required(String)
     initial = Nullable(Float, default=float("+inf"))
 
 
@@ -220,7 +220,7 @@ class Maximum(ScalarExpression):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    field = NonNullable(String)
+    field = Required(String)
     initial = Nullable(Float, default=float("-inf"))
 
 
