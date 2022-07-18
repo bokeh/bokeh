@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 from typing import Any, TypeVar, Union
 
 # Bokeh imports
+from ...util.deprecation import deprecated
 from ._sphinx import property_link, register_type_link, type_link
 from .bases import (
     Init,
@@ -30,6 +31,7 @@ from .bases import (
     TypeOrInst,
 )
 from .required import Required
+from .singletons import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -81,6 +83,11 @@ class NonNullable(Required[T]):
 
         Use ``bokeh.core.property.required.Required`` instead.
     """
+
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Undefined,
+            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
+        deprecated((3, 0, 0), "NonNullable(Type)", "Required(Type)")
+        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
 
 #-----------------------------------------------------------------------------
 # Dev API
