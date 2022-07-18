@@ -58,6 +58,7 @@ module = [
     "bokeh.core.json_encoder",
     "bokeh.core.query",
     "bokeh.core.serialization",
+    "bokeh.core.templates",
     "bokeh.core.types",
     "bokeh.core.validation",
     "bokeh.document.callbacks",
