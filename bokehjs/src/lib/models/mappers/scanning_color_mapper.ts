@@ -3,6 +3,12 @@ import {Arrayable} from "core/types"
 import {left_edge_index} from "core/util/arrayable"
 import * as p from "core/properties"
 
+export type ScanningScanData = {
+  min: number
+  max: number
+  binning: Arrayable<number>
+}
+
 export namespace ScanningColorMapper {
   export type Attrs = p.AttrsOf<Props>
 
@@ -20,13 +26,19 @@ export abstract class ScanningColorMapper extends ContinuousColorMapper {
 
   override MatricsType: {min: number, max: number, binning: Arrayable<number>}
 
-  protected cmap<T>(d: number, palette: Arrayable<T>, low_color: T, high_color: T, edges: any): T {
-    if (d < edges.binning[0])
-      return low_color
-    if (d > edges.binning[edges.binning.length-1])
-      return high_color
+  override index_to_value(index: number): number {
+    const scan_data = this._scan_data as ScanningScanData
+    return scan_data.binning[index]
+  }
 
-    const key = left_edge_index(d, edges.binning)
-    return palette[key]
+  override value_to_index(value: number, palette_length: number): number {
+    const scan_data = this._scan_data as ScanningScanData
+
+    if (value < scan_data.binning[0])
+      return -1
+    else if (value > scan_data.binning[scan_data.binning.length-1])
+      return palette_length
+    else
+      return left_edge_index(value, scan_data.binning)
   }
 }

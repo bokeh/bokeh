@@ -36,7 +36,7 @@ export class LogTicker extends AdaptiveTicker {
 
     let ticks: number[]
 
-    if (!isFinite(log_interval)) {
+    if (!isFinite(log_interval) || log_interval == 0) {
       ticks = []
     } else if (log_interval < 2) { // treat as linear ticker
       const interval = this.get_interval(data_low, data_high, desired_n_ticks)

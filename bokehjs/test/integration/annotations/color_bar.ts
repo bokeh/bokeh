@@ -1,13 +1,14 @@
-import {display, fig} from "../_util"
+import {display, fig, column} from "../_util"
 
 import {
-  ColorBar, LinearAxis,
+  ColorBar, LinearAxis, Plot, Column,
   ColorMapper, LinearColorMapper, LogColorMapper, EqHistColorMapper, CategoricalColorMapper,
 } from "@bokehjs/models"
 
 import {Random} from "@bokehjs/core/util/random"
 import {range} from "@bokehjs/core/util/array"
 import {Side} from "@bokehjs/core/enums"
+import {np} from "@bokehjs/api/linalg"
 import {Spectral11} from "@bokehjs/api/palettes"
 
 describe("ColorBar annotation", () => {
@@ -395,5 +396,88 @@ describe("ColorBar annotation", () => {
     p.add_layout(color_bar, "below")
 
     await display(p)
+  })
+
+  describe("should support display cutoffs", () => {
+    function make_plot(color_mapper: ColorMapper, title: string, display_low: number | null, display_high: number | null): Plot {
+      const color_bar = new ColorBar({color_mapper, display_low, display_high, title, bar_line_color: "black"})
+      const x = np.arange(11)
+      const values = np.linspace(10, 100, 11)
+
+      const p = fig([300, 150])
+      p.circle({x, y: 0, size: 15, fill_color: {field: "values", transform: color_mapper}, source: {values}})
+      p.add_layout(color_bar, "below")
+
+      return p
+    }
+
+    function make_cutoff_plots(display_low: number | null, display_high: number | null): Column {
+      const palette = Spectral11
+      const p0 = make_plot(new LinearColorMapper({palette}), "linear", display_low, display_high)
+      const p1 = make_plot(new LogColorMapper({palette}), "log", display_low, display_high)
+      const p2 = make_plot(new EqHistColorMapper({palette}), "eq hist", display_low, display_high)
+      return column([p0, p1, p2])
+    }
+
+    it("low only", async () => {
+      await display(make_cutoff_plots(40, null))
+    })
+
+    it("high only", async () => {
+      await display(make_cutoff_plots(null, 80))
+    })
+
+    it("low and high", async () => {
+      await display(make_cutoff_plots(40, 80))
+    })
+
+    it("out of bounds", async () => {
+      await display(make_cutoff_plots(200, null))
+    })
+
+    it("wrong way round", async () => {
+      await display(make_cutoff_plots(80, 40))
+    })
+
+    function make_multi_cbar_plot(color_mapper: ColorMapper, vertical: boolean): {plot: Plot, cbars: ColorBar[]} {
+      const p = fig([400, 400])
+      const x = vertical ? 0 : np.arange(11)
+      const y = vertical ? np.arange(11) : 0
+      const values = np.linspace(0, 10, 11)
+      p.circle({x, y, size: 15, fill_color: {field: "values", transform: color_mapper}, source: {values}})
+      const cbars = [
+        new ColorBar({color_mapper, title: "Update low"}),
+        new ColorBar({color_mapper, title: "Update high"}),
+        new ColorBar({color_mapper, title: "Update both"}),
+        new ColorBar({color_mapper, title: "Reset", display_low: 3, display_high: 7}),
+      ]
+      const side = vertical ? "right" : "below"
+      for (const cbar of cbars)
+        p.add_layout(cbar, side)
+      return {plot: p, cbars}
+    }
+
+    function update_cbars(cbars: ColorBar[]): void {
+      cbars[0].display_low = 3
+      cbars[1].display_high = 7
+      cbars[2].display_low = 3
+      cbars[2].display_high = 7
+      cbars[3].display_low = null
+      cbars[3].display_high = null
+    }
+
+    it("update EqHist", async () => {
+      const {plot, cbars} = make_multi_cbar_plot(new EqHistColorMapper({palette: Spectral11}), false)
+      const {view} = await display(plot)
+      update_cbars(cbars)
+      await view.ready
+    })
+
+    it("update Linear", async () => {
+      const {plot, cbars} = make_multi_cbar_plot(new LinearColorMapper({palette: Spectral11}), true)
+      const {view} = await display(plot)
+      update_cbars(cbars)
+      await view.ready
+    })
   })
 })

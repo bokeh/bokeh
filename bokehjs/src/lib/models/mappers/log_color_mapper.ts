@@ -1,6 +1,7 @@
 import {ContinuousColorMapper} from "./continuous_color_mapper"
 import {Arrayable} from "core/types"
 import {min, max} from "core/util/arrayable"
+import {clamp} from "core/util/math"
 import * as p from "core/properties"
 
 export type LogScanData = {
@@ -31,29 +32,25 @@ export class LogColorMapper extends ContinuousColorMapper {
     return {max: high, min: low, scale}
   }
 
-  protected cmap<T>(d: number, palette: Arrayable<T>, low_color: T, high_color: T, scan_data: LogScanData): T {
-    const max_key = palette.length - 1
+  override index_to_value(index: number): number {
+    const scan_data = this._scan_data as LogScanData
+    return scan_data.min * Math.exp(index / scan_data.scale)
+  }
 
-    if (d > scan_data.max) {
-      return high_color
-    }
-    // This handles the edge case where d == high, since the code below maps
-    // values exactly equal to high to palette.length, which is greater than
-    // max_key
-    if (d == scan_data.max)
-      return palette[max_key]
-    else if (d < scan_data.min)
-      return low_color
+  override value_to_index(value: number, palette_length: number): number {
+    const scan_data = this._scan_data as LogScanData
 
-    // Get the key
-    const log = Math.log(d) - Math.log(scan_data.min)  // subtract the low offset
-    let key = Math.floor(log * scan_data.scale)
+    // This handles the edge case where value == high, since the code below maps
+    // values exactly equal to high to palette.length when it should be one less.
+    if (value == scan_data.max)
+      return palette_length - 1
+    else if (value > scan_data.max)
+      return palette_length
+    else if (value < scan_data.min)
+      return -1
 
-    // Deal with upper bound
-    if (key > max_key) {
-      key = max_key
-    }
-
-    return palette[key]
+    const log = Math.log(value / scan_data.min)
+    const index = Math.floor(log * scan_data.scale)
+    return clamp(index, -1, palette_length)
   }
 }

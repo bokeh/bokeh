@@ -137,7 +137,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
       if (isNaN(d))
         values[i] = nan_color
       else
-        values[i] = this.cmap(d, palette, low_color, high_color, this._scan_data)
+        values[i] = this.cmap(d, palette, low_color, high_color)
     }
   }
 
@@ -149,5 +149,19 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     }
   }
 
-  protected abstract cmap<T>(d: number, palette: Arrayable<T>, low_color: T, high_color: T, scan_data: any): T
+  protected cmap<T>(value: number, palette: Arrayable<T>, low_color: T, high_color: T): T {
+    const index = this.value_to_index(value, palette.length)
+    if (index < 0)
+      return low_color
+    else if (index >= palette.length)
+      return high_color
+    else
+      return palette[index]
+  }
+
+  abstract index_to_value(index: number): number
+
+  // Return index corresponding to specified value in the range -1 to palette.length.
+  // -1 means below the bottom of the palette, palette.length means above the top.
+  abstract value_to_index(value: number, palette_length: number): number
 }

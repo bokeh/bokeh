@@ -234,6 +234,16 @@ class ColorBar(BaseColorBar):
         (i.e. `low=0`), the tick and tick labels won't be rendered.
     """)
 
+    display_low = Nullable(Float, help="""
+    The lowest value to display in the color bar. The whole of the color entry
+    containing this value is shown.
+    """)
+
+    display_high = Nullable(Float, help="""
+    The highest value to display in the color bar. The whole of the color entry
+    containing this value is shown.
+    """)
+
 
 class ContourColorBar(BaseColorBar):
     ''' Color bar used for contours.
