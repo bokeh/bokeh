@@ -46,7 +46,7 @@ from typing import (
 )
 
 # Bokeh imports
-from ..model import Model
+from ..core.has_props import HasProps
 from ..settings import settings
 from .string import snakify
 
@@ -221,7 +221,7 @@ class CustomModel:
     ''' Represent a custom (user-defined) Bokeh model.
 
     '''
-    def __init__(self, cls: Type[Model]) -> None:
+    def __init__(self, cls: Type[HasProps]) -> None:
         self.cls = cls
 
     @property
@@ -237,8 +237,8 @@ class CustomModel:
     def file(self) -> str | None:
         module = sys.modules[self.cls.__module__]
 
-        if hasattr(module, "__file__"):
-            return abspath(module.__file__)
+        if hasattr(module, "__file__") and (file := module.__file__) is not None:
+            return abspath(file)
         else:
             return None
 
@@ -304,7 +304,7 @@ def calc_cache_key(custom_models: Dict[str, CustomModel]) -> str:
 
 _bundle_cache: Dict[str, str] = {}
 
-def bundle_models(models: Sequence[Type[Model]] | None) -> str | None:
+def bundle_models(models: Sequence[Type[HasProps]] | None) -> str | None:
     """Create a bundle of selected `models`. """
     custom_models = _get_custom_models(models)
     if custom_models is None:
@@ -468,11 +468,11 @@ def _model_cache_no_op(model: CustomModel, implementation: Implementation) -> At
 
 _CACHING_IMPLEMENTATION = _model_cache_no_op
 
-def _get_custom_models(models: Sequence[Type[Model]] | None) -> Dict[str, CustomModel] | None:
+def _get_custom_models(models: Sequence[Type[HasProps]] | None) -> Dict[str, CustomModel] | None:
     """Returns CustomModels for models with a custom `__implementation__`"""
     custom_models: Dict[str, CustomModel] = dict()
 
-    for cls in models or Model.model_class_reverse_map.values():
+    for cls in models or HasProps.model_class_reverse_map.values():
         impl = getattr(cls, "__implementation__", None)
 
         if impl is not None:
