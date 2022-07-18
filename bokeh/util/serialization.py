@@ -234,10 +234,6 @@ def convert_datetime_array(array: npt.NDArray[Any]) -> npt.NDArray[np.floating[A
         array
 
     '''
-
-    if not isinstance(array, np.ndarray):
-        return array
-
     # not quite correct, truncates to ms..
     if array.dtype.kind == 'M':
         return array.astype('datetime64[us]').astype('int64') / 1000.0
