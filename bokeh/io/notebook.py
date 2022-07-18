@@ -628,14 +628,16 @@ def _origin_url(url: str) -> str:
         url = url.split("//")[1]
     return url
 
-def _server_url(url: str, port: int) -> str:
+def _server_url(url: str, port: int | None) -> str:
     '''
 
     '''
+    port_ = f":{port}" if port is not None else ""
+
     if url.startswith("http"):
-        return '%s:%d%s' % (url.rsplit(':', 1)[0], port, "/")
+        return '%s%s%s' % (url.rsplit(':', 1)[0], port_, "/")
     else:
-        return 'http://%s:%d%s' % (url.split(':')[0], port, "/")
+        return 'http://%s%s%s' % (url.split(':')[0], port_, "/")
 
 #-----------------------------------------------------------------------------
 # Code
