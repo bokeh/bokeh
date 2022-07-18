@@ -38,7 +38,6 @@ from shutil import which
 from typing import List, Literal, Set
 
 # External imports
-from selenium import webdriver
 from selenium.webdriver.remote.webdriver import WebDriver
 
 #-----------------------------------------------------------------------------
@@ -80,13 +79,15 @@ def create_firefox_webdriver() -> WebDriver:
     else:
         binary_path = firefox
 
-    from selenium.webdriver.firefox.firefox_binary import FirefoxBinary  # type: ignore [import]
+    from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
     binary = FirefoxBinary(binary_path)
 
-    options = webdriver.firefox.options.Options()
+    from selenium.webdriver.firefox.options import Options
+    options = Options()
     options.add_argument("--headless")
 
-    return webdriver.Firefox(  # type: ignore [attr-defined]
+    from selenium.webdriver.firefox.webdriver import WebDriver as Firefox
+    return Firefox(
         options=options,
         firefox_binary=binary,
         executable_path=geckodriver,
@@ -94,7 +95,8 @@ def create_firefox_webdriver() -> WebDriver:
     )
 
 def create_chromium_webdriver(extra_options: List[str] | None = None) -> WebDriver:
-    options = webdriver.chrome.options.Options()
+    from selenium.webdriver.chrome.options import Options
+    options = Options()
     options.add_argument("--headless")
     options.add_argument("--hide-scrollbars")
     options.add_argument("--force-device-scale-factor=1")
@@ -102,7 +104,9 @@ def create_chromium_webdriver(extra_options: List[str] | None = None) -> WebDriv
     if extra_options:
         for op in extra_options:
             options.add_argument(op)
-    return webdriver.Chrome(options=options)  # type: ignore [attr-defined]
+
+    from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
+    return Chrome(options=options)
 
 #-----------------------------------------------------------------------------
 # Private API
