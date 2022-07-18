@@ -40,6 +40,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from datetime import datetime
+
 # Bokeh imports
 from ..util.dependencies import import_required
 from ..util.sampledata import package_path
@@ -64,7 +70,7 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _read_data():
+def _read_data() -> list[tuple[datetime, str]]:
     '''
 
     '''

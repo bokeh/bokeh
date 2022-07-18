@@ -31,6 +31,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pandas import DataFrame
+
 # Bokeh imports
 from ..util.sampledata import package_csv
 
@@ -54,7 +60,7 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _read_data():
+def _read_data() -> DataFrame:
     '''
 
     '''

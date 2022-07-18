@@ -38,6 +38,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import join
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pandas import DataFrame
 
 # Bokeh imports
 from ..util.sampledata import package_csv, package_path
@@ -63,7 +67,7 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _read_data():
+def _read_data() -> tuple[DataFrame, dict[str, bytes]]:
     '''
 
     '''

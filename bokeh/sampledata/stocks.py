@@ -39,6 +39,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import csv
+from typing import TypedDict
 
 # Bokeh imports
 from ..util.sampledata import external_path, open_csv
@@ -67,20 +68,29 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _read_data(name):
+class StocksData(TypedDict):
+    date: list[str]
+    open: list[float]
+    high: list[float]
+    low: list[float]
+    close: list[float]
+    volume: list[int]
+    adj_close: list[float]
+
+def _read_data(name: str) -> StocksData:
     '''
 
     '''
-    filename = external_path(name+'.csv')
-    data = {
-        'date' : [],
-        'open' : [],
-        'high' : [],
-        'low' : [],
-        'close' : [],
-        'volume' : [],
-        'adj_close': [],
-    }
+    filename = external_path(name + '.csv')
+    data = StocksData(
+        date = [],
+        open = [],
+        high = [],
+        low = [],
+        close = [],
+        volume = [],
+        adj_close = [],
+    )
     with open_csv(filename) as f:
         next(f)
         reader = csv.reader(f, delimiter=",")

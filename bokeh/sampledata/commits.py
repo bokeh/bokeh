@@ -29,6 +29,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pandas import DataFrame
+
 # Bokeh imports
 from ..util.sampledata import package_csv
 
@@ -52,7 +58,7 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _read_data():
+def _read_data() -> DataFrame:
     '''
 
     '''
@@ -62,7 +68,7 @@ def _read_data():
 
     data = package_csv(module, 'commits.txt.gz', parse_dates=True, header=None, names=['day', 'datetime'], index_col='datetime')
     data.index = pd.to_datetime(data.index, utc=True,).tz_convert('US/Central')
-    data['time'] = data.index.time
+    data['time'] = data.index.time # type: ignore[attr-defined]
 
     return data
 
