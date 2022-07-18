@@ -228,16 +228,16 @@ def check_session_id_signature(session_id: str,
 #-----------------------------------------------------------------------------
 
 class _BytesEncoder(json.JSONEncoder):
-    def default(self, x):
-        if isinstance(x, bytes):
-            return dict(bytes=_base64_encode(x))
-        return super().default(x)
+    def default(self, o: Any) -> Any:
+        if isinstance(o, bytes):
+            return dict(bytes=_base64_encode(o))
+        return super().default(o)
 
 class _BytesDecoder(json.JSONDecoder):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(object_hook=self.bytes_object_hook, *args, **kwargs)
 
-    def bytes_object_hook(self, obj):
+    def bytes_object_hook(self, obj: dict[Any, Any]) -> Any:
         if set(obj.keys()) == {"bytes"}:
             return _base64_decode(obj["bytes"])
         return obj
