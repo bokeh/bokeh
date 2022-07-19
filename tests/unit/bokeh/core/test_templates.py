@@ -20,7 +20,6 @@ import pytest ; pytest
 import hashlib
 import re
 from os.path import abspath, join, split
-from typing import List
 
 # Bokeh imports
 from bokeh.embed import file_html
@@ -56,7 +55,7 @@ def compute_sha256(data):
     sha256.update(data)
     return sha256.hexdigest()
 
-def get_html_lines(resource_mode: ResourcesMode) -> List[str]:
+def get_html_lines(resource_mode: ResourcesMode) -> list[str]:
     p = figure()
     p.scatter(x=[], y=[])
     html = file_html(p, resources=Resources(resource_mode))
@@ -84,7 +83,7 @@ def test_no_white_space_in_top_of_html() -> None:
     assert(any_character.search(lines[0]) is not None)
 
 def test_dont_start_script_on_same_line_after_another_ends() -> None:
-    modes: List[ResourcesMode] = ["inline", "cdn", "server", "relative", "absolute"]
+    modes: list[ResourcesMode] = ["inline", "cdn", "server", "relative", "absolute"]
     for mode in modes:
         lines = get_html_lines(mode)
         for line in lines:

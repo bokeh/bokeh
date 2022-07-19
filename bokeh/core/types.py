@@ -31,6 +31,9 @@ from typing import (
     Union,
 )
 
+# External imports
+from typing_extensions import TypeAlias
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -51,9 +54,9 @@ __all__ = (
 
 ID = NewType("ID", str)
 
-PathLike = Union[str, "os.PathLike[str]"]
+PathLike: TypeAlias = Union[str, "os.PathLike[str]"]
 
-Unknown = Any
+Unknown: TypeAlias = Any
 
 # TODO: move this to types/geometry.py
 class PointGeometry(TypedDict):
@@ -79,7 +82,7 @@ class PolyGeometry(TypedDict):
     sx: Sequence[float]
     sy: Sequence[float]
 
-Geometry = Union[PointGeometry, SpanGeometry, RectGeometry, PolyGeometry]
+Geometry: TypeAlias = Union[PointGeometry, SpanGeometry, RectGeometry, PolyGeometry]
 
 class PointGeometryData(PointGeometry):
     x: float
@@ -99,7 +102,7 @@ class PolyGeometryData(PolyGeometry):
     x: Sequence[float]
     y: Sequence[float]
 
-GeometryData = Union[PointGeometryData, SpanGeometryData, RectGeometryData, PolyGeometryData]
+GeometryData: TypeAlias = Union[PointGeometryData, SpanGeometryData, RectGeometryData, PolyGeometryData]
 
 #-----------------------------------------------------------------------------
 # Private API

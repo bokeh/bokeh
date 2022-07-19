@@ -21,13 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Callable,
-    List,
-    Set,
-    Type,
-)
+from typing import TYPE_CHECKING, Callable, Type
 
 # Bokeh imports
 from ..core.has_props import HasProps, Qualified
@@ -82,7 +76,7 @@ class HasDocumentRef:
     def document(self, doc: Document) -> None:
         self._document = doc
 
-def collect_filtered_models(discard: Callable[[Model], bool] | None, *input_values: Unknown) -> List[Model]:
+def collect_filtered_models(discard: Callable[[Model], bool] | None, *input_values: Unknown) -> list[Model]:
     ''' Collect a duplicate-free list of all other Bokeh models referred to by
     this model, or by any of its references, etc, unless filtered-out by the
     provided callable.
@@ -105,9 +99,9 @@ def collect_filtered_models(discard: Callable[[Model], bool] | None, *input_valu
 
     '''
 
-    ids: Set[ID] = set()
-    collected: List[Model] = []
-    queued: List[Model] = []
+    ids: set[ID] = set()
+    collected: list[Model] = []
+    queued: list[Model] = []
 
     def queue_one(obj: Model) -> None:
         if obj.id not in ids and not (callable(discard) and discard(obj)):
@@ -125,7 +119,7 @@ def collect_filtered_models(discard: Callable[[Model], bool] | None, *input_valu
 
     return collected
 
-def collect_models(*input_values: Unknown) -> List[Model]:
+def collect_models(*input_values: Unknown) -> list[Model]:
     ''' Collect a duplicate-free list of all other Bokeh models referred to by
     this model, or by any of its references, etc.
 

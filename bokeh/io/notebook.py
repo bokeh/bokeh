@@ -26,7 +26,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     List,
     Literal,
     Protocol,
@@ -450,8 +449,8 @@ def load_notebook(resources: Resources | None = None, verbose: bool = False,
 
     if not hide_banner:
         if resources.mode == 'inline':
-            js_info: str | List[str] = 'inline'
-            css_info: str | List[str] = 'inline'
+            js_info: str | list[str] = 'inline'
+            css_info: str | list[str] = 'inline'
         else:
             js_info = resources.js_files[0] if len(resources.js_files) == 1 else resources.js_files
             css_info = resources.css_files[0] if len(resources.css_files) == 1 else resources.css_files
@@ -488,8 +487,8 @@ def load_notebook(resources: Resources | None = None, verbose: bool = False,
         LOAD_MIME_TYPE : jl_js,
     })
 
-def publish_display_data(data: Dict[str, Any], metadata: Dict[Any, Any] | None = None,
-        source: str | None = None, *, transient: Dict[str, Any] | None = None, **kwargs: Any) -> None:
+def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None = None,
+        source: str | None = None, *, transient: dict[str, Any] | None = None, **kwargs: Any) -> None:
     '''
 
     '''
@@ -602,7 +601,7 @@ def show_doc(obj: Model, state: State, notebook_handle: CommsHandle | None = Non
 # Private API
 #-----------------------------------------------------------------------------
 
-_HOOKS: Dict[str, Hooks] = {}
+_HOOKS: dict[str, Hooks] = {}
 
 _NOTEBOOK_LOADED: Resources | None = None
 

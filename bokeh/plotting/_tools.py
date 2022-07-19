@@ -25,15 +25,16 @@ from dataclasses import dataclass
 from typing import (
     Any,
     Callable,
-    Dict,
     Iterator,
     List,
     Literal,
     Sequence,
-    Tuple,
     Union,
     cast,
 )
+
+# External imports
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..models import (
@@ -68,14 +69,14 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 # TODO: str should be literal union of e.g. pan | xpan | ypan
-Auto = Literal["auto"]
-ActiveDrag = Union[Drag, Auto, str, None]
-ActiveInspect = Union[List[InspectTool], InspectTool, Auto, str, None]
-ActiveScroll = Union[Scroll, Auto, str, None]
-ActiveTap = Union[Tap, Auto, str, None]
-ActiveMulti = Union[GestureTool, Auto, str, None]
+Auto: TypeAlias = Literal["auto"]
+ActiveDrag: TypeAlias = Union[Drag, Auto, str, None]
+ActiveInspect: TypeAlias = Union[List[InspectTool], InspectTool, Auto, str, None]
+ActiveScroll: TypeAlias = Union[Scroll, Auto, str, None]
+ActiveTap: TypeAlias = Union[Tap, Auto, str, None]
+ActiveMulti: TypeAlias = Union[GestureTool, Auto, str, None]
 
-def process_active_tools(toolbar: Toolbar, tool_map: Dict[str, Tool],
+def process_active_tools(toolbar: Toolbar, tool_map: dict[str, Tool],
         active_drag: ActiveDrag, active_inspect: ActiveInspect, active_scroll: ActiveScroll,
         active_tap: ActiveTap, active_multi: ActiveMulti) -> None:
     """ Adds tools to the plot object
@@ -132,7 +133,7 @@ def process_active_tools(toolbar: Toolbar, tool_map: Dict[str, Tool],
         raise ValueError(f"Got unknown {active_multi!r} for 'active_multi', which was not a string supplied in 'tools' argument")
 
 def process_tools_arg(plot: Plot, tools: str | Sequence[Tool | str],
-        tooltips: str | Tuple[str, str] | None = None) -> Tuple[List[Tool], Dict[str, Tool]]:
+        tooltips: str | tuple[str, str] | None = None) -> tuple[list[Tool], dict[str, Tool]]:
     """ Adds tools to the plot object
 
     Args:
@@ -167,9 +168,9 @@ def process_tools_arg(plot: Plot, tools: str | Sequence[Tool | str],
 # Private API
 #-----------------------------------------------------------------------------
 
-def _resolve_tools(tools: str | Sequence[Tool | str]) -> Tuple[List[Tool], Dict[str, Tool]]:
-    tool_objs: List[Tool] = []
-    tool_map: Dict[str, Tool] = {}
+def _resolve_tools(tools: str | Sequence[Tool | str]) -> tuple[list[Tool], dict[str, Tool]]:
+    tool_objs: list[Tool] = []
+    tool_map: dict[str, Tool] = {}
 
     if not isinstance(tools, str):
         temp_tool_str = ""
@@ -193,11 +194,11 @@ def _resolve_tools(tools: str | Sequence[Tool | str]) -> Tuple[List[Tool], Dict[
 
     return tool_objs, tool_map
 
-def _collect_repeated_tools(tool_objs: List[Tool]) -> Iterator[Tool]:
+def _collect_repeated_tools(tool_objs: list[Tool]) -> Iterator[Tool]:
     @dataclass(frozen=True)
     class Item:
         obj: Tool
-        properties: Dict[str, Any]
+        properties: dict[str, Any]
 
     key: Callable[[Tool], str] = lambda obj: obj.__class__.__name__
 

@@ -24,14 +24,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import contextlib
 import weakref
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    Generator,
-    Iterator,
-    List,
-    Set,
-)
+from typing import TYPE_CHECKING, Generator, Iterator
 
 # Bokeh imports
 from ..core.types import ID
@@ -64,10 +57,10 @@ class DocumentModelManager:
 
     _document : weakref.ReferenceType[Document]
     _freeze_count: int
-    _models: Dict[ID, Model]
-    _new_models: Set[Model]
+    _models: dict[ID, Model]
+    _new_models: set[Model]
     _models_by_name: MultiValuedDict[str, Model]
-    _seen_model_ids: Set[ID] = set()
+    _seen_model_ids: set[ID] = set()
 
     def __init__(self, document: Document):
         '''
@@ -136,7 +129,7 @@ class DocumentModelManager:
         yield
         self._pop_freeze()
 
-    def get_all_by_name(self, name: str) -> List[Model]:
+    def get_all_by_name(self, name: str) -> list[Model]:
         ''' Find all the models for this Document with a given name.
 
         Args:
@@ -176,7 +169,7 @@ class DocumentModelManager:
         return self._models_by_name.get_one(name, f"Found more than one model named '{name}'")
 
     @property
-    def synced_references(self) -> Set[Model]:
+    def synced_references(self) -> set[Model]:
         return set(model for model in self._models.values() if model not in self._new_models)
 
     def flush(self) -> None:
@@ -209,7 +202,7 @@ class DocumentModelManager:
         if document is None:
             return
 
-        new_models: Set[Model] = set()
+        new_models: set[Model] = set()
         for mr in document.roots:
             new_models |= mr.references()
 
@@ -218,7 +211,7 @@ class DocumentModelManager:
         to_detach = old_models - new_models
         to_attach = new_models - old_models
 
-        recomputed: Dict[ID, Model] = {}
+        recomputed: dict[ID, Model] = {}
         recomputed_by_name: MultiValuedDict[str, Model] = MultiValuedDict()
 
         for mn in new_models:

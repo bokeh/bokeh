@@ -32,12 +32,7 @@ import datetime as dt
 import uuid
 from functools import lru_cache
 from threading import Lock
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Set,
-    Type,
-)
+from typing import TYPE_CHECKING, Any, Type
 
 # External imports
 import numpy as np
@@ -58,7 +53,7 @@ from .string import format_docstring
 #-----------------------------------------------------------------------------
 
 @lru_cache(None)
-def _compute_datetime_types() -> Set[type]:
+def _compute_datetime_types() -> set[type]:
     result = {dt.time, dt.datetime, np.datetime64}
     pd = import_optional('pandas')
     if pd:

@@ -30,14 +30,11 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    Dict,
     Generic,
     List,
     Literal,
     NoReturn,
     Sequence,
-    Set,
-    Tuple,
     Type,
     TypedDict,
     TypeVar,
@@ -115,17 +112,17 @@ class NumberRep(TypedDict):
 
 class ArrayRep(TypedDict):
     type: Literal["array"]
-    entries: List[AnyRep]
+    entries: list[AnyRep]
 
 ArrayRepLike: TypeAlias = Union[ArrayRep, List[AnyRep]]
 
 class SetRep(TypedDict):
     type: Literal["set"]
-    entries: List[AnyRep]
+    entries: list[AnyRep]
 
 class MapRep(TypedDict):
     type: Literal["map"]
-    entries: List[Tuple[AnyRep, AnyRep]]
+    entries: list[tuple[AnyRep, AnyRep]]
 
 class BytesRep(TypedDict):
     type: Literal["bytes"]
@@ -141,18 +138,18 @@ class _ObjectRep(TypedDict):
     type: Literal["object"]
     name: str
 class ObjectRep(_ObjectRep, total=False):
-    attributes: Dict[str, AnyRep]
+    attributes: dict[str, AnyRep]
 
 class _ObjectRefRep(TypedDict):
     type: Literal["object"]
     name: str
     id: ID
 class ObjectRefRep(_ObjectRefRep, total=False):
-    attributes: Dict[str, AnyRep]
+    attributes: dict[str, AnyRep]
 
 ModelRep = ObjectRefRep
 
-ByteOrder = Literal["little", "big"]
+ByteOrder: TypeAlias = Literal["little", "big"]
 
 DataType: TypeAlias = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "float32", "float64"] # "uint64", "int64"
 NDDataType: TypeAlias = Union[Literal["bool"], DataType, Literal["object"]]
@@ -168,7 +165,7 @@ class NDArrayRep(TypedDict):
     array: BytesRep | ArrayRepLike
     order: ByteOrder
     dtype: NDDataType
-    shape: List[int]
+    shape: list[int]
 
 @dataclass
 class Buffer:
@@ -190,7 +187,7 @@ T = TypeVar("T")
 @dataclass
 class Serialized(Generic[T]):
     content: T
-    buffers: List[Buffer] | None = None
+    buffers: list[Buffer] | None = None
 
 Encoder: TypeAlias = Callable[[Any, "Serializer"], AnyRep]
 Decoder: TypeAlias = Callable[[AnyRep, "Deserializer"], Any]
@@ -210,19 +207,19 @@ ObjID = int
 class Serializer:
     """ Convert built-in and custom types into serializable representations. """
 
-    _encoders: ClassVar[Dict[Type[Any], Encoder]] = {}
+    _encoders: ClassVar[dict[Type[Any], Encoder]] = {}
 
     @classmethod
     def register(cls, type: Type[Any], encoder: Encoder) -> None:
         assert type not in cls._encoders, f"'{type} is already registered"
         cls._encoders[type] = encoder
 
-    _references: Dict[ObjID, Ref]
+    _references: dict[ObjID, Ref]
     _deferred: bool
-    _circular: Dict[ObjID, Any]
-    _buffers: List[Buffer]
+    _circular: dict[ObjID, Any]
+    _buffers: list[Buffer]
 
-    def __init__(self, *, references: Set[Model] = set(), deferred: bool = True) -> None:
+    def __init__(self, *, references: set[Model] = set(), deferred: bool = True) -> None:
         self._references = {id(obj): obj.ref for obj in references}
         self._deferred = deferred
         self._circular = {}
@@ -239,7 +236,7 @@ class Serializer:
         return self._references.get(id(obj))
 
     @property
-    def buffers(self) -> List[Buffer]:
+    def buffers(self) -> list[Buffer]:
         return list(self._buffers)
 
     def serialize(self, obj: Any) -> Serialized[Any]:
@@ -260,7 +257,7 @@ class Serializer:
         finally:
             del self._circular[ident]
 
-    def encode_struct(self, **fields: Any) -> Dict[str, AnyRep]:
+    def encode_struct(self, **fields: Any) -> dict[str, AnyRep]:
         return {key: self.encode(val) for key, val in fields.items() if val is not Unspecified}
 
     def _encode(self, obj: Any) -> AnyRep:
@@ -318,13 +315,13 @@ class Serializer:
         else:
             return obj
 
-    def _encode_tuple(self, obj: Tuple[Any, ...]) -> ArrayRepLike:
+    def _encode_tuple(self, obj: tuple[Any, ...]) -> ArrayRepLike:
         return self._encode_list(list(obj))
 
-    def _encode_list(self, obj: List[Any]) -> ArrayRepLike:
+    def _encode_list(self, obj: list[Any]) -> ArrayRepLike:
         return [self.encode(item) for item in obj]
 
-    def _encode_dict(self, obj: Dict[Any, Any]) -> MapRep:
+    def _encode_dict(self, obj: dict[Any, Any]) -> MapRep:
         return MapRep(
             type="map",
             entries=[(self.encode(key), self.encode(val)) for key, val in obj.items()],
@@ -460,18 +457,18 @@ class DeserializationError(ValueError):
 class Deserializer:
     """ Convert from serializable representations to built-in and custom types. """
 
-    _decoders: ClassVar[Dict[str, Decoder]] = {}
+    _decoders: ClassVar[dict[str, Decoder]] = {}
 
     @classmethod
     def register(cls, type: str, decoder: Decoder) -> None:
         assert type not in cls._decoders, f"'{type} is already registered"
         cls._decoders[type] = decoder
 
-    _references: Dict[ID, Model]
+    _references: dict[ID, Model]
     _setter: Setter | None
 
     _decoding: bool
-    _buffers: Dict[ID, Buffer]
+    _buffers: dict[ID, Buffer]
 
     def __init__(self, references: Sequence[Model] | None = None, *, setter: Setter | None = None):
         self._references = {obj.id: obj for obj in references or []}
@@ -485,7 +482,7 @@ class Deserializer:
         else:
             return self.decode(obj)
 
-    def decode(self, obj: AnyRep, buffers: List[Buffer] | None = None) -> Any:
+    def decode(self, obj: AnyRep, buffers: list[Buffer] | None = None) -> Any:
         if buffers is not None:
             for buffer in buffers:
                 self._buffers[buffer.id] = buffer
@@ -559,15 +556,15 @@ class Deserializer:
         value = obj["value"]
         return float(value) if isinstance(value, str) else value
 
-    def _decode_array(self, obj: ArrayRep) -> List[Any]:
+    def _decode_array(self, obj: ArrayRep) -> list[Any]:
         entries = obj["entries"]
         return [ self._decode(entry) for entry in entries ]
 
-    def _decode_set(self, obj: SetRep) -> Set[Any]:
+    def _decode_set(self, obj: SetRep) -> set[Any]:
         entries = obj["entries"]
         return set([ self._decode(entry) for entry in entries ])
 
-    def _decode_map(self, obj: MapRep) -> Dict[Any, Any]:
+    def _decode_map(self, obj: MapRep) -> dict[Any, Any]:
         entries = obj["entries"]
         return { self._decode(key): self._decode(val) for key, val in entries }
 

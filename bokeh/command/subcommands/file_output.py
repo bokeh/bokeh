@@ -25,7 +25,6 @@ import argparse
 import sys
 from abc import abstractmethod
 from os.path import splitext
-from typing import List, Union
 
 # Bokeh imports
 from ...document import Document
@@ -147,7 +146,7 @@ class FileOutputSubcommand(Subcommand):
         applications = build_single_handler_applications(args.files, argvs)
 
         if args.output is None:
-            outputs: List[str] = []
+            outputs: list[str] = []
         else:
             outputs = list(args.output)  # copy so we can pop from it
 
@@ -214,7 +213,7 @@ class FileOutputSubcommand(Subcommand):
         pass
 
     @abstractmethod
-    def file_contents(self, args: argparse.Namespace, doc: Document) -> Union[str, bytes, List[str], List[bytes]]:
+    def file_contents(self, args: argparse.Namespace, doc: Document) -> str | bytes | list[str] | list[bytes]:
         ''' Subclasses must override this method to return the contents of the output file for the given doc.
         subclassed methods return different types:
         str: html, json

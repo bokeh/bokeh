@@ -22,7 +22,7 @@ import asyncio
 import calendar
 import datetime as dt
 import json
-from typing import Any, Dict, Set
+from typing import Any
 from urllib.parse import parse_qs, urljoin, urlparse
 
 # External imports
@@ -81,7 +81,7 @@ class ConsumerHelper(AsyncConsumer):
         return request
 
     @property
-    def arguments(self) -> Dict[str, str]:
+    def arguments(self) -> dict[str, str]:
         parsed_url = urlparse("/?" + self.scope["query_string"].decode())
         return {name: value for name, [value] in parse_qs(parsed_url.query).items()}
 
@@ -99,7 +99,7 @@ class SessionConsumer(AsyncHttpConsumer, ConsumerHelper):
 
     application_context: ApplicationContext
 
-    def __init__(self, scope: Dict[str, Any]) -> None:
+    def __init__(self, scope: dict[str, Any]) -> None:
         super().__init__(scope)
 
         kwargs = self.scope["url_route"]["kwargs"]
@@ -170,11 +170,11 @@ class DocConsumer(SessionConsumer):
 
 class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
 
-    _clients: Set[ServerConnection]
+    _clients: set[ServerConnection]
 
     application_context: ApplicationContext
 
-    def __init__(self, scope: Dict[str, Any]) -> None:
+    def __init__(self, scope: dict[str, Any]) -> None:
         super().__init__(scope)
 
         kwargs = self.scope['url_route']["kwargs"]

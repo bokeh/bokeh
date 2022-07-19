@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import ClassVar, Dict, List
+from typing import ClassVar
 
 # Bokeh imports
 from ...util.dataclasses import dataclass
@@ -47,8 +47,8 @@ class Issue:
 
 @dataclass(frozen=True)
 class Warning(Issue):
-    _code_map: ClassVar[Dict[int, Warning]] = {}
-    _name_map: ClassVar[Dict[str, Warning]] = {}
+    _code_map: ClassVar[dict[int, Warning]] = {}
+    _name_map: ClassVar[dict[str, Warning]] = {}
 
     def __post_init__(self) -> None:
         Warning._code_map[self.code] = self
@@ -63,13 +63,13 @@ class Warning(Issue):
         return cls._name_map[name]
 
     @classmethod
-    def all(cls) -> List[Warning]:
+    def all(cls) -> list[Warning]:
         return list(cls._code_map.values())
 
 @dataclass(frozen=True)
 class Error(Issue):
-    _code_map: ClassVar[Dict[int, Error]] = {}
-    _name_map: ClassVar[Dict[str, Error]] = {}
+    _code_map: ClassVar[dict[int, Error]] = {}
+    _name_map: ClassVar[dict[str, Error]] = {}
 
     def __post_init__(self) -> None:
         Error._code_map[self.code] = self
@@ -84,7 +84,7 @@ class Error(Issue):
         return cls._name_map[name]
 
     @classmethod
-    def all(cls) -> List[Error]:
+    def all(cls) -> list[Error]:
         return list(cls._code_map.values())
 
 #-----------------------------------------------------------------------------

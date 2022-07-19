@@ -20,7 +20,6 @@ import pytest ; pytest
 # Standard library imports
 import os
 from os.path import join, splitext
-from typing import List
 
 # Bokeh imports
 from bokeh._testing.util.project import TOP_PATH
@@ -36,7 +35,7 @@ def test_windows_reserved_filenames() -> None:
     names are not present in the codebase.
 
     '''
-    bad: List[str] = []
+    bad: list[str] = []
     for path, _, files in os.walk(TOP_PATH):
 
         for file in files:

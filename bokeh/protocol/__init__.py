@@ -72,7 +72,7 @@ MessageType = Literal[
     "SERVER-INFO-REQ",
 ]
 
-SPEC: Dict[MessageType, Type[Message[Any]]] = {
+SPEC: dict[MessageType, Type[Message[Any]]] = {
     "ACK": ack,
     "ERROR": error,
     "OK": ok,
@@ -96,7 +96,7 @@ class Protocol:
     ''' Provide a message factory for the Bokeh Server message protocol.
 
     '''
-    _messages: Dict[MessageType, Type[Message[Any]]]
+    _messages: dict[MessageType, Type[Message[Any]]]
 
     def __init__(self) -> None:
         self._messages = SPEC
@@ -111,7 +111,7 @@ class Protocol:
     @overload
     def create(self, msgtype: Literal["OK"], request_id: ID, **metadata: Any) -> ok: ...
     @overload
-    def create(self, msgtype: Literal["PATCH-DOC"], events: List[DocumentPatchedEvent], **metadata: Any) -> patch_doc: ...
+    def create(self, msgtype: Literal["PATCH-DOC"], events: list[DocumentPatchedEvent], **metadata: Any) -> patch_doc: ...
     @overload
     def create(self, msgtype: Literal["PULL-DOC-REPLY"], request_id: ID, document: Document, **metadata: Any) -> pull_doc_reply: ...
     @overload

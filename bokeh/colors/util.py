@@ -21,12 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    ClassVar,
-    Iterator,
-    List,
-    Tuple,
-)
+from typing import ClassVar, Iterator
 
 # Bokeh imports
 from .color import RGB
@@ -53,7 +48,7 @@ class _ColorGroupMeta(type):
     enumerations.
 
     '''
-    _colors: Tuple[str, ...]
+    _colors: tuple[str, ...]
 
     def __len__(self) -> int:
         return len(self._colors)
@@ -97,8 +92,8 @@ class NamedColor(RGB):
 
     '''
 
-    __all__: ClassVar[List[str]] = []
-    colors: ClassVar[List[NamedColor]] = []
+    __all__: ClassVar[list[str]] = []
+    colors: ClassVar[list[NamedColor]] = []
 
     def __init__(self, name: str, r: int, g: int, b: int) -> None:
         '''

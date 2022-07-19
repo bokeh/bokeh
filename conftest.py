@@ -21,7 +21,7 @@ import _pytest
 import pytest
 
 
-def pytest_collection_modifyitems(items: List[_pytest.nodes.Item]) -> None:
+def pytest_collection_modifyitems(items: list[_pytest.nodes.Item]) -> None:
     for item in items:
         if iscoroutinefunction(item.obj):
             item.add_marker(pytest.mark.asyncio)

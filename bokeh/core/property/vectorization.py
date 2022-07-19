@@ -21,12 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Union
 
 # External imports
 from typing_extensions import TypeAlias
@@ -75,7 +70,7 @@ class Value(Serializable):
         return serializer.encode_struct(type="value", value=self.value, transform=self.transform, units=self.units)
 
     @classmethod
-    def from_serializable(cls, rep: Dict[str, AnyRep], deserializer: Deserializer) -> Value:
+    def from_serializable(cls, rep: dict[str, AnyRep], deserializer: Deserializer) -> Value:
         if "value" not in rep:
             deserializer.error("expected 'value' field")
         value = deserializer.decode(rep["value"])
@@ -103,7 +98,7 @@ class Field(Serializable):
         return serializer.encode_struct(type="field", field=self.field, transform=self.transform, units=self.units)
 
     @classmethod
-    def from_serializable(cls, rep: Dict[str, AnyRep], deserializer: Deserializer) -> Field:
+    def from_serializable(cls, rep: dict[str, AnyRep], deserializer: Deserializer) -> Field:
         if "field" not in rep:
             deserializer.error("expected 'field' field")
         field = deserializer.decode(rep["field"])
@@ -131,7 +126,7 @@ class Expr(Serializable):
         return serializer.encode_struct(type="expr", expr=self.expr, transform=self.transform, units=self.units)
 
     @classmethod
-    def from_serializable(cls, rep: Dict[str, AnyRep], deserializer: Deserializer) -> Expr:
+    def from_serializable(cls, rep: dict[str, AnyRep], deserializer: Deserializer) -> Expr:
         if "expr" not in rep:
             deserializer.error("expected 'expr' field")
         expr = deserializer.decode(rep["expr"])

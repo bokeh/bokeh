@@ -27,10 +27,12 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    List,
     Union,
     cast,
 )
+
+# External imports
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from .exceptions import ValidationError
@@ -55,7 +57,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-Fragment = Union[str, bytes]
+Fragment: TypeAlias = Union[str, bytes]
 
 class Receiver:
     ''' Receive wire message fragments and assemble complete Bokeh server
@@ -103,7 +105,7 @@ class Receiver:
     '''
 
     _current_consumer: Callable[[Receiver, Fragment], None]
-    _fragments: List[Fragment]
+    _fragments: list[Fragment]
     _message: Message[Any] | None
     _buf_header: BufferHeader | None
     _partial: Message[Any] | None

@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Tuple
+from typing import Any
 
 # External imports
 import numpy as np
@@ -47,7 +47,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_scale: float = 1) -> Tuple[Any, Any]:
+def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_scale: float = 1) -> tuple[Any, Any]:
     ''' Map axial *(q,r)* coordinates to cartesian *(x,y)* coordinates of
     tiles centers.
 
@@ -98,7 +98,7 @@ def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_sca
 
     return (x, y)
 
-def cartesian_to_axial(x: Any, y: Any, size: float, orientation: str, aspect_scale: float = 1) -> Tuple[Any, Any]:
+def cartesian_to_axial(x: Any, y: Any, size: float, orientation: str, aspect_scale: float = 1) -> tuple[Any, Any]:
     ''' Map Cartesion *(x,y)* points to axial *(q,r)* coordinates of enclosing
     tiles.
 
@@ -213,7 +213,7 @@ def hexbin(x: Any, y: Any, size: float, orientation: str = "pointytop", aspect_s
 # Private API
 #-----------------------------------------------------------------------------
 
-def _round_hex(q: Any, r: Any) -> Tuple[Any, Any]:
+def _round_hex(q: Any, r: Any) -> tuple[Any, Any]:
     ''' Round floating point axial hex coordinates to integer *(q,r)*
     coordinates.
 

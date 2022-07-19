@@ -34,10 +34,11 @@ from os.path import (
     relpath,
     splitext,
 )
-from typing import List, Literal, Union
+from typing import Literal, Union
 
 # External imports
 import yaml
+from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -52,7 +53,7 @@ __all__ = (
 
 JOB_ID = os.environ.get("GITHUB_ACTION", "local")
 
-PathLike = Union[str, bytes, "os.PathLike[str]", "os.PathLike[bytes]"]
+PathLike: TypeAlias = Union[str, bytes, "os.PathLike[str]", "os.PathLike[bytes]"]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -69,7 +70,7 @@ class Flags:
 
 
 class Example:
-    def __init__(self, path: str, flags: int, examples_dir: str, extensions: List[str] = []) -> None:
+    def __init__(self, path: str, flags: int, examples_dir: str, extensions: list[str] = []) -> None:
         self.path = normpath(path)
         self.flags = flags
         self.examples_dir = examples_dir
@@ -146,9 +147,9 @@ class Example:
 
 All = Literal["all"]
 
-def add_examples(list_of_examples: List[Example], path: str, examples_dir: str, example_type: int | None = None,
-        slow: List[str] | All | None = None, skip: List[str] | All | None = None,
-        xfail: List[str] | All | None = None, no_js: List[str] | All | None = None) -> None:
+def add_examples(list_of_examples: list[Example], path: str, examples_dir: str, example_type: int | None = None,
+        slow: list[str] | All | None = None, skip: list[str] | All | None = None,
+        xfail: list[str] | All | None = None, no_js: list[str] | All | None = None) -> None:
     if path.endswith("*"):
         star_path = join(examples_dir, path[:-1])
 
@@ -162,7 +163,7 @@ def add_examples(list_of_examples: List[Example], path: str, examples_dir: str, 
 
     for name in sorted(os.listdir(example_path)):
         flags = 0
-        extensions: List[str] = []
+        extensions: list[str] = []
         orig_name = name
 
         if name.startswith(('_', '.')):
@@ -207,9 +208,9 @@ def add_examples(list_of_examples: List[Example], path: str, examples_dir: str, 
         list_of_examples.append(Example(join(example_path, name), flags, examples_dir, extensions))
 
 
-def collect_examples(config_path: str) -> List[Example]:
+def collect_examples(config_path: str) -> list[Example]:
     examples_dir = join(dirname(config_path), pardir)
-    list_of_examples: List[Example] = []
+    list_of_examples: list[Example] = []
 
     with open(config_path, "r") as f:
         examples = yaml.safe_load(f.read())

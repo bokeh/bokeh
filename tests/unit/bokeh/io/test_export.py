@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, List, Tuple
+from typing import TYPE_CHECKING
 
 # External imports
 from flaky import flaky
@@ -65,7 +65,7 @@ def webdriver(request: pytest.FixtureRequest):
 @flaky(max_runs=10)
 @pytest.mark.selenium
 @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
-def test_get_screenshot_as_png(webdriver: WebDriver, dimensions: Tuple[int, int]) -> None:
+def test_get_screenshot_as_png(webdriver: WebDriver, dimensions: tuple[int, int]) -> None:
     width, height = dimensions
     border = 5
 
@@ -90,7 +90,7 @@ def test_get_screenshot_as_png(webdriver: WebDriver, dimensions: Tuple[int, int]
 @flaky(max_runs=10)
 @pytest.mark.selenium
 @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
-def test_get_screenshot_as_png_with_glyph(webdriver: WebDriver, dimensions: Tuple[int, int]) -> None:
+def test_get_screenshot_as_png_with_glyph(webdriver: WebDriver, dimensions: tuple[int, int]) -> None:
     width, height = dimensions
     border = 5
 
@@ -154,7 +154,7 @@ def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
     with silenced(MISSING_RENDERERS):
         svgs = bie.get_svg(layout, driver=webdriver)
 
-    def output(data: str) -> List[str]:
+    def output(data: str) -> list[str]:
         return [
             '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">'
                 '<defs/>'

@@ -19,7 +19,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from importlib import import_module
-from typing import List
 
 # External imports
 from django.apps import AppConfig
@@ -47,7 +46,7 @@ class DjangoBokehConfig(AppConfig):
     _routes: RoutingConfiguration | None = None
 
     @property
-    def bokeh_apps(self) -> List[Routing]:
+    def bokeh_apps(self) -> list[Routing]:
         module = settings.ROOT_URLCONF
         url_conf = import_module(module) if isinstance(module, str) else module
         return url_conf.bokeh_apps

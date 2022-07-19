@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Dict
+from typing import Any
 
 # Bokeh imports
 from ..core.has_props import HasProps, Local
@@ -64,10 +64,10 @@ class Options(HasProps, Local):
 
     '''
 
-    def __init__(self, kw: Dict[str, Any]) -> None:
+    def __init__(self, kw: dict[str, Any]) -> None:
 
         # remove any items that match our declared properties
-        props: Dict[str, Any] = {}
+        props: dict[str, Any] = {}
         for k in self.properties():
             if k in kw:
                 props[k] = kw.pop(k)

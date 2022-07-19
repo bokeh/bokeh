@@ -16,9 +16,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Dict
-
 # Bokeh imports
 from bokeh._testing.util.filesystem import with_file_contents
 from bokeh.application.handlers.handler import Handler
@@ -52,7 +49,7 @@ class Test_ServerRequestHandler:
     # Public methods ----------------------------------------------------------
 
     def test_request_bad_syntax(self) -> None:
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = basrh.ServerRequestHandler(filename=filename)
             result['handler'] = handler
@@ -63,7 +60,7 @@ class Test_ServerRequestHandler:
         assert 'Invalid syntax' in handler.error
 
     def test_request_runtime_error(self) -> None:
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = basrh.ServerRequestHandler(filename=filename)
             result['handler'] = handler
@@ -74,7 +71,7 @@ class Test_ServerRequestHandler:
         assert 'nope' in handler.error
 
     def test_lifecycle_bad_process_request_signature(self) -> None:
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = basrh.ServerRequestHandler(filename=filename)
             result['handler'] = handler
@@ -89,7 +86,7 @@ def process_request(a,b):
         assert 'func(a, b)' in handler.error
 
     def test_url_path(self) -> None:
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = basrh.ServerRequestHandler(filename=filename)
             result['handler'] = handler
@@ -101,7 +98,7 @@ def process_request(a,b):
         assert url_path is not None and url_path.startswith("/")
 
     async def test_empty_request_handler(self) -> None:
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = basrh.ServerRequestHandler(filename=filename)
             result['handler'] = handler
@@ -113,7 +110,7 @@ def process_request(a,b):
         assert payload == {}
 
     async def test_calling_request_handler(self) -> None:
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = result['handler'] = basrh.ServerRequestHandler(filename=filename)
             if handler.failed:

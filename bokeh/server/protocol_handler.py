@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Callable, Dict
+from typing import Any, Callable
 
 # Bokeh imports
 from ..protocol.exceptions import ProtocolError
@@ -60,7 +60,7 @@ class ProtocolHandler:
 
     '''
 
-    _handlers: Dict[str, Callable[..., Any]]
+    _handlers: dict[str, Callable[..., Any]]
 
     def __init__(self) -> None:
         self._handlers = {}

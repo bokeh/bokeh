@@ -32,7 +32,6 @@ from typing import (
     Any,
     Iterator,
     List,
-    Tuple,
     cast,
 )
 
@@ -122,7 +121,7 @@ def export_png(obj: LayoutDOM | Document, *, filename: PathLike | None = None, w
     return abspath(expanduser(filename))
 
 def export_svg(obj: LayoutDOM | Document, *, filename: PathLike | None = None, width: int | None = None,
-        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5) -> List[str]:
+        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5) -> list[str]:
     ''' Export a layout as SVG file or a document as a set of SVG files.
 
     If the filename is not given, it is derived from the script name
@@ -158,7 +157,7 @@ def export_svg(obj: LayoutDOM | Document, *, filename: PathLike | None = None, w
     return _write_collection(svgs, filename, "svg")
 
 def export_svgs(obj: LayoutDOM | Document, *, filename: str | None = None, width: int | None = None,
-        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5) -> List[str]:
+        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5) -> list[str]:
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
 
@@ -246,7 +245,7 @@ def get_screenshot_as_png(obj: LayoutDOM | Document, *, driver: WebDriver | None
                  .resize((width, height)))
 
 def get_svg(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, timeout: int = 5,
-        resources: Resources = INLINE, width: int | None = None, height: int | None = None) -> List[str]:
+        resources: Resources = INLINE, width: int | None = None, height: int | None = None) -> list[str]:
     from .webdriver import webdriver_control
 
     with _tmp_html() as tmp:
@@ -262,7 +261,7 @@ def get_svg(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, timeo
     return svgs
 
 def get_svgs(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, timeout: int = 5,
-        resources: Resources = INLINE, width: int | None = None, height: int | None = None) -> List[str]:
+        resources: Resources = INLINE, width: int | None = None, height: int | None = None) -> list[str]:
     from .webdriver import webdriver_control
 
     with _tmp_html() as tmp:
@@ -363,12 +362,12 @@ def _resized(obj: Plot, width: int | None, height: int | None) -> Iterator[None]
     obj.width = old_width
     obj.height = old_height
 
-def _write_collection(items: List[str], filename: PathLike | None, ext: str) -> List[str]:
+def _write_collection(items: list[str], filename: PathLike | None, ext: str) -> list[str]:
     if filename is None:
         filename = default_filename(ext)
     filename = os.fspath(filename)
 
-    filenames: List[str] = []
+    filenames: list[str] = []
 
     def _indexed(name: str, i: int) -> str:
         basename, ext = splitext(name)
@@ -396,13 +395,13 @@ def _log_console(driver: WebDriver) -> None:
         for message in messages:
             log.warning(message)
 
-def _maximize_viewport(web_driver: WebDriver) -> Tuple[int, int, int]:
+def _maximize_viewport(web_driver: WebDriver) -> tuple[int, int, int]:
     calculate_viewport_size = """\
         const root_view = Object.values(Bokeh.index)[0]
         const {width, height} = root_view.el.getBoundingClientRect()
         return [width, height, window.devicePixelRatio]
     """
-    viewport_size: Tuple[int, int, int] = web_driver.execute_script(calculate_viewport_size)
+    viewport_size: tuple[int, int, int] = web_driver.execute_script(calculate_viewport_size)
     calculate_window_size = """\
         const [width, height, dpr] = arguments
         return [

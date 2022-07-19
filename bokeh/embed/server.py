@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Dict, Literal
+from typing import TYPE_CHECKING, Literal
 from urllib.parse import quote_plus, urlparse
 
 ## External imports
@@ -58,7 +58,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def server_document(url: str = "default", relative_urls: bool = False, resources: Literal["default"] | None = "default",
-        arguments: Dict[str, str] | None = None, headers: Dict[str, str] | None = None) -> str:
+        arguments: dict[str, str] | None = None, headers: dict[str, str] | None = None) -> str:
     ''' Return a script tag that embeds content from a Bokeh server.
 
     Bokeh apps embedded using these methods will NOT set the browser window title.
@@ -127,7 +127,7 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
     return tag
 
 def server_session(model: Model | None = None, session_id: ID | None = None, url: str = "default",
-        relative_urls: bool = False, resources: Literal["default"] | None = "default", headers: Dict[str, str] = {}) -> str:
+        relative_urls: bool = False, resources: Literal["default"] | None = "default", headers: dict[str, str] = {}) -> str:
     ''' Return a script tag that embeds content from a specific existing session on
     a Bokeh server.
 
@@ -223,7 +223,7 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
 #-----------------------------------------------------------------------------
 
 def server_html_page_for_session(session: ServerSession, resources: Resources, title: str,
-        template: Template = FILE, template_variables: Dict[str, Unknown] | None = None):
+        template: Template = FILE, template_variables: dict[str, Unknown] | None = None):
     '''
 
     Args:
@@ -294,7 +294,7 @@ def _get_app_path(url: str) -> str:
         app_path = "/" + app_path
     return app_path
 
-def _process_arguments(arguments: Dict[str, str] | None) -> str:
+def _process_arguments(arguments: dict[str, str] | None) -> str:
     ''' Return user-supplied HTML arguments to add to a Bokeh server URL.
 
     Args:

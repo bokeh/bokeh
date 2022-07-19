@@ -25,10 +25,7 @@ from inspect import Parameter, Signature, isclass
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Iterable,
-    List,
-    Set,
     Type,
 )
 
@@ -147,7 +144,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     """)
 
-    tags: List[Any] = p.List(p.AnyRef, help="""
+    tags: list[Any] = p.List(p.AnyRef, help="""
     An optional list of arbitrary, user-supplied values to attach to this
     model.
 
@@ -227,7 +224,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     @classmethod
     @without_property_validation
-    def parameters(cls: Type[Model]) -> List[Parameter]:
+    def parameters(cls: Type[Model]) -> list[Parameter]:
         ''' Generate Python ``Parameter`` values suitable for functions that are
         derived from the glyph.
 
@@ -463,7 +460,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         descriptor = self.lookup(attr)
         super().on_change(descriptor.name, *callbacks)
 
-    def references(self) -> Set[Model]:
+    def references(self) -> set[Model]:
         ''' Returns all ``Models`` that this object has references to.
 
         '''
@@ -500,7 +497,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             return None
         return result[0]
 
-    def set_select(self, selector: Type[Model] | SelectorType, updates: Dict[str, Unknown]) -> None:
+    def set_select(self, selector: Type[Model] | SelectorType, updates: dict[str, Unknown]) -> None:
         ''' Update objects that match a given selector with the specified
         attribute/value updates.
 

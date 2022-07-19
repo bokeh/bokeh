@@ -69,7 +69,6 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     ClassVar,
-    Dict,
     Literal,
     Type,
     TypedDict,
@@ -125,7 +124,7 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-_CONCRETE_EVENT_CLASSES: Dict[str, Type[Event]] = {}
+_CONCRETE_EVENT_CLASSES: dict[str, Type[Event]] = {}
 
 #-----------------------------------------------------------------------------
 # General API
@@ -134,7 +133,7 @@ _CONCRETE_EVENT_CLASSES: Dict[str, Type[Event]] = {}
 class EventRep(TypedDict):
     type: Literal["event"]
     name: str
-    values: Dict[str, Unknown]
+    values: dict[str, Unknown]
 
 class Event:
     ''' Base class for all Bokeh events.

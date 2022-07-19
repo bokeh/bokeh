@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 from types import ModuleType
-from typing import List
 
 # Bokeh imports
 from ...core.types import PathLike
@@ -57,7 +56,7 @@ class ServerRequestHandler(RequestHandler):
 
     _module: ModuleType
 
-    def __init__(self, *, filename: PathLike, argv: List[str] = [], package: ModuleType | None = None) -> None:
+    def __init__(self, *, filename: PathLike, argv: list[str] = [], package: ModuleType | None = None) -> None:
         '''
 
         Keyword Args:

@@ -106,7 +106,7 @@ class Test_PropertyDescriptor:
         f.baz
         f.quux
 
-        calls: tp.List[str] = []
+        calls: list[str] = []
 
         def cb(attr: str, old: tp.Any, new: tp.Any) -> None:
             calls.append(attr)

@@ -25,7 +25,7 @@ import errno
 import os
 import sys
 import warnings
-from typing import Dict, Iterator, List
+from typing import Iterator
 
 # Bokeh imports
 from bokeh.application import Application
@@ -76,7 +76,7 @@ call "bokeh serve" on the directory instead. For example:
 If this is not the case, renaming main.py will suppress this warning.
 """
 
-def build_single_handler_application(path: str, argv: List[str] | None = None) -> Application:
+def build_single_handler_application(path: str, argv: list[str] | None = None) -> Application:
     ''' Return a Bokeh application built using a single handler for a script,
     notebook, or directory.
 
@@ -141,7 +141,7 @@ def build_single_handler_application(path: str, argv: List[str] | None = None) -
 
     return application
 
-def build_single_handler_applications(paths: List[str], argvs: Dict[str, List[str]] | None = None) -> Dict[str, Application]:
+def build_single_handler_applications(paths: list[str], argvs: dict[str, list[str]] | None = None) -> dict[str, Application]:
     ''' Return a dictionary mapping routes to Bokeh applications built using
     single handlers, for specified files or directories.
 
@@ -163,7 +163,7 @@ def build_single_handler_applications(paths: List[str], argvs: Dict[str, List[st
         RuntimeError
 
     '''
-    applications: Dict[str, Application] = {}
+    applications: dict[str, Application] = {}
     argvs = argvs or {}
 
     for path in paths:

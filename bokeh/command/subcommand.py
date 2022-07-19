@@ -34,6 +34,9 @@ from typing import (
     Union,
 )
 
+# External imports
+from typing_extensions import TypeAlias
+
 # Bokeh imports
 from ..util.dataclasses import (
     NotRequired,
@@ -61,7 +64,7 @@ __all__ = (
 @dataclass
 class Argument:
     action: NotRequired[Literal["store", "store_const", "store_true", "append", "append_const", "count", "help", "version", "extend"]] = Unspecified
-    nargs: NotRequired[Union[int, Literal["?", "*", "+", "..."]]] = Unspecified
+    nargs: NotRequired[int | Literal["?", "*", "+", "..."]] = Unspecified
     const: NotRequired[Any] = Unspecified
     default: NotRequired[Any] = Unspecified
     type: NotRequired[Type[Any]] = Unspecified
@@ -70,8 +73,8 @@ class Argument:
     help: NotRequired[str] = Unspecified
     metavar: NotRequired[str] = Unspecified
 
-Arg = Tuple[Union[str, Tuple[str, ...]], Argument]
-Args = Tuple[Arg, ...]
+Arg: TypeAlias = Tuple[Union[str, Tuple[str, ...]], Argument]
+Args: TypeAlias = Tuple[Arg, ...]
 
 class Subcommand(metaclass=ABCMeta):
     ''' Abstract base class for subcommands

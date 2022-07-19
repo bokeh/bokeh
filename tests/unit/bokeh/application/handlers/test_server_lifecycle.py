@@ -16,9 +16,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Dict
-
 # Bokeh imports
 from bokeh._testing.util.filesystem import with_file_contents
 from bokeh.application.handlers.handler import Handler
@@ -56,7 +53,7 @@ class Test_ServerLifecycleHandler:
 
     async def test_empty_lifecycle(self) -> None:
         doc = Document()
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahs.ServerLifecycleHandler(filename=filename)
             handler.modify_document(doc)
@@ -72,7 +69,7 @@ class Test_ServerLifecycleHandler:
         assert not doc.roots
 
     def test_lifecycle_bad_syntax(self) -> None:
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahs.ServerLifecycleHandler(filename=filename)
             result['handler'] = handler
@@ -83,7 +80,7 @@ class Test_ServerLifecycleHandler:
         assert 'Invalid syntax' in handler.error
 
     def test_lifecycle_runtime_error(self) -> None:
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahs.ServerLifecycleHandler(filename=filename)
             result['handler'] = handler
@@ -94,7 +91,7 @@ class Test_ServerLifecycleHandler:
         assert 'nope' in handler.error
 
     def test_lifecycle_bad_server_loaded_signature(self) -> None:
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahs.ServerLifecycleHandler(filename=filename)
             result['handler'] = handler
@@ -111,7 +108,7 @@ def on_server_loaded(a,b):
         assert "Traceback" in handler.error_detail
 
     def test_lifecycle_bad_server_unloaded_signature(self) -> None:
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahs.ServerLifecycleHandler(filename=filename)
             result['handler'] = handler
@@ -128,7 +125,7 @@ def on_server_unloaded(a,b):
         assert "Traceback" in handler.error_detail
 
     def test_lifecycle_bad_session_created_signature(self) -> None:
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahs.ServerLifecycleHandler(filename=filename)
             result['handler'] = handler
@@ -143,7 +140,7 @@ def on_session_created(a,b):
         assert 'func(a, b)' in handler.error
 
     def test_lifecycle_bad_session_destroyed_signature(self) -> None:
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahs.ServerLifecycleHandler(filename=filename)
             result['handler'] = handler
@@ -158,7 +155,7 @@ def on_session_destroyed(a,b):
         assert 'func(a, b)' in handler.error
 
     async def test_calling_lifecycle_hooks(self) -> None:
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = result['handler'] = bahs.ServerLifecycleHandler(filename=filename)
             if handler.failed:
@@ -172,7 +169,7 @@ def on_session_destroyed(a,b):
         assert "on_session_destroyed" == await handler.on_session_destroyed(None)
 
     def test_url_path(self) -> None:
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahs.ServerLifecycleHandler(filename=filename)
             result['handler'] = handler
@@ -187,7 +184,7 @@ def on_server_unloaded(server_context):
         assert url_path is not None and url_path.startswith("/")
 
     def test_url_path_failed(self) -> None:
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahs.ServerLifecycleHandler(filename=filename)
             result['handler'] = handler

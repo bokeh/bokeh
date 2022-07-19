@@ -32,10 +32,8 @@ from os.path import (
 from types import FrameType
 from typing import (
     Iterator,
-    List,
     Literal,
     NoReturn,
-    Tuple,
     Union,
 )
 
@@ -43,6 +41,7 @@ from typing import (
 import _pytest.config
 import _pytest.mark
 import _pytest.python
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from bokeh._testing.util.examples import Example, Flags, collect_examples
@@ -69,13 +68,13 @@ pytest_plugins = (
 
 BASE_DIR = abspath(dirname(dirname(__file__)))
 
-_examples: List[Example] | None = None
+_examples: list[Example] | None = None
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def get_all_examples(config: _pytest.config.Config) -> List[Example]:
+def get_all_examples(config: _pytest.config.Config) -> list[Example]:
     global _examples
     if _examples is None:
         _examples = collect_examples(join(BASE_DIR, "tests", "examples.yaml"))
@@ -91,7 +90,7 @@ def pytest_generate_tests(metafunc: _pytest.python.Metafunc) -> None:
         config = metafunc.config
         examples = get_all_examples(config)
 
-        def marks(example: Example) -> List[_pytest.mark.MarkDecorator]:
+        def marks(example: Example) -> list[_pytest.mark.MarkDecorator]:
             result = []
             if example.is_skip:
                 result.append(pytest.mark.skip(reason=f"skipping {example.relpath}"))
@@ -110,8 +109,8 @@ def pytest_generate_tests(metafunc: _pytest.python.Metafunc) -> None:
             metafunc.parametrize('notebook_example,example,config', params)
 
 @pytest.fixture(scope="session", autouse=True)
-def report() -> Iterator[List[Example]]:
-    report: List[Example] = []
+def report() -> Iterator[list[Example]]:
+    report: list[Example] = []
     yield report
 
     images = ""
@@ -144,7 +143,7 @@ def report() -> Iterator[List[Example]]:
     with open(join(BASE_DIR, "examples-report.html"), "w") as f:
         f.write(html)
 
-def test_file_examples(file_example: Example, example: Example, report: List[Example], config: _pytest.config.Config, bokeh_server: str) -> None:
+def test_file_examples(file_example: Example, example: Example, report: list[Example], config: _pytest.config.Config, bokeh_server: str) -> None:
     if config.option.verbose:
         print()
     (status, duration, out, err) = _run_example(example)
@@ -169,7 +168,7 @@ def test_file_examples(file_example: Example, example: Example, report: List[Exa
     else:
         _run_in_browser(example, "file://%s.html" % example.path_no_ext, report, config.option.verbose)
 
-def test_server_examples(server_example: Example, example: Example, report: List[Example], config: _pytest.config.Config, bokeh_server: str) -> None:
+def test_server_examples(server_example: Example, example: Example, report: list[Example], config: _pytest.config.Config, bokeh_server: str) -> None:
     if config.option.verbose:
         print()
     app = build_single_handler_application(example.path)
@@ -216,7 +215,7 @@ def _print_webengine_output(result: JSResult) -> None:
         for _line in error['text'].split("\n"):
             fail(_line, label="JS")
 
-def _run_in_browser(example: Example, url: str, report: List[Example], verbose: bool = False) -> None:
+def _run_in_browser(example: Example, url: str, report: list[Example], verbose: bool = False) -> None:
     start = time.time()
     result = run_in_chrome(url)
     end = time.time()
@@ -243,9 +242,9 @@ def _run_in_browser(example: Example, url: str, report: List[Example], verbose: 
 
     assert no_errors, f"{example.relpath} failed with {len(errors)} errors"
 
-ProcStatus = Union[int, Literal["timeout"]]
+ProcStatus: TypeAlias = Union[int, Literal["timeout"]]
 
-def _run_example(example: Example) -> Tuple[ProcStatus, float, str, str]:
+def _run_example(example: Example) -> tuple[ProcStatus, float, str, str]:
     code = f"""\
 __file__ = filename = {example.path!r}
 

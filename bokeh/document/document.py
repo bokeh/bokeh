@@ -40,10 +40,7 @@ from json import loads
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Iterable,
-    List,
-    Set,
     Type,
 )
 
@@ -128,12 +125,12 @@ class Document:
     models: DocumentModelManager
     modules: DocumentModuleManager
 
-    _roots: List[Model]
+    _roots: list[Model]
     _theme: Theme
     _title: str
     _template: Template
     _session_context: weakref.ReferenceType[SessionContext] | None
-    _template_variables: Dict[str, Unknown]
+    _template_variables: dict[str, Unknown]
 
     def __init__(self, *, theme: Theme = default_theme, title: str = DEFAULT_TITLE) -> None:
         self.callbacks = DocumentCallbackManager(self)
@@ -151,28 +148,28 @@ class Document:
     # Properties --------------------------------------------------------------
 
     @property
-    def roots(self) -> List[Model]:
+    def roots(self) -> list[Model]:
         ''' A list of all the root models in this Document.
 
         '''
         return list(self._roots)
 
     @property
-    def session_callbacks(self) -> List[SessionCallback]:
+    def session_callbacks(self) -> list[SessionCallback]:
         ''' A list of all the session callbacks for this document.
 
         '''
         return self.callbacks.session_callbacks
 
     @property
-    def session_destroyed_callbacks(self) -> Set[SessionDestroyedCallback]:
+    def session_destroyed_callbacks(self) -> set[SessionDestroyedCallback]:
         ''' A list of all the on_session_destroyed callbacks for this document.
 
         '''
         return self.callbacks.session_destroyed_callbacks
 
     @session_destroyed_callbacks.setter
-    def session_destroyed_callbacks(self, callbacks: Set[SessionDestroyedCallback]) -> None:
+    def session_destroyed_callbacks(self, callbacks: set[SessionDestroyedCallback]) -> None:
         self.callbacks.session_destroyed_callbacks = callbacks
 
     @property
@@ -196,7 +193,7 @@ class Document:
         self._template = template
 
     @property
-    def template_variables(self) -> Dict[str, Unknown]:
+    def template_variables(self) -> dict[str, Unknown]:
         ''' A dictionary of template variables to pass when rendering
         ``self.template``.
 
@@ -376,7 +373,7 @@ class Document:
         patch: PatchJson = deserializer.deserialize(patch_json)
 
         events = patch["events"]
-        assert isinstance(events, list) # List[DocumentPatched]
+        assert isinstance(events, list) # list[DocumentPatched]
 
         for event in events:
             # TODO: assert isinstance(event, DocumentPatchedEvent)
@@ -693,7 +690,7 @@ class Document:
             return None
         return result[0]
 
-    def set_select(self, selector: SelectorType | Type[Model], updates: Dict[str, Unknown]) -> None:
+    def set_select(self, selector: SelectorType | Type[Model], updates: dict[str, Unknown]) -> None:
         ''' Update objects that match a given selector with the specified
         attribute/value updates.
 
@@ -788,7 +785,7 @@ class Document:
         # we have to remove ALL roots before adding any
         # to the new doc or else models referenced from multiple
         # roots could be in both docs at once, which isn't allowed.
-        roots: List[Model] = []
+        roots: list[Model] = []
 
         with self.models.freeze():
             while self.roots:

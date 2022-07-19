@@ -17,9 +17,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Tuple
-
 # External imports
 from flaky import flaky
 
@@ -45,7 +42,7 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-def mk_modify_doc(text_input: PasswordInput) -> Tuple[ModifyDoc, Plot]:
+def mk_modify_doc(text_input: PasswordInput) -> tuple[ModifyDoc, Plot]:
     plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
     def modify_doc(doc):
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))

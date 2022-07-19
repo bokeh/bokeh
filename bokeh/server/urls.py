@@ -66,6 +66,7 @@ from typing import (
 
 # External imports
 from tornado.web import RequestHandler
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..embed.bundle import extension_dirs
@@ -94,9 +95,9 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-RouteContext = Dict[str, Any]
+RouteContext: TypeAlias = Dict[str, Any]
 
-URLRoutes = List[
+URLRoutes: TypeAlias = List[
     Union[
         Tuple[str, Type[RequestHandler]],
         Tuple[str, Type[RequestHandler], RouteContext],

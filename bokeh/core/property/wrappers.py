@@ -65,13 +65,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import copy
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Set,
-    Tuple,
-)
+from typing import TYPE_CHECKING, Any
 
 # External imports
 import numpy as np
@@ -147,7 +141,7 @@ class PropertyValueContainer:
     those owners when mutating changes occur.
 
     """
-    _owners: Set[Tuple[HasProps, PropertyDescriptor[Any]]]
+    _owners: set[tuple[HasProps, PropertyDescriptor[Any]]]
 
     def __init__(self, *args, **kwargs) -> None:
         self._owners = set()
@@ -394,7 +388,7 @@ class PropertyValueColumnData(PropertyValueDict):
         return result
 
     # don't wrap with notify_owner --- notifies owners explicitly
-    def _stream(self, doc: Document, source: ColumnarDataSource, new_data: Dict[str, Any],
+    def _stream(self, doc: Document, source: ColumnarDataSource, new_data: dict[str, Any],
             rollover: int | None = None, setter: Setter | None = None) -> None:
         """ Internal implementation to handle special-casing stream events
         on ``ColumnDataSource`` columns.

@@ -19,7 +19,6 @@ import pytest ; pytest
 
 # Standard library imports
 import time
-from typing import Tuple
 
 # External imports
 from flaky import flaky
@@ -66,7 +65,7 @@ def _make_plot() -> Plot:
     plot.toolbar_sticky = False
     return plot
 
-def _make_server_plot(expected) -> Tuple[ModifyDoc, Plot, ColumnDataSource]:
+def _make_server_plot(expected) -> tuple[ModifyDoc, Plot, ColumnDataSource]:
     data = {"xs": [[1, 2], [1.6, 2.45]],
             "ys": [[1, 1], [1.5, 0.75]]}
     source = ColumnDataSource(data)

@@ -39,7 +39,7 @@ log = logging.getLogger(__name__)
 import sys
 from functools import lru_cache
 from os.path import dirname, join
-from typing import Any, Callable, Dict
+from typing import Any, Callable
 
 # External imports
 from jinja2 import Environment, FileSystemLoader, Template
@@ -110,7 +110,7 @@ AUTOLOAD_NB_JS: Template
 AUTOLOAD_TAG: Template
 AUTOLOAD_REQUEST_TAG: Template
 
-_templates: Dict[str, Callable[[], Template]] = dict(
+_templates: dict[str, Callable[[], Template]] = dict(
     JS_RESOURCES=lambda: get_env().get_template("js_resources.html"),
     CSS_RESOURCES=lambda: get_env().get_template("css_resources.html"),
     SCRIPT_TAG=lambda: get_env().get_template("script_tag.html"),

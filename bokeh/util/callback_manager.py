@@ -27,13 +27,14 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
-    List,
     Sequence,
     Type,
     Union,
     cast,
 )
+
+# External imports
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..core.types import Unknown
@@ -62,11 +63,11 @@ __all__ = (
 # TODO (bev) the situation with no-argument Button callbacks is a mess. We
 # should migrate to all callbacks receving the event as the param, even if that
 # means auto-magically wrapping user-supplied callbacks for awhile.
-EventCallbackWithEvent = Callable[[Event], None]
-EventCallbackWithoutEvent = Callable[[], None]
-EventCallback = Union[EventCallbackWithEvent, EventCallbackWithoutEvent]
+EventCallbackWithEvent: TypeAlias = Callable[[Event], None]
+EventCallbackWithoutEvent: TypeAlias = Callable[[], None]
+EventCallback: TypeAlias = Union[EventCallbackWithEvent, EventCallbackWithoutEvent]
 
-PropertyCallback = Callable[[str, Unknown, Unknown], None]
+PropertyCallback: TypeAlias = Callable[[str, Unknown, Unknown], None]
 
 class EventCallbackManager:
     ''' A mixin class to provide an interface for registering and
@@ -76,8 +77,8 @@ class EventCallbackManager:
 
     document: Document | None
     id: ID
-    subscribed_events: List[str]
-    _event_callbacks: Dict[str, List[EventCallback]]
+    subscribed_events: list[str]
+    _event_callbacks: dict[str, list[EventCallback]]
 
     def __init__(self, *args: Any, **kw: Any) -> None:
         super().__init__(*args, **kw)
@@ -135,7 +136,7 @@ class PropertyCallbackManager:
     '''
 
     document: Document | None
-    _callbacks: Dict[str, List[PropertyCallback]]
+    _callbacks: dict[str, list[PropertyCallback]]
 
     def __init__(self, *args: Any, **kw: Any) -> None:
         super().__init__(*args, **kw)

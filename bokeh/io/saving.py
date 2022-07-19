@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import abspath, expanduser
-from typing import Tuple
 from warnings import warn
 
 # External imports
@@ -107,7 +106,7 @@ def save(obj: LayoutDOM, filename: PathLike | None = None, resources: ResourcesL
 #-----------------------------------------------------------------------------
 
 def _get_save_args(state: State, filename: PathLike | None, resources: ResourcesLike | None,
-        title: str | None) -> Tuple[PathLike, Resources, str]:
+        title: str | None) -> tuple[PathLike, Resources, str]:
     '''
 
     '''
@@ -119,7 +118,7 @@ def _get_save_args(state: State, filename: PathLike | None, resources: Resources
 
     return filename, resources, title
 
-def _get_save_filename(state: State, filename: PathLike | None) -> Tuple[PathLike, bool]:
+def _get_save_filename(state: State, filename: PathLike | None) -> tuple[PathLike, bool]:
     if filename is not None:
         return filename, False
 

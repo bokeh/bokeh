@@ -418,10 +418,11 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import math
 from copy import deepcopy
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
 # External imports
 import numpy as np
+from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -433,9 +434,9 @@ import numpy as np
 # General API
 #-----------------------------------------------------------------------------
 
-Palette = Tuple[str, ...]
-PaletteCollection = Dict[int, Palette]
-PaletteMap = Dict[str, PaletteCollection]
+Palette: TypeAlias = Tuple[str, ...]
+PaletteCollection: TypeAlias = Dict[int, Palette]
+PaletteMap: TypeAlias = Dict[str, PaletteCollection]
 
 YlGn3 = ("#31a354", "#addd8e", "#f7fcb9")
 YlGn4 = ("#238443", "#78c679", "#c2e699", "#ffffcc")
@@ -1382,7 +1383,7 @@ Category20c = { 3:  Category20c_3,  4:  Category20c_4,  5:  Category20c_5,  6:  
                 18: Category20c_18, 19: Category20c_19, 20: Category20c_20 }
 Colorblind  = { 3: Colorblind3, 4: Colorblind4, 5: Colorblind5, 6: Colorblind6, 7: Colorblind7, 8: Colorblind8 }
 Bright = { 3: Bright3, 4: Bright4, 5: Bright5, 6: Bright6, 7: Bright7 }
-HighContrast: Dict[int, Tuple[str, ...]] = { 3: HighContrast3 }
+HighContrast: dict[int, tuple[str, ...]] = { 3: HighContrast3 }
 Vibrant = { 3: Vibrant3, 4: Vibrant4, 5: Vibrant5, 6: Vibrant6, 7: Vibrant7 }
 Muted = { 3: Muted3, 4: Muted4, 5: Muted5, 6: Muted6, 7: Muted7, 8: Muted8, 9: Muted9 }
 MediumContrast = { 3: MediumContrast3, 4: MediumContrast4, 5: MediumContrast5, 6: MediumContrast6 }
@@ -1816,7 +1817,7 @@ def gray(n: int) -> Palette:
 # Code
 #-----------------------------------------------------------------------------
 
-__palettes__: List[str] = []
+__palettes__: list[str] = []
 for name, palettes in sorted(all_palettes.items(), key=lambda arg: arg[0]):
     name = name + "_" if name[-1].isdigit() else name
     __palettes__ += [ name + str(index) for index in sorted(palettes.keys()) ]

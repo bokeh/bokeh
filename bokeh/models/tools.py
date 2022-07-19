@@ -184,7 +184,7 @@ class Tool(Model):
     user interface as a tooltip.
     """)
 
-    _known_aliases: tp.ClassVar[tp.Dict[str, tp.Callable[[], Tool]]] = {}
+    _known_aliases: tp.ClassVar[dict[str, tp.Callable[[], Tool]]] = {}
 
     @classmethod
     def from_string(cls, name: str) -> Tool:
@@ -323,25 +323,25 @@ class Toolbar(Model):
     A list of tools to add to the plot.
     """)
 
-    active_drag: tp.Union[Literal["auto"], Drag, None] = Either(Null, Auto, Instance(Drag), default="auto", help="""
+    active_drag: Literal["auto"] | Drag | None = Either(Null, Auto, Instance(Drag), default="auto", help="""
     Specify a drag tool to be active when the plot is displayed.
     """)
 
-    active_inspect: tp.Union[Literal["auto"], InspectTool, tp.Sequence[InspectTool], None] = \
+    active_inspect: Literal["auto"] | InspectTool | tp.Sequence[InspectTool] | None = \
         Either(Null, Auto, Instance(InspectTool), Seq(Instance(InspectTool)), default="auto", help="""
     Specify an inspection tool or sequence of inspection tools to be active when
     the plot is displayed.
     """)
 
-    active_scroll: tp.Union[Literal["auto"], Scroll, None] = Either(Null, Auto, Instance(Scroll), default="auto", help="""
+    active_scroll: Literal["auto"] | Scroll | None = Either(Null, Auto, Instance(Scroll), default="auto", help="""
     Specify a scroll/pinch tool to be active when the plot is displayed.
     """)
 
-    active_tap: tp.Union[Literal["auto"], Tap, None] = Either(Null, Auto, Instance(Tap), default="auto", help="""
+    active_tap: Literal["auto"] | Tap | None = Either(Null, Auto, Instance(Tap), default="auto", help="""
     Specify a tap/click tool to be active when the plot is displayed.
     """)
 
-    active_multi: tp.Union[Literal["auto"], GestureTool, None] = Either(Null, Auto, Instance(GestureTool), default="auto", help="""
+    active_multi: Literal["auto"] | GestureTool | None = Either(Null, Auto, Instance(GestureTool), default="auto", help="""
     Specify an active multi-gesture tool, for instance an edit tool or a range
     tool.
 

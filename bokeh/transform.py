@@ -29,6 +29,9 @@ from typing import (
     Union,
 )
 
+# External imports
+from typing_extensions import TypeAlias
+
 # Bokeh imports
 from .core.property.vectorization import Expr, Field
 from .models.expressions import CumSum, Stack
@@ -69,9 +72,9 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    ColorLike = Union[str, Color, Tuple[int, int, int], Tuple[int, int, int, float]]
+    ColorLike: TypeAlias = Union[str, Color, Tuple[int, int, int], Tuple[int, int, int, float]]
 
-    Factors = Union[Sequence[str], Sequence[Tuple[str, str]], Sequence[Tuple[str, str, str]]]
+    Factors: TypeAlias = Union[Sequence[str], Sequence[Tuple[str, str]], Sequence[Tuple[str, str, str]]]
 
 def cumsum(field_name: str, include_zero: bool = False) -> Expr:
     ''' Create a ``DataSpec`` dict to generate a ``CumSum`` expression

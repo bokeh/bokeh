@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import numbers
-import typing as tp
 from datetime import date, datetime
 
 # Bokeh imports
@@ -237,7 +236,7 @@ class DateRangeSlider(AbstractSlider):
         super().__init__(*args, **kwargs)
 
     @property
-    def value_as_datetime(self) -> tp.Tuple[datetime, datetime] | None:
+    def value_as_datetime(self) -> tuple[datetime, datetime] | None:
         ''' Convenience property to retrieve the value tuple as a tuple of
         datetime objects.
 
@@ -257,7 +256,7 @@ class DateRangeSlider(AbstractSlider):
         return d1, d2
 
     @property
-    def value_as_date(self) -> tp.Tuple[date, date] | None:
+    def value_as_date(self) -> tuple[date, date] | None:
         ''' Convenience property to retrieve the value tuple as a tuple of
         date objects.
 
@@ -308,7 +307,7 @@ class DatetimeRangeSlider(AbstractSlider):
         super().__init__(*args, **kwargs)
 
     @property
-    def value_as_datetime(self) -> tp.Tuple[datetime, datetime] | None:
+    def value_as_datetime(self) -> tuple[datetime, datetime] | None:
         ''' Convenience property to retrieve the value tuple as a tuple of
         datetime objects.
         '''

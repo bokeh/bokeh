@@ -34,12 +34,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Literal,
-)
+from typing import TYPE_CHECKING, Any, Literal
 from urllib.parse import quote_plus
 
 ## External imports
@@ -83,7 +78,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def pull_session(session_id: ID | None = None, url: str = "default", io_loop: IOLoop | None = None,
-        arguments: Dict[str, str] | None = None, max_message_size: int = 20*1024*1024) -> ClientSession:
+        arguments: dict[str, str] | None = None, max_message_size: int = 20*1024*1024) -> ClientSession:
     ''' Create a session by loading the current server-side document.
 
     ``session.document`` will be a fresh document loaded from
@@ -278,7 +273,7 @@ class ClientSession:
     _callbacks: DocumentCallbackGroup
 
     def __init__(self, session_id: ID | None = None, websocket_url: str = DEFAULT_SERVER_WEBSOCKET_URL,
-            io_loop: IOLoop | None = None, arguments: Dict[str, str] | None = None, max_message_size: int = 20*1024*1024):
+            io_loop: IOLoop | None = None, arguments: dict[str, str] | None = None, max_message_size: int = 20*1024*1024):
         ''' A connection which attaches to a particular named session on the
         server.
 

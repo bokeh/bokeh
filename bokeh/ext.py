@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 import os
 from os.path import join
 from subprocess import Popen
-from typing import List
 
 # Bokeh imports
 from . import __version__
@@ -57,7 +56,7 @@ def init(base_dir: PathLike, *, interactive: bool = False,
         bool
 
     """
-    args: List[str] = []
+    args: list[str] = []
     if interactive:
         args.append("--interactive")
     if bokehjs_version:
@@ -81,7 +80,7 @@ def build(base_dir: PathLike, *, rebuild: bool = False, debug: bool = False) -> 
         bool
 
     """
-    args: List[str] = []
+    args: list[str] = []
     if rebuild:
         args.append("--rebuild")
     proc = _run_command("build", base_dir, args, debug)
@@ -95,7 +94,7 @@ def build(base_dir: PathLike, *, rebuild: bool = False, debug: bool = False) -> 
 # Private API
 #-----------------------------------------------------------------------------
 
-def _run_command(command: str, base_dir: PathLike, args: List[str], debug: bool = False) -> Popen[bytes]:
+def _run_command(command: str, base_dir: PathLike, args: list[str], debug: bool = False) -> Popen[bytes]:
     bokehjs_dir = settings.bokehjsdir()
 
     if debug:
