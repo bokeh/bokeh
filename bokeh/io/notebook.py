@@ -635,9 +635,9 @@ def _server_url(url: str, port: int | None) -> str:
     port_ = f":{port}" if port is not None else ""
 
     if url.startswith("http"):
-        return '%s%s%s' % (url.rsplit(':', 1)[0], port_, "/")
+        return f"{url.rsplit(':', 1)[0]}{port_}{'/'}"
     else:
-        return 'http://%s%s%s' % (url.split(':')[0], port_, "/")
+        return f"http://{url.split(':')[0]}{port_}{'/'}"
 
 #-----------------------------------------------------------------------------
 # Code
