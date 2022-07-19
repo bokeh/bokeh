@@ -196,7 +196,7 @@ export function hide(element: HTMLElement): void {
   element.style.visibility = "hidden"
 }
 
-export function offset(element: HTMLElement) {
+export function offset(element: Element) {
   const rect = element.getBoundingClientRect()
   return {
     top:  rect.top  + window.pageYOffset - document.documentElement.clientTop,
