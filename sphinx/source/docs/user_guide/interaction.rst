@@ -1,13 +1,11 @@
 .. _userguide_interaction:
 
-Making Interactions
-===================
+Responding to interactions
+==========================
 
-.. toctree::
-   interaction/linking
-   interaction/legends
-   interaction/widgets
-   interaction/callbacks
+Bokeh offers several ways to respond to browser-based interactions from users. A
+lot of this interactivity can be defined in Python, with no or only limited
+JavaScript required.
 
 :ref:`userguide_interaction_linked`
     Bokeh makes it simple to add certain kinds of linked interactions between
@@ -26,3 +24,11 @@ Making Interactions
 :ref:`userguide_interaction_jscallbacks`
     See how to attach ``CustomJS`` callbacks to various widgets and events
     in Bokeh documents.
+
+.. toctree::
+   :hidden:
+
+   interaction/linking
+   interaction/legends
+   interaction/widgets
+   interaction/callbacks
