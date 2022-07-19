@@ -68,7 +68,7 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-class StocksData(TypedDict):
+class StockData(TypedDict):
     date: list[str]
     open: list[float]
     high: list[float]
@@ -77,12 +77,12 @@ class StocksData(TypedDict):
     volume: list[int]
     adj_close: list[float]
 
-def _read_data(name: str) -> StocksData:
+def _read_data(name: str) -> StockData:
     '''
 
     '''
     filename = external_path(name + '.csv')
-    data = StocksData(
+    data = StockData(
         date = [],
         open = [],
         high = [],
