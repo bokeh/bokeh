@@ -215,10 +215,11 @@ def test_group_tools() -> None:
     save0 = SaveTool()
     save1 = SaveTool()
 
-    tools = group_tools([pan0, tap0, pan2, pan1, tap1, pan5, pan4, pan3, tap2, save0, save1])
+    tools = [pan0, tap0, pan2, pan1, tap1, pan5, pan4, pan3, tap2, save0, save1]
+    groupped = group_tools(tools, merge=lambda cls, tools: SaveTool() if issubclass(cls, SaveTool) else None)
 
-    assert len(tools) == 6
-    t0, t1, t2, t3, t4, t5 = tools
+    assert len(groupped) == 6
+    t0, t1, t2, t3, t4, t5 = groupped
 
     assert isinstance(t0, ToolProxy)
     assert isinstance(t1, ToolProxy)

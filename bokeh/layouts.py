@@ -24,15 +24,20 @@ log = logging.getLogger(__name__)
 import math
 from collections import defaultdict
 from typing import (
-    TYPE_CHECKING,
     Any,
+    Callable,
     Iterable,
     Iterator,
+    List,
     Sequence,
     Type,
     TypeVar,
+    Union,
     overload,
 )
+
+# External imports
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from .core.enums import Location, LocationType, SizingModeType
@@ -46,13 +51,11 @@ from .models import (
     Row,
     SaveTool,
     Spacer,
+    Tool,
     Toolbar,
     ToolProxy,
 )
 from .util.dataclasses import dataclass
-
-if TYPE_CHECKING:
-    from .models import Tool
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -286,7 +289,13 @@ def gridplot(
             else:
                 raise ValueError("Only LayoutDOM items can be inserted into a grid")
 
-    toolbar = Toolbar(tools=tools if not merge_tools else group_tools(tools), **toolbar_options)
+    def merge(cls: Type[Tool], group: list[Tool]):
+        if issubclass(cls, SaveTool):
+            return cls(filename=group[0].filename)
+        else:
+            return None
+
+    toolbar = Toolbar(tools=tools if not merge_tools else group_tools(tools, merge=merge), **toolbar_options)
     return GridPlot(children=items, toolbar=toolbar, toolbar_location=toolbar_location, sizing_mode=sizing_mode)
 
 # XXX https://github.com/python/mypy/issues/731
@@ -488,7 +497,10 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
 # Dev API
 #-----------------------------------------------------------------------------
 
-def group_tools(tools: list[Tool | ToolProxy], *, merge_save: bool = True) -> list[Tool | ToolProxy]:
+T = TypeVar("T", bound=Tool)
+MergeFn: TypeAlias = Callable[[Type[T], List[T]], Union[Tool, ToolProxy, None]]
+
+def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = None) -> list[Tool | ToolProxy]:
     """ Group common tools into tool proxies. """
     @dataclass
     class ToolEntry:
@@ -519,8 +531,8 @@ def group_tools(tools: list[Tool | ToolProxy], *, merge_save: bool = True) -> li
 
             if len(group) == 1:
                 computed.append(group[0])
-            elif merge_save and issubclass(cls, SaveTool):
-                computed.append(cls(filename=group[0].filename))
+            elif merge is not None and (tool := merge(cls, group)) is not None:
+                computed.append(tool)
             else:
                 computed.append(ToolProxy(tools=group))
 
