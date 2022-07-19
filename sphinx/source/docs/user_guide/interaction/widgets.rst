@@ -57,10 +57,10 @@ The simplest version of interactive callbacks are JavaScript callbacks that run
 directly in the browser.
 
 Every widget has a ``.js_on_change`` property. The callback assigned to this
-property will be called whenever
+property will be called whenever the state of the widget changes.
 
-
-.js_on_event
+Some widget also have a``.js_on_event`` property. The callback assigned to this
+property will be called whenever an event occurs in the browser. [TBD: do any widgets other than button/dropdownbutton use this?]
 
 There are three options for generating a JavaScript callback:
 
@@ -86,7 +86,7 @@ https://docs.bokeh.org/en/latest/docs/gallery/color_sliders.html
     The explicit purpose of the ``CustomJS`` Model is to embed raw JavaScript
     code for a browser to execute. If any part of the code is derived from
     untrusted user inputs, then you must take appropriate care to sanitize the
-    user input prior to passing to Bokeh.
+    user input prior to passing it to Bokeh.
 
 
 .. _userguide_interaction_widgets_callbacks_python:
@@ -172,6 +172,8 @@ The sections below are examples for all widgets available in Bokeh. Many of the
 examples print output that can be observed by looking at your browser's
 JavaScript console log.
 
+.. _userguide_interaction_widgets_examples_button:
+
 Button
 ~~~~~~
 
@@ -183,16 +185,18 @@ Bokeh provides a simple Button:
 Use the button's ``button_type`` property to change the style of the button. See
 :class:`~bokeh.core.enums.ButtonType` for possible values.`
 
-Optionally, you can add an icon to a button by passing an Icon object to the
+Optionally, you can add an icon to a button by passing an :class:`~bokeh.models.ui.Icon`
+Icon object to the
 button's ``icon`` parameter:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_button_icon.py
     :source-position: below
 
 Bokeh supports the following kinds of icons on buttons:
-* :class:`~bokeh.models.icons.BuiltinIcon`: A set of built-in icons provided by Bokeh (see :class:`~bokeh.core.enums.ToolIcon` for a list of available icons) [TBD that list does not match???!]
-* :class:`~bokeh.models.icons.SVGIcon`: An arbitrary SVG icon
-* :class:`~bokeh.models.icons.TablerIcon`: An icon from the `Tabler icon set <https://tabler-icons.io/>`_ (requires an acitve internet connection)
+
+* :class:`~bokeh.models.BuiltinIcon`: A set of built-in icons provided by Bokeh (see :class:`~bokeh.models.BuiltinIcon` for a list of available icons)
+* :class:`~bokeh.models.SVGIcon`: An arbitrary SVG icon
+* :class:`~bokeh.models.TablerIcon`: An icon from the `Tabler icon set <https://tabler-icons.io/>`_ (requires an active internet connection)
 
 More information about buttons can be found in the Reference for |Button|.
 
@@ -294,6 +298,9 @@ clicked.
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_dropdown.py
     :source-position: below
+
+Similar to the :ref:`userguide_interaction_widgets_examples_button` widget, the
+dropdown button can also use an :class:`~bokeh.models.icons.Icon`.
 
 More information can be found in the Reference for |Dropdown|.
 

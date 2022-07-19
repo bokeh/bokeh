@@ -71,18 +71,19 @@ class Icon(Model):
     """)
 
 class BuiltinIcon(Icon):
-    """ Built-in icons included with bokehjs. """
+    """ Built-in icons included with BokehJS. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, icon_name: Init[str] = Intrinsic, **kwargs) -> None:
         super().__init__(icon_name=icon_name, **kwargs)
 
-    icon_name = Required(Either(Enum(ToolIcon), String), help="""
-    The name of a built-in icon to use.
+    icon_name = Required(Either(Enum(ToolIcon), String), default="settings", help="""
+    The name of a built-in icon to use. Currently, the following icon names are
+    supported: ``"help"``, ``"question-mark"``, ``"settings"``, ``"x"``
     """)
 
     color = Color(default="gray", help="""
-    Built-in icons are color netural.
+    Color to use for the icon.
     """)
 
 class SVGIcon(Icon):
