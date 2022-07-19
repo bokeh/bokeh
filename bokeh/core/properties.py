@@ -149,6 +149,7 @@ Special Properties
 .. autoclass:: Nullable
 .. autoclass:: NonNullable
 .. autoclass:: Override
+.. autoclass:: Required
 
 Validation-only Properties
 --------------------------
@@ -249,6 +250,7 @@ __all__ = (
     'Readonly',
     'Regex',
     'RelativeDelta',
+    'Required',
     'RestrictedDict',
     'Seq',
     'Size',
@@ -362,6 +364,8 @@ from .property.primitive import Null; Null
 from .property.primitive import String; String
 
 from .property.readonly import Readonly; Readonly
+
+from .property.required import Required; Required
 
 from .property.string import MathString; MathString
 from .property.string import Regex; Regex

@@ -40,9 +40,9 @@ from ...core.properties import (
     InstanceDefault,
     Int,
     List,
-    NonNullable,
     Nullable,
     Override,
+    Required,
     String,
 )
 from ...model import Model
@@ -674,7 +674,7 @@ class TableColumn(Model):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    field = NonNullable(String, help="""
+    field = Required(String, help="""
     The name of the field mapping to a column in the data source.
     """)
 

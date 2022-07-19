@@ -73,12 +73,12 @@ from ..core.properties import (
     InstanceDefault,
     Int,
     List,
-    NonNullable,
     Null,
     Nullable,
     Override,
     Percent,
     Regex,
+    Required,
     Seq,
     String,
     Tuple,
@@ -1325,7 +1325,7 @@ class EditTool(GestureTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    empty_value = NonNullable(Either(Bool, Int, Float, Date, Datetime, Color, String), help="""
+    empty_value = Required(Either(Bool, Int, Float, Date, Datetime, Color, String), help="""
     Defines the value to insert on non-coordinate columns when a new
     glyph is inserted into the ``ColumnDataSource`` columns, e.g. when a
     circle glyph defines 'x', 'y' and 'color' columns, adding a new

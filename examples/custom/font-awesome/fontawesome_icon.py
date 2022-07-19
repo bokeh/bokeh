@@ -1,4 +1,4 @@
-from bokeh.core.properties import Bool, Enum, NonNullable as Required
+from bokeh.core.properties import Bool, Enum, Required
 from bokeh.models import Icon
 
 from named_icon import NamedIcon

@@ -4,64 +4,73 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Auxiliary graphical models for aiding glyphs, guide renderers, etc.
-
-"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging # isort:skip
-log = logging.getLogger(__name__)
+from __future__ import annotations # isort:skip
+
+import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.has_props import abstract
-from ..core.properties import Enum, Instance, Required
-from ..model import Model
+from bokeh._testing.util.api import verify_all
+from bokeh.core.properties import Instance, Int, List
+
+from _util_property import _TestHasProps, _TestModel
+
+# Module under test
+import bokeh.core.property.required as bcpr # isort:skip
 
 #-----------------------------------------------------------------------------
-# Globals and constants
+# Setup
 #-----------------------------------------------------------------------------
 
-__all__ = (
-    "Decoration",
-    "Marking",
+ALL = (
+    "Required",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-@abstract
-class Marking(Model):
-    """ Base class for graphical markings, e.g. arrow heads.
+class Test_Required:
+    def test_init(self) -> None:
+        with pytest.raises(TypeError):
+            bcpr.Required()
 
-    """
+    def test_valid(self) -> None:
+        prop = bcpr.Required(List(Int))
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+        assert prop.is_valid([])
+        assert prop.is_valid([1, 2, 3])
 
-class Decoration(Model):
-    """ Indicates a positioned marker, e.g. at a node of a glyph.
+    def test_invalid(self) -> None:
+        prop = bcpr.Required(List(Int))
 
-    """
+        assert not prop.is_valid(None)
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+        assert not prop.is_valid(-100)
+        assert not prop.is_valid("yyy")
+        assert not prop.is_valid([1, 2, ""])
 
-    marking = Instance(Marking, help="""
-    The graphical marking associated with this decoration, e.g. an arrow head.
-    """)
+        assert not prop.is_valid(())
+        assert not prop.is_valid({})
+        assert not prop.is_valid(_TestHasProps())
+        assert not prop.is_valid(_TestModel())
 
-    node = Required(Enum("start", "middle", "end"), help="""
-    The placement of the marking on the parent graphical object.
-    """)
+    def test_has_ref(self) -> None:
+        prop0 = bcpr.Required(Int)
+        assert not prop0.has_ref
+        prop1 = bcpr.Required(Instance(_TestModel))
+        assert prop1.has_ref
+
+    def test_str(self) -> None:
+        prop = bcpr.Required(List(Int))
+        assert str(prop) == "Required(List(Int))"
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -74,3 +83,5 @@ class Decoration(Model):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+Test___all__ = verify_all(bcpr, ALL)

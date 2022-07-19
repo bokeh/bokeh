@@ -27,9 +27,9 @@ from ..core.properties import (
     Dict,
     Float,
     Int,
-    NonNullable,
     Nullable,
     Override,
+    Required,
     String,
 )
 from ..model import Model
@@ -91,11 +91,11 @@ class TileSource(Model):
     Data provider attribution content. This can include HTML content.
     """)
 
-    x_origin_offset = NonNullable(Float, help="""
+    x_origin_offset = Required(Float, help="""
     An x-offset in plot coordinates
     """)
 
-    y_origin_offset = NonNullable(Float, help="""
+    y_origin_offset = Required(Float, help="""
     A y-offset in plot coordinates
     """)
 

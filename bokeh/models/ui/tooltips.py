@@ -29,9 +29,9 @@ from ...core.properties import (
     Enum,
     Float,
     Instance,
-    NonNullable as Required,
     Nullable,
     Override,
+    Required,
     String,
     Tuple,
 )
