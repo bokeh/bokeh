@@ -41,7 +41,7 @@ from jinja2 import Template
 
 # Bokeh imports
 from .. import __version__
-from ..core.templates import (  # type: ignore[attr-defined]
+from ..core.templates import (
     AUTOLOAD_JS,
     AUTOLOAD_TAG,
     FILE,

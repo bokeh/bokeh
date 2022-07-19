@@ -128,10 +128,6 @@ def test_convert_datetime_type_pandas_types(pd) -> None:
     assert bus.convert_datetime_type(pd.Period('1900', 'A-DEC')) == bus.convert_datetime_type(np.datetime64("1900-01-01"))
     assert np.isnan(bus.convert_datetime_type(pd.NaT))
 
-@pytest.mark.parametrize('obj', [[1,2], (1,2), dict(), set(), 10.2, "foo"])
-def test_convert_datetime_type_array_ignores_non_array(obj) -> None:
-    assert bus.convert_datetime_array(obj) is obj
-
 def test_convert_datetime_type_array_ignores_non_datetime_array() -> None:
     a = np.arange(0,10,100)
     assert bus.convert_datetime_array(a) is a

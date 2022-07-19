@@ -42,7 +42,7 @@ import codecs
 import csv
 import gzip
 import xml.etree.ElementTree as et
-from typing import Dict, List, TypedDict
+from typing import Dict, TypedDict
 
 # External imports
 from typing_extensions import TypeAlias
@@ -75,16 +75,16 @@ State: TypeAlias = str
 class StateData(TypedDict):
     name: str
     region: str
-    lats: List[float]
-    lons: List[float]
+    lats: list[float]
+    lons: list[float]
+
+nan = float('NaN')
 
 def _read_data() -> Dict[State, StateData]:
     '''
 
     '''
-    nan = float('NaN')
-
-    data = {}
+    data: Dict[State, StateData] = {}
 
     with gzip.open(package_path('US_Regions_State_Boundaries.csv.gz')) as f:
         decoded = codecs.iterdecode(f, "utf-8")
@@ -93,17 +93,18 @@ def _read_data() -> Dict[State, StateData]:
         for row in reader:
             region, name, code, geometry, _ = row
             xml = et.fromstring(geometry)
-            lats: List[float] = []
-            lons: List[float] = []
+            lats: list[float] = []
+            lons: list[float] = []
             for i, poly in enumerate(xml.findall('.//outerBoundaryIs/LinearRing/coordinates')):
                 if i > 0:
                     lats.append(nan)
                     lons.append(nan)
+                assert isinstance(poly.text, str)
                 coords = (c.split(',')[:2] for c in poly.text.split())
                 lat, lon = list(zip(*[(float(lat), float(lon)) for lon, lat in coords]))
                 lats.extend(lat)
                 lons.extend(lon)
-            data[code] = dict(
+            data[code] = StateData(
                 name   = name,
                 region = region,
                 lats   = lats,

@@ -38,9 +38,18 @@ from os.path import (
     splitext,
 )
 from sys import stdout
-from typing import Any, TextIO, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    TextIO,
+    cast,
+)
 from urllib.parse import urljoin
 from urllib.request import urlopen
+
+# External library imports
+if TYPE_CHECKING:
+    from pandas import DataFrame
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -49,8 +58,6 @@ from urllib.request import urlopen
 __all__ = (
     'download',
 )
-
-DataFrame = Any
 
 #-----------------------------------------------------------------------------
 # General API
@@ -142,8 +149,8 @@ def package_csv(module: str, name: str, **kw: Any) -> DataFrame:
 
     '''
     from .dependencies import import_required
-    pd = import_required('pandas', '%s sample data requires Pandas (http://pandas.pydata.org) to be installed' % module)
-    return cast(Any, pd).read_csv(package_path(name), **kw)
+    pd = import_required('pandas', f'{module} sample data requires Pandas (http://pandas.pydata.org) to be installed')
+    return pd.read_csv(package_path(name), **kw)
 
 
 def package_dir() -> str:
