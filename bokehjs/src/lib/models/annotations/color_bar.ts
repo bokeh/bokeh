@@ -206,8 +206,15 @@ export class ColorBarView extends BaseColorBarView {
   // Return binning array of ScanningColorMapper, modified to account for low
   // and high display cutoffs.
   protected _scanning_binning(color_mapper: ScanningColorMapper): Arrayable<number> {
-    let {binning} = color_mapper.metrics
-    const {display_low, display_high} = this.model
+    let {binning, force_low_cutoff} = color_mapper.metrics
+    const {display_high} = this.model
+    let {display_low} = this.model
+
+    if (force_low_cutoff && (display_low == null || color_mapper.metrics.min > display_low)) {
+      // ScanningColorMapper overrides display_low, for example when EqHistColorMapper
+      // uses rescale_discrete_levels=True.
+      display_low = color_mapper.metrics.min
+    }
 
     if (display_high != null && display_low != null && display_high < display_low) {
       // Empty color bar.
