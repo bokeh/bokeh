@@ -415,12 +415,13 @@ describe("ColorBar annotation", () => {
       const palette = Spectral11
       const p0 = make_plot(new LinearColorMapper({palette}), "linear", display_low, display_high)
       const p1 = make_plot(new LogColorMapper({palette}), "log", display_low, display_high)
-      const p2 = make_plot(new EqHistColorMapper({palette}), "eq hist", display_low, display_high)
-      return column([p0, p1, p2])
+      const p2 = make_plot(new EqHistColorMapper({palette, rescale_discrete_levels: false}), "eq hist", display_low, display_high)
+      const p3 = make_plot(new EqHistColorMapper({palette, rescale_discrete_levels: true}), "eq hist rescaled", display_low, display_high)
+      return column([p0, p1, p2, p3])
     }
 
     it("low only", async () => {
-      await display(make_cutoff_plots(40, null))
+      await display(make_cutoff_plots(42, null))
     })
 
     it("high only", async () => {
@@ -428,7 +429,11 @@ describe("ColorBar annotation", () => {
     })
 
     it("low and high", async () => {
-      await display(make_cutoff_plots(40, 80))
+      await display(make_cutoff_plots(42, 80))
+    })
+
+    it("neither", async () => {
+      await display(make_cutoff_plots(null, null))
     })
 
     it("out of bounds", async () => {
@@ -436,7 +441,7 @@ describe("ColorBar annotation", () => {
     })
 
     it("wrong way round", async () => {
-      await display(make_cutoff_plots(80, 40))
+      await display(make_cutoff_plots(80, 42))
     })
 
     function make_multi_cbar_plot(color_mapper: ColorMapper, vertical: boolean): {plot: Plot, cbars: ColorBar[]} {

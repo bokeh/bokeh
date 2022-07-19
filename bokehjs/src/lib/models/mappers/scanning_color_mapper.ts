@@ -7,6 +7,7 @@ export type ScanningScanData = {
   min: number
   max: number
   binning: Arrayable<number>
+  force_low_cutoff: boolean
 }
 
 export namespace ScanningColorMapper {
@@ -24,7 +25,7 @@ export abstract class ScanningColorMapper extends ContinuousColorMapper {
     super(attrs)
   }
 
-  override MatricsType: {min: number, max: number, binning: Arrayable<number>}
+  override MatricsType: {min: number, max: number, binning: Arrayable<number>, force_low_cutoff: boolean}
 
   override index_to_value(index: number): number {
     const scan_data = this._scan_data as ScanningScanData

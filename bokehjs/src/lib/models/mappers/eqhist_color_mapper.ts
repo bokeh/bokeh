@@ -1,6 +1,6 @@
 import {ScanningColorMapper, ScanningScanData} from "./scanning_color_mapper"
 import {Arrayable} from "core/types"
-import {min, max, bin_counts, interpolate} from "core/util/arrayable"
+import {min, max, bin_counts, interpolate, sorted_index} from "core/util/arrayable"
 import {linspace, cumsum} from "core/util/array"
 import * as p from "core/properties"
 
@@ -31,7 +31,7 @@ export class EqHistColorMapper extends ScanningColorMapper {
 
   // Public for unit tests
   /*protected*/ scan(data: Arrayable<number>, n: number): ScanningScanData {
-    let low = this.low != null ? this.low : min(data)
+    const low = this.low != null ? this.low : min(data)
     const high = this.high != null ? this.high : max(data)
 
     const nbins = this.bins
@@ -67,8 +67,10 @@ export class EqHistColorMapper extends ScanningColorMapper {
       cdf[i] = (cdf[i] - lo) / diff
     cdf[0] = -1.0
 
+    let {rescale_discrete_levels} = this
     let lower_span = 0
-    if (this.rescale_discrete_levels) {
+
+    if (rescale_discrete_levels) {
       const discrete_levels = nhist
 
       // Straight line y = mx + c through (2, 1.5) and (100, 1) where
@@ -79,19 +81,30 @@ export class EqHistColorMapper extends ScanningColorMapper {
 
       if (multiple > 1)
         lower_span = 1 - multiple
+      else
+        rescale_discrete_levels = false
     }
 
     // Color bin boundaries are equally spaced in CDF
     const cdf_bins = linspace(lower_span, 1, n+1)
     const binning = interpolate(cdf_bins, cdf, eq_bin_centers)
 
-    // Extend limits to low and high values
-    if (this.rescale_discrete_levels)
-      low = binning[0]
-    else
+    // Ensure binning limits are correct
+    let force_low_cutoff = false
+    if (rescale_discrete_levels) {
+      const low_cutoff_index = sorted_index(binning, low)
+      // This index satisfies: binning[low_cutoff_index-1] < low <= binning[low_cutoff_index]
+      // If low < binning[low_cutoff_index] then set previous bin to low so that the
+      // lowest colorbar label equals low rather than than the arbitrary value set by
+      // rescale_discrete_levels. This ensures the bottom colorbar label is correct.
+      // If low == binning[low_cutoff_index] then do nothing as label is already correct.
+      if (low < binning[low_cutoff_index] && low_cutoff_index > 0)
+        binning[low_cutoff_index-1] = low
+      force_low_cutoff = true
+    } else
       binning[0] = low
     binning[binning.length-1] = high
 
-    return {min: low, max: high, binning}
+    return {min: low, max: high, binning, force_low_cutoff}
   }
 }

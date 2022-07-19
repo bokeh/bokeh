@@ -6,11 +6,21 @@ describe("EqHistColorMapper module", () => {
 
   describe("EqHistColorMapper.scan method", () => {
 
-    function scan_check(values: number[], expected_binning: number[], rescale_discrete_levels: boolean = false) {
+    function scan_check(values: number[], expected_binning: number[], ncolors: number = 3, rescale_discrete_levels: boolean = false, low_cutoff_index: number = 0) {
       const n = values.length
-      const palette = new Array(3).fill("red")  // Colors not used but needed for constructor
+      const palette = new Array(ncolors).fill("red")  // Colors not used but needed for constructor
       const color_mapper = new EqHistColorMapper({palette, rescale_discrete_levels})
-      const scan = color_mapper.scan(values, 3)
+      const scan = color_mapper.scan(values, ncolors)
+
+      let {binning} = scan
+      if (low_cutoff_index > 0) {
+        // Ignore values at start of binning array up to low_cutoff_index
+        const n = binning.length - low_cutoff_index
+        const cutoff_binning = new Array<number>(n)
+        for (let i = 0; i < n; i++)
+          cutoff_binning[i] = binning[i + low_cutoff_index]
+        binning = cutoff_binning
+      }
 
       const sorted = values.sort()
       if (rescale_discrete_levels)
@@ -18,7 +28,8 @@ describe("EqHistColorMapper module", () => {
       else
         expect(scan.min).to.be.equal(sorted[0])
       expect(scan.max).to.be.equal(sorted[n-1])
-      expect(scan.binning).to.be.similar(expected_binning, 1e-6)
+
+      expect(binning).to.be.similar(expected_binning, 1e-6)
     }
 
     it("Should scan equally-spaced values", () => {
@@ -34,8 +45,8 @@ describe("EqHistColorMapper module", () => {
 
     it("Should scan using rescale_discrete_levels", () => {
       const values = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10, 100]
-      scan_check(values, [1, 6.999931, 39.999428, 100], false)
-      scan_check(values, [-47.993395, 1.061971, 10.305641, 100], true)
+      scan_check(values, [1, 5.500137, 9.999519, 54.999382, 100], 4, false)
+      scan_check(values, [1, 5.546049, 32.729042, 100], 4, true, 1)
     })
   })
 })
