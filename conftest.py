@@ -4,6 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+from __future__ import annotations
 
 pytest_plugins = (
     "bokeh._testing.plugins.ipython",
@@ -14,7 +15,6 @@ pytest_plugins = (
 
 # Standard library imports
 from inspect import iscoroutinefunction
-from typing import List
 
 # External imports
 import _pytest
