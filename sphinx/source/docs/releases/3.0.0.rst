@@ -167,6 +167,9 @@ Renames
 
 * ``copy_to_clipboard`` icon was renamed to ``copy``
 
+* ``Theme`` support for color bars has had the key changed from ``ColorBar`` to
+  ``BaseColorBar`` so that it also supports ``ContourColorBar``.
+
 Runtime dependencies
 ~~~~~~~~~~~~~~~~~~~~
 

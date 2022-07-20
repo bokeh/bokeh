@@ -54,7 +54,7 @@ json = {
             "background_fill_color": "#20262B"
         },
 
-        "ColorBar": {
+        "BaseColorBar": {
             "title_text_color": "#E0E0E0",
             "title_text_font": "Helvetica",
             "title_text_font_size": "1.025em",

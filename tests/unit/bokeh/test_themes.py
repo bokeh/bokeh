@@ -282,7 +282,7 @@ class TestThemes:
         doc = Document()
         doc.add_root(obj)
         doc.theme = built_in_themes[LIGHT_MINIMAL]
-        assert "#5B5B5B" == doc.theme._json['attrs']['ColorBar']['title_text_color']
+        assert "#5B5B5B" == doc.theme._json['attrs']['BaseColorBar']['title_text_color']
 
     def test_setting_built_in_theme_str(self) -> None:
         obj = SomeModel()
