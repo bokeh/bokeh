@@ -67,7 +67,7 @@ from .serialization import (
     Serializable,
     Serializer,
 )
-from .types import ID, Unknown
+from .types import ID
 
 if TYPE_CHECKING:
     from ..client.session import ClientSession
@@ -113,8 +113,8 @@ def is_DataModel(cls: Type[HasProps]) -> bool:
     from ..model import DataModel
     return issubclass(cls, HasProps) and getattr(cls, "__data_model__", False) and cls != DataModel
 
-def _overridden_defaults(class_dict: dict[str, Any]) -> dict[str, Unknown]:
-    overridden_defaults: dict[str, Unknown] = {}
+def _overridden_defaults(class_dict: dict[str, Any]) -> dict[str, Any]:
+    overridden_defaults: dict[str, Any] = {}
     for name, prop in tuple(class_dict.items()):
         if isinstance(prop, Override):
             del class_dict[name]
@@ -142,8 +142,8 @@ class MetaHasProps(type):
     '''
 
     __properties__: dict[str, Property[Any]]
-    __overridden_defaults__: dict[str, Unknown]
-    __themed_values__: dict[str, Unknown]
+    __overridden_defaults__: dict[str, Any]
+    __themed_values__: dict[str, Any]
 
     def __new__(cls, class_name: str, bases: tuple[type, ...], class_dict: dict[str, Any]):
         '''
@@ -207,9 +207,9 @@ class HasProps(Serializable, metaclass=MetaHasProps):
     '''
     _initialized: bool = False
 
-    _property_values: dict[str, Unknown]
-    _unstable_default_values: dict[str, Unknown]
-    _unstable_themed_values: dict[str, Unknown]
+    _property_values: dict[str, Any]
+    _unstable_default_values: dict[str, Any]
+    _unstable_themed_values: dict[str, Any]
 
     __view_model__: ClassVar[str]
     __view_module__: ClassVar[str]
@@ -275,7 +275,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
         self._initialized = True
 
-    def __setattr__(self, name: str, value: Unknown) -> None:
+    def __setattr__(self, name: str, value: Any) -> None:
         ''' Intercept attribute setting on HasProps in order to special case
         a few situations:
 
@@ -533,7 +533,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         from .property.dataspec import DataSpec  # avoid circular import
         return {k: v for k, v in cls.properties(_with_props=True).items() if isinstance(v, DataSpec)}
 
-    def properties_with_values(self, *, include_defaults: bool = True, include_undefined: bool = False) -> dict[str, Unknown]:
+    def properties_with_values(self, *, include_defaults: bool = True, include_undefined: bool = False) -> dict[str, Any]:
         ''' Collect a dict mapping property names to their values.
 
         This method *always* traverses the class hierarchy and includes
@@ -558,20 +558,20 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             include_defaults=include_defaults, include_undefined=include_undefined)
 
     @classmethod
-    def _overridden_defaults(cls) -> dict[str, Unknown]:
+    def _overridden_defaults(cls) -> dict[str, Any]:
         ''' Returns a dictionary of defaults that have been overridden.
 
         .. note::
             This is an implementation detail of ``Property``.
 
         '''
-        defaults: dict[str, Unknown] = {}
+        defaults: dict[str, Any] = {}
         for c in reversed(cls.__mro__):
             defaults.update(getattr(c, "__overridden_defaults__", {}))
         return defaults
 
     def query_properties_with_values(self, query: Callable[[PropertyDescriptor[Any]], bool], *,
-            include_defaults: bool = True, include_undefined: bool = False) -> dict[str, Unknown]:
+            include_defaults: bool = True, include_undefined: bool = False) -> dict[str, Any]:
         ''' Query the properties values of |HasProps| instances with a
         predicate.
 
@@ -589,7 +589,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
         '''
         themed_keys: set[str] = set()
-        result: dict[str, Unknown] = {}
+        result: dict[str, Any] = {}
 
         if include_defaults:
             keys = self.properties(_with_props=True)
@@ -625,7 +625,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
         return result
 
-    def themed_values(self) -> dict[str, Unknown] | None:
+    def themed_values(self) -> dict[str, Any] | None:
         ''' Get any theme-provided overrides.
 
         Results are returned as a dict from property name to value, or
@@ -637,7 +637,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         '''
         return getattr(self, '__themed_values__', None)
 
-    def apply_theme(self, property_values: dict[str, Unknown]) -> None:
+    def apply_theme(self, property_values: dict[str, Any]) -> None:
         ''' Apply a set of theme values which will be used rather than
         defaults, but will not override application-set values.
 
@@ -664,7 +664,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         if old_dict is not None:
             removed.update(set(old_dict.keys()))
         added = set(property_values.keys())
-        old_values: dict[str, Unknown] = {}
+        old_values: dict[str, Any] = {}
         for k in added.union(removed):
             old_values[k] = getattr(self, k)
 
@@ -709,11 +709,11 @@ class _PropertyDef(TypedDict):
     name: str
     kind: KindRef
 class PropertyDef(_PropertyDef, total=False):
-    default: Unknown
+    default: Any
 
 class OverrideDef(TypedDict):
     name: str
-    default: Unknown
+    default: Any
 
 class _ModelDef(TypedDict):
     type: Literal["model"]

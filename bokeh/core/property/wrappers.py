@@ -75,7 +75,6 @@ if TYPE_CHECKING:
     from ...document.events import DocumentPatchedEvent
     from ...models.sources import ColumnarDataSource
     from ..has_props import HasProps, Setter
-    from ..types import Unknown
     from .descriptors import PropertyDescriptor
 
 #-----------------------------------------------------------------------------
@@ -153,7 +152,7 @@ class PropertyValueContainer:
     def _unregister_owner(self, owner: HasProps, descriptor: PropertyDescriptor[Any]) -> None:
         self._owners.discard((owner, descriptor))
 
-    def _notify_owners(self, old: Unknown, hint: DocumentPatchedEvent | None = None) -> None:
+    def _notify_owners(self, old: Any, hint: DocumentPatchedEvent | None = None) -> None:
         for (owner, descriptor) in self._owners:
             descriptor._notify_mutated(owner, old, hint=hint)
 

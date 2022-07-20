@@ -37,7 +37,6 @@ from typing import (
 from typing_extensions import TypeAlias
 
 # Bokeh imports
-from ..core.types import Unknown
 from ..events import Event, ModelEvent
 from ..util.functions import get_param_info
 
@@ -67,7 +66,7 @@ EventCallbackWithEvent: TypeAlias = Callable[[Event], None]
 EventCallbackWithoutEvent: TypeAlias = Callable[[], None]
 EventCallback: TypeAlias = Union[EventCallbackWithEvent, EventCallbackWithoutEvent]
 
-PropertyCallback: TypeAlias = Callable[[str, Unknown, Unknown], None]
+PropertyCallback: TypeAlias = Callable[[str, Any, Any], None]
 
 class EventCallbackManager:
     ''' A mixin class to provide an interface for registering and
@@ -172,7 +171,7 @@ class PropertyCallbackManager:
         for callback in callbacks:
             _callbacks.remove(callback)
 
-    def trigger(self, attr: str, old: Unknown, new: Unknown,
+    def trigger(self, attr: str, old: Any, new: Any,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
         ''' Trigger callbacks for ``attr`` on this object.
 

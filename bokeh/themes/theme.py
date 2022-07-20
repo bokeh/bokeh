@@ -33,7 +33,7 @@ import yaml
 
 # Bokeh imports
 from ..core.has_props import HasProps
-from ..core.types import PathLike, Unknown
+from ..core.types import PathLike
 from ..util.deprecation import deprecated
 
 if TYPE_CHECKING:
@@ -46,7 +46,7 @@ if TYPE_CHECKING:
 # whenever we cache that there's nothing themed for a class, we
 # use this same dict instance, so we don't have a zillion empty
 # dicts in our caches.
-_empty_dict: dict[str, Unknown] = {}
+_empty_dict: dict[str, Any] = {}
 
 __all__ = (
     'Theme',
@@ -144,11 +144,11 @@ class Theme:
 
     '''
 
-    _by_class_cache: dict[str, dict[str, Unknown]]
+    _by_class_cache: dict[str, dict[str, Any]]
 
-    _line_defaults: dict[str, Unknown]
-    _fill_defaults: dict[str, Unknown]
-    _text_defaults: dict[str, Unknown]
+    _line_defaults: dict[str, Any]
+    _fill_defaults: dict[str, Any]
+    _text_defaults: dict[str, Any]
 
     _json: dict[str, Any]
 
@@ -198,7 +198,7 @@ class Theme:
         # class.
         self._by_class_cache = {}
 
-    def _add_glyph_defaults(self, cls: Type[HasProps], props: dict[str, Unknown]) -> None:
+    def _add_glyph_defaults(self, cls: Type[HasProps], props: dict[str, Any]) -> None:
         from ..models.glyphs import Glyph
         if issubclass(cls, Glyph):
             if hasattr(cls, "line_alpha"):
@@ -208,10 +208,10 @@ class Theme:
             if hasattr(cls, "text_alpha"):
                 props.update(self._text_defaults)
 
-    def _for_class(self, cls: Type[Model]) -> dict[str, Unknown]:
+    def _for_class(self, cls: Type[Model]) -> dict[str, Any]:
         if cls.__name__ not in self._by_class_cache:
             attrs = self._json['attrs']
-            combined: dict[str, Unknown] = {}
+            combined: dict[str, Any] = {}
             # we go in reverse order so that subclass props override base class
             for base in cls.__mro__[-2::-1]:
                 if not issubclass(base, HasProps):

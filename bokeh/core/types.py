@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os  # lgtm [py/unused-import]
 from typing import (
-    Any,
     Literal,
     NewType,
     Sequence,
@@ -41,7 +40,6 @@ from typing_extensions import TypeAlias
 __all__ = (
     "ID",
     "PathLike",
-    "Unknown",
 )
 
 #-----------------------------------------------------------------------------
@@ -55,8 +53,6 @@ __all__ = (
 ID = NewType("ID", str)
 
 PathLike: TypeAlias = Union[str, "os.PathLike[str]"]
-
-Unknown: TypeAlias = Any
 
 # TODO: move this to types/geometry.py
 class PointGeometry(TypedDict):

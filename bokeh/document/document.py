@@ -53,7 +53,7 @@ from ..core.has_props import is_DataModel
 from ..core.query import find, is_single_string_selector
 from ..core.serialization import Deserializer, Serialized, Serializer
 from ..core.templates import FILE
-from ..core.types import ID, Unknown
+from ..core.types import ID
 from ..core.validation import check_integrity, process_validation_issues
 from ..events import Event
 from ..model import Model
@@ -130,7 +130,7 @@ class Document:
     _title: str
     _template: Template
     _session_context: weakref.ReferenceType[SessionContext] | None
-    _template_variables: dict[str, Unknown]
+    _template_variables: dict[str, Any]
 
     def __init__(self, *, theme: Theme = default_theme, title: str = DEFAULT_TITLE) -> None:
         self.callbacks = DocumentCallbackManager(self)
@@ -193,7 +193,7 @@ class Document:
         self._template = template
 
     @property
-    def template_variables(self) -> dict[str, Unknown]:
+    def template_variables(self) -> dict[str, Any]:
         ''' A dictionary of template variables to pass when rendering
         ``self.template``.
 
@@ -690,7 +690,7 @@ class Document:
             return None
         return result[0]
 
-    def set_select(self, selector: SelectorType | Type[Model], updates: dict[str, Unknown]) -> None:
+    def set_select(self, selector: SelectorType | Type[Model], updates: dict[str, Any]) -> None:
         ''' Update objects that match a given selector with the specified
         attribute/value updates.
 

@@ -90,7 +90,6 @@ from .json import (
 
 if TYPE_CHECKING:
     from ..core.has_props import Setter
-    from ..core.types import Unknown
     from ..model import Model
     from ..models.sources import DataDict
     from ..protocol.message import BufferRef
@@ -294,7 +293,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
     kind = "ModelChanged"
 
-    def __init__(self, document: Document, model: Model, attr: str, new: Unknown,
+    def __init__(self, document: Document, model: Model, attr: str, new: Any,
             setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 

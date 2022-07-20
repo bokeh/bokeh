@@ -38,7 +38,6 @@ from typing_extensions import TypeAlias
 if TYPE_CHECKING:
     from ..core.has_props import ModelDef
     from ..core.serialization import ModelRep, Ref
-    from ..core.types import Unknown
     from ..models.sources import DataDict
 
 #-----------------------------------------------------------------------------
@@ -63,12 +62,12 @@ class ModelChanged(TypedDict):
     kind: Literal["ModelChanged"]
     model: Ref
     attr: str
-    new: Unknown
+    new: Any
 
 class MessageSent(TypedDict):
     kind: Literal["MessageSent"]
     msg_type: str
-    msg_data: Unknown | None
+    msg_data: Any | None
 
 class TitleChanged(TypedDict):
     kind: Literal["TitleChanged"]

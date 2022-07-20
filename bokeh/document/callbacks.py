@@ -34,7 +34,6 @@ from typing import (
 
 # Bokeh imports
 from ..core.enums import HoldPolicy, HoldPolicyType
-from ..core.types import Unknown
 from ..events import (
     _CONCRETE_EVENT_CLASSES,
     DocumentEvent,
@@ -71,7 +70,7 @@ __all__ = (
 Callback = Callable[[], None]
 Originator = Callable[..., Any]
 
-MessageCallback = Callable[[Unknown], None]
+MessageCallback = Callable[[Any], None]
 EventCallback = Callable[[Event], None]
 
 #-----------------------------------------------------------------------------
@@ -210,7 +209,7 @@ class DocumentCallbackManager:
     def hold_value(self) -> HoldPolicyType | None:
         return self._hold
 
-    def notify_change(self, model: Model, attr: str, old: Unknown, new: Unknown,
+    def notify_change(self, model: Model, attr: str, old: Any, new: Any,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None) -> None:
         ''' Called by Model when it changes
 

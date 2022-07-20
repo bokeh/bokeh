@@ -35,7 +35,7 @@ from ..core.has_props import HasProps, abstract
 from ..core.property._sphinx import type_link
 from ..core.property.validation import without_property_validation
 from ..core.serialization import ObjectRefRep, Ref, Serializer
-from ..core.types import ID, Unknown
+from ..core.types import ID
 from ..events import Event
 from ..themes import default as default_theme
 from ..util.callback_manager import EventCallbackManager, PropertyCallbackManager
@@ -497,7 +497,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             return None
         return result[0]
 
-    def set_select(self, selector: Type[Model] | SelectorType, updates: dict[str, Unknown]) -> None:
+    def set_select(self, selector: Type[Model] | SelectorType, updates: dict[str, Any]) -> None:
         ''' Update objects that match a given selector with the specified
         attribute/value updates.
 
@@ -531,7 +531,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
         return rep
 
-    def trigger(self, attr: str, old: Unknown, new: Unknown,
+    def trigger(self, attr: str, old: Any, new: Any,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
         '''
 

@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 from urllib.parse import quote_plus, urlparse
 
 ## External imports
@@ -38,7 +38,7 @@ from .elements import html_page_for_render_items
 from .util import RenderItem
 
 if TYPE_CHECKING:
-    from ..core.types import ID, Unknown
+    from ..core.types import ID
     from ..model import Model
     from ..resources import Resources
     from ..server.session import ServerSession
@@ -223,7 +223,7 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
 #-----------------------------------------------------------------------------
 
 def server_html_page_for_session(session: ServerSession, resources: Resources, title: str,
-        template: Template = FILE, template_variables: dict[str, Unknown] | None = None):
+        template: Template = FILE, template_variables: dict[str, Any] | None = None):
     '''
 
     Args:

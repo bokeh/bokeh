@@ -64,7 +64,6 @@ from .selections import Selection, SelectionPolicy, UnionRenderers
 
 if TYPE_CHECKING:
     from ..core.has_props import Setter
-    from ..core.types import Unknown
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -93,7 +92,7 @@ if TYPE_CHECKING:
 
     Index: TypeAlias = Union[int, slice, Tuple[Union[int, slice], ...]]
 
-    Patches: TypeAlias = TDict[str, TList[Tuple[Index, Unknown]]]
+    Patches: TypeAlias = TDict[str, TList[Tuple[Index, Any]]]
 
 @abstract
 class DataSource(Model):
@@ -380,7 +379,7 @@ class ColumnDataSource(ColumnarDataSource):
             raise RuntimeError('Pandas must be installed to convert to a Pandas Dataframe')
         return pd.DataFrame(self.data)
 
-    def add(self, data: Sequence[Unknown], name: str | None = None) -> str:
+    def add(self, data: Sequence[Any], name: str | None = None) -> str:
         ''' Appends a new column of data to the data source.
 
         Args:

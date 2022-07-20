@@ -21,13 +21,18 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Callable, Type
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Type,
+)
 
 # Bokeh imports
 from ..core.has_props import HasProps, Qualified
 
 if TYPE_CHECKING:
-    from ..core.types import ID, Unknown
+    from ..core.types import ID
     from ..document import Document
     from .model import Model
 
@@ -76,7 +81,7 @@ class HasDocumentRef:
     def document(self, doc: Document) -> None:
         self._document = doc
 
-def collect_filtered_models(discard: Callable[[Model], bool] | None, *input_values: Unknown) -> list[Model]:
+def collect_filtered_models(discard: Callable[[Model], bool] | None, *input_values: Any) -> list[Model]:
     ''' Collect a duplicate-free list of all other Bokeh models referred to by
     this model, or by any of its references, etc, unless filtered-out by the
     provided callable.
@@ -119,7 +124,7 @@ def collect_filtered_models(discard: Callable[[Model], bool] | None, *input_valu
 
     return collected
 
-def collect_models(*input_values: Unknown) -> list[Model]:
+def collect_models(*input_values: Any) -> list[Model]:
     ''' Collect a duplicate-free list of all other Bokeh models referred to by
     this model, or by any of its references, etc.
 
@@ -173,7 +178,7 @@ def get_class(view_model_name: str) -> Type[Model]:
     else:
         raise KeyError(f"View model name '{view_model_name}' not found")
 
-def visit_immediate_value_references(value: Unknown, visitor: Callable[[Model], None]) -> None:
+def visit_immediate_value_references(value: Any, visitor: Callable[[Model], None]) -> None:
     ''' Visit all references to another Model without recursing into any
     of the child Model; may visit the same Model more than once if
     it's referenced more than once. Does not visit the passed-in value.
@@ -187,7 +192,7 @@ def visit_immediate_value_references(value: Unknown, visitor: Callable[[Model], 
         visit_value_and_its_immediate_references(value, visitor)
 
 
-def visit_value_and_its_immediate_references(obj: Unknown, visitor: Callable[[Model], None]) -> None:
+def visit_value_and_its_immediate_references(obj: Any, visitor: Callable[[Model], None]) -> None:
     ''' Visit Models, HasProps, and Python containers.
 
     Recurses down HasProps references and Python containers (does not recurse
