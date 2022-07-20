@@ -599,6 +599,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
       }
       this.invalidate_layout()
     })
+
+    const {hold_render} = this.model.properties
+    this.on_change(hold_render, () => this._hold_render_changed())
   }
 
   override has_finished(): boolean {
@@ -854,5 +857,13 @@ export class PlotView extends LayoutDOMView implements Renderable {
       .map((view) => view.serializable_state())
       .filter((item) => item.bbox != null)
     return {...state, children: [...children ?? [], ...renderers]}
+  }
+
+  protected _hold_render_changed(): void {
+    if (this.model.hold_render) {
+      this.pause()
+    } else {
+      this.unpause()
+    }
   }
 }
