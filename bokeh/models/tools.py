@@ -224,6 +224,16 @@ class ActionTool(Tool):
         super().__init__(*args, **kwargs)
 
 @abstract
+class PlotActionTool(ActionTool):
+    ''' A base class action tools acting on plots.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+@abstract
 class GestureTool(Tool):
     ''' A base class for tools that respond to drag events.
 
@@ -578,7 +588,7 @@ class SaveTool(ActionTool):
     for a filename at save time.
     """)
 
-class ResetTool(ActionTool):
+class ResetTool(PlotActionTool):
     ''' *toolbar icon*: |reset_icon|
 
     The reset tool is an action. When activated in the toolbar, the tool resets
@@ -764,7 +774,7 @@ class BoxZoomTool(Drag):
     (top-left or bottom-right depending on direction) or the center of the box.
     """)
 
-class ZoomInTool(ActionTool):
+class ZoomInTool(PlotActionTool):
     ''' *toolbar icon*: |zoom_in_icon|
 
     The zoom-in tool allows users to click a button to zoom in
@@ -791,7 +801,7 @@ class ZoomInTool(ActionTool):
     Percentage to zoom for each click of the zoom-in tool.
     """)
 
-class ZoomOutTool(ActionTool):
+class ZoomOutTool(PlotActionTool):
     ''' *toolbar icon*: |zoom_out_icon|
 
     The zoom-out tool allows users to click a button to zoom out
@@ -1287,7 +1297,7 @@ class HelpTool(ActionTool):
     Site to be redirected through upon click.
     """)
 
-class UndoTool(ActionTool):
+class UndoTool(PlotActionTool):
     ''' *toolbar icon*: |undo_icon|
 
     Undo tool allows to restore previous state of the plot.
@@ -1301,7 +1311,7 @@ class UndoTool(ActionTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-class RedoTool(ActionTool):
+class RedoTool(PlotActionTool):
     ''' *toolbar icon*: |redo_icon|
 
     Redo tool reverses the last action performed by undo tool.

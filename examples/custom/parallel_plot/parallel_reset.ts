@@ -1,7 +1,7 @@
-import {ActionTool, ActionToolView} from "models/tools/actions/action_tool"
+import {PlotActionTool, PlotActionToolView} from "models/tools/actions/plot_action_tool"
 import * as p from "core/properties"
 
-export class ParallelResetToolView extends ActionToolView {
+export class ParallelResetToolView extends PlotActionToolView {
   override model: ParallelResetTool
 
   doit(): void {
@@ -12,12 +12,12 @@ export class ParallelResetToolView extends ActionToolView {
 export namespace ParallelResetTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ActionTool.Props
+  export type Props = PlotActionTool.Props
 }
 
 export interface ParallelResetTool extends ParallelResetTool.Attrs {}
 
-export class ParallelResetTool extends ActionTool {
+export class ParallelResetTool extends PlotActionTool {
   override properties: ParallelResetTool.Props
   override __view_type__: ParallelResetToolView
 

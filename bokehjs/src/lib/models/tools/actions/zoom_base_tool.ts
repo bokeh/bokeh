@@ -1,9 +1,9 @@
-import {ActionTool, ActionToolView} from "./action_tool"
+import {PlotActionTool, PlotActionToolView} from "./plot_action_tool"
 import {Dimensions} from "core/enums"
 import {scale_range} from "core/util/zoom"
 import * as p from "core/properties"
 
-export abstract class ZoomBaseToolView extends ActionToolView {
+export abstract class ZoomBaseToolView extends PlotActionToolView {
   override model: ZoomBaseTool
 
   doit(): void {
@@ -30,7 +30,7 @@ export abstract class ZoomBaseToolView extends ActionToolView {
 export namespace ZoomBaseTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ActionTool.Props & {
+  export type Props = PlotActionTool.Props & {
     factor: p.Property<number>
     dimensions: p.Property<Dimensions>
   }
@@ -38,7 +38,7 @@ export namespace ZoomBaseTool {
 
 export interface ZoomBaseTool extends ZoomBaseTool.Attrs {}
 
-export abstract class ZoomBaseTool extends ActionTool {
+export abstract class ZoomBaseTool extends PlotActionTool {
   override properties: ZoomBaseTool.Props
   override __view_type__: ZoomBaseToolView
 
