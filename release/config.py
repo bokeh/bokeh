@@ -11,7 +11,6 @@ from __future__ import annotations
 
 # Standard library imports
 import re
-from typing import Dict, Set, Tuple
 
 # Bokeh imports
 from .enums import VersionType
@@ -35,14 +34,14 @@ class Config:
         self.version: str = version
 
         self.base_version: str = groups[0]
-        self.base_version_tuple: Tuple[str, ...] = tuple(groups[1:4])
+        self.base_version_tuple: tuple[str, ...] = tuple(groups[1:4])
         self.ext: str | None = groups[4]
         self.ext_type: str = groups[5]
         self.ext_number: str = groups[6]
 
-        self._secrets: Dict[str, str] = {}
+        self._secrets: dict[str, str] = {}
 
-        self._modified: Set[str] = set()
+        self._modified: set[str] = set()
 
     def add_secret(self, name: str, secret: str) -> None:
         """"""
@@ -55,11 +54,11 @@ class Config:
         self._modified.add(path)
 
     @property
-    def secrets(self) -> Dict[str, str]:
+    def secrets(self) -> dict[str, str]:
         return self._secrets
 
     @property
-    def modified(self) -> Set[str]:
+    def modified(self) -> set[str]:
         return self._modified
 
     @property

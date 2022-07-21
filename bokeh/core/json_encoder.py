@@ -50,7 +50,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from json import JSONEncoder
-from typing import Any, List, Tuple
+from typing import Any
 
 # Bokeh imports
 from ..settings import settings
@@ -138,7 +138,7 @@ def serialize_json(obj: Any | Serialized[Any], *, pretty: bool | None = None, in
         indent = 2
 
     content: Any
-    buffers: List[Buffer]
+    buffers: list[Buffer]
     if isinstance(obj, Serialized):
         content = obj.content
         buffers = obj.buffers or []
@@ -154,8 +154,8 @@ def serialize_json(obj: Any | Serialized[Any], *, pretty: bool | None = None, in
 #-----------------------------------------------------------------------------
 
 class PayloadEncoder(JSONEncoder):
-    def __init__(self, *, buffers: List[Buffer] = [], threshold: int = 100,
-            indent: int | None = None, separators: Tuple[str, str] | None = None):
+    def __init__(self, *, buffers: list[Buffer] = [], threshold: int = 100,
+            indent: int | None = None, separators: tuple[str, str] | None = None):
         super().__init__(sort_keys=False, allow_nan=False, indent=indent, separators=separators)
         self._buffers = {buf.id: buf for buf in buffers}
         self._threshold = threshold

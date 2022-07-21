@@ -28,9 +28,7 @@ from typing import (
     Any,
     Iterable,
     Iterator,
-    List,
     Sequence,
-    Tuple,
     Type,
     TypeVar,
     overload,
@@ -73,11 +71,11 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @overload
-def row(children: List[LayoutDOM], *, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row: ...
+def row(children: list[LayoutDOM], *, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row: ...
 @overload
 def row(*children: LayoutDOM, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row: ...
 
-def row(*children: LayoutDOM | List[LayoutDOM], sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row:
+def row(*children: LayoutDOM | list[LayoutDOM], sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row:
     """ Create a row of Bokeh Layout objects. Forces all objects to
     have the same sizing_mode, which is required for complex layouts to work.
 
@@ -109,11 +107,11 @@ def row(*children: LayoutDOM | List[LayoutDOM], sizing_mode: SizingModeType | No
     return Row(children=_children, sizing_mode=sizing_mode, **kwargs)
 
 @overload
-def column(children: List[LayoutDOM], *, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column: ...
+def column(children: list[LayoutDOM], *, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column: ...
 @overload
 def column(*children: LayoutDOM, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column: ...
 
-def column(*children: LayoutDOM | List[LayoutDOM], sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column:
+def column(*children: LayoutDOM | list[LayoutDOM], sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column:
     """ Create a column of Bokeh Layout objects. Forces all objects to
     have the same sizing_mode, which is required for complex layouts to work.
 
@@ -145,7 +143,7 @@ def column(*children: LayoutDOM | List[LayoutDOM], sizing_mode: SizingModeType |
     return Column(children=_children, sizing_mode=sizing_mode, **kwargs)
 
 
-def layout(*args: LayoutDOM, children: List[LayoutDOM] | None = None, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column:
+def layout(*args: LayoutDOM, children: list[LayoutDOM] | None = None, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column:
     """ Create a grid-based arrangement of Bokeh Layout objects.
 
     Args:
@@ -183,7 +181,7 @@ def layout(*args: LayoutDOM, children: List[LayoutDOM] | None = None, sizing_mod
     return _create_grid(_children, sizing_mode, **kwargs)
 
 def gridplot(
-        children: List[List[LayoutDOM | None]], *,
+        children: list[list[LayoutDOM | None]], *,
         sizing_mode: SizingModeType | None = None,
         toolbar_location: LocationType | None = "above",
         ncols: int | None = None,
@@ -262,8 +260,8 @@ def gridplot(
         children = []
 
     # Make the grid
-    tools: List[Tool | ToolProxy] = []
-    items: List[Tuple[LayoutDOM, int, int]] = []
+    tools: list[Tool | ToolProxy] = []
+    items: list[tuple[LayoutDOM, int, int]] = []
 
     for y, row in enumerate(children):
         for x, item in enumerate(row):
@@ -292,15 +290,15 @@ def gridplot(
 
 # XXX https://github.com/python/mypy/issues/731
 @overload
-def grid(children: List[LayoutDOM | List[LayoutDOM | List[Any]]], *, sizing_mode: SizingModeType | None = ...) -> GridBox: ...
+def grid(children: list[LayoutDOM | list[LayoutDOM | list[Any]]], *, sizing_mode: SizingModeType | None = ...) -> GridBox: ...
 @overload
 def grid(children: Row | Column, *, sizing_mode: SizingModeType | None = ...) -> GridBox: ...
 @overload
-def grid(children: List[LayoutDOM | None], *, sizing_mode: SizingModeType | None = ..., nrows: int) -> GridBox: ...
+def grid(children: list[LayoutDOM | None], *, sizing_mode: SizingModeType | None = ..., nrows: int) -> GridBox: ...
 @overload
-def grid(children: List[LayoutDOM | None], *, sizing_mode: SizingModeType | None = ..., ncols: int) -> GridBox: ...
+def grid(children: list[LayoutDOM | None], *, sizing_mode: SizingModeType | None = ..., ncols: int) -> GridBox: ...
 @overload
-def grid(children: List[LayoutDOM | None], *, sizing_mode: SizingModeType | None = ..., nrows: int, ncols: int) -> GridBox: ...
+def grid(children: list[LayoutDOM | None], *, sizing_mode: SizingModeType | None = ..., nrows: int, ncols: int) -> GridBox: ...
 @overload
 def grid(children: str, *, sizing_mode: SizingModeType | None = ...) -> GridBox: ...
 
@@ -355,10 +353,10 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
     """
     @dataclass
     class row:
-        children: List[row | col]
+        children: list[row | col]
     @dataclass
     class col:
-        children: List[row | col]
+        children: list[row | col]
 
     @dataclass
     class Item:
@@ -372,7 +370,7 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
     class Grid:
         nrows: int
         ncols: int
-        items: List[Item]
+        items: list[Item]
 
     def flatten(layout) -> GridBox:
         def gcd(a: int, b: int) -> int:
@@ -398,7 +396,7 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
                 nrows = lcm(*[ child.nrows for child in children ])
                 ncols = sum(child.ncols for child in children)
 
-                items: List[Item] = []
+                items: list[Item] = []
                 offset = 0
                 for child in children:
                     factor = nrows//child.nrows
@@ -448,7 +446,7 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
                 ncols = math.ceil(N/nrows)
             layout = col([ row(children[i:i+ncols]) for i in range(0, N, ncols) ])
         else:
-            def traverse(children: List[LayoutDOM], level: int = 0):
+            def traverse(children: list[LayoutDOM], level: int = 0):
                 if isinstance(children, list):
                     container = col if level % 2 == 0 else row
                     return container([ traverse(child, level+1) for child in children ])
@@ -489,15 +487,15 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
 # Dev API
 #-----------------------------------------------------------------------------
 
-def group_tools(tools: List[Tool | ToolProxy]) -> List[Tool | ToolProxy]:
+def group_tools(tools: list[Tool | ToolProxy]) -> list[Tool | ToolProxy]:
     """ Group common tools into tool proxies. """
     @dataclass
     class ToolEntry:
         tool: Tool
         props: Any
 
-    by_type: defaultdict[Type[Tool], List[ToolEntry]] = defaultdict(list)
-    computed: List[Tool | ToolProxy] = []
+    by_type: defaultdict[Type[Tool], list[ToolEntry]] = defaultdict(list)
+    computed: list[Tool | ToolProxy] = []
 
     for tool in tools:
         if isinstance(tool, ToolProxy):
@@ -511,7 +509,7 @@ def group_tools(tools: List[Tool | ToolProxy]) -> List[Tool | ToolProxy]:
     for tools_ in by_type.values():
         while tools_:
             head, *tail = tools_
-            group: List[Tool] = [head.tool]
+            group: list[Tool] = [head.tool]
             for item in list(tail):
                 if item.props == head.props:
                     group.append(item.tool)
@@ -533,7 +531,7 @@ def _has_auto_sizing(item: LayoutDOM) -> bool:
     return item.sizing_mode is None and item.width_policy == "auto" and item.height_policy == "auto"
 
 L = TypeVar("L", bound=LayoutDOM)
-def _parse_children_arg(*args: L | List[L], children: List[L] | None = None) -> List[L]:
+def _parse_children_arg(*args: L | list[L], children: list[L] | None = None) -> list[L]:
     # Set-up Children from args or kwargs
     if len(args) > 0 and children is not None:
         raise ValueError("'children' keyword cannot be used with positional arguments")
@@ -548,7 +546,7 @@ def _parse_children_arg(*args: L | List[L], children: List[L] | None = None) -> 
 
     return children
 
-def _handle_child_sizing(children: List[LayoutDOM], sizing_mode: SizingModeType | None, *, widget: str) -> None:
+def _handle_child_sizing(children: list[LayoutDOM], sizing_mode: SizingModeType | None, *, widget: str) -> None:
     for item in children:
         if not isinstance(item, LayoutDOM):
             raise ValueError(f"Only LayoutDOM items can be inserted into a {widget}. Tried to insert: {item} of type {type(item)}")
@@ -556,9 +554,9 @@ def _handle_child_sizing(children: List[LayoutDOM], sizing_mode: SizingModeType 
             item.sizing_mode = sizing_mode
 
 
-def _create_grid(iterable: Iterable[LayoutDOM | List[LayoutDOM]], sizing_mode: SizingModeType | None, layer: int = 0, **kwargs) -> Row | Column:
+def _create_grid(iterable: Iterable[LayoutDOM | list[LayoutDOM]], sizing_mode: SizingModeType | None, layer: int = 0, **kwargs) -> Row | Column:
     """Recursively create grid from input lists."""
-    return_list: List[LayoutDOM] = []
+    return_list: list[LayoutDOM] = []
     for item in iterable:
         if isinstance(item, list):
             return_list.append(_create_grid(item, sizing_mode, layer + 1))

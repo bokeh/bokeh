@@ -35,7 +35,7 @@ from os.path import (
     join,
 )
 from shutil import which
-from typing import List, Literal, Set
+from typing import Literal
 
 # External imports
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -94,7 +94,7 @@ def create_firefox_webdriver() -> WebDriver:
         service_log_path=devnull,
     )
 
-def create_chromium_webdriver(extra_options: List[str] | None = None) -> WebDriver:
+def create_chromium_webdriver(extra_options: list[str] | None = None) -> WebDriver:
     from selenium.webdriver.chrome.options import Options
     options = Options()
     options.add_argument("--headless")
@@ -133,7 +133,7 @@ class _WebdriverState:
     kind: DriverKind | None
 
     current: WebDriver | None
-    _drivers: Set[WebDriver]
+    _drivers: set[WebDriver]
 
     def __init__(self, *, kind: DriverKind | None = None, reuse: bool = True) -> None:
         self.kind = kind

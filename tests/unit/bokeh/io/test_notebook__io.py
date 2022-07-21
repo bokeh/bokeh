@@ -18,7 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 import json
-from typing import Any, Set
+from typing import Any
 
 # External imports
 from mock import MagicMock, PropertyMock, patch
@@ -63,7 +63,7 @@ def test_show_doc_no_server(mock_notebook_content: MagicMock,
 
     class Obj:
         id = None
-        def references(self) -> Set[Any]:
+        def references(self) -> set[Any]:
             return set()
 
     assert mock__publish_display_data.call_count == 0

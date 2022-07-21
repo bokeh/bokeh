@@ -22,12 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Dict,
-)
+from typing import TYPE_CHECKING, Any, Callable
 
 # Bokeh imports
 from .handler import Handler
@@ -58,7 +53,7 @@ class RequestHandler(Handler):
 
     '''
 
-    _process_request: Callable[[HTTPServerRequest], Dict[str, Any]]
+    _process_request: Callable[[HTTPServerRequest], dict[str, Any]]
 
     def __init__(self) -> None:
         super().__init__()
@@ -66,7 +61,7 @@ class RequestHandler(Handler):
 
     # Public methods ----------------------------------------------------------
 
-    def process_request(self, request: HTTPServerRequest) -> Dict[str, Any]:
+    def process_request(self, request: HTTPServerRequest) -> dict[str, Any]:
         ''' Processes incoming HTTP request returning a dictionary of
         additional data to add to the session_context.
 
@@ -87,7 +82,7 @@ class RequestHandler(Handler):
 # Private API
 #-----------------------------------------------------------------------------
 
-def _return_empty(request: HTTPServerRequest) -> Dict[str, Any]:
+def _return_empty(request: HTTPServerRequest) -> dict[str, Any]:
     return {}
 
 #-----------------------------------------------------------------------------

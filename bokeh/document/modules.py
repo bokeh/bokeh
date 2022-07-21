@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 import sys
 import weakref
 from types import ModuleType
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .document import Document
@@ -48,8 +48,8 @@ class DocumentModuleManager:
 
     '''
 
-    _document : weakref.ReferenceType[Document]
-    _modules: List[ModuleType]
+    _document: weakref.ReferenceType[Document]
+    _modules: list[ModuleType]
 
     def __init__(self, document: Document):
         '''

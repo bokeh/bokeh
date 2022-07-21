@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, List
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ...core.serialization import Serializer
@@ -65,7 +65,7 @@ class patch_doc(Message[PatchJson]):
     msgtype = 'PATCH-DOC'
 
     @classmethod
-    def create(cls, events: List[DocumentPatchedEvent], **metadata: Any) -> patch_doc:
+    def create(cls, events: list[DocumentPatchedEvent], **metadata: Any) -> patch_doc:
         ''' Create a ``PATCH-DOC`` message
 
         Args:

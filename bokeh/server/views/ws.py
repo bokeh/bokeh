@@ -23,13 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import calendar
 import datetime as dt
-from typing import (
-    Any,
-    Dict,
-    List,
-    Union,
-    cast,
-)
+from typing import Any, cast
 from urllib.parse import urlparse
 
 # External imports
@@ -162,7 +156,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             # immediately, most likely.
             log.debug("Failed to fully open connection %r", e)
 
-    def select_subprotocol(self, subprotocols: List[str]) -> str | None:
+    def select_subprotocol(self, subprotocols: list[str]) -> str | None:
         log.debug('Subprotocol header received')
         log.trace('Supplied subprotocol headers: %r', subprotocols)
         if not len(subprotocols) == 2:
@@ -170,7 +164,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         self._token = subprotocols[1]
         return subprotocols[0]
 
-    def get_compression_options(self) -> Dict[str, Any] | None:
+    def get_compression_options(self) -> dict[str, Any] | None:
         if self._compression_level is None:
             return None
         options = {'compression_level': self._compression_level}
@@ -287,7 +281,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             log.warning("Failed sending message as connection was closed")
         return None
 
-    async def write_message(self, message: Union[bytes, str, Dict[str, Any]],
+    async def write_message(self, message: bytes | str | dict[str, Any],
             binary: bool = False, locked: bool = True) -> None:
         ''' Override parent write_message with a version that acquires a
         write lock before writing.
@@ -350,8 +344,8 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
 # should not be used for any other purpose.
 @dataclass
 class MessageTestPort:
-    sent: List[Message[Any]]
-    received: List[Message[Any]]
+    sent: list[Message[Any]]
+    received: list[Message[Any]]
 
 _message_test_port: MessageTestPort | None = None
 

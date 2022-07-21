@@ -38,13 +38,7 @@ import signal
 import socket
 import sys
 from types import FrameType
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    List,
-    Mapping,
-)
+from typing import TYPE_CHECKING, Any, Mapping
 
 # External imports
 from tornado import netutil, version as tornado_version
@@ -228,7 +222,7 @@ class BaseServer:
         '''
         return self._tornado.get_session(app_path, session_id)
 
-    def get_sessions(self, app_path: str | None = None) -> List[ServerSession]:
+    def get_sessions(self, app_path: str | None = None) -> list[ServerSession]:
         ''' Gets all currently active sessions for applications.
 
         Args:
@@ -243,7 +237,7 @@ class BaseServer:
         '''
         if app_path is not None:
             return self._tornado.get_sessions(app_path)
-        all_sessions: List[ServerSession] = []
+        all_sessions: list[ServerSession] = []
         for path in self._tornado.app_paths:
             all_sessions += self._tornado.get_sessions(path)
         return all_sessions
@@ -357,7 +351,7 @@ class Server(BaseServer):
     '''
 
     def __init__(self, applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
-            io_loop: IOLoop | None = None, http_server_kwargs: Dict[str, Any] | None = None, **kwargs: Any) -> None:
+            io_loop: IOLoop | None = None, http_server_kwargs: dict[str, Any] | None = None, **kwargs: Any) -> None:
         ''' Create a ``Server`` instance.
 
         Args:
@@ -530,7 +524,7 @@ class _ServerOpts(Options):
     A path to a Jinja2 template to use for the index "/"
     """)  # type: ignore[assignment]
 
-    allow_websocket_origin: List[str] | None = Nullable(p.List(String), help="""
+    allow_websocket_origin: list[str] | None = Nullable(p.List(String), help="""
     A list of hosts that can connect to the websocket.
 
     This is typically required when embedding a Bokeh server app in an external

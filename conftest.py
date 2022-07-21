@@ -4,6 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+from __future__ import annotations
 
 pytest_plugins = (
     "bokeh._testing.plugins.ipython",
@@ -14,14 +15,13 @@ pytest_plugins = (
 
 # Standard library imports
 from inspect import iscoroutinefunction
-from typing import List
 
 # External imports
 import _pytest
 import pytest
 
 
-def pytest_collection_modifyitems(items: List[_pytest.nodes.Item]) -> None:
+def pytest_collection_modifyitems(items: list[_pytest.nodes.Item]) -> None:
     for item in items:
         if iscoroutinefunction(item.obj):
             item.add_marker(pytest.mark.asyncio)

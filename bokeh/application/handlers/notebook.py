@@ -31,7 +31,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import re
 from types import ModuleType
-from typing import List
 
 # Bokeh imports
 from ...core.types import PathLike
@@ -66,7 +65,7 @@ class NotebookHandler(CodeHandler):
 
     _origin = "Notebook"
 
-    def __init__(self, *, filename: PathLike, argv: List[str] = [], package: ModuleType | None = None) -> None:
+    def __init__(self, *, filename: PathLike, argv: list[str] = [], package: ModuleType | None = None) -> None:
         '''
 
         Keywords:
@@ -88,7 +87,7 @@ class NotebookHandler(CodeHandler):
                 """
                 Given the source of a cell, filter out all cell and line magics.
                 """
-                filtered: List[str] = []
+                filtered: list[str] = []
                 for line in source.splitlines():
                     match = self._magic_pattern.match(line)
                     if match is None:

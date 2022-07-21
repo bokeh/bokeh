@@ -29,7 +29,7 @@ from os.path import (
     pardir,
     split,
 )
-from typing import List, TypedDict
+from typing import TypedDict
 
 # Bokeh imports
 from bokeh.util.terminal import fail, trace
@@ -66,8 +66,8 @@ class JSResult(TypedDict):
     success: bool
     timeout: float | None
     image: JSImage
-    errors: List[JSError]
-    messages: List[JSMessage]
+    errors: list[JSError]
+    messages: list[JSMessage]
 
 def run_in_chrome(url: str, local_wait: int | None = None, global_wait: int | None = None) -> JSResult:
     return _run_in_browser(_get_chrome(), url, local_wait, global_wait)
@@ -80,10 +80,10 @@ def run_in_chrome(url: str, local_wait: int | None = None, global_wait: int | No
 # Private API
 #-----------------------------------------------------------------------------
 
-def _get_chrome() -> List[str]:
+def _get_chrome() -> list[str]:
     return ["node", join(dirname(__file__), "chrome_screenshot.js")]
 
-def _run_in_browser(engine: List[str], url: str, local_wait: int | None = None, global_wait: int | None = None) -> JSResult:
+def _run_in_browser(engine: list[str], url: str, local_wait: int | None = None, global_wait: int | None = None) -> JSResult:
     """
     wait is in milliseconds
     """

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 # Standard library imports
 import json
-from typing import Any, Callable, Dict
+from typing import Any, Callable
 
 # Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
@@ -136,17 +136,17 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
 
 
 def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
-    def update_package_json(content: Dict[str, Any]) -> None:
+    def update_package_json(content: dict[str, Any]) -> None:
         content["version"] = config.js_version
 
-    def update_package_lock_json(content: Dict[str, Any]) -> None:
+    def update_package_lock_json(content: dict[str, Any]) -> None:
         assert content["lockfileVersion"] == 2, "Expected lock file v2"
         content["version"] = config.js_version
         for pkg in content["packages"].values():
             if pkg.get("name", "").startswith("@bokeh/"):
                 pkg["version"] = config.js_version
 
-    files: Dict[str, Callable[[Dict[str, Any]], None]] = {
+    files: dict[str, Callable[[dict[str, Any]], None]] = {
         "package.json": update_package_json,
         "make/package.json": update_package_json,
         "src/compiler/package.json": update_package_json,

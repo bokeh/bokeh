@@ -19,12 +19,7 @@ import pytest ; pytest
 # Standard library imports
 from collections import OrderedDict
 from copy import deepcopy
-from typing import (
-    Any,
-    Dict,
-    Set,
-    Tuple,
-)
+from typing import Any
 
 # External imports
 import bs4
@@ -102,7 +97,7 @@ class Test_autoload_static:
     @pytest.mark.parametrize("version", ["1.4.0rc1", "2.0.0dev3"])
     @pytest.mark.selenium
     def test_js_dev_cdn(self, version: str, monkeypatch: pytest.MonkeyPatch, driver: WebDriver,
-            test_file_path_and_url: Tuple[str, str], test_plot: figure) -> None:
+            test_file_path_and_url: tuple[str, str], test_plot: figure) -> None:
         monkeypatch.setattr(buv, "__version__", "1.4.0rc1")
         monkeypatch.setattr(resources, "__version__", "1.4.0rc1")
         js, tag = bes.autoload_static(test_plot, CDN, "some/path")
@@ -123,7 +118,7 @@ class Test_autoload_static:
 
     @pytest.mark.selenium
     def test_js_release_cdn(self, monkeypatch: pytest.MonkeyPatch, driver: WebDriver,
-            test_file_path_and_url: Tuple[str, str], test_plot: figure) -> None:
+            test_file_path_and_url: tuple[str, str], test_plot: figure) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0")
         monkeypatch.setattr(resources, "__version__", "2.0.0")
         r = deepcopy(CDN)
@@ -149,7 +144,7 @@ class Test_autoload_static:
 
     @pytest.mark.selenium
     def test_js_release_dev_cdn(self, monkeypatch: pytest.MonkeyPatch, driver: WebDriver,
-            test_file_path_and_url: Tuple[str, str], test_plot: figure) -> None:
+            test_file_path_and_url: tuple[str, str], test_plot: figure) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0-foo")
         monkeypatch.setattr(resources, "__version__", "2.0.0-foo")
         js, tag = bes.autoload_static(test_plot, CDN, "some/path")
@@ -172,7 +167,7 @@ class Test_autoload_static:
 
     @pytest.mark.selenium
     def test_js_release_server(self, monkeypatch: pytest.MonkeyPatch, driver: WebDriver,
-            test_file_path_and_url: Tuple[str, str], test_plot: figure) -> None:
+            test_file_path_and_url: tuple[str, str], test_plot: figure) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0")
         monkeypatch.setattr(resources, "__version__", "2.0.0")
         js, tag = bes.autoload_static(test_plot, resources.Resources(mode="server"), "some/path")
@@ -293,7 +288,7 @@ class Test_file_html:
     def test_return_type(self, test_plot: figure) -> None:
 
         class fake_template:
-            def __init__(self, tester: Any, user_template_variables: Set[str] | None = None) -> None:
+            def __init__(self, tester: Any, user_template_variables: set[str] | None = None) -> None:
                 self.tester = tester
                 self.template_variables = {
                     "title",
@@ -307,7 +302,7 @@ class Test_file_html:
                 if user_template_variables is not None:
                     self.template_variables.update(user_template_variables)
 
-            def render(self, template_variables: Dict[str, Any]) -> str:
+            def render(self, template_variables: dict[str, Any]) -> str:
                 assert self.template_variables.issubset(set(template_variables.keys()))
                 return "template result"
 

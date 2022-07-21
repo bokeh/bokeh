@@ -39,13 +39,7 @@ log = logging.getLogger(__name__)
 from contextlib import contextmanager
 from os.path import basename, splitext
 from types import ModuleType
-from typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Dict,
-    List,
-)
+from typing import Any, Callable, ClassVar
 
 # Bokeh imports
 from ...core.types import PathLike
@@ -81,13 +75,13 @@ class CodeHandler(Handler):
     # to be no-ops, with a warning.
     _io_functions = ['output_notebook', 'output_file', 'show', 'save', 'reset_output']
 
-    _loggers: Dict[str, Callable[..., None]]
+    _loggers: dict[str, Callable[..., None]]
 
     _logger_text: ClassVar[str]
 
     _origin: ClassVar[str]
 
-    def __init__(self, *, source: str, filename: PathLike, argv: List[str] = [], package: ModuleType | None = None) -> None:
+    def __init__(self, *, source: str, filename: PathLike, argv: list[str] = [], package: ModuleType | None = None) -> None:
         '''
 
         Args:
@@ -199,9 +193,9 @@ class CodeHandler(Handler):
 # code should be calling these functions, and we're only making a best effort to
 # warn people so no big deal if we fail.
 @contextmanager
-def _monkeypatch_io(loggers: Dict[str, Callable[..., None]]) -> Dict[str, Any]:
+def _monkeypatch_io(loggers: dict[str, Callable[..., None]]) -> dict[str, Any]:
     import bokeh.io as io
-    old: Dict[str, Any] = {}
+    old: dict[str, Any] = {}
     for f in CodeHandler._io_functions:
         old[f] = getattr(io, f)
         setattr(io, f, loggers[f])

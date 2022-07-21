@@ -33,9 +33,6 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    Dict,
-    List,
-    Tuple,
     Type,
     TypeVar,
     Union,
@@ -43,6 +40,7 @@ from typing import (
 
 # External imports
 import numpy as np
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ...util.dependencies import import_optional
@@ -82,9 +80,9 @@ __all__ = (
 
 T = TypeVar("T")
 
-TypeOrInst = Union[Type[T], T]
+TypeOrInst: TypeAlias = Union[Type[T], T]
 
-Init = Union[T, UndefinedType, IntrinsicType]
+Init: TypeAlias = Union[T, UndefinedType, IntrinsicType]
 
 class Property(PropertyDescriptorFactory[T]):
     """ Base class for Bokeh property instances, which can be added to Bokeh
@@ -114,8 +112,8 @@ class Property(PropertyDescriptorFactory[T]):
 
     _readonly: bool
 
-    alternatives: List[Tuple[Property[Any], Callable[[Property[Any]], T]]]
-    assertions: List[Tuple[Callable[[HasProps, T], bool], str | Callable[[HasProps, str, T], None]]]
+    alternatives: list[tuple[Property[Any], Callable[[Property[Any]], T]]]
+    assertions: list[tuple[Callable[[HasProps, T], bool], str | Callable[[HasProps, str, T], None]]]
 
     def __init__(self, default: Init[T] = Intrinsic, help: str | None = None,
             serialized: bool | None = None, readonly: bool = False):
@@ -137,7 +135,7 @@ class Property(PropertyDescriptorFactory[T]):
     def __str__(self) -> str:
         return self.__class__.__name__
 
-    def make_descriptors(self, name: str) -> List[PropertyDescriptor[T]]:
+    def make_descriptors(self, name: str) -> list[PropertyDescriptor[T]]:
         """ Return a list of ``PropertyDescriptor`` instances to install
         on a class, in order to delegate attribute access to this property.
 
@@ -183,7 +181,7 @@ class Property(PropertyDescriptorFactory[T]):
         """
         return self._copy_default(self._default, no_eval=no_eval)
 
-    def themed_default(self, cls: Type[HasProps], name: str, theme_overrides: Dict[str, Any] | None, *, no_eval: bool = False) -> T:
+    def themed_default(self, cls: Type[HasProps], name: str, theme_overrides: dict[str, Any] | None, *, no_eval: bool = False) -> T:
         """ The default, transformed by prepare_value() and the theme overrides.
 
         """
@@ -442,7 +440,7 @@ class ParameterizedProperty(Property[TItem]):
         raise ValueError(f"expected a Property as type parameter, got {type_param}")
 
     @property
-    def type_params(self) -> List[Property[Any]]:
+    def type_params(self) -> list[Property[Any]]:
         raise NotImplementedError("abstract method")
 
     @property
@@ -466,7 +464,7 @@ class SingleParameterizedProperty(ParameterizedProperty[T]):
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
     @property
-    def type_params(self) -> List[Property[Any]]:
+    def type_params(self) -> list[Property[Any]]:
         return [self.type_param]
 
     def __str__(self) -> str:
@@ -502,7 +500,7 @@ class PrimitiveProperty(Property[T]):
 
     """
 
-    _underlying_type: ClassVar[Tuple[Type[Any], ...]]
+    _underlying_type: ClassVar[tuple[Type[Any], ...]]
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)

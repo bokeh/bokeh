@@ -28,12 +28,8 @@ from types import ModuleType
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    List,
     Mapping,
     Sequence,
-    Set,
-    Tuple,
     Type,
 )
 from urllib.parse import urljoin
@@ -248,10 +244,10 @@ class BokehTornado(TornadoApplication):
     _loop: IOLoop
     _applications: Mapping[str, ApplicationContext]
     _prefix: str
-    _websocket_origins: Set[str]
+    _websocket_origins: set[str]
     auth_provider: AuthProvider
 
-    _clients: Set[ServerConnection]
+    _clients: set[ServerConnection]
 
     _mem_job: PeriodicCallback | None
     _ping_job: PeriodicCallback | None
@@ -278,10 +274,10 @@ class BokehTornado(TornadoApplication):
                  index: str | None = None,
                  auth_provider: AuthProvider = NullAuth(),
                  xsrf_cookies: bool = False,
-                 include_headers: List[str] | None = None,
-                 include_cookies: List[str] | None = None,
-                 exclude_headers: List[str] | None = None,
-                 exclude_cookies: List[str] | None = None,
+                 include_headers: list[str] | None = None,
+                 include_cookies: list[str] | None = None,
+                 exclude_headers: list[str] | None = None,
+                 exclude_cookies: list[str] | None = None,
                  session_token_expiration: int = DEFAULT_SESSION_TOKEN_EXPIRATION,
                  **kwargs: Any):
 
@@ -498,7 +494,7 @@ class BokehTornado(TornadoApplication):
         return self._applications
 
     @property
-    def app_paths(self) -> Set[str]:
+    def app_paths(self) -> set[str]:
         ''' A list of all application paths for all Bokeh applications
         configured on this Bokeh server instance.
 
@@ -536,7 +532,7 @@ class BokehTornado(TornadoApplication):
         return self._prefix
 
     @property
-    def websocket_origins(self) -> Set[str]:
+    def websocket_origins(self) -> set[str]:
         ''' A list of websocket origins permitted to connect to this server.
 
         '''
@@ -551,7 +547,7 @@ class BokehTornado(TornadoApplication):
         return self._secret_key
 
     @property
-    def include_cookies(self) -> List[str] | None:
+    def include_cookies(self) -> list[str] | None:
         ''' A list of request cookies to make available in the session
         context.
 
@@ -559,7 +555,7 @@ class BokehTornado(TornadoApplication):
         return self._include_cookies
 
     @property
-    def include_headers(self) -> List[str] | None:
+    def include_headers(self) -> list[str] | None:
         ''' A list of request headers to make available in the session
         context.
 
@@ -567,14 +563,14 @@ class BokehTornado(TornadoApplication):
         return self._include_headers
 
     @property
-    def exclude_cookies(self) -> List[str] | None:
+    def exclude_cookies(self) -> list[str] | None:
         ''' A list of request cookies to exclude in the session context.
 
         '''
         return self._exclude_cookies
 
     @property
-    def exclude_headers(self) -> List[str] | None:
+    def exclude_headers(self) -> list[str] | None:
         ''' A list of request headers to exclude in the session context.
 
         '''
@@ -694,7 +690,7 @@ class BokehTornado(TornadoApplication):
             raise ValueError("Application %s does not exist on this server" % app_path)
         return self._applications[app_path].get_session(session_id)
 
-    def get_sessions(self, app_path: str) -> List[ServerSession]:
+    def get_sessions(self, app_path: str) -> list[ServerSession]:
         ''' Gets all currently active sessions for an application.
 
         Args:
@@ -785,7 +781,7 @@ class BokehTornado(TornadoApplication):
 # Dev API
 #-----------------------------------------------------------------------------
 
-def create_static_handler(prefix: str, key: str, app: Application) -> Tuple[str, Type[StaticFileHandler | StaticHandler], Dict[str, Any]]:
+def create_static_handler(prefix: str, key: str, app: Application) -> tuple[str, Type[StaticFileHandler | StaticHandler], dict[str, Any]]:
     route = prefix
     route += "/static/(.*)" if key == "/" else key + "/static/(.*)"
     if app.static_path is not None:

@@ -20,7 +20,7 @@ import pytest ; pytest
 import datetime as dt
 import sys
 from array import array as TypedArray
-from typing import Any, Dict, Sequence
+from typing import Any, Sequence
 
 # External imports
 import numpy as np
@@ -209,7 +209,7 @@ class TestSerializer:
         assert encoder.buffers == []
 
     def test_dict_circular(self) -> None:
-        val: Dict[Any, Any] = {float("nan"): [1, 2]}
+        val: dict[Any, Any] = {float("nan"): [1, 2]}
         val[float("inf")] = val
 
         encoder = Serializer()

@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from pathlib import Path
 from subprocess import run
-from typing import List, Sequence
+from typing import Sequence
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -42,12 +42,12 @@ TOP_PATH = Path(__file__).resolve().parent.parent.parent.parent
 # General API
 #-----------------------------------------------------------------------------
 
-def ls_files(*patterns: str) -> List[str]:
+def ls_files(*patterns: str) -> list[str]:
     proc = run(["git", "ls-files", "--", *patterns], capture_output=True)
     return proc.stdout.decode("utf-8").split("\n")
 
-def ls_modules(*, dir: str = "bokeh", skip_prefixes: Sequence[str] = [], skip_main: bool = True) -> List[str]:
-    modules: List[str] = []
+def ls_modules(*, dir: str = "bokeh", skip_prefixes: Sequence[str] = [], skip_main: bool = True) -> list[str]:
+    modules: list[str] = []
 
     files = ls_files(f"{dir}/**.py")
 
@@ -67,7 +67,7 @@ def ls_modules(*, dir: str = "bokeh", skip_prefixes: Sequence[str] = [], skip_ma
 
     return modules
 
-def verify_clean_imports(target: str, modules: List[str]) -> str:
+def verify_clean_imports(target: str, modules: list[str]) -> str:
     imports =  ";".join(f"import {m}" for m in modules)
     return f"import sys; {imports}; sys.exit(1 if any({target!r} in x for x in sys.modules.keys()) else 0)"
 

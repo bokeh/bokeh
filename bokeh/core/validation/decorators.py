@@ -24,11 +24,13 @@ log = logging.getLogger(__name__)
 from typing import (
     Any,
     Callable,
-    List,
     Type,
     Union,
     cast,
 )
+
+# External imports
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from .check import ValidationIssue, Validator, ValidatorType
@@ -47,10 +49,10 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-ValidationFunction = Callable[..., Union[str, None]]
-ValidationDecorator = Callable[[ValidationFunction], Validator]
+ValidationFunction: TypeAlias = Callable[..., Union[str, None]]
+ValidationDecorator: TypeAlias = Callable[[ValidationFunction], Validator]
 
-def _validator(code_or_name: Union[int, str, Issue], validator_type: ValidatorType) -> ValidationDecorator:
+def _validator(code_or_name: int | str | Issue, validator_type: ValidatorType) -> ValidationDecorator:
     """ Internal shared implementation to handle both error and warning
     validation checks.
 
@@ -66,7 +68,7 @@ def _validator(code_or_name: Union[int, str, Issue], validator_type: ValidatorTy
         Error if validator_type == "error" else Warning
 
     def decorator(func: ValidationFunction) -> Validator:
-        def _wrapper(*args: Any, **kwargs: Any) -> List[ValidationIssue]:
+        def _wrapper(*args: Any, **kwargs: Any) -> list[ValidationIssue]:
             extra = func(*args, **kwargs)
             if extra is None:
                 return []
@@ -102,7 +104,7 @@ def _validator(code_or_name: Union[int, str, Issue], validator_type: ValidatorTy
 # Dev API
 #-----------------------------------------------------------------------------
 
-def error(code_or_name: Union[int, str, Issue]) -> ValidationDecorator:
+def error(code_or_name: int | str | Issue) -> ValidationDecorator:
     """ Decorator to mark a validator method for a Bokeh error condition
 
     Args:
@@ -142,7 +144,7 @@ def error(code_or_name: Union[int, str, Issue]) -> ValidationDecorator:
     """
     return _validator(code_or_name, "error")
 
-def warning(code_or_name: Union[int, str, Issue]) -> ValidationDecorator:
+def warning(code_or_name: int | str | Issue) -> ValidationDecorator:
     """ Decorator to mark a validator method for a Bokeh error condition
 
     Args:

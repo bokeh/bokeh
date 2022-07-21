@@ -22,12 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import warnings
-from typing import (
-    Any,
-    List as TList,
-    Literal,
-    overload,
-)
+from typing import Any, Literal, overload
 
 # External imports
 import xyzservices
@@ -275,11 +270,11 @@ class Plot(LayoutDOM):
         return _list_attr_splat(self.xgrid + self.ygrid)
 
     @property
-    def tools(self) -> TList[Tool]:
+    def tools(self) -> list[Tool]:
         return self.toolbar.tools
 
     @tools.setter
-    def tools(self, tools: TList[Tool]):
+    def tools(self, tools: list[Tool]):
         self.toolbar.tools = tools
 
     def add_layout(self, obj: Renderer, place: PlaceType = "center") -> None:
@@ -425,7 +420,7 @@ class Plot(LayoutDOM):
 
     @error(REQUIRED_RANGE)
     def _check_required_range(self) -> str | None:
-        missing: TList[str] = []
+        missing: list[str] = []
         if not self.x_range: missing.append('x_range')
         if not self.y_range: missing.append('y_range')
         if missing:
@@ -433,7 +428,7 @@ class Plot(LayoutDOM):
 
     @error(REQUIRED_SCALE)
     def _check_required_scale(self) -> str | None:
-        missing: TList[str] = []
+        missing: list[str] = []
         if not self.x_scale: missing.append('x_scale')
         if not self.y_scale: missing.append('y_scale')
         if missing:
@@ -441,7 +436,7 @@ class Plot(LayoutDOM):
 
     @error(INCOMPATIBLE_SCALE_AND_RANGE)
     def _check_compatible_scale_and_ranges(self) -> str | None:
-        incompatible: TList[str] = []
+        incompatible: list[str] = []
         x_ranges = list(self.extra_x_ranges.values())
         if self.x_range: x_ranges.append(self.x_range)
         y_ranges = list(self.extra_y_ranges.values())

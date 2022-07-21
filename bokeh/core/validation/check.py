@@ -25,10 +25,8 @@ import contextlib
 from typing import (
     Iterable,
     Iterator,
-    List,
     Literal,
     Protocol,
-    Set,
 )
 
 # Bokeh imports
@@ -41,7 +39,7 @@ from .issue import Warning
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-__silencers__: Set[Warning] = set()
+__silencers__: set[Warning] = set()
 
 __all__ = (
     'check_integrity',
@@ -62,16 +60,16 @@ class ValidationIssue:
 
 @dataclass
 class ValidationIssues:
-    error: List[ValidationIssue]
-    warning: List[ValidationIssue]
+    error: list[ValidationIssue]
+    warning: list[ValidationIssue]
 
 ValidatorType = Literal["error", "warning"]
 
 class Validator(Protocol):
-    def __call__(self) -> List[ValidationIssue]: ...
+    def __call__(self) -> list[ValidationIssue]: ...
     validator_type: ValidatorType
 
-def silence(warning: Warning, silence: bool = True) -> Set[Warning]:
+def silence(warning: Warning, silence: bool = True) -> set[Warning]:
     ''' Silence a particular warning on all Bokeh models.
 
     Args:
@@ -162,7 +160,7 @@ def check_integrity(models: Iterable[Model]) -> ValidationIssues:
     issues = ValidationIssues(error=[], warning=[])
 
     for model in models:
-        validators: List[Validator] = []
+        validators: list[Validator] = []
         for name in dir(model):
             if not name.startswith("_check"):
                 continue
@@ -199,13 +197,13 @@ def process_validation_issues(issues: ValidationIssues) -> None:
     errors = issues.error
     warnings = [issue for issue in issues.warning if not is_silenced(Warning.get_by_code(issue.code))]
 
-    warning_messages: List[str] = []
+    warning_messages: list[str] = []
     for warning in sorted(warnings, key=lambda warning: warning.code):
         msg = f"W-{warning.code} ({warning.name}): {warning.text}: {warning.extra}"
         warning_messages.append(msg)
         log.warning(msg)
 
-    error_messages: List[str] = []
+    error_messages: list[str] = []
     for error in sorted(errors, key=lambda error: error.code):
         msg = f"E-{error.code} ({error.name}): {error.text}: {error.extra}"
         error_messages.append(msg)

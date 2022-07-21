@@ -31,6 +31,7 @@ from typing import (
 # External imports
 import numpy as np
 import numpy.typing as npt
+from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -44,8 +45,8 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-Num = Union[int, float]
-Data = Dict[str,
+Num: TypeAlias = Union[int, float]
+Data: TypeAlias = Dict[str,
     Union[
         Sequence[Num],
         Sequence[Sequence[Num]],

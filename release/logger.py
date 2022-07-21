@@ -11,7 +11,6 @@ from __future__ import annotations
 
 # Standard library imports
 import re
-from typing import List, Tuple
 
 __all__ = ("LOG", "Log", "Scrubber")
 
@@ -47,15 +46,15 @@ class Log:
     """"""
 
     def __init__(self) -> None:
-        self._scrubbers: List[Scrubber] = []
-        self._record: List[str] = []
+        self._scrubbers: list[Scrubber] = []
+        self._record: list[str] = []
 
     def add_scrubber(self, scrubber: Scrubber) -> None:
         """"""
         self._scrubbers.append(scrubber)
         self._scrubbers.sort(key=len)
 
-    def record(self, *lines: str) -> Tuple[int, int]:
+    def record(self, *lines: str) -> tuple[int, int]:
         """"""
         if len(lines) == 1 and "\n" in lines[0]:
             lines = tuple(lines[0].split("\n"))

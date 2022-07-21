@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import weakref
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Iterator, List
+from typing import TYPE_CHECKING, Iterator
 
 # Bokeh imports
 from .state import curstate
@@ -101,7 +101,7 @@ def set_curdoc(doc: Document) -> None:
 # Private API
 #-----------------------------------------------------------------------------
 
-_PATCHED_CURDOCS: List[weakref.ReferenceType[Document | UnlockedDocumentProxy]] = []
+_PATCHED_CURDOCS: list[weakref.ReferenceType[Document | UnlockedDocumentProxy]] = []
 
 #-----------------------------------------------------------------------------
 # Code

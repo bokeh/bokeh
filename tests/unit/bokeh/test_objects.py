@@ -16,9 +16,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Set, Tuple
-
 # Bokeh imports
 from bokeh.core.properties import (
     Any,
@@ -42,7 +39,7 @@ from bokeh.model import Model
 # General API
 #-----------------------------------------------------------------------------
 
-def large_plot(n: int) -> Tuple[Model, Set[Model]]:
+def large_plot(n: int) -> tuple[Model, set[Model]]:
     from bokeh.models import (
         BoxSelectTool,
         BoxZoomTool,
@@ -63,7 +60,7 @@ def large_plot(n: int) -> Tuple[Model, Set[Model]]:
     )
 
     col = Column()
-    objects: Set[Model] = {col}
+    objects: set[Model] = {col}
 
     for i in range(n):
         source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))

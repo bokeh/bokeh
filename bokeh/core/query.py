@@ -31,6 +31,9 @@ from typing import (
     Union,
 )
 
+# External imports
+from typing_extensions import TypeAlias
+
 # Bokeh imports
 from ..model import Model
 
@@ -53,7 +56,7 @@ __all__ = (
     'is_single_string_selector',
 )
 
-SelectorType = Dict[Union[str, Type["_Operator"]], Any]
+SelectorType: TypeAlias = Dict[Union[str, Type["_Operator"]], Any]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -347,7 +350,7 @@ class NEQ(_Operator):
 #-----------------------------------------------------------------------------
 
 # realizations of the abstract predicate operators
-_operators: Dict[Type["_Operator"], Callable[[Any, Any], Any]] = {
+_operators: dict[Type["_Operator"], Callable[[Any, Any], Any]] = {
    IN:  lambda x, y: x in y,
    GT:  lambda x, y: x > y,
    LT:  lambda x, y: x < y,

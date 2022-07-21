@@ -32,7 +32,6 @@ from typing import (
     Awaitable,
     Callable,
     ContextManager,
-    Dict,
     Iterator,
     Type,
 )
@@ -78,7 +77,7 @@ class TmpDir(ContextManager[str]):
     def __enter__(self) -> str:
         return self._dir
 
-def with_directory_contents(contents: Dict[PathLike, str | None], func: Callable[[str], None]) -> None:
+def with_directory_contents(contents: dict[PathLike, str | None], func: Callable[[str], None]) -> None:
     '''
 
     '''

@@ -22,12 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    Any,
-    Generic,
-    Set,
-    TypeVar,
-)
+from typing import Any, Generic, TypeVar
 
 # Bokeh imports
 from .bases import ParameterizedProperty, Property
@@ -57,7 +52,7 @@ class Struct(ParameterizedProperty):
 
     """
 
-    _optional: Set[str]
+    _optional: set[str]
 
     def __init__(self, **fields) -> None:
         default = fields.pop("default", None)

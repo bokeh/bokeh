@@ -22,7 +22,6 @@ import re
 import subprocess
 import sys
 from copy import deepcopy
-from typing import List
 
 # External imports
 import bs4
@@ -46,7 +45,7 @@ import bokeh.resources as resources  # isort:skip
 if os.environ.get("BOKEH_RESOURCES"):
     raise RuntimeError("Cannot run the unit tests with BOKEH_RESOURCES set")
 
-LOG_LEVELS: List[LogLevel] = ["trace", "debug", "info", "warn", "error", "fatal"]
+LOG_LEVELS: list[LogLevel] = ["trace", "debug", "info", "warn", "error", "fatal"]
 
 DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
 

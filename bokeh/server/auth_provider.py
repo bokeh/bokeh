@@ -22,9 +22,7 @@ from typing import (
     TYPE_CHECKING,
     Awaitable,
     Callable,
-    List,
     NewType,
-    Tuple,
     Type,
 )
 
@@ -75,11 +73,11 @@ class AuthProvider:
         self._validate()
 
     @property
-    def endpoints(self) -> List[Tuple[str, Type[RequestHandler]]]:
+    def endpoints(self) -> list[tuple[str, Type[RequestHandler]]]:
         ''' URL patterns for login/logout endpoints.
 
         '''
-        endpoints: List[Tuple[str, Type[RequestHandler]]] = []
+        endpoints: list[tuple[str, Type[RequestHandler]]] = []
         if self.login_handler:
             assert self.login_url is not None
             endpoints.append((self.login_url, self.login_handler))

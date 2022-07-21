@@ -42,7 +42,7 @@ import codecs
 import csv
 import gzip
 import xml.etree.ElementTree as et
-from typing import Dict, TypedDict
+from typing import TypedDict
 
 # External imports
 from typing_extensions import TypeAlias
@@ -80,11 +80,11 @@ class StateData(TypedDict):
 
 nan = float('NaN')
 
-def _read_data() -> Dict[State, StateData]:
+def _read_data() -> dict[State, StateData]:
     '''
 
     '''
-    data: Dict[State, StateData] = {}
+    data: dict[State, StateData] = {}
 
     with gzip.open(package_path('US_Regions_State_Boundaries.csv.gz')) as f:
         decoded = codecs.iterdecode(f, "utf-8")

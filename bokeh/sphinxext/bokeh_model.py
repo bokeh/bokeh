@@ -57,7 +57,6 @@ log = logging.getLogger(__name__)
 import importlib
 import json
 import warnings
-from typing import Dict
 
 # External imports
 from docutils.parsers.rst.directives import unchanged
@@ -151,7 +150,7 @@ def setup(app):
 # Private API
 # -----------------------------------------------------------------------------
 
-def to_json_rep(obj: Model) -> Dict[str, AnyRep]:
+def to_json_rep(obj: Model) -> dict[str, AnyRep]:
     serializer = Serializer()
 
     properties = obj.properties_with_values(include_defaults=True)

@@ -18,17 +18,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    List,
-    Sequence,
-    Union,
-)
+from typing import TYPE_CHECKING, Sequence, Union
 
 # External imports
 import numpy as np
 from numpy.typing import ArrayLike
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..core.property_mixins import FillProps, HatchProps, LineProps
@@ -44,8 +39,8 @@ if TYPE_CHECKING:
     from ..palettes import Palette, PaletteCollection
     from ..transform import ColorLike
 
-    ContourColor: Union[ColorLike, Sequence[ColorLike]]
-    ContourColorOrPalette: Union[ContourColor, Palette, PaletteCollection, ContourColor]
+    ContourColor: TypeAlias = Union[ColorLike, Sequence[ColorLike]]
+    ContourColorOrPalette: TypeAlias = Union[ContourColor, Palette, PaletteCollection, ContourColor]
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -64,15 +59,15 @@ __all__ = (
 class FillCoords:
     ''' Coordinates for all filled polygons over a whole sequence of contour levels.
     '''
-    xs: List[List[List[np.ndarray]]]
-    ys: List[List[List[np.ndarray]]]
+    xs: list[list[list[np.ndarray]]]
+    ys: list[list[list[np.ndarray]]]
 
 @dataclass(frozen=True)
 class LineCoords:
     ''' Coordinates for all contour lines over a whole sequence of contour levels.
     '''
-    xs: List[np.ndarray]
-    ys: List[np.ndarray]
+    xs: list[np.ndarray]
+    ys: list[np.ndarray]
 
 @dataclass(frozen=True)
 class ContourCoords:
@@ -233,8 +228,8 @@ class SingleFillCoords:
     a separate NumPy array for each boundary of that polygon; the first array
     is always the outer boundary, subsequent arrays are holes.
     '''
-    xs: List[List[np.ndarray]]
-    ys: List[List[np.ndarray]]
+    xs: list[list[np.ndarray]]
+    ys: list[list[np.ndarray]]
 
 @dataclass(frozen=True)
 class SingleLineCoords:
@@ -248,7 +243,7 @@ class SingleLineCoords:
 
 def _color(color: ContourColorOrPalette, n: int) -> ContourColor:
     # Dict to sequence of colors such as palettes.cividis
-    if isinstance(color, Dict):
+    if isinstance(color, dict):
         color = color.get(n, None)
         if not color or len(color) != n:
             raise ValueError(f"Dict of colors does not contain a key of {n}")

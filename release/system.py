@@ -12,7 +12,7 @@ from __future__ import annotations
 # Standard library imports
 import os
 from subprocess import PIPE, STDOUT, run as stdlib_run
-from typing import Any, List
+from typing import Any
 
 # Bokeh imports
 from .logger import LOG
@@ -26,7 +26,7 @@ class System:
 
     def __init__(self, dry_run: bool = False) -> None:
         self.dry_run: bool = dry_run
-        self._pushd_state: List[str] = []
+        self._pushd_state: list[str] = []
 
     def run(self, cmd: str, **kw: Any) -> str:
         """"""

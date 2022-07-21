@@ -27,9 +27,7 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    Dict,
     Iterable,
-    List,
 )
 
 # External imports
@@ -82,8 +80,8 @@ class BokehServerContext(ServerContext):
         return self._application_context()
 
     @property
-    def sessions(self) -> List[ServerSession]:
-        result: List[ServerSession] = []
+    def sessions(self) -> list[ServerSession]:
+        result: list[ServerSession] = []
         context = self.application_context
         if context:
             for session in context.sessions:
@@ -152,9 +150,9 @@ class ApplicationContext:
 
     '''
 
-    _sessions: Dict[ID, ServerSession]
-    _pending_sessions: Dict[ID, gen.Future[ServerSession]]
-    _session_contexts: Dict[ID, SessionContext]
+    _sessions: dict[ID, ServerSession]
+    _pending_sessions: dict[ID, gen.Future[ServerSession]]
+    _session_contexts: dict[ID, SessionContext]
     _server_context: BokehServerContext
 
     def __init__(self, application: Application, io_loop: IOLoop | None = None,
@@ -308,7 +306,7 @@ class ApplicationContext:
                 (session.milliseconds_since_last_unsubscribe > unused_session_linger_milliseconds or \
                  session.expiration_requested)
         # build a temp list to avoid trouble from self._sessions changes
-        to_discard: List[ServerSession] = []
+        to_discard: list[ServerSession] = []
         for session in self._sessions.values():
             if should_discard_ignoring_block(session) and not session.expiration_blocked:
                 to_discard.append(session)
@@ -328,16 +326,16 @@ class ApplicationContext:
 
 class _RequestProxy:
 
-    _arguments: Dict[str, List[bytes]]
-    _cookies: Dict[str, str]
-    _headers: Dict[str, str | List[str]]
+    _arguments: dict[str, list[bytes]]
+    _cookies: dict[str, str]
+    _headers: dict[str, str | list[str]]
 
     def __init__(
         self,
         request: HTTPServerRequest,
-        arguments: Dict[str, bytes | List[bytes]] | None = None,
-        cookies: Dict[str, str] | None = None,
-        headers: Dict[str, str | List[str]] | None = None,
+        arguments: dict[str, bytes | list[bytes]] | None = None,
+        cookies: dict[str, str] | None = None,
+        headers: dict[str, str | list[str]] | None = None,
     ) -> None:
         self._request = request
 
@@ -366,15 +364,15 @@ class _RequestProxy:
             self._headers = {}
 
     @property
-    def arguments(self) -> Dict[str, List[bytes]]:
+    def arguments(self) -> dict[str, list[bytes]]:
         return self._arguments
 
     @property
-    def cookies(self) -> Dict[str, str]:
+    def cookies(self) -> dict[str, str]:
         return self._cookies
 
     @property
-    def headers(self) -> Dict[str, str | List[str]]:
+    def headers(self) -> dict[str, str | list[str]]:
         return self._headers
 
     def __getattr__(self, name: str) -> Any:

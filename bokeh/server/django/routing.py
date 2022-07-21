@@ -20,12 +20,13 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import re
 from pathlib import Path
-from typing import Callable, List, Union
+from typing import Callable, Union
 
 # External imports
 from channels.http import AsgiHandler
 from django.conf.urls import url
 from django.urls.resolvers import URLPattern
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from bokeh.application import Application
@@ -45,7 +46,7 @@ __all__ = (
     'RoutingConfiguration',
 )
 
-ApplicationLike = Union[Application, Callable, Path]
+ApplicationLike: TypeAlias = Union[Application, Callable, Path]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -84,8 +85,8 @@ def document(url: str, app: ApplicationLike) -> Routing:
 def autoload(url: str, app: ApplicationLike) -> Routing:
     return Routing(url, app, autoload=True)
 
-def directory(*apps_paths: Path) -> List[Routing]:
-    paths: List[Path] = []
+def directory(*apps_paths: Path) -> list[Routing]:
+    paths: list[Path] = []
 
     for apps_path in apps_paths:
         if apps_path.exists():
@@ -97,17 +98,17 @@ def directory(*apps_paths: Path) -> List[Routing]:
 
 
 class RoutingConfiguration:
-    _http_urlpatterns: List[str] = []
-    _websocket_urlpatterns: List[str] = []
+    _http_urlpatterns: list[str] = []
+    _websocket_urlpatterns: list[str] = []
 
-    def __init__(self, routings: List[Routing]) -> None:
+    def __init__(self, routings: list[Routing]) -> None:
         for routing in routings:
             self._add_new_routing(routing)
 
-    def get_http_urlpatterns(self) -> List[URLPattern]:
+    def get_http_urlpatterns(self) -> list[URLPattern]:
         return self._http_urlpatterns + [url(r"", AsgiHandler)]
 
-    def get_websocket_urlpatterns(self) -> List[URLPattern]:
+    def get_websocket_urlpatterns(self) -> list[URLPattern]:
         return self._websocket_urlpatterns
 
     def _add_new_routing(self, routing: Routing) -> None:

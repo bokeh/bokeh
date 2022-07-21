@@ -25,11 +25,13 @@ from typing import (
     Dict as TDict,
     List as TList,
     Sequence,
-    Set,
     Tuple,
     Union,
     overload,
 )
+
+# External imports
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..core.has_props import abstract
@@ -62,7 +64,6 @@ from .selections import Selection, SelectionPolicy, UnionRenderers
 
 if TYPE_CHECKING:
     from ..core.has_props import Setter
-    from ..core.types import Unknown
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -87,11 +88,11 @@ if TYPE_CHECKING:
     import numpy.typing as npt
     import pandas as pd
 
-    DataDict = TDict[str, Union[Sequence[TAny], npt.NDArray[TAny], pd.Series, pd.Index]]
+    DataDict: TypeAlias = TDict[str, Union[Sequence[TAny], npt.NDArray[TAny], pd.Series, pd.Index]]
 
-    Index = Union[int, slice, Tuple[Union[int, slice], ...]]
+    Index: TypeAlias = Union[int, slice, Tuple[Union[int, slice], ...]]
 
-    Patches = TDict[str, TList[Tuple[Index, Unknown]]]
+    Patches: TypeAlias = TDict[str, TList[Tuple[Index, Any]]]
 
 @abstract
 class DataSource(Model):
@@ -239,7 +240,7 @@ class ColumnDataSource(ColumnarDataSource):
         self.data.update(raw_data)
 
     @property
-    def column_names(self) -> TList[str]:
+    def column_names(self) -> list[str]:
         ''' A list of the column names in this data source.
 
         '''
@@ -378,7 +379,7 @@ class ColumnDataSource(ColumnarDataSource):
             raise RuntimeError('Pandas must be installed to convert to a Pandas Dataframe')
         return pd.DataFrame(self.data)
 
-    def add(self, data: Sequence[Unknown], name: str | None = None) -> str:
+    def add(self, data: Sequence[Any], name: str | None = None) -> str:
         ''' Appends a new column of data to the data source.
 
         Args:
@@ -543,7 +544,7 @@ class ColumnDataSource(ColumnarDataSource):
 
         import numpy as np
         if needs_length_check:
-            lengths: Set[int] = set()
+            lengths: set[int] = set()
             arr_types = (np.ndarray, pd.Series) if pd else np.ndarray
             for _, x in new_data.items():
                 if isinstance(x, arr_types):
@@ -757,7 +758,7 @@ class CDSView(Model):
     """)
 
     @property
-    def filters(self) -> TList[Filter]:
+    def filters(self) -> list[Filter]:
         deprecated("CDSView.filters was deprecated in bokeh 3.0. Use CDSView.filter instead.")
         filter = self.filter
         if isinstance(filter, IntersectionFilter):
@@ -768,7 +769,7 @@ class CDSView(Model):
             return [filter]
 
     @filters.setter
-    def filters(self, filters: TList[Filter]) -> None:
+    def filters(self, filters: list[Filter]) -> None:
         deprecated("CDSView.filters was deprecated in bokeh 3.0. Use CDSView.filter instead.")
         if len(filters) == 0:
             self.filter = AllIndices()

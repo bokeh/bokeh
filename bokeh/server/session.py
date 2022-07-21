@@ -30,8 +30,6 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    List,
-    Set,
     TypeVar,
 )
 
@@ -127,9 +125,9 @@ class ServerSession:
 
     '''
 
-    _subscribed_connections: Set[ServerConnection]
+    _subscribed_connections: set[ServerConnection]
     _current_patch_connection: ServerConnection | None
-    _pending_writes: List[Awaitable[None]] | None
+    _pending_writes: list[Awaitable[None]] | None
 
     def __init__(self, session_id: ID, document: Document, io_loop: IOLoop | None = None, token: str | None = None) -> None:
         if session_id is None:

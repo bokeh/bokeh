@@ -25,13 +25,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Dict,
-    List,
-)
+from typing import TYPE_CHECKING, Any, Callable
 
 # External imports
 from tornado.httpclient import HTTPClientError, HTTPRequest
@@ -91,7 +85,7 @@ class ClientConnection:
     _until_predicate: Callable[[], bool] | None
 
     def __init__(self, session: ClientSession, websocket_url: str, io_loop: IOLoop | None = None,
-            arguments: Dict[str, str] | None = None, max_message_size: int = 20*1024*1024) -> None:
+            arguments: dict[str, str] | None = None, max_message_size: int = 20*1024*1024) -> None:
         ''' Opens a websocket connection to the server.
 
         '''
@@ -370,8 +364,8 @@ class ClientConnection:
         waiter = WAITING_FOR_REPLY(message.header['msgid'])
         self._state = waiter
 
-        send_result: List[None] = []
-        async def handle_message(message: Message[Any], send_result: List[None]) -> None:
+        send_result: list[None] = []
+        async def handle_message(message: Message[Any], send_result: list[None]) -> None:
             result = await self.send_message(message)
             send_result.append(result)
         self._loop.add_callback(handle_message, message, send_result)

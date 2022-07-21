@@ -21,13 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    List,
-    Sequence,
-    Set,
-)
+from typing import TYPE_CHECKING, Any, Sequence
 
 # External imports
 from selenium.webdriver.common.action_chains import ActionChains
@@ -109,7 +103,7 @@ MATCHES_SCRIPT = """
     return [...descend(root, selector)]
 """
 
-def find_matching_elements(driver: WebDriver, selector: str, *, root: WebElement | None = None) -> List[WebElement]:
+def find_matching_elements(driver: WebDriver, selector: str, *, root: WebElement | None = None) -> list[WebElement]:
     return driver.execute_script(MATCHES_SCRIPT, selector, root)
 
 def find_matching_element(driver: WebDriver, selector: str, *, root: WebElement | None = None) -> WebElement:
@@ -209,7 +203,7 @@ FIND_SCRIPT = """
     }
 """
 
-def find_elements_for(driver: WebDriver, model: Model, selector: str | None = None) -> List[WebElement]:
+def find_elements_for(driver: WebDriver, model: Model, selector: str | None = None) -> list[WebElement]:
     script = FIND_SCRIPT + """
     for (const els of find(Object.values(Bokeh.index))) {
         return els
@@ -402,7 +396,7 @@ def paste_values(driver: WebDriver, el: WebElement | None = None) -> None:
     # actions.send_keys(Keys.CONTROL, 'v')
     actions.perform()
 
-def get_table_column_cells(driver: WebDriver, table: DataTable, col: int) -> List[str]:
+def get_table_column_cells(driver: WebDriver, table: DataTable, col: int) -> list[str]:
     result = []
     rows = find_elements_for(driver, table, ".slick-row")
     for row in rows:
@@ -413,7 +407,7 @@ def get_table_column_cells(driver: WebDriver, table: DataTable, col: int) -> Lis
 def get_table_row(driver: WebDriver, table: DataTable, row: int) -> WebElement:
     return find_element_for(driver, table, f".slick-row:nth-child({row})")
 
-def get_table_selected_rows(driver: WebDriver, table: DataTable) -> Set[int]:
+def get_table_selected_rows(driver: WebDriver, table: DataTable) -> set[int]:
     result = set()
     rows = find_elements_for(driver, table, ".slick-row")
     for i, row in enumerate(rows):

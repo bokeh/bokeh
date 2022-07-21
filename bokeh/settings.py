@@ -123,9 +123,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Generic,
-    List,
     Literal,
     Sequence,
     Type,
@@ -136,6 +134,7 @@ from typing import (
 
 # External imports
 import yaml
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from .util.paths import bokehjsdir, serverdir
@@ -165,7 +164,7 @@ def convert_str(value: str) -> str:
     '''
     return value
 
-def convert_bool(value: Union[bool, str]) -> bool:
+def convert_bool(value: bool | str) -> bool:
     ''' Convert a string to True or False.
 
     If a boolean is passed in, it is returned as-is. Otherwise the function
@@ -196,7 +195,7 @@ def convert_bool(value: Union[bool, str]) -> bool:
 
     raise ValueError(f"Cannot convert {value} to boolean value")
 
-def convert_str_seq(value: Union[List[str], str]) -> List[str]:
+def convert_str_seq(value: list[str] | str) -> list[str]:
     ''' Convert a string to a list of strings.
 
     If a list or tuple is passed in, it is returned as-is.
@@ -218,9 +217,9 @@ def convert_str_seq(value: Union[List[str], str]) -> List[str]:
         raise ValueError(f"Cannot convert {value} to list value")
 
 
-LogLevel = Literal["trace", "debug", "info", "warn", "error", "fatal"]
+LogLevel: TypeAlias = Literal["trace", "debug", "info", "warn", "error", "fatal"]
 
-PyLogLevel = Union[int, None]
+PyLogLevel: TypeAlias = Union[int, None]
 
 _log_levels = {
     "CRITICAL" : logging.CRITICAL,
@@ -232,7 +231,7 @@ _log_levels = {
     "NONE"     : None,
 }
 
-def convert_logging(value: Union[str, int]) -> PyLogLevel:
+def convert_logging(value: str | int) -> PyLogLevel:
     '''Convert a string to a Python logging level
 
     If a log level is passed in, it is returned as-is. Otherwise the function
@@ -269,7 +268,7 @@ def convert_logging(value: Union[str, int]) -> PyLogLevel:
 
 ValidationLevel = Literal["none", "errors", "all"]
 
-def convert_validation(value: Union[str, ValidationLevel]) -> ValidationLevel:
+def convert_validation(value: str | ValidationLevel) -> ValidationLevel:
     '''Convert a string to a validation level
 
     If a validation level is passed in, it is returned as-is.
@@ -328,7 +327,7 @@ class _Unset: pass
 
 T = TypeVar("T")
 
-Unset = Union[T, Type[_Unset]]
+Unset: TypeAlias = Union[T, Type[_Unset]]
 
 def is_dev() -> bool:
     return convert_bool(os.environ.get("BOKEH_DEV", False))
@@ -363,10 +362,10 @@ class PrioritizedSetting(Generic[T]):
     '''
 
     _parent: Settings | None
-    _user_value: Unset[Union[str, T]]
+    _user_value: Unset[str | T]
 
     def __init__(self, name: str, env_var: str | None = None, default: Unset[T] = _Unset,
-            dev_default: Unset[T] = _Unset, convert: Callable[[Union[T, str]], T] | None = None, help: str = "") -> None:
+            dev_default: Unset[T] = _Unset, convert: Callable[[T | str], T] | None = None, help: str = "") -> None:
         self._convert = convert if convert else convert_str
         self._default = default
         self._dev_default = dev_default
@@ -376,7 +375,7 @@ class PrioritizedSetting(Generic[T]):
         self._parent = None
         self._user_value = _Unset
 
-    def __call__(self, value: Union[T, str] | None = None, default: Unset[T] = _Unset) -> T:
+    def __call__(self, value: T | str | None = None, default: Unset[T] = _Unset) -> T:
         '''Return the setting value according to the standard precedence.
 
         Args:
@@ -436,10 +435,10 @@ class PrioritizedSetting(Generic[T]):
     def __get__(self, instance: Any, owner: Type[Any]) -> PrioritizedSetting[T]:
         return self
 
-    def __set__(self, instance: Any, value: Union[str, T]) -> None:
+    def __set__(self, instance: Any, value: str | T) -> None:
         self.set_value(value)
 
-    def set_value(self, value: Union[str, T]) -> None:
+    def set_value(self, value: str | T) -> None:
         ''' Specify a value for this setting programmatically.
 
         A value set this way takes precedence over all other methods except
@@ -509,9 +508,9 @@ class Settings:
 
     '''
 
-    _config_override: Dict[str, Any]
-    _config_user: Dict[str, Any]
-    _config_system: Dict[str, Any]
+    _config_override: dict[str, Any]
+    _config_user: dict[str, Any]
+    _config_system: dict[str, Any]
 
     def __init__(self) -> None:
         self._config_override = {}
@@ -523,22 +522,22 @@ class Settings:
                 x._parent = self
 
     @property
-    def config_system(self) -> Dict[str, Any]:
+    def config_system(self) -> dict[str, Any]:
         return dict(self._config_system)
 
     @property
-    def config_user(self) -> Dict[str, Any]:
+    def config_user(self) -> dict[str, Any]:
         return dict(self._config_user)
 
     @property
-    def config_override(self) -> Dict[str, Any]:
+    def config_override(self) -> dict[str, Any]:
         return dict(self._config_override)
 
     @property
     def dev(self) -> bool:
         return is_dev()
 
-    allowed_ws_origin: PrioritizedSetting[List[str]] = PrioritizedSetting("allowed_ws_origin", "BOKEH_ALLOW_WS_ORIGIN", default=[], convert=convert_str_seq, help="""
+    allowed_ws_origin: PrioritizedSetting[list[str]] = PrioritizedSetting("allowed_ws_origin", "BOKEH_ALLOW_WS_ORIGIN", default=[], convert=convert_str_seq, help="""
     A comma-separated list of allowed websocket origins for Bokeh server applications.
     """)
 
@@ -740,22 +739,22 @@ class Settings:
         '''
         return bokehjsdir(self.dev)
 
-    def css_files(self) -> List[str]:
+    def css_files(self) -> list[str]:
         ''' The CSS files in the BokehJS directory.
 
         '''
-        css_files: List[str] = []
+        css_files: list[str] = []
         for root, _, files in os.walk(self.bokehjsdir()):
             for fname in files:
                 if fname.endswith(".css"):
                     css_files.append(join(root, fname))
         return css_files
 
-    def js_files(self) -> List[str]:
+    def js_files(self) -> list[str]:
         ''' The JS files in the BokehJS directory.
 
         '''
-        js_files: List[str] = []
+        js_files: list[str] = []
         for root, _, files in os.walk(self.bokehjsdir()):
             for fname in files:
                 if fname.endswith(".js"):
@@ -785,7 +784,7 @@ class Settings:
                 self._secret_key_bytes = key.encode("utf-8")
         return self._secret_key_bytes
 
-    def _try_load_config(self, locations: Sequence[str]) -> Dict[str, Any]:
+    def _try_load_config(self, locations: Sequence[str]) -> dict[str, Any]:
         for location in locations:
             try:
                 return yaml.load(open(location), Loader=yaml.SafeLoader)

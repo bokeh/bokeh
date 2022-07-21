@@ -425,7 +425,7 @@ import argparse
 import os
 from fnmatch import fnmatch
 from glob import glob
-from typing import Any, Dict, List
+from typing import Any
 
 # External imports
 from tornado.autoreload import watch
@@ -770,14 +770,14 @@ class Serve(Subcommand):
         )),
     )
 
-    def customize_applications(self, args: argparse.Namespace, applications: Dict[str, Any]) -> Dict[str, Any]:
+    def customize_applications(self, args: argparse.Namespace, applications: dict[str, Any]) -> dict[str, Any]:
         '''Allows subclasses to customize ``applications``.
 
         Should modify and return a copy of the ``applications`` dictionary.
         '''
         return dict(applications)
 
-    def customize_kwargs(self, args: argparse.Namespace, server_kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def customize_kwargs(self, args: argparse.Namespace, server_kwargs: dict[str, Any]) -> dict[str, Any]:
         '''Allows subclasses to customize ``server_kwargs``.
 
         Should modify and return a copy of the ``server_kwargs`` dictionary.
@@ -806,7 +806,7 @@ class Serve(Subcommand):
         # even if Tornado is not installed
         from bokeh.server.server import Server
 
-        files: List[str] = []
+        files: list[str] = []
         for f in args.files:
             if args.glob:
                 files.extend(glob(f))
@@ -918,7 +918,7 @@ class Serve(Subcommand):
                         log.info("Watching: " + os.path.join(path, name))
                         watch(os.path.join(path, name))
 
-        def add_optional_autoreload_files(file_list: List[str]) -> None:
+        def add_optional_autoreload_files(file_list: list[str]) -> None:
             for filen in file_list:
                 if os.path.isdir(filen):
                     log.warning("Cannot watch directory " + filen)

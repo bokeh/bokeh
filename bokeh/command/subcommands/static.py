@@ -19,7 +19,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from argparse import Namespace
-from typing import Dict
 
 # Bokeh imports
 from bokeh.settings import settings
@@ -75,7 +74,7 @@ class Static(Subcommand):
         # even if Tornado is not installed
         from bokeh.server.server import Server
 
-        applications: Dict[str, Application] = {}
+        applications: dict[str, Application] = {}
 
         _allowed_keys = ['port', 'address']
         server_kwargs = { key: getattr(args, key) for key in _allowed_keys if getattr(args, key, None) is not None }

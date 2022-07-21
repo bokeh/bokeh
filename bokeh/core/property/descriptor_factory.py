@@ -57,12 +57,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Generic,
-    List,
-    TypeVar,
-)
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 if TYPE_CHECKING:
     from .descriptors import PropertyDescriptor
@@ -119,7 +114,7 @@ class PropertyDescriptorFactory(Generic[T]):
 
     """
 
-    def make_descriptors(self, name: str) -> List[PropertyDescriptor[T]]:
+    def make_descriptors(self, name: str) -> list[PropertyDescriptor[T]]:
         """ Return a list of ``PropertyDescriptor`` instances to install on a
         class, in order to delegate attribute access to this property.
 
