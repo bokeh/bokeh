@@ -81,6 +81,22 @@ class BuiltinIcon(Icon):
     icon_name = Required(Either(Enum(ToolIcon), String), help="""
     The name of a built-in icon to use. Currently, the following icon names are
     supported: ``"help"``, ``"question-mark"``, ``"settings"``, ``"x"``
+
+    .. bokeh-plot::
+        :source-position: none
+
+        from bokeh.io import show
+        from bokeh.layouts import column
+        from bokeh.models import BuiltinIcon, Button
+
+        builtin_icons = ["help", "question-mark", "settings", "x"]
+
+        icon_demo = []
+        for icon in builtin_icons:
+            icon_demo.append(Button(label=icon, button_type="light", icon=BuiltinIcon(icon, size="1.2em")))
+
+        show(column(icon_demo))
+
     """)
 
     color = Color(default="gray", help="""
