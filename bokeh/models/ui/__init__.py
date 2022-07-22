@@ -4,8 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-"""
-Various UI elements such as buttons, menus, and tooltips.
+""" Various UI elements such as buttons, menus, and tooltips.
 """
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -26,12 +25,14 @@ from . import (
     inspector,
     menus,
     tooltips,
+    ui_element,
 )
 from .dialogs import *
 from .icons import *
 from .inspector import *
 from .menus import *
 from .tooltips import *
+from .ui_element import *
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -42,7 +43,8 @@ __all__ = (
     icons.__all__ +
     inspector.__all__ +
     menus.__all__ +
-    tooltips.__all__
+    tooltips.__all__ +
+    ui_element.__all__
 )
 
 #-----------------------------------------------------------------------------

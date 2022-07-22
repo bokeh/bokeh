@@ -3,7 +3,10 @@
 ui
 --
 
-.. automodule:: bokeh.models.ui
-   :members:
-   :imported-members:
-   :undoc-members:
+UI elements for use in various Bokeh models.
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+
+   ui/*
