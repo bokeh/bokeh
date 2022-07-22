@@ -125,6 +125,7 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.hex_tile`
         * :func:`~bokeh.plotting.figure.image`
         * :func:`~bokeh.plotting.figure.image_rgba`
+        * :func:`~bokeh.plotting.figure.image_stack`
         * :func:`~bokeh.plotting.figure.image_url`
         * :func:`~bokeh.plotting.figure.inverted_triangle`
         * :func:`~bokeh.plotting.figure.line`

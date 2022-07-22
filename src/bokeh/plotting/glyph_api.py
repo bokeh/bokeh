@@ -428,6 +428,14 @@ Examples:
 
 """
 
+    @glyph_method(glyphs.ImageStack)
+    def image_stack(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """
+.. note::
+    The ``image_stack`` blah blah
+
+"""
+
     @glyph_method(glyphs.ImageURL)
     def image_url(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         pass
