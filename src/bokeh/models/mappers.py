@@ -62,6 +62,7 @@ __all__ = (
     'LinearColorMapper',
     'LogColorMapper',
     'EqHistColorMapper',
+    'StackColorMapper',
 )
 
 #-----------------------------------------------------------------------------
@@ -315,6 +316,19 @@ class EqHistColorMapper(ScanningColorMapper):
     the span so that the values are rendered towards the top end of the
     palette.
     """)
+
+class StackColorMapper(ColorMapper):
+    ''' Compound color mapper for ImageStack.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    alpha_mapper = Instance(ContinuousColorMapper, help="""
+    """)
+
 
 #-----------------------------------------------------------------------------
 # Dev API

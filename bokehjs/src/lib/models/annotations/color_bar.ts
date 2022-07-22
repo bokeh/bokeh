@@ -292,7 +292,7 @@ export class ColorBarView extends BaseColorBarView {
     // LinearColorMapper instance and map a monotonic range of values with
     // length = palette.length to get each palette color in order.
     const cmap = new LinearColorMapper({palette}).rgba_mapper
-    const buf8 = cmap.v_compute(range(0, palette.length))
+    const buf8 = cmap.v_compute(range(0, palette.length), 1)
     image_data.data.set(buf8)
     image_ctx.putImageData(image_data, 0, 0)
   }

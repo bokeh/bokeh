@@ -7,7 +7,7 @@ import {color2rgba, encode_rgba} from "core/util/color"
 import {to_big_endian} from "core/util/platform"
 
 export interface RGBAMapper {
-  v_compute(xs: Arrayable<number> | Arrayable<Factor>): RGBAArray
+  v_compute(xs: Arrayable<number> | Arrayable<Factor>, length_divisor: number): RGBAArray
 }
 
 // export for testing
@@ -65,9 +65,11 @@ export abstract class ColorMapper extends Mapper<Color> {
     const self = this
     const palette = _convert_palette(this.palette)
     const colors = this._colors(_convert_color)
+    console.log("XXX in wrapper")
     return {
-      v_compute(xs: ArrayableOf<uint32 | Factor>): RGBAArray {
-        const values = new ColorArray(xs.length)
+      v_compute(xs: ArrayableOf<uint32 | Factor>, length_divisor: number): RGBAArray {
+        console.log("XXX in v_compute")
+        const values = new ColorArray(xs.length / length_divisor)
         self._v_compute(xs, values, palette, colors)
         return new Uint8ClampedArray(to_big_endian(values).buffer)
       },

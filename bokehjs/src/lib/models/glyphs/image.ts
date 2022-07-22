@@ -27,7 +27,7 @@ export class ImageView extends ImageBaseView {
 
   protected _flat_img_to_buf8(img: Arrayable<number>): Uint8ClampedArray {
     const cmap = this.model.color_mapper.rgba_mapper
-    return cmap.v_compute(img)
+    return cmap.v_compute(img, 1)
   }
 }
 
