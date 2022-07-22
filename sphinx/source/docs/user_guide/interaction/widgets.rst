@@ -185,9 +185,8 @@ Bokeh provides a simple Button:
 Use the button's ``button_type`` property to change the style of the button. See
 :class:`~bokeh.core.enums.ButtonType` for possible values.`
 
-Optionally, you can add an icon to a button by passing an :class:`~bokeh.models.ui.Icon`
-Icon object to the
-button's ``icon`` parameter:
+Optionally, you can add an icon to a button by passing one of Bokeh's icon
+objects to the button's ``icon`` parameter:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_button_icon.py
     :source-position: below
@@ -198,7 +197,7 @@ Bokeh supports the following kinds of icons on buttons:
 * :class:`~bokeh.models.SVGIcon`: An arbitrary SVG icon
 * :class:`~bokeh.models.TablerIcon`: An icon from the `Tabler icon set <https://tabler-icons.io/>`_ (requires an active internet connection)
 
-More information about buttons can be found in the Reference for |Button|.
+More information about buttons can be found in the reference for |Button|.
 
 CheckboxButtonGroup
 ~~~~~~~~~~~~~~~~~~~
@@ -300,7 +299,9 @@ clicked.
     :source-position: below
 
 Similar to the :ref:`userguide_interaction_widgets_examples_button` widget, the
-dropdown button can also use an :class:`~bokeh.models.icons.Icon`.
+dropdown button can also use an :class:`~bokeh.models.Icon` (such as
+:class:`~bokeh.models.BuiltinIcon`, :class:`~bokeh.models.SVGIcon`, or
+:class:`~bokeh.models.TablerIcon`).`
 
 More information can be found in the Reference for |Dropdown|.
 
@@ -470,6 +471,11 @@ The toggle button holds an on/off state:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_toggle_button.py
     :source-position: below
+
+Like with a standard :ref:`userguide_interaction_widgets_examples_button`
+widget, the toggle button can also use an :class:`~bokeh.models.Icon` (such as
+:class:`~bokeh.models.BuiltinIcon`, :class:`~bokeh.models.SVGIcon`, or
+:class:`~bokeh.models.TablerIcon`).`
 
 More information can be found in the Reference for |Toggle|.
 
