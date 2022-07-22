@@ -76,7 +76,20 @@ class ButtonLike(HasProps):
         super().__init__(*args, **kwargs)
 
     button_type = Enum(ButtonType, help="""
-    A style for the button, signifying it's role.
+    A style for the button, signifying it's role. Possible values are one of the
+    following:
+
+    .. bokeh-plot::
+        :source-position: none
+
+        from bokeh.core.enums import ButtonType
+        from bokeh.io import show
+        from bokeh.layouts import column
+        from bokeh.models import Button
+
+        show(column(
+            [Button(label=button_type, button_type=button_type) for button_type in ButtonType]
+            ))
     """)
 
 @abstract
@@ -94,7 +107,9 @@ class AbstractButton(Widget, ButtonLike):
     """)
 
     icon = Nullable(Instance(Icon), help="""
-    An optional image appearing to the left of button's text.
+    An optional image appearing to the left of button's text. An instance of
+    :class:`~bokeh.models.Icon` (such as :class:`~bokeh.models.BuiltinIcon`,
+    :class:`~bokeh.models.SVGIcon`, or :class:`~bokeh.models.TablerIcon`).`
     """)
 
 #-----------------------------------------------------------------------------

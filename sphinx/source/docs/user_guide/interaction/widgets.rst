@@ -183,7 +183,7 @@ Bokeh provides a simple Button:
     :source-position: below
 
 Use the button's ``button_type`` property to change the style of the button. See
-:class:`~bokeh.core.enums.ButtonType` for possible values.`
+:attr:`~bokeh.models.Button.button_type` for possible values.
 
 Optionally, you can add an icon to a button by passing one of Bokeh's icon
 objects to the button's ``icon`` parameter:
