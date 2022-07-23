@@ -217,15 +217,17 @@ class Dropdown(AbstractButton):
         self.js_on_event(MenuItemClick, handler)
 
 class HelpButton(AbstractButton):
-    """ """
+    """ A button with a help symbol that displays additional text when hovered
+    over or clicked.
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
     tooltip = Required(Instance(Tooltip), help="""
-    A tooltip with rich HTML contents, providing general help or description
-    of a widget's or component's function.
+    A tooltip with plain text or rich HTML contents, providing general help or
+    description of a widget's or component's function.
     """)
 
     width = Override(default=18)

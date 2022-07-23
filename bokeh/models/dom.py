@@ -200,9 +200,9 @@ class HTML(Model, Qualified):
         super().__init__(html=html, **kwargs)
 
     html = Required(Either(String, List(Either(String, Instance(DOMNode), Instance(UIElement)))), help="""
-    Either a parsed HTML string with optional refereces to bokeh objects using
+    Either a parsed HTML string with optional references to Bokeh objects using
     ``<ref id="..."></ref>`` syntax. Or a list of parsed HTML interleaved with
-    bokeh's objects. Any DOM node or UI element (even a plot) can be referenced
+    Bokeh's objects. Any DOM node or UI element (even a plot) can be referenced
     here.
     """)
 
