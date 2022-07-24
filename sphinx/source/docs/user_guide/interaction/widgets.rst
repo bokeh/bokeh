@@ -53,6 +53,10 @@ standalone HTML output:
 JavaScript callbacks
 ~~~~~~~~~~~~~~~~~~~~
 
+TBD: link to :ref:`userguide_interaction_jscallbacks` - maybe also create
+a separate chapter for Python callbacks and link those chapters instead of
+writing too much about callbacks in this widget chapter?
+
 The simplest version of interactive callbacks are JavaScript callbacks that run
 directly in the browser.
 
@@ -171,6 +175,18 @@ Bokeh's built-in widgets
 The sections below are examples for all widgets available in Bokeh. Many of the
 examples print output that can be observed by looking at your browser's
 JavaScript console log.
+
+AutocompleteInput
+~~~~~~~~~~~~~~~~~
+
+The AutocompleteInput widget is a general-purpose text input widget that uses
+a list of possible inputs to provide autocomplete while typing.
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_autocompleteinput.py
+    :source-position: below
+
+More information about buttons can be found in the reference guide entry for
+|AutocompleteInput|.
 
 .. _userguide_interaction_widgets_examples_button:
 
@@ -497,6 +513,7 @@ widget, the toggle button can also use an :class:`~bokeh.models.Icon` (such as
 
 More information can be found in the reference guide entry for |Toggle|.
 
+.. |AutocompleteInput|      replace:: :class:`~bokeh.models.widgets.inputs.AutocompleteInput`
 .. |Button|                 replace:: :class:`~bokeh.models.widgets.buttons.Button`
 .. |CheckboxButtonGroup|    replace:: :class:`~bokeh.models.widgets.groups.CheckboxButtonGroup`
 .. |CheckboxGroup|          replace:: :class:`~bokeh.models.widgets.groups.CheckboxGroup`
