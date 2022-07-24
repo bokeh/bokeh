@@ -370,6 +370,16 @@ A multi-select widget to present multiple available options in vertical list:
 
 More information can be found in the reference guide entry for |MultiSelect|.
 
+NumericInput
+~~~~~~~~~~~~
+
+A widget to allow the user to enter a numeric value.
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_numericinput.py
+    :source-position: below
+
+More information can be found in the reference guide entry for |NumericInput|.
+
 .. _userguide_interaction_widgets_paragraph:
 
 Paragraph
@@ -528,6 +538,7 @@ More information can be found in the reference guide entry for |Toggle|.
 .. |HelpButton|             replace:: :class:`~bokeh.models.widgets.buttons.HelpButton`
 .. |MultiChoice|            replace:: :class:`~bokeh.models.widgets.inputs.MultiChoice`
 .. |MultiSelect|            replace:: :class:`~bokeh.models.widgets.inputs.MultiSelect`
+.. |NumericInput|           replace:: :class:`~bokeh.models.widgets.inputs.NumericInput`
 .. |Paragraph|              replace:: :class:`~bokeh.models.widgets.markups.Paragraph`
 .. |PasswordInput|          replace:: :class:`~bokeh.models.widgets.inputs.PasswordInput`
 .. |PreText|                replace:: :class:`~bokeh.models.widgets.markups.PreText`
