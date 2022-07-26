@@ -44,7 +44,6 @@ export abstract class ToolButtonView extends DOMView {
         touchAction: "auto",
         inputClass: Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
       })
-      this.connect(this.model.change, () => this.render())
       this._hammer.on("tap", (e) => {
         const {_menu} = this
         if (_menu != null && _menu.is_open) {
@@ -62,6 +61,10 @@ export abstract class ToolButtonView extends DOMView {
         }
       })
     }
+  }
+
+  override connect_signals(): void {
+    this.connect(this.model.change, () => this.render())
   }
 
   override remove(): void {
