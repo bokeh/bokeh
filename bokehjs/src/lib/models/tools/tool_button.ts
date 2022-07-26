@@ -18,14 +18,20 @@ export abstract class ToolButtonView extends DOMView {
   override readonly parent: ToolbarView
   override el: HTMLElement
 
-  private _hammer: InstanceType<typeof Manager>
+  private _hammer?: InstanceType<typeof Manager>
   private _menu?: ContextMenu
 
   override initialize(): void {
     super.initialize()
 
     const items = this.model.menu
-    if (items != null) {
+    if (items == null) {
+      this.el.addEventListener("click", (e) => {
+        if (e.target == this.el) {
+          this._clicked()
+        }
+      })
+    } else {
       const location = this.parent.model.toolbar_location
       const reverse = location == "left" || location == "above"
       const orientation = this.parent.model.horizontal ? "vertical" : "horizontal"
@@ -33,33 +39,33 @@ export abstract class ToolButtonView extends DOMView {
         orientation,
         prevent_hide: (event) => event.composedPath().includes(this.el),
       })
-    }
 
-    this._hammer = new Hammer(this.el, {
-      touchAction: "auto",
-      inputClass: Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
-    })
-    this.connect(this.model.change, () => this.render())
-    this._hammer.on("tap", (e) => {
-      const {_menu} = this
-      if (_menu != null && _menu.is_open) {
-        _menu.hide()
-        return
-      }
-      if (e.target == this.el) {
-        this._clicked()
-      }
-    })
-    this._hammer.on("press", () => this._pressed())
-    this.el.addEventListener("keydown", (event) => {
-      if (event.keyCode == Keys.Enter) {
-        this._clicked()
-      }
-    })
+      this._hammer = new Hammer(this.el, {
+        touchAction: "auto",
+        inputClass: Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
+      })
+      this.connect(this.model.change, () => this.render())
+      this._hammer.on("tap", (e) => {
+        const {_menu} = this
+        if (_menu != null && _menu.is_open) {
+          _menu.hide()
+          return
+        }
+        if (e.target == this.el) {
+          this._clicked()
+        }
+      })
+      this._hammer.on("press", () => this._pressed())
+      this.el.addEventListener("keydown", (event) => {
+        if (event.keyCode == Keys.Enter) {
+          this._clicked()
+        }
+      })
+    }
   }
 
   override remove(): void {
-    this._hammer.destroy()
+    this._hammer?.destroy()
     this._menu?.remove()
     super.remove()
   }
