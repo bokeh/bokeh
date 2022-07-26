@@ -291,7 +291,7 @@ def gridplot(
 
     def merge(cls: Type[Tool], group: list[Tool]):
         if issubclass(cls, SaveTool):
-            return cls(filename=group[0].filename)
+            return cls()
         else:
             return None
 
@@ -519,15 +519,21 @@ def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = 
                 del props["overlay"]
             by_type[tool.__class__].append(ToolEntry(tool, props))
 
-    for cls, tools_ in by_type.items():
-        while tools_:
-            head, *tail = tools_
+    for cls, entries in by_type.items():
+        if merge is not None:
+            merged = merge(cls, [entry.tool for entry in entries ])
+            if merged is not None:
+                computed.append(merged)
+                continue
+
+        while entries:
+            head, *tail = entries
             group: list[Tool] = [head.tool]
             for item in list(tail):
                 if item.props == head.props:
                     group.append(item.tool)
-                    tools_.remove(item)
-            tools_.remove(head)
+                    entries.remove(item)
+            entries.remove(head)
 
             if len(group) == 1:
                 computed.append(group[0])

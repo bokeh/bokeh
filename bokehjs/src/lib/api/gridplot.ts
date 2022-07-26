@@ -7,7 +7,6 @@ import {LayoutDOM} from "../models/layouts/layout_dom"
 import {SizingMode, Location} from "../core/enums"
 import {Matrix} from "../core/util/matrix"
 import {is_equal} from "../core/util/eq"
-import {assert} from "../core/util/assert"
 import {Attrs} from "../core/types"
 
 export type GridPlotOpts = {
@@ -41,16 +40,24 @@ export function group_tools(tools: ToolLike<Tool>[], merge?: MergeFn): ToolLike<
     }
   }
 
-  for (const [cls, tools] of by_type.entries()) {
-    while (tools.size != 0) {
-      const [head, ...tail] = tools
-      tools.delete(head)
+  for (const [cls, entries] of by_type.entries()) {
+    if (merge != null) {
+      const merged = merge(cls, [...entries].map((entry) => entry.tool))
+      if (merged != null) {
+        computed.push(merged)
+        continue
+      }
+    }
+
+    while (entries.size != 0) {
+      const [head, ...tail] = entries
+      entries.delete(head)
 
       const group = [head.tool]
       for (const item of tail) {
         if (is_equal(item.attrs, head.attrs)) {
           group.push(item.tool)
-          tools.delete(item)
+          entries.delete(item)
         }
       }
 
@@ -95,10 +102,9 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
     items.push([item, row, col])
   }
 
-  function merge(cls: typeof Tool, group: Tool[]) {
-    if (cls == SaveTool || cls.prototype instanceof SaveTool) {
-      assert(group[0] instanceof SaveTool)
-      return new SaveTool({filename: group[0].filename})
+  function merge(_cls: typeof Tool, group: Tool[]) {
+    if (group[0] instanceof SaveTool) {
+      return new SaveTool()
     } else
       return null
   }
