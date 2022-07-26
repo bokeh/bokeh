@@ -5,13 +5,15 @@ import {display, fig} from "./_util"
 
 import {
   HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle,
-  Legend, LegendItem, Line, Rect, Title,
+  Legend, LegendItem, Line, Rect, Title, SaveTool,
 } from "@bokehjs/models"
 import {assert} from "@bokehjs/core/util/assert"
 import {build_view} from "@bokehjs/core/build_views"
 import {base64_to_buffer} from "@bokehjs/core/util/buffer"
 import {offset} from "@bokehjs/core/dom"
+import {Color} from "@bokehjs/core/types"
 import {Document, DocJson, DocumentEvent, ModelChangedEvent} from "@bokehjs/document"
+import {gridplot} from "@bokehjs/api/gridplot"
 
 import {ImageURLView} from "@bokehjs/models/glyphs/image_url"
 
@@ -403,6 +405,25 @@ describe("Bug", () => {
 
       await tap(5, 5)   // click off frame
       expect(r.data_source.selected.indices).to.be.equal([1])
+    })
+  })
+
+  describe("in issue #8531", () => {
+    it("initiates multiple downloads when using save tool in a gridplot", async () => {
+      function f(color: Color) {
+        const save = new SaveTool({filename: `${color}.png`})
+        const p = fig([100, 100], {tools: [save]})
+        p.circle({x: [0, 1, 2], y: [0, 1, 2], color})
+        return p
+      }
+
+      const plots = [
+        [f("red"), f("green"), f("blue")],
+        [f("yellow"), f("pink"), f("purple")],
+      ]
+
+      const grid = gridplot(plots, {merge_tools: true})
+      const {view} = await display(grid)
     })
   })
 })
