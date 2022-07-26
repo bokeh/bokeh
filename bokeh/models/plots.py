@@ -23,7 +23,12 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import warnings
 from contextlib import contextmanager
-from typing import Any, Literal, overload
+from typing import (
+    Any,
+    Generator,
+    Literal,
+    overload,
+)
 
 # External imports
 import xyzservices
@@ -420,12 +425,12 @@ class Plot(LayoutDOM):
         return tile_renderer
 
     @contextmanager
-    def hold(self, render: bool) -> Generator[None, None, None]:
-        ''' Takes care of turning a property on and off within a scope
+    def hold(self, *, render: bool) -> Generator[None, None, None]:
+        ''' Takes care of turning a property on and off within a scope.
 
         Args:
             render (bool) :
-                Turns the property hold_render on and off
+                Turns the property hold_render on and off.
         '''
         if render:
             self.hold_render = True
@@ -819,20 +824,22 @@ class Plot(LayoutDOM):
     """)
 
     hold_render = Bool(default=False, help="""
-    When set to True all requests to repaint the plot will be ignored.
-    This is useful when periodically updating many glyphs.
-    For example, let's assume we have 10 lines on a plot, each with its own datasource.
-    We stream to all of them every second in a for loop like so:
+    When set to True all requests to repaint the plot will be hold off.
+
+    This is useful when periodically updating many glyphs. For example, let's
+    assume we have 10 lines on a plot, each with its own datasource. We stream
+    to all of them every second in a for loop like so:
 
     .. code:: python
 
         for line in lines:
             line.stream(new_points())
 
-    The problem with this code is that every stream triggers a re-rendering of the plot.
-    Even tough repainting only on the last stream would produce almost identical visual effect.
-    Especially for lines with many points this becomes computationally expensive and can freeze your browser.
-    Using a convenience function `hold` we can control when rendering is initiated like so:
+    The problem with this code is that every stream triggers a re-rendering of
+    the plot. Even tough repainting only on the last stream would produce almost
+    identical visual effect. Especially for lines with many points this becomes
+    computationally expensive and can freeze your browser. Using a convenience
+    method `hold`, we can control when rendering is initiated like so:
 
     .. code:: python
 
