@@ -5,7 +5,7 @@ import {display, fig} from "./_util"
 
 import {
   HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle,
-  Legend, LegendItem, Line, Rect, Title, SaveTool,
+  Legend, LegendItem, Line, Rect, Title, CopyTool,
 } from "@bokehjs/models"
 import {assert} from "@bokehjs/core/util/assert"
 import {build_view} from "@bokehjs/core/build_views"
@@ -411,8 +411,7 @@ describe("Bug", () => {
   describe("in issue #8531", () => {
     it("initiates multiple downloads when using save tool in a gridplot", async () => {
       function f(color: Color) {
-        const save = new SaveTool({filename: `${color}.png`})
-        const p = fig([100, 100], {tools: [save]})
+        const p = fig([100, 100], {tools: [new CopyTool()]})
         p.circle({x: [0, 1, 2], y: [0, 1, 2], color})
         return p
       }

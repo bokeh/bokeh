@@ -120,6 +120,7 @@ __all__ = (
     'BoxEditTool',
     'BoxSelectTool',
     'BoxZoomTool',
+    'CopyTool',
     'CrosshairTool',
     'CustomAction',
     'CustomJSHover',
@@ -587,6 +588,23 @@ class SaveTool(ActionTool):
     needed). If a filename is not provided or set to None, the user is prompted
     for a filename at save time.
     """)
+
+class CopyTool(ActionTool):
+    ''' *toolbar icon*: |copy_icon|
+
+    The copy tool is an action tool, that allows copying the rendererd contents of
+    a plot or a collection of plots to system's clipboard. This tools is browser
+    dependent and may not function in certain browsers, or require additional
+    permissions to be granted to the web page.
+
+    .. |copy_icon| image:: /_images/icons/Copy.png
+        :height: 24px
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class ResetTool(PlotActionTool):
     ''' *toolbar icon*: |reset_icon|
@@ -1749,6 +1767,7 @@ Tool.register_alias("box_zoom", lambda: BoxZoomTool(dimensions="both"))
 Tool.register_alias("xbox_zoom", lambda: BoxZoomTool(dimensions="width"))
 Tool.register_alias("ybox_zoom", lambda: BoxZoomTool(dimensions="height"))
 Tool.register_alias("save", lambda: SaveTool())
+Tool.register_alias("copy", lambda: CopyTool())
 Tool.register_alias("undo", lambda: UndoTool())
 Tool.register_alias("redo", lambda: RedoTool())
 Tool.register_alias("reset", lambda: ResetTool())

@@ -2,6 +2,7 @@ import {GridPlot, Plot} from "../models/plots"
 import {Tool} from "../models/tools/tool"
 import {ToolLike, ToolProxy} from "../models/tools/tool_proxy"
 import {SaveTool} from "../models/tools/actions/save_tool"
+import {CopyTool} from "../models/tools/actions/copy_tool"
 import {Toolbar} from "../models/tools/toolbar"
 import {LayoutDOM} from "../models/layouts/layout_dom"
 import {SizingMode, Location} from "../core/enums"
@@ -103,9 +104,12 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
   }
 
   function merge(_cls: typeof Tool, group: Tool[]) {
-    if (group[0] instanceof SaveTool) {
+    const tool = group[0]
+    if (tool instanceof SaveTool)
       return new SaveTool()
-    } else
+    else if (tool instanceof CopyTool)
+      return new CopyTool()
+    else
       return null
   }
 
