@@ -1,3 +1,6 @@
+import * as sinon from "sinon"
+
+import {expect} from "../unit/assertions"
 import {display, fig, row} from "./_util"
 
 import {figure} from "@bokehjs/api/plotting"
@@ -250,6 +253,33 @@ describe("Plot", () => {
       f.circle({x: t, y: v, size: 5, line_width: 2, source, y_range_name: "linear", color: "red"})
 
       await display(f)
+    })
+  })
+
+  describe("in issue #12171", () => {
+    it("should support hold_render property", async () => {
+      const p = fig([200, 200])
+
+      p.circle([1, 2, 3], [1, 2, 3], {color: "red"})
+      const {view} = await display(p)
+
+      const spy = sinon.spy(view as any, "_actual_paint") // XXX: protected
+
+      p.hold_render = true
+      p.circle([1, 2, 3], [2, 3, 4], {color: "blue"})
+      p.circle([1, 2, 3], [3, 4, 5], {color: "green"})
+      await view.ready
+
+      expect(spy.callCount).to.be.equal(0)
+
+      p.hold_render = false
+      await view.ready
+
+      // TODO: expect(spy.callCount).to.be.equal(1)
+      //
+      // There should be exactly one paint after all this, but currently
+      // it varies between 2 and 3, due to layout and other factors. It's
+      // sufficient though, to compare images for a complete test.
     })
   })
 })

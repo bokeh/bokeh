@@ -22,7 +22,13 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import warnings
-from typing import Any, Literal, overload
+from contextlib import contextmanager
+from typing import (
+    Any,
+    Generator,
+    Literal,
+    overload,
+)
 
 # External imports
 import xyzservices
@@ -418,6 +424,19 @@ class Plot(LayoutDOM):
         self.renderers.append(tile_renderer)
         return tile_renderer
 
+    @contextmanager
+    def hold(self, *, render: bool) -> Generator[None, None, None]:
+        ''' Takes care of turning a property on and off within a scope.
+
+        Args:
+            render (bool) :
+                Turns the property hold_render on and off.
+        '''
+        if render:
+            self.hold_render = True
+            yield
+            self.hold_render = False
+
     @error(REQUIRED_RANGE)
     def _check_required_range(self) -> str | None:
         missing: list[str] = []
@@ -802,6 +821,33 @@ class Plot(LayoutDOM):
     values, undo all selections, and emit a ``Reset`` event. If customization
     is desired, this property may be set to ``"event_only"``, which will
     suppress all of the actions except the Reset event.
+    """)
+
+    hold_render = Bool(default=False, help="""
+    When set to True all requests to repaint the plot will be hold off.
+
+    This is useful when periodically updating many glyphs. For example, let's
+    assume we have 10 lines on a plot, each with its own datasource. We stream
+    to all of them every second in a for loop like so:
+
+    .. code:: python
+
+        for line in lines:
+            line.stream(new_points())
+
+    The problem with this code is that every stream triggers a re-rendering of
+    the plot. Even tough repainting only on the last stream would produce almost
+    identical visual effect. Especially for lines with many points this becomes
+    computationally expensive and can freeze your browser. Using a convenience
+    method `hold`, we can control when rendering is initiated like so:
+
+    .. code:: python
+
+        with plot.hold(render=True):
+            for line in lines:
+                line.stream(new_points())
+
+    In this case we render newly appended points only after the last stream.
     """)
 
 class GridPlot(LayoutDOM):

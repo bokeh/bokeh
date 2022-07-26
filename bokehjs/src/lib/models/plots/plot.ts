@@ -88,6 +88,8 @@ export namespace Plot {
     aspect_scale: p.Property<number>
 
     reset_policy: p.Property<ResetPolicy>
+
+    hold_render: p.Property<boolean>
   } & Mixins
 
   export type Mixins =
@@ -183,6 +185,8 @@ export class Plot extends LayoutDOM {
       aspect_scale:      [ Number, 1 ],
 
       reset_policy:      [ ResetPolicy, "standard" ],
+
+      hold_render:       [ Boolean, false ],
     }))
 
     this.override<Plot.Props>({
