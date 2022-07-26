@@ -14,7 +14,7 @@ export class GridPlotView extends LayoutDOMView {
 
   protected _toolbar: ToolbarBox
 
-  protected get _toolbar_view(): ToolbarBoxView {
+  get toolbar_box_view(): ToolbarBoxView {
     return this.child_views.find((v) => v.model == this._toolbar) as ToolbarBoxView
   }
 
@@ -99,7 +99,7 @@ export class GridPlotView extends LayoutDOMView {
       this.layout = grid
     else {
       this.layout = (() => {
-        const tb = this._toolbar_view.layout
+        const tb = this.toolbar_box_view.layout
         switch (toolbar_location) {
           case "above": return new Column([tb, grid])
           case "below": return new Column([grid, tb])

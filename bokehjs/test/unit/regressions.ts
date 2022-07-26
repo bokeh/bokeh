@@ -14,8 +14,10 @@ import {offset} from "@bokehjs/core/dom"
 import {Color} from "@bokehjs/core/types"
 import {Document, DocJson, DocumentEvent, ModelChangedEvent} from "@bokehjs/document"
 import {gridplot} from "@bokehjs/api/gridplot"
+import {defer} from "@bokehjs/core/util/defer"
 
 import {ImageURLView} from "@bokehjs/models/glyphs/image_url"
+import {CopyToolView} from "@bokehjs/models/tools/actions/copy_tool"
 
 function data_url(data: string, mime: string, encoding: string = "base64") {
   return `data:${mime};${encoding},${data}`
@@ -423,6 +425,20 @@ describe("Bug", () => {
 
       const grid = gridplot(plots, {merge_tools: true})
       const {view} = await display(grid)
+
+      const el = view.toolbar_box_view.toolbar_view.shadow_el.querySelector(".bk-tool-icon-copy")
+      assert(el != null)
+
+      const spy = sinon.spy(CopyToolView.prototype, "copy")
+      try {
+        // XXX: this code may raise `DOMException: Document is not focused` during interactive testing
+        const ev = new MouseEvent("click", {clientX: 5, clientY: 5, bubbles: true})
+        el.dispatchEvent(ev)
+        await defer()
+        expect(spy.callCount).to.be.equal(1)
+      } finally {
+        spy.restore()
+      }
     })
   })
 })
