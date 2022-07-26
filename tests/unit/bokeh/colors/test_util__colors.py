@@ -52,6 +52,13 @@ class Test_NamedColor:
         c = bcu.NamedColor("aliceblue", 240,  248,  255)
         assert c.to_css() == "aliceblue"
 
+    def test_find(self) -> None:
+        c = bcu.NamedColor.find("cornflowerblue")
+        assert c.name == "cornflowerblue"
+
+        with pytest.raises(ValueError):
+            bcu.NamedColor.find("bluey")
+
 class Test_ColorGroup:
     def test_len(self) -> None:
         assert len(_TestGroup) == 3
@@ -85,6 +92,41 @@ class Test_ColorGroup:
             _TestGroup[(1,)]
         with pytest.raises(ValueError):
             _TestGroup[[1,]]
+
+class Test_color_as_rgb_hex:
+    def test_name(self) -> None:
+        assert bcu._color_as_rgb_hex("blue") == "#0000FF"
+        assert bcu._color_as_rgb_hex("blueviolet") == "#8A2BE2"
+
+    def test_hex_rgb(self) -> None:
+        assert bcu._color_as_rgb_hex("#A3B20F") == "#A3B20F"
+        assert bcu._color_as_rgb_hex("#a3b20f") == "#A3B20F"
+        assert bcu._color_as_rgb_hex("#8A3") == "#88AA33"
+        assert bcu._color_as_rgb_hex("#8a3") == "#88AA33"
+
+    def test_hex_rgba(self) -> None:
+        assert bcu._color_as_rgb_hex("#A3B20FC0") == "#A3B20F"
+        assert bcu._color_as_rgb_hex("#a3b20fc0") == "#A3B20F"
+        assert bcu._color_as_rgb_hex("#8A3B") == "#88AA33"
+        assert bcu._color_as_rgb_hex("#8a3b") == "#88AA33"
+
+    def test_invalid_name(self) -> None:
+        with pytest.raises(ValueError):
+            bcu._color_as_rgb_hex("bluey")
+
+    def test_hex_wrong_length(self) -> None:
+        with pytest.raises(ValueError):
+            bcu._color_as_rgb_hex("#")
+        with pytest.raises(ValueError):
+            bcu._color_as_rgb_hex("#1")
+        with pytest.raises(ValueError):
+            bcu._color_as_rgb_hex("#12")
+        with pytest.raises(ValueError):
+            bcu._color_as_rgb_hex("#12345")
+        with pytest.raises(ValueError):
+            bcu._color_as_rgb_hex("#1234567")
+        with pytest.raises(ValueError):
+            bcu._color_as_rgb_hex("#123456789")
 
 #-----------------------------------------------------------------------------
 # Private API

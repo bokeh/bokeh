@@ -386,6 +386,7 @@ to generate palettes of arbitrary size.
 .. autofunction:: bokeh.palettes.inferno(n)
 .. autofunction:: bokeh.palettes.linear_palette(palette, n)
 .. autofunction:: bokeh.palettes.magma(n)
+.. autofunction:: bokeh.palettes.single_color_palette(palette, n, start_alpha, end_alpha)
 .. autofunction:: bokeh.palettes.viridis(n)
 
 Licenses
@@ -423,6 +424,9 @@ from typing import Dict, Tuple
 # External imports
 import numpy as np
 from typing_extensions import TypeAlias
+
+# Bokeh imports
+from .colors.util import _color_as_rgb_hex
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -1562,6 +1566,54 @@ def diverging_palette(palette1: Palette, palette2: Palette, n: int, midpoint: fl
 
     # return piecewise linear interpolation of colors
     return linear_palette(palette1, n1) + linear_palette(palette2, n2)
+
+def single_color_palette(color: str, n: int | None = None, start_alpha: int = 0, end_alpha: int = 255) -> Palette:
+    """ Generate a palette that is a single color with linearly varying alpha.
+
+    Alpha may vary from low to high or high to low, depending on the values of
+    ``start_alpha`` and ``end_alpha``.
+
+    Args:
+        color (str) :
+            Named color or RGB(A) hex color string. Any alpha component is
+            ignored.
+
+        n (int, optional) :
+            The size of the palette to generate. If not specified uses the
+            maximum number of colors such that adjacent colors differ by an
+            alpha of 1.
+
+        start_alpha (int, optional) :
+            Alpha component of the start of the palette, in the range 0 to 255
+
+        end_alpha (int, optional) :
+            Alpha component of the end of the palette, in the range 0 to 255
+
+    Returns:
+        seq[str] : a sequence of hex RGBA color strings
+
+    Raises:
+        ValueError if ``color`` is not recognisable as a string name or hex
+            RGB(A) string, or if ``start_alpha`` or ``end_alpha`` are outside
+            the range 0 to 255 inclusive.
+
+    """
+
+    if not (0 <= start_alpha <= 255):
+        raise ValueError(f"start_alpha {start_alpha} must be in the range 0 to 255")
+
+    if not (0 <= end_alpha <= 255):
+        raise ValueError(f"end_alpha {end_alpha} must be in the range 0 to 255")
+
+    if not n:
+        n = int(abs(end_alpha - start_alpha)) + 1
+
+    rgb = _color_as_rgb_hex(color)
+
+    diff_alpha = end_alpha - start_alpha
+    palette = tuple(rgb + f"{round(start_alpha + diff_alpha*i / (n-1.0)):02X}" for i in range(n))
+
+    return palette
 
 def magma(n: int) -> Palette:
     """ Generate a palette of colors or from the Magma palette.

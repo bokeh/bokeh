@@ -119,11 +119,39 @@ class NamedColor(RGB):
         self.name = name
         super().__init__(r, g, b)
 
+    @classmethod
+    def find(cls, name: str) -> NamedColor:
+        # If name not recognised, raises ValueError
+        index = cls.__all__.index(name)
+        return cls.colors[index]
+
     def to_css(self) -> str:
         '''
 
         '''
         return self.name
+
+def _color_as_rgb_hex(color: str) -> str:
+    ''' Convert string color to RGB hex string.
+
+    Color may be a named color such as "blue", or a hex RGB(A) string such as
+    "#FFAA00", "#FFAA00FF", "#FA0" or "#FA0F". Returned string is always of
+    the form "#RRGGBB" with 2 characters for each of the R, G and B components
+    and no alpha component.
+
+    '''
+
+    if color.startswith("#"):
+        if len(color) in (7, 9):
+            return color[:7].upper()
+        elif len(color) in (4, 5):
+            return f"#{color[1]*2}{color[2]*2}{color[3]*2}".upper()
+        else:
+            raise ValueError(f"Unable to parse hex color string: '{color}'")
+    try:
+        return NamedColor.find(color).to_hex()
+    except ValueError:
+        raise ValueError(f"Color '{color}' must be either a named color or a hex RGB(A) string")
 
 #-----------------------------------------------------------------------------
 # Code
