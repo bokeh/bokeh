@@ -596,9 +596,9 @@ def _create_grid(iterable: Iterable[LayoutDOM | list[LayoutDOM]], sizing_mode: S
     else:
         return row(children=return_list, sizing_mode=sizing_mode, **kwargs)
 
-T = TypeVar("T")
+I = TypeVar("I")
 
-def _chunks(l: Sequence[T], ncols: int) -> Iterator[Sequence[T]]:
+def _chunks(l: Sequence[I], ncols: int) -> Iterator[Sequence[I]]:
     """Yield successive n-sized chunks from list, l."""
     assert isinstance(ncols, int), "ncols must be an integer"
     for i in range(0, len(l), ncols):
