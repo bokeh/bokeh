@@ -45,7 +45,6 @@ export abstract class FlexBoxView extends LayoutDOMView {
           default: unreachable()
         }
       })()
-      view.el.style.flex = flex
 
       const align = (() => {
         const policy = this._direction == "row" ? sizing.height_policy : sizing.width_policy
@@ -57,7 +56,13 @@ export abstract class FlexBoxView extends LayoutDOMView {
           default: unreachable()
         }
       })()
-      view.el.style.alignSelf = align
+
+      view.stylesheet_for_parent.replace(`
+        :host {
+          flex: ${flex};
+          align-self: ${align};
+        }
+      `)
     }
   }
 }

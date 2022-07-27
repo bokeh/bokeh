@@ -115,9 +115,10 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   private readonly _style = new StyleSheet()
+  readonly stylesheet_for_parent = new StyleSheet()
 
   override styles(): StyleSheetLike[] {
-    return [...super.styles(), this._style, ...this.model.stylesheets]
+    return [...super.styles(), this._style, this.stylesheet_for_parent, ...this.model.stylesheets]
   }
 
   override *children(): IterViews {
