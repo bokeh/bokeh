@@ -48,30 +48,30 @@ def test_palettes_dir() -> None:
     assert 'turbo' in dir(pal)
     assert not '__new__' in dir(pal)
 
-def test_single_color_palette() -> None:
-    assert pal.single_color_palette("blue", 3) == ("#0000FF00", "#0000FF80", "#0000FFFF")
-    assert pal.single_color_palette("red", 3, start_alpha=255, end_alpha=128) == ("#FF0000FF", "#FF0000C0", "#FF000080")
-    assert pal.single_color_palette("#123456", 3, start_alpha=205, end_alpha=205) == ("#123456CD", "#123456CD", "#123456CD")
-    assert pal.single_color_palette("#abc", 3) == ("#AABBCC00", "#AABBCC80", "#AABBCCFF")
+def test_varying_alpha_palette() -> None:
+    assert pal.varying_alpha_palette("blue", 3) == ("#0000FF00", "#0000FF80", "#0000FFFF")
+    assert pal.varying_alpha_palette("red", 3, start_alpha=255, end_alpha=128) == ("#FF0000FF", "#FF0000C0", "#FF000080")
+    assert pal.varying_alpha_palette("#123456", 3, start_alpha=205, end_alpha=205) == ("#123456CD", "#123456CD", "#123456CD")
+    assert pal.varying_alpha_palette("#abc", 3) == ("#AABBCC00", "#AABBCC80", "#AABBCCFF")
 
-    palette = pal.single_color_palette("blue")
+    palette = pal.varying_alpha_palette("blue")
     assert len(palette) == 256
     assert palette[::64] == ("#0000FF00", "#0000FF40", "#0000FF80", "#0000FFC0")
 
-    assert pal.single_color_palette("#654321", start_alpha=100, end_alpha=103) == ("#65432164", "#65432165", "#65432166", "#65432167")
+    assert pal.varying_alpha_palette("#654321", start_alpha=100, end_alpha=103) == ("#65432164", "#65432165", "#65432166", "#65432167")
 
     with pytest.raises(ValueError):
-        pal.single_color_palette("bluey")
+        pal.varying_alpha_palette("bluey")
     with pytest.raises(ValueError):
-        pal.single_color_palette("#8F")
+        pal.varying_alpha_palette("#8F")
     with pytest.raises(ValueError):
-        pal.single_color_palette("red", start_alpha=-1)
+        pal.varying_alpha_palette("red", start_alpha=-1)
     with pytest.raises(ValueError):
-        pal.single_color_palette("red", start_alpha=256)
+        pal.varying_alpha_palette("red", start_alpha=256)
     with pytest.raises(ValueError):
-        pal.single_color_palette("red", end_alpha=-1)
+        pal.varying_alpha_palette("red", end_alpha=-1)
     with pytest.raises(ValueError):
-        pal.single_color_palette("red", end_alpha=256)
+        pal.varying_alpha_palette("red", end_alpha=256)
 
 #-----------------------------------------------------------------------------
 # Dev API

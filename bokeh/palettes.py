@@ -386,7 +386,7 @@ to generate palettes of arbitrary size.
 .. autofunction:: bokeh.palettes.inferno(n)
 .. autofunction:: bokeh.palettes.linear_palette(palette, n)
 .. autofunction:: bokeh.palettes.magma(n)
-.. autofunction:: bokeh.palettes.single_color_palette(palette, n, start_alpha, end_alpha)
+.. autofunction:: bokeh.palettes.varying_alpha_palette(palette, n, start_alpha, end_alpha)
 .. autofunction:: bokeh.palettes.viridis(n)
 
 Licenses
@@ -1567,7 +1567,7 @@ def diverging_palette(palette1: Palette, palette2: Palette, n: int, midpoint: fl
     # return piecewise linear interpolation of colors
     return linear_palette(palette1, n1) + linear_palette(palette2, n2)
 
-def single_color_palette(color: str, n: int | None = None, start_alpha: int = 0, end_alpha: int = 255) -> Palette:
+def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0, end_alpha: int = 255) -> Palette:
     """ Generate a palette that is a single color with linearly varying alpha.
 
     Alpha may vary from low to high or high to low, depending on the values of
