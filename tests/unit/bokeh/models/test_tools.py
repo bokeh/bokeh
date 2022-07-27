@@ -65,6 +65,7 @@ def test_Tool_from_string() -> None:
     assert isinstance(Tool.from_string("xbox_zoom"), t.BoxZoomTool)
     assert isinstance(Tool.from_string("ybox_zoom"), t.BoxZoomTool)
     assert isinstance(Tool.from_string("save"), t.SaveTool)
+    assert isinstance(Tool.from_string("copy"), t.CopyTool)
     assert isinstance(Tool.from_string("undo"), t.UndoTool)
     assert isinstance(Tool.from_string("redo"), t.RedoTool)
     assert isinstance(Tool.from_string("reset"), t.ResetTool)

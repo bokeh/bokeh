@@ -120,6 +120,7 @@ __all__ = (
     'BoxEditTool',
     'BoxSelectTool',
     'BoxZoomTool',
+    'CopyTool',
     'CrosshairTool',
     'CustomAction',
     'CustomJSHover',
@@ -216,6 +217,16 @@ class ToolProxy(Model):
 @abstract
 class ActionTool(Tool):
     ''' A base class for tools that are buttons in the toolbar.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+@abstract
+class PlotActionTool(ActionTool):
+    ''' A base class action tools acting on plots.
 
     '''
 
@@ -578,7 +589,24 @@ class SaveTool(ActionTool):
     for a filename at save time.
     """)
 
-class ResetTool(ActionTool):
+class CopyTool(ActionTool):
+    ''' *toolbar icon*: |copy_icon|
+
+    The copy tool is an action tool, that allows copying the rendererd contents of
+    a plot or a collection of plots to system's clipboard. This tools is browser
+    dependent and may not function in certain browsers, or require additional
+    permissions to be granted to the web page.
+
+    .. |copy_icon| image:: /_images/icons/Copy.png
+        :height: 24px
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+class ResetTool(PlotActionTool):
     ''' *toolbar icon*: |reset_icon|
 
     The reset tool is an action. When activated in the toolbar, the tool resets
@@ -764,7 +792,7 @@ class BoxZoomTool(Drag):
     (top-left or bottom-right depending on direction) or the center of the box.
     """)
 
-class ZoomInTool(ActionTool):
+class ZoomInTool(PlotActionTool):
     ''' *toolbar icon*: |zoom_in_icon|
 
     The zoom-in tool allows users to click a button to zoom in
@@ -791,7 +819,7 @@ class ZoomInTool(ActionTool):
     Percentage to zoom for each click of the zoom-in tool.
     """)
 
-class ZoomOutTool(ActionTool):
+class ZoomOutTool(PlotActionTool):
     ''' *toolbar icon*: |zoom_out_icon|
 
     The zoom-out tool allows users to click a button to zoom out
@@ -1287,7 +1315,7 @@ class HelpTool(ActionTool):
     Site to be redirected through upon click.
     """)
 
-class UndoTool(ActionTool):
+class UndoTool(PlotActionTool):
     ''' *toolbar icon*: |undo_icon|
 
     Undo tool allows to restore previous state of the plot.
@@ -1301,7 +1329,7 @@ class UndoTool(ActionTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-class RedoTool(ActionTool):
+class RedoTool(PlotActionTool):
     ''' *toolbar icon*: |redo_icon|
 
     Redo tool reverses the last action performed by undo tool.
@@ -1739,6 +1767,7 @@ Tool.register_alias("box_zoom", lambda: BoxZoomTool(dimensions="both"))
 Tool.register_alias("xbox_zoom", lambda: BoxZoomTool(dimensions="width"))
 Tool.register_alias("ybox_zoom", lambda: BoxZoomTool(dimensions="height"))
 Tool.register_alias("save", lambda: SaveTool())
+Tool.register_alias("copy", lambda: CopyTool())
 Tool.register_alias("undo", lambda: UndoTool())
 Tool.register_alias("redo", lambda: RedoTool())
 Tool.register_alias("reset", lambda: ResetTool())

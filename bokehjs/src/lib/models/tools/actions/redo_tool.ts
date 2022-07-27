@@ -1,8 +1,8 @@
-import {ActionTool, ActionToolView} from "./action_tool"
+import {PlotActionTool, PlotActionToolView} from "./plot_action_tool"
 import * as p from "core/properties"
 import {tool_icon_redo} from "styles/icons.css"
 
-export class RedoToolView extends ActionToolView {
+export class RedoToolView extends PlotActionToolView {
   override model: RedoTool
 
   override connect_signals(): void {
@@ -22,12 +22,12 @@ export class RedoToolView extends ActionToolView {
 export namespace RedoTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ActionTool.Props
+  export type Props = PlotActionTool.Props
 }
 
 export interface RedoTool extends RedoTool.Attrs {}
 
-export class RedoTool extends ActionTool {
+export class RedoTool extends PlotActionTool {
   override properties: RedoTool.Props
   override __view_type__: RedoToolView
 

@@ -190,10 +190,11 @@ export class ToolbarView extends DOMComponentView {
     this._has_finished = true
   }
 
-  export(type: "png" | "svg", hidpi: boolean = true): CanvasLayer {
-    const output_backend = type == "png" ? "canvas" : "svg"
+  export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
+    const output_backend = type == "auto" || type == "png" ? "canvas" : "svg"
     const canvas = new CanvasLayer(output_backend, hidpi)
-    canvas.resize(0, 0)
+    const {width, height} = this.layout.bbox
+    canvas.resize(width, height)
     return canvas
   }
 }

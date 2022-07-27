@@ -24,7 +24,7 @@ export abstract class SelectToolView extends GestureToolView {
 
   get computed_renderers(): DataRenderer[] {
     const {renderers} = this.model
-    const all_renderers = this.plot_model.data_renderers
+    const all_renderers = this.plot_view.model.data_renderers
     return compute_renderers(renderers, all_renderers)
   }
 
@@ -134,7 +134,7 @@ export abstract class SelectToolView extends GestureToolView {
       }
     }
 
-    this.plot_model.trigger_event(new SelectionGeometry(geometry_data, final))
+    this.plot_view.model.trigger_event(new SelectionGeometry(geometry_data, final))
   }
 }
 

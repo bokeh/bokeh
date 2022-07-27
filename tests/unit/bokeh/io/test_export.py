@@ -198,6 +198,7 @@ def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:
     svgs2 = [
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="40" height="20">'
             '<defs/>'
+            '<path fill="rgb(0,0,0)" stroke="none" paint-order="stroke" d="M 0 0 L 40 0 L 40 20 L 0 20 L 0 0" fill-opacity="0"/>'
             '<path fill="rgb(255,0,0)" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5" fill-opacity="1"/>'
             '<g transform="matrix(1, 0, 0, 1, 20, 0)">'
                 '<path fill="rgb(0,0,255)" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5" fill-opacity="1"/>'

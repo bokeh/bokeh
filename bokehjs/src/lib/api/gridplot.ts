@@ -1,6 +1,8 @@
 import {GridPlot, Plot} from "../models/plots"
 import {Tool} from "../models/tools/tool"
 import {ToolLike, ToolProxy} from "../models/tools/tool_proxy"
+import {SaveTool} from "../models/tools/actions/save_tool"
+import {CopyTool} from "../models/tools/actions/copy_tool"
 import {Toolbar} from "../models/tools/toolbar"
 import {LayoutDOM} from "../models/layouts/layout_dom"
 import {SizingMode, Location} from "../core/enums"
@@ -16,7 +18,9 @@ export type GridPlotOpts = {
   height?: number
 }
 
-export function group_tools(tools: ToolLike<Tool>[]): ToolLike<Tool>[] {
+export type MergeFn = (cls: typeof Tool, group: Tool[]) => Tool | ToolProxy<Tool> | null
+
+export function group_tools(tools: ToolLike<Tool>[], merge?: MergeFn): ToolLike<Tool>[] {
   type ToolEntry = {tool: Tool, attrs: Attrs}
   const by_type: Map<typeof Tool, Set<ToolEntry>> = new Map()
 
@@ -37,23 +41,33 @@ export function group_tools(tools: ToolLike<Tool>[]): ToolLike<Tool>[] {
     }
   }
 
-  for (const tools of by_type.values()) {
-    while (tools.size != 0) {
-      const [head, ...tail] = tools
-      tools.delete(head)
+  for (const [cls, entries] of by_type.entries()) {
+    if (merge != null) {
+      const merged = merge(cls, [...entries].map((entry) => entry.tool))
+      if (merged != null) {
+        computed.push(merged)
+        continue
+      }
+    }
+
+    while (entries.size != 0) {
+      const [head, ...tail] = entries
+      entries.delete(head)
 
       const group = [head.tool]
       for (const item of tail) {
         if (is_equal(item.attrs, head.attrs)) {
           group.push(item.tool)
-          tools.delete(item)
+          entries.delete(item)
         }
       }
 
       if (group.length == 1)
         computed.push(group[0])
-      else
-        computed.push(new ToolProxy({tools: group}))
+      else {
+        const merged = merge?.(cls, group)
+        computed.push(merged ?? new ToolProxy({tools: group}))
+      }
     }
   }
 
@@ -89,6 +103,16 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
     items.push([item, row, col])
   }
 
-  const toolbar = new Toolbar({tools: !merge_tools ? tools : group_tools(tools)})
+  function merge(_cls: typeof Tool, group: Tool[]) {
+    const tool = group[0]
+    if (tool instanceof SaveTool)
+      return new SaveTool()
+    else if (tool instanceof CopyTool)
+      return new CopyTool()
+    else
+      return null
+  }
+
+  const toolbar = new Toolbar({tools: !merge_tools ? tools : group_tools(tools, merge)})
   return new GridPlot({children: items, toolbar, toolbar_location, sizing_mode})
 }

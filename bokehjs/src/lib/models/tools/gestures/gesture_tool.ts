@@ -1,10 +1,16 @@
 import {Tool, ToolView} from "../tool"
 import {OnOffButtonView} from "../on_off_button"
+import {PlotView} from "../../plots/plot"
 import {EventType} from "core/ui_events"
 import * as p from "core/properties"
 
 export abstract class GestureToolView extends ToolView {
   override model: GestureTool
+  override readonly parent: PlotView
+
+  get plot_view(): PlotView {
+    return this.parent
+  }
 }
 
 export namespace GestureTool {

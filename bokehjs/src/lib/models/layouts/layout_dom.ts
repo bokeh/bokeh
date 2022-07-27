@@ -396,12 +396,23 @@ export abstract class LayoutDOMView extends UIElementView {
     })
   }
 
-  export(type: "png" | "svg", hidpi: boolean = true): CanvasLayer {
-    const output_backend = type == "png" ? "canvas" : "svg"
+  export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
+    const output_backend = (() => {
+      switch (type) {
+        case "auto": // TODO: actually infer the best type
+        case "png": return "canvas"
+        case "svg": return "svg"
+      }
+    })()
+
     const composite = new CanvasLayer(output_backend, hidpi)
 
-    const {width, height} = this.layout.bbox
+    const {x, y, width, height} = this.layout.bbox
     composite.resize(width, height)
+
+    const bg_color = getComputedStyle(this.el).backgroundColor
+    composite.ctx.fillStyle = bg_color
+    composite.ctx.fillRect(x, y, width, height)
 
     for (const view of this.child_views) {
       const region = view.export(type, hidpi)

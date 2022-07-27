@@ -49,7 +49,7 @@ jobs:
       - name: Install NPM
         shell: bash -l {0}
         run: |
-          npm install -g npm@8
+          npm install --location=global npm@8
           npm --version
 
       - name: Build Release Tarball

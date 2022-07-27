@@ -1,7 +1,10 @@
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {ToolbarBox, ToolbarBoxView} from "../tools/toolbar_box"
 import {Toolbar} from "../tools/toolbar"
+import {ActionTool} from "../tools/actions/action_tool"
 import {Grid, RowsSizing, ColsSizing, Row, Column} from "core/layout/grid"
+import {CanvasLayer} from "core/util/canvas"
+import {build_views, remove_views, ViewStorage} from "core/build_views"
 import {Location} from "core/enums"
 import {div, position} from "core/dom"
 import * as p from "core/properties"
@@ -11,7 +14,7 @@ export class GridPlotView extends LayoutDOMView {
 
   protected _toolbar: ToolbarBox
 
-  protected get _toolbar_view(): ToolbarBoxView {
+  get toolbar_box_view(): ToolbarBoxView {
     return this.child_views.find((v) => v.model == this._toolbar) as ToolbarBoxView
   }
 
@@ -19,6 +22,11 @@ export class GridPlotView extends LayoutDOMView {
     super.initialize()
     const {toolbar, toolbar_location} = this.model
     this._toolbar = new ToolbarBox({toolbar, toolbar_location: toolbar_location ?? "above"})
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    await this.build_tool_views()
   }
 
   override connect_signals(): void {
@@ -31,6 +39,22 @@ export class GridPlotView extends LayoutDOMView {
     this.on_change([toolbar, toolbar_location, children, rows, cols, spacing], () => {
       this.rebuild()
     })
+
+    this.on_change(this.model.toolbar.properties.tools, async () => {
+      await this.build_tool_views()
+    })
+  }
+
+  override remove(): void {
+    remove_views(this._tool_views)
+    super.remove()
+  }
+
+  private _tool_views: ViewStorage<ActionTool> = new Map()
+
+  async build_tool_views(): Promise<void> {
+    const tools = this.model.toolbar.tools.filter((tool): tool is ActionTool => tool instanceof ActionTool)
+    await build_views(this._tool_views, tools, {parent: this})
   }
 
   get child_models(): LayoutDOM[] {
@@ -75,7 +99,7 @@ export class GridPlotView extends LayoutDOMView {
       this.layout = grid
     else {
       this.layout = (() => {
-        const tb = this._toolbar_view.layout
+        const tb = this.toolbar_box_view.layout
         switch (toolbar_location) {
           case "above": return new Column([tb, grid])
           case "below": return new Column([grid, tb])
@@ -85,6 +109,35 @@ export class GridPlotView extends LayoutDOMView {
       })()
       this.layout.set_sizing(this.box_sizing())
     }
+  }
+
+  override export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
+    const output_backend = (() => {
+      switch (type) {
+        case "auto": // TODO: actually infer the best type
+        case "png": return "canvas"
+        case "svg": return "svg"
+      }
+    })()
+
+    const composite = new CanvasLayer(output_backend, hidpi)
+
+    const {x, y, width, height} = this.grid.bbox.relative()
+    composite.resize(width, height)
+    composite.ctx.save()
+
+    const bg_color = getComputedStyle(this.el).backgroundColor
+    composite.ctx.fillStyle = bg_color
+    composite.ctx.fillRect(x, y, width, height)
+
+    for (const view of this.child_views) {
+      const region = view.export(type, hidpi)
+      const {x, y} = view.layout.bbox
+      composite.ctx.drawImage(region.canvas, x, y)
+    }
+
+    composite.ctx.restore()
+    return composite
   }
 }
 

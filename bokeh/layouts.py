@@ -24,34 +24,39 @@ log = logging.getLogger(__name__)
 import math
 from collections import defaultdict
 from typing import (
-    TYPE_CHECKING,
     Any,
+    Callable,
     Iterable,
     Iterator,
+    List,
     Sequence,
     Type,
     TypeVar,
+    Union,
     overload,
 )
+
+# External imports
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from .core.enums import Location, LocationType, SizingModeType
 from .models import (
     Box,
     Column,
+    CopyTool,
     GridBox,
     GridPlot,
     LayoutDOM,
     Plot,
     Row,
+    SaveTool,
     Spacer,
+    Tool,
     Toolbar,
     ToolProxy,
 )
 from .util.dataclasses import dataclass
-
-if TYPE_CHECKING:
-    from .models import Tool
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -285,7 +290,13 @@ def gridplot(
             else:
                 raise ValueError("Only LayoutDOM items can be inserted into a grid")
 
-    toolbar = Toolbar(tools=tools if not merge_tools else group_tools(tools), **toolbar_options)
+    def merge(cls: Type[Tool], group: list[Tool]):
+        if issubclass(cls, (SaveTool, CopyTool)):
+            return cls()
+        else:
+            return None
+
+    toolbar = Toolbar(tools=tools if not merge_tools else group_tools(tools, merge=merge), **toolbar_options)
     return GridPlot(children=items, toolbar=toolbar, toolbar_location=toolbar_location, sizing_mode=sizing_mode)
 
 # XXX https://github.com/python/mypy/issues/731
@@ -487,7 +498,10 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
 # Dev API
 #-----------------------------------------------------------------------------
 
-def group_tools(tools: list[Tool | ToolProxy]) -> list[Tool | ToolProxy]:
+T = TypeVar("T", bound=Tool)
+MergeFn: TypeAlias = Callable[[Type[T], List[T]], Union[Tool, ToolProxy, None]]
+
+def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = None) -> list[Tool | ToolProxy]:
     """ Group common tools into tool proxies. """
     @dataclass
     class ToolEntry:
@@ -506,18 +520,26 @@ def group_tools(tools: list[Tool | ToolProxy]) -> list[Tool | ToolProxy]:
                 del props["overlay"]
             by_type[tool.__class__].append(ToolEntry(tool, props))
 
-    for tools_ in by_type.values():
-        while tools_:
-            head, *tail = tools_
+    for cls, entries in by_type.items():
+        if merge is not None:
+            merged = merge(cls, [entry.tool for entry in entries ])
+            if merged is not None:
+                computed.append(merged)
+                continue
+
+        while entries:
+            head, *tail = entries
             group: list[Tool] = [head.tool]
             for item in list(tail):
                 if item.props == head.props:
                     group.append(item.tool)
-                    tools_.remove(item)
-            tools_.remove(head)
+                    entries.remove(item)
+            entries.remove(head)
 
             if len(group) == 1:
                 computed.append(group[0])
+            elif merge is not None and (tool := merge(cls, group)) is not None:
+                computed.append(tool)
             else:
                 computed.append(ToolProxy(tools=group))
 

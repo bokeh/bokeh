@@ -35,7 +35,7 @@ jobs:
       - name: Upgrade npm
         shell: bash
         run: |
-          npm install -g npm@8
+          npm install --location=global npm@8
 
       - name: Install chromium
         if: runner.os == 'Linux'

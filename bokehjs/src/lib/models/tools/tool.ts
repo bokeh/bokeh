@@ -7,7 +7,6 @@ import {MenuItem} from "core/util/menus"
 import {Model} from "../../model"
 import {Renderer} from "../renderers/renderer"
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import {Plot, PlotView} from "../plots/plot"
 import {Annotation} from "../annotations/annotation"
 import {EventType, PanEvent, PinchEvent, RotateEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 
@@ -67,16 +66,6 @@ export type ToolAliases = {
 
 export abstract class ToolView extends View {
   override model: Tool
-
-  override readonly parent: PlotView
-
-  get plot_view(): PlotView {
-    return this.parent
-  }
-
-  get plot_model(): Plot {
-    return this.parent.model
-  }
 
   override connect_signals(): void {
     super.connect_signals()
