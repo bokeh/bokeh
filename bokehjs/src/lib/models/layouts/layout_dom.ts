@@ -199,9 +199,6 @@ export abstract class LayoutDOMView extends UIElementView {
         margin-right: ${px(sizing.margin.right)};
         margin-bottom: ${px(sizing.margin.bottom)};
         margin-left: ${px(sizing.margin.left)};
-
-        justify-content: ${sizing.halign ?? "unset"}; /* TODO: this applies to the main axis  */
-        align-self: ${sizing.valign ?? "unset"};      /* TODO: this applies to the cross axis */
       }
     `)
 

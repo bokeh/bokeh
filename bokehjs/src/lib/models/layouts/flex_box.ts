@@ -46,6 +46,18 @@ export abstract class FlexBoxView extends LayoutDOMView {
         }
       })()
       view.el.style.flex = flex
+
+      const align = (() => {
+        const policy = this._direction == "row" ? sizing.height_policy : sizing.width_policy
+        switch (policy) {
+          case "fixed":
+          case "fit":
+          case "min": return (this._direction == "row" ? sizing.valign : sizing.halign) ?? "unset"
+          case "max": return "stretch"
+          default: unreachable()
+        }
+      })()
+      view.el.style.alignSelf = align
     }
   }
 }
