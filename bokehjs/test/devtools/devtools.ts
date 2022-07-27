@@ -85,7 +85,7 @@ async function run_tests(): Promise<boolean> {
   let failure = false
   try {
     client = await CDP({port})
-    const {Emulation, Network, Page, Runtime, Log, Performance} = client
+    const {Emulation, Network, Browser, Page, Runtime, Log, Performance} = client
     try {
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
         return stackTrace.callFrames.map(({functionName, url, lineNumber, columnNumber}) => {
@@ -195,6 +195,11 @@ async function run_tests(): Promise<boolean> {
       }
 
       override_metrics()
+
+      await Browser.setPermission({
+        permission: {name: "clipboard-write"},
+        setting: "granted",
+      })
 
       const {errorText} = await Page.navigate({url})
 
