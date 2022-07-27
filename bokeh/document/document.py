@@ -719,7 +719,7 @@ class Document:
             self._title = title
             self.callbacks.trigger_on_change(TitleChangedEvent(self, title, setter))
 
-    def to_json(self) -> DocJson:
+    def to_json(self, *, deferred: bool = True) -> DocJson:
         ''' Convert this document to a JSON-serializble object.
 
         Return:
@@ -728,7 +728,7 @@ class Document:
         '''
         data_models = [ model for model in Model.model_class_reverse_map.values() if is_DataModel(model) ]
 
-        serializer = Serializer()
+        serializer = Serializer(deferred=deferred)
         defs = serializer.encode(data_models)
         roots = serializer.encode(self._roots)
 

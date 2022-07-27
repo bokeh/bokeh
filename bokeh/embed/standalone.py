@@ -415,9 +415,8 @@ def json_item(model: Model, target: ID | None = None, theme: ThemeLike = None) -
     '''
     with OutputDocumentFor([model], apply_theme=theme) as doc:
         doc.title = ""
-        docs_json = standalone_docs_json([model])
+        [doc_json] = standalone_docs_json([model]).values()
 
-    doc_json = list(docs_json.values())[0]
     root_id = doc_json["roots"][0]["id"]
 
     return StandaloneEmbedJson(
