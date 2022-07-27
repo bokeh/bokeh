@@ -1616,7 +1616,7 @@ def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0
     return palette
 
 def magma(n: int) -> Palette:
-    """ Generate a palette of colors or from the Magma palette.
+    """ Generate a palette of colors from the Magma palette.
 
     The full Magma palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1645,7 +1645,7 @@ def magma(n: int) -> Palette:
     return linear_palette(Magma256, n)
 
 def inferno(n: int) -> Palette:
-    """ Generate a palette of colors or from the Inferno palette.
+    """ Generate a palette of colors from the Inferno palette.
 
     The full Inferno palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1674,7 +1674,7 @@ def inferno(n: int) -> Palette:
     return linear_palette(Inferno256, n)
 
 def plasma(n: int) -> Palette:
-    """ Generate a palette of colors or from the Plasma palette.
+    """ Generate a palette of colors from the Plasma palette.
 
     The full Plasma palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1703,7 +1703,7 @@ def plasma(n: int) -> Palette:
     return linear_palette(Plasma256, n)
 
 def viridis(n: int) -> Palette:
-    """ Generate a palette of colors or from the Viridis palette.
+    """ Generate a palette of colors from the Viridis palette.
 
     The full Viridis palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1732,7 +1732,7 @@ def viridis(n: int) -> Palette:
     return linear_palette(Viridis256, n)
 
 def cividis(n: int) -> Palette:
-    """ Generate a palette of colors or from the Cividis palette.
+    """ Generate a palette of colors from the Cividis palette.
 
     The full Cividis palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1761,7 +1761,7 @@ def cividis(n: int) -> Palette:
     return linear_palette(Cividis256, n)
 
 def turbo(n: int) -> Palette:
-    """ Generate a palette of colors or from the Turbo palette.
+    """ Generate a palette of colors from the Turbo palette.
 
     Turbo is described here:
 
@@ -1794,7 +1794,7 @@ def turbo(n: int) -> Palette:
     return linear_palette(Turbo256, n)
 
 def grey(n: int) -> Palette:
-    """ Generate a palette of colors or from the Greys palette.
+    """ Generate a palette of colors from the Greys palette.
 
     The full Greys palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
