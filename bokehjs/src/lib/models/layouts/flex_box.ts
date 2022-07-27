@@ -1,4 +1,5 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
+import {StyleSheet, StyleSheetLike, px} from "core/dom"
 import * as p from "core/properties"
 import {unreachable} from "core/util/assert"
 
@@ -15,13 +16,22 @@ export abstract class FlexBoxView extends LayoutDOMView {
     return this.model.children
   }
 
+  private readonly _flex = new StyleSheet()
+
+  override styles(): StyleSheetLike[] {
+    return [...super.styles(), this._flex]
+  }
+
   override _update_layout(): void {
     super._update_layout()
 
-    const {style} = this.el
-    style.display = "flex"
-    style.flexDirection = this._direction
-    style.gap = `${this.model.spacing}px`
+    this._flex.replace(`
+      :host {
+        display: flex;
+        flex-direction: ${this._direction};
+        gap: ${px(this.model.spacing)};
+      }
+    `)
 
     for (const view of this.child_views) {
       const sizing = view.box_sizing()

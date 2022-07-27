@@ -5,7 +5,7 @@ import {Signal} from "core/signaling"
 import {Color} from "core/types"
 import {Align, SizingMode} from "core/enums"
 import {BBox} from "core/util/bbox"
-import {CSSStyles, classes, px, StyleSheetLike} from "core/dom"
+import {CSSStyles, classes, px, StyleSheet, StyleSheetLike} from "core/dom"
 import {isNumber, isArray} from "core/util/types"
 import {color2css} from "core/util/color"
 import {assign} from "core/util/object"
@@ -114,8 +114,10 @@ export abstract class LayoutDOMView extends UIElementView {
     return [...super.css_classes(), ...this.model.css_classes]
   }
 
+  private readonly _style = new StyleSheet()
+
   override styles(): StyleSheetLike[] {
-    return [...super.styles(), ...this.model.stylesheets]
+    return [...super.styles(), this._style, ...this.model.stylesheets]
   }
 
   override *children(): IterViews {
@@ -174,27 +176,36 @@ export abstract class LayoutDOMView extends UIElementView {
       }
     }
 
-    function px_or_percent(value: number | Percent) {
-      return isNumber(value) ? px(value) : `${value.percent}%`
+    function to_css(value: number | Percent | null | undefined) {
+      return value == null ? "unset" : (isNumber(value) ? px(value) : `${value.percent}%`)
     }
 
-    style.position = "relative"
+    this._style.replace(`
+      :host {
+        position: relative;
+
+        width: ${css_sizing(sizing.width_policy, sizing.width)};
+        height: ${css_sizing(sizing.height_policy, sizing.height)};
+
+        min-width: ${to_css(sizing.min_width)};
+        min-height: ${to_css(sizing.min_height)};
+
+        max-width: ${to_css(sizing.max_width)};
+        max-height: ${to_css(sizing.max_height)};
+
+        aspect-ratio: ${sizing.aspect ?? "unset"};
+
+        margin-top: ${px(sizing.margin.top)};
+        margin-right: ${px(sizing.margin.right)};
+        margin-bottom: ${px(sizing.margin.bottom)};
+        margin-left: ${px(sizing.margin.left)};
+
+        justify-content: ${sizing.halign ?? "unset"}; /* TODO: this applies to the main axis  */
+        align-self: ${sizing.valign ?? "unset"};      /* TODO: this applies to the cross axis */
+      }
+    `)
+
     style.display = sizing.visible ? "" : "none" // TODO: apply after element's display
-    style.width = css_sizing(sizing.width_policy, sizing.width)
-    style.height = css_sizing(sizing.height_policy, sizing.height)
-    style.minWidth = sizing.min_width != null ? px_or_percent(sizing.min_width) : ""
-    style.minHeight = sizing.min_height != null ? px_or_percent(sizing.min_height) : ""
-    style.maxWidth = sizing.max_width != null ? px_or_percent(sizing.max_width) : ""
-    style.maxHeight = sizing.max_height != null ? px_or_percent(sizing.max_height) : ""
-    style.aspectRatio = `${sizing.aspect}`
-
-    const {left, right, top, bottom} = sizing.margin
-    style.margin = `${px(top)} ${px(right)} ${px(bottom)} ${px(left)}`
-
-    if (sizing.halign != null)
-      style.justifyContent = sizing.halign // TODO: this applies to the main axis
-    if (sizing.valign != null)
-      style.alignSelf = sizing.valign      // TODO: this applies to the cross axis
   }
 
   update_layout(): void {
