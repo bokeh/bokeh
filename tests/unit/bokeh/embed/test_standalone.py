@@ -17,12 +17,14 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import json
 from collections import OrderedDict
 from copy import deepcopy
 from typing import Any
 
 # External imports
 import bs4
+import numpy as np
 from jinja2 import Template
 from mock import MagicMock, patch
 from selenium.webdriver.common.by import By
@@ -58,7 +60,7 @@ def stable_id() -> ID:
 def test_plot() -> figure:
     from bokeh.plotting import figure
     test_plot = figure(title="'foo'")
-    test_plot.circle([1, 2], [2, 3])
+    test_plot.circle(np.array([1, 2]), np.array([2, 3]))
     return test_plot
 
 PAGE = Template("""
@@ -410,6 +412,10 @@ class Test_json_item:
         out = bes.json_item(test_plot)
         assert set(out.keys()) == JSON_ITEMS_KEYS
         assert out['doc']['version'] == __version__
+
+    def test_json_dumps(self, test_plot: figure) -> None:
+        doc_json = bes.json_item(test_plot)
+        assert isinstance(json.dumps(doc_json), str)
 
     @patch('bokeh.embed.standalone.OutputDocumentFor')
     def test_apply_theme(self, mock_OFD: MagicMock, test_plot: figure) -> None:

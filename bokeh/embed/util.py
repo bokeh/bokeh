@@ -289,7 +289,7 @@ def standalone_docs_json(models: Sequence[Model | Document]) -> dict[ID, DocJson
     docs_json, _ = standalone_docs_json_and_render_items(models)
     return docs_json
 
-def standalone_docs_json_and_render_items(models: Model | Document | Sequence[Model | Document],
+def standalone_docs_json_and_render_items(models: Model | Document | Sequence[Model | Document], *,
         suppress_callback_warning: bool = False) -> tuple[dict[ID, DocJson], list[RenderItem]]:
     '''
 
@@ -328,7 +328,7 @@ def standalone_docs_json_and_render_items(models: Model | Document | Sequence[Mo
 
     docs_json: dict[ID, DocJson] = {}
     for doc, (docid, _) in docs.items():
-        docs_json[docid] = doc.to_json()
+        docs_json[docid] = doc.to_json(deferred=False)
 
     render_items: list[RenderItem] = []
     for _, (docid, roots) in docs.items():
