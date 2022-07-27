@@ -203,7 +203,7 @@ export abstract class LayoutDOMView extends UIElementView {
       }
     `)
 
-    style.display = sizing.visible ? "" : "none" // TODO: apply after element's display
+    style.display = sizing.visible ? "" : "none"
   }
 
   update_layout(): void {
@@ -215,12 +215,24 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   compute_layout(): void {
-    this.update_bbox()
-    this.layout?.compute(this.bbox.size)
-    this.after_layout()
+    if (this.parent instanceof LayoutDOMView && this.parent.layout != null)
+      this.parent.compute_layout()
+    else {
+      this.update_bbox()
+      this.layout?.compute(this.bbox.size)
+      this.after_layout()
+    }
   }
 
-  update_bbox(): boolean {
+  update_bbox(): void {
+    for (const child_view of this.child_views) {
+      child_view.update_bbox()
+    }
+
+    this._update_bbox()
+  }
+
+  _update_bbox(): void {
     const self = this.el.getBoundingClientRect()
 
     const {left, top} = (() => {
@@ -242,12 +254,8 @@ export abstract class LayoutDOMView extends UIElementView {
       height: round(self.height),
     })
 
-    if (!this._bbox.equals(bbox)) {
-      this._bbox = bbox
-      return true
-    }
-
-    return false
+    // TODO: const changed = this._bbox.equals(bbox)
+    this._bbox = bbox
   }
 
   protected _after_layout(): void {}
