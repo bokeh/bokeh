@@ -3,9 +3,9 @@ import {Menu} from "../menus/menu"
 import {IterViews} from "core/view"
 import {Signal} from "core/signaling"
 import {Color} from "core/types"
-import {Align, SizingMode} from "core/enums"
-import {BBox} from "core/util/bbox"
+import {Align, Dimensions, SizingMode} from "core/enums"
 import {CSSStyles, classes, px, StyleSheet, StyleSheetLike} from "core/dom"
+import {BBox} from "core/util/bbox"
 import {isNumber, isArray} from "core/util/types"
 import {color2css} from "core/util/color"
 import {assign} from "core/util/object"
@@ -202,6 +202,25 @@ export abstract class LayoutDOMView extends UIElementView {
         margin-left: ${px(sizing.margin.left)};
       }
     `)
+
+    const {resizable} = this.model
+    if (resizable !== false) {
+      const resize = (() => {
+        switch (resizable) {
+          case "width": return "horizontal"
+          case "height": return "vertical"
+          case true:
+          case "both": return "both"
+        }
+      })()
+
+      this._style.append(`
+        :host {
+          resize: ${resize};
+          overflow: auto;
+        }
+      `)
+    }
 
     style.display = sizing.visible ? "" : "none"
   }
@@ -471,6 +490,7 @@ export namespace LayoutDOM {
     style: p.Property<CSSStyles>
     stylesheets: p.Property<string[]>
     context_menu: p.Property<Menu | null>
+    resizable: p.Property<boolean | Dimensions>
   }
 }
 
@@ -508,6 +528,7 @@ export abstract class LayoutDOM extends UIElement {
         style:         [ Dict(String), {} ], // TODO: add validation for CSSStyles
         stylesheets:   [ Array(String), [] ],
         context_menu:  [ Nullable(Ref(Menu)), null ],
+        resizable:     [ Or(Boolean, Dimensions), false ],
       }
     })
   }

@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import (
     Align,
+    Dimensions,
     Location,
     SizingMode,
     SizingPolicy,
@@ -286,6 +287,10 @@ class LayoutDOM(UIElement):
         To display a native context menu, the viewer will need to right-click
         twice. The second click closes the Bokeh context menu and falls back
         back the native one.
+    """)
+
+    resizable = Either(Bool, Enum(Dimensions), default=False, help="""
+    Whether the layout is interactively resizable, and if so in which dimensions.
     """)
 
     @warning(FIXED_SIZING_MODE)

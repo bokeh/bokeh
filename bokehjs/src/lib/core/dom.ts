@@ -407,6 +407,16 @@ export class StyleSheet {
     this.el.textContent = css
   }
 
+  prepend(css: string): void {
+    const text = this.el.textContent ?? ""
+    this.el.textContent = `${css}\n${text}`
+  }
+
+  append(css: string): void {
+    const text = this.el.textContent ?? ""
+    this.el.textContent = `${text}\n${css}`
+  }
+
   remove(): void {
     remove(this.el)
   }
