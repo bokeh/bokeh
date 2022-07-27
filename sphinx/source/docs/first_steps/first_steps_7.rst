@@ -27,8 +27,9 @@ arguments. For example:
   tag)
 
 If you don't use the ``output_file()`` function to define a custom file name,
-Bokeh defaults to using the file name of your Python file as a filename for the
-HTML file it creates.
+Bokeh defaults to using the file name of the currently running Python script for
+the filename of the HTML output. If a script filename is not available (for
+instance, in a Jupyter notebook), then Bokeh will generate a random filename.
 
 Bokeh creates the HTML file when you call the |show| function. This function
 also automatically opens a web browser to display the HTML file.
