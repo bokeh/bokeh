@@ -426,7 +426,7 @@ import numpy as np
 from typing_extensions import TypeAlias
 
 # Bokeh imports
-from .colors.util import _color_as_rgb_hex
+from .colors.util import NamedColor
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -1608,10 +1608,10 @@ def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0
     if not n:
         n = int(abs(end_alpha - start_alpha)) + 1
 
-    rgb = _color_as_rgb_hex(color)
+    rgb = NamedColor.from_string(color)
 
     diff_alpha = end_alpha - start_alpha
-    palette = tuple(rgb + f"{round(start_alpha + diff_alpha*i / (n-1.0)):02X}" for i in range(n))
+    palette = tuple(f"{rgb.to_hex()}{round(start_alpha + diff_alpha*i / (n-1.0)):02X}" for i in range(n))
 
     return palette
 

@@ -56,8 +56,57 @@ class Test_NamedColor:
         c = bcu.NamedColor.find("cornflowerblue")
         assert c.name == "cornflowerblue"
 
+        assert bcu.NamedColor.find("bluey") == None
+
+    def test_from_string(self) -> None:
+        # Name
+        c = bcu.NamedColor.from_string("blue")
+        assert c.name == "blue"
+
+        # '#rrggbb'
+        c = bcu.NamedColor.from_string("#A3B20F")
+        assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 1.0)
+        c = bcu.NamedColor.from_string("#a3b20f")
+        assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 1.0)
+
+        # '#rrggbbaa'
+        c = bcu.NamedColor.from_string("#A3B20FC0")
+        assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 192/255.0)
+        c = bcu.NamedColor.from_string("#a3b20fc0")
+        assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 192/255.0)
+
+        # '#rgb'
+        c = bcu.NamedColor.from_string("#7A3")
+        assert (c.r, c.g, c.b, c.a) == (119, 170, 51, 1.0)
+        c = bcu.NamedColor.from_string("#7a3")
+        assert (c.r, c.g, c.b, c.a) == (119, 170, 51, 1.0)
+
+        # '#rgba'
+        c = bcu.NamedColor.from_string("#7A3B")
+        assert (c.r, c.g, c.b, c.a) == (119, 170, 51, 187/255.0)
+        c = bcu.NamedColor.from_string("#7a3b")
+        assert (c.r, c.g, c.b, c.a) == (119, 170, 51, 187/255.0)
+
+        # Invalid name
         with pytest.raises(ValueError):
-            bcu.NamedColor.find("bluey")
+            bcu.NamedColor.from_string("bluey")
+
+        # Invalid hex string
+        with pytest.raises(ValueError):
+            bcu.NamedColor.from_string("#")
+        with pytest.raises(ValueError):
+            bcu.NamedColor.from_string("#1")
+        with pytest.raises(ValueError):
+            bcu.NamedColor.from_string("#12")
+        with pytest.raises(ValueError):
+            bcu.NamedColor.from_string("#12345")
+        with pytest.raises(ValueError):
+            bcu.NamedColor.from_string("#1234567")
+        with pytest.raises(ValueError):
+            bcu.NamedColor.from_string("#123456789")
+        with pytest.raises(ValueError):
+            bcu.NamedColor.from_string(" #abc")
+
 
 class Test_ColorGroup:
     def test_len(self) -> None:
@@ -92,41 +141,6 @@ class Test_ColorGroup:
             _TestGroup[(1,)]
         with pytest.raises(ValueError):
             _TestGroup[[1,]]
-
-class Test_color_as_rgb_hex:
-    def test_name(self) -> None:
-        assert bcu._color_as_rgb_hex("blue") == "#0000FF"
-        assert bcu._color_as_rgb_hex("blueviolet") == "#8A2BE2"
-
-    def test_hex_rgb(self) -> None:
-        assert bcu._color_as_rgb_hex("#A3B20F") == "#A3B20F"
-        assert bcu._color_as_rgb_hex("#a3b20f") == "#A3B20F"
-        assert bcu._color_as_rgb_hex("#8A3") == "#88AA33"
-        assert bcu._color_as_rgb_hex("#8a3") == "#88AA33"
-
-    def test_hex_rgba(self) -> None:
-        assert bcu._color_as_rgb_hex("#A3B20FC0") == "#A3B20F"
-        assert bcu._color_as_rgb_hex("#a3b20fc0") == "#A3B20F"
-        assert bcu._color_as_rgb_hex("#8A3B") == "#88AA33"
-        assert bcu._color_as_rgb_hex("#8a3b") == "#88AA33"
-
-    def test_invalid_name(self) -> None:
-        with pytest.raises(ValueError):
-            bcu._color_as_rgb_hex("bluey")
-
-    def test_hex_wrong_length(self) -> None:
-        with pytest.raises(ValueError):
-            bcu._color_as_rgb_hex("#")
-        with pytest.raises(ValueError):
-            bcu._color_as_rgb_hex("#1")
-        with pytest.raises(ValueError):
-            bcu._color_as_rgb_hex("#12")
-        with pytest.raises(ValueError):
-            bcu._color_as_rgb_hex("#12345")
-        with pytest.raises(ValueError):
-            bcu._color_as_rgb_hex("#1234567")
-        with pytest.raises(ValueError):
-            bcu._color_as_rgb_hex("#123456789")
 
 #-----------------------------------------------------------------------------
 # Private API
