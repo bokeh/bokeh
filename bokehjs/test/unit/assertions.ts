@@ -233,9 +233,7 @@ export class ExpectationError extends Error {
 
 function Throws(fn: () => unknown) {
   return function(error_type?: Class<Error>, pattern?: RegExp | string) {
-    try {
-      fn()
-    } catch (error) {
+    function handle_error(error: unknown) {
       if (!(error instanceof Error)) {
         throw new ExpectationError(`expected ${to_string(fn)} to throw a proper exception, got ${to_string(error)}`)
       }
@@ -253,11 +251,23 @@ function Throws(fn: () => unknown) {
           throw new ExpectationError(`expected ${to_string(fn)} to throw an exception including ${to_string(pattern)}, got ${to_string(error)}`)
         }
       }
+    }
 
+    function fail(): never {
+      throw new ExpectationError(`expected ${to_string(fn)} to throw an exception, but it did not`)
+    }
+
+    try {
+      const result = fn()
+      if (result instanceof Promise) {
+        return result.then(() => fail(), (error) => handle_error(error))
+      }
+    } catch (error) {
+      handle_error(error)
       return
     }
 
-    throw new ExpectationError(`expected ${to_string(fn)} to throw an exception, but it did not`)
+    fail()
   }
 }
 
