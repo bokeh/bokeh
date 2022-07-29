@@ -150,6 +150,7 @@ Special Properties
 .. autoclass:: Include
 .. autoclass:: Nullable
 .. autoclass:: NonNullable
+.. autoclass:: NotSerialized
 .. autoclass:: Override
 .. autoclass:: Required
 
@@ -239,6 +240,7 @@ __all__ = (
     'NonNegative',
     'NonNegativeInt',
     'NonNullable',
+    'NotSerialized',
     'Nothing',
     'Null',
     'NullStringSpec',
@@ -372,6 +374,8 @@ from .property.primitive import String; String
 from .property.readonly import Readonly; Readonly
 
 from .property.required import Required; Required
+
+from .property.serialized import NotSerialized; NotSerialized
 
 from .property.string import MathString; MathString
 from .property.string import Regex; Regex

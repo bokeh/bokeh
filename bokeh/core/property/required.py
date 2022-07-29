@@ -48,9 +48,8 @@ T = TypeVar("T")
 class Required(SingleParameterizedProperty[T]):
     """ A property accepting a value of some other type while having undefined default. """
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Undefined,
-            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
-        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Undefined, help: str | None = None) -> None:
+        super().__init__(type_param, default=default, help=help)
 
 #-----------------------------------------------------------------------------
 # Dev API

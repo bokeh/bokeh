@@ -42,6 +42,7 @@ from .primitive import (
     Null,
     String,
 )
+from .serialized import NotSerialized
 from .singletons import Undefined
 from .struct import Optional, Struct
 from .vectorization import (
@@ -411,7 +412,7 @@ class UnitsSpec(NumberSpec):
     def __init__(self, default, units_enum, units_default, *, help: str | None = None) -> None:
         super().__init__(default=default, help=help)
 
-        units_type = Enum(units_enum, default=units_default, serialized=False, help=f"""
+        units_type = NotSerialized(Enum(units_enum), default=units_default, help=f"""
         Units to use for the associated property: {nice_join(units_enum)}
         """)
         self._units_type = self._validate_type_param(units_type, help_allowed=True)

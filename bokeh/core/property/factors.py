@@ -54,18 +54,16 @@ FactorSeqType: TypeAlias = tp.Union[tp.Sequence[str], tp.Sequence[tp.Tuple[str, 
 class Factor(SingleParameterizedProperty[FactorType]):
     """ Represents a single categorical factor. """
 
-    def __init__(self, default: Init[FactorType] = Intrinsic, *,
-            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
+    def __init__(self, default: Init[FactorType] = Intrinsic, *, help: str | None = None) -> None:
         type_param = Either(L1Factor, L2Factor, L3Factor)
-        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
+        super().__init__(type_param, default=default, help=help)
 
 class FactorSeq(SingleParameterizedProperty[FactorSeqType]):
     """ Represents a collection of categorical factors. """
 
-    def __init__(self, default: Init[FactorSeqType] = Intrinsic, *,
-            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
+    def __init__(self, default: Init[FactorSeqType] = Intrinsic, *, help: str | None = None) -> None:
         type_param = Either(Seq(L1Factor), Seq(L2Factor), Seq(L3Factor))
-        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
+        super().__init__(type_param, default=default, help=help)
 
 #-----------------------------------------------------------------------------
 # Dev API

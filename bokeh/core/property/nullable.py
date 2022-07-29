@@ -51,9 +51,8 @@ T = TypeVar("T")
 class Nullable(SingleParameterizedProperty[Union[T, None]]):
     """ A property accepting ``None`` or a value of some other type. """
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T | None] = None,
-            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
-        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T | None] = None, help: str | None = None) -> None:
+        super().__init__(type_param, default=default, help=help)
 
     def transform(self, value: Any) -> T | None:
         return None if value is None else super().transform(value)
@@ -84,10 +83,9 @@ class NonNullable(Required[T]):
         Use ``bokeh.core.property.required.Required`` instead.
     """
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Undefined,
-            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Undefined, help: str | None = None) -> None:
         deprecated((3, 0, 0), "NonNullable(Type)", "Required(Type)")
-        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
+        super().__init__(type_param, default=default, help=help)
 
 #-----------------------------------------------------------------------------
 # Dev API

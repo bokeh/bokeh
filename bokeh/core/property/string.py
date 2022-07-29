@@ -56,14 +56,6 @@ class Regex(String):
             used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
             generating Spinx documentation. (default: None)
 
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
-
     Example:
 
         .. code-block:: python
@@ -81,6 +73,7 @@ class Regex(String):
             >>> m.prop = [1, 2, 3]  # ValueError !!
 
     """
+
     def __init__(self, regex: str, *, default: Init[str] = Undefined, help: str | None = None) -> None:
         self.regex = re.compile(regex)
         super().__init__(default=default, help=help)
