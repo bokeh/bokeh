@@ -31,7 +31,6 @@ dependencies:
   - ipython
   - isort 5.8
   - mock
-  - pandas-stubs
   - nbconvert >=5.4
   - networkx
   - nodejs 16.*
@@ -73,6 +72,7 @@ dependencies:
     - sphinxext-opengraph
     - sphinx-design
     # tests
+    - pandas-stubs
     - types-boto
     - types-colorama
     - types-mock
