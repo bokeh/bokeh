@@ -65,34 +65,32 @@ jobs:
         working-directory: ./bokehjs
         shell: bash
         run: |
-          node make lib:build
-
-      - name: Build examples
-        working-directory: ./bokehjs
-        shell: bash
-        run: |
-          node make examples:build
+          node make build
 
       - name: Run tests
+        if: success() || failure()
         working-directory: ./bokehjs
         shell: bash
         run: |
-          node make test:lib
+          # can't run test:defaults, because we don't have access to Python
+          node make test:unit test:integration
 
       - name: Lint codebase
+        if: success() || failure()
         working-directory: ./bokehjs
         shell: bash
         run: |
           node make lint
 
       - name: Check repository status
+        if: success() || failure()
         shell: bash
         run: |
           OUTPUT=$(git status --short bokehjs -- ':!bokehjs/test/baselines')
           if [[ ! -z "$OUTPUT" ]]; then echo $OUTPUT; exit 1; fi
 
       - name: Collect results
-        if: runner.os == 'Linux' && always()
+        if: runner.os == 'Linux' && (success() || failure())
         shell: bash
         run: |
           SRC="bokehjs/test/baselines/linux"
@@ -105,7 +103,7 @@ jobs:
           fi
 
       - name: Upload report
-        if: runner.os == 'Linux' && always()
+        if: runner.os == 'Linux' && (success() || failure())
         uses: actions/upload-artifact@v1
         with:
           name: bokehjs-report
