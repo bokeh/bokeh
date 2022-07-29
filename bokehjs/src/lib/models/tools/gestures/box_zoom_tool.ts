@@ -5,7 +5,8 @@ import * as p from "core/properties"
 import {PanEvent} from "core/ui_events"
 import {Dimensions, BoxOrigin} from "core/enums"
 import {Interval} from "core/types"
-import {tool_icon_box_zoom} from "styles/icons.css"
+import {MenuItem} from "core/util/menus"
+import * as icons from "styles/icons.css"
 
 export class BoxZoomToolView extends GestureToolView {
   override model: BoxZoomTool
@@ -82,7 +83,6 @@ export class BoxZoomToolView extends GestureToolView {
 
   protected _compute_limits(curpoint: [number, number]): [[number, number], [number, number]] {
     const frame = this.plot_view.frame
-    const dims = this.model.dimensions
 
     let base_point = this._base_point!
     if (this.model.origin == "center") {
@@ -91,14 +91,31 @@ export class BoxZoomToolView extends GestureToolView {
       base_point = [cx - (dx - cx), cy - (dy - cy)]
     }
 
-    let sx: [number, number]
-    let sy: [number, number]
-    if (this.model.match_aspect && dims == "both")
-      [sx, sy] = this._match_aspect(base_point, curpoint, frame)
-    else
-      [sx, sy] = this.model._get_dim_limits(base_point, curpoint, frame, dims)
+    const dims = (() => {
+      const {dimensions} = this.model
+      if (dimensions == "auto") {
+        const [bx, by] = base_point
+        const [cx, cy] = curpoint
 
-    return [sx, sy]
+        const dx = Math.abs(bx - cx)
+        const dy = Math.abs(by - cy)
+
+        const tol = 5
+
+        if (dx < tol && dy > tol)
+          return "height"
+        else if (dx > tol && dy < tol)
+          return "width"
+        else
+          return "both"
+      } else
+        return dimensions
+    })()
+
+    if (this.model.match_aspect && dims == "both")
+      return this._match_aspect(base_point, curpoint, frame)
+    else
+      return this.model._get_dim_limits(base_point, curpoint, frame, dims)
   }
 
   override _pan_start(ev: PanEvent): void {
@@ -170,7 +187,7 @@ export namespace BoxZoomTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = GestureTool.Props & {
-    dimensions: p.Property<Dimensions>
+    dimensions: p.Property<Dimensions | "auto">
     overlay: p.Property<BoxAnnotation>
     match_aspect: p.Property<boolean>
     origin: p.Property<BoxOrigin>
@@ -192,8 +209,8 @@ export class BoxZoomTool extends GestureTool {
   static {
     this.prototype.default_view = BoxZoomToolView
 
-    this.define<BoxZoomTool.Props>(({Boolean, Ref}) => ({
-      dimensions:   [ Dimensions, "both" ],
+    this.define<BoxZoomTool.Props>(({Boolean, Ref, Or, Auto}) => ({
+      dimensions:   [ Or(Dimensions, Auto), "both" ],
       overlay:      [ Ref(BoxAnnotation), DEFAULT_BOX_OVERLAY ],
       match_aspect: [ Boolean, false ],
       origin:       [ BoxOrigin, "corner" ],
@@ -202,12 +219,26 @@ export class BoxZoomTool extends GestureTool {
     this.register_alias("box_zoom", () => new BoxZoomTool({dimensions: "both"}))
     this.register_alias("xbox_zoom", () => new BoxZoomTool({dimensions: "width"}))
     this.register_alias("ybox_zoom", () => new BoxZoomTool({dimensions: "height"}))
+    this.register_alias("auto_box_zoom", () => new BoxZoomTool({dimensions: "auto"}))
   }
 
   override tool_name = "Box Zoom"
-  override tool_icon = tool_icon_box_zoom
   override event_type = "pan" as "pan"
   override default_order = 20
+
+  override get computed_icon(): string {
+    const icon = super.computed_icon
+    if (icon != null)
+      return icon
+    else {
+      switch (this.dimensions) {
+        case "both":   return `.${icons.tool_icon_box_zoom}`
+        case "width":  return `.${icons.tool_icon_x_box_zoom}`
+        case "height": return `.${icons.tool_icon_y_box_zoom}`
+        case "auto":   return `.${icons.tool_icon_auto_box_zoom}`
+      }
+    }
+  }
 
   override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
@@ -215,5 +246,43 @@ export class BoxZoomTool extends GestureTool {
 
   override get computed_overlays() {
     return [...super.computed_overlays, this.overlay]
+  }
+
+  override get menu(): MenuItem[] | null {
+    return [
+      {
+        icon: icons.tool_icon_box_zoom,
+        tooltip: "Box zoom in both dimensions",
+        active: () => this.dimensions == "both",
+        handler: () => {
+          this.dimensions = "both"
+          this.active = true
+        },
+      }, {
+        icon: icons.tool_icon_x_box_zoom,
+        tooltip: "Box zoom in x-dimension",
+        active: () => this.dimensions == "width",
+        handler: () => {
+          this.dimensions = "width"
+          this.active = true
+        },
+      }, {
+        icon: icons.tool_icon_y_box_zoom,
+        tooltip: "Box zoom in y-dimension",
+        active: () => this.dimensions == "height",
+        handler: () => {
+          this.dimensions = "height"
+          this.active = true
+        },
+      }, {
+        icon: icons.tool_icon_auto_box_zoom,
+        tooltip: "Automatic mode (box zoom in x, y or both dimensions, depending on the mouse gesture)",
+        active: () => this.dimensions == "auto",
+        handler: () => {
+          this.dimensions = "auto"
+          this.active = true
+        },
+      },
+    ]
   }
 }

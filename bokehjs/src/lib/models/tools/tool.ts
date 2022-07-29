@@ -163,7 +163,8 @@ export abstract class Tool extends Model {
   }
 
   get computed_icon(): string | undefined {
-    return this.icon ?? `.${this.tool_icon}`
+    const {icon, tool_icon} = this
+    return icon ?? (tool_icon != null ? `.${tool_icon}` : undefined)
   }
 
   get menu(): MenuItem[] | null {
@@ -196,12 +197,14 @@ export abstract class Tool extends Model {
 
   // utility function to return a tool name, modified
   // by the active dimensions. Used by tools that have dimensions
-  protected _get_dim_tooltip(dims: Dimensions): string {
+  protected _get_dim_tooltip(dims: Dimensions | "auto"): string {
     const {description, tool_name} = this
     if (description != null)
       return description
     else if (dims == "both")
       return tool_name
+    else if (dims == "auto")
+      return `${tool_name} (either x, y or both dimensions)`
     else
       return `${tool_name} (${dims == "width" ? "x" : "y"}-axis)`
   }

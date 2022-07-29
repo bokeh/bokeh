@@ -764,7 +764,7 @@ class BoxZoomTool(Drag):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    dimensions = Enum(Dimensions, default="both", help="""
+    dimensions = Either(Enum(Dimensions), Auto, default="both", help="""
     Which dimensions the zoom box is to be free in. By default, users may
     freely draw zoom boxes with any dimensions. If only "width" is supplied,
     the box will be constrained to span the entire vertical space of the plot,
@@ -1766,6 +1766,7 @@ Tool.register_alias("lasso_select", lambda: LassoSelectTool())
 Tool.register_alias("box_zoom", lambda: BoxZoomTool(dimensions="both"))
 Tool.register_alias("xbox_zoom", lambda: BoxZoomTool(dimensions="width"))
 Tool.register_alias("ybox_zoom", lambda: BoxZoomTool(dimensions="height"))
+Tool.register_alias("auto_box_zoom", lambda: BoxZoomTool(dimensions="auto"))
 Tool.register_alias("save", lambda: SaveTool())
 Tool.register_alias("copy", lambda: CopyTool())
 Tool.register_alias("undo", lambda: UndoTool())

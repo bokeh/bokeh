@@ -156,7 +156,7 @@ export class PanTool extends GestureTool {
   }
 
   override get computed_icon(): string {
-    const {icon} = this
+    const icon = super.computed_icon
     if (icon != null)
       return icon
     else {
