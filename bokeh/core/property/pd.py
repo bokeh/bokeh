@@ -64,7 +64,7 @@ class PandasDataFrame(Property["DataFrame"]):
         msg = "" if not detail else f"expected Pandas DataFrame, got {value!r}"
         raise ValueError(msg)
 
-class PandasGroupBy(Property["GroupBy"]):
+class PandasGroupBy(Property["GroupBy[Any]"]):
     """ Accept Pandas DataFrame values.
 
     This property only exists to support type validation, e.g. for "accepts"
