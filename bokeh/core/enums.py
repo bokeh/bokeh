@@ -96,6 +96,7 @@ __all__ = (
     'ButtonType',
     'CalendarPosition',
     'ContextWhich',
+    'CoordinateUnits',
     'DashPattern',
     'DateFormat',
     'DatetimeUnits',
@@ -274,6 +275,9 @@ CalendarPosition = enumeration("auto", "above", "below")
 
 #: Specify which tick to add additional context to
 ContextWhich = enumeration("start", "center", "end", "all")
+
+#: Specify units for mapping coordinates
+CoordinateUnits = enumeration("canvas", "screen", "data")
 
 #: Specify a named dashing patter for stroking lines
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")

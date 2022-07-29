@@ -2,7 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {SpatialUnits} from "core/enums"
+import {CoordinateUnits} from "core/enums"
 import * as p from "core/properties"
 import {BBox, CoordinateMapper} from "core/util/bbox"
 
@@ -30,20 +30,19 @@ export class BoxAnnotationView extends AnnotationView {
     const xscale = this.coordinates.x_scale
     const yscale = this.coordinates.y_scale
 
-    const _calc_dim = (dim: number | null, dim_units: SpatialUnits, scale: Scale, view: CoordinateMapper, frame_extrema: number): number => {
-      let sdim
-      if (dim != null) {
-        if (this.model.screen)
-          sdim = dim
-        else {
-          if (dim_units == "data")
-            sdim = scale.compute(dim)
-          else
-            sdim = view.compute(dim)
+    const _calc_dim = (dim: number | null, dim_units: CoordinateUnits, scale: Scale, view: CoordinateMapper, frame_extrema: number): number => {
+      if (dim == null)
+        return frame_extrema
+      else {
+        switch (dim_units) {
+          case "canvas":
+            return dim
+          case "screen":
+            return view.compute(dim)
+          case "data":
+            return scale.compute(dim)
         }
-      } else
-        sdim = frame_extrema
-      return sdim
+      }
     }
 
     this.bbox = BBox.from_rect({
@@ -103,14 +102,15 @@ export namespace BoxAnnotation {
 
   export type Props = Annotation.Props & {
     top: p.Property<number | null>
-    top_units: p.Property<SpatialUnits>
     bottom: p.Property<number | null>
-    bottom_units: p.Property<SpatialUnits>
     left: p.Property<number | null>
-    left_units: p.Property<SpatialUnits>
     right: p.Property<number | null>
-    right_units: p.Property<SpatialUnits>
-    screen: p.Property<boolean>
+
+    top_units: p.Property<CoordinateUnits>
+    bottom_units: p.Property<CoordinateUnits>
+    left_units: p.Property<CoordinateUnits>
+    right_units: p.Property<CoordinateUnits>
+
     ew_cursor: p.Property<string | null>
     ns_cursor: p.Property<string | null>
     in_cursor: p.Property<string | null>
@@ -138,17 +138,17 @@ export class BoxAnnotation extends Annotation {
 
     this.define<BoxAnnotation.Props>(({Number, Nullable}) => ({
       top:          [ Nullable(Number), null ],
-      top_units:    [ SpatialUnits, "data" ],
       bottom:       [ Nullable(Number), null ],
-      bottom_units: [ SpatialUnits, "data" ],
       left:         [ Nullable(Number), null ],
-      left_units:   [ SpatialUnits, "data" ],
       right:        [ Nullable(Number), null ],
-      right_units:  [ SpatialUnits, "data" ],
+
+      top_units:    [ CoordinateUnits, "data" ],
+      bottom_units: [ CoordinateUnits, "data" ],
+      left_units:   [ CoordinateUnits, "data" ],
+      right_units:  [ CoordinateUnits, "data" ],
     }))
 
-    this.internal<BoxAnnotation.Props>(({Boolean, String, Nullable}) => ({
-      screen:    [ Boolean, false ],
+    this.internal<BoxAnnotation.Props>(({String, Nullable}) => ({
       ew_cursor: [ Nullable(String), null ],
       ns_cursor: [ Nullable(String), null ],
       in_cursor: [ Nullable(String), null ],
@@ -163,6 +163,10 @@ export class BoxAnnotation extends Annotation {
   }
 
   update({left, right, top, bottom}: {left: number | null, right: number | null, top: number | null, bottom: number | null}): void {
-    this.setv({left, right, top, bottom, screen: true})
+    this.setv({left, right, top, bottom, visible: true})
+  }
+
+  clear(): void {
+    this.visible = false
   }
 }

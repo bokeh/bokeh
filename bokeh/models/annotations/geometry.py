@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ...core.enums import Dimension, SpatialUnits
+from ...core.enums import CoordinateUnits, Dimension, SpatialUnits
 from ...core.properties import (
     Auto,
     Datetime,
@@ -84,7 +84,7 @@ class BoxAnnotation(Annotation):
     converted to milliseconds-since-epoch.
     """)
 
-    left_units = Enum(SpatialUnits, default='data', help="""
+    left_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the left attribute. Interpreted as |data units| by
     default.
     """)
@@ -96,7 +96,7 @@ class BoxAnnotation(Annotation):
     converted to milliseconds-since-epoch.
     """)
 
-    right_units = Enum(SpatialUnits, default='data', help="""
+    right_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the right attribute. Interpreted as |data units| by
     default.
     """)
@@ -108,7 +108,7 @@ class BoxAnnotation(Annotation):
     converted to milliseconds-since-epoch.
     """)
 
-    bottom_units = Enum(SpatialUnits, default='data', help="""
+    bottom_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the bottom attribute. Interpreted as |data units| by
     default.
     """)
@@ -120,7 +120,7 @@ class BoxAnnotation(Annotation):
     converted to milliseconds-since-epoch.
     """)
 
-    top_units = Enum(SpatialUnits, default='data', help="""
+    top_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the top attribute. Interpreted as |data units| by
     default.
     """)
@@ -206,7 +206,7 @@ class PolyAnnotation(Annotation):
     The x-coordinates of the region to draw.
     """)
 
-    xs_units = Enum(SpatialUnits, default='data', help="""
+    xs_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the ``xs`` attribute. Interpreted as |data units| by
     default.
     """)
@@ -215,7 +215,7 @@ class PolyAnnotation(Annotation):
     The y-coordinates of the region to draw.
     """)
 
-    ys_units = Enum(SpatialUnits, default='data', help="""
+    ys_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the ``ys`` attribute. Interpreted as |data units| by
     default.
     """)
@@ -281,7 +281,7 @@ class Span(Annotation):
     converted to milliseconds-since-epoch.
     """).accepts(Datetime, convert_datetime_type)
 
-    location_units = Enum(SpatialUnits, default='data', help="""
+    location_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the location attribute. Interpreted as "data space"
     units by default.
     """)
