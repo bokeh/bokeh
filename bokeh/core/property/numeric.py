@@ -20,10 +20,20 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import numbers
+from typing import Any, TypeVar
+
 # Bokeh imports
-from .bases import ParameterizedProperty
+from ...util.deprecation import deprecated
+from .bases import (
+    Init,
+    Property,
+    SingleParameterizedProperty,
+    TypeOrInst,
+)
 from .primitive import Float, Int
-from .singletons import Undefined
+from .singletons import Intrinsic, Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -33,36 +43,87 @@ __all__ = (
     'Angle',
     'Byte',
     'Interval',
+    'NonNegative',
     'NonNegativeInt',
     'Percent',
+    'Positive',
     'PositiveInt',
     'Size',
 )
+
+T = TypeVar("T", bound=numbers.Number)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class NonNegativeInt(Int):
-    """ Accept non-negative integers. """
+class NonNegative(SingleParameterizedProperty[T]):
+    """ A property accepting a value of some other type while having undefined default. """
 
-    def validate(self, value, detail=True):
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Intrinsic,
+            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
+        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
+
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
-        if value < 0:
+        if not (0 <= value):
+            raise ValueError(f"expected a non-negative number, got {value!r}")
+
+class Positive(SingleParameterizedProperty[T]):
+    """ A property accepting a value of some other type while having undefined default. """
+
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Intrinsic,
+            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
+        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
+
+    def validate(self, value: Any, detail: bool = True) -> None:
+        super().validate(value, detail)
+
+        if not (0 < value):
+            raise ValueError(f"expected a positive number, got {value!r}")
+
+class NonNegativeInt(Int):
+    """
+    Accept non-negative integers.
+
+    .. deprecated:: 3.0.0
+
+        Use ``NonNegative(Int)`` instead.
+    """
+
+    def __init__(self, default: Init[int] = Intrinsic, *,
+            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
+        deprecated((3, 0, 0), "NonNegativeInt", "NonNegative(Int)")
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+
+    def validate(self, value: Any, detail: bool = True) -> None:
+        super().validate(value, detail)
+
+        if not (0 <= value):
             raise ValueError(f"expected non-negative integer, got {value!r}")
 
 class PositiveInt(Int):
-    """ Accept positive integers. """
+    """
+    Accept positive integers.
 
-    def validate(self, value, detail=True):
+    .. deprecated:: 3.0.0
+
+        Use ``Positive(Int)`` instead.
+    """
+
+    def __init__(self, default: Init[int] = Intrinsic, *,
+            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
+        deprecated((3, 0, 0), "Positive", "Positive(Int)")
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
-        if value <= 0:
+        if not (0 < value):
             raise ValueError(f"expected positive integer, got {value!r}")
 
-
-class Interval(ParameterizedProperty):
+class Interval(SingleParameterizedProperty[T]):
     """ Accept numeric values that are contained within a given interval.
 
     Args:
@@ -100,31 +161,26 @@ class Interval(ParameterizedProperty):
             >>> m.prop = "foo" # ValueError !!
 
     """
-    def __init__(self, interval_type, start, end, default=Undefined, help=None) -> None:
-        self.interval_type = self._validate_type_param(interval_type)
-        # Make up a property name for validation purposes
-        self.interval_type.validate(start)
-        self.interval_type.validate(end)
+    def __init__(self, type_param: TypeOrInst[Property[T]], start: T, end: T, *,
+            default: Init[T] = Undefined, help: str | None = None) -> None:
+        super().__init__(type_param, default=default, help=help)
+        self.type_param.validate(start)
+        self.type_param.validate(end)
         self.start = start
         self.end = end
-        super().__init__(default=default, help=help)
 
     def __str__(self) -> str:
         class_name = self.__class__.__name__
-        return f"{class_name}({self.interval_type}, {self.start!r}, {self.end!r})"
+        return f"{class_name}({self.type_param}, {self.start!r}, {self.end!r})"
 
-    @property
-    def type_params(self):
-        return [self.interval_type]
-
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
-        if not (self.interval_type.is_valid(value) and value >= self.start and value <= self.end):
-            msg = "" if not detail else f"expected a value of type {self.interval_type} in range [{self.start}, {self.end}], got {value!r}"
+        if not (self.type_param.is_valid(value) and value >= self.start and value <= self.end):
+            msg = "" if not detail else f"expected a value of type {self.type_param} in range [{self.start}, {self.end}], got {value!r}"
             raise ValueError(msg)
 
-class Byte(Interval):
+class Byte(Interval[int]):
     """ Accept integral byte values (0-255).
 
     Example:
@@ -144,7 +200,8 @@ class Byte(Interval):
             >>> m.prop = 10.3 # ValueError !!
 
     """
-    def __init__(self, default=0, help=None) -> None:
+
+    def __init__(self, default: Init[int] = 0, help: str | None = None) -> None:
         super().__init__(Int, 0, 255, default=default, help=help)
 
 class Size(Float):
@@ -186,7 +243,7 @@ class Size(Float):
             >>> m.prop = "foo" # ValueError !!
 
     """
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         if value < 0:
@@ -237,7 +294,8 @@ class Percent(Float):
             >>> m.prop = 5   # ValueError !!
 
     """
-    def validate(self, value, detail=True):
+
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         if 0.0 <= value <= 1.0:
@@ -270,7 +328,6 @@ class Angle(Float):
             (default: False)
 
     """
-    pass
 
 #-----------------------------------------------------------------------------
 # Dev API

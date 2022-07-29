@@ -39,7 +39,7 @@ from ..core.properties import (
     Instance,
     Int,
     List,
-    NonNegativeInt,
+    NonNegative,
     Null,
     Nullable,
     Seq,
@@ -96,31 +96,31 @@ class LayoutDOM(UIElement):
     If ``True``, the widget will be greyed-out and not responsive to UI events.
     """)
 
-    width: int | None = Nullable(NonNegativeInt, help="""
+    width: int | None = Nullable(NonNegative(Int), help="""
     The width of the component (in pixels).
 
     This can be either fixed or preferred width, depending on width sizing policy.
     """)
 
-    height: int | None = Nullable(NonNegativeInt, help="""
+    height: int | None = Nullable(NonNegative(Int), help="""
     The height of the component (in pixels).
 
     This can be either fixed or preferred height, depending on height sizing policy.
     """)
 
-    min_width = Nullable(NonNegativeInt, help="""
+    min_width = Nullable(NonNegative(Int), help="""
     Minimal width of the component (in pixels) if width is adjustable.
     """)
 
-    min_height = Nullable(NonNegativeInt, help="""
+    min_height = Nullable(NonNegative(Int), help="""
     Minimal height of the component (in pixels) if height is adjustable.
     """)
 
-    max_width = Nullable(NonNegativeInt, help="""
+    max_width = Nullable(NonNegative(Int), help="""
     Maximal width of the component (in pixels) if width is adjustable.
     """)
 
-    max_height = Nullable(NonNegativeInt, help="""
+    max_height = Nullable(NonNegative(Int), help="""
     Maximal height of the component (in pixels) if height is adjustable.
     """)
 

@@ -94,10 +94,12 @@ Basic Properties
 .. autoclass:: JSON
 .. autoclass:: MarkerType
 .. autoclass:: MinMaxBounds
+.. autoclass:: NonNegative
 .. autoclass:: NonNegativeInt
 .. autoclass:: Nothing
 .. autoclass:: Null
 .. autoclass:: Percent
+.. autoclass:: Positive
 .. autoclass:: PositiveInt
 .. autoclass:: RGB
 .. autoclass:: Regex
@@ -234,6 +236,7 @@ __all__ = (
     'MathString',
     'MinMaxBounds',
     'NonEmpty',
+    'NonNegative',
     'NonNegativeInt',
     'NonNullable',
     'Nothing',
@@ -245,6 +248,7 @@ __all__ = (
     'PandasDataFrame',
     'PandasGroupBy',
     'Percent',
+    'Positive',
     'PositiveInt',
     'RGB',
     'Readonly',
@@ -345,8 +349,10 @@ from .property.nullable import Nullable; Nullable
 from .property.numeric import Angle; Angle
 from .property.numeric import Byte; Byte
 from .property.numeric import Interval; Interval
+from .property.numeric import NonNegative; NonNegative
 from .property.numeric import NonNegativeInt; NonNegativeInt
 from .property.numeric import Percent; Percent
+from .property.numeric import Positive; Positive
 from .property.numeric import PositiveInt; PositiveInt
 from .property.numeric import Size; Size
 
