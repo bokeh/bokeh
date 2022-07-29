@@ -23,6 +23,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import Any, Callable, Type
 
+# External imports
+from typing_extensions import TypeAlias
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -50,8 +53,10 @@ def property_link(obj: Any) -> str:
     # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
     return f":class:`~bokeh.core.properties.{obj.__class__.__name__}`\\ "
 
-def register_type_link(cls: Type[Any]):
-    def decorator(func: Callable[[Any], str]):
+Fn: TypeAlias = Callable[[Any], str]
+
+def register_type_link(cls: Type[Any]) -> Callable[[Fn], Fn]:
+    def decorator(func: Fn):
         _type_links[cls] = func
         return func
     return decorator

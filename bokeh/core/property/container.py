@@ -123,7 +123,7 @@ class List(Seq[T]):
 
     """
 
-    def __init__(self, item_type, default=[], help=None) -> None:
+    def __init__(self, item_type, default=[], *, help: str | None = None) -> None:
         # todo: refactor to not use mutable objects as default values.
         # Left in place for now because we want to allow None to express
         # optional values. Also in Dict.
@@ -168,7 +168,7 @@ class Dict(ContainerProperty):
 
     """
 
-    def __init__(self, keys_type, values_type, default={}, help=None) -> None:
+    def __init__(self, keys_type, values_type, default={}, *, help: str | None = None) -> None:
         self.keys_type = self._validate_type_param(keys_type)
         self.values_type = self._validate_type_param(values_type)
         super().__init__(default=default, help=help)
@@ -180,7 +180,7 @@ class Dict(ContainerProperty):
     def type_params(self):
         return [self.keys_type, self.values_type]
 
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         key_is_valid = self.keys_type.is_valid
@@ -264,7 +264,7 @@ class Tuple(ContainerProperty):
     def type_params(self):
         return self._type_params
 
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         if isinstance(value, (tuple, list)) and len(self.type_params) == len(value):
@@ -285,7 +285,7 @@ class RelativeDelta(Dict):
 
     """
 
-    def __init__(self, default={}, help=None) -> None:
+    def __init__(self, default={}, *, help: str | None = None) -> None:
         keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")
         values = Int
         super().__init__(keys, values, default=default, help=help)
@@ -298,11 +298,11 @@ class RestrictedDict(Dict):
 
     """
 
-    def __init__(self, keys_type, values_type, disallow, default={}, help=None) -> None:
+    def __init__(self, keys_type, values_type, disallow, default={}, *, help: str | None = None) -> None:
         self._disallow = set(disallow)
         super().__init__(keys_type=keys_type, values_type=values_type, default=default, help=help)
 
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         error_keys = self._disallow & value.keys()

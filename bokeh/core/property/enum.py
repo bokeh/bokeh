@@ -20,10 +20,14 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any, overload
+
 # Bokeh imports
 from ...util.string import nice_join
 from .. import enums
 from ._sphinx import model_link, property_link, register_type_link
+from .bases import Init
 from .primitive import String
 from .singletons import Intrinsic
 
@@ -49,7 +53,15 @@ class Enum(String):
 
     """
 
-    def __init__(self, enum, *values, default=Intrinsic, help=None, serialized=None, readonly=False) -> None:
+    @overload
+    def __init__(self, enum: enums.Enumeration, *, default: Init[str] = ...,
+        help: str | None = ..., serialized: bool | None = ..., readonly: bool = ...) -> None: ...
+    @overload
+    def __init__(self, enum: str, *values: str, default: Init[str] = ...,
+        help: str | None = ..., serialized: bool | None = ..., readonly: bool = ...) -> None: ...
+
+    def __init__(self, enum: str | enums.Enumeration, *values: str, default: Init[str] = Intrinsic,
+            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
         if not (not values and isinstance(enum, enums.Enumeration)):
             enum = enums.enumeration(enum, *values)
         self._enum = enum
@@ -63,10 +75,10 @@ class Enum(String):
         return f"{class_name}({allowed_values})"
 
     @property
-    def allowed_values(self):
+    def allowed_values(self) -> list[str]:
         return self._enum._values
 
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         if value in self._enum:
@@ -88,7 +100,7 @@ class Enum(String):
 #-----------------------------------------------------------------------------
 
 @register_type_link(Enum)
-def _sphinx_type(obj):
+def _sphinx_type(obj: Enum) -> str:
     # try to return a link to a proper enum in bokeh.core.enums if possible
     if obj._enum in enums.__dict__.values():
         for name, value in enums.__dict__.items():

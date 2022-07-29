@@ -410,6 +410,20 @@ export namespace Kinds {
       return "Function(...)"
     }
   }
+
+  export class NonNegative<BaseType extends number> extends Kind<BaseType> {
+    constructor(readonly base_type: Kind<BaseType>) {
+      super()
+    }
+
+    valid(value: unknown): value is BaseType {
+      return this.base_type.valid(value) && value >= 0
+    }
+
+    override toString(): string {
+      return `NonNegative(${this.base_type.toString()})`
+    }
+  }
 }
 
 export const Any = new Kinds.Any()
@@ -435,6 +449,8 @@ export const Enum = <T extends string | number>(...values: T[]) => new Kinds.Enu
 export const Ref = <ObjType extends object>(obj_type: Constructor<ObjType>) => new Kinds.Ref<ObjType>(obj_type)
 export const AnyRef = <ObjType extends object>() => new Kinds.AnyRef<ObjType>()
 export const Function = <Args extends unknown[], Ret>() => new Kinds.Function<Args, Ret>()
+
+export const NonNegative = <BaseType extends number>(base_type: Kind<BaseType>) => new Kinds.NonNegative(base_type)
 
 export const Percent = new Kinds.Percent()
 export const Alpha = Percent

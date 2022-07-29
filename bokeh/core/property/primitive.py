@@ -23,6 +23,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import numbers
 
+# External imports
+import numpy as np
+
 # Bokeh imports
 from ._sphinx import property_link, register_type_link
 from .bases import Init, PrimitiveProperty
@@ -31,13 +34,7 @@ from .bases import Init, PrimitiveProperty
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-bokeh_bool_types = (bool,)
-try:
-    import numpy as np
-    bokeh_bool_types += (np.bool8,)
-except ImportError:
-    pass
-
+bokeh_bool_types = (bool, np.bool8)
 bokeh_integer_types = (numbers.Integral,)
 
 __all__ = (
@@ -295,5 +292,5 @@ class String(PrimitiveProperty[str]):
 #-----------------------------------------------------------------------------
 
 @register_type_link(Null)
-def _sphinx_type(obj):
+def _sphinx_type(obj: Null) -> str:
     return f"{property_link(obj)}"

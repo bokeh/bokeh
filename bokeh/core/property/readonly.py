@@ -18,8 +18,16 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TypeVar
+
 # Bokeh imports
-from .bases import SingleParameterizedProperty
+from .bases import (
+    Init,
+    Property,
+    SingleParameterizedProperty,
+    TypeOrInst,
+)
 from .singletons import Intrinsic
 
 #-----------------------------------------------------------------------------
@@ -30,14 +38,17 @@ __all__ = (
     "Readonly",
 )
 
+T = TypeVar("T")
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Readonly(SingleParameterizedProperty):
+class Readonly(SingleParameterizedProperty[T]):
     """ A property that can't be manually modified by the user. """
 
-    def __init__(self, type_param, *, default=Intrinsic, help=None, serialized=None) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Intrinsic,
+            help: str | None = None, serialized: bool | None = None) -> None:
         super().__init__(type_param, default=default, help=help, readonly=True, serialized=serialized)
 
 #-----------------------------------------------------------------------------

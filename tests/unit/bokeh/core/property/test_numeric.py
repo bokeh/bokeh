@@ -33,8 +33,10 @@ ALL = (
     'Angle',
     'Byte',
     'Interval',
+    'NonNegative',
     'NonNegativeInt',
     'Percent',
+    'Positive',
     'PositiveInt',
     'Size',
 )
@@ -228,21 +230,28 @@ class Test_Percent:
         assert str(prop) == "Percent"
 
 
-class Test_NonNegativeInt:
+class Test_NonNegative:
     def test_valid(self) -> None:
-        prop = bcpn.NonNegativeInt()
+        prop0 = bcpn.NonNegative(Int)
 
         # TODO (bev) should fail
-        assert prop.is_valid(False)
-        assert prop.is_valid(True)
+        assert prop0.is_valid(False)
+        assert prop0.is_valid(True)
 
-        assert prop.is_valid(0)
-        assert prop.is_valid(1)
-        assert prop.is_valid(2)
-        assert prop.is_valid(100)
+        assert prop0.is_valid(0)
+        assert prop0.is_valid(1)
+        assert prop0.is_valid(2)
+        assert prop0.is_valid(100)
+
+        prop1 = bcpn.NonNegative(Float)
+
+        assert prop1.is_valid(0)
+        assert prop1.is_valid(0.0001)
+        assert prop1.is_valid(1)
+        assert prop1.is_valid(1.0001)
 
     def test_invalid(self) -> None:
-        prop = bcpn.NonNegativeInt()
+        prop = bcpn.NonNegative(Int)
 
         assert not prop.is_valid(None)
         assert not prop.is_valid(-1)
@@ -260,27 +269,34 @@ class Test_NonNegativeInt:
         assert not prop.is_valid(-0.001)
 
     def test_has_ref(self) -> None:
-        prop = bcpn.NonNegativeInt()
+        prop = bcpn.NonNegative(Int)
         assert not prop.has_ref
 
     def test_str(self) -> None:
-        prop = bcpn.NonNegativeInt()
-        assert str(prop) == "NonNegativeInt"
+        prop0 = bcpn.NonNegative(Int)
+        assert str(prop0) == "NonNegative(Int)"
 
+        prop1 = bcpn.NonNegative(Float)
+        assert str(prop1) == "NonNegative(Float)"
 
 class Test_PositiveInt:
     def test_valid(self) -> None:
-        prop = bcpn.PositiveInt()
+        prop0 = bcpn.Positive(Int)
 
         # TODO (bev) should fail
-        assert prop.is_valid(True)
+        assert prop0.is_valid(True)
 
-        assert prop.is_valid(1)
-        assert prop.is_valid(2)
-        assert prop.is_valid(100)
+        assert prop0.is_valid(1)
+        assert prop0.is_valid(2)
+        assert prop0.is_valid(100)
+
+        prop1 = bcpn.Positive(Float)
+
+        assert prop1.is_valid(1)
+        assert prop1.is_valid(1.1)
 
     def test_invalid(self) -> None:
-        prop = bcpn.PositiveInt()
+        prop = bcpn.Positive(Int)
 
         assert not prop.is_valid(None)
         assert not prop.is_valid(False)
@@ -300,12 +316,15 @@ class Test_PositiveInt:
         assert not prop.is_valid(-0.001)
 
     def test_has_ref(self) -> None:
-        prop = bcpn.PositiveInt()
+        prop = bcpn.Positive(Int)
         assert not prop.has_ref
 
     def test_str(self) -> None:
-        prop = bcpn.PositiveInt()
-        assert str(prop) == "PositiveInt"
+        prop0 = bcpn.Positive(Int)
+        assert str(prop0) == "Positive(Int)"
+
+        prop1 = bcpn.Positive(Float)
+        assert str(prop1) == "Positive(Float)"
 
 #-----------------------------------------------------------------------------
 # Dev API

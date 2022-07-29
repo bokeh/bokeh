@@ -20,15 +20,21 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING, Any
+
 # Bokeh imports
 from ...util.dependencies import import_optional
 from .bases import Property
 
+if TYPE_CHECKING:
+    # XXX: groupby.groupby possibly due to a bug in import following in mypy
+    from pandas import DataFrame  # noqa: F401
+    from pandas.core.groupby.groupby import GroupBy  # noqa: F401
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
-
-
 
 __all__ = (
     'PandasDataFrame',
@@ -39,7 +45,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class PandasDataFrame(Property):
+class PandasDataFrame(Property["DataFrame"]):
     """ Accept Pandas DataFrame values.
 
     This property only exists to support type validation, e.g. for "accepts"
@@ -47,7 +53,8 @@ class PandasDataFrame(Property):
     Bokeh models directly.
 
     """
-    def validate(self, value, detail=True):
+
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         pd = import_optional('pandas')
@@ -57,7 +64,7 @@ class PandasDataFrame(Property):
         msg = "" if not detail else f"expected Pandas DataFrame, got {value!r}"
         raise ValueError(msg)
 
-class PandasGroupBy(Property):
+class PandasGroupBy(Property["GroupBy[Any]"]):
     """ Accept Pandas DataFrame values.
 
     This property only exists to support type validation, e.g. for "accepts"
@@ -65,7 +72,8 @@ class PandasGroupBy(Property):
     Bokeh models directly.
 
     """
-    def validate(self, value, detail=True):
+
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         pd = import_optional('pandas')

@@ -22,10 +22,12 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from copy import copy
+from typing import Type, TypeVar
 
 # Bokeh imports
 from ..has_props import HasProps
 from .descriptor_factory import PropertyDescriptorFactory
+from .descriptors import PropertyDescriptor
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -35,18 +37,20 @@ __all__ = (
     'Include',
 )
 
+T = TypeVar("T")
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Include(PropertyDescriptorFactory):
+class Include(PropertyDescriptorFactory[T]):
     """ Include "mix-in" property collection in a Bokeh model.
 
     See :ref:`bokeh.core.property_mixins` for more details.
 
     """
 
-    def __init__(self, delegate, help="", prefix=None) -> None:
+    def __init__(self, delegate: Type[HasProps], *, help: str = "", prefix: str | None = None) -> None:
         if not (isinstance(delegate, type) and issubclass(delegate, HasProps)):
             raise ValueError(f"expected a subclass of HasProps, got {delegate!r}")
 
@@ -54,7 +58,7 @@ class Include(PropertyDescriptorFactory):
         self.help = help
         self.prefix = prefix + "_" if prefix else ""
 
-    def make_descriptors(self, _base_name):
+    def make_descriptors(self, _base_name: str) -> list[PropertyDescriptor[T]]:
         descriptors = []
 
         for prop_name in self.delegate.properties():

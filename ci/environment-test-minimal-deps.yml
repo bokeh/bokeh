@@ -31,7 +31,6 @@ dependencies:
   - ipython
   - isort 5.8
   - mock
-  - mypy >=0.920
   - nbconvert >=5.4
   - nodejs 16.*
   - psutil
@@ -55,6 +54,7 @@ dependencies:
   # pip dependencies
   - pip
   - pip:
+    - mypy >=0.971
     # docs
     - autoclasstoc
     - pydata_sphinx_theme >=0.9

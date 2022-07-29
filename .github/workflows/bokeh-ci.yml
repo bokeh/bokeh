@@ -104,9 +104,8 @@ jobs:
       - name: MyPy
         shell: bash -l {0}
         run: |
-          mypy bokeh
-          mypy release
-          mypy tests
+          mypy --version
+          mypy
 
   examples:
     needs: build
