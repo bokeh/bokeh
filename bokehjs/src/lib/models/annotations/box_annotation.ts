@@ -4,7 +4,7 @@ import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
 import * as p from "core/properties"
-import {BBox, LTRB, CoordinateMapper} from "core/util/bbox"
+import {BBox, LRTB, CoordinateMapper} from "core/util/bbox"
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -41,7 +41,7 @@ export class BoxAnnotationView extends AnnotationView {
       }
     }
 
-    this.bbox = BBox.from_rect({
+    this.bbox = BBox.from_lrtb({
       left:   _calc_dim(left,   this.model.left_units,   xscale, frame.bbox.xview, frame.bbox.left),
       right:  _calc_dim(right,  this.model.right_units,  xscale, frame.bbox.xview, frame.bbox.right),
       top:    _calc_dim(top,    this.model.top_units,    yscale, frame.bbox.yview, frame.bbox.top),
@@ -158,7 +158,7 @@ export class BoxAnnotation extends Annotation {
     })
   }
 
-  update({left, right, top, bottom}: LTRB): void {
+  update({left, right, top, bottom}: LRTB): void {
     this.setv({left, right, top, bottom, visible: true})
   }
 
