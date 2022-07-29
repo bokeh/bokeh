@@ -22,10 +22,11 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import datetime
+from typing import Any, Union
 
 # Bokeh imports
 from ...util.serialization import convert_date_to_datetime, is_datetime_type, is_timedelta_type
-from .bases import Property
+from .bases import Init, Property
 from .primitive import bokeh_integer_types
 from .singletons import Undefined
 
@@ -43,11 +44,11 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Date(Property):
+class Date(Property[Union[str, datetime.date]]):
     """ Accept ISO format Date (but not DateTime) values.
 
     """
-    def transform(self, value):
+    def transform(self, value: Any) -> Any:
         value = super().transform(value)
 
         if isinstance(value, datetime.date):
@@ -55,7 +56,7 @@ class Date(Property):
 
         return value
 
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         # datetime.datetime is datetime.date, exclude manually up front
@@ -72,15 +73,15 @@ class Date(Property):
             msg = "" if not detail else f"Expected an ISO date string, got {value!r}"
             raise ValueError(msg)
 
-class Datetime(Property):
+class Datetime(Property[Union[str, datetime.date, datetime.datetime]]):
     """ Accept ISO format Datetime values.
 
     """
 
-    def __init__(self, default=Undefined, help=None) -> None:
+    def __init__(self, default: Init[str | datetime.date | datetime.datetime] = Undefined, *, help: str | None = None) -> None:
         super().__init__(default=default, help=help)
 
-    def transform(self, value):
+    def transform(self, value: Any) -> Any:
         value = super().transform(value)
 
         if isinstance(value, str):
@@ -92,7 +93,7 @@ class Datetime(Property):
 
         return value
 
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         if is_datetime_type(value):
@@ -115,23 +116,23 @@ class Datetime(Property):
         raise ValueError(msg)
 
     @staticmethod
-    def is_timestamp(value):
+    def is_timestamp(value: Any) -> bool:
         return isinstance(value, (float,) + bokeh_integer_types) and not isinstance(value, bool)
 
-class TimeDelta(Property):
+class TimeDelta(Property[datetime.timedelta]):
     """ Accept TimeDelta values.
 
     """
 
-    def __init__(self, default=datetime.timedelta(), help=None) -> None:
+    def __init__(self, default: Init[datetime.timedelta] = datetime.timedelta(), *, help: str | None = None) -> None:
         super().__init__(default=default, help=help)
 
-    def transform(self, value):
+    def transform(self, value: Any) -> Any:
         value = super().transform(value)
         return value
         # Handled by serialization in protocol.py for now
 
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         if is_timedelta_type(value):

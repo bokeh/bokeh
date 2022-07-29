@@ -58,7 +58,7 @@ class Nullable(SingleParameterizedProperty[Union[T, None]]):
     def transform(self, value: Any) -> T | None:
         return None if value is None else super().transform(value)
 
-    def wrap(self, value: Any):
+    def wrap(self, value: Any) -> Any:
         return None if value is None else super().wrap(value)
 
     def validate(self, value: Any, detail: bool = True) -> None:
@@ -103,5 +103,5 @@ class NonNullable(Required[T]):
 
 @register_type_link(Nullable)
 @register_type_link(NonNullable)
-def _sphinx_type_link(obj: SingleParameterizedProperty[Any]):
+def _sphinx_type_link(obj: SingleParameterizedProperty[Any]) -> str:
     return f"{property_link(obj)}({type_link(obj.type_param)})"

@@ -26,6 +26,7 @@ import datetime  # lgtm [py/import-and-import-from]
 import re
 from io import BytesIO
 from pathlib import Path
+from typing import Any
 
 # External imports
 import PIL.Image
@@ -88,7 +89,7 @@ class DashPattern(Either):
         "dashdot": [6,4,2,4],
     }
 
-    def __init__(self, default=[], help=None) -> None:
+    def __init__(self, default=[], *, help: str | None = None) -> None:
         types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), Seq(Int)
         super().__init__(*types, default=default, help=help)
 
@@ -110,7 +111,7 @@ class FontSize(String):
 
     _font_size_re = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
 
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         if isinstance(value, str):
@@ -129,7 +130,7 @@ class HatchPatternType(Either):
 
     """
 
-    def __init__(self, default=[], help=None) -> None:
+    def __init__(self, default=[], *, help: str | None = None) -> None:
         types = Enum(enums.HatchPattern), Enum(enums.HatchPatternAbbreviation), String
         super().__init__(*types, default=default, help=help)
 
@@ -151,7 +152,7 @@ class Image(Property):
 
     """
 
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         import numpy as np
 
         if isinstance(value, (str, Path, PIL.Image.Image)):
@@ -199,7 +200,7 @@ class MinMaxBounds(Either):
     want to constrain one end of the plot, you can set min or max to
     ``None`` e.g. ``DataRange1d(bounds=(None, 12))`` """
 
-    def __init__(self, accept_datetime=False, default='auto', help=None) -> None:
+    def __init__(self, default='auto', *, accept_datetime: bool = False, help: str | None = None) -> None:
         types = (
             Auto,
 
@@ -219,7 +220,7 @@ class MinMaxBounds(Either):
             )
         super().__init__(*types, default=default, help=help)
 
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         if value[0] is None or value[1] is None:

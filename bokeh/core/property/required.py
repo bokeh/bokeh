@@ -65,5 +65,5 @@ class Required(SingleParameterizedProperty[T]):
 #-----------------------------------------------------------------------------
 
 @register_type_link(Required)
-def _sphinx_type_link(obj: SingleParameterizedProperty[Any]):
+def _sphinx_type_link(obj: SingleParameterizedProperty[Any]) -> str:
     return f"{property_link(obj)}({type_link(obj.type_param)})"

@@ -24,8 +24,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import re
+from typing import Any
 
 # Bokeh imports
+from .bases import Init
 from .primitive import String
 from .singletons import Undefined
 
@@ -79,7 +81,7 @@ class Regex(String):
             >>> m.prop = [1, 2, 3]  # ValueError !!
 
     """
-    def __init__(self, regex, default=Undefined, help=None) -> None:
+    def __init__(self, regex: str, *, default: Init[str] = Undefined, help: str | None = None) -> None:
         self.regex = re.compile(regex)
         super().__init__(default=default, help=help)
 
@@ -87,7 +89,7 @@ class Regex(String):
         class_name = self.__class__.__name__
         return f"{class_name}({self.regex.pattern!r})"
 
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         if self.regex.match(value):
