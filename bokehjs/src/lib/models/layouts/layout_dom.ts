@@ -6,6 +6,7 @@ import {Color} from "core/types"
 import {Align, SizingMode} from "core/enums"
 import {position, classes, extents, undisplayed, StyleSheetLike} from "core/dom"
 import {logger} from "core/logging"
+import {BBox} from "core/util/bbox"
 import {isNumber, isArray} from "core/util/types"
 import {color2css} from "core/util/color"
 import {assign} from "core/util/object"
@@ -37,6 +38,10 @@ export abstract class LayoutDOMView extends UIElementView {
   protected _viewport: Partial<Size> = {}
 
   layout: Layoutable
+
+  override get bbox(): BBox {
+    return this.layout.bbox
+  }
 
   readonly mouseenter = new Signal<MouseEvent, this>(this, "mouseenter")
   readonly mouseleave = new Signal<MouseEvent, this>(this, "mouseleave")
