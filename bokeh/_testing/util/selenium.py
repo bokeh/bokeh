@@ -83,31 +83,32 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 MATCHES_SCRIPT = """
-    function* descend(el, sel) {
+    function* descend(el, sel, parent) {
         if (el.matches(sel)) {
-            yield el
+            yield parent ? el.parentElement : el
         }
         if (el.shadowRoot) {
             for (const child of el.shadowRoot.children) {
-                yield* descend(child, sel)
+                yield* descend(child, sel, parent)
             }
         }
         for (const child of el.children) {
-            yield* descend(child, sel)
+            yield* descend(child, sel, parent)
         }
     }
 
     const selector = arguments[0]
     const root = arguments[1] ?? document.documentElement
+    const parent = arguments[2] ?? false
 
-    return [...descend(root, selector)]
+    return [...descend(root, selector, parent)]
 """
 
-def find_matching_elements(driver: WebDriver, selector: str, *, root: WebElement | None = None) -> list[WebElement]:
-    return driver.execute_script(MATCHES_SCRIPT, selector, root)
+def find_matching_elements(driver: WebDriver, selector: str, *, root: WebElement | None = None, parent: bool = False) -> list[WebElement]:
+    return driver.execute_script(MATCHES_SCRIPT, selector, root, parent)
 
-def find_matching_element(driver: WebDriver, selector: str, *, root: WebElement | None = None) -> WebElement:
-    elements = find_matching_elements(driver, selector, root=root)
+def find_matching_element(driver: WebDriver, selector: str, *, root: WebElement | None = None, parent: bool = False) -> WebElement:
+    elements = find_matching_elements(driver, selector, root=root, parent=parent)
     n = len(elements)
     if n == 0:
         raise ValueError("not found")
