@@ -1,7 +1,7 @@
 import Hammer, {Manager} from "hammerjs"
 
 import {DOMElementView, DOMComponentView} from "core/dom_view"
-import {empty, Keys, StyleSheetLike} from "core/dom"
+import {div, empty, Keys, StyleSheetLike} from "core/dom"
 import {ToolIcon} from "core/enums"
 import {ContextMenu} from "core/util/menus"
 import {startsWith} from "core/util/string"
@@ -84,21 +84,26 @@ export abstract class ToolButtonView extends DOMElementView {
 
   override render(): void {
     empty(this.el)
+
+    const icon_el = div({class: "bk-tool-icon"})
+    this.el.appendChild(icon_el)
+
     const icon = this.model.computed_icon
     if (icon != null) {
       if (startsWith(icon, "data:image")) {
         const url = `url("${encodeURI(icon)}")`
-        this.el.style.backgroundImage = url
+        icon_el.style.backgroundImage = url
       } else if (startsWith(icon, "--")) {
-        this.el.style.backgroundImage = `var(${icon})`
+        icon_el.style.backgroundImage = `var(${icon})`
       } else if (startsWith(icon, ".")) {
         const cls = icon.substring(1)
-        this.el.classList.add(cls)
+        icon_el.classList.add(cls)
       } else if (ToolIcon.valid(icon)) {
         const cls = `bk-tool-icon-${icon.replace(/_/g, "-")}`
-        this.el.classList.add(cls)
+        icon_el.classList.add(cls)
       }
     }
+
     this.el.title = this.model.tooltip
     this.el.tabIndex = 0
   }

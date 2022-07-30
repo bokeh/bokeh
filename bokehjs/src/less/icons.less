@@ -1,10 +1,20 @@
+@import "./_mixins.less";
+
 .tool-icon(@icon, @file) {
   @path: "../../../sphinx/source/_images/icons";
   background-image: var(@icon, data-uri("@{path}/@{file}.png"));
 }
 
+.tool-icon-mask(@icon, @color: #a1a6a9) {
+  .icon-mask(@icon, @color);
+  mask-size: 60% 60%;
+  mask-position: center center;
+  -webkit-mask-size: 60% 60%;
+  -webkit-mask-position: center center;
+}
+
 .bk-tool-icon-copy {
-  .tool-icon(--bokeh-icon-copy, "Copy");
+  .tool-icon-mask(var(--bokeh-icon-copy));
 }
 
 .bk-tool-icon-replace-mode {
@@ -28,59 +38,59 @@
 }
 
 .bk-tool-icon-box-select {
-  .tool-icon(--bokeh-icon-box-select, "BoxSelect");
+  .tool-icon-mask(var(--bokeh-icon-box-select));
 }
 
 .bk-tool-icon-box-zoom {
-  .tool-icon(--bokeh-icon-box-zoom, "BoxZoom");
+  .tool-icon-mask(var(--bokeh-icon-box-zoom));
 }
 
 .bk-tool-icon-x-box-zoom {
-  .tool-icon(--bokeh-icon-x-box-zoom, "BoxZoom");
+  .tool-icon-mask(var(--bokeh-icon-x-box-zoom));
 }
 
 .bk-tool-icon-y-box-zoom {
-  .tool-icon(--bokeh-icon-y-box-zoom, "BoxZoom");
+  .tool-icon-mask(var(--bokeh-icon-y-box-zoom));
 }
 
 .bk-tool-icon-auto-box-zoom {
-  .tool-icon(--bokeh-icon-auto-box-zoom, "BoxZoom");
+  .tool-icon-mask(var(--bokeh-icon-auto-box-zoom));
 }
 
 .bk-tool-icon-zoom-in {
-  .tool-icon(--bokeh-icon-zoom-in, "ZoomIn");
+  .tool-icon-mask(var(--bokeh-icon-zoom-in));
 }
 
 .bk-tool-icon-zoom-out {
-  .tool-icon(--bokeh-icon-zoom-out, "ZoomOut");
+  .tool-icon-mask(var(--bokeh-icon-zoom-out));
 }
 
 .bk-tool-icon-help {
-  .tool-icon(--bokeh-icon-help, "Help");
+  .tool-icon-mask(var(--bokeh-icon-help));
 }
 
 .bk-tool-icon-hover {
-  .tool-icon(--bokeh-icon-hover, "Hover");
+  .tool-icon-mask(var(--bokeh-icon-hover));
 }
 
 .bk-tool-icon-crosshair {
-  .tool-icon(--bokeh-icon-crosshair, "Crosshair");
+  .tool-icon-mask(var(--bokeh-icon-crosshair));
 }
 
 .bk-tool-icon-lasso-select {
-  .tool-icon(--bokeh-icon-lasso-select, "LassoSelect");
+  .tool-icon-mask(var(--bokeh-icon-lasso-select));
 }
 
 .bk-tool-icon-pan {
-  .tool-icon(--bokeh-icon-pan, "Pan");
+  .tool-icon-mask(var(--bokeh-icon-pan));
 }
 
-.bk-tool-icon-xpan {
-  .tool-icon(--bokeh-icon-xpan, "XPan");
+.bk-tool-icon-x-pan {
+  .tool-icon-mask(var(--bokeh-icon-x-pan));
 }
 
-.bk-tool-icon-ypan {
-  .tool-icon(--bokeh-icon-ypan, "YPan");
+.bk-tool-icon-y-pan {
+  .tool-icon-mask(var(--bokeh-icon-y-pan));
 }
 
 .bk-tool-icon-range {
@@ -92,23 +102,23 @@
 }
 
 .bk-tool-icon-redo {
-  .tool-icon(--bokeh-icon-redo, "Redo");
+  .tool-icon-mask(var(--bokeh-icon-redo));
 }
 
 .bk-tool-icon-reset {
-  .tool-icon(--bokeh-icon-reset, "Reset");
+  .tool-icon-mask(var(--bokeh-icon-reset));
 }
 
 .bk-tool-icon-save {
-  .tool-icon(--bokeh-icon-save, "Save");
+  .tool-icon-mask(var(--bokeh-icon-save));
 }
 
 .bk-tool-icon-tap-select {
-  .tool-icon(--bokeh-icon-tap-select, "Tap");
+  .tool-icon-mask(var(--bokeh-icon-tap-select));
 }
 
 .bk-tool-icon-undo {
-  .tool-icon(--bokeh-icon-undo, "Undo");
+  .tool-icon-mask(var(--bokeh-icon-undo));
 }
 
 .bk-tool-icon-wheel-pan {
@@ -144,9 +154,36 @@
 }
 
 :host {
-  // https://tabler-icons.io/ (MIT License)
+  // Based on https://tabler-icons.io/ (MIT License)
   --bokeh-icon-question-mark: data-uri("icons/question-mark.svg");
-  --bokeh-icon-help2: data-uri("icons/help.svg"); // TODO: remove `2` when migrated to SVG icons
+  --bokeh-icon-help: data-uri("icons/help.svg");
   --bokeh-icon-x: data-uri("icons/x.svg");
   --bokeh-icon-settings: data-uri("icons/settings.svg");
+
+  --bokeh-icon-save: data-uri("icons/save.svg");
+  --bokeh-icon-copy: data-uri("icons/copy.svg");
+
+  --bokeh-icon-tap-select: data-uri("icons/tap.svg");
+
+  --bokeh-icon-pan: data-uri("icons/pan.svg");
+  --bokeh-icon-x-pan: data-uri("icons/x-pan.svg");
+  --bokeh-icon-y-pan: data-uri("icons/y-pan.svg");
+
+  --bokeh-icon-zoom-in: data-uri("icons/zoom-in.svg");
+  --bokeh-icon-zoom-out: data-uri("icons/zoom-out.svg");
+
+  --bokeh-icon-box-zoom: data-uri("icons/box-zoom.svg");
+  --bokeh-icon-x-box-zoom: data-uri("icons/x-box-zoom.svg");
+  --bokeh-icon-y-box-zoom: data-uri("icons/y-box-zoom.svg");
+  --bokeh-icon-auto-box-zoom: data-uri("icons/auto-box-zoom.svg");
+
+  --bokeh-icon-undo: data-uri("icons/arrow-back-up.svg");
+  --bokeh-icon-redo: data-uri("icons/arrow-forward-up.svg");
+  --bokeh-icon-reset: data-uri("icons/refresh.svg");
+
+  --bokeh-icon-hover: data-uri("icons/hover.svg");
+  --bokeh-icon-crosshair: data-uri("icons/crosshair.svg");
+
+  --bokeh-icon-box-select: data-uri("icons/box-select.svg");
+  --bokeh-icon-lasso-select: data-uri("icons/lasso-select.svg");
 }

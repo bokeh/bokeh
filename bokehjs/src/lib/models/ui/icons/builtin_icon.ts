@@ -19,13 +19,7 @@ export class BuiltinIconView extends IconView {
   render(): void {
     this.empty()
 
-    // XXX: remove this when old icons are removed
-    const name = (() => {
-      const {icon_name} = this.model
-      return icon_name == "help" ? "help2" : icon_name
-    })()
-
-    const icon = `var(--bokeh-icon-${name})`
+    const icon = `var(--bokeh-icon-${this.model.icon_name})`
     const color = color2css(this.model.color)
 
     const size = (() => {
