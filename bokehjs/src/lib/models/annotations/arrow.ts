@@ -4,7 +4,7 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Context2d} from "core/util/canvas"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {SpatialUnits} from "core/enums"
+import {CoordinateUnits} from "core/enums"
 import {FloatArray, ScreenArray} from "core/types"
 import {build_view} from "core/build_views"
 import {Indices} from "core/types"
@@ -56,30 +56,63 @@ export class ArrowView extends DataAnnotationView {
   map_data(): void {
     const {frame} = this.plot_view
 
-    if (this.model.start_units == "data") {
-      this._sx_start = this.coordinates.x_scale.v_compute(this._x_start)
-      this._sy_start = this.coordinates.y_scale.v_compute(this._y_start)
-    } else {
-      this._sx_start = frame.bbox.xview.v_compute(this._x_start)
-      this._sy_start = frame.bbox.yview.v_compute(this._y_start)
-    }
+    const [sx_start, sy_start] = (() => {
+      switch (this.model.start_units) {
+        case "canvas": {
+          return [
+            new ScreenArray(this._x_start),
+            new ScreenArray(this._y_start),
+          ]
+        }
+        case "screen": {
+          return [
+            frame.bbox.xview.v_compute(this._x_start),
+            frame.bbox.yview.v_compute(this._y_start),
+          ]
+        }
+        case "data": {
+          return [
+            this.coordinates.x_scale.v_compute(this._x_start),
+            this.coordinates.y_scale.v_compute(this._y_start),
+          ]
+        }
+      }
+    })()
 
-    if (this.model.end_units == "data") {
-      this._sx_end = this.coordinates.x_scale.v_compute(this._x_end)
-      this._sy_end = this.coordinates.y_scale.v_compute(this._y_end)
-    } else {
-      this._sx_end = frame.bbox.xview.v_compute(this._x_end)
-      this._sy_end = frame.bbox.yview.v_compute(this._y_end)
-    }
+    const [sx_end, sy_end] = (() => {
+      switch (this.model.end_units) {
+        case "canvas": {
+          return [
+            new ScreenArray(this._x_end),
+            new ScreenArray(this._y_end),
+          ]
+        }
+        case "screen": {
+          return [
+            frame.bbox.xview.v_compute(this._x_end),
+            frame.bbox.yview.v_compute(this._y_end),
+          ]
+        }
+        case "data": {
+          return [
+            this.coordinates.x_scale.v_compute(this._x_end),
+            this.coordinates.y_scale.v_compute(this._y_end),
+          ]
+        }
+      }
+    })()
 
-    const {_sx_start, _sy_start, _sx_end, _sy_end} = this
+    this._sx_start = sx_start
+    this._sy_start = sy_start
+    this._sx_end = sx_end
+    this._sy_end = sy_end
 
-    const n = _sx_start.length
+    const n = sx_start.length
     const angles = this._angles = new ScreenArray(n)
 
     for (let i = 0; i < n; i++) {
       // arrow head runs orthogonal to arrow body (???)
-      angles[i] = Math.PI/2 + atan2([_sx_start[i], _sy_start[i]], [_sx_end[i], _sy_end[i]])
+      angles[i] = Math.PI/2 + atan2([sx_start[i], sy_start[i]], [sx_end[i], sy_end[i]])
     }
   }
 
@@ -151,11 +184,11 @@ export namespace Arrow {
   export type Props = DataAnnotation.Props & {
     x_start: p.XCoordinateSpec
     y_start: p.YCoordinateSpec
-    start_units: p.Property<SpatialUnits>
+    start_units: p.Property<CoordinateUnits>
     start: p.Property<ArrowHead | null>
     x_end: p.XCoordinateSpec
     y_end: p.YCoordinateSpec
-    end_units: p.Property<SpatialUnits>
+    end_units: p.Property<CoordinateUnits>
     end: p.Property<ArrowHead | null>
   } & Mixins
 
@@ -182,11 +215,11 @@ export class Arrow extends DataAnnotation {
     this.define<Arrow.Props>(({Ref, Nullable}) => ({
       x_start:     [ p.XCoordinateSpec, {field: "x_start"} ],
       y_start:     [ p.YCoordinateSpec, {field: "y_start"} ],
-      start_units: [ SpatialUnits, "data" ],
+      start_units: [ CoordinateUnits, "data" ],
       start:       [ Nullable(Ref(ArrowHead)), null ],
       x_end:       [ p.XCoordinateSpec, {field: "x_end"} ],
       y_end:       [ p.YCoordinateSpec, {field: "y_end"} ],
-      end_units:   [ SpatialUnits, "data" ],
+      end_units:   [ CoordinateUnits, "data" ],
       end:         [ Nullable(Ref(ArrowHead)), () => new OpenHead() ],
     }))
   }

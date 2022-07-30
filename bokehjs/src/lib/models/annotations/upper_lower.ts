@@ -1,6 +1,6 @@
 import {DataAnnotation, DataAnnotationView} from "./data_annotation"
-import {Arrayable} from "core/types"
-import {Dimension, SpatialUnits} from "core/enums"
+import {Arrayable, ScreenArray} from "core/types"
+import {Dimension, CoordinateUnits} from "core/enums"
 import {Dimensional} from "core/vectorization"
 import * as p from "core/properties"
 
@@ -30,23 +30,38 @@ export abstract class UpperLowerView extends DataAnnotationView {
     const limit_view = dim == "height" ? frame.bbox.yview : frame.bbox.xview
     const base_view  = dim == "height" ? frame.bbox.xview : frame.bbox.yview
 
-    let _lower_sx
-    if (this.model.properties.lower.units == "data")
-      _lower_sx = limit_scale.v_compute(this._lower)
-    else
-      _lower_sx = limit_view.v_compute(this._lower)
+    const _lower_sx = (() => {
+      switch (this.model.properties.lower.units) {
+        case "canvas":
+          return new ScreenArray(this._lower)
+        case "screen":
+          return limit_view.v_compute(this._lower)
+        case "data":
+          return limit_scale.v_compute(this._lower)
+      }
+    })()
 
-    let _upper_sx
-    if (this.model.properties.upper.units == "data")
-      _upper_sx = limit_scale.v_compute(this._upper)
-    else
-      _upper_sx = limit_view.v_compute(this._upper)
+    const _upper_sx = (() => {
+      switch (this.model.properties.upper.units) {
+        case "canvas":
+          return new ScreenArray(this._upper)
+        case "screen":
+          return limit_view.v_compute(this._upper)
+        case "data":
+          return limit_scale.v_compute(this._upper)
+      }
+    })()
 
-    let _base_sx
-    if (this.model.properties.base.units == "data")
-      _base_sx  = base_scale.v_compute(this._base)
-    else
-      _base_sx  = base_view.v_compute(this._base)
+    const _base_sx = (() => {
+      switch (this.model.properties.base.units) {
+        case "canvas":
+          return new ScreenArray(this._base)
+        case "screen":
+          return base_view.v_compute(this._base)
+        case "data":
+          return base_scale.v_compute(this._base)
+      }
+    })()
 
     const [i, j] = dim == "height" ? [1, 0] : [0, 1]
 
@@ -64,14 +79,14 @@ export abstract class UpperLowerView extends DataAnnotationView {
 export class XOrYCoordinateSpec extends p.CoordinateSpec {
   override readonly obj: UpperLower
 
-  protected override _value: Dimensional<this["__vector__"], SpatialUnits> | p.Unset = p.unset
+  protected override _value: Dimensional<this["__vector__"], CoordinateUnits> | p.Unset = p.unset
 
   get dimension(): "x" | "y" {
     return this.obj.dimension == "width" ? "x" : "y"
   }
 
   // XXX: a hack to make a coordinate & unit spec
-  get units(): SpatialUnits {
+  get units(): CoordinateUnits {
     return this._value === p.unset ? "data" : this._value.units ?? "data"
   }
 }
