@@ -1,16 +1,12 @@
-@import "./_mixins.less";
-
 .tool-icon(@icon, @file) {
   @path: "../../../sphinx/source/_images/icons";
   background-image: var(@icon, data-uri("@{path}/@{file}.png"));
 }
 
-.tool-icon-mask(@icon, @color: #a1a6a9) {
-  .icon-mask(@icon, @color);
-  mask-size: 60% 60%;
-  mask-position: center center;
-  -webkit-mask-size: 60% 60%;
-  -webkit-mask-position: center center;
+.tool-icon-mask(@icon) {
+  mask-image: @icon;
+  -webkit-mask-image: @icon;
+  background-color: #a1a6a9;
 }
 
 .bk-tool-icon-copy {

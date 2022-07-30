@@ -85,7 +85,7 @@ export abstract class ToolButtonView extends DOMElementView {
   override render(): void {
     empty(this.el)
 
-    const icon_el = div({class: "bk-tool-icon"})
+    const icon_el = div({class: tools.tool_icon})
     this.el.appendChild(icon_el)
 
     const icon = this.model.computed_icon

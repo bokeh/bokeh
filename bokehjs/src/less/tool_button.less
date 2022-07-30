@@ -17,11 +17,20 @@
 .bk-tool-icon {
   width: var(--button-width);
   height: var(--button-height);
+
+  mask-size: 60% 60%;
+  mask-position: center center;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 60% 60%;
+  -webkit-mask-position: center center;
+  -webkit-mask-repeat: no-repeat;
+
+  /* for PNG icons; remove when dropped */
   background-size: 60% 60%;
   background-origin: border-box;
   background-color: transparent;
-  background-repeat: no-repeat;
   background-position: center center;
+  background-repeat: no-repeat;
 }
 
 .bk-toolbar-button, .bk-tool-overflow {
