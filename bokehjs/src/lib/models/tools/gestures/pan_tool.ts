@@ -3,6 +3,7 @@ import * as p from "core/properties"
 import {PanEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import {Interval} from "core/types"
+import {MenuItem} from "core/util/menus"
 import {Scale} from "models/scales/scale"
 import * as icons from "styles/icons.css"
 
@@ -166,5 +167,35 @@ export class PanTool extends GestureTool {
         case "height": return `.${icons.tool_icon_y_pan}`
       }
     }
+  }
+
+  override get menu(): MenuItem[] | null {
+    return [
+      {
+        icon: icons.tool_icon_pan,
+        tooltip: "Pan in both dimensions",
+        active: () => this.dimensions == "both",
+        handler: () => {
+          this.dimensions = "both"
+          this.active = true
+        },
+      }, {
+        icon: icons.tool_icon_x_pan,
+        tooltip: "Pan in x-dimension",
+        active: () => this.dimensions == "width",
+        handler: () => {
+          this.dimensions = "width"
+          this.active = true
+        },
+      }, {
+        icon: icons.tool_icon_y_pan,
+        tooltip: "Pan in y-dimension",
+        active: () => this.dimensions == "height",
+        handler: () => {
+          this.dimensions = "height"
+          this.active = true
+        },
+      },
+    ]
   }
 }
