@@ -41,6 +41,14 @@
   .tool-icon-mask(var(--bokeh-icon-box-select));
 }
 
+.bk-tool-icon-x-box-select {
+  .tool-icon-mask(var(--bokeh-icon-x-box-select));
+}
+
+.bk-tool-icon-y-box-select {
+  .tool-icon-mask(var(--bokeh-icon-y-box-select));
+}
+
 .bk-tool-icon-box-zoom {
   .tool-icon-mask(var(--bokeh-icon-box-zoom));
 }
@@ -164,18 +172,23 @@
   --bokeh-icon-copy: data-uri("icons/copy.svg");
 
   --bokeh-icon-tap-select: data-uri("icons/tap.svg");
+  --bokeh-icon-lasso-select: data-uri("icons/lasso-select.svg");
 
   --bokeh-icon-pan: data-uri("icons/pan.svg");
   --bokeh-icon-x-pan: data-uri("icons/x-pan.svg");
   --bokeh-icon-y-pan: data-uri("icons/y-pan.svg");
 
-  --bokeh-icon-zoom-in: data-uri("icons/zoom-in.svg");
-  --bokeh-icon-zoom-out: data-uri("icons/zoom-out.svg");
+  --bokeh-icon-box-select: data-uri("icons/box-select.svg");
+  --bokeh-icon-x-box-select: data-uri("icons/x-box-select.svg");
+  --bokeh-icon-y-box-select: data-uri("icons/y-box-select.svg");
 
   --bokeh-icon-box-zoom: data-uri("icons/box-zoom.svg");
   --bokeh-icon-x-box-zoom: data-uri("icons/x-box-zoom.svg");
   --bokeh-icon-y-box-zoom: data-uri("icons/y-box-zoom.svg");
   --bokeh-icon-auto-box-zoom: data-uri("icons/auto-box-zoom.svg");
+
+  --bokeh-icon-zoom-in: data-uri("icons/zoom-in.svg");
+  --bokeh-icon-zoom-out: data-uri("icons/zoom-out.svg");
 
   --bokeh-icon-undo: data-uri("icons/arrow-back-up.svg");
   --bokeh-icon-redo: data-uri("icons/arrow-forward-up.svg");
@@ -183,7 +196,4 @@
 
   --bokeh-icon-hover: data-uri("icons/hover.svg");
   --bokeh-icon-crosshair: data-uri("icons/crosshair.svg");
-
-  --bokeh-icon-box-select: data-uri("icons/box-select.svg");
-  --bokeh-icon-lasso-select: data-uri("icons/lasso-select.svg");
 }
