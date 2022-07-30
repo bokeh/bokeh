@@ -1,5 +1,6 @@
 import {Model} from "../../model"
 import {DOMComponentView} from "core/dom_view"
+import {SerializableState} from "core/view"
 import {BBox} from "core/util/bbox"
 import * as p from "core/properties"
 
@@ -31,6 +32,13 @@ export abstract class UIElementView extends DOMComponentView {
     })
 
     return bbox
+  }
+
+  override serializable_state(): SerializableState {
+    return {
+      ...super.serializable_state(),
+      bbox: this.bbox.box,
+    }
   }
 }
 

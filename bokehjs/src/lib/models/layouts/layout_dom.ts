@@ -431,7 +431,6 @@ export abstract class LayoutDOMView extends UIElementView {
   override serializable_state(): SerializableState {
     return {
       ...super.serializable_state(),
-      bbox: this.layout.bbox.box,
       children: this.child_views.map((child) => child.serializable_state()),
     }
   }
