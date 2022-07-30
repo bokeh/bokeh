@@ -27,7 +27,7 @@ export abstract class ToolButtonView extends DOMElementView {
     const items = this.model.menu
     if (items == null) {
       this.el.addEventListener("click", (e) => {
-        if (e.target == this.el) {
+        if (e.composedPath().includes(this.el)) {
           this._clicked()
         }
       })
@@ -51,7 +51,7 @@ export abstract class ToolButtonView extends DOMElementView {
           _menu.hide()
           return
         }
-        if (e.target == this.el) {
+        if (e.srcEvent.composedPath().includes(this.el)) {
           this._clicked()
         }
       })
