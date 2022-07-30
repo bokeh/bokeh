@@ -386,6 +386,7 @@ to generate palettes of arbitrary size.
 .. autofunction:: bokeh.palettes.inferno(n)
 .. autofunction:: bokeh.palettes.linear_palette(palette, n)
 .. autofunction:: bokeh.palettes.magma(n)
+.. autofunction:: bokeh.palettes.varying_alpha_palette(palette, n, start_alpha, end_alpha)
 .. autofunction:: bokeh.palettes.viridis(n)
 
 Licenses
@@ -423,6 +424,9 @@ from typing import Dict, Tuple
 # External imports
 import numpy as np
 from typing_extensions import TypeAlias
+
+# Bokeh imports
+from .colors.util import NamedColor
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -1563,8 +1567,56 @@ def diverging_palette(palette1: Palette, palette2: Palette, n: int, midpoint: fl
     # return piecewise linear interpolation of colors
     return linear_palette(palette1, n1) + linear_palette(palette2, n2)
 
+def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0, end_alpha: int = 255) -> Palette:
+    """ Generate a palette that is a single color with linearly varying alpha.
+
+    Alpha may vary from low to high or high to low, depending on the values of
+    ``start_alpha`` and ``end_alpha``.
+
+    Args:
+        color (str) :
+            Named color or RGB(A) hex color string. Any alpha component is
+            ignored.
+
+        n (int, optional) :
+            The size of the palette to generate. If not specified uses the
+            maximum number of colors such that adjacent colors differ by an
+            alpha of 1.
+
+        start_alpha (int, optional) :
+            Alpha component of the start of the palette, in the range 0 to 255
+
+        end_alpha (int, optional) :
+            Alpha component of the end of the palette, in the range 0 to 255
+
+    Returns:
+        seq[str] : a sequence of hex RGBA color strings
+
+    Raises:
+        ValueError if ``color`` is not recognisable as a string name or hex
+            RGB(A) string, or if ``start_alpha`` or ``end_alpha`` are outside
+            the range 0 to 255 inclusive.
+
+    """
+
+    if not (0 <= start_alpha <= 255):
+        raise ValueError(f"start_alpha {start_alpha} must be in the range 0 to 255")
+
+    if not (0 <= end_alpha <= 255):
+        raise ValueError(f"end_alpha {end_alpha} must be in the range 0 to 255")
+
+    if not n:
+        n = int(abs(end_alpha - start_alpha)) + 1
+
+    rgb = NamedColor.from_string(color)
+
+    diff_alpha = end_alpha - start_alpha
+    palette = tuple(f"{rgb.to_hex()}{round(start_alpha + diff_alpha*i / (n-1.0)):02X}" for i in range(n))
+
+    return palette
+
 def magma(n: int) -> Palette:
-    """ Generate a palette of colors or from the Magma palette.
+    """ Generate a palette of colors from the Magma palette.
 
     The full Magma palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1593,7 +1645,7 @@ def magma(n: int) -> Palette:
     return linear_palette(Magma256, n)
 
 def inferno(n: int) -> Palette:
-    """ Generate a palette of colors or from the Inferno palette.
+    """ Generate a palette of colors from the Inferno palette.
 
     The full Inferno palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1622,7 +1674,7 @@ def inferno(n: int) -> Palette:
     return linear_palette(Inferno256, n)
 
 def plasma(n: int) -> Palette:
-    """ Generate a palette of colors or from the Plasma palette.
+    """ Generate a palette of colors from the Plasma palette.
 
     The full Plasma palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1651,7 +1703,7 @@ def plasma(n: int) -> Palette:
     return linear_palette(Plasma256, n)
 
 def viridis(n: int) -> Palette:
-    """ Generate a palette of colors or from the Viridis palette.
+    """ Generate a palette of colors from the Viridis palette.
 
     The full Viridis palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1680,7 +1732,7 @@ def viridis(n: int) -> Palette:
     return linear_palette(Viridis256, n)
 
 def cividis(n: int) -> Palette:
-    """ Generate a palette of colors or from the Cividis palette.
+    """ Generate a palette of colors from the Cividis palette.
 
     The full Cividis palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1709,7 +1761,7 @@ def cividis(n: int) -> Palette:
     return linear_palette(Cividis256, n)
 
 def turbo(n: int) -> Palette:
-    """ Generate a palette of colors or from the Turbo palette.
+    """ Generate a palette of colors from the Turbo palette.
 
     Turbo is described here:
 
@@ -1742,7 +1794,7 @@ def turbo(n: int) -> Palette:
     return linear_palette(Turbo256, n)
 
 def grey(n: int) -> Palette:
-    """ Generate a palette of colors or from the Greys palette.
+    """ Generate a palette of colors from the Greys palette.
 
     The full Greys palette that serves as input for deriving new palettes
     has 256 colors, and looks like:

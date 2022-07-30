@@ -119,6 +119,51 @@ class NamedColor(RGB):
         self.name = name
         super().__init__(r, g, b)
 
+    @classmethod
+    def find(cls, name: str) -> NamedColor | None:
+        ''' Find and return a named color.
+
+        Args:
+            name (str) : Name of color to find.
+
+        Returns:
+            :class:`~bokeh.colors.NamedColor` or None if the name is not
+            recognised.
+
+        '''
+        try:
+            index = cls.__all__.index(name)
+        except ValueError:
+            return None
+        return cls.colors[index]
+
+    @classmethod
+    def from_string(cls, color: str) -> RGB:
+        ''' Create an RGB color from a string.
+
+        Args:
+            color (str) :
+                String containing color. This may be a named color such as
+                "blue" or a hex RGB(A) string of one of the following formats:
+                '#rrggbb', '#rrggbbaa', '#rgb' or '#rgba'.
+
+        Returns:
+            :class:`~bokeh.colors.RGB`
+
+        '''
+
+        try:
+            # Is it a hex string?
+            return RGB.from_hex_string(color)
+        except ValueError:
+            # Is it a named color?
+            rgb = cls.find(color)
+
+            if rgb is None:
+                raise ValueError(f"Color '{color}' must be either a named color or an RGB(A) hex string")
+
+            return rgb
+
     def to_css(self) -> str:
         '''
 

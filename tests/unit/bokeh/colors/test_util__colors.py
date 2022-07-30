@@ -52,6 +52,62 @@ class Test_NamedColor:
         c = bcu.NamedColor("aliceblue", 240,  248,  255)
         assert c.to_css() == "aliceblue"
 
+    def test_find(self) -> None:
+        c = bcu.NamedColor.find("cornflowerblue")
+        assert c.name == "cornflowerblue"
+
+        assert bcu.NamedColor.find("bluey") == None
+
+    def test_from_string(self) -> None:
+        # Name
+        c = bcu.NamedColor.from_string("blue")
+        assert c.name == "blue"
+
+        # '#rrggbb'
+        c = bcu.NamedColor.from_string("#A3B20F")
+        assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 1.0)
+        c = bcu.NamedColor.from_string("#a3b20f")
+        assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 1.0)
+
+        # '#rrggbbaa'
+        c = bcu.NamedColor.from_string("#A3B20FC0")
+        assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 192/255.0)
+        c = bcu.NamedColor.from_string("#a3b20fc0")
+        assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 192/255.0)
+
+        # '#rgb'
+        c = bcu.NamedColor.from_string("#7A3")
+        assert (c.r, c.g, c.b, c.a) == (119, 170, 51, 1.0)
+        c = bcu.NamedColor.from_string("#7a3")
+        assert (c.r, c.g, c.b, c.a) == (119, 170, 51, 1.0)
+
+        # '#rgba'
+        c = bcu.NamedColor.from_string("#7A3B")
+        assert (c.r, c.g, c.b, c.a) == (119, 170, 51, 187/255.0)
+        c = bcu.NamedColor.from_string("#7a3b")
+        assert (c.r, c.g, c.b, c.a) == (119, 170, 51, 187/255.0)
+
+        # Invalid name
+        with pytest.raises(ValueError):
+            bcu.NamedColor.from_string("bluey")
+
+        # Invalid hex string
+        with pytest.raises(ValueError):
+            bcu.NamedColor.from_string("#")
+        with pytest.raises(ValueError):
+            bcu.NamedColor.from_string("#1")
+        with pytest.raises(ValueError):
+            bcu.NamedColor.from_string("#12")
+        with pytest.raises(ValueError):
+            bcu.NamedColor.from_string("#12345")
+        with pytest.raises(ValueError):
+            bcu.NamedColor.from_string("#1234567")
+        with pytest.raises(ValueError):
+            bcu.NamedColor.from_string("#123456789")
+        with pytest.raises(ValueError):
+            bcu.NamedColor.from_string(" #abc")
+
+
 class Test_ColorGroup:
     def test_len(self) -> None:
         assert len(_TestGroup) == 3
