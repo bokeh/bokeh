@@ -23,17 +23,16 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.enums import CoordinateUnits, Dimension
 from ...core.properties import (
-    Auto,
     Datetime,
     Either,
     Enum,
+    Factor,
     Float,
     Include,
     Instance,
     InstanceDefault,
     Null,
     Nullable,
-    NumberSpec,
     Override,
     Seq,
     UnitsSpec,
@@ -77,7 +76,7 @@ class BoxAnnotation(Annotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    left = Either(Null, Auto, NumberSpec(), help="""
+    left = Either(Null, Float, Factor, help="""
     The x-coordinates of the left edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
@@ -89,7 +88,7 @@ class BoxAnnotation(Annotation):
     default.
     """)
 
-    right = Either(Null, Auto, NumberSpec(), help="""
+    right = Either(Null, Float, Factor, help="""
     The x-coordinates of the right edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
@@ -101,7 +100,7 @@ class BoxAnnotation(Annotation):
     default.
     """)
 
-    bottom = Either(Null, Auto, NumberSpec(), help="""
+    bottom = Either(Null, Float, Factor, help="""
     The y-coordinates of the bottom edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
@@ -113,7 +112,7 @@ class BoxAnnotation(Annotation):
     default.
     """)
 
-    top = Either(Null, Auto, NumberSpec(), help="""
+    top = Either(Null, Float, Factor, help="""
     The y-coordinates of the top edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
