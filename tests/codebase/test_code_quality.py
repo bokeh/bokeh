@@ -83,7 +83,7 @@ def use_tab_rule(fname: str) -> bool:
 exclude_paths = ("CHANGELOG",)
 
 exclude_exts = (
-    ".patch", ".png", ".jpg", ".pxm", ".ico", ".ics", ".gz", ".gif", ".enc", ".svg",
+    ".patch", ".png", ".jpg", ".pxm", ".ico", ".ics", ".gz", ".gif", ".enc",
     ".xml", ".shp", ".dbf", ".shx", "otf", ".eot", ".ttf", ".woff", ".woff2",
 )
 
