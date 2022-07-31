@@ -15,6 +15,7 @@ import {
   LinearColorMapper,
   Plot,
   TeX,
+  PanTool,
   HoverTool,
   ZoomInTool,
   TileRenderer, WMTSTileSource,
@@ -36,7 +37,7 @@ import {range, linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
-import {defer} from "@bokehjs/core/util/defer"
+import {defer, delay} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, show} from "@bokehjs/api/plotting"
 import {MarkerArgs} from "@bokehjs/api/glyph_api"
@@ -45,6 +46,7 @@ import {div, offset} from "@bokehjs/core/dom"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {PlotView} from "@bokehjs/models/plots/plot"
+import {ToolbarPanelView} from "@bokehjs/models/annotations/toolbar_panel"
 
 import {gridplot} from "@bokehjs/api/gridplot"
 import {f} from "@bokehjs/api/expr"
@@ -1835,6 +1837,30 @@ describe("Bug", () => {
       p.grid.visible = false
       p.line([0, 1, 2, 2, 2], [2, 2, 2, 1, 0], {line_width: 30, line_join: "bevel"})
       await display(p)
+    })
+  })
+
+  describe("in issue #11946", () => {
+    it("doesn't allow to persist menus after a re-render", async () => {
+      const p = fig([200, 100], {toolbar_location: "right", tools: [new PanTool()]})
+      p.circle([1, 2, 3], [1, 2, 3])
+      const {view} = await display(p)
+
+      view.invalidate_render()
+
+      const tbpv = [...view.renderer_views.values()].find((view): view is ToolbarPanelView => view instanceof ToolbarPanelView)
+      assert(tbpv != null)
+
+      const [pan_button_view] = tbpv.toolbar_view.tool_button_views.values()
+      const pan_el = pan_button_view.el
+
+      const ev0 = new MouseEvent("mousedown", {clientX: 5, clientY: 5, bubbles: true})
+      const ev1 = new MouseEvent("mouseup", {clientX: 5, clientY: 5, bubbles: true})
+
+      // tool button press
+      pan_el.dispatchEvent(ev0)
+      await delay(300)
+      pan_el.dispatchEvent(ev1)
     })
   })
 })

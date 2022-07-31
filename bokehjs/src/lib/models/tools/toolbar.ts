@@ -30,7 +30,7 @@ export class ToolbarView extends DOMComponentView {
   override model: Toolbar
   override el: HTMLElement
 
-  protected _tool_button_views: Map<ToolLike<Tool>, ToolButtonView>
+  readonly tool_button_views: Map<ToolLike<Tool>, ToolButtonView> = new Map()
   protected _overflow_menu: ContextMenu
   protected _overflow_el?: HTMLElement
 
@@ -41,7 +41,6 @@ export class ToolbarView extends DOMComponentView {
 
   override initialize(): void {
     super.initialize()
-    this._tool_button_views = new Map()
 
     const {toolbar_location} = this.model
     const reversed = toolbar_location == "left" || toolbar_location == "above"
@@ -76,12 +75,12 @@ export class ToolbarView extends DOMComponentView {
   }
 
   override remove(): void {
-    remove_views(this._tool_button_views)
+    remove_views(this.tool_button_views)
     super.remove()
   }
 
   protected async _build_tool_button_views(): Promise<void> {
-    await build_views(this._tool_button_views as any, this.model.tools, {parent: this as any}, (tool) => tool.button_view) // XXX: no ButtonToolButton model
+    await build_views(this.tool_button_views as any, this.model.tools, {parent: this as any}, (tool) => tool.button_view) // XXX: no ButtonToolButton model
   }
 
   set_visibility(visible: boolean): void {
@@ -113,14 +112,14 @@ export class ToolbarView extends DOMComponentView {
       size += horizontal ? width : height
     }
 
-    for (const [, button_view] of this._tool_button_views) {
+    for (const [, button_view] of this.tool_button_views) {
       button_view.render()
     }
 
     const bars: HTMLElement[][] = []
 
     const el = (tool: ToolLike<Tool>) => {
-      return this._tool_button_views.get(tool)!.el
+      return this.tool_button_views.get(tool)!.el
     }
 
     const {gestures} = this.model
