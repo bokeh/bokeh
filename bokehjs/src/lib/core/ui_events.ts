@@ -10,7 +10,6 @@ import {isString} from "./util/types"
 import {is_mobile} from "./util/platform"
 import {PlotView} from "../models/plots/plot"
 import {ToolView} from "../models/tools/tool"
-import {ContextMenu} from "./util/menus"
 import {RendererView} from "../models/renderers/renderer"
 import type {CanvasView} from "../models/canvas/canvas"
 
@@ -127,8 +126,6 @@ export class UIEventBus implements EventListenerObject {
     inputClass: Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
   })
 
-  private menu: ContextMenu
-
   get hit_area(): HTMLElement {
     return this.canvas_view.events_el
   }
@@ -151,15 +148,9 @@ export class UIEventBus implements EventListenerObject {
     // instead of an anonymous function so we can easily refer back to it for removing
     document.addEventListener("keydown", this)
     document.addEventListener("keyup", this)
-
-    this.menu = new ContextMenu([], {
-      prevent_hide: (event) => event.button == 2 && event.composedPath().includes(this.hit_area),
-    })
-    this.hit_area.appendChild(this.menu.el)
   }
 
   destroy(): void {
-    this.menu.remove()
     this.hammer.destroy()
     document.removeEventListener("keydown", this)
     document.removeEventListener("keyup", this)
@@ -707,13 +698,8 @@ export class UIEventBus implements EventListenerObject {
     this._trigger(this.scroll, this._scroll_event(e), e)
   }
 
-  /*private*/ _context_menu(e: MouseEvent): void {
-    if (!this.menu.is_open && this.menu.can_open) {
-      e.preventDefault()
-    }
-
-    const {sx, sy} = this._get_sxy(e)
-    this.menu.toggle({left: sx, top: sy})
+  /*private*/ _context_menu(_e: MouseEvent): void {
+    // TODO
   }
 
   /*private*/ _key_down(e: KeyboardEvent): void {

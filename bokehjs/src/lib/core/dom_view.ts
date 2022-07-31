@@ -59,6 +59,7 @@ export abstract class DOMElementView extends DOMView {
 
 export abstract class DOMComponentView extends DOMElementView {
   override parent: DOMElementView | null
+  override readonly root: DOMComponentView
 
   override shadow_el: ShadowRoot
   protected readonly _stylesheets: (StyleSheet | ImportedStyleSheet)[] = []
