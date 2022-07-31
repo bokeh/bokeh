@@ -72,6 +72,7 @@ const style = {
   position: "absolute",
   top: "0",
   left: "0",
+  zIndex: "0", // establish a stacking context
 }
 
 export class CanvasView extends DOMView {

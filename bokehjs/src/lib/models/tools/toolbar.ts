@@ -47,6 +47,7 @@ export class ToolbarView extends DOMComponentView {
     const reversed = toolbar_location == "left" || toolbar_location == "above"
     const orientation = this.model.horizontal ? "vertical" : "horizontal"
     this._overflow_menu = new ContextMenu([], {
+      target: this.root.el,
       orientation,
       reversed,
       prevent_hide: (event) => {
@@ -137,7 +138,6 @@ export class ToolbarView extends DOMComponentView {
 
     let overflowed = false
     const overflow_size = 15
-    this.root.children_el.appendChild(this._overflow_menu.el)
     const overflow_el = div({class: tools.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
     this._overflow_el = overflow_el
     const toggle_menu = () => {
