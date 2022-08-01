@@ -18,6 +18,7 @@ export namespace Styles {
     animation_name: p.Property<string | null>
     animation_play_state: p.Property<string | null>
     animation_timing_function: p.Property<string | null>
+    aspect_ratio: p.Property<string | null>
     backface_visibility: p.Property<string | null>
     background: p.Property<string | null>
     background_attachment: p.Property<string | null>
@@ -347,6 +348,7 @@ export class Styles extends Model {
       animation_name: [ Nullable(String), null ],
       animation_play_state: [ Nullable(String), null ],
       animation_timing_function: [ Nullable(String), null ],
+      aspect_ratio: [ Nullable(String), null ],
       backface_visibility: [ Nullable(String), null ],
       background: [ Nullable(String), null ],
       background_attachment: [ Nullable(String), null ],

@@ -57,6 +57,7 @@ class Styles(Model, Qualified):
     animation_name = Nullable(String)
     animation_play_state = Nullable(String)
     animation_timing_function = Nullable(String)
+    aspect_ratio = Nullable(String)
     backface_visibility = Nullable(String)
     background = Nullable(String)
     background_attachment = Nullable(String)
