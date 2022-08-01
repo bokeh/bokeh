@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import re
 from typing import TYPE_CHECKING
 
 # External imports
@@ -28,9 +29,11 @@ if TYPE_CHECKING:
 # Bokeh imports
 from bokeh.core.validation import silenced
 from bokeh.core.validation.warnings import MISSING_RENDERERS
+from bokeh.io.state import curstate
 from bokeh.io.webdriver import webdriver_control
 from bokeh.layouts import row
 from bokeh.models import (
+    Circle,
     ColumnDataSource,
     Plot,
     Range1d,
@@ -38,6 +41,7 @@ from bokeh.models import (
 )
 from bokeh.plotting import figure
 from bokeh.resources import Resources
+from bokeh.themes import Theme
 
 # Module under test
 import bokeh.io.export as bie # isort:skip
@@ -182,12 +186,13 @@ def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
 @flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:
-    plot = lambda color: Plot(
-        x_range=Range1d(), y_range=Range1d(),
-        height=20, width=20, toolbar_location=None,
-        outline_line_color=None, border_fill_color=None,
-        background_fill_color=color, output_backend="svg",
-    )
+    def plot(color: str):
+        return Plot(
+            x_range=Range1d(), y_range=Range1d(),
+            height=20, width=20, toolbar_location=None,
+            outline_line_color=None, border_fill_color=None,
+            background_fill_color=color, output_backend="svg",
+        )
 
     layout = row([plot("red"), plot("blue")])
 
@@ -211,6 +216,35 @@ def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:
 
 @flaky(max_runs=10)
 @pytest.mark.selenium
+def test_get_svg_with_implicit_document_and_theme(webdriver: WebDriver) -> None:
+    state = curstate()
+    state.reset()
+    try:
+        state.document.theme = Theme(json={
+            "attrs": {
+                "Plot": {
+                    "background_fill_color": "#2f3f4f",
+                },
+            },
+        })
+
+        def p(color: str):
+            plot = Plot(
+                x_range=Range1d(-1, 1), y_range=Range1d(-1, 1),
+                height=200, width=200,
+                toolbar_location=None,
+                output_backend="svg",
+            )
+            plot.add_glyph(Circle(x=0, y=0, radius=1, fill_color=color))
+            return plot
+
+        [svg] = bie.get_svg(row([p("red"), p("blue")]), driver=webdriver)
+        assert len(re.findall(r'fill="rgb\(47,63,79\)"', svg)) == 2
+    finally:
+        state.reset()
+
+@flaky(max_runs=10)
+@pytest.mark.selenium
 def test_get_svgs_no_svg_present() -> None:
     layout = Plot(x_range=Range1d(), y_range=Range1d(), height=20, width=20, toolbar_location=None)
 
@@ -222,12 +256,13 @@ def test_get_svgs_no_svg_present() -> None:
 @flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_svgs_with_svg_present(webdriver: WebDriver) -> None:
-    plot = lambda color: Plot(
-        x_range=Range1d(), y_range=Range1d(),
-        height=20, width=20, toolbar_location=None,
-        outline_line_color=None, border_fill_color=None,
-        background_fill_color=color, output_backend="svg",
-    )
+    def plot(color: str):
+        return Plot(
+            x_range=Range1d(), y_range=Range1d(),
+            height=20, width=20, toolbar_location=None,
+            outline_line_color=None, border_fill_color=None,
+            background_fill_color=color, output_backend="svg",
+        )
 
     layout = row([plot("red"), plot("blue")])
 
