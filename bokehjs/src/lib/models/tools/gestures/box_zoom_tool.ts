@@ -2,19 +2,21 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import {CartesianFrame} from "../../canvas/cartesian_frame"
 import * as p from "core/properties"
-import {PanEvent} from "core/ui_events"
+import {PanEvent, KeyEvent} from "core/ui_events"
 import {Dimensions, BoxOrigin} from "core/enums"
 import {Interval} from "core/types"
+import {Keys} from "core/dom"
 import {MenuItem} from "core/util/menus"
 import * as icons from "styles/icons.css"
+
+type Point = [number, number]
 
 export class BoxZoomToolView extends GestureToolView {
   override model: BoxZoomTool
 
-  protected _base_point: [number, number] | null
+  protected _base_point: Point | null = null
 
-  _match_aspect(base_point: [number, number], curpoint: [number, number],
-                frame: CartesianFrame): [[number, number], [number, number]] {
+  _match_aspect([bx, by]: Point, [cx, cy]: Point, frame: CartesianFrame): [Point, Point] {
     // aspect ratio of plot frame
     const a = frame.bbox.aspect
     const hend = frame.bbox.h_range.end
@@ -23,8 +25,8 @@ export class BoxZoomToolView extends GestureToolView {
     const vstart = frame.bbox.v_range.start
 
     // current aspect of cursor-defined box
-    let vw = Math.abs(base_point[0]-curpoint[0])
-    let vh = Math.abs(base_point[1]-curpoint[1])
+    let vw = Math.abs(bx - cx)
+    let vh = Math.abs(by - cy)
 
     const va = vh == 0 ? 0 : vw/vh
     const [xmod] = va >= a ? [1, va/a] : [a/va, 1]
@@ -35,59 +37,58 @@ export class BoxZoomToolView extends GestureToolView {
     // compute top/bottom (based on new left/right), pin to frame if necessary
     // recompute left/right (based on top/bottom), in case top/bottom were pinned
 
-    // base_point[0] is left
+    // bx is left
     let left: number
     let right: number
-    if (base_point[0] <= curpoint[0]) {
-      left = base_point[0]
-      right = base_point[0] + vw * xmod
+    if (bx <= cx) {
+      left = bx
+      right = bx + vw*xmod
       if (right > hend)
         right = hend
-    // base_point[0] is right
+    // bx is right
     } else {
-      right = base_point[0]
-      left = base_point[0] - vw * xmod
+      right = bx
+      left = bx - vw*xmod
       if (left < hstart)
         left = hstart
     }
 
     vw = Math.abs(right - left)
 
-    // base_point[1] is bottom
+    // by is bottom
     let top: number
     let bottom: number
-    if (base_point[1] <= curpoint[1]) {
-      bottom = base_point[1]
-      top = base_point[1] + vw/a
+    if (by <= cy) {
+      bottom = by
+      top = by + vw/a
       if (top > vend)
         top = vend
-    // base_point[1] is top
+    // by is top
     } else {
-      top = base_point[1]
-      bottom = base_point[1] - vw/a
+      top = by
+      bottom = by - vw/a
       if (bottom < vstart)
         bottom = vstart
     }
 
     vh = Math.abs(top - bottom)
 
-    // base_point[0] is left
-    if (base_point[0] <= curpoint[0])
-      right = base_point[0] + a*vh
-    // base_point[0] is right
+    // bx is left
+    if (bx <= cx)
+      right = bx + a*vh
+    // bx is right
     else
-      left = base_point[0] - a*vh
+      left = bx - a*vh
 
     return [[left, right], [bottom, top]]
   }
 
-  protected _compute_limits(curpoint: [number, number]): [[number, number], [number, number]] {
-    const frame = this.plot_view.frame
+  protected _compute_limits(base_point: Point, curr_point: Point): [Point, Point] {
+    const {frame} = this.plot_view
 
-    let base_point = this._base_point!
     if (this.model.origin == "center") {
       const [cx, cy] = base_point
-      const [dx, dy] = curpoint
+      const [dx, dy] = curr_point
       base_point = [cx - (dx - cx), cy - (dy - cy)]
     }
 
@@ -95,7 +96,7 @@ export class BoxZoomToolView extends GestureToolView {
       const {dimensions} = this.model
       if (dimensions == "auto") {
         const [bx, by] = base_point
-        const [cx, cy] = curpoint
+        const [cx, cy] = curr_point
 
         const dx = Math.abs(bx - cx)
         const dy = Math.abs(by - cy)
@@ -113,9 +114,9 @@ export class BoxZoomToolView extends GestureToolView {
     })()
 
     if (this.model.match_aspect && dims == "both")
-      return this._match_aspect(base_point, curpoint, frame)
+      return this._match_aspect(base_point, curr_point, frame)
     else
-      return this.model._get_dim_limits(base_point, curpoint, frame, dims)
+      return this.model._get_dim_limits(base_point, curr_point, frame, dims)
   }
 
   override _pan_start(ev: PanEvent): void {
@@ -123,23 +124,36 @@ export class BoxZoomToolView extends GestureToolView {
   }
 
   override _pan(ev: PanEvent): void {
-    const curpoint: [number, number] = [ev.sx, ev.sy]
-    const [sx, sy] = this._compute_limits(curpoint)
+    if (this._base_point == null)
+      return
+
+    const curr_point: Point = [ev.sx, ev.sy]
+    const [sx, sy] = this._compute_limits(this._base_point, curr_point)
     this.model.overlay.update({left: sx[0], right: sx[1], top: sy[0], bottom: sy[1]})
   }
 
   override _pan_end(ev: PanEvent): void {
-    const curpoint: [number, number] = [ev.sx, ev.sy]
-    const [sx, sy] = this._compute_limits(curpoint)
+    if (this._base_point == null)
+      return
+
+    const curr_point: Point = [ev.sx, ev.sy]
+    const [sx, sy] = this._compute_limits(this._base_point, curr_point)
     this._update(sx, sy)
-
-    this.model.overlay.update({left: null, right: null, top: null, bottom: null})
-    this._base_point = null
-
-    this.plot_view.trigger_ranges_update_event()
+    this._stop()
   }
 
-  _update([sx0, sx1]: [number, number], [sy0, sy1]: [number, number]): void {
+  _stop(): void {
+    this.model.overlay.update({left: null, right: null, top: null, bottom: null})
+    this._base_point = null
+  }
+
+  override _keydown(ev: KeyEvent): void {
+    if (ev.keyCode == Keys.Esc) {
+      this._stop()
+    }
+  }
+
+  _update([sx0, sx1]: Point, [sy0, sy1]: Point): void {
     // If the viewing window is too small, no-op: it is likely that the user did
     // not intend to make this box zoom and instead was trying to cancel out of the
     // zoom, a la matplotlib's ToolZoom. Like matplotlib, set the threshold at 5 pixels.
@@ -164,6 +178,7 @@ export class BoxZoomToolView extends GestureToolView {
 
     this.plot_view.state.push("box_zoom", {range: zoom_info})
     this.plot_view.update_range(zoom_info)
+    this.plot_view.trigger_ranges_update_event()
   }
 }
 
