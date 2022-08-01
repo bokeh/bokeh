@@ -113,7 +113,8 @@ module = [
     "bokeh.embed.wrappers",
 
     "bokeh.ext.*",
-    "bokeh.io", # TODO: .*;  mypy_path resolution is broken
+    "bokeh.io.*",
+
     "bokeh.palettes",
     "bokeh.plotting._tools",
     "bokeh.protocol.*",
