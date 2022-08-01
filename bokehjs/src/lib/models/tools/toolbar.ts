@@ -34,6 +34,10 @@ export class ToolbarView extends DOMComponentView {
   protected _overflow_menu: ContextMenu
   protected _overflow_el?: HTMLElement
 
+  get overflow_el(): HTMLElement | undefined {
+    return this._overflow_el
+  }
+
   private _visible: boolean | null = null
   get visible(): boolean {
     return !this.model.autohide || (this._visible ?? false)

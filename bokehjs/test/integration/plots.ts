@@ -5,7 +5,9 @@ import {display, fig, row} from "./_util"
 
 import {figure} from "@bokehjs/api/plotting"
 import {Location} from "@bokehjs/core/enums"
+import {assert} from "@bokehjs/core/util/assert"
 import {Range1d, LinearScale, LinearAxis, ColumnDataSource} from "@bokehjs/models"
+import {PlotView} from "@bokehjs/models/plots/plot"
 
 describe("Plot", () => {
   const f = (location: Location | null, options: {title?: string, inner?: boolean} = {}) => {
@@ -71,6 +73,41 @@ describe("Plot", () => {
 
   it("should allow toolbar placement right inside the frame", async () => {
     await display(f("right", {inner: true}))
+  })
+
+  describe("should support toolbar's overflow menu", () => {
+    const f = (toolbar_location: Location | null) => {
+      const p = fig([200, 200], {tools: "pan,box_zoom,undo,redo,reset,crosshair,help", toolbar_location})
+      p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+      return p
+    }
+
+    const click = (view: PlotView) => {
+      const el = view.toolbar_panel?.toolbar_view.overflow_el
+      assert(el != null)
+      const ev = new MouseEvent("click", {clientX: 5, clientY: 5, bubbles: true})
+      el.dispatchEvent(ev)
+    }
+
+    it("with toolbar located above a plot", async () => {
+      const {view} = await display(f("above"))
+      click(view)
+    })
+
+    it("with toolbar located below a plot", async () => {
+      const {view} = await display(f("below"))
+      click(view)
+    })
+
+    it("with toolbar located left of a plot", async () => {
+      const {view} = await display(f("left"))
+      click(view)
+    })
+
+    it("with toolbar located right of a plot", async () => {
+      const {view} = await display(f("right"))
+      click(view)
+    })
   })
 
   it("should allow fixed x fixed plot", async () => {
