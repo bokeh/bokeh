@@ -264,12 +264,12 @@ In addition to specifying the alpha value of a color when defining the color
 itself, you can also set an alpha value separately by using the
 ``line_alpha`` or ``fill_alpha`` properties of a glyph.
 
-In case you define a color with an alpha value and also explicitly provide an
+If you specify a color with an alpha value and also explicitly provide an
 alpha value through a ``line_alpha`` or ``fill_alpha`` property at the same
-time, the following happens: If your color definition does include an alpha
-value (such as ``'#00FF0044'`` or ``'rgba(255, 0, 127, 0.6)'``), this alpha
-value takes precedence over the alpha value you provide through the objects's
-property. Otherwise, the alpha value defined in the objects's property is used.
+time, then the alpha values are combined by multiplying them together. For
+example, if your color is ``'#00FF0044'`` or ``'rgba(255, 0, 127, 0.6)'``
+and your separate alpha value is ``0.5`` then the alpha value used for the
+glyph will be ``0.6*0.5 = 0.3``.
 
 The following figure demonstrates each possible combination of using RGB and
 RGBA colors together with the ``line_alpha`` or ``fill_alpha`` properties:

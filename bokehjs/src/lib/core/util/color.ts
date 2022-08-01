@@ -47,8 +47,8 @@ export function color2rgba(color: Color | null, alpha?: number): RGBA {
     a = byte(a*255)
   }
 
-  if (a == 255 && alpha != null)
-    a = byte(alpha*255)
+  if (alpha != null && alpha < 1.0)
+    a = byte(alpha*a)
 
   return [r, g, b, a]
 }
