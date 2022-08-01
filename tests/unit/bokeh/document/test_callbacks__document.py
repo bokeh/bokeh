@@ -344,7 +344,7 @@ def test_invoke_with_curdoc() -> None:
     assert reported_curdoc == d
 
 def test_invoke_with_curdoc_nolock() -> None:
-    reported_curdoc = None
+    reported_curdoc: Document | UnlockedDocumentProxy | None = None
     d = Document()
     def f() -> None:
         nonlocal reported_curdoc
