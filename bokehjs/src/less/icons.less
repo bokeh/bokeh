@@ -157,12 +157,21 @@
   .tool-icon(--bokeh-icon-line-edit, "LineEdit");
 }
 
+.bk-tool-icon-settings {
+  .tool-icon-mask(var(--bokeh-icon-settings));
+}
+
+.bk-tool-icon-unknown {
+  .tool-icon-mask(var(--bokeh-icon-unknown));
+}
+
 :host {
   // Based on https://tabler-icons.io/ (MIT License)
   --bokeh-icon-question-mark: data-uri("icons/question-mark.svg");
   --bokeh-icon-help: data-uri("icons/help.svg");
   --bokeh-icon-x: data-uri("icons/x.svg");
   --bokeh-icon-settings: data-uri("icons/settings.svg");
+  --bokeh-icon-unknown: data-uri("icons/unknown.svg");
 
   --bokeh-icon-save: data-uri("icons/save.svg");
   --bokeh-icon-copy: data-uri("icons/copy.svg");
