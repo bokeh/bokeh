@@ -35,6 +35,8 @@ import {parse_css_font_size} from "core/util/text"
 import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
 import {StateInfo, StateManager} from "./state_manager"
 import {settings} from "core/settings"
+import {StyleSheetLike} from "core/dom"
+import canvas_css from "styles/canvas.css"
 
 export class PlotView extends LayoutDOMView implements Renderable {
   override model: Plot
@@ -47,6 +49,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
   canvas_view: CanvasView
   get canvas(): CanvasView {
     return this.canvas_view
+  }
+
+  override styles(): StyleSheetLike[] {
+    return [...super.styles(), canvas_css]
   }
 
   protected _title?: Title

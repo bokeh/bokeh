@@ -1,6 +1,5 @@
 import {SVGRenderingContext2D} from "./svg"
 import {BBox} from "./bbox"
-import {extend} from "./object"
 import {div, canvas} from "../dom"
 import {OutputBackend} from "../enums"
 
@@ -75,14 +74,6 @@ function fixup_ctx(ctx: any): void {
   fixup_ellipse(ctx)
 }
 
-const style = {
-  position: "absolute",
-  top: "0",
-  left: "0",
-  width: "100%",
-  height: "100%",
-}
-
 export class CanvasLayer {
   private readonly _canvas: HTMLCanvasElement | SVGSVGElement
   get canvas(): HTMLCanvasElement {
@@ -107,7 +98,7 @@ export class CanvasLayer {
     switch (backend) {
       case "webgl":
       case "canvas": {
-        this._el = this._canvas = canvas({style})
+        this._el = this._canvas = canvas({class: "bk-layer"})
         const ctx = this.canvas.getContext("2d")
         if (ctx == null)
           throw new Error("unable to obtain 2D rendering context")
@@ -121,7 +112,7 @@ export class CanvasLayer {
         const ctx = new SVGRenderingContext2D()
         this._ctx = ctx
         this._canvas = ctx.get_svg()
-        this._el = div({style})
+        this._el = div({class: "bk-layer"})
         const shadow_el = this._el.attachShadow({mode: "open"})
         shadow_el.appendChild(this._canvas)
         break
@@ -138,12 +129,6 @@ export class CanvasLayer {
     const target = this._ctx instanceof SVGRenderingContext2D ? this._ctx : this.canvas
     target.width = width*this.pixel_ratio
     target.height = height*this.pixel_ratio
-
-    const style = {
-      width: `${width}px`,
-      height: `${height}px`,
-    }
-    extend(this._el.style, style)
   }
 
   private _base_transform: DOMMatrix

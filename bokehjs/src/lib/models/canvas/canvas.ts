@@ -5,7 +5,6 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import {div, append} from "core/dom"
 import {OutputBackend} from "core/enums"
-import {extend} from "core/util/object"
 import {UIEventBus} from "core/ui_events"
 import {BBox} from "core/util/bbox"
 import {load_module} from "core/util/modules"
@@ -68,13 +67,6 @@ const global_webgl: () => Promise<WebGLState | null> = (() => {
   }
 })()
 
-const style = {
-  position: "absolute",
-  top: "0",
-  left: "0",
-  zIndex: "0", // establish a stacking context
-}
-
 export class CanvasView extends DOMElementView {
   override model: Canvas
 
@@ -93,11 +85,11 @@ export class CanvasView extends DOMElementView {
   override initialize(): void {
     super.initialize()
 
-    this.underlays_el = div({style})
+    this.underlays_el = div({class: "bk-layer"})
     this.primary = this.create_layer()
     this.overlays = this.create_layer()
-    this.overlays_el = div({style})
-    this.events_el = div({style})
+    this.overlays_el = div({class: "bk-layer"})
+    this.events_el = div({class: "bk-layer"})
 
     const elements = [
       this.underlays_el,
@@ -107,7 +99,7 @@ export class CanvasView extends DOMElementView {
       this.events_el,
     ]
 
-    this.el.style.position = "relative"
+    this.el.classList.add("bk-canvas")
     append(this.el, ...elements)
 
     this.ui_event_bus = new UIEventBus(this)
@@ -151,17 +143,8 @@ export class CanvasView extends DOMElementView {
   resize(width: number, height: number): void {
     this.bbox = new BBox({left: 0, top: 0, width, height})
 
-    const style = {
-      width: `${width}px`,
-      height: `${height}px`,
-    }
-
-    extend(this.el.style, style)
-    extend(this.underlays_el.style, style)
     this.primary.resize(width, height)
     this.overlays.resize(width, height)
-    extend(this.overlays_el.style, style)
-    extend(this.events_el.style, style)
   }
 
   prepare_webgl(frame_box: FrameBox): void {
