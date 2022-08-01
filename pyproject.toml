@@ -1,7 +1,7 @@
 [tool.mypy]
 python_version = "3.8"
 mypy_path = "typings/"
-files = ["bokeh", "release", "tests"]
+files = ["typings", "bokeh", "release", "tests"]
 
 pretty = true
 show_error_codes = true
