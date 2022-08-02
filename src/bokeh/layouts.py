@@ -51,6 +51,7 @@ from .models import (
     Plot,
     Row,
     SaveTool,
+    SettingsTool,
     Spacer,
     Tool,
     Toolbar,
@@ -291,7 +292,7 @@ def gridplot(
                 raise ValueError("Only LayoutDOM items can be inserted into a grid")
 
     def merge(cls: Type[Tool], group: list[Tool]):
-        if issubclass(cls, (SaveTool, CopyTool)):
+        if issubclass(cls, (SaveTool, CopyTool, SettingsTool)):
             return cls()
         else:
             return None

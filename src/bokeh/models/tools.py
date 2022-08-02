@@ -143,6 +143,7 @@ __all__ = (
     'ResetTool',
     'SaveTool',
     'Scroll',
+    'SettingsTool',
     'Tap',
     'TapTool',
     'Tool',
@@ -1332,6 +1333,13 @@ class HelpTool(ActionTool):
     Site to be redirected through upon click.
     """)
 
+class SettingsTool(ActionTool):
+    ''' A tool that allows to inspect and configure a model. '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class UndoTool(PlotActionTool):
     ''' *toolbar icon*: |undo_icon|
 
@@ -1803,6 +1811,7 @@ Tool.register_alias("undo", lambda: UndoTool())
 Tool.register_alias("redo", lambda: RedoTool())
 Tool.register_alias("reset", lambda: ResetTool())
 Tool.register_alias("help", lambda: HelpTool())
+Tool.register_alias("settings", lambda: SettingsTool())
 Tool.register_alias("box_edit", lambda: BoxEditTool())
 Tool.register_alias("line_edit", lambda: LineEditTool())
 Tool.register_alias("point_draw", lambda: PointDrawTool())
