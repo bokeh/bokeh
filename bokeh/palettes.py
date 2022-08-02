@@ -419,7 +419,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import math
 from copy import deepcopy
-from typing import Dict, Tuple
+from typing import TYPE_CHECKING, Dict, Tuple
 
 # External imports
 import numpy as np
@@ -427,6 +427,9 @@ from typing_extensions import TypeAlias
 
 # Bokeh imports
 from .colors.util import NamedColor
+
+if TYPE_CHECKING:
+    from .colors.color import RGB
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -1622,11 +1625,11 @@ def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0
         n = int(abs(end_alpha - start_alpha)) + 1
 
     # Convert alpha to range 0 to 1.
-    start_alpha /= 255.0
-    end_alpha /= 255.0
+    norm_start_alpha = start_alpha / 255.0
+    norm_end_alpha = end_alpha / 255.0
 
-    def set_alpha(rgba, i):
-        rgba.a = start_alpha + (end_alpha - start_alpha)*i / (n-1)
+    def set_alpha(rgba: RGB, i: int) -> RGB:
+        rgba.a = norm_start_alpha + (norm_end_alpha - norm_start_alpha)*i / (n-1.0)
         return rgba
 
     palette = tuple(set_alpha(rgba, i).to_hex() for i in range(n))
