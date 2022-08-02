@@ -56,14 +56,17 @@ export abstract class RendererView extends View implements visuals.Renderable {
 
   override connect_signals(): void {
     super.connect_signals()
-    const {x_range_name, y_range_name} = this.model.properties
-    this.on_change([x_range_name, y_range_name], () => this._initialize_coordinates())
+
     const {group} = this.model
     if (group != null) {
       this.on_change(group.properties.visible, () => {
         this.model.visible = group.visible
       })
     }
+
+    const {x_range_name, y_range_name} = this.model.properties
+    this.on_change([x_range_name, y_range_name], () => delete this._coordinates)
+    this.connect(this.plot_view.frame.change, () => delete this._coordinates)
   }
 
   protected _initialize_coordinates(): CoordinateTransform {

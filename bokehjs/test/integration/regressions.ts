@@ -1889,4 +1889,19 @@ describe("Bug", () => {
       await display(p)
     })
   })
+
+  describe("in issue #11033", () => {
+    it("prevents an update of plot layout after adding an axis", async () => {
+      const p = fig([350, 200])
+      p.circle({x: [1, 2, 3], y: [1, 2, 3], size: 20})
+      const {view} = await display(p)
+
+      for (const i of [1, 2, 3, 4, 5, 6]) {
+        const name = `y${i}`
+        p.extra_y_ranges = {...p.extra_y_ranges, [name]: new Range1d({start: 0, end: 10*i})}
+        p.add_layout(new LinearAxis({y_range_name: name}), "right")
+        await view.ready
+      }
+    })
+  })
 })
