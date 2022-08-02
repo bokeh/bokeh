@@ -9,6 +9,7 @@ import {FactorRange} from "../ranges/factor_range"
 import {BBox} from "core/util/bbox"
 import {entries} from "core/util/object"
 import {assert} from "core/util/assert"
+import {Signal0} from "core/signaling"
 
 type Ranges = {[key: string]: Range}
 type Scales = {[key: string]: Scale}
@@ -20,14 +21,16 @@ export class CartesianFrame {
     return this._bbox
   }
 
-  constructor(private readonly in_x_scale: Scale,
-              private readonly in_y_scale: Scale,
-              readonly x_range: Range,
-              readonly y_range: Range,
-              private readonly extra_x_ranges: Ranges = {},
-              private readonly extra_y_ranges: Ranges = {},
-              private readonly extra_x_scales: Scales = {},
-              private readonly extra_y_scales: Scales = {}) {
+  readonly change = new Signal0<this>(this, "change")
+
+  constructor(public in_x_scale: Scale,
+              public in_y_scale: Scale,
+              public x_range: Range,
+              public y_range: Range,
+              public extra_x_ranges: Ranges = {},
+              public extra_y_ranges: Ranges = {},
+              public extra_x_scales: Scales = {},
+              public extra_y_scales: Scales = {}) {
     assert(in_x_scale.properties.source_range.is_unset && in_x_scale.properties.target_range.is_unset)
     assert(in_y_scale.properties.source_range.is_unset && in_y_scale.properties.target_range.is_unset)
     this._configure_scales()
@@ -84,6 +87,11 @@ export class CartesianFrame {
 
     this._x_scales = this._get_scales(this.in_x_scale, this.extra_x_scales, this._x_ranges, this._x_target)
     this._y_scales = this._get_scales(this.in_y_scale, this.extra_y_scales, this._y_ranges, this._y_target)
+  }
+
+  configure_scales(): void {
+    this._configure_scales()
+    this.change.emit()
   }
 
   protected _update_scales(): void {
