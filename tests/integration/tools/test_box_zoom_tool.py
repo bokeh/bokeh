@@ -20,6 +20,7 @@ import pytest ; pytest
 # Bokeh imports
 from bokeh._testing.plugins.project import SinglePlotPage
 from bokeh._testing.util.selenium import RECORD
+from bokeh.core.enums import DimensionsType
 from bokeh.models import (
     BoxZoomTool,
     ColumnDataSource,
@@ -98,12 +99,19 @@ class Test_BoxZoomTool:
         assert page.has_no_console_errors()
 
     @pytest.mark.parametrize('dim', ['both', 'width', 'height'])
-    def test_box_zoom_has_no_effect_when_deslected(self, dim, single_plot_page: SinglePlotPage) -> None:
+    def test_box_zoom_has_no_effect_when_deslected(self, dim: DimensionsType, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot(BoxZoomTool(dimensions=dim))
 
         page = single_plot_page(plot)
 
-        button = page.get_toolbar_button('box-zoom')
+        if dim == 'both':
+            icon = 'box-zoom'
+        elif dim == 'width':
+            icon = 'x-box-zoom'
+        elif dim == 'height':
+            icon = 'y-box-zoom'
+
+        button = page.get_toolbar_button(icon)
         button.click()
 
         page.drag_canvas_at_position(plot, 100, 100, 20, 20)

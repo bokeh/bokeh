@@ -290,6 +290,7 @@ DatetimeUnits = enumeration("microseconds", "milliseconds", "seconds", "minsec",
 Dimension = enumeration("width", "height")
 
 #: Specify a vertical/horizontal dimensions
+DimensionsType = Literal["width", "height", "both"]
 Dimensions = enumeration("width", "height", "both")
 
 #: Specify a stroke direction for circles, wedges, etc.

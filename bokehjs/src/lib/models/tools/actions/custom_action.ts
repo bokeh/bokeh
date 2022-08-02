@@ -1,6 +1,7 @@
 import {ActionTool, ActionToolView, ActionToolButtonView} from "./action_tool"
 import {CallbackLike0} from "../../callbacks/callback"
 import * as p from "core/properties"
+import * as icons from "styles/icons.css"
 
 export class CustomActionButtonView extends ActionToolButtonView {
   override model: CustomAction
@@ -49,5 +50,6 @@ export class CustomAction extends ActionTool {
   }
 
   override tool_name = "Custom Action"
+  override tool_icon = icons.tool_icon_unknown
   override button_view = CustomActionButtonView
 }

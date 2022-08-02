@@ -10,7 +10,7 @@ import {Plot} from "./plot"
 import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {Axis, AxisView} from "../axes/axis"
-import {ToolbarPanel} from "../annotations/toolbar_panel"
+import {ToolbarPanel, ToolbarPanelView} from "../annotations/toolbar_panel"
 import {DataRange1d} from "../ranges/data_range1d"
 
 import {Reset} from "core/bokeh_events"
@@ -50,6 +50,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   protected _title?: Title
   protected _toolbar?: ToolbarPanel
+
+  get toolbar_panel(): ToolbarPanelView | undefined {
+    return this._toolbar != null ? this.renderer_view(this._toolbar) : undefined
+  }
 
   protected _outer_bbox: BBox = new BBox()
   protected _inner_bbox: BBox = new BBox()

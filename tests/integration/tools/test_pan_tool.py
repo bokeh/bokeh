@@ -19,7 +19,8 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh._testing.plugins.project import SinglePlotPage
-from bokeh._testing.util.selenium import RECORD, find_matching_element
+from bokeh._testing.util.selenium import RECORD
+from bokeh.core.enums import DimensionsType
 from bokeh.events import RangesUpdate
 from bokeh.models import (
     ColumnDataSource,
@@ -38,7 +39,7 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-def _make_plot(dimensions="both"):
+def _make_plot(dimensions: DimensionsType = "both"):
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
     plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
     plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))
@@ -51,54 +52,53 @@ def _make_plot(dimensions="both"):
     plot.toolbar_sticky = False
     return plot
 
-_css = dict(both='pan', width='xpan', height='ypan')
-
+_css = dict(both='pan', width='x-pan', height='y-pan')
 
 @pytest.mark.selenium
 class Test_PanTool:
     @pytest.mark.parametrize('dim', ['both', 'width', 'height'])
-    def test_selected_by_default(self, dim, single_plot_page: SinglePlotPage) -> None:
+    def test_selected_by_default(self, dim: DimensionsType, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot(dim)
         page = single_plot_page(plot)
 
-        button = find_matching_element(page.driver, f".bk-tool-icon-{_css[dim]}")
+        target = _css[dim]
+        button = page.get_toolbar_button(target)
         assert 'active' in button.get_attribute('class')
 
         assert page.has_no_console_errors()
 
     @pytest.mark.parametrize('dim', ['both', 'width', 'height'])
-    def test_can_be_deselected_and_selected(self, dim, single_plot_page: SinglePlotPage) -> None:
+    def test_can_be_deselected_and_selected(self, dim: DimensionsType, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot(dim)
 
         page = single_plot_page(plot)
 
-        target = f".bk-tool-icon-{_css[dim]}"
+        target = _css[dim]
 
         # Check is active
-        button = find_matching_element(page.driver, target)
+        button = page.get_toolbar_button(target)
         assert 'active' in button.get_attribute('class')
 
         # Click and check is not active
-        button = find_matching_element(page.driver, target)
+        button = page.get_toolbar_button(target)
         button.click()
         assert 'active' not in button.get_attribute('class')
 
         # Click again and check is active
-        button = find_matching_element(page.driver, target)
+        button = page.get_toolbar_button(target)
         button.click()
         assert 'active' in button.get_attribute('class')
 
         assert page.has_no_console_errors()
 
     @pytest.mark.parametrize('dim', ['both', 'width', 'height'])
-    def test_pan_has_no_effect_when_deslected(self, dim, single_plot_page: SinglePlotPage) -> None:
+    def test_pan_has_no_effect_when_deslected(self, dim: DimensionsType, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot(dim)
 
         page = single_plot_page(plot)
 
-        target = f".bk-tool-icon-{_css[dim]}"
-
-        button = find_matching_element(page.driver, target)
+        target = _css[dim]
+        button = page.get_toolbar_button(target)
         button.click()
 
         page.drag_canvas_at_position(plot, 100, 100, 20, 20)

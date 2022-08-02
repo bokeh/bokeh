@@ -6,16 +6,16 @@ import {HasProps} from "core/has_props"
 import {dom_ready} from "core/dom"
 import {isString, isArray} from "core/util/types"
 
-import {LayoutDOM} from "models/layouts/layout_dom"
+import {UIElement} from "models/ui/ui_element"
 
 declare const $: any
 
-export async function show<T extends LayoutDOM>(obj: T, target?: HTMLElement | string): Promise<ViewOf<T>>
-export async function show<T extends LayoutDOM>(obj: T[], target?: HTMLElement | string): Promise<ViewOf<T>[]>
+export async function show<T extends UIElement>(obj: T, target?: HTMLElement | string): Promise<ViewOf<T>>
+export async function show<T extends UIElement>(obj: T[], target?: HTMLElement | string): Promise<ViewOf<T>[]>
 export async function show(obj: Document, target?: HTMLElement | string): Promise<ViewOf<HasProps>[]>
-export async function show(obj: LayoutDOM | Document, target?: HTMLElement | string): Promise<ViewOf<HasProps> | ViewOf<HasProps>[]>
+export async function show(obj: UIElement | Document, target?: HTMLElement | string): Promise<ViewOf<HasProps> | ViewOf<HasProps>[]>
 
-export async function show(obj: Document | LayoutDOM | LayoutDOM[], target?: HTMLElement | string): Promise<ViewOf<HasProps> | ViewOf<HasProps>[]> {
+export async function show(obj: Document | UIElement | UIElement[], target?: HTMLElement | string): Promise<ViewOf<HasProps> | ViewOf<HasProps>[]> {
   const doc = (() => {
     if (obj instanceof Document) {
       return obj

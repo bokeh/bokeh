@@ -5,7 +5,7 @@ import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {Model} from "@bokehjs/model"
 import * as p from "@bokehjs/core/properties"
 
-namespace SomeModel {
+namespace Some0Model {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Model.Props & {
     foo: p.Property<boolean>
@@ -13,14 +13,14 @@ namespace SomeModel {
     baz: p.Property<number>
   }
 }
-interface SomeModel extends SomeModel.Attrs {}
-class SomeModel extends Model {
-  override properties: SomeModel.Props
-  constructor(attrs?: Partial<SomeModel.Attrs>) {
+interface Some0Model extends Some0Model.Attrs {}
+class Some0Model extends Model {
+  override properties: Some0Model.Props
+  constructor(attrs?: Partial<Some0Model.Attrs>) {
     super(attrs)
   }
   static {
-    this.define<SomeModel.Props>(({Boolean, Number, String}) => ({
+    this.define<Some0Model.Props>(({Boolean, Number, String}) => ({
       foo: [ Boolean, false ],
       bar: [ String ],
       baz: [ Number, 1 ],
@@ -28,10 +28,35 @@ class SomeModel extends Model {
   }
 }
 
+namespace Some1Model {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = Model.Props & {
+    p0: p.Property<boolean>
+    p1: p.Property<string>
+    p2: p.Property<number>
+    p3: p.Property<Model[] | null>
+  }
+}
+interface Some1Model extends Some1Model.Attrs {}
+class Some1Model extends Model {
+  override properties: Some1Model.Props
+  constructor(attrs?: Partial<Some1Model.Attrs>) {
+    super(attrs)
+  }
+  static {
+    this.define<Some1Model.Props>(({Boolean, Number, String, Array, Ref, Nullable}) => ({
+      p0: [ Boolean, false ],
+      p1: [ String, "foo" ],
+      p2: [ Number, 1 ],
+      p3: [ Nullable(Array(Ref(Model))), null ],
+    }))
+  }
+}
+
 describe("Model objects", () => {
 
   describe("default creation", () => {
-    const m = new SomeModel()
+    const m = new Some0Model()
 
     it("should have null name", () => {
       expect(m.name).to.be.null
@@ -58,7 +83,7 @@ describe("Model objects", () => {
 
       const spy = sinon.spy(cb3, "execute")
 
-      const m = new SomeModel({
+      const m = new Some0Model({
         js_property_callbacks: {
           "change:foo": [cb1, cb2],
           "change:bar": [cb3],
@@ -82,5 +107,15 @@ describe("Model objects", () => {
       m.baz = 10
       expect(spy.callCount).to.be.equal(0)
     })
+  })
+
+  it("should support select() and select_one() methods", () => {
+    const some0_0 = new Some0Model({name: "some0"})
+    const some0_1 = new Some0Model({name: "some1"})
+    const some1_0 = new Some1Model({p3: [some0_0]})
+    const some1_1 = new Some1Model({p3: [some1_0, some0_1]})
+
+    expect(some1_1.select({type: "Some0Model"})).to.be.equal([some0_0, some0_1])
+    expect(() => some1_1.select_one({type: "Some0Model"})).to.throw(Error, "found more than one object matching given selector")
   })
 })
