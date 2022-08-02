@@ -256,9 +256,10 @@ class Test_components:
         assert len(els) == 1
 
         el = els[0]
-        assert set(el.attrs) == {"class", "id", "data-root-id"}
+        assert set(el.attrs) == {"data-root-id", "id", "style"}
         assert el.attrs["id"] == "ID"
         assert el.attrs["data-root-id"] == test_plot.id
+        assert el.attrs["style"] == "display: contents;"
         assert el.string is None
 
     def test_script_is_utf8_encoded(self, test_plot: figure) -> None:
