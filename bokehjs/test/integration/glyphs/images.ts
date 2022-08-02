@@ -58,7 +58,7 @@ describe("ImageRGBA glyph", () => { // TODO: async describe
   }
 
   it("should support combine alpha", async () => {
-   function rgba_image() {
+    function rgba_image() {
       const N = 5
       const d = new Uint32Array(N*N)
       const dv = new DataView(d.buffer)
@@ -76,13 +76,10 @@ describe("ImageRGBA glyph", () => { // TODO: async describe
       return ndarray(d, {shape: [N, N]})
     }
 
-    const dw = 1
-    const dh = 1
-
     const p = fig([350, 150])
-    p.image_rgba({image: {value: rgba_image()}, x: 0, y: 0, dw, dh, global_alpha: 1.0})
-    p.image_rgba({image: {value: rgba_image()}, x: 1, y: 0, dw, dh, global_alpha: 0.66})
-    p.image_rgba({image: {value: rgba_image()}, x: 2, y: 0, dw, dh, global_alpha: 0.33})
+    p.image_rgba({image: {value: rgba_image()}, x: 0, y: 0, dw: 1, dh: 1, global_alpha: 1.0})
+    p.image_rgba({image: {value: rgba_image()}, x: 1, y: 0, dw: 1, dh: 1, global_alpha: 0.66})
+    p.image_rgba({image: {value: rgba_image()}, x: 2, y: 0, dw: 1, dh: 1, global_alpha: 0.33})
 
     await display(p)
   })

@@ -149,7 +149,7 @@ describe("Color support", () => {
     const colors = nd.ndarray([
       1.0, 1.0, 0.0, 1.0,
       1.0, 0.0, 0.0, 1.0,
-      0.0, 1.0, 0.0, 0.754,
+      0.0, 1.0, 0.0, 0.75,
       0.0, 0.0, 1.0, 0.75,
     ], {dtype: "float32", shape: [N, 4]})
 
@@ -179,7 +179,7 @@ describe("Color support", () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 250], {output_backend, title: output_backend})
       p.multi_line({xs, ys, line_color: color, line_alpha: alpha, line_width: 15})
-      p.block({x, y: 1, width, height, fill_color: color, fill_alpha:alpha})
+      p.block({x, y: 1, width, height, fill_color: color, fill_alpha: alpha})
       p.block({x, y: 0, width, height, fill_color: null, hatch_pattern: "@", hatch_color: color, hatch_alpha: alpha})
       return p
     }

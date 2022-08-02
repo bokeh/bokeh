@@ -73,6 +73,15 @@ def test_varying_alpha_palette() -> None:
     with pytest.raises(ValueError):
         pal.varying_alpha_palette("red", end_alpha=256)
 
+    # Combining with alpha from color argument.
+    assert pal.varying_alpha_palette("#FFAA8080", 3) == ("#FFAA8000", "#FFAA8040", "#FFAA8080")
+    assert pal.varying_alpha_palette("#80FFAA80", 3, start_alpha=255, end_alpha=0) == ("#80FFAA80", "#80FFAA40", "#80FFAA00")
+    assert pal.varying_alpha_palette("#AABBCC80", 3, start_alpha=128) == ("#AABBCC40", "#AABBCC60", "#AABBCC80")
+    assert pal.varying_alpha_palette("#12345680", 3, start_alpha=0, end_alpha=128) == ("#12345600", "#12345620", "#12345640")
+
+    assert len(pal.varying_alpha_palette("#FFAA8080")) == 129
+    assert len(pal.varying_alpha_palette("#FFAA8080", end_alpha=128)) == 65
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

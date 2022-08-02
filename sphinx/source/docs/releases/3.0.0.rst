@@ -26,6 +26,11 @@ Additions
 
 Provides a replacement for a checkbox input.
 
+``varying_alpha_palette``
+.........................
+
+Generates a palette that is a single color with linearly varying alpha.
+
 Removals
 ~~~~~~~~
 
