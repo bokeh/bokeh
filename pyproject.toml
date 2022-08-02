@@ -1,7 +1,7 @@
 [tool.mypy]
 python_version = "3.8"
 mypy_path = "typings/"
-files = ["bokeh", "release", "tests"]
+files = ["typings", "bokeh", "release", "tests"]
 
 pretty = true
 show_error_codes = true
@@ -114,7 +114,8 @@ module = [
     "bokeh.embed.wrappers",
 
     "bokeh.ext.*",
-    "bokeh.io", # TODO: .*;  mypy_path resolution is broken
+    "bokeh.io.*",
+
     "bokeh.palettes",
     "bokeh.plotting._tools",
     "bokeh.protocol.*",

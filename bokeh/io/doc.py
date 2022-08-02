@@ -23,13 +23,13 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import weakref
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, Iterator, cast
 
 # Bokeh imports
+from ..document import Document
 from .state import curstate
 
 if TYPE_CHECKING:
-    from ..document import Document
     from ..document.locking import UnlockedDocumentProxy
 
 #-----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def curdoc() -> Document | UnlockedDocumentProxy:
+def curdoc() -> Document:
     ''' Return the document for the current default state.
 
     Returns:
@@ -57,7 +57,7 @@ def curdoc() -> Document | UnlockedDocumentProxy:
         doc = _PATCHED_CURDOCS[-1]()
         if doc is None:
             raise RuntimeError("Patched curdoc has been previously destroyed")
-        return doc
+        return cast(Document, doc) # UnlockedDocumentProxy -> Document
     return curstate().document
 
 #-----------------------------------------------------------------------------
@@ -65,7 +65,7 @@ def curdoc() -> Document | UnlockedDocumentProxy:
 #-----------------------------------------------------------------------------
 
 @contextmanager
-def patch_curdoc(doc: Document|UnlockedDocumentProxy) -> Iterator[None]:
+def patch_curdoc(doc: Document | UnlockedDocumentProxy) -> Iterator[None]:
     ''' Temporarily override the value of ``curdoc()`` and then return it to
     its original state.
 
