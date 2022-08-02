@@ -1863,4 +1863,30 @@ describe("Bug", () => {
       pan_el.dispatchEvent(ev1)
     })
   })
+
+  describe("in issue #11704", () => {
+    it("doesn't allow inclusion of circle radius in bounds computations", async () => {
+      const x = [0.4595279480396895, -0.6065711356206639, -0.0687886392916304, -0.07637863162673651, -0.5244521855365748, 0.46832138015416175]
+      const y = [0.604836077992458, 0.5442297884573969, -0.6203208740702811, 0.624789852804971, -0.08487633209696635, -0.08487633209696635]
+      const r = [0.16571899322942416, 0.16571899322942416, 0.23436204776786676, 0.37055893402381984, 0.4687240955357335, 0.5240494701550029]
+
+      const p = fig([300, 300], {match_aspect: true})
+      p.circle({x, y, radius: r, line_color: "black", fill_alpha: 0.7})
+      p.circle({x, y, size: 4, color: "black"})
+
+      await display(p)
+    })
+
+    it("doesn't allow computation of tight bounds for circles", async () => {
+      const x = [-5, 0, 10, 15]
+      const y = [15, 0, 0, 15]
+      const r = [1, 8, 1, 2]
+
+      const p = fig([300, 300], {match_aspect: true})
+      p.circle({x, y, radius: r, line_color: "black", fill_alpha: 0.7})
+      p.circle({x, y, size: 4, color: "black"})
+
+      await display(p)
+    })
+  })
 })

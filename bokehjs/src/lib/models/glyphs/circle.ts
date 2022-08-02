@@ -6,6 +6,7 @@ import {Rect, Indices, ScreenArray, to_screen} from "core/types"
 import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import {SpatialIndex} from "core/util/spatial"
 import {range} from "core/util/array"
 import {map, max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
@@ -60,6 +61,21 @@ export class CircleView extends XYGlyphView {
     })()
 
     this._configure("max_size", {value: max_size})
+  }
+
+  protected override _index_data(index: SpatialIndex): void {
+    if (this.use_radius) {
+      const {_x, _y, radius, data_size} = this
+
+      for (let i = 0; i < data_size; i++) {
+        const x = _x[i]
+        const y = _y[i]
+        const r = radius.get(i)
+        index.add_rect(x - r, y - r, x + r, y + r)
+      }
+    } else {
+      super._index_data(index)
+    }
   }
 
   protected override _map_data(): void {
