@@ -89,7 +89,7 @@ export class CanvasView extends DOMElementView {
     this.primary = this.create_layer()
     this.overlays = this.create_layer()
     this.overlays_el = div({class: "bk-layer"})
-    this.events_el = div({class: "bk-layer"})
+    this.events_el = div({class: ["bk-layer", "bk-events"]})
 
     const elements = [
       this.underlays_el,

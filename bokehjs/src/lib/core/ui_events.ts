@@ -122,6 +122,7 @@ export class UIEventBus implements EventListenerObject {
   readonly keyup:        UISignal<KeyEvent>     = new Signal(this, "keyup")
 
   private readonly hammer = new Hammer(this.hit_area, {
+    cssProps: {} as any, // NOTE: don't assign style, use .bk-events instead
     touchAction: "auto",
     inputClass: Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
   })
