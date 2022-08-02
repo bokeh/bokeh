@@ -30,9 +30,11 @@ from bokeh.core.properties import (
     Instance,
     Int,
     List,
+    NotSerialized,
     Nullable,
     NumberSpec,
     Override,
+    Readonly,
     String,
 )
 from bokeh.models import Plot
@@ -93,6 +95,7 @@ ALL = (
     'NonNegative',
     'NonNegativeInt',
     'NonNullable',
+    'NotSerialized',
     'Nothing',
     'Null',
     'NullStringSpec',
@@ -309,11 +312,11 @@ class TestBasic:
         assert {"num", "mixin_num", "sub_num"} == set(sub.dataspecs())
 
     def test_not_serialized(self) -> None:
-        class NotSerialized(HasProps):
-            x = Int(12, serialized=False)
+        class NotSerializedModel(HasProps):
+            x = NotSerialized(Int(12))
             y = String("hello")
 
-        o = NotSerialized()
+        o = NotSerializedModel()
         assert o.x == 12
         assert o.y == 'hello'
 
@@ -338,12 +341,12 @@ class TestBasic:
         assert 'y' in o.properties_with_values(include_defaults=False)
 
     def test_readonly(self) -> None:
-        class Readonly(HasProps):
-            x = Int(12, readonly=True)    # with default
-            y = Nullable(Int(), readonly=True)        # without default
+        class ReadonlyModel(HasProps):
+            x = Readonly(Int(12))         # with default
+            y = Readonly(Nullable(Int())) # without default
             z = String("hello")
 
-        o = Readonly()
+        o = ReadonlyModel()
         assert o.x == 12
         assert o.y is None
         assert o.z == 'hello'

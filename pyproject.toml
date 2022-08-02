@@ -86,6 +86,7 @@ module = [
     "bokeh.core.property.primitive",
     "bokeh.core.property.readonly",
     "bokeh.core.property.required",
+    "bokeh.core.property.serialized",
     "bokeh.core.property.singletons",
     "bokeh.core.property.string",
     #"bokeh.core.property.struct",

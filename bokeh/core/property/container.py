@@ -76,9 +76,9 @@ class Seq(ContainerProperty[T]):
     """
 
     def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[T] = Undefined,
-            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
+            help: str | None = None) -> None:
         self.item_type = self._validate_type_param(item_type)
-        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+        super().__init__(default=default, help=help)
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}({self.item_type})"
@@ -317,8 +317,8 @@ class NonEmpty(SingleParameterizedProperty[TSeq]):
     """ Allows only non-empty containers. """
 
     def __init__(self, type_param: TypeOrInst[TSeq], *, default: Init[TSeq] = Intrinsic,
-            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
-        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
+            help: str | None = None) -> None:
+        super().__init__(type_param, default=default, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)

@@ -281,7 +281,7 @@ class PropertyDescriptor(Generic[T]):
             class_name = obj.__class__.__name__
             raise RuntimeError(f"Cannot set a property value {self.name!r} on a {class_name} instance before HasProps.__init__")
 
-        if self.property._readonly and obj._initialized:
+        if self.property.readonly and obj._initialized:
             # Allow to set a value during object initialization (e.g. value -> value_throttled)
             class_name = obj.__class__.__name__
             raise RuntimeError(f"{class_name}.{self.name} is a readonly property")
@@ -707,7 +707,7 @@ class ColumnDataPropertyDescriptor(PropertyDescriptor):
             class_name = obj.__class__.__name__
             raise RuntimeError(f"Cannot set a property value {self.name!r} on a {class_name} instance before HasProps.__init__")
 
-        if self.property._readonly and obj._initialized:
+        if self.property.readonly and obj._initialized:
             # Allow to set a value during object initialization (e.g. value -> value_throttled)
             class_name = obj.__class__.__name__
             raise RuntimeError(f"{class_name}.{self.name} is a readonly property")

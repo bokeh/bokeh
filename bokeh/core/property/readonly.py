@@ -47,9 +47,10 @@ T = TypeVar("T")
 class Readonly(SingleParameterizedProperty[T]):
     """ A property that can't be manually modified by the user. """
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Intrinsic,
-            help: str | None = None, serialized: bool | None = None) -> None:
-        super().__init__(type_param, default=default, help=help, readonly=True, serialized=serialized)
+    _readonly = True
+
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Intrinsic, help: str | None = None) -> None:
+        super().__init__(type_param, default=default, help=help)
 
 #-----------------------------------------------------------------------------
 # Dev API

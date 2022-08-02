@@ -4,13 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Provide the ``Alias`` class, for aliasing other properties.
-
-.. note::
-    This class should normally be imported from ``bokeh.core.properties``
-    instead of directly from this module.
-
-"""
+""" Provide ``NotSerialized`` property. """
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -25,18 +19,24 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import ClassVar, TypeVar
+from typing import Any, TypeVar
 
 # Bokeh imports
-from .bases import Property
-from .descriptors import AliasPropertyDescriptor, PropertyDescriptor
+from ._sphinx import property_link, register_type_link, type_link
+from .bases import (
+    Init,
+    Property,
+    SingleParameterizedProperty,
+    TypeOrInst,
+)
+from .singletons import Intrinsic
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "Alias",
+    "NotSerialized",
 )
 
 T = TypeVar("T")
@@ -45,54 +45,16 @@ T = TypeVar("T")
 # General API
 #-----------------------------------------------------------------------------
 
-class Alias(Property[T]): # lgtm [py/missing-call-to-init]
+class NotSerialized(SingleParameterizedProperty[T]):
     """
-    Alias another property of a model.
-
-    Example:
-
-        Consider the following class definitions:
-
-        .. code-block:: python
-
-            from bokeh.model import Model
-            from bokeh.properties import Alias, Int
-
-            class Parent(Model):
-                width = Int()
-
-            class Child(Parent):
-                plot_width = Alias("width")
-
+    A property which state won't be synced with the browser.
     """
 
-    name: str
-    help: str | None
+    _serialized = False
 
-    # Alias is somewhat a quasi-property
-    readonly: ClassVar[bool] = False
-    serialized: ClassVar[bool] = False
-    _default = None
-
-    def __init__(self, aliased_name: str, *, help: str | None = None) -> None:
-        self.aliased_name = aliased_name
-        self.help = help
-
-    def make_descriptors(self, base_name: str) -> list[PropertyDescriptor[T]]:
-        """ Return a list of ``AliasPropertyDescriptor`` instances to
-        install on a class, in order to delegate attribute access to this
-        property.
-
-        Args:
-            aliased_name (str) : the name of the property this alias is for
-
-        Returns:
-            list[AliasPropertyDescriptor]
-
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
-        """
-        return [ AliasPropertyDescriptor(base_name, self.aliased_name, self) ]
+    def __init__(self, type_param: TypeOrInst[Property[T]], *,
+            default: Init[T] = Intrinsic, help: str | None = None) -> None:
+        super().__init__(type_param, default=default, help=help)
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -105,3 +67,7 @@ class Alias(Property[T]): # lgtm [py/missing-call-to-init]
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+@register_type_link(NotSerialized)
+def _sphinx_type_link(obj: SingleParameterizedProperty[Any]) -> str:
+    return f"{property_link(obj)}({type_link(obj.type_param)})"

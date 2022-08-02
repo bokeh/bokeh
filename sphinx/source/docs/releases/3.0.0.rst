@@ -162,6 +162,18 @@ in ``Toolbar`` model.
 
 ``ToolButton`` abstract base class was merged into ``Tool`` model.
 
+``MyProperty(..., serialized=False)``
+.....................................
+
+``serialized`` argument was removed and ``serialized=False`` case was replaced
+width ``NotSerialized(MyProperty(...))``.
+
+``MyProperty(..., readonly=True)``
+..................................
+
+``readonly`` argument was removed and ``readonly=True`` case was replaced
+width ``Readonly(MyProperty(...))``.
+
 Renames
 ~~~~~~~
 

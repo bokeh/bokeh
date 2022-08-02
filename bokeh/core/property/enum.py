@@ -54,20 +54,17 @@ class Enum(String):
     """
 
     @overload
-    def __init__(self, enum: enums.Enumeration, *, default: Init[str] = ...,
-        help: str | None = ..., serialized: bool | None = ..., readonly: bool = ...) -> None: ...
+    def __init__(self, enum: enums.Enumeration, *, default: Init[str] = ..., help: str | None = ...) -> None: ...
     @overload
-    def __init__(self, enum: str, *values: str, default: Init[str] = ...,
-        help: str | None = ..., serialized: bool | None = ..., readonly: bool = ...) -> None: ...
+    def __init__(self, enum: str, *values: str, default: Init[str] = ..., help: str | None = ...) -> None: ...
 
-    def __init__(self, enum: str | enums.Enumeration, *values: str, default: Init[str] = Intrinsic,
-            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
+    def __init__(self, enum: str | enums.Enumeration, *values: str, default: Init[str] = Intrinsic, help: str | None = None) -> None:
         if not (not values and isinstance(enum, enums.Enumeration)):
             enum = enums.enumeration(enum, *values)
         self._enum = enum
 
         default = default if default is not Intrinsic else enum._default
-        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+        super().__init__(default=default, help=help)
 
     def __str__(self) -> str:
         class_name = self.__class__.__name__

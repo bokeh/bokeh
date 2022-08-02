@@ -59,9 +59,8 @@ T = TypeVar("T", bound=Union[int, float])
 class NonNegative(SingleParameterizedProperty[T]):
     """ A property accepting a value of some other type while having undefined default. """
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Intrinsic,
-            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
-        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Intrinsic, help: str | None = None) -> None:
+        super().__init__(type_param, default=default, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
@@ -72,9 +71,8 @@ class NonNegative(SingleParameterizedProperty[T]):
 class Positive(SingleParameterizedProperty[T]):
     """ A property accepting a value of some other type while having undefined default. """
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Intrinsic,
-            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
-        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Intrinsic, help: str | None = None) -> None:
+        super().__init__(type_param, default=default, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
@@ -91,10 +89,9 @@ class NonNegativeInt(Int):
         Use ``NonNegative(Int)`` instead.
     """
 
-    def __init__(self, default: Init[int] = Intrinsic, *,
-            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
+    def __init__(self, default: Init[int] = Intrinsic, *, help: str | None = None) -> None:
         deprecated((3, 0, 0), "NonNegativeInt", "NonNegative(Int)")
-        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+        super().__init__(default=default, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
@@ -111,10 +108,9 @@ class PositiveInt(Int):
         Use ``Positive(Int)`` instead.
     """
 
-    def __init__(self, default: Init[int] = Intrinsic, *,
-            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
+    def __init__(self, default: Init[int] = Intrinsic, *, help: str | None = None) -> None:
         deprecated((3, 0, 0), "Positive", "Positive(Int)")
-        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+        super().__init__(default=default, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
@@ -215,14 +211,6 @@ class Size(Float):
             used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
             generating Spinx documentation. (default: None)
 
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
-
     Example:
 
         .. code-block:: python
@@ -263,14 +251,6 @@ class Percent(Float):
             A documentation string for this property. It will be automatically
             used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
             generating Spinx documentation. (default: None)
-
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
 
     Example:
 
@@ -317,14 +297,6 @@ class Angle(Float):
             A documentation string for this property. It will be automatically
             used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
             generating Spinx documentation. (default: None)
-
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
 
     """
 
