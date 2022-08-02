@@ -308,16 +308,20 @@ class RGB(Color):
             return f"rgba({self.r}, {self.g}, {self.b}, {self.a})"
 
     def to_hex(self) -> str:
-        ''' Return a hex color string for this RGB color.
+        ''' Return a hex color string for this RGB(A) color.
 
-        Any alpha value on this color is discarded, only hex color strings for
-        the RGB components are returned.
+        Any alpha value if only included in the output string if it is less
+        than 1.
 
         Returns:
-            str, ``"#RRGGBB"``
+            str, ``"#RRGGBBAA"`` if alpha is less than 1 and ``"#RRGGBB"``
+            otherwise
 
         '''
-        return "#%02X%02X%02X" % (self.r, self.g, self.b)
+        if self.a < 1.0:
+            return "#%02X%02X%02X%02X" % (self.r, self.g, self.b, round(self.a*255))
+        else:
+            return "#%02X%02X%02X" % (self.r, self.g, self.b)
 
     def to_hsl(self) -> HSL:
         ''' Return a corresponding HSL color for this RGB color.

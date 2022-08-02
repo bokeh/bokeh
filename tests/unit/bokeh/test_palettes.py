@@ -49,10 +49,10 @@ def test_palettes_dir() -> None:
     assert not '__new__' in dir(pal)
 
 def test_varying_alpha_palette() -> None:
-    assert pal.varying_alpha_palette("blue", 3) == ("#0000FF00", "#0000FF80", "#0000FFFF")
-    assert pal.varying_alpha_palette("red", 3, start_alpha=255, end_alpha=128) == ("#FF0000FF", "#FF0000C0", "#FF000080")
+    assert pal.varying_alpha_palette("blue", 3) == ("#0000FF00", "#0000FF80", "#0000FF")
+    assert pal.varying_alpha_palette("red", 3, start_alpha=255, end_alpha=128) == ("#FF0000", "#FF0000C0", "#FF000080")
     assert pal.varying_alpha_palette("#123456", 3, start_alpha=205, end_alpha=205) == ("#123456CD", "#123456CD", "#123456CD")
-    assert pal.varying_alpha_palette("#abc", 3) == ("#AABBCC00", "#AABBCC80", "#AABBCCFF")
+    assert pal.varying_alpha_palette("#abc", 3) == ("#AABBCC00", "#AABBCC80", "#AABBCC")
 
     palette = pal.varying_alpha_palette("blue")
     assert len(palette) == 256

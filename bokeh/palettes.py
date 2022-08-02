@@ -1611,7 +1611,8 @@ def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0
     if not (0 <= end_alpha <= 255):
         raise ValueError(f"end_alpha {end_alpha} must be in the range 0 to 255")
 
-    rgba = NamedColor.from_string(color)
+    # Take a copy of RGB color as do not want to alter named colors
+    rgba = NamedColor.from_string(color).copy()
 
     if rgba.a < 1.0:
         start_alpha = round(start_alpha*rgba.a)
@@ -1620,8 +1621,15 @@ def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0
     if not n:
         n = int(abs(end_alpha - start_alpha)) + 1
 
-    diff_alpha = end_alpha - start_alpha
-    palette = tuple(f"{rgba.to_hex()}{round(start_alpha + diff_alpha*i / (n-1.0)):02X}" for i in range(n))
+    # Convert alpha to range 0 to 1.
+    start_alpha /= 255.0
+    end_alpha /= 255.0
+
+    def set_alpha(rgba, i):
+        rgba.a = start_alpha + (end_alpha - start_alpha)*i / (n-1)
+        return rgba
+
+    palette = tuple(set_alpha(rgba, i).to_hex() for i in range(n))
 
     return palette
 

@@ -178,10 +178,10 @@ class Test_ColorHex:
         prop = bcpc.ColorHex()
         assert prop.transform('#ff0000') == "#ff0000"
         assert prop.transform((255, 0, 0)) == "#ff0000"
-        assert prop.transform((255, 0, 0, 0.1)) == "#ff0000"
+        assert prop.transform((255, 0, 0, 0.1)) == "#ff00001a"
         assert prop.transform('red') == "#ff0000"
         assert prop.transform('RED') == "#ff0000"
-        assert prop.transform('rgba(255, 0, 0, 0.1)') == "#ff0000"
+        assert prop.transform('rgba(255, 0, 0, 0.1)') == "#ff00001a"
         assert prop.transform('rgb(255, 0, 0)') == "#ff0000"
         assert prop.transform(RGB(255, 0, 0)) == "#ff0000"
 
