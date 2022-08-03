@@ -38,7 +38,7 @@ jobs:
         run: bash ci/build_bokehjs.sh
 
       - name: Upload BokehJS
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: bokehjs-build
           path: bokehjs-build.tgz
@@ -48,7 +48,7 @@ jobs:
         run: bash ci/build_conda_pacakge.sh
 
       - name: Upload conda package
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: conda-bld-noarch
           path: conda-bld-noarch.tgz
@@ -170,7 +170,7 @@ jobs:
 
       - name: Upload report
         if: always()
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: examples-report
           path: examples-report
@@ -307,6 +307,12 @@ jobs:
       - name: Build docs
         shell: bash -l {0}
         run: bash ci/build_docs.sh
+
+      - name: Upload docs
+        uses: actions/upload-artifact@v3
+        with:
+          name: docs-html
+          path: sphinx/build/html
 
   downstream:
     needs: build
