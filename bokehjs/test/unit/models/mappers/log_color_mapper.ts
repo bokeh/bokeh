@@ -10,10 +10,10 @@ describe("LogColorMapper module", () => {
       const palette = ["#3288bd", "#abdda4", "#fee08b"]
       const color_mapper = new LogColorMapper({low: 2, high: 25, palette})
 
-      const buf8_0 = color_mapper.rgba_mapper.v_compute([2])
+      const buf8_0 = color_mapper.rgba_mapper.v_compute([2], 1)
       expect([buf8_0[0], buf8_0[1], buf8_0[2], buf8_0[3]]).to.be.equal([50, 136, 189, 255])
 
-      const buf8_1 = color_mapper.rgba_mapper.v_compute([20])
+      const buf8_1 = color_mapper.rgba_mapper.v_compute([20], 1)
       expect([buf8_1[0], buf8_1[1], buf8_1[2], buf8_1[3]]).to.be.equal([254, 224, 139, 255])
     })
 

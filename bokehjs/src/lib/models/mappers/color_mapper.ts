@@ -69,8 +69,10 @@ export abstract class ColorMapper extends Mapper<Color> {
     return {
       v_compute(xs: ArrayableOf<uint32 | Factor>, length_divisor: number): RGBAArray {
         console.log("XXX in v_compute")
+        // If could determine if xs is 3D, would not need length_divisor.
         const values = new ColorArray(xs.length / length_divisor)
-        self._v_compute(xs, values, palette, colors)
+        //self._v_compute(xs, values, palette, colors)
+        self._v_compute_uint32(xs, values, palette, colors)
         return new Uint8ClampedArray(to_big_endian(values).buffer)
       },
     }
@@ -82,4 +84,10 @@ export abstract class ColorMapper extends Mapper<Color> {
 
   protected abstract _v_compute<T>(xs: ArrayableOf<uint32 | Factor>,
     values: Arrayable<T>, palette: Arrayable<T>, colors: {nan_color: T}): void
+
+  protected _v_compute_uint32(xs: ArrayableOf<uint32 | Factor>, values: Arrayable<uint32>,
+      palette: Arrayable<uint32>, colors: {nan_color: uint32}): void {
+    console.log("XXX DEFAULT _v_compute_uint32")
+    this._v_compute(xs, values, palette, colors)
+  }
 }
