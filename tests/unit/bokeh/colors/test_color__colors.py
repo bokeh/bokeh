@@ -319,6 +319,10 @@ class Test_RGB:
     def test_to_hex(self) -> None:
         c = bcc.RGB(10, 20, 30)
         assert c.to_hex(), "#%02X%02X%02X" % (c.r, c.g, c.b)
+        assert bcc.RGB(10, 20, 30, 0.0).to_hex() == "#0A141E00"
+        assert bcc.RGB(10, 20, 30, 0.5).to_hex() == "#0A141E80"
+        assert bcc.RGB(10, 20, 30, 0.996).to_hex() == "#0A141EFE"
+        assert bcc.RGB(10, 20, 30, 1.0).to_hex() == "#0A141E"
 
     def test_to_hsl(self) -> None:
         c = bcc.RGB(255, 100, 0)

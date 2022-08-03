@@ -419,7 +419,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import math
 from copy import deepcopy
-from typing import Dict, Tuple
+from typing import TYPE_CHECKING, Dict, Tuple
 
 # External imports
 import numpy as np
@@ -427,6 +427,9 @@ from typing_extensions import TypeAlias
 
 # Bokeh imports
 from .colors.util import NamedColor
+
+if TYPE_CHECKING:
+    from .colors.color import RGB
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -1576,7 +1579,9 @@ def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0
     Args:
         color (str) :
             Named color or RGB(A) hex color string. Any alpha component is
-            ignored.
+            combined with the ``start_alpha`` to ``end_alpha`` range by
+            multiplying them together, so it is the maximum possible alpha that
+            can be obtained.
 
         n (int, optional) :
             The size of the palette to generate. If not specified uses the
@@ -1584,10 +1589,14 @@ def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0
             alpha of 1.
 
         start_alpha (int, optional) :
-            Alpha component of the start of the palette, in the range 0 to 255
+            The alpha component of the start of the palette is this value (in
+            the range 0 to 255) multiplied by the alpha component of the
+            ``color`` argument.
 
         end_alpha (int, optional) :
-            Alpha component of the end of the palette, in the range 0 to 255
+            The alpha component of the end of the palette is this value (in
+            the range 0 to 255) multiplied by the alpha component of the
+            ``color`` argument.
 
     Returns:
         seq[str] : a sequence of hex RGBA color strings
@@ -1605,13 +1614,27 @@ def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0
     if not (0 <= end_alpha <= 255):
         raise ValueError(f"end_alpha {end_alpha} must be in the range 0 to 255")
 
-    if not n:
-        n = int(abs(end_alpha - start_alpha)) + 1
+    # Take a copy of RGB color as do not want to alter named colors
+    rgba = NamedColor.from_string(color).copy()
 
-    rgb = NamedColor.from_string(color)
+    if rgba.a < 1.0:
+        start_alpha = round(start_alpha*rgba.a)
+        end_alpha = round(end_alpha*rgba.a)
 
-    diff_alpha = end_alpha - start_alpha
-    palette = tuple(f"{rgb.to_hex()}{round(start_alpha + diff_alpha*i / (n-1.0)):02X}" for i in range(n))
+    if n is None or n < 1:
+        nn = int(abs(end_alpha - start_alpha)) + 1
+    else:
+        nn = n
+
+    # Convert alpha to range 0 to 1.
+    norm_start_alpha = start_alpha / 255.0
+    norm_end_alpha = end_alpha / 255.0
+
+    def set_alpha(rgba: RGB, i: int) -> RGB:
+        rgba.a = norm_start_alpha + (norm_end_alpha - norm_start_alpha)*i / (nn-1.0)
+        return rgba
+
+    palette = tuple(set_alpha(rgba, i).to_hex() for i in range(nn))
 
     return palette
 
