@@ -600,7 +600,8 @@ class Settings:
     fixes or changes.
     """)
 
-    ico_path: PrioritizedSetting[str] = PrioritizedSetting("ico_path", "BOKEH_ICO_PATH", default="default", dev_default="default-dev", convert=convert_ico_path, help="""
+    ico_path: PrioritizedSetting[str] = PrioritizedSetting("ico_path", "BOKEH_ICO_PATH",
+        default="default", dev_default="default-dev", convert=convert_ico_path, help="""
     Configure the file path to a .ico file for the Bokeh server to use as a
     favicon.ico file.
 
@@ -653,7 +654,8 @@ class Settings:
     Whether JSON strings should be pretty-printed.
     """)
 
-    py_log_level: PrioritizedSetting[PyLogLevel] = PrioritizedSetting("py_log_level", "BOKEH_PY_LOG_LEVEL", default="none", dev_default="debug", convert=convert_logging, help="""
+    py_log_level: PrioritizedSetting[PyLogLevel] = PrioritizedSetting("py_log_level", "BOKEH_PY_LOG_LEVEL",
+        default="none", dev_default="debug", convert=convert_logging, help="""
     The log level for Python Bokeh code.
 
     Valid values are, in order of increasing severity:
@@ -709,7 +711,8 @@ class Settings:
     A password to decrypt the SSL keyfile, if necessary.
     """)
 
-    validation_level: PrioritizedSetting[ValidationLevel] = PrioritizedSetting("validation_level", "BOKEH_VALIDATION_LEVEL", default="none", convert=convert_validation, help="""
+    validation_level: PrioritizedSetting[ValidationLevel] = PrioritizedSetting("validation_level", "BOKEH_VALIDATION_LEVEL",
+        default="none", convert=convert_validation, help="""
     Whether validation checks should log or raise exceptions on errors and warnings.
 
     Valid values are:
