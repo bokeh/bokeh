@@ -33,7 +33,7 @@ from bokeh.core.property.vectorization import field, value
 FILL  = ["fill_color", "fill_alpha"]
 HATCH = ["hatch_color", "hatch_alpha", "hatch_scale", "hatch_pattern", "hatch_weight", "hatch_extra"]
 LINE  = ["line_color", "line_width", "line_alpha", "line_join", "line_cap", "line_dash", "line_dash_offset"]
-TEXT  = ["text_font", "text_font_size", "text_font_style", "text_color", "text_alpha", "text_align", "text_baseline", "text_line_height"]
+TEXT  = ["text_font", "text_font_size", "text_font_style", "text_color", "text_outline_color", "text_alpha", "text_align", "text_baseline", "text_line_height"]
 
 ANGLE = ["angle", "angle_units"]
 
@@ -83,6 +83,7 @@ def check_text_properties(model, prefix="", font_size='16px', baseline='bottom',
     text_font_size = getattr(model, prefix + "text_font_size")
     text_font_style = getattr(model, prefix + "text_font_style")
     text_color = getattr(model, prefix + "text_color")
+    text_outline_color = getattr(model, prefix + "text_outline_color")
     text_alpha = getattr(model, prefix + "text_alpha")
     text_align = getattr(model, prefix + "text_align")
     text_baseline = getattr(model, prefix + "text_baseline")
@@ -92,6 +93,7 @@ def check_text_properties(model, prefix="", font_size='16px', baseline='bottom',
         assert text_font_size == font_size
         assert text_font_style == font_style
         assert text_color == "#444444"
+        assert text_outline_color is None
         assert text_alpha == 1.0
         assert text_align == align
         assert text_baseline == baseline
@@ -100,6 +102,7 @@ def check_text_properties(model, prefix="", font_size='16px', baseline='bottom',
         assert text_font_size == value(font_size)
         assert text_font_style == font_style
         assert text_color == "#444444"
+        assert text_outline_color is None
         assert text_alpha == 1.0
         assert text_align == align
         assert text_baseline == baseline

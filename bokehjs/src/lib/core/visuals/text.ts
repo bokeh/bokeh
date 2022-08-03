@@ -45,22 +45,25 @@ export class Text extends VisualProperties {
   Values: ValuesOf<mixins.Text>
   values(): this["Values"] {
     return {
-      color:       this.text_color.get_value(),
-      alpha:       this.text_alpha.get_value(),
-      font:        this.text_font.get_value(),
-      font_size:   this.text_font_size.get_value(),
-      font_style:  this.text_font_style.get_value(),
-      align:       this.text_align.get_value(),
-      baseline:    this.text_baseline.get_value(),
-      line_height: this.text_line_height.get_value(),
+      color:         this.text_color.get_value(),
+      outline_color: this.text_outline_color.get_value(),
+      alpha:         this.text_alpha.get_value(),
+      font:          this.text_font.get_value(),
+      font_size:     this.text_font_size.get_value(),
+      font_style:    this.text_font_style.get_value(),
+      align:         this.text_align.get_value(),
+      baseline:      this.text_baseline.get_value(),
+      line_height:   this.text_line_height.get_value(),
     }
   }
 
   set_value(ctx: Context2d): void {
     const color = this.text_color.get_value()
+    const outline_color = this.text_outline_color.get_value()
     const alpha = this.text_alpha.get_value()
 
     ctx.fillStyle    = color2css(color, alpha)
+    ctx.strokeStyle  = color2css(outline_color, alpha)
     ctx.font         = this.font_value()
     ctx.textAlign    = this.text_align.get_value()
     ctx.textBaseline = this.text_baseline.get_value()
@@ -75,14 +78,15 @@ export class Text extends VisualProperties {
 }
 
 export class TextScalar extends VisualUniforms {
-  readonly text_color:       p.UniformScalar<uint32>
-  readonly text_alpha:       p.UniformScalar<number>
-  readonly text_font:        p.UniformScalar<string>
-  readonly text_font_size:   p.UniformScalar<string>
-  readonly text_font_style:  p.UniformScalar<FontStyle>
-  readonly text_align:       p.UniformScalar<TextAlign>
-  readonly text_baseline:    p.UniformScalar<TextBaseline>
-  readonly text_line_height: p.UniformScalar<number>
+  readonly text_color:         p.UniformScalar<uint32>
+  readonly text_outline_color: p.UniformScalar<uint32>
+  readonly text_alpha:         p.UniformScalar<number>
+  readonly text_font:          p.UniformScalar<string>
+  readonly text_font_size:     p.UniformScalar<string>
+  readonly text_font_style:    p.UniformScalar<FontStyle>
+  readonly text_align:         p.UniformScalar<TextAlign>
+  readonly text_baseline:      p.UniformScalar<TextBaseline>
+  readonly text_line_height:   p.UniformScalar<number>
 
   get doit(): boolean {
     const color = this.text_color.value
@@ -102,25 +106,28 @@ export class TextScalar extends VisualUniforms {
   Values: ValuesOf<mixins.Text>
   values(): this["Values"] {
     return {
-      color:       this.text_color.value,
-      alpha:       this.text_alpha.value,
-      font:        this.text_font.value,
-      font_size:   this.text_font_size.value,
-      font_style:  this.text_font_style.value,
-      align:       this.text_align.value,
-      baseline:    this.text_baseline.value,
-      line_height: this.text_line_height.value,
+      color:         this.text_color.value,
+      outline_color: this.text_outline_color.value,
+      alpha:         this.text_alpha.value,
+      font:          this.text_font.value,
+      font_size:     this.text_font_size.value,
+      font_style:    this.text_font_style.value,
+      align:         this.text_align.value,
+      baseline:      this.text_baseline.value,
+      line_height:   this.text_line_height.value,
     }
   }
 
   set_value(ctx: Context2d): void {
     const color = this.text_color.value
     const alpha = this.text_alpha.value
+    const outline_color = this.text_outline_color.value
     const font = this.font_value()
     const align = this.text_align.value
     const baseline = this.text_baseline.value
 
     ctx.fillStyle = color2css(color, alpha)
+    ctx.strokeStyle = color2css(outline_color, alpha)
     ctx.font = font
     ctx.textAlign = align
     ctx.textBaseline = baseline
@@ -135,14 +142,15 @@ export class TextScalar extends VisualUniforms {
 }
 
 export class TextVector extends VisualUniforms {
-  readonly text_color:       p.Uniform<uint32>
-  readonly text_alpha:       p.Uniform<number>
-  readonly text_font:        p.Uniform<string>
-  readonly text_font_size:   p.Uniform<string>
-  readonly text_font_style:  p.Uniform<FontStyle>
-  readonly text_align:       p.Uniform<TextAlign>
-  readonly text_baseline:    p.Uniform<TextBaseline>
-  readonly text_line_height: p.Uniform<number>
+  readonly text_color:         p.Uniform<uint32>
+  readonly text_outline_color: p.Uniform<uint32>
+  readonly text_alpha:         p.Uniform<number>
+  readonly text_font:          p.Uniform<string>
+  readonly text_font_size:     p.Uniform<string>
+  readonly text_font_style:    p.Uniform<FontStyle>
+  readonly text_align:         p.Uniform<TextAlign>
+  readonly text_baseline:      p.Uniform<TextBaseline>
+  readonly text_line_height:   p.Uniform<number>
 
   private _assert_font(i: number): void {
     const font = this.font_value(i)
@@ -153,14 +161,15 @@ export class TextVector extends VisualUniforms {
   values(i: number): this["Values"] {
     this._assert_font(i)
     return {
-      color:       this.text_color.get(i),
-      alpha:       this.text_alpha.get(i),
-      font:        this.text_font.get(i),
-      font_size:   this.text_font_size.get(i),
-      font_style:  this.text_font_style.get(i),
-      align:       this.text_align.get(i),
-      baseline:    this.text_baseline.get(i),
-      line_height: this.text_line_height.get(i),
+      color:         this.text_color.get(i),
+      outline_color: this.text_outline_color.get(i),
+      alpha:         this.text_alpha.get(i),
+      font:          this.text_font.get(i),
+      font_size:     this.text_font_size.get(i),
+      font_style:    this.text_font_style.get(i),
+      align:         this.text_align.get(i),
+      baseline:      this.text_baseline.get(i),
+      line_height:   this.text_line_height.get(i),
     }
   }
 
@@ -178,12 +187,14 @@ export class TextVector extends VisualUniforms {
     this._assert_font(i)
 
     const color = this.text_color.get(i)
+    const outline_color = this.text_outline_color.get(i)
     const alpha = this.text_alpha.get(i)
     const font = this.font_value(i)
     const align = this.text_align.get(i)
     const baseline = this.text_baseline.get(i)
 
     ctx.fillStyle = color2css(color, alpha)
+    ctx.strokeStyle = color2css(outline_color, alpha)
     ctx.font = font
     ctx.textAlign = align
     ctx.textBaseline = baseline
