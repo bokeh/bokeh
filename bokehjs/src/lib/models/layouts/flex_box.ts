@@ -38,6 +38,9 @@ export abstract class FlexBoxView extends LayoutDOMView {
     const layoutable = []
 
     for (const view of this.child_views) {
+      if (!(view instanceof LayoutDOMView))
+        continue
+
       const sizing = view.box_sizing()
       const flex = (() => {
         const policy = this._direction == "row" ? sizing.width_policy : sizing.height_policy

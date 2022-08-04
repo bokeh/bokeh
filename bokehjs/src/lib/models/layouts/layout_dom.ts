@@ -5,7 +5,6 @@ import {Signal} from "core/signaling"
 import {Color} from "core/types"
 import {Align, Dimensions, SizingMode} from "core/enums"
 import {CSSStyles, classes, px, StyleSheet, StyleSheetLike} from "core/dom"
-import {BBox} from "core/util/bbox"
 import {isNumber, isArray} from "core/util/types"
 import {color2css} from "core/util/color"
 import {assign} from "core/util/object"
@@ -17,20 +16,11 @@ import {Layoutable, SizingPolicy, BoxSizing, Percent} from "core/layout"
 import {CanvasLayer} from "core/util/canvas"
 import {SerializableState} from "core/view"
 
-const {round} = Math
-
 export abstract class LayoutDOMView extends UIElementView {
   override model: LayoutDOM
   override parent: DOMElementView | null
 
-  protected _child_views: Map<LayoutDOM, LayoutDOMView>
-
-  protected _resize_observer: ResizeObserver
-
-  private _bbox: BBox = new BBox()
-  override get bbox(): BBox {
-    return this._bbox
-  }
+  protected _child_views: Map<UIElement, UIElementView>
 
   layout?: Layoutable
 
@@ -44,22 +34,10 @@ export abstract class LayoutDOMView extends UIElementView {
   override initialize(): void {
     super.initialize()
     this._child_views = new Map()
+  }
 
-    this._resize_observer = new ResizeObserver((_entries) => {
-      /*
-      for (const entry of entries) {
-        const {width, height} = entry.contentRect
-        console.log("resize", `${this}`, entry.target, width, height)
-      }
-      */
-
-      this.compute_layout()
-
-      this._has_finished = true
-      this.notify_finished()
-    })
-
-    this._resize_observer.observe(this.el, {box: "border-box"})
+  override on_resize(): void {
+    this.compute_layout()
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -71,7 +49,6 @@ export abstract class LayoutDOMView extends UIElementView {
     for (const child_view of this.child_views)
       child_view.remove()
     this._child_views.clear()
-    this._resize_observer.disconnect()
     super.remove()
   }
 
@@ -126,9 +103,9 @@ export abstract class LayoutDOMView extends UIElementView {
     yield* this.child_views
   }
 
-  abstract get child_models(): LayoutDOM[]
+  abstract get child_models(): UIElement[]
 
-  get child_views(): LayoutDOMView[] {
+  get child_views(): UIElementView[] {
     return this.child_models.map((child) => this._child_views.get(child)!)
   }
 
@@ -227,7 +204,8 @@ export abstract class LayoutDOMView extends UIElementView {
 
   update_layout(): void {
     for (const child_view of this.child_views) {
-      child_view.update_layout()
+      if (child_view instanceof LayoutDOMView)
+        child_view.update_layout()
     }
 
     this._update_layout()
@@ -245,45 +223,25 @@ export abstract class LayoutDOMView extends UIElementView {
 
   update_bbox(): void {
     for (const child_view of this.child_views) {
-      child_view.update_bbox()
+      if (child_view instanceof LayoutDOMView)
+        child_view.update_bbox()
     }
 
     this._update_bbox()
   }
 
-  _update_bbox(): void {
-    const self = this.el.getBoundingClientRect()
-
-    const {left, top} = (() => {
-      if (this.parent != null) {
-        const parent = this.parent.el.getBoundingClientRect()
-        return {
-          left: self.left - parent.left,
-          top: self.top - parent.top,
-        }
-      } else {
-        return {left: 0, top: 0}
-      }
-    })()
-
-    const bbox = new BBox({
-      left: round(left),
-      top: round(top),
-      width: round(self.width),
-      height: round(self.height),
-    })
-
-    // TODO: const changed = this._bbox.equals(bbox)
-    this._bbox = bbox
-  }
-
   protected _after_layout(): void {}
 
   after_layout(): void {
-    for (const child_view of this.child_views)
-      child_view.after_layout()
+    for (const child_view of this.child_views) {
+      if (child_view instanceof LayoutDOMView)
+        child_view.after_layout()
+    }
 
     this._after_layout()
+
+    this._has_finished = true
+    this.notify_finished()
   }
 
   override renderTo(element: Node): void {
@@ -433,7 +391,7 @@ export abstract class LayoutDOMView extends UIElementView {
     return sizing
   }
 
-  export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
+  override export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
     const output_backend = (() => {
       switch (type) {
         case "auto": // TODO: actually infer the best type

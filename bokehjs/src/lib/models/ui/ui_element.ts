@@ -1,6 +1,7 @@
 import {Model} from "../../model"
 import {DOMComponentView} from "core/dom_view"
 import {SerializableState} from "core/view"
+import {CanvasLayer} from "core/util/canvas"
 import {BBox} from "core/util/bbox"
 import * as p from "core/properties"
 
@@ -9,7 +10,12 @@ const {round} = Math
 export abstract class UIElementView extends DOMComponentView {
   override model: UIElement
 
+  private _bbox: BBox = new BBox()
   get bbox(): BBox {
+    return this._bbox
+  }
+
+  protected _update_bbox(): void {
     const self = this.el.getBoundingClientRect()
 
     const {left, top} = (() => {
@@ -31,7 +37,36 @@ export abstract class UIElementView extends DOMComponentView {
       height: round(self.height),
     })
 
-    return bbox
+    // TODO: const changed = this._bbox.equals(bbox)
+    this._bbox = bbox
+  }
+
+  protected _resize_observer: ResizeObserver
+
+  override initialize(): void {
+    super.initialize()
+
+    this._resize_observer = new ResizeObserver((_entries) => this.on_resize())
+    this._resize_observer.observe(this.el, {box: "border-box"})
+  }
+
+  override remove(): void {
+    this._resize_observer.disconnect()
+    super.remove()
+  }
+
+  on_resize(): void {
+    this._update_bbox()
+    this._has_finished = true
+    this.notify_finished()
+  }
+
+  export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
+    const output_backend = type == "auto" || type == "png" ? "canvas" : "svg"
+    const canvas = new CanvasLayer(output_backend, hidpi)
+    const {width, height} = this.bbox
+    canvas.resize(width, height)
+    return canvas
   }
 
   override serializable_state(): SerializableState {
