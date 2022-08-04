@@ -1,6 +1,5 @@
 GridPlot bbox=[0, 0, 630, 600]
-  ToolbarBox bbox=[600, 0, 30, 600]
-    Toolbar
+  Toolbar bbox=[600, 0, 30, 600]
   Plot bbox=[0, 0, 200, 200]
     LinearAxis bbox=[76, 124, 119, 39]
     LinearAxis bbox=[37, 5, 39, 119]

@@ -49,7 +49,6 @@ from ..core.enums import (
     Anchor,
     Dimension,
     Dimensions,
-    Location,
     SelectionMode,
     ToolIcon,
     TooltipAttachment,
@@ -107,9 +106,9 @@ from .glyphs import (
     Rect,
     XYGlyph,
 )
-from .layouts import LayoutDOM
 from .ranges import Range1d
 from .renderers import DataRenderer, GlyphRenderer
+from .ui import UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -149,7 +148,6 @@ __all__ = (
     'Tool',
     'ToolProxy',
     'Toolbar',
-    'ToolbarBox',
     'UndoTool',
     'WheelPanTool',
     'WheelZoomTool',
@@ -312,7 +310,7 @@ class InspectTool(GestureTool):
     toggle the inspector on or off using the toolbar.
     """)
 
-class Toolbar(Model):
+class Toolbar(UIElement):
     ''' Collect tools to display for a single plot.
 
     '''
@@ -362,22 +360,6 @@ class Toolbar(Model):
     and this property is set to a ``BoxEditTool`` instance, the pan tool will
     be deactivated (i.e. the multi-gesture tool will take precedence).
     """)
-
-class ToolbarBox(LayoutDOM):
-    ''' A layoutable toolbar that can accept the tools of multiple plots, and
-    can merge the tools into a single button for convenience.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    toolbar = Instance(Toolbar, help="""
-    A toolbar associated with a plot which holds all its tools.
-    """)
-
-    toolbar_location = Enum(Location, default="right")
 
 class PanTool(Drag):
     ''' *toolbar icon*: |pan_icon|

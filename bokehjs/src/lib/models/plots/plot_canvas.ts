@@ -255,7 +255,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     const {toolbar_location, toolbar_inner, toolbar} = this.model
     if (toolbar_location != null) {
       this._toolbar = new ToolbarPanel({toolbar, inner: toolbar_inner})
-      toolbar.toolbar_location = toolbar_location
+      toolbar.location = toolbar_location
     }
   }
 
@@ -323,17 +323,17 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
 
     if (this._toolbar != null) {
-      const {toolbar_location} = this._toolbar.toolbar
+      const {location} = this._toolbar.toolbar
 
       if (!this.model.toolbar_inner) {
-        const panels = get_side(toolbar_location)
+        const panels = get_side(location)
         let push_toolbar = true
 
         if (this.model.toolbar_sticky) {
           for (let i = 0; i < panels.length; i++) {
             const panel = panels[i]
             if (panel instanceof Title) {
-              if (toolbar_location == "above" || toolbar_location == "below")
+              if (location == "above" || location == "below")
                 panels[i] = [panel, this._toolbar]
               else
                 panels[i] = [this._toolbar, panel]
@@ -346,7 +346,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
         if (push_toolbar)
           panels.push(this._toolbar)
       } else {
-        const panels = get_side(toolbar_location, true)
+        const panels = get_side(location, true)
         panels.push(this._toolbar)
       }
     }
@@ -631,7 +631,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
       const {toolbar_location} = this.model
       if (this._toolbar != null) {
         if (toolbar_location != null) {
-          this._toolbar.toolbar.toolbar_location = toolbar_location
+          this._toolbar.toolbar.location = toolbar_location
         } else {
           this._toolbar = undefined
           await this.build_renderer_views()
@@ -640,7 +640,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
         if (toolbar_location != null) {
           const {toolbar, toolbar_inner} = this.model
           this._toolbar = new ToolbarPanel({toolbar, inner: toolbar_inner})
-          toolbar.toolbar_location = toolbar_location
+          toolbar.location = toolbar_location
           await this.build_renderer_views()
         }
       }

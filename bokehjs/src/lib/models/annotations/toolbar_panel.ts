@@ -58,6 +58,15 @@ export class ToolbarPanelView extends AnnotationView {
   private _previous_bbox: BBox = new BBox()
 
   protected _render(): void {
+    const {style} = this.toolbar_view.el
+    if (this.toolbar_view.model.horizontal) {
+      style.width = "100%"
+      style.height = "unset"
+    } else {
+      style.width = "unset"
+      style.height = "100%"
+    }
+
     // TODO: this should be handled by the layout
     const {bbox} = this.layout
     if (!this._previous_bbox.equals(bbox)) {
@@ -70,7 +79,6 @@ export class ToolbarPanelView extends AnnotationView {
       this.el.style.position = "absolute"
       empty(this.el)
       this.el.appendChild(this.toolbar_view.el)
-      this.toolbar_view.layout.bbox = bbox
       this.toolbar_view.render()
       if (this.model.inner)
         this.toolbar_view.el.classList.add("bk-inner")

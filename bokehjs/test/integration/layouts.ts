@@ -1,8 +1,7 @@
 import {expect} from "../unit/assertions"
-import {display, fig, row, column, grid} from "./_util"
+import {display, fig, row, grid} from "./_util"
 
 import {Spacer, Tabs, Panel} from "@bokehjs/models/layouts"
-import {ToolbarBox} from "@bokehjs/models/tools/toolbar_box"
 import {SizingPolicy} from "@bokehjs/core/layout"
 import {Color} from "@bokehjs/core/types"
 import {Location} from "@bokehjs/core/enums"
@@ -400,74 +399,27 @@ describe("gridplot()", () => {
   }
 
   it("should align axes when toolbar_location=null", async () => {
-    await display(layout(null))
+    const {view} = await display(layout(null))
+    expect(() => view.export()).to.not.throw()
   })
 
   it("should align axes when toolbar_location=above", async () => {
-    await display(layout("above"))
+    const {view} = await display(layout("above"))
+    expect(() => view.export()).to.not.throw()
   })
 
   it("should align axes when toolbar_location=right", async () => {
-    await display(layout("right"))
+    const {view} = await display(layout("right"))
+    expect(() => view.export()).to.not.throw()
   })
 
   it("should align axes when toolbar_location=left", async () => {
-    await display(layout("left"))
+    const {view} = await display(layout("left"))
+    expect(() => view.export()).to.not.throw()
   })
 
   it("should align axes when toolbar_location=below", async () => {
-    await display(layout("below"))
-  })
-})
-
-describe("ToolbarBox", () => {
-  const fig = () => {
-    const p = figure({width: 250, height: 250, tools: "pan,reset,help", toolbar_location: null})
-    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
-    return p
-  }
-
-  function tb_above() {
-    const p = fig()
-    const tb = new ToolbarBox({toolbar: p.toolbar, toolbar_location: "above"})
-    return column([tb, p])
-  }
-
-  function tb_below() {
-    const p = fig()
-    const tb = new ToolbarBox({toolbar: p.toolbar, toolbar_location: "below"})
-    return column([p, tb])
-  }
-
-  function tb_left() {
-    const p = fig()
-    const tb = new ToolbarBox({toolbar: p.toolbar, toolbar_location: "left"})
-    return row([tb, p])
-  }
-
-  function tb_right() {
-    const p = fig()
-    const tb = new ToolbarBox({toolbar: p.toolbar, toolbar_location: "right"})
-    return row([p, tb])
-  }
-
-  it("should allow placement above a figure", async () => {
-    const {view} = await display(tb_above())
-    expect(() => view.export("svg")).to.not.throw()
-  })
-
-  it("should allow placement below a figure", async () => {
-    const {view} = await display(tb_below())
-    expect(() => view.export("svg")).to.not.throw()
-  })
-
-  it("should allow placement left of a figure", async () => {
-    const {view} = await display(tb_left())
-    expect(() => view.export("svg")).to.not.throw()
-  })
-
-  it("should allow placement right of a figure", async () => {
-    const {view} = await display(tb_right())
-    expect(() => view.export("svg")).to.not.throw()
+    const {view} = await display(layout("below"))
+    expect(() => view.export()).to.not.throw()
   })
 })

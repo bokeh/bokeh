@@ -332,7 +332,7 @@ export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void
 import {sum} from "@bokehjs/core/util/array"
 import {Size} from "@bokehjs/core/layout"
 import {Row, Column, GridBox} from "@bokehjs/models/layouts"
-import {ToolbarBox} from "@bokehjs/models/tools/toolbar_box"
+import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {GridPlot} from "@bokehjs/models/plots"
 import {Button, Div} from "@bokehjs/models/widgets"
 
@@ -395,8 +395,8 @@ function _infer_viewport(obj: LayoutDOM): Size {
             break
         }
       }
-    } else if (obj instanceof ToolbarBox) {
-      switch (obj.toolbar_location) {
+    } else if (obj instanceof Toolbar) {
+      switch (obj.location) {
         case "above":
         case "below":
           width = 0

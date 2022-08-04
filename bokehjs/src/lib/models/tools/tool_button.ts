@@ -32,7 +32,7 @@ export abstract class ToolButtonView extends DOMElementView {
         }
       })
     } else {
-      const location = this.parent.model.toolbar_location
+      const {location} = this.parent.model
       const reverse = location == "left" || location == "above"
       const orientation = this.parent.model.horizontal ? "vertical" : "horizontal"
       this._menu = new ContextMenu(!reverse ? items : reversed(items), {
@@ -112,7 +112,7 @@ export abstract class ToolButtonView extends DOMElementView {
 
   protected _pressed(): void {
     const at = (() => {
-      switch (this.parent.model.toolbar_location) {
+      switch (this.parent.model.location) {
         case "right": return {left_of:  this.el}
         case "left":  return {right_of: this.el}
         case "above": return {below: this.el}

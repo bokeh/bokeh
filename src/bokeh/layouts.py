@@ -91,7 +91,6 @@ def row(*children: LayoutDOM | list[LayoutDOM], sizing_mode: SizingModeType | No
             :class:`~bokeh.models.Widget`,
             :class:`~bokeh.models.Row`,
             :class:`~bokeh.models.Column`,
-            :class:`~bokeh.models.ToolbarBox`,
             :class:`~bokeh.models.Spacer`.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
@@ -127,7 +126,6 @@ def column(*children: LayoutDOM | list[LayoutDOM], sizing_mode: SizingModeType |
             :class:`~bokeh.models.Widget`,
             :class:`~bokeh.models.Row`,
             :class:`~bokeh.models.Column`,
-            :class:`~bokeh.models.ToolbarBox`,
             :class:`~bokeh.models.Spacer`.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
@@ -158,7 +156,6 @@ def layout(*args: LayoutDOM, children: list[LayoutDOM] | None = None, sizing_mod
             :class:`~bokeh.models.Widget`,
             :class:`~bokeh.models.Row`,
             :class:`~bokeh.models.Column`,
-            :class:`~bokeh.models.ToolbarBox`,
             :class:`~bokeh.models.Spacer`.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
@@ -227,8 +224,8 @@ def gridplot(
 
         toolbar_options (dict, optional) : A dictionary of options that will be
             used to construct the grid's toolbar (an instance of
-            :class:`~bokeh.models.ToolbarBox`). If none is supplied,
-            ToolbarBox's defaults will be used.
+            :class:`~bokeh.models.Toolbar`). If none is supplied,
+            Toolbar's defaults will be used.
 
         merge_tools (``True``, ``False``): Combine tools from all child plots into
             a single toolbar.
