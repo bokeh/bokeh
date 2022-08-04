@@ -83,6 +83,7 @@ export class HTMLLabelSetView extends DataAnnotationView {
     el.style.left = `${sx}px`
     el.style.top = `${sy}px`
     el.style.color = ctx.fillStyle as string
+    el.style.webkitTextStroke = `1px ${ctx.strokeStyle}`
     el.style.font = ctx.font
     el.style.lineHeight = "normal" // needed to prevent ipynb css override
     el.style.whiteSpace = "pre"

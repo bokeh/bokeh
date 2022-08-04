@@ -41,6 +41,7 @@ export type Hatch = {
 
 export type Text = {
   text_color: p.Property<Color | null>
+  text_outline_color: p.Property<Color | null>
   text_alpha: p.Property<number>
   text_font: p.Property<string>
   text_font_size: p.Property<string>
@@ -79,14 +80,15 @@ export const Hatch: p.DefineOf<Hatch> = {
 }
 
 export const Text: p.DefineOf<Text> = {
-  text_color:       [ k.Nullable(k.Color), "#444444" ],
-  text_alpha:       [ k.Alpha, 1.0 ],
-  text_font:        [ p.Font, "helvetica" ],
-  text_font_size:   [ k.FontSize, "16px" ],
-  text_font_style:  [ FontStyle, "normal" ],
-  text_align:       [ TextAlign, "left" ],
-  text_baseline:    [ TextBaseline, "bottom" ],
-  text_line_height: [ k.Number, 1.2 ],
+  text_color:         [ k.Nullable(k.Color), "#444444" ],
+  text_outline_color: [ k.Nullable(k.Color), null ],
+  text_alpha:         [ k.Alpha, 1.0 ],
+  text_font:          [ p.Font, "helvetica" ],
+  text_font_size:     [ k.FontSize, "16px" ],
+  text_font_style:    [ FontStyle, "normal" ],
+  text_align:         [ TextAlign, "left" ],
+  text_baseline:      [ TextBaseline, "bottom" ],
+  text_line_height:   [ k.Number, 1.2 ],
 }
 
 // Scalar
@@ -121,6 +123,7 @@ export type HatchScalar = {
 
 export type TextScalar = {
   text_color: p.ScalarSpec<Color | null>
+  text_outline_color: p.ScalarSpec<Color | null>
   text_alpha: p.ScalarSpec<number>
   text_font: p.ScalarSpec<string>
   text_font_size: p.ScalarSpec<string>
@@ -159,14 +162,15 @@ export const HatchScalar: p.DefineOf<HatchScalar> = {
 }
 
 export const TextScalar: p.DefineOf<TextScalar> = {
-  text_color:       [ p.ColorScalar,        "#444444"   ],
-  text_alpha:       [ p.NumberScalar,       1.0         ],
-  text_font:        [ p.FontScalar,         "helvetica" ],
-  text_font_size:   [ p.FontSizeScalar,     "16px"      ],
-  text_font_style:  [ p.FontStyleScalar,    "normal"    ],
-  text_align:       [ p.TextAlignScalar,    "left"      ],
-  text_baseline:    [ p.TextBaselineScalar, "bottom"    ],
-  text_line_height: [ p.NumberScalar,       1.2         ],
+  text_color:         [ p.ColorScalar,        "#444444"   ],
+  text_outline_color: [ p.ColorScalar,        null        ],
+  text_alpha:         [ p.NumberScalar,       1.0         ],
+  text_font:          [ p.FontScalar,         "helvetica" ],
+  text_font_size:     [ p.FontSizeScalar,     "16px"      ],
+  text_font_style:    [ p.FontStyleScalar,    "normal"    ],
+  text_align:         [ p.TextAlignScalar,    "left"      ],
+  text_baseline:      [ p.TextBaselineScalar, "bottom"    ],
+  text_line_height:   [ p.NumberScalar,       1.2         ],
 }
 
 // Vectorized
@@ -201,6 +205,7 @@ export type HatchVector = {
 
 export type TextVector = {
   text_color: p.ColorSpec
+  text_outline_color: p.ColorSpec
   text_alpha: p.VectorSpec<number>
   text_font: p.VectorSpec<string>
   text_font_size: p.VectorSpec<string>
@@ -239,14 +244,15 @@ export const HatchVector: p.DefineOf<HatchVector> = {
 }
 
 export const TextVector: p.DefineOf<TextVector> = {
-  text_color:       [ p.ColorSpec, "#444444" ],
-  text_alpha:       [ p.NumberSpec, 1.0 ],
-  text_font:        [ p.FontSpec, "helvetica" ],
-  text_font_size:   [ p.FontSizeSpec, "16px"],
-  text_font_style:  [ p.FontStyleSpec, "normal" ],
-  text_align:       [ p.TextAlignSpec, "left" ],
-  text_baseline:    [ p.TextBaselineSpec, "bottom" ],
-  text_line_height: [ p.NumberSpec, 1.2 ],
+  text_color:         [ p.ColorSpec, "#444444" ],
+  text_outline_color: [ p.ColorSpec, null ],
+  text_alpha:         [ p.NumberSpec, 1.0 ],
+  text_font:          [ p.FontSpec, "helvetica" ],
+  text_font_size:     [ p.FontSizeSpec, "16px"],
+  text_font_style:    [ p.FontStyleSpec, "normal" ],
+  text_align:         [ p.TextAlignSpec, "left" ],
+  text_baseline:      [ p.TextBaselineSpec, "bottom" ],
+  text_line_height:   [ p.NumberSpec, 1.2 ],
 }
 
 export type Prefixed<P extends string, T> = {[key in keyof T & string as `${P}_${key}`]: T[key]}

@@ -37,6 +37,7 @@ from ....core.properties import (
     Enum,
     Float,
     Include,
+    Nullable,
     NullStringSpec,
     NumberSpec,
     Override,
@@ -308,6 +309,10 @@ class HTMLTitle(HTMLAnnotation):
     """)
 
     text_color = Color(default="#444444", help="""
+    A color to use to fill text with.
+    """)
+
+    text_outline_color = Nullable(Color, default=None, help="""
     A color to use to fill text with.
     """)
 
