@@ -269,6 +269,11 @@
       "path": "examples/plotting/file/bessel.py",
       "name": "bessel",
       "alt": ""
+     },
+     {
+      "path": "examples/plotting/file/contour.py",
+      "name": "contour",
+      "alt": ""
      }
   ]
 }

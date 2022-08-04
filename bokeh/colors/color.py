@@ -310,7 +310,7 @@ class RGB(Color):
     def to_hex(self) -> str:
         ''' Return a hex color string for this RGB(A) color.
 
-        Any alpha value if only included in the output string if it is less
+        Any alpha value is only included in the output string if it is less
         than 1.
 
         Returns:

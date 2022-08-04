@@ -20,6 +20,12 @@ The demos container here are:
     <td>Demonstrates different <a href=http://scikit-learn.org/stable>scikit-learn</a> clustering algorithms on a few different data sets.</td>
   </tr>
 
+  <tr><td colspan="2">contour_animated</td></tr>
+  <tr>
+    <td><a href="https://github.com/bokeh/bokeh/tree/master/examples/app/contour_animated.png"><img src="https://docs.bokeh.org/static/contour_animated_t.png" width=400></img></a></td>
+    <td>Using a Python callback to animate a contour plot.</td>
+  </tr>
+
   <tr><td colspan="2">crossfilter</td></tr>
   <tr>
     <td><a href="https://github.com/bokeh/bokeh/tree/master/examples/app/crossfilter"><img src="https://docs.bokeh.org/static/crossfilter_t.png" width=400></img></a></td>

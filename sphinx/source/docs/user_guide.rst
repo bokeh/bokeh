@@ -21,6 +21,7 @@ User guide
     user_guide/server
     user_guide/jupyter
     user_guide/export
+    user_guide/contour
     user_guide/embed
     user_guide/cli
     user_guide/extensions
