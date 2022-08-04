@@ -150,12 +150,12 @@ export abstract class LayoutDOMView extends UIElementView {
         case "min":
           return "min-content"
         case "max":
-          return "auto"
+          return "100%"
       }
     }
 
-    function to_css(value: number | Percent | null | undefined) {
-      return value == null ? "unset" : (isNumber(value) ? px(value) : `${value.percent}%`)
+    function to_css(value: number | Percent | null | undefined, alt: string = "unset") {
+      return value == null ? alt : (isNumber(value) ? px(value) : `${value.percent}%`)
     }
 
     this._style.replace(`
@@ -165,8 +165,8 @@ export abstract class LayoutDOMView extends UIElementView {
         width: ${css_sizing(sizing.width_policy, sizing.width)};
         height: ${css_sizing(sizing.height_policy, sizing.height)};
 
-        min-width: ${to_css(sizing.min_width)};
-        min-height: ${to_css(sizing.min_height)};
+        min-width: ${to_css(sizing.min_width, "0")};
+        min-height: ${to_css(sizing.min_height, "0")};
 
         max-width: ${to_css(sizing.max_width)};
         max-height: ${to_css(sizing.max_height)};
