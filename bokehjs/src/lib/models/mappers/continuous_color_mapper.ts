@@ -116,8 +116,9 @@ export abstract class ContinuousColorMapper extends ColorMapper {
 
   protected abstract scan(data: Arrayable<number>, n: number): {min: number, max: number}
 
-  protected _v_compute<T>(data: Arrayable<number>, values: Arrayable<T>,
-    palette: Arrayable<T>, colors: {nan_color: T, low_color?: T, high_color?: T}): void {
+  public _v_compute<T>(data: Arrayable<number>, values: Arrayable<T>,
+  //protected _v_compute<T>(data: Arrayable<number>, values: Arrayable<T>,
+      palette: Arrayable<T>, colors: {nan_color: T, low_color?: T, high_color?: T}): void {
 
     const {nan_color} = colors
     let {low_color, high_color} = colors
