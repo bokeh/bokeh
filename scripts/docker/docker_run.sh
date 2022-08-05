@@ -12,7 +12,7 @@ if [ $# -ne 1 ]; then
 fi
 
 IMAGE_AND_TAG=$1
-UID_GID="`id --user`:`id --group`"
+UID_GID="`id -u`:`id -g`"
 
 ENV_VARS=""
 for name in BOKEH_DOCKER_CONDA BOKEH_DOCKER_PY BOKEH_DOCKER_BUILD BOKEH_DOCKER_TEST BOKEH_DOCKER_CHROME_VERSION; do

@@ -1,7 +1,7 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ARG CHROME_DEB=google-chrome-stable_current_amd64.deb
-ARG FIXUID_VERSION=0.5
+ARG FIXUID_VERSION=0.5.1
 
 ENV DEBIAN_FRONTEND=noninteractive
 
