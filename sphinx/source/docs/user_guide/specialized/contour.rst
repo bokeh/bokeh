@@ -1,4 +1,4 @@
-.. _userguide_contour:
+.. _userguide_specialized_contour:
 
 Contour plots
 =============
@@ -6,6 +6,8 @@ Contour plots
 Contour plots are used to calculate and render lines of constant value in
 two-dimensional quadrilateral grids. Both the lines and the filled regions
 between lines can be rendered with a single function call.
+
+.. _userguide_specialized_contour_simple:
 
 Simple example
 --------------
@@ -38,6 +40,8 @@ There is a colorbar on the right of the plot which is obtained using
 :meth:`~bokeh.models.ContourRenderer.construct_color_bar`. It automatically
 displays the same fill and line visual properties as the contour plot.
 
+.. _userguide_specialized_contour_polar:
+
 Polar grid example
 ------------------
 
@@ -69,6 +73,8 @@ few extra options for how they can be specified:
 keyword arguments that are passed to the
 :class:`~bokeh.models.ContourColorBar` constructor to set properties such as
 the ``title`` shown here.
+
+.. _userguide_specialized_contour_animated:
 
 Animated contours
 -----------------

@@ -1,3 +1,11 @@
+''' Contour plot with polar grid and many visual properties.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer.contruct_color_bar
+    :refs: :ref:`userguide_specialized_contour` > :ref:`userguide_specialized_contour_polar`
+    :keywords: contour
+
+'''
 import numpy as np
 
 from bokeh.palettes import Cividis

@@ -1,3 +1,11 @@
+''' Simple contour plot showing both contour lines and filled polygons.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer.contruct_color_bar
+    :refs: :ref:`userguide_specialized_contour` > :ref:`userguide_specialized_contour_simple`
+    :keywords: contour
+
+'''
 import numpy as np
 
 from bokeh.palettes import Sunset8

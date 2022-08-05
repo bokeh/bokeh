@@ -3,7 +3,7 @@ between each pair of contour levels.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer
-    :refs: :ref:`userguide_contour`
+    :refs: :ref:`userguide_specialized_contour`
     :keywords: contour
 
 '''
