@@ -24,6 +24,7 @@ export type Test = Decl & {
   skip: boolean
   view?: UIElementView
   el?: HTMLElement
+  viewport?: [number, number]
   threshold?: number
   dpr?: number
 }
@@ -255,9 +256,12 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   if (error == null && test.view != null) {
     try {
       const {width, height} = test.view.bbox
+      if (test.viewport != null) {
+        const [vw, vh] = test.viewport
+        if (width > vw || height > vh)
+          throw new Error(`viewport size exceeded [${width}, ${height}] > [${vw}, ${vh}]`)
+      }
       const rect = test.el!.getBoundingClientRect()
-      if (width > rect.width || height > rect.height)
-        throw new Error(`viewport size exceeded [${width}, ${height}] > [${rect.width}, ${rect.height}]`)
       const left = rect.left + window.pageXOffset - document.documentElement.clientLeft
       const top = rect.top + window.pageYOffset - document.documentElement.clientTop
       const bbox = {x: left, y: top, width: rect.width, height: rect.height}
@@ -283,7 +287,7 @@ export async function display(obj: Document | UIElement, viewport: [number, numb
   }
 
   const margin = 50
-  const size = (() => {
+  const size: [number, number] | null = (() => {
     if (viewport == null)
       return null
     else if (viewport == "auto") {
@@ -313,6 +317,7 @@ export async function display(obj: Document | UIElement, viewport: [number, numb
   const view = await show(obj, el ?? viewport_el)
   test.view = (isArray(view) ? view[0] : view) as UIElementView
   test.el = viewport_el
+  test.viewport = size ?? undefined
   return {view: test.view, el: viewport_el}
 }
 
