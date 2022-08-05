@@ -1,5 +1,7 @@
-import {expect} from "assertions"
 import * as sinon from "sinon"
+
+import {expect} from "assertions"
+import {display} from "../_util"
 
 import * as dom from "@bokehjs/core/dom"
 import {Tap, MouseMove} from "@bokehjs/core/bokeh_events"
@@ -24,7 +26,8 @@ describe("ui_event_bus module", () => {
       x_range: new Range1d({start: 0, end: 1}),
       y_range: new Range1d({start: 0, end: 1}),
     })
-    return (await build_view(plot)).build()
+    const {view} = await display(plot)
+    return view
   }
 
   let hammer_stub: sinon.SinonStub

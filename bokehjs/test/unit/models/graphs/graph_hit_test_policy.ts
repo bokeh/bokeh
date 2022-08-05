@@ -1,5 +1,7 @@
-import {expect} from "assertions"
 import * as sinon from "sinon"
+
+import {expect} from "assertions"
+import {display} from "../../_util"
 
 import {Selection} from "@bokehjs/models/selections/selection"
 import {Plot} from "@bokehjs/models/plots/plot"
@@ -13,7 +15,6 @@ import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {GraphRenderer, GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
 import {ColumnarDataSource} from "@bokehjs/models/sources/columnar_data_source"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {Document} from "@bokehjs/document"
 import {build_view} from "@bokehjs/core/build_views"
 import {Arrayable} from "@bokehjs/core/types"
 import {repeat} from "@bokehjs/core/util/array"
@@ -40,14 +41,11 @@ describe("GraphHitTestPolicy", () => {
   let edge_stub: sinon.SinonStub
 
   before_each(async () => {
-    const doc = new Document()
-
     const plot = new Plot({
       x_range: new Range1d({start: 0, end: 1}),
       y_range: new Range1d({start: 0, end: 1}),
     })
-    doc.add_root(plot)
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
 
     node_source = new ColumnDataSource({
       data: {

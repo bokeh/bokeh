@@ -1,7 +1,7 @@
 import {expect} from "assertions"
+import {display} from "../../_util"
 
 import {FileInput} from "@bokehjs/models/widgets"
-import {build_view} from "@bokehjs/core/build_views"
 
 // FileList doesn't have a constructor (https://www.w3.org/TR/FileAPI/#filelist-section)
 class _FileList extends Array<File> implements FileList {
@@ -13,7 +13,7 @@ class _FileList extends Array<File> implements FileList {
 describe("FileInputView", () => {
   it("should allow reading files from a FileList", async () => {
     const model = new FileInput({accept: ".csv,.json.,.txt", multiple: false})
-    const view = (await build_view(model)).build()
+    const {view} = await display(model, null)
 
     const file = new File(["foo bar"], "foo.txt", {type: "text/plain"})
     const files = new _FileList(file)
@@ -27,7 +27,7 @@ describe("FileInputView", () => {
 
   it("should allow reading empty files from a FileList", async () => {
     const model = new FileInput({accept: ".csv,.json.,.txt", multiple: false})
-    const view = (await build_view(model)).build()
+    const {view} = await display(model, null)
 
     const file = new File([], "foo.txt", {type: "text/plain"})
     const files = new _FileList(file)
@@ -41,7 +41,7 @@ describe("FileInputView", () => {
 
   it("should allow reading multiple files from a FileList", async () => {
     const model = new FileInput({accept: ".csv,.json.,.txt", multiple: true})
-    const view = (await build_view(model)).build()
+    const {view} = await display(model, null)
 
     const getFileList = () => {
       const dt = new DataTransfer()

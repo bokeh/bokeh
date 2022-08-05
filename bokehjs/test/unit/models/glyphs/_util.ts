@@ -1,5 +1,6 @@
+import {display} from "../../_util"
+
 import {Arrayable} from "@bokehjs/core/types"
-import {Document} from "@bokehjs/document"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Glyph} from "@bokehjs/models/glyphs/glyph"
@@ -11,15 +12,12 @@ import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 import {LogScale} from "@bokehjs/models/scales/log_scale"
 import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
-import {build_view} from "@bokehjs/core/build_views"
 import {ViewOf} from "@bokehjs/core/view"
 
 export type Options = {axis_type?: AxisType, reversed?: boolean}
 
 export async function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: Arrayable} = {}, options?: Options): Promise<GlyphRendererView> {
   const axis_type = options?.axis_type ?? "linear"
-
-  const doc = new Document()
 
   const data_source = new ColumnDataSource({data})
   const glyph_renderer = new GlyphRenderer({glyph, data_source})
@@ -36,14 +34,13 @@ export async function create_glyph_renderer_view(glyph: Glyph, data: {[key: stri
     title: null,
     renderers: [glyph_renderer],
   })
-  const plot_view = (await build_view(plot)).build()
-  doc.add_root(plot)
 
+  const {view: plot_view} = await display(plot)
   return plot_view.renderer_view(glyph_renderer)!
 }
 
 export async function create_glyph_view<G extends Glyph>(glyph: G, data: {[key: string]: Arrayable} = {}, options?: Options): Promise<ViewOf<G>> {
-  return (await create_glyph_renderer_view(glyph, data, options)).glyph /* glyph_view */ // as unknown as ViewOf<G> // XXX: investigate this
+  return (await create_glyph_renderer_view(glyph, data, options)).glyph
 }
 
 export type AxisType = "linear" | "log" | "categorical"

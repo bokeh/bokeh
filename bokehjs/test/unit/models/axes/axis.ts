@@ -1,4 +1,5 @@
 import {expect} from "assertions"
+import {display} from "../../_util"
 
 import {Axis} from "@bokehjs/models/axes/axis"
 import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
@@ -8,7 +9,6 @@ import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
-import {build_view} from "@bokehjs/core/build_views"
 import {TextBox} from "@bokehjs/core/graphics"
 import {TeXView, TeX} from "@bokehjs/models/text/math_text"
 
@@ -27,7 +27,7 @@ describe("Axis", () => {
       major_label_overrides: new Map([[0, "zero"], [4, "four"], [10, "ten"]]),
     })
     plot.add_layout(axis, "below")
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
     const axis_view = plot_view.renderer_view(axis)!
 
     const labels = axis_view.compute_labels([0, 2, 4.0, 6, 8, 10])
@@ -47,7 +47,7 @@ describe("Axis", () => {
       major_label_overrides: new Map<number, string | TeX>([[0, "zero"], [4, new TeX({text: "\\pi"})], [10, "$$ten$$"]]),
     })
     plot.add_layout(axis, "below")
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
     const axis_view = plot_view.renderer_view(axis)!
 
     const labels = axis_view.compute_labels([0, 2, 4, 6, 8, 10])
@@ -71,7 +71,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "below")
 
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
     const axis_view = plot_view.renderer_view(axis)!
 
     expect(axis_view._axis_label_view).to.be.instanceof(TeXView)
@@ -94,7 +94,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "below")
 
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
     const axis_view = plot_view.renderer_view(axis)!
 
     expect(axis_view._axis_label_view).to.be.instanceof(TeXView)
@@ -113,7 +113,7 @@ describe("Axis", () => {
       fixed_location: 10,
     })
     plot.add_layout(axis, "below")
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
     const axis_view = plot_view.renderer_view(axis)!
     expect(axis_view.loc).to.be.equal(10)
   })
@@ -131,7 +131,7 @@ describe("Axis", () => {
       fixed_location: 5,
     })
     plot.add_layout(axis, "left")
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
     const axis_view = plot_view.renderer_view(axis)!
     expect(axis_view.offsets).to.be.equal([0, 0])
   })
@@ -150,7 +150,7 @@ describe("Axis", () => {
       fixed_location: "foo",
     })
     plot.add_layout(axis, "left")
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
     const axis_view = plot_view.renderer_view(axis)!
     expect(axis_view.offsets).to.be.equal([0, 0])
   })
@@ -169,7 +169,7 @@ describe("Axis", () => {
       fixed_location: "foo",
     })
     plot.add_layout(axis, "left")
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
     const axis_view = plot_view.renderer_view(axis)!
     expect(axis_view.loc).to.be.equal(0.5)
   })
@@ -196,7 +196,7 @@ describe("AxisView", () => {
     })
     plot.add_layout(axis, "below")
 
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
     const axis_view = plot_view.renderer_view(axis)!
 
     return {axis, axis_view}

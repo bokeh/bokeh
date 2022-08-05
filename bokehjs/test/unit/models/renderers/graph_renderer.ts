@@ -1,4 +1,5 @@
 import {expect} from "assertions"
+import {display} from "../../_util"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GraphRenderer} from "@bokehjs/models/renderers/graph_renderer"
@@ -7,7 +8,6 @@ import {StaticLayoutProvider} from "@bokehjs/models/graphs"
 import {Circle, MultiLine} from "@bokehjs/models/glyphs"
 import {Plot} from "@bokehjs/models/plots"
 import {Document} from "@bokehjs/document"
-import {build_view} from "@bokehjs/core/build_views"
 import {SerializationError} from "@bokehjs/core/serialization"
 
 type GraphComponents = {
@@ -37,15 +37,12 @@ async function create_graph_document(): Promise<GraphComponents> {
 
   const graph = new GraphRenderer({layout_provider, node_renderer, edge_renderer})
   const plot = new Plot({renderers: [graph]})
-  const doc = new Document()
-  doc.add_root(plot)
-  const plot_view = await build_view(plot)
-  plot_view.build()
+  await display(plot)
 
   return {
     test_graph: graph,
     test_layout_provider: layout_provider,
-    test_document: doc,
+    test_document: plot.document!,
   }
 }
 

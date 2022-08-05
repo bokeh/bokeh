@@ -1,13 +1,13 @@
 import {expect} from "assertions"
+import {display} from "../../_util"
 
 import {Paragraph} from "@bokehjs/models/widgets/paragraph"
-import {build_view} from "@bokehjs/core/build_views"
 
 describe("Paragraph.View render", () => {
 
   it("should set the margin to 0", async () => {
     const p = new Paragraph()
-    const pv = (await build_view(p)).build()
+    const {view: pv} = await display(p, null)
 
     const el = pv.shadow_el.querySelector<HTMLElement>("p")!
     expect(el.style.cssText.includes("margin: 0px;")).to.be.true

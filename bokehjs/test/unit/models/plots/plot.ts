@@ -1,12 +1,14 @@
-import {expect} from "assertions"
 import * as sinon from "sinon"
 
+import {expect} from "assertions"
+import {display} from "../../_util"
+
+import {Document} from "@bokehjs/document"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {PlotView} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
 import {Label, LabelView} from "@bokehjs/models/annotations/label"
-import {build_view} from "@bokehjs/core/build_views"
 import {Place} from "@bokehjs/core/enums"
 import {GraphRenderer, GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
 import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
@@ -21,7 +23,8 @@ async function new_plot_view(attrs: Partial<Plot.Attrs> = {}): Promise<PlotView>
     y_range: new Range1d({start: 0, end: 10}),
     ...attrs,
   })
-  return (await build_view(plot)).build()
+  const {view} = await display(plot)
+  return view
 }
 
 interface PlotWithTools {
@@ -86,7 +89,7 @@ describe("Plot module", () => {
       })
       const glyph = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Rect()})
       const plot = new Plot({renderers: [graph, glyph]})
-      const plot_view = (await build_view(plot)).build()
+      const {view: plot_view} = await display(plot)
       expect(plot_view.renderer_view(graph.node_renderer)).to.be.instanceof(GlyphRendererView)
       expect(plot_view.renderer_view(graph.edge_renderer)).to.be.instanceof(GlyphRendererView)
       expect(plot_view.renderer_view(graph)).to.be.instanceof(GraphRendererView)
@@ -121,8 +124,9 @@ describe("Plot module", () => {
 
     it("layout should set element style correctly", async () => {
       const view = await new_plot_view({width: 425, height: 658})
-      const expected_style = "width: 425px; height: 658px; margin: 0px;"
-      expect(view.el.style.cssText).to.be.equal(expected_style)
+      const {width, height} = getComputedStyle(view.el)
+      expect(width).to.be.equal("425px")
+      expect(height).to.be.equal("658px")
     })
 
     it("should set min_border_x to value of min_border if min_border_x is not specified", async () => {
@@ -196,11 +200,13 @@ describe("Plot module", () => {
       const x_range = new DataRange1d()
       const y_range = new DataRange1d()
 
+      const doc = new Document()
       const p0 = new Plot({x_range, y_range})
-      const pv0 = (await build_view(p0)).build()
-
       const p1 = new Plot({x_range, y_range})
-      const pv1 = (await build_view(p1)).build()
+      doc.add_root(p0)
+      doc.add_root(p1)
+
+      const {views: [pv0, pv1]} = await display(doc, null)
 
       expect(x_range.plots.has(p0)).to.be.true
       expect(y_range.plots.has(p0)).to.be.true
