@@ -58,6 +58,13 @@ export class GridPlotView extends LayoutDOMView {
     this.on_change(this.model.toolbar.properties.tools, async () => {
       await this.build_tool_views()
     })
+
+    this.mouseenter.connect(() => {
+      this.toolbar_view.set_visibility(true)
+    })
+    this.mouseleave.connect(() => {
+      this.toolbar_view.set_visibility(false)
+    })
   }
 
   override remove(): void {

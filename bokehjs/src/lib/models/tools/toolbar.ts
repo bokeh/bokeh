@@ -63,11 +63,15 @@ export class ToolbarView extends UIElementView {
 
   override connect_signals(): void {
     super.connect_signals()
+
     this.connect(this.model.properties.tools.change, async () => {
       await this._build_tool_button_views()
       this.render()
     })
-    this.connect(this.model.properties.autohide.change, () => this._on_visible_change())
+
+    this.connect(this.model.properties.autohide.change, () => {
+      this._on_visible_change()
+    })
   }
 
   override styles(): StyleSheetLike[] {
