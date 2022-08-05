@@ -2,6 +2,7 @@ import "./setup"
 import defer from "./defer"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
+import {View} from "@bokehjs/core/view"
 import {LayoutDOM} from "@bokehjs/models/layouts/layout_dom"
 import {show} from "@bokehjs/api/plotting"
 import {Document} from "@bokehjs/document"
@@ -22,7 +23,7 @@ export type Decl = {
 export type Test = Decl & {
   description: string
   skip: boolean
-  view?: UIElementView
+  views: View[]
   el?: HTMLElement
   viewport?: [number, number]
   threshold?: number
@@ -59,7 +60,7 @@ type _It = ItFn & {
 }
 
 function _it(description: string, fn: Func | AsyncFunc, skip: boolean): Test {
-  const test = {description, fn, skip}
+  const test = {description, fn, skip, views: []}
   stack[0].tests.push(test)
   return test
 }
@@ -203,15 +204,15 @@ export async function clear(seq: TestSeq): Promise<void> {
 const container = document.querySelector(".container")!
 
 function _clear_test(test: Test): void {
-  if (test.view != null) {
-    const {model} = test.view
+  for (const view of test.views) {
+    const {model} = view
     if (model.document != null) {
       model.document.remove_root(model)
     } else {
-      test.view.remove()
+      view.remove()
     }
-    test.view = undefined
   }
+  test.views = []
   if (test.el != null) {
     test.el.remove()
     test.el = undefined
@@ -253,38 +254,38 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   const end = Date.now()
   const time = end - start
 
-  if (error == null && test.view != null) {
-    try {
-      const {width, height} = test.view.bbox
-      if (test.viewport != null) {
-        const [vw, vh] = test.viewport
-        if (width > vw || height > vh)
-          throw new Error(`viewport size exceeded [${width}, ${height}] > [${vw}, ${vh}]`)
+  if (error == null) {
+    for (const view of test.views) {
+      if (!(view instanceof UIElementView))
+        continue
+      try {
+        const {width, height} = view.bbox
+        if (test.viewport != null) {
+          const [vw, vh] = test.viewport
+          if (width > vw || height > vh)
+            throw new Error(`viewport size exceeded [${width}, ${height}] > [${vw}, ${vh}]`)
+        }
+        const rect = test.el!.getBoundingClientRect()
+        const left = rect.left + window.pageXOffset - document.documentElement.clientLeft
+        const top = rect.top + window.pageYOffset - document.documentElement.clientTop
+        const bbox = {x: left, y: top, width: rect.width, height: rect.height}
+        const state = view.serializable_state()
+        return {error, time, state, bbox}
+      } catch (err) {
+        error = err instanceof Error ? err : new Error(`${err}`)
       }
-      const rect = test.el!.getBoundingClientRect()
-      const left = rect.left + window.pageXOffset - document.documentElement.clientLeft
-      const top = rect.top + window.pageYOffset - document.documentElement.clientTop
-      const bbox = {x: left, y: top, width: rect.width, height: rect.height}
-      const state = test.view.serializable_state()
-      return {error, time, state, bbox}
-    } catch (err) {
-      error = err instanceof Error ? err : new Error(`${err}`)
     }
   }
   return {error, time}
 }
 
-export async function display(obj: Document, viewport?: [number, number] | "auto" | null, el?: HTMLElement): Promise<{view: ViewOf<HasProps>, el: HTMLElement}>
+export async function display(obj: Document, viewport?: [number, number] | "auto" | null, el?: HTMLElement): Promise<{views: ViewOf<HasProps>[], el: HTMLElement}>
 export async function display<T extends UIElement>(obj: T, viewport?: [number, number] | "auto" | null, el?: HTMLElement): Promise<{view: ViewOf<T>, el: HTMLElement}>
 
-export async function display(obj: Document | UIElement, viewport: [number, number] | "auto" | null = "auto", el?: HTMLElement): Promise<{view: ViewOf<HasProps>, el: HTMLElement}> {
+export async function display(obj: Document | UIElement, viewport: [number, number] | "auto" | null = "auto",
+    el?: HTMLElement): Promise<{view: ViewOf<HasProps>, el: HTMLElement} | {views: ViewOf<HasProps>[], el: HTMLElement}> {
   const test = current_test
-  assert(test != null, "display() must be called in it(...) block")
-
-  if (obj instanceof Document) {
-    assert(obj.roots().length == 1)
-    assert(obj.roots()[0] instanceof UIElement)
-  }
+  assert(test != null, "display() must be called in it(...) or before*() blocks")
 
   const margin = 50
   const size: [number, number] | null = (() => {
@@ -313,12 +314,25 @@ export async function display(obj: Document | UIElement, viewport: [number, numb
     }
   })()
 
+  const doc = (() => {
+    if (obj instanceof Document)
+      return obj
+    else {
+      const doc = new Document()
+      doc.add_root(obj)
+      return doc
+    }
+  })()
+
   container.appendChild(viewport_el)
-  const view = await show(obj, el ?? viewport_el)
-  test.view = (isArray(view) ? view[0] : view) as UIElementView
+  const views = await show(doc, el ?? viewport_el)
+  test.views = views
   test.el = viewport_el
   test.viewport = size ?? undefined
-  return {view: test.view, el: viewport_el}
+  if (obj instanceof Document)
+    return {views: test.views, el: viewport_el}
+  else
+    return {view: test.views[0], el: viewport_el}
 }
 
 export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void, svg: SVGSVGElement, {width, height}: {width: number, height: number}): Promise<void> {
