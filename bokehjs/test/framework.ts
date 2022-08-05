@@ -226,24 +226,27 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   const desc = div({class: "description"}, description(suites, test, " ⇒ "))
   container.appendChild(desc)
 
-  for (const suite of suites) {
-    for (const {fn} of suite.before_each)
-      await fn()
-  }
-
   current_test = test
-  try {
-    await fn()
-    await defer()
-  } catch (err) {
-    error = err instanceof Error ? err : new Error(`${err}`)
-  } finally {
-    current_test = null
 
+  try {
     for (const suite of suites) {
-      for (const {fn} of suite.after_each)
+      for (const {fn} of suite.before_each)
         await fn()
     }
+
+    try {
+      await fn()
+      await defer()
+    } catch (err) {
+      error = err instanceof Error ? err : new Error(`${err}`)
+    } finally {
+      for (const suite of suites) {
+        for (const {fn} of suite.after_each)
+          await fn()
+      }
+    }
+  } finally {
+    current_test = null
   }
 
   const end = Date.now()
