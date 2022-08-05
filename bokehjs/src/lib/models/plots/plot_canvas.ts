@@ -892,7 +892,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     const composite = new CanvasLayer(output_backend, hidpi)
 
-    const {width, height} = this.layout.bbox
+    const {width, height} = this.bbox
     composite.resize(width, height)
 
     const {canvas} = this.canvas_view.compose()
