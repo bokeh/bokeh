@@ -3,11 +3,11 @@ import * as sinon from "sinon"
 import {expect} from "assertions"
 import {display} from "../../_util"
 
-import {Document} from "@bokehjs/document"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {PlotView} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
+import {Row} from "@bokehjs/models/layouts/row"
 import {Label, LabelView} from "@bokehjs/models/annotations/label"
 import {Place} from "@bokehjs/core/enums"
 import {GraphRenderer, GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
@@ -200,27 +200,27 @@ describe("Plot module", () => {
       const x_range = new DataRange1d()
       const y_range = new DataRange1d()
 
-      const doc = new Document()
       const p0 = new Plot({x_range, y_range})
       const p1 = new Plot({x_range, y_range})
-      doc.add_root(p0)
-      doc.add_root(p1)
+      const row = new Row({children: [p0, p1]})
 
-      const {views: [pv0, pv1]} = await display(doc, null)
+      const {view} = await display(row, null)
 
       expect(x_range.plots.has(p0)).to.be.true
       expect(y_range.plots.has(p0)).to.be.true
       expect(x_range.plots.has(p1)).to.be.true
       expect(y_range.plots.has(p1)).to.be.true
 
-      pv0.remove()
+      row.children = [p1]
+      await view.ready
 
       expect(x_range.plots.has(p0)).to.be.false
       expect(y_range.plots.has(p0)).to.be.false
       expect(x_range.plots.has(p1)).to.be.true
       expect(y_range.plots.has(p1)).to.be.true
 
-      pv1.remove()
+      row.children = []
+      await view.ready
 
       expect(x_range.plots.has(p0)).to.be.false
       expect(y_range.plots.has(p0)).to.be.false
