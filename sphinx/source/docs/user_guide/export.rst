@@ -133,7 +133,7 @@ Usage is similar to the |save| and |show| functions.
     export_png(plot, filename="plot.png")
 
 .. image:: /_images/unemployment.png
-    :alt:
+    :alt: A categorical heatmap of monthly US unemployment data from 1948 to 2016 exported as a PNG. The x-axis is years and the y-axis is month of the year.
 
 Image objects
 ~~~~~~~~~~~~~
@@ -208,7 +208,7 @@ You can export an SVG plot in several ways:
     was.
 
 .. image:: /_images/unemployment.svg
-    :alt:
+    :alt: A categorical heatmap of monthly US unemployment data from 1948 to 2016 exported as an SVG. The x-axis is years and the y-axis is month of the year.
 
 .. |export|          replace:: :func:`~bokeh.io.export`
 .. |export_png|      replace:: :func:`~bokeh.io.export_png`

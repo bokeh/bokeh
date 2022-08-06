@@ -88,7 +88,7 @@ This produces the following layout:
 .. image:: /_images/dashboard.png
     :width: 500px
     :height: 397px
-    :alt:
+    :alt: A gridplot with several various plots and widgets arranges in a rows and columns layout.
 
 For complete code see :bokeh-tree:`examples/howto/layouts/dashboard.py`.
 

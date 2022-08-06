@@ -56,7 +56,7 @@ in HoloViews.
  :width: 976 px
  :height: 510 px
  :scale: 80 %
- :alt:  HoloViews Bokeh example
+ :alt: A HoloViews example showing three linked interactive Bokeh plots created with a handful of lines of code.
  :align: center
 
 Adding overlaid plots, slider widgets, selector widgets, selection
@@ -85,7 +85,7 @@ web browsers.
     :width: 900 px
     :height: 670 px
     :scale: 70 %
-    :alt:  Datashader Bokeh example
+    :alt: A Datashader example showing a Bokeh plot used as a front-end for interactively exploring hundreds of millions of US census data points.
     :align: center
 
 Furthermore, Datashader works well with hvPlot and HoloViews.
