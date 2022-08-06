@@ -390,7 +390,7 @@ class PanTool(Drag):
 
     .. |pan_icon| image:: /_images/icons/Pan.png
         :height: 24px
-        :alt:
+        :alt: Icon of a four arrows meeting in a plus shape representing the pan tool in the toolbar.
 
     '''
 
@@ -485,7 +485,7 @@ class WheelPanTool(Scroll):
 
     .. |wheel_pan_icon| image:: /_images/icons/WheelPan.png
         :height: 24px
-        :alt:
+        :alt: Icon of a mouse shape next to crossed arrows representing the wheel-pan tool in the toolbar.
 
     '''
 
@@ -511,7 +511,7 @@ class WheelZoomTool(Scroll):
 
     .. |wheel_zoom_icon| image:: /_images/icons/WheelZoom.png
         :height: 24px
-        :alt:
+        :alt: Icon of a mouse shape next to an hourglass representing the wheel-zoom tool in the toolbar.
 
     '''
 
@@ -580,7 +580,7 @@ class SaveTool(ActionTool):
 
     .. |save_icon| image:: /_images/icons/Save.png
         :height: 24px
-        :alt:
+        :alt: Icon of a floppy disk representing the save tool in the toolbar.
 
     '''
 
@@ -620,7 +620,7 @@ class ResetTool(PlotActionTool):
 
     .. |reset_icon| image:: /_images/icons/Reset.png
         :height: 24px
-        :alt:
+        :alt: Icon of two arrows on a circular arcs forming a circle representing the reset tool in the toolbar.
 
     '''
 
@@ -639,7 +639,7 @@ class TapTool(Tap, SelectTool):
 
     .. |tap_icon| image:: /_images/icons/Tap.png
         :height: 24px
-        :alt:
+        :alt:  Icon of two concentric circles with a + in the lower right representing the tap tool in the toolbar.
 
     .. note::
         Selections can be comprised of multiple regions, even those
@@ -709,7 +709,7 @@ class CrosshairTool(InspectTool):
 
     .. |crosshair_icon| image:: /_images/icons/Crosshair.png
         :height: 24px
-        :alt:
+        :alt: Icon of circle with aiming reticle marks representing the crosshair tool in the toolbar.
 
     '''
 
@@ -761,7 +761,7 @@ class BoxZoomTool(Drag):
 
     .. |box_zoom_icon| image:: /_images/icons/BoxZoom.png
         :height: 24px
-        :alt:
+        :alt: Icon of a dashed box with an hourglass in the upper right representing the box-zoom tool in the toolbar.
 
     .. note::
         ``BoxZoomTool`` is incompatible with ``GMapPlot`` due to the manner in
@@ -810,7 +810,7 @@ class ZoomInTool(PlotActionTool):
 
     .. |zoom_in_icon| image:: /_images/icons/ZoomIn.png
         :height: 24px
-        :alt:
+        :alt: Icon of a plus sign next to an hourglass representing the zoom-in tool in the toolbar.
 
     '''
 
@@ -838,7 +838,7 @@ class ZoomOutTool(PlotActionTool):
 
     .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
         :height: 24px
-        :alt:
+        :alt: Icon of a minus sign next to an hourglass representing the zoom-out tool in the toolbar.
 
     '''
 
@@ -877,7 +877,7 @@ class BoxSelectTool(Drag, SelectTool):
 
     .. |box_select_icon| image:: /_images/icons/BoxSelect.png
         :height: 24px
-        :alt:
+        :alt: Icon of a dashed box with a + in the lower right representing the box-selection tool in the toolbar.
 
     '''
 
@@ -941,7 +941,7 @@ class LassoSelectTool(Drag, SelectTool):
 
     .. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
         :height: 24px
-        :alt:
+        :alt:  Icon of a looped lasso shape representing the lasso-selection tool in the toolbar.
 
     '''
 
@@ -978,7 +978,7 @@ class PolySelectTool(Tap, SelectTool):
 
     .. |poly_select_icon| image:: /_images/icons/PolygonSelect.png
         :height: 24px
-        :alt:
+        :alt: Icon of a dashed trapezoid with an arrow pointing at the lower right representing the polygon-selection tool in the toolbar.
 
     '''
 
@@ -1145,7 +1145,7 @@ class HoverTool(InspectTool):
 
     .. |hover_icon| image:: /_images/icons/Hover.png
         :height: 24px
-        :alt:
+        :alt: Icon of a popup tooltip with abstract lines of text representing the hover tool in the toolbar.
 
     '''
 
@@ -1339,7 +1339,7 @@ class UndoTool(PlotActionTool):
 
     .. |undo_icon| image:: /_images/icons/Undo.png
         :height: 24px
-        :alt:
+        :alt: Icon of an arrow on a circular arc pointing to the left representing the undo tool in the toolbar.
 
     '''
 
@@ -1354,7 +1354,7 @@ class RedoTool(PlotActionTool):
 
     .. |redo_icon| image:: /_images/icons/Redo.png
         :height: 24px
-        :alt:
+        :alt: Icon of an arrow on a circular arc pointing to the right representing the redo tool in the toolbar.
 
     '''
 
@@ -1447,7 +1447,7 @@ class BoxEditTool(EditTool, Drag, Tap):
 
     .. |box_edit_icon| image:: /_images/icons/BoxEdit.png
         :height: 24px
-        :alt:
+        :alt: Icon of a solid line box with a plus sign in the lower right representing the box-edit tool in the toolbar.
     '''
 
     # explicit __init__ to support Init signatures
@@ -1512,7 +1512,7 @@ class PointDrawTool(EditTool, Drag, Tap):
 
     .. |point_draw_icon| image:: /_images/icons/PointDraw.png
         :height: 24px
-        :alt:
+        :alt: Icon of three points with an arrow pointing to one representing the point-edit tool in the toolbar.
 
     '''
 
@@ -1576,7 +1576,7 @@ class PolyDrawTool(PolyTool, Drag, Tap):
 
     .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
         :height: 24px
-        :alt:
+        :alt: Icon of a solid line trapezoid with an arrow pointing at the lower right representing the polygon-draw tool in the toolbar.
 
     '''
 
@@ -1679,7 +1679,7 @@ class PolyEditTool(PolyTool, Drag, Tap):
 
     .. |poly_edit_icon| image:: /_images/icons/PolyEdit.png
         :height: 24px
-        :alt:
+        :alt: Icon of two lines meeting in a vertex with an arrow pointing at it representing the polygon-edit tool in the toolbar.
 
     '''
 
@@ -1721,7 +1721,7 @@ class LineEditTool(EditTool, Drag, Tap):
 
     .. |line_edit_icon| image:: /_images/icons/LineEdit.png
         :height: 24px
-        :alt:
+        :alt: Icon of a line with a point on it with an arrow pointing at it representing the polygon-edit tool in the toolbar.
 
     '''
 
