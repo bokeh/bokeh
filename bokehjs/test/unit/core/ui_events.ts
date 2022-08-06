@@ -403,7 +403,7 @@ describe("ui_event_bus module", () => {
 
       ui_event_bus._pan_start(e)
 
-      expect(spy_plot.callCount).to.be.equal(1)
+      expect(spy_plot.callCount).to.be.equal(2) // lod_start and pan_start events
       expect(spy_uievent.callCount).to.be.equal(1)
     })
 
@@ -422,7 +422,7 @@ describe("ui_event_bus module", () => {
       ui_event_bus._pan_start({...e, type: "panstart"})
       ui_event_bus._pan(e)
 
-      expect(spy_plot.callCount).to.be.equal(2)
+      expect(spy_plot.callCount).to.be.equal(3) // lod_start, pan_start and pan events
       expect(spy_uievent.callCount).to.be.equal(2)
     })
 
@@ -441,7 +441,7 @@ describe("ui_event_bus module", () => {
       ui_event_bus._pan_start({...e, type: "panstart"})
       ui_event_bus._pan_end(e)
 
-      expect(spy_plot.callCount).to.be.equal(3) // Also RangesUpdate event
+      expect(spy_plot.callCount).to.be.equal(4) // lod_start, pan_start, ranges_update and pan_end events
       expect(spy_uievent.callCount).to.be.equal(2)
     })
 
