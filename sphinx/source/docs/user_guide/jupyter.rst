@@ -88,7 +88,7 @@ older than 3.0, see the `README`_ in the GitHub repository of `jupyter_bokeh`_.
 Once you have jupyter_bokeh installed, you can use Bokeh just like you would
 with a :ref:`classic notebook <userguide_jupyter_notebook_inline_plots>`.
 
-.. image:: /_images/joyplot_jupyter_lab.png
+.. image:: /_images/ridgeplot_jupyter_lab.png
     :scale: 25 %
     :align: center
     :alt:
