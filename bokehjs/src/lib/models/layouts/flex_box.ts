@@ -78,6 +78,7 @@ export abstract class FlexBoxView extends LayoutDOMView {
 
     if (layoutable.length != 0) {
       this.layout = new CSSAlignmentLayout(this._direction, layoutable)
+      this.layout.set_sizing()
     } else {
       delete this.layout
     }

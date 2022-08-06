@@ -37,7 +37,7 @@ export abstract class Layoutable {
     this._dirty = true
   }
 
-  set_sizing(sizing: Partial<BoxSizing>): void {
+  set_sizing(sizing: Partial<BoxSizing> = {}): void {
     const width_policy = sizing.width_policy ?? "fit"
     const width = sizing.width
     const min_width = sizing.min_width
@@ -50,7 +50,7 @@ export abstract class Layoutable {
 
     const aspect = sizing.aspect
     const margin = sizing.margin ?? {top: 0, right: 0, bottom: 0, left: 0}
-    const visible = sizing.visible !== false
+    const visible = sizing.visible ?? true
     const halign = sizing.halign ?? "start"
     const valign = sizing.valign ?? "start"
 
