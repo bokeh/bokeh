@@ -46,7 +46,15 @@ jobs:
         shell: bash -l {0}
         run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
-      - name: Install NPM
+      - name: Post install status
+        shell: bash -l {0}
+        run: |
+          echo "$(which node) @ $(node --version)"
+          echo "$(which npm) @ $(npm --version)"
+          conda info
+          conda list
+
+      - name: Upgrade NPM
         shell: bash -l {0}
         run: |
           npm install --location=global npm@8
