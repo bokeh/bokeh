@@ -28,12 +28,7 @@ import_required("selenium.webdriver",
 # Standard library imports
 import atexit
 import os
-from os.path import (
-    devnull,
-    dirname,
-    isfile,
-    join,
-)
+from os.path import devnull, isfile
 from shutil import which
 from typing import Literal
 
@@ -67,32 +62,16 @@ def create_firefox_webdriver() -> WebDriver:
     if geckodriver is None:
         raise RuntimeError("geckodriver is not installed or not present on PATH")
 
-    firefox_paths = [
-        join(dirname(firefox), "FirefoxApp", "firefox"),
-        join(dirname(firefox), "FirefoxApp", "Contents", "MacOS", "firefox"),
-    ]
-
-    for firefox_path in firefox_paths:
-        if _is_executable(firefox_path):
-            binary_path = firefox_path
-            break
-    else:
-        binary_path = firefox
-
-    from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
-    binary = FirefoxBinary(binary_path)
-
     from selenium.webdriver.firefox.options import Options
+    from selenium.webdriver.firefox.service import Service
+    from selenium.webdriver.firefox.webdriver import WebDriver as Firefox
+
+    service = Service(log_path=devnull)
+
     options = Options()
     options.add_argument("--headless")
 
-    from selenium.webdriver.firefox.webdriver import WebDriver as Firefox
-    return Firefox(
-        options=options,
-        firefox_binary=binary,
-        executable_path=geckodriver,
-        service_log_path=devnull,
-    )
+    return Firefox(service=service, options=options)
 
 def create_chromium_webdriver(extra_options: list[str] | None = None) -> WebDriver:
     from selenium.webdriver.chrome.options import Options
