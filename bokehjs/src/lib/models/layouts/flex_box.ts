@@ -153,7 +153,7 @@ class CSSAlignmentLayout extends Layoutable {
           })()
 
           const {width, height} = outer_bbox
-          return BBox.from_rect({left, top, right: width - right, bottom: height - bottom})
+          return BBox.from_lrtb({left, top, right: width - right, bottom: height - bottom})
         } else
           return undefined
       })()
