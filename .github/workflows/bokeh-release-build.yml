@@ -54,12 +54,6 @@ jobs:
           conda info
           conda list
 
-      - name: Upgrade NPM
-        shell: bash -l {0}
-        run: |
-          npm install --location=global npm@8
-          npm --version
-
       - name: Build Release Tarball
         shell: bash -l {0}
         env:
