@@ -249,7 +249,7 @@ class LayoutDOM(UIElement):
 
     """)
 
-    align = Either(Enum(Align), Tuple(Enum(Align), Enum(Align)), default="start", help="""
+    align = Either(Auto, Enum(Align), Tuple(Enum(Align), Enum(Align)), default="auto", help="""
     The alignment point within the parent container.
 
     This property is useful only if this component is a child element of a layout
