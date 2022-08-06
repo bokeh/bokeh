@@ -1,6 +1,6 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {resolve_angle} from "core/util/math"
-import {SpatialUnits, AngleUnits} from "core/enums"
+import {CoordinateUnits, AngleUnits} from "core/enums"
 import {Size} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
 import * as p from "core/properties"
@@ -38,8 +38,27 @@ export class LabelView extends TextAnnotationView {
     const xscale = this.coordinates.x_scale
     const yscale = this.coordinates.y_scale
 
-    let sx = this.model.x_units == "data" ? xscale.compute(this.model.x) : panel.bbox.xview.compute(this.model.x)
-    let sy = this.model.y_units == "data" ? yscale.compute(this.model.y) : panel.bbox.yview.compute(this.model.y)
+    let sx = (() => {
+      switch (this.model.x_units) {
+        case "canvas":
+          return this.model.x
+        case "screen":
+          return panel.bbox.xview.compute(this.model.x)
+        case "data":
+          return xscale.compute(this.model.x)
+      }
+    })()
+
+    let sy = (() => {
+      switch (this.model.y_units) {
+        case "canvas":
+          return this.model.y
+        case "screen":
+          return panel.bbox.yview.compute(this.model.y)
+        case "data":
+          return yscale.compute(this.model.y)
+      }
+    })()
 
     sx += this.model.x_offset
     sy -= this.model.y_offset
@@ -51,9 +70,9 @@ export class LabelView extends TextAnnotationView {
 export namespace Label {
   export type Props = TextAnnotation.Props & {
     x: p.Property<number>
-    x_units: p.Property<SpatialUnits>
+    x_units: p.Property<CoordinateUnits>
     y: p.Property<number>
-    y_units: p.Property<SpatialUnits>
+    y_units: p.Property<CoordinateUnits>
     angle: p.Property<number>
     angle_units: p.Property<AngleUnits>
     x_offset: p.Property<number>
@@ -80,9 +99,9 @@ export class Label extends TextAnnotation {
 
     this.define<Label.Props>(({Number, Angle}) => ({
       x:           [ Number ],
-      x_units:     [ SpatialUnits, "data" ],
+      x_units:     [ CoordinateUnits, "data" ],
       y:           [ Number ],
-      y_units:     [ SpatialUnits, "data" ],
+      y_units:     [ CoordinateUnits, "data" ],
       angle:       [ Angle, 0 ],
       angle_units: [ AngleUnits, "rad" ],
       x_offset:    [ Number, 0 ],

@@ -40,6 +40,13 @@ export function union(a: Rect, b: Rect): Rect {
   }
 }
 
+export type LRTB<T = number> = {
+  left: T
+  right: T
+  top: T
+  bottom: T
+}
+
 export type HorizontalPosition =
   {left: number,    width: number} |
   {width: number,   right: number} |
@@ -141,13 +148,17 @@ export class BBox implements Rect, Equatable {
     }
   }
 
-  static from_rect({left, right, top, bottom}: {left: number, right: number, top: number, bottom: number}): BBox {
+  static from_lrtb({left, right, top, bottom}: LRTB): BBox {
     return new BBox({
       x0: Math.min(left, right),
       y0: Math.min(top, bottom),
       x1: Math.max(left, right),
       y1: Math.max(top, bottom),
     })
+  }
+
+  clone(): BBox {
+    return new BBox(this)
   }
 
   equals(that: Rect): boolean {
@@ -192,6 +203,11 @@ export class BBox implements Rect, Equatable {
   get box(): Box {
     const {x, y, width, height} = this
     return {x, y, width, height}
+  }
+
+  get lrtb(): LRTB {
+    const {left, right, top, bottom} = this
+    return {left, right, top, bottom}
   }
 
   get h_range(): Interval { return {start: this.x0, end: this.x1} }

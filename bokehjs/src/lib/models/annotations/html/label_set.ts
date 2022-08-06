@@ -2,7 +2,7 @@ import {DataAnnotation, DataAnnotationView} from "../data_annotation"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {SpatialUnits} from "core/enums"
+import {CoordinateUnits} from "core/enums"
 import {div, display, remove} from "core/dom"
 import * as p from "core/properties"
 import {FloatArray, ScreenArray} from "core/types"
@@ -50,8 +50,27 @@ export class HTMLLabelSetView extends DataAnnotationView {
     const {x_scale, y_scale} = this.coordinates
     const panel = this.layout != null ? this.layout : this.plot_view.frame
 
-    this.sx = this.model.x_units == "data" ? x_scale.v_compute(this._x) : panel.bbox.xview.v_compute(this._x)
-    this.sy = this.model.y_units == "data" ? y_scale.v_compute(this._y) : panel.bbox.yview.v_compute(this._y)
+    this.sx = (() => {
+      switch (this.model.x_units) {
+        case "canvas":
+          return new ScreenArray(this._x)
+        case "screen":
+          return panel.bbox.xview.v_compute(this._x)
+        case "data":
+          return x_scale.v_compute(this._x)
+      }
+    })()
+
+    this.sy = (() => {
+      switch (this.model.y_units) {
+        case "canvas":
+          return new ScreenArray(this._y)
+        case "screen":
+          return panel.bbox.yview.v_compute(this._y)
+        case "data":
+          return y_scale.v_compute(this._y)
+      }
+    })()
   }
 
   paint(): void {
@@ -142,8 +161,8 @@ export namespace HTMLLabelSet {
   export type Props = DataAnnotation.Props & {
     x: p.XCoordinateSpec
     y: p.YCoordinateSpec
-    x_units: p.Property<SpatialUnits>
-    y_units: p.Property<SpatialUnits>
+    x_units: p.Property<CoordinateUnits>
+    y_units: p.Property<CoordinateUnits>
     text: p.NullStringSpec
     angle: p.AngleSpec
     x_offset: p.NumberSpec
@@ -184,8 +203,8 @@ export class HTMLLabelSet extends DataAnnotation {
     this.define<HTMLLabelSet.Props>(() => ({
       x:            [ p.XCoordinateSpec, {field: "x"} ],
       y:            [ p.YCoordinateSpec, {field: "y"} ],
-      x_units:      [ SpatialUnits, "data" ],
-      y_units:      [ SpatialUnits, "data" ],
+      x_units:      [ CoordinateUnits, "data" ],
+      y_units:      [ CoordinateUnits, "data" ],
       text:         [ p.NullStringSpec, {field: "text"} ],
       angle:        [ p.AngleSpec, 0 ],
       x_offset:     [ p.NumberSpec, {value: 0} ],

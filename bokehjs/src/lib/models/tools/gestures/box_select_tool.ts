@@ -35,7 +35,9 @@ export class BoxSelectToolView extends SelectToolView {
     const curpoint: [number, number] = [sx, sy]
 
     const [sxlim, sylim] = this._compute_limits(curpoint)
-    this.model.overlay.update({left: sxlim[0], right: sxlim[1], top: sylim[0], bottom: sylim[1]})
+
+    const [[left, right], [top, bottom]] = [sxlim, sylim]
+    this.model.overlay.update({left, right, top, bottom})
 
     if (this.model.select_every_mousemove) {
       this._do_select(sxlim, sylim, false, this._select_mode(ev))
@@ -49,8 +51,7 @@ export class BoxSelectToolView extends SelectToolView {
     const [sxlim, sylim] = this._compute_limits(curpoint)
     this._do_select(sxlim, sylim, true, this._select_mode(ev))
 
-    this.model.overlay.update({left: null, right: null, top: null, bottom: null})
-
+    this.model.overlay.clear()
     this._base_point = null
 
     this.plot_view.state.push("box_select", {selection: this.plot_view.get_selection()})
@@ -65,10 +66,11 @@ export class BoxSelectToolView extends SelectToolView {
 const DEFAULT_BOX_OVERLAY = () => {
   return new BoxAnnotation({
     level: "overlay",
-    top_units: "screen",
-    left_units: "screen",
-    bottom_units: "screen",
-    right_units: "screen",
+    visible: false,
+    top_units: "canvas",
+    left_units: "canvas",
+    bottom_units: "canvas",
+    right_units: "canvas",
     fill_color: "lightgrey",
     fill_alpha: 0.5,
     line_color: "black",
