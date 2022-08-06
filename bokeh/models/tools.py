@@ -1625,7 +1625,7 @@ class FreehandDrawTool(EditTool, Drag, Tap):
 
     .. |freehand_draw_icon| image:: /_images/icons/FreehandDraw.png
         :height: 24px
-        :alt:
+        :alt: Icon of a pen drawing a wavy line representing the freehand-draw tool in the toolbar.
 
     '''
 
@@ -1721,7 +1721,7 @@ class LineEditTool(EditTool, Drag, Tap):
 
     .. |line_edit_icon| image:: /_images/icons/LineEdit.png
         :height: 24px
-        :alt: Icon of a line with a point on it with an arrow pointing at it representing the polygon-edit tool in the toolbar.
+        :alt: Icon of a line with a point on it with an arrow pointing at it representing the line-edit tool in the toolbar.
 
     '''
 
