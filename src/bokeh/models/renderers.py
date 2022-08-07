@@ -48,7 +48,7 @@ from ..core.validation.errors import (
     NO_SOURCE_FOR_GLYPH,
 )
 from ..model import Model
-from .canvas import CoordinateMapping
+from .coordinates import CoordinateMapping
 from .filters import AllIndices
 from .glyphs import (
     Circle,

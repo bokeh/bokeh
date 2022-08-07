@@ -8,7 +8,7 @@ import {CategoricalScale} from "../scales/categorical_scale"
 import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
-import {CartesianFrame} from "./cartesian_frame"
+import {type CartesianFrame} from "../canvas/cartesian_frame"
 import * as p from "core/properties"
 
 export class CoordinateTransform {

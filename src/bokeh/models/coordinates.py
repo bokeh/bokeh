@@ -18,39 +18,54 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.enums import OutputBackend
-from ..core.properties import Bool, Enum
-from .ui import UIElement
+from ..core.properties import Instance, InstanceDefault
+from ..model import Model
+from .ranges import DataRange1d, Range
+from .scales import LinearScale, Scale
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "Canvas",
+    "CoordinateMapping",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Canvas(UIElement):
-    """ """
+class CoordinateMapping(Model):
+    """ A mapping between two coordinate systems. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    hidpi = Bool(default=True, help="""
-    Whether to use HiDPI mode when available.
+    x_source = Instance(Range, default=InstanceDefault(DataRange1d), help="""
+    The source range of the horizontal dimension of the new coordinate space.
     """)
 
-    output_backend = Enum(OutputBackend, default="canvas", help="""
-    Specify the output backend for the plot area. Default is HTML5 Canvas.
+    y_source = Instance(Range, default=InstanceDefault(DataRange1d), help="""
+    The source range of the vertical dimension of the new coordinate space.
+    """)
 
-    .. note::
-        When set to ``webgl``, glyphs without a WebGL rendering implementation
-        will fall back to rendering onto 2D canvas.
+    x_scale = Instance(Scale, default=InstanceDefault(LinearScale), help="""
+    What kind of scale to use to convert x-coordinates from the source (data)
+    space into x-coordinates in the target (possibly screen) coordinate space.
+    """)
+
+    y_scale = Instance(Scale, default=InstanceDefault(LinearScale), help="""
+    What kind of scale to use to convert y-coordinates from the source (data)
+    space into y-coordinates in the target (possibly screen) coordinate space.
+    """)
+
+    x_target = Instance(Range, help="""
+    The horizontal range to map x-coordinates in the target coordinate space.
+    """)
+
+    y_target = Instance(Range, help="""
+    The vertical range to map y-coordinates in the target coordinate space.
     """)
 
 #-----------------------------------------------------------------------------

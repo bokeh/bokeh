@@ -6,7 +6,7 @@ import {Model} from "../../model"
 import {CanvasLayer} from "core/util/canvas"
 import type {Plot, PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
-import {CoordinateTransform, CoordinateMapping} from "../canvas/coordinates"
+import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_mapping"
 
 export namespace RendererGroup {
   export type Attrs = p.AttrsOf<Props>
