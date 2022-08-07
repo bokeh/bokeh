@@ -3,8 +3,6 @@ import {createElement, remove, empty, StyleSheet, ImportedStyleSheet, StyleSheet
 import {isString} from "./util/types"
 import base_css from "styles/base.css"
 
-//const has_adopted_stylesheets = "adoptedStyleSheets" in ShadowRoot.prototype
-
 export interface DOMView extends View {
   constructor: Function & {tag_name: keyof HTMLElementTagNameMap}
 }

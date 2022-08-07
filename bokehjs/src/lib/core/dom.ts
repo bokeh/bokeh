@@ -471,3 +471,5 @@ export function px(value: number): string {
 type FilterStrings<T> = {[K in keyof T & string as T[K] extends string ? K : never]?: T[K]}
 
 export type CSSStyles = FilterStrings<CSSStyleDeclaration>
+
+export const supports_adopted_stylesheets = "adoptedStyleSheets" in ShadowRoot.prototype
