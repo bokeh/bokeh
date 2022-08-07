@@ -45,6 +45,7 @@ from .models import (
     Column,
     CopyTool,
     FlexBox,
+    FullscreenTool,
     GridBox,
     GridPlot,
     LayoutDOM,
@@ -289,7 +290,7 @@ def gridplot(
                 raise ValueError("Only LayoutDOM items can be inserted into a grid")
 
     def merge(cls: Type[Tool], group: list[Tool]):
-        if issubclass(cls, (SaveTool, CopyTool, SettingsTool)):
+        if issubclass(cls, (SaveTool, CopyTool, SettingsTool, FullscreenTool)):
             return cls()
         else:
             return None

@@ -4,6 +4,7 @@ import {ToolLike, ToolProxy} from "../models/tools/tool_proxy"
 import {SaveTool} from "../models/tools/actions/save_tool"
 import {CopyTool} from "../models/tools/actions/copy_tool"
 import {SettingsTool} from "../models/tools/actions/settings_tool"
+import {FullscreenTool} from "../models/tools/actions/fullscreen_tool"
 import {Toolbar} from "../models/tools/toolbar"
 import {LayoutDOM} from "../models/layouts/layout_dom"
 import {SizingMode, Location} from "../core/enums"
@@ -112,6 +113,8 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
       return new CopyTool()
     else if (tool instanceof SettingsTool)
       return new SettingsTool()
+    else if (tool instanceof FullscreenTool)
+      return new FullscreenTool()
     else
       return null
   }

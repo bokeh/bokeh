@@ -126,6 +126,7 @@ __all__ = (
     'Drag',
     'EditTool',
     'FreehandDrawTool',
+    'FullscreenTool',
     'HelpTool',
     'HoverTool',
     'InspectTool',
@@ -1322,6 +1323,13 @@ class SettingsTool(ActionTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+class FullscreenTool(ActionTool):
+    ''' A tool that allows to enlarge a UI element to fullscreen. '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class UndoTool(PlotActionTool):
     ''' *toolbar icon*: |undo_icon|
 
@@ -1794,6 +1802,7 @@ Tool.register_alias("redo", lambda: RedoTool())
 Tool.register_alias("reset", lambda: ResetTool())
 Tool.register_alias("help", lambda: HelpTool())
 Tool.register_alias("settings", lambda: SettingsTool())
+Tool.register_alias("fullscreen", lambda: FullscreenTool())
 Tool.register_alias("box_edit", lambda: BoxEditTool())
 Tool.register_alias("line_edit", lambda: LineEditTool())
 Tool.register_alias("point_draw", lambda: PointDrawTool())
