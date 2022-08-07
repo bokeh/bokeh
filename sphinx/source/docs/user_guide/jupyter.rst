@@ -279,7 +279,7 @@ notebook below:
 .. image:: /_images/notebook_interactors.png
     :scale: 50 %
     :align: center
-    :alt: Screenshot of Jupyter showing a Bokeh plot together with ipywidget sliders. 
+    :alt: Screenshot of Jupyter showing a Bokeh plot together with ipywidget sliders.
 
 .. |bokeh.io| replace:: :ref:`bokeh.io <bokeh.io>`
 
