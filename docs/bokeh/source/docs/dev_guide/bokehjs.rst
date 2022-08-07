@@ -62,7 +62,7 @@ CSS for BokehJS
 The CSS definitions for BokehJS are contained in several ``.less`` files in the
 :bokeh-tree:`bokehjs/src/less/` directory. All CSS classes for Bokeh DOM
 elements are prefixed with ``bk-``. For example: ``.bk-plot`` or
-``.bk-toolbar-button``.
+``.bk-tool-button``.
 
 .. _contributor_guide_bokehjs_development:
 .. _contributor_guide_bokehjs_style_guide:

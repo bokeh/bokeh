@@ -8,7 +8,7 @@ import {startsWith} from "core/util/string"
 import {reversed} from "core/util/array"
 
 import tools_css, * as tools from "styles/tool_button.css"
-import icons_css from "styles/icons.css"
+import icons_css, * as icons from "styles/icons.css"
 
 import type {ToolbarView} from "./toolbar"
 import type {Tool} from "./tool"
@@ -79,7 +79,7 @@ export abstract class ToolButtonView extends DOMElementView {
   }
 
   override css_classes(): string[] {
-    return super.css_classes().concat(tools.toolbar_button)
+    return super.css_classes().concat(tools.tool_button)
   }
 
   override render(): void {
@@ -87,6 +87,20 @@ export abstract class ToolButtonView extends DOMElementView {
 
     const icon_el = div({class: tools.tool_icon})
     this.el.appendChild(icon_el)
+
+    if (this.model.menu != null) {
+      const icon = (() => {
+        switch (this.parent.model.location) {
+          case "above": return icons.tool_icon_chevron_down
+          case "below": return icons.tool_icon_chevron_up
+          case "left":  return icons.tool_icon_chevron_right
+          case "right": return icons.tool_icon_chevron_left
+        }
+      })()
+
+      const chevron_el = div({class: [tools.tool_chevron, icon]})
+      this.el.appendChild(chevron_el)
+    }
 
     const icon = this.model.computed_icon
     if (icon != null) {

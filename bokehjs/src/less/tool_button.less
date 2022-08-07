@@ -2,12 +2,15 @@
   --button-width: 30px;
   --button-height: 30px;
   --button-color: lightgray;
+  --button-border: 2px;
 
   --active-tool-highlight: #26aae1;
-  --active-tool-border: 2px solid transparent;
+  --active-tool-border: var(--button-border) solid transparent;
 }
 
-.bk-toolbar-button {
+.bk-tool-button {
+  position: relative;
+
   width: var(--button-width);
   height: var(--button-height);
 
@@ -15,8 +18,10 @@
 }
 
 .bk-tool-icon {
-  width: var(--button-width);
-  height: var(--button-height);
+  position: relative;
+  top: calc(var(--button-border)/2);
+  width: calc(var(--button-width) - var(--button-border));
+  height: calc(var(--button-height) - var(--button-border));
 
   mask-size: 60% 60%;
   mask-position: center center;
@@ -32,7 +37,46 @@
   background-repeat: no-repeat;
 }
 
-.bk-toolbar-button, .bk-tool-overflow {
+.bk-tool-chevron {
+  position: absolute;
+  visibility: hidden;
+
+  width: 8px;
+  height: 8px;
+
+  mask-size: 100% 100%;
+  mask-position: center center;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-position: center center;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.bk-tool-button:hover .bk-tool-chevron {
+  visibility: visible;
+}
+
+:host(.bk-above) .bk-tool-chevron {
+  right: 0;
+  bottom: 0;
+}
+
+:host(.bk-below) .bk-tool-chevron {
+  right: 0;
+  top: 0;
+}
+
+:host(.bk-left) .bk-tool-chevron {
+  right: 0;
+  bottom: 0;
+}
+
+:host(.bk-right) .bk-tool-chevron {
+  left: 0;
+  bottom: 0;
+}
+
+.bk-tool-button, .bk-tool-overflow {
   &:hover {
     background-color: rgba(192, 192, 192, 0.15);
   }
@@ -47,27 +91,27 @@
   }
 }
 
-.toolbar-button-border(@side) {
+.tool-button-border(@side) {
   border-@{side}: var(--active-tool-border);
   &.bk-active {
     border-@{side}-color: var(--active-tool-highlight);
   }
 }
 
-:host(.bk-above) .bk-toolbar-button {
-  .toolbar-button-border(bottom);
+:host(.bk-above) .bk-tool-button {
+  .tool-button-border(bottom);
 }
 
-:host(.bk-below) .bk-toolbar-button {
-  .toolbar-button-border(top);
+:host(.bk-below) .bk-tool-button {
+  .tool-button-border(top);
 }
 
-:host(.bk-right) .bk-toolbar-button {
-  .toolbar-button-border(left);
+:host(.bk-right) .bk-tool-button {
+  .tool-button-border(left);
 }
 
-:host(.bk-left) .bk-toolbar-button {
-  .toolbar-button-border(right);
+:host(.bk-left) .bk-tool-button {
+  .tool-button-border(right);
 }
 
 .bk-divider {
