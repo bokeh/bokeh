@@ -62,6 +62,8 @@ export abstract class DOMElementView extends DOMNodeView {
         child_view.renderTo(this.el)
       }
     }
+
+    this.finish()
   }
 }
 

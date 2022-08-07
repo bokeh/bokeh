@@ -13,7 +13,6 @@ import {Signal0} from "core/signaling"
 import {equals, Equatable, Comparator} from "core/util/eq"
 import {copy, includes} from "core/util/array"
 import * as sets from "core/util/set"
-import {LayoutDOM} from "models/layouts/layout_dom"
 import {Model} from "model"
 import {ModelDef, decode_def} from "./defs"
 import {
@@ -103,12 +102,9 @@ export class Document implements Equatable {
     return this == that
   }
 
-  get layoutables(): LayoutDOM[] {
-    return this._roots.filter((root): root is LayoutDOM => root instanceof LayoutDOM)
-  }
-
   get is_idle(): boolean {
-    for (const root of this.layoutables) {
+    // TODO: models without views, e.g. data models
+    for (const root of this._roots) {
       if (!this._idle_roots.has(root))
         return false
     }

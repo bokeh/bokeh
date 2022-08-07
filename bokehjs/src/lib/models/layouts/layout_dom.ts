@@ -236,9 +236,7 @@ export abstract class LayoutDOMView extends UIElementView {
     }
 
     this._after_layout()
-
-    this._has_finished = true
-    this.notify_finished()
+    this.finish()
   }
 
   override renderTo(element: Node): void {

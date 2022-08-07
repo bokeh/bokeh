@@ -63,8 +63,7 @@ export abstract class UIElementView extends DOMComponentView {
 
   on_resize(): void {
     this._update_bbox()
-    this._has_finished = true
-    this.notify_finished()
+    this.finish()
   }
 
   override render(): void {
