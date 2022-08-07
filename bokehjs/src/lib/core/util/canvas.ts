@@ -124,11 +124,18 @@ export class CanvasLayer {
   }
 
   resize(width: number, height: number): void {
+    if (this.bbox.width == width && this.bbox.height == height)
+      return
+
     this.bbox = new BBox({left: 0, top: 0, width, height})
 
-    const target = this._ctx instanceof SVGRenderingContext2D ? this._ctx : this.canvas
+    const {target} = this
     target.width = width*this.pixel_ratio
     target.height = height*this.pixel_ratio
+  }
+
+  private get target(): HTMLCanvasElement | SVGRenderingContext2D {
+    return this._ctx instanceof SVGRenderingContext2D ? this._ctx : this.canvas
   }
 
   private _base_transform: DOMMatrix

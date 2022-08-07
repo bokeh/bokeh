@@ -1,16 +1,16 @@
-import {HasProps} from "core/has_props"
 import {settings} from "core/settings"
-import {DOMElementView} from "core/dom_view"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {div, append} from "core/dom"
 import {OutputBackend} from "core/enums"
 import {UIEventBus} from "core/ui_events"
-import {BBox} from "core/util/bbox"
 import {load_module} from "core/util/modules"
 import {Context2d, CanvasLayer} from "core/util/canvas"
-import {PlotView} from "../plots/plot"
+import {UIElement, UIElementView} from "../ui/ui_element"
+import {type PlotView} from "../plots/plot"
 import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
+import {StyleSheetLike} from "core/dom"
+import canvas_css from "styles/canvas.css"
 
 export type FrameBox = [number, number, number, number]
 
@@ -67,10 +67,8 @@ const global_webgl: () => Promise<WebGLState | null> = (() => {
   }
 })()
 
-export class CanvasView extends DOMElementView {
+export class CanvasView extends UIElementView {
   override model: Canvas
-
-  bbox: BBox = new BBox()
 
   webgl: WebGLState | null = null
 
@@ -91,17 +89,6 @@ export class CanvasView extends DOMElementView {
     this.overlays_el = div({class: "bk-layer"})
     this.events_el = div({class: ["bk-layer", "bk-events"]})
 
-    const elements = [
-      this.underlays_el,
-      this.primary.el,
-      this.overlays.el,
-      this.overlays_el,
-      this.events_el,
-    ]
-
-    this.el.classList.add("bk-canvas")
-    append(this.el, ...elements)
-
     this.ui_event_bus = new UIEventBus(this)
   }
 
@@ -120,8 +107,23 @@ export class CanvasView extends DOMElementView {
     super.remove()
   }
 
+  override styles(): StyleSheetLike[] {
+    return [...super.styles(), canvas_css]
+  }
+
   override render(): void {
-    // TODO
+    this.empty()
+
+    const elements = [
+      this.underlays_el,
+      this.primary.el,
+      this.overlays.el,
+      this.overlays_el,
+      this.events_el,
+    ]
+
+    this.el.classList.add("bk-canvas")
+    append(this.shadow_el, ...elements)
   }
 
   add_underlay(el: HTMLElement): void {
@@ -140,9 +142,18 @@ export class CanvasView extends DOMElementView {
     return this.primary.pixel_ratio // XXX: primary
   }
 
-  resize(width: number, height: number): void {
-    this.bbox = new BBox({left: 0, top: 0, width, height})
+  override on_resize(): void {
+    if (this.plot_views.length != 0)
+      return // XXX temporary hack
+    super.on_resize()
+    const {width, height} = this.bbox
+    this.primary.resize(width, height)
+    this.overlays.resize(width, height)
+  }
 
+  resize(): void {
+    this._update_bbox()
+    const {width, height} = this.bbox
     this.primary.resize(width, height)
     this.overlays.resize(width, height)
   }
@@ -213,7 +224,7 @@ export class CanvasView extends DOMElementView {
     return this.compose().to_blob()
   }
 
-  plot_views: PlotView[]
+  plot_views: PlotView[] = []
   /*
   get plot_views(): PlotView[] {
     return [] // XXX
@@ -224,7 +235,7 @@ export class CanvasView extends DOMElementView {
 export namespace Canvas {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = HasProps.Props & {
+  export type Props = UIElement.Props & {
     hidpi: p.Property<boolean>
     output_backend: p.Property<OutputBackend>
   }
@@ -232,7 +243,7 @@ export namespace Canvas {
 
 export interface Canvas extends Canvas.Attrs {}
 
-export class Canvas extends HasProps {
+export class Canvas extends UIElement {
   override properties: Canvas.Props
   override __view_type__: CanvasView
 
@@ -243,7 +254,7 @@ export class Canvas extends HasProps {
   static {
     this.prototype.default_view = CanvasView
 
-    this.internal<Canvas.Props>(({Boolean}) => ({
+    this.define<Canvas.Props>(({Boolean}) => ({
       hidpi:          [ Boolean, true ],
       output_backend: [ OutputBackend, "canvas" ],
     }))

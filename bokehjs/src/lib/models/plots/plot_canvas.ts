@@ -36,7 +36,6 @@ import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
 import {StateInfo, StateManager} from "./state_manager"
 import {settings} from "core/settings"
 import {StyleSheetLike} from "core/dom"
-import canvas_css from "styles/canvas.css"
 
 export class PlotView extends LayoutDOMView implements Renderable {
   override model: Plot
@@ -52,7 +51,12 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   override styles(): StyleSheetLike[] {
-    return [...super.styles(), canvas_css]
+    return [...super.styles(), `
+      .bk-canvas {
+        width: 100%;
+        height: 100%;
+      }
+    `]
   }
 
   protected _title?: Title
@@ -690,8 +694,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
 
     if (!this._outer_bbox.equals(this.layout.bbox)) {
-      const {width, height} = this.layout.bbox
-      this.canvas_view.resize(width, height)
+      this.canvas_view.resize() // XXX temporary hack
       this._outer_bbox = this.layout.bbox
       this._invalidate_all = true
       this._needs_paint = true
