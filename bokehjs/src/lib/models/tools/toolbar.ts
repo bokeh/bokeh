@@ -104,7 +104,7 @@ export class ToolbarView extends UIElementView {
   }
 
   override render(): void {
-    this.empty()
+    super.render()
 
     this.el.className = ""
     this.el.classList.add(toolbars[this.model.location])

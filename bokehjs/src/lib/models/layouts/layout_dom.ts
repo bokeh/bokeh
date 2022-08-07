@@ -4,10 +4,9 @@ import {IterViews} from "core/view"
 import {Signal} from "core/signaling"
 import {Color} from "core/types"
 import {Align, Dimensions, SizingMode} from "core/enums"
-import {CSSStyles, classes, px, StyleSheet, StyleSheetLike} from "core/dom"
+import {classes, px, StyleSheet, StyleSheetLike} from "core/dom"
 import {isNumber, isArray} from "core/util/types"
 import {color2css} from "core/util/color"
-import {assign} from "core/util/object"
 import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
@@ -95,7 +94,7 @@ export abstract class LayoutDOMView extends UIElementView {
   readonly stylesheet_for_parent = new StyleSheet()
 
   override styles(): StyleSheetLike[] {
-    return [...super.styles(), this._style, this.stylesheet_for_parent, ...this.model.stylesheets]
+    return [...super.styles(), this._style, this.stylesheet_for_parent]
   }
 
   override *children(): IterViews {
@@ -122,9 +121,7 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   override render(): void {
-    this.empty()
-
-    assign(this.el.style, this.model.style)
+    super.render()
 
     const {background} = this.model
     this.el.style.backgroundColor = background != null ? color2css(background) : ""
@@ -445,8 +442,6 @@ export namespace LayoutDOM {
     align: p.Property<Align | [Align, Align] | "auto">
     background: p.Property<Color | null>
     css_classes: p.Property<string[]>
-    style: p.Property<CSSStyles>
-    stylesheets: p.Property<string[]>
     context_menu: p.Property<Menu | null>
     resizable: p.Property<boolean | Dimensions>
   }
@@ -464,7 +459,7 @@ export abstract class LayoutDOM extends UIElement {
 
   static {
     this.define<LayoutDOM.Props>((types) => {
-      const {Boolean, Number, String, Auto, Color, Array, Tuple, Dict, Or, Null, Nullable, Ref} = types
+      const {Boolean, Number, String, Auto, Color, Array, Tuple, Or, Null, Nullable, Ref} = types
       const Number2 = Tuple(Number, Number)
       const Number4 = Tuple(Number, Number, Number, Number)
       return {
@@ -483,8 +478,6 @@ export abstract class LayoutDOM extends UIElement {
         align:         [ Or(Align, Tuple(Align, Align), Auto), "auto" ],
         background:    [ Nullable(Color), null ],
         css_classes:   [ Array(String), [] ],
-        style:         [ Dict(String), {} ], // TODO: add validation for CSSStyles
-        stylesheets:   [ Array(String), [] ],
         context_menu:  [ Nullable(Ref(Menu)), null ],
         resizable:     [ Or(Boolean, Dimensions), false ],
       }

@@ -44,15 +44,15 @@ export class DialogView extends UIElementView {
     super.remove()
   }
 
-  render(): void {
+  override render(): void {
+    super.render()
+
     if (!this.model.visible) {
       this.el.remove()
       return
     }
 
     document.body.appendChild(this.el)
-    this.empty()
-
     this._content.render()
 
     const title = div({class: dialogs.title})

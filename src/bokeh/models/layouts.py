@@ -270,16 +270,6 @@ class LayoutDOM(UIElement):
     property will always contain a list.
     """).accepts(Seq(String), lambda x: list(x))
 
-    style = Dict(String, String, help="""
-    Inline CSS styles applied to this DOM element.
-    """)
-
-    stylesheets = List(String, help="""
-    Additional style sheets to use for this DOM element. Note that all bokeh's components
-    use shadow DOM, thus any included style sheets must reflect that, e.g. use ``:host``
-    CSS pseudo selector to access the root DOM element.
-    """)
-
     context_menu = Nullable(Instance(Menu), default=None, help="""
     A menu to display when user right clicks on the component.
 

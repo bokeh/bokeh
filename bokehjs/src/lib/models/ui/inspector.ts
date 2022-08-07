@@ -150,7 +150,7 @@ export class InspectorView extends UIElementView {
   private watched_props: Set<p.Property> = new Set()
 
   override render(): void {
-    this.empty()
+    super.render()
 
     if (this.prev_listener != null)
       diagnostics.disconnect(this.prev_listener)

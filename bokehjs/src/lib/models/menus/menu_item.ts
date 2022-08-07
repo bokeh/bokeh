@@ -11,10 +11,6 @@ export abstract class MenuItemView extends UIElementView {
   override styles(): StyleSheetLike[] {
     return [...super.styles(), menus_css, icons_css]
   }
-
-  render(): void {
-    this.empty()
-  }
 }
 
 export namespace MenuItem {

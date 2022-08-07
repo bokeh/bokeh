@@ -112,7 +112,7 @@ export class CanvasView extends UIElementView {
   }
 
   override render(): void {
-    this.empty()
+    super.render()
 
     const elements = [
       this.underlays_el,
