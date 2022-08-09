@@ -26,6 +26,7 @@ export class PaneView extends UIElementView {
     for (const child_view of this.child_views) {
       this.shadow_el.appendChild(child_view.el)
       child_view.render()
+      child_view.after_render()
     }
   }
 }

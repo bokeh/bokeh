@@ -243,13 +243,18 @@ export abstract class LayoutDOMView extends UIElementView {
     this.notify_finished()
   }
 
+  override after_render(): void {
+    super.after_render()
+    this.update_layout()
+    this.compute_layout()
+  }
+
   build(): this {
     if (!this.is_layout_root)
       throw new Error(`${this.toString()} is not a root layout`)
 
     this.render()
-    this.update_layout()
-    this.compute_layout()
+    this.after_render()
 
     return this
   }

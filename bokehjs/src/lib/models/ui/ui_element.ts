@@ -75,6 +75,8 @@ export abstract class UIElementView extends DOMComponentView {
     this._apply_style()
   }
 
+  after_render(): void {}
+
   protected _apply_style(): void {
     const {style} = this.model
 
