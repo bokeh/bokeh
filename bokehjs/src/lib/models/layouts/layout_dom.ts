@@ -157,8 +157,6 @@ export abstract class LayoutDOMView extends UIElementView {
 
     this._style.replace(`
       :host {
-        position: relative;
-
         width: ${css_sizing(sizing.width_policy, sizing.width)};
         height: ${css_sizing(sizing.height_policy, sizing.height)};
 

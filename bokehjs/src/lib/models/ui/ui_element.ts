@@ -6,6 +6,7 @@ import {CanvasLayer} from "core/util/canvas"
 import {assign} from "core/util/object"
 import {BBox} from "core/util/bbox"
 import * as p from "core/properties"
+import ui_css from "styles/ui_element.css"
 
 const {round} = Math
 
@@ -13,7 +14,7 @@ export abstract class UIElementView extends DOMComponentView {
   override model: UIElement
 
   override styles(): StyleSheetLike[] {
-    return [...super.styles(), ...this.model.stylesheets]
+    return [...super.styles(), ui_css, ...this.model.stylesheets]
   }
 
   private _bbox: BBox = new BBox()
