@@ -56,7 +56,7 @@ export abstract class UIElementView extends DOMComponentView {
   override initialize(): void {
     super.initialize()
 
-    this._resize_observer = new ResizeObserver((_entries) => this.on_resize())
+    this._resize_observer = new ResizeObserver((_entries) => this.after_resize())
     this._resize_observer.observe(this.el, {box: "border-box"})
   }
 
@@ -65,7 +65,7 @@ export abstract class UIElementView extends DOMComponentView {
     super.remove()
   }
 
-  on_resize(): void {
+  after_resize(): void {
     this._update_bbox()
     this.finish()
   }

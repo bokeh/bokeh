@@ -142,10 +142,10 @@ export class CanvasView extends UIElementView {
     return this.primary.pixel_ratio // XXX: primary
   }
 
-  override on_resize(): void {
+  override after_resize(): void {
     if (this.plot_views.length != 0)
       return // XXX temporary hack
-    super.on_resize()
+    super.after_resize()
     const {width, height} = this.bbox
     this.primary.resize(width, height)
     this.overlays.resize(width, height)

@@ -35,7 +35,7 @@ export abstract class LayoutDOMView extends UIElementView {
     this._child_views = new Map()
   }
 
-  override on_resize(): void {
+  override after_resize(): void {
     this.compute_layout()
   }
 
