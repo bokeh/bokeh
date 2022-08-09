@@ -4,7 +4,7 @@
 
 ----
 
-[Bokeh](https://bokeh.org) is an interactive visualization library for modern web browsers. It provides elegant, concise construction of versatile graphics, and affords high-performance interactivity over large or streaming datasets. Bokeh can help anyone who would like to quickly and easily make interactive plots, dashboards, and data applications.
+[Bokeh](https://bokeh.org) is an interactive visualization library for modern web browsers. It provides concise construction of versatile graphics and high-performance interactivity across large or streaming datasets.  Anyone who wants to create interactive charts, dashboards, and data apps quickly and simply may do so with the aid of Bokeh.
 
 <table>
 <tr>
@@ -124,7 +124,7 @@
 
 </table>
 
-*If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.org/donate-to-bokeh).*
+*If you enjoy Bokeh and want to help us further our mission, please consider [making a donation](https://numfocus.org/donate-to-bokeh).*
 
 <p>
 <table>
@@ -268,7 +268,7 @@
 
 ## Installation
 
-The easiest way to install Bokeh is using the [Anaconda Python distribution](https://www.anaconda.com/what-is-anaconda/) and its included *Conda* package management system. To install Bokeh and its required dependencies, enter the following command at a Bash or Windows command prompt:
+The [Anaconda Python distribution](https://www.anaconda.com/what-is-anaconda/) and its included *Conda* package management system are the simplest way to install Bokeh. Enter the following command at a Bash or Windows command prompt to install Bokeh and its dependencies:
 
 ```
 conda install bokeh
@@ -279,19 +279,19 @@ To install using pip, enter the following command at a Bash or Windows command p
 pip install bokeh
 ```
 
-For more information, refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/first_steps/installation.html).
+Check the [installation documentation](https://docs.bokeh.org/en/latest/docs/first_steps/installation.html) for further details.
 
 ## Resources
 
-Once Bokeh is installed, check out the [first steps guides](https://docs.bokeh.org/en/latest/docs/first_steps.html#first-steps-guides).
+Once Bokeh is installed, check out the [first step guides](https://docs.bokeh.org/en/latest/docs/first_steps.html#first-steps-guides).
 
-Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/dev/docs/user_guide.html) or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
+To view the [User's Guide](https://docs.bokeh.org/en/dev/docs/user_guide.html), go to the [full documentation site](https://docs.bokeh.org), or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
 
-Community support is available on the [Project Discourse](https://discourse.bokeh.org).
+On the [Project Discourse](https://discourse.bokeh.org), you can find community support.
 
 If you would like to contribute to Bokeh, please review the [Contributor Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and [request an invitation to the Bokeh Dev Slack workspace](https://slack-invite.bokeh.org/).
 
-*Note: Everyone interacting in the Bokeh project's codebases, issue trackers and discussion forums is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/master/CODE_OF_CONDUCT.md).*
+*Note: Everyone who interacts with the Bokeh project's codebases, issue trackers, and discussion forums is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/master/CODE_OF_CONDUCT.md).*
 
 ## Follow us
 
@@ -301,7 +301,7 @@ Follow us on Twitter [@bokeh](https://twitter.com/bokeh)
 
 ### Fiscal Support
 
-The Bokeh project is grateful for [individual contributions](https://numfocus.org/donate-to-bokeh) sponsorship as well as support by the organizations and companies below:
+The Bokeh project is grateful for [individual contributions](https://numfocus.org/donate-to-bokeh), as well as the support of the organizations and companies listed below:
 
 <table align="center">
 <tr>
@@ -368,7 +368,7 @@ If your company uses Bokeh and is able to sponsor the project, please contact <a
 
 ### In-kind Support
 
-The Bokeh project is grateful for the donation of services and time from the following companies, supporting development as well as our collaboration, infrastructure, security, and vulnerability management:
+The Bokeh project is grateful to the following companies for donating services and time to help with development as well as collaboration, infrastructure, security, and vulnerability management:
 
 * [Amazon Web Services](https://aws.amazon.com/)
 * [GitGuardian](https://gitguardian.com/)
