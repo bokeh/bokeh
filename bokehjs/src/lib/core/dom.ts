@@ -468,7 +468,7 @@ export function px(value: number): string {
   return `${value}px`
 }
 
-type FilterStrings<T> = {[K in keyof T & string as T[K] extends string ? K : never]?: T[K]}
+type FilterStrings<T> = {[K in keyof T & string as T[K] extends string ? K : never]?: T[K] | null}
 
 export type CSSStyles = FilterStrings<CSSStyleDeclaration>
 

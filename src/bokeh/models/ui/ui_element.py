@@ -25,10 +25,14 @@ from ...core.has_props import abstract
 from ...core.properties import (
     Bool,
     Dict,
+    Either,
+    Instance,
     List,
+    Nullable,
     String,
 )
 from ...model import Model
+from ..css import Styles
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -59,7 +63,7 @@ class UIElement(Model):
     Whether the component should be displayed on screen.
     """)
 
-    style = Dict(String, String, help="""
+    style = Either(Dict(String, Nullable(String)), Instance(Styles), default={}, help="""
     Inline CSS styles applied to this DOM element.
     """)
 

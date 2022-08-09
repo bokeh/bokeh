@@ -1,10 +1,13 @@
 import {Model} from "../../model"
+import {Styles} from "../dom/styles"
+import {logger} from "core/logging"
 import {DOMComponentView} from "core/dom_view"
 import {SerializableState} from "core/view"
 import {CSSStyles, StyleSheetLike} from "core/dom"
 import {CanvasLayer} from "core/util/canvas"
-import {assign} from "core/util/object"
+import {keys, entries} from "core/util/object"
 import {BBox} from "core/util/bbox"
+import {isString} from "core/util/types"
 import * as p from "core/properties"
 import ui_css from "styles/ui_element.css"
 
@@ -69,7 +72,40 @@ export abstract class UIElementView extends DOMComponentView {
 
   override render(): void {
     this.empty()
-    assign(this.el.style, this.model.style)
+    this._apply_style()
+  }
+
+  protected _apply_style(): void {
+    const {style} = this.model
+
+    function* iter(): Iterable<[string, unknown]> {
+      if (style instanceof Styles) {
+        const model_attrs = new Set(keys(Model.prototype._props))
+        for (const prop of style) {
+          if (!model_attrs.has(prop.attr)) {
+            yield [prop.attr, prop.get_value()]
+          }
+        }
+      } else
+        yield* entries(style)
+    }
+
+    const apply = (name: string, value: unknown) => {
+      const known = this.el.style.hasOwnProperty(name)
+      if (known && isString(value)) {
+        this.el.style.setProperty(name, value)
+      }
+      return known
+    }
+
+    for (const [attr, value] of iter()) {
+      const name = attr.replace(/_/g, "-")
+
+      if (!apply(name, value)) {
+        if (!apply(`-webkit-${name}`, value) && !apply(`-moz-${name}`, value))
+          logger.trace(`unknown CSS property '${name}'`)
+      }
+    }
   }
 
   export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
@@ -93,7 +129,7 @@ export namespace UIElement {
 
   export type Props = Model.Props & {
     visible: p.Property<boolean>
-    style: p.Property<CSSStyles>
+    style: p.Property<CSSStyles | Styles>
     stylesheets: p.Property<string[]>
   }
 }
@@ -109,9 +145,9 @@ export abstract class UIElement extends Model {
   }
 
   static {
-    this.define<UIElement.Props>(({Boolean, Array, Dict, String}) => ({
+    this.define<UIElement.Props>(({Boolean, Array, Dict, String, Ref, Or, Nullable}) => ({
       visible: [ Boolean, true ],
-      style: [ Dict(String), {} ], // TODO: add validation for CSSStyles
+      style: [ Or(Dict(Nullable(String)), Ref(Styles)), {} ], // TODO: add validation for CSSStyles
       stylesheets: [ Array(String), [] ],
     }))
   }
