@@ -17,7 +17,7 @@ export abstract class UIElementView extends DOMComponentView {
   override model: UIElement
 
   override styles(): StyleSheetLike[] {
-    return [...super.styles(), ui_css, ...this.model.stylesheets]
+    return [...super.styles(), ui_css]
   }
 
   private _bbox: BBox = new BBox()
@@ -71,25 +71,31 @@ export abstract class UIElementView extends DOMComponentView {
   }
 
   override render(): void {
-    this.empty()
-    this._apply_style()
+    super.render()
+    this._apply_stylesheets(this.model.stylesheets)
+    this._apply_styles()
+    this._apply_classes()
   }
 
   after_render(): void {}
 
-  protected _apply_style(): void {
-    const {style} = this.model
+  protected _apply_classes(): void {
+    this.class_list.add(...this.model.classes)
+  }
+
+  protected _apply_styles(): void {
+    const {styles} = this.model
 
     function* iter(): Iterable<[string, unknown]> {
-      if (style instanceof Styles) {
+      if (styles instanceof Styles) {
         const model_attrs = new Set(keys(Model.prototype._props))
-        for (const prop of style) {
+        for (const prop of styles) {
           if (!model_attrs.has(prop.attr)) {
             yield [prop.attr, prop.get_value()]
           }
         }
       } else
-        yield* entries(style)
+        yield* entries(styles)
     }
 
     const apply = (name: string, value: unknown) => {
@@ -131,7 +137,8 @@ export namespace UIElement {
 
   export type Props = Model.Props & {
     visible: p.Property<boolean>
-    style: p.Property<CSSStyles | Styles>
+    classes: p.Property<string[]>
+    styles: p.Property<CSSStyles | Styles>
     stylesheets: p.Property<string[]>
   }
 }
@@ -149,7 +156,8 @@ export abstract class UIElement extends Model {
   static {
     this.define<UIElement.Props>(({Boolean, Array, Dict, String, Ref, Or, Nullable}) => ({
       visible: [ Boolean, true ],
-      style: [ Or(Dict(Nullable(String)), Ref(Styles)), {} ], // TODO: add validation for CSSStyles
+      classes: [Array(String), [] ],
+      styles: [ Or(Dict(Nullable(String)), Ref(Styles)), {} ], // TODO: add validation for CSSStyles
       stylesheets: [ Array(String), [] ],
     }))
   }

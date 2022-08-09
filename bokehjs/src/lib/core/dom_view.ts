@@ -1,5 +1,5 @@
 import {View} from "./view"
-import {createElement, remove, empty, StyleSheet, ImportedStyleSheet, StyleSheetLike} from "./dom"
+import {createElement, remove, empty, StyleSheet, StyleSheetLike, ClassList} from "./dom"
 import {isString} from "./util/types"
 import base_css from "styles/base.css"
 
@@ -56,6 +56,13 @@ export abstract class DOMView extends View {
 
 export abstract class DOMElementView extends DOMView {
   override el: HTMLElement
+
+  class_list: ClassList
+
+  override initialize(): void {
+    super.initialize()
+    this.class_list = new ClassList(this.el.classList)
+  }
 }
 
 export abstract class DOMComponentView extends DOMElementView {
@@ -63,14 +70,29 @@ export abstract class DOMComponentView extends DOMElementView {
   override readonly root: DOMComponentView
 
   override shadow_el: ShadowRoot
-  protected readonly _stylesheets: (StyleSheet | ImportedStyleSheet)[] = []
 
   override initialize(): void {
     super.initialize()
     this.shadow_el = this.el.attachShadow({mode: "open"})
+  }
 
+  override styles(): StyleSheetLike[] {
+    return [...super.styles(), base_css]
+  }
+
+  empty(): void {
+    empty(this.shadow_el)
+    this.class_list.clear()
+  }
+
+  render(): void {
+    this.empty()
+    this._apply_stylesheets(this.styles())
+  }
+
+  protected _apply_stylesheets(stylesheets: StyleSheetLike[]): void {
     /*
-    if (has_adopted_stylesheets) {
+    if (supports_adopted_stylesheets) {
       const sheets: CSSStyleSheet[] = []
       for (const style of this.styles()) {
         const sheet = new CSSStyleSheet()
@@ -80,21 +102,8 @@ export abstract class DOMComponentView extends DOMElementView {
       this.shadow_el.adoptedStyleSheets = sheets
     } else {
     */
-    for (const style of this.styles()) {
+    for (const style of stylesheets) {
       const stylesheet = isString(style) ? new StyleSheet(style) : style
-      this._stylesheets.push(stylesheet)
-      this.shadow_el.appendChild(stylesheet.el)
-    }
-    //}
-  }
-
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), base_css]
-  }
-
-  empty(): void {
-    empty(this.shadow_el)
-    for (const stylesheet of this._stylesheets) {
       this.shadow_el.appendChild(stylesheet.el)
     }
   }

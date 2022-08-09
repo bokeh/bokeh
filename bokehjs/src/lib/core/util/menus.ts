@@ -1,6 +1,7 @@
-import {div, style, empty, remove, Keys} from "../dom"
+import {div, empty, remove, Keys, StyleSheet, StyleSheetLike, ClassList} from "../dom"
 import {Orientation} from "../enums"
 import {reversed} from "./array"
+import {isString} from "./types"
 
 import menus_css, * as menus from "styles/menus.css"
 import icons_css from "styles/icons.css"
@@ -32,7 +33,7 @@ export type MenuOptions = {
   orientation?: Orientation
   reversed?: boolean
   prevent_hide?: (event: MouseEvent) => boolean
-  extra_styles?: string[]
+  extra_styles?: StyleSheetLike[]
 }
 
 //import {DOMComponentView} from "../dom_view"
@@ -40,7 +41,6 @@ export type MenuOptions = {
 export class ContextMenu { //extends DOMComponentView {
   readonly el: HTMLElement = div()
   readonly shadow_el: ShadowRoot
-  readonly stylesheet_el: HTMLStyleElement
 
   protected _open: boolean = false
 
@@ -56,7 +56,8 @@ export class ContextMenu { //extends DOMComponentView {
   readonly orientation: Orientation
   readonly reversed: boolean
   readonly prevent_hide?: (event: MouseEvent) => boolean
-  readonly extra_styles: string[]
+  readonly extra_styles: StyleSheetLike[]
+  readonly class_list: ClassList
 
   constructor(readonly items: MenuItem[], options: MenuOptions) {
     this.target = options.target
@@ -66,8 +67,7 @@ export class ContextMenu { //extends DOMComponentView {
     this.extra_styles = options.extra_styles ?? []
 
     this.shadow_el = this.el.attachShadow({mode: "open"})
-    this.stylesheet_el = style({}, ...this.styles())
-    this.shadow_el.appendChild(this.stylesheet_el)
+    this.class_list = new ClassList(this.el.classList)
   }
 
   protected _item_click = (entry: MenuEntry) => {
@@ -151,18 +151,24 @@ export class ContextMenu { //extends DOMComponentView {
     style.bottom = pos.bottom != null ? `${origin.bottom - pos.bottom}px` : "auto"
   }
 
-  styles(): string[] {
-    return [base_css, /*...super.styles(), */menus_css, icons_css, ...this.extra_styles]
+  styles(): StyleSheetLike[] {
+    return [base_css, /*...super.styles(), */ menus_css, icons_css, ...this.extra_styles]
   }
 
   empty(): void {
     empty(this.shadow_el)
-    this.shadow_el.appendChild(this.stylesheet_el)
+    this.class_list.clear()
   }
 
   render(): void {
     this.empty()
-    this.el.classList.add(menus[this.orientation])
+
+    for (const style of this.styles()) {
+      const stylesheet = isString(style) ? new StyleSheet(style) : style
+      this.shadow_el.appendChild(stylesheet.el)
+    }
+
+    this.class_list.add(menus[this.orientation])
 
     const items = this.reversed ? reversed(this.items) : this.items
     for (const item of items) {

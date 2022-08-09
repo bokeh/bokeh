@@ -63,12 +63,16 @@ class UIElement(Model):
     Whether the component should be displayed on screen.
     """)
 
-    style = Either(Dict(String, Nullable(String)), Instance(Styles), default={}, help="""
-    Inline CSS styles applied to this DOM element.
+    classes = List(String, default=[], help="""
+    List of additional CSS classes to add to the underlying DOM element.
+    """)
+
+    styles = Either(Dict(String, Nullable(String)), Instance(Styles), default={}, help="""
+    Inline CSS styles applied to the underlying DOM element.
     """)
 
     stylesheets = List(String, help="""
-    Additional style sheets to use for this DOM element.
+    Additional style-sheets to use for the underlying DOM element.
 
     Note that all bokeh's components use shadow DOM, thus any included style
     sheets must reflect that, e.g. use ``:host`` CSS pseudo selector to access

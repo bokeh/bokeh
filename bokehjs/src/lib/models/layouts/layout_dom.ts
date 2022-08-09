@@ -4,7 +4,7 @@ import {IterViews} from "core/view"
 import {Signal} from "core/signaling"
 import {Color} from "core/types"
 import {Align, Dimensions, SizingMode} from "core/enums"
-import {classes, px, StyleSheet, StyleSheetLike} from "core/dom"
+import {px, StyleSheet, StyleSheetLike} from "core/dom"
 import {isNumber, isArray} from "core/util/types"
 import {color2css} from "core/util/color"
 import * as p from "core/properties"
@@ -81,7 +81,6 @@ export abstract class LayoutDOMView extends UIElementView {
     this.on_change([
       p.background,
       p.css_classes,
-      p.style,
       p.stylesheets,
     ], () => this.invalidate_render())
   }
@@ -126,11 +125,12 @@ export abstract class LayoutDOMView extends UIElementView {
     const {background} = this.model
     this.el.style.backgroundColor = background != null ? color2css(background) : ""
 
-    classes(this.el).clear().add(...this.css_classes())
+    this.class_list.add(...this.css_classes())
 
     for (const child_view of this.child_views) {
       this.shadow_el.appendChild(child_view.el)
       child_view.render()
+      child_view.after_render()
     }
   }
 

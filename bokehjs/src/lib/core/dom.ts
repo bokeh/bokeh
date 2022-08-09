@@ -318,16 +318,12 @@ export function children(el: HTMLElement): HTMLElement[] {
 }
 
 export class ClassList {
-  private readonly classList: DOMTokenList
-
-  constructor(readonly el: HTMLElement) {
-    this.classList = el.classList
-  }
+  constructor(private readonly class_list: DOMTokenList) {}
 
   get values(): string[] {
     const values = []
-    for (let i = 0; i < this.classList.length; i++) {
-      const item = this.classList.item(i)
+    for (let i = 0; i < this.class_list.length; i++) {
+      const item = this.class_list.item(i)
       if (item != null)
         values.push(item)
     }
@@ -335,24 +331,24 @@ export class ClassList {
   }
 
   has(cls: string): boolean {
-    return this.classList.contains(cls)
+    return this.class_list.contains(cls)
   }
 
   add(...classes: string[]): this {
     for (const cls of classes)
-      this.classList.add(cls)
+      this.class_list.add(cls)
     return this
   }
 
   remove(...classes: string[]): this {
     for (const cls of classes)
-      this.classList.remove(cls)
+      this.class_list.remove(cls)
     return this
   }
 
   clear(): this {
     for (const cls of this.values) {
-      this.classList.remove(cls)
+      this.class_list.remove(cls)
     }
     return this
   }
@@ -368,7 +364,7 @@ export class ClassList {
 }
 
 export function classes(el: HTMLElement): ClassList {
-  return new ClassList(el)
+  return new ClassList(el.classList)
 }
 
 export function toggle_attribute(el: HTMLElement, attr: string, state?: boolean): void {
