@@ -110,8 +110,6 @@ export namespace Styles {
     content: p.Property<string | null>
     counter_increment: p.Property<string | null>
     counter_reset: p.Property<string | null>
-    css_float: p.Property<string | null>
-    css_text: p.Property<string | null>
     cursor: p.Property<string | null>
     direction: p.Property<string | null>
     display: p.Property<string | null>
@@ -440,8 +438,6 @@ export class Styles extends Model {
       content: [ Nullable(String), null ],
       counter_increment: [ Nullable(String), null ],
       counter_reset: [ Nullable(String), null ],
-      css_float: [ Nullable(String), null ],
-      css_text: [ Nullable(String), null ],
       cursor: [ Nullable(String), null ],
       direction: [ Nullable(String), null ],
       display: [ Nullable(String), null ],

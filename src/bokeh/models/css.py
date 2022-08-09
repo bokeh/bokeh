@@ -149,8 +149,6 @@ class Styles(Model, Qualified):
     content = Nullable(String)
     counter_increment = Nullable(String)
     counter_reset = Nullable(String)
-    css_float = Nullable(String)
-    css_text = Nullable(String)
     cursor = Nullable(String)
     direction = Nullable(String)
     display = Nullable(String)
