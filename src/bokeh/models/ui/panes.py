@@ -4,8 +4,8 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Various UI elements such as buttons, menus, and tooltips.
-"""
+""" Various kinds of panes. """
+
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
@@ -19,35 +19,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from . import (
-    dialogs,
-    icons,
-    inspector,
-    menus,
-    panes,
-    tooltips,
-    ui_element,
-)
-from .dialogs import *
-from .icons import *
-from .inspector import *
-from .menus import *
-from .panes import *
-from .tooltips import *
-from .ui_element import *
+from ...core.properties import Instance, List
+from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    dialogs.__all__ +
-    icons.__all__ +
-    inspector.__all__ +
-    menus.__all__ +
-    panes.__all__ +
-    tooltips.__all__ +
-    ui_element.__all__
+    "Pane",
 )
 
 #-----------------------------------------------------------------------------
@@ -57,6 +37,16 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+class Pane(UIElement):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    children = List(Instance(UIElement), default=[], help="""
+    """)
 
 #-----------------------------------------------------------------------------
 # Private API
