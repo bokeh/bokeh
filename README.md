@@ -124,7 +124,7 @@
 
 </table>
 
-*If you enjoy Bokeh and want to help us further our mission, please consider [making a donation](https://numfocus.org/donate-to-bokeh).*
+*Consider [making a donation](https://numfocus.org/donate-to-bokeh). if you enjoy using Bokeh and want to support its development.*
 
 <p>
 <table>
@@ -268,7 +268,7 @@
 
 ## Installation
 
-The [Anaconda Python distribution](https://www.anaconda.com/what-is-anaconda/) and its included *Conda* package management system are the simplest way to install Bokeh. Enter the following command at a Bash or Windows command prompt to install Bokeh and its dependencies:
+The easiest way to install Bokeh is using the [Anaconda Python distribution](https://www.anaconda.com/what-is-anaconda/) and its included *Conda* package management system. To install Bokeh and its required dependencies, enter the following command at a Bash or Windows command prompt:
 
 ```
 conda install bokeh
@@ -279,19 +279,19 @@ To install using pip, enter the following command at a Bash or Windows command p
 pip install bokeh
 ```
 
-Check the [installation documentation](https://docs.bokeh.org/en/latest/docs/first_steps/installation.html) for further details.
+Refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/first_steps/installation.html) for more details.
 
 ## Resources
 
-Once Bokeh is installed, check out the [first step guides](https://docs.bokeh.org/en/latest/docs/first_steps.html#first-steps-guides).
+Once Bokeh is installed, check out the [first steps guide](https://docs.bokeh.org/en/latest/docs/first_steps.html#first-steps-guides).
 
-To view the [User's Guide](https://docs.bokeh.org/en/dev/docs/user_guide.html), go to the [full documentation site](https://docs.bokeh.org), or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
+Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/dev/docs/user_guide.html) or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
 
-On the [Project Discourse](https://discourse.bokeh.org), you can find community support.
+Community support is available on the [Project Discourse](https://discourse.bokeh.org).
 
 If you would like to contribute to Bokeh, please review the [Contributor Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and [request an invitation to the Bokeh Dev Slack workspace](https://slack-invite.bokeh.org/).
 
-*Note: Everyone who interacts with the Bokeh project's codebases, issue trackers, and discussion forums is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/master/CODE_OF_CONDUCT.md).*
+*Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers are expected to follow the [Code of Conduct].*
 
 ## Follow us
 
@@ -301,7 +301,7 @@ Follow us on Twitter [@bokeh](https://twitter.com/bokeh)
 
 ### Fiscal Support
 
-The Bokeh project is grateful for [individual contributions](https://numfocus.org/donate-to-bokeh), as well as the support of the organizations and companies listed below:
+The Bokeh project is grateful for [individual contributions](https://numfocus.org/donate-to-bokeh), as well as for monetary support from the organizations and companies listed below:
 
 <table align="center">
 <tr>
@@ -368,7 +368,9 @@ If your company uses Bokeh and is able to sponsor the project, please contact <a
 
 ### In-kind Support
 
-The Bokeh project is grateful to the following companies for donating services and time to help with development as well as collaboration, infrastructure, security, and vulnerability management:
+Non-monetary support can help with development, collaboration, infrastructure, security, and vulnerability management.
+
+The Bokeh project is grateful to the following companies for their donation of services:
 
 * [Amazon Web Services](https://aws.amazon.com/)
 * [GitGuardian](https://gitguardian.com/)
