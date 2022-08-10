@@ -4,7 +4,7 @@
 
 ----
 
-[Bokeh](https://bokeh.org) is an interactive visualization library for modern web browsers. It provides concise construction of versatile graphics and high-performance interactivity across large or streaming datasets.  Anyone who wants to create interactive charts, dashboards, and data apps quickly and simply may do so with the aid of Bokeh.
+[Bokeh](https://bokeh.org) is an interactive visualization library for modern web browsers. It provides elegant, concise construction of versatile graphics and affords high-performance interactivity across large or streaming datasets. Bokeh can help anyone who wants to create interactive plots, dashboards, and data applications quickly and easily.
 
 <table>
 <tr>
