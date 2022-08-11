@@ -9,7 +9,7 @@ import * as inputs from "styles/widgets/inputs.css"
 export class SelectView extends InputWidgetView {
   override model: Select
 
-  protected override input_el: HTMLSelectElement
+  override input_el: HTMLSelectElement
 
   override connect_signals(): void {
     super.connect_signals()

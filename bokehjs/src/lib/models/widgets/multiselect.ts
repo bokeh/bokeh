@@ -8,7 +8,7 @@ import * as inputs from "styles/widgets/inputs.css"
 export class MultiSelectView extends InputWidgetView {
   override model: MultiSelect
 
-  protected override input_el: HTMLSelectElement
+  override input_el: HTMLSelectElement
 
   override connect_signals(): void {
     super.connect_signals()

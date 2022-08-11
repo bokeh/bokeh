@@ -16,7 +16,7 @@ const float_regex = /^[-+]?\d*\.?\d*(?:(?:\d|\d.)[eE][-+]?)*\d*$/
 export class NumericInputView extends InputWidgetView {
   override model: NumericInput
 
-  protected override input_el: HTMLInputElement
+  override input_el: HTMLInputElement
   protected old_value: string
 
   override connect_signals(): void {

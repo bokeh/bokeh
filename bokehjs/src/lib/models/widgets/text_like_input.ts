@@ -4,7 +4,7 @@ import * as p from "core/properties"
 export abstract class TextLikeInputView extends InputWidgetView {
   override model: TextLikeInput
 
-  protected override input_el: HTMLInputElement | HTMLTextAreaElement
+  override input_el: HTMLInputElement | HTMLTextAreaElement
 
   override connect_signals(): void {
     super.connect_signals()
