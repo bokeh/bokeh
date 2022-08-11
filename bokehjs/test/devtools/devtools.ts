@@ -270,18 +270,21 @@ async function run_tests(): Promise<boolean> {
 
       if (argv.k != null || argv.grep != null) {
         if (argv.k != null) {
-          const keyword = argv.k as string
+          const keywords: string[] = Array.isArray(argv.k) ? argv.k : [argv.k]
           for (const [suites, test] of test_suite) {
-            if (!description(suites, test).includes(keyword)) {
+            if (!keywords.some((keyword) => description(suites, test).includes(keyword))) {
               test.skip = true
             }
           }
         }
 
         if (argv.grep != null) {
-          const regex = new RegExp(argv.grep as string)
+          const regexes = (() => {
+            const arr = Array.isArray(argv.grep) ? argv.grep : [argv.grep]
+            return arr.map((str) => new RegExp(str as string))
+          })()
           for (const [suites, test] of test_suite) {
-            if (description(suites, test).match(regex) == null) {
+            if (!regexes.some((regex) => description(suites, test).match(regex) != null)) {
               test.skip = true
             }
           }
