@@ -1,6 +1,6 @@
 @import "./_mixins.less";
 
-.bk-btn {
+.bk-btn, ::file-selector-button {
   height: 100%;
   display: inline-block;
   text-align: center;
@@ -20,11 +20,13 @@
     text-decoration: none;
   }
 
-  &:active, &.bk-active {
+  &:active, .bk-active& {
     background-image: none;
     box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
   }
+}
 
+.bk-btn {
   &[disabled] {
     cursor: not-allowed;
     pointer-events: none;
@@ -43,17 +45,24 @@
     border-color: darken(@border, 8%);
   }
 
-  &.bk-active {
+  .bk-active& {
     background-color: darken(@background, 8%);
     border-color: darken(@border, 12%);
   }
 
   &[disabled] {
-    &, &:hover, &:focus, &:active, &.bk-active {
+    &, &:hover, &:focus, &:active, .bk-active& {
       background-color: darken(desaturate(@background, 30%), 10%);
       border-color: @border;
     }
   }
+}
+
+::file-selector-button {
+  @btn-default-color:  #333;
+  @btn-default-bg:     #fff;
+  @btn-default-border: #ccc;
+  .button-variant(@btn-default-color; @btn-default-bg; @btn-default-border);
 }
 
 .bk-btn-default {

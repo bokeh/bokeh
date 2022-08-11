@@ -147,6 +147,15 @@ async function server(port: number): Promise<ChildProcess> {
   })
 }
 
+function opts(name: string, value: unknown): string[] {
+  if (Array.isArray(value))
+    return value.map((v) => `--${name}=${v}`)
+  else if (value != null)
+    return [`--${name}=${value}`]
+  else
+    return [""]
+}
+
 function opt(name: string, value: unknown): string {
   return value != null ? `--${name}=${value}` : ""
 }
@@ -154,8 +163,8 @@ function opt(name: string, value: unknown): string {
 function devtools(devtools_port: number, server_port: number, name: string, baselines_root?: string): Promise<void> {
   const args = [
     `http://localhost:${server_port}/${name}`,
-    opt("k", argv.k),
-    opt("grep", argv.grep),
+    ...opts("k", argv.k),
+    ...opts("grep", argv.grep),
     opt("ref", argv.ref),
     opt("baselines-root", baselines_root),
     `--screenshot=${argv.screenshot ?? "test"}`,

@@ -1,43 +1,37 @@
+import {InputWidget, InputWidgetView} from "./input_widget"
 import {input, StyleSheetLike} from "core/dom"
+import {isString} from "core/util/types"
 import * as p from "core/properties"
-import {Widget, WidgetView} from "models/widgets/widget"
+import * as inputs from "styles/widgets/inputs.css"
+import buttons_css from "styles/buttons.css"
 
-import inputs_css from "styles/widgets/inputs.css"
-
-export class FileInputView extends WidgetView { // TODO: InputWidgetView
+export class FileInputView extends InputWidgetView {
   override model: FileInput
-
-  protected dialog_el?: HTMLInputElement
-
-  override connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.change, () => this.render())
-  }
+  override input_el: HTMLInputElement
 
   override styles(): StyleSheetLike[] {
-    return [...super.styles(), inputs_css]
+    return [...super.styles(), buttons_css]
   }
 
   override render(): void {
-    const {multiple, accept, disabled, width} = this.model
+    super.render()
 
-    if (this.dialog_el == null) {
-      this.dialog_el = input({type: "file", multiple})
-      this.dialog_el.onchange = () => {
-        const files = this.dialog_el?.files
-        if (files != null) {
-          this.load_files(files)
-        }
+    const {multiple, disabled} = this.model
+
+    const accept = (() => {
+      const {accept} = this.model
+      return isString(accept) ? accept : accept.join(",")
+    })()
+
+    this.input_el = input({type: "file", class: inputs.input, multiple, accept, disabled})
+    this.group_el.appendChild(this.input_el)
+
+    this.input_el.addEventListener("change", () => {
+      const {files} = this.input_el
+      if (files != null) {
+        this.load_files(files)
       }
-      this.shadow_el.appendChild(this.dialog_el)
-    }
-
-    if (accept != "") {
-      this.dialog_el.accept = accept
-    }
-
-    this.dialog_el.style.width = `${width}px`
-    this.dialog_el.disabled = disabled
+    })
   }
 
   async load_files(files: FileList): Promise<void> {
@@ -54,10 +48,16 @@ export class FileInputView extends WidgetView { // TODO: InputWidgetView
       mime_types.push(mime_type)
     }
 
-    if (this.model.multiple)
-      this.model.setv({value: values, filename: filenames, mime_type: mime_types})
-    else
-      this.model.setv({value: values[0], filename: filenames[0], mime_type: mime_types[0]})
+    const [value, filename, mime_type] = (() =>{
+      if (this.model.multiple)
+        return [values, filenames, mime_types]
+      else if (files.length != 0)
+        return [values[0], filenames[0], mime_types[0]]
+      else
+        return ["", "", ""]
+    })()
+
+    this.model.setv({value, filename, mime_type})
   }
 
   protected _read_file(file: File): Promise<string> {
@@ -78,18 +78,18 @@ export class FileInputView extends WidgetView { // TODO: InputWidgetView
 
 export namespace FileInput {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = Widget.Props & {
+  export type Props = InputWidget.Props & {
     value: p.Property<string | string[]>
     mime_type: p.Property<string | string[]>
     filename: p.Property<string | string[]>
-    accept: p.Property<string>
+    accept: p.Property<string | string[]>
     multiple: p.Property<boolean>
   }
 }
 
 export interface FileInput extends FileInput.Attrs {}
 
-export class FileInput extends Widget {
+export class FileInput extends InputWidget {
   override properties: FileInput.Props
   override __view_type__: FileInputView
 
@@ -104,7 +104,7 @@ export class FileInput extends Widget {
       value:     [ Or(String, Array(String)), "" ],
       mime_type: [ Or(String, Array(String)), "" ],
       filename:  [ Or(String, Array(String)), "" ],
-      accept:    [ String, "" ],
+      accept:    [ Or(String, Array(String)), "" ],
       multiple:  [ Boolean, false ],
     }))
   }
