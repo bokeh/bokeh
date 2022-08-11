@@ -107,7 +107,7 @@ class InputWidget(Widget):
 # General API
 #-----------------------------------------------------------------------------
 
-class FileInput(Widget):
+class FileInput(InputWidget):
     ''' Present a file-chooser dialog to users and return the contents of the
     selected files.
     '''
@@ -156,7 +156,7 @@ class FileInput(Widget):
         access to that information for security reasons.
     ''')
 
-    accept = String(default="", help="""
+    accept = Either(String, List(String), default="", help="""
     Comma-separated list of standard HTML file input filters that restrict what
     files the user can pick from. Values can be:
 
