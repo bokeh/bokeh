@@ -124,7 +124,7 @@
 
 </table>
 
-*Consider [making a donation](https://numfocus.org/donate-to-bokeh). if you enjoy using Bokeh and want to support its development.*
+*Consider [making a donation](https://numfocus.org/donate-to-bokeh) if you enjoy using Bokeh and want to support its development.*
 
 <p>
 <table>
@@ -291,7 +291,7 @@ Community support is available on the [Project Discourse](https://discourse.boke
 
 If you would like to contribute to Bokeh, please review the [Contributor Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and [request an invitation to the Bokeh Dev Slack workspace](https://slack-invite.bokeh.org/).
 
-*Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers are expected to follow the [Code of Conduct].*
+*Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers is expected to follow the [Code of Conduct].*
 
 ## Follow us
 
@@ -368,9 +368,7 @@ If your company uses Bokeh and is able to sponsor the project, please contact <a
 
 ### In-kind Support
 
-Non-monetary support can help with development, collaboration, infrastructure, security, and vulnerability management.
-
-The Bokeh project is grateful to the following companies for their donation of services:
+Non-monetary support can help with development, collaboration, infrastructure, security, and vulnerability management. The Bokeh project is grateful to the following companies for their donation of services:
 
 * [Amazon Web Services](https://aws.amazon.com/)
 * [GitGuardian](https://gitguardian.com/)
