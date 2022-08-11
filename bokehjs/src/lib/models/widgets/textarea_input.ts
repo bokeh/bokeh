@@ -8,7 +8,7 @@ import * as inputs from "styles/widgets/inputs.css"
 export class TextAreaInputView extends TextLikeInputView {
   override model: TextAreaInput
 
-  protected override input_el: HTMLTextAreaElement
+  override input_el: HTMLTextAreaElement
 
   override connect_signals(): void {
     super.connect_signals()

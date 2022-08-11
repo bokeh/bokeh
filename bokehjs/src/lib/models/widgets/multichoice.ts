@@ -13,7 +13,7 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 export class MultiChoiceView extends InputWidgetView {
   override model: MultiChoice
 
-  protected override input_el: HTMLSelectElement
+  override input_el: HTMLSelectElement
   protected choice_el: Choices
 
   override connect_signals(): void {

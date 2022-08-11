@@ -35,10 +35,10 @@ from ...core.properties import (
     Int,
     Interval,
     List,
+    NonNegative,
     Null,
     Nullable,
     Override,
-    Positive,
     Readonly,
     String,
     Tuple,
@@ -365,7 +365,7 @@ class AutocompleteInput(TextInput):
     user upon typing the beginning of a desired value.
     """)
 
-    min_characters = Positive(Int, default=2, help="""
+    min_characters = NonNegative(Int, default=2, help="""
     The number of characters a user must type before completions are presented.
     """)
 

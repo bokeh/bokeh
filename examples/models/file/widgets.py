@@ -67,7 +67,7 @@ radio_button_group_vertical = RadioButtonGroup(labels=["Option 1", "Option 2", "
 text_input = TextInput(placeholder="Enter value ...")
 
 completions = ["aaa", "aab", "aac", "baa", "caa"]
-autocomplete_input = AutocompleteInput(placeholder="Enter value (auto-complete) ...", completions=completions)
+autocomplete_input = AutocompleteInput(min_characters=0, placeholder="Enter value (auto-complete) ...", completions=completions)
 
 text_area = TextAreaInput(placeholder="Enter text ...", cols=20, rows=10, value="uuu")
 

@@ -8,7 +8,7 @@ import * as inputs from "styles/widgets/inputs.css"
 export class TextInputView extends TextLikeInputView {
   override model: TextInput
 
-  protected override input_el: HTMLInputElement
+  override input_el: HTMLInputElement
 
   protected _render_input(): void {
     this.input_el = input({type: "text", class: inputs.input})
