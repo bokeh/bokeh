@@ -130,6 +130,15 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
+  it.allowing(8)("should allow AutocompleteInput with min_characters==0 and completions showed on focusin", async () => {
+    const completions = ["aaa", "aab", "aac", "baa", "caa"]
+    const obj = new AutocompleteInput({placeholder: "Enter value ...", completions, min_characters: 0})
+    const {view} = await display(obj, [500, 300])
+    const ev = new FocusEvent("focusin")
+    view.input_el.dispatchEvent(ev)
+    await view.ready
+  })
+
   it.allowing(8)("should allow TextAreaInput", async () => {
     const obj = new TextAreaInput({placeholder: "Enter text ...", cols: 20, rows: 4})
     await display(obj, [500, 100])
