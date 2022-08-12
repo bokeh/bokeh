@@ -9,7 +9,7 @@ import {Context2d, CanvasLayer} from "core/util/canvas"
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {type PlotView} from "../plots/plot"
 import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
-import {StyleSheetLike} from "core/dom"
+import {StyleSheet, StyleSheetLike} from "core/dom"
 import canvas_css from "styles/canvas.css"
 
 export type FrameBox = [number, number, number, number]
@@ -80,6 +80,8 @@ export class CanvasView extends UIElementView {
 
   ui_event_bus: UIEventBus
 
+  protected _size = new StyleSheet()
+
   override initialize(): void {
     super.initialize()
 
@@ -108,7 +110,7 @@ export class CanvasView extends UIElementView {
   }
 
   override styles(): StyleSheetLike[] {
-    return [...super.styles(), canvas_css]
+    return [...super.styles(), canvas_css, this._size]
   }
 
   override render(): void {
@@ -140,6 +142,18 @@ export class CanvasView extends UIElementView {
 
   get pixel_ratio(): number {
     return this.primary.pixel_ratio // XXX: primary
+  }
+
+  override _update_bbox(): void {
+    super._update_bbox()
+
+    const {width, height} = this.bbox
+    this._size.replace(`
+    .bk-layer {
+      width: ${width}px;
+      height: ${height}px;
+    }
+    `)
   }
 
   override after_resize(): void {
