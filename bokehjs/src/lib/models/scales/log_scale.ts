@@ -44,7 +44,7 @@ export class LogScale extends ContinuousScale {
       if (start == 0)
         [start, end] = [1, 10]
       else {
-        const log_val = Math.log(start) / Math.log(10)
+        const log_val = Math.log10(start)
         start = 10**Math.floor(log_val)
 
         if (Math.ceil(log_val) != Math.floor(log_val))
@@ -72,7 +72,7 @@ export class LogScale extends ContinuousScale {
       inter_factor = Math.log(end)
       inter_offset = 0
     } else {
-      inter_factor = Math.log(end) - Math.log(start)
+      inter_factor = Math.log(end / start)
       inter_offset = Math.log(start)
     }
 

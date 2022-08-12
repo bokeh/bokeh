@@ -478,7 +478,7 @@ export class AxisView extends GuideRendererView {
 
   get ranges(): [Range, Range] {
     const i = this.dimension
-    const j = (i + 1) % 2
+    const j = 1 - i
     const {ranges} = this.coordinates
     return [ranges[i], ranges[j]]
   }
@@ -513,7 +513,7 @@ export class AxisView extends GuideRendererView {
 
   get rule_coords(): Coords {
     const i = this.dimension
-    const j = (i + 1) % 2
+    const j = 1 - i
     const [range] = this.ranges
     const [start, end] = this.computed_bounds
 
@@ -534,7 +534,7 @@ export class AxisView extends GuideRendererView {
 
   get tick_coords(): TickCoords {
     const i = this.dimension
-    const j = (i + 1) % 2
+    const j = 1 - i
     const [range] = this.ranges
     const [start, end] = this.computed_bounds
 

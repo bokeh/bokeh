@@ -34,7 +34,7 @@ export class CategoricalAxisView extends AxisView {
       return
 
     const dim = this.dimension
-    const alt = (dim + 1) % 2
+    const alt = 1 - dim
 
     const coords: Coords = [[], []]
 
@@ -125,7 +125,7 @@ export class CategoricalAxisView extends AxisView {
 
   override get tick_coords(): CategoricalTickCoords {
     const i = this.dimension
-    const j = (i + 1) % 2
+    const j = 1 - i
     const [range] = this.ranges as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
 
