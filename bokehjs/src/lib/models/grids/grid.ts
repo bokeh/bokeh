@@ -76,7 +76,7 @@ export class GridView extends GuideRendererView {
   // {{{ TODO: state
   ranges(): [Range, Range] {
     const i = this.model.dimension
-    const j = (i + 1) % 2
+    const j = 1 - i
     const {ranges} = this.coordinates
     return [ranges[i], ranges[j]]
   }
@@ -120,7 +120,7 @@ export class GridView extends GuideRendererView {
 
   grid_coords(location: "major" | "minor", exclude_ends: boolean = true): [number[][], number[][]] {
     const i = this.model.dimension
-    const j = (i + 1) % 2
+    const j = 1 - i
     const [range, cross_range] = this.ranges()
 
     const [start, end] = (() => {
