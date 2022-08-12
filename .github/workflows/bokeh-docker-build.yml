@@ -38,18 +38,6 @@ jobs:
             bokeh-dev:${{ env.iso_date }}
             bokeh-dev:${{ env.branch_name }}
 
-      - name: Determine chrome version in image
-        env:
-          BOKEH_DOCKER_CHROME_VERSION: 1
-        run: |
-          echo "chrome_version=$(scripts/docker/docker_run.sh bokeh-dev | tail -1 | awk -F'.' '{print $1}')" >> $GITHUB_ENV
-
-#      - name: Tag image with chrome version
-#        run: |
-#          docker images bokeh-dev
-#          docker image tag bokeh-dev bokeh-dev:chrome_${{ env.chrome_version }}
-#          docker images bokeh-dev
-
       - name: Save image to tar file
         run: |
           docker save -o bokeh-dev.tar bokeh-dev
