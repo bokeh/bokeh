@@ -136,7 +136,6 @@ export abstract class LayoutDOMView extends UIElementView {
 
   protected _update_layout(): void {
     const sizing = this.box_sizing()
-    const {style} = this.el
 
     function css_sizing(policy: SizingPolicy, size?: number) {
       switch (policy) {
@@ -193,8 +192,6 @@ export abstract class LayoutDOMView extends UIElementView {
         }
       `)
     }
-
-    style.display = sizing.visible ? "" : "none"
   }
 
   update_layout(): void {

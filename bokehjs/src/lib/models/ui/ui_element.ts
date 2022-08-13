@@ -3,7 +3,7 @@ import {Styles} from "../dom/styles"
 import {logger} from "core/logging"
 import {DOMComponentView} from "core/dom_view"
 import {SerializableState} from "core/view"
-import {CSSStyles, StyleSheetLike} from "core/dom"
+import {CSSStyles, StyleSheet, StyleSheetLike} from "core/dom"
 import {CanvasLayer} from "core/util/canvas"
 import {keys, entries} from "core/util/object"
 import {BBox} from "core/util/bbox"
@@ -16,8 +16,10 @@ const {round} = Math
 export abstract class UIElementView extends DOMComponentView {
   override model: UIElement
 
+  protected readonly _display = new StyleSheet()
+
   override styles(): StyleSheetLike[] {
-    return [...super.styles(), ui_css]
+    return [...super.styles(), ui_css, this._display]
   }
 
   private _bbox: BBox = new BBox()
@@ -60,6 +62,13 @@ export abstract class UIElementView extends DOMComponentView {
     this._resize_observer.observe(this.el, {box: "border-box"})
   }
 
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {visible} = this.model.properties
+    this.on_change(visible, () => this._apply_visible())
+  }
+
   override remove(): void {
     this._resize_observer.disconnect()
     super.remove()
@@ -75,6 +84,7 @@ export abstract class UIElementView extends DOMComponentView {
     this._apply_stylesheets(this.model.stylesheets)
     this._apply_styles()
     this._apply_classes()
+    this._apply_visible()
   }
 
   after_render(): void {}
@@ -113,6 +123,15 @@ export abstract class UIElementView extends DOMComponentView {
         if (!apply(`-webkit-${name}`, value) && !apply(`-moz-${name}`, value))
           logger.trace(`unknown CSS property '${name}'`)
       }
+    }
+  }
+
+  protected _apply_visible(): void {
+    if (this.model.visible)
+      this._display.clear()
+    else {
+      // in case `display` element style was set, use `!important` to work around this
+      this._display.replace(":host { display: none !important; }")
     }
   }
 

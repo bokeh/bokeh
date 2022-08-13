@@ -399,6 +399,10 @@ export class StyleSheet {
     this.el = style({type: "text/css"}, css)
   }
 
+  clear(): void {
+    this.replace("")
+  }
+
   replace(css: string): void {
     this.el.textContent = css
   }
