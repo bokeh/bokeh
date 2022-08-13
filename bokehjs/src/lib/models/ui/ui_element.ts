@@ -7,11 +7,23 @@ import {CSSStyles, StyleSheet, StyleSheetLike} from "core/dom"
 import {CanvasLayer} from "core/util/canvas"
 import {keys, entries} from "core/util/object"
 import {BBox} from "core/util/bbox"
-import {isString} from "core/util/types"
+import {isString, isPlainObject} from "core/util/types"
 import * as p from "core/properties"
 import ui_css from "styles/ui_element.css"
 
 const {round} = Math
+
+function* _iter_styles(styles: CSSStyles | Styles): Iterable<[string, unknown]> {
+  if (styles instanceof Styles) {
+    const model_attrs = new Set(keys(Model.prototype._props))
+    for (const prop of styles) {
+      if (!model_attrs.has(prop.attr)) {
+        yield [prop.attr, prop.get_value()]
+      }
+    }
+  } else
+    yield* entries(styles)
+}
 
 export abstract class UIElementView extends DOMComponentView {
   override model: UIElement
@@ -96,18 +108,6 @@ export abstract class UIElementView extends DOMComponentView {
   protected _apply_styles(): void {
     const {styles} = this.model
 
-    function* iter(): Iterable<[string, unknown]> {
-      if (styles instanceof Styles) {
-        const model_attrs = new Set(keys(Model.prototype._props))
-        for (const prop of styles) {
-          if (!model_attrs.has(prop.attr)) {
-            yield [prop.attr, prop.get_value()]
-          }
-        }
-      } else
-        yield* entries(styles)
-    }
-
     const apply = (name: string, value: unknown) => {
       const known = this.el.style.hasOwnProperty(name)
       if (known && isString(value)) {
@@ -116,7 +116,7 @@ export abstract class UIElementView extends DOMComponentView {
       return known
     }
 
-    for (const [attr, value] of iter()) {
+    for (const [attr, value] of _iter_styles(styles)) {
       const name = attr.replace(/_/g, "-")
 
       if (!apply(name, value)) {
@@ -124,6 +124,31 @@ export abstract class UIElementView extends DOMComponentView {
           logger.trace(`unknown CSS property '${name}'`)
       }
     }
+  }
+
+  protected override _apply_stylesheets(stylesheets: (StyleSheetLike | {[key: string]: CSSStyles | Styles})[]): void {
+    super._apply_stylesheets(stylesheets.map((stylesheet) => {
+      if (isPlainObject(stylesheet)) {
+        const output = []
+
+        for (const [selector, styles] of entries(stylesheet)) {
+          output.push(`${selector} {`)
+
+          for (const [attr, value] of _iter_styles(styles)) {
+            const name = attr.replace(/_/g, "-")
+
+            if (isString(value) && value.length != 0) {
+              output.push(`  ${name}: ${value};`)
+            }
+          }
+
+          output.push("}")
+        }
+
+        return output.join("\n")
+      } else
+        return stylesheet
+    }))
   }
 
   protected _apply_visible(): void {
@@ -158,7 +183,7 @@ export namespace UIElement {
     visible: p.Property<boolean>
     classes: p.Property<string[]>
     styles: p.Property<CSSStyles | Styles>
-    stylesheets: p.Property<string[]>
+    stylesheets: p.Property<(string | {[key: string]: CSSStyles | Styles})[]>
   }
 }
 
@@ -173,11 +198,14 @@ export abstract class UIElement extends Model {
   }
 
   static {
-    this.define<UIElement.Props>(({Boolean, Array, Dict, String, Ref, Or, Nullable}) => ({
-      visible: [ Boolean, true ],
-      classes: [Array(String), [] ],
-      styles: [ Or(Dict(Nullable(String)), Ref(Styles)), {} ], // TODO: add validation for CSSStyles
-      stylesheets: [ Array(String), [] ],
-    }))
+    this.define<UIElement.Props>(({Boolean, Array, Dict, String, Ref, Or, Nullable}) => {
+      const StylesLike = Or(Dict(Nullable(String)), Ref(Styles)) // TODO: add validation for CSSStyles
+      return {
+        visible: [ Boolean, true ],
+        classes: [Array(String), [] ],
+        styles: [ StylesLike, {} ],
+        stylesheets: [ Array(Or(String, Dict(StylesLike))), [] ],
+      }
+    })
   }
 }

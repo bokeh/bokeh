@@ -71,7 +71,8 @@ class UIElement(Model):
     Inline CSS styles applied to the underlying DOM element.
     """)
 
-    stylesheets = List(String, help="""
+    stylesheets = List(Either(String,
+        Dict(String, Either(Dict(String, Nullable(String)), Instance(Styles)))), help="""
     Additional style-sheets to use for the underlying DOM element.
 
     Note that all bokeh's components use shadow DOM, thus any included style
