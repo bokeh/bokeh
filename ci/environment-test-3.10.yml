@@ -67,7 +67,7 @@ dependencies:
     - autoclasstoc
     - pydata_sphinx_theme >=0.9
     - requests-unixsocket >= 0.3.0
-    - sphinx >=5,<5.1
+    - sphinx >5.1
     - sphinx-copybutton
     - sphinxext-opengraph
     - sphinx-design
