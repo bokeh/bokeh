@@ -81,7 +81,7 @@ export abstract class Widget extends LayoutDOM {
     }))
 
     this.override<Widget.Props>({
-      margin: [5, 5, 5, 5],
+      margin: 5,
     })
   }
 }

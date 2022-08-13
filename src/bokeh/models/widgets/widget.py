@@ -62,7 +62,7 @@ class Widget(LayoutDOM):
     The dominating dimension is determined by widget orientation.
     """)
 
-    margin = Override(default=(5, 5, 5, 5))
+    margin = Override(default=5)
 
 #-----------------------------------------------------------------------------
 # Private API

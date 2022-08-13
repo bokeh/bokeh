@@ -467,7 +467,7 @@ export abstract class LayoutDOM extends UIElement {
         min_height:    [ Nullable(Number), null ],
         max_width:     [ Nullable(Number), null ],
         max_height:    [ Nullable(Number), null ],
-        margin:        [ Nullable(Or(Number, Number2, Number4)), [0, 0, 0, 0] ],
+        margin:        [ Nullable(Or(Number, Number2, Number4)), null ],
         width_policy:  [ Or(SizingPolicy, Auto), "auto" ],
         height_policy: [ Or(SizingPolicy, Auto), "auto" ],
         aspect_ratio:  [ Or(Number, Auto, Null), null ],
