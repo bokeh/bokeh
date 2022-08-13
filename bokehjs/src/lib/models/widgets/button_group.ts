@@ -9,8 +9,8 @@ import buttons_css, * as buttons from "styles/buttons.css"
 export abstract class ButtonGroupView extends OrientedControlView {
   override model: ButtonGroup
 
-  protected override get default_size(): number | undefined {
-    return this.model.orientation == "horizontal" ? super.default_size : undefined
+  protected override get default_size(): number | null {
+    return this.model.orientation == "horizontal" ? super.default_size : null
   }
 
   protected _buttons: HTMLElement[]

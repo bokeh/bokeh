@@ -11,9 +11,19 @@ import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
 import {DOMElementView} from "core/dom_view"
-import {Layoutable, SizingPolicy, BoxSizing, Percent} from "core/layout"
+import {Layoutable, SizingPolicy, Percent} from "core/layout"
 import {CanvasLayer} from "core/util/canvas"
 import {SerializableState} from "core/view"
+
+export type DOMBoxSizing = {
+  width_policy: SizingPolicy
+  height_policy: SizingPolicy
+  width: number | null
+  height: number | null
+  aspect_ratio: number | "auto" | null
+  halign?: Align
+  valign?: Align
+}
 
 export abstract class LayoutDOMView extends UIElementView {
   override model: LayoutDOM
@@ -137,7 +147,7 @@ export abstract class LayoutDOMView extends UIElementView {
   protected _update_layout(): void {
     const sizing = this.box_sizing()
 
-    function css_sizing(policy: SizingPolicy, size?: number) {
+    function css_sizing(policy: SizingPolicy, size: number | null) {
       switch (policy) {
         case "fixed":
           return size != null ? px(size) : "max-content"
@@ -150,29 +160,49 @@ export abstract class LayoutDOMView extends UIElementView {
       }
     }
 
-    function to_css(value: number | Percent | null | undefined, alt: string = "unset") {
-      return value == null ? alt : (isNumber(value) ? px(value) : `${value.percent}%`)
-    }
+    const {width, height} = sizing
 
     this._style.replace(`
       :host {
-        width: ${css_sizing(sizing.width_policy, sizing.width)};
-        height: ${css_sizing(sizing.height_policy, sizing.height)};
-
-        min-width: ${to_css(sizing.min_width, "0")};
-        min-height: ${to_css(sizing.min_height, "0")};
-
-        max-width: ${to_css(sizing.max_width)};
-        max-height: ${to_css(sizing.max_height)};
-
-        aspect-ratio: ${sizing.aspect ?? "unset"};
-
-        margin-top: ${px(sizing.margin.top)};
-        margin-right: ${px(sizing.margin.right)};
-        margin-bottom: ${px(sizing.margin.bottom)};
-        margin-left: ${px(sizing.margin.left)};
+        width: ${css_sizing(sizing.width_policy, width)};
+        height: ${css_sizing(sizing.height_policy, height)};
       }
     `)
+
+    function to_css(value: number | Percent) {
+      return isNumber(value) ? px(value) : `${value.percent}%`
+    }
+
+    const {min_width, max_width} = this.model
+    const {min_height, max_height} = this.model
+
+    this._style.append(`:host { min-width: ${min_width == null ? "0" : to_css(min_width)}; }`)
+    this._style.append(`:host { min-height: ${min_height == null ? "0" : to_css(min_height)}; }`)
+
+    if (max_width != null)
+      this._style.append(`:host { max-width: ${to_css(max_width)}; }`)
+    if (max_height != null)
+      this._style.append(`:host { max-height: ${to_css(max_height)}; }`)
+
+    const {aspect_ratio} = sizing
+    if (aspect_ratio == "auto") {
+      if (width != null && height != null)
+        this._style.append(`:host { aspect-ratio: ${width} / ${height}; }`)
+    } else if (isNumber(aspect_ratio))
+      this._style.append(`:host { aspect-ratio: ${aspect_ratio}; }`)
+
+    const {margin} = this.model
+    if (margin != null) {
+      if (isNumber(margin))
+        this._style.append(`:host { margin: ${px(margin)}; }`)
+      else if (margin.length == 2) {
+        const [vertical, horizontal] = margin
+        this._style.append(`:host { margin: ${px(vertical)} ${px(horizontal)}; }`)
+      } else {
+        const [top, right, bottom, left] = margin
+        this._style.append(`:host { margin: ${px(top)} ${px(right)} ${px(bottom)} ${px(left)}; }`)
+      }
+    }
 
     const {resizable} = this.model
     if (resizable !== false) {
@@ -291,7 +321,7 @@ export abstract class LayoutDOMView extends UIElementView {
     return "fixed"
   }
 
-  box_sizing(): BoxSizing {
+  box_sizing(): DOMBoxSizing {
     let {width_policy, height_policy, aspect_ratio} = this.model
     if (width_policy == "auto")
       width_policy = this._width_policy()
@@ -329,41 +359,6 @@ export abstract class LayoutDOMView extends UIElementView {
       }
     }
 
-    const min_width = this.model.min_width ?? undefined
-    const min_height = this.model.min_height ?? undefined
-
-    const width = this.model.width ?? undefined
-    const height = this.model.height ?? undefined
-
-    const max_width = this.model.max_width ?? undefined
-    const max_height = this.model.max_height ?? undefined
-
-    const aspect = (() => {
-      if (aspect_ratio == "auto" && width != null && height != null)
-        return width/height
-      else if (isNumber(aspect_ratio))
-        return aspect_ratio
-      else
-        return undefined
-    })()
-
-    const margin = (() => {
-      const {margin} = this.model
-      if (margin == null)
-        return {top: 0, right: 0, bottom: 0, left: 0}
-      else if (isNumber(margin))
-        return {top: margin, right: margin, bottom: margin, left: margin}
-      else if (margin.length == 2) {
-        const [vertical, horizontal] = margin
-        return {top: vertical, right: horizontal, bottom: vertical, left: horizontal}
-      } else {
-        const [top, right, bottom, left] = margin
-        return {top, right, bottom, left}
-      }
-    })()
-
-    const {visible} = this.model
-
     const [halign, valign] = (() => {
       const {align} = this.model
       if (align == "auto")
@@ -374,16 +369,17 @@ export abstract class LayoutDOMView extends UIElementView {
         return [align, align]
     })()
 
-    const sizing: BoxSizing = {
-      width_policy, height_policy,
-      min_width, min_height,
-      width, height,
-      max_width, max_height,
-      aspect, margin, visible,
-      halign, valign,
-    }
+    const {width, height} = this.model
 
-    return sizing
+    return {
+      width_policy,
+      height_policy,
+      width,
+      height,
+      aspect_ratio,
+      halign,
+      valign,
+    }
   }
 
   override export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {

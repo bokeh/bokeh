@@ -1,12 +1,13 @@
 import {Control, ControlView} from "./control"
 import {Orientation} from "core/enums"
-import {BoxSizing, SizingPolicy} from "core/layout"
+import {SizingPolicy} from "core/layout"
+import {DOMBoxSizing} from "../layouts/layout_dom"
 import * as p from "core/properties"
 
 export abstract class OrientedControlView extends ControlView {
   override model: OrientedControl
 
-  protected get default_size(): number | undefined {
+  protected get default_size(): number | null {
     return this.model.default_size
   }
 
@@ -18,7 +19,7 @@ export abstract class OrientedControlView extends ControlView {
     return this.model.orientation == "horizontal" ? "fixed" : super._height_policy()
   }
 
-  override box_sizing(): BoxSizing {
+  override box_sizing(): DOMBoxSizing {
     const sizing = super.box_sizing()
     if (this.model.orientation == "horizontal") {
       if (sizing.width == null)

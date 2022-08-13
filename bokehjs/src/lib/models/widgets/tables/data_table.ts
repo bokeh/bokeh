@@ -10,7 +10,7 @@ import {isString, isNumber, is_defined} from "core/util/types"
 import {some, range} from "core/util/array"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
-import {BoxSizing} from "core/layout"
+import {DOMBoxSizing} from "../../layouts/layout_dom"
 
 import {WidgetView} from "../widget"
 import {ColumnType, Item, DTINDEX_NAME} from "./definitions"
@@ -189,7 +189,7 @@ export class DataTableView extends WidgetView {
     this.updateLayout(true, false)
   }
 
-  override box_sizing(): BoxSizing {
+  override box_sizing(): DOMBoxSizing {
     const sizing = super.box_sizing()
     if (this.model.autosize_mode === "fit_viewport" && this._width != null)
       sizing.width = this._width
