@@ -307,10 +307,10 @@ export async function display(obj: Document | UIElement, viewport: [number, numb
 
   const viewport_el = (() => {
     if (size == null)
-      return div({style: {width: "max-content", height: "max-content", overflow: "visible"}}, el)
+      return div({class: "viewport", style: {width: "max-content", height: "max-content", overflow: "visible"}}, el)
     else {
       const [width, height] = size
-      return div({style: {width: `${width}px`, height: `${height}px`, overflow: "hidden"}}, el)
+      return div({class: "viewport", style: {width: `${width}px`, height: `${height}px`, overflow: "hidden"}}, el)
     }
   })()
 

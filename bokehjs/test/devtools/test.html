@@ -7,32 +7,31 @@
     <style>
       html, body {
         box-sizing: border-box;
-      }
-
-      *, *:before, *:after {
-        box-sizing: inherit;
         margin: 0;
-        border: 0;
-        padding: 0;
-        background-image: none;
       }
 
-      * {
+      html {
         --bokeh-base-font: Bokeh;
         --bokeh-mono-font: BokehMono;
       }
 
       .container {
+        box-sizing: inherit;
         padding: 10px;
       }
 
       .description {
+        box-sizing: inherit;
         background: white;
         font-weight: bold;
         font-size: 14px;
         height: 20px;
         padding: 2px 0;
         white-space: nowrap;
+      }
+
+      .viewport {
+        box-sizing: inherit;
       }
     </style>
     <script type="text/javascript" src="{{ js('bokeh') }}"></script>
