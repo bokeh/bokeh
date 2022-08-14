@@ -6,4 +6,4 @@ set -e #exit on error
 pushd bokehjs
 node make build
 popd
-tar czf bokehjs-build.tgz "bokehjs/build"
+tar czf /tmp/bokehjs-build.tgz "bokehjs/build"

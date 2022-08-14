@@ -40,7 +40,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from .._version import get_versions
+from .. import __version__
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -82,6 +82,3 @@ def _base_version_helper(version: str) -> str:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-
-__version__ = get_versions()['version']
-del get_versions

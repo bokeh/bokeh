@@ -37,11 +37,15 @@ jobs:
         shell: bash -l {0}
         run: bash ci/build_bokehjs.sh
 
-      - name: Upload BokehJS
-        uses: actions/upload-artifact@v3
-        with:
-          name: bokehjs-build
-          path: bokehjs-build.tgz
+      - name: Build pip pacakges
+        env:
+          BOKEHJS_ACTION: "install"
+        shell: bash -l {0}
+        run: python -m build -s -w .
+
+      - name: Verify pip install from sdist
+        shell: bash -l {0}
+        run: bash ci/verify_pip_install_from_sdist.sh
 
       - name: Build conda package
         shell: bash -l {0}
@@ -51,19 +55,13 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: conda-bld-noarch
-          path: conda-bld-noarch.tgz
+          path: /tmp/conda-bld-noarch.tgz
 
-      - name: Build sdist package
-        shell: bash -l {0}
-        run: python setup.py sdist --install-js
-
-      - name: Build wheel package
-        shell: bash -l {0}
-        run: python setup.py bdist_wheel --install-js
-
-      - name: Verify pip install from sdist
-        shell: bash -l {0}
-        run: bash ci/verify_pip_install_from_sdist.sh
+      - name: Upload BokehJS
+        uses: actions/upload-artifact@v3
+        with:
+          name: bokehjs-build
+          path: /tmp/bokehjs-build.tgz
 
   codebase:
     needs: build
@@ -80,7 +78,6 @@ jobs:
         shell: bash -l {0}
         run: |
           git config --global core.autocrlf false
-
       - uses: actions/checkout@v2
 
       - uses: conda-incubator/setup-miniconda@v2
@@ -123,12 +120,6 @@ jobs:
         with:
           path: ~/.bokeh/data
           key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
-
-      - name: Install sampledata
-        shell: bash -l {0}
-        run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
-
-      # Don't cache sampledata - want to test at least one real download
 
       - name: Install sampledata
         shell: bash -l {0}
@@ -296,7 +287,7 @@ jobs:
         shell: bash -l {0}
         run: |
           if [[ ! "$(python -c 'import platform; print(platform.python_version())' | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
-          pytest --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
+          pytest --cov=bokeh --color=yes tests/unit
 
   minimal-deps:
     needs: build
@@ -317,7 +308,7 @@ jobs:
 
       - name: Run tests
         shell: bash -l {0}
-        run: pytest -m "not sampledata" --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
+        run: pytest -m "not sampledata" --cov=bokeh --color=yes tests/unit
 
   documentation:
     needs: build
@@ -331,11 +322,7 @@ jobs:
         with:
           test-env: '3.8'
 
-      - name: Cache sampledata
-        uses: actions/cache@v1
-        with:
-          path: ~/.bokeh/data
-          key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
+      # Don't cache sampledata - want to test at least one real download
 
       - name: Install sampledata
         shell: bash -l {0}

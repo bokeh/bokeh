@@ -1,3 +1,74 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools-git-versioning", "colorama"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bokeh"
+dynamic = ["version"]
+description = "Interactive plots and applications in the browser from Python"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "Jinja2 >=2.9",
+    "numpy >=1.11.3",
+    "packaging >=16.8",
+    "pillow >=7.1.0",
+    "PyYAML >=3.10",
+    "tornado >=5.1",
+    "typing_extensions >=3.10.0",
+    "xyzservices >=2021.09.1",
+]
+authors = [
+  {email = "info@bokeh.org"},
+  {name = "Bokeh Team"}
+]
+license = {file = "LICENSE.txt"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Legal Industry",
+    "Intended Audience :: Other Audience",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: JavaScript",
+    "Topic :: Office/Business",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Utilities",
+]
+
+[project.urls]
+homepage = "https://bokeh.org"
+documentation = "https://docs.bokeh.org"
+repository = "https://github.com/bokeh/bokeh"
+
+[project.scripts]
+bokeh = "bokeh.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["bokeh", "bokeh.*"]
+
+[tool.setuptools-git-versioning]
+enabled = true
+dev_template = "{tag}+{ccount}.g{sha}"
+dirty_template = "{tag}+{ccount}.g{sha}.dirty"
+
 [tool.pytest.ini_options]
 addopts = "--no-success-flaky-report"
 asyncio_mode = "strict"

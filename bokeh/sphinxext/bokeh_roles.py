@@ -54,12 +54,11 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Standard library imports
-import importlib.machinery
 import os
-import types
 from os.path import abspath, join, pardir
 
 # External imports
+import toml
 from docutils import nodes, utils
 from docutils.parsers.rst.roles import set_classes
 
@@ -136,10 +135,8 @@ def bokeh_minpy(name, rawtext, text, lineno, inliner, options=None, content=None
     empty.
 
     """
-    loader = importlib.machinery.SourceFileLoader("setup", join(TOP_PATH, "_setup_support.py"))
-    setup = types.ModuleType(loader.name)
-    loader.exec_module(setup)
-    node = nodes.Text(".".join(str(x) for x in setup.MIN_PYTHON_VERSION))
+    pyproject = toml.load(join(TOP_PATH, "pyproject.toml"))
+    node = nodes.Text(pyproject["project"]["requires-python"].lstrip(">="))
     return [node], []
 
 
@@ -165,18 +162,16 @@ def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None)
 
 
 def bokeh_requires(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """Provide the minimum required Python version from setup.py.
+    """Provide the list of required package dependencies for Bokeh.
 
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
     empty.
 
     """
-    loader = importlib.machinery.SourceFileLoader("setup", join(TOP_PATH, "_setup_support.py"))
-    setup = types.ModuleType(loader.name)
-    loader.exec_module(setup)
+    pyproject = toml.load(join(TOP_PATH, "pyproject.toml"))
     node = nodes.bullet_list()
-    for dep in setup.INSTALL_REQUIRES:
+    for dep in pyproject["project"]["dependencies"]:
         node += nodes.list_item("", nodes.Text(dep))
     return [node], []
 

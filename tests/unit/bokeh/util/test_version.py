@@ -22,9 +22,6 @@ import re
 # External imports
 import mock
 
-# Bokeh imports
-from bokeh._version import get_versions
-
 # Module under test
 import bokeh.util.version as buv # isort:skip
 
@@ -37,15 +34,6 @@ VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-
-class Test___version__:
-    def test_basic(self) -> None:
-        assert isinstance(buv.__version__, str)
-
-        # ignore ".dirty" due to weird CI environment inconsistency
-        assert buv.__version__.strip(".dirty") == get_versions()['version'].strip(".dirty")
-
 
 class Test_base_version:
     def test_returns_helper(self) -> None:

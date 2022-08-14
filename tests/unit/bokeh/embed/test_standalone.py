@@ -322,7 +322,7 @@ class Test_file_html:
 
     @patch('bokeh.embed.bundle.warn')
     def test_file_html_handles_js_only_resources(self, mock_warn: MagicMock, test_plot: figure) -> None:
-        js_resources = JSResources(mode="relative", components=["bokeh"])
+        js_resources = JSResources(mode="absolute", components=["bokeh"])
         template = Template("<head>{{ bokeh_js }}</head><body></body>")
         output = bes.file_html(test_plot, (js_resources, None), "title", template=template)
         html = "<head>%s</head><body></body>" % js_resources.render_js()

@@ -42,4 +42,6 @@ runs:
 
     - name: Install Bokeh package
       shell: bash -l {0}
-      run: bash ci/install_bokeh_package.sh
+      run: |
+        conda install --yes --quiet --offline /tmp/conda-bld/noarch/bokeh-*.bz2
+        rm -rf bokeh

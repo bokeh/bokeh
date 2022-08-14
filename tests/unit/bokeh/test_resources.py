@@ -282,6 +282,7 @@ class TestResources:
         assert r.css_raw == []
         assert r.messages == []
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="tests/package on different drives")
     def test_relative(self) -> None:
         r = resources.Resources(mode="relative")
         assert r.mode == "relative"
@@ -291,6 +292,7 @@ class TestResources:
         assert r.css_raw == []
         assert r.messages == []
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="tests/package on different drives")
     def test_relative_dev(self) -> None:
         r = resources.Resources(mode="relative-dev")
         assert r.mode == "relative"
