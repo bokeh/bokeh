@@ -74,10 +74,8 @@ describe("Examples", () => {
     p.yaxis.axis_label = tex`\color{white} B_\nu(\nu, T) \quad(10^{-9} J s m^{-3})`
 
     const div = new Div({
-      width: 700,
-      height: 100,
       text: r`
-        A plot of the spectral radiance, defined as a function of the frequency $$\nu$$, is given by the formula
+        A plot of the spectral radiance, defined as a function of the frequency $$\nu$$, is given by the formula:
         <p \>
         $$
         \qquad B_\nu(\nu, T) = \frac{2h\nu^3}{c^2} \frac{1}{\exp(h\nu/kT)-1}\ .
