@@ -258,8 +258,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     const {toolbar_location, toolbar_inner, toolbar} = this.model
     if (toolbar_location != null) {
-      this._toolbar = new ToolbarPanel({toolbar, inner: toolbar_inner})
+      this._toolbar = new ToolbarPanel({toolbar})
       toolbar.location = toolbar_location
+      toolbar.inner = toolbar_inner
     }
   }
 
@@ -643,8 +644,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
       } else {
         if (toolbar_location != null) {
           const {toolbar, toolbar_inner} = this.model
-          this._toolbar = new ToolbarPanel({toolbar, inner: toolbar_inner})
+          this._toolbar = new ToolbarPanel({toolbar})
           toolbar.location = toolbar_location
+          toolbar.inner = toolbar_inner
           await this.build_renderer_views()
         }
       }

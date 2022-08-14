@@ -80,8 +80,6 @@ export class ToolbarPanelView extends AnnotationView {
       empty(this.el)
       this.el.appendChild(this.toolbar_view.el)
       this.toolbar_view.render()
-      if (this.model.inner)
-        this.toolbar_view.el.classList.add("bk-inner")
       this._invalidate_toolbar = false
     }
 
@@ -102,7 +100,6 @@ export namespace ToolbarPanel {
 
   export type Props = Annotation.Props & {
     toolbar: p.Property<Toolbar>
-    inner: p.Property<boolean>
   }
 }
 
@@ -121,10 +118,6 @@ export class ToolbarPanel extends Annotation {
 
     this.define<ToolbarPanel.Props>(({Ref}) => ({
       toolbar: [ Ref(Toolbar) ],
-    }))
-
-    this.internal<ToolbarPanel.Props>(({Boolean}) => ({
-      inner: [ Boolean, false ],
     }))
   }
 }

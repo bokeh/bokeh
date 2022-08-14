@@ -107,6 +107,7 @@ export class ToolbarView extends UIElementView {
     super.render()
 
     this.el.classList.add(toolbars[this.model.location])
+    this.el.classList.toggle(toolbars.inner, this.model.inner)
     this._on_visible_change()
 
     const {horizontal} = this.model
@@ -226,7 +227,10 @@ export namespace Toolbar {
     tools: p.Property<(Tool | ToolProxy<Tool>)[]>
     logo: p.Property<Logo | null>
     autohide: p.Property<boolean>
+
+    // internal
     location: p.Property<Location>
+    inner: p.Property<boolean>
 
     gestures: p.Property<GesturesMap>
     actions: p.Property<ToolLike<ActionTool>[]>
@@ -277,7 +281,7 @@ export class Toolbar extends UIElement {
       active_multi:   [ Any /*Or(Ref(GestureTool), Auto, Null)*/, "auto" ],
     }))
 
-    this.internal<Toolbar.Props>(({Any, Array, Ref, Or/*, Struct, Nullable*/}) => {
+    this.internal<Toolbar.Props>(({Any, Array, Boolean, Ref, Or/*, Struct, Nullable*/}) => {
       /*
       const GestureEntry = Struct({
         tools: Array(Ref(GestureTool)),
@@ -298,6 +302,7 @@ export class Toolbar extends UIElement {
       */
       return {
         location:         [ Location, "right" ],
+        inner:            [ Boolean, false ],
         gestures:         [ Any, /*GestureMap,*/ create_gesture_map ],
         actions:          [ Array(Or(Ref(ActionTool), Ref(ToolProxy))), [] ],
         inspectors:       [ Array(Or(Ref(InspectTool), Ref(ToolProxy))), [] ],
