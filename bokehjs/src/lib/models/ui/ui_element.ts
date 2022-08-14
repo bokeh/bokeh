@@ -34,9 +34,12 @@ export abstract class UIElementView extends DOMComponentView {
     return [...super.styles(), ui_css, this._display]
   }
 
-  private _bbox: BBox = new BBox()
+  private _bbox?: BBox
   get bbox(): BBox {
-    return this._bbox
+    // XXX: this shouldn't be necessary
+    if (this._bbox == null)
+      this._update_bbox()
+    return this._bbox!
   }
 
   protected _update_bbox(): void {
