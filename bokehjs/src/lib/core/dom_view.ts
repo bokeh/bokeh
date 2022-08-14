@@ -88,6 +88,7 @@ export abstract class DOMComponentView extends DOMElementView {
   render(): void {
     this.empty()
     this._apply_stylesheets(this.styles())
+    this._apply_classes(this.css_classes())
   }
 
   protected _apply_stylesheets(stylesheets: StyleSheetLike[]): void {
@@ -106,5 +107,9 @@ export abstract class DOMComponentView extends DOMElementView {
       const stylesheet = isString(style) ? new StyleSheet(style) : style
       this.shadow_el.appendChild(stylesheet.el)
     }
+  }
+
+  protected _apply_classes(classes: string[]): void {
+    this.class_list.add(...classes)
   }
 }

@@ -34,6 +34,10 @@ export abstract class UIElementView extends DOMComponentView {
     return [...super.styles(), ui_css, this._display]
   }
 
+  override css_classes(): string[] {
+    return [...super.css_classes(), `bk-${this.model.type}`]
+  }
+
   private _bbox?: BBox
   get bbox(): BBox {
     // XXX: this shouldn't be necessary
@@ -98,15 +102,11 @@ export abstract class UIElementView extends DOMComponentView {
     super.render()
     this._apply_stylesheets(this.model.stylesheets)
     this._apply_styles()
-    this._apply_classes()
+    this._apply_classes(this.model.classes)
     this._apply_visible()
   }
 
   after_render(): void {}
-
-  protected _apply_classes(): void {
-    this.class_list.add(...this.model.classes)
-  }
 
   protected _apply_styles(): void {
     const {styles} = this.model
