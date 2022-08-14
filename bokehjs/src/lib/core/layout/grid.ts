@@ -8,7 +8,7 @@ import {sum, some} from "../util/array"
 
 const {max, round} = Math
 
-class DefaultMap<K, V> {
+export class DefaultMap<K, V> {
   private _map = new Map<K, V>()
 
   constructor(readonly def: () => V) {}
@@ -83,8 +83,12 @@ export type ColsSizing = QuickTrackSizing | {[key: string]: QuickTrackSizing | C
 
 type Span = {r0: number, c0: number, r1: number, c1: number}
 
-class Container<T> {
+export class Container<T> {
   private readonly _items: {span: Span, data: T}[] = []
+
+  get size(): number {
+    return this._items.length
+  }
 
   private _nrows: number = 0
   private _ncols: number = 0
@@ -119,6 +123,10 @@ class Container<T> {
   col(c: number): T[] {
     const selected = this._items.filter(({span}) => span.c0 <= c && c <= span.c1)
     return selected.map(({data}) => data)
+  }
+
+  *[Symbol.iterator](): Generator<{span: Span, data: T}, void, undefined> {
+    yield* this._items
   }
 
   foreach(fn: (span: Span, data: T) => void): void {
@@ -180,12 +188,12 @@ export class Grid extends Layoutable {
     super._init()
 
     const items = new Container<Layoutable>()
-    for (const {layout, row, col, row_span, col_span} of this.items) {
+    for (const {layout, row, col, row_span=1, col_span=1} of this.items) {
       if (layout.sizing.visible) {
         const r0 = row
         const c0 = col
-        const r1 = row + (row_span != null ? row_span : 1) - 1
-        const c1 = col + (col_span != null ? col_span : 1) - 1
+        const r1 = row + row_span - 1
+        const c1 = col + col_span - 1
         items.add({r0, c0, r1, c1}, layout)
       }
     }
