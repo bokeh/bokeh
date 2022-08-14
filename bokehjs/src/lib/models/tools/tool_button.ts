@@ -42,6 +42,7 @@ export abstract class ToolButtonView extends DOMElementView {
       })
 
       this._hammer = new Hammer(this.el, {
+        cssProps: {} as any, // NOTE: don't assign style, use .bk-events instead
         touchAction: "auto",
         inputClass: Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
       })

@@ -1,3 +1,5 @@
+@import "./_mixins.less";
+
 .bk-layer {
   position: absolute;
   top: 0;
@@ -8,8 +10,5 @@
 }
 
 .bk-layer.bk-events {
-  touch-action: auto;
-  user-select: none;
-  -webkit-user-drag: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  .touch-defaults();
 }

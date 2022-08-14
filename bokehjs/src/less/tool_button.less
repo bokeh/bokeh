@@ -1,3 +1,5 @@
+@import "./_mixins.less";
+
 :host {
   --button-width: 30px;
   --button-height: 30px;
@@ -15,6 +17,8 @@
   height: var(--button-height);
 
   cursor: pointer;
+
+  .touch-defaults();
 }
 
 .bk-tool-icon {
