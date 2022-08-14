@@ -28,9 +28,9 @@ export class ToolbarView extends UIElementView {
 
   readonly tool_button_views: Map<ToolLike<Tool>, ToolButtonView> = new Map()
   protected _overflow_menu: ContextMenu
-  protected _overflow_el?: HTMLElement
+  protected _overflow_el: HTMLElement
 
-  get overflow_el(): HTMLElement | undefined {
+  get overflow_el(): HTMLElement {
     return this._overflow_el
   }
 
@@ -50,7 +50,7 @@ export class ToolbarView extends UIElementView {
       orientation,
       reversed,
       prevent_hide: (event) => {
-        return this._overflow_el != null ? event.composedPath().includes(this._overflow_el) : false
+        return event.composedPath().includes(this._overflow_el)
       },
       extra_styles: [tools_css],
     })
@@ -106,7 +106,6 @@ export class ToolbarView extends UIElementView {
   override render(): void {
     super.render()
 
-    this.el.className = ""
     this.el.classList.add(toolbars[this.model.location])
     this._on_visible_change()
 
@@ -142,19 +141,14 @@ export class ToolbarView extends UIElementView {
     const non_empty = bars.filter((bar) => bar.length != 0)
     const divider = () => div({class: tools.divider})
 
-    const {bbox} = this
-
-    let overflowed = false
-    const overflow_size = 15
-    const overflow_el = div({class: tools.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
-    this._overflow_el = overflow_el
+    this._overflow_el = div({class: tools.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
     const toggle_menu = () => {
       const at = (() => {
         switch (this.model.location) {
-          case "right": return {left_of:  overflow_el}
-          case "left":  return {right_of: overflow_el}
-          case "above": return {below: overflow_el}
-          case "below": return {above: overflow_el}
+          case "right": return {left_of:  this._overflow_el}
+          case "left":  return {right_of: this._overflow_el}
+          case "above": return {below: this._overflow_el}
+          case "below": return {above: this._overflow_el}
         }
       })()
       this._overflow_menu.toggle(at)
@@ -167,6 +161,10 @@ export class ToolbarView extends UIElementView {
         toggle_menu()
       }
     })
+
+    const overflow_size = 15
+    const {bbox} = this
+    let overflowed = false
 
     for (const el of join<HTMLElement>(non_empty, divider)) {
       if (overflowed) {
