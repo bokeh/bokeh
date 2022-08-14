@@ -124,7 +124,6 @@ export class CanvasView extends UIElementView {
       this.events_el,
     ]
 
-    this.el.classList.add("bk-canvas")
     append(this.shadow_el, ...elements)
   }
 

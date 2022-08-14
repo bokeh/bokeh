@@ -52,7 +52,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   override styles(): StyleSheetLike[] {
     return [...super.styles(), `
-      .bk-canvas {
+      .bk-Canvas {
         width: 100%;
         height: 100%;
       }
