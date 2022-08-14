@@ -47,26 +47,31 @@ export abstract class UIElementView extends DOMComponentView {
   }
 
   protected _update_bbox(): void {
-    const self = this.el.getBoundingClientRect()
+    const bbox = (() => {
+      if (this.el.offsetParent != null) {
+        const self = this.el.getBoundingClientRect()
 
-    const {left, top} = (() => {
-      if (this.parent != null) {
-        const parent = this.parent.el.getBoundingClientRect()
-        return {
-          left: self.left - parent.left,
-          top: self.top - parent.top,
-        }
-      } else {
-        return {left: 0, top: 0}
-      }
+        const {left, top} = (() => {
+          if (this.parent != null) {
+            const parent = this.parent.el.getBoundingClientRect()
+            return {
+              left: self.left - parent.left,
+              top: self.top - parent.top,
+            }
+          } else {
+            return {left: 0, top: 0}
+          }
+        })()
+
+        return new BBox({
+          left: round(left),
+          top: round(top),
+          width: round(self.width),
+          height: round(self.height),
+        })
+      } else
+        return new BBox()
     })()
-
-    const bbox = new BBox({
-      left: round(left),
-      top: round(top),
-      width: round(self.width),
-      height: round(self.height),
-    })
 
     // TODO: const changed = this._bbox.equals(bbox)
     this._bbox = bbox
