@@ -99,7 +99,7 @@ export abstract class LayoutDOMView extends UIElementView {
     return [...super.css_classes(), ...this.model.css_classes]
   }
 
-  private readonly _style = new StyleSheet()
+  protected readonly _style = new StyleSheet()
   readonly stylesheet_for_parent = new StyleSheet()
 
   override styles(): StyleSheetLike[] {
@@ -176,8 +176,12 @@ export abstract class LayoutDOMView extends UIElementView {
     const {min_width, max_width} = this.model
     const {min_height, max_height} = this.model
 
-    this._style.append(`:host { min-width: ${min_width == null ? "0" : to_css(min_width)}; }`)
-    this._style.append(`:host { min-height: ${min_height == null ? "0" : to_css(min_height)}; }`)
+    this._style.append(`
+      :host {
+        min-width: ${min_width == null ? "0px" : to_css(min_width)};
+        min-height: ${min_height == null ? "0px" : to_css(min_height)};
+      }
+    `)
 
     if (max_width != null)
       this._style.append(`:host { max-width: ${to_css(max_width)}; }`)

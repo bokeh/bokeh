@@ -21,11 +21,11 @@ import {RangesUpdate} from "core/bokeh_events"
 import {Side, RenderLevel} from "core/enums"
 import {SerializableState} from "core/view"
 import {throttle} from "core/util/throttle"
-import {isArray} from "core/util/types"
+import {isArray, isNumber} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {flat_map} from "core/util/iterator"
 import {Context2d, CanvasLayer} from "core/util/canvas"
-import {SizingPolicy, Layoutable} from "core/layout"
+import {SizingPolicy, Layoutable, Percent} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
 import {Row, Column} from "core/layout/grid"
@@ -35,7 +35,7 @@ import {parse_css_font_size} from "core/util/text"
 import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
 import {StateInfo, StateManager} from "./state_manager"
 import {settings} from "core/settings"
-import {StyleSheetLike} from "core/dom"
+import {StyleSheetLike, px} from "core/dom"
 
 export class PlotView extends LayoutDOMView implements Renderable {
   override model: Plot
@@ -440,6 +440,27 @@ export class PlotView extends LayoutDOMView implements Renderable {
       })
 
     const {frame_width, frame_height} = this.model
+
+    if (frame_width != null || frame_height != null) {
+      const {min_width, min_height} = this.model
+
+      function to_css(value: number | Percent) {
+        return isNumber(value) ? px(value) : `${value.percent}%`
+      }
+
+      const fw = frame_width == null ? "0px" : px(frame_width)
+      const fh = frame_height == null ? "0px" : px(frame_height)
+      const mw = min_width == null ? "0px" : to_css(min_width)
+      const mh = min_height == null ? "0px" : to_css(min_height)
+
+      this._style.append(`
+        :host {
+          min-width: max(${fw}, ${mw});
+          min-height: max(${fh}, ${mh});
+        }
+      `)
+    }
+
     center_panel.set_sizing({
       ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width} : {width_policy:  "fit"}),
       ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "fit"}),
