@@ -15,7 +15,7 @@ from bokeh.plotting import figure, show
 x = np.linspace(0.1, 5, 80)
 
 p = figure(title="log axis example", y_axis_type="log",
-           x_range=(0, 5), y_range=(0.001, 10**22),
+           x_range=(0, 5), y_range=(0.001, 10.0**22),
            background_fill_color="#fafafa")
 
 p.line(x, np.sqrt(x), legend_label="y=sqrt(x)",
