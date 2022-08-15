@@ -69,7 +69,6 @@ __all__ = (
     'Column',
     'FlexBox',
     'GridBox',
-    'HTMLBox',
     'LayoutDOM',
     'Row',
     'Spacer',
@@ -319,16 +318,6 @@ class LayoutDOM(UIElement):
         if self.sizing_mode in ("stretch_width", "fixed", None):
             return self.height
         return None
-
-@abstract
-class HTMLBox(LayoutDOM):
-    ''' A component which size is determined by its HTML content.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
 
 
 class Spacer(LayoutDOM):
