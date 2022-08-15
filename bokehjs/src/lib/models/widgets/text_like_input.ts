@@ -22,12 +22,13 @@ export abstract class TextLikeInputView extends InputWidgetView {
     })
   }
 
-  protected abstract _render_input(): void
+  protected abstract _render_input(): HTMLElement
 
   override render(): void {
     super.render()
 
-    this._render_input()
+    const el = this._render_input()
+    this.group_el.appendChild(el)
 
     const {input_el} = this
     input_el.name = this.model.name ?? ""
@@ -39,7 +40,6 @@ export abstract class TextLikeInputView extends InputWidgetView {
 
     input_el.addEventListener("change", () => this.change_input())
     input_el.addEventListener("input",  () => this.change_input_value())
-    this.group_el.appendChild(input_el)
   }
 
   override change_input(): void {

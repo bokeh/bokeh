@@ -66,6 +66,8 @@ radio_button_group_vertical = RadioButtonGroup(labels=["Option 1", "Option 2", "
 
 text_input = TextInput(placeholder="Enter value ...")
 
+text_input_units = TextInput(title="Initial temperature:", placeholder="Enter temperature ...", prefix="T\u2092", suffix="\u2103")
+
 completions = ["aaa", "aab", "aac", "baa", "caa"]
 autocomplete_input = AutocompleteInput(min_characters=0, placeholder="Enter value (auto-complete) ...", completions=completions)
 
@@ -173,7 +175,7 @@ widgets = Column(children=[
             Row(children=[checkbox_button_group_vertical, radio_button_group_vertical]),
         ]),
         Column(children=[
-            text_input, autocomplete_input, text_area,
+            text_input, text_input_units, autocomplete_input, text_area,
             select, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider,
             spinner, color_picker, date_picker,

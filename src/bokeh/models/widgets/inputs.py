@@ -314,6 +314,15 @@ class TextInput(TextLikeInput):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    prefix = Nullable(String, help="""
+    An optional string prefix to display before the input. This is useful to
+    indicate e.g. a variable the entered value will be assigned to.
+    """)
+
+    suffix = Nullable(String, help="""
+    An optional string suffix to display after the input. This is useful to
+    indicate e.g. the units of measurement of the entered value.
+    """)
 
 class TextAreaInput(TextLikeInput):
     ''' Multi-line input widget.

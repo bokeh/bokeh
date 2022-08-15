@@ -124,6 +124,26 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
+  it.allowing(8)("should allow TextInput with prefix", async () => {
+    const obj = new TextInput({placeholder: "Enter temperature ...", prefix: "T\u2092"})
+    await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow TextInput with suffix", async () => {
+    const obj = new TextInput({placeholder: "Enter temperature ...", suffix: "\u2103"})
+    await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow TextInput with prefix and suffix", async () => {
+    const obj = new TextInput({placeholder: "Enter temperature ...", prefix: "T\u2092", suffix: "\u2103"})
+    await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow TextInput with title, prefix and suffix", async () => {
+    const obj = new TextInput({title: "Initial temperature:", placeholder: "Enter temperature ...", prefix: "T\u2092", suffix: "\u2103"})
+    await display(obj, [500, 100])
+  })
+
   it.allowing(8)("should allow AutocompleteInput", async () => {
     const completions = ["aaa", "aab", "aac", "baa", "caa"]
     const obj = new AutocompleteInput({placeholder: "Enter value ...", completions})

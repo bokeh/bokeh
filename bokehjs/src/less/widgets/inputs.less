@@ -27,6 +27,48 @@
   }
 }
 
+.bk-input-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+  .bk-input-prefix, .bk-input-suffix {
+    display: flex;
+    align-items: center;
+    flex: 0 1 0;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
+    padding: 0 var(--padding-horizontal);
+    background-color: #e6e6e6;
+  }
+
+  .bk-input-prefix {
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .bk-input-suffix {
+    border-left: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .bk-input {
+    flex: 1 0 0;
+  }
+
+  .bk-input:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .bk-input:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+
 input[type=file].bk-input {
   // aligne the button with input's edge
   padding-left: 0;
