@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {Panel} from "@bokehjs/models/layouts/panel"
+import {TabPanel} from "@bokehjs/models/layouts/tab_panel"
 import {Tabs} from "@bokehjs/models/layouts/tabs"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
@@ -11,7 +11,7 @@ describe("Tabs", () => {
       x_range: new Range1d({start: 0, end: 10}),
       y_range: new Range1d({start: 0, end: 10}),
     })
-    const panel = new Panel({child: plot})
+    const panel = new TabPanel({child: plot})
     return new Tabs({tabs: [panel]})
   }
 

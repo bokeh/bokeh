@@ -4,7 +4,7 @@ buttons, groups, inputs, panels, sliders, and tables, using the low-level
 
 .. bokeh-example-metadata::
     :sampledata: autompg2, iris
-    :apis: bokeh.models.AutocompleteInput, bokeh.models.Button, bokeh.models.CheckboxButtonGroup, bokeh.models.CheckboxGroup, bokeh.models.ColorPicker, bokeh.models.Column, bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.DatePicker, bokeh.models.DateRangeSlider, bokeh.models.DateSlider, bokeh.models.Div, bokeh.models.Dropdown, bokeh.models.IntEditor, bokeh.models.MultiChoice, bokeh.models.MultiSelect, bokeh.models.NumberEditor, bokeh.models.NumberFormatter, bokeh.models.Panel, bokeh.models.Paragraph, bokeh.models.PreText, bokeh.models.RadioButtonGroup, bokeh.models.RadioGroup, bokeh.models.RangeSlider, bokeh.models.Row, bokeh.models.Select, bokeh.models.SelectEditor, bokeh.models.Slider, bokeh.models.Spinner, bokeh.models.StringEditor, bokeh.models.StringFormatter, bokeh.models.TableColumn, bokeh.models.Tabs, bokeh.models.TextAreaInput, bokeh.models.TextInput, bokeh.models.Toggle # noqa: E501
+    :apis: bokeh.models.AutocompleteInput, bokeh.models.Button, bokeh.models.CheckboxButtonGroup, bokeh.models.CheckboxGroup, bokeh.models.ColorPicker, bokeh.models.Column, bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.DatePicker, bokeh.models.DateRangeSlider, bokeh.models.DateSlider, bokeh.models.Div, bokeh.models.Dropdown, bokeh.models.IntEditor, bokeh.models.MultiChoice, bokeh.models.MultiSelect, bokeh.models.NumberEditor, bokeh.models.NumberFormatter, bokeh.models.TabPanel, bokeh.models.Paragraph, bokeh.models.PreText, bokeh.models.RadioButtonGroup, bokeh.models.RadioGroup, bokeh.models.RangeSlider, bokeh.models.Row, bokeh.models.Select, bokeh.models.SelectEditor, bokeh.models.Slider, bokeh.models.Spinner, bokeh.models.StringEditor, bokeh.models.StringFormatter, bokeh.models.TableColumn, bokeh.models.Tabs, bokeh.models.TextAreaInput, bokeh.models.TextInput, bokeh.models.Toggle # noqa: E501
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter_markers`
     :keywords: widgets, select, button, slider, figure
 
@@ -18,11 +18,11 @@ from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS,
                           ColumnDataSource, DataTable, DatePicker, DateRangeSlider,
                           DateSlider, Dialog, Div, Dropdown, HelpButton, Inspector,
                           IntEditor, Menu, MultiChoice, MultiSelect, NumberEditor,
-                          NumberFormatter, Panel, Paragraph, PreText, RadioButtonGroup,
-                          RadioGroup, RangeSlider, Row, Select, SelectEditor, SetValue,
-                          Slider, Spinner, StringEditor, StringFormatter, SVGIcon,
-                          Switch, TableColumn, TablerIcon, Tabs, TextAreaInput,
-                          TextInput, Toggle, Tooltip)
+                          NumberFormatter, Paragraph, PreText, RadioButtonGroup,
+                          RadioGroup, RangeSlider, Row, Select, SelectEditor,
+                          SetValue, Slider, Spinner, StringEditor, StringFormatter,
+                          SVGIcon, Switch, TableColumn, TablerIcon, TabPanel, Tabs,
+                          TextAreaInput, TextInput, Toggle, Tooltip)
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
@@ -125,7 +125,7 @@ pre_text = PreText(text="some text")
 def mk_tab(color: str):
     plot = figure(width=300, height=300)
     plot.scatter(flowers["petal_length"], flowers["petal_width"], color=color, fill_alpha=0.2, size=12)
-    return Panel(title=f"Tab 1: {color.capitalize()}", child=plot, closable=True)
+    return TabPanel(title=f"Tab 1: {color.capitalize()}", child=plot, closable=True)
 
 tabs = Tabs(tabs=[mk_tab("red"), mk_tab("green"), mk_tab("blue")])
 

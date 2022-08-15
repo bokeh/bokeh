@@ -23,7 +23,6 @@ from .buttons import *
 from .groups import *
 from .inputs import *
 from .markups import *
-from .panels import *
 from .sliders import *
 from .tables import *
 from .widget import *

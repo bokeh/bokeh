@@ -2,7 +2,7 @@ import {Model} from "../../model"
 import {LayoutDOM} from "./layout_dom"
 import * as p from "core/properties"
 
-export namespace Panel {
+export namespace TabPanel {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
@@ -13,17 +13,17 @@ export namespace Panel {
   }
 }
 
-export interface Panel extends Panel.Attrs {}
+export interface TabPanel extends TabPanel.Attrs {}
 
-export class Panel extends Model {
-  override properties: Panel.Props
+export class TabPanel extends Model {
+  override properties: TabPanel.Props
 
-  constructor(attrs?: Partial<Panel.Attrs>) {
+  constructor(attrs?: Partial<TabPanel.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.define<Panel.Props>(({Boolean, String, Ref}) => ({
+    this.define<TabPanel.Props>(({Boolean, String, Ref}) => ({
       title:    [ String, "" ],
       child:    [ Ref(LayoutDOM) ],
       closable: [ Boolean, false ],

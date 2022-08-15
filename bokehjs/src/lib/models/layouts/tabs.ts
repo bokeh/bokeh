@@ -5,7 +5,7 @@ import {Location} from "core/enums"
 import * as p from "core/properties"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
-import {Panel} from "./panel"
+import {TabPanel} from "./tab_panel"
 
 import tabs_css, * as tabs from "styles/tabs.css"
 import buttons_css, * as buttons from "styles/buttons.css"
@@ -243,7 +243,7 @@ export namespace Tabs {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutDOM.Props & {
-    tabs: p.Property<Panel[]>
+    tabs: p.Property<TabPanel[]>
     tabs_location: p.Property<Location>
     active: p.Property<number>
   }
@@ -263,7 +263,7 @@ export class Tabs extends LayoutDOM {
     this.prototype.default_view = TabsView
 
     this.define<Tabs.Props>(({Int, Array, Ref}) => ({
-      tabs:          [ Array(Ref(Panel)), [] ],
+      tabs:          [ Array(Ref(TabPanel)), [] ],
       tabs_location: [ Location, "above" ],
       active:        [ Int, 0 ],
     }))

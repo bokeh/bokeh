@@ -5,9 +5,9 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (AnnularWedge, Annulus, Arc, Bezier, Circle, Column,
                           ColumnDataSource, Ellipse, Grid, HoverTool, ImageURL,
-                          Line, LinearAxis, MultiLine, MultiPolygons, Panel,
-                          Paragraph, Patch, Patches, Plot, Quad, Quadratic,
-                          Ray, Rect, Scatter, Segment, Tabs, Text, Wedge)
+                          Line, LinearAxis, MultiLine, MultiPolygons, Paragraph,
+                          Patch, Patches, Plot, Quad, Quadratic, Ray, Rect,
+                          Scatter, Segment, TabPanel, Tabs, Text, Wedge)
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
@@ -99,8 +99,7 @@ def make_tab(title, glyph):
 
     plot.add_tools(HoverTool())
 
-    tab = Panel(child=plot, title=title, closable=True)
-
+    tab = TabPanel(child=plot, title=title, closable=True)
     return tab
 
 def make_tabs(objs):

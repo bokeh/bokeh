@@ -71,9 +71,9 @@ __all__ = (
     'GridBox',
     'HTMLBox',
     'LayoutDOM',
-    'Panel',
     'Row',
     'Spacer',
+    'TabPanel',
     'Tabs',
 )
 
@@ -481,7 +481,7 @@ class Column(FlexBox):
             return None
         return sum(x._sphinx_height_hint() for x in self.children)
 
-class Panel(Model):
+class TabPanel(Model):
     ''' A single-widget container with title bar and controls.
 
     '''
@@ -519,10 +519,10 @@ class Tabs(LayoutDOM):
 
     __example__ = "docs/bokeh/source/docs/user_guide/examples/interaction_tab_panes.py"
 
-    tabs = List(Instance(Panel), help="""
+    tabs = List(Instance(TabPanel), help="""
     The list of child panel widgets.
     """).accepts(List(Tuple(String, Instance(LayoutDOM))),
-                 lambda items: [ Panel(title=title, child=child) for (title, child) in items ])
+                 lambda items: [ TabPanel(title=title, child=child) for (title, child) in items ])
 
     tabs_location = Enum(Location, default="above", help="""
     The location of the buttons that activate tabs.

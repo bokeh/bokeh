@@ -1,7 +1,7 @@
 import {expect} from "../unit/assertions"
 import {display, fig, row, grid} from "./_util"
 
-import {Spacer, Tabs, Panel} from "@bokehjs/models/layouts"
+import {Spacer, Tabs, TabPanel} from "@bokehjs/models/layouts"
 import {SizingPolicy} from "@bokehjs/core/layout"
 import {Color} from "@bokehjs/core/types"
 import {Location} from "@bokehjs/core/enums"
@@ -234,7 +234,7 @@ describe("Tabs", () => {
   const panel = (color: string) => {
     const p = fig([100, 100])
     p.circle([0, 5, 10], [0, 5, 10], {size: 5, color})
-    return new Panel({title: color, child: p})
+    return new TabPanel({title: color, child: p})
   }
 
   const tabs = (tabs_location: Location, tabs: string[]) => {
