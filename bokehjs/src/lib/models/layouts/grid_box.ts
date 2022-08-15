@@ -130,8 +130,8 @@ class GridAlignmentLayout extends Layoutable {
       const {inner} = size_hint
 
       if (inner != null) {
-        col_extents[c0].left = max(col_extents[r0].left, inner.left)
-        col_extents[c1].right = max(col_extents[r1].right, inner.right)
+        col_extents[c0].left = max(col_extents[c0].left, inner.left)
+        col_extents[c1].right = max(col_extents[c1].right, inner.right)
 
         row_extents[r0].top = max(row_extents[r0].top, inner.top)
         row_extents[r1].bottom = max(row_extents[r1].bottom, inner.bottom)
