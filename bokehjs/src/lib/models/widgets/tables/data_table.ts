@@ -4,7 +4,7 @@ import {CellExternalCopyManager} from "@bokeh/slickgrid/plugins/slick.cellextern
 
 import {Grid as SlickGrid, DataProvider, SortColumn, OnSortEventArgs, OnSelectedRowsChangedEventArgs} from "@bokeh/slickgrid"
 import * as p from "core/properties"
-import {div, position, StyleSheetLike} from "core/dom"
+import {div, StyleSheetLike} from "core/dom"
 import {uniqueId} from "core/util/string"
 import {isString, isNumber, is_defined} from "core/util/types"
 import {some, range} from "core/util/array"
@@ -133,12 +133,6 @@ export class DataTableView extends WidgetView {
 
   protected wrapper_el: HTMLElement
 
-  override initialize(): void {
-    super.initialize()
-    this.wrapper_el = div({class: tables.data_table})
-    this.shadow_el.appendChild(this.wrapper_el)
-  }
-
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     this.cds_view = await build_view(this.model.view, {parent: this})
@@ -174,18 +168,9 @@ export class DataTableView extends WidgetView {
     return [...super.styles(), slickgrid_css, tables_css]
   }
 
-  override _after_layout(): void {
-    super._after_layout()
-    const style = getComputedStyle(this.el)
-    const width = parseFloat(style.width)
-    const height = parseFloat(style.height)
-    //const {width, height} = this.layout.bbox
-    position(this.wrapper_el, {x: 0, y: 0, width, height})
+  override after_resize(): void {
+    super.after_resize()
     this.grid.resizeCanvas()
-  }
-
-  override after_layout(): void {
-    super.after_layout()
     this.updateLayout(true, false)
   }
 
@@ -285,6 +270,11 @@ export class DataTableView extends WidgetView {
   }
 
   override render(): void {
+    super.render()
+
+    this.wrapper_el = div({class: tables.data_table})
+    this.shadow_el.appendChild(this.wrapper_el)
+
     const columns: ColumnType[] = this.model.columns.filter((column) => column.visible).map((column) => {
       return {...column.toColumn(), parent: this}
     })
