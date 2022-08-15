@@ -1,7 +1,8 @@
 import {expect} from "../unit/assertions"
 import {display, fig, row, grid} from "./_util"
 
-import {Spacer, Tabs, TabPanel} from "@bokehjs/models/layouts"
+import {Spacer, Tabs, TabPanel, GroupBox, Column} from "@bokehjs/models/layouts"
+import {TextInput} from "@bokehjs/models/widgets"
 import {SizingPolicy} from "@bokehjs/core/layout"
 import {Color} from "@bokehjs/core/types"
 import {Location} from "@bokehjs/core/enums"
@@ -421,5 +422,22 @@ describe("gridplot()", () => {
   it("should align axes when toolbar_location=below", async () => {
     const {view} = await display(layout("below"))
     expect(() => view.export()).to.not.throw()
+  })
+})
+
+describe("GroupBox", () => {
+  it.allowing(3*8)("should allow multiple TextInput widgets", async () => {
+    const group_box = new GroupBox({
+      title: "Head offset:",
+      checkable: true,
+      child: new Column({
+        children: [
+          new TextInput({placeholder: "Enter value ...", prefix: "X", suffix: "mm"}),
+          new TextInput({placeholder: "Enter value ...", prefix: "Y", suffix: "mm"}),
+          new TextInput({placeholder: "Enter value ...", prefix: "Z", suffix: "mm"}),
+        ],
+      }),
+    })
+    await display(group_box, [400, 200])
   })
 })

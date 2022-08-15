@@ -92,6 +92,8 @@ export const
   pre      = _createElement("pre"),
   button   = _createElement("button"),
   label    = _createElement("label"),
+  legend   = _createElement("legend"),
+  fieldset = _createElement("fieldset"),
   input    = _createElement("input"),
   select   = _createElement("select"),
   option   = _createElement("option"),

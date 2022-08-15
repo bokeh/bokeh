@@ -16,13 +16,13 @@ from bokeh.embed import file_html
 from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS,
                           CheckboxButtonGroup, CheckboxGroup, ColorPicker, Column,
                           ColumnDataSource, DataTable, DatePicker, DateRangeSlider,
-                          DateSlider, Dialog, Div, Dropdown, HelpButton, Inspector,
-                          IntEditor, Menu, MultiChoice, MultiSelect, NumberEditor,
-                          NumberFormatter, Paragraph, PreText, RadioButtonGroup,
-                          RadioGroup, RangeSlider, Row, Select, SelectEditor,
-                          SetValue, Slider, Spinner, StringEditor, StringFormatter,
-                          SVGIcon, Switch, TableColumn, TablerIcon, TabPanel, Tabs,
-                          TextAreaInput, TextInput, Toggle, Tooltip)
+                          DateSlider, Dialog, Div, Dropdown, GroupBox, HelpButton,
+                          Inspector, IntEditor, Menu, MultiChoice, MultiSelect,
+                          NumberEditor, NumberFormatter, Paragraph, PreText,
+                          RadioButtonGroup, RadioGroup, RangeSlider, Row, Select,
+                          SelectEditor, SetValue, Slider, Spinner, StringEditor,
+                          StringFormatter, SVGIcon, Switch, TableColumn, TablerIcon,
+                          TabPanel, Tabs, TextAreaInput, TextInput, Toggle, Tooltip)
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
@@ -116,6 +116,18 @@ This is an <b>on</b> or <b>off</b> style of widget.
 Right click on the widget to display the context menu.
 """), position="right"))
 
+group_box = GroupBox(
+    title="Head offset:",
+    checkable=True,
+    child=Column(
+        children=[
+            TextInput(prefix="X", suffix="mm"),
+            TextInput(prefix="Y", suffix="mm"),
+            TextInput(prefix="Z", suffix="mm"),
+        ],
+    ),
+)
+
 paragraph = Paragraph(text="some text")
 
 div = Div(text="some <b>text</b>")
@@ -180,6 +192,7 @@ widgets = Column(children=[
             slider, range_slider, date_slider, date_range_slider,
             spinner, color_picker, date_picker,
             Row(children=[switch_0, switch_1, switch_help]),
+            group_box,
             paragraph, div, pre_text,
         ]),
         tabs,

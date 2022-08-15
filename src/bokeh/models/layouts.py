@@ -69,6 +69,7 @@ __all__ = (
     'Column',
     'FlexBox',
     'GridBox',
+    'GroupBox',
     'LayoutDOM',
     'Row',
     'Spacer',
@@ -519,6 +520,30 @@ class Tabs(LayoutDOM):
 
     active = Int(0, help="""
     The index of the active tab.
+    """)
+
+class GroupBox(LayoutDOM):
+    ''' A panel that allows to group UI elements.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    title = Nullable(String, help="""
+    The title text of the group. If not provided, only the frame will be showed.
+    """)
+
+    child = Instance(LayoutDOM, help="""
+    The child UI element. This can be a single UI control, widget, etc., or
+    a container layout like ``Column`` or ``Row``, or a combitation of layouts.
+    """)
+
+    checkable = Bool(False, help="""
+    Whether to allow disabling this group (all its children) via a checkbox
+    in the UI. This allows to broadcast ``disabled`` state across multiple
+    UI controls that support that state.
     """)
 
 #-----------------------------------------------------------------------------

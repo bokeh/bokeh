@@ -1,6 +1,7 @@
 export {Column}    from "./column"
 export {FlexBox}   from "./flex_box"
 export {GridBox}   from "./grid_box"
+export {GroupBox}  from "./group_box"
 export {LayoutDOM} from "./layout_dom"
 export {Row}       from "./row"
 export {Spacer}    from "./spacer"
