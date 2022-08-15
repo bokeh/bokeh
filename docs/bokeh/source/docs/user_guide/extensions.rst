@@ -46,15 +46,15 @@ Here's a simple example that creates a custom readout for a slider:
 .. code-block:: python
 
     from bokeh.core.properties import String, Instance
-    from bokeh.models import HTMLBox, Slider
+    from bokeh.models import UIElement, Slider
 
-    class Custom(HTMLBox):
+    class Custom(UIElement):
 
         text = String(default="Custom text")
 
         slider = Instance(Slider)
 
-This example creates a subclass from :class:`~bokeh.models.layouts.HTMLBox` to
+This example creates a subclass from :class:`~bokeh.models.ui.UIElement` to
 allow the extension to integrate into the DOM layout. It also adds two
 properties:
 
@@ -81,25 +81,24 @@ the final BokehJS scripts.
 
 .. code-block:: typescript
 
-    import {HTMLBox, HTMLBoxView} from "models/layouts/html_box"
+    import {UIElement, UIElementView} from "models/ui/ui_element"
 
     import {div} from "core/dom"
     import * as p from "core/properties"
 
-    export class CustomView extends HTMLBoxView {
+    export class CustomView extends UIElementView {
 
-      connect_signals(): void {
+      override connect_signals(): void {
         super.connect_signals()
 
         // Set BokehJS listener so that the program can process new data when
         // the slider has a change event.
         this.connect(this.model.slider.change, () => {
           this.render()
-          this.invalidate_layout()
         })
       }
 
-      render(): void {
+      override render(): void {
         // BokehJS views create <div> elements by default. These are accessible
         // as ``this.el``. Many Bokeh views ignore the default <div> and
         // instead do things like draw to the HTML canvas. In this case though,
@@ -117,7 +116,7 @@ the final BokehJS scripts.
       }
     }
 
-    export class Custom extends HTMLBox {
+    export class Custom extends UIElement {
       slider: {value: string}
 
       // Generally, the ``__name__`` class attribute should match the name of
@@ -161,9 +160,9 @@ called ``custom.ts``, the complete Python class might look like this:
 .. code-block:: python
 
     from bokeh.core.properties import String, Instance
-    from bokeh.models import HTMLBox, Slider
+    from bokeh.models import UIElement, Slider
 
-    class Custom(HTMLBox):
+    class Custom(UIElement):
 
         __implementation__ = "custom.ts"
 
