@@ -1,26 +1,26 @@
-from bokeh.core.properties import Instance, Override, String
+from bokeh.core.properties import Instance, Required, String
 from bokeh.io import show
 from bokeh.layouts import column
-from bokeh.models import HTMLBox, Slider
+from bokeh.models import Slider, UIElement
 from bokeh.util.compiler import TypeScript
 
-CODE ="""
-import {HTMLBox, HTMLBoxView} from "models/layouts/html_box"
+CODE = """
+import {UIElement, UIElementView} from "models/ui/ui_element"
 import {Slider} from "models/widgets/slider"
 import {div} from "core/dom"
 import * as p from "core/properties"
 
-export class CustomView extends HTMLBoxView {
+export class CustomView extends UIElementView {
   model: Custom
 
   private content_el: HTMLElement
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.slider.change, () => this._update_text())
   }
 
-  render(): void {
+  override render(): void {
     // BokehJS views create <div> elements by default. These are accessible
     // as ``this.el``. Many Bokeh views ignore the default <div> and
     // instead do things like draw to the HTML canvas. In this case though,
@@ -48,7 +48,7 @@ export class CustomView extends HTMLBoxView {
 export namespace Custom {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = HTMLBox.Props & {
+  export type Props = UIElement.Props & {
     text: p.Property<string>
     slider: p.Property<Slider>
   }
@@ -56,7 +56,7 @@ export namespace Custom {
 
 export interface Custom extends Custom.Attrs {}
 
-export class Custom extends HTMLBox {
+export class Custom extends UIElement {
   properties: Custom.Props
   __view_type__: CustomView
 
@@ -75,30 +75,20 @@ export class Custom extends HTMLBox {
     // JS implementation. Where JS lacks a given type, you can use
     // ``p.Any`` as a "wildcard" property type.
     this.define<Custom.Props>(({String, Ref}) => ({
-      text:   [ String ],
+      text:   [ String, "Custom text" ],
       slider: [ Ref(Slider) ],
     }))
-
-    this.override<Custom.Props>({
-      margin: 5,
-    })
-
   }
 }
 """
 
-
-class Custom(HTMLBox):
+class Custom(UIElement):
 
     __implementation__ = TypeScript(CODE)
 
     text = String(default="Custom text")
 
-    slider = Instance(Slider)
-
-    margin = Override(default=(5, 5, 5, 5))
-
-
+    slider = Required(Instance(Slider))
 
 slider = Slider(start=0, end=10, step=0.1, value=0, title="value")
 
