@@ -1,6 +1,6 @@
 import colorcet as cc
 from numpy import linspace
-from scipy.stats.kde import gaussian_kde
+from scipy.stats import gaussian_kde
 
 from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, FixedTicker, PrintfTickFormatter

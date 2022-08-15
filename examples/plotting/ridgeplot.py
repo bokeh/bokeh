@@ -15,7 +15,7 @@ to the prompt *What probability would you assign to the phrase "Highly likely"*.
 '''
 import colorcet as cc
 from numpy import linspace
-from scipy.stats.kde import gaussian_kde
+from scipy.stats import gaussian_kde
 
 from bokeh.models import ColumnDataSource, FixedTicker, PrintfTickFormatter
 from bokeh.plotting import figure, show
