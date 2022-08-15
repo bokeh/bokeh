@@ -1,4 +1,4 @@
-import {InputGroup, InputGroupView} from "./input_group"
+import {ToggleInputGroup, ToggleInputGroupView} from "./toggle_input_group"
 
 import {input, label, div, span} from "core/dom"
 import {includes} from "core/util/array"
@@ -6,7 +6,7 @@ import * as p from "core/properties"
 
 import * as inputs from "styles/widgets/inputs.css"
 
-export class CheckboxGroupView extends InputGroupView {
+export class CheckboxGroupView extends ToggleInputGroupView {
   override model: CheckboxGroup
 
   override render(): void {
@@ -44,7 +44,7 @@ export class CheckboxGroupView extends InputGroupView {
 export namespace CheckboxGroup {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = InputGroup.Props & {
+  export type Props = ToggleInputGroup.Props & {
     active: p.Property<number[]>
     labels: p.Property<string[]>
     inline: p.Property<boolean>
@@ -53,7 +53,7 @@ export namespace CheckboxGroup {
 
 export interface CheckboxGroup extends CheckboxGroup.Attrs {}
 
-export class CheckboxGroup extends InputGroup {
+export class CheckboxGroup extends ToggleInputGroup {
   override properties: CheckboxGroup.Props
   override __view_type__: CheckboxGroupView
 

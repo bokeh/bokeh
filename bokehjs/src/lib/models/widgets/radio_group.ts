@@ -2,11 +2,11 @@ import {input, label, div, span} from "core/dom"
 import {uniqueId} from "core/util/string"
 import * as p from "core/properties"
 
-import {InputGroup, InputGroupView} from "./input_group"
+import {ToggleInputGroup, ToggleInputGroupView} from "./toggle_input_group"
 
 import * as inputs from "styles/widgets/inputs.css"
 
-export class RadioGroupView extends InputGroupView {
+export class RadioGroupView extends ToggleInputGroupView {
   override model: RadioGroup
 
   override render(): void {
@@ -42,7 +42,7 @@ export class RadioGroupView extends InputGroupView {
 export namespace RadioGroup {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = InputGroup.Props & {
+  export type Props = ToggleInputGroup.Props & {
     active: p.Property<number | null>
     labels: p.Property<string[]>
     inline: p.Property<boolean>
@@ -51,7 +51,7 @@ export namespace RadioGroup {
 
 export interface RadioGroup extends RadioGroup.Attrs {}
 
-export class RadioGroup extends InputGroup {
+export class RadioGroup extends ToggleInputGroup {
   override properties: RadioGroup.Props
   override __view_type__: RadioGroupView
 

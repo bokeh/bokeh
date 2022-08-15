@@ -6,8 +6,8 @@ import * as p from "core/properties"
 
 import buttons_css, * as buttons from "styles/buttons.css"
 
-export abstract class ButtonGroupView extends OrientedControlView {
-  override model: ButtonGroup
+export abstract class ToggleButtonGroupView extends OrientedControlView {
+  override model: ToggleButtonGroup
 
   protected override get default_size(): number | null {
     return this.model.orientation == "horizontal" ? super.default_size : null
@@ -58,7 +58,7 @@ export abstract class ButtonGroupView extends OrientedControlView {
   protected abstract _update_active(): void
 }
 
-export namespace ButtonGroup {
+export namespace ToggleButtonGroup {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = OrientedControl.Props & {
@@ -67,18 +67,18 @@ export namespace ButtonGroup {
   }
 }
 
-export interface ButtonGroup extends ButtonGroup.Attrs {}
+export interface ToggleButtonGroup extends ToggleButtonGroup.Attrs {}
 
-export abstract class ButtonGroup extends OrientedControl {
-  override properties: ButtonGroup.Props & {active: p.Property<unknown>}
-  override __view_type__: ButtonGroupView
+export abstract class ToggleButtonGroup extends OrientedControl {
+  override properties: ToggleButtonGroup.Props & {active: p.Property<unknown>}
+  override __view_type__: ToggleButtonGroupView
 
-  constructor(attrs?: Partial<ButtonGroup.Attrs>) {
+  constructor(attrs?: Partial<ToggleButtonGroup.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.define<ButtonGroup.Props>(({String, Array}) => ({
+    this.define<ToggleButtonGroup.Props>(({String, Array}) => ({
       labels:      [ Array(String), [] ],
       button_type: [ ButtonType, "default" ],
     }))

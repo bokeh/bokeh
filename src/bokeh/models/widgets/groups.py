@@ -39,12 +39,12 @@ from .widget import Widget
 
 __all__ = (
     'AbstractGroup',
-    'ButtonGroup',
     'CheckboxButtonGroup',
     'CheckboxGroup',
-    'Group',
     'RadioButtonGroup',
     'RadioGroup',
+    'ToggleButtonGroup',
+    'ToggleInputGroup',
 )
 
 #-----------------------------------------------------------------------------
@@ -66,7 +66,7 @@ class AbstractGroup(Widget):
     """)
 
 @abstract
-class ButtonGroup(AbstractGroup, ButtonLike):
+class ToggleButtonGroup(AbstractGroup, ButtonLike):
     ''' Abstract base class for groups with items rendered as buttons.
 
     '''
@@ -80,7 +80,7 @@ class ButtonGroup(AbstractGroup, ButtonLike):
     """)
 
 @abstract
-class Group(AbstractGroup):
+class ToggleInputGroup(AbstractGroup):
     ''' Abstract base class for groups with items rendered as check/radio
     boxes.
 
@@ -99,7 +99,7 @@ class Group(AbstractGroup):
 # General API
 #-----------------------------------------------------------------------------
 
-class CheckboxGroup(Group):
+class CheckboxGroup(ToggleInputGroup):
     ''' A group of check boxes.
 
     '''
@@ -112,7 +112,7 @@ class CheckboxGroup(Group):
     The list of indices of selected check boxes.
     """)
 
-class RadioGroup(Group):
+class RadioGroup(ToggleInputGroup):
     ''' A group of radio boxes.
 
     '''
@@ -125,7 +125,7 @@ class RadioGroup(Group):
     The index of the selected radio box, or ``None`` if nothing is selected.
     """)
 
-class CheckboxButtonGroup(ButtonGroup):
+class CheckboxButtonGroup(ToggleButtonGroup):
     ''' A group of check boxes rendered as toggle buttons.
 
     '''
@@ -138,7 +138,7 @@ class CheckboxButtonGroup(ButtonGroup):
     The list of indices of selected check boxes.
     """)
 
-class RadioButtonGroup(ButtonGroup):
+class RadioButtonGroup(ToggleButtonGroup):
     ''' A group of radio boxes rendered as toggle buttons.
 
     '''

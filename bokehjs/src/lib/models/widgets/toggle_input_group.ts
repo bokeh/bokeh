@@ -4,8 +4,8 @@ import * as p from "core/properties"
 
 import inputs_css from "styles/widgets/inputs.css"
 
-export abstract class InputGroupView extends ControlView {
-  override model: InputGroup
+export abstract class ToggleInputGroupView extends ControlView {
+  override model: ToggleInputGroup
 
   protected _inputs: HTMLInputElement[]
   *controls() {
@@ -22,19 +22,19 @@ export abstract class InputGroupView extends ControlView {
   }
 }
 
-export namespace InputGroup {
+export namespace ToggleInputGroup {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Control.Props
 }
 
-export interface InputGroup extends InputGroup.Attrs {}
+export interface ToggleInputGroup extends ToggleInputGroup.Attrs {}
 
-export abstract class InputGroup extends Control {
-  override properties: InputGroup.Props & {active: p.Property<unknown>}
-  override __view_type__: InputGroupView
+export abstract class ToggleInputGroup extends Control {
+  override properties: ToggleInputGroup.Props & {active: p.Property<unknown>}
+  override __view_type__: ToggleInputGroupView
 
-  constructor(attrs?: Partial<InputGroup.Attrs>) {
+  constructor(attrs?: Partial<ToggleInputGroup.Attrs>) {
     super(attrs)
   }
 }
