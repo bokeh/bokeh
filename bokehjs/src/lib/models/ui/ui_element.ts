@@ -103,6 +103,11 @@ export abstract class UIElementView extends DOMComponentView {
     this.finish()
   }
 
+  override render_to(element: Node): void {
+    super.render_to(element)
+    this.after_render()
+  }
+
   override render(): void {
     super.render()
     this._apply_stylesheets(this.model.stylesheets)

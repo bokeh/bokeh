@@ -268,7 +268,7 @@ export abstract class LayoutDOMView extends UIElementView {
     this.finish()
   }
 
-  override renderTo(element: Node): void {
+  override render_to(element: Node): void {
     element.appendChild(this.el)
     this.build()
     this.notify_finished()

@@ -20,7 +20,7 @@ export async function add_document_standalone(document: Document, element: HTMLE
     if (view instanceof DOMView) {
       const i = document.roots().indexOf(model)
       const root_el = roots[i] ?? element
-      view.renderTo(root_el)
+      view.render_to(root_el)
     }
 
     views.add(view)
