@@ -176,6 +176,8 @@ The sections below are examples for all widgets available in Bokeh. Many of the
 examples print output that can be observed by looking at your browser's
 JavaScript console log.
 
+.. _userguide_interaction_widgets_examples_autocompleteinput:
+
 AutocompleteInput
 ~~~~~~~~~~~~~~~~~
 
@@ -236,6 +238,8 @@ A standard checkbox:
 
 More information can be found in the reference guide entry for |CheckboxGroup|.
 
+.. _userguide_interaction_widgets_examples_colorpicker:
+
 ColorPicker
 ~~~~~~~~~~~
 
@@ -260,6 +264,8 @@ plot and the table (even in static HTML documents).
     :source-position: below
 
 More information can be found in the reference guide entry for |DataTable|.
+
+.. _userguide_interaction_widgets_examples_datepicker:
 
 DatePicker
 ~~~~~~~~~~~
@@ -321,6 +327,8 @@ dropdown button can also use an :class:`~bokeh.models.Icon` (such as
 
 More information can be found in the reference guide entry for |Dropdown|.
 
+.. _userguide_interaction_widgets_examples_fileinput:
+
 FileInput
 ~~~~~~~~~
 
@@ -349,6 +357,8 @@ The default behavior of the help button's tooltip is as follows:
 
 More information can be found in the reference guide entry for |HelpButton|.
 
+.. _userguide_interaction_widgets_examples_multichoice:
+
 MultiChoice
 ~~~~~~~~~~~
 
@@ -360,6 +370,8 @@ horizontal layout:
 
 More information can be found in the reference guide entry for |MultiChoice|.
 
+.. _userguide_interaction_widgets_examples_multiselect:
+
 MultiSelect
 ~~~~~~~~~~~
 
@@ -369,6 +381,8 @@ A multi-select widget to present multiple available options in vertical list:
     :source-position: below
 
 More information can be found in the reference guide entry for |MultiSelect|.
+
+.. _userguide_interaction_widgets_examples_numericinput:
 
 NumericInput
 ~~~~~~~~~~~~
@@ -391,6 +405,8 @@ A widget for displaying a block of text in an HTML <p> tag:
     :source-position: below
 
 More information can be found in the reference guide entry for |Paragraph|.
+
+.. _userguide_interaction_widgets_examples_passwordinput:
 
 PasswordInput
 ~~~~~~~~~~~~~
@@ -445,6 +461,8 @@ an initial ``value``, and a ``title``:
 
 More information can be found in the reference guide entry for |RangeSlider|.
 
+.. _userguide_interaction_widgets_examples_select:
+
 Select
 ~~~~~~
 
@@ -468,6 +486,8 @@ an initial ``value``, and a ``title``:
 
 More information can be found in the reference guide entry for |Slider|.
 
+.. _userguide_interaction_widgets_examples_spinner:
+
 Spinner
 ~~~~~~~
 
@@ -477,6 +497,8 @@ A numeric spinner widget:
     :source-position: below
 
 More information can be found in the reference guide entry for |Spinner|.
+
+.. _userguide_interaction_widgets_examples_switch:
 
 Switch
 ~~~~~~
@@ -498,6 +520,8 @@ Tab panes allow multiple plots or layouts to be shown in selectable tabs:
 
 More information can be found in the reference guide entry for |Tabs|.
 
+.. _userguide_interaction_widgets_examples_textareainput:
+
 TextAreaInput
 ~~~~~~~~~~~~~
 
@@ -507,6 +531,8 @@ A widget for collecting multiple lines of text from a user:
     :source-position: below
 
 More information can be found in the reference guide entry for |TextAreaInput|.
+
+.. _userguide_interaction_widgets_examples_textinput:
 
 TextInput
 ~~~~~~~~~

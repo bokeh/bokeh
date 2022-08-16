@@ -3,16 +3,16 @@
 Adding tooltips
 ===============
 
-Bokeh supports tooltips on a wide range of UI elements, such as plots
-or widgets. You can use tooltips to attach additional information to almost all
-parts of your visualization.
+Bokeh supports tooltips on a wide range of UI elements, such as plots or
+widgets. You can use tooltips to attach additional information to almost any
+part of your visualization.
 
 A special case of a tooltip are the tooltips displayed by the
 :ref:`userguide_tools_hover_tool`. Use the hover tool in case you want to
 display tooltips on hover over certain areas of a plot. This tool uses Bokeh's
 generic tooltip object behind the scenes, but contains many additional,
-specialized features. For more information on configuring a tooltip on a plot
-with the HoverTool, see the :ref:`userguide_hover_custom_tooltip` section for
+specialized features. For more information about configuring a tooltip on a plot
+with the HoverTool, see the :ref:`userguide_tools_basic_tooltips` section for
 more information.
 
 The Tooltip object
@@ -29,7 +29,7 @@ information.
 Tooltip contents
 ----------------
 
-The content of a tooltip is defined with the tooltip's ``content`` property.
+The content of a ``Tooltip`` is defined with its ``content`` property.
 
 This content either be a plaintext string or a HTML object:
 
@@ -42,27 +42,74 @@ This content either be a plaintext string or a HTML object:
     from bokeh.io import show
 
     plaintext_tooltip = Tooltip(content="plain text tooltip", position="right")
-    html_tooltip = Tooltip(content=HTML("<p>HTML tooltip</p>"), position="right")
+    html_tooltip = Tooltip(content=HTML("<b>HTML</b> tooltip"), position="right")
 
     input_with_plaintext_tooltip = TextInput(value="default", title="Label:", description=plaintext_tooltip)
     input_with_html_tooltip = TextInput(value="default", title="Label2:", description=html_tooltip)
 
     show(column(input_with_plaintext_tooltip, input_with_html_tooltip))
 
+Hover over or tap the "?" Symbol next to the inputs' titles to see the
+tooltips in action.
+
+.. note::
+    Currently, the ``Tooltip`` object requires at minimum the ``content`` and
+    ``position`` properties to be set. The tooltip will not be rendered if
+    either of those two properties does not have a value.
 
 UI elements supporting tooltips
 -------------------------------
 
-input widgets
-~~~~~~~~~~~~~
-ALMOST all children of InputWidget:
-Tooltip, AutocompleteInput, ColorPicker, DatePicker, MultiChoice, MultiSelect, NumericInput, PasswordInput, Select, Spinner, TextAreaInput, TextInput
+Several of Bokeh's objects have built-in support for tooltips.
 
-Symbol displayed next to the title - only works if title has a value, otherwise silently ignored! [TBD: do we want to throw an error or a warning if a description is defined, but not a title?]
+Input widgets
+~~~~~~~~~~~~~
+
+All descendants of the :class:`~bokeh.models.InputWidget` base class have
+built-in support for tooltips. These inputs have a ``description`` property
+that takes a :class:`~bokeh.models.Tooltip` object as its value. The tooltips
+defined by the ``description`` property are displayed when a user hovers or
+taps the "?" symbol next to the input widget's title:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.io import show
+    from bokeh.models import MultiChoice, Tooltip
+
+    OPTIONS = ["foo", "bar", "baz", "quux"]
+
+    tooltip = Tooltip(content="Choose any number of the predefined items", position="right")
+
+    multi_choice = MultiChoice(value=OPTIONS[:2], options=OPTIONS, title="Choose values:", description=tooltip)
+
+    show(multi_choice)
 
 .. note::
-    a single instance of ``Tooltip`` should only be used once. If two widgets
-    reference the same instance of a Tooltip, only the first will be displayed:
+    Since this functionality is tied to the input widget's title, this only
+    works if the widget's ``title`` parameter has a value. If the widget has no
+    title, the tooltip defined with the ``description`` parameter will not be
+    displayed.
+
+Currently, the following input widgets support tooltips directly:
+
+* :ref:`userguide_interaction_widgets_examples_autocompleteinput`
+* :ref:`userguide_interaction_widgets_examples_colorpicker`
+* :ref:`userguide_interaction_widgets_examples_datepicker`
+* :ref:`userguide_interaction_widgets_examples_fileinput`
+* :ref:`userguide_interaction_widgets_examples_multichoice`
+* :ref:`userguide_interaction_widgets_examples_multiselect`
+* :ref:`userguide_interaction_widgets_examples_numericinput`
+* :ref:`userguide_interaction_widgets_examples_passwordinput`
+* :ref:`userguide_interaction_widgets_examples_select`
+* :ref:`userguide_interaction_widgets_examples_spinner`
+* :ref:`userguide_interaction_widgets_examples_textareainput`
+* :ref:`userguide_interaction_widgets_examples_textinput`
+
+.. warning::
+    A single instance of ``Tooltip`` should only be used once. If two widgets
+    reference the same instance of a Tooltip, only the first one will be
+    displayed:
 
     .. bokeh-plot::
         :source-position: above
@@ -71,14 +118,15 @@ Symbol displayed next to the title - only works if title has a value, otherwise 
         from bokeh.layouts import column
         from bokeh.io import show
 
-        tooltip=Tooltip(content="A tooltip", position="right")
+        tooltip=Tooltip(content="Enter a value", position="right")
         input_widgets = [
             AutocompleteInput(value="AutocompleteInput", title="Choose value:", description=tooltip),  # tooltip displayed here
             ColorPicker(color="red", title="Choose color:", description=tooltip),  # no tooltip displayed here
         ]
         show(column(input_widgets))
 
-    Instead, make sure to use a different Tooltip instance for each widget.
+    Instead, make sure to use a different instance of ``Tooltip`` for each
+    widget.
 
 HelpButton
 ~~~~~~~~~~
