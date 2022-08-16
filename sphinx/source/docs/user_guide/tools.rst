@@ -714,6 +714,9 @@ below:
 .. bokeh-plot:: docs/user_guide/examples/tools_hover_custom_tooltip.py
     :source-position: above
 
+.. seealso::
+    See :ref:`userguide_interaction_tooltips` for more general information on
+    using tooltips with Bokeh.
 
 .. _userguide_tools_edit:
 
