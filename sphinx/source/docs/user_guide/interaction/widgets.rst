@@ -478,6 +478,16 @@ A numeric spinner widget:
 
 More information can be found in the reference guide entry for |Spinner|.
 
+Switch
+~~~~~~
+
+An on/off toggle switch:
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_switch.py
+    :source-position: below
+
+More information can be found in the reference guide entry for |Switch|.
+
 Tabs
 ~~~~
 
@@ -548,6 +558,7 @@ More information can be found in the reference guide entry for |Toggle|.
 .. |Select|                 replace:: :class:`~bokeh.models.widgets.inputs.Select`
 .. |Slider|                 replace:: :class:`~bokeh.models.widgets.sliders.Slider`
 .. |Spinner|                replace:: :class:`~bokeh.models.widgets.inputs.Spinner`
+.. |Switch|                 replace:: :class:`~bokeh.models.widgets.inputs.Switch`
 .. |Tabs|                   replace:: :class:`~bokeh.models.layouts.Tabs`
 .. |TextAreaInput|          replace:: :class:`~bokeh.models.widgets.inputs.TextAreaInput`
 .. |TextInput|              replace:: :class:`~bokeh.models.widgets.inputs.TextInput`
