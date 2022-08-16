@@ -92,7 +92,8 @@ page_step_multiplier = ValueOf(obj=spinner, attr="page_step_multiplier")
 tooltip_0 = Tooltip(content=HTML(f"""\
 <b>Click</b> on arrows to increment/decrement the value or
 <br>
-<b>press</b> for quicker updates with a value multiplier (currently <ref id="{page_step_multiplier.id}"></ref>).
+<b>press</b> page up / page down keys for quicker updates with a value multiplier
+(currently <ref id="{page_step_multiplier.id}"></ref>).
 """, refs=[page_step_multiplier]), position="right", target=spinner, closable=True, visible=True)
 
 tooltip_1 = Tooltip(content=HTML("""\

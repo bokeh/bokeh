@@ -159,7 +159,7 @@ class ValueOf(Placeholder):
     """)
 
     attr: str = Required(String, help="""
-    The name of the property whose value will be observerd.
+    The name of the property whose value will be observed.
     """)
 
     @error(NOT_A_PROPERTY_OF)
