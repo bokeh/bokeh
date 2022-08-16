@@ -1,5 +1,5 @@
 attrs:
-  figure:
+  Plot:
     background_fill_color: "#eeeeee"
     width: 1200
     toolbar_location: "left"

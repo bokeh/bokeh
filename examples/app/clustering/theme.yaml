@@ -1,5 +1,5 @@
 attrs:
-  Figure:
+  Plot:
     width: 400
     height: 400
     background_fill_color: 'lightgrey'

@@ -107,7 +107,7 @@ class Theme:
         .. code-block:: yaml
 
             attrs:
-                figure:
+                Plot:
                     background_fill_color: '#2F2F2F'
                     border_fill_color: '#2F2F2F'
                     outline_line_color: '#444444'
@@ -125,7 +125,7 @@ class Theme:
 
             {
             'attrs' : {
-                'figure' : {
+                'Plot': {
                     'background_fill_color': '#2F2F2F',
                     'border_fill_color': '#2F2F2F',
                     'outline_line_color': '#444444',
@@ -187,7 +187,7 @@ class Theme:
         if "Figure" in self._json['attrs']:
             self._json['attrs']['figure'] = self._json['attrs']['Figure']
             del self._json['attrs']['Figure']
-            deprecated((3,0,0), "Use of 'Figure' as a key in Theme attributes", "'figure' (lower-case) as a key")
+            deprecated((3, 0, 0), "Use of 'Figure' as a key in Theme attributes", "'figure' (lower-case) as a key")
 
         self._line_defaults = self._json.get('line_defaults', _empty_dict)
         self._fill_defaults = self._json.get('fill_defaults', _empty_dict)

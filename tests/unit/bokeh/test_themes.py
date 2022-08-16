@@ -289,7 +289,7 @@ class TestThemes:
         doc = Document()
         doc.add_root(obj)
         doc.theme = DARK_MINIMAL
-        assert "#20262B" == doc.theme._json['attrs']['figure']['background_fill_color']
+        assert "#20262B" == doc.theme._json['attrs']['Plot']['background_fill_color']
 
     def test_setting_built_in_theme_missing(self) -> None:
         obj = SomeModel()

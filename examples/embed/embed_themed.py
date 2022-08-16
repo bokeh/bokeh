@@ -23,7 +23,7 @@ p.legend.background_fill_color = "#3f3f3f"
 
 theme = Theme(json={
     'attrs': {
-        'figure': {
+        'Plot': {
             'background_fill_color': '#3f3f3f',
             'border_fill_color': '#3f3f3f',
             'outline_line_color': '#444444'
